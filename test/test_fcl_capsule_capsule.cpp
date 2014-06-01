@@ -48,7 +48,7 @@
 #include <fcl/shape/geometric_shapes.h>
 
 using namespace fcl;
-typedef boost::shared_ptr <fcl::CollisionGeometry> CollisionGeometryPtr_t;
+typedef boost::shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
 
 BOOST_AUTO_TEST_CASE(distance_capsulecapsule_origin)
 {
@@ -62,8 +62,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_origin)
   CollisionObject o2 (s2, tf2);
 
   // Enable computation of nearest points
-  fcl::DistanceRequest distanceRequest (true);
-  fcl::DistanceResult distanceResult;
+  DistanceRequest distanceRequest (true);
+  DistanceResult distanceResult;
 
   distance (&o1, &o2, distanceRequest, distanceResult);
 
@@ -89,8 +89,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformXY)
   CollisionObject o2 (s2, tf2);
 
   // Enable computation of nearest points
-  fcl::DistanceRequest distanceRequest (true);
-  fcl::DistanceResult distanceResult;
+  DistanceRequest distanceRequest (true);
+  DistanceResult distanceResult;
 
   distance (&o1, &o2, distanceRequest, distanceResult);
 
@@ -117,8 +117,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ)
   CollisionObject o2 (s2, tf2);
 
   // Enable computation of nearest points
-  fcl::DistanceRequest distanceRequest (true);
-  fcl::DistanceResult distanceResult;
+  DistanceRequest distanceRequest (true);
+  DistanceResult distanceResult;
 
   distance (&o1, &o2, distanceRequest, distanceResult);
 
@@ -146,8 +146,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2)
   CollisionObject o2 (s2, tf2);
 
   // Enable computation of nearest points
-  fcl::DistanceRequest distanceRequest (true);
-  fcl::DistanceResult distanceResult;
+  DistanceRequest distanceRequest (true);
+  DistanceResult distanceResult;
 
   distance (&o1, &o2, distanceRequest, distanceResult);
 
@@ -160,8 +160,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2)
 	    << ", p2 = " << distanceResult.nearest_points [1]
 	    << ", distance = " << distanceResult.min_distance << std::endl;
 
-  const fcl::Vec3f& p1 = distanceResult.nearest_points [0];
-  const fcl::Vec3f& p2 = distanceResult.nearest_points [1];
+  const Vec3f& p1 = distanceResult.nearest_points [0];
+  const Vec3f& p2 = distanceResult.nearest_points [1];
 
   BOOST_CHECK_CLOSE(distanceResult.min_distance, 10.1, 1e-6);
   CHECK_CLOSE_TO_0 (p1 [0], 1e-4);
