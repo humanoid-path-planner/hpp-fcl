@@ -184,8 +184,8 @@ public:
   Vecnf<3> sample() const
   {
     Vecnf<3> q;
-    q[0] = rng.uniformReal(lower_bound[0], lower_bound[1]);
-    q[1] = rng.uniformReal(lower_bound[1], lower_bound[2]);
+    q[0] = rng.uniformReal(lower_bound[0], upper_bound[0]);
+    q[1] = rng.uniformReal(lower_bound[1], upper_bound[1]);
     q[2] = rng.uniformReal(-boost::math::constants::pi<FCL_REAL>(),
                            boost::math::constants::pi<FCL_REAL>());
 
