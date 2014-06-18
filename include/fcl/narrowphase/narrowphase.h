@@ -557,7 +557,7 @@ struct GJKSolver_indep
       if(distance) *distance = (w0 - w1).length();
       
       if(p1) *p1 = w0;
-      if(p2) *p2 = shape.toshape0.transform(w1);
+      if(p2) *p2 = w1;
       
       return true;
     }
