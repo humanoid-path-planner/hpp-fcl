@@ -46,13 +46,20 @@
 #include <fcl/collision_object.h>
 #include <fcl/shape/geometric_shapes.h>
 
-using namespace fcl;
-typedef boost::shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
+typedef boost::shared_ptr <fcl::CollisionGeometry> CollisionGeometryPtr_t;
+
+using fcl::Transform3f;
+using fcl::Quaternion3f;
+using fcl::Vec3f;
+using fcl::CollisionObject;
+using fcl::DistanceResult;
+using fcl::DistanceRequest;
+using fcl::GST_INDEP;
 
 BOOST_AUTO_TEST_CASE(distance_box_box_1)
 {
-  CollisionGeometryPtr_t s1 (new Box (6, 10, 2));
-  CollisionGeometryPtr_t s2 (new Box (2, 2, 2));
+  CollisionGeometryPtr_t s1 (new fcl::Box (6, 10, 2));
+  CollisionGeometryPtr_t s2 (new fcl::Box (2, 2, 2));
 
   Transform3f tf1;
   Transform3f tf2 (Vec3f(25, 20, 5));
@@ -64,11 +71,13 @@ BOOST_AUTO_TEST_CASE(distance_box_box_1)
   DistanceRequest distanceRequest (true, 0, 0, GST_INDEP);
   DistanceResult distanceResult;
 
-  distance (&o1, &o2, distanceRequest, distanceResult);
+  fcl::distance (&o1, &o2, distanceRequest, distanceResult);
 
-  std::cerr << "Applied translation on two boxes";
-  std::cerr << " T1 = " << tf1.getTranslation()
-	    << ", T2 = " << tf2.getTranslation() << std::endl;
+  std::cerr << "Applied transformations on two boxes" << std::endl;
+  std::cerr << " T1 = " << tf1.getTranslation() << std::endl
+	    << " R1 = " << tf1.getRotation () << std::endl
+	    << " T2 = " << tf2.getTranslation() << std::endl
+	    << " R2 = " << tf2.getRotation () << std::endl;
   std::cerr << "Closest points: p1 = " << distanceResult.nearest_points [0]
 	    << ", p2 = " << distanceResult.nearest_points [1]
 	    << ", distance = " << distanceResult.min_distance << std::endl;
@@ -91,8 +100,8 @@ BOOST_AUTO_TEST_CASE(distance_box_box_1)
 
 BOOST_AUTO_TEST_CASE(distance_box_box_2)
 {
-  CollisionGeometryPtr_t s1 (new Box (6, 10, 2));
-  CollisionGeometryPtr_t s2 (new Box (2, 2, 2));
+  CollisionGeometryPtr_t s1 (new fcl::Box (6, 10, 2));
+  CollisionGeometryPtr_t s2 (new fcl::Box (2, 2, 2));
   static double pi = M_PI;
   Transform3f tf1;
   Transform3f tf2 (Quaternion3f (cos (pi/8), sin(pi/8)/sqrt(3),
@@ -106,11 +115,13 @@ BOOST_AUTO_TEST_CASE(distance_box_box_2)
   DistanceRequest distanceRequest (true, 0, 0, GST_INDEP);
   DistanceResult distanceResult;
 
-  distance (&o1, &o2, distanceRequest, distanceResult);
+  fcl::distance (&o1, &o2, distanceRequest, distanceResult);
 
-  std::cerr << "Applied translation on two boxes";
-  std::cerr << " T1 = " << tf1.getTranslation()
-	    << ", T2 = " << tf2.getTranslation() << std::endl;
+  std::cerr << "Applied transformations on two boxes" << std::endl;
+  std::cerr << " T1 = " << tf1.getTranslation() << std::endl
+	    << " R1 = " << tf1.getRotation () << std::endl
+	    << " T2 = " << tf2.getTranslation() << std::endl
+	    << " R2 = " << tf2.getRotation () << std::endl;
   std::cerr << "Closest points: p1 = " << distanceResult.nearest_points [0]
 	    << ", p2 = " << distanceResult.nearest_points [1]
 	    << ", distance = " << distanceResult.min_distance << std::endl;
@@ -130,8 +141,8 @@ BOOST_AUTO_TEST_CASE(distance_box_box_2)
 
 BOOST_AUTO_TEST_CASE(distance_box_box_3)
 {
-  CollisionGeometryPtr_t s1 (new Box (1, 1, 1));
-  CollisionGeometryPtr_t s2 (new Box (1, 1, 1));
+  CollisionGeometryPtr_t s1 (new fcl::Box (1, 1, 1));
+  CollisionGeometryPtr_t s2 (new fcl::Box (1, 1, 1));
   static double pi = M_PI;
   Transform3f tf1 (Quaternion3f (cos (pi/8), 0, 0, sin (pi/8)),
 		   Vec3f (-2, 1, .5));
@@ -145,11 +156,13 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3)
   DistanceRequest distanceRequest (true, 0, 0, GST_INDEP);
   DistanceResult distanceResult;
 
-  distance (&o1, &o2, distanceRequest, distanceResult);
+  fcl::distance (&o1, &o2, distanceRequest, distanceResult);
 
-  std::cerr << "Applied translation on two boxes";
-  std::cerr << " T1 = " << tf1.getTranslation()
-	    << ", T2 = " << tf2.getTranslation() << std::endl;
+  std::cerr << "Applied transformations on two boxes" << std::endl;
+  std::cerr << " T1 = " << tf1.getTranslation() << std::endl
+	    << " R1 = " << tf1.getRotation () << std::endl
+	    << " T2 = " << tf2.getTranslation() << std::endl
+	    << " R2 = " << tf2.getRotation () << std::endl;
   std::cerr << "Closest points: p1 = " << distanceResult.nearest_points [0]
 	    << ", p2 = " << distanceResult.nearest_points [1]
 	    << ", distance = " << distanceResult.min_distance << std::endl;
@@ -159,10 +172,45 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3)
   double distance = 4 - sqrt (2);
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
 
-  BOOST_CHECK_CLOSE (p1 [0], sqrt (2)/2 - 2, 1e-4);
-  BOOST_CHECK_CLOSE (p1 [1], 1, 1e-4);
-  BOOST_CHECK_CLOSE (p1 [2], .5, 1e-6);
-  BOOST_CHECK_CLOSE (p2 [0], 2 - sqrt (2)/2, 1e-4);
-  BOOST_CHECK_CLOSE (p2 [1], 1, 1e-4);
-  BOOST_CHECK_CLOSE (p2 [2], .5, 1e-4);
+  const Vec3f p1Ref (sqrt(2)/2 - 2, 1, .5);
+  const Vec3f p2Ref (2 - sqrt(2)/2, 1, .5);
+  BOOST_CHECK_CLOSE (p1 [0], p1Ref [0], 1e-4);
+  BOOST_CHECK_CLOSE (p1 [1], p1Ref [1], 1e-4);
+  BOOST_CHECK_CLOSE (p1 [2], p1Ref [2], 1e-4);
+  BOOST_CHECK_CLOSE (p2 [0], p2Ref [0], 1e-4);
+  BOOST_CHECK_CLOSE (p2 [1], p2Ref [1], 1e-4);
+  BOOST_CHECK_CLOSE (p2 [2], p2Ref [2], 1e-4);
+
+  // Apply the same global transform to both objects and recompute
+  Transform3f tf3 (Quaternion3f (0.435952844074,-0.718287018243,
+				 0.310622451066, 0.444435113443),
+		   Vec3f (4, 5, 6));
+  tf1 = tf3*tf1;
+  tf2 = tf3*tf2;
+  o1 = CollisionObject (s1, tf1);
+  o2 = CollisionObject (s2, tf2);
+
+  distanceResult.clear ();
+  fcl::distance (&o1, &o2, distanceRequest, distanceResult);
+
+  std::cerr << "Applied transformations on two boxes" << std::endl;
+  std::cerr << " T1 = " << tf1.getTranslation() << std::endl
+	    << " R1 = " << tf1.getRotation () << std::endl
+	    << " T2 = " << tf2.getTranslation() << std::endl
+	    << " R2 = " << tf2.getRotation () << std::endl;
+  std::cerr << "Closest points: p1 = " << distanceResult.nearest_points [0]
+	    << ", p2 = " << distanceResult.nearest_points [1]
+	    << ", distance = " << distanceResult.min_distance << std::endl;
+
+  BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
+
+  const Vec3f p1Moved = tf3.transform (p1Ref);
+  const Vec3f p2Moved = tf3.transform (p2Ref);
+  BOOST_CHECK_CLOSE (p1 [0], p1Moved [0], 1e-4);
+  BOOST_CHECK_CLOSE (p1 [1], p1Moved [1], 1e-4);
+  BOOST_CHECK_CLOSE (p1 [2], p1Moved [2], 1e-4);
+  BOOST_CHECK_CLOSE (p2 [0], p2Moved [0], 1e-4);
+  BOOST_CHECK_CLOSE (p2 [1], p2Moved [1], 1e-4);
+  BOOST_CHECK_CLOSE (p2 [2], p2Moved [2], 1e-4);
+  
 }
