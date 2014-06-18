@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   CollisionGeometryPtr_t boxGeometry (new fcl::Box (1., 2., 4.));
 
   // Enable computation of nearest points
-  fcl::DistanceRequest distanceRequest (true);
+  fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
   fcl::DistanceResult distanceResult;
 
   // Rotate capsule around y axis by pi/2 and move it behind box
@@ -71,11 +71,11 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   fcl::Vec3f o1 = distanceResult.nearest_points [0];
   fcl::Vec3f o2 = distanceResult.nearest_points [1];
 
-  BOOST_CHECK_CLOSE (distanceResult.min_distance, 5.5, 1e-4);
-  CHECK_CLOSE_TO_0 (o1 [0], 1e-4);
-  CHECK_CLOSE_TO_0 (o1 [1], 1e-4);
-  BOOST_CHECK_CLOSE (o1 [2],  4.0, 1e-4);
-  BOOST_CHECK_CLOSE (o2 [0], -0.5, 1e-4);
-  BOOST_CHECK_CLOSE (o2 [1], 0.8, 1e-4);
-  BOOST_CHECK_CLOSE (o2 [2], 1.5, 1e-4);
+  BOOST_CHECK_CLOSE (distanceResult.min_distance, 5.5, 1e-2);
+  BOOST_CHECK_CLOSE (o1 [0], -6, 1e-2);
+  BOOST_CHECK_CLOSE (o1 [1], 0.8, 1e-1);
+  BOOST_CHECK_CLOSE (o1 [2], 1.5, 1e-2);
+  BOOST_CHECK_CLOSE (o2 [0], -0.5, 1e-2);
+  BOOST_CHECK_CLOSE (o2 [1], 0.8, 1e-1);
+  BOOST_CHECK_CLOSE (o2 [2], 1.5, 1e-2);
 }

@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_1)
   CollisionObject o2 (s2, tf2);
 
   // Enable computation of nearest points
-  DistanceRequest distanceRequest (true);
+  DistanceRequest distanceRequest (true, 0, 0, GST_INDEP);
   DistanceResult distanceResult;
 
   distance (&o1, &o2, distanceRequest, distanceResult);
@@ -126,4 +126,43 @@ BOOST_AUTO_TEST_CASE(distance_box_box_2)
   BOOST_CHECK_CLOSE (p2 [0], 0.60947571, 1e-4);
   BOOST_CHECK_CLOSE (p2 [1], 0.01175873, 1e-4);
   BOOST_CHECK_CLOSE (p2 [2], -1.62123444 + 10, 1e-4);
+}
+
+BOOST_AUTO_TEST_CASE(distance_box_box_3)
+{
+  CollisionGeometryPtr_t s1 (new Box (1, 1, 1));
+  CollisionGeometryPtr_t s2 (new Box (1, 1, 1));
+  static double pi = M_PI;
+  Transform3f tf1 (Quaternion3f (cos (pi/8), 0, 0, sin (pi/8)),
+		   Vec3f (-2, 1, .5));
+  Transform3f tf2 (Quaternion3f (cos (pi/8), 0, sin(pi/8),0),
+		   Vec3f (2, .5, .5));
+
+  CollisionObject o1 (s1, tf1);
+  CollisionObject o2 (s2, tf2);
+
+  // Enable computation of nearest points
+  DistanceRequest distanceRequest (true, 0, 0, GST_INDEP);
+  DistanceResult distanceResult;
+
+  distance (&o1, &o2, distanceRequest, distanceResult);
+
+  std::cerr << "Applied translation on two boxes";
+  std::cerr << " T1 = " << tf1.getTranslation()
+	    << ", T2 = " << tf2.getTranslation() << std::endl;
+  std::cerr << "Closest points: p1 = " << distanceResult.nearest_points [0]
+	    << ", p2 = " << distanceResult.nearest_points [1]
+	    << ", distance = " << distanceResult.min_distance << std::endl;
+
+  const Vec3f& p1 = distanceResult.nearest_points [0];
+  const Vec3f& p2 = distanceResult.nearest_points [1];
+  double distance = 4 - sqrt (2);
+  BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
+
+  BOOST_CHECK_CLOSE (p1 [0], sqrt (2)/2 - 2, 1e-4);
+  BOOST_CHECK_CLOSE (p1 [1], 1, 1e-4);
+  BOOST_CHECK_CLOSE (p1 [2], .5, 1e-6);
+  BOOST_CHECK_CLOSE (p2 [0], 2 - sqrt (2)/2, 1e-4);
+  BOOST_CHECK_CLOSE (p2 [1], 1, 1e-4);
+  BOOST_CHECK_CLOSE (p2 [2], .5, 1e-4);
 }
