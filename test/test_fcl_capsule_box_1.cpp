@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   CollisionGeometryPtr_t boxGeometry (new fcl::Box (1., 2., 4.));
 
   // Enable computation of nearest points
-  fcl::DistanceRequest distanceRequest (true);
+  fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
   fcl::DistanceResult distanceResult;
   
   fcl::Transform3f tf1 (fcl::Vec3f (3., 0, 0));
@@ -69,11 +69,11 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   fcl::Vec3f o1 (distanceResult.nearest_points [0]);
   // Nearest point on box
   fcl::Vec3f o2 (distanceResult.nearest_points [1]);
-  BOOST_CHECK_CLOSE (distanceResult.min_distance, 0.5, 1e-4);
-  BOOST_CHECK_CLOSE (o1 [0], -2.0, 1e-4);
-  CHECK_CLOSE_TO_0 (o1 [1], 1e-4);
-  BOOST_CHECK_CLOSE (o2 [0],  0.5, 1e-4);
-  BOOST_CHECK_CLOSE (o1 [1],  0.0, 1e-4);
+  BOOST_CHECK_CLOSE (distanceResult.min_distance, 0.5, 1e-1);
+  BOOST_CHECK_CLOSE (o1 [0], 1.0, 1e-1);
+  CHECK_CLOSE_TO_0 (o1 [1], 1e-1);
+  BOOST_CHECK_CLOSE (o2 [0], 0.5, 1e-1);
+  CHECK_CLOSE_TO_0 (o1 [1], 1e-1);
 
   // Move capsule above box
   tf1 = fcl::Transform3f (fcl::Vec3f (0., 0., 8.));
@@ -85,14 +85,14 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   o1 = distanceResult.nearest_points [0];
   o2 = distanceResult.nearest_points [1];
 
-  BOOST_CHECK_CLOSE (distanceResult.min_distance, 2.0, 1e-4);
-  CHECK_CLOSE_TO_0 (o1 [0], 1e-4);
-  CHECK_CLOSE_TO_0 (o1 [1], 1e-4);
-  BOOST_CHECK_CLOSE (o1 [2], -4.0, 1e-4);
+  BOOST_CHECK_CLOSE (distanceResult.min_distance, 2.0, 1e-1);
+  CHECK_CLOSE_TO_0 (o1 [0], 1e-1);
+  CHECK_CLOSE_TO_0 (o1 [1], 1e-1);
+  BOOST_CHECK_CLOSE (o1 [2], 4.0, 1e-1);
 
-  CHECK_CLOSE_TO_0 (o2 [0], 1e-4);
-  CHECK_CLOSE_TO_0 (o2 [1], 1e-4);
-  BOOST_CHECK_CLOSE (o2 [2],  2.0, 1e-4);
+  CHECK_CLOSE_TO_0 (o2 [0], 1e-1);
+  CHECK_CLOSE_TO_0 (o2 [1], 1e-1);
+  BOOST_CHECK_CLOSE (o2 [2],  2.0, 1e-1);
 
   // Rotate capsule around y axis by pi/2 and move it behind box
   tf1.setTranslation (fcl::Vec3f (-10., 0., 0.));
@@ -105,11 +105,11 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   o1 = distanceResult.nearest_points [0];
   o2 = distanceResult.nearest_points [1];
 
-  BOOST_CHECK_CLOSE (distanceResult.min_distance, 5.5, 1e-4);
-  CHECK_CLOSE_TO_0 (o1 [0], 1e-4);
-  CHECK_CLOSE_TO_0 (o1 [1], 1e-4);
-  BOOST_CHECK_CLOSE (o1 [2],  4.0, 1e-4);
-  BOOST_CHECK_CLOSE (o2 [0], -0.5, 1e-4);
-  CHECK_CLOSE_TO_0 (o2 [1], 1e-4);
-  CHECK_CLOSE_TO_0 (o2 [2], 1e-4);
+  BOOST_CHECK_CLOSE (distanceResult.min_distance, 5.5, 1e-1);
+  BOOST_CHECK_CLOSE (o1 [0], -6, 1e-2);
+  CHECK_CLOSE_TO_0 (o1 [1], 1e-1);
+  CHECK_CLOSE_TO_0 (o1 [2], 1e-1);
+  BOOST_CHECK_CLOSE (o2 [0], -0.5, 1e-2);
+  CHECK_CLOSE_TO_0 (o2 [1], 1e-1);
+  CHECK_CLOSE_TO_0 (o2 [2], 1e-1);
 }
