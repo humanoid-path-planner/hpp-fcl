@@ -308,6 +308,12 @@ public:
     return cgeom_const;
   }
 
+  /// @brief get geometry from the object instance
+  const boost::shared_ptr<CollisionGeometry>& collisionGeometry()
+  {
+    return cgeom;
+  }
+
   /// @brief get object's cost density
   FCL_REAL getCostDensity() const
   {
