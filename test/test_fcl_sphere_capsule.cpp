@@ -36,7 +36,7 @@
 /** \author Martin Felis <martin.felis@iwr.uni-heidelberg.de> */
 
 #define BOOST_TEST_MODULE "FCL_SPHERE_CAPSULE"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "fcl/collision.h"
 #include "fcl/shape/geometric_shapes.h"
