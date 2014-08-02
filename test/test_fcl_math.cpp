@@ -35,7 +35,7 @@
 
 
 #define BOOST_TEST_MODULE "FCL_MATH"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #if FCL_HAVE_SSE
   #include "fcl/simd/math_simd_details.h"

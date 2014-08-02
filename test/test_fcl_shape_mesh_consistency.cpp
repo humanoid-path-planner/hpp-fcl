@@ -36,7 +36,7 @@
 /** \author Jia Pan */
 
 #define BOOST_TEST_MODULE "FCL_SHAPE_MESH_CONSISTENCY"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "fcl/narrowphase/narrowphase.h"
 #include "fcl/shape/geometric_shape_to_BVH_model.h"

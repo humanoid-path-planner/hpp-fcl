@@ -37,7 +37,7 @@
 
 
 #define BOOST_TEST_MODULE "FCL_FRONT_LIST"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "fcl/traversal/traversal_node_bvhs.h"
 #include "fcl/traversal/traversal_node_setup.h"

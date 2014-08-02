@@ -37,7 +37,7 @@
 
 
 #define BOOST_TEST_MODULE "FCL_BROADPHASE"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "fcl/config.h"
 #include "fcl/broadphase/broadphase.h"

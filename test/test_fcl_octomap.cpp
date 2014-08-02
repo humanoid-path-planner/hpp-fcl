@@ -36,7 +36,7 @@
 /** \author Jia Pan */
 
 #define BOOST_TEST_MODULE "FCL_OCTOMAP"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "fcl/config.h"
 #include "fcl/octree.h"
