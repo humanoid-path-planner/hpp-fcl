@@ -35,7 +35,7 @@
 /** \author Jia Pan */
 
 #define BOOST_TEST_MODULE "FCL_COLLISION"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "fcl/traversal/traversal_node_bvhs.h"
 #include "fcl/traversal/traversal_node_setup.h"

@@ -1,135 +1,156 @@
+#
+# Software License Agreement (BSD License)
+#
+#  Copyright (c) 2014 CNRS-LAAS
+#  Author: Florent Lamiraux
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#   * Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#   * Redistributions in binary form must reproduce the above
+#     copyright notice, this list of conditions and the following
+#     disclaimer in the documentation and/or other materials provided
+#     with the distribution.
+#   * Neither the name of CNRS-LAAS. nor the names of its
+#     contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+#  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+#  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+#  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+#  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+#  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+
 cmake_minimum_required(VERSION 2.8)
-project(fcl CXX C)
+set(CXX_DISABLE_WERROR TRUE)
+include(cmake/base.cmake)
+include(cmake/boost.cmake)
 
-# set the default build type
-if (NOT CMAKE_BUILD_TYPE)
-   set(CMAKE_BUILD_TYPE Release)
-endif()
+set(PROJECT_NAME fcl)
+set(PROJECT_DESCRIPTION
+  "FCL -- The Flexible Collision Library"
+  )
+set(PROJECT_URL "http://github.com/humanoid-path-planner/fcl")
 
-# This shouldn't be necessary, but there has been trouble
-# with MSVC being set off, but MSVCXX ON.
-if(MSVC OR MSVC90 OR MSVC10)
-    set(MSVC ON)
-endif (MSVC OR MSVC90 OR MSVC10)
+setup_project()
 
-set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
-include(CompilerSettings)
-include(FCLVersion)
-
-if(MSVC OR IS_ICPC)
-  option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" ON)
-else()
-  option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" OFF)
-endif()
-
-# Whether to enable SSE
-option(FCL_USE_SSE "Whether FCL should SSE instructions" OFF)
-set(FCL_HAVE_SSE 0)
-if(FCL_USE_SSE)
-  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(FCL_HAVE_SSE 0) #always disable, for now
-    add_definitions(-march=native)
-  endif()
-  # TODO: do something similar for other compilers
-endif()
-
-# Find Octomap (optional)
-find_package(PkgConfig QUIET)
-set(FCL_HAVE_OCTOMAP 0)
-if(PKG_CONFIG_FOUND)
-    pkg_check_modules(OCTOMAP QUIET octomap)
-endif()
-if(NOT OCTOMAP_FOUND)
-    # if pkfconfig is not installed, then fall back on more fragile detection
-    # of octomap
-    find_path(OCTOMAP_INCLUDE_DIRS octomap.h
-        PATH_SUFFIXES octomap)
-    find_path(OCTOMAP_LIBRARY_DIRS
-        ${CMAKE_SHARED_LIBRARY_PREFIX}octomap${CMAKE_SHARED_LIBRARY_SUFFIX})
-    if(OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
-        set(OCTOMAP_LIBRARIES "octomap;octomath")
-    endif()
-endif()
-if (OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
-  include_directories(${OCTOMAP_INCLUDE_DIRS})
-  link_directories(${OCTOMAP_LIBRARY_DIRS})
-  set(FCL_HAVE_OCTOMAP 1)
-  message(STATUS "FCL uses Octomap")
-else()
-  message(STATUS "FCL does not use Octomap")
-endif()
-
-# Find FLANN (optional)
-find_package(flann QUIET)
-if (FLANN_FOUND)
-  set(FCL_HAVE_FLANN 1)
-  include_directories(${FLANN_INCLUDE_DIRS})
-  message(STATUS "FCL uses Flann")
-else()
-  message(STATUS "FCL does not use Flann")
-endif()
-
-
-# find_package(tinyxml QUIET)
-# if (TINYXML_FOUND)
-#   set(FCL_HAVE_TINYXML 1)
-#   include_directories(${TINYXML_INCLUDE_DIRS})
-#   link_directories(${TINYXML_LIBRARY_DIRS})
-#   message(STATUS "FCL uses tinyxml")
-# else()
-#   message(STATUS "FCL does not use tinyxml")
+# Required dependencies
+add_required_dependency("ccd >= 1.4")
+set(BOOST_COMPONENTS
+  thread date_time filesystem system unit_test_framework REQUIRED
+  )
+search_for_boost()
+# Optional dependencies
+add_optional_dependency("octomap >= 1.6")
+# flann package ill defined: comment.
+# add_optional_dependency("flann >= 1.7")
+# if (${FLANN_FOUND})
+#   add_definitions(-DFCL_HAVE_FLANN=1)
 # endif()
 
+SET(${PROJECT_NAME}_HEADERS
+  include/fcl/collision_data.h
+  include/fcl/profile.h
+  include/fcl/exception.h
+  include/fcl/ccd/taylor_vector.h
+  include/fcl/ccd/interval_vector.h
+  include/fcl/ccd/simplex.h
+  include/fcl/ccd/support.h
+  include/fcl/ccd/interval_matrix.h
+  include/fcl/ccd/interval.h
+  include/fcl/ccd/interpolation/interpolation_factory.h
+  include/fcl/ccd/interpolation/interpolation_linear.h
+  include/fcl/ccd/interpolation/interpolation.h
+  include/fcl/ccd/conservative_advancement.h
+  include/fcl/ccd/taylor_model.h
+  include/fcl/ccd/taylor_matrix.h
+  include/fcl/ccd/motion_base.h
+  include/fcl/ccd/motion.h
+  include/fcl/deprecated.h
+  include/fcl/BV/kIOS.h
+  include/fcl/BV/BV.h
+  include/fcl/BV/RSS.h
+  include/fcl/BV/OBBRSS.h
+  include/fcl/BV/BV_node.h
+  include/fcl/BV/AABB.h
+  include/fcl/BV/OBB.h
+  include/fcl/BV/kDOP.h
+  include/fcl/narrowphase/narrowphase.h
+  include/fcl/narrowphase/gjk.h
+  include/fcl/narrowphase/gjk_libccd.h
+  include/fcl/broadphase/interval_tree.h
+  include/fcl/broadphase/broadphase_spatialhash.h
+  include/fcl/broadphase/broadphase_dynamic_AABB_tree.h
+  include/fcl/broadphase/broadphase_SSaP.h
+  include/fcl/broadphase/broadphase_interval_tree.h
+  include/fcl/broadphase/broadphase.h
+  include/fcl/broadphase/hierarchy_tree.h
+  include/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h
+  include/fcl/broadphase/broadphase_SaP.h
+  include/fcl/broadphase/broadphase_bruteforce.h
+  include/fcl/broadphase/morton.h
+  include/fcl/broadphase/hash.h
+  include/fcl/learning/classifier.h
+  include/fcl/shape/geometric_shapes_utility.h
+  include/fcl/shape/geometric_shape_to_BVH_model.h
+  include/fcl/shape/geometric_shapes.h
+  include/fcl/simd/simd_intersect.h
+  include/fcl/simd/math_simd_details.h
+  include/fcl/distance_func_matrix.h
+  include/fcl/collision.h
+  include/fcl/collision_node.h
+  include/fcl/collision_func_matrix.h
+  include/fcl/distance.h
+  include/fcl/knn/greedy_kcenters.h
+  include/fcl/knn/nearest_neighbors_GNAT.h
+  include/fcl/knn/nearest_neighbors_flann.h
+  include/fcl/knn/nearest_neighbors_sqrtapprox.h
+  include/fcl/knn/nearest_neighbors_linear.h
+  include/fcl/knn/nearest_neighbors.h
+  include/fcl/continuous_collision.h
+  include/fcl/math/vec_nf.h
+  include/fcl/math/matrix_3f.h
+  include/fcl/math/vec_3f.h
+  include/fcl/math/sampling.h
+  include/fcl/math/math_details.h
+  include/fcl/math/transform.h
+  include/fcl/traversal/traversal_node_shapes.h
+  include/fcl/traversal/traversal_node_setup.h
+  include/fcl/traversal/traversal_recurse.h
+  include/fcl/traversal/traversal_node_octree.h
+  include/fcl/traversal/traversal_node_bvhs.h
+  include/fcl/traversal/traversal_node_bvh_shape.h
+  include/fcl/traversal/traversal_node_base.h
+  include/fcl/data_types.h
+  include/fcl/articulated_model/model.h
+  include/fcl/articulated_model/joint_config.h
+  include/fcl/articulated_model/model_config.h
+  include/fcl/articulated_model/joint.h
+  include/fcl/articulated_model/link.h
+  include/fcl/BVH/BV_splitter.h
+  include/fcl/BVH/BVH_internal.h
+  include/fcl/BVH/BVH_model.h
+  include/fcl/BVH/BV_fitter.h
+  include/fcl/BVH/BVH_front.h
+  include/fcl/BVH/BVH_utility.h
+  include/fcl/intersect.h
+  include/fcl/collision_object.h
+  include/fcl/octree.h
+  )
 
-find_package(Boost COMPONENTS thread date_time filesystem system unit_test_framework REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
-
-if(MSVC)
-    add_definitions(-DBOOST_ALL_NO_LIB)
-endif()
-add_definitions(-DBOOST_TEST_DYN_LINK)
-
-# FCL's own include dir should be at the front of the include path
-include_directories(BEFORE "include")
-
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(CCD ccd)
-  # check to see if the pkg is installed under the libccd name
-  if(NOT CCD_FOUND)
-    pkg_check_modules(CCD libccd)
-  endif()
-endif()
-
-if(NOT CCD_FOUND)
-    # if pkfconfig is not installed, then fall back on more fragile detection
-    # of ccd
-    find_path(CCD_INCLUDE_DIRS ccd.h
-        PATH_SUFFIXES ccd)
-    find_path(CCD_LIBRARY_DIRS
-        ${CMAKE_SHARED_LIBRARY_PREFIX}ccd${CMAKE_SHARED_LIBRARY_SUFFIX})
-    if(CCD_INCLUDE_DIRS AND CCD_LIBRARY_DIRS)
-        set(CCD_LIBRARIES "ccd")
-    else()
-        message(FATAL_ERROR "Libccd is required by FCL")
-    endif()
-endif()
-include_directories(${CCD_INCLUDE_DIRS})
-link_directories(${CCD_LIBRARY_DIRS})
-
-add_subdirectory(include/fcl)
+pkg_config_append_libs("fcl")
 add_subdirectory(src)
-
-set(pkg_conf_file "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc")
-configure_file("${pkg_conf_file}.in" "${pkg_conf_file}" @ONLY)
-
-install(DIRECTORY include/ DESTINATION include
-  FILES_MATCHING PATTERN "*.h" PATTERN "*.hxx"
-  PATTERN ".DS_Store" EXCLUDE
-)
-
-install(FILES "${pkg_conf_file}" DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)
-
-
-enable_testing()
 add_subdirectory(test)
+
+setup_project_finalize()
