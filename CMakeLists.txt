@@ -147,6 +147,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/fcl/intersect.h
   include/fcl/collision_object.h
   include/fcl/octree.h
+  include/fcl/fwd.hh
   )
 
 pkg_config_append_libs("fcl")
