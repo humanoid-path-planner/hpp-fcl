@@ -38,7 +38,7 @@
 #ifndef FCL_VEC_3F_H
 #define FCL_VEC_3F_H
 
-#include "fcl/config.h"
+#include <fcl/config-fcl.hh>
 #include "fcl/data_types.h"
 #include "fcl/math/math_details.h"
 
