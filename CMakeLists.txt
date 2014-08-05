@@ -154,4 +154,9 @@ pkg_config_append_libs("fcl")
 add_subdirectory(src)
 add_subdirectory(test)
 
+config_files(include/fcl/config-fcl.hh)
+install(FILES ${PROJECT_BINARY_DIR}/include/fcl/config-fcl.hh
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fcl
+  PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE
+  )
 setup_project_finalize()
