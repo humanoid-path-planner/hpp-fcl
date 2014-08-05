@@ -37,7 +37,7 @@
 #ifndef FCL_KNN_NEAREST_NEIGHBORS_FLANN_H
 #define FCL_KNN_NEAREST_NEIGHBORS_FLANN_H
 
-#include "fcl/config.h"
+#include <fcl/config-fcl.hh>
 #if FCL_HAVE_FLANN == 0
 # error FLANN is not available. Please use a different NearestNeighbors data structure
 #else
