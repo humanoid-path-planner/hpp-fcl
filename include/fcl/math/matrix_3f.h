@@ -273,41 +273,49 @@ public:
     return res.timesTranspose(*this);
   }
 
+  // (1 0 0)^T (*this)^T v
   inline U transposeDotX(const Vec3fX<S>& v) const
   {
     return data.transposeDot(0, v.data);
   }
 
+  // (0 1 0)^T (*this)^T v
   inline U transposeDotY(const Vec3fX<S>& v) const
   {
     return data.transposeDot(1, v.data);
   }
 
+  // (0 0 1)^T (*this)^T v
   inline U transposeDotZ(const Vec3fX<S>& v) const
   {
     return data.transposeDot(2, v.data);
   }
 
+  // (\delta_{i3})^T (*this)^T v
   inline U transposeDot(size_t i, const Vec3fX<S>& v) const
   {
     return data.transposeDot(i, v.data);
   }
 
+  // (1 0 0)^T (*this) v
   inline U dotX(const Vec3fX<S>& v) const
   {
     return data.dot(0, v.data);
   }
 
+  // (0 1 0)^T (*this) v
   inline U dotY(const Vec3fX<S>& v) const
   {
     return data.dot(1, v.data);
   }
 
+  // (0 0 1)^T (*this) v
   inline U dotZ(const Vec3fX<S>& v) const
   {
     return data.dot(2, v.data);
   }
 
+  // (\delta_{i3})^T (*this) v
   inline U dot(size_t i, const Vec3fX<S>& v) const
   {
     return data.dot(i, v.data);

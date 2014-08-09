@@ -181,6 +181,9 @@ struct CollisionRequest
   /// @brief whether the contact information (normal, penetration depth and contact position) will return
   bool enable_contact;
 
+  /// Whether a lower bound on distance is returned when objects are disjoint
+  bool enable_distance_lower_bound;
+
   /// @brief The maximum number of cost sources will return
   size_t num_max_cost_sources;
 
@@ -201,6 +204,7 @@ struct CollisionRequest
 
   CollisionRequest(size_t num_max_contacts_ = 1,
                    bool enable_contact_ = false,
+		   bool enable_distance_lower_bound = false,
                    size_t num_max_cost_sources_ = 1,
                    bool enable_cost_ = false,
                    bool use_approximate_cost_ = true,
@@ -230,6 +234,10 @@ private:
 
 public:
   Vec3f cached_gjk_guess;
+
+  /// Lower bound on distance between objects if they are disjoint
+  /// \note computed only on request.
+  FCL_REAL distance_lower_bound;
 
 public:
   CollisionResult()

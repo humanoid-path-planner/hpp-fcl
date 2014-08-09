@@ -40,7 +40,7 @@
 #include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/collision_node.h"
 #include "fcl/narrowphase/narrowphase.h"
-
+#include "distance_func_matrix.h"
 
 namespace fcl
 {
@@ -198,6 +198,25 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
                               const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
+
+  if (request.enable_distance_lower_bound) {
+    DistanceResult distanceResult;
+    DistanceRequest distanceRequest (request.enable_contact);
+    FCL_REAL distance = ShapeShapeDistance <T_SH1, T_SH2, NarrowPhaseSolver>
+      (o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
+
+    if (distance <= 0) {
+      Contact contact (o1, o2, distanceResult.b1, distanceResult.b2);
+      const Vec3f& p1 = distanceResult.nearest_points [0];
+      const Vec3f& p2 = distanceResult.nearest_points [1];
+      contact.pos = .5*(p1+p2);
+      contact.normal = (p2-p1)/(p2-p1).length ();
+      result.addContact (contact);
+      return 1;
+    }
+    result.distance_lower_bound = distance;
+    return 0;
+  }
 
   ShapeCollisionTraversalNode<T_SH1, T_SH2, NarrowPhaseSolver> node;
   const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
