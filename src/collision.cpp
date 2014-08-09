@@ -74,7 +74,7 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
     nsolver = new NarrowPhaseSolver();  
 
   const CollisionFunctionMatrix<NarrowPhaseSolver>& looktable = getCollisionFunctionLookTable<NarrowPhaseSolver>();
-
+  result.distance_lower_bound = -1;
   std::size_t res; 
   if(request.num_max_contacts == 0)
   {

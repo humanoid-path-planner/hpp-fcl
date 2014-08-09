@@ -346,16 +346,15 @@ namespace fcl {
       (o1, tf1, o2, tf2, unused, distanceRequest, distanceResult);
 
     if (distance <= 0) {
-      if (request.enable_contact) {
-	Contact contact (o1, o2, distanceResult.b1, distanceResult.b2);
-	const Vec3f& p1 = distanceResult.nearest_points [0];
-	const Vec3f& p2 = distanceResult.nearest_points [1];
-	contact.pos = .5*(p1+p2);
-	contact.normal = (p2-p1)/(p2-p1).length ();
-	result.addContact (contact);
-      }
+      Contact contact (o1, o2, distanceResult.b1, distanceResult.b2);
+      const Vec3f& p1 = distanceResult.nearest_points [0];
+      const Vec3f& p2 = distanceResult.nearest_points [1];
+      contact.pos = .5*(p1+p2);
+      contact.normal = (p2-p1)/(p2-p1).length ();
+      result.addContact (contact);
       return 1;
     }
+    result.distance_lower_bound = distance;
     return 0;
   }
 
