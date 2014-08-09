@@ -852,10 +852,14 @@ bool RSS::overlap(const RSS& other) const
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
 {
+  // ROb2 = R0 . b2
+  // where b2 = [ b2.axis [0] | b2.axis [1] | b2.axis [2] ]
   Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
                 R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
                 R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
 
+  // (1 0 0)^T R0b2^T axis [0] = (1 0 0)^T b2^T R0^T axis [0]
+  // R = b2^T RO^T b1
   Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
              R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
              R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
