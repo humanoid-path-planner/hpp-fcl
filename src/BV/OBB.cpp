@@ -512,6 +512,24 @@ bool OBB::overlap(const OBB& other) const
   return !obbDisjoint(R, T, extent, other.extent);
 }
 
+  bool OBB::overlap(const OBB& other, FCL_REAL& sqrDistLowerBound) const
+  {
+    /// compute what transform [R,T] that takes us from cs1 to cs2.
+    /// [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
+    /// First compute the rotation part, then translation part
+    Vec3f t = other.To - To; // T2 - T1
+    Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
+    Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]),
+	       axis[0].dot(other.axis[2]),
+	       axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]),
+	       axis[1].dot(other.axis[2]),
+	       axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]),
+	       axis[2].dot(other.axis[2]));
+
+  return !obbDisjointAndLowerBoundDistance
+    (R, T, extent, other.extent, sqrDistLowerBound);
+}
+
 
 bool OBB::contain(const Vec3f& p) const
 {
@@ -581,6 +599,24 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2)
   Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
 
   return !obbDisjoint(R, T, b1.extent, b2.extent);
+}
+
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2,
+	     FCL_REAL& sqrDistLowerBound)
+{
+  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
+                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
+                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
+
+  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
+             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
+             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
+
+  Vec3f Ttemp = R0 * b2.To + T0 - b1.To;
+  Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
+
+  return !obbDisjointAndLowerBoundDistance (R, T, b1.extent, b2.extent,
+					    sqrDistLowerBound);
 }
 
 OBB translate(const OBB& bv, const Vec3f& t)

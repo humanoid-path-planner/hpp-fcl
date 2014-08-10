@@ -89,6 +89,11 @@ bool CollisionTraversalNodeBase::BVTesting(int b1, int b2) const
   return true;
 }
 
+bool CollisionTraversalNodeBase::BVTesting(int b1, int b2, FCL_REAL&) const
+{
+  throw std::runtime_error ("Not implemented yet");
+}
+
 void CollisionTraversalNodeBase::leafTesting(int b1, int b2) const
 {
 }

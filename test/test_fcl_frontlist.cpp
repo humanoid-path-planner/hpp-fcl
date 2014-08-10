@@ -233,7 +233,8 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
 
   node.enable_statistics = verbose;
 
-  collide(&node, &front_list);
+  FCL_REAL sqrDistLowerBound = 0;
+  collide(&node, sqrDistLowerBound, &front_list);
 
   if(verbose) std::cout << "front list size " << front_list.size() << std::endl;
 
@@ -253,7 +254,8 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
   m2.endReplaceModel(true, refit_bottomup);
 
   local_result.clear();
-  collide(&node, &front_list);
+  sqrDistLowerBound = 0;
+  collide(&node, sqrDistLowerBound, &front_list);
 
   if(local_result.numContacts() > 0)
     return true;
@@ -296,7 +298,8 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1, const Transform3f&
 
   node.enable_statistics = verbose;
 
-  collide(&node, &front_list);
+  FCL_REAL sqrDistLowerBound = 0;
+  collide(&node, sqrDistLowerBound, &front_list);
 
   if(verbose) std::cout << "front list size " << front_list.size() << std::endl;
 
@@ -307,7 +310,8 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1, const Transform3f&
     std::cout << "initialize error" << std::endl;
 
   local_result.clear();
-  collide(&node, &front_list);
+  sqrDistLowerBound = 0;
+  collide(&node, sqrDistLowerBound, &front_list);
 
   if(local_result.numContacts() > 0)
     return true;
@@ -345,7 +349,8 @@ bool collide_Test(const Transform3f& tf,
 
   node.enable_statistics = verbose;
 
-  collide(&node);
+  FCL_REAL sqrDistLowerBound = 0;
+  collide(&node, sqrDistLowerBound);
 
 
   if(local_result.numContacts() > 0)

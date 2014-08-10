@@ -58,8 +58,15 @@ public:
   /// @brief Half dimensions of OBB
   Vec3f extent;
 
-  /// @brief Check collision between two OBB, return true if collision happens. 
+  /// Check collision between two OBB
+  /// \return true if collision happens. 
   bool overlap(const OBB& other) const;
+
+  /// Check collision between two OBB
+  /// \return true if collision happens. 
+  /// \retval sqrDistLowerBound squared lower bound on distance between boxes if
+  ///         they do not overlap.
+  bool overlap(const OBB& other, FCL_REAL& sqrDistLowerBound) const;
 
   
   /// @brief Check collision between two OBB and return the overlap part. For OBB, the overlap_part return value is NOT used as the overlap part of two obbs usually is not an obb. 
@@ -132,9 +139,16 @@ OBB translate(const OBB& bv, const Vec3f& t);
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and b2 is in identity.
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2);
 
+/// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and b2 is in identity.
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
+	     const OBB& b2, FCL_REAL& sqrDistLowerBound);
 
-/// @brief Check collision between two boxes: the first box is in configuration (R, T) and its half dimension is set by a;
-/// the second box is in identity configuration and its half dimension is set by b.
+
+/// Check collision between two boxes
+/// \param B, T orientation and position of first box,
+/// \param a half dimensions of first box,
+/// \param b half dimensions of second box.
+/// The second box is in identity configuration.
 bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b);
 }
 

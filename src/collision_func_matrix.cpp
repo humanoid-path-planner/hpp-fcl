@@ -82,7 +82,7 @@ std::size_t OcTreeShapeCollide(const CollisionGeometry* o1, const Transform3f& t
   return result.numContacts();
 }
 
-template<typename NarrowPhaseSolver>
+etemplate<typename NarrowPhaseSolver>
 std::size_t OcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
                           const NarrowPhaseSolver* nsolver,
                           const CollisionRequest& request, CollisionResult& result)
@@ -233,7 +233,9 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
   }
 
   initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
-  collide(&node);
+  FCL_REAL sqrDistance = 0;
+  collide(&node, sqrDistance);
+  result.distance_lower_bound = sqrt (sqrDistance);
 
   if(request.enable_cached_gjk_guess)
     result.cached_gjk_guess = nsolver->getCachedGuess();
@@ -262,7 +264,9 @@ struct BVHShapeCollider
       const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
       initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, no_cost_request, result);
-      fcl::collide(&node);
+      FCL_REAL sqrDistance;
+      fcl::collide(&node, sqrDistance);
+      result.distance_lower_bound = sqrt (sqrDistance);
 
       delete obj1_tmp;
 
@@ -286,7 +290,9 @@ struct BVHShapeCollider
       const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
       initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request, result);
-      fcl::collide(&node);
+      FCL_REAL sqrDistance;
+      fcl::collide(&node, sqrDistance);
+      result.distance_lower_bound = sqrt (sqrDistance);
 
       delete obj1_tmp;
     }
@@ -315,7 +321,9 @@ std::size_t orientedBVHShapeCollide(const CollisionGeometry* o1, const Transform
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
     initialize(node, *obj1, tf1, *obj2, tf2, nsolver, no_cost_request, result);
-    fcl::collide(&node);
+    FCL_REAL sqrDistance;
+    fcl::collide(&node, sqrDistance);
+    result.distance_lower_bound = sqrt (sqrDistance);
    
     Box box;
     Transform3f box_tf;
@@ -330,12 +338,15 @@ std::size_t orientedBVHShapeCollide(const CollisionGeometry* o1, const Transform
   }
   else
   {
-    OrientMeshShapeCollisionTraveralNode node;
+    OrientMeshShapeCollisionTraveralNode node
+      (request.enable_distance_lower_bound);
     const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
     initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
-    fcl::collide(&node);
+    FCL_REAL sqrDistance = 0;
+    fcl::collide(&node, sqrDistance);
+    result.distance_lower_bound = sqrt (sqrDistance);
   }
 
   return result.numContacts();
@@ -406,7 +417,9 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, cons
   Transform3f tf2_tmp = tf2;
   
   initialize(node, *obj1_tmp, tf1_tmp, *obj2_tmp, tf2_tmp, request, result);
-  collide(&node);
+  FCL_REAL sqrDistance;
+  fcl::collide(&node, sqrDistance);
+  result.distance_lower_bound = sqrt (sqrDistance);
 
   delete obj1_tmp;
   delete obj2_tmp;
@@ -426,7 +439,9 @@ std::size_t orientedMeshCollide(const CollisionGeometry* o1, const Transform3f& 
   const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>* >(o2);
 
   initialize(node, *obj1, tf1, *obj2, tf2, request, result);
-  collide(&node);
+  FCL_REAL sqrDistance = 0;
+  collide(&node, sqrDistance);
+  result.distance_lower_bound = sqrt (sqrDistance);
 
   return result.numContacts();
 }

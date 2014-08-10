@@ -46,8 +46,12 @@
 namespace fcl
 {
 
-/// @brief Recurse function for collision
-void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list);
+/// Recurse function for collision
+/// \param node collision node,
+/// \param b1, b2 ids of bounding volume nodes for object 1 and object 2
+/// \retval sqrDistLowerBound squared lower bound on distance between objects.
+void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
+		      BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound);
 
 /// @brief Recurse function for collision, specialized for OBB type
 void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const Matrix3f& R, const Vec3f& T, BVHFrontList* front_list);
@@ -65,7 +69,9 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
 void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list, int qsize);
 
 /// @brief Recurse function for front list propagation
-void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase* node, BVHFrontList* front_list);
+void propagateBVHFrontListCollisionRecurse
+  (CollisionTraversalNodeBase* node, BVHFrontList* front_list,
+   FCL_REAL& sqrDistLowerBound);
 
 
 }

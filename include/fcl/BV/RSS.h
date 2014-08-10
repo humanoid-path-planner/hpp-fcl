@@ -37,7 +37,7 @@
 #ifndef FCL_RSS_H
 #define FCL_RSS_H
 
-
+#include <stdexcept>
 #include "fcl/math/vec_3f.h"
 #include "fcl/math/matrix_3f.h"
 #include <boost/math/constants/constants.hpp>
@@ -64,6 +64,13 @@ public:
 
   /// @brief Check collision between two RSS
   bool overlap(const RSS& other) const;
+
+  /// Not implemented
+  bool overlap(const RSS& other, FCL_REAL& sqrDistLowerBound) const
+  {
+    throw std::runtime_error ("Not implemented.");
+    return false;
+  }
 
   /// @brief Check collision between two RSS and return the overlap part.
   /// For RSS, we return nothing, as the overlap part of two RSSs usually is not a RSS.

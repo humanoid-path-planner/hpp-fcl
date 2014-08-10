@@ -838,7 +838,8 @@ bool collide_Test2(const Transform3f& tf,
 
   node.enable_statistics = verbose;
 
-  collide(&node);
+  FCL_REAL sqrDistLowerBound = 0;
+  collide(&node, sqrDistLowerBound);
 
 
   if(local_result.numContacts() > 0)
@@ -897,7 +898,8 @@ bool collide_Test(const Transform3f& tf,
 
   node.enable_statistics = verbose;
 
-  collide(&node);
+  FCL_REAL sqrDistLowerBound = 0;
+  collide(&node, sqrDistLowerBound);
 
 
   if(local_result.numContacts() > 0)
@@ -954,7 +956,8 @@ bool collide_Test_Oriented(const Transform3f& tf,
 
   node.enable_statistics = verbose;
 
-  collide(&node);
+  FCL_REAL sqrDistLowerBound = 0;
+  collide(&node, sqrDistLowerBound);
 
   if(local_result.numContacts() > 0)
   {
