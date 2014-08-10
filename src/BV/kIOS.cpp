@@ -63,6 +63,11 @@ bool kIOS::overlap(const kIOS& other) const
   return true;
 }
 
+  bool kIOS::overlap(const kIOS& other, FCL_REAL& sqrDistLowerBound) const
+  {
+    throw std::runtime_error ("Not implemented yet.");
+  }
+
 
 bool kIOS::contain(const Vec3f& p) const
 {

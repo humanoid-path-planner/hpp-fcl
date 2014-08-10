@@ -281,6 +281,14 @@ bool MeshCollisionTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
+  bool MeshCollisionTraversalNodeOBBRSS::BVTesting
+  (int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  {
+    if(enable_statistics) num_bv_tests++;
+    return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv,
+		    sqrDistLowerBound);
+  }
+
 void MeshCollisionTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
 {
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 

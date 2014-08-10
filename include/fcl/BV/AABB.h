@@ -38,7 +38,7 @@
 #ifndef FCL_AABB_H
 #define FCL_AABB_H
 
-
+#include <stdexcept>
 #include "fcl/math/vec_3f.h"
 
 namespace fcl
@@ -92,6 +92,12 @@ public:
 
     return true;
   }    
+
+  /// Not implemented
+  inline bool overlap(const AABB&, FCL_REAL&) const
+  {
+    throw std::runtime_error ("Not implemented");
+  }
 
   /// @brief Check whether the AABB contains another AABB
   inline bool contain(const AABB& other) const

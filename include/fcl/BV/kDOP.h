@@ -38,7 +38,7 @@
 #ifndef FCL_KDOP_H
 #define FCL_KDOP_H
 
-
+#include <stdexcept>
 #include "fcl/math/vec_3f.h"
 
 namespace fcl
@@ -95,6 +95,12 @@ public:
   
   /// @brief Check whether two KDOPs are overlapped
   bool overlap(const KDOP<N>& other) const;
+
+  /// Not implemented
+  bool overlap(const KDOP<N>& other, FCL_REAL&) const
+  {
+    throw std::runtime_error ("Not implemented");
+  }
 
   //// @brief Check whether one point is inside the KDOP
   bool inside(const Vec3f& p) const;

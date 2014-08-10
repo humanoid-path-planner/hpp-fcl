@@ -90,12 +90,20 @@ public:
 class CollisionTraversalNodeBase : public TraversalNodeBase
 {
 public:
-  CollisionTraversalNodeBase() : result(NULL), enable_statistics(false) {}
+  CollisionTraversalNodeBase(bool enable_distance_lower_bound_ = false) :
+  result(NULL), enable_statistics(false),
+    enable_distance_lower_bound (enable_distance_lower_bound_){}
 
   virtual ~CollisionTraversalNodeBase();
 
   /// @brief BV test between b1 and b2
   virtual bool BVTesting(int b1, int b2) const;
+
+  /// BV test between b1 and b2
+  /// \param b1, b2 Bounding volumes to test,
+  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  ///         distance between bounding volumes.
+  virtual bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs
   virtual void leafTesting(int b1, int b2) const;
@@ -114,6 +122,9 @@ public:
 
   /// @brief Whether stores statistics 
   bool enable_statistics;
+
+  /// Whether to compute a lower bound on distance between bounding volumes
+  bool enable_distance_lower_bound;
 };
 
 /// @brief Node structure encoding the information required for distance traversal.

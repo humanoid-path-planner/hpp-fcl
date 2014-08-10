@@ -129,6 +129,16 @@ public:
     return !model1->getBV(b1).overlap(model2->getBV(b2));
   }
   
+  /// BV test between b1 and b2
+  /// \param b1, b2 Bounding volumes to test,
+  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  ///         distance between bounding volumes.
+  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  {
+    if(enable_statistics) num_bv_tests++;
+    return !model1->getBV(b1).overlap(model2->getBV(b2), sqrDistLowerBound);
+  }
+  
   /// @brief The first BVH model
   const BVHModel<BV>* model1;
   /// @brief The second BVH model
@@ -301,6 +311,8 @@ public:
   MeshCollisionTraversalNodeOBBRSS();
  
   bool BVTesting(int b1, int b2) const;
+
+  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
 
   void leafTesting(int b1, int b2) const;
 
@@ -659,6 +671,8 @@ public:
 
   FCL_REAL BVTesting(int b1, int b2) const;
 
+  FCL_REAL BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
+
   void leafTesting(int b1, int b2) const;
 
   Matrix3f R;
@@ -979,6 +993,8 @@ public:
   MeshConservativeAdvancementTraversalNodeOBBRSS(FCL_REAL w_ = 1);
 
   FCL_REAL BVTesting(int b1, int b2) const;
+
+  FCL_REAL BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
 
   void leafTesting(int b1, int b2) const;
 

@@ -89,6 +89,11 @@ struct BVNode : public BVNodeBase
   {
     return bv.overlap(other.bv);
   }
+  /// @brief Check whether two BVNode collide
+  bool overlap(const BVNode& other, FCL_REAL& sqrDistLowerBound) const
+  {
+    return bv.overlap(other.bv, sqrDistLowerBound);
+  }
 
   /// @brief Compute the distance between two BVNode. P1 and P2, if not NULL and the underlying BV supports distance, return the nearest points.
   FCL_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const

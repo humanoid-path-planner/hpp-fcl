@@ -42,23 +42,25 @@
 namespace fcl
 {
 
-void collide(CollisionTraversalNodeBase* node, BVHFrontList* front_list)
+void collide(CollisionTraversalNodeBase* node, FCL_REAL& sqrDistLowerBound,
+	     BVHFrontList* front_list)
 {
   if(front_list && front_list->size() > 0)
   {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
+    propagateBVHFrontListCollisionRecurse(node, front_list, sqrDistLowerBound);
   }
   else
   {
-    collisionRecurse(node, 0, 0, front_list);
+    collisionRecurse(node, 0, 0, front_list, sqrDistLowerBound);
   }
 }
 
 void collide2(MeshCollisionTraversalNodeOBB* node, BVHFrontList* front_list)
 {
+  FCL_REAL sqrDistLowerBound = 0;
   if(front_list && front_list->size() > 0)
   {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
+    propagateBVHFrontListCollisionRecurse(node, front_list, sqrDistLowerBound);
   }
   else
   {
@@ -76,9 +78,10 @@ void collide2(MeshCollisionTraversalNodeOBB* node, BVHFrontList* front_list)
 
 void collide2(MeshCollisionTraversalNodeRSS* node, BVHFrontList* front_list)
 {
+  FCL_REAL sqrDistLowerBound = 0;
   if(front_list && front_list->size() > 0)
   {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
+    propagateBVHFrontListCollisionRecurse(node, front_list, sqrDistLowerBound);
   }
   else
   {
@@ -91,9 +94,10 @@ void collide2(MeshCollisionTraversalNodeRSS* node, BVHFrontList* front_list)
 void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list)
 {
 
+  FCL_REAL sqrDistLowerBound = 0;
   if(front_list && front_list->size() > 0)
   {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
+    propagateBVHFrontListCollisionRecurse(node, front_list, sqrDistLowerBound);
   }
   else
   {

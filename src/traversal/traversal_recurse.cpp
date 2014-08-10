@@ -40,50 +40,62 @@
 
 namespace fcl
 {
-void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list)
+void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, 
+		      BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)
 {
+  FCL_REAL sqrDistLowerBound1, sqrDistLowerBound2 = 0;
   bool l1 = node->isFirstNodeLeaf(b1);
   bool l2 = node->isSecondNodeLeaf(b2);
-
   if(l1 && l2)
   {
     updateFrontList(front_list, b1, b2);
 
-    if(node->BVTesting(b1, b2)) return;
+    if (node->enable_distance_lower_bound) {
+      if(node->BVTesting(b1, b2, sqrDistLowerBound)) return;
+    } else {
+      if(node->BVTesting(b1, b2)) return;
+    }
 
     node->leafTesting(b1, b2);
     return;
   }
 
-  if(node->BVTesting(b1, b2))
-  {
-    updateFrontList(front_list, b1, b2);
-    return;
+  if (node->enable_distance_lower_bound) {
+    if(node->BVTesting(b1, b2, sqrDistLowerBound)) {
+      updateFrontList(front_list, b1, b2);
+      return;
+    }
+  } else {
+    if(node->BVTesting(b1, b2)) {
+      updateFrontList(front_list, b1, b2);
+      return;
+    }
   }
-
   if(node->firstOverSecond(b1, b2))
   {
     int c1 = node->getFirstLeftChild(b1);
     int c2 = node->getFirstRightChild(b1);
 
-    collisionRecurse(node, c1, b2, front_list);
+    collisionRecurse(node, c1, b2, front_list, sqrDistLowerBound1);
 
     // early stop is disabled is front_list is used
     if(node->canStop() && !front_list) return;
 
-    collisionRecurse(node, c2, b2, front_list);
+    collisionRecurse(node, c2, b2, front_list, sqrDistLowerBound2);
+    sqrDistLowerBound = std::min (sqrDistLowerBound1, sqrDistLowerBound2);
   }
   else
   {
     int c1 = node->getSecondLeftChild(b2);
     int c2 = node->getSecondRightChild(b2);
 
-    collisionRecurse(node, b1, c1, front_list);
+    collisionRecurse(node, b1, c1, front_list, sqrDistLowerBound1);
 
     // early stop is disabled is front_list is used
     if(node->canStop() && !front_list) return;
 
-    collisionRecurse(node, b1, c2, front_list);
+    collisionRecurse(node, b1, c2, front_list, sqrDistLowerBound2);
+    sqrDistLowerBound = std::min (sqrDistLowerBound1, sqrDistLowerBound2);
   }
 }
 
@@ -177,6 +189,7 @@ void collisionRecurse(MeshCollisionTraversalNodeRSS* node, int b1, int b2, const
  */
 void selfCollisionRecurse(CollisionTraversalNodeBase* node, int b, BVHFrontList* front_list)
 {
+  FCL_REAL sqrDistLowerBound;
   bool l = node->isFirstNodeLeaf(b);
 
   if(l) return;
@@ -190,7 +203,7 @@ void selfCollisionRecurse(CollisionTraversalNodeBase* node, int b, BVHFrontList*
   selfCollisionRecurse(node, c2, front_list);
   if(node->canStop() && !front_list) return;
 
-  collisionRecurse(node, c1, c2, front_list);
+  collisionRecurse(node, c1, c2, front_list, sqrDistLowerBound);
 }
 
 void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list)
@@ -389,8 +402,11 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
   }
 }
 
-void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase* node, BVHFrontList* front_list)
+void propagateBVHFrontListCollisionRecurse
+(CollisionTraversalNodeBase* node, BVHFrontList* front_list,
+ FCL_REAL& sqrDistLowerBound)
 {
+  FCL_REAL sqrDistLowerBound1, sqrDistLowerBound2 = 0;
   BVHFrontList::iterator front_iter;
   BVHFrontList append;
   for(front_iter = front_list->begin(); front_iter != front_list->end(); ++front_iter)
@@ -403,30 +419,52 @@ void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase* node, BVH
     if(l1 & l2)
     {
       front_iter->valid = false; // the front node is no longer valid, in collideRecurse will add again.
-      collisionRecurse(node, b1, b2, &append);
+      collisionRecurse(node, b1, b2, &append, sqrDistLowerBound);
     }
     else
     {
-      if(!node->BVTesting(b1, b2))
-      {
-        front_iter->valid = false;
+      if (node->enable_distance_lower_bound) {
+	if(!node->BVTesting(b1, b2, sqrDistLowerBound)) {
+	  front_iter->valid = false;
+	  if(node->firstOverSecond(b1, b2)) {
+	    int c1 = node->getFirstLeftChild(b1);
+	    int c2 = node->getFirstRightChild(b2);
 
-        if(node->firstOverSecond(b1, b2))
-        {
-          int c1 = node->getFirstLeftChild(b1);
-          int c2 = node->getFirstRightChild(b2);
+	    collisionRecurse(node, c1, b2, front_list, sqrDistLowerBound1);
+	    collisionRecurse(node, c2, b2, front_list, sqrDistLowerBound2);
+	    sqrDistLowerBound = std::min (sqrDistLowerBound1,
+					  sqrDistLowerBound2);
+	  } else {
+	    int c1 = node->getSecondLeftChild(b2);
+	    int c2 = node->getSecondRightChild(b2);
+	
+	    collisionRecurse(node, b1, c1, front_list, sqrDistLowerBound1);
+	    collisionRecurse(node, b1, c2, front_list, sqrDistLowerBound2);
+	    sqrDistLowerBound = std::min (sqrDistLowerBound1,
+					  sqrDistLowerBound2);
+	  }
+	}
+      } else {
+	if(!node->BVTesting(b1, b2)) {
+	  front_iter->valid = false;
+	  if(node->firstOverSecond(b1, b2)) {
+	    int c1 = node->getFirstLeftChild(b1);
+	    int c2 = node->getFirstRightChild(b2);
 
-          collisionRecurse(node, c1, b2, front_list);
-          collisionRecurse(node, c2, b2, front_list);
-        }
-        else
-        {
-          int c1 = node->getSecondLeftChild(b2);
-          int c2 = node->getSecondRightChild(b2);
-
-          collisionRecurse(node, b1, c1, front_list);
-          collisionRecurse(node, b1, c2, front_list);
-        }
+	    collisionRecurse(node, c1, b2, front_list, sqrDistLowerBound1);
+	    collisionRecurse(node, c2, b2, front_list, sqrDistLowerBound2);
+	    sqrDistLowerBound = std::min (sqrDistLowerBound1,
+					  sqrDistLowerBound2);
+	  } else {
+	    int c1 = node->getSecondLeftChild(b2);
+	    int c2 = node->getSecondRightChild(b2);
+	
+	    collisionRecurse(node, b1, c1, front_list, sqrDistLowerBound1);
+	    collisionRecurse(node, b1, c2, front_list, sqrDistLowerBound2);
+	    sqrDistLowerBound = std::min (sqrDistLowerBound1,
+					  sqrDistLowerBound2);
+	  }
+	}
       }
     }
   }
