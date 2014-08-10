@@ -70,6 +70,12 @@ public:
     return false;
   }
 
+  /// @brief BV culling test in one BVTT node
+  bool BVTesting(int, int, FCL_REAL&) const
+  {
+    throw std::runtime_error ("Not implemented");
+  }
+
   /// @brief Intersection testing between leaves (two shapes)
   void leafTesting(int, int) const
   {

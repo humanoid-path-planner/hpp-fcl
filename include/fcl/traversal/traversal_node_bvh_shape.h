@@ -54,7 +54,8 @@ template<typename BV, typename S>
 class BVHShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  BVHShapeCollisionTraversalNode() : CollisionTraversalNodeBase()
+  BVHShapeCollisionTraversalNode(bool enable_distance_lower_bound) :
+  CollisionTraversalNodeBase (enable_distance_lower_bound)
   {
     model1 = NULL;
     model2 = NULL;
@@ -87,6 +88,17 @@ public:
   {
     if(this->enable_statistics) num_bv_tests++;
     return !model1->getBV(b1).bv.overlap(model2_bv);
+  }
+
+  /// BV test between b1 and b2
+  /// \param b1, b2 Bounding volumes to test,
+  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  ///         distance between bounding volumes.
+  /// @brief BV culling test in one BVTT node
+  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  {
+    if(this->enable_statistics) num_bv_tests++;
+    return !model1->getBV(b1).bv.overlap(model2_bv, sqrDistLowerBound);
   }
 
   const BVHModel<BV>* model1;
@@ -137,11 +149,22 @@ public:
     return model2->getBV(b).rightChild();
   }
 
-  /// @brief BV culling test in one BVTT node
+  /// BV test between b1 and b2
+  /// \param b1, b2 Bounding volumes to test,
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) num_bv_tests++;
     return !model2->getBV(b2).bv.overlap(model1_bv);
+  }
+
+  /// BV test between b1 and b2
+  /// \param b1, b2 Bounding volumes to test,
+  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  ///         distance between bounding volumes.
+  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  {
+    if(this->enable_statistics) num_bv_tests++;
+    return !model2->getBV(b2).bv.overlap(model1_bv, sqrDistLowerBound);
   }
 
   const S* model1;
@@ -159,7 +182,8 @@ template<typename BV, typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNode : public BVHShapeCollisionTraversalNode<BV, S>
 {
 public:
-  MeshShapeCollisionTraversalNode() : BVHShapeCollisionTraversalNode<BV, S>()
+  MeshShapeCollisionTraversalNode(bool enable_distance_lower_bound = false) :
+  BVHShapeCollisionTraversalNode<BV, S> (enable_distance_lower_bound)
   {
     vertices = NULL;
     tri_indices = NULL;
@@ -330,7 +354,9 @@ template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodeOBB() : MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>()
+  MeshShapeCollisionTraversalNodeOBB(bool enable_distance_lower_bound = false) :
+  MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>
+    (enable_distance_lower_bound)
   {
   }
 
@@ -352,7 +378,9 @@ template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodeRSS() : MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>()
+  MeshShapeCollisionTraversalNodeRSS (bool enable_distance_lower_bound = false):
+  MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>
+    (enable_distance_lower_bound)
   {
   }
 
@@ -374,7 +402,9 @@ template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodekIOS() : MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>()
+  MeshShapeCollisionTraversalNodekIOS(bool enable_distance_lower_bound = false):
+  MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>
+    (enable_distance_lower_bound)
   {
   }
 
@@ -396,7 +426,10 @@ template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversalNode<OBBRSS, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodeOBBRSS() : MeshShapeCollisionTraversalNode<OBBRSS, S, NarrowPhaseSolver>()
+  MeshShapeCollisionTraversalNodeOBBRSS
+    (bool enable_distance_lower_bound = false) :
+  MeshShapeCollisionTraversalNode
+    <OBBRSS, S, NarrowPhaseSolver>(enable_distance_lower_bound)
   {
   }
 
@@ -404,6 +437,14 @@ public:
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
+  }
+
+  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  {
+    if(this->enable_statistics) this->num_bv_tests++;
+    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
+		    this->model2_bv, this->model1->getBV(b1).bv,
+		    sqrDistLowerBound);
   }
 
   void leafTesting(int b1, int b2) const
@@ -592,6 +633,14 @@ public:
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
+  }
+
+  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  {
+    if(this->enable_statistics) this->num_bv_tests++;
+    return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(),
+		    this->model1_bv, this->model2->getBV(b2).bv,
+		    sqrDistLowerBound);
   }
 
   void leafTesting(int b1, int b2) const

@@ -63,6 +63,14 @@ public:
     return obb.overlap(other.obb);
   }
 
+  /// Check collision between two OBBRSS
+  /// \retval sqrDistLowerBound squared lower bound on distance between
+  ///         objects if they do not overlap.
+  bool overlap(const OBBRSS& other, FCL_REAL& sqrDistLowerBound) const
+  {
+    return obb.overlap(other.obb, sqrDistLowerBound);
+  }
+
   /// @brief Check collision between two OBBRSS and return the overlap part.
   bool overlap(const OBBRSS& other, OBBRSS& overlap_part) const
   {
@@ -147,6 +155,13 @@ OBBRSS translate(const OBBRSS& bv, const Vec3f& t);
 
 /// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0) and b2 is in indentity
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2);
+
+/// Check collision between two OBBRSS
+/// \param  b1 first OBBRSS in configuration (R0, T0)
+/// \param  b2 second OBBRSS in identity position
+/// \retval squared lower bound on the distance if OBBRSS do not overlap.
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2,
+	     FCL_REAL& sqrDistLowerBound);
 
 /// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0) and b2 is in indentity; P and Q, is not NULL, returns the nearest points
 FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);

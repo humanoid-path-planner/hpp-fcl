@@ -418,7 +418,8 @@ bool collide_Test_OBB(const Transform3f& tf,
 
   node.enable_statistics = verbose;
 
-  collide(&node);
+  FCL_REAL sqrDistLowerBound;
+  collide(&node, sqrDistLowerBound);
 
   if(local_result.numContacts() > 0)
     return true;

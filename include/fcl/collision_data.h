@@ -205,16 +205,18 @@ struct CollisionRequest
 
   CollisionRequest(size_t num_max_contacts_ = 1,
                    bool enable_contact_ = false,
-		   bool enable_distance_lower_bound = false,
+		   bool enable_distance_lower_bound_ = false,
                    size_t num_max_cost_sources_ = 1,
                    bool enable_cost_ = false,
                    bool use_approximate_cost_ = true,
-                   GJKSolverType gjk_solver_type_ = GST_LIBCCD) : num_max_contacts(num_max_contacts_),
-                                                                  enable_contact(enable_contact_),
-                                                                  num_max_cost_sources(num_max_cost_sources_),
-                                                                  enable_cost(enable_cost_),
-                                                                  use_approximate_cost(use_approximate_cost_),
-                                                                  gjk_solver_type(gjk_solver_type_)
+                   GJKSolverType gjk_solver_type_ = GST_LIBCCD) :
+  num_max_contacts(num_max_contacts_),
+    enable_contact(enable_contact_),
+    enable_distance_lower_bound (enable_distance_lower_bound_),
+    num_max_cost_sources(num_max_cost_sources_),
+    enable_cost(enable_cost_),
+    use_approximate_cost(use_approximate_cost_),
+    gjk_solver_type(gjk_solver_type_)
   {
     enable_cached_gjk_guess = false;
     cached_gjk_guess = Vec3f(1, 0, 0);

@@ -113,7 +113,8 @@ FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometry* o1_, const Tran
   if(!initialize<BV>(node, *o1, tf1, *o2, tf2, c_request))
     return -1.0;
 
-  collide(&node);
+  FCL_REAL unused;
+  collide(&node, unused);
 
   result.is_collide = (node.pairs.size() > 0);
   result.time_of_contact = node.time_of_contact;
