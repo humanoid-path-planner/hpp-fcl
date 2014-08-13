@@ -158,6 +158,12 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
                 unsigned int max_iterations, FCL_REAL tolerance,
                 Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal);
 
+/// Distance computation between objects using GJK algorithm
+/// \param obj1, obj2 objects to compute the distance between,
+/// \param supp1, supp2, support functions of each object,
+/// \retval p1, p2 closest points on objects in global frame,
+/// \retval dist distance between objects,
+/// \return whether distance is non negative (no collision).
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
                  unsigned int max_iterations, FCL_REAL tolerance,
