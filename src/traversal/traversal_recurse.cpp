@@ -43,7 +43,7 @@ namespace fcl
 void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, 
 		      BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)
 {
-  FCL_REAL sqrDistLowerBound1, sqrDistLowerBound2 = 0;
+  FCL_REAL sqrDistLowerBound1 = 0, sqrDistLowerBound2 = 0;
   bool l1 = node->isFirstNodeLeaf(b1);
   bool l2 = node->isSecondNodeLeaf(b2);
   if(l1 && l2)
@@ -56,7 +56,7 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
       if(node->BVTesting(b1, b2)) return;
     }
 
-    node->leafTesting(b1, b2);
+    node->leafTesting(b1, b2, sqrDistLowerBound);
     return;
   }
 
@@ -406,7 +406,7 @@ void propagateBVHFrontListCollisionRecurse
 (CollisionTraversalNodeBase* node, BVHFrontList* front_list,
  FCL_REAL& sqrDistLowerBound)
 {
-  FCL_REAL sqrDistLowerBound1, sqrDistLowerBound2 = 0;
+  FCL_REAL sqrDistLowerBound1 = 0, sqrDistLowerBound2 = 0;
   BVHFrontList::iterator front_iter;
   BVHFrontList append;
   for(front_iter = front_list->begin(); front_iter != front_list->end(); ++front_iter)
