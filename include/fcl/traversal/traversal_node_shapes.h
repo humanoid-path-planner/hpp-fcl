@@ -78,6 +78,7 @@ public:
   /// @brief Intersection testing between leaves (two shapes)
   void leafTesting(int, int) const
   {
+    abort ();
     if(model1->isOccupied() && model2->isOccupied())
     {
       bool is_collision = false;

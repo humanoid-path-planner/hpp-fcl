@@ -271,17 +271,13 @@ public:
 namespace details
 {
 template<typename BV, typename S, typename NarrowPhaseSolver>
-static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
-                                                             const BVHModel<BV>* model1, const S& model2,
-                                                             Vec3f* vertices, Triangle* tri_indices,
-                                                             const Transform3f& tf1,
-                                                             const Transform3f& tf2, 
-                                                             const NarrowPhaseSolver* nsolver,
-                                                             bool enable_statistics, 
-                                                             FCL_REAL cost_density,
-                                                             int& num_leaf_tests,
-                                                             const CollisionRequest& request,
-                                                             CollisionResult& result)
+static inline void meshShapeCollisionOrientedNodeLeafTesting
+  (int b1, int b2, const BVHModel<BV>* model1, const S& model2,
+   Vec3f* vertices, Triangle* tri_indices, const Transform3f& tf1,
+   const Transform3f& tf2, const NarrowPhaseSolver* nsolver,
+   bool enable_statistics, FCL_REAL cost_density, int& num_leaf_tests,
+   const CollisionRequest& request, CollisionResult& result,
+   FCL_REAL& sqrDistLowerBound)
 {
   if(enable_statistics) num_leaf_tests++;
   const BVNode<BV>& node = model1->getBV(b1);
@@ -300,11 +296,27 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
 
     if(!request.enable_contact) // only interested in collision or not
     {
-      if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
-      {
-        is_intersect = true;
-        if(request.num_max_contacts > result.numContacts())
-          result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE));
+      if (request.enable_distance_lower_bound) {
+	FCL_REAL dist;
+	if (nsolver->shapeTriangleDistance (model2, tf2, p1, p2, p3, tf1,
+					    &dist, 0x0, 0x0)) {
+	  sqrDistLowerBound = dist * dist;
+	} else {
+	  // collision
+	  is_intersect = true;
+	  sqrDistLowerBound = 0;
+	  if(request.num_max_contacts > result.numContacts())
+	    result.addContact(Contact(model1, &model2, primitive_id,
+				      Contact::NONE));
+	}
+      } else {
+	if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1,
+					   NULL, NULL, NULL)) {
+	  is_intersect = true;
+	  if(request.num_max_contacts > result.numContacts())
+	    result.addContact(Contact(model1, &model2, primitive_id,
+				      Contact::NONE));
+	}
       }
     }
     else
@@ -365,10 +377,13 @@ public:
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
-    details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->result));
+    details::meshShapeCollisionOrientedNodeLeafTesting
+      (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+       this->tf1, this->tf2, this->nsolver, this->enable_statistics,
+       this->cost_density, this->num_leaf_tests, this->request,
+       *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -389,10 +404,13 @@ public:
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
-    details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->result));
+    details::meshShapeCollisionOrientedNodeLeafTesting
+      (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+       this->tf1, this->tf2, this->nsolver, this->enable_statistics,
+       this->cost_density, this->num_leaf_tests, this->request,
+       *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -413,10 +431,13 @@ public:
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
-    details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->result));
+    details::meshShapeCollisionOrientedNodeLeafTesting
+      (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+       this->tf1, this->tf2, this->nsolver, this->enable_statistics,
+       this->cost_density, this->num_leaf_tests, this->request,
+       *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -446,10 +467,13 @@ public:
 		    sqrDistLowerBound);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
-    details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->result));
+    details::meshShapeCollisionOrientedNodeLeafTesting
+      (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+       this->tf1, this->tf2, this->nsolver, this->enable_statistics,
+       this->cost_density, this->num_leaf_tests, this->request,
+       *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -560,10 +584,13 @@ public:
     return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
-    details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
+    details::meshShapeCollisionOrientedNodeLeafTesting
+      (b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
+       this->tf2, this->tf1, this->nsolver, this->enable_statistics,
+       this->cost_density, this->num_leaf_tests, this->request,
+       *(this->request), sqrDistLowerBound);
 
     // may need to change the order in pairs
   }
@@ -584,10 +611,13 @@ public:
     return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
-    details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
+    details::meshShapeCollisionOrientedNodeLeafTesting
+      (b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
+       this->tf2, this->tf1, this->nsolver, this->enable_statistics,
+       this->cost_density, this->num_leaf_tests, this->request,
+       *(this->request));
 
     // may need to change the order in pairs
   }
@@ -609,10 +639,13 @@ public:
     return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
-    details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
+    details::meshShapeCollisionOrientedNodeLeafTesting
+      (b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
+       this->tf2, this->tf1, this->nsolver, this->enable_statistics,
+       this->cost_density, this->num_leaf_tests, this->request,
+       *(this->request), sqrDistLowerBound);
 
     // may need to change the order in pairs
   }
@@ -642,10 +675,13 @@ public:
 		    sqrDistLowerBound);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
-    details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
+    details::meshShapeCollisionOrientedNodeLeafTesting
+      (b2, b1, *(this->model2), this->model1, this->vertices,
+       this->tri_indices, this->tf2, this->tf1, this->nsolver,
+       this->enable_statistics, this->cost_density, this->num_leaf_tests,
+       this->request, *(this->request), sqrDistLowerBound);
 
     // may need to change the order in pairs
   }

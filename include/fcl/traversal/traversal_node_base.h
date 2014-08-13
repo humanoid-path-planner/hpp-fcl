@@ -105,7 +105,7 @@ public:
   virtual bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs
-  virtual void leafTesting(int b1, int b2) const;
+  virtual void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
 
   /// @brief Check whether the traversal can stop
   virtual bool canStop() const;
