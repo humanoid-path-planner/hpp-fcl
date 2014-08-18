@@ -62,7 +62,8 @@ template<typename BV>
 class BVHCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  BVHCollisionTraversalNode() : CollisionTraversalNodeBase()
+  BVHCollisionTraversalNode(bool enable_distance_lower_bound) :
+  CollisionTraversalNodeBase (enable_distance_lower_bound)
   {
     model1 = NULL;
     model2 = NULL;
@@ -156,7 +157,8 @@ template<typename BV>
 class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
 {
 public:
-  MeshCollisionTraversalNode() : BVHCollisionTraversalNode<BV>()
+  MeshCollisionTraversalNode(bool enable_distance_lower_bound) :
+  BVHCollisionTraversalNode<BV> (enable_distance_lower_bound)
   {
     vertices1 = NULL;
     vertices2 = NULL;
@@ -261,7 +263,7 @@ public:
 class MeshCollisionTraversalNodeOBB : public MeshCollisionTraversalNode<OBB>
 {
 public:
-  MeshCollisionTraversalNodeOBB();
+  MeshCollisionTraversalNodeOBB (bool enable_distance_lower_bound);
 
   bool BVTesting(int b1, int b2) const;
 
@@ -278,7 +280,7 @@ public:
 class MeshCollisionTraversalNodeRSS : public MeshCollisionTraversalNode<RSS>
 {
 public:
-  MeshCollisionTraversalNodeRSS();
+  MeshCollisionTraversalNodeRSS (bool enable_distance_lower_bound);
 
   bool BVTesting(int b1, int b2) const;
 
@@ -295,7 +297,7 @@ public:
 class MeshCollisionTraversalNodekIOS : public MeshCollisionTraversalNode<kIOS>
 {
 public:
-  MeshCollisionTraversalNodekIOS();
+  MeshCollisionTraversalNodekIOS (bool enable_distance_lower_bound);
  
   bool BVTesting(int b1, int b2) const;
 
@@ -308,7 +310,7 @@ public:
 class MeshCollisionTraversalNodeOBBRSS : public MeshCollisionTraversalNode<OBBRSS>
 {
 public:
-  MeshCollisionTraversalNodeOBBRSS();
+  MeshCollisionTraversalNodeOBBRSS (bool enable_distance_lower_bound);
  
   bool BVTesting(int b1, int b2) const;
 
@@ -342,7 +344,7 @@ template<typename BV>
 class MeshContinuousCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
 {
 public:
-  MeshContinuousCollisionTraversalNode() : BVHCollisionTraversalNode<BV>()
+  MeshContinuousCollisionTraversalNode() : BVHCollisionTraversalNode<BV>(false)
   {
     vertices1 = NULL;
     vertices2 = NULL;
