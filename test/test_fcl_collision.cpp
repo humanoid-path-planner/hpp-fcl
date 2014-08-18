@@ -830,7 +830,7 @@ bool collide_Test2(const Transform3f& tf,
   Transform3f pose1, pose2;
 
   CollisionResult local_result;
-  MeshCollisionTraversalNode<BV> node;
+  MeshCollisionTraversalNode<BV> node (false);
 
   if(!initialize<BV>(node, m1, pose1, m2, pose2,
                      CollisionRequest(num_max_contacts, enable_contact), local_result))
@@ -890,7 +890,7 @@ bool collide_Test(const Transform3f& tf,
   Transform3f pose1(tf), pose2;
 
   CollisionResult local_result;
-  MeshCollisionTraversalNode<BV> node;
+  MeshCollisionTraversalNode<BV> node (false);
 
   if(!initialize<BV>(node, m1, pose1, m2, pose2,
                      CollisionRequest(num_max_contacts, enable_contact), local_result))
@@ -949,7 +949,7 @@ bool collide_Test_Oriented(const Transform3f& tf,
   Transform3f pose1(tf), pose2;
 
   CollisionResult local_result;
-  TraversalNode node;
+  TraversalNode node (false);
   if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2, 
                  CollisionRequest(num_max_contacts, enable_contact), local_result))
     std::cout << "initialize error" << std::endl;

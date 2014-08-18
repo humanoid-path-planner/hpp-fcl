@@ -410,7 +410,7 @@ bool collide_Test_OBB(const Transform3f& tf,
   m2.endModel();
 
   CollisionResult local_result;	
-  MeshCollisionTraversalNodeOBB node;
+  MeshCollisionTraversalNodeOBB node (false);
   if(!initialize(node, (const BVHModel<OBB>&)m1, tf, (const BVHModel<OBB>&)m2, Transform3f(),
                  CollisionRequest(), local_result))
     std::cout << "initialize error" << std::endl;

@@ -408,7 +408,7 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, cons
 {
   if(request.isSatisfied(result)) return result.numContacts();
   
-  MeshCollisionTraversalNode<T_BVH> node;
+  MeshCollisionTraversalNode<T_BVH> node (request.enable_distance_lower_bound);
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
   const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>* >(o2);
   BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
@@ -434,7 +434,7 @@ std::size_t orientedMeshCollide(const CollisionGeometry* o1, const Transform3f& 
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
-  OrientedMeshCollisionTraversalNode node;
+  OrientedMeshCollisionTraversalNode node (request.enable_distance_lower_bound);
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
   const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>* >(o2);
 

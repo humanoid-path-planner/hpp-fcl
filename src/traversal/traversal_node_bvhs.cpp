@@ -178,7 +178,9 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
 
 }
 
-MeshCollisionTraversalNodeOBB::MeshCollisionTraversalNodeOBB() : MeshCollisionTraversalNode<OBB>()
+MeshCollisionTraversalNodeOBB::MeshCollisionTraversalNodeOBB
+(bool enable_distance_lower_bound) :
+  MeshCollisionTraversalNode<OBB> (enable_distance_lower_bound)
 {
   R.setIdentity();
 }
@@ -220,7 +222,9 @@ void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3f& 
 
 
 
-MeshCollisionTraversalNodeRSS::MeshCollisionTraversalNodeRSS() : MeshCollisionTraversalNode<RSS>()
+MeshCollisionTraversalNodeRSS::MeshCollisionTraversalNodeRSS
+(bool enable_distance_lower_bound) :
+  MeshCollisionTraversalNode<RSS> (enable_distance_lower_bound)
 {
   R.setIdentity();
 }
@@ -245,7 +249,9 @@ void MeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 
 
 
-MeshCollisionTraversalNodekIOS::MeshCollisionTraversalNodekIOS() : MeshCollisionTraversalNode<kIOS>()
+MeshCollisionTraversalNodekIOS::MeshCollisionTraversalNodekIOS
+(bool enable_distance_lower_bound) :
+  MeshCollisionTraversalNode<kIOS>(enable_distance_lower_bound)
 {
   R.setIdentity();
 }
@@ -269,7 +275,9 @@ void MeshCollisionTraversalNodekIOS::leafTesting(int b1, int b2) const
 
 
 
-MeshCollisionTraversalNodeOBBRSS::MeshCollisionTraversalNodeOBBRSS() : MeshCollisionTraversalNode<OBBRSS>()
+MeshCollisionTraversalNodeOBBRSS::MeshCollisionTraversalNodeOBBRSS
+(bool enable_distance_lower_bound) :
+  MeshCollisionTraversalNode<OBBRSS> (enable_distance_lower_bound)
 {
   R.setIdentity();
 }
