@@ -167,9 +167,8 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
   // nearest point pair
   Vec3f P1, P2;
 
-  FCL_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
-                                             R, T,
-                                             P1, P2);
+  FCL_REAL d = sqrt (TriangleDistance::sqrTriDistance
+		     (t11, t12, t13, t21, t22, t23, R, T, P1, P2));
 
   if(request.enable_nearest_points)
     result.update(d, model1, model2, primitive_id1, primitive_id2, P1, P2);
@@ -336,9 +335,11 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1, co
   init_tri2_points[2] = vertices2[init_tri2[2]];
 
   Vec3f p1, p2;
-  FCL_REAL distance = TriangleDistance::triDistance(init_tri1_points[0], init_tri1_points[1], init_tri1_points[2],
-                                                    init_tri2_points[0], init_tri2_points[1], init_tri2_points[2],
-                                                    R, T, p1, p2);
+  FCL_REAL distance = sqrt (TriangleDistance::sqrTriDistance
+			    (init_tri1_points[0], init_tri1_points[1],
+			     init_tri1_points[2], init_tri2_points[0],
+			     init_tri2_points[1], init_tri2_points[2],
+			     R, T, p1, p2));
 
   if(request.enable_nearest_points)
     result.update(distance, model1, model2, init_tri_id1, init_tri_id2, p1, p2);
@@ -563,9 +564,8 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(int b1, int b2,
   // nearest point pair
   Vec3f P1, P2;
 
-  FCL_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
-                                             R, T,
-                                             P1, P2);
+  FCL_REAL d = sqrt (TriangleDistance::sqrTriDistance
+		     (t11, t12, t13, t21, t22, t23, R, T, P1, P2));
 
   if(d < min_distance)
   {
