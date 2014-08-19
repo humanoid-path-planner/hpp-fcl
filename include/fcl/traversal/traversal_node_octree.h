@@ -1040,7 +1040,7 @@ public:
     return false;
   }
 
-  void leafTesting(int, int) const
+  void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeIntersect(model1, model2, tf1, tf2, request, *result);
   }
@@ -1101,7 +1101,7 @@ public:
     return false;
   }
 
-  void leafTesting(int, int) const
+  void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeShapeIntersect(model2, *model1, tf2, tf1, request, *result);
   }
@@ -1132,7 +1132,7 @@ public:
     return false;
   }
 
-  void leafTesting(int, int) const
+  void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeShapeIntersect(model1, *model2, tf1, tf2, request, *result);
   }
@@ -1221,7 +1221,7 @@ public:
     return false;
   }
 
-  void leafTesting(int, int) const
+  void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeMeshIntersect(model2, model1, tf2, tf1, request, *result);
   }
@@ -1252,7 +1252,7 @@ public:
     return false;
   }
 
-  void leafTesting(int, int) const
+  void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeMeshIntersect(model1, model2, tf1, tf2, request, *result);
   }

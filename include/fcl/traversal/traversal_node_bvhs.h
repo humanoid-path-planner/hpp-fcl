@@ -166,7 +166,7 @@ public:
   }
 
   /// @brief Intersection testing between leaves (two triangles)
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 
@@ -266,11 +266,12 @@ public:
 
   bool BVTesting(int b1, int b2) const;
 
-  void leafTesting(int b1, int b2) const;
+  void leafTesting(int b1, int b2, FCL_REAL&) const;
 
   bool BVTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
 
-  void leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
+  void leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc,
+		   FCL_REAL& sqrDistLowerBound) const;
 
   Matrix3f R;
   Vec3f T;
@@ -283,11 +284,12 @@ public:
 
   bool BVTesting(int b1, int b2) const;
 
-  void leafTesting(int b1, int b2) const;
+  void leafTesting(int b1, int b2, FCL_REAL&) const;
 
   bool BVTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
 
-  void leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
+  void leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc,
+		   FCL_REAL& sqrDistLowerBound) const;
 
   Matrix3f R;
   Vec3f T;
@@ -300,7 +302,7 @@ public:
  
   bool BVTesting(int b1, int b2) const;
 
-  void leafTesting(int b1, int b2) const;
+  void leafTesting(int b1, int b2, FCL_REAL&) const;
 
   Matrix3f R;
   Vec3f T;
@@ -315,7 +317,7 @@ public:
 
   bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
 
-  void leafTesting(int b1, int b2) const;
+  void leafTesting(int b1, int b2, FCL_REAL&) const;
 
   Matrix3f R;
   Vec3f T;
@@ -358,7 +360,7 @@ public:
   }
 
   /// @brief Intersection testing between leaves (two triangles)
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int b2, FCL_REAL&) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 
