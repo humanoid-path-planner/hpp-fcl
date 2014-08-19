@@ -1286,7 +1286,8 @@ void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q,
 }
 
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::sqrTriDistance
+(const Vec3f S[3], const Vec3f T[3], Vec3f& P, Vec3f& Q)
 {
   // Compute vectors along the 6 sides
 
@@ -1341,7 +1342,7 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
         Z = T[(j+2)%3] - Q;
         FCL_REAL b = Z.dot(VEC);
 
-        if((a <= 0) && (b >= 0)) return sqrt(dd);
+        if((a <= 0) && (b >= 0)) return dd;
 
         FCL_REAL p = V.dot(VEC);
 
@@ -1431,7 +1432,7 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
             // the T triangle; the other point is on the face of S
             P = T[point] + Sn * (Tp[point] / Snl);
             Q = T[point];
-            return (P - Q).length();
+            return (P - Q).sqrLength();
           }
         }
       }
@@ -1487,7 +1488,7 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
           {
             P = S[point];
             Q = S[point] + Tn * (Sp[point] / Tnl);
-            return (P - Q).length();
+            return (P - Q).sqrLength();
           }
         }
       }
@@ -1503,70 +1504,73 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
   {
     P = minP;
     Q = minQ;
-    return sqrt(mindd);
+    return mindd;
   }
   else return 0;
 }
 
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
-                                       const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
-                                       Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::sqrTriDistance
+(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
+ const Vec3f& T1, const Vec3f& T2, const Vec3f& T3, Vec3f& P, Vec3f& Q)
 {
   Vec3f S[3];
   Vec3f T[3];
   S[0] = S1; S[1] = S2; S[2] = S3;
   T[0] = T1; T[1] = T2; T[2] = T3;
 
-  return triDistance(S, T, P, Q);
+  return sqrTriDistance (S, T, P, Q);
 }
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
-                                       const Matrix3f& R, const Vec3f& Tl,
-                                       Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::sqrTriDistance (const Vec3f S[3], const Vec3f T[3],
+					   const Matrix3f& R, const Vec3f& Tl,
+					   Vec3f& P, Vec3f& Q)
 {
   Vec3f T_transformed[3];
   T_transformed[0] = R * T[0] + Tl;
   T_transformed[1] = R * T[1] + Tl;
   T_transformed[2] = R * T[2] + Tl;
 
-  return triDistance(S, T_transformed, P, Q);
+  return sqrTriDistance (S, T_transformed, P, Q);
 }
 
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
-                                       const Transform3f& tf,
-                                       Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::sqrTriDistance (const Vec3f S[3], const Vec3f T[3],
+					   const Transform3f& tf,
+					   Vec3f& P, Vec3f& Q)
 {
   Vec3f T_transformed[3];
   T_transformed[0] = tf.transform(T[0]);
   T_transformed[1] = tf.transform(T[1]);
   T_transformed[2] = tf.transform(T[2]);
 
-  return triDistance(S, T_transformed, P, Q);
+  return sqrTriDistance (S, T_transformed, P, Q);
 }
 
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
-                                       const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
-                                       const Matrix3f& R, const Vec3f& Tl,
-                                       Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::sqrTriDistance
+(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
+ const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
+ const Matrix3f& R, const Vec3f& Tl,
+ Vec3f& P, Vec3f& Q)
 {
   Vec3f T1_transformed = R * T1 + Tl;
   Vec3f T2_transformed = R * T2 + Tl;
   Vec3f T3_transformed = R * T3 + Tl;
-  return triDistance(S1, S2, S3, T1_transformed, T2_transformed, T3_transformed, P, Q);
+  return sqrTriDistance (S1, S2, S3, T1_transformed, T2_transformed,
+			 T3_transformed, P, Q);
 }
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
-                                       const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
-                                       const Transform3f& tf,
-                                       Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::sqrTriDistance
+(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
+ const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
+ const Transform3f& tf,
+ Vec3f& P, Vec3f& Q)
 {
   Vec3f T1_transformed = tf.transform(T1);
   Vec3f T2_transformed = tf.transform(T2);
   Vec3f T3_transformed = tf.transform(T3);
-  return triDistance(S1, S2, S3, T1_transformed, T2_transformed, T3_transformed, P, Q);
+  return sqrTriDistance (S1, S2, S3, T1_transformed, T2_transformed, T3_transformed, P, Q);
 }
 
 
