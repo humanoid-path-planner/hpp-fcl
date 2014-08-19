@@ -44,17 +44,13 @@ namespace fcl
 namespace details
 {
 template<typename BV>
-static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
-                                                        const BVHModel<BV>* model1, const BVHModel<BV>* model2,
-                                                        Vec3f* vertices1, Vec3f* vertices2, 
-                                                        Triangle* tri_indices1, Triangle* tri_indices2,
-                                                        const Matrix3f& R, const Vec3f& T,
-                                                        const Transform3f& tf1, const Transform3f& tf2,
-                                                        bool enable_statistics,
-                                                        FCL_REAL cost_density,
-                                                        int& num_leaf_tests,
-                                                        const CollisionRequest& request,
-                                                        CollisionResult& result)
+static inline void meshCollisionOrientedNodeLeafTesting
+(int b1, int b2, const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+ Vec3f* vertices1, Vec3f* vertices2, Triangle* tri_indices1,
+ Triangle* tri_indices2, const Matrix3f& R, const Vec3f& T,
+ const Transform3f& tf1, const Transform3f& tf2, bool enable_statistics,
+ FCL_REAL cost_density, int& num_leaf_tests, const CollisionRequest& request,
+ CollisionResult& result, FCL_REAL& sqrDistLowerBound)
 {
   if(enable_statistics) num_leaf_tests++;
 
@@ -80,11 +76,23 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
 
     if(!request.enable_contact) // only interested in collision or not
     {
-      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
-      {
-        is_intersect = true;
-        if(result.numContacts() < request.num_max_contacts)
-          result.addContact(Contact(model1, model2, primitive_id1, primitive_id2));
+      if (request.enable_distance_lower_bound) {
+	Vec3f P, Q;
+	sqrDistLowerBound = TriangleDistance::sqrTriDistance
+	  (p1, p2, p3, q1, q2, q3, R, T, P, Q);
+	if (sqrDistLowerBound == 0) {
+	  is_intersect = true;
+	  if(result.numContacts() < request.num_max_contacts)
+	    result.addContact(Contact(model1, model2, primitive_id1,
+				      primitive_id2));
+	}
+      } else {
+	if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T)) {
+	  is_intersect = true;
+	  if(result.numContacts() < request.num_max_contacts)
+	    result.addContact(Contact(model1, model2, primitive_id1,
+				      primitive_id2));
+	}
       }
     }
     else // need compute the contact information
@@ -191,15 +199,14 @@ bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2) const
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
+void MeshCollisionTraversalNodeOBB::leafTesting
+(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
 {
-  details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
-                                                tri_indices1, tri_indices2, 
-                                                R, T, 
-                                                tf1, tf2,
-                                                enable_statistics, cost_density,
-                                                num_leaf_tests,
-                                                request, *result);
+  details::meshCollisionOrientedNodeLeafTesting
+    (b1, b2, model1, model2, vertices1, vertices2, 
+     tri_indices1, tri_indices2, R, T, tf1, tf2,
+     enable_statistics, cost_density, num_leaf_tests, request, *result,
+     sqrDistLowerBound);
 }
 
 
@@ -209,16 +216,15 @@ bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2, const Matrix3f& Rc
   return obbDisjoint(Rc, Tc, model1->getBV(b1).bv.extent, model2->getBV(b2).bv.extent);
 }
 
-void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const
-{
-  details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
-                                                tri_indices1, tri_indices2, 
-                                                R, T, 
-                                                tf1, tf2,
-                                                enable_statistics, cost_density,
-                                                num_leaf_tests,
-                                                request, *result);
-}
+  void MeshCollisionTraversalNodeOBB::leafTesting
+  (int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc,
+   FCL_REAL& sqrDistLowerBound) const
+  {
+    details::meshCollisionOrientedNodeLeafTesting
+      (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2,
+       R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests, request,
+       *result, sqrDistLowerBound);
+  }
 
 
 
@@ -235,15 +241,13 @@ bool MeshCollisionTraversalNodeRSS::BVTesting(int b1, int b2) const
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-void MeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
+void MeshCollisionTraversalNodeRSS::leafTesting
+(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
 {
-  details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
-                                                tri_indices1, tri_indices2, 
-                                                R, T, 
-                                                tf1, tf2,
-                                                enable_statistics, cost_density,
-                                                num_leaf_tests,
-                                                request, *result);
+  details::meshCollisionOrientedNodeLeafTesting
+    (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+     R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests,
+     request, *result, sqrDistLowerBound);
 }
 
 
@@ -262,15 +266,13 @@ bool MeshCollisionTraversalNodekIOS::BVTesting(int b1, int b2) const
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-void MeshCollisionTraversalNodekIOS::leafTesting(int b1, int b2) const
+void MeshCollisionTraversalNodekIOS::leafTesting
+(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
 {
-  details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
-                                                tri_indices1, tri_indices2, 
-                                                R, T, 
-                                                tf1, tf2,
-                                                enable_statistics, cost_density,
-                                                num_leaf_tests,
-                                                request, *result);
+  details::meshCollisionOrientedNodeLeafTesting
+    (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+     R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests,
+     request, *result, sqrDistLowerBound);
 }
 
 
@@ -296,15 +298,13 @@ bool MeshCollisionTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
 		    sqrDistLowerBound);
   }
 
-void MeshCollisionTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
+void MeshCollisionTraversalNodeOBBRSS::leafTesting
+(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
 {
-  details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
-                                                tri_indices1, tri_indices2, 
-                                                R, T, 
-                                                tf1, tf2,
-                                                enable_statistics, cost_density,
-                                                num_leaf_tests,
-                                                request,*result);
+  details::meshCollisionOrientedNodeLeafTesting
+    (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+     R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests,
+     request,*result, sqrDistLowerBound);
 }
 
 

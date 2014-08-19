@@ -85,20 +85,6 @@ CollisionTraversalNodeBase::~CollisionTraversalNodeBase()
 {
 }
 
-bool CollisionTraversalNodeBase::BVTesting(int b1, int b2) const
-{
-  return true;
-}
-
-bool CollisionTraversalNodeBase::BVTesting(int b1, int b2, FCL_REAL&) const
-{
-  throw std::runtime_error ("Not implemented yet");
-}
-
-void CollisionTraversalNodeBase::leafTesting(int, int, FCL_REAL&) const
-{
-}
-
 bool CollisionTraversalNodeBase::canStop() const
 {
   return false;
@@ -112,10 +98,6 @@ DistanceTraversalNodeBase::~DistanceTraversalNodeBase()
 FCL_REAL DistanceTraversalNodeBase::BVTesting(int b1, int b2) const
 {
   return std::numeric_limits<FCL_REAL>::max();
-}
-
-void DistanceTraversalNodeBase::leafTesting(int b1, int b2) const
-{
 }
 
 bool DistanceTraversalNodeBase::canStop(FCL_REAL c) const
