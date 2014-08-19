@@ -299,40 +299,83 @@ public:
   static void segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q, const Vec3f& B,
                         Vec3f& VEC, Vec3f& X, Vec3f& Y);
 
-  /// @brief Compute the closest points on two triangles given their absolute coordinate, and returns the distance between them
-  /// S and T are two triangles
-  /// If the triangles are disjoint, P and Q give the closet points of S and T respectively. However,
-  /// if the triangles overlap, P and Q are basically a random pair of points from the triangles, not
-  /// coincident points on the intersection of the triangles, as might be expected.
-  static FCL_REAL triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f& P, Vec3f& Q);
+  /// Compute squared distance between triangles
+  /// \param S and T are two triangles
+  /// \retval P, Q closest points if triangles do not intersect.
+  /// \return squared distance if triangles do not intersect, 0 otherwise.
+  /// If the triangles are disjoint, P and Q give the closet points of
+  /// S and T respectively. However,
+  /// if the triangles overlap, P and Q are basically a random pair of points
+  /// from the triangles, not coincident points on the intersection of the
+  /// triangles, as might be expected.
+  static FCL_REAL sqrTriDistance (const Vec3f S[3], const Vec3f T[3],
+				  Vec3f& P, Vec3f& Q);
 
-  static FCL_REAL triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
-                              const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
-                              Vec3f& P, Vec3f& Q);
+  static FCL_REAL sqrTriDistance (const Vec3f& S1, const Vec3f& S2,
+				  const Vec3f& S3, const Vec3f& T1,
+				  const Vec3f& T2, const Vec3f& T3,
+				  Vec3f& P, Vec3f& Q);
 
-  /// @brief Compute the closest points on two triangles given the relative transform between them, and returns the distance between them
-  /// S and T are two triangles
-  /// If the triangles are disjoint, P and Q give the closet points of S and T respectively. However,
-  /// if the triangles overlap, P and Q are basically a random pair of points from the triangles, not
-  /// coincident points on the intersection of the triangles, as might be expected.
-  /// The returned P and Q are both in the coordinate of the first triangle's coordinate
-  static FCL_REAL triDistance(const Vec3f S[3], const Vec3f T[3],
-                              const Matrix3f& R, const Vec3f& Tl,
-                              Vec3f& P, Vec3f& Q);
+  /// Compute squared distance between triangles
+  /// \param S and T are two triangles
+  /// \param R, Tl, rotation and translation applied to T,
+  /// \retval P, Q closest points if triangles do not intersect.
+  /// \return squared distance if triangles do not intersect, 0 otherwise.
+  /// If the triangles are disjoint, P and Q give the closet points of
+  /// S and T respectively. However,
+  /// if the triangles overlap, P and Q are basically a random pair of points
+  /// from the triangles, not coincident points on the intersection of the
+  /// triangles, as might be expected.
+  static FCL_REAL sqrTriDistance (const Vec3f S[3], const Vec3f T[3],
+				  const Matrix3f& R, const Vec3f& Tl,
+				  Vec3f& P, Vec3f& Q);
 
-  static FCL_REAL triDistance(const Vec3f S[3], const Vec3f T[3],
-                              const Transform3f& tf,
-                              Vec3f& P, Vec3f& Q);
+  /// Compute squared distance between triangles
+  /// \param S and T are two triangles
+  /// \param tf, rotation and translation applied to T,
+  /// \retval P, Q closest points if triangles do not intersect.
+  /// \return squared distance if triangles do not intersect, 0 otherwise.
+  /// If the triangles are disjoint, P and Q give the closet points of
+  /// S and T respectively. However,
+  /// if the triangles overlap, P and Q are basically a random pair of points
+  /// from the triangles, not coincident points on the intersection of the
+  /// triangles, as might be expected.
+  static FCL_REAL sqrTriDistance (const Vec3f S[3], const Vec3f T[3],
+				  const Transform3f& tf,
+				  Vec3f& P, Vec3f& Q);
 
-  static FCL_REAL triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
-                              const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
-                              const Matrix3f& R, const Vec3f& Tl,
-                              Vec3f& P, Vec3f& Q);
 
-  static FCL_REAL triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
-                              const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
-                              const Transform3f& tf,
-                              Vec3f& P, Vec3f& Q);
+  /// Compute squared distance between triangles
+  /// \param S1, S2, S3 and T1, T2, T3 are triangle vertices
+  /// \param R, Tl, rotation and translation applied to T1, T2, T3,
+  /// \retval P, Q closest points if triangles do not intersect.
+  /// \return squared distance if triangles do not intersect, 0 otherwise.
+  /// If the triangles are disjoint, P and Q give the closet points of
+  /// S and T respectively. However,
+  /// if the triangles overlap, P and Q are basically a random pair of points
+  /// from the triangles, not coincident points on the intersection of the
+  /// triangles, as might be expected.
+  static FCL_REAL sqrTriDistance (const Vec3f& S1, const Vec3f& S2,
+				  const Vec3f& S3, const Vec3f& T1,
+				  const Vec3f& T2, const Vec3f& T3,
+				  const Matrix3f& R, const Vec3f& Tl,
+				  Vec3f& P, Vec3f& Q);
+
+  /// Compute squared distance between triangles
+  /// \param S1, S2, S3 and T1, T2, T3 are triangle vertices
+  /// \param tf, rotation and translation applied to T1, T2, T3,
+  /// \retval P, Q closest points if triangles do not intersect.
+  /// \return squared distance if triangles do not intersect, 0 otherwise.
+  /// If the triangles are disjoint, P and Q give the closet points of
+  /// S and T respectively. However,
+  /// if the triangles overlap, P and Q are basically a random pair of points
+  /// from the triangles, not coincident points on the intersection of the
+  /// triangles, as might be expected.
+  static FCL_REAL sqrTriDistance (const Vec3f& S1, const Vec3f& S2,
+				  const Vec3f& S3, const Vec3f& T1,
+				  const Vec3f& T2, const Vec3f& T3,
+				  const Transform3f& tf,
+				  Vec3f& P, Vec3f& Q);
 
 };
 

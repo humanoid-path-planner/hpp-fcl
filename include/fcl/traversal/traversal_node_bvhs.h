@@ -594,8 +594,8 @@ public:
     // nearest point pair
     Vec3f P1, P2;
 
-    FCL_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
-                                               P1, P2);
+    FCL_REAL d = sqrt (TriangleDistance::sqrTriDistance
+		       (t11, t12, t13, t21, t22, t23, P1, P2));
 
     if(this->request.enable_nearest_points)
     {
@@ -737,8 +737,8 @@ public:
     // nearest point pair
     Vec3f P1, P2;
 
-    FCL_REAL d = TriangleDistance::triDistance(p1, p2, p3, q1, q2, q3,
-                                               P1, P2);
+    FCL_REAL d = sqrt (TriangleDistance::sqrTriDistance
+		       (p1, p2, p3, q1, q2, q3, P1, P2));
 
     if(d < this->min_distance)
     {
