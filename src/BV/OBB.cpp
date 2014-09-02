@@ -307,6 +307,9 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
   FCL_REAL t, s;
   const FCL_REAL reps = 1e-6;
   FCL_REAL diff;
+  FCL_REAL breakDistance = 2e-3 * (a [0] + a [1] + a [2] +
+				   b [0] + b [1] + b [2]);
+  FCL_REAL breakDistance2 = breakDistance * breakDistance;
 
   Matrix3f Bf = abs(B);
   Bf += reps;
@@ -338,7 +341,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
     squaredLowerBoundDistance += diff*diff;
   }
 
-  if (squaredLowerBoundDistance > 0)
+  if (squaredLowerBoundDistance > breakDistance2)
     return true;
 
   // B1 x B2 = B0
@@ -368,7 +371,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
     squaredLowerBoundDistance += diff*diff;
   }
   
-  if (squaredLowerBoundDistance > 0)
+  if (squaredLowerBoundDistance > breakDistance2)
     return true;
 
   // A0 x B0
@@ -381,11 +384,12 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
   // As ||A0|| = ||B0|| = 1,
   //              2            2
   // || A0 x B0 ||  + (A0 | B0)  = 1
-  if (diff > 0) {
-    FCL_REAL sinus2 = 1 - Bf (0,0) * Bf (0,0);
-    assert (sinus2 > 0);
+  FCL_REAL sinus2 = 1 - Bf (0,0) * Bf (0,0);
+  if (sinus2 > 1e-6) {
     squaredLowerBoundDistance = diff * diff / sinus2;      
-    return true;
+    if (squaredLowerBoundDistance > breakDistance2) {
+      return true;
+    }
   }
 
   // A0 x B1
@@ -394,11 +398,12 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[1] * Bf(2, 1) + a[2] * Bf(1, 1) +
 	      b[0] * Bf(0, 2) + b[2] * Bf(0, 0));
-  if (diff > 0) {
-    FCL_REAL sinus2 = 1 - Bf (0,1) * Bf (0,1);
-    assert (sinus2 > 0);
+  sinus2 = 1 - Bf (0,1) * Bf (0,1);
+  if (sinus2 > 1e-6) {
     squaredLowerBoundDistance = diff * diff / sinus2;      
-    return true;
+    if (squaredLowerBoundDistance > breakDistance2) {
+      return true;
+    }
   }
 
   // A0 x B2
@@ -407,11 +412,12 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
   
   diff = t - (a[1] * Bf(2, 2) + a[2] * Bf(1, 2) +
 	      b[0] * Bf(0, 1) + b[1] * Bf(0, 0));
-  if (diff > 0) {
-    FCL_REAL sinus2 = 1 - Bf (0,2) * Bf (0,2);
-    assert (sinus2 > 0);
+  sinus2 = 1 - Bf (0,2) * Bf (0,2);
+  if (sinus2 > 1e-6) {
     squaredLowerBoundDistance = diff * diff / sinus2;      
-    return true;
+    if (squaredLowerBoundDistance > breakDistance2) {
+      return true;
+    }
   }
 
   // A1 x B0
@@ -420,11 +426,12 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(2, 0) + a[2] * Bf(0, 0) +
 	      b[1] * Bf(1, 2) + b[2] * Bf(1, 1));
-  if (diff > 0) {
-    FCL_REAL sinus2 = 1 - Bf (1,0) * Bf (1,0);
-    assert (sinus2 > 0);
+  sinus2 = 1 - Bf (1,0) * Bf (1,0);
+  if (sinus2 > 1e-6) {
     squaredLowerBoundDistance = diff * diff / sinus2;      
-    return true;
+    if (squaredLowerBoundDistance > breakDistance2) {
+      return true;
+    }
   }
 
   // A1 x B1
@@ -433,11 +440,12 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(2, 1) + a[2] * Bf(0, 1) +
 	      b[0] * Bf(1, 2) + b[2] * Bf(1, 0));
-  if (diff > 0) {
-    FCL_REAL sinus2 = 1 - Bf (1,1) * Bf (1,1);
-    assert (sinus2 > 0);
+  sinus2 = 1 - Bf (1,1) * Bf (1,1);
+  if (sinus2 > 1e-6) {
     squaredLowerBoundDistance = diff * diff / sinus2;      
-    return true;
+    if (squaredLowerBoundDistance > breakDistance2) {
+      return true;
+    }
   }
 
   // A1 x B2
@@ -446,11 +454,12 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(2, 2) + a[2] * Bf(0, 2) +
 	      b[0] * Bf(1, 1) + b[1] * Bf(1, 0));
-  if (diff > 0) {
-    FCL_REAL sinus2 = 1 - Bf (1,2) * Bf (1,2);
-    assert (sinus2 > 0);
+  sinus2 = 1 - Bf (1,2) * Bf (1,2);
+  if (sinus2 > 1e-6) {
     squaredLowerBoundDistance = diff * diff / sinus2;      
-    return true;
+    if (squaredLowerBoundDistance > breakDistance2) {
+      return true;
+    }
   }
 
   // A2 x B0
@@ -459,11 +468,12 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(1, 0) + a[1] * Bf(0, 0) +
 	      b[1] * Bf(2, 2) + b[2] * Bf(2, 1));
-  if (diff > 0) {
-    FCL_REAL sinus2 = 1 - Bf (2,0) * Bf (2,0);
-    assert (sinus2 > 0);
+  sinus2 = 1 - Bf (2,0) * Bf (2,0);
+  if (sinus2 > 1e-6) {
     squaredLowerBoundDistance = diff * diff / sinus2;      
-    return true;
+    if (squaredLowerBoundDistance > breakDistance2) {
+      return true;
+    }
   }
 
   // A2 x B1
@@ -472,11 +482,12 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(1, 1) + a[1] * Bf(0, 1) +
 	      b[0] * Bf(2, 2) + b[2] * Bf(2, 0));
-  if (diff > 0) {
-    FCL_REAL sinus2 = 1 - Bf (2,1) * Bf (2,1);
-    assert (sinus2 > 0);
+  sinus2 = 1 - Bf (2,1) * Bf (2,1);
+  if (sinus2 > 1e-6) {
     squaredLowerBoundDistance = diff * diff / sinus2;      
-    return true;
+    if (squaredLowerBoundDistance > breakDistance2) {
+      return true;
+    }
   }
 
   // A2 x B2
@@ -485,11 +496,12 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(1, 2) + a[1] * Bf(0, 2) +
 	      b[0] * Bf(2, 1) + b[1] * Bf(2, 0));
-  if (diff > 0) {
-    FCL_REAL sinus2 = 1 - Bf (2,2) * Bf (2,2);
-    assert (sinus2 > 0);
+  sinus2 = 1 - Bf (2,2) * Bf (2,2);
+  if (sinus2 > 1e-6) {
     squaredLowerBoundDistance = diff * diff / sinus2;      
-    return true;
+    if (squaredLowerBoundDistance > breakDistance2) {
+      return true;
+    }
   }
 
   return false;
