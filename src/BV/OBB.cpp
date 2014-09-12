@@ -371,7 +371,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
   if (diff > 0) {
     squaredLowerBoundDistance += diff*diff;
   }
-  
+
   if (squaredLowerBoundDistance > breakDistance2)
     return true;
 
@@ -379,17 +379,20 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
   s = T[2] * B(1, 0) - T[1] * B(2, 0);
   t = ((s < 0.0) ? -s : s);
 
+  FCL_REAL sinus2;
   diff = t - (a[1] * Bf(2, 0) + a[2] * Bf(1, 0) +
 	      b[1] * Bf(0, 2) + b[2] * Bf(0, 1));
   // We need to divide by the norm || A0 x B0 ||
   // As ||A0|| = ||B0|| = 1,
   //              2            2
   // || A0 x B0 ||  + (A0 | B0)  = 1
-  FCL_REAL sinus2 = 1 - Bf (0,0) * Bf (0,0);
-  if (sinus2 > 1e-6) {
-    squaredLowerBoundDistance = diff * diff / sinus2;      
-    if (squaredLowerBoundDistance > breakDistance2) {
-      return true;
+  if (diff > 0) {
+    sinus2 = 1 - Bf (0,0) * Bf (0,0);
+    if (sinus2 > 1e-6) {
+      squaredLowerBoundDistance = diff * diff / sinus2;
+      if (squaredLowerBoundDistance > breakDistance2) {
+	return true;
+      }
     }
   }
 
@@ -399,25 +402,29 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[1] * Bf(2, 1) + a[2] * Bf(1, 1) +
 	      b[0] * Bf(0, 2) + b[2] * Bf(0, 0));
-  sinus2 = 1 - Bf (0,1) * Bf (0,1);
-  if (sinus2 > 1e-6) {
-    squaredLowerBoundDistance = diff * diff / sinus2;      
-    if (squaredLowerBoundDistance > breakDistance2) {
-      return true;
+  if (diff > 0) {
+    sinus2 = 1 - Bf (0,1) * Bf (0,1);
+    if (sinus2 > 1e-6) {
+      squaredLowerBoundDistance = diff * diff / sinus2;
+      if (squaredLowerBoundDistance > breakDistance2) {
+	return true;
+      }
     }
   }
 
   // A0 x B2
   s = T[2] * B(1, 2) - T[1] * B(2, 2);
   t = ((s < 0.0) ? -s : s);
-  
+
   diff = t - (a[1] * Bf(2, 2) + a[2] * Bf(1, 2) +
 	      b[0] * Bf(0, 1) + b[1] * Bf(0, 0));
-  sinus2 = 1 - Bf (0,2) * Bf (0,2);
-  if (sinus2 > 1e-6) {
-    squaredLowerBoundDistance = diff * diff / sinus2;      
-    if (squaredLowerBoundDistance > breakDistance2) {
-      return true;
+  if (diff > 0) {
+    sinus2 = 1 - Bf (0,2) * Bf (0,2);
+    if (sinus2 > 1e-6) {
+      squaredLowerBoundDistance = diff * diff / sinus2;
+      if (squaredLowerBoundDistance > breakDistance2) {
+	return true;
+      }
     }
   }
 
@@ -427,11 +434,13 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(2, 0) + a[2] * Bf(0, 0) +
 	      b[1] * Bf(1, 2) + b[2] * Bf(1, 1));
-  sinus2 = 1 - Bf (1,0) * Bf (1,0);
-  if (sinus2 > 1e-6) {
-    squaredLowerBoundDistance = diff * diff / sinus2;      
-    if (squaredLowerBoundDistance > breakDistance2) {
-      return true;
+  if (diff > 0) {
+    sinus2 = 1 - Bf (1,0) * Bf (1,0);
+    if (sinus2 > 1e-6) {
+      squaredLowerBoundDistance = diff * diff / sinus2;
+      if (squaredLowerBoundDistance > breakDistance2) {
+	return true;
+      }
     }
   }
 
@@ -441,11 +450,13 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(2, 1) + a[2] * Bf(0, 1) +
 	      b[0] * Bf(1, 2) + b[2] * Bf(1, 0));
-  sinus2 = 1 - Bf (1,1) * Bf (1,1);
-  if (sinus2 > 1e-6) {
-    squaredLowerBoundDistance = diff * diff / sinus2;      
-    if (squaredLowerBoundDistance > breakDistance2) {
-      return true;
+  if (diff > 0) {
+    sinus2 = 1 - Bf (1,1) * Bf (1,1);
+    if (sinus2 > 1e-6) {
+      squaredLowerBoundDistance = diff * diff / sinus2;
+      if (squaredLowerBoundDistance > breakDistance2) {
+	return true;
+      }
     }
   }
 
@@ -455,11 +466,13 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(2, 2) + a[2] * Bf(0, 2) +
 	      b[0] * Bf(1, 1) + b[1] * Bf(1, 0));
-  sinus2 = 1 - Bf (1,2) * Bf (1,2);
-  if (sinus2 > 1e-6) {
-    squaredLowerBoundDistance = diff * diff / sinus2;      
-    if (squaredLowerBoundDistance > breakDistance2) {
-      return true;
+  if (diff > 0) {
+    sinus2 = 1 - Bf (1,2) * Bf (1,2);
+    if (sinus2 > 1e-6) {
+      squaredLowerBoundDistance = diff * diff / sinus2;
+      if (squaredLowerBoundDistance > breakDistance2) {
+	return true;
+      }
     }
   }
 
@@ -469,11 +482,13 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(1, 0) + a[1] * Bf(0, 0) +
 	      b[1] * Bf(2, 2) + b[2] * Bf(2, 1));
-  sinus2 = 1 - Bf (2,0) * Bf (2,0);
-  if (sinus2 > 1e-6) {
-    squaredLowerBoundDistance = diff * diff / sinus2;      
-    if (squaredLowerBoundDistance > breakDistance2) {
-      return true;
+  if (diff > 0) {
+    sinus2 = 1 - Bf (2,0) * Bf (2,0);
+    if (sinus2 > 1e-6) {
+      squaredLowerBoundDistance = diff * diff / sinus2;
+      if (squaredLowerBoundDistance > breakDistance2) {
+	return true;
+      }
     }
   }
 
@@ -483,11 +498,13 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(1, 1) + a[1] * Bf(0, 1) +
 	      b[0] * Bf(2, 2) + b[2] * Bf(2, 0));
-  sinus2 = 1 - Bf (2,1) * Bf (2,1);
-  if (sinus2 > 1e-6) {
-    squaredLowerBoundDistance = diff * diff / sinus2;      
-    if (squaredLowerBoundDistance > breakDistance2) {
-      return true;
+  if (diff > 0) {
+    sinus2 = 1 - Bf (2,1) * Bf (2,1);
+    if (sinus2 > 1e-6) {
+      squaredLowerBoundDistance = diff * diff / sinus2;
+      if (squaredLowerBoundDistance > breakDistance2) {
+	return true;
+      }
     }
   }
 
@@ -497,11 +514,13 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   diff = t - (a[0] * Bf(1, 2) + a[1] * Bf(0, 2) +
 	      b[0] * Bf(2, 1) + b[1] * Bf(2, 0));
-  sinus2 = 1 - Bf (2,2) * Bf (2,2);
-  if (sinus2 > 1e-6) {
-    squaredLowerBoundDistance = diff * diff / sinus2;      
-    if (squaredLowerBoundDistance > breakDistance2) {
-      return true;
+  if (diff > 0) {
+    sinus2 = 1 - Bf (2,2) * Bf (2,2);
+    if (sinus2 > 1e-6) {
+      squaredLowerBoundDistance = diff * diff / sinus2;
+      if (squaredLowerBoundDistance > breakDistance2) {
+	return true;
+      }
     }
   }
 
