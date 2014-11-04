@@ -37,7 +37,7 @@ set(CXX_DISABLE_WERROR TRUE)
 include(cmake/base.cmake)
 include(cmake/boost.cmake)
 
-set(PROJECT_NAME fcl)
+set(PROJECT_NAME hpp-fcl)
 set(PROJECT_DESCRIPTION
   "FCL -- The Flexible Collision Library"
   )
@@ -150,7 +150,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/fcl/fwd.hh
   )
 
-pkg_config_append_libs("fcl")
+pkg_config_append_libs("hpp-fcl")
 add_subdirectory(src)
 add_subdirectory(test)
 
