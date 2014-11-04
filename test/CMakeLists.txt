@@ -3,7 +3,7 @@ config_files(fcl_resources/config.h)
 macro(add_fcl_test test_name)
   add_executable(${ARGV})
   target_link_libraries(${test_name}
-    fcl
+    hpp-fcl
     ${Boost_LIBRARIES}
     )
   add_test(${test_name} ${EXECUTABLE_OUTPUT_PATH}/${test_name})
