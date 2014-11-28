@@ -34,6 +34,7 @@
 
 cmake_minimum_required(VERSION 2.8)
 set(CXX_DISABLE_WERROR TRUE)
+set(CUSTOM_HEADER_DIR fcl)
 include(cmake/base.cmake)
 include(cmake/boost.cmake)
 
