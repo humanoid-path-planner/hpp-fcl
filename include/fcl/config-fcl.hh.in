@@ -35,7 +35,7 @@
 #ifndef FCL_CONFIG_FCL_HH
 # define FCL_CONFIG_FCL_HH
 
-# include "config.h"
+# include "fcl/config.h"
 
 #cmakedefine01 FCL_HAVE_SSE
 #cmakedefine01 FCL_HAVE_OCTOMAP
