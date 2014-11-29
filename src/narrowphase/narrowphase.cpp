@@ -1039,7 +1039,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // separating axis = u1 x (v1,v2,v3)
   tmp = pp[2] * R(1, 0) - pp[1] * R(2, 0);
   s2 = std::abs(tmp) - (A[1] * Q(2, 0) + A[2] * Q(1, 0) + B[1] * Q(0, 2) + B[2] * Q(0, 1));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(0, -R(2, 0), R(1, 0));
   l = n.length();
   if(l > eps) 
@@ -1057,7 +1057,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = pp[2] * R(1, 1) - pp[1] * R(2, 1);
   s2 = std::abs(tmp) - (A[1] * Q(2, 1) + A[2] * Q(1, 1) + B[0] * Q(0, 2) + B[2] * Q(0, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(0, -R(2, 1), R(1, 1));
   l = n.length();
   if(l > eps) 
@@ -1075,7 +1075,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   
   tmp = pp[2] * R(1, 2) - pp[1] * R(2, 2);
   s2 = std::abs(tmp) - (A[1] * Q(2, 2) + A[2] * Q(1, 2) + B[0] * Q(0, 1) + B[1] * Q(0, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(0, -R(2, 2), R(1, 2));
   l = n.length();
   if(l > eps) 
@@ -1094,7 +1094,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // separating axis = u2 x (v1,v2,v3)
   tmp = pp[0] * R(2, 0) - pp[2] * R(0, 0);
   s2 = std::abs(tmp) - (A[0] * Q(2, 0) + A[2] * Q(0, 0) + B[1] * Q(1, 2) + B[2] * Q(1, 1));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(R(2, 0), 0, -R(0, 0));
   l = n.length();
   if(l > eps) 
@@ -1112,7 +1112,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = pp[0] * R(2, 1) - pp[2] * R(0, 1);
   s2 = std::abs(tmp) - (A[0] * Q(2, 1) + A[2] * Q(0, 1) + B[0] * Q(1, 2) + B[2] * Q(1, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(R(2, 1), 0, -R(0, 1));
   l = n.length();
   if(l > eps) 
@@ -1130,7 +1130,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   
   tmp = pp[0] * R(2, 2) - pp[2] * R(0, 2);
   s2 = std::abs(tmp) - (A[0] * Q(2, 2) + A[2] * Q(0, 2) + B[0] * Q(1, 1) + B[1] * Q(1, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(R(2, 2), 0, -R(0, 2));
   l = n.length();
   if(l > eps) 
@@ -1149,7 +1149,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // separating axis = u3 x (v1,v2,v3)
   tmp = pp[1] * R(0, 0) - pp[0] * R(1, 0);
   s2 = std::abs(tmp) - (A[0] * Q(1, 0) + A[1] * Q(0, 0) + B[1] * Q(2, 2) + B[2] * Q(2, 1));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(-R(1, 0), R(0, 0), 0);
   l = n.length();
   if(l > eps) 
@@ -1167,7 +1167,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = pp[1] * R(0, 1) - pp[0] * R(1, 1);
   s2 = std::abs(tmp) - (A[0] * Q(1, 1) + A[1] * Q(0, 1) + B[0] * Q(2, 2) + B[2] * Q(2, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(-R(1, 1), R(0, 1), 0);
   l = n.length();
   if(l > eps) 
@@ -1185,7 +1185,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   
   tmp = pp[1] * R(0, 2) - pp[0] * R(1, 2);
   s2 = std::abs(tmp) - (A[0] * Q(1, 2) + A[1] * Q(0, 2) + B[0] * Q(2, 1) + B[1] * Q(2, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(-R(1, 2), R(0, 2), 0);
   l = n.length();
   if(l > eps) 
@@ -1233,11 +1233,11 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     }
   
     // find a point pb on the intersecting edge of box 2
-    Vec3f pb;
-    pb = T2;
+    Vec3f pb(T2);
+
     for(int j = 0; j < 3; ++j)
     {
-      sign = (R2.transposeDot(j, normal) > 0) ? 1 : -1;
+      sign = (R2.transposeDot(j, normal) > 0) ? -1 : 1;
       pb += R2.getColumn(j) * (B[j] * sign);
     }
 
@@ -1469,7 +1469,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
     for(int j = 0; j < maxc; ++j) 
     {
-      Vec3f posInWorld = points[iret[j] * 3] + (*pa);
+      Vec3f posInWorld = points[iret[j]] + (*pa);
       if(code < 4)
         contacts.push_back(ContactPoint(-normal, posInWorld, -dep[iret[j]]));
       else
