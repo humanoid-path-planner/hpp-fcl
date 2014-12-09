@@ -37,9 +37,9 @@
 #define BOOST_TEST_MODULE "FCL_SPHERE_CAPSULE"
 #include <boost/test/included/unit_test.hpp>
 
-#include "fcl/collision.h"
-#include "fcl/shape/geometric_shapes.h"
-#include "fcl/narrowphase/narrowphase.h"
+#include <hpp/fcl/collision.h>
+#include <hpp/fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/narrowphase/narrowphase.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

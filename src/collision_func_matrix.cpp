@@ -35,11 +35,11 @@
 /** \author Jia Pan */
 
 
-#include "fcl/collision_func_matrix.h"
+#include <hpp/fcl/collision_func_matrix.h>
 
-#include "fcl/traversal/traversal_node_setup.h"
-#include "fcl/collision_node.h"
-#include "fcl/narrowphase/narrowphase.h"
+#include <hpp/fcl/traversal/traversal_node_setup.h>
+#include <hpp/fcl/collision_node.h>
+#include <hpp/fcl/narrowphase/narrowphase.h>
 #include "distance_func_matrix.h"
 
 namespace fcl

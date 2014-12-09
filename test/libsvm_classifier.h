@@ -1,7 +1,7 @@
 #ifndef FCL_TEST_LIBSVM_CLASSIFIER_H
 #define FCL_TEST_LIBSVM_CLASSIFIER_H
 
-#include "fcl/learning/classifier.h"
+#include <hpp/fcl/learning/classifier.h>
 #include <libsvm/svm.h>
 
 namespace fcl

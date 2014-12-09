@@ -1,4 +1,4 @@
-#include "fcl/math/sampling.h"
+#include <hpp/fcl/math/sampling.h>
 #include <boost/random/lagged_fibonacci.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/thread/mutex.hpp>

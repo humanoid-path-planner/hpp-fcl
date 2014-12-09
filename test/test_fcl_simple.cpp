@@ -1,15 +1,15 @@
 #define BOOST_TEST_MODULE "FCL_SIMPLE"
 #include <boost/test/included/unit_test.hpp>
 
-#include "fcl/intersect.h"
-#include "fcl/collision.h"
-#include "fcl/BVH/BVH_model.h"
+#include <hpp/fcl/intersect.h>
+#include <hpp/fcl/collision.h>
+#include <hpp/fcl/BVH/BVH_model.h>
 #include "fcl_resources/config.h"
 #include <boost/filesystem.hpp>
 #include <sstream>
-#include "fcl/math/vec_nf.h"
-#include "fcl/math/sampling.h"
-#include "fcl/knn/nearest_neighbors_GNAT.h"
+#include <hpp/fcl/math/vec_nf.h>
+#include <hpp/fcl/math/sampling.h>
+#include <hpp/fcl/knn/nearest_neighbors_GNAT.h>
 
 #include <boost/assign/list_of.hpp>
 

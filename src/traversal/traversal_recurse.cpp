@@ -35,7 +35,7 @@
 /** \author Jia Pan */
 
 
-#include "fcl/traversal/traversal_recurse.h"
+#include <hpp/fcl/traversal/traversal_recurse.h>
 
 namespace fcl
 {

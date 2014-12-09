@@ -35,8 +35,8 @@
 /** \author Jia Pan */
 
 
-#include "fcl/collision_node.h"
-#include "fcl/traversal/traversal_recurse.h"
+#include <hpp/fcl/collision_node.h>
+#include <hpp/fcl/traversal/traversal_recurse.h>
 
 namespace fcl
 {

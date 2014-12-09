@@ -37,9 +37,9 @@
 #ifndef TEST_FCL_UTILITY_H
 #define TEST_FCL_UTILITY_H
 
-#include "fcl/math/transform.h"
-#include "fcl/collision_data.h"
-#include "fcl/collision_object.h"
+#include <hpp/fcl/math/transform.h>
+#include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/collision_object.h>
 
 #ifdef _WIN32
 #define NOMINMAX  // required to avoid compilation errors with Visual Studio 2010

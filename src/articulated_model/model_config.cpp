@@ -34,8 +34,8 @@
 
 /** \author Dalibor Matura, Jia Pan */
 
-#include "fcl/articulated_model/model_config.h"
-#include "fcl/articulated_model/joint.h"
+#include <hpp/fcl/articulated_model/model_config.h>
+#include <hpp/fcl/articulated_model/joint.h>
 #include <algorithm>
 
 // Define for boost version < 1.47

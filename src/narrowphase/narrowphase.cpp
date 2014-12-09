@@ -34,9 +34,9 @@
 
 /** \author Jia Pan */
 
-#include "fcl/narrowphase/narrowphase.h"
-#include "fcl/shape/geometric_shapes_utility.h"
-#include "fcl/intersect.h"
+#include <hpp/fcl/narrowphase/narrowphase.h>
+#include <hpp/fcl/shape/geometric_shapes_utility.h>
+#include <hpp/fcl/intersect.h>
 #include <boost/math/constants/constants.hpp>
 #include <vector>
 

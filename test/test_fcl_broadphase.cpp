@@ -38,9 +38,9 @@
 #define BOOST_TEST_MODULE "FCL_BROADPHASE"
 #include <boost/test/included/unit_test.hpp>
 
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/shape/geometric_shape_to_BVH_model.h"
-#include "fcl/math/transform.h"
+#include <hpp/fcl/broadphase/broadphase.h>
+#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
+#include <hpp/fcl/math/transform.h>
 #include "test_fcl_utility.h"
 
 #if USE_GOOGLEHASH

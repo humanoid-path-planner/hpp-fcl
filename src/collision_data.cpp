@@ -34,7 +34,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/collision_data.h"
+#include <hpp/fcl/collision_data.h>
 
 namespace fcl
 {

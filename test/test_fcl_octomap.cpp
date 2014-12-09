@@ -37,11 +37,11 @@
 #define BOOST_TEST_MODULE "FCL_OCTOMAP"
 #include <boost/test/included/unit_test.hpp>
 
-#include "fcl/octree.h"
-#include "fcl/traversal/traversal_node_octree.h"
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/shape/geometric_shape_to_BVH_model.h"
-#include "fcl/math/transform.h"
+#include <hpp/fcl/octree.h>
+#include <hpp/fcl/traversal/traversal_node_octree.h>
+#include <hpp/fcl/broadphase/broadphase.h>
+#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
+#include <hpp/fcl/math/transform.h>
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 #include <boost/filesystem.hpp>

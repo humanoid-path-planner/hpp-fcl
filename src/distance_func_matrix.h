@@ -34,7 +34,7 @@
 
 /** \author Florent Lamiraux */
 
-#include <fcl/collision_data.h>
+#include <hpp/fcl/collision_data.h>
 
 namespace fcl {
   template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>

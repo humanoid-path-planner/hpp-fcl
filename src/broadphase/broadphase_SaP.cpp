@@ -34,7 +34,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/broadphase/broadphase_SaP.h"
+#include <hpp/fcl/broadphase/broadphase_SaP.h>
 #include <algorithm>
 #include <limits>
 #include <boost/bind.hpp>

@@ -35,8 +35,8 @@
 /** \author Jia Pan */
 
 
-#include "fcl/narrowphase/gjk_libccd.h"
-#include "fcl/ccd/simplex.h"
+#include <hpp/fcl/narrowphase/gjk_libccd.h>
+#include <hpp/fcl/ccd/simplex.h>
 #include <ccd/vec3.h>
 #include <ccd/ccd.h>
 
