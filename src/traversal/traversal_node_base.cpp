@@ -36,7 +36,7 @@
 /** \author Jia Pan */
 
 
-#include "fcl/traversal/traversal_node_base.h"
+#include <hpp/fcl/traversal/traversal_node_base.h>
 #include <limits>
 
 namespace fcl

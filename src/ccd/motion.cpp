@@ -36,7 +36,7 @@
 /** \author Jia Pan */
 
 
-#include "fcl/ccd/motion.h"
+#include <hpp/fcl/ccd/motion.h>
 
 namespace fcl
 {

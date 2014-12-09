@@ -39,10 +39,10 @@
 #define BOOST_TEST_MODULE "FCL_GEOMETRIC_SHAPES"
 #include <boost/test/included/unit_test.hpp>
 
-#include "fcl/narrowphase/narrowphase.h"
-#include "fcl/collision.h"
+#include <hpp/fcl/narrowphase/narrowphase.h>
+#include <hpp/fcl/collision.h>
 #include "test_fcl_utility.h"
-#include "fcl/ccd/motion.h"
+#include <hpp/fcl/ccd/motion.h>
 #include <iostream>
 
 using namespace fcl;

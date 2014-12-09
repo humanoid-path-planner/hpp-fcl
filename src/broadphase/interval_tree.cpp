@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/broadphase/interval_tree.h"
+#include <hpp/fcl/broadphase/interval_tree.h>
 #include <iostream>
 #include <cstdlib>
 

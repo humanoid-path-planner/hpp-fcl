@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#include "fcl/BV/RSS.h"
-#include "fcl/BVH/BVH_utility.h"
+#include <hpp/fcl/BV/RSS.h>
+#include <hpp/fcl/BVH/BVH_utility.h>
 #include <iostream>
 namespace fcl
 {

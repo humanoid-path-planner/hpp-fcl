@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/ccd/interval.h"
+#include <hpp/fcl/ccd/interval.h>
 #include <iostream>
 
 namespace fcl

@@ -37,7 +37,7 @@
 #define CHECK_CLOSE_TO_0(x, eps) BOOST_CHECK_CLOSE ((x + 1.0), (1.0), (eps))
 
 #include <boost/test/included/unit_test.hpp>
-#include <fcl/narrowphase/narrowphase.h>
+#include <hpp/fcl/narrowphase/narrowphase.h>
 
 #include "../src/BV/OBB.h"
 #include "../src/distance_func_matrix.h"

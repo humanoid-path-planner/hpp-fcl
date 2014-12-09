@@ -36,13 +36,13 @@
 # include <boost/test/included/unit_test.hpp>
 # include <boost/filesystem.hpp>
 
-# include <fcl/fwd.hh>
-# include <fcl/data_types.h>
-# include <fcl/BV/OBBRSS.h>
-# include <fcl/BVH/BVH_model.h>
-# include <fcl/narrowphase/narrowphase.h>
-# include <fcl/collision.h>
-# include <fcl/distance.h>
+#include <hpp/fcl/fwd.hh>
+#include <hpp/fcl/data_types.h>
+#include <hpp/fcl/BV/OBBRSS.h>
+#include <hpp/fcl/BVH/BVH_model.h>
+#include <hpp/fcl/narrowphase/narrowphase.h>
+#include <hpp/fcl/collision.h>
+#include <hpp/fcl/distance.h>
 # include "test_fcl_utility.h"
 # include "fcl_resources/config.h"
 

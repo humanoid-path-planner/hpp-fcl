@@ -35,9 +35,9 @@
 
 /** \author Jia Pan */
 
-#include "fcl/BV/OBB.h"
-#include "fcl/BVH/BVH_utility.h"
-#include "fcl/math/transform.h"
+#include <hpp/fcl/BV/OBB.h>
+#include <hpp/fcl/BVH/BVH_utility.h>
+#include <hpp/fcl/math/transform.h>
 
 #include <iostream>
 #include <limits>

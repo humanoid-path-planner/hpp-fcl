@@ -1,8 +1,8 @@
-#include <fcl/shape/geometric_shapes.h>
-#include <fcl/shape/geometric_shapes_utility.h>
-#include <fcl/narrowphase/narrowphase.h>
+#include <hpp/fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/shape/geometric_shapes_utility.h>
+#include <hpp/fcl/narrowphase/narrowphase.h>
 #include <iostream>
-#include <fcl/collision.h>
+#include <hpp/fcl/collision.h>
 #include <boost/foreach.hpp>
 
 using namespace std;

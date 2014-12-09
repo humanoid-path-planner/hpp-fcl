@@ -36,7 +36,7 @@
 /** \author Jia Pan */
 
 
-#include "fcl/BVH/BVH_utility.h"
+#include <hpp/fcl/BVH/BVH_utility.h>
 
 namespace fcl
 {
