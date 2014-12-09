@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/ccd/taylor_vector.h"
+#include <hpp/fcl/ccd/taylor_vector.h>
 
 namespace fcl
 {

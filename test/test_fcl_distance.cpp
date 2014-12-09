@@ -38,9 +38,9 @@
 #define BOOST_TEST_MODULE "FCL_DISTANCE"
 #include <boost/test/included/unit_test.hpp>
 
-#include "fcl/traversal/traversal_node_bvhs.h"
-#include "fcl/traversal/traversal_node_setup.h"
-#include "fcl/collision_node.h"
+#include <hpp/fcl/traversal/traversal_node_bvhs.h>
+#include <hpp/fcl/traversal/traversal_node_setup.h>
+#include <hpp/fcl/collision_node.h>
 #include "test_fcl_utility.h"
 #include <boost/timer.hpp>
 #include "fcl_resources/config.h"

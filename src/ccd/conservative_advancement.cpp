@@ -35,13 +35,13 @@
 
 /** \author Jia Pan */
 
-#include "fcl/ccd/conservative_advancement.h"
-#include "fcl/ccd/motion.h"
-#include "fcl/collision_node.h"
-#include "fcl/traversal/traversal_node_bvhs.h"
-#include "fcl/traversal/traversal_node_setup.h"
-#include "fcl/traversal/traversal_recurse.h"
-#include "fcl/collision.h"
+#include <hpp/fcl/ccd/conservative_advancement.h>
+#include <hpp/fcl/ccd/motion.h>
+#include <hpp/fcl/collision_node.h>
+#include <hpp/fcl/traversal/traversal_node_bvhs.h>
+#include <hpp/fcl/traversal/traversal_node_setup.h>
+#include <hpp/fcl/traversal/traversal_recurse.h>
+#include <hpp/fcl/collision.h>
 
 
 namespace fcl

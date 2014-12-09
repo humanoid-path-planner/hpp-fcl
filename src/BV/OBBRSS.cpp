@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/BV/OBBRSS.h"
+#include <hpp/fcl/BV/OBBRSS.h>
 
 namespace fcl
 {

@@ -38,10 +38,10 @@
 #define BOOST_TEST_MODULE "FCL_SHAPE_MESH_CONSISTENCY"
 #include <boost/test/included/unit_test.hpp>
 
-#include "fcl/narrowphase/narrowphase.h"
-#include "fcl/shape/geometric_shape_to_BVH_model.h"
-#include "fcl/distance.h"
-#include "fcl/collision.h"
+#include <hpp/fcl/narrowphase/narrowphase.h>
+#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
+#include <hpp/fcl/distance.h>
+#include <hpp/fcl/collision.h>
 #include "test_fcl_utility.h"
 
 

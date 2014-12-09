@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/broadphase/broadphase_interval_tree.h"
+#include <hpp/fcl/broadphase/broadphase_interval_tree.h>
 #include <algorithm>
 #include <limits>
 #include <boost/bind.hpp>

@@ -41,11 +41,11 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <cmath>
-#include <fcl/distance.h>
-#include <fcl/math/transform.h>
-#include <fcl/collision.h>
-#include <fcl/collision_object.h>
-#include <fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/distance.h>
+#include <hpp/fcl/math/transform.h>
+#include <hpp/fcl/collision.h>
+#include <hpp/fcl/collision_object.h>
+#include <hpp/fcl/shape/geometric_shapes.h>
 
 using namespace fcl;
 typedef boost::shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
