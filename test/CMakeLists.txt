@@ -29,7 +29,7 @@ add_fcl_test(test_fcl_box_box_distance test_fcl_box_box_distance.cpp)
 add_fcl_test(test_fcl_simple test_fcl_simple.cpp)
 add_fcl_test(test_fcl_capsule_box_1 test_fcl_capsule_box_1.cpp)
 add_fcl_test(test_fcl_capsule_box_2 test_fcl_capsule_box_2.cpp)
-add_fcl_test(test_fcl_obb test_fcl_obb.cpp)
+#add_fcl_test(test_fcl_obb test_fcl_obb.cpp)
 
 #add_fcl_test(test_fcl_global_penetration test_fcl_global_penetration.cpp libsvm/svm.cpp test_fcl_utility.cpp)
 

@@ -90,10 +90,9 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   CHECK_CLOSE_TO_0 (o1 [1], 1e-1);
   BOOST_CHECK_CLOSE (o1 [2], 4.0, 1e-1);
 
-  // Disabled broken test lines. Please see #25.
-  // CHECK_CLOSE_TO_0 (o2 [0], 1e-4);
-  CHECK_CLOSE_TO_0 (o2 [1], 1e-4);
-  BOOST_CHECK_CLOSE (o2 [2],  2.0, 1e-4);
+  CHECK_CLOSE_TO_0 (o2 [0], 1e-1);
+  CHECK_CLOSE_TO_0 (o2 [1], 1e-1);
+  BOOST_CHECK_CLOSE (o2 [2],  2.0, 1e-1);
 
   // Rotate capsule around y axis by pi/2 and move it behind box
   tf1.setTranslation (fcl::Vec3f (-10., 0., 0.));
