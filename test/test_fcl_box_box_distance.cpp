@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_1)
 
   const Vec3f& p1 = distanceResult.nearest_points [0];
   const Vec3f& p2 = distanceResult.nearest_points [1];
-  BOOST_CHECK_CLOSE(distanceResult.min_distance, 
+  BOOST_CHECK_CLOSE(distanceResult.min_distance,
 		    sqrt (dx*dx + dy*dy + dz*dz), 1e-4);
 
   BOOST_CHECK_CLOSE (p1 [0], 3, 1e-6);
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_2)
 
   BOOST_CHECK_CLOSE (p1 [0], 0.60947571, 1e-4);
   BOOST_CHECK_CLOSE (p1 [1], 0.01175873, 1e-4);
-  BOOST_CHECK_CLOSE (p1 [2], 1, 1e-6);
+  BOOST_CHECK_CLOSE (p1 [2], 1., 1e-6);
   BOOST_CHECK_CLOSE (p2 [0], 0.60947571, 1e-4);
   BOOST_CHECK_CLOSE (p2 [1], 0.01175873, 1e-4);
   BOOST_CHECK_CLOSE (p2 [2], -1.62123444 + 10, 1e-4);
@@ -172,8 +172,9 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3)
   double distance = 4 - sqrt (2);
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
 
-  const Vec3f p1Ref (sqrt(2)/2 - 2, 1, .5);
-  const Vec3f p2Ref (2 - sqrt(2)/2, 1, .5);
+  const Vec3f p1Ref (.5, -.5, 0);
+  const Vec3f p2Ref (2.3284271247461898, -2.3284271247461898, 0);
+
   BOOST_CHECK_CLOSE (p1 [0], p1Ref [0], 1e-4);
   BOOST_CHECK_CLOSE (p1 [1], p1Ref [1], 1e-4);
   BOOST_CHECK_CLOSE (p1 [2], p1Ref [2], 1e-4);
@@ -204,13 +205,11 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3)
 
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
 
-  const Vec3f p1Moved = tf3.transform (p1Ref);
-  const Vec3f p2Moved = tf3.transform (p2Ref);
-  BOOST_CHECK_CLOSE (p1 [0], p1Moved [0], 1e-4);
-  BOOST_CHECK_CLOSE (p1 [1], p1Moved [1], 1e-4);
-  BOOST_CHECK_CLOSE (p1 [2], p1Moved [2], 1e-4);
-  BOOST_CHECK_CLOSE (p2 [0], p2Moved [0], 1e-4);
-  BOOST_CHECK_CLOSE (p2 [1], p2Moved [1], 1e-4);
-  BOOST_CHECK_CLOSE (p2 [2], p2Moved [2], 1e-4);
-  
+  BOOST_CHECK_CLOSE (p1 [0], p1Ref [0], 1e-4);
+  BOOST_CHECK_CLOSE (p1 [1], p1Ref [1], 1e-4);
+  CHECK_CLOSE_TO_0 (p1 [2], 1e-6);
+  BOOST_CHECK_CLOSE (p2 [0], p2Ref [0], 1e-4);
+  BOOST_CHECK_CLOSE (p2 [1], p2Ref [1], 1e-4);
+  CHECK_CLOSE_TO_0 (p2 [2], 1e-6);
+
 }
