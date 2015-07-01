@@ -51,6 +51,8 @@ namespace details
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir); 
 
 /// @brief Minkowski difference class of two shapes
+///
+/// \note The Minkowski difference is expressed in the frame of the first shape.
 struct MinkowskiDiff
 {
   /// @brief points to two shapes
@@ -118,6 +120,8 @@ struct MinkowskiDiff
 
 
 /// @brief class for GJK algorithm
+///
+/// \note The computations are performed in the frame of the first shape.
 struct GJK
 {
   struct SimplexV
