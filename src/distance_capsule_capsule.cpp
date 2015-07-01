@@ -35,12 +35,11 @@ namespace fcl {
     const Capsule* c2 = static_cast <const Capsule*> (o2);
 
     // We assume that capsules are centered at the origin.
-    fcl::Vec3f center1 = Vec3f (0, 0, 0);
-    fcl::Vec3f center2 = inverse (tf1).transform (tf2.getTranslation ());
+    fcl::Vec3f center1 = tf1.getTranslation ();
+    fcl::Vec3f center2 = tf2.getTranslation ();
     // We assume that capsules are oriented along z-axis.
-    fcl::Vec3f direction1 = Vec3f (0, 0, 1.);
-    fcl::Vec3f direction2 = tf1.getRotation ().transposeTimes
-      (tf2.getRotation ().getColumn (2));
+    fcl::Vec3f direction1 = tf1.getRotation ().getColumn (2);
+    fcl::Vec3f direction2 = tf2.getRotation ().getColumn (2);
     FCL_REAL halfLength1 = 0.5*c1->lz;
     FCL_REAL halfLength2 = 0.5*c2->lz;
 

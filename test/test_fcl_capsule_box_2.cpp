@@ -72,10 +72,10 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   fcl::Vec3f o2 = distanceResult.nearest_points [1];
 
   BOOST_CHECK_CLOSE (distanceResult.min_distance, 5.5, 1e-2);
-  CHECK_CLOSE_TO_0 (o1 [0], 1e-2);
-  CHECK_CLOSE_TO_0 (o1 [1], 1e-1);
-  BOOST_CHECK_CLOSE (o1 [2], 4., 1e-2);
-  CHECK_CLOSE_TO_0 (o2 [0], 1e-2);
-  CHECK_CLOSE_TO_0 (o2 [1], 1e-1);
-  BOOST_CHECK_CLOSE (o2 [2], 9.5, 1e-2);
+  BOOST_CHECK_CLOSE (o1 [0], -6, 1e-2);
+  BOOST_CHECK_CLOSE (o1 [1], 0.8, 1e-1);
+  BOOST_CHECK_CLOSE (o1 [2], 1.5, 1e-2);
+  BOOST_CHECK_CLOSE (o2 [0], -0.5, 1e-2);
+  BOOST_CHECK_CLOSE (o2 [1], 0.8, 1e-1);
+  BOOST_CHECK_CLOSE (o2 [2], 1.5, 1e-2);
 }

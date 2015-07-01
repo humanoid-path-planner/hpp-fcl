@@ -111,9 +111,9 @@ bool sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
   Transform3f tf2_inv(tf2);
   tf2_inv.inverse();
 
-  Vec3f pos1(0., 0., 0.5 * s2.lz);
-  Vec3f pos2(0., 0., -0.5 * s2.lz);
-  Vec3f s_c = tf2_inv.transform(tf1.transform(Vec3f()));
+  Vec3f pos1 (tf2.transform (Vec3f (0., 0., 0.5 * s2.lz)));
+  Vec3f pos2 (tf2.transform (Vec3f (0., 0., -0.5 * s2.lz)));
+  Vec3f s_c = tf1.getTranslation ();
 
   Vec3f segment_point;
 
@@ -122,19 +122,18 @@ bool sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
 
   FCL_REAL distance = diff.length() - s1.radius - s2.radius;
 
-  if(distance <= 0)
-    return false;
-
   if(dist) *dist = distance;
 
   if(p1 || p2) diff.normalize();
   if(p1)
   {
     *p1 = s_c - diff * s1.radius;
-    *p1 = inverse(tf1).transform(tf2.transform(*p1));
   }
 
   if(p2) *p2 = segment_point + diff * s1.radius;
+
+  if(distance <= 0)
+    return false;
 
   return true;
 }
@@ -176,16 +175,13 @@ bool sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
   Vec3f o2 = tf2.getTranslation();
   Vec3f diff = o1 - o2;
   FCL_REAL len = diff.length();
-  if(len > s1.radius + s2.radius)
-  {
-    if(dist) *dist = len - (s1.radius + s2.radius);
-    if(p1) *p1 = inverse(tf1).transform(o1 - diff * (s1.radius / len));
-    if(p2) *p2 = inverse(tf2).transform(o2 + diff * (s2.radius / len));
-    return true;
-  }
+  FCL_REAL d (len > s1.radius + s2.radius);
 
-  if(dist) *dist = -1;
-  return false;
+  if(dist) *dist = len - (s1.radius + s2.radius);
+  if(p1) *p1 = o1 - diff * (s1.radius / len);
+  if(p2) *p2 = o2 + diff * (s2.radius / len);
+
+  return (d >=0);
 }
 
 /** \brief the minimum distance from a point to a line */
@@ -584,7 +580,7 @@ bool sphereTriangleDistance(const Sphere& sp, const Transform3f& tf,
       Vec3f project_p = P1 * result.parameterization[0] + P2 * result.parameterization[1] + P3 * result.parameterization[2];
       Vec3f dir = o - project_p;
       dir.normalize();
-      if(p1) { *p1 = o - dir * sp.radius; *p1 = inverse(tf).transform(*p1); }
+      if(p1) { *p1 = o - dir * sp.radius; }
       if(p2) *p2 = project_p;
       return true;
     }
@@ -603,8 +599,6 @@ bool sphereTriangleDistance(const Sphere& sp, const Transform3f& tf1,
                             FCL_REAL* dist, Vec3f* p1, Vec3f* p2)
 {
   bool res = details::sphereTriangleDistance(sp, tf1, tf2.transform(P1), tf2.transform(P2), tf2.transform(P3), dist, p1, p2);
-  if(p2) *p2 = inverse(tf2).transform(*p2);
-
   return res;
 }
 

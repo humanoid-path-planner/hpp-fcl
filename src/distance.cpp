@@ -87,6 +87,15 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
     else
     {
       res = looktable.distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver, request, result);
+      // If closest points are requested, switch object 1 and 2
+      if (request.enable_nearest_points) {
+	const CollisionGeometry *tmpo = result.o1;
+	result.o1 = result.o2;
+	result.o2 = tmpo;
+	Vec3f tmpn (result.nearest_points [0]);
+	result.nearest_points [0] = result.nearest_points [1];
+	result.nearest_points [1] = tmpn;
+      }
     }
   }
   else
