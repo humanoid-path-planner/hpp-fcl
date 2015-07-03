@@ -60,7 +60,8 @@ std::size_t ShapeOcTreeCollide(const CollisionGeometry* o1, const Transform3f& t
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
-  collide(&node);
+  FCL_REAL sqrDistance = 0;
+  collide(&node, sqrDistance);
 
   return result.numContacts();
 }
@@ -78,12 +79,13 @@ std::size_t OcTreeShapeCollide(const CollisionGeometry* o1, const Transform3f& t
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
-  collide(&node);
+  FCL_REAL sqrDistance = 0;
+  collide(&node, sqrDistance);
 
   return result.numContacts();
 }
 
-etemplate<typename NarrowPhaseSolver>
+template<typename NarrowPhaseSolver>
 std::size_t OcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
                           const NarrowPhaseSolver* nsolver,
                           const CollisionRequest& request, CollisionResult& result)
@@ -96,7 +98,8 @@ std::size_t OcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, c
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
-  collide(&node);
+  FCL_REAL sqrDistance = 0;
+  collide(&node, sqrDistance);
 
   return result.numContacts();
 }
@@ -119,7 +122,8 @@ std::size_t OcTreeBVHCollide(const CollisionGeometry* o1, const Transform3f& tf1
     OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
     initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, no_cost_request, result);
-    collide(&node);
+    FCL_REAL sqrDistance = 0;
+    collide(&node, sqrDistance);
 
     Box box;
     Transform3f box_tf;
@@ -140,7 +144,8 @@ std::size_t OcTreeBVHCollide(const CollisionGeometry* o1, const Transform3f& tf1
     OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
     initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
-    collide(&node);
+    FCL_REAL sqrDistance = 0;
+    collide(&node, sqrDistance);
   }
   
   return result.numContacts();
@@ -164,7 +169,8 @@ std::size_t BVHOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1
     OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
     initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, no_cost_request, result);
-    collide(&node);
+    FCL_REAL sqrDistance = 0;
+    collide(&node, sqrDistance);
 
     Box box;
     Transform3f box_tf;
@@ -185,7 +191,8 @@ std::size_t BVHOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1
     OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
     initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
-    collide(&node);
+    FCL_REAL sqrDistance = 0;
+    collide(&node, sqrDistance);
   }
   
   return result.numContacts();

@@ -53,6 +53,14 @@ set(BOOST_COMPONENTS
 search_for_boost()
 # Optional dependencies
 add_optional_dependency("octomap >= 1.6")
+if (OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
+	include_directories(${OCTOMAP_INCLUDE_DIRS})
+	link_directories(${OCTOMAP_LIBRARY_DIRS})
+	set(FCL_HAVE_OCTOMAP 1)
+	message(STATUS "FCL uses Octomap")
+else()
+	message(STATUS "FCL does not use Octomap")
+endif()
 # flann package ill defined: comment.
 # add_optional_dependency("flann >= 1.7")
 # if (${FLANN_FOUND})
