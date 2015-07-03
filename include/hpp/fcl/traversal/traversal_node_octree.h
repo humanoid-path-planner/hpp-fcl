@@ -1041,6 +1041,11 @@ public:
     return false;
   }
 
+  bool BVTesting(int, int, FCL_REAL&) const
+  {
+    return false;
+  }
+
   void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeIntersect(model1, model2, tf1, tf2, request, *result);
@@ -1073,6 +1078,11 @@ public:
     return -1;
   }
 
+  bool BVTesting(int, int, FCL_REAL&) const
+  {
+    return false;
+  }
+
   void leafTesting(int, int) const
   {
     otsolver->OcTreeDistance(model1, model2, tf1, tf2, request, *result);
@@ -1098,6 +1108,11 @@ public:
   }
 
   bool BVTesting(int, int) const
+  {
+    return false;
+  }
+
+  bool BVTesting(int, int, FCL_REAL&) const
   {
     return false;
   }
@@ -1129,6 +1144,11 @@ public:
   }
 
   bool BVTesting(int, int) const
+  {
+    return false;
+  }
+
+  bool BVTesting(int, int, fcl::FCL_REAL&) const
   {
     return false;
   }
@@ -1222,6 +1242,11 @@ public:
     return false;
   }
 
+  bool BVTesting(int, int, FCL_REAL&) const
+  {
+    return false;
+  }
+
   void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeMeshIntersect(model2, model1, tf2, tf1, request, *result);
@@ -1249,6 +1274,11 @@ public:
   }
 
   bool BVTesting(int, int) const
+  {
+    return false;
+  }
+
+  bool BVTesting(int, int, FCL_REAL&) const
   {
     return false;
   }
