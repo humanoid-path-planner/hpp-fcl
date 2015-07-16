@@ -38,7 +38,6 @@
 #define BOOST_TEST_MODULE "FCL_BVH_MODELS"
 #include <boost/test/included/unit_test.hpp>
 
-#include "hpp/fcl/config.h"
 #include "hpp/fcl/BVH/BVH_model.h"
 #include "hpp/fcl/math/transform.h"
 #include "hpp/fcl/shape/geometric_shapes.h"
