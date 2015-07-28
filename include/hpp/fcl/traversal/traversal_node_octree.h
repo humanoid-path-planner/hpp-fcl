@@ -583,7 +583,7 @@ private:
             {
               is_intersect = true;
               if(cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2));
+                cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), primitive_id));
             }
           }
           else
@@ -596,7 +596,7 @@ private:
             {
               is_intersect = true;
               if(cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2, contact, normal, depth));
+                cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), primitive_id, contact, normal, depth));
             }
           }
 
