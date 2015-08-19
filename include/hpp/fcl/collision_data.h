@@ -309,6 +309,10 @@ public:
     contacts.clear();
     cost_sources.clear();
   }
+
+  /// @brief reposition Contact objects when fcl inverts them
+  /// during their construction.
+  friend void invertResults(CollisionResult& result);
 };
 
 

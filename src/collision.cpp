@@ -62,6 +62,23 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
                  nsolver, request, result);
 }
 
+// reorder collision results in the order the call has been made.
+void invertResults(CollisionResult& result)
+{
+    const CollisionGeometry* otmp;
+    int btmp;
+    for(std::vector<Contact>::iterator it = result.contacts.begin();
+        it != result.contacts.end(); ++it)
+    {
+        otmp = it->o1;
+        it->o1 = it->o2;
+        it->o2 = otmp;
+        btmp = it->b1;
+        it->b1 = it->b2;
+        it->b2 = btmp;
+    }
+}
+
 template<typename NarrowPhaseSolver>
 std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                     const CollisionGeometry* o2, const Transform3f& tf2,
@@ -96,7 +113,10 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
         res = 0;
       }
       else
+      {
         res = looktable.collision_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver, request, result);
+        invertResults(result);
+      }
     }
     else
     {
