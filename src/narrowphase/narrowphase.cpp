@@ -74,10 +74,10 @@ bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
 {
   Transform3f tf2_inv (tf2);
   tf2_inv.inverse();
-
-  Vec3f pos1 (0., 0., 0.5 * s2.lz);
-  Vec3f pos2 (0., 0., -0.5 * s2.lz);
-  Vec3f s_c = tf2_inv.transform(tf1.transform(Vec3f()));
+  
+  Vec3f pos1 (tf2.transform (Vec3f (0., 0., 0.5 * s2.lz))); // from distance function
+  Vec3f pos2 (tf2.transform (Vec3f (0., 0., -0.5 * s2.lz)));
+  Vec3f s_c = tf1.getTranslation ();
 
   Vec3f segment_point;
 
@@ -98,7 +98,7 @@ bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
     *normal_ = tf2.getQuatRotation().transform(normal);
 
   if (contact_points) {
-    *contact_points = tf2.transform(segment_point + normal * distance);
+    *contact_points = segment_point + diff * s2.radius;
   }
 
   return true;
