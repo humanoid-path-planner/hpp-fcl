@@ -41,7 +41,7 @@ set(PROJECT_NAME hpp-fcl)
 set(PROJECT_DESCRIPTION
   "FCL -- The Flexible Collision Library"
   )
-set(PROJECT_URL "http://github.com/humanoid-path-planner/fcl")
+set(PROJECT_URL "http://github.com/humanoid-path-planner/hpp-fcl")
 
 setup_project()
 
