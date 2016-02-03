@@ -158,9 +158,10 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/fwd.hh
   )
 
-pkg_config_append_libs("hpp-fcl")
 add_subdirectory(src)
 add_subdirectory(test)
+
+pkg_config_append_libs("hpp-fcl")
 
 config_files(include/hpp/fcl/config-fcl.hh)
 install(FILES ${PROJECT_BINARY_DIR}/include/hpp/fcl/config-fcl.hh
