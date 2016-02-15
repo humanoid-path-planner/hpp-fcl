@@ -119,6 +119,17 @@ struct Contact
       return b2 < other.b2;
     return b1 < other.b1;
   }
+
+  bool operator == (const Contact& other) const
+  {
+    return o1 == other.o1
+            && o2 == other.o2
+            && b1 == other.b1
+            && b2 == other.b2
+            && normal == other.normal
+            && pos == other.pos
+            && penetration_depth == other.penetration_depth;
+  }
 };
 
 /// @brief Cost source describes an area with a cost. The area is described by an AABB region.
@@ -168,6 +179,14 @@ struct CostSource
 	return aabb_min[i] < other.aabb_min[i];
  
     return false;
+  }
+
+  bool operator == (const CostSource& other) const
+  {
+    return aabb_min == other.aabb_min
+            && aabb_max == other.aabb_max
+            && cost_density == other.cost_density
+            && total_cost == other.total_cost;
   }
 };
 
@@ -260,6 +279,14 @@ public:
     cost_sources.insert(c);
     while (cost_sources.size() > num_max_cost_sources)
       cost_sources.erase(--cost_sources.end());
+  }
+
+  /// @brief whether two CollisionResult are the same or not
+  inline bool operator ==(const CollisionResult& other) const
+  {
+    return contacts == other.contacts 
+            && cost_sources == other.cost_sources
+            && distance_lower_bound == other.distance_lower_bound;
   }
 
   /// @brief return binary collision result
