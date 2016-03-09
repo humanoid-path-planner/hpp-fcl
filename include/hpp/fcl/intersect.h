@@ -129,6 +129,15 @@ public:
                                  FCL_REAL* penetration_depth = NULL,
                                  Vec3f* normal = NULL);
   
+  /// @brief clip triangle v1, v2, v3 by the prism made by t1, t2 and t3. The normal of the prism is tn and is cutted up by to 
+  static void clipTriangleByTriangleAndEdgePlanes(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3,
+                                                  const Vec3f& t1, const Vec3f& t2, const Vec3f& t3,
+                                                  const Vec3f& tn, FCL_REAL to,
+                                                  Vec3f clipped_points[], unsigned int* num_clipped_points, bool clip_triangle = false);
+
+  /// @brief build a plane passed through triangle v1 v2 v3 
+  static bool buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, Vec3f* n, FCL_REAL* t);
+  
 private:
 
   /// @brief Project function used in intersect_Triangle() 
@@ -213,14 +222,7 @@ private:
   /// @brief check wether points v1, v2, v2 are on the same side of plane n * x - t = 0 
   static bool sameSideOfPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, const Vec3f& n, FCL_REAL t);
 
-  /// @brief clip triangle v1, v2, v3 by the prism made by t1, t2 and t3. The normal of the prism is tn and is cutted up by to 
-  static void clipTriangleByTriangleAndEdgePlanes(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3,
-                                                  const Vec3f& t1, const Vec3f& t2, const Vec3f& t3,
-                                                  const Vec3f& tn, FCL_REAL to,
-                                                  Vec3f clipped_points[], unsigned int* num_clipped_points, bool clip_triangle = false);
-
-  /// @brief build a plane passed through triangle v1 v2 v3 
-  static bool buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, Vec3f* n, FCL_REAL* t);
+  
 
   /// @brief build a plane pass through edge v1 and v2, normal is tn 
   static bool buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn, Vec3f* n, FCL_REAL* t);
