@@ -236,7 +236,7 @@ void generateCoordinateSystem(const Vec3fX<T>& w, Vec3fX<T>& u, Vec3fX<T>& v)
 }
 
 #if FCL_HAVE_EIGEN
-  typedef Vec3fX<details::eigen_wrapper_v3<FCL_REAL> > Vec3f;
+  typedef Vec3fX<details::eigen_v3<FCL_REAL> > Vec3f;
 #elif FCL_HAVE_SSE
   typedef Vec3fX<details::sse_meta_f4> Vec3f;
 #else
