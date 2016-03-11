@@ -33,6 +33,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+/** \author Joseph Mirabel */
+
 #ifndef FCL_EIGEN_DETAILS_H
 #define FCL_EIGEN_DETAILS_H
 

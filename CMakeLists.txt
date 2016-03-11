@@ -48,6 +48,7 @@ setup_project()
 
 set(FCL_HAVE_SSE FALSE CACHE BOOL "Enable SSE vectorization")
 set(FCL_HAVE_EIGEN FALSE CACHE BOOL "Use eigen wrappers")
+set(FCL_USE_NATIVE_EIGEN FALSE CACHE BOOL "Use native eigen matrix type when possible")
 
 add_optional_dependency("eigen3 >= 3.0.0")
 if (EIGEN3_FOUND)
