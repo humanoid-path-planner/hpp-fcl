@@ -466,7 +466,9 @@ typename T::meta_type quadraticForm(const Matrix3fX<T>& R, const Vec3fX<typename
 }
 
 
-#if FCL_HAVE_SSE
+#if FCL_HAVE_EIGEN
+typedef Matrix3fX<details::eigen_wrapper_m3<FCL_REAL> > Matrix3f;
+#elif FCL_HAVE_SSE
 typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
 #else
 typedef Matrix3fX<details::Matrix3Data<FCL_REAL> > Matrix3f;

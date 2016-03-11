@@ -42,7 +42,9 @@
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/math/math_details.h>
 
-#if FCL_HAVE_SSE
+#if FCL_HAVE_EIGEN
+#include <hpp/fcl/eigen/math_details.h>
+#elif FCL_HAVE_SSE
 #include <hpp/fcl/simd/math_simd_details.h>
 #endif
 
@@ -233,7 +235,9 @@ void generateCoordinateSystem(const Vec3fX<T>& w, Vec3fX<T>& u, Vec3fX<T>& v)
   }
 }
 
-#if FCL_HAVE_SSE
+#if FCL_HAVE_EIGEN
+  typedef Vec3fX<details::eigen_wrapper_v3<FCL_REAL> > Vec3f;
+#elif FCL_HAVE_SSE
   typedef Vec3fX<details::sse_meta_f4> Vec3f;
 #else
   typedef Vec3fX<details::Vec3Data<FCL_REAL> > Vec3f;

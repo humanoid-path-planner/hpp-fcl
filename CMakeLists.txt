@@ -2,7 +2,7 @@
 # Software License Agreement (BSD License)
 #
 #  Copyright (c) 2014 CNRS-LAAS
-#  Author: Florent Lamiraux
+#  Author: Florent Lamiraux, Joseph Mirabel
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@
 cmake_minimum_required(VERSION 2.8)
 set(CXX_DISABLE_WERROR TRUE)
 include(cmake/base.cmake)
+include(cmake/eigen.cmake)
 include(cmake/boost.cmake)
 
 set(PROJECT_NAME hpp-fcl)
@@ -44,6 +45,17 @@ set(PROJECT_DESCRIPTION
 set(PROJECT_URL "http://github.com/humanoid-path-planner/hpp-fcl")
 
 setup_project()
+
+set(FCL_HAVE_SSE FALSE CACHE BOOL "Enable SSE vectorization")
+set(FCL_HAVE_EIGEN FALSE CACHE BOOL "Use eigen wrappers")
+
+add_optional_dependency("eigen3 >= 3.0.0")
+if (EIGEN3_FOUND)
+  set (FCL_HAVE_EIGEN TRUE)
+  if (FCL_HAVE_EIGEN)
+    include_directories(${EIGEN3_INCLUDE_DIRS})
+  endif (FCL_HAVE_EIGEN)
+endif (EIGEN3_FOUND)
 
 # Required dependencies
 add_required_dependency("ccd >= 1.4")
@@ -156,6 +168,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_object.h
   include/hpp/fcl/octree.h
   include/hpp/fcl/fwd.hh
+  include/hpp/fcl/eigen/math_details.h
   )
 
 add_subdirectory(src)
