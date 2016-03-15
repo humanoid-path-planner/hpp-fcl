@@ -43,35 +43,52 @@ namespace fcl
 
 /// @brief Matrix2 class wrapper. the core data is in the template parameter class
 template<typename T>
-class Matrix3fX
-  : Eigen::Matrix <T, 3, 1>
+class Matrix3fX :
+  public Eigen::Matrix <T, 3, 3, Eigen::RowMajor>
 {
 public:
-  // typedef typename T::vector_type S;
+  typedef Eigen::Matrix <T, 3, 3, Eigen::RowMajor> Base;
+  typedef typename Base::ColXpr ColXpr;
+  typedef typename Base::ConstColXpr ConstColXpr;
+  typedef typename Base::RowXpr RowXpr;
+  typedef typename Base::ConstRowXpr ConstRowXpr;
+
   
-  Matrix3fX() {}
-  Matrix3fX(U xx, U xy, U xz,
-            U yx, U yy, U yz,
-            U zx, U zy, U zz) : data(xx, xy, xz, yx, yy, yz, zx, zy, zz)
+  Matrix3fX(void): Base() {}
+
+  // This constructor allows you to construct MyVectorType from Eigen expressions
+  template<typename OtherDerived>
+    Matrix3fX(const Eigen::MatrixBase<OtherDerived>& other)
+    : Base(other)
+    {}
+
+  // This method allows you to assign Eigen expressions to MyVectorType
+  template<typename OtherDerived>
+    Matrix3fX& operator=(const Eigen::MatrixBase <OtherDerived>& other)
+    {
+      this->Base::operator=(other);
+      return *this;
+    }
+
+  Matrix3fX(T xx, T xy, T xz,
+            T yx, T yy, T yz,
+            T zx, T zy, T zz)
+    : Base((Base () << xx, xy, xz, yx, yy, yz, zx, zy, zz).finished ())
   {}
 
-  Matrix3fX(const Vec3fX<S>& v1, const Vec3fX<S>& v2, const Vec3fX<S>& v3)
-    : data(v1.data, v2.data, v3.data) {}
-  
-  Matrix3fX(const Matrix3fX<T>& other) : data(other.data) {}
+  template <typename OtherDerived>
+  Matrix3fX(const Eigen::MatrixBase<OtherDerived>& v1,
+            const Eigen::MatrixBase<OtherDerived>& v2,
+            const Eigen::MatrixBase<OtherDerived>& v3)
+    : Base((Base () << v1, v2, v3).finished ())
+  {}
 
-  Matrix3fX(const T& data_) : data(data_) {}
-  
-  inline Vec3fX<S> getColumn(size_t i) const
-  {
-    return Vec3fX<S>(data.getColumn(i));
-  }
+  inline ColXpr getColumn(size_t i) { return this->col(i); }
+  inline RowXpr getRow(size_t i)    { return this->row(i); }
+  inline ConstColXpr getColumn(size_t i) const { return this->col(i); }
+  inline ConstRowXpr getRow(size_t i)    const { return this->row(i); }
 
-  inline Vec3fX<S> getRow(size_t i) const
-  {
-    return Vec3fX<S>(data.getRow(i));
-  }
-
+/*
   inline U operator () (size_t i, size_t j) const
   {
     return data(i, j);
@@ -168,6 +185,7 @@ public:
   {
     data.setIdentity();
   }
+  // */
 
   inline bool isIdentity () const
   {
@@ -177,10 +195,12 @@ public:
       data (2,0) == 0 && data (2,1) == 0 && data (2,2) == 1;
   }
 
+  /*
   inline void setZero()
   {
     data.setZero();
   }
+  // */
 
   /// @brief Set the matrix from euler angles YPR around ZYX axes
   /// @param eulerX Roll about X axis
@@ -218,150 +238,175 @@ public:
     setEulerZYX(roll, pitch, yaw);
   }
 
+  /*
   inline U determinant() const
   {
     return data.determinant();
   }
+  // */
 
   Matrix3fX<T>& transpose() 
   {
-    data.transpose();
+    this->transposeInPlace();
     return *this;
   }
 
   Matrix3fX<T>& inverse()
   {
-    data.inverse();
+    *this = this->inverse().eval ();
     return *this;
   }
 
   Matrix3fX<T>& abs()
   {
-    data.abs();
+    *this = this->cwiseAbs ();
     return *this;
   }
 
   static const Matrix3fX<T>& getIdentity()
   {
-    static const Matrix3fX<T> I((U)1, (U)0, (U)0,
-                                (U)0, (U)1, (U)0,
-                                (U)0, (U)0, (U)1);
+    static const Matrix3fX<T> I((T)1, (T)0, (T)0,
+                                (T)0, (T)1, (T)0,
+                                (T)0, (T)0, (T)1);
     return I;
   }
 
-  Matrix3fX<T> transposeTimes(const Matrix3fX<T>& other) const
+  template<typename OtherDerived>
+    const typename Eigen::ProductReturnType< Eigen::Transpose <Matrix3fX<T> >,
+                                             OtherDerived>::Type
+   transposeTimes(const Eigen::MatrixBase<OtherDerived>& other) const
   {
-    return Matrix3fX<T>(data.transposeTimes(other.data));
+    return this->Base::transpose() * other;
   }
 
-  Matrix3fX<T> timesTranspose(const Matrix3fX<T>& other) const
+  template<typename OtherDerived>
+    const typename Eigen::ProductReturnType< Matrix3fX<T>,
+                                             Eigen::Transpose <OtherDerived> >
+    ::Type timesTranspose(const Eigen::MatrixBase<OtherDerived>& other) const
   {
-    return Matrix3fX<T>(data.timesTranspose(other.data));
+    return *this * other.transpose ();
   }
 
+  /*
   Vec3fX<S> transposeTimes(const Vec3fX<S>& v) const
   {
     return Vec3fX<S>(data.transposeTimes(v.data));
   }
+  // */
 
-  Matrix3fX<T> tensorTransform(const Matrix3fX<T>& m) const
+  template<typename OtherDerived>
+    const Eigen::ProductReturnType<
+      Eigen::ProductReturnType< Matrix3fX<T>,
+                                OtherDerived>::Type,
+      Eigen::Transpose < Matrix3fX<T> >
+        > ::Type
+  tensorTransform(const Eigen::MatrixBase<OtherDerived>& m) const
   {
-    Matrix3fX<T> res(*this);
-    res *= m;
-    return res.timesTranspose(*this);
+    return (*this * m) * this->Base::transpose ();
+    // Matrix3fX<T> res(*this);
+    // res *= m;
+    // return res.timesTranspose(*this);
   }
 
   // (1 0 0)^T (*this)^T v
-  inline U transposeDotX(const Vec3fX<S>& v) const
+  template<typename OtherDerived>
+  inline T transposeDotX(const Eigen::MatrixBase<OtherDerived>& v) const
   {
-    return data.transposeDot(0, v.data);
+    return transposeDot(0, v);
   }
 
   // (0 1 0)^T (*this)^T v
-  inline U transposeDotY(const Vec3fX<S>& v) const
+  template<typename OtherDerived>
+  inline T transposeDotY(const Eigen::MatrixBase<OtherDerived>& v) const
   {
-    return data.transposeDot(1, v.data);
+    return transposeDot(1, v);
   }
 
   // (0 0 1)^T (*this)^T v
-  inline U transposeDotZ(const Vec3fX<S>& v) const
+  template<typename OtherDerived>
+  inline T transposeDotZ(const Eigen::MatrixBase<OtherDerived>& v) const
   {
-    return data.transposeDot(2, v.data);
+    return transposeDot(2, v);
   }
 
   // (\delta_{i3})^T (*this)^T v
-  inline U transposeDot(size_t i, const Vec3fX<S>& v) const
+  template<typename OtherDerived>
+  inline T transposeDot(size_t i, const Eigen::MatrixBase<OtherDerived>& v) const
   {
-    return data.transposeDot(i, v.data);
+    return this->col(i).dot(v);
   }
 
   // (1 0 0)^T (*this) v
-  inline U dotX(const Vec3fX<S>& v) const
+  template<typename OtherDerived>
+  inline T dotX(const Eigen::MatrixBase<OtherDerived>& v) const
   {
-    return data.dot(0, v.data);
+    return dot(0, v);
   }
 
   // (0 1 0)^T (*this) v
-  inline U dotY(const Vec3fX<S>& v) const
+  template<typename OtherDerived>
+  inline T dotY(const Eigen::MatrixBase<OtherDerived>& v) const
   {
-    return data.dot(1, v.data);
+    return dot(1, v);
   }
 
   // (0 0 1)^T (*this) v
-  inline U dotZ(const Vec3fX<S>& v) const
+  template<typename OtherDerived>
+  inline T dotZ(const Eigen::MatrixBase<OtherDerived>& v) const
   {
-    return data.dot(2, v.data);
+    return dot(2, v);
   }
 
   // (\delta_{i3})^T (*this) v
-  inline U dot(size_t i, const Vec3fX<S>& v) const
+  template<typename OtherDerived>
+  inline T dot(size_t i, const Eigen::MatrixBase<OtherDerived>& v) const
   {
-    return data.dot(i, v.data);
+    return this->row(i).dot(v);
   }
 
-  inline void setValue(U xx, U xy, U xz,
-                       U yx, U yy, U yz,
-                       U zx, U zy, U zz)
+  inline void setValue(T xx, T xy, T xz,
+                       T yx, T yy, T yz,
+                       T zx, T zy, T zz)
   {
-    data.setValue(xx, xy, xz, 
-                  yx, yy, yz,
-                  zx, zy, zz);
+    (*this)(0,0) = xx; (*this)(0,1) = xy; (*this)(0,2) = xz;
+    (*this)(1,0) = yx; (*this)(1,1) = yy; (*this)(1,2) = yz;
+    (*this)(2,0) = zx; (*this)(2,1) = zy; (*this)(2,2) = zz;
   }
 
-  inline void setValue(U x)
+  inline void setValue(T x)
   {
-    data.setValue(x);
+    this->setConstant (x);
   }
 };
 
-template<typename T>
-void hat(Matrix3fX<T>& mat, const Vec3fX<typename T::vector_type>& vec)
+template<typename T, typename OtherDerived>
+void hat(Matrix3fX<T>& mat, const Eigen::MatrixBase<OtherDerived>& vec)
 {
   mat.setValue(0, -vec[2], vec[1], vec[2], 0, -vec[0], -vec[1], vec[0], 0);
 }
 
-template<typename T>
-void relativeTransform(const Matrix3fX<T>& R1, const Vec3fX<typename T::vector_type>& t1,
-                       const Matrix3fX<T>& R2, const Vec3fX<typename T::vector_type>& t2,
-                       Matrix3fX<T>& R, Vec3fX<typename T::vector_type>& t)
+template<typename T, typename OtherDerived>
+void relativeTransform(const Matrix3fX<T>& R1, const Eigen::MatrixBase<OtherDerived>& t1,
+                       const Matrix3fX<T>& R2, const Eigen::MatrixBase<OtherDerived>& t2,
+                       Matrix3fX<T>& R, Eigen::MatrixBase<OtherDerived>& t)
 {
   R = R1.transposeTimes(R2);
   t = R1.transposeTimes(t2 - t1);
 }
 
 /// @brief compute the eigen vector and eigen vector of a matrix. dout is the eigen values, vout is the eigen vectors
-template<typename T>
-void eigen(const Matrix3fX<T>& m, typename T::meta_type dout[3], Vec3fX<typename T::vector_type> vout[3])
+template<typename T, typename Derived>
+void eigen(const Matrix3fX<T>& m, T dout[3], const Eigen::MatrixBase<Derived> vout[3])
 {
   Matrix3fX<T> R(m);
   int n = 3;
   int j, iq, ip, i;
-  typename T::meta_type tresh, theta, tau, t, sm, s, h, g, c;
+  T tresh, theta, tau, t, sm, s, h, g, c;
   int nrot;
-  typename T::meta_type b[3];
-  typename T::meta_type z[3];
-  typename T::meta_type v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-  typename T::meta_type d[3];
+  T b[3];
+  T z[3];
+  T v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+  T d[3];
 
   for(ip = 0; ip < n; ++ip)
   {
@@ -439,25 +484,26 @@ void eigen(const Matrix3fX<T>& m, typename T::meta_type dout[3], Vec3fX<typename
 }
 
 template<typename T>
-Matrix3fX<T> abs(const Matrix3fX<T>& R) 
+const typename CwiseUnaryOp<internal::scalar_abs_op<Scalar>, const Matrix3fX<T> >
+abs(const Matrix3fX<T>& R) 
 {
-  return Matrix3fX<T>(abs(R.data));
+  return R.cwiseAbs ();
 }
 
 template<typename T>
-Matrix3fX<T> transpose(const Matrix3fX<T>& R)
+typename Eigen::Transpose <Matrix3fX<T> > transpose(const Matrix3fX<T>& R)
 {
-  return Matrix3fX<T>(transpose(R.data));
+  return R.Matrix3fX<T>::Base::transpose ();
 }
 
 template<typename T>
 Matrix3fX<T> inverse(const Matrix3fX<T>& R)
 {
-  return Matrix3fX<T>(inverse(R.data));
+  return R.Matrix3fX<T>::Base::inverse ().eval ();
 }
 
-template<typename T>
-typename T::meta_type quadraticForm(const Matrix3fX<T>& R, const Vec3fX<typename T::vector_type>& v)
+template<typename T, typename Derived>
+T quadraticForm(const Matrix3fX<T>& R, const Eigen::MatrixBase<Derived>& v)
 {
   return v.dot(R * v);
 }

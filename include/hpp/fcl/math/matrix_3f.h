@@ -51,9 +51,9 @@ namespace fcl
 
 #if FCL_HAVE_EIGEN
 # if FCL_USE_NATIVE_EIGEN
-  typedef Matrix3fX<FCL_REAL> Matrix3f;
+  typedef Eigen::FclMatrix<FCL_REAL, 3, 0> Matrix3f;
 # else
-  typedef Matrix3fX<details::eigen_m3<FCL_REAL> > Matrix3f;
+  typedef Matrix3fX<details::eigen_wrapper_m3<FCL_REAL> > Matrix3f;
 # endif
 #elif FCL_HAVE_SSE
 typedef Matrix3fX<details::sse_meta_f12> Matrix3f;

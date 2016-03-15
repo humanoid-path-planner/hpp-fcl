@@ -436,6 +436,7 @@ static inline bool equal(const eigen_v3<T>& x, const eigen_v3<T>& y, T epsilon)
 template<typename T>
 struct eigen_wrapper_m3
 {
+  typedef T meta_type;
   typedef eigen_wrapper_v3<T> vector_type;
   typedef Eigen::Matrix <T, 3, 3, Eigen::RowMajor> matrix_type;
   typedef Eigen::Matrix <T, 3, 1> inner_col_type;
@@ -477,19 +478,19 @@ struct eigen_wrapper_m3
   inline eigen_wrapper_m3<T> operator + (const eigen_wrapper_m3<T>& other) const { return eigen_wrapper_m3<T>(m + other.m); }
   inline eigen_wrapper_m3<T> operator - (const eigen_wrapper_m3<T>& other) const { return eigen_wrapper_m3<T>(m - other.m); }
 
-  inline eigen_wrapper_m3<T> operator + (meta_type c) const { return eigen_wrapper_m3<T>(m + c); }
-  inline eigen_wrapper_m3<T> operator - (meta_type c) const { return eigen_wrapper_m3<T>(m - c); }
-  inline eigen_wrapper_m3<T> operator * (meta_type c) const { return eigen_wrapper_m3<T>(m * c); }
-  inline eigen_wrapper_m3<T> operator / (meta_type c) const { return eigen_wrapper_m3<T>(m / c); }
+  inline eigen_wrapper_m3<T> operator + (T c) const { return eigen_wrapper_m3<T>(m + c); }
+  inline eigen_wrapper_m3<T> operator - (T c) const { return eigen_wrapper_m3<T>(m - c); }
+  inline eigen_wrapper_m3<T> operator * (T c) const { return eigen_wrapper_m3<T>(m * c); }
+  inline eigen_wrapper_m3<T> operator / (T c) const { return eigen_wrapper_m3<T>(m / c); }
 
   inline eigen_wrapper_m3<T>& operator *= (const eigen_wrapper_m3<T>& other) { m *= other.m; return *this; }
   inline eigen_wrapper_m3<T>& operator += (const eigen_wrapper_m3<T>& other) { m += other.m; return *this; }
   inline eigen_wrapper_m3<T>& operator -= (const eigen_wrapper_m3<T>& other) { m -= other.m; return *this; }
 
-  inline eigen_wrapper_m3<T>& operator += (meta_type c) { m.array() += c; return *this; }
-  inline eigen_wrapper_m3<T>& operator -= (meta_type c) { m.array() -= c; return *this; }
-  inline eigen_wrapper_m3<T>& operator *= (meta_type c) { m.array() *= c; return *this; }
-  inline eigen_wrapper_m3<T>& operator /= (meta_type c) { m.array() /= c; return *this; }
+  inline eigen_wrapper_m3<T>& operator += (T c) { m.array() += c; return *this; }
+  inline eigen_wrapper_m3<T>& operator -= (T c) { m.array() -= c; return *this; }
+  inline eigen_wrapper_m3<T>& operator *= (T c) { m.array() *= c; return *this; }
+  inline eigen_wrapper_m3<T>& operator /= (T c) { m.array() /= c; return *this; }
 
 
   void setIdentity() { m.setIdentity (); }
@@ -678,14 +679,14 @@ struct eigen_m3 :
   }
 
   template <typename OtherDerived>
-    const Eigen::ProductReturnType<eigen_m3<T>, OtherDerived>::Type
+    const typename Eigen::ProductReturnType<eigen_m3<T>, OtherDerived>::Type
     transposeTimes(const Eigen::MatrixBase<OtherDerived>& other) const
   {
     return this->Base::transpose() * other;
   }
 
   template <typename OtherDerived>
-    const Eigen::ProductReturnType<eigen_m3<T>, OtherDerived>::Type
+    const typename Eigen::ProductReturnType<eigen_m3<T>, OtherDerived>::Type
     timesTranspose(const Eigen::MatrixBase<OtherDerived>& other) const
   {
     return this->operator* (other.Base::transpose());

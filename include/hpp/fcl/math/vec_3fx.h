@@ -41,8 +41,6 @@
 #include <hpp/fcl/config-fcl.hh>
 #include <hpp/fcl/data_types.h>
 
-#include <hpp/fcl/math/math_details.h>
-
 #include <cmath>
 #include <iostream>
 #include <limits>

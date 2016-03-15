@@ -36,6 +36,9 @@
 #ifndef FCL_MATH_DETAILS_H
 #define FCL_MATH_DETAILS_H
 
+#if FCL_HAVE_EIGEN
+# error "This file should not be included when compiling with Eigen library"
+#endif
 
 #include <cmath>
 #include <algorithm>
