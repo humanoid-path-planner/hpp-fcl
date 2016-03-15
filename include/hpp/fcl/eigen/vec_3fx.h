@@ -41,11 +41,15 @@
 #include <hpp/fcl/config-fcl.hh>
 #include <hpp/fcl/data_types.h>
 
-#include <hpp/fcl/eigen/math_details.h>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
 
 #include <cmath>
 #include <iostream>
 #include <limits>
+
+#define FCL_CCD_INTERVALVECTOR_PLUGIN <hpp/fcl/eigen/plugins/ccd/interval-vector.h>
+#define FCL_CCD_MATRIXVECTOR_PLUGIN <hpp/fcl/eigen/plugins/ccd/interval-matrix.h>
 
 #define FCL_EIGEN_EXPOSE_PARENT_TYPE(Type) typedef typename Base::Type Type;
 
@@ -114,6 +118,26 @@
   FCL_EIGEN_MATRIX_DOT_AXIS(NAME,Y,1)\
   FCL_EIGEN_MATRIX_DOT_AXIS(NAME,Z,2)
 
+#define FCL_EIGEN_MAKE_CROSS() \
+  template<typename OtherDerived> \
+  EIGEN_STRONG_INLINE typename BinaryReturnType<FCL_EIGEN_CURRENT_CLASS,OtherDerived>::Cross \
+  cross (const MatrixBase<OtherDerived>& other) const { return this->Base::cross (other); }
+
+#define FCL_EIGEN_MAKE_DOT() \
+  template <typename OtherDerived> \
+  EIGEN_STRONG_INLINE Scalar dot (const MatrixBase<OtherDerived>& other) const \
+  { return this->Base::dot (other.derived()); }
+
+namespace fcl {
+template <typename Derived>
+class FclType
+{
+  public:
+    Derived& derived () { return static_cast<Derived&> (*this); }
+    const Derived& derived () const { return static_cast<const Derived&> (*this); }
+};
+}
+
 namespace Eigen {
   template <typename T> class FclOp;
   template <typename T, int Cols, int Options> class FclMatrix;
@@ -123,24 +147,6 @@ namespace Eigen {
   namespace internal {
 
     template<typename T> struct traits< FclOp<T> > : traits <T> {};
-    // template<typename T>
-      // struct traits< FclOp<T> >
-      // {
-        // typedef T Scalar;
-        // typedef FclOp<T> This;
-        // typedef traits<typename This::Base> traits_base;
-        // typedef typename traits_base::StorageKind StorageKind;
-        // typedef typename traits_base::Index Index;
-        // typedef typename traits_base::XprKind XprKind;
-        // enum {
-          // RowsAtCompileTime = traits_base::RowsAtCompileTime,
-          // ColsAtCompileTime = traits_base::ColsAtCompileTime,
-          // MaxRowsAtCompileTime = traits_base::MaxRowsAtCompileTime,
-          // MaxColsAtCompileTime = traits_base::MaxColsAtCompileTime,
-          // Flags = traits_base::Flags,
-          // CoeffReadCost = traits_base::CoeffReadCost
-        // };
-      // };
     template<typename T, int Cols, int _Options>
       struct traits< FclMatrix<T, Cols, _Options> >
       {
@@ -197,13 +203,14 @@ namespace Eigen {
         const CwiseBinaryOp<internal::scalar_max_op<Scalar>,
               const Derived, const OtherDerived>
                 > Max;
+      typedef FclMatrix <Scalar, 1, 0> Cross;
     };
 
 #define FCL_EIGEN_CURRENT_CLASS FclMatrix
 
 /// @brief Vector3 class wrapper. The core data is in the template parameter class.
 template <typename T, int Cols, int _Options>
-class FclMatrix : public Matrix <T, 3, Cols, _Options>
+class FclMatrix : public Matrix <T, 3, Cols, _Options>, public ::fcl::FclType<FclMatrix <T, Cols, _Options> >
 {
 public:
   typedef Matrix <T, 3, Cols, _Options> Base;
@@ -213,7 +220,11 @@ public:
   FCL_EIGEN_EXPOSE_PARENT_TYPE(ConstColXpr)
   FCL_EIGEN_EXPOSE_PARENT_TYPE(ConstRowXpr)
 
-  FclMatrix(void): Base() {}
+  // Compatibility with other Matrix3fX and Vec3f
+  typedef T U;
+  typedef T meta_type;
+
+  FclMatrix(void): Base(Base::Zero()) {}
 
   // This constructor allows you to construct MyVectorType from Eigen expressions
   template<typename OtherDerived>
@@ -239,6 +250,16 @@ public:
     setValue(xx, xy, xz, yx, yy, yz, zx, zy, zz);
   }
 
+  template <typename Vector>
+  FclMatrix(const ::fcl::FclType<Vector>& r0,
+            const ::fcl::FclType<Vector>& r1,
+            const ::fcl::FclType<Vector>& r2) : Base()
+  {
+    this->row(0) = r0.derived();
+    this->row(1) = r1.derived();
+    this->row(2) = r2.derived();
+  }
+
   /// @brief create vector (x, x, x)
   FclMatrix(T x) : Base(Base::Constant (x)) {}
 
@@ -258,6 +279,8 @@ public:
   FCL_EIGEN_MAKE_GET_COL_ROW()
   FCL_EIGEN_MATRIX_DOT(dot,row)
   FCL_EIGEN_MATRIX_DOT(transposeDot,col)
+
+  FCL_EIGEN_MAKE_DOT()
 
   FCL_EIGEN_MAKE_CWISE_BINARY_OP(operator+,internal::scalar_sum_op)
   FCL_EIGEN_MAKE_CWISE_BINARY_OP(operator-,internal::scalar_difference_op)
@@ -283,10 +306,10 @@ public:
   FCL_EIGEN_MAKE_EXPOSE_PARENT_ARRAY_SCALAR1(operator-=)
   FCL_EIGEN_MAKE_EXPOSE_PARENT_ARRAY_SCALAR1(operator*=)
   FCL_EIGEN_MAKE_EXPOSE_PARENT_ARRAY_SCALAR1(operator/=)
-  inline const typename UnaryReturnType<FclMatrix>::Opposite operator - () const { return typename UnaryReturnType<FclMatrix>::Opposite(*this); }
+  inline const typename UnaryReturnType<FclMatrix>::Opposite operator-() const { return typename UnaryReturnType<FclMatrix>::Opposite(*this); }
   // There is no class for cross 
   // inline Vec3fX cross(const Vec3fX& other) const { return Vec3fX(details::cross_prod(data, other.data)); }
-  // inline U dot(const Vec3fX& other) const { return details::dot_prod3(data, other.data); }
+  FCL_EIGEN_MAKE_CROSS()
   inline FclMatrix& normalize()
   {
     T sqr_length = this->squaredNorm();
@@ -299,7 +322,7 @@ public:
     T sqr_length = this->squaredNorm();
     if(sqr_length > 0)
     {
-      this->operator/= ((T)sqrt(sqr_length));
+      this->operator/= ((T)std::sqrt(sqr_length));
       *signal = true;
     }
     else
@@ -405,13 +428,58 @@ public:
     const typename FclProduct<const FclMatrix,const OtherDerived>::ProductType left (*this, other.derived());
     return typename FclProduct<const FclMatrix,const OtherDerived>::TensorTransformType (left, t);
   }
+
+  static const FclMatrix& getIdentity()
+  {
+    static const FclMatrix I((T)1, (T)0, (T)0,
+                             (T)0, (T)1, (T)0,
+                             (T)0, (T)0, (T)1);
+    return I;
+  }
+
+  /// @brief Set the matrix from euler angles YPR around ZYX axes
+  /// @param eulerX Roll about X axis
+  /// @param eulerY Pitch around Y axis
+  /// @param eulerZ Yaw aboud Z axis
+  ///  
+  /// These angles are used to produce a rotation matrix. The euler
+  /// angles are applied in ZYX order. I.e a vector is first rotated 
+  /// about X then Y and then Z
+  inline void setEulerZYX(Scalar eulerX, Scalar eulerY, Scalar eulerZ)
+  {
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(FclMatrix, 3, 3);
+    Scalar ci(std::cos(eulerX));
+    Scalar cj(std::cos(eulerY));
+    Scalar ch(std::cos(eulerZ));
+    Scalar si(std::sin(eulerX));
+    Scalar sj(std::sin(eulerY));
+    Scalar sh(std::sin(eulerZ));
+    Scalar cc = ci * ch;
+    Scalar cs = ci * sh;
+    Scalar sc = si * ch;
+    Scalar ss = si * sh;
+
+    setValue(cj * ch, sj * sc - cs, sj * cc + ss,
+             cj * sh, sj * ss + cc, sj * cs - sc, 
+             -sj,     cj * si,      cj * ci);
+
+  }
+
+  /// @brief Set the matrix from euler angles using YPR around YXZ respectively
+  /// @param yaw Yaw about Y axis
+  /// @param pitch Pitch about X axis
+  /// @param roll Roll about Z axis 
+  void setEulerYPR(Scalar yaw, Scalar pitch, Scalar roll)
+  {
+    setEulerZYX(roll, pitch, yaw);
+  }
 };
 
 #undef FCL_EIGEN_CURRENT_CLASS
 #define FCL_EIGEN_CURRENT_CLASS FclOp
 
 template <typename EigenOp>
-class FclOp : public EigenOp
+class FclOp : public EigenOp, public ::fcl::FclType<FclOp <EigenOp> >
 {
 public:
   typedef typename internal::traits<EigenOp>::Scalar T;
@@ -430,6 +498,10 @@ public:
   FclOp (Lhs& lhs, const Rhs& rhs)
     : Base (lhs, rhs) {}
 
+  template<typename OtherEigenOp>
+  FclOp (const FclOp<OtherEigenOp>& other)
+    : Base (other) {}
+
   template<typename XprType>
   FclOp (XprType& xpr)
     : Base (xpr) {}
@@ -437,13 +509,12 @@ public:
   Base& base () { return *this; }
   const Base& base () const { return *this; }
 
-  // template<typename Lhs, typename Rhs, typename BinaryOp>
-  // FclOp (const CwiseBinaryOp<BinaryOp, Lhs, Rhs>& o)
-    // : Base (o.lhs(), o.rhs(), o.functor()) {}
 
   FCL_EIGEN_MAKE_GET_COL_ROW()
   FCL_EIGEN_MATRIX_DOT(dot,row)
   FCL_EIGEN_MATRIX_DOT(transposeDot,col)
+
+  FCL_EIGEN_MAKE_DOT()
 
   FCL_EIGEN_MAKE_CWISE_BINARY_OP(operator+,internal::scalar_sum_op)
   FCL_EIGEN_MAKE_CWISE_BINARY_OP(operator-,internal::scalar_difference_op)
@@ -461,6 +532,9 @@ public:
   }
   FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator*,internal::scalar_multiple_op)
   FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator/,internal::scalar_quotient1_op)
+  inline const typename UnaryReturnType<const FclOp>::Opposite operator-() const { return typename UnaryReturnType<const FclOp>::Opposite(*this); }
+
+  FCL_EIGEN_MAKE_CROSS()
 
   inline const typename UnaryReturnType<EigenOp>::Normalize
     normalize() const
@@ -492,19 +566,8 @@ public:
     return typename UnaryReturnType<EigenOp>::Abs (this->derived());
   }
 
-  inline T length() const { return this->norm(); }
-  // inline T norm() const { return sqrt(details::dot_prod3(data, data)); }
-  inline T sqrLength() const { return this->squaredNorm(); }
-  // inline T squaredNorm() const { return details::dot_prod3(data, data); }
-  /* Useless
-  inline void setValue(T x, T y, T z) {
-    this->m_storage.data()[0] = x;
-    this->m_storage.data()[1] = y;
-    this->m_storage.data()[2] = z;
-  }
-  inline void setValue(T x) { this->setConstant (x); }
-  inline void setZero () {data.setValue (0); }
-  //*/
+  inline Scalar length() const { return this->norm(); }
+  inline Scalar sqrLength() const { return this->squaredNorm(); }
 
   template <typename Derived>
   inline bool equal(const Eigen::MatrixBase<Derived>& other, T epsilon = std::numeric_limits<T>::epsilon() * 100) const
@@ -536,11 +599,7 @@ public:
   bool isZero() const
   {
     return this->isZero ();
-    // (this->m_storage.data()[0] == 0)
-      // &&   (this->m_storage.data()[1] == 0)
-      // &&   (this->m_storage.data()[2] == 0);
   }
-  // */
 
   const FclOp<Transpose<const FclOp> > transpose () const {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(EigenOp, 3, 3);
@@ -549,6 +608,7 @@ public:
 
   // const FclOp<internal::inverse_impl<FclOp> > inverse () const { return FclOp<Transpose<FclOp> >(*this); }
 };
+
 }
 
 namespace fcl
@@ -564,54 +624,49 @@ static inline Eigen::FclMatrix<T, 1, _Options> normalize(const Eigen::FclMatrix<
     return v;
 }
 
-template<typename T, int _Options>
-static inline T triple(
-    const Eigen::FclMatrix<T, 1, _Options>& x,
-    const Eigen::FclMatrix<T, 1, _Options>& y,
-    const Eigen::FclMatrix<T, 1, _Options>& z)
+template<typename Derived>
+static inline typename Derived::Scalar triple(
+    const FclType<Derived>& x,
+    const FclType<Derived>& y,
+    const FclType<Derived>& z)
 {
-  return x.dot(y.cross(z));
+  return x.derived().dot(y.derived().cross(z.derived()));
 }
 
-// template<typename T, int _Options>
-// std::ostream& operator << (std::ostream& out, const Eigen::FclMatrix<T>& x)
-// {
-  // out << x[0] << " " << x[1] << " " << x[2];
-  // return out;
-// }
 
-template<typename T, int _Options>
-static inline const typename Eigen::BinaryReturnType<
-  const Eigen::FclMatrix<T, 1, _Options>, const Eigen::FclMatrix<T, 1, _Options>
-  >::Min
- min(const Eigen::FclMatrix<T, 1, _Options>& x, const Eigen::FclMatrix<T, 1, _Options>& y)
+template<typename Derived, typename OtherDerived>
+static inline const typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Min
+ min(const FclType<Derived>& x, const FclType<OtherDerived>& y)
 {
-  return typename Eigen::BinaryReturnType<const Eigen::FclMatrix<T, 1, _Options>, const Eigen::FclMatrix<T, 1, _Options> >::Min (x, y);
+  return typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Min (x.derived(), y.derived());
 }
 
-template<typename T, int _Options>
-static inline const typename Eigen::BinaryReturnType<
-  const Eigen::FclMatrix<T, 1, _Options>, const Eigen::FclMatrix<T, 1, _Options>
-  >::Max
- max(const Eigen::FclMatrix<T, 1, _Options>& x, const Eigen::FclMatrix<T, 1, _Options>& y)
+template<typename Derived, typename OtherDerived>
+static inline const typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Max
+ max(const FclType<Derived>& x, const FclType<OtherDerived>& y)
 {
-  return typename Eigen::BinaryReturnType<const Eigen::FclMatrix<T, 1, _Options>, const Eigen::FclMatrix<T, 1, _Options> >::Max (x, y);
+  return typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Max (x.derived(), y.derived());
 }
 
-template<typename T, int _Cols, int _Options>
-// static inline Vec3fX<T> abs(const Vec3fX<T>& x)
-static inline const typename Eigen::UnaryReturnType<const Eigen::FclMatrix<T, _Cols, _Options> >
-abs(const Eigen::FclMatrix<T, _Cols, _Options>& x)
+template<typename Derived>
+static inline const typename Eigen::UnaryReturnType<const Derived>::Abs
+abs(const FclType<Derived>& x)
 {
-  return typename Eigen::UnaryReturnType<const Eigen::FclMatrix<T, _Cols, _Options> >::Abs (x);
+  return typename Eigen::UnaryReturnType<const Derived>::Abs (x.derived());
 }
 
-template<typename T, int _Options>
+template<typename Derived>
 void generateCoordinateSystem(
-    const Eigen::FclMatrix<T, 1, _Options>& w,
-    const Eigen::FclMatrix<T, 1, _Options>& u,
-    const Eigen::FclMatrix<T, 1, _Options>& v)
+    FclType<Derived>& _w,
+    FclType<Derived>& _u,
+    FclType<Derived>& _v)
 {
+  typedef typename Derived::Scalar T;
+
+  Derived& w = _w.derived();
+  Derived& u = _u.derived();
+  Derived& v = _v.derived();
+
   T inv_length;
   if(std::abs(w[0]) >= std::abs(w[1]))
   {
@@ -662,10 +717,10 @@ void relativeTransform(const Matrix& R1, const Vector& t1,
 
 /// @brief compute the eigen vector and eigen vector of a matrix. dout is the eigen values, vout is the eigen vectors
 template<typename Matrix, typename Vector>
-void eigen(const Matrix& m, typename Matrix::Scalar dout[3], Vector vout[3])
+void eigen(const FclType<Matrix>& m, typename Matrix::Scalar dout[3], Vector* vout)
 {
   typedef typename Matrix::Scalar Scalar;
-  Matrix R(m);
+  Matrix R(m.derived());
   int n = 3;
   int j, iq, ip, i;
   Scalar tresh, theta, tau, t, sm, s, h, g, c;
@@ -749,12 +804,6 @@ void eigen(const Matrix& m, typename Matrix::Scalar dout[3], Vector vout[3])
 
   return;
 }
-
-// template<typename >
-// Matrix abs(const Matrix& R) 
-// {
-  // return R.abs());
-// }
 
 template<typename T, int _Options>
 Eigen::FclOp<Eigen::Transpose<const Eigen::FclMatrix<T,3,_Options> > > transpose(const Eigen::FclMatrix<T, 3, _Options>& R)

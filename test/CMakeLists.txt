@@ -46,4 +46,3 @@ if (FCL_HAVE_OCTOMAP)
   add_fcl_test(test_fcl_octomap test_fcl_octomap.cpp test_fcl_utility.cpp)
 endif()
 
-add_fcl_template_test(test_fcl_eigen test_fcl_eigen.cpp)

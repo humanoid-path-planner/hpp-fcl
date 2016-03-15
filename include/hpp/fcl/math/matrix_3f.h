@@ -40,9 +40,7 @@
 
 #include <hpp/fcl/math/vec_3f.h>
 
-#if FCL_USE_NATIVE_EIGEN
-# include <hpp/fcl/eigen/matrix_3fx.h>
-#else
+#if ! FCL_USE_NATIVE_EIGEN
 # include <hpp/fcl/math/matrix_3fx.h>
 #endif
 
