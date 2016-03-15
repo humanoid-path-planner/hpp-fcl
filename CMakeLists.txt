@@ -169,6 +169,11 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/octree.h
   include/hpp/fcl/fwd.hh
   include/hpp/fcl/eigen/math_details.h
+  include/hpp/fcl/eigen/vec_3fx.h
+  include/hpp/fcl/eigen/product.h
+  include/hpp/fcl/eigen/taylor_operator.h
+  include/hpp/fcl/eigen/plugins/ccd/interval-matrix.h
+  include/hpp/fcl/eigen/plugins/ccd/interval-vector.h
   )
 
 add_subdirectory(src)
