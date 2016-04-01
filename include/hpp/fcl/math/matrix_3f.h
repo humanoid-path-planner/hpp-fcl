@@ -49,7 +49,7 @@ namespace fcl
 
 #if FCL_HAVE_EIGEN
 # if FCL_USE_NATIVE_EIGEN
-  typedef Eigen::FclMatrix<FCL_REAL, 3, 0> Matrix3f;
+  typedef Eigen::FclMatrix<FCL_REAL, 3> Matrix3f;
 # else
   typedef Matrix3fX<details::eigen_wrapper_m3<FCL_REAL> > Matrix3f;
 # endif

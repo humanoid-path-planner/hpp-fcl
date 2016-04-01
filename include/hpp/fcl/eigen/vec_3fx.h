@@ -133,8 +133,8 @@ template <typename Derived>
 class FclType
 {
   public:
-    Derived& derived () { return static_cast<Derived&> (*this); }
-    const Derived& derived () const { return static_cast<const Derived&> (*this); }
+    Derived& fcl () { return static_cast<Derived&> (*this); }
+    const Derived& fcl () const { return static_cast<const Derived&> (*this); }
 };
 }
 
@@ -209,7 +209,7 @@ namespace Eigen {
 #define FCL_EIGEN_CURRENT_CLASS FclMatrix
 
 /// @brief Vector3 class wrapper. The core data is in the template parameter class.
-template <typename T, int Cols, int _Options>
+template <typename T, int Cols, int _Options = internal::traits<Matrix <T, 3, Cols> >::Options >
 class FclMatrix : public Matrix <T, 3, Cols, _Options>, public ::fcl::FclType<FclMatrix <T, Cols, _Options> >
 {
 public:
@@ -255,9 +255,9 @@ public:
             const ::fcl::FclType<Vector>& r1,
             const ::fcl::FclType<Vector>& r2) : Base()
   {
-    this->row(0) = r0.derived();
-    this->row(1) = r1.derived();
-    this->row(2) = r2.derived();
+    this->row(0) = r0.fcl();
+    this->row(1) = r1.fcl();
+    this->row(2) = r2.fcl();
   }
 
   /// @brief create vector (x, x, x)
@@ -563,7 +563,7 @@ public:
   inline const typename UnaryReturnType<EigenOp>::Abs
     abs() const
   {
-    return typename UnaryReturnType<EigenOp>::Abs (this->derived());
+    return typename UnaryReturnType<EigenOp>::Abs (*this);
   }
 
   inline Scalar length() const { return this->norm(); }
@@ -638,21 +638,21 @@ template<typename Derived, typename OtherDerived>
 static inline const typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Min
  min(const FclType<Derived>& x, const FclType<OtherDerived>& y)
 {
-  return typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Min (x.derived(), y.derived());
+  return typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Min (x.fcl(), y.fcl());
 }
 
 template<typename Derived, typename OtherDerived>
 static inline const typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Max
  max(const FclType<Derived>& x, const FclType<OtherDerived>& y)
 {
-  return typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Max (x.derived(), y.derived());
+  return typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Max (x.fcl(), y.fcl());
 }
 
 template<typename Derived>
 static inline const typename Eigen::UnaryReturnType<const Derived>::Abs
 abs(const FclType<Derived>& x)
 {
-  return typename Eigen::UnaryReturnType<const Derived>::Abs (x.derived());
+  return typename Eigen::UnaryReturnType<const Derived>::Abs (x.fcl());
 }
 
 template<typename Derived>
@@ -663,9 +663,9 @@ void generateCoordinateSystem(
 {
   typedef typename Derived::Scalar T;
 
-  Derived& w = _w.derived();
-  Derived& u = _u.derived();
-  Derived& v = _v.derived();
+  Derived& w = _w.fcl();
+  Derived& u = _u.fcl();
+  Derived& v = _v.fcl();
 
   T inv_length;
   if(std::abs(w[0]) >= std::abs(w[1]))
@@ -720,7 +720,7 @@ template<typename Matrix, typename Vector>
 void eigen(const FclType<Matrix>& m, typename Matrix::Scalar dout[3], Vector* vout)
 {
   typedef typename Matrix::Scalar Scalar;
-  Matrix R(m.derived());
+  Matrix R(m.fcl());
   int n = 3;
   int j, iq, ip, i;
   Scalar tresh, theta, tau, t, sm, s, h, g, c;
@@ -805,10 +805,10 @@ void eigen(const FclType<Matrix>& m, typename Matrix::Scalar dout[3], Vector* vo
   return;
 }
 
-template<typename T, int _Options>
-Eigen::FclOp<Eigen::Transpose<const Eigen::FclMatrix<T,3,_Options> > > transpose(const Eigen::FclMatrix<T, 3, _Options>& R)
+template<typename Derived>
+Eigen::FclOp<Eigen::Transpose<const Derived> > transpose(const FclType<Derived>& R)
 {
-  return Eigen::FclOp<Eigen::Transpose<const Eigen::FclMatrix<T,3,_Options> > > (R);
+  return Eigen::FclOp<Eigen::Transpose<const Derived > > (R.fcl());
 }
 
 template<typename T, int _Options>

@@ -67,7 +67,7 @@ namespace fcl
 
 #if FCL_HAVE_EIGEN
 # if FCL_USE_NATIVE_EIGEN
-  typedef Eigen::FclMatrix<FCL_REAL, 1, 0> Vec3f;
+  typedef Eigen::FclMatrix<FCL_REAL, 1> Vec3f;
 # else
   typedef Vec3fX<details::eigen_wrapper_v3<FCL_REAL> > Vec3f;
 # endif
