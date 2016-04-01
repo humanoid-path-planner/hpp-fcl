@@ -29,8 +29,8 @@ struct FclProduct
 
 #define FCL_EIGEN_MAKE_PRODUCT_OPERATOR() \
       template <typename OtherDerived> \
-      EIGEN_STRONG_INLINE const typename FclProduct<const FCL_EIGEN_CURRENT_CLASS, const OtherDerived>::ProductType \
+      EIGEN_STRONG_INLINE const typename FclProduct<const typename FCL_EIGEN_CURRENT_CLASS::Base, const OtherDerived>::ProductType \
       operator*(const MatrixBase<OtherDerived>& other) const \
       { \
-        return FclProduct<const FCL_EIGEN_CURRENT_CLASS, const OtherDerived>::run (*this, other.derived()); \
+        return FclProduct<const typename FCL_EIGEN_CURRENT_CLASS::Base, const OtherDerived>::run (*this, other.derived()); \
       }

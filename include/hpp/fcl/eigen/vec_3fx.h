@@ -168,6 +168,9 @@ namespace Eigen {
           OuterStrideAtCompileTime = traits_base::OuterStrideAtCompileTime
         };
       };
+
+    template <typename Derived> struct remove_fcl { typedef Derived type; };
+    template <> template <typename Derived> struct remove_fcl <FclOp<Derived> > { typedef Derived type; };
   }
 
   template <typename Derived>
@@ -630,7 +633,7 @@ static inline typename Derived::Scalar triple(
     const FclType<Derived>& y,
     const FclType<Derived>& z)
 {
-  return x.derived().dot(y.derived().cross(z.derived()));
+  return x.fcl().dot(y.fcl().cross(z.fcl()));
 }
 
 
@@ -806,9 +809,9 @@ void eigen(const FclType<Matrix>& m, typename Matrix::Scalar dout[3], Vector* vo
 }
 
 template<typename Derived>
-Eigen::FclOp<Eigen::Transpose<const Derived> > transpose(const FclType<Derived>& R)
+Eigen::FclOp<Eigen::Transpose<const typename Eigen::internal::remove_fcl<Derived>::type> > transpose(const FclType<Derived>& R)
 {
-  return Eigen::FclOp<Eigen::Transpose<const Derived > > (R.fcl());
+  return Eigen::FclOp<Eigen::Transpose<const typename Eigen::internal::remove_fcl<Derived>::type > > (R.fcl());
 }
 
 template<typename T, int _Options>

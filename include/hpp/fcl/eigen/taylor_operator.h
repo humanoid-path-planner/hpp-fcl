@@ -16,7 +16,7 @@ template<> struct TaylorReturnType<3> { typedef TMatrix3 type; typedef Matrix3f 
 template<typename Derived>
 typename TaylorReturnType<Derived::ColsAtCompileTime>::type operator * (const FclType<Derived>& v, const TaylorModel& a)
 {
-  const typename TaylorReturnType<Derived::ColsAtCompileTime>::eigen_type b = v.derived();
+  const typename TaylorReturnType<Derived::ColsAtCompileTime>::eigen_type b = v.fcl();
   return b * a;
 }
 
