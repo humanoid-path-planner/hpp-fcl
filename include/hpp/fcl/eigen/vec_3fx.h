@@ -55,17 +55,17 @@
 
 #define FCL_EIGEN_MAKE_CWISE_BINARY_OP(METHOD,FUNCTOR) \
       template <typename OtherDerived> \
-      EIGEN_STRONG_INLINE const FclOp<const CwiseBinaryOp<FUNCTOR<Scalar>, const FCL_EIGEN_CURRENT_CLASS, const OtherDerived> > \
+      EIGEN_STRONG_INLINE const FclOp<const CwiseBinaryOp<FUNCTOR<Scalar>, const typename FCL_EIGEN_CURRENT_CLASS::Base, const OtherDerived> > \
       (METHOD) (const MatrixBase<OtherDerived>& other) const \
       { \
-        return FclOp <const CwiseBinaryOp<FUNCTOR<Scalar>, const FCL_EIGEN_CURRENT_CLASS, const OtherDerived> > (*this, other.derived()); \
+        return FclOp <const CwiseBinaryOp<FUNCTOR<Scalar>, const typename FCL_EIGEN_CURRENT_CLASS::Base, const OtherDerived> > (*this, other.derived()); \
       }
 
 #define FCL_EIGEN_MAKE_CWISE_UNARY_OP(METHOD,FUNCTOR) \
-      EIGEN_STRONG_INLINE const FclOp<const CwiseUnaryOp<FUNCTOR<Scalar>, const FCL_EIGEN_CURRENT_CLASS> > \
+      EIGEN_STRONG_INLINE const FclOp<const CwiseUnaryOp<FUNCTOR<Scalar>, const typename FCL_EIGEN_CURRENT_CLASS::Base> > \
       (METHOD) (const Scalar& scalar) const \
       { \
-        return FclOp <const CwiseUnaryOp<FUNCTOR<Scalar>, const FCL_EIGEN_CURRENT_CLASS> > (*this, FUNCTOR<Scalar>(scalar)); \
+        return FclOp <const CwiseUnaryOp<FUNCTOR<Scalar>, const typename FCL_EIGEN_CURRENT_CLASS::Base> > (*this, FUNCTOR<Scalar>(scalar)); \
       }
 
 #define FCL_EIGEN_RENAME_PARENT_METHOD(OLD,NEW,RETTYPE) \
@@ -120,7 +120,7 @@
 
 #define FCL_EIGEN_MAKE_CROSS() \
   template<typename OtherDerived> \
-  EIGEN_STRONG_INLINE typename BinaryReturnType<FCL_EIGEN_CURRENT_CLASS,OtherDerived>::Cross \
+  EIGEN_STRONG_INLINE typename BinaryReturnType<FCL_EIGEN_CURRENT_CLASS::Base,OtherDerived>::Cross \
   cross (const MatrixBase<OtherDerived>& other) const { return this->Base::cross (other); }
 
 #define FCL_EIGEN_MAKE_DOT() \
@@ -528,10 +528,10 @@ public:
   FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator+,internal::scalar_add_op)
   // This operator cannot be implement with the macro
   // FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator-,internal::scalar_difference_op)
-  EIGEN_STRONG_INLINE const FclOp<const CwiseUnaryOp<internal::scalar_add_op<Scalar>, const FclOp> >
+  EIGEN_STRONG_INLINE const FclOp<const CwiseUnaryOp<internal::scalar_add_op<Scalar>, const Base> >
   operator- (const Scalar& scalar) const
   {
-    return FclOp <const CwiseUnaryOp<internal::scalar_add_op<Scalar>, const FclOp> > (*this, internal::scalar_add_op<Scalar>(-scalar));
+    return FclOp <const CwiseUnaryOp<internal::scalar_add_op<Scalar>, const Base> > (*this, internal::scalar_add_op<Scalar>(-scalar));
   }
   FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator*,internal::scalar_multiple_op)
   FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator/,internal::scalar_quotient1_op)
@@ -601,7 +601,7 @@ public:
 
   bool isZero() const
   {
-    return this->isZero ();
+    return this->Base::isZero ();
   }
 
   const FclOp<Transpose<const FclOp> > transpose () const {
