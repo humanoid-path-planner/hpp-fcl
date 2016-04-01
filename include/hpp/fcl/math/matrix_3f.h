@@ -40,7 +40,7 @@
 
 #include <hpp/fcl/math/vec_3f.h>
 
-#if ! FCL_USE_NATIVE_EIGEN
+#if ! FCL_HAVE_EIGEN
 # include <hpp/fcl/math/matrix_3fx.h>
 #endif
 
@@ -48,15 +48,11 @@ namespace fcl
 {
 
 #if FCL_HAVE_EIGEN
-# if FCL_USE_NATIVE_EIGEN
   typedef Eigen::FclMatrix<FCL_REAL, 3> Matrix3f;
-# else
-  typedef Matrix3fX<details::eigen_wrapper_m3<FCL_REAL> > Matrix3f;
-# endif
 #elif FCL_HAVE_SSE
-typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
+  typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
 #else
-typedef Matrix3fX<details::Matrix3Data<FCL_REAL> > Matrix3f;
+  typedef Matrix3fX<details::Matrix3Data<FCL_REAL> > Matrix3f;
 #endif
 
 static inline std::ostream& operator << (std::ostream& o, const Matrix3f& m)

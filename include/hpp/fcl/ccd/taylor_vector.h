@@ -41,7 +41,7 @@
 #include <hpp/fcl/ccd/interval_vector.h>
 #include <hpp/fcl/ccd/taylor_model.h>
 
-#if FCL_USE_NATIVE_EIGEN
+#if FCL_HAVE_EIGEN
 #include <hpp/fcl/eigen/taylor_operator.h>
 #endif
 

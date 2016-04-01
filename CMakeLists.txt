@@ -47,10 +47,9 @@ set(PROJECT_URL "http://github.com/humanoid-path-planner/hpp-fcl")
 setup_project()
 
 set(FCL_HAVE_SSE FALSE CACHE BOOL "Enable SSE vectorization")
-set(FCL_USE_NATIVE_EIGEN FALSE CACHE BOOL "Use native eigen matrix type when possible")
 
 add_optional_dependency("eigen3 >= 3.0.0")
-set(FCL_HAVE_EIGEN ${EIGEN3_FOUND} CACHE BOOL "Use eigen wrappers")
+set(FCL_HAVE_EIGEN  ${EIGEN3_FOUND} CACHE BOOL "Use eigen matrix type when possible")
 if (EIGEN3_FOUND)
   if (FCL_HAVE_EIGEN)
     include_directories(${EIGEN3_INCLUDE_DIRS})
