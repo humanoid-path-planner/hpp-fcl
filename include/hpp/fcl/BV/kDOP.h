@@ -97,7 +97,7 @@ public:
   bool overlap(const KDOP<N>& other) const;
 
   /// Not implemented
-  bool overlap(const KDOP<N>& other, FCL_REAL&) const
+  bool overlap(const KDOP<N>& /*other*/, FCL_REAL&) const
   {
     throw std::runtime_error ("Not implemented");
   }
