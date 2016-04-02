@@ -20,10 +20,13 @@ struct FclProduct
     COEFWISE = Derived::ColsAtCompileTime == 1 && OtherDerived::ColsAtCompileTime == 1
   };
 
-  typedef FclOp<typename internal::deduce_fcl_type<Derived, OtherDerived, COEFWISE>::Type> ProductType;
-  typedef FclOp<typename ProductReturnType<Transpose<Derived>, OtherDerived >::Type> TransposeTimesType;
-  typedef FclOp<typename ProductReturnType<Derived, Transpose<OtherDerived> >::Type> TimesTransposeType;
-  typedef FclOp<typename ProductReturnType<ProductType, Transpose<Derived>  >::Type> TensorTransformType;
+  typedef typename internal::remove_fcl<Derived>::type EDerived;
+  typedef typename internal::remove_fcl<OtherDerived>::type EOtherDerived;
+
+  typedef FclOp<typename internal::deduce_fcl_type<EDerived, EOtherDerived, COEFWISE>::Type> ProductType;
+  typedef FclOp<typename ProductReturnType<Transpose<Derived>, EOtherDerived >::Type> TransposeTimesType;
+  typedef FclOp<typename ProductReturnType<EDerived, Transpose<EOtherDerived> >::Type> TimesTransposeType;
+  typedef FclOp<typename ProductReturnType<ProductType, Transpose<EDerived>  >::Type> TensorTransformType;
   static EIGEN_STRONG_INLINE ProductType run (const Derived& l, const OtherDerived& r) { return ProductType (l, r); }
 };
 

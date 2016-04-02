@@ -142,36 +142,22 @@ namespace Eigen {
   template <typename T> class FclOp;
   template <typename T, int Cols, int Options> class FclMatrix;
 
-#include <hpp/fcl/eigen/product.h>
-
   namespace internal {
 
     template<typename T> struct traits< FclOp<T> > : traits <T> {};
     template<typename T, int Cols, int _Options>
       struct traits< FclMatrix<T, Cols, _Options> >
-      {
-        typedef T Scalar;
-        typedef FclMatrix<T, Cols, _Options> This;
-        typedef traits<typename This::Base> traits_base;
-        typedef typename traits_base::StorageKind StorageKind;
-        typedef typename traits_base::Index Index;
-        typedef typename traits_base::XprKind XprKind;
-        enum {
-          RowsAtCompileTime = traits_base::RowsAtCompileTime,
-          ColsAtCompileTime = traits_base::ColsAtCompileTime,
-          MaxRowsAtCompileTime = traits_base::MaxRowsAtCompileTime,
-          MaxColsAtCompileTime = traits_base::MaxColsAtCompileTime,
-          Flags = traits_base::Flags,
-          CoeffReadCost = traits_base::CoeffReadCost,
-          Options = traits_base::Options,
-          InnerStrideAtCompileTime = 1,
-          OuterStrideAtCompileTime = traits_base::OuterStrideAtCompileTime
-        };
-      };
+      : traits<typename FclMatrix<T, Cols, _Options>::Base>
+      {};
 
     template <typename Derived> struct remove_fcl { typedef Derived type; };
     template <> template <typename Derived> struct remove_fcl <FclOp<Derived> > { typedef Derived type; };
+    template <> template <typename Derived> struct remove_fcl <const FclOp<Derived> > { typedef Derived type; };
+    template <> template <typename T, int Col, int Options> struct remove_fcl <FclMatrix<T,Col,Options> > { typedef typename FclMatrix<T,Col,Options>::Base type; };
+    template <> template <typename T, int Col, int Options> struct remove_fcl <const FclMatrix<T,Col,Options> > { typedef typename FclMatrix<T,Col,Options>::Base type; };
   }
+
+#include <hpp/fcl/eigen/product.h>
 
   template <typename Derived>
     struct UnaryReturnType {
@@ -266,9 +252,6 @@ public:
   /// @brief create vector (x, x, x)
   FclMatrix(T x) : Base(Base::Constant (x)) {}
 
-  Base& base () { return *this; }
-  const Base& base () const { return *this; }
-
   /// @brief create vector using the internal data type
   // Vec3fX(const T& data_) : data(data_) {}
 
@@ -298,10 +281,10 @@ public:
   FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator+,internal::scalar_add_op)
   // This operator cannot be implement with the macro
   // FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator-,internal::scalar_difference_op)
-  EIGEN_STRONG_INLINE const FclOp<const CwiseUnaryOp<internal::scalar_add_op<Scalar>, const FclMatrix> >
+  EIGEN_STRONG_INLINE const FclOp<const CwiseUnaryOp<internal::scalar_add_op<Scalar>, const Base> >
   operator- (const Scalar& scalar) const
   {
-    return FclOp <const CwiseUnaryOp<internal::scalar_add_op<Scalar>, const FclMatrix> > (*this, internal::scalar_add_op<Scalar>(-scalar));
+    return FclOp <const CwiseUnaryOp<internal::scalar_add_op<Scalar>, const Base> > (*this, internal::scalar_add_op<Scalar>(-scalar));
   }
   FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator*,internal::scalar_multiple_op)
   FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator/,internal::scalar_quotient1_op)
@@ -309,7 +292,7 @@ public:
   FCL_EIGEN_MAKE_EXPOSE_PARENT_ARRAY_SCALAR1(operator-=)
   FCL_EIGEN_MAKE_EXPOSE_PARENT_ARRAY_SCALAR1(operator*=)
   FCL_EIGEN_MAKE_EXPOSE_PARENT_ARRAY_SCALAR1(operator/=)
-  inline const typename UnaryReturnType<FclMatrix>::Opposite operator-() const { return typename UnaryReturnType<FclMatrix>::Opposite(*this); }
+  inline const typename UnaryReturnType<Base>::Opposite operator-() const { return typename UnaryReturnType<Base>::Opposite(*this); }
   // There is no class for cross 
   // inline Vec3fX cross(const Vec3fX& other) const { return Vec3fX(details::cross_prod(data, other.data)); }
   FCL_EIGEN_MAKE_CROSS()
@@ -408,28 +391,28 @@ public:
   }
 
   template<typename OtherDerived>
-  EIGEN_STRONG_INLINE const typename FclProduct<const FclMatrix,const OtherDerived>::TransposeTimesType
+  EIGEN_STRONG_INLINE const typename FclProduct<const Base,const OtherDerived>::TransposeTimesType
   transposeTimes (const MatrixBase<OtherDerived>& other) const
   {
-    const Transpose<const FclMatrix> t (*this);
-    return typename FclProduct<const FclMatrix,const OtherDerived>::TransposeTimesType (t, other.derived());
+    const Transpose<const Base> t (*this);
+    return typename FclProduct<const Base,const OtherDerived>::TransposeTimesType (t, other.derived());
   }
 
   template<typename OtherDerived>
-  EIGEN_STRONG_INLINE const typename FclProduct<const FclMatrix,const OtherDerived>::TimesTransposeType
+  EIGEN_STRONG_INLINE const typename FclProduct<const Base,const OtherDerived>::TimesTransposeType
   timesTranspose (const MatrixBase<OtherDerived>& other) const
   {
     const Transpose<const OtherDerived> t (other.derived());
-    return typename FclProduct<const FclMatrix,const OtherDerived>::TimesTransposeType (*this, t);
+    return typename FclProduct<const Base,const OtherDerived>::TimesTransposeType (*this, t);
   }
 
   template<typename OtherDerived>
-  EIGEN_STRONG_INLINE const typename FclProduct<const FclMatrix,const OtherDerived>::TensorTransformType
+  EIGEN_STRONG_INLINE const typename FclProduct<const Base,const OtherDerived>::TensorTransformType
   tensorTransform(const MatrixBase<OtherDerived>& other) const
   {
-    const Transpose<const FclMatrix> t (*this);
-    const typename FclProduct<const FclMatrix,const OtherDerived>::ProductType left (*this, other.derived());
-    return typename FclProduct<const FclMatrix,const OtherDerived>::TensorTransformType (left, t);
+    const Transpose<const Base> t (*this);
+    const typename FclProduct<const Base,const OtherDerived>::ProductType left (*this, other.derived());
+    return typename FclProduct<const Base,const OtherDerived>::TensorTransformType (left, t);
   }
 
   static const FclMatrix& getIdentity()
@@ -509,10 +492,6 @@ public:
   FclOp (XprType& xpr)
     : Base (xpr) {}
 
-  Base& base () { return *this; }
-  const Base& base () const { return *this; }
-
-
   FCL_EIGEN_MAKE_GET_COL_ROW()
   FCL_EIGEN_MATRIX_DOT(dot,row)
   FCL_EIGEN_MATRIX_DOT(transposeDot,col)
@@ -535,7 +514,7 @@ public:
   }
   FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator*,internal::scalar_multiple_op)
   FCL_EIGEN_MAKE_CWISE_UNARY_OP(operator/,internal::scalar_quotient1_op)
-  inline const typename UnaryReturnType<const FclOp>::Opposite operator-() const { return typename UnaryReturnType<const FclOp>::Opposite(*this); }
+  inline const typename UnaryReturnType<const Base>::Opposite operator-() const { return typename UnaryReturnType<const Base>::Opposite(*this); }
 
   FCL_EIGEN_MAKE_CROSS()
 
@@ -604,9 +583,9 @@ public:
     return this->Base::isZero ();
   }
 
-  const FclOp<Transpose<const FclOp> > transpose () const {
+  const FclOp<Transpose<const Base> > transpose () const {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(EigenOp, 3, 3);
-    return FclOp<Transpose<const FclOp> >(*this);
+    return FclOp<Transpose<const Base> >(*this);
   }
 
   // const FclOp<internal::inverse_impl<FclOp> > inverse () const { return FclOp<Transpose<FclOp> >(*this); }
@@ -811,6 +790,7 @@ void eigen(const FclType<Matrix>& m, typename Matrix::Scalar dout[3], Vector* vo
 template<typename Derived>
 Eigen::FclOp<Eigen::Transpose<const typename Eigen::internal::remove_fcl<Derived>::type> > transpose(const FclType<Derived>& R)
 {
+  EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Derived, 3, 3);
   return Eigen::FclOp<Eigen::Transpose<const typename Eigen::internal::remove_fcl<Derived>::type > > (R.fcl());
 }
 
