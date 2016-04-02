@@ -1882,7 +1882,7 @@ bool spherePlaneIntersect(const Sphere& s1, const Transform3f& tf1,
   FCL_REAL depth = - std::abs(signed_dist) + s1.radius;
   if(depth >= 0)
   {
-    if(normal) if (signed_dist > 0) *normal = -new_s2.n; else *normal = new_s2.n;
+    if(normal) { if (signed_dist > 0) *normal = -new_s2.n; else *normal = new_s2.n; }
     if(penetration_depth) *penetration_depth = depth;
     if(contact_points) *contact_points = center - new_s2.n * signed_dist;
 
@@ -1958,7 +1958,7 @@ bool boxPlaneIntersect(const Box& s1, const Transform3f& tf1,
 
   // compute the contact point by project the deepest point onto the plane
   if(penetration_depth) *penetration_depth = depth;
-  if(normal) if (signed_dist > 0) *normal = -new_s2.n; else *normal = new_s2.n;
+  if(normal) { if (signed_dist > 0) *normal = -new_s2.n; else *normal = new_s2.n; }
   if(contact_points) *contact_points = p - new_s2.n * new_s2.signedDistance(p);
 
   return true;
@@ -2025,13 +2025,13 @@ bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
       {
         if(penetration_depth) *penetration_depth = abs_d1 + s1.radius;
         if(contact_points) *contact_points = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
-        if(normal) if (d1 < 0) *normal = -new_s2.n; else *normal = new_s2.n;
+        if(normal) { if (d1 < 0) *normal = -new_s2.n; else *normal = new_s2.n; }
       }
       else
       {
         if(penetration_depth) *penetration_depth = abs_d2 + s1.radius;
         if(contact_points) *contact_points = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
-        if(normal) if (d2 < 0) *normal = -new_s2.n; else *normal = new_s2.n;
+        if(normal) { if (d2 < 0) *normal = -new_s2.n; else *normal = new_s2.n; }
       }
       return true;
     }
@@ -2062,7 +2062,7 @@ bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
         }
       }
         
-      if(normal) if (d1 < 0) *normal = new_s2.n; else *normal = -new_s2.n;
+      if(normal) { if (d1 < 0) *normal = new_s2.n; else *normal = -new_s2.n; }
       return true;
     }
   }
@@ -2117,7 +2117,7 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
       else
       {
         if(penetration_depth) *penetration_depth = depth;
-        if(normal) if (d < 0) *normal = new_s2.n; else *normal = -new_s2.n;
+        if(normal) { if (d < 0) *normal = new_s2.n; else *normal = -new_s2.n; }
         if(contact_points) *contact_points = T - new_s2.n * d;
         return true;
       }
@@ -2161,13 +2161,13 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
         {
           if(penetration_depth) *penetration_depth = abs_d2;
           if(contact_points) *contact_points = c2 - new_s2.n * d2;
-          if(normal) if (d2 < 0) *normal = -new_s2.n; else *normal = new_s2.n;
+          if(normal) { if (d2 < 0) *normal = -new_s2.n; else *normal = new_s2.n; }
         }
         else
         {
           if(penetration_depth) *penetration_depth = abs_d1;
           if(contact_points) *contact_points = c1 - new_s2.n * d1;
-          if(normal) if (d1 < 0) *normal = -new_s2.n; else *normal = new_s2.n;
+          if(normal) { if (d1 < 0) *normal = -new_s2.n; else *normal = new_s2.n; }
         }
         return true;
       }
@@ -2197,7 +2197,7 @@ bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
     else
     {
       if(penetration_depth) *penetration_depth = depth;
-      if(normal) if (d < 0) *normal = new_s2.n; else *normal = -new_s2.n;
+      if(normal) { if (d < 0) *normal = new_s2.n; else *normal = -new_s2.n; }
       if(contact_points) *contact_points = T - dir_z * (0.5 * s1.lz) + dir_z * (0.5 * depth / s1.radius * s1.lz) - new_s2.n * d;
       return true;
     }
@@ -2248,7 +2248,7 @@ bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
       }
 
       if(penetration_depth) *penetration_depth = std::min(d_positive, d_negative);
-      if(normal) if (d_positive > d_negative) *normal = -new_s2.n; else *normal = new_s2.n;
+      if(normal) { if (d_positive > d_negative) *normal = -new_s2.n; else *normal = new_s2.n; }
       if(contact_points)
       {
         Vec3f p[2];
@@ -2367,7 +2367,7 @@ bool planeTriangleIntersect(const Plane& s1, const Transform3f& tf1,
     }
 
     if(penetration_depth) *penetration_depth = std::min(d_positive, d_negative);
-    if(normal) if (d_positive > d_negative) *normal = new_s1.n; else *normal = -new_s1.n;
+    if(normal) { if (d_positive > d_negative) *normal = new_s1.n; else *normal = -new_s1.n; }
     if(contact_points)
     {
       Vec3f p[2];
