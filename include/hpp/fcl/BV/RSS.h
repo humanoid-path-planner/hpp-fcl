@@ -67,7 +67,7 @@ public:
   bool overlap(const RSS& other) const;
 
   /// Not implemented
-  bool overlap(const RSS& other, FCL_REAL& sqrDistLowerBound) const
+  bool overlap(const RSS& /*other*/, FCL_REAL& /*sqrDistLowerBound*/) const
   {
     throw std::runtime_error ("Not implemented.");
     return false;
@@ -75,7 +75,7 @@ public:
 
   /// @brief Check collision between two RSS and return the overlap part.
   /// For RSS, we return nothing, as the overlap part of two RSSs usually is not a RSS.
-  bool overlap(const RSS& other, RSS& overlap_part) const
+  bool overlap(const RSS& other, RSS& /*overlap_part*/) const
   {
     return overlap(other);
   }

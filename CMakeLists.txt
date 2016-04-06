@@ -2,7 +2,7 @@
 # Software License Agreement (BSD License)
 #
 #  Copyright (c) 2014 CNRS-LAAS
-#  Author: Florent Lamiraux
+#  Author: Florent Lamiraux, Joseph Mirabel
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@
 cmake_minimum_required(VERSION 2.8)
 set(CXX_DISABLE_WERROR TRUE)
 include(cmake/base.cmake)
+include(cmake/eigen.cmake)
 include(cmake/boost.cmake)
 
 set(PROJECT_NAME hpp-fcl)
@@ -44,6 +45,16 @@ set(PROJECT_DESCRIPTION
 set(PROJECT_URL "http://github.com/humanoid-path-planner/hpp-fcl")
 
 setup_project()
+
+set(FCL_HAVE_SSE FALSE CACHE BOOL "Enable SSE vectorization")
+
+add_optional_dependency("eigen3 >= 3.0.0")
+set(FCL_HAVE_EIGEN  ${EIGEN3_FOUND} CACHE BOOL "Use eigen matrix type when possible")
+if (EIGEN3_FOUND)
+  if (FCL_HAVE_EIGEN)
+    include_directories(${EIGEN3_INCLUDE_DIRS})
+  endif (FCL_HAVE_EIGEN)
+endif (EIGEN3_FOUND)
 
 # Required dependencies
 add_required_dependency("ccd >= 1.4")
@@ -129,7 +140,9 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/continuous_collision.h
   include/hpp/fcl/math/vec_nf.h
   include/hpp/fcl/math/matrix_3f.h
+  include/hpp/fcl/math/matrix_3fx.h
   include/hpp/fcl/math/vec_3f.h
+  include/hpp/fcl/math/vec_3fx.h
   include/hpp/fcl/math/sampling.h
   include/hpp/fcl/math/math_details.h
   include/hpp/fcl/math/transform.h
@@ -156,6 +169,12 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_object.h
   include/hpp/fcl/octree.h
   include/hpp/fcl/fwd.hh
+  include/hpp/fcl/eigen/math_details.h
+  include/hpp/fcl/eigen/vec_3fx.h
+  include/hpp/fcl/eigen/product.h
+  include/hpp/fcl/eigen/taylor_operator.h
+  include/hpp/fcl/eigen/plugins/ccd/interval-matrix.h
+  include/hpp/fcl/eigen/plugins/ccd/interval-vector.h
   )
 
 add_subdirectory(src)

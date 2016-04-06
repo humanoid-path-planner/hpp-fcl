@@ -723,7 +723,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     return model1->getBV(b1).bv.distance(model2_bv);
   }
@@ -803,7 +803,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (one triangle and one shape)
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     
@@ -987,7 +987,7 @@ public:
     
   }
 
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);

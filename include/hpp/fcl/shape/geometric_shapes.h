@@ -271,7 +271,7 @@ public:
          FCL_REAL* plane_dis_,
          int num_planes_,
          Vec3f* points_,
-         int num_points_,
+         int /*num_points_*/,
          int* polygons_) : ShapeBase()
   {
     plane_normals = plane_normals_;

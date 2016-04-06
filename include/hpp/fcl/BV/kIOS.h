@@ -69,7 +69,7 @@ class kIOS
     }
     else /** spheres partially overlapping or disjoint */
     {
-      float dist = std::sqrt(dist2);
+      float dist = (float)std::sqrt(dist2);
       kIOS_Sphere s;
       s.r = dist + s0.r + s1.r;
       if(dist > 0)
@@ -99,7 +99,7 @@ public:
   /// @brief Check collision between two kIOS and return the overlap part.
   /// For kIOS, we return nothing, as the overlappart of two kIOS usually is not an kIOS
   /// @todo Not efficient. It first checks the sphere collisions and then use OBB for further culling.
-  bool overlap(const kIOS& other, kIOS& overlap_part) const
+  bool overlap(const kIOS& other, kIOS& /*overlap_part*/) const
   {
     return overlap(other);
   }

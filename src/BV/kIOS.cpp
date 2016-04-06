@@ -63,7 +63,7 @@ bool kIOS::overlap(const kIOS& other) const
   return true;
 }
 
-  bool kIOS::overlap(const kIOS& other, FCL_REAL& sqrDistLowerBound) const
+  bool kIOS::overlap(const kIOS& /*other*/, FCL_REAL& /*sqrDistLowerBound*/) const
   {
     throw std::runtime_error ("Not implemented yet.");
   }
