@@ -58,9 +58,7 @@ endif (EIGEN3_FOUND)
 
 # Required dependencies
 add_required_dependency("ccd >= 1.4")
-set(BOOST_COMPONENTS
-  thread date_time filesystem system unit_test_framework REQUIRED
-  )
+set(BOOST_COMPONENTS thread date_time filesystem system unit_test_framework)
 search_for_boost()
 # Optional dependencies
 add_optional_dependency("octomap >= 1.6")
@@ -181,6 +179,7 @@ add_subdirectory(src)
 add_subdirectory(test)
 
 pkg_config_append_libs("hpp-fcl")
+PKG_CONFIG_APPEND_BOOST_LIBS(thread date_time filesystem system)
 
 config_files(include/hpp/fcl/config-fcl.hh)
 install(FILES ${PROJECT_BINARY_DIR}/include/hpp/fcl/config-fcl.hh
