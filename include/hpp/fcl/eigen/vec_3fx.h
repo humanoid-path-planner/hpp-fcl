@@ -151,10 +151,10 @@ namespace Eigen {
       {};
 
     template <typename Derived> struct remove_fcl { typedef Derived type; };
-    template <> template <typename Derived> struct remove_fcl <FclOp<Derived> > { typedef Derived type; };
-    template <> template <typename Derived> struct remove_fcl <const FclOp<Derived> > { typedef Derived type; };
-    template <> template <typename T, int Col, int Options> struct remove_fcl <FclMatrix<T,Col,Options> > { typedef typename FclMatrix<T,Col,Options>::Base type; };
-    template <> template <typename T, int Col, int Options> struct remove_fcl <const FclMatrix<T,Col,Options> > { typedef typename FclMatrix<T,Col,Options>::Base type; };
+    template <typename Derived> struct remove_fcl <FclOp<Derived> > { typedef Derived type; };
+    template <typename Derived> struct remove_fcl <const FclOp<Derived> > { typedef Derived type; };
+    template <typename T, int Col, int Options> struct remove_fcl <FclMatrix<T,Col,Options> > { typedef typename FclMatrix<T,Col,Options>::Base type; };
+    template <typename T, int Col, int Options> struct remove_fcl <const FclMatrix<T,Col,Options> > { typedef typename FclMatrix<T,Col,Options>::Base type; };
   }
 
 #include <hpp/fcl/eigen/product.h>
