@@ -39,6 +39,7 @@
 #define FCL_MATRIX_3FX_H
 
 #include <hpp/fcl/math/vec_3f.h>
+#include <Eigen/Core>
 
 namespace fcl
 {
@@ -50,6 +51,7 @@ class Matrix3fX
 public:
   typedef typename T::meta_type U;
   typedef typename T::vector_type S;
+  typedef Eigen::Matrix<U, 3, 3> EigenType;
   T data;
   
   Matrix3fX() {}
@@ -73,6 +75,15 @@ public:
   inline Vec3fX<S> getRow(size_t i) const
   {
     return Vec3fX<S>(data.getRow(i));
+  }
+
+  inline EigenType derived() const
+  {
+    EigenType ret;
+    for(int i = 0; i < 3; ++i)
+      for(int j = 0; j < 3; ++j)
+        ret(i,j) = data(i,j);
+    return ret;
   }
 
   inline U operator () (size_t i, size_t j) const

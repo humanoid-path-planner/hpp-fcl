@@ -45,6 +45,7 @@
 #include <iostream>
 #include <limits>
 
+#include <Eigen/Core>
 
 namespace fcl
 {
@@ -55,6 +56,7 @@ class Vec3fX
 {
 public:
   typedef typename T::meta_type U;
+  typedef Eigen::Matrix<U, 3, 1> EigenType;
 
   /// @brief interval vector3 data
   T data;
@@ -70,6 +72,11 @@ public:
 
   /// @brief create vector using the internal data type
   Vec3fX(const T& data_) : data(data_) {}
+
+  inline EigenType derived() const
+  {
+    return EigenType (data[0],data[1],data[2]);
+  }
 
   inline U operator [] (size_t i) const { return data[i]; }
   inline U& operator [] (size_t i) { return data[i]; }
