@@ -343,7 +343,6 @@ public:
   {
     return ((*this - other).cwiseAbs().array () < epsilon).all();
   }
-  inline FclMatrix& negate() { *this = -*this; return *this; }
 
   bool operator == (const FclMatrix& other) const
   {
@@ -549,11 +548,6 @@ public:
   {
     return ((*this - other).cwiseAbs().array () < epsilon).all();
   }
-
-  /*
-  inline const typename Eigen::CwiseUnaryOp<Eigen::internal::scalar_opposite_op<T>, const EigenOp>
-    negate() { return this->operator-(); }
-  // */
 
   template <typename Derived>
   bool operator == (const Eigen::MatrixBase<Derived>& other) const

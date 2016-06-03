@@ -120,17 +120,17 @@ public:
     bv2.extent = Vec3f(extent[id[0]], extent[id[1]], extent[id[2]]);
     const Matrix3f& R = tf1.getRotation();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
-    bv2.axis[0] = left_hand ? -R.getColumn(id[0]) : R.getColumn(id[0]);
-    bv2.axis[1] = R.getColumn(id[1]);
-    bv2.axis[2] = R.getColumn(id[2]);
+    bv2.axis[0] = left_hand ? -R.col(id[0]) : R.col(id[0]);
+    bv2.axis[1] = R.col(id[1]);
+    bv2.axis[2] = R.col(id[2]);
     */
 
     bv2.To = tf1.transform(bv1.center());
     bv2.extent = (bv1.max_ - bv1.min_) * 0.5;
     const Matrix3f& R = tf1.getRotation();
-    bv2.axis[0] = R.getColumn(0);
-    bv2.axis[1] = R.getColumn(1);
-    bv2.axis[2] = R.getColumn(2);    
+    bv2.axis[0] = R.col(0);
+    bv2.axis[1] = R.col(1);
+    bv2.axis[2] = R.col(2);    
   }
 };
 
@@ -283,9 +283,9 @@ public:
 
     const Matrix3f& R = tf1.getRotation();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
-    if (left_hand) bv2.axis[0] = -R.getColumn(id[0]); else bv2.axis[0] = R.getColumn(id[0]);
-    bv2.axis[1] = R.getColumn(id[1]);
-    bv2.axis[2] = R.getColumn(id[2]);    
+    if (left_hand) bv2.axis[0] = -R.col(id[0]); else bv2.axis[0] = R.col(id[0]);
+    bv2.axis[1] = R.col(id[1]);
+    bv2.axis[2] = R.col(id[2]);    
   }
 };
 

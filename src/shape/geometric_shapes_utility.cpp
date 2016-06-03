@@ -412,9 +412,9 @@ void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
   const Vec3f& T = tf.getTranslation();
 
   bv.To = T;
-  bv.axis[0] = R.getColumn(0);
-  bv.axis[1] = R.getColumn(1);
-  bv.axis[2] = R.getColumn(2);
+  bv.axis[0] = R.col(0);
+  bv.axis[1] = R.col(1);
+  bv.axis[2] = R.col(2);
   bv.extent = s.side * (FCL_REAL)0.5;
 }
 
@@ -437,9 +437,9 @@ void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
   const Vec3f& T = tf.getTranslation();
 
   bv.To = T;
-  bv.axis[0] = R.getColumn(0);
-  bv.axis[1] = R.getColumn(1);
-  bv.axis[2] = R.getColumn(2);
+  bv.axis[0] = R.col(0);
+  bv.axis[1] = R.col(1);
+  bv.axis[2] = R.col(2);
   bv.extent.setValue(s.radius, s.radius, s.lz / 2 + s.radius);
 }
 
@@ -450,9 +450,9 @@ void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
   const Vec3f& T = tf.getTranslation();
 
   bv.To = T;
-  bv.axis[0] = R.getColumn(0);
-  bv.axis[1] = R.getColumn(1);
-  bv.axis[2] = R.getColumn(2);
+  bv.axis[0] = R.col(0);
+  bv.axis[1] = R.col(1);
+  bv.axis[2] = R.col(2);
   bv.extent.setValue(s.radius, s.radius, s.lz / 2);
 }
 
@@ -463,9 +463,9 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
   const Vec3f& T = tf.getTranslation();
 
   bv.To = T;
-  bv.axis[0] = R.getColumn(0);
-  bv.axis[1] = R.getColumn(1);
-  bv.axis[2] = R.getColumn(2);
+  bv.axis[0] = R.col(0);
+  bv.axis[1] = R.col(1);
+  bv.axis[2] = R.col(2);
   bv.extent.setValue(s.radius, s.radius, s.lz / 2);
 }
 

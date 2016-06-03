@@ -461,12 +461,6 @@ BOOST_AUTO_TEST_CASE(vec_test_eigen_vec32_consistent)
   BOOST_CHECK(std::abs(v1.norm() - v3.norm()) < 1e-5);
   BOOST_CHECK(std::abs(v1.squaredNorm() - v3.squaredNorm()) < 1e-5);
  
-  v12 = v1; v12.negate();
-  v34 = v3; v34.negate();
-  BOOST_CHECK(std::abs(v12[0] - v34[0]) < 1e-5);
-  BOOST_CHECK(std::abs(v12[1] - v34[1]) < 1e-5);
-  BOOST_CHECK(std::abs(v12[2] - v34[2]) < 1e-5);
-
   v12 = v1; v12.normalize();
   v34 = v3; v34.normalize();
   BOOST_CHECK(std::abs(v12[0] - v34[0]) < 1e-5);
@@ -609,12 +603,6 @@ BOOST_AUTO_TEST_CASE(vec_test_eigen_vec64_consistent)
   BOOST_CHECK(std::abs(v1.norm() - v3.norm()) < 1e-5);
   BOOST_CHECK(std::abs(v1.squaredNorm() - v3.squaredNorm()) < 1e-5);
  
-  v12 = v1; v12.negate();
-  v34 = v3; v34.negate();
-  BOOST_CHECK(std::abs(v12[0] - v34[0]) < 1e-5);
-  BOOST_CHECK(std::abs(v12[1] - v34[1]) < 1e-5);
-  BOOST_CHECK(std::abs(v12[2] - v34[2]) < 1e-5);
-
   v12 = v1; v12.normalize();
   v34 = v3; v34.normalize();
   BOOST_CHECK(std::abs(v12[0] - v34[0]) < 1e-5);
@@ -925,12 +913,6 @@ BOOST_AUTO_TEST_CASE(vec_test_sse_vec32_consistent)
   BOOST_CHECK(std::abs(v1.norm() - v3.norm()) < 1e-5);
   BOOST_CHECK(std::abs(v1.squaredNorm() - v3.squaredNorm()) < 1e-5);
  
-  v12 = v1; v12.negate();
-  v34 = v3; v34.negate();
-  BOOST_CHECK(std::abs(v12[0] - v34[0]) < 1e-5);
-  BOOST_CHECK(std::abs(v12[1] - v34[1]) < 1e-5);
-  BOOST_CHECK(std::abs(v12[2] - v34[2]) < 1e-5);
-
   v12 = v1; v12.normalize();
   v34 = v3; v34.normalize();
   BOOST_CHECK(std::abs(v12[0] - v34[0]) < 1e-5);
@@ -1073,12 +1055,6 @@ BOOST_AUTO_TEST_CASE(vec_test_sse_vec64_consistent)
   BOOST_CHECK(std::abs(v1.norm() - v3.norm()) < 1e-5);
   BOOST_CHECK(std::abs(v1.squaredNorm() - v3.squaredNorm()) < 1e-5);
  
-  v12 = v1; v12.negate();
-  v34 = v3; v34.negate();
-  BOOST_CHECK(std::abs(v12[0] - v34[0]) < 1e-5);
-  BOOST_CHECK(std::abs(v12[1] - v34[1]) < 1e-5);
-  BOOST_CHECK(std::abs(v12[2] - v34[2]) < 1e-5);
-
   v12 = v1; v12.normalize();
   v34 = v3; v34.normalize();
   BOOST_CHECK(std::abs(v12[0] - v34[0]) < 1e-5);

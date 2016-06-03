@@ -86,12 +86,6 @@ BOOST_AUTO_TEST_CASE(fcl_eigen_vec3fx)
   PRINT_VECTOR(b)
   PRINT_VECTOR(min(a,b))
   PRINT_VECTOR(max(a,b))
-  a.lbound(b);
-  PRINT_VECTOR(a)
-  std::cout << (a+1).lbound(b) << std::endl;
-  std::cout << (a+1).ubound(b) << std::endl;
-
-  std::cout << a.getRow(1) << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(fcl_eigen_matrix3fx)

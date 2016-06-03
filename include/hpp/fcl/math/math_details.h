@@ -83,11 +83,6 @@ struct Vec3Data
     vs[0] = x; vs[1] = x; vs[2] = x;
   }
 
-  inline void negate()
-  {
-    vs[0] = -vs[0]; vs[1] = -vs[1]; vs[2] = -vs[2];
-  }
-
   inline Vec3Data<T>& ubound(const Vec3Data<T>& u) 
   {
     vs[0] = std::min(vs[0], u.vs[0]);

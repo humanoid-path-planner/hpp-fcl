@@ -38,8 +38,8 @@ namespace fcl {
     fcl::Vec3f center1 = tf1.getTranslation ();
     fcl::Vec3f center2 = tf2.getTranslation ();
     // We assume that capsules are oriented along z-axis.
-    fcl::Vec3f direction1 = tf1.getRotation ().getColumn (2);
-    fcl::Vec3f direction2 = tf2.getRotation ().getColumn (2);
+    fcl::Vec3f direction1 = tf1.getRotation ().col (2);
+    fcl::Vec3f direction2 = tf2.getRotation ().col (2);
     FCL_REAL halfLength1 = 0.5*c1->lz;
     FCL_REAL halfLength2 = 0.5*c2->lz;
 

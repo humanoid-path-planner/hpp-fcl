@@ -84,11 +84,6 @@ struct eigen_wrapper_v3
     v.setConstant (x);
   }
 
-  inline void negate()
-  {
-    v *= -1;
-  }
-
   inline eigen_wrapper_v3<T>& ubound(const eigen_wrapper_v3<T>& u)
   {
     v = v.cwiseMin (u.v);
@@ -229,11 +224,6 @@ struct eigen_wrapper_v4
     v[3] = 0;
   }
 
-  inline void negate()
-  {
-    v *= -1;
-  }
-
   inline eigen_wrapper_v4<T>& ubound(const eigen_wrapper_v4<T>& u)
   {
     v = v.cwiseMin (u.v);
@@ -350,11 +340,6 @@ struct eigen_v3 :
   inline void setValue(T x)
   {
     this->setConstant (x);
-  }
-
-  inline void negate()
-  {
-    this->operator*= (-1);
   }
 
   template<typename OtherDerived>
@@ -649,10 +634,10 @@ struct eigen_m3 :
     this->row(3) = v3;
   }
 
-  inline ColXpr getColumn(size_t i) { return this->col (i); }
-  inline RowXpr getRow(size_t i)    { return this->row (i); }
-  inline ConstColXpr getColumn(size_t i) const { return this->col (i); }
-  inline ConstRowXpr getRow(size_t i) const    { return this->row (i); }
+  inline ColXpr col(size_t i) { return this->Base::col (i); }
+  inline RowXpr row(size_t i) { return this->Base::row (i); }
+  inline ConstColXpr col(size_t i) const { return this->Base::col (i); }
+  inline ConstRowXpr row(size_t i) const { return this->Base::row (i); }
 
   inline eigen_m3<T>& operator *= (const eigen_m3<T>& other) { return static_cast<eigen_m3<T>&>(this->operator*=(other)); }
   inline eigen_m3<T>& operator += (const eigen_m3<T>& other) { return static_cast<eigen_m3<T>&>(this->operator+=(other)); }

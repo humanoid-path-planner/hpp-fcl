@@ -103,7 +103,6 @@ struct sse_meta_f4
   inline void setValue(float x, float y, float z, float w = 1) { v = _mm_setr_ps(x, y, z, w); }
   inline void setValue(float x) { v = _mm_set1_ps(x); }
   inline void setValue(__m128 x) { v = x; }
-  inline void negate() { v = _mm_sub_ps(xmms_0, v); }
 
   inline sse_meta_f4& ubound(const sse_meta_f4& u)
   {
@@ -193,12 +192,6 @@ struct sse_meta_d4
   {
     v[0] = x;
     v[1] = y;
-  }
-
-  inline void negate()
-  {
-    v[0] = _mm_sub_pd(xmmd_0, v[0]);
-    v[1] = _mm_sub_pd(xmmd_0, v[1]);
   }
 
   inline sse_meta_d4& ubound(const sse_meta_d4& u)

@@ -1078,12 +1078,12 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // if we get to this point, the boxes interpenetrate. compute the normal
   // in global coordinates.
   if(best_col_id != -1) 
-    normal = normalR->getColumn(best_col_id);
+    normal = normalR->col(best_col_id);
   else 
     normal = R1 * normalC;
   
   if(invert_normal) 
-    normal.negate();
+    normal = -normal;
 
   *depth = -s; // s is negative when the boxes are in collision
 
@@ -1099,7 +1099,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     for(int j = 0; j < 3; ++j)
     {
       sign = (R1.transposeDot(j, normal) > 0) ? 1 : -1;
-      pa += R1.getColumn(j) * (A[j] * sign);
+      pa += R1.col(j) * (A[j] * sign);
     }
   
     // find a point pb on the intersecting edge of box 2
@@ -1108,12 +1108,12 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     for(int j = 0; j < 3; ++j)
     {
       sign = (R2.transposeDot(j, normal) > 0) ? -1 : 1;
-      pb += R2.getColumn(j) * (B[j] * sign);
+      pb += R2.col(j) * (B[j] * sign);
     }
 
     FCL_REAL alpha, beta;
-    Vec3f ua(R1.getColumn((code-7)/3));
-    Vec3f ub(R2.getColumn((code-7)%3));
+    Vec3f ua(R1.col((code-7)/3));
+    Vec3f ub(R2.col((code-7)%3));
     
     lineClosestApproach(pa, ua, pb, ub, &alpha, &beta);
     pa += ua * alpha;
@@ -1204,9 +1204,9 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // compute center point of incident face, in reference-face coordinates
   Vec3f center;
   if(nr[lanr] < 0) 
-    center = (*pb) - (*pa) + Rb->getColumn(lanr) * ((*Sb)[lanr]);
+    center = (*pb) - (*pa) + Rb->col(lanr) * ((*Sb)[lanr]);
   else
-    center = (*pb) - (*pa) - Rb->getColumn(lanr) * ((*Sb)[lanr]);
+    center = (*pb) - (*pa) - Rb->col(lanr) * ((*Sb)[lanr]);
 
   // find the normal and non-normal axis numbers of the reference box
   int codeN, code1, code2;
@@ -1238,10 +1238,10 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // optimize this? - we have already computed this data above, but it is not
   // stored in an easy-to-index format. for now it's quicker just to recompute
   // the four dot products.
-  Vec3f tempRac = Ra->getColumn(code1);
+  Vec3f tempRac = Ra->col(code1);
   m11 = Rb->transposeDot(a1, tempRac);
   m12 = Rb->transposeDot(a2, tempRac);
-  tempRac = Ra->getColumn(code2);
+  tempRac = Ra->col(code2);
   m21 = Rb->transposeDot(a1, tempRac);
   m22 = Rb->transposeDot(a2, tempRac);
  
@@ -1284,7 +1284,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     FCL_REAL k1 =  m22*(ret[j*2]-c1) - m12*(ret[j*2+1]-c2);
     FCL_REAL k2 = -m21*(ret[j*2]-c1) + m11*(ret[j*2+1]-c2);
-    points[cnum] = center + Rb->getColumn(a1) * k1 + Rb->getColumn(a2) * k2;
+    points[cnum] = center + Rb->col(a1) * k1 + Rb->col(a2) * k2;
     dep[cnum] = (*Sa)[codeN] - normal2.dot(points[cnum]);
     if(dep[cnum] >= 0) 
     {
@@ -1463,9 +1463,9 @@ bool boxHalfspaceIntersect(const Box& s1, const Transform3f& tf1,
     if(depth < 0) return false;
     
     Vec3f axis[3];
-    axis[0] = R.getColumn(0);
-    axis[1] = R.getColumn(1);
-    axis[2] = R.getColumn(2);
+    axis[0] = R.col(0);
+    axis[1] = R.col(1);
+    axis[2] = R.col(2);
 
     /// find deepest point
     Vec3f p(T);
@@ -1513,7 +1513,7 @@ bool capsuleHalfspaceIntersect(const Capsule& s1, const Transform3f& tf1,
   const Matrix3f& R = tf1.getRotation();
   const Vec3f& T = tf1.getTranslation();
 
-  Vec3f dir_z = R.getColumn(2);
+  Vec3f dir_z = R.col(2);
 
   FCL_REAL cosa = dir_z.dot(new_s2.n);
   if(std::abs(cosa) < halfspaceIntersectTolerance<FCL_REAL>())
@@ -1560,7 +1560,7 @@ bool cylinderHalfspaceIntersect(const Cylinder& s1, const Transform3f& tf1,
   const Matrix3f& R = tf1.getRotation();
   const Vec3f& T = tf1.getTranslation();
 
-  Vec3f dir_z = R.getColumn(2);
+  Vec3f dir_z = R.col(2);
   FCL_REAL cosa = dir_z.dot(new_s2.n);
 
   if(cosa < halfspaceIntersectTolerance<FCL_REAL>())
@@ -1612,7 +1612,7 @@ bool coneHalfspaceIntersect(const Cone& s1, const Transform3f& tf1,
   const Matrix3f& R = tf1.getRotation();
   const Vec3f& T = tf1.getTranslation();
 
-  Vec3f dir_z = R.getColumn(2);
+  Vec3f dir_z = R.col(2);
   FCL_REAL cosa = dir_z.dot(new_s2.n);
 
   if(cosa < halfspaceIntersectTolerance<FCL_REAL>())
@@ -1917,9 +1917,9 @@ bool boxPlaneIntersect(const Box& s1, const Transform3f& tf1,
   if(depth < 0) return false;
 
   Vec3f axis[3];
-  axis[0] = R.getColumn(0);
-  axis[1] = R.getColumn(1);
-  axis[2] = R.getColumn(2);
+  axis[0] = R.col(0);
+  axis[1] = R.col(1);
+  axis[2] = R.col(2);
 
   // find the deepest point
   Vec3f p = T;
@@ -1973,7 +1973,7 @@ bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
   const Matrix3f& R = tf1.getRotation();
   const Vec3f& T = tf1.getTranslation();
 
-  Vec3f dir_z = R.getColumn(2);
+  Vec3f dir_z = R.col(2);
   Vec3f p1 = T + dir_z * (0.5 * s1.lz);
   Vec3f p2 = T - dir_z * (0.5 * s1.lz);
   
@@ -2003,7 +2003,7 @@ bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
     const Matrix3f& R = tf1.getRotation();
     const Vec3f& T = tf1.getTranslation();
 
-    Vec3f dir_z = R.getColumn(2);
+    Vec3f dir_z = R.col(2);
 
 
     Vec3f p1 = T + dir_z * (0.5 * s1.lz);
@@ -2106,7 +2106,7 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
     const Matrix3f& R = tf1.getRotation();
     const Vec3f& T = tf1.getTranslation();
   
-    Vec3f dir_z = R.getColumn(2);
+    Vec3f dir_z = R.col(2);
     FCL_REAL cosa = dir_z.dot(new_s2.n);
 
     if(std::abs(cosa) < planeIntersectTolerance<FCL_REAL>())
@@ -2186,7 +2186,7 @@ bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
   const Matrix3f& R = tf1.getRotation();
   const Vec3f& T = tf1.getTranslation();
   
-  Vec3f dir_z = R.getColumn(2);
+  Vec3f dir_z = R.col(2);
   FCL_REAL cosa = dir_z.dot(new_s2.n);
 
   if(std::abs(cosa) < planeIntersectTolerance<FCL_REAL>())
