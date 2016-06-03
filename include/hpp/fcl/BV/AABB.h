@@ -143,16 +143,16 @@ public:
   /// @brief Merge the AABB and a point
   inline AABB& operator += (const Vec3f& p)
   {
-    min_.array().min(p.array());
-    max_.array().max(p.array());
+    min_ = min_.cwiseMin(p);
+    max_ = max_.cwiseMax(p);
     return *this;
   }
 
   /// @brief Merge the AABB and another AABB
   inline AABB& operator += (const AABB& other)
   {
-    min_.array().min(other.min_.array());
-    max_.array().max(other.max_.array());
+    min_ = min_.cwiseMin(other.min_);
+    max_ = max_.cwiseMax(other.max_);
     return *this;
   }
 
