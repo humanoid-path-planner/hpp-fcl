@@ -40,7 +40,6 @@
 #define FCL_COLLISION_DATA_H
 
 #include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/learning/classifier.h>
 #include <hpp/fcl/knn/nearest_neighbors.h>
 
 
