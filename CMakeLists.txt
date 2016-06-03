@@ -138,7 +138,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/math/matrix_3fx.h
   include/hpp/fcl/math/vec_3f.h
   include/hpp/fcl/math/vec_3fx.h
-  include/hpp/fcl/math/sampling.h
   include/hpp/fcl/math/math_details.h
   include/hpp/fcl/math/transform.h
   include/hpp/fcl/traversal/traversal_node_shapes.h

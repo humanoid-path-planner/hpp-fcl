@@ -72,7 +72,6 @@ set(${LIBRARY_NAME}_SOURCES
   distance_capsule_capsule.cpp
   intersect.cpp
   math/transform.cpp
-  math/sampling.cpp
   traversal/traversal_node_setup.cpp
   traversal/traversal_node_bvhs.cpp
   traversal/traversal_recurse.cpp
