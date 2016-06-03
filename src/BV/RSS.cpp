@@ -212,7 +212,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -241,7 +241,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -269,7 +269,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -297,7 +297,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -365,7 +365,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -393,7 +393,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -423,7 +423,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
       }
 
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -451,7 +451,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -519,7 +519,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -547,7 +547,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -575,7 +575,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -603,7 +603,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -664,7 +664,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -692,7 +692,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -721,7 +721,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -749,7 +749,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -889,20 +889,20 @@ bool RSS::contain(const Vec3f& p) const
   {
     FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(proj0, y, 0);
-    return ((proj - v).sqrLength() < r * r);
+    return ((proj - v).squaredNorm() < r * r);
   }
   else if((proj1 < l[1]) && (proj1 > 0) && ((proj0 < 0) || (proj0 > l[0])))
   {
     FCL_REAL x = (proj0 > 0) ? l[0] : 0;
     Vec3f v(x, proj1, 0);
-    return ((proj - v).sqrLength() < r * r);
+    return ((proj - v).squaredNorm() < r * r);
   }
   else
   {
     FCL_REAL x = (proj0 > 0) ? l[0] : 0;
     FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(x, y, 0);
-    return ((proj - v).sqrLength() < r * r);
+    return ((proj - v).squaredNorm() < r * r);
   }
 }
 
@@ -934,7 +934,7 @@ RSS& RSS::operator += (const Vec3f& p)
   {
     FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(proj0, y, 0);
-    FCL_REAL new_r_sqr = (proj - v).sqrLength();
+    FCL_REAL new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
@@ -964,7 +964,7 @@ RSS& RSS::operator += (const Vec3f& p)
   {
     FCL_REAL x = (proj0 > 0) ? l[0] : 0;
     Vec3f v(x, proj1, 0);
-    FCL_REAL new_r_sqr = (proj - v).sqrLength();
+    FCL_REAL new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
@@ -995,7 +995,7 @@ RSS& RSS::operator += (const Vec3f& p)
     FCL_REAL x = (proj0 > 0) ? l[0] : 0;
     FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(x, y, 0);
-    FCL_REAL new_r_sqr = (proj - v).sqrLength();
+    FCL_REAL new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else

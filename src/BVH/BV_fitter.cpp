@@ -82,7 +82,7 @@ void fit2(Vec3f* ps, OBB& bv)
   const Vec3f& p1 = ps[0];
   const Vec3f& p2 = ps[1];
   Vec3f p1p2 = p1 - p2;
-  FCL_REAL len_p1p2 = p1p2.length();
+  FCL_REAL len_p1p2 = p1p2.norm();
   p1p2.normalize();
 
   bv.axis[0] = p1p2;
@@ -104,9 +104,9 @@ void fit3(Vec3f* ps, OBB& bv)
   e[1] = p2 - p3;
   e[2] = p3 - p1;
   FCL_REAL len[3];
-  len[0] = e[0].sqrLength();
-  len[1] = e[1].sqrLength();
-  len[2] = e[2].sqrLength();
+  len[0] = e[0].squaredNorm();
+  len[1] = e[1].squaredNorm();
+  len[2] = e[2].squaredNorm();
 
   int imax = 0;
   if(len[1] > len[0]) imax = 1;
@@ -169,7 +169,7 @@ void fit2(Vec3f* ps, RSS& bv)
   const Vec3f& p1 = ps[0];
   const Vec3f& p2 = ps[1];
   Vec3f p1p2 = p1 - p2;
-  FCL_REAL len_p1p2 = p1p2.length();
+  FCL_REAL len_p1p2 = p1p2.norm();
   p1p2.normalize();
 
   bv.axis[0] = p1p2;
@@ -191,9 +191,9 @@ void fit3(Vec3f* ps, RSS& bv)
   e[1] = p2 - p3;
   e[2] = p3 - p1;
   FCL_REAL len[3];
-  len[0] = e[0].sqrLength();
-  len[1] = e[1].sqrLength();
-  len[2] = e[2].sqrLength();
+  len[0] = e[0].squaredNorm();
+  len[1] = e[1].squaredNorm();
+  len[2] = e[2].squaredNorm();
 
   int imax = 0;
   if(len[1] > len[0]) imax = 1;
@@ -259,7 +259,7 @@ void fit2(Vec3f* ps, kIOS& bv)
   const Vec3f& p1 = ps[0];
   const Vec3f& p2 = ps[1];
   Vec3f p1p2 = p1 - p2;
-  FCL_REAL len_p1p2 = p1p2.length();
+  FCL_REAL len_p1p2 = p1p2.norm();
   p1p2.normalize();
  
   Vec3f* axis = bv.obb.axis;
@@ -300,9 +300,9 @@ void fit3(Vec3f* ps, kIOS& bv)
   e[1] = p2 - p3;
   e[2] = p3 - p1;
   FCL_REAL len[3];
-  len[0] = e[0].sqrLength();
-  len[1] = e[1].sqrLength();
-  len[2] = e[2].sqrLength();
+  len[0] = e[0].squaredNorm();
+  len[1] = e[1].squaredNorm();
+  len[2] = e[2].squaredNorm();
     
   int imax = 0;
   if(len[1] > len[0]) imax = 1;

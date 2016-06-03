@@ -599,7 +599,7 @@ OBB OBB::operator + (const OBB& other) const
   Vec3f center_diff = To - other.To;
   FCL_REAL max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
   FCL_REAL max_extent2 = std::max(std::max(other.extent[0], other.extent[1]), other.extent[2]);
-  if(center_diff.length() > 2 * (max_extent + max_extent2))
+  if(center_diff.norm() > 2 * (max_extent + max_extent2))
   {
     return merge_largedist(*this, other);
   }

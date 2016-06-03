@@ -119,7 +119,7 @@ public:
   /// @brief Size of the OBB (used in BV_Splitter to order two OBBs)
   inline FCL_REAL size() const
   {
-    return extent.sqrLength();
+    return extent.squaredNorm();
   }
 
   /// @brief Center of the OBB

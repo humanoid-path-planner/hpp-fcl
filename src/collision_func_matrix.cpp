@@ -218,7 +218,7 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
       const Vec3f& p1 = distanceResult.nearest_points [0];
       const Vec3f& p2 = distanceResult.nearest_points [1];
       contact.pos = .5*(p1+p2);
-      contact.normal = (p2-p1)/(p2-p1).length ();
+      contact.normal = (p2-p1)/(p2-p1).norm ();
       result.addContact (contact);
       return 1;
     }

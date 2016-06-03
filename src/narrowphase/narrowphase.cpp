@@ -84,7 +84,7 @@ bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
   lineSegmentPointClosestToPoint (s_c, pos1, pos2, segment_point);
   Vec3f diff = s_c - segment_point;
 
-  FCL_REAL distance = diff.length() - s1.radius - s2.radius;
+  FCL_REAL distance = diff.norm() - s1.radius - s2.radius;
 
   if (distance > 0)
     return false;
@@ -120,7 +120,7 @@ bool sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
   lineSegmentPointClosestToPoint (s_c, pos1, pos2, segment_point);
   Vec3f diff = s_c - segment_point;
 
-  FCL_REAL distance = diff.length() - s1.radius - s2.radius;
+  FCL_REAL distance = diff.norm() - s1.radius - s2.radius;
 
   if(dist) *dist = distance;
 
@@ -143,7 +143,7 @@ bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1,
                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
 {
   Vec3f diff = tf2.transform(Vec3f()) - tf1.transform(Vec3f());
-  FCL_REAL len = diff.length();
+  FCL_REAL len = diff.norm();
   if(len > s1.radius + s2.radius)
     return false;
 
@@ -174,7 +174,7 @@ bool sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
   Vec3f o1 = tf1.getTranslation();
   Vec3f o2 = tf2.getTranslation();
   Vec3f diff = o1 - o2;
-  FCL_REAL len = diff.length();
+  FCL_REAL len = diff.norm();
   FCL_REAL d (len > s1.radius + s2.radius);
 
   if(dist) *dist = len - (s1.radius + s2.radius);
@@ -297,7 +297,7 @@ bool sphereTriangleIntersect(const Sphere& s, const Transform3f& tf,
   if(has_contact)
   {
     Vec3f contact_to_center = contact_point - center;
-    FCL_REAL distance_sqr = contact_to_center.sqrLength();
+    FCL_REAL distance_sqr = contact_to_center.squaredNorm();
 
     if(distance_sqr < radius_with_threshold * radius_with_threshold)
     {
@@ -334,12 +334,12 @@ bool sphereTriangleDistance(const Sphere& sp, const Transform3f& tf,
   Vec3f diff = P1 - center;
   Vec3f edge0 = P2 - P1;
   Vec3f edge1 = P3 - P1;
-  FCL_REAL a00 = edge0.sqrLength();
+  FCL_REAL a00 = edge0.squaredNorm();
   FCL_REAL a01 = edge0.dot(edge1);
-  FCL_REAL a11 = edge1.sqrLength();
+  FCL_REAL a11 = edge1.squaredNorm();
   FCL_REAL b0 = diff.dot(edge0);
   FCL_REAL b1 = diff.dot(edge1);
-  FCL_REAL c = diff.sqrLength();
+  FCL_REAL c = diff.squaredNorm();
   FCL_REAL det = fabs(a00*a11 - a01*a01);
   FCL_REAL s = a01*b1 - a11*b0;
   FCL_REAL t = a01*b0 - a00*b1;
@@ -911,7 +911,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   s2 = std::abs(tmp) - (A[1] * Q(2, 0) + A[2] * Q(1, 0) + B[1] * Q(0, 2) + B[2] * Q(0, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(0, -R(2, 0), R(1, 0));
-  l = n.length();
+  l = n.norm();
   if(l > eps) 
   {
     s2 /= l;
@@ -929,7 +929,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   s2 = std::abs(tmp) - (A[1] * Q(2, 1) + A[2] * Q(1, 1) + B[0] * Q(0, 2) + B[2] * Q(0, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(0, -R(2, 1), R(1, 1));
-  l = n.length();
+  l = n.norm();
   if(l > eps) 
   {
     s2 /= l;
@@ -947,7 +947,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   s2 = std::abs(tmp) - (A[1] * Q(2, 2) + A[2] * Q(1, 2) + B[0] * Q(0, 1) + B[1] * Q(0, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(0, -R(2, 2), R(1, 2));
-  l = n.length();
+  l = n.norm();
   if(l > eps) 
   {
     s2 /= l;
@@ -966,7 +966,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   s2 = std::abs(tmp) - (A[0] * Q(2, 0) + A[2] * Q(0, 0) + B[1] * Q(1, 2) + B[2] * Q(1, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(R(2, 0), 0, -R(0, 0));
-  l = n.length();
+  l = n.norm();
   if(l > eps) 
   {
     s2 /= l;
@@ -984,7 +984,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   s2 = std::abs(tmp) - (A[0] * Q(2, 1) + A[2] * Q(0, 1) + B[0] * Q(1, 2) + B[2] * Q(1, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(R(2, 1), 0, -R(0, 1));
-  l = n.length();
+  l = n.norm();
   if(l > eps) 
   {
     s2 /= l;
@@ -1002,7 +1002,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   s2 = std::abs(tmp) - (A[0] * Q(2, 2) + A[2] * Q(0, 2) + B[0] * Q(1, 1) + B[1] * Q(1, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(R(2, 2), 0, -R(0, 2));
-  l = n.length();
+  l = n.norm();
   if(l > eps) 
   {
     s2 /= l;
@@ -1021,7 +1021,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   s2 = std::abs(tmp) - (A[0] * Q(1, 0) + A[1] * Q(0, 0) + B[1] * Q(2, 2) + B[2] * Q(2, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(-R(1, 0), R(0, 0), 0);
-  l = n.length();
+  l = n.norm();
   if(l > eps) 
   {
     s2 /= l;
@@ -1039,7 +1039,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   s2 = std::abs(tmp) - (A[0] * Q(1, 1) + A[1] * Q(0, 1) + B[0] * Q(2, 2) + B[2] * Q(2, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(-R(1, 1), R(0, 1), 0);
-  l = n.length();
+  l = n.norm();
   if(l > eps) 
   {
     s2 /= l;
@@ -1057,7 +1057,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   s2 = std::abs(tmp) - (A[0] * Q(1, 2) + A[1] * Q(0, 2) + B[0] * Q(2, 1) + B[1] * Q(2, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(-R(1, 2), R(0, 2), 0);
-  l = n.length();
+  l = n.norm();
   if(l > eps) 
   {
     s2 /= l;
@@ -1582,7 +1582,7 @@ bool cylinderHalfspaceIntersect(const Cylinder& s1, const Transform3f& tf1,
       C = Vec3f(0, 0, 0);
     else
     {
-      FCL_REAL s = C.length();
+      FCL_REAL s = C.norm();
       s = s1.radius / s;
       C *= s;
     }
@@ -1635,7 +1635,7 @@ bool coneHalfspaceIntersect(const Cone& s1, const Transform3f& tf1,
       C = Vec3f(0, 0, 0);
     else
     {
-      FCL_REAL s = C.length();
+      FCL_REAL s = C.norm();
       s = s1.radius / s;
       C *= s;
     }
@@ -1747,7 +1747,7 @@ bool planeHalfspaceIntersect(const Plane& s1, const Transform3f& tf1,
   ret = 0;
 
   Vec3f dir = (new_s1.n).cross(new_s2.n);
-  FCL_REAL dir_norm = dir.sqrLength();
+  FCL_REAL dir_norm = dir.squaredNorm();
   if(dir_norm < std::numeric_limits<FCL_REAL>::epsilon()) // parallel
   {
     if((new_s1.n).dot(new_s2.n) > 0)
@@ -1809,7 +1809,7 @@ bool halfspaceIntersect(const Halfspace& s1, const Transform3f& tf1,
   ret = 0;
   
   Vec3f dir = (new_s1.n).cross(new_s2.n);
-  FCL_REAL dir_norm = dir.sqrLength();
+  FCL_REAL dir_norm = dir.squaredNorm();
   if(dir_norm < std::numeric_limits<FCL_REAL>::epsilon()) // parallel 
   {
     if((new_s1.n).dot(new_s2.n) > 0)
@@ -2129,7 +2129,7 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
         C = Vec3f(0, 0, 0);
       else
       {
-        FCL_REAL s = C.length();
+        FCL_REAL s = C.norm();
         s = s1.radius / s;
         C *= s;
       }
@@ -2209,7 +2209,7 @@ bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
       C = Vec3f(0, 0, 0);
     else
     {
-      FCL_REAL s = C.length();
+      FCL_REAL s = C.norm();
       s = s1.radius / s;
       C *= s;
     }

@@ -236,9 +236,8 @@ public:
       const Vec3f& v1 = vertices[tri[0]];
       const Vec3f& v2 = vertices[tri[1]];
       const Vec3f& v3 = vertices[tri[2]];
-      FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
       Matrix3f A(v1, v2, v3);
-      C += transpose(A) * C_canonical * A * d_six_vol;
+      C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
     }
 
     FCL_REAL trace_C = C(0, 0) + C(1, 1) + C(2, 2);

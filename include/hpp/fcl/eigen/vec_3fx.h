@@ -322,10 +322,6 @@ public:
     return *this;
   }
 
-  inline T length() const { return this->norm(); }
-  // inline T norm() const { return sqrt(details::dot_prod3(data, data)); }
-  inline T sqrLength() const { return this->squaredNorm(); }
-  // inline T squaredNorm() const { return details::dot_prod3(data, data); }
   inline void setValue(T x, T y, T z) {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(FclMatrix, 3);
     this->m_storage.data()[0] = x;
@@ -547,9 +543,6 @@ public:
   {
     return typename UnaryReturnType<EigenOp>::Abs (*this);
   }
-
-  inline Scalar length() const { return this->norm(); }
-  inline Scalar sqrLength() const { return this->squaredNorm(); }
 
   template <typename Derived>
   inline bool equal(const Eigen::MatrixBase<Derived>& other, T epsilon = std::numeric_limits<T>::epsilon() * 100) const

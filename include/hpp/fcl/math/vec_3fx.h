@@ -127,9 +127,7 @@ public:
     return *this;
   }
 
-  inline U length() const { return sqrt(details::dot_prod3(data, data)); }
   inline U norm() const { return sqrt(details::dot_prod3(data, data)); }
-  inline U sqrLength() const { return details::dot_prod3(data, data); }
   inline U squaredNorm() const { return details::dot_prod3(data, data); }
   inline void setValue(U x, U y, U z) { data.setValue(x, y, z); }
   inline void setValue(U x) { data.setValue(x); }

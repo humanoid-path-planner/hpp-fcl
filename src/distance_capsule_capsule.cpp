@@ -47,7 +47,7 @@ namespace fcl {
     FCL_REAL a01 = -direction1.dot (direction2);
     FCL_REAL b0 = diff.dot (direction1);
     FCL_REAL b1 = -diff.dot (direction2);
-    FCL_REAL c = diff.sqrLength ();
+    FCL_REAL c = diff.squaredNorm ();
     FCL_REAL det = fabs (1.0 - a01*a01);
     FCL_REAL s1, s2, sqrDist, extDet0, extDet1, tmpS0, tmpS1;
     FCL_REAL epsilon = std::numeric_limits<FCL_REAL>::epsilon () * 100;
@@ -350,7 +350,7 @@ namespace fcl {
       const Vec3f& p1 = distanceResult.nearest_points [0];
       const Vec3f& p2 = distanceResult.nearest_points [1];
       contact.pos = .5*(p1+p2);
-      contact.normal = (p2-p1)/(p2-p1).length ();
+      contact.normal = (p2-p1)/(p2-p1).norm ();
       result.addContact (contact);
       return 1;
     }

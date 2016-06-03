@@ -100,9 +100,9 @@ BOOST_AUTO_TEST_CASE(vec_test_basic_vec32)
   BOOST_CHECK(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f32(3.0f, 4.0f, 5.0f);
-  BOOST_CHECK(std::abs(v1.sqrLength() - 50.0) < 1e-5);
-  BOOST_CHECK(std::abs(v1.length() - sqrt(50.0)) < 1e-5);
-  BOOST_CHECK(normalize(v1).equal(v1 / v1.length()));
+  BOOST_CHECK(std::abs(v1.squaredNorm() - 50.0) < 1e-5);
+  BOOST_CHECK(std::abs(v1.norm() - sqrt(50.0)) < 1e-5);
+  BOOST_CHECK(normalize(v1).equal(v1 / v1.norm()));
 }
 
 BOOST_AUTO_TEST_CASE(vec_test_basic_vec64)
@@ -155,9 +155,9 @@ BOOST_AUTO_TEST_CASE(vec_test_basic_vec64)
   BOOST_CHECK(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f64(3.0, 4.0, 5.0);
-  BOOST_CHECK(std::abs(v1.sqrLength() - 50.0) < 1e-5);
-  BOOST_CHECK(std::abs(v1.length() - sqrt(50.0)) < 1e-5);
-  BOOST_CHECK(normalize(v1).equal(v1 / v1.length()));
+  BOOST_CHECK(std::abs(v1.squaredNorm() - 50.0) < 1e-5);
+  BOOST_CHECK(std::abs(v1.norm() - sqrt(50.0)) < 1e-5);
+  BOOST_CHECK(normalize(v1).equal(v1 / v1.norm()));
 
 
   v1 = Vec3f64(1.0, 2.0, 3.0);
@@ -218,9 +218,9 @@ BOOST_AUTO_TEST_CASE(vec_test_eigen_vec32)
   BOOST_CHECK(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f32(3.0f, 4.0f, 5.0f);
-  BOOST_CHECK(std::abs(v1.sqrLength() - 50) < 1e-5);
-  BOOST_CHECK(std::abs(v1.length() - sqrt(50)) < 1e-5);
-  BOOST_CHECK(normalize(v1).equal(v1 / v1.length()));
+  BOOST_CHECK(std::abs(v1.squaredNorm() - 50) < 1e-5);
+  BOOST_CHECK(std::abs(v1.norm() - sqrt(50)) < 1e-5);
+  BOOST_CHECK(normalize(v1).equal(v1 / v1.norm()));
 }
 
 BOOST_AUTO_TEST_CASE(vec_test_eigen_vec64)
@@ -273,9 +273,9 @@ BOOST_AUTO_TEST_CASE(vec_test_eigen_vec64)
   BOOST_CHECK(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f64(3.0, 4.0, 5.0);
-  BOOST_CHECK(std::abs(v1.sqrLength() - 50) < 1e-5);
-  BOOST_CHECK(std::abs(v1.length() - sqrt(50)) < 1e-5);
-  BOOST_CHECK(normalize(v1).equal(v1 / v1.length()));
+  BOOST_CHECK(std::abs(v1.squaredNorm() - 50) < 1e-5);
+  BOOST_CHECK(std::abs(v1.norm() - sqrt(50)) < 1e-5);
+  BOOST_CHECK(normalize(v1).equal(v1 / v1.norm()));
 
 
   v1 = Vec3f64(1.0, 2.0, 3.0);
@@ -309,8 +309,8 @@ BOOST_AUTO_TEST_CASE(eigen_mat32_consistent)
     for(size_t j = 0; j < 3; ++j)
       BOOST_CHECK((m3(i, j) - m4(i, j) < 1e-1));
 
-  m3 = m1; m3.transpose();
-  m4 = m2; m4.transpose();
+  m3 = transpose(m1);
+  m4 = transpose(m2);
 
   for(size_t i = 0; i < 3; ++i)
     for(size_t j = 0; j < 3; ++j)
@@ -323,8 +323,8 @@ BOOST_AUTO_TEST_CASE(eigen_mat32_consistent)
     for(size_t j = 0; j < 3; ++j)
       BOOST_CHECK((m3(i, j) - m4(i, j) < 1e-1));
 
-  m3 = m1; m3.inverse();
-  m4 = m2; m4.inverse();
+  m3 = inverse(m1);
+  m4 = inverse(m2);
 
   for(size_t i = 0; i < 3; ++i)
     for(size_t j = 0; j < 3; ++j)
@@ -458,8 +458,8 @@ BOOST_AUTO_TEST_CASE(vec_test_eigen_vec32_consistent)
   BOOST_CHECK((v1 + delta1).equal(v1));
   BOOST_CHECK((v3 + delta2).equal(v3));
 
-  BOOST_CHECK(std::abs(v1.length() - v3.length()) < 1e-5);
-  BOOST_CHECK(std::abs(v1.sqrLength() - v3.sqrLength()) < 1e-5);
+  BOOST_CHECK(std::abs(v1.norm() - v3.norm()) < 1e-5);
+  BOOST_CHECK(std::abs(v1.squaredNorm() - v3.squaredNorm()) < 1e-5);
  
   v12 = v1; v12.negate();
   v34 = v3; v34.negate();
@@ -606,8 +606,8 @@ BOOST_AUTO_TEST_CASE(vec_test_eigen_vec64_consistent)
   BOOST_CHECK((v1 + delta1).equal(v1));
   BOOST_CHECK((v3 + delta2).equal(v3));
 
-  BOOST_CHECK(std::abs(v1.length() - v3.length()) < 1e-5);
-  BOOST_CHECK(std::abs(v1.sqrLength() - v3.sqrLength()) < 1e-5);
+  BOOST_CHECK(std::abs(v1.norm() - v3.norm()) < 1e-5);
+  BOOST_CHECK(std::abs(v1.squaredNorm() - v3.squaredNorm()) < 1e-5);
  
   v12 = v1; v12.negate();
   v34 = v3; v34.negate();
@@ -683,9 +683,9 @@ BOOST_AUTO_TEST_CASE(vec_test_sse_vec32)
   BOOST_CHECK(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f32(3.0f, 4.0f, 5.0f);
-  BOOST_CHECK(std::abs(v1.sqrLength() - 50) < 1e-5);
-  BOOST_CHECK(std::abs(v1.length() - sqrt(50)) < 1e-5);
-  BOOST_CHECK(normalize(v1).equal(v1 / v1.length()));
+  BOOST_CHECK(std::abs(v1.squaredNorm() - 50) < 1e-5);
+  BOOST_CHECK(std::abs(v1.norm() - sqrt(50)) < 1e-5);
+  BOOST_CHECK(normalize(v1).equal(v1 / v1.norm()));
 }
 
 BOOST_AUTO_TEST_CASE(vec_test_sse_vec64)
@@ -738,9 +738,9 @@ BOOST_AUTO_TEST_CASE(vec_test_sse_vec64)
   BOOST_CHECK(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f64(3.0, 4.0, 5.0);
-  BOOST_CHECK(std::abs(v1.sqrLength() - 50) < 1e-5);
-  BOOST_CHECK(std::abs(v1.length() - sqrt(50)) < 1e-5);
-  BOOST_CHECK(normalize(v1).equal(v1 / v1.length()));
+  BOOST_CHECK(std::abs(v1.squaredNorm() - 50) < 1e-5);
+  BOOST_CHECK(std::abs(v1.norm() - sqrt(50)) < 1e-5);
+  BOOST_CHECK(normalize(v1).equal(v1 / v1.norm()));
 
 
   v1 = Vec3f64(1.0, 2.0, 3.0);
@@ -774,8 +774,8 @@ BOOST_AUTO_TEST_CASE(sse_mat32_consistent)
     for(size_t j = 0; j < 3; ++j)
       BOOST_CHECK((m3(i, j) - m4(i, j) < 1e-1));
 
-  m3 = m1; m3.transpose();
-  m4 = m2; m4.transpose();
+  m3 = transpose(m1);
+  m4 = transpose(m2);
 
   for(size_t i = 0; i < 3; ++i)
     for(size_t j = 0; j < 3; ++j)
@@ -788,8 +788,8 @@ BOOST_AUTO_TEST_CASE(sse_mat32_consistent)
     for(size_t j = 0; j < 3; ++j)
       BOOST_CHECK((m3(i, j) - m4(i, j) < 1e-1));
 
-  m3 = m1; m3.inverse();
-  m4 = m2; m4.inverse();
+  m3 = inverse(m1);
+  m4 = inverse(m2);
 
   for(size_t i = 0; i < 3; ++i)
     for(size_t j = 0; j < 3; ++j)
@@ -922,8 +922,8 @@ BOOST_AUTO_TEST_CASE(vec_test_sse_vec32_consistent)
   BOOST_CHECK((v1 + delta1).equal(v1));
   BOOST_CHECK((v3 + delta2).equal(v3));
 
-  BOOST_CHECK(std::abs(v1.length() - v3.length()) < 1e-5);
-  BOOST_CHECK(std::abs(v1.sqrLength() - v3.sqrLength()) < 1e-5);
+  BOOST_CHECK(std::abs(v1.norm() - v3.norm()) < 1e-5);
+  BOOST_CHECK(std::abs(v1.squaredNorm() - v3.squaredNorm()) < 1e-5);
  
   v12 = v1; v12.negate();
   v34 = v3; v34.negate();
@@ -1070,8 +1070,8 @@ BOOST_AUTO_TEST_CASE(vec_test_sse_vec64_consistent)
   BOOST_CHECK((v1 + delta1).equal(v1));
   BOOST_CHECK((v3 + delta2).equal(v3));
 
-  BOOST_CHECK(std::abs(v1.length() - v3.length()) < 1e-5);
-  BOOST_CHECK(std::abs(v1.sqrLength() - v3.sqrLength()) < 1e-5);
+  BOOST_CHECK(std::abs(v1.norm() - v3.norm()) < 1e-5);
+  BOOST_CHECK(std::abs(v1.squaredNorm() - v3.squaredNorm()) < 1e-5);
  
   v12 = v1; v12.negate();
   v34 = v3; v34.negate();

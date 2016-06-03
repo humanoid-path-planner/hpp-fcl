@@ -170,7 +170,7 @@ public:
     // R(t) = R(t0) + R'(t0) (t-t0) + 1/2 R''(t0)(t-t0)^2 + 1 / 6 R'''(t0) (t-t0)^3 + 1 / 24 R''''(l)(t-t0)^4; t0 = 0.5
     /// 1. compute M(1/2)
     Vec3f Rt0 = (Rd[0] + Rd[1] * 23 + Rd[2] * 23 + Rd[3]) * (1 / 48.0);
-    FCL_REAL Rt0_len = Rt0.length();
+    FCL_REAL Rt0_len = Rt0.norm();
     FCL_REAL inv_Rt0_len = 1.0 / Rt0_len;
     FCL_REAL inv_Rt0_len_3 = inv_Rt0_len * inv_Rt0_len * inv_Rt0_len;
     FCL_REAL inv_Rt0_len_5 = inv_Rt0_len_3 * inv_Rt0_len * inv_Rt0_len;
@@ -196,7 +196,7 @@ public:
     /// 3.1. compute M''(1/2)
     Vec3f ddRt0 = (Rd[0] - Rd[1] - Rd[2] + Rd[3]) * 0.5;
     FCL_REAL Rt0_dot_ddRt0 = Rt0.dot(ddRt0);
-    FCL_REAL dRt0_dot_dRt0 = dRt0.sqrLength();
+    FCL_REAL dRt0_dot_dRt0 = dRt0.squaredNorm();
     FCL_REAL ddtheta0 = (Rt0_dot_ddRt0 + dRt0_dot_dRt0) * inv_Rt0_len - Rt0_dot_dRt0 * Rt0_dot_dRt0 * inv_Rt0_len_3;
     Vec3f ddWt0 = ddRt0 * inv_Rt0_len - (dRt0 * (2 * Rt0_dot_dRt0) + Rt0 * (Rt0_dot_ddRt0 + dRt0_dot_dRt0)) * inv_Rt0_len_3 + (Rt0 * (3 * Rt0_dot_dRt0 * Rt0_dot_dRt0)) * inv_Rt0_len_5;
     Matrix3f hatddWt0;
@@ -367,7 +367,7 @@ protected:
     {
       angular_vel = 0;
       axis = tf2.getTranslation() - tf1.getTranslation();
-      linear_vel = axis.length();
+      linear_vel = axis.norm();
       p = tf1.getTranslation();
     }
     else

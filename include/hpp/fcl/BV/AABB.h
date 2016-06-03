@@ -190,13 +190,13 @@ public:
   /// @brief Size of the AABB (used in BV_Splitter to order two AABBs)
   inline FCL_REAL size() const
   {
-    return (max_ - min_).sqrLength();
+    return (max_ - min_).squaredNorm();
   }
 
   /// @brief Radius of the AABB
   inline FCL_REAL radius() const
   {
-    return (max_ - min_).length() / 2;
+    return (max_ - min_).norm() / 2;
   }
 
   /// @brief Center of the AABB

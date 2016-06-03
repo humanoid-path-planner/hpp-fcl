@@ -615,7 +615,7 @@ struct GJKSolver_indep
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
-      if(distance) *distance = (w0 - w1).length();
+      if(distance) *distance = (w0 - w1).norm();
       
       if(p1) *p1 = tf1.transform (w0);
       if(p2) *p2 = tf1.transform (w1);
@@ -667,7 +667,7 @@ struct GJKSolver_indep
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
-      if(distance) *distance = (w0 - w1).length();
+      if(distance) *distance = (w0 - w1).norm();
       if(p1) *p1 = w0;
       if(p2) *p2 = shape.toshape0.transform(w1);
       return true;
@@ -717,7 +717,7 @@ struct GJKSolver_indep
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
-      if(distance) *distance = (w0 - w1).length();
+      if(distance) *distance = (w0 - w1).norm();
       if(p1) *p1 = tf1.transform(w0);
       if(p2) *p2 = tf1.transform(w1);
       return true;

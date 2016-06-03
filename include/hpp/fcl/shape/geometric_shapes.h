@@ -369,9 +369,8 @@ public:
         int e_second = index[(j+1)%*points_in_poly];
         const Vec3f& v1 = points[e_first];
         const Vec3f& v2 = points[e_second];
-        FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
         Matrix3f A(v1, v2, v3); // this is A' in the original document
-        C += transpose(A) * C_canonical * A * d_six_vol; // change accordingly
+        C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
       }
       
       points_in_poly += (*points_in_poly + 1);

@@ -868,7 +868,7 @@ void BVHModel<BV>::computeLocalAABB()
   aabb_radius = 0;
   for(int i = 0; i < num_vertices; ++i)
   {
-    FCL_REAL r = (aabb_center - vertices[i]).sqrLength();
+    FCL_REAL r = (aabb_center - vertices[i]).squaredNorm();
     if(r > aabb_radius) aabb_radius = r;
   }
 
