@@ -19,18 +19,6 @@ static bool approx(FCL_REAL x, FCL_REAL y)
   return std::abs(x - y) < epsilon;
 }
 
-
-
-template<std::size_t N>
-double distance_Vecnf(const Vecnf<N>& a, const Vecnf<N>& b)
-{
-  double d = 0;
-  for(std::size_t i = 0; i < N; ++i)
-    d += (a[i] - b[i]) * (a[i] - b[i]);
-
-  return d;
-}
-
 BOOST_AUTO_TEST_CASE(projection_test_line)
 {
   Vec3f v1(0, 0, 0);
