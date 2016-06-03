@@ -40,8 +40,6 @@
 #define FCL_COLLISION_DATA_H
 
 #include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/knn/nearest_neighbors.h>
-
 
 #include <hpp/fcl/math/vec_3f.h>
 #include <vector>
@@ -519,54 +517,6 @@ struct ContinuousCollisionResult
   {
   }
 };
-
-
-enum PenetrationDepthType {PDT_TRANSLATIONAL, PDT_GENERAL_EULER, PDT_GENERAL_QUAT, PDT_GENERAL_EULER_BALL, PDT_GENERAL_QUAT_BALL};
-
-enum KNNSolverType {KNN_LINEAR, KNN_GNAT, KNN_SQRTAPPROX};
-
-
-struct PenetrationDepthRequest
-{
-  void* classifier;
-
-  NearestNeighbors<Transform3f>::DistanceFunction distance_func;
-
-  /// @brief KNN solver type
-  KNNSolverType knn_solver_type;
-  
-  /// @brief PD algorithm type
-  PenetrationDepthType pd_type;
-
-  /// @brief gjk solver type
-  GJKSolverType gjk_solver_type;
-
-  std::vector<Transform3f> contact_vectors;
-
-  PenetrationDepthRequest(void* classifier_,
-                          NearestNeighbors<Transform3f>::DistanceFunction distance_func_,
-                          KNNSolverType knn_solver_type_ = KNN_LINEAR,
-                          PenetrationDepthType pd_type_ = PDT_TRANSLATIONAL,
-                          GJKSolverType gjk_solver_type_ = GST_LIBCCD) : classifier(classifier_),
-                                                                         distance_func(distance_func_),
-                                                                         knn_solver_type(knn_solver_type_),
-                                                                         pd_type(pd_type_),
-                                                                         gjk_solver_type(gjk_solver_type_)
-  {
-  }
-};
-
-struct PenetrationDepthResult
-{
-  /// @brief penetration depth value
-  FCL_REAL pd_value;
-
-  /// @brief the transform where the collision is resolved
-  Transform3f resolved_tf; 
-};
-
-
-
 
 }
 

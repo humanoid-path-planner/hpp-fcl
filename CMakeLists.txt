@@ -115,7 +115,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/broadphase/broadphase_bruteforce.h
   include/hpp/fcl/broadphase/morton.h
   include/hpp/fcl/broadphase/hash.h
-  include/hpp/fcl/learning/classifier.h
   include/hpp/fcl/shape/geometric_shapes_utility.h
   include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
   include/hpp/fcl/shape/geometric_shapes.h
@@ -126,12 +125,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_node.h
   include/hpp/fcl/collision_func_matrix.h
   include/hpp/fcl/distance.h
-  include/hpp/fcl/knn/greedy_kcenters.h
-  include/hpp/fcl/knn/nearest_neighbors_GNAT.h
-  include/hpp/fcl/knn/nearest_neighbors_flann.h
-  include/hpp/fcl/knn/nearest_neighbors_sqrtapprox.h
-  include/hpp/fcl/knn/nearest_neighbors_linear.h
-  include/hpp/fcl/knn/nearest_neighbors.h
   include/hpp/fcl/continuous_collision.h
   include/hpp/fcl/math/vec_nf.h
   include/hpp/fcl/math/matrix_3f.h

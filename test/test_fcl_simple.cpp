@@ -7,9 +7,6 @@
 #include "fcl_resources/config.h"
 #include <boost/filesystem.hpp>
 #include <sstream>
-#include <hpp/fcl/math/vec_nf.h>
-#include <hpp/fcl/math/sampling.h>
-#include <hpp/fcl/knn/nearest_neighbors_GNAT.h>
 
 #include <boost/assign/list_of.hpp>
 
