@@ -79,11 +79,6 @@ set(${LIBRARY_NAME}_SOURCES
   traversal/traversal_node_base.cpp
   profile.cpp
   continuous_collision.cpp
-  articulated_model/link.cpp
-  articulated_model/model.cpp
-  articulated_model/model_config.cpp
-  articulated_model/joint.cpp
-  articulated_model/joint_config.cpp
   distance.cpp
   BVH/BVH_utility.cpp
   BVH/BV_fitter.cpp

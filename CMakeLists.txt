@@ -149,11 +149,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/traversal/traversal_node_bvh_shape.h
   include/hpp/fcl/traversal/traversal_node_base.h
   include/hpp/fcl/data_types.h
-  include/hpp/fcl/articulated_model/model.h
-  include/hpp/fcl/articulated_model/joint_config.h
-  include/hpp/fcl/articulated_model/model_config.h
-  include/hpp/fcl/articulated_model/joint.h
-  include/hpp/fcl/articulated_model/link.h
   include/hpp/fcl/BVH/BV_splitter.h
   include/hpp/fcl/BVH/BVH_internal.h
   include/hpp/fcl/BVH/BVH_model.h
