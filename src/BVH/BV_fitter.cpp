@@ -58,11 +58,11 @@ static inline void axisFromEigen(Vec3f eigenV[3], Matrix3f::U eigenS[3], Vec3f a
   else if(eigenS[2] > eigenS[max]) { mid = max; max = 2; }
   else { mid = 2; }
 
-  axis[0].setValue(eigenV[0][max], eigenV[1][max], eigenV[2][max]);
-  axis[1].setValue(eigenV[0][mid], eigenV[1][mid], eigenV[2][mid]);
-  axis[2].setValue(eigenV[1][max]*eigenV[2][mid] - eigenV[1][mid]*eigenV[2][max],
-                   eigenV[0][mid]*eigenV[2][max] - eigenV[0][max]*eigenV[2][mid],
-                   eigenV[0][max]*eigenV[1][mid] - eigenV[0][mid]*eigenV[1][max]);
+  axis[0] << eigenV[0][max], eigenV[1][max], eigenV[2][max];
+  axis[1] << eigenV[0][mid], eigenV[1][mid], eigenV[2][mid];
+  axis[2] << eigenV[1][max]*eigenV[2][mid] - eigenV[1][mid]*eigenV[2][max],
+             eigenV[0][mid]*eigenV[2][max] - eigenV[0][max]*eigenV[2][mid],
+             eigenV[0][max]*eigenV[1][mid] - eigenV[0][mid]*eigenV[1][max];
 }
 
 namespace OBB_fit_functions
@@ -71,10 +71,10 @@ namespace OBB_fit_functions
 void fit1(Vec3f* ps, OBB& bv)
 {
   bv.To = ps[0];
-  bv.axis[0].setValue(1, 0, 0);
-  bv.axis[1].setValue(0, 1, 0);
-  bv.axis[2].setValue(0, 0, 1);
-  bv.extent.setValue(0);
+  bv.axis[0] << 1, 0, 0;
+  bv.axis[1] << 0, 1, 0;
+  bv.axis[2] << 0, 0, 1;
+  bv.extent.setZero();
 }
 
 void fit2(Vec3f* ps, OBB& bv)
@@ -88,10 +88,10 @@ void fit2(Vec3f* ps, OBB& bv)
   bv.axis[0] = p1p2;
   generateCoordinateSystem(bv.axis[0], bv.axis[1], bv.axis[2]);
 
-  bv.extent.setValue(len_p1p2 * 0.5, 0, 0);
-  bv.To.setValue(0.5 * (p1[0] + p2[0]),
-                 0.5 * (p1[1] + p2[1]),
-                 0.5 * (p1[2] + p2[2]));
+  bv.extent << len_p1p2 * 0.5, 0, 0;
+  bv.To << 0.5 * (p1[0] + p2[0]),
+           0.5 * (p1[1] + p2[1]),
+           0.5 * (p1[2] + p2[2]);
 }
 
 void fit3(Vec3f* ps, OBB& bv)
@@ -156,9 +156,9 @@ namespace RSS_fit_functions
 void fit1(Vec3f* ps, RSS& bv)
 {
   bv.Tr = ps[0];
-  bv.axis[0].setValue(1, 0, 0);
-  bv.axis[1].setValue(0, 1, 0);
-  bv.axis[2].setValue(0, 0, 1);
+  bv.axis[0] << 1, 0, 0;
+  bv.axis[1] << 0, 1, 0;
+  bv.axis[2] << 0, 0, 1;
   bv.l[0] = 0;
   bv.l[1] = 0;
   bv.r = 0;
@@ -245,10 +245,10 @@ void fit1(Vec3f* ps, kIOS& bv)
   bv.spheres[0].o = ps[0];
   bv.spheres[0].r = 0;
 
-  bv.obb.axis[0].setValue(1, 0, 0);
-  bv.obb.axis[1].setValue(0, 1, 0);
-  bv.obb.axis[2].setValue(0, 0, 1);
-  bv.obb.extent.setValue(0);
+  bv.obb.axis[0] << 1, 0, 0;
+  bv.obb.axis[1] << 0, 1, 0;
+  bv.obb.axis[2] << 0, 0, 1;
+  bv.obb.extent.setZero();
   bv.obb.To = ps[0];
 }
 
@@ -267,7 +267,7 @@ void fit2(Vec3f* ps, kIOS& bv)
   generateCoordinateSystem(axis[0], axis[1], axis[2]);
     
   FCL_REAL r0 = len_p1p2 * 0.5;
-  bv.obb.extent.setValue(r0, 0, 0);
+  bv.obb.extent << r0, 0, 0;
   bv.obb.To = (p1 + p2) * 0.5;
 
   bv.spheres[0].o = bv.obb.To;

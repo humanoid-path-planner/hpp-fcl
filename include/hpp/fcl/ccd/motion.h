@@ -268,7 +268,7 @@ public:
   ScrewMotion() : MotionBase()
   {
     // Default angular velocity is zero
-    axis.setValue(1, 0, 0);
+    axis << 1, 0, 0;
     angular_vel = 0;
 
     // Default reference point is local zero point

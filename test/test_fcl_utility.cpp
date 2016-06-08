@@ -218,9 +218,9 @@ void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3f& R)
   FCL_REAL s2 = sin(b);
   FCL_REAL s3 = sin(c);
 
-  R.setValue(c1 * c2, - c2 * s1, s2,
-             c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3, - c2 * s3,
-             s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3);
+  R << c1 * c2, - c2 * s1, s2,
+       c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3, - c2 * s3,
+       s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3;
 }
 
 void generateRandomTransform(FCL_REAL extents[6], Transform3f& transform)

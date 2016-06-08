@@ -1111,11 +1111,10 @@ FCL_REAL Intersect::distanceToPlane(const Vec3f& n, FCL_REAL t, const Vec3f& v)
 bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, Vec3f* n, FCL_REAL* t)
 {
   Vec3f n_ = (v2 - v1).cross(v3 - v1);
-  bool can_normalize = false;
-  n_.normalize(&can_normalize);
-  if(can_normalize)
+  FCL_REAL norm2 = n_.squaredNorm();
+  if (n > 0)
   {
-    *n = n_;
+    *n = n_ / sqrt(norm2);
     *t = n_.dot(v1);
     return true;
   }
@@ -1126,11 +1125,10 @@ bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f
 bool Intersect::buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn, Vec3f* n, FCL_REAL* t)
 {
   Vec3f n_ = (v2 - v1).cross(tn);
-  bool can_normalize = false;
-  n_.normalize(&can_normalize);
-  if(can_normalize)
+  FCL_REAL norm2 = n_.squaredNorm();
+  if (n > 0)
   {
-    *n = n_;
+    *n = n_ / sqrt(norm2);
     *t = n_.dot(v1);
     return true;
   }

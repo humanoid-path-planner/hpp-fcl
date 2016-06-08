@@ -780,9 +780,9 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
   res = ccdMPRPenetration(obj1, obj2, &ccd, &depth, &dir, &pos);
   if(res == 0)
   {
-    contact_points->setValue(ccdVec3X(&pos), ccdVec3Y(&pos), ccdVec3Z(&pos));
+    *contact_points << ccdVec3X(&pos), ccdVec3Y(&pos), ccdVec3Z(&pos);
     *penetration_depth = depth;
-    normal->setValue(ccdVec3X(&dir), ccdVec3Y(&dir), ccdVec3Z(&dir));
+    *normal << ccdVec3X(&dir), ccdVec3Y(&dir), ccdVec3Z(&dir);
 
     return true;
   }
@@ -808,8 +808,8 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
 
   ccd_vec3_t p1_, p2_;
   dist = libccd_extension::ccdGJKDist2(obj1, obj2, &ccd, &p1_, &p2_);
-  if(p1) p1->setValue(ccdVec3X(&p1_), ccdVec3Y(&p1_), ccdVec3Z(&p1_));
-  if(p2) p2->setValue(ccdVec3X(&p2_), ccdVec3Y(&p2_), ccdVec3Z(&p2_));
+  if(p1) *p1 << ccdVec3X(&p1_), ccdVec3Y(&p1_), ccdVec3Z(&p1_);
+  if(p2) *p2 << ccdVec3X(&p2_), ccdVec3Y(&p2_), ccdVec3Z(&p2_);
   if(res) *res = dist;
   if(dist < 0) return false;
   else return true;

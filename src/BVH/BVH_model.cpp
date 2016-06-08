@@ -712,7 +712,7 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_pri
         FCL_REAL x = (p1[0] + p2[0] + p3[0]) / 3.0;
         FCL_REAL y = (p1[1] + p2[1] + p3[1]) / 3.0;
         FCL_REAL z = (p1[2] + p2[2] + p3[2]) / 3.0;
-        p.setValue(x, y, z);
+        p << x, y, z;
       }
       else
       {

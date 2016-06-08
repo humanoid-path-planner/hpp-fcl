@@ -100,8 +100,8 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2)
   else { mid = 2; }
 
 
-  R1.setValue(E[0][max], E[1][max], E[2][max]);
-  R2.setValue(E[0][mid], E[1][mid], E[2][mid]);
+  R1 << E[0][max], E[1][max], E[2][max];
+  R2 << E[0][mid], E[1][mid], E[2][mid];
 
   // set obb centers and extensions
   Vec3f center, extent;
@@ -588,7 +588,7 @@ OBB& OBB::operator += (const Vec3f& p)
   bvp.axis[0] = axis[0];
   bvp.axis[1] = axis[1];
   bvp.axis[2] = axis[2];
-  bvp.extent.setValue(0);
+  bvp.extent.setZero();
 
   *this += bvp;
   return *this;

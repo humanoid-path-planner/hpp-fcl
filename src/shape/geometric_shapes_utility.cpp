@@ -424,10 +424,10 @@ void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
   const Vec3f& T = tf.getTranslation();
 
   bv.To = T;
-  bv.axis[0].setValue(1, 0, 0);
-  bv.axis[1].setValue(0, 1, 0);
-  bv.axis[2].setValue(0, 0, 1);
-  bv.extent.setValue(s.radius);
+  bv.axis[0] << 1, 0, 0;
+  bv.axis[1] << 0, 1, 0;
+  bv.axis[2] << 0, 0, 1;
+  bv.extent.setConstant(s.radius);
 }
 
 template<>
@@ -440,7 +440,7 @@ void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
   bv.axis[0] = R.col(0);
   bv.axis[1] = R.col(1);
   bv.axis[2] = R.col(2);
-  bv.extent.setValue(s.radius, s.radius, s.lz / 2 + s.radius);
+  bv.extent << s.radius, s.radius, s.lz / 2 + s.radius;
 }
 
 template<>
@@ -453,7 +453,7 @@ void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
   bv.axis[0] = R.col(0);
   bv.axis[1] = R.col(1);
   bv.axis[2] = R.col(2);
-  bv.extent.setValue(s.radius, s.radius, s.lz / 2);
+  bv.extent << s.radius, s.radius, s.lz / 2;
 }
 
 template<>
@@ -466,7 +466,7 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
   bv.axis[0] = R.col(0);
   bv.axis[1] = R.col(1);
   bv.axis[2] = R.col(2);
-  bv.extent.setValue(s.radius, s.radius, s.lz / 2);
+  bv.extent << s.radius, s.radius, s.lz / 2;
 }
 
 template<>
@@ -492,7 +492,7 @@ void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f& tf, OBB& b
   bv.axis[1] = Vec3f(0, 1, 0);
   bv.axis[2] = Vec3f(0, 0, 1);
   bv.To = Vec3f(0, 0, 0);
-  bv.extent.setValue(std::numeric_limits<FCL_REAL>::max());
+  bv.extent.setConstant(std::numeric_limits<FCL_REAL>::max());
 }
 
 template<>
@@ -723,7 +723,7 @@ void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv)
   generateCoordinateSystem(n, bv.axis[1], bv.axis[2]);
   bv.axis[0] = n;
 
-  bv.extent.setValue(0, std::numeric_limits<FCL_REAL>::max(), std::numeric_limits<FCL_REAL>::max());
+  bv.extent << 0, std::numeric_limits<FCL_REAL>::max(), std::numeric_limits<FCL_REAL>::max();
 
   Vec3f p = s.n * s.d; 
   bv.To = tf.transform(p); /// n'd' = R * n * (d + (R * n) * T) = R * (n * d) + T 

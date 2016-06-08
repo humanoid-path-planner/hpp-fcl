@@ -362,7 +362,7 @@ public:
   inline void setIdentity()
   {
     R.setIdentity();
-    T.setValue(0);
+    T.setZero();
     q = Quaternion3f();
     matrix_set = true;
   }

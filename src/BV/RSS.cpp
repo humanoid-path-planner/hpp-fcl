@@ -208,7 +208,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(a[0], t, 0);
+        *P << a[0], t, 0;
         *Q = S + (*P);
       }
 
@@ -237,7 +237,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(a[0], t, 0);
+        *P << a[0], t, 0;
         *Q = S + (*P);
       }
 
@@ -265,7 +265,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(0, t, 0);
+        *P << 0, t, 0;
         *Q = S + (*P);
       }
 
@@ -293,7 +293,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(0, t, 0);
+        *P << 0, t, 0;
         *Q = S + (*P);
       }
 
@@ -361,7 +361,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(a[0], t, 0);
+        *P << a[0], t, 0;
         *Q = S + (*P);
       }
 
@@ -389,7 +389,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(a[0], t, 0);
+        *P << a[0], t, 0;
         *Q = S + (*P);
       }
 
@@ -418,7 +418,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(0, t, 0);
+        *P << 0, t, 0;
         *Q = S + (*P);
       }
 
@@ -447,7 +447,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P&& Q)
       {
-        P->setValue(0, t, 0);
+        *P << 0, t, 0;
         *Q = S + (*P);
       }
 
@@ -515,7 +515,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, a[1], 0);
+        *P << t, a[1], 0;
         *Q = S + (*P);
       }
 
@@ -543,7 +543,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, a[1], 0);
+        *P << t, a[1], 0;
         *Q = S + (*P);
       }
 
@@ -571,7 +571,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, 0, 0);
+        *P << t, 0, 0;
         *Q = S + (*P);
       }
 
@@ -599,7 +599,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, 0, 0);
+        *P << t, 0, 0;
         *Q = S + (*P);
       }
 
@@ -660,7 +660,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, a[1], 0);
+        *P << t, a[1], 0;
         *Q = S + (*P);
       }
 
@@ -688,7 +688,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, a[1], 0);
+        *P << t, a[1], 0;
         *Q = S + (*P);
       }
 
@@ -717,7 +717,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, 0, 0);
+        *P << t, 0, 0;
         *Q = S + (*P);
       }
 
@@ -745,7 +745,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, 0, 0);
+        *P << t, 0, 0;
         *Q = S + (*P);
       }
 
@@ -786,14 +786,14 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
   if(sep1 >= sep2 && sep1 >= 0)
   {
     if(Tab[2] > 0)
-      S.setValue(0, 0, sep1);
+      S << 0, 0, sep1;
     else
-      S.setValue(0, 0, -sep1);
+      S << 0, 0, -sep1;
 
     if(P && Q)
     {
       *Q = S;
-      P->setValue(0);
+      P->setZero();
     }
   }
 
@@ -1094,11 +1094,11 @@ RSS RSS::operator + (const RSS& other) const
   else { mid = 2; }
 
   // column first matrix, as the axis in RSS
-  bv.axis[0].setValue(E[0][max], E[1][max], E[2][max]);
-  bv.axis[1].setValue(E[0][mid], E[1][mid], E[2][mid]);
-  bv.axis[2].setValue(E[1][max]*E[2][mid] - E[1][mid]*E[2][max],
-                      E[0][mid]*E[2][max] - E[0][max]*E[2][mid],
-                      E[0][max]*E[1][mid] - E[0][mid]*E[1][max]);
+  bv.axis[0] << E[0][max], E[1][max], E[2][max];
+  bv.axis[1] << E[0][mid], E[1][mid], E[2][mid];
+  bv.axis[2] << E[1][max]*E[2][mid] - E[1][mid]*E[2][max],
+                E[0][mid]*E[2][max] - E[0][max]*E[2][mid],
+                E[0][max]*E[1][mid] - E[0][mid]*E[1][max];
 
   // set rss origin, rectangle size and radius
   getRadiusAndOriginAndRectangleSize(v, NULL, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);

@@ -236,7 +236,7 @@ public:
             T yx, T yy, T yz,
             T zx, T zy, T zz) : Base()
   {
-    setValue(xx, xy, xz, yx, yy, yz, zx, zy, zz);
+    *this << xx, xy, xz, yx, yy, yz, zx, zy, zz;
   }
 
   template <typename Vector>
@@ -303,42 +303,12 @@ public:
     return *this;
   }
 
-  inline FclMatrix& normalize(bool* signal)
-  {
-    T sqr_length = this->squaredNorm();
-    if(sqr_length > 0)
-    {
-      this->operator/= ((T)std::sqrt(sqr_length));
-      *signal = true;
-    }
-    else
-      *signal = false;
-    return *this;
-  }
-
   inline FclMatrix& abs() 
   {
     *this = this->cwiseAbs ();
     return *this;
   }
 
-  inline void setValue(T x, T y, T z) {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(FclMatrix, 3);
-    this->m_storage.data()[0] = x;
-    this->m_storage.data()[1] = y;
-    this->m_storage.data()[2] = z;
-  }
-  inline void setValue(T xx, T xy, T xz,
-                       T yx, T yy, T yz,
-                       T zx, T zy, T zz)
-  {
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(FclMatrix, 3, 3);
-    this->operator()(0,0) = xx; this->operator()(0,1) = xy; this->operator()(0,2) = xz;
-    this->operator()(1,0) = yx; this->operator()(1,1) = yy; this->operator()(1,2) = yz;
-    this->operator()(2,0) = zx; this->operator()(2,1) = zy; this->operator()(2,2) = zz;
-  }
-  inline void setValue(T x) { this->setConstant (x); }
-  // inline void setZero () {data.setValue (0); }
   inline bool equal(const FclMatrix& other, T epsilon = std::numeric_limits<T>::epsilon() * 100) const
   {
     return ((*this - other).cwiseAbs().array () < epsilon).all();
@@ -440,9 +410,9 @@ public:
     Scalar sc = si * ch;
     Scalar ss = si * sh;
 
-    setValue(cj * ch, sj * sc - cs, sj * cc + ss,
+    *this << cj * ch, sj * sc - cs, sj * cc + ss,
              cj * sh, sj * ss + cc, sj * cs - sc, 
-             -sj,     cj * si,      cj * ci);
+             -sj,     cj * si,      cj * ci;
 
   }
 
@@ -672,7 +642,7 @@ void generateCoordinateSystem(
 template<typename Matrix, typename Vector>
 void hat(Matrix& mat, const Vector& vec)
 {
-  mat.setValue(0, -vec[2], vec[1], vec[2], 0, -vec[0], -vec[1], vec[0], 0);
+  mat << 0, -vec[2], vec[1], vec[2], 0, -vec[0], -vec[1], vec[0], 0;
 }
 
 template<typename Matrix, typename Vector>
@@ -715,9 +685,9 @@ void eigen(const FclType<Matrix>& m, typename Matrix::Scalar dout[3], Vector* vo
         sm += std::abs(R(ip, iq));
     if(sm == 0.0)
     {
-      vout[0].setValue(v[0][0], v[0][1], v[0][2]);
-      vout[1].setValue(v[1][0], v[1][1], v[1][2]);
-      vout[2].setValue(v[2][0], v[2][1], v[2][2]);
+      vout[0] << v[0][0], v[0][1], v[0][2];
+      vout[1] << v[1][0], v[1][1], v[1][2];
+      vout[2] << v[2][0], v[2][1], v[2][2];
       dout[0] = d[0]; dout[1] = d[1]; dout[2] = d[2];
       return;
     }

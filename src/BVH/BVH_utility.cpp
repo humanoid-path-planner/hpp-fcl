@@ -520,9 +520,9 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
 
   center = axis[0] * o[0] + axis[1] * o[1] + axis[2] * o[2];
 
-  extent.setValue((max_coord[0] - min_coord[0]) / 2,
-                  (max_coord[1] - min_coord[1]) / 2,
-                  (max_coord[2] - min_coord[2]) / 2);
+  extent << (max_coord[0] - min_coord[0]) / 2,
+            (max_coord[1] - min_coord[1]) / 2,
+            (max_coord[2] - min_coord[2]) / 2;
 
 }
 
@@ -589,9 +589,9 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
 
   center = axis[0] * o[0] + axis[1] * o[1] + axis[2] * o[2];
 
-  extent.setValue((max_coord[0] - min_coord[0]) / 2,
-                  (max_coord[1] - min_coord[1]) / 2,
-                  (max_coord[2] - min_coord[2]) / 2);
+  extent << (max_coord[0] - min_coord[0]) / 2,
+            (max_coord[1] - min_coord[1]) / 2,
+            (max_coord[2] - min_coord[2]) / 2;
 
 }
 

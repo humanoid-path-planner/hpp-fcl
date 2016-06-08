@@ -441,7 +441,7 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const InterpMotion& motion) const
 InterpMotion::InterpMotion() : MotionBase()
 {
   // Default angular velocity is zero
-  angular_axis.setValue(1, 0, 0);
+  angular_axis << 1, 0, 0;
   angular_vel = 0;
 
   // Default reference point is local zero point

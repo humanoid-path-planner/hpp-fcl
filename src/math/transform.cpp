@@ -103,9 +103,9 @@ void Quaternion3f::toRotation(Matrix3f& R) const
   FCL_REAL twoYZ = twoZ*data[2];
   FCL_REAL twoZZ = twoZ*data[3];
 
-  R.setValue(1.0 - (twoYY + twoZZ), twoXY - twoWZ, twoXZ + twoWY,
-             twoXY + twoWZ, 1.0 - (twoXX + twoZZ), twoYZ - twoWX,
-             twoXZ - twoWY, twoYZ + twoWX, 1.0 - (twoXX + twoYY));
+  R << 1.0 - (twoYY + twoZZ), twoXY - twoWZ, twoXZ + twoWY,
+       twoXY + twoWZ, 1.0 - (twoXX + twoZZ), twoYZ - twoWX,
+       twoXZ - twoWY, twoYZ + twoWX, 1.0 - (twoXX + twoYY);
 }
 
 
@@ -169,9 +169,9 @@ void Quaternion3f::toAxes(Vec3f axis[3]) const
   FCL_REAL twoYZ = twoZ*data[2];
   FCL_REAL twoZZ = twoZ*data[3];
 
-  axis[0].setValue(1.0 - (twoYY + twoZZ), twoXY + twoWZ, twoXZ - twoWY);
-  axis[1].setValue(twoXY - twoWZ, 1.0 - (twoXX + twoZZ), twoYZ + twoWX);
-  axis[2].setValue(twoXZ + twoWY, twoYZ - twoWX, 1.0 - (twoXX + twoYY));
+  axis[0] << 1.0 - (twoYY + twoZZ), twoXY + twoWZ, twoXZ - twoWY;
+  axis[1] << twoXY - twoWZ, 1.0 - (twoXX + twoZZ), twoYZ + twoWX;
+  axis[2] << twoXZ + twoWY, twoYZ - twoWX, 1.0 - (twoXX + twoYY);
 }
 
 
