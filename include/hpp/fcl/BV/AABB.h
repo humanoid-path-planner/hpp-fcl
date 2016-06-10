@@ -62,8 +62,8 @@ public:
   }
 
   /// @brief Creating an AABB with two endpoints a and b
-  AABB(const Vec3f& a, const Vec3f&b) : min_(min(a, b)),
-                                        max_(max(a, b))
+  AABB(const Vec3f& a, const Vec3f&b) : min_(a.cwiseMin(b)),
+                                        max_(a.cwiseMax(b))
   {
   }
 
@@ -74,8 +74,8 @@ public:
   }
 
   /// @brief Creating an AABB contains three points
-  AABB(const Vec3f& a, const Vec3f& b, const Vec3f& c) : min_(min(min(a, b), c)),
-                                                         max_(max(max(a, b), c))
+  AABB(const Vec3f& a, const Vec3f& b, const Vec3f& c) : min_(a.cwiseMin(b).cwiseMin(c)),
+                                                         max_(a.cwiseMax(b).cwiseMax(c))
   {
   }
 
@@ -124,8 +124,8 @@ public:
       return false;
     }
     
-    overlap_part.min_ = max(min_, other.min_);
-    overlap_part.max_ = min(max_, other.max_);
+    overlap_part.min_ = min_.cwiseMax(other.min_);
+    overlap_part.max_ = max_.cwiseMin(other.max_);
     return true;
   }
 
@@ -214,7 +214,7 @@ public:
   /// @brief whether two AABB are equal
   inline bool equal(const AABB& other) const
   {
-    return min_.equal(other.min_) && max_.equal(other.max_);
+    return isEqual(min_, other.min_) && isEqual(max_, other.max_);
   }
 
   /// @brief expand the half size of the AABB by delta, and keep the center unchanged.

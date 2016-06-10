@@ -42,7 +42,9 @@
 #include <hpp/fcl/data_types.h>
 
 #if FCL_HAVE_EIGEN
-#  include <hpp/fcl/eigen/math_details.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <hpp/fcl/math/tools.h>
 #elif FCL_HAVE_SSE
 # include <hpp/fcl/simd/math_simd_details.h>
 #else
@@ -50,7 +52,6 @@
 #endif
 
 #if FCL_HAVE_EIGEN
-# include <hpp/fcl/eigen/vec_3fx.h>
 #else
 # include <hpp/fcl/math/vec_3fx.h>
 #endif
@@ -64,7 +65,7 @@ namespace fcl
 {
 
 #if FCL_HAVE_EIGEN
-  typedef Eigen::FclMatrix<FCL_REAL, 1> Vec3f;
+  typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
 #elif FCL_HAVE_SSE
   typedef Vec3fX<details::sse_meta_f4> Vec3f;
 #else

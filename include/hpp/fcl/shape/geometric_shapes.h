@@ -106,9 +106,9 @@ public:
     FCL_REAL a2 = side[0] * side[0] * V;
     FCL_REAL b2 = side[1] * side[1] * V;
     FCL_REAL c2 = side[2] * side[2] * V;
-    return Matrix3f((b2 + c2) / 12, 0, 0,
-                    0, (a2 + c2) / 12, 0,
-                    0, 0, (a2 + b2) / 12);
+    return (Matrix3f() << (b2 + c2) / 12, 0, 0,
+                          0, (a2 + c2) / 12, 0,
+                          0, 0, (a2 + b2) / 12).finished();
   }
 };
 
@@ -132,9 +132,7 @@ public:
   Matrix3f computeMomentofInertia() const
   {
     FCL_REAL I = 0.4 * radius * radius * computeVolume();
-    return Matrix3f(I, 0, 0,
-                    0, I, 0,
-                    0, 0, I);
+    return I * Matrix3f::Identity();
   }
 
   FCL_REAL computeVolume() const
@@ -176,9 +174,9 @@ public:
     FCL_REAL ix = v_cyl * lz * lz / 12.0 + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + 0.25 * v_sph * lz * lz;
     FCL_REAL iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
 
-    return Matrix3f(ix, 0, 0,
-                    0, ix, 0,
-                    0, 0, iz);
+    return (Matrix3f() << ix, 0, 0,
+                          0, ix, 0,
+                          0, 0, iz).finished();
   }
   
 };
@@ -214,9 +212,9 @@ public:
     FCL_REAL ix = V * (0.1 * lz * lz + 3 * radius * radius / 20);
     FCL_REAL iz = 0.3 * V * radius * radius;
 
-    return Matrix3f(ix, 0, 0,
-                    0, ix, 0,
-                    0, 0, iz);
+    return (Matrix3f() << ix, 0, 0,
+                          0, ix, 0,
+                          0, 0, iz).finished();
   }
 
   Vec3f computeCOM() const
@@ -256,9 +254,9 @@ public:
     FCL_REAL V = computeVolume();
     FCL_REAL ix = V * (3 * radius * radius + lz * lz) / 12;
     FCL_REAL iz = V * radius * radius / 2;
-    return Matrix3f(ix, 0, 0,
-                    0, ix, 0,
-                    0, 0, iz);
+    return (Matrix3f() << ix, 0, 0,
+                          0, ix, 0,
+                          0, 0, iz).finished();
   }
 };
 
@@ -342,13 +340,12 @@ public:
   Matrix3f computeMomentofInertia() const
   {
     
-    Matrix3f C(0, 0, 0,
-               0, 0, 0,
-               0, 0, 0);
+    Matrix3f C = Matrix3f::Zero();
 
-    Matrix3f C_canonical(1/60.0, 1/120.0, 1/120.0,
-                         1/120.0, 1/60.0, 1/120.0,
-                         1/120.0, 1/120.0, 1/60.0);
+    Matrix3f C_canonical;
+    C_canonical << 1/60.0, 1/120.0, 1/120.0,
+                   1/120.0, 1/60.0, 1/120.0,
+                   1/120.0, 1/120.0, 1/60.0;
 
     int* points_in_poly = polygons;
     int* index = polygons + 1;
@@ -369,7 +366,7 @@ public:
         int e_second = index[(j+1)%*points_in_poly];
         const Vec3f& v1 = points[e_first];
         const Vec3f& v2 = points[e_second];
-        Matrix3f A(v1, v2, v3); // this is A' in the original document
+        Matrix3f A; A << v1.transpose(), v2.transpose(), v3.transpose(); // this is A' in the original document
         C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
       }
       
@@ -377,12 +374,7 @@ public:
       index = points_in_poly + 1;
     }
 
-    FCL_REAL trace_C = C(0, 0) + C(1, 1) + C(2, 2);
-
-    return Matrix3f(trace_C - C(0, 0), -C(0, 1), -C(0, 2),
-                    -C(1, 0), trace_C - C(1, 1), -C(1, 2),
-                    -C(2, 0), -C(2, 1), trace_C - C(2, 2));
-    
+    return C.trace() * Matrix3f::Identity() - C;
   }
 
   Vec3f computeCOM() const

@@ -135,7 +135,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
   bA0_dot_B1 = b[1] * A0_dot_B1;
   bA1_dot_B1 = b[1] * A1_dot_B1;
 
-  Vec3f Tba = Rab.transposeTimes(Tab);
+  Vec3f Tba (Rab.transpose() * Tab);
 
   Vec3f S;
   FCL_REAL t, u;
@@ -842,9 +842,10 @@ bool RSS::overlap(const RSS& other) const
   Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2]));
 
   /// Now compute R1'R2
-  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
+  Matrix3f R;
+  R << axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
              axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
-             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
+             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]);
 
   FCL_REAL dist = rectDistance(R, T, l, other.l);
   return (dist <= (r + other.r));
@@ -854,15 +855,17 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
 {
   // ROb2 = R0 . b2
   // where b2 = [ b2.axis [0] | b2.axis [1] | b2.axis [2] ]
-  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
-                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
-                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
+  Matrix3f R0b2;
+  R0b2 << R0.row(0).dot(b2.axis[0]), R0.row(0).dot(b2.axis[1]), R0.row(0).dot(b2.axis[2]),
+                R0.row(1).dot(b2.axis[0]), R0.row(1).dot(b2.axis[1]), R0.row(1).dot(b2.axis[2]),
+                R0.row(2).dot(b2.axis[0]), R0.row(2).dot(b2.axis[1]), R0.row(2).dot(b2.axis[2]);
 
   // (1 0 0)^T R0b2^T axis [0] = (1 0 0)^T b2^T R0^T axis [0]
   // R = b2^T RO^T b1
-  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
-             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
-             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
+  Matrix3f R;
+  R << R0b2.col(0).dot(b1.axis[0]), R0b2.col(1).dot(b1.axis[0]), R0b2.col(2).dot(b1.axis[0]),
+             R0b2.col(0).dot(b1.axis[1]), R0b2.col(1).dot(b1.axis[1]), R0b2.col(2).dot(b1.axis[1]),
+             R0b2.col(0).dot(b1.axis[2]), R0b2.col(1).dot(b1.axis[2]), R0b2.col(2).dot(b1.axis[2]);
 
   Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
   Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
@@ -1081,7 +1084,7 @@ RSS RSS::operator + (const RSS& other) const
 
   Matrix3f M; // row first matrix
   Vec3f E[3]; // row first eigen-vectors
-  Matrix3f::U s[3] = {0, 0, 0};
+  Matrix3f::Scalar s[3] = {0, 0, 0};
 
   getCovariance(v, NULL, NULL, NULL, 16, M);
   eigen(M, s, E);
@@ -1113,9 +1116,10 @@ FCL_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
   // First compute the rotation part, then translation part
   Vec3f t = other.Tr - Tr; // T2 - T1
   Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
-  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
-             axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
-             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
+  Matrix3f R;
+  R << axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
+       axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
+       axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]);
 
   FCL_REAL dist = rectDistance(R, T, l, other.l, P, Q);
   dist -= (r + other.r);
@@ -1124,13 +1128,15 @@ FCL_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
 
 FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P, Vec3f* Q)
 {
-  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
-                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
-                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
+  Matrix3f R0b2;
+  R0b2 << R0.row(0).dot(b2.axis[0]), R0.row(0).dot(b2.axis[1]), R0.row(0).dot(b2.axis[2]),
+          R0.row(1).dot(b2.axis[0]), R0.row(1).dot(b2.axis[1]), R0.row(1).dot(b2.axis[2]),
+          R0.row(2).dot(b2.axis[0]), R0.row(2).dot(b2.axis[1]), R0.row(2).dot(b2.axis[2]);
 
-  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
-             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
-             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
+  Matrix3f R;
+  R << R0b2.col(0).dot(b1.axis[0]), R0b2.col(1).dot(b1.axis[0]), R0b2.col(2).dot(b1.axis[0]),
+       R0b2.col(0).dot(b1.axis[1]), R0b2.col(1).dot(b1.axis[1]), R0b2.col(2).dot(b1.axis[1]),
+       R0b2.col(0).dot(b1.axis[2]), R0b2.col(1).dot(b1.axis[2]), R0b2.col(2).dot(b1.axis[2]);
 
   Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
 

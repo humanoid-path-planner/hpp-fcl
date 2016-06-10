@@ -166,7 +166,6 @@ public:
     }
 
     // set tm
-    Matrix3f I(1, 0, 0, 0, 1, 0, 0, 0, 1);
     // R(t) = R(t0) + R'(t0) (t-t0) + 1/2 R''(t0)(t-t0)^2 + 1 / 6 R'''(t0) (t-t0)^3 + 1 / 24 R''''(l)(t-t0)^4; t0 = 0.5
     /// 1. compute M(1/2)
     Vec3f Rt0 = (Rd[0] + Rd[1] * 23 + Rd[2] * 23 + Rd[3]) * (1 / 48.0);
@@ -182,7 +181,7 @@ public:
     Matrix3f hatWt0;
     hat(hatWt0, Wt0);
     Matrix3f hatWt0_sqr = hatWt0 * hatWt0;
-    Matrix3f Mt0 = I + hatWt0 * sintheta0 + hatWt0_sqr * (1 - costheta0);
+    Matrix3f Mt0 = Matrix3f::Identity() + hatWt0 * sintheta0 + hatWt0_sqr * (1 - costheta0);
 
     /// 2. compute M'(1/2)
     Vec3f dRt0 = (-Rd[0] - Rd[1] * 5 + Rd[2] * 5 + Rd[3]) * (1 / 8.0);
@@ -340,7 +339,7 @@ public:
     TaylorModel sin_model(getTimeInterval());
     generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
 
-    TMatrix3 delta_R = hat_axis * sin_model - hat_axis * hat_axis * (cos_model - 1) + Matrix3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    TMatrix3 delta_R = hat_axis * sin_model - hat_axis * hat_axis * (cos_model - 1) + Matrix3f::Identity();
 
     TaylorModel a(getTimeInterval()), b(getTimeInterval()), c(getTimeInterval());
     generateTaylorModelForLinearFunc(a, 0, linear_vel * axis[0]);
@@ -494,7 +493,7 @@ public:
     TaylorModel sin_model(getTimeInterval());
     generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
 
-    TMatrix3 delta_R = hat_angular_axis * sin_model - hat_angular_axis * hat_angular_axis * (cos_model - 1) + Matrix3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    TMatrix3 delta_R = hat_angular_axis * sin_model - hat_angular_axis * hat_angular_axis * (cos_model - 1) + Matrix3f::Identity();
 
     TaylorModel a(getTimeInterval()), b(getTimeInterval()), c(getTimeInterval());
     generateTaylorModelForLinearFunc(a, 0, linear_vel[0]);

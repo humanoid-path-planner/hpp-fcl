@@ -100,7 +100,8 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_capsule_rotated)
 
 	Capsule capsule (50, 200.);
 	Matrix3f rotation;
-	rotation.setEulerZYX (M_PI * 0.5, 0., 0.);
+	// rotation.setEulerZYX (M_PI * 0.5, 0., 0.);
+        setEulerZYX(rotation, M_PI * 0.5, 0., 0.);
 	Transform3f capsule_transform (rotation, Vec3f (150., 0., 0.));
 
 	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL, NULL, NULL));
@@ -125,8 +126,8 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_penetration_z)
 
 	BOOST_CHECK (is_intersecting);
 	BOOST_CHECK (penetration == 25.);
-	BOOST_CHECK (Vec3f (0., 0., 1.).equal(normal));
-	BOOST_CHECK (Vec3f (0., 0., 0.).equal(contact_point));
+	BOOST_CHECK (isEqual(Vec3f (0., 0., 1.), normal));
+	BOOST_CHECK (isEqual(Vec3f (0., 0., 0.), contact_point));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_penetration_z_rotated)
@@ -139,7 +140,8 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_penetration_z_rotated)
 
 	Capsule capsule (50, 200.);
 	Matrix3f rotation;
-	rotation.setEulerZYX (M_PI * 0.5, 0., 0.);
+	// rotation.setEulerZYX (M_PI * 0.5, 0., 0.);
+        setEulerZYX(rotation, M_PI * 0.5, 0., 0.);
 	Transform3f capsule_transform (rotation, Vec3f (0., 50., 75));
 
 	FCL_REAL penetration = 0.;
@@ -150,8 +152,8 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_penetration_z_rotated)
 
 	BOOST_CHECK (is_intersecting);
 	BOOST_CHECK_CLOSE (25, penetration, solver.collision_tolerance);
-	BOOST_CHECK (Vec3f (0., 0., 1.).equal(normal));
-	BOOST_CHECK (Vec3f (0., 0., 50.).equal(contact_point, solver.collision_tolerance));
+	BOOST_CHECK (isEqual(Vec3f (0., 0., 1.),normal));
+	BOOST_CHECK (isEqual(Vec3f (0., 0., 50.), contact_point, solver.collision_tolerance));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Distance_test_collision)

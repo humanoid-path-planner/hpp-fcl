@@ -124,16 +124,16 @@ Vec3f IMatrix3::getRowHigh(size_t i) const
 
 Matrix3f IMatrix3::getLow() const
 {
-  return Matrix3f(v_[0][0][0], v_[0][1][0], v_[0][2][0],
-                  v_[1][0][0], v_[1][1][0], v_[1][2][0],
-                  v_[2][0][0], v_[2][1][0], v_[2][2][0]);
+  return (Matrix3f() << v_[0][0][0], v_[0][1][0], v_[0][2][0],
+                        v_[1][0][0], v_[1][1][0], v_[1][2][0],
+                        v_[2][0][0], v_[2][1][0], v_[2][2][0]).finished();
 }
 
 Matrix3f IMatrix3::getHigh() const
 {
-  return Matrix3f(v_[0][0][1], v_[0][1][1], v_[0][2][1],
-                  v_[1][0][1], v_[1][1][1], v_[1][2][1],
-                  v_[2][0][1], v_[2][1][1], v_[2][2][1]);
+  return (Matrix3f() << v_[0][0][1], v_[0][1][1], v_[0][2][1],
+                        v_[1][0][1], v_[1][1][1], v_[1][2][1],
+                        v_[2][0][1], v_[2][1][1], v_[2][2][1]).finished();
 }
 
 IMatrix3 IMatrix3::operator * (const Matrix3f& m) const

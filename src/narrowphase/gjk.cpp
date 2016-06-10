@@ -142,7 +142,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
       const Convex* convex = static_cast<const Convex*>(shape);
       FCL_REAL maxdot = - std::numeric_limits<FCL_REAL>::max();
       Vec3f* curp = convex->points;
-      Vec3f bestv;
+      Vec3f bestv(0,0,0);
       for(int i = 0; i < convex->num_points; ++i, curp+=1)
       {
         FCL_REAL dot = dir.dot(*curp);
@@ -166,7 +166,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
 
 void GJK::initialize()
 {
-  ray = Vec3f();
+  ray = Vec3f::Zero();
   nfree = 0;
   status = Failed;
   current = 0;
@@ -201,7 +201,9 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   simplices[0].rank = 0;
   ray = guess;
 
-  appendVertex(simplices[0], (ray.squaredNorm() > 0) ? -ray : Vec3f(1, 0, 0));
+  // appendVertex(simplices[0], (ray.squaredNorm() > 0) ? -ray : Vec3f(1, 0, 0));
+  if (ray.squaredNorm() > 0) appendVertex(simplices[0], -ray);
+  else                       appendVertex(simplices[0], Vec3f(1, 0, 0));
   simplices[0].p[0] = 1;
   ray = simplices[0].c[0]->w;
   lastw[0] = lastw[1] = lastw[2] = lastw[3] = ray; // cache previous support points, the new support point will compare with it to avoid too close support points
@@ -266,7 +268,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     if(project_res.sqr_distance >= 0)
     {
       next_simplex.rank = 0;
-      ray = Vec3f();
+      ray = Vec3f(0,0,0);
       current = next;
       for(size_t i = 0; i < curr_simplex.rank; ++i)
       {
@@ -303,13 +305,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
 void GJK::getSupport(const Vec3f& d, SimplexV& sv) const
 {
-  sv.d = normalize(d);
+  sv.d = d.normalized();
   sv.w = shape.support(sv.d);
 }
 
 void GJK::getSupport(const Vec3f& d, const Vec3f& v, SimplexV& sv) const
 {
-  sv.d = normalize(d);
+  sv.d = d.normalized();
   sv.w = shape.support(sv.d, v);
 }
 
@@ -333,7 +335,7 @@ bool GJK::encloseOrigin()
     {
       for(size_t i = 0; i < 3; ++i)
       {
-        Vec3f axis;
+        Vec3f axis(Vec3f::Zero());
         axis[i] = 1;
         appendVertex(*simplex, axis);
         if(encloseOrigin()) return true;
@@ -349,7 +351,7 @@ bool GJK::encloseOrigin()
       Vec3f d = simplex->c[1]->w - simplex->c[0]->w;
       for(size_t i = 0; i < 3; ++i)
       {
-        Vec3f axis;
+        Vec3f axis(0,0,0);
         axis[i] = 1;
         Vec3f p = d.cross(axis);
         if(p.squaredNorm() > 0)

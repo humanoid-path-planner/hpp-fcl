@@ -105,31 +105,31 @@ struct BVNode : public BVNodeBase
   Vec3f getCenter() const { return bv.center(); }
 
   /// @brief Access the orientation of the BV
-  Matrix3f getOrientation() const { return Matrix3f::getIdentity(); }
+  Matrix3f getOrientation() const { return Matrix3f::Identity(); }
 };
 
 template<>
 inline Matrix3f BVNode<OBB>::getOrientation() const 
 {
-  return Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+  return (Matrix3f() << bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
                   bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
-                  bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]);
+                  bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]).finished();
 }
 
 template<>
 inline Matrix3f BVNode<RSS>::getOrientation() const 
 {
-  return Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+  return (Matrix3f() << bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
                   bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
-                  bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]);
+                  bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]).finished();
 }
 
 template<>
 inline Matrix3f BVNode<OBBRSS>::getOrientation() const 
 {
-  return Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
+  return (Matrix3f() << bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
                   bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
-                  bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]);
+                  bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]).finished();
 }
 
 

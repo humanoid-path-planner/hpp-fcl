@@ -453,7 +453,7 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
+    shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
     shape.toshape0 = tf1.inverseTimes(tf2);
   
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
@@ -468,7 +468,7 @@ struct GJKSolver_indep
         details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
         if(epa_status != details::EPA::Failed)
         {
-          Vec3f w0;
+          Vec3f w0 (Vec3f::Zero());
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
             w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
@@ -517,7 +517,7 @@ struct GJKSolver_indep
         details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
         if(epa_status != details::EPA::Failed)
         {
-          Vec3f w0;
+          Vec3f w0 (Vec3f::Zero());
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
             w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
@@ -551,7 +551,7 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
+    shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
     shape.toshape0 = tf1.inverseTimes(tf2);
   
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
@@ -566,7 +566,7 @@ struct GJKSolver_indep
         details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
         if(epa_status != details::EPA::Failed)
         {
-          Vec3f w0;
+          Vec3f w0 (Vec3f::Zero());
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
             w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
@@ -598,7 +598,7 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
+    shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
     shape.toshape0 = tf1.inverseTimes(tf2);
 
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
@@ -607,7 +607,7 @@ struct GJKSolver_indep
 
     if(gjk_status == details::GJK::Valid)
     {
-      Vec3f w0, w1;
+      Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
         FCL_REAL p = gjk.getSimplex()->p[i];
@@ -659,7 +659,7 @@ struct GJKSolver_indep
     
     if(gjk_status == details::GJK::Valid)
     {
-      Vec3f w0, w1;
+      Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
         FCL_REAL p = gjk.getSimplex()->p[i];
@@ -700,7 +700,7 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
+    shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
     shape.toshape0 = tf1.inverseTimes(tf2);
 
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
@@ -709,7 +709,7 @@ struct GJKSolver_indep
 
     if(gjk_status == details::GJK::Valid)
     {
-      Vec3f w0, w1;
+      Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
         FCL_REAL p = gjk.getSimplex()->p[i];

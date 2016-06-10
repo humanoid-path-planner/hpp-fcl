@@ -1112,7 +1112,7 @@ bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f
 {
   Vec3f n_ = (v2 - v1).cross(v3 - v1);
   FCL_REAL norm2 = n_.squaredNorm();
-  if (n > 0)
+  if (norm2 > 0)
   {
     *n = n_ / sqrt(norm2);
     *t = n_.dot(v1);
@@ -1126,7 +1126,7 @@ bool Intersect::buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn
 {
   Vec3f n_ = (v2 - v1).cross(tn);
   FCL_REAL norm2 = n_.squaredNorm();
-  if (n > 0)
+  if (norm2 > 0)
   {
     *n = n_ / sqrt(norm2);
     *t = n_.dot(v1);

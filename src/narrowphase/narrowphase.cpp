@@ -89,7 +89,7 @@ bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
   if (distance > 0)
     return false;
 
-  Vec3f normal = diff.normalize() * - FCL_REAL(1);
+  Vec3f normal = diff.normalized() * - FCL_REAL(1);
 
   if (distance < 0 && penetration_depth)
     *penetration_depth = -distance;
@@ -304,7 +304,7 @@ bool sphereTriangleIntersect(const Sphere& s, const Transform3f& tf,
       if(distance_sqr > 0)
       {
         FCL_REAL distance = std::sqrt(distance_sqr);
-        if(normal_) *normal_ = normalize(contact_to_center);
+        if(normal_) *normal_ = contact_to_center.normalized();
         if(contact_points) *contact_points = contact_point;
         if(penetration_depth) *penetration_depth = -(radius - distance);
       }
@@ -795,16 +795,16 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   FCL_REAL s, s2, l;
   int invert_normal, code;
 
-  Vec3f p = T2 - T1; // get vector from centers of box 1 to box 2, relative to box 1
-  Vec3f pp = R1.transposeTimes(p); // get pp = p relative to body 1
+  Vec3f p (T2 - T1); // get vector from centers of box 1 to box 2, relative to box 1
+  Vec3f pp (R1.transpose() * p); // get pp = p relative to body 1
 
   // get side lengths / 2
   Vec3f A = side1 * 0.5;
   Vec3f B = side2 * 0.5;
 
   // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
-  Matrix3f R = R1.transposeTimes(R2);
-  Matrix3f Q = abs(R);
+  Matrix3f R (R1.transpose() * R2);
+  Matrix3f Q (R.cwiseAbs());
 
 
   // for all 15 possible separating axes:
@@ -827,7 +827,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   // separating axis = u1, u2, u3
   tmp = pp[0];
-  s2 = std::abs(tmp) - (Q.dotX(B) + A[0]);
+  s2 = std::abs(tmp) - (Q.row(0).dot(B) + A[0]);
   if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s) 
   {
@@ -839,7 +839,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   }
 
   tmp = pp[1]; 
-  s2 = std::abs(tmp) - (Q.dotY(B) + A[1]);
+  s2 = std::abs(tmp) - (Q.row(1).dot(B) + A[1]);
   if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s) 
   {
@@ -851,7 +851,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   }
 
   tmp = pp[2];
-  s2 = std::abs(tmp) - (Q.dotZ(B) + A[2]);
+  s2 = std::abs(tmp) - (Q.row(2).dot(B) + A[2]);
   if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
@@ -863,8 +863,8 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   }
 
   // separating axis = v1, v2, v3
-  tmp = R2.transposeDotX(p);
-  s2 = std::abs(tmp) - (Q.transposeDotX(A) + B[0]);
+  tmp = R2.col(0).dot(p);
+  s2 = std::abs(tmp) - (Q.col(0).dot(A) + B[0]);
   if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
@@ -875,8 +875,8 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     code = 4;
   }
 
-  tmp = R2.transposeDotY(p);
-  s2 = std::abs(tmp) - (Q.transposeDotY(A) + B[1]);
+  tmp = R2.col(1).dot(p);
+  s2 = std::abs(tmp) - (Q.col(1).dot(A) + B[1]);
   if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
@@ -887,8 +887,8 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     code = 5;
   }
 
-  tmp = R2.transposeDotZ(p);
-  s2 =  std::abs(tmp) - (Q.transposeDotZ(A) + B[2]);
+  tmp = R2.col(2).dot(p);
+  s2 =  std::abs(tmp) - (Q.col(2).dot(A) + B[2]);
   if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
@@ -901,7 +901,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   
 
   FCL_REAL fudge2(1.0e-6);
-  Q += fudge2;
+  Q.array() += fudge2;
 
   Vec3f n;
   FCL_REAL eps = std::numeric_limits<FCL_REAL>::epsilon();
@@ -1098,7 +1098,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   
     for(int j = 0; j < 3; ++j)
     {
-      sign = (R1.transposeDot(j, normal) > 0) ? 1 : -1;
+      sign = (R1.col(j).dot(normal) > 0) ? 1 : -1;
       pa += R1.col(j) * (A[j] * sign);
     }
   
@@ -1107,7 +1107,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
     for(int j = 0; j < 3; ++j)
     {
-      sign = (R2.transposeDot(j, normal) > 0) ? -1 : 1;
+      sign = (R2.col(j).dot(normal) > 0) ? -1 : 1;
       pb += R2.col(j) * (B[j] * sign);
     }
 
@@ -1163,8 +1163,8 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   else 
     normal2 = -normal;
 
-  nr = Rb->transposeTimes(normal2);
-  anr = abs(nr);
+  nr = Rb->transpose() * normal2;
+  anr = nr.cwiseAbs();
 
   // find the largest compontent of anr: this corresponds to the normal
   // for the indident face. the other axis numbers of the indicent face
@@ -1233,17 +1233,17 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // find the four corners of the incident face, in reference-face coordinates
   FCL_REAL quad[8]; // 2D coordinate of incident face (x,y pairs)
   FCL_REAL c1, c2, m11, m12, m21, m22;
-  c1 = Ra->transposeDot(code1, center);
-  c2 = Ra->transposeDot(code2, center);
+  c1 = Ra->col(code1).dot(center);
+  c2 = Ra->col(code2).dot(center);
   // optimize this? - we have already computed this data above, but it is not
   // stored in an easy-to-index format. for now it's quicker just to recompute
   // the four dot products.
   Vec3f tempRac = Ra->col(code1);
-  m11 = Rb->transposeDot(a1, tempRac);
-  m12 = Rb->transposeDot(a2, tempRac);
+  m11 = Rb->col(a1).dot(tempRac);
+  m12 = Rb->col(a2).dot(tempRac);
   tempRac = Ra->col(code2);
-  m21 = Rb->transposeDot(a1, tempRac);
-  m22 = Rb->transposeDot(a2, tempRac);
+  m21 = Rb->col(a1).dot(tempRac);
+  m22 = Rb->col(a2).dot(tempRac);
  
   FCL_REAL k1 = m11 * (*Sb)[a1];
   FCL_REAL k2 = m21 * (*Sb)[a1];
@@ -1433,9 +1433,9 @@ bool boxHalfspaceIntersect(const Box& s1, const Transform3f& tf1,
   const Matrix3f& R = tf1.getRotation();
   const Vec3f& T = tf1.getTranslation();
   
-  Vec3f Q = R.transposeTimes(new_s2.n);
+  Vec3f Q = R.transpose() * new_s2.n;
   Vec3f A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
-  Vec3f B = abs(A);
+  Vec3f B = A.cwiseAbs();
 
   FCL_REAL depth = 0.5 * (B[0] + B[1] + B[2]) - new_s2.signedDistance(T);
   return (depth >= 0);
@@ -1455,9 +1455,9 @@ bool boxHalfspaceIntersect(const Box& s1, const Transform3f& tf1,
     const Matrix3f& R = tf1.getRotation();
     const Vec3f& T = tf1.getTranslation();
   
-    Vec3f Q = R.transposeTimes(new_s2.n);
+    Vec3f Q = R.transpose() * new_s2.n;
     Vec3f A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
-    Vec3f B = abs(A);
+    Vec3f B = A.cwiseAbs();
 
     FCL_REAL depth = 0.5 * (B[0] + B[1] + B[2]) - new_s2.signedDistance(T);
     if(depth < 0) return false;
@@ -1908,9 +1908,9 @@ bool boxPlaneIntersect(const Box& s1, const Transform3f& tf1,
   const Matrix3f& R = tf1.getRotation();
   const Vec3f& T = tf1.getTranslation();
 
-  Vec3f Q = R.transposeTimes(new_s2.n);
+  Vec3f Q = R.transpose() * new_s2.n;
   Vec3f A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
-  Vec3f B = abs(A);
+  Vec3f B = A.cwiseAbs();
 
   FCL_REAL signed_dist = new_s2.signedDistance(T);
   FCL_REAL depth = 0.5 * (B[0] + B[1] + B[2]) - std::abs(signed_dist);
@@ -2081,7 +2081,7 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
   const Matrix3f& R = tf1.getRotation();
   const Vec3f& T = tf1.getTranslation();
 
-  Vec3f Q = R.transposeTimes(new_s2.n);
+  Vec3f Q = R.transpose() * new_s2.n;
 
   FCL_REAL term = std::abs(Q[2]) * s1.lz + s1.radius * std::sqrt(Q[0] * Q[0] + Q[1] * Q[1]);
   FCL_REAL dist = new_s2.distance(T);

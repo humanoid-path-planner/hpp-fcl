@@ -338,7 +338,8 @@ Quaternion3f inverse(const Quaternion3f& q)
 void Quaternion3f::fromEuler(FCL_REAL a, FCL_REAL b, FCL_REAL c)
 {
   Matrix3f R;
-  R.setEulerYPR(a, b, c);
+  // R.setEulerYPR(a, b, c);
+  setEulerYPR(R, a, b, c);
 
   fromRotation(R);
 }

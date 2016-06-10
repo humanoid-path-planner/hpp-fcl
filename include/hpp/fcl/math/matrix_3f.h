@@ -48,13 +48,14 @@ namespace fcl
 {
 
 #if FCL_HAVE_EIGEN
-  typedef Eigen::FclMatrix<FCL_REAL, 3> Matrix3f;
+  typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 #elif FCL_HAVE_SSE
   typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
 #else
   typedef Matrix3fX<details::Matrix3Data<FCL_REAL> > Matrix3f;
 #endif
 
+#if ! FCL_HAVE_EIGEN
 static inline std::ostream& operator << (std::ostream& o, const Matrix3f& m)
 {
   o << "[(" << m(0, 0) << " " << m(0, 1) << " " << m(0, 2) << ")("
@@ -62,6 +63,7 @@ static inline std::ostream& operator << (std::ostream& o, const Matrix3f& m)
     << m(2, 0) << " " << m(2, 1) << " " << m(2, 2) << ")]";
   return o;
 }
+#endif
 
 
 
@@ -73,7 +75,7 @@ public:
   Matrix3f Sigma;
 
   /// @brief Variations along the eign axes
-  Matrix3f::U sigma[3];
+  Matrix3f::Scalar sigma[3];
 
   /// @brief Eigen axes of the variation matrix
   Vec3f axis[3];

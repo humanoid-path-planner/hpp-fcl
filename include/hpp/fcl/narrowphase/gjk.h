@@ -130,6 +130,8 @@ struct GJK
     Vec3f d; 
     /// @brieg support vector (i.e., the furthest point on the shape along the support direction)
     Vec3f w;
+
+    SimplexV () : d(Vec3f::Zero()), w(Vec3f::Zero()) {}
   };
 
   struct Simplex
@@ -220,6 +222,8 @@ private:
     SimplexF* l[2]; // the pre and post faces in the list
     size_t e[3];
     size_t pass;
+
+    SimplexF () : n(Vec3f::Zero()) {};
   };
 
   struct SimplexList

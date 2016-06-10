@@ -222,13 +222,12 @@ public:
 
   Matrix3f computeMomentofInertia() const
   {
-    Matrix3f C(0, 0, 0,
-               0, 0, 0,
-               0, 0, 0);
+    Matrix3f C = Matrix3f::Zero();
 
-    Matrix3f C_canonical(1/60.0, 1/120.0, 1/120.0,
-                         1/120.0, 1/60.0, 1/120.0,
-                         1/120.0, 1/120.0, 1/60.0);
+    Matrix3f C_canonical;
+    C_canonical << 1/60.0, 1/120.0, 1/120.0,
+                   1/120.0, 1/60.0, 1/120.0,
+                   1/120.0, 1/120.0, 1/60.0;
 
     for(int i = 0; i < num_tris; ++i)
     {
@@ -236,15 +235,11 @@ public:
       const Vec3f& v1 = vertices[tri[0]];
       const Vec3f& v2 = vertices[tri[1]];
       const Vec3f& v3 = vertices[tri[2]];
-      Matrix3f A(v1, v2, v3);
+      Matrix3f A; A << v1.transpose(), v2.transpose(), v3.transpose();
       C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
     }
 
-    FCL_REAL trace_C = C(0, 0) + C(1, 1) + C(2, 2);
-
-    return Matrix3f(trace_C - C(0, 0), -C(0, 1), -C(0, 2),
-                    -C(1, 0), trace_C - C(1, 1), -C(1, 2),
-                    -C(2, 0), -C(2, 1), trace_C - C(2, 2));
+    return C.trace() * Matrix3f::Identity() - C;
   }
 
 public:

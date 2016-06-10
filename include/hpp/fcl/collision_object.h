@@ -134,15 +134,15 @@ public:
     Vec3f com = computeCOM();
     FCL_REAL V = computeVolume();
 
-    return Matrix3f(C(0, 0) - V * (com[1] * com[1] + com[2] * com[2]),
-                    C(0, 1) + V * com[0] * com[1],
-                    C(0, 2) + V * com[0] * com[2],
-                    C(1, 0) + V * com[1] * com[0],
-                    C(1, 1) - V * (com[0] * com[0] + com[2] * com[2]),
-                    C(1, 2) + V * com[1] * com[2],
-                    C(2, 0) + V * com[2] * com[0],
-                    C(2, 1) + V * com[2] * com[1],
-                    C(2, 2) - V * (com[0] * com[0] + com[1] * com[1]));
+    return (Matrix3f() << C(0, 0) - V * (com[1] * com[1] + com[2] * com[2]),
+                          C(0, 1) + V * com[0] * com[1],
+                          C(0, 2) + V * com[0] * com[2],
+                          C(1, 0) + V * com[1] * com[0],
+                          C(1, 1) - V * (com[0] * com[0] + com[2] * com[2]),
+                          C(1, 2) + V * com[1] * com[2],
+                          C(2, 0) + V * com[2] * com[0],
+                          C(2, 1) + V * com[2] * com[1],
+                          C(2, 2) - V * (com[0] * com[0] + com[1] * com[1])).finished();
   }
 
 };
@@ -207,7 +207,7 @@ public:
     else
     {
       Vec3f center = t.transform(cgeom->aabb_center);
-      Vec3f delta(cgeom->aabb_radius);
+      Vec3f delta(Vec3f::Constant(cgeom->aabb_radius));
       aabb.min_ = center - delta;
       aabb.max_ = center + delta;
     }

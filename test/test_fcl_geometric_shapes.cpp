@@ -179,7 +179,7 @@ void compareContact(const S1& s1, const Transform3f& tf1,
 {
   if (expected_point)
   {
-    bool contact_equal = contact.equal(*expected_point, tol);
+    bool contact_equal = isEqual(contact, *expected_point, tol);
     BOOST_CHECK(contact_equal);
     if (!contact_equal)
       printComparisonError("contact", s1, tf1, s2, tf2, solver_type, contact, *expected_point, false, tol);
@@ -195,10 +195,10 @@ void compareContact(const S1& s1, const Transform3f& tf1,
 
   if (expected_normal)
   {
-    bool normal_equal = normal.equal(*expected_normal, tol);
+    bool normal_equal = isEqual(normal, *expected_normal, tol);
 
     if (!normal_equal && check_opposite_normal)
-      normal_equal = normal.equal(-(*expected_normal), tol);
+      normal_equal = isEqual(normal, -(*expected_normal), tol);
 
     BOOST_CHECK(normal_equal);
     if (!normal_equal)
@@ -407,7 +407,7 @@ void testBoxBoxContactPoints(const Matrix3f& R)
   std::sort(vertices.begin(), vertices.end(), compareContactPoints);
 
   // The lowest vertex along z-axis should be the contact point
-  BOOST_CHECK(vertices[0].equal(point));
+  BOOST_CHECK(isEqual(vertices[0], point));
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
@@ -761,11 +761,11 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spheretriangle)
 
   res = solver1.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
   res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacetriangle)
@@ -802,11 +802,11 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacetriangle)
 
   res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_planetriangle)
@@ -843,11 +843,11 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planetriangle)
 
   res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
@@ -3126,11 +3126,11 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheretriangle)
 
   res = solver2.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
   res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_halfspacetriangle)
@@ -3167,11 +3167,11 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_halfspacetriangle)
 
   res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_planetriangle)
@@ -3208,11 +3208,11 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_planetriangle)
 
   res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
 
@@ -3451,8 +3451,8 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distan
 
   BOOST_CHECK(resA);
   BOOST_CHECK(resB);
-  BOOST_CHECK(contactA.equal(contactB, tol));  // contact point should be same
-  BOOST_CHECK(normalA.equal(-normalB, tol));  // normal should be opposite
+  BOOST_CHECK(isEqual(contactA, contactB, tol));  // contact point should be same
+  BOOST_CHECK(isEqual(normalA, -normalB, tol));  // normal should be opposite
   BOOST_CHECK_CLOSE(depthA, depthB, tol);  // penetration depth should be same
 
   resA = solver2.shapeIntersect(s1, tf1, s2, tf2, &contactA, &depthA, &normalA);
@@ -3460,8 +3460,8 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distan
 
   BOOST_CHECK(resA);
   BOOST_CHECK(resB);
-  BOOST_CHECK(contactA.equal(contactB, tol));
-  BOOST_CHECK(normalA.equal(-normalB, tol));
+  BOOST_CHECK(isEqual(contactA, contactB, tol));
+  BOOST_CHECK(isEqual(normalA, -normalB, tol));
   BOOST_CHECK_CLOSE(depthA, depthB, tol);
 }
 
@@ -3539,8 +3539,8 @@ void testReversibleShapeDistance(const S1& s1, const S2& s2, FCL_REAL distance)
   BOOST_CHECK(resA);
   BOOST_CHECK(resB);
   BOOST_CHECK_CLOSE(distA, distB, tol);  // distances should be same
-  BOOST_CHECK(p1A.equal(p2B, tol));  // closest points should in reverse order
-  BOOST_CHECK(p2A.equal(p1B, tol));
+  BOOST_CHECK(isEqual(p1A, p2B, tol));  // closest points should in reverse order
+  BOOST_CHECK(isEqual(p2A, p1B, tol));
 
   resA = solver2.shapeDistance(s1, tf1, s2, tf2, &distA, &p1A, &p2A);
   resB = solver2.shapeDistance(s2, tf2, s1, tf1, &distB, &p1B, &p2B);
@@ -3548,8 +3548,8 @@ void testReversibleShapeDistance(const S1& s1, const S2& s2, FCL_REAL distance)
   BOOST_CHECK(resA);
   BOOST_CHECK(resB);
   BOOST_CHECK_CLOSE(distA, distB, tol);
-  BOOST_CHECK(p1A.equal(p2B, tol));
-  BOOST_CHECK(p2A.equal(p1B, tol));
+  BOOST_CHECK(isEqual(p1A, p2B, tol));
+  BOOST_CHECK(isEqual(p2A, p1B, tol));
 }
 
 BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes)
