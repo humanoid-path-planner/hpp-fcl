@@ -411,7 +411,7 @@ void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  bv.To = T;
+  bv.To.noalias() = T;
   bv.axes.noalias() = R;
   bv.extent = s.side * (FCL_REAL)0.5;
 }
@@ -421,7 +421,7 @@ void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
 {
   const Vec3f& T = tf.getTranslation();
 
-  bv.To = T;
+  bv.To.noalias() = T;
   bv.axes.setIdentity();
   bv.extent.setConstant(s.radius);
 }
@@ -432,7 +432,7 @@ void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  bv.To = T;
+  bv.To.noalias() = T;
   bv.axes.noalias() = R;
   bv.extent << s.radius, s.radius, s.lz / 2 + s.radius;
 }
@@ -443,7 +443,7 @@ void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  bv.To = T;
+  bv.To.noalias() = T;
   bv.axes.noalias() = R;
   bv.extent << s.radius, s.radius, s.lz / 2;
 }
@@ -454,7 +454,7 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  bv.To = T;
+  bv.To.noalias() = T;
   bv.axes.noalias() = R;
   bv.extent << s.radius, s.radius, s.lz / 2;
 }
@@ -467,7 +467,7 @@ void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
 
   fit(s.points, s.num_points, bv);
 
-  bv.axes = R * bv.axes;
+  bv.axes.applyOnTheLeft(R);
 
   bv.To = R * bv.To + T;
 }

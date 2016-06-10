@@ -89,7 +89,7 @@ bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
   if (distance > 0)
     return false;
 
-  Vec3f normal = diff.normalized() * - FCL_REAL(1);
+  Vec3f normal (-diff.normalized());
 
   if (distance < 0 && penetration_depth)
     *penetration_depth = -distance;
@@ -799,8 +799,8 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   Vec3f pp (R1.transpose() * p); // get pp = p relative to body 1
 
   // get side lengths / 2
-  Vec3f A = side1 * 0.5;
-  Vec3f B = side2 * 0.5;
+  Vec3f A (side1 * 0.5);
+  Vec3f B (side2 * 0.5);
 
   // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
   Matrix3f R (R1.transpose() * R2);

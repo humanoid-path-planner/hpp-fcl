@@ -156,11 +156,10 @@ void fit2(Vec3f* ps, RSS& bv)
 {
   const Vec3f& p1 = ps[0];
   const Vec3f& p2 = ps[1];
-  Vec3f p1p2 = p1 - p2;
-  FCL_REAL len_p1p2 = p1p2.norm();
-  p1p2.normalize();
+  bv.axes.col(0).noalias() = p1 - p2;
+  FCL_REAL len_p1p2 = bv.axes.col(0).norm();
+  bv.axes.col(0) /= len_p1p2;
 
-  bv.axes.col(0) = p1p2;
   generateCoordinateSystem(bv.axes.col(0), bv.axes.col(1), bv.axes.col(2));
   bv.l[0] = len_p1p2;
   bv.l[1] = 0;
