@@ -124,9 +124,6 @@ void generateCoordinateSystem(
 
 /* ----- Start Matrices ------ */
 template<typename Derived, typename OtherDerived>
-void hat(const Eigen::MatrixBase<Derived>& mat, const Eigen::MatrixBase<OtherDerived>& vec) HPP_FCL_DEPRECATED;
-
-template<typename Derived, typename OtherDerived>
 void hat(const Eigen::MatrixBase<Derived>& mat, const Eigen::MatrixBase<OtherDerived>& vec)
 {
   EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Derived, 3, 3);

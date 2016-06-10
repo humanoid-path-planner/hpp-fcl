@@ -456,7 +456,7 @@ struct GJKSolver_indep
     shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
     shape.toshape0 = tf1.inverseTimes(tf2);
   
-    details::GJK gjk(gjk_max_iterations, gjk_tolerance);
+    details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
     if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
     
@@ -505,7 +505,7 @@ struct GJKSolver_indep
     shape.toshape1 = tf.getRotation();
     shape.toshape0 = inverse(tf);
   
-    details::GJK gjk(gjk_max_iterations, gjk_tolerance);
+    details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
     if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
 
@@ -554,7 +554,7 @@ struct GJKSolver_indep
     shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
     shape.toshape0 = tf1.inverseTimes(tf2);
   
-    details::GJK gjk(gjk_max_iterations, gjk_tolerance);
+    details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
     if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
 
@@ -601,7 +601,7 @@ struct GJKSolver_indep
     shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
     shape.toshape0 = tf1.inverseTimes(tf2);
 
-    details::GJK gjk(gjk_max_iterations, gjk_tolerance);
+    details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
     if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
 
@@ -653,7 +653,7 @@ struct GJKSolver_indep
     shape.toshape1 = tf.getRotation();
     shape.toshape0 = inverse(tf);
 
-    details::GJK gjk(gjk_max_iterations, gjk_tolerance);
+    details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
     if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
     
@@ -703,7 +703,7 @@ struct GJKSolver_indep
     shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
     shape.toshape0 = tf1.inverseTimes(tf2);
 
-    details::GJK gjk(gjk_max_iterations, gjk_tolerance);
+    details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
     if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
 
