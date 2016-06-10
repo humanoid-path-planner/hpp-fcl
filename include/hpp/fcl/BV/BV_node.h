@@ -105,23 +105,23 @@ struct BVNode : public BVNodeBase
   Vec3f getCenter() const { return bv.center(); }
 
   /// @brief Access the orientation of the BV
-  Matrix3f getOrientation() const { return Matrix3f::Identity(); }
+  const Matrix3f& getOrientation() const { return Matrix3f::Identity(); }
 };
 
 template<>
-inline Matrix3f BVNode<OBB>::getOrientation() const 
+inline const Matrix3f& BVNode<OBB>::getOrientation() const 
 {
   return bv.axes;
 }
 
 template<>
-inline Matrix3f BVNode<RSS>::getOrientation() const 
+inline const Matrix3f& BVNode<RSS>::getOrientation() const 
 {
   return bv.axes;
 }
 
 template<>
-inline Matrix3f BVNode<OBBRSS>::getOrientation() const 
+inline const Matrix3f& BVNode<OBBRSS>::getOrientation() const 
 {
   return bv.obb.axes;
 }
