@@ -183,7 +183,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2
 
   
   b2_temp.obb.To = R0 * b2_temp.obb.To + T0;
-  b2_temp.obb.axes = R0 * b2_temp.obb.axes;
+  b2_temp.obb.axes.applyOnTheLeft(R0);
 
   return b1.overlap(b2_temp);
 }

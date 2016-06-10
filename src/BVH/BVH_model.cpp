@@ -890,7 +890,8 @@ void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, 
   }
 
   // make self parent relative
-  obb.axes = parent_axes.transpose() * obb.axes;
+  // obb.axes = parent_axes.transpose() * obb.axes;
+  obb.axes.applyOnTheLeft(parent_axes.transpose());
 
   Vec3f t (obb.To - parent_c);
   obb.To.noalias() = parent_axes.transpose() * t;
@@ -908,7 +909,8 @@ void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, 
   }
 
   // make self parent relative
-  rss.axes = parent_axes.transpose() * rss.axes;
+  // rss.axes = parent_axes.transpose() * rss.axes;
+  rss.axes.applyOnTheLeft(parent_axes.transpose());
 
   Vec3f t (rss.Tr - parent_c);
   rss.Tr.noalias() = parent_axes.transpose() * t;

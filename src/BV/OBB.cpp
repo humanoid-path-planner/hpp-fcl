@@ -562,7 +562,7 @@ bool OBB::overlap(const OBB& other) const
 
 bool OBB::contain(const Vec3f& p) const
 {
-  Vec3f local_p = p - To;
+  Vec3f local_p (p - To);
   FCL_REAL proj = local_p.dot(axes.col(0));
   if((proj > extent[0]) || (proj < -extent[0]))
     return false;
@@ -581,7 +581,7 @@ bool OBB::contain(const Vec3f& p) const
 OBB& OBB::operator += (const Vec3f& p)
 {
   OBB bvp;
-  bvp.To.noalias() = p;
+  bvp.To = p;
   bvp.axes.noalias() = axes;
   bvp.extent.setZero();
 
