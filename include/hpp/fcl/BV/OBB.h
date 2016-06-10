@@ -51,7 +51,7 @@ class OBB
 public:
   /// @brief Orientation of OBB. axis[i] is the ith column of the orientation matrix for the box; it is also the i-th principle direction of the box. 
   /// We assume that axis[0] corresponds to the axis with the longest box edge, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
-  Vec3f axis[3];
+  Matrix3f axes;
 
   /// @brief Center of OBB
   Vec3f To;

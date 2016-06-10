@@ -220,8 +220,8 @@ BOOST_AUTO_TEST_CASE(OBB_AABB_test)
     {
       std::cout << aabb1.min_ << " " << aabb1.max_ << std::endl;
       std::cout << aabb2.min_ << " " << aabb2.max_ << std::endl;
-      std::cout << obb1.To << " " << obb1.extent << " " << obb1.axis[0] << " " << obb1.axis[1] << " " << obb1.axis[2] << std::endl;
-      std::cout << obb2.To << " " << obb2.extent << " " << obb2.axis[0] << " " << obb2.axis[1] << " " << obb2.axis[2] << std::endl;
+      std::cout << obb1.To << " " << obb1.extent << " " << obb1.axes << std::endl;
+      std::cout << obb2.To << " " << obb2.extent << " " << obb2.axes << std::endl;
     }
 
     BOOST_CHECK(overlap_aabb == overlap_obb);

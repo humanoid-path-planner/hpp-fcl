@@ -48,9 +48,9 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const SplineMotion& motion) const
   FCL_REAL tf_t = motion.getCurrentTime();
 
   Vec3f c1 = bv.Tr;
-  Vec3f c2 = bv.Tr + bv.axis[0] * bv.l[0];
-  Vec3f c3 = bv.Tr + bv.axis[1] * bv.l[1];
-  Vec3f c4 = bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1];
+  Vec3f c2 = bv.Tr + bv.axes.col(0) * bv.l[0];
+  Vec3f c3 = bv.Tr + bv.axes.col(1) * bv.l[1];
+  Vec3f c4 = bv.Tr + bv.axes.col(0) * bv.l[0] + bv.axes.col(1) * bv.l[1];
 
   FCL_REAL tmp;
   // max_i |c_i * n|
@@ -327,11 +327,11 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const ScrewMotion& motion) const
     
   FCL_REAL c_proj_max = ((tf.getQuatRotation().transform(bv.Tr)).cross(axis)).squaredNorm();
   FCL_REAL tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0])).cross(axis)).squaredNorm();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axes.col(0) * bv.l[0])).cross(axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1])).cross(axis)).squaredNorm();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axes.col(1) * bv.l[1])).cross(axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1])).cross(axis)).squaredNorm();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axes.col(0) * bv.l[0] + bv.axes.col(1) * bv.l[1])).cross(axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
 
   c_proj_max = sqrt(c_proj_max);
@@ -392,11 +392,11 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const InterpMotion& motion) const
   
   FCL_REAL c_proj_max = ((tf.getQuatRotation().transform(bv.Tr - reference_p)).cross(angular_axis)).squaredNorm();
   FCL_REAL tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] - reference_p)).cross(angular_axis)).squaredNorm();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axes.col(0) * bv.l[0] - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axes.col(1) * bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axes.col(0) * bv.l[0] + bv.axes.col(1) * bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
 
   c_proj_max = std::sqrt(c_proj_max);

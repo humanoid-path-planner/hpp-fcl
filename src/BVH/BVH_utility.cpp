@@ -192,7 +192,7 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, i
 /** \brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin.
  * The bounding volume axes are known.
  */
-void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& origin, FCL_REAL l[2], FCL_REAL& r)
+void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Matrix3f& axes, Vec3f& origin, FCL_REAL l[2], FCL_REAL& r)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
@@ -215,9 +215,9 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
         int point_id = t[j];
         const Vec3f& p = ps[point_id];
         Vec3f v(p[0], p[1], p[2]);
-        P[P_id][0] = axis[0].dot(v);
-        P[P_id][1] = axis[1].dot(v);
-        P[P_id][2] = axis[2].dot(v);
+        P[P_id][0] = axes.col(0).dot(v);
+        P[P_id][1] = axes.col(1).dot(v);
+        P[P_id][2] = axes.col(2).dot(v);
         P_id++;
       }
 
@@ -227,10 +227,11 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
         {
           int point_id = t[j];
           const Vec3f& p = ps2[point_id];
+          // FIXME Is this right ?????
           Vec3f v(p[0], p[1], p[2]);
-          P[P_id][0] = axis[0].dot(v);
-          P[P_id][1] = axis[0].dot(v);
-          P[P_id][2] = axis[1].dot(v);
+          P[P_id][0] = axes.col(0).dot(v);
+          P[P_id][1] = axes.col(0).dot(v);
+          P[P_id][2] = axes.col(1).dot(v);
           P_id++;
         }
       }
@@ -244,17 +245,17 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 
       const Vec3f& p = ps[index];
       Vec3f v(p[0], p[1], p[2]);
-      P[P_id][0] = axis[0].dot(v);
-      P[P_id][1] = axis[1].dot(v);
-      P[P_id][2] = axis[2].dot(v);
+      P[P_id][0] = axes.col(0).dot(v);
+      P[P_id][1] = axes.col(1).dot(v);
+      P[P_id][2] = axes.col(2).dot(v);
       P_id++;
 
       if(ps2)
       {
         const Vec3f& v = ps2[index];
-        P[P_id][0] = axis[0].dot(v);
-        P[P_id][1] = axis[1].dot(v);
-        P[P_id][2] = axis[2].dot(v);
+        P[P_id][0] = axes.col(0).dot(v);
+        P[P_id][1] = axes.col(1).dot(v);
+        P[P_id][2] = axes.col(2).dot(v);
         P_id++;
       }
     }
@@ -457,7 +458,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
     }
   }
 
-  origin = axis[0] * minx + axis[1] * miny + axis[2] * cz;
+  origin.noalias() = axes * Vec3f(minx, miny, cz);
 
   l[0] = maxx - minx;
   if(l[0] < 0) l[0] = 0;
@@ -472,7 +473,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 /** \brief Compute the bounding volume extent and center for a set or subset of points.
  * The bounding volume axes are known.
  */
-static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent)
+static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f& axes, Vec3f& center, Vec3f& extent)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
@@ -488,10 +489,7 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
 
     const Vec3f& p = ps[index];
     Vec3f v(p[0], p[1], p[2]);
-    FCL_REAL proj[3];
-    proj[0] = axis[0].dot(v);
-    proj[1] = axis[1].dot(v);
-    proj[2] = axis[2].dot(v);
+    Vec3f proj (axes.transpose() * v);
 
     for(int j = 0; j < 3; ++j)
     {
@@ -502,9 +500,7 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
     if(ps2)
     {
       const Vec3f& v = ps2[index];
-      proj[0] = axis[0].dot(v);
-      proj[1] = axis[1].dot(v);
-      proj[2] = axis[2].dot(v);
+      proj.noalias() = axes.transpose() * v;
 
       for(int j = 0; j < 3; ++j)
       {
@@ -518,7 +514,7 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
           (max_coord[1] + min_coord[1]) / 2,
           (max_coord[2] + min_coord[2]) / 2);
 
-  center = axis[0] * o[0] + axis[1] * o[1] + axis[2] * o[2];
+  center.noalias() = axes * o;
 
   extent << (max_coord[0] - min_coord[0]) / 2,
             (max_coord[1] - min_coord[1]) / 2,
@@ -530,7 +526,7 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
 /** \brief Compute the bounding volume extent and center for a set or subset of points.
  * The bounding volume axes are known.
  */
-static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent)
+static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& axes, Vec3f& center, Vec3f& extent)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
@@ -550,10 +546,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
       int point_id = t[j];
       const Vec3f& p = ps[point_id];
       Vec3f v(p[0], p[1], p[2]);
-      FCL_REAL proj[3];
-      proj[0] = axis[0].dot(v);
-      proj[1] = axis[1].dot(v);
-      proj[2] = axis[2].dot(v);
+      Vec3f proj (axes.transpose() * v);
 
       for(int k = 0; k < 3; ++k)
       {
@@ -569,10 +562,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
         int point_id = t[j];
         const Vec3f& p = ps2[point_id];
         Vec3f v(p[0], p[1], p[2]);
-        FCL_REAL proj[3];
-        proj[0] = axis[0].dot(v);
-        proj[1] = axis[1].dot(v);
-        proj[2] = axis[2].dot(v);
+        Vec3f proj (axes.transpose() * v);
 
         for(int k = 0; k < 3; ++k)
         {
@@ -587,7 +577,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
           (max_coord[1] + min_coord[1]) / 2,
           (max_coord[2] + min_coord[2]) / 2);
 
-  center = axis[0] * o[0] + axis[1] * o[1] + axis[2] * o[2];
+  center.noalias() = axes * o;
 
   extent << (max_coord[0] - min_coord[0]) / 2,
             (max_coord[1] - min_coord[1]) / 2,
@@ -595,12 +585,12 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
 
 }
 
-void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent)
+void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& axes, Vec3f& center, Vec3f& extent)
 {
   if(ts)
-    getExtentAndCenter_mesh(ps, ps2, ts, indices, n, axis, center, extent);
+    getExtentAndCenter_mesh(ps, ps2, ts, indices, n, axes, center, extent);
   else
-    getExtentAndCenter_pointcloud(ps, ps2, indices, n, axis, center, extent);
+    getExtentAndCenter_pointcloud(ps, ps2, indices, n, axes, center, extent);
 }
 
 void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec3f& center, FCL_REAL& radius)

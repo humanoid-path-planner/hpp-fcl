@@ -860,15 +860,15 @@ namespace details
 {
 
 template<typename BV>
-const Vec3f& getBVAxis(const BV& bv, int i)
+inline const Matrix3f& getBVAxes(const BV& bv)
 {
-  return bv.axis[i];
+  return bv.axes;
 }
 
 template<>
-inline const Vec3f& getBVAxis<OBBRSS>(const OBBRSS& bv, int i)
+inline const Matrix3f& getBVAxes<OBBRSS>(const OBBRSS& bv)
 {
-  return bv.obb.axis[i];
+  return bv.obb.axes;
 }
 
 
@@ -906,10 +906,7 @@ bool meshConservativeAdvancementTraversalNodeCanStop(FCL_REAL c,
 
     assert(c == d);
 
-    Vec3f n_transformed =
-      getBVAxis(model1->getBV(c1).bv, 0) * n[0] +
-      getBVAxis(model1->getBV(c1).bv, 1) * n[1] +
-      getBVAxis(model1->getBV(c1).bv, 2) * n[2];
+    Vec3f n_transformed (getBVAxes(model1->getBV(c1).bv) * n);
 
     TBVMotionBoundVisitor<BV> mb_visitor1(model1->getBV(c1).bv, n_transformed), mb_visitor2(model2->getBV(c2).bv, n_transformed);
     FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);

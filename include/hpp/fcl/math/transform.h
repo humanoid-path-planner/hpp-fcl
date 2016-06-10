@@ -85,10 +85,10 @@ public:
   void toEuler(FCL_REAL& a, FCL_REAL& b, FCL_REAL& c) const;
 
   /// @brief Axes to quaternion
-  void fromAxes(const Vec3f axis[3]);
+  void fromAxes(const Matrix3f& axes);
 
   /// @brief Axes to matrix
-  void toAxes(Vec3f axis[3]) const;
+  void toAxes(Matrix3f& axis) const;
 
   /// @brief Axis and angle to quaternion
   void fromAxisAngle(const Vec3f& axis, FCL_REAL angle);

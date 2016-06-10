@@ -879,69 +879,60 @@ void BVHModel<BV>::computeLocalAABB()
 
 
 template<>
-void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c)
+void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c)
 {
   OBB& obb = bvs[bv_id].bv;
   if(!bvs[bv_id].isLeaf())
   {
-    makeParentRelativeRecurse(bvs[bv_id].first_child, obb.axis, obb.To);
+    makeParentRelativeRecurse(bvs[bv_id].first_child, obb.axes, obb.To);
 
-    makeParentRelativeRecurse(bvs[bv_id].first_child + 1, obb.axis, obb.To);
+    makeParentRelativeRecurse(bvs[bv_id].first_child + 1, obb.axes, obb.To);
   }
 
   // make self parent relative
-  obb.axis[0] = Vec3f(parent_axis[0].dot(obb.axis[0]), parent_axis[1].dot(obb.axis[0]), parent_axis[2].dot(obb.axis[0]));
-  obb.axis[1] = Vec3f(parent_axis[0].dot(obb.axis[1]), parent_axis[1].dot(obb.axis[1]), parent_axis[2].dot(obb.axis[1]));
-  obb.axis[2] = Vec3f(parent_axis[0].dot(obb.axis[2]), parent_axis[1].dot(obb.axis[2]), parent_axis[2].dot(obb.axis[2]));
+  obb.axes = parent_axes.transpose() * obb.axes;
 
-  Vec3f t = obb.To - parent_c;
-  obb.To = Vec3f(parent_axis[0].dot(t), parent_axis[1].dot(t), parent_axis[2].dot(t));
+  Vec3f t (obb.To - parent_c);
+  obb.To.noalias() = parent_axes.transpose() * t;
 }
 
 template<>
-void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c)
+void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c)
 {
   RSS& rss = bvs[bv_id].bv;
   if(!bvs[bv_id].isLeaf())
   {
-    makeParentRelativeRecurse(bvs[bv_id].first_child, rss.axis, rss.Tr);
+    makeParentRelativeRecurse(bvs[bv_id].first_child, rss.axes, rss.Tr);
 
-    makeParentRelativeRecurse(bvs[bv_id].first_child + 1, rss.axis, rss.Tr);
+    makeParentRelativeRecurse(bvs[bv_id].first_child + 1, rss.axes, rss.Tr);
   }
 
   // make self parent relative
-  rss.axis[0] = Vec3f(parent_axis[0].dot(rss.axis[0]), parent_axis[1].dot(rss.axis[0]), parent_axis[2].dot(rss.axis[0]));
-  rss.axis[1] = Vec3f(parent_axis[0].dot(rss.axis[1]), parent_axis[1].dot(rss.axis[1]), parent_axis[2].dot(rss.axis[1]));
-  rss.axis[2] = Vec3f(parent_axis[0].dot(rss.axis[2]), parent_axis[1].dot(rss.axis[2]), parent_axis[2].dot(rss.axis[2]));
+  rss.axes = parent_axes.transpose() * rss.axes;
 
-  Vec3f t = rss.Tr - parent_c;
-  rss.Tr = Vec3f(parent_axis[0].dot(t), parent_axis[1].dot(t), parent_axis[2].dot(t));
+  Vec3f t (rss.Tr - parent_c);
+  rss.Tr.noalias() = parent_axes.transpose() * t;
 }
 
 template<>
-void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c)
+void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c)
 {
   OBB& obb = bvs[bv_id].bv.obb;
   RSS& rss = bvs[bv_id].bv.rss;
   if(!bvs[bv_id].isLeaf())
   {
-    makeParentRelativeRecurse(bvs[bv_id].first_child, obb.axis, obb.To);
+    makeParentRelativeRecurse(bvs[bv_id].first_child, obb.axes, obb.To);
 
-    makeParentRelativeRecurse(bvs[bv_id].first_child + 1, obb.axis, obb.To);
+    makeParentRelativeRecurse(bvs[bv_id].first_child + 1, obb.axes, obb.To);
   }
 
   // make self parent relative
-  obb.axis[0] = Vec3f(parent_axis[0].dot(obb.axis[0]), parent_axis[1].dot(obb.axis[0]), parent_axis[2].dot(obb.axis[0]));
-  obb.axis[1] = Vec3f(parent_axis[0].dot(obb.axis[1]), parent_axis[1].dot(obb.axis[1]), parent_axis[2].dot(obb.axis[1]));
-  obb.axis[2] = Vec3f(parent_axis[0].dot(obb.axis[2]), parent_axis[1].dot(obb.axis[2]), parent_axis[2].dot(obb.axis[2]));
+  rss.axes.noalias() = parent_axes.transpose() * obb.axes;
+  obb.axes.noalias() = rss.axes;
 
-  rss.axis[0] = obb.axis[0];
-  rss.axis[1] = obb.axis[1];
-  rss.axis[2] = obb.axis[2];
-
-  Vec3f t = obb.To - parent_c;
-  obb.To = Vec3f(parent_axis[0].dot(t), parent_axis[1].dot(t), parent_axis[2].dot(t));
-  rss.Tr = obb.To;
+  Vec3f t (obb.To - parent_c);
+  obb.To.noalias() = parent_axes.transpose() *t;
+  rss.Tr.noalias() = obb.To;
 }
 
 

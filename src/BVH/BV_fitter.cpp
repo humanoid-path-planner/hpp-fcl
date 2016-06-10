@@ -49,7 +49,7 @@ static const double invCosA = 2.0 / sqrt(3.0);
 static const double sinA = 0.5;
 static const double cosA = sqrt(3.0) / 2.0;
 
-static inline void axisFromEigen(Vec3f eigenV[3], Matrix3f::Scalar eigenS[3], Vec3f axis[3])
+static inline void axisFromEigen(Vec3f eigenV[3], Matrix3f::Scalar eigenS[3], Matrix3f& axes)
 {
   int min, mid, max;
   if(eigenS[0] > eigenS[1]) { max = 0; min = 1; }
@@ -58,11 +58,11 @@ static inline void axisFromEigen(Vec3f eigenV[3], Matrix3f::Scalar eigenS[3], Ve
   else if(eigenS[2] > eigenS[max]) { mid = max; max = 2; }
   else { mid = 2; }
 
-  axis[0] << eigenV[0][max], eigenV[1][max], eigenV[2][max];
-  axis[1] << eigenV[0][mid], eigenV[1][mid], eigenV[2][mid];
-  axis[2] << eigenV[1][max]*eigenV[2][mid] - eigenV[1][mid]*eigenV[2][max],
-             eigenV[0][mid]*eigenV[2][max] - eigenV[0][max]*eigenV[2][mid],
-             eigenV[0][max]*eigenV[1][mid] - eigenV[0][mid]*eigenV[1][max];
+  axes.col(0) << eigenV[0][max], eigenV[1][max], eigenV[2][max];
+  axes.col(1) << eigenV[0][mid], eigenV[1][mid], eigenV[2][mid];
+  axes.col(2) << eigenV[1][max]*eigenV[2][mid] - eigenV[1][mid]*eigenV[2][max],
+                 eigenV[0][mid]*eigenV[2][max] - eigenV[0][max]*eigenV[2][mid],
+                 eigenV[0][max]*eigenV[1][mid] - eigenV[0][mid]*eigenV[1][max];
 }
 
 namespace OBB_fit_functions
@@ -70,10 +70,8 @@ namespace OBB_fit_functions
 
 void fit1(Vec3f* ps, OBB& bv)
 {
-  bv.To = ps[0];
-  bv.axis[0] << 1, 0, 0;
-  bv.axis[1] << 0, 1, 0;
-  bv.axis[2] << 0, 0, 1;
+  bv.To.noalias() = ps[0];
+  bv.axes.setIdentity();
   bv.extent.setZero();
 }
 
@@ -85,13 +83,11 @@ void fit2(Vec3f* ps, OBB& bv)
   FCL_REAL len_p1p2 = p1p2.norm();
   p1p2.normalize();
 
-  bv.axis[0] = p1p2;
-  generateCoordinateSystem(bv.axis[0], bv.axis[1], bv.axis[2]);
+  bv.axes.col(0).noalias() = p1p2;
+  generateCoordinateSystem(bv.axes.col(0), bv.axes.col(1), bv.axes.col(2));
 
   bv.extent << len_p1p2 * 0.5, 0, 0;
-  bv.To << 0.5 * (p1[0] + p2[0]),
-           0.5 * (p1[1] + p2[1]),
-           0.5 * (p1[2] + p2[2]);
+  bv.To.noalias() = (p1 + p2) / 2;
 }
 
 void fit3(Vec3f* ps, OBB& bv)
@@ -112,17 +108,11 @@ void fit3(Vec3f* ps, OBB& bv)
   if(len[1] > len[0]) imax = 1;
   if(len[2] > len[imax]) imax = 2;
 
-  Vec3f& u = bv.axis[0];
-  Vec3f& v = bv.axis[1];
-  Vec3f& w = bv.axis[2];
+  bv.axes.col(2).noalias() = e[0].cross(e[1]).normalized();
+  bv.axes.col(0).noalias() = e[imax].normalized();
+  bv.axes.col(1).noalias() = bv.axes.col(2).cross(bv.axes.col(0));
 
-  w = e[0].cross(e[1]);
-  w.normalize();
-  u = e[imax];
-  u.normalize();
-  v = w.cross(u);
-
-  getExtentAndCenter(ps, NULL, NULL, NULL, 3, bv.axis, bv.To, bv.extent);
+  getExtentAndCenter(ps, NULL, NULL, NULL, 3, bv.axes, bv.To, bv.extent);
 }
 
 void fit6(Vec3f* ps, OBB& bv)
@@ -142,10 +132,10 @@ void fitn(Vec3f* ps, int n, OBB& bv)
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
-  axisFromEigen(E, s, bv.axis);
+  axisFromEigen(E, s, bv.axes);
 
   // set obb centers and extensions
-  getExtentAndCenter(ps, NULL, NULL, NULL, n, bv.axis, bv.To, bv.extent);
+  getExtentAndCenter(ps, NULL, NULL, NULL, n, bv.axes, bv.To, bv.extent);
 }
 
 }
@@ -155,10 +145,8 @@ namespace RSS_fit_functions
 {
 void fit1(Vec3f* ps, RSS& bv)
 {
-  bv.Tr = ps[0];
-  bv.axis[0] << 1, 0, 0;
-  bv.axis[1] << 0, 1, 0;
-  bv.axis[2] << 0, 0, 1;
+  bv.Tr.noalias() = ps[0];
+  bv.axes.setIdentity();
   bv.l[0] = 0;
   bv.l[1] = 0;
   bv.r = 0;
@@ -172,8 +160,8 @@ void fit2(Vec3f* ps, RSS& bv)
   FCL_REAL len_p1p2 = p1p2.norm();
   p1p2.normalize();
 
-  bv.axis[0] = p1p2;
-  generateCoordinateSystem(bv.axis[0], bv.axis[1], bv.axis[2]);
+  bv.axes.col(0) = p1p2;
+  generateCoordinateSystem(bv.axes.col(0), bv.axes.col(1), bv.axes.col(2));
   bv.l[0] = len_p1p2;
   bv.l[1] = 0;
 
@@ -199,17 +187,11 @@ void fit3(Vec3f* ps, RSS& bv)
   if(len[1] > len[0]) imax = 1;
   if(len[2] > len[imax]) imax = 2;
 
-  Vec3f& u = bv.axis[0];
-  Vec3f& v = bv.axis[1];
-  Vec3f& w = bv.axis[2];
+  bv.axes.col(2).noalias() = e[0].cross(e[1]).normalized();
+  bv.axes.col(0).noalias() = e[imax].normalized();
+  bv.axes.col(1).noalias() = bv.axes.col(2).cross(bv.axes.col(0));
 
-  w = e[0].cross(e[1]);
-  w.normalize();
-  u = e[imax];
-  u.normalize();
-  v = w.cross(u);
-
-  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, 3, bv.axis, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, 3, bv.axes, bv.Tr, bv.l, bv.r);
 }
 
 void fit6(Vec3f* ps, RSS& bv)
@@ -228,10 +210,10 @@ void fitn(Vec3f* ps, int n, RSS& bv)
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
-  axisFromEigen(E, s, bv.axis);
+  axisFromEigen(E, s, bv.axes);
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, n, bv.axis, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, n, bv.axes, bv.Tr, bv.l, bv.r);
 }
 
 }
@@ -242,14 +224,12 @@ namespace kIOS_fit_functions
 void fit1(Vec3f* ps, kIOS& bv)
 {
   bv.num_spheres = 1;
-  bv.spheres[0].o = ps[0];
+  bv.spheres[0].o.noalias() = ps[0];
   bv.spheres[0].r = 0;
 
-  bv.obb.axis[0] << 1, 0, 0;
-  bv.obb.axis[1] << 0, 1, 0;
-  bv.obb.axis[2] << 0, 0, 1;
+  bv.obb.axes.setIdentity();
   bv.obb.extent.setZero();
-  bv.obb.To = ps[0];
+  bv.obb.To.noalias() = ps[0];
 }
 
 void fit2(Vec3f* ps, kIOS& bv)
@@ -262,9 +242,9 @@ void fit2(Vec3f* ps, kIOS& bv)
   FCL_REAL len_p1p2 = p1p2.norm();
   p1p2.normalize();
  
-  Vec3f* axis = bv.obb.axis;
-  axis[0] = p1p2;
-  generateCoordinateSystem(axis[0], axis[1], axis[2]);
+  Matrix3f& axes = bv.obb.axes;
+  axes.col(0).noalias() = p1p2;
+  generateCoordinateSystem(axes.col(0), axes.col(1), axes.col(2));
     
   FCL_REAL r0 = len_p1p2 * 0.5;
   bv.obb.extent << r0, 0, 0;
@@ -277,13 +257,13 @@ void fit2(Vec3f* ps, kIOS& bv)
   FCL_REAL r1cosA = r1 * cosA;
   bv.spheres[1].r = r1;
   bv.spheres[2].r = r1;
-  Vec3f delta = axis[1] * r1cosA;
+  Vec3f delta = axes.col(1) * r1cosA;
   bv.spheres[1].o = bv.spheres[0].o - delta;
   bv.spheres[2].o = bv.spheres[0].o + delta;
 
   bv.spheres[3].r = r1;
   bv.spheres[4].r = r1;
-  delta = axis[2] * r1cosA;
+  delta = axes.col(2) * r1cosA;
   bv.spheres[3].o = bv.spheres[0].o - delta;
   bv.spheres[4].o = bv.spheres[0].o + delta;
 }
@@ -308,17 +288,11 @@ void fit3(Vec3f* ps, kIOS& bv)
   if(len[1] > len[0]) imax = 1;
   if(len[2] > len[imax]) imax = 2;
     
-  Vec3f& u = bv.obb.axis[0];
-  Vec3f& v = bv.obb.axis[1];
-  Vec3f& w = bv.obb.axis[2];
-    
-  w = e[0].cross(e[1]);
-  w.normalize();
-  u = e[imax];
-  u.normalize();
-  v = w.cross(u);
+  bv.obb.axes.col(2).noalias() = e[0].cross(e[1]).normalized();
+  bv.obb.axes.col(0).noalias() = e[imax].normalized();
+  bv.obb.axes.col(1).noalias() = bv.obb.axes.col(2).cross(bv.obb.axes.col(0));
 
-  getExtentAndCenter(ps, NULL, NULL, NULL, 3, bv.obb.axis, bv.obb.To, bv.obb.extent);
+  getExtentAndCenter(ps, NULL, NULL, NULL, 3, bv.obb.axes, bv.obb.To, bv.obb.extent);
 
   // compute radius and center
   FCL_REAL r0;
@@ -329,7 +303,7 @@ void fit3(Vec3f* ps, kIOS& bv)
   bv.spheres[0].r = r0;
 
   FCL_REAL r1 = r0 * invSinA;
-  Vec3f delta = bv.obb.axis[2] * (r1 * cosA);
+  Vec3f delta = bv.obb.axes.col(2) * (r1 * cosA);
   
   bv.spheres[1].r = r1;
   bv.spheres[1].o = center - delta;
@@ -346,10 +320,10 @@ void fitn(Vec3f* ps, int n, kIOS& bv)
   getCovariance(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
   
-  Vec3f* axis = bv.obb.axis;
-  axisFromEigen(E, s, axis);
+  Matrix3f& axes = bv.obb.axes;
+  axisFromEigen(E, s, axes);
 
-  getExtentAndCenter(ps, NULL, NULL, NULL, n, axis, bv.obb.To, bv.obb.extent);
+  getExtentAndCenter(ps, NULL, NULL, NULL, n, axes, bv.obb.To, bv.obb.extent);
 
   // get center and extension
   const Vec3f& center = bv.obb.To;
@@ -371,15 +345,15 @@ void fitn(Vec3f* ps, int n, kIOS& bv)
   if(bv.num_spheres >= 3)
   {
     FCL_REAL r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * invSinA;
-    Vec3f delta = axis[2] * (r10 * cosA - extent[2]);
+    Vec3f delta = axes.col(2) * (r10 * cosA - extent[2]);
     bv.spheres[1].o = center - delta;
     bv.spheres[2].o = center + delta;
    
     FCL_REAL r11 = 0, r12 = 0;
     r11 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[1].o);
     r12 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[2].o);
-    bv.spheres[1].o += axis[2] * (-r10 + r11);
-    bv.spheres[2].o += axis[2] * (r10 - r12);
+    bv.spheres[1].o += axes.col(2) * (-r10 + r11);
+    bv.spheres[2].o += axes.col(2) * (r10 - r12);
 
     bv.spheres[1].r = r10;
     bv.spheres[2].r = r10;
@@ -388,7 +362,7 @@ void fitn(Vec3f* ps, int n, kIOS& bv)
   if(bv.num_spheres >= 5)
   {
     FCL_REAL r10 = bv.spheres[1].r;
-    Vec3f delta = axis[1] * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
+    Vec3f delta = axes.col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
     bv.spheres[3].o = bv.spheres[0].o - delta;
     bv.spheres[4].o = bv.spheres[0].o + delta;
     
@@ -396,8 +370,8 @@ void fitn(Vec3f* ps, int n, kIOS& bv)
     r21 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[3].o);
     r22 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[4].o);
 
-    bv.spheres[3].o += axis[1] * (-r10 + r21);
-    bv.spheres[4].o += axis[1] * (r10 - r22);
+    bv.spheres[3].o += axes.col(1) * (-r10 + r21);
+    bv.spheres[4].o += axes.col(1) * (r10 - r22);
     
     bv.spheres[3].r = r10;
     bv.spheres[4].r = r10;
@@ -528,10 +502,10 @@ OBB BVFitter<OBB>::fit(unsigned int* primitive_indices, int num_primitives)
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   eigen(M, s, E);
 
-  axisFromEigen(E, s, bv.axis);
+  axisFromEigen(E, s, bv.axes);
 
   // set obb centers and extensions
-  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.axis, bv.To, bv.extent);
+  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.axes, bv.To, bv.extent);
 
   return bv;
 }
@@ -546,17 +520,15 @@ OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices, int num_primitives
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   eigen(M, s, E);
 
-  axisFromEigen(E, s, bv.obb.axis);
-  bv.rss.axis[0] = bv.obb.axis[0];
-  bv.rss.axis[1] = bv.obb.axis[1];
-  bv.rss.axis[2] = bv.obb.axis[2];
+  axisFromEigen(E, s, bv.obb.axes);
+  bv.rss.axes.noalias() = bv.obb.axes;
 
-  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.obb.axis, bv.obb.To, bv.obb.extent);
+  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.obb.axes, bv.obb.To, bv.obb.extent);
 
   Vec3f origin;
   FCL_REAL l[2];
   FCL_REAL r;
-  getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.rss.axis, origin, l, r);
+  getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.rss.axes, origin, l, r);
 
   bv.rss.Tr = origin;
   bv.rss.l[0] = l[0];
@@ -575,14 +547,14 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
   Matrix3f::Scalar s[3]; // three eigen values
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   eigen(M, s, E);
-  axisFromEigen(E, s, bv.axis);
+  axisFromEigen(E, s, bv.axes);
 
   // set rss origin, rectangle size and radius
 
   Vec3f origin;
   FCL_REAL l[2];
   FCL_REAL r;
-  getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.axis, origin, l, r);
+  getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.axes, origin, l, r);
 
   bv.Tr = origin;
   bv.l[0] = l[0];
@@ -605,11 +577,11 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   eigen(M, s, E);
 
-  Vec3f* axis = bv.obb.axis;
-  axisFromEigen(E, s, axis);
+  Matrix3f& axes = bv.obb.axes;
+  axisFromEigen(E, s, axes);
 
   // get centers and extensions
-  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, axis, bv.obb.To, bv.obb.extent);
+  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, axes, bv.obb.To, bv.obb.extent);
 
   const Vec3f& center = bv.obb.To;
   const Vec3f& extent = bv.obb.extent;
@@ -629,15 +601,15 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
   if(bv.num_spheres >= 3)
   {
     FCL_REAL r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * invSinA;
-    Vec3f delta = axis[2] * (r10 * cosA - extent[2]);
+    Vec3f delta = axes.col(2) * (r10 * cosA - extent[2]);
     bv.spheres[1].o = center - delta;
     bv.spheres[2].o = center + delta;
 
     FCL_REAL r11 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[1].o);
     FCL_REAL r12 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[2].o);
 
-    bv.spheres[1].o += axis[2] * (-r10 + r11);
-    bv.spheres[2].o += axis[2] * (r10 - r12);
+    bv.spheres[1].o += axes.col(2) * (-r10 + r11);
+    bv.spheres[2].o += axes.col(2) * (r10 - r12);
 
     bv.spheres[1].r = r10;
     bv.spheres[2].r = r10;
@@ -646,7 +618,7 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
   if(bv.num_spheres >= 5)
   {
     FCL_REAL r10 = bv.spheres[1].r;
-    Vec3f delta = axis[1] * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
+    Vec3f delta = axes.col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
     bv.spheres[3].o = bv.spheres[0].o - delta;
     bv.spheres[4].o = bv.spheres[0].o + delta;
     
@@ -654,8 +626,8 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
     r21 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[3].o);
     r22 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[4].o);
 
-    bv.spheres[3].o += axis[1] * (-r10 + r21);
-    bv.spheres[4].o += axis[1] * (r10 - r22);
+    bv.spheres[3].o += axes.col(1) * (-r10 + r21);
+    bv.spheres[4].o += axes.col(1) * (r10 - r22);
     
     bv.spheres[3].r = r10;
     bv.spheres[4].r = r10;

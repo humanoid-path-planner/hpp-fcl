@@ -125,12 +125,9 @@ public:
     bv2.axis[2] = R.col(id[2]);
     */
 
-    bv2.To = tf1.transform(bv1.center());
-    bv2.extent = (bv1.max_ - bv1.min_) * 0.5;
-    const Matrix3f& R = tf1.getRotation();
-    bv2.axis[0] = R.col(0);
-    bv2.axis[1] = R.col(1);
-    bv2.axis[2] = R.col(2);    
+    bv2.To.noalias() = tf1.transform(bv1.center());
+    bv2.extent.noalias() = (bv1.max_ - bv1.min_) * 0.5;
+    bv2.axes.noalias() = tf1.getRotation();
   }
 };
 
@@ -140,11 +137,9 @@ class Converter<OBB, OBB>
 public:
   static void convert(const OBB& bv1, const Transform3f& tf1, OBB& bv2)
   {
-    bv2.extent = bv1.extent;
-    bv2.To = tf1.transform(bv1.To);
-    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
-    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
-    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);
+    bv2.extent.noalias() = bv1.extent;
+    bv2.To.noalias() = tf1.transform(bv1.To);
+    bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
   }
 };
 
@@ -164,11 +159,9 @@ class Converter<RSS, OBB>
 public:
   static void convert(const RSS& bv1, const Transform3f& tf1, OBB& bv2)
   {
-    bv2.extent = Vec3f(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
-    bv2.To = tf1.transform(bv1.Tr);
-    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
-    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
-    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);    
+    bv2.extent.noalias() = Vec3f(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
+    bv2.To.noalias() = tf1.transform(bv1.Tr);
+    bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
   }
 };
 
@@ -207,9 +200,7 @@ public:
   static void convert(const OBB& bv1, const Transform3f& tf1, RSS& bv2)
   {
     bv2.Tr = tf1.transform(bv1.To);
-    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
-    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
-    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);
+    bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
  
     bv2.r = bv1.extent[2];
     bv2.l[0] = 2 * (bv1.extent[0] - bv2.r);
@@ -223,10 +214,8 @@ class Converter<RSS, RSS>
 public:
   static void convert(const RSS& bv1, const Transform3f& tf1, RSS& bv2)
   {
-    bv2.Tr = tf1.transform(bv1.Tr);
-    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
-    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
-    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);
+    bv2.Tr.noalias() = tf1.transform(bv1.Tr);
+    bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
 
     bv2.r = bv1.r;
     bv2.l[0] = bv1.l[0];
@@ -283,9 +272,10 @@ public:
 
     const Matrix3f& R = tf1.getRotation();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
-    if (left_hand) bv2.axis[0] = -R.col(id[0]); else bv2.axis[0] = R.col(id[0]);
-    bv2.axis[1] = R.col(id[1]);
-    bv2.axis[2] = R.col(id[2]);    
+    if (left_hand) bv2.axes.col(0).noalias() = -R.col(id[0]);
+    else           bv2.axes.col(0).noalias() =  R.col(id[0]);
+    bv2.axes.col(1).noalias() = R.col(id[1]);
+    bv2.axes.col(2).noalias() = R.col(id[2]);    
   }
 };
 

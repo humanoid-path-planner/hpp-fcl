@@ -206,7 +206,7 @@ public:
     }
     else
     {
-      Vec3f center = t.transform(cgeom->aabb_center);
+      Vec3f center (t.transform(cgeom->aabb_center));
       Vec3f delta(Vec3f::Constant(cgeom->aabb_radius));
       aabb.min_ = center - delta;
       aabb.max_ = center + delta;

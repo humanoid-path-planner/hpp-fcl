@@ -108,15 +108,14 @@ void Quaternion3f::toRotation(Matrix3f& R) const
        twoXZ - twoWY, twoYZ + twoWX, 1.0 - (twoXX + twoYY);
 }
 
-
-void Quaternion3f::fromAxes(const Vec3f axis[3])
+void Quaternion3f::fromAxes(const Matrix3f& axes)
 {
   // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
   // article "Quaternion Calculus and Fast Animation".
 
   const int next[3] = {1, 2, 0};
 
-  FCL_REAL trace = axis[0][0] + axis[1][1] + axis[2][2];
+  FCL_REAL trace = axes.trace();
   FCL_REAL root;
 
   if(trace > 0.0)
@@ -125,36 +124,36 @@ void Quaternion3f::fromAxes(const Vec3f axis[3])
     root = sqrt(trace + 1.0);  // 2w
     data[0] = 0.5 * root;
     root = 0.5 / root;  // 1/(4w)
-    data[1] = (axis[1][2] - axis[2][1])*root;
-    data[2] = (axis[2][0] - axis[0][2])*root;
-    data[3] = (axis[0][1] - axis[1][0])*root;
+    data[1] = (axes(1,2) - axes(2,1))*root;
+    data[2] = (axes(2,0) - axes(0,2))*root;
+    data[3] = (axes(0,1) - axes(1,0))*root;
   }
   else
   {
     // |w| <= 1/2
     int i = 0;
-    if(axis[1][1] > axis[0][0])
+    if(axes(1,1) > axes(0,0))
     {
       i = 1;
     }
-    if(axis[2][2] > axis[i][i])
+    if(axes(2,2) > axes(i,i))
     {
       i = 2;
     }
     int j = next[i];
     int k = next[j];
 
-    root = sqrt(axis[i][i] - axis[j][j] - axis[k][k] + 1.0);
+    root = sqrt(axes(i,i) - axes(j,j) - axes(k,k) + 1.0);
     FCL_REAL* quat[3] = { &data[1], &data[2], &data[3] };
     *quat[i] = 0.5 * root;
     root = 0.5 / root;
-    data[0] = (axis[j][k] - axis[k][j]) * root;
-    *quat[j] = (axis[i][j] + axis[j][i]) * root;
-    *quat[k] = (axis[i][k] + axis[k][i]) * root;
+    data[0] = (axes(j,k) - axes(k,j)) * root;
+    *quat[j] = (axes(i,j) + axes(j,i)) * root;
+    *quat[k] = (axes(i,k) + axes(k,i)) * root;
   }
 }
 
-void Quaternion3f::toAxes(Vec3f axis[3]) const
+void Quaternion3f::toAxes(Matrix3f& axes) const
 {
   FCL_REAL twoX  = 2.0*data[1];
   FCL_REAL twoY  = 2.0*data[2];
@@ -169,9 +168,9 @@ void Quaternion3f::toAxes(Vec3f axis[3]) const
   FCL_REAL twoYZ = twoZ*data[2];
   FCL_REAL twoZZ = twoZ*data[3];
 
-  axis[0] << 1.0 - (twoYY + twoZZ), twoXY + twoWZ, twoXZ - twoWY;
-  axis[1] << twoXY - twoWZ, 1.0 - (twoXX + twoZZ), twoYZ + twoWX;
-  axis[2] << twoXZ + twoWY, twoYZ - twoWX, 1.0 - (twoXX + twoYY);
+  axes << 1.0 - (twoYY + twoZZ), twoXY + twoWZ, twoXZ - twoWY,
+          twoXY - twoWZ, 1.0 - (twoXX + twoZZ), twoYZ + twoWX,
+          twoXZ + twoWY, twoYZ - twoWX, 1.0 - (twoXX + twoYY);
 }
 
 

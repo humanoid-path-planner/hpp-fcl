@@ -188,7 +188,7 @@ public:
   /// BV node. When traversing the BVH, this can save one matrix transformation.
   void makeParentRelative()
   {
-    Vec3f I[3] = {Vec3f(1, 0, 0), Vec3f(0, 1, 0), Vec3f(0, 0, 1)};
+    Matrix3f I (Matrix3f::Identity());
     makeParentRelativeRecurse(0, I, Vec3f());
   }
 
@@ -303,13 +303,13 @@ private:
 
   /// @recursively compute each bv's transform related to its parent. For default BV, only the translation works. 
   /// For oriented BV (OBB, RSS, OBBRSS), special implementation is provided.
-  void makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c)
+  void makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c)
   {
     if(!bvs[bv_id].isLeaf())
     {
-      makeParentRelativeRecurse(bvs[bv_id].first_child, parent_axis, bvs[bv_id].getCenter());
+      makeParentRelativeRecurse(bvs[bv_id].first_child, parent_axes, bvs[bv_id].getCenter());
 
-      makeParentRelativeRecurse(bvs[bv_id].first_child + 1, parent_axis, bvs[bv_id].getCenter());
+      makeParentRelativeRecurse(bvs[bv_id].first_child + 1, parent_axes, bvs[bv_id].getCenter());
     }
 
     bvs[bv_id].bv = translate(bvs[bv_id].bv, -parent_c);
@@ -318,13 +318,13 @@ private:
 
 
 template<>
-void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c);
 
 template<>
-void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c);
 
 template<>
-void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c);
 
 
 /// @brief Specialization of getNodeType() for BVHModel with different BV types
