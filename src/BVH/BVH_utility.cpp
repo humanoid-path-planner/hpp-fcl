@@ -480,16 +480,15 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
 
   FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
 
-  FCL_REAL min_coord[3] = {real_max, real_max, real_max};
-  FCL_REAL max_coord[3] = {-real_max, -real_max, -real_max};
+  Vec3f min_coord (real_max, real_max, real_max);
+  Vec3f max_coord (-real_max, -real_max, -real_max);
 
   for(int i = 0; i < n; ++i)
   {
     int index = indirect_index ? indices[i] : i;
 
     const Vec3f& p = ps[index];
-    Vec3f v(p[0], p[1], p[2]);
-    Vec3f proj (axes.transpose() * v);
+    Vec3f proj (axes.transpose() * p);
 
     for(int j = 0; j < 3; ++j)
     {
@@ -510,16 +509,9 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
     }
   }
 
-  Vec3f o((max_coord[0] + min_coord[0]) / 2,
-          (max_coord[1] + min_coord[1]) / 2,
-          (max_coord[2] + min_coord[2]) / 2);
+  center.noalias() = axes * (max_coord + min_coord) / 2;
 
-  center.noalias() = axes * o;
-
-  extent << (max_coord[0] - min_coord[0]) / 2,
-            (max_coord[1] - min_coord[1]) / 2,
-            (max_coord[2] - min_coord[2]) / 2;
-
+  extent.noalias() = (max_coord - min_coord) / 2;
 }
 
 
@@ -533,8 +525,8 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
 
   FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
 
-  FCL_REAL min_coord[3] = {real_max, real_max, real_max};
-  FCL_REAL max_coord[3] = {-real_max, -real_max, -real_max};
+  Vec3f min_coord (real_max, real_max, real_max);
+  Vec3f max_coord (-real_max, -real_max, -real_max);
 
   for(int i = 0; i < n; ++i)
   {
@@ -545,8 +537,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
     {
       int point_id = t[j];
       const Vec3f& p = ps[point_id];
-      Vec3f v(p[0], p[1], p[2]);
-      Vec3f proj (axes.transpose() * v);
+      Vec3f proj(axes.transpose() * p);
 
       for(int k = 0; k < 3; ++k)
       {
@@ -561,8 +552,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
       {
         int point_id = t[j];
         const Vec3f& p = ps2[point_id];
-        Vec3f v(p[0], p[1], p[2]);
-        Vec3f proj (axes.transpose() * v);
+        Vec3f proj(axes.transpose() * p);
 
         for(int k = 0; k < 3; ++k)
         {
@@ -573,15 +563,11 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
     }
   }
 
-  Vec3f o((max_coord[0] + min_coord[0]) / 2,
-          (max_coord[1] + min_coord[1]) / 2,
-          (max_coord[2] + min_coord[2]) / 2);
+  Vec3f o((max_coord + min_coord) / 2);
 
   center.noalias() = axes * o;
 
-  extent << (max_coord[0] - min_coord[0]) / 2,
-            (max_coord[1] - min_coord[1]) / 2,
-            (max_coord[2] - min_coord[2]) / 2;
+  extent.noalias() = (max_coord - min_coord) / 2;
 
 }
 
