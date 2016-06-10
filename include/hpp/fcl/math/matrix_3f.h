@@ -40,32 +40,10 @@
 
 #include <hpp/fcl/math/vec_3f.h>
 
-#if ! FCL_HAVE_EIGEN
-# include <hpp/fcl/math/matrix_3fx.h>
-#endif
-
 namespace fcl
 {
 
-#if FCL_HAVE_EIGEN
   typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
-#elif FCL_HAVE_SSE
-  typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
-#else
-  typedef Matrix3fX<details::Matrix3Data<FCL_REAL> > Matrix3f;
-#endif
-
-#if ! FCL_HAVE_EIGEN
-static inline std::ostream& operator << (std::ostream& o, const Matrix3f& m)
-{
-  o << "[(" << m(0, 0) << " " << m(0, 1) << " " << m(0, 2) << ")("
-    << m(1, 0) << " " << m(1, 1) << " " << m(1, 2) << ")(" 
-    << m(2, 0) << " " << m(2, 1) << " " << m(2, 2) << ")]";
-  return o;
-}
-#endif
-
-
 
 /// @brief Class for variance matrix in 3d
 class Variance3f

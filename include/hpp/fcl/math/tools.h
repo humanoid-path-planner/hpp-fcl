@@ -49,9 +49,6 @@
 #include <iostream>
 #include <limits>
 
-#define FCL_CCD_INTERVALVECTOR_PLUGIN <hpp/fcl/eigen/plugins/ccd/interval-vector.h>
-#define FCL_CCD_MATRIXVECTOR_PLUGIN <hpp/fcl/eigen/plugins/ccd/interval-matrix.h>
-
 namespace fcl
 {
 
@@ -63,29 +60,6 @@ static inline typename Derived::Scalar triple(
 {
   return x.derived().dot(y.derived().cross(z.derived()));
 }
-
-
-/*
-template<typename Derived, typename OtherDerived>
-static inline const typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Min
- min(const Eigen::MatrixBase<Derived>& x, const Eigen::MatrixBase<OtherDerived>& y)
-{
-  return typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Min (x.derived(), y.derived());
-}
-
-template<typename Derived, typename OtherDerived>
-static inline const typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Max
- max(const Eigen::MatrixBase<Derived>& x, const Eigen::MatrixBase<OtherDerived>& y)
-{
-  return typename Eigen::BinaryReturnType<const Derived, const OtherDerived>::Max (x.derived(), y.derived());
-}
-
-template<typename Derived>
-static inline const typename Eigen::UnaryReturnType<const Derived>::Abs
-abs(const Eigen::MatrixBase<Derived>& x)
-{
-  return typename Eigen::UnaryReturnType<const Derived>::Abs (x.derived());
-} */
 
 template<typename Derived1, typename Derived2, typename Derived3>
 void generateCoordinateSystem(

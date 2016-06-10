@@ -99,10 +99,6 @@ struct IMatrix3
   IMatrix3& rotationConstrain();
 
   void print() const;
-
-#ifdef FCL_CCD_INTERVALMATRIX_PLUGIN
-# include FCL_CCD_INTERVALMATRIX_PLUGIN
-#endif
 };
 
 IMatrix3 rotationConstrain(const IMatrix3& m);

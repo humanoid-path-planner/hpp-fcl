@@ -157,9 +157,15 @@ struct IVector3
   bool overlap(const IVector3& v) const;
   bool contain(const IVector3& v) const;
 
-#ifdef FCL_CCD_INTERVALVECTOR_PLUGIN
-# include FCL_CCD_INTERVALVECTOR_PLUGIN
-#endif
+  template <typename Derived>
+  IVector3& operator=(const Eigen::MatrixBase<Derived>& other)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3); \
+    setValue (other.derived());
+    // const Vec3f& tmp (other);
+    // setValue (tmp);
+    return *this;
+  }
 };
 
 IVector3 bound(const IVector3& i, const Vec3f& v);

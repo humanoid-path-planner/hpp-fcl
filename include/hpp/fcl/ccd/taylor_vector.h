@@ -40,10 +40,8 @@
 
 #include <hpp/fcl/ccd/interval_vector.h>
 #include <hpp/fcl/ccd/taylor_model.h>
-
-#if FCL_HAVE_EIGEN
-#include <hpp/fcl/eigen/taylor_operator.h>
-#endif
+#include <hpp/fcl/math/vec_3f.h>
+#include <hpp/fcl/math/matrix_3f.h>
 
 namespace fcl
 {
@@ -106,8 +104,20 @@ public:
   const boost::shared_ptr<TimeInterval>& getTimeInterval() const;
 };
 
+class TMatrix3;
+
 void generateTVector3ForLinearFunc(TVector3& v, const Vec3f& position, const Vec3f& velocity);
 
+template<int Col> struct TaylorReturnType {};
+template<> struct TaylorReturnType<1> { typedef TVector3 type; typedef Vec3f    eigen_type; };
+template<> struct TaylorReturnType<3> { typedef TMatrix3 type; typedef Matrix3f eigen_type; };
+
+template<typename Derived>
+typename TaylorReturnType<Derived::ColsAtCompileTime>::type operator * (const Eigen::MatrixBase<Derived>& v, const TaylorModel& a)
+{
+  const typename TaylorReturnType<Derived::ColsAtCompileTime>::eigen_type b = v.derived();
+  return b * a;
+}
 
 TVector3 operator * (const Vec3f& v, const TaylorModel& a);
 TVector3 operator + (const Vec3f& v1, const TVector3& v2);

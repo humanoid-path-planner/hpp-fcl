@@ -48,9 +48,8 @@ setup_project()
 
 set(FCL_HAVE_SSE FALSE CACHE BOOL "Enable SSE vectorization")
 
-# add_optional_dependency("eigen3 >= 3.0.0")
 add_required_dependency("eigen3 >= 3.0.0")
-set(FCL_HAVE_EIGEN TRUE CACHE BOOL "Use eigen matrix type when possible")
+set(FCL_HAVE_EIGEN TRUE)
 include_directories(${EIGEN3_INCLUDE_DIRS})
 
 # Required dependencies
