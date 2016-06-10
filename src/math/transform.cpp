@@ -53,11 +53,11 @@ void Quaternion3f::fromRotation(const Matrix3f& R)
   {
     // |w| > 1/2, may as well choose w > 1/2
     root = sqrt(trace + 1.0);  // 2w
-    data[0] = 0.5 * root;
+    data[W] = 0.5 * root;
     root = 0.5 / root;  // 1/(4w)
-    data[1] = (R(2, 1) - R(1, 2))*root;
-    data[2] = (R(0, 2) - R(2, 0))*root;
-    data[3] = (R(1, 0) - R(0, 1))*root;
+    data[X] = (R(2, 1) - R(1, 2))*root;
+    data[Y] = (R(0, 2) - R(2, 0))*root;
+    data[Z] = (R(1, 0) - R(0, 1))*root;
   }
   else
   {
@@ -75,10 +75,10 @@ void Quaternion3f::fromRotation(const Matrix3f& R)
     int k = next[j];
 
     root = sqrt(R(i, i) - R(j, j) - R(k, k) + 1.0);
-    FCL_REAL* quat[3] = { &data[1], &data[2], &data[3] };
+    FCL_REAL* quat[3] = { &data[X], &data[Y], &data[Z] };
     *quat[i] = 0.5 * root;
     root = 0.5 / root;
-    data[0] = (R(k, j) - R(j, k)) * root;
+    data[W] = (R(k, j) - R(j, k)) * root;
     *quat[j] = (R(j, i) + R(i, j)) * root;
     *quat[k] = (R(k, i) + R(i, k)) * root;
   }
@@ -86,22 +86,22 @@ void Quaternion3f::fromRotation(const Matrix3f& R)
 
 void Quaternion3f::toRotation(Matrix3f& R) const
 {
-  assert (.99 < data [0]*data [0] + data [1]*data [1] +
-	  data [2]*data [2] + data [3]*data [3]);
-  assert (data [0]*data [0] + data [1]*data [1] +
-	  data [2]*data [2] + data [3]*data [3] < 1.01);
-  FCL_REAL twoX  = 2.0*data[1];
-  FCL_REAL twoY  = 2.0*data[2];
-  FCL_REAL twoZ  = 2.0*data[3];
-  FCL_REAL twoWX = twoX*data[0];
-  FCL_REAL twoWY = twoY*data[0];
-  FCL_REAL twoWZ = twoZ*data[0];
-  FCL_REAL twoXX = twoX*data[1];
-  FCL_REAL twoXY = twoY*data[1];
-  FCL_REAL twoXZ = twoZ*data[1];
-  FCL_REAL twoYY = twoY*data[2];
-  FCL_REAL twoYZ = twoZ*data[2];
-  FCL_REAL twoZZ = twoZ*data[3];
+  assert (.99 < data [W]*data [W] + data [X]*data [X] +
+	  data [Y]*data [Y] + data [Z]*data [Z]);
+  assert (data [W]*data [W] + data [X]*data [X] +
+	  data [Y]*data [Y] + data [Z]*data [Z] < 1.01);
+  FCL_REAL twoX  = 2.0*data[X];
+  FCL_REAL twoY  = 2.0*data[Y];
+  FCL_REAL twoZ  = 2.0*data[Z];
+  FCL_REAL twoWX = twoX*data[W];
+  FCL_REAL twoWY = twoY*data[W];
+  FCL_REAL twoWZ = twoZ*data[W];
+  FCL_REAL twoXX = twoX*data[X];
+  FCL_REAL twoXY = twoY*data[X];
+  FCL_REAL twoXZ = twoZ*data[X];
+  FCL_REAL twoYY = twoY*data[Y];
+  FCL_REAL twoYZ = twoZ*data[Y];
+  FCL_REAL twoZZ = twoZ*data[Z];
 
   R << 1.0 - (twoYY + twoZZ), twoXY - twoWZ, twoXZ + twoWY,
        twoXY + twoWZ, 1.0 - (twoXX + twoZZ), twoYZ - twoWX,
@@ -122,11 +122,11 @@ void Quaternion3f::fromAxes(const Matrix3f& axes)
   {
     // |w| > 1/2, may as well choose w > 1/2
     root = sqrt(trace + 1.0);  // 2w
-    data[0] = 0.5 * root;
+    data[W] = 0.5 * root;
     root = 0.5 / root;  // 1/(4w)
-    data[1] = (axes(1,2) - axes(2,1))*root;
-    data[2] = (axes(2,0) - axes(0,2))*root;
-    data[3] = (axes(0,1) - axes(1,0))*root;
+    data[X] = (axes(1,2) - axes(2,1))*root;
+    data[Y] = (axes(2,0) - axes(0,2))*root;
+    data[Z] = (axes(0,1) - axes(1,0))*root;
   }
   else
   {
@@ -144,10 +144,10 @@ void Quaternion3f::fromAxes(const Matrix3f& axes)
     int k = next[j];
 
     root = sqrt(axes(i,i) - axes(j,j) - axes(k,k) + 1.0);
-    FCL_REAL* quat[3] = { &data[1], &data[2], &data[3] };
+    FCL_REAL* quat[3] = { &data[X], &data[Y], &data[Z] };
     *quat[i] = 0.5 * root;
     root = 0.5 / root;
-    data[0] = (axes(j,k) - axes(k,j)) * root;
+    data[W] = (axes(j,k) - axes(k,j)) * root;
     *quat[j] = (axes(i,j) + axes(j,i)) * root;
     *quat[k] = (axes(i,k) + axes(k,i)) * root;
   }
@@ -155,18 +155,18 @@ void Quaternion3f::fromAxes(const Matrix3f& axes)
 
 void Quaternion3f::toAxes(Matrix3f& axes) const
 {
-  FCL_REAL twoX  = 2.0*data[1];
-  FCL_REAL twoY  = 2.0*data[2];
-  FCL_REAL twoZ  = 2.0*data[3];
-  FCL_REAL twoWX = twoX*data[0];
-  FCL_REAL twoWY = twoY*data[0];
-  FCL_REAL twoWZ = twoZ*data[0];
-  FCL_REAL twoXX = twoX*data[1];
-  FCL_REAL twoXY = twoY*data[1];
-  FCL_REAL twoXZ = twoZ*data[1];
-  FCL_REAL twoYY = twoY*data[2];
-  FCL_REAL twoYZ = twoZ*data[2];
-  FCL_REAL twoZZ = twoZ*data[3];
+  FCL_REAL twoX  = 2.0*data[X];
+  FCL_REAL twoY  = 2.0*data[Y];
+  FCL_REAL twoZ  = 2.0*data[Z];
+  FCL_REAL twoWX = twoX*data[W];
+  FCL_REAL twoWY = twoY*data[W];
+  FCL_REAL twoWZ = twoZ*data[W];
+  FCL_REAL twoXX = twoX*data[X];
+  FCL_REAL twoXY = twoY*data[X];
+  FCL_REAL twoXZ = twoZ*data[X];
+  FCL_REAL twoYY = twoY*data[Y];
+  FCL_REAL twoYZ = twoZ*data[Y];
+  FCL_REAL twoZZ = twoZ*data[Z];
 
   axes << 1.0 - (twoYY + twoZZ), twoXY + twoWZ, twoXZ - twoWY,
           twoXY - twoWZ, 1.0 - (twoXX + twoZZ), twoYZ + twoWX,
@@ -178,22 +178,22 @@ void Quaternion3f::fromAxisAngle(const Vec3f& axis, FCL_REAL angle)
 {
   FCL_REAL half_angle = 0.5 * angle;
   FCL_REAL sn = sin((double)half_angle);
-  data[0] = cos((double)half_angle);
-  data[1] = sn * axis[0];
-  data[2] = sn * axis[1];
-  data[3] = sn * axis[2];
+  data[W] = cos((double)half_angle);
+  data[X] = sn * axis[0];
+  data[Y] = sn * axis[1];
+  data[Z] = sn * axis[2];
 }
 
 void Quaternion3f::toAxisAngle(Vec3f& axis, FCL_REAL& angle) const
 {
-  double sqr_length = data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
+  double sqr_length = data[X] * data[X] + data[Y] * data[Y] + data[Z] * data[Z];
   if(sqr_length > 0)
   {
-    angle = 2.0 * acos((double)data[0]);
+    angle = 2.0 * acos((double)data[W]);
     double inv_length = 1.0 / sqrt(sqr_length);
-    axis[0] = inv_length * data[1];
-    axis[1] = inv_length * data[2];
-    axis[2] = inv_length * data[3];
+    axis[0] = inv_length * data[X];
+    axis[1] = inv_length * data[Y];
+    axis[2] = inv_length * data[Z];
   }
   else
   {
@@ -206,80 +206,80 @@ void Quaternion3f::toAxisAngle(Vec3f& axis, FCL_REAL& angle) const
 
 FCL_REAL Quaternion3f::dot(const Quaternion3f& other) const
 {
-  return data[0] * other.data[0] + data[1] * other.data[1] + data[2] * other.data[2] + data[3] * other.data[3];
+  return data[W] * other.data[W] + data[X] * other.data[X] + data[Y] * other.data[Y] + data[Z] * other.data[Z];
 }
 
 Quaternion3f Quaternion3f::operator + (const Quaternion3f& other) const
 {
-  return Quaternion3f(data[0] + other.data[0], data[1] + other.data[1],
-                      data[2] + other.data[2], data[3] + other.data[3]);
+  return Quaternion3f(data[W] + other.data[W], data[X] + other.data[X],
+                      data[Y] + other.data[Y], data[Z] + other.data[Z]);
 }
 
 const Quaternion3f& Quaternion3f::operator += (const Quaternion3f& other)
 {
-  data[0] += other.data[0];
-  data[1] += other.data[1];
-  data[2] += other.data[2];
-  data[3] += other.data[3];
+  data[W] += other.data[W];
+  data[X] += other.data[X];
+  data[Y] += other.data[Y];
+  data[Z] += other.data[Z];
 
   return *this;
 }
 
 Quaternion3f Quaternion3f::operator - (const Quaternion3f& other) const
 {
-  return Quaternion3f(data[0] - other.data[0], data[1] - other.data[1],
-                      data[2] - other.data[2], data[3] - other.data[3]);
+  return Quaternion3f(data[W] - other.data[W], data[X] - other.data[X],
+                      data[Y] - other.data[Y], data[Z] - other.data[Z]);
 }
 
 const Quaternion3f& Quaternion3f::operator -= (const Quaternion3f& other)
 {
-  data[0] -= other.data[0];
-  data[1] -= other.data[1];
-  data[2] -= other.data[2];
-  data[3] -= other.data[3];
+  data[W] -= other.data[W];
+  data[X] -= other.data[X];
+  data[Y] -= other.data[Y];
+  data[Z] -= other.data[Z];
 
   return *this;
 }
 
 Quaternion3f Quaternion3f::operator * (const Quaternion3f& other) const
 {
-  return Quaternion3f(data[0] * other.data[0] - data[1] * other.data[1] - data[2] * other.data[2] - data[3] * other.data[3],
-                      data[0] * other.data[1] + data[1] * other.data[0] + data[2] * other.data[3] - data[3] * other.data[2],
-                      data[0] * other.data[2] - data[1] * other.data[3] + data[2] * other.data[0] + data[3] * other.data[1],
-                      data[0] * other.data[3] + data[1] * other.data[2] - data[2] * other.data[1] + data[3] * other.data[0]);
+  return Quaternion3f(data[W] * other.data[W] - data[X] * other.data[X] - data[Y] * other.data[Y] - data[Z] * other.data[Z],
+                      data[W] * other.data[X] + data[X] * other.data[W] + data[Y] * other.data[Z] - data[Z] * other.data[Y],
+                      data[W] * other.data[Y] - data[X] * other.data[Z] + data[Y] * other.data[W] + data[Z] * other.data[X],
+                      data[W] * other.data[Z] + data[X] * other.data[Y] - data[Y] * other.data[X] + data[Z] * other.data[W]);
 }
 
 
 const Quaternion3f& Quaternion3f::operator *= (const Quaternion3f& other)
 {
-  FCL_REAL a = data[0] * other.data[0] - data[1] * other.data[1] - data[2] * other.data[2] - data[3] * other.data[3];
-  FCL_REAL b = data[0] * other.data[1] + data[1] * other.data[0] + data[2] * other.data[3] - data[3] * other.data[2];
-  FCL_REAL c = data[0] * other.data[2] - data[1] * other.data[3] + data[2] * other.data[0] + data[3] * other.data[1];
-  FCL_REAL d = data[0] * other.data[3] + data[1] * other.data[2] - data[2] * other.data[1] + data[3] * other.data[0];
+  FCL_REAL a = data[W] * other.data[W] - data[X] * other.data[X] - data[Y] * other.data[Y] - data[Z] * other.data[Z];
+  FCL_REAL b = data[W] * other.data[X] + data[X] * other.data[W] + data[Y] * other.data[Z] - data[Z] * other.data[Y];
+  FCL_REAL c = data[W] * other.data[Y] - data[X] * other.data[Z] + data[Y] * other.data[W] + data[Z] * other.data[X];
+  FCL_REAL d = data[W] * other.data[Z] + data[X] * other.data[Y] - data[Y] * other.data[X] + data[Z] * other.data[W];
 
-  data[0] = a;
-  data[1] = b;
-  data[2] = c;
-  data[3] = d;
+  data[W] = a;
+  data[X] = b;
+  data[Y] = c;
+  data[Z] = d;
   return *this;
 }
 
 Quaternion3f Quaternion3f::operator - () const
 {
-  return Quaternion3f(-data[0], -data[1], -data[2], -data[3]);
+  return Quaternion3f(-data[W], -data[X], -data[Y], -data[Z]);
 }
 
 Quaternion3f Quaternion3f::operator * (FCL_REAL t) const
 {
-  return Quaternion3f(data[0] * t, data[1] * t, data[2] * t, data[3] * t);
+  return Quaternion3f(data[W] * t, data[X] * t, data[Y] * t, data[Z] * t);
 }
 
 const Quaternion3f& Quaternion3f::operator *= (FCL_REAL t)
 {
-  data[0] *= t;
-  data[1] *= t;
-  data[2] *= t;
-  data[3] *= t;
+  data[W] *= t;
+  data[X] *= t;
+  data[Y] *= t;
+  data[Z] *= t;
 
   return *this;
 }
@@ -287,28 +287,28 @@ const Quaternion3f& Quaternion3f::operator *= (FCL_REAL t)
 
 Quaternion3f& Quaternion3f::conj()
 {
-  data[1] = -data[1];
-  data[2] = -data[2];
-  data[3] = -data[3];
+  data[X] = -data[X];
+  data[Y] = -data[Y];
+  data[Z] = -data[Z];
   return *this;
 }
 
 Quaternion3f& Quaternion3f::inverse()
 {
-  FCL_REAL sqr_length = data[0] * data[0] + data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
+  FCL_REAL sqr_length = data[W] * data[W] + data[X] * data[X] + data[Y] * data[Y] + data[Z] * data[Z];
   if(sqr_length > 0)
   {
     FCL_REAL inv_length = 1 / std::sqrt(sqr_length);
-    data[0] *= inv_length;
-    data[1] *= (-inv_length);
-    data[2] *= (-inv_length);
-    data[3] *= (-inv_length);
+    data[W] *= inv_length;
+    data[X] *= (-inv_length);
+    data[Y] *= (-inv_length);
+    data[Z] *= (-inv_length);
   }
   else
   {
-    data[1] = -data[1];
-    data[2] = -data[2];
-    data[3] = -data[3];
+    data[X] = -data[X];
+    data[Y] = -data[Y];
+    data[Z] = -data[Z];
   }
 
   return *this;

@@ -49,6 +49,12 @@ namespace fcl
 class Quaternion3f
 {
 public:
+  enum {
+    W = 0,
+    X = 1,
+    Y = 2,
+    Z = 3
+  };
   /// @brief Default quaternion is identity rotation
   Quaternion3f()
   {
@@ -134,29 +140,29 @@ public:
     return !(*this == other);
   }
 
-  FCL_REAL operator [] (std::size_t i) const
-  {
-    return data[i];
-  }
+  inline FCL_REAL& w() { return data[W]; }
+  inline FCL_REAL& x() { return data[X]; }
+  inline FCL_REAL& y() { return data[Y]; }
+  inline FCL_REAL& z() { return data[Z]; }
 
-  inline FCL_REAL& w() { return data[0]; }
-  inline FCL_REAL& x() { return data[1]; }
-  inline FCL_REAL& y() { return data[2]; }
-  inline FCL_REAL& z() { return data[3]; }
-
-  inline const FCL_REAL& w() const { return data[0]; }
-  inline const FCL_REAL& x() const { return data[1]; }
-  inline const FCL_REAL& y() const { return data[2]; }
-  inline const FCL_REAL& z() const { return data[3]; }
+  inline const FCL_REAL& w() const { return data[W]; }
+  inline const FCL_REAL& x() const { return data[X]; }
+  inline const FCL_REAL& y() const { return data[Y]; }
+  inline const FCL_REAL& z() const { return data[Z]; }
 
 private:
 
-  Quaternion3f(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d)
+  Quaternion3f(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z)
   {
-    data[0] = a;
-    data[1] = b;
-    data[2] = c;
-    data[3] = d;
+    data[W] = w;
+    data[X] = x;
+    data[Y] = y;
+    data[Z] = z;
+  }
+
+  FCL_REAL operator [] (std::size_t i) const
+  {
+    return data[i];
   }
 
   FCL_REAL data[4];
@@ -170,7 +176,7 @@ Quaternion3f inverse(const Quaternion3f& q);
 
 static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
 {
-  o << "(" << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << ")";
+  o << "(" << q.w() << " " << q.x() << " " << q.y() << " " << q.z() << ")";
   return o;
 }
 
