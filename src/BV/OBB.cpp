@@ -75,7 +75,7 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2)
 
   Vec3f vertex_proj[16];
   for(int i = 0; i < 16; ++i)
-    vertex_proj[i] = vertex[i] - b.axes.col(0) * vertex[i].dot(b.axes.col(0));
+    vertex_proj[i].noalias() = vertex[i] - b.axes.col(0) * vertex[i].dot(b.axes.col(0));
 
   getCovariance(vertex_proj, NULL, NULL, NULL, 16, M);
   eigen(M, s, E);
@@ -95,8 +95,8 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2)
   Vec3f center, extent;
   getExtentAndCenter(vertex, NULL, NULL, NULL, 16, b.axes, center, extent);
 
-  b.To = center;
-  b.extent = extent;
+  b.To.noalias() = center;
+  b.extent.noalias() = extent;
 
   return b;
 }
