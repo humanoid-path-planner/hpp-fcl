@@ -509,7 +509,7 @@ static void shapeToGJK(const ShapeBase& s, const Transform3f& tf, ccd_obj_t* o)
   const Quaternion3f& q = tf.getQuatRotation();
   const Vec3f& T = tf.getTranslation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
-  ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
+  ccdQuatSet(&o->rot, q.x(), q.y(), q.z(), q.w());
   ccdQuatInvert2(&o->rot_inv, &o->rot);
 }
 
@@ -1016,7 +1016,7 @@ void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, cons
   const Quaternion3f& q = tf.getQuatRotation();
   const Vec3f& T = tf.getTranslation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
-  ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
+  ccdQuatSet(&o->rot, q.x(), q.y(), q.z(), q.w());
   ccdQuatInvert2(&o->rot_inv, &o->rot);
 
   return o;

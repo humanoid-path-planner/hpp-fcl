@@ -454,4 +454,14 @@ std::string getGJKSolverName(GJKSolverType solver_type)
     return std::string("invalid");
 }
 
+Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z)
+{
+  Quaternion3f q;
+  q.w() = w;
+  q.x() = x;
+  q.y() = y;
+  q.z() = z;
+  return q;
+}
+
 }

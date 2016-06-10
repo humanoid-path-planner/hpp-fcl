@@ -316,8 +316,8 @@ Quaternion3f& Quaternion3f::inverse()
 
 Vec3f Quaternion3f::transform(const Vec3f& v) const
 {
-  Vec3f u(getX(), getY(), getZ());
-  double s = getW();
+  Vec3f u(x(), y(), z());
+  double s = w();
   Vec3f vprime = 2*u.dot(v)*u + (s*s - u.dot(u))*v + 2*s*u.cross(v);
   return vprime;
 }
@@ -362,49 +362,6 @@ void Quaternion3f::toEuler(FCL_REAL& a, FCL_REAL& b, FCL_REAL& c) const
       c -= boost::math::constants::pi<double>();
     else
       c += boost::math::constants::pi<double>();
-  }
-}
-
-
-Vec3f Quaternion3f::getColumn(std::size_t i) const
-{
-  switch(i)
-  {
-  case 0:
-    return Vec3f(data[0] * data[0] + data[1] * data[1] - data[2] * data[2] - data[3] * data[3],
-                 2 * (- data[0] * data[3] + data[1] * data[2]),
-                 2 * (data[1] * data[3] + data[0] * data[2]));
-  case 1:
-    return Vec3f(2 * (data[1] * data[2] + data[0] * data[3]),
-                 data[0] * data[0] - data[1] * data[1] + data[2] * data[2] - data[3] * data[3],
-                 2 * (data[2] * data[3] - data[0] * data[1]));
-  case 2:
-    return Vec3f(2 * (data[1] * data[3] - data[0] * data[2]),
-                 2 * (data[2] * data[3] + data[0] * data[1]),
-                 data[0] * data[0] - data[1] * data[1] - data[2] * data[2] + data[3] * data[3]);
-  default:
-    return Vec3f();
-  }
-}
-
-Vec3f Quaternion3f::getRow(std::size_t i) const
-{
-  switch(i)
-  {
-  case 0:
-    return Vec3f(data[0] * data[0] + data[1] * data[1] - data[2] * data[2] - data[3] * data[3],
-                 2 * (data[0] * data[3] + data[1] * data[2]),
-                 2 * (data[1] * data[3] - data[0] * data[2]));
-  case 1:
-    return Vec3f(2 * (data[1] * data[2] - data[0] * data[3]),
-                 data[0] * data[0] - data[1] * data[1] + data[2] * data[2] - data[3] * data[3],
-                 2 * (data[2] * data[3] + data[0] * data[1]));
-  case 2:
-    return Vec3f(2 * (data[1] * data[3] + data[0] * data[2]),
-                 2 * (data[2] * data[3] - data[0] * data[1]),
-                 data[0] * data[0] - data[1] * data[1] - data[2] * data[2] + data[3] * data[3]);
-  default:
-    return Vec3f();
   }
 }
 

@@ -46,6 +46,8 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
+#include "test_fcl_utility.h"
+
 BOOST_AUTO_TEST_CASE(distance_capsule_box)
 {
   typedef boost::shared_ptr <fcl::CollisionGeometry> CollisionGeometryPtr_t;
@@ -96,7 +98,7 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
 
   // Rotate capsule around y axis by pi/2 and move it behind box
   tf1.setTranslation (fcl::Vec3f (-10., 0., 0.));
-  tf1.setQuatRotation (fcl::Quaternion3f (sqrt(2)/2, 0, sqrt(2)/2, 0));
+  tf1.setQuatRotation (fcl::makeQuat (sqrt(2)/2, 0, sqrt(2)/2, 0));
   capsule.setTransform (tf1);
 
   // test distance

@@ -58,14 +58,6 @@ public:
     data[3] = 0;
   }
 
-  Quaternion3f(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d)
-  {
-    data[0] = a;
-    data[1] = b;
-    data[2] = c;
-    data[3] = d;
-  }
-
   /// @brief Whether the rotation is identity
   bool isIdentity() const
   {
@@ -127,20 +119,6 @@ public:
   /// @brief rotate a vector
   Vec3f transform(const Vec3f& v) const;
 
-  inline const FCL_REAL& getW() const { return data[0]; }
-  inline const FCL_REAL& getX() const { return data[1]; }
-  inline const FCL_REAL& getY() const { return data[2]; }
-  inline const FCL_REAL& getZ() const { return data[3]; }
-
-  inline FCL_REAL& getW() { return data[0]; }
-  inline FCL_REAL& getX() { return data[1]; }
-  inline FCL_REAL& getY() { return data[2]; }
-  inline FCL_REAL& getZ() { return data[3]; }
-
-  Vec3f getColumn(std::size_t i) const;
-
-  Vec3f getRow(std::size_t i) const;
-
   bool operator == (const Quaternion3f& other) const
   {
     for(std::size_t i = 0; i < 4; ++i)
@@ -161,7 +139,25 @@ public:
     return data[i];
   }
 
+  inline FCL_REAL& w() { return data[0]; }
+  inline FCL_REAL& x() { return data[1]; }
+  inline FCL_REAL& y() { return data[2]; }
+  inline FCL_REAL& z() { return data[3]; }
+
+  inline const FCL_REAL& w() const { return data[0]; }
+  inline const FCL_REAL& x() const { return data[1]; }
+  inline const FCL_REAL& y() const { return data[2]; }
+  inline const FCL_REAL& z() const { return data[3]; }
+
 private:
+
+  Quaternion3f(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d)
+  {
+    data[0] = a;
+    data[1] = b;
+    data[2] = c;
+    data[3] = d;
+  }
 
   FCL_REAL data[4];
 };
