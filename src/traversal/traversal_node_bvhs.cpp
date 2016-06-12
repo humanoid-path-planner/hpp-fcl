@@ -354,8 +354,8 @@ static inline void distancePostprocessOrientedNode(const BVHModel<BV>* model1, c
   /// the points obtained by triDistance are not in world space: both are in object1's local coordinate system, so we need to convert them into the world space.
   if(request.enable_nearest_points && (result.o1 == model1) && (result.o2 == model2))
   {
-    result.nearest_points[0] = tf1.transform(result.nearest_points[0]);
-    result.nearest_points[1] = tf1.transform(result.nearest_points[1]);
+    result.nearest_points[0] = tf1.transform(result.nearest_points[0]).eval();
+    result.nearest_points[1] = tf1.transform(result.nearest_points[1]).eval();
   }
 }
 
@@ -492,7 +492,7 @@ bool meshConservativeAdvancementOrientedNodeCanStop(FCL_REAL c,
     Vec3f n_transformed (getBVAxes(model1->getBV(c1).bv) * n);
     Quaternion3f R0;
     motion1->getCurrentRotation(R0);
-    n_transformed = R0.transform(n_transformed);
+    n_transformed = R0.transform(n_transformed).eval();
     n_transformed.normalize();
 
     TBVMotionBoundVisitor<BV> mb_visitor1(model1->getBV(c1).bv, n_transformed), mb_visitor2(model2->getBV(c2).bv, -n_transformed);

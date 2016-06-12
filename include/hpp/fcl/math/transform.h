@@ -409,7 +409,7 @@ public:
   {
     matrix_set = false;
     q.conj();
-    T = q.transform(-T);
+    T = q.transform(-T).eval();
     return *this;
   }
 
@@ -424,7 +424,7 @@ public:
   inline const Transform3f& operator *= (const Transform3f& other)
   {
     matrix_set = false;
-    T = q.transform(other.T) + T;
+    T += q.transform(other.T).eval();
     q *= other.q;
     return *this;
   }

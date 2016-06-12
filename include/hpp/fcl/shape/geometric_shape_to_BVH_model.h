@@ -79,7 +79,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3f& 
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    points[i] = pose.transform(points[i]);
+    points[i] = pose.transform(points[i]).eval();
   }
 
   model.beginModel();
