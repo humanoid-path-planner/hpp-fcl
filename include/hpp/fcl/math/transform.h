@@ -148,10 +148,6 @@ public:
     return *this;
   }
 
-  /// @brief minus
-  Quaternion3f operator - (const Quaternion3f& other) const;
-  const Quaternion3f& operator -= (const Quaternion3f& other);
-
   /// @brief multiplication
   inline Quaternion3f operator * (const Quaternion3f& other) const
   {
