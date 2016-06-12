@@ -195,7 +195,7 @@ public:
   Vec3f computeCOM() const
   {
     FCL_REAL vol = 0;
-    Vec3f com;
+    Vec3f com(0,0,0);
     for(int i = 0; i < num_tris; ++i)
     {
       const Triangle& tri = tri_indices[i];
