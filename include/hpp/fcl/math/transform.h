@@ -52,7 +52,22 @@ private:
   typedef Eigen::Matrix<FCL_REAL, 4, 1> Vec4f;
   typedef typename Vec4f::     FixedSegmentReturnType<3>::Type XYZ_t;
   typedef typename Vec4f::ConstFixedSegmentReturnType<3>::Type XYZConst_t;
+
 public:
+  template<typename Derived> struct transform_return_type {
+    typedef typename XYZConst_t::cross_product_return_type<Derived>::type Cross_t;
+    typedef Eigen::CwiseBinaryOp <
+      Eigen::internal::scalar_sum_op <FCL_REAL>,
+      const typename Derived::ScalarMultipleReturnType,
+      const typename Cross_t::ScalarMultipleReturnType >
+      RightSum_t;
+    typedef Eigen::CwiseBinaryOp <
+      Eigen::internal::scalar_sum_op <FCL_REAL>,
+      const typename XYZConst_t::ScalarMultipleReturnType,
+      const RightSum_t >
+      Type;
+  };
+
   enum {
     W = 0,
     X = 1,
@@ -168,24 +183,10 @@ public:
     if (n > 0) data *= 1/sqrt(n);
   }
 
-  template<typename Derived> struct Transform {
-    typedef typename XYZConst_t::cross_product_return_type<Derived>::type Cross_t;
-    typedef Eigen::CwiseBinaryOp <
-      Eigen::internal::scalar_sum_op <FCL_REAL>,
-      const typename Derived::ScalarMultipleReturnType,
-      const typename Cross_t::ScalarMultipleReturnType >
-      RightSum_t;
-    typedef Eigen::CwiseBinaryOp <
-      Eigen::internal::scalar_sum_op <FCL_REAL>,
-      const typename XYZConst_t::ScalarMultipleReturnType,
-      const RightSum_t >
-      Type;
-  };
-
   /// @brief rotate a vector
   template<typename Derived>
     /*inline Vec3f transform(const Eigen::MatrixBase<Derived>& v) const*/
-  inline typename Transform<Derived>::Type
+  inline typename transform_return_type<Derived>::Type
   transform(const Eigen::MatrixBase<Derived>& v) const
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
@@ -194,8 +195,8 @@ public:
     /*return 2*u.dot(v)*u + (s*s - u.dot(u))*v + 2*s*u.cross(v);*/
     const FCL_REAL uDv = u.dot(v);
     const FCL_REAL uDu = u.dot(u);
-    const typename Transform<Derived>::RightSum_t rhs((s*s - uDu)*v, 2*s*u.cross(v.derived()));
-    return typename Transform<Derived>::Type (2*uDv*u, rhs);
+    const typename transform_return_type<Derived>::RightSum_t rhs((s*s - uDu)*v, 2*s*u.cross(v.derived()));
+    return typename transform_return_type<Derived>::Type (2*uDv*u, rhs);
   }
 
   bool operator == (const Quaternion3f& other) const
