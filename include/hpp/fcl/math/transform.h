@@ -254,6 +254,14 @@ static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
 /// @brief Simple transform class used locally by InterpMotion
 class Transform3f
 {
+  template<typename Derived> struct transform_return_type {
+    typedef Eigen::CwiseBinaryOp <
+      Eigen::internal::scalar_sum_op <FCL_REAL>,
+      const typename Quaternion3f::transform_return_type<Derived>::Type,
+      const Vec3f >
+      Type;
+  };
+
   boost::mutex lock_;
 
   /// @brief Whether matrix cache is set
@@ -390,7 +398,7 @@ public:
 
   /// @brief transform a given vector by the transform
   template <typename Derived>
-  inline Vec3f transform(const Eigen::MatrixBase<Derived>& v) const
+  inline typename transform_return_type<Derived>::Type transform(const Eigen::MatrixBase<Derived>& v) const
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
     return q.transform(v) + T;
