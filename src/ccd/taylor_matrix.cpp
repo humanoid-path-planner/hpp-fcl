@@ -107,23 +107,6 @@ TaylorModel& TMatrix3::operator () (size_t i, size_t j)
   return v_[i][j];
 }
 
-TMatrix3 TMatrix3::operator * (const Matrix3f& m) const
-{
-  const Vec3f& mc0 = m.col(0);
-  const Vec3f& mc1 = m.col(1);
-  const Vec3f& mc2 = m.col(2);
-
-  return TMatrix3(TVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
-                  TVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
-                  TVector3(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
-}
-
-
-TVector3 TMatrix3::operator * (const Vec3f& v) const
-{
-  return TVector3(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
-}
-
 TVector3 TMatrix3::operator * (const TVector3& v) const
 {
   return TVector3(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));

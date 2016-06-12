@@ -351,7 +351,7 @@ public:
     int* index = polygons + 1;
     for(int i = 0; i < num_planes; ++i)
     {
-      Vec3f plane_center;
+      Vec3f plane_center(0,0,0);
 
       // compute the center of the polygon
       for(int j = 0; j < *points_in_poly; ++j)
@@ -379,13 +379,13 @@ public:
 
   Vec3f computeCOM() const
   {
-    Vec3f com;
+    Vec3f com(0,0,0);
     FCL_REAL vol = 0;
     int* points_in_poly = polygons;
     int* index = polygons + 1;
     for(int i = 0; i < num_planes; ++i)
     {
-      Vec3f plane_center;
+      Vec3f plane_center(0,0,0);
 
       // compute the center of the polygon
       for(int j = 0; j < *points_in_poly; ++j)
@@ -419,7 +419,7 @@ public:
     int* index = polygons + 1;
     for(int i = 0; i < num_planes; ++i)
     {
-      Vec3f plane_center;
+      Vec3f plane_center(0,0,0);
 
       // compute the center of the polygon
       for(int j = 0; j < *points_in_poly; ++j)

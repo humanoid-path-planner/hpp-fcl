@@ -103,9 +103,15 @@ void Quaternion3f::toRotation(Matrix3f& R) const
   FCL_REAL twoYZ = twoZ*data[Y];
   FCL_REAL twoZZ = twoZ*data[Z];
 
-  R << 1.0 - (twoYY + twoZZ), twoXY - twoWZ, twoXZ + twoWY,
-       twoXY + twoWZ, 1.0 - (twoXX + twoZZ), twoYZ - twoWX,
-       twoXZ - twoWY, twoYZ + twoWX, 1.0 - (twoXX + twoYY);
+  R(0,0) = 1.0 - (twoYY + twoZZ);
+  R(0,1) = twoXY - twoWZ;
+  R(0,2) = twoXZ + twoWY;
+  R(1,0) = twoXY + twoWZ;
+  R(1,1) = 1.0 - (twoXX + twoZZ);
+  R(1,2) = twoYZ - twoWX;
+  R(2,0) = twoXZ - twoWY;
+  R(2,1) = twoYZ + twoWX;
+  R(2,2) = 1.0 - (twoXX + twoYY);
 }
 
 void Quaternion3f::fromAxes(const Matrix3f& axes)
@@ -173,27 +179,14 @@ void Quaternion3f::toAxes(Matrix3f& axes) const
           twoXZ + twoWY, twoYZ - twoWX, 1.0 - (twoXX + twoYY);
 }
 
-
-void Quaternion3f::fromAxisAngle(const Vec3f& axis, FCL_REAL angle)
-{
-  FCL_REAL half_angle = 0.5 * angle;
-  FCL_REAL sn = sin((double)half_angle);
-  data[W] = cos((double)half_angle);
-  data[X] = sn * axis[0];
-  data[Y] = sn * axis[1];
-  data[Z] = sn * axis[2];
-}
-
 void Quaternion3f::toAxisAngle(Vec3f& axis, FCL_REAL& angle) const
 {
-  double sqr_length = data[X] * data[X] + data[Y] * data[Y] + data[Z] * data[Z];
+  FCL_REAL sqr_length = data.squaredNorm();
   if(sqr_length > 0)
   {
     angle = 2.0 * acos((double)data[W]);
     double inv_length = 1.0 / sqrt(sqr_length);
-    axis[0] = inv_length * data[X];
-    axis[1] = inv_length * data[Y];
-    axis[2] = inv_length * data[Z];
+    axis.noalias() = inv_length * data.segment<3>(X);
   }
   else
   {
@@ -203,52 +196,6 @@ void Quaternion3f::toAxisAngle(Vec3f& axis, FCL_REAL& angle) const
     axis[2] = 0;
   }
 }
-
-FCL_REAL Quaternion3f::dot(const Quaternion3f& other) const
-{
-  return data[W] * other.data[W] + data[X] * other.data[X] + data[Y] * other.data[Y] + data[Z] * other.data[Z];
-}
-
-Quaternion3f Quaternion3f::operator + (const Quaternion3f& other) const
-{
-  return Quaternion3f(data[W] + other.data[W], data[X] + other.data[X],
-                      data[Y] + other.data[Y], data[Z] + other.data[Z]);
-}
-
-const Quaternion3f& Quaternion3f::operator += (const Quaternion3f& other)
-{
-  data[W] += other.data[W];
-  data[X] += other.data[X];
-  data[Y] += other.data[Y];
-  data[Z] += other.data[Z];
-
-  return *this;
-}
-
-Quaternion3f Quaternion3f::operator - (const Quaternion3f& other) const
-{
-  return Quaternion3f(data[W] - other.data[W], data[X] - other.data[X],
-                      data[Y] - other.data[Y], data[Z] - other.data[Z]);
-}
-
-const Quaternion3f& Quaternion3f::operator -= (const Quaternion3f& other)
-{
-  data[W] -= other.data[W];
-  data[X] -= other.data[X];
-  data[Y] -= other.data[Y];
-  data[Z] -= other.data[Z];
-
-  return *this;
-}
-
-Quaternion3f Quaternion3f::operator * (const Quaternion3f& other) const
-{
-  return Quaternion3f(data[W] * other.data[W] - data[X] * other.data[X] - data[Y] * other.data[Y] - data[Z] * other.data[Z],
-                      data[W] * other.data[X] + data[X] * other.data[W] + data[Y] * other.data[Z] - data[Z] * other.data[Y],
-                      data[W] * other.data[Y] - data[X] * other.data[Z] + data[Y] * other.data[W] + data[Z] * other.data[X],
-                      data[W] * other.data[Z] + data[X] * other.data[Y] - data[Y] * other.data[X] + data[Z] * other.data[W]);
-}
-
 
 const Quaternion3f& Quaternion3f::operator *= (const Quaternion3f& other)
 {
@@ -282,56 +229,6 @@ const Quaternion3f& Quaternion3f::operator *= (FCL_REAL t)
   data[Z] *= t;
 
   return *this;
-}
-
-
-Quaternion3f& Quaternion3f::conj()
-{
-  data[X] = -data[X];
-  data[Y] = -data[Y];
-  data[Z] = -data[Z];
-  return *this;
-}
-
-Quaternion3f& Quaternion3f::inverse()
-{
-  FCL_REAL sqr_length = data[W] * data[W] + data[X] * data[X] + data[Y] * data[Y] + data[Z] * data[Z];
-  if(sqr_length > 0)
-  {
-    FCL_REAL inv_length = 1 / std::sqrt(sqr_length);
-    data[W] *= inv_length;
-    data[X] *= (-inv_length);
-    data[Y] *= (-inv_length);
-    data[Z] *= (-inv_length);
-  }
-  else
-  {
-    data[X] = -data[X];
-    data[Y] = -data[Y];
-    data[Z] = -data[Z];
-  }
-
-  return *this;
-}
-
-Vec3f Quaternion3f::transform(const Vec3f& v) const
-{
-  Vec3f u(x(), y(), z());
-  double s = w();
-  Vec3f vprime = 2*u.dot(v)*u + (s*s - u.dot(u))*v + 2*s*u.cross(v);
-  return vprime;
-}
-
-Quaternion3f conj(const Quaternion3f& q)
-{
-  Quaternion3f r(q);
-  return r.conj();
-}
-
-Quaternion3f inverse(const Quaternion3f& q)
-{
-  Quaternion3f res(q);
-  return res.inverse();
 }
 
 void Quaternion3f::fromEuler(FCL_REAL a, FCL_REAL b, FCL_REAL c)
@@ -388,14 +285,14 @@ Transform3f inverse(const Transform3f& tf)
 void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
                        Transform3f& tf)
 {
-  const Quaternion3f& q1_inv = fcl::conj(tf1.getQuatRotation());
+  const Quaternion3f& q1_inv = tf1.getQuatRotation().conj();
   tf = Transform3f(q1_inv * tf2.getQuatRotation(), q1_inv.transform(tf2.getTranslation() - tf1.getTranslation()));
 }
 
 void relativeTransform2(const Transform3f& tf1, const Transform3f& tf2,
                        Transform3f& tf)
 {
-  const Quaternion3f& q1inv = fcl::conj(tf1.getQuatRotation());
+  const Quaternion3f& q1inv = tf1.getQuatRotation().conj();
   const Quaternion3f& q2_q1inv = tf2.getQuatRotation() * q1inv;
   tf = Transform3f(q2_q1inv, tf2.getTranslation() - q2_q1inv.transform(tf1.getTranslation()));
 }

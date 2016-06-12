@@ -354,7 +354,7 @@ public:
 protected:
   void computeScrewParameter()
   {
-    Quaternion3f deltaq = tf2.getQuatRotation() * inverse(tf1.getQuatRotation());
+    Quaternion3f deltaq = tf2.getQuatRotation() * tf1.getQuatRotation().inverse();
     deltaq.toAxisAngle(axis, angular_vel);
     if(angular_vel < 0)
     {

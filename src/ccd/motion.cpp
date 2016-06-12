@@ -503,7 +503,7 @@ bool InterpMotion::integrate(double dt) const
 void InterpMotion::computeVelocity()
 {
   linear_vel = tf2.transform(reference_p) - tf1.transform(reference_p);
-  Quaternion3f deltaq = tf2.getQuatRotation() * inverse(tf1.getQuatRotation());
+  Quaternion3f deltaq = tf2.getQuatRotation() * tf1.getQuatRotation().inverse();
   deltaq.toAxisAngle(angular_axis, angular_vel);
   if(angular_vel < 0)
   {

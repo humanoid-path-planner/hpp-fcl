@@ -49,6 +49,8 @@ namespace fcl
 class TMatrix3
 {
   TVector3 v_[3];
+
+  template<int Rows> struct product_return_type { };
   
 public:
   TMatrix3();
@@ -63,9 +65,13 @@ public:
   const TaylorModel& operator () (size_t i, size_t j) const;
   TaylorModel& operator () (size_t i, size_t j);
 
-  TVector3 operator * (const Vec3f& v) const;
+  template<typename Derived>
+  typename product_return_type<Derived::ColsAtCompileTime>::type
+    operator * (const Eigen::MatrixBase<Derived>& rhs) const
+  {
+    return product_return_type<Derived::ColsAtCompileTime>::run(*this, rhs);
+  }
   TVector3 operator * (const TVector3& v) const;
-  TMatrix3 operator * (const Matrix3f& m) const;
   TMatrix3 operator * (const TMatrix3& m) const;
   TMatrix3 operator * (const TaylorModel& d) const;
   TMatrix3 operator * (FCL_REAL d) const;
@@ -105,6 +111,25 @@ public:
   const boost::shared_ptr<TimeInterval>& getTimeInterval() const;
 
   TMatrix3& rotationConstrain();
+};
+
+template<> struct TMatrix3::product_return_type <1> {
+  typedef TVector3 type;
+  template<typename Derived>
+  static type run (const TMatrix3& tm, const Eigen::MatrixBase<Derived>& rhs) {
+    return TVector3(tm.v_[0].dot(rhs), tm.v_[1].dot(rhs), tm.v_[2].dot(rhs));
+  }
+};
+template<> struct TMatrix3::product_return_type <3> {
+  typedef TMatrix3 type;
+  template<typename Derived>
+  static type run (const TMatrix3& tm, const Eigen::MatrixBase<Derived>& rhs)
+  {
+    return TMatrix3(
+        TVector3(tm.v_[0].dot(rhs.col(0)), tm.v_[0].dot(rhs.col(1)), tm.v_[0].dot(rhs.col(2))),
+        TVector3(tm.v_[1].dot(rhs.col(0)), tm.v_[1].dot(rhs.col(1)), tm.v_[1].dot(rhs.col(2))),
+        TVector3(tm.v_[2].dot(rhs.col(0)), tm.v_[2].dot(rhs.col(1)), tm.v_[2].dot(rhs.col(2))));
+  }
 };
 
 TMatrix3 rotationConstrain(const TMatrix3& m);

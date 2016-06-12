@@ -48,6 +48,10 @@ namespace fcl
 /// @brief Quaternion used locally by InterpMotion
 class Quaternion3f
 {
+private:
+  typedef Eigen::Matrix<FCL_REAL, 4, 1> Vec4f;
+  typedef typename Vec4f::     FixedSegmentReturnType<3>::Type XYZ_t;
+  typedef typename Vec4f::ConstFixedSegmentReturnType<3>::Type XYZConst_t;
 public:
   enum {
     W = 0,
@@ -58,16 +62,22 @@ public:
   /// @brief Default quaternion is identity rotation
   Quaternion3f()
   {
-    data[0] = 1;
-    data[1] = 0;
-    data[2] = 0;
-    data[3] = 0;
+    data[W] = 1;
+    data[X] = 0;
+    data[Y] = 0;
+    data[Z] = 0;
   }
+
+  /// @brief Construct quaternion from 4D vector
+  template <typename Derived>
+  Quaternion3f(const Eigen::MatrixBase<Derived>& other) :
+    data (other.derived())
+  {}
 
   /// @brief Whether the rotation is identity
   bool isIdentity() const
   {
-    return (data[0] == 1) && (data[1] == 0) && (data[2] == 0) && (data[3] == 0);
+    return (data[W] == 1) && (data[X] == 0) && (data[Y] == 0) && (data[Z] == 0);
   }
 
   /// @brief Matrix to quaternion
@@ -89,24 +99,50 @@ public:
   void toAxes(Matrix3f& axis) const;
 
   /// @brief Axis and angle to quaternion
-  void fromAxisAngle(const Vec3f& axis, FCL_REAL angle);
+  template<typename Derived>
+  inline void fromAxisAngle(const Eigen::MatrixBase<Derived>& axis, FCL_REAL angle)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
+    FCL_REAL half_angle = 0.5 * angle;
+    FCL_REAL sn = sin((double)half_angle);
+    data[W] = cos((double)half_angle);
+    data.segment<3>(X).noalias() = sn*axis;
+  }
 
   /// @brief Quaternion to axis and angle
   void toAxisAngle(Vec3f& axis, FCL_REAL& angle) const;
 
   /// @brief Dot product between quaternions
-  FCL_REAL dot(const Quaternion3f& other) const;
+  inline FCL_REAL dot(const Quaternion3f& other) const
+  {
+    return data.dot(other.data);
+  }
 
   /// @brief addition
-  Quaternion3f operator + (const Quaternion3f& other) const;
-  const Quaternion3f& operator += (const Quaternion3f& other);
+  inline const Eigen::CwiseBinaryOp<
+    Eigen::internal::scalar_sum_op <FCL_REAL>, const Vec4f, const Vec4f>
+    operator + (const Quaternion3f& other) const
+  {
+    return Eigen::CwiseBinaryOp< Eigen::internal::scalar_sum_op <FCL_REAL>,
+           const Vec4f, const Vec4f>
+             (data, other.data);
+  }
+  inline const Quaternion3f& operator += (const Quaternion3f& other)
+  {
+    data += other.data;
+    return *this;
+  }
 
   /// @brief minus
   Quaternion3f operator - (const Quaternion3f& other) const;
   const Quaternion3f& operator -= (const Quaternion3f& other);
 
   /// @brief multiplication
-  Quaternion3f operator * (const Quaternion3f& other) const;
+  inline Quaternion3f operator * (const Quaternion3f& other) const
+  {
+    return Quaternion3f(w() * other.w() - vec().dot(other.vec()),
+                        w() * other.vec() + other.w() * vec() + vec().cross(other.vec()));
+  }
   const Quaternion3f& operator *= (const Quaternion3f& other);
 
   /// @brief division
@@ -117,22 +153,54 @@ public:
   const Quaternion3f& operator *= (FCL_REAL t);
 
   /// @brief conjugate
-  Quaternion3f& conj();
+  inline Quaternion3f conj() const
+  {
+    return Quaternion3f (w(), -vec());
+  }
 
   /// @brief inverse
-  Quaternion3f& inverse();
+  inline Quaternion3f inverse() const {
+    return conj();
+  }
+
+  inline void normalize () {
+    FCL_REAL n = data.squaredNorm();
+    if (n > 0) data *= 1/sqrt(n);
+  }
+
+  template<typename Derived> struct Transform {
+    typedef typename XYZConst_t::cross_product_return_type<Derived>::type Cross_t;
+    typedef Eigen::CwiseBinaryOp <
+      Eigen::internal::scalar_sum_op <FCL_REAL>,
+      const typename Derived::ScalarMultipleReturnType,
+      const typename Cross_t::ScalarMultipleReturnType >
+      RightSum_t;
+    typedef Eigen::CwiseBinaryOp <
+      Eigen::internal::scalar_sum_op <FCL_REAL>,
+      const typename XYZConst_t::ScalarMultipleReturnType,
+      const RightSum_t >
+      Type;
+  };
 
   /// @brief rotate a vector
-  Vec3f transform(const Vec3f& v) const;
+  template<typename Derived>
+    /*inline Vec3f transform(const Eigen::MatrixBase<Derived>& v) const*/
+  inline typename Transform<Derived>::Type
+  transform(const Eigen::MatrixBase<Derived>& v) const
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
+    Vec4f::ConstFixedSegmentReturnType<3>::Type u (data.segment<3>(X));
+    const FCL_REAL& s = w();
+    /*return 2*u.dot(v)*u + (s*s - u.dot(u))*v + 2*s*u.cross(v);*/
+    const FCL_REAL uDv = u.dot(v);
+    const FCL_REAL uDu = u.dot(u);
+    const typename Transform<Derived>::RightSum_t rhs((s*s - uDu)*v, 2*s*u.cross(v.derived()));
+    return typename Transform<Derived>::Type (2*uDv*u, rhs);
+  }
 
   bool operator == (const Quaternion3f& other) const
   {
-    for(std::size_t i = 0; i < 4; ++i)
-    {
-      if(data[i] != other[i])
-        return false;
-    }
-    return true;
+    return (data == other.data);
   }
 
   bool operator != (const Quaternion3f& other) const
@@ -160,19 +228,24 @@ private:
     data[Z] = z;
   }
 
+  template<typename Derived>
+  Quaternion3f(FCL_REAL _w, const Eigen::MatrixBase<Derived>& _vec)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
+    w() = _w;
+    vec().noalias() = _vec;
+  }
+
   FCL_REAL operator [] (std::size_t i) const
   {
     return data[i];
   }
 
-  FCL_REAL data[4];
+  inline Vec4f::     FixedSegmentReturnType<3>::Type vec()       { return data.segment<3>(X); }
+  inline Vec4f::ConstFixedSegmentReturnType<3>::Type vec() const { return data.segment<3>(X); }
+
+  Vec4f data;
 };
-
-/// @brief conjugate of quaternion
-Quaternion3f conj(const Quaternion3f& q);
-
-/// @brief inverse of quaternion
-Quaternion3f inverse(const Quaternion3f& q);
 
 static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
 {
@@ -296,17 +369,19 @@ public:
   }
 
   /// @brief set transform from rotation
-  inline void setRotation(const Matrix3f& R_)
+  template<typename Derived>
+  inline void setRotation(const Eigen::MatrixBase<Derived>& R_)
   {
-    R = R_;
+    R.noalias() = R_;
     matrix_set = true;
-    q.fromRotation(R_);
+    q.fromRotation(R);
   }
 
   /// @brief set transform from translation
-  inline void setTranslation(const Vec3f& T_)
+  template<typename Derived>
+  inline void setTranslation(const Eigen::MatrixBase<Derived>& T_)
   {
-    T = T_;
+    T.noalias() = T_;
   }
 
   /// @brief set transform from rotation
@@ -317,8 +392,10 @@ public:
   }
 
   /// @brief transform a given vector by the transform
-  inline Vec3f transform(const Vec3f& v) const
+  template <typename Derived>
+  inline Vec3f transform(const Eigen::MatrixBase<Derived>& v) const
   {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
     return q.transform(v) + T;
   }
 
@@ -334,7 +411,7 @@ public:
   /// @brief inverse the transform and multiply with another
   inline Transform3f inverseTimes(const Transform3f& other) const
   {
-    const Quaternion3f& q_inv = fcl::conj(q);
+    const Quaternion3f& q_inv = q.conj();
     return Transform3f(q_inv * other.q, q_inv.transform(other.T - T));
   }
 

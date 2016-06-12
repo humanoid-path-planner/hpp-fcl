@@ -267,7 +267,7 @@ void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv)
 {
   const Vec3f& T = tf.getTranslation();
 
-  Vec3f v_delta(s.radius);
+  Vec3f v_delta(Vec3f::Constant(s.radius));
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
@@ -348,8 +348,8 @@ void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf, AABB&
   const FCL_REAL& d = new_s.d;
 
   AABB bv_;
-  bv_.min_ = Vec3f(-std::numeric_limits<FCL_REAL>::max());
-  bv_.max_ = Vec3f(std::numeric_limits<FCL_REAL>::max());
+  bv_.min_ = Vec3f::Constant(-std::numeric_limits<FCL_REAL>::max());
+  bv_.max_ = Vec3f::Constant(std::numeric_limits<FCL_REAL>::max());
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     // normal aligned with x axis
@@ -380,8 +380,8 @@ void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv)
   const FCL_REAL& d = new_s.d;  
 
   AABB bv_;
-  bv_.min_ = Vec3f(-std::numeric_limits<FCL_REAL>::max());
-  bv_.max_ = Vec3f(std::numeric_limits<FCL_REAL>::max());
+  bv_.min_ = Vec3f::Constant(-std::numeric_limits<FCL_REAL>::max());
+  bv_.max_ = Vec3f::Constant(std::numeric_limits<FCL_REAL>::max());
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     // normal aligned with x axis
