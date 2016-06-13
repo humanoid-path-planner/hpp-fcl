@@ -42,6 +42,48 @@
 #include <hpp/fcl/math/matrix_3f.h>
 #include <boost/thread/mutex.hpp>
 
+namespace fcl {
+  class Quaternion3f;
+  template<typename RhsType> struct quaternion_transform_return_type;
+  template<typename Lhs, typename Rhs> struct translate_return_type;
+
+  template<typename RhsType>
+  struct quaternion_transform_return_type_traits {
+    typedef Eigen::Matrix<FCL_REAL, 4, 1> Vec4f;
+    typedef typename Vec4f::     FixedSegmentReturnType<3>::Type XYZ_t;
+    typedef typename Vec4f::ConstFixedSegmentReturnType<3>::Type XYZConst_t;
+
+    typedef typename XYZConst_t::cross_product_return_type<RhsType>::type Cross_t;
+    typedef Eigen::CwiseBinaryOp <
+      Eigen::internal::scalar_sum_op <FCL_REAL>,
+      const typename RhsType::ScalarMultipleReturnType,
+      const typename fcl::Vec3f::ScalarMultipleReturnType >
+        rhs_type;
+    typedef Eigen::CwiseBinaryOp <
+      Eigen::internal::scalar_sum_op <FCL_REAL>,
+      const typename XYZConst_t::ScalarMultipleReturnType,
+      const rhs_type >
+        type;
+  };
+
+  template<typename Lhs, typename Rhs>
+  struct translate_return_type_traits {
+    typedef Eigen::CwiseBinaryOp <
+      Eigen::internal::scalar_sum_op <FCL_REAL>,
+      const quaternion_transform_return_type<Lhs>,
+      const Rhs > type;
+  };
+}
+
+namespace Eigen {
+  namespace internal {
+    template<typename Derived> struct traits<typename fcl::quaternion_transform_return_type<Derived> > :
+      traits< typename fcl::quaternion_transform_return_type_traits<Derived>::type > {};
+    template<typename Lhs, typename Rhs> struct traits<typename fcl::translate_return_type<Lhs, Rhs> > :
+      traits< typename fcl::translate_return_type_traits<Lhs, Rhs>::type > {};
+  }
+}
+
 namespace fcl
 {
 
@@ -54,20 +96,6 @@ private:
   typedef typename Vec4f::ConstFixedSegmentReturnType<3>::Type XYZConst_t;
 
 public:
-  template<typename Derived> struct transform_return_type {
-    typedef typename XYZConst_t::cross_product_return_type<Derived>::type Cross_t;
-    typedef Eigen::CwiseBinaryOp <
-      Eigen::internal::scalar_sum_op <FCL_REAL>,
-      const typename Derived::ScalarMultipleReturnType,
-      const typename Cross_t::ScalarMultipleReturnType >
-      RightSum_t;
-    typedef Eigen::CwiseBinaryOp <
-      Eigen::internal::scalar_sum_op <FCL_REAL>,
-      const typename XYZConst_t::ScalarMultipleReturnType,
-      const RightSum_t >
-      Type;
-  };
-
   enum {
     W = 0,
     X = 1,
@@ -171,7 +199,9 @@ public:
 
   /// @brief inverse
   inline Quaternion3f inverse() const {
-    return conj();
+    Quaternion3f inv = conj();
+    inv.normalize();
+    return inv;
   }
 
   inline void normalize () {
@@ -181,19 +211,8 @@ public:
 
   /// @brief rotate a vector
   template<typename Derived>
-    /*inline Vec3f transform(const Eigen::MatrixBase<Derived>& v) const*/
-  inline typename transform_return_type<Derived>::Type
-  transform(const Eigen::MatrixBase<Derived>& v) const
-  {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
-    Vec4f::ConstFixedSegmentReturnType<3>::Type u (data.segment<3>(X));
-    const FCL_REAL& s = w();
-    /*return 2*u.dot(v)*u + (s*s - u.dot(u))*v + 2*s*u.cross(v);*/
-    const FCL_REAL uDv = u.dot(v);
-    const FCL_REAL uDu = u.dot(u);
-    const typename transform_return_type<Derived>::RightSum_t rhs((s*s - uDu)*v, 2*s*u.cross(v.derived()));
-    return typename transform_return_type<Derived>::Type (2*uDv*u, rhs);
-  }
+  inline const quaternion_transform_return_type<Derived>
+  transform(const Eigen::MatrixBase<Derived>& v) const;
 
   bool operator == (const Quaternion3f& other) const
   {
@@ -242,7 +261,58 @@ private:
   inline Vec4f::ConstFixedSegmentReturnType<3>::Type vec() const { return data.segment<3>(X); }
 
   Vec4f data;
+
+  template<typename Derived>
+  friend struct quaternion_transform_return_type;
 };
+
+template<typename RhsType> struct quaternion_transform_return_type :
+  quaternion_transform_return_type_traits<RhsType>::type
+{
+  typedef quaternion_transform_return_type_traits<RhsType> quat_traits;
+
+  typedef typename quat_traits::type Base;
+
+  EIGEN_GENERIC_PUBLIC_INTERFACE(quaternion_transform_return_type)
+
+  EIGEN_STRONG_INLINE quaternion_transform_return_type(const Quaternion3f& q, const Eigen::MatrixBase<RhsType>& v) :
+      Base (2*q.vec().dot(v) * q.vec(), ((q.w()*q.w() - q.vec().dot(q.vec()))*v + 2*q.w()*m_uCrossV)),
+      m_uCrossV (q.vec().cross(v))
+  {}
+
+  typename quat_traits::Cross_t m_uCrossV;
+};
+
+template<typename LhsType, typename RhsType> struct translate_return_type :
+  translate_return_type_traits<LhsType, RhsType>::type
+{
+  typedef translate_return_type_traits<LhsType, RhsType> trans_traits;
+
+  typedef typename trans_traits::type Base;
+
+  EIGEN_GENERIC_PUBLIC_INTERFACE(translate_return_type)
+
+  EIGEN_STRONG_INLINE translate_return_type(const quaternion_transform_return_type<LhsType>& rv, const RhsType& T) :
+    Base (rv, T)
+  {}
+};
+
+template<typename Derived, typename OtherDerived>
+const translate_return_type<Derived, OtherDerived>
+operator+ (const quaternion_transform_return_type<Derived>& rv,
+           const Eigen::MatrixBase<OtherDerived>& T)
+{
+  EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
+  EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(OtherDerived, 3);
+  return translate_return_type<Derived, OtherDerived>(rv, T.derived());
+}
+
+template<typename Derived>
+const quaternion_transform_return_type<Derived>
+Quaternion3f::transform (const Eigen::MatrixBase<Derived>& v) const
+{
+  return quaternion_transform_return_type<Derived> (*this, v.derived());
+}
 
 static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
 {
@@ -250,18 +320,9 @@ static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
   return o;
 }
 
-
 /// @brief Simple transform class used locally by InterpMotion
 class Transform3f
 {
-  template<typename Derived> struct transform_return_type {
-    typedef Eigen::CwiseBinaryOp <
-      Eigen::internal::scalar_sum_op <FCL_REAL>,
-      const typename Quaternion3f::transform_return_type<Derived>::Type,
-      const Vec3f >
-      Type;
-  };
-
   boost::mutex lock_;
 
   /// @brief Whether matrix cache is set
@@ -398,9 +459,8 @@ public:
 
   /// @brief transform a given vector by the transform
   template <typename Derived>
-  inline typename transform_return_type<Derived>::Type transform(const Eigen::MatrixBase<Derived>& v) const
+  inline Vec3f transform(const Eigen::MatrixBase<Derived>& v) const
   {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
     return q.transform(v) + T;
   }
 
@@ -408,7 +468,7 @@ public:
   inline Transform3f& inverse()
   {
     matrix_set = false;
-    q.conj();
+    q = q.conj();
     T = q.transform(-T).eval();
     return *this;
   }
