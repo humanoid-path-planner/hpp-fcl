@@ -45,7 +45,7 @@
 namespace fcl {
   class Quaternion3f;
   template<typename RhsType> struct quaternion_transform_return_type;
-  template<typename Lhs, typename Rhs> struct translate_return_type;
+  template<typename Lhs, typename Rhs, bool hasTemp> struct translate_return_type;
 
   template<typename RhsType>
   struct quaternion_transform_return_type_traits {
@@ -66,12 +66,27 @@ namespace fcl {
         type;
   };
 
-  template<typename Lhs, typename Rhs>
+  template<typename Lhs, typename Rhs, bool hasTemp /* = false */>
   struct translate_return_type_traits {
     typedef Eigen::CwiseBinaryOp <
       Eigen::internal::scalar_sum_op <FCL_REAL>,
       const quaternion_transform_return_type<Lhs>,
       const Rhs > type;
+
+    struct storage_type {};
+  };
+  template<typename Lhs, typename Rhs>
+  struct translate_return_type_traits<Lhs, Rhs, true> {
+    typedef Eigen::CwiseBinaryOp <
+      Eigen::internal::scalar_sum_op <FCL_REAL>,
+      const quaternion_transform_return_type<Lhs>,
+      const Rhs > type;
+
+    struct storage_type {
+      quaternion_transform_return_type<Lhs> const store_lhs;
+      storage_type(const Quaternion3f& q, const Eigen::MatrixBase<Lhs>& v)
+        : store_lhs(q,v) {}
+    };
   };
 }
 
@@ -79,8 +94,8 @@ namespace Eigen {
   namespace internal {
     template<typename Derived> struct traits<typename fcl::quaternion_transform_return_type<Derived> > :
       traits< typename fcl::quaternion_transform_return_type_traits<Derived>::type > {};
-    template<typename Lhs, typename Rhs> struct traits<typename fcl::translate_return_type<Lhs, Rhs> > :
-      traits< typename fcl::translate_return_type_traits<Lhs, Rhs>::type > {};
+    template<typename Lhs, typename Rhs, bool hasTemp> struct traits<typename fcl::translate_return_type<Lhs, Rhs, hasTemp> > :
+      traits< typename fcl::translate_return_type_traits<Lhs, Rhs, hasTemp>::type > {};
   }
 }
 
@@ -283,28 +298,35 @@ template<typename RhsType> struct quaternion_transform_return_type :
   typename quat_traits::Cross_t m_uCrossV;
 };
 
-template<typename LhsType, typename RhsType> struct translate_return_type :
-  translate_return_type_traits<LhsType, RhsType>::type
+template<typename LhsType, typename RhsType, bool hasTemp> struct translate_return_type :
+  translate_return_type_traits<LhsType, RhsType, hasTemp>::storage_type,
+  translate_return_type_traits<LhsType, RhsType, hasTemp>::type
 {
-  typedef translate_return_type_traits<LhsType, RhsType> trans_traits;
+  typedef translate_return_type_traits<LhsType, RhsType, hasTemp> trans_traits;
 
   typedef typename trans_traits::type Base;
+  typedef typename trans_traits::storage_type storage_type;
 
   EIGEN_GENERIC_PUBLIC_INTERFACE(translate_return_type)
 
   EIGEN_STRONG_INLINE translate_return_type(const quaternion_transform_return_type<LhsType>& rv, const RhsType& T) :
     Base (rv, T)
   {}
+
+  EIGEN_STRONG_INLINE translate_return_type(const Quaternion3f&q, const Eigen::MatrixBase<LhsType>& v, const RhsType& T) :
+    storage_type (q, v),
+    Base (this->store_lhs, T)
+  {}
 };
 
 template<typename Derived, typename OtherDerived>
-const translate_return_type<Derived, OtherDerived>
+const translate_return_type<Derived, OtherDerived, false>
 operator+ (const quaternion_transform_return_type<Derived>& rv,
            const Eigen::MatrixBase<OtherDerived>& T)
 {
   EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
   EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(OtherDerived, 3);
-  return translate_return_type<Derived, OtherDerived>(rv, T.derived());
+  return translate_return_type<Derived, OtherDerived, false>(rv, T.derived());
 }
 
 template<typename Derived>
@@ -459,9 +481,9 @@ public:
 
   /// @brief transform a given vector by the transform
   template <typename Derived>
-  inline Vec3f transform(const Eigen::MatrixBase<Derived>& v) const
+  inline const translate_return_type<Derived, Vec3f, true> transform(const Eigen::MatrixBase<Derived>& v) const
   {
-    return q.transform(v) + T;
+    return translate_return_type<Derived, Vec3f, true>(q, v, T);
   }
 
   /// @brief inverse transform
