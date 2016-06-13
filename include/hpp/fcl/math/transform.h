@@ -442,10 +442,10 @@ public:
   /// @brief set transform from rotation and translation
   inline void setTransform(const Matrix3f& R_, const Vec3f& T_)
   {
-    R = R_;
-    T = T_;
-    matrix_set = true;
+    R.noalias() = R_;
+    T.noalias() = T_;
     q.fromRotation(R_);
+    matrix_set = true;
   }
 
   /// @brief set transform from rotation and translation
@@ -453,7 +453,7 @@ public:
   {
     matrix_set = false;
     q = q_;
-    T = T_;
+    T.noalias() = T_;
   }
 
   /// @brief set transform from rotation
