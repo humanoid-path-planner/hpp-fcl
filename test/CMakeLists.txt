@@ -47,3 +47,6 @@ if (FCL_HAVE_OCTOMAP)
   PKG_CONFIG_USE_DEPENDENCY(test_fcl_octomap octomap)
 endif()
 
+## Benchmark
+add_executable(benchmark benchmark.cpp test_fcl_utility.cpp)
+target_link_libraries(benchmark hpp-fcl ${Boost_LIBRARIES})
