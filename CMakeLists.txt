@@ -46,8 +46,6 @@ set(PROJECT_URL "http://github.com/humanoid-path-planner/hpp-fcl")
 
 setup_project()
 
-set(FCL_HAVE_SSE FALSE CACHE BOOL "Enable SSE vectorization")
-
 add_required_dependency("eigen3 >= 3.0.0")
 set(FCL_HAVE_EIGEN TRUE)
 include_directories(${EIGEN3_INCLUDE_DIRS})
