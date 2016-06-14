@@ -132,6 +132,22 @@ public:
     data (other.derived())
   {}
 
+  Quaternion3f(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z)
+  {
+    data[W] = w;
+    data[X] = x;
+    data[Y] = y;
+    data[Z] = z;
+  }
+
+  template<typename Derived>
+  Quaternion3f(FCL_REAL _w, const Eigen::MatrixBase<Derived>& _vec)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
+    w() = _w;
+    vec().noalias() = _vec;
+  }
+
   /// @brief Whether the rotation is identity
   bool isIdentity() const
   {
@@ -250,22 +266,6 @@ public:
   inline const FCL_REAL& z() const { return data[Z]; }
 
 private:
-
-  Quaternion3f(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z)
-  {
-    data[W] = w;
-    data[X] = x;
-    data[Y] = y;
-    data[Z] = z;
-  }
-
-  template<typename Derived>
-  Quaternion3f(FCL_REAL _w, const Eigen::MatrixBase<Derived>& _vec)
-  {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
-    w() = _w;
-    vec().noalias() = _vec;
-  }
 
   FCL_REAL operator [] (std::size_t i) const
   {
