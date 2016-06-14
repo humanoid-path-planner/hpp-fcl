@@ -110,6 +110,7 @@ private:
   typedef typename Vec4f::     FixedSegmentReturnType<3>::Type XYZ_t;
   typedef typename Vec4f::ConstFixedSegmentReturnType<3>::Type XYZConst_t;
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 public:
   enum {
     W = 0,
