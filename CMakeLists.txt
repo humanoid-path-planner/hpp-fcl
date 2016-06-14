@@ -64,11 +64,6 @@ if (OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
 else()
 	message(STATUS "FCL does not use Octomap")
 endif()
-# flann package ill defined: comment.
-# add_optional_dependency("flann >= 1.7")
-# if (${FLANN_FOUND})
-#   add_definitions(-DFCL_HAVE_FLANN=1)
-# endif()
 
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h
