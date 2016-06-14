@@ -41,7 +41,6 @@
 #include <hpp/fcl/math/matrix_3f.h>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/broadphase/morton.h>
-#include <hpp/fcl/config.h>
 
 using namespace fcl;
 
