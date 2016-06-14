@@ -49,7 +49,7 @@ namespace fcl {
 
   template<typename RhsType>
   struct quaternion_transform_return_type_traits {
-    typedef Eigen::Matrix<FCL_REAL, 4, 1> Vec4f;
+    typedef Eigen::Matrix<FCL_REAL, 4, 1, Eigen::DontAlign> Vec4f;
     typedef typename Vec4f::     FixedSegmentReturnType<3>::Type XYZ_t;
     typedef typename Vec4f::ConstFixedSegmentReturnType<3>::Type XYZConst_t;
 
@@ -106,7 +106,7 @@ namespace fcl
 class Quaternion3f
 {
 private:
-  typedef Eigen::Matrix<FCL_REAL, 4, 1> Vec4f;
+  typedef Eigen::Matrix<FCL_REAL, 4, 1, Eigen::DontAlign> Vec4f;
   typedef typename Vec4f::     FixedSegmentReturnType<3>::Type XYZ_t;
   typedef typename Vec4f::ConstFixedSegmentReturnType<3>::Type XYZConst_t;
 
@@ -273,8 +273,8 @@ private:
     return data[i];
   }
 
-  inline Vec4f::     FixedSegmentReturnType<3>::Type vec()       { return data.segment<3>(X); }
-  inline Vec4f::ConstFixedSegmentReturnType<3>::Type vec() const { return data.segment<3>(X); }
+  inline XYZ_t      vec()       { return data.segment<3>(X); }
+  inline XYZConst_t vec() const { return data.segment<3>(X); }
 
   Vec4f data;
 
