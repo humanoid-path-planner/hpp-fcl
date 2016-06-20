@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2014, CNRS-LAAS
+ *  Copyright (c) 2014-2016, CNRS-LAAS
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define BOOST_TEST_MODULE "FCL_DISTANCE_LOWER_BOUND"
-# include <boost/test/included/unit_test.hpp>
+#define BOOST_TEST_MODULE FCL_DISTANCE_LOWER_BOUND
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
 # include <boost/filesystem.hpp>
 
 #include <hpp/fcl/fwd.hh>
