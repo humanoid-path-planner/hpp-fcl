@@ -34,8 +34,10 @@
  */
 
 
-#define BOOST_TEST_MODULE "FCL_MATH"
-#include <boost/test/included/unit_test.hpp>
+#define BOOST_TEST_MODULE FCL_MATH
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
 
 #if FCL_HAVE_EIGEN
 #include <hpp/fcl/eigen/math_details.h>

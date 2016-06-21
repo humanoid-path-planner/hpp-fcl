@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2014, CNRS
+ *  Copyright (c) 2014-2016, CNRS-LAAS
  *  Author: Florent Lamiraux
  *  All rights reserved.
  *
@@ -33,7 +33,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define BOOST_TEST_MODULE "FCL_DISTANCE_OBB"
+#define BOOST_TEST_MODULE FCL_DISTANCE_OBB
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
+
 #define CHECK_CLOSE_TO_0(x, eps) BOOST_CHECK_CLOSE ((x + 1.0), (1.0), (eps))
 
 #include <boost/test/included/unit_test.hpp>
