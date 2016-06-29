@@ -43,6 +43,7 @@
 #cmakedefine01 FCL_HAVE_OCTOMAP
 #cmakedefine01 FCL_HAVE_FLANN
 #cmakedefine01 FCL_HAVE_TINYXML
+#cmakedefine01 FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
 
 #endif // FCL_CONFIG_FCL_HH
 

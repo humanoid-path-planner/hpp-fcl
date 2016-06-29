@@ -75,6 +75,16 @@ endif()
 # if (${FLANN_FOUND})
 #   add_definitions(-DFCL_HAVE_FLANN=1)
 # endif()
+ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
+if(ASSIMP_FOUND)
+  if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
+    set(FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES 1 )
+    message(STATUS "Assimp version has unified headers")
+  else()
+    set(FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES 0 )
+    message(STATUS "Assimp version does not have unified headers")
+  endif()
+endif()
 
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h
@@ -173,6 +183,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/eigen/taylor_operator.h
   include/hpp/fcl/eigen/plugins/ccd/interval-matrix.h
   include/hpp/fcl/eigen/plugins/ccd/interval-vector.h
+  include/hpp/fcl/mesh_loader/assimp.h
   )
 
 add_subdirectory(src)
