@@ -9,10 +9,7 @@ sudo apt-get -qq --yes --force-yes install libboost-all-dev
 sudo apt-get -qq --yes --force-yes install libccd-dev
 
 # Assimp
-sudo echo "deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub trusty robotpkg" >> /etc/apt/sources.list.d/robotpkg.list
-curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -
-sudo apt-get update
-sudo apt-get install robotpkg-assimp
+sudo apt-get install libassimp-dev
 
 ########################
 # Optional dependencies
