@@ -35,8 +35,10 @@
 
 /** \author Jia Pan */
 
-#define BOOST_TEST_MODULE "FCL_DISTANCE"
-#include <boost/test/included/unit_test.hpp>
+#define BOOST_TEST_MODULE FCL_DISTANCE
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
 
 #include <hpp/fcl/traversal/traversal_node_bvhs.h>
 #include <hpp/fcl/traversal/traversal_node_setup.h>

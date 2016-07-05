@@ -33,8 +33,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define BOOST_TEST_MODULE "FCL_EIGEN"
-#include <boost/test/included/unit_test.hpp>
+#define BOOST_TEST_MODULE FCL_EIGEN
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
 
 #include <hpp/fcl/config-fcl.hh>
 #include <hpp/fcl/eigen/vec_3fx.h>
