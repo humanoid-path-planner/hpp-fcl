@@ -8,6 +8,9 @@ sudo apt-get -qq --yes --force-yes install cmake
 sudo apt-get -qq --yes --force-yes install libboost-all-dev
 sudo apt-get -qq --yes --force-yes install libccd-dev
 
+# Assimp
+sudo apt-get install libassimp-dev
+
 ########################
 # Optional dependencies
 ########################
@@ -22,3 +25,4 @@ cd build
 cmake ..
 make
 sudo make install
+
