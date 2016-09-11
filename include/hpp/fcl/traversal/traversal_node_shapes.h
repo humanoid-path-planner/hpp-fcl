@@ -45,7 +45,6 @@
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
-#include <hpp/fcl/ccd/motion.h>
 
 namespace fcl
 {
@@ -168,60 +167,6 @@ public:
 
   const NarrowPhaseSolver* nsolver;
 };
-
-template<typename S1, typename S2, typename NarrowPhaseSolver>
-class ShapeConservativeAdvancementTraversalNode : public ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>
-{
-public:
-  ShapeConservativeAdvancementTraversalNode() : ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>()
-  {
-    delta_t = 1;
-    toc = 0;
-    t_err = (FCL_REAL)0.0001;
-
-    motion1 = NULL;
-    motion2 = NULL;
-  }
-
-  void leafTesting(int, int) const
-  {
-    FCL_REAL distance;
-    Vec3f closest_p1, closest_p2;
-    this->nsolver->shapeDistance(*(this->model1), this->tf1, *(this->model2), this->tf2, &distance, &closest_p1, &closest_p2);
-
-    Vec3f n = this->tf2.transform(closest_p2) - this->tf1.transform(closest_p1); n.normalize();
-    TBVMotionBoundVisitor<RSS> mb_visitor1(model1_bv, n);
-    TBVMotionBoundVisitor<RSS> mb_visitor2(model2_bv, -n);
-    FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
-    FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
-
-    FCL_REAL bound = bound1 + bound2;
-
-    FCL_REAL cur_delta_t;
-    if(bound <= distance) cur_delta_t = 1;
-    else cur_delta_t = distance / bound;
-
-    if(cur_delta_t < delta_t)
-      delta_t  = cur_delta_t;
-  }
-
-  mutable FCL_REAL min_distance;
-
-  /// @brief The time from beginning point
-  FCL_REAL toc;
-  FCL_REAL t_err;
-
-  /// @brief The delta_t each step
-  mutable FCL_REAL delta_t;
-
-  /// @brief Motions for the two objects in query
-  const MotionBase* motion1;
-  const MotionBase* motion2;
-
-  RSS model1_bv, model2_bv; // local bv for the two shapes
-};
-
-
 }
 
 #endif

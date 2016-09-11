@@ -470,58 +470,6 @@ public:
   }
 };
 
-
-enum CCDMotionType {CCDM_TRANS, CCDM_LINEAR, CCDM_SCREW, CCDM_SPLINE};
-enum CCDSolverType {CCDC_NAIVE, CCDC_CONSERVATIVE_ADVANCEMENT, CCDC_RAY_SHOOTING, CCDC_POLYNOMIAL_SOLVER};
-
-
-struct ContinuousCollisionRequest
-{
-  /// @brief maximum num of iterations
-  std::size_t num_max_iterations;
-
-  /// @brief error in first contact time
-  FCL_REAL toc_err;
-
-  /// @brief ccd motion type
-  CCDMotionType ccd_motion_type;
-
-  /// @brief gjk solver type
-  GJKSolverType gjk_solver_type;
-
-  /// @brief ccd solver type
-  CCDSolverType ccd_solver_type;
-  
-  ContinuousCollisionRequest(std::size_t num_max_iterations_ = 10,
-                             FCL_REAL toc_err_ = 0.0001,
-                             CCDMotionType ccd_motion_type_ = CCDM_TRANS,
-                             GJKSolverType gjk_solver_type_ = GST_LIBCCD,
-                             CCDSolverType ccd_solver_type_ = CCDC_NAIVE) : num_max_iterations(num_max_iterations_),
-                                                                            toc_err(toc_err_),
-                                                                            ccd_motion_type(ccd_motion_type_),
-                                                                            gjk_solver_type(gjk_solver_type_),
-                                                                            ccd_solver_type(ccd_solver_type_)
-  {
-  }
-  
-};
-/// @brief continuous collision result
-struct ContinuousCollisionResult
-{
-  /// @brief collision or not
-  bool is_collide;
-  
-  /// @brief time of contact in [0, 1]
-  FCL_REAL time_of_contact;
-
-  Transform3f contact_tf1, contact_tf2;
-  
-  ContinuousCollisionResult() : is_collide(false), time_of_contact(1.0)
-  {
-  }
-};
-
-
 enum PenetrationDepthType {PDT_TRANSLATIONAL, PDT_GENERAL_EULER, PDT_GENERAL_QUAT, PDT_GENERAL_EULER_BALL, PDT_GENERAL_QUAT_BALL};
 
 enum KNNSolverType {KNN_LINEAR, KNN_GNAT, KNN_SQRTAPPROX};

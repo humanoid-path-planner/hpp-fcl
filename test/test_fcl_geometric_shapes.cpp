@@ -44,7 +44,6 @@
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/collision.h>
 #include "test_fcl_utility.h"
-#include <hpp/fcl/ccd/motion.h>
 #include <iostream>
 
 using namespace fcl;

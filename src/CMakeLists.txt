@@ -36,17 +36,6 @@ set(LIBRARY_NAME ${PROJECT_NAME})
 set(${LIBRARY_NAME}_SOURCES
   collision.cpp
   distance_func_matrix.cpp
-  ccd/taylor_matrix.cpp
-  ccd/taylor_model.cpp
-  ccd/interval.cpp
-  ccd/interval_vector.cpp
-  ccd/conservative_advancement.cpp
-  ccd/taylor_vector.cpp
-  ccd/interval_matrix.cpp
-  ccd/interpolation/interpolation_linear.cpp
-  ccd/interpolation/interpolation_factory.cpp
-  ccd/interpolation/interpolation.cpp
-  ccd/motion.cpp
   collision_data.cpp
   collision_node.cpp
   BV/RSS.cpp
@@ -78,7 +67,6 @@ set(${LIBRARY_NAME}_SOURCES
   traversal/traversal_recurse.cpp
   traversal/traversal_node_base.cpp
   profile.cpp
-  continuous_collision.cpp
   articulated_model/link.cpp
   articulated_model/model.cpp
   articulated_model/model_config.cpp

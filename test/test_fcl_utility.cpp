@@ -1,6 +1,5 @@
 #include "test_fcl_utility.h"
 #include <hpp/fcl/collision.h>
-#include <hpp/fcl/continuous_collision.h>
 #include <hpp/fcl/distance.h>
 #include <cstdio>
 #include <cstddef>
@@ -380,24 +379,6 @@ bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cda
   if(dist <= 0) return true; // in collision or in touch
 
   return cdata->done;
-}
-
-bool defaultContinuousCollisionFunction(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata_)
-{
-  ContinuousCollisionData* cdata = static_cast<ContinuousCollisionData*>(cdata_);
-  const ContinuousCollisionRequest& request = cdata->request;
-  ContinuousCollisionResult& result = cdata->result;
-
-  if(cdata->done) return true;
-
-  collide(o1, o2, request, result);
-
-  return cdata->done;
-}
-
-bool defaultContinuousDistanceFunction(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata_, FCL_REAL& dist)
-{
-  return true;
 }
 
 std::string getNodeTypeName(NODE_TYPE node_type)

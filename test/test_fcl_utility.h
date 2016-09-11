@@ -148,40 +148,11 @@ struct DistanceData
 
 };
 
-/// @brief Continuous collision data stores the continuous collision request and result given the continuous collision algorithm.
-struct ContinuousCollisionData
-{
-  ContinuousCollisionData()
-  {
-    done = false;
-  }
-
-  /// @brief Continuous collision request
-  ContinuousCollisionRequest request;
-
-  /// @brief Continuous collision result
-  ContinuousCollisionResult result;
-
-  /// @brief Whether the continuous collision iteration can stop
-  bool done;
-};
-
-
-
 /// @brief Default collision callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now.
 bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata);
 
 /// @brief Default distance callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now. also return dist, i.e. the bmin distance till now
 bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& dist);
-
-
-
-
-
-bool defaultContinuousCollisionFunction(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata_);
-
-bool defaultContinuousDistanceFunction(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata_, FCL_REAL& dist);
-
 
 std::string getNodeTypeName(NODE_TYPE node_type);
 

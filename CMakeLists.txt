@@ -90,20 +90,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h
   include/hpp/fcl/profile.h
   include/hpp/fcl/exception.h
-  include/hpp/fcl/ccd/taylor_vector.h
-  include/hpp/fcl/ccd/interval_vector.h
   include/hpp/fcl/ccd/simplex.h
   include/hpp/fcl/ccd/support.h
-  include/hpp/fcl/ccd/interval_matrix.h
-  include/hpp/fcl/ccd/interval.h
-  include/hpp/fcl/ccd/interpolation/interpolation_factory.h
-  include/hpp/fcl/ccd/interpolation/interpolation_linear.h
-  include/hpp/fcl/ccd/interpolation/interpolation.h
-  include/hpp/fcl/ccd/conservative_advancement.h
-  include/hpp/fcl/ccd/taylor_model.h
-  include/hpp/fcl/ccd/taylor_matrix.h
-  include/hpp/fcl/ccd/motion_base.h
-  include/hpp/fcl/ccd/motion.h
   include/hpp/fcl/deprecated.h
   include/hpp/fcl/BV/kIOS.h
   include/hpp/fcl/BV/BV.h
@@ -145,7 +133,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/knn/nearest_neighbors_sqrtapprox.h
   include/hpp/fcl/knn/nearest_neighbors_linear.h
   include/hpp/fcl/knn/nearest_neighbors.h
-  include/hpp/fcl/continuous_collision.h
   include/hpp/fcl/math/vec_nf.h
   include/hpp/fcl/math/matrix_3f.h
   include/hpp/fcl/math/matrix_3fx.h

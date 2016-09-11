@@ -39,6 +39,8 @@
 #ifndef FCL_GEOMETRIC_SHAPES_H
 #define FCL_GEOMETRIC_SHAPES_H
 
+#include <boost/math/constants/constants.hpp>
+
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/math/vec_3f.h>
 #include <string.h>

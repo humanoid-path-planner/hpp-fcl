@@ -42,7 +42,6 @@
 #include <hpp/fcl/deprecated.h>
 #include <hpp/fcl/BV/AABB.h>
 #include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/ccd/motion_base.h>
 #include <boost/shared_ptr.hpp>
 
 namespace fcl
@@ -358,126 +357,6 @@ protected:
 
   /// @brief pointer to user defined data specific to this object
   void *user_data;
-};
-
-
-/// @brief the object for continuous collision or distance computation, contains the geometry and the motion information
-class ContinuousCollisionObject
-{
-public:
-  ContinuousCollisionObject(const boost::shared_ptr<CollisionGeometry>& cgeom_) :
-    cgeom(cgeom_), cgeom_const(cgeom_)
-  {
-  }
-
-  ContinuousCollisionObject(const boost::shared_ptr<CollisionGeometry>& cgeom_, const boost::shared_ptr<MotionBase>& motion_) :
-    cgeom(cgeom_), cgeom_const(cgeom), motion(motion_)
-  {
-  }
-
-  ~ContinuousCollisionObject() {}
-
-  /// @brief get the type of the object
-  OBJECT_TYPE getObjectType() const
-  {
-    return cgeom->getObjectType();
-  }
-
-  /// @brief get the node type
-  NODE_TYPE getNodeType() const
-  {
-    return cgeom->getNodeType();
-  }
-
-  /// @brief get the AABB in the world space for the motion
-  inline const AABB& getAABB() const
-  {
-    return aabb;
-  }
-
-  /// @brief compute the AABB in the world space for the motion
-  inline void computeAABB()
-  {
-    IVector3 box;
-    TMatrix3 R;
-    TVector3 T;
-    motion->getTaylorModel(R, T);
-
-    Vec3f p = cgeom->aabb_local.min_;
-    box = (R * p + T).getTightBound();
-
-    p[2] = cgeom->aabb_local.max_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[1] = cgeom->aabb_local.max_[1];
-    p[2] = cgeom->aabb_local.min_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[2] = cgeom->aabb_local.max_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[0] = cgeom->aabb_local.max_[0];
-    p[1] = cgeom->aabb_local.min_[1];
-    p[2] = cgeom->aabb_local.min_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[2] = cgeom->aabb_local.max_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[1] = cgeom->aabb_local.max_[1];
-    p[2] = cgeom->aabb_local.min_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[2] = cgeom->aabb_local.max_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    aabb.min_ = box.getLow();
-    aabb.max_ = box.getHigh();
-  }
-
-  /// @brief get user data in object
-  void* getUserData() const
-  {
-    return user_data;
-  }
-
-  /// @brief set user data in object
-  void setUserData(void* data)
-  {
-    user_data = data;
-  }
-
-  /// @brief get motion from the object instance
-  inline MotionBase* getMotion() const
-  {
-    return motion.get();
-  }
-
-  /// @brief get geometry from the object instance
-  FCL_DEPRECATED
-  inline const CollisionGeometry* getCollisionGeometry() const
-  {
-    return cgeom.get();
-  }
-
-  /// @brief get geometry from the object instance
-  inline const boost::shared_ptr<const CollisionGeometry>& collisionGeometry() const
-  {
-    return cgeom_const;
-  }
-
-protected:
-
-  boost::shared_ptr<CollisionGeometry> cgeom;
-  boost::shared_ptr<const CollisionGeometry> cgeom_const;
-
-  boost::shared_ptr<MotionBase> motion;
-
-  /// @brief AABB in the global coordinate for the motion
-  mutable AABB aabb;
-
-  /// @brief pointer to user defined data specific to this object
-  void* user_data;
 };
 
 }
