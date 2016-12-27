@@ -141,11 +141,6 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
 {
   switch(request.gjk_solver_type)
   {
-  case GST_LIBCCD:
-    {
-      GJKSolver_libccd solver;
-      return collide<GJKSolver_libccd>(o1, o2, &solver, request, result);
-    }
   case GST_INDEP:
     {
       GJKSolver_indep solver;
@@ -162,11 +157,6 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
 {
   switch(request.gjk_solver_type)
   {
-  case GST_LIBCCD:
-    {
-      GJKSolver_libccd solver;
-      return collide<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, request, result);
-    }
   case GST_INDEP:
     {
       GJKSolver_indep solver;

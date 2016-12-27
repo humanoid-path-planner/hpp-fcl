@@ -54,7 +54,7 @@ namespace fcl
 {
 
 /// @brief Type of narrow phase GJK solver
-enum GJKSolverType {GST_LIBCCD, GST_INDEP};
+enum GJKSolverType {GST_INDEP};
 
 /// @brief Contact information returned by collision
 struct Contact
@@ -228,7 +228,7 @@ struct CollisionRequest
                    size_t num_max_cost_sources_ = 1,
                    bool enable_cost_ = false,
                    bool use_approximate_cost_ = true,
-                   GJKSolverType gjk_solver_type_ = GST_LIBCCD) :
+                   GJKSolverType gjk_solver_type_ = GST_INDEP) :
   num_max_contacts(num_max_contacts_),
     enable_contact(enable_contact_),
     enable_distance_lower_bound (enable_distance_lower_bound_),
@@ -363,7 +363,7 @@ struct DistanceRequest
   DistanceRequest(bool enable_nearest_points_ = false,
                   FCL_REAL rel_err_ = 0.0,
                   FCL_REAL abs_err_ = 0.0,
-                  GJKSolverType gjk_solver_type_ = GST_LIBCCD) : enable_nearest_points(enable_nearest_points_),
+                  GJKSolverType gjk_solver_type_ = GST_INDEP) : enable_nearest_points(enable_nearest_points_),
                                                                 rel_err(rel_err_),
                                                                 abs_err(abs_err_),
                                                                 gjk_solver_type(gjk_solver_type_)
@@ -496,7 +496,7 @@ struct PenetrationDepthRequest
                           NearestNeighbors<Transform3f>::DistanceFunction distance_func_,
                           KNNSolverType knn_solver_type_ = KNN_LINEAR,
                           PenetrationDepthType pd_type_ = PDT_TRANSLATIONAL,
-                          GJKSolverType gjk_solver_type_ = GST_LIBCCD) : classifier(classifier_),
+                          GJKSolverType gjk_solver_type_ = GST_INDEP) : classifier(classifier_),
                                                                          distance_func(distance_func_),
                                                                          knn_solver_type(knn_solver_type_),
                                                                          pd_type(pd_type_),

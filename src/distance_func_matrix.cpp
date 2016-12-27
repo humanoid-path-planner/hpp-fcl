@@ -492,9 +492,5 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
 
 }
-
-template struct DistanceFunctionMatrix<GJKSolver_libccd>;
 template struct DistanceFunctionMatrix<GJKSolver_indep>;
-
-
 }

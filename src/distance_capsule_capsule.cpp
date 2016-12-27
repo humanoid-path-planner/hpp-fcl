@@ -21,14 +21,13 @@
 // One solution would be to make narrow phase solvers derive from an abstract
 // class and specialize the template for this abstract class.
 namespace fcl {
-  class GJKSolver_libccd;
   class GJKSolver_indep;
 
   template <>
-  FCL_REAL ShapeShapeDistance <Capsule, Capsule, GJKSolver_libccd>
+  FCL_REAL ShapeShapeDistance <Capsule, Capsule, GJKSolver_indep>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_libccd*, const DistanceRequest& request,
+   const GJKSolver_indep*, const DistanceRequest& request,
    DistanceResult& result)
   {
     const Capsule* c1 = static_cast <const Capsule*> (o1);
@@ -320,29 +319,17 @@ namespace fcl {
   }
 
   template <>
-  FCL_REAL ShapeShapeDistance <Capsule, Capsule, GJKSolver_indep>
-  (const CollisionGeometry* o1, const Transform3f& tf1,
-   const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest& request,
-   DistanceResult& result)
-  {
-    GJKSolver_libccd* unused = 0x0;
-    return ShapeShapeDistance <Capsule, Capsule, GJKSolver_libccd>
-      (o1, tf1, o2, tf2, unused, request, result);
-  }
-
-  template <>
   std::size_t ShapeShapeCollide <Capsule, Capsule, GJKSolver_indep>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
    const GJKSolver_indep*, const CollisionRequest& request,
    CollisionResult& result)
   {
-    GJKSolver_libccd* unused = 0x0;
+    GJKSolver_indep* unused = 0x0;
     DistanceResult distanceResult;
     DistanceRequest distanceRequest (request.enable_contact);
 
-    FCL_REAL distance = ShapeShapeDistance <Capsule, Capsule, GJKSolver_libccd>
+    FCL_REAL distance = ShapeShapeDistance <Capsule, Capsule, GJKSolver_indep>
       (o1, tf1, o2, tf2, unused, distanceRequest, distanceResult);
 
     if (distance <= 0) {
@@ -356,17 +343,5 @@ namespace fcl {
     }
     result.distance_lower_bound = distance;
     return 0;
-  }
-
-  template<>
-  std::size_t ShapeShapeCollide <Capsule, Capsule, GJKSolver_libccd>
-  (const CollisionGeometry* o1, const Transform3f& tf1,
-   const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_libccd* nsolver, const CollisionRequest& request,
-   CollisionResult& result)
-  {
-    GJKSolver_indep* unused = 0x0;
-    return ShapeShapeCollide <Capsule, Capsule, GJKSolver_indep>
-      (o1, tf1, o2, tf2, unused, request, result);
   }
 } // namespace fcl

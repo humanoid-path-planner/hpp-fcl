@@ -121,11 +121,6 @@ FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const Di
 {
   switch(request.gjk_solver_type)
   {
-  case GST_LIBCCD:
-    {
-      GJKSolver_libccd solver;
-      return distance<GJKSolver_libccd>(o1, o2, &solver, request, result);
-    }
   case GST_INDEP:
     {
       GJKSolver_indep solver;
@@ -142,11 +137,6 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
 {
   switch(request.gjk_solver_type)
   {
-  case GST_LIBCCD:
-    {
-      GJKSolver_libccd solver;
-      return distance<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, request, result);
-    }
   case GST_INDEP:
     {
       GJKSolver_indep solver;

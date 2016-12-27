@@ -227,10 +227,6 @@ void testShapeInersection(const S1& s1, const Transform3f& tf1,
   Vec3f normal;  // normal direction should be from object 1 to object 2
   bool res;
 
-  if (solver_type == GST_LIBCCD)
-  {
-    res = solver1.shapeIntersect(s1, tf1, s2, tf2, NULL, NULL, NULL);
-  }
   else if (solver_type == GST_INDEP)
   {
     res = solver2.shapeIntersect(s1, tf1, s2, tf2, NULL, NULL, NULL);
@@ -242,11 +238,7 @@ void testShapeInersection(const S1& s1, const Transform3f& tf1,
   }
   BOOST_CHECK_EQUAL(res, expected_res);
 
-  if (solver_type == GST_LIBCCD)
-  {
-    res = solver1.shapeIntersect(s1, tf1, s2, tf2, &contact, &depth, &normal);
-  }
-  else if (solver_type == GST_INDEP)
+  if (solver_type == GST_INDEP)
   {
     res = solver2.shapeIntersect(s1, tf1, s2, tf2, &contact, &depth, &normal);
   }
@@ -296,69 +288,69 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spheresphere)
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(40, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(40, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(30, 0, 0));
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(30.01, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(30.01, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(29.9, 0, 0));
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(29.9, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f();
   normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform;
   normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-29.9, 0, 0));
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-29.9, 0, 0));
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-30.0, 0, 0));
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-30.01, 0, 0));
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-30.01, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
 bool compareContactPoints(const Vec3f& c1,const Vec3f& c2)
@@ -433,32 +425,32 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(15, 0, 0));
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(15.01, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(q);
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(q);
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   FCL_UINT32 numTests = 1e+2;
   for (FCL_UINT32 i = 0; i < numTests; ++i)
@@ -488,30 +480,30 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (-1, 0, 0).
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(22.5, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(22.501, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(22.4, 0, 0));
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(22.4, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
@@ -532,42 +524,42 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
   tf1 = Transform3f();
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(24.9, 0, 0));
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(24.9, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(25, 0, 0));
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(25, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(25.1, 0, 0));
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(25.1, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercylinder)
@@ -588,30 +580,30 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercylinder)
   tf1 = Transform3f();
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(9.9, 0, 0));
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.01, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(10.01, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_conecone)
@@ -632,40 +624,40 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_conecone)
   tf1 = Transform3f();
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(9.9, 0, 0));
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.001, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(10.001, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 9.9));
   normal.setValue(0, 0, 1);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
   normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_conecylinder)
@@ -686,48 +678,48 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_conecylinder)
   tf1 = Transform3f();
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(9.9, 0, 0));
   normal.setValue(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal, false, 0.061);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal, false, 0.061);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal, false, 0.46);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal, false, 0.46);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.01, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(10.01, 0, 0));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 9.9));
   normal.setValue(0, 0, 1);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
   normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 10.01));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 10.01));
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_spheretriangle)
@@ -871,64 +863,64 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
   contact.setValue(-5, 0, 0);
   depth = 10;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(-5, 0, 0));
   depth = 10;
   normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(5, 0, 0));
   contact.setValue(-2.5, 0, 0);
   depth = 15;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(5, 0, 0));
   contact = transform.transform(Vec3f(-2.5, 0, 0));
   depth = 15;
   normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-5, 0, 0));
   contact.setValue(-7.5, 0, 0);
   depth = 5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-5, 0, 0));
   contact = transform.transform(Vec3f(-7.5, 0, 0));
   depth = 5;
   normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-10.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-10.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.1, 0, 0));
   contact.setValue(0.05, 0, 0);
   depth = 20.1;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(10.1, 0, 0));
   contact = transform.transform(Vec3f(0.05, 0, 0));
   depth = 20.1;
   normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_planesphere)
@@ -951,58 +943,58 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planesphere)
   contact.setZero();
   depth = 10;
   normal.setValue(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 10;
   normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(5, 0, 0));
   contact.setValue(5, 0, 0);
   depth = 5;
   normal.setValue(1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(5, 0, 0));
   contact = transform.transform(Vec3f(5, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-5, 0, 0));
   contact.setValue(-5, 0, 0);
   depth = 5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-5, 0, 0));
   contact = transform.transform(Vec3f(-5, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-10.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-10.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(10.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
@@ -1025,68 +1017,68 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
   contact.setValue(-1.25, 0, 0);
   depth = 2.5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(-1.25, 0, 0));
   depth = 2.5;
   normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(1.25, 0, 0));
   contact.setValue(-0.625, 0, 0);
   depth = 3.75;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(1.25, 0, 0));
   contact = transform.transform(Vec3f(-0.625, 0, 0));
   depth = 3.75;
   normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-1.25, 0, 0));
   contact.setValue(-1.875, 0, 0);
   depth = 1.25;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-1.25, 0, 0));
   contact = transform.transform(Vec3f(-1.875, 0, 0));
   depth = 1.25;
   normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(2.51, 0, 0));
   contact.setValue(0.005, 0, 0);
   depth = 5.01;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(2.51, 0, 0));
   contact = transform.transform(Vec3f(0.005, 0, 0));
   depth = 5.01;
   normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-2.51, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-2.51, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f(transform.getQuatRotation());
   tf2 = Transform3f();
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_planebox)
@@ -1109,62 +1101,62 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox)
   contact.setValue(0, 0, 0);
   depth = 2.5;
   normal.setValue(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(1.25, 0, 0));
   contact.setValue(1.25, 0, 0);
   depth = 1.25;
   normal.setValue(1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(1.25, 0, 0));
   contact = transform.transform(Vec3f(1.25, 0, 0));
   depth = 1.25;
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-1.25, 0, 0));
   contact.setValue(-1.25, 0, 0);
   depth = 1.25;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-1.25, 0, 0));
   contact = transform.transform(Vec3f(-1.25, 0, 0));
   depth = 1.25;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(2.51, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(2.51, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-2.51, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-2.51, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f(transform.getQuatRotation());
   tf2 = Transform3f();
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecapsule)
@@ -1187,64 +1179,64 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecapsule)
   contact.setValue(-2.5, 0, 0);
   depth = 5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(-2.5, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(2.5, 0, 0));
   contact.setValue(-1.25, 0, 0);
   depth = 7.5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(2.5, 0, 0));
   contact = transform.transform(Vec3f(-1.25, 0, 0));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-2.5, 0, 0));
   contact.setValue(-3.75, 0, 0);
   depth = 2.5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-2.5, 0, 0));
   contact = transform.transform(Vec3f(-3.75, 0, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(5.1, 0, 0));
   contact.setValue(0.05, 0, 0);
   depth = 10.1;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(5.1, 0, 0));
   contact = transform.transform(Vec3f(0.05, 0, 0));
   depth = 10.1;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -1256,64 +1248,64 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecapsule)
   contact.setValue(0, -2.5, 0);
   depth = 5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, -2.5, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 2.5, 0));
   contact.setValue(0, -1.25, 0);
   depth = 7.5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 2.5, 0));
   contact = transform.transform(Vec3f(0, -1.25, 0));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -2.5, 0));
   contact.setValue(0, -3.75, 0);
   depth = 2.5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -2.5, 0));
   contact = transform.transform(Vec3f(0, -3.75, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 5.1, 0));
   contact.setValue(0, 0.05, 0);
   depth = 10.1;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 5.1, 0));
   contact = transform.transform(Vec3f(0, 0.05, 0));
   depth = 10.1;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -1325,64 +1317,64 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecapsule)
   contact.setValue(0, 0, -5);
   depth = 10;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, -5));
   depth = 10;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 2.5));
   contact.setValue(0, 0, -3.75);
   depth = 12.5;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 2.5));
   contact = transform.transform(Vec3f(0, 0, -3.75));
   depth = 12.5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -2.5));
   contact.setValue(0, 0, -6.25);
   depth = 7.5;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -2.5));
   contact = transform.transform(Vec3f(0, 0, -6.25));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 10.1));
   contact.setValue(0, 0, 0.05);
   depth = 20.1;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 10.1));
   contact = transform.transform(Vec3f(0, 0, 0.05));
   depth = 20.1;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_planecapsule)
@@ -1405,58 +1397,58 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecapsule)
   contact.setValue(0, 0, 0);
   depth = 5;
   normal.setValue(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(2.5, 0, 0));
   contact.setValue(2.5, 0, 0);
   depth = 2.5;
   normal.setValue(1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(2.5, 0, 0));
   contact = transform.transform(Vec3f(2.5, 0, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-2.5, 0, 0));
   contact.setValue(-2.5, 0, 0);
   depth = 2.5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-2.5, 0, 0));
   contact = transform.transform(Vec3f(-2.5, 0, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -1468,58 +1460,58 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecapsule)
   contact.setValue(0, 0, 0);
   depth = 5;
   normal.setValue(0, 1, 0);  // (0, 1, 0) or (0, -1, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(0, 1, 0);  // (0, 1, 0) or (0, -1, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 2.5, 0));
   contact.setValue(0, 2.5, 0);
   depth = 2.5;
   normal.setValue(0, 1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 2.5, 0));
   contact = transform.transform(Vec3f(0, 2.5, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, 1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -2.5, 0));
   contact.setValue(0, -2.5, 0);
   depth = 2.5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -2.5, 0));
   contact = transform.transform(Vec3f(0, -2.5, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -1531,58 +1523,58 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecapsule)
   contact.setValue(0, 0, 0);
   depth = 10;
   normal.setValue(0, 0, 1);  // (0, 0, 1) or (0, 0, -1)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 10;
   normal = transform.getRotation() * Vec3f(0, 0, 1);  // (0, 0, 1) or (0, 0, -1)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 2.5));
   contact.setValue(0, 0, 2.5);
   depth = 7.5;
   normal.setValue(0, 0, 1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 2.5));
   contact = transform.transform(Vec3f(0, 0, 2.5));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -2.5));
   contact.setValue(0, 0, -2.5);
   depth = 7.5;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -2.5));
   contact = transform.transform(Vec3f(0, 0, -2.5));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecylinder)
@@ -1605,64 +1597,64 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecylinder)
   contact.setValue(-2.5, 0, 0);
   depth = 5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(-2.5, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(2.5, 0, 0));
   contact.setValue(-1.25, 0, 0);
   depth = 7.5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(2.5, 0, 0));
   contact = transform.transform(Vec3f(-1.25, 0, 0));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-2.5, 0, 0));
   contact.setValue(-3.75, 0, 0);
   depth = 2.5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-2.5, 0, 0));
   contact = transform.transform(Vec3f(-3.75, 0, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(5.1, 0, 0));
   contact.setValue(0.05, 0, 0);
   depth = 10.1;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(5.1, 0, 0));
   contact = transform.transform(Vec3f(0.05, 0, 0));
   depth = 10.1;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -1674,64 +1666,64 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecylinder)
   contact.setValue(0, -2.5, 0);
   depth = 5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, -2.5, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 2.5, 0));
   contact.setValue(0, -1.25, 0);
   depth = 7.5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 2.5, 0));
   contact = transform.transform(Vec3f(0, -1.25, 0));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -2.5, 0));
   contact.setValue(0, -3.75, 0);
   depth = 2.5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -2.5, 0));
   contact = transform.transform(Vec3f(0, -3.75, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 5.1, 0));
   contact.setValue(0, 0.05, 0);
   depth = 10.1;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 5.1, 0));
   contact = transform.transform(Vec3f(0, 0.05, 0));
   depth = 10.1;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -1743,64 +1735,64 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecylinder)
   contact.setValue(0, 0, -2.5);
   depth = 5;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, -2.5));
   depth = 5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 2.5));
   contact.setValue(0, 0, -1.25);
   depth = 7.5;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 2.5));
   contact = transform.transform(Vec3f(0, 0, -1.25));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -2.5));
   contact.setValue(0, 0, -3.75);
   depth = 2.5;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -2.5));
   contact = transform.transform(Vec3f(0, 0, -3.75));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 5.1));
   contact.setValue(0, 0, 0.05);
   depth = 10.1;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 5.1));
   contact = transform.transform(Vec3f(0, 0, 0.05));
   depth = 10.1;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -5.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -5.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_planecylinder)
@@ -1823,58 +1815,58 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecylinder)
   contact.setValue(0, 0, 0);
   depth = 5;
   normal.setValue(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(2.5, 0, 0));
   contact.setValue(2.5, 0, 0);
   depth = 2.5;
   normal.setValue(1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(2.5, 0, 0));
   contact = transform.transform(Vec3f(2.5, 0, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-2.5, 0, 0));
   contact.setValue(-2.5, 0, 0);
   depth = 2.5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-2.5, 0, 0));
   contact = transform.transform(Vec3f(-2.5, 0, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -1886,58 +1878,58 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecylinder)
   contact.setValue(0, 0, 0);
   depth = 5;
   normal.setValue(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 2.5, 0));
   contact.setValue(0, 2.5, 0);
   depth = 2.5;
   normal.setValue(0, 1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 2.5, 0));
   contact = transform.transform(Vec3f(0, 2.5, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, 1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -2.5, 0));
   contact.setValue(0, -2.5, 0);
   depth = 2.5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -2.5, 0));
   contact = transform.transform(Vec3f(0, -2.5, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -1949,58 +1941,58 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecylinder)
   contact.setValue(0, 0, 0);
   depth = 5;
   normal.setValue(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 2.5));
   contact.setValue(0, 0, 2.5);
   depth = 2.5;
   normal.setValue(0, 0, 1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 2.5));
   contact = transform.transform(Vec3f(0, 0, 2.5));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -2.5));
   contact.setValue(0, 0, -2.5);
   depth = 2.5;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -2.5));
   contact = transform.transform(Vec3f(0, 0, -2.5));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 }
 
 
@@ -2024,64 +2016,64 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecone)
   contact.setValue(-2.5, 0, -5);
   depth = 5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(-2.5, 0, -5));
   depth = 5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(2.5, 0, 0));
   contact.setValue(-1.25, 0, -5);
   depth = 7.5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(2.5, 0, 0));
   contact = transform.transform(Vec3f(-1.25, 0, -5));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-2.5, 0, 0));
   contact.setValue(-3.75, 0, -5);
   depth = 2.5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-2.5, 0, 0));
   contact = transform.transform(Vec3f(-3.75, 0, -5));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(5.1, 0, 0));
   contact.setValue(0.05, 0, -5);
   depth = 10.1;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(5.1, 0, 0));
   contact = transform.transform(Vec3f(0.05, 0, -5));
   depth = 10.1;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -2093,64 +2085,64 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecone)
   contact.setValue(0, -2.5, -5);
   depth = 5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, -2.5, -5));
   depth = 5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 2.5, 0));
   contact.setValue(0, -1.25, -5);
   depth = 7.5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 2.5, 0));
   contact = transform.transform(Vec3f(0, -1.25, -5));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -2.5, 0));
   contact.setValue(0, -3.75, -5);
   depth = 2.5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -2.5, 0));
   contact = transform.transform(Vec3f(0, -3.75, -5));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 5.1, 0));
   contact.setValue(0, 0.05, -5);
   depth = 10.1;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 5.1, 0));
   contact = transform.transform(Vec3f(0, 0.05, -5));
   depth = 10.1;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -2162,64 +2154,64 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecone)
   contact.setValue(0, 0, -2.5);
   depth = 5;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, -2.5));
   depth = 5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 2.5));
   contact.setValue(0, 0, -1.25);
   depth = 7.5;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 2.5));
   contact = transform.transform(Vec3f(0, 0, -1.25));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -2.5));
   contact.setValue(0, 0, -3.75);
   depth = 2.5;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -2.5));
   contact = transform.transform(Vec3f(0, 0, -3.75));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 5.1));
   contact.setValue(0, 0, 0.05);
   depth = 10.1;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 5.1));
   contact = transform.transform(Vec3f(0, 0, 0.05));
   depth = 10.1;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -5.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -5.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_planecone)
@@ -2242,58 +2234,58 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecone)
   contact.setValue(0, 0, 0);
   depth = 5;
   normal.setValue(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(2.5, 0, 0));
   contact.setValue(2.5, 0, -2.5);
   depth = 2.5;
   normal.setValue(1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(2.5, 0, 0));
   contact = transform.transform(Vec3f(2.5, 0, -2.5));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-2.5, 0, 0));
   contact.setValue(-2.5, 0, -2.5);
   depth = 2.5;
   normal.setValue(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-2.5, 0, 0));
   contact = transform.transform(Vec3f(-2.5, 0, -2.5));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-5.1, 0, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -2305,58 +2297,58 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecone)
   contact.setValue(0, 0, 0);
   depth = 5;
   normal.setValue(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 2.5, 0));
   contact.setValue(0, 2.5, -2.5);
   depth = 2.5;
   normal.setValue(0, 1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 2.5, 0));
   contact = transform.transform(Vec3f(0, 2.5, -2.5));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, 1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -2.5, 0));
   contact.setValue(0, -2.5, -2.5);
   depth = 2.5;
   normal.setValue(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -2.5, 0));
   contact = transform.transform(Vec3f(0, -2.5, -2.5));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -5.1, 0));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
 
 
@@ -2368,58 +2360,58 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecone)
   contact.setValue(0, 0, 0);
   depth = 5;
   normal.setValue(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 2.5));
   contact.setValue(0, 0, 2.5);
   depth = 2.5;
   normal.setValue(0, 0, 1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 2.5));
   contact = transform.transform(Vec3f(0, 0, 2.5));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -2.5));
   contact.setValue(0, 0, -2.5);
   depth = 2.5;
   normal.setValue(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -2.5));
   contact = transform.transform(Vec3f(0, 0, -2.5));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -10.1));
-  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+  testShapeInersection(s, tf1, hs, tf2, GST_INDEP, false);
 }
 
 

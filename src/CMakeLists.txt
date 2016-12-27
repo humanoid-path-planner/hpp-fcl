@@ -44,7 +44,6 @@ set(${LIBRARY_NAME}_SOURCES
   BV/kDOP.cpp
   BV/OBBRSS.cpp
   BV/OBB.cpp
-  narrowphase/gjk_libccd.cpp
   narrowphase/narrowphase.cpp
   narrowphase/gjk.cpp
   broadphase/broadphase_bruteforce.cpp
@@ -89,7 +88,6 @@ add_library(${LIBRARY_NAME}
   ${${LIBRARY_NAME}_SOURCES}
   )
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${Boost_LIBRARIES})
-PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} ccd)
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} assimp)
 IF(OCTOMAP_FOUND)
   PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} octomap)

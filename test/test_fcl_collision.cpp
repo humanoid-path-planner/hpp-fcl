@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test)
     Transform3f box2_tf;
     constructBox(aabb, transforms[i], box2, box2_tf);
 
-    GJKSolver_libccd solver;
+    GJKSolver_indep solver;
 
     bool overlap_obb = obb1.overlap(obb2);
     bool overlap_box = solver.shapeIntersect(box1, box1_tf, box2, box2_tf, NULL, NULL, NULL);
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test)
   {
     FCL_REAL len = (aabb1.max_[0] - aabb1.min_[0]) * 0.5;
     OBB obb2;
-    GJKSolver_libccd solver;
+    GJKSolver_indep solver;
  
     {  
       Sphere sphere(len);

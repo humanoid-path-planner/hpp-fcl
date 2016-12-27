@@ -57,7 +57,6 @@ if (EIGEN3_FOUND)
 endif (EIGEN3_FOUND)
 
 # Required dependencies
-add_required_dependency("ccd >= 1.4")
 set(BOOST_COMPONENTS thread date_time filesystem system unit_test_framework)
 search_for_boost()
 # Optional dependencies
@@ -90,8 +89,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h
   include/hpp/fcl/profile.h
   include/hpp/fcl/exception.h
-  include/hpp/fcl/ccd/simplex.h
-  include/hpp/fcl/ccd/support.h
   include/hpp/fcl/deprecated.h
   include/hpp/fcl/BV/kIOS.h
   include/hpp/fcl/BV/BV.h
@@ -103,7 +100,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/BV/kDOP.h
   include/hpp/fcl/narrowphase/narrowphase.h
   include/hpp/fcl/narrowphase/gjk.h
-  include/hpp/fcl/narrowphase/gjk_libccd.h
   include/hpp/fcl/broadphase/interval_tree.h
   include/hpp/fcl/broadphase/broadphase_spatialhash.h
   include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h
