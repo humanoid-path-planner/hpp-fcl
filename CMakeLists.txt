@@ -56,8 +56,16 @@ if (EIGEN3_FOUND)
   endif (FCL_HAVE_EIGEN)
 endif (EIGEN3_FOUND)
 
+# Add a cache variable to allow not compiling and running tests
+set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
+
 # Required dependencies
-set(BOOST_COMPONENTS thread date_time filesystem system unit_test_framework)
+if (RUN_TESTS)
+  set(BOOST_COMPONENTS thread date_time filesystem system unit_test_framework)
+else ()
+  set(BOOST_COMPONENTS thread date_time system)
+endif ()
+
 search_for_boost()
 # Optional dependencies
 add_optional_dependency("octomap >= 1.6")
@@ -170,7 +178,9 @@ SET(${PROJECT_NAME}_HEADERS
   )
 
 add_subdirectory(src)
-add_subdirectory(test)
+if (RUN_TESTS)
+  add_subdirectory(test)
+endif ()
 
 pkg_config_append_libs("hpp-fcl")
 PKG_CONFIG_APPEND_BOOST_LIBS(thread date_time filesystem system)
