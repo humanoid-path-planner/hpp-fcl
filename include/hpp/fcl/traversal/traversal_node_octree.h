@@ -1040,6 +1040,11 @@ public:
   {
     return false;
   }
+  
+  bool BVTesting(int, int, FCL_REAL&) const
+  {
+    return false;
+  }
 
   bool BVTesting(int, int, FCL_REAL&) const
   {
@@ -1077,6 +1082,11 @@ public:
   {
     return -1;
   }
+  
+  bool BVTesting(int, int, FCL_REAL&) const
+  {
+    return false;
+  }
 
   bool BVTesting(int, int, FCL_REAL&) const
   {
@@ -1108,6 +1118,11 @@ public:
   }
 
   bool BVTesting(int, int) const
+  {
+    return false;
+  }
+  
+  bool BVTesting(int, int, FCL_REAL&) const
   {
     return false;
   }
@@ -1144,6 +1159,11 @@ public:
   }
 
   bool BVTesting(int, int) const
+  {
+    return false;
+  }
+  
+  bool BVTesting(int, int, fcl::FCL_REAL&) const
   {
     return false;
   }
@@ -1241,6 +1261,11 @@ public:
   {
     return false;
   }
+  
+  bool BVTesting(int, int, FCL_REAL&) const
+  {
+    return false;
+  }
 
   bool BVTesting(int, int, FCL_REAL&) const
   {
@@ -1274,6 +1299,11 @@ public:
   }
 
   bool BVTesting(int, int) const
+  {
+    return false;
+  }
+  
+  bool BVTesting(int, int, FCL_REAL&) const
   {
     return false;
   }
