@@ -42,66 +42,10 @@
 #include <hpp/fcl/math/matrix_3f.h>
 #include <boost/thread/mutex.hpp>
 
-namespace fcl {
-  class Quaternion3f;
-  template<typename RhsType> struct quaternion_transform_return_type;
-  template<typename Lhs, typename Rhs, bool hasTemp> struct translate_return_type;
-
-  template<typename RhsType>
-  struct quaternion_transform_return_type_traits {
-    typedef Eigen::Matrix<FCL_REAL, 4, 1, Eigen::DontAlign> Vec4f;
-    typedef typename Vec4f::     FixedSegmentReturnType<3>::Type XYZ_t;
-    typedef typename Vec4f::ConstFixedSegmentReturnType<3>::Type XYZConst_t;
-
-    typedef typename XYZConst_t::cross_product_return_type<RhsType>::type Cross_t;
-    typedef Eigen::CwiseBinaryOp <
-      Eigen::internal::scalar_sum_op <FCL_REAL>,
-      const typename RhsType::ScalarMultipleReturnType,
-      const typename fcl::Vec3f::ScalarMultipleReturnType >
-        rhs_type;
-    typedef Eigen::CwiseBinaryOp <
-      Eigen::internal::scalar_sum_op <FCL_REAL>,
-      const typename XYZConst_t::ScalarMultipleReturnType,
-      const rhs_type >
-        type;
-  };
-
-  template<typename Lhs, typename Rhs, bool hasTemp /* = false */>
-  struct translate_return_type_traits {
-    typedef Eigen::CwiseBinaryOp <
-      Eigen::internal::scalar_sum_op <FCL_REAL>,
-      const quaternion_transform_return_type<Lhs>,
-      const Rhs > type;
-
-    struct storage_type {};
-  };
-  template<typename Lhs, typename Rhs>
-  struct translate_return_type_traits<Lhs, Rhs, true> {
-    typedef Eigen::CwiseBinaryOp <
-      Eigen::internal::scalar_sum_op <FCL_REAL>,
-      const quaternion_transform_return_type<Lhs>,
-      const Rhs > type;
-
-    struct storage_type {
-      quaternion_transform_return_type<Lhs> const store_lhs;
-      storage_type(const Quaternion3f& q, const Eigen::MatrixBase<Lhs>& v)
-        : store_lhs(q,v) {}
-    };
-  };
-}
-
-namespace Eigen {
-  namespace internal {
-    template<typename Derived> struct traits<typename fcl::quaternion_transform_return_type<Derived> > :
-      traits< typename fcl::quaternion_transform_return_type_traits<Derived>::type > {};
-    template<typename Lhs, typename Rhs, bool hasTemp> struct traits<typename fcl::translate_return_type<Lhs, Rhs, hasTemp> > :
-      traits< typename fcl::translate_return_type_traits<Lhs, Rhs, hasTemp>::type > {};
-  }
-}
-
 namespace fcl
 {
 
+  /*
 /// @brief Quaternion used locally by InterpMotion
 class Quaternion3f
 {
@@ -342,6 +286,9 @@ static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
   o << "(" << q.w() << " " << q.x() << " " << q.y() << " " << q.z() << ")";
   return o;
 }
+*/
+
+typedef Eigen::Quaternion<FCL_REAL> Quaternion3f;
 
 /// @brief Simple transform class used locally by InterpMotion
 class Transform3f
