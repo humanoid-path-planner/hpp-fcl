@@ -46,15 +46,9 @@ set(PROJECT_URL "http://github.com/humanoid-path-planner/hpp-fcl")
 
 setup_project()
 
-set(FCL_HAVE_SSE FALSE CACHE BOOL "Enable SSE vectorization")
-
-add_optional_dependency("eigen3 >= 3.0.0")
-set(FCL_HAVE_EIGEN  ${EIGEN3_FOUND} CACHE BOOL "Use eigen matrix type when possible")
-if (EIGEN3_FOUND)
-  if (FCL_HAVE_EIGEN)
-    include_directories(${EIGEN3_INCLUDE_DIRS})
-  endif (FCL_HAVE_EIGEN)
-endif (EIGEN3_FOUND)
+add_required_dependency("eigen3 >= 3.0.0")
+set(FCL_HAVE_EIGEN TRUE)
+include_directories(${EIGEN3_INCLUDE_DIRS})
 
 # Add a cache variable to allow not compiling and running tests
 set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
@@ -77,11 +71,6 @@ if (OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
 else()
 	message(STATUS "FCL does not use Octomap")
 endif()
-# flann package ill defined: comment.
-# add_optional_dependency("flann >= 1.7")
-# if (${FLANN_FOUND})
-#   add_definitions(-DFCL_HAVE_FLANN=1)
-# endif()
 ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
 if(ASSIMP_FOUND)
   if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
@@ -120,17 +109,15 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/broadphase/broadphase_bruteforce.h
   include/hpp/fcl/broadphase/morton.h
   include/hpp/fcl/broadphase/hash.h
-  include/hpp/fcl/learning/classifier.h
   include/hpp/fcl/shape/geometric_shapes_utility.h
   include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
   include/hpp/fcl/shape/geometric_shapes.h
-  include/hpp/fcl/simd/simd_intersect.h
-  include/hpp/fcl/simd/math_simd_details.h
   include/hpp/fcl/distance_func_matrix.h
   include/hpp/fcl/collision.h
   include/hpp/fcl/collision_node.h
   include/hpp/fcl/collision_func_matrix.h
   include/hpp/fcl/distance.h
+<<<<<<< HEAD
   include/hpp/fcl/knn/greedy_kcenters.h
   include/hpp/fcl/knn/nearest_neighbors_GNAT.h
   include/hpp/fcl/knn/nearest_neighbors_flann.h
@@ -138,12 +125,12 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/knn/nearest_neighbors_linear.h
   include/hpp/fcl/knn/nearest_neighbors.h
   include/hpp/fcl/math/vec_nf.h
+=======
+  include/hpp/fcl/continuous_collision.h
+>>>>>>> jmirabel/devel
   include/hpp/fcl/math/matrix_3f.h
-  include/hpp/fcl/math/matrix_3fx.h
   include/hpp/fcl/math/vec_3f.h
-  include/hpp/fcl/math/vec_3fx.h
-  include/hpp/fcl/math/sampling.h
-  include/hpp/fcl/math/math_details.h
+  include/hpp/fcl/math/tools.h
   include/hpp/fcl/math/transform.h
   include/hpp/fcl/traversal/traversal_node_shapes.h
   include/hpp/fcl/traversal/traversal_node_setup.h
@@ -153,11 +140,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/traversal/traversal_node_bvh_shape.h
   include/hpp/fcl/traversal/traversal_node_base.h
   include/hpp/fcl/data_types.h
-  include/hpp/fcl/articulated_model/model.h
-  include/hpp/fcl/articulated_model/joint_config.h
-  include/hpp/fcl/articulated_model/model_config.h
-  include/hpp/fcl/articulated_model/joint.h
-  include/hpp/fcl/articulated_model/link.h
   include/hpp/fcl/BVH/BV_splitter.h
   include/hpp/fcl/BVH/BVH_internal.h
   include/hpp/fcl/BVH/BVH_model.h
@@ -168,6 +150,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_object.h
   include/hpp/fcl/octree.h
   include/hpp/fcl/fwd.hh
+<<<<<<< HEAD
   include/hpp/fcl/eigen/math_details.h
   include/hpp/fcl/eigen/vec_3fx.h
   include/hpp/fcl/eigen/product.h
@@ -175,6 +158,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/eigen/plugins/ccd/interval-matrix.h
   include/hpp/fcl/eigen/plugins/ccd/interval-vector.h
   include/hpp/fcl/mesh_loader/assimp.h
+=======
+>>>>>>> jmirabel/devel
   )
 
 add_subdirectory(src)

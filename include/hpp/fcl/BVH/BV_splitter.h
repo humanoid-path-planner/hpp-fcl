@@ -76,7 +76,7 @@ class BVSplitter : public BVSplitterBase<BV>
 {
 public:
 
-  BVSplitter(SplitMethodType method) : split_method(method)
+  BVSplitter(SplitMethodType method) : split_vector(0,0,0), split_method(method)
   {
   }
 

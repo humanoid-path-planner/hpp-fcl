@@ -217,9 +217,9 @@ void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3f& R)
   FCL_REAL s2 = sin(b);
   FCL_REAL s3 = sin(c);
 
-  R.setValue(c1 * c2, - c2 * s1, s2,
-             c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3, - c2 * s3,
-             s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3);
+  R << c1 * c2, - c2 * s1, s2,
+       c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3, - c2 * s3,
+       s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3;
 }
 
 void generateRandomTransform(FCL_REAL extents[6], Transform3f& transform)
@@ -431,6 +431,16 @@ std::string getGJKSolverName(GJKSolverType solver_type)
     return std::string("built-in");
   else
     return std::string("invalid");
+}
+
+Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z)
+{
+  Quaternion3f q;
+  q.w() = w;
+  q.x() = x;
+  q.y() = y;
+  q.z() = z;
+  return q;
 }
 
 }

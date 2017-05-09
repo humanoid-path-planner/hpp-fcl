@@ -44,7 +44,7 @@ namespace fcl
 template<typename BV>
 void computeSplitVector(const BV& bv, Vec3f& split_vector)
 {
-  split_vector = bv.axis[0];
+  split_vector.noalias() = bv.axes.col(0);
 }
 
 template<>
@@ -78,13 +78,13 @@ void computeSplitVector<kIOS>(const kIOS& bv, Vec3f& split_vector)
     ;
     }
   */
-  split_vector = bv.obb.axis[0];
+  split_vector.noalias() = bv.obb.axes.col(0);
 }
 
 template<>
 void computeSplitVector<OBBRSS>(const OBBRSS& bv, Vec3f& split_vector)
 {
-  split_vector = bv.obb.axis[0];
+  split_vector.noalias() = bv.obb.axes.col(0);
 }
 
 template<typename BV>

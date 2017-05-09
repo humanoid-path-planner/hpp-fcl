@@ -49,6 +49,8 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
+#include "test_fcl_utility.h"
+
 using namespace fcl;
 typedef boost::shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
 
@@ -141,7 +143,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2)
   CollisionGeometryPtr_t s2 (new Capsule (5, 10));
 
   Transform3f tf1;
-  Transform3f tf2 (Quaternion3f (sqrt (2)/2, 0, sqrt (2)/2, 0),
+  Transform3f tf2 (makeQuat (sqrt (2)/2, 0, sqrt (2)/2, 0),
 		   Vec3f(0,0,25.1));
 
   CollisionObject o1 (s1, tf1);

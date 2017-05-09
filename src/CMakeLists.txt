@@ -60,17 +60,11 @@ set(${LIBRARY_NAME}_SOURCES
   distance_capsule_capsule.cpp
   intersect.cpp
   math/transform.cpp
-  math/sampling.cpp
   traversal/traversal_node_setup.cpp
   traversal/traversal_node_bvhs.cpp
   traversal/traversal_recurse.cpp
   traversal/traversal_node_base.cpp
   profile.cpp
-  articulated_model/link.cpp
-  articulated_model/model.cpp
-  articulated_model/model_config.cpp
-  articulated_model/joint.cpp
-  articulated_model/joint_config.cpp
   distance.cpp
   BVH/BVH_utility.cpp
   BVH/BV_fitter.cpp

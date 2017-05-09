@@ -540,15 +540,15 @@ namespace details
 {
 
 template<typename BV>
-const Vec3f& getBVAxis(const BV& bv, int i)
+inline const Matrix3f& getBVAxes(const BV& bv)
 {
-  return bv.axis[i];
+  return bv.axes;
 }
 
 template<>
-inline const Vec3f& getBVAxis<OBBRSS>(const OBBRSS& bv, int i)
+inline const Matrix3f& getBVAxes<OBBRSS>(const OBBRSS& bv)
 {
-  return bv.obb.axis[i];
+  return bv.obb.axes;
 }
 
 

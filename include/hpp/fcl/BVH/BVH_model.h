@@ -188,14 +188,14 @@ public:
   /// BV node. When traversing the BVH, this can save one matrix transformation.
   void makeParentRelative()
   {
-    Vec3f I[3] = {Vec3f(1, 0, 0), Vec3f(0, 1, 0), Vec3f(0, 0, 1)};
+    Matrix3f I (Matrix3f::Identity());
     makeParentRelativeRecurse(0, I, Vec3f());
   }
 
   Vec3f computeCOM() const
   {
     FCL_REAL vol = 0;
-    Vec3f com;
+    Vec3f com(0,0,0);
     for(int i = 0; i < num_tris; ++i)
     {
       const Triangle& tri = tri_indices[i];
@@ -222,13 +222,12 @@ public:
 
   Matrix3f computeMomentofInertia() const
   {
-    Matrix3f C(0, 0, 0,
-               0, 0, 0,
-               0, 0, 0);
+    Matrix3f C = Matrix3f::Zero();
 
-    Matrix3f C_canonical(1/60.0, 1/120.0, 1/120.0,
-                         1/120.0, 1/60.0, 1/120.0,
-                         1/120.0, 1/120.0, 1/60.0);
+    Matrix3f C_canonical;
+    C_canonical << 1/60.0, 1/120.0, 1/120.0,
+                   1/120.0, 1/60.0, 1/120.0,
+                   1/120.0, 1/120.0, 1/60.0;
 
     for(int i = 0; i < num_tris; ++i)
     {
@@ -236,16 +235,11 @@ public:
       const Vec3f& v1 = vertices[tri[0]];
       const Vec3f& v2 = vertices[tri[1]];
       const Vec3f& v3 = vertices[tri[2]];
-      FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
-      Matrix3f A(v1, v2, v3);
-      C += transpose(A) * C_canonical * A * d_six_vol;
+      Matrix3f A; A << v1.transpose(), v2.transpose(), v3.transpose();
+      C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
     }
 
-    FCL_REAL trace_C = C(0, 0) + C(1, 1) + C(2, 2);
-
-    return Matrix3f(trace_C - C(0, 0), -C(0, 1), -C(0, 2),
-                    -C(1, 0), trace_C - C(1, 1), -C(1, 2),
-                    -C(2, 0), -C(2, 1), trace_C - C(2, 2));
+    return C.trace() * Matrix3f::Identity() - C;
   }
 
 public:
@@ -309,13 +303,13 @@ private:
 
   /// @recursively compute each bv's transform related to its parent. For default BV, only the translation works. 
   /// For oriented BV (OBB, RSS, OBBRSS), special implementation is provided.
-  void makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c)
+  void makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c)
   {
     if(!bvs[bv_id].isLeaf())
     {
-      makeParentRelativeRecurse(bvs[bv_id].first_child, parent_axis, bvs[bv_id].getCenter());
+      makeParentRelativeRecurse(bvs[bv_id].first_child, parent_axes, bvs[bv_id].getCenter());
 
-      makeParentRelativeRecurse(bvs[bv_id].first_child + 1, parent_axis, bvs[bv_id].getCenter());
+      makeParentRelativeRecurse(bvs[bv_id].first_child + 1, parent_axes, bvs[bv_id].getCenter());
     }
 
     bvs[bv_id].bv = translate(bvs[bv_id].bv, -parent_c);
@@ -324,13 +318,13 @@ private:
 
 
 template<>
-void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c);
 
 template<>
-void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c);
 
 template<>
-void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c);
 
 
 /// @brief Specialization of getNodeType() for BVHModel with different BV types
