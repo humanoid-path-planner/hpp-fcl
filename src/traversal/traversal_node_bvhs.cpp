@@ -116,7 +116,7 @@ static inline void meshCollisionOrientedNodeLeafTesting
         
         for(unsigned int i = 0; i < n_contacts; ++i)
         {
-          result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation().transform(normal), penetration));
+          result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation()* normal, penetration));
         }
       }
     }

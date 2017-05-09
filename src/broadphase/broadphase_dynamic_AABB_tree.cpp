@@ -330,7 +330,7 @@ bool distanceRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, c
 
 bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const Transform3f& tf2, void* cdata, CollisionCallBack callback)
 {
-  if(tf2.getQuatRotation().isIdentity())
+  if(isQuatIdentity(tf2.getQuatRotation()))
     return collisionRecurse_(root1, tree2, root2, root2_bv, tf2.getTranslation(), cdata, callback);
   else // has rotation
     return collisionRecurse_(root1, tree2, root2, root2_bv, tf2, cdata, callback);
@@ -417,7 +417,7 @@ bool distanceRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, c
 
 bool distanceRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const Transform3f& tf2, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist)
 {
-  if(tf2.getQuatRotation().isIdentity())
+  if(isQuatIdentity(tf2.getQuatRotation()))
     return distanceRecurse_(root1, tree2, root2, root2_bv, tf2.getTranslation(), cdata, callback, min_dist);
   else
     return distanceRecurse_(root1, tree2, root2, root2_bv, tf2, cdata, callback, min_dist);

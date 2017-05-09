@@ -199,7 +199,7 @@ public:
   /// @brief compute the AABB in world space
   inline void computeAABB()
   {
-    if(t.getQuatRotation().isIdentity())
+    if(isQuatIdentity(t.getQuatRotation()))
     {
       aabb = translate(cgeom->aabb_local, t.getTranslation());
     }

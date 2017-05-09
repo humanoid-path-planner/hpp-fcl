@@ -33,7 +33,7 @@ add_fcl_test(test_fcl_distance_lower_bound test_fcl_distance_lower_bound.cpp
 add_fcl_test(test_fcl_frontlist test_fcl_frontlist.cpp test_fcl_utility.cpp)
 #add_fcl_test(test_fcl_math test_fcl_math.cpp test_fcl_utility.cpp)
 
-add_fcl_test(test_fcl_sphere_capsule test_fcl_sphere_capsule.cpp)
+# add_fcl_test(test_fcl_sphere_capsule test_fcl_sphere_capsule.cpp)
 add_fcl_test(test_fcl_capsule_capsule test_fcl_capsule_capsule.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_box_box_distance test_fcl_box_box_distance.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_simple test_fcl_simple.cpp)

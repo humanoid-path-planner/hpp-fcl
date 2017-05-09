@@ -95,7 +95,7 @@ bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
     *penetration_depth = -distance;
 
   if (normal_)
-    *normal_ = tf2.getQuatRotation().transform(normal);
+    *normal_ = tf2.getQuatRotation() * normal;
 
   if (contact_points) {
     *contact_points = segment_point + diff * s2.radius;
@@ -1868,7 +1868,7 @@ double planeIntersectTolerance<double>()
 template<>
 float planeIntersectTolerance<float>()
 {
-  return 0.0001;
+  return 0.0001f;
 }
 
 bool spherePlaneIntersect(const Sphere& s1, const Transform3f& tf1,

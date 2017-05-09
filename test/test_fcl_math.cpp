@@ -46,6 +46,12 @@
 
 using namespace fcl;
 
+template<typename Derived>
+inline Quaternion3f fromAxisAngle(const Eigen::MatrixBase<Derived>& axis, FCL_REAL angle)
+{
+  return Quaternion3f (Eigen::AngleAxis<double>(angle, axis));
+}
+
 BOOST_AUTO_TEST_CASE(vec_test_eigen_vec64)
 {
   Vec3f v1(1.0, 2.0, 3.0);
@@ -128,31 +134,30 @@ Vec3f rotate (Vec3f input, FCL_REAL w, Vec3f vec) {
 
 BOOST_AUTO_TEST_CASE(quaternion)
 {
-  Quaternion3f q1, q2, q3;
-  q2.fromAxisAngle(Vec3f(0,0,1), M_PI/2);
+  Quaternion3f q1 (Quaternion3f::Identity()), q2, q3;
+  q2 = fromAxisAngle(Vec3f(0,0,1), M_PI/2);
   q3 = q2.inverse();
 
   Vec3f v(1,-1,0);
 
-  BOOST_CHECK(isEqual(v, q1.transform(v)));
-  BOOST_CHECK(isEqual(Vec3f(1,1,0), q2.transform(v)));
-  BOOST_CHECK(isEqual(rotate(v, q3.w(), Vec3f(q3.x(), q3.y(), q3.z())), q3.transform(v)));
+  BOOST_CHECK(isEqual(v, q1 * v));
+  BOOST_CHECK(isEqual(Vec3f(1,1,0), q2 * v));
+  BOOST_CHECK(isEqual(rotate(v, q3.w(), Vec3f(q3.x(), q3.y(), q3.z())), q3 * v));
 }
 
 BOOST_AUTO_TEST_CASE(transform)
 {
-  Quaternion3f q;
-  q.fromAxisAngle(Vec3f(0,0,1), M_PI/2);
+  Quaternion3f q = fromAxisAngle(Vec3f(0,0,1), M_PI/2);
   Vec3f T (0,1,2);
   Transform3f tf (q, T);
 
   Vec3f v(1,-1,0);
 
-  BOOST_CHECK(isEqual(q.transform(v).eval() + T, q.transform(v) + T));
+  BOOST_CHECK(isEqual(q * v + T, q * v + T));
 
-  Vec3f rv (q.transform(v));
+  Vec3f rv (q * v);
   // typename Transform3f::transform_return_type<Vec3f>::type output =
-    // tf.transform(v);
+    // tf * v;
   // std::cout << rv << std::endl;
   // std::cout << output.lhs() << std::endl;
   BOOST_CHECK(isEqual(rv + T, tf.transform(v)));
