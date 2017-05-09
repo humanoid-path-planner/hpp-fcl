@@ -243,35 +243,28 @@ template<typename RhsType> struct quaternion_transform_return_type :
   typename quat_traits::Cross_t m_uCrossV;
 };
 
-template<typename LhsType, typename RhsType, bool hasTemp> struct translate_return_type :
-  translate_return_type_traits<LhsType, RhsType, hasTemp>::storage_type,
-  translate_return_type_traits<LhsType, RhsType, hasTemp>::type
+template<typename LhsType, typename RhsType> struct translate_return_type :
+  translate_return_type_traits<LhsType, RhsType>::type
 {
-  typedef translate_return_type_traits<LhsType, RhsType, hasTemp> trans_traits;
+  typedef translate_return_type_traits<LhsType, RhsType> trans_traits;
 
   typedef typename trans_traits::type Base;
-  typedef typename trans_traits::storage_type storage_type;
 
   EIGEN_GENERIC_PUBLIC_INTERFACE(translate_return_type)
 
   EIGEN_STRONG_INLINE translate_return_type(const quaternion_transform_return_type<LhsType>& rv, const RhsType& T) :
     Base (rv, T)
   {}
-
-  EIGEN_STRONG_INLINE translate_return_type(const Quaternion3f&q, const Eigen::MatrixBase<LhsType>& v, const RhsType& T) :
-    storage_type (q, v),
-    Base (this->store_lhs, T)
-  {}
 };
 
 template<typename Derived, typename OtherDerived>
-const translate_return_type<Derived, OtherDerived, false>
+const translate_return_type<Derived, OtherDerived>
 operator+ (const quaternion_transform_return_type<Derived>& rv,
            const Eigen::MatrixBase<OtherDerived>& T)
 {
   EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived, 3);
   EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(OtherDerived, 3);
-  return translate_return_type<Derived, OtherDerived, false>(rv, T.derived());
+  return translate_return_type<Derived, OtherDerived>(rv, T.derived());
 }
 
 template<typename Derived>
@@ -429,9 +422,9 @@ public:
 
   /// @brief transform a given vector by the transform
   template <typename Derived>
-  inline const translate_return_type<Derived, Vec3f, true> transform(const Eigen::MatrixBase<Derived>& v) const
+  inline Vec3f transform(const Eigen::MatrixBase<Derived>& v) const
   {
-    return translate_return_type<Derived, Vec3f, true>(q, v, T);
+    return q.transform(v) + T;
   }
 
   /// @brief inverse transform
