@@ -176,9 +176,9 @@ bool sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
   Vec3f o2 = tf2.getTranslation();
   Vec3f diff = o1 - o2;
   FCL_REAL len = diff.norm();
-  FCL_REAL d (len > s1.radius + s2.radius);
+  FCL_REAL d (len - s1.radius - s2.radius);
 
-  if(dist) *dist = len - (s1.radius + s2.radius);
+  if(dist) *dist = d;
   if(p1) *p1 = o1 - diff * (s1.radius / len);
   if(p2) *p2 = o2 + diff * (s2.radius / len);
 
