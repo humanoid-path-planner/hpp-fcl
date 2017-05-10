@@ -117,17 +117,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_node.h
   include/hpp/fcl/collision_func_matrix.h
   include/hpp/fcl/distance.h
-<<<<<<< HEAD
-  include/hpp/fcl/knn/greedy_kcenters.h
-  include/hpp/fcl/knn/nearest_neighbors_GNAT.h
-  include/hpp/fcl/knn/nearest_neighbors_flann.h
-  include/hpp/fcl/knn/nearest_neighbors_sqrtapprox.h
-  include/hpp/fcl/knn/nearest_neighbors_linear.h
-  include/hpp/fcl/knn/nearest_neighbors.h
-  include/hpp/fcl/math/vec_nf.h
-=======
-  include/hpp/fcl/continuous_collision.h
->>>>>>> jmirabel/devel
   include/hpp/fcl/math/matrix_3f.h
   include/hpp/fcl/math/vec_3f.h
   include/hpp/fcl/math/tools.h
@@ -150,16 +139,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_object.h
   include/hpp/fcl/octree.h
   include/hpp/fcl/fwd.hh
-<<<<<<< HEAD
-  include/hpp/fcl/eigen/math_details.h
-  include/hpp/fcl/eigen/vec_3fx.h
-  include/hpp/fcl/eigen/product.h
-  include/hpp/fcl/eigen/taylor_operator.h
-  include/hpp/fcl/eigen/plugins/ccd/interval-matrix.h
-  include/hpp/fcl/eigen/plugins/ccd/interval-vector.h
   include/hpp/fcl/mesh_loader/assimp.h
-=======
->>>>>>> jmirabel/devel
   )
 
 add_subdirectory(src)
