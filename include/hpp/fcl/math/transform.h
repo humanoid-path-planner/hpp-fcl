@@ -46,6 +46,11 @@ namespace fcl
 {
 
 typedef Eigen::Quaternion<FCL_REAL> Quaternion3f;
+static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
+{
+  o << "(" << q.w() << " " << q.x() << " " << q.y() << " " << q.z() << ")";
+  return o;
+}
 
 inline bool isQuatIdentity (const Quaternion3f& q)
 {
