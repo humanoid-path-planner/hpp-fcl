@@ -120,15 +120,36 @@ void printResults (const Geometry& g1, const Geometry& g2, const Results& rs)
 }
 
 int Ntransform = 100;
+FCL_REAL limit = 20;
 
 #define CHECK_PARAM_NB(NB, NAME) \
     if (iarg + NB >= argc) throw std::invalid_argument(#NAME " requires " #NB " numbers")
-
+void handleParam (int& iarg, const int& argc, char** argv, CollisionRequest& request)
+{
+  while (iarg < argc) {
+    std::string a(argv[iarg]);
+    if (a == "-nb_transform") {
+      CHECK_PARAM_NB(1, nb_transform);
+      Ntransform = atoi(argv[iarg+1]);
+      iarg += 2;
+    } else if (a == "-enable_distance_lower_bound") {
+      CHECK_PARAM_NB(1, enable_distance_lower_bound);
+      request.enable_distance_lower_bound = bool(atoi(argv[iarg+1]));
+      iarg += 2;
+    } else if (a == "-limit") {
+      CHECK_PARAM_NB(1, limit);
+      limit = atof(argv[iarg+1]);
+      iarg += 2;
+    } else {
+      break;
+    }
+  }
+}
 #define CREATE_SHAPE_2(var, Name) \
     CHECK_PARAM_NB(2, Name); \
     var.reset(new Name (atof(argv[iarg+1]), atof(argv[iarg+2]))); \
      iarg += 3;
-Geometry handleParam(int& iarg, const int& argc, char** argv)
+Geometry makeGeomFromParam(int& iarg, const int& argc, char** argv)
 {
   if (iarg >= argc) throw std::invalid_argument("An argument is required.");
   std::string a(argv[iarg]);
@@ -178,9 +199,6 @@ int main(int argc, char** argv)
 {
   
   std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-20, -20, 0, 20, 20, 20};
-
-  generateRandomTransforms(extents, transforms, Ntransform);
 
   CollisionRequest request;
   // request.num_max_contacts = 1;
@@ -193,13 +211,19 @@ int main(int argc, char** argv)
 
   if (argc > 1) {
     int iarg = 1;
-    Geometry first  = handleParam(iarg, argc, argv);
-    Geometry second = handleParam(iarg, argc, argv);
+    handleParam(iarg, argc, argv, request);
+    Geometry first  = makeGeomFromParam(iarg, argc, argv);
+    Geometry second = makeGeomFromParam(iarg, argc, argv);
+
+    FCL_REAL extents[] = {-limit, -limit, -limit, limit, limit, limit};
+    generateRandomTransforms(extents, transforms, Ntransform);
     printResultHeaders();
     Results results (Ntransform);
     collide(transforms, first.o.get(), second.o.get(), request, results);
     printResults(first, second, results);
   } else {
+    FCL_REAL extents[] = {-limit, -limit, -limit, limit, limit, limit};
+    generateRandomTransforms(extents, transforms, Ntransform);
     boost::filesystem::path path(TEST_RESOURCES_DIR);
 
     std::vector<Geometry> geoms;
