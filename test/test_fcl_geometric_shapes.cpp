@@ -50,6 +50,7 @@ using namespace fcl;
 
 FCL_REAL extents [6] = {0, 0, 0, 10, 10, 10};
 
+FCL_REAL tol_gjk = 0.01;
 GJKSolver_indep solver1;
 GJKSolver_indep solver2;
 
@@ -420,7 +421,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (-1, 0, 0).
   normal << -1, 0, 0;
-  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
   tf1 = transform;
   tf2 = transform;
@@ -428,7 +429,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
   testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
   tf1 = Transform3f();
-  tf2 = Transform3f(Vec3f(22.5, 0, 0));
+  tf2 = Transform3f(Vec3f(22.50001, 0, 0));
   testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
@@ -438,12 +439,12 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(22.4, 0, 0));
   normal << 1, 0, 0;
-  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(22.4, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal, false, tol_gjk);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
@@ -530,12 +531,12 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercylinder)
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(9.9, 0, 0));
   normal << 1, 0, 0;
-  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.01, 0, 0));
