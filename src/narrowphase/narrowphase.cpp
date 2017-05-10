@@ -84,18 +84,19 @@ bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
   lineSegmentPointClosestToPoint (s_c, pos1, pos2, segment_point);
   Vec3f diff = s_c - segment_point;
 
-  FCL_REAL distance = diff.norm() - s1.radius - s2.radius;
+  FCL_REAL diffN = diff.norm();
+  FCL_REAL distance = diffN - s1.radius - s2.radius;
 
   if (distance > 0)
     return false;
 
-  Vec3f normal (-diff.normalized());
+  // Vec3f normal (-diff.normalized());
 
   if (distance < 0 && penetration_depth)
     *penetration_depth = -distance;
 
   if (normal_)
-    *normal_ = tf2.getQuatRotation() * normal;
+    *normal_ = -diff / diffN;
 
   if (contact_points) {
     *contact_points = segment_point + diff * s2.radius;
