@@ -24,6 +24,7 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/collision_func_matrix.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
+#include <hpp/fcl/mesh_loader/assimp.h>
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 
@@ -60,6 +61,14 @@ CollisionGeometryPtr_t objToGeom (const std::string& filename)
   return CollisionGeometryPtr_t (model);
 }
 
+template <typename BV/*, SplitMethodType split_method*/>
+CollisionGeometryPtr_t meshToGeom (const std::string& filename, const Vec3f& scale = Vec3f(1, 1, 1))
+{
+  boost::shared_ptr< BVHModel<BV> > model (new BVHModel<BV>());
+  loadPolyhedronFromResource(filename, scale, model);
+  return model;
+}
+
 struct Geometry {
   std::string type;
   CollisionGeometryPtr_t o;
@@ -71,11 +80,6 @@ struct Geometry {
     type(t), o(ob)
   {}
 };
-
-// struct Result {
-  // CollisionResult r;
-  // double time_us;
-// };
 
 struct Results {
   std::vector<CollisionResult> rs;
@@ -115,42 +119,69 @@ void printResults (const Geometry& g1, const Geometry& g2, const Results& rs)
   std::cout << g1.type << sep << g2.type << sep << mean << sep << std::sqrt(var) << sep << rs.times.minCoeff() << sep << rs.times.maxCoeff() << std::endl;
 }
 
-// int main(int argc, char** argv)
-int main(int, char**)
+int Ntransform = 100;
+
+#define CHECK_PARAM_NB(NB, NAME) \
+    if (iarg + NB >= argc) throw std::invalid_argument(#NAME " requires " #NB " numbers")
+
+#define CREATE_SHAPE_2(var, Name) \
+    CHECK_PARAM_NB(2, Name); \
+    var.reset(new Name (atof(argv[iarg+1]), atof(argv[iarg+2]))); \
+     iarg += 3;
+Geometry handleParam(int& iarg, const int& argc, char** argv)
 {
-  boost::filesystem::path path(TEST_RESOURCES_DIR);
+  if (iarg >= argc) throw std::invalid_argument("An argument is required.");
+  std::string a(argv[iarg]);
+  std::string type;
+  CollisionGeometryPtr_t o;
+  if (a == "-box") {
+    CHECK_PARAM_NB(3, Box);
+    o.reset(new Box (atof(argv[iarg+1]),
+                     atof(argv[iarg+2]),
+                     atof(argv[iarg+3])));
+    iarg += 4;
+    type = "box";
+  } else if (a == "-sphere") {
+    CHECK_PARAM_NB(1, Sphere);
+    o.reset(new Sphere (atof(argv[iarg+1])));
+    iarg += 2;
+    type = "sphere";
+  } else if (a == "-mesh") {
+    CHECK_PARAM_NB(2, Mesh);
+    if (strcmp(argv[iarg+1], "obb") == 0) {
+      o = meshToGeom<OBB>(argv[iarg+2]);
+      type = "mesh_obb";
+    }
+    else if (strcmp(argv[iarg+1], "obbrss") == 0) {
+      o = meshToGeom<OBBRSS>(argv[iarg+2]);
+      type = "mesh_obbrss";
+    }
+    else
+      throw std::invalid_argument ("BV type must be obb or obbrss");
+    iarg += 3;
+  } else if (a == "-capsule") {
+    CREATE_SHAPE_2(o, Capsule);
+    type = "capsule";
+  } else if (a == "-cone") {
+    CREATE_SHAPE_2(o, Cone);
+    type = "cone";
+  } else if (a == "-cylinder") {
+    CREATE_SHAPE_2(o, Cylinder);
+    type = "cylinder";
+  } else {
+    throw std::invalid_argument (std::string("Unknown argument: ") + a);
+  }
+  return Geometry(type, o);
+}
 
-  std::vector<Geometry> geoms;
-// |            | box | sphere | capsule | cone | cylinder | plane | half-space | triangle |
-  geoms.push_back(Geometry ("Box"       , new Box       (1, 2, 3)                                       ));
-  geoms.push_back(Geometry ("Sphere"    , new Sphere    (2)                                             ));
-  geoms.push_back(Geometry ("Capsule"   , new Capsule   (2, 1)                                          ));
-  geoms.push_back(Geometry ("Cone"      , new Cone      (2, 1)                                          ));
-  geoms.push_back(Geometry ("Cylinder"  , new Cylinder  (2, 1)                                          ));
-  geoms.push_back(Geometry ("Plane"     , new Plane     (Vec3f(1,1,1).normalized(), 0)                  ));
-  geoms.push_back(Geometry ("Halfspace" , new Halfspace (Vec3f(1,1,1).normalized(), 0)                  ));
-  // not implemented // geoms.push_back(Geometry ("TriangleP" , new TriangleP (Vec3f(0,1,0), Vec3f(0,0,1), Vec3f(-1,0,0))     ));
-
-  geoms.push_back(Geometry ("rob BVHModel<OBB>"   , objToGeom<OBB>   ((path / "rob.obj").string())));
-  // geoms.push_back(Geometry ("rob BVHModel<RSS>"   , objToGeom<RSS>   ((path / "rob.obj").string())));
-  // geoms.push_back(Geometry ("rob BVHModel<kIOS>"  , objToGeom<kIOS>  ((path / "rob.obj").string())));
-  geoms.push_back(Geometry ("rob BVHModel<OBBRSS>", objToGeom<OBBRSS>((path / "rob.obj").string())));
-
-  geoms.push_back(Geometry ("env BVHModel<OBB>"   , objToGeom<OBB>   ((path / "env.obj").string())));
-  // geoms.push_back(Geometry ("env BVHModel<RSS>"   , objToGeom<RSS>   ((path / "env.obj").string())));
-  // geoms.push_back(Geometry ("env BVHModel<kIOS>"  , objToGeom<kIOS>  ((path / "env.obj").string())));
-  geoms.push_back(Geometry ("env BVHModel<OBBRSS>", objToGeom<OBBRSS>((path / "env.obj").string())));
+int main(int argc, char** argv)
+{
   
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-20, -20, 0, 20, 20, 20};
-  std::size_t n = 100;
-  // bool verbose = false;
 
-  generateRandomTransforms(extents, transforms, n);
+  generateRandomTransforms(extents, transforms, Ntransform);
 
-  printResultHeaders();
-
-  // collision
   CollisionRequest request;
   // request.num_max_contacts = 1;
   // request.enable_contact = false;
@@ -159,20 +190,50 @@ int main(int, char**)
   // request.enable_cost = false;
   // request.use_approximate_cost = true;
   // request.gjk_solver_type = GST_INDEP;
-  for(std::size_t i = 0; i < geoms.size(); ++i) {
-    for (std::size_t j = i; j < geoms.size(); ++j) {
-      if (!supportedPair(geoms[i].o.get(), geoms[j].o.get())) continue;
-      Results results (n);
-      collide(transforms, geoms[i].o.get(), geoms[j].o.get(), request, results);
-      printResults(geoms[i], geoms[j], results);
+
+  if (argc > 1) {
+    int iarg = 1;
+    Geometry first  = handleParam(iarg, argc, argv);
+    Geometry second = handleParam(iarg, argc, argv);
+    printResultHeaders();
+    Results results (Ntransform);
+    collide(transforms, first.o.get(), second.o.get(), request, results);
+    printResults(first, second, results);
+  } else {
+    boost::filesystem::path path(TEST_RESOURCES_DIR);
+
+    std::vector<Geometry> geoms;
+    geoms.push_back(Geometry ("Box"       , new Box       (1, 2, 3)                                       ));
+    geoms.push_back(Geometry ("Sphere"    , new Sphere    (2)                                             ));
+    geoms.push_back(Geometry ("Capsule"   , new Capsule   (2, 1)                                          ));
+    geoms.push_back(Geometry ("Cone"      , new Cone      (2, 1)                                          ));
+    geoms.push_back(Geometry ("Cylinder"  , new Cylinder  (2, 1)                                          ));
+    geoms.push_back(Geometry ("Plane"     , new Plane     (Vec3f(1,1,1).normalized(), 0)                  ));
+    geoms.push_back(Geometry ("Halfspace" , new Halfspace (Vec3f(1,1,1).normalized(), 0)                  ));
+    // not implemented // geoms.push_back(Geometry ("TriangleP" , new TriangleP (Vec3f(0,1,0), Vec3f(0,0,1), Vec3f(-1,0,0))     ));
+
+    geoms.push_back(Geometry ("rob BVHModel<OBB>"   , objToGeom<OBB>   ((path / "rob.obj").string())));
+    // geoms.push_back(Geometry ("rob BVHModel<RSS>"   , objToGeom<RSS>   ((path / "rob.obj").string())));
+    // geoms.push_back(Geometry ("rob BVHModel<kIOS>"  , objToGeom<kIOS>  ((path / "rob.obj").string())));
+    geoms.push_back(Geometry ("rob BVHModel<OBBRSS>", objToGeom<OBBRSS>((path / "rob.obj").string())));
+
+    geoms.push_back(Geometry ("env BVHModel<OBB>"   , objToGeom<OBB>   ((path / "env.obj").string())));
+    // geoms.push_back(Geometry ("env BVHModel<RSS>"   , objToGeom<RSS>   ((path / "env.obj").string())));
+    // geoms.push_back(Geometry ("env BVHModel<kIOS>"  , objToGeom<kIOS>  ((path / "env.obj").string())));
+    geoms.push_back(Geometry ("env BVHModel<OBBRSS>", objToGeom<OBBRSS>((path / "env.obj").string())));
+
+    printResultHeaders();
+
+    // collision
+    for(std::size_t i = 0; i < geoms.size(); ++i) {
+      for (std::size_t j = i; j < geoms.size(); ++j) {
+        if (!supportedPair(geoms[i].o.get(), geoms[j].o.get())) continue;
+        Results results (Ntransform);
+        collide(transforms, geoms[i].o.get(), geoms[j].o.get(), request, results);
+        printResults(geoms[i], geoms[j], results);
+      }
     }
   }
 
-  // request.enable_distance_lower_bound = true;
-  // for(std::size_t i = 0; i < geoms.size(); ++i)
-  // {
-    // Results results (n);
-    // selfCollide(transforms, geoms[i].o.get(), request, results);
-    // printResults(geoms[i], results);
-  // }
+  return 0;
 }
