@@ -27,7 +27,7 @@ add_fcl_test(test_fcl_collision test_fcl_collision.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_distance test_fcl_distance.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_distance_lower_bound test_fcl_distance_lower_bound.cpp
   test_fcl_utility.cpp)
-#add_fcl_test(test_fcl_geometric_shapes test_fcl_geometric_shapes.cpp test_fcl_utility.cpp)
+add_fcl_test(test_fcl_geometric_shapes test_fcl_geometric_shapes.cpp test_fcl_utility.cpp)
 #add_fcl_test(test_fcl_broadphase test_fcl_broadphase.cpp test_fcl_utility.cpp)
 #add_fcl_test(test_fcl_shape_mesh_consistency test_fcl_shape_mesh_consistency.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_frontlist test_fcl_frontlist.cpp test_fcl_utility.cpp)
