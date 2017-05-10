@@ -142,7 +142,7 @@ bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1,
                            const Sphere& s2, const Transform3f& tf2,
                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
 {
-  Vec3f diff = tf2.transform(Vec3f()) - tf1.transform(Vec3f());
+  Vec3f diff = tf2.getTranslation() - tf1.getTranslation();
   FCL_REAL len = diff.norm();
   if(len > s1.radius + s2.radius)
     return false;
@@ -161,7 +161,7 @@ bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1,
   }
 
   if(contact_points)
-    *contact_points = tf1.transform(Vec3f(0,0,0)) + diff * s1.radius / (s1.radius + s2.radius);
+    *contact_points = tf1.getTranslation() + diff * s1.radius / (s1.radius + s2.radius);
   
   return true;
 }

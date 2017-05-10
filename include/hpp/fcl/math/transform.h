@@ -100,8 +100,8 @@ public:
 
   /// @brief Construct transform from rotation
   Transform3f(const Matrix3f& R_) : matrix_set(true),
-                                    T(Vec3f::Zero()),
-                                    R(R_)
+                                    R(R_),
+                                    T(Vec3f::Zero())
   {
     q = Quaternion3f(R_);
   }
