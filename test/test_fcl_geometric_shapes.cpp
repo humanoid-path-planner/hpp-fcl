@@ -488,7 +488,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
   testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3f(25, 0, 0));
+  tf2 = transform * Transform3f(Vec3f(24.999999, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
   testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
