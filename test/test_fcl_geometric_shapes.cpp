@@ -50,70 +50,10 @@ using namespace fcl;
 
 FCL_REAL extents [6] = {0, 0, 0, 10, 10, 10};
 
-GJKSolver_libccd solver1;
+GJKSolver_indep solver1;
 GJKSolver_indep solver2;
 
 #define BOOST_CHECK_FALSE(p) BOOST_CHECK(!(p))
-
-BOOST_AUTO_TEST_CASE(gjkcache)
-{
-  Cylinder s1(5, 10);
-  Cone s2(5, 10);
-
-  CollisionRequest request;
-  request.enable_cached_gjk_guess = true;
-  request.gjk_solver_type = GST_INDEP;
-
-  TranslationMotion motion(Transform3f(Vec3f(-20.0, -20.0, -20.0)), Transform3f(Vec3f(20.0, 20.0, 20.0)));
-
-  int N = 1000;
-  FCL_REAL dt = 1.0 / (N - 1);
-
-  /// test exploiting spatial coherence
-  Timer timer1;
-  timer1.start();
-  std::vector<bool> result1(N);
-  for(int i = 0; i < N; ++i)
-  {
-    motion.integrate(dt * i);
-    Transform3f tf;
-    motion.getCurrentTransform(tf);
-
-    CollisionResult result;
-
-    collide(&s1, Transform3f(), &s2, tf, request, result);
-    result1[i] = result.isCollision();
-    request.cached_gjk_guess = result.cached_gjk_guess; // use cached guess
-  }
-
-  timer1.stop();
-
-  /// test without exploiting spatial coherence
-  Timer timer2;
-  timer2.start();
-  std::vector<bool> result2(N);
-  request.enable_cached_gjk_guess = false;
-  for(int i = 0; i < N; ++i)
-  {
-    motion.integrate(dt * i);
-    Transform3f tf;
-    motion.getCurrentTransform(tf);
-
-    CollisionResult result;
-
-    collide(&s1, Transform3f(), &s2, tf, request, result);
-    result2[i] = result.isCollision();
-  }
-
-  timer2.stop();
-
-  std::cout << timer1.getElapsedTime() << " " << timer2.getElapsedTime() << std::endl;
-
-  for(std::size_t i = 0; i < result1.size(); ++i)
-  {
-    BOOST_CHECK(result1[i] == result2[i]);
-  }
-}
 
 template <typename S1, typename S2>
 void printComparisonError(const std::string& comparison_type,
@@ -227,7 +167,7 @@ void testShapeInersection(const S1& s1, const Transform3f& tf1,
   Vec3f normal;  // normal direction should be from object 1 to object 2
   bool res;
 
-  else if (solver_type == GST_INDEP)
+  if (solver_type == GST_INDEP)
   {
     res = solver2.shapeIntersect(s1, tf1, s2, tf2, NULL, NULL, NULL);
   }
@@ -419,7 +359,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   Vec3f normal;
 
   Quaternion3f q;
-  q.fromAxisAngle(Vec3f(0, 0, 1), (FCL_REAL)3.140 / 6);
+  q = Eigen::AngleAxis<double>((FCL_REAL)3.140 / 6, Vec3f(0, 0, 1));
 
   tf1 = Transform3f();
   tf2 = Transform3f();
@@ -869,7 +809,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
   tf2 = transform;
   contact = transform.transform(Vec3f(-5, 0, 0));
   depth = 10;
-  normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
   testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -883,7 +823,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
   tf2 = transform * Transform3f(Vec3f(5, 0, 0));
   contact = transform.transform(Vec3f(-2.5, 0, 0));
   depth = 15;
-  normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
   testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -897,7 +837,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
   tf2 = transform * Transform3f(Vec3f(-5, 0, 0));
   contact = transform.transform(Vec3f(-7.5, 0, 0));
   depth = 5;
-  normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
   testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -919,7 +859,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
   tf2 = transform * Transform3f(Vec3f(10.1, 0, 0));
   contact = transform.transform(Vec3f(0.05, 0, 0));
   depth = 20.1;
-  normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
   testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 }
 
@@ -1023,7 +963,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
   tf2 = transform;
   contact = transform.transform(Vec3f(-1.25, 0, 0));
   depth = 2.5;
-  normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
   testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -1037,7 +977,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
   tf2 = transform * Transform3f(Vec3f(1.25, 0, 0));
   contact = transform.transform(Vec3f(-0.625, 0, 0));
   depth = 3.75;
-  normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
   testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -1051,7 +991,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
   tf2 = transform * Transform3f(Vec3f(-1.25, 0, 0));
   contact = transform.transform(Vec3f(-1.875, 0, 0));
   depth = 1.25;
-  normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
   testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -1065,7 +1005,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
   tf2 = transform * Transform3f(Vec3f(2.51, 0, 0));
   contact = transform.transform(Vec3f(0.005, 0, 0));
   depth = 5.01;
-  normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
   testShapeInersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -2790,7 +2730,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
   Vec3f normal;
 
   Quaternion3f q;
-  q.fromAxisAngle(Vec3f(0, 0, 1), (FCL_REAL)3.140 / 6);
+  q = Eigen::AngleAxis<double>((FCL_REAL)3.140 / 6, Vec3f(0, 0, 1));
 
   tf1 = Transform3f();
   tf2 = Transform3f();
