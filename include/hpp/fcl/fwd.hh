@@ -43,4 +43,6 @@ namespace fcl {
   typedef boost::shared_ptr <const CollisionGeometry>
   CollisionGeometryConstPtr_t;
   class Transform3f;
+
+  class AABB;
 }

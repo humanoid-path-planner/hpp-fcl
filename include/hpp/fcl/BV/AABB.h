@@ -40,6 +40,7 @@
 
 #include <stdexcept>
 #include <hpp/fcl/math/vec_3f.h>
+#include <hpp/fcl/math/matrix_3f.h>
 
 namespace fcl
 {
@@ -240,6 +241,20 @@ static inline AABB translate(const AABB& aabb, const Vec3f& t)
   AABB res(aabb);
   res.min_ += t;
   res.max_ += t;
+  return res;
+}
+
+static inline AABB rotate(const AABB& aabb, const Matrix3f& t)
+{
+  AABB res (t * aabb.min_);
+  Vec3f corner (aabb.min_);
+  const std::size_t bit[3] = { 1, 2, 4 };
+  for (std::size_t ic = 1; ic < 8; ++ic) { // ic = 0 corresponds to aabb.min_. Skip it.
+    for (std::size_t i = 0; i < 3; ++i) {
+      corner[i] = (ic && bit[i]) ? aabb.max_[i] : aabb.min_[i];
+    }
+    res += t * corner;
+  }
   return res;
 }
 
