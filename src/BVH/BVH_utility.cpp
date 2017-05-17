@@ -103,6 +103,79 @@ void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r = 1.0)
   }
 }
 
+template<typename BV>
+BVHModel<BV>* BVHIntersection(const BVHModel<BV>& model, const Transform3f& pose, const AABB& _aabb)
+{
+  assert(model.getModelType() == BVH_MODEL_TRIANGLES);
+  const Quaternion3f& q = pose.getQuatRotation();
+  AABB aabb = translate (_aabb, - pose.getTranslation());
+
+  // Check what triangles should be kept.
+  // TODO use the BV hierarchy
+  std::vector<bool> keep_vertex(model.num_vertices, false);
+  std::vector<bool> keep_tri   (model.num_tris,     false);
+  std::size_t ntri = 0;
+  for (std::size_t i = 0; i < model.num_tris; ++i) {
+    const Triangle& t = model.tri_indices[i];
+
+    bool keep_this_tri = keep_vertex[t[0]] || keep_vertex[t[1]] || keep_vertex[t[2]];
+
+    // const Vec3f& p0 = vertices[t[0]];
+    // const Vec3f& p1 = vertices[t[1]];
+    // const Vec3f& p2 = vertices[t[2]];
+    if (!keep_this_tri) {
+      for (std::size_t j = 0; j < 3; ++j) {
+        if (aabb.contain(q * model.vertices[t[j]])) {
+          keep_this_tri = true;
+          break;
+        }
+      }
+    }
+    if (keep_this_tri) {
+      keep_vertex[t[0]] = keep_vertex[t[1]] = keep_vertex[t[2]] = true;
+      keep_tri[i] = true;
+      ntri++;
+    }
+  }
+
+  if (ntri == 0) return NULL;
+
+  BVHModel<BV>* new_model (new BVHModel<BV>());
+  new_model->beginModel(ntri, std::min((int)ntri * 3, model.num_vertices));
+  std::vector<std::size_t> idxConversion (model.num_vertices);
+  assert(new_model->num_vertices == 0);
+  for (std::size_t i = 0; i < keep_vertex.size(); ++i) {
+    if (keep_vertex[i]) {
+      idxConversion[i] = new_model->num_vertices;
+      new_model->vertices[new_model->num_vertices] = model.vertices[i];
+      new_model->num_vertices++;
+    }
+  }
+  assert(new_model->num_tris == 0);
+  for (std::size_t i = 0; i < keep_tri.size(); ++i) {
+    if (keep_tri[i]) {
+      new_model->tri_indices[new_model->num_tris].set (
+          idxConversion[model.tri_indices[i][0]],
+          idxConversion[model.tri_indices[i][1]],
+          idxConversion[model.tri_indices[i][2]]
+          );
+      new_model->num_tris++;
+    }
+  }
+  if (new_model->endModel() != BVH_OK) {
+    delete new_model;
+    return NULL;
+  }
+  return new_model;
+}
+template BVHModel<OBB      >* BVHIntersection(const BVHModel<OBB      >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<AABB     >* BVHIntersection(const BVHModel<AABB     >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<RSS      >* BVHIntersection(const BVHModel<RSS      >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<kIOS     >* BVHIntersection(const BVHModel<kIOS     >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<OBBRSS   >* BVHIntersection(const BVHModel<OBBRSS   >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<KDOP<16> >* BVHIntersection(const BVHModel<KDOP<16> >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<KDOP<18> >* BVHIntersection(const BVHModel<KDOP<18> >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<KDOP<24> >* BVHIntersection(const BVHModel<KDOP<24> >& model, const Transform3f& pose, const AABB& aabb);
 
 void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M)
 {
