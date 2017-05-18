@@ -71,6 +71,7 @@ set(${LIBRARY_NAME}_SOURCES
   BVH/BVH_model.cpp
   BVH/BV_splitter.cpp
   collision_func_matrix.cpp
+  collision_utility.cpp
   )
 
 # Declare boost include directories

@@ -155,13 +155,15 @@ void testBVHModelTriangles()
   BOOST_CHECK_EQUAL(model->build_state, BVH_BUILD_STATE_PROCESSED);
 
   Transform3f pose;
-  boost::shared_ptr<BVHModel<BV> > cropped(BVHIntersection(*model, pose, aabb));
+  boost::shared_ptr<BVHModel<BV> > cropped(BVHExtract(*model, pose, aabb));
+  BOOST_REQUIRE(cropped);
   BOOST_CHECK(cropped->build_state == BVH_BUILD_STATE_PROCESSED);
   BOOST_CHECK_EQUAL(cropped->num_vertices, model->num_vertices - 6);
   BOOST_CHECK_EQUAL(cropped->num_tris, model->num_tris - 2);
 
   pose.setTranslation(Vec3f(0,1,0));
-  cropped.reset(BVHIntersection(*model, pose, aabb));
+  cropped.reset(BVHExtract(*model, pose, aabb));
+  BOOST_REQUIRE(cropped);
   BOOST_CHECK(cropped->build_state == BVH_BUILD_STATE_PROCESSED);
   BOOST_CHECK_EQUAL(cropped->num_vertices, model->num_vertices - 6);
   BOOST_CHECK_EQUAL(cropped->num_tris, model->num_tris - 2);
@@ -169,15 +171,23 @@ void testBVHModelTriangles()
   pose.setTranslation(Vec3f(0,0,0));
   FCL_REAL sqrt2_2 = std::sqrt(2)/2;
   pose.setQuatRotation(Quaternion3f(sqrt2_2,sqrt2_2,0,0));
-  cropped.reset(BVHIntersection(*model, pose, aabb));
+  cropped.reset(BVHExtract(*model, pose, aabb));
+  BOOST_REQUIRE(cropped);
   BOOST_CHECK(cropped->build_state == BVH_BUILD_STATE_PROCESSED);
   BOOST_CHECK_EQUAL(cropped->num_vertices, model->num_vertices - 6);
   BOOST_CHECK_EQUAL(cropped->num_tris, model->num_tris - 2);
 
   pose.setTranslation(-Vec3f(1,1,1));
   pose.setQuatRotation(Quaternion3f::Identity());
-  cropped.reset(BVHIntersection(*model, pose, aabb));
+  cropped.reset(BVHExtract(*model, pose, aabb));
   BOOST_CHECK(!cropped);
+
+  aabb = AABB(Vec3f(-0.1,-0.1,-0.1), Vec3f(0.1,0.1,0.1));
+  pose.setTranslation(Vec3f(-0.5,-0.5,0));
+  cropped.reset(BVHExtract(*model, pose, aabb));
+  BOOST_REQUIRE(cropped);
+  BOOST_CHECK_EQUAL(cropped->num_tris, 2);
+  BOOST_CHECK_EQUAL(cropped->num_vertices, 6);
 }
 
 template<typename BV>

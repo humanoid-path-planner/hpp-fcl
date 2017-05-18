@@ -77,9 +77,10 @@ void BVHExpand(BVHModel<OBB>& model, const Variance3f* ucs, FCL_REAL r);
 /// @brief Expand the BVH bounding boxes according to the corresponding variance information, for RSS
 void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r);
 
-/// @brief Return the intersection of a BVHModel and a AABB.
+/// @brief Extract the part of the BVHModel that is inside an AABB.
+/// A triangle in collision with the AABB is considered inside.
 template<typename BV>
-BVHModel<BV>* BVHIntersection(const BVHModel<BV>& model, const Transform3f& pose, const AABB& aabb);
+BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, const AABB& aabb);
 
 /// @brief Compute the covariance matrix for a set or subset of points. if ts = null, then indices refer to points directly; otherwise refer to triangles
 void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M);
