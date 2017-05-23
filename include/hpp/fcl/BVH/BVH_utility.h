@@ -77,14 +77,19 @@ void BVHExpand(BVHModel<OBB>& model, const Variance3f* ucs, FCL_REAL r);
 /// @brief Expand the BVH bounding boxes according to the corresponding variance information, for RSS
 void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r);
 
+/// @brief Extract the part of the BVHModel that is inside an AABB.
+/// A triangle in collision with the AABB is considered inside.
+template<typename BV>
+BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, const AABB& aabb);
+
 /// @brief Compute the covariance matrix for a set or subset of points. if ts = null, then indices refer to points directly; otherwise refer to triangles
 void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M);
 
 /// @brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin, given the BV axises.
-void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& origin, FCL_REAL l[2], FCL_REAL& r);
+void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Matrix3f& axes, Vec3f& origin, FCL_REAL l[2], FCL_REAL& r);
 
 /// @brief Compute the bounding volume extent and center for a set or subset of points, given the BV axises.
-void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent);
+void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& axes, Vec3f& center, Vec3f& extent);
 
 /// @brief Compute the center and radius for a triangle's circumcircle
 void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec3f& center, FCL_REAL& radius);

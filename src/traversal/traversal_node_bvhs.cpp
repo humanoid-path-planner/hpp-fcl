@@ -116,7 +116,7 @@ static inline void meshCollisionOrientedNodeLeafTesting
         
         for(unsigned int i = 0; i < n_contacts; ++i)
         {
-          result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation().transform(normal), penetration));
+          result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation()* normal, penetration));
         }
       }
     }
@@ -354,8 +354,8 @@ static inline void distancePostprocessOrientedNode(const BVHModel<BV>* model1, c
   /// the points obtained by triDistance are not in world space: both are in object1's local coordinate system, so we need to convert them into the world space.
   if(request.enable_nearest_points && (result.o1 == model1) && (result.o2 == model2))
   {
-    result.nearest_points[0] = tf1.transform(result.nearest_points[0]);
-    result.nearest_points[1] = tf1.transform(result.nearest_points[1]);
+    result.nearest_points[0] = tf1.transform(result.nearest_points[0]).eval();
+    result.nearest_points[1] = tf1.transform(result.nearest_points[1]).eval();
   }
 }
 

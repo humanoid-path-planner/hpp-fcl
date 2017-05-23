@@ -158,6 +158,8 @@ std::string getNodeTypeName(NODE_TYPE node_type);
 
 std::string getGJKSolverName(GJKSolverType solver_type);
 
+Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z);
+
 }
 
 #endif

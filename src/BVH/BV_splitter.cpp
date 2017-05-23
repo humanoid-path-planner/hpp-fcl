@@ -44,7 +44,7 @@ namespace fcl
 template<typename BV>
 void computeSplitVector(const BV& bv, Vec3f& split_vector)
 {
-  split_vector = bv.axis[0];
+  split_vector.noalias() = bv.axes.col(0);
 }
 
 template<>
@@ -78,13 +78,13 @@ void computeSplitVector<kIOS>(const kIOS& bv, Vec3f& split_vector)
     ;
     }
   */
-  split_vector = bv.obb.axis[0];
+  split_vector.noalias() = bv.obb.axes.col(0);
 }
 
 template<>
 void computeSplitVector<OBBRSS>(const OBBRSS& bv, Vec3f& split_vector)
 {
-  split_vector = bv.obb.axis[0];
+  split_vector.noalias() = bv.obb.axes.col(0);
 }
 
 template<typename BV>
@@ -100,7 +100,7 @@ void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, 
   FCL_REAL sum = 0.0;
   if(type == BVH_MODEL_TRIANGLES)
   {
-    FCL_REAL c[3] = {0.0, 0.0, 0.0};
+    Vec3f c (Vec3f::Zero());
 
     for(int i = 0; i < num_primitives; ++i)
     {
@@ -109,19 +109,16 @@ void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, 
       const Vec3f& p2 = vertices[t[1]];
       const Vec3f& p3 = vertices[t[2]];
 
-      c[0] += (p1[0] + p2[0] + p3[0]);
-      c[1] += (p1[1] + p2[1] + p3[1]);
-      c[2] += (p1[2] + p2[2] + p3[2]);
+      c += p1 + p2 + p3;
     }
-    split_value = (c[0] * split_vector[0] + c[1] * split_vector[1] + c[2] * split_vector[2]) / (3 * num_primitives);
+    split_value = c.dot(split_vector) / (3 * num_primitives);
   }
   else if(type == BVH_MODEL_POINTCLOUD)
   {
     for(int i = 0; i < num_primitives; ++i)
     {
       const Vec3f& p = vertices[primitive_indices[i]];
-      Vec3f v(p[0], p[1], p[2]);
-      sum += v.dot(split_vector);
+      sum += p.dot(split_vector);
     }
 
     split_value = sum / num_primitives;

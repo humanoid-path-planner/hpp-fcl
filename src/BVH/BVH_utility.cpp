@@ -37,6 +37,8 @@
 
 
 #include <hpp/fcl/BVH/BVH_utility.h>
+#include <hpp/fcl/narrowphase/narrowphase.h>
+#include <hpp/fcl/shape/geometric_shapes_utility.h>
 
 namespace fcl
 {
@@ -103,11 +105,93 @@ void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r = 1.0)
   }
 }
 
+template<typename BV>
+BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, const AABB& _aabb)
+{
+  assert(model.getModelType() == BVH_MODEL_TRIANGLES);
+  const Quaternion3f& q = pose.getQuatRotation();
+  AABB aabb = translate (_aabb, - pose.getTranslation());
+
+  Transform3f box_pose; Box box;
+  constructBox(_aabb, box, box_pose);
+  box_pose = pose.inverseTimes (box_pose);
+
+  GJKSolver_indep gjk;
+
+  // Check what triangles should be kept.
+  // TODO use the BV hierarchy
+  std::vector<bool> keep_vertex(model.num_vertices, false);
+  std::vector<bool> keep_tri   (model.num_tris,     false);
+  std::size_t ntri = 0;
+  for (std::size_t i = 0; i < model.num_tris; ++i) {
+    const Triangle& t = model.tri_indices[i];
+
+    bool keep_this_tri = keep_vertex[t[0]] || keep_vertex[t[1]] || keep_vertex[t[2]];
+
+    if (!keep_this_tri) {
+      for (std::size_t j = 0; j < 3; ++j) {
+        if (aabb.contain(q * model.vertices[t[j]])) {
+          keep_this_tri = true;
+          break;
+        }
+      }
+      const Vec3f& p0 = model.vertices[t[0]];
+      const Vec3f& p1 = model.vertices[t[1]];
+      const Vec3f& p2 = model.vertices[t[2]];
+      if (!keep_this_tri && gjk.shapeTriangleIntersect(box, box_pose, p0, p1, p2, NULL, NULL, NULL)) {
+        keep_this_tri = true;
+      }
+    }
+    if (keep_this_tri) {
+      keep_vertex[t[0]] = keep_vertex[t[1]] = keep_vertex[t[2]] = true;
+      keep_tri[i] = true;
+      ntri++;
+    }
+  }
+
+  if (ntri == 0) return NULL;
+
+  BVHModel<BV>* new_model (new BVHModel<BV>());
+  new_model->beginModel(ntri, std::min((int)ntri * 3, model.num_vertices));
+  std::vector<std::size_t> idxConversion (model.num_vertices);
+  assert(new_model->num_vertices == 0);
+  for (std::size_t i = 0; i < keep_vertex.size(); ++i) {
+    if (keep_vertex[i]) {
+      idxConversion[i] = new_model->num_vertices;
+      new_model->vertices[new_model->num_vertices] = model.vertices[i];
+      new_model->num_vertices++;
+    }
+  }
+  assert(new_model->num_tris == 0);
+  for (std::size_t i = 0; i < keep_tri.size(); ++i) {
+    if (keep_tri[i]) {
+      new_model->tri_indices[new_model->num_tris].set (
+          idxConversion[model.tri_indices[i][0]],
+          idxConversion[model.tri_indices[i][1]],
+          idxConversion[model.tri_indices[i][2]]
+          );
+      new_model->num_tris++;
+    }
+  }
+  if (new_model->endModel() != BVH_OK) {
+    delete new_model;
+    return NULL;
+  }
+  return new_model;
+}
+template BVHModel<OBB      >* BVHExtract(const BVHModel<OBB      >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<AABB     >* BVHExtract(const BVHModel<AABB     >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<RSS      >* BVHExtract(const BVHModel<RSS      >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<kIOS     >* BVHExtract(const BVHModel<kIOS     >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<OBBRSS   >* BVHExtract(const BVHModel<OBBRSS   >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<KDOP<16> >* BVHExtract(const BVHModel<KDOP<16> >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<KDOP<18> >* BVHExtract(const BVHModel<KDOP<18> >& model, const Transform3f& pose, const AABB& aabb);
+template BVHModel<KDOP<24> >* BVHExtract(const BVHModel<KDOP<24> >& model, const Transform3f& pose, const AABB& aabb);
 
 void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M)
 {
-  Vec3f S1;
-  Vec3f S2[3];
+  Vec3f S1 (Vec3f::Zero());
+  Vec3f S2[3] = { Vec3f::Zero(), Vec3f::Zero(), Vec3f::Zero() };
 
   if(ts)
   {
@@ -192,7 +276,7 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, i
 /** \brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin.
  * The bounding volume axes are known.
  */
-void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& origin, FCL_REAL l[2], FCL_REAL& r)
+void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Matrix3f& axes, Vec3f& origin, FCL_REAL l[2], FCL_REAL& r)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
@@ -215,9 +299,9 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
         int point_id = t[j];
         const Vec3f& p = ps[point_id];
         Vec3f v(p[0], p[1], p[2]);
-        P[P_id][0] = axis[0].dot(v);
-        P[P_id][1] = axis[1].dot(v);
-        P[P_id][2] = axis[2].dot(v);
+        P[P_id][0] = axes.col(0).dot(v);
+        P[P_id][1] = axes.col(1).dot(v);
+        P[P_id][2] = axes.col(2).dot(v);
         P_id++;
       }
 
@@ -227,10 +311,11 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
         {
           int point_id = t[j];
           const Vec3f& p = ps2[point_id];
+          // FIXME Is this right ?????
           Vec3f v(p[0], p[1], p[2]);
-          P[P_id][0] = axis[0].dot(v);
-          P[P_id][1] = axis[0].dot(v);
-          P[P_id][2] = axis[1].dot(v);
+          P[P_id][0] = axes.col(0).dot(v);
+          P[P_id][1] = axes.col(0).dot(v);
+          P[P_id][2] = axes.col(1).dot(v);
           P_id++;
         }
       }
@@ -244,17 +329,17 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 
       const Vec3f& p = ps[index];
       Vec3f v(p[0], p[1], p[2]);
-      P[P_id][0] = axis[0].dot(v);
-      P[P_id][1] = axis[1].dot(v);
-      P[P_id][2] = axis[2].dot(v);
+      P[P_id][0] = axes.col(0).dot(v);
+      P[P_id][1] = axes.col(1).dot(v);
+      P[P_id][2] = axes.col(2).dot(v);
       P_id++;
 
       if(ps2)
       {
         const Vec3f& v = ps2[index];
-        P[P_id][0] = axis[0].dot(v);
-        P[P_id][1] = axis[1].dot(v);
-        P[P_id][2] = axis[2].dot(v);
+        P[P_id][0] = axes.col(0).dot(v);
+        P[P_id][1] = axes.col(1).dot(v);
+        P[P_id][2] = axes.col(2).dot(v);
         P_id++;
       }
     }
@@ -277,7 +362,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
   radsqr = r * r;
   cz = (FCL_REAL)0.5 * (maxz + minz);
 
-  // compute an initial length of rectangle along x direction
+  // compute an initial norm of rectangle along x direction
 
   // find minx and maxx as starting points
 
@@ -332,7 +417,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
     }
   }
 
-  // compute an initial length of rectangle along y direction
+  // compute an initial norm of rectangle along y direction
 
   // find miny and maxy as starting points
 
@@ -457,7 +542,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
     }
   }
 
-  origin = axis[0] * minx + axis[1] * miny + axis[2] * cz;
+  origin.noalias() = axes * Vec3f(minx, miny, cz);
 
   l[0] = maxx - minx;
   if(l[0] < 0) l[0] = 0;
@@ -472,26 +557,22 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 /** \brief Compute the bounding volume extent and center for a set or subset of points.
  * The bounding volume axes are known.
  */
-static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent)
+static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f& axes, Vec3f& center, Vec3f& extent)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
   FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
 
-  FCL_REAL min_coord[3] = {real_max, real_max, real_max};
-  FCL_REAL max_coord[3] = {-real_max, -real_max, -real_max};
+  Vec3f min_coord (real_max, real_max, real_max);
+  Vec3f max_coord (-real_max, -real_max, -real_max);
 
   for(int i = 0; i < n; ++i)
   {
     int index = indirect_index ? indices[i] : i;
 
     const Vec3f& p = ps[index];
-    Vec3f v(p[0], p[1], p[2]);
-    FCL_REAL proj[3];
-    proj[0] = axis[0].dot(v);
-    proj[1] = axis[1].dot(v);
-    proj[2] = axis[2].dot(v);
+    Vec3f proj (axes.transpose() * p);
 
     for(int j = 0; j < 3; ++j)
     {
@@ -502,9 +583,7 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
     if(ps2)
     {
       const Vec3f& v = ps2[index];
-      proj[0] = axis[0].dot(v);
-      proj[1] = axis[1].dot(v);
-      proj[2] = axis[2].dot(v);
+      proj.noalias() = axes.transpose() * v;
 
       for(int j = 0; j < 3; ++j)
       {
@@ -514,31 +593,24 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
     }
   }
 
-  Vec3f o((max_coord[0] + min_coord[0]) / 2,
-          (max_coord[1] + min_coord[1]) / 2,
-          (max_coord[2] + min_coord[2]) / 2);
+  center.noalias() = axes * (max_coord + min_coord) / 2;
 
-  center = axis[0] * o[0] + axis[1] * o[1] + axis[2] * o[2];
-
-  extent.setValue((max_coord[0] - min_coord[0]) / 2,
-                  (max_coord[1] - min_coord[1]) / 2,
-                  (max_coord[2] - min_coord[2]) / 2);
-
+  extent.noalias() = (max_coord - min_coord) / 2;
 }
 
 
 /** \brief Compute the bounding volume extent and center for a set or subset of points.
  * The bounding volume axes are known.
  */
-static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent)
+static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& axes, Vec3f& center, Vec3f& extent)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
   FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
 
-  FCL_REAL min_coord[3] = {real_max, real_max, real_max};
-  FCL_REAL max_coord[3] = {-real_max, -real_max, -real_max};
+  Vec3f min_coord (real_max, real_max, real_max);
+  Vec3f max_coord (-real_max, -real_max, -real_max);
 
   for(int i = 0; i < n; ++i)
   {
@@ -549,11 +621,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
     {
       int point_id = t[j];
       const Vec3f& p = ps[point_id];
-      Vec3f v(p[0], p[1], p[2]);
-      FCL_REAL proj[3];
-      proj[0] = axis[0].dot(v);
-      proj[1] = axis[1].dot(v);
-      proj[2] = axis[2].dot(v);
+      Vec3f proj(axes.transpose() * p);
 
       for(int k = 0; k < 3; ++k)
       {
@@ -568,11 +636,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
       {
         int point_id = t[j];
         const Vec3f& p = ps2[point_id];
-        Vec3f v(p[0], p[1], p[2]);
-        FCL_REAL proj[3];
-        proj[0] = axis[0].dot(v);
-        proj[1] = axis[1].dot(v);
-        proj[2] = axis[2].dot(v);
+        Vec3f proj(axes.transpose() * p);
 
         for(int k = 0; k < 3; ++k)
         {
@@ -583,35 +647,31 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
     }
   }
 
-  Vec3f o((max_coord[0] + min_coord[0]) / 2,
-          (max_coord[1] + min_coord[1]) / 2,
-          (max_coord[2] + min_coord[2]) / 2);
+  Vec3f o((max_coord + min_coord) / 2);
 
-  center = axis[0] * o[0] + axis[1] * o[1] + axis[2] * o[2];
+  center.noalias() = axes * o;
 
-  extent.setValue((max_coord[0] - min_coord[0]) / 2,
-                  (max_coord[1] - min_coord[1]) / 2,
-                  (max_coord[2] - min_coord[2]) / 2);
+  extent.noalias() = (max_coord - min_coord) / 2;
 
 }
 
-void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent)
+void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& axes, Vec3f& center, Vec3f& extent)
 {
   if(ts)
-    getExtentAndCenter_mesh(ps, ps2, ts, indices, n, axis, center, extent);
+    getExtentAndCenter_mesh(ps, ps2, ts, indices, n, axes, center, extent);
   else
-    getExtentAndCenter_pointcloud(ps, ps2, indices, n, axis, center, extent);
+    getExtentAndCenter_pointcloud(ps, ps2, indices, n, axes, center, extent);
 }
 
 void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec3f& center, FCL_REAL& radius)
 {
   Vec3f e1 = a - c;
   Vec3f e2 = b - c;
-  FCL_REAL e1_len2 = e1.sqrLength();
-  FCL_REAL e2_len2 = e2.sqrLength();
+  FCL_REAL e1_len2 = e1.squaredNorm();
+  FCL_REAL e2_len2 = e2.squaredNorm();
   Vec3f e3 = e1.cross(e2);
-  FCL_REAL e3_len2 = e3.sqrLength();
-  radius = e1_len2 * e2_len2 * (e1 - e2).sqrLength() / e3_len2;
+  FCL_REAL e3_len2 = e3.squaredNorm();
+  radius = e1_len2 * e2_len2 * (e1 - e2).squaredNorm() / e3_len2;
   radius = std::sqrt(radius) * 0.5;
 
   center = (e2 * e1_len2 - e1 * e2_len2).cross(e3) * (0.5 * 1 / e3_len2) + c;
@@ -634,7 +694,7 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
       int point_id = t[j];
       const Vec3f& p = ps[point_id];
       
-      FCL_REAL d = (p - query).sqrLength();
+      FCL_REAL d = (p - query).squaredNorm();
       if(d > maxD) maxD = d;
     }
 
@@ -645,7 +705,7 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
         int point_id = t[j];
         const Vec3f& p = ps2[point_id];
         
-        FCL_REAL d = (p - query).sqrLength();
+        FCL_REAL d = (p - query).squaredNorm();
         if(d > maxD) maxD = d;
       }
     }
@@ -665,13 +725,13 @@ static inline FCL_REAL maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2, unsigne
     int index = indirect_index ? indices[i] : i;
 
     const Vec3f& p = ps[index];
-    FCL_REAL d = (p - query).sqrLength();
+    FCL_REAL d = (p - query).squaredNorm();
     if(d > maxD) maxD = d;
 
     if(ps2)
     {
       const Vec3f& v = ps2[index];
-      FCL_REAL d = (v - query).sqrLength();
+      FCL_REAL d = (v - query).squaredNorm();
       if(d > maxD) maxD = d;
     }
   }

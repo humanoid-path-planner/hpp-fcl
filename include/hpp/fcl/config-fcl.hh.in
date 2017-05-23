@@ -38,11 +38,7 @@
 # include "config.h"
 
 #cmakedefine01 FCL_HAVE_EIGEN
-
-#cmakedefine01 FCL_HAVE_SSE
 #cmakedefine01 FCL_HAVE_OCTOMAP
-#cmakedefine01 FCL_HAVE_FLANN
-#cmakedefine01 FCL_HAVE_TINYXML
 
 #endif // FCL_CONFIG_FCL_HH
 

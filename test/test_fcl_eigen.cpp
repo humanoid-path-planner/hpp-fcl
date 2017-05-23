@@ -81,19 +81,13 @@ BOOST_AUTO_TEST_CASE(fcl_eigen_vec3fx)
   // std::cout << d - 3.4 << std::endl;
   // std::cout << d * 2 << std::endl;
   // std::cout << d / 3 << std::endl;
-  // std::cout << (d - 3.4).abs().sqrLength() << std::endl;
+  // std::cout << (d - 3.4).abs().squaredNorm() << std::endl;
 
-  // std::cout << (((d - 3.4).abs() + 1) + 3).sqrLength() << std::endl;
+  // std::cout << (((d - 3.4).abs() + 1) + 3).squaredNorm() << std::endl;
   PRINT_VECTOR(a)
   PRINT_VECTOR(b)
   PRINT_VECTOR(min(a,b))
   PRINT_VECTOR(max(a,b))
-  a.lbound(b);
-  PRINT_VECTOR(a)
-  std::cout << (a+1).lbound(b) << std::endl;
-  std::cout << (a+1).ubound(b) << std::endl;
-
-  std::cout << a.getRow(1) << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(fcl_eigen_matrix3fx)
@@ -109,11 +103,11 @@ BOOST_AUTO_TEST_CASE(fcl_eigen_matrix3fx)
   a *= a;
   PRINT_MATRIX(a);
 
-  Matrix3fX b = a; b.inverse ();
+  Matrix3fX b = inverse(a);
   a += a + a * b;
   PRINT_MATRIX(a);
 
-  b = a; b.inverse ();
+  b = inverse(a);
   a.transpose ();
   PRINT_MATRIX(a);
   PRINT_MATRIX(a.transposeTimes (b));

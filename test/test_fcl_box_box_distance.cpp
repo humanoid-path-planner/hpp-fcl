@@ -48,10 +48,11 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
+#include "test_fcl_utility.h"
+
 typedef boost::shared_ptr <fcl::CollisionGeometry> CollisionGeometryPtr_t;
 
 using fcl::Transform3f;
-using fcl::Quaternion3f;
 using fcl::Vec3f;
 using fcl::CollisionObject;
 using fcl::DistanceResult;
@@ -106,7 +107,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_2)
   CollisionGeometryPtr_t s2 (new fcl::Box (2, 2, 2));
   static double pi = M_PI;
   Transform3f tf1;
-  Transform3f tf2 (Quaternion3f (cos (pi/8), sin(pi/8)/sqrt(3),
+  Transform3f tf2 (fcl::makeQuat (cos (pi/8), sin(pi/8)/sqrt(3),
 				 sin(pi/8)/sqrt(3), sin(pi/8)/sqrt(3)),
 		   Vec3f(0, 0, 10));
 
@@ -146,9 +147,9 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3)
   CollisionGeometryPtr_t s1 (new fcl::Box (1, 1, 1));
   CollisionGeometryPtr_t s2 (new fcl::Box (1, 1, 1));
   static double pi = M_PI;
-  Transform3f tf1 (Quaternion3f (cos (pi/8), 0, 0, sin (pi/8)),
+  Transform3f tf1 (fcl::makeQuat (cos (pi/8), 0, 0, sin (pi/8)),
 		   Vec3f (-2, 1, .5));
-  Transform3f tf2 (Quaternion3f (cos (pi/8), 0, sin(pi/8),0),
+  Transform3f tf2 (fcl::makeQuat (cos (pi/8), 0, sin(pi/8),0),
 		   Vec3f (2, .5, .5));
 
   CollisionObject o1 (s1, tf1);
@@ -184,7 +185,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3)
   BOOST_CHECK_CLOSE (p2 [2], p2Ref [2], 1e-4);
 
   // Apply the same global transform to both objects and recompute
-  Transform3f tf3 (Quaternion3f (0.435952844074,-0.718287018243,
+  Transform3f tf3 (fcl::makeQuat (0.435952844074,-0.718287018243,
 				 0.310622451066, 0.444435113443),
 		   Vec3f (4, 5, 6));
   tf1 = tf3*tf1;
