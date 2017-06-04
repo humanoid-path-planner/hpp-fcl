@@ -465,6 +465,16 @@ public:
     b1 = NONE;
     b2 = NONE;
   }
+
+  /// @brief whether two DistanceResult are the same or not
+  inline bool operator ==(const DistanceResult& other) const
+  {
+    return min_distance == other.min_distance
+        && o1 == other.o1
+        && o2 == other.o2
+        && nearest_points[0] == other.nearest_points[0]
+        && nearest_points[1] == other.nearest_points[1];
+  }
 };
 
 }
