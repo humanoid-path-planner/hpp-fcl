@@ -21,7 +21,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 
 
-add_fcl_template_test(test_fcl_math test_fcl_math.cpp)
+add_fcl_test(test_fcl_math test_fcl_math.cpp)
 
 add_fcl_test(test_fcl_collision test_fcl_collision.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_distance test_fcl_distance.cpp test_fcl_utility.cpp)
