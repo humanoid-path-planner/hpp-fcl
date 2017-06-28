@@ -882,8 +882,9 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
   {
     Vec3f n1, n2;
     FCL_REAL t1, t2;
-    buildTrianglePlane(P1, P2, P3, &n1, &t1);
-    buildTrianglePlane(Q1, Q2, Q3, &n2, &t2);
+    bool n1defined = buildTrianglePlane(P1, P2, P3, &n1, &t1);
+    bool n2defined = buildTrianglePlane(Q1, Q2, Q3, &n2, &t2);
+    assert (n1defined && n2defined);
 
     Vec3f deepest_points1[3];
     unsigned int num_deepest_points1 = 0;
@@ -920,6 +921,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
       *normal = -n2;
       *penetration_depth = penetration_depth1;
     }
+    assert(*num_contact_points > 0);
   }
 
   return true;
@@ -1115,7 +1117,7 @@ bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f
   if (norm2 > 0)
   {
     *n = n_ / sqrt(norm2);
-    *t = n_.dot(v1);
+    *t = n->dot(v1);
     return true;
   }
 
