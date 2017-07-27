@@ -469,12 +469,26 @@ public:
   /// @brief whether two DistanceResult are the same or not
   inline bool operator ==(const DistanceResult& other) const
   {
-    return min_distance == other.min_distance
-        && o1 == other.o1
-        && o2 == other.o2
-        && nearest_points[0] == other.nearest_points[0]
-        && nearest_points[1] == other.nearest_points[1];
+    bool is_same = min_distance == other.min_distance
+                  && nearest_points[0] == other.nearest_points[0]
+                  && nearest_points[1] == other.nearest_points[1]
+                  && o1 == other.o1
+                  && o2 == other.o2
+                  && b1 == other.b1
+                  && b2 == other.b2;
+
+// TODO: check also that two GeometryObject are indeed equal.
+    if (o1 != NULL xor other.o1 != NULL) return false;
+    is_same &= (o1 == other.o1);
+//    else if (o1 != NULL and other.o1 != NULL) is_same &= *o1 == *other.o1;
+
+    if (o2 != NULL xor other.o2 != NULL) return false;
+    is_same &= (o2 == other.o2);
+//    else if (o2 != NULL and other.o2 != NULL) is_same &= *o2 == *other.o2;
+  
+    return is_same;
   }
+
 };
 
 }
