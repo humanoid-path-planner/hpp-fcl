@@ -286,11 +286,6 @@ public:
 
   void leafTesting(int b1, int b2, FCL_REAL&) const;
 
-  bool BVTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
-
-  void leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc,
-		   FCL_REAL& sqrDistLowerBound) const;
-
   Matrix3f R;
   Vec3f T;
 };
