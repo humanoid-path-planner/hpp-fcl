@@ -72,14 +72,14 @@ void printComparisonError(const std::string& comparison_type,
             << getNodeTypeName(s2.getNodeType()) << " with '"
             << getGJKSolverName(solver_type) << "' solver." << std::endl
             << "tf1.quaternion: " << tf1.getQuatRotation() << std::endl
-            << "tf1.translation: " << tf1.getTranslation() << std::endl
+            << "tf1.translation: " << tf1.getTranslation().transpose() << std::endl
             << "tf2.quaternion: " << tf2.getQuatRotation() << std::endl
-            << "tf2.translation: " << tf2.getTranslation() << std::endl
-            << comparison_type << ": " << contact_or_normal << std::endl
-            << "expected_" << comparison_type << ": " << expected_contact_or_normal;
+            << "tf2.translation: " << tf2.getTranslation().transpose() << std::endl
+            << comparison_type << ": " << contact_or_normal.transpose() << std::endl
+            << "expected_" << comparison_type << ": " << expected_contact_or_normal.transpose();
 
   if (check_opposite_normal)
-    std::cout << " or " << -expected_contact_or_normal;
+    std::cout << " or " << -expected_contact_or_normal.transpose();
 
   std::cout << std::endl
             << "difference: " << (contact_or_normal - expected_contact_or_normal).norm() << std::endl
@@ -505,8 +505,8 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercylinder)
 {
-  Cylinder s1(5, 10);
-  Cylinder s2(5, 10);
+  Cylinder s1(5, 15);
+  Cylinder s2(5, 15);
 
   Transform3f tf1;
   Transform3f tf2;
@@ -527,6 +527,11 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercylinder)
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position.
   testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 9.9, 0));
+  normal << 0, 1, 0;
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(9.9, 0, 0));
