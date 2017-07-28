@@ -1131,7 +1131,7 @@ bool Intersect::buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn
   if (norm2 > 0)
   {
     *n = n_ / sqrt(norm2);
-    *t = n_.dot(v1);
+    *t = n->dot(v1);
     return true;
   }
 
