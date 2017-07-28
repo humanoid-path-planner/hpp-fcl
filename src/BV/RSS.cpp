@@ -854,7 +854,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
   // R = b2^T RO^T b1
   Vec3f Ttemp (R0 * b2.Tr + T0 - b1.Tr);
   Vec3f T(b1.axes.transpose() * Ttemp);
-  Matrix3f R(b2.axes.transpose() * R0.transpose() * b1.axes);
+  Matrix3f R(b1.axes.transpose() * R0 * b2.axes);
 
   FCL_REAL dist = rectDistance(R, T, b1.l, b2.l);
   return (dist <= (b1.r + b2.r));
