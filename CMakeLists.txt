@@ -44,6 +44,19 @@ set(PROJECT_DESCRIPTION
   )
 set(PROJECT_URL "http://github.com/humanoid-path-planner/hpp-fcl")
 
+IF(APPLE)
+  SET(CMAKE_MACOSX_RPATH TRUE)
+  SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+  SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+  SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+  if("${isSystemDir}" STREQUAL "-1")
+     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  endif("${isSystemDir}" STREQUAL "-1")
+ENDIF(APPLE)
+
 setup_project()
 
 add_required_dependency("eigen3 >= 3.0.0")
