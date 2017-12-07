@@ -271,13 +271,14 @@ public:
          FCL_REAL* plane_dis_,
          int num_planes_,
          Vec3f* points_,
-         int /*num_points_*/,
+         int num_points_,
          int* polygons_) : ShapeBase()
   {
     plane_normals = plane_normals_;
     plane_dis = plane_dis_;
     num_planes = num_planes_;
     points = points_;
+    num_points = num_points_;
     polygons = polygons_;
     edges = NULL;
 
@@ -299,8 +300,10 @@ public:
     plane_dis = other.plane_dis;
     num_planes = other.num_planes;
     points = other.points;
+    num_points = other.num_points;
     polygons = other.polygons;
-    edges = new Edge[other.num_edges];
+    num_edges = other.num_edges;
+    edges = new Edge[num_edges];
     memcpy(edges, other.edges, sizeof(Edge) * num_edges);
   }
 
