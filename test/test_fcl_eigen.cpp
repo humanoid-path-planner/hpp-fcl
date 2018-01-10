@@ -38,7 +38,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-#include <hpp/fcl/config-fcl.hh>
 #include <hpp/fcl/eigen/vec_3fx.h>
 
 using namespace fcl;

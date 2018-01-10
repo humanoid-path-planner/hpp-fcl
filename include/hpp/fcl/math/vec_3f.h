@@ -38,7 +38,6 @@
 #ifndef FCL_VEC_3F_H
 #define FCL_VEC_3F_H
 
-#include <hpp/fcl/config-fcl.hh>
 #include <hpp/fcl/data_types.h>
 
 #include <Eigen/Core>

@@ -37,8 +37,6 @@
 #ifndef FCL_MESH_LOADER_ASSIMP_H
 #define FCL_MESH_LOADER_ASSIMP_H
 
-#include <hpp/fcl/config-fcl.hh>
-
 #ifdef FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
   #include <assimp/DefaultLogger.hpp>
   #include <assimp/IOStream.hpp>

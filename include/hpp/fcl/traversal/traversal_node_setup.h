@@ -39,7 +39,6 @@
 #ifndef FCL_TRAVERSAL_NODE_SETUP_H
 #define FCL_TRAVERSAL_NODE_SETUP_H
 
-#include <hpp/fcl/config-fcl.hh>
 #include <hpp/fcl/traversal/traversal_node_bvhs.h>
 #include <hpp/fcl/traversal/traversal_node_shapes.h>
 #include <hpp/fcl/traversal/traversal_node_bvh_shape.h>
