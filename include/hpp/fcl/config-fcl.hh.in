@@ -37,7 +37,6 @@
 
 # include "config.h"
 
-#cmakedefine01 FCL_HAVE_EIGEN
 #cmakedefine01 FCL_HAVE_OCTOMAP
 
 #endif // FCL_CONFIG_FCL_HH

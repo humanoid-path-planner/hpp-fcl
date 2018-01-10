@@ -60,7 +60,6 @@ ENDIF(APPLE)
 setup_project()
 
 add_required_dependency("eigen3 >= 3.0.0")
-set(FCL_HAVE_EIGEN TRUE)
 include_directories(${EIGEN3_INCLUDE_DIRS})
 
 # Add a cache variable to allow not compiling and running tests
