@@ -40,7 +40,6 @@
 
 #include <hpp/fcl/deprecated.hh>
 #include <hpp/fcl/config.hh>
-#include <hpp/fcl/config-fcl.hh>
 
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
