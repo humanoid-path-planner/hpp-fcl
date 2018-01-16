@@ -37,7 +37,7 @@
 
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h>
 
-#if FCL_HAVE_OCTOMAP
+#ifdef FCL_HAVE_OCTOMAP
 #include <hpp/fcl/octree.h>
 #endif
 
@@ -50,7 +50,7 @@ namespace details
 namespace dynamic_AABB_tree_array
 {
 
-#if FCL_HAVE_OCTOMAP
+#ifdef FCL_HAVE_OCTOMAP
 bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* nodes1, size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const Transform3f& tf2, void* cdata, CollisionCallBack callback)
 {
   DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* root1 = nodes1 + root1_id;
@@ -631,7 +631,7 @@ bool selfDistanceRecurse(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode*
 }
 
 
-#if FCL_HAVE_OCTOMAP
+#ifdef FCL_HAVE_OCTOMAP
 bool collisionRecurse(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* nodes1, size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const Transform3f& tf2, void* cdata, CollisionCallBack callback)
 {
   if(isQuatIdentity(tf2.getQuatRotation()))
@@ -769,7 +769,7 @@ void DynamicAABBTreeCollisionManager_Array::collide(CollisionObject* obj, void* 
   if(size() == 0) return;
   switch(obj->collisionGeometry()->getNodeType())
   {
-#if FCL_HAVE_OCTOMAP
+#ifdef FCL_HAVE_OCTOMAP
   case GEOM_OCTREE:
     {
       if(!octree_as_geometry_collide)
@@ -793,7 +793,7 @@ void DynamicAABBTreeCollisionManager_Array::distance(CollisionObject* obj, void*
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
   switch(obj->collisionGeometry()->getNodeType())
   {
-#if FCL_HAVE_OCTOMAP
+#ifdef FCL_HAVE_OCTOMAP
   case GEOM_OCTREE:
     {
       if(!octree_as_geometry_distance)

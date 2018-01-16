@@ -38,7 +38,7 @@
 
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
 
-#if FCL_HAVE_OCTOMAP
+#ifdef FCL_HAVE_OCTOMAP
 #include <hpp/fcl/octree.h>
 #endif
 
@@ -51,7 +51,7 @@ namespace details
 namespace dynamic_AABB_tree
 {
 
-#if FCL_HAVE_OCTOMAP
+#ifdef FCL_HAVE_OCTOMAP
 bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const Transform3f& tf2, void* cdata, CollisionCallBack callback)
 {
   if(!root2)
@@ -744,7 +744,7 @@ void DynamicAABBTreeCollisionManager::collide(CollisionObject* obj, void* cdata,
   if(size() == 0) return;
   switch(obj->collisionGeometry()->getNodeType())
   {
-#if FCL_HAVE_OCTOMAP
+#ifdef FCL_HAVE_OCTOMAP
   case GEOM_OCTREE:
     {
       if(!octree_as_geometry_collide)
@@ -768,7 +768,7 @@ void DynamicAABBTreeCollisionManager::distance(CollisionObject* obj, void* cdata
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
   switch(obj->collisionGeometry()->getNodeType())
   {
-#if FCL_HAVE_OCTOMAP
+#ifdef FCL_HAVE_OCTOMAP
   case GEOM_OCTREE:
     {
       if(!octree_as_geometry_distance)
