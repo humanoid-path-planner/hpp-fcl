@@ -1,0 +1,4 @@
+Main modifications since version 0.5.1
+
+  - Fix octomap version handling,
+  - add flags related to Octomap in pkg-config file.
