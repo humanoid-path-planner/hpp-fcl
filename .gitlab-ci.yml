@@ -1,0 +1,53 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: "recursive"
+  GIT_DEPTH: "3"
+  CCACHE_BASEDIR: "${CI_PROJECT_DIR}"
+  CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
+
+cache:
+  paths:
+    - ccache
+
+.robotpkg-hpp-fcl: &robotpkg-hpp-fcl
+  except:
+    - gh-pages
+  script:
+    - mkdir -p ccache
+    - cd /root/robotpkg/path/hpp-fcl
+    - git pull
+    - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
+    - make install
+    - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
+    - make test
+
+robotpkg-hpp-fcl-14.04-release:
+  <<: *robotpkg-hpp-fcl
+  image: eur0c.laas.fr:5000/humanoid-path-planner/hpp-fcl/hpp-fcl:14.04
+
+robotpkg-hpp-fcl-16.04-release:
+  <<: *robotpkg-hpp-fcl
+  image: eur0c.laas.fr:5000/humanoid-path-planner/hpp-fcl/hpp-fcl:16.04
+
+robotpkg-hpp-fcl-18.04-release:
+  <<: *robotpkg-hpp-fcl
+  image: eur0c.laas.fr:5000/humanoid-path-planner/hpp-fcl/hpp-fcl:18.04
+
+doc-coverage:
+  <<: *robotpkg-hpp-fcl
+  image: eur0c.laas.fr:5000/humanoid-path-planner/hpp-fcl/hpp-fcl:16.04
+  before_script:
+    - echo -e 'CXXFLAGS+= --coverage\nLDFLAGS+= --coverage\nPKG_DEFAULT_OPTIONS= debug' >> /opt/openrobots/etc/robotpkg.conf
+  after_script:
+    - cd /root/robotpkg/path/hpp-fcl
+    - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
+    - make doc
+    - mv doc/doxygen-html ${CI_PROJECT_DIR}
+    - mkdir -p ${CI_PROJECT_DIR}/coverage/
+    - gcovr -r .
+    - gcovr -r . --html --html-details -o ${CI_PROJECT_DIR}/coverage/index.html
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - doxygen-html/
+      - coverage/
+
