@@ -210,24 +210,6 @@ void MeshCollisionTraversalNodeOBB::leafTesting
 }
 
 
-bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const
-{
-  if(enable_statistics) num_bv_tests++;
-  return obbDisjoint(Rc, Tc, model1->getBV(b1).bv.extent, model2->getBV(b2).bv.extent);
-}
-
-  void MeshCollisionTraversalNodeOBB::leafTesting
-  (int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc,
-   FCL_REAL& sqrDistLowerBound) const
-  {
-    details::meshCollisionOrientedNodeLeafTesting
-      (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2,
-       R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests, request,
-       *result, sqrDistLowerBound);
-  }
-
-
-
 MeshCollisionTraversalNodeRSS::MeshCollisionTraversalNodeRSS
 (bool enable_distance_lower_bound) :
   MeshCollisionTraversalNode<RSS> (enable_distance_lower_bound)

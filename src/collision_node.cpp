@@ -55,42 +55,6 @@ void collide(CollisionTraversalNodeBase* node, FCL_REAL& sqrDistLowerBound,
   }
 }
 
-void collide2(MeshCollisionTraversalNodeOBB* node, BVHFrontList* front_list)
-{
-  FCL_REAL sqrDistLowerBound = 0;
-  if(front_list && front_list->size() > 0)
-  {
-    propagateBVHFrontListCollisionRecurse(node, front_list, sqrDistLowerBound);
-  }
-  else
-  {
-    Matrix3f Rtemp, R;
-    Vec3f Ttemp, T;
-    Rtemp = node->R * node->model2->getBV(0).getOrientation();
-    R = node->model1->getBV(0).getOrientation().transpose() * Rtemp;
-    Ttemp = node->R * node->model2->getBV(0).getCenter() + node->T;
-    Ttemp -= node->model1->getBV(0).getCenter();
-    T = node->model1->getBV(0).getOrientation().transpose() * Ttemp;
-
-    collisionRecurse(node, 0, 0, R, T, front_list);
-  }
-}
-
-void collide2(MeshCollisionTraversalNodeRSS* node, BVHFrontList* front_list)
-{
-  FCL_REAL sqrDistLowerBound = 0;
-  if(front_list && front_list->size() > 0)
-  {
-    propagateBVHFrontListCollisionRecurse(node, front_list, sqrDistLowerBound);
-  }
-  else
-  {
-    collisionRecurse(node, 0, 0, node->R, node->T, front_list);
-  }
-}
-
-
-
 void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list)
 {
 
