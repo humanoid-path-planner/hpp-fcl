@@ -42,7 +42,6 @@
 #include <hpp/fcl/math/vec_3f.h>
 #include <hpp/fcl/math/matrix_3f.h>
 #include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/broadphase/morton.h>
 
 #include <hpp/fcl/intersect.h>
 
@@ -112,22 +111,6 @@ BOOST_AUTO_TEST_CASE(vec_test_eigen_vec64)
   v2 = Vec3f(3.0, 4.0, 5.0);
   BOOST_CHECK(isEqual(v1.cross(v2), Vec3f(-2.0, 4.0, -2.0)));
   BOOST_CHECK(v1.dot(v2) == 26);
-}
-
-BOOST_AUTO_TEST_CASE(morton)
-{
-  AABB bbox(Vec3f(0, 0, 0), Vec3f(1000, 1000, 1000));
-  morton_functor<boost::dynamic_bitset<> > F1(bbox, 10);
-  morton_functor<boost::dynamic_bitset<> > F2(bbox, 20);
-  morton_functor<FCL_UINT64> F3(bbox);
-  morton_functor<FCL_UINT32> F4(bbox);
-
-  Vec3f p(254, 873, 674);
-  std::cout << std::hex << F1(p).to_ulong() << std::endl;
-  std::cout << std::hex << F2(p).to_ulong() << std::endl;
-  std::cout << std::hex << F3(p) << std::endl;
-  std::cout << std::hex << F4(p) << std::endl;
-  
 }
 
 Vec3f rotate (Vec3f input, FCL_REAL w, Vec3f vec) {

@@ -46,11 +46,6 @@ add_fcl_test(test_fcl_bvh_models test_fcl_bvh_models.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_profiling test_fcl_profiling.cpp test_fcl_utility.cpp)
 PKG_CONFIG_USE_DEPENDENCY(test_fcl_profiling assimp)
 
-if (FCL_HAVE_OCTOMAP)
-  add_fcl_test(test_fcl_octomap test_fcl_octomap.cpp test_fcl_utility.cpp)
-  PKG_CONFIG_USE_DEPENDENCY(test_fcl_octomap octomap)
-endif()
-
 ## Benchmark
 add_executable(benchmark benchmark.cpp test_fcl_utility.cpp)
 target_link_libraries(benchmark hpp-fcl ${Boost_LIBRARIES})
