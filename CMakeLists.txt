@@ -117,18 +117,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/BV/kDOP.h
   include/hpp/fcl/narrowphase/narrowphase.h
   include/hpp/fcl/narrowphase/gjk.h
-  include/hpp/fcl/broadphase/interval_tree.h
-  include/hpp/fcl/broadphase/broadphase_spatialhash.h
-  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h
-  include/hpp/fcl/broadphase/broadphase_SSaP.h
-  include/hpp/fcl/broadphase/broadphase_interval_tree.h
-  include/hpp/fcl/broadphase/broadphase.h
-  include/hpp/fcl/broadphase/hierarchy_tree.h
-  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h
-  include/hpp/fcl/broadphase/broadphase_SaP.h
-  include/hpp/fcl/broadphase/broadphase_bruteforce.h
-  include/hpp/fcl/broadphase/morton.h
-  include/hpp/fcl/broadphase/hash.h
   include/hpp/fcl/shape/geometric_shapes_utility.h
   include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
   include/hpp/fcl/shape/geometric_shapes.h

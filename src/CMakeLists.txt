@@ -46,15 +46,6 @@ set(${LIBRARY_NAME}_SOURCES
   BV/OBB.cpp
   narrowphase/narrowphase.cpp
   narrowphase/gjk.cpp
-  broadphase/broadphase_bruteforce.cpp
-  broadphase/interval_tree.cpp
-  broadphase/broadphase_SaP.cpp
-  broadphase/broadphase_dynamic_AABB_tree.cpp
-  broadphase/broadphase_SSaP.cpp
-  broadphase/broadphase_dynamic_AABB_tree_array.cpp
-  broadphase/broadphase_interval_tree.cpp
-  broadphase/broadphase_spatialhash.cpp
-  broadphase/hierarchy_tree.cpp
   shape/geometric_shapes.cpp
   shape/geometric_shapes_utility.cpp
   distance_capsule_capsule.cpp
