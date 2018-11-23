@@ -114,25 +114,6 @@ void collisionRecurse(MeshCollisionTraversalNodeRSS* node, int b1, int b2, const
 /** Recurse function for self collision
  * Make sure node is set correctly so that the first and second tree are the same
  */
-void selfCollisionRecurse(CollisionTraversalNodeBase* node, int b, BVHFrontList* front_list)
-{
-  FCL_REAL sqrDistLowerBound;
-  bool l = node->isFirstNodeLeaf(b);
-
-  if(l) return;
-
-  int c1 = node->getFirstLeftChild(b);
-  int c2 = node->getFirstRightChild(b);
-
-  selfCollisionRecurse(node, c1, front_list);
-  if(node->canStop() && !front_list) return;
-
-  selfCollisionRecurse(node, c2, front_list);
-  if(node->canStop() && !front_list) return;
-
-  collisionRecurse(node, c1, c2, front_list, sqrDistLowerBound);
-}
-
 void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list)
 {
   bool l1 = node->isFirstNodeLeaf(b1);

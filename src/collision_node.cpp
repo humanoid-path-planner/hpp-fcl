@@ -55,20 +55,6 @@ void collide(CollisionTraversalNodeBase* node, FCL_REAL& sqrDistLowerBound,
   }
 }
 
-void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list)
-{
-
-  FCL_REAL sqrDistLowerBound = 0;
-  if(front_list && front_list->size() > 0)
-  {
-    propagateBVHFrontListCollisionRecurse(node, front_list, sqrDistLowerBound);
-  }
-  else
-  {
-    selfCollisionRecurse(node, 0, front_list);
-  }
-}
-
 void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list, int qsize)
 {
   node->preprocess();

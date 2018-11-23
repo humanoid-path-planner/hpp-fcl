@@ -60,9 +60,6 @@ namespace fcl
   void collide(CollisionTraversalNodeBase* node, FCL_REAL& sqrDistLowerBound,
 	       BVHFrontList* front_list = NULL);
 
-/// @brief self collision on collision traversal node; can use front list to accelerate
-void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list = NULL);
-
 /// @brief distance computation on distance traversal node; can use front list to accelerate
 void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
 }
