@@ -296,6 +296,7 @@ bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f&
 // b extent of 2nd OBB.
 bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 				       const Vec3f& a, const Vec3f& b,
+                                       const CollisionRequest& request,
 				       FCL_REAL& squaredLowerBoundDistance)
 {
   FCL_REAL t, s;
@@ -535,7 +536,8 @@ bool OBB::overlap(const OBB& other) const
   return !obbDisjoint(R, T, extent, other.extent);
 }
 
-  bool OBB::overlap(const OBB& other, FCL_REAL& sqrDistLowerBound) const
+  bool OBB::overlap(const OBB& other, const CollisionRequest& request,
+                    FCL_REAL& sqrDistLowerBound) const
   {
     /// compute what transform [R,T] that takes us from cs1 to cs2.
     /// [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
@@ -552,7 +554,7 @@ bool OBB::overlap(const OBB& other) const
   Matrix3f R (axes.transpose() * other.axes);
 
   return !obbDisjointAndLowerBoundDistance
-    (R, T, extent, other.extent, sqrDistLowerBound);
+    (R, T, extent, other.extent, request, sqrDistLowerBound);
 }
 
 
@@ -618,14 +620,14 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2)
 }
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2,
-	     FCL_REAL& sqrDistLowerBound)
+	     const CollisionRequest& request, FCL_REAL& sqrDistLowerBound)
 {
   Vec3f Ttemp (R0 * b2.To + T0 - b1.To);
   Vec3f T (b1.axes.transpose() * Ttemp);
   Matrix3f R (b1.axes.transpose() * R0 * b2.axes);
 
   return !obbDisjointAndLowerBoundDistance (R, T, b1.extent, b2.extent,
-					    sqrDistLowerBound);
+					    request, sqrDistLowerBound);
 }
 
 OBB translate(const OBB& bv, const Vec3f& t)

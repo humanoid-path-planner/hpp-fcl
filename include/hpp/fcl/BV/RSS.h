@@ -46,6 +46,7 @@
 namespace fcl
 {
 
+  class CollisionRequest;
 /// @brief A class for rectangle sphere-swept bounding volume
 class RSS
 {
@@ -67,7 +68,8 @@ public:
   bool overlap(const RSS& other) const;
 
   /// Not implemented
-  bool overlap(const RSS& /*other*/, FCL_REAL& /*sqrDistLowerBound*/) const
+  bool overlap(const RSS& /*other*/, const CollisionRequest&,
+               FCL_REAL& /*sqrDistLowerBound*/) const
   {
     throw std::runtime_error ("Not implemented.");
     return false;

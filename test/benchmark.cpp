@@ -129,8 +129,9 @@ double collide (const std::vector<Transform3f>& tf,
     if(!initialize(node, m1, tf[i], m2, pose2, request, local_result))
       std::cout << "initialize error" << std::endl;
 
-    FCL_REAL sqrDistLowerBound;
-    collide(&node, sqrDistLowerBound);
+    CollisionRequest request (1, true, true);
+    CollisionResult result;
+    collide(&node, request, result);
   }
 
   timer.stop();

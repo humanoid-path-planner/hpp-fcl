@@ -44,7 +44,7 @@
 
 namespace fcl
 {
-
+  class CollisionRequest;
 /// @brief A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points
 class AABB
 {
@@ -95,7 +95,7 @@ public:
   }    
 
   /// Not implemented
-  inline bool overlap(const AABB&, FCL_REAL&) const
+  inline bool overlap(const AABB&, const CollisionRequest&, FCL_REAL&) const
   {
     throw std::runtime_error ("Not implemented");
   }

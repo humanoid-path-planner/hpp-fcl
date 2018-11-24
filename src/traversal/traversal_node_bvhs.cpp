@@ -277,7 +277,7 @@ bool MeshCollisionTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
   {
     if(enable_statistics) num_bv_tests++;
     return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv,
-		    sqrDistLowerBound);
+		    request, sqrDistLowerBound);
   }
 
 void MeshCollisionTraversalNodeOBBRSS::leafTesting

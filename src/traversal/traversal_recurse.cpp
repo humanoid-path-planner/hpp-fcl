@@ -311,10 +311,11 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
 }
 
 void propagateBVHFrontListCollisionRecurse
-(CollisionTraversalNodeBase* node, BVHFrontList* front_list,
- FCL_REAL& sqrDistLowerBound)
+(CollisionTraversalNodeBase* node, const CollisionRequest& request,
+ CollisionResult& result, BVHFrontList* front_list)
 {
-  FCL_REAL sqrDistLowerBound1 = 0, sqrDistLowerBound2 = 0;
+  FCL_REAL sqrDistLowerBound = -1,
+    sqrDistLowerBound1 = 0, sqrDistLowerBound2 = 0;
   BVHFrontList::iterator front_iter;
   BVHFrontList append;
   for(front_iter = front_list->begin(); front_iter != front_list->end(); ++front_iter)
@@ -375,6 +376,7 @@ void propagateBVHFrontListCollisionRecurse
 	}
       }
     }
+    result.distance_lower_bound = sqrt (sqrDistLowerBound);
   }
 
 

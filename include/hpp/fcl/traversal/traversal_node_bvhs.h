@@ -136,7 +136,8 @@ public:
   bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(enable_statistics) num_bv_tests++;
-    return !model1->getBV(b1).overlap(model2->getBV(b2), sqrDistLowerBound);
+    return !model1->getBV(b1).overlap(model2->getBV(b2), request,
+                                      sqrDistLowerBound);
   }
   
   /// @brief The first BVH model

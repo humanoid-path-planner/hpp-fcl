@@ -42,16 +42,19 @@
 namespace fcl
 {
 
-void collide(CollisionTraversalNodeBase* node, FCL_REAL& sqrDistLowerBound,
+void collide(CollisionTraversalNodeBase* node,
+             const CollisionRequest& request, CollisionResult& result,
 	     BVHFrontList* front_list)
 {
   if(front_list && front_list->size() > 0)
   {
-    propagateBVHFrontListCollisionRecurse(node, front_list, sqrDistLowerBound);
+    propagateBVHFrontListCollisionRecurse(node, request, result, front_list);
   }
   else
   {
+    FCL_REAL sqrDistLowerBound=0;
     collisionRecurse(node, 0, 0, front_list, sqrDistLowerBound);
+    result.distance_lower_bound = sqrt (sqrDistLowerBound);
   }
 }
 

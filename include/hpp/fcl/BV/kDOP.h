@@ -44,6 +44,7 @@
 namespace fcl
 {
 
+  class CollisionRequest;
 
 /// @brief KDOP class describes the KDOP collision structures. K is set as the template parameter, which should be 16, 18, or 24
 ///  The KDOP structure is defined by some pairs of parallel planes defined by some axes. 
@@ -97,7 +98,8 @@ public:
   bool overlap(const KDOP<N>& other) const;
 
   /// Not implemented
-  bool overlap(const KDOP<N>& /*other*/, FCL_REAL&) const
+  bool overlap(const KDOP<N>& /*other*/, const CollisionRequest&,
+               FCL_REAL&) const
   {
     throw std::runtime_error ("Not implemented");
   }

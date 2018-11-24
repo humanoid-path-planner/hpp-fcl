@@ -44,7 +44,7 @@
 
 namespace fcl
 {
-
+  class CollisionRequest;
 
 /// @brief Class merging the OBB and RSS, can handle collision and distance simultaneously
 class OBBRSS
@@ -66,9 +66,10 @@ public:
   /// Check collision between two OBBRSS
   /// \retval sqrDistLowerBound squared lower bound on distance between
   ///         objects if they do not overlap.
-  bool overlap(const OBBRSS& other, FCL_REAL& sqrDistLowerBound) const
+  bool overlap(const OBBRSS& other, const CollisionRequest& request,
+               FCL_REAL& sqrDistLowerBound) const
   {
-    return obb.overlap(other.obb, sqrDistLowerBound);
+    return obb.overlap(other.obb, request, sqrDistLowerBound);
   }
 
   /// @brief Check collision between two OBBRSS and return the overlap part.
@@ -160,7 +161,8 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS
 /// \param  b1 first OBBRSS in configuration (R0, T0)
 /// \param  b2 second OBBRSS in identity position
 /// \retval squared lower bound on the distance if OBBRSS do not overlap.
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2,
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1,
+             const OBBRSS& b2, const CollisionRequest& request,
 	     FCL_REAL& sqrDistLowerBound);
 
 /// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0) and b2 is in indentity; P and Q, is not NULL, returns the nearest points

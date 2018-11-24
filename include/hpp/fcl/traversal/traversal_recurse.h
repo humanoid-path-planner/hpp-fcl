@@ -68,8 +68,8 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
 
 /// @brief Recurse function for front list propagation
 void propagateBVHFrontListCollisionRecurse
-  (CollisionTraversalNodeBase* node, BVHFrontList* front_list,
-   FCL_REAL& sqrDistLowerBound);
+  (CollisionTraversalNodeBase* node, const CollisionRequest& request,
+   CollisionResult& result, BVHFrontList* front_list);
 
 
 }
