@@ -219,6 +219,12 @@ struct CollisionRequest
   /// @brief the gjk intial guess set by user
   Vec3f cached_gjk_guess;
 
+  /// @brief Distance below which objects are considered in collision
+  FCL_REAL security_margin;
+
+  /// @brief Distance below which bounding volumes are break down
+  FCL_REAL break_distance;
+
   CollisionRequest(size_t num_max_contacts_ = 1,
                    bool enable_contact_ = false,
 		   bool enable_distance_lower_bound_ = false,
@@ -232,7 +238,9 @@ struct CollisionRequest
     num_max_cost_sources(num_max_cost_sources_),
     enable_cost(enable_cost_),
     use_approximate_cost(use_approximate_cost_),
-    gjk_solver_type(gjk_solver_type_)
+    gjk_solver_type(gjk_solver_type_),
+    security_margin (0),
+    break_distance (1e-3)
   {
     enable_cached_gjk_guess = false;
     cached_gjk_guess = Vec3f(1, 0, 0);
