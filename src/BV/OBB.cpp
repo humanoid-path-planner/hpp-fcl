@@ -33,11 +33,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** \author Jia Pan, Florent Lamiraux */
 
 #include <hpp/fcl/BV/OBB.h>
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <hpp/fcl/math/transform.h>
+#include <hpp/fcl/collision_data.h>
 
 #include <iostream>
 #include <limits>
@@ -294,85 +295,44 @@ bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f&
 // B, T orientation and position of 2nd OBB in frame of 1st OBB,
 // a extent of 1st OBB,
 // b extent of 2nd OBB.
+//
+// This function tests whether bounding boxes should be broken down.
+//
 bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 				       const Vec3f& a, const Vec3f& b,
                                        const CollisionRequest& request,
 				       FCL_REAL& squaredLowerBoundDistance)
 {
   FCL_REAL t, s;
-  const FCL_REAL reps = 1e-6;
   FCL_REAL diff;
-  FCL_REAL breakDistance = 2e-3 * (a [0] + a [1] + a [2] +
-				   b [0] + b [1] + b [2]);
+  FCL_REAL breakDistance (request.break_distance + request.security_margin);
   FCL_REAL breakDistance2 = breakDistance * breakDistance;
 
   // Matrix3f Bf = abs(B);
   // Bf += reps;
-  Matrix3f Bf (B.array().abs() + reps);
-  squaredLowerBoundDistance = 0;
+  Matrix3f Bf (B.cwiseAbs());
 
-  // if any of these tests are one-sided, then the polyhedra are disjoint
-
-  // A1 x A2 = A0
-  t = ((T[0] < 0.0) ? -T[0] : T[0]);
-
-  diff = t - (a[0] + Bf.row(0).dot(b));
-  if (diff > 0) {
-    squaredLowerBoundDistance += diff*diff;
-  }
-
-  // A2 x A0 = A1
-  t = ((T[1] < 0.0) ? -T[1] : T[1]);
-
-  diff = t - (a[1] + Bf.row(1).dot(b));
-  if (diff > 0) {
-    squaredLowerBoundDistance += diff*diff;
-  }
-
-  // A0 x A1 = A2
-  t =((T[2] < 0.0) ? -T[2] : T[2]);
-
-  diff = t - (a[2] + Bf.row(2).dot(b));
-  if (diff > 0) {
-    squaredLowerBoundDistance += diff*diff;
-  }
-
+  // Corner of b axis aligned bounding box the closest to the origin
+  Vec3f AABB_corner (T.cwiseAbs () - Bf * b);
+  Vec3f diff3 (AABB_corner - a);
+  diff3 = diff3.cwiseMax (0);
+  //for (Vec3f::Index i=0; i<3; ++i) diff3 [i] = std::max (0, diff3 [i]);
+  squaredLowerBoundDistance = diff3.squaredNorm ();
   if (squaredLowerBoundDistance > breakDistance2)
     return true;
 
-  // B1 x B2 = B0
-  s =  B.col(0).dot(T);
-  t = ((s < 0.0) ? -s : s);
-
-  diff = t - (b[0] + Bf.col(0).dot(a));
-  if (diff > 0) {
-    squaredLowerBoundDistance += diff*diff;
-  }
-
-  // B2 x B0 = B1
-  s = B.col(1).dot(T);
-  t = ((s < 0.0) ? -s : s);
-
-  diff = t - (b[1] + Bf.col(1).dot(a));
-  if (diff > 0) {
-    squaredLowerBoundDistance += diff*diff;
-  }
-
-  // B0 x B1 = B2
-  s = B.col(2).dot(T);
-  t = ((s < 0.0) ? -s : s);
-
-  diff = t - (b[2] + Bf.col(2).dot(a));
-  if (diff > 0) {
-    squaredLowerBoundDistance += diff*diff;
-  }
+  AABB_corner = (B.transpose () * T).cwiseAbs ()  - Bf.transpose () * a;
+  // diff3 = | B^T T| - b - Bf^T a
+  diff3 = AABB_corner - b;
+  diff3 = diff3.cwiseMax (0);
+  squaredLowerBoundDistance = diff3.squaredNorm ();
 
   if (squaredLowerBoundDistance > breakDistance2)
     return true;
 
   // A0 x B0
   s = T[2] * B(1, 0) - T[1] * B(2, 0);
-  t = ((s < 0.0) ? -s : s);
+  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
 
   FCL_REAL sinus2;
   diff = t - (a[1] * Bf(2, 0) + a[2] * Bf(1, 0) +
@@ -393,7 +353,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   // A0 x B1
   s = T[2] * B(1, 1) - T[1] * B(2, 1);
-  t = ((s < 0.0) ? -s : s);
+  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
 
   diff = t - (a[1] * Bf(2, 1) + a[2] * Bf(1, 1) +
 	      b[0] * Bf(0, 2) + b[2] * Bf(0, 0));
@@ -409,7 +369,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   // A0 x B2
   s = T[2] * B(1, 2) - T[1] * B(2, 2);
-  t = ((s < 0.0) ? -s : s);
+  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
 
   diff = t - (a[1] * Bf(2, 2) + a[2] * Bf(1, 2) +
 	      b[0] * Bf(0, 1) + b[1] * Bf(0, 0));
@@ -425,7 +385,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   // A1 x B0
   s = T[0] * B(2, 0) - T[2] * B(0, 0);
-  t = ((s < 0.0) ? -s : s);
+  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
 
   diff = t - (a[0] * Bf(2, 0) + a[2] * Bf(0, 0) +
 	      b[1] * Bf(1, 2) + b[2] * Bf(1, 1));
@@ -441,7 +401,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   // A1 x B1
   s = T[0] * B(2, 1) - T[2] * B(0, 1);
-  t = ((s < 0.0) ? -s : s);
+  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
 
   diff = t - (a[0] * Bf(2, 1) + a[2] * Bf(0, 1) +
 	      b[0] * Bf(1, 2) + b[2] * Bf(1, 0));
@@ -457,7 +417,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   // A1 x B2
   s = T[0] * B(2, 2) - T[2] * B(0, 2);
-  t = ((s < 0.0) ? -s : s);
+  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
 
   diff = t - (a[0] * Bf(2, 2) + a[2] * Bf(0, 2) +
 	      b[0] * Bf(1, 1) + b[1] * Bf(1, 0));
@@ -473,7 +433,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   // A2 x B0
   s = T[1] * B(0, 0) - T[0] * B(1, 0);
-  t = ((s < 0.0) ? -s : s);
+  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
 
   diff = t - (a[0] * Bf(1, 0) + a[1] * Bf(0, 0) +
 	      b[1] * Bf(2, 2) + b[2] * Bf(2, 1));
@@ -489,7 +449,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   // A2 x B1
   s = T[1] * B(0, 1) - T[0] * B(1, 1);
-  t = ((s < 0.0) ? -s : s);
+  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
 
   diff = t - (a[0] * Bf(1, 1) + a[1] * Bf(0, 1) +
 	      b[0] * Bf(2, 2) + b[2] * Bf(2, 0));
@@ -505,7 +465,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
 
   // A2 x B2
   s = T[1] * B(0, 2) - T[0] * B(1, 2);
-  t = ((s < 0.0) ? -s : s);
+  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
 
   diff = t - (a[0] * Bf(1, 2) + a[1] * Bf(0, 2) +
 	      b[0] * Bf(2, 1) + b[1] * Bf(2, 0));
