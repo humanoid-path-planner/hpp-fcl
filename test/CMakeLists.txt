@@ -18,6 +18,7 @@ macro(add_fcl_test test_name)
 endmacro(add_fcl_test)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src/geometric-tools)
 include_directories(${Boost_INCLUDE_DIRS})
 
 
@@ -45,6 +46,8 @@ add_fcl_test(test_fcl_bvh_models test_fcl_bvh_models.cpp test_fcl_utility.cpp)
 
 add_fcl_test(test_fcl_profiling test_fcl_profiling.cpp test_fcl_utility.cpp)
 PKG_CONFIG_USE_DEPENDENCY(test_fcl_profiling assimp)
+
+add_fcl_test(test_fcl_gjk test_fcl_gjk.cpp)
 
 ## Benchmark
 add_executable(benchmark benchmark.cpp test_fcl_utility.cpp)
