@@ -230,11 +230,24 @@ struct GJKSolver_indep
       
       return true;
     }
-    else
+    else if (gjk_status == details::GJK::Inside)
     {
+      Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
+      for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
+      {
+        FCL_REAL p = gjk.getSimplex()->coefficient[i];
+        w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
+        w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
+      }
       if(distance) *distance = -1;
+
+      if(p1) *p1 = tf1.transform (w0);
+      if(p2) *p2 = tf1.transform (w1);
+
       return false;
     }
+    if(distance) *distance = -1;
+    return false;
   }
 
   template<typename S1, typename S2>
