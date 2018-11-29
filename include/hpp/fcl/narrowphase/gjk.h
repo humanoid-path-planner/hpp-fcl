@@ -137,9 +137,9 @@ struct GJK
   struct Simplex
   {
     /// @brief simplex vertex
-    SimplexV* c[4];
+    SimplexV* vertex[4];
     /// @brief weight 
-    FCL_REAL p[4];
+    FCL_REAL coefficient[4];
     /// @brief size of simplex (number of vertices)
     size_t rank;
 
@@ -217,7 +217,7 @@ private:
   {
     Vec3f n;
     FCL_REAL d;
-    SimplexV* c[3]; // a face has three vertices
+    SimplexV* vertex[3]; // a face has three vertices
     SimplexF* f[3]; // a face has three adjacent faces
     SimplexF* l[2]; // the pre and post faces in the list
     size_t e[3];
@@ -300,7 +300,7 @@ public:
 
   bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist);
 
-  SimplexF* newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced);
+  SimplexF* newFace(SimplexV* a, SimplexV* b, SimplexV* vertex, bool forced);
 
   /// @brief Find the best polytope face to split
   SimplexF* findBest();

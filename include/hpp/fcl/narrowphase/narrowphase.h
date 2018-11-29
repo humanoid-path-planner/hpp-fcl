@@ -79,7 +79,8 @@ struct GJKSolver_indep
           Vec3f w0 (Vec3f::Zero());
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
-            w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
+            w0 += shape.support(epa.result.vertex[i]->d, 0) *
+              epa.result.coefficient[i];
           }
           if(penetration_depth) *penetration_depth = -epa.depth;
           if(normal) *normal = tf2.getRotation() * epa.normal;
@@ -128,7 +129,8 @@ struct GJKSolver_indep
           Vec3f w0 (Vec3f::Zero());
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
-            w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
+            w0 += shape.support(epa.result.vertex[i]->d, 0) *
+              epa.result.coefficient[i];
           }
           if(penetration_depth) *penetration_depth = -epa.depth;
           if(normal) *normal = -epa.normal;
@@ -177,7 +179,8 @@ struct GJKSolver_indep
           Vec3f w0 (Vec3f::Zero());
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
-            w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
+            w0 += shape.support(epa.result.vertex[i]->d, 0) *
+              epa.result.coefficient[i];
           }
           if(penetration_depth) *penetration_depth = -epa.depth;
           if(normal) *normal = -epa.normal;
@@ -218,9 +221,9 @@ struct GJKSolver_indep
       Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
-        FCL_REAL p = gjk.getSimplex()->p[i];
-        w0 += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
-        w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
+        FCL_REAL p = gjk.getSimplex()->coefficient[i];
+        w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
+        w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
       }
 
       if(distance) *distance = (w0 - w1).norm();
@@ -283,9 +286,9 @@ struct GJKSolver_indep
       Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
-        FCL_REAL p = gjk.getSimplex()->p[i];
-        w0 += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
-        w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
+        FCL_REAL p = gjk.getSimplex()->coefficient[i];
+        w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
+        w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
       }
 
       if(distance) *distance = (w0 - w1).norm();
@@ -333,9 +336,9 @@ struct GJKSolver_indep
       Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
-        FCL_REAL p = gjk.getSimplex()->p[i];
-        w0 += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
-        w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
+        FCL_REAL p = gjk.getSimplex()->coefficient[i];
+        w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
+        w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
       }
 
       if(distance) *distance = (w0 - w1).norm();
