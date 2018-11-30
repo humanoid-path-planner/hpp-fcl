@@ -320,12 +320,6 @@ void GJK::getSupport(const Vec3f& d, SimplexV& sv) const
   sv.w.noalias() = shape.support(sv.d);
 }
 
-void GJK::getSupport(const Vec3f& d, const Vec3f& v, SimplexV& sv) const
-{
-  sv.d.noalias() = d.normalized();
-  sv.w.noalias() = shape.support(sv.d, v);
-}
-
 void GJK::removeVertex(Simplex& simplex)
 {
   free_v[nfree++] = simplex.vertex[--simplex.rank];

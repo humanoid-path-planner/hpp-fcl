@@ -92,30 +92,6 @@ struct MinkowskiDiff
     else
       return support0(d);
   }
-
-  /// @brief support function for translating shape0, which is translating at velocity v
-  inline Vec3f support0(const Vec3f& d, const Vec3f& v) const
-  {
-    if(d.dot(v) <= 0)
-      return getSupport(shapes[0], d);
-    else
-      return getSupport(shapes[0], d) + v;
-  }
-
-  /// @brief support function for the pair of shapes, where shape0 is translating at velocity v
-  inline Vec3f support(const Vec3f& d, const Vec3f& v) const
-  {
-    return support0(d, v) - support1(-d);
-  }
-
-  /// @brief support function for the d-th shape (d = 0 or 1), where shape0 is translating at velocity v
-  inline Vec3f support(const Vec3f& d, const Vec3f& v, size_t index) const
-  {
-    if(index)
-      return support1(d);
-    else
-      return support0(d, v);
-  }
 };
 
 
@@ -167,9 +143,6 @@ struct GJK
 
   /// @brief apply the support function along a direction, the result is return in sv
   void getSupport(const Vec3f& d, SimplexV& sv) const;
-
-  /// @brief apply the support function along a direction, the result is return is sv, here shape0 is translating at velocity v
-  void getSupport(const Vec3f& d, const Vec3f& v, SimplexV& sv) const;
 
   /// @brief discard one vertex from the simplex
   void removeVertex(Simplex& simplex);
