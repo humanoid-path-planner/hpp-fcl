@@ -225,17 +225,17 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     appendVertex(curr_simplex, -ray); // see below, ray points away from origin
 
     // check B: when the new support point is close to previous support points, stop (as the new simplex is degenerated)
-    Vec3f& w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
+    const Vec3f& w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
     bool found = false;
     for(size_t i = 0; i < 4; ++i)
     {
-      if((w - lastw[i]).squaredNorm() < tolerance)
+      if((w - lastw[i]).squaredNorm() < tolerance * tolerance)
       {
         found = true; break;
       }
     }
 
-    if(found)
+    if(false /*found*/)
     {
       removeVertex(simplices[current]);
       break; 
