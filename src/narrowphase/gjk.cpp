@@ -226,24 +226,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
     // check B: when the new support point is close to previous support points, stop (as the new simplex is degenerated)
     const Vec3f& w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
-    bool found = false;
-    for(size_t i = 0; i < 4; ++i)
-    {
-      if((w - lastw[i]).squaredNorm() < tolerance * tolerance)
-      {
-        found = true; break;
-      }
-    }
-
-    if(false /*found*/)
-    {
-      removeVertex(simplices[current]);
-      break; 
-    }
-    else
-    {
-      lastw[clastw = (clastw+1)&3] = w;
-    }
+    lastw[clastw = (clastw+1)&3] = w;
 
     // check C: when the new support point is close to the sub-simplex where the ray point lies, stop (as the new simplex again is degenerated)
     FCL_REAL omega = ray.dot(w) / rl;
