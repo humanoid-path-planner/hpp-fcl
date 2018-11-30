@@ -1,15 +1,9 @@
 Result after running test_fcl_gjk in Release mode.
 
-nCol = 2831
-nDiff = 41
-Total time gjk: 21461
-Total time gte: 59498
-Number times GJK better than Geometric tools: 9988
+nCol = 2840
+nDiff = 0
+Total time gjk: 20020
 -- Collisions -------------------------
-Total time gjk: 5219
-Total time gte: 14334
-Number times GJK better than Geometric tools: 2828
+Total time gjk: 5554
 -- No collisions -------------------------
-Total time gjk: 16242
-Total time gte: 45164
-Number times GJK better than Geometric tools: 7160
+Total time gjk: 14466

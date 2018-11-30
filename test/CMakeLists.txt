@@ -18,7 +18,6 @@ macro(add_fcl_test test_name)
 endmacro(add_fcl_test)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${PROJECT_SOURCE_DIR}/src/geometric-tools)
 include_directories(${Boost_INCLUDE_DIRS})
 
 
