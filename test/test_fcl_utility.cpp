@@ -358,7 +358,8 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
 
   collide(o1, o2, request, result);
 
-  if(!request.enable_cost && (result.isCollision()) && (result.numContacts() >= request.num_max_contacts))
+  if((result.isCollision()) &&
+     (result.numContacts() >= request.num_max_contacts))
     cdata->done = true;
 
   return cdata->done;

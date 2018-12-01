@@ -108,41 +108,13 @@ std::size_t OcTreeBVHCollide(const CollisionGeometry* o1, const Transform3f& tf1
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
-  if(request.enable_cost && request.use_approximate_cost)
-  {
-    CollisionRequest no_cost_request(request); // request remove cost to avoid the exact but expensive cost computation between mesh and octree
-    no_cost_request.enable_cost = false; // disable cost computation
+  OcTreeMeshCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
+  const OcTree* obj1 = static_cast<const OcTree*>(o1);
+  const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
-    OcTreeMeshCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
-    const OcTree* obj1 = static_cast<const OcTree*>(o1);
-    const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
-    OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
-
-    initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, no_cost_request, result);
-      collide(&node, request, result);
-
-    Box box;
-    Transform3f box_tf;
-    constructBox(obj2->getBV(0).bv, tf2, box, box_tf); // compute the box for BVH's root node
-
-    box.cost_density = obj2->cost_density;
-    box.threshold_occupied = obj2->threshold_occupied;
-    box.threshold_free = obj2->threshold_free;
-
-    CollisionRequest only_cost_request(result.numContacts(), false, request.num_max_cost_sources, true, false); // additional cost request, no contacts
-    OcTreeShapeCollide<Box, NarrowPhaseSolver>(o1, tf1, &box, box_tf, nsolver, only_cost_request, result);
-  }
-  else
-  {
-    OcTreeMeshCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
-    const OcTree* obj1 = static_cast<const OcTree*>(o1);
-    const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
-    OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
-
-    initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
-      collide(&node, request, result);
-  }
-  
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
+  collide(&node, request, result);
   return result.numContacts();
 }
 
@@ -153,41 +125,13 @@ std::size_t BVHOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1
 {
   if(request.isSatisfied(result)) return result.numContacts();
  
-  if(request.enable_cost && request.use_approximate_cost)
-  {
-    CollisionRequest no_cost_request(request); // request remove cost to avoid the exact but expensive cost computation between mesh and octree
-    no_cost_request.enable_cost = false; // disable cost computation
+  MeshOcTreeCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
+  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
+  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
-    MeshOcTreeCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
-    const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
-    const OcTree* obj2 = static_cast<const OcTree*>(o2);
-    OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
-
-    initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, no_cost_request, result);
-      collide(&node, request, result);
-
-    Box box;
-    Transform3f box_tf;
-    constructBox(obj1->getBV(0).bv, tf1, box, box_tf);
-
-    box.cost_density = obj1->cost_density;
-    box.threshold_occupied = obj1->threshold_occupied;
-    box.threshold_free = obj1->threshold_free;
-
-    CollisionRequest only_cost_request(result.numContacts(), false, request.num_max_cost_sources, true, false);
-    ShapeOcTreeCollide<Box, NarrowPhaseSolver>(&box, box_tf, o2, tf2, nsolver, only_cost_request, result);
-  }
-  else
-  {
-    MeshOcTreeCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
-    const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
-    const OcTree* obj2 = static_cast<const OcTree*>(o2);
-    OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
-
-    initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
-      collide(&node, request, result);
-  }
-  
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
+  collide(&node, request, result);
   return result.numContacts();
 }
 
@@ -251,47 +195,16 @@ struct BVHShapeCollider
   {
     if(request.isSatisfied(result)) return result.numContacts();
 
-    if(request.enable_cost && request.use_approximate_cost)
-    {
-      CollisionRequest no_cost_request(request);
-      no_cost_request.enable_cost = false;
-      
-      MeshShapeCollisionTraversalNode<T_BVH, T_SH, NarrowPhaseSolver> node;
-      const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
-      BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
-      Transform3f tf1_tmp = tf1;
-      const T_SH* obj2 = static_cast<const T_SH*>(o2);
+    MeshShapeCollisionTraversalNode<T_BVH, T_SH, NarrowPhaseSolver> node;
+    const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
+    BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
+    Transform3f tf1_tmp = tf1;
+    const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-      initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, no_cost_request, result);
-      fcl::collide(&node, request, result);
+    initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request, result);
+    fcl::collide(&node, request, result);
 
-      delete obj1_tmp;
-
-      Box box;
-      Transform3f box_tf;
-      constructBox(obj1->getBV(0).bv, tf1, box, box_tf);
-
-      box.cost_density = obj1->cost_density;
-      box.threshold_occupied = obj1->threshold_occupied;
-      box.threshold_free = obj1->threshold_free;
-      
-      CollisionRequest only_cost_request(result.numContacts(), false, request.num_max_cost_sources, true, false);
-      ShapeShapeCollide<Box, T_SH>(&box, box_tf, o2, tf2, nsolver, only_cost_request, result);
-    }
-    else
-    {
-      MeshShapeCollisionTraversalNode<T_BVH, T_SH, NarrowPhaseSolver> node;
-      const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
-      BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
-      Transform3f tf1_tmp = tf1;
-      const T_SH* obj2 = static_cast<const T_SH*>(o2);
-
-      initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request, result);
-      fcl::collide(&node, request, result);
-
-      delete obj1_tmp;
-    }
-
+    delete obj1_tmp;
     return result.numContacts();
   }
 };
@@ -306,40 +219,12 @@ std::size_t orientedBVHShapeCollide(const CollisionGeometry* o1, const Transform
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
-  if(request.enable_cost && request.use_approximate_cost)
-  {
-    CollisionRequest no_cost_request(request);
-    no_cost_request.enable_cost = false;
+  OrientMeshShapeCollisionTraveralNode node;
+  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
+  const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    OrientMeshShapeCollisionTraveralNode node;
-    const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
-    const T_SH* obj2 = static_cast<const T_SH*>(o2);
-
-    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, no_cost_request, result);
-    fcl::collide(&node, request, result);
-   
-    Box box;
-    Transform3f box_tf;
-    constructBox(obj1->getBV(0).bv, tf1, box, box_tf);
-
-    box.cost_density = obj1->cost_density;
-    box.threshold_occupied = obj1->threshold_occupied;
-    box.threshold_free = obj1->threshold_free;
-      
-    CollisionRequest only_cost_request(result.numContacts(), false, request.num_max_cost_sources, true, false);
-    ShapeShapeCollide<Box, T_SH>(&box, box_tf, o2, tf2, nsolver, only_cost_request, result);     
-  }
-  else
-  {
-    OrientMeshShapeCollisionTraveralNode node
-      (request.enable_distance_lower_bound);
-    const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
-    const T_SH* obj2 = static_cast<const T_SH*>(o2);
-
-    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
-      fcl::collide(&node, request, result);
-  }
-
+  initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
+  fcl::collide(&node, request, result);
   return result.numContacts();
 }
 

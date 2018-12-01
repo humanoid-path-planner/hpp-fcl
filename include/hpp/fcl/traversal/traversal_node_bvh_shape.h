@@ -231,26 +231,6 @@ public:
             this->result->addContact(Contact(this->model1, this->model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
         }
       }
-
-      if(is_intersect && this->request.enable_cost)
-      {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
-      }
-    }
-    if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
-    {
-      if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
-      {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);        
-      }
     }
   }
 
@@ -332,26 +312,6 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting
         if(request.num_max_contacts > result.numContacts())
           result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
       }
-    }
-
-    if(is_intersect && request.enable_cost)
-    {
-      AABB overlap_part;
-      AABB shape_aabb;
-      computeBV<AABB, S>(model2, tf2, shape_aabb);
-      /* bool res = */ AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);
-    }
-  }
-  else if((!model1->isFree() || model2.isFree()) && request.enable_cost)
-  {
-    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
-    {
-      AABB overlap_part;
-      AABB shape_aabb;
-      computeBV<AABB, S>(model2, tf2, shape_aabb);
-      /* bool res = */ AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
     }
   }
 }
@@ -534,25 +494,6 @@ public:
         }
       }
 
-      if(is_intersect && this->request.enable_cost)
-      {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
-      }
-    }
-    else if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
-    {
-      if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
-      {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
-      }   
     }
   }
 

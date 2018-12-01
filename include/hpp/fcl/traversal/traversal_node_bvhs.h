@@ -224,23 +224,7 @@ public:
           }
         }
       }
-
-      if(is_intersect && this->request.enable_cost)
-      {
-        AABB overlap_part;
-        AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);      
-      }
     }   
-    else if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
-    {
-      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
-      {
-        AABB overlap_part;
-        AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);      
-      }
-    }
   }
 
   /// @brief Whether the traversal process can stop early

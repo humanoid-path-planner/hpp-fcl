@@ -120,22 +120,6 @@ static inline void meshCollisionOrientedNodeLeafTesting
         }
       }
     }
-
-    if(is_intersect && request.enable_cost)
-    {
-      AABB overlap_part;
-      AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
-    }
-  }
-  else if((!model1->isFree() && !model2->isFree()) && request.enable_cost)
-  {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
-    {
-      AABB overlap_part;
-      AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);          
-    }    
   }
 }
 

@@ -42,7 +42,7 @@ namespace fcl
 
 bool CollisionRequest::isSatisfied(const CollisionResult& result) const
 {
-  return (!enable_cost) && result.isCollision() && (num_max_contacts <= result.numContacts());
+  return result.isCollision() && (num_max_contacts <= result.numContacts());
 }
 
 bool DistanceRequest::isSatisfied(const DistanceResult& result) const

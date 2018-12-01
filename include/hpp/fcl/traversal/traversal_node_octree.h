@@ -305,7 +305,6 @@ private:
           computeBV<AABB, Box>(box, box_tf, aabb1);
           computeBV<AABB, S>(s, tf2, aabb2);
           aabb1.overlap(aabb2, overlap_part);
-	  cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * s.cost_density), crequest->num_max_cost_sources);          
         }
       }
 
@@ -347,40 +346,9 @@ private:
             }
           }
 
-          if(is_intersect && crequest->enable_cost)
-          {
-            AABB overlap_part;
-            AABB aabb1, aabb2;
-            computeBV<AABB, Box>(box, box_tf, aabb1);
-            computeBV<AABB, S>(s, tf2, aabb2);
-            aabb1.overlap(aabb2, overlap_part);
-          }
-
           return crequest->isSatisfied(*cresult);
         }
         else return false;
-      }
-      else if(!tree1->isNodeFree(root1) && !s.isFree() && crequest->enable_cost) // uncertain area
-      {
-        OBB obb1;
-        convertBV(bv1, tf1, obb1);
-        if(obb1.overlap(obb2))
-        {
-          Box box;
-          Transform3f box_tf;
-          constructBox(bv1, tf1, box, box_tf);
-
-          if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
-          {
-            AABB overlap_part;
-            AABB aabb1, aabb2;
-            computeBV<AABB, Box>(box, box_tf, aabb1);
-            computeBV<AABB, S>(s, tf2, aabb2);
-            aabb1.overlap(aabb2, overlap_part);
-          }
-        }
-        
-        return false;
       }
       else // free area
         return false;
@@ -390,7 +358,7 @@ private:
     ///           2) at least of one the nodes is free; OR
     ///           2) (two uncertain nodes or one node occupied and one node uncertain) AND cost not required
     if(tree1->isNodeFree(root1) || s.isFree()) return false;
-    else if((tree1->isNodeUncertain(root1) || s.isUncertain()) && !crequest->enable_cost) return false;
+    else if((tree1->isNodeUncertain(root1) || s.isUncertain())) return false;
     else
     {
       OBB obb1;
@@ -407,14 +375,6 @@ private:
         computeChildBV(bv1, i, child_bv);
         
         if(OcTreeShapeIntersectRecurse(tree1, child, child_bv, s, obb2, tf1, tf2))
-          return true;
-      }
-      else if(!s.isFree() && crequest->enable_cost)
-      {
-        AABB child_bv;
-        computeChildBV(bv1, i, child_bv);
-
-        if(OcTreeShapeIntersectRecurse(tree1, NULL, child_bv, s, obb2, tf1, tf2))
           return true;
       }
     }
@@ -540,7 +500,6 @@ private:
             computeBV<AABB, Box>(box, box_tf, aabb1);
             AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
             aabb1.overlap(aabb2, overlap_part);
-            cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * tree2->cost_density), crequest->num_max_cost_sources);
           }
         }
 
@@ -600,50 +559,10 @@ private:
             }
           }
 
-          if(is_intersect && crequest->enable_cost)
-          {
-            AABB overlap_part;
-            AABB aabb1;
-            computeBV<AABB, Box>(box, box_tf, aabb1);
-            AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
-            aabb1.overlap(aabb2, overlap_part);
-	    cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
-          }
-
           return crequest->isSatisfied(*cresult);
         }
         else
           return false;
-      }
-      else if(!tree1->isNodeFree(root1) && !tree2->isFree() && crequest->enable_cost) // uncertain area
-      {
-        OBB obb1, obb2;
-        convertBV(bv1, tf1, obb1);
-        convertBV(tree2->getBV(root2).bv, tf2, obb2);
-        if(obb1.overlap(obb2))
-        {
-          Box box;
-          Transform3f box_tf;
-          constructBox(bv1, tf1, box, box_tf);
-
-          int primitive_id = tree2->getBV(root2).primitiveId();
-          const Triangle& tri_id = tree2->tri_indices[primitive_id];
-          const Vec3f& p1 = tree2->vertices[tri_id[0]];
-          const Vec3f& p2 = tree2->vertices[tri_id[1]];
-          const Vec3f& p3 = tree2->vertices[tri_id[2]];
-        
-          if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
-          {
-            AABB overlap_part;
-            AABB aabb1;
-            computeBV<AABB, Box>(box, box_tf, aabb1);
-            AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
-            aabb1.overlap(aabb2, overlap_part);
-	    cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
-          }
-        }
-        
-        return false;
       }
       else // free area
         return false;
@@ -653,7 +572,8 @@ private:
     ///           2) at least one of the nodes is free; OR
     ///           2) (two uncertain nodes OR one node occupied and one node uncertain) AND cost not required
     if(tree1->isNodeFree(root1) || tree2->isFree()) return false;
-    else if((tree1->isNodeUncertain(root1) || tree2->isUncertain()) && !crequest->enable_cost) return false;
+    else if((tree1->isNodeUncertain(root1) || tree2->isUncertain()))
+      return false;
     else
     {
       OBB obb1, obb2;
@@ -673,14 +593,6 @@ private:
           computeChildBV(bv1, i, child_bv);
           
           if(OcTreeMeshIntersectRecurse(tree1, child, child_bv, tree2, root2, tf1, tf2))
-            return true;
-        }
-	else if(!tree2->isFree() && crequest->enable_cost)
-        {
-          AABB child_bv;
-          computeChildBV(bv1, i, child_bv);
-
-          if(OcTreeMeshIntersectRecurse(tree1, NULL, child_bv, tree2, root2, tf1, tf2))
             return true;
         }
       }
@@ -801,7 +713,6 @@ private:
         computeBV<AABB, Box>(box1, box1_tf, aabb1);
         computeBV<AABB, Box>(box2, box2_tf, aabb2);
         aabb1.overlap(aabb2, overlap_part);
-        cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * tree2->getOccupancyThres()), crequest->num_max_cost_sources);
       }
 
       return false;
@@ -904,45 +815,7 @@ private:
           }
         }
 
-        if(is_intersect && crequest->enable_cost)
-        {
-          Box box1, box2;
-          Transform3f box1_tf, box2_tf;
-          constructBox(bv1, tf1, box1, box1_tf);
-          constructBox(bv2, tf2, box2, box2_tf);
-
-          AABB overlap_part;
-          AABB aabb1, aabb2;
-          computeBV<AABB, Box>(box1, box1_tf, aabb1);
-          computeBV<AABB, Box>(box2, box2_tf, aabb2);
-          aabb1.overlap(aabb2, overlap_part);
-	  cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
-        }
-
         return crequest->isSatisfied(*cresult);
-      }
-      else if(!tree1->isNodeFree(root1) && !tree2->isNodeFree(root2) && crequest->enable_cost) // uncertain area (here means both are uncertain or one uncertain and one occupied)
-      {
-        OBB obb1, obb2;
-        convertBV(bv1, tf1, obb1);
-        convertBV(bv2, tf2, obb2);
-        
-        if(obb1.overlap(obb2))
-        {
-          Box box1, box2;
-          Transform3f box1_tf, box2_tf;
-          constructBox(bv1, tf1, box1, box1_tf);
-          constructBox(bv2, tf2, box2, box2_tf);
-
-          AABB overlap_part;
-          AABB aabb1, aabb2;
-          computeBV<AABB, Box>(box1, box1_tf, aabb1);
-          computeBV<AABB, Box>(box2, box2_tf, aabb2);
-          aabb1.overlap(aabb2, overlap_part);
-	  cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
-        }
-
-        return false;
       }
       else // free area (at least one node is free)
         return false;
@@ -952,7 +825,8 @@ private:
     ///           2) at least one of the nodes is free; OR
     ///           2) (two uncertain nodes OR one node occupied and one node uncertain) AND cost not required
     if(tree1->isNodeFree(root1) || tree2->isNodeFree(root2)) return false;
-    else if((tree1->isNodeUncertain(root1) || tree2->isNodeUncertain(root2)) && !crequest->enable_cost) return false;
+    else if((tree1->isNodeUncertain(root1) || tree2->isNodeUncertain(root2)))
+      return false;
     else 
     {
       OBB obb1, obb2;
@@ -976,16 +850,6 @@ private:
                                     tf1, tf2))
             return true;
         }
-        else if(!tree2->isNodeFree(root2) && crequest->enable_cost)
-        {
-          AABB child_bv;
-          computeChildBV(bv1, i, child_bv);
-          
-          if(OcTreeIntersectRecurse(tree1, NULL, child_bv,
-                                    tree2, root2, bv2,
-                                    tf1, tf2))
-            return true;
-        }
       }
     }
     else
@@ -1000,16 +864,6 @@ private:
           
           if(OcTreeIntersectRecurse(tree1, root1, bv1,
                                     tree2, child, child_bv,
-                                    tf1, tf2))
-            return true;
-        }
-        else if(!tree1->isNodeFree(root1) && crequest->enable_cost)
-        {
-          AABB child_bv;
-          computeChildBV(bv2, i, child_bv);
-
-          if(OcTreeIntersectRecurse(tree1, root1, bv1,
-                                    tree2, NULL, child_bv,
                                     tf1, tf2))
             return true;
         }
