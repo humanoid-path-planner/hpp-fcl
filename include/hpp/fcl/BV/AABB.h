@@ -95,9 +95,11 @@ public:
   }    
 
   /// Not implemented
-  inline bool overlap(const AABB&, const CollisionRequest&, FCL_REAL&) const
+  inline bool overlap(const AABB& other, const CollisionRequest&,
+                      FCL_REAL& sqrDistLowerBound) const
   {
-    throw std::runtime_error ("Not implemented");
+    sqrDistLowerBound = sqrt (-1);
+    return overlap (other);
   }
 
   /// @brief Check whether the AABB contains another AABB

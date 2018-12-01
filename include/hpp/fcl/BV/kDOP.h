@@ -98,10 +98,11 @@ public:
   bool overlap(const KDOP<N>& other) const;
 
   /// Not implemented
-  bool overlap(const KDOP<N>& /*other*/, const CollisionRequest&,
-               FCL_REAL&) const
+  bool overlap(const KDOP<N>& other, const CollisionRequest&,
+               FCL_REAL& sqrDistLowerBound) const
   {
-    throw std::runtime_error ("Not implemented");
+    sqrDistLowerBound = sqrt (-1);
+    return overlap (other);
   }
 
   //// @brief Check whether one point is inside the KDOP
