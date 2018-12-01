@@ -187,44 +187,44 @@ public:
     const Vec3f& q2 = vertices2[tri_id2[1]];
     const Vec3f& q3 = vertices2[tri_id2[2]];
     
-    if(this->model1->isOccupied() && this->model2->isOccupied())
+    bool is_intersect = false;
+
+    if(!this->request.enable_contact) // only interested in collision or not
     {
-      bool is_intersect = false;
-
-      if(!this->request.enable_contact) // only interested in collision or not
+      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
       {
-        if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
-        {
-          is_intersect = true;
-          if(this->result->numContacts() < this->request.num_max_contacts)
-            this->result->addContact(Contact(this->model1, this->model2, primitive_id1, primitive_id2));
-        }
+        is_intersect = true;
+        if(this->result->numContacts() < this->request.num_max_contacts)
+          this->result->addContact(Contact(this->model1, this->model2,
+                                           primitive_id1, primitive_id2));
       }
-      else // need compute the contact information
-      {
-        FCL_REAL penetration;
-        Vec3f normal;
-        unsigned int n_contacts;
-        Vec3f contacts[2];
+    }
+    else // need compute the contact information
+    {
+      FCL_REAL penetration;
+      Vec3f normal;
+      unsigned int n_contacts;
+      Vec3f contacts[2];
 
-        if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
-                                         contacts,
-                                         &n_contacts,
-                                         &penetration,
-                                         &normal))
-        {
-          is_intersect = true;
-          
-          if(this->request.num_max_contacts < n_contacts + this->result->numContacts())
-            n_contacts = (this->request.num_max_contacts >= this->result->numContacts()) ? (this->request.num_max_contacts - this->result->numContacts()) : 0;
+      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, contacts,
+                                       &n_contacts, &penetration, &normal))
+      {
+        is_intersect = true;
+
+        if(this->request.num_max_contacts < n_contacts +
+           this->result->numContacts())
+          n_contacts =
+            (this->request.num_max_contacts >= this->result->numContacts()) ?
+            (this->request.num_max_contacts - this->result->numContacts()) : 0;
     
-          for(unsigned int i = 0; i < n_contacts; ++i)
-          {
-            this->result->addContact(Contact(this->model1, this->model2, primitive_id1, primitive_id2, contacts[i], normal, penetration));
-          }
+        for(unsigned int i = 0; i < n_contacts; ++i)
+        {
+          this->result->addContact(Contact(this->model1, this->model2,
+                                           primitive_id1, primitive_id2,
+                                           contacts[i], normal, penetration));
         }
       }
-    }   
+    }
   }
 
   /// @brief Whether the traversal process can stop early
@@ -238,8 +238,6 @@ public:
 
   Triangle* tri_indices1;
   Triangle* tri_indices2;
-
-  FCL_REAL cost_density;
 };
 
 

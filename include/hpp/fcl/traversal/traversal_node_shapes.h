@@ -79,36 +79,35 @@ public:
   /// @brief Intersection testing between leaves (two shapes)
   void leafTesting(int, int, FCL_REAL&) const
   {
-    if(model1->isOccupied() && model2->isOccupied())
+    bool is_collision = false;
+    if(request.enable_contact)
     {
-      bool is_collision = false;
-      if(request.enable_contact)
+      Vec3f contact_point, normal;
+      FCL_REAL penetration_depth;
+      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point,
+                                 &penetration_depth, &normal))
       {
-        Vec3f contact_point, normal;
-        FCL_REAL penetration_depth;
-        if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal))
-        {
-          is_collision = true;
-          if(request.num_max_contacts > result->numContacts())
-            result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE, contact_point, normal, penetration_depth));
-        }
+        is_collision = true;
+        if(request.num_max_contacts > result->numContacts())
+          result->addContact(Contact(model1, model2, Contact::NONE,
+                                     Contact::NONE, contact_point,
+                                     normal, penetration_depth));
       }
-      else
+    }
+    else
+    {
+      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL))
       {
-        if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL))
-        {
-          is_collision = true;
-          if(request.num_max_contacts > result->numContacts())
-            result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE));
-        }
+        is_collision = true;
+        if(request.num_max_contacts > result->numContacts())
+          result->addContact(Contact(model1, model2, Contact::NONE,
+                                     Contact::NONE));
       }
     }
   }
 
   const S1* model1;
   const S2* model2;
-
-  FCL_REAL cost_density;
 
   const NarrowPhaseSolver* nsolver;
 };

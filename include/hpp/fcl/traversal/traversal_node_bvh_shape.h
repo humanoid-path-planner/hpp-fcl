@@ -206,31 +206,33 @@ public:
     const Vec3f& p2 = vertices[tri_id[1]];
     const Vec3f& p3 = vertices[tri_id[2]];
 
-    if(this->model1->isOccupied() && this->model2->isOccupied())
+    bool is_intersect = false;
+
+    if(!this->request.enable_contact)
     {
-      bool is_intersect = false;
-
-      if(!this->request.enable_contact)
+      if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3,
+                                         NULL, NULL, NULL))
       {
-        if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
-        {
-          is_intersect = true;
-          if(this->request.num_max_contacts > this->result->numContacts())
-            this->result->addContact(Contact(this->model1, this->model2, primitive_id, Contact::NONE));
-        }
+        is_intersect = true;
+        if(this->request.num_max_contacts > this->result->numContacts())
+          this->result->addContact(Contact(this->model1, this->model2,
+                                           primitive_id, Contact::NONE));
       }
-      else
-      {
-        FCL_REAL penetration;
-        Vec3f normal;
-        Vec3f contactp;
+    }
+    else
+    {
+      FCL_REAL penetration;
+      Vec3f normal;
+      Vec3f contactp;
 
-        if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, &contactp, &penetration, &normal))
-        {
-          is_intersect = true;
-          if(this->request.num_max_contacts > this->result->numContacts())
-            this->result->addContact(Contact(this->model1, this->model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
-        }
+      if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3,
+                                         &contactp, &penetration, &normal))
+      {
+        is_intersect = true;
+        if(this->request.num_max_contacts > this->result->numContacts())
+          this->result->addContact(Contact(this->model1, this->model2,
+                                           primitive_id, Contact::NONE,
+                                           contactp, -normal, penetration));
       }
     }
   }
@@ -244,8 +246,6 @@ public:
   Vec3f* vertices;
   Triangle* tri_indices;
   
-  FCL_REAL cost_density;
-
   const NarrowPhaseSolver* nsolver;
 };
 
@@ -257,7 +257,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting
   (int b1, int b2, const BVHModel<BV>* model1, const S& model2,
    Vec3f* vertices, Triangle* tri_indices, const Transform3f& tf1,
    const Transform3f& tf2, const NarrowPhaseSolver* nsolver,
-   bool enable_statistics, FCL_REAL cost_density, int& num_leaf_tests,
+   bool enable_statistics, int& num_leaf_tests,
    const CollisionRequest& request, CollisionResult& result,
    FCL_REAL& sqrDistLowerBound)
 {
@@ -272,47 +272,46 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting
   const Vec3f& p2 = vertices[tri_id[1]];
   const Vec3f& p3 = vertices[tri_id[2]];
 
-  if(model1->isOccupied() && model2.isOccupied())
+  bool is_intersect = false;
+
+  if(!request.enable_contact) // only interested in collision or not
   {
-    bool is_intersect = false;
-
-    if(!request.enable_contact) // only interested in collision or not
-    {
-      if (request.enable_distance_lower_bound) {
-	FCL_REAL dist;
-	if (nsolver->shapeTriangleDistance (model2, tf2, p1, p2, p3, tf1,
-					    &dist, 0x0, 0x0)) {
-	  sqrDistLowerBound = dist * dist;
-	} else {
-	  // collision
-	  is_intersect = true;
-	  sqrDistLowerBound = 0;
-	  if(request.num_max_contacts > result.numContacts())
-	    result.addContact(Contact(model1, &model2, primitive_id,
-				      Contact::NONE));
-	}
+    if (request.enable_distance_lower_bound) {
+      FCL_REAL dist;
+      if (nsolver->shapeTriangleDistance (model2, tf2, p1, p2, p3, tf1,
+                                          &dist, 0x0, 0x0)) {
+        sqrDistLowerBound = dist * dist;
       } else {
-	if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1,
-					   NULL, NULL, NULL)) {
-	  is_intersect = true;
-	  if(request.num_max_contacts > result.numContacts())
-	    result.addContact(Contact(model1, &model2, primitive_id,
-				      Contact::NONE));
-	}
+        // collision
+        is_intersect = true;
+        sqrDistLowerBound = 0;
+        if(request.num_max_contacts > result.numContacts())
+          result.addContact(Contact(model1, &model2, primitive_id,
+                                    Contact::NONE));
       }
-    }
-    else
-    {
-      FCL_REAL penetration;
-      Vec3f normal;
-      Vec3f contactp;
-
-      if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, &contactp, &penetration, &normal))
-      {
+    } else {
+      if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1,
+                                         NULL, NULL, NULL)) {
         is_intersect = true;
         if(request.num_max_contacts > result.numContacts())
-          result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
+          result.addContact(Contact(model1, &model2, primitive_id,
+                                    Contact::NONE));
       }
+    }
+  }
+  else
+  {
+    FCL_REAL penetration;
+    Vec3f normal;
+    Vec3f contactp;
+
+    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, &contactp,
+                                       &penetration, &normal))
+    {
+      is_intersect = true;
+      if(request.num_max_contacts > result.numContacts())
+        result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE,
+                                  contactp, -normal, penetration));
     }
   }
 }
@@ -344,8 +343,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
        this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->result), sqrDistLowerBound);
+       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -371,8 +369,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
        this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->result), sqrDistLowerBound);
+       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -398,8 +395,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
        this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->result), sqrDistLowerBound);
+       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -434,8 +430,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
        this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->result), sqrDistLowerBound);
+       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -468,33 +463,34 @@ public:
     const Vec3f& p2 = vertices[tri_id[1]];
     const Vec3f& p3 = vertices[tri_id[2]];
 
-    if(this->model1->isOccupied() && this->model2->isOccupied())
+    bool is_intersect = false;
+
+    if(!this->request.enable_contact)
     {
-      bool is_intersect = false;
-
-      if(!this->request.enable_contact)
+      if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3,
+                                         NULL, NULL, NULL))
       {
-        if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
-        {
-          is_intersect = true;
-          if(this->request.num_max_contacts > this->result->numContacts())
-            this->result->addContact(Contact(this->model1, this->model2, Contact::NONE, primitive_id));
-        }
+        is_intersect = true;
+        if(this->request.num_max_contacts > this->result->numContacts())
+          this->result->addContact(Contact(this->model1, this->model2,
+                                           Contact::NONE, primitive_id));
       }
-      else
+    }
+    else
+    {
+      FCL_REAL penetration;
+      Vec3f normal;
+      Vec3f contactp;
+
+      if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3,
+                                         &contactp, &penetration, &normal))
       {
-        FCL_REAL penetration;
-        Vec3f normal;
-        Vec3f contactp;
-
-        if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, &contactp, &penetration, &normal))
-        {
-          is_intersect = true;
-          if(this->request.num_max_contacts > this->result->numContacts())
-            this->result->addContact(Contact(this->model1, this->model2, Contact::NONE, primitive_id, contactp, normal, penetration));
-        }
+        is_intersect = true;
+        if(this->request.num_max_contacts > this->result->numContacts())
+          this->result->addContact(Contact(this->model1, this->model2,
+                                           Contact::NONE, primitive_id,
+                                           contactp, normal, penetration));
       }
-
     }
   }
 
@@ -506,8 +502,6 @@ public:
 
   Vec3f* vertices;
   Triangle* tri_indices;
-
-  FCL_REAL cost_density;
 
   const NarrowPhaseSolver* nsolver;
 };
@@ -532,8 +526,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
        this->tf2, this->tf1, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->request), sqrDistLowerBound);
+       this->num_leaf_tests, this->request,*(this->request), sqrDistLowerBound);
 
     // may need to change the order in pairs
   }
@@ -559,8 +552,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
        this->tf2, this->tf1, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->request));
+       this->num_leaf_tests, this->request, *(this->request));
 
     // may need to change the order in pairs
   }
@@ -587,8 +579,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
        this->tf2, this->tf1, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->request), sqrDistLowerBound);
+       this->num_leaf_tests, this->request,*(this->request), sqrDistLowerBound);
 
     // may need to change the order in pairs
   }
@@ -623,7 +614,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b2, b1, *(this->model2), this->model1, this->vertices,
        this->tri_indices, this->tf2, this->tf1, this->nsolver,
-       this->enable_statistics, this->cost_density, this->num_leaf_tests,
+       this->enable_statistics, this->num_leaf_tests,
        this->request, *(this->request), sqrDistLowerBound);
 
     // may need to change the order in pairs

@@ -58,9 +58,7 @@ enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP
 class CollisionGeometry
 {
 public:
-  CollisionGeometry() : cost_density(1),
-                        threshold_occupied(1),
-                        threshold_free(0)
+  CollisionGeometry()
   {
   }
 
@@ -88,13 +86,13 @@ public:
   }
 
   /// @brief whether the object is completely occupied
-  inline bool isOccupied() const { return cost_density >= threshold_occupied; }
+  inline bool isOccupied() const { return true; }
 
   /// @brief whether the object is completely free
-  inline bool isFree() const { return cost_density <= threshold_free; }
+  inline bool isFree() const { return false; }
 
   /// @brief whether the object has some uncertainty
-  inline bool isUncertain() const { return !isOccupied() && !isFree(); }
+  inline bool isUncertain() const { return false; }
 
   /// @brief AABB center in local coordinate
   Vec3f aabb_center;
@@ -107,9 +105,6 @@ public:
 
   /// @brief pointer to user defined data specific to this object
   void *user_data;
-
-  /// @brief collision cost for unit volume
-  FCL_REAL cost_density;
 
   /// @brief threshold for occupied ( >= is occupied)
   FCL_REAL threshold_occupied;
@@ -313,36 +308,6 @@ public:
   const boost::shared_ptr<CollisionGeometry>& collisionGeometry()
   {
     return cgeom;
-  }
-
-  /// @brief get object's cost density
-  FCL_REAL getCostDensity() const
-  {
-    return cgeom->cost_density;
-  }
-
-  /// @brief set object's cost density
-  void setCostDensity(FCL_REAL c)
-  {
-    cgeom->cost_density = c;
-  }
-
-  /// @brief whether the object is completely occupied
-  inline bool isOccupied() const
-  {
-    return cgeom->isOccupied();
-  }
-
-  /// @brief whether the object is completely free
-  inline bool isFree() const
-  {
-    return cgeom->isFree();
-  }
-
-  /// @brief whether the object is uncertain
-  inline bool isUncertain() const
-  {
-    return cgeom->isUncertain();
   }
 
 protected:

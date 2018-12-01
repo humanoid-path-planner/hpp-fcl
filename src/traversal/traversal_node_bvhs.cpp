@@ -49,7 +49,7 @@ static inline void meshCollisionOrientedNodeLeafTesting
  Vec3f* vertices1, Vec3f* vertices2, Triangle* tri_indices1,
  Triangle* tri_indices2, const Matrix3f& R, const Vec3f& T,
  const Transform3f& tf1, const Transform3f& tf2, bool enable_statistics,
- FCL_REAL cost_density, int& num_leaf_tests, const CollisionRequest& request,
+ int& num_leaf_tests, const CollisionRequest& request,
  CollisionResult& result, FCL_REAL& sqrDistLowerBound)
 {
   if(enable_statistics) num_leaf_tests++;
@@ -70,61 +70,54 @@ static inline void meshCollisionOrientedNodeLeafTesting
   const Vec3f& q2 = vertices2[tri_id2[1]];
   const Vec3f& q3 = vertices2[tri_id2[2]];
 
-  if(model1->isOccupied() && model2->isOccupied())
-  {
-    bool is_intersect = false;
+  bool is_intersect = false;
 
-    if(!request.enable_contact) // only interested in collision or not
-    {
-      if (request.enable_distance_lower_bound) {
-	Vec3f P, Q;
-	sqrDistLowerBound = TriangleDistance::sqrTriDistance
-	  (p1, p2, p3, q1, q2, q3, R, T, P, Q);
-	if (sqrDistLowerBound == 0) {
-	  is_intersect = true;
-	  if(result.numContacts() < request.num_max_contacts)
-	    result.addContact(Contact(model1, model2, primitive_id1,
-				      primitive_id2));
-	}
-      } else {
-	if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T)) {
-	  is_intersect = true;
-	  if(result.numContacts() < request.num_max_contacts)
-	    result.addContact(Contact(model1, model2, primitive_id1,
-				      primitive_id2));
-	}
+  if(!request.enable_contact) // only interested in collision or not
+  {
+    if (request.enable_distance_lower_bound) {
+      Vec3f P, Q;
+      sqrDistLowerBound = TriangleDistance::sqrTriDistance
+        (p1, p2, p3, q1, q2, q3, R, T, P, Q);
+      if (sqrDistLowerBound == 0) {
+        is_intersect = true;
+        if(result.numContacts() < request.num_max_contacts)
+          result.addContact(Contact(model1, model2, primitive_id1,
+                                    primitive_id2));
+      }
+    } else {
+      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T)) {
+        is_intersect = true;
+        if(result.numContacts() < request.num_max_contacts)
+          result.addContact(Contact(model1, model2, primitive_id1,
+                                    primitive_id2));
       }
     }
-    else // need compute the contact information
-    {
-      FCL_REAL penetration;
-      Vec3f normal;
-      unsigned int n_contacts;
-      Vec3f contacts[2];
+  }
+  else // need compute the contact information
+  {
+    FCL_REAL penetration;
+    Vec3f normal;
+    unsigned int n_contacts;
+    Vec3f contacts[2];
 
-      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
-                                       R, T,
-                                       contacts,
-                                       &n_contacts,
-                                       &penetration,
-                                       &normal))
+    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T, contacts,
+                                     &n_contacts, &penetration, &normal))
+    {
+      is_intersect = true;
+
+      if(request.num_max_contacts < result.numContacts() + n_contacts)
+        n_contacts = (request.num_max_contacts > result.numContacts()) ?
+          (request.num_max_contacts - result.numContacts()) : 0;
+
+      for(unsigned int i = 0; i < n_contacts; ++i)
       {
-        is_intersect = true;
-        
-        if(request.num_max_contacts < result.numContacts() + n_contacts)
-          n_contacts = (request.num_max_contacts > result.numContacts()) ? (request.num_max_contacts - result.numContacts()) : 0;
-        
-        for(unsigned int i = 0; i < n_contacts; ++i)
-        {
-          result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation()* normal, penetration));
-        }
+        result.addContact(Contact(model1, model2, primitive_id1, primitive_id2,
+                                  tf1.transform(contacts[i]),
+                                  tf1.getQuatRotation()* normal, penetration));
       }
     }
   }
 }
-
-
-
 
 template<typename BV>
 static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
@@ -189,7 +182,7 @@ void MeshCollisionTraversalNodeOBB::leafTesting
   details::meshCollisionOrientedNodeLeafTesting
     (b1, b2, model1, model2, vertices1, vertices2, 
      tri_indices1, tri_indices2, R, T, tf1, tf2,
-     enable_statistics, cost_density, num_leaf_tests, request, *result,
+     enable_statistics, num_leaf_tests, request, *result,
      sqrDistLowerBound);
 }
 
@@ -212,7 +205,7 @@ void MeshCollisionTraversalNodeRSS::leafTesting
 {
   details::meshCollisionOrientedNodeLeafTesting
     (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-     R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests,
+     R, T, tf1, tf2, enable_statistics, num_leaf_tests,
      request, *result, sqrDistLowerBound);
 }
 
@@ -237,7 +230,7 @@ void MeshCollisionTraversalNodekIOS::leafTesting
 {
   details::meshCollisionOrientedNodeLeafTesting
     (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-     R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests,
+     R, T, tf1, tf2, enable_statistics, num_leaf_tests,
      request, *result, sqrDistLowerBound);
 }
 
@@ -269,7 +262,7 @@ void MeshCollisionTraversalNodeOBBRSS::leafTesting
 {
   details::meshCollisionOrientedNodeLeafTesting
     (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-     R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests,
+     R, T, tf1, tf2, enable_statistics, num_leaf_tests,
      request,*result, sqrDistLowerBound);
 }
 

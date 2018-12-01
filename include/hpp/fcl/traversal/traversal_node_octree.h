@@ -357,7 +357,7 @@ private:
     /// stop when 1) bounding boxes of two objects not overlap; OR
     ///           2) at least of one the nodes is free; OR
     ///           2) (two uncertain nodes or one node occupied and one node uncertain) AND cost not required
-    if(tree1->isNodeFree(root1) || s.isFree()) return false;
+    if(tree1->isNodeFree(root1)) return false;
     else if((tree1->isNodeUncertain(root1) || s.isUncertain())) return false;
     else
     {
@@ -571,7 +571,7 @@ private:
     /// stop when 1) bounding boxes of two objects not overlap; OR
     ///           2) at least one of the nodes is free; OR
     ///           2) (two uncertain nodes OR one node occupied and one node uncertain) AND cost not required
-    if(tree1->isNodeFree(root1) || tree2->isFree()) return false;
+    if(tree1->isNodeFree(root1)) return false;
     else if((tree1->isNodeUncertain(root1) || tree2->isUncertain()))
       return false;
     else

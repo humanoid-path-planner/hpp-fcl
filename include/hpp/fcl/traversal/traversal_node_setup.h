@@ -284,6 +284,7 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>& node,
                 const NarrowPhaseSolver* nsolver,
                 CollisionResult& result)
 {
+  node.model1 = &shape1;
   node.tf1 = tf1;
   node.model2 = &shape2;
   node.tf2 = tf2;
@@ -291,8 +292,6 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>& node,
 
   node.result = &result;
   
-  node.cost_density = shape1.cost_density * shape2.cost_density;
-
   return true;
 }
 
@@ -337,8 +336,6 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, NarrowPhaseSolver>& node,
   node.tri_indices = model1.tri_indices;
 
   node.result = &result;
-
-  node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
 }
@@ -386,8 +383,6 @@ bool initialize(ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>& node,
 
   node.result = &result;
 
-  node.cost_density = model1.cost_density * model2.cost_density;
-
   return true;
 }
 
@@ -417,8 +412,6 @@ static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S, NarrowPha
   node.tri_indices = model1.tri_indices;
 
   node.result = &result;
-
-  node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
 }
@@ -498,8 +491,6 @@ static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S, NarrowPha
   node.tri_indices = model2.tri_indices;
 
   node.result = &result;
-
-  node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
 }
@@ -610,8 +601,6 @@ bool initialize(MeshCollisionTraversalNode<BV>& node,
   node.tri_indices2 = model2.tri_indices;
 
   node.result = &result;
-
-  node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
 }
