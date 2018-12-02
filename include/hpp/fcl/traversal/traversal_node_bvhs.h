@@ -61,8 +61,8 @@ template<typename BV>
 class BVHCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  BVHCollisionTraversalNode(bool enable_distance_lower_bound) :
-  CollisionTraversalNodeBase (enable_distance_lower_bound)
+  BVHCollisionTraversalNode(const CollisionRequest& request) :
+  CollisionTraversalNodeBase (request)
   {
     model1 = NULL;
     model2 = NULL;
@@ -157,8 +157,8 @@ template<typename BV>
 class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
 {
 public:
-  MeshCollisionTraversalNode(bool enable_distance_lower_bound) :
-  BVHCollisionTraversalNode<BV> (enable_distance_lower_bound)
+  MeshCollisionTraversalNode(const CollisionRequest& request) :
+  BVHCollisionTraversalNode<BV> (request)
   {
     vertices1 = NULL;
     vertices2 = NULL;
@@ -247,7 +247,7 @@ public:
 class MeshCollisionTraversalNodeOBB : public MeshCollisionTraversalNode<OBB>
 {
 public:
-  MeshCollisionTraversalNodeOBB (bool enable_distance_lower_bound);
+  MeshCollisionTraversalNodeOBB (const CollisionRequest& request);
 
   bool BVTesting(int b1, int b2) const;
 
@@ -260,7 +260,7 @@ public:
 class MeshCollisionTraversalNodeRSS : public MeshCollisionTraversalNode<RSS>
 {
 public:
-  MeshCollisionTraversalNodeRSS (bool enable_distance_lower_bound);
+  MeshCollisionTraversalNodeRSS (const CollisionRequest& request);
 
   bool BVTesting(int b1, int b2) const;
 
@@ -273,7 +273,7 @@ public:
 class MeshCollisionTraversalNodekIOS : public MeshCollisionTraversalNode<kIOS>
 {
 public:
-  MeshCollisionTraversalNodekIOS (bool enable_distance_lower_bound);
+  MeshCollisionTraversalNodekIOS (const CollisionRequest& request);
  
   bool BVTesting(int b1, int b2) const;
 
@@ -286,7 +286,7 @@ public:
 class MeshCollisionTraversalNodeOBBRSS : public MeshCollisionTraversalNode<OBBRSS>
 {
 public:
-  MeshCollisionTraversalNodeOBBRSS (bool enable_distance_lower_bound);
+  MeshCollisionTraversalNodeOBBRSS (const CollisionRequest& request);
  
   bool BVTesting(int b1, int b2) const;
 

@@ -412,17 +412,17 @@ bool collide_Test_OBB(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  CollisionResult local_result;	
-  MeshCollisionTraversalNodeOBB node (false);
-  if(!initialize(node, (const BVHModel<OBB>&)m1, tf, (const BVHModel<OBB>&)m2, Transform3f(),
-                 CollisionRequest(), local_result))
-    std::cout << "initialize error" << std::endl;
+  CollisionResult local_result;
+  CollisionRequest request (1, true, true);
+  MeshCollisionTraversalNodeOBB node (request);
+  bool success (initialize(node, (const BVHModel<OBB>&)m1, tf,
+                           (const BVHModel<OBB>&)m2, Transform3f(),
+                           local_result));
+  assert (success);
 
   node.enable_statistics = verbose;
 
-  CollisionRequest request (1, true, true);
-  CollisionResult result;
-  collide(&node, request, result);
+  collide(&node, request, local_result);
 
   if(local_result.numContacts() > 0)
     return true;

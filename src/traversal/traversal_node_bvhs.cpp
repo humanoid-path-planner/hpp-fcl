@@ -171,8 +171,8 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
 }
 
 MeshCollisionTraversalNodeOBB::MeshCollisionTraversalNodeOBB
-(bool enable_distance_lower_bound) :
-  MeshCollisionTraversalNode<OBB> (enable_distance_lower_bound)
+(const CollisionRequest& request) :
+  MeshCollisionTraversalNode<OBB> (request)
 {
   R.setIdentity();
 }
@@ -195,8 +195,8 @@ void MeshCollisionTraversalNodeOBB::leafTesting
 
 
 MeshCollisionTraversalNodeRSS::MeshCollisionTraversalNodeRSS
-(bool enable_distance_lower_bound) :
-  MeshCollisionTraversalNode<RSS> (enable_distance_lower_bound)
+(const CollisionRequest& request) :
+  MeshCollisionTraversalNode<RSS> (request)
 {
   R.setIdentity();
 }
@@ -220,8 +220,8 @@ void MeshCollisionTraversalNodeRSS::leafTesting
 
 
 MeshCollisionTraversalNodekIOS::MeshCollisionTraversalNodekIOS
-(bool enable_distance_lower_bound) :
-  MeshCollisionTraversalNode<kIOS>(enable_distance_lower_bound)
+(const CollisionRequest& request) :
+  MeshCollisionTraversalNode<kIOS>(request)
 {
   R.setIdentity();
 }
@@ -244,8 +244,8 @@ void MeshCollisionTraversalNodekIOS::leafTesting
 
 
 MeshCollisionTraversalNodeOBBRSS::MeshCollisionTraversalNodeOBBRSS
-(bool enable_distance_lower_bound) :
-  MeshCollisionTraversalNode<OBBRSS> (enable_distance_lower_bound)
+(const CollisionRequest& request) :
+  MeshCollisionTraversalNode<OBBRSS> (request)
 {
   R.setIdentity();
 }

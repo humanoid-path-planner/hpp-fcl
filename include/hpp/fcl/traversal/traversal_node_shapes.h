@@ -55,7 +55,8 @@ template<typename S1, typename S2, typename NarrowPhaseSolver>
 class ShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  ShapeCollisionTraversalNode() : CollisionTraversalNodeBase()
+  ShapeCollisionTraversalNode(const CollisionRequest& request) :
+  CollisionTraversalNodeBase(request)
   {
     model1 = NULL;
     model2 = NULL;

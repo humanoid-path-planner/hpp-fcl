@@ -59,10 +59,8 @@ bool initialize(OcTreeCollisionTraversalNode<NarrowPhaseSolver>& node,
                 const OcTree& model1, const Transform3f& tf1,
                 const OcTree& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  node.request = request;
   node.result = &result;
 
   node.model1 = &model1;
@@ -105,10 +103,8 @@ bool initialize(ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3f& tf1,
                 const OcTree& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  node.request = request;
   node.result = &result;
 
   node.model1 = &model1;
@@ -128,10 +124,8 @@ bool initialize(OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
                 const OcTree& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  node.request = request;
   node.result = &result;
 
   node.model1 = &model1;
@@ -197,10 +191,8 @@ bool initialize(MeshOcTreeCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
                 const BVHModel<BV>& model1, const Transform3f& tf1,
                 const OcTree& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  node.request = request;
   node.result = &result;
 
   node.model1 = &model1;
@@ -220,10 +212,8 @@ bool initialize(OcTreeMeshCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
                 const OcTree& model1, const Transform3f& tf1,
                 const BVHModel<BV>& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  node.request = request;
   node.result = &result;
 
   node.model1 = &model1;
@@ -292,16 +282,13 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>& node,
                 const S1& shape1, const Transform3f& tf1,
                 const S2& shape2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  node.model1 = &shape1;
   node.tf1 = tf1;
   node.model2 = &shape2;
   node.tf2 = tf2;
   node.nsolver = nsolver;
 
-  node.request = request;
   node.result = &result;
   
   node.cost_density = shape1.cost_density * shape2.cost_density;
@@ -315,7 +302,6 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, NarrowPhaseSolver>& node,
                 BVHModel<BV>& model1, Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
-                const CollisionRequest& request,
                 CollisionResult& result,
                 bool use_refit = false, bool refit_bottomup = false)
 {
@@ -350,7 +336,6 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, NarrowPhaseSolver>& node,
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
 
-  node.request = request;
   node.result = &result;
 
   node.cost_density = model1.cost_density * model2.cost_density;
@@ -365,7 +350,6 @@ bool initialize(ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3f& tf1,
                 BVHModel<BV>& model2, Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
-                const CollisionRequest& request,
                 CollisionResult& result,
                 bool use_refit = false, bool refit_bottomup = false)
 {
@@ -400,7 +384,6 @@ bool initialize(ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>& node,
   node.vertices = model2.vertices;
   node.tri_indices = model2.tri_indices;
 
-  node.request = request;
   node.result = &result;
 
   node.cost_density = model1.cost_density * model2.cost_density;
@@ -417,7 +400,6 @@ static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S, NarrowPha
                                                        const BVHModel<BV>& model1, const Transform3f& tf1,
                                                        const S& model2, const Transform3f& tf2,
                                                        const NarrowPhaseSolver* nsolver,
-                                                       const CollisionRequest& request,
                                                        CollisionResult& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
@@ -434,7 +416,6 @@ static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S, NarrowPha
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
 
-  node.request = request;
   node.result = &result;
 
   node.cost_density = model1.cost_density * model2.cost_density;
@@ -453,10 +434,9 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
                 const BVHModel<OBB>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
 }
 
 /// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type
@@ -465,10 +445,9 @@ bool initialize(MeshShapeCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
                 const BVHModel<RSS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
-                const CollisionRequest& request, 
                 CollisionResult& result)
 {
-  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
 }
 
 /// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type
@@ -477,10 +456,9 @@ bool initialize(MeshShapeCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
                 const BVHModel<kIOS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
 }
 
 /// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type
@@ -489,10 +467,9 @@ bool initialize(MeshShapeCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& nod
                 const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
 }
 
 
@@ -504,7 +481,6 @@ static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S, NarrowPha
                                                        const S& model1, const Transform3f& tf1,
                                                        const BVHModel<BV>& model2, const Transform3f& tf2,
                                                        const NarrowPhaseSolver* nsolver,
-                                                       const CollisionRequest& request,
                                                        CollisionResult& result)
 {
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
@@ -521,7 +497,6 @@ static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S, NarrowPha
   node.vertices = model2.vertices;
   node.tri_indices = model2.tri_indices;
 
-  node.request = request;
   node.result = &result;
 
   node.cost_density = model1.cost_density * model2.cost_density;
@@ -537,10 +512,9 @@ bool initialize(ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3f& tf1,
                 const BVHModel<OBB>& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
 }
 
 /// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type
@@ -549,10 +523,9 @@ bool initialize(ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3f& tf1,
                 const BVHModel<RSS>& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
 }
 
 /// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type
@@ -561,10 +534,9 @@ bool initialize(ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3f& tf1,
                 const BVHModel<kIOS>& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
 }
 
 /// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type
@@ -573,10 +545,9 @@ bool initialize(ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& nod
                 const S& model1, const Transform3f& tf1,
                 const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
 }
 
 
@@ -587,7 +558,6 @@ template<typename BV>
 bool initialize(MeshCollisionTraversalNode<BV>& node,
                 BVHModel<BV>& model1, Transform3f& tf1,
                 BVHModel<BV>& model2, Transform3f& tf2,
-                const CollisionRequest& request,
                 CollisionResult& result,
                 bool use_refit = false, bool refit_bottomup = false)
 {
@@ -639,7 +609,6 @@ bool initialize(MeshCollisionTraversalNode<BV>& node,
   node.tri_indices1 = model1.tri_indices;
   node.tri_indices2 = model2.tri_indices;
 
-  node.request = request;
   node.result = &result;
 
   node.cost_density = model1.cost_density * model2.cost_density;
@@ -652,25 +621,25 @@ bool initialize(MeshCollisionTraversalNode<BV>& node,
 bool initialize(MeshCollisionTraversalNodeOBB& node,
                 const BVHModel<OBB>& model1, const Transform3f& tf1,
                 const BVHModel<OBB>& model2, const Transform3f& tf2,
-                const CollisionRequest& request, CollisionResult& result);
+                CollisionResult& result);
 
 /// @brief Initialize traversal node for collision between two meshes, specialized for RSS type
 bool initialize(MeshCollisionTraversalNodeRSS& node,
                 const BVHModel<RSS>& model1, const Transform3f& tf1,
                 const BVHModel<RSS>& model2, const Transform3f& tf2,
-                const CollisionRequest& request, CollisionResult& result);
+                CollisionResult& result);
 
 /// @brief Initialize traversal node for collision between two meshes, specialized for OBBRSS type
 bool initialize(MeshCollisionTraversalNodeOBBRSS& node,
                 const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
                 const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
-                const CollisionRequest& request, CollisionResult& result);
+                CollisionResult& result);
 
 /// @brief Initialize traversal node for collision between two meshes, specialized for kIOS type
 bool initialize(MeshCollisionTraversalNodekIOS& node,
                 const BVHModel<kIOS>& model1, const Transform3f& tf1,
                 const BVHModel<kIOS>& model2, const Transform3f& tf2,
-                const CollisionRequest& request, CollisionResult& result);
+                CollisionResult& result);
 
 
 /// @brief Initialize traversal node for distance between two geometric shapes

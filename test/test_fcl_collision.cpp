@@ -833,17 +833,15 @@ bool collide_Test2(const Transform3f& tf,
   Transform3f pose1, pose2;
 
   CollisionResult local_result;
-  MeshCollisionTraversalNode<BV> node (false);
+  CollisionRequest request (num_max_contacts, enable_contact);
+  MeshCollisionTraversalNode<BV> node (request);
 
-  if(!initialize<BV>(node, m1, pose1, m2, pose2,
-                     CollisionRequest(num_max_contacts, enable_contact), local_result))
-    std::cout << "initialize error" << std::endl;
+  bool success = initialize <BV> (node, m1, pose1, m2, pose2, local_result);
+  assert (success);
 
   node.enable_statistics = verbose;
 
-  CollisionRequest request (1, true, true);
-  CollisionResult result;
-  collide(&node, request, result);
+  collide(&node, request, local_result);
 
   if(local_result.numContacts() > 0)
   {
@@ -893,17 +891,15 @@ bool collide_Test(const Transform3f& tf,
   Transform3f pose1(tf), pose2;
 
   CollisionResult local_result;
-  MeshCollisionTraversalNode<BV> node (false);
+  CollisionRequest request (num_max_contacts, enable_contact);
+  MeshCollisionTraversalNode<BV> node (request);
 
-  if(!initialize<BV>(node, m1, pose1, m2, pose2,
-                     CollisionRequest(num_max_contacts, enable_contact), local_result))
-    std::cout << "initialize error" << std::endl;
+  bool success = initialize <BV> (node, m1, pose1, m2, pose2, local_result);
+  assert (success);
 
   node.enable_statistics = verbose;
 
-  CollisionRequest request (1, true, true);
-  CollisionResult result;
-  collide(&node, request, result);
+  collide(&node, request, local_result);
 
   if(local_result.numContacts() > 0)
   {
@@ -952,16 +948,15 @@ bool collide_Test_Oriented(const Transform3f& tf,
   Transform3f pose1(tf), pose2;
 
   CollisionResult local_result;
-  TraversalNode node (false);
-  if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2, 
-                 CollisionRequest(num_max_contacts, enable_contact), local_result))
-    std::cout << "initialize error" << std::endl;
+  CollisionRequest request (num_max_contacts, enable_contact);
+  TraversalNode node (request);
+  bool success = initialize (node, (const BVHModel<BV>&)m1, pose1,
+                             (const BVHModel<BV>&)m2, pose2, local_result);
+  assert (success);
 
   node.enable_statistics = verbose;
 
-  CollisionRequest request (1, true, true);
-  CollisionResult result;
-  collide(&node, request, result);
+  collide(&node, request, local_result);
 
   if(local_result.numContacts() > 0)
   {

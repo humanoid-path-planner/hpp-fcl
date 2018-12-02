@@ -126,8 +126,8 @@ double collide (const std::vector<Transform3f>& tf,
   timer.start();
 
   for (std::size_t i = 0; i < tf.size(); ++i) {
-    if(!initialize(node, m1, tf[i], m2, pose2, request, local_result))
-      std::cout << "initialize error" << std::endl;
+    bool success (initialize(node, m1, tf[i], m2, pose2, local_result));
+    assert (success);
 
     CollisionRequest request (1, true, true);
     CollisionResult result;

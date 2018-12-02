@@ -54,8 +54,8 @@ template<typename BV, typename S>
 class BVHShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  BVHShapeCollisionTraversalNode(bool enable_distance_lower_bound) :
-  CollisionTraversalNodeBase (enable_distance_lower_bound)
+  BVHShapeCollisionTraversalNode(const CollisionRequest& request) :
+  CollisionTraversalNodeBase (request)
   {
     model1 = NULL;
     model2 = NULL;
@@ -115,7 +115,8 @@ template<typename S, typename BV>
 class ShapeBVHCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  ShapeBVHCollisionTraversalNode() : CollisionTraversalNodeBase()
+  ShapeBVHCollisionTraversalNode(const CollisionRequest& request) :
+  CollisionTraversalNodeBase(request)
   {
     model1 = NULL;
     model2 = NULL;
@@ -182,8 +183,8 @@ template<typename BV, typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNode : public BVHShapeCollisionTraversalNode<BV, S>
 {
 public:
-  MeshShapeCollisionTraversalNode(bool enable_distance_lower_bound = false) :
-  BVHShapeCollisionTraversalNode<BV, S> (enable_distance_lower_bound)
+  MeshShapeCollisionTraversalNode(const CollisionRequest& request) :
+  BVHShapeCollisionTraversalNode<BV, S> (request)
   {
     vertices = NULL;
     tri_indices = NULL;
@@ -326,9 +327,9 @@ template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodeOBB(bool enable_distance_lower_bound = false) :
+  MeshShapeCollisionTraversalNodeOBB(const CollisionRequest& request) :
   MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>
-    (enable_distance_lower_bound)
+    (request)
   {
   }
 
@@ -353,9 +354,9 @@ template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodeRSS (bool enable_distance_lower_bound = false):
+  MeshShapeCollisionTraversalNodeRSS (const CollisionRequest& request):
   MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>
-    (enable_distance_lower_bound)
+    (request)
   {
   }
 
@@ -380,9 +381,9 @@ template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodekIOS(bool enable_distance_lower_bound = false):
+  MeshShapeCollisionTraversalNodekIOS(const CollisionRequest& request):
   MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>
-    (enable_distance_lower_bound)
+    (request)
   {
   }
 
@@ -408,9 +409,9 @@ class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversal
 {
 public:
   MeshShapeCollisionTraversalNodeOBBRSS
-    (bool enable_distance_lower_bound = false) :
+    (const CollisionRequest& request) :
   MeshShapeCollisionTraversalNode
-    <OBBRSS, S, NarrowPhaseSolver>(enable_distance_lower_bound)
+    <OBBRSS, S, NarrowPhaseSolver>(request)
   {
   }
 

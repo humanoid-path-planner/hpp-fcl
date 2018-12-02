@@ -882,7 +882,8 @@ template<typename NarrowPhaseSolver>
 class OcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  OcTreeCollisionTraversalNode()
+  OcTreeCollisionTraversalNode(const CollisionRequest& request) :
+  CollisionTraversalNodeBase (request)
   {
     model1 = NULL;
     model2 = NULL;
@@ -953,7 +954,8 @@ template<typename S, typename NarrowPhaseSolver>
 class ShapeOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  ShapeOcTreeCollisionTraversalNode()
+ ShapeOcTreeCollisionTraversalNode(const CollisionRequest& request) :
+  CollisionTraversalNodeBase (request)
   {
     model1 = NULL;
     model2 = NULL;
@@ -989,7 +991,8 @@ template<typename S, typename NarrowPhaseSolver>
 class OcTreeShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  OcTreeShapeCollisionTraversalNode()
+ OcTreeShapeCollisionTraversalNode(const CollisionRequest& request) :
+  CollisionTraversalNodeBase (request)
   {
     model1 = NULL;
     model2 = NULL;
@@ -1083,7 +1086,8 @@ template<typename BV, typename NarrowPhaseSolver>
 class MeshOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  MeshOcTreeCollisionTraversalNode()
+ MeshOcTreeCollisionTraversalNode(const CollisionRequest& request) :
+  CollisionTraversalNodeBase (request)
   {
     model1 = NULL;
     model2 = NULL;
@@ -1119,7 +1123,8 @@ template<typename BV, typename NarrowPhaseSolver>
 class OcTreeMeshCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  OcTreeMeshCollisionTraversalNode()
+ OcTreeMeshCollisionTraversalNode(const CollisionRequest& request) :
+  CollisionTraversalNodeBase (request)
   {
     model1 = NULL;
     model2 = NULL;

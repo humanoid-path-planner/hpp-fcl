@@ -50,7 +50,7 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
   {
     updateFrontList(front_list, b1, b2);
 
-    if (node->enable_distance_lower_bound) {
+    if (node->request.enable_distance_lower_bound) {
       if(node->BVTesting(b1, b2, sqrDistLowerBound)) return;
     } else {
       if(node->BVTesting(b1, b2)) return;
@@ -60,7 +60,7 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
     return;
   }
 
-  if (node->enable_distance_lower_bound) {
+  if (node->request.enable_distance_lower_bound) {
     if(node->BVTesting(b1, b2, sqrDistLowerBound)) {
       updateFrontList(front_list, b1, b2);
       return;
@@ -332,7 +332,7 @@ void propagateBVHFrontListCollisionRecurse
     }
     else
     {
-      if (node->enable_distance_lower_bound) {
+      if (node->request.enable_distance_lower_bound) {
 	if(!node->BVTesting(b1, b2, sqrDistLowerBound)) {
 	  front_iter->valid = false;
 	  if(node->firstOverSecond(b1, b2)) {

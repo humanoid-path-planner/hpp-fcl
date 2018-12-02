@@ -90,9 +90,8 @@ public:
 class CollisionTraversalNodeBase : public TraversalNodeBase
 {
 public:
-  CollisionTraversalNodeBase(bool enable_distance_lower_bound_ = false) :
-  result(NULL), enable_statistics(false),
-    enable_distance_lower_bound (enable_distance_lower_bound_){}
+  CollisionTraversalNodeBase (const CollisionRequest& request_) :
+  request (request_), result(NULL), enable_statistics(false) {}
 
   virtual ~CollisionTraversalNodeBase();
 
@@ -118,16 +117,13 @@ public:
   void enableStatistics(bool enable) { enable_statistics = enable; }
 
   /// @brief request setting for collision
-  CollisionRequest request;
+  const CollisionRequest& request;
 
   /// @brief collision result kept during the traversal iteration
   CollisionResult* result;
 
   /// @brief Whether stores statistics 
   bool enable_statistics;
-
-  /// Whether to compute a lower bound on distance between bounding volumes
-  bool enable_distance_lower_bound;
 };
 
 /// @brief Node structure encoding the information required for distance traversal.
