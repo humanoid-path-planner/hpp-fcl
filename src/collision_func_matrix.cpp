@@ -293,7 +293,6 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, cons
   Transform3f tf2_tmp = tf2;
   
   initialize(node, *obj1_tmp, tf1_tmp, *obj2_tmp, tf2_tmp, result);
-  FCL_REAL sqrDistance;
   fcl::collide(&node, request, result);
 
   delete obj1_tmp;
@@ -343,7 +342,7 @@ std::size_t BVHCollide<kIOS>(const CollisionGeometry* o1, const Transform3f& tf1
 
 template<typename T_BVH, typename NarrowPhaseSolver>
 std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
-                       const NarrowPhaseSolver* nsolver,
+                       const NarrowPhaseSolver* /*nsolver*/,
                        const CollisionRequest& request, CollisionResult& result)
 {
   return BVHCollide<T_BVH>(o1, tf1, o2, tf2, request, result);

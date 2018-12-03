@@ -84,7 +84,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) num_bv_tests++;
     return !model1->getBV(b1).bv.overlap(model2_bv);
@@ -95,7 +95,7 @@ public:
   /// \retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) num_bv_tests++;
     return !model1->getBV(b1).bv.overlap(model2_bv, request, sqrDistLowerBound);
@@ -254,7 +254,7 @@ namespace details
 {
 template<typename BV, typename S, typename NarrowPhaseSolver>
 static inline void meshShapeCollisionOrientedNodeLeafTesting
-  (int b1, int b2, const BVHModel<BV>* model1, const S& model2,
+  (int b1, int /*b2*/, const BVHModel<BV>* model1, const S& model2,
    Vec3f* vertices, Triangle* tri_indices, const Transform3f& tf1,
    const Transform3f& tf2, const NarrowPhaseSolver* nsolver,
    bool enable_statistics, int& num_leaf_tests,
@@ -332,7 +332,7 @@ public:
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -358,7 +358,7 @@ public:
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -384,7 +384,7 @@ public:
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -411,13 +411,13 @@ public:
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
@@ -855,7 +855,7 @@ public:
   {
   }
 
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -887,7 +887,7 @@ public:
   {    
   }
 
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);

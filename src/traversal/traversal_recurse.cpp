@@ -99,14 +99,16 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
   }
 }
 
-void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2,
-		      const Matrix3f& R, const Vec3f& T,
-		      BVHFrontList* front_list)
+  void collisionRecurse(MeshCollisionTraversalNodeOBB* /*node*/, int /*b1*/,
+                        int /*b2*/, const Matrix3f& /*R*/, const Vec3f& /*T*/,
+                        BVHFrontList* /*front_list*/)
 {
   throw std::runtime_error ("Not implemented.");
 }
 
-void collisionRecurse(MeshCollisionTraversalNodeRSS* node, int b1, int b2, const Matrix3f& R, const Vec3f& T, BVHFrontList* front_list)
+  void collisionRecurse(MeshCollisionTraversalNodeRSS* /*node*/, int /*b1*/,
+                        int /*b2*/, const Matrix3f& /*R*/, const Vec3f& /*T*/,
+                        BVHFrontList* /*front_list*/)
 {
   throw std::runtime_error ("Not implemented.");
 }
@@ -311,7 +313,7 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
 }
 
 void propagateBVHFrontListCollisionRecurse
-(CollisionTraversalNodeBase* node, const CollisionRequest& request,
+(CollisionTraversalNodeBase* node, const CollisionRequest& /*request*/,
  CollisionResult& result, BVHFrontList* front_list)
 {
   FCL_REAL sqrDistLowerBound = -1,
