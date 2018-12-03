@@ -45,6 +45,8 @@
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/intersect.h>
+#include <hpp/fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/narrowphase/narrowphase.h>
 
 #include <boost/shared_array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -55,6 +57,36 @@
 
 namespace fcl
 {
+  namespace details {
+    // Compute penetration distance and normal of two triangles in collision
+    // Normal is normal of triangle 1 (P1, P2, P3), penetration depth is the
+    // minimal distance (Q1, Q2, Q3) should be translated along the normal so
+    // that the triangles are collision free.
+    //
+    // Note that we compute here an upper bound of the penetration distance,
+    // not the exact value.
+    static FCL_REAL computePenetration
+    (const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
+     const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3, const Vec3f& p1,
+     const Transform3f& tf1, const Transform3f& tf2, Vec3f& normal)
+    {
+      Vec3f globalP1 (tf1.transform (P1));
+      Vec3f globalP2 (tf1.transform (P2));
+      Vec3f globalP3 (tf1.transform (P3));
+      Vec3f globalQ1 (tf2.transform (Q1));
+      Vec3f globalQ2 (tf2.transform (Q2));
+      Vec3f globalQ3 (tf2.transform (Q3));
+      Vec3f u ((globalP2-globalP1).cross (globalP3-globalP1));
+      normal = u.normalized ();
+      FCL_REAL depth;
+      FCL_REAL depth1 ((p1-globalQ1).dot (normal));
+      FCL_REAL depth2 ((p1-globalQ2).dot (normal));
+      FCL_REAL depth3 ((p1-globalQ3).dot (normal));
+      depth = std::max (depth1, std::max (depth2, depth3));
+      assert (depth >= 0);
+      return depth;
+    }
+  } // namespace details
 
 /// @brief Traversal node for collision between BVH models
 template<typename BV>
@@ -180,50 +212,44 @@ public:
     const Triangle& tri_id1 = tri_indices1[primitive_id1];
     const Triangle& tri_id2 = tri_indices2[primitive_id2];
 
-    const Vec3f& p1 = vertices1[tri_id1[0]];
-    const Vec3f& p2 = vertices1[tri_id1[1]];
-    const Vec3f& p3 = vertices1[tri_id1[2]];
-    const Vec3f& q1 = vertices2[tri_id2[0]];
-    const Vec3f& q2 = vertices2[tri_id2[1]];
-    const Vec3f& q3 = vertices2[tri_id2[2]];
-    
-    bool is_intersect = false;
+    const Vec3f& P1 = vertices1[tri_id1[0]];
+    const Vec3f& P2 = vertices1[tri_id1[1]];
+    const Vec3f& P3 = vertices1[tri_id1[2]];
+    const Vec3f& Q1 = vertices2[tri_id2[0]];
+    const Vec3f& Q2 = vertices2[tri_id2[1]];
+    const Vec3f& Q3 = vertices2[tri_id2[2]];
 
-    if(!this->request.enable_contact) // only interested in collision or not
-    {
-      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
-      {
-        is_intersect = true;
-        if(this->result->numContacts() < this->request.num_max_contacts)
-          this->result->addContact(Contact(this->model1, this->model2,
-                                           primitive_id1, primitive_id2));
-      }
-    }
-    else // need compute the contact information
-    {
-      FCL_REAL penetration;
-      Vec3f normal;
-      unsigned int n_contacts;
-      Vec3f contacts[2];
-
-      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, contacts,
-                                       &n_contacts, &penetration, &normal))
-      {
-        is_intersect = true;
-
-        if(this->request.num_max_contacts < n_contacts +
-           this->result->numContacts())
-          n_contacts =
-            (this->request.num_max_contacts >= this->result->numContacts()) ?
-            (this->request.num_max_contacts - this->result->numContacts()) : 0;
-    
-        for(unsigned int i = 0; i < n_contacts; ++i)
-        {
-          this->result->addContact(Contact(this->model1, this->model2,
-                                           primitive_id1, primitive_id2,
-                                           contacts[i], normal, penetration));
+    TriangleP tri1 (P1, P2, P3);
+    TriangleP tri2 (Q1, Q2, Q3);
+    GJKSolver_indep solver;
+    Vec3f p1, p2; // closest points if no collision contact points if collision.
+    FCL_REAL distance;
+    bool res = solver.shapeDistance (tri1, this->tf1, tri2, this->tf2,
+                                     &distance, &p1, &p2);
+    if (res) { // no collision
+      sqrDistLowerBound = distance * distance;
+    } else { // collision
+      Vec3f normal (0,0,0), normal1, normal2;
+      FCL_REAL penetrationDepth (0);
+      if(this->request.enable_contact &&
+         this->result->numContacts() < this->request.num_max_contacts) {
+        // How much (Q1, Q2, Q3) should be moved so that all vertices are
+        // above (P1, P2, P3).
+        FCL_REAL penetrationDepth1 = details::computePenetration
+          (P1, P2, P3, Q1, Q2, Q3, p1, this->tf1, this->tf2, normal1);
+        FCL_REAL penetrationDepth2 = details::computePenetration
+          (Q1, Q2, Q3,P1, P2, P3, p1, this->tf2, this->tf1, normal2);
+        if (penetrationDepth2 < penetrationDepth1) {
+          penetrationDepth = penetrationDepth2;
+          normal = normal2;
+        } else {
+          penetrationDepth = penetrationDepth1;
+          normal = normal1;
         }
       }
+      this->result->addContact(Contact(this->model1, this->model2,
+                                       primitive_id1, primitive_id2,
+                                       p1, normal, penetrationDepth));
     }
   }
 
@@ -249,8 +275,6 @@ public:
 
   bool BVTesting(int b1, int b2) const;
 
-  void leafTesting(int b1, int b2, FCL_REAL&) const;
-
   Matrix3f R;
   Vec3f T;
 };
@@ -262,8 +286,6 @@ public:
 
   bool BVTesting(int b1, int b2) const;
 
-  void leafTesting(int b1, int b2, FCL_REAL&) const;
-
   Matrix3f R;
   Vec3f T;
 };
@@ -274,8 +296,6 @@ public:
   MeshCollisionTraversalNodekIOS (const CollisionRequest& request);
  
   bool BVTesting(int b1, int b2) const;
-
-  void leafTesting(int b1, int b2, FCL_REAL&) const;
 
   Matrix3f R;
   Vec3f T;
@@ -289,8 +309,6 @@ public:
   bool BVTesting(int b1, int b2) const;
 
   bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
-
-  void leafTesting(int b1, int b2, FCL_REAL&) const;
 
   Matrix3f R;
   Vec3f T;

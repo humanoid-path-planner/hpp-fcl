@@ -176,17 +176,6 @@ bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2) const
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-void MeshCollisionTraversalNodeOBB::leafTesting
-(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
-{
-  details::meshCollisionOrientedNodeLeafTesting
-    (b1, b2, model1, model2, vertices1, vertices2, 
-     tri_indices1, tri_indices2, R, T, tf1, tf2,
-     enable_statistics, num_leaf_tests, request, *result,
-     sqrDistLowerBound);
-}
-
-
 MeshCollisionTraversalNodeRSS::MeshCollisionTraversalNodeRSS
 (const CollisionRequest& request) :
   MeshCollisionTraversalNode<RSS> (request)
@@ -200,18 +189,6 @@ bool MeshCollisionTraversalNodeRSS::BVTesting(int b1, int b2) const
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-void MeshCollisionTraversalNodeRSS::leafTesting
-(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
-{
-  details::meshCollisionOrientedNodeLeafTesting
-    (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-     R, T, tf1, tf2, enable_statistics, num_leaf_tests,
-     request, *result, sqrDistLowerBound);
-}
-
-
-
-
 MeshCollisionTraversalNodekIOS::MeshCollisionTraversalNodekIOS
 (const CollisionRequest& request) :
   MeshCollisionTraversalNode<kIOS>(request)
@@ -224,17 +201,6 @@ bool MeshCollisionTraversalNodekIOS::BVTesting(int b1, int b2) const
   if(enable_statistics) num_bv_tests++;
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
-
-void MeshCollisionTraversalNodekIOS::leafTesting
-(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
-{
-  details::meshCollisionOrientedNodeLeafTesting
-    (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-     R, T, tf1, tf2, enable_statistics, num_leaf_tests,
-     request, *result, sqrDistLowerBound);
-}
-
-
 
 MeshCollisionTraversalNodeOBBRSS::MeshCollisionTraversalNodeOBBRSS
 (const CollisionRequest& request) :
@@ -256,16 +222,6 @@ bool MeshCollisionTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
     return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv,
 		    request, sqrDistLowerBound);
   }
-
-void MeshCollisionTraversalNodeOBBRSS::leafTesting
-(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
-{
-  details::meshCollisionOrientedNodeLeafTesting
-    (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-     R, T, tf1, tf2, enable_statistics, num_leaf_tests,
-     request,*result, sqrDistLowerBound);
-}
-
 
 namespace details
 {
