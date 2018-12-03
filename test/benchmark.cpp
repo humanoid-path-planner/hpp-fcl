@@ -117,8 +117,8 @@ double collide (const std::vector<Transform3f>& tf,
   Transform3f pose2;
 
   CollisionResult local_result;	
-  CollisionRequest request;
-  TraversalNode node(false);
+  CollisionRequest request (false, 1, false);
+  TraversalNode node (request);
 
   node.enable_statistics = verbose;
 
@@ -129,7 +129,6 @@ double collide (const std::vector<Transform3f>& tf,
     bool success (initialize(node, m1, tf[i], m2, pose2, local_result));
     assert (success);
 
-    CollisionRequest request (1, true, true);
     CollisionResult result;
     collide(&node, request, result);
   }

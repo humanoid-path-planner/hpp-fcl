@@ -68,7 +68,7 @@ bool testDistanceLowerBound (const Transform3f& tf,
 {
   Transform3f pose1(tf), pose2;
 
-  CollisionRequest request;
+  CollisionRequest request (false, 1, false);
   request.enable_distance_lower_bound = true;
 
   CollisionResult result;
@@ -86,7 +86,7 @@ bool testCollide (const Transform3f& tf, const CollisionGeometryPtr_t& m1,
 {
   Transform3f pose1(tf), pose2;
 
-  CollisionRequest request;
+  CollisionRequest request (false, 1, false);
   request.enable_distance_lower_bound = false;
 
   CollisionResult result;
@@ -141,7 +141,6 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   std::size_t n = 100;
-  bool verbose = false;
 
   generateRandomTransforms(extents, transforms, n);
 

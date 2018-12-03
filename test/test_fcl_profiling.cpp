@@ -228,14 +228,7 @@ int main(int argc, char** argv)
   
   std::vector<Transform3f> transforms;
 
-  CollisionRequest request;
-  // request.num_max_contacts = 1;
-  // request.enable_contact = false;
-  // request.enable_distance_lower_bound = false;
-  // request.num_max_cost_sources = 1;
-  // request.enable_cost = false;
-  // request.use_approximate_cost = true;
-  // request.gjk_solver_type = GST_INDEP;
+  CollisionRequest request (false, 1, false);
 
   if (argc > 1) {
     int iarg = 1;

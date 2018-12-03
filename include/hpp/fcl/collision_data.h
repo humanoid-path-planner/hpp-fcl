@@ -164,11 +164,15 @@ struct CollisionRequest
                    size_t num_max_cost_sources_ = 1,
                    bool enable_cost_ = false,
                    bool use_approximate_cost_ = true,
-                   GJKSolverType gjk_solver_type_ = GST_INDEP) :
-  num_max_contacts(num_max_contacts_),
+                   GJKSolverType gjk_solver_type_ = GST_INDEP)
+  HPP_FCL_DEPRECATED;
+
+  CollisionRequest(bool enable_contact_, size_t num_max_contacts_,
+		   bool enable_distance_lower_bound_) :
+    num_max_contacts(num_max_contacts_),
     enable_contact(enable_contact_),
     enable_distance_lower_bound (enable_distance_lower_bound_),
-    gjk_solver_type(gjk_solver_type_),
+    gjk_solver_type(GST_INDEP),
     security_margin (0),
     break_distance (1e-3)
   {

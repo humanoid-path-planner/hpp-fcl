@@ -833,7 +833,7 @@ bool collide_Test2(const Transform3f& tf,
   Transform3f pose1, pose2;
 
   CollisionResult local_result;
-  CollisionRequest request (num_max_contacts, enable_contact);
+  CollisionRequest request (enable_contact, num_max_contacts, false);
   MeshCollisionTraversalNode<BV> node (request);
 
   bool success = initialize <BV> (node, m1, pose1, m2, pose2, local_result);
@@ -891,7 +891,7 @@ bool collide_Test(const Transform3f& tf,
   Transform3f pose1(tf), pose2;
 
   CollisionResult local_result;
-  CollisionRequest request (num_max_contacts, enable_contact);
+  CollisionRequest request (enable_contact, num_max_contacts, false);
   MeshCollisionTraversalNode<BV> node (request);
 
   bool success = initialize <BV> (node, m1, pose1, m2, pose2, local_result);
@@ -948,7 +948,7 @@ bool collide_Test_Oriented(const Transform3f& tf,
   Transform3f pose1(tf), pose2;
 
   CollisionResult local_result;
-  CollisionRequest request (num_max_contacts, enable_contact);
+  CollisionRequest request (enable_contact, num_max_contacts, false);
   TraversalNode node (request);
   bool success = initialize (node, (const BVHModel<BV>&)m1, pose1,
                              (const BVHModel<BV>&)m2, pose2, local_result);
@@ -1007,7 +1007,7 @@ bool test_collide_func(const Transform3f& tf,
 
   std::vector<Contact> contacts;
 
-  CollisionRequest request(num_max_contacts, enable_contact);
+  CollisionRequest request (enable_contact, num_max_contacts, false);
   CollisionResult result;
   int num_contacts = collide(&m1, pose1, &m2, pose2, 
                              request, result);
