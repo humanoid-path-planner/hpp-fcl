@@ -1,3 +1,20 @@
+Main modifications since version 0.6.0
+
+  - A lot of cleaning among functions that were not used
+    - broadphase has been removed,
+    - cost and cost source have been removed,
+
+  - CollisionRequest is passed to low level functions in order to unify
+    the calling function tree among the various possible options,
+
+  - Collision test triangle - triangle
+    - in GJK, a detection of loop that made the algorithm fail to detect
+      collision has been removed,
+    - collision and distance computation between triangles in
+      MeshCollisionTraversalNode::leafTesting now uses GJK
+    - a test on triangle - triangle interaction has been added optimality of
+      closest points is check using Karush-Kuhn-Tucker conditions.
+
 Main modifications since version 0.5.1
 
   - Fix octomap version handling,
