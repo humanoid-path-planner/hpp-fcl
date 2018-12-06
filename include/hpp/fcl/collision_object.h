@@ -86,7 +86,7 @@ public:
   }
 
   /// @brief whether the object is completely occupied
-  inline bool isOccupied() const { return true; }
+  inline bool isOccupied() const HPP_FCL_DEPRECATED { return true; }
 
   /// @brief whether the object is completely free
   inline bool isFree() const { return false; }
