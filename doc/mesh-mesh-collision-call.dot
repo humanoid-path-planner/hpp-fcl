@@ -1,0 +1,38 @@
+digraph CD  {
+
+	rankdir = BT
+	compound=true
+        size = 11.7
+
+        "std::size_t BVHCollide(const CollisionGeometry* o1,\nconst Transform3f& tf1, const CollisionGeometry* o2,\nconst Transform3f& tf2, const CollisionRequest& request,\nCollisionResult& result)" [shape = box]
+        "bool OBB::overlap(const OBB& other,\nconst CollisionRequest& request,\nFCL_REAL& sqrDistLowerBound) const" [shape = box]
+        "bool OBBRSS::overlap(const OBBRSS& other,\nconst CollisionRequest& request,\nFCL_REAL& sqrDistLowerBound) const" [shape = box]
+        "bool overlap(const Matrix3f& R0, const Vec3f& T0,\n const OBB& b1, const OBB& b2,\n const CollisionRequest& request, FCL_REAL& sqrDistLowerBound)" [shape = box]
+        "bool overlap(const Matrix3f& R0, const Vec3f& T0,\n const OBBRSS& b1, const OBBRSS& b2,\nconst CollisionRequest& request, FCL_REAL& sqrDistLowerBound)" [shape = box]
+        "bool BVNode::overlap(const BVNode& other,\nconst CollisionRequest& request,\nFCL_REAL& sqrDistLowerBound) const" [shape = box]
+        "bool BVHCollisionTraversalNode::BVTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result" [shape = box]
+        "bool MeshCollisionTraversalNode<T_BVH>::BVTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result" [shape = box]
+        "void collide(MeshCollisionTraversalNode<T_BVH>* node,\n const CollisionRequest& request, CollisionResult& result,\nBVHFrontList* front_list)" [shape = box]
+        "void collisionRecurse(MeshCollisionTraversalNode<T_BVH>* node,\n int b1, int b2, BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)" [shape = box]
+        "void propagateBVHFrontListCollisionRecurse(MeshCollisionTraversalNode<T_BVH>* node\n, BVHFrontList* front_list, const CollisionRequest& request, CollisionResult& result)" [shape = box]
+        "bool MeshCollisionTraversalNodeOBBRSS::BVTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result" [shape = box]
+        "MeshCollisionTraversalNode<T_BVH>::leafTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result" [shape = box]
+        "bool obbDisjointAndLowerBoundDistance\n(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b,\n FCL_REAL& squaredLowerBoundDistance)" [shape = box]
+
+         "std::size_t BVHCollide(const CollisionGeometry* o1,\nconst Transform3f& tf1, const CollisionGeometry* o2,\nconst Transform3f& tf2, const CollisionRequest& request,\nCollisionResult& result)" -> "void collide(MeshCollisionTraversalNode<T_BVH>* node,\n const CollisionRequest& request, CollisionResult& result,\nBVHFrontList* front_list)"
+        "bool OBB::overlap(const OBB& other,\nconst CollisionRequest& request,\nFCL_REAL& sqrDistLowerBound) const" -> "bool obbDisjointAndLowerBoundDistance\n(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b,\n FCL_REAL& squaredLowerBoundDistance)"
+        "bool overlap(const Matrix3f& R0, const Vec3f& T0,\n const OBB& b1, const OBB& b2,\n const CollisionRequest& request, FCL_REAL& sqrDistLowerBound)" -> "bool obbDisjointAndLowerBoundDistance\n(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b,\n FCL_REAL& squaredLowerBoundDistance)"
+        "bool overlap(const Matrix3f& R0, const Vec3f& T0,\n const OBBRSS& b1, const OBBRSS& b2,\nconst CollisionRequest& request, FCL_REAL& sqrDistLowerBound)" -> "bool overlap(const Matrix3f& R0, const Vec3f& T0,\n const OBB& b1, const OBB& b2,\n const CollisionRequest& request, FCL_REAL& sqrDistLowerBound)"
+        "void collide(MeshCollisionTraversalNode<T_BVH>* node,\n const CollisionRequest& request, CollisionResult& result,\nBVHFrontList* front_list)"-> "void propagateBVHFrontListCollisionRecurse(MeshCollisionTraversalNode<T_BVH>* node\n, BVHFrontList* front_list, const CollisionRequest& request, CollisionResult& result)"
+        "void collide(MeshCollisionTraversalNode<T_BVH>* node,\n const CollisionRequest& request, CollisionResult& result,\nBVHFrontList* front_list)" -> "void collisionRecurse(MeshCollisionTraversalNode<T_BVH>* node,\n int b1, int b2, BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)"
+        "void collisionRecurse(MeshCollisionTraversalNode<T_BVH>* node,\n int b1, int b2, BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)" -> "bool MeshCollisionTraversalNode<T_BVH>::BVTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result"
+        "void collisionRecurse(MeshCollisionTraversalNode<T_BVH>* node,\n int b1, int b2, BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)" -> "MeshCollisionTraversalNode<T_BVH>::leafTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result"
+        "void propagateBVHFrontListCollisionRecurse(MeshCollisionTraversalNode<T_BVH>* node\n, BVHFrontList* front_list, const CollisionRequest& request, CollisionResult& result)" -> "void collisionRecurse(MeshCollisionTraversalNode<T_BVH>* node,\n int b1, int b2, BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)"
+        "void propagateBVHFrontListCollisionRecurse(MeshCollisionTraversalNode<T_BVH>* node\n, BVHFrontList* front_list, const CollisionRequest& request, CollisionResult& result)" -> "bool MeshCollisionTraversalNode<T_BVH>::BVTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result"
+"bool MeshCollisionTraversalNodeOBBRSS::BVTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result" -> "bool overlap(const Matrix3f& R0, const Vec3f& T0,\n const OBBRSS& b1, const OBBRSS& b2,\nconst CollisionRequest& request, FCL_REAL& sqrDistLowerBound)"
+      "bool MeshCollisionTraversalNode<T_BVH>::BVTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result" -> "bool MeshCollisionTraversalNodeOBBRSS::BVTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result" [color=red]
+      "bool MeshCollisionTraversalNode<T_BVH>::BVTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result" -> "bool BVHCollisionTraversalNode::BVTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result" [color = red]
+      "bool OBBRSS::overlap(const OBBRSS& other,\nconst CollisionRequest& request,\nFCL_REAL& sqrDistLowerBound) const" -> "bool OBB::overlap(const OBB& other,\nconst CollisionRequest& request,\nFCL_REAL& sqrDistLowerBound) const"
+      "bool BVNode::overlap(const BVNode& other,\nconst CollisionRequest& request,\nFCL_REAL& sqrDistLowerBound) const" -> "bool OBB::overlap(const OBB& other,\nconst CollisionRequest& request,\nFCL_REAL& sqrDistLowerBound) const"
+      "bool BVHCollisionTraversalNode::BVTesting\n(int b1, int b2, FCL_REAL& sqrDistLowerBound) const\n  -request\n  - result" -> "bool BVNode::overlap(const BVNode& other,\nconst CollisionRequest& request,\nFCL_REAL& sqrDistLowerBound) const"
+}
