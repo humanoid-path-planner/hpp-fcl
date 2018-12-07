@@ -231,6 +231,22 @@ BOOST_AUTO_TEST_CASE(OBB_AABB_test)
   std::cout << std::endl;
 }
 
+// This test
+//  1. load two objects "env.obj" and "rob.obj" from directory
+//     fcl_resources,
+//  2. generates n random transformation and for each of them denote tf,
+//    2.1 performs a collision test where object 1 is in pose tf. All
+//        the contacts are stored in vector global_pairs.
+//    2.2 performs a series of collision tests with the same object and
+//        the same poses using various methods and various types of bounding
+//        volumes. Each time the contacts are stored in vector global_pairs_now.
+//
+// The methods used to test collision are
+//  - collide_Test that calls function collide with tf for object1 pose and
+//      identity for the second object pose,
+//  - collide_Test2 that moves all vertices of object1 in pose tf and that
+//      calls function collide with identity for both object poses,
+//
 BOOST_AUTO_TEST_CASE(mesh_mesh)
 {
   std::vector<Vec3f> p1, p2;
@@ -250,9 +266,15 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
   // collision
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
+    Eigen::IOFormat f (Eigen::FullPrecision, 0, ", ", ",", "", "", "(", ")");
+
+    std::cerr
+      << "q1=" << transforms [i].getTranslation ().format (f) << "+" <<
+      transforms [i].getQuatRotation ().coeffs ().format (f) << std::endl;
     global_pairs.clear();
     global_pairs_now.clear();
 
+    // First test: constacts are stored in vector global_pairs
     collide_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
 
     collide_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
@@ -870,6 +892,8 @@ bool collide_Test2(const Transform3f& tf,
   }
 }
 
+// Test collision between two sets of triangles
+// first object is in pose tf, second object is in pose identity.
 template<typename BV>
 bool collide_Test(const Transform3f& tf,
                   const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
@@ -927,6 +951,8 @@ bool collide_Test(const Transform3f& tf,
   }
 }
 
+// This function is the same as collide_Test, except that the type of traversal
+// node is chosen via template argument.
 template<typename BV, typename TraversalNode>
 bool collide_Test_Oriented(const Transform3f& tf,
                            const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
