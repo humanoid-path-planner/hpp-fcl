@@ -242,14 +242,14 @@ struct GJKSolver_indep
         w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
         w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
       }
-      if(distance) *distance = -1;
+      if(distance) *distance = 0;
 
       if(p1) *p1 = tf1.transform (w0);
       if(p2) *p2 = tf1.transform (w1);
 
       return false;
     }
-    if(distance) *distance = -1;
+    if(distance) *distance = 0;
     return false;
   }
 

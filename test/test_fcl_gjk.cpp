@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
     end = clock ();
     results [i].timeGjk = end - start;
     results [i].collision = !res;
-    BOOST_CHECK (res == (distance >= 0));
+    BOOST_CHECK (res == (distance > 0));
     if (!res) {
       ++nCol; distance = 0;
     }

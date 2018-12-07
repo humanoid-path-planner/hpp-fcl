@@ -2441,11 +2441,11 @@ BOOST_AUTO_TEST_CASE(shapeDistance_boxbox)
   FCL_REAL dist;
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist, &closest_p1, &closest_p2);
@@ -2506,11 +2506,11 @@ BOOST_AUTO_TEST_CASE(shapeDistance_boxsphere)
   FCL_REAL dist;
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(22.6, 0, 0)), &dist);
@@ -2542,11 +2542,11 @@ BOOST_AUTO_TEST_CASE(shapeDistance_cylindercylinder)
   FCL_REAL dist;
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist);
@@ -2580,11 +2580,11 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecone)
   FCL_REAL dist;
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist);
@@ -2616,11 +2616,11 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecylinder)
   FCL_REAL dist;
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist);
@@ -3181,7 +3181,7 @@ BOOST_AUTO_TEST_CASE(spheresphere)
   BOOST_CHECK(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(Vec3f(40, 0, 0)), s2, Transform3f(), &dist);
@@ -3193,7 +3193,7 @@ BOOST_AUTO_TEST_CASE(spheresphere)
   BOOST_CHECK(res);
 
   res = solver2.shapeDistance(s1, Transform3f(Vec3f(29.9, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
 
@@ -3206,7 +3206,7 @@ BOOST_AUTO_TEST_CASE(spheresphere)
   BOOST_CHECK(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(40, 0, 0)), s2, transform, &dist);
@@ -3218,7 +3218,7 @@ BOOST_AUTO_TEST_CASE(spheresphere)
   BOOST_CHECK(res);
 
   res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(29.9, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 }
 
@@ -3234,11 +3234,11 @@ BOOST_AUTO_TEST_CASE(boxbox)
   FCL_REAL dist;
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(15.1, 0, 0)), &dist);
@@ -3270,11 +3270,11 @@ BOOST_AUTO_TEST_CASE(boxsphere)
   FCL_REAL dist;
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(22.6, 0, 0)), &dist);
@@ -3306,11 +3306,11 @@ BOOST_AUTO_TEST_CASE(cylindercylinder)
   FCL_REAL dist;
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist);
@@ -3344,11 +3344,11 @@ BOOST_AUTO_TEST_CASE(conecone)
   FCL_REAL dist;
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
+  BOOST_CHECK(dist <= 0);
   BOOST_CHECK_FALSE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist);
