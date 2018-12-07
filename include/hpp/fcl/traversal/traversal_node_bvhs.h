@@ -83,7 +83,6 @@ namespace fcl
       FCL_REAL depth2 ((p1-globalQ2).dot (normal));
       FCL_REAL depth3 ((p1-globalQ3).dot (normal));
       depth = std::max (depth1, std::max (depth2, depth3));
-      assert (depth >= 0);
       return depth;
     }
   } // namespace details
@@ -198,7 +197,20 @@ public:
     tri_indices2 = NULL;
   }
 
-  /// @brief Intersection testing between leaves (two triangles)
+  /// Intersection testing between leaves (two triangles)
+  ///
+  /// \param b1, b2 id of primitive in bounding volume hierarchy
+  /// \retval sqrDistLowerBound squared lower bound of distance between
+  ///         primitives if they are not in collision.
+  ///
+  /// This method supports a security margin. If the distance between
+  /// the primitives is less than the security margin, the objects are
+  /// considered as in collision. in this case a contact point is
+  /// returned in the CollisionResult.
+  ///
+  /// \note If the distance between objects is less than the security margin,
+  ///       and the object are not colliding, the penetration depth is
+  ///       negative.
   void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
@@ -224,32 +236,39 @@ public:
     GJKSolver_indep solver;
     Vec3f p1, p2; // closest points if no collision contact points if collision.
     FCL_REAL distance;
-    bool res = solver.shapeDistance (tri1, this->tf1, tri2, this->tf2,
-                                     &distance, &p1, &p2);
-    if (res) { // no collision
-      sqrDistLowerBound = distance * distance;
-    } else { // collision
+    solver.shapeDistance (tri1, this->tf1, tri2, this->tf2,
+                          &distance, &p1, &p2);
+    FCL_REAL distToCollision = distance - this->request.security_margin;
+    sqrDistLowerBound = distance * distance;
+    if (distToCollision <= 0) { // collision
       Vec3f normal (0,0,0), normal1, normal2;
+      Vec3f p (p1); // contact point
       FCL_REAL penetrationDepth (0);
       if(this->request.enable_contact &&
          this->result->numContacts() < this->request.num_max_contacts) {
         // How much (Q1, Q2, Q3) should be moved so that all vertices are
         // above (P1, P2, P3).
-        FCL_REAL penetrationDepth1 = details::computePenetration
-          (P1, P2, P3, Q1, Q2, Q3, p1, this->tf1, this->tf2, normal1);
-        FCL_REAL penetrationDepth2 = details::computePenetration
-          (Q1, Q2, Q3,P1, P2, P3, p1, this->tf2, this->tf1, normal2);
-        if (penetrationDepth2 < penetrationDepth1) {
-          penetrationDepth = penetrationDepth2;
-          normal = normal2;
+        if (distance > 0) {
+          normal = (p2-p1).normalized ();
+          penetrationDepth = -distance;
+          p = .5* (p1+p2);
         } else {
-          penetrationDepth = penetrationDepth1;
-          normal = normal1;
+          FCL_REAL penetrationDepth1 = details::computePenetration
+            (P1, P2, P3, Q1, Q2, Q3, p1, this->tf1, this->tf2, normal1);
+          FCL_REAL penetrationDepth2 = details::computePenetration
+            (Q1, Q2, Q3,P1, P2, P3, p1, this->tf2, this->tf1, normal2);
+          if (penetrationDepth2 < penetrationDepth1) {
+            penetrationDepth = penetrationDepth2;
+            normal = -normal2;
+          } else {
+            penetrationDepth = penetrationDepth1;
+            normal = normal1;
+          }
         }
       }
       this->result->addContact(Contact(this->model1, this->model2,
                                        primitive_id1, primitive_id2,
-                                       p1, normal, penetrationDepth));
+                                       p, normal, penetrationDepth));
     }
   }
 
