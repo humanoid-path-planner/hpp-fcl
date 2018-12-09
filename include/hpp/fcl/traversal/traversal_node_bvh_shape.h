@@ -206,33 +206,27 @@ public:
     const Vec3f& p2 = vertices[tri_id[1]];
     const Vec3f& p3 = vertices[tri_id[2]];
 
-    bool is_intersect = false;
+    FCL_REAL distance;
+    Vec3f normal;
+    Vec3f c1, c2;
 
-    if(!this->request.enable_contact)
+    if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3,
+                                       Transform3f (), distance, c1, c2,
+                                       normal))
     {
-      if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3,
-                                         NULL, NULL, NULL))
-      {
-        is_intersect = true;
-        if(this->request.num_max_contacts > this->result->numContacts())
-          this->result->addContact(Contact(this->model1, this->model2,
-                                           primitive_id, Contact::NONE));
-      }
+      if(this->request.num_max_contacts > this->result->numContacts())
+        this->result->addContact(Contact(this->model1, this->model2,
+                                         primitive_id, Contact::NONE,
+                                         c1, -normal, -distance));
+      return;
     }
-    else
-    {
-      FCL_REAL penetration;
-      Vec3f normal;
-      Vec3f contactp;
-
-      if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3,
-                                         &contactp, &penetration, &normal))
-      {
-        is_intersect = true;
-        if(this->request.num_max_contacts > this->result->numContacts())
-          this->result->addContact(Contact(this->model1, this->model2,
-                                           primitive_id, Contact::NONE,
-                                           contactp, -normal, penetration));
+    assert (distance > 0);
+    if (this->request.security_margin > 0) {
+      if (distance <= this->request.security_margin) {
+        this->result->addContact(Contact(this->model1, this->model2,
+                                         primitive_id, Contact::NONE,
+                                         .5 * (c1+c2), (c2-c1).normalized (),
+                                         -distance));
       }
     }
   }
@@ -268,51 +262,27 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting
 
   const Triangle& tri_id = tri_indices[primitive_id];
 
-  const Vec3f& p1 = vertices[tri_id[0]];
-  const Vec3f& p2 = vertices[tri_id[1]];
-  const Vec3f& p3 = vertices[tri_id[2]];
+  const Vec3f& P1 = vertices[tri_id[0]];
+  const Vec3f& P2 = vertices[tri_id[1]];
+  const Vec3f& P3 = vertices[tri_id[2]];
 
-  bool is_intersect = false;
+  FCL_REAL distance;
+  Vec3f normal;
+  Vec3f p1, p2; // closest points
 
-  if(!request.enable_contact) // only interested in collision or not
+  if(nsolver->shapeTriangleIntersect(model2, tf2, P1, P2, P3, tf1,
+                                     distance, p1, p2, normal))
   {
-    if (request.enable_distance_lower_bound) {
-      FCL_REAL dist;
-      if (nsolver->shapeTriangleDistance (model2, tf2, p1, p2, p3, tf1,
-                                          &dist, 0x0, 0x0)) {
-        sqrDistLowerBound = dist * dist;
-      } else {
-        // collision
-        is_intersect = true;
-        sqrDistLowerBound = 0;
-        if(request.num_max_contacts > result.numContacts())
-          result.addContact(Contact(model1, &model2, primitive_id,
-                                    Contact::NONE));
-      }
-    } else {
-      if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1,
-                                         NULL, NULL, NULL)) {
-        is_intersect = true;
-        if(request.num_max_contacts > result.numContacts())
-          result.addContact(Contact(model1, &model2, primitive_id,
-                                    Contact::NONE));
-      }
-    }
+    if(request.num_max_contacts > result.numContacts())
+      result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE,
+                                p1, -normal, -distance));
+    return;
   }
-  else
-  {
-    FCL_REAL penetration;
-    Vec3f normal;
-    Vec3f contactp;
-
-    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, &contactp,
-                                       &penetration, &normal))
-    {
-      is_intersect = true;
-      if(request.num_max_contacts > result.numContacts())
-        result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE,
-                                  contactp, -normal, penetration));
-    }
+  assert (distance > 0);
+  if (request.security_margin == 0) return;
+  if (distance <= request.security_margin) {
+    result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE,
+                              .5*(p1+p2), (p2-p1).normalized (), -distance));
   }
 }
 
@@ -459,38 +429,31 @@ public:
 
     const Triangle& tri_id = tri_indices[primitive_id];
 
-    const Vec3f& p1 = vertices[tri_id[0]];
-    const Vec3f& p2 = vertices[tri_id[1]];
-    const Vec3f& p3 = vertices[tri_id[2]];
+    const Vec3f& P1 = vertices[tri_id[0]];
+    const Vec3f& P2 = vertices[tri_id[1]];
+    const Vec3f& P3 = vertices[tri_id[2]];
 
-    bool is_intersect = false;
+    FCL_REAL distance;
+    Vec3f normal;
+    Vec3f p1, p2; // closest points
 
-    if(!this->request.enable_contact)
+    if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, P1, P2, P3,
+                                       p1, p2, distance, normal))
     {
-      if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3,
-                                         NULL, NULL, NULL))
-      {
-        is_intersect = true;
-        if(this->request.num_max_contacts > this->result->numContacts())
-          this->result->addContact(Contact(this->model1, this->model2,
-                                           Contact::NONE, primitive_id));
+      if(this->request.num_max_contacts > this->result->numContacts())
+      {  
+        this->result->addContact
+          (Contact(this->model1, this->model2, primitive_id,
+                   Contact::NONE, p1, -normal, -distance));
       }
     }
-    else
+    assert (distance > 0);
+    if (this->request.security_margin == 0) return;
+    if (distance <= this->request.security_margin)
     {
-      FCL_REAL penetration;
-      Vec3f normal;
-      Vec3f contactp;
-
-      if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3,
-                                         &contactp, &penetration, &normal))
-      {
-        is_intersect = true;
-        if(this->request.num_max_contacts > this->result->numContacts())
-          this->result->addContact(Contact(this->model1, this->model2,
-                                           Contact::NONE, primitive_id,
-                                           contactp, normal, penetration));
-      }
+      this->result.addContact
+        (Contact(this->model1, this->model2, primitive_id, Contact::NONE,
+                 .5 * (p1+p2), (p2-p1).normalized (), -distance));
     }
   }
 

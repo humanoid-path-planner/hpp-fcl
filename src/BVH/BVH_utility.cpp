@@ -138,7 +138,11 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, con
       const Vec3f& p0 = model.vertices[t[0]];
       const Vec3f& p1 = model.vertices[t[1]];
       const Vec3f& p2 = model.vertices[t[2]];
-      if (!keep_this_tri && gjk.shapeTriangleIntersect(box, box_pose, p0, p1, p2, NULL, NULL, NULL)) {
+      Vec3f c1, c2, normal;
+      FCL_REAL distance;
+      if (!keep_this_tri && gjk.shapeTriangleIntersect
+          (box, box_pose, p0, p1, p2, Transform3f (), distance, c1, c2,
+           normal)) {
         keep_this_tri = true;
       }
     }

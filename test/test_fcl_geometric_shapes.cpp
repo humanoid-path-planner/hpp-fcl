@@ -683,30 +683,37 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spheretriangle)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  Vec3f normal;
+  Vec3f c1, c2, normal;
+  FCL_REAL distance;
   bool res;
 
-  res = solver1.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect
+    (s, Transform3f(), t[0], t[1], t[2], Transform3f(), distance, c1, c2,
+     normal);
   BOOST_CHECK(res);
 
-  res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2],
+                                        transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
 
   t[0] << 30, 0, 0;
   t[1] << 9.9, -20, 0;
   t[2] << 9.9, 20, 0;
-  res = solver1.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2],
+                                       Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res = solver1.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, &normal);
+  res = solver1.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2],
+                                       Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
-  res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2],
+                                        transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
@@ -722,32 +729,32 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacetriangle)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
-  // FCL_REAL depth;
+  Vec3f c1, c2;
+  FCL_REAL distance;
   Vec3f normal;
   bool res;
 
-  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << 0, -20, 0;
   t[2] << 0, 20, 0;
-  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
-  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
@@ -763,32 +770,30 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planetriangle)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
-  // FCL_REAL depth;
+  Vec3f c1, c2;
+  FCL_REAL distance;
   Vec3f normal;
   bool res;
 
-  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << -0.1, -20, 0;
   t[2] << -0.1, 20, 0;
-  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
-
-  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
-  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
@@ -3047,31 +3052,35 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheretriangle)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
-  // FCL_REAL depth;
+  Vec3f c1, c2;
+  FCL_REAL distance;
   Vec3f normal;
   bool res;
 
-  res = solver2.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2],
+                                       Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
   t[0] << 30, 0, 0;
   t[1] << 9.9, -20, 0;
   t[2] << 9.9, 20, 0;
-  res = solver2.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2],
+                                       Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res = solver2.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, &normal);
+  res = solver2.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2],
+                                       Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
-  res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2],
+                                        transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
@@ -3087,32 +3096,35 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_halfspacetriangle)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
-  // FCL_REAL depth;
+  Vec3f c1, c2;
+  FCL_REAL distance;
   Vec3f normal;
   bool res;
 
-  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << 0, -20, 0;
   t[2] << 0, 20, 0;
-  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2],
+                                        transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
+  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2],
+                                       Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
-  res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2],
+                                        transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
@@ -3128,32 +3140,34 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_planetriangle)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
-  // FCL_REAL depth;
+  Vec3f c1, c2;
+  FCL_REAL distance;
   Vec3f normal;
   bool res;
 
-  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << -0.1, -20, 0;
   t[2] << -0.1, 20, 0;
-  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
 
-  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
+  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2],
+                                       Transform3f(), distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
 
-  res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2],
+                                        transform, distance, c1, c2, normal);
   BOOST_CHECK(res);
   BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }

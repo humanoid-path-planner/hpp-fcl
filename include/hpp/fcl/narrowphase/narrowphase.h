@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2018-2019, Centre National de la Recherche Scientifique
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -33,7 +34,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** \author Jia Pan, Florent Lamiraux */
 
 #ifndef FCL_NARROWPHASE_H
 #define FCL_NARROWPHASE_H
@@ -97,62 +98,14 @@ struct GJKSolver_indep
     return false;
   }
 
-  /// @brief intersection checking between one shape and a triangle
-  template<typename S>
-  bool shapeTriangleIntersect(const S& s, const Transform3f& tf,
-                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
-                              Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-  {
-    TriangleP tri(P1, P2, P3);
-    
-    Vec3f guess(1, 0, 0);
-    if(enable_cached_guess) guess = cached_guess;
-
-    details::MinkowskiDiff shape;
-    shape.shapes[0] = &s;
-    shape.shapes[1] = &tri;
-    shape.toshape1 = tf.getRotation();
-    shape.toshape0 = inverse(tf);
-  
-    details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
-    details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
-    if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
-
-    switch(gjk_status)
-    {
-    case details::GJK::Inside:
-      {
-        details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
-        details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-        if(epa_status != details::EPA::Failed)
-        {
-          Vec3f w0 (Vec3f::Zero());
-          for(size_t i = 0; i < epa.result.rank; ++i)
-          {
-            w0 += shape.support(epa.result.vertex[i]->d, 0) *
-              epa.result.coefficient[i];
-          }
-          if(penetration_depth) *penetration_depth = -epa.depth;
-          if(normal) *normal = -epa.normal;
-          if(contact_points) *contact_points = tf.transform(w0 - epa.normal*(epa.depth *0.5));
-          return true;
-        }
-        else return false;
-      }
-      break;
-    default:
-      ;
-    }
-
-    return false;
-  }
-
   //// @brief intersection checking between one shape and a triangle with transformation
   template<typename S>
   bool shapeTriangleIntersect(const S& s, const Transform3f& tf1,
-                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-                              Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
+                              const Transform3f& tf2, FCL_REAL& distance,
+                              Vec3f& p1, Vec3f& p2, Vec3f& normal) const
   {
+    bool col;
     TriangleP tri(P1, P2, P3);
 
     Vec3f guess(1, 0, 0);
@@ -172,29 +125,41 @@ struct GJKSolver_indep
     {
     case details::GJK::Inside:
       {
+        col = true;
         details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
         details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-        if(epa_status != details::EPA::Failed)
+        assert (epa_status != details::EPA::Failed);
+        Vec3f w0 (Vec3f::Zero());
+        for(size_t i = 0; i < epa.result.rank; ++i)
         {
-          Vec3f w0 (Vec3f::Zero());
-          for(size_t i = 0; i < epa.result.rank; ++i)
-          {
-            w0 += shape.support(epa.result.vertex[i]->d, 0) *
-              epa.result.coefficient[i];
-          }
-          if(penetration_depth) *penetration_depth = -epa.depth;
-          if(normal) *normal = -epa.normal;
-          if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
-          return true;
+          w0 += shape.support(epa.result.vertex[i]->d, 0) *
+            epa.result.coefficient[i];
         }
-        else return false;
+        distance = epa.depth;
+        normal = -epa.normal;
+        p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
+        break;
+      }
+    case details::GJK::Valid:
+      {
+        col = false;
+        Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
+        for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
+        {
+          FCL_REAL p = gjk.getSimplex()->coefficient[i];
+          w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
+          w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
+        }
+        FCL_REAL dist ((w0 - w1).norm());
+        distance = dist;
+        p1 = w0;
+        p2 = shape.toshape0.transform(w1);
       }
       break;
     default:
       ;
     }
-
-    return false;
+    return col;
   }
 
   /// @brief distance computation between two shapes
@@ -342,8 +307,8 @@ struct GJKSolver_indep
       }
 
       if(distance) *distance = (w0 - w1).norm();
-      if(p1) *p1 = tf1.transform(w0);
-      if(p2) *p2 = tf1.transform(w1);
+      if(p1) *p1 = w0;
+      if(p2) *p2 = shape.toshape0.transform(w1);
       return true;
     }
     else
@@ -559,22 +524,22 @@ bool GJKSolver_indep::shapeIntersect<Plane, Plane>(const Plane& s1, const Transf
 
 /// @brief Fast implementation for sphere-triangle collision
 template<>
-bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const Transform3f& tf,
-                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
-
-/// @brief Fast implementation for sphere-triangle collision
-template<>
-bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const Transform3f& tf1,
-                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
-
+bool GJKSolver_indep::shapeTriangleIntersect
+  (const Sphere& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+   const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+   Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
 template<>
-bool GJKSolver_indep::shapeTriangleIntersect(const Halfspace& s, const Transform3f& tf1,
-                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+bool GJKSolver_indep::shapeTriangleIntersect
+  (const Halfspace& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+   const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+   Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
 template<>
-bool GJKSolver_indep::shapeTriangleIntersect(const Plane& s, const Transform3f& tf1,
-                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+bool GJKSolver_indep::shapeTriangleIntersect
+  (const Plane& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+   const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+   Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
 /// @brief Fast implementation for sphere-capsule distance
 template<>

@@ -492,8 +492,10 @@ private:
           const Vec3f& p1 = tree2->vertices[tri_id[0]];
           const Vec3f& p2 = tree2->vertices[tri_id[1]];
           const Vec3f& p3 = tree2->vertices[tri_id[2]];
-        
-          if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
+          Vec3f c1, c2, normal;
+          FCL_REAL distance;
+          if(solver->shapeTriangleIntersect
+             (box, box_tf, p1, p2, p3, tf2, distance, c1, c2, normal))
           {
             AABB overlap_part;
             AABB aabb1;
@@ -538,7 +540,10 @@ private:
           bool is_intersect = false;
           if(!crequest->enable_contact)
           {
-            if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
+            Vec3f c1, c2, normal;
+            FCL_REAL distance;
+            if(solver->shapeTriangleIntersect
+               (box, box_tf, p1, p2, p3, tf2, distance, c1, c2, normal))
             {
               is_intersect = true;
               if(cresult->numContacts() < crequest->num_max_contacts)
@@ -547,15 +552,17 @@ private:
           }
           else
           {
-            Vec3f contact;
-            FCL_REAL depth;
+            Vec3f c1, c2;
+            FCL_REAL distance;
             Vec3f normal;
 
-            if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, &contact, &depth, &normal))
+            if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2,
+                                              distance, c1, c2, normal))
             {
               is_intersect = true;
+              assert (crequest->security_margin == 0);
               if(cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), primitive_id, contact, normal, depth));
+                cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), primitive_id, c1, normal, -distance));
             }
           }
 

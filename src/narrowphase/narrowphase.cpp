@@ -238,15 +238,20 @@ bool projectInTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3, const 
   return false;
 }
 
-
-bool sphereTriangleIntersect(const Sphere& s, const Transform3f& tf,
-                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal_)
+// Intersection between sphere and triangle
+// Sphere is in position tf1, Triangle is expressed in global frame
+bool sphereTriangleIntersect(const Sphere& s, const Transform3f& tf1,
+                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
+                             FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+                             Vec3f& normal_)
 {
   Vec3f normal = (P2 - P1).cross(P3 - P1);
   normal.normalize();
-  const Vec3f& center = tf.getTranslation();
+  const Vec3f& center = tf1.getTranslation();
   const FCL_REAL& radius = s.radius;
-  FCL_REAL radius_with_threshold = radius + std::numeric_limits<FCL_REAL>::epsilon();
+  assert (radius >= 0);
+  FCL_REAL eps (std::numeric_limits<FCL_REAL>::epsilon());
+  FCL_REAL radius_with_threshold = radius + eps;
   Vec3f p1_to_center = center - P1;
   FCL_REAL distance_from_plane = p1_to_center.dot(normal);
 
@@ -295,32 +300,35 @@ bool sphereTriangleIntersect(const Sphere& s, const Transform3f& tf,
     }
   }
 
+  Vec3f center_to_contact = contact_point - center;
   if(has_contact)
   {
-    Vec3f contact_to_center = contact_point - center;
-    FCL_REAL distance_sqr = contact_to_center.squaredNorm();
+    FCL_REAL distance_sqr = center_to_contact.squaredNorm();
 
     if(distance_sqr < radius_with_threshold * radius_with_threshold)
     {
-      if(distance_sqr > 0)
+      if(distance_sqr > eps)
       {
-        FCL_REAL distance = std::sqrt(distance_sqr);
-        if(normal_) *normal_ = contact_to_center.normalized();
-        if(contact_points) *contact_points = contact_point;
-        if(penetration_depth) *penetration_depth = -(radius - distance);
+        FCL_REAL dist = std::sqrt(distance_sqr);
+        normal_ = center_to_contact.normalized();
+        p1 = p2 = contact_point;
+        distance =  dist - radius;
       }
       else
       {
-        if(normal_) *normal_ = -normal;
-        if(contact_points) *contact_points = contact_point;
-        if(penetration_depth) *penetration_depth = -radius;
+        normal_ = -normal;
+        p1 = p2 = contact_point;
+        distance = - radius;
       }
-
-      return true;
     }
   }
-
-  return false;
+  else
+  {
+    Vec3f unit (center_to_contact.normalized ());
+    p1 = center + radius * unit;
+    p2 = contact_point;
+  }
+  return has_contact;
 }
 
 
@@ -1691,9 +1699,16 @@ bool convexHalfspaceIntersect(const Convex& s1, const Transform3f& tf1,
     return false;
 }
 
-bool halfspaceTriangleIntersect(const Halfspace& s1, const Transform3f& tf1,
-                                const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-                                Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+// Intersection between half-space and triangle
+// Half-space is in pose tf1,
+// Triangle is in pose tf2
+// Computes distance and closest points (p1, p2) if no collision,
+//          contact point (p1 = p2), normal and penetration depth (-distance)
+//          if collision
+bool halfspaceTriangleIntersect
+(const Halfspace& s1, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+ const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1,
+ Vec3f& p2, Vec3f& normal)
 {
   Halfspace new_s1 = transform(s1, tf1);
 
@@ -1715,16 +1730,21 @@ bool halfspaceTriangleIntersect(const Halfspace& s1, const Transform3f& tf1,
     depth = d;
     v = p;
   }
-
+  // v is the vertex with minimal projection abscissa (depth) on normal to
+  //plane,
+  distance = depth;
   if(depth <= 0)
   {
-    if(penetration_depth) *penetration_depth = -depth;
-    if(normal) *normal = new_s1.n;
-    if(contact_points) *contact_points = v - new_s1.n * (0.5 * depth);
+    normal = new_s1.n;
+    p1 = p2 = v - (0.5 * depth) * new_s1.n;
     return true;
   }
   else
+  {
+    p1 = v - depth * new_s1.n;
+    p2 = v;
     return false;
+  }
 }
 
 
@@ -2328,9 +2348,10 @@ bool convexPlaneIntersect(const Convex& s1, const Transform3f& tf1,
 
 
 
-bool planeTriangleIntersect(const Plane& s1, const Transform3f& tf1,
-                            const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+bool planeTriangleIntersect
+(const Plane& s1, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+ const Vec3f& P3, const Transform3f& tf2, FCL_REAL distance,
+ Vec3f& p1, Vec3f& p2, Vec3f& normal)
 {
   Plane new_s1 = transform(s1, tf1);
 
@@ -2343,67 +2364,107 @@ bool planeTriangleIntersect(const Plane& s1, const Transform3f& tf1,
   d[0] = new_s1.signedDistance(c[0]);
   d[1] = new_s1.signedDistance(c[1]);
   d[2] = new_s1.signedDistance(c[2]);
-
-  if((d[0] >= 0 && d[1] >= 0 && d[2] >= 0) || (d[0] <= 0 && d[1] <= 0 && d[2] <= 0))
+  int imin;
+  if (d[0] >= 0 && d[1] >= 0 && d[2] >= 0)
+  {
+    if (d[0] < d[1])
+      if (d[0] < d[2]) {
+        imin = 0;
+      }
+      else { // d [2] <= d[0] < d [1]
+        imin = 2;
+      }
+    else { // d[1] <= d[0]
+      if (d[2] < d[1]) {
+        imin = 2;
+      } else { // d[1] <= d[2]
+        imin = 1;
+      }
+    }
+    distance = d[imin];
+    p2 = c[imin];
+    p1 = c[imin] - d[imin] * new_s1.n;
     return false;
+  }
+  if (d[0] <= 0 && d[1] <= 0 && d[2] <= 0)
+  {
+    if (d[0] > d[1])
+      if (d[0] > d[2]) {
+        imin = 0;
+      }
+      else { // d [2] >= d[0] > d [1]
+        imin = 2;
+      }
+    else { // d[1] >= d[0]
+      if (d[2] > d[1]) {
+        imin = 2;
+      } else { // d[1] >= d[2]
+        imin = 1;
+      }
+    }
+    distance = -d[imin];
+    p2 = c[imin];
+    p1 = c[imin] - d[imin] * new_s1.n;
+    return false;
+  }
+  bool positive[3];
+  for(std::size_t i = 0; i < 3; ++i)
+    positive[i] = (d[i] > 0);
+
+  int n_positive = 0;
+  FCL_REAL d_positive = 0, d_negative = 0;
+  for(std::size_t i = 0; i < 3; ++i)
+  {
+    if(positive[i])
+    {
+      n_positive++;
+      if(d_positive <= d[i]) d_positive = d[i];
+    }
+    else
+    {
+      if(d_negative <= -d[i]) d_negative = -d[i];
+    }
+  }
+
+  distance = -std::min(d_positive, d_negative);
+  if (d_positive > d_negative)
+  {
+    normal = new_s1.n;
+  } else
+  {
+    normal = -new_s1.n;
+  }
+  Vec3f p[2];
+  Vec3f q;
+
+  FCL_REAL p_d[2];
+  FCL_REAL q_d(0);
+
+  if(n_positive == 2)
+  {
+    for(std::size_t i = 0, j = 0; i < 3; ++i)
+    {
+      if(positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
+      else { q = c[i]; q_d = d[i]; }
+    }
+
+    Vec3f t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
+    Vec3f t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
+    p1 = p2 = (t1 + t2) * 0.5;
+  }
   else
   {
-    bool positive[3];
-    for(std::size_t i = 0; i < 3; ++i)
-      positive[i] = (d[i] > 0);
-
-    int n_positive = 0;
-    FCL_REAL d_positive = 0, d_negative = 0;
-    for(std::size_t i = 0; i < 3; ++i)
+    for(std::size_t i = 0, j = 0; i < 3; ++i)
     {
-      if(positive[i])
-      {
-        n_positive++;
-        if(d_positive <= d[i]) d_positive = d[i];
-      }
-      else
-      {
-        if(d_negative <= -d[i]) d_negative = -d[i];
-      }
+      if(!positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
+      else { q = c[i]; q_d = d[i]; }
     }
 
-    if(penetration_depth) *penetration_depth = std::min(d_positive, d_negative);
-    if(normal) { if (d_positive > d_negative) *normal = new_s1.n; else *normal = -new_s1.n; }
-    if(contact_points)
-    {
-      Vec3f p[2];
-      Vec3f q;
-      
-      FCL_REAL p_d[2];
-      FCL_REAL q_d(0);
-      
-      if(n_positive == 2)
-      {
-        for(std::size_t i = 0, j = 0; i < 3; ++i)
-        {
-          if(positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
-          else { q = c[i]; q_d = d[i]; }
-        }
-
-        Vec3f t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
-        Vec3f t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
-        *contact_points = (t1 + t2) * 0.5;
-      }
-      else
-      {
-        for(std::size_t i = 0, j = 0; i < 3; ++i)
-        {
-          if(!positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
-          else { q = c[i]; q_d = d[i]; }
-        }
-
-        Vec3f t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
-        Vec3f t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
-        *contact_points = (t1 + t2) * 0.5;            
-      }
-    }
-    return true;
+    Vec3f t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
+    Vec3f t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
+    p1 = p2 = (t1 + t2) * 0.5;            
   }
+  return true;
 }
 
 bool halfspacePlaneIntersect(const Halfspace& s1, const Transform3f& tf1,
@@ -2763,31 +2824,34 @@ bool GJKSolver_indep::shapeIntersect<Plane, Plane>(const Plane& s1, const Transf
 
 
 template<>
-bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const Transform3f& tf,
-                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+bool GJKSolver_indep::shapeTriangleIntersect
+(const Sphere& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+ const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+ Vec3f& p1, Vec3f& p2, Vec3f& normal) const
 {
-  return details::sphereTriangleIntersect(s, tf, P1, P2, P3, contact_points, penetration_depth, normal);
+  return details::sphereTriangleIntersect
+    (s, tf1, tf2.transform(P1), tf2.transform(P2), tf2.transform(P3),
+     distance, p1, p2, normal);
 }
 
 template<>
-bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const Transform3f& tf1,
-                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+bool GJKSolver_indep::shapeTriangleIntersect
+(const Halfspace& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+ const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+ Vec3f& p1, Vec3f& p2, Vec3f& normal) const
 {
-  return details::sphereTriangleIntersect(s, tf1, tf2.transform(P1), tf2.transform(P2), tf2.transform(P3), contact_points, penetration_depth, normal);
+  return details::halfspaceTriangleIntersect
+    (s, tf1, P1, P2, P3, tf2, distance, p1, p2, normal);
 }
 
 template<>
-bool GJKSolver_indep::shapeTriangleIntersect(const Halfspace& s, const Transform3f& tf1,
-                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+bool GJKSolver_indep::shapeTriangleIntersect
+(const Plane& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+ const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+ Vec3f& p1, Vec3f& p2, Vec3f& normal) const
 {
-  return details::halfspaceTriangleIntersect(s, tf1, P1, P2, P3, tf2, contact_points, penetration_depth, normal);
-}
-
-template<>
-bool GJKSolver_indep::shapeTriangleIntersect(const Plane& s, const Transform3f& tf1,
-                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  return details::planeTriangleIntersect(s, tf1, P1, P2, P3, tf2, contact_points, penetration_depth, normal);
+  return details::planeTriangleIntersect
+    (s, tf1, P1, P2, P3, tf2, distance, p1, p2, normal);
 }
 
 // Shape distance algorithms not using built-in GJK algorithm
