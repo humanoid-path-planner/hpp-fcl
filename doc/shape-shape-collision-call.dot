@@ -1,0 +1,19 @@
+digraph CD  {
+
+	rankdir = BT
+	compound=true
+        size = 11.7
+
+        "template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>\nstd::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1,\nconst CollisionGeometry* o2, const Transform3f& tf2,\nconst NarrowPhaseSolver* nsolver,const CollisionRequest& request,\nCollisionResult& result)" [shape = box]
+        "template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>\nFCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,\nconst CollisionGeometry* o2, const Transform3f& tf2,\nconst NarrowPhaseSolver* nsolver, const DistanceRequest& request,\nDistanceResult& result)" [shape = box]
+        "void distance(DistanceTraversalNodeBase* node,\nBVHFrontList* front_list, int qsize)" [shape = box]
+        "void distanceRecurse(DistanceTraversalNodeBase* node,\nint b1, int b2, BVHFrontList* front_list)" [shape = box]
+        "void ShapeDistanceTraversalNode::leafTesting(int, int) const\ntraversal/traversal_node_shapes.h" [shape = box]
+        "template<typename S1, typename S2> bool GJKSolver_indep::shapeDistance\n(const S1& s1, const Transform3f& tf1, const S2& s2, const Transform3f& tf2,\nFCL_REAL* distance, Vec3f* p1, Vec3f* p2) const\nnarrowphase/narrowphase.h" [shape = box]
+
+        "template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>\nstd::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1,\nconst CollisionGeometry* o2, const Transform3f& tf2,\nconst NarrowPhaseSolver* nsolver,const CollisionRequest& request,\nCollisionResult& result)" -> "template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>\nFCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,\nconst CollisionGeometry* o2, const Transform3f& tf2,\nconst NarrowPhaseSolver* nsolver, const DistanceRequest& request,\nDistanceResult& result)"
+        "template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>\nFCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,\nconst CollisionGeometry* o2, const Transform3f& tf2,\nconst NarrowPhaseSolver* nsolver, const DistanceRequest& request,\nDistanceResult& result)" -> "void distance(DistanceTraversalNodeBase* node,\nBVHFrontList* front_list, int qsize)"
+        "void distance(DistanceTraversalNodeBase* node,\nBVHFrontList* front_list, int qsize)" -> "void distanceRecurse(DistanceTraversalNodeBase* node,\nint b1, int b2, BVHFrontList* front_list)"
+        "void distanceRecurse(DistanceTraversalNodeBase* node,\nint b1, int b2, BVHFrontList* front_list)" -> "void ShapeDistanceTraversalNode::leafTesting(int, int) const\ntraversal/traversal_node_shapes.h"
+        "void ShapeDistanceTraversalNode::leafTesting(int, int) const\ntraversal/traversal_node_shapes.h" -> "template<typename S1, typename S2> bool GJKSolver_indep::shapeDistance\n(const S1& s1, const Transform3f& tf1, const S2& s2, const Transform3f& tf2,\nFCL_REAL* distance, Vec3f* p1, Vec3f* p2) const\nnarrowphase/narrowphase.h"
+}
