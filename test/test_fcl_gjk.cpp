@@ -67,8 +67,10 @@ typedef std::vector <Result> Results_t;
 
 BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
 {
-  Eigen::IOFormat format (Eigen::FullPrecision, Eigen::DontAlignCols, ", ",
-                          ", ", "np.array ((", "))", "", "");
+  Eigen::IOFormat numpy (Eigen::FullPrecision, Eigen::DontAlignCols, ", ",
+                         ", ", "np.array ((", "))", "", "");
+  Eigen::IOFormat tuple (Eigen::FullPrecision, Eigen::DontAlignCols, "",
+                         ", ", "", "", "(", ")");
   std::size_t N = 10000;
   GJKSolver_indep solver;
   Transform3f tf1, tf2;
@@ -95,7 +97,32 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
     results [i].collision = !res;
     assert (res == (distance > 0));
     if (!res) {
-      ++nCol; distance = 0;
+      Vec3f c1, c2, normal2;
+      ++nCol;
+      // check that moving triangle 2 by the penetration depth in the
+      // direction of the normal makes the triangles collision free.
+      FCL_REAL penetration_depth (-distance);
+      assert (penetration_depth > 0);
+      tf2.setTranslation ((penetration_depth + 10-4) * normal);
+      res = solver.shapeDistance (tri1, tf1, tri2, tf2, distance, c1, c2,
+                                  normal2);
+      if (!res) {
+        std::cerr << "P1 = " << P1.format (tuple) << std::endl;
+        std::cerr << "P2 = " << P2.format (tuple) << std::endl;
+        std::cerr << "P3 = " << P3.format (tuple) << std::endl;
+        std::cerr << "Q1 = " << Q1.format (tuple) << std::endl;
+        std::cerr << "Q2 = " << Q2.format (tuple) << std::endl;
+        std::cerr << "Q3 = " << Q3.format (tuple) << std::endl;
+        std::cerr << "p1 = " << c1.format (tuple) << std::endl;
+        std::cerr << "p2 = " << c2.format (tuple) << std::endl;
+        std::cerr << "tf2 = " << tf2.getTranslation ().format (tuple)
+                  << " + " << tf2.getQuatRotation ().coeffs ().format (tuple)
+                  << std::endl;
+        std::cerr << "normal = " << normal.format (tuple) << std::endl;
+        abort ();
+      }
+      distance = 0;
+      tf2.setIdentity ();
     }
     // Compute vectors between vertices
     Vec3f u1 (P2 - P1);
