@@ -2485,9 +2485,33 @@ bool planeIntersect(const Plane& s1, const Transform3f& tf1,
  
   return true;
 }
-
-
-
+  // Compute penetration distance and normal of two triangles in collision
+  // Normal is normal of triangle 1 (P1, P2, P3), penetration depth is the
+  // minimal distance (Q1, Q2, Q3) should be translated along the normal so
+  // that the triangles are collision free.
+  //
+  // Note that we compute here an upper bound of the penetration distance,
+  // not the exact value.
+  static FCL_REAL computePenetration
+  (const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
+   const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3, const Vec3f& p1,
+   const Transform3f& tf1, const Transform3f& tf2, Vec3f& normal)
+  {
+    Vec3f globalP1 (tf1.transform (P1));
+    Vec3f globalP2 (tf1.transform (P2));
+    Vec3f globalP3 (tf1.transform (P3));
+    Vec3f globalQ1 (tf2.transform (Q1));
+    Vec3f globalQ2 (tf2.transform (Q2));
+    Vec3f globalQ3 (tf2.transform (Q3));
+    Vec3f u ((globalP2-globalP1).cross (globalP3-globalP1));
+    normal = u.normalized ();
+    FCL_REAL depth;
+    FCL_REAL depth1 ((globalP1-globalQ1).dot (normal));
+    FCL_REAL depth2 ((globalP1-globalQ2).dot (normal));
+    FCL_REAL depth3 ((globalP1-globalQ3).dot (normal));
+    depth = std::max (depth1, std::max (depth2, depth3));
+    return depth;
+  }
 } // details
 
 // Shape intersect algorithms not using libccd
@@ -2914,12 +2938,20 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
   {
     Vec3f guess(1, 0, 0);
     if(enable_cached_guess) guess = cached_guess;
+    bool enable_penetration (true);
 
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
     shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
     shape.toshape0 = tf1.inverseTimes(tf2);
+
+    const Vec3f& P1 (s1.a);
+    const Vec3f& P2 (s1.b);
+    const Vec3f& P3 (s1.c);
+    const Vec3f& Q1 (s2.a);
+    const Vec3f& Q2 (s2.b);
+    const Vec3f& Q3 (s2.c);
 
     details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -2956,9 +2988,15 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
       p1 = tf1.transform (w0);
       p2 = tf1.transform (w1);
 
+      if (enable_penetration) {
+        FCL_REAL penetrationDepth = details::computePenetration
+          (P1, P2, P3, Q1, Q2, Q3, p1, tf1, tf2, normal);
+        dist = -penetrationDepth;
+        assert (dist <= 0);
+      }
       return false;
     }
-    dist = 0;
+    abort ();
     return false;
   }
 } // fcl

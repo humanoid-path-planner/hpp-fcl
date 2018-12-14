@@ -57,36 +57,6 @@
 
 namespace fcl
 {
-  namespace details {
-    // Compute penetration distance and normal of two triangles in collision
-    // Normal is normal of triangle 1 (P1, P2, P3), penetration depth is the
-    // minimal distance (Q1, Q2, Q3) should be translated along the normal so
-    // that the triangles are collision free.
-    //
-    // Note that we compute here an upper bound of the penetration distance,
-    // not the exact value.
-    static FCL_REAL computePenetration
-    (const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
-     const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3, const Vec3f& p1,
-     const Transform3f& tf1, const Transform3f& tf2, Vec3f& normal)
-    {
-      Vec3f globalP1 (tf1.transform (P1));
-      Vec3f globalP2 (tf1.transform (P2));
-      Vec3f globalP3 (tf1.transform (P3));
-      Vec3f globalQ1 (tf2.transform (Q1));
-      Vec3f globalQ2 (tf2.transform (Q2));
-      Vec3f globalQ3 (tf2.transform (Q3));
-      Vec3f u ((globalP2-globalP1).cross (globalP3-globalP1));
-      normal = u.normalized ();
-      FCL_REAL depth;
-      FCL_REAL depth1 ((p1-globalQ1).dot (normal));
-      FCL_REAL depth2 ((p1-globalQ2).dot (normal));
-      FCL_REAL depth3 ((p1-globalQ3).dot (normal));
-      depth = std::max (depth1, std::max (depth2, depth3));
-      return depth;
-    }
-  } // namespace details
-
 /// @brief Traversal node for collision between BVH models
 template<typename BV>
 class BVHCollisionTraversalNode : public CollisionTraversalNodeBase
@@ -242,34 +212,20 @@ public:
     FCL_REAL distToCollision = distance - this->request.security_margin;
     sqrDistLowerBound = distance * distance;
     if (distToCollision <= 0) { // collision
-      Vec3f normal (0,0,0), normal1, normal2;
       Vec3f p (p1); // contact point
       FCL_REAL penetrationDepth (0);
-      if(this->request.enable_contact &&
-         this->result->numContacts() < this->request.num_max_contacts) {
+      if(this->result->numContacts() < this->request.num_max_contacts) {
         // How much (Q1, Q2, Q3) should be moved so that all vertices are
         // above (P1, P2, P3).
+        penetrationDepth = -distance;
         if (distance > 0) {
           normal = (p2-p1).normalized ();
-          penetrationDepth = -distance;
           p = .5* (p1+p2);
-        } else {
-          FCL_REAL penetrationDepth1 = details::computePenetration
-            (P1, P2, P3, Q1, Q2, Q3, p1, this->tf1, this->tf2, normal1);
-          FCL_REAL penetrationDepth2 = details::computePenetration
-            (Q1, Q2, Q3,P1, P2, P3, p1, this->tf2, this->tf1, normal2);
-          if (penetrationDepth2 < penetrationDepth1) {
-            penetrationDepth = penetrationDepth2;
-            normal = -normal2;
-          } else {
-            penetrationDepth = penetrationDepth1;
-            normal = normal1;
-          }
         }
+        this->result->addContact(Contact(this->model1, this->model2,
+                                         primitive_id1, primitive_id2,
+                                         p, normal, penetrationDepth));
       }
-      this->result->addContact(Contact(this->model1, this->model2,
-                                       primitive_id1, primitive_id2,
-                                       p, normal, penetrationDepth));
     }
   }
 
