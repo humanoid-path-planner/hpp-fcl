@@ -144,46 +144,38 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
-  if (request.enable_distance_lower_bound) {
-    DistanceResult distanceResult;
-    DistanceRequest distanceRequest (request.enable_contact);
-    FCL_REAL distance = ShapeShapeDistance <T_SH1, T_SH2, NarrowPhaseSolver>
-      (o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
+  DistanceResult distanceResult;
+  DistanceRequest distanceRequest (request.enable_contact);
+  FCL_REAL distance = ShapeShapeDistance <T_SH1, T_SH2, NarrowPhaseSolver>
+    (o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
 
-    if (distance <= 0) {
+  if (distance <= 0) {
+    if (result.numContacts () < request.num_max_contacts) {
       Contact contact (o1, o2, distanceResult.b1, distanceResult.b2);
       const Vec3f& p1 = distanceResult.nearest_points [0];
       const Vec3f& p2 = distanceResult.nearest_points [1];
-      contact.pos = .5*(p1+p2);
-      contact.normal = (p2-p1)/(p2-p1).norm ();
+      assert (p1 == p2);
+      contact.pos = p1;
+      contact.normal = distanceResult.normal;
+      contact.penetration_depth = -distance;
       result.addContact (contact);
-      return 1;
     }
-    result.distance_lower_bound = distance;
-    return 0;
+    return 1;
   }
-
-  ShapeCollisionTraversalNode<T_SH1, T_SH2, NarrowPhaseSolver> node (request);
-  const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
-  const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
-
-  if(request.enable_cached_gjk_guess)
-  {
-    nsolver->enableCachedGuess(true);
-    nsolver->setCachedGuess(request.cached_gjk_guess);
+  if (distance <= request.security_margin) {
+    if (result.numContacts () < request.num_max_contacts) {
+      Contact contact (o1, o2, distanceResult.b1, distanceResult.b2);
+      const Vec3f& p1 = distanceResult.nearest_points [0];
+      const Vec3f& p2 = distanceResult.nearest_points [1];
+      contact.pos = .5 * (p1 + p2);
+      contact.normal = (p2-p1).normalized ();
+      contact.penetration_depth = -distance;
+      result.addContact (contact);
+    }
+    return 1;
   }
-  else
-  {
-    nsolver->enableCachedGuess(true);
-  }
-
-  initialize(node, *obj1, tf1, *obj2, tf2, nsolver, result);
-  collide(&node, request, result);
-
-  if(request.enable_cached_gjk_guess)
-    result.cached_gjk_guess = nsolver->getCachedGuess();
-
-  return result.numContacts();
+  result.distance_lower_bound = distance;
+  return 0;
 }
 
 template<typename T_BVH, typename T_SH, typename NarrowPhaseSolver>

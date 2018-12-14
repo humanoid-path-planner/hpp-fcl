@@ -135,9 +135,11 @@ public:
   void leafTesting(int, int) const
   {
     FCL_REAL distance;
-    Vec3f closest_p1, closest_p2;
-    nsolver->shapeDistance(*model1, tf1, *model2, tf2, &distance, &closest_p1, &closest_p2);
-    result->update(distance, model1, model2, DistanceResult::NONE, DistanceResult::NONE, closest_p1, closest_p2);
+    Vec3f closest_p1, closest_p2, normal;
+    nsolver->shapeDistance(*model1, tf1, *model2, tf2, distance, closest_p1,
+                           closest_p2, normal);
+    result->update(distance, model1, model2, DistanceResult::NONE,
+                   DistanceResult::NONE, closest_p1, closest_p2, normal);
   }
 
   const S1* model1;

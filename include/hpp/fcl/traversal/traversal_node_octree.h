@@ -248,10 +248,13 @@ private:
         constructBox(bv1, tf1, box, box_tf);
  
         FCL_REAL dist;
-        Vec3f closest_p1, closest_p2;
-        solver->shapeDistance(box, box_tf, s, tf2, &dist, &closest_p1, &closest_p2);
+        Vec3f closest_p1, closest_p2, normal;
+        solver->shapeDistance(box, box_tf, s, tf2, dist, closest_p1,
+                              closest_p2, normal);
         
-        dresult->update(dist, tree1, &s, root1 - tree1->getRoot(), DistanceResult::NONE, closest_p1, closest_p2);
+        dresult->update(dist, tree1, &s, root1 - tree1->getRoot(),
+                        DistanceResult::NONE, closest_p1, closest_p2,
+                        normal);
         
         return drequest->isSatisfied(*dresult);
       }
@@ -402,10 +405,12 @@ private:
         const Vec3f& p3 = tree2->vertices[tri_id[2]];
         
         FCL_REAL dist;
-        Vec3f closest_p1, closest_p2;
-        solver->shapeTriangleDistance(box, box_tf, p1, p2, p3, tf2, &dist, &closest_p1, &closest_p2);
+        Vec3f closest_p1, closest_p2, normal;
+        solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2, dist,
+                                         closest_p1, closest_p2, normal);
 
-        dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), primitive_id);
+        dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(),
+                        primitive_id, closest_p1, closest_p2, normal);
 
         return drequest->isSatisfied(*dresult);
       }
@@ -494,7 +499,7 @@ private:
           const Vec3f& p3 = tree2->vertices[tri_id[2]];
           Vec3f c1, c2, normal;
           FCL_REAL distance;
-          if(solver->shapeTriangleIntersect
+          if(solver->shapeTriangleInteraction
              (box, box_tf, p1, p2, p3, tf2, distance, c1, c2, normal))
           {
             AABB overlap_part;
@@ -542,7 +547,7 @@ private:
           {
             Vec3f c1, c2, normal;
             FCL_REAL distance;
-            if(solver->shapeTriangleIntersect
+            if(solver->shapeTriangleInteraction
                (box, box_tf, p1, p2, p3, tf2, distance, c1, c2, normal))
             {
               is_intersect = true;
@@ -556,8 +561,8 @@ private:
             FCL_REAL distance;
             Vec3f normal;
 
-            if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2,
-                                              distance, c1, c2, normal))
+            if(solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2,
+                                                distance, c1, c2, normal))
             {
               is_intersect = true;
               assert (crequest->security_margin == 0);
@@ -631,10 +636,13 @@ private:
         constructBox(bv2, tf2, box2, box2_tf);
 
         FCL_REAL dist;
-        Vec3f closest_p1, closest_p2;
-        solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist, &closest_p1, &closest_p2);
+        Vec3f closest_p1, closest_p2, normal;
+        solver->shapeDistance(box1, box1_tf, box2, box2_tf, dist, closest_p1,
+                              closest_p2, normal);
 
-        dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), closest_p1, closest_p2);
+        dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(),
+                        root2 - tree2->getRoot(), closest_p1, closest_p2,
+                        normal);
         
         return drequest->isSatisfied(*dresult);
       }

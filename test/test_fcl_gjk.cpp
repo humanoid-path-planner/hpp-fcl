@@ -85,14 +85,15 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
     Vec3f Q1 (Vec3f::Random ()), Q2 (Vec3f::Random ()), Q3 (Vec3f::Random ());
     TriangleP tri1 (P1, P2, P3);
     TriangleP tri2 (Q1, Q2, Q3);
+    Vec3f normal;
 
     bool res;
     start = clock ();
-    res = solver.shapeDistance (tri1, tf1, tri2, tf2, &distance, &p1, &p2);
+    res = solver.shapeDistance (tri1, tf1, tri2, tf2, distance, p1, p2, normal);
     end = clock ();
     results [i].timeGjk = end - start;
     results [i].collision = !res;
-    BOOST_CHECK (res == (distance > 0));
+    assert (res == (distance > 0));
     if (!res) {
       ++nCol; distance = 0;
     }

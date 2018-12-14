@@ -210,9 +210,9 @@ public:
     Vec3f normal;
     Vec3f c1, c2;
 
-    if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3,
-                                       Transform3f (), distance, c1, c2,
-                                       normal))
+    if(nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
+                                         Transform3f (), distance, c1, c2,
+                                         normal))
     {
       if(this->request.num_max_contacts > this->result->numContacts())
         this->result->addContact(Contact(this->model1, this->model2,
@@ -270,8 +270,8 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting
   Vec3f normal;
   Vec3f p1, p2; // closest points
 
-  if(nsolver->shapeTriangleIntersect(model2, tf2, P1, P2, P3, tf1,
-                                     distance, p1, p2, normal))
+  if(nsolver->shapeTriangleInteraction(model2, tf2, P1, P2, P3, tf1,
+                                       distance, p1, p2, normal))
   {
     if(request.num_max_contacts > result.numContacts())
       result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE,
@@ -437,8 +437,9 @@ public:
     Vec3f normal;
     Vec3f p1, p2; // closest points
 
-    if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, P1, P2, P3,
-                                       p1, p2, distance, normal))
+    if(nsolver->shapeTriangleInteraction(*(this->model1), this->tf1, P1, P2, P3,
+                                         Transform3f (), p1, p2, distance,
+                                         normal))
     {
       if(this->request.num_max_contacts > this->result->numContacts())
       {  
@@ -714,10 +715,14 @@ public:
     const Vec3f& p3 = vertices[tri_id[2]];
     
     FCL_REAL d;
-    Vec3f closest_p1, closest_p2;
-    nsolver->shapeTriangleDistance(*(this->model2), this->tf2, p1, p2, p3, &d, &closest_p2, &closest_p1);
+    Vec3f closest_p1, closest_p2, normal;
+    nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
+                                      Transform3f (), d, closest_p2, closest_p1,
+                                      normal);
 
-    this->result->update(d, this->model1, this->model2, primitive_id, DistanceResult::NONE, closest_p1, closest_p2);
+    this->result->update(d, this->model1, this->model2, primitive_id,
+                         DistanceResult::NONE, closest_p1, closest_p2,
+                         normal);
   }
 
   /// @brief Whether the traversal process can stop early
@@ -764,10 +769,12 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int /* b2 */,
   const Vec3f& p3 = vertices[tri_id[2]];
     
   FCL_REAL distance;
-  Vec3f closest_p1, closest_p2;
-  nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &distance, &closest_p2, &closest_p1);
+  Vec3f closest_p1, closest_p2, normal;
+  nsolver->shapeTriangleInteraction(model2, tf2, p1, p2, p3, tf1, distance,
+                                    closest_p2, closest_p1, normal);
 
-  result.update(distance, model1, &model2, primitive_id, DistanceResult::NONE, closest_p1, closest_p2);
+  result.update(distance, model1, &model2, primitive_id, DistanceResult::NONE,
+                closest_p1, closest_p2, normal);
 }
 
 
@@ -786,10 +793,12 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
   const Vec3f& p3 = vertices[init_tri[2]];
   
   FCL_REAL distance;
-  Vec3f closest_p1, closest_p2;
-  nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &distance, &closest_p2, &closest_p1);
+  Vec3f closest_p1, closest_p2, normal;
+  nsolver->shapeTriangleInteraction(model2, tf2, p1, p2, p3, tf1, distance,
+                                    closest_p2, closest_p1, normal);
 
-  result.update(distance, model1, &model2, init_tri_id, DistanceResult::NONE, closest_p1, closest_p2);
+  result.update(distance, model1, &model2, init_tri_id, DistanceResult::NONE,
+                closest_p1, closest_p2, normal);
 }
 
 
@@ -929,10 +938,14 @@ public:
     const Vec3f& p3 = vertices[tri_id[2]];
     
     FCL_REAL distance;
-    Vec3f closest_p1, closest_p2;
-    nsolver->shapeTriangleDistance(*(this->model1), this->tf1, p1, p2, p3, &distance, &closest_p1, &closest_p2);
+    Vec3f closest_p1, closest_p2, normal;
+    nsolver->shapeTriangleInteraction(*(this->model1), this->tf1, p1, p2, p3,
+                                      Transform3f (), distance, closest_p1,
+                                      closest_p2, normal);
 
-    this->result->update(distance, this->model1, this->model2, DistanceResult::NONE, primitive_id, closest_p1, closest_p2);
+    this->result->update(distance, this->model1, this->model2,
+                         DistanceResult::NONE, primitive_id, closest_p1,
+                         closest_p2, normal);
   }
 
   /// @brief Whether the traversal process can stop early

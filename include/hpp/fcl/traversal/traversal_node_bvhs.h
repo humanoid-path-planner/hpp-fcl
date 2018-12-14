@@ -235,9 +235,10 @@ public:
     TriangleP tri2 (Q1, Q2, Q3);
     GJKSolver_indep solver;
     Vec3f p1, p2; // closest points if no collision contact points if collision.
+    Vec3f normal;
     FCL_REAL distance;
     solver.shapeDistance (tri1, this->tf1, tri2, this->tf2,
-                          &distance, &p1, &p2);
+                          distance, p1, p2, normal);
     FCL_REAL distToCollision = distance - this->request.security_margin;
     sqrDistLowerBound = distance * distance;
     if (distToCollision <= 0) { // collision
@@ -456,19 +457,13 @@ public:
     const Vec3f& t23 = vertices2[tri_id2[2]];
 
     // nearest point pair
-    Vec3f P1, P2;
+    Vec3f P1, P2, normal;
 
     FCL_REAL d = sqrt (TriangleDistance::sqrTriDistance
 		       (t11, t12, t13, t21, t22, t23, P1, P2));
 
-    if(this->request.enable_nearest_points)
-    {
-      this->result->update(d, this->model1, this->model2, primitive_id1, primitive_id2, P1, P2);
-    }
-    else
-    {
-      this->result->update(d, this->model1, this->model2, primitive_id1, primitive_id2);
-    }
+    this->result->update(d, this->model1, this->model2, primitive_id1,
+                         primitive_id2, P1, P2, normal);
   }
 
   /// @brief Whether the traversal process can stop early

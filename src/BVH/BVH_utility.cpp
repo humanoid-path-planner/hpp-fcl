@@ -123,14 +123,14 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, con
   std::vector<bool> keep_vertex(model.num_vertices, false);
   std::vector<bool> keep_tri   (model.num_tris,     false);
   std::size_t ntri = 0;
-  for (std::size_t i = 0; i < model.num_tris; ++i) {
+  for (std::size_t i = 0; i < (std::size_t) model.num_tris; ++i) {
     const Triangle& t = model.tri_indices[i];
 
     bool keep_this_tri = keep_vertex[t[0]] || keep_vertex[t[1]] || keep_vertex[t[2]];
 
     if (!keep_this_tri) {
       for (std::size_t j = 0; j < 3; ++j) {
-        if (aabb.contain(q * model.vertices[t[j]])) {
+        if (aabb.contain(q * model.vertices[t[(int)j]])) {
           keep_this_tri = true;
           break;
         }
@@ -140,7 +140,7 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, con
       const Vec3f& p2 = model.vertices[t[2]];
       Vec3f c1, c2, normal;
       FCL_REAL distance;
-      if (!keep_this_tri && gjk.shapeTriangleIntersect
+      if (!keep_this_tri && gjk.shapeTriangleInteraction
           (box, box_pose, p0, p1, p2, Transform3f (), distance, c1, c2,
            normal)) {
         keep_this_tri = true;
@@ -300,7 +300,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 
       for(int j = 0; j < 3; ++j)
       {
-        int point_id = t[j];
+        int point_id = (int) t[j];
         const Vec3f& p = ps[point_id];
         Vec3f v(p[0], p[1], p[2]);
         P[P_id][0] = axes.col(0).dot(v);
@@ -313,7 +313,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
       {
         for(int j = 0; j < 3; ++j)
         {
-          int point_id = t[j];
+          int point_id = (int) t[j];
           const Vec3f& p = ps2[point_id];
           // FIXME Is this right ?????
           Vec3f v(p[0], p[1], p[2]);
@@ -623,7 +623,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
 
     for(int j = 0; j < 3; ++j)
     {
-      int point_id = t[j];
+      int point_id = (int) t[j];
       const Vec3f& p = ps[point_id];
       Vec3f proj(axes.transpose() * p);
 
@@ -638,7 +638,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
     {
       for(int j = 0; j < 3; ++j)
       {
-        int point_id = t[j];
+        int point_id = (int) t[j];
         const Vec3f& p = ps2[point_id];
         Vec3f proj(axes.transpose() * p);
 
@@ -695,7 +695,7 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
 
     for(int j = 0; j < 3; ++j)
     {
-      int point_id = t[j];
+      int point_id = (int) t[j];
       const Vec3f& p = ps[point_id];
       
       FCL_REAL d = (p - query).squaredNorm();
@@ -706,7 +706,7 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
     {
       for(int j = 0; j < 3; ++j)
       {
-        int point_id = t[j];
+        int point_id = (int) t[j];
         const Vec3f& p = ps2[point_id];
         
         FCL_REAL d = (p - query).squaredNorm();

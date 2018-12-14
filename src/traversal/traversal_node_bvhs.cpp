@@ -74,18 +74,15 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
   const Vec3f& t23 = vertices2[tri_id2[2]];
 
   // nearest point pair
-  Vec3f P1, P2;
+  Vec3f P1, P2, normal;
 
   FCL_REAL d = sqrt (TriangleDistance::sqrTriDistance
 		     (t11, t12, t13, t21, t22, t23, R, T, P1, P2));
 
-  if(request.enable_nearest_points)
-    result.update(d, model1, model2, primitive_id1, primitive_id2, P1, P2);
-  else
-    result.update(d, model1, model2, primitive_id1, primitive_id2);
+  result.update(d, model1, model2, primitive_id1, primitive_id2, P1, P2,
+                normal);
 }
-
-}
+} // namespace details
 
 MeshCollisionTraversalNodeOBB::MeshCollisionTraversalNodeOBB
 (const CollisionRequest& request) :
@@ -173,17 +170,15 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1, co
   init_tri2_points[1] = vertices2[init_tri2[1]];
   init_tri2_points[2] = vertices2[init_tri2[2]];
 
-  Vec3f p1, p2;
+  Vec3f p1, p2, normal;
   FCL_REAL distance = sqrt (TriangleDistance::sqrTriDistance
 			    (init_tri1_points[0], init_tri1_points[1],
 			     init_tri1_points[2], init_tri2_points[0],
 			     init_tri2_points[1], init_tri2_points[2],
 			     R, T, p1, p2));
 
-  if(request.enable_nearest_points)
-    result.update(distance, model1, model2, init_tri_id1, init_tri_id2, p1, p2);
-  else
-    result.update(distance, model1, model2, init_tri_id1, init_tri_id2);
+  result.update(distance, model1, model2, init_tri_id1, init_tri_id2, p1, p2,
+                normal);
 }
 
 template<typename BV>
