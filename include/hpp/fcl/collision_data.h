@@ -299,6 +299,9 @@ public:
   /// @brief nearest points
   Vec3f nearest_points[2];
 
+  /// In case both objects are in collision, store the normal
+  Vec3f normal;
+
   /// @brief collision object 1
   const CollisionGeometry* o1;
 
@@ -343,7 +346,9 @@ public:
   }
 
   /// @brief add distance information into the result
-  void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_, const Vec3f& p1, const Vec3f& p2)
+  void update(FCL_REAL distance, const CollisionGeometry* o1_,
+              const CollisionGeometry* o2_, int b1_, int b2_,
+              const Vec3f& p1, const Vec3f& p2, const Vec3f& normal_)
   {
     if(min_distance > distance)
     {
@@ -354,6 +359,7 @@ public:
       b2 = b2_;
       nearest_points[0] = p1;
       nearest_points[1] = p2;
+      normal = normal_;
     }
   }
 
@@ -369,6 +375,7 @@ public:
       b2 = other_result.b2;
       nearest_points[0] = other_result.nearest_points[0];
       nearest_points[1] = other_result.nearest_points[1];
+      normal = other_result.normal;
     }
   }
 
