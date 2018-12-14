@@ -484,6 +484,16 @@ namespace fcl
      const Capsule& s2, const Transform3f& tf2,
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
+  // Distance computation between two triangles
+  //
+  // Do not run EPA algorithm to compute penetration depth, use a dedicated
+  // method.
+  template<>
+    bool GJKSolver_indep::shapeDistance<TriangleP, TriangleP>
+    (const TriangleP& s1, const Transform3f& tf1,
+     const TriangleP& s2, const Transform3f& tf2,
+     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+
 }
 
 #endif

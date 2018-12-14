@@ -2906,4 +2906,59 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
   abort ();
 }
 
+  template<>
+    bool GJKSolver_indep::shapeDistance<TriangleP, TriangleP>
+    (const TriangleP& s1, const Transform3f& tf1,
+     const TriangleP& s2, const Transform3f& tf2,
+     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+  {
+    Vec3f guess(1, 0, 0);
+    if(enable_cached_guess) guess = cached_guess;
+
+    details::MinkowskiDiff shape;
+    shape.shapes[0] = &s1;
+    shape.shapes[1] = &s2;
+    shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
+    shape.toshape0 = tf1.inverseTimes(tf2);
+
+    details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
+    details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
+    if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
+
+    if(gjk_status == details::GJK::Valid)
+    {
+      Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
+      for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
+      {
+        FCL_REAL p = gjk.getSimplex()->coefficient[i];
+        w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
+        w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
+      }
+
+      dist = (w0 - w1).norm();
+
+      p1 = tf1.transform (w0);
+      p2 = tf1.transform (w1);
+
+      return true;
+    }
+    else if (gjk_status == details::GJK::Inside)
+    {
+      Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
+      for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
+      {
+        FCL_REAL p = gjk.getSimplex()->coefficient[i];
+        w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
+        w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
+      }
+      dist = 0;
+
+      p1 = tf1.transform (w0);
+      p2 = tf1.transform (w1);
+
+      return false;
+    }
+    dist = 0;
+    return false;
+  }
 } // fcl
