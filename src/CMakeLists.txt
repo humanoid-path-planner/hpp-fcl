@@ -46,6 +46,7 @@ set(${LIBRARY_NAME}_SOURCES
   BV/OBB.cpp
   narrowphase/narrowphase.cpp
   narrowphase/gjk.cpp
+  narrowphase/details.h
   shape/geometric_shapes.cpp
   shape/geometric_shapes_utility.cpp
   distance_capsule_capsule.cpp
