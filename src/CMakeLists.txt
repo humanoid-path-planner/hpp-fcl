@@ -51,6 +51,7 @@ set(${LIBRARY_NAME}_SOURCES
   shape/geometric_shapes_utility.cpp
   distance_capsule_capsule.cpp
   distance_sphere_sphere.cpp
+  distance_sphere_halfspace.cpp
   intersect.cpp
   math/transform.cpp
   traversal/traversal_node_setup.cpp
