@@ -214,7 +214,8 @@ namespace fcl
                       w0 += shape.support(epa.result.vertex[i]->d, 0) *
                         epa.result.coefficient[i];
                     }
-                  distance = epa.depth;
+                  assert (epa.depth >= 0);
+                  distance = -epa.depth;
                   normal = tf2.getRotation() * epa.normal;
                   p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
                 }
