@@ -1919,23 +1919,38 @@ namespace fcl {
     inline bool spherePlaneIntersect
       (const Sphere& s1, const Transform3f& tf1,
        const Plane& s2, const Transform3f& tf2,
-       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+       Vec3f& normal)
+    //  Vec3f& contact_points, FCL_REAL& penetration_depth, Vec3f* normal)
     {
       Plane new_s2 = transform(s2, tf2);
 
       const Vec3f& center = tf1.getTranslation();
       FCL_REAL signed_dist = new_s2.signedDistance(center);
-      FCL_REAL depth = - std::abs(signed_dist) + s1.radius;
-      if(depth >= 0)
-        {
-          if(normal) { if (signed_dist > 0) *normal = -new_s2.n; else *normal = new_s2.n; }
-          if(penetration_depth) *penetration_depth = depth;
-          if(contact_points) *contact_points = center - new_s2.n * signed_dist;
-
-          return true;
-        }
+      distance = std::abs(signed_dist) - s1.radius;
+      if(distance <= 0)
+      {
+        if (signed_dist > 0)
+          normal = -new_s2.n;
+        else
+          normal = new_s2.n;
+        p1 = p2 = center - new_s2.n * signed_dist;
+        return true;
+      }
       else
+      {
+        if (signed_dist > 0)
+        {
+          p1 = center - s1.radius * new_s2.n;
+          p2 = center - signed_dist * new_s2.n;
+        }
+        else
+        {
+          p1 = center + s1.radius * new_s2.n;
+          p2 = center + signed_dist * new_s2.n;
+        }
         return false;
+      }
     }
 
     /// @brief box half space, a, b, c  = +/- edge size

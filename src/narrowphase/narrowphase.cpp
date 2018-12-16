@@ -296,20 +296,33 @@ bool GJKSolver_indep::shapeIntersect<Halfspace, Plane>(const Halfspace& s1, cons
 }
 
 template<>
-bool GJKSolver_indep::shapeIntersect<Sphere, Plane>(const Sphere& s1, const Transform3f& tf1,
-                                                    const Plane& s2, const Transform3f& tf2,
-                                                    Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+bool GJKSolver_indep::shapeIntersect<Sphere, Plane>
+(const Sphere& s1, const Transform3f& tf1,
+ const Plane& s2, const Transform3f& tf2,
+ Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
 {
-  return details::spherePlaneIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+  FCL_REAL distance;
+  Vec3f p1, p2;
+  bool res = details::spherePlaneIntersect(s1, tf1, s2, tf2, distance, p1,
+                                           p2, *normal);
+  *contact_points = p1;
+  *penetration_depth = -distance;
+  return res;
 }
 
 template<>
-bool GJKSolver_indep::shapeIntersect<Plane, Sphere>(const Plane& s1, const Transform3f& tf1,
-                                                    const Sphere& s2, const Transform3f& tf2,
-                                                    Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+bool GJKSolver_indep::shapeIntersect<Plane, Sphere>
+(const Plane& s1, const Transform3f& tf1,
+ const Sphere& s2, const Transform3f& tf2,
+ Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
 {
-  const bool res = details::spherePlaneIntersect(s2, tf2, s1, tf1, contact_points, penetration_depth, normal);
-  if (normal) (*normal) *= -1.0;
+  FCL_REAL distance;
+  Vec3f p1, p2;
+  bool res = details::spherePlaneIntersect(s2, tf2, s1, tf1, distance, p1,
+                                           p2, *normal);
+  *contact_points = p1;
+  *penetration_depth = -distance;
+  (*normal) *= -1.0;
   return res;
 }
 

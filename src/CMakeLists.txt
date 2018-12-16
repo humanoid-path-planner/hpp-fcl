@@ -53,6 +53,7 @@ set(${LIBRARY_NAME}_SOURCES
   distance_capsule_capsule.cpp
   distance_sphere_sphere.cpp
   distance_sphere_halfspace.cpp
+  distance_sphere_plane.cpp
   intersect.cpp
   math/transform.cpp
   traversal/traversal_node_setup.cpp
