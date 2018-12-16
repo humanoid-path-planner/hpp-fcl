@@ -236,20 +236,32 @@ bool GJKSolver_indep::shapeIntersect<Halfspace, Capsule>
 }
 
 template<>
-bool GJKSolver_indep::shapeIntersect<Cylinder, Halfspace>(const Cylinder& s1, const Transform3f& tf1,
-                                                          const Halfspace& s2, const Transform3f& tf2,
-                                                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+bool GJKSolver_indep::shapeIntersect<Cylinder, Halfspace>
+(const Cylinder& s1, const Transform3f& tf1,
+ const Halfspace& s2, const Transform3f& tf2,
+ Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
 {
-  return details::cylinderHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+  FCL_REAL distance;
+  Vec3f p1, p2;
+  bool res =  details::cylinderHalfspaceIntersect
+    (s1, tf1, s2, tf2, distance, p1, p2, *normal);
+  *contact_points = p1;
+  *penetration_depth = -distance;
 }
 
 template<>
-bool GJKSolver_indep::shapeIntersect<Halfspace, Cylinder>(const Halfspace& s1, const Transform3f& tf1,
-                                                          const Cylinder& s2, const Transform3f& tf2,
-                                                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+bool GJKSolver_indep::shapeIntersect<Halfspace, Cylinder>
+(const Halfspace& s1, const Transform3f& tf1,
+ const Cylinder& s2, const Transform3f& tf2,
+ Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
 {
-  const bool res = details::cylinderHalfspaceIntersect(s2, tf2, s1, tf1, contact_points, penetration_depth, normal);
-  if (normal) (*normal) *= -1.0;
+  FCL_REAL distance;
+  Vec3f p1, p2;
+  bool res =  details::cylinderHalfspaceIntersect
+    (s2, tf2, s1, tf1, distance, p1, p2, *normal);
+  *contact_points = p1;
+  *penetration_depth = -distance;
+  (*normal) *= -1.0;
   return res;
 }
 

@@ -1591,7 +1591,8 @@ namespace fcl {
     inline bool cylinderHalfspaceIntersect
       (const Cylinder& s1, const Transform3f& tf1,
        const Halfspace& s2, const Transform3f& tf2,
-       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+       Vec3f& normal)
     {
       Halfspace new_s2 = transform(s2, tf2);
 
@@ -1604,19 +1605,22 @@ namespace fcl {
       if(cosa < halfspaceIntersectTolerance<FCL_REAL>())
         {
           FCL_REAL signed_dist = new_s2.signedDistance(T);
-          FCL_REAL depth = s1.radius - signed_dist;
-          if(depth < 0) return false;
+          distance = signed_dist - s1.radius;
+          if(distance > 0) {
+            // TODO: compute closest points
+            p1 = p2 = Vec3f(0, 0, 0);
+            return false;
+          }
 
-          if(penetration_depth) *penetration_depth = depth;
-          if(normal) *normal = -new_s2.n;
-          if(contact_points) *contact_points = T + new_s2.n * (0.5 * depth - s1.radius);
-
+          normal = -new_s2.n;
+          p1 = p2 = T - (0.5 * distance + s1.radius) * new_s2.n;
           return true;
         }
       else
         {
           Vec3f C = dir_z * cosa - new_s2.n;
-          if(std::abs(cosa + 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(cosa - 1) < halfspaceIntersectTolerance<FCL_REAL>())
+          if(std::abs(cosa + 1) < halfspaceIntersectTolerance<FCL_REAL>() ||
+             std::abs(cosa - 1) < halfspaceIntersectTolerance<FCL_REAL>())
             C = Vec3f(0, 0, 0);
           else
             {
@@ -1628,13 +1632,16 @@ namespace fcl {
           int sign = (cosa > 0) ? -1 : 1;
           // deepest point
           Vec3f p = T + dir_z * (s1.lz * 0.5 * sign) + C;
-          FCL_REAL depth = -new_s2.signedDistance(p);
-          if(depth < 0) return false;
+          distance = new_s2.signedDistance(p);
+          if(distance > 0) {
+            // TODO: compute closest points
+            p1 = p2 = Vec3f(0, 0, 0);
+            return false;
+          }
           else
             {
-              if(penetration_depth) *penetration_depth = depth;
-              if(normal) *normal = -new_s2.n;
-              if(contact_points) *contact_points = p + new_s2.n * (0.5 * depth);
+              normal = -new_s2.n;
+              p1 = p2 = p - (0.5 * distance) * new_s2.n;
               return true;
             }
         }
@@ -2188,8 +2195,8 @@ namespace fcl {
           if(abs_d1 > abs_d2)
           {
             distance = -abs_d2;
-            if(contact_points) *contact_points = c2 - new_s2.n * d2;
-            if (d2 < 0) *normal = -new_s2.n; else *normal = new_s2.n;
+            p1 = p2 = c2 - new_s2.n * d2;
+            if (d2 < 0) normal = -new_s2.n; else normal = new_s2.n;
           }
           else
           {
