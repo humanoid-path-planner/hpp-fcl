@@ -1539,7 +1539,8 @@ namespace fcl {
     inline bool capsuleHalfspaceIntersect
       (const Capsule& s1, const Transform3f& tf1,
        const Halfspace& s2, const Transform3f& tf2,
-       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+       Vec3f& normal)
     {
       Halfspace new_s2 = transform(s2, tf2);
 
@@ -1551,34 +1552,37 @@ namespace fcl {
       FCL_REAL cosa = dir_z.dot(new_s2.n);
       if(std::abs(cosa) < halfspaceIntersectTolerance<FCL_REAL>())
         {
+          // Capsule parallel to plane
           FCL_REAL signed_dist = new_s2.signedDistance(T);
-          FCL_REAL depth = s1.radius - signed_dist;
-          if(depth < 0) return false;
+          distance = signed_dist - s1.radius;
+          if(distance > 0) {
+            p1 = T - s1.radius * new_s2.n;
+            p2 = p1 - distance * new_s2.n;
+            return false;
+          }
 
-          if(penetration_depth) *penetration_depth = depth;
-          if(normal) *normal = -new_s2.n;
-          if(contact_points) *contact_points = T + new_s2.n * (0.5 * depth - s1.radius);
-
+          normal = -new_s2.n;
+          p1 = p2 = T + new_s2.n * (-0.5 * distance - s1.radius);
           return true;
         }
       else
         {
           int sign = (cosa > 0) ? -1 : 1;
+          // closest capsule vertex to halfspace if no collision,
+          // or deeper inside halspace if collision
           Vec3f p = T + dir_z * (s1.lz * 0.5 * sign);
 
           FCL_REAL signed_dist = new_s2.signedDistance(p);
-          FCL_REAL depth = s1.radius - signed_dist;
-          if(depth < 0) return false;
-
-          if(penetration_depth) *penetration_depth = depth;
-          if(normal) *normal = -new_s2.n;
-          if(contact_points)
-            {
-              // deepest point
-              Vec3f c = p - new_s2.n * s1.radius;
-              *contact_points = c + new_s2.n * (0.5 * depth);
-            }
-
+          distance = signed_dist - s1.radius;
+          if(distance > 0) {
+            p1 = T - s1.radius * new_s2.n;
+            p2 = p1 - distance * new_s2.n;
+            return false;
+          }
+          normal = -new_s2.n;
+          // deepest point
+          Vec3f c = p - new_s2.n * s1.radius;
+          p1 = p2 = c - (0.5 * distance) * new_s2.n;
           return true;
         }
     }
