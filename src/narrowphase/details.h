@@ -2031,8 +2031,11 @@ namespace fcl {
     }
 
 
-    inline bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
-                                      const Plane& s2, const Transform3f& tf2)
+    inline bool capsulePlaneIntersect
+      (const Capsule& s1, const Transform3f& tf1,
+       const Plane& s2, const Transform3f& tf2,
+       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+       Vec3f& normal)
     {
       Plane new_s2 = transform(s2, tf2);
 
@@ -2040,99 +2043,78 @@ namespace fcl {
       const Vec3f& T = tf1.getTranslation();
 
       Vec3f dir_z = R.col(2);
-      Vec3f p1 = T + dir_z * (0.5 * s1.lz);
-      Vec3f p2 = T - dir_z * (0.5 * s1.lz);
 
-      FCL_REAL d1 = new_s2.signedDistance(p1);
-      FCL_REAL d2 = new_s2.signedDistance(p2);
+
+      Vec3f a1 = T + dir_z * (0.5 * s1.lz);
+      Vec3f a2 = T - dir_z * (0.5 * s1.lz);
+
+      FCL_REAL d1 = new_s2.signedDistance(a1);
+      FCL_REAL d2 = new_s2.signedDistance(a2);
+
+      FCL_REAL abs_d1 = std::abs(d1);
+      FCL_REAL abs_d2 = std::abs(d2);
 
       // two end points on different side of the plane
-      if(d1 * d2 <= 0)
-        return true;
-
-      // two end points on the same side of the plane, but the end point spheres might intersect the plane
-      return (std::abs(d1) <= s1.radius) || (std::abs(d2) <= s1.radius);
-    }
-
-    inline bool capsulePlaneIntersect
-      (const Capsule& s1, const Transform3f& tf1,
-       const Plane& s2, const Transform3f& tf2,
-       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
-    {
-      Plane new_s2 = transform(s2, tf2);
-
-      if(!contact_points && !penetration_depth && !normal)
-        return capsulePlaneIntersect(s1, tf1, s2, tf2);
-      else
+      // the contact point is the intersect of axis with the plane
+      // the normal is the direction to avoid intersection
+      // the depth is the minimum distance to resolve the collision
+      if(d1 * d2 < -planeIntersectTolerance<FCL_REAL>())
+      {
+        if(abs_d1 < abs_d2)
         {
-          Plane new_s2 = transform(s2, tf2);
-
-          const Matrix3f& R = tf1.getRotation();
-          const Vec3f& T = tf1.getTranslation();
-
-          Vec3f dir_z = R.col(2);
-
-
-          Vec3f p1 = T + dir_z * (0.5 * s1.lz);
-          Vec3f p2 = T - dir_z * (0.5 * s1.lz);
-
-          FCL_REAL d1 = new_s2.signedDistance(p1);
-          FCL_REAL d2 = new_s2.signedDistance(p2);
-
-          FCL_REAL abs_d1 = std::abs(d1);
-          FCL_REAL abs_d2 = std::abs(d2);
-
-          // two end points on different side of the plane
-          // the contact point is the intersect of axis with the plane
-          // the normal is the direction to avoid intersection
-          // the depth is the minimum distance to resolve the collision
-          if(d1 * d2 < -planeIntersectTolerance<FCL_REAL>())
-            {
-              if(abs_d1 < abs_d2)
-                {
-                  if(penetration_depth) *penetration_depth = abs_d1 + s1.radius;
-                  if(contact_points) *contact_points = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
-                  if(normal) { if (d1 < 0) *normal = -new_s2.n; else *normal = new_s2.n; }
-                }
-              else
-                {
-                  if(penetration_depth) *penetration_depth = abs_d2 + s1.radius;
-                  if(contact_points) *contact_points = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
-                  if(normal) { if (d2 < 0) *normal = -new_s2.n; else *normal = new_s2.n; }
-                }
-              return true;
-            }
-
-          if(abs_d1 > s1.radius && abs_d2 > s1.radius)
-            return false;
-          else
-            {
-              if(penetration_depth) *penetration_depth = s1.radius - std::min(abs_d1, abs_d2);
-
-              if(contact_points)
-                {
-                  if(abs_d1 <= s1.radius && abs_d2 <= s1.radius)
-                    {
-                      Vec3f c1 = p1 - new_s2.n * d2;
-                      Vec3f c2 = p2 - new_s2.n * d1;
-                      *contact_points = (c1 + c2) * 0.5;
-                    }
-                  else if(abs_d1 <= s1.radius)
-                    {
-                      Vec3f c = p1 - new_s2.n * d1;
-                      *contact_points = c;
-                    }
-                  else if(abs_d2 <= s1.radius)
-                    {
-                      Vec3f c = p2 - new_s2.n * d2;
-                      *contact_points = c;
-                    }
-                }
-
-              if(normal) { if (d1 < 0) *normal = new_s2.n; else *normal = -new_s2.n; }
-              return true;
-            }
+          distance = -abs_d1 - s1.radius;
+          p1 = p2 = a1 * (abs_d2 / (abs_d1 + abs_d2)) +
+            a2 * (abs_d1 / (abs_d1 + abs_d2));
+          if (d1 < 0) normal = -new_s2.n; else normal = new_s2.n;
         }
+        else
+        {
+          distance = -abs_d2 - s1.radius;
+          p1 = p2 = a1 * (abs_d2 / (abs_d1 + abs_d2)) +
+            a2 * (abs_d1 / (abs_d1 + abs_d2));
+          if (d2 < 0) normal = -new_s2.n; else normal = new_s2.n;
+        }
+        return true;
+      }
+
+      if(abs_d1 > s1.radius && abs_d2 > s1.radius) {
+        // Here both capsule ends are on the same side of the plane
+        if (d1 > 0) normal = new_s2.n; else normal = -new_s2.n;
+        if (abs_d1 < abs_d2) {
+          distance = abs_d1 - s1.radius;
+          p1 = a1 - s1.radius * normal;
+          p2 = p1 - distance * normal;
+        } else {
+          distance = abs_d2 - s1.radius;
+          p1 = a2 - s1.radius * normal;
+          p2 = p1 - distance * normal;
+        }
+        return false;
+      }
+      else
+      {
+        distance = std::min(abs_d1, abs_d2) - s1.radius;
+
+        if(abs_d1 <= s1.radius && abs_d2 <= s1.radius)
+        {
+          Vec3f c1 = a1 - new_s2.n * d2;
+          Vec3f c2 = p2 - new_s2.n * d1;
+          p1 = p2 = (c1 + c2) * 0.5;
+        }
+        else if(abs_d1 <= s1.radius)
+        {
+          Vec3f c = a1 - new_s2.n * d1;
+          p1 = p2 = c;
+        }
+        else if(abs_d2 <= s1.radius)
+        {
+          Vec3f c = p2 - new_s2.n * d2;
+          p1 = p2 = c;
+        }
+
+        if (d1 < 0) normal = new_s2.n; else normal = -new_s2.n;
+        return true;
+      }
     }
 
     /// @brief cylinder-plane intersect
@@ -2142,108 +2124,85 @@ namespace fcl {
     /// (n^T * v3) * h + r * (cosa * (n^T * R * v1) + sina * (n^T * R * v2)) + n * T - d ~ 0
     inline bool cylinderPlaneIntersect
       (const Cylinder& s1, const Transform3f& tf1,
-       const Plane& s2, const Transform3f& tf2)
+       const Plane& s2, const Transform3f& tf2,
+       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+       Vec3f& normal)
     {
       Plane new_s2 = transform(s2, tf2);
 
       const Matrix3f& R = tf1.getRotation();
       const Vec3f& T = tf1.getTranslation();
 
-      Vec3f Q = R.transpose() * new_s2.n;
+      Vec3f dir_z = R.col(2);
+      FCL_REAL cosa = dir_z.dot(new_s2.n);
 
-      FCL_REAL term = std::abs(Q[2]) * s1.lz + s1.radius * std::sqrt(Q[0] * Q[0] + Q[1] * Q[1]);
-      FCL_REAL dist = new_s2.distance(T);
-      FCL_REAL depth = term - dist;
-
-      if(depth < 0)
-        return false;
-      else
-        return true;
-    }
-
-    inline bool cylinderPlaneIntersect
-      (const Cylinder& s1, const Transform3f& tf1,
-       const Plane& s2, const Transform3f& tf2,
-       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
-    {
-      if(!contact_points && !penetration_depth && !normal)
-        return cylinderPlaneIntersect(s1, tf1, s2, tf2);
-      else
+      if(std::abs(cosa) < planeIntersectTolerance<FCL_REAL>())
+      {
+        FCL_REAL d = new_s2.signedDistance(T);
+        distance = std::abs(d) - s1.radius;
+        if(distance > 0) return false;
+        else
         {
-          Plane new_s2 = transform(s2, tf2);
-
-          const Matrix3f& R = tf1.getRotation();
-          const Vec3f& T = tf1.getTranslation();
-
-          Vec3f dir_z = R.col(2);
-          FCL_REAL cosa = dir_z.dot(new_s2.n);
-
-          if(std::abs(cosa) < planeIntersectTolerance<FCL_REAL>())
-            {
-              FCL_REAL d = new_s2.signedDistance(T);
-              FCL_REAL depth = s1.radius - std::abs(d);
-              if(depth < 0) return false;
-              else
-                {
-                  if(penetration_depth) *penetration_depth = depth;
-                  if(normal) { if (d < 0) *normal = new_s2.n; else *normal = -new_s2.n; }
-                  if(contact_points) *contact_points = T - new_s2.n * d;
-                  return true;
-                }
-            }
-          else
-            {
-              Vec3f C = dir_z * cosa - new_s2.n;
-              if(std::abs(cosa + 1) < planeIntersectTolerance<FCL_REAL>() || std::abs(cosa - 1) < planeIntersectTolerance<FCL_REAL>())
-                C = Vec3f(0, 0, 0);
-              else
-                {
-                  FCL_REAL s = C.norm();
-                  s = s1.radius / s;
-                  C *= s;
-                }
-
-              Vec3f p1 = T + dir_z * (0.5 * s1.lz);
-              Vec3f p2 = T - dir_z * (0.5 * s1.lz);
-
-              Vec3f c1, c2;
-              if(cosa > 0)
-                {
-                  c1 = p1 - C;
-                  c2 = p2 + C;
-                }
-              else
-                {
-                  c1 = p1 + C;
-                  c2 = p2 - C;
-                }
-
-              FCL_REAL d1 = new_s2.signedDistance(c1);
-              FCL_REAL d2 = new_s2.signedDistance(c2);
-
-              if(d1 * d2 <= 0)
-                {
-                  FCL_REAL abs_d1 = std::abs(d1);
-                  FCL_REAL abs_d2 = std::abs(d2);
-
-                  if(abs_d1 > abs_d2)
-                    {
-                      if(penetration_depth) *penetration_depth = abs_d2;
-                      if(contact_points) *contact_points = c2 - new_s2.n * d2;
-                      if(normal) { if (d2 < 0) *normal = -new_s2.n; else *normal = new_s2.n; }
-                    }
-                  else
-                    {
-                      if(penetration_depth) *penetration_depth = abs_d1;
-                      if(contact_points) *contact_points = c1 - new_s2.n * d1;
-                      if(normal) { if (d1 < 0) *normal = -new_s2.n; else *normal = new_s2.n; }
-                    }
-                  return true;
-                }
-              else
-                return false;
-            }
+          if (d < 0) normal = new_s2.n;
+          else normal = -new_s2.n;
+          p1 = p2 = T - new_s2.n * d;
+          return true;
         }
+      }
+      else
+      {
+        Vec3f C = dir_z * cosa - new_s2.n;
+        if(std::abs(cosa + 1) < planeIntersectTolerance<FCL_REAL>() ||
+           std::abs(cosa - 1) < planeIntersectTolerance<FCL_REAL>())
+          C = Vec3f(0, 0, 0);
+        else
+        {
+          FCL_REAL s = C.norm();
+          s = s1.radius / s;
+          C *= s;
+        }
+
+        Vec3f a1 = T + dir_z * (0.5 * s1.lz);
+        Vec3f a2 = T - dir_z * (0.5 * s1.lz);
+
+        Vec3f c1, c2;
+        if(cosa > 0)
+        {
+          c1 = a1 - C;
+          c2 = a2 + C;
+        }
+        else
+        {
+          c1 = a1 + C;
+          c2 = a2 - C;
+        }
+
+        FCL_REAL d1 = new_s2.signedDistance(c1);
+        FCL_REAL d2 = new_s2.signedDistance(c2);
+
+        if(d1 * d2 <= 0)
+        {
+          FCL_REAL abs_d1 = std::abs(d1);
+          FCL_REAL abs_d2 = std::abs(d2);
+
+          if(abs_d1 > abs_d2)
+          {
+            distance = -abs_d2;
+            if(contact_points) *contact_points = c2 - new_s2.n * d2;
+            if (d2 < 0) *normal = -new_s2.n; else *normal = new_s2.n;
+          }
+          else
+          {
+            distance = -abs_d1;
+            p1 = p2 = c1 - new_s2.n * d1;
+            if (d1 < 0) normal = -new_s2.n;
+            else normal = new_s2.n;
+          }
+          return true;
+        }
+        else
+          return false;
+      }
     }
 
     inline bool conePlaneIntersect
