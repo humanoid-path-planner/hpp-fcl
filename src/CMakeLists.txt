@@ -53,6 +53,8 @@ set(${LIBRARY_NAME}_SOURCES
   distance_capsule_capsule.cpp
   distance_capsule_halfspace.cpp
   distance_capsule_plane.cpp
+  distance_cone_halfspace.cpp
+  distance_cone_plane.cpp
   distance_cylinder_halfspace.cpp
   distance_cylinder_plane.cpp
   distance_sphere_sphere.cpp

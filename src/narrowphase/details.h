@@ -1651,7 +1651,8 @@ namespace fcl {
     inline bool coneHalfspaceIntersect
       (const Cone& s1, const Transform3f& tf1,
        const Halfspace& s2, const Transform3f& tf2,
-       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+       Vec3f& normal)
     {
       Halfspace new_s2 = transform(s2, tf2);
 
@@ -1664,20 +1665,24 @@ namespace fcl {
       if(cosa < halfspaceIntersectTolerance<FCL_REAL>())
         {
           FCL_REAL signed_dist = new_s2.signedDistance(T);
-          FCL_REAL depth = s1.radius - signed_dist;
-          if(depth < 0) return false;
+          distance = signed_dist - s1.radius;
+          if(distance > 0) {
+            p1 = p2 = Vec3f (0, 0, 0);
+            return false;
+          }
           else
             {
-              if(penetration_depth) *penetration_depth = depth;
-              if(normal) *normal = -new_s2.n;
-              if(contact_points) *contact_points = T - dir_z * (s1.lz * 0.5) + new_s2.n * (0.5 * depth - s1.radius);
+              normal = -new_s2.n;
+              p1 = p2 = T - dir_z * (s1.lz * 0.5) -
+                new_s2.n * (0.5 * distance + s1.radius);
               return true;
             }
         }
       else
         {
           Vec3f C = dir_z * cosa - new_s2.n;
-          if(std::abs(cosa + 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(cosa - 1) < halfspaceIntersectTolerance<FCL_REAL>())
+          if(std::abs(cosa + 1) < halfspaceIntersectTolerance<FCL_REAL>() ||
+             std::abs(cosa - 1) < halfspaceIntersectTolerance<FCL_REAL>())
             C = Vec3f(0, 0, 0);
           else
             {
@@ -1686,19 +1691,18 @@ namespace fcl {
               C *= s;
             }
 
-          Vec3f p1 = T + dir_z * (0.5 * s1.lz);
-          Vec3f p2 = T - dir_z * (0.5 * s1.lz) + C;
+          Vec3f a1 = T + dir_z * (0.5 * s1.lz);
+          Vec3f a2 = T - dir_z * (0.5 * s1.lz) + C;
 
-          FCL_REAL d1 = new_s2.signedDistance(p1);
-          FCL_REAL d2 = new_s2.signedDistance(p2);
+          FCL_REAL d1 = new_s2.signedDistance(a1);
+          FCL_REAL d2 = new_s2.signedDistance(a2);
 
           if(d1 > 0 && d2 > 0) return false;
           else
             {
-              FCL_REAL depth = -std::min(d1, d2);
-              if(penetration_depth) *penetration_depth = depth;
-              if(normal) *normal = -new_s2.n;
-              if(contact_points) *contact_points = ((d1 < d2) ? p1 : p2) + new_s2.n * (0.5 * depth);
+              distance = std::min(d1, d2);
+              normal = -new_s2.n;
+              p1 = p2 = ((d1 < d2) ? a1 : a2) - (0.5 * distance) * new_s2.n;
               return true;
             }
         }
@@ -2215,7 +2219,8 @@ namespace fcl {
     inline bool conePlaneIntersect
       (const Cone& s1, const Transform3f& tf1,
        const Plane& s2, const Transform3f& tf2,
-       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+       Vec3f& normal)
     {
       Plane new_s2 = transform(s2, tf2);
 
@@ -2228,20 +2233,24 @@ namespace fcl {
       if(std::abs(cosa) < planeIntersectTolerance<FCL_REAL>())
         {
           FCL_REAL d = new_s2.signedDistance(T);
-          FCL_REAL depth = s1.radius - std::abs(d);
-          if(depth < 0) return false;
+          distance = std::abs(d) - s1.radius;
+          if(distance > 0) {
+            p1 = p2 = Vec3f (0,0,0);
+            return false;
+          }
           else
             {
-              if(penetration_depth) *penetration_depth = depth;
-              if(normal) { if (d < 0) *normal = new_s2.n; else *normal = -new_s2.n; }
-              if(contact_points) *contact_points = T - dir_z * (0.5 * s1.lz) + dir_z * (0.5 * depth / s1.radius * s1.lz) - new_s2.n * d;
+              if (d < 0) normal = new_s2.n; else normal = -new_s2.n;
+              p1 = p2 = T - dir_z * (0.5 * s1.lz) +
+                dir_z * (-0.5 * distance / s1.radius * s1.lz) - new_s2.n * d;
               return true;
             }
         }
       else
         {
           Vec3f C = dir_z * cosa - new_s2.n;
-          if(std::abs(cosa + 1) < planeIntersectTolerance<FCL_REAL>() || std::abs(cosa - 1) < planeIntersectTolerance<FCL_REAL>())
+          if(std::abs(cosa + 1) < planeIntersectTolerance<FCL_REAL>() ||
+             std::abs(cosa - 1) < planeIntersectTolerance<FCL_REAL>())
             C = Vec3f(0, 0, 0);
           else
             {
@@ -2260,7 +2269,8 @@ namespace fcl {
           d[1] = new_s2.signedDistance(c[1]);
           d[2] = new_s2.signedDistance(c[2]);
 
-          if((d[0] >= 0 && d[1] >= 0 && d[2] >= 0) || (d[0] <= 0 && d[1] <= 0 && d[2] <= 0))
+          if((d[0] >= 0 && d[1] >= 0 && d[2] >= 0) ||
+             (d[0] <= 0 && d[1] <= 0 && d[2] <= 0))
             return false;
           else
             {
@@ -2283,43 +2293,41 @@ namespace fcl {
                     }
                 }
 
-              if(penetration_depth) *penetration_depth = std::min(d_positive, d_negative);
-              if(normal) { if (d_positive > d_negative) *normal = -new_s2.n; else *normal = new_s2.n; }
-              if(contact_points)
+              distance = -std::min(d_positive, d_negative);
+              if (d_positive > d_negative) normal = -new_s2.n;
+              else normal = new_s2.n;
+              Vec3f p[2];
+              Vec3f q;
+
+              FCL_REAL p_d[2];
+              FCL_REAL q_d(0);
+
+              if(n_positive == 2)
+              {
+                for(std::size_t i = 0, j = 0; i < 3; ++i)
                 {
-                  Vec3f p[2];
-                  Vec3f q;
-
-                  FCL_REAL p_d[2];
-                  FCL_REAL q_d(0);
-
-                  if(n_positive == 2)
-                    {
-                      for(std::size_t i = 0, j = 0; i < 3; ++i)
-                        {
-                          if(positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
-                          else { q = c[i]; q_d = d[i]; }
-                        }
-
-                      Vec3f t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
-                      Vec3f t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
-                      *contact_points = (t1 + t2) * 0.5;
-                    }
-                  else
-                    {
-                      for(std::size_t i = 0, j = 0; i < 3; ++i)
-                        {
-                          if(!positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
-                          else { q = c[i]; q_d = d[i]; }
-                        }
-
-                      Vec3f t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
-                      Vec3f t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
-                      *contact_points = (t1 + t2) * 0.5;
-                    }
+                  if(positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
+                  else { q = c[i]; q_d = d[i]; }
                 }
-              return true;
+
+                Vec3f t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
+                Vec3f t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
+                p1 = p2 = (t1 + t2) * 0.5;
+              }
+              else
+              {
+                for(std::size_t i = 0, j = 0; i < 3; ++i)
+                {
+                  if(!positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
+                  else { q = c[i]; q_d = d[i]; }
+                }
+
+                Vec3f t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
+                Vec3f t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
+                p1 = p2 = (t1 + t2) * 0.5;
+              }
             }
+          return true;
         }
     }
 
