@@ -2041,6 +2041,60 @@ namespace fcl {
       return true;
     }
 
+    inline bool boxSphereIntersect
+      (const Box& s1, const Transform3f& tf1,
+       const Sphere& s2, const Transform3f& tf2,
+       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+       Vec3f& normal)
+    {
+      // C: center of the sphere in the frame of the box
+      const Vec3f& Cglobal (tf2.getTranslation ());
+      const Vec3f CinBox (inverse (tf1).transform (Cglobal));
+      bool CinsideBox (true);
+      FCL_REAL depth = std::numeric_limits <FCL_REAL>::max ();
+      // Compute closest point on box in frame of box
+      for (Vec3f::Index i=0; i<3; ++i) {
+        if (CinBox [i] >= .5* s1.side [i]) {
+          p1 [i] = .5* s1.side [i];
+          CinsideBox = false;
+        }
+        else if (CinBox [i] < -.5* s1.side [i]) {
+          p1 [i] = -.5* s1.side [i];
+          CinsideBox = false;
+        }
+        else {
+          p1 [i] = CinBox [i];
+          if (.5*s1.side [i] - CinBox [i] < depth) {
+            depth = .5*s1.side [i] - CinBox [i];
+            normal.setZero (); normal [i] = 1;
+          }
+          else if (CinBox[i] + .5*s1.side [i] < depth)
+            depth = .5*s1.side [i] - CinBox [i];
+            normal.setZero (); normal [i] = -1;
+        }
+      }
+      if (CinsideBox) {
+        // Center of sphere is inside box
+        p1 = p2 = Cglobal;
+        // Express normal in global frame
+        normal = tf1.transform (normal);
+        distance = -depth;
+        return true;
+      }
+      // Center of sphere is outside box
+      // express p1 in global frame
+      p1 = tf1.transform (p1);
+      Vec3f diff (Cglobal - p1);
+      FCL_REAL dist (diff.norm ());
+      normal = diff/dist;
+      distance = dist - s2.radius;
+      if (distance <= 0) {
+        p2 = p1;
+        return true;
+      } else {
+        p2 = p1 + distance * normal;
+      }
+    }
 
     inline bool capsulePlaneIntersect
       (const Capsule& s1, const Transform3f& tf1,
