@@ -49,6 +49,7 @@ set(${LIBRARY_NAME}_SOURCES
   narrowphase/details.h
   shape/geometric_shapes.cpp
   shape/geometric_shapes_utility.cpp
+  distance_box_halfspace.cpp
   distance_capsule_capsule.cpp
   distance_sphere_sphere.cpp
   distance_sphere_halfspace.cpp

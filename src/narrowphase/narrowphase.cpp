@@ -156,7 +156,7 @@ bool GJKSolver_indep::shapeIntersect<Sphere, Halfspace>
                                                p2, *normal);
   *contact_points = p1;
   *penetration_depth = -distance;
-  return res;  
+  return res;
 }
 
 template<>
@@ -171,24 +171,37 @@ bool GJKSolver_indep::shapeIntersect<Halfspace, Sphere>(const Halfspace& s1, con
   *contact_points = p1;
   *penetration_depth = -distance;
   (*normal) *= -1.0;
-  return res;  
+  return res;
 }
 
 template<>
-bool GJKSolver_indep::shapeIntersect<Box, Halfspace>(const Box& s1, const Transform3f& tf1,
-                                                     const Halfspace& s2, const Transform3f& tf2,
-                                                     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+bool GJKSolver_indep::shapeIntersect<Box, Halfspace>
+(const Box& s1, const Transform3f& tf1,
+ const Halfspace& s2, const Transform3f& tf2,
+ Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
 {
-  return details::boxHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+  FCL_REAL distance;
+  Vec3f p1, p2;
+  bool res = details::boxHalfspaceIntersect(s1, tf1, s2, tf2, distance, p1,
+                                            p2, *normal);
+  *contact_points = p1;
+  *penetration_depth = -distance;
+  return res;
 }
 
 template<>
-bool GJKSolver_indep::shapeIntersect<Halfspace, Box>(const Halfspace& s1, const Transform3f& tf1,
-                                                     const Box& s2, const Transform3f& tf2,
-                                                     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+bool GJKSolver_indep::shapeIntersect<Halfspace, Box>
+(const Halfspace& s1, const Transform3f& tf1,
+ const Box& s2, const Transform3f& tf2,
+ Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
 {
-  const bool res = details::boxHalfspaceIntersect(s2, tf2, s1, tf1, contact_points, penetration_depth, normal);
-  if (normal) (*normal) *= -1.0;
+  FCL_REAL distance;
+  Vec3f p1, p2;
+  bool res = details::boxHalfspaceIntersect(s2, tf2, s1, tf1, distance, p1,
+                                            p2, *normal);
+  *contact_points = p1;
+  *penetration_depth = -distance;
+  (*normal) *= -1.0;
   return res;
 }
 

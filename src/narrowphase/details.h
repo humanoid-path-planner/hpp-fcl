@@ -1472,64 +1472,68 @@ namespace fcl {
     inline bool boxHalfspaceIntersect
       (const Box& s1, const Transform3f& tf1,
        const Halfspace& s2, const Transform3f& tf2,
-       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+       FCL_REAL& distance, Vec3f& p1, Vec3f& p2, Vec3f& normal)
     {
-      if(!contact_points && !penetration_depth && !normal)
-        return boxHalfspaceIntersect(s1, tf1, s2, tf2);
+      Halfspace new_s2 = transform(s2, tf2);
+
+      const Matrix3f& R = tf1.getRotation();
+      const Vec3f& T = tf1.getTranslation();
+
+      // Q: plane normal expressed in box frame
+      Vec3f Q = R.transpose() * new_s2.n;
+      // A: scalar products of each side with normal
+      Vec3f A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
+      Vec3f B = A.cwiseAbs();
+
+      distance = new_s2.signedDistance(T) - 0.5 * (B[0] + B[1] + B[2]);
+      if(distance > 0) {
+        p1 = T;
+        for (Vec3f::Index i=0; i<3; ++i) {
+          p1 -= A [i] > 0 ? (-.5 * s1.side [i] * R.col (i)) :
+            (.5 * s1.side [i] * R.col (i));
+        }
+        p2 = p1 - distance * new_s2.n;
+        return false;
+      }
+
+      Vec3f axis[3];
+      axis[0] = R.col(0);
+      axis[1] = R.col(1);
+      axis[2] = R.col(2);
+
+      /// find deepest point
+      Vec3f p(T);
+      int sign = 0;
+
+      if(std::abs(Q[0] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[0] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
+        {
+          sign = (A[0] > 0) ? -1 : 1;
+          p += axis[0] * (0.5 * s1.side[0] * sign);
+        }
+      else if(std::abs(Q[1] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[1] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
+        {
+          sign = (A[1] > 0) ? -1 : 1;
+          p += axis[1] * (0.5 * s1.side[1] * sign);
+        }
+      else if(std::abs(Q[2] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[2] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
+        {
+          sign = (A[2] > 0) ? -1 : 1;
+          p += axis[2] * (0.5 * s1.side[2] * sign);
+        }
       else
         {
-          Halfspace new_s2 = transform(s2, tf2);
-
-          const Matrix3f& R = tf1.getRotation();
-          const Vec3f& T = tf1.getTranslation();
-
-          Vec3f Q = R.transpose() * new_s2.n;
-          Vec3f A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
-          Vec3f B = A.cwiseAbs();
-
-          FCL_REAL depth = 0.5 * (B[0] + B[1] + B[2]) - new_s2.signedDistance(T);
-          if(depth < 0) return false;
-
-          Vec3f axis[3];
-          axis[0] = R.col(0);
-          axis[1] = R.col(1);
-          axis[2] = R.col(2);
-
-          /// find deepest point
-          Vec3f p(T);
-          int sign = 0;
-
-          if(std::abs(Q[0] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[0] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
+          for(std::size_t i = 0; i < 3; ++i)
             {
-              sign = (A[0] > 0) ? -1 : 1;
-              p += axis[0] * (0.5 * s1.side[0] * sign);
+              sign = (A[i] > 0) ? -1 : 1;
+              p += axis[i] * (0.5 * s1.side[i] * sign);
             }
-          else if(std::abs(Q[1] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[1] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
-            {
-              sign = (A[1] > 0) ? -1 : 1;
-              p += axis[1] * (0.5 * s1.side[1] * sign);
-            }
-          else if(std::abs(Q[2] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[2] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
-            {
-              sign = (A[2] > 0) ? -1 : 1;
-              p += axis[2] * (0.5 * s1.side[2] * sign);
-            }
-          else
-            {
-              for(std::size_t i = 0; i < 3; ++i)
-                {
-                  sign = (A[i] > 0) ? -1 : 1;
-                  p += axis[i] * (0.5 * s1.side[i] * sign);
-                }
-            }
-
-          /// compute the contact point from the deepest point
-          if(penetration_depth) *penetration_depth = depth;
-          if(normal) *normal = -new_s2.n;
-          if(contact_points) *contact_points = p + new_s2.n * (depth * 0.5);
-
-          return true;
         }
+
+      /// compute the contact point from the deepest point
+      normal = -new_s2.n;
+      p1 = p2 = p - new_s2.n * (distance * 0.5);
+
+      return true;
     }
 
     inline bool capsuleHalfspaceIntersect
