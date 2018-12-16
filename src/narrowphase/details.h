@@ -1977,9 +1977,12 @@ namespace fcl {
     /// if |d - n * T| <= |(R^T n)(a v1 + b v2 + c v3)| then can get both positive and negative value on the right side.
     inline bool boxPlaneIntersect(const Box& s1, const Transform3f& tf1,
                                   const Plane& s2, const Transform3f& tf2,
-                                  Vec3f* contact_points,
-                                  FCL_REAL* penetration_depth, Vec3f* normal)
+                                  FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+                                  Vec3f& normal)
+    //                            Vec3f* contact_points,
+    //                            FCL_REAL* penetration_depth, Vec3f* normal)
     {
+      FCL_REAL eps (sqrt (std::numeric_limits<FCL_REAL>::epsilon()));
       Plane new_s2 = transform(s2, tf2);
 
       const Matrix3f& R = tf1.getRotation();
@@ -1990,8 +1993,25 @@ namespace fcl {
       Vec3f B = A.cwiseAbs();
 
       FCL_REAL signed_dist = new_s2.signedDistance(T);
-      FCL_REAL depth = 0.5 * (B[0] + B[1] + B[2]) - std::abs(signed_dist);
-      if(depth < 0) return false;
+      distance = std::abs(signed_dist) - 0.5 * (B[0] + B[1] + B[2]);
+      if(distance > 0) {
+        // Is the box above or below the plane
+        int sign = signed_dist > 0 ? 1 : -1;
+        // Set p1 at the center of the box
+        p1 = T;
+        for (Vec3f::Index i=0; i<3; ++i) {
+          // scalar product between box axis and plane normal
+          FCL_REAL alpha (R.col (i).dot (new_s2.n));
+          if (sign * alpha > eps) {
+            p1 -= .5 * R.col (i) * s1.side [i];
+          } else if (sign * alpha < -eps) {
+            p1 += .5 * R.col (i) * s1.side [i];
+          }
+        }
+        p2 = p1 - sign * distance * new_s2.n;
+        assert (new_s2.distance (p2) < 3 *eps);
+        return false;
+      }
 
       Vec3f axis[3];
       axis[0] = R.col(0);
@@ -2001,23 +2021,27 @@ namespace fcl {
       // find the deepest point
       Vec3f p = T;
 
-      // when center is on the positive side of the plane, use a, b, c make (R^T n) (a v1 + b v2 + c v3) the minimum
+      // when center is on the positive side of the plane, use a, b, c
+      // make (R^T n) (a v1 + b v2 + c v3) the minimum
       // otherwise, use a, b, c make (R^T n) (a v1 + b v2 + c v3) the maximum
       int sign = (signed_dist > 0) ? 1 : -1;
 
-      if(std::abs(Q[0] - 1) < planeIntersectTolerance<FCL_REAL>() || std::abs(Q[0] + 1) < planeIntersectTolerance<FCL_REAL>())
+      if(std::abs(Q[0] - 1) < planeIntersectTolerance<FCL_REAL>() ||
+         std::abs(Q[0] + 1) < planeIntersectTolerance<FCL_REAL>())
         {
           int sign2 = (A[0] > 0) ? -1 : 1;
           sign2 *= sign;
           p += axis[0] * (0.5 * s1.side[0] * sign2);
         }
-      else if(std::abs(Q[1] - 1) < planeIntersectTolerance<FCL_REAL>() || std::abs(Q[1] + 1) < planeIntersectTolerance<FCL_REAL>())
+      else if(std::abs(Q[1] - 1) < planeIntersectTolerance<FCL_REAL>() ||
+              std::abs(Q[1] + 1) < planeIntersectTolerance<FCL_REAL>())
         {
           int sign2 = (A[1] > 0) ? -1 : 1;
           sign2 *= sign;
           p += axis[1] * (0.5 * s1.side[1] * sign2);
         }
-      else if(std::abs(Q[2] - 1) < planeIntersectTolerance<FCL_REAL>() || std::abs(Q[2] + 1) < planeIntersectTolerance<FCL_REAL>())
+      else if(std::abs(Q[2] - 1) < planeIntersectTolerance<FCL_REAL>() ||
+              std::abs(Q[2] + 1) < planeIntersectTolerance<FCL_REAL>())
         {
           int sign2 = (A[2] > 0) ? -1 : 1;
           sign2 *= sign;
@@ -2034,9 +2058,8 @@ namespace fcl {
         }
 
       // compute the contact point by project the deepest point onto the plane
-      if(penetration_depth) *penetration_depth = depth;
-      if(normal) { if (signed_dist > 0) *normal = -new_s2.n; else *normal = new_s2.n; }
-      if(contact_points) *contact_points = p - new_s2.n * new_s2.signedDistance(p);
+      if (signed_dist > 0) normal = -new_s2.n; else normal = new_s2.n;
+      p1 = p2 = p - new_s2.n * new_s2.signedDistance(p);
 
       return true;
     }
@@ -2102,6 +2125,7 @@ namespace fcl {
        FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
        Vec3f& normal)
     {
+      FCL_REAL eps (sqrt (std::numeric_limits<FCL_REAL>::epsilon()));
       Plane new_s2 = transform(s2, tf2);
 
       const Matrix3f& R = tf1.getRotation();

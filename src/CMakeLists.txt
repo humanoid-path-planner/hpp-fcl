@@ -50,6 +50,7 @@ set(${LIBRARY_NAME}_SOURCES
   shape/geometric_shapes.cpp
   shape/geometric_shapes_utility.cpp
   distance_box_halfspace.cpp
+  distance_box_plane.cpp
   distance_box_sphere.cpp
   distance_capsule_capsule.cpp
   distance_capsule_halfspace.cpp
