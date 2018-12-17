@@ -168,30 +168,6 @@ void testShapeIntersection(const S1& s1, const Transform3f& tf1,
   Vec3f normal;  // normal direction should be from object 1 to object 2
   bool res;
 
-  if (solver_type == GST_INDEP)
-  {
-    res = solver2.shapeIntersect(s1, tf1, s2, tf2, NULL, NULL, NULL);
-  }
-  else
-  {
-    std::cerr << "Invalid GJK solver. Test aborted." << std::endl;
-    return;
-  }
-  BOOST_CHECK_EQUAL(res, expected_res);
-
-  if (solver_type == GST_INDEP)
-  {
-    res = solver2.shapeIntersect(s1, tf1, s2, tf2, &contact, &depth, &normal);
-  }
-  else
-  {
-    std::cerr << "Invalid GJK solver. Test aborted." << std::endl;
-    return;
-  }
-  BOOST_CHECK_EQUAL(res, expected_res);
-  if (expected_res)
-    compareContact(s1, tf1, s2, tf2, solver_type, contact, expected_point, depth, expected_depth, normal, expected_normal, check_opposite_normal, tol);
-
   request.enable_contact = false;
   result.clear();
   res = (collide(&s1, tf1, &s2, tf2, request, result) > 0);
@@ -366,13 +342,13 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   normal << 1, 0, 0;
-  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, 0x0);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, 0x0);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(15, 0, 0));
@@ -386,12 +362,12 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   tf1 = Transform3f();
   tf2 = Transform3f(q);
   normal << 1, 0, 0;
-  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, 0x0);
 
   tf1 = transform;
   tf2 = transform * Transform3f(q);
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, 0x0);
 
   FCL_UINT32 numTests = 1e+2;
   for (FCL_UINT32 i = 0; i < numTests; ++i)
@@ -1371,42 +1347,42 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecapsule)
   contact << 0, 0, 0;
   depth = 5;
   normal << 1, 0, 0;  // (1, 0, 0) or (-1, 0, 0)
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, 0x0, 0x0, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, 0x0, 0x0, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(2.5, 0, 0));
   contact << 2.5, 0, 0;
   depth = 2.5;
   normal << 1, 0, 0;
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(2.5, 0, 0));
   contact = transform.transform(Vec3f(2.5, 0, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-2.5, 0, 0));
   contact << -2.5, 0, 0;
   depth = 2.5;
   normal << -1, 0, 0;
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-2.5, 0, 0));
   contact = transform.transform(Vec3f(-2.5, 0, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(5.1, 0, 0));
@@ -1434,42 +1410,44 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecapsule)
   contact << 0, 0, 0;
   depth = 5;
   normal << 0, 1, 0;  // (0, 1, 0) or (0, -1, 0)
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
+  testShapeIntersection
+    (s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, 0x0, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 5;
   normal = transform.getRotation() * Vec3f(0, 1, 0);  // (0, 1, 0) or (0, -1, 0)
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
+  testShapeIntersection
+    (s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 2.5, 0));
   contact << 0, 2.5, 0;
   depth = 2.5;
   normal << 0, 1, 0;
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, 0x0);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 2.5, 0));
   contact = transform.transform(Vec3f(0, 2.5, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, 1, 0);
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, 0x0);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, -2.5, 0));
   contact << 0, -2.5, 0;
   depth = 2.5;
   normal << 0, -1, 0;
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, -2.5, 0));
   contact = transform.transform(Vec3f(0, -2.5, 0));
   depth = 2.5;
   normal = transform.getRotation() * Vec3f(0, -1, 0);
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, &normal);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 5.1, 0));
@@ -1497,42 +1475,44 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecapsule)
   contact << 0, 0, 0;
   depth = 10;
   normal << 0, 0, 1;  // (0, 0, 1) or (0, 0, -1)
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, 0x0, 0x0, true);
 
   tf1 = transform;
   tf2 = transform;
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 10;
   normal = transform.getRotation() * Vec3f(0, 0, 1);  // (0, 0, 1) or (0, 0, -1)
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
+  testShapeIntersection
+    (s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, 0x0, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 2.5));
   contact << 0, 0, 2.5;
   depth = 7.5;
   normal << 0, 0, 1;
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, 0x0);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 2.5));
   contact = transform.transform(Vec3f(0, 0, 2.5));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, 0x0);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, -2.5));
   contact << 0, 0, -2.5;
   depth = 7.5;
   normal << 0, 0, -1;
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, 0x0);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, -2.5));
   contact = transform.transform(Vec3f(0, 0, -2.5));
   depth = 7.5;
   normal = transform.getRotation() * Vec3f(0, 0, -1);
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection
+    (s, tf1, hs, tf2, GST_INDEP, true, 0x0, &depth, 0x0);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 10.1));
@@ -2862,13 +2842,13 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   normal << 1, 0, 0;
-  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, 0x0);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, 0x0);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(15, 0, 0));
@@ -2882,12 +2862,12 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
   tf1 = Transform3f();
   tf2 = Transform3f(q);
   normal << 1, 0, 0;
-  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, 0x0);
 
   tf1 = transform;
   tf2 = transform * Transform3f(q);
   normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, 0x0);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spherebox)
@@ -3606,7 +3586,6 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distan
 
   BOOST_CHECK(resA);
   BOOST_CHECK(resB);
-  BOOST_CHECK(isEqual(contactA, contactB, tol));  // contact point should be same
   BOOST_CHECK(isEqual(normalA, -normalB, tol));  // normal should be opposite
   BOOST_CHECK_CLOSE(depthA, depthB, tol);  // penetration depth should be same
 
@@ -3615,7 +3594,6 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distan
 
   BOOST_CHECK(resA);
   BOOST_CHECK(resB);
-  BOOST_CHECK(isEqual(contactA, contactB, tol));
   BOOST_CHECK(isEqual(normalA, -normalB, tol));
   BOOST_CHECK_CLOSE(depthA, depthB, tol);
 }
@@ -3698,7 +3676,6 @@ void testReversibleShapeDistance(const S1& s1, const S2& s2, FCL_REAL distance)
   BOOST_CHECK_CLOSE(distA, distB, tol); // distances should be same
   BOOST_CHECK(isEqual(p1A, p2B, tol)); // closest points should in reverse order
   BOOST_CHECK(isEqual(p2A, p1B, tol));
-  BOOST_CHECK((normalB + normalA).norm () < tol);
 
   resA = solver2.shapeDistance(s1, tf1, s2, tf2, distA, p1A, p2A, normalA);
   resB = solver2.shapeDistance(s2, tf2, s1, tf1, distB, p1B, p2B, normalB);
@@ -3708,7 +3685,6 @@ void testReversibleShapeDistance(const S1& s1, const S2& s2, FCL_REAL distance)
   BOOST_CHECK_CLOSE(distA, distB, tol);
   BOOST_CHECK(isEqual(p1A, p2B, tol));
   BOOST_CHECK(isEqual(p2A, p1B, tol));
-  BOOST_CHECK((normalB + normalA).norm () < tol);
 }
 
 BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes)
