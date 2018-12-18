@@ -50,26 +50,14 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
   {
     updateFrontList(front_list, b1, b2);
 
-    if (node->request.enable_distance_lower_bound) {
-      if(node->BVTesting(b1, b2, sqrDistLowerBound)) return;
-    } else {
-      if(node->BVTesting(b1, b2)) return;
-    }
-
+    if(node->BVTesting(b1, b2, sqrDistLowerBound)) return;
     node->leafTesting(b1, b2, sqrDistLowerBound);
     return;
   }
 
-  if (node->request.enable_distance_lower_bound) {
-    if(node->BVTesting(b1, b2, sqrDistLowerBound)) {
-      updateFrontList(front_list, b1, b2);
-      return;
-    }
-  } else {
-    if(node->BVTesting(b1, b2)) {
-      updateFrontList(front_list, b1, b2);
-      return;
-    }
+  if(node->BVTesting(b1, b2, sqrDistLowerBound)) {
+    updateFrontList(front_list, b1, b2);
+    return;
   }
   if(node->firstOverSecond(b1, b2))
   {
@@ -334,48 +322,25 @@ void propagateBVHFrontListCollisionRecurse
     }
     else
     {
-      if (node->request.enable_distance_lower_bound) {
-	if(!node->BVTesting(b1, b2, sqrDistLowerBound)) {
-	  front_iter->valid = false;
-	  if(node->firstOverSecond(b1, b2)) {
-	    int c1 = node->getFirstLeftChild(b1);
-	    int c2 = node->getFirstRightChild(b2);
+      if(!node->BVTesting(b1, b2, sqrDistLowerBound)) {
+        front_iter->valid = false;
+        if(node->firstOverSecond(b1, b2)) {
+          int c1 = node->getFirstLeftChild(b1);
+          int c2 = node->getFirstRightChild(b2);
 
-	    collisionRecurse(node, c1, b2, front_list, sqrDistLowerBound1);
-	    collisionRecurse(node, c2, b2, front_list, sqrDistLowerBound2);
-	    sqrDistLowerBound = std::min (sqrDistLowerBound1,
+          collisionRecurse(node, c1, b2, front_list, sqrDistLowerBound1);
+          collisionRecurse(node, c2, b2, front_list, sqrDistLowerBound2);
+          sqrDistLowerBound = std::min (sqrDistLowerBound1,
 					  sqrDistLowerBound2);
-	  } else {
-	    int c1 = node->getSecondLeftChild(b2);
-	    int c2 = node->getSecondRightChild(b2);
-	
-	    collisionRecurse(node, b1, c1, front_list, sqrDistLowerBound1);
-	    collisionRecurse(node, b1, c2, front_list, sqrDistLowerBound2);
-	    sqrDistLowerBound = std::min (sqrDistLowerBound1,
-					  sqrDistLowerBound2);
-	  }
-	}
-      } else {
-	if(!node->BVTesting(b1, b2)) {
-	  front_iter->valid = false;
-	  if(node->firstOverSecond(b1, b2)) {
-	    int c1 = node->getFirstLeftChild(b1);
-	    int c2 = node->getFirstRightChild(b2);
+        } else {
+          int c1 = node->getSecondLeftChild(b2);
+          int c2 = node->getSecondRightChild(b2);
 
-	    collisionRecurse(node, c1, b2, front_list, sqrDistLowerBound1);
-	    collisionRecurse(node, c2, b2, front_list, sqrDistLowerBound2);
-	    sqrDistLowerBound = std::min (sqrDistLowerBound1,
+          collisionRecurse(node, b1, c1, front_list, sqrDistLowerBound1);
+          collisionRecurse(node, b1, c2, front_list, sqrDistLowerBound2);
+          sqrDistLowerBound = std::min (sqrDistLowerBound1,
 					  sqrDistLowerBound2);
-	  } else {
-	    int c1 = node->getSecondLeftChild(b2);
-	    int c2 = node->getSecondRightChild(b2);
-	
-	    collisionRecurse(node, b1, c1, front_list, sqrDistLowerBound1);
-	    collisionRecurse(node, b1, c2, front_list, sqrDistLowerBound2);
-	    sqrDistLowerBound = std::min (sqrDistLowerBound1,
-					  sqrDistLowerBound2);
-	  }
-	}
+        }
       }
     }
     result.distance_lower_bound = sqrt (sqrDistLowerBound);
