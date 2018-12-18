@@ -58,7 +58,9 @@ enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP
 class CollisionGeometry
 {
 public:
-  CollisionGeometry()
+  CollisionGeometry() : cost_density(1),
+                        threshold_occupied(1),
+                        threshold_free(0)
   {
   }
 
@@ -86,13 +88,15 @@ public:
   }
 
   /// @brief whether the object is completely occupied
-  inline bool isOccupied() const HPP_FCL_DEPRECATED { return true; }
+  inline bool isOccupied() const HPP_FCL_DEPRECATED
+  { return cost_density >= threshold_occupied; }
 
   /// @brief whether the object is completely free
-  inline bool isFree() const { return false; }
+  inline bool isFree() const HPP_FCL_DEPRECATED
+  { return cost_density <= threshold_free; }
 
   /// @brief whether the object has some uncertainty
-  inline bool isUncertain() const { return false; }
+  bool isUncertain() const HPP_FCL_DEPRECATED;
 
   /// @brief AABB center in local coordinate
   Vec3f aabb_center;
@@ -105,6 +109,9 @@ public:
 
   /// @brief pointer to user defined data specific to this object
   void *user_data;
+
+  /// @brief collision cost for unit volume
+  FCL_REAL cost_density;
 
   /// @brief threshold for occupied ( >= is occupied)
   FCL_REAL threshold_occupied;

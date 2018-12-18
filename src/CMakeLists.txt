@@ -38,6 +38,7 @@ set(${LIBRARY_NAME}_SOURCES
   distance_func_matrix.cpp
   collision_data.cpp
   collision_node.cpp
+  collision_object.cpp
   BV/RSS.cpp
   BV/AABB.cpp
   BV/kIOS.cpp
