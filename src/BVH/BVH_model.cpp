@@ -250,7 +250,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vec3f>& ps)
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
-  int num_vertices_to_add = ps.size();
+  int num_vertices_to_add = (int)ps.size();
 
   if(num_vertices + num_vertices_to_add - 1 >= num_vertices_allocated)
   {
@@ -285,7 +285,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Tr
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
-  int num_vertices_to_add = ps.size();
+  int num_vertices_to_add = (int)ps.size();
 
   if(num_vertices + num_vertices_to_add - 1 >= num_vertices_allocated)
   {
@@ -311,7 +311,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Tr
   }
 
 
-  int num_tris_to_add = ts.size();
+  int num_tris_to_add = (int)ts.size();
 
   if(num_tris + num_tris_to_add - 1 >= num_tris_allocated)
   {
@@ -623,11 +623,12 @@ int BVHModel<BV>::endUpdateModel(bool refit, bool bottomup)
 template<typename BV>
 int BVHModel<BV>::memUsage(int msg) const
 {
-  int mem_bv_list = sizeof(BV) * num_bvs;
-  int mem_tri_list = sizeof(Triangle) * num_tris;
-  int mem_vertex_list = sizeof(Vec3f) * num_vertices;
+  int mem_bv_list = (int)sizeof(BV) * num_bvs;
+  int mem_tri_list = (int)sizeof(Triangle) * num_tris;
+  int mem_vertex_list = (int)sizeof(Vec3f) * num_vertices;
 
-  int total_mem = mem_bv_list + mem_tri_list + mem_vertex_list + sizeof(BVHModel<BV>);
+  int total_mem = mem_bv_list + mem_tri_list + mem_vertex_list +
+    (int)sizeof(BVHModel<BV>);
   if(msg)
   {
     std::cerr << "Total for model " << total_mem << " bytes." << std::endl;
