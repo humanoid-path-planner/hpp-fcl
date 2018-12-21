@@ -97,6 +97,14 @@ bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2) const
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
+bool MeshCollisionTraversalNodeOBB::BVTesting
+(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+{
+  if(enable_statistics) num_bv_tests++;
+  return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv,
+                  request, sqrDistLowerBound);
+}
+
 MeshCollisionTraversalNodeRSS::MeshCollisionTraversalNodeRSS
 (const CollisionRequest& request) :
   MeshCollisionTraversalNode<RSS> (request)
@@ -110,6 +118,14 @@ bool MeshCollisionTraversalNodeRSS::BVTesting(int b1, int b2) const
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
+bool MeshCollisionTraversalNodeRSS::BVTesting(int b1, int b2,
+                                              FCL_REAL& sqrDistLowerBound) const
+{
+  if(enable_statistics) num_bv_tests++;
+  sqrDistLowerBound = 0;
+  return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
+}
+
 MeshCollisionTraversalNodekIOS::MeshCollisionTraversalNodekIOS
 (const CollisionRequest& request) :
   MeshCollisionTraversalNode<kIOS>(request)
@@ -120,6 +136,14 @@ MeshCollisionTraversalNodekIOS::MeshCollisionTraversalNodekIOS
 bool MeshCollisionTraversalNodekIOS::BVTesting(int b1, int b2) const
 {
   if(enable_statistics) num_bv_tests++;
+  return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
+}
+
+bool MeshCollisionTraversalNodekIOS::BVTesting
+(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+{
+  if(enable_statistics) num_bv_tests++;
+  sqrDistLowerBound = 0;
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 

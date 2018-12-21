@@ -251,6 +251,8 @@ public:
 
   bool BVTesting(int b1, int b2) const;
 
+  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
+
   Matrix3f R;
   Vec3f T;
 };
@@ -262,6 +264,8 @@ public:
 
   bool BVTesting(int b1, int b2) const;
 
+  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
+
   Matrix3f R;
   Vec3f T;
 };
@@ -272,6 +276,8 @@ public:
   MeshCollisionTraversalNodekIOS (const CollisionRequest& request);
  
   bool BVTesting(int b1, int b2) const;
+
+  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
 
   Matrix3f R;
   Vec3f T;
