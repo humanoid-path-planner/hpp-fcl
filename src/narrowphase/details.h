@@ -424,7 +424,9 @@ namespace fcl {
           Vec3f unit (center_to_contact.normalized ());
           p1 = center + radius * unit;
           p2 = contact_point;
+          distance = (p2 - p1).norm ();
         }
+      assert ((distance < 0) || (fabs (distance - (p2-p1).norm ()) < 1e-7));
       return has_contact;
     }
 
