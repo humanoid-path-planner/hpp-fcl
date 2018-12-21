@@ -33,14 +33,18 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 
 /// \mainpage
-/// \section fcl_introduction Introduction 
+/// \anchor hpp_fcl_documentation
 ///
-/// Fcl is a library for collision detection and distance computation between
+/// \par Introduction
+///
+/// hpp-fcl is a modified version the FCL libraries.
+///
+/// It is a library for collision detection and distance computation between
 /// various types of geometric shapes reprensented either by
 /// \li basic shapes (fcl::ShapeBase) like box, sphere, cylinders, ...
 /// \li or by bounding volume hierarchies of various types (fcl::BVHModel)
 ///
-/// \section fcl_howto Using fcl
+/// \par Using hpp-fcl
 ///
 /// The main entry points to the library are functions
 /// \li fcl::collide and
