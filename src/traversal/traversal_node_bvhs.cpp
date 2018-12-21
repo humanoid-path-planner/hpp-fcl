@@ -51,7 +51,7 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
                                                        const Matrix3f& R, const Vec3f& T,
                                                        bool enable_statistics,
                                                        int& num_leaf_tests,
-                                                       const DistanceRequest& request,
+                                                       const DistanceRequest&,
                                                        DistanceResult& result)
 {
   if(enable_statistics) num_leaf_tests++;
@@ -177,7 +177,7 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1, co
                                                   Triangle* tri_indices1, Triangle* tri_indices2,
                                                   int init_tri_id1, int init_tri_id2,
                                                   const Matrix3f& R, const Vec3f& T,
-                                                  const DistanceRequest& request,
+                                                  const DistanceRequest&,
                                                   DistanceResult& result)
 {
   const Triangle& init_tri1 = tri_indices1[init_tri_id1];

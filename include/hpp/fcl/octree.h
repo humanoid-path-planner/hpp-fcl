@@ -134,7 +134,8 @@ public:
   {
     std::vector<boost::array<FCL_REAL, 6> > boxes;
     boxes.reserve(tree->size() / 2);
-    for(octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end();
+    for(octomap::OcTree::iterator it =
+          tree->begin((unsigned char) tree->getTreeDepth()), end = tree->end();
         it != end;
         ++it)
     {

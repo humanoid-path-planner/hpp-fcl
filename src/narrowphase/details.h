@@ -2206,6 +2206,7 @@ namespace fcl {
         return true;
       } else {
         p2 = p1 + distance * normal;
+        return false;
       }
     }
 
@@ -2215,7 +2216,6 @@ namespace fcl {
        FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
        Vec3f& normal)
     {
-      FCL_REAL eps (sqrt (std::numeric_limits<FCL_REAL>::epsilon()));
       Plane new_s2 = transform(s2, tf2);
 
       const Matrix3f& R = tf1.getRotation();
@@ -2543,7 +2543,7 @@ namespace fcl {
     inline bool planeTriangleIntersect
       (const Plane& s1, const Transform3f& tf1, const Vec3f& P1,
        const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-       FCL_REAL distance, Vec3f& p1, Vec3f& p2, Vec3f& normal)
+       FCL_REAL& distance, Vec3f& p1, Vec3f& p2, Vec3f& normal)
     {
       Plane new_s1 = transform(s1, tf1);
 
@@ -2690,9 +2690,9 @@ namespace fcl {
     //
     // Note that we compute here an upper bound of the penetration distance,
     // not the exact value.
-    static FCL_REAL computePenetration
+    inline FCL_REAL computePenetration
       (const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
-       const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3, const Vec3f& p1,
+       const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
        const Transform3f& tf1, const Transform3f& tf2, Vec3f& normal)
     {
       Vec3f globalP1 (tf1.transform (P1));

@@ -252,7 +252,7 @@ private:
         solver->shapeDistance(box, box_tf, s, tf2, dist, closest_p1,
                               closest_p2, normal);
         
-        dresult->update(dist, tree1, &s, root1 - tree1->getRoot(),
+        dresult->update(dist, tree1, &s, (int) (root1 - tree1->getRoot()),
                         DistanceResult::NONE, closest_p1, closest_p2,
                         normal);
         
@@ -315,7 +315,7 @@ private:
     }
     else if(!tree1->nodeHasChildren(root1))
     {
-      if(tree1->isNodeOccupied(root1) && s.isOccupied()) // occupied area
+      if(tree1->isNodeOccupied(root1)) // occupied area
       {
         OBB obb1;
         convertBV(bv1, tf1, obb1);
@@ -325,12 +325,10 @@ private:
           Transform3f box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
-          bool is_intersect = false;
           if(!crequest->enable_contact)
           {
             if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
             {
-              is_intersect = true;
               if(cresult->numContacts() < crequest->num_max_contacts)
                 cresult->addContact(Contact(tree1, &s, root1 - tree1->getRoot(), Contact::NONE));
             }
@@ -343,7 +341,6 @@ private:
 
             if(solver->shapeIntersect(box, box_tf, s, tf2, &contact, &depth, &normal))
             {
-              is_intersect = true;
               if(cresult->numContacts() < crequest->num_max_contacts)
                 cresult->addContact(Contact(tree1, &s, root1 - tree1->getRoot(), Contact::NONE, contact, normal, depth));
             }
@@ -409,7 +406,7 @@ private:
         solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2, dist,
                                          closest_p1, closest_p2, normal);
 
-        dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(),
+        dresult->update(dist, tree1, tree2, (int) (root1 - tree1->getRoot()),
                         primitive_id, closest_p1, closest_p2, normal);
 
         return drequest->isSatisfied(*dresult);
@@ -525,7 +522,7 @@ private:
     }
     else if(!tree1->nodeHasChildren(root1) && tree2->getBV(root2).isLeaf())
     {
-      if(tree1->isNodeOccupied(root1) && tree2->isOccupied())
+      if(tree1->isNodeOccupied(root1))
       {
         OBB obb1, obb2;
         convertBV(bv1, tf1, obb1);
@@ -542,7 +539,6 @@ private:
           const Vec3f& p2 = tree2->vertices[tri_id[1]];
           const Vec3f& p3 = tree2->vertices[tri_id[2]];
         
-          bool is_intersect = false;
           if(!crequest->enable_contact)
           {
             Vec3f c1, c2, normal;
@@ -550,9 +546,10 @@ private:
             if(solver->shapeTriangleInteraction
                (box, box_tf, p1, p2, p3, tf2, distance, c1, c2, normal))
             {
-              is_intersect = true;
               if(cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), primitive_id));
+                cresult->addContact(Contact(tree1, tree2,
+                                            (int)(root1 - tree1->getRoot()),
+                                            primitive_id));
             }
           }
           else
@@ -564,10 +561,11 @@ private:
             if(solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2,
                                                 distance, c1, c2, normal))
             {
-              is_intersect = true;
               assert (crequest->security_margin == 0);
               if(cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), primitive_id, c1, normal, -distance));
+                cresult->addContact
+                  (Contact(tree1, tree2, (int) (root1 - tree1->getRoot()),
+                           primitive_id, c1, normal, -distance));
             }
           }
 
@@ -640,9 +638,9 @@ private:
         solver->shapeDistance(box1, box1_tf, box2, box2_tf, dist, closest_p1,
                               closest_p2, normal);
 
-        dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(),
-                        root2 - tree2->getRoot(), closest_p1, closest_p2,
-                        normal);
+        dresult->update(dist, tree1, tree2, (int) (root1 - tree1->getRoot()),
+                        (int) (root2 - tree2->getRoot()),
+                        closest_p1, closest_p2, normal);
         
         return drequest->isSatisfied(*dresult);
       }
@@ -798,7 +796,6 @@ private:
     {
       if(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2)) // occupied area
       {
-        bool is_intersect = false;
         if(!crequest->enable_contact)
         {
           OBB obb1, obb2;
@@ -807,7 +804,6 @@ private:
           
           if(obb1.overlap(obb2))
           {
-            is_intersect = true;
             if(cresult->numContacts() < crequest->num_max_contacts)
               cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot()));
           }
@@ -824,7 +820,6 @@ private:
           Vec3f normal;
           if(solver->shapeIntersect(box1, box1_tf, box2, box2_tf, &contact, &depth, &normal))
           {
-            is_intersect = true;
             if(cresult->numContacts() < crequest->num_max_contacts)
               cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), contact, normal, depth));
           }

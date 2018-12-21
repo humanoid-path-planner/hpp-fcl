@@ -217,6 +217,7 @@ bool GJKSolver_indep::shapeIntersect<Capsule, Halfspace>
     (s1, tf1, s2, tf2, distance, p1, p2, *normal);
   *contact_points = p1;
   *penetration_depth = -distance;
+  return res;
 }
 
 template<>
@@ -247,6 +248,7 @@ bool GJKSolver_indep::shapeIntersect<Cylinder, Halfspace>
     (s1, tf1, s2, tf2, distance, p1, p2, *normal);
   *contact_points = p1;
   *penetration_depth = -distance;
+  return res;
 }
 
 template<>
@@ -277,6 +279,7 @@ bool GJKSolver_indep::shapeIntersect<Cone, Halfspace>
     (s1, tf1, s2, tf2, distance, p1, p2, *normal);
   *contact_points = p1;
   *penetration_depth = -distance;
+  return res;
 }
 
 template<>
@@ -666,7 +669,7 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
 
       if (enable_penetration) {
         FCL_REAL penetrationDepth = details::computePenetration
-          (P1, P2, P3, Q1, Q2, Q3, p1, tf1, tf2, normal);
+          (P1, P2, P3, Q1, Q2, Q3, tf1, tf2, normal);
         dist = -penetrationDepth;
         assert (dist <= 0);
       }

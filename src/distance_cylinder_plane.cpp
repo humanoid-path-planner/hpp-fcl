@@ -50,12 +50,12 @@ namespace fcl {
   FCL_REAL ShapeShapeDistance <Cylinder, Plane, GJKSolver_indep>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest& request,
+   const GJKSolver_indep*, const DistanceRequest&,
    DistanceResult& result)
   {
     const Cylinder& s1 = static_cast <const Cylinder&> (*o1);
     const Plane& s2 = static_cast <const Plane&> (*o2);
-    bool col = details::cylinderPlaneIntersect
+    details::cylinderPlaneIntersect
       (s1, tf1, s2, tf2, result.min_distance, result.nearest_points [0],
        result.nearest_points [1], result.normal);
     result.o1 = o1; result.o2 = o2; result.b1 = -1; result.b2 = -1;
@@ -66,12 +66,12 @@ namespace fcl {
   FCL_REAL ShapeShapeDistance <Plane, Cylinder, GJKSolver_indep>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest& request,
+   const GJKSolver_indep*, const DistanceRequest&,
    DistanceResult& result)
   {
     const Plane& s1 = static_cast <const Plane&> (*o1);
     const Cylinder& s2 = static_cast <const Cylinder&> (*o2);
-    bool col = details::cylinderPlaneIntersect
+    details::cylinderPlaneIntersect
       (s2, tf2, s1, tf1, result.min_distance, result.nearest_points [1],
        result.nearest_points [0], result.normal);
     result.o1 = o1; result.o2 = o2; result.b1 = -1; result.b2 = -1;

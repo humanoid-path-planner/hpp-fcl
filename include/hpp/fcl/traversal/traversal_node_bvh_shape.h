@@ -253,7 +253,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting
    const Transform3f& tf2, const NarrowPhaseSolver* nsolver,
    bool enable_statistics, int& num_leaf_tests,
    const CollisionRequest& request, CollisionResult& result,
-   FCL_REAL& sqrDistLowerBound)
+   FCL_REAL&)
 {
   if(enable_statistics) num_leaf_tests++;
   const BVNode<BV>& node = model1->getBV(b1);

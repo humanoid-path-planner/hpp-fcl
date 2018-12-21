@@ -156,7 +156,8 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, con
   if (ntri == 0) return NULL;
 
   BVHModel<BV>* new_model (new BVHModel<BV>());
-  new_model->beginModel(ntri, std::min((int)ntri * 3, model.num_vertices));
+  new_model->beginModel((int)ntri,
+                        std::min((int)ntri * 3, (int)model.num_vertices));
   std::vector<std::size_t> idxConversion (model.num_vertices);
   assert(new_model->num_vertices == 0);
   for (std::size_t i = 0; i < keep_vertex.size(); ++i) {

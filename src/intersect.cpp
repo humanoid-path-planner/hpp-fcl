@@ -53,7 +53,7 @@ bool PolySolver::isZero(FCL_REAL v)
 
 bool PolySolver::cbrt(FCL_REAL v)
 {
-  return powf(v, 1.0 / 3.0);
+  return powf((float) v, (float) (1.0 / 3.0));
 }
 
 int PolySolver::solveLinear(FCL_REAL c[2], FCL_REAL s[1])

@@ -50,12 +50,12 @@ namespace fcl {
   FCL_REAL ShapeShapeDistance <Box, Halfspace, GJKSolver_indep>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest& request,
+   const GJKSolver_indep*, const DistanceRequest&,
    DistanceResult& result)
   {
     const Box& s1 = static_cast <const Box&> (*o1);
     const Halfspace& s2 = static_cast <const Halfspace&> (*o2);
-    bool col = details::boxHalfspaceIntersect
+    details::boxHalfspaceIntersect
       (s1, tf1, s2, tf2, result.min_distance, result.nearest_points [0],
        result.nearest_points [1], result.normal);
     result.o1 = o1; result.o2 = o2; result.b1 = -1; result.b2 = -1;
@@ -66,12 +66,12 @@ namespace fcl {
   FCL_REAL ShapeShapeDistance <Halfspace, Box, GJKSolver_indep>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest& request,
+   const GJKSolver_indep*, const DistanceRequest&,
    DistanceResult& result)
   {
     const Halfspace& s1 = static_cast <const Halfspace&> (*o1);
     const Box& s2 = static_cast <const Box&> (*o2);
-    bool col = details::boxHalfspaceIntersect
+    details::boxHalfspaceIntersect
       (s2, tf2, s1, tf1, result.min_distance, result.nearest_points [1],
        result.nearest_points [0], result.normal);
     result.o1 = o1; result.o2 = o2; result.b1 = -1; result.b2 = -1;
