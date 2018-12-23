@@ -471,6 +471,19 @@ namespace fcl
      const Sphere& s2, const Transform3f& tf2,
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
+  /// @brief Fast implementation for sphere-cylinder distance
+  template<>
+    bool GJKSolver_indep::shapeDistance<Sphere, Cylinder>
+    (const Sphere& s1, const Transform3f& tf1,
+     const Cylinder& s2, const Transform3f& tf2,
+     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+
+  template<>
+    bool GJKSolver_indep::shapeDistance<Cylinder, Sphere>
+    (const Cylinder& s1, const Transform3f& tf1,
+     const Sphere& s2, const Transform3f& tf2,
+     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+
   /// @brief Fast implementation for sphere-sphere distance
   template<>
     bool GJKSolver_indep::shapeDistance<Sphere, Sphere>

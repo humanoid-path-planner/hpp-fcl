@@ -569,6 +569,26 @@ bool GJKSolver_indep::shapeDistance<Capsule, Sphere>
 }
 
 template<>
+bool GJKSolver_indep::shapeDistance<Sphere, Cylinder>
+(const Sphere& s1, const Transform3f& tf1,
+ const Cylinder& s2, const Transform3f& tf2,
+ FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+{
+  return details::sphereCylinderDistance
+    (s1, tf1, s2, tf2, dist, p1, p2, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeDistance<Cylinder, Sphere>
+(const Cylinder& s1, const Transform3f& tf1,
+ const Sphere& s2, const Transform3f& tf2,
+ FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+{
+  return details::sphereCylinderDistance
+    (s2, tf2, s1, tf1, dist, p2, p1, normal);
+}
+
+template<>
 bool GJKSolver_indep::shapeDistance<Sphere, Sphere>
 (const Sphere& s1, const Transform3f& tf1,
  const Sphere& s2, const Transform3f& tf2,

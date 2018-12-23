@@ -140,6 +140,96 @@ namespace fcl {
       return true;
     }
 
+    inline bool sphereCylinderDistance
+      (const Sphere& s1, const Transform3f& tf1,
+       const Cylinder& s2, const Transform3f& tf2,
+       FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal)
+    {
+      FCL_REAL eps (sqrt (std::numeric_limits <FCL_REAL>::epsilon ()));
+      FCL_REAL r1 (s1.radius);
+      FCL_REAL r2 (s2.radius);
+      FCL_REAL lz2 (.5*s2.lz);
+      // boundaries of the cylinder axis
+      Vec3f A (tf2.transform (Vec3f (0, 0, -lz2)));
+      Vec3f B (tf2.transform (Vec3f (0, 0,  lz2)));
+      // Position of the center of the sphere
+      Vec3f S (tf1.getTranslation ());
+      // axis of the cylinder
+      Vec3f u (tf2.getRotation ().col (2));
+      assert ((B - A - s2.lz * u).norm () < eps);
+      Vec3f AS (S - A);
+      // abscissa of S on cylinder axis with A as the origin
+      FCL_REAL s (u.dot (AS));
+      Vec3f P (A + s*u);
+      Vec3f PS (S - P);
+      FCL_REAL dPS = PS.norm ();
+      // Normal to cylinder axis such that plane (A, u, v) contains sphere
+      // center
+      Vec3f v (0, 0, 0);
+      if (dPS > eps) {
+        // S is not on cylinder axis
+        v = (1/dPS) * PS;
+      }
+      if (s <= 0) {
+        if (dPS <= r2) {
+          // closest point on cylinder is on cylinder disc basis
+          dist = -s - r1; p1 = S + r1 * u; p2 = A + dPS * v; normal = u;
+        } else {
+          // closest point on cylinder is on cylinder circle basis
+          p2 = A + r2 * v;
+          Vec3f Sp2 (p2 - S);
+          FCL_REAL dSp2 = Sp2.norm ();
+          if (dSp2 > eps) {
+            normal = (1/dSp2) * Sp2;
+            p1 = S + r1 * normal;
+            dist = dSp2 - r1;
+            assert (fabs (dist) - (p1-p2).norm () < eps);
+          } else {
+            // Center of sphere is on cylinder boundary
+            normal = .5 * (A + B) - p2; normal.normalize ();
+            p1 = p2;
+            dist = -r1;
+          }
+        }
+      } else if (s <= s2.lz) {
+        // 0 < s <= s2.lz
+        normal = -v;
+        dist = dPS - r1 - r2;
+        if (dPS <= r2) {
+          // Sphere center is inside cylinder
+          p1 = p2 = S;
+        } else {
+          p2 = P + r2*v; p1 = S - r1*v;
+        }
+      } else {
+        // lz < s
+        if (dPS <= r2) {
+          // closest point on cylinder is on cylinder disc basis
+          dist = s - s2.lz - r1; p1 = S - r1 * u; p2 = B + dPS * v; normal = -u;
+        } else {
+          // closest point on cylinder is on cylinder circle basis
+          p2 = B + r2 * v;
+          Vec3f Sp2 (p2 - S);
+          FCL_REAL dSp2 = Sp2.norm ();
+          if (dSp2 > eps) {
+            normal = (1/dSp2) * Sp2;
+            p1 = S + r1 * normal;
+            dist = dSp2 - r1;
+            assert (fabs (dist) - (p1-p2).norm () < eps);
+          } else {
+            // Center of sphere is on cylinder boundary
+            normal = .5 * (A + B) - p2; normal.normalize ();
+            p1 = p2;
+            dist = -r1;
+          }
+        }
+      }
+      if (dist < 0) {
+        p1 = p2 = .5 *  (p1 + p2);
+      }
+      return (dist > 0);
+    }
+
     inline bool sphereSphereIntersect
       (const Sphere& s1, const Transform3f& tf1,
        const Sphere& s2, const Transform3f& tf2,

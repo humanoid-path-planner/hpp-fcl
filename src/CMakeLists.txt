@@ -60,6 +60,7 @@ set(${LIBRARY_NAME}_SOURCES
   distance_cylinder_halfspace.cpp
   distance_cylinder_plane.cpp
   distance_sphere_sphere.cpp
+  distance_sphere_cylinder.cpp
   distance_sphere_halfspace.cpp
   distance_sphere_plane.cpp
   intersect.cpp
