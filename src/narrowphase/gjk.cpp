@@ -46,6 +46,7 @@ namespace details
 
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
 {
+  FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
   switch(shape->getNodeType())
   {
   case GEOM_TRIANGLE:
@@ -126,15 +127,21 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
       const Cylinder* cylinder = static_cast<const Cylinder*>(shape);
       FCL_REAL zdist = std::sqrt(dir[0] * dir[0] + dir[1] * dir[1]);
       FCL_REAL half_h = cylinder->lz * 0.5;
+      Vec3f res;
       if(zdist == 0.0)
       {
-        return Vec3f(0, 0, (dir[2]>0)? half_h:-half_h);
+        res =  Vec3f(0, 0, (dir[2]>0)? half_h:-half_h);
       }
       else
       {
         FCL_REAL d = cylinder->radius / zdist;
-        return Vec3f(d * dir[0], d * dir[1], (dir[2]>0)?half_h:-half_h);
+        FCL_REAL z (0.);
+        if (dir [2] > eps) z = half_h;
+        else if (dir [2] < -eps) z = -half_h;
+        res =  Vec3f(d * dir[0], d * dir[1], z);
       }
+      assert (fabs (res [0] * dir [1] - res [1] * dir [0]) < eps);
+      return res;
     }
     break;
   case GEOM_CONVEX:

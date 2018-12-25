@@ -188,6 +188,62 @@ void testShapeIntersection(const S1& s1, const Transform3f& tf1,
   }
 }
 
+BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
+{
+  Cylinder s1 (0.029, 0.1);
+  Box s2 (1.6, 0.6, 0.025);
+
+  Transform3f tf1
+    (Quaternion3f (0.5279170511703305, -0.50981118132505521,
+                   -0.67596178682051911, 0.0668715876735793),
+     Vec3f (0.041218354748013122, 1.2022554710435607, 0.77338855025700015));
+
+  Transform3f tf2
+    (Quaternion3f (0.70738826916719977, 0, 0, 0.70682518110536596),
+     Vec3f (-0.29936284351096382, 0.80023864435868775, 0.71750000000000003));
+
+  GJKSolver_indep solver;
+  FCL_REAL distance;
+  Vec3f p1, p2, normal;
+  bool res = solver.shapeDistance (s1, tf1, s2, tf2, distance, p1, p2, normal);
+  BOOST_CHECK ((res && distance > 0) || (!res && distance <= 0));
+  // If objects are not colliding, p2 should be outside the cylinder and
+  // p1 should be outside the box
+  Vec3f p2Loc (inverse (tf1).transform (p2));
+  bool p2_in_cylinder ((fabs (p2Loc [2]) <= .5*s1.lz) &&
+                       (p2Loc [0] * p2Loc [0] + p2Loc [1] * p2Loc [1]
+                        <= s1.radius));
+  Vec3f p1Loc (inverse (tf2).transform (p1));
+  bool p1_in_box ((fabs (p1Loc [0]) <= .5 * s2.side [0]) &&
+                  (fabs (p1Loc [1]) <= .5 * s2.side [1]) &&
+                  (fabs (p1Loc [2]) <= .5 * s2.side [2]));
+  std::cout << "p2 in cylinder = (" << p2Loc.transpose () << ")" << std::endl;
+  std::cout << "p1 in box = (" << p1Loc.transpose () << ")" << std::endl;
+
+  BOOST_CHECK ((res && !p2_in_cylinder && !p1_in_box) ||
+               (!res && p2_in_cylinder && p1_in_box));
+
+  res = solver.shapeDistance (s2, tf2, s1, tf1, distance, p2, p1, normal);
+  BOOST_CHECK ((res && distance > 0) || (!res && distance <= 0));
+  // If objects are not colliding, p2 should be outside the cylinder and
+  // p1 should be outside the box
+
+  p2Loc = inverse (tf1).transform (p2);
+  p2_in_cylinder = (fabs (p2Loc [2]) <= .5*s1.lz) &&
+    (p2Loc [0] * p2Loc [0] + p2Loc [1] * p2Loc [1]
+     <= s1.radius);
+  p1Loc = inverse (tf2).transform (p1);
+  p1_in_box = (fabs (p1Loc [0]) <= .5 * s2.side [0]) &&
+    (fabs (p1Loc [1]) <= .5 * s2.side [1]) &&
+    (fabs (p1Loc [2]) <= .5 * s2.side [2]);
+
+  std::cout << "p2 in cylinder = (" << p2Loc.transpose () << ")" << std::endl;
+  std::cout << "p1 in box = (" << p1.transpose () << ")" << std::endl;
+
+  BOOST_CHECK ((res && !p2_in_cylinder && !p1_in_box) ||
+               (!res && p2_in_cylinder && p1_in_box));
+}
+
 BOOST_AUTO_TEST_CASE(shapeIntersection_spheresphere)
 {
   Sphere s1(20);
