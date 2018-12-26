@@ -242,6 +242,15 @@ BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
 
   BOOST_CHECK ((res && !p2_in_cylinder && !p1_in_box) ||
                (!res && p2_in_cylinder && p1_in_box));
+
+  s1 = Cylinder (0.06, 0.1);
+  tf1.setTranslation (Vec3f (-0.66734052046473924, 0.22219183277457269,
+                             0.76825248755616293));
+  tf1.setQuatRotation (Quaternion3f (0.52613359459338371,
+                                     0.32189408354839893,
+                                     0.70415587451837913,
+                                     -0.35175580165512249));
+  res = solver.shapeDistance (s1, tf1, s2, tf2, distance, p1, p2, normal);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_spheresphere)
