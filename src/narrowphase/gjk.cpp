@@ -74,9 +74,10 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   case GEOM_BOX:
     {
       const Box* box = static_cast<const Box*>(shape);
-      return Vec3f((dir[0]>0)?(box->side[0]/2):(-box->side[0]/2),
-                   (dir[1]>0)?(box->side[1]/2):(-box->side[1]/2),
-                   (dir[2]>0)?(box->side[2]/2):(-box->side[2]/2));
+      Vec3f res((dir[0]>0)?(box->side[0]/2):(-box->side[0]/2),
+                (dir[1]>0)?(box->side[1]/2):(-box->side[1]/2),
+                (dir[2]>0)?(box->side[2]/2):(-box->side[2]/2));
+      return res;
     }
     break;
   case GEOM_SPHERE:
@@ -194,6 +195,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   FCL_REAL alpha = 0;
   Vec3f lastw[4];
   size_t clastw = 0;
+  Project::ProjectResult project_res;
     
   free_v[0] = &store_v[0];
   free_v[1] = &store_v[1];
@@ -244,7 +246,6 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       break;
     }
 
-    Project::ProjectResult project_res;
     switch(curr_simplex.rank)
     {
     case 2:
@@ -262,7 +263,6 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
                                                      curr_simplex.vertex[3]->w);
       break;
     }
-      
     if(project_res.sqr_distance >= 0)
     {
       next_simplex.rank = 0;
@@ -299,7 +299,9 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   {
   case Valid: distance = ray.norm(); break;
   case Inside: distance = 0; break;
-  default: break;
+  default:
+    distance = sqrt (project_res.sqr_distance);
+    break;
   }
   return status;
 }

@@ -169,6 +169,7 @@ namespace fcl
                          FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
                          Vec3f& normal) const
     {
+      FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
       bool compute_normal (true);
       Vec3f guess(1, 0, 0);
       if(enable_cached_guess) guess = cached_guess;
@@ -183,7 +184,23 @@ namespace fcl
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
       if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
 
-      if(gjk_status == details::GJK::Valid)
+      if(gjk_status == details::GJK::Failed)
+      {
+        // TODO: understand why GJK fails between cylinder and box
+        assert (distance * distance < sqrt (eps));
+        Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
+        for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
+        {
+          FCL_REAL p = gjk.getSimplex()->coefficient[i];
+          w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
+          w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
+        }
+        distance = 0;
+        p1 = p2 = tf1.transform (.5* (w0 + w1));
+        normal = Vec3f (0,0,0);
+        return false;
+      }
+      else if(gjk_status == details::GJK::Valid)
         {
           Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
           for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
@@ -199,8 +216,9 @@ namespace fcl
           p2 = tf1.transform (w1);
           return true;
         }
-      else if (gjk_status == details::GJK::Inside)
+      else
         {
+          assert (gjk_status == details::GJK::Inside);
           if (compute_normal)
             {
               details::EPA epa(epa_max_face_num, epa_max_vertex_num,
@@ -214,8 +232,8 @@ namespace fcl
                       w0 += shape.support(epa.result.vertex[i]->d, 0) *
                         epa.result.coefficient[i];
                     }
-                  assert (epa.depth >= 0);
-                  distance = -epa.depth;
+                  assert (epa.depth >= -eps);
+                  distance = std::min (0., -epa.depth);
                   normal = tf2.getRotation() * epa.normal;
                   p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
                 }
@@ -235,11 +253,6 @@ namespace fcl
               p2 = tf1.transform (w1);
             }
           return false;
-        }
-      else
-        {
-          // Failure
-          abort ();
         }
     }
 
