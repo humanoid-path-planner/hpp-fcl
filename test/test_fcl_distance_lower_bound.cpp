@@ -183,7 +183,6 @@ BOOST_AUTO_TEST_CASE(box_mesh)
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   std::size_t n = 100;
-  bool verbose = false;
 
   generateRandomTransforms(extents, transforms, n);
 
