@@ -152,6 +152,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/octree.h
   include/hpp/fcl/fwd.hh
   include/hpp/fcl/mesh_loader/assimp.h
+  include/hpp/fcl/mesh_loader/loader.h
   )
 
 add_subdirectory(src)
