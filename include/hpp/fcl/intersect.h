@@ -67,6 +67,14 @@ private:
   static const FCL_REAL NEAR_ZERO_THRESHOLD;
 };
 
+/// @brief CCD intersect kernel among primitives
+class Intersect
+{
+public:
+  static bool buildTrianglePlane
+    (const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, Vec3f* n, FCL_REAL* t);
+}; // class Intersect
+
 /// @brief Project functions
 class Project
 {

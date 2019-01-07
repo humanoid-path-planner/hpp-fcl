@@ -172,6 +172,20 @@ int PolySolver::solveCubic(FCL_REAL c[4], FCL_REAL s[3])
   return num;
 }
 
+bool Intersect::buildTrianglePlane
+(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, Vec3f* n, FCL_REAL* t)
+{
+  Vec3f n_ = (v2 - v1).cross(v3 - v1);
+  FCL_REAL norm2 = n_.squaredNorm();
+  if (norm2 > 0)
+  {
+    *n = n_ / sqrt(norm2);
+    *t = n->dot(v1);
+    return true;
+  }
+  return false;
+}
+
 void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q, const Vec3f& B,
                                  Vec3f& VEC, Vec3f& X, Vec3f& Y)
 {
