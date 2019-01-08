@@ -72,7 +72,9 @@ namespace fcl {
     result.b1 = result.b2 = -1;
     Vec3f c1c2 = center2 - center1;
     FCL_REAL dist = c1c2.norm ();
-    Vec3f unit (dist > epsilon ? c1c2/dist : Vec3f (0,0,0));
+    Vec3f unit (0,0,0);
+    if(dist > epsilon)
+        unit = c1c2/dist;
     FCL_REAL penetrationDepth;
     penetrationDepth = r1 + r2 - dist;
     bool collision = (penetrationDepth >= 0);
@@ -112,7 +114,9 @@ namespace fcl {
 
     Vec3f c1c2 = center2 - center1;
     FCL_REAL dist = c1c2.norm ();
-    Vec3f unit (dist > epsilon ? c1c2/dist : Vec3f (0,0,0));
+    Vec3f unit (0,0,0);
+    if(dist > epsilon)
+        unit = c1c2/dist;
     FCL_REAL penetrationDepth;
     // Unlike in distance computation, we consider the security margin.
     penetrationDepth = r1 + r2 + margin - dist;
