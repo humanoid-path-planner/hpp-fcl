@@ -36,8 +36,7 @@ int main(int argc, char** argv)
   static const int num_max_contacts = std::numeric_limits<int>::max();
   static const bool enable_contact = true;
   fcl::CollisionResult result;
-  fcl::CollisionRequest request(num_max_contacts,
-                                enable_contact);
+  fcl::CollisionRequest request(enable_contact, num_max_contacts, false);
 
 
   CollisionObject co0(box0, tf0);

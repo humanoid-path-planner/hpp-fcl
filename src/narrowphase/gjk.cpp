@@ -46,6 +46,7 @@ namespace details
 
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
 {
+  FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
   switch(shape->getNodeType())
   {
   case GEOM_TRIANGLE:
@@ -73,9 +74,10 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   case GEOM_BOX:
     {
       const Box* box = static_cast<const Box*>(shape);
-      return Vec3f((dir[0]>0)?(box->side[0]/2):(-box->side[0]/2),
-                   (dir[1]>0)?(box->side[1]/2):(-box->side[1]/2),
-                   (dir[2]>0)?(box->side[2]/2):(-box->side[2]/2));
+      Vec3f res((dir[0]>0)?(box->side[0]/2):(-box->side[0]/2),
+                (dir[1]>0)?(box->side[1]/2):(-box->side[1]/2),
+                (dir[2]>0)?(box->side[2]/2):(-box->side[2]/2));
+      return res;
     }
     break;
   case GEOM_SPHERE:
@@ -126,15 +128,21 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
       const Cylinder* cylinder = static_cast<const Cylinder*>(shape);
       FCL_REAL zdist = std::sqrt(dir[0] * dir[0] + dir[1] * dir[1]);
       FCL_REAL half_h = cylinder->lz * 0.5;
+      Vec3f res;
       if(zdist == 0.0)
       {
-        return Vec3f(0, 0, (dir[2]>0)? half_h:-half_h);
+        res =  Vec3f(0, 0, (dir[2]>0)? half_h:-half_h);
       }
       else
       {
         FCL_REAL d = cylinder->radius / zdist;
-        return Vec3f(d * dir[0], d * dir[1], (dir[2]>0)?half_h:-half_h);
+        FCL_REAL z (0.);
+        if (dir [2] > eps) z = half_h;
+        else if (dir [2] < -eps) z = -half_h;
+        res =  Vec3f(d * dir[0], d * dir[1], z);
       }
+      assert (fabs (res [0] * dir [1] - res [1] * dir [0]) < eps);
+      return res;
     }
     break;
   case GEOM_CONVEX:
@@ -187,6 +195,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   FCL_REAL alpha = 0;
   Vec3f lastw[4];
   size_t clastw = 0;
+  Project::ProjectResult project_res;
     
   free_v[0] = &store_v[0];
   free_v[1] = &store_v[1];
@@ -204,8 +213,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   // appendVertex(simplices[0], (ray.squaredNorm() > 0) ? -ray : Vec3f(1, 0, 0));
   if (ray.squaredNorm() > 0) appendVertex(simplices[0], -ray);
   else                       appendVertex(simplices[0], Vec3f(1, 0, 0));
-  simplices[0].p[0] = 1;
-  ray = simplices[0].c[0]->w;
+  simplices[0].coefficient[0] = 1;
+  ray = simplices[0].vertex[0]->w;
   lastw[0] = lastw[1] = lastw[2] = lastw[3] = ray; // cache previous support points, the new support point will compare with it to avoid too close support points
 
   do
@@ -225,25 +234,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     appendVertex(curr_simplex, -ray); // see below, ray points away from origin
 
     // check B: when the new support point is close to previous support points, stop (as the new simplex is degenerated)
-    Vec3f& w = curr_simplex.c[curr_simplex.rank - 1]->w;
-    bool found = false;
-    for(size_t i = 0; i < 4; ++i)
-    {
-      if((w - lastw[i]).squaredNorm() < tolerance)
-      {
-        found = true; break;
-      }
-    }
-
-    if(found)
-    {
-      removeVertex(simplices[current]);
-      break; 
-    }
-    else
-    {
-      lastw[clastw = (clastw+1)&3] = w;
-    }
+    const Vec3f& w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
+    lastw[clastw = (clastw+1)&3] = w;
 
     // check C: when the new support point is close to the sub-simplex where the ray point lies, stop (as the new simplex again is degenerated)
     FCL_REAL omega = ray.dot(w) / rl;
@@ -254,17 +246,23 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       break;
     }
 
-    Project::ProjectResult project_res;
     switch(curr_simplex.rank)
     {
     case 2:
-      project_res = Project::projectLineOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w); break;
+      project_res = Project::projectLineOrigin(curr_simplex.vertex[0]->w,
+                                               curr_simplex.vertex[1]->w);
+      break;
     case 3:
-      project_res = Project::projectTriangleOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w); break;
+      project_res = Project::projectTriangleOrigin(curr_simplex.vertex[0]->w,
+                                                   curr_simplex.vertex[1]->w,
+                                                   curr_simplex.vertex[2]->w); break;
     case 4:
-      project_res = Project::projectTetrahedraOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w, curr_simplex.c[3]->w); break;
+      project_res = Project::projectTetrahedraOrigin(curr_simplex.vertex[0]->w,
+                                                     curr_simplex.vertex[1]->w,
+                                                     curr_simplex.vertex[2]->w,
+                                                     curr_simplex.vertex[3]->w);
+      break;
     }
-      
     if(project_res.sqr_distance >= 0)
     {
       next_simplex.rank = 0;
@@ -274,12 +272,15 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       {
         if(project_res.encode & (1 << i))
         {
-          next_simplex.c[next_simplex.rank] = curr_simplex.c[i];
-          next_simplex.p[next_simplex.rank++] = project_res.parameterization[i]; // weights[i];
-          ray += curr_simplex.c[i]->w * project_res.parameterization[i]; // weights[i];
+          next_simplex.vertex[next_simplex.rank] = curr_simplex.vertex[i];
+          // weights[i]
+          next_simplex.coefficient[next_simplex.rank++] =
+            project_res.parameterization[i];
+          // weights[i]
+          ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
         }
         else
-          free_v[nfree++] = curr_simplex.c[i];
+          free_v[nfree++] = curr_simplex.vertex[i];
       }
       if(project_res.encode == 15) status = Inside; // the origin is within the 4-simplex, collision
     }
@@ -298,7 +299,9 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   {
   case Valid: distance = ray.norm(); break;
   case Inside: distance = 0; break;
-  default: break;
+  default:
+    distance = sqrt (project_res.sqr_distance);
+    break;
   }
   return status;
 }
@@ -309,22 +312,16 @@ void GJK::getSupport(const Vec3f& d, SimplexV& sv) const
   sv.w.noalias() = shape.support(sv.d);
 }
 
-void GJK::getSupport(const Vec3f& d, const Vec3f& v, SimplexV& sv) const
-{
-  sv.d.noalias() = d.normalized();
-  sv.w.noalias() = shape.support(sv.d, v);
-}
-
 void GJK::removeVertex(Simplex& simplex)
 {
-  free_v[nfree++] = simplex.c[--simplex.rank];
+  free_v[nfree++] = simplex.vertex[--simplex.rank];
 }
 
 void GJK::appendVertex(Simplex& simplex, const Vec3f& v)
 {
-  simplex.p[simplex.rank] = 0; // initial weight 0
-  simplex.c[simplex.rank] = free_v[--nfree]; // set the memory
-  getSupport(v, *simplex.c[simplex.rank++]);
+  simplex.coefficient[simplex.rank] = 0; // initial weight 0
+  simplex.vertex[simplex.rank] = free_v[--nfree]; // set the memory
+  getSupport(v, *simplex.vertex[simplex.rank++]);
 }
 
 bool GJK::encloseOrigin()
@@ -348,7 +345,7 @@ bool GJK::encloseOrigin()
     break;
   case 2:
     {
-      Vec3f d = simplex->c[1]->w - simplex->c[0]->w;
+      Vec3f d = simplex->vertex[1]->w - simplex->vertex[0]->w;
       for(size_t i = 0; i < 3; ++i)
       {
         Vec3f axis(0,0,0);
@@ -368,7 +365,8 @@ bool GJK::encloseOrigin()
     break;
   case 3:
     {
-      Vec3f n = (simplex->c[1]->w - simplex->c[0]->w).cross(simplex->c[2]->w - simplex->c[0]->w);
+      Vec3f n = (simplex->vertex[1]->w - simplex->vertex[0]->w).cross
+        (simplex->vertex[2]->w - simplex->vertex[0]->w);
       if(n.squaredNorm() > 0)
       {
         appendVertex(*simplex, n);
@@ -382,7 +380,9 @@ bool GJK::encloseOrigin()
     break;
   case 4:
     {
-      if(std::abs(triple(simplex->c[0]->w - simplex->c[3]->w, simplex->c[1]->w - simplex->c[3]->w, simplex->c[2]->w - simplex->c[3]->w)) > 0)
+      if(std::abs(triple(simplex->vertex[0]->w - simplex->vertex[3]->w,
+                         simplex->vertex[1]->w - simplex->vertex[3]->w,
+                         simplex->vertex[2]->w - simplex->vertex[3]->w)) > 0)
         return true;
     }
     break;
@@ -441,9 +441,9 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced)
     stock.remove(face);
     hull.append(face);
     face->pass = 0;
-    face->c[0] = a;
-    face->c[1] = b;
-    face->c[2] = c;
+    face->vertex[0] = a;
+    face->vertex[1] = b;
+    face->vertex[2] = c;
     face->n = (b->w - a->w).cross(c->w - a->w);
     FCL_REAL l = face->n.norm();
       
@@ -506,21 +506,27 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
     status = Valid;
     nextsv = 0;
 
-    if((simplex.c[0]->w - simplex.c[3]->w).dot((simplex.c[1]->w - simplex.c[3]->w).cross(simplex.c[2]->w - simplex.c[3]->w)) < 0)
+    if((simplex.vertex[0]->w - simplex.vertex[3]->w).dot
+       ((simplex.vertex[1]->w - simplex.vertex[3]->w).cross
+        (simplex.vertex[2]->w - simplex.vertex[3]->w)) < 0)
     {
-      SimplexV* tmp = simplex.c[0];
-      simplex.c[0] = simplex.c[1];
-      simplex.c[1] = tmp;
+      SimplexV* tmp = simplex.vertex[0];
+      simplex.vertex[0] = simplex.vertex[1];
+      simplex.vertex[1] = tmp;
 
-      FCL_REAL tmpv = simplex.p[0];
-      simplex.p[0] = simplex.p[1];
-      simplex.p[1] = tmpv;
+      FCL_REAL tmpv = simplex.coefficient[0];
+      simplex.coefficient[0] = simplex.coefficient[1];
+      simplex.coefficient[1] = tmpv;
     }
 
-    SimplexF* tetrahedron[] = {newFace(simplex.c[0], simplex.c[1], simplex.c[2], true),
-                               newFace(simplex.c[1], simplex.c[0], simplex.c[3], true),
-                               newFace(simplex.c[2], simplex.c[1], simplex.c[3], true),
-                               newFace(simplex.c[0], simplex.c[2], simplex.c[3], true) };
+    SimplexF* tetrahedron[] = {newFace(simplex.vertex[0], simplex.vertex[1],
+                                       simplex.vertex[2], true),
+                               newFace(simplex.vertex[1], simplex.vertex[0],
+                                       simplex.vertex[3], true),
+                               newFace(simplex.vertex[2], simplex.vertex[1],
+                                       simplex.vertex[3], true),
+                               newFace(simplex.vertex[0], simplex.vertex[2],
+                                       simplex.vertex[3], true) };
 
     if(hull.count == 4)
     {
@@ -585,17 +591,21 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
       normal = outer.n;
       depth = outer.d;
       result.rank = 3;
-      result.c[0] = outer.c[0];
-      result.c[1] = outer.c[1];
-      result.c[2] = outer.c[2];
-      result.p[0] = ((outer.c[1]->w - projection).cross(outer.c[2]->w - projection)).norm();
-      result.p[1] = ((outer.c[2]->w - projection).cross(outer.c[0]->w - projection)).norm();
-      result.p[2] = ((outer.c[0]->w - projection).cross(outer.c[1]->w - projection)).norm();
+      result.vertex[0] = outer.vertex[0];
+      result.vertex[1] = outer.vertex[1];
+      result.vertex[2] = outer.vertex[2];
+      result.coefficient[0] = ((outer.vertex[1]->w - projection).cross
+                               (outer.vertex[2]->w - projection)).norm();
+      result.coefficient[1] = ((outer.vertex[2]->w - projection).cross
+                               (outer.vertex[0]->w - projection)).norm();
+      result.coefficient[2] = ((outer.vertex[0]->w - projection).cross
+                               (outer.vertex[1]->w - projection)).norm();
 
-      FCL_REAL sum = result.p[0] + result.p[1] + result.p[2];
-      result.p[0] /= sum;
-      result.p[1] /= sum;
-      result.p[2] /= sum;
+      FCL_REAL sum = result.coefficient[0] + result.coefficient[1] +
+        result.coefficient[2];
+      result.coefficient[0] /= sum;
+      result.coefficient[1] /= sum;
+      result.coefficient[2] /= sum;
       return status;
     }
   }
@@ -607,8 +617,8 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
   else normal = Vec3f(1, 0, 0);
   depth = 0;
   result.rank = 1;
-  result.c[0] = simplex.c[0];
-  result.p[0] = 1;
+  result.vertex[0] = simplex.vertex[0];
+  result.coefficient[0] = 1;
   return status;
 }
 
@@ -626,7 +636,7 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon
     // case 1: the new face is not degenerated, i.e., the new face is not coplanar with the old face f.
     if(f->n.dot(w->w) - f->d < -tolerance)
     {
-      SimplexF* nf = newFace(f->c[e1], f->c[e], w, false);
+      SimplexF* nf = newFace(f->vertex[e1], f->vertex[e], w, false);
       if(nf)
       {
         // add face-face connectivity

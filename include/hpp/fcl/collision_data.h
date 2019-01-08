@@ -129,64 +129,6 @@ struct Contact
   }
 };
 
-/// @brief Cost source describes an area with a cost. The area is described by an AABB region.
-struct CostSource
-{
-  /// @brief aabb lower bound
-  Vec3f aabb_min;
-
-  /// @brief aabb upper bound
-  Vec3f aabb_max;
-
-  /// @brief cost density in the AABB region
-  FCL_REAL cost_density;
-
-  FCL_REAL total_cost;
-
-  CostSource(const Vec3f& aabb_min_, const Vec3f& aabb_max_, FCL_REAL cost_density_) : aabb_min(aabb_min_),
-                                                                                       aabb_max(aabb_max_),
-                                                                                       cost_density(cost_density_)
-  {
-    total_cost = cost_density * (aabb_max[0] - aabb_min[0]) * (aabb_max[1] - aabb_min[1]) * (aabb_max[2] - aabb_min[2]);
-  }
-
-  CostSource(const AABB& aabb, FCL_REAL cost_density_) : aabb_min(aabb.min_),
-                                                         aabb_max(aabb.max_),
-                                                         cost_density(cost_density_)
-  {
-    total_cost = cost_density * (aabb_max[0] - aabb_min[0]) * (aabb_max[1] - aabb_min[1]) * (aabb_max[2] - aabb_min[2]);
-  }
-
-  CostSource() {}
-
-  bool operator < (const CostSource& other) const
-  {
-    if(total_cost < other.total_cost) 
-      return false;
-    if(total_cost > other.total_cost)
-      return true;
-    
-    if(cost_density < other.cost_density)
-      return false;
-    if(cost_density > other.cost_density)
-      return true;
-  
-    for(size_t i = 0; i < 3; ++i)
-      if(aabb_min[i] != other.aabb_min[i])
-	return aabb_min[i] < other.aabb_min[i];
- 
-    return false;
-  }
-
-  bool operator == (const CostSource& other) const
-  {
-    return aabb_min == other.aabb_min
-            && aabb_max == other.aabb_max
-            && cost_density == other.cost_density
-            && total_cost == other.total_cost;
-  }
-};
-
 struct CollisionResult;
 
 /// @brief request to the collision algorithm
@@ -201,15 +143,6 @@ struct CollisionRequest
   /// Whether a lower bound on distance is returned when objects are disjoint
   bool enable_distance_lower_bound;
 
-  /// @brief The maximum number of cost sources will return
-  size_t num_max_cost_sources;
-
-  /// @brief whether the cost sources will be computed
-  bool enable_cost;
-
-  /// @brief whether the cost computation is approximated
-  bool use_approximate_cost;
-
   /// @brief narrow phase solver
   GJKSolverType gjk_solver_type;
 
@@ -219,20 +152,29 @@ struct CollisionRequest
   /// @brief the gjk intial guess set by user
   Vec3f cached_gjk_guess;
 
+  /// @brief Distance below which objects are considered in collision
+  FCL_REAL security_margin;
+
+  /// @brief Distance below which bounding volumes are break down
+  FCL_REAL break_distance;
+
   CollisionRequest(size_t num_max_contacts_ = 1,
                    bool enable_contact_ = false,
 		   bool enable_distance_lower_bound_ = false,
                    size_t num_max_cost_sources_ = 1,
                    bool enable_cost_ = false,
                    bool use_approximate_cost_ = true,
-                   GJKSolverType gjk_solver_type_ = GST_INDEP) :
-  num_max_contacts(num_max_contacts_),
+                   GJKSolverType gjk_solver_type_ = GST_INDEP)
+  HPP_FCL_DEPRECATED;
+
+  CollisionRequest(bool enable_contact_, size_t num_max_contacts_,
+		   bool enable_distance_lower_bound_) :
+    num_max_contacts(num_max_contacts_),
     enable_contact(enable_contact_),
     enable_distance_lower_bound (enable_distance_lower_bound_),
-    num_max_cost_sources(num_max_cost_sources_),
-    enable_cost(enable_cost_),
-    use_approximate_cost(use_approximate_cost_),
-    gjk_solver_type(gjk_solver_type_)
+    gjk_solver_type(GST_INDEP),
+    security_margin (0),
+    break_distance (1e-3)
   {
     enable_cached_gjk_guess = false;
     cached_gjk_guess = Vec3f(1, 0, 0);
@@ -247,9 +189,6 @@ struct CollisionResult
 private:
   /// @brief contact information
   std::vector<Contact> contacts;
-
-  /// @brief cost sources
-  std::set<CostSource> cost_sources;
 
 public:
   Vec3f cached_gjk_guess;
@@ -270,19 +209,10 @@ public:
     contacts.push_back(c);
   }
 
-  /// @brief add one cost source into result structure
-  inline void addCostSource(const CostSource& c, std::size_t num_max_cost_sources)
-  {
-    cost_sources.insert(c);
-    while (cost_sources.size() > num_max_cost_sources)
-      cost_sources.erase(--cost_sources.end());
-  }
-
   /// @brief whether two CollisionResult are the same or not
   inline bool operator ==(const CollisionResult& other) const
   {
     return contacts == other.contacts 
-            && cost_sources == other.cost_sources
             && distance_lower_bound == other.distance_lower_bound;
   }
 
@@ -296,12 +226,6 @@ public:
   size_t numContacts() const
   {
     return contacts.size();
-  }
-
-  /// @brief number of cost sources found
-  size_t numCostSources() const
-  {
-    return cost_sources.size();
   }
 
   /// @brief get the i-th contact calculated
@@ -320,18 +244,10 @@ public:
     std::copy(contacts.begin(), contacts.end(), contacts_.begin());
   }
 
-  /// @brief get all the cost sources 
-  void getCostSources(std::vector<CostSource>& cost_sources_)
-  {
-    cost_sources_.resize(cost_sources.size());
-    std::copy(cost_sources.begin(), cost_sources.end(), cost_sources_.begin());
-  }
-
   /// @brief clear the results obtained
   void clear()
   {
     contacts.clear();
-    cost_sources.clear();
   }
 
   /// @brief reposition Contact objects when fcl inverts them
@@ -383,6 +299,9 @@ public:
   /// @brief nearest points
   Vec3f nearest_points[2];
 
+  /// In case both objects are in collision, store the normal
+  Vec3f normal;
+
   /// @brief collision object 1
   const CollisionGeometry* o1;
 
@@ -427,7 +346,9 @@ public:
   }
 
   /// @brief add distance information into the result
-  void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_, const Vec3f& p1, const Vec3f& p2)
+  void update(FCL_REAL distance, const CollisionGeometry* o1_,
+              const CollisionGeometry* o2_, int b1_, int b2_,
+              const Vec3f& p1, const Vec3f& p2, const Vec3f& normal_)
   {
     if(min_distance > distance)
     {
@@ -438,6 +359,7 @@ public:
       b2 = b2_;
       nearest_points[0] = p1;
       nearest_points[1] = p2;
+      normal = normal_;
     }
   }
 
@@ -453,6 +375,7 @@ public:
       b2 = other_result.b2;
       nearest_points[0] = other_result.nearest_points[0];
       nearest_points[1] = other_result.nearest_points[1];
+      normal = other_result.normal;
     }
   }
 
@@ -478,11 +401,11 @@ public:
                   && b2 == other.b2;
 
 // TODO: check also that two GeometryObject are indeed equal.
-    if (o1 != NULL xor other.o1 != NULL) return false;
+    if ((o1 != NULL) xor (other.o1 != NULL)) return false;
     is_same &= (o1 == other.o1);
 //    else if (o1 != NULL and other.o1 != NULL) is_same &= *o1 == *other.o1;
 
-    if (o2 != NULL xor other.o2 != NULL) return false;
+    if ((o2 != NULL) xor (other.o2 != NULL)) return false;
     is_same &= (o2 == other.o2);
 //    else if (o2 != NULL and other.o2 != NULL) is_same &= *o2 == *other.o2;
   

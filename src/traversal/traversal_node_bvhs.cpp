@@ -44,105 +44,6 @@ namespace fcl
 namespace details
 {
 template<typename BV>
-static inline void meshCollisionOrientedNodeLeafTesting
-(int b1, int b2, const BVHModel<BV>* model1, const BVHModel<BV>* model2,
- Vec3f* vertices1, Vec3f* vertices2, Triangle* tri_indices1,
- Triangle* tri_indices2, const Matrix3f& R, const Vec3f& T,
- const Transform3f& tf1, const Transform3f& tf2, bool enable_statistics,
- FCL_REAL cost_density, int& num_leaf_tests, const CollisionRequest& request,
- CollisionResult& result, FCL_REAL& sqrDistLowerBound)
-{
-  if(enable_statistics) num_leaf_tests++;
-
-  const BVNode<BV>& node1 = model1->getBV(b1);
-  const BVNode<BV>& node2 = model2->getBV(b2);
-
-  int primitive_id1 = node1.primitiveId();
-  int primitive_id2 = node2.primitiveId();
-
-  const Triangle& tri_id1 = tri_indices1[primitive_id1];
-  const Triangle& tri_id2 = tri_indices2[primitive_id2];
-
-  const Vec3f& p1 = vertices1[tri_id1[0]];
-  const Vec3f& p2 = vertices1[tri_id1[1]];
-  const Vec3f& p3 = vertices1[tri_id1[2]];
-  const Vec3f& q1 = vertices2[tri_id2[0]];
-  const Vec3f& q2 = vertices2[tri_id2[1]];
-  const Vec3f& q3 = vertices2[tri_id2[2]];
-
-  if(model1->isOccupied() && model2->isOccupied())
-  {
-    bool is_intersect = false;
-
-    if(!request.enable_contact) // only interested in collision or not
-    {
-      if (request.enable_distance_lower_bound) {
-	Vec3f P, Q;
-	sqrDistLowerBound = TriangleDistance::sqrTriDistance
-	  (p1, p2, p3, q1, q2, q3, R, T, P, Q);
-	if (sqrDistLowerBound == 0) {
-	  is_intersect = true;
-	  if(result.numContacts() < request.num_max_contacts)
-	    result.addContact(Contact(model1, model2, primitive_id1,
-				      primitive_id2));
-	}
-      } else {
-	if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T)) {
-	  is_intersect = true;
-	  if(result.numContacts() < request.num_max_contacts)
-	    result.addContact(Contact(model1, model2, primitive_id1,
-				      primitive_id2));
-	}
-      }
-    }
-    else // need compute the contact information
-    {
-      FCL_REAL penetration;
-      Vec3f normal;
-      unsigned int n_contacts;
-      Vec3f contacts[2];
-
-      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
-                                       R, T,
-                                       contacts,
-                                       &n_contacts,
-                                       &penetration,
-                                       &normal))
-      {
-        is_intersect = true;
-        
-        if(request.num_max_contacts < result.numContacts() + n_contacts)
-          n_contacts = (request.num_max_contacts > result.numContacts()) ? (request.num_max_contacts - result.numContacts()) : 0;
-        
-        for(unsigned int i = 0; i < n_contacts; ++i)
-        {
-          result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation()* normal, penetration));
-        }
-      }
-    }
-
-    if(is_intersect && request.enable_cost)
-    {
-      AABB overlap_part;
-      AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
-    }
-  }
-  else if((!model1->isFree() && !model2->isFree()) && request.enable_cost)
-  {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
-    {
-      AABB overlap_part;
-      AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);          
-    }    
-  }
-}
-
-
-
-
-template<typename BV>
 static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
                                                        const BVHModel<BV>* model1, const BVHModel<BV>* model2,
                                                        Vec3f* vertices1, Vec3f* vertices2, 
@@ -150,7 +51,7 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
                                                        const Matrix3f& R, const Vec3f& T,
                                                        bool enable_statistics,
                                                        int& num_leaf_tests,
-                                                       const DistanceRequest& request,
+                                                       const DistanceRequest&,
                                                        DistanceResult& result)
 {
   if(enable_statistics) num_leaf_tests++;
@@ -173,22 +74,19 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
   const Vec3f& t23 = vertices2[tri_id2[2]];
 
   // nearest point pair
-  Vec3f P1, P2;
+  Vec3f P1, P2, normal;
 
   FCL_REAL d = sqrt (TriangleDistance::sqrTriDistance
 		     (t11, t12, t13, t21, t22, t23, R, T, P1, P2));
 
-  if(request.enable_nearest_points)
-    result.update(d, model1, model2, primitive_id1, primitive_id2, P1, P2);
-  else
-    result.update(d, model1, model2, primitive_id1, primitive_id2);
+  result.update(d, model1, model2, primitive_id1, primitive_id2, P1, P2,
+                normal);
 }
-
-}
+} // namespace details
 
 MeshCollisionTraversalNodeOBB::MeshCollisionTraversalNodeOBB
-(bool enable_distance_lower_bound) :
-  MeshCollisionTraversalNode<OBB> (enable_distance_lower_bound)
+(const CollisionRequest& request) :
+  MeshCollisionTraversalNode<OBB> (request)
 {
   R.setIdentity();
 }
@@ -199,38 +97,17 @@ bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2) const
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-void MeshCollisionTraversalNodeOBB::leafTesting
+bool MeshCollisionTraversalNodeOBB::BVTesting
 (int b1, int b2, FCL_REAL& sqrDistLowerBound) const
 {
-  details::meshCollisionOrientedNodeLeafTesting
-    (b1, b2, model1, model2, vertices1, vertices2, 
-     tri_indices1, tri_indices2, R, T, tf1, tf2,
-     enable_statistics, cost_density, num_leaf_tests, request, *result,
-     sqrDistLowerBound);
-}
-
-
-bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const
-{
   if(enable_statistics) num_bv_tests++;
-  return obbDisjoint(Rc, Tc, model1->getBV(b1).bv.extent, model2->getBV(b2).bv.extent);
+  return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv,
+                  request, sqrDistLowerBound);
 }
-
-  void MeshCollisionTraversalNodeOBB::leafTesting
-  (int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc,
-   FCL_REAL& sqrDistLowerBound) const
-  {
-    details::meshCollisionOrientedNodeLeafTesting
-      (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2,
-       R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests, request,
-       *result, sqrDistLowerBound);
-  }
-
-
 
 MeshCollisionTraversalNodeRSS::MeshCollisionTraversalNodeRSS
-(bool enable_distance_lower_bound) :
-  MeshCollisionTraversalNode<RSS> (enable_distance_lower_bound)
+(const CollisionRequest& request) :
+  MeshCollisionTraversalNode<RSS> (request)
 {
   R.setIdentity();
 }
@@ -241,21 +118,17 @@ bool MeshCollisionTraversalNodeRSS::BVTesting(int b1, int b2) const
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-void MeshCollisionTraversalNodeRSS::leafTesting
-(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+bool MeshCollisionTraversalNodeRSS::BVTesting(int b1, int b2,
+                                              FCL_REAL& sqrDistLowerBound) const
 {
-  details::meshCollisionOrientedNodeLeafTesting
-    (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-     R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests,
-     request, *result, sqrDistLowerBound);
+  if(enable_statistics) num_bv_tests++;
+  sqrDistLowerBound = 0;
+  return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-
-
-
 MeshCollisionTraversalNodekIOS::MeshCollisionTraversalNodekIOS
-(bool enable_distance_lower_bound) :
-  MeshCollisionTraversalNode<kIOS>(enable_distance_lower_bound)
+(const CollisionRequest& request) :
+  MeshCollisionTraversalNode<kIOS>(request)
 {
   R.setIdentity();
 }
@@ -266,20 +139,17 @@ bool MeshCollisionTraversalNodekIOS::BVTesting(int b1, int b2) const
   return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-void MeshCollisionTraversalNodekIOS::leafTesting
+bool MeshCollisionTraversalNodekIOS::BVTesting
 (int b1, int b2, FCL_REAL& sqrDistLowerBound) const
 {
-  details::meshCollisionOrientedNodeLeafTesting
-    (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-     R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests,
-     request, *result, sqrDistLowerBound);
+  if(enable_statistics) num_bv_tests++;
+  sqrDistLowerBound = 0;
+  return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-
-
 MeshCollisionTraversalNodeOBBRSS::MeshCollisionTraversalNodeOBBRSS
-(bool enable_distance_lower_bound) :
-  MeshCollisionTraversalNode<OBBRSS> (enable_distance_lower_bound)
+(const CollisionRequest& request) :
+  MeshCollisionTraversalNode<OBBRSS> (request)
 {
   R.setIdentity();
 }
@@ -295,18 +165,8 @@ bool MeshCollisionTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
   {
     if(enable_statistics) num_bv_tests++;
     return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv,
-		    sqrDistLowerBound);
+		    request, sqrDistLowerBound);
   }
-
-void MeshCollisionTraversalNodeOBBRSS::leafTesting
-(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
-{
-  details::meshCollisionOrientedNodeLeafTesting
-    (b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-     R, T, tf1, tf2, enable_statistics, cost_density, num_leaf_tests,
-     request,*result, sqrDistLowerBound);
-}
-
 
 namespace details
 {
@@ -317,7 +177,7 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1, co
                                                   Triangle* tri_indices1, Triangle* tri_indices2,
                                                   int init_tri_id1, int init_tri_id2,
                                                   const Matrix3f& R, const Vec3f& T,
-                                                  const DistanceRequest& request,
+                                                  const DistanceRequest&,
                                                   DistanceResult& result)
 {
   const Triangle& init_tri1 = tri_indices1[init_tri_id1];
@@ -334,17 +194,15 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1, co
   init_tri2_points[1] = vertices2[init_tri2[1]];
   init_tri2_points[2] = vertices2[init_tri2[2]];
 
-  Vec3f p1, p2;
+  Vec3f p1, p2, normal;
   FCL_REAL distance = sqrt (TriangleDistance::sqrTriDistance
 			    (init_tri1_points[0], init_tri1_points[1],
 			     init_tri1_points[2], init_tri2_points[0],
 			     init_tri2_points[1], init_tri2_points[2],
 			     R, T, p1, p2));
 
-  if(request.enable_nearest_points)
-    result.update(distance, model1, model2, init_tri_id1, init_tri_id2, p1, p2);
-  else
-    result.update(distance, model1, model2, init_tri_id1, init_tri_id2);
+  result.update(distance, model1, model2, init_tri_id1, init_tri_id2, p1, p2,
+                normal);
 }
 
 template<typename BV>

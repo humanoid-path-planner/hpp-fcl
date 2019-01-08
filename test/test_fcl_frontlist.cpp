@@ -228,17 +228,16 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
 
   Transform3f pose1, pose2;
 
-  CollisionResult local_result;	
-  MeshCollisionTraversalNode<BV> node (false);
+  CollisionResult local_result;
+  CollisionRequest request (false, std::numeric_limits<int>::max());
+  MeshCollisionTraversalNode<BV> node (request);
 
-  if(!initialize<BV>(node, m1, pose1, m2, pose2,
-                     CollisionRequest(std::numeric_limits<int>::max(), false), local_result))
-    std::cout << "initialize error" << std::endl;
+  bool success = initialize <BV>(node, m1, pose1, m2, pose2, local_result);
+  assert (success);
 
   node.enable_statistics = verbose;
 
-  FCL_REAL sqrDistLowerBound = 0;
-  collide(&node, sqrDistLowerBound, &front_list);
+  collide(&node, request, local_result, &front_list);
 
   if(verbose) std::cout << "front list size " << front_list.size() << std::endl;
 
@@ -258,8 +257,7 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
   m2.endReplaceModel(true, refit_bottomup);
 
   local_result.clear();
-  sqrDistLowerBound = 0;
-  collide(&node, sqrDistLowerBound, &front_list);
+  collide(&node, request, local_result, &front_list);
 
   if(local_result.numContacts() > 0)
     return true;
@@ -294,28 +292,28 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1, const Transform3f&
   Transform3f pose1(tf1), pose2;
 
   CollisionResult local_result;	
-  TraversalNode node (false);
+  CollisionRequest request (false, std::numeric_limits<int>::max());
+  TraversalNode node (request);
 
-  if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2,
-                 CollisionRequest(std::numeric_limits<int>::max(), false), local_result))
-    std::cout << "initialize error" << std::endl;
+  bool success = initialize (node, (const BVHModel<BV>&)m1, pose1,
+                             (const BVHModel<BV>&)m2, pose2, local_result);
+  assert (success);
 
   node.enable_statistics = verbose;
 
-  FCL_REAL sqrDistLowerBound = 0;
-  collide(&node, sqrDistLowerBound, &front_list);
+  collide(&node, request, local_result, &front_list);
 
   if(verbose) std::cout << "front list size " << front_list.size() << std::endl;
 
 
   // update the mesh
   pose1 = tf2;
-  if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2, CollisionRequest(), local_result))
-    std::cout << "initialize error" << std::endl;
+  success = initialize (node, (const BVHModel<BV>&)m1, pose1,
+                        (const BVHModel<BV>&)m2, pose2, local_result);
+  assert (success);
 
   local_result.clear();
-  sqrDistLowerBound = 0;
-  collide(&node, sqrDistLowerBound, &front_list);
+  collide(&node, request, local_result, &front_list);
 
   if(local_result.numContacts() > 0)
     return true;
@@ -344,18 +342,16 @@ bool collide_Test(const Transform3f& tf,
 
   Transform3f pose1(tf), pose2;
 
-  CollisionResult local_result;	
-  MeshCollisionTraversalNode<BV> node (false);
+  CollisionResult local_result;
+  CollisionRequest request (false, std::numeric_limits<int>::max());
+  MeshCollisionTraversalNode<BV> node (request);
 
-  if(!initialize<BV>(node, m1, pose1, m2, pose2,
-                     CollisionRequest(std::numeric_limits<int>::max(), false), local_result))
-    std::cout << "initialize error" << std::endl;
+  bool success = initialize <BV>(node, m1, pose1, m2, pose2, local_result);
+  assert (success);
 
   node.enable_statistics = verbose;
 
-  FCL_REAL sqrDistLowerBound = 0;
-  collide(&node, sqrDistLowerBound);
-
+  collide(&node, request, local_result);
 
   if(local_result.numContacts() > 0)
     return true;

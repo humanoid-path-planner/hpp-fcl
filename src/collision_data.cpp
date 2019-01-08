@@ -42,7 +42,7 @@ namespace fcl
 
 bool CollisionRequest::isSatisfied(const CollisionResult& result) const
 {
-  return (!enable_cost) && result.isCollision() && (num_max_contacts <= result.numContacts());
+  return result.isCollision() && (num_max_contacts <= result.numContacts());
 }
 
 bool DistanceRequest::isSatisfied(const DistanceResult& result) const
@@ -50,4 +50,19 @@ bool DistanceRequest::isSatisfied(const DistanceResult& result) const
   return (result.min_distance <= 0);
 }
 
+  CollisionRequest::CollisionRequest
+  (size_t num_max_contacts_, bool enable_contact_,
+   bool enable_distance_lower_bound_, size_t /*num_max_cost_sources_*/,
+   bool /*enable_cost_*/, bool /*use_approximate_cost_*/,
+   GJKSolverType gjk_solver_type_) :
+    num_max_contacts(num_max_contacts_),
+    enable_contact(enable_contact_),
+    enable_distance_lower_bound (enable_distance_lower_bound_),
+    gjk_solver_type(gjk_solver_type_),
+    security_margin (0),
+    break_distance (1e-3)
+  {
+    enable_cached_gjk_guess = false;
+    cached_gjk_guess = Vec3f(1, 0, 0);
+  }
 }

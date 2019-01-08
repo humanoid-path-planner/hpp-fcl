@@ -44,6 +44,7 @@
 
 namespace fcl
 {
+  class CollisionRequest;
 
 /// @brief Oriented bounding box class
 class OBB
@@ -67,7 +68,8 @@ public:
   /// \return true if collision happens. 
   /// \retval sqrDistLowerBound squared lower bound on distance between boxes if
   ///         they do not overlap.
-  bool overlap(const OBB& other, FCL_REAL& sqrDistLowerBound) const;
+  bool overlap(const OBB& other, const CollisionRequest& request,
+               FCL_REAL& sqrDistLowerBound) const;
 
   
   /// @brief Check collision between two OBB and return the overlap part. For OBB, the overlap_part return value is NOT used as the overlap part of two obbs usually is not an obb. 
@@ -142,7 +144,8 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2);
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and b2 is in identity.
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
-	     const OBB& b2, FCL_REAL& sqrDistLowerBound);
+	     const OBB& b2, const CollisionRequest& request,
+             FCL_REAL& sqrDistLowerBound);
 
 
 /// Check collision between two boxes

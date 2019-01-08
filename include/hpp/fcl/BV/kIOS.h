@@ -43,6 +43,7 @@
 
 namespace fcl
 {
+  class CollisionRequest;
  
 /// @brief A class describing the kIOS collision structure, which is a set of spheres.
 class kIOS
@@ -94,7 +95,8 @@ public:
   bool overlap(const kIOS& other) const;
 
   /// @brief Check collision between two kIOS
-  bool overlap(const kIOS& other, FCL_REAL& sqrDistLowerBound) const;
+  bool overlap(const kIOS& other, const CollisionRequest&,
+               FCL_REAL& sqrDistLowerBound) const;
 
   /// @brief Check collision between two kIOS and return the overlap part.
   /// For kIOS, we return nothing, as the overlappart of two kIOS usually is not an kIOS

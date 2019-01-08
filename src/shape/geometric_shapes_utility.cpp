@@ -465,7 +465,7 @@ void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, Halfspace>(const Halfspace&, const Transform3f&, OBB& bv)
 {
   /// Half space can only have very rough OBB
   bv.axes.setIdentity();
@@ -474,7 +474,7 @@ void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f& tf, OBB& b
 }
 
 template<>
-void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3f& tf, RSS& bv)
+void computeBV<RSS, Halfspace>(const Halfspace&, const Transform3f&, RSS& bv)
 {
   /// Half space can only have very rough RSS
   bv.axes.setIdentity();

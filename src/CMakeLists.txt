@@ -38,6 +38,7 @@ set(${LIBRARY_NAME}_SOURCES
   distance_func_matrix.cpp
   collision_data.cpp
   collision_node.cpp
+  collision_object.cpp
   BV/RSS.cpp
   BV/AABB.cpp
   BV/kIOS.cpp
@@ -46,18 +47,23 @@ set(${LIBRARY_NAME}_SOURCES
   BV/OBB.cpp
   narrowphase/narrowphase.cpp
   narrowphase/gjk.cpp
-  broadphase/broadphase_bruteforce.cpp
-  broadphase/interval_tree.cpp
-  broadphase/broadphase_SaP.cpp
-  broadphase/broadphase_dynamic_AABB_tree.cpp
-  broadphase/broadphase_SSaP.cpp
-  broadphase/broadphase_dynamic_AABB_tree_array.cpp
-  broadphase/broadphase_interval_tree.cpp
-  broadphase/broadphase_spatialhash.cpp
-  broadphase/hierarchy_tree.cpp
+  narrowphase/details.h
   shape/geometric_shapes.cpp
   shape/geometric_shapes_utility.cpp
+  distance_box_halfspace.cpp
+  distance_box_plane.cpp
+  distance_box_sphere.cpp
   distance_capsule_capsule.cpp
+  distance_capsule_halfspace.cpp
+  distance_capsule_plane.cpp
+  distance_cone_halfspace.cpp
+  distance_cone_plane.cpp
+  distance_cylinder_halfspace.cpp
+  distance_cylinder_plane.cpp
+  distance_sphere_sphere.cpp
+  distance_sphere_cylinder.cpp
+  distance_sphere_halfspace.cpp
+  distance_sphere_plane.cpp
   intersect.cpp
   math/transform.cpp
   traversal/traversal_node_setup.cpp

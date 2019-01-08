@@ -48,7 +48,6 @@ template<typename BV, typename OrientedNode>
 static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
                                                   const BVHModel<BV>& model1, const Transform3f& tf1,
                                                   const BVHModel<BV>& model2, const Transform3f& tf2,
-                                                  const CollisionRequest& request,
                                                   CollisionResult& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
@@ -65,10 +64,7 @@ static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
   node.model2 = &model2;
   node.tf2 = tf2;
 
-  node.request = request;
   node.result = &result;
-
-  node.cost_density = model1.cost_density * model2.cost_density;
 
   relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
 
@@ -81,39 +77,35 @@ static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
 bool initialize(MeshCollisionTraversalNodeOBB& node,
                 const BVHModel<OBB>& model1, const Transform3f& tf1,
                 const BVHModel<OBB>& model2, const Transform3f& tf2,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request, result);
+  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, result);
 }
 
 
 bool initialize(MeshCollisionTraversalNodeRSS& node,
                 const BVHModel<RSS>& model1, const Transform3f& tf1,
                 const BVHModel<RSS>& model2, const Transform3f& tf2,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request, result);
+  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, result);
 }
 
 
 bool initialize(MeshCollisionTraversalNodekIOS& node,
                 const BVHModel<kIOS>& model1, const Transform3f& tf1,
                 const BVHModel<kIOS>& model2, const Transform3f& tf2,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request, result);
+  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, result);
 }
 
 bool initialize(MeshCollisionTraversalNodeOBBRSS& node,
                 const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
                 const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
-                const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request, result);
+  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, result);
 }
 
 

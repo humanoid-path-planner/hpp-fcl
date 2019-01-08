@@ -92,30 +92,6 @@ struct MinkowskiDiff
     else
       return support0(d);
   }
-
-  /// @brief support function for translating shape0, which is translating at velocity v
-  inline Vec3f support0(const Vec3f& d, const Vec3f& v) const
-  {
-    if(d.dot(v) <= 0)
-      return getSupport(shapes[0], d);
-    else
-      return getSupport(shapes[0], d) + v;
-  }
-
-  /// @brief support function for the pair of shapes, where shape0 is translating at velocity v
-  inline Vec3f support(const Vec3f& d, const Vec3f& v) const
-  {
-    return support0(d, v) - support1(-d);
-  }
-
-  /// @brief support function for the d-th shape (d = 0 or 1), where shape0 is translating at velocity v
-  inline Vec3f support(const Vec3f& d, const Vec3f& v, size_t index) const
-  {
-    if(index)
-      return support1(d);
-    else
-      return support0(d, v);
-  }
 };
 
 
@@ -137,9 +113,9 @@ struct GJK
   struct Simplex
   {
     /// @brief simplex vertex
-    SimplexV* c[4];
+    SimplexV* vertex[4];
     /// @brief weight 
-    FCL_REAL p[4];
+    FCL_REAL coefficient[4];
     /// @brief size of simplex (number of vertices)
     size_t rank;
 
@@ -167,9 +143,6 @@ struct GJK
 
   /// @brief apply the support function along a direction, the result is return in sv
   void getSupport(const Vec3f& d, SimplexV& sv) const;
-
-  /// @brief apply the support function along a direction, the result is return is sv, here shape0 is translating at velocity v
-  void getSupport(const Vec3f& d, const Vec3f& v, SimplexV& sv) const;
 
   /// @brief discard one vertex from the simplex
   void removeVertex(Simplex& simplex);
@@ -217,7 +190,7 @@ private:
   {
     Vec3f n;
     FCL_REAL d;
-    SimplexV* c[3]; // a face has three vertices
+    SimplexV* vertex[3]; // a face has three vertices
     SimplexF* f[3]; // a face has three adjacent faces
     SimplexF* l[2]; // the pre and post faces in the list
     size_t e[3];
@@ -300,7 +273,7 @@ public:
 
   bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist);
 
-  SimplexF* newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced);
+  SimplexF* newFace(SimplexV* a, SimplexV* b, SimplexV* vertex, bool forced);
 
   /// @brief Find the best polytope face to split
   SimplexF* findBest();

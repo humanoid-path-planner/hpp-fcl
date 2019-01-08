@@ -57,21 +57,13 @@ namespace fcl
 ///         do not collide.
 /// \param front_list list of nodes visited by the query, can be used to
 ///        accelerate computation
-  void collide(CollisionTraversalNodeBase* node, FCL_REAL& sqrDistLowerBound,
+  void collide(CollisionTraversalNodeBase* node,
+               const CollisionRequest& request,
+               CollisionResult& result,
 	       BVHFrontList* front_list = NULL);
-
-/// @brief self collision on collision traversal node; can use front list to accelerate
-void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list = NULL);
 
 /// @brief distance computation on distance traversal node; can use front list to accelerate
 void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
-
-/// @brief special collision on OBB traversal node
-void collide2(MeshCollisionTraversalNodeOBB* node, BVHFrontList* front_list = NULL);
-
-/// @brief special collision on RSS traversal node
-void collide2(MeshCollisionTraversalNodeRSS* node, BVHFrontList* front_list = NULL);
-
 }
 
 #endif

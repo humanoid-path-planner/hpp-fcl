@@ -88,13 +88,15 @@ public:
   }
 
   /// @brief whether the object is completely occupied
-  inline bool isOccupied() const { return cost_density >= threshold_occupied; }
+  inline bool isOccupied() const HPP_FCL_DEPRECATED
+  { return cost_density >= threshold_occupied; }
 
   /// @brief whether the object is completely free
-  inline bool isFree() const { return cost_density <= threshold_free; }
+  inline bool isFree() const HPP_FCL_DEPRECATED
+  { return cost_density <= threshold_free; }
 
   /// @brief whether the object has some uncertainty
-  inline bool isUncertain() const { return !isOccupied() && !isFree(); }
+  bool isUncertain() const HPP_FCL_DEPRECATED;
 
   /// @brief AABB center in local coordinate
   Vec3f aabb_center;
@@ -313,36 +315,6 @@ public:
   const boost::shared_ptr<CollisionGeometry>& collisionGeometry()
   {
     return cgeom;
-  }
-
-  /// @brief get object's cost density
-  FCL_REAL getCostDensity() const
-  {
-    return cgeom->cost_density;
-  }
-
-  /// @brief set object's cost density
-  void setCostDensity(FCL_REAL c)
-  {
-    cgeom->cost_density = c;
-  }
-
-  /// @brief whether the object is completely occupied
-  inline bool isOccupied() const
-  {
-    return cgeom->isOccupied();
-  }
-
-  /// @brief whether the object is completely free
-  inline bool isFree() const
-  {
-    return cgeom->isFree();
-  }
-
-  /// @brief whether the object is uncertain
-  inline bool isUncertain() const
-  {
-    return cgeom->isUncertain();
   }
 
 protected:

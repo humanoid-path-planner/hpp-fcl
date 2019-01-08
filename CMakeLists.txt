@@ -78,6 +78,7 @@ add_optional_dependency("octomap >= 1.6")
 if (OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
 	include_directories(${OCTOMAP_INCLUDE_DIRS})
 	link_directories(${OCTOMAP_LIBRARY_DIRS})
+  SET(FCL_HAVE_OCTOMAP TRUE)
   add_definitions (-DFCL_HAVE_OCTOMAP)
   string(REPLACE "." ";" VERSION_LIST ${OCTOMAP_VERSION})
   list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
@@ -88,6 +89,7 @@ if (OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
                    -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION})
 	message(STATUS "FCL uses Octomap")
 else()
+  SET(FCL_HAVE_OCTOMAP FALSE)
 	message(STATUS "FCL does not use Octomap")
 endif()
 
@@ -98,6 +100,7 @@ if(ASSIMP_FOUND)
     SET(WITH_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES TRUE)
     message(STATUS "Assimp version has unified headers")
   else()
+    SET(WITH_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES FALSE)
     message(STATUS "Assimp version does not have unified headers")
   endif()
 endif()
@@ -117,18 +120,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/BV/kDOP.h
   include/hpp/fcl/narrowphase/narrowphase.h
   include/hpp/fcl/narrowphase/gjk.h
-  include/hpp/fcl/broadphase/interval_tree.h
-  include/hpp/fcl/broadphase/broadphase_spatialhash.h
-  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h
-  include/hpp/fcl/broadphase/broadphase_SSaP.h
-  include/hpp/fcl/broadphase/broadphase_interval_tree.h
-  include/hpp/fcl/broadphase/broadphase.h
-  include/hpp/fcl/broadphase/hierarchy_tree.h
-  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h
-  include/hpp/fcl/broadphase/broadphase_SaP.h
-  include/hpp/fcl/broadphase/broadphase_bruteforce.h
-  include/hpp/fcl/broadphase/morton.h
-  include/hpp/fcl/broadphase/hash.h
   include/hpp/fcl/shape/geometric_shapes_utility.h
   include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
   include/hpp/fcl/shape/geometric_shapes.h
@@ -173,10 +164,9 @@ PKG_CONFIG_APPEND_BOOST_LIBS(thread date_time filesystem system)
 IF(WITH_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
   PKG_CONFIG_APPEND_CFLAGS("-DFCL_USE_ASSIMP_UNIFIED_HEADER_NAMES")
 ENDIF(WITH_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
-PKG_CONFIG_APPEND_CFLAGS("-DFCL_HAVE_OCTOMAP=${FCL_HAVE_OCTOMAP}")
 IF(FCL_HAVE_OCTOMAP)
   PKG_CONFIG_APPEND_CFLAGS(
-    "-DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION} -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION} -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION}")
+    "-DFCL_HAVE_OCTOMAP -DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION} -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION} -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION}")
 ENDIF(FCL_HAVE_OCTOMAP)
 
 setup_project_finalize()

@@ -231,6 +231,22 @@ BOOST_AUTO_TEST_CASE(OBB_AABB_test)
   std::cout << std::endl;
 }
 
+// This test
+//  1. load two objects "env.obj" and "rob.obj" from directory
+//     fcl_resources,
+//  2. generates n random transformation and for each of them denote tf,
+//    2.1 performs a collision test where object 1 is in pose tf. All
+//        the contacts are stored in vector global_pairs.
+//    2.2 performs a series of collision tests with the same object and
+//        the same poses using various methods and various types of bounding
+//        volumes. Each time the contacts are stored in vector global_pairs_now.
+//
+// The methods used to test collision are
+//  - collide_Test that calls function collide with tf for object1 pose and
+//      identity for the second object pose,
+//  - collide_Test2 that moves all vertices of object1 in pose tf and that
+//      calls function collide with identity for both object poses,
+//
 BOOST_AUTO_TEST_CASE(mesh_mesh)
 {
   std::vector<Vec3f> p1, p2;
@@ -250,13 +266,19 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
   // collision
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
+    Eigen::IOFormat f (Eigen::FullPrecision, 0, ", ", ",", "", "", "(", ")");
+
+    std::cerr
+      << "q1=" << transforms [i].getTranslation ().format (f) << "+" <<
+      transforms [i].getQuatRotation ().coeffs ().format (f) << std::endl;
     global_pairs.clear();
     global_pairs_now.clear();
 
+    // First test: constacts are stored in vector global_pairs
     collide_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
 
     collide_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -264,7 +286,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -272,7 +294,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -280,7 +302,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -288,7 +310,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -296,7 +318,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -304,7 +326,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -312,7 +334,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -320,7 +342,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -328,7 +350,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -336,7 +358,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -344,7 +366,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -352,7 +374,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -360,7 +382,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -368,7 +390,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -376,7 +398,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -384,7 +406,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -392,7 +414,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -400,7 +422,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -408,7 +430,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -416,7 +438,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -424,7 +446,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -432,7 +454,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -440,7 +462,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -448,7 +470,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -456,7 +478,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -464,7 +486,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -472,7 +494,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -480,7 +502,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -488,7 +510,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -496,7 +518,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -504,7 +526,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -512,7 +534,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -520,7 +542,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -528,7 +550,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -537,7 +559,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
 
     collide_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
 
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -546,7 +568,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
 
     collide_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
 
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -554,7 +576,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -562,7 +584,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -570,7 +592,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -578,7 +600,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -586,7 +608,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     test_collide_func<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -594,7 +616,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     test_collide_func<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -602,7 +624,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     test_collide_func<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -611,7 +633,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
 
     
     collide_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -619,7 +641,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -627,7 +649,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -635,7 +657,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -643,7 +665,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -651,7 +673,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -659,7 +681,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
     
     collide_Test_Oriented<kIOS, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -667,7 +689,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test_Oriented<kIOS, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -675,7 +697,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test_Oriented<kIOS, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -683,7 +705,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     test_collide_func<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -691,7 +713,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     test_collide_func<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -699,7 +721,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     test_collide_func<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -707,7 +729,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -715,7 +737,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -723,7 +745,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -731,7 +753,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -739,7 +761,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -747,7 +769,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test2<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -755,7 +777,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
     
     collide_Test_Oriented<OBBRSS, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -763,7 +785,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test_Oriented<OBBRSS, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -771,7 +793,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     collide_Test_Oriented<OBBRSS, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -779,7 +801,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     test_collide_func<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -787,7 +809,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     test_collide_func<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -795,7 +817,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
     }
 
     test_collide_func<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER);
-    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
+    assert (global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
       BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
@@ -833,17 +855,15 @@ bool collide_Test2(const Transform3f& tf,
   Transform3f pose1, pose2;
 
   CollisionResult local_result;
-  MeshCollisionTraversalNode<BV> node (false);
+  CollisionRequest request (enable_contact, num_max_contacts, false);
+  MeshCollisionTraversalNode<BV> node (request);
 
-  if(!initialize<BV>(node, m1, pose1, m2, pose2,
-                     CollisionRequest(num_max_contacts, enable_contact), local_result))
-    std::cout << "initialize error" << std::endl;
+  bool success = initialize <BV> (node, m1, pose1, m2, pose2, local_result);
+  assert (success);
 
   node.enable_statistics = verbose;
 
-  FCL_REAL sqrDistLowerBound = 0;
-  collide(&node, sqrDistLowerBound);
-
+  collide(&node, request, local_result);
 
   if(local_result.numContacts() > 0)
   {
@@ -872,6 +892,8 @@ bool collide_Test2(const Transform3f& tf,
   }
 }
 
+// Test collision between two sets of triangles
+// first object is in pose tf, second object is in pose identity.
 template<typename BV>
 bool collide_Test(const Transform3f& tf,
                   const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
@@ -893,17 +915,15 @@ bool collide_Test(const Transform3f& tf,
   Transform3f pose1(tf), pose2;
 
   CollisionResult local_result;
-  MeshCollisionTraversalNode<BV> node (false);
+  CollisionRequest request (enable_contact, num_max_contacts, false);
+  MeshCollisionTraversalNode<BV> node (request);
 
-  if(!initialize<BV>(node, m1, pose1, m2, pose2,
-                     CollisionRequest(num_max_contacts, enable_contact), local_result))
-    std::cout << "initialize error" << std::endl;
+  bool success = initialize <BV> (node, m1, pose1, m2, pose2, local_result);
+  assert (success);
 
   node.enable_statistics = verbose;
 
-  FCL_REAL sqrDistLowerBound = 0;
-  collide(&node, sqrDistLowerBound);
-
+  collide(&node, request, local_result);
 
   if(local_result.numContacts() > 0)
   {
@@ -931,6 +951,8 @@ bool collide_Test(const Transform3f& tf,
   }
 }
 
+// This function is the same as collide_Test, except that the type of traversal
+// node is chosen via template argument.
 template<typename BV, typename TraversalNode>
 bool collide_Test_Oriented(const Transform3f& tf,
                            const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
@@ -952,15 +974,15 @@ bool collide_Test_Oriented(const Transform3f& tf,
   Transform3f pose1(tf), pose2;
 
   CollisionResult local_result;
-  TraversalNode node (false);
-  if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2, 
-                 CollisionRequest(num_max_contacts, enable_contact), local_result))
-    std::cout << "initialize error" << std::endl;
+  CollisionRequest request (enable_contact, num_max_contacts, false);
+  TraversalNode node (request);
+  bool success = initialize (node, (const BVHModel<BV>&)m1, pose1,
+                             (const BVHModel<BV>&)m2, pose2, local_result);
+  assert (success);
 
   node.enable_statistics = verbose;
 
-  FCL_REAL sqrDistLowerBound = 0;
-  collide(&node, sqrDistLowerBound);
+  collide(&node, request, local_result);
 
   if(local_result.numContacts() > 0)
   {
@@ -1011,7 +1033,7 @@ bool test_collide_func(const Transform3f& tf,
 
   std::vector<Contact> contacts;
 
-  CollisionRequest request(num_max_contacts, enable_contact);
+  CollisionRequest request (enable_contact, num_max_contacts, false);
   CollisionResult result;
   int num_contacts = collide(&m1, pose1, &m2, pose2, 
                              request, result);

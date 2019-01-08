@@ -54,8 +54,8 @@ template<typename BV, typename S>
 class BVHShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  BVHShapeCollisionTraversalNode(bool enable_distance_lower_bound) :
-  CollisionTraversalNodeBase (enable_distance_lower_bound)
+  BVHShapeCollisionTraversalNode(const CollisionRequest& request) :
+  CollisionTraversalNodeBase (request)
   {
     model1 = NULL;
     model2 = NULL;
@@ -84,7 +84,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) num_bv_tests++;
     return !model1->getBV(b1).bv.overlap(model2_bv);
@@ -95,10 +95,10 @@ public:
   /// \retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) num_bv_tests++;
-    return !model1->getBV(b1).bv.overlap(model2_bv, sqrDistLowerBound);
+    return !model1->getBV(b1).bv.overlap(model2_bv, request, sqrDistLowerBound);
   }
 
   const BVHModel<BV>* model1;
@@ -115,7 +115,8 @@ template<typename S, typename BV>
 class ShapeBVHCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
-  ShapeBVHCollisionTraversalNode() : CollisionTraversalNodeBase()
+  ShapeBVHCollisionTraversalNode(const CollisionRequest& request) :
+  CollisionTraversalNodeBase(request)
   {
     model1 = NULL;
     model2 = NULL;
@@ -182,8 +183,8 @@ template<typename BV, typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNode : public BVHShapeCollisionTraversalNode<BV, S>
 {
 public:
-  MeshShapeCollisionTraversalNode(bool enable_distance_lower_bound = false) :
-  BVHShapeCollisionTraversalNode<BV, S> (enable_distance_lower_bound)
+  MeshShapeCollisionTraversalNode(const CollisionRequest& request) :
+  BVHShapeCollisionTraversalNode<BV, S> (request)
   {
     vertices = NULL;
     tri_indices = NULL;
@@ -205,51 +206,27 @@ public:
     const Vec3f& p2 = vertices[tri_id[1]];
     const Vec3f& p3 = vertices[tri_id[2]];
 
-    if(this->model1->isOccupied() && this->model2->isOccupied())
+    FCL_REAL distance;
+    Vec3f normal;
+    Vec3f c1, c2;
+
+    if(nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
+                                         Transform3f (), distance, c1, c2,
+                                         normal))
     {
-      bool is_intersect = false;
-
-      if(!this->request.enable_contact)
-      {
-        if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
-        {
-          is_intersect = true;
-          if(this->request.num_max_contacts > this->result->numContacts())
-            this->result->addContact(Contact(this->model1, this->model2, primitive_id, Contact::NONE));
-        }
-      }
-      else
-      {
-        FCL_REAL penetration;
-        Vec3f normal;
-        Vec3f contactp;
-
-        if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, &contactp, &penetration, &normal))
-        {
-          is_intersect = true;
-          if(this->request.num_max_contacts > this->result->numContacts())
-            this->result->addContact(Contact(this->model1, this->model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
-        }
-      }
-
-      if(is_intersect && this->request.enable_cost)
-      {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
-      }
+      if(this->request.num_max_contacts > this->result->numContacts())
+        this->result->addContact(Contact(this->model1, this->model2,
+                                         primitive_id, Contact::NONE,
+                                         c1, -normal, -distance));
+      return;
     }
-    if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
-    {
-      if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
-      {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);        
+    assert (distance > 0);
+    if (this->request.security_margin > 0) {
+      if (distance <= this->request.security_margin) {
+        this->result->addContact(Contact(this->model1, this->model2,
+                                         primitive_id, Contact::NONE,
+                                         .5 * (c1+c2), (c2-c1).normalized (),
+                                         -distance));
       }
     }
   }
@@ -263,8 +240,6 @@ public:
   Vec3f* vertices;
   Triangle* tri_indices;
   
-  FCL_REAL cost_density;
-
   const NarrowPhaseSolver* nsolver;
 };
 
@@ -273,12 +248,12 @@ namespace details
 {
 template<typename BV, typename S, typename NarrowPhaseSolver>
 static inline void meshShapeCollisionOrientedNodeLeafTesting
-  (int b1, int b2, const BVHModel<BV>* model1, const S& model2,
+  (int b1, int /*b2*/, const BVHModel<BV>* model1, const S& model2,
    Vec3f* vertices, Triangle* tri_indices, const Transform3f& tf1,
    const Transform3f& tf2, const NarrowPhaseSolver* nsolver,
-   bool enable_statistics, FCL_REAL cost_density, int& num_leaf_tests,
+   bool enable_statistics, int& num_leaf_tests,
    const CollisionRequest& request, CollisionResult& result,
-   FCL_REAL& sqrDistLowerBound)
+   FCL_REAL&)
 {
   if(enable_statistics) num_leaf_tests++;
   const BVNode<BV>& node = model1->getBV(b1);
@@ -287,72 +262,27 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting
 
   const Triangle& tri_id = tri_indices[primitive_id];
 
-  const Vec3f& p1 = vertices[tri_id[0]];
-  const Vec3f& p2 = vertices[tri_id[1]];
-  const Vec3f& p3 = vertices[tri_id[2]];
+  const Vec3f& P1 = vertices[tri_id[0]];
+  const Vec3f& P2 = vertices[tri_id[1]];
+  const Vec3f& P3 = vertices[tri_id[2]];
 
-  if(model1->isOccupied() && model2.isOccupied())
+  FCL_REAL distance;
+  Vec3f normal;
+  Vec3f p1, p2; // closest points
+
+  if(nsolver->shapeTriangleInteraction(model2, tf2, P1, P2, P3, tf1,
+                                       distance, p1, p2, normal))
   {
-    bool is_intersect = false;
-
-    if(!request.enable_contact) // only interested in collision or not
-    {
-      if (request.enable_distance_lower_bound) {
-	FCL_REAL dist;
-	if (nsolver->shapeTriangleDistance (model2, tf2, p1, p2, p3, tf1,
-					    &dist, 0x0, 0x0)) {
-	  sqrDistLowerBound = dist * dist;
-	} else {
-	  // collision
-	  is_intersect = true;
-	  sqrDistLowerBound = 0;
-	  if(request.num_max_contacts > result.numContacts())
-	    result.addContact(Contact(model1, &model2, primitive_id,
-				      Contact::NONE));
-	}
-      } else {
-	if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1,
-					   NULL, NULL, NULL)) {
-	  is_intersect = true;
-	  if(request.num_max_contacts > result.numContacts())
-	    result.addContact(Contact(model1, &model2, primitive_id,
-				      Contact::NONE));
-	}
-      }
-    }
-    else
-    {
-      FCL_REAL penetration;
-      Vec3f normal;
-      Vec3f contactp;
-
-      if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, &contactp, &penetration, &normal))
-      {
-        is_intersect = true;
-        if(request.num_max_contacts > result.numContacts())
-          result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
-      }
-    }
-
-    if(is_intersect && request.enable_cost)
-    {
-      AABB overlap_part;
-      AABB shape_aabb;
-      computeBV<AABB, S>(model2, tf2, shape_aabb);
-      /* bool res = */ AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);
-    }
+    if(request.num_max_contacts > result.numContacts())
+      result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE,
+                                p1, -normal, -distance));
+    return;
   }
-  else if((!model1->isFree() || model2.isFree()) && request.enable_cost)
-  {
-    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
-    {
-      AABB overlap_part;
-      AABB shape_aabb;
-      computeBV<AABB, S>(model2, tf2, shape_aabb);
-      /* bool res = */ AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
-    }
+  assert (distance > 0);
+  if (request.security_margin == 0) return;
+  if (distance <= request.security_margin) {
+    result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE,
+                              .5*(p1+p2), (p2-p1).normalized (), -distance));
   }
 }
 
@@ -366,13 +296,13 @@ template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodeOBB(bool enable_distance_lower_bound = false) :
+  MeshShapeCollisionTraversalNodeOBB(const CollisionRequest& request) :
   MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>
-    (enable_distance_lower_bound)
+    (request)
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -383,8 +313,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
        this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->result), sqrDistLowerBound);
+       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -393,13 +322,13 @@ template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodeRSS (bool enable_distance_lower_bound = false):
+  MeshShapeCollisionTraversalNodeRSS (const CollisionRequest& request):
   MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>
-    (enable_distance_lower_bound)
+    (request)
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -410,8 +339,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
        this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->result), sqrDistLowerBound);
+       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -420,13 +348,13 @@ template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodekIOS(bool enable_distance_lower_bound = false):
+  MeshShapeCollisionTraversalNodekIOS(const CollisionRequest& request):
   MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>
-    (enable_distance_lower_bound)
+    (request)
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -437,8 +365,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
        this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->result), sqrDistLowerBound);
+       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -448,24 +375,24 @@ class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversal
 {
 public:
   MeshShapeCollisionTraversalNodeOBBRSS
-    (bool enable_distance_lower_bound = false) :
+    (const CollisionRequest& request) :
   MeshShapeCollisionTraversalNode
-    <OBBRSS, S, NarrowPhaseSolver>(enable_distance_lower_bound)
+    <OBBRSS, S, NarrowPhaseSolver>(request)
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
 		    this->model2_bv, this->model1->getBV(b1).bv,
-		    sqrDistLowerBound);
+                    this->request, sqrDistLowerBound);
   }
 
   void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
@@ -473,8 +400,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
        this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->result), sqrDistLowerBound);
+       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
   }
 
 };
@@ -503,56 +429,32 @@ public:
 
     const Triangle& tri_id = tri_indices[primitive_id];
 
-    const Vec3f& p1 = vertices[tri_id[0]];
-    const Vec3f& p2 = vertices[tri_id[1]];
-    const Vec3f& p3 = vertices[tri_id[2]];
+    const Vec3f& P1 = vertices[tri_id[0]];
+    const Vec3f& P2 = vertices[tri_id[1]];
+    const Vec3f& P3 = vertices[tri_id[2]];
 
-    if(this->model1->isOccupied() && this->model2->isOccupied())
+    FCL_REAL distance;
+    Vec3f normal;
+    Vec3f p1, p2; // closest points
+
+    if(nsolver->shapeTriangleInteraction(*(this->model1), this->tf1, P1, P2, P3,
+                                         Transform3f (), p1, p2, distance,
+                                         normal))
     {
-      bool is_intersect = false;
-
-      if(!this->request.enable_contact)
-      {
-        if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
-        {
-          is_intersect = true;
-          if(this->request.num_max_contacts > this->result->numContacts())
-            this->result->addContact(Contact(this->model1, this->model2, Contact::NONE, primitive_id));
-        }
-      }
-      else
-      {
-        FCL_REAL penetration;
-        Vec3f normal;
-        Vec3f contactp;
-
-        if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, &contactp, &penetration, &normal))
-        {
-          is_intersect = true;
-          if(this->request.num_max_contacts > this->result->numContacts())
-            this->result->addContact(Contact(this->model1, this->model2, Contact::NONE, primitive_id, contactp, normal, penetration));
-        }
-      }
-
-      if(is_intersect && this->request.enable_cost)
-      {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
+      if(this->request.num_max_contacts > this->result->numContacts())
+      {  
+        this->result->addContact
+          (Contact(this->model1, this->model2, primitive_id,
+                   Contact::NONE, p1, -normal, -distance));
       }
     }
-    else if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
+    assert (distance > 0);
+    if (this->request.security_margin == 0) return;
+    if (distance <= this->request.security_margin)
     {
-      if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
-      {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
-      }   
+      this->result.addContact
+        (Contact(this->model1, this->model2, primitive_id, Contact::NONE,
+                 .5 * (p1+p2), (p2-p1).normalized (), -distance));
     }
   }
 
@@ -564,8 +466,6 @@ public:
 
   Vec3f* vertices;
   Triangle* tri_indices;
-
-  FCL_REAL cost_density;
 
   const NarrowPhaseSolver* nsolver;
 };
@@ -590,8 +490,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
        this->tf2, this->tf1, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->request), sqrDistLowerBound);
+       this->num_leaf_tests, this->request,*(this->request), sqrDistLowerBound);
 
     // may need to change the order in pairs
   }
@@ -617,8 +516,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
        this->tf2, this->tf1, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->request));
+       this->num_leaf_tests, this->request, *(this->request));
 
     // may need to change the order in pairs
   }
@@ -645,8 +543,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
        this->tf2, this->tf1, this->nsolver, this->enable_statistics,
-       this->cost_density, this->num_leaf_tests, this->request,
-       *(this->request), sqrDistLowerBound);
+       this->num_leaf_tests, this->request,*(this->request), sqrDistLowerBound);
 
     // may need to change the order in pairs
   }
@@ -681,7 +578,7 @@ public:
     details::meshShapeCollisionOrientedNodeLeafTesting
       (b2, b1, *(this->model2), this->model1, this->vertices,
        this->tri_indices, this->tf2, this->tf1, this->nsolver,
-       this->enable_statistics, this->cost_density, this->num_leaf_tests,
+       this->enable_statistics, this->num_leaf_tests,
        this->request, *(this->request), sqrDistLowerBound);
 
     // may need to change the order in pairs
@@ -818,10 +715,14 @@ public:
     const Vec3f& p3 = vertices[tri_id[2]];
     
     FCL_REAL d;
-    Vec3f closest_p1, closest_p2;
-    nsolver->shapeTriangleDistance(*(this->model2), this->tf2, p1, p2, p3, &d, &closest_p2, &closest_p1);
+    Vec3f closest_p1, closest_p2, normal;
+    nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
+                                      Transform3f (), d, closest_p2, closest_p1,
+                                      normal);
 
-    this->result->update(d, this->model1, this->model2, primitive_id, DistanceResult::NONE, closest_p1, closest_p2);
+    this->result->update(d, this->model1, this->model2, primitive_id,
+                         DistanceResult::NONE, closest_p1, closest_p2,
+                         normal);
   }
 
   /// @brief Whether the traversal process can stop early
@@ -868,10 +769,12 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int /* b2 */,
   const Vec3f& p3 = vertices[tri_id[2]];
     
   FCL_REAL distance;
-  Vec3f closest_p1, closest_p2;
-  nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &distance, &closest_p2, &closest_p1);
+  Vec3f closest_p1, closest_p2, normal;
+  nsolver->shapeTriangleInteraction(model2, tf2, p1, p2, p3, tf1, distance,
+                                    closest_p2, closest_p1, normal);
 
-  result.update(distance, model1, &model2, primitive_id, DistanceResult::NONE, closest_p1, closest_p2);
+  result.update(distance, model1, &model2, primitive_id, DistanceResult::NONE,
+                closest_p1, closest_p2, normal);
 }
 
 
@@ -890,10 +793,12 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
   const Vec3f& p3 = vertices[init_tri[2]];
   
   FCL_REAL distance;
-  Vec3f closest_p1, closest_p2;
-  nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &distance, &closest_p2, &closest_p1);
+  Vec3f closest_p1, closest_p2, normal;
+  nsolver->shapeTriangleInteraction(model2, tf2, p1, p2, p3, tf1, distance,
+                                    closest_p2, closest_p1, normal);
 
-  result.update(distance, model1, &model2, init_tri_id, DistanceResult::NONE, closest_p1, closest_p2);
+  result.update(distance, model1, &model2, init_tri_id, DistanceResult::NONE,
+                closest_p1, closest_p2, normal);
 }
 
 
@@ -922,7 +827,7 @@ public:
   {
   }
 
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -954,7 +859,7 @@ public:
   {    
   }
 
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -1033,10 +938,14 @@ public:
     const Vec3f& p3 = vertices[tri_id[2]];
     
     FCL_REAL distance;
-    Vec3f closest_p1, closest_p2;
-    nsolver->shapeTriangleDistance(*(this->model1), this->tf1, p1, p2, p3, &distance, &closest_p1, &closest_p2);
+    Vec3f closest_p1, closest_p2, normal;
+    nsolver->shapeTriangleInteraction(*(this->model1), this->tf1, p1, p2, p3,
+                                      Transform3f (), distance, closest_p1,
+                                      closest_p2, normal);
 
-    this->result->update(distance, this->model1, this->model2, DistanceResult::NONE, primitive_id, closest_p1, closest_p2);
+    this->result->update(distance, this->model1, this->model2,
+                         DistanceResult::NONE, primitive_id, closest_p1,
+                         closest_p2, normal);
   }
 
   /// @brief Whether the traversal process can stop early
