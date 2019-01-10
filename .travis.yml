@@ -10,8 +10,6 @@ matrix:
       compiler: gcc
     - dist: xenial
       compiler: gcc
-    - dist: trusty
-      compiler: clang
     - dist: xenial
       compiler: clang
     - os: osx
