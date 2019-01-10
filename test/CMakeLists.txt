@@ -49,5 +49,5 @@ PKG_CONFIG_USE_DEPENDENCY(test_fcl_profiling assimp)
 add_fcl_test(test_fcl_gjk test_fcl_gjk.cpp)
 
 ## Benchmark
-add_executable(benchmark benchmark.cpp test_fcl_utility.cpp)
-target_link_libraries(benchmark hpp-fcl ${Boost_LIBRARIES})
+add_executable(test-benchmark benchmark.cpp test_fcl_utility.cpp)
+target_link_libraries(test-benchmark hpp-fcl ${Boost_LIBRARIES})
