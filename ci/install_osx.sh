@@ -5,3 +5,4 @@ brew install cmake
 brew install boost
 brew install libccd
 brew install assimp
+brew install eigen
