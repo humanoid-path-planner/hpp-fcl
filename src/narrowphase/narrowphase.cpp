@@ -636,18 +636,17 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
     if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
 
-    if(gjk_status == details::GJK::Valid)
+    Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
+    for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
     {
-      Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-      for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-      {
-        FCL_REAL p = gjk.getSimplex()->coefficient[i];
-        w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-        w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
-      }
-
+      FCL_REAL p = gjk.getSimplex()->coefficient[i];
+      w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
+      w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
+    }
+    if((gjk_status == details::GJK::Valid) ||
+       (gjk_status == details::GJK::Failed))
+    {
       dist = (w0 - w1).norm();
-
       p1 = tf1.transform (w0);
       p2 = tf1.transform (w1);
 
@@ -655,15 +654,7 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
     }
     else if (gjk_status == details::GJK::Inside)
     {
-      Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-      for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-      {
-        FCL_REAL p = gjk.getSimplex()->coefficient[i];
-        w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-        w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
-      }
       dist = 0;
-
       p1 = tf1.transform (w0);
       p2 = tf1.transform (w1);
 
@@ -675,7 +666,5 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
       }
       return false;
     }
-    abort ();
-    return false;
   }
 } // fcl

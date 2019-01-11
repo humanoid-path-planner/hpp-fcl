@@ -47,6 +47,7 @@
 using fcl::GJKSolver_indep;
 using fcl::TriangleP;
 using fcl::Vec3f;
+using fcl::Quaternion3f;
 using fcl::Transform3f;
 using fcl::Matrix3f;
 using fcl::FCL_REAL;
@@ -83,10 +84,32 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
   FCL_REAL eps = 1e-7;
   Results_t results (N);
   for (std::size_t i=0; i<N; ++i) {
-    Vec3f P1 (Vec3f::Random ()), P2 (Vec3f::Random ()), P3 (Vec3f::Random ());
-    Vec3f Q1 (Vec3f::Random ()), Q2 (Vec3f::Random ()), Q3 (Vec3f::Random ());
-    TriangleP tri1 (P1, P2, P3);
-    TriangleP tri2 (Q1, Q2, Q3);
+    Vec3f P1_loc (Vec3f::Random ()), P2_loc (Vec3f::Random ()),
+      P3_loc (Vec3f::Random ());
+    Vec3f Q1_loc (Vec3f::Random ()), Q2_loc (Vec3f::Random ()),
+      Q3_loc (Vec3f::Random ());
+    if (i==0) {
+      P1_loc = Vec3f (0.063996093749999997, -0.15320971679687501,
+                      -0.42799999999999999);
+      P2_loc = Vec3f (0.069105957031249998, -0.150722900390625,
+                      -0.42999999999999999);
+      P3_loc = Vec3f (0.063996093749999997, -0.15320971679687501,
+                  -0.42999999999999999);
+      Q1_loc = Vec3f (-25.655000000000001, -1.2858199462890625,
+                      3.7249809570312502);
+      Q2_loc = Vec3f (-10.926, -1.284259033203125, 3.7281499023437501);
+      Q3_loc = Vec3f (-10.926, -1.2866180419921875, 3.72335400390625);
+      Transform3f tf
+        (Quaternion3f (-0.42437287410898855, -0.26862477561450587,
+                       -0.46249645019513175, 0.73064726592483387),
+         Vec3f (-12.824601270753471, -1.6840516940066426, 3.8914453043793844));
+      tf1 = tf;
+    } else {
+      tf1 = Transform3f ();
+    }
+
+    TriangleP tri1 (P1_loc, P2_loc, P3_loc);
+    TriangleP tri2 (Q1_loc, Q2_loc, Q3_loc);
     Vec3f normal;
 
     bool res;
@@ -107,14 +130,17 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
       res = solver.shapeDistance (tri1, tf1, tri2, tf2, distance, c1, c2,
                                   normal2);
       if (!res) {
-        std::cerr << "P1 = " << P1.format (tuple) << std::endl;
-        std::cerr << "P2 = " << P2.format (tuple) << std::endl;
-        std::cerr << "P3 = " << P3.format (tuple) << std::endl;
-        std::cerr << "Q1 = " << Q1.format (tuple) << std::endl;
-        std::cerr << "Q2 = " << Q2.format (tuple) << std::endl;
-        std::cerr << "Q3 = " << Q3.format (tuple) << std::endl;
+        std::cerr << "P1 = " << P1_loc.format (tuple) << std::endl;
+        std::cerr << "P2 = " << P2_loc.format (tuple) << std::endl;
+        std::cerr << "P3 = " << P3_loc.format (tuple) << std::endl;
+        std::cerr << "Q1 = " << Q1_loc.format (tuple) << std::endl;
+        std::cerr << "Q2 = " << Q2_loc.format (tuple) << std::endl;
+        std::cerr << "Q3 = " << Q3_loc.format (tuple) << std::endl;
         std::cerr << "p1 = " << c1.format (tuple) << std::endl;
         std::cerr << "p2 = " << c2.format (tuple) << std::endl;
+        std::cerr << "tf1 = " << tf1.getTranslation ().format (tuple)
+                  << " + " << tf1.getQuatRotation ().coeffs ().format (tuple)
+                  << std::endl;
         std::cerr << "tf2 = " << tf2.getTranslation ().format (tuple)
                   << " + " << tf2.getQuatRotation ().coeffs ().format (tuple)
                   << std::endl;
@@ -125,6 +151,9 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
       tf2.setIdentity ();
     }
     // Compute vectors between vertices
+    Vec3f P1 (tf1.transform (P1_loc)), P2 (tf1.transform (P2_loc)),
+      P3 (tf1.transform (P3_loc)), Q1 (tf2.transform (Q1_loc)),
+      Q2 (tf2.transform (Q2_loc)), Q3 (tf2.transform (Q3_loc));
     Vec3f u1 (P2 - P1);
     Vec3f v1 (P3 - P1);
     Vec3f w1 (u1.cross (v1));
