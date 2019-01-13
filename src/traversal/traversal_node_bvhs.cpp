@@ -164,8 +164,10 @@ bool MeshCollisionTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
   (int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(enable_statistics) num_bv_tests++;
-    return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv,
-		    request, sqrDistLowerBound);
+    bool res (!overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv,
+                       request, sqrDistLowerBound));
+    assert (!res || sqrDistLowerBound > 0);
+    return res;
   }
 
 namespace details

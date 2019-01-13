@@ -276,6 +276,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting
     if(request.num_max_contacts > result.numContacts())
       result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE,
                                 p1, -normal, -distance));
+    assert (result.isCollision ());
     return;
   }
   sqrDistLowerBound = distance * distance;
@@ -391,9 +392,11 @@ public:
   bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
-		    this->model2_bv, this->model1->getBV(b1).bv,
-                    this->request, sqrDistLowerBound);
+    bool res (!overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
+                       this->model2_bv, this->model1->getBV(b1).bv,
+                       this->request, sqrDistLowerBound));
+    assert (!res || sqrDistLowerBound > 0);
+    return res;
   }
 
   void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
@@ -402,6 +405,7 @@ public:
       (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
        this->tf1, this->tf2, this->nsolver, this->enable_statistics,
        this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
+    assert (this->result->isCollision () || sqrDistLowerBound > 0);
   }
 
 };

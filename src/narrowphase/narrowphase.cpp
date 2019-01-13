@@ -666,5 +666,7 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
       }
       return false;
     }
+    assert (false && "should not reach this point");
+    return false;
   }
 } // fcl

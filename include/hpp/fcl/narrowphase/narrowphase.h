@@ -154,10 +154,11 @@ namespace fcl
             distance = (w0 - w1).norm();
             p1 = w0;
             p2 = shape.toshape0.transform(w1);
+            assert (distance > 0);
           }
           break;
         default:
-          ;
+          assert (false && "should not reach type part.");
         }
       return col;
     }
