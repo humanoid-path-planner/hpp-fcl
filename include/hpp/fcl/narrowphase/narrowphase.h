@@ -142,6 +142,7 @@ namespace fcl
             break;
           }
         case details::GJK::Valid:
+        case details::GJK::Failed:
           {
             col = false;
             Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
@@ -152,8 +153,8 @@ namespace fcl
                 w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
               }
             distance = (w0 - w1).norm();
-            p1 = w0;
-            p2 = shape.toshape0.transform(w1);
+            p1 = tf1.transform (w0);
+            p2 = tf1.transform (w1);
             assert (distance > 0);
           }
           break;
