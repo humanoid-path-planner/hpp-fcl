@@ -253,7 +253,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting
    const Transform3f& tf2, const NarrowPhaseSolver* nsolver,
    bool enable_statistics, int& num_leaf_tests,
    const CollisionRequest& request, CollisionResult& result,
-   FCL_REAL&)
+   FCL_REAL& sqrDistLowerBound)
 {
   if(enable_statistics) num_leaf_tests++;
   const BVNode<BV>& node = model1->getBV(b1);
@@ -278,6 +278,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting
                                 p1, -normal, -distance));
     return;
   }
+  sqrDistLowerBound = distance * distance;
   assert (distance > 0);
   if (request.security_margin == 0) return;
   if (distance <= request.security_margin) {
