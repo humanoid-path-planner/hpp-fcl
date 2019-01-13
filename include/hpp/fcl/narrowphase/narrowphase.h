@@ -138,7 +138,7 @@ namespace fcl
             distance = -epa.depth;
             normal = -epa.normal;
             p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
-            assert (distance <= 0);
+            assert (distance <= 1e-6);
             break;
           }
         case details::GJK::Valid:
