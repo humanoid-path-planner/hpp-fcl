@@ -47,6 +47,7 @@ add_fcl_test(test_fcl_profiling test_fcl_profiling.cpp test_fcl_utility.cpp)
 PKG_CONFIG_USE_DEPENDENCY(test_fcl_profiling assimp)
 
 add_fcl_test(test_fcl_gjk test_fcl_gjk.cpp)
+add_fcl_test(test_fcl_octree test_fcl_octree.cpp test_fcl_utility.cpp)
 
 ## Benchmark
 add_executable(test-benchmark benchmark.cpp test_fcl_utility.cpp)

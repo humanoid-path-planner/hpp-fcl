@@ -207,6 +207,31 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
   os.close();
 }
 
+  OcTree loadOctreeFile (const char* filename, const FCL_REAL& resolution)
+  {
+    std::ifstream file;
+    file.open(filename);
+    if(!file.good ())
+    {
+      std::ostringstream oss;
+      oss << "Could not open file " << filename;
+      throw std::runtime_error (oss.str ().c_str ());
+    }
+    octomap::OcTreePtr_t octree (new octomap::OcTree (resolution));
+    std::string line;
+    while (std::getline (file, line)) {
+      std::stringstream lineStream (line);
+      std::string cell;
+      std::vector <float> p (3);
+      std::size_t i=0;
+      while (std::getline (lineStream, cell, ',')) {
+        p [i] = (float) atof (cell.c_str ()); ++i;
+      }
+      octree->updateNode (octomap::point3d (p[0], p[1], p[2]), true);
+    }
+    octree->updateInnerOccupancy ();
+    return fcl::OcTree (octree);
+  }
 
 void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3f& R)
 {
