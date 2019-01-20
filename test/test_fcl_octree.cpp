@@ -85,9 +85,12 @@ fcl::OcTree makeOctree (const BVHModel <OBBRSS>& mesh,
   Transform3f tfBox;
   octomap::OcTreePtr_t octree (new octomap::OcTree (resolution));
 
-  for (FCL_REAL x = m [0]; x + resolution <= M [0]; x += resolution) {
-    for (FCL_REAL y = m [1]; y + resolution <= M [1]; y += resolution) {
-      for (FCL_REAL z = m [2]; z + resolution <= M [2]; z += resolution) {
+  for (FCL_REAL x = resolution * floor (m [0]/resolution); x <= M [0];
+       x += resolution) {
+    for (FCL_REAL y = resolution * floor (m [1]/resolution); y <= M [1];
+         y += resolution) {
+      for (FCL_REAL z = resolution * floor (m [2]/resolution); z <= M [2];
+           z += resolution) {
         Vec3f center (x + .5*resolution, y + .5*resolution, z + .5*resolution);
         tfBox.setTranslation (center);
         fcl::collide (&box, tfBox, &mesh, Transform3f (), request, result);
@@ -147,19 +150,7 @@ BOOST_AUTO_TEST_CASE (OCTREE)
     fcl::collide (&robMesh, tf1, &envOctree, tf2, request, resultOctree);
     bool resMesh (resultMesh.isCollision ());
     bool resOctree (resultOctree.isCollision ());
-    if (resMesh && !resOctree) {
-      // std::cerr << "q1=" << tf1.getTranslation ().format (tuple)
-      //           << "+" << tf1.getQuatRotation ().coeffs ().format (tuple)
-      //           << std::endl;
-      // std::cerr << "q2=" << tf2.getTranslation ().format (tuple)
-      //           << "+" << tf2.getQuatRotation ().coeffs ().format (tuple)
-      //           << std::endl;
-      fcl::DistanceRequest dreq;
-      fcl::DistanceResult  dres;
-      fcl::distance (&robMesh, tf1, &envOctree, tf2, dreq, dres);
-      std::cout << "distance mesh octree: " << dres.min_distance << std::endl;
-      BOOST_CHECK (dres.min_distance < sqrt (2.) * resolution);
-    }
+    BOOST_CHECK (!resMesh || resOctree);
     if (!resMesh && resOctree) {
       fcl::DistanceRequest dreq;
       fcl::DistanceResult  dres;
