@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_DISTANCE_FUNC_MATRIX_H
-#define FCL_DISTANCE_FUNC_MATRIX_H
+#ifndef HPP_FCL_DISTANCE_FUNC_MATRIX_H
+#define HPP_FCL_DISTANCE_FUNC_MATRIX_H
 
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>

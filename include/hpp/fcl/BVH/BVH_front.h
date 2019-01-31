@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BVH_FRONT_H
-#define FCL_BVH_FRONT_H
+#ifndef HPP_FCL_BVH_FRONT_H
+#define HPP_FCL_BVH_FRONT_H
 
 
 #include <list>

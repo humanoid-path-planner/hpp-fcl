@@ -36,8 +36,8 @@
 
 /** \author Jia Pan, Florent Lamiraux */
 
-#ifndef FCL_NARROWPHASE_H
-#define FCL_NARROWPHASE_H
+#ifndef HPP_FCL_NARROWPHASE_H
+#define HPP_FCL_NARROWPHASE_H
 
 #include <hpp/fcl/narrowphase/gjk.h>
 

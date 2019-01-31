@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_BV_NODE_H
-#define FCL_BV_NODE_H
+#ifndef HPP_FCL_BV_NODE_H
+#define HPP_FCL_BV_NODE_H
 
 #include <hpp/fcl/math/vec_3f.h>
 #include <hpp/fcl/math/matrix_3f.h>

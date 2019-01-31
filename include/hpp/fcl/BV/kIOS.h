@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_KIOS_H
-#define FCL_KIOS_H
+#ifndef HPP_FCL_KIOS_H
+#define HPP_FCL_KIOS_H
 
 #include <hpp/fcl/BV/OBB.h>
 

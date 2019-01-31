@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_TRANSFORM_H
-#define FCL_TRANSFORM_H
+#ifndef HPP_FCL_TRANSFORM_H
+#define HPP_FCL_TRANSFORM_H
 
 #include <hpp/fcl/math/matrix_3f.h>
 #include <boost/thread/mutex.hpp>

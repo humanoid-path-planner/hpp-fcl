@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_COLLISION_OBJECT_BASE_H
-#define FCL_COLLISION_OBJECT_BASE_H
+#ifndef HPP_FCL_COLLISION_OBJECT_BASE_H
+#define HPP_FCL_COLLISION_OBJECT_BASE_H
 
 #include <hpp/fcl/deprecated.hh>
 #include <hpp/fcl/BV/AABB.h>

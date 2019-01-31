@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef TEST_FCL_UTILITY_H
-#define TEST_FCL_UTILITY_H
+#ifndef TEST_HPP_FCL_UTILITY_H
+#define TEST_HPP_FCL_UTILITY_H
 
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/collision_data.h>

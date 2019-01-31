@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_BVH_UTILITY_H
-#define FCL_BVH_UTILITY_H
+#ifndef HPP_FCL_BVH_UTILITY_H
+#define HPP_FCL_BVH_UTILITY_H
 
 #include <hpp/fcl/BVH/BVH_model.h>
 

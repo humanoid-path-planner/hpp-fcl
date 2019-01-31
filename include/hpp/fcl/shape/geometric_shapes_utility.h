@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_GEOMETRIC_SHAPES_UTILITY_H
-#define FCL_GEOMETRIC_SHAPES_UTILITY_H
+#ifndef HPP_FCL_GEOMETRIC_SHAPES_UTILITY_H
+#define HPP_FCL_GEOMETRIC_SHAPES_UTILITY_H
 
 #include <vector>
 #include <hpp/fcl/shape/geometric_shapes.h>

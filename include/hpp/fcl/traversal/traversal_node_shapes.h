@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_TRAVERSAL_NODE_SHAPES_H
-#define FCL_TRAVERSAL_NODE_SHAPES_H
+#ifndef HPP_FCL_TRAVERSAL_NODE_SHAPES_H
+#define HPP_FCL_TRAVERSAL_NODE_SHAPES_H
 
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/traversal/traversal_node_base.h>

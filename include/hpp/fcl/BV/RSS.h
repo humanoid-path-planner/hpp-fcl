@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_RSS_H
-#define FCL_RSS_H
+#ifndef HPP_FCL_RSS_H
+#define HPP_FCL_RSS_H
 
 #include <stdexcept>
 #include <hpp/fcl/math/vec_3f.h>

@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_KDOP_H
-#define FCL_KDOP_H
+#ifndef HPP_FCL_KDOP_H
+#define HPP_FCL_KDOP_H
 
 #include <stdexcept>
 #include <hpp/fcl/math/vec_3f.h>

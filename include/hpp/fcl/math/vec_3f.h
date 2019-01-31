@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_VEC_3F_H
-#define FCL_VEC_3F_H
+#ifndef HPP_FCL_VEC_3F_H
+#define HPP_FCL_VEC_3F_H
 
 #include <hpp/fcl/data_types.h>
 

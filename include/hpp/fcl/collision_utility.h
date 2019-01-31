@@ -14,8 +14,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-fcl. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef FCL_COLLISION_UTILITY_H
-#define FCL_COLLISION_UTILITY_H
+#ifndef HPP_FCL_COLLISION_UTILITY_H
+#define HPP_FCL_COLLISION_UTILITY_H
 
 #include <hpp/fcl/collision_object.h>
 

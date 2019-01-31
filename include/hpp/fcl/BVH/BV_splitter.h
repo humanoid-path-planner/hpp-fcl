@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BV_SPLITTER_H
-#define FCL_BV_SPLITTER_H
+#ifndef HPP_FCL_BV_SPLITTER_H
+#define HPP_FCL_BV_SPLITTER_H
 
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/kIOS.h>

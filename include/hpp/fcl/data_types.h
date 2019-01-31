@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_DATA_TYPES_H
-#define FCL_DATA_TYPES_H
+#ifndef HPP_FCL_DATA_TYPES_H
+#define HPP_FCL_DATA_TYPES_H
 
 #include <cstddef>
 #include <boost/cstdint.hpp>

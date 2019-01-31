@@ -33,8 +33,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FCL_SRC_OBB_H
-# define FCL_SRC_OBB_H
+#ifndef HPP_FCL_SRC_OBB_H
+# define HPP_FCL_SRC_OBB_H
 
 namespace hpp
 {
@@ -52,4 +52,4 @@ namespace fcl
 
 } // namespace hpp
 
-#endif // FCL_SRC_OBB_H
+#endif // HPP_FCL_SRC_OBB_H

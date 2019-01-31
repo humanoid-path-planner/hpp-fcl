@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BV_H
-#define FCL_BV_H
+#ifndef HPP_FCL_BV_H
+#define HPP_FCL_BV_H
 
 
 #include <hpp/fcl/BV/kDOP.h>

@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_OCTREE_H
-#define FCL_OCTREE_H
+#ifndef HPP_FCL_OCTREE_H
+#define HPP_FCL_OCTREE_H
 
 
 #include <boost/shared_ptr.hpp>

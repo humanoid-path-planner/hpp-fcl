@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_COLLISION_H
-#define FCL_COLLISION_H
+#ifndef HPP_FCL_COLLISION_H
+#define HPP_FCL_COLLISION_H
 
 #include <hpp/fcl/math/vec_3f.h>
 #include <hpp/fcl/collision_object.h>

@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_TRAVERSAL_NODE_SETUP_H
-#define FCL_TRAVERSAL_NODE_SETUP_H
+#ifndef HPP_FCL_TRAVERSAL_NODE_SETUP_H
+#define HPP_FCL_TRAVERSAL_NODE_SETUP_H
 
 #include <hpp/fcl/traversal/traversal_node_bvhs.h>
 #include <hpp/fcl/traversal/traversal_node_shapes.h>

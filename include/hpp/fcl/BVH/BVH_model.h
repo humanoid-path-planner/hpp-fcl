@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BVH_MODEL_H
-#define FCL_BVH_MODEL_H
+#ifndef HPP_FCL_BVH_MODEL_H
+#define HPP_FCL_BVH_MODEL_H
 
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/BVH/BVH_internal.h>

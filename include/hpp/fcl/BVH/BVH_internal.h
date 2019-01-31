@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BVH_INTERNAL_H
-#define FCL_BVH_INTERNAL_H
+#ifndef HPP_FCL_BVH_INTERNAL_H
+#define HPP_FCL_BVH_INTERNAL_H
 
 #include <hpp/fcl/data_types.h>
 

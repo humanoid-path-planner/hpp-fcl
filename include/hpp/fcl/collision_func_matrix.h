@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_COLLISION_FUNC_MATRIX_H
-#define FCL_COLLISION_FUNC_MATRIX_H
+#ifndef HPP_FCL_COLLISION_FUNC_MATRIX_H
+#define HPP_FCL_COLLISION_FUNC_MATRIX_H
 
 
 #include <hpp/fcl/collision_object.h>

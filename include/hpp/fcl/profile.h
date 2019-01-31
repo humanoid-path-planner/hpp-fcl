@@ -36,8 +36,8 @@
 
 /* Author Ioan Sucan */
 
-#ifndef FCL_UTIL_PROFILER
-#define FCL_UTIL_PROFILER
+#ifndef HPP_FCL_UTIL_PROFILER
+#define HPP_FCL_UTIL_PROFILER
 
 #define ENABLE_PROFILING 1
 
