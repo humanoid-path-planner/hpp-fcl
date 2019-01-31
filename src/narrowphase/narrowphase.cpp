@@ -42,6 +42,8 @@
 #include <vector>
 #include "../src/narrowphase/details.h"
 
+namespace hpp
+{
 namespace fcl
 {
 // Shape intersect algorithms not using libccd
@@ -670,3 +672,5 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
     return false;
   }
 } // fcl
+
+} // namespace hpp

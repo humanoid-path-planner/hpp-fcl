@@ -45,6 +45,8 @@
 #include <hpp/fcl/math/vec_3f.h>
 #include <string.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -557,5 +559,7 @@ protected:
 
 
 }
+
+} // namespace hpp
 
 #endif

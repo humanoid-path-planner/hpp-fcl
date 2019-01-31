@@ -47,6 +47,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -353,5 +355,7 @@ template<>
 NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const;
 
 }
+
+} // namespace hpp
 
 #endif

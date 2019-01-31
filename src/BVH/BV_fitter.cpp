@@ -39,6 +39,8 @@
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <limits>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -637,3 +639,5 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
 
 
 }
+
+} // namespace hpp

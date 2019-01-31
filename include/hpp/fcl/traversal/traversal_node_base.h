@@ -42,6 +42,8 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/collision_data.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -156,5 +158,7 @@ public:
   bool enable_statistics;
 };
 }
+
+} // namespace hpp
 
 #endif

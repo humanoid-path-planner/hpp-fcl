@@ -47,21 +47,21 @@
 #include "fcl_resources/config.h"
 #include <boost/filesystem.hpp>
 
-using fcl::Vec3f;
-using fcl::Triangle;
-using fcl::OBBRSS;
-using fcl::BVHModel;
-using fcl::BVSplitter;
-using fcl::OcTree;
-using fcl::FCL_REAL;
-using fcl::Transform3f;
-using fcl::CollisionRequest;
-using fcl::CollisionResult;
+using hpp::fcl::Vec3f;
+using hpp::fcl::Triangle;
+using hpp::fcl::OBBRSS;
+using hpp::fcl::BVHModel;
+using hpp::fcl::BVSplitter;
+using hpp::fcl::OcTree;
+using hpp::fcl::FCL_REAL;
+using hpp::fcl::Transform3f;
+using hpp::fcl::CollisionRequest;
+using hpp::fcl::CollisionResult;
 
 void makeMesh (const std::vector<Vec3f>& vertices,
                const std::vector<Triangle>& triangles, BVHModel<OBBRSS>& model)
 {
-  fcl::SplitMethodType split_method (fcl::SPLIT_METHOD_MEAN);
+  hpp::fcl::SplitMethodType split_method (hpp::fcl::SPLIT_METHOD_MEAN);
   model.bv_splitter.reset(new BVSplitter<OBBRSS>(split_method));
   model.bv_splitter.reset(new BVSplitter<OBBRSS>(split_method));
 
@@ -70,7 +70,7 @@ void makeMesh (const std::vector<Vec3f>& vertices,
   model.endModel();
 }
 
-fcl::OcTree makeOctree (const BVHModel <OBBRSS>& mesh,
+hpp::fcl::OcTree makeOctree (const BVHModel <OBBRSS>& mesh,
                         const FCL_REAL& resolution)
 {
   std::ofstream file;
@@ -79,8 +79,8 @@ fcl::OcTree makeOctree (const BVHModel <OBBRSS>& mesh,
                         ", ", "", "", "", "");
   Vec3f m (mesh.aabb_local.min_);
   Vec3f M (mesh.aabb_local.max_);
-  fcl::Box box (resolution, resolution, resolution);
-  CollisionRequest request (fcl::CONTACT | fcl::DISTANCE_LOWER_BOUND, 1);
+  hpp::fcl::Box box (resolution, resolution, resolution);
+  CollisionRequest request (hpp::fcl::CONTACT | hpp::fcl::DISTANCE_LOWER_BOUND, 1);
   CollisionResult result;
   Transform3f tfBox;
   octomap::OcTreePtr_t octree (new octomap::OcTree (resolution));
@@ -93,7 +93,7 @@ fcl::OcTree makeOctree (const BVHModel <OBBRSS>& mesh,
            z += resolution) {
         Vec3f center (x + .5*resolution, y + .5*resolution, z + .5*resolution);
         tfBox.setTranslation (center);
-        fcl::collide (&box, tfBox, &mesh, Transform3f (), request, result);
+        hpp::fcl::collide (&box, tfBox, &mesh, Transform3f (), request, result);
         if (result.isCollision ()) {
           octomap::point3d p
             ((float) center [0], (float) center [1], (float) center [2]);
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE (OCTREE)
   envMesh.computeLocalAABB ();
   // Load octree built from envMesh by makeOctree
   OcTree envOctree
-    (fcl::loadOctreeFile ((path / "env.octree").string().c_str(), resolution));
+    (hpp::fcl::loadOctreeFile ((path / "env.octree").string().c_str(), resolution));
 
   std::cout << "Finished loading octree." << std::endl;
 
@@ -138,23 +138,23 @@ BOOST_AUTO_TEST_CASE (OCTREE)
 
   generateRandomTransforms(extents, transforms, 2*N);
 
-  CollisionRequest request (fcl::CONTACT | fcl::DISTANCE_LOWER_BOUND, 1);
+  CollisionRequest request (hpp::fcl::CONTACT | hpp::fcl::DISTANCE_LOWER_BOUND, 1);
   for (std::size_t i=0; i<N; ++i) {
     CollisionResult resultMesh;
     CollisionResult resultOctree;
     Transform3f tf1 (transforms [2*i]);
     Transform3f tf2 (transforms [2*i+1]);;
     // Test collision between meshes with random transform for robot.
-    fcl::collide (&robMesh, tf1, &envMesh, tf2, request, resultMesh);
+    hpp::fcl::collide (&robMesh, tf1, &envMesh, tf2, request, resultMesh);
     // Test collision between mesh and octree for the same transform.
-    fcl::collide (&robMesh, tf1, &envOctree, tf2, request, resultOctree);
+    hpp::fcl::collide (&robMesh, tf1, &envOctree, tf2, request, resultOctree);
     bool resMesh (resultMesh.isCollision ());
     bool resOctree (resultOctree.isCollision ());
     BOOST_CHECK (!resMesh || resOctree);
     if (!resMesh && resOctree) {
-      fcl::DistanceRequest dreq;
-      fcl::DistanceResult  dres;
-      fcl::distance (&robMesh, tf1, &envMesh, tf2, dreq, dres);
+      hpp::fcl::DistanceRequest dreq;
+      hpp::fcl::DistanceResult  dres;
+      hpp::fcl::distance (&robMesh, tf1, &envMesh, tf2, dreq, dres);
       std::cout << "distance mesh mesh: " << dres.min_distance
                 << std::endl;
       BOOST_CHECK (dres.min_distance < sqrt (2.) * resolution);

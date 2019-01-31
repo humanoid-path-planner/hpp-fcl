@@ -42,6 +42,8 @@
 #include <hpp/fcl/math/vec_3f.h>
 #include <hpp/fcl/math/matrix_3f.h>
 
+namespace hpp
+{
 namespace fcl
 {
   class CollisionRequest;
@@ -261,5 +263,7 @@ static inline AABB rotate(const AABB& aabb, const Matrix3f& t)
 }
 
 }
+
+} // namespace hpp
 
 #endif

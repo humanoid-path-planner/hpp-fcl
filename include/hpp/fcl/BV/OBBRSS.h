@@ -42,6 +42,8 @@
 #include <hpp/fcl/BV/OBB.h>
 #include <hpp/fcl/BV/RSS.h>
 
+namespace hpp
+{
 namespace fcl
 {
   class CollisionRequest;
@@ -170,5 +172,7 @@ FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const O
 
 }
 
+
+} // namespace hpp
 
 #endif

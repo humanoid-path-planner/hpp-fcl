@@ -43,6 +43,8 @@
 #include <hpp/fcl/math/matrix_3f.h>
 #include <boost/math/constants/constants.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -156,5 +158,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2);
 
 }
 
+
+} // namespace hpp
 
 #endif

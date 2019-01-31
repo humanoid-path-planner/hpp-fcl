@@ -48,6 +48,8 @@
 #include <iostream>
 #include <limits>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -234,5 +236,7 @@ inline Derived& setEulerYPR(const Eigen::MatrixBase<Derived>& R, FCL_REAL yaw, F
 
 }
 
+
+} // namespace hpp
 
 #endif

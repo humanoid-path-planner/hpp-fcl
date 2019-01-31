@@ -41,6 +41,8 @@
 #include <hpp/fcl/traversal/traversal_node_setup.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -494,3 +496,5 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 }
 template struct DistanceFunctionMatrix<GJKSolver_indep>;
 }
+
+} // namespace hpp

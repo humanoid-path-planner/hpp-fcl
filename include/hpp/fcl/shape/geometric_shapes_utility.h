@@ -43,6 +43,8 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/BV/BV.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -197,5 +199,7 @@ Halfspace transform(const Halfspace& a, const Transform3f& tf);
 Plane transform(const Plane& a, const Transform3f& tf);
 
 }
+
+} // namespace hpp
 
 #endif

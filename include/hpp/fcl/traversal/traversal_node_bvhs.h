@@ -55,6 +55,8 @@
 #include <cassert>
 
 
+namespace hpp
+{
 namespace fcl
 {
 /// @brief Traversal node for collision between BVH models
@@ -522,5 +524,7 @@ inline const Matrix3f& getBVAxes<OBBRSS>(const OBBRSS& bv)
 }
 
 }
+
+} // namespace hpp
 
 #endif

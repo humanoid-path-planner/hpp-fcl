@@ -47,6 +47,8 @@
 #include <hpp/fcl/BV/AABB.h>
 #include <hpp/fcl/collision_object.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -275,5 +277,7 @@ static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& chi
 
 
 }
+
+} // namespace hpp
 
 #endif

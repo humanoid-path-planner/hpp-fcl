@@ -45,6 +45,8 @@
 #include <hpp/fcl/BV/BV.h>
 #include <iostream>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -129,5 +131,7 @@ inline const Matrix3f& BVNode<OBBRSS>::getOrientation() const
 
 
 }
+
+} // namespace hpp
 
 #endif

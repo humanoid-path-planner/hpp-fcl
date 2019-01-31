@@ -41,6 +41,8 @@
 #include <cstddef>
 #include <boost/cstdint.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -79,5 +81,7 @@ public:
 };
 
 }
+
+} // namespace hpp
 
 #endif

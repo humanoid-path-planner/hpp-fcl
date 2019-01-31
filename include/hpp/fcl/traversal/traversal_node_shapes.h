@@ -46,6 +46,8 @@
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -148,5 +150,7 @@ public:
   const NarrowPhaseSolver* nsolver;
 };
 }
+
+} // namespace hpp
 
 #endif

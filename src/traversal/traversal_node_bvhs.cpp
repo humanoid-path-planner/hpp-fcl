@@ -38,6 +38,8 @@
 
 #include <hpp/fcl/traversal/traversal_node_bvhs.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -306,3 +308,5 @@ void MeshDistanceTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
 }
 
 }
+
+} // namespace hpp

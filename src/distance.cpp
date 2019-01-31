@@ -41,6 +41,8 @@
 
 #include <iostream>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -149,3 +151,5 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
 
 
 }
+
+} // namespace hpp

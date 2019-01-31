@@ -45,7 +45,7 @@
 
 #include <hpp/fcl/intersect.h>
 
-using namespace fcl;
+using namespace hpp::fcl;
 
 template<typename Derived>
 inline Quaternion3f fromAxisAngle(const Eigen::MatrixBase<Derived>& axis, FCL_REAL angle)

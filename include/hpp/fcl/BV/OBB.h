@@ -42,6 +42,8 @@
 #include <hpp/fcl/math/vec_3f.h>
 #include <hpp/fcl/math/matrix_3f.h>
 
+namespace hpp
+{
 namespace fcl
 {
   class CollisionRequest;
@@ -155,5 +157,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
 /// The second box is in identity configuration.
 bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b);
 }
+
+} // namespace hpp
 
 #endif

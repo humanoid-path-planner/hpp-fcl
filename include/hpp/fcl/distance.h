@@ -41,6 +41,8 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -55,5 +57,7 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                   const DistanceRequest& request, DistanceResult& result);
 
 }
+
+} // namespace hpp
 
 #endif

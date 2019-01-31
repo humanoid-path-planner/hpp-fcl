@@ -12,7 +12,7 @@
 
 #include <boost/assign/list_of.hpp>
 
-using namespace fcl;
+using namespace hpp::fcl;
 
 static FCL_REAL epsilon = 1e-6;
 

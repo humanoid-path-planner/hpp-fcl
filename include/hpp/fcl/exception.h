@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <string>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -31,5 +33,7 @@ public:
 
 }
 
+
+} // namespace hpp
 
 #endif

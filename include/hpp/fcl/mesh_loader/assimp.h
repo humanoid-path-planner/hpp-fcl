@@ -56,6 +56,8 @@
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
+namespace hpp
+{
 namespace fcl
 {
   
@@ -240,5 +242,7 @@ inline void loadPolyhedronFromResource (const std::string & resource_path,
 }
 
 }
+
+} // namespace hpp
 
 #endif // FCL_MESH_LOADER_ASSIMP_H

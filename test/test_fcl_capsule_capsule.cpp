@@ -51,7 +51,7 @@
 
 #include "test_fcl_utility.h"
 
-using namespace fcl;
+using namespace hpp::fcl;
 typedef boost::shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
 
 BOOST_AUTO_TEST_CASE(distance_capsulecapsule_origin)

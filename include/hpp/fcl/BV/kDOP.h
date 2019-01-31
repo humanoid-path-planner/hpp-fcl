@@ -41,6 +41,8 @@
 #include <stdexcept>
 #include <hpp/fcl/math/vec_3f.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -180,5 +182,7 @@ template<size_t N>
 KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
 
 }
+
+} // namespace hpp
 
 #endif

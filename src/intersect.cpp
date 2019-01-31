@@ -41,6 +41,8 @@
 #include <vector>
 #include <boost/math/special_functions/fpclassify.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 const FCL_REAL PolySolver::NEAR_ZERO_THRESHOLD = 1e-9;
@@ -838,3 +840,5 @@ Project::ProjectResult Project::projectTetrahedraOrigin(const Vec3f& a, const Ve
 
 
 }
+
+} // namespace hpp

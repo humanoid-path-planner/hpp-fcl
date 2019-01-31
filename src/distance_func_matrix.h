@@ -36,6 +36,8 @@
 
 #include <hpp/fcl/collision_data.h>
 
+namespace hpp
+{
 namespace fcl {
   template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
     FCL_REAL ShapeShapeDistance
@@ -51,3 +53,5 @@ namespace fcl {
      const NarrowPhaseSolver* nsolver, const CollisionRequest& request,
      CollisionResult& result);
 }
+
+} // namespace hpp

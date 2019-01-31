@@ -39,6 +39,8 @@
 #include <hpp/fcl/collision_node.h>
 #include <hpp/fcl/traversal/traversal_recurse.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -71,3 +73,5 @@ void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list, int qsi
 }
 
 }
+
+} // namespace hpp

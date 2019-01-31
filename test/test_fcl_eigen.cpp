@@ -40,7 +40,7 @@
 
 #include <hpp/fcl/eigen/vec_3fx.h>
 
-using namespace fcl;
+using namespace hpp::fcl;
 
 #define PRINT_VECTOR(a) std::cout << #a": " << a.base().transpose() << std::endl;
 #define PRINT_MATRIX(a) std::cout << #a": " << a << std::endl;

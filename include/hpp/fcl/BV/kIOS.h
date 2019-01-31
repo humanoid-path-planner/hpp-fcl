@@ -41,6 +41,8 @@
 #include <hpp/fcl/BV/OBB.h>
 
 
+namespace hpp
+{
 namespace fcl
 {
   class CollisionRequest;
@@ -160,5 +162,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2
 FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
 
 }
+
+} // namespace hpp
 
 #endif

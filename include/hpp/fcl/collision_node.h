@@ -46,6 +46,8 @@
 
 
 /// @brief collision and distance function on traversal nodes. these functions provide a higher level abstraction for collision functions provided in collision_func_matrix
+namespace hpp
+{
 namespace fcl
 {
 
@@ -65,5 +67,7 @@ namespace fcl
 /// @brief distance computation on distance traversal node; can use front list to accelerate
 void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
 }
+
+} // namespace hpp
 
 #endif

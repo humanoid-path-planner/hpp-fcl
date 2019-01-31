@@ -49,6 +49,8 @@
 
 #include <hpp/fcl/BVH/BVH_utility.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -973,5 +975,7 @@ bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node
 }
 
 }
+
+} // namespace hpp
 
 #endif

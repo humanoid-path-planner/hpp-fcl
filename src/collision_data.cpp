@@ -37,6 +37,8 @@
 
 #include <hpp/fcl/collision_data.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -66,3 +68,5 @@ bool DistanceRequest::isSatisfied(const DistanceResult& result) const
     cached_gjk_guess = Vec3f(1, 0, 0);
   }
 }
+
+} // namespace hpp

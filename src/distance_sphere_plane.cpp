@@ -43,6 +43,8 @@
 #include "distance_func_matrix.h"
 #include "../src/narrowphase/details.h"
 
+namespace hpp
+{
 namespace fcl {
     class GJKSolver_indep;
 
@@ -79,3 +81,5 @@ namespace fcl {
     return result.min_distance;
   }
 } // namespace fcl
+
+} // namespace hpp

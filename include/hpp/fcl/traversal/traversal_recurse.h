@@ -44,6 +44,8 @@
 #include <hpp/fcl/BVH/BVH_front.h>
 #include <queue>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -73,5 +75,7 @@ void propagateBVHFrontListCollisionRecurse
 
 
 }
+
+} // namespace hpp
 
 #endif

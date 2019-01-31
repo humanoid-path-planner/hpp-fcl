@@ -41,6 +41,8 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/math/transform.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -291,5 +293,7 @@ public:
 
 }
 
+
+} // namespace hpp
 
 #endif

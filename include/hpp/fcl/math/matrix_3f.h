@@ -40,6 +40,8 @@
 
 #include <hpp/fcl/math/vec_3f.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -99,5 +101,7 @@ public:
 }
 
 
+
+} // namespace hpp
 
 #endif

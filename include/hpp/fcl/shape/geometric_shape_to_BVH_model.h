@@ -43,6 +43,8 @@
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <boost/math/constants/constants.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -352,5 +354,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
 }
 
 }
+
+} // namespace hpp
 
 #endif

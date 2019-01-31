@@ -42,6 +42,8 @@
 
 #include <iostream>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -170,3 +172,5 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
 
 }
 
+
+} // namespace hpp

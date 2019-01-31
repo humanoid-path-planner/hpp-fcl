@@ -41,6 +41,8 @@
 
 #include <hpp/fcl/narrowphase/gjk.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -524,5 +526,7 @@ namespace fcl
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
 }
+
+} // namespace hpp
 
 #endif

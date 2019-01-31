@@ -36,6 +36,8 @@
 #ifndef FCL_SRC_OBB_H
 # define FCL_SRC_OBB_H
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -47,5 +49,7 @@ namespace fcl
   bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
 		   const Vec3f& b);
 } // namespace fcl
+
+} // namespace hpp
 
 #endif // FCL_SRC_OBB_H

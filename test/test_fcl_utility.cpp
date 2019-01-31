@@ -5,6 +5,8 @@
 #include <cstddef>
 #include <fstream>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -230,7 +232,7 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
       octree->updateNode (octomap::point3d (p[0], p[1], p[2]), true);
     }
     octree->updateInnerOccupancy ();
-    return fcl::OcTree (octree);
+    return hpp::fcl::OcTree (octree);
   }
 
 void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3f& R)
@@ -470,3 +472,5 @@ Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z)
 }
 
 }
+
+} // namespace hpp

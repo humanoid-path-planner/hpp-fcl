@@ -47,7 +47,7 @@
 #include "test_fcl_utility.h"
 #include <iostream>
 
-using namespace fcl;
+using namespace hpp::fcl;
 
 template<typename BV>
 void testBVHModelPointCloud()

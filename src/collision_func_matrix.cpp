@@ -43,6 +43,8 @@
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include "distance_func_matrix.h"
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -545,3 +547,5 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 }
 template struct CollisionFunctionMatrix<GJKSolver_indep>;
 }
+
+} // namespace hpp

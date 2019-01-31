@@ -39,6 +39,8 @@
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/BVH/BV_fitter.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -1013,3 +1015,5 @@ void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box, Transf
 
 
 }
+
+} // namespace hpp

@@ -42,6 +42,8 @@
 #include <iostream>
 #include <limits>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -216,3 +218,5 @@ kIOS translate(const kIOS& bv, const Vec3f& t)
 
 
 }
+
+} // namespace hpp

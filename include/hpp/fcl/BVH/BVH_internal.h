@@ -40,6 +40,8 @@
 
 #include <hpp/fcl/data_types.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -81,5 +83,7 @@ enum BVHModelType
 
 
 }
+
+} // namespace hpp
 
 #endif

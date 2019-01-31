@@ -44,6 +44,8 @@
 #include <hpp/fcl/math/transform.h>
 #include <boost/shared_ptr.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -332,5 +334,7 @@ protected:
 };
 
 }
+
+} // namespace hpp
 
 #endif

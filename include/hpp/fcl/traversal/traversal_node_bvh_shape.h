@@ -46,6 +46,8 @@
 #include <hpp/fcl/BVH/BVH_model.h>
 
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -1066,5 +1068,7 @@ public:
   
 };
 }
+
+} // namespace hpp
 
 #endif

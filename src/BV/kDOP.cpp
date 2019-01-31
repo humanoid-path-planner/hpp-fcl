@@ -39,6 +39,8 @@
 #include <limits>
 #include <iostream>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -258,3 +260,5 @@ template KDOP<18> translate<18>(const KDOP<18>&, const Vec3f&);
 template KDOP<24> translate<24>(const KDOP<24>&, const Vec3f&);
 
 }
+
+} // namespace hpp

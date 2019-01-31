@@ -41,6 +41,8 @@
 #include <hpp/fcl/math/transform.h>
 #include <boost/math/special_functions/erf.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -210,5 +212,7 @@ public:
 
 }
 
+
+} // namespace hpp
 
 #endif

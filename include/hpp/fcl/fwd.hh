@@ -34,6 +34,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
+namespace hpp {
 namespace fcl {
   class CollisionObject;
   typedef boost::shared_ptr <CollisionObject> CollisionObjectPtr_t;
@@ -46,3 +47,4 @@ namespace fcl {
 
   class AABB;
 }
+} // namespace hpp

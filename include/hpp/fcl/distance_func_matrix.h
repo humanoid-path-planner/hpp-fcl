@@ -41,6 +41,8 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -62,5 +64,7 @@ struct DistanceFunctionMatrix
 };
 
 }
+
+} // namespace hpp
 
 #endif

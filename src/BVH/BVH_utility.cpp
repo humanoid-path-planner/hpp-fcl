@@ -40,6 +40,8 @@
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -754,3 +756,5 @@ FCL_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indi
 
 
 }
+
+} // namespace hpp

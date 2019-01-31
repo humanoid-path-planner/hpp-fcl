@@ -47,6 +47,8 @@
 #include <limits>
 
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -456,5 +458,7 @@ inline CollisionRequestFlag& operator^=(CollisionRequestFlag& a, CollisionReques
 {return (CollisionRequestFlag&)((int&)(a) ^= static_cast<const int>(b));}
 
 }
+
+} // namespace hpp
 
 #endif

@@ -43,6 +43,8 @@
 #include <iostream>
 #include <limits>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -598,3 +600,5 @@ OBB translate(const OBB& bv, const Vec3f& t)
 }
 
 }
+
+} // namespace hpp

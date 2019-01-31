@@ -42,6 +42,8 @@
 #include <hpp/fcl/math/matrix_3f.h>
 #include <boost/thread/mutex.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -282,5 +284,7 @@ void relativeTransform2(const Transform3f& tf1, const Transform3f& tf2,
 
 
 }
+
+} // namespace hpp
 
 #endif

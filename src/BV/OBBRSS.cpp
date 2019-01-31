@@ -37,6 +37,8 @@
 
 #include <hpp/fcl/BV/OBBRSS.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -67,3 +69,5 @@ OBBRSS translate(const OBBRSS& bv, const Vec3f& t)
 
 
 }
+
+} // namespace hpp

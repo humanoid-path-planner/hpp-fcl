@@ -44,6 +44,8 @@
 #include <vector>
 #include <iostream>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -285,5 +287,7 @@ template<>
 void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
 
 }
+
+} // namespace hpp
 
 #endif

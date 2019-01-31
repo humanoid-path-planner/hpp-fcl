@@ -41,6 +41,8 @@
 
 #include <list>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -74,5 +76,7 @@ inline void updateFrontList(BVHFrontList* front_list, int b1, int b2)
 
 
 }
+
+} // namespace hpp
 
 #endif

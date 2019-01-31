@@ -49,6 +49,8 @@
 #include <limits>
 
 
+namespace hpp
+{
 namespace fcl
 {
   typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
@@ -66,5 +68,7 @@ namespace fcl
     (OCTOMAP_MINOR_VERSION < y || (OCTOMAP_MINOR_VERSION <= y && \
     OCTOMAP_PATCH_VERSION <= z))))
 #endif // FCL_HAVE_OCTOMAP
+
+} // namespace hpp
 
 #endif

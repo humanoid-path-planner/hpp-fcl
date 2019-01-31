@@ -43,6 +43,8 @@
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <iostream>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -349,5 +351,7 @@ private:
 };
 
 }
+
+} // namespace hpp
 
 #endif
