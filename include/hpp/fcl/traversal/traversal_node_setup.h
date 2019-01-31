@@ -43,7 +43,7 @@
 #include <hpp/fcl/traversal/traversal_node_shapes.h>
 #include <hpp/fcl/traversal/traversal_node_bvh_shape.h>
 
-#ifdef FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAVE_OCTOMAP
 #include <hpp/fcl/traversal/traversal_node_octree.h>
 #endif
 
@@ -54,7 +54,7 @@ namespace hpp
 namespace fcl
 {
 
-#ifdef FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAVE_OCTOMAP
 /// @brief Initialize traversal node for collision between two octrees, given current object transform
 template<typename NarrowPhaseSolver>
 bool initialize(OcTreeCollisionTraversalNode<NarrowPhaseSolver>& node,

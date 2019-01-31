@@ -57,7 +57,7 @@ namespace fcl
 }
 
 
-#ifdef FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAVE_OCTOMAP
   #define OCTOMAP_VERSION_AT_LEAST(x,y,z) \
     (OCTOMAP_MAJOR_VERSION > x || (OCTOMAP_MAJOR_VERSION >= x && \
     (OCTOMAP_MINOR_VERSION > y || (OCTOMAP_MINOR_VERSION >= y && \
@@ -67,7 +67,7 @@ namespace fcl
     (OCTOMAP_MAJOR_VERSION < x || (OCTOMAP_MAJOR_VERSION <= x && \
     (OCTOMAP_MINOR_VERSION < y || (OCTOMAP_MINOR_VERSION <= y && \
     OCTOMAP_PATCH_VERSION <= z))))
-#endif // FCL_HAVE_OCTOMAP
+#endif // HPP_FCL_HAVE_OCTOMAP
 
 } // namespace hpp
 
