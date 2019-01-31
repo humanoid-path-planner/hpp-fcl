@@ -68,8 +68,6 @@ inline bool areQuatEquals (const Quaternion3f& q1, const Quaternion3f& q2)
 /// @brief Simple transform class used locally by InterpMotion
 class Transform3f
 {
-  boost::mutex lock_;
-
   /// @brief Whether matrix cache is set
   mutable bool matrix_set;
   /// @brief Matrix cache
