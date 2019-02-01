@@ -39,11 +39,16 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+#include <boost/filesystem.hpp>
+
+#include "fcl_resources/config.h"
 
 #include "hpp/fcl/BVH/BVH_model.h"
 #include "hpp/fcl/BVH/BVH_utility.h"
 #include "hpp/fcl/math/transform.h"
 #include "hpp/fcl/shape/geometric_shapes.h"
+#include <hpp/fcl/mesh_loader/assimp.h>
+#include <hpp/fcl/mesh_loader/loader.h>
 #include "test_fcl_utility.h"
 #include <iostream>
 
@@ -259,4 +264,45 @@ BOOST_AUTO_TEST_CASE(building_bvh_models)
   testBVHModel<KDOP<16> >();
   testBVHModel<KDOP<18> >();
   testBVHModel<KDOP<24> >();
+}
+
+template<class BoundingVolume>
+void testLoadPolyhedron ()
+{
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+  std::string env = (path / "env.obj").string(),
+              rob = (path / "rob.obj").string();
+
+  typedef BVHModel<BoundingVolume> Polyhedron_t;
+  typedef boost::shared_ptr <Polyhedron_t> PolyhedronPtr_t;
+  PolyhedronPtr_t P1 (new Polyhedron_t), P2;
+
+  Vec3f scale;
+  scale.setConstant (1);
+  loadPolyhedronFromResource (env, scale, P1);
+
+  scale.setConstant (-1);
+  CachedMeshLoader loader;
+  CollisionGeometryPtr_t geom = loader.load (env, scale, P1->getNodeType());
+  P2 = boost::dynamic_pointer_cast<Polyhedron_t> (geom);
+  BOOST_REQUIRE (P2);
+
+  BOOST_CHECK_EQUAL(P1->num_tris        , P2->num_tris);
+  BOOST_CHECK_EQUAL(P1->num_vertices    , P2->num_vertices);
+  BOOST_CHECK_EQUAL(P1->getNumBVs()     , P2->getNumBVs());
+
+  CollisionGeometryPtr_t geom2 = loader.load (env, scale, P1->getNodeType());
+  BOOST_CHECK_EQUAL (geom, geom2);
+}
+
+BOOST_AUTO_TEST_CASE(load_polyhedron)
+{
+  testLoadPolyhedron<AABB>();
+  testLoadPolyhedron<OBB>();
+  testLoadPolyhedron<RSS>();
+  testLoadPolyhedron<kIOS>();
+  testLoadPolyhedron<OBBRSS>();
+  testLoadPolyhedron<KDOP<16> >();
+  testLoadPolyhedron<KDOP<18> >();
+  testLoadPolyhedron<KDOP<24> >();
 }
