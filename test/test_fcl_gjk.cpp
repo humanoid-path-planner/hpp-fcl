@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
       // check that moving triangle 2 by the penetration depth in the
       // direction of the normal makes the triangles collision free.
       FCL_REAL penetration_depth (-distance);
-      assert (penetration_depth > 0);
+      assert (penetration_depth >= 0);
       tf2.setTranslation ((penetration_depth + 10-4) * normal);
       res = solver.shapeDistance (tri1, tf1, tri2, tf2, distance, c1, c2,
                                   normal2);
