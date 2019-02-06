@@ -75,7 +75,6 @@ bool test_collide_func(const Transform3f& tf,
                        const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method);
 
 int num_max_contacts = std::numeric_limits<int>::max();
-bool enable_contact = true;
 
 std::vector<Contact> global_pairs;
 std::vector<Contact> global_pairs_now;
@@ -855,7 +854,7 @@ bool collide_Test2(const Transform3f& tf,
   Transform3f pose1, pose2;
 
   CollisionResult local_result;
-  CollisionRequest request (enable_contact, num_max_contacts, false);
+  CollisionRequest request (CONTACT, num_max_contacts);
   MeshCollisionTraversalNode<BV> node (request);
 
   bool success = initialize <BV> (node, m1, pose1, m2, pose2, local_result);
@@ -915,7 +914,7 @@ bool collide_Test(const Transform3f& tf,
   Transform3f pose1(tf), pose2;
 
   CollisionResult local_result;
-  CollisionRequest request (enable_contact, num_max_contacts, false);
+  CollisionRequest request (CONTACT, num_max_contacts);
   MeshCollisionTraversalNode<BV> node (request);
 
   bool success = initialize <BV> (node, m1, pose1, m2, pose2, local_result);
@@ -974,7 +973,7 @@ bool collide_Test_Oriented(const Transform3f& tf,
   Transform3f pose1(tf), pose2;
 
   CollisionResult local_result;
-  CollisionRequest request (enable_contact, num_max_contacts, false);
+  CollisionRequest request (CONTACT, num_max_contacts);
   TraversalNode node (request);
   bool success = initialize (node, (const BVHModel<BV>&)m1, pose1,
                              (const BVHModel<BV>&)m2, pose2, local_result);
@@ -1033,7 +1032,7 @@ bool test_collide_func(const Transform3f& tf,
 
   std::vector<Contact> contacts;
 
-  CollisionRequest request (enable_contact, num_max_contacts, false);
+  CollisionRequest request (CONTACT, num_max_contacts);
   CollisionResult result;
   int num_contacts = collide(&m1, pose1, &m2, pose2, 
                              request, result);

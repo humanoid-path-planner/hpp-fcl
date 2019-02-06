@@ -413,7 +413,7 @@ bool collide_Test_OBB(const Transform3f& tf,
   m2.endModel();
 
   CollisionResult local_result;
-  CollisionRequest request (true, 1, true);
+  CollisionRequest request (CONTACT | DISTANCE_LOWER_BOUND, 1);
   MeshCollisionTraversalNodeOBB node (request);
   bool success (initialize(node, (const BVHModel<OBB>&)m1, tf,
                            (const BVHModel<OBB>&)m2, Transform3f(),

@@ -131,6 +131,14 @@ struct Contact
 
 struct CollisionResult;
 
+/// @brief flag declaration for specifying required params in CollisionResult
+enum CollisionRequestFlag
+{
+  CONTACT               = 0x00001,
+  DISTANCE_LOWER_BOUND  = 0x00002,
+  NO_REQUEST            = 0x01000
+};
+
 /// @brief request to the collision algorithm
 struct CollisionRequest
 {  
@@ -158,7 +166,7 @@ struct CollisionRequest
   /// @brief Distance below which bounding volumes are break down
   FCL_REAL break_distance;
 
-  CollisionRequest(size_t num_max_contacts_ = 1,
+  CollisionRequest(size_t num_max_contacts_,
                    bool enable_contact_ = false,
 		   bool enable_distance_lower_bound_ = false,
                    size_t num_max_cost_sources_ = 1,
@@ -167,11 +175,10 @@ struct CollisionRequest
                    GJKSolverType gjk_solver_type_ = GST_INDEP)
   HPP_FCL_DEPRECATED;
 
-  CollisionRequest(bool enable_contact_, size_t num_max_contacts_,
-		   bool enable_distance_lower_bound_) :
+  explicit CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_) :
     num_max_contacts(num_max_contacts_),
-    enable_contact(enable_contact_),
-    enable_distance_lower_bound (enable_distance_lower_bound_),
+    enable_contact(flag & CONTACT),
+    enable_distance_lower_bound (flag & DISTANCE_LOWER_BOUND),
     gjk_solver_type(GST_INDEP),
     security_margin (0),
     break_distance (1e-3)
@@ -179,6 +186,18 @@ struct CollisionRequest
     enable_cached_gjk_guess = false;
     cached_gjk_guess = Vec3f(1, 0, 0);
   }
+
+  CollisionRequest() :
+      num_max_contacts(1),
+      enable_contact(false),
+      enable_distance_lower_bound (false),
+      gjk_solver_type(GST_INDEP),
+      security_margin (0),
+      break_distance (1e-3)
+    {
+      enable_cached_gjk_guess = false;
+      cached_gjk_guess = Vec3f(1, 0, 0);
+    }
 
   bool isSatisfied(const CollisionResult& result) const;
 };
@@ -413,6 +432,28 @@ public:
   }
 
 };
+
+
+inline CollisionRequestFlag operator~(CollisionRequestFlag a)
+{return static_cast<CollisionRequestFlag>(~static_cast<const int>(a));}
+
+inline CollisionRequestFlag operator|(CollisionRequestFlag a, CollisionRequestFlag b)
+{return static_cast<CollisionRequestFlag>(static_cast<const int>(a) | static_cast<const int>(b));}
+
+inline CollisionRequestFlag operator&(CollisionRequestFlag a, CollisionRequestFlag b)
+{return static_cast<CollisionRequestFlag>(static_cast<const int>(a) & static_cast<const int>(b));}
+
+inline CollisionRequestFlag operator^(CollisionRequestFlag a, CollisionRequestFlag b)
+{return static_cast<CollisionRequestFlag>(static_cast<const int>(a) ^ static_cast<const int>(b));}
+
+inline CollisionRequestFlag& operator|=(CollisionRequestFlag& a, CollisionRequestFlag b)
+{return (CollisionRequestFlag&)((int&)(a) |= static_cast<const int>(b));}
+
+inline CollisionRequestFlag& operator&=(CollisionRequestFlag& a, CollisionRequestFlag b)
+{return (CollisionRequestFlag&)((int&)(a) &= static_cast<const int>(b));}
+
+inline CollisionRequestFlag& operator^=(CollisionRequestFlag& a, CollisionRequestFlag b)
+{return (CollisionRequestFlag&)((int&)(a) ^= static_cast<const int>(b));}
 
 }
 

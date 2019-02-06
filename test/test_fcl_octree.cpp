@@ -80,7 +80,7 @@ fcl::OcTree makeOctree (const BVHModel <OBBRSS>& mesh,
   Vec3f m (mesh.aabb_local.min_);
   Vec3f M (mesh.aabb_local.max_);
   fcl::Box box (resolution, resolution, resolution);
-  CollisionRequest request (true, 1, true);
+  CollisionRequest request (fcl::CONTACT | fcl::DISTANCE_LOWER_BOUND, 1);
   CollisionResult result;
   Transform3f tfBox;
   octomap::OcTreePtr_t octree (new octomap::OcTree (resolution));
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE (OCTREE)
 
   generateRandomTransforms(extents, transforms, 2*N);
 
-  CollisionRequest request (true, 1, true);
+  CollisionRequest request (fcl::CONTACT | fcl::DISTANCE_LOWER_BOUND, 1);
   for (std::size_t i=0; i<N; ++i) {
     CollisionResult resultMesh;
     CollisionResult resultOctree;
