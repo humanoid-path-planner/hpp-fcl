@@ -104,6 +104,26 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
                        -0.46249645019513175, 0.73064726592483387),
          Vec3f (-12.824601270753471, -1.6840516940066426, 3.8914453043793844));
       tf1 = tf;
+    } else if (i==1) {
+      P1_loc = Vec3f
+        (-0.8027043342590332 , -0.30276307463645935 , -0.4372950792312622);
+      P2_loc = Vec3f
+        (-0.8027043342590332 , 0.30276307463645935  ,-0.4372950792312622);
+      P3_loc = Vec3f
+        (0.8027043342590332  , 0.30276307463645935  ,-0.4372950792312622);
+      Q1_loc = Vec3f
+        (-0.224713996052742   , -0.7417119741439819 , 0.19999997317790985);
+      Q2_loc = Vec3f
+        (-0.5247139930725098 , -0.7417119741439819 , 0.19999997317790985);
+      Q3_loc = Vec3f
+        (-0.224713996052742   , -0.7417119741439819 ,  0.09999997168779373);
+      Matrix3f R; Vec3f T;
+      R <<  0.9657787025454787,      0.09400415350535746,   0.24173273843919627,
+        -0.06713698817647556,    0.9908494114820345,    -0.11709000206805695,
+        -0.25052768814676646,    0.09685382227587608,  0.9632524147814993;
+
+      T << -0.13491177905469953, -1,  0.6000449621843792;
+      tf1.setRotation(R); tf1.setTranslation(T);
     } else {
       tf1 = Transform3f ();
     }
@@ -125,7 +145,7 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
       // check that moving triangle 2 by the penetration depth in the
       // direction of the normal makes the triangles collision free.
       FCL_REAL penetration_depth (-distance);
-      assert (penetration_depth > 0);
+      assert (penetration_depth >= 0);
       tf2.setTranslation ((penetration_depth + 10-4) * normal);
       res = solver.shapeDistance (tri1, tf1, tri2, tf2, distance, c1, c2,
                                   normal2);

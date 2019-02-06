@@ -654,7 +654,6 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
     }
     else if (gjk_status == details::GJK::Inside)
     {
-      dist = 0;
       p1 = tf1.transform (w0);
       p2 = tf1.transform (w1);
 
@@ -662,8 +661,9 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
         FCL_REAL penetrationDepth = details::computePenetration
           (P1, P2, P3, Q1, Q2, Q3, tf1, tf2, normal);
         dist = -penetrationDepth;
-        assert (dist <= 0);
+        assert (dist <= 1e-6);
       }
+      dist = 0;
       return false;
     }
     assert (false && "should not reach this point");
