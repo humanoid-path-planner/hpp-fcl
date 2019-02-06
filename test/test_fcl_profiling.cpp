@@ -228,7 +228,7 @@ int main(int argc, char** argv)
   
   std::vector<Transform3f> transforms;
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request;
 
   if (argc > 1) {
     int iarg = 1;

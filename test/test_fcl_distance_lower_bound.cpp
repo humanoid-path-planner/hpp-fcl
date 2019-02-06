@@ -68,7 +68,7 @@ bool testDistanceLowerBound (const Transform3f& tf,
 {
   Transform3f pose1(tf), pose2;
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request (fcl::NO_REQUEST, 1);
   request.enable_distance_lower_bound = true;
 
   CollisionResult result;
@@ -86,7 +86,7 @@ bool testCollide (const Transform3f& tf, const CollisionGeometryPtr_t& m1,
 {
   Transform3f pose1(tf), pose2;
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request (fcl::NO_REQUEST, 1);
   request.enable_distance_lower_bound = false;
 
   CollisionResult result;

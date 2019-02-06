@@ -229,7 +229,7 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
   Transform3f pose1, pose2;
 
   CollisionResult local_result;
-  CollisionRequest request (false, std::numeric_limits<int>::max());
+  CollisionRequest request (NO_REQUEST, std::numeric_limits<int>::max());
   MeshCollisionTraversalNode<BV> node (request);
 
   bool success = initialize <BV>(node, m1, pose1, m2, pose2, local_result);
@@ -292,7 +292,7 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1, const Transform3f&
   Transform3f pose1(tf1), pose2;
 
   CollisionResult local_result;	
-  CollisionRequest request (false, std::numeric_limits<int>::max());
+  CollisionRequest request (NO_REQUEST, std::numeric_limits<int>::max());
   TraversalNode node (request);
 
   bool success = initialize (node, (const BVHModel<BV>&)m1, pose1,
@@ -343,7 +343,7 @@ bool collide_Test(const Transform3f& tf,
   Transform3f pose1(tf), pose2;
 
   CollisionResult local_result;
-  CollisionRequest request (false, std::numeric_limits<int>::max());
+  CollisionRequest request (NO_REQUEST, std::numeric_limits<int>::max());
   MeshCollisionTraversalNode<BV> node (request);
 
   bool success = initialize <BV>(node, m1, pose1, m2, pose2, local_result);

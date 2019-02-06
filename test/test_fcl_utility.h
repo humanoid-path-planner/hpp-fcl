@@ -120,7 +120,7 @@ struct DistanceRes
 /// @brief Collision data stores the collision request and the result given by collision algorithm. 
 struct CollisionData
 {
-CollisionData() : request (false, 1, false)
+CollisionData() : request (NO_REQUEST, 1)
   {
     done = false;
   }

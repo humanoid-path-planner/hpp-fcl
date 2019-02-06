@@ -117,7 +117,7 @@ double collide (const std::vector<Transform3f>& tf,
   Transform3f pose2;
 
   CollisionResult local_result;	
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request;
   TraversalNode node (request);
 
   node.enable_statistics = verbose;
