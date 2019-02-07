@@ -108,8 +108,6 @@ endif()
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h
   include/hpp/fcl/profile.h
-  include/hpp/fcl/exception.h
-  include/hpp/fcl/deprecated.h
   include/hpp/fcl/BV/kIOS.h
   include/hpp/fcl/BV/BV.h
   include/hpp/fcl/BV/RSS.h
