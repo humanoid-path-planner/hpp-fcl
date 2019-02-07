@@ -166,7 +166,7 @@ struct CollisionRequest
   /// @brief Distance below which bounding volumes are break down
   FCL_REAL break_distance;
 
-  CollisionRequest(size_t num_max_contacts_,
+  explicit CollisionRequest(size_t num_max_contacts_,
                    bool enable_contact_ = false,
 		   bool enable_distance_lower_bound_ = false,
                    size_t num_max_cost_sources_ = 1,
