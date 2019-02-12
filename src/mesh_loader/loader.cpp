@@ -42,8 +42,9 @@
 namespace hpp
 {
 namespace fcl {
-  bool operator< (const CachedMeshLoader::Key& a, const CachedMeshLoader::Key& b)
+  bool CachedMeshLoader::Key::operator< (const CachedMeshLoader::Key& b) const
   {
+    const CachedMeshLoader::Key& a = *this;
     if (a.bvType < b.bvType) return true;
     if (a.bvType > b.bvType) return false;
     for (int i = 0; i < 3; ++i) {
