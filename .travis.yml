@@ -35,7 +35,7 @@ script:
   - make -j4
 
   # Run unit tests
-  - make test
+  - make test || ctest -VV
 
   # Make sure we can install and uninstall with no issues
   - sudo make -j4 install
