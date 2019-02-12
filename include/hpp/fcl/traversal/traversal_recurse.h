@@ -36,14 +36,16 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_TRAVERSAL_RECURSE_H
-#define FCL_TRAVERSAL_RECURSE_H
+#ifndef HPP_FCL_TRAVERSAL_RECURSE_H
+#define HPP_FCL_TRAVERSAL_RECURSE_H
 
 #include <hpp/fcl/traversal/traversal_node_base.h>
 #include <hpp/fcl/traversal/traversal_node_bvhs.h>
 #include <hpp/fcl/BVH/BVH_front.h>
 #include <queue>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -73,5 +75,7 @@ void propagateBVHFrontListCollisionRecurse
 
 
 }
+
+} // namespace hpp
 
 #endif

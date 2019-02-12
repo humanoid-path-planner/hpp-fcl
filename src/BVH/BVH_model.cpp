@@ -40,6 +40,8 @@
 #include <iostream>
 #include <string.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -1002,3 +1004,5 @@ template class BVHModel<RSS>;
 template class BVHModel<kIOS>;
 template class BVHModel<OBBRSS>;
 }
+
+} // namespace hpp

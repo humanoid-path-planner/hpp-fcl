@@ -36,11 +36,13 @@
 
 /** \author Jia Pan, Florent Lamiraux */
 
-#ifndef FCL_NARROWPHASE_H
-#define FCL_NARROWPHASE_H
+#ifndef HPP_FCL_NARROWPHASE_H
+#define HPP_FCL_NARROWPHASE_H
 
 #include <hpp/fcl/narrowphase/gjk.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -524,5 +526,7 @@ namespace fcl
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
 }
+
+} // namespace hpp
 
 #endif

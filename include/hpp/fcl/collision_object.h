@@ -36,14 +36,16 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_COLLISION_OBJECT_BASE_H
-#define FCL_COLLISION_OBJECT_BASE_H
+#ifndef HPP_FCL_COLLISION_OBJECT_BASE_H
+#define HPP_FCL_COLLISION_OBJECT_BASE_H
 
-#include <hpp/fcl/deprecated.h>
+#include <hpp/fcl/deprecated.hh>
 #include <hpp/fcl/BV/AABB.h>
 #include <hpp/fcl/math/transform.h>
 #include <boost/shared_ptr.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -299,7 +301,7 @@ public:
   }
 
   /// @brief get geometry from the object instance
-  FCL_DEPRECATED
+  HPP_FCL_DEPRECATED
   const CollisionGeometry* getCollisionGeometry() const
   {
     return cgeom.get();
@@ -332,5 +334,7 @@ protected:
 };
 
 }
+
+} // namespace hpp
 
 #endif

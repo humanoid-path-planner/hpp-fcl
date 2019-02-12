@@ -35,11 +35,13 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_MATRIX_3F_H
-#define FCL_MATRIX_3F_H
+#ifndef HPP_FCL_MATRIX_3F_H
+#define HPP_FCL_MATRIX_3F_H
 
 #include <hpp/fcl/math/vec_3f.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -99,5 +101,7 @@ public:
 }
 
 
+
+} // namespace hpp
 
 #endif

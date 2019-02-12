@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BVH_MODEL_H
-#define FCL_BVH_MODEL_H
+#ifndef HPP_FCL_BVH_MODEL_H
+#define HPP_FCL_BVH_MODEL_H
 
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/BVH/BVH_internal.h>
@@ -47,6 +47,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -353,5 +355,7 @@ template<>
 NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const;
 
 }
+
+} // namespace hpp
 
 #endif

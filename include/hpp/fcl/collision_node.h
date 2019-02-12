@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_COLLISION_NODE_H
-#define FCL_COLLISION_NODE_H
+#ifndef HPP_FCL_COLLISION_NODE_H
+#define HPP_FCL_COLLISION_NODE_H
 
 #include <hpp/fcl/traversal/traversal_node_base.h>
 #include <hpp/fcl/traversal/traversal_node_bvhs.h>
@@ -46,6 +46,8 @@
 
 
 /// @brief collision and distance function on traversal nodes. these functions provide a higher level abstraction for collision functions provided in collision_func_matrix
+namespace hpp
+{
 namespace fcl
 {
 
@@ -65,5 +67,7 @@ namespace fcl
 /// @brief distance computation on distance traversal node; can use front list to accelerate
 void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
 }
+
+} // namespace hpp
 
 #endif

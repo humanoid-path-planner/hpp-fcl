@@ -47,6 +47,8 @@
 //
 // One solution would be to make narrow phase solvers derive from an abstract
 // class and specialize the template for this abstract class.
+namespace hpp
+{
 namespace fcl {
   class GJKSolver_indep;
 
@@ -134,3 +136,5 @@ namespace fcl {
     return 0;
   }
 } // namespace fcl
+
+} // namespace hpp

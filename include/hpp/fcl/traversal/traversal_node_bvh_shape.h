@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_TRAVERSAL_NODE_MESH_SHAPE_H
-#define FCL_TRAVERSAL_NODE_MESH_SHAPE_H
+#ifndef HPP_FCL_TRAVERSAL_NODE_MESH_SHAPE_H
+#define HPP_FCL_TRAVERSAL_NODE_MESH_SHAPE_H
 
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
@@ -46,6 +46,8 @@
 #include <hpp/fcl/BVH/BVH_model.h>
 
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -1066,5 +1068,7 @@ public:
   
 };
 }
+
+} // namespace hpp
 
 #endif

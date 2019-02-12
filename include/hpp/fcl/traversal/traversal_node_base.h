@@ -35,13 +35,15 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_NODE_BASE_H
-#define FCL_TRAVERSAL_NODE_BASE_H
+#ifndef HPP_FCL_TRAVERSAL_NODE_BASE_H
+#define HPP_FCL_TRAVERSAL_NODE_BASE_H
 
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/collision_data.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -156,5 +158,7 @@ public:
   bool enable_statistics;
 };
 }
+
+} // namespace hpp
 
 #endif

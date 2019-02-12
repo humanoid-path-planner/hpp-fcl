@@ -35,14 +35,16 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BV_FITTER_H
-#define FCL_BV_FITTER_H
+#ifndef HPP_FCL_BV_FITTER_H
+#define HPP_FCL_BV_FITTER_H
 
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/kIOS.h>
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <iostream>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -349,5 +351,7 @@ private:
 };
 
 }
+
+} // namespace hpp
 
 #endif

@@ -36,13 +36,15 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_GEOMETRIC_SHAPES_UTILITY_H
-#define FCL_GEOMETRIC_SHAPES_UTILITY_H
+#ifndef HPP_FCL_GEOMETRIC_SHAPES_UTILITY_H
+#define HPP_FCL_GEOMETRIC_SHAPES_UTILITY_H
 
 #include <vector>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/BV/BV.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -197,5 +199,7 @@ Halfspace transform(const Halfspace& a, const Transform3f& tf);
 Plane transform(const Plane& a, const Transform3f& tf);
 
 }
+
+} // namespace hpp
 
 #endif

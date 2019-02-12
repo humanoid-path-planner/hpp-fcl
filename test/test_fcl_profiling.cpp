@@ -29,7 +29,7 @@
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 
-using namespace fcl;
+using namespace hpp::fcl;
 
 CollisionFunctionMatrix<GJKSolver_indep> lookupTable;
 bool supportedPair(const CollisionGeometry* o1, const CollisionGeometry* o2)
@@ -193,7 +193,7 @@ Geometry makeGeomFromParam(int& iarg, const int& argc, char** argv)
     iarg += 3;
     if (iarg < argc && strcmp(argv[iarg], "crop") == 0) {
       CHECK_PARAM_NB(6, Crop);
-      fcl::AABB aabb(
+      hpp::fcl::AABB aabb(
           Vec3f(atof(argv[iarg+1]),
                 atof(argv[iarg+2]),
                 atof(argv[iarg+3])),

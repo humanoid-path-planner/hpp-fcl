@@ -35,8 +35,8 @@
 
 /** \author Joseph Mirabel */
 
-#ifndef FCL_MATH_TOOLS_H
-#define FCL_MATH_TOOLS_H
+#ifndef HPP_FCL_MATH_TOOLS_H
+#define HPP_FCL_MATH_TOOLS_H
 
 #include <hpp/fcl/deprecated.hh>
 #include <hpp/fcl/config.hh>
@@ -48,6 +48,8 @@
 #include <iostream>
 #include <limits>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -234,5 +236,7 @@ inline Derived& setEulerYPR(const Eigen::MatrixBase<Derived>& R, FCL_REAL yaw, F
 
 }
 
+
+} // namespace hpp
 
 #endif

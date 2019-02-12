@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_VEC_3F_H
-#define FCL_VEC_3F_H
+#ifndef HPP_FCL_VEC_3F_H
+#define HPP_FCL_VEC_3F_H
 
 #include <hpp/fcl/data_types.h>
 
@@ -49,13 +49,15 @@
 #include <limits>
 
 
+namespace hpp
+{
 namespace fcl
 {
   typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
 }
 
 
-#ifdef FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAVE_OCTOMAP
   #define OCTOMAP_VERSION_AT_LEAST(x,y,z) \
     (OCTOMAP_MAJOR_VERSION > x || (OCTOMAP_MAJOR_VERSION >= x && \
     (OCTOMAP_MINOR_VERSION > y || (OCTOMAP_MINOR_VERSION >= y && \
@@ -65,6 +67,8 @@ namespace fcl
     (OCTOMAP_MAJOR_VERSION < x || (OCTOMAP_MAJOR_VERSION <= x && \
     (OCTOMAP_MINOR_VERSION < y || (OCTOMAP_MINOR_VERSION <= y && \
     OCTOMAP_PATCH_VERSION <= z))))
-#endif // FCL_HAVE_OCTOMAP
+#endif // HPP_FCL_HAVE_OCTOMAP
+
+} // namespace hpp
 
 #endif

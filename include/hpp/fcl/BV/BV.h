@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BV_H
-#define FCL_BV_H
+#ifndef HPP_FCL_BV_H
+#define HPP_FCL_BV_H
 
 
 #include <hpp/fcl/BV/kDOP.h>
@@ -48,6 +48,8 @@
 #include <hpp/fcl/math/transform.h>
 
 /** \brief Main namespace */
+namespace hpp
+{
 namespace fcl
 {
 
@@ -292,5 +294,7 @@ static inline void convertBV(const BV1& bv1, const Transform3f& tf1, BV2& bv2)
 }
 
 }
+
+} // namespace hpp
 
 #endif

@@ -47,7 +47,7 @@
 #include "test_fcl_utility.h"
 
 
-using namespace fcl;
+using namespace hpp::fcl;
 
 #define BOOST_CHECK_FALSE(p) BOOST_CHECK(!(p))
 

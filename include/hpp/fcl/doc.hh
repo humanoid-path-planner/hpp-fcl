@@ -41,11 +41,11 @@
 ///
 /// It is a library for collision detection and distance computation between
 /// various types of geometric shapes reprensented either by
-/// \li basic shapes (fcl::ShapeBase) like box, sphere, cylinders, ...
-/// \li or by bounding volume hierarchies of various types (fcl::BVHModel)
+/// \li basic shapes (hpp::fcl::ShapeBase) like box, sphere, cylinders, ...
+/// \li or by bounding volume hierarchies of various types (hpp::fcl::BVHModel)
 ///
 /// \par Using hpp-fcl
 ///
 /// The main entry points to the library are functions
-/// \li fcl::collide and
-/// \li fcl::distance.
+/// \li hpp::fcl::collide and
+/// \li hpp::fcl::distance.

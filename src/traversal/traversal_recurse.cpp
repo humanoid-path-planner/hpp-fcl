@@ -38,6 +38,8 @@
 
 #include <hpp/fcl/traversal/traversal_recurse.h>
 
+namespace hpp
+{
 namespace fcl
 {
 void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, 
@@ -364,3 +366,5 @@ void propagateBVHFrontListCollisionRecurse
 
 
 }
+
+} // namespace hpp

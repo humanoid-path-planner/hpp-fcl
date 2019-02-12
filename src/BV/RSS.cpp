@@ -38,6 +38,8 @@
 #include <hpp/fcl/BV/RSS.h>
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <iostream>
+namespace hpp
+{
 namespace fcl
 {
 
@@ -1133,3 +1135,5 @@ RSS translate(const RSS& bv, const Vec3f& t)
 
 
 }
+
+} // namespace hpp

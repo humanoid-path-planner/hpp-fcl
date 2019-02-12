@@ -34,14 +34,16 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FCL_MESH_LOADER_LOADER_H
-#define FCL_MESH_LOADER_LOADER_H
+#ifndef HPP_FCL_MESH_LOADER_LOADER_H
+#define HPP_FCL_MESH_LOADER_LOADER_H
 
 #include <boost/shared_ptr.hpp>
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/math/vec_3f.h>
 #include <hpp/fcl/collision_object.h>
 
+namespace hpp
+{
 namespace fcl {
   /// Base class for building polyhedron from files.
   /// This class builds a new object for each file.
@@ -83,5 +85,7 @@ namespace fcl {
       Cache_t cache_;
   };
 }
+
+} // namespace hpp
 
 #endif // FCL_MESH_LOADER_LOADER_H

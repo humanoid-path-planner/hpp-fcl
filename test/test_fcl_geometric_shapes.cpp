@@ -46,7 +46,7 @@
 #include "test_fcl_utility.h"
 #include <iostream>
 
-using namespace fcl;
+using namespace hpp::fcl;
 
 FCL_REAL extents [6] = {0, 0, 0, 10, 10, 10};
 

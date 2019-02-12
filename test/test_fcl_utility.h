@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef TEST_FCL_UTILITY_H
-#define TEST_FCL_UTILITY_H
+#ifndef TEST_HPP_FCL_UTILITY_H
+#define TEST_HPP_FCL_UTILITY_H
 
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/collision_data.h>
@@ -55,6 +55,8 @@ namespace octomap {
   typedef boost::shared_ptr<OcTree> OcTreePtr_t;
 }
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -168,5 +170,7 @@ std::string getGJKSolverName(GJKSolverType solver_type);
 Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z);
 
 }
+
+} // namespace hpp
 
 #endif

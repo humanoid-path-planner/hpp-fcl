@@ -46,14 +46,14 @@
 #include "../src/BV/OBB.h"
 #include "../src/distance_func_matrix.h"
 
-using fcl::FCL_REAL;
+using hpp::fcl::FCL_REAL;
 
 struct Sample
 {
-  fcl::Matrix3f R;
-  fcl::Vec3f T;
-  fcl::Vec3f extent1;
-  fcl::Vec3f extent2;
+  hpp::fcl::Matrix3f R;
+  hpp::fcl::Vec3f T;
+  hpp::fcl::Vec3f extent1;
+  hpp::fcl::Vec3f extent2;
 };
 
 struct Result
@@ -78,19 +78,19 @@ BOOST_AUTO_TEST_CASE(obb_overlap)
     FCL_REAL q2 = sqrt (1-u1)*cos(2*M_PI*u2);
     FCL_REAL q3 = sqrt (u1) * sin(2*M_PI*u3);
     FCL_REAL q4 = sqrt (u1) * cos(2*M_PI*u3);
-    fcl::Quaternion3f (q1, q2, q3, q4).toRotation (sample [i].R);
+    hpp::fcl::Quaternion3f (q1, q2, q3, q4).toRotation (sample [i].R);
 
     // sample translation
-    sample [i].T = fcl::Vec3f ((FCL_REAL) range * rand() / RAND_MAX,
+    sample [i].T = hpp::fcl::Vec3f ((FCL_REAL) range * rand() / RAND_MAX,
 			       (FCL_REAL) range * rand() / RAND_MAX,
 			       (FCL_REAL) range * rand() / RAND_MAX);
 
     // sample extents
-    sample [i].extent1 = fcl::Vec3f ((FCL_REAL) rand() / RAND_MAX,
+    sample [i].extent1 = hpp::fcl::Vec3f ((FCL_REAL) rand() / RAND_MAX,
 				     (FCL_REAL) rand() / RAND_MAX,
 				     (FCL_REAL) rand() / RAND_MAX);
 
-    sample [i].extent2 = fcl::Vec3f ((FCL_REAL) rand() / RAND_MAX,
+    sample [i].extent2 = hpp::fcl::Vec3f ((FCL_REAL) rand() / RAND_MAX,
 				     (FCL_REAL) rand() / RAND_MAX,
 				     (FCL_REAL) rand() / RAND_MAX);
   }
@@ -100,16 +100,16 @@ BOOST_AUTO_TEST_CASE(obb_overlap)
   Result resultDisjoint [nbSamples];
   Result resultDisjointAndLowerBound [nbSamples];
 
-  fcl::Transform3f tf1;
-  fcl::Transform3f tf2;
-  fcl::Box box1 (0, 0, 0);
-  fcl::Box box2 (0, 0, 0);
-  fcl::DistanceRequest request (false, 0, 0, fcl::GST_INDEP);
-  fcl::DistanceResult result;
+  hpp::fcl::Transform3f tf1;
+  hpp::fcl::Transform3f tf2;
+  hpp::fcl::Box box1 (0, 0, 0);
+  hpp::fcl::Box box2 (0, 0, 0);
+  hpp::fcl::DistanceRequest request (false, 0, 0, hpp::fcl::GST_INDEP);
+  hpp::fcl::DistanceResult result;
   FCL_REAL distance;
   FCL_REAL squaredDistance;
   timeval t0, t1;
-  fcl::GJKSolver_indep gjkSolver;
+  hpp::fcl::GJKSolver_indep gjkSolver;
 
   // ShapeShapeDistance
   gettimeofday (&t0, NULL);
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(obb_overlap)
     box2.side = 2*sample [i].extent2;
     tf2.setTransform (sample [i].R, sample [i].T);
     resultDistance [i].distance =
-      fcl::ShapeShapeDistance<fcl::Box, fcl::Box, fcl::GJKSolver_indep>
+      hpp::fcl::ShapeShapeDistance<hpp::fcl::Box, hpp::fcl::Box, hpp::fcl::GJKSolver_indep>
       (&box1, tf1, &box2, tf2, &gjkSolver, request, result);
     resultDistance [i].overlap = (resultDistance [i].distance < 0);
     if (resultDistance [i].distance < 0) {

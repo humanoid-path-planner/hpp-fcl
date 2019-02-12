@@ -53,28 +53,28 @@
 
 BOOST_AUTO_TEST_CASE(distance_capsule_box)
 {
-  typedef boost::shared_ptr <fcl::CollisionGeometry> CollisionGeometryPtr_t;
+  typedef boost::shared_ptr <hpp::fcl::CollisionGeometry> CollisionGeometryPtr_t;
   // Capsule of radius 2 and of height 4
-  CollisionGeometryPtr_t capsuleGeometry (new fcl::Capsule (2., 4.));
+  CollisionGeometryPtr_t capsuleGeometry (new hpp::fcl::Capsule (2., 4.));
   // Box of size 1 by 2 by 4
-  CollisionGeometryPtr_t boxGeometry (new fcl::Box (1., 2., 4.));
+  CollisionGeometryPtr_t boxGeometry (new hpp::fcl::Box (1., 2., 4.));
 
   // Enable computation of nearest points
-  fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
-  fcl::DistanceResult distanceResult;
+  hpp::fcl::DistanceRequest distanceRequest (true, 0, 0, hpp::fcl::GST_INDEP);
+  hpp::fcl::DistanceResult distanceResult;
 
   // Rotate capsule around y axis by pi/2 and move it behind box
-  fcl::Transform3f tf1 (fcl::makeQuat (sqrt(2)/2, 0, sqrt(2)/2, 0),
-			fcl::Vec3f (-10., 0.8, 1.5));
-  fcl::Transform3f tf2;
-  fcl::CollisionObject capsule (capsuleGeometry, tf1);
-  fcl::CollisionObject box (boxGeometry, tf2);
+  hpp::fcl::Transform3f tf1 (hpp::fcl::makeQuat (sqrt(2)/2, 0, sqrt(2)/2, 0),
+			hpp::fcl::Vec3f (-10., 0.8, 1.5));
+  hpp::fcl::Transform3f tf2;
+  hpp::fcl::CollisionObject capsule (capsuleGeometry, tf1);
+  hpp::fcl::CollisionObject box (boxGeometry, tf2);
 
   // test distance
   distanceResult.clear ();
-  fcl::distance (&capsule, &box, distanceRequest, distanceResult);
-  fcl::Vec3f o1 = distanceResult.nearest_points [0];
-  fcl::Vec3f o2 = distanceResult.nearest_points [1];
+  hpp::fcl::distance (&capsule, &box, distanceRequest, distanceResult);
+  hpp::fcl::Vec3f o1 = distanceResult.nearest_points [0];
+  hpp::fcl::Vec3f o2 = distanceResult.nearest_points [1];
 
   BOOST_CHECK_CLOSE (distanceResult.min_distance, 5.5, 1e-2);
   BOOST_CHECK_CLOSE (o1 [0], -6, 1e-2);

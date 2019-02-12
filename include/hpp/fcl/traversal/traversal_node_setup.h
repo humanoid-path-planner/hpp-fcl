@@ -36,23 +36,25 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_TRAVERSAL_NODE_SETUP_H
-#define FCL_TRAVERSAL_NODE_SETUP_H
+#ifndef HPP_FCL_TRAVERSAL_NODE_SETUP_H
+#define HPP_FCL_TRAVERSAL_NODE_SETUP_H
 
 #include <hpp/fcl/traversal/traversal_node_bvhs.h>
 #include <hpp/fcl/traversal/traversal_node_shapes.h>
 #include <hpp/fcl/traversal/traversal_node_bvh_shape.h>
 
-#ifdef FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAVE_OCTOMAP
 #include <hpp/fcl/traversal/traversal_node_octree.h>
 #endif
 
 #include <hpp/fcl/BVH/BVH_utility.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
-#ifdef FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAVE_OCTOMAP
 /// @brief Initialize traversal node for collision between two octrees, given current object transform
 template<typename NarrowPhaseSolver>
 bool initialize(OcTreeCollisionTraversalNode<NarrowPhaseSolver>& node,
@@ -973,5 +975,7 @@ bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node
 }
 
 }
+
+} // namespace hpp
 
 #endif

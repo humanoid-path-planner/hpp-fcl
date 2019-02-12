@@ -40,6 +40,8 @@
 #include <limits>
 #include <iostream>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -127,3 +129,5 @@ FCL_REAL AABB::distance(const AABB& other) const
 }
 
 }
+
+} // namespace hpp

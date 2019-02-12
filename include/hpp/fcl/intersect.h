@@ -35,12 +35,14 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_INTERSECT_H
-#define FCL_INTERSECT_H
+#ifndef HPP_FCL_INTERSECT_H
+#define HPP_FCL_INTERSECT_H
 
 #include <hpp/fcl/math/transform.h>
 #include <boost/math/special_functions/erf.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -210,5 +212,7 @@ public:
 
 }
 
+
+} // namespace hpp
 
 #endif

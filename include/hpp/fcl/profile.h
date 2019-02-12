@@ -36,8 +36,8 @@
 
 /* Author Ioan Sucan */
 
-#ifndef FCL_UTIL_PROFILER
-#define FCL_UTIL_PROFILER
+#ifndef HPP_FCL_UTIL_PROFILER
+#define HPP_FCL_UTIL_PROFILER
 
 #define ENABLE_PROFILING 1
 
@@ -62,6 +62,8 @@
 #include <boost/noncopyable.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -348,6 +350,8 @@ private:
 #include <iostream>
 
 /// If profiling is disabled, provide empty implementations for the public functions 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -472,5 +476,7 @@ public:
 }
 
 #endif
+
+} // namespace hpp
 
 #endif

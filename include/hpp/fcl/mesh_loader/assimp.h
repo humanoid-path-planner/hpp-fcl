@@ -34,10 +34,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FCL_MESH_LOADER_ASSIMP_H
-#define FCL_MESH_LOADER_ASSIMP_H
+#ifndef HPP_FCL_MESH_LOADER_ASSIMP_H
+#define HPP_FCL_MESH_LOADER_ASSIMP_H
 
-#ifdef FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
+#ifdef HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
   #include <assimp/DefaultLogger.hpp>
   #include <assimp/IOStream.hpp>
   #include <assimp/IOSystem.hpp>
@@ -56,6 +56,8 @@
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
+namespace hpp
+{
 namespace fcl
 {
   
@@ -164,7 +166,7 @@ inline void buildMesh (const fcl::Vec3f & scale,
       aiFace& face = input_mesh->mFaces[j];
       if (face.mNumIndices != 3) {
         std::stringstream ss;
-#ifdef FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
+#ifdef HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
         ss << "Mesh " << input_mesh->mName.C_Str() << " has a face with "
            << face.mNumIndices << " vertices. This is not supported\n";
         ss << "Node name is: " << node->mName.C_Str() << "\n";
@@ -240,5 +242,7 @@ inline void loadPolyhedronFromResource (const std::string & resource_path,
 }
 
 }
+
+} // namespace hpp
 
 #endif // FCL_MESH_LOADER_ASSIMP_H

@@ -38,6 +38,8 @@
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/intersect.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -674,3 +676,5 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon
 } // details
 
 } // fcl
+
+} // namespace hpp

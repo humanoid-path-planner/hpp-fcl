@@ -36,12 +36,14 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_BVH_UTILITY_H
-#define FCL_BVH_UTILITY_H
+#ifndef HPP_FCL_BVH_UTILITY_H
+#define HPP_FCL_BVH_UTILITY_H
 
 #include <hpp/fcl/BVH/BVH_model.h>
 
 
+namespace hpp
+{
 namespace fcl
 {
 /// @brief Expand the BVH bounding boxes according to the variance matrix corresponding to the data stored within each BV node
@@ -99,5 +101,7 @@ FCL_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indi
 
 
 }
+
+} // namespace hpp
 
 #endif

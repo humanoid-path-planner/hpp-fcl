@@ -37,6 +37,8 @@
 
 #include <hpp/fcl/BVH/BV_splitter.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -284,3 +286,5 @@ template class BVSplitter<OBB>;
 template class BVSplitter<kIOS>;
 
 }
+
+} // namespace hpp

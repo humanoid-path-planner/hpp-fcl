@@ -39,6 +39,8 @@
 
 #include <hpp/fcl/BV/BV.h>
 
+namespace hpp
+{
 namespace fcl {
   bool operator< (const CachedMeshLoader::Key& a, const CachedMeshLoader::Key& b)
   {
@@ -92,3 +94,5 @@ namespace fcl {
     }
   }
 }
+
+} // namespace hpp

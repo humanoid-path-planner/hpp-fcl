@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_OCTREE_H
-#define FCL_OCTREE_H
+#ifndef HPP_FCL_OCTREE_H
+#define HPP_FCL_OCTREE_H
 
 
 #include <boost/shared_ptr.hpp>
@@ -47,6 +47,8 @@
 #include <hpp/fcl/BV/AABB.h>
 #include <hpp/fcl/collision_object.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -275,5 +277,7 @@ static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& chi
 
 
 }
+
+} // namespace hpp
 
 #endif

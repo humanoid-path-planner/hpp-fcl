@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BV_SPLITTER_H
-#define FCL_BV_SPLITTER_H
+#ifndef HPP_FCL_BV_SPLITTER_H
+#define HPP_FCL_BV_SPLITTER_H
 
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/kIOS.h>
@@ -44,6 +44,8 @@
 #include <vector>
 #include <iostream>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -285,5 +287,7 @@ template<>
 void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
 
 }
+
+} // namespace hpp
 
 #endif

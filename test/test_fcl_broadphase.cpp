@@ -57,7 +57,7 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace fcl;
+using namespace hpp::fcl;
 
 struct TStruct
 {

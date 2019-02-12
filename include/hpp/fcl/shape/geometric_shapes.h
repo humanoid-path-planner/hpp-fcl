@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_GEOMETRIC_SHAPES_H
-#define FCL_GEOMETRIC_SHAPES_H
+#ifndef HPP_FCL_GEOMETRIC_SHAPES_H
+#define HPP_FCL_GEOMETRIC_SHAPES_H
 
 #include <boost/math/constants/constants.hpp>
 
@@ -45,6 +45,8 @@
 #include <hpp/fcl/math/vec_3f.h>
 #include <string.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -557,5 +559,7 @@ protected:
 
 
 }
+
+} // namespace hpp
 
 #endif

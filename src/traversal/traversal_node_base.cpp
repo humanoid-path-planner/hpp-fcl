@@ -39,6 +39,8 @@
 #include <hpp/fcl/traversal/traversal_node_base.h>
 #include <limits>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -106,3 +108,5 @@ DistanceTraversalNodeBase::~DistanceTraversalNodeBase()
 }
 
 }
+
+} // namespace hpp

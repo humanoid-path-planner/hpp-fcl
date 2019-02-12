@@ -42,6 +42,8 @@
 #include <hpp/fcl/traversal/traversal_node_setup.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
+namespace hpp
+{
 namespace fcl {
   namespace details
   {
@@ -2714,4 +2716,6 @@ namespace fcl {
     }
   } // details
 } // namespace fcl
+} // namespace hpp
+
 #endif // HPP_FCL_SRC_NARROWPHASE_DETAILS_H

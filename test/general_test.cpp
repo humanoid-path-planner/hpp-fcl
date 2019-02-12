@@ -6,7 +6,7 @@
 #include <boost/foreach.hpp>
 
 using namespace std;
-using namespace fcl;
+using namespace hpp::fcl;
 
 int main(int argc, char** argv) 
 {
@@ -35,14 +35,14 @@ int main(int argc, char** argv)
   
   static const int num_max_contacts = std::numeric_limits<int>::max();
   static const bool enable_contact = true;
-  fcl::CollisionResult result;
-  fcl::CollisionRequest request(enable_contact, num_max_contacts, false);
+  hpp::fcl::CollisionResult result;
+  hpp::fcl::CollisionRequest request(enable_contact, num_max_contacts, false);
 
 
   CollisionObject co0(box0, tf0);
   CollisionObject co1(box1, tf1);
 
-  fcl::collide(&co0, &co1, request, result);
+  hpp::fcl::collide(&co0, &co1, request, result);
   vector<Contact> contacts;
   result.getContacts(contacts);
 

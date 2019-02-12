@@ -35,12 +35,14 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_GJK_H
-#define FCL_GJK_H
+#ifndef HPP_FCL_GJK_H
+#define HPP_FCL_GJK_H
 
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/math/transform.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -291,5 +293,7 @@ public:
 
 }
 
+
+} // namespace hpp
 
 #endif

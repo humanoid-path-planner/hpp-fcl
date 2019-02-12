@@ -38,6 +38,16 @@
 
 #include <hpp/fcl/profile.h>
 
+#if ENABLE_PROFILING
+
+#include <vector>
+#include <algorithm>
+#include <sstream>
+
+#endif
+
+namespace hpp
+{
 
 fcl::tools::Profiler& fcl::tools::Profiler::Instance(void)
 {
@@ -46,10 +56,6 @@ fcl::tools::Profiler& fcl::tools::Profiler::Instance(void)
 }
 
 #if ENABLE_PROFILING
-
-#include <vector>
-#include <algorithm>
-#include <sstream>
 
 void fcl::tools::Profiler::start(void)
 {
@@ -260,3 +266,5 @@ void fcl::tools::Profiler::printThreadInfo(std::ostream &out, const PerThread &d
 }
 
 #endif
+
+} // namespace hpp

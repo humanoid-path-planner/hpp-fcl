@@ -48,18 +48,18 @@
 # include "test_fcl_utility.h"
 # include "fcl_resources/config.h"
 
-using fcl::Transform3f;
-using fcl::Vec3f;
-using fcl::Triangle;
-using fcl::OBBRSS;
-using fcl::BVHModel;
-using fcl::CollisionResult;
-using fcl::CollisionRequest;
-using fcl::DistanceRequest;
-using fcl::DistanceResult;
-using fcl::CollisionObject;
-using fcl::CollisionGeometryPtr_t;
-using fcl::FCL_REAL;
+using hpp::fcl::Transform3f;
+using hpp::fcl::Vec3f;
+using hpp::fcl::Triangle;
+using hpp::fcl::OBBRSS;
+using hpp::fcl::BVHModel;
+using hpp::fcl::CollisionResult;
+using hpp::fcl::CollisionRequest;
+using hpp::fcl::DistanceRequest;
+using hpp::fcl::DistanceResult;
+using hpp::fcl::CollisionObject;
+using hpp::fcl::CollisionGeometryPtr_t;
+using hpp::fcl::FCL_REAL;
 
 bool testDistanceLowerBound (const Transform3f& tf,
 			     const CollisionGeometryPtr_t& m1,
@@ -68,14 +68,14 @@ bool testDistanceLowerBound (const Transform3f& tf,
 {
   Transform3f pose1(tf), pose2;
 
-  CollisionRequest request (fcl::NO_REQUEST, 1);
+  CollisionRequest request (hpp::fcl::NO_REQUEST, 1);
   request.enable_distance_lower_bound = true;
 
   CollisionResult result;
   CollisionObject co1 (m1, pose1);
   CollisionObject co2 (m2, pose2);
 
-  fcl::collide(&co1, &co2, request, result);
+  hpp::fcl::collide(&co1, &co2, request, result);
   distance = result.distance_lower_bound;
 
   return result.isCollision ();
@@ -86,14 +86,14 @@ bool testCollide (const Transform3f& tf, const CollisionGeometryPtr_t& m1,
 {
   Transform3f pose1(tf), pose2;
 
-  CollisionRequest request (fcl::NO_REQUEST, 1);
+  CollisionRequest request (hpp::fcl::NO_REQUEST, 1);
   request.enable_distance_lower_bound = false;
 
   CollisionResult result;
   CollisionObject co1 (m1, pose1);
   CollisionObject co2 (m2, pose2);
 
-  fcl::collide(&co1, &co2, request, result);
+  hpp::fcl::collide(&co1, &co2, request, result);
   return result.isCollision ();
 }
 
@@ -107,7 +107,7 @@ bool testDistance (const Transform3f& tf, const CollisionGeometryPtr_t& m1,
   CollisionObject co1 (m1, pose1);
   CollisionObject co2 (m2, pose2);
 
-  fcl::distance (&co1, &co2, request, result);
+  hpp::fcl::distance (&co1, &co2, request, result);
   distance = result.min_distance;
 
   if(result.min_distance <= 0) {
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(box_mesh)
   loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
 
   boost::shared_ptr < BVHModel <OBBRSS> > m1 (new BVHModel <OBBRSS>);
-  boost::shared_ptr < fcl::Box > m2 (new fcl::Box (500, 200, 150));
+  boost::shared_ptr < hpp::fcl::Box > m2 (new hpp::fcl::Box (500, 200, 150));
 
   m1->beginModel();
   m1->addSubModel(p1, t1);

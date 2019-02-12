@@ -38,6 +38,8 @@
 
 #include <hpp/fcl/traversal/traversal_node_setup.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -179,3 +181,5 @@ namespace details
 
 
 }
+
+} // namespace hpp

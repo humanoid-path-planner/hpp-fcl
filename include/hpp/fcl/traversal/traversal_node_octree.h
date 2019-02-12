@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_NODE_OCTREE_H
-#define FCL_TRAVERSAL_NODE_OCTREE_H
+#ifndef HPP_FCL_TRAVERSAL_NODE_OCTREE_H
+#define HPP_FCL_TRAVERSAL_NODE_OCTREE_H
 
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/traversal/traversal_node_base.h>
@@ -45,6 +45,8 @@
 #include <hpp/fcl/octree.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -1228,5 +1230,7 @@ public:
 
 
 }
+
+} // namespace hpp
 
 #endif

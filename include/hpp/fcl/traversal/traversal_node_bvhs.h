@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_TRAVERSAL_NODE_MESHES_H
-#define FCL_TRAVERSAL_NODE_MESHES_H
+#ifndef HPP_FCL_TRAVERSAL_NODE_MESHES_H
+#define HPP_FCL_TRAVERSAL_NODE_MESHES_H
 
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/traversal/traversal_node_base.h>
@@ -55,6 +55,8 @@
 #include <cassert>
 
 
+namespace hpp
+{
 namespace fcl
 {
 /// @brief Traversal node for collision between BVH models
@@ -522,5 +524,7 @@ inline const Matrix3f& getBVAxes<OBBRSS>(const OBBRSS& bv)
 }
 
 }
+
+} // namespace hpp
 
 #endif

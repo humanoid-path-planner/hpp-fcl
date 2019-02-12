@@ -33,9 +33,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FCL_SRC_OBB_H
-# define FCL_SRC_OBB_H
+#ifndef HPP_FCL_SRC_OBB_H
+# define HPP_FCL_SRC_OBB_H
 
+namespace hpp
+{
 namespace fcl
 {
 
@@ -48,4 +50,6 @@ namespace fcl
 		   const Vec3f& b);
 } // namespace fcl
 
-#endif // FCL_SRC_OBB_H
+} // namespace hpp
+
+#endif // HPP_FCL_SRC_OBB_H

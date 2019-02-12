@@ -35,13 +35,15 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_AABB_H
-#define FCL_AABB_H
+#ifndef HPP_FCL_AABB_H
+#define HPP_FCL_AABB_H
 
 #include <stdexcept>
 #include <hpp/fcl/math/vec_3f.h>
 #include <hpp/fcl/math/matrix_3f.h>
 
+namespace hpp
+{
 namespace fcl
 {
   class CollisionRequest;
@@ -261,5 +263,7 @@ static inline AABB rotate(const AABB& aabb, const Matrix3f& t)
 }
 
 }
+
+} // namespace hpp
 
 #endif
