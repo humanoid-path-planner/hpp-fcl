@@ -1,8 +1,11 @@
 language: cpp
 
 env:
-  - BUILD_TYPE=Debug
-  - BUILD_TYPE=Release
+  global:
+    - CTEST_PARALLEL_LEVEL=4
+  matrix:
+    - BUILD_TYPE=Debug
+    - BUILD_TYPE=Release
 
 matrix:
   include:
