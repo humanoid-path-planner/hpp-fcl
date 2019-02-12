@@ -37,12 +37,12 @@ set(CXX_DISABLE_WERROR TRUE)
 include(cmake/base.cmake)
 include(cmake/eigen.cmake)
 include(cmake/boost.cmake)
+include(cmake/hpp.cmake)
 
 set(PROJECT_NAME hpp-fcl)
 set(PROJECT_DESCRIPTION
-  "FCL -- The Flexible Collision Library"
+  "HPP fork of FCL -- The Flexible Collision Library"
   )
-set(PROJECT_URL "http://github.com/humanoid-path-planner/hpp-fcl")
 
 IF(APPLE)
   SET(CMAKE_MACOSX_RPATH TRUE)
@@ -57,7 +57,7 @@ IF(APPLE)
   endif("${isSystemDir}" STREQUAL "-1")
 ENDIF(APPLE)
 
-setup_project()
+setup_hpp_project()
 
 add_required_dependency("eigen3 >= 3.0.0")
 include_directories(${EIGEN3_INCLUDE_DIRS})
