@@ -77,6 +77,8 @@ namespace fcl {
 
         Key (const std::string& f, const Vec3f& s, const NODE_TYPE& t)
           : filename (f), scale (s), bvType (t) {}
+
+        bool operator< (const CachedMeshLoader::Key& b) const;
       };
       typedef std::map <Key, CollisionGeometryPtr_t> Cache_t;
 
