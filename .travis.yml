@@ -35,7 +35,7 @@ script:
   - make -j4
 
   # Run unit tests
-  - make test || ctest -VV
+  - travis_wait 30 make test || travis_wait 30 ctest -VV
 
   # Make sure we can install and uninstall with no issues
   - sudo make -j4 install
