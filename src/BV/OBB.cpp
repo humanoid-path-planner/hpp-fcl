@@ -317,7 +317,8 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
   // Corner of b axis aligned bounding box the closest to the origin
   Vec3f AABB_corner (T.cwiseAbs () - Bf * b);
   Vec3f diff3 (AABB_corner - a);
-  diff3 = diff3.cwiseMax (0);
+  diff3 = diff3.cwiseMax (Vec3f::Zero());
+
   //for (Vec3f::Index i=0; i<3; ++i) diff3 [i] = std::max (0, diff3 [i]);
   squaredLowerBoundDistance = diff3.squaredNorm ();
   if (squaredLowerBoundDistance > breakDistance2)
@@ -326,7 +327,7 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
   AABB_corner = (B.transpose () * T).cwiseAbs ()  - Bf.transpose () * a;
   // diff3 = | B^T T| - b - Bf^T a
   diff3 = AABB_corner - b;
-  diff3 = diff3.cwiseMax (0);
+  diff3 = diff3.cwiseMax (Vec3f::Zero());
   squaredLowerBoundDistance = diff3.squaredNorm ();
 
   if (squaredLowerBoundDistance > breakDistance2)
