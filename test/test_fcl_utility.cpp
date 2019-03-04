@@ -209,7 +209,8 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
   os.close();
 }
 
-  OcTree loadOctreeFile (const char* filename, const FCL_REAL& resolution)
+#ifdef HPP_FCL_HAVE_OCTOMAP
+OcTree loadOctreeFile (const char* filename, const FCL_REAL& resolution)
   {
     std::ifstream file;
     file.open(filename);
@@ -234,6 +235,7 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
     octree->updateInnerOccupancy ();
     return hpp::fcl::OcTree (octree);
   }
+#endif
 
 void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3f& R)
 {

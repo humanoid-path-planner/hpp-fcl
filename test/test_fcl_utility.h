@@ -41,7 +41,10 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/collision_object.h>
+
+#ifdef HPP_FCL_HAVE_OCTOMAP
 #include <hpp/fcl/octree.h>
+#endif
 
 #ifdef _WIN32
 #define NOMINMAX  // required to avoid compilation errors with Visual Studio 2010
@@ -51,9 +54,11 @@
 #endif
 
 
+#ifdef HPP_FCL_HAVE_OCTOMAP
 namespace octomap {
   typedef boost::shared_ptr<OcTree> OcTreePtr_t;
 }
+#endif
 
 namespace hpp
 {
@@ -93,7 +98,9 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
 
 void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles);
 
- fcl::OcTree loadOctreeFile (const char* filename, const FCL_REAL& resolution);
+#ifdef HPP_FCL_HAVE_OCTOMAP
+fcl::OcTree loadOctreeFile (const char* filename, const FCL_REAL& resolution);
+#endif
 
 /// @brief Generate one random transform whose translation is constrained by extents and rotation without constraints. 
 /// The translation is (x, y, z), and extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <= z <= extents[5]
