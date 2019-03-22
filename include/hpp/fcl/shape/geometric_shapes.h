@@ -269,22 +269,23 @@ class Convex : public ShapeBase
 {
 public:
   /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
-  Convex(Vec3f* plane_normals_,
-         FCL_REAL* plane_dis_,
-         int num_planes_,
-         Vec3f* points_,
+  /// \param points_ list of 3D points
+  /// \param num_points_ number of 3D points
+  /// \param polygons_ \copydoc Convex::polygons
+  /// \param num_polygons_ the number of polygons.
+  /// \note num_polygons_ is not the allocated size of polygons_.
+  Convex(Vec3f* points_,
          int num_points_,
-         int* polygons_) : ShapeBase()
+         int* polygons_,
+         int num_polygons_) : ShapeBase()
   {
-    plane_normals = plane_normals_;
-    plane_dis = plane_dis_;
-    num_planes = num_planes_;
+    num_polygons = num_polygons_;
     points = points_;
     num_points = num_points_;
     polygons = polygons_;
     edges = NULL;
 
-    Vec3f sum;
+    Vec3f sum (0,0,0);
     for(int i = 0; i < num_points; ++i)
     {
       sum += points[i];
@@ -298,9 +299,7 @@ public:
   /// @brief Copy constructor 
   Convex(const Convex& other) : ShapeBase(other)
   {
-    plane_normals = other.plane_normals;
-    plane_dis = other.plane_dis;
-    num_planes = other.num_planes;
+    num_polygons = other.num_polygons;
     points = other.points;
     num_points = other.num_points;
     polygons = other.polygons;
@@ -320,10 +319,6 @@ public:
   /// @brief Get node type: a conex polytope 
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
-  
-  Vec3f* plane_normals;
-  FCL_REAL* plane_dis;
-
   /// @brief An array of indices to the points of each polygon, it should be the number of vertices
   /// followed by that amount of indices to "points" in counter clockwise order
   int* polygons;
@@ -331,7 +326,7 @@ public:
   Vec3f* points;
   int num_points;
   int num_edges;
-  int num_planes;
+  int num_polygons;
 
   struct Edge
   {
@@ -356,7 +351,7 @@ public:
 
     int* points_in_poly = polygons;
     int* index = polygons + 1;
-    for(int i = 0; i < num_planes; ++i)
+    for(int i = 0; i < num_polygons; ++i)
     {
       Vec3f plane_center(0,0,0);
 
@@ -390,7 +385,7 @@ public:
     FCL_REAL vol = 0;
     int* points_in_poly = polygons;
     int* index = polygons + 1;
-    for(int i = 0; i < num_planes; ++i)
+    for(int i = 0; i < num_polygons; ++i)
     {
       Vec3f plane_center(0,0,0);
 
@@ -424,7 +419,7 @@ public:
     FCL_REAL vol = 0;
     int* points_in_poly = polygons;
     int* index = polygons + 1;
-    for(int i = 0; i < num_planes; ++i)
+    for(int i = 0; i < num_polygons; ++i)
     {
       Vec3f plane_center(0,0,0);
 

@@ -50,7 +50,7 @@ void Convex::fillEdges()
   if(edges) delete [] edges;
 
   int num_edges_alloc = 0;
-  for(int i = 0; i < num_planes; ++i)
+  for(int i = 0; i < num_polygons; ++i)
   {
     num_edges_alloc += *points_in_poly;
     points_in_poly += (*points_in_poly + 1);
@@ -63,7 +63,7 @@ void Convex::fillEdges()
   num_edges = 0;
   Edge e;
   bool isinset;
-  for(int i = 0; i < num_planes; ++i)
+  for(int i = 0; i < num_polygons; ++i)
   {
     for(int j = 0; j < *points_in_poly; ++j)
     {
