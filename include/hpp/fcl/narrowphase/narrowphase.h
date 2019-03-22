@@ -130,7 +130,7 @@ namespace fcl
             col = true;
             details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-            assert (epa_status != details::EPA::Failed);
+            assert (epa_status != details::EPA::Failed); (void) epa_status;
             Vec3f w0 (Vec3f::Zero());
             for(size_t i = 0; i < epa.result.rank; ++i)
               {
@@ -162,6 +162,7 @@ namespace fcl
           break;
         default:
           assert (false && "should not reach type part.");
+          return true;
         }
       return col;
     }
@@ -173,7 +174,9 @@ namespace fcl
                          FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
                          Vec3f& normal) const
     {
+#ifndef NDEBUG
       FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+#endif
       bool compute_normal (true);
       Vec3f guess(1, 0, 0);
       if(enable_cached_guess) guess = cached_guess;
