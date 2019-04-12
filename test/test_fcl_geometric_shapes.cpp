@@ -3836,8 +3836,8 @@ BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes)
   Capsule capsule(5, 10);
   Cone cone(5, 10);
   Cylinder cylinder(5, 10);
-  Plane plane(Vec3f(), 0.0);
-  Halfspace halfspace(Vec3f(), 0.0);
+  Plane plane(Vec3f(0,0,0), 0.0);
+  Halfspace halfspace(Vec3f(0,0,0), 0.0);
 
   // Use sufficiently long distance so that all the primitive shapes CANNOT intersect
   FCL_REAL distance = 15.0;
