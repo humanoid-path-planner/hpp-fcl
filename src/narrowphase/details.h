@@ -2213,14 +2213,15 @@ namespace fcl {
     {
       Plane new_s2 = transform(s2, tf2);
 
-      const Matrix3f& R = tf1.getRotation();
-      const Vec3f& T = tf1.getTranslation();
+      // position orientation of capsule
+      const Matrix3f& R1 = tf1.getRotation();
+      const Vec3f& T1 = tf1.getTranslation();
 
-      Vec3f dir_z = R.col(2);
+      Vec3f dir_z = R1.col(2);
 
-
-      Vec3f a1 = T + dir_z * (0.5 * s1.lz);
-      Vec3f a2 = T - dir_z * (0.5 * s1.lz);
+      // ends of capsule inner segment
+      Vec3f a1 = T1 + dir_z * (0.5 * s1.lz);
+      Vec3f a2 = T1 - dir_z * (0.5 * s1.lz);
 
       FCL_REAL d1 = new_s2.signedDistance(a1);
       FCL_REAL d2 = new_s2.signedDistance(a2);
@@ -2248,6 +2249,7 @@ namespace fcl {
             a2 * (abs_d1 / (abs_d1 + abs_d2));
           if (d2 < 0) normal = -new_s2.n; else normal = new_s2.n;
         }
+        assert (!p1.hasNaN () && !p2.hasNaN ());
         return true;
       }
 
@@ -2263,16 +2265,19 @@ namespace fcl {
           p1 = a2 - s1.radius * normal;
           p2 = p1 - distance * normal;
         }
+        assert (!p1.hasNaN () && !p2.hasNaN ());
         return false;
       }
       else
       {
+        // Both capsule ends are on the same side of the plane, but one
+        // is closer than the capsule radius, hence collision
         distance = std::min(abs_d1, abs_d2) - s1.radius;
 
         if(abs_d1 <= s1.radius && abs_d2 <= s1.radius)
         {
-          Vec3f c1 = a1 - new_s2.n * d2;
-          Vec3f c2 = p2 - new_s2.n * d1;
+          Vec3f c1 = a1 - new_s2.n * d1;
+          Vec3f c2 = a2 - new_s2.n * d2;
           p1 = p2 = (c1 + c2) * 0.5;
         }
         else if(abs_d1 <= s1.radius)
@@ -2282,13 +2287,17 @@ namespace fcl {
         }
         else if(abs_d2 <= s1.radius)
         {
-          Vec3f c = p2 - new_s2.n * d2;
+          Vec3f c = a2 - new_s2.n * d2;
           p1 = p2 = c;
+        } else {
+          assert (false);
         }
 
         if (d1 < 0) normal = new_s2.n; else normal = -new_s2.n;
+        assert (!p1.hasNaN () && !p2.hasNaN ());
         return true;
       }
+      assert (false);
     }
 
     /// @brief cylinder-plane intersect
