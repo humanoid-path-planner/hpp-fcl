@@ -349,89 +349,52 @@ namespace fcl {
       const Vec3f& center = tf1.getTranslation();
       const FCL_REAL& radius = s.radius;
       assert (radius >= 0);
-      FCL_REAL eps (std::numeric_limits<FCL_REAL>::epsilon());
-      FCL_REAL radius_with_threshold = radius + eps;
       Vec3f p1_to_center = center - P1;
       FCL_REAL distance_from_plane = p1_to_center.dot(normal);
+      Vec3f closest_point; closest_point << sqrt (-1), sqrt (-1), sqrt (-1);
+      FCL_REAL min_distance_sqr, distance_sqr;
 
-      if(distance_from_plane < 0)
-        {
-          distance_from_plane *= -1;
-          normal *= -1;
+      if(distance_from_plane < 0) {
+        distance_from_plane *= -1;
+        normal *= -1;
+      }
+
+      if (projectInTriangle (P1, P2, P3, normal, center)) {
+        closest_point = center - normal * distance_from_plane;
+        min_distance_sqr = distance_from_plane;
+      } else {
+        // Compute distance to each each and take minimal distance
+        Vec3f nearest_on_edge;
+        min_distance_sqr = segmentSqrDistance(P1, P2, center, closest_point);
+
+        distance_sqr = segmentSqrDistance(P2, P3, center, nearest_on_edge);
+        if (distance_sqr < min_distance_sqr) {
+          min_distance_sqr = distance_sqr;
+          closest_point = nearest_on_edge;
         }
-
-      bool is_inside_contact_plane = (distance_from_plane < radius_with_threshold);
-
-      bool has_contact = false;
-      Vec3f contact_point;
-      if(is_inside_contact_plane)
-        {
-          if(projectInTriangle(P1, P2, P3, normal, center))
-            {
-              has_contact = true;
-              contact_point = center - normal * distance_from_plane;
-            }
-          else
-            {
-              FCL_REAL contact_capsule_radius_sqr = radius_with_threshold * radius_with_threshold;
-              Vec3f nearest_on_edge;
-              FCL_REAL distance_sqr;
-              distance_sqr = segmentSqrDistance(P1, P2, center, nearest_on_edge);
-              if(distance_sqr < contact_capsule_radius_sqr)
-                {
-                  has_contact = true;
-                  contact_point = nearest_on_edge;
-                }
-
-              distance_sqr = segmentSqrDistance(P2, P3, center, nearest_on_edge);
-              if(distance_sqr < contact_capsule_radius_sqr)
-                {
-                  has_contact = true;
-                  contact_point = nearest_on_edge;
-                }
-
-              distance_sqr = segmentSqrDistance(P3, P1, center, nearest_on_edge);
-              if(distance_sqr < contact_capsule_radius_sqr)
-                {
-                  has_contact = true;
-                  contact_point = nearest_on_edge;
-                }
-            }
+        distance_sqr = segmentSqrDistance(P3, P1, center, nearest_on_edge);
+        if (distance_sqr < min_distance_sqr) {
+          min_distance_sqr = distance_sqr;
+          closest_point = nearest_on_edge;
         }
+      }
 
-      Vec3f center_to_contact = contact_point - center;
-      if(has_contact)
-        {
-          FCL_REAL distance_sqr = center_to_contact.squaredNorm();
-
-          if(distance_sqr < radius_with_threshold * radius_with_threshold)
-            {
-              if(distance_sqr > eps)
-                {
-                  FCL_REAL dist = std::sqrt(distance_sqr);
-                  normal_ = center_to_contact.normalized();
-                  p1 = p2 = contact_point;
-                  distance =  dist - radius;
-                }
-              else
-                {
-                  normal_ = -normal;
-                  p1 = p2 = contact_point;
-                  distance = - radius;
-                }
-            }
-        }
-      else
-        {
-          Vec3f unit (center_to_contact.normalized ());
-          p1 = center + radius * unit;
-          p2 = contact_point;
-          distance = (p2 - p1).norm ();
-        }
-      assert ((distance < 0) || (fabs (distance - (p2-p1).norm ()) < 1e-7));
-      return has_contact;
+      if (min_distance_sqr < radius * radius) {
+        // Collision
+        normal_ = (closest_point - center).normalized ();
+        p1 = p2 = closest_point;
+        distance = sqrt (min_distance_sqr) - radius;
+        assert (distance < 0);
+        return true;
+      } else {
+        normal_ = (closest_point - center).normalized ();
+        p1 = center + normal_ * radius;
+        p2 = closest_point;
+        distance = sqrt (min_distance_sqr) - radius;
+        assert (distance >= 0);
+        return false;
+      }
     }
-
 
     inline bool sphereTriangleDistance
       (const Sphere& sp, const Transform3f& tf,
