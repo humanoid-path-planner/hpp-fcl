@@ -281,6 +281,17 @@ public:
   }
 };
 
+template<>
+class Converter<AABB, OBBRSS>
+{
+public:
+  static void convert(const AABB& bv1, const Transform3f& tf1, OBBRSS& bv2)
+  {
+    Converter<AABB, OBB>::convert(bv1, tf1, bv2.obb);
+    Converter<AABB, RSS>::convert(bv1, tf1, bv2.rss);
+  }
+};
+
 }
 
 /// @endcond 
