@@ -45,8 +45,6 @@ namespace fcl {
   bool CachedMeshLoader::Key::operator< (const CachedMeshLoader::Key& b) const
   {
     const CachedMeshLoader::Key& a = *this;
-    if (a.bvType < b.bvType) return true;
-    if (a.bvType > b.bvType) return false;
     for (int i = 0; i < 3; ++i) {
       if (a.scale[i] < b.scale[i]) return true;
       else if (a.scale[i] > b.scale[i]) return false;
@@ -63,10 +61,9 @@ namespace fcl {
   }
 
   CollisionGeometryPtr_t MeshLoader::load (const std::string& filename,
-      const Vec3f& scale,
-      const NODE_TYPE& bvType)
+      const Vec3f& scale)
   {
-    switch (bvType) {
+    switch (bvType_) {
       case BV_AABB  : return _load <AABB  > (filename, scale);
       case BV_OBB   : return _load <OBB   > (filename, scale);
       case BV_RSS   : return _load <RSS   > (filename, scale);
@@ -81,13 +78,12 @@ namespace fcl {
   }
 
   CollisionGeometryPtr_t CachedMeshLoader::load (const std::string& filename,
-      const Vec3f& scale,
-      const NODE_TYPE& bvType)
+      const Vec3f& scale)
   {
-    Key key (filename, scale, bvType);
+    Key key (filename, scale);
     Cache_t::const_iterator _cached = cache_.find (key);
     if (_cached == cache_.end()) {
-      CollisionGeometryPtr_t geom = MeshLoader::load (filename, scale, bvType);
+      CollisionGeometryPtr_t geom = MeshLoader::load (filename, scale);
       cache_.insert (std::make_pair(key, geom));
       return geom;
     } else {
