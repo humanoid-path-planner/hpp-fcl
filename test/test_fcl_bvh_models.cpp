@@ -282,8 +282,8 @@ void testLoadPolyhedron ()
   loadPolyhedronFromResource (env, scale, P1);
 
   scale.setConstant (-1);
-  CachedMeshLoader loader;
-  CollisionGeometryPtr_t geom = loader.load (env, scale, P1->getNodeType());
+  CachedMeshLoader loader (P1->getNodeType());
+  CollisionGeometryPtr_t geom = loader.load (env, scale);
   P2 = boost::dynamic_pointer_cast<Polyhedron_t> (geom);
   BOOST_REQUIRE (P2);
 
@@ -291,7 +291,7 @@ void testLoadPolyhedron ()
   BOOST_CHECK_EQUAL(P1->num_vertices    , P2->num_vertices);
   BOOST_CHECK_EQUAL(P1->getNumBVs()     , P2->getNumBVs());
 
-  CollisionGeometryPtr_t geom2 = loader.load (env, scale, P1->getNodeType());
+  CollisionGeometryPtr_t geom2 = loader.load (env, scale);
   BOOST_CHECK_EQUAL (geom, geom2);
 }
 
