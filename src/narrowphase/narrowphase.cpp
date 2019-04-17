@@ -46,70 +46,28 @@ namespace hpp
 {
 namespace fcl
 {
-// Shape intersect algorithms not using libccd
+// Shape intersect algorithms based on:
+// - built-in function: 0
+// - GJK:               1
 //
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+
 // |            | box | sphere | capsule | cone | cylinder | plane | half-space | triangle |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | box        |  O  |        |         |      |          |   O   |      O     |          |
+// | box        |  0  |   0    |    1    |   1  |    1     |   0   |      0     |    1     |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | sphere     |/////|   O    |    O    |      |          |   O   |      O     |    O     |
+// | sphere     |/////|   0    |    0    |   1  |    1     |   0   |      0     |    0     |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | capsule    |/////|////////|         |      |          |   O   |      O     |          |
+// | capsule    |/////|////////|    1    |   1  |    1     |   0   |      0     |    1     |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cone       |/////|////////|/////////|      |          |   O   |      O     |          |
+// | cone       |/////|////////|/////////|   1  |    1     |   0   |      0     |    1     |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cylinder   |/////|////////|/////////|//////|          |   O   |      O     |          |
+// | cylinder   |/////|////////|/////////|//////|    1     |   0   |      0     |    1     |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | plane      |/////|////////|/////////|//////|//////////|   O   |      O     |    O     |
+// | plane      |/////|////////|/////////|//////|//////////|   0   |      0     |    0     |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | half-space |/////|////////|/////////|//////|//////////|///////|      O     |    O     |
+// | half-space |/////|////////|/////////|//////|//////////|///////|      0     |    0     |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | triangle   |/////|////////|/////////|//////|//////////|///////|////////////|          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-
-// Shape distance algorithms not using libccd
-//
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// |            | box | sphere | capsule | cone | cylinder | plane | half-space | triangle |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | box        |     |        |         |      |          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | sphere     |/////|   O    |    O    |      |          |       |            |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | capsule    |/////|////////|    O    |      |          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cone       |/////|////////|/////////|      |          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cylinder   |/////|////////|/////////|//////|          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | plane      |/////|////////|/////////|//////|//////////|       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | half-space |/////|////////|/////////|//////|//////////|///////|            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | triangle   |/////|////////|/////////|//////|//////////|///////|////////////|          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-
-// Shape intersect algorithms not using built-in GJK algorithm
-//
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// |            | box | sphere | capsule | cone | cylinder | plane | half-space | triangle |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | box        |  O  |        |         |      |          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | sphere     |/////|   O    |    O    |      |          |   O   |      O     |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | capsule    |/////|////////|         |      |          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cone       |/////|////////|/////////|      |          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cylinder   |/////|////////|/////////|//////|          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | plane      |/////|////////|/////////|//////|//////////|   O   |      O     |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | half-space |/////|////////|/////////|//////|//////////|///////|      O     |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | triangle   |/////|////////|/////////|//////|//////////|///////|////////////|          |
+// | triangle   |/////|////////|/////////|//////|//////////|///////|////////////|    1     |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+
 
 template<>
@@ -136,6 +94,36 @@ bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Tra
                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
 {
   return details::sphereSphereIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Box, Sphere>(const Box   & s1, const Transform3f& tf1,
+                                                  const Sphere& s2, const Transform3f& tf2,
+                                                  Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  FCL_REAL dist;
+  Vec3f ps, pb, n;
+  bool intersect = details::boxSphereDistance (s1, tf1, s2, tf2, dist, ps, pb, n);
+  if (!intersect) return false;
+  if (penetration_depth) *penetration_depth = dist;
+  if (normal)            *normal = n;
+  if (contact_points)    *contact_points = pb;
+  return true;
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Sphere, Box>(const Sphere& s1, const Transform3f& tf1,
+                                                  const Box   & s2, const Transform3f& tf2,
+                                                  Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  FCL_REAL dist;
+  Vec3f ps, pb, n;
+  bool intersect = details::boxSphereDistance (s2, tf2, s1, tf1, dist, ps, pb, n);
+  if (!intersect) return false;
+  if (penetration_depth) *penetration_depth = dist;
+  if (normal)            *normal = -n;
+  if (contact_points)    *contact_points = pb;
+  return true;
 }
 
 template<>
@@ -581,6 +569,26 @@ bool GJKSolver_indep::shapeDistance<Sphere, Cylinder>
 {
   return details::sphereCylinderDistance
     (s1, tf1, s2, tf2, dist, p1, p2, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeDistance<Box, Sphere>
+(const Box   & s1, const Transform3f& tf1,
+ const Sphere& s2, const Transform3f& tf2,
+ FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+{
+  return !details::boxSphereDistance (s1, tf1, s2, tf2, dist, p1, p2, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeDistance<Sphere, Box>
+(const Sphere& s1, const Transform3f& tf1,
+ const Box   & s2, const Transform3f& tf2,
+ FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+{
+  bool collide = details::boxSphereDistance (s2, tf2, s1, tf1, dist, p2, p1, normal);
+  normal *= -1;
+  return !collide;
 }
 
 template<>
