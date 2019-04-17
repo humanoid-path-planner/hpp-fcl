@@ -1121,7 +1121,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planesphere)
   contact = transform.transform(Vec3f(0, 0, 0));
   depth = 10;
   normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
+  testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(5, 0, 0));

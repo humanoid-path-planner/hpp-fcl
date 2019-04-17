@@ -2158,58 +2158,49 @@ namespace fcl {
       return true;
     }
 
-    inline bool boxSphereIntersect
-      (const Box& s1, const Transform3f& tf1,
-       const Sphere& s2, const Transform3f& tf2,
-       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
-       Vec3f& normal)
+    /// Taken from book Real Time Collision Detection, from Christer Ericson
+    /// \param pb the closest point to the sphere center on the box surface
+    /// \param ps when colliding, matches pb, which is inside the sphere.
+    ///           when not colliding, the closest point on the sphere
+    /// \param normal direction of motion of the box
+    /// \return true if the distance is negative (the shape overlaps).
+    inline bool boxSphereDistance(const Box   & b, const Transform3f& tfb,
+                                  const Sphere& s, const Transform3f& tfs,
+                                  FCL_REAL& dist, Vec3f& pb, Vec3f& ps,
+                                  Vec3f& normal)
     {
-      // C: center of the sphere in the frame of the box
-      const Vec3f& Cglobal (tf2.getTranslation ());
-      const Vec3f CinBox (inverse (tf1).transform (Cglobal));
-      bool CinsideBox (true);
-      FCL_REAL depth = std::numeric_limits <FCL_REAL>::max ();
-      // Compute closest point on box in frame of box
-      for (Vec3f::Index i=0; i<3; ++i) {
-        if (CinBox [i] >= .5* s1.side [i]) {
-          p1 [i] = .5* s1.side [i];
-          CinsideBox = false;
-        }
-        else if (CinBox [i] < -.5* s1.side [i]) {
-          p1 [i] = -.5* s1.side [i];
-          CinsideBox = false;
-        }
-        else {
-          p1 [i] = CinBox [i];
-          if (.5*s1.side [i] - CinBox [i] < depth) {
-            depth = .5*s1.side [i] - CinBox [i];
-            normal.setZero (); normal [i] = 1;
-          }
-          else if (CinBox[i] + .5*s1.side [i] < depth)
-            depth = .5*s1.side [i] - CinBox [i];
-            normal.setZero (); normal [i] = -1;
-        }
+      const Vec3f& os = tfs.getTranslation();
+      const Vec3f& ob = tfb.getTranslation();
+      const Matrix3f& Rb = tfb.getRotation();
+
+      const Vec3f d (os - ob);
+      pb = ob;
+
+      bool inside = true;
+      for (int i = 0; i < 3; ++i) {
+        bool iinside = false;
+        FCL_REAL dist = Rb.col(i).dot(d), side_2 = b.side(i) / 2;
+        if      (dist < -side_2) dist = -side_2; // outside
+        else if (dist >  side_2) dist =  side_2; // outside
+        else iinside = true;                     // inside
+        inside = inside && iinside;
+
+        pb.noalias() += dist * Rb.col(i);
       }
-      if (CinsideBox) {
-        // Center of sphere is inside box
-        p1 = p2 = Cglobal;
-        // Express normal in global frame
-        normal = tf1.transform (normal);
-        distance = -depth;
-        return true;
+      normal.noalias() = pb - os;
+      FCL_REAL pdist = normal.norm();
+      if (inside) {
+        dist = - pdist - s.radius;
+        normal /= pdist;
+      } else {
+        dist =   pdist - s.radius;
+        normal /= - pdist;
       }
-      // Center of sphere is outside box
-      // express p1 in global frame
-      p1 = tf1.transform (p1);
-      Vec3f diff (Cglobal - p1);
-      FCL_REAL dist (diff.norm ());
-      normal = diff/dist;
-      distance = dist - s2.radius;
-      if (distance <= 0) {
-        p2 = p1;
+      if (inside || dist <= 0) {
+        ps = pb;
         return true;
       } else {
-        p2 = p1 + distance * normal;
+        ps = os + s.radius * normal;
         return false;
       }
     }
