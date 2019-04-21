@@ -312,6 +312,14 @@ public:
     return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
+  bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
+  {
+    if(this->enable_statistics) this->num_bv_tests++;
+    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
+                    this->model2_bv, this->model1->getBV(b1).bv,
+                    this->request, sqrDistLowerBound);
+  }
+
   void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting
