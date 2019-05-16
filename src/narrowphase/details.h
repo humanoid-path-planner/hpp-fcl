@@ -351,7 +351,8 @@ namespace fcl {
       assert (radius >= 0);
       Vec3f p1_to_center = center - P1;
       FCL_REAL distance_from_plane = p1_to_center.dot(normal);
-      Vec3f closest_point; closest_point << sqrt (-1), sqrt (-1), sqrt (-1);
+      Vec3f closest_point
+        (Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
       FCL_REAL min_distance_sqr, distance_sqr;
 
       if(distance_from_plane < 0) {

@@ -348,7 +348,7 @@ public:
                  std::numeric_limits<FCL_REAL>::max()):
   min_distance(min_distance_), o1(NULL), o2(NULL), b1(NONE), b2(NONE)
   {
-    Vec3f nan; nan << sqrt (-1), sqrt (-1), sqrt (-1);
+    Vec3f nan (Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
     nearest_points [0] = nearest_points [1] = normal = nan;
   }
 
