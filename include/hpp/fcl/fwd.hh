@@ -34,6 +34,9 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
+#ifndef HPP_FCL_FWD_HH
+#define HPP_FCL_FWD_HH
+
 namespace hpp {
 namespace fcl {
   class CollisionObject;
@@ -48,3 +51,5 @@ namespace fcl {
   class AABB;
 }
 } // namespace hpp
+
+#endif // HPP_FCL_FWD_HH
