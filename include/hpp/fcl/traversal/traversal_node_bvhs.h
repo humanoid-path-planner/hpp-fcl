@@ -298,6 +298,32 @@ public:
   Vec3f T;
 };
 
+namespace details
+{
+  template<typename BV> struct DistanceTraversalBVTesting_impl
+  {
+    static FCL_REAL run(const BVNode<BV>& b1, const BVNode<BV>& b2)
+    {
+      return b1.distance(b2);
+    }
+  };
+
+  template<> struct DistanceTraversalBVTesting_impl<OBB>
+  {
+    static FCL_REAL run(const BVNode<OBB>& b1, const BVNode<OBB>& b2)
+    {
+      FCL_REAL sqrDistLowerBound;
+      CollisionRequest request (DISTANCE_LOWER_BOUND, 0);
+      // request.break_distance = ?
+      if (b1.overlap(b2, request, sqrDistLowerBound)) {
+        // TODO A penetration upper bound should be computed.
+        return -1;
+      }
+      return sqrt (sqrDistLowerBound);
+    }
+  };
+} // namespace details
+
 /// @brief Traversal node for distance computation between BVH models
 template<typename BV>
 class BVHDistanceTraversalNode : public DistanceTraversalNodeBase
@@ -367,7 +393,8 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(enable_statistics) num_bv_tests++;
-    return model1->getBV(b1).distance(model2->getBV(b2));
+    return details::DistanceTraversalBVTesting_impl<BV>
+      ::run (model1->getBV(b1), model2->getBV(b2));
   }
 
   /// @brief The first BVH model

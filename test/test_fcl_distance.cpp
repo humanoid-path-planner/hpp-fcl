@@ -198,7 +198,36 @@ BOOST_AUTO_TEST_CASE(mesh_distance)
     BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
 
+    distance_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
 
+    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
+    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
+
+    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
+    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
+
+    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
+    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
+
+    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
+    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
+
+    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
+    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
+
+    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
+    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    
     distance_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
 
     BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
