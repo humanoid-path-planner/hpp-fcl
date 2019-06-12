@@ -78,6 +78,7 @@ set(${LIBRARY_NAME}_SOURCES
   BVH/BV_splitter.cpp
   collision_func_matrix.cpp
   collision_utility.cpp
+  mesh_loader/assimp.cpp
   mesh_loader/loader.cpp
   )
 

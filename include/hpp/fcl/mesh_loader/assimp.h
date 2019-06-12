@@ -82,72 +82,11 @@ struct TriangleAndVertices
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-inline unsigned buildMesh (const fcl::Vec3f & scale,
-                const aiScene* scene,
-                const aiNode* node,
-                unsigned vertices_offset,
-                TriangleAndVertices & tv)
-{
-  if (!node) return 0;
-  
-  aiMatrix4x4 transform = node->mTransformation;
-  aiNode *pnode = node->mParent;
-  while (pnode)
-  {
-    // Don't convert to y-up orientation, which is what the root node in
-    // Assimp does
-    if (pnode->mParent != NULL)
-    {
-      transform = pnode->mTransformation * transform;
-    }
-    pnode = pnode->mParent;
-  }
-  
-  unsigned nbVertices = 0;
-  for (uint32_t i = 0; i < node->mNumMeshes; i++)
-  {
-    aiMesh* input_mesh = scene->mMeshes[node->mMeshes[i]];
-    
-    // Add the vertices
-    for (uint32_t j = 0; j < input_mesh->mNumVertices; j++)
-    {
-      aiVector3D p = input_mesh->mVertices[j];
-      p *= transform;
-      tv.vertices_.push_back (fcl::Vec3f (p.x * scale[0],
-                                          p.y * scale[1],
-                                          p.z * scale[2]));
-    }
-    
-    // add the indices
-    for (uint32_t j = 0; j < input_mesh->mNumFaces; j++)
-    {
-      aiFace& face = input_mesh->mFaces[j];
-      if (face.mNumIndices != 3) {
-        std::stringstream ss;
-#ifdef HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
-        ss << "Mesh " << input_mesh->mName.C_Str() << " has a face with "
-           << face.mNumIndices << " vertices. This is not supported\n";
-        ss << "Node name is: " << node->mName.C_Str() << "\n";
-#endif
-        ss << "Mesh index: " << i << "\n";
-        ss << "Face index: " << j << "\n";
-        throw std::invalid_argument (ss.str());
-      }
-      tv.triangles_.push_back (fcl::Triangle(vertices_offset + face.mIndices[0],
-                                             vertices_offset + face.mIndices[1],
-                                             vertices_offset + face.mIndices[2]));
-    }
-
-    nbVertices += input_mesh->mNumVertices;
-  }
-  
-  for (uint32_t i=0; i < node->mNumChildren; ++i)
-  {
-    nbVertices += buildMesh(scale, scene, node->mChildren[i], nbVertices, tv);
-  }
-
-  return nbVertices;
-}
+unsigned buildMesh (const fcl::Vec3f & scale,
+                    const aiScene* scene,
+                    const aiNode* node,
+                    unsigned vertices_offset,
+                    TriangleAndVertices & tv);
 
 /**
  * @brief      Convert an assimp scene to a mesh
