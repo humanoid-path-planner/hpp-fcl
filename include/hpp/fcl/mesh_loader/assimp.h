@@ -131,26 +131,31 @@ inline void loadPolyhedronFromResource (const std::string & resource_path,
                                  const boost::shared_ptr < BVHModel<BoundingVolume> > & polyhedron) throw (std::invalid_argument)
 {
   Assimp::Importer importer;
-  // // set list of ignored parameters (parameters used for rendering)
-  //    importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
-  //                     aiComponent_TANGENTS_AND_BITANGENTS|
-  //                     aiComponent_COLORS |
-  //                     aiComponent_BONEWEIGHTS |
-  //                     aiComponent_ANIMATIONS |
-  //                     aiComponent_LIGHTS |
-  //                     aiComponent_CAMERAS|
-  //                     aiComponent_TEXTURES |
-  //                     aiComponent_TEXCOORDS |
-  //                     aiComponent_MATERIALS |
-  //                     aiComponent_NORMALS
-  //                 );
+  // set list of ignored parameters (parameters used for rendering)
+  importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
+      aiComponent_TANGENTS_AND_BITANGENTS|
+      aiComponent_COLORS |
+      aiComponent_BONEWEIGHTS |
+      aiComponent_ANIMATIONS |
+      aiComponent_LIGHTS |
+      aiComponent_CAMERAS|
+      aiComponent_TEXTURES |
+      aiComponent_TEXCOORDS |
+      aiComponent_MATERIALS |
+      aiComponent_NORMALS
+      );
 
-  const aiScene* scene = importer.ReadFile(resource_path.c_str(), aiProcess_SortByPType| aiProcess_GenNormals|
-                                           aiProcess_Triangulate|aiProcess_GenUVCoords|
-                                           aiProcess_FlipUVs);
-  // const aiScene* scene = importer.ReadFile(resource_path, aiProcess_SortByPType|
-  //                                          aiProcess_Triangulate | aiProcess_RemoveComponent |
-  //                                          aiProcess_JoinIdenticalVertices);
+  const aiScene* scene = importer.ReadFile(resource_path.c_str(),
+      aiProcess_SortByPType |
+      aiProcess_Triangulate |
+      aiProcess_RemoveComponent |
+      aiProcess_ImproveCacheLocality |
+      // TODO: I (Joseph Mirabel) have no idea whether degenerated triangles are
+      // properly handled. Enabling aiProcess_FindDegenerates would throw an
+      // exception when that happens. Is it too conservative ?
+      // aiProcess_FindDegenerates |
+      aiProcess_JoinIdenticalVertices
+      );
 
   if (!scene)
   {
