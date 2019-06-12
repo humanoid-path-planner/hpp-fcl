@@ -74,61 +74,21 @@ struct TriangleAndVertices
 };
 
 /**
- * @brief      Convert an assimp scene to a mesh
- *
- * @param[in]  name   File (ressource) transformed into an assimp scene in loa
- * @param[in]  scale  Scale to apply when reading the ressource
- * @param[in]  scene  Pointer to the assimp scene
- * @param[out] mesh  The mesh that must be built
- */
-template<class BoundingVolume>   
-inline void meshFromAssimpScene(const std::string & name,
-                         const fcl::Vec3f & scale,
-                         const aiScene* scene,
-                         const boost::shared_ptr < BVHModel<BoundingVolume> > & mesh) throw (std::invalid_argument)
-{
-  TriangleAndVertices tv;
-  
-  if (!scene->HasMeshes())
-    throw std::invalid_argument (std::string ("No meshes found in file ")+name);
-  
-  std::vector<unsigned> subMeshIndexes;
-  int res = mesh->beginModel ();
-  
-  if (res != fcl::BVH_OK)
-  {
-    std::ostringstream error;
-    error << "fcl BVHReturnCode = " << res;
-    throw std::runtime_error (error.str ());
-  }
-    
-  tv.clear();
-    
-  buildMesh (scale, scene, scene->mRootNode, subMeshIndexes, mesh, tv);
-  mesh->addSubModel (tv.vertices_, tv.triangles_);
-    
-  mesh->endModel ();
-}
-
-/**
  * @brief      Recursive procedure for building a mesh
  *
  * @param[in]  scale           Scale to apply when reading the ressource
  * @param[in]  scene           Pointer to the assimp scene
  * @param[in]  node            Current node of the scene
- * @param      subMeshIndexes  Submesh triangles indexes interval
- * @param[in]  mesh            The mesh that must be built
+ * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-template<class BoundingVolume>
-inline void buildMesh (const fcl::Vec3f & scale,
+inline unsigned buildMesh (const fcl::Vec3f & scale,
                 const aiScene* scene,
                 const aiNode* node,
-                std::vector<unsigned> & subMeshIndexes,
-                const boost::shared_ptr < BVHModel<BoundingVolume> > & mesh,
+                unsigned vertices_offset,
                 TriangleAndVertices & tv)
 {
-  if (!node) return;
+  if (!node) return 0;
   
   aiMatrix4x4 transform = node->mTransformation;
   aiNode *pnode = node->mParent;
@@ -143,12 +103,10 @@ inline void buildMesh (const fcl::Vec3f & scale,
     pnode = pnode->mParent;
   }
   
+  unsigned nbVertices = 0;
   for (uint32_t i = 0; i < node->mNumMeshes; i++)
   {
     aiMesh* input_mesh = scene->mMeshes[node->mMeshes[i]];
-    
-    unsigned oldNbPoints = (unsigned) mesh->num_vertices;
-    unsigned oldNbTriangles = (unsigned) mesh->num_tris;
     
     // Add the vertices
     for (uint32_t j = 0; j < input_mesh->mNumVertices; j++)
@@ -175,26 +133,58 @@ inline void buildMesh (const fcl::Vec3f & scale,
         ss << "Face index: " << j << "\n";
         throw std::invalid_argument (ss.str());
       }
-      tv.triangles_.push_back (fcl::Triangle( oldNbPoints + face.mIndices[0],
-                                             oldNbPoints + face.mIndices[1],
-                                             oldNbPoints + face.mIndices[2]));
+      tv.triangles_.push_back (fcl::Triangle(vertices_offset + face.mIndices[0],
+                                             vertices_offset + face.mIndices[1],
+                                             vertices_offset + face.mIndices[2]));
     }
-    
-    // Save submesh triangles indexes interval.
-    if (subMeshIndexes.size () == 0)
-    {
-      subMeshIndexes.push_back (0);
-    }
-    
-    subMeshIndexes.push_back (oldNbTriangles + input_mesh->mNumFaces);
+
+    nbVertices += input_mesh->mNumVertices;
   }
   
   for (uint32_t i=0; i < node->mNumChildren; ++i)
   {
-    buildMesh(scale, scene, node->mChildren[i], subMeshIndexes, mesh, tv);
+    nbVertices += buildMesh(scale, scene, node->mChildren[i], nbVertices, tv);
   }
+
+  return nbVertices;
 }
 
+/**
+ * @brief      Convert an assimp scene to a mesh
+ *
+ * @param[in]  name   File (ressource) transformed into an assimp scene in loa
+ * @param[in]  scale  Scale to apply when reading the ressource
+ * @param[in]  scene  Pointer to the assimp scene
+ * @param[out] mesh  The mesh that must be built
+ */
+template<class BoundingVolume>   
+inline void meshFromAssimpScene(const std::string & name,
+                         const fcl::Vec3f & scale,
+                         const aiScene* scene,
+                         const boost::shared_ptr < BVHModel<BoundingVolume> > & mesh) throw (std::invalid_argument)
+{
+  TriangleAndVertices tv;
+  
+  if (!scene->HasMeshes())
+    throw std::invalid_argument (std::string ("No meshes found in file ")+name);
+  
+  int res = mesh->beginModel ();
+  
+  if (res != fcl::BVH_OK)
+  {
+    std::ostringstream error;
+    error << "fcl BVHReturnCode = " << res;
+    throw std::runtime_error (error.str ());
+  }
+    
+  tv.clear();
+    
+  buildMesh (scale, scene, scene->mRootNode, 
+      (unsigned) mesh->num_vertices, tv);
+  mesh->addSubModel (tv.vertices_, tv.triangles_);
+    
+  mesh->endModel ();
+}
 
 /**
  * @brief      Read a mesh file and convert it to a polyhedral mesh
