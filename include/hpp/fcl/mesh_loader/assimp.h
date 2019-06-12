@@ -64,11 +64,6 @@ namespace fcl
 
 struct TriangleAndVertices
 {
-  void clear()
-  {
-    vertices_.clear ();
-    triangles_.clear ();
-  }
   std::vector <fcl::Vec3f> vertices_;
   std::vector <fcl::Triangle> triangles_;
 };
@@ -115,8 +110,6 @@ inline void meshFromAssimpScene(const std::string & name,
     error << "fcl BVHReturnCode = " << res;
     throw std::runtime_error (error.str ());
   }
-    
-  tv.clear();
     
   buildMesh (scale, scene, scene->mRootNode, 
       (unsigned) mesh->num_vertices, tv);
