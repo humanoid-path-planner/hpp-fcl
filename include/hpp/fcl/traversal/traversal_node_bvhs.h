@@ -47,6 +47,7 @@
 #include <hpp/fcl/intersect.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
+#include <hpp/fcl/traversal/details/traversal.h>
 
 #include <boost/shared_array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -59,10 +60,6 @@ namespace hpp
 {
 namespace fcl
 {
-enum {
-  RelativeTransformationIsIdentity = 1
-};
-
 /// @brief Traversal node for collision between BVH models
 template<typename BV>
 class BVHCollisionTraversalNode : public CollisionTraversalNodeBase
@@ -139,28 +136,6 @@ public:
   mutable int num_leaf_tests;
   mutable FCL_REAL query_time_seconds;
 };
-
-namespace details
-{
-  template <bool enabled>
-  struct RelativeTransformation
-  {
-    RelativeTransformation () : R (Matrix3f::Identity()) {}
-
-    const Matrix3f& _R () const { return R; }
-    const Vec3f   & _T () const { return T; }
-
-    Matrix3f R;
-    Vec3f T;
-  };
-
-  template <>
-  struct RelativeTransformation <false>
-  {
-    static const Matrix3f& _R () { throw std::logic_error ("should never reach this point"); }
-    static const Vec3f   & _T () { throw std::logic_error ("should never reach this point"); }
-  };
-} // namespace details
 
 /// @brief Traversal node for collision between two meshes
 template<typename BV, int _Options = RelativeTransformationIsIdentity>
@@ -287,7 +262,6 @@ public:
 
   details::RelativeTransformation<!bool(RTIsIdentity)> RT;
 };
-
 
 /// @brief Traversal node for collision between two meshes if their underlying BVH node is oriented node (OBB, RSS, OBBRSS, kIOS)
 typedef MeshCollisionTraversalNode<OBB   , 0> MeshCollisionTraversalNodeOBB   ;

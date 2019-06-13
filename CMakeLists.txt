@@ -130,6 +130,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/math/vec_3f.h
   include/hpp/fcl/math/tools.h
   include/hpp/fcl/math/transform.h
+  include/hpp/fcl/traversal/details/traversal.h
   include/hpp/fcl/traversal/traversal_node_shapes.h
   include/hpp/fcl/traversal/traversal_node_setup.h
   include/hpp/fcl/traversal/traversal_recurse.h

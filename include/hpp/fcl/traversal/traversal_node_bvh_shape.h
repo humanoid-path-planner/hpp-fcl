@@ -43,6 +43,7 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/traversal/traversal_node_base.h>
+#include <hpp/fcl/traversal/details/traversal.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
 
@@ -83,24 +84,6 @@ public:
   int getFirstRightChild(int b) const
   {
     return model1->getBV(b).rightChild();
-  }
-
-  /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int /*b2*/) const
-  {
-    if(this->enable_statistics) num_bv_tests++;
-    return !model1->getBV(b1).bv.overlap(model2_bv);
-  }
-
-  /// BV test between b1 and b2
-  /// \param b1, b2 Bounding volumes to test,
-  /// \retval sqrDistLowerBound square of a lower bound of the minimal
-  ///         distance between bounding volumes.
-  /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
-  {
-    if(this->enable_statistics) num_bv_tests++;
-    return !model1->getBV(b1).bv.overlap(model2_bv, request, sqrDistLowerBound);
   }
 
   const BVHModel<BV>* model1;
@@ -181,10 +164,16 @@ public:
 
 
 /// @brief Traversal node for collision between mesh and shape
-template<typename BV, typename S, typename NarrowPhaseSolver>
+template<typename BV, typename S, typename NarrowPhaseSolver,
+  int _Options = RelativeTransformationIsIdentity>
 class MeshShapeCollisionTraversalNode : public BVHShapeCollisionTraversalNode<BV, S>
 {
 public:
+  enum {
+    Options = _Options,
+    RTIsIdentity = _Options & RelativeTransformationIsIdentity
+  };
+
   MeshShapeCollisionTraversalNode(const CollisionRequest& request) :
   BVHShapeCollisionTraversalNode<BV, S> (request)
   {
@@ -194,8 +183,37 @@ public:
     nsolver = NULL;
   }
 
+  /// @brief BV culling test in one BVTT node
+  bool BVTesting(int b1, int /*b2*/) const
+  {
+    if(this->enable_statistics) this->num_bv_tests++;
+    bool res;
+    if (RTIsIdentity)
+      res = !this->model1->getBV(b1).bv.overlap(this->model2_bv);
+    else
+      res = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
+    assert (!res || sqrDistLowerBound > 0);
+    return res;
+  }
+
+  /// test between BV b1 and shape
+  /// \param b1 BV to test,
+  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  ///         distance between bounding volumes.
+  /// @brief BV culling test in one BVTT node
+  bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
+  {
+    if(this->enable_statistics) this->num_bv_tests++;
+    if (RTIsIdentity)
+      return !this->model1->getBV(b1).bv.overlap(this->model2_bv, this->request, sqrDistLowerBound);
+    else
+      return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
+                      this->model2_bv, this->model1->getBV(b1).bv,
+                      this->request, sqrDistLowerBound);
+  }
+
   /// @brief Intersection testing between leaves (one triangle and one shape)
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     const BVNode<BV>& node = this->model1->getBV(b1);
@@ -210,18 +228,29 @@ public:
 
     FCL_REAL distance;
     Vec3f normal;
-    Vec3f c1, c2;
+    Vec3f c1, c2; // closest point
 
-    if(nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
-                                         Transform3f (), distance, c1, c2,
-                                         normal))
-    {
+    bool collision;
+    if (RTIsIdentity) {
+      collision =
+        nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
+                                          Transform3f (), distance, c1, c2,
+                                          normal);
+    } else {
+      collision = 
+        nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
+                                          this->tf1     , distance, c1, c2, normal);
+    }
+
+    if(collision) {
       if(this->request.num_max_contacts > this->result->numContacts())
         this->result->addContact(Contact(this->model1, this->model2,
                                          primitive_id, Contact::NONE,
                                          c1, -normal, -distance));
+      assert (this->result->isCollision ());
       return;
     }
+    sqrDistLowerBound = distance * distance;
     assert (distance > 0);
     if (this->request.security_margin > 0) {
       if (distance <= this->request.security_margin) {
@@ -231,6 +260,7 @@ public:
                                          -distance));
       }
     }
+    assert (!this->result->isCollision () || sqrDistLowerBound > 0);
   }
 
   /// @brief Whether the traversal process can stop early
@@ -297,127 +327,48 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting
 
 /// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>
+class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver, 0>
 {
 public:
   MeshShapeCollisionTraversalNodeOBB(const CollisionRequest& request) :
-  MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>
+  MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver, 0>
     (request)
   {
-  }
-
-  bool BVTesting(int b1, int /*b2*/) const
-  {
-    if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
-  }
-
-  bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
-  {
-    if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
-                    this->model2_bv, this->model1->getBV(b1).bv,
-                    this->request, sqrDistLowerBound);
-  }
-
-  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
-  {
-    details::meshShapeCollisionOrientedNodeLeafTesting
-      (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-       this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
   }
 
 };
 
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>
+class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver, 0>
 {
 public:
   MeshShapeCollisionTraversalNodeRSS (const CollisionRequest& request):
-  MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>
+  MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver, 0>
     (request)
   {
   }
-
-  bool BVTesting(int b1, int /*b2*/) const
-  {
-    if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
-  }
-
-  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
-  {
-    details::meshShapeCollisionOrientedNodeLeafTesting
-      (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-       this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
-  }
-
 };
 
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>
+class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver, 0>
 {
 public:
   MeshShapeCollisionTraversalNodekIOS(const CollisionRequest& request):
-  MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>
+  MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver, 0>
     (request)
   {
   }
-
-  bool BVTesting(int b1, int /*b2*/) const
-  {
-    if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
-  }
-
-  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
-  {
-    details::meshShapeCollisionOrientedNodeLeafTesting
-      (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-       this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
-  }
-
 };
 
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversalNode<OBBRSS, S, NarrowPhaseSolver>
+class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversalNode<OBBRSS, S, NarrowPhaseSolver, 0>
 {
 public:
-  MeshShapeCollisionTraversalNodeOBBRSS
-    (const CollisionRequest& request) :
-  MeshShapeCollisionTraversalNode
-    <OBBRSS, S, NarrowPhaseSolver>(request)
+  MeshShapeCollisionTraversalNodeOBBRSS (const CollisionRequest& request) :
+  MeshShapeCollisionTraversalNode <OBBRSS, S, NarrowPhaseSolver, 0>
+    (request)
   {
   }
-
-  bool BVTesting(int b1, int /*b2*/) const
-  {
-    if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
-  }
-
-  bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
-  {
-    if(this->enable_statistics) this->num_bv_tests++;
-    bool res (!overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
-                       this->model2_bv, this->model1->getBV(b1).bv,
-                       this->request, sqrDistLowerBound));
-    assert (!res || sqrDistLowerBound > 0);
-    return res;
-  }
-
-  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
-  {
-    details::meshShapeCollisionOrientedNodeLeafTesting
-      (b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-       this->tf1, this->tf2, this->nsolver, this->enable_statistics,
-       this->num_leaf_tests, this->request, *(this->result), sqrDistLowerBound);
-    assert (this->result->isCollision () || sqrDistLowerBound > 0);
-  }
-
 };
 
 
