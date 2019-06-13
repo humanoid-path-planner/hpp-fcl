@@ -59,6 +59,10 @@ namespace hpp
 {
 namespace fcl
 {
+enum {
+  RelativeTransformationIsIdentity = 1
+};
+
 /// @brief Traversal node for collision between BVH models
 template<typename BV>
 class BVHCollisionTraversalNode : public CollisionTraversalNodeBase
@@ -124,24 +128,6 @@ public:
   {
     return model2->getBV(b).rightChild();
   }
-
-  /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int b2) const
-  {
-    if(enable_statistics) num_bv_tests++;
-    return !model1->getBV(b1).overlap(model2->getBV(b2));
-  }
-  
-  /// BV test between b1 and b2
-  /// \param b1, b2 Bounding volumes to test,
-  /// \retval sqrDistLowerBound square of a lower bound of the minimal
-  ///         distance between bounding volumes.
-  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
-  {
-    if(enable_statistics) num_bv_tests++;
-    return !model1->getBV(b1).overlap(model2->getBV(b2), request,
-                                      sqrDistLowerBound);
-  }
   
   /// @brief The first BVH model
   const BVHModel<BV>* model1;
@@ -154,12 +140,38 @@ public:
   mutable FCL_REAL query_time_seconds;
 };
 
+namespace details
+{
+  template <bool enabled>
+  struct RelativeTransformation
+  {
+    RelativeTransformation () : R (Matrix3f::Identity()) {}
+
+    const Matrix3f& _R () const { return R; }
+    const Vec3f   & _T () const { return T; }
+
+    Matrix3f R;
+    Vec3f T;
+  };
+
+  template <>
+  struct RelativeTransformation <false>
+  {
+    static const Matrix3f& _R () { throw std::logic_error ("should never reach this point"); }
+    static const Vec3f   & _T () { throw std::logic_error ("should never reach this point"); }
+  };
+} // namespace details
 
 /// @brief Traversal node for collision between two meshes
-template<typename BV>
+template<typename BV, int _Options = RelativeTransformationIsIdentity>
 class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
 {
 public:
+  enum {
+    Options = _Options,
+    RTIsIdentity = _Options & RelativeTransformationIsIdentity
+  };
+
   MeshCollisionTraversalNode(const CollisionRequest& request) :
   BVHCollisionTraversalNode<BV> (request)
   {
@@ -167,6 +179,36 @@ public:
     vertices2 = NULL;
     tri_indices1 = NULL;
     tri_indices2 = NULL;
+  }
+
+  /// @brief BV culling test in one BVTT node
+  bool BVTesting(int b1, int b2) const
+  {
+    if(this->enable_statistics) this->num_bv_tests++;
+    if (RTIsIdentity)
+      return !this->model1->getBV(b1).overlap(this->model2->getBV(b2));
+    else
+      return !overlap(RT._R(), RT._T(),
+          this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+  }
+  
+  /// BV test between b1 and b2
+  /// \param b1, b2 Bounding volumes to test,
+  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  ///         distance between bounding volumes.
+  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  {
+    if(this->enable_statistics) this->num_bv_tests++;
+    if (RTIsIdentity)
+      return !this->model1->getBV(b1).overlap(this->model2->getBV(b2),
+          this->request, sqrDistLowerBound);
+    else {
+      bool res = !overlap(RT._R(), RT._T(),
+          this->model1->getBV(b1).bv, this->model2->getBV(b2).bv,
+          this->request, sqrDistLowerBound);
+      assert (!res || sqrDistLowerBound > 0);
+      return res;
+    }
   }
 
   /// Intersection testing between leaves (two triangles)
@@ -242,61 +284,16 @@ public:
 
   Triangle* tri_indices1;
   Triangle* tri_indices2;
+
+  details::RelativeTransformation<!bool(RTIsIdentity)> RT;
 };
 
 
 /// @brief Traversal node for collision between two meshes if their underlying BVH node is oriented node (OBB, RSS, OBBRSS, kIOS)
-class MeshCollisionTraversalNodeOBB : public MeshCollisionTraversalNode<OBB>
-{
-public:
-  MeshCollisionTraversalNodeOBB (const CollisionRequest& request);
-
-  bool BVTesting(int b1, int b2) const;
-
-  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
-
-  Matrix3f R;
-  Vec3f T;
-};
-
-class MeshCollisionTraversalNodeRSS : public MeshCollisionTraversalNode<RSS>
-{
-public:
-  MeshCollisionTraversalNodeRSS (const CollisionRequest& request);
-
-  bool BVTesting(int b1, int b2) const;
-
-  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
-
-  Matrix3f R;
-  Vec3f T;
-};
-
-class MeshCollisionTraversalNodekIOS : public MeshCollisionTraversalNode<kIOS>
-{
-public:
-  MeshCollisionTraversalNodekIOS (const CollisionRequest& request);
- 
-  bool BVTesting(int b1, int b2) const;
-
-  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
-
-  Matrix3f R;
-  Vec3f T;
-};
-
-class MeshCollisionTraversalNodeOBBRSS : public MeshCollisionTraversalNode<OBBRSS>
-{
-public:
-  MeshCollisionTraversalNodeOBBRSS (const CollisionRequest& request);
- 
-  bool BVTesting(int b1, int b2) const;
-
-  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
-
-  Matrix3f R;
-  Vec3f T;
-};
+typedef MeshCollisionTraversalNode<OBB   , 0> MeshCollisionTraversalNodeOBB   ;
+typedef MeshCollisionTraversalNode<RSS   , 0> MeshCollisionTraversalNodeRSS   ;
+typedef MeshCollisionTraversalNode<kIOS  , 0> MeshCollisionTraversalNodekIOS  ;
+typedef MeshCollisionTraversalNode<OBBRSS, 0> MeshCollisionTraversalNodeOBBRSS;
 
 namespace details
 {
