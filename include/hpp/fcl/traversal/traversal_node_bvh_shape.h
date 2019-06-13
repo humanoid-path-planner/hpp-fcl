@@ -235,11 +235,11 @@ public:
       static const Transform3f Id;
       collision =
         nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
-                                          Id       , distance, c1, c2, normal);
+                                          Id       , distance, c2, c1, normal);
     } else {
       collision =
         nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
-                                          this->tf1, distance, c1, c2, normal);
+                                          this->tf1, distance, c2, c1, normal);
     }
 
     if(collision) {
