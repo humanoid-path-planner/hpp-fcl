@@ -187,13 +187,10 @@ public:
   bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    bool res;
     if (RTIsIdentity)
-      res = !this->model1->getBV(b1).bv.overlap(this->model2_bv);
+      return !this->model1->getBV(b1).bv.overlap(this->model2_bv);
     else
-      res = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
-    assert (!res || sqrDistLowerBound > 0);
-    return res;
+      return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   /// test between BV b1 and shape
@@ -204,12 +201,15 @@ public:
   bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
+    bool res;
     if (RTIsIdentity)
-      return !this->model1->getBV(b1).bv.overlap(this->model2_bv, this->request, sqrDistLowerBound);
+      res = !this->model1->getBV(b1).bv.overlap(this->model2_bv, this->request, sqrDistLowerBound);
     else
-      return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
+      res = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
                       this->model2_bv, this->model1->getBV(b1).bv,
                       this->request, sqrDistLowerBound);
+    assert (!res || sqrDistLowerBound > 0);
+    return res;
   }
 
   /// @brief Intersection testing between leaves (one triangle and one shape)
@@ -232,33 +232,35 @@ public:
 
     bool collision;
     if (RTIsIdentity) {
+      static const Transform3f Id;
       collision =
         nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
-                                          Transform3f (), distance, c1, c2,
-                                          normal);
+                                          Id       , distance, c1, c2, normal);
     } else {
-      collision = 
+      collision =
         nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
-                                          this->tf1     , distance, c1, c2, normal);
+                                          this->tf1, distance, c1, c2, normal);
     }
 
     if(collision) {
       if(this->request.num_max_contacts > this->result->numContacts())
+      {
         this->result->addContact(Contact(this->model1, this->model2,
                                          primitive_id, Contact::NONE,
                                          c1, -normal, -distance));
-      assert (this->result->isCollision ());
-      return;
+        assert (this->result->isCollision ());
+        return;
+      }
     }
     sqrDistLowerBound = distance * distance;
     assert (distance > 0);
-    if (this->request.security_margin > 0) {
-      if (distance <= this->request.security_margin) {
-        this->result->addContact(Contact(this->model1, this->model2,
-                                         primitive_id, Contact::NONE,
-                                         .5 * (c1+c2), (c2-c1).normalized (),
-                                         -distance));
-      }
+    if (   this->request.security_margin > 0
+        && distance <= this->request.security_margin)
+    {
+      this->result->addContact(Contact(this->model1, this->model2,
+                                       primitive_id, Contact::NONE,
+                                       .5 * (c1+c2), (c2-c1).normalized (),
+                                       -distance));
     }
     assert (!this->result->isCollision () || sqrDistLowerBound > 0);
   }
@@ -271,7 +273,7 @@ public:
 
   Vec3f* vertices;
   Triangle* tri_indices;
-  
+
   const NarrowPhaseSolver* nsolver;
 };
 
