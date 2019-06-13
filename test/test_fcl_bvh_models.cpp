@@ -43,6 +43,7 @@
 
 #include "fcl_resources/config.h"
 
+#include <hpp/fcl/collision.h>
 #include "hpp/fcl/BVH/BVH_model.h"
 #include "hpp/fcl/BVH/BVH_utility.h"
 #include "hpp/fcl/math/transform.h"
@@ -295,6 +296,31 @@ void testLoadPolyhedron ()
   BOOST_CHECK_EQUAL (geom, geom2);
 }
 
+template<class BoundingVolume>
+void testLoadGerardBauzil ()
+{
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+  std::string env = (path / "staircases_koroibot_hr.dae").string();
+
+  typedef BVHModel<BoundingVolume> Polyhedron_t;
+  typedef boost::shared_ptr <Polyhedron_t> PolyhedronPtr_t;
+  PolyhedronPtr_t P1 (new Polyhedron_t), P2;
+
+  Vec3f scale;
+  scale.setConstant (1);
+  loadPolyhedronFromResource (env, scale, P1);
+  CollisionGeometryPtr_t cylinder (new Cylinder(.27, .27));
+  Transform3f pos (Vec3f (-1.33, 1.36, .14));
+  CollisionObject obj (cylinder, pos);
+  CollisionObject stairs (P1);
+
+  CollisionRequest request;
+  CollisionResult result;
+
+  collide (&stairs, &obj, request, result);
+  BOOST_CHECK (result.isCollision ());
+}
+
 BOOST_AUTO_TEST_CASE(load_polyhedron)
 {
   testLoadPolyhedron<AABB>();
@@ -305,4 +331,12 @@ BOOST_AUTO_TEST_CASE(load_polyhedron)
   testLoadPolyhedron<KDOP<16> >();
   testLoadPolyhedron<KDOP<18> >();
   testLoadPolyhedron<KDOP<24> >();
+}
+
+BOOST_AUTO_TEST_CASE (gerard_bauzil)
+{
+  testLoadGerardBauzil<OBB>();
+  testLoadGerardBauzil<RSS>();
+  testLoadGerardBauzil<kIOS>();
+  testLoadGerardBauzil<OBBRSS>();
 }
