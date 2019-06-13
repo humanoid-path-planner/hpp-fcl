@@ -64,14 +64,24 @@ namespace fcl
 
 struct TriangleAndVertices
 {
-  void clear()
-  {
-    vertices_.clear ();
-    triangles_.clear ();
-  }
   std::vector <fcl::Vec3f> vertices_;
   std::vector <fcl::Triangle> triangles_;
 };
+
+/**
+ * @brief      Recursive procedure for building a mesh
+ *
+ * @param[in]  scale           Scale to apply when reading the ressource
+ * @param[in]  scene           Pointer to the assimp scene
+ * @param[in]  node            Current node of the scene
+ * @param[in]  vertices_offset Current number of vertices in the model
+ * @param      tv              Triangles and Vertices of the mesh submodels
+ */
+unsigned buildMesh (const fcl::Vec3f & scale,
+                    const aiScene* scene,
+                    const aiNode* node,
+                    unsigned vertices_offset,
+                    TriangleAndVertices & tv);
 
 /**
  * @brief      Convert an assimp scene to a mesh
@@ -92,7 +102,6 @@ inline void meshFromAssimpScene(const std::string & name,
   if (!scene->HasMeshes())
     throw std::invalid_argument (std::string ("No meshes found in file ")+name);
   
-  std::vector<unsigned> subMeshIndexes;
   int res = mesh->beginModel ();
   
   if (res != fcl::BVH_OK)
@@ -102,99 +111,12 @@ inline void meshFromAssimpScene(const std::string & name,
     throw std::runtime_error (error.str ());
   }
     
-  tv.clear();
-    
-  buildMesh (scale, scene, scene->mRootNode, subMeshIndexes, mesh, tv);
+  buildMesh (scale, scene, scene->mRootNode, 
+      (unsigned) mesh->num_vertices, tv);
   mesh->addSubModel (tv.vertices_, tv.triangles_);
     
   mesh->endModel ();
 }
-
-/**
- * @brief      Recursive procedure for building a mesh
- *
- * @param[in]  scale           Scale to apply when reading the ressource
- * @param[in]  scene           Pointer to the assimp scene
- * @param[in]  node            Current node of the scene
- * @param      subMeshIndexes  Submesh triangles indexes interval
- * @param[in]  mesh            The mesh that must be built
- * @param      tv              Triangles and Vertices of the mesh submodels
- */
-template<class BoundingVolume>
-inline void buildMesh (const fcl::Vec3f & scale,
-                const aiScene* scene,
-                const aiNode* node,
-                std::vector<unsigned> & subMeshIndexes,
-                const boost::shared_ptr < BVHModel<BoundingVolume> > & mesh,
-                TriangleAndVertices & tv)
-{
-  if (!node) return;
-  
-  aiMatrix4x4 transform = node->mTransformation;
-  aiNode *pnode = node->mParent;
-  while (pnode)
-  {
-    // Don't convert to y-up orientation, which is what the root node in
-    // Assimp does
-    if (pnode->mParent != NULL)
-    {
-      transform = pnode->mTransformation * transform;
-    }
-    pnode = pnode->mParent;
-  }
-  
-  for (uint32_t i = 0; i < node->mNumMeshes; i++)
-  {
-    aiMesh* input_mesh = scene->mMeshes[node->mMeshes[i]];
-    
-    unsigned oldNbPoints = (unsigned) mesh->num_vertices;
-    unsigned oldNbTriangles = (unsigned) mesh->num_tris;
-    
-    // Add the vertices
-    for (uint32_t j = 0; j < input_mesh->mNumVertices; j++)
-    {
-      aiVector3D p = input_mesh->mVertices[j];
-      p *= transform;
-      tv.vertices_.push_back (fcl::Vec3f (p.x * scale[0],
-                                          p.y * scale[1],
-                                          p.z * scale[2]));
-    }
-    
-    // add the indices
-    for (uint32_t j = 0; j < input_mesh->mNumFaces; j++)
-    {
-      aiFace& face = input_mesh->mFaces[j];
-      if (face.mNumIndices != 3) {
-        std::stringstream ss;
-#ifdef HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
-        ss << "Mesh " << input_mesh->mName.C_Str() << " has a face with "
-           << face.mNumIndices << " vertices. This is not supported\n";
-        ss << "Node name is: " << node->mName.C_Str() << "\n";
-#endif
-        ss << "Mesh index: " << i << "\n";
-        ss << "Face index: " << j << "\n";
-        throw std::invalid_argument (ss.str());
-      }
-      tv.triangles_.push_back (fcl::Triangle( oldNbPoints + face.mIndices[0],
-                                             oldNbPoints + face.mIndices[1],
-                                             oldNbPoints + face.mIndices[2]));
-    }
-    
-    // Save submesh triangles indexes interval.
-    if (subMeshIndexes.size () == 0)
-    {
-      subMeshIndexes.push_back (0);
-    }
-    
-    subMeshIndexes.push_back (oldNbTriangles + input_mesh->mNumFaces);
-  }
-  
-  for (uint32_t i=0; i < node->mNumChildren; ++i)
-  {
-    buildMesh(scale, scene, node->mChildren[i], subMeshIndexes, mesh, tv);
-  }
-}
-
 
 /**
  * @brief      Read a mesh file and convert it to a polyhedral mesh
@@ -209,26 +131,31 @@ inline void loadPolyhedronFromResource (const std::string & resource_path,
                                  const boost::shared_ptr < BVHModel<BoundingVolume> > & polyhedron) throw (std::invalid_argument)
 {
   Assimp::Importer importer;
-  // // set list of ignored parameters (parameters used for rendering)
-  //    importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
-  //                     aiComponent_TANGENTS_AND_BITANGENTS|
-  //                     aiComponent_COLORS |
-  //                     aiComponent_BONEWEIGHTS |
-  //                     aiComponent_ANIMATIONS |
-  //                     aiComponent_LIGHTS |
-  //                     aiComponent_CAMERAS|
-  //                     aiComponent_TEXTURES |
-  //                     aiComponent_TEXCOORDS |
-  //                     aiComponent_MATERIALS |
-  //                     aiComponent_NORMALS
-  //                 );
+  // set list of ignored parameters (parameters used for rendering)
+  importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
+      aiComponent_TANGENTS_AND_BITANGENTS|
+      aiComponent_COLORS |
+      aiComponent_BONEWEIGHTS |
+      aiComponent_ANIMATIONS |
+      aiComponent_LIGHTS |
+      aiComponent_CAMERAS|
+      aiComponent_TEXTURES |
+      aiComponent_TEXCOORDS |
+      aiComponent_MATERIALS |
+      aiComponent_NORMALS
+      );
 
-  const aiScene* scene = importer.ReadFile(resource_path.c_str(), aiProcess_SortByPType| aiProcess_GenNormals|
-                                           aiProcess_Triangulate|aiProcess_GenUVCoords|
-                                           aiProcess_FlipUVs);
-  // const aiScene* scene = importer.ReadFile(resource_path, aiProcess_SortByPType|
-  //                                          aiProcess_Triangulate | aiProcess_RemoveComponent |
-  //                                          aiProcess_JoinIdenticalVertices);
+  const aiScene* scene = importer.ReadFile(resource_path.c_str(),
+      aiProcess_SortByPType |
+      aiProcess_Triangulate |
+      aiProcess_RemoveComponent |
+      aiProcess_ImproveCacheLocality |
+      // TODO: I (Joseph Mirabel) have no idea whether degenerated triangles are
+      // properly handled. Enabling aiProcess_FindDegenerates would throw an
+      // exception when that happens. Is it too conservative ?
+      // aiProcess_FindDegenerates |
+      aiProcess_JoinIdenticalVertices
+      );
 
   if (!scene)
   {
