@@ -39,7 +39,7 @@
 #define HPP_FCL_KDOP_H
 
 #include <stdexcept>
-#include <hpp/fcl/math/vec_3f.h>
+#include <hpp/fcl/math/matrix_3f.h>
 
 namespace hpp
 {
@@ -176,6 +176,20 @@ public:
 
 };
 
+template<size_t N>
+bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/,
+             const KDOP<N>& /*b1*/, const KDOP<N>& /*b2*/)
+{
+  throw std::logic_error ("not implemented");
+}
+
+template<size_t N>
+bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/,
+             const KDOP<N>& /*b1*/, const KDOP<N>& /*b2*/,
+             const CollisionRequest& /*request*/, FCL_REAL& /*sqrDistLowerBound*/)
+{
+  throw std::logic_error ("not implemented");
+}
 
 /// @brief translate the KDOP BV
 template<size_t N>

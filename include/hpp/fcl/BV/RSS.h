@@ -155,6 +155,10 @@ FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS&
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and b2 is in identity.
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2);
 
+/// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and b2 is in identity.
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2,
+             const CollisionRequest& request,
+             FCL_REAL& sqrDistLowerBound);
 
 }
 

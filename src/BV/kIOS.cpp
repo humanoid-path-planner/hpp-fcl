@@ -61,17 +61,27 @@ bool kIOS::overlap(const kIOS& other) const
   }
 
   return obb.overlap(other.obb);
-
-  return true;
 }
 
-  bool kIOS::overlap(const kIOS& other, const CollisionRequest&,
-                     FCL_REAL& sqrDistLowerBound) const
+bool kIOS::overlap(const kIOS& other, const CollisionRequest& request,
+                   FCL_REAL& sqrDistLowerBound) const
+{
+  for(unsigned int i = 0; i < num_spheres; ++i)
   {
-    sqrDistLowerBound = sqrt (-1);
-    return overlap (other);
+    for(unsigned int j = 0; j < other.num_spheres; ++j)
+    {
+      FCL_REAL o_dist = (spheres[i].o - other.spheres[j].o).squaredNorm();
+      FCL_REAL sum_r = spheres[i].r + other.spheres[j].r;
+      if(o_dist > sum_r * sum_r) {
+        o_dist = sqrt(o_dist) - sum_r;
+        sqrDistLowerBound = o_dist*o_dist;
+        return false;
+      }
+    }
   }
 
+  return obb.overlap(other.obb, request, sqrDistLowerBound);
+}
 
 bool kIOS::contain(const Vec3f& p) const
 {
@@ -190,6 +200,23 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2
   b2_temp.obb.axes.applyOnTheLeft(R0);
 
   return b1.overlap(b2_temp);
+}
+
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2,
+             const CollisionRequest& request,
+             FCL_REAL& sqrDistLowerBound)
+{
+  kIOS b2_temp = b2;
+  for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
+  {
+    b2_temp.spheres[i].o = R0 * b2_temp.spheres[i].o + T0;
+  }
+
+  
+  b2_temp.obb.To = R0 * b2_temp.obb.To + T0;
+  b2_temp.obb.axes.applyOnTheLeft(R0);
+
+  return b1.overlap(b2_temp, request, sqrDistLowerBound);
 }
 
 FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P, Vec3f* Q)

@@ -128,6 +128,20 @@ FCL_REAL AABB::distance(const AABB& other) const
   return std::sqrt(result);
 }
 
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1, const AABB& b2)
+{
+  AABB bb1 (translate (rotate (b1, R0), T0));
+  return bb1.overlap (b2);
+}
+
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+	     const AABB& b2, const CollisionRequest& request,
+             FCL_REAL& sqrDistLowerBound)
+{
+  AABB bb1 (translate (rotate (b1, R0), T0));
+  return bb1.overlap (b2, request, sqrDistLowerBound);
+}
+
 }
 
 } // namespace hpp
