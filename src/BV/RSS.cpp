@@ -863,7 +863,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
 }
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2,
-             const CollisionRequest& request,
+             const CollisionRequest& /*request*/,
              FCL_REAL& sqrDistLowerBound)
 {
   // ROb2 = R0 . b2
