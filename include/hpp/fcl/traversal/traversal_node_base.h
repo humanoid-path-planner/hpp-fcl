@@ -137,6 +137,8 @@ public:
   virtual ~DistanceTraversalNodeBase();
 
   /// @brief BV test between b1 and b2
+  /// \return a lower bound of the distance between the two BV.
+  /// \note except for OBB, this method returns the distance.
   virtual FCL_REAL BVTesting(int b1, int b2) const;
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs

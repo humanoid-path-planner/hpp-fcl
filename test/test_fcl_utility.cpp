@@ -68,8 +68,8 @@ double Timer::getElapsedTimeInMicroSec()
   if(!stopped)
     gettimeofday(&endCount, NULL);
 
-  startTimeInMicroSec = (startCount.tv_sec * 1000000.0) + startCount.tv_usec;
-  endTimeInMicroSec = (endCount.tv_sec * 1000000.0) + endCount.tv_usec;
+  startTimeInMicroSec = ((double)startCount.tv_sec * 1000000.0) + (double)startCount.tv_usec;
+  endTimeInMicroSec = ((double)endCount.tv_sec * 1000000.0) + (double)endCount.tv_usec;
 #endif
 
   return endTimeInMicroSec - startTimeInMicroSec;
@@ -333,8 +333,8 @@ void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_
 }
 
 void generateRandomTransform_ccd(FCL_REAL extents[6], std::vector<Transform3f>& transforms, std::vector<Transform3f>& transforms2, FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::size_t n,
-                                 const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                                 const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2)
+                                 const std::vector<Vec3f>& /*vertices1*/, const std::vector<Triangle>& /*riangles1*/,
+                                 const std::vector<Vec3f>& /*vertices2*/, const std::vector<Triangle>& /*riangles2*/)
 {
   transforms.resize(n);
   transforms2.resize(n);

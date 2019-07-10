@@ -127,6 +127,7 @@ double collide (const std::vector<Transform3f>& tf,
 
   for (std::size_t i = 0; i < tf.size(); ++i) {
     bool success (initialize(node, m1, tf[i], m2, pose2, local_result));
+    (void)success;
     assert (success);
 
     CollisionResult result;

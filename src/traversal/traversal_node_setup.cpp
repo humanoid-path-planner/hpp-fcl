@@ -68,7 +68,7 @@ static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
 
   node.result = &result;
 
-  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.RT.R, node.RT.T);
 
   return true;
 }
