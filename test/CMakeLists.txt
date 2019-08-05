@@ -18,7 +18,7 @@ macro(add_fcl_test test_name)
 endmacro(add_fcl_test)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 
 add_fcl_test(test_fcl_math test_fcl_math.cpp)
