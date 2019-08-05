@@ -46,7 +46,6 @@ namespace fcl
 
 const Matrix3f& Transform3f::getRotationInternal() const
 {
-  boost::mutex::scoped_lock slock(const_cast<boost::mutex&>(lock_));
   if(!matrix_set)
   {
     R = q.toRotationMatrix();
