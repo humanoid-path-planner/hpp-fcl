@@ -60,7 +60,7 @@ ENDIF(APPLE)
 setup_hpp_project()
 
 add_required_dependency("eigen3 >= 3.0.0")
-include_directories(${EIGEN3_INCLUDE_DIRS})
+include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
 
 # Add a cache variable to allow not compiling and running tests
 set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")

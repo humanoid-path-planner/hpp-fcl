@@ -83,7 +83,7 @@ set(${LIBRARY_NAME}_SOURCES
   )
 
 # Declare boost include directories
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 add_library(${LIBRARY_NAME}
