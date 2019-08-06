@@ -95,7 +95,7 @@ template<class BoundingVolume>
 inline void meshFromAssimpScene(const std::string & name,
                          const fcl::Vec3f & scale,
                          const aiScene* scene,
-                         const boost::shared_ptr < BVHModel<BoundingVolume> > & mesh) throw (std::invalid_argument)
+                         const boost::shared_ptr < BVHModel<BoundingVolume> > & mesh)
 {
   TriangleAndVertices tv;
   
@@ -128,7 +128,7 @@ inline void meshFromAssimpScene(const std::string & name,
 template<class BoundingVolume>
 inline void loadPolyhedronFromResource (const std::string & resource_path,
                                  const fcl::Vec3f & scale,
-                                 const boost::shared_ptr < BVHModel<BoundingVolume> > & polyhedron) throw (std::invalid_argument)
+                                 const boost::shared_ptr < BVHModel<BoundingVolume> > & polyhedron)
 {
   Assimp::Importer importer;
   // set list of ignored parameters (parameters used for rendering)
