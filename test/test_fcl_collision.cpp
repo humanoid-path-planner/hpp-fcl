@@ -918,7 +918,7 @@ bool collide_Test(const Transform3f& tf,
   MeshCollisionTraversalNode<BV> node (request);
 
   bool success = initialize <BV> (node, m1, pose1, m2, pose2, local_result);
-  assert (success);
+  BOOST_REQUIRE (success);
 
   node.enable_statistics = verbose;
 

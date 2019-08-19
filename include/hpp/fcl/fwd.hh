@@ -37,6 +37,8 @@
 #ifndef HPP_FCL_FWD_HH
 #define HPP_FCL_FWD_HH
 
+#include <boost/shared_ptr.hpp>
+
 namespace hpp {
 namespace fcl {
   class CollisionObject;
