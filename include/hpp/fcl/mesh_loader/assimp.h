@@ -60,7 +60,6 @@ namespace hpp
 {
 namespace fcl
 {
-  
 
 struct TriangleAndVertices
 {

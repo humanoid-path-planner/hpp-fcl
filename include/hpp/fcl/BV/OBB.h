@@ -73,13 +73,6 @@ public:
   bool overlap(const OBB& other, const CollisionRequest& request,
                FCL_REAL& sqrDistLowerBound) const;
 
-  
-  /// @brief Check collision between two OBB and return the overlap part. For OBB, the overlap_part return value is NOT used as the overlap part of two obbs usually is not an obb. 
-  bool overlap(const OBB& other, OBB& /*overlap_part*/) const
-  {
-    return overlap(other);
-  }
-
   /// @brief Check whether the OBB contains a point.
   bool contain(const Vec3f& p) const;
 

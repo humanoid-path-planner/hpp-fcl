@@ -126,13 +126,7 @@ public:
     R.setIdentity();
   }
 
-  /// @brief Construct transform from another transform
-  Transform3f(const Transform3f& tf) : matrix_set(tf.matrix_set),
-                                       R(tf.R),
-                                       T(tf.T),
-                                       q(tf.q)
-  {
-  }
+
 
   /// @brief operator = 
   Transform3f& operator = (const Transform3f& tf)
@@ -268,19 +262,6 @@ public:
   }
 
 };
-
-/// @brief inverse the transform
-Transform3f inverse(const Transform3f& tf);
-
-/// @brief compute the relative transform between two transforms: tf2 = tf1 * tf (relative to the local coordinate system in tf1)
-void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
-                       Transform3f& tf);
-
-/// @brief compute the relative transform between two transforms: tf2 = tf * tf1 (relative to the global coordinate system)
-void relativeTransform2(const Transform3f& tf1, const Transform3f& tf2,
-                        Transform3f& tf);
-
-
 }
 
 } // namespace hpp

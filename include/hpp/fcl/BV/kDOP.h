@@ -85,6 +85,10 @@ namespace fcl
 template<size_t N>
 class KDOP
 {
+private:
+  /// @brief Origin's distances to N KDOP planes
+  FCL_REAL dist_[N];
+
 public:
 
   /// @brief Creating kDOP containing nothing
@@ -158,11 +162,6 @@ public:
   /// @brief The distance between two KDOP<N>. Not implemented.
   FCL_REAL distance(const KDOP<N>& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
-private:
-  /// @brief Origin's distances to N KDOP planes
-  FCL_REAL dist_[N];
-
-public:
   inline FCL_REAL dist(std::size_t i) const
   {
     return dist_[i];

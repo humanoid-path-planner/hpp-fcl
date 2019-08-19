@@ -53,7 +53,7 @@ namespace fcl {
     public:
       virtual ~MeshLoader() {}
 
-      /// \param bvType ignored
+       /// \param bvType ignored
       /// \deprecated Use MeshLoader::load(const std::string&, const Vec3f&)
       CollisionGeometryPtr_t load (const std::string& filename,
           const Vec3f& scale,
@@ -83,16 +83,6 @@ namespace fcl {
 
       CachedMeshLoader (const NODE_TYPE& bvType = BV_OBBRSS) : MeshLoader (bvType) {}
 
-      /// \param bvType ignored
-      /// \deprecated Use MeshLoader::load(const std::string&, const Vec3f&)
-      CollisionGeometryPtr_t load (const std::string& filename,
-          const Vec3f& scale,
-          const NODE_TYPE& bvType) HPP_FCL_DEPRECATED
-      {
-        (void) bvType;
-        return load(filename, scale);
-      }
-
       virtual CollisionGeometryPtr_t load (const std::string& filename,
           const Vec3f& scale);
 
@@ -107,7 +97,7 @@ namespace fcl {
       };
       typedef std::map <Key, CollisionGeometryPtr_t> Cache_t;
 
-      const Cache_t cache () const { return cache_; }
+      
     private:
       Cache_t cache_;
   };

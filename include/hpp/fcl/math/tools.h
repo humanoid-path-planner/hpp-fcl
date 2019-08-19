@@ -99,14 +99,6 @@ void generateCoordinateSystem(
 
 /* ----- Start Matrices ------ */
 template<typename Derived, typename OtherDerived>
-void hat(const Eigen::MatrixBase<Derived>& mat, const Eigen::MatrixBase<OtherDerived>& vec)
-{
-  EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Derived, 3, 3);
-  EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(OtherDerived, 3, 1);
-  const_cast< Eigen::MatrixBase<Derived>& >(mat) << 0, -vec[2], vec[1], vec[2], 0, -vec[0], -vec[1], vec[0], 0;
-}
-
-template<typename Derived, typename OtherDerived>
 void relativeTransform(const Eigen::MatrixBase<Derived>& R1, const Eigen::MatrixBase<OtherDerived>& t1,
                        const Eigen::MatrixBase<Derived>& R2, const Eigen::MatrixBase<OtherDerived>& t2,
                        const Eigen::MatrixBase<Derived>& R , const Eigen::MatrixBase<OtherDerived>& t)
@@ -205,11 +197,7 @@ void eigen(const Eigen::MatrixBase<Derived>& m, typename Derived::Scalar dout[3]
   return;
 }
 
-template<typename Derived, typename OtherDerived>
-typename Derived::Scalar quadraticForm(const Eigen::MatrixBase<Derived>& R, const Eigen::MatrixBase<OtherDerived>& v)
-{
-  return v.dot(R * v);
-}
+
 
 template<typename Derived, typename OtherDerived>
 bool isEqual(const Eigen::MatrixBase<Derived>& lhs, const Eigen::MatrixBase<OtherDerived>& rhs, const FCL_REAL tol = std::numeric_limits<FCL_REAL>::epsilon()*100)
@@ -217,25 +205,7 @@ bool isEqual(const Eigen::MatrixBase<Derived>& lhs, const Eigen::MatrixBase<Othe
   return ((lhs - rhs).array().abs() < tol).all();
 }
 
-template <typename Derived>
-inline Derived& setEulerZYX(const Eigen::MatrixBase<Derived>& R, FCL_REAL eulerX, FCL_REAL eulerY, FCL_REAL eulerZ)
-{
-  const_cast< Eigen::MatrixBase<Derived>& >(R).noalias() = (
-      Eigen::AngleAxisd (eulerZ, Eigen::Vector3d::UnitZ()) *
-      Eigen::AngleAxisd (eulerY, Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd (eulerX, Eigen::Vector3d::UnitX())
-      ).toRotationMatrix();
-  return const_cast< Eigen::MatrixBase<Derived>& >(R).derived();
 }
-
-template <typename Derived>
-inline Derived& setEulerYPR(const Eigen::MatrixBase<Derived>& R, FCL_REAL yaw, FCL_REAL pitch, FCL_REAL roll)
-{
-  return setEulerZYX(R, roll, pitch, yaw);
-}
-
-}
-
 
 } // namespace hpp
 
