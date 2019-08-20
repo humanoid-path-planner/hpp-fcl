@@ -126,7 +126,7 @@ namespace fcl {
       FCL_REAL norm (normal.norm());
       dist = norm - s1.radius - s2.radius;
 
-      FCL_REAL eps (std::numeric_limits<FCL_REAL>::epsilon());
+      static const FCL_REAL eps (std::numeric_limits<FCL_REAL>::epsilon());
       if (norm > eps) {
         normal.normalize();
       } else {
@@ -147,7 +147,7 @@ namespace fcl {
        const Cylinder& s2, const Transform3f& tf2,
        FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal)
     {
-      FCL_REAL eps (sqrt (std::numeric_limits <FCL_REAL>::epsilon ()));
+      static const FCL_REAL eps (sqrt (std::numeric_limits <FCL_REAL>::epsilon ()));
       FCL_REAL r1 (s1.radius);
       FCL_REAL r2 (s2.radius);
       FCL_REAL lz2 (.5*s2.lz);
@@ -979,7 +979,7 @@ namespace fcl {
       Q.array() += fudge2;
 
       Vec3f n;
-      FCL_REAL eps = std::numeric_limits<FCL_REAL>::epsilon();
+      static const FCL_REAL eps = std::numeric_limits<FCL_REAL>::epsilon();
 
       // separating axis = u1 x (v1,v2,v3)
       tmp = pp[2] * R(1, 0) - pp[1] * R(2, 0);

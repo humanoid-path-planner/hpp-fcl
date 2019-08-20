@@ -447,7 +447,7 @@ bool collide_Test_OBB(const Transform3f& tf,
   bool success (initialize(node, (const BVHModel<OBB>&)m1, tf,
                            (const BVHModel<OBB>&)m2, Transform3f(),
                            local_result));
-  assert (success);
+  BOOST_REQUIRE (success);
 
   node.enable_statistics = verbose;
 
