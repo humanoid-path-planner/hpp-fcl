@@ -76,10 +76,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   case GEOM_BOX:
     {
       const Box* box = static_cast<const Box*>(shape);
-      Vec3f res((dir[0]>0)?(box->side[0]/2):(-box->side[0]/2),
-                (dir[1]>0)?(box->side[1]/2):(-box->side[1]/2),
-                (dir[2]>0)?(box->side[2]/2):(-box->side[2]/2));
-      return res;
+      return (dir.array() > 0).select(box->halfSide, -box->halfSide);
     }
     break;
   case GEOM_SPHERE:

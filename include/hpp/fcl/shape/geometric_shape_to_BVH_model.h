@@ -52,19 +52,19 @@ namespace fcl
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3f& pose)
 {
-  double a = shape.side[0];
-  double b = shape.side[1];
-  double c = shape.side[2];
+  double a = shape.halfSide[0];
+  double b = shape.halfSide[1];
+  double c = shape.halfSide[2];
   std::vector<Vec3f> points(8);
   std::vector<Triangle> tri_indices(12);
-  points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
-  points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
-  points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
-  points[3] << -0.5 * a, -0.5 * b, 0.5 * c;
-  points[4] << 0.5 * a, -0.5 * b, -0.5 * c;
-  points[5] << 0.5 * a, 0.5 * b, -0.5 * c;
-  points[6] << -0.5 * a, 0.5 * b, -0.5 * c;
-  points[7] << -0.5 * a, -0.5 * b, -0.5 * c;
+  points[0] = Vec3f ( a, -b,  c);
+  points[1] = Vec3f ( a,  b,  c);
+  points[2] = Vec3f (-a,  b,  c);
+  points[3] = Vec3f (-a, -b,  c);
+  points[4] = Vec3f ( a, -b, -c);
+  points[5] = Vec3f ( a,  b, -c);
+  points[6] = Vec3f (-a,  b, -c);
+  points[7] = Vec3f (-a, -b, -c);
 
   tri_indices[0].set(0, 4, 1);
   tri_indices[1].set(1, 4, 5);

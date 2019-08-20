@@ -114,8 +114,8 @@ BOOST_AUTO_TEST_CASE(obb_overlap)
   // ShapeShapeDistance
   gettimeofday (&t0, NULL);
   for (std::size_t i=0; i<nbSamples; ++i) {
-    box1.side = 2*sample [i].extent1;
-    box2.side = 2*sample [i].extent2;
+    box1.halfSide = sample [i].extent1;
+    box2.halfSide = sample [i].extent2;
     tf2.setTransform (sample [i].R, sample [i].T);
     resultDistance [i].distance =
       hpp::fcl::ShapeShapeDistance<hpp::fcl::Box, hpp::fcl::Box, hpp::fcl::GJKSolver_indep>

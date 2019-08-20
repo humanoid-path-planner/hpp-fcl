@@ -296,9 +296,7 @@ BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
                        (p2Loc [0] * p2Loc [0] + p2Loc [1] * p2Loc [1]
                         <= s1.radius));
   Vec3f p1Loc (inverse (tf2).transform (p1));
-  bool p1_in_box ((fabs (p1Loc [0]) <= .5 * s2.side [0]) &&
-                  (fabs (p1Loc [1]) <= .5 * s2.side [1]) &&
-                  (fabs (p1Loc [2]) <= .5 * s2.side [2]));
+  bool p1_in_box = (p1Loc.array().abs() <= s2.halfSide.array()).all();
   std::cout << "p2 in cylinder = (" << p2Loc.transpose () << ")" << std::endl;
   std::cout << "p1 in box = (" << p1Loc.transpose () << ")" << std::endl;
 
@@ -315,9 +313,7 @@ BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
     (p2Loc [0] * p2Loc [0] + p2Loc [1] * p2Loc [1]
      <= s1.radius);
   p1Loc = inverse (tf2).transform (p1);
-  p1_in_box = (fabs (p1Loc [0]) <= .5 * s2.side [0]) &&
-    (fabs (p1Loc [1]) <= .5 * s2.side [1]) &&
-    (fabs (p1Loc [2]) <= .5 * s2.side [2]);
+  p1_in_box = (p1Loc.array().abs() <= s2.halfSide.array()).all();
 
   std::cout << "p2 in cylinder = (" << p2Loc.transpose () << ")" << std::endl;
   std::cout << "p1 in box = (" << p1.transpose () << ")" << std::endl;
@@ -440,9 +436,7 @@ void testBoxBoxContactPoints(const Matrix3f& R)
 
   for (int i = 0; i < 8; ++i)
   {
-    vertices[i][0] *= 0.5 * s2.side[0];
-    vertices[i][1] *= 0.5 * s2.side[1];
-    vertices[i][2] *= 0.5 * s2.side[2];
+    vertices[i].array() *= s2.halfSide.array();
   }
 
   Transform3f tf1 = Transform3f(Vec3f(0, 0, -50));

@@ -80,18 +80,18 @@ public:
 class Box : public ShapeBase
 {
 public:
-  Box(FCL_REAL x, FCL_REAL y, FCL_REAL z) : ShapeBase(), side(x, y, z)
+  Box(FCL_REAL x, FCL_REAL y, FCL_REAL z) : ShapeBase(), halfSide(x/2, y/2, z/2)
   {
   }
 
-  Box(const Vec3f& side_) : ShapeBase(), side(side_) 
+  Box(const Vec3f& side_) : ShapeBase(), halfSide(side_/2) 
   {
   }
 
   Box() {}
 
-  /// @brief box side length
-  Vec3f side;
+  /// @brief box side half-length
+  Vec3f halfSide;
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -101,18 +101,14 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return side[0] * side[1] * side[2];
+    return 8*halfSide.prod();
   }
 
   Matrix3f computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
-    FCL_REAL a2 = side[0] * side[0] * V;
-    FCL_REAL b2 = side[1] * side[1] * V;
-    FCL_REAL c2 = side[2] * side[2] * V;
-    return (Matrix3f() << (b2 + c2) / 12, 0, 0,
-                          0, (a2 + c2) / 12, 0,
-                          0, 0, (a2 + b2) / 12).finished();
+    Vec3f s (halfSide.cwiseAbs2() * V);
+    return (Vec3f (s[1] + s[2], s[0] + s[2], s[0] + s[1]) / 3).asDiagonal();
   }
 };
 
