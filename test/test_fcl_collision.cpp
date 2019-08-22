@@ -42,7 +42,7 @@
 
 #include <hpp/fcl/traversal/traversal_node_bvhs.h>
 #include <hpp/fcl/traversal/traversal_node_setup.h>
-#include <hpp/fcl/collision_node.h>
+#include <../src/collision_node.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
