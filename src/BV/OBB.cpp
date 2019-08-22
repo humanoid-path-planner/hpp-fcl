@@ -294,38 +294,42 @@ bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f&
 
 }
 
-// B, T orientation and position of 2nd OBB in frame of 1st OBB,
-// a extent of 1st OBB,
-// b extent of 2nd OBB.
-//
-// This function tests whether bounding boxes should be broken down.
-//
-bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
-				       const Vec3f& a, const Vec3f& b,
-                                       const CollisionRequest& request,
-				       FCL_REAL& squaredLowerBoundDistance)
+namespace internal
 {
-  const FCL_REAL breakDistance (request.break_distance + request.security_margin);
-  const FCL_REAL breakDistance2 = breakDistance * breakDistance;
-  Vec3f AABB_corner;
+  inline FCL_REAL obbDisjoint_check_A_axis (
+      const Vec3f& T, const Vec3f& a, const Vec3f& b, const Matrix3f& Bf)
+  {
+    // |T| - |B| * b - a
+    Vec3f AABB_corner (T.cwiseAbs () - a);
+    AABB_corner.noalias() -= Bf.col(0) * b[0];
+    AABB_corner.noalias() -= Bf.col(1) * b[1];
+    AABB_corner.noalias() -= Bf.col(2) * b[2];
+    return AABB_corner.array().max(0).matrix().squaredNorm ();
+  }
 
-  Matrix3f Bf (B.cwiseAbs());
+  inline FCL_REAL obbDisjoint_check_B_axis (
+      const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b, const Matrix3f& Bf)
+  {
+    // Bf = |B|
+    // | B^T T| - Bf^T * a - b
+    register FCL_REAL s, t = 0;
+    s = std::abs(B.col(0).dot(T)) - Bf.col(0).dot(a) - b[0];
+    if (s > 0) t += s*s;
+    s = std::abs(B.col(1).dot(T)) - Bf.col(1).dot(a) - b[1];
+    if (s > 0) t += s*s;
+    s = std::abs(B.col(2).dot(T)) - Bf.col(2).dot(a) - b[2];
+    if (s > 0) t += s*s;
+    return t;
+  }
 
-  // Corner of b axis aligned bounding box the closest to the origin
-  AABB_corner.noalias() = T.cwiseAbs () - Bf * b - a;
-  squaredLowerBoundDistance = AABB_corner.array().max(0).matrix().squaredNorm ();
-  if (squaredLowerBoundDistance > breakDistance2)
-    return true;
-
-  // | B^T T| - b - Bf^T a
-  AABB_corner.noalias() = (B.transpose () * T).cwiseAbs ()  - Bf.transpose () * a - b;
-  squaredLowerBoundDistance = AABB_corner.array().max(0).matrix().squaredNorm();
-  if (squaredLowerBoundDistance > breakDistance2)
-    return true;
-
-  int ja = 1, ka = 2, jb = 1, kb = 2;
-  for (int ia = 0; ia < 3; ++ia) {
-    for (int ib = 0; ib < 3; ++ib) {
+  template <int ib, int jb = (ib+1)%3, int kb = (ib+2)%3 >
+  struct obbDisjoint_check_Ai_cross_Bi
+  {
+    static inline bool run (int ia, int ja, int ka,
+        const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b,
+        const Matrix3f& Bf,
+        const FCL_REAL& breakDistance2, FCL_REAL& squaredLowerBoundDistance)
+    {
       const FCL_REAL s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
 
       const FCL_REAL diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
@@ -340,18 +344,60 @@ bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
             return true;
           }
         }
+        /* // or
+           FCL_REAL sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
+           squaredLowerBoundDistance = diff * diff;
+           if (squaredLowerBoundDistance > breakDistance2 * sinus2) {
+           squaredLowerBoundDistance /= sinus2;
+           return true;
+           }
+        // */
       }
-
-      jb = kb; kb = ib;
+      return false;
     }
+  };
+}
+
+
+// B, T orientation and position of 2nd OBB in frame of 1st OBB,
+// a extent of 1st OBB,
+// b extent of 2nd OBB.
+//
+// This function tests whether bounding boxes should be broken down.
+//
+bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
+                                       const Vec3f& a, const Vec3f& b,
+                                       const CollisionRequest& request,
+                                       FCL_REAL& squaredLowerBoundDistance)
+{
+  const FCL_REAL breakDistance (request.break_distance + request.security_margin);
+  const FCL_REAL breakDistance2 = breakDistance * breakDistance;
+
+  Matrix3f Bf (B.cwiseAbs());
+
+  // Corner of b axis aligned bounding box the closest to the origin
+  squaredLowerBoundDistance = internal::obbDisjoint_check_A_axis (T, a, b, Bf);
+  if (squaredLowerBoundDistance > breakDistance2)
+    return true;
+
+  squaredLowerBoundDistance = internal::obbDisjoint_check_B_axis (B, T, a, b, Bf);
+  if (squaredLowerBoundDistance > breakDistance2)
+    return true;
+
+  // Ai x Bj
+  int ja = 1, ka = 2;
+  for (int ia = 0; ia < 3; ++ia) {
+    if (internal::obbDisjoint_check_Ai_cross_Bi<0>::run (ia, ja, ka,
+          B, T, a, b, Bf, breakDistance2, squaredLowerBoundDistance)) return true;
+    if (internal::obbDisjoint_check_Ai_cross_Bi<1>::run (ia, ja, ka,
+          B, T, a, b, Bf, breakDistance2, squaredLowerBoundDistance)) return true;
+    if (internal::obbDisjoint_check_Ai_cross_Bi<2>::run (ia, ja, ka,
+          B, T, a, b, Bf, breakDistance2, squaredLowerBoundDistance)) return true;
     ja = ka; ka = ia;
   }
 
   return false;
-
 }
-
-
 
 bool OBB::overlap(const OBB& other) const
 {
