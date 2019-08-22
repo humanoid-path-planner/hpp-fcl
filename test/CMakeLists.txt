@@ -39,7 +39,7 @@ add_fcl_test(test_fcl_box_box_distance test_fcl_box_box_distance.cpp test_fcl_ut
 add_fcl_test(test_fcl_simple test_fcl_simple.cpp)
 add_fcl_test(test_fcl_capsule_box_1 test_fcl_capsule_box_1.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_capsule_box_2 test_fcl_capsule_box_2.cpp test_fcl_utility.cpp)
-#add_fcl_test(test_fcl_obb test_fcl_obb.cpp)
+add_fcl_test(test_fcl_obb test_fcl_obb.cpp)
 
 add_fcl_test(test_fcl_bvh_models test_fcl_bvh_models.cpp test_fcl_utility.cpp)
 
