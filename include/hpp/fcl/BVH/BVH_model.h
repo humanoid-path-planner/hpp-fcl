@@ -107,12 +107,14 @@ public:
   /// @brief Access the bv giving the its index
   const BVNode<BV>& getBV(int id) const
   {
+    assert (id < num_bvs);
     return bvs[id];
   }
 
   /// @brief Access the bv giving the its index
   BVNode<BV>& getBV(int id)
   {
+    assert (id < num_bvs);
     return bvs[id];
   }
 
