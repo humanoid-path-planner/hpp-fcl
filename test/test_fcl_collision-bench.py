@@ -27,7 +27,7 @@ while values[0][0:3] == values[Ntransforms][0:3]:
 
 splitMethods = ['avg', 'med', 'cen']
 type = ["o", "or", "r", ]
-BVs = list (set ([ v[0] for v in request1[::Ntransforms] ]))
+BVs = sorted (list (set ([ v[0] for v in request1[::Ntransforms] ])))
 xvals = [ BVs.index(v[0]) + len(BVs)*v[2] + 3*len(BVs)*v[1] for v in request1[::Ntransforms] ]
 cases = [ v[0] + " " + type[v[1]] + " " + splitMethods[v[2]] for v in request1[::Ntransforms] ]
 
@@ -63,9 +63,10 @@ plt.xticks(ticks=xvals_s, labels=cases_s, rotation=90)
 plt.ylabel('Time (us)')
 plt.yscale('log')
 
-# Distance
+# Distance lower bound
 plt.figure(1)
 for i in range(Ntransforms):
+    if request2[i][3] > 0: continue
     plt.plot(xvals_s, reorder([ v[4] for v in request2[i::Ntransforms] ]) , ':+',  label=str(i)+"+lb")
 
 plt.legend()
