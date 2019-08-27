@@ -38,7 +38,7 @@
 #include <hpp/fcl/BV/AABB.h>
 
 #include <limits>
-#include <iostream>
+#include <hpp/fcl/collision_data.h>
 
 namespace hpp
 {
@@ -48,6 +48,21 @@ namespace fcl
 AABB::AABB() : min_(Vec3f::Constant(std::numeric_limits<FCL_REAL>::max())),
                max_(Vec3f::Constant(-std::numeric_limits<FCL_REAL>::max()))
 {
+}
+
+bool AABB::overlap(const AABB& other, const CollisionRequest& request,
+                    FCL_REAL& sqrDistLowerBound) const
+{
+  const FCL_REAL breakDistance (request.break_distance + request.security_margin);
+  const FCL_REAL breakDistance2 = breakDistance * breakDistance;
+
+  sqrDistLowerBound = (min_ - other.max_).array().max(0).matrix().squaredNorm();
+  if(sqrDistLowerBound > breakDistance2) return false;
+
+  sqrDistLowerBound = (other.min_ - max_).array().max(0).matrix().squaredNorm();
+  if(sqrDistLowerBound > breakDistance2) return false;
+
+  return true;
 }
 
 FCL_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
