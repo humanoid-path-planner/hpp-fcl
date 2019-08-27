@@ -1331,8 +1331,8 @@ std::size_t obb_overlap_and_lower_bound_distance()
   CollisionRequest request;
 
   static const size_t nbRandomOBB       = 100;
-  static const size_t nbTransformPerOBB = 1000;
-  static const size_t nbRunForTimeMeas  = 10000;
+  static const size_t nbTransformPerOBB = 100;
+  static const size_t nbRunForTimeMeas  = 1000;
   static const FCL_REAL extentNorm = 1.;
 
   std::ostream& output = std::cout;
