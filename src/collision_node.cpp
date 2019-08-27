@@ -46,7 +46,8 @@ namespace fcl
 
 void collide(CollisionTraversalNodeBase* node,
              const CollisionRequest& request, CollisionResult& result,
-	     BVHFrontList* front_list)
+	     BVHFrontList* front_list,
+             bool recursive)
 {
   if(front_list && front_list->size() > 0)
   {
@@ -55,7 +56,10 @@ void collide(CollisionTraversalNodeBase* node,
   else
   {
     FCL_REAL sqrDistLowerBound=0;
-    collisionRecurse(node, 0, 0, front_list, sqrDistLowerBound);
+    if (recursive)
+      collisionRecurse(node, 0, 0, front_list, sqrDistLowerBound);
+    else
+      collisionNonRecurse(node, front_list, sqrDistLowerBound);
     result.distance_lower_bound = sqrt (sqrDistLowerBound);
   }
 }

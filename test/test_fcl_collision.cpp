@@ -244,12 +244,19 @@ struct base_traits
   };
 };
 
-template<typename BV, int _Options>
+enum {
+  Oriented = true,
+  NonOriented = false,
+  Recursive = true,
+  NonRecursive = false
+};
+
+template<typename BV, bool Oriented, bool recursive>
 struct traits : base_traits
 {};
 
-template<size_t N>
-struct traits<KDOP<N>, 0> : base_traits
+template<size_t N, bool recursive>
+struct traits<KDOP<N>, Oriented, recursive> : base_traits
 {
   enum { IS_IMPLEMENTED = false
   };
@@ -318,21 +325,20 @@ struct mesh_mesh_run_test
     clock_type::time_point start, end;
     const Transform3f tf2;
     const std::size_t N = transforms.size();
-    std::size_t s = N, e;
-    std::vector<CollisionResult> results (2 * N);
-    if (traits<BV, 0>::IS_IMPLEMENTED)
+
+    contacts.resize (3*N);
+
+    if (traits<BV, Oriented, Recursive>::IS_IMPLEMENTED)
     {
       BOOST_TEST_MESSAGE (getindent() << "BV: " << str<BV>() << " oriented");
       ++indent;
 
-      s = 0;
-      e = N;
-      start = clock_type::now();
       for(std::size_t i = 0; i < transforms.size(); ++i)
       {
+        start = clock_type::now();
         const Transform3f& tf1 = transforms[i];
 
-        CollisionResult& local_result (results[i]);
+        CollisionResult local_result;
         MeshCollisionTraversalNode<BV, 0> node (request);
         node.enable_statistics = enable_statistics;
 
@@ -358,22 +364,27 @@ struct mesh_mesh_run_test
         BENCHMARK(local_result.distance_lower_bound);
         BENCHMARK((end - start).count());
         BENCHMARK_NEXT();
+
+        if(local_result.numContacts() > 0)
+        {
+          local_result.getContacts(contacts[i]);
+          std::sort(contacts[i].begin(), contacts[i].end());
+        }
       }
       --indent;
     }
 
-    if (traits<BV, RelativeTransformationIsIdentity>::IS_IMPLEMENTED)
+    if (traits<BV, NonOriented, Recursive>::IS_IMPLEMENTED)
     {
       BOOST_TEST_MESSAGE (getindent() << "BV: " << str<BV>());
       ++indent;
 
-      e = 2*N;
       for(std::size_t i = 0; i < transforms.size(); ++i)
       {
         start = clock_type::now();
         const Transform3f tf1 = transforms[i];
 
-        CollisionResult& local_result (results[i + N]);
+        CollisionResult local_result;
         MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity> node (request);
         node.enable_statistics = enable_statistics;
 
@@ -393,7 +404,7 @@ struct mesh_mesh_run_test
 
         end = clock_type::now();
         BENCHMARK(str<BV>());
-        BENCHMARK("0");
+        BENCHMARK(2);
         BENCHMARK(splitMethod);
         if (enable_statistics) {
           BOOST_TEST_MESSAGE (getindent() << "statistics: " << node.num_bv_tests << " " << node.num_leaf_tests);
@@ -405,20 +416,59 @@ struct mesh_mesh_run_test
         BENCHMARK(local_result.distance_lower_bound);
         BENCHMARK((end - start).count());
         BENCHMARK_NEXT();
+
+        if(local_result.numContacts() > 0)
+        {
+          local_result.getContacts(contacts[i+N]);
+          std::sort(contacts[i+N].begin(), contacts[i+N].end());
+        }
       }
       --indent;
     }
 
-    contacts.resize (2*N);
-    for(std::size_t i = s; i < e; ++i)
+    if (traits<BV, Oriented, NonRecursive>::IS_IMPLEMENTED)
     {
-      const CollisionResult& local_result (results[i]);
+      BOOST_TEST_MESSAGE (getindent() << "BV: " << str<BV>() << " oriented non-recursive");
+      ++indent;
 
-      if(local_result.numContacts() > 0)
+      for(std::size_t i = 0; i < transforms.size(); ++i)
       {
-        local_result.getContacts(contacts[i]);
-        std::sort(contacts[i].begin(), contacts[i].end());
+        start = clock_type::now();
+        const Transform3f tf1 = transforms[i];
+
+        CollisionResult local_result;
+        MeshCollisionTraversalNode<BV, 0> node (request);
+        node.enable_statistics = enable_statistics;
+
+        bool success = initialize (node,
+            *model1, tf1, *model2, tf2,
+            local_result);
+        BOOST_REQUIRE (success);
+
+        collide(&node, request, local_result, NULL, false);
+
+        end = clock_type::now();
+        BENCHMARK(str<BV>());
+        BENCHMARK(0);
+        BENCHMARK(splitMethod);
+        if (enable_statistics) {
+          BOOST_TEST_MESSAGE (getindent() << "statistics: " << node.num_bv_tests << " " << node.num_leaf_tests);
+          BOOST_TEST_MESSAGE (getindent() << "nb contacts: " << local_result.numContacts());
+          BENCHMARK(node.num_bv_tests);
+          BENCHMARK(node.num_leaf_tests);
+        }
+        BENCHMARK(local_result.numContacts());
+        BENCHMARK(local_result.distance_lower_bound);
+        BENCHMARK((end - start).count());
+        BENCHMARK_NEXT();
+
+        if(local_result.numContacts() > 0)
+        {
+          local_result.getContacts(contacts[i+2*N]);
+          std::sort(contacts[i+2*N].begin(), contacts[i+2*N].end());
+        }
       }
+      --indent;
     }
   }
 
@@ -428,10 +478,10 @@ struct mesh_mesh_run_test
     if (benchmark) return;
     const std::size_t N = transforms.size();
 
-    BOOST_REQUIRE_EQUAL(contacts.size(), 2*N);
+    BOOST_REQUIRE_EQUAL(contacts.size(), 3*N);
     BOOST_REQUIRE_EQUAL(contacts.size(), contacts_ref.size());
 
-    if (traits<BV, 0>::IS_IMPLEMENTED) {
+    if (traits<BV, Oriented, Recursive>::IS_IMPLEMENTED) {
       for(std::size_t i = 0; i < N; ++i) {
         BOOST_CHECK_EQUAL(contacts_ref[i].size(), contacts[i].size());
         for(std::size_t j = 0; j < contacts[i].size(); ++j) {
@@ -440,8 +490,17 @@ struct mesh_mesh_run_test
         }
       }
     }
-    if (traits<BV, RelativeTransformationIsIdentity>::IS_IMPLEMENTED) {
+    if (traits<BV, NonOriented, Recursive>::IS_IMPLEMENTED) {
       for(std::size_t i = N; i < 2*N; ++i) {
+        BOOST_CHECK_EQUAL(contacts_ref[i].size(), contacts[i].size());
+        for(std::size_t j = 0; j < contacts[i].size(); ++j) {
+          BOOST_CHECK_EQUAL(contacts_ref[i][j].b1, contacts[i][j].b1);
+          BOOST_CHECK_EQUAL(contacts_ref[i][j].b2, contacts[i][j].b2);
+        }
+      }
+    }
+    if (traits<BV, Oriented, NonRecursive>::IS_IMPLEMENTED) {
+      for(std::size_t i = 2*N; i < 3*N; ++i) {
         BOOST_CHECK_EQUAL(contacts_ref[i].size(), contacts[i].size());
         for(std::size_t j = 0; j < contacts[i].size(); ++j) {
           BOOST_CHECK_EQUAL(contacts_ref[i][j].b1, contacts[i][j].b1);

@@ -26,9 +26,10 @@ while values[0][0:3] == values[Ntransforms][0:3]:
     Ntransforms += 1
 
 splitMethods = ['avg', 'med', 'cen']
+type = ["o", "or", "r", ]
 BVs = list (set ([ v[0] for v in request1[::Ntransforms] ]))
 xvals = [ BVs.index(v[0]) + len(BVs)*v[2] + 3*len(BVs)*v[1] for v in request1[::Ntransforms] ]
-cases = [ v[0] + ("*" if v[1] == 1 else "") + " " + splitMethods[v[2]] for v in request1[::Ntransforms] ]
+cases = [ v[0] + " " + type[v[1]] + " " + splitMethods[v[2]] for v in request1[::Ntransforms] ]
 
 idx_reorder = sorted (list(range(len(xvals))), key=lambda i: xvals[i])
 def reorder (l): return [ l[i] for i in idx_reorder ]
@@ -36,13 +37,28 @@ def reorder (l): return [ l[i] for i in idx_reorder ]
 xvals_s = reorder (xvals)
 cases_s = reorder (cases)
 
+onlyLB = True
 # Time
 plt.figure(0)
 for i in range(Ntransforms):
-    plt.plot(xvals_s, reorder([ v[5] for v in request1[i::Ntransforms] ]) , '-.o', label=str(i))
+    if not onlyLB:
+        plt.plot(xvals_s, reorder([ v[5] for v in request1[i::Ntransforms] ]) , '-.o', label=str(i))
     plt.plot(xvals_s, reorder([ v[5] for v in request2[i::Ntransforms] ]) , ':+',  label=str(i)+"+lb")
 
 plt.legend()
+plt.xticks(ticks=xvals_s, labels=cases_s, rotation=90)
+plt.ylabel('Time (us)')
+plt.yscale('log')
+
+# Time
+plt.figure(2)
+for k in range (0, len(request1), Ntransforms):
+    if not onlyLB:
+        plt.plot([ xvals[int(k/Ntransforms)], ], sum([ v[5] for v in request1[k:k+Ntransforms] ])/Ntransforms)
+    plt.plot([ xvals[int(k/Ntransforms)], ], sum([ v[5] for v in request2[k:k+Ntransforms] ])/Ntransforms)
+
+plt.plot(xvals_s, reorder ([ sum([ v[5] for v in request2[k:k+Ntransforms] ])/Ntransforms for k in range (0, len(request1), Ntransforms) ]))
+
 plt.xticks(ticks=xvals_s, labels=cases_s, rotation=90)
 plt.ylabel('Time (us)')
 plt.yscale('log')
