@@ -91,20 +91,6 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
   }
 }
 
-  void collisionRecurse(MeshCollisionTraversalNodeOBB* /*node*/, int /*b1*/,
-                        int /*b2*/, const Matrix3f& /*R*/, const Vec3f& /*T*/,
-                        BVHFrontList* /*front_list*/)
-{
-  throw std::runtime_error ("Not implemented.");
-}
-
-  void collisionRecurse(MeshCollisionTraversalNodeRSS* /*node*/, int /*b1*/,
-                        int /*b2*/, const Matrix3f& /*R*/, const Vec3f& /*T*/,
-                        BVHFrontList* /*front_list*/)
-{
-  throw std::runtime_error ("Not implemented.");
-}
-
 void collisionNonRecurse(CollisionTraversalNodeBase* node,
 		         BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)
 {
