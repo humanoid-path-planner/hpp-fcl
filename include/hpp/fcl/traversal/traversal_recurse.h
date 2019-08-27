@@ -62,6 +62,9 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
 /// @brief Recurse function for collision, specialized for RSS type
 void collisionRecurse(MeshCollisionTraversalNodeRSS* node, int b1, int b2, const Matrix3f& R, const Vec3f& T, BVHFrontList* front_list);
 
+void collisionNonRecurse(CollisionTraversalNodeBase* node,
+		         BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound);
+
 /// @brief Recurse function for distance
 void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list);
 
