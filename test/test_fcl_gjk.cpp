@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
       }
     }
   }
-  std::cerr << "nCol = " << nCol << std::endl;
+  std::cerr << "nCol / nTotal = " << nCol << " / " << N << std::endl;
   std::cerr << "nDiff = " << nDiff << std::endl;
   // statistics
   clock_t totalTimeGjkColl = 0;
@@ -280,10 +280,10 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
       totalTimeGjkNoColl += results [i].timeGjk;
     }
   }
-  std::cerr << "Total time gjk: " << totalTimeGjkNoColl + totalTimeGjkColl
-            << std::endl;
+  std::cerr << "Total / average time gjk: " << totalTimeGjkNoColl + totalTimeGjkColl
+            << ", " << FCL_REAL(totalTimeGjkNoColl + totalTimeGjkColl) / FCL_REAL(CLOCKS_PER_SEC*N) << "s" << std::endl;
   std::cerr << "-- Collisions -------------------------" << std::endl;
-  std::cerr << "Total time gjk: " << totalTimeGjkColl << std::endl;
+  std::cerr << "Total / average time gjk: " << totalTimeGjkColl << ", " << FCL_REAL(totalTimeGjkColl) / FCL_REAL(CLOCKS_PER_SEC*nCol) << "s" << std::endl;
   std::cerr << "-- No collisions -------------------------" << std::endl;
-  std::cerr << "Total time gjk: " << totalTimeGjkNoColl << std::endl;
+  std::cerr << "Total / average time gjk: " << totalTimeGjkNoColl << ", " << FCL_REAL(totalTimeGjkNoColl) / FCL_REAL(CLOCKS_PER_SEC*(N-nCol)) << "s" << std::endl;
 }
