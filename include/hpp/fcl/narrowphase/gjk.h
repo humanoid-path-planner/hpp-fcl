@@ -60,11 +60,13 @@ struct MinkowskiDiff
   /// @brief points to two shapes
   const ShapeBase* shapes[2];
 
-  /// @brief rotation from shape0 to shape1
-  Matrix3f toshape1;
+  /// @brief rotation from shape1 to shape0
+  /// such that \f$ p_in_0 = oR1 * p_in_1 + ot1 \f$.
+  Matrix3f oR1;
 
-  /// @brief transform from shape1 to shape0 
-  Transform3f toshape0;
+  /// @brief translation from shape1 to shape0
+  /// such that \f$ p_in_0 = oR1 * p_in_1 + ot1 \f$.
+  Vec3f ot1;
 
   typedef void (*GetSupportFunction) (const MinkowskiDiff& minkowskiDiff,
       const Vec3f& dir, bool dirIsNormalized, Vec3f& support);
@@ -74,16 +76,22 @@ struct MinkowskiDiff
 
   void set (const ShapeBase* shape0, const ShapeBase* shape1);
 
+  void set (const Transform3f& tf0, const Transform3f& tf1)
+  {
+    oR1 = tf0.getRotation().transpose() * tf1.getRotation();
+    ot1 = tf0.getRotation().transpose() * (tf1.getTranslation() - tf0.getTranslation());
+  }
+
   /// @brief support function for shape0
   inline Vec3f support0(const Vec3f& d) const
   {
     return getSupport(shapes[0], d);
   }
-  
+
   /// @brief support function for shape1
   inline Vec3f support1(const Vec3f& d) const
   {
-    return toshape0.transform(getSupport(shapes[1], toshape1 * d));
+    return oR1 * getSupport(shapes[1], oR1.transpose() * d) + ot1;
   }
 
   /// @brief support function for the pair of shapes

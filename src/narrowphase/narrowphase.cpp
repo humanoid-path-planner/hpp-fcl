@@ -631,8 +631,7 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
 
     details::MinkowskiDiff shape;
     shape.set (&s1, &s2);
-    shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
-    shape.toshape0 = tf1.inverseTimes(tf2);
+    shape.set (tf1, tf2);
 
     const Vec3f& P1 (s1.a);
     const Vec3f& P2 (s1.b);

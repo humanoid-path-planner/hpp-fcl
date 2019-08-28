@@ -203,13 +203,13 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
 
 template <typename Shape0, typename Shape1>
 void getSupportTpl (const Shape0* s0, const Shape1* s1,
-    const Matrix3f& oM1, const Vec3f& ot1,
+    const Matrix3f& oR1, const Vec3f& ot1,
     const Vec3f& dir, Vec3f& support)
 {
   getShapeSupport (s0, dir, support);
   Vec3f support1;
-  getShapeSupport (s1, - oM1.transpose() * dir, support1);
-  support.noalias() -= oM1 * support1 + ot1;
+  getShapeSupport (s1, - oR1.transpose() * dir, support1);
+  support.noalias() -= oR1 * support1 + ot1;
 }
 
 template <typename Shape0, typename Shape1>
@@ -223,8 +223,7 @@ void getSupportFuncTpl (const MinkowskiDiff& md,
   getSupportTpl<Shape0, Shape1> (
       static_cast <const Shape0*>(md.shapes[0]),
       static_cast <const Shape1*>(md.shapes[1]),
-      md.toshape0.getRotation(),
-      md.toshape0.getTranslation(),
+      md.oR1, md.ot1,
       (NeedNormalizedDir && !dirIsNormalized) ? dir.normalized() : dir,
       support);
 }
