@@ -419,9 +419,9 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
 void GJK::getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv) const
 {
-  if (dIsNormalized) sv.d = d;
-  else sv.d.noalias() = d.normalized();
-  shape.support(sv.d, true, sv.w);
+  // Was sv.d.noalias() = d.normalized();
+  sv.d.noalias() = d;
+  shape.support(sv.d, dIsNormalized, sv.w);
 }
 
 void GJK::removeVertex(Simplex& simplex)
