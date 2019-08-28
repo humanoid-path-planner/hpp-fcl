@@ -46,129 +46,156 @@ namespace fcl
 namespace details
 {
 
+void getShapeSupport(const TriangleP* triangle, const Vec3f& dir, Vec3f& support)
+{
+  FCL_REAL dota = dir.dot(triangle->a);
+  FCL_REAL dotb = dir.dot(triangle->b);
+  FCL_REAL dotc = dir.dot(triangle->c);
+  if(dota > dotb)
+  {
+    if(dotc > dota)
+      support = triangle->c;
+    else
+      support = triangle->a;
+  }
+  else
+  {
+    if(dotc > dotb)
+      support = triangle->c;
+    else
+      support = triangle->b;
+  }
+}
+
+inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support)
+{
+  support.noalias() = (dir.array() > 0).select(box->halfSide, -box->halfSide);
+}
+
+inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir, Vec3f& support)
+{
+  support = dir * sphere->radius;
+}
+
+inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir, Vec3f& support)
+{
+  support = capsule->radius * dir;
+  if (dir[2] > 0) support[2] += capsule->lz / 2;
+  else            support[2] -= capsule->lz / 2;
+}
+
+void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support)
+{
+  // TODO (Joseph Mirabel)
+  // this assumes that the cone radius is, for -0.5 < z < 0.5:
+  // (lz/2 - z) * radius / lz
+  //
+  // I did not change the code myself. However, I think it should be revised.
+  // 1. It can be optimized.
+  // 2. I am not sure this is what conePlaneIntersect and coneHalfspaceIntersect
+  //    assumes...
+  FCL_REAL zdist = dir[0] * dir[0] + dir[1] * dir[1];
+  FCL_REAL len = zdist + dir[2] * dir[2];
+  zdist = std::sqrt(zdist);
+  len = std::sqrt(len);
+  FCL_REAL half_h = cone->lz * 0.5;
+  FCL_REAL radius = cone->radius;
+
+  FCL_REAL sin_a = radius / std::sqrt(radius * radius + 4 * half_h * half_h);
+
+  if(dir[2] > len * sin_a)
+    support = Vec3f(0, 0, half_h);
+  else if(zdist > 0)
+  {
+    FCL_REAL rad = radius / zdist;
+    support = Vec3f(rad * dir[0], rad * dir[1], -half_h);
+  }
+  else
+    support = Vec3f(0, 0, -half_h);
+}
+
+void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support)
+{
+  static const FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+  FCL_REAL zdist = std::sqrt(dir[0] * dir[0] + dir[1] * dir[1]);
+  FCL_REAL half_h = cylinder->lz * 0.5;
+  if(zdist == 0.0)
+    support = Vec3f(0, 0, (dir[2]>0)? half_h:-half_h);
+  else {
+    FCL_REAL d = cylinder->radius / zdist;
+    FCL_REAL z (0.);
+    if (dir [2] > eps) z = half_h;
+    else if (dir [2] < -eps) z = -half_h;
+    support << d * dir.head<2>(), z;
+  }
+  assert (fabs (support [0] * dir [1] - support [1] * dir [0]) < eps);
+}
+
+void getShapeSupport(const Convex* convex, const Vec3f& dir, Vec3f& support)
+{
+  FCL_REAL maxdot = - std::numeric_limits<FCL_REAL>::max();
+  Vec3f* curp = convex->points;
+  for(int i = 0; i < convex->num_points; ++i, curp+=1)
+  {
+    FCL_REAL dot = dir.dot(*curp);
+    if(dot > maxdot)
+    {
+      support = *curp;
+      maxdot = dot;
+    }
+  }
+}
+
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
 {
-  FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+  Vec3f support;
   switch(shape->getNodeType())
   {
   case GEOM_TRIANGLE:
-    {
-      const TriangleP* triangle = static_cast<const TriangleP*>(shape);
-      FCL_REAL dota = dir.dot(triangle->a);
-      FCL_REAL dotb = dir.dot(triangle->b);
-      FCL_REAL dotc = dir.dot(triangle->c);
-      if(dota > dotb)
-      {
-        if(dotc > dota)
-          return triangle->c;
-        else
-          return triangle->a;
-      }
-      else
-      {
-        if(dotc > dotb)
-          return triangle->c;
-        else
-          return triangle->b;
-      }
-    }
+    getShapeSupport (static_cast<const TriangleP*>(shape), dir, support);
     break;
   case GEOM_BOX:
-    {
-      const Box* box = static_cast<const Box*>(shape);
-      return (dir.array() > 0).select(box->halfSide, -box->halfSide);
-    }
+    getShapeSupport (static_cast<const Box*>(shape), dir, support);
     break;
   case GEOM_SPHERE:
-    {
-      const Sphere* sphere = static_cast<const Sphere*>(shape);
-      return dir * sphere->radius;
-    }
+    getShapeSupport (static_cast<const Sphere*>(shape), dir, support);
     break;
   case GEOM_CAPSULE:
-    {
-      const Capsule* capsule = static_cast<const Capsule*>(shape);
-      FCL_REAL half_h = capsule->lz * 0.5;
-      Vec3f pos1(0, 0, half_h);
-      Vec3f pos2(0, 0, -half_h);
-      Vec3f v = dir * capsule->radius;
-      pos1 += v;
-      pos2 += v;
-      if(dir.dot(pos1) > dir.dot(pos2))
-        return pos1;
-      else return pos2;
-    }
+    getShapeSupport (static_cast<const Capsule*>(shape), dir, support);
     break;
   case GEOM_CONE:
-    {
-      const Cone* cone = static_cast<const Cone*>(shape);
-      FCL_REAL zdist = dir[0] * dir[0] + dir[1] * dir[1];
-      FCL_REAL len = zdist + dir[2] * dir[2];
-      zdist = std::sqrt(zdist);
-      len = std::sqrt(len);
-      FCL_REAL half_h = cone->lz * 0.5;
-      FCL_REAL radius = cone->radius;
-
-      FCL_REAL sin_a = radius / std::sqrt(radius * radius + 4 * half_h * half_h);
-
-      if(dir[2] > len * sin_a)
-        return Vec3f(0, 0, half_h);
-      else if(zdist > 0)
-      {
-        FCL_REAL rad = radius / zdist;
-        return Vec3f(rad * dir[0], rad * dir[1], -half_h);
-      }
-      else
-        return Vec3f(0, 0, -half_h);
-    }
+    getShapeSupport (static_cast<const Cone*>(shape), dir, support);
     break;
   case GEOM_CYLINDER:
-    {
-      const Cylinder* cylinder = static_cast<const Cylinder*>(shape);
-      FCL_REAL zdist = std::sqrt(dir[0] * dir[0] + dir[1] * dir[1]);
-      FCL_REAL half_h = cylinder->lz * 0.5;
-      Vec3f res;
-      if(zdist == 0.0)
-      {
-        res =  Vec3f(0, 0, (dir[2]>0)? half_h:-half_h);
-      }
-      else
-      {
-        FCL_REAL d = cylinder->radius / zdist;
-        FCL_REAL z (0.);
-        if (dir [2] > eps) z = half_h;
-        else if (dir [2] < -eps) z = -half_h;
-        res =  Vec3f(d * dir[0], d * dir[1], z);
-      }
-      assert (fabs (res [0] * dir [1] - res [1] * dir [0]) < eps);
-      return res;
-    }
+    getShapeSupport (static_cast<const Cylinder*>(shape), dir, support);
     break;
   case GEOM_CONVEX:
-    {
-      const Convex* convex = static_cast<const Convex*>(shape);
-      FCL_REAL maxdot = - std::numeric_limits<FCL_REAL>::max();
-      Vec3f* curp = convex->points;
-      Vec3f bestv(0,0,0);
-      for(int i = 0; i < convex->num_points; ++i, curp+=1)
-      {
-        FCL_REAL dot = dir.dot(*curp);
-        if(dot > maxdot)
-        {
-          bestv = *curp;
-          maxdot = dot;
-        }
-      }
-      return bestv;
-    }
+    getShapeSupport (static_cast<const Convex*>(shape), dir, support);
     break;
   case GEOM_PLANE:
-	break;
+  case GEOM_HALFSPACE:
   default:
     ; // nothing
   }
 
-  return Vec3f(0, 0, 0);
+  return support;
+}
+
+template <typename Shape0, typename Shape1>
+void getSupportTpl (const Shape0* s0, const Shape1* s1,
+    const Matrix3f& oM1, const Vec3f& ot1,
+    const Vec3f& dir, Vec3f& support)
+{
+  getShapeSupport (s0, dir, support);
+  Vec3f support1;
+  getShapeSupport (s1, - oM1.transpose() * dir, support1);
+  support.noalias() -= oM1 * support1 + ot1;
+}
+
+void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1)
+{
+  shapes[0] = shape0;
+  shapes[1] = shape1;
 }
 
 void GJK::initialize()
@@ -181,12 +208,10 @@ void GJK::initialize()
   simplex = NULL;
 }
 
-
 Vec3f GJK::getGuessFromSimplex() const
 {
   return ray;
 }
-
 
 GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 {
@@ -209,7 +234,6 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   simplices[0].rank = 0;
   ray = guess;
 
-  // appendVertex(simplices[0], (ray.squaredNorm() > 0) ? -ray : Vec3f(1, 0, 0));
   if (ray.squaredNorm() > 0) appendVertex(simplices[0], -ray);
   else                       appendVertex(simplices[0], Vec3f(1, 0, 0));
   simplices[0].coefficient[0] = 1;
@@ -389,7 +413,6 @@ bool GJK::encloseOrigin()
 
   return false;
 }
-
 
 void EPA::initialize()
 {

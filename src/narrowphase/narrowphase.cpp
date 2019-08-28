@@ -630,8 +630,7 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
     bool enable_penetration (true);
 
     details::MinkowskiDiff shape;
-    shape.shapes[0] = &s1;
-    shape.shapes[1] = &s2;
+    shape.set (&s1, &s2);
     shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
     shape.toshape0 = tf1.inverseTimes(tf2);
 

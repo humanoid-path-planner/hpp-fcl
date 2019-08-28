@@ -62,8 +62,7 @@ namespace fcl
       if(enable_cached_guess) guess = cached_guess;
     
       details::MinkowskiDiff shape;
-      shape.shapes[0] = &s1;
-      shape.shapes[1] = &s2;
+      shape.set (&s1, &s2);
       shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
       shape.toshape0 = tf1.inverseTimes(tf2);
   
@@ -115,8 +114,7 @@ namespace fcl
       if(enable_cached_guess) guess = cached_guess;
 
       details::MinkowskiDiff shape;
-      shape.shapes[0] = &s;
-      shape.shapes[1] = &tri;
+      shape.set (&s, &tri);
       shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
       shape.toshape0 = tf1.inverseTimes(tf2);
   
@@ -183,8 +181,7 @@ namespace fcl
       if(enable_cached_guess) guess = cached_guess;
 
       details::MinkowskiDiff shape;
-      shape.shapes[0] = &s1;
-      shape.shapes[1] = &s2;
+      shape.set (&s1, &s2);
       shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
       shape.toshape0 = tf1.inverseTimes(tf2);
 

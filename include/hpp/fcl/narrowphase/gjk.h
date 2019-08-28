@@ -68,6 +68,8 @@ struct MinkowskiDiff
 
   MinkowskiDiff() { }
 
+  void set (const ShapeBase* shape0, const ShapeBase* shape1);
+
   /// @brief support function for shape0
   inline Vec3f support0(const Vec3f& d) const
   {
@@ -95,7 +97,6 @@ struct MinkowskiDiff
       return support0(d);
   }
 };
-
 
 /// @brief class for GJK algorithm
 ///
