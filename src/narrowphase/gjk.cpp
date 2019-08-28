@@ -46,6 +46,26 @@ namespace fcl
 namespace details
 {
 
+struct shape_traits_base
+{
+  enum { NeedNormalizedDir = true
+  };
+};
+
+template <typename Shape> struct shape_traits : shape_traits_base {};
+
+template <> struct shape_traits<TriangleP> : shape_traits_base
+{
+  enum { NeedNormalizedDir = false
+  };
+};
+
+template <> struct shape_traits<Box> : shape_traits_base
+{
+  enum { NeedNormalizedDir = false
+  };
+};
+
 void getShapeSupport(const TriangleP* triangle, const Vec3f& dir, Vec3f& support)
 {
   FCL_REAL dota = dir.dot(triangle->a);
@@ -192,10 +212,78 @@ void getSupportTpl (const Shape0* s0, const Shape1* s1,
   support.noalias() -= oM1 * support1 + ot1;
 }
 
+template <typename Shape0, typename Shape1>
+void getSupportFuncTpl (const MinkowskiDiff& md,
+    const Vec3f& dir, bool dirIsNormalized, Vec3f& support)
+{
+  enum { NeedNormalizedDir =
+    bool ( (bool)shape_traits<Shape0>::NeedNormalizedDir
+        || (bool)shape_traits<Shape1>::NeedNormalizedDir)
+  };
+  getSupportTpl<Shape0, Shape1> (
+      static_cast <const Shape0*>(md.shapes[0]),
+      static_cast <const Shape1*>(md.shapes[1]),
+      md.toshape0.getRotation(),
+      md.toshape0.getTranslation(),
+      (NeedNormalizedDir && !dirIsNormalized) ? dir.normalized() : dir,
+      support);
+}
+
+template <typename Shape0>
+MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1)
+{
+  switch(s1->getNodeType())
+  {
+  case GEOM_TRIANGLE:
+    return getSupportFuncTpl<Shape0, TriangleP>;
+  case GEOM_BOX:
+    return getSupportFuncTpl<Shape0, Box>;
+  case GEOM_SPHERE:
+    return getSupportFuncTpl<Shape0, Sphere>;
+  case GEOM_CAPSULE:
+    return getSupportFuncTpl<Shape0, Capsule>;
+  case GEOM_CONE:
+    return getSupportFuncTpl<Shape0, Cone>;
+  case GEOM_CYLINDER:
+    return getSupportFuncTpl<Shape0, Cylinder>;
+  case GEOM_CONVEX:
+    return getSupportFuncTpl<Shape0, Convex>;
+  default:
+    throw std::logic_error ("Unsupported geometric shape");
+  }
+}
+
 void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1)
 {
   shapes[0] = shape0;
   shapes[1] = shape1;
+
+  switch(shape0->getNodeType())
+  {
+  case GEOM_TRIANGLE:
+    getSupportFunc = makeGetSupportFunction1<TriangleP> (shape1);
+    break;
+  case GEOM_BOX:
+    getSupportFunc = makeGetSupportFunction1<Box> (shape1);
+    break;
+  case GEOM_SPHERE:
+    getSupportFunc = makeGetSupportFunction1<Sphere> (shape1);
+    break;
+  case GEOM_CAPSULE:
+    getSupportFunc = makeGetSupportFunction1<Capsule> (shape1);
+    break;
+  case GEOM_CONE:
+    getSupportFunc = makeGetSupportFunction1<Cone> (shape1);
+    break;
+  case GEOM_CYLINDER:
+    getSupportFunc = makeGetSupportFunction1<Cylinder> (shape1);
+    break;
+  case GEOM_CONVEX:
+    getSupportFunc = makeGetSupportFunction1<Convex> (shape1);
+    break;
+  default:
+    throw std::logic_error ("Unsupported geometric shape");
+  }
 }
 
 void GJK::initialize()

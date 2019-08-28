@@ -66,7 +66,11 @@ struct MinkowskiDiff
   /// @brief transform from shape1 to shape0 
   Transform3f toshape0;
 
-  MinkowskiDiff() { }
+  typedef void (*GetSupportFunction) (const MinkowskiDiff& minkowskiDiff,
+      const Vec3f& dir, bool dirIsNormalized, Vec3f& support);
+  GetSupportFunction getSupportFunc;
+
+  MinkowskiDiff() : getSupportFunc (NULL) {}
 
   void set (const ShapeBase* shape0, const ShapeBase* shape1);
 
@@ -86,6 +90,13 @@ struct MinkowskiDiff
   inline Vec3f support(const Vec3f& d) const
   {
     return support0(d) - support1(-d);
+  }
+
+  /// @brief support function for the pair of shapes
+  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp) const
+  {
+    assert(getSupportFunc != NULL);
+    getSupportFunc(*this, d, dIsNormalized, supp);
   }
 
   /// @brief support function for the d-th shape (d = 0 or 1)
