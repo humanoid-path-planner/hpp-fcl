@@ -80,7 +80,7 @@ namespace fcl
                 Vec3f w0 (Vec3f::Zero());
                 for(size_t i = 0; i < epa.result.rank; ++i)
                   {
-                    w0 += shape.support(epa.result.vertex[i]->d, 0) *
+                    w0 += shape.support0(epa.result.vertex[i]->d) *
                       epa.result.coefficient[i];
                   }
                 if(penetration_depth) *penetration_depth = -epa.depth;
@@ -131,7 +131,7 @@ namespace fcl
             Vec3f w0 (Vec3f::Zero());
             for(size_t i = 0; i < epa.result.rank; ++i)
               {
-                w0 += shape.support(epa.result.vertex[i]->d, 0) *
+                w0 += shape.support0(epa.result.vertex[i]->d) *
                   epa.result.coefficient[i];
               }
             distance = -epa.depth;
@@ -148,8 +148,8 @@ namespace fcl
             for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
               {
                 FCL_REAL p = gjk.getSimplex()->coefficient[i];
-                w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-                w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
+                w0 += shape.support0( gjk.getSimplex()->vertex[i]->d) * p;
+                w1 += shape.support1(-gjk.getSimplex()->vertex[i]->d) * p;
               }
             distance = (w0 - w1).norm();
             p1 = tf1.transform (w0);
@@ -194,8 +194,8 @@ namespace fcl
         for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
         {
           FCL_REAL p = gjk.getSimplex()->coefficient[i];
-          w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-          w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
+          w0 += shape.support0( gjk.getSimplex()->vertex[i]->d) * p;
+          w1 += shape.support1(-gjk.getSimplex()->vertex[i]->d) * p;
         }
         distance = 0;
         p1 = p2 = tf1.transform (.5* (w0 + w1));
@@ -208,8 +208,8 @@ namespace fcl
           for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
             {
               FCL_REAL p = gjk.getSimplex()->coefficient[i];
-              w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-              w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
+              w0 += shape.support0( gjk.getSimplex()->vertex[i]->d) * p;
+              w1 += shape.support1(-gjk.getSimplex()->vertex[i]->d) * p;
             }
 
           distance = (w0 - w1).norm();
@@ -231,7 +231,7 @@ namespace fcl
                   Vec3f w0 (Vec3f::Zero());
                   for(size_t i = 0; i < epa.result.rank; ++i)
                     {
-                      w0 += shape.support(epa.result.vertex[i]->d, 0) *
+                      w0 += shape.support0(epa.result.vertex[i]->d) *
                         epa.result.coefficient[i];
                     }
                   assert (epa.depth >= -eps);
@@ -246,8 +246,8 @@ namespace fcl
               for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
                 {
                   FCL_REAL p = gjk.getSimplex()->coefficient[i];
-                  w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-                  w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
+                  w0 += shape.support0( gjk.getSimplex()->vertex[i]->d) * p;
+                  w1 += shape.support1(-gjk.getSimplex()->vertex[i]->d) * p;
                 }
               distance = 0;
 

@@ -648,8 +648,8 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
     for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
     {
       FCL_REAL p = gjk.getSimplex()->coefficient[i];
-      w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-      w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
+      w0 += shape.support0( gjk.getSimplex()->vertex[i]->d) * p;
+      w1 += shape.support1(-gjk.getSimplex()->vertex[i]->d) * p;
     }
     if((gjk_status == details::GJK::Valid) ||
        (gjk_status == details::GJK::Failed))

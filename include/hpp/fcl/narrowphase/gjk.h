@@ -54,6 +54,9 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir);
 
 /// @brief Minkowski difference class of two shapes
 ///
+/// \todo template this by the two shapes. The triangle / triangle case can be
+///       easily optimized computing once the triangle shapes[1] into frame0
+///
 /// \note The Minkowski difference is expressed in the frame of the first shape.
 struct MinkowskiDiff
 {
@@ -95,25 +98,10 @@ struct MinkowskiDiff
   }
 
   /// @brief support function for the pair of shapes
-  inline Vec3f support(const Vec3f& d) const
-  {
-    return support0(d) - support1(-d);
-  }
-
-  /// @brief support function for the pair of shapes
   inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp) const
   {
     assert(getSupportFunc != NULL);
     getSupportFunc(*this, d, dIsNormalized, supp);
-  }
-
-  /// @brief support function for the d-th shape (d = 0 or 1)
-  inline Vec3f support(const Vec3f& d, size_t index) const
-  {
-    if(index)
-      return support1(d);
-    else
-      return support0(d);
   }
 };
 
