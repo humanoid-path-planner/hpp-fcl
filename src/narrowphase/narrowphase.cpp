@@ -672,6 +672,9 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
           (P1, P2, P3, Q1, Q2, Q3, tf1, tf2, normal);
         dist = -penetrationDepth;
         assert (dist <= 1e-6);
+        // GJK says Inside when below GJK.tolerance. So non intersecting
+        // triangle may trigger "Inside" and have no penetration.
+        return penetrationDepth < 0;
       }
       dist = 0;
       return false;
