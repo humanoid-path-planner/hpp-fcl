@@ -44,6 +44,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include <boost/assign/list_of.hpp>
+
 #include <hpp/fcl/traversal/traversal_node_bvhs.h>
 #include <hpp/fcl/traversal/traversal_node_setup.h>
 #include <../src/collision_node.h>
@@ -220,6 +222,7 @@ bool bs_hp = false;
 
 typedef std::vector<Contact> Contacts_t;
 typedef boost::mpl::vector<OBB, RSS, AABB, KDOP<24>, KDOP<18>, KDOP<16>, kIOS, OBBRSS> BVs_t;
+std::vector<SplitMethodType> splitMethods = boost::assign::list_of (SPLIT_METHOD_MEAN)(SPLIT_METHOD_MEDIAN)(SPLIT_METHOD_BV_CENTER);
 
 typedef boost::chrono::high_resolution_clock clock_type;
 typedef clock_type::duration duration_type;
@@ -513,8 +516,7 @@ struct mesh_mesh_run_test
   template<typename BV>
   void operator() (wrap<BV>)
   {
-    SplitMethodType splitMethods[] = {SPLIT_METHOD_MEAN, SPLIT_METHOD_MEDIAN, SPLIT_METHOD_BV_CENTER};
-    for (int i = 0; i < 3; ++i)
+    for (std::size_t i = 0; i < splitMethods.size(); ++i)
     {
       BOOST_TEST_MESSAGE (getindent() << "splitMethod: " << splitMethods[i]);
       ++indent;
