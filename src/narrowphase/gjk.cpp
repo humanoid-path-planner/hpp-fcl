@@ -323,7 +323,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   ray = guess;
 
   if (ray.squaredNorm() > 0) appendVertex(simplices[0], -ray);
-  else                       appendVertex(simplices[0], Vec3f(1, 0, 0));
+  else                       appendVertex(simplices[0], Vec3f(1, 0, 0), true);
   simplices[0].coefficient[0] = 1;
   ray = simplices[0].vertex[0]->w;
   lastw[0] = lastw[1] = lastw[2] = lastw[3] = ray; // cache previous support points, the new support point will compare with it to avoid too close support points
@@ -417,10 +417,11 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   return status;
 }
 
-void GJK::getSupport(const Vec3f& d, SimplexV& sv) const
+void GJK::getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv) const
 {
-  sv.d.noalias() = d.normalized();
-  sv.w.noalias() = shape.support(sv.d);
+  if (dIsNormalized) sv.d = d;
+  else sv.d.noalias() = d.normalized();
+  shape.support(sv.d, true, sv.w);
 }
 
 void GJK::removeVertex(Simplex& simplex)
@@ -428,11 +429,11 @@ void GJK::removeVertex(Simplex& simplex)
   free_v[nfree++] = simplex.vertex[--simplex.rank];
 }
 
-void GJK::appendVertex(Simplex& simplex, const Vec3f& v)
+void GJK::appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized)
 {
   simplex.coefficient[simplex.rank] = 0; // initial weight 0
   simplex.vertex[simplex.rank] = free_v[--nfree]; // set the memory
-  getSupport(v, *simplex.vertex[simplex.rank++]);
+  getSupport (v, isNormalized, *simplex.vertex[simplex.rank++]);
 }
 
 bool GJK::encloseOrigin()
@@ -445,10 +446,10 @@ bool GJK::encloseOrigin()
       {
         Vec3f axis(Vec3f::Zero());
         axis[i] = 1;
-        appendVertex(*simplex, axis);
+        appendVertex(*simplex, axis, true);
         if(encloseOrigin()) return true;
         removeVertex(*simplex);
-        appendVertex(*simplex, -axis);
+        appendVertex(*simplex, -axis, true);
         if(encloseOrigin()) return true;
         removeVertex(*simplex);
       }
@@ -662,7 +663,8 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
           SimplexV* w = &sv_store[nextsv++];
           bool valid = true;
           best->pass = ++pass;
-          gjk.getSupport(best->n, *w);
+          // At the moment, SimplexF.n is always normalized. This could be revised in the future...
+          gjk.getSupport(best->n, true, *w);
           FCL_REAL wdist = best->n.dot(w->w) - best->d;
           if(wdist > tolerance)
           {

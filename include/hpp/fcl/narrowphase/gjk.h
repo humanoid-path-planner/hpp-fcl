@@ -156,13 +156,13 @@ struct GJK
   Status evaluate(const MinkowskiDiff& shape_, const Vec3f& guess);
 
   /// @brief apply the support function along a direction, the result is return in sv
-  void getSupport(const Vec3f& d, SimplexV& sv) const;
+  void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv) const;
 
   /// @brief discard one vertex from the simplex
   void removeVertex(Simplex& simplex);
 
   /// @brief append one vertex to the simplex
-  void appendVertex(Simplex& simplex, const Vec3f& v);
+  void appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized = false);
 
   /// @brief whether the simplex enclose the origin
   bool encloseOrigin();
