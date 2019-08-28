@@ -56,6 +56,8 @@ class ShapeBase : public CollisionGeometry
 public:
   ShapeBase() {}
 
+  virtual ~ShapeBase () {};
+
   /// @brief Get object type: a geometric shape
   OBJECT_TYPE getObjectType() const { return OT_GEOM; }
 };
