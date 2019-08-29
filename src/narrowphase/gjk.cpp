@@ -381,8 +381,30 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     switch(curr_simplex.rank)
     {
     case 2:
-      project_res = Project::projectLineOrigin(curr_simplex.vertex[0]->w,
-                                               curr_simplex.vertex[1]->w);
+      project_res.sqr_distance = projectLineOrigin (curr_simplex, next_simplex);
+      { // This only checks that, so far, the behaviour did not change.
+        FCL_REAL d = project_res.sqr_distance;
+        project_res = Project::projectLineOrigin(curr_simplex.vertex[0]->w,
+            curr_simplex.vertex[1]->w);
+
+        assert (fabs(d-project_res.sqr_distance) < 1e-10);
+
+        Vec3f _ray(0,0,0);
+        size_t k = 0;
+        for(size_t i = 0; i < curr_simplex.rank; ++i)
+        {
+          if(project_res.encode & (1 << i))
+          {
+            assert (next_simplex.vertex[k++] == curr_simplex.vertex[i]);
+            assert (
+                fabs(next_simplex.coefficient[k]-project_res.parameterization[i]) < 1e-10);
+            _ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
+          }
+        }
+        //assert (_ray.isApprox (ray));
+        assert ((_ray.isZero() && ray.isZero()) || _ray.isApprox (ray));
+        assert (k = next_simplex.rank);
+      }
       break;
     case 3:
       project_res = Project::projectTriangleOrigin(curr_simplex.vertex[0]->w,
@@ -397,9 +419,10 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     }
     if(project_res.sqr_distance >= 0)
     {
+      current = next;
+      if (curr_simplex.rank != 2) {
       next_simplex.rank = 0;
       ray = Vec3f(0,0,0);
-      current = next;
       for(size_t i = 0; i < curr_simplex.rank; ++i)
       {
         if(project_res.encode & (1 << i))
@@ -415,6 +438,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
           free_v[nfree++] = curr_simplex.vertex[i];
       }
       if(project_res.encode == 15) status = Inside; // the origin is within the 4-simplex, collision
+      }
     }
     else
     {
@@ -522,6 +546,45 @@ bool GJK::encloseOrigin()
   }
 
   return false;
+}
+
+FCL_REAL GJK::projectLineOrigin(const Simplex& current, Simplex& next)
+{
+  const int a = 1, b = 0;
+  // A is the last point we added.
+  const Vec3f& A = current.vertex[a]->w;
+  const Vec3f& B = current.vertex[b]->w;
+
+  const Vec3f AB = B - A;
+  const FCL_REAL d = AB.dot(-A);
+  assert (d <= AB.squaredNorm());
+
+  if (d <= 0) {
+    // A is the closest to the origin
+    ray = A;
+    next.vertex[0] = current.vertex[a];
+    next.rank = 1;
+    free_v[nfree++] = current.vertex[b];
+
+    // To ensure backward compatibility
+    next.coefficient[0] = 1;
+    return A.squaredNorm();
+  } else {
+    // ray = - ( AB ^ AO ) ^ AB = (AB.B) A + (-AB.A) B
+    ray = AB.dot(B) * A + d * B;
+
+    next.vertex[0] = current.vertex[b];
+    next.vertex[1] = current.vertex[a];
+    next.rank = 2;
+
+    // To ensure backward compatibility
+    FCL_REAL alpha = d / AB.squaredNorm();
+    next.coefficient[1] = 1 - alpha; // A
+    next.coefficient[0] =     alpha; // B
+    ray /= AB.squaredNorm();
+
+    return ray.squaredNorm();
+  }
 }
 
 void EPA::initialize()

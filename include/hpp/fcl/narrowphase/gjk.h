@@ -187,6 +187,9 @@ private:
   unsigned int max_iterations;
   FCL_REAL tolerance;
 
+  /// @brief Project origin (0) onto line a-b
+  FCL_REAL projectLineOrigin(const Simplex& current, Simplex& next);
+
 };
 
 
