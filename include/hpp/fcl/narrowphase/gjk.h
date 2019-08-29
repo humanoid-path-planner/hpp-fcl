@@ -190,6 +190,9 @@ private:
   /// @brief Project origin (0) onto line a-b
   FCL_REAL projectLineOrigin(const Simplex& current, Simplex& next);
 
+  /// @brief Project origin (0) onto triangle a-b-c
+  FCL_REAL projectTriangleOrigin(const Simplex& current, Simplex& next);
+
 };
 
 

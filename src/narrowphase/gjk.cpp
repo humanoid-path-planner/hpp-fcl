@@ -378,6 +378,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       break;
     }
 
+    // This has been rewritten thanks to the excellent video:
+    // https://youtu.be/Qupqu1xe7Io
     switch(curr_simplex.rank)
     {
     case 2:
@@ -395,10 +397,11 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
         {
           if(project_res.encode & (1 << i))
           {
-            assert (next_simplex.vertex[k++] == curr_simplex.vertex[i]);
+            assert (next_simplex.vertex[k] == curr_simplex.vertex[i]);
             assert (
                 fabs(next_simplex.coefficient[k]-project_res.parameterization[i]) < 1e-10);
             _ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
+            ++k;
           }
         }
         //assert (_ray.isApprox (ray));
@@ -407,9 +410,31 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       }
       break;
     case 3:
-      project_res = Project::projectTriangleOrigin(curr_simplex.vertex[0]->w,
-                                                   curr_simplex.vertex[1]->w,
-                                                   curr_simplex.vertex[2]->w); break;
+      project_res.sqr_distance = projectTriangleOrigin (curr_simplex, next_simplex);
+      { // This only checks that, so far, the behaviour did not change.
+        FCL_REAL d = project_res.sqr_distance;
+        project_res = Project::projectTriangleOrigin(curr_simplex.vertex[0]->w,
+                                                     curr_simplex.vertex[1]->w,
+                                                     curr_simplex.vertex[2]->w);
+        assert (fabs(d-project_res.sqr_distance) < 1e-10);
+
+        Vec3f _ray(0,0,0);
+        size_t k = 0;
+        for(size_t i = 0; i < curr_simplex.rank; ++i)
+        {
+          if(project_res.encode & (1 << i))
+          {
+            assert (next_simplex.vertex[k] == curr_simplex.vertex[i]);
+            assert (
+                fabs(next_simplex.coefficient[k]-project_res.parameterization[i]) < 1e-10);
+            _ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
+            ++k;
+          }
+        }
+        assert ((_ray - ray).array().abs().maxCoeff() < 1e-10);
+        assert (k = next_simplex.rank);
+      }
+      break;
     case 4:
       project_res = Project::projectTetrahedraOrigin(curr_simplex.vertex[0]->w,
                                                      curr_simplex.vertex[1]->w,
@@ -420,7 +445,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     if(project_res.sqr_distance >= 0)
     {
       current = next;
-      if (curr_simplex.rank != 2) {
+      if (curr_simplex.rank > 3) {
       next_simplex.rank = 0;
       ray = Vec3f(0,0,0);
       for(size_t i = 0; i < curr_simplex.rank; ++i)
@@ -584,6 +609,151 @@ FCL_REAL GJK::projectLineOrigin(const Simplex& current, Simplex& next)
     ray /= AB.squaredNorm();
 
     return ray.squaredNorm();
+  }
+}
+
+FCL_REAL GJK::projectTriangleOrigin(const Simplex& current, Simplex& next)
+{
+  const int a = 2, b = 1, c = 0;
+  // A is the last point we added.
+  const Vec3f& A = current.vertex[a]->w,
+               B = current.vertex[b]->w,
+               C = current.vertex[c]->w;
+
+  const Vec3f AB = B - A,
+              AC = C - A,
+              ABC = AB.cross(AC);
+
+  FCL_REAL edgeAC2o = ABC.cross(AC).dot (-A);
+  if (edgeAC2o >= 0) {
+    FCL_REAL towardsC = AC.dot (-A);
+    if (towardsC >= 0) { // Region 1
+      // ray = - ( AC ^ AO ) ^ AC = (AC.C) A + (-AC.A) C
+      ray = AC.dot(C) * A + towardsC * C;
+      next.vertex[0] = current.vertex[c];
+      next.vertex[1] = current.vertex[a];
+      next.rank = 2;
+      free_v[nfree++] = current.vertex[b];
+      // To ensure backward compatibility
+
+      FCL_REAL alpha = towardsC / AC.squaredNorm();
+      next.coefficient[1] = 1 - alpha; // A
+      next.coefficient[0] =     alpha; // C
+      ray /= AC.squaredNorm();
+      return ray.squaredNorm();
+    } else { // Region 4 or 5
+      FCL_REAL towardsB = AB.dot(-A);
+      if (towardsB < 0) { // Region 5
+        // A is the closest to the origin
+        ray = A;
+        next.vertex[0] = current.vertex[a];
+        next.rank = 1;
+        free_v[nfree++] = current.vertex[c];
+        free_v[nfree++] = current.vertex[b];
+
+        // To ensure backward compatibility
+        next.coefficient[0] = 1;
+        return A.squaredNorm();
+      } else { // Region 4
+        // ray = - ( AB ^ AO ) ^ AB = (AB.B) A + (-AB.A) B
+        ray = AB.dot(B) * A + towardsB * B;
+
+        next.vertex[0] = current.vertex[b];
+        next.vertex[1] = current.vertex[a];
+        next.rank = 2;
+        free_v[nfree++] = current.vertex[c];
+
+        // To ensure backward compatibility
+        FCL_REAL alpha = towardsB / AB.squaredNorm();
+        next.coefficient[1] = 1 - alpha; // A
+        next.coefficient[0] =     alpha; // B
+        ray /= AB.squaredNorm();
+
+        return ray.squaredNorm();
+      }
+    }
+  } else {
+    FCL_REAL edgeAB2o = AB.cross(ABC).dot (-A);
+    if (edgeAB2o >= 0) { // Region 4 or 5
+      FCL_REAL towardsB = AB.dot(-A);
+      if (towardsB < 0) { // Region 5
+        // A is the closest to the origin
+        ray = A;
+        next.vertex[0] = current.vertex[a];
+        next.rank = 1;
+        free_v[nfree++] = current.vertex[c];
+        free_v[nfree++] = current.vertex[b];
+
+        // To ensure backward compatibility
+        next.coefficient[0] = 1;
+        return A.squaredNorm();
+      } else { // Region 4
+        // ray = - ( AB ^ AO ) ^ AB = (AB.B) A + (-AB.A) B
+        ray = AB.dot(B) * A + towardsB * B;
+
+        next.vertex[0] = current.vertex[b];
+        next.vertex[1] = current.vertex[a];
+        next.rank = 2;
+        free_v[nfree++] = current.vertex[c];
+
+        // To ensure backward compatibility
+        FCL_REAL alpha = towardsB / AB.squaredNorm();
+        next.coefficient[1] = 1 - alpha; // A
+        next.coefficient[0] =     alpha; // B
+        ray /= AB.squaredNorm();
+
+        return ray.squaredNorm();
+      }
+    } else {
+      FCL_REAL aboveTri = ABC.dot(-A);
+      if (aboveTri) { // Region 2
+        ray = ABC;
+
+        next.vertex[0] = current.vertex[c];
+        next.vertex[1] = current.vertex[b];
+        next.vertex[2] = current.vertex[a];
+        next.rank = 3;
+
+        // To ensure backward compatibility
+        FCL_REAL s = ABC.squaredNorm();
+        ray *= A.dot(ABC) / s;
+        Vec3f AQ (ray - A);
+        Vec3f m (ABC.cross(AB));
+        FCL_REAL _u2 = 1/AB.squaredNorm();
+        FCL_REAL wu_u2 = AQ.dot (AB) * _u2;
+        FCL_REAL vu_u2 = AC.dot (AB) * _u2;
+        FCL_REAL wm_vm = AQ.dot(m) / AC.dot (m);
+
+        next.coefficient[0] = wm_vm; // C
+        next.coefficient[1] = wu_u2 - wm_vm*vu_u2; // B
+        next.coefficient[2] = 1 - next.coefficient[0] - next.coefficient[1]; // A
+        assert (0. <= next.coefficient[0] && next.coefficient[0] <= 1.);
+        assert (0. <= next.coefficient[1] && next.coefficient[1] <= 1.);
+        assert (0. <= next.coefficient[2] && next.coefficient[2] <= 1.);
+
+        return ray.squaredNorm();
+      } else { // Region 3
+        ray = ABC;
+
+        //next.vertex[0] = current.vertex[b];
+        next.vertex[0] = current.vertex[c];
+        next.vertex[1] = current.vertex[b];
+        next.vertex[2] = current.vertex[a];
+        next.rank = 3;
+
+        // To ensure backward compatibility
+        FCL_REAL s = ABC.squaredNorm();
+        ray *= A.dot(ABC) / s;
+        next.coefficient[2] = -1;
+        next.coefficient[1] = -1;
+        next.coefficient[0] = -1;
+        assert (0. <= next.coefficient[0] && next.coefficient[0] <= 1.);
+        assert (0. <= next.coefficient[1] && next.coefficient[1] <= 1.);
+        assert (0. <= next.coefficient[2] && next.coefficient[2] <= 1.);
+
+        return ray.squaredNorm();
+      }
+    }
   }
 }
 
