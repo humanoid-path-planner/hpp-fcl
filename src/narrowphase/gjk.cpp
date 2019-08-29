@@ -166,40 +166,49 @@ void getShapeSupport(const Convex* convex, const Vec3f& dir, Vec3f& support)
   }
 }
 
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
+#define CALL_GET_SHAPE_SUPPORT(ShapeType)                                      \
+  getShapeSupport (static_cast<const ShapeType*>(shape),                       \
+      (shape_traits<ShapeType>::NeedNormalizedDir && !dirIsNormalized)         \
+      ? dir.normalized() : dir,                                                \
+      support)
+
+Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized)
 {
   Vec3f support;
   switch(shape->getNodeType())
   {
   case GEOM_TRIANGLE:
-    getShapeSupport (static_cast<const TriangleP*>(shape), dir, support);
+    CALL_GET_SHAPE_SUPPORT(TriangleP);
     break;
   case GEOM_BOX:
-    getShapeSupport (static_cast<const Box*>(shape), dir, support);
+    CALL_GET_SHAPE_SUPPORT(Box);
     break;
   case GEOM_SPHERE:
-    getShapeSupport (static_cast<const Sphere*>(shape), dir, support);
+    CALL_GET_SHAPE_SUPPORT(Sphere);
     break;
   case GEOM_CAPSULE:
-    getShapeSupport (static_cast<const Capsule*>(shape), dir, support);
+    CALL_GET_SHAPE_SUPPORT(Capsule);
     break;
   case GEOM_CONE:
-    getShapeSupport (static_cast<const Cone*>(shape), dir, support);
+    CALL_GET_SHAPE_SUPPORT(Cone);
     break;
   case GEOM_CYLINDER:
-    getShapeSupport (static_cast<const Cylinder*>(shape), dir, support);
+    CALL_GET_SHAPE_SUPPORT(Cylinder);
     break;
   case GEOM_CONVEX:
-    getShapeSupport (static_cast<const Convex*>(shape), dir, support);
+    CALL_GET_SHAPE_SUPPORT(Convex);
     break;
   case GEOM_PLANE:
   case GEOM_HALFSPACE:
   default:
+    support.setZero();
     ; // nothing
   }
 
   return support;
 }
+
+#undef CALL_GET_SHAPE_SUPPORT
 
 template <typename Shape0, typename Shape1>
 void getSupportTpl (const Shape0* s0, const Shape1* s1,
@@ -298,6 +307,19 @@ void GJK::initialize()
 Vec3f GJK::getGuessFromSimplex() const
 {
   return ray;
+}
+
+bool GJK::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const
+{
+  w0.setZero();
+  w1.setZero();
+  for(size_t i = 0; i < getSimplex()->rank; ++i)
+  {
+    FCL_REAL p = getSimplex()->coefficient[i];
+    w0 += shape.support0( getSimplex()->vertex[i]->d, false) * p;
+    w1 += shape.support1(-getSimplex()->vertex[i]->d, false) * p;
+  }
+  return true;
 }
 
 GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)

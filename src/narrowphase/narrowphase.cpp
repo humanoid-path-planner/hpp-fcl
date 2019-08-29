@@ -644,26 +644,24 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
     if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
 
-    Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-    for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-    {
-      FCL_REAL p = gjk.getSimplex()->coefficient[i];
-      w0 += shape.support0( gjk.getSimplex()->vertex[i]->d) * p;
-      w1 += shape.support1(-gjk.getSimplex()->vertex[i]->d) * p;
-    }
+    gjk.getClosestPoints (shape, p1, p2);
+
     if((gjk_status == details::GJK::Valid) ||
        (gjk_status == details::GJK::Failed))
     {
-      dist = (w0 - w1).norm();
-      p1 = tf1.transform (w0);
-      p2 = tf1.transform (w1);
+      // TODO On degenerated case, the closest point may be wrong
+      // (i.e. an object face normal is colinear to gjk.ray
+      // assert (dist == (w0 - w1).norm());
+      dist = gjk.distance;
+      p1 = tf1.transform (p1);
+      p2 = tf1.transform (p2);
 
       return true;
     }
     else if (gjk_status == details::GJK::Inside)
     {
-      p1 = tf1.transform (w0);
-      p2 = tf1.transform (w1);
+      p1 = tf1.transform (p1);
+      p2 = tf1.transform (p2);
 
       if (enable_penetration) {
         FCL_REAL penetrationDepth = details::computePenetration

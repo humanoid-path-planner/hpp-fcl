@@ -50,7 +50,7 @@ namespace details
 {
 
 /// @brief the support function for shape
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir); 
+Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized); 
 
 /// @brief Minkowski difference class of two shapes
 ///
@@ -86,15 +86,15 @@ struct MinkowskiDiff
   }
 
   /// @brief support function for shape0
-  inline Vec3f support0(const Vec3f& d) const
+  inline Vec3f support0(const Vec3f& d, bool dIsNormalized) const
   {
-    return getSupport(shapes[0], d);
+    return getSupport(shapes[0], d, dIsNormalized);
   }
 
   /// @brief support function for shape1
-  inline Vec3f support1(const Vec3f& d) const
+  inline Vec3f support1(const Vec3f& d, bool dIsNormalized) const
   {
-    return oR1 * getSupport(shapes[1], oR1.transpose() * d) + ot1;
+    return oR1 * getSupport(shapes[1], oR1.transpose() * d, dIsNormalized) + ot1;
   }
 
   /// @brief support function for the pair of shapes
@@ -168,6 +168,10 @@ struct GJK
   {
     return simplex;
   }
+
+  /// Get the closest points on each object.
+  /// \return true on success
+  bool getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const;
 
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;

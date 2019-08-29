@@ -80,7 +80,7 @@ namespace fcl
                 Vec3f w0 (Vec3f::Zero());
                 for(size_t i = 0; i < epa.result.rank; ++i)
                   {
-                    w0 += shape.support0(epa.result.vertex[i]->d) *
+                    w0 += shape.support0(epa.result.vertex[i]->d, false) *
                       epa.result.coefficient[i];
                   }
                 if(penetration_depth) *penetration_depth = -epa.depth;
@@ -131,7 +131,7 @@ namespace fcl
             Vec3f w0 (Vec3f::Zero());
             for(size_t i = 0; i < epa.result.rank; ++i)
               {
-                w0 += shape.support0(epa.result.vertex[i]->d) *
+                w0 += shape.support0(epa.result.vertex[i]->d, false) *
                   epa.result.coefficient[i];
               }
             distance = -epa.depth;
@@ -144,16 +144,15 @@ namespace fcl
         case details::GJK::Failed:
           {
             col = false;
-            Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-            for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-              {
-                FCL_REAL p = gjk.getSimplex()->coefficient[i];
-                w0 += shape.support0( gjk.getSimplex()->vertex[i]->d) * p;
-                w1 += shape.support1(-gjk.getSimplex()->vertex[i]->d) * p;
-              }
-            distance = (w0 - w1).norm();
-            p1 = tf1.transform (w0);
-            p2 = tf1.transform (w1);
+
+            gjk.getClosestPoints (shape, p1, p2);
+            // TODO On degenerated case, the closest point may be wrong
+            // (i.e. an object face normal is colinear to gjk.ray
+            // assert (distance == (w0 - w1).norm());
+            distance = gjk.distance;
+
+            p1 = tf1.transform (p1);
+            p2 = tf1.transform (p2);
             assert (distance > 0);
           }
           break;
@@ -190,13 +189,8 @@ namespace fcl
       {
         // TODO: understand why GJK fails between cylinder and box
         assert (distance * distance < sqrt (eps));
-        Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-        for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-        {
-          FCL_REAL p = gjk.getSimplex()->coefficient[i];
-          w0 += shape.support0( gjk.getSimplex()->vertex[i]->d) * p;
-          w1 += shape.support1(-gjk.getSimplex()->vertex[i]->d) * p;
-        }
+        Vec3f w0, w1;
+        gjk.getClosestPoints (shape, w0, w1);
         distance = 0;
         p1 = p2 = tf1.transform (.5* (w0 + w1));
         normal = Vec3f (0,0,0);
@@ -204,18 +198,14 @@ namespace fcl
       }
       else if(gjk_status == details::GJK::Valid)
         {
-          Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-          for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-            {
-              FCL_REAL p = gjk.getSimplex()->coefficient[i];
-              w0 += shape.support0( gjk.getSimplex()->vertex[i]->d) * p;
-              w1 += shape.support1(-gjk.getSimplex()->vertex[i]->d) * p;
-            }
+          gjk.getClosestPoints (shape, p1, p2);
+          // TODO On degenerated case, the closest point may be wrong
+          // (i.e. an object face normal is colinear to gjk.ray
+          // assert (distance == (w0 - w1).norm());
+          distance = gjk.distance;
 
-          distance = (w0 - w1).norm();
-
-          p1 = tf1.transform (w0);
-          p2 = tf1.transform (w1);
+          p1 = tf1.transform (p1);
+          p2 = tf1.transform (p2);
           return true;
         }
       else
@@ -231,7 +221,7 @@ namespace fcl
                   Vec3f w0 (Vec3f::Zero());
                   for(size_t i = 0; i < epa.result.rank; ++i)
                     {
-                      w0 += shape.support0(epa.result.vertex[i]->d) *
+                      w0 += shape.support0(epa.result.vertex[i]->d, false) *
                         epa.result.coefficient[i];
                     }
                   assert (epa.depth >= -eps);
@@ -242,17 +232,11 @@ namespace fcl
             }
           else
             {
-              Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-              for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-                {
-                  FCL_REAL p = gjk.getSimplex()->coefficient[i];
-                  w0 += shape.support0( gjk.getSimplex()->vertex[i]->d) * p;
-                  w1 += shape.support1(-gjk.getSimplex()->vertex[i]->d) * p;
-                }
+              gjk.getClosestPoints (shape, p1, p2);
               distance = 0;
 
-              p1 = tf1.transform (w0);
-              p2 = tf1.transform (w1);
+              p1 = tf1.transform (p1);
+              p2 = tf1.transform (p2);
             }
           return false;
         }
