@@ -1,4 +1,4 @@
-#include "test_fcl_utility.h"
+#include "utility.h"
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
 #include <cstdio>

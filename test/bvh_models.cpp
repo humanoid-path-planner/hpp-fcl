@@ -50,7 +50,7 @@
 #include "hpp/fcl/shape/geometric_shapes.h"
 #include <hpp/fcl/mesh_loader/assimp.h>
 #include <hpp/fcl/mesh_loader/loader.h>
-#include "test_fcl_utility.h"
+#include "utility.h"
 #include <iostream>
 
 using namespace hpp::fcl;

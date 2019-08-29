@@ -17,7 +17,7 @@
 #include <hpp/fcl/traversal/traversal_node_setup.h>
 #include <hpp/fcl/traversal/traversal_node_bvhs.h>
 #include <../src/collision_node.h>
-#include "test_fcl_utility.h"
+#include "utility.h"
 #include "fcl_resources/config.h"
 #include <boost/filesystem.hpp>
 

@@ -44,7 +44,7 @@
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
-#include "test_fcl_utility.h"
+#include "utility.h"
 #include <iostream>
 
 using namespace hpp::fcl;
@@ -266,7 +266,7 @@ template <typename Sa, typename Sb> void compareShapeDistance (
       << resB.nearest_points[1].format(pyfmt) << '\n'
       );
   // TODO in one case, there is a mismatch between the distances and I cannot say
-  // which one is correct. To visualize the case, use script test/test_fcl_geometric_shapes.py
+  // which one is correct. To visualize the case, use script test/geometric_shapes.py
   BOOST_WARN_CLOSE(resA.min_distance, resB.min_distance, tol);
   //BOOST_CHECK_CLOSE(resA.min_distance, resB.min_distance, tol);
 

@@ -54,7 +54,7 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/mesh_loader/assimp.h>
-#include "test_fcl_utility.h"
+#include "utility.h"
 #include "fcl_resources/config.h"
 #include <boost/filesystem.hpp>
 
@@ -585,7 +585,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh_benchmark)
   // Request all contacts and check that all methods give the same result.
   typedef boost::mpl::vector<OBB, RSS, AABB, KDOP<24>, KDOP<18>, KDOP<16>, kIOS, OBBRSS> BVs_t;
 
-  std::ofstream ofs ("./test_fcl_collision.benchmark.csv", std::ofstream::out);
+  std::ofstream ofs ("./collision.benchmark.csv", std::ofstream::out);
   bench_stream = &ofs;
 
   // without lower bound.

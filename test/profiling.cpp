@@ -26,7 +26,7 @@
 #include <hpp/fcl/collision_func_matrix.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/mesh_loader/assimp.h>
-#include "test_fcl_utility.h"
+#include "utility.h"
 #include "fcl_resources/config.h"
 
 using namespace hpp::fcl;

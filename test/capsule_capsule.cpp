@@ -49,7 +49,7 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
-#include "test_fcl_utility.h"
+#include "utility.h"
 
 using namespace hpp::fcl;
 typedef boost::shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;

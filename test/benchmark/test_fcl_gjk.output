@@ -1,4 +1,4 @@
-Result after running test_fcl_gjk in Release mode.
+Result after running gjk in Release mode.
 
 nCol = 2840
 nDiff = 0

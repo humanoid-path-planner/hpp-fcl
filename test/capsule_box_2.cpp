@@ -42,7 +42,7 @@
 
 #define CHECK_CLOSE_TO_0(x, eps) BOOST_CHECK_CLOSE ((x + 1.0), (1.0), (eps))
 
-#include "test_fcl_utility.h"
+#include "utility.h"
 
 #include <cmath>
 #include <hpp/fcl/distance.h>
