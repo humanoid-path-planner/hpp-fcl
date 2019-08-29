@@ -58,6 +58,12 @@ GJKSolver_indep solver2;
 Eigen::IOFormat fmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "", "");
 Eigen::IOFormat pyfmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "[", "]");
 
+typedef Eigen::AngleAxis<FCL_REAL> AngleAxis;
+//static const Vec3f UnitX (1, 0, 0);
+//static const Vec3f UnitY (0, 1, 0);
+static const Vec3f UnitZ (0, 0, 1);
+
+
 namespace hpp {
 namespace fcl {
 std::ostream& operator<< (std::ostream& os, const Transform3f& tf)
@@ -477,7 +483,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   Vec3f normal;
 
   Quaternion3f q;
-  q = Eigen::AngleAxis<double>((FCL_REAL)3.140 / 6, Vec3f(0, 0, 1));
+  q = AngleAxis((FCL_REAL)3.140 / 6, UnitZ);
 
   tf1 = Transform3f();
   tf2 = Transform3f();
@@ -3053,7 +3059,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
   Vec3f normal;
 
   Quaternion3f q;
-  q = Eigen::AngleAxis<double>((FCL_REAL)3.140 / 6, Vec3f(0, 0, 1));
+  q = AngleAxis((FCL_REAL)3.140 / 6, UnitZ);
 
   tf1 = Transform3f();
   tf2 = Transform3f();
