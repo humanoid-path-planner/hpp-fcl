@@ -253,8 +253,8 @@ int main(int argc, char** argv)
     geoms.push_back(Geometry ("Capsule"   , new Capsule   (2, 1)                                          ));
     geoms.push_back(Geometry ("Cone"      , new Cone      (2, 1)                                          ));
     geoms.push_back(Geometry ("Cylinder"  , new Cylinder  (2, 1)                                          ));
-    geoms.push_back(Geometry ("Plane"     , new Plane     (Vec3f(1,1,1).normalized(), 0)                  ));
-    geoms.push_back(Geometry ("Halfspace" , new Halfspace (Vec3f(1,1,1).normalized(), 0)                  ));
+    //geoms.push_back(Geometry ("Plane"     , new Plane     (Vec3f(1,1,1).normalized(), 0)                  ));
+    //geoms.push_back(Geometry ("Halfspace" , new Halfspace (Vec3f(1,1,1).normalized(), 0)                  ));
     // not implemented // geoms.push_back(Geometry ("TriangleP" , new TriangleP (Vec3f(0,1,0), Vec3f(0,0,1), Vec3f(-1,0,0))     ));
 
     geoms.push_back(Geometry ("rob BVHModel<OBB>"   , objToGeom<OBB>   ((path / "rob.obj").string())));
