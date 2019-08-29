@@ -40,7 +40,7 @@
 #include <boost/shared_ptr.hpp>
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/config.hh>
-#include <hpp/fcl/math/vec_3f.h>
+#include <hpp/fcl/math/types.h>
 #include <hpp/fcl/collision_object.h>
 
 namespace hpp

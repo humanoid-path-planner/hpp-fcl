@@ -197,8 +197,6 @@ void eigen(const Eigen::MatrixBase<Derived>& m, typename Derived::Scalar dout[3]
   return;
 }
 
-
-
 template<typename Derived, typename OtherDerived>
 bool isEqual(const Eigen::MatrixBase<Derived>& lhs, const Eigen::MatrixBase<OtherDerived>& rhs, const FCL_REAL tol = std::numeric_limits<FCL_REAL>::epsilon()*100)
 {
@@ -206,7 +204,6 @@ bool isEqual(const Eigen::MatrixBase<Derived>& lhs, const Eigen::MatrixBase<Othe
 }
 
 }
-
 } // namespace hpp
 
 #endif

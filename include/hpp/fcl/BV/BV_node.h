@@ -39,8 +39,7 @@
 #ifndef HPP_FCL_BV_NODE_H
 #define HPP_FCL_BV_NODE_H
 
-#include <hpp/fcl/math/vec_3f.h>
-#include <hpp/fcl/math/matrix_3f.h>
+#include <hpp/fcl/math/types.h>
 
 #include <hpp/fcl/BV/BV.h>
 #include <iostream>

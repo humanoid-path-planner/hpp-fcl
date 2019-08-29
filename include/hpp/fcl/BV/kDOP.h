@@ -39,7 +39,7 @@
 #define HPP_FCL_KDOP_H
 
 #include <stdexcept>
-#include <hpp/fcl/math/matrix_3f.h>
+#include <hpp/fcl/math/types.h>
 
 namespace hpp
 {

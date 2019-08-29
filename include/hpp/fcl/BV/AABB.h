@@ -39,8 +39,7 @@
 #define HPP_FCL_AABB_H
 
 #include <stdexcept>
-#include <hpp/fcl/math/vec_3f.h>
-#include <hpp/fcl/math/matrix_3f.h>
+#include <hpp/fcl/math/types.h>
 
 namespace hpp
 {

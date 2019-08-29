@@ -38,9 +38,7 @@
 #ifndef HPP_FCL_OBB_H
 #define HPP_FCL_OBB_H
 
-
-#include <hpp/fcl/math/vec_3f.h>
-#include <hpp/fcl/math/matrix_3f.h>
+#include <hpp/fcl/math/types.h>
 
 namespace hpp
 {

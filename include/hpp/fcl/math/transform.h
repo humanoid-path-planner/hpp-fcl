@@ -39,7 +39,7 @@
 #ifndef HPP_FCL_TRANSFORM_H
 #define HPP_FCL_TRANSFORM_H
 
-#include <hpp/fcl/math/matrix_3f.h>
+#include <hpp/fcl/math/types.h>
 #include <boost/thread/mutex.hpp>
 
 namespace hpp
@@ -125,8 +125,6 @@ public:
   {
     R.setIdentity();
   }
-
-
 
   /// @brief operator = 
   Transform3f& operator = (const Transform3f& tf)
@@ -262,8 +260,8 @@ public:
   }
 
 };
-}
 
+}
 } // namespace hpp
 
 #endif

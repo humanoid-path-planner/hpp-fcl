@@ -39,8 +39,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-#include <hpp/fcl/math/vec_3f.h>
-#include <hpp/fcl/math/matrix_3f.h>
+#include <hpp/fcl/math/types.h>
 #include <hpp/fcl/math/transform.h>
 
 #include <hpp/fcl/intersect.h>

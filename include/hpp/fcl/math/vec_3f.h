@@ -38,37 +38,9 @@
 #ifndef HPP_FCL_VEC_3F_H
 #define HPP_FCL_VEC_3F_H
 
-#include <hpp/fcl/data_types.h>
+# warning "This file is deprecated. Include <hpp/fcl/math/types.h> instead."
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-#include <hpp/fcl/math/tools.h>
+// List of equivalent includes.
+# include <hpp/fcl/math/types.h>
 
-#include <cmath>
-#include <iostream>
-#include <limits>
-
-
-namespace hpp
-{
-namespace fcl
-{
-  typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
-}
-
-
-
-} // namespace hpp
-
-#ifdef HPP_FCL_HAVE_OCTOMAP
-  #define OCTOMAP_VERSION_AT_LEAST(x,y,z) \
-    (OCTOMAP_MAJOR_VERSION > x || (OCTOMAP_MAJOR_VERSION >= x && \
-    (OCTOMAP_MINOR_VERSION > y || (OCTOMAP_MINOR_VERSION >= y && \
-    OCTOMAP_PATCH_VERSION >= z))))
-
-  #define OCTOMAP_VERSION_AT_MOST(x,y,z) \
-    (OCTOMAP_MAJOR_VERSION < x || (OCTOMAP_MAJOR_VERSION <= x && \
-    (OCTOMAP_MINOR_VERSION < y || (OCTOMAP_MINOR_VERSION <= y && \
-    OCTOMAP_PATCH_VERSION <= z))))
-#endif // HPP_FCL_HAVE_OCTOMAP
 #endif
