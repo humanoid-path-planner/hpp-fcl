@@ -465,7 +465,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
         {
           if(project_res.encode & (1 << i))
           {
-            assert (next_simplex.vertex[k] == curr_simplex.vertex[i]);
+            //Remove check because the triangle might be inverted
+            //assert (next_simplex.vertex[k] == curr_simplex.vertex[i]);
             _ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
             ++k;
           }
@@ -642,15 +643,21 @@ inline void originToSegment (
 inline void originToTriangle (
     const GJK::Simplex& current,
     int a, int b, int c,
-    const Vec3f& A, const Vec3f& AB, const Vec3f& AC,
+    const Vec3f& A,
     const Vec3f& ABC,
     GJK::Simplex& next,
     Vec3f& ray)
 {
+  bool aboveTri (ABC.dot(-A));
   ray = ABC;
 
-  next.vertex[0] = current.vertex[c];
-  next.vertex[1] = current.vertex[b];
+  if (aboveTri) {
+    next.vertex[0] = current.vertex[c];
+    next.vertex[1] = current.vertex[b];
+  } else {
+    next.vertex[0] = current.vertex[b];
+    next.vertex[1] = current.vertex[c];
+  }
   next.vertex[2] = current.vertex[a];
   next.rank = 3;
 
@@ -701,12 +708,10 @@ FCL_REAL GJK::projectTriangleOrigin(const Simplex& current, Simplex& next)
       if (towardsB < 0) { // Region 5
         // A is the closest to the origin
         originToPoint (current, a, A, next, ray);
-        free_v[nfree++] = current.vertex[c];
         free_v[nfree++] = current.vertex[b];
-      } else { // Region 4
+      } else // Region 4
         originToSegment (current, a, b, A, B, AB, towardsB, next, ray);
-        free_v[nfree++] = current.vertex[c];
-      }
+      free_v[nfree++] = current.vertex[c];
     }
   } else {
     FCL_REAL edgeAB2o = AB.cross(ABC).dot (-A);
@@ -715,24 +720,12 @@ FCL_REAL GJK::projectTriangleOrigin(const Simplex& current, Simplex& next)
       if (towardsB < 0) { // Region 5
         // A is the closest to the origin
         originToPoint (current, a, A, next, ray);
-        free_v[nfree++] = current.vertex[c];
         free_v[nfree++] = current.vertex[b];
-      } else { // Region 4
+      } else // Region 4
         originToSegment (current, a, b, A, B, AB, towardsB, next, ray);
-        free_v[nfree++] = current.vertex[c];
-      }
+      free_v[nfree++] = current.vertex[c];
     } else {
-      // I don't think there is any need to check whether we are above or below
-      // the triangle.
-      originToTriangle (current, a, b, c, A, AB, AC, ABC, next, ray);
-      /*
-      FCL_REAL aboveTri = ABC.dot(-A);
-      if (aboveTri) { // Region 2
-        originToTriangle (current, a, b, c, A, AB, AC, ABC, next, ray);
-      } else { // Region 3
-        // Flip the ray
-      }
-      */
+      originToTriangle (current, a, b, c, A, ABC, next, ray);
     }
   }
   return ray.squaredNorm();
