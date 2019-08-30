@@ -308,15 +308,59 @@ Vec3f GJK::getGuessFromSimplex() const
   return ray;
 }
 
-bool GJK::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const
+bool GJK::getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1)
 {
+  SimplexV* const* vs = simplex.vertex;
+
+  for (short i = 0; i < simplex.rank; ++i) {
+    assert (vs[i]->w.isApprox (vs[i]->w0 - vs[i]->w1));
+  }
+
+  Project::ProjectResult projection;
+  switch (simplex.rank) {
+    case 1:
+      w0 = vs[0]->w0;
+      w1 = vs[0]->w1;
+      return true;
+    case 2:
+      {
+        const Vec3f& a  = vs[0]->w, a0 = vs[0]->w0, a1 = vs[0]->w1,
+                     b  = vs[1]->w, b0 = vs[1]->w0, b1 = vs[1]->w1;
+        FCL_REAL la, lb;
+        Vec3f N (b - a);
+        la = N.dot(-a);
+        if (la <= 0) {
+          w0 = a0;
+          w1 = a1;
+        } else {
+          lb = N.squaredNorm();
+          if (la > lb) {
+            w0 = b0;
+            w1 = b1;
+          } else {
+            lb = la / lb;
+            la = 1 - lb;
+            w0 = la * a0 + lb * b0;
+            w1 = la * a1 + lb * b1;
+          }
+        }
+      }
+      return true;
+    case 3:
+      // TODO avoid the reprojection
+      projection = Project::projectTriangleOrigin   (vs[0]->w, vs[1]->w, vs[2]->w);
+      break;
+    case 4: // We are in collision.
+      projection = Project::projectTetrahedraOrigin (vs[0]->w, vs[1]->w, vs[2]->w, vs[3]->w);
+      break;
+    default:
+      throw std::logic_error ("The simplex rank must be in [ 1, 4 ]");
+  }
   w0.setZero();
   w1.setZero();
-  for(short i = 0; i < getSimplex()->rank; ++i)
-  {
-    FCL_REAL p = getSimplex()->coefficient[i];
-    w0 += getSimplex()->vertex[i]->w0 * p;
-    w1 += getSimplex()->vertex[i]->w1 * p;
+  for (short i = 0; i < simplex.rank; ++i) {
+    w0 += projection.parameterization[i] * vs[i]->w0;
+    w1 += projection.parameterization[i] * vs[i]->w1;
   }
   return true;
 }

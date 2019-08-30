@@ -644,7 +644,7 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
     if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
 
-    gjk.getClosestPoints (shape, p1, p2);
+    details::GJK::getClosestPoints (*gjk.getSimplex(), p1, p2);
 
     if((gjk_status == details::GJK::Valid) ||
        (gjk_status == details::GJK::Failed))

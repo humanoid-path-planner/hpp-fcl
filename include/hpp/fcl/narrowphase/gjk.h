@@ -169,7 +169,7 @@ struct GJK
 
   /// Get the closest points on each object.
   /// \return true on success
-  bool getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const;
+  static bool getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1);
 
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;
