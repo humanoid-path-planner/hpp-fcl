@@ -312,7 +312,7 @@ bool GJK::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) co
 {
   w0.setZero();
   w1.setZero();
-  for(size_t i = 0; i < getSimplex()->rank; ++i)
+  for(short i = 0; i < getSimplex()->rank; ++i)
   {
     FCL_REAL p = getSimplex()->coefficient[i];
     w0 += getSimplex()->vertex[i]->w0 * p;
@@ -391,8 +391,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
         assert (fabs(d-project_res.sqr_distance) < 1e-10);
 
         Vec3f _ray(0,0,0);
-        size_t k = 0;
-        for(size_t i = 0; i < curr_simplex.rank; ++i)
+        short k = 0;
+        for(short i = 0; i < curr_simplex.rank; ++i)
         {
           if(project_res.encode & (1 << i))
           {
@@ -418,8 +418,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
         assert (fabs(d-project_res.sqr_distance) < 1e-10);
 
         Vec3f _ray(0,0,0);
-        size_t k = 0;
-        for(size_t i = 0; i < curr_simplex.rank; ++i)
+        short k = 0;
+        for(short i = 0; i < curr_simplex.rank; ++i)
         {
           if(project_res.encode & (1 << i))
           {
@@ -447,7 +447,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       if (curr_simplex.rank > 3) {
       next_simplex.rank = 0;
       ray = Vec3f(0,0,0);
-      for(size_t i = 0; i < curr_simplex.rank; ++i)
+      for(short i = 0; i < curr_simplex.rank; ++i)
       {
         if(project_res.encode & (1 << i))
         {

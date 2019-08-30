@@ -125,7 +125,7 @@ struct GJK
     /// @brief weight 
     FCL_REAL coefficient[4];
     /// @brief size of simplex (number of vertices)
-    size_t rank;
+    short rank;
 
     Simplex() : rank(0) {}
   };

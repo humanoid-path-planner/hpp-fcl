@@ -128,7 +128,7 @@ namespace fcl
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
             assert (epa_status != details::EPA::Failed); (void) epa_status;
             Vec3f w0 (Vec3f::Zero());
-            for(size_t i = 0; i < epa.result.rank; ++i)
+            for(short i = 0; i < epa.result.rank; ++i)
               {
                 w0 += epa.result.vertex[i]->w0 * epa.result.coefficient[i];
               }
@@ -217,7 +217,7 @@ namespace fcl
               if(epa_status != details::EPA::Failed)
                 {
                   Vec3f w0 (Vec3f::Zero());
-                  for(size_t i = 0; i < epa.result.rank; ++i)
+                  for(short i = 0; i < epa.result.rank; ++i)
                     {
                       w0 += epa.result.vertex[i]->w0 * epa.result.coefficient[i];
                     }
