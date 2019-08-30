@@ -72,7 +72,7 @@ struct MinkowskiDiff
   Vec3f ot1;
 
   typedef void (*GetSupportFunction) (const MinkowskiDiff& minkowskiDiff,
-      const Vec3f& dir, bool dirIsNormalized, Vec3f& support);
+      const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1);
   GetSupportFunction getSupportFunc;
 
   MinkowskiDiff() : getSupportFunc (NULL) {}
@@ -98,10 +98,10 @@ struct MinkowskiDiff
   }
 
   /// @brief support function for the pair of shapes
-  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp) const
+  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp0, Vec3f& supp1) const
   {
     assert(getSupportFunc != NULL);
-    getSupportFunc(*this, d, dIsNormalized, supp);
+    getSupportFunc(*this, d, dIsNormalized, supp0, supp1);
   }
 };
 
@@ -112,12 +112,10 @@ struct GJK
 {
   struct SimplexV
   {
-    /// @brief support direction
-    Vec3f d; 
+    /// @brief support vector for shape 0 and 1.
+    Vec3f w0, w1; 
     /// @brieg support vector (i.e., the furthest point on the shape along the support direction)
     Vec3f w;
-
-    SimplexV () : d(Vec3f::Zero()), w(Vec3f::Zero()) {}
   };
 
   struct Simplex

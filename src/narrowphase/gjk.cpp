@@ -213,17 +213,16 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized)
 template <typename Shape0, typename Shape1>
 void getSupportTpl (const Shape0* s0, const Shape1* s1,
     const Matrix3f& oR1, const Vec3f& ot1,
-    const Vec3f& dir, Vec3f& support)
+    const Vec3f& dir, Vec3f& support0, Vec3f& support1)
 {
-  getShapeSupport (s0, dir, support);
-  Vec3f support1;
+  getShapeSupport (s0, dir, support0);
   getShapeSupport (s1, - oR1.transpose() * dir, support1);
-  support.noalias() -= oR1 * support1 + ot1;
+  support1 = oR1 * support1 + ot1;
 }
 
 template <typename Shape0, typename Shape1>
 void getSupportFuncTpl (const MinkowskiDiff& md,
-    const Vec3f& dir, bool dirIsNormalized, Vec3f& support)
+    const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1)
 {
   enum { NeedNormalizedDir =
     bool ( (bool)shape_traits<Shape0>::NeedNormalizedDir
@@ -234,7 +233,7 @@ void getSupportFuncTpl (const MinkowskiDiff& md,
       static_cast <const Shape1*>(md.shapes[1]),
       md.oR1, md.ot1,
       (NeedNormalizedDir && !dirIsNormalized) ? dir.normalized() : dir,
-      support);
+      support0, support1);
 }
 
 template <typename Shape0>
@@ -316,8 +315,8 @@ bool GJK::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) co
   for(size_t i = 0; i < getSimplex()->rank; ++i)
   {
     FCL_REAL p = getSimplex()->coefficient[i];
-    w0 += shape.support0( getSimplex()->vertex[i]->d, false) * p;
-    w1 += shape.support1(-getSimplex()->vertex[i]->d, false) * p;
+    w0 += getSimplex()->vertex[i]->w0 * p;
+    w1 += getSimplex()->vertex[i]->w1 * p;
   }
   return true;
 }
@@ -489,9 +488,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
 void GJK::getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv) const
 {
-  // Was sv.d.noalias() = d.normalized();
-  sv.d.noalias() = d;
-  shape.support(sv.d, dIsNormalized, sv.w);
+  shape.support(d, dIsNormalized, sv.w0, sv.w1);
+  sv.w.noalias() = sv.w0 - sv.w1;
 }
 
 void GJK::removeVertex(Simplex& simplex)

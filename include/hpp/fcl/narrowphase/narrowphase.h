@@ -80,8 +80,7 @@ namespace fcl
                 Vec3f w0 (Vec3f::Zero());
                 for(size_t i = 0; i < epa.result.rank; ++i)
                   {
-                    w0 += shape.support0(epa.result.vertex[i]->d, false) *
-                      epa.result.coefficient[i];
+                    w0 += epa.result.vertex[i]->w0 * epa.result.coefficient[i];
                   }
                 if(penetration_depth) *penetration_depth = -epa.depth;
                 if(normal) *normal = tf2.getRotation() * epa.normal;
@@ -131,8 +130,7 @@ namespace fcl
             Vec3f w0 (Vec3f::Zero());
             for(size_t i = 0; i < epa.result.rank; ++i)
               {
-                w0 += shape.support0(epa.result.vertex[i]->d, false) *
-                  epa.result.coefficient[i];
+                w0 += epa.result.vertex[i]->w0 * epa.result.coefficient[i];
               }
             distance = -epa.depth;
             normal = -epa.normal;
@@ -221,8 +219,7 @@ namespace fcl
                   Vec3f w0 (Vec3f::Zero());
                   for(size_t i = 0; i < epa.result.rank; ++i)
                     {
-                      w0 += shape.support0(epa.result.vertex[i]->d, false) *
-                        epa.result.coefficient[i];
+                      w0 += epa.result.vertex[i]->w0 * epa.result.coefficient[i];
                     }
                   assert (epa.depth >= -eps);
                   distance = std::min (0., -epa.depth);
