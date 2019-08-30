@@ -78,8 +78,7 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   BOOST_CHECK_CLOSE (o1 [0], 1.0, 1e-1);
   CHECK_CLOSE_TO_0 (o1 [1], 1e-1);
   BOOST_CHECK_CLOSE (o2 [0], 0.5, 1e-1);
-  // This cannot be ensured with the current code.
-  // CHECK_CLOSE_TO_0 (o2 [1], 1e-1);
+  CHECK_CLOSE_TO_0 (o2 [1], 1e-1);
 
   // Move capsule above box
   tf1 = hpp::fcl::Transform3f (hpp::fcl::Vec3f (0., 0., 8.));
