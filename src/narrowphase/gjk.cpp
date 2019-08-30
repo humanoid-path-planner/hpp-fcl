@@ -388,7 +388,6 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
   if (ray.squaredNorm() > 0) appendVertex(simplices[0], -ray);
   else                       appendVertex(simplices[0], Vec3f(1, 0, 0), true);
-  simplices[0].coefficient[0] = 1;
   ray = simplices[0].vertex[0]->w;
   lastw[0] = lastw[1] = lastw[2] = lastw[3] = ray; // cache previous support points, the new support point will compare with it to avoid too close support points
 
@@ -441,8 +440,6 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
           if(project_res.encode & (1 << i))
           {
             assert (next_simplex.vertex[k] == curr_simplex.vertex[i]);
-            assert (
-                fabs(next_simplex.coefficient[k]-project_res.parameterization[i]) < 1e-10);
             _ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
             ++k;
           }
@@ -450,6 +447,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
         //assert (_ray.isApprox (ray));
         assert ((_ray.isZero() && ray.isZero()) || _ray.isApprox (ray));
         assert (k = next_simplex.rank);
+        assert (nfree+next_simplex.rank == 4);
       }
       break;
     case 3:
@@ -468,14 +466,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
           if(project_res.encode & (1 << i))
           {
             assert (next_simplex.vertex[k] == curr_simplex.vertex[i]);
-            assert (
-                fabs(next_simplex.coefficient[k]-project_res.parameterization[i]) < 1e-10);
             _ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
             ++k;
           }
         }
         assert ((_ray - ray).array().abs().maxCoeff() < 1e-10);
         assert (k = next_simplex.rank);
+        assert (nfree+next_simplex.rank == 4);
       }
       break;
     case 4:
@@ -495,11 +492,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       {
         if(project_res.encode & (1 << i))
         {
-          next_simplex.vertex[next_simplex.rank] = curr_simplex.vertex[i];
-          // weights[i]
-          next_simplex.coefficient[next_simplex.rank++] =
-            project_res.parameterization[i];
-          // weights[i]
+          next_simplex.vertex[next_simplex.rank++] = curr_simplex.vertex[i];
           ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
         }
         else
@@ -507,6 +500,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       }
       if(project_res.encode == 15) status = Inside; // the origin is within the 4-simplex, collision
       }
+      assert (nfree+next_simplex.rank == 4);
     }
     else
     {
@@ -543,7 +537,6 @@ void GJK::removeVertex(Simplex& simplex)
 
 void GJK::appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized)
 {
-  simplex.coefficient[simplex.rank] = 0; // initial weight 0
   simplex.vertex[simplex.rank] = free_v[--nfree]; // set the memory
   getSupport (v, isNormalized, *simplex.vertex[simplex.rank++]);
 }
@@ -625,8 +618,6 @@ inline void originToPoint (
     ray = A;
     next.vertex[0] = current.vertex[a];
     next.rank = 1;
-    // To ensure backward compatibility
-    next.coefficient[0] = 1;
 }
 
 inline void originToSegment (
@@ -645,9 +636,6 @@ inline void originToSegment (
     next.rank = 2;
 
     // To ensure backward compatibility
-    FCL_REAL alpha = ABdotAO / AB.squaredNorm();
-    next.coefficient[1] = 1 - alpha; // A
-    next.coefficient[0] =     alpha; // B
     ray /= AB.squaredNorm();
 }
 
@@ -667,21 +655,7 @@ inline void originToTriangle (
   next.rank = 3;
 
   // To ensure backward compatibility
-  FCL_REAL s = ABC.squaredNorm();
-  ray *= A.dot(ABC) / s;
-  Vec3f AQ (ray - A);
-  Vec3f m (ABC.cross(AB));
-  FCL_REAL _u2 = 1/AB.squaredNorm();
-  FCL_REAL wu_u2 = AQ.dot (AB) * _u2;
-  FCL_REAL vu_u2 = AC.dot (AB) * _u2;
-  FCL_REAL wm_vm = AQ.dot(m) / AC.dot (m);
-
-  next.coefficient[0] = wm_vm; // C
-  next.coefficient[1] = wu_u2 - wm_vm*vu_u2; // B
-  next.coefficient[2] = 1 - next.coefficient[0] - next.coefficient[1]; // A
-  assert (0. <= next.coefficient[0] && next.coefficient[0] <= 1.);
-  assert (0. <= next.coefficient[1] && next.coefficient[1] <= 1.);
-  assert (0. <= next.coefficient[2] && next.coefficient[2] <= 1.);
+  ray *= A.dot(ABC) / ABC.squaredNorm();
 }
 
 FCL_REAL GJK::projectLineOrigin(const Simplex& current, Simplex& next)
@@ -885,10 +859,6 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
       SimplexV* tmp = simplex.vertex[0];
       simplex.vertex[0] = simplex.vertex[1];
       simplex.vertex[1] = tmp;
-
-      FCL_REAL tmpv = simplex.coefficient[0];
-      simplex.coefficient[0] = simplex.coefficient[1];
-      simplex.coefficient[1] = tmpv;
     }
 
     SimplexF* tetrahedron[] = {newFace(simplex.vertex[0], simplex.vertex[1],
@@ -960,25 +930,12 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
         }
       }
 
-      Vec3f projection = outer.n * outer.d;
       normal = outer.n;
       depth = outer.d;
       result.rank = 3;
       result.vertex[0] = outer.vertex[0];
       result.vertex[1] = outer.vertex[1];
       result.vertex[2] = outer.vertex[2];
-      result.coefficient[0] = ((outer.vertex[1]->w - projection).cross
-                               (outer.vertex[2]->w - projection)).norm();
-      result.coefficient[1] = ((outer.vertex[2]->w - projection).cross
-                               (outer.vertex[0]->w - projection)).norm();
-      result.coefficient[2] = ((outer.vertex[0]->w - projection).cross
-                               (outer.vertex[1]->w - projection)).norm();
-
-      FCL_REAL sum = result.coefficient[0] + result.coefficient[1] +
-        result.coefficient[2];
-      result.coefficient[0] /= sum;
-      result.coefficient[1] /= sum;
-      result.coefficient[2] /= sum;
       return status;
     }
   }
@@ -991,7 +948,6 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
   depth = 0;
   result.rank = 1;
   result.vertex[0] = simplex.vertex[0];
-  result.coefficient[0] = 1;
   return status;
 }
 
