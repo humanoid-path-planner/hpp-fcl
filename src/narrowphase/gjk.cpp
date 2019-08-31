@@ -426,93 +426,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     {
     case 2:
       project_res.sqr_distance = projectLineOrigin (curr_simplex, next_simplex);
-      { // This only checks that, so far, the behaviour did not change.
-        FCL_REAL d = project_res.sqr_distance;
-        project_res = Project::projectLineOrigin(curr_simplex.vertex[0]->w,
-            curr_simplex.vertex[1]->w);
-
-        assert (fabs(d-project_res.sqr_distance) < 1e-10);
-
-        Vec3f _ray(0,0,0);
-        short k = 0;
-        for(short i = 0; i < curr_simplex.rank; ++i)
-        {
-          if(project_res.encode & (1 << i))
-          {
-            assert (next_simplex.vertex[k] == curr_simplex.vertex[i]);
-            _ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
-            ++k;
-          }
-        }
-        //assert (_ray.isApprox (ray));
-        assert ((_ray.isZero() && ray.isZero()) || _ray.isApprox (ray));
-        assert (k = next_simplex.rank);
-        assert (nfree+next_simplex.rank == 4);
-      }
       break;
     case 3:
       project_res.sqr_distance = projectTriangleOrigin (curr_simplex, next_simplex);
-      { // This only checks that, so far, the behaviour did not change.
-        FCL_REAL d = project_res.sqr_distance;
-        project_res = Project::projectTriangleOrigin(curr_simplex.vertex[0]->w,
-                                                     curr_simplex.vertex[1]->w,
-                                                     curr_simplex.vertex[2]->w);
-        assert (fabs(d-project_res.sqr_distance) < 1e-10);
-
-        Vec3f _ray(0,0,0);
-        short k = 0;
-        for(short i = 0; i < curr_simplex.rank; ++i)
-        {
-          if(project_res.encode & (1 << i))
-          {
-            //Remove check because the triangle might be inverted
-            //assert (next_simplex.vertex[k] == curr_simplex.vertex[i]);
-            _ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
-            ++k;
-          }
-        }
-        assert ((_ray - ray).array().abs().maxCoeff() < 1e-10);
-        assert (k = next_simplex.rank);
-        assert (nfree+next_simplex.rank == 4);
-      }
       break;
     case 4:
       project_res.sqr_distance = projectTetrahedraOrigin (curr_simplex, next_simplex);
-      { // This only checks that, so far, the behaviour did not change.
-        FCL_REAL d = project_res.sqr_distance;
-        project_res = Project::projectTetrahedraOrigin(curr_simplex.vertex[0]->w,
-                                                       curr_simplex.vertex[1]->w,
-                                                       curr_simplex.vertex[2]->w,
-                                                       curr_simplex.vertex[3]->w);
-        assert (fabs(d-project_res.sqr_distance) < 1e-10);
-
-        Vec3f _ray(0,0,0);
-        short k = 0;
-        for(short i = 0; i < curr_simplex.rank; ++i)
-        {
-          if(project_res.encode & (1 << i))
-          {
-            //Remove check because the triangle might be inverted
-            //assert (next_simplex.vertex[k] == curr_simplex.vertex[i]);
-            _ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
-            ++k;
-          }
-        }
-        assert ((_ray - ray).array().abs().maxCoeff() < 1e-10);
-        assert (k = next_simplex.rank);
-        assert (nfree+next_simplex.rank == 4);
-      }
       break;
-    }
-    if(next_simplex.rank==3) {
-      // Check that triangle BCD points towards the origin.
-      const Vec3f& d = next_simplex.vertex[0]->w,
-                   c = next_simplex.vertex[1]->w,
-                   b = next_simplex.vertex[2]->w;
-      assert ((c-b).cross(d-b).cross(ray).squaredNorm() < 1e-5);
-      assert ((c-b).cross(d-b).dot(-b) >= 0);
-      assert ((c-b).cross(d-b).dot(-c) >= 0);
-      assert ((c-b).cross(d-b).dot(-d) >= 0);
     }
     assert (nfree+next_simplex.rank == 4);
     if(project_res.sqr_distance >= 0)
