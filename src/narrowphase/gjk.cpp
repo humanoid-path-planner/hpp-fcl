@@ -210,17 +210,21 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized)
 
 #undef CALL_GET_SHAPE_SUPPORT
 
-template <typename Shape0, typename Shape1>
+template <typename Shape0, typename Shape1, bool TransformIsIdentity>
 void getSupportTpl (const Shape0* s0, const Shape1* s1,
     const Matrix3f& oR1, const Vec3f& ot1,
     const Vec3f& dir, Vec3f& support0, Vec3f& support1)
 {
   getShapeSupport (s0, dir, support0);
-  getShapeSupport (s1, - oR1.transpose() * dir, support1);
-  support1 = oR1 * support1 + ot1;
+  if (TransformIsIdentity)
+    getShapeSupport (s1, - dir, support1);
+  else {
+    getShapeSupport (s1, - oR1.transpose() * dir, support1);
+    support1 = oR1 * support1 + ot1;
+  }
 }
 
-template <typename Shape0, typename Shape1>
+template <typename Shape0, typename Shape1, bool TransformIsIdentity>
 void getSupportFuncTpl (const MinkowskiDiff& md,
     const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1)
 {
@@ -228,7 +232,7 @@ void getSupportFuncTpl (const MinkowskiDiff& md,
     bool ( (bool)shape_traits<Shape0>::NeedNormalizedDir
         || (bool)shape_traits<Shape1>::NeedNormalizedDir)
   };
-  getSupportTpl<Shape0, Shape1> (
+  getSupportTpl<Shape0, Shape1, TransformIsIdentity> (
       static_cast <const Shape0*>(md.shapes[0]),
       static_cast <const Shape1*>(md.shapes[1]),
       md.oR1, md.ot1,
@@ -237,27 +241,78 @@ void getSupportFuncTpl (const MinkowskiDiff& md,
 }
 
 template <typename Shape0>
-MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1)
+MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, bool identity)
 {
   switch(s1->getNodeType())
   {
   case GEOM_TRIANGLE:
-    return getSupportFuncTpl<Shape0, TriangleP>;
+    if (identity) return getSupportFuncTpl<Shape0, TriangleP, true >;
+    else          return getSupportFuncTpl<Shape0, TriangleP, false>;
   case GEOM_BOX:
-    return getSupportFuncTpl<Shape0, Box>;
+    if (identity) return getSupportFuncTpl<Shape0, Box, true >;
+    else          return getSupportFuncTpl<Shape0, Box, false>;
   case GEOM_SPHERE:
-    return getSupportFuncTpl<Shape0, Sphere>;
+    if (identity) return getSupportFuncTpl<Shape0, Sphere, true >;
+    else          return getSupportFuncTpl<Shape0, Sphere, false>;
   case GEOM_CAPSULE:
-    return getSupportFuncTpl<Shape0, Capsule>;
+    if (identity) return getSupportFuncTpl<Shape0, Capsule, true >;
+    else          return getSupportFuncTpl<Shape0, Capsule, false>;
   case GEOM_CONE:
-    return getSupportFuncTpl<Shape0, Cone>;
+    if (identity) return getSupportFuncTpl<Shape0, Cone, true >;
+    else          return getSupportFuncTpl<Shape0, Cone, false>;
   case GEOM_CYLINDER:
-    return getSupportFuncTpl<Shape0, Cylinder>;
+    if (identity) return getSupportFuncTpl<Shape0, Cylinder, true >;
+    else          return getSupportFuncTpl<Shape0, Cylinder, false>;
   case GEOM_CONVEX:
-    return getSupportFuncTpl<Shape0, Convex>;
+    if (identity) return getSupportFuncTpl<Shape0, Convex, true >;
+    else          return getSupportFuncTpl<Shape0, Convex, false>;
   default:
     throw std::logic_error ("Unsupported geometric shape");
   }
+}
+
+MinkowskiDiff::GetSupportFunction makeGetSupportFunction0 (const ShapeBase* s0, const ShapeBase* s1, bool identity)
+{
+  switch(s0->getNodeType())
+  {
+  case GEOM_TRIANGLE:
+    return makeGetSupportFunction1<TriangleP> (s1, identity);
+    break;
+  case GEOM_BOX:
+    return makeGetSupportFunction1<Box> (s1, identity);
+    break;
+  case GEOM_SPHERE:
+    return makeGetSupportFunction1<Sphere> (s1, identity);
+    break;
+  case GEOM_CAPSULE:
+    return makeGetSupportFunction1<Capsule> (s1, identity);
+    break;
+  case GEOM_CONE:
+    return makeGetSupportFunction1<Cone> (s1, identity);
+    break;
+  case GEOM_CYLINDER:
+    return makeGetSupportFunction1<Cylinder> (s1, identity);
+    break;
+  case GEOM_CONVEX:
+    return makeGetSupportFunction1<Convex> (s1, identity);
+    break;
+  default:
+    throw std::logic_error ("Unsupported geometric shape");
+  }
+}
+
+void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1,
+    const Transform3f& tf0, const Transform3f& tf1)
+{
+  shapes[0] = shape0;
+  shapes[1] = shape1;
+
+  oR1 = tf0.getRotation().transpose() * tf1.getRotation();
+  ot1 = tf0.getRotation().transpose() * (tf1.getTranslation() - tf0.getTranslation());
+
+  bool identity = (oR1.isIdentity() && ot1.isZero());
+
+  getSupportFunc = makeGetSupportFunction0 (shape0, shape1, identity);
 }
 
 void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1)
@@ -265,32 +320,10 @@ void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1)
   shapes[0] = shape0;
   shapes[1] = shape1;
 
-  switch(shape0->getNodeType())
-  {
-  case GEOM_TRIANGLE:
-    getSupportFunc = makeGetSupportFunction1<TriangleP> (shape1);
-    break;
-  case GEOM_BOX:
-    getSupportFunc = makeGetSupportFunction1<Box> (shape1);
-    break;
-  case GEOM_SPHERE:
-    getSupportFunc = makeGetSupportFunction1<Sphere> (shape1);
-    break;
-  case GEOM_CAPSULE:
-    getSupportFunc = makeGetSupportFunction1<Capsule> (shape1);
-    break;
-  case GEOM_CONE:
-    getSupportFunc = makeGetSupportFunction1<Cone> (shape1);
-    break;
-  case GEOM_CYLINDER:
-    getSupportFunc = makeGetSupportFunction1<Cylinder> (shape1);
-    break;
-  case GEOM_CONVEX:
-    getSupportFunc = makeGetSupportFunction1<Convex> (shape1);
-    break;
-  default:
-    throw std::logic_error ("Unsupported geometric shape");
-  }
+  oR1.setIdentity();
+  ot1.setZero();
+
+  getSupportFunc = makeGetSupportFunction0 (shape0, shape1, true);
 }
 
 void GJK::initialize()

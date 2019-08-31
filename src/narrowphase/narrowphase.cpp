@@ -625,20 +625,16 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
      const TriangleP& s2, const Transform3f& tf2,
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const
   {
+    const TriangleP
+      t1 (tf1.transform(s1.a), tf1.transform(s1.b), tf1.transform(s1.c)),
+      t2 (tf2.transform(s2.a), tf2.transform(s2.b), tf2.transform(s2.c));
+
     Vec3f guess(1, 0, 0);
     if(enable_cached_guess) guess = cached_guess;
     bool enable_penetration (true);
 
     details::MinkowskiDiff shape;
-    shape.set (&s1, &s2);
-    shape.set (tf1, tf2);
-
-    const Vec3f& P1 (s1.a);
-    const Vec3f& P2 (s1.b);
-    const Vec3f& P3 (s1.c);
-    const Vec3f& Q1 (s2.a);
-    const Vec3f& Q2 (s2.b);
-    const Vec3f& Q3 (s2.c);
+    shape.set (&t1, &t2);
 
     details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -653,19 +649,14 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
       // (i.e. an object face normal is colinear to gjk.ray
       // assert (dist == (w0 - w1).norm());
       dist = gjk.distance;
-      p1 = tf1.transform (p1);
-      p2 = tf1.transform (p2);
 
       return true;
     }
     else if (gjk_status == details::GJK::Inside)
     {
-      p1 = tf1.transform (p1);
-      p2 = tf1.transform (p2);
-
       if (enable_penetration) {
         FCL_REAL penetrationDepth = details::computePenetration
-          (P1, P2, P3, Q1, Q2, Q3, tf1, tf2, normal);
+          (t1.a, t1.b, t1.c, t2.a, t2.b, t2.c, normal);
         dist = -penetrationDepth;
         assert (dist <= 1e-6);
         // GJK says Inside when below GJK.tolerance. So non intersecting

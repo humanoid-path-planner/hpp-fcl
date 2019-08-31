@@ -2626,6 +2626,21 @@ namespace fcl {
 
       return true;
     }
+
+    /// See the prototype below
+    inline FCL_REAL computePenetration
+      (const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
+       const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
+       Vec3f& normal)
+    {
+      Vec3f u ((P2-P1).cross (P3-P1));
+      normal = u.normalized ();
+      FCL_REAL depth1 ((P1-Q1).dot (normal));
+      FCL_REAL depth2 ((P1-Q2).dot (normal));
+      FCL_REAL depth3 ((P1-Q3).dot (normal));
+      return std::max (depth1, std::max (depth2, depth3));
+    }
+
     // Compute penetration distance and normal of two triangles in collision
     // Normal is normal of triangle 1 (P1, P2, P3), penetration depth is the
     // minimal distance (Q1, Q2, Q3) should be translated along the normal so
@@ -2644,14 +2659,8 @@ namespace fcl {
       Vec3f globalQ1 (tf2.transform (Q1));
       Vec3f globalQ2 (tf2.transform (Q2));
       Vec3f globalQ3 (tf2.transform (Q3));
-      Vec3f u ((globalP2-globalP1).cross (globalP3-globalP1));
-      normal = u.normalized ();
-      FCL_REAL depth;
-      FCL_REAL depth1 ((globalP1-globalQ1).dot (normal));
-      FCL_REAL depth2 ((globalP1-globalQ2).dot (normal));
-      FCL_REAL depth3 ((globalP1-globalQ3).dot (normal));
-      depth = std::max (depth1, std::max (depth2, depth3));
-      return depth;
+      return computePenetration (globalP1, globalP2, globalP3,
+          globalQ1, globalQ2, globalQ3, normal);
     }
   } // details
 } // namespace fcl

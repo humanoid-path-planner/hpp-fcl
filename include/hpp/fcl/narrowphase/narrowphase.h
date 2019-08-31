@@ -62,8 +62,7 @@ namespace fcl
       if(enable_cached_guess) guess = cached_guess;
     
       details::MinkowskiDiff shape;
-      shape.set (&s1, &s2);
-      shape.set (tf1, tf2);
+      shape.set (&s1, &s2, tf1, tf2);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -103,14 +102,18 @@ namespace fcl
      Vec3f& p1, Vec3f& p2, Vec3f& normal) const
     {
       bool col;
-      TriangleP tri(P1, P2, P3);
+      // Express everything in frame 1
+      const Transform3f tf_1M2 (tf1.inverseTimes(tf2));
+      TriangleP tri(
+          tf_1M2.transform (P1),
+          tf_1M2.transform (P2),
+          tf_1M2.transform (P3));
 
       Vec3f guess(1, 0, 0);
       if(enable_cached_guess) guess = cached_guess;
 
       details::MinkowskiDiff shape;
       shape.set (&s, &tri);
-      shape.set (tf1, tf2);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -170,8 +173,7 @@ namespace fcl
       if(enable_cached_guess) guess = cached_guess;
 
       details::MinkowskiDiff shape;
-      shape.set (&s1, &s2);
-      shape.set (tf1, tf2);
+      shape.set (&s1, &s2, tf1, tf2);
 
       details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);

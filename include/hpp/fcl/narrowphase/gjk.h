@@ -77,13 +77,13 @@ struct MinkowskiDiff
 
   MinkowskiDiff() : getSupportFunc (NULL) {}
 
+  /// Set the two shapes,
+  /// assuming the relative transformation between them is identity.
   void set (const ShapeBase* shape0, const ShapeBase* shape1);
 
-  void set (const Transform3f& tf0, const Transform3f& tf1)
-  {
-    oR1 = tf0.getRotation().transpose() * tf1.getRotation();
-    ot1 = tf0.getRotation().transpose() * (tf1.getTranslation() - tf0.getTranslation());
-  }
+  /// Set the two shapes, with a relative transformation.
+  void set (const ShapeBase* shape0, const ShapeBase* shape1,
+      const Transform3f& tf0, const Transform3f& tf1);
 
   /// @brief support function for shape0
   inline Vec3f support0(const Vec3f& d, bool dIsNormalized) const
