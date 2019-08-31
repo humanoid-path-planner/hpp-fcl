@@ -189,6 +189,8 @@ private:
   /// @brief Project origin (0) onto triangle a-b-c
   FCL_REAL projectTriangleOrigin(const Simplex& current, Simplex& next);
 
+  /// @brief Project origin (0) onto tetrahedran a-b-c-d
+  FCL_REAL projectTetrahedraOrigin(const Simplex& current, Simplex& next);
 };
 
 

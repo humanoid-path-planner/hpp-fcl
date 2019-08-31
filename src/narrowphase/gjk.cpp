@@ -477,34 +477,47 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       }
       break;
     case 4:
-      project_res = Project::projectTetrahedraOrigin(curr_simplex.vertex[0]->w,
-                                                     curr_simplex.vertex[1]->w,
-                                                     curr_simplex.vertex[2]->w,
-                                                     curr_simplex.vertex[3]->w);
+      project_res.sqr_distance = projectTetrahedraOrigin (curr_simplex, next_simplex);
+      { // This only checks that, so far, the behaviour did not change.
+        FCL_REAL d = project_res.sqr_distance;
+        project_res = Project::projectTetrahedraOrigin(curr_simplex.vertex[0]->w,
+                                                       curr_simplex.vertex[1]->w,
+                                                       curr_simplex.vertex[2]->w,
+                                                       curr_simplex.vertex[3]->w);
+        assert (fabs(d-project_res.sqr_distance) < 1e-10);
+
+        Vec3f _ray(0,0,0);
+        short k = 0;
+        for(short i = 0; i < curr_simplex.rank; ++i)
+        {
+          if(project_res.encode & (1 << i))
+          {
+            //Remove check because the triangle might be inverted
+            //assert (next_simplex.vertex[k] == curr_simplex.vertex[i]);
+            _ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
+            ++k;
+          }
+        }
+        assert ((_ray - ray).array().abs().maxCoeff() < 1e-10);
+        assert (k = next_simplex.rank);
+        assert (nfree+next_simplex.rank == 4);
+      }
       break;
     }
-    if(project_res.sqr_distance >= 0)
-    {
-      current = next;
-      if (curr_simplex.rank > 3) {
-      next_simplex.rank = 0;
-      ray = Vec3f(0,0,0);
-      for(short i = 0; i < curr_simplex.rank; ++i)
-      {
-        if(project_res.encode & (1 << i))
-        {
-          next_simplex.vertex[next_simplex.rank++] = curr_simplex.vertex[i];
-          ray += curr_simplex.vertex[i]->w * project_res.parameterization[i];
-        }
-        else
-          free_v[nfree++] = curr_simplex.vertex[i];
-      }
-      if(project_res.encode == 15) status = Inside; // the origin is within the 4-simplex, collision
-      }
-      assert (nfree+next_simplex.rank == 4);
+    if(next_simplex.rank==3) {
+      // Check that triangle BCD points towards the origin.
+      const Vec3f& d = next_simplex.vertex[0]->w,
+                   c = next_simplex.vertex[1]->w,
+                   b = next_simplex.vertex[2]->w;
+      assert ((c-b).cross(d-b).cross(ray).squaredNorm() < 1e-5);
+      assert ((c-b).cross(d-b).dot(-b) >= 0);
+      assert ((c-b).cross(d-b).dot(-c) >= 0);
+      assert ((c-b).cross(d-b).dot(-d) >= 0);
     }
-    else
-    {
+    assert (nfree+next_simplex.rank == 4);
+    if(project_res.sqr_distance >= 0)
+      current = next;
+    else {
       removeVertex(simplices[current]);
       break;
     }
@@ -645,10 +658,11 @@ inline void originToTriangle (
     int a, int b, int c,
     const Vec3f& A,
     const Vec3f& ABC,
+    const FCL_REAL& ABCdotAO,
     GJK::Simplex& next,
     Vec3f& ray)
 {
-  bool aboveTri (ABC.dot(-A));
+  bool aboveTri (ABCdotAO >= 0);
   ray = ABC;
 
   if (aboveTri) {
@@ -662,7 +676,7 @@ inline void originToTriangle (
   next.rank = 3;
 
   // To ensure backward compatibility
-  ray *= A.dot(ABC) / ABC.squaredNorm();
+  ray *= -ABCdotAO / ABC.squaredNorm();
 }
 
 FCL_REAL GJK::projectLineOrigin(const Simplex& current, Simplex& next)
@@ -725,9 +739,655 @@ FCL_REAL GJK::projectTriangleOrigin(const Simplex& current, Simplex& next)
         originToSegment (current, a, b, A, B, AB, towardsB, next, ray);
       free_v[nfree++] = current.vertex[c];
     } else {
-      originToTriangle (current, a, b, c, A, ABC, next, ray);
+      originToTriangle (current, a, b, c, A, ABC, ABC.dot(-A), next, ray);
     }
   }
+  return ray.squaredNorm();
+}
+
+FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
+{
+  const int a = 3, b = 2, c = 1, d = 0;
+  const Vec3f& A (current.vertex[a]->w);
+  const Vec3f& B (current.vertex[b]->w);
+  const Vec3f& C (current.vertex[c]->w);
+  const Vec3f& D (current.vertex[d]->w);
+  const Vec3f AB (B-A);
+  const FCL_REAL AB_dot_AO = AB.dot(-A);
+  const Vec3f AC (C-A);
+  const FCL_REAL AC_dot_AO = AC.dot(-A);
+  const Vec3f AD (D-A);
+  const FCL_REAL AD_dot_AO = AD.dot(-A);
+  const Vec3f ABC (AB.cross(AC));
+  const FCL_REAL ABC_dot_AO = ABC.dot(-A);
+  const Vec3f ACD (AC.cross(AD));
+  const FCL_REAL ACD_dot_AO = ACD.dot(-A);
+  const Vec3f ADB (AD.cross(AB));
+  const FCL_REAL ADB_dot_AO = ADB.dot(-A);
+  Vec3f cross;
+
+
+#ifndef NDEBUG
+  Vec3f BC (C-B),
+        CD (D-C),
+        BD (D-B),
+        BCD ((C-B).cross(D-B));
+  FCL_REAL t = BCD.dot(-AB);
+  assert (t >= 0);
+  t = BCD.dot(-B);
+  assert (t >= 0);
+  t = BCD.dot(-ray);
+  assert (t >= 0);
+
+  // We necessarily come from the triangle case with the closest point lying on
+  // the triangle. Hence the assertions below.
+  assert (BCD.cross(-BC).dot (B) >= 0);
+  assert (BCD.cross(-CD).dot (C) >= 0);
+  assert (BCD.cross( BD).dot (D) >= 0);
+#endif
+
+#define REGION_INSIDE()                 \
+    ray.setZero();                      \
+    next.vertex[0] = current.vertex[d]; \
+    next.vertex[1] = current.vertex[c]; \
+    next.vertex[2] = current.vertex[b]; \
+    next.vertex[3] = current.vertex[a]; \
+    next.rank=4;                        \
+    return 0;
+
+  if (AB_dot_AO >= 0) {
+    cross.noalias() = ABC.cross(AB);
+    if (cross.dot(-A) >= 0) {
+      cross.noalias() = ABC.cross(AC);
+      if (cross.dot(-A) >= 0) {
+        cross.noalias() = ACD.cross(AD);
+        if (cross.dot(-A) >= 0) {
+          if (AC_dot_AO >= 0) {
+            cross.noalias() = ACD.cross(AC);
+            if (cross.dot(-A) >= 0) {
+              if (AD_dot_AO >= 0) {
+                // Region Inside
+                REGION_INSIDE()
+              } else {
+                if (ADB_dot_AO >= 0) {
+                  // Region ADB
+                  originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                  free_v[nfree++] = current.vertex[c];
+                } else {
+                  // Region Inside
+                  REGION_INSIDE()
+                }
+              }
+            } else {
+              // Region AC
+              originToSegment (current, a, c, A, C, AC, AC_dot_AO, next, ray);
+              free_v[nfree++] = current.vertex[b];
+              free_v[nfree++] = current.vertex[d];
+            }
+          } else {
+            if (ADB_dot_AO >= 0) {
+              cross.noalias() = ADB.cross(AD);
+              if (cross.dot(-A) >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              if (ACD_dot_AO >= 0) {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region Inside
+                REGION_INSIDE()
+              }
+            }
+          }
+        } else {
+          if (ADB_dot_AO >= 0) {
+            cross.noalias() = ACD.cross(AC);
+            if (cross.dot(-A) >= 0) {
+              if (ACD_dot_AO >= 0) {
+                // Region ACD
+                originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+              } else {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              if (AC_dot_AO >= 0) {
+                // Region AC
+                originToSegment (current, a, c, A, C, AC, AC_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[d];
+              } else {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              }
+            }
+          } else {
+            if (ACD_dot_AO >= 0) {
+              cross.noalias() = ACD.cross(AC);
+              if (cross.dot(-A) >= 0) {
+                // Region ACD
+                originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+              } else {
+                // Region AC
+                originToSegment (current, a, c, A, C, AC, AC_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[d];
+              }
+            } else {
+              if (ABC_dot_AO >= 0) {
+                // Region AC
+                originToSegment (current, a, c, A, C, AC, AC_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[d];
+              } else {
+                // Region Inside
+                REGION_INSIDE()
+              }
+            }
+          }
+        }
+      } else {
+        if (ABC_dot_AO >= 0) {
+          // Region ABC
+          originToTriangle (current, a, b, c, A, ABC, ABC_dot_AO, next, ray);
+          free_v[nfree++] = current.vertex[d];
+        } else {
+          if (ACD_dot_AO >= 0) {
+            cross.noalias() = ACD.cross(AD);
+            if (cross.dot(-A) >= 0) {
+              cross.noalias() = ADB.cross(AD);
+              if (cross.dot(-A) >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              cross.noalias() = ACD.cross(AC);
+              if (cross.dot(-A) >= 0) {
+                // Region ACD
+                originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+              } else {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              }
+            }
+          } else {
+            if (ADB_dot_AO >= 0) {
+              cross.noalias() = ADB.cross(AD);
+              if (cross.dot(-A) >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              // Region Inside
+              REGION_INSIDE()
+            }
+          }
+        }
+      }
+    } else {
+      cross.noalias() = ACD.cross(AC);
+      if (cross.dot(-A) >= 0) {
+        if (ACD_dot_AO >= 0) {
+          cross.noalias() = ADB.cross(AD);
+          if (cross.dot(-A) >= 0) {
+            if (ADB_dot_AO >= 0) {
+              cross.noalias() = ADB.cross(AB);
+              if (cross.dot(-A) >= 0) {
+                // Region AB
+                originToSegment (current, a, b, A, B, AB, AB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              } else {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              cross.noalias() = ACD.cross(AD);
+              if (cross.dot(-A) >= 0) {
+                // Region AB
+                originToSegment (current, a, b, A, B, AB, AB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              } else {
+                // Region ACD
+                originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+              }
+            }
+          } else {
+            cross.noalias() = ACD.cross(AD);
+            if (cross.dot(-A) >= 0) {
+              if (AD_dot_AO >= 0) {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region AB
+                originToSegment (current, a, b, A, B, AB, AB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              }
+            } else {
+              // Region ACD
+              originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+              free_v[nfree++] = current.vertex[b];
+            }
+          }
+        } else {
+          if (ADB_dot_AO >= 0) {
+            cross.noalias() = ADB.cross(AD);
+            if (cross.dot(-A) >= 0) {
+              cross.noalias() = ADB.cross(AB);
+              if (cross.dot(-A) >= 0) {
+                // Region AB
+                originToSegment (current, a, b, A, B, AB, AB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              } else {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              cross.noalias() = ADB.cross(AB);
+              if (cross.dot(-A) >= 0) {
+                // Region AB
+                originToSegment (current, a, b, A, B, AB, AB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              } else {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              }
+            }
+          } else {
+            if (ABC_dot_AO >= 0) {
+              // Region AB
+              originToSegment (current, a, b, A, B, AB, AB_dot_AO, next, ray);
+              free_v[nfree++] = current.vertex[c];
+              free_v[nfree++] = current.vertex[d];
+            } else {
+              // Region Inside
+              REGION_INSIDE()
+            }
+          }
+        }
+      } else {
+        cross.noalias() = ADB.cross(AB);
+        if (cross.dot(-A) >= 0) {
+          // Region AB
+          originToSegment (current, a, b, A, B, AB, AB_dot_AO, next, ray);
+          free_v[nfree++] = current.vertex[c];
+          free_v[nfree++] = current.vertex[d];
+        } else {
+          if (AC_dot_AO >= 0) {
+            cross.noalias() = ABC.cross(AC);
+            if (cross.dot(-A) >= 0) {
+              // Region AC
+              originToSegment (current, a, c, A, C, AC, AC_dot_AO, next, ray);
+              free_v[nfree++] = current.vertex[b];
+              free_v[nfree++] = current.vertex[d];
+            } else {
+              if (AD_dot_AO >= 0) {
+                // Region Inside
+                REGION_INSIDE()
+              } else {
+                if (ADB_dot_AO >= 0) {
+                  // Region ADB
+                  originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                  free_v[nfree++] = current.vertex[c];
+                } else {
+                  // Region Inside
+                  REGION_INSIDE()
+                }
+              }
+            }
+          } else {
+            if (ADB_dot_AO >= 0) {
+              cross.noalias() = ADB.cross(AD);
+              if (cross.dot(-A) >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              if (ACD_dot_AO >= 0) {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region Inside
+                REGION_INSIDE()
+              }
+            }
+          }
+        }
+      }
+    }
+  } else {
+    if (ABC_dot_AO >= 0) {
+      cross.noalias() = ABC.cross(AC);
+      if (cross.dot(-A) >= 0) {
+        cross.noalias() = ACD.cross(AC);
+        if (cross.dot(-A) >= 0) {
+          cross.noalias() = ACD.cross(AD);
+          if (cross.dot(-A) >= 0) {
+            if (AD_dot_AO >= 0) {
+              cross.noalias() = ADB.cross(AD);
+              if (cross.dot(-A) >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              if (AC_dot_AO >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region A
+                originToPoint (current, a, A, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              }
+            }
+          } else {
+            if (ACD_dot_AO >= 0) {
+              // Region ACD
+              originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+              free_v[nfree++] = current.vertex[b];
+            } else {
+              // Region ADB
+              originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+              free_v[nfree++] = current.vertex[c];
+            }
+          }
+        } else {
+          cross.noalias() = ADB.cross(AD);
+          if (cross.dot(-A) >= 0) {
+            if (AC_dot_AO >= 0) {
+              // Region AC
+              originToSegment (current, a, c, A, C, AC, AC_dot_AO, next, ray);
+              free_v[nfree++] = current.vertex[b];
+              free_v[nfree++] = current.vertex[d];
+            } else {
+              if (AD_dot_AO >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region A
+                originToPoint (current, a, A, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              }
+            }
+          } else {
+            if (AC_dot_AO >= 0) {
+              // Region AC
+              originToSegment (current, a, c, A, C, AC, AC_dot_AO, next, ray);
+              free_v[nfree++] = current.vertex[b];
+              free_v[nfree++] = current.vertex[d];
+            } else {
+              if (AD_dot_AO >= 0) {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region A
+                originToPoint (current, a, A, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              }
+            }
+          }
+        }
+      } else {
+        cross.noalias() = ABC.cross(AB);
+        if (cross.dot(-A) >= 0) {
+          // Region ABC
+          originToTriangle (current, a, b, c, A, ABC, ABC_dot_AO, next, ray);
+          free_v[nfree++] = current.vertex[d];
+        } else {
+          cross.noalias() = ACD.cross(AD);
+          if (cross.dot(-A) >= 0) {
+            if (AD_dot_AO >= 0) {
+              cross.noalias() = ADB.cross(AD);
+              if (cross.dot(-A) >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              if (AC_dot_AO >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region A
+                originToPoint (current, a, A, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              }
+            }
+          } else {
+            cross.noalias() = ACD.cross(AC);
+            if (cross.dot(-A) >= 0) {
+              if (ACD_dot_AO >= 0) {
+                // Region ACD
+                originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+              } else {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              if (AC_dot_AO >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                if (AD_dot_AO >= 0) {
+                  // Region ADB
+                  originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                  free_v[nfree++] = current.vertex[c];
+                } else {
+                  // Region A
+                  originToPoint (current, a, A, next, ray);
+                  free_v[nfree++] = current.vertex[b];
+                  free_v[nfree++] = current.vertex[c];
+                  free_v[nfree++] = current.vertex[d];
+                }
+              }
+            }
+          }
+        }
+      }
+    } else {
+      if (ACD_dot_AO >= 0) {
+        cross.noalias() = ACD.cross(AC);
+        if (cross.dot(-A) >= 0) {
+          cross.noalias() = ACD.cross(AD);
+          if (cross.dot(-A) >= 0) {
+            if (AD_dot_AO >= 0) {
+              cross.noalias() = ADB.cross(AD);
+              if (cross.dot(-A) >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              if (AC_dot_AO >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region A
+                originToPoint (current, a, A, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              }
+            }
+          } else {
+            // Region ACD
+            originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+            free_v[nfree++] = current.vertex[b];
+          }
+        } else {
+          cross.noalias() = ADB.cross(AD);
+          if (cross.dot(-A) >= 0) {
+            if (AC_dot_AO >= 0) {
+              cross.noalias() = ABC.cross(AC);
+              if (cross.dot(-A) >= 0) {
+                // Region AC
+                originToSegment (current, a, c, A, C, AC, AC_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[d];
+              } else {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              if (AD_dot_AO >= 0) {
+                // Region ADB
+                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region A
+                originToPoint (current, a, A, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              }
+            }
+          } else {
+            if (AC_dot_AO >= 0) {
+              cross.noalias() = ABC.cross(AC);
+              if (cross.dot(-A) >= 0) {
+                // Region AC
+                originToSegment (current, a, c, A, C, AC, AC_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[d];
+              } else {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              }
+            } else {
+              if (AD_dot_AO >= 0) {
+                // Region AD
+                originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+              } else {
+                // Region A
+                originToPoint (current, a, A, next, ray);
+                free_v[nfree++] = current.vertex[b];
+                free_v[nfree++] = current.vertex[c];
+                free_v[nfree++] = current.vertex[d];
+              }
+            }
+          }
+        }
+      } else {
+        if (ADB_dot_AO >= 0) {
+          if (AD_dot_AO >= 0) {
+            cross.noalias() = ADB.cross(AD);
+            if (cross.dot(-A) >= 0) {
+              // Region ADB
+              originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+              free_v[nfree++] = current.vertex[c];
+            } else {
+              // Region AD
+              originToSegment (current, a, d, A, D, AD, AD_dot_AO, next, ray);
+              free_v[nfree++] = current.vertex[b];
+              free_v[nfree++] = current.vertex[c];
+            }
+          } else {
+            if (AC_dot_AO >= 0) {
+              // Region ADB
+              originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+              free_v[nfree++] = current.vertex[c];
+            } else {
+              // Region A
+              originToPoint (current, a, A, next, ray);
+              free_v[nfree++] = current.vertex[b];
+              free_v[nfree++] = current.vertex[c];
+              free_v[nfree++] = current.vertex[d];
+            }
+          }
+        } else {
+          // Region Inside
+          REGION_INSIDE()
+        }
+      }
+    }
+  }
+
+#undef REGION_INSIDE
+
   return ray.squaredNorm();
 }
 
