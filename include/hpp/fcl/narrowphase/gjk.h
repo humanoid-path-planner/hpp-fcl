@@ -148,13 +148,11 @@ struct GJK
   Status evaluate(const MinkowskiDiff& shape, const Vec3f& guess);
 
   /// @brief apply the support function along a direction, the result is return in sv
-  void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv) const;
-
-  /// @brief discard one vertex from the simplex
-  void removeVertex(Simplex& simplex);
-
-  /// @brief append one vertex to the simplex
-  void appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized = false);
+  inline void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv) const
+  {
+    shape->support(d, dIsNormalized, sv.w0, sv.w1);
+    sv.w.noalias() = sv.w0 - sv.w1;
+  }
 
   /// @brief whether the simplex enclose the origin
   bool encloseOrigin();
@@ -192,6 +190,12 @@ private:
   unsigned int max_iterations;
   FCL_REAL tolerance;
   FCL_REAL distance_upper_bound;
+
+  /// @brief discard one vertex from the simplex
+  inline void removeVertex(Simplex& simplex);
+
+  /// @brief append one vertex to the simplex
+  inline void appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized = false);
 
   /// @brief Project origin (0) onto line a-b
   bool projectLineOrigin(const Simplex& current, Simplex& next);

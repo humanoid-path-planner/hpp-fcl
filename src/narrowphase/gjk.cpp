@@ -486,18 +486,12 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   return status;
 }
 
-void GJK::getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv) const
-{
-  shape->support(d, dIsNormalized, sv.w0, sv.w1);
-  sv.w.noalias() = sv.w0 - sv.w1;
-}
-
-void GJK::removeVertex(Simplex& simplex)
+inline void GJK::removeVertex(Simplex& simplex)
 {
   free_v[nfree++] = simplex.vertex[--simplex.rank];
 }
 
-void GJK::appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized)
+inline void GJK::appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized)
 {
   simplex.vertex[simplex.rank] = free_v[--nfree]; // set the memory
   getSupport (v, isNormalized, *simplex.vertex[simplex.rank++]);
