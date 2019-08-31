@@ -297,6 +297,7 @@ void GJK::initialize()
 {
   nfree = 0;
   status = Failed;
+  distance_upper_bound = std::numeric_limits<FCL_REAL>::max();
   simplex = NULL;
 }
 
@@ -404,8 +405,15 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     // check removed (by ?): when the new support point is close to previous support points, stop (as the new simplex is degenerated)
     const Vec3f& w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
 
-    // check C: when the new support point is close to the sub-simplex where the ray point lies, stop (as the new simplex again is degenerated)
+    // check B: no collision if omega > 0
     FCL_REAL omega = ray.dot(w) / rl;
+    if (omega > distance_upper_bound)
+    {
+      distance = omega;
+      break;
+    }
+
+    // check C: when the new support point is close to the sub-simplex where the ray point lies, stop (as the new simplex again is degenerated)
     alpha = std::max(alpha, omega);
     if((rl - alpha) - tolerance * rl <= 0)
     {

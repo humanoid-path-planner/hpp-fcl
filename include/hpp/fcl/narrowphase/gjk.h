@@ -172,6 +172,15 @@ struct GJK
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;
 
+  /// @brief Distance threshold for early break.
+  /// GJK stops when it proved the distance is more than this threshold.
+  /// \note The closest points will be erroneous in this case.
+  ///       If you want the closest points, set this to infinity (the default).
+  void setDistanceEarlyBreak (const FCL_REAL& dup)
+  {
+    distance_upper_bound = dup;
+  }
+
 private:
   SimplexV store_v[4];
   SimplexV* free_v[4];
@@ -182,6 +191,7 @@ private:
 
   unsigned int max_iterations;
   FCL_REAL tolerance;
+  FCL_REAL distance_upper_bound;
 
   /// @brief Project origin (0) onto line a-b
   bool projectLineOrigin(const Simplex& current, Simplex& next);
