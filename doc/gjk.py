@@ -1,19 +1,47 @@
 #!/usr/bin/env python3
 import pdb
+import sys
 
-checks =  [ "AB", "AC", "AD" ] \
-        + [ "ABC", "ACD", "ADB" ] \
-        + [ "ABC.cross({})".format(n) for n in [ "AB", "AC" ] ] \
-        + [ "ACD.cross({})".format(n) for n in [ "AC", "AD" ] ] \
-        + [ "ADB.cross({})".format(n) for n in [ "AD", "AB" ] ]
+# ABC = AB^AC
+# (ABC^AJ).a = (j.c - j.b) a.a + (j.a - j.c) b.a + (j.b - j.a) c.a, for j = b or c
 
-tests = list(range(len(checks)))
+segment_fmt = "{j}a_aa"
+plane_fmt = ""
+edge_fmt = "{j}a * {b}a_{c}a + {j}{b} * {c}a_aa - {j}{c} * {b}a_aa"
 
-weights = [ 1, ] * 3 + [ 2, ] * 3 + [ 3, ] * 6
+# These checks must be negative and not positive, as in the cheat sheet.
+# They are the same as in the cheat sheet, except that we consider (...).dot(A) instead of (...).dot(-A)
+plane_tests = [ "C.dot (a_cross_b)", "D.dot(a_cross_c)", "-D.dot(a_cross_b)" ]
+checks =  plane_tests \
+        + [ edge_fmt.format (**{'j':j,'b':"b",'c':"c"}) for j in [ "b", "c" ] ] \
+        + [ edge_fmt.format (**{'j':j,'b':"c",'c':"d"}) for j in [ "c", "d" ] ] \
+        + [ edge_fmt.format (**{'j':j,'b':"d",'c':"b"}) for j in [ "d", "b" ] ] \
+        + [ segment_fmt.format(**{'j':j}) for j in [ "b", "c", "d" ] ]
+checks_hr = [ "ABC.AO >= 0", "ACD.AO >= 0", "ADB.AO >= 0" ] \
+        + [ "(ABC ^ {}).AO >= 0".format(n) for n in [ "AB", "AC" ] ] \
+        + [ "(ACD ^ {}).AO >= 0".format(n) for n in [ "AC", "AD" ] ] \
+        + [ "(ADB ^ {}).AO >= 0".format(n) for n in [ "AD", "AB" ] ] \
+        + [ "AB.AO >= 0", "AC.AO >= 0", "AD.AO >= 0" ]
+
+# weights of the checks.
+weights = [ 2, ] * 3 + [ 3, ] * 6 + [ 1, ] * 3
+
+# Segment tests first, because they have lower weight.
+#tests = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, ]
+tests = [9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, ]
+assert len(tests) == len(checks)
+assert sorted(tests) == list(range(len(tests)))
 
 regions = [ "ABC", "ACD", "ADB", "AB", "AC", "AD", "A", "Inside", ]
 cases = list(range(len(regions)))
 
+# The following 3 lists refer to table doc/GJK_tetrahedra_boolean_table.ods
+
+# A check ID is (+/- (index+1)) where a minus sign encodes a NOT operation
+# and index refers to an index in list checks.
+
+# definitions is a list of list of check IDs to be ANDed.
+# For instance, a0.a3.!a4 -> [ 1, 4, -5]
 definitions = [
         [  1,  4,- 5 ],
         [  2,  6,- 7 ],
@@ -24,6 +52,7 @@ definitions = [
         [-10,-11,-12 ],
         [- 1,- 2,- 3 ],
         ]
+# conditions is a list of (list of (list of check IDs to be ANDed) to be ORed).
 conditions = [
         [],
         [],
@@ -32,18 +61,72 @@ conditions = [
         [],
         [],
         [],
-        [ [10, 11, 12], ],
+        [ ], #[ [10, 11, 12], ], # I don't think this is always true...
         ]
+# rejections is a list of (list of (list of check IDs to be ANDed) to be ORed).
 rejections = [
-        [],
-        [],
-        [],
+        [ [  2,  6,  7], [  3,-  8,-  9], ],
+        [ [  3,  8,  9], [  1,-  4,-  5], ],
+        [ [  1,  4,  5], [  2,-  6,-  7], ],
         [ [- 1,- 3], ],
         [ [- 2,- 1], ],
         [ [- 3,- 2], ],
         [ [  4,- 5], [  6,- 7], [  8,- 9], ],
         [],
         ]
+
+implications = [
+        [ [  4,  5, 10, ], [ 11],],
+        [ [  6,  7, 11, ], [ 12],],
+        [ [  8,  9, 12, ], [ 10],],
+
+        [ [- 4,- 5, 11, ], [ 10],],
+        [ [- 6,- 7, 12, ], [ 11],],
+        [ [- 8,- 9, 10, ], [ 12],],
+
+        [ [  1,  4,  5,  6], [- 7] ],
+        [ [  2,  6,  9,  8], [- 9] ],
+        [ [  3,  8,  9,  4], [- 5] ],
+
+        [ [- 4,  5,  10,], [- 11] ],
+        [ [  4,- 5,- 10,], [  11] ],
+        [ [- 6,  7,  11,], [- 12] ],
+        [ [  6,- 7,- 11,], [  12] ],
+        [ [- 8,  9,  12,], [- 10] ],
+        [ [  8,- 9,- 12,], [  10] ],
+
+        [ [- 4,  9,- 10,], [- 11,- 12] ],
+        [ [- 6,  5,- 11,], [- 12,- 10] ],
+        [ [- 8,  7,- 12,], [- 10,- 11] ],
+        ]
+
+def set_test_values (current_tests, test_values, itest, value):
+    def satisfies (values, indices):
+        for k in indices:
+            if k > 0 and values[ k-1] != True : return False
+            if k < 0 and values[-k-1] != False: return False
+        return True
+
+    remaining_tests = list(current_tests)
+    next_test_values = list(test_values)
+
+    remaining_tests.remove (itest)
+    next_test_values[itest] = value
+    rerun = True
+    while rerun:
+        rerun = False
+        for impl in implications:
+            if satisfies(next_test_values, impl[0]):
+                for id in impl[1]:
+                    k = (id - 1) if id > 0 else (-id-1)
+                    if k in remaining_tests:
+                        next_test_values[k] = (id > 0)
+                        remaining_tests.remove(k)
+                        rerun = True
+                    else:
+                        if next_test_values[k] != (id > 0):
+                            raise ValueError ("Absurd case")
+    return remaining_tests, next_test_values
 
 def apply_test_values (cases, test_values):
     def canSatisfy (values, indices):
@@ -57,7 +140,7 @@ def apply_test_values (cases, test_values):
             if k < 0 and values[-k-1] != False: return False
         return True
 
-    # Check whether all cases are 
+    # Check all cases.
     left_cases = []
     for case in cases:
         defi = definitions[case]
@@ -90,33 +173,44 @@ def max_number_of_tests (current_tests, cases, test_values = [None,]*len(tests),
     if len(left_cases) == 1:
         return prevScore, { 'case': left_cases[0], }
     elif len(left_cases) == 0:
-        return prevScore, { }
+        return prevScore, { 'case': None, 'comments': [ "applied " + str(test_values), "to " + ", ".join([regions[c] for c in cases ]) ] }
 
     assert len(current_tests) > 0, "No more test but " + str(left_cases) + " remains"
 
-    remaining_tests = current_tests[1:]
     currentBestScore = prevBestScore
     bestScore = float('inf')
     bestOrder = [None, None]
     for i, test in enumerate(current_tests):
         assert bestScore >= currentBestScore
 
-        if i > 0:
-            remaining_tests[i-1] = current_tests[i-1]
-
         currentScore = prevScore + len(left_cases) * weights[test]
+        #currentScore = prevScore + weights[test]
         if currentScore > currentBestScore: # Cannot do better -> stop
             continue
 
-        test_values[test] = True
-        score_if_t, order_if_t = max_number_of_tests (remaining_tests, left_cases, test_values, currentBestScore, currentScore)
-        if score_if_t >= currentBestScore: # True didn't do better -> stop
-            test_values[test] = None
-            continue
+        try:
+            remaining_tests, next_test_values = set_test_values (current_tests, test_values, test, True)
+        except ValueError:
+            remaining_tests = None
 
-        test_values[test] = False
-        score_if_f, order_if_f = max_number_of_tests (remaining_tests, left_cases, test_values, currentBestScore, currentScore)
-        test_values[test] = None
+        if remaining_tests is not None:
+            # Do not put this in try catch as I do not want other ValueError to be understood as an infeasible branch.
+            score_if_t, order_if_t = max_number_of_tests (remaining_tests, left_cases, next_test_values, currentBestScore, currentScore)
+            if score_if_t >= currentBestScore: # True didn't do better -> stop
+                continue
+        else:
+            score_if_t, order_if_t = prevScore, None
+
+        try:
+            remaining_tests, next_test_values = set_test_values (current_tests, test_values, test, False)
+        except ValueError:
+            remaining_tests = None
+
+        if remaining_tests is not None:
+            # Do not put this in try catch as I do not want other ValueError to be understood as an infeasible branch.
+            score_if_f, order_if_f = max_number_of_tests (remaining_tests, left_cases, next_test_values, currentBestScore, currentScore)
+        else:
+            score_if_f, order_if_f = prevScore, None
 
         currentScore = max(score_if_t, score_if_f)
         if currentScore < bestScore:
@@ -130,80 +224,114 @@ def max_number_of_tests (current_tests, cases, test_values = [None,]*len(tests),
 
     return bestScore, bestOrder
 
-def printOrder (order, indent = "", start=True):
+def printComments (order, indent, file):
+    if 'comments' in order:
+        for comment in order['comments']:
+            print (indent + "// " + comment, file=file)
+
+def printOrder (order, indent = "", start=True,file=sys.stdout):
     if start:
-        print (indent+"// The code of this function was generated using doc/gjk.py")
-        print (indent+"const int a = 3, b = 2, c = 1, d = 0;")
+        print ("bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)", file=file)
+        print ("{", file=file)
+        print (indent+"// The code of this function was generated using doc/gjk.py", file=file)
+        print (indent+"const int a = 3, b = 2, c = 1, d = 0;", file=file)
         for l in "abcd":
-            print (indent+"const Vec3f& {} (current.vertex[{}]->w);".format(l.upper(),l))
-        for l in "BCD":
-            print (indent+"const Vec3f A{0} ({0}-A);".format(l))
-            print (indent+"const FCL_REAL A{0}_dot_AO = A{0}.dot(-A);".format(l))
-        for l1,l2 in zip("BCD","CDB"):
-            print (indent+"const Vec3f A{0}{1} (A{0}.cross(A{1}));".format(l1,l2))
-            print (indent+"const FCL_REAL A{0}{1}_dot_AO = A{0}{1}.dot(-A);".format(l1,l2))
-        print (indent+"Vec3f cross;")
-        print()
-        print(       "#define REGION_INSIDE()               "+indent+"\\")
-        print(indent+"  ray.setZero();                      \\")
-        print(indent+"  next.vertex[0] = current.vertex[d]; \\")
-        print(indent+"  next.vertex[1] = current.vertex[c]; \\")
-        print(indent+"  next.vertex[2] = current.vertex[b]; \\")
-        print(indent+"  next.vertex[3] = current.vertex[a]; \\")
-        print(indent+"  next.rank=4;                        \\")
-        print(indent+"  return 0;")
-        print()
+            print (indent+"const Vec3f& {} (current.vertex[{}]->w);".format(l.upper(),l), file=file)
+        print (indent+"const FCL_REAL aa = A.squaredNorm();".format(l), file=file)
+        for l in "dcb":
+            for m in "abcd":
+                if m <= l:
+                    print (indent+"const FCL_REAL {0}{1}    = {2}.dot({3});".format(l,m,l.upper(),m.upper()), file=file)
+                else:
+                    print (indent+"const FCL_REAL& {0}{1}    = {1}{0};".format(l,m), file=file)
+            print (indent+"const FCL_REAL {0}a_aa = {0}a - aa;".format(l), file=file)
+        for l0,l1 in zip("bcd","cdb"):
+            print (indent+"const FCL_REAL {0}a_{1}a = {0}a - {1}a;".format(l0,l1), file=file)
+        for l in "bc":
+            print (indent+"const Vec3f a_cross_{0} = A.cross({1});".format(l,l.upper()), file=file)
+        print("", file=file)
+        print(       "#define REGION_INSIDE()               "+indent+"\\", file=file)
+        print(indent+"  ray.setZero();                      \\", file=file)
+        print(indent+"  next.vertex[0] = current.vertex[d]; \\", file=file)
+        print(indent+"  next.vertex[1] = current.vertex[c]; \\", file=file)
+        print(indent+"  next.vertex[2] = current.vertex[b]; \\", file=file)
+        print(indent+"  next.vertex[3] = current.vertex[a]; \\", file=file)
+        print(indent+"  next.rank=4;                        \\", file=file)
+        print(indent+"  return true;", file=file)
+        print("", file=file)
 
     if 'case' in order:
-        region = regions[order['case']]
-        print (indent + "// Region " + region)
-        toFree = ['a', 'b', 'c', 'd']
+        case = order['case']
+        if case is None:
+            print (indent + "// There are no case corresponding to this set of tests.", file=file)
+            printComments (order, indent, file)
+            print (indent + "assert(false);", file=file)
+            return
+        region = regions[case]
+        print (indent + "// Region " + region, file=file)
+        printComments (order, indent, file)
+        toFree = ['b', 'c', 'd']
         if region == "Inside":
-            print (indent + "REGION_INSIDE()")
+            print (indent + "REGION_INSIDE()", file=file)
             toFree = []
         elif region == 'A':
-            print (indent + "originToPoint (current, a, A, next, ray);")
-            toFree.remove('a')
+            print (indent + "originToPoint (current, a, A, next, ray);", file=file)
         elif len(region)==2:
             a = region[0]
-            b = region[1]
-            print (indent + "originToSegment (current, {}, {}, {}, {}, {}, {}_dot_AO, next, ray);".format(
-                a.lower(), b.lower(), a, b, region, region))
-            toFree.remove(a.lower())
-            toFree.remove(b.lower())
+            B = region[1]
+            print (indent + "originToSegment (current, a, {b}, A, {B}, {B}-A, -{b}a_aa, next, ray);".format(
+                **{ 'b':B.lower(), 'B':B,} ), file=file)
+            toFree.remove(B.lower())
         elif len(region)==3:
-            a = region[0]
-            b = region[1]
-            c = region[2]
-            print (indent + "originToTriangle (current, {}, {}, {}, {}, {}_dot_AO next, ray);".format(
-                a.lower(), b.lower(), c.lower(), region, region))
-            toFree.remove(a.lower())
-            toFree.remove(b.lower())
-            toFree.remove(c.lower())
+            B = region[1]
+            C = region[2]
+            test = plane_tests[['ABC','ACD','ADB'].index(region)]
+            if test.startswith('-'): test = test[1:]
+            else:                    test = '-'+test
+            print (indent + "originToTriangle (current, a, {b}, {c}, ({B}-A).cross({C}-A), {t}, next, ray);".format(
+                **{'b':B.lower(), 'c':C.lower(), 'B':B, 'C':C, 't':test}), file=file)
+            toFree.remove(B.lower())
+            toFree.remove(C.lower())
         else:
             assert False, "Unknown region " + region
         for pt in toFree:
-            print (indent + "free_v[nfree++] = current.vertex[{}];".format(pt))
+            print (indent + "free_v[nfree++] = current.vertex[{}];".format(pt), file=file)
     else:
         assert "test" in order and 'true' in order and 'false' in order
-        check = checks[order['test']]
-        if 'cross' in check:
-            print (indent + "cross.noalias() = {};".format(checks[order['test']]))
-            print (indent + "if (cross.dot(-A) >= 0) {")
-        elif len(check) == 2 or len(check) == 3:
-            print (indent + "if ({}_dot_AO >= 0) {{".format(checks[order['test']]))
+        check    = checks[order['test']]
+        check_hr = checks_hr[order['test']]
+        printComments (order, indent, file)
+        if order['true'] is None:
+            if order['false'] is None:
+                print (indent + """assert(false && "Case {} should never happen.");""".format(check_hr))
+            else:
+                print (indent + "assert(!({} <= 0)); // Not {}".format(check, check_hr), file=file)
+                printOrder (order['false'], indent=indent, start=False, file=file)
+        elif order['false'] is None:
+            print (indent + "assert({} <= 0); // {}".format(check, check_hr), file=file)
+            printOrder (order['true'], indent=indent, start=False, file=file)
         else:
-            assert False, "Unknown check " + check
-            #print (indent + "if ({}.dot(-A) >= 0) {{".format(checks[order['test']]))
-        printOrder (order['true'], indent=indent+"  ", start=False)
-        print (indent + "} else {")
-        printOrder (order['false'], indent=indent+"  ", start=False)
-        print (indent + "}")
+            print (indent + "if ({} <= 0) {{ // if {}".format(check, check_hr), file=file)
+            printOrder (order['true'], indent=indent+"  ", start=False, file=file)
+            print (indent + "}} else {{ // not {}".format(check_hr), file=file)
+            printOrder (order['false'], indent=indent+"  ", start=False, file=file)
+            print (indent + "}} // end of {}".format(check_hr), file=file)
 
     if start:
-        print()
-        print("#undef REGION_INSIDE")
-        print(indent+"return ray.squaredNorm();")
+        print ("",file=file)
+        print ("#undef REGION_INSIDE", file=file)
+        print (indent+"return false;", file=file)
+        print ("}", file=file)
+
+def unit_tests ():
+    # a4, a5, a10, a11, a12
+    cases = list(range(len(regions)))
+    pdb.set_trace()
+    left_cases = apply_test_values (cases,
+            test_values=[None,None,None,True,True,None,None,None,None,True,True,True])
+    assert len(left_cases) > 1
+
+#unit_tests()
 
 score, order = max_number_of_tests (tests, cases)
 
