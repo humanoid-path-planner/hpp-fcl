@@ -102,11 +102,11 @@ BOOST_AUTO_TEST_CASE(fcl_eigen_matrix3fx)
   a *= a;
   PRINT_MATRIX(a);
 
-  Matrix3fX b = inverse(a);
+  Matrix3fX b = a.inverse();
   a += a + a * b;
   PRINT_MATRIX(a);
 
-  b = inverse(a);
+  b = a.inverse();
   a.transpose ();
   PRINT_MATRIX(a);
   PRINT_MATRIX(a.transposeTimes (b));

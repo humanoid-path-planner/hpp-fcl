@@ -240,11 +240,7 @@ public:
     return t.getRotation();
   }
 
-  /// @brief get quaternion rotation of the object
-  inline const Quaternion3f& getQuatRotation() const
-  {
-    return t.getQuatRotation();
-  }
+
 
   /// @brief get object's transform
   inline const Transform3f& getTransform() const
@@ -264,11 +260,7 @@ public:
     t.setTranslation(T);
   }
 
-  /// @brief set object's quatenrion rotation
-  void setQuatRotation(const Quaternion3f& q)
-  {
-    t.setQuatRotation(q);
-  }
+
 
   /// @brief set object's transform
   void setTransform(const Matrix3f& R, const Vec3f& T)
@@ -276,11 +268,7 @@ public:
     t.setTransform(R, T);
   }
 
-  /// @brief set object's transform
-  void setTransform(const Quaternion3f& q, const Vec3f& T)
-  {
-    t.setTransform(q, T);
-  }
+ 
 
   /// @brief set object's transform
   void setTransform(const Transform3f& tf)

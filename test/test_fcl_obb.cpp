@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(obb_overlap)
   FCL_REAL distance;
   FCL_REAL squaredDistance;
   timeval t0, t1;
-  hpp::fcl::GJKSolver_indep gjkSolver;
+  hpp::fcl::GJKSolver gjkSolver;
 
   // ShapeShapeDistance
   gettimeofday (&t0, NULL);
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(obb_overlap)
     box2.side = 2*sample [i].extent2;
     tf2.setTransform (sample [i].R, sample [i].T);
     resultDistance [i].distance =
-      hpp::fcl::ShapeShapeDistance<hpp::fcl::Box, hpp::fcl::Box, hpp::fcl::GJKSolver_indep>
+      hpp::fcl::ShapeShapeDistance<hpp::fcl::Box, hpp::fcl::Box, hpp::fcl::GJKSolver>
       (&box1, tf1, &box2, tf2, &gjkSolver, request, result);
     resultDistance [i].overlap = (resultDistance [i].distance < 0);
     if (resultDistance [i].distance < 0) {

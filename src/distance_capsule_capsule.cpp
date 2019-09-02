@@ -23,13 +23,13 @@
 namespace hpp
 {
 namespace fcl {
-  class GJKSolver_indep;
+  class GJKSolver;
 
   template <>
-  FCL_REAL ShapeShapeDistance <Capsule, Capsule, GJKSolver_indep>
+  FCL_REAL ShapeShapeDistance <Capsule, Capsule, GJKSolver>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest& request,
+   const GJKSolver*, const DistanceRequest& request,
    DistanceResult& result)
   {
     const Capsule* c1 = static_cast <const Capsule*> (o1);
@@ -321,17 +321,17 @@ namespace fcl {
   }
 
   template <>
-  std::size_t ShapeShapeCollide <Capsule, Capsule, GJKSolver_indep>
+  std::size_t ShapeShapeCollide <Capsule, Capsule, GJKSolver>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const CollisionRequest& request,
+   const GJKSolver*, const CollisionRequest& request,
    CollisionResult& result)
   {
-    GJKSolver_indep* unused = 0x0;
+    GJKSolver* unused = 0x0;
     DistanceResult distanceResult;
     DistanceRequest distanceRequest (request.enable_contact);
 
-    FCL_REAL distance = ShapeShapeDistance <Capsule, Capsule, GJKSolver_indep>
+    FCL_REAL distance = ShapeShapeDistance <Capsule, Capsule, GJKSolver>
       (o1, tf1, o2, tf2, unused, distanceRequest, distanceResult);
 
     if (distance <= 0) {

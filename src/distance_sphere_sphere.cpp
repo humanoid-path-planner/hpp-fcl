@@ -50,13 +50,13 @@
 namespace hpp
 {
 namespace fcl {
-  class GJKSolver_indep;
+  class GJKSolver;
 
   template <>
-  FCL_REAL ShapeShapeDistance <Sphere, Sphere, GJKSolver_indep>
+  FCL_REAL ShapeShapeDistance <Sphere, Sphere, GJKSolver>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest&,
+   const GJKSolver*, const DistanceRequest&,
    DistanceResult& result)
   {
     FCL_REAL epsilon = 1e-7;
@@ -97,10 +97,10 @@ namespace fcl {
   }
 
   template <>
-  std::size_t ShapeShapeCollide <Sphere, Sphere, GJKSolver_indep>
+  std::size_t ShapeShapeCollide <Sphere, Sphere, GJKSolver>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const CollisionRequest& request,
+   const GJKSolver*, const CollisionRequest& request,
    CollisionResult& result)
   {
     FCL_REAL epsilon = 1e-7;

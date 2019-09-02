@@ -59,6 +59,30 @@ class BVHModel : public CollisionGeometry,
 {
 
 public:
+  /// @brief Geometry point data
+  Vec3f* vertices;
+
+  /// @brief Geometry triangle index data, will be NULL for point clouds
+  Triangle* tri_indices;
+
+  /// @brief Geometry point data in previous frame
+  Vec3f* prev_vertices;
+
+  /// @brief Number of triangles
+  int num_tris;
+
+  /// @brief Number of points
+  int num_vertices;
+
+  /// @brief The state of BVH building process
+  BVHBuildState build_state;
+
+  /// @brief Split rule to split one BV node into two children
+  boost::shared_ptr<BVSplitterBase<BV> > bv_splitter;
+
+  /// @brief Fitting rule to fit a BV node to a set of geometry primitives
+  boost::shared_ptr<BVFitterBase<BV> > bv_fitter;
+  
   /// @brief Model type described by the instance
   BVHModelType getModelType() const
   {
@@ -150,7 +174,6 @@ public:
   /// @brief End BVH model construction, will build the bounding volume hierarchy
   int endModel();
 
-
   /// @brief Replace the geometry information of current frame (i.e. should have the same mesh topology with the previous frame)
   int beginReplaceModel();
 
@@ -165,7 +188,6 @@ public:
 
   /// @brief End BVH model replacement, will also refit or rebuild the bounding volume hierarchy
   int endReplaceModel(bool refit = true, bool bottomup = true);
-
 
   /// @brief Replace the geometry information of current frame (i.e. should have the same mesh topology with the previous frame).
   /// The current frame will be saved as the previous frame in prev_vertices.
@@ -186,7 +208,7 @@ public:
   /// @brief Check the number of memory used
   int memUsage(int msg) const;
 
-  /// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
+/// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
   /// BV node. When traversing the BVH, this can save one matrix transformation.
   void makeParentRelative()
   {
@@ -243,32 +265,6 @@ public:
 
     return C.trace() * Matrix3f::Identity() - C;
   }
-
-public:
-  /// @brief Geometry point data
-  Vec3f* vertices;
-
-  /// @brief Geometry triangle index data, will be NULL for point clouds
-  Triangle* tri_indices;
-
-  /// @brief Geometry point data in previous frame
-  Vec3f* prev_vertices;
-
-  /// @brief Number of triangles
-  int num_tris;
-
-  /// @brief Number of points
-  int num_vertices;
-
-  /// @brief The state of BVH building process
-  BVHBuildState build_state;
-
-  /// @brief Split rule to split one BV node into two children
-  boost::shared_ptr<BVSplitterBase<BV> > bv_splitter;
-
-  /// @brief Fitting rule to fit a BV node to a set of geometry primitives
-  boost::shared_ptr<BVFitterBase<BV> > bv_fitter;
-
 
 private:
 

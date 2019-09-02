@@ -46,14 +46,15 @@
 #include <hpp/fcl/distance.h>
 #include "test_fcl_utility.h"
 #include <iostream>
+#include <hpp/fcl/math/tools.h>
 
 using namespace hpp::fcl;
 
 FCL_REAL extents [6] = {0, 0, 0, 10, 10, 10};
 
 FCL_REAL tol_gjk = 0.01;
-GJKSolver_indep solver1;
-GJKSolver_indep solver2;
+GJKSolver solver1;
+GJKSolver solver2;
 
 Eigen::IOFormat fmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "", "");
 Eigen::IOFormat pyfmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "[", "]");
@@ -284,18 +285,18 @@ BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
     (Quaternion3f (0.70738826916719977, 0, 0, 0.70682518110536596),
      Vec3f (-0.29936284351096382, 0.80023864435868775, 0.71750000000000003));
 
-  GJKSolver_indep solver;
+  GJKSolver solver;
   FCL_REAL distance;
   Vec3f p1, p2, normal;
   bool res = solver.shapeDistance (s1, tf1, s2, tf2, distance, p1, p2, normal);
   BOOST_CHECK ((res && distance > 0) || (!res && distance <= 0));
   // If objects are not colliding, p2 should be outside the cylinder and
   // p1 should be outside the box
-  Vec3f p2Loc (inverse (tf1).transform (p2));
+  Vec3f p2Loc (tf1.inverse().transform (p2));
   bool p2_in_cylinder ((fabs (p2Loc [2]) <= .5*s1.lz) &&
                        (p2Loc [0] * p2Loc [0] + p2Loc [1] * p2Loc [1]
                         <= s1.radius));
-  Vec3f p1Loc (inverse (tf2).transform (p1));
+  Vec3f p1Loc (tf2.inverse().transform (p1));
   bool p1_in_box ((fabs (p1Loc [0]) <= .5 * s2.side [0]) &&
                   (fabs (p1Loc [1]) <= .5 * s2.side [1]) &&
                   (fabs (p1Loc [2]) <= .5 * s2.side [2]));
@@ -310,11 +311,11 @@ BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
   // If objects are not colliding, p2 should be outside the cylinder and
   // p1 should be outside the box
 
-  p2Loc = inverse (tf1).transform (p2);
+  p2Loc = tf1.inverse().transform (p2);
   p2_in_cylinder = (fabs (p2Loc [2]) <= .5*s1.lz) &&
     (p2Loc [0] * p2Loc [0] + p2Loc [1] * p2Loc [1]
      <= s1.radius);
-  p1Loc = inverse (tf2).transform (p1);
+  p1Loc = tf2.inverse().transform (p1);
   p1_in_box = (fabs (p1Loc [0]) <= .5 * s2.side [0]) &&
     (fabs (p1Loc [1]) <= .5 * s2.side [1]) &&
     (fabs (p1Loc [2]) <= .5 * s2.side [2]);
