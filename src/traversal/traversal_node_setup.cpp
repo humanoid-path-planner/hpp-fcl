@@ -37,6 +37,7 @@
 
 
 #include <hpp/fcl/traversal/traversal_node_setup.h>
+#include <hpp/fcl/math/tools.h>
 
 namespace hpp
 {

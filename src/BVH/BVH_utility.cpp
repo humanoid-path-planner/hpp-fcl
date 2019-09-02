@@ -118,7 +118,7 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, con
   constructBox(_aabb, box, box_pose);
   box_pose = pose.inverseTimes (box_pose);
 
-  GJKSolver_indep gjk;
+  GJKSolver gjk;
 
   // Check what triangles should be kept.
   // TODO use the BV hierarchy

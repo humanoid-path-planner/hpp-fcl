@@ -42,18 +42,9 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <hpp/fcl/math/tools.h>
-
-#include <cmath>
-#include <iostream>
-#include <limits>
 
 namespace hpp
 {
-namespace fcl
-{
-  typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
-}
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
   #define OCTOMAP_VERSION_AT_LEAST(x,y,z) \
@@ -72,6 +63,7 @@ namespace hpp
 {
 namespace fcl 
 {
+  typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
   typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 
 /// @brief Class for variance matrix in 3d

@@ -145,8 +145,8 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
   {
   case GST_INDEP:
     {
-      GJKSolver_indep solver;
-      return collide<GJKSolver_indep>(o1, o2, &solver, request, result);
+      GJKSolver solver;
+      return collide<GJKSolver>(o1, o2, &solver, request, result);
     }
   default:
     return -1; // error
@@ -161,8 +161,8 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
   {
   case GST_INDEP:
     {
-      GJKSolver_indep solver;
-      return collide<GJKSolver_indep>(o1, tf1, o2, tf2, &solver, request, result);
+      GJKSolver solver;
+      return collide<GJKSolver>(o1, tf1, o2, tf2, &solver, request, result);
     }
   default:
     std::cerr << "Warning! Invalid GJK solver" << std::endl;

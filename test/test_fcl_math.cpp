@@ -43,14 +43,11 @@
 #include <hpp/fcl/math/transform.h>
 
 #include <hpp/fcl/intersect.h>
+#include <hpp/fcl/math/tools.h>
 
 using namespace hpp::fcl;
 
-template<typename Derived>
-inline Quaternion3f fromAxisAngle(const Eigen::MatrixBase<Derived>& axis, FCL_REAL angle)
-{
-  return Quaternion3f (Eigen::AngleAxis<double>(angle, axis));
-}
+
 
 BOOST_AUTO_TEST_CASE(vec_test_eigen_vec64)
 {

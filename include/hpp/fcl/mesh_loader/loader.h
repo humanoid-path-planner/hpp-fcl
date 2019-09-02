@@ -97,7 +97,7 @@ namespace fcl {
       };
       typedef std::map <Key, CollisionGeometryPtr_t> Cache_t;
 
-      
+      const Cache_t cache () const { return cache_; }
     private:
       Cache_t cache_;
   };

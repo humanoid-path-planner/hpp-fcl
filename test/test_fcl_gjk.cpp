@@ -43,8 +43,9 @@
 
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/math/tools.h>
 
-using hpp::fcl::GJKSolver_indep;
+using hpp::fcl::GJKSolver;
 using hpp::fcl::TriangleP;
 using hpp::fcl::Vec3f;
 using hpp::fcl::Quaternion3f;
@@ -73,7 +74,7 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
   Eigen::IOFormat tuple (Eigen::FullPrecision, Eigen::DontAlignCols, "",
                          ", ", "", "", "(", ")");
   std::size_t N = 10000;
-  GJKSolver_indep solver;
+  GJKSolver solver;
   Transform3f tf1, tf2;
   Vec3f p1, p2, a1, a2;
   Matrix3f M;

@@ -544,7 +544,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
   collision_matrix[BV_KDOP24][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<24>, NarrowPhaseSolver>;
 #endif
 }
-template struct CollisionFunctionMatrix<GJKSolver_indep>;
+template struct CollisionFunctionMatrix<GJKSolver>;
 }
 
 } // namespace hpp

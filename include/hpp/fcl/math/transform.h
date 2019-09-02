@@ -48,6 +48,7 @@ namespace fcl
 {
 
 typedef Eigen::Quaternion<FCL_REAL> Quaternion3f;
+
 static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
 {
   o << "(" << q.w() << " " << q.x() << " " << q.y() << " " << q.z() << ")";
@@ -258,8 +259,15 @@ public:
   {
     return !(*this == other);
   }
-
 };
+
+using namespace hpp::fcl;
+
+template<typename Derived>
+inline Quaternion3f fromAxisAngle(const Eigen::MatrixBase<Derived>& axis, FCL_REAL angle)
+{
+  return Quaternion3f (Eigen::AngleAxis<double>(angle, axis));
+}
 
 }
 } // namespace hpp

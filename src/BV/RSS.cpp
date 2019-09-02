@@ -38,6 +38,7 @@
 #include <hpp/fcl/BV/RSS.h>
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <iostream>
+#include <hpp/fcl/math/tools.h>
 namespace hpp
 {
 namespace fcl

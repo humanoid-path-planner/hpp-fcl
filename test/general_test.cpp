@@ -12,7 +12,6 @@ int main(int argc, char** argv)
 {
   boost::shared_ptr<Box> box0(new Box(1,1,1));
   boost::shared_ptr<Box> box1(new Box(1,1,1));
-//  GJKSolver_indep solver;
   GJKSolver_libccd solver;
   Vec3f contact_points;
   FCL_REAL penetration_depth;

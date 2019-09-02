@@ -46,14 +46,15 @@
 #include <hpp/fcl/distance.h>
 #include "test_fcl_utility.h"
 #include <iostream>
+#include <hpp/fcl/math/tools.h>
 
 using namespace hpp::fcl;
 
 FCL_REAL extents [6] = {0, 0, 0, 10, 10, 10};
 
 FCL_REAL tol_gjk = 0.01;
-GJKSolver_indep solver1;
-GJKSolver_indep solver2;
+GJKSolver solver1;
+GJKSolver solver2;
 
 Eigen::IOFormat fmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "", "");
 Eigen::IOFormat pyfmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "[", "]");
@@ -284,7 +285,7 @@ BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
     (Quaternion3f (0.70738826916719977, 0, 0, 0.70682518110536596),
      Vec3f (-0.29936284351096382, 0.80023864435868775, 0.71750000000000003));
 
-  GJKSolver_indep solver;
+  GJKSolver solver;
   FCL_REAL distance;
   Vec3f p1, p2, normal;
   bool res = solver.shapeDistance (s1, tf1, s2, tf2, distance, p1, p2, normal);

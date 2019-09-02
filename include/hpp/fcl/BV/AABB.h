@@ -133,12 +133,6 @@ public:
     return true;
   }
 
-    /// @brief Volume of the AABB
-  inline FCL_REAL volume() const
-  {
-    return width() * height() * depth();
-  }  
-
   /// @brief Merge the AABB and a point
   inline AABB& operator += (const Vec3f& p)
   {
@@ -179,6 +173,12 @@ public:
   {
     return max_[2] - min_[2];
   }
+
+    /// @brief Volume of the AABB
+  inline FCL_REAL volume() const
+  {
+    return width() * height() * depth();
+  }  
 
   /// @brief Size of the AABB (used in BV_Splitter to order two AABBs)
   inline FCL_REAL size() const
