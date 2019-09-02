@@ -295,11 +295,8 @@ void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1)
 
 void GJK::initialize()
 {
-  ray = Vec3f::Zero();
   nfree = 0;
   status = Failed;
-  current = 0;
-  distance = 0.0;
   simplex = NULL;
 }
 
@@ -369,10 +366,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 {
   size_t iterations = 0;
   FCL_REAL alpha = 0;
-  Vec3f lastw[4];
-  size_t clastw = 0;
-  Project::ProjectResult project_res;
-    
+
   free_v[0] = &store_v[0];
   free_v[1] = &store_v[1];
   free_v[2] = &store_v[2];
@@ -381,7 +375,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   nfree = 4;
   current = 0;
   status = Valid;
-  shape = shape_;
+  shape = &shape_;
   distance = 0.0;
   simplices[0].rank = 0;
   ray = guess;
@@ -389,11 +383,10 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   if (ray.squaredNorm() > 0) appendVertex(simplices[0], -ray);
   else                       appendVertex(simplices[0], Vec3f(1, 0, 0), true);
   ray = simplices[0].vertex[0]->w;
-  lastw[0] = lastw[1] = lastw[2] = lastw[3] = ray; // cache previous support points, the new support point will compare with it to avoid too close support points
 
   do
   {
-    size_t next = 1 - current;
+    short next = (short)(1 - current);
     Simplex& curr_simplex = simplices[current];
     Simplex& next_simplex = simplices[next];
 
@@ -402,14 +395,14 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     if(rl < tolerance) // mean origin is near the face of original simplex, return touch
     {
       status = Inside;
+      distance = 0; // rl ?
       break;
     }
 
     appendVertex(curr_simplex, -ray); // see below, ray points away from origin
 
-    // check B: when the new support point is close to previous support points, stop (as the new simplex is degenerated)
+    // check removed (by ?): when the new support point is close to previous support points, stop (as the new simplex is degenerated)
     const Vec3f& w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
-    lastw[clastw = (clastw+1)&3] = w;
 
     // check C: when the new support point is close to the sub-simplex where the ray point lies, stop (as the new simplex again is degenerated)
     FCL_REAL omega = ray.dot(w) / rl;
@@ -417,28 +410,30 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     if((rl - alpha) - tolerance * rl <= 0)
     {
       removeVertex(simplices[current]);
+      distance = rl;
       break;
     }
 
     // This has been rewritten thanks to the excellent video:
     // https://youtu.be/Qupqu1xe7Io
+    bool inside;
     switch(curr_simplex.rank)
     {
     case 2:
-      project_res.sqr_distance = projectLineOrigin (curr_simplex, next_simplex);
+      inside = projectLineOrigin (curr_simplex, next_simplex);
       break;
     case 3:
-      project_res.sqr_distance = projectTriangleOrigin (curr_simplex, next_simplex);
+      inside = projectTriangleOrigin (curr_simplex, next_simplex);
       break;
     case 4:
-      project_res.sqr_distance = projectTetrahedraOrigin (curr_simplex, next_simplex);
+      inside = projectTetrahedraOrigin (curr_simplex, next_simplex);
       break;
     }
     assert (nfree+next_simplex.rank == 4);
-    if(project_res.sqr_distance >= 0)
-      current = next;
-    else {
-      removeVertex(simplices[current]);
+    current = next;
+    if(inside) {
+      status = Inside;
+      distance = 0;
       break;
     }
 
@@ -447,20 +442,12 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   } while(status == Valid);
 
   simplex = &simplices[current];
-  switch(status)
-  {
-  case Valid: distance = ray.norm(); break;
-  case Inside: distance = 0; break;
-  default:
-    distance = sqrt (project_res.sqr_distance);
-    break;
-  }
   return status;
 }
 
 void GJK::getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv) const
 {
-  shape.support(d, dIsNormalized, sv.w0, sv.w1);
+  shape->support(d, dIsNormalized, sv.w0, sv.w1);
   sv.w.noalias() = sv.w0 - sv.w1;
 }
 
@@ -576,7 +563,6 @@ inline void originToSegment (
 inline void originToTriangle (
     const GJK::Simplex& current,
     int a, int b, int c,
-    const Vec3f& A,
     const Vec3f& ABC,
     const FCL_REAL& ABCdotAO,
     GJK::Simplex& next,
@@ -599,7 +585,7 @@ inline void originToTriangle (
   ray *= -ABCdotAO / ABC.squaredNorm();
 }
 
-FCL_REAL GJK::projectLineOrigin(const Simplex& current, Simplex& next)
+bool GJK::projectLineOrigin(const Simplex& current, Simplex& next)
 {
   const int a = 1, b = 0;
   // A is the last point we added.
@@ -616,10 +602,10 @@ FCL_REAL GJK::projectLineOrigin(const Simplex& current, Simplex& next)
     free_v[nfree++] = current.vertex[b];
   } else
     originToSegment (current, a, b, A, B, AB, d, next, ray);
-  return ray.squaredNorm();
+  return false;
 }
 
-FCL_REAL GJK::projectTriangleOrigin(const Simplex& current, Simplex& next)
+bool GJK::projectTriangleOrigin(const Simplex& current, Simplex& next)
 {
   const int a = 2, b = 1, c = 0;
   // A is the last point we added.
@@ -659,13 +645,13 @@ FCL_REAL GJK::projectTriangleOrigin(const Simplex& current, Simplex& next)
         originToSegment (current, a, b, A, B, AB, towardsB, next, ray);
       free_v[nfree++] = current.vertex[c];
     } else {
-      originToTriangle (current, a, b, c, A, ABC, ABC.dot(-A), next, ray);
+      originToTriangle (current, a, b, c, ABC, ABC.dot(-A), next, ray);
     }
   }
-  return ray.squaredNorm();
+  return false;
 }
 
-FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
+bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
 {
   const int a = 3, b = 2, c = 1, d = 0;
   const Vec3f& A (current.vertex[a]->w);
@@ -713,7 +699,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
     next.vertex[2] = current.vertex[b]; \
     next.vertex[3] = current.vertex[a]; \
     next.rank=4;                        \
-    return 0;
+    return true;
 
   if (AB_dot_AO >= 0) {
     cross.noalias() = ABC.cross(AB);
@@ -731,7 +717,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               } else {
                 if (ADB_dot_AO >= 0) {
                   // Region ADB
-                  originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                  originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                   free_v[nfree++] = current.vertex[c];
                 } else {
                   // Region Inside
@@ -749,7 +735,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               cross.noalias() = ADB.cross(AD);
               if (cross.dot(-A) >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region AD
@@ -775,11 +761,11 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
             if (cross.dot(-A) >= 0) {
               if (ACD_dot_AO >= 0) {
                 // Region ACD
-                originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+                originToTriangle (current, a, c, d, ACD, ACD_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[b];
               } else {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               }
             } else {
@@ -790,7 +776,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
                 free_v[nfree++] = current.vertex[d];
               } else {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               }
             }
@@ -799,7 +785,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               cross.noalias() = ACD.cross(AC);
               if (cross.dot(-A) >= 0) {
                 // Region ACD
-                originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+                originToTriangle (current, a, c, d, ACD, ACD_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[b];
               } else {
                 // Region AC
@@ -823,7 +809,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
       } else {
         if (ABC_dot_AO >= 0) {
           // Region ABC
-          originToTriangle (current, a, b, c, A, ABC, ABC_dot_AO, next, ray);
+          originToTriangle (current, a, b, c, ABC, ABC_dot_AO, next, ray);
           free_v[nfree++] = current.vertex[d];
         } else {
           if (ACD_dot_AO >= 0) {
@@ -832,7 +818,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               cross.noalias() = ADB.cross(AD);
               if (cross.dot(-A) >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region AD
@@ -844,11 +830,11 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               cross.noalias() = ACD.cross(AC);
               if (cross.dot(-A) >= 0) {
                 // Region ACD
-                originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+                originToTriangle (current, a, c, d, ACD, ACD_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[b];
               } else {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               }
             }
@@ -857,7 +843,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               cross.noalias() = ADB.cross(AD);
               if (cross.dot(-A) >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region AD
@@ -887,7 +873,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
                 free_v[nfree++] = current.vertex[d];
               } else {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               }
             } else {
@@ -899,7 +885,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
                 free_v[nfree++] = current.vertex[d];
               } else {
                 // Region ACD
-                originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+                originToTriangle (current, a, c, d, ACD, ACD_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[b];
               }
             }
@@ -919,7 +905,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               }
             } else {
               // Region ACD
-              originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+              originToTriangle (current, a, c, d, ACD, ACD_dot_AO, next, ray);
               free_v[nfree++] = current.vertex[b];
             }
           }
@@ -935,7 +921,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
                 free_v[nfree++] = current.vertex[d];
               } else {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               }
             } else {
@@ -986,7 +972,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               } else {
                 if (ADB_dot_AO >= 0) {
                   // Region ADB
-                  originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                  originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                   free_v[nfree++] = current.vertex[c];
                 } else {
                   // Region Inside
@@ -999,7 +985,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               cross.noalias() = ADB.cross(AD);
               if (cross.dot(-A) >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region AD
@@ -1034,7 +1020,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               cross.noalias() = ADB.cross(AD);
               if (cross.dot(-A) >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region AD
@@ -1045,7 +1031,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
             } else {
               if (AC_dot_AO >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region A
@@ -1058,11 +1044,11 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
           } else {
             if (ACD_dot_AO >= 0) {
               // Region ACD
-              originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+              originToTriangle (current, a, c, d, ACD, ACD_dot_AO, next, ray);
               free_v[nfree++] = current.vertex[b];
             } else {
               // Region ADB
-              originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+              originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
               free_v[nfree++] = current.vertex[c];
             }
           }
@@ -1077,7 +1063,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
             } else {
               if (AD_dot_AO >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region A
@@ -1113,7 +1099,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
         cross.noalias() = ABC.cross(AB);
         if (cross.dot(-A) >= 0) {
           // Region ABC
-          originToTriangle (current, a, b, c, A, ABC, ABC_dot_AO, next, ray);
+          originToTriangle (current, a, b, c, ABC, ABC_dot_AO, next, ray);
           free_v[nfree++] = current.vertex[d];
         } else {
           cross.noalias() = ACD.cross(AD);
@@ -1122,7 +1108,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               cross.noalias() = ADB.cross(AD);
               if (cross.dot(-A) >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region AD
@@ -1133,7 +1119,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
             } else {
               if (AC_dot_AO >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region A
@@ -1148,22 +1134,22 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
             if (cross.dot(-A) >= 0) {
               if (ACD_dot_AO >= 0) {
                 // Region ACD
-                originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+                originToTriangle (current, a, c, d, ACD, ACD_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[b];
               } else {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               }
             } else {
               if (AC_dot_AO >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 if (AD_dot_AO >= 0) {
                   // Region ADB
-                  originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                  originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                   free_v[nfree++] = current.vertex[c];
                 } else {
                   // Region A
@@ -1187,7 +1173,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
               cross.noalias() = ADB.cross(AD);
               if (cross.dot(-A) >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region AD
@@ -1198,7 +1184,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
             } else {
               if (AC_dot_AO >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region A
@@ -1210,7 +1196,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
             }
           } else {
             // Region ACD
-            originToTriangle (current, a, c, d, A, ACD, ACD_dot_AO, next, ray);
+            originToTriangle (current, a, c, d, ACD, ACD_dot_AO, next, ray);
             free_v[nfree++] = current.vertex[b];
           }
         } else {
@@ -1225,13 +1211,13 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
                 free_v[nfree++] = current.vertex[d];
               } else {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               }
             } else {
               if (AD_dot_AO >= 0) {
                 // Region ADB
-                originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+                originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
                 free_v[nfree++] = current.vertex[c];
               } else {
                 // Region A
@@ -1277,7 +1263,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
             cross.noalias() = ADB.cross(AD);
             if (cross.dot(-A) >= 0) {
               // Region ADB
-              originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+              originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
               free_v[nfree++] = current.vertex[c];
             } else {
               // Region AD
@@ -1288,7 +1274,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
           } else {
             if (AC_dot_AO >= 0) {
               // Region ADB
-              originToTriangle (current, a, d, b, A, ADB, ADB_dot_AO, next, ray);
+              originToTriangle (current, a, d, b, ADB, ADB_dot_AO, next, ray);
               free_v[nfree++] = current.vertex[c];
             } else {
               // Region A
@@ -1308,7 +1294,7 @@ FCL_REAL GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
 
 #undef REGION_INSIDE
 
-  return ray.squaredNorm();
+  return false;
 }
 
 void EPA::initialize()

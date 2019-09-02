@@ -114,7 +114,7 @@ struct GJK
   {
     /// @brief support vector for shape 0 and 1.
     Vec3f w0, w1; 
-    /// @brieg support vector (i.e., the furthest point on the shape along the support direction)
+    /// @brief support vector (i.e., the furthest point on the shape along the support direction)
     Vec3f w;
   };
 
@@ -125,12 +125,12 @@ struct GJK
     /// @brief size of simplex (number of vertices)
     short rank;
 
-    Simplex() : rank(0) {}
+    Simplex() {}
   };
 
   enum Status {Valid, Inside, Failed};
 
-  MinkowskiDiff shape;
+  MinkowskiDiff const* shape;
   Vec3f ray;
   FCL_REAL distance;
   Simplex simplices[2];
@@ -145,7 +145,7 @@ struct GJK
   void initialize();
 
   /// @brief GJK algorithm, given the initial value guess
-  Status evaluate(const MinkowskiDiff& shape_, const Vec3f& guess);
+  Status evaluate(const MinkowskiDiff& shape, const Vec3f& guess);
 
   /// @brief apply the support function along a direction, the result is return in sv
   void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv) const;
@@ -175,8 +175,8 @@ struct GJK
 private:
   SimplexV store_v[4];
   SimplexV* free_v[4];
-  size_t nfree;
-  size_t current;
+  short nfree;
+  short current;
   Simplex* simplex;
   Status status;
 
@@ -184,13 +184,13 @@ private:
   FCL_REAL tolerance;
 
   /// @brief Project origin (0) onto line a-b
-  FCL_REAL projectLineOrigin(const Simplex& current, Simplex& next);
+  bool projectLineOrigin(const Simplex& current, Simplex& next);
 
   /// @brief Project origin (0) onto triangle a-b-c
-  FCL_REAL projectTriangleOrigin(const Simplex& current, Simplex& next);
+  bool projectTriangleOrigin(const Simplex& current, Simplex& next);
 
   /// @brief Project origin (0) onto tetrahedran a-b-c-d
-  FCL_REAL projectTetrahedraOrigin(const Simplex& current, Simplex& next);
+  bool projectTetrahedraOrigin(const Simplex& current, Simplex& next);
 };
 
 
