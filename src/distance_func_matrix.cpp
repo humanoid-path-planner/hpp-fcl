@@ -495,7 +495,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
 
 }
-template struct DistanceFunctionMatrix<GJKSolver_indep>;
+template struct DistanceFunctionMatrix<GJKSolver>;
 }
 
 } // namespace hpp

@@ -74,13 +74,7 @@ public:
     return obb.overlap(other.obb, request, sqrDistLowerBound);
   }
 
-  /// @brief Check collision between two OBBRSS and return the overlap part.
-  bool overlap(const OBBRSS& other, OBBRSS& /*overlap_part*/) const
-  {
-    return overlap(other);
-  }
-
-  /// @brief Check whether the OBBRSS contains a point
+/// @brief Check whether the OBBRSS contains a point
   inline bool contain(const Vec3f& p) const
   {
     return obb.contain(p);
@@ -152,9 +146,6 @@ public:
     return rss.distance(other.rss, P, Q);
   }
 };
-
-/// @brief Translate the OBBRSS bv
-OBBRSS translate(const OBBRSS& bv, const Vec3f& t);
 
 /// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0) and b2 is in indentity
 inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2)

@@ -46,7 +46,7 @@ namespace hpp
 {
 namespace fcl
 {
-  
+
 namespace internal
 {
 

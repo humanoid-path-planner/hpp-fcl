@@ -39,7 +39,7 @@
 #ifndef HPP_FCL_TRANSFORM_H
 #define HPP_FCL_TRANSFORM_H
 
-#include <hpp/fcl/math/matrix_3f.h>
+#include <hpp/fcl/math/types.h>
 #include <boost/thread/mutex.hpp>
 
 namespace hpp
@@ -48,6 +48,7 @@ namespace fcl
 {
 
 typedef Eigen::Quaternion<FCL_REAL> Quaternion3f;
+
 static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
 {
   o << "(" << q.w() << " " << q.x() << " " << q.y() << " " << q.z() << ")";
@@ -124,14 +125,6 @@ public:
                                  q(Quaternion3f::Identity())
   {
     R.setIdentity();
-  }
-
-  /// @brief Construct transform from another transform
-  Transform3f(const Transform3f& tf) : matrix_set(tf.matrix_set),
-                                       R(tf.R),
-                                       T(tf.T),
-                                       q(tf.q)
-  {
   }
 
   /// @brief operator = 
@@ -266,23 +259,17 @@ public:
   {
     return !(*this == other);
   }
-
 };
 
-/// @brief inverse the transform
-Transform3f inverse(const Transform3f& tf);
+using namespace hpp::fcl;
 
-/// @brief compute the relative transform between two transforms: tf2 = tf1 * tf (relative to the local coordinate system in tf1)
-void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
-                       Transform3f& tf);
-
-/// @brief compute the relative transform between two transforms: tf2 = tf * tf1 (relative to the global coordinate system)
-void relativeTransform2(const Transform3f& tf1, const Transform3f& tf2,
-                        Transform3f& tf);
-
-
+template<typename Derived>
+inline Quaternion3f fromAxisAngle(const Eigen::MatrixBase<Derived>& axis, FCL_REAL angle)
+{
+  return Quaternion3f (Eigen::AngleAxis<double>(angle, axis));
 }
 
+}
 } // namespace hpp
 
 #endif

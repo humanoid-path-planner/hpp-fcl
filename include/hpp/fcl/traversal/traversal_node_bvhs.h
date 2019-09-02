@@ -222,7 +222,7 @@ public:
 
     TriangleP tri1 (P1, P2, P3);
     TriangleP tri2 (Q1, Q2, Q3);
-    GJKSolver_indep solver;
+    GJKSolver solver;
     Vec3f p1, p2; // closest points if no collision contact points if collision.
     Vec3f normal;
     FCL_REAL distance;

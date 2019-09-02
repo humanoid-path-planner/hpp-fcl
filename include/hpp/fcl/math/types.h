@@ -3,7 +3,6 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
- *  Copyright (c) 2018-2019, Center National de la Recherche Scientifique
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,52 +33,55 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Florent Lamiraux */
+/** \author Joseph Mirabel */
 
-#include <cmath>
-#include <limits>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include "distance_func_matrix.h"
-#include "../src/narrowphase/details.h"
+#ifndef HPP_FCL_MATH_TYPES_H
+#define HPP_FCL_MATH_TYPES_H
+
+#include <hpp/fcl/data_types.h>
+
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 
 namespace hpp
 {
-namespace fcl {
-    class GJKSolver;
 
-  template <>
-  FCL_REAL ShapeShapeDistance <Box, Plane, GJKSolver>
-  (const CollisionGeometry* o1, const Transform3f& tf1,
-   const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver*, const DistanceRequest&,
-   DistanceResult& result)
-  {
-    const Box& s1 = static_cast <const Box&> (*o1);
-    const Plane& s2 = static_cast <const Plane&> (*o2);
-    details::boxPlaneIntersect
-      (s1, tf1, s2, tf2, result.min_distance, result.nearest_points [0],
-       result.nearest_points [1], result.normal);
-    result.o1 = o1; result.o2 = o2; result.b1 = -1; result.b2 = -1;
-    return result.min_distance;
-  }
+#ifdef HPP_FCL_HAVE_OCTOMAP
+  #define OCTOMAP_VERSION_AT_LEAST(x,y,z) \
+    (OCTOMAP_MAJOR_VERSION > x || (OCTOMAP_MAJOR_VERSION >= x && \
+    (OCTOMAP_MINOR_VERSION > y || (OCTOMAP_MINOR_VERSION >= y && \
+    OCTOMAP_PATCH_VERSION >= z))))
 
-  template <>
-  FCL_REAL ShapeShapeDistance <Plane, Box, GJKSolver>
-  (const CollisionGeometry* o1, const Transform3f& tf1,
-   const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver*, const DistanceRequest&,
-   DistanceResult& result)
-  {
-    const Plane& s1 = static_cast <const Plane&> (*o1);
-    const Box& s2 = static_cast <const Box&> (*o2);
-    details::boxPlaneIntersect
-      (s2, tf2, s1, tf1, result.min_distance, result.nearest_points [1],
-       result.nearest_points [0], result.normal);
-    result.o1 = o1; result.o2 = o2; result.b1 = -1; result.b2 = -1;
-    result.normal = -result.normal;
-    return result.min_distance;
-  }
-} // namespace fcl
+  #define OCTOMAP_VERSION_AT_MOST(x,y,z) \
+    (OCTOMAP_MAJOR_VERSION < x || (OCTOMAP_MAJOR_VERSION <= x && \
+    (OCTOMAP_MINOR_VERSION < y || (OCTOMAP_MINOR_VERSION <= y && \
+    OCTOMAP_PATCH_VERSION <= z))))
+#endif // HPP_FCL_HAVE_OCTOMAP
+}
 
+namespace hpp
+{
+namespace fcl 
+{
+  typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
+  typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
+
+/// @brief Class for variance matrix in 3d
+class Variance3f
+{
+public:
+  /// @brief Variation matrix
+  Matrix3f Sigma;
+
+  /// @brief Variations along the eign axes
+  Matrix3f::Scalar sigma[3];
+
+  /// @brief Eigen axes of the variation matrix
+  Vec3f axis[3];
+
+};
+
+}
 } // namespace hpp
+
+#endif

@@ -43,8 +43,9 @@
 
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/math/tools.h>
 
-using hpp::fcl::GJKSolver_indep;
+using hpp::fcl::GJKSolver;
 using hpp::fcl::TriangleP;
 using hpp::fcl::Vec3f;
 using hpp::fcl::Quaternion3f;
@@ -73,7 +74,7 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
   Eigen::IOFormat tuple (Eigen::FullPrecision, Eigen::DontAlignCols, "",
                          ", ", "", "", "(", ")");
   std::size_t N = 10000;
-  GJKSolver_indep solver;
+  GJKSolver solver;
   Transform3f tf1, tf2;
   Vec3f p1, p2, a1, a2;
   Matrix3f M;
@@ -183,11 +184,11 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
     BOOST_CHECK (w1.squaredNorm () > eps*eps);
     M.col (0) = u1; M.col (1) = v1; M.col (2) = w1;
     // Compute a1 such that p1 = P1 + a11 u1 + a12 v1 + a13 u1 x v1
-    a1 = M.inverse () * (p1 - P1);
+    a1 = M.inverse() * (p1 - P1);
     BOOST_CHECK (w2.squaredNorm () > eps*eps);
     // Compute a2 such that p2 = Q1 + a21 u2 + a22 v2 + a23 u2 x v2
     M.col (0) = u2; M.col (1) = v2; M.col (2) = w2;
-    a2 = M.inverse () * (p2 - Q1);
+    a2 = M.inverse() * (p2 - Q1);
 
     // minimal distance and closest points can be considered as a constrained
     // optimisation problem:

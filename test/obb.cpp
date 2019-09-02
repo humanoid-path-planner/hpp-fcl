@@ -174,7 +174,7 @@ namespace obbDisjoint_impls
   /// \return true if OBB are disjoint.
   bool distance (const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b, FCL_REAL& distance)
   {
-    GJKSolver_indep gjk;
+    GJKSolver gjk;
     Box ba (2*a), bb (2*b);
     Transform3f tfa, tfb (B, T);
 

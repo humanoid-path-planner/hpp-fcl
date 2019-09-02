@@ -38,6 +38,7 @@
 #include <hpp/fcl/BVH/BV_fitter.h>
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <limits>
+#include <hpp/fcl/math/tools.h>
 
 namespace hpp
 {

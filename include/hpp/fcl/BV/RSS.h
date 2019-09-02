@@ -39,8 +39,7 @@
 #define HPP_FCL_RSS_H
 
 #include <stdexcept>
-#include <hpp/fcl/math/vec_3f.h>
-#include <hpp/fcl/math/matrix_3f.h>
+#include <hpp/fcl/math/types.h>
 #include <boost/math/constants/constants.hpp>
 
 namespace hpp
@@ -141,10 +140,6 @@ public:
   FCL_REAL distance(const RSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
 };
-
-
-/// @brief Translate the RSS bv
-RSS translate(const RSS& bv, const Vec3f& t);
 
 /// @brief distance between two RSS bounding volumes
 /// P and Q (optional return values) are the closest points in the rectangles, not the RSS. But the direction P - Q is the correct direction for cloest points

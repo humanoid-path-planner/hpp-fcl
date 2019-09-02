@@ -39,8 +39,7 @@
 #define HPP_FCL_AABB_H
 
 #include <stdexcept>
-#include <hpp/fcl/math/vec_3f.h>
-#include <hpp/fcl/math/matrix_3f.h>
+#include <hpp/fcl/math/types.h>
 
 namespace hpp
 {
@@ -100,21 +99,10 @@ public:
   bool overlap(const AABB& other, const CollisionRequest& request,
                FCL_REAL& sqrDistLowerBound) const;
 
-  /// @brief Check whether the AABB contains another AABB
+   /// @brief Check whether the AABB contains another AABB
   inline bool contain(const AABB& other) const
   {
     return (other.min_[0] >= min_[0]) && (other.max_[0] <= max_[0]) && (other.min_[1] >= min_[1]) && (other.max_[1] <= max_[1]) && (other.min_[2] >= min_[2]) && (other.max_[2] <= max_[2]);
-  }
-
-
-  /// @brief Check whether two AABB are overlapped along specific axis
-  inline bool axisOverlap(const AABB& other, int axis_id) const
-  {
-    if(min_[axis_id] > other.max_[axis_id]) return false;
-
-    if(max_[axis_id] < other.min_[axis_id]) return false;
-
-    return true;
   }
 
   /// @brief Check whether two AABB are overlap and return the overlap part
@@ -182,7 +170,7 @@ public:
     return max_[2] - min_[2];
   }
 
-  /// @brief Volume of the AABB
+    /// @brief Volume of the AABB
   inline FCL_REAL volume() const
   {
     return width() * height() * depth();
@@ -192,12 +180,6 @@ public:
   inline FCL_REAL size() const
   {
     return (max_ - min_).squaredNorm();
-  }
-
-  /// @brief Radius of the AABB
-  inline FCL_REAL radius() const
-  {
-    return (max_ - min_).norm() / 2;
   }
 
   /// @brief Center of the AABB
@@ -211,12 +193,6 @@ public:
 
   /// @brief Distance between two AABBs
   FCL_REAL distance(const AABB& other) const;
-
-  /// @brief whether two AABB are equal
-  inline bool equal(const AABB& other) const
-  {
-    return isEqual(min_, other.min_) && isEqual(max_, other.max_);
-  }
 
   /// @brief expand the half size of the AABB by delta, and keep the center unchanged.
   inline AABB& expand(const Vec3f& delta)

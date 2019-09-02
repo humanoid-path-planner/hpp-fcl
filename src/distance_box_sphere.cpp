@@ -46,13 +46,13 @@
 namespace hpp
 {
 namespace fcl {
-    class GJKSolver_indep;
+    class GJKSolver;
 
   template <>
-  FCL_REAL ShapeShapeDistance <Box, Sphere, GJKSolver_indep>
+  FCL_REAL ShapeShapeDistance <Box, Sphere, GJKSolver>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest&,
+   const GJKSolver*, const DistanceRequest&,
    DistanceResult& result)
   {
     const Box& s1 = static_cast <const Box&> (*o1);
@@ -65,10 +65,10 @@ namespace fcl {
   }
 
   template <>
-  FCL_REAL ShapeShapeDistance <Sphere, Box, GJKSolver_indep>
+  FCL_REAL ShapeShapeDistance <Sphere, Box, GJKSolver>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest&,
+   const GJKSolver*, const DistanceRequest&,
    DistanceResult& result)
   {
     const Sphere& s1 = static_cast <const Sphere&> (*o1);

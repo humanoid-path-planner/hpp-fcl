@@ -146,7 +146,7 @@ public:
 
 
 /// @brief Traversal node for collision between mesh and shape
-template<typename BV, typename S, typename NarrowPhaseSolver,
+template<typename BV, typename S, typename GJKSolver,
   int _Options = RelativeTransformationIsIdentity>
 class MeshShapeCollisionTraversalNode : public BVHShapeCollisionTraversalNode<BV, S>
 {
@@ -256,50 +256,50 @@ public:
   Vec3f* vertices;
   Triangle* tri_indices;
 
-  const NarrowPhaseSolver* nsolver;
+  const GJKSolver* nsolver;
 };
 
 /// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
-template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver, 0>
+template<typename S, typename GJKSolver>
+class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, GJKSolver, 0>
 {
 public:
   MeshShapeCollisionTraversalNodeOBB(const CollisionRequest& request) :
-  MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver, 0>
+  MeshShapeCollisionTraversalNode<OBB, S, GJKSolver, 0>
     (request)
   {
   }
 
 };
 
-template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver, 0>
+template<typename S, typename GJKSolver>
+class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSS, S, GJKSolver, 0>
 {
 public:
   MeshShapeCollisionTraversalNodeRSS (const CollisionRequest& request):
-  MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver, 0>
+  MeshShapeCollisionTraversalNode<RSS, S, GJKSolver, 0>
     (request)
   {
   }
 };
 
-template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver, 0>
+template<typename S, typename GJKSolver>
+class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOS, S, GJKSolver, 0>
 {
 public:
   MeshShapeCollisionTraversalNodekIOS(const CollisionRequest& request):
-  MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver, 0>
+  MeshShapeCollisionTraversalNode<kIOS, S, GJKSolver, 0>
     (request)
   {
   }
 };
 
-template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversalNode<OBBRSS, S, NarrowPhaseSolver, 0>
+template<typename S, typename GJKSolver>
+class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversalNode<OBBRSS, S, GJKSolver, 0>
 {
 public:
   MeshShapeCollisionTraversalNodeOBBRSS (const CollisionRequest& request) :
-  MeshShapeCollisionTraversalNode <OBBRSS, S, NarrowPhaseSolver, 0>
+  MeshShapeCollisionTraversalNode <OBBRSS, S, GJKSolver, 0>
     (request)
   {
   }
@@ -307,7 +307,7 @@ public:
 
 
 /// @brief Traversal node for collision between shape and mesh
-template<typename S, typename BV, typename NarrowPhaseSolver,
+template<typename S, typename BV, typename GJKSolver,
   int _Options = RelativeTransformationIsIdentity>
 class ShapeMeshCollisionTraversalNode : public ShapeBVHCollisionTraversalNode<S, BV>
 {
@@ -416,45 +416,45 @@ public:
   Vec3f* vertices;
   Triangle* tri_indices;
 
-  const NarrowPhaseSolver* nsolver;
+  const GJKSolver* nsolver;
 };
 
 /// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
-template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNode<S, OBB, NarrowPhaseSolver, 0>
+template<typename S, typename GJKSolver>
+class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNode<S, OBB, GJKSolver, 0>
 {
 public:
-  ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<S, OBB, NarrowPhaseSolver>()
+  ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<S, OBB, GJKSolver>()
   {
   }
 };
 
 
-template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshCollisionTraversalNodeRSS : public ShapeMeshCollisionTraversalNode<S, RSS, NarrowPhaseSolver, 0>
+template<typename S, typename GJKSolver>
+class ShapeMeshCollisionTraversalNodeRSS : public ShapeMeshCollisionTraversalNode<S, RSS, GJKSolver, 0>
 {
 public:
-  ShapeMeshCollisionTraversalNodeRSS() : ShapeMeshCollisionTraversalNode<S, RSS, NarrowPhaseSolver>()
+  ShapeMeshCollisionTraversalNodeRSS() : ShapeMeshCollisionTraversalNode<S, RSS, GJKSolver>()
   {
   }
 };
 
 
-template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshCollisionTraversalNodekIOS : public ShapeMeshCollisionTraversalNode<S, kIOS, NarrowPhaseSolver, 0>
+template<typename S, typename GJKSolver>
+class ShapeMeshCollisionTraversalNodekIOS : public ShapeMeshCollisionTraversalNode<S, kIOS, GJKSolver, 0>
 {
 public:
-  ShapeMeshCollisionTraversalNodekIOS() : ShapeMeshCollisionTraversalNode<S, kIOS, NarrowPhaseSolver>()
+  ShapeMeshCollisionTraversalNodekIOS() : ShapeMeshCollisionTraversalNode<S, kIOS, GJKSolver>()
   {
   }
 };
 
 
-template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshCollisionTraversalNodeOBBRSS : public ShapeMeshCollisionTraversalNode<S, OBBRSS, NarrowPhaseSolver, 0>
+template<typename S, typename GJKSolver>
+class ShapeMeshCollisionTraversalNodeOBBRSS : public ShapeMeshCollisionTraversalNode<S, OBBRSS, GJKSolver, 0>
 {
 public:
-  ShapeMeshCollisionTraversalNodeOBBRSS() : ShapeMeshCollisionTraversalNode<S, OBBRSS, NarrowPhaseSolver>()
+  ShapeMeshCollisionTraversalNodeOBBRSS() : ShapeMeshCollisionTraversalNode<S, OBBRSS, GJKSolver>()
   {
   }
 };
@@ -557,7 +557,7 @@ public:
                                   
 
 /// @brief Traversal node for distance between mesh and shape
-template<typename BV, typename S, typename NarrowPhaseSolver>
+template<typename BV, typename S, typename GJKSolver>
 class MeshShapeDistanceTraversalNode : public BVHShapeDistanceTraversalNode<BV, S>
 { 
 public:
@@ -612,20 +612,20 @@ public:
   FCL_REAL rel_err;
   FCL_REAL abs_err;
     
-  const NarrowPhaseSolver* nsolver;
+  const GJKSolver* nsolver;
 };
 
 /// @cond IGNORE
 namespace details
 {
 
-template<typename BV, typename S, typename NarrowPhaseSolver>
+template<typename BV, typename S, typename GJKSolver>
 void meshShapeDistanceOrientedNodeLeafTesting(int b1, int /* b2 */,
                                               const BVHModel<BV>* model1, const S& model2,
                                               Vec3f* vertices, Triangle* tri_indices,
                                               const Transform3f& tf1,
                                               const Transform3f& tf2,
-                                              const NarrowPhaseSolver* nsolver,
+                                              const GJKSolver* nsolver,
                                               bool enable_statistics,
                                               int & num_leaf_tests,
                                               const DistanceRequest& /* request */,
@@ -651,11 +651,11 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int /* b2 */,
 }
 
 
-template<typename BV, typename S, typename NarrowPhaseSolver>
+template<typename BV, typename S, typename GJKSolver>
 static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
                                                   Vec3f* vertices, Triangle* tri_indices, int init_tri_id,
                                                   const S& model2, const Transform3f& tf1, const Transform3f& tf2,
-                                                  const NarrowPhaseSolver* nsolver,
+                                                  const GJKSolver* nsolver,
                                                   const DistanceRequest& /* request */,
                                                   DistanceResult& result)
 {
@@ -682,11 +682,11 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
 
 
 /// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, OBBRSS, kIOS)
-template<typename S, typename NarrowPhaseSolver>
-class MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<RSS, S, NarrowPhaseSolver>
+template<typename S, typename GJKSolver>
+class MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<RSS, S, GJKSolver>
 {
 public:
-  MeshShapeDistanceTraversalNodeRSS() : MeshShapeDistanceTraversalNode<RSS, S, NarrowPhaseSolver>()
+  MeshShapeDistanceTraversalNodeRSS() : MeshShapeDistanceTraversalNode<RSS, S, GJKSolver>()
   {
   }
 
@@ -714,11 +714,11 @@ public:
 };
 
 
-template<typename S, typename NarrowPhaseSolver>
-class MeshShapeDistanceTraversalNodekIOS : public MeshShapeDistanceTraversalNode<kIOS, S, NarrowPhaseSolver>
+template<typename S, typename GJKSolver>
+class MeshShapeDistanceTraversalNodekIOS : public MeshShapeDistanceTraversalNode<kIOS, S, GJKSolver>
 {
 public:
-  MeshShapeDistanceTraversalNodekIOS() : MeshShapeDistanceTraversalNode<kIOS, S, NarrowPhaseSolver>()
+  MeshShapeDistanceTraversalNodekIOS() : MeshShapeDistanceTraversalNode<kIOS, S, GJKSolver>()
   {
   }
 
