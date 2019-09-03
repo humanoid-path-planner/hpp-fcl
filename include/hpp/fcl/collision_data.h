@@ -259,7 +259,7 @@ public:
   }
 
   /// @brief get all the contacts
-  void getContacts(std::vector<Contact>& contacts_)
+  void getContacts(std::vector<Contact>& contacts_) const
   {
     contacts_.resize(contacts.size());
     std::copy(contacts.begin(), contacts.end(), contacts_.begin());

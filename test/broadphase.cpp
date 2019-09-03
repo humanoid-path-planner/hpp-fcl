@@ -45,7 +45,7 @@
 #include <hpp/fcl/broadphase/broadphase.h>
 #include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
 #include <hpp/fcl/math/transform.h>
-#include "test_fcl_utility.h"
+#include "utility.h"
 
 #if USE_GOOGLEHASH
 #include <sparsehash/sparse_hash_map>

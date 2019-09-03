@@ -51,16 +51,16 @@ namespace details
 std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf)
 {
   std::vector<Vec3f> result(8);
-  FCL_REAL a = box.side[0] / 2;
-  FCL_REAL b = box.side[1] / 2;
-  FCL_REAL c = box.side[2] / 2;
-  result[0] = tf.transform(Vec3f(a, b, c));
-  result[1] = tf.transform(Vec3f(a, b, -c));
-  result[2] = tf.transform(Vec3f(a, -b, c));
-  result[3] = tf.transform(Vec3f(a, -b, -c));
-  result[4] = tf.transform(Vec3f(-a, b, c));
-  result[5] = tf.transform(Vec3f(-a, b, -c));
-  result[6] = tf.transform(Vec3f(-a, -b, c));
+  FCL_REAL a = box.halfSide[0];
+  FCL_REAL b = box.halfSide[1];
+  FCL_REAL c = box.halfSide[2];
+  result[0] = tf.transform(Vec3f( a,  b,  c));
+  result[1] = tf.transform(Vec3f( a,  b, -c));
+  result[2] = tf.transform(Vec3f( a, -b,  c));
+  result[3] = tf.transform(Vec3f( a, -b, -c));
+  result[4] = tf.transform(Vec3f(-a,  b,  c));
+  result[5] = tf.transform(Vec3f(-a,  b, -c));
+  result[6] = tf.transform(Vec3f(-a, -b,  c));
   result[7] = tf.transform(Vec3f(-a, -b, -c));
   
   return result;
@@ -256,7 +256,7 @@ void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  Vec3f v_delta (0.5 * R.cwiseAbs() * s.side);
+  Vec3f v_delta (R.cwiseAbs() * s.halfSide);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
@@ -406,9 +406,9 @@ void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  bv.To.noalias() = T;
-  bv.axes.noalias() = R;
-  bv.extent = s.side * (FCL_REAL)0.5;
+  bv.To = T;
+  bv.axes = R;
+  bv.extent = s.halfSide;
 }
 
 template<>

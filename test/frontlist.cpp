@@ -43,8 +43,8 @@
 
 #include <hpp/fcl/traversal/traversal_node_bvhs.h>
 #include <hpp/fcl/traversal/traversal_node_setup.h>
-#include <hpp/fcl/collision_node.h>
-#include "test_fcl_utility.h"
+#include <../src/collision_node.h>
+#include "utility.h"
 
 #include "fcl_resources/config.h"
 #include <boost/filesystem.hpp>
@@ -233,7 +233,7 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
   MeshCollisionTraversalNode<BV> node (request);
 
   bool success = initialize <BV>(node, m1, pose1, m2, pose2, local_result);
-  assert (success);
+  BOOST_REQUIRE (success);
 
   node.enable_statistics = verbose;
 
@@ -297,7 +297,7 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1, const Transform3f&
 
   bool success = initialize (node, (const BVHModel<BV>&)m1, pose1,
                              (const BVHModel<BV>&)m2, pose2, local_result);
-  assert (success);
+  BOOST_REQUIRE (success);
 
   node.enable_statistics = verbose;
 
@@ -310,7 +310,7 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1, const Transform3f&
   pose1 = tf2;
   success = initialize (node, (const BVHModel<BV>&)m1, pose1,
                         (const BVHModel<BV>&)m2, pose2, local_result);
-  assert (success);
+  BOOST_REQUIRE (success);
 
   local_result.clear();
   collide(&node, request, local_result, &front_list);
@@ -347,7 +347,7 @@ bool collide_Test(const Transform3f& tf,
   MeshCollisionTraversalNode<BV> node (request);
 
   bool success = initialize <BV>(node, m1, pose1, m2, pose2, local_result);
-  assert (success);
+  BOOST_REQUIRE (success);
 
   node.enable_statistics = verbose;
 

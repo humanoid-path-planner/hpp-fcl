@@ -44,7 +44,7 @@
 #include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
 #include <hpp/fcl/distance.h>
 #include <hpp/fcl/collision.h>
-#include "test_fcl_utility.h"
+#include "utility.h"
 
 
 using namespace hpp::fcl;

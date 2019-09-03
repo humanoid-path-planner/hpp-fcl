@@ -41,6 +41,7 @@
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/kIOS.h>
 #include <hpp/fcl/BV/OBBRSS.h>
+#include <hpp/fcl/BV/AABB.h>
 #include <iostream>
 
 namespace hpp
@@ -70,6 +71,8 @@ void fit<kIOS>(Vec3f* ps, int n, kIOS& bv);
 template<>
 void fit<OBBRSS>(Vec3f* ps, int n, OBBRSS& bv);
 
+template<>
+void fit<AABB>(Vec3f* ps, int n, AABB& bv);
 
 /// @brief Interface for fitting a bv given the triangles or points inside it.
 template<typename BV>
@@ -91,11 +94,11 @@ public:
 
 /// @brief The class for the default algorithm fitting a bounding volume to a set of points
 template<typename BV>
-class BVFitter : public BVFitterBase<BV>
+class BVFitterTpl : public BVFitterBase<BV>
 {
 public:
   /// @brief default deconstructor
-  virtual ~BVFitter() {}
+  virtual ~BVFitterTpl() {}
 
   /// @brief Prepare the geometry primitive data for fitting
   void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
@@ -115,6 +118,28 @@ public:
     type = type_;
   }
 
+  /// @brief Clear the geometry primitive data
+  void clear()
+  {
+    vertices = NULL;
+    prev_vertices = NULL;
+    tri_indices = NULL;
+    type = BVH_MODEL_UNKNOWN;
+  }
+
+protected:
+
+  Vec3f* vertices;
+  Vec3f* prev_vertices;
+  Triangle* tri_indices;
+  BVHModelType type;
+};
+
+/// @brief The class for the default algorithm fitting a bounding volume to a set of points
+template<typename BV>
+class BVFitter : public BVFitterTpl<BV>
+{
+public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
   /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data
   BV fit(unsigned int* primitive_indices, int num_primitives)
@@ -154,200 +179,61 @@ public:
     return bv;
   }
 
-  /// @brief Clear the geometry primitive data
-  void clear()
-  {
-    vertices = NULL;
-    prev_vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-
-  Vec3f* vertices;
-  Vec3f* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
+protected:
+  using BVFitterTpl<BV>::vertices;
+  using BVFitterTpl<BV>::prev_vertices;
+  using BVFitterTpl<BV>::tri_indices;
+  using BVFitterTpl<BV>::type;
 };
-
 
 /// @brief Specification of BVFitter for OBB bounding volume
 template<>
-class BVFitter<OBB> : public BVFitterBase<OBB>
+class BVFitter<OBB> : public BVFitterTpl<OBB>
 {
 public:
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = NULL;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
-  /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
-  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = prev_vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
   /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
   OBB fit(unsigned int* primitive_indices, int num_primitives);
-
-  /// brief Clear the geometry primitive data
-  void clear()
-  {
-    vertices = NULL;
-    prev_vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-
-  Vec3f* vertices;
-  Vec3f* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
 };
-
 
 /// @brief Specification of BVFitter for RSS bounding volume
 template<>
-class BVFitter<RSS> : public BVFitterBase<RSS>
+class BVFitter<RSS> : public BVFitterTpl<RSS>
 {
 public:
-  /// brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = NULL;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
-  /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
-  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = prev_vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
   /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
   RSS fit(unsigned int* primitive_indices, int num_primitives);
-
-  /// @brief Clear the geometry primitive data
-  void clear()
-  {
-    vertices = NULL;
-    prev_vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-
-  Vec3f* vertices;
-  Vec3f* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
 };
-
 
 /// @brief Specification of BVFitter for kIOS bounding volume
 template<>
-class BVFitter<kIOS> : public BVFitterBase<kIOS>
+class BVFitter<kIOS> : public BVFitterTpl<kIOS>
 {
 public:
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = NULL;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = prev_vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
   /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
   kIOS fit(unsigned int* primitive_indices, int num_primitives);
-
-  /// @brief Clear the geometry primitive data
-  void clear()
-  {
-    vertices = NULL;
-    prev_vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-  Vec3f* vertices;
-  Vec3f* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
 };
-
 
 /// @brief Specification of BVFitter for OBBRSS bounding volume
 template<>
-class BVFitter<OBBRSS> : public BVFitterBase<OBBRSS>
+class BVFitter<OBBRSS> : public BVFitterTpl<OBBRSS>
 {
 public:
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = NULL;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = prev_vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
   /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
   OBBRSS fit(unsigned int* primitive_indices, int num_primitives);
+};
 
-  /// @brief Clear the geometry primitive data
-  void clear()
-  {
-    vertices = NULL;
-    prev_vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-
-  Vec3f* vertices;
-  Vec3f* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
+/// @brief Specification of BVFitter for AABB bounding volume
+template<>
+class BVFitter<AABB> : public BVFitterTpl<AABB>
+{
+public:
+  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
+  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
+  AABB fit(unsigned int* primitive_indices, int num_primitives);
 };
 
 }

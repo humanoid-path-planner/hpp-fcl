@@ -44,7 +44,7 @@
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
-#include "test_fcl_utility.h"
+#include "utility.h"
 #include <iostream>
 #include <hpp/fcl/math/tools.h>
 
@@ -58,6 +58,12 @@ GJKSolver solver2;
 
 Eigen::IOFormat fmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "", "");
 Eigen::IOFormat pyfmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "[", "]");
+
+typedef Eigen::AngleAxis<FCL_REAL> AngleAxis;
+//static const Vec3f UnitX (1, 0, 0);
+//static const Vec3f UnitY (0, 1, 0);
+static const Vec3f UnitZ (0, 0, 1);
+
 
 namespace hpp {
 namespace fcl {
@@ -261,7 +267,7 @@ template <typename Sa, typename Sb> void compareShapeDistance (
       << resB.nearest_points[1].format(pyfmt) << '\n'
       );
   // TODO in one case, there is a mismatch between the distances and I cannot say
-  // which one is correct. To visualize the case, use script test/test_fcl_geometric_shapes.py
+  // which one is correct. To visualize the case, use script test/geometric_shapes.py
   BOOST_WARN_CLOSE(resA.min_distance, resB.min_distance, tol);
   //BOOST_CHECK_CLOSE(resA.min_distance, resB.min_distance, tol);
 
@@ -297,9 +303,7 @@ BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
                        (p2Loc [0] * p2Loc [0] + p2Loc [1] * p2Loc [1]
                         <= s1.radius));
   Vec3f p1Loc (tf2.inverse().transform (p1));
-  bool p1_in_box ((fabs (p1Loc [0]) <= .5 * s2.side [0]) &&
-                  (fabs (p1Loc [1]) <= .5 * s2.side [1]) &&
-                  (fabs (p1Loc [2]) <= .5 * s2.side [2]));
+  bool p1_in_box = (p1Loc.array().abs() <= s2.halfSide.array()).all();
   std::cout << "p2 in cylinder = (" << p2Loc.transpose () << ")" << std::endl;
   std::cout << "p1 in box = (" << p1Loc.transpose () << ")" << std::endl;
 
@@ -316,9 +320,7 @@ BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
     (p2Loc [0] * p2Loc [0] + p2Loc [1] * p2Loc [1]
      <= s1.radius);
   p1Loc = tf2.inverse().transform (p1);
-  p1_in_box = (fabs (p1Loc [0]) <= .5 * s2.side [0]) &&
-    (fabs (p1Loc [1]) <= .5 * s2.side [1]) &&
-    (fabs (p1Loc [2]) <= .5 * s2.side [2]);
+  p1_in_box = (p1Loc.array().abs() <= s2.halfSide.array()).all();
 
   std::cout << "p2 in cylinder = (" << p2Loc.transpose () << ")" << std::endl;
   std::cout << "p1 in box = (" << p1.transpose () << ")" << std::endl;
@@ -441,9 +443,7 @@ void testBoxBoxContactPoints(const Matrix3f& R)
 
   for (int i = 0; i < 8; ++i)
   {
-    vertices[i][0] *= 0.5 * s2.side[0];
-    vertices[i][1] *= 0.5 * s2.side[1];
-    vertices[i][2] *= 0.5 * s2.side[2];
+    vertices[i].array() *= s2.halfSide.array();
   }
 
   Transform3f tf1 = Transform3f(Vec3f(0, 0, -50));
@@ -484,7 +484,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   Vec3f normal;
 
   Quaternion3f q;
-  q = Eigen::AngleAxis<double>((FCL_REAL)3.140 / 6, Vec3f(0, 0, 1));
+  q = AngleAxis((FCL_REAL)3.140 / 6, UnitZ);
 
   tf1 = Transform3f();
   tf2 = Transform3f();
@@ -3060,7 +3060,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
   Vec3f normal;
 
   Quaternion3f q;
-  q = Eigen::AngleAxis<double>((FCL_REAL)3.140 / 6, Vec3f(0, 0, 1));
+  q = AngleAxis((FCL_REAL)3.140 / 6, UnitZ);
 
   tf1 = Transform3f();
   tf2 = Transform3f();

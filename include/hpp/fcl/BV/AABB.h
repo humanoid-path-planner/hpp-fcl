@@ -96,12 +96,8 @@ public:
   }    
 
   /// Not implemented
-  inline bool overlap(const AABB& other, const CollisionRequest&,
-                      FCL_REAL& sqrDistLowerBound) const
-  {
-    sqrDistLowerBound = sqrt (-1);
-    return overlap (other);
-  }
+  bool overlap(const AABB& other, const CollisionRequest& request,
+               FCL_REAL& sqrDistLowerBound) const;
 
    /// @brief Check whether the AABB contains another AABB
   inline bool contain(const AABB& other) const

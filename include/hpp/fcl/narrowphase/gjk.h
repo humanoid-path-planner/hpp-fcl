@@ -50,9 +50,12 @@ namespace details
 {
 
 /// @brief the support function for shape
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir); 
+Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized); 
 
 /// @brief Minkowski difference class of two shapes
+///
+/// \todo template this by the two shapes. The triangle / triangle case can be
+///       easily optimized computing once the triangle shapes[1] into frame0
 ///
 /// \note The Minkowski difference is expressed in the frame of the first shape.
 struct MinkowskiDiff
@@ -60,42 +63,47 @@ struct MinkowskiDiff
   /// @brief points to two shapes
   const ShapeBase* shapes[2];
 
-  /// @brief rotation from shape0 to shape1
-  Matrix3f toshape1;
+  /// @brief rotation from shape1 to shape0
+  /// such that \f$ p_in_0 = oR1 * p_in_1 + ot1 \f$.
+  Matrix3f oR1;
 
-  /// @brief transform from shape1 to shape0 
-  Transform3f toshape0;
+  /// @brief translation from shape1 to shape0
+  /// such that \f$ p_in_0 = oR1 * p_in_1 + ot1 \f$.
+  Vec3f ot1;
 
-  MinkowskiDiff() { }
+  typedef void (*GetSupportFunction) (const MinkowskiDiff& minkowskiDiff,
+      const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1);
+  GetSupportFunction getSupportFunc;
+
+  MinkowskiDiff() : getSupportFunc (NULL) {}
+
+  /// Set the two shapes,
+  /// assuming the relative transformation between them is identity.
+  void set (const ShapeBase* shape0, const ShapeBase* shape1);
+
+  /// Set the two shapes, with a relative transformation.
+  void set (const ShapeBase* shape0, const ShapeBase* shape1,
+      const Transform3f& tf0, const Transform3f& tf1);
 
   /// @brief support function for shape0
-  inline Vec3f support0(const Vec3f& d) const
+  inline Vec3f support0(const Vec3f& d, bool dIsNormalized) const
   {
-    return getSupport(shapes[0], d);
+    return getSupport(shapes[0], d, dIsNormalized);
   }
-  
+
   /// @brief support function for shape1
-  inline Vec3f support1(const Vec3f& d) const
+  inline Vec3f support1(const Vec3f& d, bool dIsNormalized) const
   {
-    return toshape0.transform(getSupport(shapes[1], toshape1 * d));
+    return oR1 * getSupport(shapes[1], oR1.transpose() * d, dIsNormalized) + ot1;
   }
 
   /// @brief support function for the pair of shapes
-  inline Vec3f support(const Vec3f& d) const
+  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp0, Vec3f& supp1) const
   {
-    return support0(d) - support1(-d);
-  }
-
-  /// @brief support function for the d-th shape (d = 0 or 1)
-  inline Vec3f support(const Vec3f& d, size_t index) const
-  {
-    if(index)
-      return support1(d);
-    else
-      return support0(d);
+    assert(getSupportFunc != NULL);
+    getSupportFunc(*this, d, dIsNormalized, supp0, supp1);
   }
 };
-
 
 /// @brief class for GJK algorithm
 ///
@@ -104,29 +112,25 @@ struct GJK
 {
   struct SimplexV
   {
-    /// @brief support direction
-    Vec3f d; 
-    /// @brieg support vector (i.e., the furthest point on the shape along the support direction)
+    /// @brief support vector for shape 0 and 1.
+    Vec3f w0, w1; 
+    /// @brief support vector (i.e., the furthest point on the shape along the support direction)
     Vec3f w;
-
-    SimplexV () : d(Vec3f::Zero()), w(Vec3f::Zero()) {}
   };
 
   struct Simplex
   {
     /// @brief simplex vertex
     SimplexV* vertex[4];
-    /// @brief weight 
-    FCL_REAL coefficient[4];
     /// @brief size of simplex (number of vertices)
-    size_t rank;
+    short rank;
 
-    Simplex() : rank(0) {}
+    Simplex() {}
   };
 
   enum Status {Valid, Inside, Failed};
 
-  MinkowskiDiff shape;
+  MinkowskiDiff const* shape;
   Vec3f ray;
   FCL_REAL distance;
   Simplex simplices[2];
@@ -141,16 +145,14 @@ struct GJK
   void initialize();
 
   /// @brief GJK algorithm, given the initial value guess
-  Status evaluate(const MinkowskiDiff& shape_, const Vec3f& guess);
+  Status evaluate(const MinkowskiDiff& shape, const Vec3f& guess);
 
   /// @brief apply the support function along a direction, the result is return in sv
-  void getSupport(const Vec3f& d, SimplexV& sv) const;
-
-  /// @brief discard one vertex from the simplex
-  void removeVertex(Simplex& simplex);
-
-  /// @brief append one vertex to the simplex
-  void appendVertex(Simplex& simplex, const Vec3f& v);
+  inline void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv) const
+  {
+    shape->support(d, dIsNormalized, sv.w0, sv.w1);
+    sv.w.noalias() = sv.w0 - sv.w1;
+  }
 
   /// @brief whether the simplex enclose the origin
   bool encloseOrigin();
@@ -161,20 +163,48 @@ struct GJK
     return simplex;
   }
 
+  /// Get the closest points on each object.
+  /// \return true on success
+  static bool getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1);
+
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;
+
+  /// @brief Distance threshold for early break.
+  /// GJK stops when it proved the distance is more than this threshold.
+  /// \note The closest points will be erroneous in this case.
+  ///       If you want the closest points, set this to infinity (the default).
+  void setDistanceEarlyBreak (const FCL_REAL& dup)
+  {
+    distance_upper_bound = dup;
+  }
 
 private:
   SimplexV store_v[4];
   SimplexV* free_v[4];
-  size_t nfree;
-  size_t current;
+  short nfree;
+  short current;
   Simplex* simplex;
   Status status;
 
   unsigned int max_iterations;
   FCL_REAL tolerance;
+  FCL_REAL distance_upper_bound;
 
+  /// @brief discard one vertex from the simplex
+  inline void removeVertex(Simplex& simplex);
+
+  /// @brief append one vertex to the simplex
+  inline void appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized = false);
+
+  /// @brief Project origin (0) onto line a-b
+  bool projectLineOrigin(const Simplex& current, Simplex& next);
+
+  /// @brief Project origin (0) onto triangle a-b-c
+  bool projectTriangleOrigin(const Simplex& current, Simplex& next);
+
+  /// @brief Project origin (0) onto tetrahedran a-b-c-d
+  bool projectTetrahedraOrigin(const Simplex& current, Simplex& next);
 };
 
 

@@ -38,7 +38,6 @@
 #ifndef HPP_FCL_SRC_NARROWPHASE_DETAILS_H
 # define HPP_FCL_SRC_NARROWPHASE_DETAILS_H
 
-#include <hpp/fcl/collision_node.h>
 #include <hpp/fcl/traversal/traversal_node_setup.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
@@ -126,7 +125,7 @@ namespace fcl {
       FCL_REAL norm (normal.norm());
       dist = norm - s1.radius - s2.radius;
 
-      FCL_REAL eps (std::numeric_limits<FCL_REAL>::epsilon());
+      static const FCL_REAL eps (std::numeric_limits<FCL_REAL>::epsilon());
       if (norm > eps) {
         normal.normalize();
       } else {
@@ -147,7 +146,7 @@ namespace fcl {
        const Cylinder& s2, const Transform3f& tf2,
        FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal)
     {
-      FCL_REAL eps (sqrt (std::numeric_limits <FCL_REAL>::epsilon ()));
+      static const FCL_REAL eps (sqrt (std::numeric_limits <FCL_REAL>::epsilon ()));
       FCL_REAL r1 (s1.radius);
       FCL_REAL r2 (s2.radius);
       FCL_REAL lz2 (.5*s2.lz);
@@ -860,8 +859,8 @@ namespace fcl {
 
 
 
-    inline int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
-                       const Vec3f& side2, const Matrix3f& R2, const Vec3f& T2,
+    inline int boxBox2(const Vec3f& halfSide1, const Matrix3f& R1, const Vec3f& T1,
+                       const Vec3f& halfSide2, const Matrix3f& R2, const Vec3f& T2,
                        Vec3f& normal, FCL_REAL* depth, int* return_code,
                        int maxc, std::vector<ContactPoint>& contacts)
     {
@@ -874,8 +873,8 @@ namespace fcl {
       Vec3f pp (R1.transpose() * p); // get pp = p relative to body 1
 
       // get side lengths / 2
-      Vec3f A (side1 * 0.5);
-      Vec3f B (side2 * 0.5);
+      const Vec3f& A (halfSide1);
+      const Vec3f& B (halfSide2);
 
       // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
       Matrix3f R (R1.transpose() * R2);
@@ -979,7 +978,7 @@ namespace fcl {
       Q.array() += fudge2;
 
       Vec3f n;
-      FCL_REAL eps = std::numeric_limits<FCL_REAL>::epsilon();
+      static const FCL_REAL eps = std::numeric_limits<FCL_REAL>::epsilon();
 
       // separating axis = u1 x (v1,v2,v3)
       tmp = pp[2] * R(1, 0) - pp[1] * R(2, 0);
@@ -1443,8 +1442,8 @@ namespace fcl {
       int return_code;
       Vec3f normal;
       FCL_REAL depth;
-      /* int cnum = */ boxBox2(s1.side, tf1.getRotation(), tf1.getTranslation(),
-                               s2.side, tf2.getRotation(), tf2.getTranslation(),
+      /* int cnum = */ boxBox2(s1.halfSide, tf1.getRotation(), tf1.getTranslation(),
+                               s2.halfSide, tf2.getRotation(), tf2.getTranslation(),
                                normal, &depth, &return_code,
                                4, contacts);
 
@@ -1518,11 +1517,9 @@ namespace fcl {
       const Matrix3f& R = tf1.getRotation();
       const Vec3f& T = tf1.getTranslation();
 
-      Vec3f Q = R.transpose() * new_s2.n;
-      Vec3f A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
-      Vec3f B = A.cwiseAbs();
+      Vec3f Q (R.transpose() * new_s2.n);
 
-      FCL_REAL depth = 0.5 * (B[0] + B[1] + B[2]) - new_s2.signedDistance(T);
+      FCL_REAL depth = Q.cwiseProduct(s1.halfSide).lpNorm<1>() - new_s2.signedDistance(T);
       return (depth >= 0);
     }
 
@@ -1538,26 +1535,16 @@ namespace fcl {
       const Vec3f& T = tf1.getTranslation();
 
       // Q: plane normal expressed in box frame
-      Vec3f Q = R.transpose() * new_s2.n;
+      const Vec3f Q (R.transpose() * new_s2.n);
       // A: scalar products of each side with normal
-      Vec3f A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
-      Vec3f B = A.cwiseAbs();
+      const Vec3f A (Q.cwiseProduct(s1.halfSide));
 
-      distance = new_s2.signedDistance(T) - 0.5 * (B[0] + B[1] + B[2]);
+      distance = new_s2.signedDistance(T) - A.lpNorm<1>();
       if(distance > 0) {
-        p1 = T;
-        for (Vec3f::Index i=0; i<3; ++i) {
-          p1 -= A [i] > 0 ? (-.5 * s1.side [i] * R.col (i)) :
-            (.5 * s1.side [i] * R.col (i));
-        }
-        p2 = p1 - distance * new_s2.n;
+        p1.noalias() = T + R * (A.array() > 0).select (s1.halfSide, - s1.halfSide);
+        p2.noalias() = p1 - distance * new_s2.n;
         return false;
       }
-
-      Vec3f axis[3];
-      axis[0] = R.col(0);
-      axis[1] = R.col(1);
-      axis[2] = R.col(2);
 
       /// find deepest point
       Vec3f p(T);
@@ -1566,25 +1553,21 @@ namespace fcl {
       if(std::abs(Q[0] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[0] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
         {
           sign = (A[0] > 0) ? -1 : 1;
-          p += axis[0] * (0.5 * s1.side[0] * sign);
+          p += R.col(0) * (s1.halfSide[0] * sign);
         }
       else if(std::abs(Q[1] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[1] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
         {
           sign = (A[1] > 0) ? -1 : 1;
-          p += axis[1] * (0.5 * s1.side[1] * sign);
+          p += R.col(1) * (s1.halfSide[1] * sign);
         }
       else if(std::abs(Q[2] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[2] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
         {
           sign = (A[2] > 0) ? -1 : 1;
-          p += axis[2] * (0.5 * s1.side[2] * sign);
+          p += R.col(2) * (s1.halfSide[2] * sign);
         }
       else
         {
-          for(std::size_t i = 0; i < 3; ++i)
-            {
-              sign = (A[i] > 0) ? -1 : 1;
-              p += axis[i] * (0.5 * s1.side[i] * sign);
-            }
+          p.noalias() += R * (A.array() > 0).select (-s1.halfSide, s1.halfSide);
         }
 
       /// compute the contact point from the deepest point
@@ -2040,33 +2023,32 @@ namespace fcl {
     //                            Vec3f* contact_points,
     //                            FCL_REAL* penetration_depth, Vec3f* normal)
     {
-      FCL_REAL eps (sqrt (std::numeric_limits<FCL_REAL>::epsilon()));
+      static const FCL_REAL eps (sqrt (std::numeric_limits<FCL_REAL>::epsilon()));
       Plane new_s2 = transform(s2, tf2);
 
       const Matrix3f& R = tf1.getRotation();
       const Vec3f& T = tf1.getTranslation();
 
-      Vec3f Q = R.transpose() * new_s2.n;
-      Vec3f A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
-      Vec3f B = A.cwiseAbs();
+      const Vec3f Q (R.transpose() * new_s2.n);
+      const Vec3f A (Q.cwiseProduct(s1.halfSide));
 
       FCL_REAL signed_dist = new_s2.signedDistance(T);
-      distance = std::abs(signed_dist) - 0.5 * (B[0] + B[1] + B[2]);
+      distance = std::abs(signed_dist) - A.lpNorm<1>();
       if(distance > 0) {
         // Is the box above or below the plane
-        int sign = signed_dist > 0 ? 1 : -1;
+        const bool positive = signed_dist > 0;
         // Set p1 at the center of the box
         p1 = T;
         for (Vec3f::Index i=0; i<3; ++i) {
           // scalar product between box axis and plane normal
-          FCL_REAL alpha (R.col (i).dot (new_s2.n));
-          if (sign * alpha > eps) {
-            p1 -= .5 * R.col (i) * s1.side [i];
-          } else if (sign * alpha < -eps) {
-            p1 += .5 * R.col (i) * s1.side [i];
+          FCL_REAL alpha ((positive ? 1 : -1 ) * R.col (i).dot (new_s2.n));
+          if (alpha > eps) {
+            p1 -= R.col (i) * s1.halfSide [i];
+          } else if (alpha < -eps) {
+            p1 += R.col (i) * s1.halfSide [i];
           }
         }
-        p2 = p1 - sign * distance * new_s2.n;
+        p2 = p1 - ( positive ? distance : -distance) * new_s2.n;
         assert (new_s2.distance (p2) < 3 *eps);
         return false;
       }
@@ -2087,32 +2069,25 @@ namespace fcl {
       if(std::abs(Q[0] - 1) < planeIntersectTolerance<FCL_REAL>() ||
          std::abs(Q[0] + 1) < planeIntersectTolerance<FCL_REAL>())
         {
-          int sign2 = (A[0] > 0) ? -1 : 1;
-          sign2 *= sign;
-          p += axis[0] * (0.5 * s1.side[0] * sign2);
+          int sign2 = (A[0] > 0) ? -sign : sign;
+          p += R.col(0) * (s1.halfSide[0] * sign2);
         }
       else if(std::abs(Q[1] - 1) < planeIntersectTolerance<FCL_REAL>() ||
               std::abs(Q[1] + 1) < planeIntersectTolerance<FCL_REAL>())
         {
-          int sign2 = (A[1] > 0) ? -1 : 1;
-          sign2 *= sign;
-          p += axis[1] * (0.5 * s1.side[1] * sign2);
+          int sign2 = (A[1] > 0) ? -sign : sign;
+          p += R.col(1) * (s1.halfSide[1] * sign2);
         }
       else if(std::abs(Q[2] - 1) < planeIntersectTolerance<FCL_REAL>() ||
               std::abs(Q[2] + 1) < planeIntersectTolerance<FCL_REAL>())
         {
-          int sign2 = (A[2] > 0) ? -1 : 1;
-          sign2 *= sign;
-          p += axis[2] * (0.5 * s1.side[2] * sign2);
+          int sign2 = (A[2] > 0) ? -sign : sign;
+          p += R.col(2) * (s1.halfSide[2] * sign2);
         }
       else
         {
-          for(std::size_t i = 0; i < 3; ++i)
-            {
-              int sign2 = (A[i] > 0) ? -1 : 1;
-              sign2 *= sign;
-              p += axis[i] * (0.5 * s1.side[i] * sign2);
-            }
+          Vec3f tmp(sign * R * s1.halfSide);
+          p += (A.array() > 0).select (- tmp, tmp);
         }
 
       // compute the contact point by project the deepest point onto the plane
@@ -2143,7 +2118,7 @@ namespace fcl {
       bool inside = true;
       for (int i = 0; i < 3; ++i) {
         bool iinside = false;
-        FCL_REAL dist = Rb.col(i).dot(d), side_2 = b.side(i) / 2;
+        FCL_REAL dist = Rb.col(i).dot(d), side_2 = b.halfSide(i);
         if      (dist < -side_2) dist = -side_2; // outside
         else if (dist >  side_2) dist =  side_2; // outside
         else iinside = true;                     // inside
@@ -2651,6 +2626,21 @@ namespace fcl {
 
       return true;
     }
+
+    /// See the prototype below
+    inline FCL_REAL computePenetration
+      (const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
+       const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
+       Vec3f& normal)
+    {
+      Vec3f u ((P2-P1).cross (P3-P1));
+      normal = u.normalized ();
+      FCL_REAL depth1 ((P1-Q1).dot (normal));
+      FCL_REAL depth2 ((P1-Q2).dot (normal));
+      FCL_REAL depth3 ((P1-Q3).dot (normal));
+      return std::max (depth1, std::max (depth2, depth3));
+    }
+
     // Compute penetration distance and normal of two triangles in collision
     // Normal is normal of triangle 1 (P1, P2, P3), penetration depth is the
     // minimal distance (Q1, Q2, Q3) should be translated along the normal so
@@ -2669,14 +2659,8 @@ namespace fcl {
       Vec3f globalQ1 (tf2.transform (Q1));
       Vec3f globalQ2 (tf2.transform (Q2));
       Vec3f globalQ3 (tf2.transform (Q3));
-      Vec3f u ((globalP2-globalP1).cross (globalP3-globalP1));
-      normal = u.normalized ();
-      FCL_REAL depth;
-      FCL_REAL depth1 ((globalP1-globalQ1).dot (normal));
-      FCL_REAL depth2 ((globalP1-globalQ2).dot (normal));
-      FCL_REAL depth3 ((globalP1-globalQ3).dot (normal));
-      depth = std::max (depth1, std::max (depth2, depth3));
-      return depth;
+      return computePenetration (globalP1, globalP2, globalP3,
+          globalQ1, globalQ2, globalQ3, normal);
     }
   } // details
 } // namespace fcl

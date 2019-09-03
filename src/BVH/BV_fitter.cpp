@@ -434,7 +434,6 @@ void fit(Vec3f* ps, int n, OBB& bv)
   }
 }
 
-
 template<>
 void fit(Vec3f* ps, int n, RSS& bv)
 {
@@ -492,6 +491,16 @@ void fit(Vec3f* ps, int n, OBBRSS& bv)
   }
 }
 
+template<>
+void fit(Vec3f* ps, int n, AABB& bv)
+{
+  if (n <= 0) return;
+  bv = AABB (ps[0]);
+  for(int i = 1; i < n; ++i)
+  {
+    bv += ps[i];
+  }
+}
 
 OBB BVFitter<OBB>::fit(unsigned int* primitive_indices, int num_primitives)
 {
@@ -567,7 +576,6 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
   return bv;
 }
 
-
 kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
 {
   kIOS bv;
@@ -638,6 +646,47 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
   return bv;
 }
 
+AABB BVFitter<AABB>::fit(unsigned int* primitive_indices, int num_primitives)
+{
+  AABB bv;
+  if (num_primitives == 0) return bv;
+
+  if(type == BVH_MODEL_TRIANGLES)             /// The primitive is triangle
+  {
+    Triangle t0 = tri_indices[primitive_indices[0]];
+    bv = AABB (vertices[t0[0]]);
+
+    for(int i = 0; i < num_primitives; ++i)
+    {
+      Triangle t = tri_indices[primitive_indices[i]];
+      bv += vertices[t[0]];
+      bv += vertices[t[1]];
+      bv += vertices[t[2]];
+
+      if(prev_vertices)                      /// can fitting both current and previous frame
+      {
+        bv += prev_vertices[t[0]];
+        bv += prev_vertices[t[1]];
+        bv += prev_vertices[t[2]];
+      }
+    }
+    return bv;
+  }
+  else if(type == BVH_MODEL_POINTCLOUD)       /// The primitive is point
+  {
+    bv = AABB (vertices[primitive_indices[0]]);
+    for(int i = 0; i < num_primitives; ++i)
+    {
+      bv += vertices[primitive_indices[i]];
+
+      if(prev_vertices)                       /// can fitting both current and previous frame
+      {
+        bv += prev_vertices[primitive_indices[i]];
+      }
+    }
+  }
+  return bv;
+}
 
 }
 

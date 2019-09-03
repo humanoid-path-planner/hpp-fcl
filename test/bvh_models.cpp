@@ -50,7 +50,7 @@
 #include "hpp/fcl/shape/geometric_shapes.h"
 #include <hpp/fcl/mesh_loader/assimp.h>
 #include <hpp/fcl/mesh_loader/loader.h>
-#include "test_fcl_utility.h"
+#include "utility.h"
 #include <iostream>
 
 using namespace hpp::fcl;
@@ -72,18 +72,18 @@ void testBVHModelPointCloud()
   }
 
   Box box;
-  double a = box.side[0];
-  double b = box.side[1];
-  double c = box.side[2];
+  double a = box.halfSide[0];
+  double b = box.halfSide[1];
+  double c = box.halfSide[2];
   std::vector<Vec3f> points(8);
-  points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
-  points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
-  points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
-  points[3] << -0.5 * a, -0.5 * b, 0.5 * c;
-  points[4] << 0.5 * a, -0.5 * b, -0.5 * c;
-  points[5] << 0.5 * a, 0.5 * b, -0.5 * c;
-  points[6] << -0.5 * a, 0.5 * b, -0.5 * c;
-  points[7] << -0.5 * a, -0.5 * b, -0.5 * c;
+  points[0] <<  a, -b,  c;
+  points[1] <<  a,  b,  c;
+  points[2] << -a,  b,  c;
+  points[3] << -a, -b,  c;
+  points[4] <<  a, -b, -c;
+  points[5] <<  a,  b, -c;
+  points[6] << -a,  b, -c;
+  points[7] << -a, -b, -c;
 
   int result;
 
@@ -113,19 +113,19 @@ void testBVHModelTriangles()
   Box box(1,1,1);
   AABB aabb (Vec3f(-1,0,-1), Vec3f(1,1,1));
 
-  double a = box.side[0];
-  double b = box.side[1];
-  double c = box.side[2];
+  double a = box.halfSide[0];
+  double b = box.halfSide[1];
+  double c = box.halfSide[2];
   std::vector<Vec3f> points(8);
   std::vector<Triangle> tri_indices(12);
-  points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
-  points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
-  points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
-  points[3] << -0.5 * a, -0.5 * b, 0.5 * c;
-  points[4] << 0.5 * a, -0.5 * b, -0.5 * c;
-  points[5] << 0.5 * a, 0.5 * b, -0.5 * c;
-  points[6] << -0.5 * a, 0.5 * b, -0.5 * c;
-  points[7] << -0.5 * a, -0.5 * b, -0.5 * c;
+  points[0] <<  a, -b,  c;
+  points[1] <<  a,  b,  c;
+  points[2] << -a,  b,  c;
+  points[3] << -a, -b,  c;
+  points[4] <<  a, -b, -c;
+  points[5] <<  a,  b, -c;
+  points[6] << -a,  b, -c;
+  points[7] << -a, -b, -c;
 
   tri_indices[0].set(0, 4, 1);
   tri_indices[1].set(1, 4, 5);
@@ -202,19 +202,19 @@ void testBVHModelSubModel()
   boost::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
   Box box;
 
-  double a = box.side[0];
-  double b = box.side[1];
-  double c = box.side[2];
+  double a = box.halfSide[0];
+  double b = box.halfSide[1];
+  double c = box.halfSide[2];
   std::vector<Vec3f> points(8);
   std::vector<Triangle> tri_indices(12);
-  points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
-  points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
-  points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
-  points[3] << -0.5 * a, -0.5 * b, 0.5 * c;
-  points[4] << 0.5 * a, -0.5 * b, -0.5 * c;
-  points[5] << 0.5 * a, 0.5 * b, -0.5 * c;
-  points[6] << -0.5 * a, 0.5 * b, -0.5 * c;
-  points[7] << -0.5 * a, -0.5 * b, -0.5 * c;
+  points[0] <<  a, -b,  c;
+  points[1] <<  a,  b,  c;
+  points[2] << -a,  b,  c;
+  points[3] << -a, -b,  c;
+  points[4] <<  a, -b, -c;
+  points[5] <<  a,  b, -c;
+  points[6] << -a,  b, -c;
+  points[7] << -a, -b, -c;
 
   tri_indices[0].set(0, 4, 1);
   tri_indices[1].set(1, 4, 5);

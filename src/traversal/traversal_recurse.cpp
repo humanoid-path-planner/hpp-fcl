@@ -38,6 +38,8 @@
 
 #include <hpp/fcl/traversal/traversal_recurse.h>
 
+#include <vector>
+
 namespace hpp
 {
 namespace fcl
@@ -89,18 +91,70 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
   }
 }
 
-  void collisionRecurse(MeshCollisionTraversalNodeOBB* /*node*/, int /*b1*/,
-                        int /*b2*/, const Matrix3f& /*R*/, const Vec3f& /*T*/,
-                        BVHFrontList* /*front_list*/)
+void collisionNonRecurse(CollisionTraversalNodeBase* node,
+		         BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)
 {
-  throw std::runtime_error ("Not implemented.");
-}
+  typedef std::pair<int, int> BVPair_t;
+  //typedef std::stack<BVPair_t, std::vector<BVPair_t> > Stack_t;
+  typedef std::vector<BVPair_t> Stack_t;
 
-  void collisionRecurse(MeshCollisionTraversalNodeRSS* /*node*/, int /*b1*/,
-                        int /*b2*/, const Matrix3f& /*R*/, const Vec3f& /*T*/,
-                        BVHFrontList* /*front_list*/)
-{
-  throw std::runtime_error ("Not implemented.");
+  Stack_t pairs;
+  pairs.reserve (1000);
+  sqrDistLowerBound = std::numeric_limits<FCL_REAL>::infinity();
+  FCL_REAL sdlb = std::numeric_limits<FCL_REAL>::infinity();
+
+  pairs.push_back (BVPair_t (0, 0));
+
+  while (!pairs.empty()) {
+    int a = pairs.back().first,
+        b = pairs.back().second;
+    pairs.pop_back();
+
+    bool la = node->isFirstNodeLeaf(a);
+    bool lb = node->isSecondNodeLeaf(b);
+
+    // Leaf / Leaf case
+    if (la && lb) {
+      updateFrontList(front_list, a, b);
+
+      // TODO should we test the BVs ?
+      //if(node->BVTesting(a, b, sdlb)) {
+        //if (sdlb < sqrDistLowerBound) sqrDistLowerBound = sdlb;
+        //continue;
+      //}
+      node->leafTesting(a, b, sdlb);
+      if (sdlb < sqrDistLowerBound) sqrDistLowerBound = sdlb;
+      if (node->canStop() && !front_list) return;
+      continue;
+    }
+
+    // TODO shouldn't we test the leaf triangle against BV is la != lb
+    // if (la && !lb) { // leaf triangle 1 against BV 2
+    // } else if (!la && lb) { // BV 1 against leaf triangle 2
+    // }
+
+    // Check the BV
+    if(node->BVTesting(a, b, sdlb)) {
+      if (sdlb < sqrDistLowerBound) sqrDistLowerBound = sdlb;
+      updateFrontList(front_list, a, b);
+      continue;
+    }
+
+    if(node->firstOverSecond(a, b))
+    {
+      int c1 = node->getFirstLeftChild(a);
+      int c2 = node->getFirstRightChild(a);
+      pairs.push_back (BVPair_t (c2, b));
+      pairs.push_back (BVPair_t (c1, b));
+    }
+    else
+    {
+      int c1 = node->getSecondLeftChild(b);
+      int c2 = node->getSecondRightChild(b);
+      pairs.push_back (BVPair_t (a, c2));
+      pairs.push_back (BVPair_t (a, c1));
+    }
+  }
 }
 
 /** Recurse function for self collision

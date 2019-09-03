@@ -45,7 +45,7 @@
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
-# include "test_fcl_utility.h"
+# include "utility.h"
 # include "fcl_resources/config.h"
 
 using hpp::fcl::Transform3f;

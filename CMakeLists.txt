@@ -97,10 +97,8 @@ ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
 if(ASSIMP_FOUND)
   if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
     add_definitions(-DHPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
-    SET(HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES TRUE)
     message(STATUS "Assimp version has unified headers")
   else()
-    SET(HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES FALSE)
     message(STATUS "Assimp version does not have unified headers")
   endif()
 endif()
@@ -123,7 +121,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/shape/geometric_shapes.h
   include/hpp/fcl/distance_func_matrix.h
   include/hpp/fcl/collision.h
-  include/hpp/fcl/collision_node.h
   include/hpp/fcl/collision_func_matrix.h
   include/hpp/fcl/distance.h
   include/hpp/fcl/math/matrix_3f.h
@@ -162,10 +159,6 @@ endif ()
 
 pkg_config_append_libs("hpp-fcl")
 PKG_CONFIG_APPEND_BOOST_LIBS(thread date_time filesystem system)
-IF(HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
-  # FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES kept for backard compatibility reasons.
-  PKG_CONFIG_APPEND_CFLAGS("-DFCL_USE_ASSIMP_UNIFIED_HEADER_NAMES -DHPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES")
-ENDIF(HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
 IF(HPP_FCL_HAVE_OCTOMAP)
   # FCL_HAVE_OCTOMAP kept for backward compatibility reasons.
   PKG_CONFIG_APPEND_CFLAGS(

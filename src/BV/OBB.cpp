@@ -295,6 +295,71 @@ bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f&
 
 }
 
+namespace internal
+{
+  inline FCL_REAL obbDisjoint_check_A_axis (
+      const Vec3f& T, const Vec3f& a, const Vec3f& b, const Matrix3f& Bf)
+  {
+    // |T| - |B| * b - a
+    Vec3f AABB_corner (T.cwiseAbs () - a);
+    AABB_corner.noalias() -= Bf.col(0) * b[0];
+    AABB_corner.noalias() -= Bf.col(1) * b[1];
+    AABB_corner.noalias() -= Bf.col(2) * b[2];
+    return AABB_corner.array().max(0).matrix().squaredNorm ();
+  }
+
+  inline FCL_REAL obbDisjoint_check_B_axis (
+      const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b, const Matrix3f& Bf)
+  {
+    // Bf = |B|
+    // | B^T T| - Bf^T * a - b
+    register FCL_REAL s, t = 0;
+    s = std::abs(B.col(0).dot(T)) - Bf.col(0).dot(a) - b[0];
+    if (s > 0) t += s*s;
+    s = std::abs(B.col(1).dot(T)) - Bf.col(1).dot(a) - b[1];
+    if (s > 0) t += s*s;
+    s = std::abs(B.col(2).dot(T)) - Bf.col(2).dot(a) - b[2];
+    if (s > 0) t += s*s;
+    return t;
+  }
+
+  template <int ib, int jb = (ib+1)%3, int kb = (ib+2)%3 >
+  struct obbDisjoint_check_Ai_cross_Bi
+  {
+    static inline bool run (int ia, int ja, int ka,
+        const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b,
+        const Matrix3f& Bf,
+        const FCL_REAL& breakDistance2, FCL_REAL& squaredLowerBoundDistance)
+    {
+      const FCL_REAL s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
+
+      const FCL_REAL diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
+                                       b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
+      // We need to divide by the norm || Aia x Bib ||
+      // As ||Aia|| = ||Bib|| = 1, (Aia | Bib)^2  = cosine^2
+      if (diff > 0) {
+        FCL_REAL sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
+        if (sinus2 > 1e-6) {
+          squaredLowerBoundDistance = diff * diff / sinus2;
+          if (squaredLowerBoundDistance > breakDistance2) {
+            return true;
+          }
+        }
+        /* // or
+           FCL_REAL sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
+           squaredLowerBoundDistance = diff * diff;
+           if (squaredLowerBoundDistance > breakDistance2 * sinus2) {
+           squaredLowerBoundDistance /= sinus2;
+           return true;
+           }
+        // */
+      }
+      return false;
+    }
+  };
+}
+
+
 // B, T orientation and position of 2nd OBB in frame of 1st OBB,
 // a extent of 1st OBB,
 // b extent of 2nd OBB.
@@ -302,192 +367,38 @@ bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f&
 // This function tests whether bounding boxes should be broken down.
 //
 bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
-				       const Vec3f& a, const Vec3f& b,
+                                       const Vec3f& a, const Vec3f& b,
                                        const CollisionRequest& request,
-				       FCL_REAL& squaredLowerBoundDistance)
+                                       FCL_REAL& squaredLowerBoundDistance)
 {
-  FCL_REAL t, s;
-  FCL_REAL diff;
-  FCL_REAL breakDistance (request.break_distance + request.security_margin);
-  FCL_REAL breakDistance2 = breakDistance * breakDistance;
+  const FCL_REAL breakDistance (request.break_distance + request.security_margin);
+  const FCL_REAL breakDistance2 = breakDistance * breakDistance;
 
-  // Matrix3f Bf = abs(B);
-  // Bf += reps;
   Matrix3f Bf (B.cwiseAbs());
 
   // Corner of b axis aligned bounding box the closest to the origin
-  Vec3f AABB_corner (T.cwiseAbs () - Bf * b);
-  Vec3f diff3 (AABB_corner - a);
-  diff3 = diff3.cwiseMax (Vec3f::Zero());
-
-  //for (Vec3f::Index i=0; i<3; ++i) diff3 [i] = std::max (0, diff3 [i]);
-  squaredLowerBoundDistance = diff3.squaredNorm ();
+  squaredLowerBoundDistance = internal::obbDisjoint_check_A_axis (T, a, b, Bf);
   if (squaredLowerBoundDistance > breakDistance2)
     return true;
 
-  AABB_corner = (B.transpose () * T).cwiseAbs ()  - Bf.transpose () * a;
-  // diff3 = | B^T T| - b - Bf^T a
-  diff3 = AABB_corner - b;
-  diff3 = diff3.cwiseMax (Vec3f::Zero());
-  squaredLowerBoundDistance = diff3.squaredNorm ();
-
+  squaredLowerBoundDistance = internal::obbDisjoint_check_B_axis (B, T, a, b, Bf);
   if (squaredLowerBoundDistance > breakDistance2)
     return true;
 
-  // A0 x B0
-  s = T[2] * B(1, 0) - T[1] * B(2, 0);
-  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
-
-  FCL_REAL sinus2;
-  diff = t - (a[1] * Bf(2, 0) + a[2] * Bf(1, 0) +
-	      b[1] * Bf(0, 2) + b[2] * Bf(0, 1));
-  // We need to divide by the norm || A0 x B0 ||
-  // As ||A0|| = ||B0|| = 1,
-  //              2            2
-  // || A0 x B0 ||  + (A0 | B0)  = 1
-  if (diff > 0) {
-    sinus2 = 1 - Bf (0,0) * Bf (0,0);
-    if (sinus2 > 1e-6) {
-      squaredLowerBoundDistance = diff * diff / sinus2;
-      if (squaredLowerBoundDistance > breakDistance2) {
-	return true;
-      }
-    }
-  }
-
-  // A0 x B1
-  s = T[2] * B(1, 1) - T[1] * B(2, 1);
-  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
-
-  diff = t - (a[1] * Bf(2, 1) + a[2] * Bf(1, 1) +
-	      b[0] * Bf(0, 2) + b[2] * Bf(0, 0));
-  if (diff > 0) {
-    sinus2 = 1 - Bf (0,1) * Bf (0,1);
-    if (sinus2 > 1e-6) {
-      squaredLowerBoundDistance = diff * diff / sinus2;
-      if (squaredLowerBoundDistance > breakDistance2) {
-	return true;
-      }
-    }
-  }
-
-  // A0 x B2
-  s = T[2] * B(1, 2) - T[1] * B(2, 2);
-  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
-
-  diff = t - (a[1] * Bf(2, 2) + a[2] * Bf(1, 2) +
-	      b[0] * Bf(0, 1) + b[1] * Bf(0, 0));
-  if (diff > 0) {
-    sinus2 = 1 - Bf (0,2) * Bf (0,2);
-    if (sinus2 > 1e-6) {
-      squaredLowerBoundDistance = diff * diff / sinus2;
-      if (squaredLowerBoundDistance > breakDistance2) {
-	return true;
-      }
-    }
-  }
-
-  // A1 x B0
-  s = T[0] * B(2, 0) - T[2] * B(0, 0);
-  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
-
-  diff = t - (a[0] * Bf(2, 0) + a[2] * Bf(0, 0) +
-	      b[1] * Bf(1, 2) + b[2] * Bf(1, 1));
-  if (diff > 0) {
-    sinus2 = 1 - Bf (1,0) * Bf (1,0);
-    if (sinus2 > 1e-6) {
-      squaredLowerBoundDistance = diff * diff / sinus2;
-      if (squaredLowerBoundDistance > breakDistance2) {
-	return true;
-      }
-    }
-  }
-
-  // A1 x B1
-  s = T[0] * B(2, 1) - T[2] * B(0, 1);
-  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
-
-  diff = t - (a[0] * Bf(2, 1) + a[2] * Bf(0, 1) +
-	      b[0] * Bf(1, 2) + b[2] * Bf(1, 0));
-  if (diff > 0) {
-    sinus2 = 1 - Bf (1,1) * Bf (1,1);
-    if (sinus2 > 1e-6) {
-      squaredLowerBoundDistance = diff * diff / sinus2;
-      if (squaredLowerBoundDistance > breakDistance2) {
-	return true;
-      }
-    }
-  }
-
-  // A1 x B2
-  s = T[0] * B(2, 2) - T[2] * B(0, 2);
-  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
-
-  diff = t - (a[0] * Bf(2, 2) + a[2] * Bf(0, 2) +
-	      b[0] * Bf(1, 1) + b[1] * Bf(1, 0));
-  if (diff > 0) {
-    sinus2 = 1 - Bf (1,2) * Bf (1,2);
-    if (sinus2 > 1e-6) {
-      squaredLowerBoundDistance = diff * diff / sinus2;
-      if (squaredLowerBoundDistance > breakDistance2) {
-	return true;
-      }
-    }
-  }
-
-  // A2 x B0
-  s = T[1] * B(0, 0) - T[0] * B(1, 0);
-  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
-
-  diff = t - (a[0] * Bf(1, 0) + a[1] * Bf(0, 0) +
-	      b[1] * Bf(2, 2) + b[2] * Bf(2, 1));
-  if (diff > 0) {
-    sinus2 = 1 - Bf (2,0) * Bf (2,0);
-    if (sinus2 > 1e-6) {
-      squaredLowerBoundDistance = diff * diff / sinus2;
-      if (squaredLowerBoundDistance > breakDistance2) {
-	return true;
-      }
-    }
-  }
-
-  // A2 x B1
-  s = T[1] * B(0, 1) - T[0] * B(1, 1);
-  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
-
-  diff = t - (a[0] * Bf(1, 1) + a[1] * Bf(0, 1) +
-	      b[0] * Bf(2, 2) + b[2] * Bf(2, 0));
-  if (diff > 0) {
-    sinus2 = 1 - Bf (2,1) * Bf (2,1);
-    if (sinus2 > 1e-6) {
-      squaredLowerBoundDistance = diff * diff / sinus2;
-      if (squaredLowerBoundDistance > breakDistance2) {
-	return true;
-      }
-    }
-  }
-
-  // A2 x B2
-  s = T[1] * B(0, 2) - T[0] * B(1, 2);
-  t = ((s < 0.0) ? -s : s); assert (t == fabs (s));
-
-  diff = t - (a[0] * Bf(1, 2) + a[1] * Bf(0, 2) +
-	      b[0] * Bf(2, 1) + b[1] * Bf(2, 0));
-  if (diff > 0) {
-    sinus2 = 1 - Bf (2,2) * Bf (2,2);
-    if (sinus2 > 1e-6) {
-      squaredLowerBoundDistance = diff * diff / sinus2;
-      if (squaredLowerBoundDistance > breakDistance2) {
-	return true;
-      }
-    }
+  // Ai x Bj
+  int ja = 1, ka = 2;
+  for (int ia = 0; ia < 3; ++ia) {
+    if (internal::obbDisjoint_check_Ai_cross_Bi<0>::run (ia, ja, ka,
+          B, T, a, b, Bf, breakDistance2, squaredLowerBoundDistance)) return true;
+    if (internal::obbDisjoint_check_Ai_cross_Bi<1>::run (ia, ja, ka,
+          B, T, a, b, Bf, breakDistance2, squaredLowerBoundDistance)) return true;
+    if (internal::obbDisjoint_check_Ai_cross_Bi<2>::run (ia, ja, ka,
+          B, T, a, b, Bf, breakDistance2, squaredLowerBoundDistance)) return true;
+    ja = ka; ka = ia;
   }
 
   return false;
-
 }
-
-
 
 bool OBB::overlap(const OBB& other) const
 {

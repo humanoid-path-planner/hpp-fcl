@@ -62,10 +62,7 @@ namespace fcl
       if(enable_cached_guess) guess = cached_guess;
     
       details::MinkowskiDiff shape;
-      shape.shapes[0] = &s1;
-      shape.shapes[1] = &s2;
-      shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
-      shape.toshape0 = tf1.inverseTimes(tf2);
+      shape.set (&s1, &s2, tf1, tf2);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -79,12 +76,8 @@ namespace fcl
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
             if(epa_status != details::EPA::Failed)
               {
-                Vec3f w0 (Vec3f::Zero());
-                for(size_t i = 0; i < epa.result.rank; ++i)
-                  {
-                    w0 += shape.support(epa.result.vertex[i]->d, 0) *
-                      epa.result.coefficient[i];
-                  }
+                Vec3f w0, w1;
+                details::GJK::getClosestPoints (epa.result, w0, w1);
                 if(penetration_depth) *penetration_depth = -epa.depth;
                 if(normal) *normal = tf2.getRotation() * epa.normal;
                 if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
@@ -109,16 +102,18 @@ namespace fcl
      Vec3f& p1, Vec3f& p2, Vec3f& normal) const
     {
       bool col;
-      TriangleP tri(P1, P2, P3);
+      // Express everything in frame 1
+      const Transform3f tf_1M2 (tf1.inverseTimes(tf2));
+      TriangleP tri(
+          tf_1M2.transform (P1),
+          tf_1M2.transform (P2),
+          tf_1M2.transform (P3));
 
       Vec3f guess(1, 0, 0);
       if(enable_cached_guess) guess = cached_guess;
 
       details::MinkowskiDiff shape;
-      shape.shapes[0] = &s;
-      shape.shapes[1] = &tri;
-      shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
-      shape.toshape0 = tf1.inverseTimes(tf2);
+      shape.set (&s, &tri);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -132,12 +127,8 @@ namespace fcl
             details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
             assert (epa_status != details::EPA::Failed); (void) epa_status;
-            Vec3f w0 (Vec3f::Zero());
-            for(size_t i = 0; i < epa.result.rank; ++i)
-              {
-                w0 += shape.support(epa.result.vertex[i]->d, 0) *
-                  epa.result.coefficient[i];
-              }
+            Vec3f w0, w1;
+            details::GJK::getClosestPoints (epa.result, w0, w1);
             distance = -epa.depth;
             normal = -epa.normal;
             p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
@@ -148,16 +139,15 @@ namespace fcl
         case details::GJK::Failed:
           {
             col = false;
-            Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-            for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-              {
-                FCL_REAL p = gjk.getSimplex()->coefficient[i];
-                w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-                w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
-              }
-            distance = (w0 - w1).norm();
-            p1 = tf1.transform (w0);
-            p2 = tf1.transform (w1);
+
+            details::GJK::getClosestPoints (*gjk.getSimplex(), p1, p2);
+            // TODO On degenerated case, the closest point may be wrong
+            // (i.e. an object face normal is colinear to gjk.ray
+            // assert (distance == (w0 - w1).norm());
+            distance = gjk.distance;
+
+            p1 = tf1.transform (p1);
+            p2 = tf1.transform (p2);
             assert (distance > 0);
           }
           break;
@@ -183,10 +173,7 @@ namespace fcl
       if(enable_cached_guess) guess = cached_guess;
 
       details::MinkowskiDiff shape;
-      shape.shapes[0] = &s1;
-      shape.shapes[1] = &s2;
-      shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
-      shape.toshape0 = tf1.inverseTimes(tf2);
+      shape.set (&s1, &s2, tf1, tf2);
 
       details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -196,13 +183,8 @@ namespace fcl
       {
         // TODO: understand why GJK fails between cylinder and box
         assert (distance * distance < sqrt (eps));
-        Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-        for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-        {
-          FCL_REAL p = gjk.getSimplex()->coefficient[i];
-          w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-          w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
-        }
+        Vec3f w0, w1;
+        details::GJK::getClosestPoints (*gjk.getSimplex(), w0, w1);
         distance = 0;
         p1 = p2 = tf1.transform (.5* (w0 + w1));
         normal = Vec3f (0,0,0);
@@ -210,18 +192,14 @@ namespace fcl
       }
       else if(gjk_status == details::GJK::Valid)
         {
-          Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-          for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-            {
-              FCL_REAL p = gjk.getSimplex()->coefficient[i];
-              w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-              w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
-            }
+          details::GJK::getClosestPoints (*gjk.getSimplex(), p1, p2);
+          // TODO On degenerated case, the closest point may be wrong
+          // (i.e. an object face normal is colinear to gjk.ray
+          // assert (distance == (w0 - w1).norm());
+          distance = gjk.distance;
 
-          distance = (w0 - w1).norm();
-
-          p1 = tf1.transform (w0);
-          p2 = tf1.transform (w1);
+          p1 = tf1.transform (p1);
+          p2 = tf1.transform (p2);
           return true;
         }
       else
@@ -234,12 +212,8 @@ namespace fcl
               details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
               if(epa_status != details::EPA::Failed)
                 {
-                  Vec3f w0 (Vec3f::Zero());
-                  for(size_t i = 0; i < epa.result.rank; ++i)
-                    {
-                      w0 += shape.support(epa.result.vertex[i]->d, 0) *
-                        epa.result.coefficient[i];
-                    }
+                  Vec3f w0, w1;
+                  details::GJK::getClosestPoints (epa.result, w0, w1);
                   assert (epa.depth >= -eps);
                   distance = std::min (0., -epa.depth);
                   normal = tf2.getRotation() * epa.normal;
@@ -248,17 +222,11 @@ namespace fcl
             }
           else
             {
-              Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-              for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-                {
-                  FCL_REAL p = gjk.getSimplex()->coefficient[i];
-                  w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-                  w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
-                }
+              details::GJK::getClosestPoints (*gjk.getSimplex(), p1, p2);
               distance = 0;
 
-              p1 = tf1.transform (w0);
-              p2 = tf1.transform (w1);
+              p1 = tf1.transform (p1);
+              p2 = tf1.transform (p2);
             }
           return false;
         }

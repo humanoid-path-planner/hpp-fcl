@@ -54,8 +54,7 @@ namespace fcl
 
 /// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
 template<typename BV>
-class BVHModel : public CollisionGeometry,
-                 private boost::noncopyable
+class BVHModel : public CollisionGeometry
 {
 
 public:
@@ -132,12 +131,14 @@ public:
   /// @brief Access the bv giving the its index
   const BVNode<BV>& getBV(int id) const
   {
+    assert (id < num_bvs);
     return bvs[id];
   }
 
   /// @brief Access the bv giving the its index
   BVNode<BV>& getBV(int id)
   {
+    assert (id < num_bvs);
     return bvs[id];
   }
 
