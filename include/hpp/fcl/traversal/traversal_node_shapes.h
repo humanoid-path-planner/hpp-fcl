@@ -67,19 +67,19 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     throw std::runtime_error ("Not implemented");
   }
 
   /// @brief Intersection testing between leaves (two shapes)
-  void leafTesting(int, int, FCL_REAL&) const
+  void leafCollides(int, int, FCL_REAL&) const
   {
     bool is_collision = false;
     if(request.enable_contact)
@@ -128,13 +128,13 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDisjoints(int, int) const
   {
     return -1; // should not be used 
   }
 
   /// @brief Distance testing between leaves (two shapes)
-  void leafTesting(int, int) const
+  void leafCollides(int, int) const
   {
     FCL_REAL distance;
     Vec3f closest_p1, closest_p2, normal;

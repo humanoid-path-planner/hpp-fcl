@@ -903,17 +903,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafTesting(int, int, FCL_REAL&) const
+  void leafCollides(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeIntersect(model1, model2, tf1, tf2, request, *result);
   }
@@ -940,17 +940,17 @@ public:
   }
 
 
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDisjoints(int, int) const
   {
     return -1;
   }
 
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafTesting(int, int) const
+  void leafCollides(int, int) const
   {
     otsolver->OcTreeDistance(model1, model2, tf1, tf2, request, *result);
   }
@@ -975,17 +975,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafTesting(int, int, FCL_REAL&) const
+  void leafCollides(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeShapeIntersect(model2, *model1, tf2, tf1, request, *result);
   }
@@ -1012,17 +1012,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
-  bool BVTesting(int, int, fcl::FCL_REAL&) const
+  bool BVDisjoints(int, int, fcl::FCL_REAL&) const
   {
     return false;
   }
 
-  void leafTesting(int, int, FCL_REAL&) const
+  void leafCollides(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeShapeIntersect(model1, *model2, tf1, tf2, request, *result);
   }
@@ -1048,12 +1048,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDisjoints(int, int) const
   {
     return -1;
   }
 
-  void leafTesting(int, int) const
+  void leafCollides(int, int) const
   {
     otsolver->OcTreeShapeDistance(model2, *model1, tf2, tf1, request, *result);
   }
@@ -1077,12 +1077,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDisjoints(int, int) const
   {
     return -1;
   }
 
-  void leafTesting(int, int) const
+  void leafCollides(int, int) const
   {
     otsolver->OcTreeShapeDistance(model1, *model2, tf1, tf2, request, *result);
   }
@@ -1107,17 +1107,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafTesting(int, int, FCL_REAL&) const
+  void leafCollides(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeMeshIntersect(model2, model1, tf2, tf1, request, *result);
   }
@@ -1144,17 +1144,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafTesting(int, int, FCL_REAL&) const
+  void leafCollides(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeMeshIntersect(model1, model2, tf1, tf2, request, *result);
   }
@@ -1180,12 +1180,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDisjoints(int, int) const
   {
     return -1;
   }
 
-  void leafTesting(int, int) const
+  void leafCollides(int, int) const
   {
     otsolver->OcTreeMeshDistance(model2, model1, tf2, tf1, request, *result);
   }
@@ -1210,12 +1210,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDisjoints(int, int) const
   {
     return -1;
   }
 
-  void leafTesting(int, int) const
+  void leafCollides(int, int) const
   {
     otsolver->OcTreeMeshDistance(model1, model2, tf1, tf2, request, *result);
   }

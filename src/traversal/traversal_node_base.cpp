@@ -97,7 +97,7 @@ DistanceTraversalNodeBase::~DistanceTraversalNodeBase()
 {
 }
 
-  FCL_REAL DistanceTraversalNodeBase::BVTesting(int /*b1*/, int /*b2*/) const
+  FCL_REAL DistanceTraversalNodeBase::BVDisjoints(int /*b1*/, int /*b2*/) const
 {
   return std::numeric_limits<FCL_REAL>::max();
 }

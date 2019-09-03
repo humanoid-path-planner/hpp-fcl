@@ -169,7 +169,7 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
   {
     updateFrontList(front_list, b1, b2);
 
-    node->leafTesting(b1, b2);
+    node->leafCollides(b1, b2);
     return;
   }
 
@@ -190,8 +190,8 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
     c2 = node->getSecondRightChild(b2);
   }
 
-  FCL_REAL d1 = node->BVTesting(a1, a2);
-  FCL_REAL d2 = node->BVTesting(c1, c2);
+  FCL_REAL d1 = node->BVDisjoints(a1, a2);
+  FCL_REAL d2 = node->BVDisjoints(c1, c2);
 
   if(d2 < d1)
   {
@@ -298,7 +298,7 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
     {
       updateFrontList(front_list, min_test.b1, min_test.b2);
 
-      node->leafTesting(min_test.b1, min_test.b2);
+      node->leafCollides(min_test.b1, min_test.b2);
     }
     else if(bvtq.full())
     {
@@ -317,11 +317,11 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
         int c2 = node->getFirstRightChild(min_test.b1);
         bvt1.b1 = c1;
         bvt1.b2 = min_test.b2;
-        bvt1.d = node->BVTesting(bvt1.b1, bvt1.b2);
+        bvt1.d = node->BVDisjoints(bvt1.b1, bvt1.b2);
 
         bvt2.b1 = c2;
         bvt2.b2 = min_test.b2;
-        bvt2.d = node->BVTesting(bvt2.b1, bvt2.b2);
+        bvt2.d = node->BVDisjoints(bvt2.b1, bvt2.b2);
       }
       else
       {
@@ -329,11 +329,11 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
         int c2 = node->getSecondRightChild(min_test.b2);
         bvt1.b1 = min_test.b1;
         bvt1.b2 = c1;
-        bvt1.d = node->BVTesting(bvt1.b1, bvt1.b2);
+        bvt1.d = node->BVDisjoints(bvt1.b1, bvt1.b2);
 
         bvt2.b1 = min_test.b1;
         bvt2.b2 = c2;
-        bvt2.d = node->BVTesting(bvt2.b1, bvt2.b2);
+        bvt2.d = node->BVDisjoints(bvt2.b1, bvt2.b2);
       }
 
       bvtq.push(bvt1);
@@ -378,7 +378,7 @@ void propagateBVHFrontListCollisionRecurse
     }
     else
     {
-      if(!node->BVTesting(b1, b2, sqrDistLowerBound)) {
+      if(!node->BVDisjoints(b1, b2, sqrDistLowerBound)) {
         front_iter->valid = false;
         if(node->firstOverSecond(b1, b2)) {
           int c1 = node->getFirstLeftChild(b1);

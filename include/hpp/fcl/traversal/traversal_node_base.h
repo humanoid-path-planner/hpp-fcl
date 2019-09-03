@@ -139,10 +139,10 @@ public:
   /// @brief BV test between b1 and b2
   /// \return a lower bound of the distance between the two BV.
   /// \note except for OBB, this method returns the distance.
-  virtual FCL_REAL BVTesting(int b1, int b2) const;
+  virtual FCL_REAL BVDisjoints(int b1, int b2) const;
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs
-  virtual void leafTesting(int b1, int b2) const = 0;
+  virtual void leafCollides(int b1, int b2) const = 0;
 
   /// @brief Check whether the traversal can stop
   virtual bool canStop(FCL_REAL c) const;

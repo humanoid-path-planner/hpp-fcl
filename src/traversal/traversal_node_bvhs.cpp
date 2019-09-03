@@ -152,7 +152,7 @@ void MeshDistanceTraversalNodeRSS::postprocess()
   details::distancePostprocessOrientedNode(model1, model2, tf1, request, *result);
 }
 
-FCL_REAL MeshDistanceTraversalNodeRSS::BVTesting(int b1, int b2) const
+FCL_REAL MeshDistanceTraversalNodeRSS::BVDisjoints(int b1, int b2) const
 {
   if(enable_statistics) num_bv_tests++;
   return distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
@@ -180,7 +180,7 @@ void MeshDistanceTraversalNodekIOS::postprocess()
   details::distancePostprocessOrientedNode(model1, model2, tf1, request, *result);
 }
 
-FCL_REAL MeshDistanceTraversalNodekIOS::BVTesting(int b1, int b2) const
+FCL_REAL MeshDistanceTraversalNodekIOS::BVDisjoints(int b1, int b2) const
 {
   if(enable_statistics) num_bv_tests++;
   return distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
@@ -208,7 +208,7 @@ void MeshDistanceTraversalNodeOBBRSS::postprocess()
   details::distancePostprocessOrientedNode(model1, model2, tf1, request, *result);
 }
 
-FCL_REAL MeshDistanceTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
+FCL_REAL MeshDistanceTraversalNodeOBBRSS::BVDisjoints(int b1, int b2) const
 {
   if(enable_statistics) num_bv_tests++;
   return distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
