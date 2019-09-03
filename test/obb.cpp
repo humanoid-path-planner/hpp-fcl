@@ -33,6 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
 #include <fstream>
 #include <sstream>
 
