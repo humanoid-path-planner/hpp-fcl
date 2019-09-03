@@ -67,6 +67,24 @@ template <> struct shape_traits<Box> : shape_traits_base
   };
 };
 
+template <> struct shape_traits<Cone> : shape_traits_base
+{
+  enum { NeedNormalizedDir = false
+  };
+};
+
+template <> struct shape_traits<Cylinder> : shape_traits_base
+{
+  enum { NeedNormalizedDir = false
+  };
+};
+
+template <> struct shape_traits<Convex> : shape_traits_base
+{
+  enum { NeedNormalizedDir = false
+  };
+};
+
 void getShapeSupport(const TriangleP* triangle, const Vec3f& dir, Vec3f& support)
 {
   FCL_REAL dota = dir.dot(triangle->a);
@@ -138,17 +156,14 @@ void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support)
 void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support)
 {
   static const FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
-  FCL_REAL zdist = std::sqrt(dir[0] * dir[0] + dir[1] * dir[1]);
   FCL_REAL half_h = cylinder->lz * 0.5;
-  if(zdist == 0.0)
-    support = Vec3f(0, 0, (dir[2]>0)? half_h:-half_h);
-  else {
-    FCL_REAL d = cylinder->radius / zdist;
-    FCL_REAL z (0.);
-    if (dir [2] > eps) z = half_h;
-    else if (dir [2] < -eps) z = -half_h;
-    support << d * dir.head<2>(), z;
-  }
+  if      (dir [2] >  eps) support[2] =  half_h;
+  else if (dir [2] < -eps) support[2] = -half_h;
+  else                     support[2] = 0;
+  if (dir.head<2>().isZero())
+    support.head<2>().setZero();
+  else
+    support.head<2>() = dir.head<2>().normalized() * cylinder->radius;
   assert (fabs (support [0] * dir [1] - support [1] * dir [0]) < eps);
 }
 
@@ -500,21 +515,21 @@ inline void GJK::appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalize
 
 bool GJK::encloseOrigin()
 {
+  Vec3f axis(Vec3f::Zero());
   switch(simplex->rank)
   {
   case 1:
+    for(size_t i = 0; i < 3; ++i)
     {
-      for(size_t i = 0; i < 3; ++i)
-      {
-        Vec3f axis(Vec3f::Zero());
-        axis[i] = 1;
-        appendVertex(*simplex, axis, true);
-        if(encloseOrigin()) return true;
-        removeVertex(*simplex);
-        appendVertex(*simplex, -axis, true);
-        if(encloseOrigin()) return true;
-        removeVertex(*simplex);
-      }
+      axis[i] = 1;
+      appendVertex(*simplex, axis, true);
+      if(encloseOrigin()) return true;
+      removeVertex(*simplex);
+      axis[i] = -1;
+      appendVertex(*simplex, -axis, true);
+      if(encloseOrigin()) return true;
+      removeVertex(*simplex);
+      axis[i] = 0;
     }
     break;
   case 2:
@@ -522,10 +537,9 @@ bool GJK::encloseOrigin()
       Vec3f d = simplex->vertex[1]->w - simplex->vertex[0]->w;
       for(size_t i = 0; i < 3; ++i)
       {
-        Vec3f axis(0,0,0);
         axis[i] = 1;
         Vec3f p = d.cross(axis);
-        if(p.squaredNorm() > 0)
+        if(!p.isZero())
         {
           appendVertex(*simplex, p);
           if(encloseOrigin()) return true;
@@ -534,31 +548,29 @@ bool GJK::encloseOrigin()
           if(encloseOrigin()) return true;
           removeVertex(*simplex);
         }
+        axis[i] = 0;
       }
     }
     break;
   case 3:
+    axis.noalias() =
+      (simplex->vertex[1]->w - simplex->vertex[0]->w).cross
+      (simplex->vertex[2]->w - simplex->vertex[0]->w);
+    if(!axis.isZero())
     {
-      Vec3f n = (simplex->vertex[1]->w - simplex->vertex[0]->w).cross
-        (simplex->vertex[2]->w - simplex->vertex[0]->w);
-      if(n.squaredNorm() > 0)
-      {
-        appendVertex(*simplex, n);
-        if(encloseOrigin()) return true;
-        removeVertex(*simplex);
-        appendVertex(*simplex, -n);
-        if(encloseOrigin()) return true;
-        removeVertex(*simplex);
-      }
+      appendVertex(*simplex, axis);
+      if(encloseOrigin()) return true;
+      removeVertex(*simplex);
+      appendVertex(*simplex, -axis);
+      if(encloseOrigin()) return true;
+      removeVertex(*simplex);
     }
     break;
   case 4:
-    {
-      if(std::abs(triple(simplex->vertex[0]->w - simplex->vertex[3]->w,
-                         simplex->vertex[1]->w - simplex->vertex[3]->w,
-                         simplex->vertex[2]->w - simplex->vertex[3]->w)) > 0)
-        return true;
-    }
+    if(std::abs(triple(simplex->vertex[0]->w - simplex->vertex[3]->w,
+                       simplex->vertex[1]->w - simplex->vertex[3]->w,
+                       simplex->vertex[2]->w - simplex->vertex[3]->w)) > 0)
+      return true;
     break;
   }
 
