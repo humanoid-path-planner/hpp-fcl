@@ -500,21 +500,21 @@ inline void GJK::appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalize
 
 bool GJK::encloseOrigin()
 {
+  Vec3f axis(Vec3f::Zero());
   switch(simplex->rank)
   {
   case 1:
+    for(size_t i = 0; i < 3; ++i)
     {
-      for(size_t i = 0; i < 3; ++i)
-      {
-        Vec3f axis(Vec3f::Zero());
-        axis[i] = 1;
-        appendVertex(*simplex, axis, true);
-        if(encloseOrigin()) return true;
-        removeVertex(*simplex);
-        appendVertex(*simplex, -axis, true);
-        if(encloseOrigin()) return true;
-        removeVertex(*simplex);
-      }
+      axis[i] = 1;
+      appendVertex(*simplex, axis, true);
+      if(encloseOrigin()) return true;
+      removeVertex(*simplex);
+      axis[i] = -1;
+      appendVertex(*simplex, -axis, true);
+      if(encloseOrigin()) return true;
+      removeVertex(*simplex);
+      axis[i] = 0;
     }
     break;
   case 2:
@@ -522,10 +522,9 @@ bool GJK::encloseOrigin()
       Vec3f d = simplex->vertex[1]->w - simplex->vertex[0]->w;
       for(size_t i = 0; i < 3; ++i)
       {
-        Vec3f axis(0,0,0);
         axis[i] = 1;
         Vec3f p = d.cross(axis);
-        if(p.squaredNorm() > 0)
+        if(!p.isZero())
         {
           appendVertex(*simplex, p);
           if(encloseOrigin()) return true;
@@ -534,31 +533,29 @@ bool GJK::encloseOrigin()
           if(encloseOrigin()) return true;
           removeVertex(*simplex);
         }
+        axis[i] = 0;
       }
     }
     break;
   case 3:
+    axis.noalias() =
+      (simplex->vertex[1]->w - simplex->vertex[0]->w).cross
+      (simplex->vertex[2]->w - simplex->vertex[0]->w);
+    if(!axis.isZero())
     {
-      Vec3f n = (simplex->vertex[1]->w - simplex->vertex[0]->w).cross
-        (simplex->vertex[2]->w - simplex->vertex[0]->w);
-      if(n.squaredNorm() > 0)
-      {
-        appendVertex(*simplex, n);
-        if(encloseOrigin()) return true;
-        removeVertex(*simplex);
-        appendVertex(*simplex, -n);
-        if(encloseOrigin()) return true;
-        removeVertex(*simplex);
-      }
+      appendVertex(*simplex, axis);
+      if(encloseOrigin()) return true;
+      removeVertex(*simplex);
+      appendVertex(*simplex, -axis);
+      if(encloseOrigin()) return true;
+      removeVertex(*simplex);
     }
     break;
   case 4:
-    {
-      if(std::abs(triple(simplex->vertex[0]->w - simplex->vertex[3]->w,
-                         simplex->vertex[1]->w - simplex->vertex[3]->w,
-                         simplex->vertex[2]->w - simplex->vertex[3]->w)) > 0)
-        return true;
-    }
+    if(std::abs(triple(simplex->vertex[0]->w - simplex->vertex[3]->w,
+                       simplex->vertex[1]->w - simplex->vertex[3]->w,
+                       simplex->vertex[2]->w - simplex->vertex[3]->w)) > 0)
+      return true;
     break;
   }
 
