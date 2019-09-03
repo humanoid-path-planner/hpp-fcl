@@ -65,6 +65,10 @@ public:
   /// @brief Radius of sphere summed with rectangle to form RSS
   FCL_REAL r;
 
+
+  /// @brief Check whether the RSS contains a point
+  inline bool contain(const Vec3f& p) const;
+
   /// @brief Check collision between two RSS
   bool overlap(const RSS& other) const;
 
@@ -76,15 +80,8 @@ public:
     return overlap (other);
   }
 
-  /// @brief Check collision between two RSS and return the overlap part.
-  /// For RSS, we return nothing, as the overlap part of two RSSs usually is not a RSS.
-  bool overlap(const RSS& other, RSS& /*overlap_part*/) const
-  {
-    return overlap(other);
-  }
-
-  /// @brief Check whether the RSS contains a point
-  inline bool contain(const Vec3f& p) const;
+  /// @brief the distance between two RSS; P and Q, if not NULL, return the nearest points
+  FCL_REAL distance(const RSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
   /// @brief A simple way to merge the RSS and a point, not compact.
   /// @todo This function may have some bug.
@@ -99,6 +96,19 @@ public:
 
   /// @brief Return the merged RSS of current RSS and the other one
   RSS operator + (const RSS& other) const;
+
+
+  /// @brief Size of the RSS (used in BV_Splitter to order two RSSs)
+  inline FCL_REAL size() const
+  {
+    return (std::sqrt(l[0] * l[0] + l[1] * l[1]) + 2 * r);
+  }
+
+  /// @brief The RSS center
+  inline const Vec3f& center() const
+  {
+    return Tr;
+  }
 
   /// @brief Width of the RSS
   inline FCL_REAL width() const
@@ -124,21 +134,12 @@ public:
     return (l[0] * l[1] * 2 * r + 4 * boost::math::constants::pi<FCL_REAL>() * r * r * r);
   }
 
-  /// @brief Size of the RSS (used in BV_Splitter to order two RSSs)
-  inline FCL_REAL size() const
+  /// @brief Check collision between two RSS and return the overlap part.
+  /// For RSS, we return nothing, as the overlap part of two RSSs usually is not a RSS.
+  bool overlap(const RSS& other, RSS& /*overlap_part*/) const
   {
-    return (std::sqrt(l[0] * l[0] + l[1] * l[1]) + 2 * r);
+    return overlap(other);
   }
-
-  /// @brief The RSS center
-  inline const Vec3f& center() const
-  {
-    return Tr;
-  }
-
-  /// @brief the distance between two RSS; P and Q, if not NULL, return the nearest points
-  FCL_REAL distance(const RSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
-
 };
 
 /// @brief distance between two RSS bounding volumes

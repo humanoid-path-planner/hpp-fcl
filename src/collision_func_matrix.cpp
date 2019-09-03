@@ -49,17 +49,17 @@ namespace fcl
 {
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-template<typename T_SH, typename NarrowPhaseSolver>
+template<typename T_SH, typename GJKSolver>
 std::size_t ShapeOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
-                               const NarrowPhaseSolver* nsolver,
+                               const GJKSolver* nsolver,
                                const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
-  ShapeOcTreeCollisionTraversalNode<T_SH, NarrowPhaseSolver> node (request);
+  ShapeOcTreeCollisionTraversalNode<T_SH, GJKSolver> node (request);
   const T_SH* obj1 = static_cast<const T_SH*>(o1);
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
-  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  OcTreeSolver<GJKSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, result);
   collide(&node, request, result);
@@ -67,17 +67,17 @@ std::size_t ShapeOcTreeCollide(const CollisionGeometry* o1, const Transform3f& t
   return result.numContacts();
 }
 
-template<typename T_SH, typename NarrowPhaseSolver>
+template<typename T_SH, typename GJKSolver>
 std::size_t OcTreeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
-                               const NarrowPhaseSolver* nsolver,
+                               const GJKSolver* nsolver,
                                const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
-  OcTreeShapeCollisionTraversalNode<T_SH, NarrowPhaseSolver> node (request);
+  OcTreeShapeCollisionTraversalNode<T_SH, GJKSolver> node (request);
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
   const T_SH* obj2 = static_cast<const T_SH*>(o2);
-  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  OcTreeSolver<GJKSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, result);
   collide(&node, request, result);
@@ -85,17 +85,17 @@ std::size_t OcTreeShapeCollide(const CollisionGeometry* o1, const Transform3f& t
   return result.numContacts();
 }
 
-template<typename NarrowPhaseSolver>
+template<typename GJKSolver>
 std::size_t OcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
-                          const NarrowPhaseSolver* nsolver,
+                          const GJKSolver* nsolver,
                           const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
-  OcTreeCollisionTraversalNode<NarrowPhaseSolver> node (request);
+  OcTreeCollisionTraversalNode<GJKSolver> node (request);
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
-  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  OcTreeSolver<GJKSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, result);
   collide(&node, request, result);
@@ -103,34 +103,34 @@ std::size_t OcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, c
   return result.numContacts();
 }
 
-template<typename T_BVH, typename NarrowPhaseSolver>
+template<typename T_BVH, typename GJKSolver>
 std::size_t OcTreeBVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
-                             const NarrowPhaseSolver* nsolver,
+                             const GJKSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
-  OcTreeMeshCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node (request);
+  OcTreeMeshCollisionTraversalNode<T_BVH, GJKSolver> node (request);
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
   const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
-  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  OcTreeSolver<GJKSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, result);
   collide(&node, request, result);
   return result.numContacts();
 }
 
-template<typename T_BVH, typename NarrowPhaseSolver>
+template<typename T_BVH, typename GJKSolver>
 std::size_t BVHOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
-                             const NarrowPhaseSolver* nsolver,
+                             const GJKSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
  
-  MeshOcTreeCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node (request);
+  MeshOcTreeCollisionTraversalNode<T_BVH, GJKSolver> node (request);
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
-  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  OcTreeSolver<GJKSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, result);
   collide(&node, request, result);
@@ -139,16 +139,16 @@ std::size_t BVHOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1
 
 #endif
 
-template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
+template<typename T_SH1, typename T_SH2, typename GJKSolver>
 std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
-                              const NarrowPhaseSolver* nsolver,
+                              const GJKSolver* nsolver,
                               const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
   DistanceResult distanceResult;
   DistanceRequest distanceRequest (request.enable_contact);
-  FCL_REAL distance = ShapeShapeDistance <T_SH1, T_SH2, NarrowPhaseSolver>
+  FCL_REAL distance = ShapeShapeDistance <T_SH1, T_SH2, GJKSolver>
     (o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
 
   if (distance <= 0) {
@@ -179,16 +179,16 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
   return 0;
 }
 
-template<typename T_BVH, typename T_SH, typename NarrowPhaseSolver>
+template<typename T_BVH, typename T_SH, typename GJKSolver>
 struct BVHShapeCollider
 {
   static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
-                             const NarrowPhaseSolver* nsolver,
+                             const GJKSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
     if(request.isSatisfied(result)) return result.numContacts();
 
-    MeshShapeCollisionTraversalNode<T_BVH, T_SH, NarrowPhaseSolver> node (request);
+    MeshShapeCollisionTraversalNode<T_BVH, T_SH, GJKSolver> node (request);
     const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
     BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
     Transform3f tf1_tmp = tf1;
@@ -205,9 +205,9 @@ struct BVHShapeCollider
 namespace details
 {
 
-template<typename OrientMeshShapeCollisionTraveralNode, typename T_BVH, typename T_SH, typename NarrowPhaseSolver>
+template<typename OrientMeshShapeCollisionTraveralNode, typename T_BVH, typename T_SH, typename GJKSolver>
 std::size_t orientedBVHShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
-                                    const NarrowPhaseSolver* nsolver,
+                                    const GJKSolver* nsolver,
                                     const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
@@ -224,50 +224,50 @@ std::size_t orientedBVHShapeCollide(const CollisionGeometry* o1, const Transform
 }
 
 
-template<typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeCollider<OBB, T_SH, NarrowPhaseSolver>
+template<typename T_SH, typename GJKSolver>
+struct BVHShapeCollider<OBB, T_SH, GJKSolver>
 {
   static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
-                             const NarrowPhaseSolver* nsolver,
+                             const GJKSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeOBB<T_SH, NarrowPhaseSolver>, OBB, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
+    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeOBB<T_SH, GJKSolver>, OBB, T_SH, GJKSolver>(o1, tf1, o2, tf2, nsolver, request, result);
   } 
 };
 
 
-template<typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeCollider<RSS, T_SH, NarrowPhaseSolver>
+template<typename T_SH, typename GJKSolver>
+struct BVHShapeCollider<RSS, T_SH, GJKSolver>
 {
   static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
-                             const NarrowPhaseSolver* nsolver,
+                             const GJKSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeRSS<T_SH, NarrowPhaseSolver>, RSS, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
+    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeRSS<T_SH, GJKSolver>, RSS, T_SH, GJKSolver>(o1, tf1, o2, tf2, nsolver, request, result);
   } 
 };
 
 
-template<typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeCollider<kIOS, T_SH, NarrowPhaseSolver>
+template<typename T_SH, typename GJKSolver>
+struct BVHShapeCollider<kIOS, T_SH, GJKSolver>
 {
   static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
-                             const NarrowPhaseSolver* nsolver,
+                             const GJKSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodekIOS<T_SH, NarrowPhaseSolver>, kIOS, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
+    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodekIOS<T_SH, GJKSolver>, kIOS, T_SH, GJKSolver>(o1, tf1, o2, tf2, nsolver, request, result);
   } 
 };
 
 
-template<typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeCollider<OBBRSS, T_SH, NarrowPhaseSolver>
+template<typename T_SH, typename GJKSolver>
+struct BVHShapeCollider<OBBRSS, T_SH, GJKSolver>
 {
   static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
-                             const NarrowPhaseSolver* nsolver,
+                             const GJKSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeOBBRSS<T_SH, NarrowPhaseSolver>, OBBRSS, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
+    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeOBBRSS<T_SH, GJKSolver>, OBBRSS, T_SH, GJKSolver>(o1, tf1, o2, tf2, nsolver, request, result);
   } 
 };
 
@@ -333,17 +333,17 @@ std::size_t BVHCollide<kIOS>(const CollisionGeometry* o1, const Transform3f& tf1
 }
 
 
-template<typename T_BVH, typename NarrowPhaseSolver>
+template<typename T_BVH, typename GJKSolver>
 std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
-                       const NarrowPhaseSolver* /*nsolver*/,
+                       const GJKSolver* /*nsolver*/,
                        const CollisionRequest& request, CollisionResult& result)
 {
   return BVHCollide<T_BVH>(o1, tf1, o2, tf2, request, result);
 }
 
 
-template<typename NarrowPhaseSolver>
-CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
+template<typename GJKSolver>
+CollisionFunctionMatrix<GJKSolver>::CollisionFunctionMatrix()
 {
   for(int i = 0; i < NODE_COUNT; ++i)
   {
@@ -351,197 +351,197 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
       collision_matrix[i][j] = NULL;
   }
 
-  collision_matrix[GEOM_BOX][GEOM_BOX] = &ShapeShapeCollide<Box, Box, NarrowPhaseSolver>;
-  collision_matrix[GEOM_BOX][GEOM_SPHERE] = &ShapeShapeCollide<Box, Sphere, NarrowPhaseSolver>;
-  collision_matrix[GEOM_BOX][GEOM_CAPSULE] = &ShapeShapeCollide<Box, Capsule, NarrowPhaseSolver>;
-  collision_matrix[GEOM_BOX][GEOM_CONE] = &ShapeShapeCollide<Box, Cone, NarrowPhaseSolver>;
-  collision_matrix[GEOM_BOX][GEOM_CYLINDER] = &ShapeShapeCollide<Box, Cylinder, NarrowPhaseSolver>;
-  collision_matrix[GEOM_BOX][GEOM_CONVEX] = &ShapeShapeCollide<Box, Convex, NarrowPhaseSolver>;
-  collision_matrix[GEOM_BOX][GEOM_PLANE] = &ShapeShapeCollide<Box, Plane, NarrowPhaseSolver>;
-  collision_matrix[GEOM_BOX][GEOM_HALFSPACE] = &ShapeShapeCollide<Box, Halfspace, NarrowPhaseSolver>;
+  collision_matrix[GEOM_BOX][GEOM_BOX] = &ShapeShapeCollide<Box, Box, GJKSolver>;
+  collision_matrix[GEOM_BOX][GEOM_SPHERE] = &ShapeShapeCollide<Box, Sphere, GJKSolver>;
+  collision_matrix[GEOM_BOX][GEOM_CAPSULE] = &ShapeShapeCollide<Box, Capsule, GJKSolver>;
+  collision_matrix[GEOM_BOX][GEOM_CONE] = &ShapeShapeCollide<Box, Cone, GJKSolver>;
+  collision_matrix[GEOM_BOX][GEOM_CYLINDER] = &ShapeShapeCollide<Box, Cylinder, GJKSolver>;
+  collision_matrix[GEOM_BOX][GEOM_CONVEX] = &ShapeShapeCollide<Box, Convex, GJKSolver>;
+  collision_matrix[GEOM_BOX][GEOM_PLANE] = &ShapeShapeCollide<Box, Plane, GJKSolver>;
+  collision_matrix[GEOM_BOX][GEOM_HALFSPACE] = &ShapeShapeCollide<Box, Halfspace, GJKSolver>;
 
-  collision_matrix[GEOM_SPHERE][GEOM_BOX] = &ShapeShapeCollide<Sphere, Box, NarrowPhaseSolver>;
-  collision_matrix[GEOM_SPHERE][GEOM_SPHERE] = &ShapeShapeCollide<Sphere, Sphere, NarrowPhaseSolver>;
-  collision_matrix[GEOM_SPHERE][GEOM_CAPSULE] = &ShapeShapeCollide<Sphere, Capsule, NarrowPhaseSolver>;
-  collision_matrix[GEOM_SPHERE][GEOM_CONE] = &ShapeShapeCollide<Sphere, Cone, NarrowPhaseSolver>;
-  collision_matrix[GEOM_SPHERE][GEOM_CYLINDER] = &ShapeShapeCollide<Sphere, Cylinder, NarrowPhaseSolver>;
-  collision_matrix[GEOM_SPHERE][GEOM_CONVEX] = &ShapeShapeCollide<Sphere, Convex, NarrowPhaseSolver>;
-  collision_matrix[GEOM_SPHERE][GEOM_PLANE] = &ShapeShapeCollide<Sphere, Plane, NarrowPhaseSolver>;
-  collision_matrix[GEOM_SPHERE][GEOM_HALFSPACE] = &ShapeShapeCollide<Sphere, Halfspace, NarrowPhaseSolver>;
+  collision_matrix[GEOM_SPHERE][GEOM_BOX] = &ShapeShapeCollide<Sphere, Box, GJKSolver>;
+  collision_matrix[GEOM_SPHERE][GEOM_SPHERE] = &ShapeShapeCollide<Sphere, Sphere, GJKSolver>;
+  collision_matrix[GEOM_SPHERE][GEOM_CAPSULE] = &ShapeShapeCollide<Sphere, Capsule, GJKSolver>;
+  collision_matrix[GEOM_SPHERE][GEOM_CONE] = &ShapeShapeCollide<Sphere, Cone, GJKSolver>;
+  collision_matrix[GEOM_SPHERE][GEOM_CYLINDER] = &ShapeShapeCollide<Sphere, Cylinder, GJKSolver>;
+  collision_matrix[GEOM_SPHERE][GEOM_CONVEX] = &ShapeShapeCollide<Sphere, Convex, GJKSolver>;
+  collision_matrix[GEOM_SPHERE][GEOM_PLANE] = &ShapeShapeCollide<Sphere, Plane, GJKSolver>;
+  collision_matrix[GEOM_SPHERE][GEOM_HALFSPACE] = &ShapeShapeCollide<Sphere, Halfspace, GJKSolver>;
 
-  collision_matrix[GEOM_CAPSULE][GEOM_BOX] = &ShapeShapeCollide<Capsule, Box, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CAPSULE][GEOM_SPHERE] = &ShapeShapeCollide<Capsule, Sphere, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CAPSULE][GEOM_CAPSULE] = &ShapeShapeCollide<Capsule, Capsule, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CAPSULE][GEOM_CONE] = &ShapeShapeCollide<Capsule, Cone, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CAPSULE][GEOM_CYLINDER] = &ShapeShapeCollide<Capsule, Cylinder, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CAPSULE][GEOM_CONVEX] = &ShapeShapeCollide<Capsule, Convex, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CAPSULE][GEOM_PLANE] = &ShapeShapeCollide<Capsule, Plane, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CAPSULE][GEOM_HALFSPACE] = &ShapeShapeCollide<Capsule, Halfspace, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CAPSULE][GEOM_BOX] = &ShapeShapeCollide<Capsule, Box, GJKSolver>;
+  collision_matrix[GEOM_CAPSULE][GEOM_SPHERE] = &ShapeShapeCollide<Capsule, Sphere, GJKSolver>;
+  collision_matrix[GEOM_CAPSULE][GEOM_CAPSULE] = &ShapeShapeCollide<Capsule, Capsule, GJKSolver>;
+  collision_matrix[GEOM_CAPSULE][GEOM_CONE] = &ShapeShapeCollide<Capsule, Cone, GJKSolver>;
+  collision_matrix[GEOM_CAPSULE][GEOM_CYLINDER] = &ShapeShapeCollide<Capsule, Cylinder, GJKSolver>;
+  collision_matrix[GEOM_CAPSULE][GEOM_CONVEX] = &ShapeShapeCollide<Capsule, Convex, GJKSolver>;
+  collision_matrix[GEOM_CAPSULE][GEOM_PLANE] = &ShapeShapeCollide<Capsule, Plane, GJKSolver>;
+  collision_matrix[GEOM_CAPSULE][GEOM_HALFSPACE] = &ShapeShapeCollide<Capsule, Halfspace, GJKSolver>;
 
-  collision_matrix[GEOM_CONE][GEOM_BOX] = &ShapeShapeCollide<Cone, Box, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONE][GEOM_SPHERE] = &ShapeShapeCollide<Cone, Sphere, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONE][GEOM_CAPSULE] = &ShapeShapeCollide<Cone, Capsule, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONE][GEOM_CONE] = &ShapeShapeCollide<Cone, Cone, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONE][GEOM_CYLINDER] = &ShapeShapeCollide<Cone, Cylinder, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONE][GEOM_CONVEX] = &ShapeShapeCollide<Cone, Convex, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONE][GEOM_PLANE] = &ShapeShapeCollide<Cone, Plane, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONE][GEOM_HALFSPACE] = &ShapeShapeCollide<Cone, Halfspace, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CONE][GEOM_BOX] = &ShapeShapeCollide<Cone, Box, GJKSolver>;
+  collision_matrix[GEOM_CONE][GEOM_SPHERE] = &ShapeShapeCollide<Cone, Sphere, GJKSolver>;
+  collision_matrix[GEOM_CONE][GEOM_CAPSULE] = &ShapeShapeCollide<Cone, Capsule, GJKSolver>;
+  collision_matrix[GEOM_CONE][GEOM_CONE] = &ShapeShapeCollide<Cone, Cone, GJKSolver>;
+  collision_matrix[GEOM_CONE][GEOM_CYLINDER] = &ShapeShapeCollide<Cone, Cylinder, GJKSolver>;
+  collision_matrix[GEOM_CONE][GEOM_CONVEX] = &ShapeShapeCollide<Cone, Convex, GJKSolver>;
+  collision_matrix[GEOM_CONE][GEOM_PLANE] = &ShapeShapeCollide<Cone, Plane, GJKSolver>;
+  collision_matrix[GEOM_CONE][GEOM_HALFSPACE] = &ShapeShapeCollide<Cone, Halfspace, GJKSolver>;
 
-  collision_matrix[GEOM_CYLINDER][GEOM_BOX] = &ShapeShapeCollide<Cylinder, Box, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CYLINDER][GEOM_SPHERE] = &ShapeShapeCollide<Cylinder, Sphere, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CYLINDER][GEOM_CAPSULE] = &ShapeShapeCollide<Cylinder, Capsule, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CYLINDER][GEOM_CONE] = &ShapeShapeCollide<Cylinder, Cone, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CYLINDER][GEOM_CYLINDER] = &ShapeShapeCollide<Cylinder, Cylinder, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CYLINDER][GEOM_CONVEX] = &ShapeShapeCollide<Cylinder, Convex, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CYLINDER][GEOM_PLANE] = &ShapeShapeCollide<Cylinder, Plane, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CYLINDER][GEOM_HALFSPACE] = &ShapeShapeCollide<Cylinder, Halfspace, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CYLINDER][GEOM_BOX] = &ShapeShapeCollide<Cylinder, Box, GJKSolver>;
+  collision_matrix[GEOM_CYLINDER][GEOM_SPHERE] = &ShapeShapeCollide<Cylinder, Sphere, GJKSolver>;
+  collision_matrix[GEOM_CYLINDER][GEOM_CAPSULE] = &ShapeShapeCollide<Cylinder, Capsule, GJKSolver>;
+  collision_matrix[GEOM_CYLINDER][GEOM_CONE] = &ShapeShapeCollide<Cylinder, Cone, GJKSolver>;
+  collision_matrix[GEOM_CYLINDER][GEOM_CYLINDER] = &ShapeShapeCollide<Cylinder, Cylinder, GJKSolver>;
+  collision_matrix[GEOM_CYLINDER][GEOM_CONVEX] = &ShapeShapeCollide<Cylinder, Convex, GJKSolver>;
+  collision_matrix[GEOM_CYLINDER][GEOM_PLANE] = &ShapeShapeCollide<Cylinder, Plane, GJKSolver>;
+  collision_matrix[GEOM_CYLINDER][GEOM_HALFSPACE] = &ShapeShapeCollide<Cylinder, Halfspace, GJKSolver>;
 
-  collision_matrix[GEOM_CONVEX][GEOM_BOX] = &ShapeShapeCollide<Convex, Box, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONVEX][GEOM_SPHERE] = &ShapeShapeCollide<Convex, Sphere, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONVEX][GEOM_CAPSULE] = &ShapeShapeCollide<Convex, Capsule, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONVEX][GEOM_CONE] = &ShapeShapeCollide<Convex, Cone, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONVEX][GEOM_CYLINDER] = &ShapeShapeCollide<Convex, Cylinder, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONVEX][GEOM_CONVEX] = &ShapeShapeCollide<Convex, Convex, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONVEX][GEOM_PLANE] = &ShapeShapeCollide<Convex, Plane, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONVEX][GEOM_HALFSPACE] = &ShapeShapeCollide<Convex, Halfspace, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CONVEX][GEOM_BOX] = &ShapeShapeCollide<Convex, Box, GJKSolver>;
+  collision_matrix[GEOM_CONVEX][GEOM_SPHERE] = &ShapeShapeCollide<Convex, Sphere, GJKSolver>;
+  collision_matrix[GEOM_CONVEX][GEOM_CAPSULE] = &ShapeShapeCollide<Convex, Capsule, GJKSolver>;
+  collision_matrix[GEOM_CONVEX][GEOM_CONE] = &ShapeShapeCollide<Convex, Cone, GJKSolver>;
+  collision_matrix[GEOM_CONVEX][GEOM_CYLINDER] = &ShapeShapeCollide<Convex, Cylinder, GJKSolver>;
+  collision_matrix[GEOM_CONVEX][GEOM_CONVEX] = &ShapeShapeCollide<Convex, Convex, GJKSolver>;
+  collision_matrix[GEOM_CONVEX][GEOM_PLANE] = &ShapeShapeCollide<Convex, Plane, GJKSolver>;
+  collision_matrix[GEOM_CONVEX][GEOM_HALFSPACE] = &ShapeShapeCollide<Convex, Halfspace, GJKSolver>;
 
-  collision_matrix[GEOM_PLANE][GEOM_BOX] = &ShapeShapeCollide<Plane, Box, NarrowPhaseSolver>;
-  collision_matrix[GEOM_PLANE][GEOM_SPHERE] = &ShapeShapeCollide<Plane, Sphere, NarrowPhaseSolver>;
-  collision_matrix[GEOM_PLANE][GEOM_CAPSULE] = &ShapeShapeCollide<Plane, Capsule, NarrowPhaseSolver>;
-  collision_matrix[GEOM_PLANE][GEOM_CONE] = &ShapeShapeCollide<Plane, Cone, NarrowPhaseSolver>;
-  collision_matrix[GEOM_PLANE][GEOM_CYLINDER] = &ShapeShapeCollide<Plane, Cylinder, NarrowPhaseSolver>;
-  collision_matrix[GEOM_PLANE][GEOM_CONVEX] = &ShapeShapeCollide<Plane, Convex, NarrowPhaseSolver>;
-  collision_matrix[GEOM_PLANE][GEOM_PLANE] = &ShapeShapeCollide<Plane, Plane, NarrowPhaseSolver>;
-  collision_matrix[GEOM_PLANE][GEOM_HALFSPACE] = &ShapeShapeCollide<Plane, Halfspace, NarrowPhaseSolver>;
+  collision_matrix[GEOM_PLANE][GEOM_BOX] = &ShapeShapeCollide<Plane, Box, GJKSolver>;
+  collision_matrix[GEOM_PLANE][GEOM_SPHERE] = &ShapeShapeCollide<Plane, Sphere, GJKSolver>;
+  collision_matrix[GEOM_PLANE][GEOM_CAPSULE] = &ShapeShapeCollide<Plane, Capsule, GJKSolver>;
+  collision_matrix[GEOM_PLANE][GEOM_CONE] = &ShapeShapeCollide<Plane, Cone, GJKSolver>;
+  collision_matrix[GEOM_PLANE][GEOM_CYLINDER] = &ShapeShapeCollide<Plane, Cylinder, GJKSolver>;
+  collision_matrix[GEOM_PLANE][GEOM_CONVEX] = &ShapeShapeCollide<Plane, Convex, GJKSolver>;
+  collision_matrix[GEOM_PLANE][GEOM_PLANE] = &ShapeShapeCollide<Plane, Plane, GJKSolver>;
+  collision_matrix[GEOM_PLANE][GEOM_HALFSPACE] = &ShapeShapeCollide<Plane, Halfspace, GJKSolver>;
 
-  collision_matrix[GEOM_HALFSPACE][GEOM_BOX] = &ShapeShapeCollide<Halfspace, Box, NarrowPhaseSolver>;
-  collision_matrix[GEOM_HALFSPACE][GEOM_SPHERE] = &ShapeShapeCollide<Halfspace, Sphere, NarrowPhaseSolver>;
-  collision_matrix[GEOM_HALFSPACE][GEOM_CAPSULE] = &ShapeShapeCollide<Halfspace, Capsule, NarrowPhaseSolver>;
-  collision_matrix[GEOM_HALFSPACE][GEOM_CONE] = &ShapeShapeCollide<Halfspace, Cone, NarrowPhaseSolver>;
-  collision_matrix[GEOM_HALFSPACE][GEOM_CYLINDER] = &ShapeShapeCollide<Halfspace, Cylinder, NarrowPhaseSolver>;
-  collision_matrix[GEOM_HALFSPACE][GEOM_CONVEX] = &ShapeShapeCollide<Halfspace, Convex, NarrowPhaseSolver>;
-  collision_matrix[GEOM_HALFSPACE][GEOM_PLANE] = &ShapeShapeCollide<Halfspace, Plane, NarrowPhaseSolver>;
-  collision_matrix[GEOM_HALFSPACE][GEOM_HALFSPACE] = &ShapeShapeCollide<Halfspace, Halfspace, NarrowPhaseSolver>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_BOX] = &ShapeShapeCollide<Halfspace, Box, GJKSolver>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_SPHERE] = &ShapeShapeCollide<Halfspace, Sphere, GJKSolver>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_CAPSULE] = &ShapeShapeCollide<Halfspace, Capsule, GJKSolver>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_CONE] = &ShapeShapeCollide<Halfspace, Cone, GJKSolver>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_CYLINDER] = &ShapeShapeCollide<Halfspace, Cylinder, GJKSolver>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_CONVEX] = &ShapeShapeCollide<Halfspace, Convex, GJKSolver>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_PLANE] = &ShapeShapeCollide<Halfspace, Plane, GJKSolver>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_HALFSPACE] = &ShapeShapeCollide<Halfspace, Halfspace, GJKSolver>;
 
-  collision_matrix[BV_AABB][GEOM_BOX] = &BVHShapeCollider<AABB, Box, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_SPHERE] = &BVHShapeCollider<AABB, Sphere, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_CAPSULE] = &BVHShapeCollider<AABB, Capsule, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_CONE] = &BVHShapeCollider<AABB, Cone, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_CYLINDER] = &BVHShapeCollider<AABB, Cylinder, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_CONVEX] = &BVHShapeCollider<AABB, Convex, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_PLANE] = &BVHShapeCollider<AABB, Plane, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_HALFSPACE] = &BVHShapeCollider<AABB, Halfspace, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_BOX] = &BVHShapeCollider<AABB, Box, GJKSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_SPHERE] = &BVHShapeCollider<AABB, Sphere, GJKSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_CAPSULE] = &BVHShapeCollider<AABB, Capsule, GJKSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_CONE] = &BVHShapeCollider<AABB, Cone, GJKSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_CYLINDER] = &BVHShapeCollider<AABB, Cylinder, GJKSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_CONVEX] = &BVHShapeCollider<AABB, Convex, GJKSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_PLANE] = &BVHShapeCollider<AABB, Plane, GJKSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_HALFSPACE] = &BVHShapeCollider<AABB, Halfspace, GJKSolver>::collide;
 
-  collision_matrix[BV_OBB][GEOM_BOX] = &BVHShapeCollider<OBB, Box, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeCollider<OBB, Sphere, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_CAPSULE] = &BVHShapeCollider<OBB, Capsule, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_CONE] = &BVHShapeCollider<OBB, Cone, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_CYLINDER] = &BVHShapeCollider<OBB, Cylinder, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_CONVEX] = &BVHShapeCollider<OBB, Convex, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_PLANE] = &BVHShapeCollider<OBB, Plane, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_HALFSPACE] = &BVHShapeCollider<OBB, Halfspace, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_BOX] = &BVHShapeCollider<OBB, Box, GJKSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeCollider<OBB, Sphere, GJKSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_CAPSULE] = &BVHShapeCollider<OBB, Capsule, GJKSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_CONE] = &BVHShapeCollider<OBB, Cone, GJKSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_CYLINDER] = &BVHShapeCollider<OBB, Cylinder, GJKSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_CONVEX] = &BVHShapeCollider<OBB, Convex, GJKSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_PLANE] = &BVHShapeCollider<OBB, Plane, GJKSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_HALFSPACE] = &BVHShapeCollider<OBB, Halfspace, GJKSolver>::collide;
 
-  collision_matrix[BV_RSS][GEOM_BOX] = &BVHShapeCollider<RSS, Box, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_SPHERE] = &BVHShapeCollider<RSS, Sphere, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_CAPSULE] = &BVHShapeCollider<RSS, Capsule, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_CONE] = &BVHShapeCollider<RSS, Cone, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_CYLINDER] = &BVHShapeCollider<RSS, Cylinder, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_CONVEX] = &BVHShapeCollider<RSS, Convex, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_PLANE] = &BVHShapeCollider<RSS, Plane, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_HALFSPACE] = &BVHShapeCollider<RSS, Halfspace, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_BOX] = &BVHShapeCollider<RSS, Box, GJKSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_SPHERE] = &BVHShapeCollider<RSS, Sphere, GJKSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_CAPSULE] = &BVHShapeCollider<RSS, Capsule, GJKSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_CONE] = &BVHShapeCollider<RSS, Cone, GJKSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_CYLINDER] = &BVHShapeCollider<RSS, Cylinder, GJKSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_CONVEX] = &BVHShapeCollider<RSS, Convex, GJKSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_PLANE] = &BVHShapeCollider<RSS, Plane, GJKSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_HALFSPACE] = &BVHShapeCollider<RSS, Halfspace, GJKSolver>::collide;
 
-  collision_matrix[BV_KDOP16][GEOM_BOX] = &BVHShapeCollider<KDOP<16>, Box, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_SPHERE] = &BVHShapeCollider<KDOP<16>, Sphere, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<16>, Capsule, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_CONE] = &BVHShapeCollider<KDOP<16>, Cone, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<16>, Cylinder, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_CONVEX] = &BVHShapeCollider<KDOP<16>, Convex, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_PLANE] = &BVHShapeCollider<KDOP<16>, Plane, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_HALFSPACE] = &BVHShapeCollider<KDOP<16>, Halfspace, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_BOX] = &BVHShapeCollider<KDOP<16>, Box, GJKSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_SPHERE] = &BVHShapeCollider<KDOP<16>, Sphere, GJKSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<16>, Capsule, GJKSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_CONE] = &BVHShapeCollider<KDOP<16>, Cone, GJKSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<16>, Cylinder, GJKSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_CONVEX] = &BVHShapeCollider<KDOP<16>, Convex, GJKSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_PLANE] = &BVHShapeCollider<KDOP<16>, Plane, GJKSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_HALFSPACE] = &BVHShapeCollider<KDOP<16>, Halfspace, GJKSolver>::collide;
 
-  collision_matrix[BV_KDOP18][GEOM_BOX] = &BVHShapeCollider<KDOP<18>, Box, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_SPHERE] = &BVHShapeCollider<KDOP<18>, Sphere, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<18>, Capsule, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_CONE] = &BVHShapeCollider<KDOP<18>, Cone, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<18>, Cylinder, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_CONVEX] = &BVHShapeCollider<KDOP<18>, Convex, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_PLANE] = &BVHShapeCollider<KDOP<18>, Plane, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_HALFSPACE] = &BVHShapeCollider<KDOP<18>, Halfspace, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_BOX] = &BVHShapeCollider<KDOP<18>, Box, GJKSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_SPHERE] = &BVHShapeCollider<KDOP<18>, Sphere, GJKSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<18>, Capsule, GJKSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_CONE] = &BVHShapeCollider<KDOP<18>, Cone, GJKSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<18>, Cylinder, GJKSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_CONVEX] = &BVHShapeCollider<KDOP<18>, Convex, GJKSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_PLANE] = &BVHShapeCollider<KDOP<18>, Plane, GJKSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_HALFSPACE] = &BVHShapeCollider<KDOP<18>, Halfspace, GJKSolver>::collide;
 
-  collision_matrix[BV_KDOP24][GEOM_BOX] = &BVHShapeCollider<KDOP<24>, Box, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_SPHERE] = &BVHShapeCollider<KDOP<24>, Sphere, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<24>, Capsule, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_CONE] = &BVHShapeCollider<KDOP<24>, Cone, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<24>, Cylinder, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_CONVEX] = &BVHShapeCollider<KDOP<24>, Convex, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_PLANE] = &BVHShapeCollider<KDOP<24>, Plane, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_HALFSPACE] = &BVHShapeCollider<KDOP<24>, Halfspace, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_BOX] = &BVHShapeCollider<KDOP<24>, Box, GJKSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_SPHERE] = &BVHShapeCollider<KDOP<24>, Sphere, GJKSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<24>, Capsule, GJKSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_CONE] = &BVHShapeCollider<KDOP<24>, Cone, GJKSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<24>, Cylinder, GJKSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_CONVEX] = &BVHShapeCollider<KDOP<24>, Convex, GJKSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_PLANE] = &BVHShapeCollider<KDOP<24>, Plane, GJKSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_HALFSPACE] = &BVHShapeCollider<KDOP<24>, Halfspace, GJKSolver>::collide;
 
-  collision_matrix[BV_kIOS][GEOM_BOX] = &BVHShapeCollider<kIOS, Box, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_SPHERE] = &BVHShapeCollider<kIOS, Sphere, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_CAPSULE] = &BVHShapeCollider<kIOS, Capsule, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_CONE] = &BVHShapeCollider<kIOS, Cone, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_CYLINDER] = &BVHShapeCollider<kIOS, Cylinder, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_CONVEX] = &BVHShapeCollider<kIOS, Convex, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_PLANE] = &BVHShapeCollider<kIOS, Plane, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_HALFSPACE] = &BVHShapeCollider<kIOS, Halfspace, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_BOX] = &BVHShapeCollider<kIOS, Box, GJKSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_SPHERE] = &BVHShapeCollider<kIOS, Sphere, GJKSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_CAPSULE] = &BVHShapeCollider<kIOS, Capsule, GJKSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_CONE] = &BVHShapeCollider<kIOS, Cone, GJKSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_CYLINDER] = &BVHShapeCollider<kIOS, Cylinder, GJKSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_CONVEX] = &BVHShapeCollider<kIOS, Convex, GJKSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_PLANE] = &BVHShapeCollider<kIOS, Plane, GJKSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_HALFSPACE] = &BVHShapeCollider<kIOS, Halfspace, GJKSolver>::collide;
 
-  collision_matrix[BV_OBBRSS][GEOM_BOX] = &BVHShapeCollider<OBBRSS, Box, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_SPHERE] = &BVHShapeCollider<OBBRSS, Sphere, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_CAPSULE] = &BVHShapeCollider<OBBRSS, Capsule, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_CONE] = &BVHShapeCollider<OBBRSS, Cone, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_CYLINDER] = &BVHShapeCollider<OBBRSS, Cylinder, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_CONVEX] = &BVHShapeCollider<OBBRSS, Convex, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_PLANE] = &BVHShapeCollider<OBBRSS, Plane, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_HALFSPACE] = &BVHShapeCollider<OBBRSS, Halfspace, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_BOX] = &BVHShapeCollider<OBBRSS, Box, GJKSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_SPHERE] = &BVHShapeCollider<OBBRSS, Sphere, GJKSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CAPSULE] = &BVHShapeCollider<OBBRSS, Capsule, GJKSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CONE] = &BVHShapeCollider<OBBRSS, Cone, GJKSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CYLINDER] = &BVHShapeCollider<OBBRSS, Cylinder, GJKSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CONVEX] = &BVHShapeCollider<OBBRSS, Convex, GJKSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_PLANE] = &BVHShapeCollider<OBBRSS, Plane, GJKSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_HALFSPACE] = &BVHShapeCollider<OBBRSS, Halfspace, GJKSolver>::collide;
 
-  collision_matrix[BV_AABB][BV_AABB] = &BVHCollide<AABB, NarrowPhaseSolver>;
-  collision_matrix[BV_OBB][BV_OBB] = &BVHCollide<OBB, NarrowPhaseSolver>;
-  collision_matrix[BV_RSS][BV_RSS] = &BVHCollide<RSS, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP16][BV_KDOP16] = &BVHCollide<KDOP<16>, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP18][BV_KDOP18] = &BVHCollide<KDOP<18>, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP24][BV_KDOP24] = &BVHCollide<KDOP<24>, NarrowPhaseSolver>;
-  collision_matrix[BV_kIOS][BV_kIOS] = &BVHCollide<kIOS, NarrowPhaseSolver>;
-  collision_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHCollide<OBBRSS, NarrowPhaseSolver>;
+  collision_matrix[BV_AABB][BV_AABB] = &BVHCollide<AABB, GJKSolver>;
+  collision_matrix[BV_OBB][BV_OBB] = &BVHCollide<OBB, GJKSolver>;
+  collision_matrix[BV_RSS][BV_RSS] = &BVHCollide<RSS, GJKSolver>;
+  collision_matrix[BV_KDOP16][BV_KDOP16] = &BVHCollide<KDOP<16>, GJKSolver>;
+  collision_matrix[BV_KDOP18][BV_KDOP18] = &BVHCollide<KDOP<18>, GJKSolver>;
+  collision_matrix[BV_KDOP24][BV_KDOP24] = &BVHCollide<KDOP<24>, GJKSolver>;
+  collision_matrix[BV_kIOS][BV_kIOS] = &BVHCollide<kIOS, GJKSolver>;
+  collision_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHCollide<OBBRSS, GJKSolver>;
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-  collision_matrix[GEOM_OCTREE][GEOM_BOX] = &OcTreeShapeCollide<Box, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][GEOM_SPHERE] = &OcTreeShapeCollide<Sphere, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &OcTreeShapeCollide<Capsule, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][GEOM_CONE] = &OcTreeShapeCollide<Cone, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &OcTreeShapeCollide<Cylinder, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][GEOM_CONVEX] = &OcTreeShapeCollide<Convex, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][GEOM_PLANE] = &OcTreeShapeCollide<Plane, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &OcTreeShapeCollide<Halfspace, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_BOX] = &OcTreeShapeCollide<Box, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_SPHERE] = &OcTreeShapeCollide<Sphere, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &OcTreeShapeCollide<Capsule, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_CONE] = &OcTreeShapeCollide<Cone, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &OcTreeShapeCollide<Cylinder, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_CONVEX] = &OcTreeShapeCollide<Convex, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_PLANE] = &OcTreeShapeCollide<Plane, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &OcTreeShapeCollide<Halfspace, GJKSolver>;
 
-  collision_matrix[GEOM_BOX][GEOM_OCTREE] = &ShapeOcTreeCollide<Box, NarrowPhaseSolver>;
-  collision_matrix[GEOM_SPHERE][GEOM_OCTREE] = &ShapeOcTreeCollide<Sphere, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &ShapeOcTreeCollide<Capsule, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONE][GEOM_OCTREE] = &ShapeOcTreeCollide<Cone, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &ShapeOcTreeCollide<Cylinder, NarrowPhaseSolver>;
-  collision_matrix[GEOM_CONVEX][GEOM_OCTREE] = &ShapeOcTreeCollide<Convex, NarrowPhaseSolver>;
-  collision_matrix[GEOM_PLANE][GEOM_OCTREE] = &ShapeOcTreeCollide<Plane, NarrowPhaseSolver>;
-  collision_matrix[GEOM_HALFSPACE][GEOM_OCTREE] = &ShapeOcTreeCollide<Halfspace, NarrowPhaseSolver>;
+  collision_matrix[GEOM_BOX][GEOM_OCTREE] = &ShapeOcTreeCollide<Box, GJKSolver>;
+  collision_matrix[GEOM_SPHERE][GEOM_OCTREE] = &ShapeOcTreeCollide<Sphere, GJKSolver>;
+  collision_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &ShapeOcTreeCollide<Capsule, GJKSolver>;
+  collision_matrix[GEOM_CONE][GEOM_OCTREE] = &ShapeOcTreeCollide<Cone, GJKSolver>;
+  collision_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &ShapeOcTreeCollide<Cylinder, GJKSolver>;
+  collision_matrix[GEOM_CONVEX][GEOM_OCTREE] = &ShapeOcTreeCollide<Convex, GJKSolver>;
+  collision_matrix[GEOM_PLANE][GEOM_OCTREE] = &ShapeOcTreeCollide<Plane, GJKSolver>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_OCTREE] = &ShapeOcTreeCollide<Halfspace, GJKSolver>;
 
-  collision_matrix[GEOM_OCTREE][GEOM_OCTREE] = &OcTreeCollide<NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_OCTREE] = &OcTreeCollide<GJKSolver>;
 
-  collision_matrix[GEOM_OCTREE][BV_AABB] = &OcTreeBVHCollide<AABB, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_OBB] = &OcTreeBVHCollide<OBB, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_RSS] = &OcTreeBVHCollide<RSS, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_OBBRSS] = &OcTreeBVHCollide<OBBRSS, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_kIOS] = &OcTreeBVHCollide<kIOS, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_KDOP16] = &OcTreeBVHCollide<KDOP<16>, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_KDOP18] = &OcTreeBVHCollide<KDOP<18>, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_KDOP24] = &OcTreeBVHCollide<KDOP<24>, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_AABB] = &OcTreeBVHCollide<AABB, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][BV_OBB] = &OcTreeBVHCollide<OBB, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][BV_RSS] = &OcTreeBVHCollide<RSS, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][BV_OBBRSS] = &OcTreeBVHCollide<OBBRSS, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][BV_kIOS] = &OcTreeBVHCollide<kIOS, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][BV_KDOP16] = &OcTreeBVHCollide<KDOP<16>, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][BV_KDOP18] = &OcTreeBVHCollide<KDOP<18>, GJKSolver>;
+  collision_matrix[GEOM_OCTREE][BV_KDOP24] = &OcTreeBVHCollide<KDOP<24>, GJKSolver>;
 
-  collision_matrix[BV_AABB][GEOM_OCTREE] = &BVHOcTreeCollide<AABB, NarrowPhaseSolver>;
-  collision_matrix[BV_OBB][GEOM_OCTREE] = &BVHOcTreeCollide<OBB, NarrowPhaseSolver>;
-  collision_matrix[BV_RSS][GEOM_OCTREE] = &BVHOcTreeCollide<RSS, NarrowPhaseSolver>;
-  collision_matrix[BV_OBBRSS][GEOM_OCTREE] = &BVHOcTreeCollide<OBBRSS, NarrowPhaseSolver>;
-  collision_matrix[BV_kIOS][GEOM_OCTREE] = &BVHOcTreeCollide<kIOS, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP16][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<16>, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP18][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<18>, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP24][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<24>, NarrowPhaseSolver>;
+  collision_matrix[BV_AABB][GEOM_OCTREE] = &BVHOcTreeCollide<AABB, GJKSolver>;
+  collision_matrix[BV_OBB][GEOM_OCTREE] = &BVHOcTreeCollide<OBB, GJKSolver>;
+  collision_matrix[BV_RSS][GEOM_OCTREE] = &BVHOcTreeCollide<RSS, GJKSolver>;
+  collision_matrix[BV_OBBRSS][GEOM_OCTREE] = &BVHOcTreeCollide<OBBRSS, GJKSolver>;
+  collision_matrix[BV_kIOS][GEOM_OCTREE] = &BVHOcTreeCollide<kIOS, GJKSolver>;
+  collision_matrix[BV_KDOP16][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<16>, GJKSolver>;
+  collision_matrix[BV_KDOP18][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<18>, GJKSolver>;
+  collision_matrix[BV_KDOP24][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<24>, GJKSolver>;
 #endif
 }
 template struct CollisionFunctionMatrix<GJKSolver>;

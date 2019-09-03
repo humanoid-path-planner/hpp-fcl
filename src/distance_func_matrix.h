@@ -39,18 +39,18 @@
 namespace hpp
 {
 namespace fcl {
-  template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
+  template<typename T_SH1, typename T_SH2, typename GJKSolver>
     FCL_REAL ShapeShapeDistance
     (const CollisionGeometry* o1, const Transform3f& tf1,
      const CollisionGeometry* o2, const Transform3f& tf2,
-     const NarrowPhaseSolver* nsolver, const DistanceRequest& request,
+     const GJKSolver* nsolver, const DistanceRequest& request,
      DistanceResult& result);
 
-  template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
+  template<typename T_SH1, typename T_SH2, typename GJKSolver>
     std::size_t ShapeShapeCollide
     (const CollisionGeometry* o1, const Transform3f& tf1,
      const CollisionGeometry* o2, const Transform3f& tf2, 
-     const NarrowPhaseSolver* nsolver, const CollisionRequest& request,
+     const GJKSolver* nsolver, const CollisionRequest& request,
      CollisionResult& result);
 }
 

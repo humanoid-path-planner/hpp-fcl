@@ -43,7 +43,7 @@
 #include <hpp/fcl/math/transform.h>
 
 #include <hpp/fcl/intersect.h>
-#include <hpp/fcl/math/tools.h>
+#include "../src/math/tools.h"
 
 using namespace hpp::fcl;
 

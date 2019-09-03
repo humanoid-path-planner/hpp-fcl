@@ -51,11 +51,11 @@ namespace fcl
 {
 
 /// @brief Algorithms for collision related with octree
-template<typename NarrowPhaseSolver>
+template<typename GJKSolver>
 class OcTreeSolver
 {
 private:
-  const NarrowPhaseSolver* solver;
+  const GJKSolver* solver;
 
   mutable const CollisionRequest* crequest;
   mutable const DistanceRequest* drequest;
@@ -64,7 +64,7 @@ private:
   mutable DistanceResult* dresult;
 
 public:
-  OcTreeSolver(const NarrowPhaseSolver* solver_) : solver(solver_),
+  OcTreeSolver(const GJKSolver* solver_) : solver(solver_),
                                                    crequest(NULL),
                                                    drequest(NULL),
                                                    cresult(NULL),
@@ -890,7 +890,7 @@ private:
 
 
 /// @brief Traversal node for octree collision
-template<typename NarrowPhaseSolver>
+template<typename GJKSolver>
 class OcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -923,11 +923,11 @@ public:
 
   Transform3f tf1, tf2;
 
-  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+  const OcTreeSolver<GJKSolver>* otsolver;
 };
 
 /// @brief Traversal node for octree distance
-template<typename NarrowPhaseSolver>
+template<typename GJKSolver>
 class OcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -958,11 +958,11 @@ public:
   const OcTree* model1;
   const OcTree* model2;
 
-  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+  const OcTreeSolver<GJKSolver>* otsolver;
 };
 
 /// @brief Traversal node for shape-octree collision
-template<typename S, typename NarrowPhaseSolver>
+template<typename S, typename GJKSolver>
 class ShapeOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -995,11 +995,11 @@ public:
 
   Transform3f tf1, tf2;
 
-  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+  const OcTreeSolver<GJKSolver>* otsolver;
 };
 
 /// @brief Traversal node for octree-shape collision
-template<typename S, typename NarrowPhaseSolver>
+template<typename S, typename GJKSolver>
 class OcTreeShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -1032,11 +1032,11 @@ public:
 
   Transform3f tf1, tf2;
  
-  const OcTreeSolver<NarrowPhaseSolver>* otsolver;  
+  const OcTreeSolver<GJKSolver>* otsolver;  
 };
 
 /// @brief Traversal node for shape-octree distance
-template<typename S, typename NarrowPhaseSolver>
+template<typename S, typename GJKSolver>
 class ShapeOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -1061,11 +1061,11 @@ public:
   const S* model1;
   const OcTree* model2;
 
-  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+  const OcTreeSolver<GJKSolver>* otsolver;
 };
 
 /// @brief Traversal node for octree-shape distance
-template<typename S, typename NarrowPhaseSolver>
+template<typename S, typename GJKSolver>
 class OcTreeShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -1090,11 +1090,11 @@ public:
   const OcTree* model1;
   const S* model2;
 
-  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+  const OcTreeSolver<GJKSolver>* otsolver;
 };
 
 /// @brief Traversal node for mesh-octree collision
-template<typename BV, typename NarrowPhaseSolver>
+template<typename BV, typename GJKSolver>
 class MeshOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -1127,11 +1127,11 @@ public:
 
   Transform3f tf1, tf2;
     
-  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+  const OcTreeSolver<GJKSolver>* otsolver;
 };
 
 /// @brief Traversal node for octree-mesh collision
-template<typename BV, typename NarrowPhaseSolver>
+template<typename BV, typename GJKSolver>
 class OcTreeMeshCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -1164,11 +1164,11 @@ public:
 
   Transform3f tf1, tf2;
     
-  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+  const OcTreeSolver<GJKSolver>* otsolver;
 };
 
 /// @brief Traversal node for mesh-octree distance
-template<typename BV, typename NarrowPhaseSolver>
+template<typename BV, typename GJKSolver>
 class MeshOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -1193,12 +1193,12 @@ public:
   const BVHModel<BV>* model1;
   const OcTree* model2;
 
-  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+  const OcTreeSolver<GJKSolver>* otsolver;
 
 };
 
 /// @brief Traversal node for octree-mesh distance
-template<typename BV, typename NarrowPhaseSolver>
+template<typename BV, typename GJKSolver>
 class OcTreeMeshDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -1223,7 +1223,7 @@ public:
   const OcTree* model1;
   const BVHModel<BV>* model2;
 
-  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+  const OcTreeSolver<GJKSolver>* otsolver;
 
 };
 

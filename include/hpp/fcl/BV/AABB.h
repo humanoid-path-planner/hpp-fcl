@@ -81,6 +81,30 @@ public:
   {
   }
 
+
+
+
+
+
+
+
+
+
+//start API in common test
+  /// @name Bounding volume API
+  /// Common API to BVs.
+  /// @{
+  
+  /// @brief Check whether the AABB contains a point
+  inline bool contain(const Vec3f& p) const
+  {
+    if(p[0] < min_[0] || p[0] > max_[0]) return false;
+    if(p[1] < min_[1] || p[1] > max_[1]) return false;
+    if(p[2] < min_[2] || p[2] > max_[2]) return false;
+
+    return true;
+  }
+  
   /// @brief Check whether two AABB are overlap
   inline bool overlap(const AABB& other) const
   {
@@ -99,35 +123,11 @@ public:
   bool overlap(const AABB& other, const CollisionRequest& request,
                FCL_REAL& sqrDistLowerBound) const;
 
-   /// @brief Check whether the AABB contains another AABB
-  inline bool contain(const AABB& other) const
-  {
-    return (other.min_[0] >= min_[0]) && (other.max_[0] <= max_[0]) && (other.min_[1] >= min_[1]) && (other.max_[1] <= max_[1]) && (other.min_[2] >= min_[2]) && (other.max_[2] <= max_[2]);
-  }
+  /// @brief Distance between two AABBs
+  FCL_REAL distance(const AABB& other) const;
 
-  /// @brief Check whether two AABB are overlap and return the overlap part
-  inline bool overlap(const AABB& other, AABB& overlap_part) const
-  {
-    if(!overlap(other))
-    {
-      return false;
-    }
-    
-    overlap_part.min_ = min_.cwiseMax(other.min_);
-    overlap_part.max_ = max_.cwiseMin(other.max_);
-    return true;
-  }
-
-
-  /// @brief Check whether the AABB contains a point
-  inline bool contain(const Vec3f& p) const
-  {
-    if(p[0] < min_[0] || p[0] > max_[0]) return false;
-    if(p[1] < min_[1] || p[1] > max_[1]) return false;
-    if(p[2] < min_[2] || p[2] > max_[2]) return false;
-
-    return true;
-  }
+  /// @brief Distance between two AABBs; P and Q, should not be NULL, return the nearest points 
+  FCL_REAL distance(const AABB& other, Vec3f* P, Vec3f* Q) const;
 
   /// @brief Merge the AABB and a point
   inline AABB& operator += (const Vec3f& p)
@@ -152,6 +152,18 @@ public:
     return res += other;
   }
 
+  /// @brief Size of the AABB (used in BV_Splitter to order two AABBs)
+  inline FCL_REAL size() const
+  {
+    return (max_ - min_).squaredNorm();
+  }
+
+  /// @brief Center of the AABB
+  inline  Vec3f center() const
+  {
+    return (min_ + max_) * 0.5;
+  }
+
   /// @brief Width of the AABB
   inline FCL_REAL width() const
   {
@@ -174,25 +186,41 @@ public:
   inline FCL_REAL volume() const
   {
     return width() * height() * depth();
-  }  
-
-  /// @brief Size of the AABB (used in BV_Splitter to order two AABBs)
-  inline FCL_REAL size() const
-  {
-    return (max_ - min_).squaredNorm();
   }
 
-  /// @brief Center of the AABB
-  inline  Vec3f center() const
+  /// @}
+//End API in common test
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /// @brief Check whether the AABB contains another AABB
+  inline bool contain(const AABB& other) const
   {
-    return (min_ + max_) * 0.5;
+    return (other.min_[0] >= min_[0]) && (other.max_[0] <= max_[0]) && (other.min_[1] >= min_[1]) && (other.max_[1] <= max_[1]) && (other.min_[2] >= min_[2]) && (other.max_[2] <= max_[2]);
   }
 
-  /// @brief Distance between two AABBs; P and Q, should not be NULL, return the nearest points 
-  FCL_REAL distance(const AABB& other, Vec3f* P, Vec3f* Q) const;
-
-  /// @brief Distance between two AABBs
-  FCL_REAL distance(const AABB& other) const;
+  /// @brief Check whether two AABB are overlap and return the overlap part
+  inline bool overlap(const AABB& other, AABB& overlap_part) const
+  {
+    if(!overlap(other))
+    {
+      return false;
+    }
+    
+    overlap_part.min_ = min_.cwiseMax(other.min_);
+    overlap_part.max_ = max_.cwiseMin(other.max_);
+    return true;
+  }
 
   /// @brief expand the half size of the AABB by delta, and keep the center unchanged.
   inline AABB& expand(const Vec3f& delta)
@@ -241,7 +269,6 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1, const AABB& b2
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
 	     const AABB& b2, const CollisionRequest& request,
              FCL_REAL& sqrDistLowerBound);
-
 }
 
 } // namespace hpp

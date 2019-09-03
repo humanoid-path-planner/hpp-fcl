@@ -93,6 +93,9 @@ public:
   /// @ OBB related with kIOS
   OBB obb;
 
+  /// @brief Check whether the kIOS contains a point
+  inline bool contain(const Vec3f& p) const;
+
   /// @brief Check collision between two kIOS
   bool overlap(const kIOS& other) const;
 
@@ -100,8 +103,8 @@ public:
   bool overlap(const kIOS& other, const CollisionRequest&,
                FCL_REAL& sqrDistLowerBound) const;
 
-  /// @brief Check whether the kIOS contains a point
-  inline bool contain(const Vec3f& p) const;
+  /// @brief The distance between two kIOS
+  FCL_REAL distance(const kIOS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
   /// @brief A simple way to merge the kIOS and a point
   kIOS& operator += (const Vec3f& p);
@@ -115,6 +118,9 @@ public:
 
   /// @brief Return the merged kIOS of current kIOS and the other one
   kIOS operator + (const kIOS& other) const;
+
+  /// @brief size of the kIOS (used in BV_Splitter to order two kIOSs)
+  FCL_REAL size() const;
 
   /// @brief Center of the kIOS
   const Vec3f& center() const
@@ -133,12 +139,6 @@ public:
 
   /// @brief Volume of the kIOS
   FCL_REAL volume() const;
-
-  /// @brief size of the kIOS (used in BV_Splitter to order two kIOSs)
-  FCL_REAL size() const;
-
-  /// @brief The distance between two kIOS
-  FCL_REAL distance(const kIOS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 };
 
 
