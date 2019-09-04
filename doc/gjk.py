@@ -234,7 +234,7 @@ def printOrder (order, indent = "", start=True,file=sys.stdout):
         print ("bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)", file=file)
         print ("{", file=file)
         print (indent+"// The code of this function was generated using doc/gjk.py", file=file)
-        print (indent+"const int a = 3, b = 2, c = 1, d = 0;", file=file)
+        print (indent+"const vertex_id_t a = 3, b = 2, c = 1, d = 0;", file=file)
         for l in "abcd":
             print (indent+"const Vec3f& {} (current.vertex[{}]->w);".format(l.upper(),l), file=file)
         print (indent+"const FCL_REAL aa = A.squaredNorm();".format(l), file=file)

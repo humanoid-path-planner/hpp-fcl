@@ -118,12 +118,14 @@ struct GJK
     Vec3f w;
   };
 
+  typedef unsigned char vertex_id_t;
+
   struct Simplex
   {
     /// @brief simplex vertex
     SimplexV* vertex[4];
     /// @brief size of simplex (number of vertices)
-    short rank;
+    vertex_id_t rank;
 
     Simplex() {}
   };
@@ -182,8 +184,8 @@ struct GJK
 private:
   SimplexV store_v[4];
   SimplexV* free_v[4];
-  short nfree;
-  short current;
+  vertex_id_t nfree;
+  vertex_id_t current;
   Simplex* simplex;
   Status status;
 

@@ -367,7 +367,7 @@ bool GJK::getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1)
 {
   SimplexV* const* vs = simplex.vertex;
 
-  for (short i = 0; i < simplex.rank; ++i) {
+  for (vertex_id_t i = 0; i < simplex.rank; ++i) {
     assert (vs[i]->w.isApprox (vs[i]->w0 - vs[i]->w1));
   }
 
@@ -413,7 +413,7 @@ bool GJK::getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1)
   }
   w0.setZero();
   w1.setZero();
-  for (short i = 0; i < simplex.rank; ++i) {
+  for (vertex_id_t i = 0; i < simplex.rank; ++i) {
     w0 += projection.parameterization[i] * vs[i]->w0;
     w1 += projection.parameterization[i] * vs[i]->w1;
   }
@@ -444,7 +444,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
   do
   {
-    short next = (short)(1 - current);
+    vertex_id_t next = (vertex_id_t)(1 - current);
     Simplex& curr_simplex = simplices[current];
     Simplex& next_simplex = simplices[next];
 
@@ -586,7 +586,7 @@ bool GJK::encloseOrigin()
 }
 
 inline void originToPoint (
-    const GJK::Simplex& current, int a,
+    const GJK::Simplex& current, GJK::vertex_id_t a,
     const Vec3f& A,
     GJK::Simplex& next,
     Vec3f& ray)
@@ -598,7 +598,7 @@ inline void originToPoint (
 }
 
 inline void originToSegment (
-    const GJK::Simplex& current, int a, int b,
+    const GJK::Simplex& current, GJK::vertex_id_t a, GJK::vertex_id_t b,
     const Vec3f& A, const Vec3f& B,
     const Vec3f& AB,
     const FCL_REAL& ABdotAO,
@@ -618,7 +618,7 @@ inline void originToSegment (
 
 inline void originToTriangle (
     const GJK::Simplex& current,
-    int a, int b, int c,
+    GJK::vertex_id_t a, GJK::vertex_id_t b, GJK::vertex_id_t c,
     const Vec3f& ABC,
     const FCL_REAL& ABCdotAO,
     GJK::Simplex& next,
@@ -643,7 +643,7 @@ inline void originToTriangle (
 
 bool GJK::projectLineOrigin(const Simplex& current, Simplex& next)
 {
-  const int a = 1, b = 0;
+  const vertex_id_t a = 1, b = 0;
   // A is the last point we added.
   const Vec3f& A = current.vertex[a]->w;
   const Vec3f& B = current.vertex[b]->w;
@@ -663,7 +663,7 @@ bool GJK::projectLineOrigin(const Simplex& current, Simplex& next)
 
 bool GJK::projectTriangleOrigin(const Simplex& current, Simplex& next)
 {
-  const int a = 2, b = 1, c = 0;
+  const vertex_id_t a = 2, b = 1, c = 0;
   // A is the last point we added.
   const Vec3f& A = current.vertex[a]->w,
                B = current.vertex[b]->w,
@@ -710,7 +710,7 @@ bool GJK::projectTriangleOrigin(const Simplex& current, Simplex& next)
 bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)
 {
   // The code of this function was generated using doc/gjk.py
-  const int a = 3, b = 2, c = 1, d = 0;
+  const vertex_id_t a = 3, b = 2, c = 1, d = 0;
   const Vec3f& A (current.vertex[a]->w);
   const Vec3f& B (current.vertex[b]->w);
   const Vec3f& C (current.vertex[c]->w);
