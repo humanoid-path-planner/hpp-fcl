@@ -746,11 +746,11 @@ public:
 
 };
 
-template<typename S, typename NarrowPhaseSolver>
-class MeshShapeDistanceTraversalNodeOBBRSS : public MeshShapeDistanceTraversalNode<OBBRSS, S, NarrowPhaseSolver>
+template<typename S, typename GJKSolver>
+class MeshShapeDistanceTraversalNodeOBBRSS : public MeshShapeDistanceTraversalNode<OBBRSS, S, GJKSolver>
 {
 public:
-  MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSS, S, NarrowPhaseSolver>()
+  MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSS, S, GJKSolver>()
   {
   }
 
@@ -780,7 +780,7 @@ public:
 };
 
 /// @brief Traversal node for distance between shape and mesh
-template<typename S, typename BV, typename NarrowPhaseSolver>
+template<typename S, typename BV, typename GJKSolver>
 class ShapeMeshDistanceTraversalNode : public ShapeBVHDistanceTraversalNode<S, BV>
 { 
 public:
@@ -835,14 +835,14 @@ public:
   FCL_REAL rel_err;
   FCL_REAL abs_err;
     
-  const NarrowPhaseSolver* nsolver;
+  const GJKSolver* nsolver;
 };
 
-template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSS, NarrowPhaseSolver>
+template<typename S, typename GJKSolver>
+class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSS, GJKSolver>
 {
 public:
-  ShapeMeshDistanceTraversalNodeRSS() : ShapeMeshDistanceTraversalNode<S, RSS, NarrowPhaseSolver>()
+  ShapeMeshDistanceTraversalNodeRSS() : ShapeMeshDistanceTraversalNode<S, RSS, GJKSolver>()
   {
   }
 
@@ -870,11 +870,11 @@ public:
 
 };
 
-template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshDistanceTraversalNodekIOS : public ShapeMeshDistanceTraversalNode<S, kIOS, NarrowPhaseSolver>
+template<typename S, typename GJKSolver>
+class ShapeMeshDistanceTraversalNodekIOS : public ShapeMeshDistanceTraversalNode<S, kIOS, GJKSolver>
 {
 public:
-  ShapeMeshDistanceTraversalNodekIOS() : ShapeMeshDistanceTraversalNode<S, kIOS, NarrowPhaseSolver>()
+  ShapeMeshDistanceTraversalNodekIOS() : ShapeMeshDistanceTraversalNode<S, kIOS, GJKSolver>()
   {
   }
 
@@ -902,11 +902,11 @@ public:
   
 };
 
-template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshDistanceTraversalNodeOBBRSS : public ShapeMeshDistanceTraversalNode<S, OBBRSS, NarrowPhaseSolver>
+template<typename S, typename GJKSolver>
+class ShapeMeshDistanceTraversalNodeOBBRSS : public ShapeMeshDistanceTraversalNode<S, OBBRSS, GJKSolver>
 {
 public:
-  ShapeMeshDistanceTraversalNodeOBBRSS() : ShapeMeshDistanceTraversalNode<S, OBBRSS, NarrowPhaseSolver>()
+  ShapeMeshDistanceTraversalNodeOBBRSS() : ShapeMeshDistanceTraversalNode<S, OBBRSS, GJKSolver>()
   {
   }
 
