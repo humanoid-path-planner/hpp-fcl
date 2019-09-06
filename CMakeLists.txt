@@ -127,14 +127,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/math/vec_3f.h
   include/hpp/fcl/math/types.h
   include/hpp/fcl/math/transform.h
-  include/hpp/fcl/traversal/details/traversal.h
-  include/hpp/fcl/traversal/traversal_node_shapes.h
-  include/hpp/fcl/traversal/traversal_node_setup.h
-  include/hpp/fcl/traversal/traversal_recurse.h
-  include/hpp/fcl/traversal/traversal_node_octree.h
-  include/hpp/fcl/traversal/traversal_node_bvhs.h
-  include/hpp/fcl/traversal/traversal_node_bvh_shape.h
-  include/hpp/fcl/traversal/traversal_node_base.h
   include/hpp/fcl/data_types.h
   include/hpp/fcl/BVH/BV_splitter.h
   include/hpp/fcl/BVH/BVH_internal.h

@@ -42,8 +42,8 @@
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
-#include <hpp/fcl/traversal/traversal_node_base.h>
-#include <hpp/fcl/traversal/details/traversal.h>
+#include "traversal_node_base.h"
+#include "details/traversal.h"
 #include <hpp/fcl/BVH/BVH_model.h>
 
 
@@ -166,7 +166,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(int b1, int /*b2*/) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -180,7 +180,7 @@ public:
   /// \retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
+  bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     bool res;
@@ -195,7 +195,7 @@ public:
   }
 
   /// @brief Intersection testing between leaves (one triangle and one shape)
-  void leafCollides(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
+  void leafTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     const BVNode<BV>& node = this->model1->getBV(b1);
@@ -327,7 +327,7 @@ public:
 
   /// BV test between b1 and b2
   /// \param b2 Bounding volumes to test,
-  bool BVDisjoints(int /*b1*/, int b2) const
+  bool BVTesting(int /*b1*/, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -340,7 +340,7 @@ public:
   /// \param b2 Bounding volumes to test,
   /// \retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
-  bool BVDisjoints(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
+  bool BVTesting(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     bool res;
@@ -355,7 +355,7 @@ public:
   }
 
   /// @brief Intersection testing between leaves (one shape and one triangle)
-  void leafCollides(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
+  void leafTesting(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     const BVNode<BV>& node = this->model2->getBV(b2);
@@ -493,7 +493,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVDisjoints(int b1, int /*b2*/) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     return model1->getBV(b1).bv.distance(model2_bv);
   }
@@ -541,7 +541,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVDisjoints(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     return model1_bv.distance(model2->getBV(b2).bv);
   }
@@ -573,7 +573,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (one triangle and one shape)
-  void leafCollides(int b1, int /*b2*/) const
+  void leafTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     
@@ -700,13 +700,13 @@ public:
   {
   }
 
-  FCL_REAL BVDisjoints(int b1, int /*b2*/) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafCollides(int b1, int b2) const
+  void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
@@ -732,13 +732,13 @@ public:
   {    
   }
 
-  FCL_REAL BVDisjoints(int b1, int /*b2*/) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafCollides(int b1, int b2) const
+  void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
@@ -746,11 +746,11 @@ public:
 
 };
 
-template<typename S, typename GJKSolver>
-class MeshShapeDistanceTraversalNodeOBBRSS : public MeshShapeDistanceTraversalNode<OBBRSS, S, GJKSolver>
+template<typename S, typename NarrowPhaseSolver>
+class MeshShapeDistanceTraversalNodeOBBRSS : public MeshShapeDistanceTraversalNode<OBBRSS, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSS, S, GJKSolver>()
+  MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSS, S, NarrowPhaseSolver>()
   {
   }
 
@@ -765,13 +765,13 @@ public:
     
   }
 
-  FCL_REAL BVDisjoints(int b1, int /*b2*/) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafCollides(int b1, int b2) const
+  void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
@@ -780,7 +780,7 @@ public:
 };
 
 /// @brief Traversal node for distance between shape and mesh
-template<typename S, typename BV, typename GJKSolver>
+template<typename S, typename BV, typename NarrowPhaseSolver>
 class ShapeMeshDistanceTraversalNode : public ShapeBVHDistanceTraversalNode<S, BV>
 { 
 public:
@@ -796,7 +796,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (one shape and one triangle)
-  void leafCollides(int b1, int b2) const
+  void leafTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     
@@ -835,14 +835,14 @@ public:
   FCL_REAL rel_err;
   FCL_REAL abs_err;
     
-  const GJKSolver* nsolver;
+  const NarrowPhaseSolver* nsolver;
 };
 
-template<typename S, typename GJKSolver>
-class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSS, GJKSolver>
+template<typename S, typename NarrowPhaseSolver>
+class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSS, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshDistanceTraversalNodeRSS() : ShapeMeshDistanceTraversalNode<S, RSS, GJKSolver>()
+  ShapeMeshDistanceTraversalNodeRSS() : ShapeMeshDistanceTraversalNode<S, RSS, NarrowPhaseSolver>()
   {
   }
 
@@ -856,13 +856,13 @@ public:
   {
   }
 
-  FCL_REAL BVDisjoints(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafCollides(int b1, int b2) const
+  void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
@@ -870,11 +870,11 @@ public:
 
 };
 
-template<typename S, typename GJKSolver>
-class ShapeMeshDistanceTraversalNodekIOS : public ShapeMeshDistanceTraversalNode<S, kIOS, GJKSolver>
+template<typename S, typename NarrowPhaseSolver>
+class ShapeMeshDistanceTraversalNodekIOS : public ShapeMeshDistanceTraversalNode<S, kIOS, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshDistanceTraversalNodekIOS() : ShapeMeshDistanceTraversalNode<S, kIOS, GJKSolver>()
+  ShapeMeshDistanceTraversalNodekIOS() : ShapeMeshDistanceTraversalNode<S, kIOS, NarrowPhaseSolver>()
   {
   }
 
@@ -888,13 +888,13 @@ public:
   {
   }
 
-  FCL_REAL BVDisjoints(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafCollides(int b1, int b2) const
+  void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
@@ -902,11 +902,11 @@ public:
   
 };
 
-template<typename S, typename GJKSolver>
-class ShapeMeshDistanceTraversalNodeOBBRSS : public ShapeMeshDistanceTraversalNode<S, OBBRSS, GJKSolver>
+template<typename S, typename NarrowPhaseSolver>
+class ShapeMeshDistanceTraversalNodeOBBRSS : public ShapeMeshDistanceTraversalNode<S, OBBRSS, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshDistanceTraversalNodeOBBRSS() : ShapeMeshDistanceTraversalNode<S, OBBRSS, GJKSolver>()
+  ShapeMeshDistanceTraversalNodeOBBRSS() : ShapeMeshDistanceTraversalNode<S, OBBRSS, NarrowPhaseSolver>()
   {
   }
 
@@ -920,13 +920,13 @@ public:
   {    
   }
 
-  FCL_REAL BVDisjoints(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafCollides(int b1, int b2) const
+  void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));

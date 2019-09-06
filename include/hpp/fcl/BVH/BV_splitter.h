@@ -49,32 +49,13 @@ namespace hpp
 namespace fcl
 {
 
-/// @brief Base interface for BV splitting algorithm
-template<typename BV>
-class BVSplitterBase
-{
-public:
-  /// @brief Set the geometry data needed by the split rule
-  virtual void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
-
-  /// @brief Compute the split rule according to a subset of geometry and the corresponding BV node
-  virtual void computeRule(const BV& bv, unsigned int* primitive_indices, int num_primitives) = 0;
-
-  /// @brief Apply the split rule on a given point
-  virtual bool apply(const Vec3f& q) const = 0;
-
-  /// @brief Clear the geometry data set before
-  virtual void clear() = 0;
-};
-
-
 /// @brief Three types of split algorithms are provided in FCL as default
 enum SplitMethodType {SPLIT_METHOD_MEAN, SPLIT_METHOD_MEDIAN, SPLIT_METHOD_BV_CENTER};
 
 
 /// @brief A class describing the split rule that splits each BV node
 template<typename BV>
-class BVSplitter : public BVSplitterBase<BV>
+class BVSplitter
 {
 public:
 

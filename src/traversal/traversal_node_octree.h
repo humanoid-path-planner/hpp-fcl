@@ -39,7 +39,7 @@
 #define HPP_FCL_TRAVERSAL_NODE_OCTREE_H
 
 #include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/traversal/traversal_node_base.h>
+#include "traversal_node_base.h"
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/octree.h>
@@ -51,11 +51,11 @@ namespace fcl
 {
 
 /// @brief Algorithms for collision related with octree
-template<typename GJKSolver>
+template<typename NarrowPhaseSolver>
 class OcTreeSolver
 {
 private:
-  const GJKSolver* solver;
+  const NarrowPhaseSolver* solver;
 
   mutable const CollisionRequest* crequest;
   mutable const DistanceRequest* drequest;
@@ -64,7 +64,7 @@ private:
   mutable DistanceResult* dresult;
 
 public:
-  OcTreeSolver(const GJKSolver* solver_) : solver(solver_),
+  OcTreeSolver(const NarrowPhaseSolver* solver_) : solver(solver_),
                                                    crequest(NULL),
                                                    drequest(NULL),
                                                    cresult(NULL),
@@ -890,7 +890,7 @@ private:
 
 
 /// @brief Traversal node for octree collision
-template<typename GJKSolver>
+template<typename NarrowPhaseSolver>
 class OcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -903,17 +903,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVDisjoints(int, int) const
+  bool BVTesting(int, int) const
   {
     return false;
   }
 
-  bool BVDisjoints(int, int, FCL_REAL&) const
+  bool BVTesting(int, int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafCollides(int, int, FCL_REAL&) const
+  void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeIntersect(model1, model2, tf1, tf2, request, *result);
   }
@@ -923,11 +923,11 @@ public:
 
   Transform3f tf1, tf2;
 
-  const OcTreeSolver<GJKSolver>* otsolver;
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
 /// @brief Traversal node for octree distance
-template<typename GJKSolver>
+template<typename NarrowPhaseSolver>
 class OcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -940,17 +940,17 @@ public:
   }
 
 
-  FCL_REAL BVDisjoints(int, int) const
+  FCL_REAL BVTesting(int, int) const
   {
     return -1;
   }
 
-  bool BVDisjoints(int, int, FCL_REAL&) const
+  bool BVTesting(int, int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafCollides(int, int) const
+  void leafTesting(int, int) const
   {
     otsolver->OcTreeDistance(model1, model2, tf1, tf2, request, *result);
   }
@@ -958,11 +958,11 @@ public:
   const OcTree* model1;
   const OcTree* model2;
 
-  const OcTreeSolver<GJKSolver>* otsolver;
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
 /// @brief Traversal node for shape-octree collision
-template<typename S, typename GJKSolver>
+template<typename S, typename NarrowPhaseSolver>
 class ShapeOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -975,17 +975,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVDisjoints(int, int) const
+  bool BVTesting(int, int) const
   {
     return false;
   }
 
-  bool BVDisjoints(int, int, FCL_REAL&) const
+  bool BVTesting(int, int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafCollides(int, int, FCL_REAL&) const
+  void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeShapeIntersect(model2, *model1, tf2, tf1, request, *result);
   }
@@ -995,11 +995,11 @@ public:
 
   Transform3f tf1, tf2;
 
-  const OcTreeSolver<GJKSolver>* otsolver;
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
 /// @brief Traversal node for octree-shape collision
-template<typename S, typename GJKSolver>
+template<typename S, typename NarrowPhaseSolver>
 class OcTreeShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -1012,17 +1012,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVDisjoints(int, int) const
+  bool BVTesting(int, int) const
   {
     return false;
   }
 
-  bool BVDisjoints(int, int, fcl::FCL_REAL&) const
+  bool BVTesting(int, int, fcl::FCL_REAL&) const
   {
     return false;
   }
 
-  void leafCollides(int, int, FCL_REAL&) const
+  void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeShapeIntersect(model1, *model2, tf1, tf2, request, *result);
   }
@@ -1032,11 +1032,11 @@ public:
 
   Transform3f tf1, tf2;
  
-  const OcTreeSolver<GJKSolver>* otsolver;  
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;  
 };
 
 /// @brief Traversal node for shape-octree distance
-template<typename S, typename GJKSolver>
+template<typename S, typename NarrowPhaseSolver>
 class ShapeOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -1048,12 +1048,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVDisjoints(int, int) const
+  FCL_REAL BVTesting(int, int) const
   {
     return -1;
   }
 
-  void leafCollides(int, int) const
+  void leafTesting(int, int) const
   {
     otsolver->OcTreeShapeDistance(model2, *model1, tf2, tf1, request, *result);
   }
@@ -1061,11 +1061,11 @@ public:
   const S* model1;
   const OcTree* model2;
 
-  const OcTreeSolver<GJKSolver>* otsolver;
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
 /// @brief Traversal node for octree-shape distance
-template<typename S, typename GJKSolver>
+template<typename S, typename NarrowPhaseSolver>
 class OcTreeShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -1077,12 +1077,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVDisjoints(int, int) const
+  FCL_REAL BVTesting(int, int) const
   {
     return -1;
   }
 
-  void leafCollides(int, int) const
+  void leafTesting(int, int) const
   {
     otsolver->OcTreeShapeDistance(model1, *model2, tf1, tf2, request, *result);
   }
@@ -1090,11 +1090,11 @@ public:
   const OcTree* model1;
   const S* model2;
 
-  const OcTreeSolver<GJKSolver>* otsolver;
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
 /// @brief Traversal node for mesh-octree collision
-template<typename BV, typename GJKSolver>
+template<typename BV, typename NarrowPhaseSolver>
 class MeshOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -1107,17 +1107,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVDisjoints(int, int) const
+  bool BVTesting(int, int) const
   {
     return false;
   }
 
-  bool BVDisjoints(int, int, FCL_REAL&) const
+  bool BVTesting(int, int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafCollides(int, int, FCL_REAL&) const
+  void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeMeshIntersect(model2, model1, tf2, tf1, request, *result);
   }
@@ -1127,11 +1127,11 @@ public:
 
   Transform3f tf1, tf2;
     
-  const OcTreeSolver<GJKSolver>* otsolver;
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
 /// @brief Traversal node for octree-mesh collision
-template<typename BV, typename GJKSolver>
+template<typename BV, typename NarrowPhaseSolver>
 class OcTreeMeshCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -1144,17 +1144,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVDisjoints(int, int) const
+  bool BVTesting(int, int) const
   {
     return false;
   }
 
-  bool BVDisjoints(int, int, FCL_REAL&) const
+  bool BVTesting(int, int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafCollides(int, int, FCL_REAL&) const
+  void leafTesting(int, int, FCL_REAL&) const
   {
     otsolver->OcTreeMeshIntersect(model1, model2, tf1, tf2, request, *result);
   }
@@ -1164,11 +1164,11 @@ public:
 
   Transform3f tf1, tf2;
     
-  const OcTreeSolver<GJKSolver>* otsolver;
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
 /// @brief Traversal node for mesh-octree distance
-template<typename BV, typename GJKSolver>
+template<typename BV, typename NarrowPhaseSolver>
 class MeshOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -1180,12 +1180,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVDisjoints(int, int) const
+  FCL_REAL BVTesting(int, int) const
   {
     return -1;
   }
 
-  void leafCollides(int, int) const
+  void leafTesting(int, int) const
   {
     otsolver->OcTreeMeshDistance(model2, model1, tf2, tf1, request, *result);
   }
@@ -1193,12 +1193,12 @@ public:
   const BVHModel<BV>* model1;
   const OcTree* model2;
 
-  const OcTreeSolver<GJKSolver>* otsolver;
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 
 };
 
 /// @brief Traversal node for octree-mesh distance
-template<typename BV, typename GJKSolver>
+template<typename BV, typename NarrowPhaseSolver>
 class OcTreeMeshDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -1210,12 +1210,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVDisjoints(int, int) const
+  FCL_REAL BVTesting(int, int) const
   {
     return -1;
   }
 
-  void leafCollides(int, int) const
+  void leafTesting(int, int) const
   {
     otsolver->OcTreeMeshDistance(model1, model2, tf1, tf2, request, *result);
   }
@@ -1223,7 +1223,7 @@ public:
   const OcTree* model1;
   const BVHModel<BV>* model2;
 
-  const OcTreeSolver<GJKSolver>* otsolver;
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 
 };
 

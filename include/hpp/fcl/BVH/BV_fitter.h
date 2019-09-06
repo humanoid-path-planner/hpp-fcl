@@ -74,27 +74,9 @@ void fit<OBBRSS>(Vec3f* ps, int n, OBBRSS& bv);
 template<>
 void fit<AABB>(Vec3f* ps, int n, AABB& bv);
 
-/// @brief Interface for fitting a bv given the triangles or points inside it.
-template<typename BV>
-class BVFitterBase
-{
-public:
-  /// @brief Set the primitives to be processed by the fitter
-  virtual void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
-
-  /// @brief Set the primitives to be processed by the fitter, for deformable mesh.
-  virtual void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
-
-  /// @brief Compute the fitting BV
-  virtual BV fit(unsigned int* primitive_indices, int num_primitives) = 0;
-
-  /// @brief clear the temporary data generated.
-  virtual void clear() = 0;
-};
-
 /// @brief The class for the default algorithm fitting a bounding volume to a set of points
 template<typename BV>
-class BVFitterTpl : public BVFitterBase<BV>
+class BVFitterTpl
 {
 public:
   /// @brief default deconstructor
@@ -117,6 +99,9 @@ public:
     tri_indices = tri_indices_;
     type = type_;
   }
+
+  /// @brief Compute the fitting BV
+  virtual BV fit(unsigned int* primitive_indices, int num_primitives) = 0;
 
   /// @brief Clear the geometry primitive data
   void clear()

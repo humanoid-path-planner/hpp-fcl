@@ -40,14 +40,14 @@
 #define HPP_FCL_TRAVERSAL_NODE_MESHES_H
 
 #include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/traversal/traversal_node_base.h>
+#include "traversal_node_base.h"
 #include <hpp/fcl/BV/BV_node.h>
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/intersect.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/traversal/details/traversal.h>
+#include "details/traversal.h"
 
 #include <boost/shared_array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -157,7 +157,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(int b1, int b2) const
+  bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -171,7 +171,7 @@ public:
   /// \param b1, b2 Bounding volumes to test,
   /// \retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
-  bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -200,7 +200,7 @@ public:
   /// \note If the distance between objects is less than the security margin,
   ///       and the object are not colliding, the penetration depth is
   ///       negative.
-  void leafCollides(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 
@@ -361,7 +361,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVDisjoints(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(enable_statistics) num_bv_tests++;
     return details::DistanceTraversalBVTesting_impl<BV>
@@ -397,7 +397,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (two triangles)
-  void leafCollides(int b1, int b2) const
+  void leafTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 
@@ -457,7 +457,7 @@ public:
 
   void postprocess();
 
-  FCL_REAL BVDisjoints(int b1, int b2) const;
+  FCL_REAL BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 
@@ -475,7 +475,7 @@ public:
   
   void postprocess();
 
-  FCL_REAL BVDisjoints(int b1, int b2) const;
+  FCL_REAL BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 
@@ -492,9 +492,9 @@ public:
 
   void postprocess();
 
-  FCL_REAL BVDisjoints(int b1, int b2) const;
+  FCL_REAL BVTesting(int b1, int b2) const;
 
-  FCL_REAL BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
+  FCL_REAL BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
 
   void leafTesting(int b1, int b2) const;
 

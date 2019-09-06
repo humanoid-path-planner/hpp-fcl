@@ -38,7 +38,7 @@
 #include <hpp/fcl/distance_func_matrix.h>
 
 #include <../src/collision_node.h>
-#include <hpp/fcl/traversal/traversal_node_setup.h>
+#include "traversal/traversal_node_setup.h"
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
 namespace hpp
