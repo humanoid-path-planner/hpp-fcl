@@ -54,12 +54,15 @@ class Convex : public ConvexBase
 {
 public:
   /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
+  /// \param own_storage whether this class owns the pointers of points and
+  ///                    polygons. If owned, they are deleted upon destruction.
   /// \param points_ list of 3D points
   /// \param num_points_ number of 3D points
   /// \param polygons_ \copydoc Convex::polygons
   /// \param num_polygons_ the number of polygons.
   /// \note num_polygons_ is not the allocated size of polygons_.
-  Convex(Vec3f* points_, int num_points_,
+  Convex(bool ownStorage,
+         Vec3f* points_, int num_points_,
          PolygonT* polygons_, int num_polygons_);
 
   /// @brief Copy constructor 

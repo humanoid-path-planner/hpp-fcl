@@ -52,6 +52,8 @@ namespace hpp
 namespace fcl
 {
 
+class ConvexBase;
+
 /// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
 template<typename BV>
 class BVHModel : public CollisionGeometry
@@ -81,6 +83,9 @@ public:
 
   /// @brief Fitting rule to fit a BV node to a set of geometry primitives
   boost::shared_ptr<BVFitterBase<BV> > bv_fitter;
+
+  /// @brief Convex<Triangle> representation of this object
+  boost::shared_ptr< ConvexBase > convex;
   
   /// @brief Model type described by the instance
   BVHModelType getModelType() const
@@ -209,7 +214,12 @@ public:
   /// @brief Check the number of memory used
   int memUsage(int msg) const;
 
-/// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
+  /// @brief Build this Convex<Triangle> representation of this model.
+  /// \note this only takes the points of this model. It does not check that the
+  ///       object is convex. It does not compute a convex hull.
+  void buildConvexRepresentation();
+
+  /// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
   /// BV node. When traversing the BVH, this can save one matrix transformation.
   void makeParentRelative()
   {
@@ -274,7 +284,6 @@ private:
   int num_bvs_allocated;
   int num_vertex_updated; /// for ccd vertex update
   unsigned int* primitive_indices;
-
 
   /// @brief Bounding volume hierarchy
   BVNode<BV>* bvs;

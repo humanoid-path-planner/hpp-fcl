@@ -46,11 +46,9 @@ namespace fcl
 {
 
 template <typename PolygonT>
-Convex<PolygonT>::Convex(Vec3f* points_,
-       int num_points_,
-       PolygonT* polygons_,
-       int num_polygons_) :
-  ConvexBase(points_, num_points_),
+Convex<PolygonT>::Convex(bool own_storage, Vec3f* points_, int num_points_,
+       PolygonT* polygons_, int num_polygons_) :
+  ConvexBase(own_storage, points_, num_points_),
   polygons     (polygons_),
   num_polygons (num_polygons_)
 {
@@ -62,11 +60,18 @@ Convex<PolygonT>::Convex(const Convex<PolygonT>& other) :
   ConvexBase   (other),
   polygons     (other.polygons),
   num_polygons (other.num_polygons)
-{}
+{
+  if (own_storage_) {
+    polygons = new PolygonT[num_polygons];
+    memcpy(polygons, other.polygons, sizeof(PolygonT) * num_polygons);
+  }
+}
 
 template <typename PolygonT>
 Convex<PolygonT>::~Convex()
-{}
+{
+  if (own_storage_) delete [] polygons;
+}
 
 template <typename PolygonT>
 Matrix3f Convex<PolygonT>::computeMomentofInertia() const
@@ -193,15 +198,15 @@ void Convex<PolygonT>::fillNeighbors()
     {
       size_type i = (j==0  ) ? n-1 : j-1;
       size_type k = (j==n-1) ? 0   : j+1;
-      index_type pi = polygon[i+1],
-                 pj = polygon[j+1],
-                 pk = polygon[k+1];
+      index_type pi = polygon[i],
+                 pj = polygon[j],
+                 pk = polygon[k];
       // Update neighbors of pj;
-      if (nneighbors[pj].count(pi) == (unsigned int)0) {
+      if (nneighbors[pj].count(pi) == 0) {
         c_nneighbors++;
         nneighbors[pj].insert(pi);
       }
-      if (nneighbors[pj].count(pk) == (unsigned int)0) {
+      if (nneighbors[pj].count(pk) == 0) {
         c_nneighbors++;
         nneighbors[pj].insert(pk);
       }

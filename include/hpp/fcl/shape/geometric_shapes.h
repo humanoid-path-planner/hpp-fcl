@@ -300,7 +300,7 @@ protected:
   /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
   /// \param points_ list of 3D points
   /// \param num_points_ number of 3D points
-  ConvexBase(Vec3f* points_, int num_points_);
+  ConvexBase(bool ownStorage, Vec3f* points_, int num_points_);
 
   /// @brief Copy constructor 
   /// Only the list of neighbors is copied.
@@ -308,9 +308,13 @@ protected:
 
   unsigned int* nneighbors_;
 
+  bool own_storage_;
+
 private:
   void computeCenter();
 };
+
+template <typename PolygonT> class Convex;
 
 /// @brief Half Space: this is equivalent to the Plane in ODE. The separation plane is defined as n * x = d;
 /// Points in the negative side of the separation plane (i.e. {x | n * x < d}) are inside the half space and points

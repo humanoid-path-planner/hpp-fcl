@@ -37,6 +37,7 @@
 
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/BV/BV.h>
+#include <hpp/fcl/shape/convex.h>
 #include <iostream>
 #include <string.h>
 
@@ -641,6 +642,13 @@ int BVHModel<BV>::memUsage(int msg) const
   return BVH_OK;
 }
 
+template<typename BV>
+void BVHModel<BV>::buildConvexRepresentation()
+{
+  if (!convex) {
+    convex.reset(new Convex<Triangle>(false, vertices, num_vertices, tri_indices, num_vertices));
+  }
+}
 
 template<typename BV>
 int BVHModel<BV>::buildTree()
