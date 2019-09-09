@@ -79,7 +79,7 @@ template <> struct shape_traits<Cylinder> : shape_traits_base
   };
 };
 
-template <> struct shape_traits<Convex> : shape_traits_base
+template <> struct shape_traits<ConvexBase> : shape_traits_base
 {
   enum { NeedNormalizedDir = false
   };
@@ -167,10 +167,10 @@ void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support)
   assert (fabs (support [0] * dir [1] - support [1] * dir [0]) < eps);
 }
 
-void getShapeSupport(const Convex* convex, const Vec3f& dir, Vec3f& support)
+void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support)
 {
   const Vec3f* pts = convex->points;
-  const Convex::Neighbors* nn = convex->neighbors;
+  const ConvexBase::Neighbors* nn = convex->neighbors;
 
   int i = 0;
   FCL_REAL maxdot = pts[i].dot(dir);
@@ -178,7 +178,7 @@ void getShapeSupport(const Convex* convex, const Vec3f& dir, Vec3f& support)
   bool found = true;
   while (found)
   {
-    const Convex::Neighbors& n = nn[i];
+    const ConvexBase::Neighbors& n = nn[i];
     found = false;
     for (int in = 0; in < n.count(); ++in) {
       dot = pts[n[in]].dot(dir);
@@ -223,7 +223,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized)
     CALL_GET_SHAPE_SUPPORT(Cylinder);
     break;
   case GEOM_CONVEX:
-    CALL_GET_SHAPE_SUPPORT(Convex);
+    CALL_GET_SHAPE_SUPPORT(ConvexBase);
     break;
   case GEOM_PLANE:
   case GEOM_HALFSPACE:
@@ -299,8 +299,8 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, 
     if (identity) return getSupportFuncTpl<Shape0, Cylinder, true >;
     else          return getSupportFuncTpl<Shape0, Cylinder, false>;
   case GEOM_CONVEX:
-    if (identity) return getSupportFuncTpl<Shape0, Convex, true >;
-    else          return getSupportFuncTpl<Shape0, Convex, false>;
+    if (identity) return getSupportFuncTpl<Shape0, ConvexBase, true >;
+    else          return getSupportFuncTpl<Shape0, ConvexBase, false>;
   default:
     throw std::logic_error ("Unsupported geometric shape");
   }
@@ -329,7 +329,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0 (const ShapeBase* s0, 
     return makeGetSupportFunction1<Cylinder> (s1, identity);
     break;
   case GEOM_CONVEX:
-    return makeGetSupportFunction1<Convex> (s1, identity);
+    return makeGetSupportFunction1<ConvexBase> (s1, identity);
     break;
   default:
     throw std::logic_error ("Unsupported geometric shape");

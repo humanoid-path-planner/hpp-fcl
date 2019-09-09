@@ -1750,7 +1750,7 @@ namespace fcl {
     }
 
     inline bool convexHalfspaceIntersect
-      (const Convex& s1, const Transform3f& tf1,
+      (const ConvexBase& s1, const Transform3f& tf1,
        const Halfspace& s2, const Transform3f& tf2,
        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
     {
@@ -2443,7 +2443,7 @@ namespace fcl {
     }
 
     inline bool convexPlaneIntersect
-      (const Convex& s1, const Transform3f& tf1,
+      (const ConvexBase& s1, const Transform3f& tf1,
        const Plane& s2, const Transform3f& tf2,
        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
     {

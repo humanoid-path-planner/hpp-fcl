@@ -35,59 +35,60 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_DATA_TYPES_H
-#define HPP_FCL_DATA_TYPES_H
 
-#include <cstddef>
-#include <boost/cstdint.hpp>
+#ifndef HPP_FCL_SHAPE_CONVEX_H
+#define HPP_FCL_SHAPE_CONVEX_H
+
+#include <hpp/fcl/shape/geometric_shapes.h>
 
 namespace hpp
 {
 namespace fcl
 {
 
-typedef double FCL_REAL;
-typedef boost::uint64_t FCL_INT64;
-typedef boost::int64_t FCL_UINT64;
-typedef boost::uint32_t FCL_UINT32;
-typedef boost::int32_t FCL_INT32;
-
-/// @brief Triangle with 3 indices for points
-class Triangle
+/// @brief Convex polytope 
+/// @tparam PolygonT the polygon class. It must have method \c size() and
+///         \c operator[](int i)
+template <typename PolygonT>
+class Convex : public ConvexBase
 {
 public:
-  typedef std::size_t index_type;
-  typedef int size_type;
+  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
+  /// \param points_ list of 3D points
+  /// \param num_points_ number of 3D points
+  /// \param polygons_ \copydoc Convex::polygons
+  /// \param num_polygons_ the number of polygons.
+  /// \note num_polygons_ is not the allocated size of polygons_.
+  Convex(Vec3f* points_, int num_points_,
+         PolygonT* polygons_, int num_polygons_);
 
-  /// @brief Default constructor
-  Triangle() {}
+  /// @brief Copy constructor 
+  /// Only the list of neighbors is copied.
+  Convex(const Convex& other);
 
-  /// @brief Create a triangle with given vertex indices
-  Triangle(index_type p1, index_type p2, index_type p3)
-  {
-    set(p1, p2, p3);
-  }
+  ~Convex();
 
-  /// @brief Set the vertex indices of the triangle
-  inline void set(index_type p1, index_type p2, index_type p3)
-  {
-    vids[0] = p1; vids[1] = p2; vids[2] = p3;
-  }
+  /// @brief An array of PolygonT object.
+  /// PolygonT should contains a list of vertices for each polygon,
+  /// in counter clockwise order.
+  PolygonT* polygons;
+  int num_polygons;
 
-  /// @access the triangle index
-  inline index_type operator[](int i) const { return vids[i]; }
+  /// based on http://number-none.com/blow/inertia/bb_inertia.doc
+  Matrix3f computeMomentofInertia() const;
 
-  inline index_type& operator[](int i) { return vids[i]; }
+  Vec3f computeCOM() const;
 
-  static inline size_type size() { return 3; }
+  FCL_REAL computeVolume() const;
 
-private:
-  /// @brief indices for each vertex of triangle
-  index_type vids[3];
+protected:
+  void fillNeighbors();
 };
 
 }
 
 } // namespace hpp
+
+#include <hpp/fcl/shape/details/convex.hxx>
 
 #endif

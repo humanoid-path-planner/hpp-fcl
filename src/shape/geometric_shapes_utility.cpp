@@ -196,7 +196,7 @@ std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f&
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Convex& convex, const Transform3f& tf)
+std::vector<Vec3f> getBoundVertices(const ConvexBase& convex, const Transform3f& tf)
 {
   std::vector<Vec3f> result(convex.num_points);
   for(int i = 0; i < convex.num_points; ++i)
@@ -313,7 +313,7 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& b
 }
 
 template<>
-void computeBV<AABB, Convex>(const Convex& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -455,7 +455,7 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();

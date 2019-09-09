@@ -262,53 +262,12 @@ public:
   }
 };
 
-/// @brief Convex polytope 
-class Convex : public ShapeBase
+/// @brief Base for convex polytope.
+/// @note Inherited classes are responsible for filling ConvexBase::neighbors;
+class ConvexBase : public ShapeBase
 {
 public:
-  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
-  /// \param points_ list of 3D points
-  /// \param num_points_ number of 3D points
-  /// \param polygons_ \copydoc Convex::polygons
-  /// \param num_polygons_ the number of polygons.
-  /// \note num_polygons_ is not the allocated size of polygons_.
-  Convex(Vec3f* points_,
-         int num_points_,
-         int* polygons_,
-         int num_polygons_) :
-    ShapeBase(),
-    points       (points_),
-    num_points   (num_points_),
-    polygons     (polygons_),
-    num_polygons (num_polygons_)
-  {
-    initialize();
-  }
-
-  /// @brief Copy constructor 
-  /// Only the list of neighbors is copied.
-  Convex(const Convex& other) :
-    ShapeBase    (other),
-    points       (other.points),
-    num_points   (other.num_points),
-    polygons     (other.polygons),
-    num_polygons (other.num_polygons),
-    center       (other.center)
-  {
-    neighbors = new Neighbors[num_points];
-    memcpy(neighbors, other.neighbors, sizeof(Neighbors) * num_points);
-
-    int c_nneighbors = 0;
-    for (int i = 0; i < num_points; ++i) c_nneighbors += neighbors[i].count();
-    nneighbors_ = new unsigned int[c_nneighbors];
-    memcpy(nneighbors_, other.nneighbors_, sizeof(unsigned int) * c_nneighbors);
-  }
-
-  ~Convex()
-  {
-    delete [] neighbors;
-    delete [] nneighbors_;
-  }
+  virtual ~ConvexBase();
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -316,26 +275,18 @@ public:
   /// @brief Get node type: a conex polytope 
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
-  /// @brief An array of indices to the points of each polygon.
-  /// It should be the number of vertices
-  /// followed by that amount of indices to "points" in counter clockwise order.
-  int* polygons;
-  int num_polygons;
-
   /// @brief An array of the points of the polygon.
   Vec3f* points;
   int num_points;
 
-  class Neighbors
+  struct Neighbors
   {
-    private:
-      unsigned char count_;
-      unsigned int* n_;
-      friend class Convex;
-    public:
-      unsigned char const& count () const { return count_; }
-      unsigned int      & operator[] (int i)       { assert(i<count_); return n_[i]; }
-      unsigned int const& operator[] (int i) const { assert(i<count_); return n_[i]; }
+    unsigned char count_;
+    unsigned int* n_;
+
+    unsigned char const& count () const { return count_; }
+    unsigned int      & operator[] (int i)       { assert(i<count_); return n_[i]; }
+    unsigned int const& operator[] (int i) const { assert(i<count_); return n_[i]; }
   };
   /// Neighbors of each vertex.
   /// It is an array of size num_points. For each vertex, it contains the number
@@ -345,120 +296,20 @@ public:
   /// @brief center of the convex polytope, this is used for collision: center is guaranteed in the internal of the polytope (as it is convex) 
   Vec3f center;
 
-  /// based on http://number-none.com/blow/inertia/bb_inertia.doc
-  Matrix3f computeMomentofInertia() const
-  {
-    
-    Matrix3f C = Matrix3f::Zero();
-
-    Matrix3f C_canonical;
-    C_canonical << 1/60.0, 1/120.0, 1/120.0,
-                   1/120.0, 1/60.0, 1/120.0,
-                   1/120.0, 1/120.0, 1/60.0;
-
-    int* points_in_poly = polygons;
-    int* index = polygons + 1;
-    for(int i = 0; i < num_polygons; ++i)
-    {
-      Vec3f plane_center(0,0,0);
-
-      // compute the center of the polygon
-      for(int j = 0; j < *points_in_poly; ++j)
-        plane_center += points[index[j]];
-      plane_center = plane_center * (1.0 / *points_in_poly);
-
-      // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
-      const Vec3f& v3 = plane_center;
-      for(int j = 0; j < *points_in_poly; ++j)
-      {
-        int e_first = index[j];
-        int e_second = index[(j+1)%*points_in_poly];
-        const Vec3f& v1 = points[e_first];
-        const Vec3f& v2 = points[e_second];
-        Matrix3f A; A << v1.transpose(), v2.transpose(), v3.transpose(); // this is A' in the original document
-        C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
-      }
-      
-      points_in_poly += (*points_in_poly + 1);
-      index = points_in_poly + 1;
-    }
-
-    return C.trace() * Matrix3f::Identity() - C;
-  }
-
-  Vec3f computeCOM() const
-  {
-    Vec3f com(0,0,0);
-    FCL_REAL vol = 0;
-    int* points_in_poly = polygons;
-    int* index = polygons + 1;
-    for(int i = 0; i < num_polygons; ++i)
-    {
-      Vec3f plane_center(0,0,0);
-
-      // compute the center of the polygon
-      for(int j = 0; j < *points_in_poly; ++j)
-        plane_center += points[index[j]];
-      plane_center = plane_center * (1.0 / *points_in_poly);
-
-      // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
-      const Vec3f& v3 = plane_center;
-      for(int j = 0; j < *points_in_poly; ++j)
-      {
-        int e_first = index[j];
-        int e_second = index[(j+1)%*points_in_poly];
-        const Vec3f& v1 = points[e_first];
-        const Vec3f& v2 = points[e_second];
-        FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
-        vol += d_six_vol;
-        com += (points[e_first] + points[e_second] + plane_center) * d_six_vol;
-      }
-      
-      points_in_poly += (*points_in_poly + 1);
-      index = points_in_poly + 1;
-    }
-
-    return com / (vol * 4); // here we choose zero as the reference
-  }
-
-  FCL_REAL computeVolume() const
-  {
-    FCL_REAL vol = 0;
-    int* points_in_poly = polygons;
-    int* index = polygons + 1;
-    for(int i = 0; i < num_polygons; ++i)
-    {
-      Vec3f plane_center(0,0,0);
-
-      // compute the center of the polygon
-      for(int j = 0; j < *points_in_poly; ++j)
-        plane_center += points[index[j]];
-      plane_center = plane_center * (1.0 / *points_in_poly);
-
-      // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero point) of the convex shape
-      const Vec3f& v3 = plane_center;
-      for(int j = 0; j < *points_in_poly; ++j)
-      {
-        int e_first = index[j];
-        int e_second = index[(j+1)%*points_in_poly];
-        const Vec3f& v1 = points[e_first];
-        const Vec3f& v2 = points[e_second];
-        FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
-        vol += d_six_vol;
-      }
-      
-      points_in_poly += (*points_in_poly + 1);
-      index = points_in_poly + 1;
-    }
-
-    return vol / 6;
-  }
-
 protected:
-  void initialize();
+  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
+  /// \param points_ list of 3D points
+  /// \param num_points_ number of 3D points
+  ConvexBase(Vec3f* points_, int num_points_);
+
+  /// @brief Copy constructor 
+  /// Only the list of neighbors is copied.
+  ConvexBase(const ConvexBase& other);
+
+  unsigned int* nneighbors_;
 
 private:
-  unsigned int* nneighbors_;
+  void computeCenter();
 };
 
 /// @brief Half Space: this is equivalent to the Plane in ODE. The separation plane is defined as n * x = d;
@@ -557,7 +408,6 @@ protected:
   /// @brief Turn non-unit normal into unit 
   void unitNormalTest();
 };
-
 
 }
 
