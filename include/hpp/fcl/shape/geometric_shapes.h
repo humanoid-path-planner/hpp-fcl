@@ -275,40 +275,39 @@ public:
   Convex(Vec3f* points_,
          int num_points_,
          int* polygons_,
-         int num_polygons_) : ShapeBase()
+         int num_polygons_) :
+    ShapeBase(),
+    points       (points_),
+    num_points   (num_points_),
+    polygons     (polygons_),
+    num_polygons (num_polygons_)
   {
-    num_polygons = num_polygons_;
-    points = points_;
-    num_points = num_points_;
-    polygons = polygons_;
-    edges = NULL;
-
-    Vec3f sum (0,0,0);
-    for(int i = 0; i < num_points; ++i)
-    {
-      sum += points[i];
-    }
-
-    center = sum * (FCL_REAL)(1.0 / num_points);
-
-    fillEdges();
+    initialize();
   }
 
   /// @brief Copy constructor 
-  Convex(const Convex& other) : ShapeBase(other)
+  /// Only the list of neighbors is copied.
+  Convex(const Convex& other) :
+    ShapeBase    (other),
+    points       (other.points),
+    num_points   (other.num_points),
+    polygons     (other.polygons),
+    num_polygons (other.num_polygons),
+    center       (other.center)
   {
-    num_polygons = other.num_polygons;
-    points = other.points;
-    num_points = other.num_points;
-    polygons = other.polygons;
-    num_edges = other.num_edges;
-    edges = new Edge[num_edges];
-    memcpy(edges, other.edges, sizeof(Edge) * num_edges);
+    neighbors = new Neighbors[num_points];
+    memcpy(neighbors, other.neighbors, sizeof(Neighbors) * num_points);
+
+    int c_nneighbors = 0;
+    for (int i = 0; i < num_points; ++i) c_nneighbors += neighbors[i].count();
+    nneighbors_ = new unsigned int[c_nneighbors];
+    memcpy(nneighbors_, other.nneighbors_, sizeof(unsigned int) * c_nneighbors);
   }
 
   ~Convex()
   {
-    delete [] edges;
+    delete [] neighbors;
+    delete [] nneighbors_;
   }
 
   /// @brief Compute AABB 
@@ -317,21 +316,31 @@ public:
   /// @brief Get node type: a conex polytope 
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
-  /// @brief An array of indices to the points of each polygon, it should be the number of vertices
-  /// followed by that amount of indices to "points" in counter clockwise order
+  /// @brief An array of indices to the points of each polygon.
+  /// It should be the number of vertices
+  /// followed by that amount of indices to "points" in counter clockwise order.
   int* polygons;
-
-  Vec3f* points;
-  int num_points;
-  int num_edges;
   int num_polygons;
 
-  struct Edge
-  {
-    int first, second;
-  };
+  /// @brief An array of the points of the polygon.
+  Vec3f* points;
+  int num_points;
 
-  Edge* edges;
+  class Neighbors
+  {
+    private:
+      unsigned char count_;
+      unsigned int* n_;
+      friend class Convex;
+    public:
+      unsigned char const& count () const { return count_; }
+      unsigned int      & operator[] (int i)       { assert(i<count_); return n_[i]; }
+      unsigned int const& operator[] (int i) const { assert(i<count_); return n_[i]; }
+  };
+  /// Neighbors of each vertex.
+  /// It is an array of size num_points. For each vertex, it contains the number
+  /// of neighbors and a list of indices to them.
+  Neighbors* neighbors;
 
   /// @brief center of the convex polytope, this is used for collision: center is guaranteed in the internal of the polytope (as it is convex) 
   Vec3f center;
@@ -445,13 +454,12 @@ public:
     return vol / 6;
   }
 
-  
-
 protected:
-  /// @brief Get edge information 
-  void fillEdges();
-};
+  void initialize();
 
+private:
+  unsigned int* nneighbors_;
+};
 
 /// @brief Half Space: this is equivalent to the Plane in ODE. The separation plane is defined as n * x = d;
 /// Points in the negative side of the separation plane (i.e. {x | n * x < d}) are inside the half space and points

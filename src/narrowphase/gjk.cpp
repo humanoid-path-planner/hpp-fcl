@@ -169,17 +169,28 @@ void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support)
 
 void getShapeSupport(const Convex* convex, const Vec3f& dir, Vec3f& support)
 {
-  FCL_REAL maxdot = - std::numeric_limits<FCL_REAL>::max();
-  Vec3f* curp = convex->points;
-  for(int i = 0; i < convex->num_points; ++i, curp+=1)
+  const Vec3f* pts = convex->points;
+  const Convex::Neighbors* nn = convex->neighbors;
+
+  int i = 0;
+  FCL_REAL maxdot = pts[i].dot(dir);
+  FCL_REAL dot;
+  bool found = true;
+  while (found)
   {
-    FCL_REAL dot = dir.dot(*curp);
-    if(dot > maxdot)
-    {
-      support = *curp;
-      maxdot = dot;
+    const Convex::Neighbors& n = nn[i];
+    found = false;
+    for (int in = 0; in < n.count(); ++in) {
+      dot = pts[n[in]].dot(dir);
+      if (dot > maxdot) {
+        maxdot = dot;
+        i = n[in];
+        found = true;
+      }
     }
   }
+
+  support = pts[i];
 }
 
 #define CALL_GET_SHAPE_SUPPORT(ShapeType)                                      \

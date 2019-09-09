@@ -42,6 +42,7 @@ add_fcl_test(simple simple.cpp)
 add_fcl_test(capsule_box_1 capsule_box_1.cpp)
 add_fcl_test(capsule_box_2 capsule_box_2.cpp)
 add_fcl_test(obb obb.cpp)
+add_fcl_test(convex convex.cpp)
 
 add_fcl_test(bvh_models bvh_models.cpp)
 
