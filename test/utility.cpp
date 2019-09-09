@@ -10,7 +10,6 @@ namespace hpp
 namespace fcl
 {
 
-
 Timer::Timer()
 {
 #ifdef _WIN32
@@ -93,6 +92,13 @@ double Timer::getElapsedTime()
   return this->getElapsedTimeInMilliSec();
 }
 
+
+const Eigen::IOFormat vfmt  = Eigen::IOFormat (Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "", "");
+const Eigen::IOFormat pyfmt = Eigen::IOFormat (Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "[", "]");
+
+const Vec3f UnitX = Vec3f(1, 0, 0);
+const Vec3f UnitY = Vec3f(0, 1, 0);
+const Vec3f UnitZ = Vec3f(0, 0, 1);
 
 FCL_REAL rand_interval(FCL_REAL rmin, FCL_REAL rmax)
 {
@@ -471,6 +477,15 @@ Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z)
   q.y() = y;
   q.z() = z;
   return q;
+}
+
+std::ostream& operator<< (std::ostream& os, const Transform3f& tf)
+{
+  return os << "[ " <<
+    tf.getTranslation().format(vfmt)
+    << ", "
+    << tf.getQuatRotation().coeffs().format(vfmt)
+    << " ]" ;
 }
 
 }

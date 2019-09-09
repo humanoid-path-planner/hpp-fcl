@@ -56,28 +56,6 @@ FCL_REAL tol_gjk = 0.01;
 GJKSolver solver1;
 GJKSolver solver2;
 
-Eigen::IOFormat fmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "", "");
-Eigen::IOFormat pyfmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "[", "]");
-
-typedef Eigen::AngleAxis<FCL_REAL> AngleAxis;
-//static const Vec3f UnitX (1, 0, 0);
-//static const Vec3f UnitY (0, 1, 0);
-static const Vec3f UnitZ (0, 0, 1);
-
-
-namespace hpp {
-namespace fcl {
-std::ostream& operator<< (std::ostream& os, const Transform3f& tf)
-{
-  return os << "[ " <<
-    tf.getTranslation().format(fmt)
-    << ", "
-    << tf.getQuatRotation().coeffs().format(fmt)
-    << " ]" ;
-}
-}
-}
-
 #define BOOST_CHECK_FALSE(p) BOOST_CHECK(!(p))
 
 template <typename S1, typename S2>
