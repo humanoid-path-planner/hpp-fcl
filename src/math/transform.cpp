@@ -55,12 +55,6 @@ const Matrix3f& Transform3f::getRotationInternal() const
   return R;
 }
 
-Transform3f inverse(const Transform3f& tf)
-{
-  Transform3f res(tf);
-  return res.inverse();
-}
-
 void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
                        Transform3f& tf)
 {

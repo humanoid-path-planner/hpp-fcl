@@ -204,12 +204,18 @@ public:
   }
 
   /// @brief inverse transform
-  inline Transform3f& inverse()
+  inline Transform3f& inverseInPlace()
   {
     matrix_set = false;
     q = q.conjugate();
     T = q * (-T);
     return *this;
+  }
+
+  /// @brief inverse transform
+  inline Transform3f inverse()
+  {
+    return Transform3f (R.transpose(), - R.transpose() * T);
   }
 
   /// @brief inverse the transform and multiply with another
