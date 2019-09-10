@@ -82,7 +82,16 @@ BVHModelBase::BVHModelBase(const BVHModelBase& other) :
 void BVHModelBase::buildConvexRepresentation(bool share_memory)
 {
   if (!convex) {
-    convex.reset(new Convex<Triangle>(!share_memory, vertices, num_vertices, tri_indices, num_vertices));
+    Vec3f* points = vertices;
+    Triangle* polygons = tri_indices;
+    if (!share_memory) {
+      points = new Vec3f[num_vertices];
+      memcpy(points, vertices, sizeof(Vec3f) * num_vertices);
+
+      polygons = new Triangle[num_tris];
+      memcpy(polygons, tri_indices, sizeof(Triangle) * num_tris);
+    }
+    convex.reset(new Convex<Triangle>(!share_memory, points, num_vertices, polygons, num_vertices));
   }
 }
 
