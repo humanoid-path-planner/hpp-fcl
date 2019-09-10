@@ -51,6 +51,9 @@ namespace fcl {
   class Transform3f;
 
   class AABB;
+
+  class BVHModelBase;
+  typedef boost::shared_ptr<BVHModelBase> BVHModelPtr_t;
 }
 } // namespace hpp
 
