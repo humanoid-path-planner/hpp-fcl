@@ -53,7 +53,7 @@ using boost::noncopyable;
 void exposeMeshLoader ()
 {
   class_ <MeshLoader> ("MeshLoader", init< optional< NODE_TYPE> >())
-    .def ("load", static_cast <CollisionGeometryPtr_t (MeshLoader::*) (const std::string&, const Vec3f&)> (&MeshLoader::load))
+    .def ("load", static_cast <BVHModelPtr_t (MeshLoader::*) (const std::string&, const Vec3f&)> (&MeshLoader::load))
     ;
 
   class_ <CachedMeshLoader, bases<MeshLoader> > ("CachedMeshLoader", init< optional< NODE_TYPE> >())

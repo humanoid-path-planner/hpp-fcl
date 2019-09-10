@@ -47,18 +47,15 @@ using namespace hpp::fcl;
 using boost::shared_ptr;
 using boost::noncopyable;
 
-template <typename BV>
-struct BVHModelWrapper
+struct BVHModelBaseWrapper
 {
-  typedef BVHModel<BV> BVHModel_t;
-
-  static Vec3f vertices (const BVHModel_t& bvh, int i)
+  static Vec3f vertices (const BVHModelBase& bvh, int i)
   {
     if (i >= bvh.num_vertices) throw std::out_of_range("index is out of range");
     return bvh.vertices[i];
   }
 
-  static Triangle tri_indices (const BVHModel_t& bvh, int i)
+  static Triangle tri_indices (const BVHModelBase& bvh, int i)
   {
     if (i >= bvh.num_tris) throw std::out_of_range("index is out of range");
     return bvh.tri_indices[i];
@@ -69,19 +66,10 @@ template <typename BV>
 void exposeBVHModel (const std::string& bvname)
 {
   typedef BVHModel<BV> BVHModel_t;
-  typedef BVHModelWrapper<BV> Wrapper_t;
 
   std::string type = "BVHModel" + bvname;
-  class_ <BVHModel_t, bases<CollisionGeometry>, shared_ptr<BVHModel_t> >
+  class_ <BVHModel_t, bases<BVHModelBase>, shared_ptr<BVHModel_t> >
     (type.c_str(), init<>())
-    .def ("vertices", &Wrapper_t::vertices)
-    .def ("tri_indices", &Wrapper_t::tri_indices)
-    .def_readonly ("num_vertices", &BVHModel_t::num_vertices)
-    .def_readonly ("num_tris", &BVHModel_t::num_tris)
-
-    .def_readonly ("convex", &BVHModel_t::convex)
-
-    .def ("buildConvexRepresentation", &BVHModel_t::buildConvexRepresentation)
     ;
 }
 
@@ -236,6 +224,17 @@ void exposeCollisionGeometries ()
 
   exposeShapes();
 
+  class_ <BVHModelBase, bases<CollisionGeometry>, BVHModelPtr_t, noncopyable>
+    ("BVHModelBase", no_init)
+    .def ("vertices", &BVHModelBaseWrapper::vertices)
+    .def ("tri_indices", &BVHModelBaseWrapper::tri_indices)
+    .def_readonly ("num_vertices", &BVHModelBase::num_vertices)
+    .def_readonly ("num_tris", &BVHModelBase::num_tris)
+
+    .def_readonly ("convex", &BVHModelBase::convex)
+
+    .def ("buildConvexRepresentation", &BVHModelBase::buildConvexRepresentation)
+    ;
   exposeBVHModel<OBB    >("OBB"    );
   exposeBVHModel<OBBRSS >("OBBRSS" );
 }
