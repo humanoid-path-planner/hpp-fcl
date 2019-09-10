@@ -53,14 +53,14 @@ namespace fcl {
   }
 
   template <typename BV>
-  CollisionGeometryPtr_t _load (const std::string& filename, const Vec3f& scale)
+  BVHModelPtr_t _load (const std::string& filename, const Vec3f& scale)
   {
     boost::shared_ptr < BVHModel<BV> > polyhedron (new BVHModel<BV>);
     loadPolyhedronFromResource (filename, scale, polyhedron);
     return polyhedron;
   }
 
-  CollisionGeometryPtr_t MeshLoader::load (const std::string& filename,
+  BVHModelPtr_t MeshLoader::load (const std::string& filename,
       const Vec3f& scale)
   {
     switch (bvType_) {
@@ -77,13 +77,13 @@ namespace fcl {
     }
   }
 
-  CollisionGeometryPtr_t CachedMeshLoader::load (const std::string& filename,
+  BVHModelPtr_t CachedMeshLoader::load (const std::string& filename,
       const Vec3f& scale)
   {
     Key key (filename, scale);
     Cache_t::const_iterator _cached = cache_.find (key);
     if (_cached == cache_.end()) {
-      CollisionGeometryPtr_t geom = MeshLoader::load (filename, scale);
+      BVHModelPtr_t geom = MeshLoader::load (filename, scale);
       cache_.insert (std::make_pair(key, geom));
       return geom;
     } else {
