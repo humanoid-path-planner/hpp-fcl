@@ -13,8 +13,9 @@ macro(add_fcl_test test_name)
   target_link_libraries(${test_name}
     hpp-fcl
     ${Boost_LIBRARIES}
+    utility
     )
-  target_link_libraries(${test_name} utility)
+  PKG_CONFIG_USE_DEPENDENCY(${test_name} assimp)
   add_test(${test_name} ${EXECUTABLE_OUTPUT_PATH}/${test_name})
 endmacro(add_fcl_test)
 
