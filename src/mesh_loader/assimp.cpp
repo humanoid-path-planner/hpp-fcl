@@ -58,18 +58,10 @@ namespace fcl
 namespace internal
 {
 
-Loader::Loader () : scene (NULL) {}
-
-Loader::~Loader ()
+Loader::Loader () : importer (new Assimp::Importer())
 {
- if (scene) delete scene;
-}
-
-void Loader::load (const std::string & resource_path)
-{
-  Assimp::Importer importer;
   // set list of ignored parameters (parameters used for rendering)
-  importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
+  importer->SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
       aiComponent_TANGENTS_AND_BITANGENTS|
       aiComponent_COLORS |
       aiComponent_BONEWEIGHTS |
@@ -82,7 +74,16 @@ void Loader::load (const std::string & resource_path)
       aiComponent_NORMALS
       );
 
-  importer.ReadFile(resource_path.c_str(),
+}
+
+Loader::~Loader ()
+{
+ if (importer) delete importer;
+}
+
+void Loader::load (const std::string & resource_path)
+{
+  scene = importer->ReadFile(resource_path.c_str(),
       aiProcess_SortByPType |
       aiProcess_Triangulate |
       aiProcess_RemoveComponent |
@@ -94,11 +95,10 @@ void Loader::load (const std::string & resource_path)
       aiProcess_JoinIdenticalVertices
       );
 
-  scene = importer.GetOrphanedScene();
   if (!scene)
   {
     const std::string exception_message (std::string ("Could not load resource ") + resource_path + std::string("\n") +
-                                         importer.GetErrorString () + std::string("\n") +
+                                         importer->GetErrorString () + std::string("\n") +
                                          "Hint: the mesh directory may be wrong.");
     throw std::invalid_argument(exception_message);
   }
