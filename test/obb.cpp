@@ -1321,7 +1321,7 @@ BenchmarkResult benchmark_obb_case (
   return result;
 }
 
-std::size_t obb_overlap_and_lower_bound_distance()
+std::size_t obb_overlap_and_lower_bound_distance(std::ostream* output)
 {
   std::size_t nbFailure = 0;
 
@@ -1336,8 +1336,7 @@ std::size_t obb_overlap_and_lower_bound_distance()
   static const size_t nbRunForTimeMeas  = 1000;
   static const FCL_REAL extentNorm = 1.;
 
-  std::ostream& output = std::cout;
-  output << BenchmarkResult::headers << '\n';
+  if (output != NULL) *output << BenchmarkResult::headers << '\n';
   
   BenchmarkResult result;
   for (std::size_t iobb = 0; iobb < nbRandomOBB; ++iobb) {
@@ -1345,15 +1344,21 @@ std::size_t obb_overlap_and_lower_bound_distance()
     for (std::size_t itf = 0; itf < nbTransformPerOBB; ++itf) {
       randomTransform (B, T, a, b, extentNorm);
       result = benchmark_obb_case (B, T, a, b, request, nbRunForTimeMeas);
-      output << result << '\n';
+      if (output != NULL) *output << result << '\n';
       if (result.failure) nbFailure++;
     }
   }
   return nbFailure;
 }
 
-int main ()
+int main (int argc, char** argv)
 {
+  std::ostream* output = NULL;
+  if (argc > 1 && strcmp(argv[1], "--generate-output") == 0)
+  {
+    output = &std::cout;
+  }
+
   bool cpuScalingEnabled = checkCpuScalingEnabled();
   if (cpuScalingEnabled)
     std::cerr <<
@@ -1365,7 +1370,7 @@ int main ()
       "\n"
       ;
 
-  std::size_t nbFailure = obb_overlap_and_lower_bound_distance();
+  std::size_t nbFailure = obb_overlap_and_lower_bound_distance(output);
   if (nbFailure > INT_MAX) return INT_MAX;
   return (int)nbFailure;
 }

@@ -92,6 +92,12 @@ private:
 #endif
 };
 
+extern const Eigen::IOFormat vfmt;
+extern const Eigen::IOFormat pyfmt;
+typedef Eigen::AngleAxis<FCL_REAL> AngleAxis;
+extern const Vec3f UnitX;
+extern const Vec3f UnitY;
+extern const Vec3f UnitZ;
 
 /// @brief Load an obj mesh file
 void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles);
@@ -175,6 +181,8 @@ std::string getNodeTypeName(NODE_TYPE node_type);
 std::string getGJKSolverName(GJKSolverType solver_type);
 
 Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z);
+
+std::ostream& operator<< (std::ostream& os, const Transform3f& tf);
 
 }
 

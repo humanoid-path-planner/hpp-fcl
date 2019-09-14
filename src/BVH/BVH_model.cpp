@@ -764,8 +764,14 @@ int BVHModel<BV>::refitTree(bool bottomup)
 template<typename BV>
 int BVHModel<BV>::refitTree_bottomup()
 {
+  // TODO the recomputation of the BV is done manually, without using
+  // bv_fitter. The manual BV recomputation seems bugged. Using bv_fitter
+  // seems to correct the bug.
+  //bv_fitter->set(vertices, tri_indices, getModelType());
+
   int res = recursiveRefitTree_bottomup(0);
 
+  //bv_fitter->clear();
   return res;
 }
 
@@ -812,6 +818,9 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
       }
       else
       {
+        //TODO use bv_fitter to build BV. See comment in refitTree_bottomup
+        //unsigned int* cur_primitive_indices = primitive_indices + bvnode->first_primitive;
+        //bv = bv_fitter->fit(cur_primitive_indices, bvnode->num_primitives);
         Vec3f v[3];
         for(int i = 0; i < 3; ++i)
         {
@@ -834,6 +843,9 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
     recursiveRefitTree_bottomup(bvnode->leftChild());
     recursiveRefitTree_bottomup(bvnode->rightChild());
     bvnode->bv = bvs[bvnode->leftChild()].bv + bvs[bvnode->rightChild()].bv;
+    //TODO use bv_fitter to build BV. See comment in refitTree_bottomup
+    //unsigned int* cur_primitive_indices = primitive_indices + bvnode->first_primitive;
+    //bvnode->bv = bv_fitter->fit(cur_primitive_indices, bvnode->num_primitives);
   }
 
   return BVH_OK;
