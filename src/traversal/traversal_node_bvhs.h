@@ -157,7 +157,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int b2) const
+  bool BVDisjoints(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -171,7 +171,7 @@ public:
   /// \param b1, b2 Bounding volumes to test,
   /// \retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
-  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -271,7 +271,7 @@ typedef MeshCollisionTraversalNode<OBBRSS, 0> MeshCollisionTraversalNodeOBBRSS;
 
 namespace details
 {
-  template<typename BV> struct DistanceTraversalBVTesting_impl
+  template<typename BV> struct DistanceTraversalBVDistanceLowerBound_impl
   {
     static FCL_REAL run(const BVNode<BV>& b1, const BVNode<BV>& b2)
     {
@@ -279,7 +279,7 @@ namespace details
     }
   };
 
-  template<> struct DistanceTraversalBVTesting_impl<OBB>
+  template<> struct DistanceTraversalBVDistanceLowerBound_impl<OBB>
   {
     static FCL_REAL run(const BVNode<OBB>& b1, const BVNode<OBB>& b2)
     {
@@ -361,10 +361,10 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
   {
     if(enable_statistics) num_bv_tests++;
-    return details::DistanceTraversalBVTesting_impl<BV>
+    return details::DistanceTraversalBVDistanceLowerBound_impl<BV>
       ::run (model1->getBV(b1), model2->getBV(b2));
   }
 
@@ -457,7 +457,7 @@ public:
 
   void postprocess();
 
-  FCL_REAL BVTesting(int b1, int b2) const;
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 
@@ -475,7 +475,7 @@ public:
   
   void postprocess();
 
-  FCL_REAL BVTesting(int b1, int b2) const;
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 
@@ -492,9 +492,9 @@ public:
 
   void postprocess();
 
-  FCL_REAL BVTesting(int b1, int b2) const;
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
 
-  FCL_REAL BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
+  FCL_REAL BVDistanceLowerBound(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
 
   void leafTesting(int b1, int b2) const;
 

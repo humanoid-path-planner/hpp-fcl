@@ -67,13 +67,13 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     throw std::runtime_error ("Not implemented");
   }
@@ -128,7 +128,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDistanceLowerBound(int, int) const
   {
     return -1; // should not be used 
   }

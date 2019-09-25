@@ -166,7 +166,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int /*b2*/) const
+  bool BVDisjoints(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -180,7 +180,7 @@ public:
   /// \retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
+  bool BVDisjoints(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     bool res;
@@ -327,7 +327,7 @@ public:
 
   /// BV test between b1 and b2
   /// \param b2 Bounding volumes to test,
-  bool BVTesting(int /*b1*/, int b2) const
+  bool BVDisjoints(int /*b1*/, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -340,7 +340,7 @@ public:
   /// \param b2 Bounding volumes to test,
   /// \retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
-  bool BVTesting(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
+  bool BVDisjoints(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     bool res;
@@ -493,7 +493,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int b1, int /*b2*/) const
+  FCL_REAL BVDistanceLowerBound(int b1, int /*b2*/) const
   {
     return model1->getBV(b1).bv.distance(model2_bv);
   }
@@ -541,7 +541,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
   {
     return model1_bv.distance(model2->getBV(b2).bv);
   }
@@ -700,7 +700,7 @@ public:
   {
   }
 
-  FCL_REAL BVTesting(int b1, int /*b2*/) const
+  FCL_REAL BVDistanceLowerBound(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -732,7 +732,7 @@ public:
   {    
   }
 
-  FCL_REAL BVTesting(int b1, int /*b2*/) const
+  FCL_REAL BVDistanceLowerBound(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -765,7 +765,7 @@ public:
     
   }
 
-  FCL_REAL BVTesting(int b1, int /*b2*/) const
+  FCL_REAL BVDistanceLowerBound(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -856,7 +856,7 @@ public:
   {
   }
 
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
@@ -888,7 +888,7 @@ public:
   {
   }
 
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
@@ -920,7 +920,7 @@ public:
   {    
   }
 
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);

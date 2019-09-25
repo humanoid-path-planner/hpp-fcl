@@ -903,12 +903,12 @@ public:
     otsolver = NULL;
   }
 
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     return false;
   }
@@ -940,12 +940,12 @@ public:
   }
 
 
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDistanceLowerBound(int, int) const
   {
     return -1;
   }
 
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDistanceLowerBound(int, int, FCL_REAL&) const
   {
     return false;
   }
@@ -975,12 +975,12 @@ public:
     otsolver = NULL;
   }
 
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     return false;
   }
@@ -1012,12 +1012,12 @@ public:
     otsolver = NULL;
   }
 
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
-  bool BVTesting(int, int, fcl::FCL_REAL&) const
+  bool BVDisjoints(int, int, fcl::FCL_REAL&) const
   {
     return false;
   }
@@ -1048,7 +1048,7 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDistanceLowerBound(int, int) const
   {
     return -1;
   }
@@ -1077,7 +1077,7 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDistanceLowerBound(int, int) const
   {
     return -1;
   }
@@ -1107,12 +1107,12 @@ public:
     otsolver = NULL;
   }
 
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     return false;
   }
@@ -1144,12 +1144,12 @@ public:
     otsolver = NULL;
   }
 
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     return false;
   }
@@ -1180,7 +1180,7 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDistanceLowerBound(int, int) const
   {
     return -1;
   }
@@ -1210,7 +1210,7 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDistanceLowerBound(int, int) const
   {
     return -1;
   }
