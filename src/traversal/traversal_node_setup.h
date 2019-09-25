@@ -342,52 +342,6 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, GJKSolver>& node,
   return true;
 }
 
-
-/// @brief Initialize traversal node for collision between one mesh and one shape, given current object transform
-template<typename S, typename BV, typename GJKSolver>
-bool initialize(ShapeMeshCollisionTraversalNode<S, BV, GJKSolver>& node,
-                const S& model1, const Transform3f& tf1,
-                BVHModel<BV>& model2, Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result,
-                bool use_refit = false, bool refit_bottomup = false)
-{
-  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
-
-  if(!tf2.isIdentity())
-  {
-    std::vector<Vec3f> vertices_transformed(model2.num_vertices);
-    for(int i = 0; i < model2.num_vertices; ++i)
-    {
-      Vec3f& p = model2.vertices[i];
-      Vec3f new_v = tf2.transform(p);
-      vertices_transformed[i] = new_v;
-    }
-
-    model2.beginReplaceModel();
-    model2.replaceSubModel(vertices_transformed);
-    model2.endReplaceModel(use_refit, refit_bottomup);
-
-    tf2.setIdentity();
-  }
-
-  node.model1 = &model1;
-  node.tf1 = tf1;
-  node.model2 = &model2;
-  node.tf2 = tf2;
-  node.nsolver = nsolver;
-
-  computeBV(model1, tf1, node.model1_bv);
-
-  node.vertices = model2.vertices;
-  node.tri_indices = model2.tri_indices;
-
-  node.result = &result;
-
-  return true;
-}
-
 /// @cond IGNORE
 namespace details
 {
@@ -498,52 +452,6 @@ static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S, GJKSolver
 }
 }
 /// @endcond
-
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBB type
-template<typename S, typename GJKSolver>
-bool initialize(ShapeMeshCollisionTraversalNodeOBB<S, GJKSolver>& node,
-                const S& model1, const Transform3f& tf1,
-                const BVHModel<OBB>& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result)
-{
-  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
-}
-
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type
-template<typename S, typename GJKSolver>
-bool initialize(ShapeMeshCollisionTraversalNodeRSS<S, GJKSolver>& node,
-                const S& model1, const Transform3f& tf1,
-                const BVHModel<RSS>& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result)
-{
-  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
-}
-
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type
-template<typename S, typename GJKSolver>
-bool initialize(ShapeMeshCollisionTraversalNodekIOS<S, GJKSolver>& node,
-                const S& model1, const Transform3f& tf1,
-                const BVHModel<kIOS>& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result)
-{
-  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
-}
-
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type
-template<typename S, typename GJKSolver>
-bool initialize(ShapeMeshCollisionTraversalNodeOBBRSS<S, GJKSolver>& node,
-                const S& model1, const Transform3f& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result)
-{
-  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
-}
-
-
 
 
 /// @brief Initialize traversal node for collision between two meshes, given the current transforms
