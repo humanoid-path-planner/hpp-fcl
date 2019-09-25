@@ -79,7 +79,7 @@ public:
   }
 
   /// @brief Intersection testing between leaves (two shapes)
-  void leafTesting(int, int, FCL_REAL&) const
+  void leafCollides(int, int, FCL_REAL&) const
   {
     bool is_collision = false;
     if(request.enable_contact)
@@ -134,7 +134,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (two shapes)
-  void leafTesting(int, int) const
+  void leafComputeDistance(int, int) const
   {
     FCL_REAL distance;
     Vec3f closest_p1, closest_p2, normal;

@@ -195,7 +195,7 @@ public:
   }
 
   /// @brief Intersection testing between leaves (one triangle and one shape)
-  void leafTesting(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
+  void leafCollides(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     const BVNode<BV>& node = this->model1->getBV(b1);
@@ -355,7 +355,7 @@ public:
   }
 
   /// @brief Intersection testing between leaves (one shape and one triangle)
-  void leafTesting(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
+  void leafCollides(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     const BVNode<BV>& node = this->model2->getBV(b2);
@@ -573,7 +573,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (one triangle and one shape)
-  void leafTesting(int b1, int /*b2*/) const
+  void leafComputeDistance(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     
@@ -620,7 +620,7 @@ namespace details
 {
 
 template<typename BV, typename S, typename GJKSolver>
-void meshShapeDistanceOrientedNodeLeafTesting(int b1, int /* b2 */,
+void meshShapeDistanceOrientedNodeleafComputeDistance(int b1, int /* b2 */,
                                               const BVHModel<BV>* model1, const S& model2,
                                               Vec3f* vertices, Triangle* tri_indices,
                                               const Transform3f& tf1,
@@ -706,9 +706,9 @@ public:
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafComputeDistance(int b1, int b2) const
   {
-    details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+    details::meshShapeDistanceOrientedNodeleafComputeDistance(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
 };
@@ -738,9 +738,9 @@ public:
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafComputeDistance(int b1, int b2) const
   {
-    details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+    details::meshShapeDistanceOrientedNodeleafComputeDistance(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
 
@@ -771,9 +771,9 @@ public:
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafComputeDistance(int b1, int b2) const
   {
-    details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+    details::meshShapeDistanceOrientedNodeleafComputeDistance(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
   
@@ -796,7 +796,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (one shape and one triangle)
-  void leafTesting(int b1, int b2) const
+  void leafComputeDistance(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     
@@ -862,9 +862,9 @@ public:
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafComputeDistance(int b1, int b2) const
   {
-    details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
+    details::meshShapeDistanceOrientedNodeleafComputeDistance(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
 
@@ -894,9 +894,9 @@ public:
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafComputeDistance(int b1, int b2) const
   {
-    details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
+    details::meshShapeDistanceOrientedNodeleafComputeDistance(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
   
@@ -926,9 +926,9 @@ public:
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafTesting(int b1, int b2) const
+  void leafComputeDistance(int b1, int b2) const
   {
-    details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
+    details::meshShapeDistanceOrientedNodeleafComputeDistance(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
   

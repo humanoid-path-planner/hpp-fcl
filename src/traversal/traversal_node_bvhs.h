@@ -200,7 +200,7 @@ public:
   /// \note If the distance between objects is less than the security margin,
   ///       and the object are not colliding, the penetration depth is
   ///       negative.
-  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  void leafCollides(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 
@@ -397,7 +397,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (two triangles)
-  void leafTesting(int b1, int b2) const
+  void leafComputeDistance(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 
@@ -459,7 +459,7 @@ public:
 
   FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
 
-  void leafTesting(int b1, int b2) const;
+  void leafComputeDistance(int b1, int b2) const;
 
   Matrix3f R;
   Vec3f T;
@@ -477,7 +477,7 @@ public:
 
   FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
 
-  void leafTesting(int b1, int b2) const;
+  void leafComputeDistance(int b1, int b2) const;
 
   Matrix3f R;
   Vec3f T;
@@ -496,7 +496,7 @@ public:
 
   FCL_REAL BVDistanceLowerBound(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
 
-  void leafTesting(int b1, int b2) const;
+  void leafComputeDistance(int b1, int b2) const;
 
   Matrix3f R;
   Vec3f T;

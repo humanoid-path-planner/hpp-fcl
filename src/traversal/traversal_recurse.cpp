@@ -55,7 +55,7 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
     updateFrontList(front_list, b1, b2);
 
     if(node->BVDisjoints(b1, b2, sqrDistLowerBound)) return;
-    node->leafTesting(b1, b2, sqrDistLowerBound);
+    node->leafCollides(b1, b2, sqrDistLowerBound);
     return;
   }
 
@@ -122,7 +122,7 @@ void collisionNonRecurse(CollisionTraversalNodeBase* node,
         //if (sdlb < sqrDistLowerBound) sqrDistLowerBound = sdlb;
         //continue;
       //}
-      node->leafTesting(a, b, sdlb);
+      node->leafCollides(a, b, sdlb);
       if (sdlb < sqrDistLowerBound) sqrDistLowerBound = sdlb;
       if (node->canStop() && !front_list) return;
       continue;
@@ -169,7 +169,7 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
   {
     updateFrontList(front_list, b1, b2);
 
-    node->leafTesting(b1, b2);
+    node->leafComputeDistance(b1, b2);
     return;
   }
 
@@ -298,7 +298,7 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
     {
       updateFrontList(front_list, min_test.b1, min_test.b2);
 
-      node->leafTesting(min_test.b1, min_test.b2);
+      node->leafComputeDistance(min_test.b1, min_test.b2);
     }
     else if(bvtq.full())
     {

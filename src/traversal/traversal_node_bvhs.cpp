@@ -46,7 +46,7 @@ namespace fcl
 namespace details
 {
 template<typename BV>
-static inline void meshDistanceOrientedNodeleafTesting(int b1, int b2,
+static inline void meshDistanceOrientedNodeleafComputeDistance(int b1, int b2,
                                                        const BVHModel<BV>* model1, const BVHModel<BV>* model2,
                                                        Vec3f* vertices1, Vec3f* vertices2, 
                                                        Triangle* tri_indices1, Triangle* tri_indices2,
@@ -158,9 +158,9 @@ FCL_REAL MeshDistanceTraversalNodeRSS::BVDistanceLowerBound(int b1, int b2) cons
   return distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-void MeshDistanceTraversalNodeRSS::leafTesting(int b1, int b2) const
+void MeshDistanceTraversalNodeRSS::leafComputeDistance(int b1, int b2) const
 {
-  details::meshDistanceOrientedNodeleafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+  details::meshDistanceOrientedNodeleafComputeDistance(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
                                                R, T, enable_statistics, num_leaf_tests, 
                                                request, *result);
 }
@@ -186,9 +186,9 @@ FCL_REAL MeshDistanceTraversalNodekIOS::BVDistanceLowerBound(int b1, int b2) con
   return distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-void MeshDistanceTraversalNodekIOS::leafTesting(int b1, int b2) const
+void MeshDistanceTraversalNodekIOS::leafComputeDistance(int b1, int b2) const
 {
-  details::meshDistanceOrientedNodeleafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+  details::meshDistanceOrientedNodeleafComputeDistance(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
                                                R, T, enable_statistics, num_leaf_tests, 
                                                request, *result);
 }
@@ -214,9 +214,9 @@ FCL_REAL MeshDistanceTraversalNodeOBBRSS::BVDistanceLowerBound(int b1, int b2) c
   return distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
 }
 
-void MeshDistanceTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
+void MeshDistanceTraversalNodeOBBRSS::leafComputeDistance(int b1, int b2) const
 {
-  details::meshDistanceOrientedNodeleafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+  details::meshDistanceOrientedNodeleafComputeDistance(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
                                                R, T, enable_statistics, num_leaf_tests, 
                                                request, *result);
 }
