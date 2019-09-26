@@ -41,8 +41,8 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/BV_node.h>
-#include <hpp/fcl/BVH/BV_splitter.h>
-#include <hpp/fcl/BVH/BV_fitter.h>
+#include "../../src/BVH/BV_splitter.h"
+#include "../../src/BVH/BV_fitter.h"
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>

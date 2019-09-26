@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BVH/BV_fitter.h>
+#include "BV_fitter.h"
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <limits>
 #include "../math/tools.h"
