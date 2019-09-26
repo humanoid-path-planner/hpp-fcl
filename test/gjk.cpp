@@ -43,7 +43,7 @@
 
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/math/tools.h>
+#include "../src/math/tools.h"
 
 using hpp::fcl::GJKSolver;
 using hpp::fcl::TriangleP;

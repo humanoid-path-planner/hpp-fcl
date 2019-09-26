@@ -111,8 +111,8 @@ public:
     return overlap (other);
   }
 
-  //// @brief Check whether one point is inside the KDOP
-  bool inside(const Vec3f& p) const;
+    /// @brief The distance between two KDOP<N>. Not implemented.
+  FCL_REAL distance(const KDOP<N>& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
   /// @brief Merge the point and the KDOP
   KDOP<N>& operator += (const Vec3f& p);
@@ -122,6 +122,19 @@ public:
 
   /// @brief Create a KDOP by mergin two KDOPs
   KDOP<N> operator + (const KDOP<N>& other) const;
+
+   /// @brief Size of the kDOP (used in BV_Splitter to order two kDOPs)
+  inline FCL_REAL size() const
+  {
+    return width() * width() + height() * height() + depth() * depth();
+  }
+
+  /// @brief The (AABB) center
+  inline Vec3f center() const
+  {
+    return Vec3f(dist_[0] + dist_[N / 2], dist_[1] + dist_[N / 2 + 1], dist_[2] + dist_[N / 2 + 2]) * 0.5;
+  }
+
 
   /// @brief The (AABB) width
   inline FCL_REAL width() const
@@ -147,21 +160,6 @@ public:
     return width() * height() * depth();
   }
 
-  /// @brief Size of the kDOP (used in BV_Splitter to order two kDOPs)
-  inline FCL_REAL size() const
-  {
-    return width() * width() + height() * height() + depth() * depth();
-  }
-
-  /// @brief The (AABB) center
-  inline Vec3f center() const
-  {
-    return Vec3f(dist_[0] + dist_[N / 2], dist_[1] + dist_[N / 2 + 1], dist_[2] + dist_[N / 2 + 2]) * 0.5;
-  }
-
-  /// @brief The distance between two KDOP<N>. Not implemented.
-  FCL_REAL distance(const KDOP<N>& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
-
   inline FCL_REAL dist(std::size_t i) const
   {
     return dist_[i];
@@ -172,6 +170,8 @@ public:
     return dist_[i];
   }
 
+  //// @brief Check whether one point is inside the KDOP
+  bool inside(const Vec3f& p) const;
 
 };
 

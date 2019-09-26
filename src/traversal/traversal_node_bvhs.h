@@ -40,14 +40,14 @@
 #define HPP_FCL_TRAVERSAL_NODE_MESHES_H
 
 #include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/traversal/traversal_node_base.h>
+#include "traversal_node_base.h"
 #include <hpp/fcl/BV/BV_node.h>
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/intersect.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/traversal/details/traversal.h>
+#include "details/traversal.h"
 
 #include <boost/shared_array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -157,7 +157,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int b2) const
+  bool BVDisjoints(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -171,7 +171,7 @@ public:
   /// \param b1, b2 Bounding volumes to test,
   /// \retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
-  bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -200,7 +200,7 @@ public:
   /// \note If the distance between objects is less than the security margin,
   ///       and the object are not colliding, the penetration depth is
   ///       negative.
-  void leafTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  void leafCollides(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 
@@ -271,7 +271,7 @@ typedef MeshCollisionTraversalNode<OBBRSS, 0> MeshCollisionTraversalNodeOBBRSS;
 
 namespace details
 {
-  template<typename BV> struct DistanceTraversalBVTesting_impl
+  template<typename BV> struct DistanceTraversalBVDistanceLowerBound_impl
   {
     static FCL_REAL run(const BVNode<BV>& b1, const BVNode<BV>& b2)
     {
@@ -279,7 +279,7 @@ namespace details
     }
   };
 
-  template<> struct DistanceTraversalBVTesting_impl<OBB>
+  template<> struct DistanceTraversalBVDistanceLowerBound_impl<OBB>
   {
     static FCL_REAL run(const BVNode<OBB>& b1, const BVNode<OBB>& b2)
     {
@@ -361,10 +361,10 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
   {
     if(enable_statistics) num_bv_tests++;
-    return details::DistanceTraversalBVTesting_impl<BV>
+    return details::DistanceTraversalBVDistanceLowerBound_impl<BV>
       ::run (model1->getBV(b1), model2->getBV(b2));
   }
 
@@ -397,7 +397,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (two triangles)
-  void leafTesting(int b1, int b2) const
+  void leafComputeDistance(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 
@@ -457,9 +457,9 @@ public:
 
   void postprocess();
 
-  FCL_REAL BVTesting(int b1, int b2) const;
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
 
-  void leafTesting(int b1, int b2) const;
+  void leafComputeDistance(int b1, int b2) const;
 
   Matrix3f R;
   Vec3f T;
@@ -475,9 +475,9 @@ public:
   
   void postprocess();
 
-  FCL_REAL BVTesting(int b1, int b2) const;
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
 
-  void leafTesting(int b1, int b2) const;
+  void leafComputeDistance(int b1, int b2) const;
 
   Matrix3f R;
   Vec3f T;
@@ -492,11 +492,11 @@ public:
 
   void postprocess();
 
-  FCL_REAL BVTesting(int b1, int b2) const;
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
 
-  FCL_REAL BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
+  FCL_REAL BVDistanceLowerBound(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
 
-  void leafTesting(int b1, int b2) const;
+  void leafComputeDistance(int b1, int b2) const;
 
   Matrix3f R;
   Vec3f T;

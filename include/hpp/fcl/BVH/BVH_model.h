@@ -77,10 +77,10 @@ public:
   BVHBuildState build_state;
 
   /// @brief Split rule to split one BV node into two children
-  boost::shared_ptr<BVSplitterBase<BV> > bv_splitter;
+  boost::shared_ptr<BVSplitter<BV> > bv_splitter;
 
   /// @brief Fitting rule to fit a BV node to a set of geometry primitives
-  boost::shared_ptr<BVFitterBase<BV> > bv_fitter;
+  boost::shared_ptr<BVFitterTpl<BV> > bv_fitter;
   
   /// @brief Model type described by the instance
   BVHModelType getModelType() const

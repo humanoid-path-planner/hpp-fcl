@@ -37,7 +37,7 @@
 
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/intersect.h>
-#include <hpp/fcl/math/tools.h>
+#include "../math/tools.h"
 
 namespace hpp
 {

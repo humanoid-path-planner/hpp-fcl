@@ -40,7 +40,7 @@
 #include <limits>
 #include <vector>
 #include <boost/math/special_functions/fpclassify.hpp>
-#include <hpp/fcl/math/tools.h>
+#include "math/tools.h"
 
 namespace hpp
 {

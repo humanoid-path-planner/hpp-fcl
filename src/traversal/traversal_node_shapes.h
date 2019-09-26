@@ -40,7 +40,7 @@
 #define HPP_FCL_TRAVERSAL_NODE_SHAPES_H
 
 #include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/traversal/traversal_node_base.h>
+#include "traversal_node_base.h"
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/BV/BV.h>
@@ -53,7 +53,7 @@ namespace fcl
 
 
 /// @brief Traversal node for collision between two shapes
-template<typename S1, typename S2, typename NarrowPhaseSolver>
+template<typename S1, typename S2, typename GJKSolver>
 class ShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -67,19 +67,19 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int, int) const
+  bool BVDisjoints(int, int) const
   {
     return false;
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int, int, FCL_REAL&) const
+  bool BVDisjoints(int, int, FCL_REAL&) const
   {
     throw std::runtime_error ("Not implemented");
   }
 
   /// @brief Intersection testing between leaves (two shapes)
-  void leafTesting(int, int, FCL_REAL&) const
+  void leafCollides(int, int, FCL_REAL&) const
   {
     bool is_collision = false;
     if(request.enable_contact)
@@ -111,11 +111,11 @@ public:
   const S1* model1;
   const S2* model2;
 
-  const NarrowPhaseSolver* nsolver;
+  const GJKSolver* nsolver;
 };
 
 /// @brief Traversal node for distance between two shapes
-template<typename S1, typename S2, typename NarrowPhaseSolver>
+template<typename S1, typename S2, typename GJKSolver>
 class ShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -128,13 +128,13 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int, int) const
+  FCL_REAL BVDistanceLowerBound(int, int) const
   {
     return -1; // should not be used 
   }
 
   /// @brief Distance testing between leaves (two shapes)
-  void leafTesting(int, int) const
+  void leafComputeDistance(int, int) const
   {
     FCL_REAL distance;
     Vec3f closest_p1, closest_p2, normal;
@@ -147,7 +147,7 @@ public:
   const S1* model1;
   const S2* model2;
 
-  const NarrowPhaseSolver* nsolver;
+  const GJKSolver* nsolver;
 };
 }
 

@@ -54,9 +54,9 @@ CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
   return table;
 }
 
-template<typename NarrowPhaseSolver>
+template<typename GJKSolver>
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
-                    const NarrowPhaseSolver* nsolver,
+                    const GJKSolver* nsolver,
                     const CollisionRequest& request,
                     CollisionResult& result)
 {
@@ -81,18 +81,18 @@ void invertResults(CollisionResult& result)
     }
 }
 
-template<typename NarrowPhaseSolver>
+template<typename GJKSolver>
 std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                     const CollisionGeometry* o2, const Transform3f& tf2,
-                    const NarrowPhaseSolver* nsolver_,
+                    const GJKSolver* nsolver_,
                     const CollisionRequest& request,
                     CollisionResult& result)
 {
-  const NarrowPhaseSolver* nsolver = nsolver_;
+  const GJKSolver* nsolver = nsolver_;
   if(!nsolver_)
-    nsolver = new NarrowPhaseSolver();  
+    nsolver = new GJKSolver();  
 
-  const CollisionFunctionMatrix<NarrowPhaseSolver>& looktable = getCollisionFunctionLookTable<NarrowPhaseSolver>();
+  const CollisionFunctionMatrix<GJKSolver>& looktable = getCollisionFunctionLookTable<GJKSolver>();
   result.distance_lower_bound = -1;
   std::size_t res; 
   if(request.num_max_contacts == 0)
