@@ -128,10 +128,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/math/types.h
   include/hpp/fcl/math/transform.h
   include/hpp/fcl/data_types.h
-  include/hpp/fcl/BVH/BV_splitter.h
   include/hpp/fcl/BVH/BVH_internal.h
   include/hpp/fcl/BVH/BVH_model.h
-  include/hpp/fcl/BVH/BV_fitter.h
   include/hpp/fcl/BVH/BVH_front.h
   include/hpp/fcl/BVH/BVH_utility.h
   include/hpp/fcl/intersect.h
