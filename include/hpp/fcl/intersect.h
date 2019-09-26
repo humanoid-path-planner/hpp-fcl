@@ -46,29 +46,6 @@ namespace hpp
 namespace fcl
 {
 
-/// @brief A class solves polynomial degree (1,2,3) equations 
-class PolySolver
-{
-public:
-  /// @brief Solve a linear equation with coefficients c, return roots s and number of roots 
-  static int solveLinear(FCL_REAL c[2], FCL_REAL s[1]);
-
-  /// @brief Solve a quadratic function with coefficients c, return roots s and number of roots 
-  static int solveQuadric(FCL_REAL c[3], FCL_REAL s[2]);
-
-  /// @brief Solve a cubic function with coefficients c, return roots s and number of roots 
-  static int solveCubic(FCL_REAL c[4], FCL_REAL s[3]);
-
-private:
-  /// @brief Check whether v is zero 
-  static inline bool isZero(FCL_REAL v);
-
-  /// @brief Compute v^{1/3} 
-  static inline bool cbrt(FCL_REAL v);
-
-  static const FCL_REAL NEAR_ZERO_THRESHOLD;
-};
-
 /// @brief CCD intersect kernel among primitives
 class Intersect
 {
