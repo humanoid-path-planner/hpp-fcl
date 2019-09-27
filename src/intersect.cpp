@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/intersect.h>
+#include "intersect.h"
 #include <iostream>
 #include <limits>
 #include <vector>
