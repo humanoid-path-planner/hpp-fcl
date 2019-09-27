@@ -60,10 +60,10 @@ public:
   Vec3f Tr;
 
   /// @brief Side lengths of rectangle
-  FCL_REAL l[2];
+  FCL_REAL length[2];
 
   /// @brief Radius of sphere summed with rectangle to form RSS
-  FCL_REAL r;
+  FCL_REAL radius;
 
 
   /// @brief Check whether the RSS contains a point
@@ -101,7 +101,7 @@ public:
   /// @brief Size of the RSS (used in BV_Splitter to order two RSSs)
   inline FCL_REAL size() const
   {
-    return (std::sqrt(l[0] * l[0] + l[1] * l[1]) + 2 * r);
+    return (std::sqrt(length[0] * length[0] + length[1] * length[1]) + 2 * radius);
   }
 
   /// @brief The RSS center
@@ -113,25 +113,25 @@ public:
   /// @brief Width of the RSS
   inline FCL_REAL width() const
   {
-    return l[0] + 2 * r;
+    return length[0] + 2 * radius;
   }
 
   /// @brief Height of the RSS
   inline FCL_REAL height() const
   {
-    return l[1] + 2 * r;
+    return length[1] + 2 * radius;
   }
 
   /// @brief Depth of the RSS
   inline FCL_REAL depth() const
   {
-    return 2 * r;
+    return 2 * radius;
   }
 
   /// @brief Volume of the RSS
   inline FCL_REAL volume() const
   {
-    return (l[0] * l[1] * 2 * r + 4 * boost::math::constants::pi<FCL_REAL>() * r * r * r);
+    return (length[0] * length[1] * 2 * radius + 4 * boost::math::constants::pi<FCL_REAL>() * radius * radius * radius);
   }
 
   /// @brief Check collision between two RSS and return the overlap part.
