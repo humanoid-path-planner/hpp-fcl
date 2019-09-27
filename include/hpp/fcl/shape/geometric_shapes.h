@@ -42,7 +42,7 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/math/types.h>
+#include <hpp/fcl/data_types.h>
 #include <string.h>
 
 namespace hpp

@@ -39,7 +39,7 @@
 #ifndef HPP_FCL_BV_NODE_H
 #define HPP_FCL_BV_NODE_H
 
-#include <hpp/fcl/math/types.h>
+#include <hpp/fcl/data_types.h>
 
 #include <hpp/fcl/BV/BV.h>
 #include <iostream>
