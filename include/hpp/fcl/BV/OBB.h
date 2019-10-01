@@ -38,7 +38,7 @@
 #ifndef HPP_FCL_OBB_H
 #define HPP_FCL_OBB_H
 
-#include <hpp/fcl/math/types.h>
+#include <hpp/fcl/data_types.h>
 
 namespace hpp
 {
@@ -59,9 +59,6 @@ public:
   
   /// @brief Half dimensions of OBB
   Vec3f extent;
-
-
-
 
   /// @brief Check whether the OBB contains a point.
   bool contain(const Vec3f& p) const;

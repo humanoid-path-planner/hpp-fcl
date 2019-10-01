@@ -45,68 +45,6 @@ namespace hpp
 namespace fcl
 {
 
-void BVHExpand(BVHModel<OBB>& model, const Variance3f* ucs, FCL_REAL r = 1.0)
-{
-  for(int i = 0; i < model.getNumBVs(); ++i)
-  {
-    BVNode<OBB>& bvnode = model.getBV(i);
-
-    Vec3f* vs = new Vec3f[bvnode.num_primitives * 6];
-
-    for(int j = 0; j < bvnode.num_primitives; ++j)
-    {
-      int v_id = bvnode.first_primitive + j;
-      const Variance3f& uc = ucs[v_id];
-
-      Vec3f&v = model.vertices[bvnode.first_primitive + j];
-
-      for(int k = 0; k < 3; ++k)
-      {
-        vs[6 * j + 2 * k] = v + uc.axis[k] * (r * uc.sigma[k]);
-        vs[6 * j + 2 * k + 1] = v - uc.axis[k] * (r * uc.sigma[k]);
-      }
-    }
-
-    OBB bv;
-    fit(vs, bvnode.num_primitives * 6, bv);
-
-    delete [] vs;
-
-    bvnode.bv = bv;
-  }
-}
-
-void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r = 1.0)
-{
-  for(int i = 0; i < model.getNumBVs(); ++i)
-  {
-    BVNode<RSS>& bvnode = model.getBV(i);
-
-    Vec3f* vs = new Vec3f[bvnode.num_primitives * 6];
-
-    for(int j = 0; j < bvnode.num_primitives; ++j)
-    {
-      int v_id = bvnode.first_primitive + j;
-      const Variance3f& uc = ucs[v_id];
-
-      Vec3f&v = model.vertices[bvnode.first_primitive + j];
-
-      for(int k = 0; k < 3; ++k)
-      {
-        vs[6 * j + 2 * k] = v + uc.axis[k] * (r * uc.sigma[k]);
-        vs[6 * j + 2 * k + 1] = v - uc.axis[k] * (r * uc.sigma[k]);
-      }
-    }
-
-    RSS bv;
-    fit(vs, bvnode.num_primitives * 6, bv);
-
-    delete [] vs;
-
-    bvnode.bv = bv;
-  }
-}
-
 template<typename BV>
 BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, const AABB& _aabb)
 {

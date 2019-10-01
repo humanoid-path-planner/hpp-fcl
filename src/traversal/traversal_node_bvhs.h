@@ -44,7 +44,7 @@
 #include <hpp/fcl/BV/BV_node.h>
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/intersect.h>
+#include "../intersect.h"
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include "details/traversal.h"

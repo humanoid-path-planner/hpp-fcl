@@ -39,7 +39,7 @@
 #define HPP_FCL_AABB_H
 
 #include <stdexcept>
-#include <hpp/fcl/math/types.h>
+#include <hpp/fcl/data_types.h>
 
 namespace hpp
 {
@@ -81,16 +81,6 @@ public:
   {
   }
 
-
-
-
-
-
-
-
-
-
-//start API in common test
   /// @name Bounding volume API
   /// Common API to BVs.
   /// @{
@@ -189,19 +179,6 @@ public:
   }
 
   /// @}
-//End API in common test
-
-
-
-
-
-
-
-
-
-
-
-
 
   /// @brief Check whether the AABB contains another AABB
   inline bool contain(const AABB& other) const

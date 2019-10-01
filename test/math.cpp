@@ -39,10 +39,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-#include <hpp/fcl/math/types.h>
+#include <hpp/fcl/data_types.h>
 #include <hpp/fcl/math/transform.h>
 
-#include <hpp/fcl/intersect.h>
+#include "../src/intersect.h"
 #include "../src/math/tools.h"
 
 using namespace hpp::fcl;

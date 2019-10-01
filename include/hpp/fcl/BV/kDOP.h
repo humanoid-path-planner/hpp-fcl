@@ -39,7 +39,7 @@
 #define HPP_FCL_KDOP_H
 
 #include <stdexcept>
-#include <hpp/fcl/math/types.h>
+#include <hpp/fcl/data_types.h>
 
 namespace hpp
 {

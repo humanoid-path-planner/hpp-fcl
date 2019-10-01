@@ -54,7 +54,7 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
   {
     updateFrontList(front_list, b1, b2);
 
-    if(node->BVDisjoints(b1, b2, sqrDistLowerBound)) return;
+   // if(node->BVDisjoints(b1, b2, sqrDistLowerBound)) return;
     node->leafCollides(b1, b2, sqrDistLowerBound);
     return;
   }

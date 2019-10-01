@@ -39,7 +39,7 @@
 #ifndef HPP_FCL_COLLISION_H
 #define HPP_FCL_COLLISION_H
 
-#include <hpp/fcl/math/types.h>
+#include <hpp/fcl/data_types.h>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
 

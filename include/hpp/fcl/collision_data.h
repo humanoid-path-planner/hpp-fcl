@@ -41,7 +41,7 @@
 
 #include <hpp/fcl/collision_object.h>
 
-#include <hpp/fcl/math/types.h>
+#include <hpp/fcl/data_types.h>
 #include <vector>
 #include <set>
 #include <limits>

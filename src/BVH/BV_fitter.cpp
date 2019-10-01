@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BVH/BV_fitter.h>
+#include "BV_fitter.h"
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <limits>
 #include "../math/tools.h"
@@ -150,9 +150,9 @@ void fit1(Vec3f* ps, RSS& bv)
 {
   bv.Tr.noalias() = ps[0];
   bv.axes.setIdentity();
-  bv.l[0] = 0;
-  bv.l[1] = 0;
-  bv.r = 0;
+  bv.length[0] = 0;
+  bv.length[1] = 0;
+  bv.radius = 0;
 }
 
 void fit2(Vec3f* ps, RSS& bv)
@@ -164,11 +164,11 @@ void fit2(Vec3f* ps, RSS& bv)
   bv.axes.col(0) /= len_p1p2;
 
   generateCoordinateSystem(bv.axes.col(0), bv.axes.col(1), bv.axes.col(2));
-  bv.l[0] = len_p1p2;
-  bv.l[1] = 0;
+  bv.length[0] = len_p1p2;
+  bv.length[1] = 0;
 
   bv.Tr = p2;
-  bv.r = 0;
+  bv.radius = 0;
 }
 
 void fit3(Vec3f* ps, RSS& bv)
@@ -193,7 +193,7 @@ void fit3(Vec3f* ps, RSS& bv)
   bv.axes.col(0).noalias() = e[imax].normalized();
   bv.axes.col(1).noalias() = bv.axes.col(2).cross(bv.axes.col(0));
 
-  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, 3, bv.axes, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, 3, bv.axes, bv.Tr, bv.length, bv.radius);
 }
 
 void fit6(Vec3f* ps, RSS& bv)
@@ -215,7 +215,7 @@ void fitn(Vec3f* ps, int n, RSS& bv)
   axisFromEigen(E, s, bv.axes);
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, n, bv.axes, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, n, bv.axes, bv.Tr, bv.length, bv.radius);
 }
 
 }
@@ -542,9 +542,9 @@ OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices, int num_primitives
   getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.rss.axes, origin, l, r);
 
   bv.rss.Tr = origin;
-  bv.rss.l[0] = l[0];
-  bv.rss.l[1] = l[1];
-  bv.rss.r = r;
+  bv.rss.length[0] = l[0];
+  bv.rss.length[1] = l[1];
+  bv.rss.radius = r;
 
   return bv;
 }
@@ -568,9 +568,9 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
   getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.axes, origin, l, r);
 
   bv.Tr = origin;
-  bv.l[0] = l[0];
-  bv.l[1] = l[1];
-  bv.r = r;
+  bv.length[0] = l[0];
+  bv.length[1] = l[1];
+  bv.radius = r;
 
 
   return bv;
