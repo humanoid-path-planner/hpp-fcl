@@ -81,16 +81,6 @@ public:
   {
   }
 
-
-
-
-
-
-
-
-
-
-//start API in common test
   /// @name Bounding volume API
   /// Common API to BVs.
   /// @{
@@ -189,19 +179,6 @@ public:
   }
 
   /// @}
-//End API in common test
-
-
-
-
-
-
-
-
-
-
-
-
 
   /// @brief Check whether the AABB contains another AABB
   inline bool contain(const AABB& other) const

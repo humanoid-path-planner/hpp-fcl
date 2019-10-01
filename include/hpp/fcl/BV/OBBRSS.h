@@ -59,10 +59,6 @@ public:
   /// @brief RSS member, for distance
   RSS rss;
 
-
-
-
-
 /// @brief Check whether the OBBRSS contains a point
   inline bool contain(const Vec3f& p) const
   {
@@ -150,11 +146,6 @@ public:
     return obb.volume();
   }
 };
-
-
-
-
-
 
 /// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0) and b2 is in indentity
 inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2)

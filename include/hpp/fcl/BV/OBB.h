@@ -60,9 +60,6 @@ public:
   /// @brief Half dimensions of OBB
   Vec3f extent;
 
-
-
-
   /// @brief Check whether the OBB contains a point.
   bool contain(const Vec3f& p) const;
 

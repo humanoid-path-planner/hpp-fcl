@@ -151,11 +151,18 @@ public:
   {
   }
 
+  Capsule::Capsule() : HalfLength(lz/2), lz(0)
+  {
+  }
+
   /// @brief Radius of capsule 
   FCL_REAL radius;
 
   /// @brief Length along z axis 
   FCL_REAL lz;
+
+  /// @brief Half Length along z axis 
+  FCL_REAL HalfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -191,11 +198,18 @@ public:
   {
   }
 
+  Cone::Cone() : HalfLength(lz/2), lz(0)
+  {
+  }
+
   /// @brief Radius of the cone 
   FCL_REAL radius;
 
   /// @brief Length along z axis 
   FCL_REAL lz;
+
+  /// @brief Half Length along z axis 
+  FCL_REAL HalfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -233,12 +247,18 @@ public:
   {
   }
 
+  Cylinder::Cylinder() : HalfLength(lz/2), lz(0)
+  {
+  }
   
   /// @brief Radius of the cylinder 
   FCL_REAL radius;
 
   /// @brief Length along z axis 
   FCL_REAL lz;
+
+  /// @brief Half Length along z axis 
+  FCL_REAL HalfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();
