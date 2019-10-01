@@ -151,9 +151,7 @@ public:
   {
   }
 
-  Capsule::Capsule() : HalfLength(lz/2), lz(0)
-  {
-  }
+ // Capsule::Capsule() : HalfLength(lz/2), lz(0){} 
 
   /// @brief Radius of capsule 
   FCL_REAL radius;
@@ -198,9 +196,7 @@ public:
   {
   }
 
-  Cone::Cone() : HalfLength(lz/2), lz(0)
-  {
-  }
+  //Cone::Cone() : HalfLength(lz/2), lz(0){} 
 
   /// @brief Radius of the cone 
   FCL_REAL radius;
@@ -247,9 +243,7 @@ public:
   {
   }
 
-  Cylinder::Cylinder() : HalfLength(lz/2), lz(0)
-  {
-  }
+ // Cylinder::Cylinder() : HalfLength(lz/2), lz(0){} 
   
   /// @brief Radius of the cylinder 
   FCL_REAL radius;
