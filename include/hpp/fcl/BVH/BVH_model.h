@@ -52,11 +52,11 @@ namespace hpp
 namespace fcl
 {
 
-/// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
-template<typename BV>
-class BVHModel : public CollisionGeometry
-{
+class ConvexBase;
 
+/// @brief A base class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
+class BVHModelBase : public CollisionGeometry
+{
 public:
   /// @brief Geometry point data
   Vec3f* vertices;
@@ -76,11 +76,8 @@ public:
   /// @brief The state of BVH building process
   BVHBuildState build_state;
 
-  /// @brief Split rule to split one BV node into two children
-  boost::shared_ptr<BVSplitterBase<BV> > bv_splitter;
-
-  /// @brief Fitting rule to fit a BV node to a set of geometry primitives
-  boost::shared_ptr<BVFitterBase<BV> > bv_fitter;
+  /// @brief Convex<Triangle> representation of this object
+  boost::shared_ptr< ConvexBase > convex;
   
   /// @brief Model type described by the instance
   BVHModelType getModelType() const
@@ -94,65 +91,31 @@ public:
   }
 
   /// @brief Constructing an empty BVH
-  BVHModel() : vertices(NULL),
-               tri_indices(NULL),
-               prev_vertices(NULL),
-               num_tris(0),
-               num_vertices(0),
-               build_state(BVH_BUILD_STATE_EMPTY),
-               bv_splitter(new BVSplitter<BV>(SPLIT_METHOD_MEAN)),
-               bv_fitter(new BVFitter<BV>()),
-               num_tris_allocated(0),
-               num_vertices_allocated(0),
-               num_bvs_allocated(0),
-               num_vertex_updated(0),
-               primitive_indices(NULL),
-               bvs(NULL),
-               num_bvs(0)
+  BVHModelBase() : vertices(NULL),
+                   tri_indices(NULL),
+                   prev_vertices(NULL),
+                   num_tris(0),
+                   num_vertices(0),
+                   build_state(BVH_BUILD_STATE_EMPTY),
+                   num_tris_allocated(0),
+                   num_vertices_allocated(0),
+                   num_vertex_updated(0)
   {
   }
 
   /// @brief copy from another BVH
-  BVHModel(const BVHModel& other);
+  BVHModelBase(const BVHModelBase& other);
 
   /// @brief deconstruction, delete mesh data related.
-  ~BVHModel()
+  virtual ~BVHModelBase ()
   {
     delete [] vertices;
     delete [] tri_indices;
-    delete [] bvs;
-
     delete [] prev_vertices;
-    delete [] primitive_indices;
-  }
-
-  /// @brief We provide getBV() and getNumBVs() because BVH may be compressed (in future), so we must provide some flexibility here
-  
-  /// @brief Access the bv giving the its index
-  const BVNode<BV>& getBV(int id) const
-  {
-    assert (id < num_bvs);
-    return bvs[id];
-  }
-
-  /// @brief Access the bv giving the its index
-  BVNode<BV>& getBV(int id)
-  {
-    assert (id < num_bvs);
-    return bvs[id];
-  }
-
-  /// @brief Get the number of bv in the BVH
-  int getNumBVs() const
-  {
-    return num_bvs;
   }
 
   /// @brief Get the object type: it is a BVH
   OBJECT_TYPE getObjectType() const { return OT_BVH; }
-
-  /// @brief Get the BV type: default is unknown
-  NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
 
   /// @brief Compute the AABB for the BVH, used for broad-phase collision
   void computeLocalAABB();
@@ -206,16 +169,16 @@ public:
   /// @brief End BVH model update, will also refit or rebuild the bounding volume hierarchy
   int endUpdateModel(bool refit = true, bool bottomup = true);
 
-  /// @brief Check the number of memory used
-  int memUsage(int msg) const;
+  /// @brief Build this Convex<Triangle> representation of this model.
+  /// \note this only takes the points of this model. It does not check that the
+  ///       object is convex. It does not compute a convex hull.
+  void buildConvexRepresentation(bool share_memory);
 
-/// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
+  virtual int memUsage(int msg) const = 0;
+
+  /// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
   /// BV node. When traversing the BVH, this can save one matrix transformation.
-  void makeParentRelative()
-  {
-    Matrix3f I (Matrix3f::Identity());
-    makeParentRelativeRecurse(0, I, Vec3f());
-  }
+  virtual void makeParentRelative() = 0;
 
   Vec3f computeCOM() const
   {
@@ -267,14 +230,96 @@ public:
     return C.trace() * Matrix3f::Identity() - C;
   }
 
-private:
+protected:
+  virtual void deleteBVs() = 0;
+  virtual bool allocateBVs() = 0;
+
+  /// @brief Build the bounding volume hierarchy
+  virtual int buildTree() = 0;
+
+  /// @brief Refit the bounding volume hierarchy
+  virtual int refitTree(bool bottomup) = 0;
 
   int num_tris_allocated;
   int num_vertices_allocated;
-  int num_bvs_allocated;
   int num_vertex_updated; /// for ccd vertex update
-  unsigned int* primitive_indices;
+};
 
+/// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
+template<typename BV>
+class BVHModel : public BVHModelBase
+{
+
+public:
+  /// @brief Split rule to split one BV node into two children
+  boost::shared_ptr<BVSplitterBase<BV> > bv_splitter;
+
+  /// @brief Fitting rule to fit a BV node to a set of geometry primitives
+  boost::shared_ptr<BVFitterBase<BV> > bv_fitter;
+
+  /// @brief Constructing an empty BVH
+  BVHModel() : BVHModelBase (),
+               bv_splitter(new BVSplitter<BV>(SPLIT_METHOD_MEAN)),
+               bv_fitter(new BVFitter<BV>()),
+               num_bvs_allocated(0),
+               primitive_indices(NULL),
+               bvs(NULL),
+               num_bvs(0)
+  {
+  }
+
+  /// @brief copy from another BVH
+  BVHModel(const BVHModel& other);
+
+  /// @brief deconstruction, delete mesh data related.
+  ~BVHModel()
+  {
+    delete [] bvs;
+    delete [] primitive_indices;
+  }
+
+  /// @brief We provide getBV() and getNumBVs() because BVH may be compressed (in future), so we must provide some flexibility here
+  
+  /// @brief Access the bv giving the its index
+  const BVNode<BV>& getBV(int id) const
+  {
+    assert (id < num_bvs);
+    return bvs[id];
+  }
+
+  /// @brief Access the bv giving the its index
+  BVNode<BV>& getBV(int id)
+  {
+    assert (id < num_bvs);
+    return bvs[id];
+  }
+
+  /// @brief Get the number of bv in the BVH
+  int getNumBVs() const
+  {
+    return num_bvs;
+  }
+
+  /// @brief Get the BV type: default is unknown
+  NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
+
+  /// @brief Check the number of memory used
+  int memUsage(int msg) const;
+
+  /// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
+  /// BV node. When traversing the BVH, this can save one matrix transformation.
+  void makeParentRelative()
+  {
+    Matrix3f I (Matrix3f::Identity());
+    makeParentRelativeRecurse(0, I, Vec3f());
+  }
+
+private:
+  void deleteBVs();
+  bool allocateBVs();
+
+  int num_bvs_allocated;
+  unsigned int* primitive_indices;
 
   /// @brief Bounding volume hierarchy
   BVNode<BV>* bvs;

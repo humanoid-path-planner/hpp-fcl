@@ -36,29 +36,62 @@
 /** \author Jia Pan */
 
 
-#include <hpp/fcl/math/transform.h>
-#include <boost/math/constants/constants.hpp>
+#ifndef HPP_FCL_SHAPE_CONVEX_H
+#define HPP_FCL_SHAPE_CONVEX_H
+
+#include <hpp/fcl/shape/geometric_shapes.h>
 
 namespace hpp
 {
 namespace fcl
 {
 
-void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
-                       Transform3f& tf)
+/// @brief Convex polytope 
+/// @tparam PolygonT the polygon class. It must have method \c size() and
+///         \c operator[](int i)
+template <typename PolygonT>
+class Convex : public ConvexBase
 {
-  tf = tf1.inverseTimes (tf2);
-}
+public:
+  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
+  /// \param own_storage whether this class owns the pointers of points and
+  ///                    polygons. If owned, they are deleted upon destruction.
+  /// \param points_ list of 3D points
+  /// \param num_points_ number of 3D points
+  /// \param polygons_ \copydoc Convex::polygons
+  /// \param num_polygons_ the number of polygons.
+  /// \note num_polygons_ is not the allocated size of polygons_.
+  Convex(bool ownStorage,
+         Vec3f* points_, int num_points_,
+         PolygonT* polygons_, int num_polygons_);
 
-void relativeTransform2(const Transform3f& tf1, const Transform3f& tf2,
-                       Transform3f& tf)
-{
-  Matrix3f R (tf2.getRotation() * tf1.getRotation().transpose());
-  tf = Transform3f(R, tf2.getTranslation() - R * tf1.getTranslation());
-}
+  /// @brief Copy constructor 
+  /// Only the list of neighbors is copied.
+  Convex(const Convex& other);
 
+  ~Convex();
 
+  /// @brief An array of PolygonT object.
+  /// PolygonT should contains a list of vertices for each polygon,
+  /// in counter clockwise order.
+  PolygonT* polygons;
+  int num_polygons;
+
+  /// based on http://number-none.com/blow/inertia/bb_inertia.doc
+  Matrix3f computeMomentofInertia() const;
+
+  Vec3f computeCOM() const;
+
+  FCL_REAL computeVolume() const;
+
+protected:
+  void fillNeighbors();
+};
 
 }
 
 } // namespace hpp
+
+#include <hpp/fcl/shape/details/convex.hxx>
+
+#endif

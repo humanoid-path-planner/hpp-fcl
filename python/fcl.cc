@@ -1,9 +1,8 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2014, CNRS-LAAS
-//  Author: Florent Lamiraux
-//
+//  Copyright (c) 2019 CNRS-LAAS
+//  Author: Joseph Mirabel
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -16,7 +15,7 @@
 //     copyright notice, this list of conditions and the following
 //     disclaimer in the documentation and/or other materials provided
 //     with the distribution.
-//   * Neither the name of CNRS-LAAS nor the names of its
+//   * Neither the name of CNRS-LAAS. nor the names of its
 //     contributors may be used to endorse or promote products derived
 //     from this software without specific prior written permission.
 //
@@ -32,29 +31,40 @@
 //  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 //  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
-//
 
-#ifndef HPP_FCL_FWD_HH
-#define HPP_FCL_FWD_HH
+#include <boost/python.hpp>
 
-#include <boost/shared_ptr.hpp>
+#include "fcl.hh"
 
-namespace hpp {
-namespace fcl {
-  class CollisionObject;
-  typedef boost::shared_ptr <CollisionObject> CollisionObjectPtr_t;
-  typedef boost::shared_ptr < const CollisionObject> CollisionObjectConstPtr_t;
-  class CollisionGeometry;
-  typedef boost::shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
-  typedef boost::shared_ptr <const CollisionGeometry>
-  CollisionGeometryConstPtr_t;
-  class Transform3f;
+#include <hpp/fcl/fwd.hh>
+#include <hpp/fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/BVH/BVH_model.h>
 
-  class AABB;
+#include <hpp/fcl/mesh_loader/loader.h>
 
-  class BVHModelBase;
-  typedef boost::shared_ptr<BVHModelBase> BVHModelPtr_t;
+#include <hpp/fcl/collision.h>
+
+using namespace boost::python;
+
+using namespace hpp::fcl;
+using boost::shared_ptr;
+using boost::noncopyable;
+
+void exposeMeshLoader ()
+{
+  class_ <MeshLoader> ("MeshLoader", init< optional< NODE_TYPE> >())
+    .def ("load", static_cast <BVHModelPtr_t (MeshLoader::*) (const std::string&, const Vec3f&)> (&MeshLoader::load))
+    ;
+
+  class_ <CachedMeshLoader, bases<MeshLoader> > ("CachedMeshLoader", init< optional< NODE_TYPE> >())
+    ;
 }
-} // namespace hpp
 
-#endif // HPP_FCL_FWD_HH
+BOOST_PYTHON_MODULE(hppfcl)
+{
+  exposeMaths();
+  exposeCollisionGeometries();
+  exposeMeshLoader();
+  exposeCollisionAPI();
+  exposeDistanceAPI();
+}

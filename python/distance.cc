@@ -1,9 +1,8 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2014, CNRS-LAAS
-//  Author: Florent Lamiraux
-//
+//  Copyright (c) 2019 CNRS-LAAS
+//  Author: Joseph Mirabel
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -16,7 +15,7 @@
 //     copyright notice, this list of conditions and the following
 //     disclaimer in the documentation and/or other materials provided
 //     with the distribution.
-//   * Neither the name of CNRS-LAAS nor the names of its
+//   * Neither the name of CNRS-LAAS. nor the names of its
 //     contributors may be used to endorse or promote products derived
 //     from this software without specific prior written permission.
 //
@@ -32,29 +31,44 @@
 //  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 //  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
-//
 
-#ifndef HPP_FCL_FWD_HH
-#define HPP_FCL_FWD_HH
+#include <boost/python.hpp>
 
-#include <boost/shared_ptr.hpp>
+#include "fcl.hh"
 
-namespace hpp {
-namespace fcl {
-  class CollisionObject;
-  typedef boost::shared_ptr <CollisionObject> CollisionObjectPtr_t;
-  typedef boost::shared_ptr < const CollisionObject> CollisionObjectConstPtr_t;
-  class CollisionGeometry;
-  typedef boost::shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
-  typedef boost::shared_ptr <const CollisionGeometry>
-  CollisionGeometryConstPtr_t;
-  class Transform3f;
+#include <hpp/fcl/fwd.hh>
+#include <hpp/fcl/distance.h>
 
-  class AABB;
+using namespace boost::python;
 
-  class BVHModelBase;
-  typedef boost::shared_ptr<BVHModelBase> BVHModelPtr_t;
+using namespace hpp::fcl;
+using boost::shared_ptr;
+using boost::noncopyable;
+
+void exposeDistanceAPI ()
+{
+  class_ <DistanceRequest> ("DistanceRequest", init<optional<bool,FCL_REAL,FCL_REAL> >())
+    .def_readwrite ("enable_nearest_points", &DistanceRequest::enable_nearest_points)
+    .def_readwrite ("rel_err"              , &DistanceRequest::rel_err)
+    .def_readwrite ("abs_err"              , &DistanceRequest::abs_err)
+    ;
+
+  class_ <DistanceResult> ("DistanceResult", init<>())
+    .def_readwrite ("min_distance", &DistanceResult::min_distance)
+    .def_readwrite ("normal", &DistanceResult::normal)
+    //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
+    .def_readonly ("o1", &DistanceResult::o1)
+    .def_readonly ("o2", &DistanceResult::o2)
+    .def_readwrite ("b1", &DistanceResult::b1)
+    .def_readwrite ("b2", &DistanceResult::b2)
+
+    .def ("clear", &DistanceResult::clear)
+    ;
+
+  def ("distance", static_cast< FCL_REAL (*)(const CollisionObject*, const CollisionObject*,
+        const DistanceRequest&, DistanceResult&) > (&distance));
+  def ("distance", static_cast< FCL_REAL (*)(
+        const CollisionGeometry*, const Transform3f&,
+        const CollisionGeometry*, const Transform3f&,
+        const DistanceRequest&, DistanceResult&) > (&distance));
 }
-} // namespace hpp
-
-#endif // HPP_FCL_FWD_HH

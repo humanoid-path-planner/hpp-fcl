@@ -69,18 +69,11 @@ inline bool areQuatEquals (const Quaternion3f& q1, const Quaternion3f& q2)
 /// @brief Simple transform class used locally by InterpMotion
 class Transform3f
 {
-  /// @brief Whether matrix cache is set
-  mutable bool matrix_set;
   /// @brief Matrix cache
-  mutable Matrix3f R;
+  Matrix3f R;
 
   /// @brief Tranlation vector
   Vec3f T;
-
-  /// @brief Rotation
-  Quaternion3f q;
-
-  const Matrix3f& getRotationInternal() const;
 public:
 
   /// @brief Default transform is no movement
@@ -90,49 +83,40 @@ public:
   }
 
   /// @brief Construct transform from rotation and translation
-  Transform3f(const Matrix3f& R_, const Vec3f& T_) : matrix_set(true),
-                                                     R(R_),
-                                                     T(T_)
-  {
-    q = Quaternion3f(R_);
-  }
+  template <typename Matrixx3Like, typename Vector3Like>
+  Transform3f(const Eigen::MatrixBase<Matrixx3Like>& R_,
+              const Eigen::MatrixBase<Vector3Like>& T_) :
+    R(R_),
+    T(T_)
+  {}
 
   /// @brief Construct transform from rotation and translation
-  Transform3f(const Quaternion3f& q_, const Vec3f& T_) : matrix_set(false),
-                                                         T(T_),
-                                                         q(q_)
-  {
-  }
+  template <typename Vector3Like>
+  Transform3f(const Quaternion3f& q_,
+              const Eigen::MatrixBase<Vector3Like>& T_) :
+    R(q_.toRotationMatrix()),
+    T(T_)
+  {}
 
   /// @brief Construct transform from rotation
-  Transform3f(const Matrix3f& R_) : matrix_set(true),
-                                    R(R_),
+  Transform3f(const Matrix3f& R_) : R(R_),
                                     T(Vec3f::Zero())
-  {
-    q = Quaternion3f(R_);
-  }
+  {}
 
   /// @brief Construct transform from rotation
-  Transform3f(const Quaternion3f& q_) : matrix_set(false),
-                                        T(Vec3f::Zero()),
-                                        q(q_)
-  {
-  }
+  Transform3f(const Quaternion3f& q_) : R(q_),
+                                        T(Vec3f::Zero())
+  {}
 
   /// @brief Construct transform from translation
-  Transform3f(const Vec3f& T_) : matrix_set(true), 
-                                 T(T_),
-                                 q(Quaternion3f::Identity())
-  {
-    R.setIdentity();
-  }
+  Transform3f(const Vec3f& T_) : R(Matrix3f::Identity()),
+                                 T(T_)
+  {}
 
   /// @brief operator = 
   Transform3f& operator = (const Transform3f& tf)
   {
-    matrix_set = tf.matrix_set;
     R = tf.R;
-    q = tf.q;
     T = tf.T;
     return *this;
   }
@@ -146,31 +130,28 @@ public:
   /// @brief get rotation
   inline const Matrix3f& getRotation() const
   {
-    if(matrix_set) return R;
-    return getRotationInternal();
+    return R;
   }
 
   /// @brief get quaternion
-  inline const Quaternion3f& getQuatRotation() const
+  inline Quaternion3f getQuatRotation() const
   {
-    return q;
+    return Quaternion3f (R);
   }
 
   /// @brief set transform from rotation and translation
-  inline void setTransform(const Matrix3f& R_, const Vec3f& T_)
+  template <typename Matrixx3Like, typename Vector3Like>
+  inline void setTransform(const Eigen::MatrixBase<Matrixx3Like>& R_, const Eigen::MatrixBase<Vector3Like>& T_)
   {
     R.noalias() = R_;
     T.noalias() = T_;
-    q = Quaternion3f(R_);
-    matrix_set = true;
   }
 
   /// @brief set transform from rotation and translation
   inline void setTransform(const Quaternion3f& q_, const Vec3f& T_)
   {
-    matrix_set = false;
-    q = q_;
-    T.noalias() = T_;
+    R = q_.toRotationMatrix();
+    T = T_;
   }
 
   /// @brief set transform from rotation
@@ -178,8 +159,6 @@ public:
   inline void setRotation(const Eigen::MatrixBase<Derived>& R_)
   {
     R.noalias() = R_;
-    matrix_set = true;
-    q = Quaternion3f(R);
   }
 
   /// @brief set transform from translation
@@ -192,53 +171,54 @@ public:
   /// @brief set transform from rotation
   inline void setQuatRotation(const Quaternion3f& q_)
   {
-    matrix_set = false;
-    q = q_;
+    R = q_.toRotationMatrix();
   }
 
   /// @brief transform a given vector by the transform
   template <typename Derived>
   inline Vec3f transform(const Eigen::MatrixBase<Derived>& v) const
   {
-    return q * v + T;
+    return R * v + T;
   }
 
   /// @brief inverse transform
-  inline Transform3f& inverse()
+  inline Transform3f& inverseInPlace()
   {
-    matrix_set = false;
-    q = q.conjugate();
-    T = q * (-T);
+    R.transposeInPlace();
+    T = - R * T;
     return *this;
+  }
+
+  /// @brief inverse transform
+  inline Transform3f inverse()
+  {
+    return Transform3f (R.transpose(), - R.transpose() * T);
   }
 
   /// @brief inverse the transform and multiply with another
   inline Transform3f inverseTimes(const Transform3f& other) const
   {
-    const Quaternion3f& q_inv = q.conjugate();
-    return Transform3f(q_inv * other.q, q_inv * (other.T - T));
+    return Transform3f(R.transpose() * other.R, R.transpose() * (other.T - T));
   }
 
   /// @brief multiply with another transform
   inline const Transform3f& operator *= (const Transform3f& other)
   {
-    matrix_set = false;
-    T += q * other.T;
-    q *= other.q;
+    T += R * other.T;
+    R *= other.R;
     return *this;
   }
 
   /// @brief multiply with another transform
   inline Transform3f operator * (const Transform3f& other) const
   {
-    Quaternion3f q_new = q * other.q;
-    return Transform3f(q_new, q * other.T + T);
+    return Transform3f(R * other.R, R * other.T + T);
   }
 
   /// @brief check whether the transform is identity
   inline bool isIdentity() const
   {
-    return isQuatIdentity(q) && T.isZero();
+    return R.isIdentity() && T.isZero();
   }
 
   /// @brief set the transform to be identity transform
@@ -246,13 +226,11 @@ public:
   {
     R.setIdentity();
     T.setZero();
-    q.setIdentity();
-    matrix_set = true;
   }
 
   bool operator == (const Transform3f& other) const
   {
-    return areQuatEquals(q, other.getQuatRotation()) && (T == other.getTranslation());
+    return R == other.R && (T == other.getTranslation());
   }
 
   bool operator != (const Transform3f& other) const
@@ -260,8 +238,6 @@ public:
     return !(*this == other);
   }
 };
-
-using namespace hpp::fcl;
 
 template<typename Derived>
 inline Quaternion3f fromAxisAngle(const Eigen::MatrixBase<Derived>& axis, FCL_REAL angle)

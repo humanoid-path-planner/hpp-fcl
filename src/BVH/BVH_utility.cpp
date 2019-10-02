@@ -111,7 +111,7 @@ template<typename BV>
 BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, const AABB& _aabb)
 {
   assert(model.getModelType() == BVH_MODEL_TRIANGLES);
-  const Quaternion3f& q = pose.getQuatRotation();
+  const Matrix3f& q = pose.getRotation();
   AABB aabb = translate (_aabb, - pose.getTranslation());
 
   Transform3f box_pose; Box box;

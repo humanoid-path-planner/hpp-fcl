@@ -95,9 +95,14 @@ implications = [
         [ [- 8,  9,  12,], [- 10] ],
         [ [  8,- 9,- 12,], [  10] ],
 
-        [ [- 4,  9,- 10,], [- 11,- 12] ],
-        [ [- 6,  5,- 11,], [- 12,- 10] ],
-        [ [- 8,  7,- 12,], [- 10,- 11] ],
+        [ [ 10, 3, 9, -12, 4, -5], [1] ],
+        [ [ 10, -3, 1, -4], [9] ],
+        [ [ 10, -3, -1, 2, -6, 11], [5] ],
+        [ [ -10, 11, 2, -12, -5, -1], [6] ],
+        [ [ -10,11,-2,1,5], [-6] ],
+        [ [-10,-11,12,1,-7,-2,4],[-5]],
+        [ [-10,-11,12,-3,2,7],[-8]],
+        [ [-10,-11,12,-3,-2],[-1]],
         ]
 
 def set_test_values (current_tests, test_values, itest, value):
@@ -127,6 +132,11 @@ def set_test_values (current_tests, test_values, itest, value):
                         if next_test_values[k] != (id > 0):
                             raise ValueError ("Absurd case")
     return remaining_tests, next_test_values
+
+def set_tests_values (current_tests, test_values, itests, values):
+    for itest,value in zip(itests,values):
+        current_tests, test_values = set_test_values (current_tests, test_values, itest, value)
+    return current_tests, test_values
 
 def apply_test_values (cases, test_values):
     def canSatisfy (values, indices):
@@ -229,12 +239,12 @@ def printComments (order, indent, file):
         for comment in order['comments']:
             print (indent + "// " + comment, file=file)
 
-def printOrder (order, indent = "", start=True,file=sys.stdout):
+def printOrder (order, indent = "", start=True,file=sys.stdout,curTests=[]):
     if start:
         print ("bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next)", file=file)
         print ("{", file=file)
         print (indent+"// The code of this function was generated using doc/gjk.py", file=file)
-        print (indent+"const int a = 3, b = 2, c = 1, d = 0;", file=file)
+        print (indent+"const vertex_id_t a = 3, b = 2, c = 1, d = 0;", file=file)
         for l in "abcd":
             print (indent+"const Vec3f& {} (current.vertex[{}]->w);".format(l.upper(),l), file=file)
         print (indent+"const FCL_REAL aa = A.squaredNorm();".format(l), file=file)
@@ -301,20 +311,22 @@ def printOrder (order, indent = "", start=True,file=sys.stdout):
         check    = checks[order['test']]
         check_hr = checks_hr[order['test']]
         printComments (order, indent, file)
+        nextTests_t=curTests+["a"+str(order['test']+1),]
+        nextTests_f=curTests+["!a"+str(order['test']+1),]
         if order['true'] is None:
             if order['false'] is None:
                 print (indent + """assert(false && "Case {} should never happen.");""".format(check_hr))
             else:
-                print (indent + "assert(!({} <= 0)); // Not {}".format(check, check_hr), file=file)
-                printOrder (order['false'], indent=indent, start=False, file=file)
+                print (indent + "assert(!({} <= 0)); // Not {} / {}".format(check, check_hr, ".".join(nextTests_f)), file=file)
+                printOrder (order['false'], indent=indent, start=False, file=file, curTests=nextTests_f)
         elif order['false'] is None:
-            print (indent + "assert({} <= 0); // {}".format(check, check_hr), file=file)
-            printOrder (order['true'], indent=indent, start=False, file=file)
+            print (indent + "assert({} <= 0); // {} / {}".format(check, check_hr, ".".join(nextTests_t)), file=file)
+            printOrder (order['true'], indent=indent, start=False, file=file, curTests=nextTests_t)
         else:
-            print (indent + "if ({} <= 0) {{ // if {}".format(check, check_hr), file=file)
-            printOrder (order['true'], indent=indent+"  ", start=False, file=file)
-            print (indent + "}} else {{ // not {}".format(check_hr), file=file)
-            printOrder (order['false'], indent=indent+"  ", start=False, file=file)
+            print (indent + "if ({} <= 0) {{ // if {} / {}".format(check, check_hr, ".".join(nextTests_t)), file=file)
+            printOrder (order['true'], indent=indent+"  ", start=False, file=file, curTests=nextTests_t)
+            print (indent + "}} else {{ // not {} / {}".format(check_hr, ".".join(nextTests_f)), file=file)
+            printOrder (order['false'], indent=indent+"  ", start=False, file=file, curTests=nextTests_f)
             print (indent + "}} // end of {}".format(check_hr), file=file)
 
     if start:

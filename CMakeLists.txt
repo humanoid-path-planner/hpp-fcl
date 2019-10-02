@@ -37,6 +37,7 @@ set(CXX_DISABLE_WERROR TRUE)
 include(cmake/base.cmake)
 include(cmake/eigen.cmake)
 include(cmake/boost.cmake)
+include(cmake/python.cmake)
 include(cmake/hpp.cmake)
 
 set(PROJECT_NAME hpp-fcl)
@@ -57,6 +58,8 @@ IF(APPLE)
   endif("${isSystemDir}" STREQUAL "-1")
 ENDIF(APPLE)
 
+OPTION(BUILD_PYTHON_INTERFACE OFF)
+
 setup_hpp_project()
 
 add_required_dependency("eigen3 >= 3.0.0")
@@ -66,10 +69,13 @@ include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
 set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
 
 # Required dependencies
+set(BOOST_COMPONENTS thread date_time system)
 if (RUN_TESTS)
-  set(BOOST_COMPONENTS thread date_time filesystem system unit_test_framework)
-else ()
-  set(BOOST_COMPONENTS thread date_time system)
+  set(BOOST_COMPONENTS ${BOOST_COMPONENTS} filesystem unit_test_framework)
+endif ()
+if (BUILD_PYTHON_INTERFACE)
+  FINDPYTHON()
+  set(BOOST_COMPONENTS ${BOOST_COMPONENTS} python)
 endif ()
 
 search_for_boost()
@@ -153,6 +159,9 @@ SET(${PROJECT_NAME}_HEADERS
   )
 
 add_subdirectory(src)
+if (BUILD_PYTHON_INTERFACE)
+  add_subdirectory(python)
+endif ()
 if (RUN_TESTS)
   add_subdirectory(test)
 endif ()

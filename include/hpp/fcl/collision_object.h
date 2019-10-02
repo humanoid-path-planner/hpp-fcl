@@ -203,7 +203,7 @@ public:
   /// @brief compute the AABB in world space
   inline void computeAABB()
   {
-    if(isQuatIdentity(t.getQuatRotation()))
+    if(t.getRotation().isIdentity())
     {
       aabb = translate(cgeom->aabb_local, t.getTranslation());
     }
@@ -239,8 +239,6 @@ public:
   {
     return t.getRotation();
   }
-
-
 
   /// @brief get object's transform
   inline const Transform3f& getTransform() const

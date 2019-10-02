@@ -55,29 +55,35 @@ typedef boost::int32_t FCL_INT32;
 /// @brief Triangle with 3 indices for points
 class Triangle
 {
-  /// @brief indices for each vertex of triangle
-  std::size_t vids[3];
-
 public:
+  typedef std::size_t index_type;
+  typedef int size_type;
+
   /// @brief Default constructor
   Triangle() {}
 
   /// @brief Create a triangle with given vertex indices
-  Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
+  Triangle(index_type p1, index_type p2, index_type p3)
   {
     set(p1, p2, p3);
   }
 
   /// @brief Set the vertex indices of the triangle
-  inline void set(std::size_t p1, std::size_t p2, std::size_t p3)
+  inline void set(index_type p1, index_type p2, index_type p3)
   {
     vids[0] = p1; vids[1] = p2; vids[2] = p3;
   }
 
   /// @access the triangle index
-  inline std::size_t operator[](int i) const { return vids[i]; }
+  inline index_type operator[](int i) const { return vids[i]; }
 
-  inline std::size_t& operator[](int i) { return vids[i]; }
+  inline index_type& operator[](int i) { return vids[i]; }
+
+  static inline size_type size() { return 3; }
+
+private:
+  /// @brief indices for each vertex of triangle
+  index_type vids[3];
 };
 
 }

@@ -196,7 +196,7 @@ std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f&
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Convex& convex, const Transform3f& tf)
+std::vector<Vec3f> getBoundVertices(const ConvexBase& convex, const Transform3f& tf)
 {
   std::vector<Vec3f> result(convex.num_points);
   for(int i = 0; i < convex.num_points; ++i)
@@ -227,7 +227,7 @@ Halfspace transform(const Halfspace& a, const Transform3f& tf)
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vec3f n = tf.getQuatRotation() * a.n;
+  Vec3f n = tf.getRotation() * a.n;
   FCL_REAL d = a.d + n.dot(tf.getTranslation());
 
   return Halfspace(n, d);
@@ -242,7 +242,7 @@ Plane transform(const Plane& a, const Transform3f& tf)
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vec3f n = tf.getQuatRotation() * a.n;
+  Vec3f n = tf.getRotation() * a.n;
   FCL_REAL d = a.d + n.dot(tf.getTranslation());
 
   return Plane(n, d);
@@ -313,7 +313,7 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& b
 }
 
 template<>
-void computeBV<AABB, Convex>(const Convex& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -455,7 +455,7 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -698,7 +698,7 @@ void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf, K
 template<>
 void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv)
 {
-  Vec3f n = tf.getQuatRotation() * s.n;
+  Vec3f n = tf.getRotation() * s.n;
   generateCoordinateSystem(n, bv.axes.col(1), bv.axes.col(2));
   bv.axes.col(0).noalias() = n;
 
@@ -711,7 +711,7 @@ void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv)
 template<>
 void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv)
 {
-  Vec3f n = tf.getQuatRotation() * s.n;
+  Vec3f n = tf.getRotation() * s.n;
 
   generateCoordinateSystem(n, bv.axes.col(1), bv.axes.col(2));
   bv.axes.col(0).noalias() = n;

@@ -189,72 +189,6 @@ void testShapeIntersection(const S1& s1, const Transform3f& tf1,
   }
 }
 
-template <typename Sa, typename Sb> void compareShapeIntersection (
-    const Sa& sa, const Sb& sb, 
-    const Transform3f& tf1, const Transform3f& tf2,
-    FCL_REAL tol = 1e-9)
-{
-  CollisionRequest request (CONTACT | DISTANCE_LOWER_BOUND, 1);
-  CollisionResult resA, resB;
-
-  collide(&sa, tf1, &sa, tf2, request, resA);
-  collide(&sb, tf1, &sb, tf2, request, resB);
-
-  BOOST_CHECK_EQUAL(resA.isCollision(), resB.isCollision());
-  BOOST_CHECK_EQUAL(resA.numContacts(), resB.numContacts());
-
-  if (resA.isCollision() && resB.isCollision()) {
-    Contact cA = resA.getContact(0),
-            cB = resB.getContact(0);
-
-    BOOST_TEST_MESSAGE(
-        tf1 << '\n'
-        << cA.pos.format(pyfmt) << '\n'
-        << '\n'
-        << tf2 << '\n'
-        << cB.pos.format(pyfmt) << '\n'
-        );
-    // Only warnings because there are still some bugs.
-    BOOST_WARN_SMALL((cA.pos    - cB.pos   ).squaredNorm(), tol);
-    BOOST_WARN_SMALL((cA.normal - cB.normal).squaredNorm(), tol);
-  } else {
-    BOOST_CHECK_CLOSE(resA.distance_lower_bound, resB.distance_lower_bound, tol); // distances should be same
-  }
-}
-
-template <typename Sa, typename Sb> void compareShapeDistance (
-    const Sa& sa, const Sb& sb, 
-    const Transform3f& tf1, const Transform3f& tf2,
-    FCL_REAL tol = 1e-9)
-{
-  DistanceRequest request (true);
-  DistanceResult resA, resB;
-
-  distance(&sa, tf1, &sa, tf2, request, resA);
-  distance(&sb, tf1, &sb, tf2, request, resB);
-
-  BOOST_TEST_MESSAGE(
-      tf1 << '\n'
-      << resA.normal.format(pyfmt) << '\n'
-      << resA.nearest_points[0].format(pyfmt) << '\n'
-      << resA.nearest_points[1].format(pyfmt) << '\n'
-      << '\n'
-      << tf2 << '\n'
-      << resB.normal.format(pyfmt) << '\n'
-      << resB.nearest_points[0].format(pyfmt) << '\n'
-      << resB.nearest_points[1].format(pyfmt) << '\n'
-      );
-  // TODO in one case, there is a mismatch between the distances and I cannot say
-  // which one is correct. To visualize the case, use script test/geometric_shapes.py
-  BOOST_WARN_CLOSE(resA.min_distance, resB.min_distance, tol);
-  //BOOST_CHECK_CLOSE(resA.min_distance, resB.min_distance, tol);
-
-  // Only warnings because there are still some bugs.
-  BOOST_WARN_SMALL((resA.normal - resA.normal).squaredNorm(), tol);
-  BOOST_WARN_SMALL((resA.nearest_points[0] - resB.nearest_points[0]).squaredNorm(), tol);
-  BOOST_WARN_SMALL((resA.nearest_points[1] - resB.nearest_points[1]).squaredNorm(), tol);
-}
-
 BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
 {
   Cylinder s1 (0.029, 0.1);
@@ -501,82 +435,6 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
     Transform3f tf;
     generateRandomTransform(extents, tf);
     testBoxBoxContactPoints(tf.getRotation());
-  }
-}
-
-BOOST_AUTO_TEST_CASE(compare_convex_box)
-{
-  FCL_REAL l = 1, w = 1, d = 1;
-  Box box(l*2, w*2, d*2);
-
-  Vec3f pts[8];
-  pts[0] = Vec3f( l, w, d);
-  pts[1] = Vec3f( l, w,-d);
-  pts[2] = Vec3f( l,-w, d);
-  pts[3] = Vec3f( l,-w,-d);
-  pts[4] = Vec3f(-l, w, d);
-  pts[5] = Vec3f(-l, w,-d);
-  pts[6] = Vec3f(-l,-w, d);
-  pts[7] = Vec3f(-l,-w,-d);
-  std::vector<int> polygons;
-  polygons.push_back(4);
-  polygons.push_back(0);
-  polygons.push_back(2);
-  polygons.push_back(3);
-  polygons.push_back(1);
-
-  polygons.push_back(4);
-  polygons.push_back(2);
-  polygons.push_back(6);
-  polygons.push_back(7);
-  polygons.push_back(3);
-
-  polygons.push_back(4);
-  polygons.push_back(4);
-  polygons.push_back(5);
-  polygons.push_back(7);
-  polygons.push_back(6);
-
-  polygons.push_back(4);
-  polygons.push_back(0);
-  polygons.push_back(1);
-  polygons.push_back(5);
-  polygons.push_back(4);
-
-  polygons.push_back(4);
-  polygons.push_back(1);
-  polygons.push_back(3);
-  polygons.push_back(7);
-  polygons.push_back(5);
-
-  polygons.push_back(4);
-  polygons.push_back(0);
-  polygons.push_back(2);
-  polygons.push_back(6);
-  polygons.push_back(4);
-
-  Convex convex_box (
-      pts, // points
-      8, // num points
-      polygons.data(),
-      6 // number of polygons
-      );
-
-  Transform3f tf1;
-  Transform3f tf2;
-
-  tf2.setTranslation (Vec3f (3, 0, 0));
-  compareShapeIntersection(box, convex_box, tf1, tf2);
-  compareShapeDistance    (box, convex_box, tf1, tf2);
-
-  tf2.setTranslation (Vec3f (0, 0, 0));
-  compareShapeIntersection(box, convex_box, tf1, tf2);
-  compareShapeDistance    (box, convex_box, tf1, tf2);
-
-  for (int i = 0; i < 1000; ++i) {
-    generateRandomTransform(extents, tf2);
-    compareShapeIntersection(box, convex_box, tf1, tf2);
-    compareShapeDistance    (box, convex_box, tf1, tf2);
   }
 }
 
@@ -1021,7 +879,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
   tf2 = transform;
   contact = transform.transform(Vec3f(-5, 0, 0));
   depth = 10;
-  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -1035,7 +893,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
   tf2 = transform * Transform3f(Vec3f(5, 0, 0));
   contact = transform.transform(Vec3f(-2.5, 0, 0));
   depth = 15;
-  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -1049,7 +907,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
   tf2 = transform * Transform3f(Vec3f(-5, 0, 0));
   contact = transform.transform(Vec3f(-7.5, 0, 0));
   depth = 5;
-  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -1071,7 +929,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
   tf2 = transform * Transform3f(Vec3f(10.1, 0, 0));
   contact = transform.transform(Vec3f(0.05, 0, 0));
   depth = 20.1;
-  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 }
 
@@ -1175,7 +1033,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
   tf2 = transform;
   contact = transform.transform(Vec3f(-1.25, 0, 0));
   depth = 2.5;
-  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -1189,7 +1047,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
   tf2 = transform * Transform3f(Vec3f(1.25, 0, 0));
   contact = transform.transform(Vec3f(-0.625, 0, 0));
   depth = 3.75;
-  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -1203,7 +1061,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
   tf2 = transform * Transform3f(Vec3f(-1.25, 0, 0));
   contact = transform.transform(Vec3f(-1.875, 0, 0));
   depth = 1.25;
-  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -1217,7 +1075,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
   tf2 = transform * Transform3f(Vec3f(2.51, 0, 0));
   contact = transform.transform(Vec3f(0.005, 0, 0));
   depth = 5.01;
-  normal = transform.getQuatRotation() * Vec3f(-1, 0, 0);
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true, &contact, &depth, &normal);
 
   tf1 = Transform3f();
@@ -1228,7 +1086,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
   tf2 = transform * Transform3f(Vec3f(-2.51, 0, 0));
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, false);
 
-  tf1 = Transform3f(transform.getQuatRotation());
+  tf1 = Transform3f(transform.getRotation());
   tf2 = Transform3f();
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true);
 }
@@ -1306,7 +1164,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox)
   tf2 = transform * Transform3f(Vec3f(-2.51, 0, 0));
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, false);
 
-  tf1 = Transform3f(transform.getQuatRotation());
+  tf1 = Transform3f(transform.getRotation());
   tf2 = Transform3f();
   testShapeIntersection(s, tf1, hs, tf2, GST_INDEP, true);
 }

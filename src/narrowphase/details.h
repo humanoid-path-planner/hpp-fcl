@@ -73,9 +73,6 @@ namespace fcl {
        const Capsule& s2, const Transform3f& tf2,
        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal_)
     {
-      Transform3f tf2_inv (tf2);
-      tf2_inv.inverse();
-
       Vec3f pos1 (tf2.transform (Vec3f (0., 0., 0.5 * s2.lz))); // from distance function
       Vec3f pos2 (tf2.transform (Vec3f (0., 0., -0.5 * s2.lz)));
       Vec3f s_c = tf1.getTranslation ();
@@ -111,9 +108,6 @@ namespace fcl {
        const Capsule& s2, const Transform3f& tf2,
        FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal)
     {
-      Transform3f tf2_inv(tf2);
-      tf2_inv.inverse();
-
       Vec3f pos1 (tf2.transform (Vec3f (0., 0., 0.5 * s2.lz)));
       Vec3f pos2 (tf2.transform (Vec3f (0., 0., -0.5 * s2.lz)));
       Vec3f s_c = tf1.getTranslation ();
@@ -1750,7 +1744,7 @@ namespace fcl {
     }
 
     inline bool convexHalfspaceIntersect
-      (const Convex& s1, const Transform3f& tf1,
+      (const ConvexBase& s1, const Transform3f& tf1,
        const Halfspace& s2, const Transform3f& tf2,
        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
     {
@@ -2443,7 +2437,7 @@ namespace fcl {
     }
 
     inline bool convexPlaneIntersect
-      (const Convex& s1, const Transform3f& tf1,
+      (const ConvexBase& s1, const Transform3f& tf1,
        const Plane& s2, const Transform3f& tf2,
        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
     {
