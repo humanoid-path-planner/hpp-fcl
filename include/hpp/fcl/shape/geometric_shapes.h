@@ -149,6 +149,8 @@ class Capsule : public ShapeBase
 public:
   Capsule(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
   {
+    lz = 0;
+    HalfLength = lz/2;
   }
 
  // Capsule::Capsule() : HalfLength(lz/2), lz(0){} 
@@ -194,6 +196,8 @@ class Cone : public ShapeBase
 public:
   Cone(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
   {
+    lz = 0;
+    HalfLength = lz/2;
   }
 
   //Cone::Cone() : HalfLength(lz/2), lz(0){} 
@@ -241,6 +245,8 @@ class Cylinder : public ShapeBase
 public:
   Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
   {
+    lz = 0;
+    HalfLength = lz/2;
   }
 
  // Cylinder::Cylinder() : HalfLength(lz/2), lz(0){} 
