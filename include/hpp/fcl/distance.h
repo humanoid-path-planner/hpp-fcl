@@ -40,6 +40,7 @@
 
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/narrowphase/narrowphase.h>
 
 namespace hpp
 {
@@ -50,12 +51,19 @@ namespace fcl
 /// Return value is the minimum distance generated between the two objects.
 
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
+                  const GJKSolver* nsolver,
                   const DistanceRequest& request, DistanceResult& result);
+
+FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, 
+                  const CollisionGeometry* o2, const Transform3f& tf2,
+                  const GJKSolver* nsolver_,
+                  const DistanceRequest& request, DistanceResult& result);
+
+FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const DistanceRequest& request, DistanceResult& result);
 
 FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                   const CollisionGeometry* o2, const Transform3f& tf2,
                   const DistanceRequest& request, DistanceResult& result);
-
 }
 
 } // namespace hpp

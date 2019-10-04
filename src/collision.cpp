@@ -47,21 +47,18 @@ namespace hpp
 namespace fcl
 {
 
-template<typename GJKSolver>
-CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
+CollisionFunctionMatrix& getCollisionFunctionLookTable()
 {
-  static CollisionFunctionMatrix<GJKSolver> table;
+  static CollisionFunctionMatrix table;
   return table;
 }
 
-template<typename GJKSolver>
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
                     const GJKSolver* nsolver,
                     const CollisionRequest& request,
                     CollisionResult& result)
 {
-  return collide(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(),
-                 nsolver, request, result);
+  return collide(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver, request, result);
 }
 
 // reorder collision results in the order the call has been made.
@@ -81,7 +78,6 @@ void invertResults(CollisionResult& result)
     }
 }
 
-template<typename GJKSolver>
 std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                     const CollisionGeometry* o2, const Transform3f& tf2,
                     const GJKSolver* nsolver_,
@@ -92,7 +88,7 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
   if(!nsolver_)
     nsolver = new GJKSolver();  
 
-  const CollisionFunctionMatrix<GJKSolver>& looktable = getCollisionFunctionLookTable<GJKSolver>();
+  const CollisionFunctionMatrix& looktable = getCollisionFunctionLookTable();
   result.distance_lower_bound = -1;
   std::size_t res; 
   if(request.num_max_contacts == 0)
@@ -146,7 +142,7 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
   case GST_INDEP:
     {
       GJKSolver solver;
-      return collide<GJKSolver>(o1, o2, &solver, request, result);
+      return collide(o1, o2, &solver, request, result);
     }
   default:
     return -1; // error
@@ -162,7 +158,7 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
   case GST_INDEP:
     {
       GJKSolver solver;
-      return collide<GJKSolver>(o1, tf1, o2, tf2, &solver, request, result);
+      return collide(o1, tf1, o2, tf2, &solver, request, result);
     }
   default:
     std::cerr << "Warning! Invalid GJK solver" << std::endl;

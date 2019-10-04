@@ -46,22 +46,19 @@ namespace hpp
 namespace fcl
 {
 
-template<typename GJKSolver>
-DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
+DistanceFunctionMatrix& getDistanceFunctionLookTable()
 {
-  static DistanceFunctionMatrix<GJKSolver> table;
+  static DistanceFunctionMatrix table;
   return table;
 }
 
-template<typename GJKSolver>
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver* nsolver,
                   const DistanceRequest& request, DistanceResult& result)
 {
-  return distance<GJKSolver>(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver,
+  return distance(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver,
                                      request, result);
 }
 
-template<typename GJKSolver>
 FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, 
                   const CollisionGeometry* o2, const Transform3f& tf2,
                   const GJKSolver* nsolver_,
@@ -71,7 +68,7 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
   if(!nsolver_) 
     nsolver = new GJKSolver();
 
-  const DistanceFunctionMatrix<GJKSolver>& looktable = getDistanceFunctionLookTable<GJKSolver>();
+  const DistanceFunctionMatrix& looktable = getDistanceFunctionLookTable();
 
   OBJECT_TYPE object_type1 = o1->getObjectType();
   NODE_TYPE node_type1 = o1->getNodeType();
@@ -126,7 +123,7 @@ FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const Di
   case GST_INDEP:
     {
       GJKSolver solver;
-      return distance<GJKSolver>(o1, o2, &solver, request, result);
+      return distance(o1, o2, &solver, request, result);
     }
   default:
     return -1; // error
@@ -142,7 +139,7 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
   case GST_INDEP:
     {
       GJKSolver solver;
-      return distance<GJKSolver>(o1, tf1, o2, tf2, &solver, request, result);
+      return distance(o1, tf1, o2, tf2, &solver, request, result);
     }
   default:
     return -1;

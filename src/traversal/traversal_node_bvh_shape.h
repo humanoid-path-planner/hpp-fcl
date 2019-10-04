@@ -146,7 +146,7 @@ public:
 
 
 /// @brief Traversal node for collision between mesh and shape
-template<typename BV, typename S, typename GJKSolver,
+template<typename BV, typename S,
   int _Options = RelativeTransformationIsIdentity>
 class MeshShapeCollisionTraversalNode : public BVHShapeCollisionTraversalNode<BV, S>
 {
@@ -260,46 +260,46 @@ public:
 };
 
 /// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
-template<typename S, typename GJKSolver>
-class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, GJKSolver, 0>
+template<typename S>
+class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, 0>
 {
 public:
   MeshShapeCollisionTraversalNodeOBB(const CollisionRequest& request) :
-  MeshShapeCollisionTraversalNode<OBB, S, GJKSolver, 0>
+  MeshShapeCollisionTraversalNode<OBB, S, 0>
     (request)
   {
   }
 
 };
 
-template<typename S, typename GJKSolver>
-class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSS, S, GJKSolver, 0>
+template<typename S>
+class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSS, S, 0>
 {
 public:
   MeshShapeCollisionTraversalNodeRSS (const CollisionRequest& request):
-  MeshShapeCollisionTraversalNode<RSS, S, GJKSolver, 0>
+  MeshShapeCollisionTraversalNode<RSS, S, 0>
     (request)
   {
   }
 };
 
-template<typename S, typename GJKSolver>
-class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOS, S, GJKSolver, 0>
+template<typename S>
+class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOS, S, 0>
 {
 public:
   MeshShapeCollisionTraversalNodekIOS(const CollisionRequest& request):
-  MeshShapeCollisionTraversalNode<kIOS, S, GJKSolver, 0>
+  MeshShapeCollisionTraversalNode<kIOS, S, 0>
     (request)
   {
   }
 };
 
-template<typename S, typename GJKSolver>
-class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversalNode<OBBRSS, S, GJKSolver, 0>
+template<typename S>
+class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversalNode<OBBRSS, S, 0>
 {
 public:
   MeshShapeCollisionTraversalNodeOBBRSS (const CollisionRequest& request) :
-  MeshShapeCollisionTraversalNode <OBBRSS, S, GJKSolver, 0>
+  MeshShapeCollisionTraversalNode <OBBRSS, S, 0>
     (request)
   {
   }
@@ -307,7 +307,7 @@ public:
 
 
 /// @brief Traversal node for collision between shape and mesh
-template<typename S, typename BV, typename GJKSolver,
+template<typename S, typename BV,
   int _Options = RelativeTransformationIsIdentity>
 class ShapeMeshCollisionTraversalNode : public ShapeBVHCollisionTraversalNode<S, BV>
 {
@@ -420,41 +420,41 @@ public:
 };
 
 /// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
-template<typename S, typename GJKSolver>
-class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNode<S, OBB, GJKSolver, 0>
+template<typename S>
+class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNode<S, OBB, 0>
 {
 public:
-  ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<S, OBB, GJKSolver>()
+  ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<S, OBB>()
   {
   }
 };
 
 
-template<typename S, typename GJKSolver>
-class ShapeMeshCollisionTraversalNodeRSS : public ShapeMeshCollisionTraversalNode<S, RSS, GJKSolver, 0>
+template<typename S>
+class ShapeMeshCollisionTraversalNodeRSS : public ShapeMeshCollisionTraversalNode<S, RSS, 0>
 {
 public:
-  ShapeMeshCollisionTraversalNodeRSS() : ShapeMeshCollisionTraversalNode<S, RSS, GJKSolver>()
+  ShapeMeshCollisionTraversalNodeRSS() : ShapeMeshCollisionTraversalNode<S, RSS>()
   {
   }
 };
 
 
-template<typename S, typename GJKSolver>
-class ShapeMeshCollisionTraversalNodekIOS : public ShapeMeshCollisionTraversalNode<S, kIOS, GJKSolver, 0>
+template<typename S>
+class ShapeMeshCollisionTraversalNodekIOS : public ShapeMeshCollisionTraversalNode<S, kIOS, 0>
 {
 public:
-  ShapeMeshCollisionTraversalNodekIOS() : ShapeMeshCollisionTraversalNode<S, kIOS, GJKSolver>()
+  ShapeMeshCollisionTraversalNodekIOS() : ShapeMeshCollisionTraversalNode<S, kIOS>()
   {
   }
 };
 
 
-template<typename S, typename GJKSolver>
-class ShapeMeshCollisionTraversalNodeOBBRSS : public ShapeMeshCollisionTraversalNode<S, OBBRSS, GJKSolver, 0>
+template<typename S>
+class ShapeMeshCollisionTraversalNodeOBBRSS : public ShapeMeshCollisionTraversalNode<S, OBBRSS, 0>
 {
 public:
-  ShapeMeshCollisionTraversalNodeOBBRSS() : ShapeMeshCollisionTraversalNode<S, OBBRSS, GJKSolver>()
+  ShapeMeshCollisionTraversalNodeOBBRSS() : ShapeMeshCollisionTraversalNode<S, OBBRSS>()
   {
   }
 };
@@ -557,7 +557,7 @@ public:
                                   
 
 /// @brief Traversal node for distance between mesh and shape
-template<typename BV, typename S, typename GJKSolver>
+template<typename BV, typename S>
 class MeshShapeDistanceTraversalNode : public BVHShapeDistanceTraversalNode<BV, S>
 { 
 public:
@@ -619,7 +619,7 @@ public:
 namespace details
 {
 
-template<typename BV, typename S, typename GJKSolver>
+template<typename BV, typename S>
 void meshShapeDistanceOrientedNodeleafComputeDistance(int b1, int /* b2 */,
                                               const BVHModel<BV>* model1, const S& model2,
                                               Vec3f* vertices, Triangle* tri_indices,
@@ -651,7 +651,7 @@ void meshShapeDistanceOrientedNodeleafComputeDistance(int b1, int /* b2 */,
 }
 
 
-template<typename BV, typename S, typename GJKSolver>
+template<typename BV, typename S>
 static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
                                                   Vec3f* vertices, Triangle* tri_indices, int init_tri_id,
                                                   const S& model2, const Transform3f& tf1, const Transform3f& tf2,
@@ -682,11 +682,11 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
 
 
 /// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, OBBRSS, kIOS)
-template<typename S, typename GJKSolver>
-class MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<RSS, S, GJKSolver>
+template<typename S>
+class MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<RSS, S>
 {
 public:
-  MeshShapeDistanceTraversalNodeRSS() : MeshShapeDistanceTraversalNode<RSS, S, GJKSolver>()
+  MeshShapeDistanceTraversalNodeRSS() : MeshShapeDistanceTraversalNode<RSS, S>()
   {
   }
 
@@ -714,11 +714,11 @@ public:
 };
 
 
-template<typename S, typename GJKSolver>
-class MeshShapeDistanceTraversalNodekIOS : public MeshShapeDistanceTraversalNode<kIOS, S, GJKSolver>
+template<typename S>
+class MeshShapeDistanceTraversalNodekIOS : public MeshShapeDistanceTraversalNode<kIOS, S>
 {
 public:
-  MeshShapeDistanceTraversalNodekIOS() : MeshShapeDistanceTraversalNode<kIOS, S, GJKSolver>()
+  MeshShapeDistanceTraversalNodekIOS() : MeshShapeDistanceTraversalNode<kIOS, S>()
   {
   }
 
@@ -746,11 +746,11 @@ public:
 
 };
 
-template<typename S, typename GJKSolver>
-class MeshShapeDistanceTraversalNodeOBBRSS : public MeshShapeDistanceTraversalNode<OBBRSS, S, GJKSolver>
+template<typename S>
+class MeshShapeDistanceTraversalNodeOBBRSS : public MeshShapeDistanceTraversalNode<OBBRSS, S>
 {
 public:
-  MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSS, S, GJKSolver>()
+  MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSS, S>()
   {
   }
 
@@ -780,7 +780,7 @@ public:
 };
 
 /// @brief Traversal node for distance between shape and mesh
-template<typename S, typename BV, typename GJKSolver>
+template<typename S, typename BV>
 class ShapeMeshDistanceTraversalNode : public ShapeBVHDistanceTraversalNode<S, BV>
 { 
 public:
@@ -838,11 +838,11 @@ public:
   const GJKSolver* nsolver;
 };
 
-template<typename S, typename GJKSolver>
-class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSS, GJKSolver>
+template<typename S>
+class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSS>
 {
 public:
-  ShapeMeshDistanceTraversalNodeRSS() : ShapeMeshDistanceTraversalNode<S, RSS, GJKSolver>()
+  ShapeMeshDistanceTraversalNodeRSS() : ShapeMeshDistanceTraversalNode<S, RSS>()
   {
   }
 
@@ -870,11 +870,11 @@ public:
 
 };
 
-template<typename S, typename GJKSolver>
-class ShapeMeshDistanceTraversalNodekIOS : public ShapeMeshDistanceTraversalNode<S, kIOS, GJKSolver>
+template<typename S>
+class ShapeMeshDistanceTraversalNodekIOS : public ShapeMeshDistanceTraversalNode<S, kIOS>
 {
 public:
-  ShapeMeshDistanceTraversalNodekIOS() : ShapeMeshDistanceTraversalNode<S, kIOS, GJKSolver>()
+  ShapeMeshDistanceTraversalNodekIOS() : ShapeMeshDistanceTraversalNode<S, kIOS>()
   {
   }
 
@@ -902,11 +902,11 @@ public:
   
 };
 
-template<typename S, typename GJKSolver>
-class ShapeMeshDistanceTraversalNodeOBBRSS : public ShapeMeshDistanceTraversalNode<S, OBBRSS, GJKSolver>
+template<typename S>
+class ShapeMeshDistanceTraversalNodeOBBRSS : public ShapeMeshDistanceTraversalNode<S, OBBRSS>
 {
 public:
-  ShapeMeshDistanceTraversalNodeOBBRSS() : ShapeMeshDistanceTraversalNode<S, OBBRSS, GJKSolver>()
+  ShapeMeshDistanceTraversalNodeOBBRSS() : ShapeMeshDistanceTraversalNode<S, OBBRSS>()
   {
   }
 
