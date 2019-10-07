@@ -221,7 +221,7 @@ bool bs_hp = false;
 #define BENCHMARK_NEXT() if (bench_stream!=NULL && !bs_nl) { *bench_stream << '\n';  bs_nl = true; bs_hp = true; }
 
 typedef std::vector<Contact> Contacts_t;
-typedef boost::mpl::vector<OBB, RSS, AABB, KDOP<24>, KDOP<18>, KDOP<16>, kIOS, OBBRSS> BVs_t;
+typedef boost::mpl::vector<OBB, RSS, KDOP<24>, KDOP<18>, KDOP<16>, kIOS, OBBRSS> BVs_t;
 std::vector<SplitMethodType> splitMethods = boost::assign::list_of (SPLIT_METHOD_MEAN)(SPLIT_METHOD_MEDIAN)(SPLIT_METHOD_BV_CENTER);
 
 typedef boost::chrono::high_resolution_clock clock_type;
@@ -475,6 +475,50 @@ struct mesh_mesh_run_test
     }
   }
 
+  void check_contacts (std::size_t i0, std::size_t i1, bool warn)
+  {
+    for(std::size_t i = i0; i < i1; ++i) {
+      Contacts_t in_ref_but_not_in_i;
+      std::set_difference (
+          contacts_ref[i].begin(), contacts_ref[i].end(),
+          contacts    [i].begin(), contacts    [i].end(),
+          std::inserter(in_ref_but_not_in_i, in_ref_but_not_in_i.begin()));
+      if(!in_ref_but_not_in_i.empty()) {
+        for(std::size_t j = 0; j < in_ref_but_not_in_i.size(); ++j) {
+          if (warn) {
+            BOOST_WARN_MESSAGE (false, "Missed contacts: "
+                << in_ref_but_not_in_i[j].b1 << ", "
+                << in_ref_but_not_in_i[j].b2);
+          } else {
+            BOOST_CHECK_MESSAGE(false, "Missed contacts: "
+                << in_ref_but_not_in_i[j].b1 << ", "
+                << in_ref_but_not_in_i[j].b2);
+          }
+        }
+      }
+
+      Contacts_t in_i_but_not_in_ref;
+      std::set_difference (
+          contacts    [i].begin(), contacts    [i].end(),
+          contacts_ref[i].begin(), contacts_ref[i].end(),
+          std::inserter(in_i_but_not_in_ref, in_i_but_not_in_ref.begin()));
+
+      if(!in_i_but_not_in_ref.empty()) {
+        for(std::size_t j = 0; j < in_i_but_not_in_ref.size(); ++j) {
+          if (warn) {
+            BOOST_WARN_MESSAGE (false, "False contacts: "
+                << in_i_but_not_in_ref[j].b1 << ", "
+                << in_i_but_not_in_ref[j].b2);
+          } else {
+            BOOST_CHECK_MESSAGE(false, "False contacts: "
+                << in_i_but_not_in_ref[j].b1 << ", "
+                << in_i_but_not_in_ref[j].b2);
+          }
+        }
+      }
+    }
+  }
+
   template<typename BV>
   void check ()
   {
@@ -485,31 +529,22 @@ struct mesh_mesh_run_test
     BOOST_REQUIRE_EQUAL(contacts.size(), contacts_ref.size());
 
     if (traits<BV, Oriented, Recursive>::IS_IMPLEMENTED) {
-      for(std::size_t i = 0; i < N; ++i) {
-        BOOST_CHECK_EQUAL(contacts_ref[i].size(), contacts[i].size());
-        for(std::size_t j = 0; j < contacts[i].size(); ++j) {
-          BOOST_CHECK_EQUAL(contacts_ref[i][j].b1, contacts[i][j].b1);
-          BOOST_CHECK_EQUAL(contacts_ref[i][j].b2, contacts[i][j].b2);
-        }
-      }
+      BOOST_TEST_MESSAGE (getindent() << "BV: " << str<BV>() << " oriented");
+      ++indent;
+      check_contacts (0, N, false);
+      --indent;
     }
     if (traits<BV, NonOriented, Recursive>::IS_IMPLEMENTED) {
-      for(std::size_t i = N; i < 2*N; ++i) {
-        BOOST_CHECK_EQUAL(contacts_ref[i].size(), contacts[i].size());
-        for(std::size_t j = 0; j < contacts[i].size(); ++j) {
-          BOOST_CHECK_EQUAL(contacts_ref[i][j].b1, contacts[i][j].b1);
-          BOOST_CHECK_EQUAL(contacts_ref[i][j].b2, contacts[i][j].b2);
-        }
-      }
+      BOOST_TEST_MESSAGE (getindent() << "BV: " << str<BV>());
+      ++indent;
+      check_contacts (N, 2*N, true);
+      --indent;
     }
     if (traits<BV, Oriented, NonRecursive>::IS_IMPLEMENTED) {
-      for(std::size_t i = 2*N; i < 3*N; ++i) {
-        BOOST_CHECK_EQUAL(contacts_ref[i].size(), contacts[i].size());
-        for(std::size_t j = 0; j < contacts[i].size(); ++j) {
-          BOOST_CHECK_EQUAL(contacts_ref[i][j].b1, contacts[i][j].b1);
-          BOOST_CHECK_EQUAL(contacts_ref[i][j].b2, contacts[i][j].b2);
-        }
-      }
+      BOOST_TEST_MESSAGE (getindent() << "BV: " << str<BV>() << " oriented non-recursive");
+      ++indent;
+      check_contacts (2*N, 3*N, false);
+      --indent;
     }
   }
 

@@ -42,6 +42,7 @@
 
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/narrowphase/narrowphase.h>
 
 namespace hpp
 {
@@ -49,7 +50,7 @@ namespace fcl
 {
 
 /// @brief collision matrix stores the functions for collision between different types of objects and provides a uniform call interface
-template<typename GJKSolver>
+
 struct CollisionFunctionMatrix
 {
   /// @brief the uniform call interface for collision: for collision, we need know

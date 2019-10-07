@@ -53,7 +53,7 @@ namespace fcl
 
 
 /// @brief Traversal node for collision between two shapes
-template<typename S1, typename S2, typename GJKSolver>
+template<typename S1, typename S2>
 class ShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -115,7 +115,7 @@ public:
 };
 
 /// @brief Traversal node for distance between two shapes
-template<typename S1, typename S2, typename GJKSolver>
+template<typename S1, typename S2>
 class ShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:

@@ -248,6 +248,14 @@ void getSupportFuncTpl (const MinkowskiDiff& md,
     bool ( (bool)shape_traits<Shape0>::NeedNormalizedDir
         || (bool)shape_traits<Shape1>::NeedNormalizedDir)
   };
+#ifndef NDEBUG
+  // Need normalized direction and direction is normalized
+  assert(!NeedNormalizedDir || !dirIsNormalized || fabs(dir.squaredNorm() - 1) < 1e-6);
+  // Need normalized direction but direction is not normalized.
+  assert(!NeedNormalizedDir ||  dirIsNormalized || fabs(dir.normalized().squaredNorm() - 1) < 1e-6);
+  // Don't need normalized direction. Check that dir is not zero.
+  assert( NeedNormalizedDir || dir.cwiseAbs().maxCoeff() >= 1e-6);
+#endif
   getSupportTpl<Shape0, Shape1, TransformIsIdentity> (
       static_cast <const Shape0*>(md.shapes[0]),
       static_cast <const Shape1*>(md.shapes[1]),

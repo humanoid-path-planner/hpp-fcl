@@ -41,6 +41,9 @@
 #include <hpp/fcl/BVH/BVH_model.h>
 
 class aiScene;
+namespace Assimp {
+  class Importer;
+}
 
 namespace hpp
 {
@@ -62,7 +65,8 @@ struct Loader {
 
   void load (const std::string& resource_path);
 
-  aiScene* scene;
+  Assimp::Importer* importer;
+  aiScene const* scene;
 };
 
 /**

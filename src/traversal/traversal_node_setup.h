@@ -56,11 +56,10 @@ namespace fcl
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
 /// @brief Initialize traversal node for collision between two octrees, given current object transform
-template<typename GJKSolver>
-bool initialize(OcTreeCollisionTraversalNode<GJKSolver>& node,
+bool initialize(OcTreeCollisionTraversalNode& node,
                 const OcTree& model1, const Transform3f& tf1,
                 const OcTree& model2, const Transform3f& tf2,
-                const OcTreeSolver<GJKSolver>* otsolver,
+                const OcTreeSolver* otsolver,
                 CollisionResult& result)
 {
   node.result = &result;
@@ -77,11 +76,10 @@ bool initialize(OcTreeCollisionTraversalNode<GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for distance between two octrees, given current object transform
-template<typename GJKSolver>
-bool initialize(OcTreeDistanceTraversalNode<GJKSolver>& node,
+bool initialize(OcTreeDistanceTraversalNode& node,
                 const OcTree& model1, const Transform3f& tf1,
                 const OcTree& model2, const Transform3f& tf2,
-                const OcTreeSolver<GJKSolver>* otsolver,
+                const OcTreeSolver* otsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
 {
@@ -100,11 +98,11 @@ bool initialize(OcTreeDistanceTraversalNode<GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for collision between one shape and one octree, given current object transform
-template<typename S, typename GJKSolver>
-bool initialize(ShapeOcTreeCollisionTraversalNode<S, GJKSolver>& node,
+template<typename S>
+bool initialize(ShapeOcTreeCollisionTraversalNode<S>& node,
                 const S& model1, const Transform3f& tf1,
                 const OcTree& model2, const Transform3f& tf2,
-                const OcTreeSolver<GJKSolver>* otsolver,
+                const OcTreeSolver* otsolver,
                 CollisionResult& result)
 {
   node.result = &result;
@@ -121,11 +119,11 @@ bool initialize(ShapeOcTreeCollisionTraversalNode<S, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for collision between one octree and one shape, given current object transform
-template<typename S, typename GJKSolver>
-bool initialize(OcTreeShapeCollisionTraversalNode<S, GJKSolver>& node,
+template<typename S>
+bool initialize(OcTreeShapeCollisionTraversalNode<S>& node,
                 const OcTree& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
-                const OcTreeSolver<GJKSolver>* otsolver,
+                const OcTreeSolver* otsolver,
                 CollisionResult& result)
 {
   node.result = &result;
@@ -142,11 +140,11 @@ bool initialize(OcTreeShapeCollisionTraversalNode<S, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for distance between one shape and one octree, given current object transform
-template<typename S, typename GJKSolver>
-bool initialize(ShapeOcTreeDistanceTraversalNode<S, GJKSolver>& node,
+template<typename S>
+bool initialize(ShapeOcTreeDistanceTraversalNode<S>& node,
                 const S& model1, const Transform3f& tf1,
                 const OcTree& model2, const Transform3f& tf2,
-                const OcTreeSolver<GJKSolver>* otsolver,
+                const OcTreeSolver* otsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
 {
@@ -165,11 +163,11 @@ bool initialize(ShapeOcTreeDistanceTraversalNode<S, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for distance between one octree and one shape, given current object transform
-template<typename S, typename GJKSolver>
-bool initialize(OcTreeShapeDistanceTraversalNode<S, GJKSolver>& node,
+template<typename S>
+bool initialize(OcTreeShapeDistanceTraversalNode<S>& node,
                 const OcTree& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
-                const OcTreeSolver<GJKSolver>* otsolver,
+                const OcTreeSolver* otsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
 {
@@ -188,11 +186,11 @@ bool initialize(OcTreeShapeDistanceTraversalNode<S, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for collision between one mesh and one octree, given current object transform
-template<typename BV, typename GJKSolver>
-bool initialize(MeshOcTreeCollisionTraversalNode<BV, GJKSolver>& node,
+template<typename BV>
+bool initialize(MeshOcTreeCollisionTraversalNode<BV>& node,
                 const BVHModel<BV>& model1, const Transform3f& tf1,
                 const OcTree& model2, const Transform3f& tf2,
-                const OcTreeSolver<GJKSolver>* otsolver,
+                const OcTreeSolver* otsolver,
                 CollisionResult& result)
 {
   node.result = &result;
@@ -209,11 +207,11 @@ bool initialize(MeshOcTreeCollisionTraversalNode<BV, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for collision between one octree and one mesh, given current object transform
-template<typename BV, typename GJKSolver>
-bool initialize(OcTreeMeshCollisionTraversalNode<BV, GJKSolver>& node,
+template<typename BV>
+bool initialize(OcTreeMeshCollisionTraversalNode<BV>& node,
                 const OcTree& model1, const Transform3f& tf1,
                 const BVHModel<BV>& model2, const Transform3f& tf2,
-                const OcTreeSolver<GJKSolver>* otsolver,
+                const OcTreeSolver* otsolver,
                 CollisionResult& result)
 {
   node.result = &result;
@@ -230,11 +228,11 @@ bool initialize(OcTreeMeshCollisionTraversalNode<BV, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for distance between one mesh and one octree, given current object transform
-template<typename BV, typename GJKSolver>
-bool initialize(MeshOcTreeDistanceTraversalNode<BV, GJKSolver>& node,
+template<typename BV>
+bool initialize(MeshOcTreeDistanceTraversalNode<BV>& node,
                 const BVHModel<BV>& model1, const Transform3f& tf1,
                 const OcTree& model2, const Transform3f& tf2,
-                const OcTreeSolver<GJKSolver>* otsolver,
+                const OcTreeSolver* otsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
 {
@@ -253,11 +251,11 @@ bool initialize(MeshOcTreeDistanceTraversalNode<BV, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for collision between one octree and one mesh, given current object transform
-template<typename BV, typename GJKSolver>
-bool initialize(OcTreeMeshDistanceTraversalNode<BV, GJKSolver>& node,
+template<typename BV>
+bool initialize(OcTreeMeshDistanceTraversalNode<BV>& node,
                 const OcTree& model1, const Transform3f& tf1,
                 const BVHModel<BV>& model2, const Transform3f& tf2,
-                const OcTreeSolver<GJKSolver>* otsolver,
+                const OcTreeSolver* otsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
 {
@@ -279,8 +277,8 @@ bool initialize(OcTreeMeshDistanceTraversalNode<BV, GJKSolver>& node,
 
 
 /// @brief Initialize traversal node for collision between two geometric shapes, given current object transform
-template<typename S1, typename S2, typename GJKSolver>
-bool initialize(ShapeCollisionTraversalNode<S1, S2, GJKSolver>& node,
+template<typename S1, typename S2>
+bool initialize(ShapeCollisionTraversalNode<S1, S2>& node,
                 const S1& shape1, const Transform3f& tf1,
                 const S2& shape2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -298,8 +296,8 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for collision between one mesh and one shape, given current object transform
-template<typename BV, typename S, typename GJKSolver>
-bool initialize(MeshShapeCollisionTraversalNode<BV, S, GJKSolver>& node,
+template<typename BV, typename S>
+bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
                 BVHModel<BV>& model1, Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -346,8 +344,8 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, GJKSolver>& node,
 namespace details
 {
 
-template<typename BV, typename S, typename GJKSolver, template<typename, typename> class OrientedNode>
-static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S, GJKSolver>& node, 
+template<typename BV, typename S, template<typename> class OrientedNode>
+static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S>& node, 
                                                        const BVHModel<BV>& model1, const Transform3f& tf1,
                                                        const S& model2, const Transform3f& tf2,
                                                        const GJKSolver* nsolver,
@@ -378,8 +376,8 @@ static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S, GJKSolver
 
 
 /// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBB type
-template<typename S, typename GJKSolver>
-bool initialize(MeshShapeCollisionTraversalNodeOBB<S, GJKSolver>& node,
+template<typename S>
+bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node,
                 const BVHModel<OBB>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -389,8 +387,8 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S, GJKSolver>& node,
 }
 
 /// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type
-template<typename S, typename GJKSolver>
-bool initialize(MeshShapeCollisionTraversalNodeRSS<S, GJKSolver>& node,
+template<typename S>
+bool initialize(MeshShapeCollisionTraversalNodeRSS<S>& node,
                 const BVHModel<RSS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -400,8 +398,8 @@ bool initialize(MeshShapeCollisionTraversalNodeRSS<S, GJKSolver>& node,
 }
 
 /// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type
-template<typename S, typename GJKSolver>
-bool initialize(MeshShapeCollisionTraversalNodekIOS<S, GJKSolver>& node,
+template<typename S>
+bool initialize(MeshShapeCollisionTraversalNodekIOS<S>& node,
                 const BVHModel<kIOS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -411,8 +409,8 @@ bool initialize(MeshShapeCollisionTraversalNodekIOS<S, GJKSolver>& node,
 }
 
 /// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type
-template<typename S, typename GJKSolver>
-bool initialize(MeshShapeCollisionTraversalNodeOBBRSS<S, GJKSolver>& node,
+template<typename S>
+bool initialize(MeshShapeCollisionTraversalNodeOBBRSS<S>& node,
                 const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -425,8 +423,8 @@ bool initialize(MeshShapeCollisionTraversalNodeOBBRSS<S, GJKSolver>& node,
 /// @cond IGNORE
 namespace details
 {
-template<typename S, typename BV, typename GJKSolver, template<typename, typename> class OrientedNode>
-static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S, GJKSolver>& node, 
+template<typename S, typename BV, template<typename> class OrientedNode>
+static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S>& node, 
                                                        const S& model1, const Transform3f& tf1,
                                                        const BVHModel<BV>& model2, const Transform3f& tf2,
                                                        const GJKSolver* nsolver,
@@ -544,8 +542,8 @@ bool initialize(MeshCollisionTraversalNode<BV, 0>& node,
 }
 
 /// @brief Initialize traversal node for distance between two geometric shapes
-template<typename S1, typename S2, typename GJKSolver>
-bool initialize(ShapeDistanceTraversalNode<S1, S2, GJKSolver>& node,
+template<typename S1, typename S2>
+bool initialize(ShapeDistanceTraversalNode<S1, S2>& node,
                 const S1& shape1, const Transform3f& tf1,
                 const S2& shape2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -650,8 +648,8 @@ bool initialize(MeshDistanceTraversalNodeOBBRSS& node,
                 DistanceResult& result);
 
 /// @brief Initialize traversal node for distance computation between one mesh and one shape, given the current transforms
-template<typename BV, typename S, typename GJKSolver>
-bool initialize(MeshShapeDistanceTraversalNode<BV, S, GJKSolver>& node,
+template<typename BV, typename S>
+bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
                 BVHModel<BV>& model1, Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -697,8 +695,8 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for distance computation between one shape and one mesh, given the current transforms
-template<typename S, typename BV, typename GJKSolver>
-bool initialize(ShapeMeshDistanceTraversalNode<S, BV, GJKSolver>& node,
+template<typename S, typename BV>
+bool initialize(ShapeMeshDistanceTraversalNode<S, BV>& node,
                 const S& model1, const Transform3f& tf1,
                 BVHModel<BV>& model2, Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -747,8 +745,8 @@ bool initialize(ShapeMeshDistanceTraversalNode<S, BV, GJKSolver>& node,
 namespace details
 {
 
-template<typename BV, typename S, typename GJKSolver, template<typename, typename> class OrientedNode>
-static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S, GJKSolver>& node, 
+template<typename BV, typename S, template<typename> class OrientedNode>
+static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S>& node, 
                                                       const BVHModel<BV>& model1, const Transform3f& tf1,
                                                       const S& model2, const Transform3f& tf2,
                                                       const GJKSolver* nsolver,
@@ -778,8 +776,8 @@ static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S, GJKSolver>
 /// @endcond
 
 /// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for RSS type
-template<typename S, typename GJKSolver>
-bool initialize(MeshShapeDistanceTraversalNodeRSS<S, GJKSolver>& node,
+template<typename S>
+bool initialize(MeshShapeDistanceTraversalNodeRSS<S>& node,
                 const BVHModel<RSS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -790,8 +788,8 @@ bool initialize(MeshShapeDistanceTraversalNodeRSS<S, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for kIOS type
-template<typename S, typename GJKSolver>
-bool initialize(MeshShapeDistanceTraversalNodekIOS<S, GJKSolver>& node,
+template<typename S>
+bool initialize(MeshShapeDistanceTraversalNodekIOS<S>& node,
                 const BVHModel<kIOS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -802,8 +800,8 @@ bool initialize(MeshShapeDistanceTraversalNodekIOS<S, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for OBBRSS type
-template<typename S, typename GJKSolver>
-bool initialize(MeshShapeDistanceTraversalNodeOBBRSS<S, GJKSolver>& node,
+template<typename S>
+bool initialize(MeshShapeDistanceTraversalNodeOBBRSS<S>& node,
                 const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -816,8 +814,8 @@ bool initialize(MeshShapeDistanceTraversalNodeOBBRSS<S, GJKSolver>& node,
 
 namespace details
 {
-template<typename S, typename BV, typename GJKSolver, template<typename, typename> class OrientedNode>
-static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S, GJKSolver>& node,
+template<typename S, typename BV, template<typename> class OrientedNode>
+static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S>& node,
                                                       const S& model1, const Transform3f& tf1,
                                                       const BVHModel<BV>& model2, const Transform3f& tf2,
                                                       const GJKSolver* nsolver,
@@ -849,8 +847,8 @@ static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S, GJKSolver>
 
 
 /// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for RSS type
-template<typename S, typename GJKSolver>
-bool initialize(ShapeMeshDistanceTraversalNodeRSS<S, GJKSolver>& node,
+template<typename S>
+bool initialize(ShapeMeshDistanceTraversalNodeRSS<S>& node,
                 const S& model1, const Transform3f& tf1,
                 const BVHModel<RSS>& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -861,8 +859,8 @@ bool initialize(ShapeMeshDistanceTraversalNodeRSS<S, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for kIOS type
-template<typename S, typename GJKSolver>
-bool initialize(ShapeMeshDistanceTraversalNodekIOS<S, GJKSolver>& node,
+template<typename S>
+bool initialize(ShapeMeshDistanceTraversalNodekIOS<S>& node,
                 const S& model1, const Transform3f& tf1,
                 const BVHModel<kIOS>& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,
@@ -873,8 +871,8 @@ bool initialize(ShapeMeshDistanceTraversalNodekIOS<S, GJKSolver>& node,
 }
 
 /// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for OBBRSS type
-template<typename S, typename GJKSolver>
-bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<S, GJKSolver>& node,
+template<typename S>
+bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<S>& node,
                 const S& model1, const Transform3f& tf1,
                 const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver,

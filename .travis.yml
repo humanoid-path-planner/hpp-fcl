@@ -3,19 +3,37 @@ language: cpp
 env:
   global:
     - CTEST_PARALLEL_LEVEL=4
-  matrix:
-    - BUILD_TYPE=Debug
-    - BUILD_TYPE=Release
+    - CTEST_OUTPUT_ON_FAILURE=1
+    - CXX_FLAGS_DEBUG="-O1"
 
 matrix:
   include:
-    - dist: trusty
-      compiler: gcc
-    - dist: xenial
-      compiler: gcc
-    - dist: xenial
+    - name: "Trusty - Debug - g++"
+      env: BUILD_TYPE=Debug
+      dist: trusty
+      compiler: g++
+
+    - name: "Xenial - Debug - g++"
+      env: BUILD_TYPE=Debug
+      dist: xenial
+      compiler: g++
+    - name: "Xenial - Release - g++"
+      env: BUILD_TYPE=Release
+      dist: xenial
+      compiler: g++
+    - name: "Xenial - Debug - clang"
+      env: BUILD_TYPE=Debug
+      dist: xenial
       compiler: clang
-    - os: osx
+
+    - name: "Bionic - Debug - g++"
+      env: BUILD_TYPE=Debug
+      dist: xenial
+      compiler: g++
+
+    - name: "OSX - Debug - clang"
+      env: BUILD_TYPE=Debug
+      os: osx
       compiler: clang
 
 install:
@@ -29,13 +47,13 @@ script:
   - cd build
 
   # Configure
-  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w ..
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w -DCMAKE_CXX_FLAGS_DEBUG=${CXX_FLAGS_DEBUG} ..
 
   # Build
   - make -j4
 
   # Run unit tests
-  - travis_wait 30 make test || travis_wait 30 ctest -VV
+  - travis_wait 30 ctest
 
   # Make sure we can install and uninstall with no issues
   - sudo make -j4 install

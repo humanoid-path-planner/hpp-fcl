@@ -53,7 +53,7 @@ namespace fcl {
   class GJKSolver;
 
   template <>
-  FCL_REAL ShapeShapeDistance <Sphere, Sphere, GJKSolver>
+  FCL_REAL ShapeShapeDistance <Sphere, Sphere>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
    const GJKSolver*, const DistanceRequest&,
@@ -97,7 +97,7 @@ namespace fcl {
   }
 
   template <>
-  std::size_t ShapeShapeCollide <Sphere, Sphere, GJKSolver>
+  std::size_t ShapeShapeCollide <Sphere, Sphere>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
    const GJKSolver*, const CollisionRequest& request,
