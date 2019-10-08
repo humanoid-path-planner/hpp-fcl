@@ -41,7 +41,7 @@
 
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/shape/geometric_shapes_utility.h>
+#include "../src/shape/geometric_shapes_utility.h"
 #include "traversal_node_base.h"
 #include "details/traversal.h"
 #include <hpp/fcl/BVH/BVH_model.h>

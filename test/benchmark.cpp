@@ -14,12 +14,15 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-fcl. If not, see <http://www.gnu.org/licenses/>.
 
+#include <boost/filesystem.hpp>
+
 #include "../src/traversal/traversal_node_setup.h"
 #include "../src/traversal/traversal_node_bvhs.h"
-#include <../src/collision_node.h>
+#include "../src/collision_node.h"
+#include "../src/BVH/BV_splitter.h"
+
 #include "utility.h"
 #include "fcl_resources/config.h"
-#include <boost/filesystem.hpp>
 
 #define RUN_CASE(BV,tf,models,split) \
   run<BV>(tf, models, split, #BV " - " #split ":\t")

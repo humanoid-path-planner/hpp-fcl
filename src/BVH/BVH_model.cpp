@@ -36,10 +36,15 @@
 /** \author Jia Pan */
 
 #include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/BV/BV.h>
-#include <hpp/fcl/shape/convex.h>
+
 #include <iostream>
 #include <string.h>
+
+#include <hpp/fcl/BV/BV.h>
+#include <hpp/fcl/shape/convex.h>
+
+#include "../../src/BVH/BV_splitter.h"
+#include "../../src/BVH/BV_fitter.h"
 
 namespace hpp
 {
@@ -630,6 +635,20 @@ void BVHModelBase::computeLocalAABB()
   aabb_local = aabb_;
 }
 
+
+  /// @brief Constructing an empty BVH
+template<typename BV>
+BVHModel<BV>::BVHModel() :
+  BVHModelBase (),
+  bv_splitter(new BVSplitter<BV>(SPLIT_METHOD_MEAN)),
+  bv_fitter(new BVFitter<BV>()),
+  num_bvs_allocated(0),
+  primitive_indices(NULL),
+  bvs(NULL),
+  num_bvs(0)
+{
+}
+
 template<typename BV>
 void BVHModel<BV>::deleteBVs()
 {
@@ -1015,11 +1034,6 @@ NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const
   return BV_KDOP24;
 }
 
-
-
-
-
-
 template class BVHModel<KDOP<16> >;
 template class BVHModel<KDOP<18> >;
 template class BVHModel<KDOP<24> >;
@@ -1028,6 +1042,7 @@ template class BVHModel<AABB>;
 template class BVHModel<RSS>;
 template class BVHModel<kIOS>;
 template class BVHModel<OBBRSS>;
-}
+
+} // namespace fcl
 
 } // namespace hpp

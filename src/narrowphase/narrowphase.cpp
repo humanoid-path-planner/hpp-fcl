@@ -36,10 +36,12 @@
 /** \author Jia Pan */
 
 #include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/shape/geometric_shapes_utility.h>
-#include "../intersect.h"
-#include <boost/math/constants/constants.hpp>
+
 #include <vector>
+#include <boost/math/constants/constants.hpp>
+
+#include "../src/shape/geometric_shapes_utility.h"
+#include "../src/intersect.h"
 #include "../src/narrowphase/details.h"
 
 namespace hpp

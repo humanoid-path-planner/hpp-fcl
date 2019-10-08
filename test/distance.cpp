@@ -39,14 +39,16 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+#include <boost/timer.hpp>
+#include <boost/filesystem.hpp>
 
 #include "../src/traversal/traversal_node_bvhs.h"
 #include "../src/traversal/traversal_node_setup.h"
-#include <../src/collision_node.h>
+#include "../src/collision_node.h"
+#include "../src/BVH/BV_splitter.h"
+
 #include "utility.h"
-#include <boost/timer.hpp>
 #include "fcl_resources/config.h"
-#include <boost/filesystem.hpp>
 
 using namespace hpp::fcl;
 

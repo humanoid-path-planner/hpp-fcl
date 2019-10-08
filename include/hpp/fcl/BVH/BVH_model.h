@@ -41,8 +41,6 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/BV_node.h>
-#include "../../src/BVH/BV_splitter.h"
-#include "../../src/BVH/BV_fitter.h"
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
@@ -53,6 +51,9 @@ namespace fcl
 {
 
 class ConvexBase;
+
+template <typename BV> class BVFitter;
+template <typename BV> class BVSplitter;
 
 /// @brief A base class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
 class BVHModelBase : public CollisionGeometry
@@ -258,15 +259,7 @@ public:
   boost::shared_ptr<BVFitter<BV> > bv_fitter;
 
   /// @brief Constructing an empty BVH
-  BVHModel() : BVHModelBase (),
-               bv_splitter(new BVSplitter<BV>(SPLIT_METHOD_MEAN)),
-               bv_fitter(new BVFitter<BV>()),
-               num_bvs_allocated(0),
-               primitive_indices(NULL),
-               bvs(NULL),
-               num_bvs(0)
-  {
-  }
+  BVHModel();
 
   /// @brief copy from another BVH
   BVHModel(const BVHModel& other);

@@ -44,19 +44,22 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include <boost/filesystem.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "../src/traversal/traversal_node_bvhs.h"
-#include "../src/traversal/traversal_node_setup.h"
-#include <../src/collision_node.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/mesh_loader/assimp.h>
+
+#include "../src/traversal/traversal_node_bvhs.h"
+#include "../src/traversal/traversal_node_setup.h"
+#include "../src/collision_node.h"
+#include "../src/BVH/BV_splitter.h"
+
 #include "utility.h"
 #include "fcl_resources/config.h"
-#include <boost/filesystem.hpp>
 
 using namespace hpp::fcl;
 

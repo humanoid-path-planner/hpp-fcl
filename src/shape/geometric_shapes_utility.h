@@ -43,6 +43,8 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/BV/BV.h>
 
+#include "../src/BVH/BV_fitter.h"
+
 namespace hpp
 {
 namespace fcl
