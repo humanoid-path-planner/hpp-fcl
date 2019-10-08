@@ -305,14 +305,15 @@ public:
 
   void initialize();
 
+  Status evaluate(GJK& gjk, const Vec3f& guess);
+
+private:
   bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist);
 
   SimplexF* newFace(SimplexV* a, SimplexV* b, SimplexV* vertex, bool forced);
 
   /// @brief Find the best polytope face to split
   SimplexF* findBest();
-
-  Status evaluate(GJK& gjk, const Vec3f& guess);
 
   /// @brief the goal is to add a face connecting vertex w and face edge f[e] 
   bool expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon& horizon);  
