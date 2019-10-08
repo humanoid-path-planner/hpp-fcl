@@ -53,14 +53,6 @@ CollisionFunctionMatrix& getCollisionFunctionLookTable()
   return table;
 }
 
-std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
-                    const GJKSolver* nsolver,
-                    const CollisionRequest& request,
-                    CollisionResult& result)
-{
-  return collide(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver, request, result);
-}
-
 // reorder collision results in the order the call has been made.
 void invertResults(CollisionResult& result)
 {
@@ -132,6 +124,14 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
     delete nsolver;
   
   return res;
+}
+
+std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
+                    const GJKSolver* nsolver,
+                    const CollisionRequest& request,
+                    CollisionResult& result)
+{
+  return collide(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver, request, result);
 }
 
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
