@@ -170,8 +170,8 @@ public:
   }
   
   /// BV test between b1 and b2
-  /// \param b1, b2 Bounding volumes to test,
-  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  /// @param b1, b2 Bounding volumes to test,
+  /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {/// @internal MeshCollisionTraversalNode, private class.
@@ -190,8 +190,8 @@ public:
 
   /// Intersection testing between leaves (two triangles)
   ///
-  /// \param b1, b2 id of primitive in bounding volume hierarchy
-  /// \retval sqrDistLowerBound squared lower bound of distance between
+  /// @param b1, b2 id of primitive in bounding volume hierarchy
+  /// @retval sqrDistLowerBound squared lower bound of distance between
   ///         primitives if they are not in collision.
   ///
   /// This method supports a security margin. If the distance between
@@ -199,7 +199,7 @@ public:
   /// considered as in collision. in this case a contact point is
   /// returned in the CollisionResult.
   ///
-  /// \note If the distance between objects is less than the security margin,
+  /// @note If the distance between objects is less than the security margin,
   ///       and the object are not colliding, the penetration depth is
   ///       negative.
   void leafCollides(int b1, int b2, FCL_REAL& sqrDistLowerBound) const

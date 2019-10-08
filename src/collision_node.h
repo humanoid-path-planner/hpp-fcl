@@ -54,18 +54,18 @@ namespace fcl
 
 /// collision on collision traversal node
 /// 
-/// \param node node containing both objects to test,
-/// \retval squared lower bound to the distance between the objects if they
+/// @param node node containing both objects to test,
+/// @retval squared lower bound to the distance between the objects if they
 ///         do not collide.
-/// \param front_list list of nodes visited by the query, can be used to
+/// @param front_list list of nodes visited by the query, can be used to
 ///        accelerate computation
-  void collide(CollisionTraversalNodeBase* node,
-               const CollisionRequest& request,
-               CollisionResult& result,
-	       BVHFrontList* front_list = NULL,
-               bool recursive = true);
+/// @internal collide, private function.
+void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
+             CollisionResult& result, BVHFrontList* front_list = NULL,
+             bool recursive = true);
 
 /// @brief distance computation on distance traversal node; can use front list to accelerate
+/// @internal distance, private function.
 void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
 }
 

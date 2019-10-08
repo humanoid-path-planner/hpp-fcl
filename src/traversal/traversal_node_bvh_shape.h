@@ -179,8 +179,8 @@ public:
   }
 
   /// test between BV b1 and shape
-  /// \param b1 BV to test,
-  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  /// @param b1 BV to test,
+  /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   /// @brief BV culling test in one BVTT node
   bool BVDisjoints(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
@@ -331,7 +331,7 @@ public:
   }
 
   /// BV test between b1 and b2
-  /// \param b2 Bounding volumes to test,
+  /// @param b2 Bounding volumes to test,
   bool BVDisjoints(int /*b1*/, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
@@ -342,8 +342,8 @@ public:
   }
 
   /// BV test between b1 and b2
-  /// \param b2 Bounding volumes to test,
-  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  /// @param b2 Bounding volumes to test,
+  /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   bool BVDisjoints(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
   {

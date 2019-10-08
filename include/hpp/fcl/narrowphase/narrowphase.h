@@ -94,7 +94,7 @@ namespace fcl
     }
 
     //// @brief intersection checking between one shape and a triangle with transformation
-    /// \return true if the shape are colliding.
+    /// @return true if the shape are colliding.
     template<typename S>
     bool shapeTriangleInteraction
     (const S& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,

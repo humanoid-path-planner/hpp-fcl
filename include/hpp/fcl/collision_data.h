@@ -215,7 +215,7 @@ public:
   Vec3f cached_gjk_guess;
 
   /// Lower bound on distance between objects if they are disjoint
-  /// \note computed only on request.
+  /// @note computed only on request.
   FCL_REAL distance_lower_bound;
 
 public:

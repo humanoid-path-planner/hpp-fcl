@@ -47,7 +47,7 @@
 #include <hpp/fcl/BV/kIOS.h>
 #include <hpp/fcl/math/transform.h>
 
-/** \brief Main namespace */
+/** @brief Main namespace */
 namespace hpp
 {
 namespace fcl

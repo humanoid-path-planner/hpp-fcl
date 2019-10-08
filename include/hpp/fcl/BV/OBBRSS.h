@@ -72,7 +72,7 @@ public:
   }
 
   /// Check collision between two OBBRSS
-  /// \retval sqrDistLowerBound squared lower bound on distance between
+  /// @retval sqrDistLowerBound squared lower bound on distance between
   ///         objects if they do not overlap.
   bool overlap(const OBBRSS& other, const CollisionRequest& request,
                FCL_REAL& sqrDistLowerBound) const
@@ -154,9 +154,9 @@ inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const
 }
 
 /// Check collision between two OBBRSS
-/// \param  b1 first OBBRSS in configuration (R0, T0)
-/// \param  b2 second OBBRSS in identity position
-/// \retval squared lower bound on the distance if OBBRSS do not overlap.
+/// @param  b1 first OBBRSS in configuration (R0, T0)
+/// @param  b2 second OBBRSS in identity position
+/// @retval squared lower bound on the distance if OBBRSS do not overlap.
 inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1,
                     const OBBRSS& b2, const CollisionRequest& request,
 	            FCL_REAL& sqrDistLowerBound)

@@ -218,7 +218,7 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, i
 }
 
 
-/** \brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin.
+/** @brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin.
  * The bounding volume axes are known.
  */
 void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Matrix3f& axes, Vec3f& origin, FCL_REAL l[2], FCL_REAL& r)
@@ -499,7 +499,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 }
 
 
-/** \brief Compute the bounding volume extent and center for a set or subset of points.
+/** @brief Compute the bounding volume extent and center for a set or subset of points.
  * The bounding volume axes are known.
  */
 static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f& axes, Vec3f& center, Vec3f& extent)
@@ -544,7 +544,7 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
 }
 
 
-/** \brief Compute the bounding volume extent and center for a set or subset of points.
+/** @brief Compute the bounding volume extent and center for a set or subset of points.
  * The bounding volume axes are known.
  */
 static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& axes, Vec3f& center, Vec3f& extent)

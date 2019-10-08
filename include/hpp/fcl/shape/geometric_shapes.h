@@ -281,6 +281,7 @@ public:
 class ConvexBase : public ShapeBase
 {
 public:
+
   virtual ~ConvexBase();
 
   /// @brief Compute AABB 

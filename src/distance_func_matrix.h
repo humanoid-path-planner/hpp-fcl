@@ -39,7 +39,9 @@
 
 namespace hpp
 {
-namespace fcl {
+namespace fcl
+{
+  /// @internal ShapeShapeDistance, private function.
   template<typename T_SH1, typename T_SH2>
     FCL_REAL ShapeShapeDistance
     (const CollisionGeometry* o1, const Transform3f& tf1,
@@ -47,6 +49,7 @@ namespace fcl {
      const GJKSolver* nsolver, const DistanceRequest& request,
      DistanceResult& result);
 
+  /// @internal ShapeShapeCollide, private function.
   template<typename T_SH1, typename T_SH2>
     std::size_t ShapeShapeCollide
     (const CollisionGeometry* o1, const Transform3f& tf1,

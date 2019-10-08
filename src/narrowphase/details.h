@@ -273,7 +273,7 @@ namespace fcl {
       return (dist >=0);
     }
 
-    /** \brief the minimum distance from a point to a line */
+    /** @brief the minimum distance from a point to a line */
     inline FCL_REAL segmentSqrDistance
       (const Vec3f& from, const Vec3f& to,const Vec3f& p, Vec3f& nearest)
     {
@@ -2092,11 +2092,11 @@ namespace fcl {
     }
 
     /// Taken from book Real Time Collision Detection, from Christer Ericson
-    /// \param pb the closest point to the sphere center on the box surface
-    /// \param ps when colliding, matches pb, which is inside the sphere.
+    /// @param pb the closest point to the sphere center on the box surface
+    /// @param ps when colliding, matches pb, which is inside the sphere.
     ///           when not colliding, the closest point on the sphere
-    /// \param normal direction of motion of the box
-    /// \return true if the distance is negative (the shape overlaps).
+    /// @param normal direction of motion of the box
+    /// @return true if the distance is negative (the shape overlaps).
     inline bool boxSphereDistance(const Box   & b, const Transform3f& tfb,
                                   const Sphere& s, const Transform3f& tfs,
                                   FCL_REAL& dist, Vec3f& pb, Vec3f& ps,

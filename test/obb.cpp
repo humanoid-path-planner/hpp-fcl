@@ -172,7 +172,7 @@ const Eigen::IOFormat py_fmt(Eigen::FullPrecision,
 
 namespace obbDisjoint_impls
 {
-  /// \return true if OBB are disjoint.
+  /// @return true if OBB are disjoint.
   bool distance (const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b, FCL_REAL& distance)
   {
     GJKSolver gjk;

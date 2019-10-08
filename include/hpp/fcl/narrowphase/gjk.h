@@ -54,21 +54,21 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized)
 
 /// @brief Minkowski difference class of two shapes
 ///
-/// \todo template this by the two shapes. The triangle / triangle case can be
+/// @todo template this by the two shapes. The triangle / triangle case can be
 ///       easily optimized computing once the triangle shapes[1] into frame0
 ///
-/// \note The Minkowski difference is expressed in the frame of the first shape.
+/// @note The Minkowski difference is expressed in the frame of the first shape.
 struct MinkowskiDiff
 {
   /// @brief points to two shapes
   const ShapeBase* shapes[2];
 
   /// @brief rotation from shape1 to shape0
-  /// such that \f$ p_in_0 = oR1 * p_in_1 + ot1 \f$.
+  /// such that @f$ p_in_0 = oR1 * p_in_1 + ot1 @f$.
   Matrix3f oR1;
 
   /// @brief translation from shape1 to shape0
-  /// such that \f$ p_in_0 = oR1 * p_in_1 + ot1 \f$.
+  /// such that @f$ p_in_0 = oR1 * p_in_1 + ot1 @f$.
   Vec3f ot1;
 
   typedef void (*GetSupportFunction) (const MinkowskiDiff& minkowskiDiff,
@@ -107,7 +107,7 @@ struct MinkowskiDiff
 
 /// @brief class for GJK algorithm
 ///
-/// \note The computations are performed in the frame of the first shape.
+/// @note The computations are performed in the frame of the first shape.
 struct GJK
 {
   struct SimplexV
@@ -166,7 +166,7 @@ struct GJK
   }
 
   /// Get the closest points on each object.
-  /// \return true on success
+  /// @return true on success
   static bool getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1);
 
   /// @brief get the guess from current simplex
@@ -174,7 +174,7 @@ struct GJK
 
   /// @brief Distance threshold for early break.
   /// GJK stops when it proved the distance is more than this threshold.
-  /// \note The closest points will be erroneous in this case.
+  /// @note The closest points will be erroneous in this case.
   ///       If you want the closest points, set this to infinity (the default).
   void setDistanceEarlyBreak (const FCL_REAL& dup)
   {

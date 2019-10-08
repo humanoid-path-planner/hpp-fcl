@@ -221,17 +221,17 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
 }
 
 
-/** \brief Bounding volume test structure */
+/** @brief Bounding volume test structure */
 struct BVT
 {
-  /** \brief distance between bvs */
+  /** @brief distance between bvs */
   FCL_REAL d;
 
-  /** \brief bv indices for a pair of bvs in two models */
+  /** @brief bv indices for a pair of bvs in two models */
   int b1, b2;
 };
 
-/** \brief Comparer between two BVT */
+/** @brief Comparer between two BVT */
 struct BVT_Comparer
 {
   bool operator() (const BVT& lhs, const BVT& rhs) const
@@ -276,7 +276,7 @@ struct BVTQ
 
   std::priority_queue<BVT, std::vector<BVT>, BVT_Comparer> pq;
 
-  /** \brief Queue size */
+  /** @brief Queue size */
   unsigned int qsize;
 };
 
