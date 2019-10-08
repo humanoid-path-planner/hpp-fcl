@@ -47,7 +47,10 @@ namespace hpp
 namespace fcl
 {
 
+
 /// @brief Node structure encoding the information required for traversal.
+/// @internal TraversalNodeBase, private class.
+
 class TraversalNodeBase
 {
 public:
@@ -88,7 +91,9 @@ public:
   Transform3f tf2;
 };
 
+
 /// @brief Node structure encoding the information required for collision traversal.
+/// @internal CollisionTraversalNodeBase, private class.
 class CollisionTraversalNodeBase : public TraversalNodeBase
 {
 public:
@@ -129,6 +134,7 @@ public:
 };
 
 /// @brief Node structure encoding the information required for distance traversal.
+/// @internal DistanceTraversalNodeBase, private class.
 class DistanceTraversalNodeBase : public TraversalNodeBase
 {
 public:

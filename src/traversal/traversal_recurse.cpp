@@ -89,6 +89,7 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
     collisionRecurse(node, b1, c2, front_list, sqrDistLowerBound2);
     sqrDistLowerBound = std::min (sqrDistLowerBound1, sqrDistLowerBound2);
   }
+  return;
 }
 
 void collisionNonRecurse(CollisionTraversalNodeBase* node,

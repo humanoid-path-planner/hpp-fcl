@@ -51,6 +51,7 @@ namespace fcl
 {
 
 /// @brief Algorithms for collision related with octree
+/// @internal OcTreeSolver, private class.
 class OcTreeSolver
 {
 private:
@@ -889,6 +890,7 @@ private:
 
 
 /// @brief Traversal node for octree collision
+/// @internal OcTreeCollisionTraversalNode, private class.
 class OcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -925,6 +927,7 @@ public:
 };
 
 /// @brief Traversal node for octree distance
+/// @internal OcTreeDistanceTraversalNode, private class.
 class OcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -959,6 +962,7 @@ public:
 };
 
 /// @brief Traversal node for shape-octree collision
+/// @internal ShapeOcTreeCollisionTraversalNode, private class.
 template<typename S>
 class ShapeOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -996,6 +1000,7 @@ public:
 };
 
 /// @brief Traversal node for octree-shape collision
+/// @internal OcTreeShapeCollisionTraversalNode, private class.
 template<typename S>
 class OcTreeShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -1033,6 +1038,7 @@ public:
 };
 
 /// @brief Traversal node for shape-octree distance
+/// @internal ShapeOcTreeCollisionTraversalNode, private class.
 template<typename S>
 class ShapeOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -1062,6 +1068,7 @@ public:
 };
 
 /// @brief Traversal node for octree-shape distance
+/// @internal OcTreeShapeDistanceTraversalNode, private class.
 template<typename S>
 class OcTreeShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -1091,6 +1098,7 @@ public:
 };
 
 /// @brief Traversal node for mesh-octree collision
+/// @internal MeshOcTreeCollisionTraversalNode, private class.
 template<typename BV>
 class MeshOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -1128,6 +1136,7 @@ public:
 };
 
 /// @brief Traversal node for octree-mesh collision
+/// @internal OcTreeMeshCollisionTraversalNode, private class.
 template<typename BV>
 class OcTreeMeshCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -1165,6 +1174,7 @@ public:
 };
 
 /// @brief Traversal node for mesh-octree distance
+/// @internal MeshOcTreeDistanceTraversalNode, private class.
 template<typename BV>
 class MeshOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -1195,6 +1205,7 @@ public:
 };
 
 /// @brief Traversal node for octree-mesh distance
+/// @internal OcTreeMeshDistanceTraversalNode, private class.
 template<typename BV>
 class OcTreeMeshDistanceTraversalNode : public DistanceTraversalNodeBase
 {

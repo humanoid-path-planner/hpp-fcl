@@ -61,6 +61,7 @@ namespace hpp
 namespace fcl
 {
 /// @brief Traversal node for collision between BVH models
+/// @internal BVHCollisionTraversalNode, private class.
 template<typename BV>
 class BVHCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -138,6 +139,7 @@ public:
 };
 
 /// @brief Traversal node for collision between two meshes
+/// @internal MeshCollisionTraversalNode, private class.
 template<typename BV, int _Options = RelativeTransformationIsIdentity>
 class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
 {
@@ -172,7 +174,7 @@ public:
   /// \retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
-  {
+  {/// @internal MeshCollisionTraversalNode, private class.
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
       return !this->model1->getBV(b1).overlap(this->model2->getBV(b2),
@@ -264,6 +266,7 @@ public:
 };
 
 /// @brief Traversal node for collision between two meshes if their underlying BVH node is oriented node (OBB, RSS, OBBRSS, kIOS)
+/// @internal MeshCollisionTraversalNode (OBB, RSS, OBBRSS, kIOS), private class.
 typedef MeshCollisionTraversalNode<OBB   , 0> MeshCollisionTraversalNodeOBB   ;
 typedef MeshCollisionTraversalNode<RSS   , 0> MeshCollisionTraversalNodeRSS   ;
 typedef MeshCollisionTraversalNode<kIOS  , 0> MeshCollisionTraversalNodekIOS  ;
@@ -296,6 +299,7 @@ namespace details
 } // namespace details
 
 /// @brief Traversal node for distance computation between BVH models
+/// @internal BVHDistanceTraversalNode, private class.
 template<typename BV>
 class BVHDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -381,6 +385,7 @@ public:
 
 
 /// @brief Traversal node for distance computation between two meshes
+/// @internal MeshDistanceTraversalNode, private class.
 template<typename BV>
 class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV>
 {
@@ -448,6 +453,7 @@ public:
 };
 
 /// @brief Traversal node for distance computation between two meshes if their underlying BVH node is oriented node (RSS, OBBRSS, kIOS)
+/// @internal MeshDistanceTraversalNodeRSS/kIOS/OBBRSS, private class.
 class MeshDistanceTraversalNodeRSS : public MeshDistanceTraversalNode<RSS>
 {
 public:
