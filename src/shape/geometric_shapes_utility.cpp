@@ -37,8 +37,8 @@
 
 
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
-#include <hpp/fcl/BVH/BV_fitter.h>
-#include <hpp/fcl/math/tools.h>
+#include "../BVH/BV_fitter.h"
+#include "../math/tools.h"
 
 namespace hpp
 {
@@ -482,7 +482,7 @@ void computeBV<RSS, Halfspace>(const Halfspace&, const Transform3f&, RSS& bv)
   /// Half space can only have very rough RSS
   bv.axes.setIdentity();
   bv.Tr.setZero();
-  bv.l[0] = bv.l[1] = bv.r = std::numeric_limits<FCL_REAL>::max();
+  bv.length[0] = bv.length[1] = bv.radius = std::numeric_limits<FCL_REAL>::max();
 }
 
 template<>
@@ -716,10 +716,10 @@ void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv)
   generateCoordinateSystem(n, bv.axes.col(1), bv.axes.col(2));
   bv.axes.col(0).noalias() = n;
 
-  bv.l[0] = std::numeric_limits<FCL_REAL>::max();
-  bv.l[1] = std::numeric_limits<FCL_REAL>::max();
+  bv.length[0] = std::numeric_limits<FCL_REAL>::max();
+  bv.length[1] = std::numeric_limits<FCL_REAL>::max();
 
-  bv.r = 0;
+  bv.radius = 0;
   
   Vec3f p = s.n * s.d;
   bv.Tr = tf.transform(p);

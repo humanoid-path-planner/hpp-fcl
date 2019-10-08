@@ -125,7 +125,7 @@ class Converter<RSS, OBB>
 public:
   static void convert(const RSS& bv1, const Transform3f& tf1, OBB& bv2)
   {
-    bv2.extent.noalias() = Vec3f(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
+    bv2.extent.noalias() = Vec3f(bv1.length[0] * 0.5 + bv1.radius, bv1.length[1] * 0.5 + bv1.radius, bv1.radius);
     bv2.To.noalias() = tf1.transform(bv1.Tr);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
   }
@@ -168,9 +168,9 @@ public:
     bv2.Tr = tf1.transform(bv1.To);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
  
-    bv2.r = bv1.extent[2];
-    bv2.l[0] = 2 * (bv1.extent[0] - bv2.r);
-    bv2.l[1] = 2 * (bv1.extent[1] - bv2.r);
+    bv2.radius = bv1.extent[2];
+    bv2.length[0] = 2 * (bv1.extent[0] - bv2.radius);
+    bv2.length[1] = 2 * (bv1.extent[1] - bv2.radius);
   }
 };
 
@@ -183,9 +183,9 @@ public:
     bv2.Tr.noalias() = tf1.transform(bv1.Tr);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
 
-    bv2.r = bv1.r;
-    bv2.l[0] = bv1.l[0];
-    bv2.l[1] = bv1.l[1];
+    bv2.radius = bv1.radius;
+    bv2.length[0] = bv1.length[0];
+    bv2.length[1] = bv1.length[1];
   }
 };
 
@@ -232,9 +232,9 @@ public:
     }
 
     Vec3f extent = (bv1.max_ - bv1.min_) * 0.5;
-    bv2.r = extent[id[2]];
-    bv2.l[0] = (extent[id[0]] - bv2.r) * 2;
-    bv2.l[1] = (extent[id[1]] - bv2.r) * 2;
+    bv2.radius = extent[id[2]];
+    bv2.length[0] = (extent[id[0]] - bv2.radius) * 2;
+    bv2.length[1] = (extent[id[1]] - bv2.radius) * 2;
 
     const Matrix3f& R = tf1.getRotation();
     bool left_hand = (id[0] == (id[1] + 1) % 3);

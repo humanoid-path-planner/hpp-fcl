@@ -98,16 +98,16 @@ public:
   virtual ~CollisionTraversalNodeBase();
 
   /// @brief BV test between b1 and b2
-  virtual bool BVTesting(int b1, int b2) const = 0;
+  virtual bool BVDisjoints(int b1, int b2) const = 0;
 
   /// BV test between b1 and b2
   /// \param b1, b2 Bounding volumes to test,
   /// \retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
-  virtual bool BVTesting(int b1, int b2, FCL_REAL& sqrDistLowerBound) const = 0;
+  virtual bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const = 0;
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs
-  virtual void leafTesting(int /*b1*/, int /*b2*/, FCL_REAL& /*sqrDistLowerBound*/) const
+  virtual void leafCollides(int /*b1*/, int /*b2*/, FCL_REAL& /*sqrDistLowerBound*/) const
   {
     throw std::runtime_error ("Not implemented");
   }
@@ -139,10 +139,10 @@ public:
   /// @brief BV test between b1 and b2
   /// \return a lower bound of the distance between the two BV.
   /// \note except for OBB, this method returns the distance.
-  virtual FCL_REAL BVTesting(int b1, int b2) const;
+  virtual FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs
-  virtual void leafTesting(int b1, int b2) const = 0;
+  virtual void leafComputeDistance(int b1, int b2) const = 0;
 
   /// @brief Check whether the traversal can stop
   virtual bool canStop(FCL_REAL c) const;

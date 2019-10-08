@@ -41,8 +41,8 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/BV_node.h>
-#include <hpp/fcl/BVH/BV_splitter.h>
-#include <hpp/fcl/BVH/BV_fitter.h>
+#include "../../src/BVH/BV_splitter.h"
+#include "../../src/BVH/BV_fitter.h"
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
@@ -252,10 +252,10 @@ class BVHModel : public BVHModelBase
 
 public:
   /// @brief Split rule to split one BV node into two children
-  boost::shared_ptr<BVSplitterBase<BV> > bv_splitter;
+  boost::shared_ptr<BVSplitter<BV> > bv_splitter;
 
   /// @brief Fitting rule to fit a BV node to a set of geometry primitives
-  boost::shared_ptr<BVFitterBase<BV> > bv_fitter;
+  boost::shared_ptr<BVFitter<BV> > bv_fitter;
 
   /// @brief Constructing an empty BVH
   BVHModel() : BVHModelBase (),

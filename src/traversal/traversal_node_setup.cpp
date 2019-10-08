@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#include <hpp/fcl/traversal/traversal_node_setup.h>
-#include <hpp/fcl/math/tools.h>
+#include "traversal_node_setup.h"
+#include "../math/tools.h"
 
 namespace hpp
 {

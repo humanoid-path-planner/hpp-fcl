@@ -41,16 +41,37 @@
 #include <cstddef>
 #include <boost/cstdint.hpp>
 
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
+
+namespace hpp
+{
+
+#ifdef HPP_FCL_HAVE_OCTOMAP
+  #define OCTOMAP_VERSION_AT_LEAST(x,y,z) \
+    (OCTOMAP_MAJOR_VERSION > x || (OCTOMAP_MAJOR_VERSION >= x && \
+    (OCTOMAP_MINOR_VERSION > y || (OCTOMAP_MINOR_VERSION >= y && \
+    OCTOMAP_PATCH_VERSION >= z))))
+
+  #define OCTOMAP_VERSION_AT_MOST(x,y,z) \
+    (OCTOMAP_MAJOR_VERSION < x || (OCTOMAP_MAJOR_VERSION <= x && \
+    (OCTOMAP_MINOR_VERSION < y || (OCTOMAP_MINOR_VERSION <= y && \
+    OCTOMAP_PATCH_VERSION <= z))))
+#endif // HPP_FCL_HAVE_OCTOMAP
+}
+
 namespace hpp
 {
 namespace fcl
 {
-
 typedef double FCL_REAL;
 typedef boost::uint64_t FCL_INT64;
 typedef boost::int64_t FCL_UINT64;
 typedef boost::uint32_t FCL_UINT32;
 typedef boost::int32_t FCL_INT32;
+typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
+typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 
 /// @brief Triangle with 3 indices for points
 class Triangle
@@ -89,5 +110,6 @@ private:
 }
 
 } // namespace hpp
+
 
 #endif

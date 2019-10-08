@@ -38,7 +38,7 @@
 #ifndef HPP_FCL_OBB_H
 #define HPP_FCL_OBB_H
 
-#include <hpp/fcl/math/types.h>
+#include <hpp/fcl/data_types.h>
 
 namespace hpp
 {
@@ -60,6 +60,9 @@ public:
   /// @brief Half dimensions of OBB
   Vec3f extent;
 
+  /// @brief Check whether the OBB contains a point.
+  bool contain(const Vec3f& p) const;
+
   /// Check collision between two OBB
   /// \return true if collision happens. 
   bool overlap(const OBB& other) const;
@@ -71,8 +74,8 @@ public:
   bool overlap(const OBB& other, const CollisionRequest& request,
                FCL_REAL& sqrDistLowerBound) const;
 
-  /// @brief Check whether the OBB contains a point.
-  bool contain(const Vec3f& p) const;
+  /// @brief Distance between two OBBs, not implemented.
+  FCL_REAL distance(const OBB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
   /// @brief A simple way to merge the OBB and a point (the result is not compact).
   OBB& operator += (const Vec3f& p);
@@ -86,6 +89,18 @@ public:
 
   /// @brief Return the merged OBB of current OBB and the other one (the result is not compact).
   OBB operator + (const OBB& other) const;
+
+  /// @brief Size of the OBB (used in BV_Splitter to order two OBBs)
+  inline FCL_REAL size() const
+  {
+    return extent.squaredNorm();
+  }
+
+  /// @brief Center of the OBB
+  inline const Vec3f& center() const
+  {
+    return To;
+  }
 
   /// @brief Width of the OBB.
   inline FCL_REAL width() const
@@ -110,22 +125,6 @@ public:
   {
     return width() * height() * depth();
   }
-
-  /// @brief Size of the OBB (used in BV_Splitter to order two OBBs)
-  inline FCL_REAL size() const
-  {
-    return extent.squaredNorm();
-  }
-
-  /// @brief Center of the OBB
-  inline const Vec3f& center() const
-  {
-    return To;
-  }
-
-
-  /// @brief Distance between two OBBs, not implemented.
-  FCL_REAL distance(const OBB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 };
 
 

@@ -31,7 +31,7 @@
 
 using namespace hpp::fcl;
 
-CollisionFunctionMatrix<GJKSolver> lookupTable;
+CollisionFunctionMatrix lookupTable;
 bool supportedPair(const CollisionGeometry* o1, const CollisionGeometry* o2)
 {
   OBJECT_TYPE object_type1 = o1->getObjectType();

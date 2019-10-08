@@ -42,7 +42,7 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/math/types.h>
+#include <hpp/fcl/data_types.h>
 #include <string.h>
 
 namespace hpp
@@ -149,6 +149,8 @@ class Capsule : public ShapeBase
 public:
   Capsule(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
   {
+    lz = lz_;
+    HalfLength = lz_/2;
   }
 
   /// @brief Radius of capsule 
@@ -156,6 +158,9 @@ public:
 
   /// @brief Length along z axis 
   FCL_REAL lz;
+
+  /// @brief Half Length along z axis 
+  FCL_REAL HalfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -189,6 +194,8 @@ class Cone : public ShapeBase
 public:
   Cone(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
   {
+    lz = lz_;
+    HalfLength = lz_/2;
   }
 
   /// @brief Radius of the cone 
@@ -196,6 +203,9 @@ public:
 
   /// @brief Length along z axis 
   FCL_REAL lz;
+
+  /// @brief Half Length along z axis 
+  FCL_REAL HalfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -231,14 +241,18 @@ class Cylinder : public ShapeBase
 public:
   Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
   {
+    lz = lz_;
+    HalfLength = lz_/2;
   }
-
   
   /// @brief Radius of the cylinder 
   FCL_REAL radius;
 
   /// @brief Length along z axis 
   FCL_REAL lz;
+
+  /// @brief Half Length along z axis 
+  FCL_REAL HalfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();

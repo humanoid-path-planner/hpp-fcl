@@ -59,6 +59,12 @@ public:
   /// @brief RSS member, for distance
   RSS rss;
 
+/// @brief Check whether the OBBRSS contains a point
+  inline bool contain(const Vec3f& p) const
+  {
+    return obb.contain(p);
+  }
+
   /// @brief Check collision between two OBBRSS
   bool overlap(const OBBRSS& other) const
   {
@@ -74,10 +80,10 @@ public:
     return obb.overlap(other.obb, request, sqrDistLowerBound);
   }
 
-/// @brief Check whether the OBBRSS contains a point
-  inline bool contain(const Vec3f& p) const
+  /// @brief Distance between two OBBRSS; P and Q , is not NULL, returns the nearest points
+  FCL_REAL distance(const OBBRSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const
   {
-    return obb.contain(p);
+    return rss.distance(other.rss, P, Q);
   }
 
   /// @brief Merge the OBBRSS and a point
@@ -104,6 +110,18 @@ public:
     return result;
   }
 
+    /// @brief Size of the OBBRSS (used in BV_Splitter to order two OBBRSS)
+  inline FCL_REAL size() const
+  {
+    return obb.size();
+  }
+
+  /// @brief Center of the OBBRSS
+  inline const Vec3f& center() const
+  {
+    return obb.center();
+  }
+
   /// @brief Width of the OBRSS
   inline FCL_REAL width() const
   {
@@ -126,24 +144,6 @@ public:
   inline FCL_REAL volume() const
   {
     return obb.volume();
-  }
-
-  /// @brief Size of the OBBRSS (used in BV_Splitter to order two OBBRSS)
-  inline FCL_REAL size() const
-  {
-    return obb.size();
-  }
-
-  /// @brief Center of the OBBRSS
-  inline const Vec3f& center() const
-  {
-    return obb.center();
-  }
-
-  /// @brief Distance between two OBBRSS; P and Q , is not NULL, returns the nearest points
-  FCL_REAL distance(const OBBRSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const
-  {
-    return rss.distance(other.rss, P, Q);
   }
 };
 

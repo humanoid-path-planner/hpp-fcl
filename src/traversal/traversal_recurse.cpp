@@ -36,7 +36,7 @@
 /** \author Jia Pan */
 
 
-#include <hpp/fcl/traversal/traversal_recurse.h>
+#include "traversal_recurse.h"
 
 #include <vector>
 
@@ -54,12 +54,12 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
   {
     updateFrontList(front_list, b1, b2);
 
-    if(node->BVTesting(b1, b2, sqrDistLowerBound)) return;
-    node->leafTesting(b1, b2, sqrDistLowerBound);
+   // if(node->BVDisjoints(b1, b2, sqrDistLowerBound)) return;
+    node->leafCollides(b1, b2, sqrDistLowerBound);
     return;
   }
 
-  if(node->BVTesting(b1, b2, sqrDistLowerBound)) {
+  if(node->BVDisjoints(b1, b2, sqrDistLowerBound)) {
     updateFrontList(front_list, b1, b2);
     return;
   }
@@ -118,11 +118,11 @@ void collisionNonRecurse(CollisionTraversalNodeBase* node,
       updateFrontList(front_list, a, b);
 
       // TODO should we test the BVs ?
-      //if(node->BVTesting(a, b, sdlb)) {
+      //if(node->BVDijsoints(a, b, sdlb)) {
         //if (sdlb < sqrDistLowerBound) sqrDistLowerBound = sdlb;
         //continue;
       //}
-      node->leafTesting(a, b, sdlb);
+      node->leafCollides(a, b, sdlb);
       if (sdlb < sqrDistLowerBound) sqrDistLowerBound = sdlb;
       if (node->canStop() && !front_list) return;
       continue;
@@ -134,7 +134,7 @@ void collisionNonRecurse(CollisionTraversalNodeBase* node,
     // }
 
     // Check the BV
-    if(node->BVTesting(a, b, sdlb)) {
+    if(node->BVDisjoints(a, b, sdlb)) {
       if (sdlb < sqrDistLowerBound) sqrDistLowerBound = sdlb;
       updateFrontList(front_list, a, b);
       continue;
@@ -169,7 +169,7 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
   {
     updateFrontList(front_list, b1, b2);
 
-    node->leafTesting(b1, b2);
+    node->leafComputeDistance(b1, b2);
     return;
   }
 
@@ -190,8 +190,8 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
     c2 = node->getSecondRightChild(b2);
   }
 
-  FCL_REAL d1 = node->BVTesting(a1, a2);
-  FCL_REAL d2 = node->BVTesting(c1, c2);
+  FCL_REAL d1 = node->BVDistanceLowerBound(a1, a2);
+  FCL_REAL d2 = node->BVDistanceLowerBound(c1, c2);
 
   if(d2 < d1)
   {
@@ -298,7 +298,7 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
     {
       updateFrontList(front_list, min_test.b1, min_test.b2);
 
-      node->leafTesting(min_test.b1, min_test.b2);
+      node->leafComputeDistance(min_test.b1, min_test.b2);
     }
     else if(bvtq.full())
     {
@@ -317,11 +317,11 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
         int c2 = node->getFirstRightChild(min_test.b1);
         bvt1.b1 = c1;
         bvt1.b2 = min_test.b2;
-        bvt1.d = node->BVTesting(bvt1.b1, bvt1.b2);
+        bvt1.d = node->BVDistanceLowerBound(bvt1.b1, bvt1.b2);
 
         bvt2.b1 = c2;
         bvt2.b2 = min_test.b2;
-        bvt2.d = node->BVTesting(bvt2.b1, bvt2.b2);
+        bvt2.d = node->BVDistanceLowerBound(bvt2.b1, bvt2.b2);
       }
       else
       {
@@ -329,11 +329,11 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
         int c2 = node->getSecondRightChild(min_test.b2);
         bvt1.b1 = min_test.b1;
         bvt1.b2 = c1;
-        bvt1.d = node->BVTesting(bvt1.b1, bvt1.b2);
+        bvt1.d = node->BVDistanceLowerBound(bvt1.b1, bvt1.b2);
 
         bvt2.b1 = min_test.b1;
         bvt2.b2 = c2;
-        bvt2.d = node->BVTesting(bvt2.b1, bvt2.b2);
+        bvt2.d = node->BVDistanceLowerBound(bvt2.b1, bvt2.b2);
       }
 
       bvtq.push(bvt1);
@@ -378,7 +378,7 @@ void propagateBVHFrontListCollisionRecurse
     }
     else
     {
-      if(!node->BVTesting(b1, b2, sqrDistLowerBound)) {
+      if(!node->BVDisjoints(b1, b2, sqrDistLowerBound)) {
         front_iter->valid = false;
         if(node->firstOverSecond(b1, b2)) {
           int c1 = node->getFirstLeftChild(b1);

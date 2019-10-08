@@ -3,7 +3,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-#include <hpp/fcl/intersect.h>
+#include "../src/intersect.h"
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 #include "fcl_resources/config.h"

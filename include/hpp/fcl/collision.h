@@ -39,7 +39,7 @@
 #ifndef HPP_FCL_COLLISION_H
 #define HPP_FCL_COLLISION_H
 
-#include <hpp/fcl/math/types.h>
+#include <hpp/fcl/data_types.h>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
 
@@ -52,15 +52,13 @@ namespace fcl
 /// returning all the contact points), whether return detailed contact information (i.e., normal, contact point, depth; otherwise only contact primitive id is returned), this function
 /// performs the collision between them. 
 /// Return value is the number of contacts generated between the two objects.
-
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
-                    const CollisionRequest& request,
-                    CollisionResult& result);
+                    const CollisionRequest& request, CollisionResult& result);
 
+/// @copydoc collide(const CollisionObject*, const CollisionObject*, const CollisionRequest&, CollisionResult&)
 std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                     const CollisionGeometry* o2, const Transform3f& tf2,
-                    const CollisionRequest& request,
-                    CollisionResult& result);
+                    const CollisionRequest& request, CollisionResult& result);
 }
 
 } // namespace hpp
