@@ -52,13 +52,6 @@ DistanceFunctionMatrix& getDistanceFunctionLookTable()
   return table;
 }
 
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver* nsolver,
-                  const DistanceRequest& request, DistanceResult& result)
-{
-  return distance(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver,
-                                     request, result);
-}
-
 FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, 
                   const CollisionGeometry* o2, const Transform3f& tf2,
                   const GJKSolver* nsolver_,
@@ -115,6 +108,12 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
   return res;
 }
 
+FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver* nsolver,
+                  const DistanceRequest& request, DistanceResult& result)
+{
+  return distance(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver,
+                                     request, result);
+}
 
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const DistanceRequest& request, DistanceResult& result)
 {
