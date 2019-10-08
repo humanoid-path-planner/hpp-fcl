@@ -1,1 +1,2 @@
 FILE_PATTERNS          = *.h  *.hh  *.hxx
+GENERATE_XML           = YES

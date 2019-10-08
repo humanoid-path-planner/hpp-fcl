@@ -41,6 +41,18 @@
 #include <hpp/fcl/math/transform.h>
 
 #include "fcl.hh"
+#include <hpp/fcl/collision.h>
+#include <hpp/fcl/traversal/traversal_node_bvh_shape.h>
+#include <hpp/fcl/traversal/traversal_node_bvhs.h>
+#include <hpp/fcl/traversal/traversal_node_octree.h>
+#include <hpp/fcl/traversal/traversal_node_shapes.h>
+#include <hpp/fcl/mesh_loader/loader.h>
+#include <hpp/fcl/narrowphase/gjk.h>
+#include <hpp/fcl/BVH/BVH_model.h>
+#include <hpp/fcl/octree.h>
+#include <hpp/fcl/profile.h>
+
+#include "doxygen_autodoc.hh"
 
 using namespace boost::python;
 
@@ -77,8 +89,8 @@ void exposeMaths ()
     .def (init<Vec3f>())
     .def (init<Transform3f>(args("self","other"),"Copy constructor."))
 
-    .def ("getQuatRotation", &Transform3f::getQuatRotation)
-    .def ("getTranslation", &Transform3f::getTranslation, return_value_policy<copy_const_reference>())
+    .def ("getQuatRotation", &Transform3f::getQuatRotation, doxygen::member_func_doc(&Transform3f::getQuatRotation))
+    .def ("getTranslation", &Transform3f::getTranslation, doxygen::member_func_doc(&Transform3f::getTranslation), return_value_policy<copy_const_reference>())
     .def ("getRotation", &Transform3f::getRotation, return_value_policy<copy_const_reference>())
     .def ("isIdentity", &Transform3f::setIdentity)
 

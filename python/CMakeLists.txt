@@ -39,6 +39,10 @@ SET_TARGET_PROPERTIES(python PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
 SET(LIBRARY_NAME hppfcl)
 
 INCLUDE_DIRECTORIES("${Boost_INCLUDE_DIRS}" ${PYTHON_INCLUDE_DIRS})
+# To be run manually:
+# make doc
+# ./cmake/doxygen/doxygen_xml_parser.py build-rel/doc/doxygen-xml/index.xml > build-rel/python/doxygen_autodoc.hh
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 
 SET(${LIBRARY_NAME}_HEADERS
   fcl.hh
