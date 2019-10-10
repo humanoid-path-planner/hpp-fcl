@@ -55,7 +55,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3f& 
   double a = shape.halfSide[0];
   double b = shape.halfSide[1];
   double c = shape.halfSide[2];
-  Vec3f points[8];
+  std::vector<Vec3f> points(8);
   Triangle tri_indices[12];
   points[0] = Vec3f ( a, -b,  c);
   points[1] = Vec3f ( a,  b,  c);
