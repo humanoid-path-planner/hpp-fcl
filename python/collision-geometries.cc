@@ -43,6 +43,9 @@
 #include <hpp/fcl/shape/convex.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
+#include "doxygen_autodoc/hpp/fcl/BVH/BVH_model.h"
+#include "doxygen_autodoc/hpp/fcl/shape/geometric_shapes.h"
+
 using namespace boost::python;
 
 using namespace hpp::fcl;
@@ -71,7 +74,7 @@ void exposeBVHModel (const std::string& bvname)
 
   std::string type = "BVHModel" + bvname;
   class_ <BVHModel_t, bases<BVHModelBase>, shared_ptr<BVHModel_t> >
-    (type.c_str(), init<>())
+    (type.c_str(), doxygen::class_doc<BVHModel_t>(), init<>(doxygen::constructor_doc<BVHModel_t>()))
     ;
 }
 
@@ -108,12 +111,12 @@ struct ConvexWrapper
 void exposeShapes ()
 {
   class_ <ShapeBase, bases<CollisionGeometry>, shared_ptr<ShapeBase>, noncopyable>
-    ("ShapeBase", no_init)
+    ("ShapeBase", doxygen::class_doc<ShapeBase>(), no_init)
     //.def ("getObjectType", &CollisionGeometry::getObjectType)
     ;
 
   class_ <Box, bases<ShapeBase>, shared_ptr<Box> >
-    ("Box", init<>())
+    ("Box", doxygen::class_doc<ShapeBase>(), init<>())
     .def (init<FCL_REAL,FCL_REAL,FCL_REAL>())
     .def (init<Vec3f>())
     .add_property("halfSide",
@@ -122,19 +125,19 @@ void exposeShapes ()
     ;
 
   class_ <Capsule, bases<ShapeBase>, shared_ptr<Capsule> >
-    ("Capsule", init<FCL_REAL, FCL_REAL>())
+    ("Capsule", doxygen::class_doc<Capsule>(), init<FCL_REAL, FCL_REAL>())
     .def_readwrite ("radius", &Capsule::radius)
     .def_readwrite ("halfLength", &Capsule::halfLength)
     ;
 
   class_ <Cone, bases<ShapeBase>, shared_ptr<Cone> >
-    ("Cone", init<FCL_REAL, FCL_REAL>())
+    ("Cone", doxygen::class_doc<Cone>(), init<FCL_REAL, FCL_REAL>())
     .def_readwrite ("radius", &Cone::radius)
     .def_readwrite ("halfLength", &Cone::halfLength)
     ;
 
   class_ <ConvexBase, bases<ShapeBase>, shared_ptr<ConvexBase >, noncopyable>
-    ("ConvexBase", no_init)
+    ("ConvexBase", doxygen::class_doc<ConvexBase>(), no_init)
     .def_readonly ("center", &ConvexBase::center)
     .def_readonly ("num_points", &ConvexBase::num_points)
     .def ("points", &ConvexBaseWrapper::points)
@@ -142,19 +145,19 @@ void exposeShapes ()
     ;
 
   class_ <Convex<Triangle>, bases<ConvexBase>, shared_ptr<Convex<Triangle> >, noncopyable>
-    ("Convex", no_init)
+    ("Convex", doxygen::class_doc< Convex<Triangle> >(), no_init)
     .def_readonly ("num_polygons", &Convex<Triangle>::num_polygons)
     .def ("polygons", &ConvexWrapper<Triangle>::polygons)
     ;
 
   class_ <Cylinder, bases<ShapeBase>, shared_ptr<Cylinder> >
-    ("Cylinder", init<FCL_REAL, FCL_REAL>())
+    ("Cylinder", doxygen::class_doc<Cylinder>(), init<FCL_REAL, FCL_REAL>())
     .def_readwrite ("radius", &Cylinder::radius)
     .def_readwrite ("halfLength", &Cylinder::halfLength)
     ;
 
   class_ <Halfspace, bases<ShapeBase>, shared_ptr<Halfspace> >
-    ("Halfspace", "The half-space is defined by {x | n * x < d}.", init<const Vec3f&, FCL_REAL>())
+    ("Halfspace", doxygen::class_doc<Halfspace>(), init<const Vec3f&, FCL_REAL>())
     .def (init<FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>())
     .def (init<>())
     .def_readwrite ("n", &Halfspace::n)
@@ -162,7 +165,7 @@ void exposeShapes ()
     ;
 
   class_ <Plane, bases<ShapeBase>, shared_ptr<Plane> >
-    ("Plane", "The plane is defined by {x | n * x = d}.", init<const Vec3f&, FCL_REAL>())
+    ("Plane", doxygen::class_doc<Plane>(), init<const Vec3f&, FCL_REAL>())
     .def (init<FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>())
     .def (init<>())
     .def_readwrite ("n", &Plane::n)
@@ -170,12 +173,12 @@ void exposeShapes ()
     ;
 
   class_ <Sphere, bases<ShapeBase>, shared_ptr<Sphere> >
-    ("Sphere", init<FCL_REAL>())
+    ("Sphere", doxygen::class_doc<Sphere>(), init<FCL_REAL>())
     .def_readwrite ("radius", &Sphere::radius)
     ;
 
   class_ <TriangleP, bases<ShapeBase>, shared_ptr<TriangleP> >
-    ("TriangleP", init<const Vec3f&, const Vec3f&, const Vec3f&>())
+    ("TriangleP", doxygen::class_doc<TriangleP>(), init<const Vec3f&, const Vec3f&, const Vec3f&>())
     .def_readwrite ("a", &TriangleP::a)
     .def_readwrite ("b", &TriangleP::b)
     .def_readwrite ("c", &TriangleP::c)
