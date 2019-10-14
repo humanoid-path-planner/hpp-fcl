@@ -39,6 +39,8 @@
 #ifndef HPP_FCL_TRAVERSAL_NODE_MESH_SHAPE_H
 #define HPP_FCL_TRAVERSAL_NODE_MESH_SHAPE_H
 
+/// @cond INTERNAL
+
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include "../src/shape/geometric_shapes_utility.h"
@@ -52,8 +54,10 @@ namespace hpp
 namespace fcl
 {
 
+/// @addtogroup Traversal_For_Collision
+/// @{
+
 /// @brief Traversal node for collision between BVH and shape
-/// @internal BVHShapeCollisionTraversalNode, private class.
 template<typename BV, typename S>
 class BVHShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -97,7 +101,6 @@ public:
 };
 
 /// @brief Traversal node for collision between shape and BVH
-/// @internal ShapeBVHCollisionTraversalNode, private class.
 template<typename S, typename BV>
 class ShapeBVHCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -148,7 +151,6 @@ public:
 
 
 /// @brief Traversal node for collision between mesh and shape
-/// @internal MeshShapeCollisionTraversalNode, private class.
 template<typename BV, typename S,
   int _Options = RelativeTransformationIsIdentity>
 class MeshShapeCollisionTraversalNode : public BVHShapeCollisionTraversalNode<BV, S>
@@ -263,7 +265,6 @@ public:
 };
 
 /// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
-/// @internal MeshShapeCollisionTraversalNodeOBB/RSS/kIOS/OBBRSS, private class.
 template<typename S>
 class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, 0>
 {
@@ -311,7 +312,6 @@ public:
 
 
 /// @brief Traversal node for collision between shape and mesh
-/// @internalShapeMeshCollisionTraversalNode, private class.
 template<typename S, typename BV,
   int _Options = RelativeTransformationIsIdentity>
 class ShapeMeshCollisionTraversalNode : public ShapeBVHCollisionTraversalNode<S, BV>
@@ -425,7 +425,6 @@ public:
 };
 
 /// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
-/// @internal ShapeMeshCollisionTraversalNodeOBB/RSS/kIOS/OBBRSS, private class.
 template<typename S>
 class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNode<S, OBB, 0>
 {
@@ -465,8 +464,12 @@ public:
   }
 };
 
+/// @}
+
+/// @addtogroup Traversal_For_Distance
+/// @{
+
 /// @brief Traversal node for distance computation between BVH and shape
-/// @internal BVHShapeDistanceTraversalNode, private class.
 template<typename BV, typename S>
 class BVHShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -515,7 +518,6 @@ public:
 };
 
 /// @brief Traversal node for distance computation between shape and BVH
-/// @internal ShapeBVHShapeDistanceTraversalNode, private class.
 template<typename S, typename BV>
 class ShapeBVHDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -565,7 +567,6 @@ public:
                                   
 
 /// @brief Traversal node for distance between mesh and shape
-/// @internal MeshShapeDistanceTraversalNode, private class.
 template<typename BV, typename S>
 class MeshShapeDistanceTraversalNode : public BVHShapeDistanceTraversalNode<BV, S>
 { 
@@ -691,7 +692,6 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
 
 
 /// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, kIOS, OBBRSS)
-/// @internal MeshShapeDistanceTraversalNodeRSS/kIOS/OBBRSS, private class.
 template<typename S>
 class MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<RSS, S>
 {
@@ -790,7 +790,6 @@ public:
 };
 
 /// @brief Traversal node for distance between shape and mesh
-/// @internal ShapeMeshDistanceTraversalNode, private class.
 template<typename S, typename BV>
 class ShapeMeshDistanceTraversalNode : public ShapeBVHDistanceTraversalNode<S, BV>
 { 
@@ -850,7 +849,6 @@ public:
 };
 
 /// @brief Traversal node for distance between shape and mesh, when mesh BVH is one of the oriented node (RSS, kIOS, OBBRSS)
-/// @internal ShapeMeshDistanceTraversalNodeRSS/kIOS/OBBRSS, private class.
 template<typename S>
 class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSS>
 {
@@ -946,8 +944,13 @@ public:
   }
   
 };
+
+/// @}
+
 }
 
 } // namespace hpp
+
+/// @endcond
 
 #endif

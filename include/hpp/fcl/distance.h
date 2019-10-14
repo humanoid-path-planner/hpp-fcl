@@ -33,7 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef HPP_FCL_DISTANCE_H
 #define HPP_FCL_DISTANCE_H

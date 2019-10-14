@@ -48,6 +48,9 @@ namespace fcl
 {
 
   class CollisionRequest;
+/// @addtogroup Bounding_Volume
+/// @{
+
 /// @brief A class for rectangle sphere-swept bounding volume
 class RSS
 {

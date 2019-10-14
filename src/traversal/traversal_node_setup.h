@@ -35,9 +35,10 @@
 
 /** \author Jia Pan */
 
-
 #ifndef HPP_FCL_TRAVERSAL_NODE_SETUP_H
 #define HPP_FCL_TRAVERSAL_NODE_SETUP_H
+
+/// @cond INTERNAL
 
 #include "traversal_node_bvhs.h"
 #include "traversal_node_shapes.h"
@@ -61,7 +62,7 @@ inline bool initialize(OcTreeCollisionTraversalNode& node,
                        const OcTree& model2, const Transform3f& tf2,
                        const OcTreeSolver* otsolver,
                        CollisionResult& result)
-{
+
   node.result = &result;
 
   node.model1 = &model1;
@@ -82,6 +83,7 @@ inline bool initialize(OcTreeDistanceTraversalNode& node,
                        const OcTreeSolver* otsolver,
                        const DistanceRequest& request,
                        DistanceResult& result)
+
 {
   node.request = request;
   node.result = &result;
@@ -885,5 +887,7 @@ bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<S>& node,
 }
 
 } // namespace hpp
+
+/// @endcond
 
 #endif

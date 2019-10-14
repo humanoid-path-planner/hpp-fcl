@@ -38,6 +38,8 @@
 #ifndef HPP_FCL_TRAVERSAL_NODE_OCTREE_H
 #define HPP_FCL_TRAVERSAL_NODE_OCTREE_H
 
+/// @cond INTERNAL
+
 #include <hpp/fcl/collision_data.h>
 #include "traversal_node_base.h"
 #include <hpp/fcl/narrowphase/narrowphase.h>
@@ -51,7 +53,6 @@ namespace fcl
 {
 
 /// @brief Algorithms for collision related with octree
-/// @internal OcTreeSolver, private class.
 class OcTreeSolver
 {
 private:
@@ -886,11 +887,10 @@ private:
   }
 };
 
-
-
+/// @addtogroup Traversal_For_Collision
+/// @{
 
 /// @brief Traversal node for octree collision
-/// @internal OcTreeCollisionTraversalNode, private class.
 class OcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -926,43 +926,7 @@ public:
   const OcTreeSolver* otsolver;
 };
 
-/// @brief Traversal node for octree distance
-/// @internal OcTreeDistanceTraversalNode, private class.
-class OcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
-{
-public:
-  OcTreeDistanceTraversalNode()
-  {
-    model1 = NULL;
-    model2 = NULL;
-
-    otsolver = NULL;
-  }
-
-
-  FCL_REAL BVDistanceLowerBound(int, int) const
-  {
-    return -1;
-  }
-
-  bool BVDistanceLowerBound(int, int, FCL_REAL&) const
-  {
-    return false;
-  }
-
-  void leafComputeDistance(int, int) const
-  {
-    otsolver->OcTreeDistance(model1, model2, tf1, tf2, request, *result);
-  }
-
-  const OcTree* model1;
-  const OcTree* model2;
-
-  const OcTreeSolver* otsolver;
-};
-
 /// @brief Traversal node for shape-octree collision
-/// @internal ShapeOcTreeCollisionTraversalNode, private class.
 template<typename S>
 class ShapeOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -1000,7 +964,7 @@ public:
 };
 
 /// @brief Traversal node for octree-shape collision
-/// @internal OcTreeShapeCollisionTraversalNode, private class.
+
 template<typename S>
 class OcTreeShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -1037,68 +1001,7 @@ public:
   const OcTreeSolver* otsolver;  
 };
 
-/// @brief Traversal node for shape-octree distance
-/// @internal ShapeOcTreeCollisionTraversalNode, private class.
-template<typename S>
-class ShapeOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
-{
-public:
-  ShapeOcTreeDistanceTraversalNode()
-  {
-    model1 = NULL;
-    model2 = NULL;
-    
-    otsolver = NULL;
-  }
-
-  FCL_REAL BVDistanceLowerBound(int, int) const
-  {
-    return -1;
-  }
-
-  void leafComputeDistance(int, int) const
-  {
-    otsolver->OcTreeShapeDistance(model2, *model1, tf2, tf1, request, *result);
-  }
-
-  const S* model1;
-  const OcTree* model2;
-
-  const OcTreeSolver* otsolver;
-};
-
-/// @brief Traversal node for octree-shape distance
-/// @internal OcTreeShapeDistanceTraversalNode, private class.
-template<typename S>
-class OcTreeShapeDistanceTraversalNode : public DistanceTraversalNodeBase
-{
-public:
-  OcTreeShapeDistanceTraversalNode()
-  {
-    model1 = NULL;
-    model2 = NULL;
-    
-    otsolver = NULL;
-  }
-
-  FCL_REAL BVDistanceLowerBound(int, int) const
-  {
-    return -1;
-  }
-
-  void leafComputeDistance(int, int) const
-  {
-    otsolver->OcTreeShapeDistance(model1, *model2, tf1, tf2, request, *result);
-  }
-
-  const OcTree* model1;
-  const S* model2;
-
-  const OcTreeSolver* otsolver;
-};
-
 /// @brief Traversal node for mesh-octree collision
-/// @internal MeshOcTreeCollisionTraversalNode, private class.
 template<typename BV>
 class MeshOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -1136,7 +1039,6 @@ public:
 };
 
 /// @brief Traversal node for octree-mesh collision
-/// @internal OcTreeMeshCollisionTraversalNode, private class.
 template<typename BV>
 class OcTreeMeshCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -1173,8 +1075,106 @@ public:
   const OcTreeSolver* otsolver;
 };
 
+/// @}
+
+/// @addtogroup Traversal_For_Distance
+/// @{
+
+/// @brief Traversal node for octree distance
+class OcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
+{
+public:
+  OcTreeDistanceTraversalNode()
+  {
+    model1 = NULL;
+    model2 = NULL;
+
+    otsolver = NULL;
+  }
+
+
+  FCL_REAL BVDistanceLowerBound(int, int) const
+  {
+    return -1;
+  }
+
+  bool BVDistanceLowerBound(int, int, FCL_REAL&) const
+  {
+    return false;
+  }
+
+  void leafComputeDistance(int, int) const
+  {
+    otsolver->OcTreeDistance(model1, model2, tf1, tf2, request, *result);
+  }
+
+  const OcTree* model1;
+  const OcTree* model2;
+
+  const OcTreeSolver* otsolver;
+};
+
+
+
+/// @brief Traversal node for shape-octree distance
+template<typename S>
+class ShapeOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
+{
+public:
+  ShapeOcTreeDistanceTraversalNode()
+  {
+    model1 = NULL;
+    model2 = NULL;
+    
+    otsolver = NULL;
+  }
+
+  FCL_REAL BVDistanceLowerBound(int, int) const
+  {
+    return -1;
+  }
+
+  void leafComputeDistance(int, int) const
+  {
+    otsolver->OcTreeShapeDistance(model2, *model1, tf2, tf1, request, *result);
+  }
+
+  const S* model1;
+  const OcTree* model2;
+
+  const OcTreeSolver* otsolver;
+};
+
+/// @brief Traversal node for octree-shape distance
+template<typename S>
+class OcTreeShapeDistanceTraversalNode : public DistanceTraversalNodeBase
+{
+public:
+  OcTreeShapeDistanceTraversalNode()
+  {
+    model1 = NULL;
+    model2 = NULL;
+    
+    otsolver = NULL;
+  }
+
+  FCL_REAL BVDistanceLowerBound(int, int) const
+  {
+    return -1;
+  }
+
+  void leafComputeDistance(int, int) const
+  {
+    otsolver->OcTreeShapeDistance(model1, *model2, tf1, tf2, request, *result);
+  }
+
+  const OcTree* model1;
+  const S* model2;
+
+  const OcTreeSolver* otsolver;
+};
+
 /// @brief Traversal node for mesh-octree distance
-/// @internal MeshOcTreeDistanceTraversalNode, private class.
 template<typename BV>
 class MeshOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -1205,7 +1205,6 @@ public:
 };
 
 /// @brief Traversal node for octree-mesh distance
-/// @internal OcTreeMeshDistanceTraversalNode, private class.
 template<typename BV>
 class OcTreeMeshDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -1235,10 +1234,12 @@ public:
 
 };
 
-
+/// @}
 
 }
 
 } // namespace hpp
+
+/// @endcond
 
 #endif

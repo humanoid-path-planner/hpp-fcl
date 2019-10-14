@@ -38,6 +38,8 @@
 #ifndef HPP_FCL_TRAVERSAL_NODE_BASE_H
 #define HPP_FCL_TRAVERSAL_NODE_BASE_H
 
+/// @cond INTERNAL
+
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/collision_data.h>
@@ -47,9 +49,7 @@ namespace hpp
 namespace fcl
 {
 
-
 /// @brief Node structure encoding the information required for traversal.
-/// @internal TraversalNodeBase, private class.
 
 class TraversalNodeBase
 {
@@ -91,9 +91,11 @@ public:
   Transform3f tf2;
 };
 
+/// @defgroup Traversal_For_Collision
+/// regroup class about traversal for distance.
+/// @{
 
 /// @brief Node structure encoding the information required for collision traversal.
-/// @internal CollisionTraversalNodeBase, private class.
 class CollisionTraversalNodeBase : public TraversalNodeBase
 {
 public:
@@ -133,8 +135,13 @@ public:
   bool enable_statistics;
 };
 
+/// @}
+
+/// @defgroup Traversal_For_Distance
+/// regroup class about traversal for distance.
+/// @{
+
 /// @brief Node structure encoding the information required for distance traversal.
-/// @internal DistanceTraversalNodeBase, private class.
 class DistanceTraversalNodeBase : public TraversalNodeBase
 {
 public:
@@ -165,8 +172,13 @@ public:
   /// @brief Whether stores statistics 
   bool enable_statistics;
 };
+
+///@}
+
 }
 
 } // namespace hpp
+
+/// @endcond
 
 #endif

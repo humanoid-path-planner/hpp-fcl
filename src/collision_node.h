@@ -35,15 +35,14 @@
 
 /** \author Jia Pan */
 
-
 #ifndef HPP_FCL_COLLISION_NODE_H
 #define HPP_FCL_COLLISION_NODE_H
 
+/// @cond INTERNAL
+
+#include <hpp/fcl/BVH/BVH_front.h>
 #include "traversal/traversal_node_base.h"
 #include "traversal/traversal_node_bvhs.h"
-#include <hpp/fcl/BVH/BVH_front.h>
-
-
 
 /// @brief collision and distance function on traversal nodes. these functions provide a higher level abstraction for collision functions provided in collision_func_matrix
 namespace hpp
@@ -59,16 +58,16 @@ namespace fcl
 ///         do not collide.
 /// @param front_list list of nodes visited by the query, can be used to
 ///        accelerate computation
-/// @internal collide, private function.
 void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
              CollisionResult& result, BVHFrontList* front_list = NULL,
              bool recursive = true);
 
 /// @brief distance computation on distance traversal node; can use front list to accelerate
-/// @internal distance, private function.
 void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
 }
 
 } // namespace hpp
+
+/// @endcond
 
 #endif

@@ -46,6 +46,9 @@ namespace fcl
 {
   class CollisionRequest;
 
+/// @addtogroup Bounding_Volume
+/// @{
+
 /// @brief Oriented bounding box class
 class OBB
 {

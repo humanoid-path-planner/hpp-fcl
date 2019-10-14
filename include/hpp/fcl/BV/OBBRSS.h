@@ -48,6 +48,9 @@ namespace fcl
 {
   class CollisionRequest;
 
+/// @addtogroup Bounding_Volume
+/// @{
+
 /// @brief Class merging the OBB and RSS, can handle collision and distance simultaneously
 class OBBRSS
 {

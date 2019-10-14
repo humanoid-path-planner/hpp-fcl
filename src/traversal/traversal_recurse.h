@@ -35,14 +35,15 @@
 
 /** \author Jia Pan */
 
-
 #ifndef HPP_FCL_TRAVERSAL_RECURSE_H
 #define HPP_FCL_TRAVERSAL_RECURSE_H
 
-#include "traversal_node_base.h"
-#include "traversal_node_bvhs.h"
+/// @cond INTERNAL
+
 #include <hpp/fcl/BVH/BVH_front.h>
 #include <queue>
+#include "traversal_node_base.h"
+#include "traversal_node_bvhs.h"
 
 namespace hpp
 {
@@ -53,24 +54,19 @@ namespace fcl
 /// @param node collision node,
 /// @param b1, b2 ids of bounding volume nodes for object 1 and object 2
 /// @retval sqrDistLowerBound squared lower bound on distance between objects.
-/// @internal collisionRecurse, private function.
 void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
 		      BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound);
 
-/// @internal collisionNonRecurse, private function.
 void collisionNonRecurse(CollisionTraversalNodeBase* node,
 		         BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound);
 
 /// @brief Recurse function for distance
-/// @internal distanceRecurse, private function.
 void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list);
 
 /// @brief Recurse function for distance, using queue acceleration
-/// @internal distanceQueueRecurse, private function.
 void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list, int qsize);
 
 /// @brief Recurse function for front list propagation
-/// @internal propagateBVHFrontListCollisionRecurse, private function.
 void propagateBVHFrontListCollisionRecurse
   (CollisionTraversalNodeBase* node, const CollisionRequest& request,
    CollisionResult& result, BVHFrontList* front_list);
@@ -78,5 +74,7 @@ void propagateBVHFrontListCollisionRecurse
 }
 
 } // namespace hpp
+
+/// @endcond
 
 #endif
