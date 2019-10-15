@@ -62,7 +62,7 @@ inline bool initialize(OcTreeCollisionTraversalNode& node,
                        const OcTree& model2, const Transform3f& tf2,
                        const OcTreeSolver* otsolver,
                        CollisionResult& result)
-
+{
   node.result = &result;
 
   node.model1 = &model1;
