@@ -77,7 +77,7 @@ inline bool initialize(OcTreeCollisionTraversalNode& node,
 }
 
 /// @brief Initialize traversal node for distance between two octrees, given current object transform
-bool initialize(OcTreeDistanceTraversalNode& node,
+inline bool initialize(OcTreeDistanceTraversalNode& node,
                        const OcTree& model1, const Transform3f& tf1,
                        const OcTree& model2, const Transform3f& tf2,
                        const OcTreeSolver* otsolver,
