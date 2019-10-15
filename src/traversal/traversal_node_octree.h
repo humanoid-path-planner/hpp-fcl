@@ -926,6 +926,40 @@ public:
   const OcTreeSolver* otsolver;
 };
 
+/// @brief Traversal node for octree distance
+class OcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
+{
+public:
+  OcTreeDistanceTraversalNode()
+  {
+    model1 = NULL;
+    model2 = NULL;
+
+    otsolver = NULL;
+  }
+
+
+  FCL_REAL BVDistanceLowerBound(int, int) const
+  {
+    return -1;
+  }
+
+  bool BVDistanceLowerBound(int, int, FCL_REAL&) const
+  {
+    return false;
+  }
+
+  void leafComputeDistance(int, int) const
+  {
+    otsolver->OcTreeDistance(model1, model2, tf1, tf2, request, *result);
+  }
+
+  const OcTree* model1;
+  const OcTree* model2;
+
+  const OcTreeSolver* otsolver;
+};
+
 /// @brief Traversal node for shape-octree collision
 template<typename S>
 class ShapeOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
