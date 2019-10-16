@@ -38,6 +38,8 @@
 #ifndef HPP_FCL_TRAVERSAL_NODE_BASE_H
 #define HPP_FCL_TRAVERSAL_NODE_BASE_H
 
+/// @cond INTERNAL
+
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/collision_data.h>
@@ -48,6 +50,7 @@ namespace fcl
 {
 
 /// @brief Node structure encoding the information required for traversal.
+
 class TraversalNodeBase
 {
 public:
@@ -88,6 +91,10 @@ public:
   Transform3f tf2;
 };
 
+/// @defgroup Traversal_For_Collision
+/// regroup class about traversal for distance.
+/// @{
+
 /// @brief Node structure encoding the information required for collision traversal.
 class CollisionTraversalNodeBase : public TraversalNodeBase
 {
@@ -101,8 +108,8 @@ public:
   virtual bool BVDisjoints(int b1, int b2) const = 0;
 
   /// BV test between b1 and b2
-  /// \param b1, b2 Bounding volumes to test,
-  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  /// @param b1, b2 Bounding volumes to test,
+  /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   virtual bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const = 0;
 
@@ -128,6 +135,12 @@ public:
   bool enable_statistics;
 };
 
+/// @}
+
+/// @defgroup Traversal_For_Distance
+/// regroup class about traversal for distance.
+/// @{
+
 /// @brief Node structure encoding the information required for distance traversal.
 class DistanceTraversalNodeBase : public TraversalNodeBase
 {
@@ -137,8 +150,8 @@ public:
   virtual ~DistanceTraversalNodeBase();
 
   /// @brief BV test between b1 and b2
-  /// \return a lower bound of the distance between the two BV.
-  /// \note except for OBB, this method returns the distance.
+  /// @return a lower bound of the distance between the two BV.
+  /// @note except for OBB, this method returns the distance.
   virtual FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs
@@ -159,8 +172,13 @@ public:
   /// @brief Whether stores statistics 
   bool enable_statistics;
 };
+
+///@}
+
 }
 
 } // namespace hpp
+
+/// @endcond
 
 #endif

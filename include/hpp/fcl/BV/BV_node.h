@@ -49,6 +49,10 @@ namespace hpp
 namespace fcl
 {
 
+/// @defgroup Construction_Of_BVH 
+/// regroup class which are used to build BVH (Bounding Volume Hierarchy)
+/// @{
+
 /// @brief BVNodeBase encodes the tree structure for BVH
 struct BVNodeBase
 {

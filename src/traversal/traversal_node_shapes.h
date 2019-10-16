@@ -35,21 +35,24 @@
 
 /** \author Jia Pan */
 
-
 #ifndef HPP_FCL_TRAVERSAL_NODE_SHAPES_H
 #define HPP_FCL_TRAVERSAL_NODE_SHAPES_H
 
+/// @cond INTERNAL
+
 #include <hpp/fcl/collision_data.h>
-#include "traversal_node_base.h"
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/BV/BV.h>
 #include "../src/shape/geometric_shapes_utility.h"
+#include "traversal_node_base.h"
 
 namespace hpp
 {
 namespace fcl
 {
 
+/// @addtogroup Traversal_For_Collision
+/// @{
 
 /// @brief Traversal node for collision between two shapes
 template<typename S1, typename S2>
@@ -113,6 +116,11 @@ public:
   const GJKSolver* nsolver;
 };
 
+/// @}
+
+/// @addtogroup Traversal_For_Distance
+/// @{
+
 /// @brief Traversal node for distance between two shapes
 template<typename S1, typename S2>
 class ShapeDistanceTraversalNode : public DistanceTraversalNodeBase
@@ -148,8 +156,13 @@ public:
 
   const GJKSolver* nsolver;
 };
+
+/// @}
+
 }
 
 } // namespace hpp
+
+/// @endcond
 
 #endif

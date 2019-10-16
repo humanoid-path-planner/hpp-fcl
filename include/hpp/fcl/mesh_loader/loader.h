@@ -53,7 +53,7 @@ namespace fcl {
     public:
       virtual ~MeshLoader() {}
 
-       /// \param bvType ignored
+      /// \param bvType ignored
       /// \deprecated Use MeshLoader::load(const std::string&, const Vec3f&)
       BVHModelPtr_t load (const std::string& filename,
           const Vec3f& scale,

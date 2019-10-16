@@ -46,6 +46,9 @@ namespace fcl
 {
   class CollisionRequest;
 
+/// @addtogroup Bounding_Volume
+/// @{
+
 /// @brief Oriented bounding box class
 class OBB
 {
@@ -64,12 +67,12 @@ public:
   bool contain(const Vec3f& p) const;
 
   /// Check collision between two OBB
-  /// \return true if collision happens. 
+  /// @return true if collision happens. 
   bool overlap(const OBB& other) const;
 
   /// Check collision between two OBB
-  /// \return true if collision happens. 
-  /// \retval sqrDistLowerBound squared lower bound on distance between boxes if
+  /// @return true if collision happens. 
+  /// @retval sqrDistLowerBound squared lower bound on distance between boxes if
   ///         they do not overlap.
   bool overlap(const OBB& other, const CollisionRequest& request,
                FCL_REAL& sqrDistLowerBound) const;
@@ -141,9 +144,9 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
 
 
 /// Check collision between two boxes
-/// \param B, T orientation and position of first box,
-/// \param a half dimensions of first box,
-/// \param b half dimensions of second box.
+/// @param B, T orientation and position of first box,
+/// @param a half dimensions of first box,
+/// @param b half dimensions of second box.
 /// The second box is in identity configuration.
 bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b);
 }

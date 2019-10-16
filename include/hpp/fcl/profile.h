@@ -115,7 +115,7 @@ public:
   class ScopedBlock
   {
   public:
-    /// @brief Start counting time for the block named \e name of the profiler \e prof
+    /// @brief Start counting time for the block named @e name of the profiler @e prof
     ScopedBlock(const std::string &name, Profiler &prof = Profiler::Instance()) : name_(name), prof_(prof)
     {
       prof_.begin(name);
@@ -138,7 +138,7 @@ public:
   {
   public:
 
-    /// @brief Take as argument the profiler instance to operate on (\e prof)
+    /// @brief Take as argument the profiler instance to operate on (@e prof)
     ScopedStart(Profiler &prof = Profiler::Instance()) : prof_(prof), wasRunning_(prof_.running())
     {
       if (!wasRunning_)

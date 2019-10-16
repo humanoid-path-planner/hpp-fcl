@@ -34,35 +34,64 @@
 
 /** \author Florent Lamiraux */
 
-#ifndef HPP_FCL_DISTANCE_FUNC_MATRIX_H
-#define HPP_FCL_DISTANCE_FUNC_MATRIX_H
 
-/// @cond INTERNAL
+#include <hpp/fcl/collision_func_matrix.h>
 
-#include <hpp/fcl/collision_data.h>
+#include "traversal/traversal_node_setup.h"
+#include <../src/collision_node.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
+#include "distance_func_matrix.h"
 
 namespace hpp
 {
 namespace fcl
 {
-  template<typename T_SH1, typename T_SH2>
-    FCL_REAL ShapeShapeDistance
-    (const CollisionGeometry* o1, const Transform3f& tf1,
-     const CollisionGeometry* o2, const Transform3f& tf2,
-     const GJKSolver* nsolver, const DistanceRequest& request,
-     DistanceResult& result);
+template <typename TypeA, typename TypeB>
+struct TraversalTraits
+{
+};
 
-  template<typename T_SH1, typename T_SH2>
-    std::size_t ShapeShapeCollide
-    (const CollisionGeometry* o1, const Transform3f& tf1,
-     const CollisionGeometry* o2, const Transform3f& tf2, 
-     const GJKSolver* nsolver, const CollisionRequest& request,
-     CollisionResult& result);
+template <typename T_SH>
+struct TraversalTraits <T_SH, OcTree>
+{
+  typedef ShapeOcTreeCollisionTraversalNode<T_SH, GJKSolver> CollisionTraversal_t;
+};
+
+template <typename T_SH>
+struct TraversalTraits <OcTree, T_SH>
+{
+  typedef OcTreeShapeCollisionTraversalNode<T_SH, GJKSolver> CollisionTraversal_t;
+};
+
+template <>
+struct TraversalTraits <OcTree, OcTree>
+{
+  typedef OcTreeCollisionTraversalNode<GJKSolver> CollisionTraversal_t;
+};
+
+template <typename T_BVH>
+struct TraversalTraits <OcTree, BVHModel<T_BVH>>
+{
+  typedef OcTreeMeshCollisionTraversalNode<T_BVH, GJKSolver> CollisionTraversal_t;
+};
+
+template <typename T_BVH>
+struct TraversalTraits <BVHModel<T_BVH>, OcTree>
+{
+  typedef MeshOcTreeCollisionTraversalNode<T_BVH, GJKSolver> CollisionTraversal_t;
+};
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
-} // namespace hpp
-
-/// @endcond
-
-#endif
+} //hpp

@@ -48,6 +48,9 @@ namespace fcl
 
   class CollisionRequest;
 
+  /// @addtogroup Bounding_Volume
+  /// @{
+
 /// @brief KDOP class describes the KDOP collision structures. K is set as the template parameter, which should be 16, 18, or 24
 ///  The KDOP structure is defined by some pairs of parallel planes defined by some axes. 
 /// For K = 16, the planes are 6 AABB planes and 10 diagonal planes that cut off some space of the edges:

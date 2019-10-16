@@ -50,6 +50,9 @@ namespace hpp
 namespace fcl
 {
 
+/// @addtogroup Construction_Of_BVH
+/// @{
+
 class ConvexBase;
 
 template <typename BV> class BVFitter;
@@ -338,7 +341,7 @@ private:
   /// @brief Recursive kernel for bottomup refitting 
   int recursiveRefitTree_bottomup(int bv_id);
 
-  /// @recursively compute each bv's transform related to its parent. For default BV, only the translation works. 
+  /// @ recursively compute each bv's transform related to its parent. For default BV, only the translation works. 
   /// For oriented BV (OBB, RSS, OBBRSS), special implementation is provided.
   void makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c)
   {
@@ -353,6 +356,7 @@ private:
   }
 };
 
+/// @}
 
 template<>
 void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes, const Vec3f& parent_c);

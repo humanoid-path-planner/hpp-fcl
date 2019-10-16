@@ -34,9 +34,10 @@
 
 /** \author Joseph Mirabel */
 
-
 #ifndef HPP_FCL_TRAVERSAL_DETAILS_TRAVERSAL_H
 #define HPP_FCL_TRAVERSAL_DETAILS_TRAVERSAL_H
+
+/// @cond INTERNAL
 
 namespace hpp
 {
@@ -72,5 +73,7 @@ namespace details
 }
 
 } // namespace hpp
+
+/// @endcond
 
 #endif

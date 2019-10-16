@@ -39,6 +39,8 @@
 #ifndef HPP_FCL_TRAVERSAL_NODE_MESH_SHAPE_H
 #define HPP_FCL_TRAVERSAL_NODE_MESH_SHAPE_H
 
+/// @cond INTERNAL
+
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include "../src/shape/geometric_shapes_utility.h"
@@ -51,6 +53,9 @@ namespace hpp
 {
 namespace fcl
 {
+
+/// @addtogroup Traversal_For_Collision
+/// @{
 
 /// @brief Traversal node for collision between BVH and shape
 template<typename BV, typename S>
@@ -176,8 +181,8 @@ public:
   }
 
   /// test between BV b1 and shape
-  /// \param b1 BV to test,
-  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  /// @param b1 BV to test,
+  /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   /// @brief BV culling test in one BVTT node
   bool BVDisjoints(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
@@ -326,7 +331,7 @@ public:
   }
 
   /// BV test between b1 and b2
-  /// \param b2 Bounding volumes to test,
+  /// @param b2 Bounding volumes to test,
   bool BVDisjoints(int /*b1*/, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
@@ -337,8 +342,8 @@ public:
   }
 
   /// BV test between b1 and b2
-  /// \param b2 Bounding volumes to test,
-  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  /// @param b2 Bounding volumes to test,
+  /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   bool BVDisjoints(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
   {
@@ -458,6 +463,11 @@ public:
   {
   }
 };
+
+/// @}
+
+/// @addtogroup Traversal_For_Distance
+/// @{
 
 /// @brief Traversal node for distance computation between BVH and shape
 template<typename BV, typename S>
@@ -681,7 +691,7 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
 
 
 
-/// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, OBBRSS, kIOS)
+/// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, kIOS, OBBRSS)
 template<typename S>
 class MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<RSS, S>
 {
@@ -838,6 +848,7 @@ public:
   const GJKSolver* nsolver;
 };
 
+/// @brief Traversal node for distance between shape and mesh, when mesh BVH is one of the oriented node (RSS, kIOS, OBBRSS)
 template<typename S>
 class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSS>
 {
@@ -933,8 +944,13 @@ public:
   }
   
 };
+
+/// @}
+
 }
 
 } // namespace hpp
+
+/// @endcond
 
 #endif

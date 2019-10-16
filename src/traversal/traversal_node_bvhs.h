@@ -35,9 +35,10 @@
 
 /** \author Jia Pan */
 
-
 #ifndef HPP_FCL_TRAVERSAL_NODE_MESHES_H
 #define HPP_FCL_TRAVERSAL_NODE_MESHES_H
+
+/// @cond INTERNAL
 
 #include <hpp/fcl/collision_data.h>
 #include "traversal_node_base.h"
@@ -55,11 +56,14 @@
 #include <vector>
 #include <cassert>
 
-
 namespace hpp
 {
 namespace fcl
 {
+
+/// @addtogroup Traversal_For_Collision
+/// @{
+
 /// @brief Traversal node for collision between BVH models
 template<typename BV>
 class BVHCollisionTraversalNode : public CollisionTraversalNodeBase
@@ -168,8 +172,8 @@ public:
   }
   
   /// BV test between b1 and b2
-  /// \param b1, b2 Bounding volumes to test,
-  /// \retval sqrDistLowerBound square of a lower bound of the minimal
+  /// @param b1, b2 Bounding volumes to test,
+  /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
@@ -188,8 +192,8 @@ public:
 
   /// Intersection testing between leaves (two triangles)
   ///
-  /// \param b1, b2 id of primitive in bounding volume hierarchy
-  /// \retval sqrDistLowerBound squared lower bound of distance between
+  /// @param b1, b2 id of primitive in bounding volume hierarchy
+  /// @retval sqrDistLowerBound squared lower bound of distance between
   ///         primitives if they are not in collision.
   ///
   /// This method supports a security margin. If the distance between
@@ -197,7 +201,7 @@ public:
   /// considered as in collision. in this case a contact point is
   /// returned in the CollisionResult.
   ///
-  /// \note If the distance between objects is less than the security margin,
+  /// @note If the distance between objects is less than the security margin,
   ///       and the object are not colliding, the penetration depth is
   ///       negative.
   void leafCollides(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
@@ -269,6 +273,8 @@ typedef MeshCollisionTraversalNode<RSS   , 0> MeshCollisionTraversalNodeRSS   ;
 typedef MeshCollisionTraversalNode<kIOS  , 0> MeshCollisionTraversalNodekIOS  ;
 typedef MeshCollisionTraversalNode<OBBRSS, 0> MeshCollisionTraversalNodeOBBRSS;
 
+/// @}
+
 namespace details
 {
   template<typename BV> struct DistanceTraversalBVDistanceLowerBound_impl
@@ -294,6 +300,9 @@ namespace details
     }
   };
 } // namespace details
+
+/// @addtogroup Traversal_For_Distance
+/// @{
 
 /// @brief Traversal node for distance computation between BVH models
 template<typename BV>
@@ -502,6 +511,8 @@ public:
   Vec3f T;
 };
 
+/// @}
+
 /// @brief for OBB and RSS, there is local coordinate of BV, so normal need to be transformed
 namespace details
 {
@@ -518,11 +529,12 @@ inline const Matrix3f& getBVAxes<OBBRSS>(const OBBRSS& bv)
   return bv.obb.axes;
 }
 
-
 }
 
 }
 
 } // namespace hpp
+
+/// @endcond
 
 #endif

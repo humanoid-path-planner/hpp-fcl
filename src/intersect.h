@@ -38,6 +38,8 @@
 #ifndef HPP_FCL_INTERSECT_H
 #define HPP_FCL_INTERSECT_H
 
+/// @cond INTERNAL
+
 #include <hpp/fcl/math/transform.h>
 #include <boost/math/special_functions/erf.hpp>
 
@@ -107,9 +109,9 @@ public:
                         Vec3f& VEC, Vec3f& X, Vec3f& Y);
 
   /// Compute squared distance between triangles
-  /// \param S and T are two triangles
-  /// \retval P, Q closest points if triangles do not intersect.
-  /// \return squared distance if triangles do not intersect, 0 otherwise.
+  /// @param S and T are two triangles
+  /// @retval P, Q closest points if triangles do not intersect.
+  /// @return squared distance if triangles do not intersect, 0 otherwise.
   /// If the triangles are disjoint, P and Q give the closet points of
   /// S and T respectively. However,
   /// if the triangles overlap, P and Q are basically a random pair of points
@@ -124,10 +126,10 @@ public:
 				  Vec3f& P, Vec3f& Q);
 
   /// Compute squared distance between triangles
-  /// \param S and T are two triangles
-  /// \param R, Tl, rotation and translation applied to T,
-  /// \retval P, Q closest points if triangles do not intersect.
-  /// \return squared distance if triangles do not intersect, 0 otherwise.
+  /// @param S and T are two triangles
+  /// @param R, Tl, rotation and translation applied to T,
+  /// @retval P, Q closest points if triangles do not intersect.
+  /// @return squared distance if triangles do not intersect, 0 otherwise.
   /// If the triangles are disjoint, P and Q give the closet points of
   /// S and T respectively. However,
   /// if the triangles overlap, P and Q are basically a random pair of points
@@ -138,10 +140,10 @@ public:
 				  Vec3f& P, Vec3f& Q);
 
   /// Compute squared distance between triangles
-  /// \param S and T are two triangles
-  /// \param tf, rotation and translation applied to T,
-  /// \retval P, Q closest points if triangles do not intersect.
-  /// \return squared distance if triangles do not intersect, 0 otherwise.
+  /// @param S and T are two triangles
+  /// @param tf, rotation and translation applied to T,
+  /// @retval P, Q closest points if triangles do not intersect.
+  /// @return squared distance if triangles do not intersect, 0 otherwise.
   /// If the triangles are disjoint, P and Q give the closet points of
   /// S and T respectively. However,
   /// if the triangles overlap, P and Q are basically a random pair of points
@@ -153,10 +155,10 @@ public:
 
 
   /// Compute squared distance between triangles
-  /// \param S1, S2, S3 and T1, T2, T3 are triangle vertices
-  /// \param R, Tl, rotation and translation applied to T1, T2, T3,
-  /// \retval P, Q closest points if triangles do not intersect.
-  /// \return squared distance if triangles do not intersect, 0 otherwise.
+  /// @param S1, S2, S3 and T1, T2, T3 are triangle vertices
+  /// @param R, Tl, rotation and translation applied to T1, T2, T3,
+  /// @retval P, Q closest points if triangles do not intersect.
+  /// @return squared distance if triangles do not intersect, 0 otherwise.
   /// If the triangles are disjoint, P and Q give the closet points of
   /// S and T respectively. However,
   /// if the triangles overlap, P and Q are basically a random pair of points
@@ -169,10 +171,10 @@ public:
 				  Vec3f& P, Vec3f& Q);
 
   /// Compute squared distance between triangles
-  /// \param S1, S2, S3 and T1, T2, T3 are triangle vertices
-  /// \param tf, rotation and translation applied to T1, T2, T3,
-  /// \retval P, Q closest points if triangles do not intersect.
-  /// \return squared distance if triangles do not intersect, 0 otherwise.
+  /// @param S1, S2, S3 and T1, T2, T3 are triangle vertices
+  /// @param tf, rotation and translation applied to T1, T2, T3,
+  /// @retval P, Q closest points if triangles do not intersect.
+  /// @return squared distance if triangles do not intersect, 0 otherwise.
   /// If the triangles are disjoint, P and Q give the closet points of
   /// S and T respectively. However,
   /// if the triangles overlap, P and Q are basically a random pair of points
@@ -186,10 +188,10 @@ public:
 
 };
 
-
 }
 
-
 } // namespace hpp
+
+/// @endcond
 
 #endif

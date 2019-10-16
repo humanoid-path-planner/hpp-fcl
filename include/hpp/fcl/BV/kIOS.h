@@ -46,7 +46,10 @@ namespace hpp
 namespace fcl
 {
   class CollisionRequest;
- 
+
+/// @addtogroup Bounding_Volume
+/// @{
+
 /// @brief A class describing the kIOS collision structure, which is a set of spheres.
 class kIOS
 {
