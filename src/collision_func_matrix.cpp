@@ -42,6 +42,7 @@
 #include <../src/collision_node.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include "distance_func_matrix.h"
+#include "traits_traversal.h"
 
 namespace hpp
 {
@@ -57,7 +58,7 @@ std::size_t Collide(const CollisionGeometry* o1, const Transform3f& tf1, const C
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
-  typename TraversalTraits<TypeA, TypeB>::CollisionTraversal_t node (request);
+  typename TraversalTraitsCollision<TypeA, TypeB>::CollisionTraversal_t node (request);
   const TypeA* obj1 = static_cast<const TypeA*>(o1);
   const TypeB* obj2 = static_cast<const TypeB*>(o2);
   OcTreeSolver otsolver(nsolver);
@@ -66,7 +67,6 @@ std::size_t Collide(const CollisionGeometry* o1, const Transform3f& tf1, const C
   collide(&node, request, result);
 
   return result.numContacts();
-
 
 #endif
 

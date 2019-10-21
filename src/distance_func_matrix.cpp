@@ -39,6 +39,7 @@
 
 #include <../src/collision_node.h>
 #include "traversal/traversal_node_setup.h"
+#include "traits_traversal.h"
 
 namespace hpp
 {
@@ -46,82 +47,20 @@ namespace fcl
 {
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-template<typename T_SH>
-FCL_REAL ShapeOcTreeDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
+
+template<typename TypeA, typename TypeB>
+FCL_REAL Distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
                              const DistanceRequest& request, DistanceResult& result)
 {
   if(request.isSatisfied(result)) return result.min_distance;
-  ShapeOcTreeDistanceTraversalNode<T_SH> node;
-  const T_SH* obj1 = static_cast<const T_SH*>(o1);
-  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  typename TraversalTraitsDistance<TypeA, TypeB>::CollisionTraversal_t node;
+  const TypeA* obj1 = static_cast<const TypeA*>(o1);
+  const TypeB* obj2 = static_cast<const TypeB*>(o2);
   OcTreeSolver otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
   distance(&node);
   
-  return result.min_distance;
-}
-
-template<typename T_SH>
-FCL_REAL OcTreeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
-                             const DistanceRequest& request, DistanceResult& result)
-{
-  if(request.isSatisfied(result)) return result.min_distance;
-  OcTreeShapeDistanceTraversalNode<T_SH> node;
-  const OcTree* obj1 = static_cast<const OcTree*>(o1);
-  const T_SH* obj2 = static_cast<const T_SH*>(o2);
-  OcTreeSolver otsolver(nsolver);
-
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
-  distance(&node);
-  
-  return result.min_distance;
-}
-
-FCL_REAL OcTreeDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
-                        const DistanceRequest& request, DistanceResult& result)
-{
-  if(request.isSatisfied(result)) return result.min_distance;
-  OcTreeDistanceTraversalNode node;
-  const OcTree* obj1 = static_cast<const OcTree*>(o1);
-  const OcTree* obj2 = static_cast<const OcTree*>(o2);
-  OcTreeSolver otsolver(nsolver);
-
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
-  distance(&node);
-
-  return result.min_distance;
-}
-
-template<typename T_BVH>
-FCL_REAL BVHOcTreeDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
-                           const DistanceRequest& request, DistanceResult& result)
-{
-  if(request.isSatisfied(result)) return result.min_distance;
-  MeshOcTreeDistanceTraversalNode<T_BVH> node;
-  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
-  const OcTree* obj2 = static_cast<const OcTree*>(o2);
-  OcTreeSolver otsolver(nsolver);
-
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
-  distance(&node);
-
-  return result.min_distance;
-}
-
-template<typename T_BVH>
-FCL_REAL OcTreeBVHDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
-                       const DistanceRequest& request, DistanceResult& result)
-{
-  if(request.isSatisfied(result)) return result.min_distance;
-  OcTreeMeshDistanceTraversalNode<T_BVH> node;
-  const OcTree* obj1 = static_cast<const OcTree*>(o1);
-  const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
-  OcTreeSolver otsolver(nsolver);
-
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
-  distance(&node);
-
   return result.min_distance;
 }
 
@@ -451,43 +390,43 @@ DistanceFunctionMatrix::DistanceFunctionMatrix()
   distance_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHDistance<OBBRSS>;
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-  distance_matrix[GEOM_OCTREE][GEOM_BOX] = &OcTreeShapeDistance<Box>;
-  distance_matrix[GEOM_OCTREE][GEOM_SPHERE] = &OcTreeShapeDistance<Sphere>;
-  distance_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &OcTreeShapeDistance<Capsule>;
-  distance_matrix[GEOM_OCTREE][GEOM_CONE] = &OcTreeShapeDistance<Cone>;
-  distance_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &OcTreeShapeDistance<Cylinder>;
-  distance_matrix[GEOM_OCTREE][GEOM_CONVEX] = &OcTreeShapeDistance<ConvexBase>;
-  distance_matrix[GEOM_OCTREE][GEOM_PLANE] = &OcTreeShapeDistance<Plane>;
-  distance_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &OcTreeShapeDistance<Halfspace>;
+  distance_matrix[GEOM_OCTREE][GEOM_BOX] = &Distance<Box>;
+  distance_matrix[GEOM_OCTREE][GEOM_SPHERE] = &Distance<Sphere>;
+  distance_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &Distance<Capsule>;
+  distance_matrix[GEOM_OCTREE][GEOM_CONE] = &Distance<Cone>;
+  distance_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &Distance<Cylinder>;
+  distance_matrix[GEOM_OCTREE][GEOM_CONVEX] = &Distance<ConvexBase>;
+  distance_matrix[GEOM_OCTREE][GEOM_PLANE] = &Distance<Plane>;
+  distance_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &Distance<Halfspace>;
 
-  distance_matrix[GEOM_BOX][GEOM_OCTREE] = &ShapeOcTreeDistance<Box>;
-  distance_matrix[GEOM_SPHERE][GEOM_OCTREE] = &ShapeOcTreeDistance<Sphere>;
-  distance_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &ShapeOcTreeDistance<Capsule>;
-  distance_matrix[GEOM_CONE][GEOM_OCTREE] = &ShapeOcTreeDistance<Cone>;
-  distance_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &ShapeOcTreeDistance<Cylinder>;
-  distance_matrix[GEOM_CONVEX][GEOM_OCTREE] = &ShapeOcTreeDistance<ConvexBase>;
-  distance_matrix[GEOM_PLANE][GEOM_OCTREE] = &ShapeOcTreeDistance<Plane>;
-  distance_matrix[GEOM_HALFSPACE][GEOM_OCTREE] = &ShapeOcTreeDistance<Halfspace>;
+  distance_matrix[GEOM_BOX][GEOM_OCTREE] = &Distance<Box>;
+  distance_matrix[GEOM_SPHERE][GEOM_OCTREE] = &Distance<Sphere>;
+  distance_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &Distance<Capsule>;
+  distance_matrix[GEOM_CONE][GEOM_OCTREE] = &Distance<Cone>;
+  distance_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &Distance<Cylinder>;
+  distance_matrix[GEOM_CONVEX][GEOM_OCTREE] = &Distance<ConvexBase>;
+  distance_matrix[GEOM_PLANE][GEOM_OCTREE] = &Distance<Plane>;
+  distance_matrix[GEOM_HALFSPACE][GEOM_OCTREE] = &Distance<Halfspace>;
 
-  distance_matrix[GEOM_OCTREE][GEOM_OCTREE] = &OcTreeDistance;
+  distance_matrix[GEOM_OCTREE][GEOM_OCTREE] = &Distance;
 
-  distance_matrix[GEOM_OCTREE][BV_AABB] = &OcTreeBVHDistance<AABB>;
-  distance_matrix[GEOM_OCTREE][BV_OBB] = &OcTreeBVHDistance<OBB>;
-  distance_matrix[GEOM_OCTREE][BV_RSS] = &OcTreeBVHDistance<RSS>;
-  distance_matrix[GEOM_OCTREE][BV_OBBRSS] = &OcTreeBVHDistance<OBBRSS>;
-  distance_matrix[GEOM_OCTREE][BV_kIOS] = &OcTreeBVHDistance<kIOS>;
-  distance_matrix[GEOM_OCTREE][BV_KDOP16] = &OcTreeBVHDistance<KDOP<16> >;
-  distance_matrix[GEOM_OCTREE][BV_KDOP18] = &OcTreeBVHDistance<KDOP<18> >;
-  distance_matrix[GEOM_OCTREE][BV_KDOP24] = &OcTreeBVHDistance<KDOP<24> >;
+  distance_matrix[GEOM_OCTREE][BV_AABB] = &Distance<AABB>;
+  distance_matrix[GEOM_OCTREE][BV_OBB] = &Distance<OBB>;
+  distance_matrix[GEOM_OCTREE][BV_RSS] = &Distance<RSS>;
+  distance_matrix[GEOM_OCTREE][BV_OBBRSS] = &Distance<OBBRSS>;
+  distance_matrix[GEOM_OCTREE][BV_kIOS] = &Distance<kIOS>;
+  distance_matrix[GEOM_OCTREE][BV_KDOP16] = &Distance<KDOP<16> >;
+  distance_matrix[GEOM_OCTREE][BV_KDOP18] = &Distance<KDOP<18> >;
+  distance_matrix[GEOM_OCTREE][BV_KDOP24] = &Distance<KDOP<24> >;
 
-  distance_matrix[BV_AABB][GEOM_OCTREE] = &BVHOcTreeDistance<AABB>;
-  distance_matrix[BV_OBB][GEOM_OCTREE] = &BVHOcTreeDistance<OBB>;
-  distance_matrix[BV_RSS][GEOM_OCTREE] = &BVHOcTreeDistance<RSS>;
-  distance_matrix[BV_OBBRSS][GEOM_OCTREE] = &BVHOcTreeDistance<OBBRSS>;
-  distance_matrix[BV_kIOS][GEOM_OCTREE] = &BVHOcTreeDistance<kIOS>;
-  distance_matrix[BV_KDOP16][GEOM_OCTREE] = &BVHOcTreeDistance<KDOP<16> >;
-  distance_matrix[BV_KDOP18][GEOM_OCTREE] = &BVHOcTreeDistance<KDOP<18> >;
-  distance_matrix[BV_KDOP24][GEOM_OCTREE] = &BVHOcTreeDistance<KDOP<24> >;
+  distance_matrix[BV_AABB][GEOM_OCTREE] = &Distance<AABB>;
+  distance_matrix[BV_OBB][GEOM_OCTREE] = &Distance<OBB>;
+  distance_matrix[BV_RSS][GEOM_OCTREE] = &Distance<RSS>;
+  distance_matrix[BV_OBBRSS][GEOM_OCTREE] = &Distance<OBBRSS>;
+  distance_matrix[BV_kIOS][GEOM_OCTREE] = &Distance<kIOS>;
+  distance_matrix[BV_KDOP16][GEOM_OCTREE] = &Distance<KDOP<16> >;
+  distance_matrix[BV_KDOP18][GEOM_OCTREE] = &Distance<KDOP<18> >;
+  distance_matrix[BV_KDOP24][GEOM_OCTREE] = &Distance<KDOP<24> >;
 #endif
 
 
