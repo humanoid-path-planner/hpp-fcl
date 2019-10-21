@@ -46,6 +46,7 @@ namespace hpp
 {
 namespace fcl
 {
+
 template <typename TypeA, typename TypeB>
 struct TraversalTraits
 {
@@ -54,31 +55,43 @@ struct TraversalTraits
 template <typename T_SH>
 struct TraversalTraits <T_SH, OcTree>
 {
-  typedef ShapeOcTreeCollisionTraversalNode<T_SH, GJKSolver> CollisionTraversal_t;
+  typedef ShapeOcTreeCollisionTraversalNode<T_SH> CollisionTraversal_t;
 };
 
 template <typename T_SH>
 struct TraversalTraits <OcTree, T_SH>
 {
-  typedef OcTreeShapeCollisionTraversalNode<T_SH, GJKSolver> CollisionTraversal_t;
+  typedef OcTreeShapeCollisionTraversalNode<T_SH> CollisionTraversal_t;
 };
 
 template <>
 struct TraversalTraits <OcTree, OcTree>
 {
-  typedef OcTreeCollisionTraversalNode<GJKSolver> CollisionTraversal_t;
+  typedef OcTreeCollisionTraversalNode<> CollisionTraversal_t;
 };
 
 template <typename T_BVH>
 struct TraversalTraits <OcTree, BVHModel<T_BVH>>
 {
-  typedef OcTreeMeshCollisionTraversalNode<T_BVH, GJKSolver> CollisionTraversal_t;
+  typedef OcTreeMeshCollisionTraversalNode<T_BVH> CollisionTraversal_t;
 };
 
 template <typename T_BVH>
 struct TraversalTraits <BVHModel<T_BVH>, OcTree>
 {
-  typedef MeshOcTreeCollisionTraversalNode<T_BVH, GJKSolver> CollisionTraversal_t;
+  typedef MeshOcTreeCollisionTraversalNode<T_BVH> CollisionTraversal_t;
+};
+
+template <typename OrientedMeshCollisionTraversalNode, typename T_BVH, typename T_SH>
+struct TraversalTraits <BVHModel<T_BVH>, T_SH>
+{
+  typedef OrientMeshShapeCollisionTraveralNode<> CollisionTraversal_t;
+};
+
+template <typename OrientedMeshCollisionTraversalNode, typename T_BVH>
+struct TraversalTraits <BVHModel<T_BVH>, BVHModel<T_BVH>>
+{
+  typedef OrientedMeshCollisionTraversalNode<> CollisionTraversal_t;
 };
 
 
