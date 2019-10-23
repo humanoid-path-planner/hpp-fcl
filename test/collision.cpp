@@ -44,6 +44,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/assign/list_of.hpp>
 

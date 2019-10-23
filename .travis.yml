@@ -63,6 +63,7 @@ addons:
 
   homebrew:
     taps: homebrew/science
+    update: true
     packages:
       - git
       - cmake
