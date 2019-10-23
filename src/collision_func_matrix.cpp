@@ -59,15 +59,15 @@ std::size_t Collide(const CollisionGeometry* o1, const Transform3f& tf1, const C
   if(request.isSatisfied(result)) return result.numContacts();
 
   typename TraversalTraitsCollision<TypeA, TypeB>::CollisionTraversal_t node (request);
-  const TypeA* obj1 = static_cast<const TypeA*>(o1);
-  const TypeB* obj2 = static_cast<const TypeB*>(o2);
+  const TypeA* obj1 = dynamic_cast<const TypeA*>(o1);
+  const TypeB* obj2 = dynamic_cast<const TypeB*>(o2);
   OcTreeSolver otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, result);
   collide(&node, request, result);
 
   return result.numContacts();
-
+}
 #endif
 
 template<typename T_SH1, typename T_SH2>
@@ -434,43 +434,43 @@ CollisionFunctionMatrix::CollisionFunctionMatrix()
   collision_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHCollide<OBBRSS>;
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-  collision_matrix[GEOM_OCTREE][GEOM_BOX] = &Collide<Box>;
-  collision_matrix[GEOM_OCTREE][GEOM_SPHERE] = &Collide<Sphere>;
-  collision_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &Collide<Capsule>;
-  collision_matrix[GEOM_OCTREE][GEOM_CONE] = &Collide<Cone>;
-  collision_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &Collide<Cylinder>;
-  collision_matrix[GEOM_OCTREE][GEOM_CONVEX] = &Collide<ConvexBase>;
-  collision_matrix[GEOM_OCTREE][GEOM_PLANE] = &Collide<Plane>;
-  collision_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &Collide<Halfspace>;
+  collision_matrix[GEOM_OCTREE][GEOM_BOX] = &Collide<OcTree, Box>;
+  collision_matrix[GEOM_OCTREE][GEOM_SPHERE] = &Collide<OcTree, Sphere>;
+  collision_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &Collide<OcTree, Capsule>;
+  collision_matrix[GEOM_OCTREE][GEOM_CONE] = &Collide<OcTree, Cone>;
+  collision_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &Collide<OcTree, Cylinder>;
+  collision_matrix[GEOM_OCTREE][GEOM_CONVEX] = &Collide<OcTree, ConvexBase>;
+  collision_matrix[GEOM_OCTREE][GEOM_PLANE] = &Collide<OcTree, Plane>;
+  collision_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &Collide<OcTree, Halfspace>;
 
-  collision_matrix[GEOM_BOX][GEOM_OCTREE] = &Collide<Box>;
-  collision_matrix[GEOM_SPHERE][GEOM_OCTREE] = &Collide<Sphere>;
-  collision_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &Collide<Capsule>;
-  collision_matrix[GEOM_CONE][GEOM_OCTREE] = &Collide<Cone>;
-  collision_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &Collide<Cylinder>;
-  collision_matrix[GEOM_CONVEX][GEOM_OCTREE] = &Collide<ConvexBase>;
-  collision_matrix[GEOM_PLANE][GEOM_OCTREE] = &Collide<Plane>;
-  collision_matrix[GEOM_HALFSPACE][GEOM_OCTREE] = &Collide<Halfspace>;
+  collision_matrix[GEOM_BOX][GEOM_OCTREE] = &Collide<Box, OcTree>;
+  collision_matrix[GEOM_SPHERE][GEOM_OCTREE] = &Collide<Sphere, OcTree>;
+  collision_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &Collide<Capsule, OcTree>;
+  collision_matrix[GEOM_CONE][GEOM_OCTREE] = &Collide<Cone, OcTree>;
+  collision_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &Collide<Cylinder, OcTree>;
+  collision_matrix[GEOM_CONVEX][GEOM_OCTREE] = &Collide<ConvexBase, OcTree>;
+  collision_matrix[GEOM_PLANE][GEOM_OCTREE] = &Collide<Plane, OcTree>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_OCTREE] = &Collide<Halfspace, OcTree>;
 
-  collision_matrix[GEOM_OCTREE][GEOM_OCTREE] = &Collide;
+  collision_matrix[GEOM_OCTREE][GEOM_OCTREE] = &Collide<OcTree, OcTree>;
 
-  collision_matrix[GEOM_OCTREE][BV_AABB] = &Collide<AABB>;
-  collision_matrix[GEOM_OCTREE][BV_OBB] = &Collide<OBB>;
-  collision_matrix[GEOM_OCTREE][BV_RSS] = &Collide<RSS>;
-  collision_matrix[GEOM_OCTREE][BV_OBBRSS] = &Collide<OBBRSS>;
-  collision_matrix[GEOM_OCTREE][BV_kIOS] = &Collide<kIOS>;
-  collision_matrix[GEOM_OCTREE][BV_KDOP16] = &Collide<KDOP<16> >;
-  collision_matrix[GEOM_OCTREE][BV_KDOP18] = &Collide<KDOP<18> >;
-  collision_matrix[GEOM_OCTREE][BV_KDOP24] = &Collide<KDOP<24> >;
+  collision_matrix[GEOM_OCTREE][BV_AABB  ] = &Collide<OcTree, BVHModel<AABB     > >;
+  collision_matrix[GEOM_OCTREE][BV_OBB   ] = &Collide<OcTree, BVHModel<OBB      > >;
+  collision_matrix[GEOM_OCTREE][BV_RSS   ] = &Collide<OcTree, BVHModel<RSS      > >;
+  collision_matrix[GEOM_OCTREE][BV_OBBRSS] = &Collide<OcTree, BVHModel<OBBRSS   > >;
+  collision_matrix[GEOM_OCTREE][BV_kIOS  ] = &Collide<OcTree, BVHModel<kIOS     > >;
+  collision_matrix[GEOM_OCTREE][BV_KDOP16] = &Collide<OcTree, BVHModel<KDOP<16> > >;
+  collision_matrix[GEOM_OCTREE][BV_KDOP18] = &Collide<OcTree, BVHModel<KDOP<18> > >;
+  collision_matrix[GEOM_OCTREE][BV_KDOP24] = &Collide<OcTree, BVHModel<KDOP<24> > >;
 
-  collision_matrix[BV_AABB][GEOM_OCTREE] = &Collide<AABB>;
-  collision_matrix[BV_OBB][GEOM_OCTREE] = &Collide<OBB>;
-  collision_matrix[BV_RSS][GEOM_OCTREE] = &Collide<RSS>;
-  collision_matrix[BV_OBBRSS][GEOM_OCTREE] = &Collide<OBBRSS>;
-  collision_matrix[BV_kIOS][GEOM_OCTREE] = &Collide<kIOS>;
-  collision_matrix[BV_KDOP16][GEOM_OCTREE] = &Collide<KDOP<16> >;
-  collision_matrix[BV_KDOP18][GEOM_OCTREE] = &Collide<KDOP<18> >;
-  collision_matrix[BV_KDOP24][GEOM_OCTREE] = &Collide<KDOP<24> >;
+  collision_matrix[BV_AABB  ][GEOM_OCTREE] = &Collide<BVHModel<AABB     >, OcTree>;
+  collision_matrix[BV_OBB   ][GEOM_OCTREE] = &Collide<BVHModel<OBB      >, OcTree>;
+  collision_matrix[BV_RSS   ][GEOM_OCTREE] = &Collide<BVHModel<RSS      >, OcTree>;
+  collision_matrix[BV_OBBRSS][GEOM_OCTREE] = &Collide<BVHModel<OBBRSS   >, OcTree>;
+  collision_matrix[BV_kIOS  ][GEOM_OCTREE] = &Collide<BVHModel<kIOS     >, OcTree>;
+  collision_matrix[BV_KDOP16][GEOM_OCTREE] = &Collide<BVHModel<KDOP<16> >, OcTree>;
+  collision_matrix[BV_KDOP18][GEOM_OCTREE] = &Collide<BVHModel<KDOP<18> >, OcTree>;
+  collision_matrix[BV_KDOP24][GEOM_OCTREE] = &Collide<BVHModel<KDOP<24> >, OcTree>;
 #endif
 }
 //template struct CollisionFunctionMatrix;

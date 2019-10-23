@@ -34,7 +34,7 @@ struct TraversalTraitsCollision <OcTree, T_SH>
 template <>
 struct TraversalTraitsCollision <OcTree, OcTree>
 {
-  typedef OcTreeCollisionTraversalNode<> CollisionTraversal_t;
+  typedef OcTreeCollisionTraversalNode CollisionTraversal_t;
 };
 
 template <typename T_BVH>

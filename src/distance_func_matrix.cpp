@@ -390,43 +390,43 @@ DistanceFunctionMatrix::DistanceFunctionMatrix()
   distance_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHDistance<OBBRSS>;
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-  distance_matrix[GEOM_OCTREE][GEOM_BOX] = &Distance<Box>;
-  distance_matrix[GEOM_OCTREE][GEOM_SPHERE] = &Distance<Sphere>;
-  distance_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &Distance<Capsule>;
-  distance_matrix[GEOM_OCTREE][GEOM_CONE] = &Distance<Cone>;
-  distance_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &Distance<Cylinder>;
-  distance_matrix[GEOM_OCTREE][GEOM_CONVEX] = &Distance<ConvexBase>;
-  distance_matrix[GEOM_OCTREE][GEOM_PLANE] = &Distance<Plane>;
-  distance_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &Distance<Halfspace>;
+  distance_matrix[GEOM_OCTREE][GEOM_BOX] = &Distance<OcTree, Box>;
+  distance_matrix[GEOM_OCTREE][GEOM_SPHERE] = &Distance<OcTree, Sphere>;
+  distance_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &Distance<OcTree, Capsule>;
+  distance_matrix[GEOM_OCTREE][GEOM_CONE] = &Distance<OcTree, Cone>;
+  distance_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &Distance<OcTree, Cylinder>;
+  distance_matrix[GEOM_OCTREE][GEOM_CONVEX] = &Distance<OcTree, ConvexBase>;
+  distance_matrix[GEOM_OCTREE][GEOM_PLANE] = &Distance<OcTree, Plane>;
+  distance_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &Distance<OcTree, Halfspace>;
 
-  distance_matrix[GEOM_BOX][GEOM_OCTREE] = &Distance<Box>;
-  distance_matrix[GEOM_SPHERE][GEOM_OCTREE] = &Distance<Sphere>;
-  distance_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &Distance<Capsule>;
-  distance_matrix[GEOM_CONE][GEOM_OCTREE] = &Distance<Cone>;
-  distance_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &Distance<Cylinder>;
-  distance_matrix[GEOM_CONVEX][GEOM_OCTREE] = &Distance<ConvexBase>;
-  distance_matrix[GEOM_PLANE][GEOM_OCTREE] = &Distance<Plane>;
-  distance_matrix[GEOM_HALFSPACE][GEOM_OCTREE] = &Distance<Halfspace>;
+  distance_matrix[GEOM_BOX][GEOM_OCTREE] = &Distance<Box, OcTree>;
+  distance_matrix[GEOM_SPHERE][GEOM_OCTREE] = &Distance<Sphere, OcTree>;
+  distance_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &Distance<Capsule, OcTree>;
+  distance_matrix[GEOM_CONE][GEOM_OCTREE] = &Distance<Cone, OcTree>;
+  distance_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &Distance<Cylinder, OcTree>;
+  distance_matrix[GEOM_CONVEX][GEOM_OCTREE] = &Distance<ConvexBase, OcTree>;
+  distance_matrix[GEOM_PLANE][GEOM_OCTREE] = &Distance<Plane, OcTree>;
+  distance_matrix[GEOM_HALFSPACE][GEOM_OCTREE] = &Distance<Halfspace, OcTree>;
 
-  distance_matrix[GEOM_OCTREE][GEOM_OCTREE] = &Distance;
+  distance_matrix[GEOM_OCTREE][GEOM_OCTREE] = &Distance<OcTree, OcTree>;
 
-  distance_matrix[GEOM_OCTREE][BV_AABB] = &Distance<AABB>;
-  distance_matrix[GEOM_OCTREE][BV_OBB] = &Distance<OBB>;
-  distance_matrix[GEOM_OCTREE][BV_RSS] = &Distance<RSS>;
-  distance_matrix[GEOM_OCTREE][BV_OBBRSS] = &Distance<OBBRSS>;
-  distance_matrix[GEOM_OCTREE][BV_kIOS] = &Distance<kIOS>;
-  distance_matrix[GEOM_OCTREE][BV_KDOP16] = &Distance<KDOP<16> >;
-  distance_matrix[GEOM_OCTREE][BV_KDOP18] = &Distance<KDOP<18> >;
-  distance_matrix[GEOM_OCTREE][BV_KDOP24] = &Distance<KDOP<24> >;
+  distance_matrix[GEOM_OCTREE][BV_AABB] = &Distance<OcTree, BVHModel<AABB> >;
+  distance_matrix[GEOM_OCTREE][BV_OBB] = &Distance<OcTree, BVHModel<OBB> >;
+  distance_matrix[GEOM_OCTREE][BV_RSS] = &Distance<OcTree, BVHModel<RSS> >;
+  distance_matrix[GEOM_OCTREE][BV_OBBRSS] = &Distance<OcTree, BVHModel<OBBRSS> >;
+  distance_matrix[GEOM_OCTREE][BV_kIOS] = &Distance<OcTree, BVHModel<kIOS> >;
+  distance_matrix[GEOM_OCTREE][BV_KDOP16] = &Distance<OcTree, BVHModel<KDOP<16>> >;
+  distance_matrix[GEOM_OCTREE][BV_KDOP18] = &Distance<OcTree, BVHModel<KDOP<18>> >;
+  distance_matrix[GEOM_OCTREE][BV_KDOP24] = &Distance<OcTree, BVHModel<KDOP<24>> >;
 
-  distance_matrix[BV_AABB][GEOM_OCTREE] = &Distance<AABB>;
-  distance_matrix[BV_OBB][GEOM_OCTREE] = &Distance<OBB>;
-  distance_matrix[BV_RSS][GEOM_OCTREE] = &Distance<RSS>;
-  distance_matrix[BV_OBBRSS][GEOM_OCTREE] = &Distance<OBBRSS>;
-  distance_matrix[BV_kIOS][GEOM_OCTREE] = &Distance<kIOS>;
-  distance_matrix[BV_KDOP16][GEOM_OCTREE] = &Distance<KDOP<16> >;
-  distance_matrix[BV_KDOP18][GEOM_OCTREE] = &Distance<KDOP<18> >;
-  distance_matrix[BV_KDOP24][GEOM_OCTREE] = &Distance<KDOP<24> >;
+  distance_matrix[BV_AABB][GEOM_OCTREE] = &Distance<BVHModel<AABB>, OcTree>;
+  distance_matrix[BV_OBB][GEOM_OCTREE] = &Distance<BVHModel<OBB>, OcTree>;
+  distance_matrix[BV_RSS][GEOM_OCTREE] = &Distance<BVHModel<RSS>, OcTree>;
+  distance_matrix[BV_OBBRSS][GEOM_OCTREE] = &Distance<BVHModel<OBBRSS>, OcTree>;
+  distance_matrix[BV_kIOS][GEOM_OCTREE] = &Distance<BVHModel<kIOS>, OcTree>;
+  distance_matrix[BV_KDOP16][GEOM_OCTREE] = &Distance<BVHModel<KDOP<16>>, OcTree >;
+  distance_matrix[BV_KDOP18][GEOM_OCTREE] = &Distance<BVHModel<KDOP<18>>, OcTree >;
+  distance_matrix[BV_KDOP24][GEOM_OCTREE] = &Distance<BVHModel<KDOP<24>>, OcTree >;
 #endif
 
 
