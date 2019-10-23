@@ -34,16 +34,16 @@
 
 cmake_minimum_required(VERSION 2.8)
 set(CXX_DISABLE_WERROR TRUE)
-include(cmake/base.cmake)
-include(cmake/eigen.cmake)
-include(cmake/boost.cmake)
-include(cmake/python.cmake)
-include(cmake/hpp.cmake)
 
 set(PROJECT_NAME hpp-fcl)
 set(PROJECT_DESCRIPTION
   "HPP fork of FCL -- The Flexible Collision Library"
   )
+
+include(cmake/eigen.cmake)
+include(cmake/boost.cmake)
+include(cmake/python.cmake)
+include(cmake/hpp.cmake)
 
 IF(APPLE)
   SET(CMAKE_MACOSX_RPATH TRUE)
@@ -60,7 +60,9 @@ ENDIF(APPLE)
 
 OPTION(BUILD_PYTHON_INTERFACE OFF)
 
-setup_hpp_project()
+# Tell CMake that we compute the PROJECT_VERSION manually.
+CMAKE_POLICY(SET CMP0048 OLD)
+project(${PROJECT_NAME} CXX)
 
 add_required_dependency("eigen3 >= 3.0.0")
 include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
@@ -160,5 +162,3 @@ IF(HPP_FCL_HAVE_OCTOMAP)
   PKG_CONFIG_APPEND_CFLAGS(
     "-DHPP_FCL_HAVE_OCTOMAP -DFCL_HAVE_OCTOMAP -DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION} -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION} -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION}")
 ENDIF(HPP_FCL_HAVE_OCTOMAP)
-
-setup_hpp_project_finalize()
