@@ -12,6 +12,13 @@ matrix:
       env: BUILD_TYPE=Debug
       dist: trusty
       compiler: g++
+      addons:
+        apt:
+          packages:
+            - cmake
+            - libboost-all-dev
+            - libassimp-dev
+            - libeigen3-dev
 
     - name: "Xenial - Debug - g++"
       env: BUILD_TYPE=Debug
@@ -20,6 +27,10 @@ matrix:
       addons:
         apt:
           packages:
+            - cmake
+            - libboost-all-dev
+            - libassimp-dev
+            - libeigen3-dev
             - liboctomap-dev
     - name: "Xenial - Release - g++"
       env: BUILD_TYPE=Release
@@ -28,6 +39,10 @@ matrix:
       addons:
         apt:
           packages:
+            - cmake
+            - libboost-all-dev
+            - libassimp-dev
+            - libeigen3-dev
             - liboctomap-dev
     - name: "Xenial - Debug - clang"
       env: BUILD_TYPE=Debug
@@ -36,6 +51,10 @@ matrix:
       addons:
         apt:
           packages:
+            - cmake
+            - libboost-all-dev
+            - libassimp-dev
+            - libeigen3-dev
             - liboctomap-dev
 
     - name: "Bionic - Debug - g++"
@@ -45,33 +64,28 @@ matrix:
       addons:
         apt:
           packages:
+            - cmake
+            - libboost-all-dev
+            - libassimp-dev
+            - libeigen3-dev
             - liboctomap-dev
 
     - name: "OSX - Debug - clang"
       env: BUILD_TYPE=Debug
       os: osx
       compiler: clang
-
-addons:
-  apt:
-    packages:
-      - cmake
-      - libboost-all-dev
-      - libassimp-dev
-      - libeigen3-dev
-      - liboctomap-dev
-
-  homebrew:
-    taps: homebrew/science
-    update: true
-    packages:
-      - git
-      - cmake
-      - boost
-      - libccd
-      - assimp
-      - eigen
-      - octomap
+      addons:
+        homebrew:
+          taps: homebrew/science
+          update: true
+          packages:
+            - git
+            - cmake
+            - boost
+            - libccd
+            - assimp
+            - eigen
+            - octomap
 
 script:
   # Create build directory
