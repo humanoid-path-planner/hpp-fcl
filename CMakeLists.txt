@@ -58,7 +58,7 @@ IF(APPLE)
   endif("${isSystemDir}" STREQUAL "-1")
 ENDIF(APPLE)
 
-OPTION(BUILD_PYTHON_INTERFACE OFF)
+OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" ON)
 
 # Tell CMake that we compute the PROJECT_VERSION manually.
 CMAKE_POLICY(SET CMP0048 OLD)
