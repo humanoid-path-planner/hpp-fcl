@@ -1,7 +1,6 @@
 import unittest
-import eigenpy
-eigenpy.switchToNumpyMatrix()
 import hppfcl
+hppfcl.switchToNumpyMatrix()
 import numpy as np
 
 class TestGeometricShapes(unittest.TestCase):
