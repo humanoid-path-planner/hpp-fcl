@@ -57,3 +57,8 @@ endif(HPP_FCL_HAVE_OCTOMAP)
 ## Benchmark
 add_executable(test-benchmark benchmark.cpp)
 target_link_libraries(test-benchmark hpp-fcl ${Boost_LIBRARIES} utility)
+
+## Python tests
+IF(BUILD_PYTHON_INTERFACE)
+  ADD_SUBDIRECTORY(python_unit)
+ENDIF(BUILD_PYTHON_INTERFACE)
