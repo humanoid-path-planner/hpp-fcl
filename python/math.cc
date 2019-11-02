@@ -69,9 +69,6 @@ void exposeMaths ()
   if(!eigenpy::register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
     eigenpy::exposeAngleAxis();
 
-  eigenpy::enableEigenPySpecific<Matrix3f>();
-  eigenpy::enableEigenPySpecific<Vec3f   >();
-
   class_ <Transform3f> ("Transform3f", init<>())
     .def (init<Matrix3f, Vec3f>())
     .def (init<Quaternion3f, Vec3f>())

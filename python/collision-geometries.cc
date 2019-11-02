@@ -103,17 +103,6 @@ struct ConvexWrapper
   }
 };
 
-Eigen::Vector3d getHalfSide(const ::hpp::fcl::Box & box)
-{
-  Eigen::Vector3d halfSide = box.halfSide;
-  return halfSide;
-}
-
-void setHalfSide(::hpp::fcl::Box & box, const Eigen::Vector3d & halfSide)
-{
-  box.halfSide = halfSide;
-}
-
 void exposeShapes ()
 {
   class_ <ShapeBase, bases<CollisionGeometry>, shared_ptr<ShapeBase>, noncopyable>
@@ -125,7 +114,9 @@ void exposeShapes ()
     ("Box", init<>())
     .def (init<FCL_REAL,FCL_REAL,FCL_REAL>())
     .def (init<Vec3f>())
-    .add_property("halfSide", make_function(getHalfSide), make_function(setHalfSide))
+    .add_property("halfSide",
+                  make_getter(&Box::halfSide, return_value_policy<return_by_value>()),
+                  make_setter(&Box::halfSide, return_value_policy<return_by_value>()));
     ;
 
   class_ <Capsule, bases<ShapeBase>, shared_ptr<Capsule> >
