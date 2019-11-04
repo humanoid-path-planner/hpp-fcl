@@ -5,6 +5,7 @@ env:
     - CTEST_PARALLEL_LEVEL=4
     - CTEST_OUTPUT_ON_FAILURE=1
     - CXX_FLAGS_DEBUG="-O1"
+    - BUILD_PYTHON_INTERFACE=ON
 
 matrix:
   include:
@@ -87,13 +88,17 @@ matrix:
             - eigen
             - octomap
 
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then source travis_custom/custom_before_install_linux.sh ; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then source travis_custom/custom_before_install_osx.sh ; fi
+
 script:
   # Create build directory
   - mkdir build
   - cd build
 
   # Configure
-  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w -DCMAKE_CXX_FLAGS_DEBUG=${CXX_FLAGS_DEBUG} ..
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w -DCMAKE_CXX_FLAGS_DEBUG=${CXX_FLAGS_DEBUG} -DBUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE} ..
 
   # Build
   - make -j4

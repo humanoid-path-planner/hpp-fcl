@@ -114,7 +114,9 @@ void exposeShapes ()
     ("Box", init<>())
     .def (init<FCL_REAL,FCL_REAL,FCL_REAL>())
     .def (init<Vec3f>())
-    .def_readwrite ("halfSide", &Box::halfSide)
+    .add_property("halfSide",
+                  make_getter(&Box::halfSide, return_value_policy<return_by_value>()),
+                  make_setter(&Box::halfSide, return_value_policy<return_by_value>()));
     ;
 
   class_ <Capsule, bases<ShapeBase>, shared_ptr<Capsule> >
