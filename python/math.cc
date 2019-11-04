@@ -44,6 +44,8 @@
 
 #include "doxygen_autodoc/hpp/fcl/math/transform.h"
 
+#include "../cmake/doxygen/doxygen-boost.hh"
+
 using namespace boost::python;
 using namespace hpp::fcl;
 
@@ -85,17 +87,17 @@ void exposeMaths ()
     .def ("getRotation", &Transform3f::getRotation, return_value_policy<copy_const_reference>())
     .def ("isIdentity", &Transform3f::setIdentity)
 
-    .def ("setQuatRotation", &Transform3f::setQuatRotation)
+    .def (doxygen::visitor::member_func("setQuatRotation", &Transform3f::setQuatRotation))
     .def ("setTranslation", &Transform3f::setTranslation<Vec3f>)
     .def ("setRotation", &Transform3f::setRotation<Matrix3f>)
-    .def ("setTransform", &Transform3f::setTransform<Matrix3f,Vec3f>)
-    .def ("setTransform", static_cast<void (Transform3f::*)(const Quaternion3f&, const Vec3f&)>(&Transform3f::setTransform))
-    .def ("setIdentity", &Transform3f::setIdentity)
+    .def (doxygen::visitor::member_func("setTransform", &Transform3f::setTransform<Matrix3f,Vec3f>))
+    .def (doxygen::visitor::member_func("setTransform", static_cast<void (Transform3f::*)(const Quaternion3f&, const Vec3f&)>(&Transform3f::setTransform)))
+    .def (doxygen::visitor::member_func("setIdentity", &Transform3f::setIdentity))
 
-    .def ("transform", &Transform3f::transform<Vec3f>)
-    .def ("inverseInPlace", &Transform3f::inverseInPlace, return_internal_reference<>())
-    .def ("inverse", &Transform3f::inverse)
-    .def ("inverseTimes", &Transform3f::inverseTimes)
+    .def (doxygen::visitor::member_func("transform", &Transform3f::transform<Vec3f>))
+    .def ("inverseInPlace", &Transform3f::inverseInPlace, return_internal_reference<>(), doxygen::member_func_doc(&Transform3f::inverseInPlace))
+    .def (doxygen::visitor::member_func("inverse", &Transform3f::inverse))
+    .def (doxygen::visitor::member_func("inverseTimes", &Transform3f::inverseTimes))
 
     .def (self * self)
     .def (self *= self)
