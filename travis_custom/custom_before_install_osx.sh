@@ -1,3 +1,6 @@
+# Disable homebrew auto-update
+export HOMEBREW_NO_AUTO_UPDATE=1
+
 # Add gepetto tap
 brew tap gepetto/homebrew-gepetto
 

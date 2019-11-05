@@ -75,7 +75,6 @@ matrix:
       env:
         - BUILD_TYPE=Debug
         - CXX_FLAGS_DEBUG="-O3"
-        - BUILD_PYTHON_INTERFACE=OFF
       os: osx
       compiler: clang
       addons:
@@ -87,6 +86,7 @@ matrix:
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then source travis_custom/custom_before_install_linux.sh ; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then source travis_custom/custom_before_install_osx.sh ; fi
 
 script:
   # Create build directory
