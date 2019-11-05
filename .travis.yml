@@ -77,13 +77,14 @@ matrix:
       compiler: clang
       addons:
         homebrew:
-          taps: homebrew/science
           update: true
           packages:
-            - git
-            - cmake
+            - git # build
+            - doxygen # build
+            - cmake # build
+            - pkg-config # build
             - boost
-            - libccd
+            - brewsci/homebrew-science/cddlib
             - assimp
             - eigen
             - octomap
