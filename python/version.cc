@@ -19,6 +19,8 @@ void exposeVersion()
   bp::scope().attr("HPP_FCL_MINOR_VERSION") = HPP_FCL_MINOR_VERSION;
   bp::scope().attr("HPP_FCL_PATCH_VERSION") = HPP_FCL_PATCH_VERSION;
 
+  bp::scope().attr("__version__") = printVersion();
+
   bp::def("printVersion",printVersion,
           printVersion_overload(bp::arg("delimiter"),
                                 "Returns the current version of hpp-fcl as a string.\n"
