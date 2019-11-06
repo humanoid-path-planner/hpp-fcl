@@ -39,6 +39,7 @@ SET(LIBRARY_NAME hppfcl)
 INCLUDE_DIRECTORIES("${Boost_INCLUDE_DIRS}" ${PYTHON_INCLUDE_DIRS})
 
 ADD_LIBRARY(${LIBRARY_NAME} SHARED
+  version.cc
   math.cc
   collision-geometries.cc
   collision.cc
