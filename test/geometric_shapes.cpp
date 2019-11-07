@@ -46,7 +46,7 @@
 #include <hpp/fcl/distance.h>
 #include "utility.h"
 #include <iostream>
-#include "../src/math/tools.h"
+#include <hpp/fcl/internal/tools.h>
 
 using namespace hpp::fcl;
 

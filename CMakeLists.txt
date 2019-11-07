@@ -143,6 +143,21 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/fwd.hh
   include/hpp/fcl/mesh_loader/assimp.h
   include/hpp/fcl/mesh_loader/loader.h
+  include/hpp/fcl/internal/BV_fitter.h
+  include/hpp/fcl/internal/BV_splitter.h
+  include/hpp/fcl/internal/collision_node.h
+  include/hpp/fcl/internal/geometric_shapes_utility.h
+  include/hpp/fcl/internal/intersect.h
+  include/hpp/fcl/internal/tools.h
+  include/hpp/fcl/internal/traversal_node_base.h
+  include/hpp/fcl/internal/traversal_node_bvh_shape.h
+  include/hpp/fcl/internal/traversal_node_bvhs.h
+  include/hpp/fcl/internal/traversal_node_octree.h
+  include/hpp/fcl/internal/traversal_node_setup.h
+  include/hpp/fcl/internal/traversal_node_shapes.h
+  include/hpp/fcl/internal/traversal_recurse.h
+  include/hpp/fcl/internal/traversal.h
+  include/hpp/fcl/internal/traits_traversal.h
   )
 
 add_subdirectory(src)

@@ -38,7 +38,7 @@
 #include <hpp/fcl/BV/RSS.h>
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <iostream>
-#include "../math/tools.h"
+#include <hpp/fcl/internal/tools.h>
 namespace hpp
 {
 namespace fcl

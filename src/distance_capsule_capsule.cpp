@@ -10,7 +10,7 @@
 #include <limits>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#include "distance_func_matrix.h"
+#include <../src/distance_func_matrix.h>
 
 // Note that partial specialization of template functions is not allowed.
 // Therefore, two implementations with the default narrow phase solvers are

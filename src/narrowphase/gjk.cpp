@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 #include <hpp/fcl/narrowphase/gjk.h>
-#include "../intersect.h"
-#include "../math/tools.h"
+#include <hpp/fcl/internal/intersect.h>
+#include <hpp/fcl/internal/tools.h>
 
 namespace hpp
 {

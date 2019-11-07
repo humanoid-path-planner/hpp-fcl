@@ -35,12 +35,12 @@
 
 /** \author Jia Pan */
 
-#include "intersect.h"
+#include <hpp/fcl/internal/intersect.h>
 #include <iostream>
 #include <limits>
 #include <vector>
 #include <boost/math/special_functions/fpclassify.hpp>
-#include "math/tools.h"
+#include <hpp/fcl/internal/tools.h>
 
 namespace hpp
 {

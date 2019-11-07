@@ -40,9 +40,9 @@
 #include <vector>
 #include <boost/math/constants/constants.hpp>
 
-#include "../src/shape/geometric_shapes_utility.h"
-#include "../src/intersect.h"
-#include "../src/narrowphase/details.h"
+#include <hpp/fcl/internal/geometric_shapes_utility.h>
+#include <hpp/fcl/internal/intersect.h>
+#include "details.h"
 
 namespace hpp
 {

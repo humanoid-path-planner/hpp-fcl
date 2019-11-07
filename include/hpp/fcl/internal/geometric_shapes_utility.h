@@ -42,8 +42,7 @@
 #include <vector>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/BV/BV.h>
-
-#include "../src/BVH/BV_fitter.h"
+#include <hpp/fcl/internal/BV_fitter.h>
 
 namespace hpp
 {

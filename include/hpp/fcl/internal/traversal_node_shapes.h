@@ -43,8 +43,8 @@
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/BV/BV.h>
-#include "../src/shape/geometric_shapes_utility.h"
-#include "traversal_node_base.h"
+#include <hpp/fcl/internal/geometric_shapes_utility.h>
+#include <hpp/fcl/internal/traversal_node_base.h>
 
 namespace hpp
 {
