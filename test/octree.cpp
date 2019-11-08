@@ -44,7 +44,7 @@
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#include "../src/BVH/BV_splitter.h"
+#include <hpp/fcl/internal/BV_splitter.h>
 
 #include "utility.h"
 #include "fcl_resources/config.h"

@@ -45,7 +45,7 @@
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/octree.h>
 #include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/internal/geometric_shapes_utility.h>
+#include <hpp/fcl/shape/geometric_shapes_utility.h>
 
 namespace hpp
 {

@@ -39,7 +39,7 @@
 
 #include <../src/collision_node.h>
 #include <hpp/fcl/internal/traversal_node_setup.h>
-#include <hpp/fcl/internal/traits_traversal.h>
+#include <../src/traits_traversal.h>
 
 namespace hpp
 {

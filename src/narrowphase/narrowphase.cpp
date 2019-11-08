@@ -40,7 +40,7 @@
 #include <vector>
 #include <boost/math/constants/constants.hpp>
 
-#include <hpp/fcl/internal/geometric_shapes_utility.h>
+#include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/internal/intersect.h>
 #include "details.h"
 

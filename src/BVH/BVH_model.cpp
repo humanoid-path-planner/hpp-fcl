@@ -43,7 +43,7 @@
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/shape/convex.h>
 
-#include "BV_splitter.h"
+#include <hpp/fcl/internal/BV_splitter.h>
 #include <hpp/fcl/internal/BV_fitter.h>
 
 namespace hpp

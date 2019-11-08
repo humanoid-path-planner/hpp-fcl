@@ -36,7 +36,7 @@
 /** \author Jia Pan */
 
 
-#include <hpp/fcl/internal/geometric_shapes_utility.h>
+#include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/internal/BV_fitter.h>
 #include <hpp/fcl/internal/tools.h>
 
