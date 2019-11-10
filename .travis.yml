@@ -32,11 +32,11 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w ..
 
   # Build
-  - make -j4
+  - make -j2
 
   # Run unit tests
-  - travis_wait 30 make test || travis_wait 30 ctest -VV
+  - travis_wait 30 make -j2 test
 
   # Make sure we can install and uninstall with no issues
-  - sudo make -j4 install
-  - sudo make -j4 uninstall
+  - sudo make install
+  - sudo make uninstall
