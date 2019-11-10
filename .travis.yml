@@ -3,20 +3,24 @@ language: cpp
 env:
   global:
     - CTEST_PARALLEL_LEVEL=4
-  matrix:
-    - BUILD_TYPE=Debug
-    - BUILD_TYPE=Release
 
 matrix:
   include:
     - dist: trusty
       compiler: gcc
+      env: BUILD_TYPE=Release
     - dist: xenial
       compiler: gcc
-    - dist: xenial
-      compiler: clang
+      env: BUILD_TYPE=Release
+    - dist: bionic
+      compiler: gcc
+      env: BUILD_TYPE=Release
+    - dist: bionic
+      compiler: gcc
+      env: BUILD_TYPE=Debug
     - os: osx
       compiler: clang
+      env: BUILD_TYPE=Release
 
 install:
   # Install dependencies for FCL
