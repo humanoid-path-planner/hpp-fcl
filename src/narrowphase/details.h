@@ -38,7 +38,7 @@
 #ifndef HPP_FCL_SRC_NARROWPHASE_DETAILS_H
 # define HPP_FCL_SRC_NARROWPHASE_DETAILS_H
 
-#include "../traversal/traversal_node_setup.h"
+#include <hpp/fcl/internal/traversal_node_setup.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
 namespace hpp

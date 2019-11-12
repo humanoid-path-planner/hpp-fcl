@@ -35,10 +35,10 @@
 
 /** \author Jia Pan */
 
-#include "BV_fitter.h"
+#include <hpp/fcl/internal/BV_fitter.h>
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <limits>
-#include "../math/tools.h"
+#include <hpp/fcl/internal/tools.h>
 
 namespace hpp
 {

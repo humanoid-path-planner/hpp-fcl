@@ -41,14 +41,14 @@
 /// @cond INTERNAL
 
 #include <hpp/fcl/collision_data.h>
-#include "traversal_node_base.h"
+#include <hpp/fcl/internal/traversal_node_base.h>
 #include <hpp/fcl/BV/BV_node.h>
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/BVH/BVH_model.h>
-#include "../intersect.h"
+#include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
-#include "details/traversal.h"
+#include <hpp/fcl/internal/traversal.h>
 
 #include <boost/shared_array.hpp>
 #include <boost/shared_ptr.hpp>

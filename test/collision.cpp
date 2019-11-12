@@ -54,10 +54,10 @@
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/mesh_loader/assimp.h>
 
-#include "../src/traversal/traversal_node_bvhs.h"
-#include "../src/traversal/traversal_node_setup.h"
+#include <hpp/fcl/internal/traversal_node_bvhs.h>
+#include <hpp/fcl/internal/traversal_node_setup.h>
 #include "../src/collision_node.h"
-#include "../src/BVH/BV_splitter.h"
+#include <hpp/fcl/internal/BV_splitter.h>
 
 #include "utility.h"
 #include "fcl_resources/config.h"

@@ -42,8 +42,8 @@
 
 #include <hpp/fcl/BVH/BVH_front.h>
 #include <queue>
-#include "traversal_node_base.h"
-#include "traversal_node_bvhs.h"
+#include <hpp/fcl/internal/traversal_node_base.h>
+#include <hpp/fcl/internal/traversal_node_bvhs.h>
 
 namespace hpp
 {

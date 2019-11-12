@@ -42,8 +42,8 @@
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/math/transform.h>
 
-#include "../src/intersect.h"
-#include "../src/math/tools.h"
+#include <hpp/fcl/internal/intersect.h>
+#include <hpp/fcl/internal/tools.h>
 
 using namespace hpp::fcl;
 

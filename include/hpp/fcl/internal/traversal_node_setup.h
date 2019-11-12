@@ -40,12 +40,12 @@
 
 /// @cond INTERNAL
 
-#include "traversal_node_bvhs.h"
-#include "traversal_node_shapes.h"
-#include "traversal_node_bvh_shape.h"
+#include <hpp/fcl/internal/traversal_node_bvhs.h>
+#include <hpp/fcl/internal/traversal_node_shapes.h>
+#include <hpp/fcl/internal/traversal_node_bvh_shape.h>
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-#include "traversal_node_octree.h"
+#include <hpp/fcl/internal/traversal_node_octree.h>
 #endif
 
 #include <hpp/fcl/BVH/BVH_utility.h>

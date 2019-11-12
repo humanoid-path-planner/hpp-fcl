@@ -39,7 +39,7 @@
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/collision_data.h>
-#include "../math/tools.h"
+#include <hpp/fcl/internal/tools.h>
 
 #include <iostream>
 #include <limits>

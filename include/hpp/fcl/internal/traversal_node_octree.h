@@ -41,11 +41,11 @@
 /// @cond INTERNAL
 
 #include <hpp/fcl/collision_data.h>
-#include "traversal_node_base.h"
+#include <hpp/fcl/internal/traversal_node_base.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/octree.h>
 #include <hpp/fcl/BVH/BVH_model.h>
-#include "../src/shape/geometric_shapes_utility.h"
+#include <hpp/fcl/shape/geometric_shapes_utility.h>
 
 namespace hpp
 {

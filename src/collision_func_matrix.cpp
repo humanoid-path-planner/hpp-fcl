@@ -38,10 +38,11 @@
 
 #include <hpp/fcl/collision_func_matrix.h>
 
-#include "traversal/traversal_node_setup.h"
+#include <hpp/fcl/internal/traversal_node_setup.h>
 #include <../src/collision_node.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
-#include "distance_func_matrix.h"
+#include <../src/distance_func_matrix.h>
+#include <../src/traits_traversal.h>
 
 namespace hpp
 {
@@ -49,16 +50,17 @@ namespace fcl
 {
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-template<typename T_SH>
-std::size_t ShapeOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+
+template<typename TypeA, typename TypeB>
+std::size_t Collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
                                const GJKSolver* nsolver,
                                const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
-  ShapeOcTreeCollisionTraversalNode<T_SH> node (request);
-  const T_SH* obj1 = static_cast<const T_SH*>(o1);
-  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  typename TraversalTraitsCollision<TypeA, TypeB>::CollisionTraversal_t node (request);
+  const TypeA* obj1 = dynamic_cast<const TypeA*>(o1);
+  const TypeB* obj2 = dynamic_cast<const TypeB*>(o2);
   OcTreeSolver otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, result);
@@ -66,76 +68,6 @@ std::size_t ShapeOcTreeCollide(const CollisionGeometry* o1, const Transform3f& t
 
   return result.numContacts();
 }
-
-template<typename T_SH>
-std::size_t OcTreeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
-                               const GJKSolver* nsolver,
-                               const CollisionRequest& request, CollisionResult& result)
-{
-  if(request.isSatisfied(result)) return result.numContacts();
-
-  OcTreeShapeCollisionTraversalNode<T_SH> node (request);
-  const OcTree* obj1 = static_cast<const OcTree*>(o1);
-  const T_SH* obj2 = static_cast<const T_SH*>(o2);
-  OcTreeSolver otsolver(nsolver);
-
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, result);
-  collide(&node, request, result);
-
-  return result.numContacts();
-}
-
-std::size_t OcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
-                          const GJKSolver* nsolver,
-                          const CollisionRequest& request, CollisionResult& result)
-{
-  if(request.isSatisfied(result)) return result.numContacts();
-
-  OcTreeCollisionTraversalNode node (request);
-  const OcTree* obj1 = static_cast<const OcTree*>(o1);
-  const OcTree* obj2 = static_cast<const OcTree*>(o2);
-  OcTreeSolver otsolver(nsolver);
-
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, result);
-  collide(&node, request, result);
-
-  return result.numContacts();
-}
-
-template<typename T_BVH>
-std::size_t OcTreeBVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
-                             const GJKSolver* nsolver,
-                             const CollisionRequest& request, CollisionResult& result)
-{
-  if(request.isSatisfied(result)) return result.numContacts();
-
-  OcTreeMeshCollisionTraversalNode<T_BVH> node (request);
-  const OcTree* obj1 = static_cast<const OcTree*>(o1);
-  const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
-  OcTreeSolver otsolver(nsolver);
-
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, result);
-  collide(&node, request, result);
-  return result.numContacts();
-}
-
-template<typename T_BVH>
-std::size_t BVHOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
-                             const GJKSolver* nsolver,
-                             const CollisionRequest& request, CollisionResult& result)
-{
-  if(request.isSatisfied(result)) return result.numContacts();
- 
-  MeshOcTreeCollisionTraversalNode<T_BVH> node (request);
-  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
-  const OcTree* obj2 = static_cast<const OcTree*>(o2);
-  OcTreeSolver otsolver(nsolver);
-
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, result);
-  collide(&node, request, result);
-  return result.numContacts();
-}
-
 #endif
 
 template<typename T_SH1, typename T_SH2>
@@ -178,6 +110,28 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
   return 0;
 }
 
+namespace details
+{
+
+template<typename OrientMeshShapeCollisionTraveralNode, typename T_BVH, typename T_SH>
+std::size_t orientedBVHShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+                                    const GJKSolver* nsolver,
+                                    const CollisionRequest& request, CollisionResult& result)
+{
+  if(request.isSatisfied(result)) return result.numContacts();
+
+  OrientMeshShapeCollisionTraveralNode node (request);
+  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
+  const T_SH* obj2 = static_cast<const T_SH*>(o2);
+
+  initialize(node, *obj1, tf1, *obj2, tf2, nsolver, result);
+  fcl::collide(&node, request, result);
+  return result.numContacts();
+}
+
+}
+
+
 template<typename T_BVH, typename T_SH>
 struct BVHShapeCollider
 {
@@ -200,28 +154,6 @@ struct BVHShapeCollider
     return result.numContacts();
   }
 };
-
-namespace details
-{
-
-template<typename OrientMeshShapeCollisionTraveralNode, typename T_BVH, typename T_SH>
-std::size_t orientedBVHShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
-                                    const GJKSolver* nsolver,
-                                    const CollisionRequest& request, CollisionResult& result)
-{
-  if(request.isSatisfied(result)) return result.numContacts();
-
-  OrientMeshShapeCollisionTraveralNode node (request);
-  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
-  const T_SH* obj2 = static_cast<const T_SH*>(o2);
-
-  initialize(node, *obj1, tf1, *obj2, tf2, nsolver, result);
-  fcl::collide(&node, request, result);
-  return result.numContacts();
-}
-
-}
-
 
 template<typename T_SH>
 struct BVHShapeCollider<OBB, T_SH>
@@ -270,6 +202,24 @@ struct BVHShapeCollider<OBBRSS, T_SH>
   } 
 };
 
+namespace details
+{
+template<typename OrientedMeshCollisionTraversalNode, typename T_BVH>
+std::size_t orientedMeshCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
+{
+  if(request.isSatisfied(result)) return result.numContacts();
+
+  OrientedMeshCollisionTraversalNode node (request);
+  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
+  const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>* >(o2);
+
+  initialize(node, *obj1, tf1, *obj2, tf2, result);
+  collide(&node, request, result);
+
+  return result.numContacts();
+}
+
+}
 
 template<typename T_BVH>
 std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
@@ -291,25 +241,6 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, cons
   delete obj2_tmp;
 
   return result.numContacts();
-}
-
-namespace details
-{
-template<typename OrientedMeshCollisionTraversalNode, typename T_BVH>
-std::size_t orientedMeshCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
-{
-  if(request.isSatisfied(result)) return result.numContacts();
-
-  OrientedMeshCollisionTraversalNode node (request);
-  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
-  const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>* >(o2);
-
-  initialize(node, *obj1, tf1, *obj2, tf2, result);
-  collide(&node, request, result);
-
-  return result.numContacts();
-}
-
 }
 
 template<>
@@ -503,43 +434,43 @@ CollisionFunctionMatrix::CollisionFunctionMatrix()
   collision_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHCollide<OBBRSS>;
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-  collision_matrix[GEOM_OCTREE][GEOM_BOX] = &OcTreeShapeCollide<Box>;
-  collision_matrix[GEOM_OCTREE][GEOM_SPHERE] = &OcTreeShapeCollide<Sphere>;
-  collision_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &OcTreeShapeCollide<Capsule>;
-  collision_matrix[GEOM_OCTREE][GEOM_CONE] = &OcTreeShapeCollide<Cone>;
-  collision_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &OcTreeShapeCollide<Cylinder>;
-  collision_matrix[GEOM_OCTREE][GEOM_CONVEX] = &OcTreeShapeCollide<ConvexBase>;
-  collision_matrix[GEOM_OCTREE][GEOM_PLANE] = &OcTreeShapeCollide<Plane>;
-  collision_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &OcTreeShapeCollide<Halfspace>;
+  collision_matrix[GEOM_OCTREE][GEOM_BOX] = &Collide<OcTree, Box>;
+  collision_matrix[GEOM_OCTREE][GEOM_SPHERE] = &Collide<OcTree, Sphere>;
+  collision_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &Collide<OcTree, Capsule>;
+  collision_matrix[GEOM_OCTREE][GEOM_CONE] = &Collide<OcTree, Cone>;
+  collision_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &Collide<OcTree, Cylinder>;
+  collision_matrix[GEOM_OCTREE][GEOM_CONVEX] = &Collide<OcTree, ConvexBase>;
+  collision_matrix[GEOM_OCTREE][GEOM_PLANE] = &Collide<OcTree, Plane>;
+  collision_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &Collide<OcTree, Halfspace>;
 
-  collision_matrix[GEOM_BOX][GEOM_OCTREE] = &ShapeOcTreeCollide<Box>;
-  collision_matrix[GEOM_SPHERE][GEOM_OCTREE] = &ShapeOcTreeCollide<Sphere>;
-  collision_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &ShapeOcTreeCollide<Capsule>;
-  collision_matrix[GEOM_CONE][GEOM_OCTREE] = &ShapeOcTreeCollide<Cone>;
-  collision_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &ShapeOcTreeCollide<Cylinder>;
-  collision_matrix[GEOM_CONVEX][GEOM_OCTREE] = &ShapeOcTreeCollide<ConvexBase>;
-  collision_matrix[GEOM_PLANE][GEOM_OCTREE] = &ShapeOcTreeCollide<Plane>;
-  collision_matrix[GEOM_HALFSPACE][GEOM_OCTREE] = &ShapeOcTreeCollide<Halfspace>;
+  collision_matrix[GEOM_BOX][GEOM_OCTREE] = &Collide<Box, OcTree>;
+  collision_matrix[GEOM_SPHERE][GEOM_OCTREE] = &Collide<Sphere, OcTree>;
+  collision_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &Collide<Capsule, OcTree>;
+  collision_matrix[GEOM_CONE][GEOM_OCTREE] = &Collide<Cone, OcTree>;
+  collision_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &Collide<Cylinder, OcTree>;
+  collision_matrix[GEOM_CONVEX][GEOM_OCTREE] = &Collide<ConvexBase, OcTree>;
+  collision_matrix[GEOM_PLANE][GEOM_OCTREE] = &Collide<Plane, OcTree>;
+  collision_matrix[GEOM_HALFSPACE][GEOM_OCTREE] = &Collide<Halfspace, OcTree>;
 
-  collision_matrix[GEOM_OCTREE][GEOM_OCTREE] = &OcTreeCollide;
+  collision_matrix[GEOM_OCTREE][GEOM_OCTREE] = &Collide<OcTree, OcTree>;
 
-  collision_matrix[GEOM_OCTREE][BV_AABB] = &OcTreeBVHCollide<AABB>;
-  collision_matrix[GEOM_OCTREE][BV_OBB] = &OcTreeBVHCollide<OBB>;
-  collision_matrix[GEOM_OCTREE][BV_RSS] = &OcTreeBVHCollide<RSS>;
-  collision_matrix[GEOM_OCTREE][BV_OBBRSS] = &OcTreeBVHCollide<OBBRSS>;
-  collision_matrix[GEOM_OCTREE][BV_kIOS] = &OcTreeBVHCollide<kIOS>;
-  collision_matrix[GEOM_OCTREE][BV_KDOP16] = &OcTreeBVHCollide<KDOP<16> >;
-  collision_matrix[GEOM_OCTREE][BV_KDOP18] = &OcTreeBVHCollide<KDOP<18> >;
-  collision_matrix[GEOM_OCTREE][BV_KDOP24] = &OcTreeBVHCollide<KDOP<24> >;
+  collision_matrix[GEOM_OCTREE][BV_AABB  ] = &Collide<OcTree, BVHModel<AABB     > >;
+  collision_matrix[GEOM_OCTREE][BV_OBB   ] = &Collide<OcTree, BVHModel<OBB      > >;
+  collision_matrix[GEOM_OCTREE][BV_RSS   ] = &Collide<OcTree, BVHModel<RSS      > >;
+  collision_matrix[GEOM_OCTREE][BV_OBBRSS] = &Collide<OcTree, BVHModel<OBBRSS   > >;
+  collision_matrix[GEOM_OCTREE][BV_kIOS  ] = &Collide<OcTree, BVHModel<kIOS     > >;
+  collision_matrix[GEOM_OCTREE][BV_KDOP16] = &Collide<OcTree, BVHModel<KDOP<16> > >;
+  collision_matrix[GEOM_OCTREE][BV_KDOP18] = &Collide<OcTree, BVHModel<KDOP<18> > >;
+  collision_matrix[GEOM_OCTREE][BV_KDOP24] = &Collide<OcTree, BVHModel<KDOP<24> > >;
 
-  collision_matrix[BV_AABB][GEOM_OCTREE] = &BVHOcTreeCollide<AABB>;
-  collision_matrix[BV_OBB][GEOM_OCTREE] = &BVHOcTreeCollide<OBB>;
-  collision_matrix[BV_RSS][GEOM_OCTREE] = &BVHOcTreeCollide<RSS>;
-  collision_matrix[BV_OBBRSS][GEOM_OCTREE] = &BVHOcTreeCollide<OBBRSS>;
-  collision_matrix[BV_kIOS][GEOM_OCTREE] = &BVHOcTreeCollide<kIOS>;
-  collision_matrix[BV_KDOP16][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<16> >;
-  collision_matrix[BV_KDOP18][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<18> >;
-  collision_matrix[BV_KDOP24][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<24> >;
+  collision_matrix[BV_AABB  ][GEOM_OCTREE] = &Collide<BVHModel<AABB     >, OcTree>;
+  collision_matrix[BV_OBB   ][GEOM_OCTREE] = &Collide<BVHModel<OBB      >, OcTree>;
+  collision_matrix[BV_RSS   ][GEOM_OCTREE] = &Collide<BVHModel<RSS      >, OcTree>;
+  collision_matrix[BV_OBBRSS][GEOM_OCTREE] = &Collide<BVHModel<OBBRSS   >, OcTree>;
+  collision_matrix[BV_kIOS  ][GEOM_OCTREE] = &Collide<BVHModel<kIOS     >, OcTree>;
+  collision_matrix[BV_KDOP16][GEOM_OCTREE] = &Collide<BVHModel<KDOP<16> >, OcTree>;
+  collision_matrix[BV_KDOP18][GEOM_OCTREE] = &Collide<BVHModel<KDOP<18> >, OcTree>;
+  collision_matrix[BV_KDOP24][GEOM_OCTREE] = &Collide<BVHModel<KDOP<24> >, OcTree>;
 #endif
 }
 //template struct CollisionFunctionMatrix;

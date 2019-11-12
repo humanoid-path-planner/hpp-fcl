@@ -36,7 +36,7 @@
 /** \author Jia Pan */
 
 
-#include "traversal_node_bvhs.h"
+#include <hpp/fcl/internal/traversal_node_bvhs.h>
 
 namespace hpp
 {

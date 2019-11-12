@@ -36,7 +36,7 @@
 /** \author Jia Pan */
 
 
-#include "traversal_recurse.h"
+#include <hpp/fcl/internal/traversal_recurse.h>
 
 #include <vector>
 

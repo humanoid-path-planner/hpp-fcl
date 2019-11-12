@@ -41,8 +41,8 @@
 /// @cond INTERNAL
 
 #include <hpp/fcl/BVH/BVH_front.h>
-#include "traversal/traversal_node_base.h"
-#include "traversal/traversal_node_bvhs.h"
+#include <hpp/fcl/internal/traversal_node_base.h>
+#include <hpp/fcl/internal/traversal_node_bvhs.h>
 
 /// @brief collision and distance function on traversal nodes. these functions provide a higher level abstraction for collision functions provided in collision_func_matrix
 namespace hpp

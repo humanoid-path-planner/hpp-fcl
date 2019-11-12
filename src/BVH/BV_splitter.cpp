@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include "BV_splitter.h"
+#include <hpp/fcl/internal/BV_splitter.h>
 
 namespace hpp
 {

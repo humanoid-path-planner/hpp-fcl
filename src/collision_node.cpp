@@ -37,7 +37,7 @@
 
 
 #include <../src/collision_node.h>
-#include "traversal/traversal_recurse.h"
+#include <hpp/fcl/internal/traversal_recurse.h>
 
 namespace hpp
 {
