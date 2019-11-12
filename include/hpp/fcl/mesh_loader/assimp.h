@@ -3,7 +3,8 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
- *  Copyright (c) 2016, CNRS - LAAS
+ *  Copyright (c) 2016-2019, CNRS - LAAS
+ *  Copyright (c) 2019, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -36,6 +37,14 @@
 
 #ifndef HPP_FCL_MESH_LOADER_ASSIMP_H
 #define HPP_FCL_MESH_LOADER_ASSIMP_H
+
+// Assimp >= 5.0 is forcing the use of C++11 keywords. A fix has been submitted https://github.com/assimp/assimp/pull/2758.
+// The next lines fixes the bug for current version of hpp-fcl.
+#include <assimp/defs.h>
+#if __cplusplus < 201103L && defined(AI_NO_EXCEPT)
+  #undef AI_NO_EXCEPT
+  #define AI_NO_EXCEPT
+#endif
 
 #ifdef HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
   #include <assimp/DefaultLogger.hpp>
