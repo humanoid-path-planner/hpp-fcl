@@ -18,14 +18,14 @@ namespace hpp
 namespace fcl
 {
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
-
 // TraversalTraitsCollision for collision_func_matrix.cpp
 
 template <typename TypeA, typename TypeB>
 struct TraversalTraitsCollision
 {
 };
+
+#ifdef HPP_FCL_HAVE_OCTOMAP
 
 template <typename T_SH>
 struct TraversalTraitsCollision <T_SH, OcTree>
@@ -57,12 +57,16 @@ struct TraversalTraitsCollision <BVHModel<T_BVH>, OcTree>
   typedef MeshOcTreeCollisionTraversalNode<T_BVH> CollisionTraversal_t;
 };
 
+#endif
+
 // TraversalTraitsDistance for distance_func_matrix.cpp
 
 template <typename TypeA, typename TypeB>
 struct TraversalTraitsDistance
 {
 };
+
+#ifdef HPP_FCL_HAVE_OCTOMAP
 
 template <typename T_SH>
 struct TraversalTraitsDistance <T_SH, OcTree>
