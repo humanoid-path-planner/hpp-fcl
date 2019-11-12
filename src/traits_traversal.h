@@ -1,3 +1,12 @@
+/*
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2019, CNRS-LAAS
+ *  All rights reserved.
+ */
+
+/** \author Lucile Remigy, Joseph Mirabel */
+
 #include <hpp/fcl/collision_func_matrix.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <../src/collision_node.h>
