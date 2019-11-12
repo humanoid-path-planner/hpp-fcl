@@ -3,20 +3,26 @@ language: cpp
 env:
   global:
     - CTEST_PARALLEL_LEVEL=4
-  matrix:
-    - BUILD_TYPE=Debug
-    - BUILD_TYPE=Release
+    - CTEST_OUTPUT_ON_FAILURE=1
+    - MAKEFLAGS="-j2"
 
 matrix:
   include:
     - dist: trusty
       compiler: gcc
+      env: BUILD_TYPE=Release
     - dist: xenial
       compiler: gcc
-    - dist: xenial
-      compiler: clang
+      env: BUILD_TYPE=Release
+    - dist: bionic
+      compiler: gcc
+      env: BUILD_TYPE=Release
+    - dist: bionic
+      compiler: gcc
+      env: BUILD_TYPE=Debug
     - os: osx
       compiler: clang
+      env: BUILD_TYPE=Release
 
 install:
   # Install dependencies for FCL
@@ -32,11 +38,11 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w ..
 
   # Build
-  - make -j4
+  - make
 
   # Run unit tests
-  - travis_wait 30 make test || travis_wait 30 ctest -VV
+  - travis_wait 30 make test
 
   # Make sure we can install and uninstall with no issues
-  - sudo make -j4 install
-  - sudo make -j4 uninstall
+  - sudo make install
+  - sudo make uninstall
