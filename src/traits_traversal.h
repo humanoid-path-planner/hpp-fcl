@@ -37,7 +37,7 @@ struct TraversalTraitsCollision <OcTree, OcTree>
 };
 
 template <typename T_BVH>
-struct TraversalTraitsCollision <OcTree, BVHModel<T_BVH>>
+struct TraversalTraitsCollision <OcTree, BVHModel<T_BVH> >
 {
   typedef OcTreeMeshCollisionTraversalNode<T_BVH> CollisionTraversal_t;
 };
@@ -74,7 +74,7 @@ struct TraversalTraitsDistance <OcTree, OcTree>
 };
 
 template <typename T_BVH>
-struct TraversalTraitsDistance <OcTree, BVHModel<T_BVH>>
+struct TraversalTraitsDistance <OcTree, BVHModel<T_BVH> >
 {
   typedef OcTreeMeshDistanceTraversalNode<T_BVH> CollisionTraversal_t;
 };
