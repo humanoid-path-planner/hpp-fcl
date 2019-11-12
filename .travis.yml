@@ -3,6 +3,8 @@ language: cpp
 env:
   global:
     - CTEST_PARALLEL_LEVEL=4
+    - CTEST_OUTPUT_ON_FAILURE=1
+    - MAKEFLAGS="-j2"
 
 matrix:
   include:
@@ -36,10 +38,10 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w ..
 
   # Build
-  - make -j2
+  - make
 
   # Run unit tests
-  - travis_wait 30 make -j2 test
+  - travis_wait 30 make test
 
   # Make sure we can install and uninstall with no issues
   - sudo make install
