@@ -1,9 +1,11 @@
-void exposeMaths ();
+void exposeVersion();
 
-void exposeCollisionGeometries ();
+void exposeMaths();
 
-void exposeMeshLoader ();
+void exposeCollisionGeometries();
 
-void exposeCollisionAPI ();
+void exposeMeshLoader();
 
-void exposeDistanceAPI ();
+void exposeCollisionAPI();
+
+void exposeDistanceAPI();
