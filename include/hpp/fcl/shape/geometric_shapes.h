@@ -153,14 +153,14 @@ class Capsule : public ShapeBase
 public:
   Capsule(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_)
   {
-    HalfLength = lz_/2;
+    halfLength = lz_/2;
   }
 
   /// @brief Radius of capsule 
   FCL_REAL radius;
 
   /// @brief Half Length along z axis 
-  FCL_REAL HalfLength;
+  FCL_REAL halfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -170,15 +170,15 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius *((HalfLength * 2) + radius * 4/3.0);
+    return boost::math::constants::pi<FCL_REAL>() * radius * radius *((halfLength * 2) + radius * 4/3.0);
   }
 
   Matrix3f computeMomentofInertia() const
   {
-    FCL_REAL v_cyl = radius * radius * (HalfLength * 2) * boost::math::constants::pi<FCL_REAL>();
+    FCL_REAL v_cyl = radius * radius * (halfLength * 2) * boost::math::constants::pi<FCL_REAL>();
     FCL_REAL v_sph = radius * radius * radius * boost::math::constants::pi<FCL_REAL>() * 4 / 3.0;
     
-    FCL_REAL ix = v_cyl * (HalfLength * 2) * (HalfLength * 2) / 12.0 + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + 0.25 * v_sph * (HalfLength * 2) * (HalfLength * 2);
+    FCL_REAL ix = v_cyl * halfLength * halfLength / 3. + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + v_sph * halfLength * halfLength;
     FCL_REAL iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
 
     return (Matrix3f() << ix, 0, 0,
@@ -194,14 +194,14 @@ class Cone : public ShapeBase
 public:
   Cone(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_)
   {
-    HalfLength = lz_/2;
+    halfLength = lz_/2;
   }
 
   /// @brief Radius of the cone 
   FCL_REAL radius;
 
   /// @brief Half Length along z axis 
-  FCL_REAL HalfLength;
+  FCL_REAL halfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -211,13 +211,14 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius * (HalfLength * 2) / 3;
+    return boost::math::constants::pi<FCL_REAL>() * radius * radius * (halfLength * 2) / 3;
   }
 
+  /// \todo verify this formula as it seems different from https://en.wikipedia.org/wiki/List_of_moments_of_inertia#List_of_3D_inertia_tensors
   Matrix3f computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
-    FCL_REAL ix = V * (0.1 * (HalfLength * 2) * (HalfLength * 2) + 3 * radius * radius / 20);
+    FCL_REAL ix = V * (4 / 10 * halfLength * halfLength + 3 * radius * radius / 20);
     FCL_REAL iz = 0.3 * V * radius * radius;
 
     return (Matrix3f() << ix, 0, 0,
@@ -227,7 +228,7 @@ public:
 
   Vec3f computeCOM() const
   {
-    return Vec3f(0, 0, -0.25 * (HalfLength * 2));
+    return Vec3f(0, 0, -0.25 * (halfLength * 2));
   }
 };
 
@@ -237,14 +238,14 @@ class Cylinder : public ShapeBase
 public:
   Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_)
   {
-    HalfLength = lz_/2;
+    halfLength = lz_/2;
   }
   
   /// @brief Radius of the cylinder 
   FCL_REAL radius;
 
   /// @brief Half Length along z axis 
-  FCL_REAL HalfLength;
+  FCL_REAL halfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -254,13 +255,13 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius * (HalfLength * 2);
+    return boost::math::constants::pi<FCL_REAL>() * radius * radius * (halfLength * 2);
   }
 
   Matrix3f computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
-    FCL_REAL ix = V * (3 * radius * radius + (HalfLength * 2) * (HalfLength * 2)) / 12;
+    FCL_REAL ix = V * (3 * radius * radius + halfLength * halfLength / 3);
     FCL_REAL iz = V * radius * radius / 2;
     return (Matrix3f() << ix, 0, 0,
                           0, ix, 0,
