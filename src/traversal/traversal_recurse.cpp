@@ -382,7 +382,7 @@ void propagateBVHFrontListCollisionRecurse
         front_iter->valid = false;
         if(node->firstOverSecond(b1, b2)) {
           int c1 = node->getFirstLeftChild(b1);
-          int c2 = node->getFirstRightChild(b2);
+          int c2 = node->getFirstRightChild(b1);
 
           collisionRecurse(node, c1, b2, front_list, sqrDistLowerBound1);
           collisionRecurse(node, c2, b2, front_list, sqrDistLowerBound2);

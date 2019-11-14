@@ -339,51 +339,6 @@ void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_
   }
 }
 
-void generateRandomTransform_ccd(FCL_REAL extents[6], std::vector<Transform3f>& transforms, std::vector<Transform3f>& transforms2, FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::size_t n,
-                                 const std::vector<Vec3f>& /*vertices1*/, const std::vector<Triangle>& /*riangles1*/,
-                                 const std::vector<Vec3f>& /*vertices2*/, const std::vector<Triangle>& /*riangles2*/)
-{
-  transforms.resize(n);
-  transforms2.resize(n);
-
-  for(std::size_t i = 0; i < n;)
-  {
-    FCL_REAL x = rand_interval(extents[0], extents[3]);
-    FCL_REAL y = rand_interval(extents[1], extents[4]);
-    FCL_REAL z = rand_interval(extents[2], extents[5]);
-
-    const FCL_REAL pi = 3.1415926;
-    FCL_REAL a = rand_interval(0, 2 * pi);
-    FCL_REAL b = rand_interval(0, 2 * pi);
-    FCL_REAL c = rand_interval(0, 2 * pi);
-
-
-    Matrix3f R;
-    eulerToMatrix(a, b, c, R);
-    Vec3f T(x, y, z);    
-    Transform3f tf(R, T);
-
-    std::vector<std::pair<int, int> > results;
-    {
-      transforms[i] = tf;
-
-      FCL_REAL deltax = rand_interval(-delta_trans[0], delta_trans[0]);
-      FCL_REAL deltay = rand_interval(-delta_trans[1], delta_trans[1]);
-      FCL_REAL deltaz = rand_interval(-delta_trans[2], delta_trans[2]);
-
-      FCL_REAL deltaa = rand_interval(-delta_rot, delta_rot);
-      FCL_REAL deltab = rand_interval(-delta_rot, delta_rot);
-      FCL_REAL deltac = rand_interval(-delta_rot, delta_rot);
-
-      Matrix3f R2;
-      eulerToMatrix(a + deltaa, b + deltab, c + deltac, R2);
-      Vec3f T2(x + deltax, y + deltay, z + deltaz);
-      transforms2[i].setTransform(R2, T2);
-      ++i;
-    }
-  }
-}
-
 bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata_)
 {
   CollisionData* cdata = static_cast<CollisionData*>(cdata_);

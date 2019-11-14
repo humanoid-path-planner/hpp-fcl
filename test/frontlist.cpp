@@ -84,7 +84,11 @@ BOOST_AUTO_TEST_CASE(front_list)
   std::vector<Transform3f> transforms2; // t1
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   FCL_REAL delta_trans[] = {1, 1, 1};
-  std::size_t n = 10;
+#ifdef NDEBUG
+  std::size_t n = 20;
+#else
+  std::size_t n = 5;
+#endif
   bool verbose = false;
 
   generateRandomTransforms(extents, delta_trans, 0.005 * 2 * 3.1415, transforms, transforms2, n);
