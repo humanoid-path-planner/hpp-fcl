@@ -33,6 +33,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include "fcl.hh"
 
@@ -44,6 +45,12 @@ using namespace boost::python;
 using namespace hpp::fcl;
 using boost::shared_ptr;
 using boost::noncopyable;
+
+struct DistanceRequestWrapper
+{
+  static Vec3f getNearestPoint1(const DistanceResult & res) { return res.nearest_points[0]; }
+  static Vec3f getNearestPoint2(const DistanceResult & res) { return res.nearest_points[1]; }
+};
 
 void exposeDistanceAPI ()
 {
@@ -57,12 +64,18 @@ void exposeDistanceAPI ()
     .def_readwrite ("min_distance", &DistanceResult::min_distance)
     .def_readwrite ("normal", &DistanceResult::normal)
     //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
+    .def("getNearestPoint1",&DistanceRequestWrapper::getNearestPoint1)
+    .def("getNearestPoint2",&DistanceRequestWrapper::getNearestPoint2)
     .def_readonly ("o1", &DistanceResult::o1)
     .def_readonly ("o2", &DistanceResult::o2)
     .def_readwrite ("b1", &DistanceResult::b1)
     .def_readwrite ("b2", &DistanceResult::b2)
 
     .def ("clear", &DistanceResult::clear)
+    ;
+
+  class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
+    .def(vector_indexing_suite< std::vector<DistanceResult> >())
     ;
 
   def ("distance", static_cast< FCL_REAL (*)(const CollisionObject*, const CollisionObject*,
