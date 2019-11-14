@@ -12,11 +12,11 @@ class TestGeometricShapes(unittest.TestCase):
         self.assertIsInstance(capsule, hppfcl.CollisionGeometry)
         self.assertEqual(capsule.getNodeType(), hppfcl.NODE_TYPE.GEOM_CAPSULE)
         self.assertEqual(capsule.radius,1.)
-        self.assertEqual(capsule.lz,2.)
+        self.assertEqual(capsule.halfLength,1.)
         capsule.radius = 3.
-        capsule.lz = 4.
+        capsule.halfLength = 4.
         self.assertEqual(capsule.radius,3.)
-        self.assertEqual(capsule.lz,4.)
+        self.assertEqual(capsule.halfLength,4.)
 
     def test_box1(self):
         box = hppfcl.Box(np.matrix([1.,2.,3.]).T)
@@ -61,7 +61,7 @@ class TestGeometricShapes(unittest.TestCase):
         self.assertIsInstance(cylinder, hppfcl.CollisionGeometry)
         self.assertEqual(cylinder.getNodeType(), hppfcl.NODE_TYPE.GEOM_CYLINDER)
         self.assertEqual(cylinder.radius,1.)
-        self.assertEqual(cylinder.lz,2.)
+        self.assertEqual(cylinder.halfLength,1.)
 
     def test_cone(self):
         cone = hppfcl.Cone(1.,2.)
@@ -70,11 +70,11 @@ class TestGeometricShapes(unittest.TestCase):
         self.assertIsInstance(cone, hppfcl.CollisionGeometry)
         self.assertEqual(cone.getNodeType(), hppfcl.NODE_TYPE.GEOM_CONE)
         self.assertEqual(cone.radius,1.)
-        self.assertEqual(cone.lz,2.)
+        self.assertEqual(cone.halfLength,1.)
         cone.radius = 3.
-        cone.lz = 4.
+        cone.halfLength = 4.
         self.assertEqual(cone.radius,3.)
-        self.assertEqual(cone.lz,4.)
+        self.assertEqual(cone.halfLength,4.)
 
 if __name__ == '__main__':
     unittest.main()

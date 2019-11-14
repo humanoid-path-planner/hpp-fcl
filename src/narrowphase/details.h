@@ -2347,7 +2347,7 @@ namespace fcl {
             {
               if (d < 0) normal = new_s2.n; else normal = -new_s2.n;
               p1 = p2 = T - dir_z * (s1.halfLength) +
-                dir_z * (-0.5 * distance / s1.radius * (s1.halfLength * 2)) - new_s2.n * d;
+                dir_z * (- distance / s1.radius * s1.halfLength) - new_s2.n * d;
               return true;
             }
         }

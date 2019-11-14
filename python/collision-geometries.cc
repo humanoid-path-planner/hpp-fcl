@@ -122,13 +122,13 @@ void exposeShapes ()
   class_ <Capsule, bases<ShapeBase>, shared_ptr<Capsule> >
     ("Capsule", init<FCL_REAL, FCL_REAL>())
     .def_readwrite ("radius", &Capsule::radius)
-    .def_readwrite ("lz", &Capsule::lz)
+    .def_readwrite ("halfLength", &Capsule::halfLength)
     ;
 
   class_ <Cone, bases<ShapeBase>, shared_ptr<Cone> >
     ("Cone", init<FCL_REAL, FCL_REAL>())
     .def_readwrite ("radius", &Cone::radius)
-    .def_readwrite ("lz", &Cone::lz)
+    .def_readwrite ("halfLength", &Cone::halfLength)
     ;
 
   class_ <ConvexBase, bases<ShapeBase>, shared_ptr<ConvexBase >, noncopyable>
@@ -148,7 +148,7 @@ void exposeShapes ()
   class_ <Cylinder, bases<ShapeBase>, shared_ptr<Cylinder> >
     ("Cylinder", init<FCL_REAL, FCL_REAL>())
     .def_readwrite ("radius", &Cylinder::radius)
-    .def_readwrite ("lz", &Cylinder::lz)
+    .def_readwrite ("halfLength", &Cylinder::halfLength)
     ;
 
   class_ <Halfspace, bases<ShapeBase>, shared_ptr<Halfspace> >

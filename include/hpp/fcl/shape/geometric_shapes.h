@@ -218,7 +218,7 @@ public:
   Matrix3f computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
-    FCL_REAL ix = V * (4 / 10 * halfLength * halfLength + 3 * radius * radius / 20);
+    FCL_REAL ix = V * (0.4 * halfLength * halfLength + 3 * radius * radius / 20);
     FCL_REAL iz = 0.3 * V * radius * radius;
 
     return (Matrix3f() << ix, 0, 0,
@@ -228,7 +228,7 @@ public:
 
   Vec3f computeCOM() const
   {
-    return Vec3f(0, 0, -0.25 * (halfLength * 2));
+    return Vec3f(0, 0, -0.5 * halfLength);
   }
 };
 
@@ -261,7 +261,7 @@ public:
   Matrix3f computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
-    FCL_REAL ix = V * (3 * radius * radius + halfLength * halfLength / 3);
+    FCL_REAL ix = V * (radius * radius / 4 + halfLength * halfLength / 3);
     FCL_REAL iz = V * radius * radius / 2;
     return (Matrix3f() << ix, 0, 0,
                           0, ix, 0,
