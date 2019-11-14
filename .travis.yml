@@ -8,6 +8,9 @@ env:
     - BUILD_PYTHON_INTERFACE=ON
     - MAKEFLAGS="-j2"
 
+cache:
+  ccache: true
+
 matrix:
   include:
     - name: "Trusty - Release - g++"
@@ -65,23 +68,14 @@ matrix:
       env: BUILD_TYPE=Release
       os: osx
       compiler: clang
-      addons:
-        homebrew:
-          update: true
-          packages:
-            - git # build
-            - doxygen # build
-            - cmake # build
-            - pkg-config # build
-            - boost
-            - brewsci/homebrew-science/cddlib
-            - assimp
-            - eigen
-            - octomap
+      cache:
+        ccache: true
+        directories:
+          - $HOME/Library/Caches/Homebrew
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then source travis_custom/custom_before_install_linux.sh ; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then source travis_custom/custom_before_install_osx.sh ; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx"   ]; then source travis_custom/custom_before_install_osx.sh   ; fi
 
 script:
   # Create build directory
