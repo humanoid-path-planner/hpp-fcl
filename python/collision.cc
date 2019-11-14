@@ -92,6 +92,10 @@ void exposeCollisionAPI ()
     .def ("clear", &CollisionResult::clear)
     ;
 
+  class_< std::vector<CollisionResult> >("CollisionResult")
+    .def(vector_indexing_suite< std::vector<CollisionResult> >())
+    ;
+
   def ("collide", static_cast< std::size_t (*)(const CollisionObject*, const CollisionObject*,
         const CollisionRequest&, CollisionResult&) > (&collide));
   def ("collide", static_cast< std::size_t (*)(

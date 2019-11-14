@@ -33,6 +33,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include "fcl.hh"
 
@@ -71,6 +72,10 @@ void exposeDistanceAPI ()
     .def_readwrite ("b2", &DistanceResult::b2)
 
     .def ("clear", &DistanceResult::clear)
+    ;
+
+  class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
+    .def(vector_indexing_suite< std::vector<DistanceResult> >())
     ;
 
   def ("distance", static_cast< FCL_REAL (*)(const CollisionObject*, const CollisionObject*,
