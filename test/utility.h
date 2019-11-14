@@ -118,12 +118,6 @@ void generateRandomTransforms(FCL_REAL extents[6], std::vector<Transform3f>& tra
 /// @brief Generate n random transforms whose translations are constrained by extents. Also generate another transforms2 which have additional random translation & rotation to the transforms generated.
 void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::vector<Transform3f>& transforms, std::vector<Transform3f>& transforms2, std::size_t n);
 
-/// @brief Generate n random tranforms and transform2 with addtional random translation/rotation. The transforms and transform2 are used as initial and goal configurations for the first mesh. The second mesh is in I. This is used for continuous collision detection checking.
-void generateRandomTransforms_ccd(FCL_REAL extents[6], std::vector<Transform3f>& transforms, std::vector<Transform3f>& transforms2, FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::size_t n,
-                                 const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                                 const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2);
-
-
 /// @ brief Structure for minimum distance between two meshes and the corresponding nearest point pair
 struct DistanceRes
 {
