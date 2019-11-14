@@ -34,6 +34,14 @@
 
 #include <hpp/fcl/mesh_loader/assimp.h>
 
+// Assimp >= 5.0 is forcing the use of C++11 keywords. A fix has been submitted https://github.com/assimp/assimp/pull/2758.
+// The next lines fixes the bug for current version of hpp-fcl.
+#include <assimp/defs.h>
+#if __cplusplus < 201103L && defined(AI_NO_EXCEPT)
+  #undef AI_NO_EXCEPT
+  #define AI_NO_EXCEPT
+#endif
+
 #ifdef HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
   #include <assimp/DefaultLogger.hpp>
   #include <assimp/IOStream.hpp>
