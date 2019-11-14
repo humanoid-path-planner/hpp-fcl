@@ -156,6 +156,7 @@ SET(${PROJECT_NAME}_HEADERS
 
 add_subdirectory(src)
 if (RUN_TESTS)
+  add_required_dependency("ccd")
   add_subdirectory(test)
 endif ()
 
