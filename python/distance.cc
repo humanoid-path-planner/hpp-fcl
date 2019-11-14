@@ -45,6 +45,12 @@ using namespace hpp::fcl;
 using boost::shared_ptr;
 using boost::noncopyable;
 
+struct DistanceRequestWrapper
+{
+  static Vec3f getNearestPoint1(const DistanceResult & res) { return res.nearest_points[0]; }
+  static Vec3f getNearestPoint2(const DistanceResult & res) { return res.nearest_points[1]; }
+};
+
 void exposeDistanceAPI ()
 {
   class_ <DistanceRequest> ("DistanceRequest", init<optional<bool,FCL_REAL,FCL_REAL> >())
@@ -57,6 +63,8 @@ void exposeDistanceAPI ()
     .def_readwrite ("min_distance", &DistanceResult::min_distance)
     .def_readwrite ("normal", &DistanceResult::normal)
     //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
+    .def("getNearestPoint1",&DistanceRequestWrapper::getNearestPoint1)
+    .def("getNearestPoint2",&DistanceRequestWrapper::getNearestPoint2)
     .def_readonly ("o1", &DistanceResult::o1)
     .def_readonly ("o2", &DistanceResult::o2)
     .def_readwrite ("b1", &DistanceResult::b1)

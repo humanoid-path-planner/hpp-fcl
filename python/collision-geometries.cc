@@ -222,6 +222,8 @@ void exposeCollisionGeometries ()
     .def ("computeMomentofInertia", &CollisionGeometry::computeMomentofInertia)
     .def ("computeVolume", &CollisionGeometry::computeVolume)
     .def ("computeMomentofInertiaRelatedToCOM", &CollisionGeometry::computeMomentofInertiaRelatedToCOM)
+
+    .def_readwrite("aabb_radius",&CollisionGeometry::aabb_radius,"AABB radius")
     ;
 
   exposeShapes();

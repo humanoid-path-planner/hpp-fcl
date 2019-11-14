@@ -33,6 +33,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include "fcl.hh"
 
@@ -65,7 +66,9 @@ void exposeCollisionAPI ()
     .def_readwrite ("break_distance"             , &CollisionRequest::break_distance)
     ;
 
-  class_ <Contact> ("Contact", no_init)
+  class_ <Contact> ("Contact", init<>())
+    //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int>())
+    //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int, Vec3f, Vec3f, FCL_REAL>())
     .def_readonly ("o1", &Contact::o1)
     .def_readonly ("o2", &Contact::o2)
     .def_readwrite ("b1", &Contact::b1)
@@ -76,9 +79,16 @@ void exposeCollisionAPI ()
     .def (self == self)
     ;
 
+  class_< std::vector<Contact> >("StdVec_Contact")
+    .def(vector_indexing_suite< std::vector<Contact> >())
+    ;
+
   class_ <CollisionResult> ("CollisionResult", init<>())
     .def ("isCollision", &CollisionResult::isCollision)
     .def ("numContacts", &CollisionResult::numContacts)
+    .def ("getContact" , &CollisionResult::getContact , return_value_policy<copy_const_reference>())
+    .def ("getContacts", &CollisionResult::getContacts, return_internal_reference<>())
+    .def ("addContact" , &CollisionResult::addContact )
     .def ("clear", &CollisionResult::clear)
     ;
 
