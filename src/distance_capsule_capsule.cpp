@@ -41,8 +41,8 @@ namespace fcl {
     // We assume that capsules are oriented along z-axis.
     Matrix3f::ConstColXpr direction1 = tf1.getRotation ().col (2);
     Matrix3f::ConstColXpr direction2 = tf2.getRotation ().col (2);
-    FCL_REAL halfLength1 = 0.5*c1->lz;
-    FCL_REAL halfLength2 = 0.5*c2->lz;
+    FCL_REAL halfLength1 = c1->halfLength;
+    FCL_REAL halfLength2 = c2->halfLength;
 
     Vec3f diff = center1 - center2;
     FCL_REAL a01 = -direction1.dot (direction2);

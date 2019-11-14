@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
   // If objects are not colliding, p2 should be outside the cylinder and
   // p1 should be outside the box
   Vec3f p2Loc (tf1.inverse().transform (p2));
-  bool p2_in_cylinder ((fabs (p2Loc [2]) <= .5*s1.lz) &&
+  bool p2_in_cylinder ((fabs (p2Loc [2]) <= s1.halfLength) &&
                        (p2Loc [0] * p2Loc [0] + p2Loc [1] * p2Loc [1]
                         <= s1.radius));
   Vec3f p1Loc (tf2.inverse().transform (p1));
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
   // p1 should be outside the box
 
   p2Loc = tf1.inverse().transform (p2);
-  p2_in_cylinder = (fabs (p2Loc [2]) <= .5*s1.lz) &&
+  p2_in_cylinder = (fabs (p2Loc [2]) <= s1.halfLength) &&
     (p2Loc [0] * p2Loc [0] + p2Loc [1] * p2Loc [1]
      <= s1.radius);
   p1Loc = tf2.inverse().transform (p1);

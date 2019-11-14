@@ -73,8 +73,8 @@ namespace fcl {
        const Capsule& s2, const Transform3f& tf2,
        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal_)
     {
-      Vec3f pos1 (tf2.transform (Vec3f (0., 0., 0.5 * s2.lz))); // from distance function
-      Vec3f pos2 (tf2.transform (Vec3f (0., 0., -0.5 * s2.lz)));
+      Vec3f pos1 (tf2.transform (Vec3f (0., 0.,  s2.halfLength))); // from distance function
+      Vec3f pos2 (tf2.transform (Vec3f (0., 0., -s2.halfLength)));
       Vec3f s_c = tf1.getTranslation ();
 
       Vec3f segment_point;
@@ -108,8 +108,8 @@ namespace fcl {
        const Capsule& s2, const Transform3f& tf2,
        FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal)
     {
-      Vec3f pos1 (tf2.transform (Vec3f (0., 0., 0.5 * s2.lz)));
-      Vec3f pos2 (tf2.transform (Vec3f (0., 0., -0.5 * s2.lz)));
+      Vec3f pos1 (tf2.transform (Vec3f (0., 0.,  s2.halfLength)));
+      Vec3f pos2 (tf2.transform (Vec3f (0., 0., -s2.halfLength)));
       Vec3f s_c = tf1.getTranslation ();
 
       Vec3f segment_point;
@@ -143,7 +143,7 @@ namespace fcl {
       static const FCL_REAL eps (sqrt (std::numeric_limits <FCL_REAL>::epsilon ()));
       FCL_REAL r1 (s1.radius);
       FCL_REAL r2 (s2.radius);
-      FCL_REAL lz2 (.5*s2.lz);
+      FCL_REAL lz2 (s2.halfLength);
       // boundaries of the cylinder axis
       Vec3f A (tf2.transform (Vec3f (0, 0, -lz2)));
       Vec3f B (tf2.transform (Vec3f (0, 0,  lz2)));
@@ -151,7 +151,7 @@ namespace fcl {
       Vec3f S (tf1.getTranslation ());
       // axis of the cylinder
       Vec3f u (tf2.getRotation ().col (2));
-      assert ((B - A - s2.lz * u).norm () < eps);
+      assert ((B - A - (s2.halfLength * 2) * u).norm () < eps);
       Vec3f AS (S - A);
       // abscissa of S on cylinder axis with A as the origin
       FCL_REAL s (u.dot (AS));
@@ -186,7 +186,7 @@ namespace fcl {
             dist = -r1;
           }
         }
-      } else if (s <= s2.lz) {
+      } else if (s <= (s2.halfLength * 2)) {
         // 0 < s <= s2.lz
         normal = -v;
         dist = dPS - r1 - r2;
@@ -200,7 +200,7 @@ namespace fcl {
         // lz < s
         if (dPS <= r2) {
           // closest point on cylinder is on cylinder disc basis
-          dist = s - s2.lz - r1; p1 = S - r1 * u; p2 = B + dPS * v; normal = -u;
+          dist = s - (s2.halfLength * 2) - r1; p1 = S - r1 * u; p2 = B + dPS * v; normal = -u;
         } else {
           // closest point on cylinder is on cylinder circle basis
           p2 = B + r2 * v;
@@ -1605,7 +1605,7 @@ namespace fcl {
           int sign = (cosa > 0) ? -1 : 1;
           // closest capsule vertex to halfspace if no collision,
           // or deeper inside halspace if collision
-          Vec3f p = T + dir_z * (s1.lz * 0.5 * sign);
+          Vec3f p = T + dir_z * (s1.halfLength * sign);
 
           FCL_REAL signed_dist = new_s2.signedDistance(p);
           distance = signed_dist - s1.radius;
@@ -1666,7 +1666,7 @@ namespace fcl {
 
           int sign = (cosa > 0) ? -1 : 1;
           // deepest point
-          Vec3f p = T + dir_z * (s1.lz * 0.5 * sign) + C;
+          Vec3f p = T + dir_z * (s1.halfLength * sign) + C;
           distance = new_s2.signedDistance(p);
           if(distance > 0) {
             // TODO: compute closest points
@@ -1708,7 +1708,7 @@ namespace fcl {
           else
             {
               normal = -new_s2.n;
-              p1 = p2 = T - dir_z * (s1.lz * 0.5) -
+              p1 = p2 = T - dir_z * (s1.halfLength) -
                 new_s2.n * (0.5 * distance + s1.radius);
               return true;
             }
@@ -1726,8 +1726,8 @@ namespace fcl {
               C *= s;
             }
 
-          Vec3f a1 = T + dir_z * (0.5 * s1.lz);
-          Vec3f a2 = T - dir_z * (0.5 * s1.lz) + C;
+          Vec3f a1 = T + dir_z * (s1.halfLength);
+          Vec3f a2 = T - dir_z * (s1.halfLength) + C;
 
           FCL_REAL d1 = new_s2.signedDistance(a1);
           FCL_REAL d2 = new_s2.signedDistance(a2);
@@ -2153,8 +2153,8 @@ namespace fcl {
       Vec3f dir_z = R1.col(2);
 
       // ends of capsule inner segment
-      Vec3f a1 = T1 + dir_z * (0.5 * s1.lz);
-      Vec3f a2 = T1 - dir_z * (0.5 * s1.lz);
+      Vec3f a1 = T1 + dir_z * s1.halfLength;
+      Vec3f a2 = T1 - dir_z * s1.halfLength;
 
       FCL_REAL d1 = new_s2.signedDistance(a1);
       FCL_REAL d2 = new_s2.signedDistance(a2);
@@ -2278,8 +2278,8 @@ namespace fcl {
           C *= s;
         }
 
-        Vec3f a1 = T + dir_z * (0.5 * s1.lz);
-        Vec3f a2 = T - dir_z * (0.5 * s1.lz);
+        Vec3f a1 = T + dir_z * (s1.halfLength);
+        Vec3f a2 = T - dir_z * (s1.halfLength);
 
         Vec3f c1, c2;
         if(cosa > 0)
@@ -2346,8 +2346,8 @@ namespace fcl {
           else
             {
               if (d < 0) normal = new_s2.n; else normal = -new_s2.n;
-              p1 = p2 = T - dir_z * (0.5 * s1.lz) +
-                dir_z * (-0.5 * distance / s1.radius * s1.lz) - new_s2.n * d;
+              p1 = p2 = T - dir_z * (s1.halfLength) +
+                dir_z * (- distance / s1.radius * s1.halfLength) - new_s2.n * d;
               return true;
             }
         }
@@ -2365,9 +2365,9 @@ namespace fcl {
             }
 
           Vec3f c[3];
-          c[0] = T + dir_z * (0.5 * s1.lz);
-          c[1] = T - dir_z * (0.5 * s1.lz) + C;
-          c[2] = T - dir_z * (0.5 * s1.lz) - C;
+          c[0] = T + dir_z * (s1.halfLength);
+          c[1] = T - dir_z * (s1.halfLength) + C;
+          c[2] = T - dir_z * (s1.halfLength) - C;
 
           FCL_REAL d[3];
           d[0] = new_s2.signedDistance(c[0]);

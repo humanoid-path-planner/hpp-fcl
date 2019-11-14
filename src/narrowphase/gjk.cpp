@@ -119,8 +119,8 @@ inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir, Vec3f& suppo
 inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir, Vec3f& support)
 {
   support = capsule->radius * dir;
-  if (dir[2] > 0) support[2] += capsule->lz / 2;
-  else            support[2] -= capsule->lz / 2;
+  if (dir[2] > 0) support[2] += capsule->halfLength;
+  else            support[2] -= capsule->halfLength;
 }
 
 void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support)
@@ -137,7 +137,7 @@ void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support)
   FCL_REAL len = zdist + dir[2] * dir[2];
   zdist = std::sqrt(zdist);
   len = std::sqrt(len);
-  FCL_REAL half_h = cone->lz * 0.5;
+  FCL_REAL half_h = cone->halfLength;
   FCL_REAL radius = cone->radius;
 
   FCL_REAL sin_a = radius / std::sqrt(radius * radius + 4 * half_h * half_h);
@@ -156,7 +156,7 @@ void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support)
 void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support)
 {
   static const FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
-  FCL_REAL half_h = cylinder->lz * 0.5;
+  FCL_REAL half_h = cylinder->halfLength;
   if      (dir [2] >  eps) support[2] =  half_h;
   else if (dir [2] < -eps) support[2] = -half_h;
   else                     support[2] = 0;
