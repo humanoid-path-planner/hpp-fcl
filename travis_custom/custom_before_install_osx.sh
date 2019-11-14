@@ -2,7 +2,7 @@
 brew tap gepetto/homebrew-gepetto
 
 # install eigenpy
-brew install eigenpy
+brew install boost assimp eigen octomap eigenpy
 
 # set environment variables
 export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/opt/openrobots/lib/pkgconfig"

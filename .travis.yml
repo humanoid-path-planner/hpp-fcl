@@ -6,11 +6,15 @@ env:
     - CTEST_OUTPUT_ON_FAILURE=1
     - CXX_FLAGS_DEBUG="-O1"
     - BUILD_PYTHON_INTERFACE=ON
+    - MAKEFLAGS="-j2"
+
+cache:
+  ccache: true
 
 matrix:
   include:
-    - name: "Trusty - Debug - g++"
-      env: BUILD_TYPE=Debug
+    - name: "Trusty - Release - g++"
+      env: BUILD_TYPE=Release
       dist: trusty
       compiler: g++
       addons:
@@ -21,18 +25,6 @@ matrix:
             - libassimp-dev
             - libeigen3-dev
 
-    - name: "Xenial - Debug - g++"
-      env: BUILD_TYPE=Debug
-      dist: xenial
-      compiler: g++
-      addons:
-        apt:
-          packages:
-            - cmake
-            - libboost-all-dev
-            - libassimp-dev
-            - libeigen3-dev
-            - liboctomap-dev
     - name: "Xenial - Release - g++"
       env: BUILD_TYPE=Release
       dist: xenial
@@ -45,10 +37,11 @@ matrix:
             - libassimp-dev
             - libeigen3-dev
             - liboctomap-dev
-    - name: "Xenial - Debug - clang"
-      env: BUILD_TYPE=Debug
-      dist: xenial
-      compiler: clang
+
+    - name: "Bionic - Release - g++"
+      env: BUILD_TYPE=Release
+      dist: bionic
+      compiler: g++
       addons:
         apt:
           packages:
@@ -60,7 +53,7 @@ matrix:
 
     - name: "Bionic - Debug - g++"
       env: BUILD_TYPE=Debug
-      dist: xenial
+      dist: bionic
       compiler: g++
       addons:
         apt:
@@ -71,27 +64,18 @@ matrix:
             - libeigen3-dev
             - liboctomap-dev
 
-    - name: "OSX - Debug - clang"
-      env: BUILD_TYPE=Debug
+    - name: "OSX - Release - clang"
+      env: BUILD_TYPE=Release
       os: osx
       compiler: clang
-      addons:
-        homebrew:
-          update: true
-          packages:
-            - git # build
-            - doxygen # build
-            - cmake # build
-            - pkg-config # build
-            - boost
-            - brewsci/homebrew-science/cddlib
-            - assimp
-            - eigen
-            - octomap
+      cache:
+        ccache: true
+        directories:
+          - $HOME/Library/Caches/Homebrew
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then source travis_custom/custom_before_install_linux.sh ; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then source travis_custom/custom_before_install_osx.sh ; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx"   ]; then source travis_custom/custom_before_install_osx.sh   ; fi
 
 script:
   # Create build directory
@@ -102,11 +86,11 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w -DCMAKE_CXX_FLAGS_DEBUG=${CXX_FLAGS_DEBUG} -DBUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE} ..
 
   # Build
-  - make -j4
+  - make
 
   # Run unit tests
-  - travis_wait 30 ctest
+  - travis_wait 30 make test
 
   # Make sure we can install and uninstall with no issues
-  - sudo make -j4 install
-  - sudo make -j4 uninstall
+  - sudo make install
+  - sudo make uninstall
