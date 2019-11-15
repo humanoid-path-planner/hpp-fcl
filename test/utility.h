@@ -178,6 +178,9 @@ Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z);
 
 std::ostream& operator<< (std::ostream& os, const Transform3f& tf);
 
+/// Get the argument --nb-run from argv
+std::size_t getNbRun (const int& argc, char const* const* argv, std::size_t defaultValue);
+
 }
 
 } // namespace hpp
