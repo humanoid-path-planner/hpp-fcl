@@ -52,30 +52,30 @@ namespace fcl
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3f& pose)
 {
-  double a = shape.side[0];
-  double b = shape.side[1];
-  double c = shape.side[2];
+  double a = shape.halfSide[0];
+  double b = shape.halfSide[1];
+  double c = shape.halfSide[2];
   std::vector<Vec3f> points(8);
-  std::vector<Triangle> tri_indices(12);
-  points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
-  points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
-  points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
-  points[3] << -0.5 * a, -0.5 * b, 0.5 * c;
-  points[4] << 0.5 * a, -0.5 * b, -0.5 * c;
-  points[5] << 0.5 * a, 0.5 * b, -0.5 * c;
-  points[6] << -0.5 * a, 0.5 * b, -0.5 * c;
-  points[7] << -0.5 * a, -0.5 * b, -0.5 * c;
+  Triangle tri_indices[12];
+  points[0] = Vec3f ( a, -b,  c);
+  points[1] = Vec3f ( a,  b,  c);
+  points[2] = Vec3f (-a,  b,  c);
+  points[3] = Vec3f (-a, -b,  c);
+  points[4] = Vec3f ( a, -b, -c);
+  points[5] = Vec3f ( a,  b, -c);
+  points[6] = Vec3f (-a,  b, -c);
+  points[7] = Vec3f (-a, -b, -c);
 
-  tri_indices[0].set(0, 4, 1);
-  tri_indices[1].set(1, 4, 5);
-  tri_indices[2].set(2, 6, 3);
-  tri_indices[3].set(3, 6, 7);
-  tri_indices[4].set(3, 0, 2);
-  tri_indices[5].set(2, 0, 1);
-  tri_indices[6].set(6, 5, 7);
-  tri_indices[7].set(7, 5, 4);
-  tri_indices[8].set(1, 5, 2);
-  tri_indices[9].set(2, 5, 6);
+  tri_indices[ 0].set(0, 4, 1);
+  tri_indices[ 1].set(1, 4, 5);
+  tri_indices[ 2].set(2, 6, 3);
+  tri_indices[ 3].set(3, 6, 7);
+  tri_indices[ 4].set(3, 0, 2);
+  tri_indices[ 5].set(2, 0, 1);
+  tri_indices[ 6].set(6, 5, 7);
+  tri_indices[ 7].set(7, 5, 4);
+  tri_indices[ 8].set(1, 5, 2);
+  tri_indices[ 9].set(2, 5, 6);
   tri_indices[10].set(3, 7, 0);
   tri_indices[11].set(0, 7, 4);
 

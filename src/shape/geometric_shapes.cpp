@@ -44,60 +44,49 @@ namespace hpp
 namespace fcl
 {
 
-void Convex::fillEdges()
+ConvexBase::ConvexBase(bool own_storage, Vec3f* points_, int num_points_) :
+  ShapeBase(),
+  points       (points_),
+  num_points   (num_points_),
+  own_storage_ (own_storage)
 {
-  int* points_in_poly = polygons;
-  if(edges) delete [] edges;
+  computeCenter();
+}
 
-  int num_edges_alloc = 0;
-  for(int i = 0; i < num_polygons; ++i)
-  {
-    num_edges_alloc += *points_in_poly;
-    points_in_poly += (*points_in_poly + 1);
+ConvexBase::ConvexBase(const ConvexBase& other) :
+  ShapeBase    (other),
+  points       (other.points),
+  num_points   (other.num_points),
+  center       (other.center),
+  own_storage_ (other.own_storage_)
+{
+  if (own_storage_) {
+    points = new Vec3f[num_points];
+    memcpy(points, other.points, sizeof(Vec3f) * num_points);
   }
 
-  edges = new Edge[num_edges_alloc];
+  neighbors = new Neighbors[num_points];
+  memcpy(neighbors, other.neighbors, sizeof(Neighbors) * num_points);
 
-  points_in_poly = polygons;
-  int* index = polygons + 1;
-  num_edges = 0;
-  Edge e;
-  bool isinset;
-  for(int i = 0; i < num_polygons; ++i)
-  {
-    for(int j = 0; j < *points_in_poly; ++j)
-    {
-      e.first = std::min(index[j], index[(j+1)%*points_in_poly]);
-      e.second = std::max(index[j], index[(j+1)%*points_in_poly]);
-      isinset = false;
-      for(int k = 0; k < num_edges; ++k)
-      {
-        if((edges[k].first == e.first) && (edges[k].second == e.second))
-        {
-          isinset = true;
-          break;
-        }
-      }
+  int c_nneighbors = 0;
+  for (int i = 0; i < num_points; ++i) c_nneighbors += neighbors[i].count();
+  nneighbors_ = new unsigned int[c_nneighbors];
+  memcpy(nneighbors_, other.nneighbors_, sizeof(unsigned int) * c_nneighbors);
+}
 
-      if(!isinset)
-      {
-        edges[num_edges].first = e.first;
-        edges[num_edges].second = e.second;
-        ++num_edges;
-      }
-    }
+ConvexBase::~ConvexBase ()
+{
+  delete [] neighbors;
+  delete [] nneighbors_;
+  if (own_storage_) delete [] points;
+}
 
-    points_in_poly += (*points_in_poly + 1);
-    index = points_in_poly + 1;
-  }
-
-  if(num_edges < num_edges_alloc)
-  {
-    Edge* tmp = new Edge[num_edges];
-    memcpy(tmp, edges, num_edges * sizeof(Edge));
-    delete [] edges;
-    edges = tmp;
-  }
+void ConvexBase::computeCenter()
+{
+  center.setZero();
+  for(int i = 0; i < num_points; ++i)
+    center += points[i];
+  center /= num_points;
 }
 
 void Halfspace::unitNormalTest()
@@ -131,7 +120,6 @@ void Plane::unitNormalTest()
     d = 0;
   }
 }
-
 
 void Box::computeLocalAABB()
 {
@@ -168,7 +156,7 @@ void Cylinder::computeLocalAABB()
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
-void Convex::computeLocalAABB()
+void ConvexBase::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();

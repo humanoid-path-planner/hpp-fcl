@@ -39,8 +39,7 @@
 #ifndef HPP_FCL_BV_NODE_H
 #define HPP_FCL_BV_NODE_H
 
-#include <hpp/fcl/math/vec_3f.h>
-#include <hpp/fcl/math/matrix_3f.h>
+#include <hpp/fcl/data_types.h>
 
 #include <hpp/fcl/BV/BV.h>
 #include <iostream>
@@ -49,6 +48,10 @@ namespace hpp
 {
 namespace fcl
 {
+
+/// @defgroup Construction_Of_BVH 
+/// regroup class which are used to build BVH (Bounding Volume Hierarchy)
+/// @{
 
 /// @brief BVNodeBase encodes the tree structure for BVH
 struct BVNodeBase

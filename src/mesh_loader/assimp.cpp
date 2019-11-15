@@ -34,16 +34,102 @@
 
 #include <hpp/fcl/mesh_loader/assimp.h>
 
+// Assimp >= 5.0 is forcing the use of C++11 keywords. A fix has been submitted https://github.com/assimp/assimp/pull/2758.
+// The next lines fixes the bug for current version of hpp-fcl.
+#include <assimp/defs.h>
+#if __cplusplus < 201103L && defined(AI_NO_EXCEPT)
+  #undef AI_NO_EXCEPT
+  #define AI_NO_EXCEPT
+#endif
+
+#ifdef HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
+  #include <assimp/DefaultLogger.hpp>
+  #include <assimp/IOStream.hpp>
+  #include <assimp/IOSystem.hpp>
+  #include <assimp/Importer.hpp>
+  #include <assimp/postprocess.h>
+  #include <assimp/scene.h>
+#else
+  #include <assimp/DefaultLogger.h>
+  #include <assimp/assimp.hpp>
+  #include <assimp/IOStream.h>
+  #include <assimp/IOSystem.h>
+  #include <assimp/aiPostProcess.h>
+  #include <assimp/aiScene.h>
+#endif
+
 namespace hpp
 {
 namespace fcl
 {
   
-unsigned buildMesh (const fcl::Vec3f & scale,
-                    const aiScene* scene,
-                    const aiNode* node,
-                    unsigned vertices_offset,
-                    TriangleAndVertices & tv)
+namespace internal
+{
+
+Loader::Loader () : importer (new Assimp::Importer())
+{
+  // set list of ignored parameters (parameters used for rendering)
+  importer->SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
+      aiComponent_TANGENTS_AND_BITANGENTS|
+      aiComponent_COLORS |
+      aiComponent_BONEWEIGHTS |
+      aiComponent_ANIMATIONS |
+      aiComponent_LIGHTS |
+      aiComponent_CAMERAS|
+      aiComponent_TEXTURES |
+      aiComponent_TEXCOORDS |
+      aiComponent_MATERIALS |
+      aiComponent_NORMALS
+      );
+
+}
+
+Loader::~Loader ()
+{
+ if (importer) delete importer;
+}
+
+void Loader::load (const std::string & resource_path)
+{
+  scene = importer->ReadFile(resource_path.c_str(),
+      aiProcess_SortByPType |
+      aiProcess_Triangulate |
+      aiProcess_RemoveComponent |
+      aiProcess_ImproveCacheLocality |
+      // TODO: I (Joseph Mirabel) have no idea whether degenerated triangles are
+      // properly handled. Enabling aiProcess_FindDegenerates would throw an
+      // exception when that happens. Is it too conservative ?
+      // aiProcess_FindDegenerates |
+      aiProcess_JoinIdenticalVertices
+      );
+
+  if (!scene)
+  {
+    const std::string exception_message (std::string ("Could not load resource ") + resource_path + std::string("\n") +
+                                         importer->GetErrorString () + std::string("\n") +
+                                         "Hint: the mesh directory may be wrong.");
+    throw std::invalid_argument(exception_message);
+  }
+
+  if (!scene->HasMeshes())
+    throw std::invalid_argument (std::string ("No meshes found in file ")+resource_path);
+}
+
+/**
+ * @brief      Recursive procedure for building a mesh
+ *
+ * @param[in]  scale           Scale to apply when reading the ressource
+ * @param[in]  scene           Pointer to the assimp scene
+ * @param[in]  node            Current node of the scene
+ * @param[in]  vertices_offset Current number of vertices in the model
+ * @param      tv              Triangles and Vertices of the mesh submodels
+ */
+unsigned recurseBuildMesh (
+    const fcl::Vec3f & scale,
+    const aiScene* scene,
+    const aiNode* node,
+    unsigned vertices_offset,
+    TriangleAndVertices & tv)
 {
   if (!node) return 0;
   
@@ -100,12 +186,20 @@ unsigned buildMesh (const fcl::Vec3f & scale,
   
   for (uint32_t i=0; i < node->mNumChildren; ++i)
   {
-    nbVertices += buildMesh(scale, scene, node->mChildren[i], nbVertices, tv);
+    nbVertices += recurseBuildMesh(scale, scene, node->mChildren[i], nbVertices, tv);
   }
 
   return nbVertices;
 }
 
+void buildMesh (const fcl::Vec3f & scale,
+                    const aiScene* scene,
+                    unsigned vertices_offset,
+                    TriangleAndVertices & tv)
+{
+  recurseBuildMesh (scale, scene, scene->mRootNode, vertices_offset, tv);
 }
 
+} // namespace internal
+} // namespace fcl
 } // namespace hpp

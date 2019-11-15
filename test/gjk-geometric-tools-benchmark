@@ -1,4 +1,4 @@
-Result after running test_fcl_gjk.cpp in Release mode.
+Result after running gjk.cpp in Release mode.
 
 nCol = 2831
 nDiff = 41

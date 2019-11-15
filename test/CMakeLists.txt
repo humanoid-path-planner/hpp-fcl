@@ -13,44 +13,52 @@ macro(add_fcl_test test_name)
   target_link_libraries(${test_name}
     hpp-fcl
     ${Boost_LIBRARIES}
+    utility
     )
+  PKG_CONFIG_USE_DEPENDENCY(${test_name} assimp)
   add_test(${test_name} ${EXECUTABLE_OUTPUT_PATH}/${test_name})
 endmacro(add_fcl_test)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
+add_library(utility STATIC utility.cpp)
 
-add_fcl_test(test_fcl_math test_fcl_math.cpp)
+add_fcl_test(math math.cpp)
 
-add_fcl_test(test_fcl_collision test_fcl_collision.cpp test_fcl_utility.cpp)
-add_fcl_test(test_fcl_distance test_fcl_distance.cpp test_fcl_utility.cpp)
-add_fcl_test(test_fcl_distance_lower_bound test_fcl_distance_lower_bound.cpp
-  test_fcl_utility.cpp)
-add_fcl_test(test_fcl_geometric_shapes test_fcl_geometric_shapes.cpp test_fcl_utility.cpp)
-#add_fcl_test(test_fcl_broadphase test_fcl_broadphase.cpp test_fcl_utility.cpp)
-#add_fcl_test(test_fcl_shape_mesh_consistency test_fcl_shape_mesh_consistency.cpp test_fcl_utility.cpp)
-add_fcl_test(test_fcl_frontlist test_fcl_frontlist.cpp test_fcl_utility.cpp)
-#add_fcl_test(test_fcl_math test_fcl_math.cpp test_fcl_utility.cpp)
+add_fcl_test(collision collision.cpp)
+add_fcl_test(distance distance.cpp)
+add_fcl_test(distance_lower_bound distance_lower_bound.cpp)
+add_fcl_test(geometric_shapes geometric_shapes.cpp)
+#add_fcl_test(broadphase broadphase.cpp)
+#add_fcl_test(shape_mesh_consistency shape_mesh_consistency.cpp)
+add_fcl_test(frontlist frontlist.cpp)
+#add_fcl_test(math math.cpp)
 
-# add_fcl_test(test_fcl_sphere_capsule test_fcl_sphere_capsule.cpp)
-add_fcl_test(test_fcl_capsule_capsule test_fcl_capsule_capsule.cpp test_fcl_utility.cpp)
-add_fcl_test(test_fcl_box_box_distance test_fcl_box_box_distance.cpp test_fcl_utility.cpp)
-add_fcl_test(test_fcl_simple test_fcl_simple.cpp)
-add_fcl_test(test_fcl_capsule_box_1 test_fcl_capsule_box_1.cpp test_fcl_utility.cpp)
-add_fcl_test(test_fcl_capsule_box_2 test_fcl_capsule_box_2.cpp test_fcl_utility.cpp)
-#add_fcl_test(test_fcl_obb test_fcl_obb.cpp)
+# add_fcl_test(sphere_capsule sphere_capsule.cpp)
+add_fcl_test(capsule_capsule capsule_capsule.cpp)
+add_fcl_test(box_box_distance box_box_distance.cpp)
+add_fcl_test(simple simple.cpp)
+add_fcl_test(capsule_box_1 capsule_box_1.cpp)
+add_fcl_test(capsule_box_2 capsule_box_2.cpp)
+add_fcl_test(obb obb.cpp)
+add_fcl_test(convex convex.cpp)
 
-add_fcl_test(test_fcl_bvh_models test_fcl_bvh_models.cpp test_fcl_utility.cpp)
+add_fcl_test(bvh_models bvh_models.cpp)
 
-add_fcl_test(test_fcl_profiling test_fcl_profiling.cpp test_fcl_utility.cpp)
-PKG_CONFIG_USE_DEPENDENCY(test_fcl_profiling assimp)
+add_fcl_test(profiling profiling.cpp)
+PKG_CONFIG_USE_DEPENDENCY(profiling assimp)
 
-add_fcl_test(test_fcl_gjk test_fcl_gjk.cpp)
+add_fcl_test(gjk gjk.cpp)
 if(HPP_FCL_HAVE_OCTOMAP)
-  add_fcl_test(test_fcl_octree test_fcl_octree.cpp test_fcl_utility.cpp)
+  add_fcl_test(octree octree.cpp)
 endif(HPP_FCL_HAVE_OCTOMAP)
 
 ## Benchmark
-add_executable(test-benchmark benchmark.cpp test_fcl_utility.cpp)
-target_link_libraries(test-benchmark hpp-fcl ${Boost_LIBRARIES})
+add_executable(test-benchmark benchmark.cpp)
+target_link_libraries(test-benchmark hpp-fcl ${Boost_LIBRARIES} utility)
+
+## Python tests
+IF(BUILD_PYTHON_INTERFACE)
+  ADD_SUBDIRECTORY(python_unit)
+ENDIF(BUILD_PYTHON_INTERFACE)

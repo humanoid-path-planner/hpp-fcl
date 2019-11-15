@@ -46,39 +46,6 @@ namespace hpp
 {
 namespace fcl
 {
-/// @brief Expand the BVH bounding boxes according to the variance matrix corresponding to the data stored within each BV node
-template<typename BV>
-void BVHExpand(BVHModel<BV>& model, const Variance3f* ucs, FCL_REAL r)
-{
-  for(int i = 0; i < model.num_bvs; ++i)
-  {
-    BVNode<BV>& bvnode = model.getBV(i);
-
-    BV bv;
-    for(int j = 0; j < bvnode.num_primitives; ++j)
-    {
-      int v_id = bvnode.first_primitive + j;
-      const Variance3f& uc = ucs[v_id];
-
-      Vec3f& v = model.vertices[bvnode.first_primitive + j];
-
-      for(int k = 0; k < 3; ++k)
-      {
-        bv += (v + uc.axis[k] * (r * uc.sigma[k]));
-        bv += (v - uc.axis[k] * (r * uc.sigma[k]));
-      }
-    }
-
-    bvnode.bv = bv;
-  }
-}
-
-/// @brief Expand the BVH bounding boxes according to the corresponding variance information, for OBB
-void BVHExpand(BVHModel<OBB>& model, const Variance3f* ucs, FCL_REAL r);
-
-/// @brief Expand the BVH bounding boxes according to the corresponding variance information, for RSS
-void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r);
-
 /// @brief Extract the part of the BVHModel that is inside an AABB.
 /// A triangle in collision with the AABB is considered inside.
 template<typename BV>
@@ -98,7 +65,6 @@ void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec
 
 /// @brief Compute the maximum distance from a given center point to a point cloud
 FCL_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query);
-
 
 }
 

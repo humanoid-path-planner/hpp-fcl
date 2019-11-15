@@ -41,7 +41,7 @@
 
 #include <hpp/fcl/collision_object.h>
 
-#include <hpp/fcl/math/vec_3f.h>
+#include <hpp/fcl/data_types.h>
 #include <vector>
 #include <set>
 #include <limits>
@@ -215,7 +215,7 @@ public:
   Vec3f cached_gjk_guess;
 
   /// Lower bound on distance between objects if they are disjoint
-  /// \note computed only on request.
+  /// @note computed only on request.
   FCL_REAL distance_lower_bound;
 
 public:
@@ -259,7 +259,7 @@ public:
   }
 
   /// @brief get all the contacts
-  void getContacts(std::vector<Contact>& contacts_)
+  void getContacts(std::vector<Contact>& contacts_) const
   {
     contacts_.resize(contacts.size());
     std::copy(contacts.begin(), contacts.end(), contacts_.begin());

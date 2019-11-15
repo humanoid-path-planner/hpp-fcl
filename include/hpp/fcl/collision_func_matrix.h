@@ -42,6 +42,7 @@
 
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/narrowphase/narrowphase.h>
 
 namespace hpp
 {
@@ -49,7 +50,7 @@ namespace fcl
 {
 
 /// @brief collision matrix stores the functions for collision between different types of objects and provides a uniform call interface
-template<typename NarrowPhaseSolver>
+
 struct CollisionFunctionMatrix
 {
   /// @brief the uniform call interface for collision: for collision, we need know
@@ -57,7 +58,7 @@ struct CollisionFunctionMatrix
   /// 2. the solver for narrow phase collision, this is for the collision between geometric shapes;
   /// 3. the request setting for collision (e.g., whether need to return normal information, whether need to compute cost);
   /// 4. the structure to return collision result
-  typedef std::size_t (*CollisionFunc)(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const NarrowPhaseSolver* nsolver, const CollisionRequest& request, CollisionResult& result);
+  typedef std::size_t (*CollisionFunc)(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver, const CollisionRequest& request, CollisionResult& result);
 
   /// @brief each item in the collision matrix is a function to handle collision between objects of type1 and type2
   CollisionFunc collision_matrix[NODE_COUNT][NODE_COUNT];

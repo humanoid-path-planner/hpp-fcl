@@ -42,7 +42,7 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/math/vec_3f.h>
+#include <hpp/fcl/data_types.h>
 #include <string.h>
 
 namespace hpp
@@ -56,9 +56,15 @@ class ShapeBase : public CollisionGeometry
 public:
   ShapeBase() {}
 
+  virtual ~ShapeBase () {};
+
   /// @brief Get object type: a geometric shape
   OBJECT_TYPE getObjectType() const { return OT_GEOM; }
 };
+
+/// @defgroup Geometric_Shapes
+/// regroup class of differents types of geometric shapes.
+/// @{
 
 /// @brief Triangle stores the points instead of only indices of points
 class TriangleP : public ShapeBase
@@ -80,18 +86,18 @@ public:
 class Box : public ShapeBase
 {
 public:
-  Box(FCL_REAL x, FCL_REAL y, FCL_REAL z) : ShapeBase(), side(x, y, z)
+  Box(FCL_REAL x, FCL_REAL y, FCL_REAL z) : ShapeBase(), halfSide(x/2, y/2, z/2)
   {
   }
 
-  Box(const Vec3f& side_) : ShapeBase(), side(side_) 
+  Box(const Vec3f& side_) : ShapeBase(), halfSide(side_/2) 
   {
   }
 
   Box() {}
 
-  /// @brief box side length
-  Vec3f side;
+  /// @brief box side half-length
+  Vec3f halfSide;
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -101,18 +107,14 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return side[0] * side[1] * side[2];
+    return 8*halfSide.prod();
   }
 
   Matrix3f computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
-    FCL_REAL a2 = side[0] * side[0] * V;
-    FCL_REAL b2 = side[1] * side[1] * V;
-    FCL_REAL c2 = side[2] * side[2] * V;
-    return (Matrix3f() << (b2 + c2) / 12, 0, 0,
-                          0, (a2 + c2) / 12, 0,
-                          0, 0, (a2 + b2) / 12).finished();
+    Vec3f s (halfSide.cwiseAbs2() * V);
+    return (Vec3f (s[1] + s[2], s[0] + s[2], s[0] + s[1]) / 3).asDiagonal();
   }
 };
 
@@ -149,15 +151,16 @@ public:
 class Capsule : public ShapeBase
 {
 public:
-  Capsule(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
+  Capsule(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_)
   {
+    halfLength = lz_/2;
   }
 
   /// @brief Radius of capsule 
   FCL_REAL radius;
 
-  /// @brief Length along z axis 
-  FCL_REAL lz;
+  /// @brief Half Length along z axis 
+  FCL_REAL halfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -167,15 +170,15 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius *(lz + radius * 4/3.0);
+    return boost::math::constants::pi<FCL_REAL>() * radius * radius *((halfLength * 2) + radius * 4/3.0);
   }
 
   Matrix3f computeMomentofInertia() const
   {
-    FCL_REAL v_cyl = radius * radius * lz * boost::math::constants::pi<FCL_REAL>();
+    FCL_REAL v_cyl = radius * radius * (halfLength * 2) * boost::math::constants::pi<FCL_REAL>();
     FCL_REAL v_sph = radius * radius * radius * boost::math::constants::pi<FCL_REAL>() * 4 / 3.0;
     
-    FCL_REAL ix = v_cyl * lz * lz / 12.0 + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + 0.25 * v_sph * lz * lz;
+    FCL_REAL ix = v_cyl * halfLength * halfLength / 3. + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + v_sph * halfLength * halfLength;
     FCL_REAL iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
 
     return (Matrix3f() << ix, 0, 0,
@@ -189,15 +192,16 @@ public:
 class Cone : public ShapeBase
 {
 public:
-  Cone(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
+  Cone(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_)
   {
+    halfLength = lz_/2;
   }
 
   /// @brief Radius of the cone 
   FCL_REAL radius;
 
-  /// @brief Length along z axis 
-  FCL_REAL lz;
+  /// @brief Half Length along z axis 
+  FCL_REAL halfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -207,13 +211,14 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius * lz / 3;
+    return boost::math::constants::pi<FCL_REAL>() * radius * radius * (halfLength * 2) / 3;
   }
 
+  /// \todo verify this formula as it seems different from https://en.wikipedia.org/wiki/List_of_moments_of_inertia#List_of_3D_inertia_tensors
   Matrix3f computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
-    FCL_REAL ix = V * (0.1 * lz * lz + 3 * radius * radius / 20);
+    FCL_REAL ix = V * (0.4 * halfLength * halfLength + 3 * radius * radius / 20);
     FCL_REAL iz = 0.3 * V * radius * radius;
 
     return (Matrix3f() << ix, 0, 0,
@@ -223,7 +228,7 @@ public:
 
   Vec3f computeCOM() const
   {
-    return Vec3f(0, 0, -0.25 * lz);
+    return Vec3f(0, 0, -0.5 * halfLength);
   }
 };
 
@@ -231,16 +236,16 @@ public:
 class Cylinder : public ShapeBase
 {
 public:
-  Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
+  Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_)
   {
+    halfLength = lz_/2;
   }
-
   
   /// @brief Radius of the cylinder 
   FCL_REAL radius;
 
-  /// @brief Length along z axis 
-  FCL_REAL lz;
+  /// @brief Half Length along z axis 
+  FCL_REAL halfLength;
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -250,13 +255,13 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius * lz;
+    return boost::math::constants::pi<FCL_REAL>() * radius * radius * (halfLength * 2);
   }
 
   Matrix3f computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
-    FCL_REAL ix = V * (3 * radius * radius + lz * lz) / 12;
+    FCL_REAL ix = V * (radius * radius / 4 + halfLength * halfLength / 3);
     FCL_REAL iz = V * radius * radius / 2;
     return (Matrix3f() << ix, 0, 0,
                           0, ix, 0,
@@ -264,54 +269,13 @@ public:
   }
 };
 
-/// @brief Convex polytope 
-class Convex : public ShapeBase
+/// @brief Base for convex polytope.
+/// @note Inherited classes are responsible for filling ConvexBase::neighbors;
+class ConvexBase : public ShapeBase
 {
 public:
-  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
-  /// \param points_ list of 3D points
-  /// \param num_points_ number of 3D points
-  /// \param polygons_ \copydoc Convex::polygons
-  /// \param num_polygons_ the number of polygons.
-  /// \note num_polygons_ is not the allocated size of polygons_.
-  Convex(Vec3f* points_,
-         int num_points_,
-         int* polygons_,
-         int num_polygons_) : ShapeBase()
-  {
-    num_polygons = num_polygons_;
-    points = points_;
-    num_points = num_points_;
-    polygons = polygons_;
-    edges = NULL;
 
-    Vec3f sum (0,0,0);
-    for(int i = 0; i < num_points; ++i)
-    {
-      sum += points[i];
-    }
-
-    center = sum * (FCL_REAL)(1.0 / num_points);
-
-    fillEdges();
-  }
-
-  /// @brief Copy constructor 
-  Convex(const Convex& other) : ShapeBase(other)
-  {
-    num_polygons = other.num_polygons;
-    points = other.points;
-    num_points = other.num_points;
-    polygons = other.polygons;
-    num_edges = other.num_edges;
-    edges = new Edge[num_edges];
-    memcpy(edges, other.edges, sizeof(Edge) * num_edges);
-  }
-
-  ~Convex()
-  {
-    delete [] edges;
-  }
+  virtual ~ConvexBase();
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -319,141 +283,46 @@ public:
   /// @brief Get node type: a conex polytope 
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
-  /// @brief An array of indices to the points of each polygon, it should be the number of vertices
-  /// followed by that amount of indices to "points" in counter clockwise order
-  int* polygons;
-
+  /// @brief An array of the points of the polygon.
   Vec3f* points;
   int num_points;
-  int num_edges;
-  int num_polygons;
 
-  struct Edge
+  struct Neighbors
   {
-    int first, second;
-  };
+    unsigned char count_;
+    unsigned int* n_;
 
-  Edge* edges;
+    unsigned char const& count () const { return count_; }
+    unsigned int      & operator[] (int i)       { assert(i<count_); return n_[i]; }
+    unsigned int const& operator[] (int i) const { assert(i<count_); return n_[i]; }
+  };
+  /// Neighbors of each vertex.
+  /// It is an array of size num_points. For each vertex, it contains the number
+  /// of neighbors and a list of indices to them.
+  Neighbors* neighbors;
 
   /// @brief center of the convex polytope, this is used for collision: center is guaranteed in the internal of the polytope (as it is convex) 
   Vec3f center;
 
-  /// based on http://number-none.com/blow/inertia/bb_inertia.doc
-  Matrix3f computeMomentofInertia() const
-  {
-    
-    Matrix3f C = Matrix3f::Zero();
-
-    Matrix3f C_canonical;
-    C_canonical << 1/60.0, 1/120.0, 1/120.0,
-                   1/120.0, 1/60.0, 1/120.0,
-                   1/120.0, 1/120.0, 1/60.0;
-
-    int* points_in_poly = polygons;
-    int* index = polygons + 1;
-    for(int i = 0; i < num_polygons; ++i)
-    {
-      Vec3f plane_center(0,0,0);
-
-      // compute the center of the polygon
-      for(int j = 0; j < *points_in_poly; ++j)
-        plane_center += points[index[j]];
-      plane_center = plane_center * (1.0 / *points_in_poly);
-
-      // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
-      const Vec3f& v3 = plane_center;
-      for(int j = 0; j < *points_in_poly; ++j)
-      {
-        int e_first = index[j];
-        int e_second = index[(j+1)%*points_in_poly];
-        const Vec3f& v1 = points[e_first];
-        const Vec3f& v2 = points[e_second];
-        Matrix3f A; A << v1.transpose(), v2.transpose(), v3.transpose(); // this is A' in the original document
-        C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
-      }
-      
-      points_in_poly += (*points_in_poly + 1);
-      index = points_in_poly + 1;
-    }
-
-    return C.trace() * Matrix3f::Identity() - C;
-  }
-
-  Vec3f computeCOM() const
-  {
-    Vec3f com(0,0,0);
-    FCL_REAL vol = 0;
-    int* points_in_poly = polygons;
-    int* index = polygons + 1;
-    for(int i = 0; i < num_polygons; ++i)
-    {
-      Vec3f plane_center(0,0,0);
-
-      // compute the center of the polygon
-      for(int j = 0; j < *points_in_poly; ++j)
-        plane_center += points[index[j]];
-      plane_center = plane_center * (1.0 / *points_in_poly);
-
-      // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
-      const Vec3f& v3 = plane_center;
-      for(int j = 0; j < *points_in_poly; ++j)
-      {
-        int e_first = index[j];
-        int e_second = index[(j+1)%*points_in_poly];
-        const Vec3f& v1 = points[e_first];
-        const Vec3f& v2 = points[e_second];
-        FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
-        vol += d_six_vol;
-        com += (points[e_first] + points[e_second] + plane_center) * d_six_vol;
-      }
-      
-      points_in_poly += (*points_in_poly + 1);
-      index = points_in_poly + 1;
-    }
-
-    return com / (vol * 4); // here we choose zero as the reference
-  }
-
-  FCL_REAL computeVolume() const
-  {
-    FCL_REAL vol = 0;
-    int* points_in_poly = polygons;
-    int* index = polygons + 1;
-    for(int i = 0; i < num_polygons; ++i)
-    {
-      Vec3f plane_center(0,0,0);
-
-      // compute the center of the polygon
-      for(int j = 0; j < *points_in_poly; ++j)
-        plane_center += points[index[j]];
-      plane_center = plane_center * (1.0 / *points_in_poly);
-
-      // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero point) of the convex shape
-      const Vec3f& v3 = plane_center;
-      for(int j = 0; j < *points_in_poly; ++j)
-      {
-        int e_first = index[j];
-        int e_second = index[(j+1)%*points_in_poly];
-        const Vec3f& v1 = points[e_first];
-        const Vec3f& v2 = points[e_second];
-        FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
-        vol += d_six_vol;
-      }
-      
-      points_in_poly += (*points_in_poly + 1);
-      index = points_in_poly + 1;
-    }
-
-    return vol / 6;
-  }
-
-  
-
 protected:
-  /// @brief Get edge information 
-  void fillEdges();
+  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
+  /// \param points_ list of 3D points
+  /// \param num_points_ number of 3D points
+  ConvexBase(bool ownStorage, Vec3f* points_, int num_points_);
+
+  /// @brief Copy constructor 
+  /// Only the list of neighbors is copied.
+  ConvexBase(const ConvexBase& other);
+
+  unsigned int* nneighbors_;
+
+  bool own_storage_;
+
+private:
+  void computeCenter();
 };
 
+template <typename PolygonT> class Convex;
 
 /// @brief Half Space: this is equivalent to the Plane in ODE. The separation plane is defined as n * x = d;
 /// Points in the negative side of the separation plane (i.e. {x | n * x < d}) are inside the half space and points
@@ -551,7 +420,6 @@ protected:
   /// @brief Turn non-unit normal into unit 
   void unitNormalTest();
 };
-
 
 }
 

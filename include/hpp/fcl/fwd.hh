@@ -37,6 +37,8 @@
 #ifndef HPP_FCL_FWD_HH
 #define HPP_FCL_FWD_HH
 
+#include <boost/shared_ptr.hpp>
+
 namespace hpp {
 namespace fcl {
   class CollisionObject;
@@ -49,6 +51,9 @@ namespace fcl {
   class Transform3f;
 
   class AABB;
+
+  class BVHModelBase;
+  typedef boost::shared_ptr<BVHModelBase> BVHModelPtr_t;
 }
 } // namespace hpp
 

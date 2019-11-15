@@ -39,8 +39,7 @@
 #define HPP_FCL_RSS_H
 
 #include <stdexcept>
-#include <hpp/fcl/math/vec_3f.h>
-#include <hpp/fcl/math/matrix_3f.h>
+#include <hpp/fcl/data_types.h>
 #include <boost/math/constants/constants.hpp>
 
 namespace hpp
@@ -49,6 +48,9 @@ namespace fcl
 {
 
   class CollisionRequest;
+/// @addtogroup Bounding_Volume
+/// @{
+
 /// @brief A class for rectangle sphere-swept bounding volume
 class RSS
 {
@@ -61,10 +63,14 @@ public:
   Vec3f Tr;
 
   /// @brief Side lengths of rectangle
-  FCL_REAL l[2];
+  FCL_REAL length[2];
 
   /// @brief Radius of sphere summed with rectangle to form RSS
-  FCL_REAL r;
+  FCL_REAL radius;
+
+
+  /// @brief Check whether the RSS contains a point
+  inline bool contain(const Vec3f& p) const;
 
   /// @brief Check collision between two RSS
   bool overlap(const RSS& other) const;
@@ -77,15 +83,8 @@ public:
     return overlap (other);
   }
 
-  /// @brief Check collision between two RSS and return the overlap part.
-  /// For RSS, we return nothing, as the overlap part of two RSSs usually is not a RSS.
-  bool overlap(const RSS& other, RSS& /*overlap_part*/) const
-  {
-    return overlap(other);
-  }
-
-  /// @brief Check whether the RSS contains a point
-  inline bool contain(const Vec3f& p) const;
+  /// @brief the distance between two RSS; P and Q, if not NULL, return the nearest points
+  FCL_REAL distance(const RSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
   /// @brief A simple way to merge the RSS and a point, not compact.
   /// @todo This function may have some bug.
@@ -101,34 +100,11 @@ public:
   /// @brief Return the merged RSS of current RSS and the other one
   RSS operator + (const RSS& other) const;
 
-  /// @brief Width of the RSS
-  inline FCL_REAL width() const
-  {
-    return l[0] + 2 * r;
-  }
-
-  /// @brief Height of the RSS
-  inline FCL_REAL height() const
-  {
-    return l[1] + 2 * r;
-  }
-
-  /// @brief Depth of the RSS
-  inline FCL_REAL depth() const
-  {
-    return 2 * r;
-  }
-
-  /// @brief Volume of the RSS
-  inline FCL_REAL volume() const
-  {
-    return (l[0] * l[1] * 2 * r + 4 * boost::math::constants::pi<FCL_REAL>() * r * r * r);
-  }
 
   /// @brief Size of the RSS (used in BV_Splitter to order two RSSs)
   inline FCL_REAL size() const
   {
-    return (std::sqrt(l[0] * l[0] + l[1] * l[1]) + 2 * r);
+    return (std::sqrt(length[0] * length[0] + length[1] * length[1]) + 2 * radius);
   }
 
   /// @brief The RSS center
@@ -137,14 +113,37 @@ public:
     return Tr;
   }
 
-  /// @brief the distance between two RSS; P and Q, if not NULL, return the nearest points
-  FCL_REAL distance(const RSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  /// @brief Width of the RSS
+  inline FCL_REAL width() const
+  {
+    return length[0] + 2 * radius;
+  }
 
+  /// @brief Height of the RSS
+  inline FCL_REAL height() const
+  {
+    return length[1] + 2 * radius;
+  }
+
+  /// @brief Depth of the RSS
+  inline FCL_REAL depth() const
+  {
+    return 2 * radius;
+  }
+
+  /// @brief Volume of the RSS
+  inline FCL_REAL volume() const
+  {
+    return (length[0] * length[1] * 2 * radius + 4 * boost::math::constants::pi<FCL_REAL>() * radius * radius * radius);
+  }
+
+  /// @brief Check collision between two RSS and return the overlap part.
+  /// For RSS, we return nothing, as the overlap part of two RSSs usually is not a RSS.
+  bool overlap(const RSS& other, RSS& /*overlap_part*/) const
+  {
+    return overlap(other);
+  }
 };
-
-
-/// @brief Translate the RSS bv
-RSS translate(const RSS& bv, const Vec3f& t);
 
 /// @brief distance between two RSS bounding volumes
 /// P and Q (optional return values) are the closest points in the rectangles, not the RSS. But the direction P - Q is the correct direction for cloest points

@@ -4,30 +4,78 @@ env:
   global:
     - CTEST_PARALLEL_LEVEL=4
     - CTEST_OUTPUT_ON_FAILURE=1
+    - CXX_FLAGS_DEBUG="-O1"
+    - BUILD_PYTHON_INTERFACE=ON
     - MAKEFLAGS="-j2"
+
+cache:
+  ccache: true
 
 matrix:
   include:
-    - dist: trusty
-      compiler: gcc
+    - name: "Trusty - Release - g++"
       env: BUILD_TYPE=Release
-    - dist: xenial
-      compiler: gcc
-      env: BUILD_TYPE=Release
-    - dist: bionic
-      compiler: gcc
-      env: BUILD_TYPE=Release
-    - dist: bionic
-      compiler: gcc
-      env: BUILD_TYPE=Debug
-    - os: osx
-      compiler: clang
-      env: BUILD_TYPE=Release
+      dist: trusty
+      compiler: g++
+      addons:
+        apt:
+          packages:
+            - cmake
+            - libboost-all-dev
+            - libassimp-dev
+            - libeigen3-dev
 
-install:
-  # Install dependencies for FCL
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then 'ci/install_linux.sh' ; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx"   ]; then 'ci/install_osx.sh'   ; fi
+    - name: "Xenial - Release - g++"
+      env: BUILD_TYPE=Release
+      dist: xenial
+      compiler: g++
+      addons:
+        apt:
+          packages:
+            - cmake
+            - libboost-all-dev
+            - libassimp-dev
+            - libeigen3-dev
+            - liboctomap-dev
+
+    - name: "Bionic - Release - g++"
+      env: BUILD_TYPE=Release
+      dist: bionic
+      compiler: g++
+      addons:
+        apt:
+          packages:
+            - cmake
+            - libboost-all-dev
+            - libassimp-dev
+            - libeigen3-dev
+            - liboctomap-dev
+
+    - name: "Bionic - Debug - g++"
+      env: BUILD_TYPE=Debug
+      dist: bionic
+      compiler: g++
+      addons:
+        apt:
+          packages:
+            - cmake
+            - libboost-all-dev
+            - libassimp-dev
+            - libeigen3-dev
+            - liboctomap-dev
+
+    - name: "OSX - Release - clang"
+      env: BUILD_TYPE=Release
+      os: osx
+      compiler: clang
+      cache:
+        ccache: true
+        directories:
+          - $HOME/Library/Caches/Homebrew
+
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then source travis_custom/custom_before_install_linux.sh ; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx"   ]; then source travis_custom/custom_before_install_osx.sh   ; fi
 
 script:
   # Create build directory
@@ -35,7 +83,7 @@ script:
   - cd build
 
   # Configure
-  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w ..
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w -DCMAKE_CXX_FLAGS_DEBUG=${CXX_FLAGS_DEBUG} -DBUILD_PYTHON_INTERFACE=${BUILD_PYTHON_INTERFACE} ..
 
   # Build
   - make

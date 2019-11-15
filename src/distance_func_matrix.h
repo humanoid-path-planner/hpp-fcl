@@ -34,24 +34,35 @@
 
 /** \author Florent Lamiraux */
 
+#ifndef HPP_FCL_DISTANCE_FUNC_MATRIX_H
+#define HPP_FCL_DISTANCE_FUNC_MATRIX_H
+
+/// @cond INTERNAL
+
 #include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/narrowphase/narrowphase.h>
 
 namespace hpp
 {
-namespace fcl {
-  template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
+namespace fcl
+{
+  template<typename T_SH1, typename T_SH2>
     FCL_REAL ShapeShapeDistance
     (const CollisionGeometry* o1, const Transform3f& tf1,
      const CollisionGeometry* o2, const Transform3f& tf2,
-     const NarrowPhaseSolver* nsolver, const DistanceRequest& request,
+     const GJKSolver* nsolver, const DistanceRequest& request,
      DistanceResult& result);
 
-  template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
+  template<typename T_SH1, typename T_SH2>
     std::size_t ShapeShapeCollide
     (const CollisionGeometry* o1, const Transform3f& tf1,
      const CollisionGeometry* o2, const Transform3f& tf2, 
-     const NarrowPhaseSolver* nsolver, const CollisionRequest& request,
+     const GJKSolver* nsolver, const CollisionRequest& request,
      CollisionResult& result);
 }
 
 } // namespace hpp
+
+/// @endcond
+
+#endif

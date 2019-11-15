@@ -34,15 +34,16 @@
 
 cmake_minimum_required(VERSION 2.8)
 set(CXX_DISABLE_WERROR TRUE)
-include(cmake/base.cmake)
-include(cmake/eigen.cmake)
-include(cmake/boost.cmake)
-include(cmake/hpp.cmake)
 
 set(PROJECT_NAME hpp-fcl)
 set(PROJECT_DESCRIPTION
   "HPP fork of FCL -- The Flexible Collision Library"
   )
+
+include(cmake/eigen.cmake)
+include(cmake/boost.cmake)
+include(cmake/python.cmake)
+include(cmake/hpp.cmake)
 
 IF(APPLE)
   SET(CMAKE_MACOSX_RPATH TRUE)
@@ -57,7 +58,11 @@ IF(APPLE)
   endif("${isSystemDir}" STREQUAL "-1")
 ENDIF(APPLE)
 
-setup_hpp_project()
+OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" OFF)
+
+# Tell CMake that we compute the PROJECT_VERSION manually.
+CMAKE_POLICY(SET CMP0048 OLD)
+project(${PROJECT_NAME} CXX)
 
 add_required_dependency("eigen3 >= 3.0.0")
 include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
@@ -66,10 +71,13 @@ include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
 set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
 
 # Required dependencies
+set(BOOST_COMPONENTS thread date_time system)
 if (RUN_TESTS)
-  set(BOOST_COMPONENTS thread date_time filesystem system unit_test_framework)
-else ()
-  set(BOOST_COMPONENTS thread date_time system)
+  set(BOOST_COMPONENTS ${BOOST_COMPONENTS} filesystem unit_test_framework)
+endif ()
+if (BUILD_PYTHON_INTERFACE)
+  FINDPYTHON()
+  set(BOOST_COMPONENTS ${BOOST_COMPONENTS} python)
 endif ()
 
 search_for_boost()
@@ -97,10 +105,8 @@ ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
 if(ASSIMP_FOUND)
   if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
     add_definitions(-DHPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
-    SET(HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES TRUE)
     message(STATUS "Assimp version has unified headers")
   else()
-    SET(HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES FALSE)
     message(STATUS "Assimp version does not have unified headers")
   endif()
 endif()
@@ -118,57 +124,53 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/BV/kDOP.h
   include/hpp/fcl/narrowphase/narrowphase.h
   include/hpp/fcl/narrowphase/gjk.h
-  include/hpp/fcl/shape/geometric_shapes_utility.h
   include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
   include/hpp/fcl/shape/geometric_shapes.h
   include/hpp/fcl/distance_func_matrix.h
   include/hpp/fcl/collision.h
-  include/hpp/fcl/collision_node.h
   include/hpp/fcl/collision_func_matrix.h
   include/hpp/fcl/distance.h
   include/hpp/fcl/math/matrix_3f.h
   include/hpp/fcl/math/vec_3f.h
-  include/hpp/fcl/math/tools.h
+  include/hpp/fcl/math/types.h
   include/hpp/fcl/math/transform.h
-  include/hpp/fcl/traversal/details/traversal.h
-  include/hpp/fcl/traversal/traversal_node_shapes.h
-  include/hpp/fcl/traversal/traversal_node_setup.h
-  include/hpp/fcl/traversal/traversal_recurse.h
-  include/hpp/fcl/traversal/traversal_node_octree.h
-  include/hpp/fcl/traversal/traversal_node_bvhs.h
-  include/hpp/fcl/traversal/traversal_node_bvh_shape.h
-  include/hpp/fcl/traversal/traversal_node_base.h
   include/hpp/fcl/data_types.h
-  include/hpp/fcl/BVH/BV_splitter.h
   include/hpp/fcl/BVH/BVH_internal.h
   include/hpp/fcl/BVH/BVH_model.h
-  include/hpp/fcl/BVH/BV_fitter.h
   include/hpp/fcl/BVH/BVH_front.h
   include/hpp/fcl/BVH/BVH_utility.h
-  include/hpp/fcl/intersect.h
   include/hpp/fcl/collision_object.h
   include/hpp/fcl/collision_utility.h
   include/hpp/fcl/octree.h
   include/hpp/fcl/fwd.hh
   include/hpp/fcl/mesh_loader/assimp.h
   include/hpp/fcl/mesh_loader/loader.h
+  include/hpp/fcl/internal/BV_fitter.h
+  include/hpp/fcl/internal/BV_splitter.h
+  include/hpp/fcl/internal/intersect.h
+  include/hpp/fcl/internal/tools.h
+  include/hpp/fcl/internal/traversal_node_base.h
+  include/hpp/fcl/internal/traversal_node_bvh_shape.h
+  include/hpp/fcl/internal/traversal_node_bvhs.h
+  include/hpp/fcl/internal/traversal_node_octree.h
+  include/hpp/fcl/internal/traversal_node_setup.h
+  include/hpp/fcl/internal/traversal_node_shapes.h
+  include/hpp/fcl/internal/traversal_recurse.h
+  include/hpp/fcl/internal/traversal.h
   )
 
 add_subdirectory(src)
+if (BUILD_PYTHON_INTERFACE)
+  add_subdirectory(python)
+endif ()
 if (RUN_TESTS)
   add_subdirectory(test)
 endif ()
 
 pkg_config_append_libs("hpp-fcl")
 PKG_CONFIG_APPEND_BOOST_LIBS(thread date_time filesystem system)
-IF(HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
-  # FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES kept for backard compatibility reasons.
-  PKG_CONFIG_APPEND_CFLAGS("-DFCL_USE_ASSIMP_UNIFIED_HEADER_NAMES -DHPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES")
-ENDIF(HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
 IF(HPP_FCL_HAVE_OCTOMAP)
   # FCL_HAVE_OCTOMAP kept for backward compatibility reasons.
   PKG_CONFIG_APPEND_CFLAGS(
     "-DHPP_FCL_HAVE_OCTOMAP -DFCL_HAVE_OCTOMAP -DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION} -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION} -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION}")
 ENDIF(HPP_FCL_HAVE_OCTOMAP)
-
-setup_hpp_project_finalize()

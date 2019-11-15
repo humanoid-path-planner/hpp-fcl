@@ -10,7 +10,7 @@
 #include <limits>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#include "distance_func_matrix.h"
+#include <../src/distance_func_matrix.h>
 
 // Note that partial specialization of template functions is not allowed.
 // Therefore, two implementations with the default narrow phase solvers are
@@ -23,13 +23,13 @@
 namespace hpp
 {
 namespace fcl {
-  class GJKSolver_indep;
+  class GJKSolver;
 
   template <>
-  FCL_REAL ShapeShapeDistance <Capsule, Capsule, GJKSolver_indep>
+  FCL_REAL ShapeShapeDistance <Capsule, Capsule>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest& request,
+   const GJKSolver*, const DistanceRequest& request,
    DistanceResult& result)
   {
     const Capsule* c1 = static_cast <const Capsule*> (o1);
@@ -41,8 +41,8 @@ namespace fcl {
     // We assume that capsules are oriented along z-axis.
     Matrix3f::ConstColXpr direction1 = tf1.getRotation ().col (2);
     Matrix3f::ConstColXpr direction2 = tf2.getRotation ().col (2);
-    FCL_REAL halfLength1 = 0.5*c1->lz;
-    FCL_REAL halfLength2 = 0.5*c2->lz;
+    FCL_REAL halfLength1 = c1->halfLength;
+    FCL_REAL halfLength2 = c2->halfLength;
 
     Vec3f diff = center1 - center2;
     FCL_REAL a01 = -direction1.dot (direction2);
@@ -321,17 +321,17 @@ namespace fcl {
   }
 
   template <>
-  std::size_t ShapeShapeCollide <Capsule, Capsule, GJKSolver_indep>
+  std::size_t ShapeShapeCollide <Capsule, Capsule>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const CollisionRequest& request,
+   const GJKSolver*, const CollisionRequest& request,
    CollisionResult& result)
   {
-    GJKSolver_indep* unused = 0x0;
+    GJKSolver* unused = 0x0;
     DistanceResult distanceResult;
     DistanceRequest distanceRequest (request.enable_contact);
 
-    FCL_REAL distance = ShapeShapeDistance <Capsule, Capsule, GJKSolver_indep>
+    FCL_REAL distance = ShapeShapeDistance <Capsule, Capsule>
       (o1, tf1, o2, tf2, unused, distanceRequest, distanceResult);
 
     if (distance <= 0) {

@@ -56,6 +56,9 @@ enum OBJECT_TYPE {OT_UNKNOWN, OT_BVH, OT_GEOM, OT_OCTREE, OT_COUNT};
 enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP16, BV_KDOP18, BV_KDOP24,
                 GEOM_BOX, GEOM_SPHERE, GEOM_CAPSULE, GEOM_CONE, GEOM_CYLINDER, GEOM_CONVEX, GEOM_PLANE, GEOM_HALFSPACE, GEOM_TRIANGLE, GEOM_OCTREE, NODE_COUNT};
 
+/// @addtogroup Construction_Of_BVH
+/// @{
+
 /// @brief The geometry for the object for collision or distance computation
 class CollisionGeometry
 {
@@ -203,7 +206,7 @@ public:
   /// @brief compute the AABB in world space
   inline void computeAABB()
   {
-    if(isQuatIdentity(t.getQuatRotation()))
+    if(t.getRotation().isIdentity())
     {
       aabb = translate(cgeom->aabb_local, t.getTranslation());
     }
@@ -240,12 +243,6 @@ public:
     return t.getRotation();
   }
 
-  /// @brief get quaternion rotation of the object
-  inline const Quaternion3f& getQuatRotation() const
-  {
-    return t.getQuatRotation();
-  }
-
   /// @brief get object's transform
   inline const Transform3f& getTransform() const
   {
@@ -264,11 +261,7 @@ public:
     t.setTranslation(T);
   }
 
-  /// @brief set object's quatenrion rotation
-  void setQuatRotation(const Quaternion3f& q)
-  {
-    t.setQuatRotation(q);
-  }
+
 
   /// @brief set object's transform
   void setTransform(const Matrix3f& R, const Vec3f& T)
@@ -276,11 +269,7 @@ public:
     t.setTransform(R, T);
   }
 
-  /// @brief set object's transform
-  void setTransform(const Quaternion3f& q, const Vec3f& T)
-  {
-    t.setTransform(q, T);
-  }
+ 
 
   /// @brief set object's transform
   void setTransform(const Transform3f& tf)

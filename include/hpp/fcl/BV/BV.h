@@ -47,7 +47,7 @@
 #include <hpp/fcl/BV/kIOS.h>
 #include <hpp/fcl/math/transform.h>
 
-/** \brief Main namespace */
+/** @brief Main namespace */
 namespace hpp
 {
 namespace fcl
@@ -90,43 +90,7 @@ class Converter<AABB, OBB>
 {
 public:
   static void convert(const AABB& bv1, const Transform3f& tf1, OBB& bv2)
-  {    
-    /*
-    bv2.To = tf1.transform(bv1.center());
-
-    /// Sort the AABB edges so that AABB extents are ordered.
-    FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth() };
-    std::size_t id[3] = {0, 1, 2};
-
-    for(std::size_t i = 1; i < 3; ++i)
-    {
-      for(std::size_t j = i; j > 0; --j)
-      {
-        if(d[j] > d[j-1])
-        {
-          {
-            FCL_REAL tmp = d[j];
-            d[j] = d[j-1];
-            d[j-1] = tmp;
-          }
-          {
-            std::size_t tmp = id[j];
-            id[j] = id[j-1];
-            id[j-1] = tmp;
-          }
-        }
-      }
-    }
-
-    Vec3f extent = (bv1.max_ - bv1.min_) * 0.5;
-    bv2.extent = Vec3f(extent[id[0]], extent[id[1]], extent[id[2]]);
-    const Matrix3f& R = tf1.getRotation();
-    bool left_hand = (id[0] == (id[1] + 1) % 3);
-    bv2.axis[0] = left_hand ? -R.col(id[0]) : R.col(id[0]);
-    bv2.axis[1] = R.col(id[1]);
-    bv2.axis[2] = R.col(id[2]);
-    */
-
+  {   
     bv2.To.noalias() = tf1.transform(bv1.center());
     bv2.extent.noalias() = (bv1.max_ - bv1.min_) * 0.5;
     bv2.axes.noalias() = tf1.getRotation();
@@ -161,7 +125,7 @@ class Converter<RSS, OBB>
 public:
   static void convert(const RSS& bv1, const Transform3f& tf1, OBB& bv2)
   {
-    bv2.extent.noalias() = Vec3f(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
+    bv2.extent.noalias() = Vec3f(bv1.length[0] * 0.5 + bv1.radius, bv1.length[1] * 0.5 + bv1.radius, bv1.radius);
     bv2.To.noalias() = tf1.transform(bv1.Tr);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
   }
@@ -204,9 +168,9 @@ public:
     bv2.Tr = tf1.transform(bv1.To);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
  
-    bv2.r = bv1.extent[2];
-    bv2.l[0] = 2 * (bv1.extent[0] - bv2.r);
-    bv2.l[1] = 2 * (bv1.extent[1] - bv2.r);
+    bv2.radius = bv1.extent[2];
+    bv2.length[0] = 2 * (bv1.extent[0] - bv2.radius);
+    bv2.length[1] = 2 * (bv1.extent[1] - bv2.radius);
   }
 };
 
@@ -219,9 +183,9 @@ public:
     bv2.Tr.noalias() = tf1.transform(bv1.Tr);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
 
-    bv2.r = bv1.r;
-    bv2.l[0] = bv1.l[0];
-    bv2.l[1] = bv1.l[1];
+    bv2.radius = bv1.radius;
+    bv2.length[0] = bv1.length[0];
+    bv2.length[1] = bv1.length[1];
   }
 };
 
@@ -268,9 +232,9 @@ public:
     }
 
     Vec3f extent = (bv1.max_ - bv1.min_) * 0.5;
-    bv2.r = extent[id[2]];
-    bv2.l[0] = (extent[id[0]] - bv2.r) * 2;
-    bv2.l[1] = (extent[id[1]] - bv2.r) * 2;
+    bv2.radius = extent[id[2]];
+    bv2.length[0] = (extent[id[0]] - bv2.radius) * 2;
+    bv2.length[1] = (extent[id[1]] - bv2.radius) * 2;
 
     const Matrix3f& R = tf1.getRotation();
     bool left_hand = (id[0] == (id[1] + 1) % 3);

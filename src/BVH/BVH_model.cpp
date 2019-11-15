@@ -36,25 +36,28 @@
 /** \author Jia Pan */
 
 #include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/BV/BV.h>
+
 #include <iostream>
 #include <string.h>
+
+#include <hpp/fcl/BV/BV.h>
+#include <hpp/fcl/shape/convex.h>
+
+#include <hpp/fcl/internal/BV_splitter.h>
+#include <hpp/fcl/internal/BV_fitter.h>
 
 namespace hpp
 {
 namespace fcl
 {
 
-template<typename BV>
-BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : CollisionGeometry(other),
-                                                    boost::noncopyable(),
-                                                    num_tris(other.num_tris),
-                                                    num_vertices(other.num_vertices),
-                                                    build_state(other.build_state),
-                                                    bv_splitter(other.bv_splitter),
-                                                    bv_fitter(other.bv_fitter),
-                                                    num_tris_allocated(other.num_tris),
-                                                    num_vertices_allocated(other.num_vertices)
+BVHModelBase::BVHModelBase(const BVHModelBase& other) :
+  CollisionGeometry(other),
+  num_tris(other.num_tris),
+  num_vertices(other.num_vertices),
+  build_state(other.build_state),
+  num_tris_allocated(other.num_tris),
+  num_vertices_allocated(other.num_vertices)
 {
   if(other.vertices)
   {
@@ -79,7 +82,29 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : CollisionGeometry(other),
   }
   else
     prev_vertices = NULL;
+}
 
+void BVHModelBase::buildConvexRepresentation(bool share_memory)
+{
+  if (!convex) {
+    Vec3f* points = vertices;
+    Triangle* polygons = tri_indices;
+    if (!share_memory) {
+      points = new Vec3f[num_vertices];
+      memcpy(points, vertices, sizeof(Vec3f) * num_vertices);
+
+      polygons = new Triangle[num_tris];
+      memcpy(polygons, tri_indices, sizeof(Triangle) * num_tris);
+    }
+    convex.reset(new Convex<Triangle>(!share_memory, points, num_vertices, polygons, num_vertices));
+  }
+}
+
+template<typename BV>
+BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : BVHModelBase(other),
+                                                    bv_splitter(other.bv_splitter),
+                                                    bv_fitter(other.bv_fitter)
+{
   if(other.primitive_indices)
   {
     int num_primitives = 0;
@@ -112,18 +137,16 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : CollisionGeometry(other),
 }
 
 
-template<typename BV>
-int BVHModel<BV>::beginModel(int num_tris_, int num_vertices_)
+int BVHModelBase::beginModel(int num_tris_, int num_vertices_)
 {
   if(build_state != BVH_BUILD_STATE_EMPTY)
   {
     delete [] vertices; vertices = NULL;
     delete [] tri_indices; tri_indices = NULL;
-    delete [] bvs; bvs = NULL;
     delete [] prev_vertices; prev_vertices = NULL;
-    delete [] primitive_indices; primitive_indices = NULL;
 
-    num_vertices_allocated = num_vertices = num_tris_allocated = num_tris = num_bvs_allocated = num_bvs = 0;
+    num_vertices_allocated = num_vertices = num_tris_allocated = num_tris = 0;
+    deleteBVs();
   }
 
   if(num_tris_ <= 0) num_tris_ = 8;
@@ -158,9 +181,7 @@ int BVHModel<BV>::beginModel(int num_tris_, int num_vertices_)
   return BVH_OK;
 }
 
-
-template<typename BV>
-int BVHModel<BV>::addVertex(const Vec3f& p)
+int BVHModelBase::addVertex(const Vec3f& p)
 {
   if(build_state != BVH_BUILD_STATE_BEGUN)
   {
@@ -189,8 +210,7 @@ int BVHModel<BV>::addVertex(const Vec3f& p)
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
+int BVHModelBase::addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
 {
   if(build_state == BVH_BUILD_STATE_PROCESSED)
   {
@@ -243,8 +263,7 @@ int BVHModel<BV>::addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::addSubModel(const std::vector<Vec3f>& ps)
+int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps)
 {
   if(build_state == BVH_BUILD_STATE_PROCESSED)
   {
@@ -278,8 +297,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vec3f>& ps)
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Triangle>& ts)
+int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Triangle>& ts)
 {
   if(build_state == BVH_BUILD_STATE_PROCESSED)
   {
@@ -340,8 +358,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Tr
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::endModel()
+int BVHModelBase::endModel()
 {
   if(build_state != BVH_BUILD_STATE_BEGUN)
   {
@@ -383,24 +400,9 @@ int BVHModel<BV>::endModel()
     num_vertices_allocated = num_vertices;
   }
 
-
   // construct BVH tree
-  int num_bvs_to_be_allocated = 0;
-  if(num_tris == 0)
-    num_bvs_to_be_allocated = 2 * num_vertices - 1;
-  else
-    num_bvs_to_be_allocated = 2 * num_tris - 1;
-
-
-  bvs = new BVNode<BV> [num_bvs_to_be_allocated];
-  primitive_indices = new unsigned int [num_bvs_to_be_allocated];
-  if(!bvs || !primitive_indices)
-  {
-    std::cerr << "BVH Error! Out of memory for BV array in endModel()!" << std::endl;
+  if (!allocateBVs ())
     return BVH_ERR_MODEL_OUT_OF_MEMORY;
-  }
-  num_bvs_allocated = num_bvs_to_be_allocated;
-  num_bvs = 0;
 
   buildTree();
 
@@ -412,8 +414,7 @@ int BVHModel<BV>::endModel()
 
 
 
-template<typename BV>
-int BVHModel<BV>::beginReplaceModel()
+int BVHModelBase::beginReplaceModel()
 {
   if(build_state != BVH_BUILD_STATE_PROCESSED)
   {
@@ -421,7 +422,8 @@ int BVHModel<BV>::beginReplaceModel()
     return BVH_ERR_BUILD_EMPTY_PREVIOUS_FRAME;
   }
 
-  if(prev_vertices) delete [] prev_vertices; prev_vertices = NULL;
+  if(prev_vertices) delete [] prev_vertices;
+  prev_vertices = NULL;
 
   num_vertex_updated = 0;
 
@@ -430,8 +432,7 @@ int BVHModel<BV>::beginReplaceModel()
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::replaceVertex(const Vec3f& p)
+int BVHModelBase::replaceVertex(const Vec3f& p)
 {
   if(build_state != BVH_BUILD_STATE_REPLACE_BEGUN)
   {
@@ -445,8 +446,7 @@ int BVHModel<BV>::replaceVertex(const Vec3f& p)
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::replaceTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
+int BVHModelBase::replaceTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
 {
   if(build_state != BVH_BUILD_STATE_REPLACE_BEGUN)
   {
@@ -460,8 +460,7 @@ int BVHModel<BV>::replaceTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f&
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::replaceSubModel(const std::vector<Vec3f>& ps)
+int BVHModelBase::replaceSubModel(const std::vector<Vec3f>& ps)
 {
   if(build_state != BVH_BUILD_STATE_REPLACE_BEGUN)
   {
@@ -477,8 +476,7 @@ int BVHModel<BV>::replaceSubModel(const std::vector<Vec3f>& ps)
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::endReplaceModel(bool refit, bool bottomup)
+int BVHModelBase::endReplaceModel(bool refit, bool bottomup)
 {
   if(build_state != BVH_BUILD_STATE_REPLACE_BEGUN)
   {
@@ -510,8 +508,7 @@ int BVHModel<BV>::endReplaceModel(bool refit, bool bottomup)
 
 
 
-template<typename BV>
-int BVHModel<BV>::beginUpdateModel()
+int BVHModelBase::beginUpdateModel()
 {
   if(build_state != BVH_BUILD_STATE_PROCESSED && build_state != BVH_BUILD_STATE_UPDATED)
   {
@@ -538,8 +535,7 @@ int BVHModel<BV>::beginUpdateModel()
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::updateVertex(const Vec3f& p)
+int BVHModelBase::updateVertex(const Vec3f& p)
 {
   if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
   {
@@ -553,8 +549,7 @@ int BVHModel<BV>::updateVertex(const Vec3f& p)
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::updateTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
+int BVHModelBase::updateTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
 {
   if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
   {
@@ -568,8 +563,7 @@ int BVHModel<BV>::updateTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& 
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::updateSubModel(const std::vector<Vec3f>& ps)
+int BVHModelBase::updateSubModel(const std::vector<Vec3f>& ps)
 {
   if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
   {
@@ -585,8 +579,7 @@ int BVHModel<BV>::updateSubModel(const std::vector<Vec3f>& ps)
   return BVH_OK;
 }
 
-template<typename BV>
-int BVHModel<BV>::endUpdateModel(bool refit, bool bottomup)
+int BVHModelBase::endUpdateModel(bool refit, bool bottomup)
 {
   if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
   {
@@ -621,6 +614,72 @@ int BVHModel<BV>::endUpdateModel(bool refit, bool bottomup)
 
 
 
+void BVHModelBase::computeLocalAABB()
+{
+  AABB aabb_;
+  for(int i = 0; i < num_vertices; ++i)
+  {
+    aabb_ += vertices[i];
+  }
+
+  aabb_center = aabb_.center();
+
+  aabb_radius = 0;
+  for(int i = 0; i < num_vertices; ++i)
+  {
+    FCL_REAL r = (aabb_center - vertices[i]).squaredNorm();
+    if(r > aabb_radius) aabb_radius = r;
+  }
+
+  aabb_radius = sqrt(aabb_radius);
+
+  aabb_local = aabb_;
+}
+
+
+  /// @brief Constructing an empty BVH
+template<typename BV>
+BVHModel<BV>::BVHModel() :
+  BVHModelBase (),
+  bv_splitter(new BVSplitter<BV>(SPLIT_METHOD_MEAN)),
+  bv_fitter(new BVFitter<BV>()),
+  num_bvs_allocated(0),
+  primitive_indices(NULL),
+  bvs(NULL),
+  num_bvs(0)
+{
+}
+
+template<typename BV>
+void BVHModel<BV>::deleteBVs()
+{
+  delete [] bvs; bvs = NULL;
+  delete [] primitive_indices; primitive_indices = NULL;
+  num_bvs_allocated = num_bvs = 0;
+}
+
+template<typename BV>
+bool BVHModel<BV>::allocateBVs()
+{
+  // construct BVH tree
+  int num_bvs_to_be_allocated = 0;
+  if(num_tris == 0)
+    num_bvs_to_be_allocated = 2 * num_vertices - 1;
+  else
+    num_bvs_to_be_allocated = 2 * num_tris - 1;
+
+
+  bvs = new BVNode<BV> [num_bvs_to_be_allocated];
+  primitive_indices = new unsigned int [num_bvs_to_be_allocated];
+  if(!bvs || !primitive_indices)
+  {
+    std::cerr << "BVH Error! Out of memory for BV array in endModel()!" << std::endl;
+    return false;
+  }
+  num_bvs_allocated = num_bvs_to_be_allocated;
+  num_bvs = 0;
+  return true;
+}
 
 template<typename BV>
 int BVHModel<BV>::memUsage(int msg) const
@@ -641,7 +700,6 @@ int BVHModel<BV>::memUsage(int msg) const
 
   return BVH_OK;
 }
-
 
 template<typename BV>
 int BVHModel<BV>::buildTree()
@@ -765,8 +823,14 @@ int BVHModel<BV>::refitTree(bool bottomup)
 template<typename BV>
 int BVHModel<BV>::refitTree_bottomup()
 {
+  // TODO the recomputation of the BV is done manually, without using
+  // bv_fitter. The manual BV recomputation seems bugged. Using bv_fitter
+  // seems to correct the bug.
+  //bv_fitter->set(vertices, tri_indices, getModelType());
+
   int res = recursiveRefitTree_bottomup(0);
 
+  //bv_fitter->clear();
   return res;
 }
 
@@ -813,6 +877,9 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
       }
       else
       {
+        //TODO use bv_fitter to build BV. See comment in refitTree_bottomup
+        //unsigned int* cur_primitive_indices = primitive_indices + bvnode->first_primitive;
+        //bv = bv_fitter->fit(cur_primitive_indices, bvnode->num_primitives);
         Vec3f v[3];
         for(int i = 0; i < 3; ++i)
         {
@@ -835,6 +902,9 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
     recursiveRefitTree_bottomup(bvnode->leftChild());
     recursiveRefitTree_bottomup(bvnode->rightChild());
     bvnode->bv = bvs[bvnode->leftChild()].bv + bvs[bvnode->rightChild()].bv;
+    //TODO use bv_fitter to build BV. See comment in refitTree_bottomup
+    //unsigned int* cur_primitive_indices = primitive_indices + bvnode->first_primitive;
+    //bvnode->bv = bv_fitter->fit(cur_primitive_indices, bvnode->num_primitives);
   }
 
   return BVH_OK;
@@ -853,29 +923,6 @@ int BVHModel<BV>::refitTree_topdown()
   bv_fitter->clear();
 
   return BVH_OK;
-}
-
-template<typename BV>
-void BVHModel<BV>::computeLocalAABB()
-{
-  AABB aabb_;
-  for(int i = 0; i < num_vertices; ++i)
-  {
-    aabb_ += vertices[i];
-  }
-
-  aabb_center = aabb_.center();
-
-  aabb_radius = 0;
-  for(int i = 0; i < num_vertices; ++i)
-  {
-    FCL_REAL r = (aabb_center - vertices[i]).squaredNorm();
-    if(r > aabb_radius) aabb_radius = r;
-  }
-
-  aabb_radius = sqrt(aabb_radius);
-
-  aabb_local = aabb_;
 }
 
 
@@ -988,11 +1035,6 @@ NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const
   return BV_KDOP24;
 }
 
-
-
-
-
-
 template class BVHModel<KDOP<16> >;
 template class BVHModel<KDOP<18> >;
 template class BVHModel<KDOP<24> >;
@@ -1001,6 +1043,7 @@ template class BVHModel<AABB>;
 template class BVHModel<RSS>;
 template class BVHModel<kIOS>;
 template class BVHModel<OBBRSS>;
-}
+
+} // namespace fcl
 
 } // namespace hpp

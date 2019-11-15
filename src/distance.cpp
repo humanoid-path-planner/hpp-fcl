@@ -46,32 +46,22 @@ namespace hpp
 namespace fcl
 {
 
-template<typename GJKSolver>
-DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
+DistanceFunctionMatrix& getDistanceFunctionLookTable()
 {
-  static DistanceFunctionMatrix<GJKSolver> table;
+  static DistanceFunctionMatrix table;
   return table;
 }
 
-template<typename NarrowPhaseSolver>
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver,
-                  const DistanceRequest& request, DistanceResult& result)
-{
-  return distance<NarrowPhaseSolver>(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver,
-                                     request, result);
-}
-
-template<typename NarrowPhaseSolver>
 FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, 
                   const CollisionGeometry* o2, const Transform3f& tf2,
-                  const NarrowPhaseSolver* nsolver_,
+                  const GJKSolver* nsolver_,
                   const DistanceRequest& request, DistanceResult& result)
 {
-  const NarrowPhaseSolver* nsolver = nsolver_;
+  const GJKSolver* nsolver = nsolver_;
   if(!nsolver_) 
-    nsolver = new NarrowPhaseSolver();
+    nsolver = new GJKSolver();
 
-  const DistanceFunctionMatrix<NarrowPhaseSolver>& looktable = getDistanceFunctionLookTable<NarrowPhaseSolver>();
+  const DistanceFunctionMatrix& looktable = getDistanceFunctionLookTable();
 
   OBJECT_TYPE object_type1 = o1->getObjectType();
   NODE_TYPE node_type1 = o1->getNodeType();
@@ -118,6 +108,12 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
   return res;
 }
 
+FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver* nsolver,
+                  const DistanceRequest& request, DistanceResult& result)
+{
+  return distance(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver,
+                                     request, result);
+}
 
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const DistanceRequest& request, DistanceResult& result)
 {
@@ -125,8 +121,8 @@ FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const Di
   {
   case GST_INDEP:
     {
-      GJKSolver_indep solver;
-      return distance<GJKSolver_indep>(o1, o2, &solver, request, result);
+      GJKSolver solver;
+      return distance(o1, o2, &solver, request, result);
     }
   default:
     return -1; // error
@@ -141,8 +137,8 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
   {
   case GST_INDEP:
     {
-      GJKSolver_indep solver;
-      return distance<GJKSolver_indep>(o1, tf1, o2, tf2, &solver, request, result);
+      GJKSolver solver;
+      return distance(o1, tf1, o2, tf2, &solver, request, result);
     }
   default:
     return -1;

@@ -35,9 +35,10 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BVH/BV_fitter.h>
+#include <hpp/fcl/internal/BV_fitter.h>
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <limits>
+#include <hpp/fcl/internal/tools.h>
 
 namespace hpp
 {
@@ -149,9 +150,9 @@ void fit1(Vec3f* ps, RSS& bv)
 {
   bv.Tr.noalias() = ps[0];
   bv.axes.setIdentity();
-  bv.l[0] = 0;
-  bv.l[1] = 0;
-  bv.r = 0;
+  bv.length[0] = 0;
+  bv.length[1] = 0;
+  bv.radius = 0;
 }
 
 void fit2(Vec3f* ps, RSS& bv)
@@ -163,11 +164,11 @@ void fit2(Vec3f* ps, RSS& bv)
   bv.axes.col(0) /= len_p1p2;
 
   generateCoordinateSystem(bv.axes.col(0), bv.axes.col(1), bv.axes.col(2));
-  bv.l[0] = len_p1p2;
-  bv.l[1] = 0;
+  bv.length[0] = len_p1p2;
+  bv.length[1] = 0;
 
   bv.Tr = p2;
-  bv.r = 0;
+  bv.radius = 0;
 }
 
 void fit3(Vec3f* ps, RSS& bv)
@@ -192,7 +193,7 @@ void fit3(Vec3f* ps, RSS& bv)
   bv.axes.col(0).noalias() = e[imax].normalized();
   bv.axes.col(1).noalias() = bv.axes.col(2).cross(bv.axes.col(0));
 
-  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, 3, bv.axes, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, 3, bv.axes, bv.Tr, bv.length, bv.radius);
 }
 
 void fit6(Vec3f* ps, RSS& bv)
@@ -214,7 +215,7 @@ void fitn(Vec3f* ps, int n, RSS& bv)
   axisFromEigen(E, s, bv.axes);
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, n, bv.axes, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize(ps, NULL, NULL, NULL, n, bv.axes, bv.Tr, bv.length, bv.radius);
 }
 
 }
@@ -433,7 +434,6 @@ void fit(Vec3f* ps, int n, OBB& bv)
   }
 }
 
-
 template<>
 void fit(Vec3f* ps, int n, RSS& bv)
 {
@@ -491,6 +491,16 @@ void fit(Vec3f* ps, int n, OBBRSS& bv)
   }
 }
 
+template<>
+void fit(Vec3f* ps, int n, AABB& bv)
+{
+  if (n <= 0) return;
+  bv = AABB (ps[0]);
+  for(int i = 1; i < n; ++i)
+  {
+    bv += ps[i];
+  }
+}
 
 OBB BVFitter<OBB>::fit(unsigned int* primitive_indices, int num_primitives)
 {
@@ -532,9 +542,9 @@ OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices, int num_primitives
   getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.rss.axes, origin, l, r);
 
   bv.rss.Tr = origin;
-  bv.rss.l[0] = l[0];
-  bv.rss.l[1] = l[1];
-  bv.rss.r = r;
+  bv.rss.length[0] = l[0];
+  bv.rss.length[1] = l[1];
+  bv.rss.radius = r;
 
   return bv;
 }
@@ -558,14 +568,13 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
   getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.axes, origin, l, r);
 
   bv.Tr = origin;
-  bv.l[0] = l[0];
-  bv.l[1] = l[1];
-  bv.r = r;
+  bv.length[0] = l[0];
+  bv.length[1] = l[1];
+  bv.radius = r;
 
 
   return bv;
 }
-
 
 kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
 {
@@ -637,6 +646,47 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
   return bv;
 }
 
+AABB BVFitter<AABB>::fit(unsigned int* primitive_indices, int num_primitives)
+{
+  AABB bv;
+  if (num_primitives == 0) return bv;
+
+  if(type == BVH_MODEL_TRIANGLES)             /// The primitive is triangle
+  {
+    Triangle t0 = tri_indices[primitive_indices[0]];
+    bv = AABB (vertices[t0[0]]);
+
+    for(int i = 0; i < num_primitives; ++i)
+    {
+      Triangle t = tri_indices[primitive_indices[i]];
+      bv += vertices[t[0]];
+      bv += vertices[t[1]];
+      bv += vertices[t[2]];
+
+      if(prev_vertices)                      /// can fitting both current and previous frame
+      {
+        bv += prev_vertices[t[0]];
+        bv += prev_vertices[t[1]];
+        bv += prev_vertices[t[2]];
+      }
+    }
+    return bv;
+  }
+  else if(type == BVH_MODEL_POINTCLOUD)       /// The primitive is point
+  {
+    bv = AABB (vertices[primitive_indices[0]]);
+    for(int i = 0; i < num_primitives; ++i)
+    {
+      bv += vertices[primitive_indices[i]];
+
+      if(prev_vertices)                       /// can fitting both current and previous frame
+      {
+        bv += prev_vertices[primitive_indices[i]];
+      }
+    }
+  }
+  return bv;
+}
 
 }
 

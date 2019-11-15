@@ -37,7 +37,8 @@
 
 
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
-#include <hpp/fcl/BVH/BV_fitter.h>
+#include <hpp/fcl/internal/BV_fitter.h>
+#include <hpp/fcl/internal/tools.h>
 
 namespace hpp
 {
@@ -50,16 +51,16 @@ namespace details
 std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf)
 {
   std::vector<Vec3f> result(8);
-  FCL_REAL a = box.side[0] / 2;
-  FCL_REAL b = box.side[1] / 2;
-  FCL_REAL c = box.side[2] / 2;
-  result[0] = tf.transform(Vec3f(a, b, c));
-  result[1] = tf.transform(Vec3f(a, b, -c));
-  result[2] = tf.transform(Vec3f(a, -b, c));
-  result[3] = tf.transform(Vec3f(a, -b, -c));
-  result[4] = tf.transform(Vec3f(-a, b, c));
-  result[5] = tf.transform(Vec3f(-a, b, -c));
-  result[6] = tf.transform(Vec3f(-a, -b, c));
+  FCL_REAL a = box.halfSide[0];
+  FCL_REAL b = box.halfSide[1];
+  FCL_REAL c = box.halfSide[2];
+  result[0] = tf.transform(Vec3f( a,  b,  c));
+  result[1] = tf.transform(Vec3f( a,  b, -c));
+  result[2] = tf.transform(Vec3f( a, -b,  c));
+  result[3] = tf.transform(Vec3f( a, -b, -c));
+  result[4] = tf.transform(Vec3f(-a,  b,  c));
+  result[5] = tf.transform(Vec3f(-a,  b, -c));
+  result[6] = tf.transform(Vec3f(-a, -b,  c));
   result[7] = tf.transform(Vec3f(-a, -b, -c));
   
   return result;
@@ -95,7 +96,7 @@ std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& t
   std::vector<Vec3f> result(36);
   const FCL_REAL m = (1 + sqrt(5.0)) / 2.0;
 
-  FCL_REAL hl = capsule.lz * 0.5;
+  FCL_REAL hl = capsule.halfLength;
   FCL_REAL edge_size = capsule.radius * 6 / (sqrt(27.0) + sqrt(15.0));
   FCL_REAL a = edge_size;
   FCL_REAL b = m * edge_size;
@@ -152,7 +153,7 @@ std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf)
 {
   std::vector<Vec3f> result(7);
   
-  FCL_REAL hl = cone.lz * 0.5;
+  FCL_REAL hl = cone.halfLength;
   FCL_REAL r2 = cone.radius * 2 / sqrt(3.0);
   FCL_REAL a = 0.5 * r2;
   FCL_REAL b = cone.radius;
@@ -173,7 +174,7 @@ std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f&
 {
   std::vector<Vec3f> result(12);
 
-  FCL_REAL hl = cylinder.lz * 0.5;
+  FCL_REAL hl = cylinder.halfLength;
   FCL_REAL r2 = cylinder.radius * 2 / sqrt(3.0);
   FCL_REAL a = 0.5 * r2;
   FCL_REAL b = cylinder.radius;
@@ -195,7 +196,7 @@ std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f&
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Convex& convex, const Transform3f& tf)
+std::vector<Vec3f> getBoundVertices(const ConvexBase& convex, const Transform3f& tf)
 {
   std::vector<Vec3f> result(convex.num_points);
   for(int i = 0; i < convex.num_points; ++i)
@@ -226,7 +227,7 @@ Halfspace transform(const Halfspace& a, const Transform3f& tf)
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vec3f n = tf.getQuatRotation() * a.n;
+  Vec3f n = tf.getRotation() * a.n;
   FCL_REAL d = a.d + n.dot(tf.getTranslation());
 
   return Halfspace(n, d);
@@ -241,7 +242,7 @@ Plane transform(const Plane& a, const Transform3f& tf)
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vec3f n = tf.getQuatRotation() * a.n;
+  Vec3f n = tf.getRotation() * a.n;
   FCL_REAL d = a.d + n.dot(tf.getTranslation());
 
   return Plane(n, d);
@@ -255,7 +256,7 @@ void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  Vec3f v_delta (0.5 * R.cwiseAbs() * s.side);
+  Vec3f v_delta (R.cwiseAbs() * s.halfSide);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
@@ -276,7 +277,7 @@ void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  Vec3f v_delta(0.5 * (R.col(2)*s.lz).cwiseAbs() + Vec3f::Constant(s.radius));
+  Vec3f v_delta(R.col(2).cwiseAbs() * s.halfLength + Vec3f::Constant(s.radius));
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
@@ -287,9 +288,9 @@ void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
-  FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
-  FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
+  FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + fabs(R(0, 2) * s.halfLength);
+  FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + fabs(R(1, 2) * s.halfLength);
+  FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + fabs(R(2, 2) * s.halfLength);
 
   Vec3f v_delta(x_range, y_range, z_range);
   bv.max_ = T + v_delta;
@@ -302,9 +303,9 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& b
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
-  FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
-  FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
+  FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + fabs(R(0, 2) * s.halfLength);
+  FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + fabs(R(1, 2) * s.halfLength);
+  FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + fabs(R(2, 2) * s.halfLength);
 
   Vec3f v_delta(x_range, y_range, z_range);
   bv.max_ = T + v_delta;
@@ -312,7 +313,7 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& b
 }
 
 template<>
-void computeBV<AABB, Convex>(const Convex& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -405,9 +406,9 @@ void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  bv.To.noalias() = T;
-  bv.axes.noalias() = R;
-  bv.extent = s.side * (FCL_REAL)0.5;
+  bv.To = T;
+  bv.axes = R;
+  bv.extent = s.halfSide;
 }
 
 template<>
@@ -428,7 +429,7 @@ void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
 
   bv.To.noalias() = T;
   bv.axes.noalias() = R;
-  bv.extent << s.radius, s.radius, s.lz / 2 + s.radius;
+  bv.extent << s.radius, s.radius, s.halfLength + s.radius;
 }
 
 template<>
@@ -439,7 +440,7 @@ void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
 
   bv.To.noalias() = T;
   bv.axes.noalias() = R;
-  bv.extent << s.radius, s.radius, s.lz / 2;
+  bv.extent << s.radius, s.radius, s.halfLength;
 }
 
 template<>
@@ -450,11 +451,11 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
 
   bv.To.noalias() = T;
   bv.axes.noalias() = R;
-  bv.extent << s.radius, s.radius, s.lz / 2;
+  bv.extent << s.radius, s.radius, s.halfLength;
 }
 
 template<>
-void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -481,7 +482,7 @@ void computeBV<RSS, Halfspace>(const Halfspace&, const Transform3f&, RSS& bv)
   /// Half space can only have very rough RSS
   bv.axes.setIdentity();
   bv.Tr.setZero();
-  bv.l[0] = bv.l[1] = bv.r = std::numeric_limits<FCL_REAL>::max();
+  bv.length[0] = bv.length[1] = bv.radius = std::numeric_limits<FCL_REAL>::max();
 }
 
 template<>
@@ -697,7 +698,7 @@ void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf, K
 template<>
 void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv)
 {
-  Vec3f n = tf.getQuatRotation() * s.n;
+  Vec3f n = tf.getRotation() * s.n;
   generateCoordinateSystem(n, bv.axes.col(1), bv.axes.col(2));
   bv.axes.col(0).noalias() = n;
 
@@ -710,15 +711,15 @@ void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv)
 template<>
 void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv)
 {
-  Vec3f n = tf.getQuatRotation() * s.n;
+  Vec3f n = tf.getRotation() * s.n;
 
   generateCoordinateSystem(n, bv.axes.col(1), bv.axes.col(2));
   bv.axes.col(0).noalias() = n;
 
-  bv.l[0] = std::numeric_limits<FCL_REAL>::max();
-  bv.l[1] = std::numeric_limits<FCL_REAL>::max();
+  bv.length[0] = std::numeric_limits<FCL_REAL>::max();
+  bv.length[1] = std::numeric_limits<FCL_REAL>::max();
 
-  bv.r = 0;
+  bv.radius = 0;
   
   Vec3f p = s.n * s.d;
   bv.Tr = tf.transform(p);

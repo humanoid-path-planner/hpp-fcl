@@ -40,19 +40,19 @@
 #include <limits>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#include "distance_func_matrix.h"
-#include "../src/narrowphase/details.h"
+#include <../src/distance_func_matrix.h>
+#include "narrowphase/details.h"
 
 namespace hpp
 {
 namespace fcl {
-    class GJKSolver_indep;
+    class GJKSolver;
 
   template <>
-  FCL_REAL ShapeShapeDistance <Capsule, Plane, GJKSolver_indep>
+  FCL_REAL ShapeShapeDistance <Capsule, Plane>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest&,
+   const GJKSolver*, const DistanceRequest&,
    DistanceResult& result)
   {
     const Capsule& s1 = static_cast <const Capsule&> (*o1);
@@ -65,10 +65,10 @@ namespace fcl {
   }
 
   template <>
-  FCL_REAL ShapeShapeDistance <Plane, Capsule, GJKSolver_indep>
+  FCL_REAL ShapeShapeDistance <Plane, Capsule>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver_indep*, const DistanceRequest&,
+   const GJKSolver*, const DistanceRequest&,
    DistanceResult& result)
   {
     const Plane& s1 = static_cast <const Plane&> (*o1);

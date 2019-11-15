@@ -38,43 +38,36 @@
 #ifndef HPP_FCL_MESH_LOADER_ASSIMP_H
 #define HPP_FCL_MESH_LOADER_ASSIMP_H
 
-// Assimp >= 5.0 is forcing the use of C++11 keywords. A fix has been submitted https://github.com/assimp/assimp/pull/2758.
-// The next lines fixes the bug for current version of hpp-fcl.
-#include <assimp/defs.h>
-#if __cplusplus < 201103L && defined(AI_NO_EXCEPT)
-  #undef AI_NO_EXCEPT
-  #define AI_NO_EXCEPT
-#endif
-
-#ifdef HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
-  #include <assimp/DefaultLogger.hpp>
-  #include <assimp/IOStream.hpp>
-  #include <assimp/IOSystem.hpp>
-  #include <assimp/scene.h>
-  #include <assimp/Importer.hpp>
-  #include <assimp/postprocess.h>
-#else
-  #include <assimp/DefaultLogger.h>
-  #include <assimp/assimp.hpp>
-  #include <assimp/IOStream.h>
-  #include <assimp/IOSystem.h>
-  #include <assimp/aiScene.h>
-  #include <assimp/aiPostProcess.h>
-#endif
-
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>
+
+class aiScene;
+namespace Assimp {
+  class Importer;
+}
 
 namespace hpp
 {
 namespace fcl
 {
-  
+
+namespace internal
+{
 
 struct TriangleAndVertices
 {
   std::vector <fcl::Vec3f> vertices_;
   std::vector <fcl::Triangle> triangles_;
+};
+
+struct Loader {
+  Loader ();
+  ~Loader ();
+
+  void load (const std::string& resource_path);
+
+  Assimp::Importer* importer;
+  aiScene const* scene;
 };
 
 /**
@@ -86,30 +79,25 @@ struct TriangleAndVertices
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-unsigned buildMesh (const fcl::Vec3f & scale,
-                    const aiScene* scene,
-                    const aiNode* node,
-                    unsigned vertices_offset,
-                    TriangleAndVertices & tv);
+void buildMesh (const fcl::Vec3f & scale,
+                const aiScene* scene,
+                unsigned vertices_offset,
+                TriangleAndVertices & tv);
 
 /**
  * @brief      Convert an assimp scene to a mesh
  *
- * @param[in]  name   File (ressource) transformed into an assimp scene in loa
  * @param[in]  scale  Scale to apply when reading the ressource
  * @param[in]  scene  Pointer to the assimp scene
  * @param[out] mesh  The mesh that must be built
  */
 template<class BoundingVolume>   
-inline void meshFromAssimpScene(const std::string & name,
+inline void meshFromAssimpScene(
                          const fcl::Vec3f & scale,
                          const aiScene* scene,
                          const boost::shared_ptr < BVHModel<BoundingVolume> > & mesh)
 {
   TriangleAndVertices tv;
-  
-  if (!scene->HasMeshes())
-    throw std::invalid_argument (std::string ("No meshes found in file ")+name);
   
   int res = mesh->beginModel ();
   
@@ -120,12 +108,13 @@ inline void meshFromAssimpScene(const std::string & name,
     throw std::runtime_error (error.str ());
   }
     
-  buildMesh (scale, scene, scene->mRootNode, 
-      (unsigned) mesh->num_vertices, tv);
+  buildMesh (scale, scene, (unsigned) mesh->num_vertices, tv);
   mesh->addSubModel (tv.vertices_, tv.triangles_);
     
   mesh->endModel ();
 }
+
+} // namespace internal
 
 /**
  * @brief      Read a mesh file and convert it to a polyhedral mesh
@@ -139,46 +128,13 @@ inline void loadPolyhedronFromResource (const std::string & resource_path,
                                  const fcl::Vec3f & scale,
                                  const boost::shared_ptr < BVHModel<BoundingVolume> > & polyhedron)
 {
-  Assimp::Importer importer;
-  // set list of ignored parameters (parameters used for rendering)
-  importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
-      aiComponent_TANGENTS_AND_BITANGENTS|
-      aiComponent_COLORS |
-      aiComponent_BONEWEIGHTS |
-      aiComponent_ANIMATIONS |
-      aiComponent_LIGHTS |
-      aiComponent_CAMERAS|
-      aiComponent_TEXTURES |
-      aiComponent_TEXCOORDS |
-      aiComponent_MATERIALS |
-      aiComponent_NORMALS
-      );
+  internal::Loader scene;
+  scene.load (resource_path);
 
-  const aiScene* scene = importer.ReadFile(resource_path.c_str(),
-      aiProcess_SortByPType |
-      aiProcess_Triangulate |
-      aiProcess_RemoveComponent |
-      aiProcess_ImproveCacheLocality |
-      // TODO: I (Joseph Mirabel) have no idea whether degenerated triangles are
-      // properly handled. Enabling aiProcess_FindDegenerates would throw an
-      // exception when that happens. Is it too conservative ?
-      // aiProcess_FindDegenerates |
-      aiProcess_JoinIdenticalVertices
-      );
-
-  if (!scene)
-  {
-    const std::string exception_message (std::string ("Could not load resource ") + resource_path + std::string("\n") +
-                                         importer.GetErrorString () + std::string("\n") +
-                                         "Hint: the mesh directory may be wrong.");
-    throw std::invalid_argument(exception_message);
-  }
-  
-  meshFromAssimpScene (resource_path, scale, scene, polyhedron);
+  internal::meshFromAssimpScene (scale, scene.scene, polyhedron);
 }
 
-}
-
+} // namespace fcl
 } // namespace hpp
 
-#endif // FCL_MESH_LOADER_ASSIMP_H
+#endif // HPP_FCL_MESH_LOADER_ASSIMP_H

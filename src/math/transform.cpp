@@ -44,36 +44,17 @@ namespace hpp
 namespace fcl
 {
 
-const Matrix3f& Transform3f::getRotationInternal() const
-{
-  if(!matrix_set)
-  {
-    R = q.toRotationMatrix();
-    matrix_set = true;
-  }
-
-  return R;
-}
-
-Transform3f inverse(const Transform3f& tf)
-{
-  Transform3f res(tf);
-  return res.inverse();
-}
-
 void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
                        Transform3f& tf)
 {
-  const Quaternion3f& q1_inv = tf1.getQuatRotation().conjugate();
-  tf = Transform3f(q1_inv * tf2.getQuatRotation(), q1_inv * (tf2.getTranslation() - tf1.getTranslation()));
+  tf = tf1.inverseTimes (tf2);
 }
 
 void relativeTransform2(const Transform3f& tf1, const Transform3f& tf2,
                        Transform3f& tf)
 {
-  const Quaternion3f& q1inv = tf1.getQuatRotation().conjugate();
-  const Quaternion3f& q2_q1inv = tf2.getQuatRotation() * q1inv;
-  tf = Transform3f(q2_q1inv, tf2.getTranslation() - q2_q1inv * tf1.getTranslation());
+  Matrix3f R (tf2.getRotation() * tf1.getRotation().transpose());
+  tf = Transform3f(R, tf2.getTranslation() - R * tf1.getTranslation());
 }
 
 

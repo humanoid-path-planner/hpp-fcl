@@ -36,7 +36,7 @@
 /** \author Jia Pan */
 
 
-#include <hpp/fcl/traversal/traversal_node_base.h>
+#include <hpp/fcl/internal/traversal_node_base.h>
 #include <limits>
 
 namespace hpp
@@ -97,7 +97,7 @@ DistanceTraversalNodeBase::~DistanceTraversalNodeBase()
 {
 }
 
-  FCL_REAL DistanceTraversalNodeBase::BVTesting(int /*b1*/, int /*b2*/) const
+  FCL_REAL DistanceTraversalNodeBase::BVDistanceLowerBound(int /*b1*/, int /*b2*/) const
 {
   return std::numeric_limits<FCL_REAL>::max();
 }

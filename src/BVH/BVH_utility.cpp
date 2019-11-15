@@ -45,80 +45,18 @@ namespace hpp
 namespace fcl
 {
 
-void BVHExpand(BVHModel<OBB>& model, const Variance3f* ucs, FCL_REAL r = 1.0)
-{
-  for(int i = 0; i < model.getNumBVs(); ++i)
-  {
-    BVNode<OBB>& bvnode = model.getBV(i);
-
-    Vec3f* vs = new Vec3f[bvnode.num_primitives * 6];
-
-    for(int j = 0; j < bvnode.num_primitives; ++j)
-    {
-      int v_id = bvnode.first_primitive + j;
-      const Variance3f& uc = ucs[v_id];
-
-      Vec3f&v = model.vertices[bvnode.first_primitive + j];
-
-      for(int k = 0; k < 3; ++k)
-      {
-        vs[6 * j + 2 * k] = v + uc.axis[k] * (r * uc.sigma[k]);
-        vs[6 * j + 2 * k + 1] = v - uc.axis[k] * (r * uc.sigma[k]);
-      }
-    }
-
-    OBB bv;
-    fit(vs, bvnode.num_primitives * 6, bv);
-
-    delete [] vs;
-
-    bvnode.bv = bv;
-  }
-}
-
-void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r = 1.0)
-{
-  for(int i = 0; i < model.getNumBVs(); ++i)
-  {
-    BVNode<RSS>& bvnode = model.getBV(i);
-
-    Vec3f* vs = new Vec3f[bvnode.num_primitives * 6];
-
-    for(int j = 0; j < bvnode.num_primitives; ++j)
-    {
-      int v_id = bvnode.first_primitive + j;
-      const Variance3f& uc = ucs[v_id];
-
-      Vec3f&v = model.vertices[bvnode.first_primitive + j];
-
-      for(int k = 0; k < 3; ++k)
-      {
-        vs[6 * j + 2 * k] = v + uc.axis[k] * (r * uc.sigma[k]);
-        vs[6 * j + 2 * k + 1] = v - uc.axis[k] * (r * uc.sigma[k]);
-      }
-    }
-
-    RSS bv;
-    fit(vs, bvnode.num_primitives * 6, bv);
-
-    delete [] vs;
-
-    bvnode.bv = bv;
-  }
-}
-
 template<typename BV>
 BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, const AABB& _aabb)
 {
   assert(model.getModelType() == BVH_MODEL_TRIANGLES);
-  const Quaternion3f& q = pose.getQuatRotation();
+  const Matrix3f& q = pose.getRotation();
   AABB aabb = translate (_aabb, - pose.getTranslation());
 
   Transform3f box_pose; Box box;
   constructBox(_aabb, box, box_pose);
   box_pose = pose.inverseTimes (box_pose);
 
-  GJKSolver_indep gjk;
+  GJKSolver gjk;
 
   // Check what triangles should be kept.
   // TODO use the BV hierarchy
@@ -280,7 +218,7 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, i
 }
 
 
-/** \brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin.
+/** @brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin.
  * The bounding volume axes are known.
  */
 void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Matrix3f& axes, Vec3f& origin, FCL_REAL l[2], FCL_REAL& r)
@@ -561,7 +499,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 }
 
 
-/** \brief Compute the bounding volume extent and center for a set or subset of points.
+/** @brief Compute the bounding volume extent and center for a set or subset of points.
  * The bounding volume axes are known.
  */
 static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f& axes, Vec3f& center, Vec3f& extent)
@@ -606,7 +544,7 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
 }
 
 
-/** \brief Compute the bounding volume extent and center for a set or subset of points.
+/** @brief Compute the bounding volume extent and center for a set or subset of points.
  * The bounding volume axes are known.
  */
 static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& axes, Vec3f& center, Vec3f& extent)

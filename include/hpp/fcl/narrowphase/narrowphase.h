@@ -50,7 +50,7 @@ namespace fcl
 
 
   /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
-  struct GJKSolver_indep
+  struct GJKSolver
   {
     /// @brief intersection checking between two shapes
     template<typename S1, typename S2>
@@ -62,10 +62,7 @@ namespace fcl
       if(enable_cached_guess) guess = cached_guess;
     
       details::MinkowskiDiff shape;
-      shape.shapes[0] = &s1;
-      shape.shapes[1] = &s2;
-      shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
-      shape.toshape0 = tf1.inverseTimes(tf2);
+      shape.set (&s1, &s2, tf1, tf2);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -79,12 +76,8 @@ namespace fcl
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
             if(epa_status != details::EPA::Failed)
               {
-                Vec3f w0 (Vec3f::Zero());
-                for(size_t i = 0; i < epa.result.rank; ++i)
-                  {
-                    w0 += shape.support(epa.result.vertex[i]->d, 0) *
-                      epa.result.coefficient[i];
-                  }
+                Vec3f w0, w1;
+                details::GJK::getClosestPoints (epa.result, w0, w1);
                 if(penetration_depth) *penetration_depth = -epa.depth;
                 if(normal) *normal = tf2.getRotation() * epa.normal;
                 if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
@@ -101,7 +94,7 @@ namespace fcl
     }
 
     //// @brief intersection checking between one shape and a triangle with transformation
-    /// \return true if the shape are colliding.
+    /// @return true if the shape are colliding.
     template<typename S>
     bool shapeTriangleInteraction
     (const S& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
@@ -109,16 +102,18 @@ namespace fcl
      Vec3f& p1, Vec3f& p2, Vec3f& normal) const
     {
       bool col;
-      TriangleP tri(P1, P2, P3);
+      // Express everything in frame 1
+      const Transform3f tf_1M2 (tf1.inverseTimes(tf2));
+      TriangleP tri(
+          tf_1M2.transform (P1),
+          tf_1M2.transform (P2),
+          tf_1M2.transform (P3));
 
       Vec3f guess(1, 0, 0);
       if(enable_cached_guess) guess = cached_guess;
 
       details::MinkowskiDiff shape;
-      shape.shapes[0] = &s;
-      shape.shapes[1] = &tri;
-      shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
-      shape.toshape0 = tf1.inverseTimes(tf2);
+      shape.set (&s, &tri);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -132,12 +127,8 @@ namespace fcl
             details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
             assert (epa_status != details::EPA::Failed); (void) epa_status;
-            Vec3f w0 (Vec3f::Zero());
-            for(size_t i = 0; i < epa.result.rank; ++i)
-              {
-                w0 += shape.support(epa.result.vertex[i]->d, 0) *
-                  epa.result.coefficient[i];
-              }
+            Vec3f w0, w1;
+            details::GJK::getClosestPoints (epa.result, w0, w1);
             distance = -epa.depth;
             normal = -epa.normal;
             p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
@@ -148,16 +139,15 @@ namespace fcl
         case details::GJK::Failed:
           {
             col = false;
-            Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-            for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-              {
-                FCL_REAL p = gjk.getSimplex()->coefficient[i];
-                w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-                w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
-              }
-            distance = (w0 - w1).norm();
-            p1 = tf1.transform (w0);
-            p2 = tf1.transform (w1);
+
+            details::GJK::getClosestPoints (*gjk.getSimplex(), p1, p2);
+            // TODO On degenerated case, the closest point may be wrong
+            // (i.e. an object face normal is colinear to gjk.ray
+            // assert (distance == (w0 - w1).norm());
+            distance = gjk.distance;
+
+            p1 = tf1.transform (p1);
+            p2 = tf1.transform (p2);
             assert (distance > 0);
           }
           break;
@@ -183,10 +173,7 @@ namespace fcl
       if(enable_cached_guess) guess = cached_guess;
 
       details::MinkowskiDiff shape;
-      shape.shapes[0] = &s1;
-      shape.shapes[1] = &s2;
-      shape.toshape1 = tf2.getRotation().transpose() * tf1.getRotation();
-      shape.toshape0 = tf1.inverseTimes(tf2);
+      shape.set (&s1, &s2, tf1, tf2);
 
       details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -196,13 +183,8 @@ namespace fcl
       {
         // TODO: understand why GJK fails between cylinder and box
         assert (distance * distance < sqrt (eps));
-        Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-        for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-        {
-          FCL_REAL p = gjk.getSimplex()->coefficient[i];
-          w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-          w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
-        }
+        Vec3f w0, w1;
+        details::GJK::getClosestPoints (*gjk.getSimplex(), w0, w1);
         distance = 0;
         p1 = p2 = tf1.transform (.5* (w0 + w1));
         normal = Vec3f (0,0,0);
@@ -210,18 +192,14 @@ namespace fcl
       }
       else if(gjk_status == details::GJK::Valid)
         {
-          Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-          for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-            {
-              FCL_REAL p = gjk.getSimplex()->coefficient[i];
-              w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-              w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
-            }
+          details::GJK::getClosestPoints (*gjk.getSimplex(), p1, p2);
+          // TODO On degenerated case, the closest point may be wrong
+          // (i.e. an object face normal is colinear to gjk.ray
+          // assert (distance == (w0 - w1).norm());
+          distance = gjk.distance;
 
-          distance = (w0 - w1).norm();
-
-          p1 = tf1.transform (w0);
-          p2 = tf1.transform (w1);
+          p1 = tf1.transform (p1);
+          p2 = tf1.transform (p2);
           return true;
         }
       else
@@ -234,12 +212,8 @@ namespace fcl
               details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
               if(epa_status != details::EPA::Failed)
                 {
-                  Vec3f w0 (Vec3f::Zero());
-                  for(size_t i = 0; i < epa.result.rank; ++i)
-                    {
-                      w0 += shape.support(epa.result.vertex[i]->d, 0) *
-                        epa.result.coefficient[i];
-                    }
+                  Vec3f w0, w1;
+                  details::GJK::getClosestPoints (epa.result, w0, w1);
                   assert (epa.depth >= -eps);
                   distance = std::min (0., -epa.depth);
                   normal = tf2.getRotation() * epa.normal;
@@ -248,24 +222,18 @@ namespace fcl
             }
           else
             {
-              Vec3f w0 (Vec3f::Zero()), w1 (Vec3f::Zero());
-              for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
-                {
-                  FCL_REAL p = gjk.getSimplex()->coefficient[i];
-                  w0 += shape.support(gjk.getSimplex()->vertex[i]->d, 0) * p;
-                  w1 += shape.support(-gjk.getSimplex()->vertex[i]->d, 1) * p;
-                }
+              details::GJK::getClosestPoints (*gjk.getSimplex(), p1, p2);
               distance = 0;
 
-              p1 = tf1.transform (w0);
-              p2 = tf1.transform (w1);
+              p1 = tf1.transform (p1);
+              p2 = tf1.transform (p2);
             }
           return false;
         }
     }
 
     /// @brief default setting for GJK algorithm
-    GJKSolver_indep()
+    GJKSolver()
     {
       gjk_max_iterations = 128;
       gjk_tolerance = 1e-6;
@@ -319,202 +287,202 @@ namespace fcl
 
   /// @brief Fast implementation for sphere-capsule collision
   template<>
-    bool GJKSolver_indep::shapeIntersect<Sphere, Capsule>(const Sphere& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Sphere, Capsule>(const Sphere& s1, const Transform3f& tf1,
                                                           const Capsule& s2, const Transform3f& tf2,
                                                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Capsule, Sphere>(const Capsule &s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Capsule, Sphere>(const Capsule &s1, const Transform3f& tf1,
                                                           const Sphere &s2, const Transform3f& tf2,
                                                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   /// @brief Fast implementation for sphere-sphere collision
   template<>
-    bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
                                                          const Sphere& s2, const Transform3f& tf2,
                                                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   /// @brief Fast implementation for box-box collision
   template<>
-    bool GJKSolver_indep::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
                                                    const Box& s2, const Transform3f& tf2,
                                                    Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Sphere, Halfspace>(const Sphere& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Sphere, Halfspace>(const Sphere& s1, const Transform3f& tf1,
                                                             const Halfspace& s2, const Transform3f& tf2,
                                                             Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Halfspace, Sphere>(const Halfspace& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Halfspace, Sphere>(const Halfspace& s1, const Transform3f& tf1,
                                                             const Sphere& s2, const Transform3f& tf2,
                                                             Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Box, Halfspace>(const Box& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Box, Halfspace>(const Box& s1, const Transform3f& tf1,
                                                          const Halfspace& s2, const Transform3f& tf2,
                                                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Halfspace, Box>(const Halfspace& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Halfspace, Box>(const Halfspace& s1, const Transform3f& tf1,
                                                          const Box& s2, const Transform3f& tf2,
                                                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Capsule, Halfspace>(const Capsule& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Capsule, Halfspace>(const Capsule& s1, const Transform3f& tf1,
                                                              const Halfspace& s2, const Transform3f& tf2,
                                                              Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Halfspace, Capsule>(const Halfspace& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Halfspace, Capsule>(const Halfspace& s1, const Transform3f& tf1,
                                                              const Capsule& s2, const Transform3f& tf2,
                                                              Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Cylinder, Halfspace>(const Cylinder& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Cylinder, Halfspace>(const Cylinder& s1, const Transform3f& tf1,
                                                               const Halfspace& s2, const Transform3f& tf2,
                                                               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Halfspace, Cylinder>(const Halfspace& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Halfspace, Cylinder>(const Halfspace& s1, const Transform3f& tf1,
                                                               const Cylinder& s2, const Transform3f& tf2,
                                                               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Cone, Halfspace>(const Cone& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Cone, Halfspace>(const Cone& s1, const Transform3f& tf1,
                                                           const Halfspace& s2, const Transform3f& tf2,
                                                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Halfspace, Cone>(const Halfspace& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Halfspace, Cone>(const Halfspace& s1, const Transform3f& tf1,
                                                           const Cone& s2, const Transform3f& tf2,
                                                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Halfspace, Halfspace>(const Halfspace& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Halfspace, Halfspace>(const Halfspace& s1, const Transform3f& tf1,
                                                                const Halfspace& s2, const Transform3f& tf2,
                                                                Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Plane, Halfspace>(const Plane& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Plane, Halfspace>(const Plane& s1, const Transform3f& tf1,
                                                            const Halfspace& s2, const Transform3f& tf2,
                                                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Halfspace, Plane>(const Halfspace& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Halfspace, Plane>(const Halfspace& s1, const Transform3f& tf1,
                                                            const Plane& s2, const Transform3f& tf2,
                                                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Sphere, Plane>(const Sphere& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Sphere, Plane>(const Sphere& s1, const Transform3f& tf1,
                                                         const Plane& s2, const Transform3f& tf2,
                                                         Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Plane, Sphere>(const Plane& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Plane, Sphere>(const Plane& s1, const Transform3f& tf1,
                                                         const Sphere& s2, const Transform3f& tf2,
                                                         Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Box, Plane>(const Box& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Box, Plane>(const Box& s1, const Transform3f& tf1,
                                                      const Plane& s2, const Transform3f& tf2,
                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Plane, Box>(const Plane& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Plane, Box>(const Plane& s1, const Transform3f& tf1,
                                                      const Box& s2, const Transform3f& tf2,
                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Capsule, Plane>(const Capsule& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Capsule, Plane>(const Capsule& s1, const Transform3f& tf1,
                                                          const Plane& s2, const Transform3f& tf2,
                                                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Plane, Capsule>(const Plane& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Plane, Capsule>(const Plane& s1, const Transform3f& tf1,
                                                          const Capsule& s2, const Transform3f& tf2,
                                                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Cylinder, Plane>(const Cylinder& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Cylinder, Plane>(const Cylinder& s1, const Transform3f& tf1,
                                                           const Plane& s2, const Transform3f& tf2,
                                                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Plane, Cylinder>(const Plane& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Plane, Cylinder>(const Plane& s1, const Transform3f& tf1,
                                                           const Cylinder& s2, const Transform3f& tf2,
                                                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Cone, Plane>(const Cone& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Cone, Plane>(const Cone& s1, const Transform3f& tf1,
                                                       const Plane& s2, const Transform3f& tf2,
                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Plane, Cone>(const Plane& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Plane, Cone>(const Plane& s1, const Transform3f& tf1,
                                                       const Cone& s2, const Transform3f& tf2,
                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeIntersect<Plane, Plane>(const Plane& s1, const Transform3f& tf1,
+    bool GJKSolver::shapeIntersect<Plane, Plane>(const Plane& s1, const Transform3f& tf1,
                                                        const Plane& s2, const Transform3f& tf2,
                                                        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
   /// @brief Fast implementation for sphere-triangle collision
   template<>
-    bool GJKSolver_indep::shapeTriangleInteraction
+    bool GJKSolver::shapeTriangleInteraction
     (const Sphere& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
      const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
      Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeTriangleInteraction
+    bool GJKSolver::shapeTriangleInteraction
     (const Halfspace& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
      const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
      Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeTriangleInteraction
+    bool GJKSolver::shapeTriangleInteraction
     (const Plane& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
      const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
      Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
   /// @brief Fast implementation for sphere-capsule distance
   template<>
-    bool GJKSolver_indep::shapeDistance<Sphere, Capsule>
+    bool GJKSolver::shapeDistance<Sphere, Capsule>
     (const Sphere& s1, const Transform3f& tf1,
      const Capsule& s2, const Transform3f& tf2,
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeDistance<Capsule, Sphere>
+    bool GJKSolver::shapeDistance<Capsule, Sphere>
     (const Capsule& s1, const Transform3f& tf1,
      const Sphere& s2, const Transform3f& tf2,
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
   /// @brief Fast implementation for sphere-cylinder distance
   template<>
-    bool GJKSolver_indep::shapeDistance<Sphere, Cylinder>
+    bool GJKSolver::shapeDistance<Sphere, Cylinder>
     (const Sphere& s1, const Transform3f& tf1,
      const Cylinder& s2, const Transform3f& tf2,
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
   template<>
-    bool GJKSolver_indep::shapeDistance<Cylinder, Sphere>
+    bool GJKSolver::shapeDistance<Cylinder, Sphere>
     (const Cylinder& s1, const Transform3f& tf1,
      const Sphere& s2, const Transform3f& tf2,
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
   /// @brief Fast implementation for sphere-sphere distance
   template<>
-    bool GJKSolver_indep::shapeDistance<Sphere, Sphere>
+    bool GJKSolver::shapeDistance<Sphere, Sphere>
     (const Sphere& s1, const Transform3f& tf1,
      const Sphere& s2, const Transform3f& tf2,
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
   // @brief Computation of the distance result for capsule capsule. Closest points are based on two line-segments.
   template<>
-    bool GJKSolver_indep::shapeDistance<Capsule, Capsule>
+    bool GJKSolver::shapeDistance<Capsule, Capsule>
     (const Capsule& s1, const Transform3f& tf1,
      const Capsule& s2, const Transform3f& tf2,
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
@@ -524,7 +492,7 @@ namespace fcl
   // Do not run EPA algorithm to compute penetration depth, use a dedicated
   // method.
   template<>
-    bool GJKSolver_indep::shapeDistance<TriangleP, TriangleP>
+    bool GJKSolver::shapeDistance<TriangleP, TriangleP>
     (const TriangleP& s1, const Transform3f& tf1,
      const TriangleP& s2, const Transform3f& tf2,
      FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;

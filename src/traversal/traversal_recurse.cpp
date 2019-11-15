@@ -36,7 +36,9 @@
 /** \author Jia Pan */
 
 
-#include <hpp/fcl/traversal/traversal_recurse.h>
+#include <hpp/fcl/internal/traversal_recurse.h>
+
+#include <vector>
 
 namespace hpp
 {
@@ -52,12 +54,12 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
   {
     updateFrontList(front_list, b1, b2);
 
-    if(node->BVTesting(b1, b2, sqrDistLowerBound)) return;
-    node->leafTesting(b1, b2, sqrDistLowerBound);
+   // if(node->BVDisjoints(b1, b2, sqrDistLowerBound)) return;
+    node->leafCollides(b1, b2, sqrDistLowerBound);
     return;
   }
 
-  if(node->BVTesting(b1, b2, sqrDistLowerBound)) {
+  if(node->BVDisjoints(b1, b2, sqrDistLowerBound)) {
     updateFrontList(front_list, b1, b2);
     return;
   }
@@ -89,18 +91,70 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
   }
 }
 
-  void collisionRecurse(MeshCollisionTraversalNodeOBB* /*node*/, int /*b1*/,
-                        int /*b2*/, const Matrix3f& /*R*/, const Vec3f& /*T*/,
-                        BVHFrontList* /*front_list*/)
+void collisionNonRecurse(CollisionTraversalNodeBase* node,
+		         BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)
 {
-  throw std::runtime_error ("Not implemented.");
-}
+  typedef std::pair<int, int> BVPair_t;
+  //typedef std::stack<BVPair_t, std::vector<BVPair_t> > Stack_t;
+  typedef std::vector<BVPair_t> Stack_t;
 
-  void collisionRecurse(MeshCollisionTraversalNodeRSS* /*node*/, int /*b1*/,
-                        int /*b2*/, const Matrix3f& /*R*/, const Vec3f& /*T*/,
-                        BVHFrontList* /*front_list*/)
-{
-  throw std::runtime_error ("Not implemented.");
+  Stack_t pairs;
+  pairs.reserve (1000);
+  sqrDistLowerBound = std::numeric_limits<FCL_REAL>::infinity();
+  FCL_REAL sdlb = std::numeric_limits<FCL_REAL>::infinity();
+
+  pairs.push_back (BVPair_t (0, 0));
+
+  while (!pairs.empty()) {
+    int a = pairs.back().first,
+        b = pairs.back().second;
+    pairs.pop_back();
+
+    bool la = node->isFirstNodeLeaf(a);
+    bool lb = node->isSecondNodeLeaf(b);
+
+    // Leaf / Leaf case
+    if (la && lb) {
+      updateFrontList(front_list, a, b);
+
+      // TODO should we test the BVs ?
+      //if(node->BVDijsoints(a, b, sdlb)) {
+        //if (sdlb < sqrDistLowerBound) sqrDistLowerBound = sdlb;
+        //continue;
+      //}
+      node->leafCollides(a, b, sdlb);
+      if (sdlb < sqrDistLowerBound) sqrDistLowerBound = sdlb;
+      if (node->canStop() && !front_list) return;
+      continue;
+    }
+
+    // TODO shouldn't we test the leaf triangle against BV is la != lb
+    // if (la && !lb) { // leaf triangle 1 against BV 2
+    // } else if (!la && lb) { // BV 1 against leaf triangle 2
+    // }
+
+    // Check the BV
+    if(node->BVDisjoints(a, b, sdlb)) {
+      if (sdlb < sqrDistLowerBound) sqrDistLowerBound = sdlb;
+      updateFrontList(front_list, a, b);
+      continue;
+    }
+
+    if(node->firstOverSecond(a, b))
+    {
+      int c1 = node->getFirstLeftChild(a);
+      int c2 = node->getFirstRightChild(a);
+      pairs.push_back (BVPair_t (c2, b));
+      pairs.push_back (BVPair_t (c1, b));
+    }
+    else
+    {
+      int c1 = node->getSecondLeftChild(b);
+      int c2 = node->getSecondRightChild(b);
+      pairs.push_back (BVPair_t (a, c2));
+      pairs.push_back (BVPair_t (a, c1));
+    }
+  }
 }
 
 /** Recurse function for self collision
@@ -115,7 +169,7 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
   {
     updateFrontList(front_list, b1, b2);
 
-    node->leafTesting(b1, b2);
+    node->leafComputeDistance(b1, b2);
     return;
   }
 
@@ -136,8 +190,8 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
     c2 = node->getSecondRightChild(b2);
   }
 
-  FCL_REAL d1 = node->BVTesting(a1, a2);
-  FCL_REAL d2 = node->BVTesting(c1, c2);
+  FCL_REAL d1 = node->BVDistanceLowerBound(a1, a2);
+  FCL_REAL d2 = node->BVDistanceLowerBound(c1, c2);
 
   if(d2 < d1)
   {
@@ -166,17 +220,17 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
 }
 
 
-/** \brief Bounding volume test structure */
+/** @brief Bounding volume test structure */
 struct BVT
 {
-  /** \brief distance between bvs */
+  /** @brief distance between bvs */
   FCL_REAL d;
 
-  /** \brief bv indices for a pair of bvs in two models */
+  /** @brief bv indices for a pair of bvs in two models */
   int b1, b2;
 };
 
-/** \brief Comparer between two BVT */
+/** @brief Comparer between two BVT */
 struct BVT_Comparer
 {
   bool operator() (const BVT& lhs, const BVT& rhs) const
@@ -221,7 +275,7 @@ struct BVTQ
 
   std::priority_queue<BVT, std::vector<BVT>, BVT_Comparer> pq;
 
-  /** \brief Queue size */
+  /** @brief Queue size */
   unsigned int qsize;
 };
 
@@ -244,7 +298,7 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
     {
       updateFrontList(front_list, min_test.b1, min_test.b2);
 
-      node->leafTesting(min_test.b1, min_test.b2);
+      node->leafComputeDistance(min_test.b1, min_test.b2);
     }
     else if(bvtq.full())
     {
@@ -263,11 +317,11 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
         int c2 = node->getFirstRightChild(min_test.b1);
         bvt1.b1 = c1;
         bvt1.b2 = min_test.b2;
-        bvt1.d = node->BVTesting(bvt1.b1, bvt1.b2);
+        bvt1.d = node->BVDistanceLowerBound(bvt1.b1, bvt1.b2);
 
         bvt2.b1 = c2;
         bvt2.b2 = min_test.b2;
-        bvt2.d = node->BVTesting(bvt2.b1, bvt2.b2);
+        bvt2.d = node->BVDistanceLowerBound(bvt2.b1, bvt2.b2);
       }
       else
       {
@@ -275,11 +329,11 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
         int c2 = node->getSecondRightChild(min_test.b2);
         bvt1.b1 = min_test.b1;
         bvt1.b2 = c1;
-        bvt1.d = node->BVTesting(bvt1.b1, bvt1.b2);
+        bvt1.d = node->BVDistanceLowerBound(bvt1.b1, bvt1.b2);
 
         bvt2.b1 = min_test.b1;
         bvt2.b2 = c2;
-        bvt2.d = node->BVTesting(bvt2.b1, bvt2.b2);
+        bvt2.d = node->BVDistanceLowerBound(bvt2.b1, bvt2.b2);
       }
 
       bvtq.push(bvt1);
@@ -324,11 +378,11 @@ void propagateBVHFrontListCollisionRecurse
     }
     else
     {
-      if(!node->BVTesting(b1, b2, sqrDistLowerBound)) {
+      if(!node->BVDisjoints(b1, b2, sqrDistLowerBound)) {
         front_iter->valid = false;
         if(node->firstOverSecond(b1, b2)) {
           int c1 = node->getFirstLeftChild(b1);
-          int c2 = node->getFirstRightChild(b2);
+          int c2 = node->getFirstRightChild(b1);
 
           collisionRecurse(node, c1, b2, front_list, sqrDistLowerBound1);
           collisionRecurse(node, c2, b2, front_list, sqrDistLowerBound2);

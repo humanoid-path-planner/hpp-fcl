@@ -40,7 +40,7 @@
 #include <boost/shared_ptr.hpp>
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/config.hh>
-#include <hpp/fcl/math/vec_3f.h>
+#include <hpp/fcl/data_types.h>
 #include <hpp/fcl/collision_object.h>
 
 namespace hpp
@@ -55,7 +55,7 @@ namespace fcl {
 
       /// \param bvType ignored
       /// \deprecated Use MeshLoader::load(const std::string&, const Vec3f&)
-      CollisionGeometryPtr_t load (const std::string& filename,
+      BVHModelPtr_t load (const std::string& filename,
           const Vec3f& scale,
           const NODE_TYPE& bvType) HPP_FCL_DEPRECATED
       {
@@ -63,7 +63,7 @@ namespace fcl {
         return load (filename, scale);
       }
 
-      virtual CollisionGeometryPtr_t load (const std::string& filename,
+      virtual BVHModelPtr_t load (const std::string& filename,
           const Vec3f& scale);
 
       MeshLoader (const NODE_TYPE& bvType = BV_OBBRSS) : bvType_ (bvType) {}
@@ -83,17 +83,7 @@ namespace fcl {
 
       CachedMeshLoader (const NODE_TYPE& bvType = BV_OBBRSS) : MeshLoader (bvType) {}
 
-      /// \param bvType ignored
-      /// \deprecated Use MeshLoader::load(const std::string&, const Vec3f&)
-      CollisionGeometryPtr_t load (const std::string& filename,
-          const Vec3f& scale,
-          const NODE_TYPE& bvType) HPP_FCL_DEPRECATED
-      {
-        (void) bvType;
-        return load(filename, scale);
-      }
-
-      virtual CollisionGeometryPtr_t load (const std::string& filename,
+      virtual BVHModelPtr_t load (const std::string& filename,
           const Vec3f& scale);
 
       struct Key {
@@ -105,7 +95,7 @@ namespace fcl {
 
         bool operator< (const CachedMeshLoader::Key& b) const;
       };
-      typedef std::map <Key, CollisionGeometryPtr_t> Cache_t;
+      typedef std::map <Key, BVHModelPtr_t> Cache_t;
 
       const Cache_t cache () const { return cache_; }
     private:
