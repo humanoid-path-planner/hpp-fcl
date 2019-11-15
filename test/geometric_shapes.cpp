@@ -47,6 +47,7 @@
 #include "utility.h"
 #include <iostream>
 #include <hpp/fcl/internal/tools.h>
+#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
 
 using namespace hpp::fcl;
 
@@ -187,6 +188,37 @@ void testShapeIntersection(const S1& s1, const Transform3f& tf1,
       compareContact(s1, tf1, s2, tf2, solver_type, contact.pos, expected_point, contact.penetration_depth, expected_depth, contact.normal, expected_normal, check_opposite_normal, tol);
     }
   }
+}
+
+BOOST_AUTO_TEST_CASE (box_to_bvh)
+{
+  Box shape (1,1,1);
+  BVHModel<OBB> bvh;
+  generateBVHModel (bvh, shape, Transform3f());
+}
+
+BOOST_AUTO_TEST_CASE (sphere_to_bvh)
+{
+  Sphere shape (1);
+  BVHModel<OBB> bvh;
+  generateBVHModel (bvh, shape, Transform3f(), 10, 10);
+  generateBVHModel (bvh, shape, Transform3f(), 50);
+}
+
+BOOST_AUTO_TEST_CASE (cylinder_to_bvh)
+{
+  Cylinder shape (1,1);
+  BVHModel<OBB> bvh;
+  generateBVHModel (bvh, shape, Transform3f(), 10, 10);
+  generateBVHModel (bvh, shape, Transform3f(), 50);
+}
+
+BOOST_AUTO_TEST_CASE (cone_to_bvh)
+{
+  Cone shape (1,1);
+  BVHModel<OBB> bvh;
+  generateBVHModel (bvh, shape, Transform3f(), 10, 10);
+  generateBVHModel (bvh, shape, Transform3f(), 50);
 }
 
 BOOST_AUTO_TEST_CASE (shapeIntersection_cylinderbox)
