@@ -37,12 +37,6 @@ class TestGeometricShapes(unittest.TestCase):
         self.assertEqual(box.halfSide[0],0.5)
         self.assertEqual(box.halfSide[1],1.0)
         self.assertEqual(box.halfSide[2],1.5)
-        box.halfSide[0] = 4.
-        box.halfSide[0] = 5.
-        box.halfSide[0] = 6.
-#         self.assertEqual(box.halfSide[0],4.)
-#         self.assertEqual(box.halfSide[1],5.)
-#         self.assertEqual(box.halfSide[2],6.)
 
     def test_sphere(self):
         sphere = hppfcl.Sphere(1.)
@@ -62,6 +56,10 @@ class TestGeometricShapes(unittest.TestCase):
         self.assertEqual(cylinder.getNodeType(), hppfcl.NODE_TYPE.GEOM_CYLINDER)
         self.assertEqual(cylinder.radius,1.)
         self.assertEqual(cylinder.halfLength,1.)
+        cylinder.radius = 3.
+        cylinder.halfLength = 4.
+        self.assertEqual(cylinder.radius,3.)
+        self.assertEqual(cylinder.halfLength,4.)
 
     def test_cone(self):
         cone = hppfcl.Cone(1.,2.)
