@@ -1,9 +1,10 @@
 import unittest
+from test_case import TestCase
 import hppfcl
 hppfcl.switchToNumpyMatrix()
 import numpy as np
 
-class TestGeometricShapes(unittest.TestCase):
+class TestGeometricShapes(TestCase):
 
     def test_capsule(self):
         capsule = hppfcl.Capsule(1.,2.)
@@ -17,6 +18,27 @@ class TestGeometricShapes(unittest.TestCase):
         capsule.halfLength = 4.
         self.assertEqual(capsule.radius,3.)
         self.assertEqual(capsule.halfLength,4.)
+        com = capsule.computeCOM()
+        self.assertApprox(com, np.zeros(3))
+        V = capsule.computeVolume()
+        V_cylinder = capsule.radius * capsule.radius * np.pi * 2. * capsule.halfLength
+        V_sphere = 4. * np.pi/3 * capsule.radius**3
+        V_ref = V_cylinder + V_sphere
+        self.assertApprox(V, V_ref)
+        I0 = capsule.computeMomentofInertia()
+        Iz_cylinder = V_cylinder * capsule.radius**2 / 2.
+        Iz_sphere = 0.4 * V_sphere * capsule.radius * capsule.radius
+        Iz_ref = Iz_cylinder + Iz_sphere
+        Ix_cylinder = V_cylinder*(3 * capsule.radius**2 + 4 * capsule.halfLength**2)/12.
+# TODO: check this code
+#        Ix_sphere = Iz_sphere + V_sphere*capsule.halfLength**2
+#        Ix_ref = Ix_cylinder + Ix_sphere
+#        print(Ix_cylinder)
+#        print(Ix_sphere) 
+#        I0_ref = np.diag([Ix_ref,Ix_ref,Iz_ref])
+#        self.assertApprox(I0.diagonal(), I0_ref.diagonal())
+#        Ic = capsule.computeMomentofInertiaRelatedToCOM()
+#        self.assertApprox(Ic, I0_ref)
 
     def test_box1(self):
         box = hppfcl.Box(np.matrix([1.,2.,3.]).T)
@@ -27,6 +49,22 @@ class TestGeometricShapes(unittest.TestCase):
         self.assertTrue(np.array_equal(box.halfSide,np.matrix([.5,1.,1.5]).T))
         box.halfSide = np.matrix([4.,5.,6.]).T
         self.assertTrue(np.array_equal(box.halfSide,np.matrix([4.,5.,6.]).T))
+        com = box.computeCOM()
+        self.assertApprox(com, np.zeros(3))
+        V = box.computeVolume()
+        x = float(2*box.halfSide[0])
+        y = float(2*box.halfSide[1])
+        z = float(2*box.halfSide[2])
+        V_ref = x * y * z
+        self.assertApprox(V, V_ref)
+        I0 = box.computeMomentofInertia()
+        Ix = V_ref * (y*y + z*z) / 12.
+        Iy = V_ref * (x*x + z*z) / 12.
+        Iz = V_ref * (y*y + x*x) / 12.
+        I0_ref = np.diag([Ix,Iy,Iz])
+        self.assertApprox(I0, I0_ref)
+        Ic = box.computeMomentofInertiaRelatedToCOM()
+        self.assertApprox(Ic, I0_ref) 
 
     def test_box2(self):
         box = hppfcl.Box(1.,2.,3)
@@ -37,16 +75,26 @@ class TestGeometricShapes(unittest.TestCase):
         self.assertEqual(box.halfSide[0],0.5)
         self.assertEqual(box.halfSide[1],1.0)
         self.assertEqual(box.halfSide[2],1.5)
-
+ 
     def test_sphere(self):
         sphere = hppfcl.Sphere(1.)
         self.assertIsInstance(sphere, hppfcl.Sphere)
         self.assertIsInstance(sphere, hppfcl.ShapeBase)
         self.assertIsInstance(sphere, hppfcl.CollisionGeometry)
         self.assertEqual(sphere.getNodeType(), hppfcl.NODE_TYPE.GEOM_SPHERE)
-        self.assertEqual(sphere.radius,1.)
+        self.assertEqual(sphere.radius, 1.)
         sphere.radius = 2.
-        self.assertEqual(sphere.radius,2.)
+        self.assertEqual(sphere.radius, 2.)
+        com = sphere.computeCOM()
+        self.assertApprox(com, np.zeros(3))
+        V = sphere.computeVolume()
+        V_ref = 4. * np.pi/3 * sphere.radius**3
+        self.assertApprox(V, V_ref)
+        I0 = sphere.computeMomentofInertia()
+        I0_ref = 0.4 * V_ref * sphere.radius * sphere.radius * np.identity(3)
+        self.assertApprox(I0, I0_ref)
+        Ic = sphere.computeMomentofInertiaRelatedToCOM()
+        self.assertApprox(Ic, I0_ref)
 
     def test_cylinder(self):
         cylinder = hppfcl.Cylinder(1.,2.)
@@ -60,6 +108,18 @@ class TestGeometricShapes(unittest.TestCase):
         cylinder.halfLength = 4.
         self.assertEqual(cylinder.radius,3.)
         self.assertEqual(cylinder.halfLength,4.)
+        com = cylinder.computeCOM()
+        self.assertApprox(com, np.zeros(3))
+        V = cylinder.computeVolume()
+        V_ref = cylinder.radius * cylinder.radius * np.pi * 2. * cylinder.halfLength
+        self.assertApprox(V, V_ref)
+        I0 = cylinder.computeMomentofInertia()
+        Ix_ref = V_ref*(3 * cylinder.radius**2 + 4 * cylinder.halfLength**2)/12.
+        Iz_ref = V_ref * cylinder.radius**2 / 2.
+        I0_ref = np.diag([Ix_ref,Ix_ref,Iz_ref])
+        self.assertApprox(I0, I0_ref)
+        Ic = cylinder.computeMomentofInertiaRelatedToCOM()
+        self.assertApprox(Ic, I0_ref)
 
     def test_cone(self):
         cone = hppfcl.Cone(1.,2.)
@@ -73,6 +133,20 @@ class TestGeometricShapes(unittest.TestCase):
         cone.halfLength = 4.
         self.assertEqual(cone.radius,3.)
         self.assertEqual(cone.halfLength,4.)
+        com = cone.computeCOM()
+        self.assertApprox(com, np.matrix([0.,0.,-0.5 * cone.halfLength]).T)
+        V = cone.computeVolume()
+        V_ref = np.pi * cone.radius**2 * 2. * cone.halfLength / 3.
+        self.assertApprox(V, V_ref)
+        I0 = cone.computeMomentofInertia()
+        Ix_ref = V_ref * (3./20. * cone.radius**2 + 0.4 * cone.halfLength**2)
+        Iz_ref = 0.3 * V_ref * cone.radius**2
+        I0_ref = np.diag([Ix_ref,Ix_ref,Iz_ref])
+        self.assertApprox(I0, I0_ref)
+        Ic = cone.computeMomentofInertiaRelatedToCOM()
+        Icx_ref = V_ref * 3./20. * (cone.radius**2 + cone.halfLength**2)
+        Ic_ref = np.diag([Icx_ref,Icx_ref,Iz_ref])
+        self.assertApprox(Ic, Ic_ref)
 
 if __name__ == '__main__':
     unittest.main()
