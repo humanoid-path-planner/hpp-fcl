@@ -30,15 +30,16 @@ class TestGeometricShapes(TestCase):
         Iz_sphere = 0.4 * V_sphere * capsule.radius * capsule.radius
         Iz_ref = Iz_cylinder + Iz_sphere
         Ix_cylinder = V_cylinder*(3 * capsule.radius**2 + 4 * capsule.halfLength**2)/12.
-# TODO: check this code
-#        Ix_sphere = Iz_sphere + V_sphere*capsule.halfLength**2
-#        Ix_ref = Ix_cylinder + Ix_sphere
-#        print(Ix_cylinder)
-#        print(Ix_sphere) 
-#        I0_ref = np.diag([Ix_ref,Ix_ref,Iz_ref])
-#        self.assertApprox(I0.diagonal(), I0_ref.diagonal())
-#        Ic = capsule.computeMomentofInertiaRelatedToCOM()
-#        self.assertApprox(Ic, I0_ref)
+        V_hemi = 0.5 * V_sphere                                          # volume of hemisphere
+        I0x_hemi = 0.5 * Iz_sphere                                       # inertia of hemisphere w.r.t. origin
+        com_hemi = 3. * capsule.radius / 8.                              # CoM of hemisphere w.r.t. origin
+        Icx_hemi = I0x_hemi - V_hemi * com_hemi * com_hemi               # inertia of hemisphere w.r.t. CoM
+        Ix_hemi = Icx_hemi + V_hemi * (capsule.halfLength + com_hemi)**2 # inertia of hemisphere w.r.t. tip of cylinder
+        Ix_ref = Ix_cylinder + 2*Ix_hemi                                 # total inertia of capsule
+        I0_ref = np.diag([Ix_ref,Ix_ref,Iz_ref])
+        self.assertApprox(I0, I0_ref)
+        Ic = capsule.computeMomentofInertiaRelatedToCOM()
+        self.assertApprox(Ic, I0_ref)
 
     def test_box1(self):
         box = hppfcl.Box(np.matrix([1.,2.,3.]).T)

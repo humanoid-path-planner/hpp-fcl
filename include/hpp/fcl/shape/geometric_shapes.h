@@ -178,7 +178,9 @@ public:
     FCL_REAL v_cyl = radius * radius * (halfLength * 2) * boost::math::constants::pi<FCL_REAL>();
     FCL_REAL v_sph = radius * radius * radius * boost::math::constants::pi<FCL_REAL>() * 4 / 3.0;
     
-    FCL_REAL ix = v_cyl * halfLength * halfLength / 3. + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + v_sph * halfLength * halfLength;
+    FCL_REAL h2 = halfLength * halfLength;
+    FCL_REAL r2 = radius * radius;
+    FCL_REAL ix = v_cyl * (h2 / 3. + r2 / 4.) + v_sph * (0.4 * r2 + h2 + 0.75 * radius * halfLength);
     FCL_REAL iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
 
     return (Matrix3f() << ix, 0, 0,
