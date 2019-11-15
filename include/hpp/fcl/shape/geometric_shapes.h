@@ -214,7 +214,6 @@ public:
     return boost::math::constants::pi<FCL_REAL>() * radius * radius * (halfLength * 2) / 3;
   }
 
-  /// \todo verify this formula as it seems different from https://en.wikipedia.org/wiki/List_of_moments_of_inertia#List_of_3D_inertia_tensors
   Matrix3f computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
