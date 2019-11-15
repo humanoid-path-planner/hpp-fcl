@@ -128,7 +128,7 @@ public:
   virtual Vec3f computeCOM() const { return Vec3f::Zero(); }
 
   /// @brief compute the inertia matrix, related to the origin
-  virtual Matrix3f computeMomentofInertia() const { return Matrix3f::Zero(); }
+  virtual Matrix3f computeMomentofInertia() const { return Matrix3f::Constant(NAN); }
 
   /// @brief compute the volume
   virtual FCL_REAL computeVolume() const { return 0; }
