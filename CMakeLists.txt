@@ -44,19 +44,10 @@ include(cmake/eigen.cmake)
 include(cmake/boost.cmake)
 include(cmake/python.cmake)
 include(cmake/hpp.cmake)
+include(cmake/apple.cmake)
 
-IF(APPLE)
-  SET(CMAKE_MACOSX_RPATH TRUE)
-  SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
-  SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-  SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-  if("${isSystemDir}" STREQUAL "-1")
-     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  endif("${isSystemDir}" STREQUAL "-1")
-ENDIF(APPLE)
+# If needed, fix CMake policy for APPLE systems
+APPLY_DEFAULT_APPLE_CONFIGURATION()
 
 OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" OFF)
 
