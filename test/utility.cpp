@@ -444,6 +444,15 @@ std::ostream& operator<< (std::ostream& os, const Transform3f& tf)
     << " ]" ;
 }
 
+std::size_t getNbRun (const int& argc, char const* const* argv, std::size_t defaultValue)
+{
+  for (int i = 0; i < argc; ++i)
+    if (strcmp(argv[i], "--nb-run") == 0)
+      if (i+1 != argc)
+        return (std::size_t)strtol(argv[i+1], NULL, 10);
+  return defaultValue;
+}
+
 }
 
 } // namespace hpp

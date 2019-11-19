@@ -120,7 +120,11 @@ void printResults (const Geometry& g1, const Geometry& g2, const Results& rs)
   std::cout << g1.type << sep << g2.type << sep << mean << sep << std::sqrt(var) << sep << rs.times.minCoeff() << sep << rs.times.maxCoeff() << std::endl;
 }
 
+#ifndef NDEBUG // if debug mode
+int Ntransform = 1;
+#else
 int Ntransform = 100;
+#endif
 FCL_REAL limit = 20;
 bool verbose = false;
 

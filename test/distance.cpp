@@ -51,6 +51,7 @@
 #include "fcl_resources/config.h"
 
 using namespace hpp::fcl;
+namespace utf = boost::unit_test::framework;
 
 bool verbose = false;
 FCL_REAL DELTA = 0.001;
@@ -96,7 +97,12 @@ BOOST_AUTO_TEST_CASE(mesh_distance)
 
   std::vector<Transform3f> transforms; // t0
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+#ifndef NDEBUG // if debug mode
+  std::size_t n = 1;
+#else
   std::size_t n = 10;
+#endif
+  n = getNbRun(utf::master_test_suite().argc, utf::master_test_suite().argv, n);
 
   generateRandomTransforms(extents, transforms, n);
 
@@ -323,8 +329,8 @@ BOOST_AUTO_TEST_CASE(mesh_distance)
 
   }
 
-  std::cout << "distance timing: " << dis_time << " sec" << std::endl;
-  std::cout << "collision timing: " << col_time << " sec" << std::endl;
+  BOOST_TEST_MESSAGE("distance timing: " << dis_time << " sec");
+  BOOST_TEST_MESSAGE("collision timing: " << col_time << " sec");
 }
 
 template<typename BV, typename TraversalNode>

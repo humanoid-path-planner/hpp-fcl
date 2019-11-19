@@ -45,6 +45,7 @@
 
 #include "../src/BV/OBB.h"
 #include "../src/distance_func_matrix.h"
+#include "utility.h"
 
 using namespace hpp::fcl;
 
@@ -1331,9 +1332,15 @@ std::size_t obb_overlap_and_lower_bound_distance(std::ostream* output)
   Vec3f T;
   CollisionRequest request;
 
+#ifndef NDEBUG // if debug mode
+  static const size_t nbRandomOBB       = 10;
+  static const size_t nbTransformPerOBB = 10;
+  static const size_t nbRunForTimeMeas  = 10;
+#else
   static const size_t nbRandomOBB       = 100;
   static const size_t nbTransformPerOBB = 100;
   static const size_t nbRunForTimeMeas  = 1000;
+#endif
   static const FCL_REAL extentNorm = 1.;
 
   if (output != NULL) *output << BenchmarkResult::headers << '\n';

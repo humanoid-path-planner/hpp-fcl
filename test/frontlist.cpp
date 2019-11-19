@@ -51,6 +51,7 @@
 #include <boost/filesystem.hpp>
 
 using namespace hpp::fcl;
+namespace utf = boost::unit_test::framework;
 
 template<typename BV>
 bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
@@ -84,11 +85,12 @@ BOOST_AUTO_TEST_CASE(front_list)
   std::vector<Transform3f> transforms2; // t1
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   FCL_REAL delta_trans[] = {1, 1, 1};
-#ifdef NDEBUG
-  std::size_t n = 20;
+#ifndef NDEBUG // if debug mode
+  std::size_t n = 2;
 #else
-  std::size_t n = 5;
+  std::size_t n = 20;
 #endif
+  n = getNbRun(utf::master_test_suite().argc, utf::master_test_suite().argv, n);
   bool verbose = false;
 
   generateRandomTransforms(extents, delta_trans, 0.005 * 2 * 3.1415, transforms, transforms2, n);
