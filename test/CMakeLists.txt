@@ -21,12 +21,12 @@ endmacro(add_fcl_test)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(utility STATIC utility.cpp)
-target_include_directories(utility SYSTEM PUBLIC
-  ${EIGEN3_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
-  $<$<BOOL:${HPP_FCL_HAVE_OCTOMAP}>:${OCTOMAP_INCLUDE_DIRS}>
-  )
+IF(RUN_TESTS)
+  add_library(utility STATIC utility.cpp)
+ELSE()
+  add_library(utility STATIC EXCLUDE_FROM_ALL utility.cpp)
+ENDIF()
+target_link_libraries(utility hpp-fcl)
 
 add_fcl_test(math math.cpp)
 

@@ -39,6 +39,11 @@ set(PROJECT_NAME hpp-fcl)
 set(PROJECT_DESCRIPTION
   "HPP fork of FCL -- The Flexible Collision Library"
   )
+SET(PROJECT_USE_CMAKE_EXPORT TRUE)
+
+# Do not support CMake older than 2.8.12
+CMAKE_POLICY(SET CMP0022 NEW)
+SET(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
 
 include(cmake/eigen.cmake)
 include(cmake/boost.cmake)
@@ -73,16 +78,11 @@ search_for_boost()
 # Optional dependencies
 add_optional_dependency("octomap >= 1.6")
 if (OCTOMAP_FOUND)
-  link_directories(${OCTOMAP_LIBRARY_DIRS})
   SET(HPP_FCL_HAVE_OCTOMAP TRUE)
-  add_definitions (-DHPP_FCL_HAVE_OCTOMAP)
   string(REPLACE "." ";" VERSION_LIST ${OCTOMAP_VERSION})
   list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
   list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
   list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
-  add_definitions (-DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION}
-                   -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION}
-                   -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION})
   message(STATUS "FCL uses Octomap")
 else()
   SET(HPP_FCL_HAVE_OCTOMAP FALSE)
