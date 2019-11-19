@@ -41,6 +41,10 @@ set(PROJECT_DESCRIPTION
   )
 SET(PROJECT_USE_CMAKE_EXPORT TRUE)
 
+# Do not support CMake older than 2.8.12
+CMAKE_POLICY(SET CMP0022 NEW)
+SET(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
+
 include(cmake/eigen.cmake)
 include(cmake/boost.cmake)
 include(cmake/python.cmake)

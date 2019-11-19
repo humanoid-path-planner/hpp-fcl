@@ -21,7 +21,11 @@ endmacro(add_fcl_test)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(utility STATIC utility.cpp)
+IF(RUN_TESTS)
+  add_library(utility STATIC utility.cpp)
+ELSE()
+  add_library(utility STATIC EXCLUDE_FROM_ALL utility.cpp)
+ENDIF()
 target_link_libraries(utility hpp-fcl)
 
 add_fcl_test(math math.cpp)
