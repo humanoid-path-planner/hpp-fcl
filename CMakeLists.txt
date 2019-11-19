@@ -55,7 +55,6 @@ COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
 add_required_dependency("eigen3 >= 3.0.0")
-include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
 
 # Add a cache variable to allow not compiling and running tests
 set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
@@ -74,7 +73,6 @@ search_for_boost()
 # Optional dependencies
 add_optional_dependency("octomap >= 1.6")
 if (OCTOMAP_FOUND)
-  include_directories(SYSTEM ${OCTOMAP_INCLUDE_DIRS})
   link_directories(${OCTOMAP_LIBRARY_DIRS})
   SET(HPP_FCL_HAVE_OCTOMAP TRUE)
   add_definitions (-DHPP_FCL_HAVE_OCTOMAP)
@@ -92,14 +90,6 @@ else()
 endif()
 
 ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
-if(ASSIMP_FOUND)
-  if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
-    add_definitions(-DHPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
-    message(STATUS "Assimp version has unified headers")
-  else()
-    message(STATUS "Assimp version does not have unified headers")
-  endif()
-endif()
 
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h
