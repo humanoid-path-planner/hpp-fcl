@@ -93,6 +93,18 @@ namespace fcl
       return false;
     }
 
+
+    /*template<>
+    bool shapeTriangleInteraction (const Box& b, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+    const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1,  Vec3f& p2, Vec3f& normal) const
+    {
+      bool col;
+
+
+      return col;
+    }*/
+
+
     //// @brief intersection checking between one shape and a triangle with transformation
     /// @return true if the shape are colliding.
     template<typename S>

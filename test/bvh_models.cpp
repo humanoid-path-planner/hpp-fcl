@@ -72,6 +72,11 @@ void testBVHModelPointCloud()
   }
 
   Box box;
+
+ // box.halfSide[0] = 0.2;
+ // box.halfSide[1] = 0.3;
+ // box.halfSide[2] = 0.8;
+
   double a = box.halfSide[0];
   double b = box.halfSide[1];
   double c = box.halfSide[2];
