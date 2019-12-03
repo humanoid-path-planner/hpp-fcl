@@ -67,7 +67,7 @@ set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
 # Required dependencies
 set(BOOST_COMPONENTS thread date_time system)
 if (RUN_TESTS)
-  set(BOOST_COMPONENTS ${BOOST_COMPONENTS} filesystem unit_test_framework)
+  set(BOOST_COMPONENTS ${BOOST_COMPONENTS} filesystem unit_test_framework chrono)
 endif ()
 if (BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
