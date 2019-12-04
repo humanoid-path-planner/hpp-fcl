@@ -59,6 +59,7 @@ include(cmake/python.cmake)
 include(cmake/hpp.cmake)
 include(cmake/apple.cmake)
 include(cmake/ide.cmake)
+include(cmake/test.cmake)
 
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
@@ -156,9 +157,7 @@ add_subdirectory(src)
 if (BUILD_PYTHON_INTERFACE)
   add_subdirectory(python)
 endif ()
-if (BUILD_TESTING)
-  add_subdirectory(test)
-endif ()
+add_subdirectory(test)
 
 pkg_config_append_libs("hpp-fcl")
 PKG_CONFIG_APPEND_BOOST_LIBS(thread date_time filesystem system)

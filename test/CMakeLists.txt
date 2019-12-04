@@ -1,16 +1,15 @@
 config_files(fcl_resources/config.h)
 
-macro(add_fcl_test test_name)
-  add_executable(${ARGV})
+macro(add_fcl_test test_name source)
+  ADD_UNIT_TEST(${test_name} ${source})
   target_link_libraries(${test_name}
     PUBLIC
-    ${PROJECT_NAME}
+    hpp-fcl
     ${Boost_LIBRARIES}
     Boost::unit_test_framework
     utility
     )
   PKG_CONFIG_USE_DEPENDENCY(${test_name} assimp)
-  add_test(${test_name} ${EXECUTABLE_OUTPUT_PATH}/${test_name})
   target_compile_options(${test_name} PRIVATE "-Wno-c99-extensions")
 endmacro(add_fcl_test)
 
@@ -54,7 +53,11 @@ if(HPP_FCL_HAVE_OCTOMAP)
 endif(HPP_FCL_HAVE_OCTOMAP)
 
 ## Benchmark
-add_executable(test-benchmark benchmark.cpp)
+IF(BUILD_TESTING)
+  add_executable(test-benchmark benchmark.cpp)
+ELSE()
+  add_executable(test-benchmark EXCLUDE_FROM_ALL benchmark.cpp)
+ENDIF()
 target_link_libraries(test-benchmark 
   PUBLIC 
   utility
