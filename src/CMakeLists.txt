@@ -82,8 +82,6 @@ set(${LIBRARY_NAME}_SOURCES
   mesh_loader/loader.cpp
   )
 
-# Declare boost include directories
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 add_library(${LIBRARY_NAME}
@@ -91,11 +89,30 @@ add_library(${LIBRARY_NAME}
   ${${LIBRARY_NAME}_SOURCES}
   )
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${Boost_LIBRARIES})
+
+target_include_directories(${LIBRARY_NAME} SYSTEM PUBLIC
+  ${EIGEN3_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  )
+
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} assimp)
+if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
+  target_compile_definitions(${LIBRARY_NAME} PRIVATE -DHPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
+  message(STATUS "Assimp version has unified headers")
+else()
+  message(STATUS "Assimp version does not have unified headers")
+endif()
 IF(OCTOMAP_FOUND)
   PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} octomap)
+  target_compile_definitions (${LIBRARY_NAME} PUBLIC
+    -DHPP_FCL_HAVE_OCTOMAP
+    -DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION}
+    -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION}
+    -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION})
 ENDIF(OCTOMAP_FOUND)
-#PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} flann)
 
-
-install(TARGETS ${LIBRARY_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+target_include_directories(${LIBRARY_NAME} PUBLIC
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+install(TARGETS ${LIBRARY_NAME}
+  EXPORT ${TARGETS_EXPORT_NAME}
+  DESTINATION ${CMAKE_INSTALL_LIBDIR})

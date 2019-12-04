@@ -63,6 +63,7 @@
 #include "fcl_resources/config.h"
 
 using namespace hpp::fcl;
+namespace utf = boost::unit_test::framework;
 
 int num_max_contacts = std::numeric_limits<int>::max();
 
@@ -587,7 +588,12 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
 {
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+#ifndef NDEBUG // if debug mode
+  std::size_t n = 1;
+#else
   std::size_t n = 10;
+#endif
+  n = getNbRun(utf::master_test_suite().argc, utf::master_test_suite().argv, n);
 
   generateRandomTransforms(extents, transforms, n);
 
@@ -609,7 +615,12 @@ BOOST_AUTO_TEST_CASE(mesh_mesh_benchmark)
 {
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+#ifndef NDEBUG
+  std::size_t n = 0;
+#else
   std::size_t n = 10;
+#endif
+  n = getNbRun(utf::master_test_suite().argc, utf::master_test_suite().argv, n);
 
   generateRandomTransforms(extents, transforms, n);
 

@@ -52,11 +52,11 @@ namespace fcl
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3f& pose)
 {
-  double a = shape.halfSide[0];
-  double b = shape.halfSide[1];
-  double c = shape.halfSide[2];
+  FCL_REAL a = shape.halfSide[0];
+  FCL_REAL b = shape.halfSide[1];
+  FCL_REAL c = shape.halfSide[2];
   std::vector<Vec3f> points(8);
-  Triangle tri_indices[12];
+  std::vector<Triangle> tri_indices(12);
   points[0] = Vec3f ( a, -b,  c);
   points[1] = Vec3f ( a,  b,  c);
   points[2] = Vec3f (-a,  b,  c);
@@ -97,19 +97,19 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
 
-  double r = shape.radius;
-  double phi, phid;
-  const double pi = boost::math::constants::pi<double>();
+  FCL_REAL r = shape.radius;
+  FCL_REAL phi, phid;
+  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
   phid = pi * 2 / seg;
   phi = 0;
 
-  double theta, thetad;
+  FCL_REAL theta, thetad;
   thetad = pi / (ring + 1);
   theta = 0;
 
   for(unsigned int i = 0; i < ring; ++i)
   {
-    double theta_ = theta + thetad * (i + 1);
+    FCL_REAL theta_ = theta + thetad * (i + 1);
     for(unsigned int j = 0; j < seg; ++j)
     {
       points.push_back(Vec3f(r * sin(theta_) * cos(phi + j * phid), r * sin(theta_) * sin(phi + j * phid), r * cos(theta_)));
@@ -161,10 +161,10 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3f& pose, unsigned int n_faces_for_unit_sphere)
 {
-  double r = shape.radius;
-  double n_low_bound = sqrtf(n_faces_for_unit_sphere / 2.0) * r * r;
-  unsigned int ring = ceil(n_low_bound);
-  unsigned int seg = ceil(n_low_bound);
+  FCL_REAL r = shape.radius;
+  FCL_REAL n_low_bound = std::sqrt((FCL_REAL)n_faces_for_unit_sphere / FCL_REAL(2.)) * r * r;
+  unsigned int ring = (unsigned int) ceil(n_low_bound);
+  unsigned int seg = (unsigned int) ceil(n_low_bound);
 
   generateBVHModel(model, shape, pose, seg, ring);  
 }
@@ -177,31 +177,31 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transfor
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
 
-  double r = shape.radius;
-  double h = shape.lz;
-  double phi, phid;
-  const double pi = boost::math::constants::pi<double>();
+  FCL_REAL r = shape.radius;
+  FCL_REAL h = shape.halfLength;
+  FCL_REAL phi, phid;
+  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
   phid = pi * 2 / tot;
   phi = 0;
 
-  double hd = h / h_num;
+  FCL_REAL hd = 2 * h / h_num;
 
   for(unsigned int i = 0; i < tot; ++i)
-    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), h / 2));
+    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), h));
 
   for(unsigned int i = 0; i < h_num - 1; ++i)
   {
     for(unsigned int j = 0; j < tot; ++j)
     {
-      points.push_back(Vec3f(r * cos(phi + phid * j), r * sin(phi + phid * j), h / 2 - (i + 1) * hd));
+      points.push_back(Vec3f(r * cos(phi + phid * j), r * sin(phi + phid * j), h - (i + 1) * hd));
     }
   }
 
   for(unsigned int i = 0; i < tot; ++i)
-    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2));
+    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), - h));
 
-  points.push_back(Vec3f(0, 0, h / 2));
-  points.push_back(Vec3f(0, 0, -h / 2));
+  points.push_back(Vec3f(0, 0, h));
+  points.push_back(Vec3f(0, 0, -h));
 
   for(unsigned int i = 0; i < tot; ++i)
   {
@@ -248,15 +248,15 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transfor
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transform3f& pose, unsigned int tot_for_unit_cylinder)
 {
-  double r = shape.radius;
-  double h = shape.lz;
+  FCL_REAL r = shape.radius;
+  FCL_REAL h = 2 * shape.halfLength;
 
-  const double pi = boost::math::constants::pi<double>();
-  unsigned int tot = tot_for_unit_cylinder * r;
-  double phid = pi * 2 / tot;
+  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+  unsigned int tot = (unsigned int)(tot_for_unit_cylinder * r);
+  FCL_REAL phid = pi * 2 / tot;
 
-  double circle_edge = phid * r;
-  unsigned int h_num = ceil(h / circle_edge);
+  FCL_REAL circle_edge = phid * r;
+  unsigned int h_num = (unsigned int)ceil(h / circle_edge);
   
   generateBVHModel(model, shape, pose, tot, h_num);
 }
@@ -269,20 +269,20 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
 
-  double r = shape.radius;
-  double h = shape.lz;
+  FCL_REAL r = shape.radius;
+  FCL_REAL h = shape.halfLength;
 
-  double phi, phid;
-  const double pi = boost::math::constants::pi<double>();
+  FCL_REAL phi, phid;
+  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
   phid = pi * 2 / tot;
   phi = 0;
 
-  double hd = h / h_num;
+  FCL_REAL hd = 2 * h / h_num;
 
   for(unsigned int i = 0; i < h_num - 1; ++i)
   {
-    double h_i = h / 2 - (i + 1) * hd;
-    double rh = r * (0.5 - h_i / h);
+    FCL_REAL h_i = h - (i + 1) * hd;
+    FCL_REAL rh = r * (0.5 - h_i / h / 2);
     for(unsigned int j = 0; j < tot; ++j)
     {
       points.push_back(Vec3f(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i));
@@ -290,10 +290,10 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
   }
 
   for(unsigned int i = 0; i < tot; ++i)
-    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2));
+    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), - h));
 
-  points.push_back(Vec3f(0, 0, h / 2));
-  points.push_back(Vec3f(0, 0, -h / 2));
+  points.push_back(Vec3f(0, 0, h));
+  points.push_back(Vec3f(0, 0, -h));
 
   for(unsigned int i = 0; i < tot; ++i)
   {
@@ -340,15 +340,15 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f& pose, unsigned int tot_for_unit_cone)
 {
-  double r = shape.radius;
-  double h = shape.lz;
+  FCL_REAL r = shape.radius;
+  FCL_REAL h = 2 * shape.halfLength;
 
-  const double pi = boost::math::constants::pi<double>();
-  unsigned int tot = tot_for_unit_cone * r;
-  double phid = pi * 2 / tot;
+  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+  unsigned int tot = (unsigned int)(tot_for_unit_cone * r);
+  FCL_REAL phid = pi * 2 / tot;
 
-  double circle_edge = phid * r;
-  unsigned int h_num = ceil(h / circle_edge);
+  FCL_REAL circle_edge = phid * r;
+  unsigned int h_num = (unsigned int)ceil(h / circle_edge);
 
   generateBVHModel(model, shape, pose, tot, h_num);
 }

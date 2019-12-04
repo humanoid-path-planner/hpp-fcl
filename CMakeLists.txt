@@ -39,33 +39,27 @@ set(PROJECT_NAME hpp-fcl)
 set(PROJECT_DESCRIPTION
   "HPP fork of FCL -- The Flexible Collision Library"
   )
+SET(PROJECT_USE_CMAKE_EXPORT TRUE)
+
+# Do not support CMake older than 2.8.12
+CMAKE_POLICY(SET CMP0022 NEW)
+SET(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
 
 include(cmake/eigen.cmake)
 include(cmake/boost.cmake)
 include(cmake/python.cmake)
 include(cmake/hpp.cmake)
+include(cmake/apple.cmake)
 
-IF(APPLE)
-  SET(CMAKE_MACOSX_RPATH TRUE)
-  SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
-  SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-  SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-  if("${isSystemDir}" STREQUAL "-1")
-     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  endif("${isSystemDir}" STREQUAL "-1")
-ENDIF(APPLE)
+# If needed, fix CMake policy for APPLE systems
+APPLY_DEFAULT_APPLE_CONFIGURATION()
 
 OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" OFF)
 
-# Tell CMake that we compute the PROJECT_VERSION manually.
-CMAKE_POLICY(SET CMP0048 OLD)
-project(${PROJECT_NAME} CXX)
+COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
+PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
 add_required_dependency("eigen3 >= 3.0.0")
-include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
 
 # Add a cache variable to allow not compiling and running tests
 set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
@@ -84,17 +78,11 @@ search_for_boost()
 # Optional dependencies
 add_optional_dependency("octomap >= 1.6")
 if (OCTOMAP_FOUND)
-  include_directories(SYSTEM ${OCTOMAP_INCLUDE_DIRS})
-  link_directories(${OCTOMAP_LIBRARY_DIRS})
   SET(HPP_FCL_HAVE_OCTOMAP TRUE)
-  add_definitions (-DHPP_FCL_HAVE_OCTOMAP)
   string(REPLACE "." ";" VERSION_LIST ${OCTOMAP_VERSION})
   list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
   list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
   list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
-  add_definitions (-DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION}
-                   -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION}
-                   -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION})
   message(STATUS "FCL uses Octomap")
 else()
   SET(HPP_FCL_HAVE_OCTOMAP FALSE)
@@ -102,14 +90,6 @@ else()
 endif()
 
 ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
-if(ASSIMP_FOUND)
-  if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
-    add_definitions(-DHPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
-    message(STATUS "Assimp version has unified headers")
-  else()
-    message(STATUS "Assimp version does not have unified headers")
-  endif()
-endif()
 
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h

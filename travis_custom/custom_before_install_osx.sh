@@ -1,3 +1,5 @@
+brew update
+
 # Add gepetto tap
 brew tap gepetto/homebrew-gepetto
 

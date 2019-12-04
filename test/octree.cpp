@@ -49,6 +49,8 @@
 #include "utility.h"
 #include "fcl_resources/config.h"
 
+namespace utf = boost::unit_test::framework;
+
 using hpp::fcl::Vec3f;
 using hpp::fcl::Triangle;
 using hpp::fcl::OBBRSS;
@@ -136,7 +138,12 @@ BOOST_AUTO_TEST_CASE (OCTREE)
 
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-2000, -2000, 0, 2000, 2000, 2000};
+#ifndef NDEBUG // if debug mode
+  std::size_t N = 100;
+#else
   std::size_t N = 10000;
+#endif
+  N = hpp::fcl::getNbRun(utf::master_test_suite().argc, utf::master_test_suite().argv, N);
 
   generateRandomTransforms(extents, transforms, 2*N);
 
