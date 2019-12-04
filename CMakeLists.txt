@@ -75,11 +75,11 @@ if (BUILD_PYTHON_INTERFACE)
 endif ()
 
 # Add a cache variable to allow not compiling and running tests
-set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
+set (BUILD_TESTING TRUE CACHE BOOL "compile and run unit tests")
 
 # Required dependencies
 set(BOOST_COMPONENTS thread date_time system)
-if (RUN_TESTS)
+if (BUILD_TESTING)
   set(BOOST_COMPONENTS ${BOOST_COMPONENTS} filesystem unit_test_framework chrono)
 endif ()
 if (BUILD_PYTHON_INTERFACE)
@@ -156,7 +156,7 @@ add_subdirectory(src)
 if (BUILD_PYTHON_INTERFACE)
   add_subdirectory(python)
 endif ()
-if (RUN_TESTS)
+if (BUILD_TESTING)
   add_subdirectory(test)
 endif ()
 

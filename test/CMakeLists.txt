@@ -16,7 +16,7 @@ endmacro(add_fcl_test)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-IF(RUN_TESTS)
+IF(BUILD_TESTING)
   add_library(utility STATIC utility.cpp)
 ELSE()
   add_library(utility STATIC EXCLUDE_FROM_ALL utility.cpp)
