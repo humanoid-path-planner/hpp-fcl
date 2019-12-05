@@ -1,14 +1,5 @@
 config_files(fcl_resources/config.h)
 
-macro(add_fcl_template_test test_name)
-  add_executable(${ARGV})
-  target_link_libraries(${test_name}
-    PUBLIC
-    Boost::unit_test_framework
-    )
-  add_test(${test_name} ${EXECUTABLE_OUTPUT_PATH}/${test_name})
-endmacro(add_fcl_template_test)
-
 macro(add_fcl_test test_name)
   add_executable(${ARGV})
   target_link_libraries(${test_name}
