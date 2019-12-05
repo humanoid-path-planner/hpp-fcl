@@ -93,15 +93,15 @@ public:
   }
 
   /// @brief whether the object is completely occupied
-  inline bool isOccupied() const HPP_FCL_DEPRECATED
+  inline bool isOccupied() const
   { return cost_density >= threshold_occupied; }
 
   /// @brief whether the object is completely free
-  inline bool isFree() const HPP_FCL_DEPRECATED
+  inline bool isFree() const
   { return cost_density <= threshold_free; }
 
   /// @brief whether the object has some uncertainty
-  bool isUncertain() const HPP_FCL_DEPRECATED;
+  bool isUncertain() const;
 
   /// @brief AABB center in local coordinate
   Vec3f aabb_center;

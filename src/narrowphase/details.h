@@ -151,6 +151,7 @@ namespace fcl {
       Vec3f S (tf1.getTranslation ());
       // axis of the cylinder
       Vec3f u (tf2.getRotation ().col (2));
+      /// @todo a tiny performance improvement could be achieved using the abscissa with S as the origin
       assert ((B - A - (s2.halfLength * 2) * u).norm () < eps);
       Vec3f AS (S - A);
       // abscissa of S on cylinder axis with A as the origin

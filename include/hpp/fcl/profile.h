@@ -86,8 +86,8 @@ inline point now(void)
 /// @brief Return the time duration representing a given number of seconds
 inline duration seconds(double sec)
 {
-  long s  = (long)sec;
-  long us = (long)((sec - s) * 1000000);
+  long int s  = static_cast<long int>(sec);
+  long int us = ((static_cast<long int>(sec) - s) * 1000000);
   return boost::posix_time::seconds(s) + boost::posix_time::microseconds(us);
 }
 

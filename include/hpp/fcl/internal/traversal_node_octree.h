@@ -333,7 +333,7 @@ private:
             if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
             {
               if(cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(tree1, &s, root1 - tree1->getRoot(), Contact::NONE));
+                cresult->addContact(Contact(tree1, &s, static_cast<int>(root1 - tree1->getRoot()), Contact::NONE));
             }
           }
           else
@@ -345,7 +345,7 @@ private:
             if(solver->shapeIntersect(box, box_tf, s, tf2, &contact, &depth, &normal))
             {
               if(cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(tree1, &s, root1 - tree1->getRoot(), Contact::NONE, contact, normal, depth));
+                cresult->addContact(Contact(tree1, &s, static_cast<int>(root1 - tree1->getRoot()), Contact::NONE, contact, normal, depth));
             }
           }
 
@@ -808,7 +808,7 @@ private:
           if(obb1.overlap(obb2))
           {
             if(cresult->numContacts() < crequest->num_max_contacts)
-              cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot()));
+              cresult->addContact(Contact(tree1, tree2, static_cast<int>(root1 - tree1->getRoot()), static_cast<int>(root2 - tree2->getRoot())));
           }
         }
         else
@@ -824,7 +824,7 @@ private:
           if(solver->shapeIntersect(box1, box1_tf, box2, box2_tf, &contact, &depth, &normal))
           {
             if(cresult->numContacts() < crequest->num_max_contacts)
-              cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), contact, normal, depth));
+              cresult->addContact(Contact(tree1, tree2, static_cast<int>(root1 - tree1->getRoot()), static_cast<int>(root2 - tree2->getRoot()), contact, normal, depth));
           }
         }
 
