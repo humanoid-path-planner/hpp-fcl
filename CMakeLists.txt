@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2014 CNRS-LAAS
+#  Copyright (c) 2014-2019 CNRS-LAAS, INRIA
 #  Author: Florent Lamiraux, Joseph Mirabel
 #  All rights reserved.
 #
@@ -44,6 +44,11 @@ SET(PROJECT_USE_CMAKE_EXPORT TRUE)
 # Do not support CMake older than 2.8.12
 CMAKE_POLICY(SET CMP0022 NEW)
 SET(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
+
+# Check if the submodule cmake have been initialized
+IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake/base.cmake")
+  MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")
+ENDIF()
 
 include(cmake/eigen.cmake)
 include(cmake/boost.cmake)
