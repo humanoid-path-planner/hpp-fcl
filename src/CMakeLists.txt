@@ -89,14 +89,14 @@ add_library(${LIBRARY_NAME}
 
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME} 
   PUBLIC 
-  ${Boost_thread_LIBRARY}
-  ${Boost_date_time_LIBRARY}
-  ${Boost_system_LIBRARY})
+  Boost::thread
+  Boost::date_time
+  Boost::system
+  )
 
 target_include_directories(${LIBRARY_NAME} 
   SYSTEM PUBLIC
   ${EIGEN3_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
   )
 
 target_include_directories(${LIBRARY_NAME} 
