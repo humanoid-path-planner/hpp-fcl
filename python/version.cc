@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 CNRS
+// Copyright (c) 2019 CNRS INRIA
 //
 
 #include "hpp/fcl/config.hh"
@@ -28,6 +28,7 @@ void exposeVersion()
   bp::scope().attr("__version__") = BOOST_PP_STRINGIZE(HPP_FCL_MAJOR_VERSION) "."
     BOOST_PP_STRINGIZE(HPP_FCL_MINOR_VERSION) "."
     BOOST_PP_STRINGIZE(HPP_FCL_PATCH_VERSION);
+  bp::scope().attr("__raw_version__") = HPP_FCL_VERSION;
   bp::scope().attr("HPP_FCL_MAJOR_VERSION") = HPP_FCL_MAJOR_VERSION;
   bp::scope().attr("HPP_FCL_MINOR_VERSION") = HPP_FCL_MINOR_VERSION;
   bp::scope().attr("HPP_FCL_PATCH_VERSION") = HPP_FCL_PATCH_VERSION;
