@@ -72,7 +72,6 @@ void testBVHModelPointCloud()
   }
 
   Box box;
-
   double a = box.halfSide[0];
   double b = box.halfSide[1];
   double c = box.halfSide[2];
@@ -202,6 +201,7 @@ void testBVHModelSubModel()
 {
   boost::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
   Box box;
+
   double a = box.halfSide[0];
   double b = box.halfSide[1];
   double c = box.halfSide[2];
