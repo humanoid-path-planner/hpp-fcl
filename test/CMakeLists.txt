@@ -11,6 +11,7 @@ endmacro(add_fcl_template_test)
 macro(add_fcl_test test_name)
   add_executable(${ARGV})
   target_link_libraries(${test_name}
+    PUBLIC
     hpp-fcl
     ${Boost_LIBRARIES}
     utility
