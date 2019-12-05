@@ -31,4 +31,5 @@
 #  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
 
-from hppfcl import *
+from .hppfcl import *
+from .hppfcl import __version__, __raw_version__
