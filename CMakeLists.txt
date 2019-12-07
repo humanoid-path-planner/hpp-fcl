@@ -55,6 +55,7 @@ include(cmake/boost.cmake)
 include(cmake/python.cmake)
 include(cmake/hpp.cmake)
 include(cmake/apple.cmake)
+include(cmake/ide.cmake)
 
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
