@@ -1,18 +1,12 @@
 config_files(fcl_resources/config.h)
 
-macro(add_fcl_template_test test_name)
-  add_executable(${ARGV})
-  target_link_libraries(${test_name}
-    ${Boost_LIBRARIES}
-    )
-  add_test(${test_name} ${EXECUTABLE_OUTPUT_PATH}/${test_name})
-endmacro(add_fcl_template_test)
-
 macro(add_fcl_test test_name)
   add_executable(${ARGV})
   target_link_libraries(${test_name}
-    hpp-fcl
+    PUBLIC
+    ${PROJECT_NAME}
     ${Boost_LIBRARIES}
+    Boost::unit_test_framework
     utility
     )
   PKG_CONFIG_USE_DEPENDENCY(${test_name} assimp)
@@ -26,7 +20,7 @@ IF(RUN_TESTS)
 ELSE()
   add_library(utility STATIC EXCLUDE_FROM_ALL utility.cpp)
 ENDIF()
-target_link_libraries(utility hpp-fcl)
+target_link_libraries(utility PUBLIC ${PROJECT_NAME})
 
 add_fcl_test(math math.cpp)
 
@@ -60,7 +54,13 @@ endif(HPP_FCL_HAVE_OCTOMAP)
 
 ## Benchmark
 add_executable(test-benchmark benchmark.cpp)
-target_link_libraries(test-benchmark hpp-fcl ${Boost_LIBRARIES} utility)
+target_link_libraries(test-benchmark 
+  PUBLIC 
+  utility
+  Boost::chrono
+  Boost::filesystem
+  ${PROJECT_NAME} 
+  )
 
 ## Python tests
 IF(BUILD_PYTHON_INTERFACE)
