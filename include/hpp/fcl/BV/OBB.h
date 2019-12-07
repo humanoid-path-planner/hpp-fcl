@@ -44,7 +44,8 @@ namespace hpp
 {
 namespace fcl
 {
-  class CollisionRequest;
+
+struct CollisionRequest;
 
 /// @addtogroup Bounding_Volume
 /// @{
