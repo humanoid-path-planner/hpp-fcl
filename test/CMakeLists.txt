@@ -11,6 +11,7 @@ macro(add_fcl_test test_name)
     )
   PKG_CONFIG_USE_DEPENDENCY(${test_name} assimp)
   add_test(${test_name} ${EXECUTABLE_OUTPUT_PATH}/${test_name})
+  target_compile_options(${test_name} PRIVATE "-Wno-c99-extensions")
 endmacro(add_fcl_test)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
