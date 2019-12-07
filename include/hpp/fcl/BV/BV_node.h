@@ -111,7 +111,11 @@ struct BVNode : public BVNodeBase
   Vec3f getCenter() const { return bv.center(); }
 
   /// @brief Access the orientation of the BV
-  const Matrix3f& getOrientation() const { return Matrix3f::Identity(); }
+  const Matrix3f& getOrientation() const
+  {
+    static const Matrix3f id3 = Matrix3f::Identity();
+    return id3;
+  }
 };
 
 template<>
