@@ -242,7 +242,7 @@ public:
 template<typename Derived>
 inline Quaternion3f fromAxisAngle(const Eigen::MatrixBase<Derived>& axis, FCL_REAL angle)
 {
-  return Quaternion3f (Eigen::AngleAxis<double>(angle, axis));
+  return Quaternion3f (Eigen::AngleAxis<FCL_REAL>(angle, axis));
 }
 
 }
