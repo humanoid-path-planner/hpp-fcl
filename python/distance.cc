@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019 CNRS-LAAS
+//  Copyright (c) 2019 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -43,8 +43,6 @@
 using namespace boost::python;
 
 using namespace hpp::fcl;
-using boost::shared_ptr;
-using boost::noncopyable;
 
 struct DistanceRequestWrapper
 {
