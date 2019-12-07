@@ -107,10 +107,10 @@ struct BVNode : public BVNodeBase
     return bv.distance(other.bv, P1, P2);
   }
 
-  /// @brief Access the center of the BV
+  /// @brief Access to the center of the BV
   Vec3f getCenter() const { return bv.center(); }
 
-  /// @brief Access the orientation of the BV
+  /// @brief Access to the orientation of the BV
   const Matrix3f& getOrientation() const
   {
     static const Matrix3f id3 = Matrix3f::Identity();
