@@ -140,8 +140,9 @@ public:
   }
 
   /// @brief set transform from rotation and translation
-  template <typename Matrixx3Like, typename Vector3Like>
-  inline void setTransform(const Eigen::MatrixBase<Matrixx3Like>& R_, const Eigen::MatrixBase<Vector3Like>& T_)
+  template <typename Matrix3Like, typename Vector3Like>
+  inline void setTransform(const Eigen::MatrixBase<Matrix3Like>& R_,
+                           const Eigen::MatrixBase<Vector3Like>& T_)
   {
     R.noalias() = R_;
     T.noalias() = T_;
