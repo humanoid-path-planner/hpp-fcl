@@ -34,6 +34,8 @@
 
 #include <boost/python.hpp>
 
+#include <eigenpy/registration.hpp>
+
 #include "fcl.hh"
 
 #include <hpp/fcl/fwd.hh>
@@ -50,12 +52,18 @@ using namespace hpp::fcl;
 
 void exposeMeshLoader ()
 {
-  class_ <MeshLoader> ("MeshLoader", init< optional< NODE_TYPE> >())
-    .def ("load", static_cast <BVHModelPtr_t (MeshLoader::*) (const std::string&, const Vec3f&)> (&MeshLoader::load))
-    ;
+  if(!eigenpy::register_symbolic_link_to_registered_type<MeshLoader>())
+  {
+    class_ <MeshLoader> ("MeshLoader", init< optional< NODE_TYPE> >())
+      .def ("load", static_cast <BVHModelPtr_t (MeshLoader::*) (const std::string&, const Vec3f&)> (&MeshLoader::load))
+      ;
+  }
 
-  class_ <CachedMeshLoader, bases<MeshLoader> > ("CachedMeshLoader", init< optional< NODE_TYPE> >())
+  if(!eigenpy::register_symbolic_link_to_registered_type<CachedMeshLoader>())
+  {
+    class_ <CachedMeshLoader, bases<MeshLoader> > ("CachedMeshLoader", init< optional< NODE_TYPE> >())
     ;
+  }
 }
 
 BOOST_PYTHON_MODULE(hppfcl)
