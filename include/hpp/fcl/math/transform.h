@@ -55,17 +55,6 @@ static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
   return o;
 }
 
-inline bool isQuatIdentity (const Quaternion3f& q)
-{
-  return (q.w() == 1 || q.w() == -1) && q.x() == 0 && q.y() == 0 && q.z() == 0;
-}
-
-inline bool areQuatEquals (const Quaternion3f& q1, const Quaternion3f& q2)
-{
-  return (q1.w() ==  q2.w() && q1.x() ==  q2.x() && q1.y() ==  q2.y() && q1.z() ==  q2.z())
-      || (q1.w() == -q2.w() && q1.x() == -q2.x() && q1.y() == -q2.y() && q1.z() == -q2.z());
-}
-
 /// @brief Simple transform class used locally by InterpMotion
 class Transform3f
 {
