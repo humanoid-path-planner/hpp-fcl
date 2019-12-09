@@ -38,7 +38,6 @@
 #ifndef HPP_FCL_RSS_H
 #define HPP_FCL_RSS_H
 
-#include <stdexcept>
 #include <hpp/fcl/data_types.h>
 #include <boost/math/constants/constants.hpp>
 
@@ -47,7 +46,8 @@ namespace hpp
 namespace fcl
 {
 
-  class CollisionRequest;
+struct CollisionRequest;
+
 /// @addtogroup Bounding_Volume
 /// @{
 

@@ -41,6 +41,9 @@ set(PROJECT_DESCRIPTION
   )
 SET(PROJECT_USE_CMAKE_EXPORT TRUE)
 
+SET(CMAKE_C_STANDARD 99)
+SET(CMAKE_CXX_STANDARD 98)
+
 # Do not support CMake older than 2.8.12
 CMAKE_POLICY(SET CMP0022 NEW)
 SET(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
@@ -55,6 +58,7 @@ include(cmake/boost.cmake)
 include(cmake/python.cmake)
 include(cmake/hpp.cmake)
 include(cmake/apple.cmake)
+include(cmake/ide.cmake)
 
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()

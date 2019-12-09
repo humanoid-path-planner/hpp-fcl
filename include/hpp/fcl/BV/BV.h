@@ -62,7 +62,7 @@ template<typename BV1, typename BV2>
 class Converter
 {
 private:
-  static void convert(const BV1& bv1, const Transform3f& tf1, BV2& bv2)
+  static void convert(const BV1& /*bv1*/, const Transform3f& /*tf1*/, BV2& /*bv2*/)
   {
     // should only use the specialized version, so it is private.
   }

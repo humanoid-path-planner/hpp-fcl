@@ -55,17 +55,6 @@ static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
   return o;
 }
 
-inline bool isQuatIdentity (const Quaternion3f& q)
-{
-  return (q.w() == 1 || q.w() == -1) && q.x() == 0 && q.y() == 0 && q.z() == 0;
-}
-
-inline bool areQuatEquals (const Quaternion3f& q1, const Quaternion3f& q2)
-{
-  return (q1.w() ==  q2.w() && q1.x() ==  q2.x() && q1.y() ==  q2.y() && q1.z() ==  q2.z())
-      || (q1.w() == -q2.w() && q1.x() == -q2.x() && q1.y() == -q2.y() && q1.z() == -q2.z());
-}
-
 /// @brief Simple transform class used locally by InterpMotion
 class Transform3f
 {
@@ -140,8 +129,9 @@ public:
   }
 
   /// @brief set transform from rotation and translation
-  template <typename Matrixx3Like, typename Vector3Like>
-  inline void setTransform(const Eigen::MatrixBase<Matrixx3Like>& R_, const Eigen::MatrixBase<Vector3Like>& T_)
+  template <typename Matrix3Like, typename Vector3Like>
+  inline void setTransform(const Eigen::MatrixBase<Matrix3Like>& R_,
+                           const Eigen::MatrixBase<Vector3Like>& T_)
   {
     R.noalias() = R_;
     T.noalias() = T_;
@@ -242,7 +232,7 @@ public:
 template<typename Derived>
 inline Quaternion3f fromAxisAngle(const Eigen::MatrixBase<Derived>& axis, FCL_REAL angle)
 {
-  return Quaternion3f (Eigen::AngleAxis<double>(angle, axis));
+  return Quaternion3f (Eigen::AngleAxis<FCL_REAL>(angle, axis));
 }
 
 }

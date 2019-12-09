@@ -207,3 +207,4 @@ bool isEqual(const Eigen::MatrixBase<Derived>& lhs, const Eigen::MatrixBase<Othe
 } // namespace hpp
 
 #endif
+

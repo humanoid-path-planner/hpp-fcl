@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019 CNRS-LAAS
+//  Copyright (c) 2019 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -35,6 +35,8 @@
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
+#include <eigenpy/registration.hpp>
+
 #include "fcl.hh"
 
 #include <hpp/fcl/fwd.hh>
@@ -43,58 +45,75 @@
 using namespace boost::python;
 
 using namespace hpp::fcl;
-using boost::shared_ptr;
-using boost::noncopyable;
 
 void exposeCollisionAPI ()
 {
-  enum_ <CollisionRequestFlag> ("CollisionRequestFlag")
-    .value ("CONTACT", CONTACT)
-    .value ("DISTANCE_LOWER_BOUND", DISTANCE_LOWER_BOUND)
-    .value ("NO_REQUEST", NO_REQUEST)
-    ;
+  if(!eigenpy::register_symbolic_link_to_registered_type<CollisionRequestFlag>())
+  {
+    enum_ <CollisionRequestFlag> ("CollisionRequestFlag")
+      .value ("CONTACT", CONTACT)
+      .value ("DISTANCE_LOWER_BOUND", DISTANCE_LOWER_BOUND)
+      .value ("NO_REQUEST", NO_REQUEST)
+      ;
+  }
 
-  class_ <CollisionRequest> ("CollisionRequest", init<>())
-    .def (init<CollisionRequestFlag, size_t>())
+  if(!eigenpy::register_symbolic_link_to_registered_type<CollisionRequest>())
+  {
+    class_ <CollisionRequest> ("CollisionRequest", init<>())
+      .def (init<CollisionRequestFlag, size_t>())
+    
+      .def_readwrite ("num_max_contacts"           , &CollisionRequest::num_max_contacts)
+      .def_readwrite ("enable_contact"             , &CollisionRequest::enable_contact)
+      .def_readwrite ("enable_distance_lower_bound", &CollisionRequest::enable_distance_lower_bound)
+      .def_readwrite ("enable_cached_gjk_guess"    , &CollisionRequest::enable_cached_gjk_guess)
+      .def_readwrite ("cached_gjk_guess"           , &CollisionRequest::cached_gjk_guess)
+      .def_readwrite ("security_margin"            , &CollisionRequest::security_margin)
+      .def_readwrite ("break_distance"             , &CollisionRequest::break_distance)
+      ;
+  }
 
-    .def_readwrite ("num_max_contacts"           , &CollisionRequest::num_max_contacts)
-    .def_readwrite ("enable_contact"             , &CollisionRequest::enable_contact)
-    .def_readwrite ("enable_distance_lower_bound", &CollisionRequest::enable_distance_lower_bound)
-    .def_readwrite ("enable_cached_gjk_guess"    , &CollisionRequest::enable_cached_gjk_guess)
-    .def_readwrite ("cached_gjk_guess"           , &CollisionRequest::cached_gjk_guess)
-    .def_readwrite ("security_margin"            , &CollisionRequest::security_margin)
-    .def_readwrite ("break_distance"             , &CollisionRequest::break_distance)
-    ;
+  if(!eigenpy::register_symbolic_link_to_registered_type<Contact>())
+  {
+    class_ <Contact> ("Contact", init<>())
+      //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int>())
+      //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int, Vec3f, Vec3f, FCL_REAL>())
+      .def_readonly ("o1", &Contact::o1)
+      .def_readonly ("o2", &Contact::o2)
+      .def_readwrite ("b1", &Contact::b1)
+      .def_readwrite ("b2", &Contact::b2)
+      .def_readwrite ("normal", &Contact::normal)
+      .def_readwrite ("pos", &Contact::pos)
+      .def_readwrite ("penetration_depth", &Contact::penetration_depth)
+      .def (self == self)
+      .def (self != self)
+      ;
+  }
 
-  class_ <Contact> ("Contact", init<>())
-    //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int>())
-    //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int, Vec3f, Vec3f, FCL_REAL>())
-    .def_readonly ("o1", &Contact::o1)
-    .def_readonly ("o2", &Contact::o2)
-    .def_readwrite ("b1", &Contact::b1)
-    .def_readwrite ("b2", &Contact::b2)
-    .def_readwrite ("normal", &Contact::normal)
-    .def_readwrite ("pos", &Contact::pos)
-    .def_readwrite ("penetration_depth", &Contact::penetration_depth)
-    .def (self == self)
-    ;
+  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<Contact> >())
+  {
+    class_< std::vector<Contact> >("StdVec_Contact")
+      .def(vector_indexing_suite< std::vector<Contact> >())
+      ;
+  }
 
-  class_< std::vector<Contact> >("StdVec_Contact")
-    .def(vector_indexing_suite< std::vector<Contact> >())
-    ;
+  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<CollisionResult> >())
+  {
+    class_ <CollisionResult> ("CollisionResult", init<>())
+      .def ("isCollision", &CollisionResult::isCollision)
+      .def ("numContacts", &CollisionResult::numContacts)
+      .def ("getContact" , &CollisionResult::getContact , return_value_policy<copy_const_reference>())
+      .def ("getContacts", &CollisionResult::getContacts, return_internal_reference<>())
+      .def ("addContact" , &CollisionResult::addContact )
+      .def ("clear", &CollisionResult::clear)
+      ;
+  }
 
-  class_ <CollisionResult> ("CollisionResult", init<>())
-    .def ("isCollision", &CollisionResult::isCollision)
-    .def ("numContacts", &CollisionResult::numContacts)
-    .def ("getContact" , &CollisionResult::getContact , return_value_policy<copy_const_reference>())
-    .def ("getContacts", &CollisionResult::getContacts, return_internal_reference<>())
-    .def ("addContact" , &CollisionResult::addContact )
-    .def ("clear", &CollisionResult::clear)
-    ;
-
-  class_< std::vector<CollisionResult> >("CollisionResult")
-    .def(vector_indexing_suite< std::vector<CollisionResult> >())
-    ;
+  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<CollisionResult> >())
+  {
+    class_< std::vector<CollisionResult> >("CollisionResult")
+      .def(vector_indexing_suite< std::vector<CollisionResult> >())
+      ;
+  }
 
   def ("collide", static_cast< std::size_t (*)(const CollisionObject*, const CollisionObject*,
         const CollisionRequest&, CollisionResult&) > (&collide));

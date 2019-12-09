@@ -129,6 +129,11 @@ struct Contact
             && pos == other.pos
             && penetration_depth == other.penetration_depth;
   }
+  
+  bool operator != (const Contact& other) const
+  {
+    return !(*this == other);
+  }
 };
 
 struct CollisionResult;

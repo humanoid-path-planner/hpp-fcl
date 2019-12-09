@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019 CNRS-LAAS
+//  Copyright (c) 2019 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -33,6 +33,8 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 
 #include <boost/python.hpp>
+
+#include <eigenpy/registration.hpp>
 
 #include "fcl.hh"
 
@@ -183,48 +185,59 @@ void exposeShapes ()
 
 void exposeCollisionGeometries ()
 {
-  enum_<OBJECT_TYPE>("OBJECT_TYPE")
-    .value ("OT_UNKNOWN", OT_UNKNOWN)
-    .value ("OT_BVH"    , OT_BVH)
-    .value ("OT_GEOM"   , OT_GEOM)
-    .value ("OT_OCTREE" , OT_OCTREE)
-    ;
-  enum_<NODE_TYPE>("NODE_TYPE")
-    .value ("BV_UNKNOWN", BV_UNKNOWN)
-    .value ("BV_AABB"  , BV_AABB)
-    .value ("BV_OBB"   , BV_OBB)
-    .value ("BV_RSS"   , BV_RSS)
-    .value ("BV_kIOS"  , BV_kIOS)
-    .value ("BV_OBBRSS", BV_OBBRSS)
-    .value ("BV_KDOP16", BV_KDOP16)
-    .value ("BV_KDOP18", BV_KDOP18)
-    .value ("BV_KDOP24", BV_KDOP24)
-    .value ("GEOM_BOX"      , GEOM_BOX)
-    .value ("GEOM_SPHERE"   , GEOM_SPHERE)
-    .value ("GEOM_CAPSULE"  , GEOM_CAPSULE)
-    .value ("GEOM_CONE"     , GEOM_CONE)
-    .value ("GEOM_CYLINDER" , GEOM_CYLINDER)
-    .value ("GEOM_CONVEX"   , GEOM_CONVEX)
-    .value ("GEOM_PLANE"    , GEOM_PLANE)
-    .value ("GEOM_HALFSPACE", GEOM_HALFSPACE)
-    .value ("GEOM_TRIANGLE" , GEOM_TRIANGLE)
-    .value ("GEOM_OCTREE"   , GEOM_OCTREE)
-    ;
+  
+  if(!eigenpy::register_symbolic_link_to_registered_type<OBJECT_TYPE>())
+  {
+    enum_<OBJECT_TYPE>("OBJECT_TYPE")
+      .value ("OT_UNKNOWN", OT_UNKNOWN)
+      .value ("OT_BVH"    , OT_BVH)
+      .value ("OT_GEOM"   , OT_GEOM)
+      .value ("OT_OCTREE" , OT_OCTREE)
+      ;
+  }
+  
+  if(!eigenpy::register_symbolic_link_to_registered_type<NODE_TYPE>())
+  {
+    enum_<NODE_TYPE>("NODE_TYPE")
+      .value ("BV_UNKNOWN", BV_UNKNOWN)
+      .value ("BV_AABB"  , BV_AABB)
+      .value ("BV_OBB"   , BV_OBB)
+      .value ("BV_RSS"   , BV_RSS)
+      .value ("BV_kIOS"  , BV_kIOS)
+      .value ("BV_OBBRSS", BV_OBBRSS)
+      .value ("BV_KDOP16", BV_KDOP16)
+      .value ("BV_KDOP18", BV_KDOP18)
+      .value ("BV_KDOP24", BV_KDOP24)
+      .value ("GEOM_BOX"      , GEOM_BOX)
+      .value ("GEOM_SPHERE"   , GEOM_SPHERE)
+      .value ("GEOM_CAPSULE"  , GEOM_CAPSULE)
+      .value ("GEOM_CONE"     , GEOM_CONE)
+      .value ("GEOM_CYLINDER" , GEOM_CYLINDER)
+      .value ("GEOM_CONVEX"   , GEOM_CONVEX)
+      .value ("GEOM_PLANE"    , GEOM_PLANE)
+      .value ("GEOM_HALFSPACE", GEOM_HALFSPACE)
+      .value ("GEOM_TRIANGLE" , GEOM_TRIANGLE)
+      .value ("GEOM_OCTREE"   , GEOM_OCTREE)
+      ;
+  }
 
-  class_ <CollisionGeometry, CollisionGeometryPtr_t, noncopyable>
-    ("CollisionGeometry", no_init)
-    .def ("getObjectType", &CollisionGeometry::getObjectType)
-    .def ("getNodeType", &CollisionGeometry::getNodeType)
+  if(!eigenpy::register_symbolic_link_to_registered_type<CollisionGeometry>())
+  {
+    class_ <CollisionGeometry, CollisionGeometryPtr_t, noncopyable>
+      ("CollisionGeometry", no_init)
+      .def ("getObjectType", &CollisionGeometry::getObjectType)
+      .def ("getNodeType", &CollisionGeometry::getNodeType)
 
-    .def ("computeLocalAABB", &CollisionGeometry::computeLocalAABB)
+      .def ("computeLocalAABB", &CollisionGeometry::computeLocalAABB)
 
-    .def ("computeCOM", &CollisionGeometry::computeCOM)
-    .def ("computeMomentofInertia", &CollisionGeometry::computeMomentofInertia)
-    .def ("computeVolume", &CollisionGeometry::computeVolume)
-    .def ("computeMomentofInertiaRelatedToCOM", &CollisionGeometry::computeMomentofInertiaRelatedToCOM)
+      .def ("computeCOM", &CollisionGeometry::computeCOM)
+      .def ("computeMomentofInertia", &CollisionGeometry::computeMomentofInertia)
+      .def ("computeVolume", &CollisionGeometry::computeVolume)
+      .def ("computeMomentofInertiaRelatedToCOM", &CollisionGeometry::computeMomentofInertiaRelatedToCOM)
 
-    .def_readwrite("aabb_radius",&CollisionGeometry::aabb_radius,"AABB radius")
-    ;
+      .def_readwrite("aabb_radius",&CollisionGeometry::aabb_radius,"AABB radius")
+      ;
+  }
 
   exposeShapes();
 

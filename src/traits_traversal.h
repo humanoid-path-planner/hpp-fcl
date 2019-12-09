@@ -103,3 +103,4 @@ struct TraversalTraitsDistance <BVHModel<T_BVH>, OcTree>
 }
 
 } //hpp
+

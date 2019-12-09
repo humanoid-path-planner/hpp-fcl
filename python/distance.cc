@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019 CNRS-LAAS
+//  Copyright (c) 2019 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -35,6 +35,8 @@
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
+#include <eigenpy/registration.hpp>
+
 #include "fcl.hh"
 
 #include <hpp/fcl/fwd.hh>
@@ -43,8 +45,6 @@
 using namespace boost::python;
 
 using namespace hpp::fcl;
-using boost::shared_ptr;
-using boost::noncopyable;
 
 struct DistanceRequestWrapper
 {
@@ -54,29 +54,38 @@ struct DistanceRequestWrapper
 
 void exposeDistanceAPI ()
 {
-  class_ <DistanceRequest> ("DistanceRequest", init<optional<bool,FCL_REAL,FCL_REAL> >())
-    .def_readwrite ("enable_nearest_points", &DistanceRequest::enable_nearest_points)
-    .def_readwrite ("rel_err"              , &DistanceRequest::rel_err)
-    .def_readwrite ("abs_err"              , &DistanceRequest::abs_err)
-    ;
+  if(!eigenpy::register_symbolic_link_to_registered_type<DistanceRequest>())
+  {
+    class_ <DistanceRequest> ("DistanceRequest", init<optional<bool,FCL_REAL,FCL_REAL> >())
+      .def_readwrite ("enable_nearest_points", &DistanceRequest::enable_nearest_points)
+      .def_readwrite ("rel_err"              , &DistanceRequest::rel_err)
+      .def_readwrite ("abs_err"              , &DistanceRequest::abs_err)
+      ;
+  }
 
-  class_ <DistanceResult> ("DistanceResult", init<>())
-    .def_readwrite ("min_distance", &DistanceResult::min_distance)
-    .def_readwrite ("normal", &DistanceResult::normal)
-    //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
-    .def("getNearestPoint1",&DistanceRequestWrapper::getNearestPoint1)
-    .def("getNearestPoint2",&DistanceRequestWrapper::getNearestPoint2)
-    .def_readonly ("o1", &DistanceResult::o1)
-    .def_readonly ("o2", &DistanceResult::o2)
-    .def_readwrite ("b1", &DistanceResult::b1)
-    .def_readwrite ("b2", &DistanceResult::b2)
+  if(!eigenpy::register_symbolic_link_to_registered_type<DistanceResult>())
+  {
+    class_ <DistanceResult> ("DistanceResult", init<>())
+      .def_readwrite ("min_distance", &DistanceResult::min_distance)
+      .def_readwrite ("normal", &DistanceResult::normal)
+      //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
+      .def("getNearestPoint1",&DistanceRequestWrapper::getNearestPoint1)
+      .def("getNearestPoint2",&DistanceRequestWrapper::getNearestPoint2)
+      .def_readonly ("o1", &DistanceResult::o1)
+      .def_readonly ("o2", &DistanceResult::o2)
+      .def_readwrite ("b1", &DistanceResult::b1)
+      .def_readwrite ("b2", &DistanceResult::b2)
 
-    .def ("clear", &DistanceResult::clear)
-    ;
+      .def ("clear", &DistanceResult::clear)
+      ;
+  }
 
-  class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
-    .def(vector_indexing_suite< std::vector<DistanceResult> >())
-    ;
+  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<DistanceResult> >())
+  {
+    class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
+      .def(vector_indexing_suite< std::vector<DistanceResult> >())
+      ;
+  }
 
   def ("distance", static_cast< FCL_REAL (*)(const CollisionObject*, const CollisionObject*,
         const DistanceRequest&, DistanceResult&) > (&distance));

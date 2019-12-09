@@ -160,7 +160,7 @@ double run<OBB> (const std::vector<Transform3f>& tf,
                  const BVHModel<OBB> (&models)[2][3], int split_method,
                  const char* prefix)
 {
-  double col  = collide <OBB, typename traits<OBB>::CollisionTraversalNode>
+  double col  = collide <OBB,traits<OBB>::CollisionTraversalNode>
     (tf, models[0][split_method], models[1][split_method], verbose);
   double dist = 0;
 
