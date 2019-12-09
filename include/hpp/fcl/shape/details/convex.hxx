@@ -39,6 +39,7 @@
 #define HPP_FCL_SHAPE_CONVEX_HXX
 
 #include <set>
+#include <vector>
 
 namespace hpp
 {
