@@ -66,7 +66,11 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_trivial)
   CollisionGeometryPtr_t s1 (new Sphere (radius));
   CollisionGeometryPtr_t s2 (new Sphere (radius));
 
-  int num_tests = 1e6;
+  #ifndef NDEBUG
+    int num_tests = 1e3;
+  #else
+    int num_tests = 1e6;
+  #endif
   
   Transform3f tf1;
   Transform3f tf2;
@@ -106,8 +110,11 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_aligned)
   
   CollisionGeometryPtr_t c1 (new Capsule (radius, length));
   CollisionGeometryPtr_t c2 (new Capsule (radius, length));
-
+#ifndef NDEBUG
+  int num_tests = 1e3;
+#else
   int num_tests = 1e6;
+#endif
   
   Transform3f tf1;
   Transform3f tf2;
