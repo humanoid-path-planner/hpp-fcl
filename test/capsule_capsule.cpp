@@ -45,6 +45,7 @@
 #include <cmath>
 #include <iostream>
 #include <hpp/fcl/distance.h>
+#include <hpp/fcl/collision.h>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/collision_object.h>
@@ -54,6 +55,49 @@
 
 using namespace hpp::fcl;
 typedef boost::shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
+
+BOOST_AUTO_TEST_CASE(collision_capsule_capsule_trivial)
+{
+  const double radius = 1.;
+  
+  CollisionGeometryPtr_t c1 (new Capsule (radius, 0.));
+  CollisionGeometryPtr_t c2 (new Capsule (radius, 0.));
+  
+  CollisionGeometryPtr_t s1 (new Sphere (radius));
+  CollisionGeometryPtr_t s2 (new Sphere (radius));
+
+  int num_tests = 1e6;
+  
+  Transform3f tf1;
+  Transform3f tf2;
+  
+  for(int i = 0; i < num_tests; ++i)
+  {
+    Eigen::Vector3d p1 = Eigen::Vector3d::Random()*(2.*radius);
+    Eigen::Vector3d p2 = Eigen::Vector3d::Random()*(2.*radius);
+    
+    Eigen::Matrix3d rot1 = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+    Eigen::Matrix3d rot2 = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+
+    tf1.setTranslation(p1); tf1.setRotation(rot1);
+    tf2.setTranslation(p2); tf2.setRotation(rot2);
+    
+    CollisionObject capsule_o1 (c1, tf1);
+    CollisionObject capsule_o2 (c2, tf2);
+    
+    CollisionObject sphere_o1 (s1, tf1);
+    CollisionObject sphere_o2 (s2, tf2);
+    
+    // Enable computation of nearest points
+    CollisionRequest collisionRequest;
+    CollisionResult capsule_collisionResult, sphere_collisionResult;
+    
+    size_t sphere_num_collisions = collide(&sphere_o1, &sphere_o2, collisionRequest, sphere_collisionResult);
+    size_t capsule_num_collisions = collide(&capsule_o1, &capsule_o2, collisionRequest, capsule_collisionResult);
+    
+    BOOST_CHECK(sphere_num_collisions == capsule_num_collisions);
+  }
+}
 
 BOOST_AUTO_TEST_CASE(distance_capsulecapsule_origin)
 {
