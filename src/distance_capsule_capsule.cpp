@@ -52,14 +52,14 @@ namespace fcl {
     FCL_REAL radius2 = capsule2->radius;
     // direction of capsules
     // ||d1|| = 2 * halfLength1
-    const fcl::Vec3f& d1 = 2 * halfLength1 * tf1.getRotation().col(2);
-    const fcl::Vec3f& d2 = 2 * halfLength2 * tf2.getRotation().col(2);
+    const fcl::Vec3f d1 = 2 * halfLength1 * tf1.getRotation().col(2);
+    const fcl::Vec3f d2 = 2 * halfLength2 * tf2.getRotation().col(2);
 
     // Starting point of the segments
     // p1 + d1 is the end point of the segment
-    const fcl::Vec3f& p1 = c1 - d1 / 2;
-    const fcl::Vec3f& p2 = c2 - d2 / 2;
-    const fcl::Vec3f& r = p1-p2;
+    const fcl::Vec3f p1 = c1 - d1 / 2;
+    const fcl::Vec3f p2 = c2 - d2 / 2;
+    const fcl::Vec3f r = p1-p2;
     FCL_REAL a = d1.dot(d1);
     FCL_REAL b = d1.dot(d2);
     FCL_REAL c = d1.dot(r);
@@ -76,6 +76,7 @@ namespace fcl {
       s = t = 0.0;
       FCL_REAL distance = (p1-p2).norm();
       Vec3f normal = (p1 - p2) / distance;
+      result.normal = normal;
       distance = distance - (radius1 + radius2);
       result.min_distance = distance;
       if (request.enable_nearest_points)
@@ -100,9 +101,9 @@ namespace fcl {
     else
     {
       // Always non-negative, equal 0 if the segments are parallel
-      FCL_REAL denom = a*e-b*b;
+      FCL_REAL denom = fmax(a*e-b*b, 0);
 
-      if (denom != 0.0)
+      if (denom > EPSILON)
       {
         s = CLAMP((b*f-c*e) / denom, 0.0, 1.0);
       }
@@ -129,6 +130,7 @@ namespace fcl {
     const Vec3f& w2 = p2 + t * d2;
     FCL_REAL distance = (w1 - w2).norm();
     Vec3f normal = (w1 - w2) / distance;
+    result.normal = normal;
 
     // capsule spcecific distance computation
     distance = distance - (radius1 + radius2);
@@ -166,7 +168,7 @@ namespace fcl {
       const Vec3f& p1 = distanceResult.nearest_points [0];
       const Vec3f& p2 = distanceResult.nearest_points [1];
       contact.pos = 0.5 * (p1+p2);
-      contact.normal = (p2-p1)/(p2-p1).norm ();
+      contact.normal = distanceResult.normal;
       result.addContact(contact);
       return 1;
     }
