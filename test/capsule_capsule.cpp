@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_aligned)
   
   for(int i = 0; i < num_tests; ++i)
   {
-    Eigen::Matrix3d rot = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+    Eigen::Matrix3d rot = Eigen::Quaterniond(Eigen::Vector4d::Random().normalized()).toRotationMatrix();
     Eigen::Vector3d trans = Eigen::Vector3d::Random();
 
     Transform3f displacement(rot,trans);
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_aligned)
   
   for(int i = 0; i < num_tests; ++i)
   {
-    Eigen::Matrix3d rot = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+    Eigen::Matrix3d rot = Eigen::Quaterniond(Eigen::Vector4d::Random().normalized()).toRotationMatrix();
     Eigen::Vector3d trans = Eigen::Vector3d::Random();
 
     Transform3f displacement(rot,trans);
