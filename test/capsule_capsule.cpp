@@ -80,8 +80,8 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_trivial)
     Eigen::Vector3d p1 = Eigen::Vector3d::Random()*(2.*radius);
     Eigen::Vector3d p2 = Eigen::Vector3d::Random()*(2.*radius);
     
-    Eigen::Matrix3d rot1 = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
-    Eigen::Matrix3d rot2 = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+    Eigen::Matrix3d rot1 = Eigen::Quaterniond(Eigen::Vector4d::Random().normalized()).toRotationMatrix();
+    Eigen::Matrix3d rot2 = Eigen::Quaterniond(Eigen::Vector4d::Random().normalized()).toRotationMatrix();
 
     tf1.setTranslation(p1); tf1.setRotation(rot1);
     tf2.setTranslation(p2); tf2.setRotation(rot2);
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_aligned)
   
   for(int i = 0; i < num_tests; ++i)
   {
-    Eigen::Matrix3d rot = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+    Eigen::Matrix3d rot = Eigen::Quaterniond(Eigen::Vector4d::Random().normalized()).toRotationMatrix();
 
     tf1.setTranslation(p1); tf1.setRotation(rot);
     tf2.setTranslation(p2_no_collision); tf2.setRotation(rot);
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_aligned)
   Eigen::Vector3d p2_with_collision = Eigen::Vector3d(0.,0.,std::min(length/2.,radius)*(1.-1e-2));
   for(int i = 0; i < num_tests; ++i)
   {
-    Eigen::Matrix3d rot = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+    Eigen::Matrix3d rot = Eigen::Quaterniond(Eigen::Vector4d::Random().normalized()).toRotationMatrix();
 
     tf1.setTranslation(p1); tf1.setRotation(rot);
     tf2.setTranslation(p2_with_collision); tf2.setRotation(rot);
