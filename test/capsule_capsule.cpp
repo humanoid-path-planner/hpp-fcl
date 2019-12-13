@@ -99,6 +99,113 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_trivial)
   }
 }
 
+BOOST_AUTO_TEST_CASE(collision_capsule_capsule_aligned)
+{
+  const double radius = 0.01;
+  const double length = 0.2;
+  
+  CollisionGeometryPtr_t c1 (new Capsule (radius, length));
+  CollisionGeometryPtr_t c2 (new Capsule (radius, length));
+
+  int num_tests = 1e6;
+  
+  Transform3f tf1;
+  Transform3f tf2;
+  
+  Eigen::Vector3d p1 = Eigen::Vector3d::Zero();
+  Eigen::Vector3d p2_no_collision = Eigen::Vector3d(0.,0.,2*(length/2. + radius) + 1e-3); // because capsule are along the Z axis
+  
+  for(int i = 0; i < num_tests; ++i)
+  {
+    Eigen::Matrix3d rot = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+
+    tf1.setTranslation(p1); tf1.setRotation(rot);
+    tf2.setTranslation(p2_no_collision); tf2.setRotation(rot);
+    
+    CollisionObject capsule_o1 (c1, tf1);
+    CollisionObject capsule_o2 (c2, tf2);
+    
+    // Enable computation of nearest points
+    CollisionRequest collisionRequest;
+    CollisionResult capsule_collisionResult;
+    
+    size_t capsule_num_collisions = collide(&capsule_o1, &capsule_o2, collisionRequest, capsule_collisionResult);
+    
+    BOOST_CHECK(capsule_num_collisions == 0);
+  }
+  
+  Eigen::Vector3d p2_with_collision = Eigen::Vector3d(0.,0.,std::min(length/2.,radius)*(1.-1e-2));
+  for(int i = 0; i < num_tests; ++i)
+  {
+    Eigen::Matrix3d rot = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+
+    tf1.setTranslation(p1); tf1.setRotation(rot);
+    tf2.setTranslation(p2_with_collision); tf2.setRotation(rot);
+    
+    CollisionObject capsule_o1 (c1, tf1);
+    CollisionObject capsule_o2 (c2, tf2);
+    
+    // Enable computation of nearest points
+    CollisionRequest collisionRequest;
+    CollisionResult capsule_collisionResult;
+    
+    size_t capsule_num_collisions = collide(&capsule_o1, &capsule_o2, collisionRequest, capsule_collisionResult);
+    
+    BOOST_CHECK(capsule_num_collisions > 0);
+  }
+  
+  p2_no_collision = Eigen::Vector3d(0.,0.,2*(length/2. + radius) + 1e-3);
+  
+  Transform3f geom1_placement(Eigen::Matrix3d::Identity(),Eigen::Vector3d::Zero());
+  Transform3f geom2_placement(Eigen::Matrix3d::Identity(),p2_no_collision);
+  
+  for(int i = 0; i < num_tests; ++i)
+  {
+    Eigen::Matrix3d rot = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+    Eigen::Vector3d trans = Eigen::Vector3d::Random();
+
+    Transform3f displacement(rot,trans);
+    Transform3f tf1 = displacement * geom1_placement;
+    Transform3f tf2 = displacement * geom2_placement;
+    
+    CollisionObject capsule_o1 (c1, tf1);
+    CollisionObject capsule_o2 (c2, tf2);
+    
+    // Enable computation of nearest points
+    CollisionRequest collisionRequest;
+    CollisionResult capsule_collisionResult;
+    
+    size_t capsule_num_collisions = collide(&capsule_o1, &capsule_o2, collisionRequest, capsule_collisionResult);
+    
+    BOOST_CHECK(capsule_num_collisions == 0);
+  }
+  
+//  p2_with_collision = Eigen::Vector3d(0.,0.,std::min(length/2.,radius)*(1.-1e-2));
+  p2_with_collision = Eigen::Vector3d(0.,0.,0.01);
+  geom2_placement.setTranslation(p2_with_collision);
+  
+  for(int i = 0; i < num_tests; ++i)
+  {
+    Eigen::Matrix3d rot = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+    Eigen::Vector3d trans = Eigen::Vector3d::Random();
+
+    Transform3f displacement(rot,trans);
+    Transform3f tf1 = displacement * geom1_placement;
+    Transform3f tf2 = displacement * geom2_placement;
+    
+    CollisionObject capsule_o1 (c1, tf1);
+    CollisionObject capsule_o2 (c2, tf2);
+    
+    // Enable computation of nearest points
+    CollisionRequest collisionRequest;
+    CollisionResult capsule_collisionResult;
+    
+    size_t capsule_num_collisions = collide(&capsule_o1, &capsule_o2, collisionRequest, capsule_collisionResult);
+    
+    BOOST_CHECK(capsule_num_collisions > 0);
+  }
+}
+
 BOOST_AUTO_TEST_CASE(distance_capsulecapsule_origin)
 {
   CollisionGeometryPtr_t s1 (new Capsule (5, 10));
