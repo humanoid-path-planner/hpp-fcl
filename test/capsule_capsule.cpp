@@ -308,13 +308,14 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2)
   distance (&o1, &o2, distanceRequest, distanceResult);
 
   std::cerr << "Applied rotation and translation on two capsules" << std::endl;
-  std::cerr << "R1 = " << tf1.getRotation ()
-	    << ", T1 = " << tf1.getTranslation() << std::endl
-	    << "R2 = " << tf2.getRotation ()
-	    << ", T2 = " << tf2.getTranslation() << std::endl;
-  std::cerr << "Closest points: p1 = " << distanceResult.nearest_points [0]
-	    << ", p2 = " << distanceResult.nearest_points [1]
-	    << ", distance = " << distanceResult.min_distance << std::endl;
+  std::cerr << "R1 = " << tf1.getRotation () << std::endl
+            << "T1 = " << tf1.getTranslation().transpose() << std::endl
+            << "R2 = " << tf2.getRotation () << std::endl
+            << "T2 = " << tf2.getTranslation().transpose() << std::endl;
+  std::cerr << "Closest points:" << std::endl
+            << "p1 = " << distanceResult.nearest_points[0].transpose() << std::endl
+            << "p2 = " << distanceResult.nearest_points[1].transpose() << std::endl
+	    << "distance = " << distanceResult.min_distance << std::endl;
 
   const Vec3f& p1 = distanceResult.nearest_points [0];
   const Vec3f& p2 = distanceResult.nearest_points [1];
