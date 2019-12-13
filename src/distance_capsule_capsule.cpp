@@ -52,8 +52,6 @@ namespace fcl {
     FCL_REAL radius2 = capsule2->radius;
     // direction of capsules
     // ||d1|| = 2 * halfLength1
-    // Matrix3f::ConstColXpr d1 = 2 * halfLength1 * tf1.getRotation().col(2);
-    // Matrix3f::ConstColXpr d2 = 2 * halfLength2 * tf2.getRotation().col(2);
     const fcl::Vec3f& d1 = 2 * halfLength1 * tf1.getRotation().col(2);
     const fcl::Vec3f& d2 = 2 * halfLength2 * tf2.getRotation().col(2);
 
