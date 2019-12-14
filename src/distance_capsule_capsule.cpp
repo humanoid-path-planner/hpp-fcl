@@ -4,7 +4,6 @@
 // http://www.boost.org/LICENSE_1_0.txt
 // http://www.geometrictools.com/License/Boost/LICENSE_1_0.txt
 //
-// Modified by Florent Lamiraux 2014
 
 #include <cmath>
 #include <limits>
@@ -74,17 +73,6 @@ namespace fcl {
     {
       // Check if the segments degenerate into points
       s = t = 0.0;
-      FCL_REAL distance = (p1-p2).norm();
-      Vec3f normal = (p1 - p2) / distance;
-      result.normal = normal;
-      distance = distance - (radius1 + radius2);
-      result.min_distance = distance;
-      if (request.enable_nearest_points)
-      {
-        result.nearest_points[0] = p1 - radius1 * normal;
-        result.nearest_points[1] = p2 + radius2 * normal;
-      }
-      return distance;
     }
     else if (a <= EPSILON)
     {
@@ -100,7 +88,7 @@ namespace fcl {
     }
     else
     {
-      // Always non-negative, equal 0 if the segments are parallel
+      // Always non-negative, equal 0 if the segments are colinear
       FCL_REAL denom = fmax(a*e-b*b, 0);
 
       if (denom > EPSILON)
