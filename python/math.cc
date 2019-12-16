@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019 CNRS-LAAS
+//  Copyright (c) 2019 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -69,12 +69,13 @@ void exposeMaths ()
   if(!eigenpy::register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
     eigenpy::exposeAngleAxis();
 
-  class_ <Transform3f> ("Transform3f", init<>())
+  class_ <Transform3f> ("Transform3f", init<>("Default constructor."))
     .def (init<Matrix3f, Vec3f>())
     .def (init<Quaternion3f, Vec3f>())
     .def (init<Matrix3f>())
     .def (init<Quaternion3f>())
     .def (init<Vec3f>())
+    .def (init<Transform3f>(args("self","other"),"Copy constructor."))
 
     .def ("getQuatRotation", &Transform3f::getQuatRotation)
     .def ("getTranslation", &Transform3f::getTranslation, return_value_policy<copy_const_reference>())
