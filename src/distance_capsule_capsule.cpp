@@ -140,8 +140,8 @@ namespace fcl {
     }
 
     // witness points achieving the distance between the two segments
-    const Vec3f& w1 = p1 + s * d1;
-    const Vec3f& w2 = p2 + t * d2;
+    const Vec3f w1 = p1 + s * d1;
+    const Vec3f w2 = p2 + t * d2;
     FCL_REAL distance = (w1 - w2).norm();
     Vec3f normal = (w1 - w2) / distance;
     result.normal = normal;
