@@ -4,6 +4,9 @@ HPP-FCL — An extension of the Flexible Collision Library
 [![Building Status](https://travis-ci.org/humanoid-path-planner/hpp-fcl.svg?branch=master)](https://travis-ci.org/humanoid-path-planner/hpp-fcl)
 [![Pipeline status](https://gepgitlab.laas.fr/humanoid-path-planner/hpp-fcl/badges/master/pipeline.svg)](https://gepgitlab.laas.fr/humanoid-path-planner/hpp-fcl/commits/master)
 [![Coverage report](https://gepgitlab.laas.fr/humanoid-path-planner/hpp-fcl/badges/master/coverage.svg?job=doc-coverage)](http://projects.laas.fr/gepetto/doc/humanoid-path-planner/hpp-fcl/master/coverage/)
+<a href="https://anaconda.org/conda-forge/hpp-fcl"><img src="https://img.shields.io/conda/dn/conda-forge/hpp-fcl.svg" alt="Conda Downloads"/></a>
+<a href="https://anaconda.org/conda-forge/hpp-fcl"><img src="https://img.shields.io/conda/vn/conda-forge/hpp-fcl.svg" alt="Conda Version"/></a>
+<a href="https://conda.anaconda.org/conda-forge"><img src="https://anaconda.org/conda-forge/hpp-fcl/badges/installer/conda.svg" alt="Anaconda-Server Badge"/></a>
 
 This project is initially a fork from https://github.com/flexible-collision-library/fcl and has evolved since then.
 The main new features are:
