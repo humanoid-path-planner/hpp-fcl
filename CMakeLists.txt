@@ -63,7 +63,7 @@ include(cmake/ide.cmake)
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
 
-OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" OFF)
+OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" ON)
 
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
