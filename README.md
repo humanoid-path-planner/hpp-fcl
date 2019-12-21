@@ -2,9 +2,9 @@ HPP-FCL — An extension of the Flexible Collision Library
 =======
 
 <p align="center">
-  <a href="(https://travis-ci.org/humanoid-path-planner/hpp-fcl"><img src="https://travis-ci.org/humanoid-path-planner/hpp-fcl.svg?branch=master" alt="Building status"/></a>
-  <a href="(https://gepgitlab.laas.fr/humanoid-path-planner/hpp-fcl/commits/master/"><img src="https://gepgitlab.laas.fr/humanoid-path-planner/hpp-fcl/badges/master/pipeline.svg" alt="Pipeline status"/></a>
-  <a href="(http://projects.laas.fr/gepetto/doc/humanoid-path-planner/hpp-fcl/master/coverage/"><img src="https://gepgitlab.laas.fr/humanoid-path-planner/hpp-fcl/badges/master/coverage.svg?job=doc-coverage" alt="Coverage report"/></a>
+  <a href="https://travis-ci.org/humanoid-path-planner/hpp-fcl"><img src="https://travis-ci.org/humanoid-path-planner/hpp-fcl.svg?branch=master" alt="Building status"/></a>
+  <a href="https://gepgitlab.laas.fr/humanoid-path-planner/hpp-fcl/commits/master/"><img src="https://gepgitlab.laas.fr/humanoid-path-planner/hpp-fcl/badges/master/pipeline.svg" alt="Pipeline status"/></a>
+  <a href="http://projects.laas.fr/gepetto/doc/humanoid-path-planner/hpp-fcl/master/coverage/"><img src="https://gepgitlab.laas.fr/humanoid-path-planner/hpp-fcl/badges/master/coverage.svg?job=doc-coverage" alt="Coverage report"/></a>
   <a href="https://anaconda.org/conda-forge/hpp-fcl"><img src="https://img.shields.io/conda/dn/conda-forge/hpp-fcl.svg" alt="Conda Downloads"/></a>
   <a href="https://anaconda.org/conda-forge/hpp-fcl"><img src="https://img.shields.io/conda/vn/conda-forge/hpp-fcl.svg" alt="Conda Version"/></a>
   <a href="https://conda.anaconda.org/conda-forge"><img src="https://anaconda.org/conda-forge/hpp-fcl/badges/installer/conda.svg" alt="Anaconda-Server Badge"/></a>
