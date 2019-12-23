@@ -137,33 +137,24 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
                     const CollisionRequest& request, CollisionResult& result)
 {
-  switch(request.gjk_solver_type)
-  {
-  case GST_INDEP:
-    {
-      GJKSolver solver;
-      return collide(o1, o2, &solver, request, result);
-    }
-  default:
-    return -1; // error
-  }
+  GJKSolver solver;
+  solver.enable_cached_guess = request.enable_cached_gjk_guess;
+  if (solver.enable_cached_guess)
+    solver.cached_guess = request.cached_gjk_guess;
+  return collide(o1, o2, &solver, request, result);
 }
 
 std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                     const CollisionGeometry* o2, const Transform3f& tf2,
                     const CollisionRequest& request, CollisionResult& result)
 {
-  switch(request.gjk_solver_type)
-  {
-  case GST_INDEP:
-    {
-      GJKSolver solver;
-      return collide(o1, tf1, o2, tf2, &solver, request, result);
-    }
-  default:
-    std::cerr << "Warning! Invalid GJK solver" << std::endl;
-    return -1; // error
-  }
+  GJKSolver solver;
+  solver.enable_cached_guess = request.enable_cached_gjk_guess;
+  if (solver.enable_cached_guess)
+    solver.cached_guess = request.cached_gjk_guess;
+  return collide(o1, tf1, o2, tf2, &solver, request, result);
+  if (solver.enable_cached_guess)
+    result.cached_gjk_guess = solver.cached_guess;
 }
 
 }

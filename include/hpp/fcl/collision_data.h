@@ -52,9 +52,6 @@ namespace hpp
 namespace fcl
 {
 
-/// @brief Type of narrow phase GJK solver
-enum GJKSolverType {GST_INDEP};
-
 /// @brief Contact information returned by collision
 struct Contact
 {
@@ -158,9 +155,6 @@ struct CollisionRequest
   /// Whether a lower bound on distance is returned when objects are disjoint
   bool enable_distance_lower_bound;
 
-  /// @brief narrow phase solver
-  GJKSolverType gjk_solver_type;
-
   /// @brief whether enable gjk intial guess
   bool enable_cached_gjk_guess;
   
@@ -178,15 +172,13 @@ struct CollisionRequest
 		   bool enable_distance_lower_bound_ = false,
                    size_t num_max_cost_sources_ = 1,
                    bool enable_cost_ = false,
-                   bool use_approximate_cost_ = true,
-                   GJKSolverType gjk_solver_type_ = GST_INDEP)
+                   bool use_approximate_cost_ = true)
   HPP_FCL_DEPRECATED;
 
   explicit CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_) :
     num_max_contacts(num_max_contacts_),
     enable_contact(flag & CONTACT),
     enable_distance_lower_bound (flag & DISTANCE_LOWER_BOUND),
-    gjk_solver_type(GST_INDEP),
     security_margin (0),
     break_distance (1e-3)
   {
@@ -198,7 +190,6 @@ struct CollisionRequest
       num_max_contacts(1),
       enable_contact(false),
       enable_distance_lower_bound (false),
-      gjk_solver_type(GST_INDEP),
       security_margin (0),
       break_distance (1e-3)
     {
@@ -294,18 +285,12 @@ struct DistanceRequest
   FCL_REAL rel_err; // relative error, between 0 and 1
   FCL_REAL abs_err; // absoluate error
 
-  /// @brief narrow phase solver type
-  GJKSolverType gjk_solver_type;
-
-
-
   DistanceRequest(bool enable_nearest_points_ = false,
                   FCL_REAL rel_err_ = 0.0,
-                  FCL_REAL abs_err_ = 0.0,
-                  GJKSolverType gjk_solver_type_ = GST_INDEP) : enable_nearest_points(enable_nearest_points_),
-                                                                rel_err(rel_err_),
-                                                                abs_err(abs_err_),
-                                                                gjk_solver_type(gjk_solver_type_)
+                  FCL_REAL abs_err_ = 0.0) :
+    enable_nearest_points(enable_nearest_points_),
+    rel_err(rel_err_),
+    abs_err(abs_err_)
   {
   }
 

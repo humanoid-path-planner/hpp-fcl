@@ -117,32 +117,16 @@ FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJ
 
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const DistanceRequest& request, DistanceResult& result)
 {
-  switch(request.gjk_solver_type)
-  {
-  case GST_INDEP:
-    {
-      GJKSolver solver;
-      return distance(o1, o2, &solver, request, result);
-    }
-  default:
-    return -1; // error
-  }
+  GJKSolver solver;
+  return distance(o1, o2, &solver, request, result);
 }
 
 FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                   const CollisionGeometry* o2, const Transform3f& tf2,
                   const DistanceRequest& request, DistanceResult& result)
 {
-  switch(request.gjk_solver_type)
-  {
-  case GST_INDEP:
-    {
-      GJKSolver solver;
-      return distance(o1, tf1, o2, tf2, &solver, request, result);
-    }
-  default:
-    return -1;
-  }
+  GJKSolver solver;
+  return distance(o1, tf1, o2, tf2, &solver, request, result);
 }
 
 

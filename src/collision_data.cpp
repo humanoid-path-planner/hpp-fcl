@@ -55,12 +55,10 @@ bool DistanceRequest::isSatisfied(const DistanceResult& result) const
   CollisionRequest::CollisionRequest
   (size_t num_max_contacts_, bool enable_contact_,
    bool enable_distance_lower_bound_, size_t /*num_max_cost_sources_*/,
-   bool /*enable_cost_*/, bool /*use_approximate_cost_*/,
-   GJKSolverType gjk_solver_type_) :
+   bool /*enable_cost_*/, bool /*use_approximate_cost_*/) :
     num_max_contacts(num_max_contacts_),
     enable_contact(enable_contact_),
     enable_distance_lower_bound (enable_distance_lower_bound_),
-    gjk_solver_type(gjk_solver_type_),
     security_margin (0),
     break_distance (1e-3)
   {

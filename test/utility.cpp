@@ -417,14 +417,6 @@ std::string getNodeTypeName(NODE_TYPE node_type)
     return std::string("invalid");
 }
 
-std::string getGJKSolverName(GJKSolverType solver_type)
-{
-  if (solver_type == GST_INDEP)
-    return std::string("built-in");
-  else
-    return std::string("invalid");
-}
-
 Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z)
 {
   Quaternion3f q;

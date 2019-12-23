@@ -428,7 +428,6 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_GJK)
   generateBVHModel(s2_rss, s2, Transform3f(), 16, 16);
 
   DistanceRequest request;
-  request.gjk_solver_type = GST_INDEP;
   DistanceResult res, res1;
 
   Transform3f pose;
@@ -1507,7 +1506,6 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK)
   generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
 
   CollisionRequest request (false, 1, false);
-  request.gjk_solver_type = GST_INDEP;
 
   CollisionResult result;
 
@@ -1727,7 +1725,6 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_GJK)
   generateBVHModel(s2_obb, s2, Transform3f());
 
   CollisionRequest request (false, 1, false);
-  request.gjk_solver_type = GST_INDEP;
 
   CollisionResult result;
 
@@ -1849,7 +1846,6 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_GJK)
   generateBVHModel(s2_obb, s2, Transform3f());
 
   CollisionRequest request (false, 1, false);
-  request.gjk_solver_type = GST_INDEP;
 
   CollisionResult result;
 
@@ -1971,7 +1967,6 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_GJK)
   generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
 
   CollisionRequest request (false, 1, false);
-  request.gjk_solver_type = GST_INDEP;
 
   CollisionResult result;
 
@@ -2060,7 +2055,6 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone_GJK)
   generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
 
   CollisionRequest request (false, 1, false);
-  request.gjk_solver_type = GST_INDEP;
 
   CollisionResult result;
 

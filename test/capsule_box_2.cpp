@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   CollisionGeometryPtr_t boxGeometry (new hpp::fcl::Box (1., 2., 4.));
 
   // Enable computation of nearest points
-  hpp::fcl::DistanceRequest distanceRequest (true, 0, 0, hpp::fcl::GST_INDEP);
+  hpp::fcl::DistanceRequest distanceRequest (true, 0, 0);
   hpp::fcl::DistanceResult distanceResult;
 
   // Rotate capsule around y axis by pi/2 and move it behind box
