@@ -114,7 +114,7 @@ public:
     return true;
   }    
 
-  /// Not implemented
+  /// @brief Check whether two AABB are overlap
   bool overlap(const AABB& other, const CollisionRequest& request,
                FCL_REAL& sqrDistLowerBound) const;
 
