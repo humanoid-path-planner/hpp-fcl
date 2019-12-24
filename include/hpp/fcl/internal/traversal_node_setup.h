@@ -342,16 +342,13 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
   return true;
 }
 
-/// @cond IGNORE
-namespace details
-{
-
-template<typename BV, typename S, template<typename> class OrientedNode>
-static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S>& node, 
-                                                       const BVHModel<BV>& model1, const Transform3f& tf1,
-                                                       const S& model2, const Transform3f& tf2,
-                                                       const GJKSolver* nsolver,
-                                                       CollisionResult& result)
+/// @brief Initialize traversal node for collision between one mesh and one shape
+template<typename BV, typename S>
+bool initialize(MeshShapeCollisionTraversalNode<BV, S, 0>& node,
+                const BVHModel<BV>& model1, const Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
+                const GJKSolver* nsolver,
+                CollisionResult& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
@@ -371,56 +368,6 @@ static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S>& node,
 
   return true;
 }
-
-}
-/// @endcond
-
-
-
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBB type
-template<typename S>
-bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node,
-                const BVHModel<OBB>& model1, const Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result)
-{
-  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
-}
-
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type
-template<typename S>
-bool initialize(MeshShapeCollisionTraversalNodeRSS<S>& node,
-                const BVHModel<RSS>& model1, const Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result)
-{
-  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
-}
-
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type
-template<typename S>
-bool initialize(MeshShapeCollisionTraversalNodekIOS<S>& node,
-                const BVHModel<kIOS>& model1, const Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result)
-{
-  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
-}
-
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type
-template<typename S>
-bool initialize(MeshShapeCollisionTraversalNodeOBBRSS<S>& node,
-                const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result)
-{
-  return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, result);
-}
-
 
 /// @cond IGNORE
 namespace details
