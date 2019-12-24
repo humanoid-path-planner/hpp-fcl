@@ -52,14 +52,19 @@ DistanceFunctionMatrix& getDistanceFunctionLookTable()
   return table;
 }
 
-FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, 
+FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const DistanceRequest& request, DistanceResult& result)
+{
+  return distance(
+      o1->collisionGeometry().get(), o1->getTransform(),
+      o2->collisionGeometry().get(), o2->getTransform(),
+      request, result);
+}
+
+FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                   const CollisionGeometry* o2, const Transform3f& tf2,
-                  const GJKSolver* nsolver_,
                   const DistanceRequest& request, DistanceResult& result)
 {
-  const GJKSolver* nsolver = nsolver_;
-  if(!nsolver_) 
-    nsolver = new GJKSolver();
+  GJKSolver solver;
 
   const DistanceFunctionMatrix& looktable = getDistanceFunctionLookTable();
 
@@ -78,7 +83,7 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
     }
     else
     {
-      res = looktable.distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver, request, result);
+      res = looktable.distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1, &solver, request, result);
       // If closest points are requested, switch object 1 and 2
       if (request.enable_nearest_points) {
 	const CollisionGeometry *tmpo = result.o1;
@@ -98,35 +103,11 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
     }
     else
     {
-      res = looktable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver, request, result);    
+      res = looktable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, &solver, request, result);    
     }
   }
 
-  if(!nsolver_)
-    delete nsolver;
-
   return res;
-}
-
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver* nsolver,
-                  const DistanceRequest& request, DistanceResult& result)
-{
-  return distance(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver,
-                                     request, result);
-}
-
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const DistanceRequest& request, DistanceResult& result)
-{
-  GJKSolver solver;
-  return distance(o1, o2, &solver, request, result);
-}
-
-FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
-                  const CollisionGeometry* o2, const Transform3f& tf2,
-                  const DistanceRequest& request, DistanceResult& result)
-{
-  GJKSolver solver;
-  return distance(o1, tf1, o2, tf2, &solver, request, result);
 }
 
 
