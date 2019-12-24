@@ -283,6 +283,10 @@ namespace details
     {
       return b1.distance(b2);
     }
+    static FCL_REAL run(const Matrix3f& R, const Vec3f& T, const BVNode<BV>& b1, const BVNode<BV>& b2)
+    {
+      return distance(R, T, b1.bv, b2.bv);
+    }
   };
 
   template<> struct DistanceTraversalBVDistanceLowerBound_impl<OBB>
@@ -293,6 +297,43 @@ namespace details
       CollisionRequest request (DISTANCE_LOWER_BOUND, 0);
       // request.break_distance = ?
       if (b1.overlap(b2, request, sqrDistLowerBound)) {
+        // TODO A penetration upper bound should be computed.
+        return -1;
+      }
+      return sqrt (sqrDistLowerBound);
+    }
+    static FCL_REAL run(const Matrix3f& R, const Vec3f& T, const BVNode<OBB>& b1, const BVNode<OBB>& b2)
+    {
+      FCL_REAL sqrDistLowerBound;
+      CollisionRequest request (DISTANCE_LOWER_BOUND, 0);
+      // request.break_distance = ?
+      if (overlap(R, T, b1.bv, b2.bv, request, sqrDistLowerBound)) {
+        // TODO A penetration upper bound should be computed.
+        return -1;
+      }
+      return sqrt (sqrDistLowerBound);
+    }
+  };
+
+  template<> struct DistanceTraversalBVDistanceLowerBound_impl<AABB>
+  {
+    static FCL_REAL run(const BVNode<AABB>& b1, const BVNode<AABB>& b2)
+    {
+      FCL_REAL sqrDistLowerBound;
+      CollisionRequest request (DISTANCE_LOWER_BOUND, 0);
+      // request.break_distance = ?
+      if (b1.overlap(b2, request, sqrDistLowerBound)) {
+        // TODO A penetration upper bound should be computed.
+        return -1;
+      }
+      return sqrt (sqrDistLowerBound);
+    }
+    static FCL_REAL run(const Matrix3f& R, const Vec3f& T, const BVNode<AABB>& b1, const BVNode<AABB>& b2)
+    {
+      FCL_REAL sqrDistLowerBound;
+      CollisionRequest request (DISTANCE_LOWER_BOUND, 0);
+      // request.break_distance = ?
+      if (overlap(R, T, b1.bv, b2.bv, request, sqrDistLowerBound)) {
         // TODO A penetration upper bound should be computed.
         return -1;
       }
@@ -369,14 +410,6 @@ public:
     return model2->getBV(b).rightChild();
   }
 
-  /// @brief BV culling test in one BVTT node
-  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
-  {
-    if(enable_statistics) num_bv_tests++;
-    return details::DistanceTraversalBVDistanceLowerBound_impl<BV>
-      ::run (model1->getBV(b1), model2->getBV(b2));
-  }
-
   /// @brief The first BVH model
   const BVHModel<BV>* model1;
   /// @brief The second BVH model
@@ -390,10 +423,24 @@ public:
 
 
 /// @brief Traversal node for distance computation between two meshes
-template<typename BV>
+template<typename BV, int _Options = RelativeTransformationIsIdentity>
 class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV>
 {
 public:
+  enum {
+    Options = _Options,
+    RTIsIdentity = _Options & RelativeTransformationIsIdentity
+  };
+
+  using BVHDistanceTraversalNode<BV>::enable_statistics;
+  using BVHDistanceTraversalNode<BV>::request;
+  using BVHDistanceTraversalNode<BV>::result;
+  using BVHDistanceTraversalNode<BV>::tf1;
+  using BVHDistanceTraversalNode<BV>::model1;
+  using BVHDistanceTraversalNode<BV>::model2;
+  using BVHDistanceTraversalNode<BV>::num_bv_tests;
+  using BVHDistanceTraversalNode<BV>::num_leaf_tests;
+
   MeshDistanceTraversalNode() : BVHDistanceTraversalNode<BV>()
   {
     vertices1 = NULL;
@@ -403,6 +450,28 @@ public:
 
     rel_err = this->request.rel_err;
     abs_err = this->request.abs_err;
+  }
+
+  void preprocess()
+  {
+    if(!RTIsIdentity) preprocessOrientedNode();
+  }
+
+  void postprocess()
+  {
+    if(!RTIsIdentity) postprocessOrientedNode();
+  }
+
+  /// @brief BV culling test in one BVTT node
+  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
+  {
+    if(enable_statistics) num_bv_tests++;
+    if (RTIsIdentity)
+      return details::DistanceTraversalBVDistanceLowerBound_impl<BV>
+        ::run (model1->getBV(b1), model2->getBV(b2));
+    else
+      return details::DistanceTraversalBVDistanceLowerBound_impl<BV>
+        ::run (RT._R(), RT._T(), model1->getBV(b1), model2->getBV(b2));
   }
 
   /// @brief Distance testing between leaves (two triangles)
@@ -430,8 +499,15 @@ public:
     // nearest point pair
     Vec3f P1, P2, normal;
 
-    FCL_REAL d = sqrt (TriangleDistance::sqrTriDistance
-		       (t11, t12, t13, t21, t22, t23, P1, P2));
+    FCL_REAL d2;
+    if (RTIsIdentity)
+      d2 = TriangleDistance::sqrTriDistance (t11, t12, t13, t21, t22, t23,
+          P1, P2);
+    else
+      d2 = TriangleDistance::sqrTriDistance (t11, t12, t13, t21, t22, t23,
+          RT._R(), RT._T(),
+          P1, P2);
+    FCL_REAL d = sqrt(d2);
 
     this->result->update(d, this->model1, this->model2, primitive_id1,
                          primitive_id2, P1, P2, normal);
@@ -454,62 +530,52 @@ public:
   /// @brief relative and absolute error, default value is 0.01 for both terms
   FCL_REAL rel_err;
   FCL_REAL abs_err;
+
+  details::RelativeTransformation<!bool(RTIsIdentity)> RT;
+
+private:
+  void preprocessOrientedNode()
+  {
+    const int init_tri_id1 = 0, init_tri_id2 = 0;
+    const Triangle& init_tri1 = tri_indices1[init_tri_id1];
+    const Triangle& init_tri2 = tri_indices2[init_tri_id2];
+
+    Vec3f init_tri1_points[3];
+    Vec3f init_tri2_points[3];
+
+    init_tri1_points[0] = vertices1[init_tri1[0]];
+    init_tri1_points[1] = vertices1[init_tri1[1]];
+    init_tri1_points[2] = vertices1[init_tri1[2]];
+
+    init_tri2_points[0] = vertices2[init_tri2[0]];
+    init_tri2_points[1] = vertices2[init_tri2[1]];
+    init_tri2_points[2] = vertices2[init_tri2[2]];
+
+    Vec3f p1, p2, normal;
+    FCL_REAL distance = sqrt (TriangleDistance::sqrTriDistance
+        (init_tri1_points[0], init_tri1_points[1],
+         init_tri1_points[2], init_tri2_points[0],
+         init_tri2_points[1], init_tri2_points[2],
+         RT._R(), RT._T(), p1, p2));
+
+    result->update(distance, model1, model2, init_tri_id1, init_tri_id2, p1, p2,
+        normal);
+  }
+  void postprocessOrientedNode()
+  {
+    /// the points obtained by triDistance are not in world space: both are in object1's local coordinate system, so we need to convert them into the world space.
+    if(request.enable_nearest_points && (result->o1 == model1) && (result->o2 == model2))
+    {
+      result->nearest_points[0] = tf1.transform(result->nearest_points[0]);
+      result->nearest_points[1] = tf1.transform(result->nearest_points[1]);
+    }
+  }
 };
 
 /// @brief Traversal node for distance computation between two meshes if their underlying BVH node is oriented node (RSS, OBBRSS, kIOS)
-class MeshDistanceTraversalNodeRSS : public MeshDistanceTraversalNode<RSS>
-{
-public:
-  MeshDistanceTraversalNodeRSS();
-
-  void preprocess();
-
-  void postprocess();
-
-  FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
-
-  void leafComputeDistance(int b1, int b2) const;
-
-  Matrix3f R;
-  Vec3f T;
-};
-
-
-class MeshDistanceTraversalNodekIOS : public MeshDistanceTraversalNode<kIOS>
-{
-public:
-  MeshDistanceTraversalNodekIOS();
-
-  void preprocess();
-  
-  void postprocess();
-
-  FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
-
-  void leafComputeDistance(int b1, int b2) const;
-
-  Matrix3f R;
-  Vec3f T;
-};
-
-class MeshDistanceTraversalNodeOBBRSS : public MeshDistanceTraversalNode<OBBRSS>
-{
-public:
-  MeshDistanceTraversalNodeOBBRSS();
-
-  void preprocess();
-
-  void postprocess();
-
-  FCL_REAL BVDistanceLowerBound(int b1, int b2) const;
-
-  FCL_REAL BVDistanceLowerBound(int b1, int b2, FCL_REAL& sqrDistLowerBound) const;
-
-  void leafComputeDistance(int b1, int b2) const;
-
-  Matrix3f R;
-  Vec3f T;
-};
+typedef MeshDistanceTraversalNode<RSS   , 0> MeshDistanceTraversalNodeRSS;
+typedef MeshDistanceTraversalNode<kIOS  , 0> MeshDistanceTraversalNodekIOS;
+typedef MeshDistanceTraversalNode<OBBRSS, 0> MeshDistanceTraversalNodeOBBRSS;
 
 /// @}
 

@@ -40,6 +40,7 @@
 
 /// @cond INTERNAL
 
+#include <hpp/fcl/internal/tools.h>
 #include <hpp/fcl/internal/traversal_node_bvhs.h>
 #include <hpp/fcl/internal/traversal_node_shapes.h>
 #include <hpp/fcl/internal/traversal_node_bvh_shape.h>
@@ -513,7 +514,7 @@ bool initialize(ShapeDistanceTraversalNode<S1, S2>& node,
 
 /// @brief Initialize traversal node for distance computation between two meshes, given the current transforms
 template<typename BV>
-bool initialize(MeshDistanceTraversalNode<BV>& node,
+bool initialize(MeshDistanceTraversalNode<BV, RelativeTransformationIsIdentity>& node,
                 BVHModel<BV>& model1, Transform3f& tf1,
                 BVHModel<BV>& model2, Transform3f& tf2,
                 const DistanceRequest& request,
@@ -574,27 +575,37 @@ bool initialize(MeshDistanceTraversalNode<BV>& node,
   return true;
 }
 
-
-/// @brief Initialize traversal node for distance computation between two meshes, specialized for RSS type
-bool initialize(MeshDistanceTraversalNodeRSS& node,
-                const BVHModel<RSS>& model1, const Transform3f& tf1,
-                const BVHModel<RSS>& model2, const Transform3f& tf2,
+/// @brief Initialize traversal node for distance computation between two meshes
+template<typename BV>
+bool initialize(MeshDistanceTraversalNode<BV, 0>& node,
+                const BVHModel<BV>& model1, const Transform3f& tf1,
+                const BVHModel<BV>& model2, const Transform3f& tf2,
                 const DistanceRequest& request,
-                DistanceResult& result);
+                DistanceResult& result)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
 
-/// @brief Initialize traversal node for distance computation between two meshes, specialized for kIOS type
-bool initialize(MeshDistanceTraversalNodekIOS& node,
-                const BVHModel<kIOS>& model1, const Transform3f& tf1,
-                const BVHModel<kIOS>& model2, const Transform3f& tf2,
-                const DistanceRequest& request,
-                DistanceResult& result);
+  node.request = request;
+  node.result = &result;
 
-/// @brief Initialize traversal node for distance computation between two meshes, specialized for OBBRSS type
-bool initialize(MeshDistanceTraversalNodeOBBRSS& node,
-                const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
-                const DistanceRequest& request,
-                DistanceResult& result);
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+
+  node.vertices1 = model1.vertices;
+  node.vertices2 = model2.vertices;
+
+  node.tri_indices1 = model1.tri_indices;
+  node.tri_indices2 = model2.tri_indices;
+
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(),
+      tf2.getRotation(), tf2.getTranslation(),
+      node.RT.R, node.RT.T);
+
+  return true;
+}
 
 /// @brief Initialize traversal node for distance computation between one mesh and one shape, given the current transforms
 template<typename BV, typename S>
