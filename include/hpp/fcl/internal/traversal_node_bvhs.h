@@ -252,12 +252,6 @@ public:
     }
   }
 
-  /// @brief Whether the traversal process can stop early
-  bool canStop() const
-  {
-    return this->request.isSatisfied(*(this->result));
-  }
-
   Vec3f* vertices1;
   Vec3f* vertices2;
 

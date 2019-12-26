@@ -253,12 +253,6 @@ public:
     assert (!this->result->isCollision () || sqrDistLowerBound > 0);
   }
 
-  /// @brief Whether the traversal process can stop early
-  bool canStop() const
-  {
-    return this->request.isSatisfied(*(this->result));
-  }
-
   Vec3f* vertices;
   Triangle* tri_indices;
 
@@ -364,12 +358,6 @@ public:
                                        -distance));
     }
     assert (!this->result->isCollision () || sqrDistLowerBound > 0);
-  }
-
-  /// @brief Whether the traversal process can stop early
-  bool canStop() const
-  {
-    return this->request.isSatisfied(*(this->result));
   }
 
   Vec3f* vertices;
