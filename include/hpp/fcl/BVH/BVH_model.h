@@ -250,6 +250,7 @@ protected:
 };
 
 /// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
+/// \tparam BV one of the bounding volume class in \ref Bounding_Volume.
 template<typename BV>
 class BVHModel : public BVHModelBase
 {

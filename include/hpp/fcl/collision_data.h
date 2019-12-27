@@ -288,7 +288,7 @@ struct DistanceRequest
   FCL_REAL rel_err; // relative error, between 0 and 1
   FCL_REAL abs_err; // absoluate error
 
-  /// \deprected the last argument should be removed.
+  /// \deprecated the last argument should be removed.
   DistanceRequest(bool enable_nearest_points_,
                   FCL_REAL rel_err_,
                   FCL_REAL abs_err_,

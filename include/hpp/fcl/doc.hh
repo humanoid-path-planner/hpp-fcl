@@ -47,5 +47,5 @@
 /// \par Using hpp-fcl
 ///
 /// The main entry points to the library are functions
-/// \li hpp::fcl::collide and
-/// \li hpp::fcl::distance.
+/// \li hpp::fcl::collide(const CollisionObject*, const CollisionObject*, const CollisionRequest&, CollisionResult&)
+/// \li hpp::fcl::distance(const CollisionObject*, const CollisionObject*, const DistanceRequest&, DistanceResult&)

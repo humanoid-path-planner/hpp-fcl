@@ -47,8 +47,8 @@ namespace fcl
 
 struct CollisionRequest;
 
-/// @defgroup Bounding_Volume 
-/// regroup class of differents types of bounding volume.
+/// @defgroup Bounding_Volume Bounding volumes
+/// Classes of different types of bounding volume.
 /// @{
 
 /// @brief A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points

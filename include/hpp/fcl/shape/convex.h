@@ -46,15 +46,15 @@ namespace hpp
 namespace fcl
 {
 
-/// @brief Convex polytope 
+/// @brief Convex polytope
 /// @tparam PolygonT the polygon class. It must have method \c size() and
 ///         \c operator[](int i)
 template <typename PolygonT>
 class Convex : public ConvexBase
 {
 public:
-  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
-  /// \param own_storage whether this class owns the pointers of points and
+  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information
+  /// \param ownStorage whether this class owns the pointers of points and
   ///                    polygons. If owned, they are deleted upon destruction.
   /// \param points_ list of 3D points
   /// \param num_points_ number of 3D points

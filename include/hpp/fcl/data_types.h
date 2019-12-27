@@ -95,7 +95,7 @@ public:
     vids[0] = p1; vids[1] = p2; vids[2] = p3;
   }
 
-  /// @access the triangle index
+  /// @brief Access the triangle index
   inline index_type operator[](int i) const { return vids[i]; }
 
   inline index_type& operator[](int i) { return vids[i]; }
