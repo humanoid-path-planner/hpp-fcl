@@ -39,18 +39,21 @@
 #ifndef HPP_FCL_COLLISION_DATA_H
 #define HPP_FCL_COLLISION_DATA_H
 
-#include <hpp/fcl/collision_object.h>
-
-#include <hpp/fcl/data_types.h>
 #include <vector>
 #include <set>
 #include <limits>
+
+#include <hpp/fcl/collision_object.h>
+#include <hpp/fcl/config.hh>
+#include <hpp/fcl/data_types.h>
 
 
 namespace hpp
 {
 namespace fcl
 {
+
+const int GST_INDEP HPP_FCL_DEPRECATED = 0;
 
 /// @brief Contact information returned by collision
 struct Contact
@@ -284,6 +287,17 @@ struct DistanceRequest
   /// @brief error threshold for approximate distance
   FCL_REAL rel_err; // relative error, between 0 and 1
   FCL_REAL abs_err; // absoluate error
+
+  /// \deprected the last argument should be removed.
+  DistanceRequest(bool enable_nearest_points_,
+                  FCL_REAL rel_err_,
+                  FCL_REAL abs_err_,
+                  int /*unused*/) HPP_FCL_DEPRECATED :
+    enable_nearest_points(enable_nearest_points_),
+    rel_err(rel_err_),
+    abs_err(abs_err_)
+  {
+  }
 
   DistanceRequest(bool enable_nearest_points_ = false,
                   FCL_REAL rel_err_ = 0.0,
