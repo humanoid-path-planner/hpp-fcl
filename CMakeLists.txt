@@ -63,12 +63,16 @@ include(cmake/ide.cmake)
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
 
-OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" OFF)
+OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" ON)
 
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
 add_required_dependency("eigen3 >= 3.0.0")
+
+if (BUILD_PYTHON_INTERFACE)
+  ADD_REQUIRED_DEPENDENCY("eigenpy >= 1.2")
+endif ()
 
 # Add a cache variable to allow not compiling and running tests
 set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
