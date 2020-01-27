@@ -320,8 +320,10 @@ void exposeCollisionGeometries ()
 
   class_ <BVHModelBase, bases<CollisionGeometry>, BVHModelPtr_t, noncopyable>
     ("BVHModelBase", no_init)
-    .def ("vertices", &BVHModelBaseWrapper::vertices)
-    .def ("tri_indices", &BVHModelBaseWrapper::tri_indices)
+    .def ("vertices", &BVHModelBaseWrapper::vertices,
+          bp::args("self","index"),"Retrieve the vertex given by its index.")
+    .def ("tri_indices", &BVHModelBaseWrapper::tri_indices,
+          bp::args("self","index"),"Retrieve the triangle given by its index.")
     .def_readonly ("num_vertices", &BVHModelBase::num_vertices)
     .def_readonly ("num_tris", &BVHModelBase::num_tris)
 
