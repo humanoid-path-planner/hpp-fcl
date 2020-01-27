@@ -312,7 +312,17 @@ void exposeCollisionGeometries ()
       .def ("computeVolume", &CollisionGeometry::computeVolume)
       .def ("computeMomentofInertiaRelatedToCOM", &CollisionGeometry::computeMomentofInertiaRelatedToCOM)
 
-      .def_readwrite("aabb_radius",&CollisionGeometry::aabb_radius,"AABB radius")
+      .def_readwrite("aabb_radius",&CollisionGeometry::aabb_radius,"AABB radius.")
+      .def_readwrite("aabb_center",&CollisionGeometry::aabb_center,"AABB center in local coordinate.")
+      .def_readwrite("aabb_local",&CollisionGeometry::aabb_local,"AABB in local coordinate, used for tight AABB when only translation transform.")
+    
+      .def("isOccupied",&CollisionGeometry::isOccupied,bp::arg("self"),"Whether the object is completely occupied.")
+      .def("isFree",&CollisionGeometry::isFree,bp::arg("self"),"Whether the object is completely free.")
+      .def("isUncertain",&CollisionGeometry::isUncertain,bp::arg("self"),"Whether the object has some uncertainty.")
+
+      .def_readwrite("cost_density",&CollisionGeometry::cost_density,"Collision cost for unit volume.")
+      .def_readwrite("threshold_occupied",&CollisionGeometry::threshold_occupied,"Threshold for occupied ( >= is occupied).")
+      .def_readwrite("threshold_free",&CollisionGeometry::threshold_free,"Threshold for free (<= is free).")
       ;
   }
 
