@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019 CNRS-LAAS INRIA
+//  Copyright (c) 2019-2020 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -183,6 +183,13 @@ void exposeShapes ()
 
 }
 
+boost::python::tuple AABB_distance_proxy(const AABB & self, const AABB & other)
+{
+  Vec3f P,Q;
+  FCL_REAL distance = self.distance(other,&P,&Q);
+  return boost::python::tuple((distance,P,Q));
+}
+
 void exposeCollisionGeometries ()
 {
   
@@ -220,6 +227,76 @@ void exposeCollisionGeometries ()
       .value ("GEOM_OCTREE"   , GEOM_OCTREE)
       ;
   }
+  
+  namespace bp = boost::python;
+  
+  class_<AABB>("AABB",
+               "A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points",
+               no_init)
+    .def(init<>("Default constructor"))
+    .def(init<Vec3f>(bp::arg("v"),"Creating an AABB at position v with zero size."))
+    .def(init<Vec3f,Vec3f>(bp::args("a","b"),"Creating an AABB with two endpoints a and b."))
+    .def(init<AABB,Vec3f>(bp::args("core","delta"),"Creating an AABB centered as core and is of half-dimension delta."))
+    .def(init<Vec3f,Vec3f,Vec3f>(bp::args("a","b","c"),"Creating an AABB contains three points."))
+  
+    .def("contain",
+         (bool (AABB::*)(const Vec3f &) const)&AABB::contain,
+         bp::args("self","p"),
+         "Check whether the AABB contains a point p.")
+    .def("contain",
+         (bool (AABB::*)(const AABB &) const)&AABB::contain,
+         bp::args("self","other"),
+         "Check whether the AABB contains another AABB.")
+  
+    .def("overlap",
+         (bool (AABB::*)(const AABB &) const)&AABB::overlap,
+         bp::args("self","other"),
+         "Check whether two AABB are overlap.")
+    .def("overlap",
+         (bool (AABB::*)(const AABB&, AABB&) const)&AABB::overlap,
+         bp::args("self","other","overlapping_part"),
+         "Check whether two AABB are overlaping and return the overloaping part if true.")
+  
+    .def("distance",
+         (FCL_REAL (AABB::*)(const AABB &) const)&AABB::distance,
+         bp::args("self","other"),
+         "Distance between two AABBs.")
+//    .def("distance",
+//         AABB_distance_proxy,
+//         bp::args("self","other"),
+//         "Distance between two AABBs.")
+  
+    .def(bp::self + bp::self)
+    .def(bp::self += bp::self)
+    .def(bp::self += Vec3f())
+  
+    .def("size",&AABB::volume,bp::arg("self"),"Size of the AABB.")
+    .def("center",&AABB::center,bp::arg("self"),"Center of the AABB.")
+    .def("width",&AABB::width,bp::arg("self"),"Width of the AABB.")
+    .def("height",&AABB::height,bp::arg("self"),"Height of the AABB.")
+    .def("depth",&AABB::depth,bp::arg("self"),"Depth of the AABB.")
+    .def("volume",&AABB::volume,bp::arg("self"),"Volume of the AABB.")
+  
+    .def("expand",
+         (AABB& (AABB::*)(const AABB &, FCL_REAL))&AABB::expand,
+         bp::args("self","core","ratio"),
+         "Expand the AABB by increase the thickness of the plate by a ratio.",
+         bp::return_internal_reference<>())
+    .def("expand",
+         (AABB& (AABB::*)(const Vec3f &))&AABB::expand,
+         bp::args("self","delta"),
+         "Expand the half size of the AABB by delta, and keep the center unchanged.",
+         bp::return_internal_reference<>());
+  
+  def("translate",
+      (AABB (*)(const AABB&, const Vec3f&))&translate,
+      bp::args("aabb","t"),
+      "Translate the center of AABB by t");
+  
+  def("rotate",
+      (AABB (*)(const AABB&, const Matrix3f&))&rotate,
+      bp::args("aabb","R"),
+      "Rotate the AABB object by R");
 
   if(!eigenpy::register_symbolic_link_to_registered_type<CollisionGeometry>())
   {
