@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019 CNRS-LAAS INRIA
+//  Copyright (c) 2019-2020 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -46,16 +46,21 @@
 
 #include <hpp/fcl/collision.h>
 
-using namespace boost::python;
-
 using namespace hpp::fcl;
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(load_overloads,MeshLoader::load,1,2)
 
 void exposeMeshLoader ()
 {
+  using namespace boost::python;
+  
   if(!eigenpy::register_symbolic_link_to_registered_type<MeshLoader>())
   {
-    class_ <MeshLoader> ("MeshLoader", init< optional< NODE_TYPE> >())
-      .def ("load", static_cast <BVHModelPtr_t (MeshLoader::*) (const std::string&, const Vec3f&)> (&MeshLoader::load))
+    class_ <MeshLoader> ("MeshLoader", no_init)
+      .def(init< optional< NODE_TYPE> >(arg("node_type"),"Default constructor"))
+      .def ("load",(BVHModelPtr_t(MeshLoader::*)(const std::string&,const Vec3f&))&MeshLoader::load,
+            load_overloads(args("filename","scale"),
+                           "Load a mesh given by its filename"))
       ;
   }
 

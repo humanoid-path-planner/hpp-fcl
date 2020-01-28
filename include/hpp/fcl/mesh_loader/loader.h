@@ -4,6 +4,7 @@
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
  *  Copyright (c) 2016, CNRS - LAAS
+ *  Copyright (c) 2020, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -64,7 +65,7 @@ namespace fcl {
       }
 
       virtual BVHModelPtr_t load (const std::string& filename,
-          const Vec3f& scale);
+                                  const Vec3f& scale = Vec3f::Ones());
 
       MeshLoader (const NODE_TYPE& bvType = BV_OBBRSS) : bvType_ (bvType) {}
 
