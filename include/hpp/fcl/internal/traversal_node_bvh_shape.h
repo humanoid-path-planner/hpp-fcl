@@ -253,64 +253,11 @@ public:
     assert (!this->result->isCollision () || sqrDistLowerBound > 0);
   }
 
-  /// @brief Whether the traversal process can stop early
-  bool canStop() const
-  {
-    return this->request.isSatisfied(*(this->result));
-  }
-
   Vec3f* vertices;
   Triangle* tri_indices;
 
   const GJKSolver* nsolver;
 };
-
-/// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
-template<typename S>
-class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, 0>
-{
-public:
-  MeshShapeCollisionTraversalNodeOBB(const CollisionRequest& request) :
-  MeshShapeCollisionTraversalNode<OBB, S, 0>
-    (request)
-  {
-  }
-
-};
-
-template<typename S>
-class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSS, S, 0>
-{
-public:
-  MeshShapeCollisionTraversalNodeRSS (const CollisionRequest& request):
-  MeshShapeCollisionTraversalNode<RSS, S, 0>
-    (request)
-  {
-  }
-};
-
-template<typename S>
-class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOS, S, 0>
-{
-public:
-  MeshShapeCollisionTraversalNodekIOS(const CollisionRequest& request):
-  MeshShapeCollisionTraversalNode<kIOS, S, 0>
-    (request)
-  {
-  }
-};
-
-template<typename S>
-class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversalNode<OBBRSS, S, 0>
-{
-public:
-  MeshShapeCollisionTraversalNodeOBBRSS (const CollisionRequest& request) :
-  MeshShapeCollisionTraversalNode <OBBRSS, S, 0>
-    (request)
-  {
-  }
-};
-
 
 /// @brief Traversal node for collision between shape and mesh
 template<typename S, typename BV,
@@ -413,56 +360,10 @@ public:
     assert (!this->result->isCollision () || sqrDistLowerBound > 0);
   }
 
-  /// @brief Whether the traversal process can stop early
-  bool canStop() const
-  {
-    return this->request.isSatisfied(*(this->result));
-  }
-
   Vec3f* vertices;
   Triangle* tri_indices;
 
   const GJKSolver* nsolver;
-};
-
-/// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
-template<typename S>
-class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNode<S, OBB, 0>
-{
-public:
-  ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<S, OBB>()
-  {
-  }
-};
-
-
-template<typename S>
-class ShapeMeshCollisionTraversalNodeRSS : public ShapeMeshCollisionTraversalNode<S, RSS, 0>
-{
-public:
-  ShapeMeshCollisionTraversalNodeRSS() : ShapeMeshCollisionTraversalNode<S, RSS>()
-  {
-  }
-};
-
-
-template<typename S>
-class ShapeMeshCollisionTraversalNodekIOS : public ShapeMeshCollisionTraversalNode<S, kIOS, 0>
-{
-public:
-  ShapeMeshCollisionTraversalNodekIOS() : ShapeMeshCollisionTraversalNode<S, kIOS>()
-  {
-  }
-};
-
-
-template<typename S>
-class ShapeMeshCollisionTraversalNodeOBBRSS : public ShapeMeshCollisionTraversalNode<S, OBBRSS, 0>
-{
-public:
-  ShapeMeshCollisionTraversalNodeOBBRSS() : ShapeMeshCollisionTraversalNode<S, OBBRSS>()
-  {
-  }
 };
 
 /// @}

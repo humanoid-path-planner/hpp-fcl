@@ -99,7 +99,11 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_trivial)
     size_t sphere_num_collisions = collide(&sphere_o1, &sphere_o2, collisionRequest, sphere_collisionResult);
     size_t capsule_num_collisions = collide(&capsule_o1, &capsule_o2, collisionRequest, capsule_collisionResult);
     
-    BOOST_CHECK(sphere_num_collisions == capsule_num_collisions);
+    BOOST_CHECK_EQUAL(sphere_num_collisions, capsule_num_collisions);
+    if (sphere_num_collisions == 0 && capsule_num_collisions == 0)
+      BOOST_CHECK_CLOSE(sphere_collisionResult.distance_lower_bound,
+                        capsule_collisionResult.distance_lower_bound,
+                        1e-6);
   }
 }
 

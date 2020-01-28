@@ -66,10 +66,7 @@ set(${LIBRARY_NAME}_SOURCES
   distance_sphere_plane.cpp
   intersect.cpp
   math/transform.cpp
-  traversal/traversal_node_setup.cpp
-  traversal/traversal_node_bvhs.cpp
   traversal/traversal_recurse.cpp
-  traversal/traversal_node_base.cpp
   profile.cpp
   distance.cpp
   BVH/BVH_utility.cpp

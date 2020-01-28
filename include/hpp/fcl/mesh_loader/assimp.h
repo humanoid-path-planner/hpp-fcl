@@ -75,7 +75,6 @@ struct Loader {
  *
  * @param[in]  scale           Scale to apply when reading the ressource
  * @param[in]  scene           Pointer to the assimp scene
- * @param[in]  node            Current node of the scene
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */

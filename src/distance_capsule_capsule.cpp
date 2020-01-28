@@ -158,36 +158,6 @@ namespace fcl {
     return distance;
   }
 
-  template <>
-  std::size_t ShapeShapeCollide <Capsule, Capsule>
-  (const CollisionGeometry* o1, const Transform3f& tf1,
-   const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver*, const CollisionRequest& request,
-   CollisionResult& result)
-  {
-    GJKSolver* unused = 0x0;
-    DistanceResult distanceResult;
-    DistanceRequest distanceRequest (request.enable_contact);
-
-    FCL_REAL distance = ShapeShapeDistance <Capsule, Capsule>
-      (o1, tf1, o2, tf2, unused, distanceRequest, distanceResult);
-
-    if (distance > 0)
-    {
-      return 0;
-    }
-    else
-    {
-      Contact contact (o1, o2, -1, -1);
-      const Vec3f& p1 = distanceResult.nearest_points [0];
-      const Vec3f& p2 = distanceResult.nearest_points [1];
-      contact.pos = 0.5 * (p1+p2);
-      contact.normal = distanceResult.normal;
-      result.addContact(contact);
-      return 1;
-    }
-  }
-
 } // namespace fcl
 
 } // namespace hpp

@@ -62,8 +62,8 @@ public:
   OBJECT_TYPE getObjectType() const { return OT_GEOM; }
 };
 
-/// @defgroup Geometric_Shapes
-/// regroup class of differents types of geometric shapes.
+/// @defgroup Geometric_Shapes Geometric shapes
+/// Classes of different types of geometric shapes.
 /// @{
 
 /// @brief Triangle stores the points instead of only indices of points

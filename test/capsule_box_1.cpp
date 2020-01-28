@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   CollisionGeometryPtr_t boxGeometry (new hpp::fcl::Box (1., 2., 4.));
 
   // Enable computation of nearest points
-  hpp::fcl::DistanceRequest distanceRequest (true, 0, 0, hpp::fcl::GST_INDEP);
+  hpp::fcl::DistanceRequest distanceRequest (true, 0, 0);
   hpp::fcl::DistanceResult distanceResult;
   
   hpp::fcl::Transform3f tf1 (hpp::fcl::Vec3f (3., 0, 0));

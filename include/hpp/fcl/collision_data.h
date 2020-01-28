@@ -39,12 +39,13 @@
 #ifndef HPP_FCL_COLLISION_DATA_H
 #define HPP_FCL_COLLISION_DATA_H
 
-#include <hpp/fcl/collision_object.h>
-
-#include <hpp/fcl/data_types.h>
 #include <vector>
 #include <set>
 #include <limits>
+
+#include <hpp/fcl/collision_object.h>
+#include <hpp/fcl/config.hh>
+#include <hpp/fcl/data_types.h>
 
 
 namespace hpp
@@ -52,8 +53,7 @@ namespace hpp
 namespace fcl
 {
 
-/// @brief Type of narrow phase GJK solver
-enum GJKSolverType {GST_INDEP};
+const int GST_INDEP HPP_FCL_DEPRECATED = 0;
 
 /// @brief Contact information returned by collision
 struct Contact
@@ -158,19 +158,18 @@ struct CollisionRequest
   /// Whether a lower bound on distance is returned when objects are disjoint
   bool enable_distance_lower_bound;
 
-  /// @brief narrow phase solver
-  GJKSolverType gjk_solver_type;
-
   /// @brief whether enable gjk intial guess
   bool enable_cached_gjk_guess;
   
   /// @brief the gjk intial guess set by user
   Vec3f cached_gjk_guess;
 
-  /// @brief Distance below which objects are considered in collision
+  /// @brief Distance below which objects are considered in collision.
+  /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
   FCL_REAL security_margin;
 
-  /// @brief Distance below which bounding volumes are break down
+  /// @brief Distance below which bounding volumes are broken down.
+  /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
   FCL_REAL break_distance;
 
   explicit CollisionRequest(size_t num_max_contacts_,
@@ -178,15 +177,13 @@ struct CollisionRequest
 		   bool enable_distance_lower_bound_ = false,
                    size_t num_max_cost_sources_ = 1,
                    bool enable_cost_ = false,
-                   bool use_approximate_cost_ = true,
-                   GJKSolverType gjk_solver_type_ = GST_INDEP)
+                   bool use_approximate_cost_ = true)
   HPP_FCL_DEPRECATED;
 
   explicit CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_) :
     num_max_contacts(num_max_contacts_),
     enable_contact(flag & CONTACT),
     enable_distance_lower_bound (flag & DISTANCE_LOWER_BOUND),
-    gjk_solver_type(GST_INDEP),
     security_margin (0),
     break_distance (1e-3)
   {
@@ -198,7 +195,6 @@ struct CollisionRequest
       num_max_contacts(1),
       enable_contact(false),
       enable_distance_lower_bound (false),
-      gjk_solver_type(GST_INDEP),
       security_margin (0),
       break_distance (1e-3)
     {
@@ -219,8 +215,10 @@ private:
 public:
   Vec3f cached_gjk_guess;
 
-  /// Lower bound on distance between objects if they are disjoint
-  /// @note computed only on request.
+  /// Lower bound on distance between objects if they are disjoint.
+  /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
+  /// @note computed only on request (or if it does not add any computational
+  /// overhead).
   FCL_REAL distance_lower_bound;
 
 public:
@@ -294,18 +292,23 @@ struct DistanceRequest
   FCL_REAL rel_err; // relative error, between 0 and 1
   FCL_REAL abs_err; // absoluate error
 
-  /// @brief narrow phase solver type
-  GJKSolverType gjk_solver_type;
-
-
+  /// \deprecated the last argument should be removed.
+  DistanceRequest(bool enable_nearest_points_,
+                  FCL_REAL rel_err_,
+                  FCL_REAL abs_err_,
+                  int /*unused*/) HPP_FCL_DEPRECATED :
+    enable_nearest_points(enable_nearest_points_),
+    rel_err(rel_err_),
+    abs_err(abs_err_)
+  {
+  }
 
   DistanceRequest(bool enable_nearest_points_ = false,
                   FCL_REAL rel_err_ = 0.0,
-                  FCL_REAL abs_err_ = 0.0,
-                  GJKSolverType gjk_solver_type_ = GST_INDEP) : enable_nearest_points(enable_nearest_points_),
-                                                                rel_err(rel_err_),
-                                                                abs_err(abs_err_),
-                                                                gjk_solver_type(gjk_solver_type_)
+                  FCL_REAL abs_err_ = 0.0) :
+    enable_nearest_points(enable_nearest_points_),
+    rel_err(rel_err_),
+    abs_err(abs_err_)
   {
   }
 

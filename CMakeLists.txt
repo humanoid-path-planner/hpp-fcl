@@ -59,6 +59,7 @@ include(cmake/python.cmake)
 include(cmake/hpp.cmake)
 include(cmake/apple.cmake)
 include(cmake/ide.cmake)
+include(cmake/test.cmake)
 
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
@@ -75,11 +76,11 @@ if (BUILD_PYTHON_INTERFACE)
 endif ()
 
 # Add a cache variable to allow not compiling and running tests
-set (RUN_TESTS TRUE CACHE BOOL "compile and run unit tests")
+set (BUILD_TESTING TRUE CACHE BOOL "compile and run unit tests")
 
 # Required dependencies
 set(BOOST_COMPONENTS thread date_time system)
-if (RUN_TESTS)
+if (BUILD_TESTING)
   set(BOOST_COMPONENTS ${BOOST_COMPONENTS} filesystem unit_test_framework chrono)
 endif ()
 if (BUILD_PYTHON_INTERFACE)
@@ -156,9 +157,7 @@ add_subdirectory(src)
 if (BUILD_PYTHON_INTERFACE)
   add_subdirectory(python)
 endif ()
-if (RUN_TESTS)
-  add_subdirectory(test)
-endif ()
+add_subdirectory(test)
 
 pkg_config_append_libs("hpp-fcl")
 PKG_CONFIG_APPEND_BOOST_LIBS(thread date_time filesystem system)

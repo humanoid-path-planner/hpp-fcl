@@ -38,15 +38,16 @@
 #ifndef HPP_FCL_MATH_TOOLS_H
 #define HPP_FCL_MATH_TOOLS_H
 
-#include <hpp/fcl/deprecated.hh>
-#include <hpp/fcl/config.hh>
-
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
 #include <cmath>
 #include <iostream>
 #include <limits>
+
+#include <hpp/fcl/deprecated.hh>
+#include <hpp/fcl/config.hh>
+#include <hpp/fcl/data_types.h>
 
 namespace hpp
 {
