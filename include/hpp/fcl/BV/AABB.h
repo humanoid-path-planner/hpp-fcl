@@ -230,16 +230,16 @@ static inline AABB translate(const AABB& aabb, const Vec3f& t)
   return res;
 }
 
-static inline AABB rotate(const AABB& aabb, const Matrix3f& t)
+static inline AABB rotate(const AABB& aabb, const Matrix3f& R)
 {
-  AABB res (t * aabb.min_);
+  AABB res (R * aabb.min_);
   Vec3f corner (aabb.min_);
   const std::size_t bit[3] = { 1, 2, 4 };
   for (std::size_t ic = 1; ic < 8; ++ic) { // ic = 0 corresponds to aabb.min_. Skip it.
     for (std::size_t i = 0; i < 3; ++i) {
       corner[i] = (ic && bit[i]) ? aabb.max_[i] : aabb.min_[i];
     }
-    res += t * corner;
+    res += R * corner;
   }
   return res;
 }
