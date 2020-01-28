@@ -71,7 +71,7 @@ void testBVHModelPointCloud()
     return;
   }
 
-  Box box;
+  Box box (Vec3f::Ones());
   double a = box.halfSide[0];
   double b = box.halfSide[1];
   double c = box.halfSide[2];
@@ -110,7 +110,7 @@ template<typename BV>
 void testBVHModelTriangles()
 {
   boost::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box box(1,1,1);
+  Box box (Vec3f::Ones());
   AABB aabb (Vec3f(-1,0,-1), Vec3f(1,1,1));
 
   double a = box.halfSide[0];
@@ -200,7 +200,7 @@ template<typename BV>
 void testBVHModelSubModel()
 {
   boost::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box box;
+  Box box (Vec3f::Ones());
 
   double a = box.halfSide[0];
   double b = box.halfSide[1];
