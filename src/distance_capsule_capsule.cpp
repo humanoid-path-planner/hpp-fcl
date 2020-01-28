@@ -178,12 +178,11 @@ namespace fcl {
     }
     else
     {
-      Contact contact (o1, o2, -1, -1);
       const Vec3f& p1 = distanceResult.nearest_points [0];
       const Vec3f& p2 = distanceResult.nearest_points [1];
-      contact.pos = 0.5 * (p1+p2);
-      contact.normal = distanceResult.normal;
-      result.addContact(contact);
+      Contact contact (o1, o2, -1, -1, (p1+p2)/2, distanceResult.normal,
+          -distanceResult.min_distance);
+      result.addContact (contact);
       return 1;
     }
   }
