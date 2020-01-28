@@ -164,10 +164,12 @@ struct CollisionRequest
   /// @brief the gjk intial guess set by user
   Vec3f cached_gjk_guess;
 
-  /// @brief Distance below which objects are considered in collision
+  /// @brief Distance below which objects are considered in collision.
+  /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
   FCL_REAL security_margin;
 
-  /// @brief Distance below which bounding volumes are break down
+  /// @brief Distance below which bounding volumes are broken down.
+  /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
   FCL_REAL break_distance;
 
   explicit CollisionRequest(size_t num_max_contacts_,
@@ -213,8 +215,10 @@ private:
 public:
   Vec3f cached_gjk_guess;
 
-  /// Lower bound on distance between objects if they are disjoint
-  /// @note computed only on request.
+  /// Lower bound on distance between objects if they are disjoint.
+  /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
+  /// @note computed only on request (or if it does not add any computational
+  /// overhead).
   FCL_REAL distance_lower_bound;
 
 public:
