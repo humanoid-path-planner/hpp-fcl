@@ -17,12 +17,22 @@ static inline const char* run ()
 {
   return "";
 }
+static inline const char* attribute (const char*)
+{
+  return "";
+}
 };
 
 template <typename _class>
 inline const char* class_doc ()
 {
   return class_doc_impl<_class>::run();
+}
+
+template <typename _class>
+inline const char* class_attrib_doc (const char* name)
+{
+  return class_doc_impl<_class>::attribute(name);
 }
 
 template <typename FuncPtr>

@@ -26,7 +26,16 @@ static inline const char* run ()
 {{
   return "{docstring}";
 }}
+static inline const char* attribute (const char* attrib)
+{{{attributes}
+  (void)attrib; // turn off unused parameter warning.
+  return "";
+}}
 }};"""
+template_class_attribute_body = \
+"""
+  if (strcmp(attrib, "{attribute}") == 0)
+    return "{docstring}";"""
 template_constructor_doc = \
 """
 template <{tplargs}>
@@ -352,11 +361,23 @@ class ClassCompound (CompoundBase):
                 self.definition.find('briefdescription'),
                 self.definition.find('detaileddescription'),
                 self.index.output)
-        if len(docstring) == 0: return
+        attribute_docstrings = ""
+        for member in self.attributes:
+            _dc = self.index.xml_docstring.getDocString(
+                member.find('briefdescription'),
+                member.find('detaileddescription'),
+                self.index.output)
+            if len(_dc) == 0: continue
+            attribute_docstrings += template_class_attribute_body.format (
+                    attribute = member.find('name').text,
+                    docstring = _dc,
+                    )
+        if len(docstring) == 0 and len(attribute_docstrings) == 0: return
         output.out (template_class_doc.format (
             tplargs = self._templateDecl(),
             classname = self._className(),
             docstring = docstring,
+            attributes = attribute_docstrings,
             ))
 
     def write (self, output):

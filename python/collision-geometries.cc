@@ -173,8 +173,8 @@ void exposeShapes ()
     ;
 
   class_ <Sphere, bases<ShapeBase>, shared_ptr<Sphere> >
-    ("Sphere", doxygen::class_doc<Sphere>(), init<FCL_REAL>())
-    .def_readwrite ("radius", &Sphere::radius)
+    ("Sphere", doxygen::class_doc<Sphere>(), init<FCL_REAL>(doxygen::constructor_doc<Sphere>()))
+    .def_readwrite ("radius", &Sphere::radius, doxygen::class_attrib_doc<Sphere>("radius"))
     ;
 
   class_ <TriangleP, bases<ShapeBase>, shared_ptr<TriangleP> >
