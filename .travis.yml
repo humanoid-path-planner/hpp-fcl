@@ -23,6 +23,8 @@ matrix:
             - libboost-all-dev
             - libassimp-dev
             - libeigen3-dev
+            - python-lxml
+            - python3-lxml
 
     - name: "Xenial - Release - g++"
       env: BUILD_TYPE=Release
@@ -36,6 +38,8 @@ matrix:
             - libassimp-dev
             - libeigen3-dev
             - liboctomap-dev
+            - python-lxml
+            - python3-lxml
 
     - name: "Bionic - Release - g++"
       env: BUILD_TYPE=Release
@@ -49,6 +53,8 @@ matrix:
             - libassimp-dev
             - libeigen3-dev
             - liboctomap-dev
+            - python-lxml
+            - python3-lxml
 
     - name: "Bionic - Debug - g++"
       env: BUILD_TYPE=Debug
@@ -62,6 +68,8 @@ matrix:
             - libassimp-dev
             - libeigen3-dev
             - liboctomap-dev
+            - python-lxml
+            - python3-lxml
 
     - name: "OSX - Release - clang"
       env: BUILD_TYPE=Release
