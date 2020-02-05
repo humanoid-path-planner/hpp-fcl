@@ -44,7 +44,7 @@ INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 
 ADD_CUSTOM_TARGET(generate_doxygen_cpp_doc
-  COMMAND ${CMAKE_SOURCE_DIR}/cmake/doxygen/doxygen_xml_parser.py
+  COMMAND ${CMAKE_SOURCE_DIR}/doc/python/doxygen_xml_parser.py
   ${CMAKE_BINARY_DIR}/doc/doxygen-xml/index.xml
   ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc > ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc.log
   BYPRODUCTS
@@ -57,7 +57,7 @@ ADD_DEPENDENCIES(generate_doxygen_cpp_doc doc)
 SET(${LIBRARY_NAME}_HEADERS
   ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc/doxygen_xml_parser_for_cmake.hh
   fcl.hh
-  ) 
+  )
 
 SET(${LIBRARY_NAME}_SOURCES
   version.cc

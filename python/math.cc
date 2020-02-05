@@ -44,7 +44,7 @@
 
 #include "doxygen_autodoc/hpp/fcl/math/transform.h"
 
-#include "../cmake/doxygen/doxygen-boost.hh"
+#include "../doc/python/doxygen-boost.hh"
 
 using namespace boost::python;
 using namespace hpp::fcl;
