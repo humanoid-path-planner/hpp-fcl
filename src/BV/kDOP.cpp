@@ -39,6 +39,8 @@
 #include <limits>
 #include <iostream>
 
+#include <hpp/fcl/collision_data.h>
+
 namespace hpp
 {
 namespace fcl
@@ -152,6 +154,28 @@ bool KDOP<N>::overlap(const KDOP<N>& other) const
 {
   if ((dist_.template head<N/2>() > other.dist_.template tail<N/2>()).any()) return false;
   if ((dist_.template tail<N/2>() < other.dist_.template head<N/2>()).any()) return false;
+  return true;
+}
+
+template<short N>
+bool KDOP<N>::overlap(const KDOP<N>& other, const CollisionRequest& request,
+    FCL_REAL& sqrDistLowerBound) const
+{
+  const FCL_REAL breakDistance (request.break_distance + request.security_margin);
+
+  FCL_REAL a = (dist_.template head<N/2>() - other.dist_.template tail<N/2>()).minCoeff();
+  if (a > breakDistance) {
+    sqrDistLowerBound = a*a;
+    return false;
+  }
+
+  FCL_REAL b = (other.dist_.template head<N/2>() - dist_.template tail<N/2>()).minCoeff();
+  if (b > breakDistance) {
+    sqrDistLowerBound = b*b;
+    return false;
+  }
+
+  sqrDistLowerBound = std::min(a, b);
   return true;
 }
 

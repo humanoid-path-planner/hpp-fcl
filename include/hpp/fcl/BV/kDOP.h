@@ -103,16 +103,15 @@ public:
   /// @brief Creating kDOP containing two points
   KDOP(const Vec3f& a, const Vec3f& b);
   
-  /// @brief Check whether two KDOPs are overlapped
+  /// @brief Check whether two KDOPs overlap.
   bool overlap(const KDOP<N>& other) const;
 
-  /// Not implemented
-  bool overlap(const KDOP<N>& other, const CollisionRequest&,
-               FCL_REAL& sqrDistLowerBound) const
-  {
-    sqrDistLowerBound = sqrt (-1);
-    return overlap (other);
-  }
+  /// @brief Check whether two KDOPs overlap.
+  /// @return true if collision happens. 
+  /// @retval sqrDistLowerBound squared lower bound on distance between boxes if
+  ///         they do not overlap.
+  bool overlap(const KDOP<N>& other, const CollisionRequest& request,
+               FCL_REAL& sqrDistLowerBound) const;
 
     /// @brief The distance between two KDOP<N>. Not implemented.
   FCL_REAL distance(const KDOP<N>& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
