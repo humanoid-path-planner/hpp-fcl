@@ -331,6 +331,9 @@ namespace internal
         const Matrix3f& Bf,
         const FCL_REAL& breakDistance2, FCL_REAL& squaredLowerBoundDistance)
     {
+      FCL_REAL sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
+      if (sinus2 < 1e-6) return false;
+
       const FCL_REAL s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
 
       const FCL_REAL diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
@@ -338,21 +341,10 @@ namespace internal
       // We need to divide by the norm || Aia x Bib ||
       // As ||Aia|| = ||Bib|| = 1, (Aia | Bib)^2  = cosine^2
       if (diff > 0) {
-        FCL_REAL sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
-        if (sinus2 > 1e-6) {
-          squaredLowerBoundDistance = diff * diff / sinus2;
-          if (squaredLowerBoundDistance > breakDistance2) {
-            return true;
-          }
+        squaredLowerBoundDistance = diff * diff / sinus2;
+        if (squaredLowerBoundDistance > breakDistance2) {
+          return true;
         }
-        /* // or
-           FCL_REAL sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
-           squaredLowerBoundDistance = diff * diff;
-           if (squaredLowerBoundDistance > breakDistance2 * sinus2) {
-           squaredLowerBoundDistance /= sinus2;
-           return true;
-           }
-        // */
       }
       return false;
     }
