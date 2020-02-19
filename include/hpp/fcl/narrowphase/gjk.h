@@ -218,7 +218,6 @@ static const size_t EPA_MAX_ITERATIONS = 255;
 /// @brief class for EPA algorithm
 struct EPA
 {
-private:
   typedef GJK::SimplexV SimplexV;
   struct SimplexF
   {

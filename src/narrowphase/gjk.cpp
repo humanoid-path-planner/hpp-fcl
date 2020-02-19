@@ -1194,46 +1194,35 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
       status = Valid;
       for(; iterations < max_iterations; ++iterations)
       {
-        if(nextsv < max_vertex_num)
-        {
-          SimplexHorizon horizon;
-          SimplexV* w = &sv_store[nextsv++];
-          bool valid = true;
-          best->pass = ++pass;
-          // At the moment, SimplexF.n is always normalized. This could be revised in the future...
-          gjk.getSupport(best->n, true, *w);
-          FCL_REAL wdist = best->n.dot(w->w) - best->d;
-          if(wdist > tolerance)
-          {
-            for(size_t j = 0; (j < 3) && valid; ++j)
-            {
-              valid &= expand(pass, w, best->f[j], best->e[j], horizon);
-            }
+        if (nextsv >= max_vertex_num) {
+          status = OutOfVertices;
+          break;
+        }
 
-              
-            if(valid && horizon.nf >= 3)
-            {
-              // need to add the edge connectivity between first and last faces
-              bind(horizon.ff, 2, horizon.cf, 1);
-              hull.remove(best);
-              stock.append(best);
-              best = findBest();
-              outer = *best;
-            }
-            else
-            {
-              status = InvalidHull; break;
-            }
-          }
-          else
-          {
-            status = AccuracyReached; break;
-          }
+        SimplexHorizon horizon;
+        SimplexV* w = &sv_store[nextsv++];
+        bool valid = true;
+        best->pass = ++pass;
+        // At the moment, SimplexF.n is always normalized. This could be revised in the future...
+        gjk.getSupport(best->n, true, *w);
+        FCL_REAL wdist = best->n.dot(w->w) - best->d;
+        if(wdist <= tolerance) {
+          status = AccuracyReached;
+          break;
         }
-        else
-        {
-          status = OutOfVertices; break;
+        for(size_t j = 0; (j < 3) && valid; ++j)
+          valid &= expand(pass, w, best->f[j], best->e[j], horizon);
+
+        if(!valid || horizon.nf < 3) {
+          status = InvalidHull;
+          break;
         }
+        // need to add the edge connectivity between first and last faces
+        bind(horizon.ff, 2, horizon.cf, 1);
+        hull.remove(best);
+        stock.append(best);
+        best = findBest();
+        outer = *best;
       }
 
       normal = outer.n;
