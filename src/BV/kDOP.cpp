@@ -112,8 +112,8 @@ template<short N>
 KDOP<N>::KDOP()
 {
   FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
-  dist_.template head<N/2>() = real_max;
-  dist_.template tail<N/2>() = -real_max;
+  dist_.template head<N/2>().setConstant( real_max);
+  dist_.template tail<N/2>().setConstant(-real_max);
 }
 
 template<short N>
