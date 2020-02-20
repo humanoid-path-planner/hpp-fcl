@@ -5,7 +5,6 @@ brew tap gepetto/homebrew-gepetto
 
 # install eigenpy
 
-brew install python@2
 brew install boost assimp eigen octomap 
 
 brew uninstall numpy
