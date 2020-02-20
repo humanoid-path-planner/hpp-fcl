@@ -42,8 +42,14 @@
 
 #include "fcl.hh"
 
-using namespace boost::python;
+#ifdef HAS_DOXYGEN_AUTODOC
+#include "doxygen_autodoc/hpp/fcl/math/transform.h"
+#endif
 
+#include "../doc/python/doxygen.hh"
+#include "../doc/python/doxygen-boost.hh"
+
+using namespace boost::python;
 using namespace hpp::fcl;
 
 struct TriangleWrapper
@@ -69,30 +75,32 @@ void exposeMaths ()
   if(!eigenpy::register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
     eigenpy::exposeAngleAxis();
 
-  class_ <Transform3f> ("Transform3f", init<>("Default constructor."))
-    .def (init<Matrix3f, Vec3f>())
-    .def (init<Quaternion3f, Vec3f>())
-    .def (init<Matrix3f>())
-    .def (init<Quaternion3f>())
-    .def (init<Vec3f>())
-    .def (init<Transform3f>(args("self","other"),"Copy constructor."))
+  eigenpy::enableEigenPySpecific<Matrix3f>();
+  eigenpy::enableEigenPySpecific<Vec3f   >();
 
-    .def ("getQuatRotation", &Transform3f::getQuatRotation)
-    .def ("getTranslation", &Transform3f::getTranslation, return_value_policy<copy_const_reference>())
+  class_ <Transform3f> ("Transform3f", doxygen::class_doc<Transform3f>(), init<>(doxygen::constructor_doc<Transform3f>()))
+    .def (init<Matrix3f, Vec3f>    (doxygen::constructor_doc<Transform3f, const Matrix3f::MatrixBase&, const Vec3f::MatrixBase&>()))
+    .def (init<Quaternion3f, Vec3f>(doxygen::constructor_doc<Transform3f, const Quaternion3f&        , const Vec3f::MatrixBase&>()))
+    .def (init<Matrix3f>           (doxygen::constructor_doc<Transform3f, const Matrix3f&                                      >()))
+    .def (init<Quaternion3f>       (doxygen::constructor_doc<Transform3f, const Quaternion3f&                                  >()))
+    .def (init<Vec3f>              (doxygen::constructor_doc<Transform3f, const Vec3f&                                         >()))
+
+    .def ("getQuatRotation", &Transform3f::getQuatRotation, doxygen::member_func_doc(&Transform3f::getQuatRotation))
+    .def ("getTranslation", &Transform3f::getTranslation, doxygen::member_func_doc(&Transform3f::getTranslation), return_value_policy<copy_const_reference>())
     .def ("getRotation", &Transform3f::getRotation, return_value_policy<copy_const_reference>())
     .def ("isIdentity", &Transform3f::setIdentity)
 
-    .def ("setQuatRotation", &Transform3f::setQuatRotation)
+    .def (doxygen::visitor::member_func("setQuatRotation", &Transform3f::setQuatRotation))
     .def ("setTranslation", &Transform3f::setTranslation<Vec3f>)
     .def ("setRotation", &Transform3f::setRotation<Matrix3f>)
-    .def ("setTransform", &Transform3f::setTransform<Matrix3f,Vec3f>)
-    .def ("setTransform", static_cast<void (Transform3f::*)(const Quaternion3f&, const Vec3f&)>(&Transform3f::setTransform))
-    .def ("setIdentity", &Transform3f::setIdentity)
+    .def (doxygen::visitor::member_func("setTransform", &Transform3f::setTransform<Matrix3f,Vec3f>))
+    .def (doxygen::visitor::member_func("setTransform", static_cast<void (Transform3f::*)(const Quaternion3f&, const Vec3f&)>(&Transform3f::setTransform)))
+    .def (doxygen::visitor::member_func("setIdentity", &Transform3f::setIdentity))
 
-    .def ("transform", &Transform3f::transform<Vec3f>)
-    .def ("inverseInPlace", &Transform3f::inverseInPlace, return_internal_reference<>())
-    .def ("inverse", &Transform3f::inverse)
-    .def ("inverseTimes", &Transform3f::inverseTimes)
+    .def (doxygen::visitor::member_func("transform", &Transform3f::transform<Vec3f>))
+    .def ("inverseInPlace", &Transform3f::inverseInPlace, return_internal_reference<>(), doxygen::member_func_doc(&Transform3f::inverseInPlace))
+    .def (doxygen::visitor::member_func("inverse", &Transform3f::inverse))
+    .def (doxygen::visitor::member_func("inverseTimes", &Transform3f::inverseTimes))
 
     .def (self * self)
     .def (self *= self)
