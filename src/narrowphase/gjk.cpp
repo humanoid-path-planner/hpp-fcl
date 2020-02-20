@@ -1281,17 +1281,17 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon
       ++horizon.nf;
       return true;
     }
+    return false;
   }
-  else // case 2: the new face is coplanar with the old face f. We need to add two faces and delete the old face
+
+  // case 2: the new face is coplanar with the old face f. We need to add two faces and delete the old face
+  const size_t e2 = previ[e];
+  f->pass = pass;
+  if(expand(pass, w, f->f[e1], f->e[e1], horizon) && expand(pass, w, f->f[e2], f->e[e2], horizon))
   {
-    const size_t e2 = previ[e];
-    f->pass = pass;
-    if(expand(pass, w, f->f[e1], f->e[e1], horizon) && expand(pass, w, f->f[e2], f->e[e2], horizon))
-    {
-      hull.remove(f);
-      stock.append(f);
-      return true;
-    }
+    hull.remove(f);
+    stock.append(f);
+    return true;
   }
   return false;
 }
