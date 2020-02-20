@@ -9,5 +9,5 @@ brew install boost assimp eigen octomap
 
 brew uninstall numpy
 pip uninstall numpy -y
-brew install eigenpy
+brew install eigenpy@2
 brew link --overwrite numpy@1.16
