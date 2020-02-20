@@ -43,21 +43,25 @@ INCLUDE_DIRECTORIES("${Boost_INCLUDE_DIRS}" ${PYTHON_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src")
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 
-ADD_CUSTOM_TARGET(generate_doxygen_cpp_doc
-  COMMAND ${CMAKE_SOURCE_DIR}/doc/python/doxygen_xml_parser.py
-  ${CMAKE_BINARY_DIR}/doc/doxygen-xml/index.xml
-  ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc > ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc.log
-  BYPRODUCTS
-  ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc/doxygen_xml_parser_for_cmake.hh
-  ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc.log
-  COMMENT "Generating Doxygen C++ documentation"
-  )
-ADD_DEPENDENCIES(generate_doxygen_cpp_doc doc)
-
 SET(${LIBRARY_NAME}_HEADERS
-  ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc/doxygen_xml_parser_for_cmake.hh
   fcl.hh
   )
+IF(DOXYGEN_FOUND)
+  ADD_CUSTOM_TARGET(generate_doxygen_cpp_doc
+    COMMAND ${CMAKE_SOURCE_DIR}/doc/python/doxygen_xml_parser.py
+    ${CMAKE_BINARY_DIR}/doc/doxygen-xml/index.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc > ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc.log
+    BYPRODUCTS
+    ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc/doxygen_xml_parser_for_cmake.hh
+    ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc.log
+    COMMENT "Generating Doxygen C++ documentation"
+    )
+  ADD_DEPENDENCIES(generate_doxygen_cpp_doc doc)
+
+  LIST(APPEND ${LIBRARY_NAME}_HEADERS
+    ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc/doxygen_xml_parser_for_cmake.hh
+    )
+ENDIF()
 
 SET(${LIBRARY_NAME}_SOURCES
   version.cc
@@ -72,7 +76,10 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED ${${LIBRARY_NAME}_SOURCES} ${${LIBRARY_NAME}_
 ADD_DEPENDENCIES(python ${LIBRARY_NAME})
 ADD_HEADER_GROUP(${LIBRARY_NAME}_HEADER)
 ADD_SOURCE_GROUP(${LIBRARY_NAME}_SOURCES)
-ADD_DEPENDENCIES(${LIBRARY_NAME} generate_doxygen_cpp_doc)
+IF(DOXYGEN_FOUND)
+  ADD_DEPENDENCIES(${LIBRARY_NAME} generate_doxygen_cpp_doc)
+  TARGET_COMPILE_DEFINITIONS(${LIBRARY_NAME} PRIVATE -DHAS_DOXYGEN_AUTODOC)
+ENDIF()
 
 TARGET_LINK_BOOST_PYTHON(${LIBRARY_NAME} PUBLIC)
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME} PUBLIC ${PROJECT_NAME} ${BOOST_system_LIBRARY})

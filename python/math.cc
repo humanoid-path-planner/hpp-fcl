@@ -42,8 +42,11 @@
 
 #include "fcl.hh"
 
+#ifdef HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/hpp/fcl/math/transform.h"
+#endif
 
+#include "../doc/python/doxygen.hh"
 #include "../doc/python/doxygen-boost.hh"
 
 using namespace boost::python;

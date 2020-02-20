@@ -43,8 +43,12 @@
 #include <hpp/fcl/shape/convex.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
+#ifdef HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/hpp/fcl/BVH/BVH_model.h"
 #include "doxygen_autodoc/hpp/fcl/shape/geometric_shapes.h"
+#endif
+
+#include "../doc/python/doxygen.hh"
 
 using namespace boost::python;
 
