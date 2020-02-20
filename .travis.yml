@@ -6,6 +6,7 @@ env:
     - CTEST_OUTPUT_ON_FAILURE=1
     - CXX_FLAGS_DEBUG="-O1"
     - MAKEFLAGS="-j2"
+    - BUILD_TESTING=ON
 
 cache:
   ccache: true
@@ -71,6 +72,21 @@ matrix:
             - python-lxml
             - python3-lxml
 
+    - name: "Bionic - Release - g++ - NO TEST"
+      env: 
+        - BUILD_TYPE=Release
+        - BUILD_TESTING=OFF
+      dist: bionic
+      compiler: g++
+      addons:
+        apt:
+          packages:
+            - cmake
+            - libboost-all-dev
+            - libassimp-dev
+            - libeigen3-dev
+            - liboctomap-dev
+
     - name: "OSX - Release - clang"
       env: BUILD_TYPE=Release
       os: osx
@@ -91,7 +107,7 @@ script:
   - cd build
 
   # Configure
-  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w -DCMAKE_CXX_FLAGS_DEBUG=${CXX_FLAGS_DEBUG} -DPYTHON_EXECUTABLE=$(which python) ..
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_TESTING=$BUILD_TESTING -DCMAKE_CXX_FLAGS=-w -DCMAKE_CXX_FLAGS_DEBUG=${CXX_FLAGS_DEBUG} -DPYTHON_EXECUTABLE=$(which python) ..
 
   # Build
   - make
