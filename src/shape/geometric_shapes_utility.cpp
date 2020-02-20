@@ -508,10 +508,10 @@ void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf, K
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
-  const std::size_t D = 8;
-  for(std::size_t i = 0; i < D; ++i)
+  const short D = 8;
+  for(short i = 0; i < D; ++i)
     bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
-  for(std::size_t i = D; i < 2 * D; ++i)
+  for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
   
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
@@ -563,11 +563,11 @@ void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf, K
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
-  const std::size_t D = 9;
+  const short D = 9;
 
-  for(std::size_t i = 0; i < D; ++i)
+  for(short i = 0; i < D; ++i)
     bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
-  for(std::size_t i = D; i < 2 * D; ++i)
+  for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
   
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
@@ -624,11 +624,11 @@ void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf, K
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
-  const std::size_t D = 12;
+  const short D = 12;
 
-  for(std::size_t i = 0; i < D; ++i)
+  for(short i = 0; i < D; ++i)
     bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
-  for(std::size_t i = D; i < 2 * D; ++i)
+  for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
   
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
@@ -748,11 +748,11 @@ void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf, KDOP<16>&
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
-  const std::size_t D = 8;
+  const short D = 8;
 
-  for(std::size_t i = 0; i < D; ++i)
+  for(short i = 0; i < D; ++i)
     bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
-  for(std::size_t i = D; i < 2 * D; ++i)
+  for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
   
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
@@ -799,11 +799,11 @@ void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf, KDOP<18>&
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
-  const std::size_t D = 9;
+  const short D = 9;
 
-  for(std::size_t i = 0; i < D; ++i)
+  for(short i = 0; i < D; ++i)
     bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
-  for(std::size_t i = D; i < 2 * D; ++i)
+  for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
   
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
@@ -854,11 +854,11 @@ void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf, KDOP<24>&
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
-  const std::size_t D = 12;
+  const short D = 12;
 
-  for(std::size_t i = 0; i < D; ++i)
+  for(short i = 0; i < D; ++i)
     bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
-  for(std::size_t i = D; i < 2 * D; ++i)
+  for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
   
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)

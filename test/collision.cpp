@@ -263,7 +263,7 @@ template<typename BV, bool Oriented, bool recursive>
 struct traits : base_traits
 {};
 
-template<size_t N, bool recursive>
+template<short N, bool recursive>
 struct traits<KDOP<N>, Oriented, recursive> : base_traits
 {
   enum { IS_IMPLEMENTED = false

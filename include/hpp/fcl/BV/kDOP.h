@@ -85,12 +85,12 @@ struct CollisionRequest;
 /// (-1, -1, 1) and (1, 1, -1) --> indices 9 and 21
 /// (-1, 1, -1) and (1, -1, 1) --> indices 10 and 22
 /// (1, -1, -1) and (-1, 1, 1) --> indices 11 and 23
-template<size_t N>
+template<short N>
 class KDOP
 {
 private:
   /// @brief Origin's distances to N KDOP planes
-  FCL_REAL dist_[N];
+  Eigen::Array<FCL_REAL, N, 1> dist_;
 
 public:
 
@@ -103,16 +103,15 @@ public:
   /// @brief Creating kDOP containing two points
   KDOP(const Vec3f& a, const Vec3f& b);
   
-  /// @brief Check whether two KDOPs are overlapped
+  /// @brief Check whether two KDOPs overlap.
   bool overlap(const KDOP<N>& other) const;
 
-  /// Not implemented
-  bool overlap(const KDOP<N>& other, const CollisionRequest&,
-               FCL_REAL& sqrDistLowerBound) const
-  {
-    sqrDistLowerBound = sqrt (-1);
-    return overlap (other);
-  }
+  /// @brief Check whether two KDOPs overlap.
+  /// @return true if collision happens. 
+  /// @retval sqrDistLowerBound squared lower bound on distance between boxes if
+  ///         they do not overlap.
+  bool overlap(const KDOP<N>& other, const CollisionRequest& request,
+               FCL_REAL& sqrDistLowerBound) const;
 
     /// @brief The distance between two KDOP<N>. Not implemented.
   FCL_REAL distance(const KDOP<N>& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
@@ -135,7 +134,7 @@ public:
   /// @brief The (AABB) center
   inline Vec3f center() const
   {
-    return Vec3f(dist_[0] + dist_[N / 2], dist_[1] + dist_[N / 2 + 1], dist_[2] + dist_[N / 2 + 2]) * 0.5;
+    return (dist_.template head<3>() + dist_.template segment<3>(N/2)) / 2;
   }
 
 
@@ -163,12 +162,12 @@ public:
     return width() * height() * depth();
   }
 
-  inline FCL_REAL dist(std::size_t i) const
+  inline FCL_REAL dist(short i) const
   {
     return dist_[i];
   }
 
-  inline FCL_REAL& dist(std::size_t i)
+  inline FCL_REAL& dist(short i)
   {
     return dist_[i];
   }
@@ -176,16 +175,20 @@ public:
   //// @brief Check whether one point is inside the KDOP
   bool inside(const Vec3f& p) const;
 
+  public:
+  /// \cond
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  /// \endcond
 };
 
-template<size_t N>
+template<short N>
 bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/,
              const KDOP<N>& /*b1*/, const KDOP<N>& /*b2*/)
 {
   throw std::logic_error ("not implemented");
 }
 
-template<size_t N>
+template<short N>
 bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/,
              const KDOP<N>& /*b1*/, const KDOP<N>& /*b2*/,
              const CollisionRequest& /*request*/, FCL_REAL& /*sqrDistLowerBound*/)
@@ -194,7 +197,7 @@ bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/,
 }
 
 /// @brief translate the KDOP BV
-template<size_t N>
+template<short N>
 KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
 
 }

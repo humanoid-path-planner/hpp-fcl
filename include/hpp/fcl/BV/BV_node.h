@@ -116,6 +116,10 @@ struct BVNode : public BVNodeBase
     static const Matrix3f id3 = Matrix3f::Identity();
     return id3;
   }
+
+  /// \cond
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  /// \endcond
 };
 
 template<>
