@@ -161,7 +161,7 @@ endif ()
 add_subdirectory(test)
 
 pkg_config_append_libs("hpp-fcl")
-PKG_CONFIG_APPEND_BOOST_LIBS(thread date_time filesystem system)
+PKG_CONFIG_APPEND_BOOST_LIBS(thread date_time system)
 IF(HPP_FCL_HAVE_OCTOMAP)
   # FCL_HAVE_OCTOMAP kept for backward compatibility reasons.
   PKG_CONFIG_APPEND_CFLAGS(
