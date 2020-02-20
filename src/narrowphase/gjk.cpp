@@ -1100,7 +1100,7 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced)
     face->n = (b->w - a->w).cross(c->w - a->w);
     FCL_REAL l = face->n.norm();
       
-    if(l > tolerance)
+    if(l > Eigen::NumTraits<FCL_REAL>::epsilon())
     {
       face->n /= l;
 
