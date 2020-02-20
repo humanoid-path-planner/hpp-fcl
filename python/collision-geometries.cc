@@ -194,7 +194,7 @@ boost::python::tuple AABB_distance_proxy(const AABB & self, const AABB & other)
 {
   Vec3f P,Q;
   FCL_REAL distance = self.distance(other,&P,&Q);
-  return boost::python::tuple((distance,P,Q));
+  return boost::python::make_tuple(distance,P,Q);
 }
 
 void exposeCollisionGeometries ()

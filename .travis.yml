@@ -87,12 +87,11 @@ before_install:
 script:
   # Create build directory
   - which python
-  - which python2
   - mkdir build
   - cd build
 
   # Configure
-  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w -DCMAKE_CXX_FLAGS_DEBUG=${CXX_FLAGS_DEBUG} -DPYTHON_EXECUTABLE=$(which python2) ..
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-w -DCMAKE_CXX_FLAGS_DEBUG=${CXX_FLAGS_DEBUG} -DPYTHON_EXECUTABLE=$(which python) ..
 
   # Build
   - make
