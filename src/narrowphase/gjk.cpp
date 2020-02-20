@@ -1058,25 +1058,26 @@ void EPA::initialize()
 
 bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist)
 {
-  Vec3f ba = b->w - a->w;
-  Vec3f n_ab = ba.cross(face->n);
+  Vec3f ab = b->w - a->w;
+  Vec3f n_ab = ab.cross(face->n);
   FCL_REAL a_dot_nab = a->w.dot(n_ab);
 
   if(a_dot_nab < 0) // the origin is on the outside part of ab
   {
     // following is similar to projectOrigin for two points
     // however, as we dont need to compute the parameterization, dont need to compute 0 or 1
-    FCL_REAL a_dot_ba = a->w.dot(ba); 
-    FCL_REAL b_dot_ba = b->w.dot(ba);
+    FCL_REAL a_dot_ab = a->w.dot(ab); 
+    FCL_REAL b_dot_ab = b->w.dot(ab);
 
-    if(a_dot_ba > 0) 
+    if(a_dot_ab > 0) 
       dist = a->w.norm();
-    else if(b_dot_ba < 0)
+    else if(b_dot_ab < 0)
       dist = b->w.norm();
     else
     {
-      FCL_REAL a_dot_b = a->w.dot(b->w);
-      dist = std::sqrt(std::max(a->w.squaredNorm() * b->w.squaredNorm() - a_dot_b * a_dot_b, (FCL_REAL)0));
+      dist = std::sqrt(std::max(
+        a->w.squaredNorm() - a_dot_ab * a_dot_ab / ab.squaredNorm(),
+        0.));
     }
 
     return true;
@@ -1101,14 +1102,15 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced)
       
     if(l > tolerance)
     {
+      face->n /= l;
+
       if(!(getEdgeDist(face, a, b, face->d) ||
            getEdgeDist(face, b, c, face->d) ||
            getEdgeDist(face, c, a, face->d)))
       {
-        face->d = a->w.dot(face->n) / l;
+        face->d = a->w.dot(face->n);
       }
 
-      face->n /= l;
       if(forced || face->d >= -tolerance)
         return face;
       else
@@ -1253,45 +1255,44 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon
   static const size_t nexti[] = {1, 2, 0};
   static const size_t previ[] = {2, 0, 1};
 
-  if(f->pass != pass)
+  if(f->pass == pass)
+    return false;
+  
+  const size_t e1 = nexti[e];
+    
+  // case 1: the new face is not degenerated, i.e., the new face is not coplanar with the old face f.
+  if(f->n.dot(w->w) - f->d < -tolerance)
   {
-    const size_t e1 = nexti[e];
-      
-    // case 1: the new face is not degenerated, i.e., the new face is not coplanar with the old face f.
-    if(f->n.dot(w->w) - f->d < -tolerance)
+    SimplexF* nf = newFace(f->vertex[e1], f->vertex[e], w, false);
+    if(nf)
     {
-      SimplexF* nf = newFace(f->vertex[e1], f->vertex[e], w, false);
-      if(nf)
-      {
-        // add face-face connectivity
-        bind(nf, 0, f, e);
-          
-        // if there is last face in the horizon, then need to add another connectivity, i.e. the edge connecting the current new add edge and the last new add edge. 
-        // This does not finish all the connectivities because the final face need to connect with the first face, this will be handled in the evaluate function.
-        // Notice the face is anti-clockwise, so the edges are 0 (bottom), 1 (right), 2 (left)
-        if(horizon.cf)  
-          bind(nf, 2, horizon.cf, 1);
-        else
-          horizon.ff = nf; 
-          
-        horizon.cf = nf;
-        ++horizon.nf;
-        return true;
-      }
-    }
-    else // case 2: the new face is coplanar with the old face f. We need to add two faces and delete the old face
-    {
-      const size_t e2 = previ[e];
-      f->pass = pass;
-      if(expand(pass, w, f->f[e1], f->e[e1], horizon) && expand(pass, w, f->f[e2], f->e[e2], horizon))
-      {
-        hull.remove(f);
-        stock.append(f);
-        return true;
-      }
+      // add face-face connectivity
+      bind(nf, 0, f, e);
+        
+      // if there is last face in the horizon, then need to add another connectivity, i.e. the edge connecting the current new add edge and the last new add edge. 
+      // This does not finish all the connectivities because the final face need to connect with the first face, this will be handled in the evaluate function.
+      // Notice the face is anti-clockwise, so the edges are 0 (bottom), 1 (right), 2 (left)
+      if(horizon.cf)  
+        bind(nf, 2, horizon.cf, 1);
+      else
+        horizon.ff = nf; 
+        
+      horizon.cf = nf;
+      ++horizon.nf;
+      return true;
     }
   }
-
+  else // case 2: the new face is coplanar with the old face f. We need to add two faces and delete the old face
+  {
+    const size_t e2 = previ[e];
+    f->pass = pass;
+    if(expand(pass, w, f->f[e1], f->e[e1], horizon) && expand(pass, w, f->f[e2], f->e[e2], horizon))
+    {
+      hull.remove(f);
+      stock.append(f);
+      return true;
+    }
+  }
   return false;
 }
 
