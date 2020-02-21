@@ -1261,7 +1261,7 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon
   const size_t e1 = nexti[e];
     
   // case 1: the new face is not degenerated, i.e., the new face is not coplanar with the old face f.
-  if(f->n.dot(w->w - f->vertex[e]->w) < -tolerance)
+  if(f->n.dot(w->w - f->vertex[e]->w) < -Eigen::NumTraits<FCL_REAL>::epsilon())
   {
     SimplexF* nf = newFace(f->vertex[e1], f->vertex[e], w, false);
     if(nf)
