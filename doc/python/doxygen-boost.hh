@@ -37,6 +37,12 @@ inline member_func_impl<function_type> member_func (const char* name, function_t
 
 } // namespace visitor
 
+template<typename Func>
+void def(const char* name, Func func)
+{
+  boost::python::def(name, func, member_func_doc(func));
+}
+
 } // namespace doxygen
 
 #endif // DOXYGEN_BOOST_DOC_HH

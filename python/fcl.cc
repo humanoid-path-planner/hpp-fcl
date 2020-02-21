@@ -46,8 +46,8 @@
 
 #include <hpp/fcl/collision.h>
 
-#ifdef HAS_DOXYGEN_AUTODOC
-#include "doxygen_autodoc/hpp/fcl/math/transform.h"
+#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#include "doxygen_autodoc/hpp/fcl/mesh_loader/loader.h"
 #endif
 
 #include "../doc/python/doxygen.hh"

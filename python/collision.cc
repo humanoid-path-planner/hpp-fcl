@@ -42,6 +42,25 @@
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/collision.h>
 
+#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#include "doxygen_autodoc/functions.h"
+#include "doxygen_autodoc/hpp/fcl/collision_data.h"
+#endif
+
+#include "../doc/python/doxygen.hh"
+#include "../doc/python/doxygen-boost.hh"
+
+#define DEF_RW_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
+  def_readwrite (#ATTRIB, &CLASS::ATTRIB,                                      \
+      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
+#define DEF_RO_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
+  def_readonly (#ATTRIB, &CLASS::ATTRIB,                                       \
+      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
+#define DEF_CLASS_FUNC(CLASS, ATTRIB)                                          \
+  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB))
+#define DEF_CLASS_FUNC2(CLASS, ATTRIB,policy)                                  \
+  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB),policy)
+
 using namespace boost::python;
 
 using namespace hpp::fcl;
@@ -59,31 +78,33 @@ void exposeCollisionAPI ()
 
   if(!eigenpy::register_symbolic_link_to_registered_type<CollisionRequest>())
   {
-    class_ <CollisionRequest> ("CollisionRequest", init<>())
+    class_ <CollisionRequest> ("CollisionRequest",
+        doxygen::class_doc<CollisionRequest>(), init<>())
       .def (init<CollisionRequestFlag, size_t>())
     
-      .def_readwrite ("num_max_contacts"           , &CollisionRequest::num_max_contacts)
-      .def_readwrite ("enable_contact"             , &CollisionRequest::enable_contact)
-      .def_readwrite ("enable_distance_lower_bound", &CollisionRequest::enable_distance_lower_bound)
-      .def_readwrite ("enable_cached_gjk_guess"    , &CollisionRequest::enable_cached_gjk_guess)
-      .def_readwrite ("cached_gjk_guess"           , &CollisionRequest::cached_gjk_guess)
-      .def_readwrite ("security_margin"            , &CollisionRequest::security_margin)
-      .def_readwrite ("break_distance"             , &CollisionRequest::break_distance)
+      .DEF_RW_CLASS_ATTRIB (CollisionRequest, num_max_contacts           )
+      .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_contact             )
+      .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_distance_lower_bound)
+      .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_cached_gjk_guess    )
+      .DEF_RW_CLASS_ATTRIB (CollisionRequest, cached_gjk_guess           )
+      .DEF_RW_CLASS_ATTRIB (CollisionRequest, security_margin            )
+      .DEF_RW_CLASS_ATTRIB (CollisionRequest, break_distance             )
       ;
   }
 
   if(!eigenpy::register_symbolic_link_to_registered_type<Contact>())
   {
-    class_ <Contact> ("Contact", init<>())
+    class_ <Contact> ("Contact",
+        doxygen::class_doc<Contact>(), init<>())
       //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int>())
       //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int, Vec3f, Vec3f, FCL_REAL>())
-      .def_readonly ("o1", &Contact::o1)
-      .def_readonly ("o2", &Contact::o2)
-      .def_readwrite ("b1", &Contact::b1)
-      .def_readwrite ("b2", &Contact::b2)
-      .def_readwrite ("normal", &Contact::normal)
-      .def_readwrite ("pos", &Contact::pos)
-      .def_readwrite ("penetration_depth", &Contact::penetration_depth)
+      .DEF_RO_CLASS_ATTRIB (Contact, o1)
+      .DEF_RO_CLASS_ATTRIB (Contact, o2)
+      .DEF_RW_CLASS_ATTRIB (Contact, b1)
+      .DEF_RW_CLASS_ATTRIB (Contact, b2)
+      .DEF_RW_CLASS_ATTRIB (Contact, normal)
+      .DEF_RW_CLASS_ATTRIB (Contact, pos)
+      .DEF_RW_CLASS_ATTRIB (Contact, penetration_depth)
       .def (self == self)
       .def (self != self)
       ;
@@ -96,15 +117,18 @@ void exposeCollisionAPI ()
       ;
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<CollisionResult> >())
+  if(!eigenpy::register_symbolic_link_to_registered_type< CollisionResult >())
   {
-    class_ <CollisionResult> ("CollisionResult", init<>())
-      .def ("isCollision", &CollisionResult::isCollision)
-      .def ("numContacts", &CollisionResult::numContacts)
-      .def ("getContact" , &CollisionResult::getContact , return_value_policy<copy_const_reference>())
-      .def ("getContacts", &CollisionResult::getContacts, return_internal_reference<>())
-      .def ("addContact" , &CollisionResult::addContact )
-      .def ("clear", &CollisionResult::clear)
+    class_ <CollisionResult> ("CollisionResult",
+        doxygen::class_doc<CollisionResult>(), init<>())
+      .DEF_CLASS_FUNC (CollisionResult, isCollision)
+      .DEF_CLASS_FUNC (CollisionResult, numContacts)
+      .DEF_CLASS_FUNC (CollisionResult, addContact )
+      .DEF_CLASS_FUNC (CollisionResult, clear)
+      .DEF_CLASS_FUNC2 (CollisionResult, getContact , return_value_policy<copy_const_reference>())
+      .DEF_CLASS_FUNC2 (CollisionResult, getContacts, return_internal_reference<>())
+
+      .DEF_RW_CLASS_ATTRIB(CollisionResult, distance_lower_bound)
       ;
   }
 
@@ -115,9 +139,9 @@ void exposeCollisionAPI ()
       ;
   }
 
-  def ("collide", static_cast< std::size_t (*)(const CollisionObject*, const CollisionObject*,
+  doxygen::def ("collide", static_cast< std::size_t (*)(const CollisionObject*, const CollisionObject*,
         const CollisionRequest&, CollisionResult&) > (&collide));
-  def ("collide", static_cast< std::size_t (*)(
+  doxygen::def ("collide", static_cast< std::size_t (*)(
         const CollisionGeometry*, const Transform3f&,
         const CollisionGeometry*, const Transform3f&,
         const CollisionRequest&, CollisionResult&) > (&collide));
