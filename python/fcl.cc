@@ -62,7 +62,7 @@ void exposeMeshLoader ()
   
   if(!eigenpy::register_symbolic_link_to_registered_type<MeshLoader>())
   {
-    class_ <MeshLoader> ("MeshLoader",
+    class_ <MeshLoader, boost::shared_ptr<MeshLoader> > ("MeshLoader",
         doxygen::class_doc<MeshLoader>(),
         init< optional< NODE_TYPE> >(arg("node_type"),
           doxygen::constructor_doc<MeshLoader, const NODE_TYPE&>()))
@@ -74,7 +74,7 @@ void exposeMeshLoader ()
 
   if(!eigenpy::register_symbolic_link_to_registered_type<CachedMeshLoader>())
   {
-    class_ <CachedMeshLoader, bases<MeshLoader> > (
+    class_ <CachedMeshLoader, bases<MeshLoader>, boost::shared_ptr<CachedMeshLoader> > (
         "CachedMeshLoader",
         doxygen::class_doc<MeshLoader>(),
         init< optional< NODE_TYPE> >(arg("node_type"),
