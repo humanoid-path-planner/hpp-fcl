@@ -51,13 +51,22 @@ IF(NOT DOXYGEN_FOUND OR (APPLE AND PYTHON_VERSION_MAJOR LESS 3))
   SET(ENABLE_DOXYGEN_AUTODOC FALSE)
 ELSE()
   SET(ENABLE_DOXYGEN_AUTODOC TRUE)
-  IF(APPLE)
-    SET(PY_PREFIX ${PYTHON_EXECUTABLE})
+
+  EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import lxml"
+    RESULT_VARIABLE _lxml_found
+    OUTPUT_QUIET
+    ERROR_QUIET)
+  IF(_lxml_found EQUAL 0)
+    MESSAGE(STATUS "Found Python package lxml.")
+  ELSE()
+    SET(ENABLE_DOXYGEN_AUTODOC FALSE)
+    MESSAGE(STATUS "Python package lxml not found. Python bindings will not be documented.")
   ENDIF()
+  UNSET(_lxml_found)
 ENDIF()
 IF(ENABLE_DOXYGEN_AUTODOC)
   ADD_CUSTOM_TARGET(generate_doxygen_cpp_doc
-    COMMAND ${PY_PREFIX} ${CMAKE_SOURCE_DIR}/doc/python/doxygen_xml_parser.py
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/doc/python/doxygen_xml_parser.py
     ${CMAKE_BINARY_DIR}/doc/doxygen-xml/index.xml
     ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc > ${CMAKE_CURRENT_BINARY_DIR}/doxygen_autodoc.log
     BYPRODUCTS

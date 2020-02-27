@@ -14,7 +14,9 @@
 
   <build_depend>git</build_depend>
   <build_depend>doxygen</build_depend>
+  <build_depend>python-lxml</build_depend>
   <doc_depend>doxygen</doc_depend>
+  <doc_depend>python-lxml</doc_depend>
   <depend>python</depend>
   <depend>python-numpy</depend>
   <depend>eigen</depend>
