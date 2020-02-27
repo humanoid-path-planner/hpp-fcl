@@ -54,16 +54,6 @@ namespace fcl {
     public:
       virtual ~MeshLoader() {}
 
-      /// \param bvType ignored
-      /// \deprecated Use MeshLoader::load(const std::string&, const Vec3f&)
-      BVHModelPtr_t load (const std::string& filename,
-          const Vec3f& scale,
-          const NODE_TYPE& bvType) HPP_FCL_DEPRECATED
-      {
-        (void) bvType;
-        return load (filename, scale);
-      }
-
       virtual BVHModelPtr_t load (const std::string& filename,
                                   const Vec3f& scale = Vec3f::Ones());
 

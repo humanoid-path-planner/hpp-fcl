@@ -489,7 +489,7 @@ class Index:
         from time import asctime
 
         self.output.open ("doxygen_xml_parser_for_cmake.hh")
-        self.output.out ("// Generated on {}".format (asctime()))
+        #self.output.out ("// Generated on {}".format (asctime()))
         self.output.close()
 
         # Implement template specialization for classes and member functions

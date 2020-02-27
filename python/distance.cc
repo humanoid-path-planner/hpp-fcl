@@ -42,6 +42,25 @@
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/distance.h>
 
+#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#include "doxygen_autodoc/functions.h"
+#include "doxygen_autodoc/hpp/fcl/collision_data.h"
+#endif
+
+#include "../doc/python/doxygen.hh"
+#include "../doc/python/doxygen-boost.hh"
+
+#define DEF_RW_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
+  def_readwrite (#ATTRIB, &CLASS::ATTRIB,                                      \
+      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
+#define DEF_RO_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
+  def_readonly (#ATTRIB, &CLASS::ATTRIB,                                       \
+      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
+#define DEF_CLASS_FUNC(CLASS, ATTRIB)                                          \
+  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB))
+#define DEF_CLASS_FUNC2(CLASS, ATTRIB,policy)                                  \
+  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB),policy)
+
 using namespace boost::python;
 
 using namespace hpp::fcl;
@@ -56,27 +75,33 @@ void exposeDistanceAPI ()
 {
   if(!eigenpy::register_symbolic_link_to_registered_type<DistanceRequest>())
   {
-    class_ <DistanceRequest> ("DistanceRequest", init<optional<bool,FCL_REAL,FCL_REAL> >())
-      .def_readwrite ("enable_nearest_points", &DistanceRequest::enable_nearest_points)
-      .def_readwrite ("rel_err"              , &DistanceRequest::rel_err)
-      .def_readwrite ("abs_err"              , &DistanceRequest::abs_err)
+    class_ <DistanceRequest> ("DistanceRequest",
+        doxygen::class_doc<DistanceRequest>(),
+        init<optional<bool,FCL_REAL,FCL_REAL> >())
+      .DEF_RW_CLASS_ATTRIB (DistanceRequest, enable_nearest_points)
+      .DEF_RW_CLASS_ATTRIB (DistanceRequest, rel_err)
+      .DEF_RW_CLASS_ATTRIB (DistanceRequest, abs_err)
       ;
   }
 
   if(!eigenpy::register_symbolic_link_to_registered_type<DistanceResult>())
   {
-    class_ <DistanceResult> ("DistanceResult", init<>())
-      .def_readwrite ("min_distance", &DistanceResult::min_distance)
-      .def_readwrite ("normal", &DistanceResult::normal)
+    class_ <DistanceResult> ("DistanceResult",
+        doxygen::class_doc<DistanceResult>(), init<>())
+      .DEF_RW_CLASS_ATTRIB (DistanceResult, min_distance)
+      .DEF_RW_CLASS_ATTRIB (DistanceResult, normal)
       //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
-      .def("getNearestPoint1",&DistanceRequestWrapper::getNearestPoint1)
-      .def("getNearestPoint2",&DistanceRequestWrapper::getNearestPoint2)
-      .def_readonly ("o1", &DistanceResult::o1)
-      .def_readonly ("o2", &DistanceResult::o2)
-      .def_readwrite ("b1", &DistanceResult::b1)
-      .def_readwrite ("b2", &DistanceResult::b2)
+      .def("getNearestPoint1",&DistanceRequestWrapper::getNearestPoint1,
+          doxygen::class_attrib_doc<DistanceResult>("nearest_points"))
+      .def("getNearestPoint2",&DistanceRequestWrapper::getNearestPoint2,
+          doxygen::class_attrib_doc<DistanceResult>("nearest_points"))
+      .DEF_RO_CLASS_ATTRIB (DistanceResult, o1)
+      .DEF_RO_CLASS_ATTRIB (DistanceResult, o2)
+      .DEF_RW_CLASS_ATTRIB (DistanceResult, b1)
+      .DEF_RW_CLASS_ATTRIB (DistanceResult, b2)
 
-      .def ("clear", &DistanceResult::clear)
+      .def ("clear", &DistanceResult::clear,
+          doxygen::member_func_doc(&DistanceResult::clear))
       ;
   }
 
@@ -87,9 +112,9 @@ void exposeDistanceAPI ()
       ;
   }
 
-  def ("distance", static_cast< FCL_REAL (*)(const CollisionObject*, const CollisionObject*,
+  doxygen::def ("distance", static_cast< FCL_REAL (*)(const CollisionObject*, const CollisionObject*,
         const DistanceRequest&, DistanceResult&) > (&distance));
-  def ("distance", static_cast< FCL_REAL (*)(
+  doxygen::def ("distance", static_cast< FCL_REAL (*)(
         const CollisionGeometry*, const Transform3f&,
         const CollisionGeometry*, const Transform3f&,
         const DistanceRequest&, DistanceResult&) > (&distance));

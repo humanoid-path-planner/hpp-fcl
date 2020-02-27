@@ -42,7 +42,7 @@
 
 #include "fcl.hh"
 
-#ifdef HAS_DOXYGEN_AUTODOC
+#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/hpp/fcl/math/transform.h"
 #endif
 

@@ -98,7 +98,7 @@ public:
   OBB obb;
 
   /// @brief Check whether the kIOS contains a point
-  inline bool contain(const Vec3f& p) const;
+  bool contain(const Vec3f& p) const;
 
   /// @brief Check collision between two kIOS
   bool overlap(const kIOS& other) const;

@@ -43,12 +43,23 @@
 #include <hpp/fcl/shape/convex.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
-#ifdef HAS_DOXYGEN_AUTODOC
+#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/hpp/fcl/BVH/BVH_model.h"
 #include "doxygen_autodoc/hpp/fcl/shape/geometric_shapes.h"
 #endif
 
 #include "../doc/python/doxygen.hh"
+
+#define DEF_RW_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
+  def_readwrite (#ATTRIB, &CLASS::ATTRIB,                                      \
+      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
+#define DEF_RO_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
+  def_readonly (#ATTRIB, &CLASS::ATTRIB,                                       \
+      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
+#define DEF_CLASS_FUNC(CLASS, ATTRIB)                                          \
+  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB))
+#define DEF_CLASS_FUNC2(CLASS, ATTRIB,policy)                                  \
+  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB),policy)
 
 using namespace boost::python;
 
@@ -125,67 +136,68 @@ void exposeShapes ()
     .def (init<Vec3f>())
     .add_property("halfSide",
                   make_getter(&Box::halfSide, return_value_policy<return_by_value>()),
-                  make_setter(&Box::halfSide, return_value_policy<return_by_value>()));
+                  make_setter(&Box::halfSide, return_value_policy<return_by_value>()),
+                  doxygen::class_attrib_doc<Box>("halfSide"))
     ;
 
   class_ <Capsule, bases<ShapeBase>, shared_ptr<Capsule> >
     ("Capsule", doxygen::class_doc<Capsule>(), init<FCL_REAL, FCL_REAL>())
-    .def_readwrite ("radius", &Capsule::radius)
-    .def_readwrite ("halfLength", &Capsule::halfLength)
+    .DEF_RW_CLASS_ATTRIB (Capsule, radius)
+    .DEF_RW_CLASS_ATTRIB (Capsule, halfLength)
     ;
 
   class_ <Cone, bases<ShapeBase>, shared_ptr<Cone> >
     ("Cone", doxygen::class_doc<Cone>(), init<FCL_REAL, FCL_REAL>())
-    .def_readwrite ("radius", &Cone::radius)
-    .def_readwrite ("halfLength", &Cone::halfLength)
+    .DEF_RW_CLASS_ATTRIB (Cone, radius)
+    .DEF_RW_CLASS_ATTRIB (Cone, halfLength)
     ;
 
   class_ <ConvexBase, bases<ShapeBase>, shared_ptr<ConvexBase >, noncopyable>
     ("ConvexBase", doxygen::class_doc<ConvexBase>(), no_init)
-    .def_readonly ("center", &ConvexBase::center)
-    .def_readonly ("num_points", &ConvexBase::num_points)
+    .DEF_RO_CLASS_ATTRIB (ConvexBase, center)
+    .DEF_RO_CLASS_ATTRIB (ConvexBase, num_points)
     .def ("points", &ConvexBaseWrapper::points)
     .def ("neighbors", &ConvexBaseWrapper::neighbors)
     ;
 
   class_ <Convex<Triangle>, bases<ConvexBase>, shared_ptr<Convex<Triangle> >, noncopyable>
     ("Convex", doxygen::class_doc< Convex<Triangle> >(), no_init)
-    .def_readonly ("num_polygons", &Convex<Triangle>::num_polygons)
+    .DEF_RO_CLASS_ATTRIB (Convex<Triangle>, num_polygons)
     .def ("polygons", &ConvexWrapper<Triangle>::polygons)
     ;
 
   class_ <Cylinder, bases<ShapeBase>, shared_ptr<Cylinder> >
     ("Cylinder", doxygen::class_doc<Cylinder>(), init<FCL_REAL, FCL_REAL>())
-    .def_readwrite ("radius", &Cylinder::radius)
-    .def_readwrite ("halfLength", &Cylinder::halfLength)
+    .DEF_RW_CLASS_ATTRIB (Cylinder, radius)
+    .DEF_RW_CLASS_ATTRIB (Cylinder, halfLength)
     ;
 
   class_ <Halfspace, bases<ShapeBase>, shared_ptr<Halfspace> >
     ("Halfspace", doxygen::class_doc<Halfspace>(), init<const Vec3f&, FCL_REAL>())
     .def (init<FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>())
     .def (init<>())
-    .def_readwrite ("n", &Halfspace::n)
-    .def_readwrite ("d", &Halfspace::d)
+    .DEF_RW_CLASS_ATTRIB (Halfspace, n)
+    .DEF_RW_CLASS_ATTRIB (Halfspace, d)
     ;
 
   class_ <Plane, bases<ShapeBase>, shared_ptr<Plane> >
     ("Plane", doxygen::class_doc<Plane>(), init<const Vec3f&, FCL_REAL>())
     .def (init<FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>())
     .def (init<>())
-    .def_readwrite ("n", &Plane::n)
-    .def_readwrite ("d", &Plane::d)
+    .DEF_RW_CLASS_ATTRIB (Plane, n)
+    .DEF_RW_CLASS_ATTRIB (Plane, d)
     ;
 
   class_ <Sphere, bases<ShapeBase>, shared_ptr<Sphere> >
     ("Sphere", doxygen::class_doc<Sphere>(), init<FCL_REAL>(doxygen::constructor_doc<Sphere>()))
-    .def_readwrite ("radius", &Sphere::radius, doxygen::class_attrib_doc<Sphere>("radius"))
+    .DEF_RW_CLASS_ATTRIB (Sphere, radius)
     ;
 
   class_ <TriangleP, bases<ShapeBase>, shared_ptr<TriangleP> >
     ("TriangleP", doxygen::class_doc<TriangleP>(), init<const Vec3f&, const Vec3f&, const Vec3f&>())
-    .def_readwrite ("a", &TriangleP::a)
-    .def_readwrite ("b", &TriangleP::b)
-    .def_readwrite ("c", &TriangleP::c)
+    .DEF_RW_CLASS_ATTRIB (TriangleP, a)
+    .DEF_RW_CLASS_ATTRIB (TriangleP, b)
+    .DEF_RW_CLASS_ATTRIB (TriangleP, c)
     ;
 
 }

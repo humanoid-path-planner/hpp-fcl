@@ -70,7 +70,7 @@ public:
 
 
   /// @brief Check whether the RSS contains a point
-  inline bool contain(const Vec3f& p) const;
+  bool contain(const Vec3f& p) const;
 
   /// @brief Check collision between two RSS
   bool overlap(const RSS& other) const;
