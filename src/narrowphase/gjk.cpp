@@ -67,6 +67,18 @@ template <> struct shape_traits<Box> : shape_traits_base
   };
 };
 
+template <> struct shape_traits<Sphere> : shape_traits_base
+{
+  enum { NeedNormalizedDir = false
+  };
+};
+
+template <> struct shape_traits<Capsule> : shape_traits_base
+{
+  enum { NeedNormalizedDir = false
+  };
+};
+
 template <> struct shape_traits<Cone> : shape_traits_base
 {
   enum { NeedNormalizedDir = false
@@ -111,16 +123,16 @@ inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support)
   support.noalias() = (dir.array() > 0).select(box->halfSide, -box->halfSide);
 }
 
-inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir, Vec3f& support)
+inline void getShapeSupport(const Sphere*, const Vec3f& /*dir*/, Vec3f& support)
 {
-  support = dir * sphere->radius;
+  support.setZero();
 }
 
 inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir, Vec3f& support)
 {
-  support = capsule->radius * dir;
-  if (dir[2] > 0) support[2] += capsule->halfLength;
-  else            support[2] -= capsule->halfLength;
+  support.head<2>().setZero();
+  if (dir[2] > 0) support[2] =   capsule->halfLength;
+  else            support[2] = - capsule->halfLength;
 }
 
 void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support)
@@ -289,9 +301,11 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, 
     if (identity) return getSupportFuncTpl<Shape0, Box, true >;
     else          return getSupportFuncTpl<Shape0, Box, false>;
   case GEOM_SPHERE:
+    inflation[1] = static_cast<const Sphere*>(s1)->radius;
     if (identity) return getSupportFuncTpl<Shape0, Sphere, true >;
     else          return getSupportFuncTpl<Shape0, Sphere, false>;
   case GEOM_CAPSULE:
+    inflation[1] = static_cast<const Capsule*>(s1)->radius;
     if (identity) return getSupportFuncTpl<Shape0, Capsule, true >;
     else          return getSupportFuncTpl<Shape0, Capsule, false>;
   case GEOM_CONE:
@@ -321,9 +335,11 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0 (const ShapeBase* s0, 
     return makeGetSupportFunction1<Box> (s1, identity, inflation);
     break;
   case GEOM_SPHERE:
+    inflation[0] = static_cast<const Sphere*>(s0)->radius;
     return makeGetSupportFunction1<Sphere> (s1, identity, inflation);
     break;
   case GEOM_CAPSULE:
+    inflation[0] = static_cast<const Capsule*>(s0)->radius;
     return makeGetSupportFunction1<Capsule> (s1, identity, inflation);
     break;
   case GEOM_CONE:
