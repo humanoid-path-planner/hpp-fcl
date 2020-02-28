@@ -188,10 +188,12 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
     M.col (0) = u1; M.col (1) = v1; M.col (2) = w1;
     // Compute a1 such that p1 = P1 + a11 u1 + a12 v1 + a13 u1 x v1
     a1 = M.inverse() * (p1 - P1);
+    EIGEN_VECTOR_IS_APPROX(p1, P1 + a1[0] * u1 + a1[1] * v1, eps);
     BOOST_CHECK (w2.squaredNorm () > eps*eps);
     // Compute a2 such that p2 = Q1 + a21 u2 + a22 v2 + a23 u2 x v2
     M.col (0) = u2; M.col (1) = v2; M.col (2) = w2;
     a2 = M.inverse() * (p2 - Q1);
+    EIGEN_VECTOR_IS_APPROX(p2, Q1 + a2[0] * u2 + a2[1] * v2, eps);
 
     // minimal distance and closest points can be considered as a constrained
     // optimisation problem:
@@ -234,9 +236,9 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
     grad_g (2,5) = 1; grad_g (3,5) = 1;
     // Check that closest points are on triangles planes
     // Projection of [P1p1] on line normal to triangle 1 plane is equal to 0
-    BOOST_CHECK (fabs (a1 [2]) < eps);
+    BOOST_CHECK_SMALL (a1 [2], eps);
     // Projection of [Q1p2] on line normal to triangle 2 plane is equal to 0
-    BOOST_CHECK (fabs (a2 [2]) < eps);
+    BOOST_CHECK_SMALL (a2 [2], eps);
 
     /* Check Karush–Kuhn–Tucker conditions
                     6
@@ -268,7 +270,8 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
         (Mkkt, Eigen::ComputeThinU | Eigen::ComputeThinV);
       vector_t c (svd.solve (-grad_f));
       for (vector_t::Index j=0; j < c.size (); ++j) {
-        BOOST_CHECK (c [j] >= -eps);
+        BOOST_CHECK_MESSAGE (c [j] >= -eps,
+            "c[" << j << "]{" << c[j] << "} is below " << -eps);
       }
     }
   }
@@ -394,8 +397,6 @@ BOOST_AUTO_TEST_CASE(triangle_capsule)
 
   // GJK + EPA -> collision
   test_gjk_triangle_capsule(Vec3f(-0.5, -0.01, 0), true,
-      //Vec3f(1., 0, 0),
-      //Vec3f(1., 0, 0),
       Vec3f(0, 1, 0),
       Vec3f(0.5, 0, 0));
 }

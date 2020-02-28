@@ -68,27 +68,36 @@ namespace fcl
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
       if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
     
-      switch(gjk_status)
-        {
+      Vec3f w0, w1;
+      switch(gjk_status) {
         case details::GJK::Inside:
-          {
+          if (gjk.hasPenetrationInformation(shape)) {
+            gjk.getClosestPoints (shape, w0, w1);
+            if(penetration_depth) *penetration_depth = gjk.distance;
+            if(normal) *normal = tf1.getRotation() * (w0 - w1).normalized();
+            if(contact_points) *contact_points = tf1.transform((w0 + w1) / 2);
+            return true;
+          } else {
             details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
             if(epa_status != details::EPA::Failed)
-              {
-                Vec3f w0, w1;
-                epa.getClosestPoints (shape, w0, w1);
-                if(penetration_depth) *penetration_depth = -epa.depth;
-                if(normal) *normal = tf2.getRotation() * epa.normal;
-                if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
-                return true;
-              }
-            else return false;
+            {
+              epa.getClosestPoints (shape, w0, w1);
+              if(penetration_depth) *penetration_depth = -epa.depth;
+              // TODO The normal computed by GJK in the s1 frame so this should be
+              // if(normal) *normal = tf1.getRotation() * epa.normal;
+              if(normal) *normal = tf2.getRotation() * epa.normal;
+              if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
+              return true;
+            }
+            // TODO EPA failed but we know there is a collision so we should
+            // return true;
+            return false;
           }
           break;
         default:
           ;
-        }
+      }
 
       return false;
     }
@@ -119,37 +128,40 @@ namespace fcl
       details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
       if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
 
-      switch(gjk_status)
-        {
+      Vec3f w0, w1;
+      switch(gjk_status) {
         case details::GJK::Inside:
-          {
-            col = true;
+          col = true;
+          if (gjk.hasPenetrationInformation(shape)) {
+            gjk.getClosestPoints (shape, w0, w1);
+            distance = gjk.distance;
+            normal = tf1.getRotation() * (w1 - w0).normalized();
+            p1 = p2 = tf1.transform((w0 + w1) / 2);
+          } else {
             details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
             assert (epa_status != details::EPA::Failed); (void) epa_status;
-            Vec3f w0, w1;
+
             epa.getClosestPoints (shape, w0, w1);
             distance = -epa.depth;
             normal = -epa.normal;
             p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
             assert (distance <= 1e-6);
-            break;
           }
+          break;
         case details::GJK::Valid:
         case details::GJK::Failed:
-          {
-            col = false;
+          col = false;
 
-            gjk.getClosestPoints (shape, p1, p2);
-            // TODO On degenerated case, the closest point may be wrong
-            // (i.e. an object face normal is colinear to gjk.ray
-            // assert (distance == (w0 - w1).norm());
-            distance = gjk.distance;
+          gjk.getClosestPoints (shape, p1, p2);
+          // TODO On degenerated case, the closest point may be wrong
+          // (i.e. an object face normal is colinear to gjk.ray
+          // assert (distance == (w0 - w1).norm());
+          distance = gjk.distance;
 
-            p1 = tf1.transform (p1);
-            p2 = tf1.transform (p2);
-            assert (distance > 0);
-          }
+          p1 = tf1.transform (p1);
+          p2 = tf1.transform (p2);
+          assert (distance > 0);
           break;
         default:
           assert (false && "should not reach type part.");
@@ -168,7 +180,6 @@ namespace fcl
 #ifndef NDEBUG
       FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
 #endif
-      bool compute_normal (true);
       Vec3f guess(1, 0, 0);
       if(enable_cached_guess) guess = cached_guess;
 
@@ -205,29 +216,28 @@ namespace fcl
       else
         {
           assert (gjk_status == details::GJK::Inside);
-          if (compute_normal)
+          if (gjk.hasPenetrationInformation (shape)) {
+            gjk.getClosestPoints (shape, p1, p2);
+            distance = gjk.distance;
+            p1 = tf1.transform (p1);
+            p2 = tf1.transform (p2);
+            normal = (p2 - p1).normalized();
+          } else {
+            details::EPA epa(epa_max_face_num, epa_max_vertex_num,
+                             epa_max_iterations, epa_tolerance);
+            details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
+            if(epa_status != details::EPA::Failed)
             {
-              details::EPA epa(epa_max_face_num, epa_max_vertex_num,
-                               epa_max_iterations, epa_tolerance);
-              details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-              if(epa_status != details::EPA::Failed)
-                {
-                  Vec3f w0, w1;
-                  epa.getClosestPoints (shape, w0, w1);
-                  assert (epa.depth >= -eps);
-                  distance = std::min (0., -epa.depth);
-                  normal = tf2.getRotation() * epa.normal;
-                  p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
-                }
+              Vec3f w0, w1;
+              epa.getClosestPoints (shape, w0, w1);
+              assert (epa.depth >= -eps);
+              distance = std::min (0., -epa.depth);
+              // TODO should be
+              // normal = tf1.getRotation() * epa.normal;
+              normal = tf2.getRotation() * epa.normal;
+              p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
             }
-          else
-            {
-              gjk.getClosestPoints (shape, p1, p2);
-              distance = 0;
-
-              p1 = tf1.transform (p1);
-              p2 = tf1.transform (p2);
-            }
+          }
           return false;
         }
     }
