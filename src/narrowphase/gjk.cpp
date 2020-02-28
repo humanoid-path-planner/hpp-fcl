@@ -276,8 +276,10 @@ void getSupportFuncTpl (const MinkowskiDiff& md,
 }
 
 template <typename Shape0>
-MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, bool identity)
+MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, bool identity,
+    Eigen::Array<FCL_REAL, 1, 2>& inflation)
 {
+  inflation[1] = 0;
   switch(s1->getNodeType())
   {
   case GEOM_TRIANGLE:
@@ -306,30 +308,32 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, 
   }
 }
 
-MinkowskiDiff::GetSupportFunction makeGetSupportFunction0 (const ShapeBase* s0, const ShapeBase* s1, bool identity)
+MinkowskiDiff::GetSupportFunction makeGetSupportFunction0 (const ShapeBase* s0, const ShapeBase* s1, bool identity,
+    Eigen::Array<FCL_REAL, 1, 2>& inflation)
 {
+  inflation[0] = 0;
   switch(s0->getNodeType())
   {
   case GEOM_TRIANGLE:
-    return makeGetSupportFunction1<TriangleP> (s1, identity);
+    return makeGetSupportFunction1<TriangleP> (s1, identity, inflation);
     break;
   case GEOM_BOX:
-    return makeGetSupportFunction1<Box> (s1, identity);
+    return makeGetSupportFunction1<Box> (s1, identity, inflation);
     break;
   case GEOM_SPHERE:
-    return makeGetSupportFunction1<Sphere> (s1, identity);
+    return makeGetSupportFunction1<Sphere> (s1, identity, inflation);
     break;
   case GEOM_CAPSULE:
-    return makeGetSupportFunction1<Capsule> (s1, identity);
+    return makeGetSupportFunction1<Capsule> (s1, identity, inflation);
     break;
   case GEOM_CONE:
-    return makeGetSupportFunction1<Cone> (s1, identity);
+    return makeGetSupportFunction1<Cone> (s1, identity, inflation);
     break;
   case GEOM_CYLINDER:
-    return makeGetSupportFunction1<Cylinder> (s1, identity);
+    return makeGetSupportFunction1<Cylinder> (s1, identity, inflation);
     break;
   case GEOM_CONVEX:
-    return makeGetSupportFunction1<ConvexBase> (s1, identity);
+    return makeGetSupportFunction1<ConvexBase> (s1, identity, inflation);
     break;
   default:
     throw std::logic_error ("Unsupported geometric shape");
@@ -347,7 +351,7 @@ void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1,
 
   bool identity = (oR1.isIdentity() && ot1.isZero());
 
-  getSupportFunc = makeGetSupportFunction0 (shape0, shape1, identity);
+  getSupportFunc = makeGetSupportFunction0 (shape0, shape1, identity, inflation);
 }
 
 void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1)
@@ -358,7 +362,7 @@ void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1)
   oR1.setIdentity();
   ot1.setZero();
 
-  getSupportFunc = makeGetSupportFunction0 (shape0, shape1, true);
+  getSupportFunc = makeGetSupportFunction0 (shape0, shape1, true, inflation);
 }
 
 void GJK::initialize()
@@ -433,12 +437,33 @@ bool getClosestPoints (const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1)
   return true;
 }
 
+/// Inflate the points
+template <bool Separated>
+void inflate (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1)
+{
+  Eigen::Array<bool, 1, 2> inflate (shape.inflation > 0);
+  if (!inflate.any()) return;
+  Vec3f w (w0 - w1);
+  FCL_REAL n2 = w.squaredNorm();
+  // TODO should be use a threshold (Eigen::NumTraits<FCL_REAL>::epsilon()) ?
+  if (n2 == 0.) {
+    if (inflate[0]) w0[0] += shape.inflation[0] * (Separated ? -1 :  1);
+    if (inflate[1]) w1[0] += shape.inflation[1] * (Separated ?  1 : -1);
+    return;
+  }
+
+  w /= std::sqrt(n2);
+  if (inflate[0]) w0 += shape.inflation[0] * (Separated ? -w :  w);
+  if (inflate[1]) w1 += shape.inflation[1] * (Separated ?  w : -w);
+}
+
 } // namespace details
 
 bool GJK::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1)
 {
   bool res = details::getClosestPoints(*simplex, w0, w1);
   if (!res) return false;
+  details::inflate<true> (shape, w0, w1);
   return true;
 }
 
@@ -446,6 +471,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 {
   size_t iterations = 0;
   FCL_REAL alpha = 0;
+  const FCL_REAL inflation = shape_.inflation.sum();
+  const FCL_REAL upper_bound = distance_upper_bound + inflation;
 
   free_v[0] = &store_v[0];
   free_v[1] = &store_v[1];
@@ -475,7 +502,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     if(rl < tolerance) // mean origin is near the face of original simplex, return touch
     {
       status = Inside;
-      distance = 0; // rl ?
+      distance = - inflation; // should we take rl into account ?
       break;
     }
 
@@ -486,9 +513,9 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
     // check B: no collision if omega > 0
     FCL_REAL omega = ray.dot(w) / rl;
-    if (omega > distance_upper_bound)
+    if (omega > upper_bound)
     {
-      distance = omega;
+      distance = omega - inflation;
       break;
     }
 
@@ -497,7 +524,11 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     if((rl - alpha) - tolerance * rl <= 0)
     {
       removeVertex(simplices[current]);
-      distance = rl;
+      distance = rl - inflation;
+      // TODO When inflation is strictly positive, the distance may be exactly
+      // zero (so the ray is not zero) and we are not in the case rl < tolerance.
+      if (distance < tolerance)
+        status = Inside;
       break;
     }
 
@@ -520,7 +551,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     current = next;
     if(inside) {
       status = Inside;
-      distance = 0;
+      distance = - inflation - 1.;
       break;
     }
 
@@ -1311,6 +1342,7 @@ bool EPA::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1)
 {
   bool res = details::getClosestPoints(result, w0, w1);
   if (!res) return false;
+  details::inflate<false> (shape, w0, w1);
   return true;
 }
 
