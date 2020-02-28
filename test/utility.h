@@ -53,6 +53,14 @@
 #include <sys/time.h>
 #endif
 
+#define EIGEN_VECTOR_IS_APPROX(Va, Vb, precision)                              \
+  BOOST_CHECK_MESSAGE((Va).isApprox(Vb, precision),                            \
+      "check " #Va ".isApprox(" #Vb ") failed "                                \
+      "[\n" << (Va).transpose() << "\n!=\n" << (Vb).transpose() << "\n]")
+#define EIGEN_MATRIX_IS_APPROX(Va, Vb, precision)                              \
+  BOOST_CHECK_MESSAGE((Va).isApprox(Vb, precision),                            \
+      "check " #Va ".isApprox(" #Vb ") failed "                                \
+      "[\n" << (Va) << "\n!=\n" << (Vb) << "\n]")
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
 namespace octomap {

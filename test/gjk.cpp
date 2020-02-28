@@ -41,9 +41,12 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include <Eigen/Geometry>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#include<hpp/fcl/internal/tools.h>
+#include <hpp/fcl/internal/tools.h>
+
+#include "utility.h"
 
 using hpp::fcl::GJKSolver;
 using hpp::fcl::TriangleP;
@@ -287,4 +290,112 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
   std::cerr << "Total / average time gjk: " << totalTimeGjkColl << ", " << FCL_REAL(totalTimeGjkColl) / FCL_REAL(CLOCKS_PER_SEC*nCol) << "s" << std::endl;
   std::cerr << "-- No collisions -------------------------" << std::endl;
   std::cerr << "Total / average time gjk: " << totalTimeGjkNoColl << ", " << FCL_REAL(totalTimeGjkNoColl) / FCL_REAL(CLOCKS_PER_SEC*(N-nCol)) << "s" << std::endl;
+}
+
+void test_gjk_unit_sphere (FCL_REAL center_distance, Vec3f ray,
+    bool expect_collision)
+{
+  using namespace hpp::fcl;
+  Sphere sphere(1.);
+
+  typedef Eigen::Matrix<FCL_REAL, 4, 1> Vec4f;
+  Transform3f tf0 (Quaternion3f(Vec4f::Random().normalized()), Vec3f::Zero()),
+              tf1 (Quaternion3f(Vec4f::Random().normalized()), center_distance * ray);
+
+  details::MinkowskiDiff shape;
+  shape.set(&sphere, &sphere, tf0, tf1);
+
+  BOOST_CHECK_EQUAL(shape.inflation[0], sphere.radius);
+  BOOST_CHECK_EQUAL(shape.inflation[1], sphere.radius);
+
+  details::GJK gjk (2, 1e-6);
+  details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
+
+  if (expect_collision)
+    BOOST_CHECK_EQUAL(status, details::GJK::Inside);
+  else
+    BOOST_CHECK_EQUAL(status, details::GJK::Valid);
+
+  Vec3f w0, w1;
+  gjk.getClosestPoints (shape, w0, w1);
+
+  Vec3f w0_expected (tf0.inverse().transform(tf0.getTranslation() + ray));
+  Vec3f w1_expected (tf0.inverse().transform(tf1.getTranslation() - ray));
+
+  EIGEN_VECTOR_IS_APPROX(w0, w0_expected, 1e-10);
+  EIGEN_VECTOR_IS_APPROX(w1, w1_expected, 1e-10);
+}
+
+BOOST_AUTO_TEST_CASE(sphere_sphere)
+{
+  test_gjk_unit_sphere(3.  , Vec3f(1, 0, 0), false);
+  test_gjk_unit_sphere(2.01, Vec3f(1, 0, 0), false);
+  test_gjk_unit_sphere(2.  , Vec3f(1, 0, 0), true);
+  test_gjk_unit_sphere(1.  , Vec3f(1, 0, 0), true);
+
+  test_gjk_unit_sphere(3.  , Vec3f::Random().normalized(), false);
+  test_gjk_unit_sphere(2.01, Vec3f::Random().normalized(), false);
+  test_gjk_unit_sphere(2.  , Vec3f::Random().normalized(), true);
+  test_gjk_unit_sphere(1.  , Vec3f::Random().normalized(), true);
+}
+
+void test_gjk_triangle_capsule (Vec3f T, bool expect_collision,
+    Vec3f w0_expected, Vec3f w1_expected)
+{
+  using namespace hpp::fcl;
+  Capsule capsule(1., 2.); // Radius 1 and length 2
+  TriangleP triangle (
+      Vec3f(0., 0., 0.),
+      Vec3f(1., 0., 0.),
+      Vec3f(1., 1., 0.));
+
+  Transform3f tf0, tf1;
+  tf1.setTranslation(T);
+
+  details::MinkowskiDiff shape;
+  shape.set(&capsule, &triangle, tf0, tf1);
+
+  BOOST_CHECK_EQUAL(shape.inflation[0], capsule.radius);
+  BOOST_CHECK_EQUAL(shape.inflation[1], 0.);
+
+  details::GJK gjk (10, 1e-6);
+  details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
+
+  if (expect_collision)
+    BOOST_CHECK_EQUAL(status, details::GJK::Inside);
+  else
+    BOOST_CHECK_EQUAL(status, details::GJK::Valid);
+
+  Vec3f w0, w1;
+  if (status == details::GJK::Valid || gjk.hasPenetrationInformation(shape)) {
+    gjk.getClosestPoints (shape, w0, w1);
+  } else {
+    details::EPA epa(128, 64, 255, 1e-6);
+    details::EPA::Status epa_status = epa.evaluate(gjk, Vec3f(1, 0, 0));
+    BOOST_CHECK_EQUAL(epa_status, details::EPA::AccuracyReached);
+    epa.getClosestPoints(shape, w0, w1);
+  }
+
+  EIGEN_VECTOR_IS_APPROX(w0, w0_expected, 1e-10);
+  EIGEN_VECTOR_IS_APPROX(w1-T, w1_expected, 1e-10);
+}
+
+BOOST_AUTO_TEST_CASE(triangle_capsule)
+{
+  // GJK -> no collision
+  test_gjk_triangle_capsule(Vec3f(1.01, 0, 0), false,
+      Vec3f(1., 0, 0),
+      Vec3f(0., 0, 0));
+
+  // GJK -> collision
+  test_gjk_triangle_capsule(Vec3f(0.5, 0, 0), true,
+      Vec3f(1., 0, 0),
+      Vec3f(0., 0, 0));
+
+  // GJK + EPA -> collision
+  test_gjk_triangle_capsule(Vec3f(-0.5, -0.01, 0), true,
+      //Vec3f(1., 0, 0),
+      //Vec3f(1., 0, 0),
+      Vec3f(0, 1, 0),
+      Vec3f(0.5, 0, 0));
 }
