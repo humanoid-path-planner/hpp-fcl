@@ -685,7 +685,7 @@ inline void originToSegment (
     ray /= AB.squaredNorm();
 }
 
-inline void originToTriangle (
+inline bool originToTriangle (
     const GJK::Simplex& current,
     GJK::vertex_id_t a, GJK::vertex_id_t b, GJK::vertex_id_t c,
     const Vec3f& ABC,
@@ -693,21 +693,26 @@ inline void originToTriangle (
     GJK::Simplex& next,
     Vec3f& ray)
 {
-  bool aboveTri (ABCdotAO >= 0);
-  ray = ABC;
+  next.rank = 3;
+  next.vertex[2] = current.vertex[a];
 
-  if (aboveTri) {
+  if (ABCdotAO == 0) {
+    next.vertex[0] = current.vertex[c];
+    next.vertex[1] = current.vertex[b];
+    ray.setZero();
+    return true;
+  }
+  if (ABCdotAO > 0) { // Above triangle
     next.vertex[0] = current.vertex[c];
     next.vertex[1] = current.vertex[b];
   } else {
     next.vertex[0] = current.vertex[b];
     next.vertex[1] = current.vertex[c];
   }
-  next.vertex[2] = current.vertex[a];
-  next.rank = 3;
 
   // To ensure backward compatibility
-  ray *= -ABCdotAO / ABC.squaredNorm();
+  ray = - ABCdotAO / ABC.squaredNorm() * ABC;
+  return false;
 }
 
 bool GJK::projectLineOrigin(const Simplex& current, Simplex& next)
@@ -721,7 +726,16 @@ bool GJK::projectLineOrigin(const Simplex& current, Simplex& next)
   const FCL_REAL d = AB.dot(-A);
   assert (d <= AB.squaredNorm());
 
-  if (d <= 0) {
+  if (d == 0) {
+    // Two extremely unlikely cases:
+    // - AB is orthogonal to A: should never happen because it means the support
+    //   function did not do any progress and GJK should have stopped.
+    // - A == origin
+    assert (A.isZero());
+    originToPoint (current, a, A, next, ray);
+    free_v[nfree++] = current.vertex[b];
+    return true;
+  } else if (d < 0) {
     // A is the closest to the origin
     originToPoint (current, a, A, next, ray);
     free_v[nfree++] = current.vertex[b];
@@ -770,7 +784,7 @@ bool GJK::projectTriangleOrigin(const Simplex& current, Simplex& next)
         originToSegment (current, a, b, A, B, AB, towardsB, next, ray);
       free_v[nfree++] = current.vertex[c];
     } else {
-      originToTriangle (current, a, b, c, ABC, ABC.dot(-A), next, ray);
+      return originToTriangle (current, a, b, c, ABC, ABC.dot(-A), next, ray);
     }
   }
   return false;
