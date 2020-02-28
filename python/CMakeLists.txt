@@ -98,6 +98,7 @@ SET(${LIBRARY_NAME}_SOURCES
   collision.cc
   distance.cc
   fcl.cc
+  gjk.cc
   )
 
 ADD_LIBRARY(${LIBRARY_NAME} SHARED ${${LIBRARY_NAME}_SOURCES} ${${LIBRARY_NAME}_HEADERS})

@@ -9,3 +9,5 @@ void exposeMeshLoader();
 void exposeCollisionAPI();
 
 void exposeDistanceAPI();
+
+void exposeGJK();
