@@ -101,9 +101,13 @@ def _templateParamToDict (param):
             if c.text is not None: typetext += c.text
             if c.tail is not None: typetext += c.tail
         if typetext.startswith ("typename") or typetext.startswith ("class"):
-            s = typetext.split(maxsplit=1)
-            assert len(s) == 2
-            return { "type": s[0].strip(), "name": s[1].strip() }
+            if sys.version_info.major == 2:
+                s = typetext.split()
+                return { "type": s[0].strip(), "name": typetext[len(s[0]):].strip() }
+            else:
+                s = typetext.split(maxsplit=1)
+                assert len(s) == 2
+                return { "type": s[0].strip(), "name": s[1].strip() }
         else:
             return { "type": type.text, "name": "" }
     else:
@@ -164,7 +168,7 @@ class Reference(object):
 # Only for function as of now.
 class MemberDef(Reference):
     def __init__ (self, index, memberdefxml, parent):
-        super().__init__ (index=index,
+        super(MemberDef, self).__init__ (index=index,
                 id = memberdefxml.attrib["id"],
                 name = memberdefxml.find("definition").text)
         self.parent = parent
@@ -238,13 +242,13 @@ class CompoundBase(Reference):
         self.filename = path.join (index.directory, compound.attrib["refid"]+".xml")
         self.tree = etree.parse (self.filename)
         self.definition = self.tree.getroot().find("compounddef")
-        super().__init__ (index,
+        super(CompoundBase, self).__init__ (index,
                 id = self.definition.attrib['id'],
                 name = self.definition.find("compoundname").text)
 
 class NamespaceCompound (CompoundBase):
     def __init__ (self, *args):
-        super().__init__ (*args)
+        super(NamespaceCompound, self).__init__ (*args)
         self.typedefs = []
         self.enums = []
         self.static_funcs = []
@@ -293,7 +297,7 @@ class NamespaceCompound (CompoundBase):
 
 class ClassCompound (CompoundBase):
     def __init__ (self, *args):
-        super().__init__ (*args)
+        super(ClassCompound, self).__init__ (*args)
         self.member_funcs = list()
         self.static_funcs = list()
         self.special_funcs = list()
@@ -376,8 +380,8 @@ class ClassCompound (CompoundBase):
         output.out (template_class_doc.format (
             tplargs = self._templateDecl(),
             classname = self._className(),
-            docstring = docstring,
-            attributes = attribute_docstrings,
+            docstring = docstring.encode('utf-8'),
+            attributes = attribute_docstrings.encode('utf-8'),
             ))
 
     def write (self, output):

@@ -31,7 +31,7 @@ class XmlDocString (object):
         return ret
 
     def _write (self, str):
-        nlines=str.split(sep="\n")
+        nlines=str.split("\n")
         if len(self.lines)==0:
             self.lines += nlines
         else:
