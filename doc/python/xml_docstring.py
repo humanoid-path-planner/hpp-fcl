@@ -10,10 +10,19 @@ class XmlDocString (object):
                 "parameterdescription": self.otherTags,
                 "emphasis": self.emphasis,
                 "simplesect": self.simplesect,
+                "formula": self.formula,
+                "itemizedlist": self.itemizedlist,
+                "listitem": self.listitem,
                 }
         self.unkwownTags = set()
         self.unkwownReferences = dict()
         self._linesep = "\\n\"\n\""
+
+        try:
+            from pylatexenc.latex2text import LatexNodes2Text
+            self.latex = LatexNodes2Text()
+        except ImportError:
+            self.latex = None
 
     def clear (self):
         self.lines = []
@@ -86,7 +95,7 @@ class XmlDocString (object):
 
     def emphasis (self, node):
         self._write ("*")
-        self.otherTags(node)
+        self.otherTags (node)
         self._write ("*")
 
     def simplesect (self, node):
@@ -129,3 +138,18 @@ class XmlDocString (object):
             sep = ", "
         self._write (" ")
         self.visit (desc)
+
+    def itemizedlist(self, node):
+        self._newline()
+        self.otherTags (node)
+
+    def listitem (self, node):
+        self._write ("- ")
+        self.otherTags (node)
+
+    def formula (self, node):
+        if node.text:
+            if self.latex is None:
+                self._write (node.text.strip())
+            else:
+                self._write (self.latex.latex_to_text(node.text))

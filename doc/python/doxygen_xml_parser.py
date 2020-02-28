@@ -380,8 +380,8 @@ class ClassCompound (CompoundBase):
         output.out (template_class_doc.format (
             tplargs = self._templateDecl(),
             classname = self._className(),
-            docstring = docstring.encode('utf-8'),
-            attributes = attribute_docstrings.encode('utf-8'),
+            docstring = docstring,
+            attributes = attribute_docstrings,
             ))
 
     def write (self, output):
