@@ -309,7 +309,17 @@ private:
 
 public:
 
-  enum Status {Valid, Touching, Degenerated, NonConvex, InvalidHull, OutOfFaces, OutOfVertices, AccuracyReached, FallBack, Failed};
+  enum Status {
+    Failed              = 0,
+    Valid               = 1,
+    AccuracyReached     = 1 << 1 | Valid ,
+    Degenerated         = 1 << 1 | Failed,
+    NonConvex           = 2 << 1 | Failed,
+    InvalidHull         = 3 << 1 | Failed,
+    OutOfFaces          = 4 << 1 | Failed,
+    OutOfVertices       = 5 << 1 | Failed,
+    FallBack            = 6 << 1 | Failed
+  };
   
   Status status;
   GJK::Simplex result;
@@ -336,6 +346,9 @@ public:
 
   void initialize();
 
+  /// \return a Status which can be demangled using (status & Valid) or
+  ///         (status & Failed). The other values provide a more detailled
+  ///         status
   Status evaluate(GJK& gjk, const Vec3f& guess);
 
   /// Get the closest points on each object.

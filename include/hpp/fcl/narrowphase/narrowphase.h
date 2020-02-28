@@ -80,7 +80,7 @@ namespace fcl
           } else {
             details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-            if(epa_status != details::EPA::Failed)
+            if(epa_status & details::EPA::Failed)
             {
               epa.getClosestPoints (shape, w0, w1);
               if(penetration_depth) *penetration_depth = -epa.depth;
@@ -140,7 +140,7 @@ namespace fcl
           } else {
             details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-            assert (epa_status != details::EPA::Failed); (void) epa_status;
+            assert (epa_status & details::EPA::Valid); (void) epa_status;
 
             epa.getClosestPoints (shape, w0, w1);
             distance = -epa.depth;
@@ -226,7 +226,7 @@ namespace fcl
             details::EPA epa(epa_max_face_num, epa_max_vertex_num,
                              epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-            if(epa_status != details::EPA::Failed)
+            if(epa_status & details::EPA::Valid)
             {
               Vec3f w0, w1;
               epa.getClosestPoints (shape, w0, w1);
