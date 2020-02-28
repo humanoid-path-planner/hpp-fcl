@@ -374,11 +374,13 @@ Vec3f GJK::getGuessFromSimplex() const
   return ray;
 }
 
-bool GJK::getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1)
-{
-  SimplexV* const* vs = simplex.vertex;
+namespace details {
 
-  for (vertex_id_t i = 0; i < simplex.rank; ++i) {
+bool getClosestPoints (const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1)
+{
+  GJK::SimplexV* const* vs = simplex.vertex;
+
+  for (GJK::vertex_id_t i = 0; i < simplex.rank; ++i) {
     assert (vs[i]->w.isApprox (vs[i]->w0 - vs[i]->w1));
   }
 
@@ -424,10 +426,19 @@ bool GJK::getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1)
   }
   w0.setZero();
   w1.setZero();
-  for (vertex_id_t i = 0; i < simplex.rank; ++i) {
+  for (GJK::vertex_id_t i = 0; i < simplex.rank; ++i) {
     w0 += projection.parameterization[i] * vs[i]->w0;
     w1 += projection.parameterization[i] * vs[i]->w1;
   }
+  return true;
+}
+
+} // namespace details
+
+bool GJK::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1)
+{
+  bool res = details::getClosestPoints(*simplex, w0, w1);
+  if (!res) return false;
   return true;
 }
 
@@ -1294,6 +1305,13 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon
     return true;
   }
   return false;
+}
+
+bool EPA::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1)
+{
+  bool res = details::getClosestPoints(result, w0, w1);
+  if (!res) return false;
+  return true;
 }
 
 } // details

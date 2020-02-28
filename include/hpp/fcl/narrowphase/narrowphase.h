@@ -77,7 +77,7 @@ namespace fcl
             if(epa_status != details::EPA::Failed)
               {
                 Vec3f w0, w1;
-                details::GJK::getClosestPoints (epa.result, w0, w1);
+                epa.getClosestPoints (shape, w0, w1);
                 if(penetration_depth) *penetration_depth = -epa.depth;
                 if(normal) *normal = tf2.getRotation() * epa.normal;
                 if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
@@ -128,7 +128,7 @@ namespace fcl
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
             assert (epa_status != details::EPA::Failed); (void) epa_status;
             Vec3f w0, w1;
-            details::GJK::getClosestPoints (epa.result, w0, w1);
+            epa.getClosestPoints (shape, w0, w1);
             distance = -epa.depth;
             normal = -epa.normal;
             p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
@@ -140,7 +140,7 @@ namespace fcl
           {
             col = false;
 
-            details::GJK::getClosestPoints (*gjk.getSimplex(), p1, p2);
+            gjk.getClosestPoints (shape, p1, p2);
             // TODO On degenerated case, the closest point may be wrong
             // (i.e. an object face normal is colinear to gjk.ray
             // assert (distance == (w0 - w1).norm());
@@ -184,7 +184,7 @@ namespace fcl
         // TODO: understand why GJK fails between cylinder and box
         assert (distance * distance < sqrt (eps));
         Vec3f w0, w1;
-        details::GJK::getClosestPoints (*gjk.getSimplex(), w0, w1);
+        gjk.getClosestPoints (shape, w0, w1);
         distance = 0;
         p1 = p2 = tf1.transform (.5* (w0 + w1));
         normal = Vec3f (0,0,0);
@@ -192,7 +192,7 @@ namespace fcl
       }
       else if(gjk_status == details::GJK::Valid)
         {
-          details::GJK::getClosestPoints (*gjk.getSimplex(), p1, p2);
+          gjk.getClosestPoints (shape, p1, p2);
           // TODO On degenerated case, the closest point may be wrong
           // (i.e. an object face normal is colinear to gjk.ray
           // assert (distance == (w0 - w1).norm());
@@ -213,7 +213,7 @@ namespace fcl
               if(epa_status != details::EPA::Failed)
                 {
                   Vec3f w0, w1;
-                  details::GJK::getClosestPoints (epa.result, w0, w1);
+                  epa.getClosestPoints (shape, w0, w1);
                   assert (epa.depth >= -eps);
                   distance = std::min (0., -epa.depth);
                   normal = tf2.getRotation() * epa.normal;
@@ -222,7 +222,7 @@ namespace fcl
             }
           else
             {
-              details::GJK::getClosestPoints (*gjk.getSimplex(), p1, p2);
+              gjk.getClosestPoints (shape, p1, p2);
               distance = 0;
 
               p1 = tf1.transform (p1);

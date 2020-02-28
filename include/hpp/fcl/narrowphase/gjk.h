@@ -167,7 +167,7 @@ struct GJK
 
   /// Get the closest points on each object.
   /// @return true on success
-  static bool getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1);
+  bool getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
 
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;
@@ -305,6 +305,10 @@ public:
   void initialize();
 
   Status evaluate(GJK& gjk, const Vec3f& guess);
+
+  /// Get the closest points on each object.
+  /// @return true on success
+  bool getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
 
 private:
   bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist);
