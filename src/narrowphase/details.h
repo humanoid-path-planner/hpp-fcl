@@ -2134,7 +2134,7 @@ namespace fcl {
         ps = pb;
         return true;
       } else {
-        ps = os + s.radius * normal;
+        ps = os - s.radius * normal;
         return false;
       }
     }
