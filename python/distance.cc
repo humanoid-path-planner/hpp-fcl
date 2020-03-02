@@ -89,7 +89,10 @@ void exposeDistanceAPI ()
     class_ <DistanceResult> ("DistanceResult",
         doxygen::class_doc<DistanceResult>(), init<>())
       .DEF_RW_CLASS_ATTRIB (DistanceResult, min_distance)
-      .DEF_RW_CLASS_ATTRIB (DistanceResult, normal)
+      .add_property("normal",
+          make_getter(&DistanceResult::normal, return_value_policy<return_by_value>()),
+          make_setter(&DistanceResult::normal, return_value_policy<return_by_value>()),
+          doxygen::class_attrib_doc<DistanceResult>("normal"))
       //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
       .def("getNearestPoint1",&DistanceRequestWrapper::getNearestPoint1,
           doxygen::class_attrib_doc<DistanceResult>("nearest_points"))

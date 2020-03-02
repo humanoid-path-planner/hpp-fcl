@@ -303,6 +303,9 @@ struct DistanceRequest
   {
   }
 
+  /// \param enable_nearest_points_ enables the nearest points computation.
+  /// \param rel_err_
+  /// \param abs_err_
   DistanceRequest(bool enable_nearest_points_ = false,
                   FCL_REAL rel_err_ = 0.0,
                   FCL_REAL abs_err_ = 0.0) :
