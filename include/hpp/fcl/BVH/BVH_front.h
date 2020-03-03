@@ -48,7 +48,7 @@ namespace fcl
 
 /// @brief Front list acceleration for collision
 /// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
-/// the traversal terminates while performing a query during a given time instance. The front list reﬂects the subset of a
+/// the traversal terminates while performing a query during a given time instance. The front list reflects the subset of a
 /// BVTT that is traversed for that particular proximity query.
 struct BVHFrontNode
 {

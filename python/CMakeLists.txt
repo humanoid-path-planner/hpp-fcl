@@ -53,16 +53,26 @@ ELSE()
   SET(ENABLE_DOXYGEN_AUTODOC TRUE)
 
   EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import lxml"
-    RESULT_VARIABLE _lxml_found
+    RESULT_VARIABLE _pypkg_found
     OUTPUT_QUIET
     ERROR_QUIET)
-  IF(_lxml_found EQUAL 0)
+  IF(_pypkg_found EQUAL 0)
     MESSAGE(STATUS "Found Python package lxml.")
   ELSE()
     SET(ENABLE_DOXYGEN_AUTODOC FALSE)
     MESSAGE(STATUS "Python package lxml not found. Python bindings will not be documented.")
   ENDIF()
-  UNSET(_lxml_found)
+
+  EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import pylatexenc"
+    RESULT_VARIABLE _pypkg_found
+    OUTPUT_QUIET
+    ERROR_QUIET)
+  IF(NOT _pypkg_found EQUAL 0)
+    MESSAGE(STATUS "Python package pylatexenc not found.")
+    MESSAGE(STATUS "  Formulas in the Python bindings documentation may look ugly.")
+    MESSAGE(STATUS "  You can install it with: pip install pylatexenc")
+  ENDIF()
+  UNSET(_pypkg_found)
 ENDIF()
 IF(ENABLE_DOXYGEN_AUTODOC)
   ADD_CUSTOM_TARGET(generate_doxygen_cpp_doc
