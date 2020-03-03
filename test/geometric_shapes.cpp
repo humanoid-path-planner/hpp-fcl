@@ -508,6 +508,31 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
   testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 }
 
+BOOST_AUTO_TEST_CASE(shapeDistance_spherebox)
+{
+  hpp::fcl::Matrix3f rotSphere;
+  rotSphere<< 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0;
+  hpp::fcl::Vec3f trSphere(0.0, 0.0, 0.0);
+
+  hpp::fcl::Matrix3f rotBox;
+  rotBox<< 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0;
+  hpp::fcl::Vec3f trBox(0.0, 5.0, 3.0);
+
+  hpp::fcl::Sphere sphere(1);
+  hpp::fcl::Box box(10, 2, 10);
+
+  hpp::fcl::DistanceResult result;
+  distance(&sphere, Transform3f(rotSphere, trSphere),
+      &box, Transform3f(rotBox, trBox),
+      DistanceRequest(true), result);
+
+  FCL_REAL eps = Eigen::NumTraits<FCL_REAL>::epsilon();
+  BOOST_CHECK_CLOSE(result.min_distance, 3., eps);
+  EIGEN_VECTOR_IS_APPROX(result.nearest_points[0], Vec3f(0,1,0), eps);
+  EIGEN_VECTOR_IS_APPROX(result.nearest_points[1], Vec3f(0,4,0), eps);
+  EIGEN_VECTOR_IS_APPROX(result.normal, Vec3f(0,1,0), eps);
+}
+
 BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
 {
   Sphere s1(20);
