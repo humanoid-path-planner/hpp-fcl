@@ -634,7 +634,7 @@ bool GJKSolver::shapeDistance<Capsule, Capsule>
     Vec3f guess;
     if(enable_cached_guess) guess = cached_guess;
     else guess = (t1.a + t1.b + t1.c - t2.a - t2.b - t2.c) / 3;
-    bool enable_penetration (true);
+    bool enable_penetration = true;
 
     details::MinkowskiDiff shape;
     shape.set (&t1, &t2);

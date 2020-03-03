@@ -219,9 +219,11 @@ namespace fcl
           if (gjk.hasPenetrationInformation (shape)) {
             gjk.getClosestPoints (shape, p1, p2);
             distance = gjk.distance;
-            p1 = tf1.transform (p1);
-            p2 = tf1.transform (p2);
-            normal = (p2 - p1).normalized();
+            // Return contact points in case of collision
+            //p1 = tf1.transform (p1);
+            //p2 = tf1.transform (p2);
+            normal = (tf1.getRotation() * (p2 - p1)).normalized();
+            p1 = p2 = tf1.transform(p1);
           } else {
             details::EPA epa(epa_max_face_num, epa_max_vertex_num,
                              epa_max_iterations, epa_tolerance);

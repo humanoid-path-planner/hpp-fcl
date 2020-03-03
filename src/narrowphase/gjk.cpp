@@ -418,11 +418,13 @@ bool getClosestPoints (const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1)
         Vec3f N (b - a);
         la = N.dot(-a);
         if (la <= 0) {
+          assert(false);
           w0 = a0;
           w1 = a1;
         } else {
           lb = N.squaredNorm();
           if (la > lb) {
+            assert(false);
             w0 = b0;
             w1 = b1;
           } else {
@@ -507,6 +509,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   else                       appendVertex(simplices[0], Vec3f(1, 0, 0), true);
   ray = simplices[0].vertex[0]->w;
 
+  FCL_REAL rl = ray.norm();
+  if (rl == 0) {
+    status = Inside;
+    distance = - inflation - 1.;
+    simplex = &simplices[0];
+    return status;
+  }
   do
   {
     vertex_id_t next = (vertex_id_t)(1 - current);
@@ -514,13 +523,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     Simplex& next_simplex = simplices[next];
 
     // check A: when origin is near the existing simplex, stop
-    FCL_REAL rl = ray.norm();
     // TODO this is an early stop which may cause the following issue.
     // - EPA will not run correctly because it starts with a tetrahedron which
     //   does not include the origin. Note that, at this stage, we do not know
     //   whether a tetrahedron including the origin exists.
     if(rl < tolerance) // mean origin is near the face of original simplex, return touch
     {
+      assert(rl > 0);
       status = Inside;
       distance = - inflation; // should we take rl into account ?
       break;
@@ -569,7 +578,9 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     }
     assert (nfree+next_simplex.rank == 4);
     current = next;
-    if(inside) {
+    if (!inside)
+      rl = ray.norm();
+    if(inside || rl == 0) {
       status = Inside;
       distance = - inflation - 1.;
       break;
@@ -735,10 +746,10 @@ bool GJK::projectLineOrigin(const Simplex& current, Simplex& next)
     // - AB is orthogonal to A: should never happen because it means the support
     //   function did not do any progress and GJK should have stopped.
     // - A == origin
-    assert (A.isZero());
+    // In any case, A is the closest to the origin
     originToPoint (current, a, A, next, ray);
     free_v[nfree++] = current.vertex[b];
-    return true;
+    return A.isZero();
   } else if (d < 0) {
     // A is the closest to the origin
     originToPoint (current, a, A, next, ray);
