@@ -515,6 +515,10 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
     // check A: when origin is near the existing simplex, stop
     FCL_REAL rl = ray.norm();
+    // TODO this is an early stop which may cause the following issue.
+    // - EPA will not run correctly because it starts with a tetrahedron which
+    //   does not include the origin. Note that, at this stage, we do not know
+    //   whether a tetrahedron including the origin exists.
     if(rl < tolerance) // mean origin is near the face of original simplex, return touch
     {
       status = Inside;
