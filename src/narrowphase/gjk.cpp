@@ -475,20 +475,26 @@ bool getClosestPoints (const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1)
 template <bool Separated>
 void inflate (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1)
 {
-  Eigen::Array<bool, 1, 2> inflate (shape.inflation > 0);
+  const Eigen::Array<FCL_REAL, 1, 2>& I (shape.inflation);
+  Eigen::Array<bool, 1, 2> inflate (I > 0);
   if (!inflate.any()) return;
   Vec3f w (w0 - w1);
   FCL_REAL n2 = w.squaredNorm();
   // TODO should be use a threshold (Eigen::NumTraits<FCL_REAL>::epsilon()) ?
   if (n2 == 0.) {
-    if (inflate[0]) w0[0] += shape.inflation[0] * (Separated ? -1 :  1);
-    if (inflate[1]) w1[0] += shape.inflation[1] * (Separated ?  1 : -1);
+    if (inflate[0]) w0[0] += I[0] * (Separated ? -1 :  1);
+    if (inflate[1]) w1[0] += I[1] * (Separated ?  1 : -1);
     return;
   }
 
   w /= std::sqrt(n2);
-  if (inflate[0]) w0 += shape.inflation[0] * (Separated ? -w :  w);
-  if (inflate[1]) w1 += shape.inflation[1] * (Separated ?  w : -w);
+  if (Separated) {
+    if (inflate[0]) w0 -= I[0] * w;
+    if (inflate[1]) w1 += I[1] * w;
+  } else {
+    if (inflate[0]) w0 += I[0] * w;
+    if (inflate[1]) w1 -= I[1] * w;
+  }
 }
 
 } // namespace details
