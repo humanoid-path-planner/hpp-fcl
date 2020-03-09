@@ -137,32 +137,40 @@ inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir, Vec3f& sup
 
 void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support)
 {
-  // TODO (Joseph Mirabel)
-  // this assumes that the cone radius is, for -0.5 < z < 0.5:
-  // (lz/2 - z) * radius / lz
-  //
-  // I did not change the code myself. However, I think it should be revised.
-  // 1. It can be optimized.
-  // 2. I am not sure this is what conePlaneIntersect and coneHalfspaceIntersect
-  //    assumes...
+  // The cone radius is, for -h < z < h, (h - z) * r / (2*h)
+  static const FCL_REAL inflate = 1.00001;
+  FCL_REAL h = cone->halfLength;
+  FCL_REAL r = cone->radius;
+
+  if (dir.head<2>().isZero()) {
+    support.head<2>().setZero();
+    if (dir[2] > 0)
+      support[2] = h;
+    else
+      support[2] = - inflate * h;
+    return;
+  }
   FCL_REAL zdist = dir[0] * dir[0] + dir[1] * dir[1];
   FCL_REAL len = zdist + dir[2] * dir[2];
   zdist = std::sqrt(zdist);
-  len = std::sqrt(len);
-  FCL_REAL half_h = cone->halfLength;
-  FCL_REAL radius = cone->radius;
 
-  FCL_REAL sin_a = radius / std::sqrt(radius * radius + 4 * half_h * half_h);
+  if (dir[2] <= 0) {
+    FCL_REAL rad = r / zdist;
+    support.head<2>() = rad * dir.head<2>();
+    support[2] = -h;
+    return;
+  }
+
+  len = std::sqrt(len);
+  FCL_REAL sin_a = r / std::sqrt(r * r + 4 * h * h);
 
   if(dir[2] > len * sin_a)
-    support = Vec3f(0, 0, half_h);
-  else if(zdist > 0)
-  {
-    FCL_REAL rad = radius / zdist;
-    support = Vec3f(rad * dir[0], rad * dir[1], -half_h);
+    support << 0, 0, h;
+  else {
+    FCL_REAL rad = r / zdist;
+    support.head<2>() = rad * dir.head<2>();
+    support[2] = -h;
   }
-  else
-    support = Vec3f(0, 0, -half_h);
 }
 
 void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support)
