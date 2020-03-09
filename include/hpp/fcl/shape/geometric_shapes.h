@@ -147,7 +147,10 @@ public:
   }
 };
 
-/// @brief Center at zero point capsule 
+/// @brief Capsule
+/// It is \f$ { x \in \mathcal{R}^3, d(x, AB) < radius } \f$
+/// where \f$ d(x, AB) \f$ is the distance between the point x and the capsule
+/// segment AB, with \f$ A = (0,0,-halfLength), B = (0,0,halfLength) \f$.
 class Capsule : public ShapeBase
 {
 public:
@@ -190,7 +193,9 @@ public:
   
 };
 
-/// @brief Center at zero cone 
+/// @brief Cone
+/// The base of the cone is at \f$ z = - halfLength \f$ and the top is at
+/// \f$ z = halfLength \f$.
 class Cone : public ShapeBase
 {
 public:
