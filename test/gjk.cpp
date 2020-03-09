@@ -41,9 +41,12 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include <Eigen/Geometry>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#include<hpp/fcl/internal/tools.h>
+#include <hpp/fcl/internal/tools.h>
+
+#include "utility.h"
 
 using hpp::fcl::GJKSolver;
 using hpp::fcl::TriangleP;
@@ -185,10 +188,12 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
     M.col (0) = u1; M.col (1) = v1; M.col (2) = w1;
     // Compute a1 such that p1 = P1 + a11 u1 + a12 v1 + a13 u1 x v1
     a1 = M.inverse() * (p1 - P1);
+    EIGEN_VECTOR_IS_APPROX(p1, P1 + a1[0] * u1 + a1[1] * v1, eps);
     BOOST_CHECK (w2.squaredNorm () > eps*eps);
     // Compute a2 such that p2 = Q1 + a21 u2 + a22 v2 + a23 u2 x v2
     M.col (0) = u2; M.col (1) = v2; M.col (2) = w2;
     a2 = M.inverse() * (p2 - Q1);
+    EIGEN_VECTOR_IS_APPROX(p2, Q1 + a2[0] * u2 + a2[1] * v2, eps);
 
     // minimal distance and closest points can be considered as a constrained
     // optimisation problem:
@@ -231,9 +236,9 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
     grad_g (2,5) = 1; grad_g (3,5) = 1;
     // Check that closest points are on triangles planes
     // Projection of [P1p1] on line normal to triangle 1 plane is equal to 0
-    BOOST_CHECK (fabs (a1 [2]) < eps);
+    BOOST_CHECK_SMALL (a1 [2], eps);
     // Projection of [Q1p2] on line normal to triangle 2 plane is equal to 0
-    BOOST_CHECK (fabs (a2 [2]) < eps);
+    BOOST_CHECK_SMALL (a2 [2], eps);
 
     /* Check Karush–Kuhn–Tucker conditions
                     6
@@ -265,7 +270,8 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
         (Mkkt, Eigen::ComputeThinU | Eigen::ComputeThinV);
       vector_t c (svd.solve (-grad_f));
       for (vector_t::Index j=0; j < c.size (); ++j) {
-        BOOST_CHECK (c [j] >= -eps);
+        BOOST_CHECK_MESSAGE (c [j] >= -eps,
+            "c[" << j << "]{" << c[j] << "} is below " << -eps);
       }
     }
   }
@@ -287,4 +293,110 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1)
   std::cerr << "Total / average time gjk: " << totalTimeGjkColl << ", " << FCL_REAL(totalTimeGjkColl) / FCL_REAL(CLOCKS_PER_SEC*nCol) << "s" << std::endl;
   std::cerr << "-- No collisions -------------------------" << std::endl;
   std::cerr << "Total / average time gjk: " << totalTimeGjkNoColl << ", " << FCL_REAL(totalTimeGjkNoColl) / FCL_REAL(CLOCKS_PER_SEC*(N-nCol)) << "s" << std::endl;
+}
+
+void test_gjk_unit_sphere (FCL_REAL center_distance, Vec3f ray,
+    bool expect_collision)
+{
+  using namespace hpp::fcl;
+  Sphere sphere(1.);
+
+  typedef Eigen::Matrix<FCL_REAL, 4, 1> Vec4f;
+  Transform3f tf0 (Quaternion3f(Vec4f::Random().normalized()), Vec3f::Zero()),
+              tf1 (Quaternion3f(Vec4f::Random().normalized()), center_distance * ray);
+
+  details::MinkowskiDiff shape;
+  shape.set(&sphere, &sphere, tf0, tf1);
+
+  BOOST_CHECK_EQUAL(shape.inflation[0], sphere.radius);
+  BOOST_CHECK_EQUAL(shape.inflation[1], sphere.radius);
+
+  details::GJK gjk (2, 1e-6);
+  details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
+
+  if (expect_collision)
+    BOOST_CHECK_EQUAL(status, details::GJK::Inside);
+  else
+    BOOST_CHECK_EQUAL(status, details::GJK::Valid);
+
+  Vec3f w0, w1;
+  gjk.getClosestPoints (shape, w0, w1);
+
+  Vec3f w0_expected (tf0.inverse().transform(tf0.getTranslation() + ray));
+  Vec3f w1_expected (tf0.inverse().transform(tf1.getTranslation() - ray));
+
+  EIGEN_VECTOR_IS_APPROX(w0, w0_expected, 1e-10);
+  EIGEN_VECTOR_IS_APPROX(w1, w1_expected, 1e-10);
+}
+
+BOOST_AUTO_TEST_CASE(sphere_sphere)
+{
+  test_gjk_unit_sphere(3.  , Vec3f(1, 0, 0), false);
+  test_gjk_unit_sphere(2.01, Vec3f(1, 0, 0), false);
+  test_gjk_unit_sphere(2.  , Vec3f(1, 0, 0), true);
+  test_gjk_unit_sphere(1.  , Vec3f(1, 0, 0), true);
+
+  test_gjk_unit_sphere(3.  , Vec3f::Random().normalized(), false);
+  test_gjk_unit_sphere(2.01, Vec3f::Random().normalized(), false);
+  test_gjk_unit_sphere(2.  , Vec3f::Random().normalized(), true);
+  test_gjk_unit_sphere(1.  , Vec3f::Random().normalized(), true);
+}
+
+void test_gjk_triangle_capsule (Vec3f T, bool expect_collision,
+    Vec3f w0_expected, Vec3f w1_expected)
+{
+  using namespace hpp::fcl;
+  Capsule capsule(1., 2.); // Radius 1 and length 2
+  TriangleP triangle (
+      Vec3f(0., 0., 0.),
+      Vec3f(1., 0., 0.),
+      Vec3f(1., 1., 0.));
+
+  Transform3f tf0, tf1;
+  tf1.setTranslation(T);
+
+  details::MinkowskiDiff shape;
+  shape.set(&capsule, &triangle, tf0, tf1);
+
+  BOOST_CHECK_EQUAL(shape.inflation[0], capsule.radius);
+  BOOST_CHECK_EQUAL(shape.inflation[1], 0.);
+
+  details::GJK gjk (10, 1e-6);
+  details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
+
+  if (expect_collision)
+    BOOST_CHECK_EQUAL(status, details::GJK::Inside);
+  else
+    BOOST_CHECK_EQUAL(status, details::GJK::Valid);
+
+  Vec3f w0, w1;
+  if (status == details::GJK::Valid || gjk.hasPenetrationInformation(shape)) {
+    gjk.getClosestPoints (shape, w0, w1);
+  } else {
+    details::EPA epa(128, 64, 255, 1e-6);
+    details::EPA::Status epa_status = epa.evaluate(gjk, Vec3f(1, 0, 0));
+    BOOST_CHECK_EQUAL(epa_status, details::EPA::AccuracyReached);
+    epa.getClosestPoints(shape, w0, w1);
+  }
+
+  EIGEN_VECTOR_IS_APPROX(w0, w0_expected, 1e-10);
+  EIGEN_VECTOR_IS_APPROX(w1-T, w1_expected, 1e-10);
+}
+
+BOOST_AUTO_TEST_CASE(triangle_capsule)
+{
+  // GJK -> no collision
+  test_gjk_triangle_capsule(Vec3f(1.01, 0, 0), false,
+      Vec3f(1., 0, 0),
+      Vec3f(0., 0, 0));
+
+  // GJK -> collision
+  test_gjk_triangle_capsule(Vec3f(0.5, 0, 0), true,
+      Vec3f(1., 0, 0),
+      Vec3f(0., 0, 0));
+
+  // GJK + EPA -> collision
+  test_gjk_triangle_capsule(Vec3f(-0.5, -0.01, 0), true,
+      Vec3f(0, 1, 0),
+      Vec3f(0.5, 0, 0));
 }

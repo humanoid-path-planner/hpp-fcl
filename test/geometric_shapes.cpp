@@ -508,6 +508,31 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
   testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 }
 
+BOOST_AUTO_TEST_CASE(shapeDistance_spherebox)
+{
+  hpp::fcl::Matrix3f rotSphere;
+  rotSphere<< 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0;
+  hpp::fcl::Vec3f trSphere(0.0, 0.0, 0.0);
+
+  hpp::fcl::Matrix3f rotBox;
+  rotBox<< 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0;
+  hpp::fcl::Vec3f trBox(0.0, 5.0, 3.0);
+
+  hpp::fcl::Sphere sphere(1);
+  hpp::fcl::Box box(10, 2, 10);
+
+  hpp::fcl::DistanceResult result;
+  distance(&sphere, Transform3f(rotSphere, trSphere),
+      &box, Transform3f(rotBox, trBox),
+      DistanceRequest(true), result);
+
+  FCL_REAL eps = Eigen::NumTraits<FCL_REAL>::epsilon();
+  BOOST_CHECK_CLOSE(result.min_distance, 3., eps);
+  EIGEN_VECTOR_IS_APPROX(result.nearest_points[0], Vec3f(0,1,0), eps);
+  EIGEN_VECTOR_IS_APPROX(result.nearest_points[1], Vec3f(0,4,0), eps);
+  EIGEN_VECTOR_IS_APPROX(result.normal, Vec3f(0,1,0), eps);
+}
+
 BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
 {
   Sphere s1(20);
@@ -3083,19 +3108,18 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_cylindercylinder)
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(9.9, 0, 0));
   normal << 1, 0, 0;
-  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, 3e-1);  // built-in GJK solver requires larger tolerance than libccd
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, true);
-  // built-in GJK solver returns incorrect normal.
-  // testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10, 0, 0));
   normal << 1, 0, 0;
-  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(10.01, 0, 0));
@@ -3128,16 +3152,15 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecone)
   testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, NULL);
 
   tf1 = Transform3f();
-  tf2 = Transform3f(Vec3f(9.9, 0, 0));
-  normal << 1, 0, 0;
-  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, 5.7e-1);  // built-in GJK solver requires larger tolerance than libccd
+  // z=0 is a singular points. Two normals could be returned.
+  tf2 = Transform3f(Vec3f(9.9, 0, 0.00001));
+  normal = Vec3f(2*(s1.halfLength + s2.halfLength), 0, s1.radius+s2.radius).normalized();
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
-  tf1 = transform;
-  tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, NULL);
-  // built-in GJK solver returns incorrect normal.
-  // testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  tf1 = transform * tf1;
+  tf2 = transform * tf2;
+  normal = transform.getRotation() * normal;
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.1, 0, 0));
@@ -3150,14 +3173,12 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecone)
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 9.9));
   normal << 0, 0, 1;
-  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
   normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, NULL);
-  // built-in GJK solver returns incorrect normal.
-  // testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecylinder)
@@ -3204,19 +3225,17 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecylinder)
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 9.9));
   normal << 0, 0, 1;
-  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
   normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, NULL);
-  // built-in GJK solver returns incorrect normal.
-  // testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 10));
   normal << 0, 0, 1;
-  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 10.1));

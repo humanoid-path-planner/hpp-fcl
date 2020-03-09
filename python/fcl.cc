@@ -91,4 +91,5 @@ BOOST_PYTHON_MODULE(hppfcl)
   exposeMeshLoader();
   exposeCollisionAPI();
   exposeDistanceAPI();
+  exposeGJK();
 }

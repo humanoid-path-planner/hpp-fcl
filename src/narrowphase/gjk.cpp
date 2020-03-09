@@ -67,6 +67,18 @@ template <> struct shape_traits<Box> : shape_traits_base
   };
 };
 
+template <> struct shape_traits<Sphere> : shape_traits_base
+{
+  enum { NeedNormalizedDir = false
+  };
+};
+
+template <> struct shape_traits<Capsule> : shape_traits_base
+{
+  enum { NeedNormalizedDir = false
+  };
+};
+
 template <> struct shape_traits<Cone> : shape_traits_base
 {
   enum { NeedNormalizedDir = false
@@ -111,60 +123,76 @@ inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support)
   support.noalias() = (dir.array() > 0).select(box->halfSide, -box->halfSide);
 }
 
-inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir, Vec3f& support)
+inline void getShapeSupport(const Sphere*, const Vec3f& /*dir*/, Vec3f& support)
 {
-  support = dir * sphere->radius;
+  support.setZero();
 }
 
 inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir, Vec3f& support)
 {
-  support = capsule->radius * dir;
-  if (dir[2] > 0) support[2] += capsule->halfLength;
-  else            support[2] -= capsule->halfLength;
+  support.head<2>().setZero();
+  if (dir[2] > 0) support[2] =   capsule->halfLength;
+  else            support[2] = - capsule->halfLength;
 }
 
 void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support)
 {
-  // TODO (Joseph Mirabel)
-  // this assumes that the cone radius is, for -0.5 < z < 0.5:
-  // (lz/2 - z) * radius / lz
-  //
-  // I did not change the code myself. However, I think it should be revised.
-  // 1. It can be optimized.
-  // 2. I am not sure this is what conePlaneIntersect and coneHalfspaceIntersect
-  //    assumes...
+  // The cone radius is, for -h < z < h, (h - z) * r / (2*h)
+  static const FCL_REAL inflate = 1.00001;
+  FCL_REAL h = cone->halfLength;
+  FCL_REAL r = cone->radius;
+
+  if (dir.head<2>().isZero()) {
+    support.head<2>().setZero();
+    if (dir[2] > 0)
+      support[2] = h;
+    else
+      support[2] = - inflate * h;
+    return;
+  }
   FCL_REAL zdist = dir[0] * dir[0] + dir[1] * dir[1];
   FCL_REAL len = zdist + dir[2] * dir[2];
   zdist = std::sqrt(zdist);
-  len = std::sqrt(len);
-  FCL_REAL half_h = cone->halfLength;
-  FCL_REAL radius = cone->radius;
 
-  FCL_REAL sin_a = radius / std::sqrt(radius * radius + 4 * half_h * half_h);
+  if (dir[2] <= 0) {
+    FCL_REAL rad = r / zdist;
+    support.head<2>() = rad * dir.head<2>();
+    support[2] = -h;
+    return;
+  }
+
+  len = std::sqrt(len);
+  FCL_REAL sin_a = r / std::sqrt(r * r + 4 * h * h);
 
   if(dir[2] > len * sin_a)
-    support = Vec3f(0, 0, half_h);
-  else if(zdist > 0)
-  {
-    FCL_REAL rad = radius / zdist;
-    support = Vec3f(rad * dir[0], rad * dir[1], -half_h);
+    support << 0, 0, h;
+  else {
+    FCL_REAL rad = r / zdist;
+    support.head<2>() = rad * dir.head<2>();
+    support[2] = -h;
   }
-  else
-    support = Vec3f(0, 0, -half_h);
 }
 
 void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support)
 {
-  static const FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+  // The inflation makes the object look strictly convex to GJK and EPA. This
+  // helps solving particular cases (e.g. a cylinder with itself at the same
+  // position...)
+  static const FCL_REAL inflate = 1.00001;
   FCL_REAL half_h = cylinder->halfLength;
-  if      (dir [2] >  eps) support[2] =  half_h;
-  else if (dir [2] < -eps) support[2] = -half_h;
-  else                     support[2] = 0;
-  if (dir.head<2>().isZero())
+  FCL_REAL r = cylinder->radius;
+
+  if (dir.head<2>() == Eigen::Matrix<FCL_REAL,2,1>::Zero()) half_h *= inflate;
+
+  if      (dir[2] > 0) support[2] =  half_h;
+  else if (dir[2] < 0) support[2] = -half_h;
+  else               { support[2] = 0; r *= inflate; }
+  if (dir.head<2>() == Eigen::Matrix<FCL_REAL,2,1>::Zero())
     support.head<2>().setZero();
   else
-    support.head<2>() = dir.head<2>().normalized() * cylinder->radius;
-  assert (fabs (support [0] * dir [1] - support [1] * dir [0]) < eps);
+    support.head<2>() = dir.head<2>().normalized() * r;
+  assert (fabs (support [0] * dir [1] - support [1] * dir [0])
+      < sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
 }
 
 void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support)
@@ -276,8 +304,10 @@ void getSupportFuncTpl (const MinkowskiDiff& md,
 }
 
 template <typename Shape0>
-MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, bool identity)
+MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, bool identity,
+    Eigen::Array<FCL_REAL, 1, 2>& inflation)
 {
+  inflation[1] = 0;
   switch(s1->getNodeType())
   {
   case GEOM_TRIANGLE:
@@ -287,9 +317,11 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, 
     if (identity) return getSupportFuncTpl<Shape0, Box, true >;
     else          return getSupportFuncTpl<Shape0, Box, false>;
   case GEOM_SPHERE:
+    inflation[1] = static_cast<const Sphere*>(s1)->radius;
     if (identity) return getSupportFuncTpl<Shape0, Sphere, true >;
     else          return getSupportFuncTpl<Shape0, Sphere, false>;
   case GEOM_CAPSULE:
+    inflation[1] = static_cast<const Capsule*>(s1)->radius;
     if (identity) return getSupportFuncTpl<Shape0, Capsule, true >;
     else          return getSupportFuncTpl<Shape0, Capsule, false>;
   case GEOM_CONE:
@@ -306,30 +338,34 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, 
   }
 }
 
-MinkowskiDiff::GetSupportFunction makeGetSupportFunction0 (const ShapeBase* s0, const ShapeBase* s1, bool identity)
+MinkowskiDiff::GetSupportFunction makeGetSupportFunction0 (const ShapeBase* s0, const ShapeBase* s1, bool identity,
+    Eigen::Array<FCL_REAL, 1, 2>& inflation)
 {
+  inflation[0] = 0;
   switch(s0->getNodeType())
   {
   case GEOM_TRIANGLE:
-    return makeGetSupportFunction1<TriangleP> (s1, identity);
+    return makeGetSupportFunction1<TriangleP> (s1, identity, inflation);
     break;
   case GEOM_BOX:
-    return makeGetSupportFunction1<Box> (s1, identity);
+    return makeGetSupportFunction1<Box> (s1, identity, inflation);
     break;
   case GEOM_SPHERE:
-    return makeGetSupportFunction1<Sphere> (s1, identity);
+    inflation[0] = static_cast<const Sphere*>(s0)->radius;
+    return makeGetSupportFunction1<Sphere> (s1, identity, inflation);
     break;
   case GEOM_CAPSULE:
-    return makeGetSupportFunction1<Capsule> (s1, identity);
+    inflation[0] = static_cast<const Capsule*>(s0)->radius;
+    return makeGetSupportFunction1<Capsule> (s1, identity, inflation);
     break;
   case GEOM_CONE:
-    return makeGetSupportFunction1<Cone> (s1, identity);
+    return makeGetSupportFunction1<Cone> (s1, identity, inflation);
     break;
   case GEOM_CYLINDER:
-    return makeGetSupportFunction1<Cylinder> (s1, identity);
+    return makeGetSupportFunction1<Cylinder> (s1, identity, inflation);
     break;
   case GEOM_CONVEX:
-    return makeGetSupportFunction1<ConvexBase> (s1, identity);
+    return makeGetSupportFunction1<ConvexBase> (s1, identity, inflation);
     break;
   default:
     throw std::logic_error ("Unsupported geometric shape");
@@ -347,7 +383,7 @@ void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1,
 
   bool identity = (oR1.isIdentity() && ot1.isZero());
 
-  getSupportFunc = makeGetSupportFunction0 (shape0, shape1, identity);
+  getSupportFunc = makeGetSupportFunction0 (shape0, shape1, identity, inflation);
 }
 
 void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1)
@@ -358,7 +394,7 @@ void MinkowskiDiff::set (const ShapeBase* shape0, const ShapeBase* shape1)
   oR1.setIdentity();
   ot1.setZero();
 
-  getSupportFunc = makeGetSupportFunction0 (shape0, shape1, true);
+  getSupportFunc = makeGetSupportFunction0 (shape0, shape1, true, inflation);
 }
 
 void GJK::initialize()
@@ -374,11 +410,13 @@ Vec3f GJK::getGuessFromSimplex() const
   return ray;
 }
 
-bool GJK::getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1)
-{
-  SimplexV* const* vs = simplex.vertex;
+namespace details {
 
-  for (vertex_id_t i = 0; i < simplex.rank; ++i) {
+bool getClosestPoints (const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1)
+{
+  GJK::SimplexV* const* vs = simplex.vertex;
+
+  for (GJK::vertex_id_t i = 0; i < simplex.rank; ++i) {
     assert (vs[i]->w.isApprox (vs[i]->w0 - vs[i]->w1));
   }
 
@@ -396,11 +434,13 @@ bool GJK::getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1)
         Vec3f N (b - a);
         la = N.dot(-a);
         if (la <= 0) {
+          assert(false);
           w0 = a0;
           w1 = a1;
         } else {
           lb = N.squaredNorm();
           if (la > lb) {
+            assert(false);
             w0 = b0;
             w1 = b1;
           } else {
@@ -424,10 +464,46 @@ bool GJK::getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1)
   }
   w0.setZero();
   w1.setZero();
-  for (vertex_id_t i = 0; i < simplex.rank; ++i) {
+  for (GJK::vertex_id_t i = 0; i < simplex.rank; ++i) {
     w0 += projection.parameterization[i] * vs[i]->w0;
     w1 += projection.parameterization[i] * vs[i]->w1;
   }
+  return true;
+}
+
+/// Inflate the points
+template <bool Separated>
+void inflate (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1)
+{
+  const Eigen::Array<FCL_REAL, 1, 2>& I (shape.inflation);
+  Eigen::Array<bool, 1, 2> inflate (I > 0);
+  if (!inflate.any()) return;
+  Vec3f w (w0 - w1);
+  FCL_REAL n2 = w.squaredNorm();
+  // TODO should be use a threshold (Eigen::NumTraits<FCL_REAL>::epsilon()) ?
+  if (n2 == 0.) {
+    if (inflate[0]) w0[0] += I[0] * (Separated ? -1 :  1);
+    if (inflate[1]) w1[0] += I[1] * (Separated ?  1 : -1);
+    return;
+  }
+
+  w /= std::sqrt(n2);
+  if (Separated) {
+    if (inflate[0]) w0 -= I[0] * w;
+    if (inflate[1]) w1 += I[1] * w;
+  } else {
+    if (inflate[0]) w0 += I[0] * w;
+    if (inflate[1]) w1 -= I[1] * w;
+  }
+}
+
+} // namespace details
+
+bool GJK::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1)
+{
+  bool res = details::getClosestPoints(*simplex, w0, w1);
+  if (!res) return false;
+  details::inflate<true> (shape, w0, w1);
   return true;
 }
 
@@ -435,6 +511,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 {
   size_t iterations = 0;
   FCL_REAL alpha = 0;
+  const FCL_REAL inflation = shape_.inflation.sum();
+  const FCL_REAL upper_bound = distance_upper_bound + inflation;
 
   free_v[0] = &store_v[0];
   free_v[1] = &store_v[1];
@@ -453,6 +531,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   else                       appendVertex(simplices[0], Vec3f(1, 0, 0), true);
   ray = simplices[0].vertex[0]->w;
 
+  FCL_REAL rl = ray.norm();
+  if (rl == 0) {
+    status = Inside;
+    distance = - inflation - 1.;
+    simplex = &simplices[0];
+    return status;
+  }
   do
   {
     vertex_id_t next = (vertex_id_t)(1 - current);
@@ -460,11 +545,15 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     Simplex& next_simplex = simplices[next];
 
     // check A: when origin is near the existing simplex, stop
-    FCL_REAL rl = ray.norm();
+    // TODO this is an early stop which may cause the following issue.
+    // - EPA will not run correctly because it starts with a tetrahedron which
+    //   does not include the origin. Note that, at this stage, we do not know
+    //   whether a tetrahedron including the origin exists.
     if(rl < tolerance) // mean origin is near the face of original simplex, return touch
     {
+      assert(rl > 0);
       status = Inside;
-      distance = 0; // rl ?
+      distance = - inflation; // should we take rl into account ?
       break;
     }
 
@@ -475,9 +564,9 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
     // check B: no collision if omega > 0
     FCL_REAL omega = ray.dot(w) / rl;
-    if (omega > distance_upper_bound)
+    if (omega > upper_bound)
     {
-      distance = omega;
+      distance = omega - inflation;
       break;
     }
 
@@ -486,7 +575,11 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     if((rl - alpha) - tolerance * rl <= 0)
     {
       removeVertex(simplices[current]);
-      distance = rl;
+      distance = rl - inflation;
+      // TODO When inflation is strictly positive, the distance may be exactly
+      // zero (so the ray is not zero) and we are not in the case rl < tolerance.
+      if (distance < tolerance)
+        status = Inside;
       break;
     }
 
@@ -507,9 +600,11 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     }
     assert (nfree+next_simplex.rank == 4);
     current = next;
-    if(inside) {
+    if (!inside)
+      rl = ray.norm();
+    if(inside || rl == 0) {
       status = Inside;
-      distance = 0;
+      distance = - inflation - 1.;
       break;
     }
 
@@ -627,7 +722,7 @@ inline void originToSegment (
     ray /= AB.squaredNorm();
 }
 
-inline void originToTriangle (
+inline bool originToTriangle (
     const GJK::Simplex& current,
     GJK::vertex_id_t a, GJK::vertex_id_t b, GJK::vertex_id_t c,
     const Vec3f& ABC,
@@ -635,21 +730,26 @@ inline void originToTriangle (
     GJK::Simplex& next,
     Vec3f& ray)
 {
-  bool aboveTri (ABCdotAO >= 0);
-  ray = ABC;
+  next.rank = 3;
+  next.vertex[2] = current.vertex[a];
 
-  if (aboveTri) {
+  if (ABCdotAO == 0) {
+    next.vertex[0] = current.vertex[c];
+    next.vertex[1] = current.vertex[b];
+    ray.setZero();
+    return true;
+  }
+  if (ABCdotAO > 0) { // Above triangle
     next.vertex[0] = current.vertex[c];
     next.vertex[1] = current.vertex[b];
   } else {
     next.vertex[0] = current.vertex[b];
     next.vertex[1] = current.vertex[c];
   }
-  next.vertex[2] = current.vertex[a];
-  next.rank = 3;
 
   // To ensure backward compatibility
-  ray *= -ABCdotAO / ABC.squaredNorm();
+  ray = - ABCdotAO / ABC.squaredNorm() * ABC;
+  return false;
 }
 
 bool GJK::projectLineOrigin(const Simplex& current, Simplex& next)
@@ -663,7 +763,16 @@ bool GJK::projectLineOrigin(const Simplex& current, Simplex& next)
   const FCL_REAL d = AB.dot(-A);
   assert (d <= AB.squaredNorm());
 
-  if (d <= 0) {
+  if (d == 0) {
+    // Two extremely unlikely cases:
+    // - AB is orthogonal to A: should never happen because it means the support
+    //   function did not do any progress and GJK should have stopped.
+    // - A == origin
+    // In any case, A is the closest to the origin
+    originToPoint (current, a, A, next, ray);
+    free_v[nfree++] = current.vertex[b];
+    return A.isZero();
+  } else if (d < 0) {
     // A is the closest to the origin
     originToPoint (current, a, A, next, ray);
     free_v[nfree++] = current.vertex[b];
@@ -712,7 +821,7 @@ bool GJK::projectTriangleOrigin(const Simplex& current, Simplex& next)
         originToSegment (current, a, b, A, B, AB, towardsB, next, ray);
       free_v[nfree++] = current.vertex[c];
     } else {
-      originToTriangle (current, a, b, c, ABC, ABC.dot(-A), next, ray);
+      return originToTriangle (current, a, b, c, ABC, ABC.dot(-A), next, ray);
     }
   }
   return false;
@@ -1216,7 +1325,8 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
           valid &= expand(pass, w, best->f[j], best->e[j], horizon);
 
         if(!valid || horizon.nf < 3) {
-          status = InvalidHull;
+          // The status has already been set by the expand function.
+          assert(!(status & Valid));
           break;
         }
         // need to add the edge connectivity between first and last faces
@@ -1256,12 +1366,15 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon
   static const size_t previ[] = {2, 0, 1};
 
   if(f->pass == pass)
+  {
+    status = InvalidHull;
     return false;
-  
+  }
+
   const size_t e1 = nexti[e];
     
   // case 1: the new face is not degenerated, i.e., the new face is not coplanar with the old face f.
-  if(f->n.dot(w->w - f->vertex[e]->w) < -tolerance)
+  if(f->n.dot(w->w - f->vertex[e]->w) < -Eigen::NumTraits<FCL_REAL>::epsilon())
   {
     SimplexF* nf = newFace(f->vertex[e1], f->vertex[e], w, false);
     if(nf)
@@ -1294,6 +1407,14 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon
     return true;
   }
   return false;
+}
+
+bool EPA::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1)
+{
+  bool res = details::getClosestPoints(result, w0, w1);
+  if (!res) return false;
+  details::inflate<false> (shape, w0, w1);
+  return true;
 }
 
 } // details

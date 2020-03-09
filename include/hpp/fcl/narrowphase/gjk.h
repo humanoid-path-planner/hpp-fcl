@@ -71,6 +71,10 @@ struct MinkowskiDiff
   /// such that @f$ p_in_0 = oR1 * p_in_1 + ot1 @f$.
   Vec3f ot1;
 
+  /// @brief The radius of the sphere swepted volume.
+  /// The 2 values correspond to the inflation of shape 0 and shape 1.
+  Eigen::Array<FCL_REAL, 1, 2> inflation;
+
   typedef void (*GetSupportFunction) (const MinkowskiDiff& minkowskiDiff,
       const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1);
   GetSupportFunction getSupportFunc;
@@ -134,6 +138,19 @@ struct GJK
 
   MinkowskiDiff const* shape;
   Vec3f ray;
+  /// The distance computed by GJK. The possible values are
+  /// - \f$ d = - R - 1 \f$ when a collision is detected and GJK
+  ///   cannot compute penetration informations.
+  /// - \f$ - R \le d \le 0 \f$ when a collision is detected and GJK can
+  ///   compute penetration informations.
+  /// - \f$ 0 < d \le d_{ub} \f$ when there is no collision and GJK can compute
+  ///   the closest points.
+  /// - \f$ d_{ub} < d \f$ when there is no collision and GJK cannot compute the
+  ///   closest points.
+  ///
+  /// where \f$ d \f$ is the GJK::distance, \f$ R \f$ is the sum of the \c shape
+  /// MinkowskiDiff::inflation and \f$ d_{ub} \f$ is the
+  /// GJK::distance_upper_bound.
   FCL_REAL distance;
   Simplex simplices[2];
 
@@ -165,9 +182,24 @@ struct GJK
     return simplex;
   }
 
+  /// Tells whether the closest points are available.
+  bool hasClosestPoints ()
+  {
+    return distance < distance_upper_bound;
+  }
+
+  /// Tells whether the penetration information.
+  ///
+  /// In such case, most indepth points and penetration depth can be retrieved
+  /// from GJK. Calling EPA has an undefined behaviour.
+  bool hasPenetrationInformation (const MinkowskiDiff& shape)
+  {
+    return distance > - shape.inflation.sum();
+  }
+
   /// Get the closest points on each object.
   /// @return true on success
-  static bool getClosestPoints (const Simplex& simplex, Vec3f& w0, Vec3f& w1);
+  bool getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
 
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;
@@ -277,7 +309,17 @@ private:
 
 public:
 
-  enum Status {Valid, Touching, Degenerated, NonConvex, InvalidHull, OutOfFaces, OutOfVertices, AccuracyReached, FallBack, Failed};
+  enum Status {
+    Failed              = 0,
+    Valid               = 1,
+    AccuracyReached     = 1 << 1 | Valid ,
+    Degenerated         = 1 << 1 | Failed,
+    NonConvex           = 2 << 1 | Failed,
+    InvalidHull         = 3 << 1 | Failed,
+    OutOfFaces          = 4 << 1 | Failed,
+    OutOfVertices       = 5 << 1 | Failed,
+    FallBack            = 6 << 1 | Failed
+  };
   
   Status status;
   GJK::Simplex result;
@@ -304,7 +346,14 @@ public:
 
   void initialize();
 
+  /// \return a Status which can be demangled using (status & Valid) or
+  ///         (status & Failed). The other values provide a more detailled
+  ///         status
   Status evaluate(GJK& gjk, const Vec3f& guess);
+
+  /// Get the closest points on each object.
+  /// @return true on success
+  bool getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
 
 private:
   bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist);
