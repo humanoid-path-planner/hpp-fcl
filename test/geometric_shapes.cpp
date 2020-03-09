@@ -3108,19 +3108,18 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_cylindercylinder)
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(9.9, 0, 0));
   normal << 1, 0, 0;
-  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, 3e-1);  // built-in GJK solver requires larger tolerance than libccd
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   normal = transform.getRotation() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, true);
-  // built-in GJK solver returns incorrect normal.
-  // testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10, 0, 0));
   normal << 1, 0, 0;
-  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(10.01, 0, 0));

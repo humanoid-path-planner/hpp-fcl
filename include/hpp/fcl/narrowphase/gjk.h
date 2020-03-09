@@ -194,7 +194,7 @@ struct GJK
   /// from GJK. Calling EPA has an undefined behaviour.
   bool hasPenetrationInformation (const MinkowskiDiff& shape)
   {
-    return distance >= - shape.inflation.sum();
+    return distance > - shape.inflation.sum();
   }
 
   /// Get the closest points on each object.

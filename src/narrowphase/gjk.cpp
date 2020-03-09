@@ -167,16 +167,24 @@ void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support)
 
 void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support)
 {
-  static const FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+  // The inflation makes the object look strictly convex to GJK and EPA. This
+  // helps solving particular cases (e.g. a cylinder with itself at the same
+  // position...)
+  static const FCL_REAL inflate = 1.00001;
   FCL_REAL half_h = cylinder->halfLength;
-  if      (dir [2] >  eps) support[2] =  half_h;
-  else if (dir [2] < -eps) support[2] = -half_h;
-  else                     support[2] = 0;
-  if (dir.head<2>().isZero())
+  FCL_REAL r = cylinder->radius;
+
+  if (dir.head<2>() == Eigen::Matrix<FCL_REAL,2,1>::Zero()) half_h *= inflate;
+
+  if      (dir[2] > 0) support[2] =  half_h;
+  else if (dir[2] < 0) support[2] = -half_h;
+  else               { support[2] = 0; r *= inflate; }
+  if (dir.head<2>() == Eigen::Matrix<FCL_REAL,2,1>::Zero())
     support.head<2>().setZero();
   else
-    support.head<2>() = dir.head<2>().normalized() * cylinder->radius;
-  assert (fabs (support [0] * dir [1] - support [1] * dir [0]) < eps);
+    support.head<2>() = dir.head<2>().normalized() * r;
+  assert (fabs (support [0] * dir [1] - support [1] * dir [0])
+      < sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
 }
 
 void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support)
@@ -1303,7 +1311,8 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
           valid &= expand(pass, w, best->f[j], best->e[j], horizon);
 
         if(!valid || horizon.nf < 3) {
-          status = InvalidHull;
+          // The status has already been set by the expand function.
+          assert(!(status & Valid));
           break;
         }
         // need to add the edge connectivity between first and last faces
@@ -1343,8 +1352,11 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon
   static const size_t previ[] = {2, 0, 1};
 
   if(f->pass == pass)
+  {
+    status = InvalidHull;
     return false;
-  
+  }
+
   const size_t e1 = nexti[e];
     
   // case 1: the new face is not degenerated, i.e., the new face is not coplanar with the old face f.

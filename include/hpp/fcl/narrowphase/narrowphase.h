@@ -90,9 +90,8 @@ namespace fcl
               if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               return true;
             }
-            // TODO EPA failed but we know there is a collision so we should
-            // return true;
-            return false;
+            // EPA failed but we know there is a collision so we should
+            return true;
           }
           break;
         default:
@@ -228,7 +227,10 @@ namespace fcl
             details::EPA epa(epa_max_face_num, epa_max_vertex_num,
                              epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-            if(epa_status & details::EPA::Valid)
+            if(epa_status & details::EPA::Valid
+                || epa_status == details::EPA::OutOfFaces    // Warnings
+                || epa_status == details::EPA::OutOfVertices // Warnings
+                )
             {
               Vec3f w0, w1;
               epa.getClosestPoints (shape, w0, w1);
