@@ -63,7 +63,7 @@ namespace fcl {
     const Sphere* s1 = static_cast <const Sphere*> (o1);
     const Sphere* s2 = static_cast <const Sphere*> (o2);
 
-    // We assume that capsules are centered at the origin.
+    // We assume that spheres are centered at the origin of their frame.
     const fcl::Vec3f& center1 = tf1.getTranslation ();
     const fcl::Vec3f& center2 = tf2.getTranslation ();
     FCL_REAL r1 = s1->radius;
