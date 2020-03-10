@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2014-2019 CNRS-LAAS, INRIA
+#  Copyright (c) 2014-2020 CNRS-LAAS, INRIA
 #  Author: Florent Lamiraux, Joseph Mirabel
 #  All rights reserved.
 #
@@ -73,7 +73,7 @@ PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 add_required_dependency("eigen3 >= 3.0.0")
 
 if (BUILD_PYTHON_INTERFACE)
-  ADD_REQUIRED_DEPENDENCY("eigenpy >= 1.2")
+  ADD_COMPILE_DEPENDENCY("eigenpy >= 1.2")
 endif ()
 
 # Add a cache variable to allow not compiling and running tests
