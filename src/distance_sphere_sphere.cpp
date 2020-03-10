@@ -50,7 +50,7 @@
 namespace hpp
 {
 namespace fcl {
-  class GJKSolver;
+  struct GJKSolver;
 
   template <>
   FCL_REAL ShapeShapeDistance <Sphere, Sphere>
