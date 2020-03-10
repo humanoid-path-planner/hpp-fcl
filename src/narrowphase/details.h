@@ -261,8 +261,8 @@ namespace fcl {
                                      FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
                                      Vec3f& normal)
     {
-      Vec3f o1 = tf1.getTranslation();
-      Vec3f o2 = tf2.getTranslation();
+      const Vec3f & o1 = tf1.getTranslation();
+      const Vec3f & o2 = tf2.getTranslation();
       Vec3f diff = o1 - o2;
       FCL_REAL len = diff.norm();
       normal = -diff/len;
@@ -639,7 +639,7 @@ namespace fcl {
     {
       if(p1 || p2)
         {
-          Vec3f o = tf.getTranslation();
+          const Vec3f & o = tf.getTranslation();
           Project::ProjectResult result;
           result = Project::projectTriangle(P1, P2, P3, o);
           if(result.sqr_distance > sp.radius * sp.radius)
