@@ -13,20 +13,6 @@ cache:
 
 matrix:
   include:
-    - name: "Trusty - Release - g++"
-      env: BUILD_TYPE=Release
-      dist: trusty
-      compiler: g++
-      addons:
-        apt:
-          packages:
-            - cmake
-            - libboost-all-dev
-            - libassimp-dev
-            - libeigen3-dev
-            - python-lxml
-            - python3-lxml
-
     - name: "Xenial - Release - g++"
       env: BUILD_TYPE=Release
       dist: xenial
