@@ -268,8 +268,8 @@ namespace fcl {
       normal = -diff/len;
       dist = len - s1.radius - s2.radius;
 
-      p1.noalias() = o1 - normal * s1.radius;
-      p2.noalias() = o2 + normal * s2.radius;
+      p1.noalias() = o1 + normal * s1.radius;
+      p2.noalias() = o2 - normal * s2.radius;
 
       return (dist >=0);
     }
