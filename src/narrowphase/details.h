@@ -231,7 +231,7 @@ namespace fcl {
        const Sphere& s2, const Transform3f& tf2,
        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
     {
-      Vec3f diff = tf2.getTranslation() - tf1.getTranslation();
+      const Vec3f diff = tf2.getTranslation() - tf1.getTranslation();
       FCL_REAL len = diff.norm();
       if(len > s1.radius + s2.radius)
         return false;
@@ -261,15 +261,15 @@ namespace fcl {
                                      FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
                                      Vec3f& normal)
     {
-      Vec3f o1 = tf1.getTranslation();
-      Vec3f o2 = tf2.getTranslation();
+      const Vec3f & o1 = tf1.getTranslation();
+      const Vec3f & o2 = tf2.getTranslation();
       Vec3f diff = o1 - o2;
       FCL_REAL len = diff.norm();
       normal = -diff/len;
       dist = len - s1.radius - s2.radius;
 
-      p1 = o1 - diff * (s1.radius / len);
-      p2 = o2 + diff * (s2.radius / len);
+      p1.noalias() = o1 + normal * s1.radius;
+      p2.noalias() = o2 - normal * s2.radius;
 
       return (dist >=0);
     }
@@ -284,7 +284,7 @@ namespace fcl {
 
       if(t > 0)
         {
-          FCL_REAL dotVV = v.dot(v);
+          FCL_REAL dotVV = v.squaredNorm();
           if(t < dotVV)
             {
               t /= dotVV;
@@ -299,8 +299,8 @@ namespace fcl {
       else
         t = 0;
 
-      nearest = from + v * t;
-      return diff.dot(diff);
+      nearest.noalias() = from + v * t;
+      return diff.squaredNorm();
     }
 
     /// @brief Whether a point's projection is in a triangle
@@ -639,7 +639,7 @@ namespace fcl {
     {
       if(p1 || p2)
         {
-          Vec3f o = tf.getTranslation();
+          const Vec3f & o = tf.getTranslation();
           Project::ProjectResult result;
           result = Project::projectTriangle(P1, P2, P3, o);
           if(result.sqr_distance > sp.radius * sp.radius)

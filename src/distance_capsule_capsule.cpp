@@ -50,7 +50,7 @@
 namespace hpp
 {
 namespace fcl {
-  class GJKSolver;
+  struct GJKSolver;
 
 
   // Compute the distance between C1 and C2 by computing the distance
