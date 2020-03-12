@@ -255,6 +255,9 @@ public:
   /// @brief get the i-th contact calculated
   const Contact& getContact(size_t i) const
   {
+    if(contacts.size() == 0)
+      throw std::invalid_argument("The number of contacts is zero. No Contact can be returned.");
+    
     if(i < contacts.size()) 
       return contacts[i];
     else
