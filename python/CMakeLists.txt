@@ -61,6 +61,7 @@ ELSE()
   ELSE()
     SET(ENABLE_DOXYGEN_AUTODOC FALSE)
     MESSAGE(STATUS "Python package lxml not found. Python bindings will not be documented.")
+    MESSAGE(STATUS "  You can install it with: pip install lxml")
   ENDIF()
 
   EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import pylatexenc"
