@@ -1,5 +1,6 @@
 SET(${PROJECT_NAME}_PYTHON_TESTS
   geometric_shapes
+  api
   )
 
 FOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
