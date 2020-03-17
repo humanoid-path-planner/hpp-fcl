@@ -134,7 +134,7 @@ void exposeCollisionAPI ()
 
   if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<CollisionResult> >())
   {
-    class_< std::vector<CollisionResult> >("CollisionResult")
+    class_< std::vector<CollisionResult> >("StdVec_CollisionResult")
       .def(vector_indexing_suite< std::vector<CollisionResult> >())
       ;
   }
