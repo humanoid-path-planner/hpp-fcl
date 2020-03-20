@@ -74,7 +74,7 @@ PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 add_required_dependency("eigen3 >= 3.0.0")
 
 if (BUILD_PYTHON_INTERFACE)
-  ADD_COMPILE_DEPENDENCY("eigenpy >= 2.0")
+  ADD_COMPILE_DEPENDENCY("eigenpy >= 2.2")
 endif ()
 
 # Add a cache variable to allow not compiling and running tests
