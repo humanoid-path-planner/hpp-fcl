@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019 CNRS-LAAS INRIA
+//  Copyright (c) 2019-2020 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -35,6 +35,7 @@
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
+#include <eigenpy/eigen-to-python.hpp>
 #include <eigenpy/registration.hpp>
 
 #include <hpp/fcl/fwd.hh>

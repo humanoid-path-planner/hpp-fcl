@@ -36,6 +36,7 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include <eigenpy/registration.hpp>
+#include <eigenpy/eigen-to-python.hpp>
 
 #include "fcl.hh"
 
@@ -89,10 +90,7 @@ void exposeDistanceAPI ()
     class_ <DistanceResult> ("DistanceResult",
         doxygen::class_doc<DistanceResult>(), init<>())
       .DEF_RW_CLASS_ATTRIB (DistanceResult, min_distance)
-      .add_property("normal",
-          make_getter(&DistanceResult::normal, return_value_policy<return_by_value>()),
-          make_setter(&DistanceResult::normal, return_value_policy<return_by_value>()),
-          doxygen::class_attrib_doc<DistanceResult>("normal"))
+      .DEF_RW_CLASS_ATTRIB(DistanceResult, normal)
       //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
       .def("getNearestPoint1",&DistanceRequestWrapper::getNearestPoint1,
           doxygen::class_attrib_doc<DistanceResult>("nearest_points"))

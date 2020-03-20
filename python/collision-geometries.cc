@@ -35,6 +35,7 @@
 #include <boost/python.hpp>
 
 #include <eigenpy/registration.hpp>
+#include <eigenpy/eigen-to-python.hpp>
 
 #include "fcl.hh"
 
@@ -138,10 +139,9 @@ void exposeShapes ()
     .def (dv::init<Box>())
     .def (dv::init<Box, FCL_REAL,FCL_REAL,FCL_REAL>())
     .def (dv::init<Box, const Vec3f&>())
-    .add_property("halfSide",
-                  make_getter(&Box::halfSide, return_value_policy<return_by_value>()),
-                  make_setter(&Box::halfSide, return_value_policy<return_by_value>()),
-                  doxygen::class_attrib_doc<Box>("halfSide"))
+    .def_readwrite("halfSide",
+                   &Box::halfSide,
+                   doxygen::class_attrib_doc<Box>("halfSide"))
     ;
 
   class_ <Capsule, bases<ShapeBase>, shared_ptr<Capsule> >
