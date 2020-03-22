@@ -136,9 +136,9 @@ void exposeShapes ()
 
   class_ <Box, bases<ShapeBase>, shared_ptr<Box> >
     ("Box", doxygen::class_doc<ShapeBase>(), no_init)
-    .def (dv::init<Box>())
-    .def (dv::init<Box, FCL_REAL,FCL_REAL,FCL_REAL>())
-    .def (dv::init<Box, const Vec3f&>())
+    .def (dv::init<Box>(arg("self")))
+    .def (dv::init<Box, FCL_REAL,FCL_REAL,FCL_REAL>(args("self","x","y","z")))
+    .def (dv::init<Box, const Vec3f&>(args("self","side")))
     .def_readwrite("halfSide",
                    &Box::halfSide,
                    doxygen::class_attrib_doc<Box>("halfSide"))
@@ -146,14 +146,14 @@ void exposeShapes ()
 
   class_ <Capsule, bases<ShapeBase>, shared_ptr<Capsule> >
     ("Capsule", doxygen::class_doc<Capsule>(), no_init)
-    .def (dv::init<Capsule, FCL_REAL, FCL_REAL>())
+    .def (dv::init<Capsule, FCL_REAL, FCL_REAL>(args("self","radius","length")))
     .DEF_RW_CLASS_ATTRIB (Capsule, radius)
     .DEF_RW_CLASS_ATTRIB (Capsule, halfLength)
     ;
 
   class_ <Cone, bases<ShapeBase>, shared_ptr<Cone> >
     ("Cone", doxygen::class_doc<Cone>(), no_init)
-    .def (dv::init<Cone, FCL_REAL, FCL_REAL>())
+    .def (dv::init<Cone, FCL_REAL, FCL_REAL>(args("self","radius","length")))
     .DEF_RW_CLASS_ATTRIB (Cone, radius)
     .DEF_RW_CLASS_ATTRIB (Cone, halfLength)
     ;
@@ -174,7 +174,7 @@ void exposeShapes ()
 
   class_ <Cylinder, bases<ShapeBase>, shared_ptr<Cylinder> >
     ("Cylinder", doxygen::class_doc<Cylinder>(), no_init)
-    .def (dv::init<Cylinder, FCL_REAL, FCL_REAL>())
+    .def (dv::init<Cylinder, FCL_REAL, FCL_REAL>(args("self","radius","length")))
     .DEF_RW_CLASS_ATTRIB (Cylinder, radius)
     .DEF_RW_CLASS_ATTRIB (Cylinder, halfLength)
     ;
@@ -190,22 +190,22 @@ void exposeShapes ()
 
   class_ <Plane, bases<ShapeBase>, shared_ptr<Plane> >
     ("Plane", doxygen::class_doc<Plane>(), no_init)
-    .def (dv::init<Plane, const Vec3f&, FCL_REAL>())
-    .def (dv::init<Plane, FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>())
-    .def (dv::init<Plane>())
+    .def (dv::init<Plane, const Vec3f&, FCL_REAL>(args("self","normal","offset")))
+    .def (dv::init<Plane, FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>(args("self","x","y","z","offset")))
+    .def (dv::init<Plane>(arg("self")))
     .DEF_RW_CLASS_ATTRIB (Plane, n)
     .DEF_RW_CLASS_ATTRIB (Plane, d)
     ;
 
   class_ <Sphere, bases<ShapeBase>, shared_ptr<Sphere> >
     ("Sphere", doxygen::class_doc<Sphere>(), no_init)
-    .def (dv::init<Sphere, FCL_REAL>())
+    .def (dv::init<Sphere, FCL_REAL>(args("self","radius")))
     .DEF_RW_CLASS_ATTRIB (Sphere, radius)
     ;
 
   class_ <TriangleP, bases<ShapeBase>, shared_ptr<TriangleP> >
     ("TriangleP", doxygen::class_doc<TriangleP>(), no_init)
-    .def (dv::init<TriangleP, const Vec3f&, const Vec3f&, const Vec3f&>())
+    .def (dv::init<TriangleP, const Vec3f&, const Vec3f&, const Vec3f&>(args("self","a","b","c")))
     .DEF_RW_CLASS_ATTRIB (TriangleP, a)
     .DEF_RW_CLASS_ATTRIB (TriangleP, b)
     .DEF_RW_CLASS_ATTRIB (TriangleP, c)
