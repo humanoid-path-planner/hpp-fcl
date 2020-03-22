@@ -82,9 +82,8 @@ void exposeCollisionAPI ()
   {
     class_ <CollisionRequest> ("CollisionRequest",
         doxygen::class_doc<CollisionRequest>(), no_init)
-      .def (dv::init<CollisionRequest>())
-      .def (dv::init<CollisionRequest, const CollisionRequestFlag, size_t>())
-    
+      .def (dv::init<CollisionRequest>(::boost::python::arg("self")))
+      .def (dv::init<CollisionRequest, const CollisionRequestFlag, size_t>(::boost::python::args("self","flag","num_max_contacts")))
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, num_max_contacts           )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_contact             )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_distance_lower_bound)
@@ -98,7 +97,7 @@ void exposeCollisionAPI ()
   if(!eigenpy::register_symbolic_link_to_registered_type<Contact>())
   {
     class_ <Contact> ("Contact",
-        doxygen::class_doc<Contact>(), init<>())
+        doxygen::class_doc<Contact>(), init<>(arg("self"),"Default constructor"))
       //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int>())
       //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int, Vec3f, Vec3f, FCL_REAL>())
       .DEF_RO_CLASS_ATTRIB (Contact, o1)
@@ -130,7 +129,7 @@ void exposeCollisionAPI ()
   {
     class_ <CollisionResult> ("CollisionResult",
         doxygen::class_doc<CollisionResult>(), no_init)
-      .def (dv::init<CollisionResult>())
+      .def (dv::init<CollisionResult>(arg("self")))
       .DEF_CLASS_FUNC (CollisionResult, isCollision)
       .DEF_CLASS_FUNC (CollisionResult, numContacts)
       .DEF_CLASS_FUNC (CollisionResult, addContact)

@@ -78,7 +78,10 @@ void exposeDistanceAPI ()
   {
     class_ <DistanceRequest> ("DistanceRequest",
         doxygen::class_doc<DistanceRequest>(),
-        init<optional<bool,FCL_REAL,FCL_REAL> >())
+        init<optional<bool,FCL_REAL,FCL_REAL> >((arg("self"),
+                                                 arg("enable_nearest_points"),
+                                                 arg("rel_err"),
+                                                 arg("abs_err")),"Constructor"))
       .DEF_RW_CLASS_ATTRIB (DistanceRequest, enable_nearest_points)
       .DEF_RW_CLASS_ATTRIB (DistanceRequest, rel_err)
       .DEF_RW_CLASS_ATTRIB (DistanceRequest, abs_err)
@@ -88,7 +91,8 @@ void exposeDistanceAPI ()
   if(!eigenpy::register_symbolic_link_to_registered_type<DistanceResult>())
   {
     class_ <DistanceResult> ("DistanceResult",
-        doxygen::class_doc<DistanceResult>(), init<>())
+                             doxygen::class_doc<DistanceResult>(),
+                             init<>(arg("self"),"Default constructor"))
       .DEF_RW_CLASS_ATTRIB (DistanceResult, min_distance)
       .DEF_RW_CLASS_ATTRIB(DistanceResult, normal)
       //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)

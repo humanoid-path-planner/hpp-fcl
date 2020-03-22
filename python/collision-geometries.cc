@@ -92,8 +92,13 @@ void exposeBVHModel (const std::string& bvname)
 
   std::string type = "BVHModel" + bvname;
   class_ <BVHModel_t, bases<BVHModelBase>, shared_ptr<BVHModel_t> >
+<<<<<<< HEAD
     (type.c_str(), doxygen::class_doc<BVHModel_t>(), no_init)
     .def (dv::init<BVHModel_t>())
+=======
+    (type.c_str(), doxygen::class_doc<BVHModel_t>(),
+     init<>(boost::python::arg("self"),doxygen::constructor_doc<BVHModel_t>()))
+>>>>>>> python/doc: add missing 'self"
     ;
 }
 
@@ -181,9 +186,9 @@ void exposeShapes ()
 
   class_ <Halfspace, bases<ShapeBase>, shared_ptr<Halfspace> >
     ("Halfspace", doxygen::class_doc<Halfspace>(), no_init)
-    .def (dv::init<Halfspace, const Vec3f&, FCL_REAL>())
-    .def (dv::init<Halfspace, FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>())
-    .def (dv::init<Halfspace>())
+    .def (dv::init<Halfspace, const Vec3f&, FCL_REAL>(args("self","normal","offset")))
+    .def (dv::init<Halfspace, FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>(args("self","x","y","z","offset")))
+    .def (dv::init<Halfspace>(arg("self")))
     .DEF_RW_CLASS_ATTRIB (Halfspace, n)
     .DEF_RW_CLASS_ATTRIB (Halfspace, d)
     ;
@@ -263,11 +268,11 @@ void exposeCollisionGeometries ()
   class_<AABB>("AABB",
                "A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points",
                no_init)
-    .def(init<>("Default constructor"))
-    .def(init<Vec3f>(bp::arg("v"),"Creating an AABB at position v with zero size."))
-    .def(init<Vec3f,Vec3f>(bp::args("a","b"),"Creating an AABB with two endpoints a and b."))
-    .def(init<AABB,Vec3f>(bp::args("core","delta"),"Creating an AABB centered as core and is of half-dimension delta."))
-    .def(init<Vec3f,Vec3f,Vec3f>(bp::args("a","b","c"),"Creating an AABB contains three points."))
+    .def(init<>(bp::arg("self"), "Default constructor"))
+    .def(init<Vec3f>(bp::args("self","v"),"Creating an AABB at position v with zero size."))
+    .def(init<Vec3f,Vec3f>(bp::args("self","a","b"),"Creating an AABB with two endpoints a and b."))
+    .def(init<AABB,Vec3f>(bp::args("self","core","delta"),"Creating an AABB centered as core and is of half-dimension delta."))
+    .def(init<Vec3f,Vec3f,Vec3f>(bp::args("self","a","b","c"),"Creating an AABB contains three points."))
   
     .def("contain",
          (bool (AABB::*)(const Vec3f &) const)&AABB::contain,
