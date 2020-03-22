@@ -52,6 +52,8 @@
 using namespace boost::python;
 using namespace hpp::fcl;
 
+namespace dv = doxygen::visitor;
+
 struct TriangleWrapper
 {
   static Triangle::index_type getitem (const Triangle& t, int i)
@@ -85,22 +87,22 @@ void exposeMaths ()
     .def (init<Quaternion3f>       (doxygen::constructor_doc<Transform3f, const Quaternion3f&                                  >()))
     .def (init<Vec3f>              (doxygen::constructor_doc<Transform3f, const Vec3f&                                         >()))
 
-    .def ("getQuatRotation", &Transform3f::getQuatRotation, doxygen::member_func_doc(&Transform3f::getQuatRotation))
+    .def (dv::member_func("getQuatRotation", &Transform3f::getQuatRotation))
     .def ("getTranslation", &Transform3f::getTranslation, doxygen::member_func_doc(&Transform3f::getTranslation), return_value_policy<copy_const_reference>())
     .def ("getRotation", &Transform3f::getRotation, return_value_policy<copy_const_reference>())
-    .def ("isIdentity", &Transform3f::setIdentity)
+    .def (dv::member_func("isIdentity", &Transform3f::isIdentity))
 
-    .def (doxygen::visitor::member_func("setQuatRotation", &Transform3f::setQuatRotation))
+    .def (dv::member_func("setQuatRotation", &Transform3f::setQuatRotation))
     .def ("setTranslation", &Transform3f::setTranslation<Vec3f>)
     .def ("setRotation", &Transform3f::setRotation<Matrix3f>)
-    .def (doxygen::visitor::member_func("setTransform", &Transform3f::setTransform<Matrix3f,Vec3f>))
-    .def (doxygen::visitor::member_func("setTransform", static_cast<void (Transform3f::*)(const Quaternion3f&, const Vec3f&)>(&Transform3f::setTransform)))
-    .def (doxygen::visitor::member_func("setIdentity", &Transform3f::setIdentity))
+    .def (dv::member_func("setTransform", &Transform3f::setTransform<Matrix3f,Vec3f>))
+    .def (dv::member_func("setTransform", static_cast<void (Transform3f::*)(const Quaternion3f&, const Vec3f&)>(&Transform3f::setTransform)))
+    .def (dv::member_func("setIdentity", &Transform3f::setIdentity))
 
-    .def (doxygen::visitor::member_func("transform", &Transform3f::transform<Vec3f>))
+    .def (dv::member_func("transform", &Transform3f::transform<Vec3f>))
     .def ("inverseInPlace", &Transform3f::inverseInPlace, return_internal_reference<>(), doxygen::member_func_doc(&Transform3f::inverseInPlace))
-    .def (doxygen::visitor::member_func("inverse", &Transform3f::inverse))
-    .def (doxygen::visitor::member_func("inverseTimes", &Transform3f::inverseTimes))
+    .def (dv::member_func("inverse", &Transform3f::inverse))
+    .def (dv::member_func("inverseTimes", &Transform3f::inverseTimes))
 
     .def (self * self)
     .def (self *= self)
