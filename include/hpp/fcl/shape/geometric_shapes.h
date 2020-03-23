@@ -238,7 +238,8 @@ public:
   }
 };
 
-/// @brief Center at zero cylinder 
+/// @brief Cylinder along Z axis.
+/// The cylinder is defined at its centroid.
 class Cylinder : public ShapeBase
 {
 public:
