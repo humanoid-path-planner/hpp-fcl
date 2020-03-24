@@ -104,8 +104,14 @@ void exposeCollisionAPI ()
       .DEF_RO_CLASS_ATTRIB (Contact, o2)
       .DEF_RW_CLASS_ATTRIB (Contact, b1)
       .DEF_RW_CLASS_ATTRIB (Contact, b2)
-      .DEF_RW_CLASS_ATTRIB (Contact, normal)
-      .DEF_RW_CLASS_ATTRIB (Contact, pos)
+      .add_property("normal",
+          make_getter(&Contact::normal, return_value_policy<return_by_value>()),
+          make_setter(&Contact::normal, return_value_policy<return_by_value>()),
+          doxygen::class_attrib_doc<Contact>("normal"))
+      .add_property("pos",
+          make_getter(&Contact::pos, return_value_policy<return_by_value>()),
+          make_setter(&Contact::pos, return_value_policy<return_by_value>()),
+          doxygen::class_attrib_doc<Contact>("pos"))
       .DEF_RW_CLASS_ATTRIB (Contact, penetration_depth)
       .def (self == self)
       .def (self != self)
