@@ -2107,30 +2107,39 @@ namespace fcl {
       const Vec3f& ob = tfb.getTranslation();
       const Matrix3f& Rb = tfb.getRotation();
 
-      const Vec3f d (os - ob);
       pb = ob;
 
-      bool inside = true;
+      bool outside = false;
+      const Vec3f os_in_b_frame (Rb.transpose() * (os - ob));
+      int axis = -1;
+      FCL_REAL min_d = std::numeric_limits<FCL_REAL>::max();
       for (int i = 0; i < 3; ++i) {
-        bool iinside = false;
-        FCL_REAL dist = Rb.col(i).dot(d), side_2 = b.halfSide(i);
-        if      (dist < -side_2) dist = -side_2; // outside
-        else if (dist >  side_2) dist =  side_2; // outside
-        else iinside = true;                     // inside
-        inside = inside && iinside;
-
-        pb.noalias() += dist * Rb.col(i);
+        FCL_REAL facedist;
+        if        (os_in_b_frame(i) < - b.halfSide(i)) { // outside
+          pb.noalias() -= b.halfSide(i) * Rb.col(i);
+          outside = true;
+        } else if (os_in_b_frame(i) >   b.halfSide(i)) { // outside
+          pb.noalias() += b.halfSide(i) * Rb.col(i);
+          outside = true;
+        } else {
+          pb.noalias() += os_in_b_frame(i) * Rb.col(i);
+          if (!outside && (facedist = b.halfSide(i) - std::fabs(os_in_b_frame(i))) < min_d) {
+            axis = i;
+            min_d = facedist;
+          }
+        }
       }
       normal.noalias() = pb - os;
       FCL_REAL pdist = normal.norm();
-      if (inside) {
-        dist = - pdist - s.radius;
-        normal /= pdist;
-      } else {
+      if (outside) { // pb is on the box
         dist =   pdist - s.radius;
         normal /= - pdist;
+      } else { // pb is inside the box
+        if (os_in_b_frame(axis) >= 0 ) normal =  Rb.col(axis);
+        else                           normal = -Rb.col(axis);
+        dist = - min_d - s.radius;
       }
-      if (inside || dist <= 0) {
+      if (!outside || dist <= 0) {
         ps = pb;
         return true;
       } else {

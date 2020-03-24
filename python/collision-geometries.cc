@@ -49,6 +49,7 @@
 #endif
 
 #include "../doc/python/doxygen.hh"
+#include "../doc/python/doxygen-boost.hh"
 
 #define DEF_RW_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
   def_readwrite (#ATTRIB, &CLASS::ATTRIB,                                      \
@@ -57,13 +58,14 @@
   def_readonly (#ATTRIB, &CLASS::ATTRIB,                                       \
       doxygen::class_attrib_doc<CLASS>(#ATTRIB))
 #define DEF_CLASS_FUNC(CLASS, ATTRIB)                                          \
-  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB))
+  def (dv::member_func(#ATTRIB, &CLASS::ATTRIB))
 #define DEF_CLASS_FUNC2(CLASS, ATTRIB,policy)                                  \
   def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB),policy)
 
 using namespace boost::python;
-
 using namespace hpp::fcl;
+namespace dv = doxygen::visitor;
+
 using boost::shared_ptr;
 using boost::noncopyable;
 
@@ -89,7 +91,8 @@ void exposeBVHModel (const std::string& bvname)
 
   std::string type = "BVHModel" + bvname;
   class_ <BVHModel_t, bases<BVHModelBase>, shared_ptr<BVHModel_t> >
-    (type.c_str(), doxygen::class_doc<BVHModel_t>(), init<>(doxygen::constructor_doc<BVHModel_t>()))
+    (type.c_str(), doxygen::class_doc<BVHModel_t>(), no_init)
+    .def (dv::init<BVHModel_t>())
     ;
 }
 
@@ -131,9 +134,10 @@ void exposeShapes ()
     ;
 
   class_ <Box, bases<ShapeBase>, shared_ptr<Box> >
-    ("Box", doxygen::class_doc<ShapeBase>(), init<>())
-    .def (init<FCL_REAL,FCL_REAL,FCL_REAL>())
-    .def (init<Vec3f>())
+    ("Box", doxygen::class_doc<ShapeBase>(), no_init)
+    .def (dv::init<Box>())
+    .def (dv::init<Box, FCL_REAL,FCL_REAL,FCL_REAL>())
+    .def (dv::init<Box, const Vec3f&>())
     .add_property("halfSide",
                   make_getter(&Box::halfSide, return_value_policy<return_by_value>()),
                   make_setter(&Box::halfSide, return_value_policy<return_by_value>()),
@@ -141,13 +145,15 @@ void exposeShapes ()
     ;
 
   class_ <Capsule, bases<ShapeBase>, shared_ptr<Capsule> >
-    ("Capsule", doxygen::class_doc<Capsule>(), init<FCL_REAL, FCL_REAL>())
+    ("Capsule", doxygen::class_doc<Capsule>(), no_init)
+    .def (dv::init<Capsule, FCL_REAL, FCL_REAL>())
     .DEF_RW_CLASS_ATTRIB (Capsule, radius)
     .DEF_RW_CLASS_ATTRIB (Capsule, halfLength)
     ;
 
   class_ <Cone, bases<ShapeBase>, shared_ptr<Cone> >
-    ("Cone", doxygen::class_doc<Cone>(), init<FCL_REAL, FCL_REAL>())
+    ("Cone", doxygen::class_doc<Cone>(), no_init)
+    .def (dv::init<Cone, FCL_REAL, FCL_REAL>())
     .DEF_RW_CLASS_ATTRIB (Cone, radius)
     .DEF_RW_CLASS_ATTRIB (Cone, halfLength)
     ;
@@ -167,34 +173,39 @@ void exposeShapes ()
     ;
 
   class_ <Cylinder, bases<ShapeBase>, shared_ptr<Cylinder> >
-    ("Cylinder", doxygen::class_doc<Cylinder>(), init<FCL_REAL, FCL_REAL>())
+    ("Cylinder", doxygen::class_doc<Cylinder>(), no_init)
+    .def (dv::init<Cylinder, FCL_REAL, FCL_REAL>())
     .DEF_RW_CLASS_ATTRIB (Cylinder, radius)
     .DEF_RW_CLASS_ATTRIB (Cylinder, halfLength)
     ;
 
   class_ <Halfspace, bases<ShapeBase>, shared_ptr<Halfspace> >
-    ("Halfspace", doxygen::class_doc<Halfspace>(), init<const Vec3f&, FCL_REAL>())
-    .def (init<FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>())
-    .def (init<>())
+    ("Halfspace", doxygen::class_doc<Halfspace>(), no_init)
+    .def (dv::init<Halfspace, const Vec3f&, FCL_REAL>())
+    .def (dv::init<Halfspace, FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>())
+    .def (dv::init<Halfspace>())
     .DEF_RW_CLASS_ATTRIB (Halfspace, n)
     .DEF_RW_CLASS_ATTRIB (Halfspace, d)
     ;
 
   class_ <Plane, bases<ShapeBase>, shared_ptr<Plane> >
-    ("Plane", doxygen::class_doc<Plane>(), init<const Vec3f&, FCL_REAL>())
-    .def (init<FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>())
-    .def (init<>())
+    ("Plane", doxygen::class_doc<Plane>(), no_init)
+    .def (dv::init<Plane, const Vec3f&, FCL_REAL>())
+    .def (dv::init<Plane, FCL_REAL,FCL_REAL,FCL_REAL,FCL_REAL>())
+    .def (dv::init<Plane>())
     .DEF_RW_CLASS_ATTRIB (Plane, n)
     .DEF_RW_CLASS_ATTRIB (Plane, d)
     ;
 
   class_ <Sphere, bases<ShapeBase>, shared_ptr<Sphere> >
-    ("Sphere", doxygen::class_doc<Sphere>(), init<FCL_REAL>(doxygen::constructor_doc<Sphere>()))
+    ("Sphere", doxygen::class_doc<Sphere>(), no_init)
+    .def (dv::init<Sphere, FCL_REAL>())
     .DEF_RW_CLASS_ATTRIB (Sphere, radius)
     ;
 
   class_ <TriangleP, bases<ShapeBase>, shared_ptr<TriangleP> >
-    ("TriangleP", doxygen::class_doc<TriangleP>(), init<const Vec3f&, const Vec3f&, const Vec3f&>())
+    ("TriangleP", doxygen::class_doc<TriangleP>(), no_init)
+    .def (dv::init<TriangleP, const Vec3f&, const Vec3f&, const Vec3f&>())
     .DEF_RW_CLASS_ATTRIB (TriangleP, a)
     .DEF_RW_CLASS_ATTRIB (TriangleP, b)
     .DEF_RW_CLASS_ATTRIB (TriangleP, c)

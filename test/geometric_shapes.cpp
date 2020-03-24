@@ -2675,6 +2675,26 @@ BOOST_AUTO_TEST_CASE(shapeDistance_boxsphere)
   bool res;
   FCL_REAL dist;
 
+  int N = 10;
+  for (int i = 0; i < N+1; ++i) {
+    FCL_REAL dbox = 0.0001 + (s1.radius + s2.halfSide(0)) * i * 4 / (3*N);
+    res = solver1.shapeDistance(
+        s1, Transform3f(Vec3f(dbox,0.,0.)),
+        s2, Transform3f(),
+        dist, closest_p1, closest_p2, normal);
+    BOOST_CHECK_CLOSE(dist, (dbox - s1.radius - s2.halfSide(0)), 1e-6);
+    EIGEN_VECTOR_IS_APPROX(normal, -Vec3f(1,0,0), 1e-6);
+
+    res = solver1.shapeDistance(s1, transform, s2, transform, dist,
+                                closest_p1, closest_p2, normal);
+    res = solver1.shapeDistance(
+        s1, transform * Transform3f(Vec3f(dbox,0.,0.)),
+        s2, transform,
+        dist, closest_p1, closest_p2, normal);
+    BOOST_CHECK_CLOSE(dist, (dbox - s1.radius - s2.halfSide(0)), 1e-6);
+    EIGEN_VECTOR_IS_APPROX(normal, -transform.getRotation().col(0), 1e-6);
+  }
+
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
                               dist, closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);

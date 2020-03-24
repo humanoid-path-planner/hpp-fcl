@@ -1,2 +1,3 @@
 FILE_PATTERNS          = *.h  *.hh  *.hxx
 GENERATE_XML           = YES
+EXPAND_ONLY_PREDEF     = NO

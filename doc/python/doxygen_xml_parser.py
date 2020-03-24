@@ -39,11 +39,15 @@ template_class_attribute_body = \
 template_constructor_doc = \
 """
 template <{tplargs}>
-struct constructor_doc_{nargs}_impl< {classname_prefix}{comma}{argsstring} >
+struct constructor_{nargs}_impl< {classname_prefix}{comma}{argsstring} >
 {{
-static inline const char* run ()
+static inline const char* doc ()
 {{
   return "{docstring}";
+}}
+static inline boost::python::detail::keywords<{nargs}+1> args ()
+{{
+  return ({argnamesstring});
 }}
 }};"""
 template_destructor_doc = \
@@ -66,6 +70,16 @@ template_member_func_doc_body = \
 """
   if (function_ptr == static_cast<{rettype} ({classname_prefix}*) {argsstring}>(&{classname_prefix}{membername}))
     return "{docstring}";"""
+template_member_func_args = \
+"""
+{template}inline boost::python::detail::keywords<{n}> member_func_args ({rettype} ({classname_prefix}*function_ptr) {argsstring})
+{{{body}
+  return ({default_args});
+}}"""
+template_member_func_args_body = \
+"""
+  if (function_ptr == static_cast<{rettype} ({classname_prefix}*) {argsstring}>(&{classname_prefix}{membername}))
+    return ({args});"""
 template_static_func_doc = \
 """
 {template}inline const char* member_func_doc ({rettype} (*function_ptr) {argsstring})
@@ -177,7 +191,7 @@ class MemberDef(Reference):
         self.const = (memberdefxml.attrib['const']=="yes")
         self.static = (memberdefxml.attrib['static']=="yes")
         self.rettype = memberdefxml.find('type')
-        self.params = tuple( [ (param.find('type'), param.find('array')) for param in self.xml.findall("param") ] )
+        self.params = tuple( [ (param.find('type'), param.find('declname'), param.find('array')) for param in self.xml.findall("param") ] )
         self.special = self.rettype.text is None and len(self.rettype.getchildren())==0
         #assert self.special or len(self.rettype.text) > 0
 
@@ -208,9 +222,9 @@ class MemberDef(Reference):
         if len(self.parent.template_params) > 0:
             tplargs = " <" + ", ".join([ d['name'] for d in self.parent.template_params ]) + " > "
             args = ", ".join(
-                    [ self.xmlToType(type, array, parentClass=self.parent, tplargs=tplargs) for type,array in self.params])
+                    [ self.xmlToType(type, array, parentClass=self.parent, tplargs=tplargs) for type,declname,array in self.params])
         else:
-            args = ", ".join([ self.xmlToType(type, array) for type, array in self.params])
+            args = ", ".join([ self.xmlToType(type, array) for type,declname,array in self.params])
         return args
 
     def s_tpldecl (self):
@@ -218,7 +232,7 @@ class MemberDef(Reference):
         return ", ".join([ d['type'] + " " + d['name'] for d in self.template_params ])
 
     def s_rettype (self):
-        assert not self.special
+        assert not self.special, "Member {} ({}) is a special function and no return type".format(self.name, self.id)
         return self.xmlToType(self.rettype)
 
     def s_name (self):
@@ -229,6 +243,18 @@ class MemberDef(Reference):
                 self.xml.find('briefdescription'),
                 self.xml.find('detaileddescription'),
                 self.index.output)
+
+    def n_args (self):
+        return len(self.params)
+
+    def s_argnamesstring (self):
+        def getdeclname(i,declname):
+            if declname is None or declname.text is None or declname.text.strip() == "":
+                return "arg{}".format(i)
+            return declname.text.strip()
+        arg = """boost::python::arg("{}")"""
+        argnames = ["self", ] + [ getdeclname(i, declname) for i,(_,declname,_) in enumerate(self.params)]
+        return ", ".join([ arg.format(n) for n in argnames ])
 
     def include (self):
         import os.path
@@ -411,7 +437,8 @@ class ClassCompound (CompoundBase):
 
         for member in self.special_funcs:
             docstring = member.s_docstring()
-            if len(docstring) == 0: continue
+            argnamesstring = member.s_argnamesstring()
+            if len(docstring) == 0 and len(argnamesstring) == 0: continue
             if member.s_name()[0] == '~':
                 output.out (template_destructor_doc.format (
                     tplargs = self._templateDecl(),
@@ -426,19 +453,24 @@ class ClassCompound (CompoundBase):
                     classname_prefix = self._className(),
                     argsstring = member.s_args(),
                     docstring = docstring,
+                    argnamesstring = argnamesstring,
                     ))
 
         for prototype, members in member_funcs.items():
             # remove undocumented members
             documented_members = []
             docstrings = []
+            argnamesstrings = []
             for member in members:
                 docstring = member.s_docstring()
-                if len(docstring) == 0: continue
+                argnamesstring = member.s_argnamesstring()
+                if len(docstring) == 0 and len(argnamesstring) == 0: continue
                 documented_members.append (member)
                 docstrings.append (docstring)
+                argnamesstrings.append (argnamesstring)
             if len(documented_members) == 0: continue
 
+            # Write docstrings
             body = "".join([
                 template_member_func_doc_body.format (
                     classname_prefix = classname_prefix,
@@ -454,6 +486,32 @@ class ClassCompound (CompoundBase):
             output.out (template_member_func_doc.format (
                 template = "template <{}>\n".format (tplargs) if len(tplargs) > 0 else "",
                 rettype = member.s_rettype(),
+                classname_prefix = classname_prefix,
+                argsstring = member.s_prototypeArgs(),
+                body = body
+                ))
+
+            # Write argnamesstrings
+            body = "".join([
+                template_member_func_args_body.format (
+                    classname_prefix = classname_prefix,
+                    membername = member.s_name(),
+                    args = argnamesstring,
+                    rettype = member.s_rettype(),
+                    argsstring = member.s_prototypeArgs(),
+                    )
+                for member, argnamesstring in zip(documented_members,argnamesstrings) ])
+
+            n_args = member.n_args()
+
+            default_args = ", ".join(["""boost::python::arg("self")""", ] +
+                    [ """boost::python::arg("arg{}")""".format(i) for i in range(n_args) ]
+                    )
+            output.out (template_member_func_args.format (
+                template = "template <{}>\n".format (tplargs) if len(tplargs) > 0 else "",
+                rettype = member.s_rettype(),
+                n = n_args+1,
+                default_args = default_args,
                 classname_prefix = classname_prefix,
                 argsstring = member.s_prototypeArgs(),
                 body = body

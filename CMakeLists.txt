@@ -48,6 +48,7 @@ ENDIF()
 # Do not support CMake older than 2.8.12
 CMAKE_POLICY(SET CMP0022 NEW)
 SET(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
+SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
 
 # Check if the submodule cmake have been initialized
 IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake/base.cmake")

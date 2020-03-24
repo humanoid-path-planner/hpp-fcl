@@ -4,12 +4,16 @@
 #include <boost/preprocessor/repetition.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
 
+#include <boost/mpl/void.hpp>
+
 #ifndef DOXYGEN_DOC_MAX_NUMBER_OF_ARGUMENTS_IN_CONSTRUCTOR
 #define DOXYGEN_DOC_MAX_NUMBER_OF_ARGUMENTS_IN_CONSTRUCTOR 10
 #endif
 
 namespace doxygen
 {
+typedef boost::mpl::void_ void_;
+
 template <typename _class>
 struct class_doc_impl
 {
@@ -41,15 +45,25 @@ inline const char* member_func_doc (FuncPtr)
   return "";
 }
 
+template <typename FuncPtr>
+inline void_ member_func_args (FuncPtr)
+{
+  return void_(); 
+}
+
 #define DOXYGEN_DOC_DECLARE_CONSTRUCTOR(z,nargs,unused)                        \
 template <                                                                     \
   typename Class                                                               \
   BOOST_PP_COMMA_IF(nargs)                                                     \
   BOOST_PP_ENUM_PARAMS(nargs, class Arg)>                                      \
-struct constructor_doc_##nargs##_impl {                                        \
-static inline const char* run ()                                               \
+struct constructor_##nargs##_impl {                                            \
+static inline const char* doc ()                                               \
 {                                                                              \
   return "";                                                                   \
+}                                                                              \
+static inline void_ args ()                                                    \
+{                                                                              \
+  return void_();                                                              \
 }                                                                              \
 };                                                                             \
                                                                                \
@@ -59,14 +73,14 @@ template <                                                                     \
   BOOST_PP_ENUM_PARAMS(nargs, class Arg)>                                      \
 inline const char* constructor_doc ()                                          \
 {                                                                              \
-  return constructor_doc_##nargs##_impl<                                       \
+  return constructor_##nargs##_impl<                                           \
     Class                                                                      \
     BOOST_PP_COMMA_IF(nargs)                                                   \
-    BOOST_PP_ENUM_PARAMS(nargs, Arg)>::run();                                  \
+    BOOST_PP_ENUM_PARAMS(nargs, Arg)>::doc();                                  \
 }
 
 BOOST_PP_REPEAT(DOXYGEN_DOC_MAX_NUMBER_OF_ARGUMENTS_IN_CONSTRUCTOR, DOXYGEN_DOC_DECLARE_CONSTRUCTOR, ~)
-
+#undef DOXYGEN_DOC_DECLARE_CONSTRUCTOR
 /*
 template <typename Class>
 inline const char* constructor_doc ()

@@ -37,10 +37,10 @@
 
 #include <eigenpy/registration.hpp>
 
-#include "fcl.hh"
-
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/collision.h>
+
+#include "fcl.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
@@ -57,13 +57,14 @@
   def_readonly (#ATTRIB, &CLASS::ATTRIB,                                       \
       doxygen::class_attrib_doc<CLASS>(#ATTRIB))
 #define DEF_CLASS_FUNC(CLASS, ATTRIB)                                          \
-  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB))
+  def (dv::member_func(#ATTRIB, &CLASS::ATTRIB))
 #define DEF_CLASS_FUNC2(CLASS, ATTRIB,policy)                                  \
   def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB),policy)
 
 using namespace boost::python;
-
 using namespace hpp::fcl;
+
+namespace dv = doxygen::visitor;
 
 void exposeCollisionAPI ()
 {
@@ -79,8 +80,9 @@ void exposeCollisionAPI ()
   if(!eigenpy::register_symbolic_link_to_registered_type<CollisionRequest>())
   {
     class_ <CollisionRequest> ("CollisionRequest",
-        doxygen::class_doc<CollisionRequest>(), init<>())
-      .def (init<CollisionRequestFlag, size_t>())
+        doxygen::class_doc<CollisionRequest>(), no_init)
+      .def (dv::init<CollisionRequest>())
+      .def (dv::init<CollisionRequest, const CollisionRequestFlag, size_t>())
     
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, num_max_contacts           )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_contact             )
@@ -102,8 +104,14 @@ void exposeCollisionAPI ()
       .DEF_RO_CLASS_ATTRIB (Contact, o2)
       .DEF_RW_CLASS_ATTRIB (Contact, b1)
       .DEF_RW_CLASS_ATTRIB (Contact, b2)
-      .DEF_RW_CLASS_ATTRIB (Contact, normal)
-      .DEF_RW_CLASS_ATTRIB (Contact, pos)
+      .add_property("normal",
+          make_getter(&Contact::normal, return_value_policy<return_by_value>()),
+          make_setter(&Contact::normal, return_value_policy<return_by_value>()),
+          doxygen::class_attrib_doc<Contact>("normal"))
+      .add_property("pos",
+          make_getter(&Contact::pos, return_value_policy<return_by_value>()),
+          make_setter(&Contact::pos, return_value_policy<return_by_value>()),
+          doxygen::class_attrib_doc<Contact>("pos"))
       .DEF_RW_CLASS_ATTRIB (Contact, penetration_depth)
       .def (self == self)
       .def (self != self)
@@ -120,10 +128,11 @@ void exposeCollisionAPI ()
   if(!eigenpy::register_symbolic_link_to_registered_type< CollisionResult >())
   {
     class_ <CollisionResult> ("CollisionResult",
-        doxygen::class_doc<CollisionResult>(), init<>())
+        doxygen::class_doc<CollisionResult>(), no_init)
+      .def (dv::init<CollisionResult>())
       .DEF_CLASS_FUNC (CollisionResult, isCollision)
       .DEF_CLASS_FUNC (CollisionResult, numContacts)
-      .DEF_CLASS_FUNC (CollisionResult, addContact )
+      .DEF_CLASS_FUNC (CollisionResult, addContact)
       .DEF_CLASS_FUNC (CollisionResult, clear)
       .DEF_CLASS_FUNC2 (CollisionResult, getContact , return_value_policy<copy_const_reference>())
       .DEF_CLASS_FUNC2 (CollisionResult, getContacts, return_internal_reference<>())
