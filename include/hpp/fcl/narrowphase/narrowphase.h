@@ -461,56 +461,39 @@ namespace fcl
      const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
      Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
-  /// @brief Fast implementation for sphere-capsule distance
-  template<>
-    bool GJKSolver::shapeDistance<Sphere, Capsule>
-    (const Sphere& s1, const Transform3f& tf1,
-     const Capsule& s2, const Transform3f& tf2,
-     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+#define HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape1,Shape2)                          \
+  template<>                                                                   \
+    bool GJKSolver::shapeDistance<Shape1, Shape2>                              \
+    (const Shape1& s1, const Transform3f& tf1,                                 \
+     const Shape2& s2, const Transform3f& tf2,                                 \
+     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+#define HPP_FCL_DECLARE_SHAPE_DISTANCE_SELF(Shape)                             \
+  HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape,Shape)
+#define HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR(Shape1,Shape2)                     \
+  HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape1,Shape2);                               \
+  HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape2,Shape1)
 
-  template<>
-    bool GJKSolver::shapeDistance<Capsule, Sphere>
-    (const Capsule& s1, const Transform3f& tf1,
-     const Sphere& s2, const Transform3f& tf2,
-     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+  /// @brief Fast implementation for sphere-box distance
+  HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR(Sphere, Box);
+
+  /// @brief Fast implementation for sphere-capsule distance
+  HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR(Sphere, Capsule);
 
   /// @brief Fast implementation for sphere-cylinder distance
-  template<>
-    bool GJKSolver::shapeDistance<Sphere, Cylinder>
-    (const Sphere& s1, const Transform3f& tf1,
-     const Cylinder& s2, const Transform3f& tf2,
-     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
-
-  template<>
-    bool GJKSolver::shapeDistance<Cylinder, Sphere>
-    (const Cylinder& s1, const Transform3f& tf1,
-     const Sphere& s2, const Transform3f& tf2,
-     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+  HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR(Sphere, Cylinder);
 
   /// @brief Fast implementation for sphere-sphere distance
-  template<>
-    bool GJKSolver::shapeDistance<Sphere, Sphere>
-    (const Sphere& s1, const Transform3f& tf1,
-     const Sphere& s2, const Transform3f& tf2,
-     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+  HPP_FCL_DECLARE_SHAPE_DISTANCE_SELF(Sphere);
 
-  // @brief Computation of the distance result for capsule capsule. Closest points are based on two line-segments.
-  template<>
-    bool GJKSolver::shapeDistance<Capsule, Capsule>
-    (const Capsule& s1, const Transform3f& tf1,
-     const Capsule& s2, const Transform3f& tf2,
-     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+  /// @brief Computation of the distance result for capsule capsule.
+  /// Closest points are based on two line-segments.
+  HPP_FCL_DECLARE_SHAPE_DISTANCE_SELF(Capsule);
 
-  // Distance computation between two triangles
-  //
-  // Do not run EPA algorithm to compute penetration depth, use a dedicated
-  // method.
-  template<>
-    bool GJKSolver::shapeDistance<TriangleP, TriangleP>
-    (const TriangleP& s1, const Transform3f& tf1,
-     const TriangleP& s2, const Transform3f& tf2,
-     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
-
+  /// Distance computation between two triangles
+  ///
+  /// Do not run EPA algorithm to compute penetration depth, use a dedicated
+  /// method.
+  HPP_FCL_DECLARE_SHAPE_DISTANCE_SELF(TriangleP);
 }
 
 } // namespace hpp
