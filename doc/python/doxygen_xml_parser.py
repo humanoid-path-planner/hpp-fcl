@@ -232,7 +232,7 @@ class MemberDef(Reference):
         return ", ".join([ d['type'] + " " + d['name'] for d in self.template_params ])
 
     def s_rettype (self):
-        assert not self.special
+        assert not self.special, "Member {} ({}) is a special function and no return type".format(self.name, self.id)
         return self.xmlToType(self.rettype)
 
     def s_name (self):
