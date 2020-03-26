@@ -36,6 +36,7 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include <eigenpy/registration.hpp>
+#include <eigenpy/eigen-to-python.hpp>
 
 #include "fcl.hh"
 
@@ -65,6 +66,8 @@ using namespace boost::python;
 
 using namespace hpp::fcl;
 
+namespace dv = doxygen::visitor;
+
 struct DistanceRequestWrapper
 {
   static Vec3f getNearestPoint1(const DistanceResult & res) { return res.nearest_points[0]; }
@@ -77,7 +80,10 @@ void exposeDistanceAPI ()
   {
     class_ <DistanceRequest> ("DistanceRequest",
         doxygen::class_doc<DistanceRequest>(),
-        init<optional<bool,FCL_REAL,FCL_REAL> >())
+        init<optional<bool,FCL_REAL,FCL_REAL> >((arg("self"),
+                                                 arg("enable_nearest_points"),
+                                                 arg("rel_err"),
+                                                 arg("abs_err")),"Constructor"))
       .DEF_RW_CLASS_ATTRIB (DistanceRequest, enable_nearest_points)
       .DEF_RW_CLASS_ATTRIB (DistanceRequest, rel_err)
       .DEF_RW_CLASS_ATTRIB (DistanceRequest, abs_err)
@@ -87,12 +93,11 @@ void exposeDistanceAPI ()
   if(!eigenpy::register_symbolic_link_to_registered_type<DistanceResult>())
   {
     class_ <DistanceResult> ("DistanceResult",
-        doxygen::class_doc<DistanceResult>(), init<>())
+                             doxygen::class_doc<DistanceResult>(),
+                             no_init)
+      .def (dv::init<DistanceResult>())
       .DEF_RW_CLASS_ATTRIB (DistanceResult, min_distance)
-      .add_property("normal",
-          make_getter(&DistanceResult::normal, return_value_policy<return_by_value>()),
-          make_setter(&DistanceResult::normal, return_value_policy<return_by_value>()),
-          doxygen::class_attrib_doc<DistanceResult>("normal"))
+      .DEF_RW_CLASS_ATTRIB(DistanceResult, normal)
       //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
       .def("getNearestPoint1",&DistanceRequestWrapper::getNearestPoint1,
           doxygen::class_attrib_doc<DistanceResult>("nearest_points"))

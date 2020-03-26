@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019 CNRS-LAAS INRIA
+//  Copyright (c) 2019-2020 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -35,6 +35,7 @@
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
+#include <eigenpy/eigen-to-python.hpp>
 #include <eigenpy/registration.hpp>
 
 #include <hpp/fcl/fwd.hh>
@@ -83,7 +84,6 @@ void exposeCollisionAPI ()
         doxygen::class_doc<CollisionRequest>(), no_init)
       .def (dv::init<CollisionRequest>())
       .def (dv::init<CollisionRequest, const CollisionRequestFlag, size_t>())
-    
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, num_max_contacts           )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_contact             )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_distance_lower_bound)
@@ -97,21 +97,15 @@ void exposeCollisionAPI ()
   if(!eigenpy::register_symbolic_link_to_registered_type<Contact>())
   {
     class_ <Contact> ("Contact",
-        doxygen::class_doc<Contact>(), init<>())
+        doxygen::class_doc<Contact>(), init<>(arg("self"),"Default constructor"))
       //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int>())
       //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int, Vec3f, Vec3f, FCL_REAL>())
       .DEF_RO_CLASS_ATTRIB (Contact, o1)
       .DEF_RO_CLASS_ATTRIB (Contact, o2)
       .DEF_RW_CLASS_ATTRIB (Contact, b1)
       .DEF_RW_CLASS_ATTRIB (Contact, b2)
-      .add_property("normal",
-          make_getter(&Contact::normal, return_value_policy<return_by_value>()),
-          make_setter(&Contact::normal, return_value_policy<return_by_value>()),
-          doxygen::class_attrib_doc<Contact>("normal"))
-      .add_property("pos",
-          make_getter(&Contact::pos, return_value_policy<return_by_value>()),
-          make_setter(&Contact::pos, return_value_policy<return_by_value>()),
-          doxygen::class_attrib_doc<Contact>("pos"))
+      .DEF_RW_CLASS_ATTRIB (Contact, normal)
+      .DEF_RW_CLASS_ATTRIB (Contact, pos)
       .DEF_RW_CLASS_ATTRIB (Contact, penetration_depth)
       .def (self == self)
       .def (self != self)

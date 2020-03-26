@@ -35,6 +35,7 @@
 #include <boost/python.hpp>
 
 #include <eigenpy/registration.hpp>
+#include <eigenpy/eigen-to-python.hpp>
 
 #include "fcl.hh"
 
@@ -138,10 +139,7 @@ void exposeShapes ()
     .def (dv::init<Box>())
     .def (dv::init<Box, FCL_REAL,FCL_REAL,FCL_REAL>())
     .def (dv::init<Box, const Vec3f&>())
-    .add_property("halfSide",
-                  make_getter(&Box::halfSide, return_value_policy<return_by_value>()),
-                  make_setter(&Box::halfSide, return_value_policy<return_by_value>()),
-                  doxygen::class_attrib_doc<Box>("halfSide"))
+    .DEF_RW_CLASS_ATTRIB(Box,halfSide)
     ;
 
   class_ <Capsule, bases<ShapeBase>, shared_ptr<Capsule> >
@@ -263,11 +261,11 @@ void exposeCollisionGeometries ()
   class_<AABB>("AABB",
                "A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points",
                no_init)
-    .def(init<>("Default constructor"))
-    .def(init<Vec3f>(bp::arg("v"),"Creating an AABB at position v with zero size."))
-    .def(init<Vec3f,Vec3f>(bp::args("a","b"),"Creating an AABB with two endpoints a and b."))
-    .def(init<AABB,Vec3f>(bp::args("core","delta"),"Creating an AABB centered as core and is of half-dimension delta."))
-    .def(init<Vec3f,Vec3f,Vec3f>(bp::args("a","b","c"),"Creating an AABB contains three points."))
+    .def(init<>(bp::arg("self"), "Default constructor"))
+    .def(init<Vec3f>(bp::args("self","v"),"Creating an AABB at position v with zero size."))
+    .def(init<Vec3f,Vec3f>(bp::args("self","a","b"),"Creating an AABB with two endpoints a and b."))
+    .def(init<AABB,Vec3f>(bp::args("self","core","delta"),"Creating an AABB centered as core and is of half-dimension delta."))
+    .def(init<Vec3f,Vec3f,Vec3f>(bp::args("self","a","b","c"),"Creating an AABB contains three points."))
   
     .def("contain",
          (bool (AABB::*)(const Vec3f &) const)&AABB::contain,

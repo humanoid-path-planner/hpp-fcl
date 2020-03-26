@@ -64,10 +64,10 @@ void exposeMeshLoader ()
   {
     class_ <MeshLoader, boost::shared_ptr<MeshLoader> > ("MeshLoader",
         doxygen::class_doc<MeshLoader>(),
-        init< optional< NODE_TYPE> >(arg("node_type"),
+        init< optional< NODE_TYPE> >((arg("self"),arg("node_type")),
           doxygen::constructor_doc<MeshLoader, const NODE_TYPE&>()))
       .def ("load",&MeshLoader::load,
-            load_overloads(args("filename","scale"),
+            load_overloads((arg("self"),arg("filename"),arg("scale")),
                            doxygen::member_func_doc(&MeshLoader::load)))
       ;
   }
@@ -77,7 +77,7 @@ void exposeMeshLoader ()
     class_ <CachedMeshLoader, bases<MeshLoader>, boost::shared_ptr<CachedMeshLoader> > (
         "CachedMeshLoader",
         doxygen::class_doc<MeshLoader>(),
-        init< optional< NODE_TYPE> >(arg("node_type"),
+        init< optional< NODE_TYPE> >((arg("self"),arg("node_type")),
           doxygen::constructor_doc<CachedMeshLoader, const NODE_TYPE&>()))
     ;
   }

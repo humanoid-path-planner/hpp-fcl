@@ -2019,7 +2019,7 @@ namespace fcl {
     //                            FCL_REAL* penetration_depth, Vec3f* normal)
     {
       static const FCL_REAL eps (sqrt (std::numeric_limits<FCL_REAL>::epsilon()));
-      Plane new_s2 = transform(s2, tf2);
+      const Plane new_s2 = transform(s2, tf2);
 
       const Matrix3f& R = tf1.getRotation();
       const Vec3f& T = tf1.getTranslation();
@@ -2027,7 +2027,7 @@ namespace fcl {
       const Vec3f Q (R.transpose() * new_s2.n);
       const Vec3f A (Q.cwiseProduct(s1.halfSide));
 
-      FCL_REAL signed_dist = new_s2.signedDistance(T);
+      const FCL_REAL signed_dist = new_s2.signedDistance(T);
       distance = std::abs(signed_dist) - A.lpNorm<1>();
       if(distance > 0) {
         // Is the box above or below the plane
@@ -2048,11 +2048,6 @@ namespace fcl {
         return false;
       }
 
-      Vec3f axis[3];
-      axis[0] = R.col(0);
-      axis[1] = R.col(1);
-      axis[2] = R.col(2);
-
       // find the deepest point
       Vec3f p = T;
 
@@ -2065,29 +2060,29 @@ namespace fcl {
          std::abs(Q[0] + 1) < planeIntersectTolerance<FCL_REAL>())
         {
           int sign2 = (A[0] > 0) ? -sign : sign;
-          p += R.col(0) * (s1.halfSide[0] * sign2);
+          p.noalias() += R.col(0) * (s1.halfSide[0] * sign2);
         }
       else if(std::abs(Q[1] - 1) < planeIntersectTolerance<FCL_REAL>() ||
               std::abs(Q[1] + 1) < planeIntersectTolerance<FCL_REAL>())
         {
           int sign2 = (A[1] > 0) ? -sign : sign;
-          p += R.col(1) * (s1.halfSide[1] * sign2);
+          p.noalias() += R.col(1) * (s1.halfSide[1] * sign2);
         }
       else if(std::abs(Q[2] - 1) < planeIntersectTolerance<FCL_REAL>() ||
               std::abs(Q[2] + 1) < planeIntersectTolerance<FCL_REAL>())
         {
           int sign2 = (A[2] > 0) ? -sign : sign;
-          p += R.col(2) * (s1.halfSide[2] * sign2);
+          p.noalias() += R.col(2) * (s1.halfSide[2] * sign2);
         }
       else
         {
           Vec3f tmp(sign * R * s1.halfSide);
-          p += (A.array() > 0).select (- tmp, tmp);
+          p.noalias() += (A.array() > 0).select (- tmp, tmp);
         }
 
       // compute the contact point by project the deepest point onto the plane
       if (signed_dist > 0) normal = -new_s2.n; else normal = new_s2.n;
-      p1 = p2 = p - new_s2.n * new_s2.signedDistance(p);
+      p1 = p2.noalias() = p - new_s2.n * new_s2.signedDistance(p);
 
       return true;
     }
