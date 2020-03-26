@@ -82,8 +82,8 @@ void exposeCollisionAPI ()
   {
     class_ <CollisionRequest> ("CollisionRequest",
         doxygen::class_doc<CollisionRequest>(), no_init)
-      .def (dv::init<CollisionRequest>(::boost::python::arg("self")))
-      .def (dv::init<CollisionRequest, const CollisionRequestFlag, size_t>(::boost::python::args("self","flag","num_max_contacts")))
+      .def (dv::init<CollisionRequest>())
+      .def (dv::init<CollisionRequest, const CollisionRequestFlag, size_t>())
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, num_max_contacts           )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_contact             )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_distance_lower_bound)
@@ -123,7 +123,7 @@ void exposeCollisionAPI ()
   {
     class_ <CollisionResult> ("CollisionResult",
         doxygen::class_doc<CollisionResult>(), no_init)
-      .def (dv::init<CollisionResult>(arg("self")))
+      .def (dv::init<CollisionResult>())
       .DEF_CLASS_FUNC (CollisionResult, isCollision)
       .DEF_CLASS_FUNC (CollisionResult, numContacts)
       .DEF_CLASS_FUNC (CollisionResult, addContact)
