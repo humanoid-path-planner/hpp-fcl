@@ -66,6 +66,8 @@ using namespace boost::python;
 
 using namespace hpp::fcl;
 
+namespace dv = doxygen::visitor;
+
 struct DistanceRequestWrapper
 {
   static Vec3f getNearestPoint1(const DistanceResult & res) { return res.nearest_points[0]; }
@@ -92,7 +94,8 @@ void exposeDistanceAPI ()
   {
     class_ <DistanceResult> ("DistanceResult",
                              doxygen::class_doc<DistanceResult>(),
-                             init<>(arg("self"),"Default constructor"))
+                             no_init)
+      .def (dv::init<DistanceResult>())
       .DEF_RW_CLASS_ATTRIB (DistanceResult, min_distance)
       .DEF_RW_CLASS_ATTRIB(DistanceResult, normal)
       //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
