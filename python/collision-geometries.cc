@@ -144,9 +144,7 @@ void exposeShapes ()
     .def (dv::init<Box>(arg("self")))
     .def (dv::init<Box, FCL_REAL,FCL_REAL,FCL_REAL>(args("self","x","y","z")))
     .def (dv::init<Box, const Vec3f&>(args("self","side")))
-    .def_readwrite("halfSide",
-                   &Box::halfSide,
-                   doxygen::class_attrib_doc<Box>("halfSide"))
+    .DEF_RW_CLASS_ATTRIB(Box,halfSide)
     ;
 
   class_ <Capsule, bases<ShapeBase>, shared_ptr<Capsule> >
