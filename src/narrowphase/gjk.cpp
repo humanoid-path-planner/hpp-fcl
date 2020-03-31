@@ -120,7 +120,8 @@ void getShapeSupport(const TriangleP* triangle, const Vec3f& dir, Vec3f& support
 
 inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support)
 {
-  support.noalias() = (dir.array() > 0).select(box->halfSide, -box->halfSide);
+  const FCL_REAL inflate = (dir.array() == 0).any() ? 1.00000001 : 1.;
+  support.noalias() = (dir.array() > 0).select(inflate * box->halfSide, -inflate * box->halfSide);
 }
 
 inline void getShapeSupport(const Sphere*, const Vec3f& /*dir*/, Vec3f& support)
