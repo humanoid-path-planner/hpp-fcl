@@ -80,16 +80,18 @@ namespace fcl
           } else {
             details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-            if(epa_status & details::EPA::Failed)
+            if(epa_status & details::EPA::Valid
+                || epa_status == details::EPA::OutOfFaces    // Warnings
+                || epa_status == details::EPA::OutOfVertices // Warnings
+                )
             {
               epa.getClosestPoints (shape, w0, w1);
               if(penetration_depth) *penetration_depth = -epa.depth;
-              // TODO The normal computed by GJK in the s1 frame so this should be
-              // if(normal) *normal = tf1.getRotation() * epa.normal;
-              if(normal) *normal = tf2.getRotation() * epa.normal;
+              if(normal) *normal = tf1.getRotation() * epa.normal;
               if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               return true;
             }
+            if(penetration_depth) *penetration_depth = -std::numeric_limits<FCL_REAL>::max();
             // EPA failed but we know there is a collision so we should
             return true;
           }
