@@ -223,9 +223,16 @@ public:
 
 public:
   CollisionResult()
+    : distance_lower_bound (std::numeric_limits<FCL_REAL>::max())
   {
   }
 
+  /// @brief Update the lower bound only if the distance in inferior.
+  inline void updateDistanceLowerBound (const FCL_REAL& distance_lower_bound_)
+  {
+    if (distance_lower_bound_ < distance_lower_bound)
+      distance_lower_bound = distance_lower_bound_;
+  }
 
   /// @brief add one contact into result structure
   inline void addContact(const Contact& c) 

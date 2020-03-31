@@ -399,7 +399,7 @@ void propagateBVHFrontListCollisionRecurse
         }
       }
     }
-    result.distance_lower_bound = sqrt (sqrDistLowerBound);
+    result.updateDistanceLowerBound (sqrt (sqrDistLowerBound));
   }
 
 

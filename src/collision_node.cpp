@@ -60,7 +60,7 @@ void collide(CollisionTraversalNodeBase* node,
       collisionRecurse(node, 0, 0, front_list, sqrDistLowerBound);
     else
       collisionNonRecurse(node, front_list, sqrDistLowerBound);
-    result.distance_lower_bound = sqrt (sqrDistLowerBound);
+    result.updateDistanceLowerBound (sqrt (sqrDistLowerBound));
   }
 }
 
