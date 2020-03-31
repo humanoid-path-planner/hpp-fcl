@@ -314,7 +314,7 @@ namespace fcl
   /// \{
 
 // param doc is the doxygen detailled description (should be enclosed in /** */
-// and contain no space.
+// and contain no dot for some obscure reasons).
 #define HPP_FCL_DECLARE_SHAPE_INTERSECT(Shape1,Shape2,doc)                     \
   /** @brief Fast implementation for Shape1-Shape2 collision. */               \
   doc                                                                          \
@@ -335,7 +335,17 @@ namespace fcl
   HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Sphere, Halfspace,);
   HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Sphere, Plane,);
 
-  HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Box,);
+#ifdef IS_DOXYGEN // for doxygen only
+  /** \todo currently disabled and to re-enable it, API of function
+   *  \ref obbDisjointAndLowerBoundDistance should be modified.
+   *  */
+  template<> bool GJKSolver::shapeIntersect<Box, Box>
+    (const Box& s1, const Transform3f& tf1,
+     const Box& s2, const Transform3f& tf2,
+     FCL_REAL& distance_lower_bound, bool enable_penetration,
+     Vec3f* contact_points, Vec3f* normal) const;
+#endif
+  //HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Box,);
   HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Box, Halfspace,);
   HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Box, Plane,);
 
@@ -362,6 +372,8 @@ namespace fcl
   /// \name Shape triangle interaction specializations
   /// \{
 
+// param doc is the doxygen detailled description (should be enclosed in /** */
+// and contain no dot for some obscure reasons).
 #define HPP_FCL_DECLARE_SHAPE_TRIANGLE(Shape,doc)                              \
   /** @brief Fast implementation for Shape-Triangle interaction. */            \
   doc                                                                          \
@@ -382,7 +394,7 @@ namespace fcl
   /// \{
 
 // param doc is the doxygen detailled description (should be enclosed in /** */
-// and contain no space.
+// and contain no dot for some obscure reasons).
 #define HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape1,Shape2,doc)                      \
   /** @brief Fast implementation for Shape1-Shape2 distance. */                \
   doc                                                                          \

@@ -127,6 +127,7 @@ bool GJKSolver::shapeIntersect<Box, Sphere>
 
 SHAPE_INTERSECT_INVERTED(Sphere, Box)
 
+/*
 template<>
 bool GJKSolver::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
                                          const Box& s2, const Transform3f& tf2,
@@ -136,6 +137,7 @@ bool GJKSolver::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
 {
   return details::boxBoxIntersect(s1, tf1, s2, tf2, contact_points, &distance_lower_bound, normal);
 }
+*/
 
 template<>
 bool GJKSolver::shapeIntersect<Sphere, Halfspace>
