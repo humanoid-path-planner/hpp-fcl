@@ -72,6 +72,20 @@ namespace fcl
 // | triangle   |/////|////////|/////////|//////|//////////|///////|////////////|    1     |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+
 
+
+#define SHAPE_INTERSECT_INVERTED(Shape1,Shape2)                                \
+  template<>                                                                   \
+    bool GJKSolver::shapeIntersect<Shape1, Shape2>                             \
+    (const Shape1& s1, const Transform3f& tf1,                                 \
+     const Shape2& s2, const Transform3f& tf2,                                 \
+     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const                               \
+  {                                                                            \
+    bool res = shapeIntersect (s2, tf2, s1, tf1, contact_points,               \
+        penetration_depth, normal);                                            \
+    (*normal) *= -1.0;                                                         \
+    return res;                                                                \
+  }
+
 template<>
 bool GJKSolver::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const Transform3f& tf1,
                                                       const Capsule &s2, const Transform3f& tf2,
@@ -80,15 +94,7 @@ bool GJKSolver::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const Transfor
   return details::sphereCapsuleIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Capsule, Sphere>(const Capsule &s1, const Transform3f& tf1,
-                                                      const Sphere &s2, const Transform3f& tf2,
-                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  const bool res = details::sphereCapsuleIntersect(s2, tf2, s1, tf1, contact_points, penetration_depth, normal);
-  if (normal) (*normal) *= -1.0;
-  return res;
-}
+SHAPE_INTERSECT_INVERTED(Capsule, Sphere)
 
 template<>
 bool GJKSolver::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
@@ -113,20 +119,7 @@ bool GJKSolver::shapeIntersect<Box, Sphere>(const Box   & s1, const Transform3f&
   return true;
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Sphere, Box>(const Sphere& s1, const Transform3f& tf1,
-                                                  const Box   & s2, const Transform3f& tf2,
-                                                  Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  FCL_REAL dist;
-  Vec3f ps, pb, n;
-  bool intersect = details::boxSphereDistance (s2, tf2, s1, tf1, dist, ps, pb, n);
-  if (!intersect) return false;
-  if (penetration_depth) *penetration_depth = dist;
-  if (normal)            *normal = -n;
-  if (contact_points)    *contact_points = pb;
-  return true;
-}
+SHAPE_INTERSECT_INVERTED(Sphere, Box)
 
 template<>
 bool GJKSolver::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
@@ -151,20 +144,7 @@ bool GJKSolver::shapeIntersect<Sphere, Halfspace>
   return res;
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Halfspace, Sphere>(const Halfspace& s1, const Transform3f& tf1,
-                                                        const Sphere& s2, const Transform3f& tf2,
-                                                        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  FCL_REAL distance;
-  Vec3f p1, p2;
-  bool res = details::sphereHalfspaceIntersect(s2, tf2, s1, tf1, distance, p1,
-                                               p2, *normal);
-  *contact_points = p1;
-  *penetration_depth = -distance;
-  (*normal) *= -1.0;
-  return res;
-}
+SHAPE_INTERSECT_INVERTED(Halfspace, Sphere)
 
 template<>
 bool GJKSolver::shapeIntersect<Box, Halfspace>
@@ -181,21 +161,7 @@ bool GJKSolver::shapeIntersect<Box, Halfspace>
   return res;
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Halfspace, Box>
-(const Halfspace& s1, const Transform3f& tf1,
- const Box& s2, const Transform3f& tf2,
- Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  FCL_REAL distance;
-  Vec3f p1, p2;
-  bool res = details::boxHalfspaceIntersect(s2, tf2, s1, tf1, distance, p1,
-                                            p2, *normal);
-  *contact_points = p1;
-  *penetration_depth = -distance;
-  (*normal) *= -1.0;
-  return res;
-}
+SHAPE_INTERSECT_INVERTED(Halfspace, Box)
 
 template<>
 bool GJKSolver::shapeIntersect<Capsule, Halfspace>
@@ -212,21 +178,7 @@ bool GJKSolver::shapeIntersect<Capsule, Halfspace>
   return res;
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Halfspace, Capsule>
-(const Halfspace& s1, const Transform3f& tf1,
- const Capsule& s2, const Transform3f& tf2,
- Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  FCL_REAL distance;
-  Vec3f p1, p2;
-  bool res =  details::capsuleHalfspaceIntersect
-    (s2, tf2, s1, tf1, distance, p1, p2, *normal);
-  *contact_points = p1;
-  *penetration_depth = -distance;
-  (*normal) *= -1.0;
-  return res;
-}
+SHAPE_INTERSECT_INVERTED(Halfspace, Capsule)
 
 template<>
 bool GJKSolver::shapeIntersect<Cylinder, Halfspace>
@@ -243,21 +195,7 @@ bool GJKSolver::shapeIntersect<Cylinder, Halfspace>
   return res;
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Halfspace, Cylinder>
-(const Halfspace& s1, const Transform3f& tf1,
- const Cylinder& s2, const Transform3f& tf2,
- Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  FCL_REAL distance;
-  Vec3f p1, p2;
-  bool res =  details::cylinderHalfspaceIntersect
-    (s2, tf2, s1, tf1, distance, p1, p2, *normal);
-  *contact_points = p1;
-  *penetration_depth = -distance;
-  (*normal) *= -1.0;
-  return res;
-}
+SHAPE_INTERSECT_INVERTED(Halfspace, Cylinder)
 
 template<>
 bool GJKSolver::shapeIntersect<Cone, Halfspace>
@@ -274,21 +212,7 @@ bool GJKSolver::shapeIntersect<Cone, Halfspace>
   return res;
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Halfspace, Cone>
-(const Halfspace& s1, const Transform3f& tf1,
- const Cone& s2, const Transform3f& tf2,
- Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  FCL_REAL distance;
-  Vec3f p1, p2;
-  bool res =  details::coneHalfspaceIntersect
-    (s2, tf2, s1, tf1, distance, p1, p2, *normal);
-  *contact_points = p1;
-  *penetration_depth = -distance;
-  (*normal) *= -1.0;
-  return res;
-}
+SHAPE_INTERSECT_INVERTED(Halfspace, Cone)
 
 template<>
 bool GJKSolver::shapeIntersect<Halfspace, Halfspace>(const Halfspace& s1, const Transform3f& tf1,
@@ -314,17 +238,7 @@ bool GJKSolver::shapeIntersect<Plane, Halfspace>(const Plane& s1, const Transfor
   return details::planeHalfspaceIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Halfspace, Plane>(const Halfspace& s1, const Transform3f& tf1,
-                                                       const Plane& s2, const Transform3f& tf2,
-                                                       Vec3f* /*contact_points*/, FCL_REAL* /*penetration_depth*/, Vec3f* /*normal*/) const
-{
-  Plane pl;
-  Vec3f p, d;
-  FCL_REAL depth;
-  int ret;
-  return details::halfspacePlaneIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
-}
+SHAPE_INTERSECT_INVERTED(Halfspace, Plane)
 
 template<>
 bool GJKSolver::shapeIntersect<Sphere, Plane>
@@ -341,21 +255,7 @@ bool GJKSolver::shapeIntersect<Sphere, Plane>
   return res;
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Plane, Sphere>
-(const Plane& s1, const Transform3f& tf1,
- const Sphere& s2, const Transform3f& tf2,
- Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  FCL_REAL distance;
-  Vec3f p1, p2;
-  bool res = details::spherePlaneIntersect(s2, tf2, s1, tf1, distance, p1,
-                                           p2, *normal);
-  *contact_points = p1;
-  *penetration_depth = -distance;
-  (*normal) *= -1.0;
-  return res;
-}
+SHAPE_INTERSECT_INVERTED(Plane, Sphere)
 
 template<>
 bool GJKSolver::shapeIntersect<Box, Plane>
@@ -372,21 +272,7 @@ bool GJKSolver::shapeIntersect<Box, Plane>
   return res;
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Plane, Box>
-(const Plane& s1, const Transform3f& tf1,
- const Box& s2, const Transform3f& tf2,
- Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  FCL_REAL distance;
-  Vec3f p1, p2;
-  bool res = details::boxPlaneIntersect
-    (s2, tf2, s1, tf1, distance, p1, p2, *normal);
-  *contact_points = p1;
-  *penetration_depth = -distance;
-  (*normal) *= -1.0;
-  return res;
-}
+SHAPE_INTERSECT_INVERTED(Plane, Box)
 
 template<>
 bool GJKSolver::shapeIntersect<Capsule, Plane>
@@ -403,21 +289,7 @@ bool GJKSolver::shapeIntersect<Capsule, Plane>
   return res;
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Plane, Capsule>
-(const Plane& s1, const Transform3f& tf1,
- const Capsule& s2, const Transform3f& tf2,
- Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  FCL_REAL distance;
-  Vec3f p1, p2;
-  bool res = details::capsulePlaneIntersect(s2, tf2, s1, tf1, distance, p1,
-                                            p2, *normal);
-  *contact_points = p1;
-  *penetration_depth = -distance;
-  (*normal) *= -1.0;
-  return res;
-}
+SHAPE_INTERSECT_INVERTED(Plane, Capsule)
 
 template<>
 bool GJKSolver::shapeIntersect<Cylinder, Plane>
@@ -434,21 +306,7 @@ bool GJKSolver::shapeIntersect<Cylinder, Plane>
   return res;
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Plane, Cylinder>
-(const Plane& s1, const Transform3f& tf1,
- const Cylinder& s2, const Transform3f& tf2,
- Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  FCL_REAL distance;
-  Vec3f p1, p2;
-  bool res = details::cylinderPlaneIntersect
-    (s2, tf2, s1, tf1, distance, p1, p2, *normal);
-  *contact_points = p1;
-  *penetration_depth = -distance;
-  (*normal) *= -1.0;
-  return res;
-}
+SHAPE_INTERSECT_INVERTED(Plane, Cylinder)
 
 template<>
 bool GJKSolver::shapeIntersect<Cone, Plane>
@@ -465,21 +323,7 @@ bool GJKSolver::shapeIntersect<Cone, Plane>
   return res;
 }
 
-template<>
-bool GJKSolver::shapeIntersect<Plane, Cone>
-(const Plane& s1, const Transform3f& tf1,
- const Cone& s2, const Transform3f& tf2,
- Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  FCL_REAL distance;
-  Vec3f p1, p2;
-  bool res = details::conePlaneIntersect
-    (s2, tf2, s1, tf1, distance, p1, p2, *normal);
-  *contact_points = p1;
-  *penetration_depth = -distance;
-  (*normal) *= -1.0;
-  return res;
-}
+SHAPE_INTERSECT_INVERTED(Plane, Cone)
 
 template<>
 bool GJKSolver::shapeIntersect<Plane, Plane>(const Plane& s1, const Transform3f& tf1,
