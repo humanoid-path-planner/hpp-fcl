@@ -84,23 +84,26 @@ public:
   void leafCollides(int, int, FCL_REAL&) const
   {
     bool is_collision = false;
-    if(request.enable_contact)
+    FCL_REAL distance;
+    if(request.enable_contact && request.num_max_contacts > result->numContacts())
     {
       Vec3f contact_point, normal;
-      FCL_REAL penetration_depth;
-      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point,
-                                 &penetration_depth, &normal))
+      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, distance, true,
+                                 &contact_point, &normal))
       {
         is_collision = true;
-        if(request.num_max_contacts > result->numContacts())
-          result->addContact(Contact(model1, model2, Contact::NONE,
-                                     Contact::NONE, contact_point,
-                                     normal, penetration_depth));
+        result->addContact(Contact(model1, model2, Contact::NONE,
+                                   Contact::NONE, contact_point,
+                                   normal, distance));
       }
     }
     else
     {
-      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL))
+      bool res = nsolver->shapeIntersect(*model1, tf1, *model2, tf2, distance,
+          request.enable_distance_lower_bound, NULL, NULL);
+      if (request.enable_distance_lower_bound)
+        result->updateDistanceLowerBound (distance);
+      if(res)
       {
         is_collision = true;
         if(request.num_max_contacts > result->numContacts())
