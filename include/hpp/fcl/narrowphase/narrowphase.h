@@ -56,7 +56,9 @@ namespace fcl
     template<typename S1, typename S2>
       bool shapeIntersect(const S1& s1, const Transform3f& tf1,
                           const S2& s2, const Transform3f& tf2,
-                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+                          FCL_REAL& distance_lower_bound,
+                          bool enable_penetration,
+                          Vec3f* contact_points, Vec3f* normal) const
     {
       Vec3f guess(1, 0, 0);
       if(enable_cached_guess) guess = cached_guess;
@@ -71,9 +73,11 @@ namespace fcl
       Vec3f w0, w1;
       switch(gjk_status) {
         case details::GJK::Inside:
+          if (!enable_penetration && contact_points == NULL && normal == NULL)
+            return true;
           if (gjk.hasPenetrationInformation(shape)) {
             gjk.getClosestPoints (shape, w0, w1);
-            if(penetration_depth) *penetration_depth = gjk.distance;
+            distance_lower_bound = gjk.distance;
             if(normal) *normal = tf1.getRotation() * (w0 - w1).normalized();
             if(contact_points) *contact_points = tf1.transform((w0 + w1) / 2);
             return true;
@@ -86,15 +90,18 @@ namespace fcl
                 )
             {
               epa.getClosestPoints (shape, w0, w1);
-              if(penetration_depth) *penetration_depth = -epa.depth;
+              distance_lower_bound = -epa.depth;
               if(normal) *normal = tf1.getRotation() * epa.normal;
               if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               return true;
             }
-            if(penetration_depth) *penetration_depth = -std::numeric_limits<FCL_REAL>::max();
+            distance_lower_bound = -std::numeric_limits<FCL_REAL>::max();
             // EPA failed but we know there is a collision so we should
             return true;
           }
+          break;
+        case details::GJK::Valid:
+          distance_lower_bound = gjk.distance;
           break;
         default:
           ;
@@ -315,7 +322,8 @@ namespace fcl
     bool GJKSolver::shapeIntersect<Shape1, Shape2>                             \
     (const Shape1& s1, const Transform3f& tf1,                                 \
      const Shape2& s2, const Transform3f& tf2,                                 \
-     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+     FCL_REAL& distance_lower_bound, bool enable_penetration,                  \
+     Vec3f* contact_points, Vec3f* normal) const
 #define HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Shape,doc)                        \
   HPP_FCL_DECLARE_SHAPE_INTERSECT(Shape,Shape,doc)
 #define HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Shape1,Shape2,doc)                \
