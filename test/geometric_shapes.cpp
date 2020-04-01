@@ -471,7 +471,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(15, 0, 0));
   normal << 1, 0, 0;
-  SET_LINE; testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  SET_LINE; testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, 1e-8);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(15.01, 0, 0));
@@ -3023,7 +3023,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(15, 0, 0));
   normal << 1, 0, 0;
-  SET_LINE; testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
+  SET_LINE; testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, 1e-8);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(15.01, 0, 0));

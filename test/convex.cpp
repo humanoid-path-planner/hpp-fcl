@@ -217,7 +217,7 @@ template <typename Sa, typename Sb> void compareShapeDistance (
 BOOST_AUTO_TEST_CASE(compare_convex_box)
 {
   FCL_REAL extents [6] = {0, 0, 0, 10, 10, 10};
-  FCL_REAL l = 1, w = 1, d = 1;
+  FCL_REAL l = 1, w = 1, d = 1, eps = 1e-4;
   Box box(l*2, w*2, d*2);
   Convex<Quadrilateral> convex_box (buildBox (l, w, d));
 
@@ -225,16 +225,16 @@ BOOST_AUTO_TEST_CASE(compare_convex_box)
   Transform3f tf2;
 
   tf2.setTranslation (Vec3f (3, 0, 0));
-  compareShapeIntersection(box, convex_box, tf1, tf2);
-  compareShapeDistance    (box, convex_box, tf1, tf2);
+  compareShapeIntersection(box, convex_box, tf1, tf2, eps);
+  compareShapeDistance    (box, convex_box, tf1, tf2, eps);
 
   tf2.setTranslation (Vec3f (0, 0, 0));
-  compareShapeIntersection(box, convex_box, tf1, tf2);
-  compareShapeDistance    (box, convex_box, tf1, tf2);
+  compareShapeIntersection(box, convex_box, tf1, tf2, eps);
+  compareShapeDistance    (box, convex_box, tf1, tf2, eps);
 
   for (int i = 0; i < 1000; ++i) {
     generateRandomTransform(extents, tf2);
-    compareShapeIntersection(box, convex_box, tf1, tf2);
-    compareShapeDistance    (box, convex_box, tf1, tf2);
+    compareShapeIntersection(box, convex_box, tf1, tf2, eps);
+    compareShapeDistance    (box, convex_box, tf1, tf2, eps);
   }
 }
