@@ -249,7 +249,11 @@ namespace fcl
               // normal = tf1.getRotation() * epa.normal;
               normal = tf2.getRotation() * epa.normal;
               p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
+              return false;
             }
+            distance = -std::numeric_limits<FCL_REAL>::max();
+            gjk.getClosestPoints (shape, p1, p2);
+            p1 = p2 = tf1.transform (p1);
           }
           return false;
         }
