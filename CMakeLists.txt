@@ -32,7 +32,7 @@
 #  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 set(CXX_DISABLE_WERROR TRUE)
 
 set(PROJECT_NAME hpp-fcl)
@@ -169,4 +169,3 @@ ENDIF(HPP_FCL_HAVE_OCTOMAP)
 
 # Install catkin package.xml
 INSTALL(FILES package.xml DESTINATION share/${PROJECT_NAME})
-
