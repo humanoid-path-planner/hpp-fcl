@@ -9,3 +9,4 @@ sudo apt-get -qqy install robotpkg-py27-eigenpy
 # set environment variables
 export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/opt/openrobots/lib/pkgconfig"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/openrobots/lib"
+export CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}:/opt/openrobots"
