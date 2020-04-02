@@ -75,9 +75,6 @@ if (BUILD_PYTHON_INTERFACE)
   ADD_PROJECT_DEPENDENCY(eigenpy 2.2 REQUIRED PKG_CONFIG_REQUIRES "eigenpy >= 2.2")
 endif ()
 
-# Add a cache variable to allow not compiling and running tests
-set (BUILD_TESTING TRUE CACHE BOOL "compile and run unit tests")
-
 # Required dependencies
 set(BOOST_COMPONENTS thread date_time system)
 set(BOOST_COMPONENTS ${BOOST_COMPONENTS} filesystem unit_test_framework chrono)
