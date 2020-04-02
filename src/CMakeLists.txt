@@ -94,19 +94,19 @@ add_library(${LIBRARY_NAME}
 ADD_SOURCE_GROUP(${LIBRARY_NAME}_SOURCES)
 ADD_HEADER_GROUP(PROJECT_HEADERS_FULL_PATH)
 
-TARGET_LINK_LIBRARIES(${LIBRARY_NAME} 
-  PUBLIC 
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
+  PUBLIC
   Boost::thread
   Boost::date_time
   Boost::system
   )
 
-target_include_directories(${LIBRARY_NAME} 
+target_include_directories(${LIBRARY_NAME}
   SYSTEM PUBLIC
-  ${EIGEN3_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
   )
 
-target_include_directories(${LIBRARY_NAME} 
+target_include_directories(${LIBRARY_NAME}
   PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
