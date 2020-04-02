@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2014 CNRS-LAAS
+#  Copyright (c) 2014, 2020 CNRS-LAAS
 #  Author: Florent Lamiraux
 #  All rights reserved.
 #

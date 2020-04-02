@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2019 CNRS-LAAS INRIA
+#  Copyright (c) 2019-2020 CNRS-LAAS INRIA
 #  Author: Joseph Mirabel
 #  All rights reserved.
 #
