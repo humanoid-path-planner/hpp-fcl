@@ -31,6 +31,7 @@ add_fcl_test(geometric_shapes geometric_shapes.cpp)
 #add_fcl_test(broadphase broadphase.cpp)
 #add_fcl_test(shape_mesh_consistency shape_mesh_consistency.cpp)
 add_fcl_test(frontlist frontlist.cpp)
+SET_TESTS_PROPERTIES(frontlist PROPERTIES TIMEOUT 7200)
 #add_fcl_test(math math.cpp)
 
 # add_fcl_test(sphere_capsule sphere_capsule.cpp)
