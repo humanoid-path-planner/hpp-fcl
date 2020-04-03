@@ -159,7 +159,7 @@ typedef boost::chrono::high_resolution_clock clock_type;
 typedef clock_type::duration duration_type;
 
 const char* sep = ",\t"; 
-const FCL_REAL eps = 1e-10;
+const FCL_REAL eps = 1.5e-7;
 
 const Eigen::IOFormat py_fmt(Eigen::FullPrecision,
     0,

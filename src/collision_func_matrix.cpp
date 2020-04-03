@@ -109,7 +109,7 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
     }
     return 1;
   }
-  result.distance_lower_bound = distance;
+  result.updateDistanceLowerBound (distance);
   return 0;
 }
 

@@ -56,7 +56,9 @@ namespace fcl
     template<typename S1, typename S2>
       bool shapeIntersect(const S1& s1, const Transform3f& tf1,
                           const S2& s2, const Transform3f& tf2,
-                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+                          FCL_REAL& distance_lower_bound,
+                          bool enable_penetration,
+                          Vec3f* contact_points, Vec3f* normal) const
     {
       Vec3f guess(1, 0, 0);
       if(enable_cached_guess) guess = cached_guess;
@@ -71,28 +73,35 @@ namespace fcl
       Vec3f w0, w1;
       switch(gjk_status) {
         case details::GJK::Inside:
+          if (!enable_penetration && contact_points == NULL && normal == NULL)
+            return true;
           if (gjk.hasPenetrationInformation(shape)) {
             gjk.getClosestPoints (shape, w0, w1);
-            if(penetration_depth) *penetration_depth = gjk.distance;
+            distance_lower_bound = gjk.distance;
             if(normal) *normal = tf1.getRotation() * (w0 - w1).normalized();
             if(contact_points) *contact_points = tf1.transform((w0 + w1) / 2);
             return true;
           } else {
             details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-            if(epa_status & details::EPA::Failed)
+            if(epa_status & details::EPA::Valid
+                || epa_status == details::EPA::OutOfFaces    // Warnings
+                || epa_status == details::EPA::OutOfVertices // Warnings
+                )
             {
               epa.getClosestPoints (shape, w0, w1);
-              if(penetration_depth) *penetration_depth = -epa.depth;
-              // TODO The normal computed by GJK in the s1 frame so this should be
-              // if(normal) *normal = tf1.getRotation() * epa.normal;
-              if(normal) *normal = tf2.getRotation() * epa.normal;
+              distance_lower_bound = -epa.depth;
+              if(normal) *normal = tf1.getRotation() * epa.normal;
               if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               return true;
             }
+            distance_lower_bound = -std::numeric_limits<FCL_REAL>::max();
             // EPA failed but we know there is a collision so we should
             return true;
           }
+          break;
+        case details::GJK::Valid:
+          distance_lower_bound = gjk.distance;
           break;
         default:
           ;
@@ -139,13 +148,21 @@ namespace fcl
           } else {
             details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-            assert (epa_status & details::EPA::Valid); (void) epa_status;
-
-            epa.getClosestPoints (shape, w0, w1);
-            distance = -epa.depth;
-            normal = -epa.normal;
-            p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
-            assert (distance <= 1e-6);
+            if(epa_status & details::EPA::Valid
+                || epa_status == details::EPA::OutOfFaces    // Warnings
+                || epa_status == details::EPA::OutOfVertices // Warnings
+                )
+            {
+              epa.getClosestPoints (shape, w0, w1);
+              distance = -epa.depth;
+              normal = -epa.normal;
+              p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
+              assert (distance <= 1e-6);
+            } else {
+              distance = -std::numeric_limits<FCL_REAL>::max();
+              gjk.getClosestPoints (shape, w0, w1);
+              p1 = p2 = tf1.transform (w0);
+            }
           }
           break;
         case details::GJK::Valid:
@@ -240,7 +257,11 @@ namespace fcl
               // normal = tf1.getRotation() * epa.normal;
               normal = tf2.getRotation() * epa.normal;
               p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
+              return false;
             }
+            distance = -std::numeric_limits<FCL_REAL>::max();
+            gjk.getClosestPoints (shape, p1, p2);
+            p1 = p2 = tf1.transform (p1);
           }
           return false;
         }
@@ -305,7 +326,7 @@ namespace fcl
   /// \{
 
 // param doc is the doxygen detailled description (should be enclosed in /** */
-// and contain no space.
+// and contain no dot for some obscure reasons).
 #define HPP_FCL_DECLARE_SHAPE_INTERSECT(Shape1,Shape2,doc)                     \
   /** @brief Fast implementation for Shape1-Shape2 collision. */               \
   doc                                                                          \
@@ -313,7 +334,8 @@ namespace fcl
     bool GJKSolver::shapeIntersect<Shape1, Shape2>                             \
     (const Shape1& s1, const Transform3f& tf1,                                 \
      const Shape2& s2, const Transform3f& tf2,                                 \
-     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+     FCL_REAL& distance_lower_bound, bool enable_penetration,                  \
+     Vec3f* contact_points, Vec3f* normal) const
 #define HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Shape,doc)                        \
   HPP_FCL_DECLARE_SHAPE_INTERSECT(Shape,Shape,doc)
 #define HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Shape1,Shape2,doc)                \
@@ -325,7 +347,17 @@ namespace fcl
   HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Sphere, Halfspace,);
   HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Sphere, Plane,);
 
-  HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Box,);
+#ifdef IS_DOXYGEN // for doxygen only
+  /** \todo currently disabled and to re-enable it, API of function
+   *  \ref obbDisjointAndLowerBoundDistance should be modified.
+   *  */
+  template<> bool GJKSolver::shapeIntersect<Box, Box>
+    (const Box& s1, const Transform3f& tf1,
+     const Box& s2, const Transform3f& tf2,
+     FCL_REAL& distance_lower_bound, bool enable_penetration,
+     Vec3f* contact_points, Vec3f* normal) const;
+#endif
+  //HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Box,);
   HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Box, Halfspace,);
   HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Box, Plane,);
 
@@ -352,6 +384,8 @@ namespace fcl
   /// \name Shape triangle interaction specializations
   /// \{
 
+// param doc is the doxygen detailled description (should be enclosed in /** */
+// and contain no dot for some obscure reasons).
 #define HPP_FCL_DECLARE_SHAPE_TRIANGLE(Shape,doc)                              \
   /** @brief Fast implementation for Shape-Triangle interaction. */            \
   doc                                                                          \
@@ -372,7 +406,7 @@ namespace fcl
   /// \{
 
 // param doc is the doxygen detailled description (should be enclosed in /** */
-// and contain no space.
+// and contain no dot for some obscure reasons).
 #define HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape1,Shape2,doc)                      \
   /** @brief Fast implementation for Shape1-Shape2 distance. */                \
   doc                                                                          \

@@ -304,7 +304,8 @@ private:
         Transform3f box_tf;
         constructBox(bv1, tf1, box, box_tf);
 
-        if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
+        FCL_REAL distance;
+        if(solver->shapeIntersect(box, box_tf, s, tf2, distance, false, NULL, NULL))
         {
           AABB overlap_part;
           AABB aabb1, aabb2;
@@ -328,9 +329,10 @@ private:
           Transform3f box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
+          FCL_REAL distance;
           if(!crequest->enable_contact)
           {
-            if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
+            if(solver->shapeIntersect(box, box_tf, s, tf2, distance, false, NULL, NULL))
             {
               if(cresult->numContacts() < crequest->num_max_contacts)
                 cresult->addContact(Contact(tree1, &s, static_cast<int>(root1 - tree1->getRoot()), Contact::NONE));
@@ -339,13 +341,12 @@ private:
           else
           {
             Vec3f contact;
-            FCL_REAL depth;
             Vec3f normal;
 
-            if(solver->shapeIntersect(box, box_tf, s, tf2, &contact, &depth, &normal))
+            if(solver->shapeIntersect(box, box_tf, s, tf2, distance, true, &contact, &normal))
             {
               if(cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(tree1, &s, static_cast<int>(root1 - tree1->getRoot()), Contact::NONE, contact, normal, depth));
+                cresult->addContact(Contact(tree1, &s, static_cast<int>(root1 - tree1->getRoot()), Contact::NONE, contact, normal, distance));
             }
           }
 
@@ -819,12 +820,12 @@ private:
           constructBox(bv2, tf2, box2, box2_tf);
 
           Vec3f contact;
-          FCL_REAL depth;
+          FCL_REAL distance;
           Vec3f normal;
-          if(solver->shapeIntersect(box1, box1_tf, box2, box2_tf, &contact, &depth, &normal))
+          if(solver->shapeIntersect(box1, box1_tf, box2, box2_tf, distance, true, &contact, &normal))
           {
             if(cresult->numContacts() < crequest->num_max_contacts)
-              cresult->addContact(Contact(tree1, tree2, static_cast<int>(root1 - tree1->getRoot()), static_cast<int>(root2 - tree2->getRoot()), contact, normal, depth));
+              cresult->addContact(Contact(tree1, tree2, static_cast<int>(root1 - tree1->getRoot()), static_cast<int>(root2 - tree2->getRoot()), contact, normal, distance));
           }
         }
 

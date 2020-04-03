@@ -14,7 +14,7 @@ int main(int argc, char** argv)
   boost::shared_ptr<Box> box1(new Box(1,1,1));
   GJKSolver_libccd solver;
   Vec3f contact_points;
-  FCL_REAL penetration_depth;
+  FCL_REAL distance;
   Vec3f normal;
 
   Transform3f tf0, tf1;
@@ -23,12 +23,10 @@ int main(int argc, char** argv)
   tf0.setQuatRotation(Quaternion3f(.6, .8, 0, 0));
   tf1.setIdentity();
 
-
-
-  bool res = solver.shapeIntersect(*box0, tf0, *box1, tf1, &contact_points, &penetration_depth, &normal);
+  bool res = solver.shapeIntersect(*box0, tf0, *box1, tf1, distance, true, &contact_points, &normal);
 
   cout << "contact points: " << contact_points << endl;
-  cout << "pen depth: " << penetration_depth << endl;
+  cout << "signed distance: " << distance << endl;
   cout << "normal: " << normal << endl;
   cout << "result: " << res << endl;
   

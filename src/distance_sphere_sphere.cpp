@@ -132,7 +132,7 @@ namespace fcl {
       result.addContact (contact);
       return 1;
     }
-    result.distance_lower_bound = -penetrationDepth;
+    result.updateDistanceLowerBound (-penetrationDepth);
     return 0;
   }
 } // namespace fcl

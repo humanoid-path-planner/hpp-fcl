@@ -217,3 +217,42 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3)
   BOOST_CHECK_CLOSE (p2 [2], p2Moved [2], 1e-4);
   
 }
+
+BOOST_AUTO_TEST_CASE(distance_box_box_4)
+{
+  hpp::fcl::Box s1 (1, 1, 1);
+  hpp::fcl::Box s2 (1, 1, 1);
+
+  // Enable computation of nearest points
+  DistanceRequest distanceRequest (true, 0, 0);
+  DistanceResult distanceResult;
+  double distance;
+
+  Transform3f tf1 (Vec3f (2, 0, 0));
+  Transform3f tf2;
+  hpp::fcl::distance (&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
+
+  distance = 1.;
+  BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
+
+  tf1.setTranslation(Vec3f (1.01, 0, 0));
+  distanceResult.clear();
+  hpp::fcl::distance (&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
+
+  distance = 0.01;
+  BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 2e-3);
+
+  tf1.setTranslation(Vec3f (0.99, 0, 0));
+  distanceResult.clear();
+  hpp::fcl::distance (&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
+
+  distance = -0.01;
+  BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 2e-3);
+
+  tf1.setTranslation(Vec3f (0, 0, 0));
+  distanceResult.clear();
+  hpp::fcl::distance (&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
+
+  distance = -1;
+  BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 2e-3);
+}

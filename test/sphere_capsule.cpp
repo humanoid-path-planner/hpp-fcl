@@ -61,7 +61,8 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_z)
 	Capsule capsule (50, 200.);
 	Transform3f capsule_transform (Vec3f (0., 0., 200));
 
-	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL, NULL, NULL));
+        FCL_REAL distance;
+	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, distance, false, NULL, NULL));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_z_negative)
@@ -75,7 +76,8 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_z_negative)
 	Capsule capsule (50, 200.);
 	Transform3f capsule_transform (Vec3f (0., 0., -200));
 
-	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL, NULL, NULL));
+        FCL_REAL distance;
+	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, distance, false, NULL, NULL));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_x)
@@ -89,7 +91,8 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_x)
 	Capsule capsule (50, 200.);
 	Transform3f capsule_transform (Vec3f (150., 0., 0.));
 
-	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL, NULL, NULL));
+        FCL_REAL distance;
+	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, distance, false, NULL, NULL));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_capsule_rotated)
@@ -106,7 +109,8 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_capsule_rotated)
         setEulerZYX(rotation, M_PI * 0.5, 0., 0.);
 	Transform3f capsule_transform (rotation, Vec3f (150., 0., 0.));
 
-	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL, NULL, NULL));
+        FCL_REAL distance;
+	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, distance, false, NULL, NULL));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_penetration_z)

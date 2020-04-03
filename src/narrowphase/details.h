@@ -71,7 +71,7 @@ namespace fcl {
     inline bool sphereCapsuleIntersect
       (const Sphere& s1, const Transform3f& tf1,
        const Capsule& s2, const Transform3f& tf2,
-       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal_)
+       FCL_REAL& distance, Vec3f* contact_points, Vec3f* normal_)
     {
       Vec3f pos1 (tf2.transform (Vec3f (0., 0.,  s2.halfLength))); // from distance function
       Vec3f pos2 (tf2.transform (Vec3f (0., 0., -s2.halfLength)));
@@ -83,15 +83,12 @@ namespace fcl {
       Vec3f diff = s_c - segment_point;
 
       FCL_REAL diffN = diff.norm();
-      FCL_REAL distance = diffN - s1.radius - s2.radius;
+      distance = diffN - s1.radius - s2.radius;
 
       if (distance > 0)
         return false;
 
       // Vec3f normal (-diff.normalized());
-
-      if (distance < 0 && penetration_depth)
-        *penetration_depth = -distance;
 
       if (normal_)
         *normal_ = -diff / diffN;
@@ -229,15 +226,13 @@ namespace fcl {
     inline bool sphereSphereIntersect
       (const Sphere& s1, const Transform3f& tf1,
        const Sphere& s2, const Transform3f& tf2,
-       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+       FCL_REAL& distance, Vec3f* contact_points, Vec3f* normal)
     {
       const Vec3f diff = tf2.getTranslation() - tf1.getTranslation();
       FCL_REAL len = diff.norm();
-      if(len > s1.radius + s2.radius)
+      distance = len - s1.radius - s2.radius;
+      if(distance > 0)
         return false;
-
-      if(penetration_depth)
-        *penetration_depth = s1.radius + s2.radius - len;
 
       // If the centers of two sphere are at the same position, the normal is (0, 0, 0).
       // Otherwise, normal is pointing from center of object 1 to center of object 2
@@ -1843,29 +1838,30 @@ namespace fcl {
 
       ret = 0;
 
+      penetration_depth = std::numeric_limits<FCL_REAL>::max();
       Vec3f dir = (new_s1.n).cross(new_s2.n);
       FCL_REAL dir_norm = dir.squaredNorm();
       if(dir_norm < std::numeric_limits<FCL_REAL>::epsilon()) // parallel
         {
           if((new_s1.n).dot(new_s2.n) > 0)
             {
-              if(new_s1.d < new_s2.d)
+              penetration_depth = new_s2.d - new_s1.d;
+              if(penetration_depth < 0)
+                return false;
+              else
                 {
-                  penetration_depth = new_s2.d - new_s1.d;
                   ret = 1;
                   pl = new_s1;
                   return true;
                 }
-              else
-                return false;
             }
           else
             {
-              if(new_s1.d + new_s2.d > 0)
+              penetration_depth = -(new_s1.d + new_s2.d);
+              if(penetration_depth < 0)
                 return false;
               else
                 {
-                  penetration_depth = -(new_s1.d + new_s2.d);
                   ret = 2;
                   pl = new_s1;
                   return true;
@@ -1880,7 +1876,6 @@ namespace fcl {
       p = origin;
       d = dir;
       ret = 3;
-      penetration_depth = std::numeric_limits<FCL_REAL>::max();
 
       return true;
     }
@@ -1904,6 +1899,7 @@ namespace fcl {
 
       ret = 0;
 
+      penetration_depth = std::numeric_limits<FCL_REAL>::max();
       Vec3f dir = (new_s1.n).cross(new_s2.n);
       FCL_REAL dir_norm = dir.squaredNorm();
       if(dir_norm < std::numeric_limits<FCL_REAL>::epsilon()) // parallel
@@ -1913,25 +1909,23 @@ namespace fcl {
               if(new_s1.d < new_s2.d) // s1 is inside s2
                 {
                   ret = 1;
-                  penetration_depth = std::numeric_limits<FCL_REAL>::max();
                   s = new_s1;
                 }
               else // s2 is inside s1
                 {
                   ret = 2;
-                  penetration_depth = std::numeric_limits<FCL_REAL>::max();
                   s = new_s2;
                 }
               return true;
             }
           else
             {
-              if(new_s1.d + new_s2.d > 0) // not collision
+              penetration_depth = -(new_s1.d + new_s2.d);
+              if(penetration_depth < 0) // not collision
                 return false;
               else // in each other
                 {
                   ret = 3;
-                  penetration_depth = -(new_s1.d + new_s2.d);
                   return true;
                 }
             }
@@ -1944,7 +1938,6 @@ namespace fcl {
       p = origin;
       d = dir;
       ret = 4;
-      penetration_depth = std::numeric_limits<FCL_REAL>::max();
 
       return true;
     }
