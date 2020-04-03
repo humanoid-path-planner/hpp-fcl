@@ -86,6 +86,7 @@ void exposeMaths ()
     .def (init<Matrix3f>           (doxygen::constructor_doc<Transform3f, const Matrix3f&                                      >()))
     .def (init<Quaternion3f>       (doxygen::constructor_doc<Transform3f, const Quaternion3f&                                  >()))
     .def (init<Vec3f>              (doxygen::constructor_doc<Transform3f, const Vec3f&                                         >()))
+    .def (init<Transform3f>        (doxygen::constructor_doc<Transform3f, const Transform3f&                                   >()))
 
     .def (dv::member_func("getQuatRotation", &Transform3f::getQuatRotation))
     .def ("getTranslation", &Transform3f::getTranslation, doxygen::member_func_doc(&Transform3f::getTranslation), return_value_policy<copy_const_reference>())
