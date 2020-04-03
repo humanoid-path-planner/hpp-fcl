@@ -113,7 +113,7 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
 void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles);
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-fcl::OcTree loadOctreeFile (const char* filename, const FCL_REAL& resolution);
+fcl::OcTree loadOctreeFile (const std::string& filename, const FCL_REAL& resolution);
 #endif
 
 /// @brief Generate one random transform whose translation is constrained by extents and rotation without constraints. 

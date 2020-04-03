@@ -77,10 +77,6 @@ void makeMesh (const std::vector<Vec3f>& vertices,
 hpp::fcl::OcTree makeOctree (const BVHModel <OBBRSS>& mesh,
                         const FCL_REAL& resolution)
 {
-  std::ofstream file;
-  file.open ("./env.octree");
-  Eigen::IOFormat csv (Eigen::FullPrecision, Eigen::DontAlignCols, "",
-                        ", ", "", "", "", "");
   Vec3f m (mesh.aabb_local.min_);
   Vec3f M (mesh.aabb_local.max_);
   hpp::fcl::Box box (resolution, resolution, resolution);
@@ -102,14 +98,14 @@ hpp::fcl::OcTree makeOctree (const BVHModel <OBBRSS>& mesh,
           octomap::point3d p
             ((float) center [0], (float) center [1], (float) center [2]);
           octree->updateNode (p, true);
-          file << center.format (csv) << std::endl;
           result.clear ();
         }
       }
     }
   }
+
   octree->updateInnerOccupancy();
-  file.close ();
+  octree->writeBinary("./env.octree");
   return OcTree (octree);
 }
 
@@ -130,9 +126,9 @@ BOOST_AUTO_TEST_CASE (OCTREE)
   makeMesh (pEnv, tEnv, envMesh);
   // Build octomap with environment
   envMesh.computeLocalAABB ();
-  // Load octree built from envMesh by makeOctree
+  // Load octree built from envMesh by makeOctree(envMesh, resolution)
   OcTree envOctree
-    (hpp::fcl::loadOctreeFile ((path / "env.octree").string().c_str(), resolution));
+    (hpp::fcl::loadOctreeFile ((path / "env.octree").string(), resolution));
 
   std::cout << "Finished loading octree." << std::endl;
 

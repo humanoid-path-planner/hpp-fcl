@@ -217,29 +217,15 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
 }
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-OcTree loadOctreeFile (const char* filename, const FCL_REAL& resolution)
+OcTree loadOctreeFile (const std::string& filename, const FCL_REAL& resolution)
   {
-    std::ifstream file;
-    file.open(filename);
-    if(!file.good ())
-    {
+    octomap::OcTreePtr_t octree (new octomap::OcTree (filename));
+    if (octree->getResolution() != resolution) {
       std::ostringstream oss;
-      oss << "Could not open file " << filename;
-      throw std::runtime_error (oss.str ().c_str ());
+      oss << "Resolution of the OcTree is " << octree->getResolution() <<
+        " and not " << resolution;
+      throw std::invalid_argument(oss.str());
     }
-    octomap::OcTreePtr_t octree (new octomap::OcTree (resolution));
-    std::string line;
-    while (std::getline (file, line)) {
-      std::stringstream lineStream (line);
-      std::string cell;
-      std::vector <float> p (3);
-      std::size_t i=0;
-      while (std::getline (lineStream, cell, ',')) {
-        p [i] = (float) atof (cell.c_str ()); ++i;
-      }
-      octree->updateNode (octomap::point3d (p[0], p[1], p[2]), true);
-    }
-    octree->updateInnerOccupancy ();
     return hpp::fcl::OcTree (octree);
   }
 #endif
