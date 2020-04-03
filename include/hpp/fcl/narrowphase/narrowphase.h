@@ -148,13 +148,21 @@ namespace fcl
           } else {
             details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
             details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-            assert (epa_status & details::EPA::Valid); (void) epa_status;
-
-            epa.getClosestPoints (shape, w0, w1);
-            distance = -epa.depth;
-            normal = -epa.normal;
-            p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
-            assert (distance <= 1e-6);
+            if(epa_status & details::EPA::Valid
+                || epa_status == details::EPA::OutOfFaces    // Warnings
+                || epa_status == details::EPA::OutOfVertices // Warnings
+                )
+            {
+              epa.getClosestPoints (shape, w0, w1);
+              distance = -epa.depth;
+              normal = -epa.normal;
+              p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
+              assert (distance <= 1e-6);
+            } else {
+              distance = -std::numeric_limits<FCL_REAL>::max();
+              gjk.getClosestPoints (shape, w0, w1);
+              p1 = p2 = tf1.transform (w0);
+            }
           }
           break;
         case details::GJK::Valid:
