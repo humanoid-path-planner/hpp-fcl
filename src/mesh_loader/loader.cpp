@@ -37,6 +37,10 @@
 #include <hpp/fcl/mesh_loader/loader.h>
 #include <hpp/fcl/mesh_loader/assimp.h>
 
+#ifdef HPP_FCL_HAVE_OCTOMAP
+# include <hpp/fcl/octree.h>
+#endif
+
 #include <hpp/fcl/BV/BV.h>
 
 namespace hpp
@@ -75,6 +79,16 @@ namespace fcl {
       default:
         throw std::invalid_argument("Unhandled bouding volume type.");
     }
+  }
+
+  CollisionGeometryPtr_t MeshLoader::loadOctree (const std::string& filename)
+  {
+#ifdef HPP_FCL_HAVE_OCTOMAP
+    boost::shared_ptr<octomap::OcTree> octree (new octomap::OcTree (filename));
+    return CollisionGeometryPtr_t (new hpp::fcl::OcTree (octree));
+#else
+    throw std::logic_error("hpp-fcl compiled without OctoMap. Cannot create OcTrees.");
+#endif
   }
 
   BVHModelPtr_t CachedMeshLoader::load (const std::string& filename,
