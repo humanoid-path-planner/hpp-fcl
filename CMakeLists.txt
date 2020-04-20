@@ -148,6 +148,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/internal/traversal.h
   )
 
+add_subdirectory(doc)
 add_subdirectory(src)
 if (BUILD_PYTHON_INTERFACE)
   add_subdirectory(python)
