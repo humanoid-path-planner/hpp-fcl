@@ -417,6 +417,9 @@ class ClassCompound (CompoundBase):
             return
 
         include = self.definition.find('includes')
+        if include is None:
+            output.err("Does not know where to write doc of", self.name)
+            return
         output.open (include.text)
         output.out (template_include_extern.format (filename=include.text))
         output.out (template_open_namespace.format (namespace="doxygen"))
