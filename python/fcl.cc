@@ -51,8 +51,10 @@
 #endif
 
 #include "../doc/python/doxygen.hh"
+#include "../doc/python/doxygen-boost.hh"
 
 using namespace hpp::fcl;
+namespace dv = doxygen::visitor;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(load_overloads,MeshLoader::load,1,2)
 
@@ -69,6 +71,7 @@ void exposeMeshLoader ()
       .def ("load",&MeshLoader::load,
             load_overloads((arg("self"),arg("filename"),arg("scale")),
                            doxygen::member_func_doc(&MeshLoader::load)))
+      .def (dv::member_func("loadOctree",&MeshLoader::loadOctree))
       ;
   }
 

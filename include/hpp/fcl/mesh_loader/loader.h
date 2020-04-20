@@ -57,6 +57,10 @@ namespace fcl {
       virtual BVHModelPtr_t load (const std::string& filename,
                                   const Vec3f& scale = Vec3f::Ones());
 
+      /// Create an OcTree from a file in binary octomap format.
+      /// \todo add OctreePtr_t
+      virtual CollisionGeometryPtr_t loadOctree (const std::string& filename);
+
       MeshLoader (const NODE_TYPE& bvType = BV_OBBRSS) : bvType_ (bvType) {}
 
     private:
