@@ -97,6 +97,7 @@ void exposeBVHModel (const std::string& bvname)
   class_ <BVHModel_t, bases<BVHModelBase>, shared_ptr<BVHModel_t> >
     (type.c_str(), doxygen::class_doc<BVHModel_t>(), no_init)
     .def (dv::init<BVHModel_t>())
+    .def (dv::init<BVHModel_t, BVHModel_t>())
     ;
 }
 
@@ -359,6 +360,9 @@ void exposeCollisionGeometries ()
 
   exposeShapes();
 
+  typedef std::vector<Vec3f> Vec3fs;
+  typedef std::vector<Triangle> Triangles;
+
   class_ <BVHModelBase, bases<CollisionGeometry>, BVHModelPtr_t, noncopyable>
     ("BVHModelBase", no_init)
     .def ("vertices", &BVHModelBaseWrapper::vertices,
@@ -371,6 +375,20 @@ void exposeCollisionGeometries ()
     .def_readonly ("convex", &BVHModelBase::convex)
 
     .def ("buildConvexRepresentation", &BVHModelBase::buildConvexRepresentation)
+
+    // Expose function to build a BVH
+    .def(dv::member_func("beginModel", &BVHModelBase::beginModel))
+    .def(dv::member_func("addVertex", &BVHModelBase::addVertex))
+    .def(dv::member_func("addTriangle", &BVHModelBase::addTriangle))
+    .def(dv::member_func<int (BVHModelBase::*)(const Vec3fs&, const Triangles&)>("addSubModel", &BVHModelBase::addSubModel))
+    .def(dv::member_func<int (BVHModelBase::*)(const Vec3fs&                  )>("addSubModel", &BVHModelBase::addSubModel))
+    .def(dv::member_func("endModel", &BVHModelBase::endModel))
+    // Expose function to replace a BVH
+    .def(dv::member_func("beginReplaceModel", &BVHModelBase::beginReplaceModel))
+    .def(dv::member_func("replaceVertex", &BVHModelBase::replaceVertex))
+    .def(dv::member_func("replaceTriangle", &BVHModelBase::replaceTriangle))
+    .def(dv::member_func("replaceSubModel", &BVHModelBase::replaceSubModel))
+    .def(dv::member_func("endReplaceModel", &BVHModelBase::endReplaceModel))
     ;
   exposeBVHModel<OBB    >("OBB"    );
   exposeBVHModel<OBBRSS >("OBBRSS" );

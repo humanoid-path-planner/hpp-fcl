@@ -33,6 +33,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/geometry.hpp>
@@ -116,4 +117,17 @@ void exposeMaths ()
     .def ("__getitem__", &TriangleWrapper::getitem)
     .def ("__setitem__", &TriangleWrapper::setitem)
     ;
+
+  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<Vec3f> >())
+  {
+    class_< std::vector<Vec3f> >("StdVec_Vec3f")
+      .def(vector_indexing_suite< std::vector<Vec3f> >())
+      ;
+  }
+  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<Triangle> >())
+  {
+    class_< std::vector<Triangle> >("StdVec_Triangle")
+      .def(vector_indexing_suite< std::vector<Triangle> >())
+      ;
+  }
 }
