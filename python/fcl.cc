@@ -56,7 +56,10 @@
 using namespace hpp::fcl;
 namespace dv = doxygen::visitor;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(load_overloads,MeshLoader::load,1,2)
+#pragma GCC diagnostic pop
 
 void exposeMeshLoader ()
 {
