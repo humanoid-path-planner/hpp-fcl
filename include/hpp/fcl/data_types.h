@@ -102,6 +102,13 @@ public:
 
   static inline size_type size() { return 3; }
 
+  bool operator== (const Triangle& other) const
+  {
+    return vids[0] == other.vids[0]
+      &&   vids[1] == other.vids[1]
+      &&   vids[2] == other.vids[2];
+  }
+
 private:
   /// @brief indices for each vertex of triangle
   index_type vids[3];

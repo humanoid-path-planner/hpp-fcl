@@ -320,8 +320,10 @@ namespace fcl
     mutable Vec3f cached_guess;
   };
 
+#if __cplusplus < 201103L
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wc99-extensions"
+#endif
   /// \name Shape intersection specializations
   /// \{
 
@@ -439,7 +441,9 @@ namespace fcl
 #undef HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR
 
   /// \}
+#if __cplusplus < 201103L
 #pragma GCC diagnostic pop
+#endif
 }
 
 } // namespace hpp
