@@ -225,6 +225,7 @@ namespace fcl
           // assert (distance == (w0 - w1).norm());
           distance = gjk.distance;
 
+          normal = (tf1.getRotation() * gjk.ray).normalized();
           p1 = tf1.transform (p1);
           p2 = tf1.transform (p2);
           return true;
