@@ -73,6 +73,9 @@ namespace dv = doxygen::visitor;
 using boost::shared_ptr;
 using boost::noncopyable;
 
+typedef std::vector<Vec3f> Vec3fs;
+typedef std::vector<Triangle> Triangles;
+
 struct BVHModelBaseWrapper
 {
   static Vec3f vertices (const BVHModelBase& bvh, int i)
@@ -129,6 +132,16 @@ struct ConvexWrapper
     if (i >= convex.num_polygons) throw std::out_of_range("index is out of range");
     return convex.polygons[i];
   }
+
+  static shared_ptr<Convex_t> constructor (const Vec3fs& _points, const Triangles& _tris)
+  {
+    Vec3f* points = new Vec3f[_points.size()];
+    for (std::size_t i = 0; i < _points.size(); ++i) points[i] = _points[i];
+    Triangle* tris = new Triangle[_tris.size()];
+    for (std::size_t i = 0; i < _tris.size(); ++i) tris[i] = _tris[i];
+    return shared_ptr<Convex_t>(new Convex_t(true, points, (int)_points.size(),
+          tris, (int)_tris.size()));
+  }
 };
 
 void exposeShapes ()
@@ -170,6 +183,7 @@ void exposeShapes ()
 
   class_ <Convex<Triangle>, bases<ConvexBase>, shared_ptr<Convex<Triangle> >, noncopyable>
     ("Convex", doxygen::class_doc< Convex<Triangle> >(), no_init)
+    .def("__init__", make_constructor(&ConvexWrapper<Triangle>::constructor))
     .DEF_RO_CLASS_ATTRIB (Convex<Triangle>, num_polygons)
     .def ("polygons", &ConvexWrapper<Triangle>::polygons)
     ;
@@ -359,9 +373,6 @@ void exposeCollisionGeometries ()
   }
 
   exposeShapes();
-
-  typedef std::vector<Vec3f> Vec3fs;
-  typedef std::vector<Triangle> Triangles;
 
   class_ <BVHModelBase, bases<CollisionGeometry>, BVHModelPtr_t, noncopyable>
     ("BVHModelBase", no_init)
