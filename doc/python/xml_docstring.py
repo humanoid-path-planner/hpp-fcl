@@ -88,10 +88,10 @@ class XmlDocString (object):
 
     def otherTags (self, node):
         if node.text:
-            self._write (node.text.strip())
+            self._write (node.text.strip().replace('"', r'\"'))
         for c in node.iterchildren():
             self.visit (c)
-            if c.tail: self._write (c.tail.strip())
+            if c.tail: self._write (c.tail.strip().replace('"', r'\"'))
 
     def emphasis (self, node):
         self._write ("*")
@@ -103,10 +103,10 @@ class XmlDocString (object):
         self.otherTags (node)
 
     def para (self, node):
-        if node.text: self._write (node.text)
+        if node.text: self._write (node.text.replace('"', r'\"'))
         for c in node.iterchildren():
             self.visit (c)
-            if c.tail: self._write (c.tail)
+            if c.tail: self._write (c.tail.replace('"', r'\"'))
         self._newline()
 
     def ref (self, node):
