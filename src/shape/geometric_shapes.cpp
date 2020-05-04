@@ -44,12 +44,11 @@ namespace hpp
 namespace fcl
 {
 
-ConvexBase::ConvexBase(bool own_storage, Vec3f* points_, int num_points_) :
-  ShapeBase(),
-  points       (points_),
-  num_points   (num_points_),
-  own_storage_ (own_storage)
+void ConvexBase::initialize(bool own_storage, Vec3f* points_, int num_points_)
 {
+  points       = points_;
+  num_points   = num_points_;
+  own_storage_ = own_storage;
   computeCenter();
 }
 
@@ -60,7 +59,11 @@ ConvexBase::ConvexBase(const ConvexBase& other) :
   center       (other.center),
   own_storage_ (other.own_storage_)
 {
+  if (neighbors) delete [] neighbors;
+  if (nneighbors_) delete [] nneighbors_;
   if (own_storage_) {
+    if (own_storage_ && points) delete [] points;
+
     points = new Vec3f[num_points];
     memcpy(points, other.points, sizeof(Vec3f) * num_points);
   }
@@ -76,9 +79,9 @@ ConvexBase::ConvexBase(const ConvexBase& other) :
 
 ConvexBase::~ConvexBase ()
 {
-  delete [] neighbors;
-  delete [] nneighbors_;
-  if (own_storage_) delete [] points;
+  if (neighbors) delete [] neighbors;
+  if (nneighbors_) delete [] nneighbors_;
+  if (own_storage_ && points) delete [] points;
 }
 
 void ConvexBase::computeCenter()

@@ -312,10 +312,16 @@ public:
   Vec3f center;
 
 protected:
-  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
+  /// @brief Construct an uninitialized convex object
+  /// Initialization is done with ConvexBase::initialize.
+  ConvexBase () : ShapeBase(), points(NULL), num_points(0),
+  neighbors(NULL), nneighbors_(NULL), own_storage_(false) {}
+
+  /// @brief Initialize the points of the convex shape
+  /// This also initializes the ConvexBase::center.
   /// \param points_ list of 3D points
   /// \param num_points_ number of 3D points
-  ConvexBase(bool ownStorage, Vec3f* points_, int num_points_);
+  void initialize(bool ownStorage, Vec3f* points_, int num_points_);
 
   /// @brief Copy constructor 
   /// Only the list of neighbors is copied.
