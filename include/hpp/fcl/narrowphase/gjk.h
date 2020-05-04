@@ -50,7 +50,8 @@ namespace details
 {
 
 /// @brief the support function for shape
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized); 
+/// \param hint use to initialize the search when shape is a ConvexBase object.
+Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized, int& hint); 
 
 /// @brief Minkowski difference class of two shapes
 ///
@@ -60,6 +61,8 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized)
 /// @note The Minkowski difference is expressed in the frame of the first shape.
 struct MinkowskiDiff
 {
+  typedef Eigen::Vector2i hint_t;
+
   /// @brief points to two shapes
   const ShapeBase* shapes[2];
 
@@ -76,7 +79,8 @@ struct MinkowskiDiff
   Eigen::Array<FCL_REAL, 1, 2> inflation;
 
   typedef void (*GetSupportFunction) (const MinkowskiDiff& minkowskiDiff,
-      const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1);
+      const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1,
+      hint_t& hint);
   GetSupportFunction getSupportFunc;
 
   MinkowskiDiff() : getSupportFunc (NULL) {}
@@ -90,22 +94,22 @@ struct MinkowskiDiff
       const Transform3f& tf0, const Transform3f& tf1);
 
   /// @brief support function for shape0
-  inline Vec3f support0(const Vec3f& d, bool dIsNormalized) const
+  inline Vec3f support0(const Vec3f& d, bool dIsNormalized, int& hint) const
   {
-    return getSupport(shapes[0], d, dIsNormalized);
+    return getSupport(shapes[0], d, dIsNormalized, hint);
   }
 
   /// @brief support function for shape1
-  inline Vec3f support1(const Vec3f& d, bool dIsNormalized) const
+  inline Vec3f support1(const Vec3f& d, bool dIsNormalized, int& hint) const
   {
-    return oR1 * getSupport(shapes[1], oR1.transpose() * d, dIsNormalized) + ot1;
+    return oR1 * getSupport(shapes[1], oR1.transpose() * d, dIsNormalized, hint) + ot1;
   }
 
   /// @brief support function for the pair of shapes
-  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp0, Vec3f& supp1) const
+  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp0, Vec3f& supp1, hint_t& hint) const
   {
     assert(getSupportFunc != NULL);
-    getSupportFunc(*this, d, dIsNormalized, supp0, supp1);
+    getSupportFunc(*this, d, dIsNormalized, supp0, supp1, hint);
   }
 };
 
@@ -123,6 +127,7 @@ struct GJK
   };
 
   typedef unsigned char vertex_id_t;
+  typedef MinkowskiDiff::hint_t support_hint_t;
 
   struct Simplex
   {
@@ -138,6 +143,7 @@ struct GJK
 
   MinkowskiDiff const* shape;
   Vec3f ray;
+  support_hint_t support_hint;
   /// The distance computed by GJK. The possible values are
   /// - \f$ d = - R - 1 \f$ when a collision is detected and GJK
   ///   cannot compute penetration informations.
@@ -164,12 +170,14 @@ struct GJK
   void initialize();
 
   /// @brief GJK algorithm, given the initial value guess
-  Status evaluate(const MinkowskiDiff& shape, const Vec3f& guess);
+  Status evaluate(const MinkowskiDiff& shape, const Vec3f& guess,
+      const support_hint_t& supportHint = support_hint_t::Zero());
 
   /// @brief apply the support function along a direction, the result is return in sv
-  inline void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv) const
+  inline void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv,
+      support_hint_t& hint) const
   {
-    shape->support(d, dIsNormalized, sv.w0, sv.w1);
+    shape->support(d, dIsNormalized, sv.w0, sv.w1, hint);
     sv.w.noalias() = sv.w0 - sv.w1;
   }
 
@@ -229,7 +237,8 @@ private:
   inline void removeVertex(Simplex& simplex);
 
   /// @brief append one vertex to the simplex
-  inline void appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized = false);
+  inline void appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized,
+      support_hint_t& hint);
 
   /// @brief Project origin (0) onto line a-b
   bool projectLineOrigin(const Simplex& current, Simplex& next);

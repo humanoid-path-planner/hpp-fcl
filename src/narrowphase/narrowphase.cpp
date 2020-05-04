@@ -496,16 +496,25 @@ bool GJKSolver::shapeDistance<Capsule, Capsule>
       t2 (tf2.transform(s2.a), tf2.transform(s2.b), tf2.transform(s2.c));
 
     Vec3f guess;
-    if(enable_cached_guess) guess = cached_guess;
-    else guess = (t1.a + t1.b + t1.c - t2.a - t2.b - t2.c) / 3;
+    support_func_guess_t support_hint;
+    if(enable_cached_guess) {
+      guess = cached_guess;
+      support_hint = support_func_cached_guess;
+    } else {
+      support_hint.setZero();
+      guess = (t1.a + t1.b + t1.c - t2.a - t2.b - t2.c) / 3;
+    }
     bool enable_penetration = true;
 
     details::MinkowskiDiff shape;
     shape.set (&t1, &t2);
 
     details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
-    details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
-    if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
+    details::GJK::Status gjk_status = gjk.evaluate(shape, -guess, support_hint);
+    if(enable_cached_guess) {
+      cached_guess = gjk.getGuessFromSimplex();
+      support_func_cached_guess = gjk.support_hint;
+    }
 
     gjk.getClosestPoints (shape, p1, p2);
 
