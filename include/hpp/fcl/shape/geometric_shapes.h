@@ -281,6 +281,20 @@ public:
 class ConvexBase : public ShapeBase
 {
 public:
+  /// @brief Build a convex hull based on Qhull library
+  /// and store the vertices and optionally the triangles
+  /// \param points, num_points the points whose convex hull should be computed.
+  /// \param keepTriangles if \c true, returns a Convex<Triangle> object which
+  ///        contains the triangle of the shape.
+  /// \param qhullCommand the command sent to qhull.
+  ///        - if \c keepTriangles is \c true, this parameter should include
+  ///          "Qt". If \c NULL, "Qt" is passed to Qhull.
+  ///        - if \c keepTriangles is \c false, an empty string is passed to
+  ///          Qhull.
+  /// \note hpp-fcl must have been compiled with option \c HPP_FCL_HAS_QHULL set
+  ///       to \c ON.
+  static ConvexBase* convexHull (const Vec3f* points, int num_points,
+      bool keepTriangles, const char* qhullCommand = NULL);
 
   virtual ~ConvexBase();
 
