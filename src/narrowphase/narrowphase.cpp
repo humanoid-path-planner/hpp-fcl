@@ -510,7 +510,7 @@ bool GJKSolver::shapeDistance<Capsule, Capsule>
     shape.set (&t1, &t2);
 
     details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
-    details::GJK::Status gjk_status = gjk.evaluate(shape, -guess, support_hint);
+    details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if(enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
       support_func_cached_guess = gjk.support_hint;
