@@ -533,11 +533,38 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   ray = guess;
   support_hint = supportHint;
 
-  if (ray.squaredNorm() > 0) appendVertex(simplices[0], -ray, false, support_hint);
-  else                       appendVertex(simplices[0], Vec3f(1, 0, 0), true, support_hint);
+  FCL_REAL rl = ray.squaredNorm();
+  if (rl > 0) {
+    rl = std::sqrt(rl);
+    ray /= rl;
+  } else {
+    ray = Vec3f(-1,0,0);
+    rl = 1;
+  }
+  appendVertex(simplices[0], -ray, true, support_hint);
+
+  FCL_REAL omega = ray.dot(simplices[0].vertex[0]->w);
+  if (omega > upper_bound)
+  {
+    distance = omega - inflation;
+    simplex = &simplices[current];
+    return Valid;
+  }
+  if (omega > 0) {
+    alpha = omega;
+    if((rl - omega) - tolerance * rl <= 0)
+    {
+      removeVertex(simplices[current]);
+      distance = rl - inflation;
+      simplex = &simplices[current];
+      std::cout << "here" << std::endl;
+      return Valid;
+    }
+  }
+
   ray = simplices[0].vertex[0]->w;
 
-  FCL_REAL rl = ray.norm();
+  rl = ray.norm();
   if (rl == 0) {
     status = Inside;
     distance = - inflation - 1.;
@@ -569,7 +596,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     const Vec3f& w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
 
     // check B: no collision if omega > 0
-    FCL_REAL omega = ray.dot(w) / rl;
+    omega = ray.dot(w) / rl;
     if (omega > upper_bound)
     {
       distance = omega - inflation;
