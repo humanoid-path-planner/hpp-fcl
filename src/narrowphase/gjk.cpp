@@ -530,47 +530,15 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   shape = &shape_;
   distance = 0.0;
   simplices[0].rank = 0;
-  ray = guess;
   support_hint = supportHint;
 
-  FCL_REAL rl = ray.squaredNorm();
-  if (rl > 0) {
-    rl = std::sqrt(rl);
-    ray /= rl;
-  } else {
+  FCL_REAL rl = guess.norm();
+  if (rl < tolerance) {
     ray = Vec3f(-1,0,0);
     rl = 1;
-  }
-  appendVertex(simplices[0], -ray, true, support_hint);
+  } else
+    ray = guess;
 
-  FCL_REAL omega = ray.dot(simplices[0].vertex[0]->w);
-  if (omega > upper_bound)
-  {
-    distance = omega - inflation;
-    simplex = &simplices[current];
-    return Valid;
-  }
-  if (omega > 0) {
-    alpha = omega;
-    if((rl - omega) - tolerance * rl <= 0)
-    {
-      removeVertex(simplices[current]);
-      distance = rl - inflation;
-      simplex = &simplices[current];
-      std::cout << "here" << std::endl;
-      return Valid;
-    }
-  }
-
-  ray = simplices[0].vertex[0]->w;
-
-  rl = ray.norm();
-  if (rl == 0) {
-    status = Inside;
-    distance = - inflation - 1.;
-    simplex = &simplices[0];
-    return status;
-  }
   do
   {
     vertex_id_t next = (vertex_id_t)(1 - current);
@@ -596,7 +564,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     const Vec3f& w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
 
     // check B: no collision if omega > 0
-    omega = ray.dot(w) / rl;
+    FCL_REAL omega = ray.dot(w) / rl;
     if (omega > upper_bound)
     {
       distance = omega - inflation;
@@ -605,9 +573,12 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 
     // check C: when the new support point is close to the sub-simplex where the ray point lies, stop (as the new simplex again is degenerated)
     alpha = std::max(alpha, omega);
-    if((rl - alpha) - tolerance * rl <= 0)
+    FCL_REAL diff (rl - alpha);
+    if (iterations == 0) diff = std::abs(diff);
+    if(diff - tolerance * rl <= 0)
     {
-      removeVertex(simplices[current]);
+      if (iterations > 0)
+        removeVertex(simplices[current]);
       distance = rl - inflation;
       // TODO When inflation is strictly positive, the distance may be exactly
       // zero (so the ray is not zero) and we are not in the case rl < tolerance.
@@ -621,6 +592,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     bool inside;
     switch(curr_simplex.rank)
     {
+    case 1: // Only at the first iteration
+      assert(iterations == 0);
+      ray = w;
+      inside = false;
+      next_simplex.rank = 1;
+      next_simplex.vertex[0] = curr_simplex.vertex[0];
+      break;
     case 2:
       inside = projectLineOrigin (curr_simplex, next_simplex);
       break;
@@ -630,6 +608,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     case 4:
       inside = projectTetrahedraOrigin (curr_simplex, next_simplex);
       break;
+    default:
+      throw std::logic_error("Invalid simplex rank");
     }
     assert (nfree+next_simplex.rank == 4);
     current = next;
@@ -646,6 +626,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   } while(status == Valid);
 
   simplex = &simplices[current];
+  assert(simplex->rank > 0 && simplex->rank < 5);
   return status;
 }
 
