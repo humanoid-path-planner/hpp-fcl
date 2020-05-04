@@ -149,5 +149,12 @@ class TestGeometricShapes(TestCase):
         Ic_ref = np.diag([Icx_ref,Icx_ref,Iz_ref])
         self.assertApprox(Ic, Ic_ref)
 
+    def test_convex(self):
+        verts = hppfcl.StdVec_Vec3f ()
+        faces = hppfcl.StdVec_Triangle ()
+        verts.extend( [ np.array([0, 0, 0]), np.array([0, 1, 0]), np.array([1, 0, 0]), ])
+        faces.append(hppfcl.Triangle(0,1,2))
+        convex = hppfcl.Convex(verts, faces)
+
 if __name__ == '__main__':
     unittest.main()
