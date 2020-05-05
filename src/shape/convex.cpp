@@ -81,8 +81,10 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, int num_points,
   unsigned int c_nneighbors = 0;
   unsigned int i_polygon = 0;
 
+  // Compute the neighbors from the edges of the faces.
   for (QhullFacet facet = qh.beginFacet(); facet != qh.endFacet(); facet = facet.next()) {
     if (facet.isSimplicial()) {
+      // In 3D, simplicial faces have 3 vertices. We mark them as neighbors.
       QhullVertexSet f_vertices (facet.vertices());
       int n = f_vertices.count();
       assert(n == 3);
@@ -100,6 +102,13 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, int num_points,
         if (nneighbors[tri[j]].insert(tri[k]).second) c_nneighbors++;
       }
     } else {
+      if (keepTriangles) { // TODO I think there is a memory leak here.
+        throw std::invalid_argument("You requested to keep triangles so you "
+            "must pass option \"Qt\" to qhull via the qhull command argument.");
+      }
+      // Non-simplicial faces have more than 3 vertices and contains a list of
+      // rigdes. Ridges are (3-1)D simplex (i.e. one edge). We mark the two
+      // vertices of each ridge as neighbors.
       QhullRidgeSet f_ridges (facet.ridges());
       for(size_type j = 0; j < f_ridges.count(); ++j)
       {
@@ -114,6 +123,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, int num_points,
   }
   assert(!keepTriangles || i_polygon == qh.facetCount());
 
+  // Fill the neighbor attribute of the returned object.
   convex->nneighbors_ = new unsigned int[c_nneighbors];
   unsigned int* p_nneighbors = convex->nneighbors_;
   for (int i = 0; i < nvertex; ++i) {
