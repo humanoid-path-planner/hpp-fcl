@@ -50,6 +50,7 @@
 #include <hpp/fcl/internal/BV_splitter.h>
 #include "doxygen_autodoc/hpp/fcl/BVH/BVH_model.h"
 #include "doxygen_autodoc/hpp/fcl/shape/geometric_shapes.h"
+#include "doxygen_autodoc/functions.h"
 #endif
 
 #include "../doc/python/doxygen.hh"
@@ -396,7 +397,8 @@ void exposeCollisionGeometries ()
 
     .def_readonly ("convex", &BVHModelBase::convex)
 
-    .def ("buildConvexRepresentation", &BVHModelBase::buildConvexRepresentation)
+    .DEF_CLASS_FUNC(BVHModelBase, buildConvexRepresentation)
+    .DEF_CLASS_FUNC(BVHModelBase, buildConvexHull)
 
     // Expose function to build a BVH
     .def(dv::member_func("beginModel", &BVHModelBase::beginModel))

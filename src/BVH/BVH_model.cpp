@@ -100,6 +100,14 @@ void BVHModelBase::buildConvexRepresentation(bool share_memory)
   }
 }
 
+bool BVHModelBase::buildConvexHull(bool keepTriangle, const char* qhullCommand)
+{
+  convex.reset(
+      ConvexBase::convexHull(vertices, num_vertices, keepTriangle, qhullCommand)
+      );
+  return num_vertices == convex->num_points;
+}
+
 template<typename BV>
 BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : BVHModelBase(other),
                                                     bv_splitter(other.bv_splitter),
