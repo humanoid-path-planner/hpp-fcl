@@ -63,6 +63,7 @@ Convex<PolygonT>::Convex(const Convex<PolygonT>& other) :
   num_polygons (other.num_polygons)
 {
   if (own_storage_) {
+    delete [] polygons;
     polygons = new PolygonT[num_polygons];
     memcpy(polygons, other.polygons, sizeof(PolygonT) * num_polygons);
   }

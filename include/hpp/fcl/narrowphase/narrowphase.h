@@ -52,6 +52,8 @@ namespace fcl
   /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
   struct GJKSolver
   {
+    typedef details::GJK::support_hint_t support_func_guess_t;
+
     /// @brief intersection checking between two shapes
     template<typename S1, typename S2>
       bool shapeIntersect(const S1& s1, const Transform3f& tf1,
@@ -61,14 +63,22 @@ namespace fcl
                           Vec3f* contact_points, Vec3f* normal) const
     {
       Vec3f guess(1, 0, 0);
-      if(enable_cached_guess) guess = cached_guess;
+      support_func_guess_t support_hint;
+      if(enable_cached_guess) {
+        guess = cached_guess;
+        support_hint = support_func_cached_guess;
+      } else
+        support_hint.setZero();
     
       details::MinkowskiDiff shape;
       shape.set (&s1, &s2, tf1, tf2);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
-      details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
-      if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
+      details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+      if(enable_cached_guess) {
+        cached_guess = gjk.getGuessFromSimplex();
+        support_func_cached_guess = gjk.support_hint;
+      }
     
       Vec3f w0, w1;
       switch(gjk_status) {
@@ -127,14 +137,22 @@ namespace fcl
           tf_1M2.transform (P3));
 
       Vec3f guess(1, 0, 0);
-      if(enable_cached_guess) guess = cached_guess;
+      support_func_guess_t support_hint;
+      if(enable_cached_guess) {
+        guess = cached_guess;
+        support_hint = support_func_cached_guess;
+      } else
+        support_hint.setZero();
 
       details::MinkowskiDiff shape;
       shape.set (&s, &tri);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
-      details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
-      if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
+      details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+      if(enable_cached_guess) {
+        cached_guess = gjk.getGuessFromSimplex();
+        support_func_cached_guess = gjk.support_hint;
+      }
 
       Vec3f w0, w1;
       switch(gjk_status) {
@@ -197,14 +215,22 @@ namespace fcl
       FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
 #endif
       Vec3f guess(1, 0, 0);
-      if(enable_cached_guess) guess = cached_guess;
+      support_func_guess_t support_hint;
+      if(enable_cached_guess) {
+        guess = cached_guess;
+        support_hint = support_func_cached_guess;
+      } else
+        support_hint.setZero();
 
       details::MinkowskiDiff shape;
       shape.set (&s1, &s2, tf1, tf2);
 
       details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
-      details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
-      if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
+      details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+      if(enable_cached_guess) {
+        cached_guess = gjk.getGuessFromSimplex();
+        support_func_cached_guess = gjk.support_hint;
+      }
 
       if(gjk_status == details::GJK::Failed)
       {
@@ -279,6 +305,7 @@ namespace fcl
       epa_tolerance = 1e-6;
       enable_cached_guess = false;
       cached_guess = Vec3f(1, 0, 0);
+      support_func_cached_guess = support_func_guess_t::Zero();
     }
 
     void enableCachedGuess(bool if_enable) const
@@ -319,6 +346,9 @@ namespace fcl
 
     /// @brief smart guess
     mutable Vec3f cached_guess;
+
+    /// @brief smart guess for the support function
+    mutable support_func_guess_t support_func_cached_guess;
   };
 
 #if __cplusplus < 201103L

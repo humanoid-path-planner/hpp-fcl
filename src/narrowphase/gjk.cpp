@@ -97,7 +97,7 @@ template <> struct shape_traits<ConvexBase> : shape_traits_base
   };
 };
 
-void getShapeSupport(const TriangleP* triangle, const Vec3f& dir, Vec3f& support)
+void getShapeSupport(const TriangleP* triangle, const Vec3f& dir, Vec3f& support, int&)
 {
   FCL_REAL dota = dir.dot(triangle->a);
   FCL_REAL dotb = dir.dot(triangle->b);
@@ -118,25 +118,25 @@ void getShapeSupport(const TriangleP* triangle, const Vec3f& dir, Vec3f& support
   }
 }
 
-inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support)
+inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support, int&)
 {
   const FCL_REAL inflate = (dir.array() == 0).any() ? 1.00000001 : 1.;
   support.noalias() = (dir.array() > 0).select(inflate * box->halfSide, -inflate * box->halfSide);
 }
 
-inline void getShapeSupport(const Sphere*, const Vec3f& /*dir*/, Vec3f& support)
+inline void getShapeSupport(const Sphere*, const Vec3f& /*dir*/, Vec3f& support, int&)
 {
   support.setZero();
 }
 
-inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir, Vec3f& support)
+inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir, Vec3f& support, int&)
 {
   support.head<2>().setZero();
   if (dir[2] > 0) support[2] =   capsule->halfLength;
   else            support[2] = - capsule->halfLength;
 }
 
-void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support)
+void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support, int&)
 {
   // The cone radius is, for -h < z < h, (h - z) * r / (2*h)
   static const FCL_REAL inflate = 1.00001;
@@ -174,7 +174,7 @@ void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support)
   }
 }
 
-void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support)
+void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support, int&)
 {
   // The inflation makes the object look strictly convex to GJK and EPA. This
   // helps solving particular cases (e.g. a cylinder with itself at the same
@@ -196,39 +196,40 @@ void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support)
       < sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
 }
 
-void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support)
+void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support, int& hint)
 {
   const Vec3f* pts = convex->points;
   const ConvexBase::Neighbors* nn = convex->neighbors;
 
-  int i = 0;
-  FCL_REAL maxdot = pts[i].dot(dir);
+  if (hint < 0 || hint >= convex->num_points)
+    hint = 0;
+  FCL_REAL maxdot = pts[hint].dot(dir);
   FCL_REAL dot;
   bool found = true;
   while (found)
   {
-    const ConvexBase::Neighbors& n = nn[i];
+    const ConvexBase::Neighbors& n = nn[hint];
     found = false;
     for (int in = 0; in < n.count(); ++in) {
       dot = pts[n[in]].dot(dir);
       if (dot > maxdot) {
         maxdot = dot;
-        i = n[in];
+        hint = n[in];
         found = true;
       }
     }
   }
 
-  support = pts[i];
+  support = pts[hint];
 }
 
 #define CALL_GET_SHAPE_SUPPORT(ShapeType)                                      \
   getShapeSupport (static_cast<const ShapeType*>(shape),                       \
       (shape_traits<ShapeType>::NeedNormalizedDir && !dirIsNormalized)         \
       ? dir.normalized() : dir,                                                \
-      support)
+      support, hint)
 
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized)
+Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized, int& hint)
 {
   Vec3f support;
   switch(shape->getNodeType())
@@ -269,20 +270,22 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized)
 template <typename Shape0, typename Shape1, bool TransformIsIdentity>
 void getSupportTpl (const Shape0* s0, const Shape1* s1,
     const Matrix3f& oR1, const Vec3f& ot1,
-    const Vec3f& dir, Vec3f& support0, Vec3f& support1)
+    const Vec3f& dir, Vec3f& support0, Vec3f& support1,
+    MinkowskiDiff::hint_t& hint)
 {
-  getShapeSupport (s0, dir, support0);
+  getShapeSupport (s0, dir, support0, hint[0]);
   if (TransformIsIdentity)
-    getShapeSupport (s1, - dir, support1);
+    getShapeSupport (s1, - dir, support1, hint[1]);
   else {
-    getShapeSupport (s1, - oR1.transpose() * dir, support1);
+    getShapeSupport (s1, - oR1.transpose() * dir, support1, hint[1]);
     support1 = oR1 * support1 + ot1;
   }
 }
 
 template <typename Shape0, typename Shape1, bool TransformIsIdentity>
 void getSupportFuncTpl (const MinkowskiDiff& md,
-    const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1)
+    const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1,
+    MinkowskiDiff::hint_t& hint)
 {
   enum { NeedNormalizedDir =
     bool ( (bool)shape_traits<Shape0>::NeedNormalizedDir
@@ -301,7 +304,7 @@ void getSupportFuncTpl (const MinkowskiDiff& md,
       static_cast <const Shape1*>(md.shapes[1]),
       md.oR1, md.ot1,
       (NeedNormalizedDir && !dirIsNormalized) ? dir.normalized() : dir,
-      support0, support1);
+      support0, support1, hint);
 }
 
 template <typename Shape0>
@@ -508,7 +511,8 @@ bool GJK::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1)
   return true;
 }
 
-GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
+GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
+    const MinkowskiDiff::hint_t& supportHint)
 {
   size_t iterations = 0;
   FCL_REAL alpha = 0;
@@ -526,19 +530,15 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   shape = &shape_;
   distance = 0.0;
   simplices[0].rank = 0;
-  ray = guess;
+  support_hint = supportHint;
 
-  if (ray.squaredNorm() > 0) appendVertex(simplices[0], -ray);
-  else                       appendVertex(simplices[0], Vec3f(1, 0, 0), true);
-  ray = simplices[0].vertex[0]->w;
+  FCL_REAL rl = guess.norm();
+  if (rl < tolerance) {
+    ray = Vec3f(-1,0,0);
+    rl = 1;
+  } else
+    ray = guess;
 
-  FCL_REAL rl = ray.norm();
-  if (rl == 0) {
-    status = Inside;
-    distance = - inflation - 1.;
-    simplex = &simplices[0];
-    return status;
-  }
   do
   {
     vertex_id_t next = (vertex_id_t)(1 - current);
@@ -558,7 +558,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       break;
     }
 
-    appendVertex(curr_simplex, -ray); // see below, ray points away from origin
+    appendVertex(curr_simplex, -ray, false, support_hint); // see below, ray points away from origin
 
     // check removed (by ?): when the new support point is close to previous support points, stop (as the new simplex is degenerated)
     const Vec3f& w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
@@ -573,9 +573,12 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
     // check C: when the new support point is close to the sub-simplex where the ray point lies, stop (as the new simplex again is degenerated)
     alpha = std::max(alpha, omega);
-    if((rl - alpha) - tolerance * rl <= 0)
+    FCL_REAL diff (rl - alpha);
+    if (iterations == 0) diff = std::abs(diff);
+    if(diff - tolerance * rl <= 0)
     {
-      removeVertex(simplices[current]);
+      if (iterations > 0)
+        removeVertex(simplices[current]);
       distance = rl - inflation;
       // TODO When inflation is strictly positive, the distance may be exactly
       // zero (so the ray is not zero) and we are not in the case rl < tolerance.
@@ -589,6 +592,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     bool inside;
     switch(curr_simplex.rank)
     {
+    case 1: // Only at the first iteration
+      assert(iterations == 0);
+      ray = w;
+      inside = false;
+      next_simplex.rank = 1;
+      next_simplex.vertex[0] = curr_simplex.vertex[0];
+      break;
     case 2:
       inside = projectLineOrigin (curr_simplex, next_simplex);
       break;
@@ -598,6 +608,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     case 4:
       inside = projectTetrahedraOrigin (curr_simplex, next_simplex);
       break;
+    default:
+      throw std::logic_error("Invalid simplex rank");
     }
     assert (nfree+next_simplex.rank == 4);
     current = next;
@@ -614,6 +626,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   } while(status == Valid);
 
   simplex = &simplices[current];
+  assert(simplex->rank > 0 && simplex->rank < 5);
   return status;
 }
 
@@ -622,26 +635,27 @@ inline void GJK::removeVertex(Simplex& simplex)
   free_v[nfree++] = simplex.vertex[--simplex.rank];
 }
 
-inline void GJK::appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized)
+inline void GJK::appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized, support_hint_t& hint)
 {
   simplex.vertex[simplex.rank] = free_v[--nfree]; // set the memory
-  getSupport (v, isNormalized, *simplex.vertex[simplex.rank++]);
+  getSupport (v, isNormalized, *simplex.vertex[simplex.rank++], hint);
 }
 
 bool GJK::encloseOrigin()
 {
   Vec3f axis(Vec3f::Zero());
+  support_hint_t hint = support_hint_t::Zero();
   switch(simplex->rank)
   {
   case 1:
     for(size_t i = 0; i < 3; ++i)
     {
       axis[i] = 1;
-      appendVertex(*simplex, axis, true);
+      appendVertex(*simplex, axis, true, hint);
       if(encloseOrigin()) return true;
       removeVertex(*simplex);
       axis[i] = -1;
-      appendVertex(*simplex, -axis, true);
+      appendVertex(*simplex, -axis, true, hint);
       if(encloseOrigin()) return true;
       removeVertex(*simplex);
       axis[i] = 0;
@@ -656,10 +670,10 @@ bool GJK::encloseOrigin()
         Vec3f p = d.cross(axis);
         if(!p.isZero())
         {
-          appendVertex(*simplex, p);
+          appendVertex(*simplex, p, false, hint);
           if(encloseOrigin()) return true;
           removeVertex(*simplex);
-          appendVertex(*simplex, -p);
+          appendVertex(*simplex, -p, false, hint);
           if(encloseOrigin()) return true;
           removeVertex(*simplex);
         }
@@ -673,10 +687,10 @@ bool GJK::encloseOrigin()
       (simplex->vertex[2]->w - simplex->vertex[0]->w);
     if(!axis.isZero())
     {
-      appendVertex(*simplex, axis);
+      appendVertex(*simplex, axis, false, hint);
       if(encloseOrigin()) return true;
       removeVertex(*simplex);
-      appendVertex(*simplex, -axis);
+      appendVertex(*simplex, -axis, false, hint);
       if(encloseOrigin()) return true;
       removeVertex(*simplex);
     }
@@ -1258,6 +1272,7 @@ EPA::SimplexF* EPA::findBest()
 EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
 {
   GJK::Simplex& simplex = *gjk.getSimplex();
+  MinkowskiDiff::hint_t hint (gjk.support_hint);
   if((simplex.rank > 1) && gjk.encloseOrigin())
   {
     while(hull.root)
@@ -1316,7 +1331,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
         bool valid = true;
         best->pass = ++pass;
         // At the moment, SimplexF.n is always normalized. This could be revised in the future...
-        gjk.getSupport(best->n, true, *w);
+        gjk.getSupport(best->n, true, *w, hint);
         FCL_REAL wdist = best->n.dot(w->w) - best->d;
         if(wdist <= tolerance) {
           status = AccuracyReached;
