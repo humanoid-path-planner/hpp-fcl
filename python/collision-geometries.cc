@@ -50,6 +50,7 @@
 #include <hpp/fcl/internal/BV_splitter.h>
 #include "doxygen_autodoc/hpp/fcl/BVH/BVH_model.h"
 #include "doxygen_autodoc/hpp/fcl/shape/geometric_shapes.h"
+#include "doxygen_autodoc/functions.h"
 #endif
 
 #include "../doc/python/doxygen.hh"
@@ -120,6 +121,13 @@ struct ConvexBaseWrapper
       n.append (convex.neighbors[i][j]);
     return n;
   }
+
+  static ConvexBase* convexHull (const Vec3fs& points, bool keepTri,
+      const char* qhullCommand)
+  {
+    return ConvexBase::convexHull (points.data(), (int)points.size(), keepTri,
+        qhullCommand);
+  }
 };
 
 template <typename PolygonT>
@@ -179,6 +187,10 @@ void exposeShapes ()
     .DEF_RO_CLASS_ATTRIB (ConvexBase, num_points)
     .def ("points", &ConvexBaseWrapper::points)
     .def ("neighbors", &ConvexBaseWrapper::neighbors)
+    .def ("convexHull", &ConvexBaseWrapper::convexHull,
+        doxygen::member_func_doc(&ConvexBase::convexHull),
+        return_value_policy<manage_new_object>())
+    .staticmethod("convexHull")
     ;
 
   class_ <Convex<Triangle>, bases<ConvexBase>, shared_ptr<Convex<Triangle> >, noncopyable>
@@ -385,7 +397,8 @@ void exposeCollisionGeometries ()
 
     .def_readonly ("convex", &BVHModelBase::convex)
 
-    .def ("buildConvexRepresentation", &BVHModelBase::buildConvexRepresentation)
+    .DEF_CLASS_FUNC(BVHModelBase, buildConvexRepresentation)
+    .DEF_CLASS_FUNC(BVHModelBase, buildConvexHull)
 
     // Expose function to build a BVH
     .def(dv::member_func("beginModel", &BVHModelBase::beginModel))

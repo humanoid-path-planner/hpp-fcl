@@ -281,6 +281,20 @@ public:
 class ConvexBase : public ShapeBase
 {
 public:
+  /// @brief Build a convex hull based on Qhull library
+  /// and store the vertices and optionally the triangles
+  /// \param points, num_points the points whose convex hull should be computed.
+  /// \param keepTriangles if \c true, returns a Convex<Triangle> object which
+  ///        contains the triangle of the shape.
+  /// \param qhullCommand the command sent to qhull.
+  ///        - if \c keepTriangles is \c true, this parameter should include
+  ///          "Qt". If \c NULL, "Qt" is passed to Qhull.
+  ///        - if \c keepTriangles is \c false, an empty string is passed to
+  ///          Qhull.
+  /// \note hpp-fcl must have been compiled with option \c HPP_FCL_HAS_QHULL set
+  ///       to \c ON.
+  static ConvexBase* convexHull (const Vec3f* points, int num_points,
+      bool keepTriangles, const char* qhullCommand = NULL);
 
   virtual ~ConvexBase();
 
@@ -312,10 +326,16 @@ public:
   Vec3f center;
 
 protected:
-  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
+  /// @brief Construct an uninitialized convex object
+  /// Initialization is done with ConvexBase::initialize.
+  ConvexBase () : ShapeBase(), points(NULL), num_points(0),
+  neighbors(NULL), nneighbors_(NULL), own_storage_(false) {}
+
+  /// @brief Initialize the points of the convex shape
+  /// This also initializes the ConvexBase::center.
   /// \param points_ list of 3D points
   /// \param num_points_ number of 3D points
-  ConvexBase(bool ownStorage, Vec3f* points_, int num_points_);
+  void initialize(bool ownStorage, Vec3f* points_, int num_points_);
 
   /// @brief Copy constructor 
   /// Only the list of neighbors is copied.

@@ -48,11 +48,11 @@ namespace fcl
 
 template <typename PolygonT>
 Convex<PolygonT>::Convex(bool own_storage, Vec3f* points_, int num_points_,
-       PolygonT* polygons_, int num_polygons_) :
-  ConvexBase(own_storage, points_, num_points_),
+       PolygonT* polygons_, int num_polygons_) : ConvexBase(),
   polygons     (polygons_),
   num_polygons (num_polygons_)
 {
+  initialize(own_storage, points_, num_points_);
   fillNeighbors();
 }
 

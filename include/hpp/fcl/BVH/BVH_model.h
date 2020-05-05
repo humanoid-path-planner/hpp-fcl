@@ -82,7 +82,7 @@ public:
 
   /// @brief Convex<Triangle> representation of this object
   boost::shared_ptr< ConvexBase > convex;
-  
+
   /// @brief Model type described by the instance
   BVHModelType getModelType() const
   {
@@ -173,10 +173,24 @@ public:
   /// @brief End BVH model update, will also refit or rebuild the bounding volume hierarchy
   int endUpdateModel(bool refit = true, bool bottomup = true);
 
-  /// @brief Build this Convex<Triangle> representation of this model.
+  /// @brief Build this \ref Convex "Convex<Triangle>" representation of this model.
+  /// The result is stored in attribute \ref convex.
   /// \note this only takes the points of this model. It does not check that the
   ///       object is convex. It does not compute a convex hull.
   void buildConvexRepresentation(bool share_memory);
+
+  /// @brief Build a convex hull
+  /// and store it in attribute \ref convex.
+  /// \param keepTriangle whether the convex should be triangulated.
+  /// \param qhullCommand see \ref ConvexBase::convexHull.
+  /// \return \c true if this object is convex, hence the convex hull represents
+  ///         the same object.
+  /// \sa ConvexBase::convexHull
+  /// \warning At the moment, the return value only checks whether there are as
+  ///          many points in the convex hull as in the original object. This is
+  ///          neither necessary (duplicated vertices get merged) nor sufficient
+  ///          (think of a U with 4 vertices and 3 edges).
+  bool buildConvexHull(bool keepTriangle, const char* qhullCommand = NULL);
 
   virtual int memUsage(int msg) const = 0;
 

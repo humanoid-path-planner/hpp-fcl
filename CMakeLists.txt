@@ -98,6 +98,24 @@ else()
   message(STATUS "FCL does not use Octomap")
 endif()
 
+option(HPP_FCL_HAS_QHULL "use qhull library to compute convex hulls." FALSE)
+if(HPP_FCL_HAS_QHULL)
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-parties)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+    ${CMAKE_SOURCE_DIR}/third-parties/qhull/src/libqhullcpp
+    ${CMAKE_CURRENT_BINARY_DIR}/third-parties/libqhullcpp
+    )
+  set(Qhullcpp_PREFIX ${CMAKE_BINARY_DIR}/third-parties)
+  find_path(Qhull_r_INCLUDE_DIR
+    NAMES libqhull_r/libqhull_r.h
+    PATHS ${Qhull_PREFIX}
+    )
+  find_library(Qhull_r_LIBRARY
+    NAMES libqhull_r.so
+    PATHS ${Qhull_PREFIX}
+    )
+endif()
+
 ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
 
 SET(${PROJECT_NAME}_HEADERS

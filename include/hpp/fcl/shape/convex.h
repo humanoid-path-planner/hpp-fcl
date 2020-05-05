@@ -53,6 +53,9 @@ template <typename PolygonT>
 class Convex : public ConvexBase
 {
 public:
+  /// @brief Construct an uninitialized convex object
+  Convex () : ConvexBase(), polygons(NULL), num_polygons(0) {}
+
   /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information
   /// \param ownStorage whether this class owns the pointers of points and
   ///                    polygons. If owned, they are deleted upon destruction.

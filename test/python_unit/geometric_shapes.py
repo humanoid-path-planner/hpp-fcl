@@ -156,5 +156,22 @@ class TestGeometricShapes(TestCase):
         faces.append(hppfcl.Triangle(0,1,2))
         convex = hppfcl.Convex(verts, faces)
 
+        verts.append (np.array([0, 0, 1]))
+        try:
+            convexHull = hppfcl.Convex.convexHull(verts, False, None)
+            qhullAvailable = True
+        except Exception as e:
+            self.assertEqual(str(e), "Library built without qhull. Cannot build object of this type.")
+            qhullAvailable = False
+
+        if qhullAvailable:
+            convexHull = hppfcl.Convex.convexHull(verts, False, "")
+            convexHull = hppfcl.Convex.convexHull(verts, True, "")
+
+            try:
+                convexHull = hppfcl.Convex.convexHull(verts[:3], False, None)
+            except Exception as e:
+                self.assertIn(str(e), "You shouldn't use this function with less than 4 points.")
+
 if __name__ == '__main__':
     unittest.main()
