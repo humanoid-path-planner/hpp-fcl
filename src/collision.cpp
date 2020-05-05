@@ -85,8 +85,10 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
 {
   GJKSolver solver;
   solver.enable_cached_guess = request.enable_cached_gjk_guess;
-  if (solver.enable_cached_guess)
+  if (solver.enable_cached_guess) {
     solver.cached_guess = request.cached_gjk_guess;
+    solver.support_func_cached_guess = request.cached_support_func_guess;
+  }
 
   const CollisionFunctionMatrix& looktable = getCollisionFunctionLookTable();
   std::size_t res;
@@ -126,8 +128,10 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
         res = looktable.collision_matrix[node_type1][node_type2](o1, tf1, o2, tf2, &solver, request, result);
     }
   }
-  if (solver.enable_cached_guess)
+  if (solver.enable_cached_guess) {
     result.cached_gjk_guess = solver.cached_guess;
+    result.cached_support_func_guess = solver.support_func_cached_guess;
+  }
 
   return res;
 }

@@ -136,6 +136,47 @@ struct Contact
   }
 };
 
+struct QueryResult;
+
+/// @brief base class for all query requests
+struct QueryRequest
+{
+  /// @brief whether enable gjk intial guess
+  bool enable_cached_gjk_guess;
+  
+  /// @brief the gjk intial guess set by user
+  Vec3f cached_gjk_guess;
+
+  /// @brief the support function intial guess set by user
+  support_func_guess_t cached_support_func_guess;
+
+  QueryRequest () :
+    enable_cached_gjk_guess (false),
+    cached_gjk_guess (1,0,0),
+    cached_support_func_guess(support_func_guess_t::Zero())
+  {}
+
+  void updateGuess(const QueryResult& result);
+};
+
+/// @brief base class for all query results
+struct QueryResult
+{
+  /// @brief stores the last GJK ray when relevant.
+  Vec3f cached_gjk_guess;
+
+  /// @brief stores the last support function vertex index, when relevant.
+  support_func_guess_t cached_support_func_guess;
+};
+
+inline void QueryRequest::updateGuess(const QueryResult& result)
+{
+  if (enable_cached_gjk_guess) {
+    cached_gjk_guess = result.cached_gjk_guess;
+    cached_support_func_guess = result.cached_support_func_guess;
+  }
+}
+
 struct CollisionResult;
 
 /// @brief flag declaration for specifying required params in CollisionResult
@@ -147,7 +188,7 @@ enum CollisionRequestFlag
 };
 
 /// @brief request to the collision algorithm
-struct CollisionRequest
+struct CollisionRequest : QueryRequest
 {  
   /// @brief The maximum number of contacts will return
   size_t num_max_contacts;
@@ -157,12 +198,6 @@ struct CollisionRequest
 
   /// Whether a lower bound on distance is returned when objects are disjoint
   bool enable_distance_lower_bound;
-
-  /// @brief whether enable gjk intial guess
-  bool enable_cached_gjk_guess;
-  
-  /// @brief the gjk intial guess set by user
-  Vec3f cached_gjk_guess;
 
   /// @brief Distance below which objects are considered in collision.
   /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
@@ -187,8 +222,6 @@ struct CollisionRequest
     security_margin (0),
     break_distance (1e-3)
   {
-    enable_cached_gjk_guess = false;
-    cached_gjk_guess = Vec3f(1, 0, 0);
   }
 
   CollisionRequest() :
@@ -198,23 +231,19 @@ struct CollisionRequest
       security_margin (0),
       break_distance (1e-3)
     {
-      enable_cached_gjk_guess = false;
-      cached_gjk_guess = Vec3f(1, 0, 0);
     }
 
   bool isSatisfied(const CollisionResult& result) const;
 };
 
 /// @brief collision result
-struct CollisionResult
+struct CollisionResult : QueryResult
 {
 private:
   /// @brief contact information
   std::vector<Contact> contacts;
 
 public:
-  Vec3f cached_gjk_guess;
-
   /// Lower bound on distance between objects if they are disjoint.
   /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
   /// @note computed only on request (or if it does not add any computational
@@ -289,11 +318,10 @@ public:
   friend void invertResults(CollisionResult& result);
 };
 
-
 struct DistanceResult;
 
 /// @brief request to the distance computation
-struct DistanceRequest
+struct DistanceRequest : QueryRequest
 {
   /// @brief whether to return the nearest points
   bool enable_nearest_points;
@@ -328,9 +356,8 @@ struct DistanceRequest
   bool isSatisfied(const DistanceResult& result) const;
 };
 
-
 /// @brief distance result
-struct DistanceResult
+struct DistanceResult : QueryResult
 {
 
 public:
@@ -455,7 +482,6 @@ public:
   }
 
 };
-
 
 inline CollisionRequestFlag operator~(CollisionRequestFlag a)
 {return static_cast<CollisionRequestFlag>(~static_cast<const int>(a));}

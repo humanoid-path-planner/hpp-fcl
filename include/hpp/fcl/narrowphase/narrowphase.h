@@ -52,8 +52,6 @@ namespace fcl
   /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
   struct GJKSolver
   {
-    typedef details::GJK::support_hint_t support_func_guess_t;
-
     /// @brief intersection checking between two shapes
     template<typename S1, typename S2>
       bool shapeIntersect(const S1& s1, const Transform3f& tf1,

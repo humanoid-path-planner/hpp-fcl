@@ -65,6 +65,11 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                   const DistanceRequest& request, DistanceResult& result)
 {
   GJKSolver solver;
+  solver.enable_cached_guess = request.enable_cached_gjk_guess;
+  if (solver.enable_cached_guess) {
+    solver.cached_guess = request.cached_gjk_guess;
+    solver.support_func_cached_guess = request.cached_support_func_guess;
+  }
 
   const DistanceFunctionMatrix& looktable = getDistanceFunctionLookTable();
 
@@ -105,6 +110,10 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
     {
       res = looktable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, &solver, request, result);    
     }
+  }
+  if (solver.enable_cached_guess) {
+    result.cached_gjk_guess = solver.cached_guess;
+    result.cached_support_func_guess = solver.support_func_cached_guess;
   }
 
   return res;
