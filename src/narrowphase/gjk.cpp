@@ -271,7 +271,7 @@ template <typename Shape0, typename Shape1, bool TransformIsIdentity>
 void getSupportTpl (const Shape0* s0, const Shape1* s1,
     const Matrix3f& oR1, const Vec3f& ot1,
     const Vec3f& dir, Vec3f& support0, Vec3f& support1,
-    MinkowskiDiff::hint_t& hint)
+    support_func_guess_t& hint)
 {
   getShapeSupport (s0, dir, support0, hint[0]);
   if (TransformIsIdentity)
@@ -285,7 +285,7 @@ void getSupportTpl (const Shape0* s0, const Shape1* s1,
 template <typename Shape0, typename Shape1, bool TransformIsIdentity>
 void getSupportFuncTpl (const MinkowskiDiff& md,
     const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1,
-    MinkowskiDiff::hint_t& hint)
+    support_func_guess_t& hint)
 {
   enum { NeedNormalizedDir =
     bool ( (bool)shape_traits<Shape0>::NeedNormalizedDir
@@ -512,7 +512,7 @@ bool GJK::getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1)
 }
 
 GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
-    const MinkowskiDiff::hint_t& supportHint)
+    const support_func_guess_t& supportHint)
 {
   size_t iterations = 0;
   FCL_REAL alpha = 0;
@@ -635,7 +635,7 @@ inline void GJK::removeVertex(Simplex& simplex)
   free_v[nfree++] = simplex.vertex[--simplex.rank];
 }
 
-inline void GJK::appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized, support_hint_t& hint)
+inline void GJK::appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized, support_func_guess_t& hint)
 {
   simplex.vertex[simplex.rank] = free_v[--nfree]; // set the memory
   getSupport (v, isNormalized, *simplex.vertex[simplex.rank++], hint);
@@ -644,7 +644,7 @@ inline void GJK::appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalize
 bool GJK::encloseOrigin()
 {
   Vec3f axis(Vec3f::Zero());
-  support_hint_t hint = support_hint_t::Zero();
+  support_func_guess_t hint = support_func_guess_t::Zero();
   switch(simplex->rank)
   {
   case 1:
@@ -1272,7 +1272,7 @@ EPA::SimplexF* EPA::findBest()
 EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
 {
   GJK::Simplex& simplex = *gjk.getSimplex();
-  MinkowskiDiff::hint_t hint (gjk.support_hint);
+  support_func_guess_t hint (gjk.support_hint);
   if((simplex.rank > 1) && gjk.encloseOrigin())
   {
     while(hull.root)

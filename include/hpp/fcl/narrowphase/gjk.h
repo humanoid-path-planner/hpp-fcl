@@ -61,8 +61,6 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
 /// @note The Minkowski difference is expressed in the frame of the first shape.
 struct MinkowskiDiff
 {
-  typedef Eigen::Vector2i hint_t;
-
   /// @brief points to two shapes
   const ShapeBase* shapes[2];
 
@@ -80,7 +78,7 @@ struct MinkowskiDiff
 
   typedef void (*GetSupportFunction) (const MinkowskiDiff& minkowskiDiff,
       const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1,
-      hint_t& hint);
+      support_func_guess_t& hint);
   GetSupportFunction getSupportFunc;
 
   MinkowskiDiff() : getSupportFunc (NULL) {}
@@ -106,7 +104,7 @@ struct MinkowskiDiff
   }
 
   /// @brief support function for the pair of shapes
-  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp0, Vec3f& supp1, hint_t& hint) const
+  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp0, Vec3f& supp1, support_func_guess_t& hint) const
   {
     assert(getSupportFunc != NULL);
     getSupportFunc(*this, d, dIsNormalized, supp0, supp1, hint);
@@ -127,7 +125,6 @@ struct GJK
   };
 
   typedef unsigned char vertex_id_t;
-  typedef MinkowskiDiff::hint_t support_hint_t;
 
   struct Simplex
   {
@@ -143,7 +140,7 @@ struct GJK
 
   MinkowskiDiff const* shape;
   Vec3f ray;
-  support_hint_t support_hint;
+  support_func_guess_t support_hint;
   /// The distance computed by GJK. The possible values are
   /// - \f$ d = - R - 1 \f$ when a collision is detected and GJK
   ///   cannot compute penetration informations.
@@ -171,11 +168,11 @@ struct GJK
 
   /// @brief GJK algorithm, given the initial value guess
   Status evaluate(const MinkowskiDiff& shape, const Vec3f& guess,
-      const support_hint_t& supportHint = support_hint_t::Zero());
+      const support_func_guess_t& supportHint = support_func_guess_t::Zero());
 
   /// @brief apply the support function along a direction, the result is return in sv
   inline void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv,
-      support_hint_t& hint) const
+      support_func_guess_t& hint) const
   {
     shape->support(d, dIsNormalized, sv.w0, sv.w1, hint);
     sv.w.noalias() = sv.w0 - sv.w1;
@@ -238,7 +235,7 @@ private:
 
   /// @brief append one vertex to the simplex
   inline void appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized,
-      support_hint_t& hint);
+      support_func_guess_t& hint);
 
   /// @brief Project origin (0) onto line a-b
   bool projectLineOrigin(const Simplex& current, Simplex& next);

@@ -61,10 +61,7 @@ bool DistanceRequest::isSatisfied(const DistanceResult& result) const
     enable_distance_lower_bound (enable_distance_lower_bound_),
     security_margin (0),
     break_distance (1e-3)
-  {
-    enable_cached_gjk_guess = false;
-    cached_gjk_guess = Vec3f(1, 0, 0);
-  }
+  {}
 }
 
 } // namespace hpp
