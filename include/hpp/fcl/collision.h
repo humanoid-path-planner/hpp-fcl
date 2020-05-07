@@ -59,6 +59,30 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
 std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                     const CollisionGeometry* o2, const Transform3f& tf2,
                     const CollisionRequest& request, CollisionResult& result);
+
+/// @copydoc collide(const CollisionObject*, const CollisionObject*, const CollisionRequest&, CollisionResult&)
+/// \note this function update the initial guess of \c request if requested.
+///       See QueryRequest::updateGuess
+inline std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
+                           CollisionRequest& request, CollisionResult& result)
+{
+  std::size_t res = collide(o1, o2, (const CollisionRequest&) request, result);
+  request.updateGuess (result);
+  return res;
+}
+
+/// @copydoc collide(const CollisionObject*, const CollisionObject*, const CollisionRequest&, CollisionResult&)
+/// \note this function update the initial guess of \c request if requested.
+///       See QueryRequest::updateGuess
+inline std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
+                           const CollisionGeometry* o2, const Transform3f& tf2,
+                           CollisionRequest& request, CollisionResult& result)
+{
+  std::size_t res = collide(o1, tf1, o2, tf2,
+      (const CollisionRequest&) request, result);
+  request.updateGuess (result);
+  return res;
+}
 }
 
 } // namespace hpp

@@ -165,5 +165,5 @@ void exposeCollisionAPI ()
   doxygen::def ("collide", static_cast< std::size_t (*)(
         const CollisionGeometry*, const Transform3f&,
         const CollisionGeometry*, const Transform3f&,
-        const CollisionRequest&, CollisionResult&) > (&collide));
+        CollisionRequest&, CollisionResult&) > (&collide));
 }

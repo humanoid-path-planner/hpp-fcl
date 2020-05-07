@@ -125,5 +125,5 @@ void exposeDistanceAPI ()
   doxygen::def ("distance", static_cast< FCL_REAL (*)(
         const CollisionGeometry*, const Transform3f&,
         const CollisionGeometry*, const Transform3f&,
-        const DistanceRequest&, DistanceResult&) > (&distance));
+        DistanceRequest&, DistanceResult&) > (&distance));
 }
