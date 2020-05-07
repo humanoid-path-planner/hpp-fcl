@@ -78,7 +78,7 @@ void exposeDistanceAPI ()
 {
   if(!eigenpy::register_symbolic_link_to_registered_type<DistanceRequest>())
   {
-    class_ <DistanceRequest> ("DistanceRequest",
+    class_ <DistanceRequest, bases<QueryRequest> > ("DistanceRequest",
         doxygen::class_doc<DistanceRequest>(),
         init<optional<bool,FCL_REAL,FCL_REAL> >((arg("self"),
                                                  arg("enable_nearest_points"),
@@ -92,7 +92,7 @@ void exposeDistanceAPI ()
 
   if(!eigenpy::register_symbolic_link_to_registered_type<DistanceResult>())
   {
-    class_ <DistanceResult> ("DistanceResult",
+    class_ <DistanceResult, bases<QueryResult> > ("DistanceResult",
                              doxygen::class_doc<DistanceResult>(),
                              no_init)
       .def (dv::init<DistanceResult>())

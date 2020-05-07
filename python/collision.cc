@@ -78,17 +78,26 @@ void exposeCollisionAPI ()
       ;
   }
 
+  if(!eigenpy::register_symbolic_link_to_registered_type<QueryRequest>())
+  {
+    class_ <QueryRequest> ("QueryRequest",
+        doxygen::class_doc<QueryRequest>(), no_init)
+      .DEF_RW_CLASS_ATTRIB (QueryRequest, enable_cached_gjk_guess    )
+      .DEF_RW_CLASS_ATTRIB (QueryRequest, cached_gjk_guess           )
+      .DEF_RW_CLASS_ATTRIB (QueryRequest, cached_support_func_guess  )
+      .DEF_CLASS_FUNC (QueryRequest, updateGuess)
+      ;
+  }
+
   if(!eigenpy::register_symbolic_link_to_registered_type<CollisionRequest>())
   {
-    class_ <CollisionRequest> ("CollisionRequest",
+    class_ <CollisionRequest, bases<QueryRequest> > ("CollisionRequest",
         doxygen::class_doc<CollisionRequest>(), no_init)
       .def (dv::init<CollisionRequest>())
       .def (dv::init<CollisionRequest, const CollisionRequestFlag, size_t>())
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, num_max_contacts           )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_contact             )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_distance_lower_bound)
-      .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_cached_gjk_guess    )
-      .DEF_RW_CLASS_ATTRIB (CollisionRequest, cached_gjk_guess           )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, security_margin            )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, break_distance             )
       ;
@@ -119,9 +128,18 @@ void exposeCollisionAPI ()
       ;
   }
 
+  if(!eigenpy::register_symbolic_link_to_registered_type<QueryResult>())
+  {
+    class_ <QueryResult> ("QueryResult",
+        doxygen::class_doc<QueryResult>(), no_init)
+      .DEF_RW_CLASS_ATTRIB (QueryResult, cached_gjk_guess         )
+      .DEF_RW_CLASS_ATTRIB (QueryResult, cached_support_func_guess)
+      ;
+  }
+
   if(!eigenpy::register_symbolic_link_to_registered_type< CollisionResult >())
   {
-    class_ <CollisionResult> ("CollisionResult",
+    class_ <CollisionResult, bases<QueryResult> > ("CollisionResult",
         doxygen::class_doc<CollisionResult>(), no_init)
       .def (dv::init<CollisionResult>())
       .DEF_CLASS_FUNC (CollisionResult, isCollision)
