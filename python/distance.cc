@@ -36,7 +36,6 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include <eigenpy/registration.hpp>
-#include <eigenpy/eigen-to-python.hpp>
 
 #include "fcl.hh"
 
