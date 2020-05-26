@@ -1,5 +1,5 @@
 #
-#   Copyright 2020 CNRS
+#   Copyright 2020 CNRS INRIA
 #
 #   Author: Guilhem Saurel
 #
@@ -16,7 +16,7 @@ FIND_PATH(assimp_INCLUDE_DIR
   )
 
 FIND_LIBRARY(assimp_LIBRARY
-  NAMES libassimp.so
+  NAMES assimp
   PATHS ${assimp_PREFIX} ${assimp_PREFIX}/lib
   )
 
