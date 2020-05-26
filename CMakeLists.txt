@@ -85,7 +85,7 @@ endif ()
 
 search_for_boost()
 # Optional dependencies
-add_optional_dependency("octomap >= 1.6")
+ADD_PROJECT_DEPENDENCY(octomap PKG_CONFIG_REQUIRES "octomap >= 1.6")
 if (OCTOMAP_FOUND)
   SET(HPP_FCL_HAVE_OCTOMAP TRUE)
   string(REPLACE "." ";" VERSION_LIST ${OCTOMAP_VERSION})

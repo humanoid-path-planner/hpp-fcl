@@ -193,8 +193,9 @@ else()
   message(STATUS "Assimp version does not have unified headers")
 endif()
 IF(OCTOMAP_FOUND)
-  PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} octomap)
-  target_compile_definitions (${LIBRARY_NAME} PUBLIC
+  target_include_directories(${LIBRARY_NAME} SYSTEM PUBLIC ${OCTOMAP_INCLUDE_DIR})
+  target_link_libraries(${LIBRARY_NAME} PUBLIC ${OCTOMAP_LIBRARY})
+  target_compile_definitions (${LIBRARY_NAME} PRIVATE
     -DHPP_FCL_HAVE_OCTOMAP
     -DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION}
     -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION}
