@@ -61,6 +61,10 @@ include(cmake/hpp.cmake)
 include(cmake/apple.cmake)
 include(cmake/ide.cmake)
 
+SET(CMAKE_MODULE_PATH
+  ${CMAKE_SOURCE_DIR}/cmake-modules/
+  ${CMAKE_MODULE_PATH})
+
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
 
@@ -116,7 +120,7 @@ if(HPP_FCL_HAS_QHULL)
     )
 endif()
 
-ADD_PROJECT_DEPENDENCY(assimp REQUIRED PKG_CONFIG_REQUIRES "assimp >= 2.0.0")
+FIND_PACKAGE(assimp REQUIRED)
 
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h

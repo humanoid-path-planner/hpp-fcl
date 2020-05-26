@@ -45,21 +45,12 @@
   #define AI_NO_EXCEPT
 #endif
 
-#ifdef HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
-  #include <assimp/DefaultLogger.hpp>
-  #include <assimp/IOStream.hpp>
-  #include <assimp/IOSystem.hpp>
-  #include <assimp/Importer.hpp>
-  #include <assimp/postprocess.h>
-  #include <assimp/scene.h>
-#else
-  #include <assimp/DefaultLogger.h>
-  #include <assimp/assimp.hpp>
-  #include <assimp/IOStream.h>
-  #include <assimp/IOSystem.h>
-  #include <assimp/aiPostProcess.h>
-  #include <assimp/aiScene.h>
-#endif
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/IOStream.hpp>
+#include <assimp/IOSystem.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
 
 namespace hpp
 {

@@ -156,19 +156,20 @@ add_library(${LIBRARY_NAME}
 ADD_SOURCE_GROUP(${LIBRARY_NAME}_SOURCES)
 ADD_HEADER_GROUP(PROJECT_HEADERS_FULL_PATH)
 
-FIND_LIBRARY(ASSIMP_FULL_LIB NAMES assimp PATHS ${ASSIMP_LIBRARY_DIRS} NO_DEFAULT_PATH)
-MESSAGE(STATUS "assimp: ${ASSIMP_FULL_LIB}")
-
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   PUBLIC
   ${Boost_THREAD_LIBRARY}
   ${Boost_DATE_TIME_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
-  ${ASSIMP_FULL_LIB}
-#  assimp::assimp # Not working
 #  Boost::thread
 #  Boost::date_time
 #  Boost::system
+  )
+
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
+  PRIVATE
+  ${assimp_LIBRARY}
+  # assimp::assimp # Not working
   )
 
 if(HPP_FCL_HAS_QHULL)
@@ -182,7 +183,7 @@ target_include_directories(${LIBRARY_NAME}
   SYSTEM PUBLIC
   ${EIGEN3_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS}
-  ${ASSIMP_INCLUDE_DIRS}
+  ${assimp_INCLUDE_DIR}
   )
 
 target_include_directories(${LIBRARY_NAME}
@@ -190,12 +191,6 @@ target_include_directories(${LIBRARY_NAME}
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 
-if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
-  target_compile_definitions(${LIBRARY_NAME} PRIVATE -DHPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
-  message(STATUS "Assimp version has unified headers")
-else()
-  message(STATUS "Assimp version does not have unified headers")
-endif()
 IF(octomap_FOUND)
   target_include_directories(${LIBRARY_NAME} SYSTEM PUBLIC ${OCTOMAP_INCLUDE_DIRS})
   target_link_libraries(${LIBRARY_NAME} PUBLIC ${OCTOMAP_LIBRARIES})
