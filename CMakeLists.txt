@@ -116,7 +116,7 @@ if(HPP_FCL_HAS_QHULL)
     )
 endif()
 
-ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
+ADD_PROJECT_DEPENDENCY(assimp REQUIRED PKG_CONFIG_REQUIRES "assimp >= 2.0.0")
 
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h
