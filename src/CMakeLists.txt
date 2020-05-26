@@ -158,9 +158,12 @@ ADD_HEADER_GROUP(PROJECT_HEADERS_FULL_PATH)
 
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   PUBLIC
-  Boost::thread
-  Boost::date_time
-  Boost::system
+  ${Boost_THREAD_LIBRARY}
+  ${Boost_DATE_TIME_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+#  Boost::thread
+#  Boost::date_time
+#  Boost::system
   )
 
 if(HPP_FCL_HAS_QHULL)
@@ -173,6 +176,7 @@ endif()
 target_include_directories(${LIBRARY_NAME}
   SYSTEM PUBLIC
   ${EIGEN3_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
   )
 
 target_include_directories(${LIBRARY_NAME}

@@ -72,8 +72,8 @@ PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.0")
 
 if(BUILD_PYTHON_INTERFACE)
-  ADD_PROJECT_DEPENDENCY(eigenpy 2.2 REQUIRED)
-endif ()
+  FIND_PACKAGE(eigenpy 2.2 REQUIRED)
+endif()
 
 # Required dependencies
 set(BOOST_COMPONENTS thread date_time system)
