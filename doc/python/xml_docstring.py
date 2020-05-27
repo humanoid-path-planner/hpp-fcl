@@ -72,7 +72,7 @@ class XmlDocString (object):
         from sys import stdout, stderr
         self.writeErrors(output)
         self._clean()
-        return self._linesep.join(self.lines)
+        return self._linesep.join(self.lines).encode("utf-8")
 
     def visit (self, node):
         assert isinstance(node.tag, str)
