@@ -59,7 +59,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
 ///       easily optimized computing once the triangle shapes[1] into frame0
 ///
 /// @note The Minkowski difference is expressed in the frame of the first shape.
-struct MinkowskiDiff
+struct HPP_FCL_DLLAPI MinkowskiDiff
 {
   /// @brief points to two shapes
   const ShapeBase* shapes[2];
@@ -114,9 +114,9 @@ struct MinkowskiDiff
 /// @brief class for GJK algorithm
 ///
 /// @note The computations are performed in the frame of the first shape.
-struct GJK
+struct HPP_FCL_DLLAPI GJK
 {
-  struct SimplexV
+  struct HPP_FCL_DLLAPI SimplexV
   {
     /// @brief support vector for shape 0 and 1.
     Vec3f w0, w1; 
@@ -126,7 +126,7 @@ struct GJK
 
   typedef unsigned char vertex_id_t;
 
-  struct Simplex
+  struct HPP_FCL_DLLAPI Simplex
   {
     /// @brief simplex vertex
     SimplexV* vertex[4];
@@ -254,10 +254,10 @@ static const FCL_REAL EPA_EPS = 0.000001;
 static const size_t EPA_MAX_ITERATIONS = 255;
 
 /// @brief class for EPA algorithm
-struct EPA
+struct HPP_FCL_DLLAPI EPA
 {
   typedef GJK::SimplexV SimplexV;
-  struct SimplexF
+  struct HPP_FCL_DLLAPI SimplexF
   {
     Vec3f n;
     FCL_REAL d;
@@ -270,7 +270,7 @@ struct EPA
     SimplexF () : n(Vec3f::Zero()) {};
   };
 
-  struct SimplexList
+  struct HPP_FCL_DLLAPI SimplexList
   {
     SimplexF* root;
     size_t count;
@@ -299,7 +299,7 @@ struct EPA
     fb->e[eb] = ea; fb->f[eb] = fa;
   }
 
-  struct SimplexHorizon
+  struct HPP_FCL_DLLAPI SimplexHorizon
   {
     SimplexF* cf; // current face in the horizon
     SimplexF* ff; // first face in the horizon

@@ -51,7 +51,7 @@ enum {
 namespace details
 {
   template <bool enabled>
-  struct RelativeTransformation
+  struct HPP_FCL_DLLAPI RelativeTransformation
   {
     RelativeTransformation () : R (Matrix3f::Identity()) {}
 
@@ -63,7 +63,7 @@ namespace details
   };
 
   template <>
-  struct RelativeTransformation <false>
+  struct HPP_FCL_DLLAPI RelativeTransformation <false>
   {
     static const Matrix3f& _R () { throw std::logic_error ("should never reach this point"); }
     static const Vec3f   & _T () { throw std::logic_error ("should never reach this point"); }

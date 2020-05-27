@@ -56,7 +56,7 @@ namespace fcl
 const int GST_INDEP HPP_FCL_DEPRECATED = 0;
 
 /// @brief Contact information returned by collision
-struct Contact
+struct HPP_FCL_DLLAPI Contact
 {
   /// @brief collision object 1
   const CollisionGeometry* o1;
@@ -139,7 +139,7 @@ struct Contact
 struct QueryResult;
 
 /// @brief base class for all query requests
-struct QueryRequest
+struct HPP_FCL_DLLAPI QueryRequest
 {
   /// @brief whether enable gjk intial guess
   bool enable_cached_gjk_guess;
@@ -160,7 +160,7 @@ struct QueryRequest
 };
 
 /// @brief base class for all query results
-struct QueryResult
+struct HPP_FCL_DLLAPI QueryResult
 {
   /// @brief stores the last GJK ray when relevant.
   Vec3f cached_gjk_guess;
@@ -188,7 +188,7 @@ enum CollisionRequestFlag
 };
 
 /// @brief request to the collision algorithm
-struct CollisionRequest : QueryRequest
+struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
 {  
   /// @brief The maximum number of contacts will return
   size_t num_max_contacts;
@@ -237,7 +237,7 @@ struct CollisionRequest : QueryRequest
 };
 
 /// @brief collision result
-struct CollisionResult : QueryResult
+struct HPP_FCL_DLLAPI CollisionResult : QueryResult
 {
 private:
   /// @brief contact information
@@ -321,7 +321,7 @@ public:
 struct DistanceResult;
 
 /// @brief request to the distance computation
-struct DistanceRequest : QueryRequest
+struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest
 {
   /// @brief whether to return the nearest points
   bool enable_nearest_points;
@@ -357,7 +357,7 @@ struct DistanceRequest : QueryRequest
 };
 
 /// @brief distance result
-struct DistanceResult : QueryResult
+struct HPP_FCL_DLLAPI DistanceResult : QueryResult
 {
 
 public:

@@ -59,7 +59,7 @@ template <typename BV> class BVFitter;
 template <typename BV> class BVSplitter;
 
 /// @brief A base class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
-class BVHModelBase : public CollisionGeometry
+class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry
 {
 public:
   /// @brief Geometry point data
@@ -266,7 +266,7 @@ protected:
 /// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
 /// \tparam BV one of the bounding volume class in \ref Bounding_Volume.
 template<typename BV>
-class BVHModel : public BVHModelBase
+class HPP_FCL_DLLAPI BVHModel : public BVHModelBase
 {
 
 public:

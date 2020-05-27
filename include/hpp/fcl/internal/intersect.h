@@ -49,7 +49,7 @@ namespace fcl
 {
 
 /// @brief CCD intersect kernel among primitives
-class Intersect
+class HPP_FCL_DLLAPI Intersect
 {
 public:
   static bool buildTrianglePlane
@@ -57,10 +57,10 @@ public:
 }; // class Intersect
 
 /// @brief Project functions
-class Project
+class HPP_FCL_DLLAPI Project
 {
 public:
-  struct ProjectResult
+  struct HPP_FCL_DLLAPI ProjectResult
   {
     /// @brief Parameterization of the projected point (based on the simplex to be projected, use 2 or 3 or 4 of the array)
     FCL_REAL parameterization[4];
@@ -96,7 +96,7 @@ public:
 };
 
 /// @brief Triangle distance functions
-class TriangleDistance
+class HPP_FCL_DLLAPI TriangleDistance
 {
 public:
 

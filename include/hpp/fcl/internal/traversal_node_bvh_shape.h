@@ -60,7 +60,7 @@ namespace fcl
 
 /// @brief Traversal node for collision between BVH and shape
 template<typename BV, typename S>
-class BVHShapeCollisionTraversalNode : public CollisionTraversalNodeBase
+class HPP_FCL_DLLAPI BVHShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
   BVHShapeCollisionTraversalNode(const CollisionRequest& request) :
@@ -103,7 +103,7 @@ public:
 
 /// @brief Traversal node for collision between shape and BVH
 template<typename S, typename BV>
-class ShapeBVHCollisionTraversalNode : public CollisionTraversalNodeBase
+class HPP_FCL_DLLAPI ShapeBVHCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
   ShapeBVHCollisionTraversalNode(const CollisionRequest& request) :
@@ -154,7 +154,7 @@ public:
 /// @brief Traversal node for collision between mesh and shape
 template<typename BV, typename S,
   int _Options = RelativeTransformationIsIdentity>
-class MeshShapeCollisionTraversalNode : public BVHShapeCollisionTraversalNode<BV, S>
+class HPP_FCL_DLLAPI MeshShapeCollisionTraversalNode : public BVHShapeCollisionTraversalNode<BV, S>
 {
 public:
   enum {
@@ -262,7 +262,7 @@ public:
 /// @brief Traversal node for collision between shape and mesh
 template<typename S, typename BV,
   int _Options = RelativeTransformationIsIdentity>
-class ShapeMeshCollisionTraversalNode : public ShapeBVHCollisionTraversalNode<S, BV>
+class HPP_FCL_DLLAPI ShapeMeshCollisionTraversalNode : public ShapeBVHCollisionTraversalNode<S, BV>
 {
 public:
   enum {
@@ -373,7 +373,7 @@ public:
 
 /// @brief Traversal node for distance computation between BVH and shape
 template<typename BV, typename S>
-class BVHShapeDistanceTraversalNode : public DistanceTraversalNodeBase
+class HPP_FCL_DLLAPI BVHShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
   BVHShapeDistanceTraversalNode() : DistanceTraversalNodeBase()
@@ -421,7 +421,7 @@ public:
 
 /// @brief Traversal node for distance computation between shape and BVH
 template<typename S, typename BV>
-class ShapeBVHDistanceTraversalNode : public DistanceTraversalNodeBase
+class HPP_FCL_DLLAPI ShapeBVHDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
   ShapeBVHDistanceTraversalNode() : DistanceTraversalNodeBase()
@@ -470,7 +470,7 @@ public:
 
 /// @brief Traversal node for distance between mesh and shape
 template<typename BV, typename S>
-class MeshShapeDistanceTraversalNode : public BVHShapeDistanceTraversalNode<BV, S>
+class HPP_FCL_DLLAPI MeshShapeDistanceTraversalNode : public BVHShapeDistanceTraversalNode<BV, S>
 { 
 public:
   MeshShapeDistanceTraversalNode() : BVHShapeDistanceTraversalNode<BV, S>()
@@ -595,7 +595,7 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
 
 /// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, kIOS, OBBRSS)
 template<typename S>
-class MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<RSS, S>
+class HPP_FCL_DLLAPI MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<RSS, S>
 {
 public:
   MeshShapeDistanceTraversalNodeRSS() : MeshShapeDistanceTraversalNode<RSS, S>()
@@ -627,7 +627,7 @@ public:
 
 
 template<typename S>
-class MeshShapeDistanceTraversalNodekIOS : public MeshShapeDistanceTraversalNode<kIOS, S>
+class HPP_FCL_DLLAPI MeshShapeDistanceTraversalNodekIOS : public MeshShapeDistanceTraversalNode<kIOS, S>
 {
 public:
   MeshShapeDistanceTraversalNodekIOS() : MeshShapeDistanceTraversalNode<kIOS, S>()
@@ -659,7 +659,7 @@ public:
 };
 
 template<typename S>
-class MeshShapeDistanceTraversalNodeOBBRSS : public MeshShapeDistanceTraversalNode<OBBRSS, S>
+class HPP_FCL_DLLAPI MeshShapeDistanceTraversalNodeOBBRSS : public MeshShapeDistanceTraversalNode<OBBRSS, S>
 {
 public:
   MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSS, S>()
@@ -693,7 +693,7 @@ public:
 
 /// @brief Traversal node for distance between shape and mesh
 template<typename S, typename BV>
-class ShapeMeshDistanceTraversalNode : public ShapeBVHDistanceTraversalNode<S, BV>
+class HPP_FCL_DLLAPI ShapeMeshDistanceTraversalNode : public ShapeBVHDistanceTraversalNode<S, BV>
 { 
 public:
   ShapeMeshDistanceTraversalNode() : ShapeBVHDistanceTraversalNode<S, BV>()
@@ -752,7 +752,7 @@ public:
 
 /// @brief Traversal node for distance between shape and mesh, when mesh BVH is one of the oriented node (RSS, kIOS, OBBRSS)
 template<typename S>
-class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSS>
+class HPP_FCL_DLLAPI ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSS>
 {
 public:
   ShapeMeshDistanceTraversalNodeRSS() : ShapeMeshDistanceTraversalNode<S, RSS>()
@@ -784,7 +784,7 @@ public:
 };
 
 template<typename S>
-class ShapeMeshDistanceTraversalNodekIOS : public ShapeMeshDistanceTraversalNode<S, kIOS>
+class HPP_FCL_DLLAPI ShapeMeshDistanceTraversalNodekIOS : public ShapeMeshDistanceTraversalNode<S, kIOS>
 {
 public:
   ShapeMeshDistanceTraversalNodekIOS() : ShapeMeshDistanceTraversalNode<S, kIOS>()
@@ -816,7 +816,7 @@ public:
 };
 
 template<typename S>
-class ShapeMeshDistanceTraversalNodeOBBRSS : public ShapeMeshDistanceTraversalNode<S, OBBRSS>
+class HPP_FCL_DLLAPI ShapeMeshDistanceTraversalNodeOBBRSS : public ShapeMeshDistanceTraversalNode<S, OBBRSS>
 {
 public:
   ShapeMeshDistanceTraversalNodeOBBRSS() : ShapeMeshDistanceTraversalNode<S, OBBRSS>()

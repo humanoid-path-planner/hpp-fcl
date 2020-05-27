@@ -51,7 +51,7 @@ namespace fcl
 {
 
 /// @brief Base class for all basic geometric shapes
-class ShapeBase : public CollisionGeometry
+class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry
 {
 public:
   ShapeBase() {}
@@ -67,7 +67,7 @@ public:
 /// @{
 
 /// @brief Triangle stores the points instead of only indices of points
-class TriangleP : public ShapeBase
+class HPP_FCL_DLLAPI TriangleP : public ShapeBase
 {
 public:
   TriangleP(const Vec3f& a_, const Vec3f& b_, const Vec3f& c_) : ShapeBase(), a(a_), b(b_), c(c_)
@@ -83,7 +83,7 @@ public:
 };
 
 /// @brief Center at zero point, axis aligned box
-class Box : public ShapeBase
+class HPP_FCL_DLLAPI Box : public ShapeBase
 {
 public:
   Box(FCL_REAL x, FCL_REAL y, FCL_REAL z) : ShapeBase(), halfSide(x/2, y/2, z/2)
@@ -119,7 +119,7 @@ public:
 };
 
 /// @brief Center at zero point sphere
-class Sphere : public ShapeBase
+class HPP_FCL_DLLAPI Sphere : public ShapeBase
 {
 public:
   Sphere(FCL_REAL radius_) : ShapeBase(), radius(radius_)
@@ -151,7 +151,7 @@ public:
 /// It is \f$ { x \in \mathcal{R}^3, d(x, AB) < radius } \f$
 /// where \f$ d(x, AB) \f$ is the distance between the point x and the capsule
 /// segment AB, with \f$ A = (0,0,-halfLength), B = (0,0,halfLength) \f$.
-class Capsule : public ShapeBase
+class HPP_FCL_DLLAPI Capsule : public ShapeBase
 {
 public:
   Capsule(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_)
@@ -196,7 +196,7 @@ public:
 /// @brief Cone
 /// The base of the cone is at \f$ z = - halfLength \f$ and the top is at
 /// \f$ z = halfLength \f$.
-class Cone : public ShapeBase
+class HPP_FCL_DLLAPI Cone : public ShapeBase
 {
 public:
   Cone(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_)
@@ -240,7 +240,7 @@ public:
 
 /// @brief Cylinder along Z axis.
 /// The cylinder is defined at its centroid.
-class Cylinder : public ShapeBase
+class HPP_FCL_DLLAPI Cylinder : public ShapeBase
 {
 public:
   Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_)
@@ -278,7 +278,7 @@ public:
 
 /// @brief Base for convex polytope.
 /// @note Inherited classes are responsible for filling ConvexBase::neighbors;
-class ConvexBase : public ShapeBase
+class HPP_FCL_DLLAPI ConvexBase : public ShapeBase
 {
 public:
   /// @brief Build a convex hull based on Qhull library
@@ -308,7 +308,7 @@ public:
   Vec3f* points;
   int num_points;
 
-  struct Neighbors
+  struct HPP_FCL_DLLAPI Neighbors
   {
     unsigned char count_;
     unsigned int* n_;
@@ -354,7 +354,7 @@ template <typename PolygonT> class Convex;
 /// @brief Half Space: this is equivalent to the Plane in ODE. The separation plane is defined as n * x = d;
 /// Points in the negative side of the separation plane (i.e. {x | n * x < d}) are inside the half space and points
 /// in the positive side of the separation plane (i.e. {x | n * x > d}) are outside the half space
-class Halfspace : public ShapeBase
+class HPP_FCL_DLLAPI Halfspace : public ShapeBase
 {
 public:
   /// @brief Construct a half space with normal direction and offset
@@ -402,7 +402,7 @@ protected:
 };
 
 /// @brief Infinite plane 
-class Plane : public ShapeBase
+class HPP_FCL_DLLAPI Plane : public ShapeBase
 {
 public:
   /// @brief Construct a plane with normal direction and offset 

@@ -62,6 +62,8 @@
 #include <boost/noncopyable.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+#include <hpp/fcl/config.hh>
+
 namespace hpp
 {
 namespace fcl
@@ -107,12 +109,12 @@ namespace tools
 /// external profiling tools in that it allows the user to count
 /// time spent in various bits of code (sub-function granularity)
 /// or count how many times certain pieces of code are executed.
-class Profiler : private boost::noncopyable
+class HPP_FCL_DLLAPI Profiler : private boost::noncopyable
 {
 public:
 
   /// @brief This instance will call Profiler::begin() when constructed and Profiler::end() when it goes out of scope.
-  class ScopedBlock
+  class HPP_FCL_DLLAPI ScopedBlock
   {
   public:
     /// @brief Start counting time for the block named @e name of the profiler @e prof
@@ -134,7 +136,7 @@ public:
 
   /// @brief This instance will call Profiler::start() when constructed and Profiler::stop() when it goes out of scope.
   /// If the profiler was already started, this block's constructor and destructor take no action
-  class ScopedStart
+  class HPP_FCL_DLLAPI ScopedStart
   {
   public:
 
@@ -266,7 +268,7 @@ public:
 private:
 
   /// @brief Information about time spent in a section of the code 
-  struct TimeInfo
+  struct HPP_FCL_DLLAPI TimeInfo
   {
     TimeInfo(void) : total(0, 0, 0, 0), shortest(boost::posix_time::pos_infin), longest(boost::posix_time::neg_infin), parts(0)
     {
@@ -307,7 +309,7 @@ private:
   };
 
   /// @brief Information maintained about averaged values 
-  struct AvgInfo
+  struct HPP_FCL_DLLAPI AvgInfo
   {
     /// @brief The sum of the values to average 
     double            total;
@@ -320,7 +322,7 @@ private:
   };
 
   /// @brief Information to be maintained for each thread 
-  struct PerThread
+  struct HPP_FCL_DLLAPI PerThread
   {
     /// @brief The stored events 
     std::map<std::string, unsigned long int> events;
@@ -358,11 +360,11 @@ namespace fcl
 namespace tools
 {
 
-class Profiler
+class HPP_FCL_DLLAPI Profiler
 {
 public:
 
-  class ScopedBlock
+  class HPP_FCL_DLLAPI ScopedBlock
   {
   public:
 
@@ -375,7 +377,7 @@ public:
     }
   };
 
-  class ScopedStart
+  class HPP_FCL_DLLAPI ScopedStart
   {
   public:
 

@@ -48,7 +48,7 @@ namespace fcl
 {
 
 /// @brief distance matrix stores the functions for distance between different types of objects and provides a uniform call interface
-struct DistanceFunctionMatrix
+struct HPP_FCL_DLLAPI DistanceFunctionMatrix
 {
   /// @brief the uniform call interface for distance: for distance, we need know
   /// 1. two objects o1 and o2 and their configuration in world coordinate tf1 and tf2;

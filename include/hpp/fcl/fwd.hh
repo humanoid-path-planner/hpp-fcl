@@ -39,6 +39,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <hpp/fcl/config.hh>
+
 namespace hpp {
 namespace fcl {
   class CollisionObject;

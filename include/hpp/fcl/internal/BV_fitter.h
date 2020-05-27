@@ -76,7 +76,7 @@ void fit<AABB>(Vec3f* ps, int n, AABB& bv);
 
 /// @brief The class for the default algorithm fitting a bounding volume to a set of points
 template<typename BV>
-class BVFitterTpl
+class HPP_FCL_DLLAPI BVFitterTpl
 {
 public:
   /// @brief default deconstructor
@@ -122,7 +122,7 @@ protected:
 
 /// @brief The class for the default algorithm fitting a bounding volume to a set of points
 template<typename BV>
-class BVFitter : public BVFitterTpl<BV>
+class HPP_FCL_DLLAPI BVFitter : public BVFitterTpl<BV>
 {
 public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
@@ -173,7 +173,7 @@ protected:
 
 /// @brief Specification of BVFitter for OBB bounding volume
 template<>
-class BVFitter<OBB> : public BVFitterTpl<OBB>
+class HPP_FCL_DLLAPI BVFitter<OBB> : public BVFitterTpl<OBB>
 {
 public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
@@ -183,7 +183,7 @@ public:
 
 /// @brief Specification of BVFitter for RSS bounding volume
 template<>
-class BVFitter<RSS> : public BVFitterTpl<RSS>
+class HPP_FCL_DLLAPI BVFitter<RSS> : public BVFitterTpl<RSS>
 {
 public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
@@ -193,7 +193,7 @@ public:
 
 /// @brief Specification of BVFitter for kIOS bounding volume
 template<>
-class BVFitter<kIOS> : public BVFitterTpl<kIOS>
+class HPP_FCL_DLLAPI BVFitter<kIOS> : public BVFitterTpl<kIOS>
 {
 public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
@@ -203,7 +203,7 @@ public:
 
 /// @brief Specification of BVFitter for OBBRSS bounding volume
 template<>
-class BVFitter<OBBRSS> : public BVFitterTpl<OBBRSS>
+class HPP_FCL_DLLAPI BVFitter<OBBRSS> : public BVFitterTpl<OBBRSS>
 {
 public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
@@ -213,7 +213,7 @@ public:
 
 /// @brief Specification of BVFitter for AABB bounding volume
 template<>
-class BVFitter<AABB> : public BVFitterTpl<AABB>
+class HPP_FCL_DLLAPI BVFitter<AABB> : public BVFitterTpl<AABB>
 {
 public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).

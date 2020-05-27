@@ -324,7 +324,7 @@ namespace internal
   }
 
   template <int ib, int jb = (ib+1)%3, int kb = (ib+2)%3 >
-  struct obbDisjoint_check_Ai_cross_Bi
+  struct HPP_FCL_LOCAL obbDisjoint_check_Ai_cross_Bi
   {
     static inline bool run (int ia, int ja, int ka,
         const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b,

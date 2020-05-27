@@ -66,7 +66,7 @@ namespace fcl
 
 /// @brief Traversal node for collision between BVH models
 template<typename BV>
-class BVHCollisionTraversalNode : public CollisionTraversalNodeBase
+class HPP_FCL_DLLAPI BVHCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
   BVHCollisionTraversalNode(const CollisionRequest& request) :
@@ -143,7 +143,7 @@ public:
 
 /// @brief Traversal node for collision between two meshes
 template<typename BV, int _Options = RelativeTransformationIsIdentity>
-class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
+class HPP_FCL_DLLAPI MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
 {
 public:
   enum {
@@ -341,7 +341,7 @@ namespace details
 
 /// @brief Traversal node for distance computation between BVH models
 template<typename BV>
-class BVHDistanceTraversalNode : public DistanceTraversalNodeBase
+class HPP_FCL_DLLAPI BVHDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
   BVHDistanceTraversalNode() : DistanceTraversalNodeBase()
@@ -418,7 +418,7 @@ public:
 
 /// @brief Traversal node for distance computation between two meshes
 template<typename BV, int _Options = RelativeTransformationIsIdentity>
-class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV>
+class HPP_FCL_DLLAPI MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV>
 {
 public:
   enum {

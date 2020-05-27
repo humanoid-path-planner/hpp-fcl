@@ -52,7 +52,7 @@ struct CollisionRequest;
 /// @{
 
 /// @brief A class for rectangle sphere-swept bounding volume
-class RSS
+class HPP_FCL_DLLAPI RSS
 {
 public:
   /// @brief Orientation of RSS. axis[i] is the ith column of the orientation matrix for the RSS; it is also the i-th principle direction of the RSS.

@@ -55,7 +55,7 @@ enum SplitMethodType {SPLIT_METHOD_MEAN, SPLIT_METHOD_MEDIAN, SPLIT_METHOD_BV_CE
 
 /// @brief A class describing the split rule that splits each BV node
 template<typename BV>
-class BVSplitter
+class HPP_FCL_DLLAPI BVSplitter
 {
 public:
 

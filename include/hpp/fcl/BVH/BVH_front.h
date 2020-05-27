@@ -41,6 +41,8 @@
 
 #include <list>
 
+#include <hpp/fcl/config.hh>
+
 namespace hpp
 {
 namespace fcl
@@ -50,7 +52,7 @@ namespace fcl
 /// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
 /// the traversal terminates while performing a query during a given time instance. The front list reflects the subset of a
 /// BVTT that is traversed for that particular proximity query.
-struct BVHFrontNode
+struct HPP_FCL_DLLAPI BVHFrontNode
 {
   /// @brief The nodes to start in the future, i.e. the wave front of the traversal tree.
   int left, right;

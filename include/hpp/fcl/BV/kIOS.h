@@ -52,10 +52,10 @@ struct CollisionRequest;
 /// @{
 
 /// @brief A class describing the kIOS collision structure, which is a set of spheres.
-class kIOS
+class HPP_FCL_DLLAPI kIOS
 {
   /// @brief One sphere in kIOS
-  struct kIOS_Sphere
+  struct HPP_FCL_DLLAPI kIOS_Sphere
   {
     Vec3f o;
     FCL_REAL r;

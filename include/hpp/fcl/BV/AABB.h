@@ -52,7 +52,7 @@ struct CollisionRequest;
 /// @{
 
 /// @brief A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points
-class AABB
+class HPP_FCL_DLLAPI AABB
 {
 public:
   /// @brief The min point in the AABB

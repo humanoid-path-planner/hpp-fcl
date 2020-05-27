@@ -53,7 +53,7 @@ namespace fcl
 {
 
 /// @brief Algorithms for collision related with octree
-class OcTreeSolver
+class HPP_FCL_DLLAPI OcTreeSolver
 {
 private:
   const GJKSolver* solver;
@@ -892,7 +892,7 @@ private:
 /// @{
 
 /// @brief Traversal node for octree collision
-class OcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
+class HPP_FCL_DLLAPI OcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
   OcTreeCollisionTraversalNode(const CollisionRequest& request) :
@@ -929,7 +929,7 @@ public:
 
 /// @brief Traversal node for shape-octree collision
 template<typename S>
-class ShapeOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
+class HPP_FCL_DLLAPI ShapeOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
  ShapeOcTreeCollisionTraversalNode(const CollisionRequest& request) :
@@ -967,7 +967,7 @@ public:
 /// @brief Traversal node for octree-shape collision
 
 template<typename S>
-class OcTreeShapeCollisionTraversalNode : public CollisionTraversalNodeBase
+class HPP_FCL_DLLAPI OcTreeShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
  OcTreeShapeCollisionTraversalNode(const CollisionRequest& request) :
@@ -1004,7 +1004,7 @@ public:
 
 /// @brief Traversal node for mesh-octree collision
 template<typename BV>
-class MeshOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
+class HPP_FCL_DLLAPI MeshOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
  MeshOcTreeCollisionTraversalNode(const CollisionRequest& request) :
@@ -1041,7 +1041,7 @@ public:
 
 /// @brief Traversal node for octree-mesh collision
 template<typename BV>
-class OcTreeMeshCollisionTraversalNode : public CollisionTraversalNodeBase
+class HPP_FCL_DLLAPI OcTreeMeshCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
  OcTreeMeshCollisionTraversalNode(const CollisionRequest& request) :
@@ -1082,7 +1082,7 @@ public:
 /// @{
 
 /// @brief Traversal node for octree distance
-class OcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
+class HPP_FCL_DLLAPI OcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
   OcTreeDistanceTraversalNode()
@@ -1119,7 +1119,7 @@ public:
 
 /// @brief Traversal node for shape-octree distance
 template<typename S>
-class ShapeOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
+class HPP_FCL_DLLAPI ShapeOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
   ShapeOcTreeDistanceTraversalNode()
@@ -1148,7 +1148,7 @@ public:
 
 /// @brief Traversal node for octree-shape distance
 template<typename S>
-class OcTreeShapeDistanceTraversalNode : public DistanceTraversalNodeBase
+class HPP_FCL_DLLAPI OcTreeShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
   OcTreeShapeDistanceTraversalNode()
@@ -1177,7 +1177,7 @@ public:
 
 /// @brief Traversal node for mesh-octree distance
 template<typename BV>
-class MeshOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
+class HPP_FCL_DLLAPI MeshOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
   MeshOcTreeDistanceTraversalNode()
@@ -1207,7 +1207,7 @@ public:
 
 /// @brief Traversal node for octree-mesh distance
 template<typename BV>
-class OcTreeMeshDistanceTraversalNode : public DistanceTraversalNodeBase
+class HPP_FCL_DLLAPI OcTreeMeshDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
   OcTreeMeshDistanceTraversalNode()
