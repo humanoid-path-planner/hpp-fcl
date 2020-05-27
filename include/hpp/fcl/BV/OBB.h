@@ -133,15 +133,15 @@ public:
 
 
 /// @brief Translate the OBB bv
-OBB translate(const OBB& bv, const Vec3f& t);
+OBB translate(const OBB& bv, const Vec3f& t) HPP_FCL_DLLAPI;
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and b2 is in identity.
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2);
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2) HPP_FCL_DLLAPI;
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and b2 is in identity.
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
 	     const OBB& b2, const CollisionRequest& request,
-             FCL_REAL& sqrDistLowerBound);
+             FCL_REAL& sqrDistLowerBound) HPP_FCL_DLLAPI;
 
 
 /// Check collision between two boxes
@@ -149,7 +149,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
 /// @param a half dimensions of first box,
 /// @param b half dimensions of second box.
 /// The second box is in identity configuration.
-bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b);
+bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b) HPP_FCL_DLLAPI;
 }
 
 } // namespace hpp

@@ -148,16 +148,16 @@ public:
 /// @brief distance between two RSS bounding volumes
 /// P and Q (optional return values) are the closest points in the rectangles, not the RSS. But the direction P - Q is the correct direction for cloest points
 /// Notice that P and Q are both in the local frame of the first RSS (not global frame and not even the local frame of object 1)
-FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
+FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL) HPP_FCL_DLLAPI;
 
 
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and b2 is in identity.
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2);
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2) HPP_FCL_DLLAPI;
 
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and b2 is in identity.
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2,
              const CollisionRequest& request,
-             FCL_REAL& sqrDistLowerBound);
+             FCL_REAL& sqrDistLowerBound) HPP_FCL_DLLAPI;
 
 }
 

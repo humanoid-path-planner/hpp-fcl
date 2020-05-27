@@ -81,7 +81,7 @@ struct HPP_FCL_DLLAPI Loader {
 void buildMesh (const fcl::Vec3f & scale,
                 const aiScene* scene,
                 unsigned vertices_offset,
-                TriangleAndVertices & tv);
+                TriangleAndVertices & tv) HPP_FCL_DLLAPI;
 
 /**
  * @brief      Convert an assimp scene to a mesh
