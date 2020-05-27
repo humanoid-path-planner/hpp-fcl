@@ -41,10 +41,6 @@ set(PROJECT_DESCRIPTION
   )
 SET(PROJECT_USE_CMAKE_EXPORT TRUE)
 
-IF(NOT DEFINED CMAKE_CXX_STANDARD)
-  SET(CMAKE_CXX_STANDARD 98)
-ENDIF()
-
 # Do not support CMake older than 2.8.12
 CMAKE_POLICY(SET CMP0022 NEW)
 SET(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
@@ -100,6 +96,9 @@ endif()
 
 option(HPP_FCL_HAS_QHULL "use qhull library to compute convex hulls." FALSE)
 if(HPP_FCL_HAS_QHULL)
+  if(DEFINED CMAKE_CXX_STANDARD AND CMAKE_CXX_STANDARD EQUAL 98)
+    message(FATAL_ERROR "Cannot use qhull library with C++ < 11.\nYou may add -DCMAKE_CXX_STANDARD=11")
+  endif()
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-parties)
   execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
     ${CMAKE_SOURCE_DIR}/third-parties/qhull/src/libqhullcpp
