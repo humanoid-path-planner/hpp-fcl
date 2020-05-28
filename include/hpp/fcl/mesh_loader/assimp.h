@@ -54,13 +54,13 @@ namespace fcl
 namespace internal
 {
 
-struct TriangleAndVertices
+struct HPP_FCL_DLLAPI TriangleAndVertices
 {
   std::vector <fcl::Vec3f> vertices_;
   std::vector <fcl::Triangle> triangles_;
 };
 
-struct Loader {
+struct HPP_FCL_DLLAPI Loader {
   Loader ();
   ~Loader ();
 
@@ -81,7 +81,7 @@ struct Loader {
 void buildMesh (const fcl::Vec3f & scale,
                 const aiScene* scene,
                 unsigned vertices_offset,
-                TriangleAndVertices & tv);
+                TriangleAndVertices & tv) HPP_FCL_DLLAPI;
 
 /**
  * @brief      Convert an assimp scene to a mesh

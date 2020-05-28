@@ -52,7 +52,7 @@ struct CollisionRequest;
 /// @{
 
 /// @brief A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points
-class AABB
+class HPP_FCL_DLLAPI AABB
 {
 public:
   /// @brief The min point in the AABB
@@ -245,12 +245,12 @@ static inline AABB rotate(const AABB& aabb, const Matrix3f& R)
 }
 
 /// @brief Check collision between two aabbs, b1 is in configuration (R0, T0) and b2 is in identity.
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1, const AABB& b2);
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1, const AABB& b2) HPP_FCL_DLLAPI;
 
 /// @brief Check collision between two aabbs, b1 is in configuration (R0, T0) and b2 is in identity.
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
 	     const AABB& b2, const CollisionRequest& request,
-             FCL_REAL& sqrDistLowerBound);
+             FCL_REAL& sqrDistLowerBound) HPP_FCL_DLLAPI;
 }
 
 } // namespace hpp

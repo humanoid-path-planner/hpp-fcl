@@ -53,12 +53,12 @@ namespace fcl
 /// performs the collision between them. 
 /// Return value is the number of contacts generated between the two objects.
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
-                    const CollisionRequest& request, CollisionResult& result);
+                    const CollisionRequest& request, CollisionResult& result) HPP_FCL_DLLAPI;
 
 /// @copydoc collide(const CollisionObject*, const CollisionObject*, const CollisionRequest&, CollisionResult&)
 std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                     const CollisionGeometry* o2, const Transform3f& tf2,
-                    const CollisionRequest& request, CollisionResult& result);
+                    const CollisionRequest& request, CollisionResult& result) HPP_FCL_DLLAPI;
 
 /// @copydoc collide(const CollisionObject*, const CollisionObject*, const CollisionRequest&, CollisionResult&)
 /// \note this function update the initial guess of \c request if requested.

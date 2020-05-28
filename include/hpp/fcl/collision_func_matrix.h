@@ -51,7 +51,7 @@ namespace fcl
 
 /// @brief collision matrix stores the functions for collision between different types of objects and provides a uniform call interface
 
-struct CollisionFunctionMatrix
+struct HPP_FCL_DLLAPI CollisionFunctionMatrix
 {
   /// @brief the uniform call interface for collision: for collision, we need know
   /// 1. two objects o1 and o2 and their configuration in world coordinate tf1 and tf2;

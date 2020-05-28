@@ -53,7 +53,7 @@ namespace fcl
 /// @{
 
 /// @brief Class merging the OBB and RSS, can handle collision and distance simultaneously
-class OBBRSS
+class HPP_FCL_DLLAPI OBBRSS
 {
 public:
 

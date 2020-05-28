@@ -82,7 +82,7 @@ FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
 }
 
 template<typename T_BVH, typename T_SH>
-struct BVHShapeDistancer
+struct HPP_FCL_LOCAL BVHShapeDistancer
 {
   static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
                            const DistanceRequest& request, DistanceResult& result)
@@ -123,7 +123,7 @@ FCL_REAL orientedBVHShapeDistance(const CollisionGeometry* o1, const Transform3f
 }
 
 template<typename T_SH>
-struct BVHShapeDistancer<RSS, T_SH>
+struct HPP_FCL_LOCAL BVHShapeDistancer<RSS, T_SH>
 {
   static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
                            const DistanceRequest& request, DistanceResult& result)
@@ -134,7 +134,7 @@ struct BVHShapeDistancer<RSS, T_SH>
 
 
 template<typename T_SH>
-struct BVHShapeDistancer<kIOS, T_SH>
+struct HPP_FCL_LOCAL BVHShapeDistancer<kIOS, T_SH>
 {
   static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
                        const DistanceRequest& request, DistanceResult& result)
@@ -144,7 +144,7 @@ struct BVHShapeDistancer<kIOS, T_SH>
 };
 
 template<typename T_SH>
-struct BVHShapeDistancer<OBBRSS, T_SH>
+struct HPP_FCL_LOCAL BVHShapeDistancer<OBBRSS, T_SH>
 {
   static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
                            const DistanceRequest& request, DistanceResult& result)

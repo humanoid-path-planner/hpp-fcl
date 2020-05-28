@@ -54,7 +54,7 @@ namespace fcl
 /// @{
 
 /// @brief BVNodeBase encodes the tree structure for BVH
-struct BVNodeBase
+struct HPP_FCL_DLLAPI BVNodeBase
 {
   /// @brief An index for first child node or primitive
   /// If the value is positive, it is the index of the first child bv node
@@ -84,7 +84,7 @@ struct BVNodeBase
 
 /// @brief A class describing a bounding volume node. It includes the tree structure providing in BVNodeBase and also the geometry data provided in BV template parameter.
 template<typename BV>
-struct BVNode : public BVNodeBase
+struct HPP_FCL_DLLAPI BVNode : public BVNodeBase
 {
   /// @brief bounding volume storing the geometry
   BV bv;

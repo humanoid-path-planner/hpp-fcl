@@ -58,12 +58,14 @@ namespace fcl
 ///         do not collide.
 /// @param front_list list of nodes visited by the query, can be used to
 ///        accelerate computation
+/// \todo should be HPP_FCL_LOCAL but used in unit test.
 void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
              CollisionResult& result, BVHFrontList* front_list = NULL,
-             bool recursive = true);
+             bool recursive = true) HPP_FCL_DLLAPI;
 
 /// @brief distance computation on distance traversal node; can use front list to accelerate
-void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
+/// \todo should be HPP_FCL_LOCAL but used in unit test.
+void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2) HPP_FCL_DLLAPI;
 }
 
 } // namespace hpp

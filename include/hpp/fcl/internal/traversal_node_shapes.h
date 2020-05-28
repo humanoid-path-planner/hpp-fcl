@@ -56,7 +56,7 @@ namespace fcl
 
 /// @brief Traversal node for collision between two shapes
 template<typename S1, typename S2>
-class ShapeCollisionTraversalNode : public CollisionTraversalNodeBase
+class HPP_FCL_DLLAPI ShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
   ShapeCollisionTraversalNode(const CollisionRequest& request) :
@@ -126,7 +126,7 @@ public:
 
 /// @brief Traversal node for distance between two shapes
 template<typename S1, typename S2>
-class ShapeDistanceTraversalNode : public DistanceTraversalNodeBase
+class HPP_FCL_DLLAPI ShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
   ShapeDistanceTraversalNode() : DistanceTraversalNodeBase()

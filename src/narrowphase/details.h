@@ -668,7 +668,7 @@ namespace fcl {
 
 
 
-    struct ContactPoint
+    struct HPP_FCL_LOCAL ContactPoint
     {
       Vec3f normal;
       Vec3f point;

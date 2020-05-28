@@ -60,7 +60,7 @@ enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP
 /// @{
 
 /// @brief The geometry for the object for collision or distance computation
-class CollisionGeometry
+class HPP_FCL_DLLAPI CollisionGeometry
 {
 public:
   CollisionGeometry() : cost_density(1),
@@ -154,7 +154,7 @@ public:
 };
 
 /// @brief the object for collision or distance computation, contains the geometry and the transform information
-class CollisionObject
+class HPP_FCL_DLLAPI CollisionObject
 {
 public:
  CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_) :

@@ -169,13 +169,13 @@ void fcl::tools::Profiler::status(std::ostream &out, bool merge)
 namespace fcl
 {
 
-struct dataIntVal
+struct HPP_FCL_LOCAL dataIntVal
 {
   std::string       name;
   unsigned long int value;
 };
 
-struct SortIntByValue
+struct HPP_FCL_LOCAL SortIntByValue
 {
   bool operator()(const dataIntVal &a, const dataIntVal &b) const
   {
@@ -183,13 +183,13 @@ struct SortIntByValue
   }
 };
 
-struct dataDoubleVal
+struct HPP_FCL_LOCAL dataDoubleVal
 {
   std::string  name;
   double       value;
 };
 
-struct SortDoubleByValue
+struct HPP_FCL_LOCAL SortDoubleByValue
 {
   bool operator()(const dataDoubleVal &a, const dataDoubleVal &b) const
   {

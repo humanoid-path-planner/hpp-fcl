@@ -47,51 +47,51 @@ namespace fcl
 namespace details
 {
 
-struct shape_traits_base
+struct HPP_FCL_LOCAL shape_traits_base
 {
   enum { NeedNormalizedDir = true
   };
 };
 
-template <typename Shape> struct shape_traits : shape_traits_base {};
+template <typename Shape> struct HPP_FCL_LOCAL shape_traits : shape_traits_base {};
 
-template <> struct shape_traits<TriangleP> : shape_traits_base
+template <> struct HPP_FCL_LOCAL shape_traits<TriangleP> : shape_traits_base
 {
   enum { NeedNormalizedDir = false
   };
 };
 
-template <> struct shape_traits<Box> : shape_traits_base
+template <> struct HPP_FCL_LOCAL shape_traits<Box> : shape_traits_base
 {
   enum { NeedNormalizedDir = false
   };
 };
 
-template <> struct shape_traits<Sphere> : shape_traits_base
+template <> struct HPP_FCL_LOCAL shape_traits<Sphere> : shape_traits_base
 {
   enum { NeedNormalizedDir = false
   };
 };
 
-template <> struct shape_traits<Capsule> : shape_traits_base
+template <> struct HPP_FCL_LOCAL shape_traits<Capsule> : shape_traits_base
 {
   enum { NeedNormalizedDir = false
   };
 };
 
-template <> struct shape_traits<Cone> : shape_traits_base
+template <> struct HPP_FCL_LOCAL shape_traits<Cone> : shape_traits_base
 {
   enum { NeedNormalizedDir = false
   };
 };
 
-template <> struct shape_traits<Cylinder> : shape_traits_base
+template <> struct HPP_FCL_LOCAL shape_traits<Cylinder> : shape_traits_base
 {
   enum { NeedNormalizedDir = false
   };
 };
 
-template <> struct shape_traits<ConvexBase> : shape_traits_base
+template <> struct HPP_FCL_LOCAL shape_traits<ConvexBase> : shape_traits_base
 {
   enum { NeedNormalizedDir = false
   };

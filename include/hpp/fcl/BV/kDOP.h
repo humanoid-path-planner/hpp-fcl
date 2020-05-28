@@ -86,7 +86,7 @@ struct CollisionRequest;
 /// (-1, 1, -1) and (1, -1, 1) --> indices 10 and 22
 /// (1, -1, -1) and (-1, 1, 1) --> indices 11 and 23
 template<short N>
-class KDOP
+class HPP_FCL_DLLAPI KDOP
 {
 private:
   /// @brief Origin's distances to N KDOP planes
@@ -198,7 +198,7 @@ bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/,
 
 /// @brief translate the KDOP BV
 template<short N>
-KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
+KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t) HPP_FCL_DLLAPI;
 
 }
 

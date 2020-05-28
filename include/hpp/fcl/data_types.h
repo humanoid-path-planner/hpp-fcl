@@ -44,6 +44,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include <hpp/fcl/config.hh>
 
 namespace hpp
 {
@@ -75,7 +76,7 @@ typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 typedef Eigen::Vector2i support_func_guess_t;
 
 /// @brief Triangle with 3 indices for points
-class Triangle
+class HPP_FCL_DLLAPI Triangle
 {
 public:
   typedef std::size_t index_type;

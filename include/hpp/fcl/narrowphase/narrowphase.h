@@ -50,7 +50,7 @@ namespace fcl
 
 
   /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
-  struct GJKSolver
+  struct HPP_FCL_DLLAPI GJKSolver
   {
     /// @brief intersection checking between two shapes
     template<typename S1, typename S2>

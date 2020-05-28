@@ -135,7 +135,7 @@ namespace details
 ///         - 0 if the query should be made with non-aligned object frames.
 template<typename T_BVH, typename T_SH,
   int _Options = details::bvh_shape_traits<T_BVH, T_SH>::Options>
-struct BVHShapeCollider
+struct HPP_FCL_LOCAL BVHShapeCollider
 {
   static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
                              const GJKSolver* nsolver,

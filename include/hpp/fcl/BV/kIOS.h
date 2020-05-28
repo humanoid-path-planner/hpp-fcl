@@ -52,10 +52,10 @@ struct CollisionRequest;
 /// @{
 
 /// @brief A class describing the kIOS collision structure, which is a set of spheres.
-class kIOS
+class HPP_FCL_DLLAPI kIOS
 {
   /// @brief One sphere in kIOS
-  struct kIOS_Sphere
+  struct HPP_FCL_DLLAPI kIOS_Sphere
   {
     Vec3f o;
     FCL_REAL r;
@@ -147,21 +147,21 @@ public:
 
 
 /// @brief Translate the kIOS BV
-kIOS translate(const kIOS& bv, const Vec3f& t);
+kIOS translate(const kIOS& bv, const Vec3f& t) HPP_FCL_DLLAPI;
 
 /// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0) and b2 is in identity.
 /// @todo Not efficient
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2);
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2) HPP_FCL_DLLAPI;
 
 /// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0) and b2 is in identity.
 /// @todo Not efficient
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2,
              const CollisionRequest& request,
-             FCL_REAL& sqrDistLowerBound);
+             FCL_REAL& sqrDistLowerBound) HPP_FCL_DLLAPI;
 
 /// @brief Approximate distance between two kIOS bounding volumes
 /// @todo P and Q is not returned, need implementation
-FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
+FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P = NULL, Vec3f* Q = NULL) HPP_FCL_DLLAPI;
 
 }
 

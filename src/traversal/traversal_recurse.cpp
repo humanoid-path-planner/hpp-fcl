@@ -221,7 +221,7 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
 
 
 /** @brief Bounding volume test structure */
-struct BVT
+struct HPP_FCL_LOCAL BVT
 {
   /** @brief distance between bvs */
   FCL_REAL d;
@@ -231,7 +231,7 @@ struct BVT
 };
 
 /** @brief Comparer between two BVT */
-struct BVT_Comparer
+struct HPP_FCL_LOCAL BVT_Comparer
 {
   bool operator() (const BVT& lhs, const BVT& rhs) const
   {
@@ -239,7 +239,7 @@ struct BVT_Comparer
   }
 };
 
-struct BVTQ
+struct HPP_FCL_LOCAL BVTQ
 {
   BVTQ() : qsize(2) {}
 

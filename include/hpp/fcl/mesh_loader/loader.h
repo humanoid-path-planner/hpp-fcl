@@ -49,7 +49,7 @@ namespace hpp
 namespace fcl {
   /// Base class for building polyhedron from files.
   /// This class builds a new object for each file.
-  class MeshLoader
+  class HPP_FCL_DLLAPI MeshLoader
   {
     public:
       virtual ~MeshLoader() {}
@@ -71,7 +71,7 @@ namespace fcl {
   /// This class builds a new object for each different file.
   /// If method CachedMeshLoader::load is called twice with the same arguments,
   /// the second call returns the result of the first call.
-  class CachedMeshLoader : public MeshLoader
+  class HPP_FCL_DLLAPI CachedMeshLoader : public MeshLoader
   {
     public:
       virtual ~CachedMeshLoader() {}
@@ -81,7 +81,7 @@ namespace fcl {
       virtual BVHModelPtr_t load (const std::string& filename,
           const Vec3f& scale);
 
-      struct Key {
+      struct HPP_FCL_DLLAPI Key {
         std::string filename;
         Vec3f scale;
 
