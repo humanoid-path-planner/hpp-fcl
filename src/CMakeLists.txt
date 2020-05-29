@@ -183,6 +183,9 @@ target_include_directories(${LIBRARY_NAME}
   SYSTEM PUBLIC
   ${EIGEN3_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS}
+  )
+target_include_directories(${LIBRARY_NAME}
+  SYSTEM PRIVATE
   ${assimp_INCLUDE_DIR}
   )
 
