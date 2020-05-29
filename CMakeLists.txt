@@ -57,6 +57,10 @@ include(cmake/hpp.cmake)
 include(cmake/apple.cmake)
 include(cmake/ide.cmake)
 
+SET(CMAKE_MODULE_PATH
+  ${CMAKE_SOURCE_DIR}/cmake-modules/
+  ${CMAKE_MODULE_PATH})
+
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
 
@@ -68,8 +72,8 @@ PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.0")
 
 if(BUILD_PYTHON_INTERFACE)
-  ADD_PROJECT_DEPENDENCY(eigenpy 2.2 REQUIRED)
-endif ()
+  FIND_PACKAGE(eigenpy 2.2 REQUIRED)
+endif()
 
 # Required dependencies
 set(BOOST_COMPONENTS thread date_time system)
@@ -81,10 +85,10 @@ endif ()
 
 search_for_boost()
 # Optional dependencies
-add_optional_dependency("octomap >= 1.6")
-if (OCTOMAP_FOUND)
+ADD_PROJECT_DEPENDENCY(octomap PKG_CONFIG_REQUIRES "octomap >= 1.6")
+if(octomap_FOUND)
   SET(HPP_FCL_HAVE_OCTOMAP TRUE)
-  string(REPLACE "." ";" VERSION_LIST ${OCTOMAP_VERSION})
+  string(REPLACE "." ";" VERSION_LIST ${octomap_VERSION})
   list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
   list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
   list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
@@ -115,7 +119,7 @@ if(HPP_FCL_HAS_QHULL)
     )
 endif()
 
-ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
+FIND_PACKAGE(assimp REQUIRED)
 
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h

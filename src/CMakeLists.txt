@@ -158,9 +158,18 @@ ADD_HEADER_GROUP(PROJECT_HEADERS_FULL_PATH)
 
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   PUBLIC
-  Boost::thread
-  Boost::date_time
-  Boost::system
+  ${Boost_THREAD_LIBRARY}
+  ${Boost_DATE_TIME_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+#  Boost::thread
+#  Boost::date_time
+#  Boost::system
+  )
+
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
+  PRIVATE
+  ${assimp_LIBRARY}
+  # assimp::assimp # Not working
   )
 
 if(HPP_FCL_HAS_QHULL)
@@ -173,6 +182,11 @@ endif()
 target_include_directories(${LIBRARY_NAME}
   SYSTEM PUBLIC
   ${EIGEN3_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
+  )
+target_include_directories(${LIBRARY_NAME}
+  SYSTEM PRIVATE
+  ${assimp_INCLUDE_DIR}
   )
 
 target_include_directories(${LIBRARY_NAME}
@@ -180,21 +194,15 @@ target_include_directories(${LIBRARY_NAME}
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 
-PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} assimp)
-if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
-  target_compile_definitions(${LIBRARY_NAME} PRIVATE -DHPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES)
-  message(STATUS "Assimp version has unified headers")
-else()
-  message(STATUS "Assimp version does not have unified headers")
-endif()
-IF(OCTOMAP_FOUND)
-  PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} octomap)
+IF(octomap_FOUND)
+  target_include_directories(${LIBRARY_NAME} SYSTEM PUBLIC ${OCTOMAP_INCLUDE_DIRS})
+  target_link_libraries(${LIBRARY_NAME} PUBLIC ${OCTOMAP_LIBRARIES})
   target_compile_definitions (${LIBRARY_NAME} PUBLIC
     -DHPP_FCL_HAVE_OCTOMAP
     -DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION}
     -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION}
     -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION})
-ENDIF(OCTOMAP_FOUND)
+ENDIF(octomap_FOUND)
 
 install(TARGETS ${LIBRARY_NAME}
   EXPORT ${TARGETS_EXPORT_NAME}

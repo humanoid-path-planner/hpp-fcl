@@ -9,7 +9,6 @@ macro(add_fcl_test test_name source)
     Boost::unit_test_framework
     utility
     )
-  PKG_CONFIG_USE_DEPENDENCY(${test_name} assimp)
   target_compile_options(${test_name} PRIVATE "-Wno-c99-extensions")
   if(HPP_FCL_HAS_QHULL)
     target_compile_options(${test_name} PRIVATE -DHPP_FCL_HAS_QHULL)
@@ -49,7 +48,6 @@ add_fcl_test(convex convex.cpp)
 add_fcl_test(bvh_models bvh_models.cpp)
 
 add_fcl_test(profiling profiling.cpp)
-PKG_CONFIG_USE_DEPENDENCY(profiling assimp)
 
 add_fcl_test(gjk gjk.cpp)
 if(HPP_FCL_HAVE_OCTOMAP)
