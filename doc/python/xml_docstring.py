@@ -69,10 +69,13 @@ class XmlDocString (object):
         if detailled is not None and len(detailled.getchildren()) > 0:
             if brief is not None: self._newline ()
             self.visit (detailled)
-        from sys import stdout, stderr
+        from sys import stdout, stderr, version_info
         self.writeErrors(output)
         self._clean()
-        return self._linesep.join(self.lines).encode("utf-8")
+        if version_info[0] == 2:
+            return self._linesep.join(self.lines).encode("utf-8")
+        else:
+            return self._linesep.join(self.lines)
 
     def visit (self, node):
         assert isinstance(node.tag, str)
