@@ -1,0 +1,12 @@
+name: fcl
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - eigen
+  - assimp
+  - octomap
+  - numpy
+  - boost
+  - eigenpy
+  - python
