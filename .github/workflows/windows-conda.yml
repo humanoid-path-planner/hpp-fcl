@@ -1,10 +1,5 @@
 name: Build FCL for Windows via Conda
-on:
-  pull_request:
-  push:
-    branches:
-      - master
-      - devel
+on: [push,pull_request]
 
 jobs:
   build:
