@@ -147,21 +147,25 @@ public:
 
 
 /// @brief Translate the kIOS BV
-kIOS translate(const kIOS& bv, const Vec3f& t) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI kIOS translate(const kIOS& bv, const Vec3f& t);
 
 /// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0) and b2 is in identity.
 /// @todo Not efficient
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0,
+                            const kIOS& b1, const kIOS& b2);
 
 /// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0) and b2 is in identity.
 /// @todo Not efficient
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2,
-             const CollisionRequest& request,
-             FCL_REAL& sqrDistLowerBound) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0,
+                            const kIOS& b1, const kIOS& b2,
+                            const CollisionRequest& request,
+                            FCL_REAL& sqrDistLowerBound);
 
 /// @brief Approximate distance between two kIOS bounding volumes
 /// @todo P and Q is not returned, need implementation
-FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P = NULL, Vec3f* Q = NULL) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0,
+                                 const kIOS& b1, const kIOS& b2,
+                                 Vec3f* P = NULL, Vec3f* Q = NULL);
 
 }
 

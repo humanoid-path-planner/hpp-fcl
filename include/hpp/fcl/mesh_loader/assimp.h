@@ -78,10 +78,10 @@ struct HPP_FCL_DLLAPI Loader {
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-void buildMesh (const fcl::Vec3f & scale,
-                const aiScene* scene,
-                unsigned vertices_offset,
-                TriangleAndVertices & tv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void buildMesh (const fcl::Vec3f & scale,
+                               const aiScene* scene,
+                               unsigned vertices_offset,
+                               TriangleAndVertices & tv);
 
 /**
  * @brief      Convert an assimp scene to a mesh

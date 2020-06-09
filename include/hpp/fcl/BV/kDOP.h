@@ -198,7 +198,7 @@ bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/,
 
 /// @brief translate the KDOP BV
 template<short N>
-KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
 
 }
 

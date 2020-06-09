@@ -53,13 +53,13 @@ namespace fcl
 namespace details
 {
 /// @brief get the vertices of some convex shape which can bound the given shape in a specific configuration
-std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf) HPP_FCL_DLLAPI;
-std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf) HPP_FCL_DLLAPI;
-std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& tf) HPP_FCL_DLLAPI;
-std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf) HPP_FCL_DLLAPI;
-std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f& tf) HPP_FCL_DLLAPI;
-std::vector<Vec3f> getBoundVertices(const ConvexBase& convex, const Transform3f& tf) HPP_FCL_DLLAPI;
-std::vector<Vec3f> getBoundVertices(const TriangleP& triangle, const Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf);
+HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf);
+HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& tf);
+HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf);
+HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f& tf);
+HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const ConvexBase& convex, const Transform3f& tf);
+HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const TriangleP& triangle, const Transform3f& tf);
 } 
 /// @endcond
 
@@ -73,131 +73,131 @@ inline void computeBV(const S& s, const Transform3f& tf, BV& bv)
 }
 
 template<>
-void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, AABB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3f& tf, AABB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf, AABB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv);
 
 
 
 template<>
-void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, OBB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f& tf, OBB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3f& tf, RSS& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3f& tf, RSS& bv);
 
 template<>
-void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3f& tf, OBBRSS& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3f& tf, OBBRSS& bv);
 
 template<>
-void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf, kIOS& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf, kIOS& bv);
 
 template<>
-void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<16>& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<16>& bv);
 
 template<>
-void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<18>& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<18>& bv);
 
 template<>
-void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<24>& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<24>& bv);
 
 template<>
-void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv);
 
 template<>
-void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3f& tf, OBBRSS& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3f& tf, OBBRSS& bv);
 
 template<>
-void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv);
 
 template<>
-void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf, KDOP<16>& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf, KDOP<16>& bv);
 
 template<>
-void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf, KDOP<18>& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf, KDOP<18>& bv);
 
 template<>
-void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf, KDOP<24>& bv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf, KDOP<24>& bv);
 
 
 /// @brief construct a box shape (with a configuration) from a given bounding volume
-void constructBox(const AABB& bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const AABB& bv, Box& box, Transform3f& tf);
 
-void constructBox(const OBB& bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const OBB& bv, Box& box, Transform3f& tf);
 
-void constructBox(const OBBRSS& bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const OBBRSS& bv, Box& box, Transform3f& tf);
 
-void constructBox(const kIOS& bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const kIOS& bv, Box& box, Transform3f& tf);
 
-void constructBox(const RSS& bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const RSS& bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<16>& bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const KDOP<16>& bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<18>& bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const KDOP<18>& bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf);
 
-void constructBox(const AABB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const AABB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const OBB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const OBB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const OBBRSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const OBBRSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const kIOS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const kIOS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<16>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const KDOP<16>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<18>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const KDOP<18>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-Halfspace transform(const Halfspace& a, const Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI Halfspace transform(const Halfspace& a, const Transform3f& tf);
 
-Plane transform(const Plane& a, const Transform3f& tf) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI Plane transform(const Plane& a, const Transform3f& tf);
 
 }
 
