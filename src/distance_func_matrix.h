@@ -47,14 +47,14 @@ namespace hpp
 namespace fcl
 {
   template<typename T_SH1, typename T_SH2>
-    FCL_REAL ShapeShapeDistance
+  HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance
     (const CollisionGeometry* o1, const Transform3f& tf1,
      const CollisionGeometry* o2, const Transform3f& tf2,
      const GJKSolver* nsolver, const DistanceRequest& request,
      DistanceResult& result);
 
   template<typename T_SH1, typename T_SH2>
-    std::size_t ShapeShapeCollide
+  HPP_FCL_DLLAPI std::size_t ShapeShapeCollide
     (const CollisionGeometry* o1, const Transform3f& tf1,
      const CollisionGeometry* o2, const Transform3f& tf2, 
      const GJKSolver* nsolver, const CollisionRequest& request,

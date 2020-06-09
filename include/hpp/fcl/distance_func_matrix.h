@@ -54,7 +54,9 @@ struct HPP_FCL_DLLAPI DistanceFunctionMatrix
   /// 1. two objects o1 and o2 and their configuration in world coordinate tf1 and tf2;
   /// 2. the solver for narrow phase collision, this is for distance computation between geometric shapes;
   /// 3. the request setting for distance (e.g., whether need to return nearest points);
-  typedef FCL_REAL (*DistanceFunc)(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
+  typedef FCL_REAL (*DistanceFunc)(const CollisionGeometry* o1, const Transform3f& tf1,
+                                   const CollisionGeometry* o2, const Transform3f& tf2,
+                                   const GJKSolver* nsolver,
                                    const DistanceRequest& request, DistanceResult& result);
   
   /// @brief each item in the distance matrix is a function to handle distance between objects of type1 and type2
