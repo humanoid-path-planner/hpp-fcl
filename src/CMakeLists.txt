@@ -168,7 +168,7 @@ TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
 
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   PRIVATE
-  ${assimp_LIBRARY}
+  ${assimp_LIBRARIES}
   # assimp::assimp # Not working
   )
 
