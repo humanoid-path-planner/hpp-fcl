@@ -34,6 +34,9 @@
 
 /** \author Florent Lamiraux <florent@laas.fr> */
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #define BOOST_TEST_MODULE FCL_BOX_BOX
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>

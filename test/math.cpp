@@ -33,6 +33,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #define BOOST_TEST_MODULE FCL_MATH
 #define BOOST_TEST_DYN_LINK
