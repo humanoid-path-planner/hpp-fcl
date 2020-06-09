@@ -161,6 +161,7 @@ TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   ${Boost_THREAD_LIBRARY}
   ${Boost_DATE_TIME_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
+  ${Boost_CHRONO_LIBRARY} # Required on Windows. Don't know why.
 #  Boost::thread
 #  Boost::date_time
 #  Boost::system

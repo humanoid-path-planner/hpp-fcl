@@ -63,8 +63,8 @@ ENDIF()
 target_link_libraries(test-benchmark 
   PUBLIC 
   utility
-  Boost::chrono
-  Boost::filesystem
+  ${Boost_CHRONO_LIBRARY}
+  ${Boost_FILESYSTEM_LIBRARY}
   ${PROJECT_NAME} 
   )
 
