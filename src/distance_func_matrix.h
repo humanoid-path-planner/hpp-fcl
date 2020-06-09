@@ -34,8 +34,8 @@
 
 /** \author Florent Lamiraux */
 
-#ifndef HPP_FCL_DISTANCE_FUNC_MATRIX_H
-#define HPP_FCL_DISTANCE_FUNC_MATRIX_H
+#ifndef HPP_FCL_SRC_DISTANCE_FUNC_MATRIX_H
+#define HPP_FCL_SRC_DISTANCE_FUNC_MATRIX_H
 
 /// @cond INTERNAL
 
