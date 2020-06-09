@@ -143,7 +143,7 @@ public:
 
 /// @brief Traversal node for collision between two meshes
 template<typename BV, int _Options = RelativeTransformationIsIdentity>
-class HPP_FCL_DLLAPI MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
+class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
 {
 public:
   enum {
