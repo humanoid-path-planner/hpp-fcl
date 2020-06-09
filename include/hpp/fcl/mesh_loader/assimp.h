@@ -38,10 +38,11 @@
 #ifndef HPP_FCL_MESH_LOADER_ASSIMP_H
 #define HPP_FCL_MESH_LOADER_ASSIMP_H
 
+#include <hpp/fcl/config.hh>
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
-class aiScene;
+struct aiScene;
 namespace Assimp {
   class Importer;
 }
@@ -124,8 +125,8 @@ inline void meshFromAssimpScene(
  */
 template<class BoundingVolume>
 inline void loadPolyhedronFromResource (const std::string & resource_path,
-                                 const fcl::Vec3f & scale,
-                                 const boost::shared_ptr < BVHModel<BoundingVolume> > & polyhedron)
+                                        const fcl::Vec3f & scale,
+                                        const boost::shared_ptr < BVHModel<BoundingVolume> > & polyhedron)
 {
   internal::Loader scene;
   scene.load (resource_path);
