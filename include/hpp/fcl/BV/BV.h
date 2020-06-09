@@ -133,7 +133,7 @@ public:
 
 
 template<typename BV1>
-class HPP_FCL_DLLAPI Converter<BV1, AABB>
+class Converter<BV1, AABB>
 {
 public:
   static void convert(const BV1& bv1, const Transform3f& tf1, AABB& bv2)
@@ -148,7 +148,7 @@ public:
 };
 
 template<typename BV1>
-class HPP_FCL_DLLAPI Converter<BV1, OBB>
+class Converter<BV1, OBB>
 {
 public:
   static void convert(const BV1& bv1, const Transform3f& tf1, OBB& bv2)
