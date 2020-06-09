@@ -138,6 +138,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/shape/details/convex.hxx
   include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
   include/hpp/fcl/shape/geometric_shapes.h
+  include/hpp/fcl/shape/geometric_shapes_utility.h
   include/hpp/fcl/distance_func_matrix.h
   include/hpp/fcl/collision.h
   include/hpp/fcl/collision_func_matrix.h
