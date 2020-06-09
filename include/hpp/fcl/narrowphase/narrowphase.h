@@ -378,6 +378,12 @@ namespace fcl
   HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Sphere, Halfspace,);
   HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Sphere, Plane,);
 
+  template<> bool GJKSolver::shapeIntersect<Box, Sphere>
+  (const Box& s1, const Transform3f& tf1,
+   const Sphere& s2, const Transform3f& tf2,
+   FCL_REAL& distance_lower_bound, bool enable_penetration,
+   Vec3f* contact_points, Vec3f* normal) const;
+
 #ifdef IS_DOXYGEN // for doxygen only
   /** \todo currently disabled and to re-enable it, API of function
    *  \ref obbDisjointAndLowerBoundDistance should be modified.
