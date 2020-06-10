@@ -54,11 +54,11 @@ namespace fcl
   {
     /// @brief intersection checking between two shapes
     template<typename S1, typename S2>
-      bool shapeIntersect(const S1& s1, const Transform3f& tf1,
-                          const S2& s2, const Transform3f& tf2,
-                          FCL_REAL& distance_lower_bound,
-                          bool enable_penetration,
-                          Vec3f* contact_points, Vec3f* normal) const
+    bool shapeIntersect(const S1& s1, const Transform3f& tf1,
+                        const S2& s2, const Transform3f& tf2,
+                        FCL_REAL& distance_lower_bound,
+                        bool enable_penetration,
+                        Vec3f* contact_points, Vec3f* normal) const
     {
       Vec3f guess(1, 0, 0);
       support_func_guess_t support_hint;
@@ -204,10 +204,10 @@ namespace fcl
 
     /// @brief distance computation between two shapes
     template<typename S1, typename S2>
-      bool shapeDistance(const S1& s1, const Transform3f& tf1,
-                         const S2& s2, const Transform3f& tf2,
-                         FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
-                         Vec3f& normal) const
+    bool shapeDistance(const S1& s1, const Transform3f& tf1,
+                       const S2& s2, const Transform3f& tf2,
+                       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+                       Vec3f& normal) const
     {
 #ifndef NDEBUG
       FCL_REAL eps (sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
@@ -348,6 +348,78 @@ namespace fcl
     /// @brief smart guess for the support function
     mutable support_func_guess_t support_func_cached_guess;
   };
+
+  template<>
+  HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction
+  (const Sphere& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+   const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+   Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+
+  template<>
+  HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction
+  (const Halfspace& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+   const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+   Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+
+  template<>
+  HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction
+  (const Plane& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+   const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+   Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+
+#define SHAPE_INTERSECT_SPECIALIZATION_BASE(S1,S2) \
+template<> \
+HPP_FCL_DLLAPI bool GJKSolver::shapeIntersect<S1, S2> \
+ (const S1 &s1, const Transform3f& tf1, \
+  const S2 &s2, const Transform3f& tf2, \
+  FCL_REAL& distance_lower_bound, \
+  bool, \
+  Vec3f* contact_points, Vec3f* normal) const;
+
+#define SHAPE_INTERSECT_SPECIALIZATION(S1,S2) \
+  SHAPE_INTERSECT_SPECIALIZATION_BASE(S1,S2) \
+  SHAPE_INTERSECT_SPECIALIZATION_BASE(S2,S1)
+
+  SHAPE_INTERSECT_SPECIALIZATION(Sphere,Capsule);
+  SHAPE_INTERSECT_SPECIALIZATION_BASE(Sphere,Sphere);
+  SHAPE_INTERSECT_SPECIALIZATION(Sphere,Box);
+  SHAPE_INTERSECT_SPECIALIZATION(Sphere,Halfspace);
+  SHAPE_INTERSECT_SPECIALIZATION(Sphere,Plane);
+
+  SHAPE_INTERSECT_SPECIALIZATION(Halfspace,Box);
+  SHAPE_INTERSECT_SPECIALIZATION(Halfspace,Capsule);
+  SHAPE_INTERSECT_SPECIALIZATION(Halfspace,Cylinder);
+  SHAPE_INTERSECT_SPECIALIZATION(Halfspace,Cone);
+  SHAPE_INTERSECT_SPECIALIZATION(Halfspace,Plane);
+
+  SHAPE_INTERSECT_SPECIALIZATION(Plane,Box);
+  SHAPE_INTERSECT_SPECIALIZATION(Plane,Capsule);
+  SHAPE_INTERSECT_SPECIALIZATION(Plane,Cylinder);
+  SHAPE_INTERSECT_SPECIALIZATION(Plane,Cone);
+
+#undef SHAPE_INTERSECT_SPECIALIZATION
+#undef SHAPE_INTERSECT_SPECIALIZATION_BASE
+
+#define SHAPE_DISTANCE_SPECIALIZATION_BASE(S1,S2) \
+template<> \
+HPP_FCL_DLLAPI bool GJKSolver::shapeDistance<S1, S2> \
+ (const S1& s1, const Transform3f& tf1, \
+  const S2& s2, const Transform3f& tf2, \
+  FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+
+#define SHAPE_DISTANCE_SPECIALIZATION(S1,S2) \
+  SHAPE_DISTANCE_SPECIALIZATION_BASE(S1,S2) \
+  SHAPE_DISTANCE_SPECIALIZATION_BASE(S2,S1)
+
+  SHAPE_DISTANCE_SPECIALIZATION(Sphere,Capsule);
+  SHAPE_DISTANCE_SPECIALIZATION(Sphere,Box);
+  SHAPE_DISTANCE_SPECIALIZATION(Sphere,Cylinder);
+  SHAPE_DISTANCE_SPECIALIZATION_BASE(Sphere,Sphere);
+  SHAPE_DISTANCE_SPECIALIZATION_BASE(Capsule,Capsule);
+  SHAPE_DISTANCE_SPECIALIZATION_BASE(TriangleP,TriangleP);
+
+#undef SHAPE_DISTANCE_SPECIALIZATION
+#undef SHAPE_DISTANCE_SPECIALIZATION_BASE
 
 #if __cplusplus < 201103L
 #pragma GCC diagnostic push
