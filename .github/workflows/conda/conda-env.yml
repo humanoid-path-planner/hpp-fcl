@@ -4,6 +4,7 @@ channels:
   - nodefaults
 dependencies:
   - eigen
+  - octomap
   - assimp
   - numpy
   - boost
