@@ -50,7 +50,7 @@ namespace fcl
 /// @tparam PolygonT the polygon class. It must have method \c size() and
 ///         \c operator[](int i)
 template <typename PolygonT>
-class HPP_FCL_DLLAPI Convex : public ConvexBase
+class Convex : public ConvexBase
 {
 public:
   /// @brief Construct an uninitialized convex object

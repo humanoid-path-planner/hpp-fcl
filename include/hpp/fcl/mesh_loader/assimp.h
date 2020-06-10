@@ -38,10 +38,11 @@
 #ifndef HPP_FCL_MESH_LOADER_ASSIMP_H
 #define HPP_FCL_MESH_LOADER_ASSIMP_H
 
+#include <hpp/fcl/config.hh>
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
-class aiScene;
+struct aiScene;
 namespace Assimp {
   class Importer;
 }
@@ -78,10 +79,10 @@ struct HPP_FCL_DLLAPI Loader {
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-void buildMesh (const fcl::Vec3f & scale,
-                const aiScene* scene,
-                unsigned vertices_offset,
-                TriangleAndVertices & tv) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI void buildMesh (const fcl::Vec3f & scale,
+                               const aiScene* scene,
+                               unsigned vertices_offset,
+                               TriangleAndVertices & tv);
 
 /**
  * @brief      Convert an assimp scene to a mesh
@@ -124,8 +125,8 @@ inline void meshFromAssimpScene(
  */
 template<class BoundingVolume>
 inline void loadPolyhedronFromResource (const std::string & resource_path,
-                                 const fcl::Vec3f & scale,
-                                 const boost::shared_ptr < BVHModel<BoundingVolume> > & polyhedron)
+                                        const fcl::Vec3f & scale,
+                                        const boost::shared_ptr < BVHModel<BoundingVolume> > & polyhedron)
 {
   internal::Loader scene;
   scene.load (resource_path);

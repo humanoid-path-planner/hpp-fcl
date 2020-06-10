@@ -245,12 +245,13 @@ static inline AABB rotate(const AABB& aabb, const Matrix3f& R)
 }
 
 /// @brief Check collision between two aabbs, b1 is in configuration (R0, T0) and b2 is in identity.
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1, const AABB& b2) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+                            const AABB& b2);
 
 /// @brief Check collision between two aabbs, b1 is in configuration (R0, T0) and b2 is in identity.
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
-	     const AABB& b2, const CollisionRequest& request,
-             FCL_REAL& sqrDistLowerBound) HPP_FCL_DLLAPI;
+HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+                            const AABB& b2, const CollisionRequest& request,
+                            FCL_REAL& sqrDistLowerBound);
 }
 
 } // namespace hpp

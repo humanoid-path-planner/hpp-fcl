@@ -51,7 +51,7 @@ namespace fcl
 
 /// @brief Node structure encoding the information required for traversal.
 
-class HPP_FCL_DLLAPI TraversalNodeBase
+class TraversalNodeBase
 {
 public:
   TraversalNodeBase () : enable_statistics(false) {}
@@ -101,7 +101,7 @@ public:
 /// @{
 
 /// @brief Node structure encoding the information required for collision traversal.
-class HPP_FCL_DLLAPI CollisionTraversalNodeBase : public TraversalNodeBase
+class CollisionTraversalNodeBase : public TraversalNodeBase
 {
 public:
   CollisionTraversalNodeBase (const CollisionRequest& request_) :
@@ -144,7 +144,7 @@ public:
 /// @{
 
 /// @brief Node structure encoding the information required for distance traversal.
-class HPP_FCL_DLLAPI DistanceTraversalNodeBase : public TraversalNodeBase
+class DistanceTraversalNodeBase : public TraversalNodeBase
 {
 public:
   DistanceTraversalNodeBase() : result(NULL) {}

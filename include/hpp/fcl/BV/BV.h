@@ -59,7 +59,7 @@ namespace details
 
 /// @brief Convert a bounding volume of type BV1 in configuration tf1 to a bounding volume of type BV2 in I configuration.
 template<typename BV1, typename BV2>
-class HPP_FCL_DLLAPI Converter
+class Converter
 {
 private:
   static void convert(const BV1& /*bv1*/, const Transform3f& /*tf1*/, BV2& /*bv2*/)
@@ -71,7 +71,7 @@ private:
 
 /// @brief Convert from AABB to AABB, not very tight but is fast.
 template<>
-class HPP_FCL_DLLAPI Converter<AABB, AABB>
+class Converter<AABB, AABB>
 {
 public:
   static void convert(const AABB& bv1, const Transform3f& tf1, AABB& bv2)
@@ -86,7 +86,7 @@ public:
 };
 
 template<>
-class HPP_FCL_DLLAPI Converter<AABB, OBB>
+class Converter<AABB, OBB>
 {
 public:
   static void convert(const AABB& bv1, const Transform3f& tf1, OBB& bv2)
@@ -98,7 +98,7 @@ public:
 };
 
 template<>
-class HPP_FCL_DLLAPI Converter<OBB, OBB>
+class Converter<OBB, OBB>
 {
 public:
   static void convert(const OBB& bv1, const Transform3f& tf1, OBB& bv2)
@@ -110,7 +110,7 @@ public:
 };
 
 template<>
-class HPP_FCL_DLLAPI Converter<OBBRSS, OBB>
+class Converter<OBBRSS, OBB>
 {
 public:
   static void convert(const OBBRSS& bv1, const Transform3f& tf1, OBB& bv2)
@@ -120,7 +120,7 @@ public:
 };
 
 template<>
-class HPP_FCL_DLLAPI Converter<RSS, OBB>
+class Converter<RSS, OBB>
 {
 public:
   static void convert(const RSS& bv1, const Transform3f& tf1, OBB& bv2)
@@ -133,7 +133,7 @@ public:
 
 
 template<typename BV1>
-class HPP_FCL_DLLAPI Converter<BV1, AABB>
+class Converter<BV1, AABB>
 {
 public:
   static void convert(const BV1& bv1, const Transform3f& tf1, AABB& bv2)
@@ -148,7 +148,7 @@ public:
 };
 
 template<typename BV1>
-class HPP_FCL_DLLAPI Converter<BV1, OBB>
+class Converter<BV1, OBB>
 {
 public:
   static void convert(const BV1& bv1, const Transform3f& tf1, OBB& bv2)
@@ -160,7 +160,7 @@ public:
 };
 
 template<>
-class HPP_FCL_DLLAPI Converter<OBB, RSS>
+class Converter<OBB, RSS>
 {
 public:
   static void convert(const OBB& bv1, const Transform3f& tf1, RSS& bv2)
@@ -175,7 +175,7 @@ public:
 };
 
 template<>
-class HPP_FCL_DLLAPI Converter<RSS, RSS>
+class Converter<RSS, RSS>
 {
 public:
   static void convert(const RSS& bv1, const Transform3f& tf1, RSS& bv2)
@@ -190,7 +190,7 @@ public:
 };
 
 template<>
-class HPP_FCL_DLLAPI Converter<OBBRSS, RSS>
+class Converter<OBBRSS, RSS>
 {
 public:
   static void convert(const OBBRSS& bv1, const Transform3f& tf1, RSS& bv2)
@@ -200,7 +200,7 @@ public:
 };
 
 template<>
-class HPP_FCL_DLLAPI Converter<AABB, RSS>
+class Converter<AABB, RSS>
 {
 public:
   static void convert(const AABB& bv1, const Transform3f& tf1, RSS& bv2)
@@ -246,7 +246,7 @@ public:
 };
 
 template<>
-class HPP_FCL_DLLAPI Converter<AABB, OBBRSS>
+class Converter<AABB, OBBRSS>
 {
 public:
   static void convert(const AABB& bv1, const Transform3f& tf1, OBBRSS& bv2)

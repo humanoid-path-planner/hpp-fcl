@@ -23,7 +23,9 @@ namespace hpp
 {
 namespace fcl
 {
-  CollisionGeometry* extract(const CollisionGeometry* model, const Transform3f& pose, const AABB& aabb) HPP_FCL_DLLAPI;
+  HPP_FCL_DLLAPI CollisionGeometry* extract(const CollisionGeometry* model,
+                                            const Transform3f& pose,
+                                            const AABB& aabb);
 }
 
 } // namespace hpp

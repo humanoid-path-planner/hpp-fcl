@@ -38,6 +38,7 @@
 #include <hpp/fcl/distance_func_matrix.h>
 
 #include <../src/collision_node.h>
+#include <../src/distance_func_matrix.h>
 #include <hpp/fcl/internal/traversal_node_setup.h>
 #include <../src/traits_traversal.h>
 
@@ -67,7 +68,7 @@ FCL_REAL Distance(const CollisionGeometry* o1, const Transform3f& tf1, const Col
 #endif
 
 template<typename T_SH1, typename T_SH2>
-FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
+ FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
                         const DistanceRequest& request, DistanceResult& result)
 {
   if(request.isSatisfied(result)) return result.min_distance;
