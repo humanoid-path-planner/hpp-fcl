@@ -72,7 +72,7 @@ HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T2,T1> \
 (const CollisionGeometry* o1, const Transform3f& tf1, \
  const CollisionGeometry* o2, const Transform3f& tf2, \
  const GJKSolver* nsolver, const DistanceRequest& request, \
- DistanceResult& result);
+ DistanceResult& result)
 
   SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box,Halfspace);
   SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box,Plane);
@@ -97,7 +97,7 @@ HPP_FCL_DLLAPI std::size_t ShapeShapeCollide<T1,T2> \
   (const CollisionGeometry* o1, const Transform3f& tf1, \
    const CollisionGeometry* o2, const Transform3f& tf2, \
    const GJKSolver* nsolver, const CollisionRequest& request, \
-   CollisionResult& result);
+   CollisionResult& result)
 
   SHAPE_SHAPE_COLLIDE_SPECIALIZATION(Sphere,Sphere);
 
