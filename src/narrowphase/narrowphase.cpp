@@ -88,11 +88,12 @@ namespace fcl
   }
 
 template<>
-bool GJKSolver::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const Transform3f& tf1,
-                                                const Capsule &s2, const Transform3f& tf2,
-                                                FCL_REAL& distance_lower_bound,
-                                                bool,
-                                                Vec3f* contact_points, Vec3f* normal) const
+bool GJKSolver::shapeIntersect<Sphere, Capsule>
+ (const Sphere &s1, const Transform3f& tf1,
+  const Capsule &s2, const Transform3f& tf2,
+  FCL_REAL& distance_lower_bound,
+  bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   return details::sphereCapsuleIntersect(s1, tf1, s2, tf2, distance_lower_bound,
       contact_points, normal);
@@ -101,11 +102,12 @@ bool GJKSolver::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const Transfor
 SHAPE_INTERSECT_INVERTED(Capsule, Sphere)
 
 template<>
-bool GJKSolver::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
-                                               const Sphere& s2, const Transform3f& tf2,
-                                               FCL_REAL& distance_lower_bound,
-                                               bool,
-                                               Vec3f* contact_points, Vec3f* normal) const
+bool GJKSolver::shapeIntersect<Sphere, Sphere>
+ (const Sphere& s1, const Transform3f& tf1,
+  const Sphere& s2, const Transform3f& tf2,
+  FCL_REAL& distance_lower_bound,
+  bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   return details::sphereSphereIntersect(s1, tf1, s2, tf2, distance_lower_bound,
       contact_points, normal);
@@ -113,10 +115,10 @@ bool GJKSolver::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform
 
 template<>
 bool GJKSolver::shapeIntersect<Box, Sphere>
-(const Box   & s1, const Transform3f& tf1,
- const Sphere& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Box   & s1, const Transform3f& tf1,
+  const Sphere& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   Vec3f ps, pb, n;
   bool res = details::boxSphereDistance (s1, tf1, s2, tf2, distance, ps, pb, n);
@@ -141,10 +143,10 @@ bool GJKSolver::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
 
 template<>
 bool GJKSolver::shapeIntersect<Sphere, Halfspace>
-(const Sphere& s1, const Transform3f& tf1,
- const Halfspace& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Sphere& s1, const Transform3f& tf1,
+  const Halfspace& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   Vec3f p1, p2, n;
   bool res = details::sphereHalfspaceIntersect(s1, tf1, s2, tf2, distance, p1,
@@ -158,10 +160,10 @@ SHAPE_INTERSECT_INVERTED(Halfspace, Sphere)
 
 template<>
 bool GJKSolver::shapeIntersect<Box, Halfspace>
-(const Box& s1, const Transform3f& tf1,
- const Halfspace& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Box& s1, const Transform3f& tf1,
+  const Halfspace& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   Vec3f p1, p2, n;
   bool res = details::boxHalfspaceIntersect(s1, tf1, s2, tf2, distance, p1,
@@ -175,10 +177,10 @@ SHAPE_INTERSECT_INVERTED(Halfspace, Box)
 
 template<>
 bool GJKSolver::shapeIntersect<Capsule, Halfspace>
-(const Capsule& s1, const Transform3f& tf1,
- const Halfspace& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Capsule& s1, const Transform3f& tf1,
+  const Halfspace& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   Vec3f p1, p2, n;
   bool res =  details::capsuleHalfspaceIntersect
@@ -192,10 +194,10 @@ SHAPE_INTERSECT_INVERTED(Halfspace, Capsule)
 
 template<>
 bool GJKSolver::shapeIntersect<Cylinder, Halfspace>
-(const Cylinder& s1, const Transform3f& tf1,
- const Halfspace& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Cylinder& s1, const Transform3f& tf1,
+  const Halfspace& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   Vec3f p1, p2, n;
   bool res =  details::cylinderHalfspaceIntersect
@@ -209,10 +211,10 @@ SHAPE_INTERSECT_INVERTED(Halfspace, Cylinder)
 
 template<>
 bool GJKSolver::shapeIntersect<Cone, Halfspace>
-(const Cone& s1, const Transform3f& tf1,
- const Halfspace& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Cone& s1, const Transform3f& tf1,
+  const Halfspace& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   Vec3f p1, p2, n;
   bool res =  details::coneHalfspaceIntersect
@@ -226,10 +228,10 @@ SHAPE_INTERSECT_INVERTED(Halfspace, Cone)
 
 template<>
 bool GJKSolver::shapeIntersect<Halfspace, Halfspace>
-(const Halfspace& s1, const Transform3f& tf1,
- const Halfspace& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* /*contact_points*/, Vec3f* /*normal*/) const
+ (const Halfspace& s1, const Transform3f& tf1,
+  const Halfspace& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* /*contact_points*/, Vec3f* /*normal*/) const
 {
   Halfspace s;
   Vec3f p, d;
@@ -242,10 +244,10 @@ bool GJKSolver::shapeIntersect<Halfspace, Halfspace>
 
 template<>
 bool GJKSolver::shapeIntersect<Plane, Halfspace>
-(const Plane& s1, const Transform3f& tf1,
- const Halfspace& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* /*contact_points*/, Vec3f* /*normal*/) const
+ (const Plane& s1, const Transform3f& tf1,
+  const Halfspace& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* /*contact_points*/, Vec3f* /*normal*/) const
 {
   Plane pl;
   Vec3f p, d;
@@ -260,10 +262,10 @@ SHAPE_INTERSECT_INVERTED(Halfspace, Plane)
 
 template<>
 bool GJKSolver::shapeIntersect<Sphere, Plane>
-(const Sphere& s1, const Transform3f& tf1,
- const Plane& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Sphere& s1, const Transform3f& tf1,
+  const Plane& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   Vec3f p1, p2, n;
   bool res = details::spherePlaneIntersect(s1, tf1, s2, tf2, distance, p1,
@@ -277,10 +279,10 @@ SHAPE_INTERSECT_INVERTED(Plane, Sphere)
 
 template<>
 bool GJKSolver::shapeIntersect<Box, Plane>
-(const Box& s1, const Transform3f& tf1,
- const Plane& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Box& s1, const Transform3f& tf1,
+  const Plane& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   Vec3f p1, p2, n;
   bool res = details::boxPlaneIntersect
@@ -294,10 +296,10 @@ SHAPE_INTERSECT_INVERTED(Plane, Box)
 
 template<>
 bool GJKSolver::shapeIntersect<Capsule, Plane>
-(const Capsule& s1, const Transform3f& tf1,
- const Plane& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Capsule& s1, const Transform3f& tf1,
+  const Plane& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   Vec3f p1, p2, n;
   bool res = details::capsulePlaneIntersect(s1, tf1, s2, tf2, distance, p1,
@@ -311,10 +313,10 @@ SHAPE_INTERSECT_INVERTED(Plane, Capsule)
 
 template<>
 bool GJKSolver::shapeIntersect<Cylinder, Plane>
-(const Cylinder& s1, const Transform3f& tf1,
- const Plane& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Cylinder& s1, const Transform3f& tf1,
+  const Plane& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   Vec3f p1, p2, n;
   bool res = details::cylinderPlaneIntersect
@@ -328,10 +330,10 @@ SHAPE_INTERSECT_INVERTED(Plane, Cylinder)
 
 template<>
 bool GJKSolver::shapeIntersect<Cone, Plane>
-(const Cone& s1, const Transform3f& tf1,
- const Plane& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Cone& s1, const Transform3f& tf1,
+  const Plane& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   Vec3f p1, p2, n;
   bool res = details::conePlaneIntersect
@@ -345,22 +347,19 @@ SHAPE_INTERSECT_INVERTED(Plane, Cone)
 
 template<>
 bool GJKSolver::shapeIntersect<Plane, Plane>
-(const Plane& s1, const Transform3f& tf1,
- const Plane& s2, const Transform3f& tf2,
- FCL_REAL& distance, bool,
- Vec3f* contact_points, Vec3f* normal) const
+ (const Plane& s1, const Transform3f& tf1,
+  const Plane& s2, const Transform3f& tf2,
+  FCL_REAL& distance, bool,
+  Vec3f* contact_points, Vec3f* normal) const
 {
   return details::planeIntersect(s1, tf1, s2, tf2, contact_points, &distance, normal);
 }
 
-
-
-
 template<>
 bool GJKSolver::shapeTriangleInteraction
-(const Sphere& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
- const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
- Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+ (const Sphere& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+  const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+  Vec3f& p1, Vec3f& p2, Vec3f& normal) const
 {
   return details::sphereTriangleIntersect
     (s, tf1, tf2.transform(P1), tf2.transform(P2), tf2.transform(P3),
@@ -369,9 +368,9 @@ bool GJKSolver::shapeTriangleInteraction
 
 template<>
 bool GJKSolver::shapeTriangleInteraction
-(const Halfspace& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
- const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
- Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+ (const Halfspace& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+  const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+  Vec3f& p1, Vec3f& p2, Vec3f& normal) const
 {
   return details::halfspaceTriangleIntersect
     (s, tf1, P1, P2, P3, tf2, distance, p1, p2, normal);
@@ -379,9 +378,9 @@ bool GJKSolver::shapeTriangleInteraction
 
 template<>
 bool GJKSolver::shapeTriangleInteraction
-(const Plane& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
- const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
- Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+ (const Plane& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
+  const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+  Vec3f& p1, Vec3f& p2, Vec3f& normal) const
 {
   return details::planeTriangleIntersect
     (s, tf1, P1, P2, P3, tf2, distance, p1, p2, normal);
@@ -485,66 +484,66 @@ bool GJKSolver::shapeDistance<Capsule, Capsule>
   abort ();
 }
 
-  template<>
-    bool GJKSolver::shapeDistance<TriangleP, TriangleP>
-    (const TriangleP& s1, const Transform3f& tf1,
-     const TriangleP& s2, const Transform3f& tf2,
-     FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+template<>
+bool GJKSolver::shapeDistance<TriangleP, TriangleP>
+(const TriangleP& s1, const Transform3f& tf1,
+ const TriangleP& s2, const Transform3f& tf2,
+ FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+{
+  const TriangleP
+  t1 (tf1.transform(s1.a), tf1.transform(s1.b), tf1.transform(s1.c)),
+  t2 (tf2.transform(s2.a), tf2.transform(s2.b), tf2.transform(s2.c));
+  
+  Vec3f guess;
+  support_func_guess_t support_hint;
+  if(enable_cached_guess) {
+    guess = cached_guess;
+    support_hint = support_func_cached_guess;
+  } else {
+    support_hint.setZero();
+    guess = (t1.a + t1.b + t1.c - t2.a - t2.b - t2.c) / 3;
+  }
+  bool enable_penetration = true;
+  
+  details::MinkowskiDiff shape;
+  shape.set (&t1, &t2);
+  
+  details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
+  details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+  if(enable_cached_guess) {
+    cached_guess = gjk.getGuessFromSimplex();
+    support_func_cached_guess = gjk.support_hint;
+  }
+  
+  gjk.getClosestPoints (shape, p1, p2);
+  
+  if((gjk_status == details::GJK::Valid) ||
+     (gjk_status == details::GJK::Failed))
   {
-    const TriangleP
-      t1 (tf1.transform(s1.a), tf1.transform(s1.b), tf1.transform(s1.c)),
-      t2 (tf2.transform(s2.a), tf2.transform(s2.b), tf2.transform(s2.c));
-
-    Vec3f guess;
-    support_func_guess_t support_hint;
-    if(enable_cached_guess) {
-      guess = cached_guess;
-      support_hint = support_func_cached_guess;
-    } else {
-      support_hint.setZero();
-      guess = (t1.a + t1.b + t1.c - t2.a - t2.b - t2.c) / 3;
+    // TODO On degenerated case, the closest point may be wrong
+    // (i.e. an object face normal is colinear to gjk.ray
+    // assert (dist == (w0 - w1).norm());
+    dist = gjk.distance;
+    
+    return true;
+  }
+  else if (gjk_status == details::GJK::Inside)
+  {
+    if (enable_penetration) {
+      FCL_REAL penetrationDepth = details::computePenetration
+      (t1.a, t1.b, t1.c, t2.a, t2.b, t2.c, normal);
+      dist = -penetrationDepth;
+      assert (dist <= 1e-6);
+      // GJK says Inside when below GJK.tolerance. So non intersecting
+      // triangle may trigger "Inside" and have no penetration.
+      return penetrationDepth < 0;
     }
-    bool enable_penetration = true;
-
-    details::MinkowskiDiff shape;
-    shape.set (&t1, &t2);
-
-    details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
-    details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
-    if(enable_cached_guess) {
-      cached_guess = gjk.getGuessFromSimplex();
-      support_func_cached_guess = gjk.support_hint;
-    }
-
-    gjk.getClosestPoints (shape, p1, p2);
-
-    if((gjk_status == details::GJK::Valid) ||
-       (gjk_status == details::GJK::Failed))
-    {
-      // TODO On degenerated case, the closest point may be wrong
-      // (i.e. an object face normal is colinear to gjk.ray
-      // assert (dist == (w0 - w1).norm());
-      dist = gjk.distance;
-
-      return true;
-    }
-    else if (gjk_status == details::GJK::Inside)
-    {
-      if (enable_penetration) {
-        FCL_REAL penetrationDepth = details::computePenetration
-          (t1.a, t1.b, t1.c, t2.a, t2.b, t2.c, normal);
-        dist = -penetrationDepth;
-        assert (dist <= 1e-6);
-        // GJK says Inside when below GJK.tolerance. So non intersecting
-        // triangle may trigger "Inside" and have no penetration.
-        return penetrationDepth < 0;
-      }
-      dist = 0;
-      return false;
-    }
-    assert (false && "should not reach this point");
+    dist = 0;
     return false;
   }
+  assert (false && "should not reach this point");
+  return false;
+}
 } // fcl
 
 } // namespace hpp
