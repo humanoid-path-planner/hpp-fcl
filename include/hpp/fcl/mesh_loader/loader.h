@@ -44,6 +44,8 @@
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/collision_object.h>
 
+#include <map>
+
 namespace hpp
 {
 namespace fcl {
