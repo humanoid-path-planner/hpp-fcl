@@ -39,7 +39,6 @@
 #define BOOST_TEST_MODULE FCL_FRONT_LIST
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-#include <boost/utility/binary.hpp>
 
 #include <hpp/fcl/internal/traversal_node_bvhs.h>
 #include <hpp/fcl/internal/traversal_node_setup.h>

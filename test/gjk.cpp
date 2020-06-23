@@ -39,7 +39,6 @@
 
 #include <time.h>
 #include <boost/test/unit_test.hpp>
-#include <boost/utility/binary.hpp>
 
 #include <Eigen/Geometry>
 #include <hpp/fcl/narrowphase/narrowphase.h>

@@ -5,8 +5,10 @@ macro(add_fcl_test test_name source)
   target_link_libraries(${test_name}
     PUBLIC
     hpp-fcl
-    ${Boost_LIBRARIES}
     Boost::unit_test_framework
+    Boost::chrono
+    Boost::filesystem
+    Boost::timer
     utility
     )
   target_compile_options(${test_name} PRIVATE "-Wno-c99-extensions")
@@ -63,8 +65,8 @@ ENDIF()
 target_link_libraries(test-benchmark 
   PUBLIC 
   utility
-  ${Boost_CHRONO_LIBRARY}
-  ${Boost_FILESYSTEM_LIBRARY}
+  Boost::chrono
+  Boost::filesystem
   ${PROJECT_NAME} 
   )
 

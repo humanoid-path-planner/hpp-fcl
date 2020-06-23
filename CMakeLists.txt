@@ -76,14 +76,14 @@ if(BUILD_PYTHON_INTERFACE)
 endif()
 
 # Required dependencies
-set(BOOST_COMPONENTS thread date_time system)
-set(BOOST_COMPONENTS ${BOOST_COMPONENTS} filesystem unit_test_framework chrono)
+ADD_PROJECT_DEPENDENCY(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem unit_test_framework chrono timer)
 if (BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
-  set(BOOST_COMPONENTS ${BOOST_COMPONENTS} python)
+  set(BOOST_COMPONENTS python)
+  search_for_boost()
 endif ()
 
-search_for_boost()
 # Optional dependencies
 ADD_PROJECT_DEPENDENCY(octomap PKG_CONFIG_REQUIRES "octomap >= 1.6")
 if(octomap_FOUND)
@@ -123,7 +123,6 @@ FIND_PACKAGE(assimp REQUIRED)
 
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h
-  include/hpp/fcl/profile.h
   include/hpp/fcl/BV/kIOS.h
   include/hpp/fcl/BV/BV.h
   include/hpp/fcl/BV/RSS.h
@@ -180,7 +179,6 @@ endif ()
 add_subdirectory(test)
 
 pkg_config_append_libs("hpp-fcl")
-PKG_CONFIG_APPEND_BOOST_LIBS(thread date_time system)
 IF(HPP_FCL_HAVE_OCTOMAP)
   # FCL_HAVE_OCTOMAP kept for backward compatibility reasons.
   PKG_CONFIG_APPEND_CFLAGS(

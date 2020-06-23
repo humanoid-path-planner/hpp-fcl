@@ -38,7 +38,6 @@
 #define BOOST_TEST_MODULE FCL_CAPSULE_CAPSULE
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-#include <boost/utility/binary.hpp>
 
 #define CHECK_CLOSE_TO_0(x, eps) BOOST_CHECK_CLOSE ((x + 1.0), (1.0), (eps))
 

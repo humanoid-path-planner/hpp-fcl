@@ -38,7 +38,6 @@
 #define BOOST_TEST_MODULE FCL_GEOMETRIC_SHAPES
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-#include <boost/utility/binary.hpp>
 
 #include <hpp/fcl/shape/convex.h>
 #include <hpp/fcl/collision.h>

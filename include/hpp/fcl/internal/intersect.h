@@ -41,7 +41,6 @@
 /// @cond INTERNAL
 
 #include <hpp/fcl/math/transform.h>
-#include <boost/math/special_functions/erf.hpp>
 
 namespace hpp
 {

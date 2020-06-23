@@ -42,10 +42,8 @@
 #define BOOST_TEST_MODULE FCL_COLLISION
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-#include <boost/utility/binary.hpp>
 
 #include <fstream>
-#include <boost/filesystem.hpp>
 #include <boost/assign/list_of.hpp>
 
 #include <hpp/fcl/collision.h>
