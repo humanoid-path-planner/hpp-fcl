@@ -486,8 +486,8 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   normal = transform.getRotation() * Vec3f(1, 0, 0);
   SET_LINE; testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, 0x0);
 
-  FCL_UINT32 numTests = 1e+2;
-  for (FCL_UINT32 i = 0; i < numTests; ++i)
+  int numTests = 100;
+  for (int i = 0; i < numTests; ++i)
   {
     Transform3f tf;
     generateRandomTransform(extents, tf);
