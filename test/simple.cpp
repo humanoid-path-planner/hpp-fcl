@@ -1,6 +1,5 @@
 #define BOOST_TEST_MODULE FCL_SIMPLE
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/collision.h>

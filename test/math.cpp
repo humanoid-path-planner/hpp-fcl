@@ -37,8 +37,7 @@
 #include <cmath>
 
 #define BOOST_TEST_MODULE FCL_MATH
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/math/transform.h>

@@ -40,8 +40,7 @@
 #include <boost/chrono/chrono_io.hpp>
 
 #define BOOST_TEST_MODULE FCL_COLLISION
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <fstream>
 #include <boost/assign/list_of.hpp>
