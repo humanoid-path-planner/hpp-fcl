@@ -37,9 +37,7 @@
 
 
 #define BOOST_TEST_MODULE FCL_GEOMETRIC_SHAPES
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
-#include <boost/utility/binary.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/collision.h>
@@ -487,8 +485,8 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   normal = transform.getRotation() * Vec3f(1, 0, 0);
   SET_LINE; testShapeIntersection(s1, tf1, s2, tf2, true, NULL, NULL, 0x0);
 
-  FCL_UINT32 numTests = 1e+2;
-  for (FCL_UINT32 i = 0; i < numTests; ++i)
+  int numTests = 100;
+  for (int i = 0; i < numTests; ++i)
   {
     Transform3f tf;
     generateRandomTransform(extents, tf);

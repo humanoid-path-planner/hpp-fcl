@@ -156,7 +156,7 @@ public:
   /// @note except for OBB, this method returns the distance.
   virtual FCL_REAL BVDistanceLowerBound(int /*b1*/, int /*b2*/) const
   {
-    return std::numeric_limits<FCL_REAL>::max();
+    return (std::numeric_limits<FCL_REAL>::max)();
   }
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs

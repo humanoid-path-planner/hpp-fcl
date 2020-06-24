@@ -68,7 +68,6 @@ set(${LIBRARY_NAME}_SOURCES
   intersect.cpp
   math/transform.cpp
   traversal/traversal_recurse.cpp
-  profile.cpp
   distance.cpp
   BVH/BVH_utility.cpp
   BVH/BV_fitter.cpp
@@ -158,13 +157,7 @@ ADD_HEADER_GROUP(PROJECT_HEADERS_FULL_PATH)
 
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   PUBLIC
-  ${Boost_THREAD_LIBRARY}
-  ${Boost_DATE_TIME_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
-  ${Boost_CHRONO_LIBRARY} # Required on Windows. Don't know why.
-#  Boost::thread
-#  Boost::date_time
-#  Boost::system
+  Boost::boost
   )
 
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
@@ -183,7 +176,6 @@ endif()
 target_include_directories(${LIBRARY_NAME}
   SYSTEM PUBLIC
   ${EIGEN3_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIRS}
   )
 target_include_directories(${LIBRARY_NAME}
   SYSTEM PRIVATE

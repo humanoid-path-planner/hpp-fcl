@@ -35,9 +35,8 @@
 /** \author Florent Lamiraux <florent@laas.fr> */
 
 #define BOOST_TEST_MODULE FCL_OCTREE
-#define BOOST_TEST_DYN_LINK
 #include <fstream>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <boost/filesystem.hpp>
 
 #include <hpp/fcl/BVH/BVH_model.h>

@@ -1,16 +1,11 @@
 #define BOOST_TEST_MODULE FCL_SIMPLE
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
-#include <boost/utility/binary.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 #include "fcl_resources/config.h"
-#include <boost/filesystem.hpp>
 #include <sstream>
-
-#include <boost/assign/list_of.hpp>
 
 using namespace hpp::fcl;
 

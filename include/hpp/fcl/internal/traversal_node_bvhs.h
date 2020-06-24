@@ -50,8 +50,6 @@
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/internal/traversal.h>
 
-#include <boost/shared_array.hpp>
-#include <boost/shared_ptr.hpp>
 #include <limits>
 #include <vector>
 #include <cassert>

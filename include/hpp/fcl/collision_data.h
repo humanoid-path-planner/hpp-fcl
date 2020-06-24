@@ -252,7 +252,7 @@ public:
 
 public:
   CollisionResult()
-    : distance_lower_bound (std::numeric_limits<FCL_REAL>::max())
+    : distance_lower_bound ((std::numeric_limits<FCL_REAL>::max)())
   {
   }
 
@@ -393,7 +393,7 @@ public:
   static const int NONE = -1;
   
   DistanceResult(FCL_REAL min_distance_ =
-                 std::numeric_limits<FCL_REAL>::max()):
+                 (std::numeric_limits<FCL_REAL>::max)()):
   min_distance(min_distance_), o1(NULL), o2(NULL), b1(NONE), b2(NONE)
   {
     Vec3f nan (Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
@@ -451,7 +451,7 @@ public:
   /// @brief clear the result
   void clear()
   {
-    min_distance = std::numeric_limits<FCL_REAL>::max();
+    min_distance = (std::numeric_limits<FCL_REAL>::max)();
     o1 = NULL;
     o2 = NULL;
     b1 = NONE;

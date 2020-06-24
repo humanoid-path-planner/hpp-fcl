@@ -35,11 +35,8 @@
 /** \author Florent Lamiraux <florent@laas.fr> */
 
 #define BOOST_TEST_MODULE FCL_GJK
-#define BOOST_TEST_DYN_LINK
-
 #include <time.h>
-#include <boost/test/unit_test.hpp>
-#include <boost/utility/binary.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Geometry>
 #include <hpp/fcl/narrowphase/narrowphase.h>

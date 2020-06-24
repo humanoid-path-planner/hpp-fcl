@@ -38,9 +38,6 @@
 #ifndef HPP_FCL_DATA_TYPES_H
 #define HPP_FCL_DATA_TYPES_H
 
-#include <cstddef>
-#include <boost/cstdint.hpp>
-
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -67,10 +64,6 @@ namespace hpp
 namespace fcl
 {
 typedef double FCL_REAL;
-typedef boost::uint64_t FCL_INT64;
-typedef boost::int64_t FCL_UINT64;
-typedef boost::uint32_t FCL_UINT32;
-typedef boost::int32_t FCL_INT32;
 typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
 typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 typedef Eigen::Vector2i support_func_guess_t;

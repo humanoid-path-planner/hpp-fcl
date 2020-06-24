@@ -37,9 +37,7 @@
 
 
 #define BOOST_TEST_MODULE FCL_BROADPHASE
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
-#include <boost/utility/binary.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <hpp/fcl/config.h>
 #include <hpp/fcl/broadphase/broadphase.h>
