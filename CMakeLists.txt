@@ -80,7 +80,7 @@ ADD_PROJECT_DEPENDENCY(Boost REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem unit_test_framework chrono timer)
 if (BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
-  set(BOOST_COMPONENTS python)
+  set(BOOST_COMPONENTS system python)
   search_for_boost()
 endif ()
 
