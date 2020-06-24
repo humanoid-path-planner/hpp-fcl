@@ -100,7 +100,7 @@ namespace fcl
               if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               return true;
             }
-            distance_lower_bound = -std::numeric_limits<FCL_REAL>::max();
+            distance_lower_bound = -(std::numeric_limits<FCL_REAL>::max)();
             // EPA failed but we know there is a collision so we should
             return true;
           }
@@ -172,7 +172,7 @@ namespace fcl
               p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               assert (distance <= 1e-6);
             } else {
-              distance = -std::numeric_limits<FCL_REAL>::max();
+              distance = -(std::numeric_limits<FCL_REAL>::max)();
               gjk.getClosestPoints (shape, w0, w1);
               p1 = p2 = tf1.transform (w0);
             }
@@ -274,14 +274,14 @@ namespace fcl
               Vec3f w0, w1;
               epa.getClosestPoints (shape, w0, w1);
               assert (epa.depth >= -eps);
-              distance = std::min (0., -epa.depth);
+              distance = (std::min) (0., -epa.depth);
               // TODO should be
               // normal = tf1.getRotation() * epa.normal;
               normal = tf2.getRotation() * epa.normal;
               p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               return false;
             }
-            distance = -std::numeric_limits<FCL_REAL>::max();
+            distance = -(std::numeric_limits<FCL_REAL>::max)();
             gjk.getClosestPoints (shape, p1, p2);
             p1 = p2 = tf1.transform (p1);
           }

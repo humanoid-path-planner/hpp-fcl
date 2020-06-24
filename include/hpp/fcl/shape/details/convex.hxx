@@ -219,7 +219,7 @@ void Convex<PolygonT>::fillNeighbors()
   unsigned int* p_nneighbors = nneighbors_;
   for (int i = 0; i < num_points; ++i) {
     Neighbors& n = neighbors[i];
-    if (nneighbors[i].size() >= std::numeric_limits<unsigned char>::max())
+    if (nneighbors[i].size() >= (std::numeric_limits<unsigned char>::max)())
       throw std::logic_error ("Too many neighbors.");
     n.count_ = (unsigned char)nneighbors[i].size();
     n.n_     = p_nneighbors;
