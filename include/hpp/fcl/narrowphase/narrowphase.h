@@ -275,9 +275,7 @@ namespace fcl
               epa.getClosestPoints (shape, w0, w1);
               assert (epa.depth >= -eps);
               distance = (std::min) (0., -epa.depth);
-              // TODO should be
-              // normal = tf1.getRotation() * epa.normal;
-              normal = tf2.getRotation() * epa.normal;
+              normal = tf1.getRotation() * epa.normal;
               p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               return false;
             }
