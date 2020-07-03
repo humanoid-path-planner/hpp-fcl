@@ -157,6 +157,14 @@ struct HPP_FCL_DLLAPI QueryRequest
   {}
 
   void updateGuess(const QueryResult& result);
+
+  /// @brief whether two QueryRequest are the same or not
+  inline bool operator ==(const QueryRequest& other) const
+  {
+    return enable_cached_gjk_guess == other.enable_cached_gjk_guess
+      && cached_gjk_guess == other.cached_gjk_guess
+      && cached_support_func_guess == other.cached_support_func_guess;
+  }
 };
 
 /// @brief base class for all query results
@@ -234,6 +242,17 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
     }
 
   bool isSatisfied(const CollisionResult& result) const;
+
+  /// @brief whether two CollisionRequest are the same or not
+  inline bool operator ==(const CollisionRequest& other) const
+  {
+    return QueryRequest::operator==(other)
+      && num_max_contacts == other.num_max_contacts
+      && enable_contact == other.enable_contact
+      && enable_distance_lower_bound == other.enable_distance_lower_bound
+      && security_margin == other.security_margin
+      && break_distance == other.break_distance;
+  }
 };
 
 /// @brief collision result
@@ -354,6 +373,15 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest
   }
 
   bool isSatisfied(const DistanceResult& result) const;
+
+  /// @brief whether two DistanceRequest are the same or not
+  inline bool operator ==(const DistanceRequest& other) const
+  {
+    return QueryRequest::operator==(other)
+      && enable_nearest_points == other.enable_nearest_points
+      && rel_err == other.rel_err
+      && abs_err == other.abs_err;
+  }
 };
 
 /// @brief distance result

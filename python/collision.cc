@@ -102,6 +102,13 @@ void exposeCollisionAPI ()
       ;
   }
 
+  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<CollisionRequest> >())
+  {
+    class_< std::vector<CollisionRequest> >("StdVec_CollisionRequest")
+      .def(vector_indexing_suite< std::vector<CollisionRequest> >())
+      ;
+  }
+
   if(!eigenpy::register_symbolic_link_to_registered_type<Contact>())
   {
     class_ <Contact> ("Contact",
