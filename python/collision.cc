@@ -35,8 +35,7 @@
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
-#include <eigenpy/eigen-to-python.hpp>
-#include <eigenpy/registration.hpp>
+#include <eigenpy/eigenpy.hpp>
 
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/collision.h>

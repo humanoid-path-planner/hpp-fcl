@@ -34,7 +34,7 @@
 
 #include <boost/python.hpp>
 
-#include <eigenpy/registration.hpp>
+#include <eigenpy/eigenpy.hpp>
 
 #include "fcl.hh"
 

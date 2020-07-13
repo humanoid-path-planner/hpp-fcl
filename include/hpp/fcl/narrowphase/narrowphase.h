@@ -234,7 +234,8 @@ namespace fcl
         Vec3f w0, w1;
         gjk.getClosestPoints (shape, w0, w1);
         distance = 0;
-        p1 = p2 = tf1.transform (.5* (w0 + w1));
+        p1 = tf1.transform (w0);
+        p2 = tf1.transform (w1);
         normal = Vec3f (0,0,0);
         return false;
       }
@@ -261,7 +262,8 @@ namespace fcl
             //p1 = tf1.transform (p1);
             //p2 = tf1.transform (p2);
             normal = (tf1.getRotation() * (p2 - p1)).normalized();
-            p1 = p2 = tf1.transform(p1);
+            p1 = tf1.transform(p1);
+            p2 = tf1.transform(p2);
           } else {
             details::EPA epa(epa_max_face_num, epa_max_vertex_num,
                              epa_max_iterations, epa_tolerance);
@@ -275,15 +277,15 @@ namespace fcl
               epa.getClosestPoints (shape, w0, w1);
               assert (epa.depth >= -eps);
               distance = (std::min) (0., -epa.depth);
-              // TODO should be
-              // normal = tf1.getRotation() * epa.normal;
-              normal = tf2.getRotation() * epa.normal;
-              p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
+              normal = tf1.getRotation() * epa.normal;
+              p1 = tf1.transform(w0);
+              p2 = tf1.transform(w1);
               return false;
             }
             distance = -(std::numeric_limits<FCL_REAL>::max)();
             gjk.getClosestPoints (shape, p1, p2);
-            p1 = p2 = tf1.transform (p1);
+            p1 = tf1.transform(p1);
+            p2 = tf1.transform(p2);
           }
           return false;
         }
