@@ -575,7 +575,10 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     alpha = std::max(alpha, omega);
     FCL_REAL diff (rl - alpha);
     if (iterations == 0) diff = std::abs(diff);
-    if(diff - tolerance * rl <= 0)
+    // TODO here, we can stop at iteration 0 if this condition is met.
+    // We stopping at iteration 0, the closest point will not be valid.
+    // if(diff - tolerance * rl <= 0)
+    if(iterations > 0 && diff - tolerance * rl <= 0)
     {
       if (iterations > 0)
         removeVertex(simplices[current]);
