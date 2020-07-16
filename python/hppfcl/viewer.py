@@ -54,3 +54,27 @@ def displayDistanceResult(gui, group_name, res, closest_points = True, normal = 
         gui.applyConfiguration(n,
                 res.getNearestPoint1().tolist() + hppfcl.Quaternion.FromTwoVectors(np.array([1,0,0]), res.normal).coeffs().tolist())
     gui.refresh()
+
+def displayCollisionResult(gui, group_name, res, color=Color.green):
+    if res.isCollision():
+        if gui.nodeExists(group_name):
+            gui.setVisibility(group_name, "ON")
+        else:
+            gui.createGroup(group_name)
+        for i in range(res.numContacts()):
+            contact = res.getContact(i)
+            n = group_name+"/contact"+str(i)
+            depth = contact.penetration_depth
+            if gui.nodeExists(n):
+                gui.setFloatProperty(n, 'Size', depth)
+                gui.setFloatProperty(n, 'Radius', 0.1*depth)
+                gui.setColor(n, color)
+            else:
+                gui.addArrow(n, depth*0.1, depth, color)
+            N = contact.normal
+            P = contact.pos
+            gui.applyConfiguration(n, (P-depth*N/2).tolist() +
+                    hppfcl.Quaternion.FromTwoVectors(np.array([1,0,0]), N).coeffs().tolist())
+        gui.refresh()
+    elif gui.nodeExists(group_name):
+        gui.setVisibility(group_name, "OFF")
