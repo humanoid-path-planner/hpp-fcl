@@ -368,7 +368,7 @@ void test_gjk_triangle_capsule (Vec3f T, bool expect_collision,
 
     // Check that guess works as expected
     Vec3f guess = gjk.getGuessFromSimplex();
-    details::GJK gjk2 (0, 1e-6);
+    details::GJK gjk2 (3, 1e-6);
     details::GJK::Status status2 = gjk2.evaluate(shape, guess);
     BOOST_CHECK_EQUAL(status2, details::GJK::Valid);
   }
