@@ -89,6 +89,13 @@ void exposeDistanceAPI ()
       ;
   }
 
+  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<DistanceRequest> >())
+  {
+    class_< std::vector<DistanceRequest> >("StdVec_DistanceRequest")
+      .def(vector_indexing_suite< std::vector<DistanceRequest> >())
+      ;
+  }
+
   if(!eigenpy::register_symbolic_link_to_registered_type<DistanceResult>())
   {
     class_ <DistanceResult, bases<QueryResult> > ("DistanceResult",

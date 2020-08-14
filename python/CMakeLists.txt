@@ -141,6 +141,7 @@ INSTALL(TARGETS ${LIBRARY_NAME}
 # --- INSTALL SCRIPTS
 SET(PYTHON_FILES
   __init__.py
+  viewer.py
   )
 
 FOREACH(python ${PYTHON_FILES})
