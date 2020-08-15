@@ -1,7 +1,6 @@
 import unittest
 from test_case import TestCase
 import hppfcl
-hppfcl.switchToNumpyMatrix()
 import numpy as np
 
 class TestGeometricShapes(TestCase):
@@ -42,14 +41,14 @@ class TestGeometricShapes(TestCase):
         self.assertApprox(Ic, I0_ref)
 
     def test_box1(self):
-        box = hppfcl.Box(np.matrix([1.,2.,3.]).T)
+        box = hppfcl.Box(np.array([1.,2.,3.]))
         self.assertIsInstance(box, hppfcl.Box)
         self.assertIsInstance(box, hppfcl.ShapeBase)
         self.assertIsInstance(box, hppfcl.CollisionGeometry)
         self.assertEqual(box.getNodeType(), hppfcl.NODE_TYPE.GEOM_BOX)
-        self.assertTrue(np.array_equal(box.halfSide,np.matrix([.5,1.,1.5]).T))
-        box.halfSide = np.matrix([4.,5.,6.]).T
-        self.assertTrue(np.array_equal(box.halfSide,np.matrix([4.,5.,6.]).T))
+        self.assertTrue(np.array_equal(box.halfSide,np.array([.5,1.,1.5])))
+        box.halfSide = np.array([4.,5.,6.])
+        self.assertTrue(np.array_equal(box.halfSide,np.array([4.,5.,6.])))
         com = box.computeCOM()
         self.assertApprox(com, np.zeros(3))
         V = box.computeVolume()
@@ -135,7 +134,7 @@ class TestGeometricShapes(TestCase):
         self.assertEqual(cone.radius,3.)
         self.assertEqual(cone.halfLength,4.)
         com = cone.computeCOM()
-        self.assertApprox(com, np.matrix([0.,0.,-0.5 * cone.halfLength]).T)
+        self.assertApprox(com, np.array([0.,0.,-0.5 * cone.halfLength]))
         V = cone.computeVolume()
         V_ref = np.pi * cone.radius**2 * 2. * cone.halfLength / 3.
         self.assertApprox(V, V_ref)
