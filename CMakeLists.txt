@@ -76,12 +76,14 @@ if(BUILD_PYTHON_INTERFACE)
 endif()
 
 # Required dependencies
+SET_BOOST_DEFAULT_OPTIONS()
+EXPORT_BOOST_DEFAULT_OPTIONS()
 ADD_PROJECT_DEPENDENCY(Boost REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem unit_test_framework chrono timer)
 if (BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
   set(BOOST_COMPONENTS system python)
-  search_for_boost()
+  search_for_boost_python(REQUIRED)
+  ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS system)
 endif ()
 
 # Optional dependencies
