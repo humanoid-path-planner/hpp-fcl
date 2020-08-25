@@ -83,7 +83,7 @@ if (BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
   set(BOOST_COMPONENTS system python)
   search_for_boost_python(REQUIRED)
-  ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS system)
+  find_package(Boost REQUIRED COMPONENTS system)
 endif ()
 
 # Optional dependencies
