@@ -1,3 +1,6 @@
+# Find Boost.UnitTestFramework
+FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework filesystem chrono timer)
+
 config_files(fcl_resources/config.h)
 
 macro(add_fcl_test test_name source)
