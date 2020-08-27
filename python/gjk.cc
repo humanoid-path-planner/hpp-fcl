@@ -76,9 +76,8 @@ void exposeGJK()
 
   if(!eigenpy::register_symbolic_link_to_registered_type<MinkowskiDiff>())
   {
-    class_ <MinkowskiDiff> ("MinkowskiDiff",
-        doxygen::class_doc<MinkowskiDiff>(), init<>(
-          doxygen::constructor_doc<MinkowskiDiff>()))
+    class_ <MinkowskiDiff> ("MinkowskiDiff", doxygen::class_doc<MinkowskiDiff>(), no_init)
+      .def (doxygen::visitor::init<MinkowskiDiff>())
       .def ("set", static_cast < void (MinkowskiDiff::*)(
             const ShapeBase*, const ShapeBase*)> (&MinkowskiDiff::set),
           doxygen::member_func_doc(
@@ -100,9 +99,8 @@ void exposeGJK()
 
   if(!eigenpy::register_symbolic_link_to_registered_type<GJK>())
   {
-    class_ <GJK> ("GJK",
-        doxygen::class_doc<GJK>(), init<unsigned int, FCL_REAL>(
-          doxygen::constructor_doc<GJK, unsigned int, FCL_REAL>()))
+    class_ <GJK> ("GJK", doxygen::class_doc<GJK>(), no_init)
+     .def (doxygen::visitor::init<GJK, unsigned int, FCL_REAL>())
       .DEF_RW_CLASS_ATTRIB (GJK, distance)
       .DEF_RW_CLASS_ATTRIB (GJK, ray)
       .DEF_RW_CLASS_ATTRIB (GJK, support_hint)

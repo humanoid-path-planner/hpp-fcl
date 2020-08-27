@@ -55,9 +55,6 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
 
 /// @brief Minkowski difference class of two shapes
 ///
-/// @todo template this by the two shapes. The triangle / triangle case can be
-///       easily optimized computing once the triangle shapes[1] into frame0
-///
 /// @note The Minkowski difference is expressed in the frame of the first shape.
 struct HPP_FCL_DLLAPI MinkowskiDiff
 {
