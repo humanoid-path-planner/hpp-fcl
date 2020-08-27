@@ -64,6 +64,14 @@ struct HPP_FCL_DLLAPI MinkowskiDiff
   /// @brief points to two shapes
   const ShapeBase* shapes[2];
 
+  struct ShapeData {
+    std::vector<int8_t> visited;
+  };
+
+  /// @brief Store temporary data for the computation of the support point for
+  /// each shape.
+  ShapeData data[2];
+
   /// @brief rotation from shape1 to shape0
   /// such that @f$ p_in_0 = oR1 * p_in_1 + ot1 @f$.
   Matrix3f oR1;
@@ -76,12 +84,18 @@ struct HPP_FCL_DLLAPI MinkowskiDiff
   /// The 2 values correspond to the inflation of shape 0 and shape 1.
   Eigen::Array<FCL_REAL, 1, 2> inflation;
 
+  /// @brief Number of points in a Convex object from which using a logarithmic
+  /// support function is faster than a linear one.
+  /// It defaults to 32.
+  /// \note It must set before the call to \ref set.
+  int linear_log_convex_threshold;
+
   typedef void (*GetSupportFunction) (const MinkowskiDiff& minkowskiDiff,
       const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1,
-      support_func_guess_t& hint);
+      support_func_guess_t& hint, ShapeData data[2]);
   GetSupportFunction getSupportFunc;
 
-  MinkowskiDiff() : getSupportFunc (NULL) {}
+  MinkowskiDiff() : linear_log_convex_threshold (32), getSupportFunc (NULL) {}
 
   /// Set the two shapes,
   /// assuming the relative transformation between them is identity.
@@ -107,7 +121,7 @@ struct HPP_FCL_DLLAPI MinkowskiDiff
   inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp0, Vec3f& supp1, support_func_guess_t& hint) const
   {
     assert(getSupportFunc != NULL);
-    getSupportFunc(*this, d, dIsNormalized, supp0, supp1, hint);
+    getSupportFunc(*this, d, dIsNormalized, supp0, supp1, hint, const_cast<ShapeData*>(data));
   }
 };
 
@@ -158,6 +172,13 @@ struct HPP_FCL_DLLAPI GJK
   Simplex simplices[2];
 
 
+  /// \param max_iterations_ number of iteration before GJK returns failure.
+  /// \param tolerance_ precision of the algorithm.
+  ///
+  /// The tolerance argument is useful for continuous shapes and for polyhedron
+  /// with some vertices closer than this threshold.
+  ///
+  /// Suggested values are 100 iterations and a tolerance of 1e-6.
   GJK(unsigned int max_iterations_, FCL_REAL tolerance_)  : max_iterations(max_iterations_),
                                                             tolerance(tolerance_)
   {
