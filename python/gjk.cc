@@ -104,12 +104,14 @@ void exposeGJK()
         doxygen::class_doc<GJK>(), init<unsigned int, FCL_REAL>(
           doxygen::constructor_doc<GJK, unsigned int, FCL_REAL>()))
       .DEF_RW_CLASS_ATTRIB (GJK, distance)
-      .DEF_RW_CLASS_ATTRIB (GJK, ray     )
+      .DEF_RW_CLASS_ATTRIB (GJK, ray)
+      .DEF_RW_CLASS_ATTRIB (GJK, support_hint)
       .DEF_CLASS_FUNC(GJK, evaluate)
       .DEF_CLASS_FUNC(GJK, hasClosestPoints)
       .DEF_CLASS_FUNC(GJK, hasPenetrationInformation)
       .DEF_CLASS_FUNC(GJK, getClosestPoints)
       .DEF_CLASS_FUNC(GJK, setDistanceEarlyBreak)
+      .DEF_CLASS_FUNC(GJK, getGuessFromSimplex)
       ;
   }
 }
