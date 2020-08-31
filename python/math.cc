@@ -81,13 +81,13 @@ void exposeMaths ()
   eigenpy::enableEigenPySpecific<Matrix3f>();
   eigenpy::enableEigenPySpecific<Vec3f   >();
 
-  class_ <Transform3f> ("Transform3f", doxygen::class_doc<Transform3f>(), init<>(arg("self"),doxygen::constructor_doc<Transform3f>()))
-    .def (init<Matrix3f, Vec3f>    (doxygen::constructor_doc<Transform3f, const Matrix3f::MatrixBase&, const Vec3f::MatrixBase&>()))
-    .def (init<Quaternion3f, Vec3f>(doxygen::constructor_doc<Transform3f, const Quaternion3f&        , const Vec3f::MatrixBase&>()))
-    .def (init<Matrix3f>           (doxygen::constructor_doc<Transform3f, const Matrix3f&                                      >()))
-    .def (init<Quaternion3f>       (doxygen::constructor_doc<Transform3f, const Quaternion3f&                                  >()))
-    .def (init<Vec3f>              (doxygen::constructor_doc<Transform3f, const Vec3f&                                         >()))
-    .def (init<Transform3f>        (doxygen::constructor_doc<Transform3f, const Transform3f&                                   >()))
+  class_ <Transform3f> ("Transform3f", doxygen::class_doc<Transform3f>(), no_init)
+    .def (dv::init<Transform3f>())
+    .def (dv::init<Transform3f, const Matrix3f::MatrixBase&, const Vec3f::MatrixBase&>())
+    .def (dv::init<Transform3f, const Quaternion3f&        , const Vec3f::MatrixBase&>())
+    .def (dv::init<Transform3f, const Matrix3f&                                      >())
+    .def (dv::init<Transform3f, const Quaternion3f&                                  >())
+    .def (dv::init<Transform3f, const Vec3f&                                         >())
 
     .def (dv::member_func("getQuatRotation", &Transform3f::getQuatRotation))
     .def ("getTranslation", &Transform3f::getTranslation, doxygen::member_func_doc(&Transform3f::getTranslation), return_value_policy<copy_const_reference>())
