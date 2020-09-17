@@ -38,6 +38,8 @@
 #ifndef HPP_FCL_GJK_H
 #define HPP_FCL_GJK_H
 
+#include <vector>
+
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/math/transform.h>
 
