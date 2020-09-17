@@ -40,8 +40,9 @@
 #include <limits>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#include <../src/distance_func_matrix.h>
-#include "narrowphase/details.h"
+
+#include "../distance_func_matrix.h"
+#include "../narrowphase/details.h"
 
 namespace hpp
 {
