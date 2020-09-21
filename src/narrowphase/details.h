@@ -1955,11 +1955,10 @@ namespace fcl {
       Vec3f n_2 (tf2.getRotation().transpose() * n_w);
       int hint = 0;
       p2 = getSupport(&s, -n_2, true, hint);
-      dist = p2.dot(n_2) - h.d;
-      p1 = p2 - dist * n_2;
-
-      p1 = tf2.transform(p1);
       p2 = tf2.transform(p2);
+
+      dist = (p2 - tf1.getTranslation()).dot(n_w) - h.d;
+      p1 = p2 - dist * n_w;
       normal = n_w;
 
       return dist <= 0;
