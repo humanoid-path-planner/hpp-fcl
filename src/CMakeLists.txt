@@ -51,20 +51,22 @@ set(${LIBRARY_NAME}_SOURCES
   shape/convex.cpp
   shape/geometric_shapes.cpp
   shape/geometric_shapes_utility.cpp
-  distance_box_halfspace.cpp
-  distance_box_plane.cpp
-  distance_box_sphere.cpp
-  distance_capsule_capsule.cpp
-  distance_capsule_halfspace.cpp
-  distance_capsule_plane.cpp
-  distance_cone_halfspace.cpp
-  distance_cone_plane.cpp
-  distance_cylinder_halfspace.cpp
-  distance_cylinder_plane.cpp
-  distance_sphere_sphere.cpp
-  distance_sphere_cylinder.cpp
-  distance_sphere_halfspace.cpp
-  distance_sphere_plane.cpp
+  distance/box_halfspace.cpp
+  distance/box_plane.cpp
+  distance/box_sphere.cpp
+  distance/capsule_capsule.cpp
+  distance/capsule_halfspace.cpp
+  distance/capsule_plane.cpp
+  distance/cone_halfspace.cpp
+  distance/cone_plane.cpp
+  distance/cylinder_halfspace.cpp
+  distance/cylinder_plane.cpp
+  distance/sphere_sphere.cpp
+  distance/sphere_cylinder.cpp
+  distance/sphere_halfspace.cpp
+  distance/sphere_plane.cpp
+  distance/convex_halfspace.cpp
+  distance/triangle_halfspace.cpp
   intersect.cpp
   math/transform.cpp
   traversal/traversal_recurse.cpp

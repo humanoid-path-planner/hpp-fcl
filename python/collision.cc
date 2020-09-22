@@ -66,6 +66,9 @@ using namespace hpp::fcl;
 
 namespace dv = doxygen::visitor;
 
+template<int index> const CollisionGeometry* geto(const Contact& c)
+{ return index == 1 ? c.o1 : c.o2; }
+
 void exposeCollisionAPI ()
 {
   if(!eigenpy::register_symbolic_link_to_registered_type<CollisionRequestFlag>())
@@ -115,8 +118,12 @@ void exposeCollisionAPI ()
         doxygen::class_doc<Contact>(), init<>(arg("self"),"Default constructor"))
       //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int>())
       //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int, Vec3f, Vec3f, FCL_REAL>())
-      .DEF_RO_CLASS_ATTRIB (Contact, o1)
-      .DEF_RO_CLASS_ATTRIB (Contact, o2)
+      .add_property ("o1",
+          make_function(&geto<1>, return_value_policy<reference_existing_object>()),
+          doxygen::class_attrib_doc<Contact>("o1"))
+      .add_property ("o2",
+          make_function(&geto<2>, return_value_policy<reference_existing_object>()),
+          doxygen::class_attrib_doc<Contact>("o2"))
       .DEF_RW_CLASS_ATTRIB (Contact, b1)
       .DEF_RW_CLASS_ATTRIB (Contact, b2)
       .DEF_RW_CLASS_ATTRIB (Contact, normal)

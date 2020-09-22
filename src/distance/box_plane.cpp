@@ -40,8 +40,9 @@
 #include <limits>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#include <../src/distance_func_matrix.h>
-#include "narrowphase/details.h"
+
+#include "../distance_func_matrix.h"
+#include "../narrowphase/details.h"
 
 namespace hpp
 {
@@ -49,15 +50,15 @@ namespace fcl {
   struct GJKSolver;
 
   template <>
-  FCL_REAL ShapeShapeDistance <Capsule, Halfspace>
+  FCL_REAL ShapeShapeDistance <Box, Plane>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
    const GJKSolver*, const DistanceRequest&,
    DistanceResult& result)
   {
-    const Capsule& s1 = static_cast <const Capsule&> (*o1);
-    const Halfspace& s2 = static_cast <const Halfspace&> (*o2);
-    details::capsuleHalfspaceIntersect
+    const Box& s1 = static_cast <const Box&> (*o1);
+    const Plane& s2 = static_cast <const Plane&> (*o2);
+    details::boxPlaneIntersect
       (s1, tf1, s2, tf2, result.min_distance, result.nearest_points [0],
        result.nearest_points [1], result.normal);
     result.o1 = o1; result.o2 = o2; result.b1 = -1; result.b2 = -1;
@@ -65,15 +66,15 @@ namespace fcl {
   }
 
   template <>
-  FCL_REAL ShapeShapeDistance <Halfspace, Capsule>
+  FCL_REAL ShapeShapeDistance <Plane, Box>
   (const CollisionGeometry* o1, const Transform3f& tf1,
    const CollisionGeometry* o2, const Transform3f& tf2,
    const GJKSolver*, const DistanceRequest&,
    DistanceResult& result)
   {
-    const Halfspace& s1 = static_cast <const Halfspace&> (*o1);
-    const Capsule& s2 = static_cast <const Capsule&> (*o2);
-    details::capsuleHalfspaceIntersect
+    const Plane& s1 = static_cast <const Plane&> (*o1);
+    const Box& s2 = static_cast <const Box&> (*o2);
+    details::boxPlaneIntersect
       (s2, tf2, s1, tf1, result.min_distance, result.nearest_points [1],
        result.nearest_points [0], result.normal);
     result.o1 = o1; result.o2 = o2; result.b1 = -1; result.b2 = -1;
