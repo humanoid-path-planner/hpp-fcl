@@ -54,14 +54,14 @@ CollisionFunctionMatrix& getCollisionFunctionLookTable()
 }
 
 // reorder collision results in the order the call has been made.
-void invertResults(CollisionResult& result)
+void CollisionResult::swapObjects()
 {
-    for(std::vector<Contact>::iterator it = result.contacts.begin();
-        it != result.contacts.end(); ++it)
-    {
-        std::swap(it->o1, it->o2);
-        std::swap(it->b1, it->b2);
-    }
+  for(std::vector<Contact>::iterator it = contacts.begin();
+      it != contacts.end(); ++it)
+  {
+    std::swap(it->o1, it->o2);
+    std::swap(it->b1, it->b2);
+  }
 }
 
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
@@ -108,7 +108,7 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
       else
       {
         res = looktable.collision_matrix[node_type2][node_type1](o2, tf2, o1, tf1, &solver, request, result);
-        invertResults(result);
+        result.swapObjects();
       }
     }
     else

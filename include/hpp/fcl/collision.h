@@ -109,7 +109,7 @@ public:
     std::size_t res;
     if (swap_geoms) {
       res = func(o2, tf2, o1, tf1, &solver, request, result);
-      invertResults(result);
+      result.swapObjects();
     } else {
       res = func (o1, tf1, o2, tf2, &solver, request, result);
     }
