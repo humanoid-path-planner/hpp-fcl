@@ -37,8 +37,6 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <../src/distance_func_matrix.h>
 
-#define CLAMP(value, l, u) fmax(fmin(value, u), l)
-
 // Note that partial specialization of template functions is not allowed.
 // Therefore, two implementations with the default narrow phase solvers are
 // provided. If another narrow phase solver were to be used, the default
@@ -51,6 +49,25 @@ namespace hpp
 {
 namespace fcl {
   struct GJKSolver;
+
+  /// Clamp num / denom in [0, 1]
+  FCL_REAL clamp(const FCL_REAL& num, const FCL_REAL& denom)
+  {
+    assert(denom >= 0.);
+    if      (num <= 0.   ) return 0.;
+    else if (num >= denom) return 1.;
+    else                   return num / denom;
+  }
+
+  /// Clamp s=s_n/s_d in [0, 1] and stores a + s * d in a_sd
+  void clamped_linear(Vec3f& a_sd, const Vec3f& a,
+      const FCL_REAL& s_n, const FCL_REAL& s_d, const Vec3f& d)
+  {
+    assert(s_d >= 0.);
+    if      (s_n <= 0. ) a_sd = a          ;
+    else if (s_n >= s_d) a_sd = a+        d;
+    else                 a_sd = a+s_n/s_d*d;
+  }
 
 
   // Compute the distance between C1 and C2 by computing the distance
@@ -92,56 +109,57 @@ namespace fcl {
     FCL_REAL f = d2.dot(r);
     // S1 is parametrized by the equation p1 + s * d1
     // S2 is parametrized by the equation p2 + t * d2
-    FCL_REAL s = 0.0;
-    FCL_REAL t = 0.0;
 
-    if (a <= EPSILON && e <= EPSILON)
-    {
-      // Check if the segments degenerate into points
-      s = t = 0.0;
-    }
-    else if (a <= EPSILON)
-    {
-      // First segment is degenerated
-      s = 0.0;
-      t = CLAMP(f / e, 0.0, 1.0);
+    Vec3f w1, w2;
+    if (a <= EPSILON) {
+      w1 = p1;
+      if (e <= EPSILON)
+        // Check if the segments degenerate into points
+        w2 = p2;
+      else
+        // First segment is degenerated
+        clamped_linear(w2, p2, f, e, d2);
     }
     else if (e <= EPSILON)
     {
       // Second segment is degenerated
-      s = CLAMP(-c / a, 0.0, 1.0);
-      t = 0.0;
-    }
-    else
-    {
+      clamped_linear(w1, p1, -c, a, d1);
+      w2 = p2;
+    } else {
       // Always non-negative, equal 0 if the segments are colinear
       FCL_REAL denom = fmax(a*e-b*b, 0);
 
+      FCL_REAL s;
+      FCL_REAL t;
       if (denom > EPSILON)
       {
-        s = CLAMP((b*f-c*e) / denom, 0.0, 1.0);
+        s = clamp((b*f-c*e), denom);
+        t = b*s + f;
       }
       else
       {
-        s = 0.0;
+        s = 0.;
+        t = f;
       }
 
-      t = (b*s + f) / e;
-      if (t < 0.0)
+      if (t <= 0.0)
       {
-        t = 0.0;
-        s = CLAMP(-c / a, 0.0, 1.0);
+        w2 = p2;
+        clamped_linear (w1, p1, -c, a, d1);
       }
-      else if (t > 1.0)
+      else if (t >= e)
       {
-        t = 1.0;
-        s = CLAMP((b - c)/a, 0.0, 1.0);
+        clamped_linear (w1, p1, (b - c), a, d1);
+        w2 = p2 + d2;
+      }
+      else
+      {
+        w1 = p1 + s*d1;
+        w2 = p2 + t/e*d2;
       }
     }
 
     // witness points achieving the distance between the two segments
-    const Vec3f w1 = p1 + s * d1;
-    const Vec3f w2 = p2 + t * d2;
     FCL_REAL distance = (w1 - w2).norm();
     Vec3f normal = (w1 - w2) / distance;
     result.normal = normal;
