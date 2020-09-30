@@ -40,6 +40,7 @@
 
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/distance_func_matrix.h>
 
 namespace hpp
 {
@@ -79,8 +80,63 @@ inline FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
   request.updateGuess (result);
   return res;
 }
-}
 
+/// This class reduces the cost of identifying the geometry pair.
+/// This is mostly useful for repeated shape-shape queries.
+///
+/// \code
+///   ComputeDistance calc_distance (o1, o2);
+///   FCL_REAL distance = calc_distance(tf1, tf2, request, result);
+/// \endcode
+class HPP_FCL_DLLAPI ComputeDistance {
+public:
+  ComputeDistance(const CollisionGeometry* o1, const CollisionGeometry* o2);
+
+  FCL_REAL operator()(const Transform3f& tf1, const Transform3f& tf2,
+      const DistanceRequest& request, DistanceResult& result)
+  {
+    bool cached = request.enable_cached_gjk_guess;
+    solver.enable_cached_guess = cached;
+    if (cached) {
+      solver.cached_guess = request.cached_gjk_guess;
+      solver.support_func_cached_guess = request.cached_support_func_guess;
+    }
+
+    FCL_REAL res;
+    if (swap_geoms) {
+      res = func(o2, tf2, o1, tf1, &solver, request, result);
+      if (request.enable_nearest_points) {
+        std::swap(result.o1, result.o2);
+        result.nearest_points[0].swap(result.nearest_points[1]);
+      }
+    } else {
+      res = func (o1, tf1, o2, tf2, &solver, request, result);
+    }
+
+    if (cached) {
+      result.cached_gjk_guess = solver.cached_guess;
+      result.cached_support_func_guess = solver.support_func_cached_guess;
+    }
+    return res;
+  }
+
+  inline FCL_REAL operator()(const Transform3f& tf1, const Transform3f& tf2,
+      DistanceRequest& request, DistanceResult& result)
+  {
+    FCL_REAL res = operator()(tf1, tf2, (const DistanceRequest&) request, result);
+    request.updateGuess (result);
+    return res;
+  }
+
+private:
+  CollisionGeometry const *o1, *o2;
+  GJKSolver solver;
+
+  DistanceFunctionMatrix::DistanceFunc func;
+  bool swap_geoms;
+};
+
+} // namespace fcl
 } // namespace hpp
 
 #endif
