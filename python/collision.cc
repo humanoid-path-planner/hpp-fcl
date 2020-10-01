@@ -179,4 +179,12 @@ void exposeCollisionAPI ()
         const CollisionGeometry*, const Transform3f&,
         const CollisionGeometry*, const Transform3f&,
         CollisionRequest&, CollisionResult&) > (&collide));
+
+  class_<ComputeCollision> ("ComputeCollision",
+      doxygen::class_doc<ComputeCollision>(), no_init)
+    .def (dv::init<ComputeCollision, const CollisionGeometry*, const CollisionGeometry*>())
+    .def ("__call__", static_cast< std::size_t (ComputeCollision::*)(
+        const Transform3f&, const Transform3f&,
+        CollisionRequest&, CollisionResult&) > (&ComputeCollision::operator()));
+
 }

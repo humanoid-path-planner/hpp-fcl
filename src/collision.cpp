@@ -54,20 +54,14 @@ CollisionFunctionMatrix& getCollisionFunctionLookTable()
 }
 
 // reorder collision results in the order the call has been made.
-void invertResults(CollisionResult& result)
+void CollisionResult::swapObjects()
 {
-    const CollisionGeometry* otmp;
-    int btmp;
-    for(std::vector<Contact>::iterator it = result.contacts.begin();
-        it != result.contacts.end(); ++it)
-    {
-        otmp = it->o1;
-        it->o1 = it->o2;
-        it->o2 = otmp;
-        btmp = it->b1;
-        it->b1 = it->b2;
-        it->b2 = btmp;
-    }
+  for(std::vector<Contact>::iterator it = contacts.begin();
+      it != contacts.end(); ++it)
+  {
+    std::swap(it->o1, it->o2);
+    std::swap(it->b1, it->b2);
+  }
 }
 
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
@@ -114,7 +108,7 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
       else
       {
         res = looktable.collision_matrix[node_type2][node_type1](o2, tf2, o1, tf1, &solver, request, result);
-        invertResults(result);
+        result.swapObjects();
       }
     }
     else
@@ -136,7 +130,32 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
   return res;
 }
 
+ComputeCollision::ComputeCollision(const CollisionGeometry* o1,
+    const CollisionGeometry* o2)
+  : o1(o1), o2(o2)
+{
+  const CollisionFunctionMatrix& looktable = getCollisionFunctionLookTable();
+
+  OBJECT_TYPE object_type1 = o1->getObjectType();
+  NODE_TYPE node_type1 = o1->getNodeType();
+  OBJECT_TYPE object_type2 = o2->getObjectType();
+  NODE_TYPE node_type2 = o2->getNodeType();
+
+  swap_geoms = object_type1 == OT_GEOM && object_type2 == OT_BVH;
+
+  if(   ( swap_geoms && !looktable.collision_matrix[node_type2][node_type1])
+     || (!swap_geoms && !looktable.collision_matrix[node_type1][node_type2]))
+  {
+    std::ostringstream oss;
+    oss << "Warning: collision function between node type " << node_type1 <<
+      " and node type " << node_type2 << " is not supported";
+    throw std::invalid_argument(oss.str());
+  }
+  if (swap_geoms)
+    func = looktable.collision_matrix[node_type2][node_type1];
+  else
+    func = looktable.collision_matrix[node_type1][node_type2];
 }
 
-
+} // namespace fcl
 } // namespace hpp

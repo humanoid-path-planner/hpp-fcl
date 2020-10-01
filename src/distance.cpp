@@ -119,7 +119,32 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
   return res;
 }
 
+ComputeDistance::ComputeDistance(const CollisionGeometry* o1,
+    const CollisionGeometry* o2)
+  : o1(o1), o2(o2)
+{
+  const DistanceFunctionMatrix& looktable = getDistanceFunctionLookTable();
 
+  OBJECT_TYPE object_type1 = o1->getObjectType();
+  NODE_TYPE node_type1 = o1->getNodeType();
+  OBJECT_TYPE object_type2 = o2->getObjectType();
+  NODE_TYPE node_type2 = o2->getNodeType();
+
+  swap_geoms = object_type1 == OT_GEOM && object_type2 == OT_BVH;
+
+  if(   ( swap_geoms && !looktable.distance_matrix[node_type2][node_type1])
+     || (!swap_geoms && !looktable.distance_matrix[node_type1][node_type2]))
+  {
+    std::ostringstream oss;
+    oss << "Warning: distance function between node type " << node_type1 <<
+      " and node type " << node_type2 << " is not supported";
+    throw std::invalid_argument(oss.str());
+  }
+  if (swap_geoms)
+    func = looktable.distance_matrix[node_type2][node_type1];
+  else
+    func = looktable.distance_matrix[node_type1][node_type2];
 }
 
+} // namespace fcl
 } // namespace hpp

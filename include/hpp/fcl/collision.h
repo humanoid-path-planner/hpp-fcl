@@ -42,6 +42,7 @@
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/collision_func_matrix.h>
 
 namespace hpp
 {
@@ -83,8 +84,60 @@ inline std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
   request.updateGuess (result);
   return res;
 }
-}
 
+/// This class reduces the cost of identifying the geometry pair.
+/// This is mostly useful for repeated shape-shape queries.
+///
+/// \code
+///   ComputeCollision calc_collision (o1, o2);
+///   std::size_t ncontacts = calc_collision(tf1, tf2, request, result);
+/// \endcode
+class HPP_FCL_DLLAPI ComputeCollision {
+public:
+  ComputeCollision(const CollisionGeometry* o1, const CollisionGeometry* o2);
+
+  std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
+      const CollisionRequest& request, CollisionResult& result)
+  {
+    bool cached = request.enable_cached_gjk_guess;
+    solver.enable_cached_guess = cached;
+    if (cached) {
+      solver.cached_guess = request.cached_gjk_guess;
+      solver.support_func_cached_guess = request.cached_support_func_guess;
+    }
+
+    std::size_t res;
+    if (swap_geoms) {
+      res = func(o2, tf2, o1, tf1, &solver, request, result);
+      result.swapObjects();
+    } else {
+      res = func (o1, tf1, o2, tf2, &solver, request, result);
+    }
+
+    if (cached) {
+      result.cached_gjk_guess = solver.cached_guess;
+      result.cached_support_func_guess = solver.support_func_cached_guess;
+    }
+    return res;
+  }
+
+  inline std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
+      CollisionRequest& request, CollisionResult& result)
+  {
+    std::size_t res = operator()(tf1, tf2, (const CollisionRequest&) request, result);
+    request.updateGuess (result);
+    return res;
+  }
+
+private:
+  CollisionGeometry const *o1, *o2;
+  GJKSolver solver;
+
+  CollisionFunctionMatrix::CollisionFunc func;
+  bool swap_geoms;
+};
+
+} // namespace fcl
 } // namespace hpp
 
 #endif
