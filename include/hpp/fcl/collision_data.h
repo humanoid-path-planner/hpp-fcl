@@ -477,11 +477,11 @@ public:
                   && b2 == other.b2;
 
 // TODO: check also that two GeometryObject are indeed equal.
-    if ((o1 != NULL) xor (other.o1 != NULL)) return false;
+    if ((o1 != NULL) ^ (other.o1 != NULL)) return false;
     is_same &= (o1 == other.o1);
 //    else if (o1 != NULL and other.o1 != NULL) is_same &= *o1 == *other.o1;
 
-    if ((o2 != NULL) xor (other.o2 != NULL)) return false;
+    if ((o2 != NULL) ^ (other.o2 != NULL)) return false;
     is_same &= (o2 == other.o2);
 //    else if (o2 != NULL and other.o2 != NULL) is_same &= *o2 == *other.o2;
   
