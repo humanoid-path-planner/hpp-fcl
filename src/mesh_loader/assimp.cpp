@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if __cplusplus < 201103L
+#if !(__cplusplus >= 201103L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201103))
   #define nullptr NULL
 #endif
 #include <hpp/fcl/mesh_loader/assimp.h>
@@ -40,7 +40,7 @@
 // Assimp >= 5.0 is forcing the use of C++11 keywords. A fix has been submitted https://github.com/assimp/assimp/pull/2758.
 // The next lines fixes the bug for current version of hpp-fcl.
 #include <assimp/defs.h>
-#if __cplusplus < 201103L && defined(AI_NO_EXCEPT)
+#if !(__cplusplus >= 201103L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201103)) && defined(AI_NO_EXCEPT)
   #undef AI_NO_EXCEPT
   #define AI_NO_EXCEPT
 #endif
