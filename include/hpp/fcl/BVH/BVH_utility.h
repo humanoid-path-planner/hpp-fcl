@@ -41,7 +41,6 @@
 
 #include <hpp/fcl/BVH/BVH_model.h>
 
-
 namespace hpp
 {
 namespace fcl
@@ -49,7 +48,32 @@ namespace fcl
 /// @brief Extract the part of the BVHModel that is inside an AABB.
 /// A triangle in collision with the AABB is considered inside.
 template<typename BV>
-HPP_FCL_DLLAPI BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, const AABB& aabb);
+BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, const AABB& aabb);
+
+template<>
+HPP_FCL_DLLAPI
+BVHModel<OBB      >* BVHExtract(const BVHModel<OBB      >& model, const Transform3f& pose, const AABB& aabb);
+template<>
+HPP_FCL_DLLAPI
+BVHModel<AABB     >* BVHExtract(const BVHModel<AABB     >& model, const Transform3f& pose, const AABB& aabb);
+template<>
+HPP_FCL_DLLAPI
+BVHModel<RSS      >* BVHExtract(const BVHModel<RSS      >& model, const Transform3f& pose, const AABB& aabb);
+template<>
+HPP_FCL_DLLAPI
+BVHModel<kIOS     >* BVHExtract(const BVHModel<kIOS     >& model, const Transform3f& pose, const AABB& aabb);
+template<>
+HPP_FCL_DLLAPI
+BVHModel<OBBRSS   >* BVHExtract(const BVHModel<OBBRSS   >& model, const Transform3f& pose, const AABB& aabb);
+template<>
+HPP_FCL_DLLAPI
+BVHModel<KDOP<16> >* BVHExtract(const BVHModel<KDOP<16> >& model, const Transform3f& pose, const AABB& aabb);
+template<>
+HPP_FCL_DLLAPI
+BVHModel<KDOP<18> >* BVHExtract(const BVHModel<KDOP<18> >& model, const Transform3f& pose, const AABB& aabb);
+template<>
+HPP_FCL_DLLAPI
+BVHModel<KDOP<24> >* BVHExtract(const BVHModel<KDOP<24> >& model, const Transform3f& pose, const AABB& aabb);
 
 /// @brief Compute the covariance matrix for a set or subset of points. if ts = null, then indices refer to points directly; otherwise refer to triangles
 HPP_FCL_DLLAPI void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M);
