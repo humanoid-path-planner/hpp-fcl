@@ -53,8 +53,6 @@ namespace hpp
 namespace fcl
 {
 
-const int GST_INDEP HPP_FCL_DEPRECATED = 0;
-
 /// @brief Contact information returned by collision
 struct HPP_FCL_DLLAPI Contact
 {
