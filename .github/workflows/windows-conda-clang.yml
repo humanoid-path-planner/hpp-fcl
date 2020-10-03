@@ -1,4 +1,4 @@
-name: Build FCL for Windows via Conda
+name: Build FCL for Windows (CLANG) via Conda
 on: [push,pull_request]
 
 jobs:
