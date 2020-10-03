@@ -48,6 +48,7 @@ namespace fcl
 /// @brief Extract the part of the BVHModel that is inside an AABB.
 /// A triangle in collision with the AABB is considered inside.
 template<typename BV>
+HPP_FCL_DLLAPI
 BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose, const AABB& aabb);
 
 template<>
