@@ -14,7 +14,9 @@ macro(add_fcl_test test_name source)
     Boost::timer
     utility
     )
-  target_compile_options(${test_name} PRIVATE "-Wno-c99-extensions")
+  IF(NOT WIN32)
+    target_compile_options(${test_name} PRIVATE "-Wno-c99-extensions")
+  ENDIF(NOT WIN32)
   if(HPP_FCL_HAS_QHULL)
     target_compile_options(${test_name} PRIVATE -DHPP_FCL_HAS_QHULL)
   endif()

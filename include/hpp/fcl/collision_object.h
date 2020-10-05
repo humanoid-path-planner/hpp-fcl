@@ -290,13 +290,6 @@ public:
   }
 
   /// @brief get geometry from the object instance
-  HPP_FCL_DEPRECATED
-  const CollisionGeometry* getCollisionGeometry() const
-  {
-    return cgeom.get();
-  }
-
-  /// @brief get geometry from the object instance
   const boost::shared_ptr<const CollisionGeometry>& collisionGeometry() const
   {
     return cgeom_const;

@@ -53,8 +53,6 @@ namespace hpp
 namespace fcl
 {
 
-const int GST_INDEP HPP_FCL_DEPRECATED = 0;
-
 /// @brief Contact information returned by collision
 struct HPP_FCL_DLLAPI Contact
 {
@@ -215,14 +213,6 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
   /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
   FCL_REAL break_distance;
 
-  explicit CollisionRequest(size_t num_max_contacts_,
-                   bool enable_contact_ = false,
-		   bool enable_distance_lower_bound_ = false,
-                   size_t num_max_cost_sources_ = 1,
-                   bool enable_cost_ = false,
-                   bool use_approximate_cost_ = true)
-  HPP_FCL_DEPRECATED;
-
   explicit CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_) :
     num_max_contacts(num_max_contacts_),
     enable_contact(flag & CONTACT),
@@ -348,17 +338,6 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest
   /// @brief error threshold for approximate distance
   FCL_REAL rel_err; // relative error, between 0 and 1
   FCL_REAL abs_err; // absoluate error
-
-  /// \deprecated the last argument should be removed.
-  DistanceRequest(bool enable_nearest_points_,
-                  FCL_REAL rel_err_,
-                  FCL_REAL abs_err_,
-                  int /*unused*/) HPP_FCL_DEPRECATED :
-    enable_nearest_points(enable_nearest_points_),
-    rel_err(rel_err_),
-    abs_err(abs_err_)
-  {
-  }
 
   /// \param enable_nearest_points_ enables the nearest points computation.
   /// \param rel_err_
@@ -498,11 +477,11 @@ public:
                   && b2 == other.b2;
 
 // TODO: check also that two GeometryObject are indeed equal.
-    if ((o1 != NULL) xor (other.o1 != NULL)) return false;
+    if ((o1 != NULL) ^ (other.o1 != NULL)) return false;
     is_same &= (o1 == other.o1);
 //    else if (o1 != NULL and other.o1 != NULL) is_same &= *o1 == *other.o1;
 
-    if ((o2 != NULL) xor (other.o2 != NULL)) return false;
+    if ((o2 != NULL) ^ (other.o2 != NULL)) return false;
     is_same &= (o2 == other.o2);
 //    else if (o2 != NULL and other.o2 != NULL) is_same &= *o2 == *other.o2;
   

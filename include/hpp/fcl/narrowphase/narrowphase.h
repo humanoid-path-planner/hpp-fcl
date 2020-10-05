@@ -420,7 +420,7 @@ HPP_FCL_DLLAPI bool GJKSolver::shapeDistance<S1, S2> \
 #undef SHAPE_DISTANCE_SPECIALIZATION
 #undef SHAPE_DISTANCE_SPECIALIZATION_BASE
 
-#if __cplusplus < 201103L
+#if !(__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wc99-extensions"
 #endif
@@ -549,7 +549,7 @@ HPP_FCL_DLLAPI bool GJKSolver::shapeDistance<S1, S2> \
 #undef HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR
 
   /// \}
-#if __cplusplus < 201103L
+#if !(__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
 #pragma GCC diagnostic pop
 #endif
 }
