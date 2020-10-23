@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2015-2020, CNRS INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -71,7 +72,8 @@ std::size_t Collide(const CollisionGeometry* o1, const Transform3f& tf1, const C
 #endif
 
 template<typename T_SH1, typename T_SH2>
-std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1,
+                              const CollisionGeometry* o2, const Transform3f& tf2,
                               const GJKSolver* nsolver,
                               const CollisionRequest& request, CollisionResult& result)
 {
@@ -79,32 +81,20 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
 
   DistanceResult distanceResult;
   DistanceRequest distanceRequest (request.enable_contact);
-  FCL_REAL distance = ShapeShapeDistance <T_SH1, T_SH2>
+  const FCL_REAL distance = ShapeShapeDistance <T_SH1, T_SH2>
     (o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
 
-  if (distance <= 0) {
+  if (distance <= 0 || distance <= request.security_margin) {
     if (result.numContacts () < request.num_max_contacts) {
       const Vec3f& p1 = distanceResult.nearest_points [0];
       const Vec3f& p2 = distanceResult.nearest_points [1];
+      const Vec3f& normal = distance <= 0 ? distanceResult.normal : (p2-p1).normalized();
 
       Contact contact (o1, o2, distanceResult.b1, distanceResult.b2,
-          (p1+p2)/2,
-          distanceResult.normal,
-          -distance+request.security_margin);
+                       (p1+p2)/2,
+                       normal,
+                       -distance);
 
-      result.addContact (contact);
-    }
-    return 1;
-  }
-  if (distance <= request.security_margin) {
-    if (result.numContacts () < request.num_max_contacts) {
-      const Vec3f& p1 = distanceResult.nearest_points [0];
-      const Vec3f& p2 = distanceResult.nearest_points [1];
-
-      Contact contact (o1, o2, distanceResult.b1, distanceResult.b2,
-          .5 * (p1 + p2),
-          (p2-p1).normalized (),
-          -distance+request.security_margin);
       result.addContact (contact);
     }
     return 1;
