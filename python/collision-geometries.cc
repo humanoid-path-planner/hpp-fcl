@@ -64,7 +64,7 @@
 #define DEF_CLASS_FUNC(CLASS, ATTRIB)                                          \
   def (dv::member_func(#ATTRIB, &CLASS::ATTRIB))
 #define DEF_CLASS_FUNC2(CLASS, ATTRIB,policy)                                  \
-  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB),policy)
+  def (dv::member_func(#ATTRIB, &CLASS::ATTRIB, policy))
 
 using namespace boost::python;
 using namespace hpp::fcl;
@@ -422,4 +422,38 @@ void exposeCollisionGeometries ()
     ;
   exposeBVHModel<OBB    >("OBB"    );
   exposeBVHModel<OBBRSS >("OBBRSS" );
+}
+
+void exposeCollisionObject ()
+{
+  namespace bp = boost::python;
+
+  if(!eigenpy::register_symbolic_link_to_registered_type<CollisionObject>())
+  {
+    class_ <CollisionObject, CollisionObjectPtr_t>
+      ("CollisionObject", no_init)
+      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&>())
+      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Transform3f&>())
+      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Matrix3f&, const Vec3f&>())
+
+      .def ("getObjectType", &CollisionObject::getObjectType)
+      .def ("getNodeType", &CollisionObject::getNodeType)
+      .def ("computeAABB", &CollisionObject::computeAABB)
+
+      .DEF_CLASS_FUNC2(CollisionObject, getTranslation, bp::return_value_policy<bp::copy_const_reference>())
+      .DEF_CLASS_FUNC(CollisionObject, setTranslation)
+      .DEF_CLASS_FUNC2(CollisionObject, getRotation, bp::return_value_policy<bp::copy_const_reference>())
+      .DEF_CLASS_FUNC(CollisionObject, setRotation)
+      .DEF_CLASS_FUNC2(CollisionObject, getTransform, bp::return_value_policy<bp::copy_const_reference>())
+      .def(dv::member_func("setTransform",
+          static_cast<void (CollisionObject::*) (const Transform3f&)>(&CollisionObject::setTransform)))
+
+      .DEF_CLASS_FUNC(CollisionObject, isIdentityTransform)
+      .DEF_CLASS_FUNC(CollisionObject, setIdentityTransform)
+      
+      .def("collisionGeometry",
+          static_cast<const CollisionGeometryPtr_t& (CollisionObject::*) ()>(&CollisionObject::collisionGeometry),
+          bp::return_value_policy<bp::copy_const_reference>())
+      ;
+  }
 }
