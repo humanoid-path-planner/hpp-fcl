@@ -189,15 +189,19 @@ public:
   bool BVDisjoints(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    bool res;
+    bool disjoint;
     if (RTIsIdentity)
-      res = !this->model1->getBV(b1).bv.overlap(this->model2_bv, this->request, sqrDistLowerBound);
+      disjoint = !this->model1->getBV(b1).bv.overlap(this->model2_bv, this->request, sqrDistLowerBound);
     else
-      res = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
+      disjoint = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
                       this->model2_bv, this->model1->getBV(b1).bv,
                       this->request, sqrDistLowerBound);
-    assert (!res || sqrDistLowerBound > 0);
-    return res;
+    if (   disjoint
+        && this->result->distance_lower_bound > 0
+        && sqrDistLowerBound < this->result->distance_lower_bound * this->result->distance_lower_bound)
+      this->result->distance_lower_bound = sqrt(sqrDistLowerBound);
+    assert (!disjoint || sqrDistLowerBound > 0);
+    return disjoint;
   }
 
   /// @brief Intersection testing between leaves (one triangle and one shape)
@@ -230,27 +234,34 @@ public:
                                           this->tf1, distance, c2, c1, normal);
     }
 
+    FCL_REAL distToCollision = distance - this->request.security_margin;
     if(collision) {
+      sqrDistLowerBound = 0;
       if(this->request.num_max_contacts > this->result->numContacts())
       {
         this->result->addContact(Contact(this->model1, this->model2,
                                          primitive_id, Contact::NONE,
                                          c1, -normal, -distance));
         assert (this->result->isCollision ());
-        return;
       }
+    } else if (distToCollision < 0) {
+      sqrDistLowerBound = 0;
+      if(this->request.num_max_contacts > this->result->numContacts())
+      {
+        this->result->addContact(Contact(this->model1, this->model2,
+              primitive_id, Contact::NONE,
+              .5 * (c1+c2), (c2-c1).normalized (),
+              -distance));
+      }
+    } else
+      sqrDistLowerBound = distance * distance;
+    if (distToCollision < this->result->distance_lower_bound) {
+      this->result->distance_lower_bound = distToCollision;
+      this->result->nearest_points[0] = c1;
+      this->result->nearest_points[1] = c2;
     }
-    sqrDistLowerBound = distance * distance;
-    assert (distance > 0);
-    if (   this->request.security_margin > 0
-        && distance <= this->request.security_margin)
-    {
-      this->result->addContact(Contact(this->model1, this->model2,
-                                       primitive_id, Contact::NONE,
-                                       .5 * (c1+c2), (c2-c1).normalized (),
-                                       -distance));
-    }
-    assert (!this->result->isCollision () || sqrDistLowerBound > 0);
+
+    assert (this->result->isCollision () || sqrDistLowerBound > 0);
   }
 
   Vec3f* vertices;
@@ -296,15 +307,19 @@ public:
   bool BVDisjoints(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    bool res;
+    bool disjoint;
     if (RTIsIdentity)
-      res = !this->model2->getBV(b2).bv.overlap(this->model1_bv, sqrDistLowerBound);
+      disjoint = !this->model2->getBV(b2).bv.overlap(this->model1_bv, sqrDistLowerBound);
     else
-      res = !overlap(this->tf2.getRotation(), this->tf2.getTranslation(),
+      disjoint = !overlap(this->tf2.getRotation(), this->tf2.getTranslation(),
                      this->model1_bv, this->model2->getBV(b2).bv,
                      sqrDistLowerBound);
-    assert (!res || sqrDistLowerBound > 0);
-    return res;
+    if (disjoint
+        && this->result->distance_lower_bound > 0
+        && sqrDistLowerBound < this->result->distance_lower_bound * this->result->distance_lower_bound)
+      this->result->distance_lower_bound = sqrt(sqrDistLowerBound);
+    assert (!disjoint || sqrDistLowerBound > 0);
+    return disjoint;
   }
 
   /// @brief Intersection testing between leaves (one shape and one triangle)
@@ -347,17 +362,35 @@ public:
         return;
       }
     }
-    sqrDistLowerBound = distance * distance;
-    assert (distance > 0);
-    if (   this->request.security_margin == 0
-        && distance <= this->request.security_margin)
-    {
-      this->result.addContact (Contact(this->model1 , this->model2,
-                                       Contact::NONE, primitive_id,
-                                       .5 * (c1+c2), (c2-c1).normalized (),
-                                       -distance));
+
+    FCL_REAL distToCollision = distance - this->request.security_margin;
+    if(collision) {
+      sqrDistLowerBound = 0;
+      if(this->request.num_max_contacts > this->result->numContacts())
+      {
+        this->result->addContact(Contact(this->model1, this->model2,
+                                         Contact::NONE, primitive_id,
+                                         c1, normal, -distance));
+        assert (this->result->isCollision ());
+      }
+    } else if (distToCollision < 0) {
+      sqrDistLowerBound = 0;
+      if(this->request.num_max_contacts > this->result->numContacts())
+      {
+        this->result->addContact(Contact(this->model1, this->model2,
+              Contact::NONE, primitive_id,
+              .5 * (c1+c2), (c2-c1).normalized (),
+              -distance));
+      }
+    } else
+      sqrDistLowerBound = distToCollision * distToCollision;
+    if (distToCollision < this->result->distance_lower_bound) {
+      this->result->distance_lower_bound = distToCollision;
+      this->result->nearest_points[0] = c1;
+      this->result->nearest_points[1] = c2;
     }
-    assert (!this->result->isCollision () || sqrDistLowerBound > 0);
+
+    assert (this->result->isCollision () || sqrDistLowerBound > 0);
   }
 
   Vec3f* vertices;

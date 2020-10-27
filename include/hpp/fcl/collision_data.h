@@ -259,6 +259,11 @@ public:
   /// overhead).
   FCL_REAL distance_lower_bound;
 
+  /// @brief nearest points
+  /// available only when distance_lower_bound is inferior to
+  /// CollisionRequest::break_distance.
+  Vec3f nearest_points[2];
+
 public:
   CollisionResult()
     : distance_lower_bound ((std::numeric_limits<FCL_REAL>::max)())
