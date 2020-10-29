@@ -196,10 +196,8 @@ public:
       disjoint = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
                       this->model2_bv, this->model1->getBV(b1).bv,
                       this->request, sqrDistLowerBound);
-    if (   disjoint
-        && this->result->distance_lower_bound > 0
-        && sqrDistLowerBound < this->result->distance_lower_bound * this->result->distance_lower_bound)
-      this->result->distance_lower_bound = sqrt(sqrDistLowerBound);
+    if (disjoint)
+      internal::updateDistanceLowerBoundFromBV(this->request, *this->result, sqrDistLowerBound);
     assert (!disjoint || sqrDistLowerBound > 0);
     return disjoint;
   }
@@ -255,11 +253,9 @@ public:
       }
     } else
       sqrDistLowerBound = distance * distance;
-    if (distToCollision < this->result->distance_lower_bound) {
-      this->result->distance_lower_bound = distToCollision;
-      this->result->nearest_points[0] = c1;
-      this->result->nearest_points[1] = c2;
-    }
+
+    internal::updateDistanceLowerBoundFromLeaf(this->request,
+        *this->result, distToCollision, c1, c2);
 
     assert (this->result->isCollision () || sqrDistLowerBound > 0);
   }
@@ -314,10 +310,8 @@ public:
       disjoint = !overlap(this->tf2.getRotation(), this->tf2.getTranslation(),
                      this->model1_bv, this->model2->getBV(b2).bv,
                      sqrDistLowerBound);
-    if (disjoint
-        && this->result->distance_lower_bound > 0
-        && sqrDistLowerBound < this->result->distance_lower_bound * this->result->distance_lower_bound)
-      this->result->distance_lower_bound = sqrt(sqrDistLowerBound);
+    if (disjoint)
+      internal::updateDistanceLowerBoundFromBV(this->request, *this->result, sqrDistLowerBound);
     assert (!disjoint || sqrDistLowerBound > 0);
     return disjoint;
   }
@@ -352,17 +346,6 @@ public:
                                           this->tf2, c1, c2, distance, normal);
     }
 
-    if (collision) {
-      if(this->request.num_max_contacts > this->result->numContacts())
-      {  
-        this->result->addContact (Contact(this->model1 , this->model2,
-                                          Contact::NONE, primitive_id,
-                                          c1, normal, -distance));
-        assert (this->result->isCollision ());
-        return;
-      }
-    }
-
     FCL_REAL distToCollision = distance - this->request.security_margin;
     if(collision) {
       sqrDistLowerBound = 0;
@@ -384,11 +367,9 @@ public:
       }
     } else
       sqrDistLowerBound = distToCollision * distToCollision;
-    if (distToCollision < this->result->distance_lower_bound) {
-      this->result->distance_lower_bound = distToCollision;
-      this->result->nearest_points[0] = c1;
-      this->result->nearest_points[1] = c2;
-    }
+
+    internal::updateDistanceLowerBoundFromLeaf(this->request,
+        *this->result, distToCollision, c1, c2);
 
     assert (this->result->isCollision () || sqrDistLowerBound > 0);
   }

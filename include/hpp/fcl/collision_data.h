@@ -314,6 +314,18 @@ public:
       return contacts.back();
   }
 
+  /// @brief get the i-th contact calculated
+  void setContact(size_t i, const Contact& c)
+  {
+    if(contacts.size() == 0)
+      throw std::invalid_argument("The number of contacts is zero. No Contact can be returned.");
+    
+    if(i < contacts.size()) 
+      contacts[i] = c;
+    else
+      contacts.back() = c;
+  }
+
   /// @brief get all the contacts
   void getContacts(std::vector<Contact>& contacts_) const
   {

@@ -188,10 +188,8 @@ public:
           this->request, sqrDistLowerBound);
       assert (!disjoint || sqrDistLowerBound > 0);
     }
-    if (   disjoint
-        && this->result->distance_lower_bound > 0
-        && sqrDistLowerBound < this->result->distance_lower_bound * this->result->distance_lower_bound)
-      this->result->distance_lower_bound = sqrt(sqrDistLowerBound);
+    if (disjoint)
+      internal::updateDistanceLowerBoundFromBV(this->request, *this->result, sqrDistLowerBound);
     return disjoint;
   }
 
@@ -257,11 +255,9 @@ public:
       }
     } else 
       sqrDistLowerBound = distToCollision * distToCollision;
-    if (distToCollision < this->result->distance_lower_bound) {
-      this->result->distance_lower_bound = distToCollision;
-      this->result->nearest_points[0] = p1;
-      this->result->nearest_points[1] = p2;
-    }
+
+    internal::updateDistanceLowerBoundFromLeaf(this->request,
+        *this->result, distToCollision, p1, p2);
   }
 
   Vec3f* vertices1;
