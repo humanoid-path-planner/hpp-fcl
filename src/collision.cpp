@@ -61,6 +61,7 @@ void CollisionResult::swapObjects()
   {
     std::swap(it->o1, it->o2);
     std::swap(it->b1, it->b2);
+    it->normal *= -1;
   }
 }
 
