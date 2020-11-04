@@ -319,6 +319,7 @@ public:
   /// @brief clear the results obtained
   void clear()
   {
+    distance_lower_bound = (std::numeric_limits<FCL_REAL>::max)();
     contacts.clear();
   }
 
