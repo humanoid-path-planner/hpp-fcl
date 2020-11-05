@@ -161,11 +161,9 @@ unsigned recurseBuildMesh (
       aiFace& face = input_mesh->mFaces[j];
       if (face.mNumIndices != 3) {
         std::stringstream ss;
-#ifdef HPP_FCL_USE_ASSIMP_UNIFIED_HEADER_NAMES
         ss << "Mesh " << input_mesh->mName.C_Str() << " has a face with "
            << face.mNumIndices << " vertices. This is not supported\n";
         ss << "Node name is: " << node->mName.C_Str() << "\n";
-#endif
         ss << "Mesh index: " << i << "\n";
         ss << "Face index: " << j << "\n";
         throw std::invalid_argument (ss.str());
