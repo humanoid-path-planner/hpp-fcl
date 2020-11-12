@@ -649,7 +649,8 @@ class OutputStreams(object):
         if name in self._created_files:
             self._out = self._created_files[name]
         else:
-            self._out = open(fullname, mode='w', encoding="utf-8")
+            import io
+            self._out = io.open(fullname, mode='w', encoding="utf-8")
             self._created_files[name] = self._out
 
             # Header
