@@ -260,7 +260,7 @@ class MemberDef(Reference):
         import os.path
         loc = self.xml.find('location')
         # The location is based on $CMAKE_SOURCE_DIR. Remove first directory.
-        return loc.attrib['file'].split(os.path.sep,1)[1]
+        return loc.attrib['file'].split('/',1)[1]
 
 class CompoundBase(Reference):
     def __init__ (self, compound, index):
