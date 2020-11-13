@@ -649,8 +649,8 @@ class OutputStreams(object):
         if name in self._created_files:
             self._out = self._created_files[name]
         else:
-            import io
-            self._out = io.open(fullname, mode='w', encoding="utf-8")
+            import codecs
+            self._out = codecs.open(fullname, mode='w', encoding="utf-8")
             self._created_files[name] = self._out
 
             # Header
@@ -674,7 +674,10 @@ class OutputStreams(object):
         self._out = None
 
     def out(self, *args):
-        print (*args, file=self._out)
+        if sys.version_info >= (3,):
+            print (*args, file=self._out)
+        else:
+            print(' '.join(str(arg) for arg in args).encode('utf-8'), file=self._out)
     def warn(self, *args):
         print (self.errorPrefix, *args, file=self._warn)
     def err(self, *args):
