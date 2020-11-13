@@ -95,7 +95,7 @@ template_open_namespace = \
 template_close_namespace = \
 """}} // namespace {namespace}"""
 template_include_intern = \
-"""#include "{filename}"
+"""#include <doxygen_autodoc/{filename}>
 """
 template_include_extern = \
 """#include <{filename}>
@@ -584,7 +584,7 @@ class Index:
                     prototypes.append (prototype)
 
         self.output.out (
-                "".join([ template_include_intern.format (filename=filename)
+                "".join([ template_include_extern.format (filename=filename)
                     for filename in includes]))
 
         self.output.out (template_open_namespace.format (namespace="doxygen"))
