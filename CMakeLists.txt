@@ -78,7 +78,11 @@ endif()
 # Required dependencies
 SET_BOOST_DEFAULT_OPTIONS()
 EXPORT_BOOST_DEFAULT_OPTIONS()
-ADD_PROJECT_DEPENDENCY(Boost REQUIRED)
+IF(WIN32)
+  ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS chrono thread date_time)
+ELSE(WIN32)
+  ADD_PROJECT_DEPENDENCY(Boost REQUIRED)
+ENDIF(WIN32)
 if (BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
   search_for_boost_python(REQUIRED)
@@ -155,6 +159,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_object.h
   include/hpp/fcl/collision_utility.h
   include/hpp/fcl/octree.h
+  include/hpp/fcl/profile.h
   include/hpp/fcl/fwd.hh
   include/hpp/fcl/mesh_loader/assimp.h
   include/hpp/fcl/mesh_loader/loader.h

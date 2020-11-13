@@ -10,3 +10,6 @@ dependencies:
   - boost
   - eigenpy
   - python
+  - doxygen
+  - lxml
+  - pylatexenc

@@ -95,7 +95,7 @@ template_open_namespace = \
 template_close_namespace = \
 """}} // namespace {namespace}"""
 template_include_intern = \
-"""#include "{filename}"
+"""#include <doxygen_autodoc/{filename}>
 """
 template_include_extern = \
 """#include <{filename}>
@@ -130,7 +130,7 @@ def _templateParamToDict (param):
 
 def makeHeaderGuard (filename):
     import os
-    return filename.upper().replace('.', '_').replace(os.path.sep, '_')
+    return filename.upper().replace('.', '_').replace('/', '_')
 
 def format_description (brief, detailed):
     b = [ el.text.strip() for el in brief   .iter() if el.text ] if brief    is not None else []
@@ -260,7 +260,7 @@ class MemberDef(Reference):
         import os.path
         loc = self.xml.find('location')
         # The location is based on $CMAKE_SOURCE_DIR. Remove first directory.
-        return loc.attrib['file'].split(os.path.sep,1)[1]
+        return loc.attrib['file'].split('/',1)[1]
 
 class CompoundBase(Reference):
     def __init__ (self, compound, index):
@@ -584,7 +584,7 @@ class Index:
                     prototypes.append (prototype)
 
         self.output.out (
-                "".join([ template_include_intern.format (filename=filename)
+                "".join([ template_include_extern.format (filename=filename)
                     for filename in includes]))
 
         self.output.out (template_open_namespace.format (namespace="doxygen"))
@@ -649,7 +649,8 @@ class OutputStreams(object):
         if name in self._created_files:
             self._out = self._created_files[name]
         else:
-            self._out = open(fullname, mode='w')
+            import codecs
+            self._out = codecs.open(fullname, mode='w', encoding="utf-8")
             self._created_files[name] = self._out
 
             # Header
@@ -673,7 +674,10 @@ class OutputStreams(object):
         self._out = None
 
     def out(self, *args):
-        print (*args, file=self._out)
+        if sys.version_info >= (3,):
+            print (*args, file=self._out)
+        else:
+            print(' '.join(str(arg) for arg in args).encode('utf-8'), file=self._out)
     def warn(self, *args):
         print (self.errorPrefix, *args, file=self._warn)
     def err(self, *args):

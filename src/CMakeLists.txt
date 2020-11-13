@@ -168,6 +168,15 @@ TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   # assimp::assimp # Not working
   )
 
+IF(WIN32)
+  TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
+    INTERFACE
+    Boost::chrono
+    Boost::thread
+    Boost::date_time
+  )
+ENDIF(WIN32)
+
 if(HPP_FCL_HAS_QHULL)
   target_compile_definitions(${LIBRARY_NAME} PRIVATE -DHPP_FCL_HAS_QHULL)
   target_include_directories(${LIBRARY_NAME} SYSTEM PRIVATE
