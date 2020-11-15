@@ -315,9 +315,9 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
     std::vector<Vec3f> vertices_transformed(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
-      Vec3f& p = model1.vertices[i];
+      const Vec3f & p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
-      vertices_transformed[i] = new_v;
+      vertices_transformed[(size_t)i] = new_v;
     }
 
     model1.beginReplaceModel();
@@ -420,7 +420,7 @@ bool initialize(MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity>
     {
       Vec3f& p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
-      vertices_transformed1[i] = new_v;
+      vertices_transformed1[(size_t)i] = new_v;
     }
 
     model1.beginReplaceModel();
@@ -437,7 +437,7 @@ bool initialize(MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity>
     {
       Vec3f& p = model2.vertices[i];
       Vec3f new_v = tf2.transform(p);
-      vertices_transformed2[i] = new_v;
+      vertices_transformed2[(size_t)i] = new_v;
     }
 
     model2.beginReplaceModel();
@@ -529,9 +529,9 @@ bool initialize(MeshDistanceTraversalNode<BV, RelativeTransformationIsIdentity>&
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
-      Vec3f& p = model1.vertices[i];
+      const Vec3f & p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
-      vertices_transformed1[i] = new_v;
+      vertices_transformed1[(size_t)i] = new_v;
     }
 
     model1.beginReplaceModel();
@@ -546,9 +546,9 @@ bool initialize(MeshDistanceTraversalNode<BV, RelativeTransformationIsIdentity>&
     std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
-      Vec3f& p = model2.vertices[i];
+      const Vec3f & p = model2.vertices[i];
       Vec3f new_v = tf2.transform(p);
-      vertices_transformed2[i] = new_v;
+      vertices_transformed2[(size_t)i] = new_v;
     }
 
     model2.beginReplaceModel();
@@ -625,9 +625,9 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
-      Vec3f& p = model1.vertices[i];
+      const Vec3f & p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
-      vertices_transformed1[i] = new_v;
+      vertices_transformed1[(size_t)i] = new_v;
     }
 
     model1.beginReplaceModel();
@@ -672,9 +672,9 @@ bool initialize(ShapeMeshDistanceTraversalNode<S, BV>& node,
     std::vector<Vec3f> vertices_transformed(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
-      Vec3f& p = model2.vertices[i];
+      const Vec3f & p = model2.vertices[i];
       Vec3f new_v = tf2.transform(p);
-      vertices_transformed[i] = new_v;
+      vertices_transformed[(size_t)i] = new_v;
     }
 
     model2.beginReplaceModel();
