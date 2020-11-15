@@ -37,7 +37,7 @@
 #include <hpp/fcl/mesh_loader/loader.h>
 #include <hpp/fcl/mesh_loader/assimp.h>
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
 # include <hpp/fcl/octree.h>
 #endif
 
@@ -83,7 +83,7 @@ namespace fcl {
 
   CollisionGeometryPtr_t MeshLoader::loadOctree (const std::string& filename)
   {
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
     shared_ptr<octomap::OcTree> octree (new octomap::OcTree (filename));
     return CollisionGeometryPtr_t (new hpp::fcl::OcTree (octree));
 #else

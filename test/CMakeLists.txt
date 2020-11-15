@@ -57,9 +57,9 @@ add_fcl_test(bvh_models bvh_models.cpp)
 add_fcl_test(profiling profiling.cpp)
 
 add_fcl_test(gjk gjk.cpp)
-if(HPP_FCL_HAVE_OCTOMAP)
+if(HPP_FCL_HAS_OCTOMAP)
   add_fcl_test(octree octree.cpp)
-endif(HPP_FCL_HAVE_OCTOMAP)
+endif(HPP_FCL_HAS_OCTOMAP)
 
 ## Benchmark
 IF(BUILD_TESTING)
