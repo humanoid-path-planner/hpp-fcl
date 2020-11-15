@@ -417,16 +417,25 @@ int BVHModelBase::endModel()
 
   if(num_tris_allocated > num_tris)
   {
-    Triangle* new_tris = new Triangle[num_tris];
-    if(!new_tris)
+    if(num_tris > 0)
     {
-      std::cerr << "BVH Error! Out of memory for tri_indices array in endModel() call!" << std::endl;
-      return BVH_ERR_MODEL_OUT_OF_MEMORY;
+      Triangle* new_tris = new Triangle[num_tris];
+      if(!new_tris)
+      {
+        std::cerr << "BVH Error! Out of memory for tri_indices array in endModel() call!" << std::endl;
+        return BVH_ERR_MODEL_OUT_OF_MEMORY;
+      }
+      memcpy(new_tris, tri_indices, sizeof(Triangle) * (size_t)num_tris);
+      delete [] tri_indices;
+      tri_indices = new_tris;
+      num_tris_allocated = num_tris;
     }
-    memcpy(new_tris, tri_indices, sizeof(Triangle) * (size_t)num_tris);
-    delete [] tri_indices;
-    tri_indices = new_tris;
-    num_tris_allocated = num_tris;
+    else
+    {
+      delete [] tri_indices;
+      tri_indices = NULL;
+      num_tris = num_tris_allocated = 0;
+    }
   }
 
   if(num_vertices_allocated > num_vertices)
