@@ -250,6 +250,12 @@ boost::python::tuple AABB_distance_proxy(const AABB & self, const AABB & other)
 void exposeCollisionGeometries ()
 {
   
+  enum_<BVHModelType>("BVHModelType")
+    .value ("BVH_MODEL_UNKNOWN"    , BVH_MODEL_UNKNOWN)
+    .value ("BVH_MODEL_TRIANGLES"  , BVH_MODEL_TRIANGLES)
+    .value ("BVH_MODEL_POINTCLOUD" , BVH_MODEL_POINTCLOUD)
+  ;
+  
   if(!eigenpy::register_symbolic_link_to_registered_type<OBJECT_TYPE>())
   {
     enum_<OBJECT_TYPE>("OBJECT_TYPE")
@@ -413,6 +419,7 @@ void exposeCollisionGeometries ()
     .def(dv::member_func("replaceTriangle", &BVHModelBase::replaceTriangle))
     .def(dv::member_func("replaceSubModel", &BVHModelBase::replaceSubModel))
     .def(dv::member_func("endReplaceModel", &BVHModelBase::endReplaceModel))
+    .def(dv::member_func("getModelType", &BVHModelBase::getModelType))
     ;
   exposeBVHModel<OBB    >("OBB"    );
   exposeBVHModel<OBBRSS >("OBBRSS" );
