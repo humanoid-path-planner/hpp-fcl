@@ -230,7 +230,7 @@ int BVHModelBase::addVertices(const Matrixx3f & points)
 
   if(num_vertices + points.rows() > num_vertices_allocated)
   {
-    num_vertices_allocated += points.rows();
+    num_vertices_allocated = num_vertices + (int)points.rows();
     Vec3f * temp = new Vec3f[num_vertices_allocated];
     if(!temp)
     {
