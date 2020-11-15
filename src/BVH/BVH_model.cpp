@@ -165,13 +165,14 @@ int BVHModelBase::beginModel(int num_tris_, int num_vertices_)
   num_tris_allocated = num_tris_;
 
   tri_indices = new Triangle[num_tris_allocated];
-  vertices = new Vec3f[num_vertices_allocated];
 
   if(!tri_indices)
   {
     std::cerr << "BVH Error! Out of memory for tri_indices array on BeginModel() call!" << std::endl;
     return BVH_ERR_MODEL_OUT_OF_MEMORY;
   }
+  
+  vertices = new Vec3f[num_vertices_allocated];
   if(!vertices)
   {
     std::cerr << "BVH Error! Out of memory for vertices array on BeginModel() call!" << std::endl;
