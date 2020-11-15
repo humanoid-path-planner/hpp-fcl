@@ -121,7 +121,7 @@ void testBVHModelPointCloud()
       return;
     }
     
-    Matrix3f all_points((Eigen::DenseIndex)points.size(),3);
+    Matrixx3f all_points((Eigen::DenseIndex)points.size(),3);
     for(size_t k = 0; k < points.size(); ++k)
       all_points.row((Eigen::DenseIndex)k) = points[k].transpose();
 

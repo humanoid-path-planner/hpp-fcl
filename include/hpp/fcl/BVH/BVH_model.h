@@ -132,7 +132,7 @@ public:
   int addVertex(const Vec3f& p);
   
   /// @brief Add points in the new BVH model
-  int addVertices(const Matrix3f & points);
+  int addVertices(const Matrixx3f & points);
 
   /// @brief Add one triangle in the new BVH model
   int addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);

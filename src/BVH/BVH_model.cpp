@@ -219,7 +219,7 @@ int BVHModelBase::addVertex(const Vec3f& p)
   return BVH_OK;
 }
 
-int BVHModelBase::addVertices(const Matrix3f & points)
+int BVHModelBase::addVertices(const Matrixx3f & points)
 {
   if(build_state != BVH_BUILD_STATE_BEGUN)
   {
