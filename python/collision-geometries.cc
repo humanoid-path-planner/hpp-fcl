@@ -402,6 +402,7 @@ void exposeCollisionGeometries ()
     // Expose function to build a BVH
     .def(dv::member_func("beginModel", &BVHModelBase::beginModel))
     .def(dv::member_func("addVertex", &BVHModelBase::addVertex))
+    .def(dv::member_func("addVerticies", &BVHModelBase::addVertices))
     .def(dv::member_func("addTriangle", &BVHModelBase::addTriangle))
     .def(dv::member_func<int (BVHModelBase::*)(const Vec3fs&, const Triangles&)>("addSubModel", &BVHModelBase::addSubModel))
     .def(dv::member_func<int (BVHModelBase::*)(const Vec3fs&                  )>("addSubModel", &BVHModelBase::addSubModel))
