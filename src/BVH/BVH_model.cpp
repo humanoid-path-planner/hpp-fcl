@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2020, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -214,6 +215,35 @@ int BVHModelBase::addVertex(const Vec3f& p)
 
   vertices[num_vertices] = p;
   num_vertices += 1;
+
+  return BVH_OK;
+}
+
+int BVHModelBase::addVertices(const Matrix3f & points)
+{
+  if(build_state != BVH_BUILD_STATE_BEGUN)
+  {
+    std::cerr << "BVH Warning! Call addVertex() in a wrong order. addVertices() was ignored. Must do a beginModel() to clear the model for addition of new vertices." << std::endl;
+    return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
+  }
+
+  if(num_vertices + points.rows() > num_vertices_allocated)
+  {
+    num_vertices_allocated += points.rows();
+    Vec3f * temp = new Vec3f[num_vertices_allocated];
+    if(!temp)
+    {
+      std::cerr << "BVH Error! Out of memory for vertices array on addVertex() call!" << std::endl;
+      return BVH_ERR_MODEL_OUT_OF_MEMORY;
+    }
+
+    memcpy(temp, vertices, sizeof(Vec3f) * (size_t)num_vertices);
+    delete [] vertices;
+    vertices = temp;
+  }
+
+  for(Eigen::DenseIndex id = 0; id < points.rows(); ++id)
+    vertices[num_vertices++] = points.row(id).transpose();
 
   return BVH_OK;
 }
