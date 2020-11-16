@@ -39,7 +39,6 @@
 #ifndef HPP_FCL_OCTREE_H
 #define HPP_FCL_OCTREE_H
 
-
 #include <boost/array.hpp>
 
 #include <octomap/octomap.h>
@@ -103,6 +102,12 @@ public:
     // std::cout << "octree size " << delta << std::endl;
     return AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta));
   }
+  
+  /// @brief Returns the depth of octree
+  unsigned int getTreeDepth() const
+  {
+    return tree->getTreeDepth();
+  }
 
   /// @brief get the root node of the octree
   OcTreeNode* getRoot() const
@@ -164,7 +169,7 @@ public:
     return occupancy_threshold;
   }
 
-  /// @brief the threshold used to decide whether one node is occupied, this is NOT the octree free_threshold
+  /// @brief the threshold used to decide whether one node is free, this is NOT the octree free_threshold
   FCL_REAL getFreeThres() const
   {
     return free_threshold;
