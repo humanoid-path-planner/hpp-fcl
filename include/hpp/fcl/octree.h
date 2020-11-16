@@ -279,7 +279,16 @@ static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& chi
   }
 }
 
-
+  ///
+  /// \brief Build an OcTree from a point cloud and a given resolution
+  ///
+  /// \param[in] point_cloud The input points to insert in the OcTree
+  /// \param[in] resolution of the octree.
+  ///
+  /// \returns An OcTree that can be used for collision checking and more.
+  ///
+  OcTree makeOctree(const Eigen::Matrix<FCL_REAL,Eigen::Dynamic,3> & point_cloud,
+                    const FCL_REAL & resolution);
 
 }
 

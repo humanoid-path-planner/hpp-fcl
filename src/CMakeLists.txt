@@ -81,6 +81,10 @@ set(${LIBRARY_NAME}_SOURCES
   mesh_loader/loader.cpp
   )
 
+if(HPP_FCL_HAS_OCTOMAP)
+  list(APPEND ${LIBRARY_NAME}_SOURCES octree.cpp)
+endif(HPP_FCL_HAS_OCTOMAP)
+
 if(HPP_FCL_HAS_QHULL)
   set(
     libqhullcpp_HEADERS
