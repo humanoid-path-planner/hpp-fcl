@@ -42,7 +42,7 @@
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/collision_object.h>
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
 #include <hpp/fcl/octree.h>
 #endif
 
@@ -66,7 +66,7 @@ namespace hpp
 {
 namespace fcl
 {
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
 typedef shared_ptr<octomap::OcTree> OcTreePtr_t;
 #endif
 
@@ -109,7 +109,7 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
 
 void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles);
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
 fcl::OcTree loadOctreeFile (const std::string& filename, const FCL_REAL& resolution);
 #endif
 

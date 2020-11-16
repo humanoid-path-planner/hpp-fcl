@@ -41,6 +41,12 @@
 
 #include <hpp/fcl/config.hh>
 
+#ifdef HPP_FCL_HAS_COLLISION
+  #ifndef HPP_FCL_HAVE_COLLISION
+    #define HPP_FCL_HAVE_COLLISION
+  #endif
+#endif
+
 namespace hpp {
 namespace fcl {
   using boost::shared_ptr;
