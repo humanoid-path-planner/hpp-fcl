@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2020, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -129,6 +130,9 @@ public:
 
   /// @brief Add one point in the new BVH model
   int addVertex(const Vec3f& p);
+  
+  /// @brief Add points in the new BVH model
+  int addVertices(const Matrixx3f & points);
 
   /// @brief Add one triangle in the new BVH model
   int addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);

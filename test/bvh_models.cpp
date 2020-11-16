@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2015, Open Source Robotics Foundation
+ *  Copyright (c) 2020, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -56,18 +57,6 @@ using namespace hpp::fcl;
 template<typename BV>
 void testBVHModelPointCloud()
 {
-  boost::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-
-  if (model->getNodeType() != BV_AABB
-      && model->getNodeType() != BV_KDOP16
-      && model->getNodeType() != BV_KDOP18
-      && model->getNodeType() != BV_KDOP24)
-  {
-    std::cout << "Abort test since '" << getNodeTypeName(model->getNodeType())
-              << "' does not support point cloud model. "
-              << "Please see issue #67." << std::endl;
-    return;
-  }
 
   Box box (Vec3f::Ones());
   double a = box.halfSide[0];
@@ -83,25 +72,75 @@ void testBVHModelPointCloud()
   points[6] << -a,  b, -c;
   points[7] << -a, -b, -c;
 
-  int result;
-
-  result = model->beginModel();
-  BOOST_CHECK_EQUAL(result, BVH_OK);
-
-  for (std::size_t i = 0; i < points.size(); ++i)
   {
-    result = model->addVertex(points[i]);
+    boost::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+
+    if (model->getNodeType() != BV_AABB
+        && model->getNodeType() != BV_KDOP16
+        && model->getNodeType() != BV_KDOP18
+        && model->getNodeType() != BV_KDOP24)
+    {
+      std::cout << "Abort test since '" << getNodeTypeName(model->getNodeType())
+                << "' does not support point cloud model. "
+                << "Please see issue #67." << std::endl;
+      return;
+    }
+
+    int result;
+
+    result = model->beginModel();
     BOOST_CHECK_EQUAL(result, BVH_OK);
+
+    for (std::size_t i = 0; i < points.size(); ++i)
+    {
+      result = model->addVertex(points[i]);
+      BOOST_CHECK_EQUAL(result, BVH_OK);
+    }
+
+    result = model->endModel();
+    BOOST_CHECK_EQUAL(result, BVH_OK);
+
+    model->computeLocalAABB();
+
+    BOOST_CHECK_EQUAL(model->num_vertices, 8);
+    BOOST_CHECK_EQUAL(model->num_tris, 0);
+    BOOST_CHECK_EQUAL(model->build_state, BVH_BUILD_STATE_PROCESSED);
   }
+  
+  {
+    boost::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
 
-  result = model->endModel();
-  BOOST_CHECK_EQUAL(result, BVH_OK);
+    if (model->getNodeType() != BV_AABB
+        && model->getNodeType() != BV_KDOP16
+        && model->getNodeType() != BV_KDOP18
+        && model->getNodeType() != BV_KDOP24)
+    {
+      std::cout << "Abort test since '" << getNodeTypeName(model->getNodeType())
+                << "' does not support point cloud model. "
+                << "Please see issue #67." << std::endl;
+      return;
+    }
+    
+    Matrixx3f all_points((Eigen::DenseIndex)points.size(),3);
+    for(size_t k = 0; k < points.size(); ++k)
+      all_points.row((Eigen::DenseIndex)k) = points[k].transpose();
 
-  model->computeLocalAABB();
+    int result;
 
-  BOOST_CHECK_EQUAL(model->num_vertices, 8);
-  BOOST_CHECK_EQUAL(model->num_tris, 0);
-  BOOST_CHECK_EQUAL(model->build_state, BVH_BUILD_STATE_PROCESSED);
+    result = model->beginModel();
+    BOOST_CHECK_EQUAL(result, BVH_OK);
+
+    result = model->addVertices(all_points);
+
+    result = model->endModel();
+    BOOST_CHECK_EQUAL(result, BVH_OK);
+
+    model->computeLocalAABB();
+
+    BOOST_CHECK_EQUAL(model->num_vertices, 8);
+    BOOST_CHECK_EQUAL(model->num_tris, 0);
+    BOOST_CHECK_EQUAL(model->build_state, BVH_BUILD_STATE_PROCESSED);
+  }
 }
 
 template<typename BV>

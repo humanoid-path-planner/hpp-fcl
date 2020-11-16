@@ -308,16 +308,16 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+    throw std::invalid_argument("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
 
   if(!tf1.isIdentity())
   {
     std::vector<Vec3f> vertices_transformed(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
-      Vec3f& p = model1.vertices[i];
+      const Vec3f & p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
-      vertices_transformed[i] = new_v;
+      vertices_transformed[(size_t)i] = new_v;
     }
 
     model1.beginReplaceModel();
@@ -352,7 +352,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, 0>& node,
                 CollisionResult& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+    throw std::invalid_argument("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -381,7 +381,7 @@ static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S>& node,
                                                        CollisionResult& result)
 {
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+    throw std::invalid_argument("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -411,7 +411,7 @@ bool initialize(MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity>
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+    throw std::invalid_argument("model1 and model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
 
   if(!tf1.isIdentity())
   {
@@ -420,7 +420,7 @@ bool initialize(MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity>
     {
       Vec3f& p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
-      vertices_transformed1[i] = new_v;
+      vertices_transformed1[(size_t)i] = new_v;
     }
 
     model1.beginReplaceModel();
@@ -437,7 +437,7 @@ bool initialize(MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity>
     {
       Vec3f& p = model2.vertices[i];
       Vec3f new_v = tf2.transform(p);
-      vertices_transformed2[i] = new_v;
+      vertices_transformed2[(size_t)i] = new_v;
     }
 
     model2.beginReplaceModel();
@@ -470,7 +470,7 @@ bool initialize(MeshCollisionTraversalNode<BV, 0>& node,
                 CollisionResult& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+    throw std::invalid_argument("model1 and model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
 
   node.vertices1 = model1.vertices;
   node.vertices2 = model2.vertices;
@@ -522,16 +522,16 @@ bool initialize(MeshDistanceTraversalNode<BV, RelativeTransformationIsIdentity>&
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+    throw std::invalid_argument("model1 and model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
 
   if(!tf1.isIdentity())
   {
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
-      Vec3f& p = model1.vertices[i];
+      const Vec3f & p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
-      vertices_transformed1[i] = new_v;
+      vertices_transformed1[(size_t)i] = new_v;
     }
 
     model1.beginReplaceModel();
@@ -546,9 +546,9 @@ bool initialize(MeshDistanceTraversalNode<BV, RelativeTransformationIsIdentity>&
     std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
-      Vec3f& p = model2.vertices[i];
+      const Vec3f & p = model2.vertices[i];
       Vec3f new_v = tf2.transform(p);
-      vertices_transformed2[i] = new_v;
+      vertices_transformed2[(size_t)i] = new_v;
     }
 
     model2.beginReplaceModel();
@@ -584,7 +584,7 @@ bool initialize(MeshDistanceTraversalNode<BV, 0>& node,
                 DistanceResult& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+    throw std::invalid_argument("model1 and model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
 
   node.request = request;
   node.result = &result;
@@ -618,16 +618,16 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+    throw std::invalid_argument("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
 
   if(!tf1.isIdentity())
   {
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
-      Vec3f& p = model1.vertices[i];
+      const Vec3f & p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
-      vertices_transformed1[i] = new_v;
+      vertices_transformed1[(size_t)i] = new_v;
     }
 
     model1.beginReplaceModel();
@@ -665,16 +665,16 @@ bool initialize(ShapeMeshDistanceTraversalNode<S, BV>& node,
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+    throw std::invalid_argument("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
   
   if(!tf2.isIdentity())
   {
     std::vector<Vec3f> vertices_transformed(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
-      Vec3f& p = model2.vertices[i];
+      const Vec3f & p = model2.vertices[i];
       Vec3f new_v = tf2.transform(p);
-      vertices_transformed[i] = new_v;
+      vertices_transformed[(size_t)i] = new_v;
     }
 
     model2.beginReplaceModel();
@@ -714,7 +714,7 @@ static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S>& node,
                                                       DistanceResult& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+    throw std::invalid_argument("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
 
   node.request = request;
   node.result = &result;
@@ -783,7 +783,7 @@ static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S>& node,
                                                       DistanceResult& result)
 {
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+    throw std::invalid_argument("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
 
   node.request = request;
   node.result = &result;

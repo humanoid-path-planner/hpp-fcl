@@ -81,12 +81,14 @@ public:
   /// @brief Whether the BV node in the first BVH tree is leaf
   bool isFirstNodeLeaf(int b) const
   {
+    assert(model1 != NULL && "model1 is NULL");
     return model1->getBV(b).isLeaf();
   }
 
   /// @brief Whether the BV node in the second BVH tree is leaf
   bool isSecondNodeLeaf(int b) const
   {
+    assert(model2 != NULL && "model2 is NULL");
     return model2->getBV(b).isLeaf();
   }
 
