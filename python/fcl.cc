@@ -98,4 +98,7 @@ BOOST_PYTHON_MODULE(hppfcl)
   exposeCollisionAPI();
   exposeDistanceAPI();
   exposeGJK();
+#ifdef HPP_FCL_HAS_OCTOMAP
+  exposeOctree();
+#endif
 }

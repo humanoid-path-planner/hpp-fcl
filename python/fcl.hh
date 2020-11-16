@@ -18,3 +18,7 @@ void exposeCollisionAPI();
 void exposeDistanceAPI();
 
 void exposeGJK();
+
+#ifdef HPP_FCL_HAS_OCTOMAP
+void exposeOctree();
+#endif
