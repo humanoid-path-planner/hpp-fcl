@@ -25,7 +25,7 @@ struct HPP_FCL_LOCAL TraversalTraitsCollision
 {
 };
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
 
 template <typename T_SH>
 struct HPP_FCL_LOCAL TraversalTraitsCollision <T_SH, OcTree>
@@ -66,7 +66,7 @@ struct HPP_FCL_LOCAL TraversalTraitsDistance
 {
 };
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
 
 template <typename T_SH>
 struct HPP_FCL_LOCAL TraversalTraitsDistance <T_SH, OcTree>
