@@ -59,13 +59,15 @@ struct TriangleWrapper
 {
   static Triangle::index_type getitem (const Triangle& t, int i)
   {
-    if (i >= 3) throw std::out_of_range("index is out of range");
-    return t[i];
+    if (i >= 3 or i <= -3)
+      PyErr_SetString(PyExc_IndexError,"Index out of range");
+    return t[(i%3)];
   }
   static void setitem (Triangle& t, int i, Triangle::index_type v)
   {
-    if (i >= 3) throw std::out_of_range("index is out of range");
-    t[i] = v;
+    if (i >= 3 or i <= -3)
+      PyErr_SetString(PyExc_IndexError,"Index out of range");
+    t[(i%3)] = v;
   }
 };
 
@@ -113,10 +115,15 @@ void exposeMaths ()
     .def (self != self)
     ;
 
-  class_ <Triangle> ("Triangle", init<>())
-    .def (init <Triangle::index_type, Triangle::index_type, Triangle::index_type>())
+  class_ <Triangle> ("Triangle", no_init)
+    .def(dv::init<Triangle>())
+    .def (dv::init <Triangle, Triangle::index_type, Triangle::index_type, Triangle::index_type>())
     .def ("__getitem__", &TriangleWrapper::getitem)
     .def ("__setitem__", &TriangleWrapper::setitem)
+    .def(dv::member_func("set", &Triangle::set))
+    .def(dv::member_func("size", &Triangle::size))
+    .staticmethod("size")
+    .def(self == self)
     ;
 
   if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<Vec3f> >())
