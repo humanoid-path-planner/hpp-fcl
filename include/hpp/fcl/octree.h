@@ -39,6 +39,9 @@
 #ifndef HPP_FCL_OCTREE_H
 #define HPP_FCL_OCTREE_H
 
+// for bacward compatibility
+#define HPP_FCL_HAVE_COLLISION
+
 #include <boost/array.hpp>
 
 #include <octomap/octomap.h>
