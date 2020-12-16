@@ -320,7 +320,7 @@ struct mesh_mesh_run_test
     BENCHMARK_NEXT();
 
     typedef BVHModel<BV> BVH_t;
-    typedef boost::shared_ptr<BVH_t> BVHPtr_t;
+    typedef shared_ptr<BVH_t> BVHPtr_t;
 
     BVHPtr_t model1 (new BVH_t), model2 (new BVH_t);
     model1->bv_splitter.reset(new BVSplitter<BV>(splitMethod));

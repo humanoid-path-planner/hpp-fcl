@@ -65,7 +65,7 @@ CollisionGeometryPtr_t objToGeom (const std::string& filename)
 template <typename BV/*, SplitMethodType split_method*/>
 CollisionGeometryPtr_t meshToGeom (const std::string& filename, const Vec3f& scale = Vec3f(1, 1, 1))
 {
-  boost::shared_ptr< BVHModel<BV> > model (new BVHModel<BV>());
+  shared_ptr< BVHModel<BV> > model (new BVHModel<BV>());
   loadPolyhedronFromResource(filename, scale, model);
   return model;
 }

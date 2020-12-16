@@ -70,7 +70,6 @@ using namespace boost::python;
 using namespace hpp::fcl;
 namespace dv = doxygen::visitor;
 
-using boost::shared_ptr;
 using boost::noncopyable;
 
 typedef std::vector<Vec3f> Vec3fs;

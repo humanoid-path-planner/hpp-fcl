@@ -62,16 +62,13 @@
       "check " #Va ".isApprox(" #Vb ") failed "                                \
       "[\n" << (Va) << "\n!=\n" << (Vb) << "\n]")
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
-namespace octomap {
-  typedef boost::shared_ptr<OcTree> OcTreePtr_t;
-}
-#endif
-
 namespace hpp
 {
 namespace fcl
 {
+#ifdef HPP_FCL_HAVE_OCTOMAP
+typedef shared_ptr<octomap::OcTree> OcTreePtr_t;
+#endif
 
 class Timer
 {

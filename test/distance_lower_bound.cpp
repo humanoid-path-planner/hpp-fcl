@@ -46,6 +46,7 @@
 # include "utility.h"
 # include "fcl_resources/config.h"
 
+using hpp::fcl::shared_ptr;
 using hpp::fcl::Transform3f;
 using hpp::fcl::Vec3f;
 using hpp::fcl::Triangle;
@@ -125,8 +126,8 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
   loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
   loadOBJFile((path / "rob.obj").string().c_str(), p2, t2);
 
-  boost::shared_ptr < BVHModel <OBBRSS> > m1 (new BVHModel <OBBRSS>);
-  boost::shared_ptr < BVHModel <OBBRSS> > m2 (new BVHModel <OBBRSS>);
+  shared_ptr < BVHModel <OBBRSS> > m1 (new BVHModel <OBBRSS>);
+  shared_ptr < BVHModel <OBBRSS> > m2 (new BVHModel <OBBRSS>);
 
   m1->beginModel();
   m1->addSubModel(p1, t1);
@@ -171,8 +172,8 @@ BOOST_AUTO_TEST_CASE(box_mesh)
 
   loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
 
-  boost::shared_ptr < BVHModel <OBBRSS> > m1 (new BVHModel <OBBRSS>);
-  boost::shared_ptr < hpp::fcl::Box > m2 (new hpp::fcl::Box (500, 200, 150));
+  shared_ptr < BVHModel <OBBRSS> > m1 (new BVHModel <OBBRSS>);
+  shared_ptr < hpp::fcl::Box > m2 (new hpp::fcl::Box (500, 200, 150));
 
   m1->beginModel();
   m1->addSubModel(p1, t1);

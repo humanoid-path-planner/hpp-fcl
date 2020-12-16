@@ -52,13 +52,12 @@
 
 #include "utility.h"
 
-typedef boost::shared_ptr <hpp::fcl::CollisionGeometry> CollisionGeometryPtr_t;
-
 using hpp::fcl::Transform3f;
 using hpp::fcl::Vec3f;
 using hpp::fcl::CollisionObject;
 using hpp::fcl::DistanceResult;
 using hpp::fcl::DistanceRequest;
+using hpp::fcl::CollisionGeometryPtr_t;
 
 BOOST_AUTO_TEST_CASE(distance_box_box_1)
 {

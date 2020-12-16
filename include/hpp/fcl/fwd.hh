@@ -43,19 +43,21 @@
 
 namespace hpp {
 namespace fcl {
+  using boost::shared_ptr;
+
   class CollisionObject;
-  typedef boost::shared_ptr <CollisionObject> CollisionObjectPtr_t;
-  typedef boost::shared_ptr < const CollisionObject> CollisionObjectConstPtr_t;
+  typedef shared_ptr <CollisionObject> CollisionObjectPtr_t;
+  typedef shared_ptr < const CollisionObject> CollisionObjectConstPtr_t;
   class CollisionGeometry;
-  typedef boost::shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
-  typedef boost::shared_ptr <const CollisionGeometry>
+  typedef shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
+  typedef shared_ptr <const CollisionGeometry>
   CollisionGeometryConstPtr_t;
   class Transform3f;
 
   class AABB;
 
   class BVHModelBase;
-  typedef boost::shared_ptr<BVHModelBase> BVHModelPtr_t;
+  typedef shared_ptr<BVHModelBase> BVHModelPtr_t;
 }
 } // namespace hpp
 

@@ -59,7 +59,6 @@
 #include <string>
 #include <iostream>
 #include <boost/thread.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <hpp/fcl/config.hh>
@@ -109,7 +108,7 @@ namespace tools
 /// external profiling tools in that it allows the user to count
 /// time spent in various bits of code (sub-function granularity)
 /// or count how many times certain pieces of code are executed.
-class HPP_FCL_DLLAPI Profiler : private boost::noncopyable
+class HPP_FCL_DLLAPI Profiler
 {
 public:
 
@@ -169,6 +168,9 @@ public:
     if (autoStart)
       start();
   }
+
+  Profiler(const Profiler&) = delete;
+  Profiler& operator=(const Profiler&) = delete;
 
   /// @brief Destructor 
   ~Profiler(void)

@@ -73,7 +73,7 @@ void testBVHModelPointCloud()
   points[7] << -a, -b, -c;
 
   {
-    boost::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+    shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
 
     if (model->getNodeType() != BV_AABB
         && model->getNodeType() != BV_KDOP16
@@ -108,7 +108,7 @@ void testBVHModelPointCloud()
   }
   
   {
-    boost::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+    shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
 
     if (model->getNodeType() != BV_AABB
         && model->getNodeType() != BV_KDOP16
@@ -146,7 +146,7 @@ void testBVHModelPointCloud()
 template<typename BV>
 void testBVHModelTriangles()
 {
-  boost::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+  shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
   Box box (Vec3f::Ones());
   AABB aabb (Vec3f(-1,0,-1), Vec3f(1,1,1));
 
@@ -198,7 +198,7 @@ void testBVHModelTriangles()
   BOOST_CHECK_EQUAL(model->build_state, BVH_BUILD_STATE_PROCESSED);
 
   Transform3f pose;
-  boost::shared_ptr<BVHModel<BV> > cropped(BVHExtract(*model, pose, aabb));
+  shared_ptr<BVHModel<BV> > cropped(BVHExtract(*model, pose, aabb));
   BOOST_REQUIRE(cropped);
   BOOST_CHECK(cropped->build_state == BVH_BUILD_STATE_PROCESSED);
   BOOST_CHECK_EQUAL(cropped->num_vertices, model->num_vertices - 6);
@@ -236,7 +236,7 @@ void testBVHModelTriangles()
 template<typename BV>
 void testBVHModelSubModel()
 {
-  boost::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+  shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
   Box box (Vec3f::Ones());
 
   double a = box.halfSide[0];
@@ -312,7 +312,7 @@ void testLoadPolyhedron ()
               rob = (path / "rob.obj").string();
 
   typedef BVHModel<BoundingVolume> Polyhedron_t;
-  typedef boost::shared_ptr <Polyhedron_t> PolyhedronPtr_t;
+  typedef shared_ptr <Polyhedron_t> PolyhedronPtr_t;
   PolyhedronPtr_t P1 (new Polyhedron_t), P2;
 
   Vec3f scale;
@@ -340,7 +340,7 @@ void testLoadGerardBauzil ()
   std::string env = (path / "staircases_koroibot_hr.dae").string();
 
   typedef BVHModel<BoundingVolume> Polyhedron_t;
-  typedef boost::shared_ptr <Polyhedron_t> PolyhedronPtr_t;
+  typedef shared_ptr <Polyhedron_t> PolyhedronPtr_t;
   PolyhedronPtr_t P1 (new Polyhedron_t), P2;
 
   Vec3f scale;

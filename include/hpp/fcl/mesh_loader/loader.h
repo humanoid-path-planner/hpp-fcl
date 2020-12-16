@@ -38,7 +38,6 @@
 #ifndef HPP_FCL_MESH_LOADER_LOADER_H
 #define HPP_FCL_MESH_LOADER_LOADER_H
 
-#include <boost/shared_ptr.hpp>
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/config.hh>
 #include <hpp/fcl/data_types.h>

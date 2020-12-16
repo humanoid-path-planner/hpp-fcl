@@ -38,6 +38,7 @@
 #ifndef HPP_FCL_MESH_LOADER_ASSIMP_H
 #define HPP_FCL_MESH_LOADER_ASSIMP_H
 
+#include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/config.hh>
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>
@@ -95,7 +96,7 @@ template<class BoundingVolume>
 inline void meshFromAssimpScene(
                          const fcl::Vec3f & scale,
                          const aiScene* scene,
-                         const boost::shared_ptr < BVHModel<BoundingVolume> > & mesh)
+                         const shared_ptr < BVHModel<BoundingVolume> > & mesh)
 {
   TriangleAndVertices tv;
   
@@ -126,7 +127,7 @@ inline void meshFromAssimpScene(
 template<class BoundingVolume>
 inline void loadPolyhedronFromResource (const std::string & resource_path,
                                         const fcl::Vec3f & scale,
-                                        const boost::shared_ptr < BVHModel<BoundingVolume> > & polyhedron)
+                                        const shared_ptr < BVHModel<BoundingVolume> > & polyhedron)
 {
   internal::Loader scene;
   scene.load (resource_path);

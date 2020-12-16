@@ -52,7 +52,6 @@
 #include "utility.h"
 
 using namespace hpp::fcl;
-typedef boost::shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
 
 BOOST_AUTO_TEST_CASE(collision_capsule_capsule_trivial)
 {

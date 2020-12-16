@@ -59,7 +59,7 @@ namespace fcl {
   template <typename BV>
   BVHModelPtr_t _load (const std::string& filename, const Vec3f& scale)
   {
-    boost::shared_ptr < BVHModel<BV> > polyhedron (new BVHModel<BV>);
+    shared_ptr < BVHModel<BV> > polyhedron (new BVHModel<BV>);
     loadPolyhedronFromResource (filename, scale, polyhedron);
     return polyhedron;
   }
@@ -84,7 +84,7 @@ namespace fcl {
   CollisionGeometryPtr_t MeshLoader::loadOctree (const std::string& filename)
   {
 #ifdef HPP_FCL_HAVE_OCTOMAP
-    boost::shared_ptr<octomap::OcTree> octree (new octomap::OcTree (filename));
+    shared_ptr<octomap::OcTree> octree (new octomap::OcTree (filename));
     return CollisionGeometryPtr_t (new hpp::fcl::OcTree (octree));
 #else
     throw std::logic_error("hpp-fcl compiled without OctoMap. Cannot create OcTrees.");

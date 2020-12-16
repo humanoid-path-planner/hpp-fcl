@@ -39,12 +39,11 @@
 #ifndef HPP_FCL_BVH_MODEL_H
 #define HPP_FCL_BVH_MODEL_H
 
+#include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/BV_node.h>
 #include <vector>
-#include <boost/shared_ptr.hpp>
-#include <boost/noncopyable.hpp>
 
 namespace hpp
 {
@@ -82,7 +81,7 @@ public:
   BVHBuildState build_state;
 
   /// @brief Convex<Triangle> representation of this object
-  boost::shared_ptr< ConvexBase > convex;
+  shared_ptr< ConvexBase > convex;
 
   /// @brief Model type described by the instance
   BVHModelType getModelType() const
@@ -275,10 +274,10 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase
 
 public:
   /// @brief Split rule to split one BV node into two children
-  boost::shared_ptr<BVSplitter<BV> > bv_splitter;
+  shared_ptr<BVSplitter<BV> > bv_splitter;
 
   /// @brief Fitting rule to fit a BV node to a set of geometry primitives
-  boost::shared_ptr<BVFitter<BV> > bv_fitter;
+  shared_ptr<BVFitter<BV> > bv_fitter;
 
   /// @brief Constructing an empty BVH
   BVHModel();
