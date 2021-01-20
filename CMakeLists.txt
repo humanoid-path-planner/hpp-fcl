@@ -159,7 +159,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_object.h
   include/hpp/fcl/collision_utility.h
   include/hpp/fcl/octree.h
-  include/hpp/fcl/profile.h
   include/hpp/fcl/fwd.hh
   include/hpp/fcl/mesh_loader/assimp.h
   include/hpp/fcl/mesh_loader/loader.h
