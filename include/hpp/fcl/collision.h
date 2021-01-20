@@ -97,7 +97,7 @@ public:
   ComputeCollision(const CollisionGeometry* o1, const CollisionGeometry* o2);
 
   std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
-      const CollisionRequest& request, CollisionResult& result)
+      const CollisionRequest& request, CollisionResult& result) const
   {
     bool cached = request.enable_cached_gjk_guess;
     solver.enable_cached_guess = cached;
@@ -122,7 +122,7 @@ public:
   }
 
   inline std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
-      CollisionRequest& request, CollisionResult& result)
+      CollisionRequest& request, CollisionResult& result) const
   {
     std::size_t res = operator()(tf1, tf2, (const CollisionRequest&) request, result);
     request.updateGuess (result);

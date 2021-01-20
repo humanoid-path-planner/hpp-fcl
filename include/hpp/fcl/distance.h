@@ -93,7 +93,7 @@ public:
   ComputeDistance(const CollisionGeometry* o1, const CollisionGeometry* o2);
 
   FCL_REAL operator()(const Transform3f& tf1, const Transform3f& tf2,
-      const DistanceRequest& request, DistanceResult& result)
+      const DistanceRequest& request, DistanceResult& result) const
   {
     bool cached = request.enable_cached_gjk_guess;
     solver.enable_cached_guess = cached;
@@ -121,7 +121,7 @@ public:
   }
 
   inline FCL_REAL operator()(const Transform3f& tf1, const Transform3f& tf2,
-      DistanceRequest& request, DistanceResult& result)
+      DistanceRequest& request, DistanceResult& result) const
   {
     FCL_REAL res = operator()(tf1, tf2, (const DistanceRequest&) request, result);
     request.updateGuess (result);
