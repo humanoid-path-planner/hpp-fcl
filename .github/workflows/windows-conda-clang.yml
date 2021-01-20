@@ -24,12 +24,16 @@ jobs:
         activate-environment: fcl
         environment-file: .github/workflows/conda/conda-env.yml
         python-version: 3.7
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
     - name: Install cmake and update conda
       run: |
         conda install cmake -c main
     
     - name: Build FCL
       shell: cmd /C CALL {0}
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       run: |
         :: unset extra Boost envs
         set Boost_ROOT=
