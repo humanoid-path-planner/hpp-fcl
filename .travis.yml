@@ -84,17 +84,6 @@ matrix:
             - liboctomap-dev
             - doxygen
 
-    - name: "OSX - Release - clang"
-      env: 
-        - BUILD_TYPE=Debug
-        - PYTHON_EXE=python3
-      os: osx
-      compiler: clang
-      cache:
-        ccache: true
-        directories:
-          - $HOME/Library/Caches/Homebrew
-
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then source travis_custom/custom_before_install_linux.sh ; fi
   - if [ "$TRAVIS_OS_NAME" = "osx"   ]; then source travis_custom/custom_before_install_osx.sh   ; fi
