@@ -216,7 +216,7 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
   os.close();
 }
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
 OcTree loadOctreeFile (const std::string& filename, const FCL_REAL& resolution)
   {
     OcTreePtr_t octree (new octomap::OcTree (filename));

@@ -47,7 +47,7 @@ namespace hpp
 namespace fcl
 {
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
 
 template<typename TypeA, typename TypeB>
 FCL_REAL Distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
@@ -390,7 +390,7 @@ DistanceFunctionMatrix::DistanceFunctionMatrix()
   distance_matrix[BV_kIOS][BV_kIOS] = &BVHDistance<kIOS>;
   distance_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHDistance<OBBRSS>;
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
   distance_matrix[GEOM_OCTREE][GEOM_BOX] = &Distance<OcTree, Box>;
   distance_matrix[GEOM_OCTREE][GEOM_SPHERE] = &Distance<OcTree, Sphere>;
   distance_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &Distance<OcTree, Capsule>;

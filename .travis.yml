@@ -14,7 +14,9 @@ cache:
 matrix:
   include:
     - name: "Xenial - Release - g++"
-      env: BUILD_TYPE=Release
+      env: 
+        - BUILD_TYPE=Release
+        - PYTHON_EXE=python
       dist: xenial
       compiler: g++
       addons:
@@ -30,7 +32,9 @@ matrix:
             - doxygen
 
     - name: "Bionic - Release - g++"
-      env: BUILD_TYPE=Release
+      env: 
+        - BUILD_TYPE=Release
+        - PYTHON_EXE=python
       dist: bionic
       compiler: g++
       addons:
@@ -46,7 +50,9 @@ matrix:
             - doxygen
 
     - name: "Bionic - Debug - g++"
-      env: BUILD_TYPE=Debug
+      env: 
+        - BUILD_TYPE=Debug
+        - PYTHON_EXE=python
       dist: bionic
       compiler: g++
       addons:
@@ -64,6 +70,7 @@ matrix:
     - name: "Bionic - Release - g++ - NO TEST"
       env: 
         - BUILD_TYPE=Release
+        - PYTHON_EXE=python
         - BUILD_TESTING=OFF
       dist: bionic
       compiler: g++
@@ -77,15 +84,6 @@ matrix:
             - liboctomap-dev
             - doxygen
 
-    - name: "OSX - Release - clang"
-      env: BUILD_TYPE=Release
-      os: osx
-      compiler: clang
-      cache:
-        ccache: true
-        directories:
-          - $HOME/Library/Caches/Homebrew
-
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then source travis_custom/custom_before_install_linux.sh ; fi
   - if [ "$TRAVIS_OS_NAME" = "osx"   ]; then source travis_custom/custom_before_install_osx.sh   ; fi
@@ -97,10 +95,10 @@ script:
   - cd build
 
   # Configure
-  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_TESTING=$BUILD_TESTING -DCMAKE_CXX_FLAGS=-w -DCMAKE_CXX_FLAGS_DEBUG=${CXX_FLAGS_DEBUG} -DPYTHON_EXECUTABLE=$(which python) ..
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_TESTING=$BUILD_TESTING -DCMAKE_CXX_FLAGS=-w -DCMAKE_CXX_FLAGS_DEBUG=${CXX_FLAGS_DEBUG} -DPYTHON_EXECUTABLE=$(which $PYTHON_EXE) ..
 
   # Build
-  - make
+  - make -j2
 
   # Run unit tests
   - travis_wait 30 make test

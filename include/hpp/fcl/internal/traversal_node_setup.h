@@ -45,7 +45,7 @@
 #include <hpp/fcl/internal/traversal_node_shapes.h>
 #include <hpp/fcl/internal/traversal_node_bvh_shape.h>
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
 #include <hpp/fcl/internal/traversal_node_octree.h>
 #endif
 
@@ -56,7 +56,7 @@ namespace hpp
 namespace fcl
 {
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
 /// @brief Initialize traversal node for collision between two octrees, given current object transform
 inline bool initialize(OcTreeCollisionTraversalNode& node,
                        const OcTree& model1, const Transform3f& tf1,

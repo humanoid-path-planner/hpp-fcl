@@ -20,6 +20,8 @@ jobs:
       run: |
         git submodule update --init
     - uses: goanpeca/setup-miniconda@v1
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       with:
         activate-environment: fcl
         environment-file: .github/workflows/conda/conda-env.yml

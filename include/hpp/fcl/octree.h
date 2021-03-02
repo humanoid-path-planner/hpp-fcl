@@ -103,6 +103,12 @@ public:
     // std::cout << "octree size " << delta << std::endl;
     return AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta));
   }
+  
+  /// @brief Returns the depth of octree
+  unsigned int getTreeDepth() const
+  {
+    return tree->getTreeDepth();
+  }
 
   /// @brief get the root node of the octree
   OcTreeNode* getRoot() const
@@ -164,7 +170,7 @@ public:
     return occupancy_threshold;
   }
 
-  /// @brief the threshold used to decide whether one node is occupied, this is NOT the octree free_threshold
+  /// @brief the threshold used to decide whether one node is free, this is NOT the octree free_threshold
   FCL_REAL getFreeThres() const
   {
     return free_threshold;
@@ -274,7 +280,16 @@ static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& chi
   }
 }
 
-
+  ///
+  /// \brief Build an OcTree from a point cloud and a given resolution
+  ///
+  /// \param[in] point_cloud The input points to insert in the OcTree
+  /// \param[in] resolution of the octree.
+  ///
+  /// \returns An OcTree that can be used for collision checking and more.
+  ///
+  HPP_FCL_DLLAPI OcTree makeOctree(const Eigen::Matrix<FCL_REAL,Eigen::Dynamic,3> & point_cloud,
+                                   const FCL_REAL & resolution);
 
 }
 

@@ -49,7 +49,7 @@ namespace hpp
 namespace fcl
 {
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
 
 template<typename TypeA, typename TypeB>
 std::size_t Collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
@@ -416,7 +416,7 @@ CollisionFunctionMatrix::CollisionFunctionMatrix()
   collision_matrix[BV_kIOS][BV_kIOS] = &BVHCollide<kIOS>;
   collision_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHCollide<OBBRSS>;
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAS_OCTOMAP
   collision_matrix[GEOM_OCTREE][GEOM_BOX] = &Collide<OcTree, Box>;
   collision_matrix[GEOM_OCTREE][GEOM_SPHERE] = &Collide<OcTree, Sphere>;
   collision_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &Collide<OcTree, Capsule>;

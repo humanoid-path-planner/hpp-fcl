@@ -81,6 +81,10 @@ set(${LIBRARY_NAME}_SOURCES
   mesh_loader/loader.cpp
   )
 
+if(HPP_FCL_HAS_OCTOMAP)
+  list(APPEND ${LIBRARY_NAME}_SOURCES octree.cpp)
+endif(HPP_FCL_HAS_OCTOMAP)
+
 if(HPP_FCL_HAS_QHULL)
   set(
     libqhullcpp_HEADERS
@@ -202,6 +206,7 @@ IF(octomap_FOUND)
   target_include_directories(${LIBRARY_NAME} SYSTEM PUBLIC ${OCTOMAP_INCLUDE_DIRS})
   target_link_libraries(${LIBRARY_NAME} PUBLIC ${OCTOMAP_LIBRARIES})
   target_compile_definitions (${LIBRARY_NAME} PUBLIC
+    -DHPP_FCL_HAS_OCTOMAP
     -DHPP_FCL_HAVE_OCTOMAP
     -DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION}
     -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION}
