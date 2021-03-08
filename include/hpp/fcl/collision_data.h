@@ -400,7 +400,7 @@ public:
                  (std::numeric_limits<FCL_REAL>::max)()):
   min_distance(min_distance_), o1(NULL), o2(NULL), b1(NONE), b2(NONE)
   {
-    Vec3f nan (Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
+    static const Vec3f nan (Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
     nearest_points [0] = nearest_points [1] = normal = nan;
   }
 
@@ -455,11 +455,13 @@ public:
   /// @brief clear the result
   void clear()
   {
+    static const Vec3f nan (Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
     min_distance = (std::numeric_limits<FCL_REAL>::max)();
     o1 = NULL;
     o2 = NULL;
     b1 = NONE;
     b2 = NONE;
+    nearest_points [0] = nearest_points [1] = normal = nan;
   }
 
   /// @brief whether two DistanceResult are the same or not
