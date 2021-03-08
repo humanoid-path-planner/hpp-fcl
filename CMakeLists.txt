@@ -81,7 +81,7 @@ EXPORT_BOOST_DEFAULT_OPTIONS()
 IF(WIN32)
   ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS chrono thread date_time)
 ELSE(WIN32)
-  ADD_PROJECT_DEPENDENCY(Boost REQUIRED)
+  ADD_PROJECT_DEPENDENCY(Boost REQUIRED serialization)
 ENDIF(WIN32)
 if (BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
@@ -174,6 +174,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/internal/traversal_node_shapes.h
   include/hpp/fcl/internal/traversal_recurse.h
   include/hpp/fcl/internal/traversal.h
+  include/hpp/fcl/serialization/eigen.h
+  include/hpp/fcl/serialization/collision_data.h
   )
 
 add_subdirectory(doc)
