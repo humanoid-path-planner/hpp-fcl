@@ -61,6 +61,8 @@ if(HPP_FCL_HAS_OCTOMAP)
   add_fcl_test(octree octree.cpp)
 endif(HPP_FCL_HAS_OCTOMAP)
 
+add_fcl_test(serialization serialization.cpp)
+
 ## Benchmark
 IF(BUILD_TESTING)
   add_executable(test-benchmark benchmark.cpp)
