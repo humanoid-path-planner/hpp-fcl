@@ -170,6 +170,11 @@ struct HPP_FCL_DLLAPI QueryResult
 
   /// @brief stores the last support function vertex index, when relevant.
   support_func_guess_t cached_support_func_guess;
+  
+  QueryResult()
+  : cached_gjk_guess(Vec3f::Zero())
+  , cached_support_func_guess(support_func_guess_t::Constant(-1))
+  {}
 };
 
 inline void QueryRequest::updateGuess(const QueryResult& result)
