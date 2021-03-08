@@ -47,7 +47,6 @@
 #include <hpp/fcl/config.hh>
 #include <hpp/fcl/data_types.h>
 
-
 namespace hpp
 {
 namespace fcl
@@ -68,7 +67,6 @@ struct HPP_FCL_DLLAPI Contact
   /// if object 1 is octree, it is the id of the cell
   int b1;
 
-
   /// @brief contact primitive in object 2
   /// if object 2 is mesh or point cloud, it is the triangle or point id
   /// if object 2 is geometry shape, it is NONE (-1),
@@ -84,7 +82,6 @@ struct HPP_FCL_DLLAPI Contact
   /// @brief penetration depth
   FCL_REAL penetration_depth;
 
- 
   /// @brief invalid contact primitive information
   static const int NONE = -1;
 
@@ -120,12 +117,12 @@ struct HPP_FCL_DLLAPI Contact
   bool operator == (const Contact& other) const
   {
     return o1 == other.o1
-            && o2 == other.o2
-            && b1 == other.b1
-            && b2 == other.b2
-            && normal == other.normal
-            && pos == other.pos
-            && penetration_depth == other.penetration_depth;
+      && o2 == other.o2
+      && b1 == other.b1
+      && b2 == other.b2
+      && normal == other.normal
+      && pos == other.pos
+      && penetration_depth == other.penetration_depth;
   }
   
   bool operator != (const Contact& other) const
@@ -469,12 +466,12 @@ public:
   inline bool operator ==(const DistanceResult& other) const
   {
     bool is_same = min_distance == other.min_distance
-                  && nearest_points[0] == other.nearest_points[0]
-                  && nearest_points[1] == other.nearest_points[1]
-                  && o1 == other.o1
-                  && o2 == other.o2
-                  && b1 == other.b1
-                  && b2 == other.b2;
+      && nearest_points[0] == other.nearest_points[0]
+      && nearest_points[1] == other.nearest_points[1]
+      && o1 == other.o1
+      && o2 == other.o2
+      && b1 == other.b1
+      && b2 == other.b2;
 
 // TODO: check also that two GeometryObject are indeed equal.
     if ((o1 != NULL) ^ (other.o1 != NULL)) return false;
