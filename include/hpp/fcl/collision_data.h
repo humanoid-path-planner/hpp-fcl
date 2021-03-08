@@ -317,6 +317,7 @@ public:
   void clear()
   {
     contacts.clear();
+    distance_lower_bound = std::numeric_limits<FCL_REAL>::max();
   }
 
   /// @brief reposition Contact objects when fcl inverts them
