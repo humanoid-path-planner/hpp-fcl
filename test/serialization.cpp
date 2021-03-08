@@ -76,7 +76,7 @@ void test_serialization(const T & value)
   
   T copy_value;
   {
-    std::fstream ifs(filename);
+    std::ifstream ifs(filename);
     boost::archive::text_iarchive ia(ifs);
 
     ia >> copy_value;
