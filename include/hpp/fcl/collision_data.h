@@ -317,6 +317,11 @@ public:
     contacts_.resize(contacts.size());
     std::copy(contacts.begin(), contacts.end(), contacts_.begin());
   }
+  
+  const std::vector<Contact> & getContacts() const
+  {
+    return contacts;
+  }
 
   /// @brief clear the results obtained
   void clear()
