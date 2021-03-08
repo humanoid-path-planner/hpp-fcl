@@ -67,7 +67,7 @@ void test_serialization(const T & value)
 //  std::cout << "filename: " << filename << std::endl;
 
   {
-    std::ofstream ofs(filename);
+    std::ofstream ofs(filename.c_str());
   
     boost::archive::text_oarchive oa(ofs);
     oa << value;
@@ -76,7 +76,7 @@ void test_serialization(const T & value)
   
   T copy_value;
   {
-    std::ifstream ifs(filename);
+    std::ifstream ifs(filename.c_str());
     boost::archive::text_iarchive ia(ifs);
 
     ia >> copy_value;
