@@ -468,6 +468,7 @@ public:
     bool is_same = min_distance == other.min_distance
       && nearest_points[0] == other.nearest_points[0]
       && nearest_points[1] == other.nearest_points[1]
+      && normal == other.normal
       && o1 == other.o1
       && o2 == other.o2
       && b1 == other.b1
