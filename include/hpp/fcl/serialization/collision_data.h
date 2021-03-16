@@ -50,7 +50,7 @@ namespace boost
       contact.o2 = NULL;
     }
     
-    HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::Contact);
+    HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::Contact)
   
     template <class Archive>
     void serialize(Archive & ar,
@@ -76,7 +76,7 @@ namespace boost
                    hpp::fcl::CollisionRequest & collision_request,
                    const unsigned int /*version*/)
     {
-      ar & boost::serialization::base_object<hpp::fcl::QueryRequest>(collision_request);
+      ar & make_nvp("base",boost::serialization::base_object<hpp::fcl::QueryRequest>(collision_request));
       ar & make_nvp("num_max_contacts",collision_request.num_max_contacts);
       ar & make_nvp("enable_contact",collision_request.enable_contact);
       ar & make_nvp("enable_distance_lower_bound",collision_request.enable_distance_lower_bound);
@@ -89,7 +89,7 @@ namespace boost
               const hpp::fcl::CollisionResult & collision_result,
               const unsigned int /*version*/)
     {
-      ar & boost::serialization::base_object<hpp::fcl::QueryResult>(collision_result);
+      ar & make_nvp("base",boost::serialization::base_object<hpp::fcl::QueryResult>(collision_result));
       ar & make_nvp("contacts",collision_result.getContacts());
       ar & make_nvp("distance_lower_bound",collision_result.distance_lower_bound);
     }
@@ -99,7 +99,7 @@ namespace boost
               hpp::fcl::CollisionResult & collision_result,
               const unsigned int /*version*/)
     {
-      ar >> boost::serialization::base_object<hpp::fcl::QueryResult>(collision_result);
+      ar >> make_nvp("base",boost::serialization::base_object<hpp::fcl::QueryResult>(collision_result));
       std::vector<hpp::fcl::Contact> contacts;
       ar >> make_nvp("contacts",contacts);
       collision_result.clear();
@@ -115,7 +115,7 @@ namespace boost
                    hpp::fcl::DistanceRequest & distance_request,
                    const unsigned int /*version*/)
     {
-      ar & boost::serialization::base_object<hpp::fcl::QueryRequest>(distance_request);
+      ar & make_nvp("base",boost::serialization::base_object<hpp::fcl::QueryRequest>(distance_request));
       ar & make_nvp("enable_nearest_points",distance_request.enable_nearest_points);
       ar & make_nvp("rel_err",distance_request.rel_err);
       ar & make_nvp("abs_err",distance_request.abs_err);
@@ -126,7 +126,7 @@ namespace boost
               const hpp::fcl::DistanceResult & distance_result,
               const unsigned int /*version*/)
     {
-      ar & boost::serialization::base_object<hpp::fcl::QueryResult>(distance_result);
+      ar & make_nvp("base",boost::serialization::base_object<hpp::fcl::QueryResult>(distance_result));
       ar & make_nvp("min_distance",distance_result.min_distance);
       ar & make_nvp("nearest_points",make_array(distance_result.nearest_points,2));
       ar & make_nvp("normal",distance_result.normal);
@@ -139,7 +139,7 @@ namespace boost
               hpp::fcl::DistanceResult & distance_result,
               const unsigned int /*version*/)
     {
-      ar >> boost::serialization::base_object<hpp::fcl::QueryResult>(distance_result);
+      ar >> make_nvp("base",boost::serialization::base_object<hpp::fcl::QueryResult>(distance_result));
       ar >> make_nvp("min_distance",distance_result.min_distance);
       ar >> make_nvp("nearest_points",make_array(distance_result.nearest_points,2));
       ar >> make_nvp("normal",distance_result.normal);
