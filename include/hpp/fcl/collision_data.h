@@ -284,7 +284,7 @@ public:
   inline bool operator ==(const CollisionResult& other) const
   {
     return contacts == other.contacts 
-            && distance_lower_bound == other.distance_lower_bound;
+      && distance_lower_bound == other.distance_lower_bound;
   }
 
   /// @brief return binary collision result
