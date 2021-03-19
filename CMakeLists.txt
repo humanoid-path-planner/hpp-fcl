@@ -174,8 +174,12 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/internal/traversal_node_shapes.h
   include/hpp/fcl/internal/traversal_recurse.h
   include/hpp/fcl/internal/traversal.h
+  include/hpp/fcl/serialization/fwd.h
+  include/hpp/fcl/serialization/AABB.h
   include/hpp/fcl/serialization/eigen.h
   include/hpp/fcl/serialization/collision_data.h
+  include/hpp/fcl/serialization/collision_object.h
+  include/hpp/fcl/serialization/BVH_model.h
   )
 
 add_subdirectory(doc)

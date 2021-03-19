@@ -41,6 +41,7 @@
 #include <hpp/fcl/distance.h>
 
 #include <hpp/fcl/serialization/collision_data.h>
+#include <hpp/fcl/serialization/AABB.h>
 
 #include "utility.h"
 #include "fcl_resources/config.h"
@@ -82,6 +83,12 @@ void test_serialization(const T & value)
     ia >> copy_value;
   }
   BOOST_CHECK(check(value,copy_value));
+}
+
+BOOST_AUTO_TEST_CASE(aabb)
+{
+  AABB aabb(-Vec3f::Ones(),Vec3f::Ones());
+  test_serialization(aabb);
 }
 
 BOOST_AUTO_TEST_CASE(collision_data)

@@ -8,16 +8,7 @@
 #include <boost/serialization/split_free.hpp>
 
 #include "hpp/fcl/collision_data.h"
-#include "hpp/fcl/serialization/eigen.h"
-
-#define HPP_FCL_SERIALIZATION_SPLIT(Type) \
-  template <class Archive> \
-  void serialize(Archive & ar, \
-                 Type & value, \
-                 const unsigned int version) \
-  { \
-    split_free(ar,value,version); \
-  }
+#include "hpp/fcl/serialization/fwd.h"
 
 namespace boost
 {
@@ -153,7 +144,5 @@ namespace boost
 
   }
 }
-
-#undef HPP_FCL_SERIALIZATION_SPLIT
 
 #endif // ifndef HPP_FCL_SERIALIZATION_COLLISION_DATA_H
