@@ -63,7 +63,7 @@ namespace fcl
 /// CollisionResult::distance_lower_bound and DistanceResult::min_distance,
 /// with respect to the objects real distance.
 ///
-/// \image html doc/distance_computation.png
+/// \image html distance_computation.png
 ///
 /// The two parameters refer to CollisionRequest::security_margin and
 /// CollisionRequest::break_distance.

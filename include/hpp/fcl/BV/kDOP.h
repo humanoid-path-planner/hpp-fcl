@@ -200,7 +200,7 @@ bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/,
 template<short N>
 HPP_FCL_DLLAPI KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
 
-}
+} // namespace fcl
 
 } // namespace hpp
 

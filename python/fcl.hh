@@ -11,6 +11,8 @@ void exposeMaths();
 
 void exposeCollisionGeometries();
 
+void exposeCollisionObject();
+
 void exposeMeshLoader();
 
 void exposeCollisionAPI();

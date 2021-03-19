@@ -34,8 +34,8 @@
 
 /** \author Florent Lamiraux */
 
-#ifndef HPP_FCL_SRC_DISTANCE_FUNC_MATRIX_H
-#define HPP_FCL_SRC_DISTANCE_FUNC_MATRIX_H
+#ifndef HPP_FCL_INTERNAL_SHAPE_SHAPE_FUNC_H
+#define HPP_FCL_INTERNAL_SHAPE_SHAPE_FUNC_H
 
 /// @cond INTERNAL
 
@@ -112,4 +112,3 @@ HPP_FCL_DLLAPI std::size_t ShapeShapeCollide<T1,T2> \
 /// @endcond
 
 #endif
-

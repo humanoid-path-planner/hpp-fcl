@@ -41,7 +41,7 @@
 #include <hpp/fcl/internal/traversal_node_setup.h>
 #include <../src/collision_node.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
-#include <../src/distance_func_matrix.h>
+#include <hpp/fcl/internal/shape_shape_func.h>
 #include <../src/traits_traversal.h>
 
 namespace hpp

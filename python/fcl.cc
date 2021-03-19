@@ -94,6 +94,7 @@ BOOST_PYTHON_MODULE(hppfcl)
   exposeVersion();
   exposeMaths();
   exposeCollisionGeometries();
+  exposeCollisionObject();
   exposeMeshLoader();
   exposeCollisionAPI();
   exposeDistanceAPI();
