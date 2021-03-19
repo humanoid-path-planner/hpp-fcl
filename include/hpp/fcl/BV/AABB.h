@@ -85,6 +85,12 @@ public:
                                                          max_(a.cwiseMax(b).cwiseMax(c))
   {
   }
+  
+  /// @brief Comparison operator
+  bool operator==(const AABB & other) const
+  {
+    return min_ == other.min_ && max_ == other.max_;
+  }
 
   /// @name Bounding volume API
   /// Common API to BVs.
