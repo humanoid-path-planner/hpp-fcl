@@ -5,8 +5,6 @@
 #ifndef HPP_FCL_SERIALIZATION_AABB_H
 #define HPP_FCL_SERIALIZATION_AABB_H
 
-#include <boost/serialization/split_free.hpp>
-
 #include "hpp/fcl/BV/AABB.h"
 #include "hpp/fcl/serialization/fwd.h"
 

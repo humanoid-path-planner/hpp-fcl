@@ -5,9 +5,8 @@
 #ifndef HPP_FCL_SERIALIZATION_COLLISION_OBJECT_H
 #define HPP_FCL_SERIALIZATION_COLLISION_OBJECT_H
 
-#include <boost/serialization/split_free.hpp>
-
 #include "hpp/fcl/collision_object.h"
+
 #include "hpp/fcl/serialization/fwd.h"
 #include "hpp/fcl/serialization/AABB.h"
 

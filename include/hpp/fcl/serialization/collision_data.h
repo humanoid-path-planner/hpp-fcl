@@ -5,8 +5,6 @@
 #ifndef HPP_FCL_SERIALIZATION_COLLISION_DATA_H
 #define HPP_FCL_SERIALIZATION_COLLISION_DATA_H
 
-#include <boost/serialization/split_free.hpp>
-
 #include "hpp/fcl/collision_data.h"
 #include "hpp/fcl/serialization/fwd.h"
 

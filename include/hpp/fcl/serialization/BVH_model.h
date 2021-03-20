@@ -5,8 +5,6 @@
 #ifndef HPP_FCL_SERIALIZATION_BVH_MODEL_H
 #define HPP_FCL_SERIALIZATION_BVH_MODEL_H
 
-#include <boost/serialization/split_free.hpp>
-
 #include "hpp/fcl/BVH/BVH_model.h"
 #include "hpp/fcl/serialization/fwd.h"
 
