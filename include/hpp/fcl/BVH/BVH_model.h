@@ -39,6 +39,8 @@
 #ifndef HPP_FCL_BVH_MODEL_H
 #define HPP_FCL_BVH_MODEL_H
 
+#include <boost/serialization/access.hpp>
+
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/BVH/BVH_internal.h>
@@ -59,9 +61,12 @@ template <typename BV> class BVFitter;
 template <typename BV> class BVSplitter;
 
 /// @brief A base class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
-class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry
+class HPP_FCL_DLLAPI BVHModelBase
+: public CollisionGeometry
 {
 public:
+  friend class boost::serialization::access;
+  
   /// @brief Geometry point data
   Vec3f* vertices;
 
