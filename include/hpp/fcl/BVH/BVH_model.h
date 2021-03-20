@@ -95,17 +95,7 @@ public:
   }
 
   /// @brief Constructing an empty BVH
-  BVHModelBase() : vertices(NULL),
-                   tri_indices(NULL),
-                   prev_vertices(NULL),
-                   num_tris(0),
-                   num_vertices(0),
-                   build_state(BVH_BUILD_STATE_EMPTY),
-                   num_tris_allocated(0),
-                   num_vertices_allocated(0),
-                   num_vertex_updated(0)
-  {
-  }
+  BVHModelBase();
 
   /// @brief copy from another BVH
   BVHModelBase(const BVHModelBase& other);
