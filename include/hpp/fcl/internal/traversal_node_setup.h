@@ -312,7 +312,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
 
   if(!tf1.isIdentity())
   {
-    std::vector<Vec3f> vertices_transformed(model1.num_vertices);
+    std::vector<Vec3f> vertices_transformed((size_t)model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
       const Vec3f & p = model1.vertices[i];
