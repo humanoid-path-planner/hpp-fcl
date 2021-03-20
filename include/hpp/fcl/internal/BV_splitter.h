@@ -189,7 +189,7 @@ private:
       axis = 1;
 
     split_axis = axis;
-    std::vector<FCL_REAL> proj(num_primitives);
+    std::vector<FCL_REAL> proj((size_t)num_primitives);
 
     if(type == BVH_MODEL_TRIANGLES)
     {
