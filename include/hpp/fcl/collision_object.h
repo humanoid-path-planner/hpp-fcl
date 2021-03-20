@@ -75,6 +75,26 @@ public:
   }
 
   virtual ~CollisionGeometry() {}
+  
+  /// \brief Equality operator
+  bool operator==(const CollisionGeometry & other) const
+  {
+    return
+       cost_density == other.cost_density
+    && threshold_occupied == other.threshold_occupied
+    && threshold_free == other.threshold_free
+    && aabb_center == other.aabb_center
+    && aabb_radius == other.aabb_radius
+    && aabb_local == other.aabb_local
+//    && user_data == other.user_data
+    ;
+  }
+  
+  /// \brief Inequality operator
+  bool operator!=(const CollisionGeometry & other) const
+  {
+    return !(*this == other);
+  }
 
   /// @brief get the type of the object
   virtual OBJECT_TYPE getObjectType() const { return OT_UNKNOWN; }
