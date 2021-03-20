@@ -1,7 +1,7 @@
 /*
  *  Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021, INRIA.
+ *  Copyright (c) 2021 INRIA.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -39,9 +39,12 @@
 
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
+#include <hpp/fcl/BV/OBBRSS.h>
+#include <hpp/fcl/BVH/BVH_model.h>
 
 #include <hpp/fcl/serialization/collision_data.h>
 #include <hpp/fcl/serialization/AABB.h>
+#include <hpp/fcl/serialization/BVH_model.h>
 
 #include "utility.h"
 #include "fcl_resources/config.h"
@@ -49,6 +52,7 @@
 #include <boost/archive/tmpdir.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/filesystem.hpp>
 
 namespace utf = boost::unit_test::framework;
 
@@ -61,7 +65,7 @@ bool check(const T & value, const T & other)
 }
 
 template<typename T>
-void test_serialization(const T & value)
+void test_serialization(const T & value, T & other_value)
 {
   std::string filename(boost::archive::tmpdir());
   filename += "file.txt";
@@ -75,23 +79,29 @@ void test_serialization(const T & value)
   }
   BOOST_CHECK(check(value,value));
   
-  T copy_value;
   {
     std::ifstream ifs(filename.c_str());
     boost::archive::text_iarchive ia(ifs);
 
-    ia >> copy_value;
+    ia >> other_value;
   }
-  BOOST_CHECK(check(value,copy_value));
+  BOOST_CHECK(check(value,other_value));
 }
 
-BOOST_AUTO_TEST_CASE(aabb)
+template<typename T>
+void test_serialization(const T & value)
+{
+  T other_value;
+  test_serialization(value,other_value);
+}
+
+BOOST_AUTO_TEST_CASE(test_aabb)
 {
   AABB aabb(-Vec3f::Ones(),Vec3f::Ones());
   test_serialization(aabb);
 }
 
-BOOST_AUTO_TEST_CASE(collision_data)
+BOOST_AUTO_TEST_CASE(test_collision_data)
 {
   Contact contact(NULL, NULL, 1, 2, Vec3f::Ones(), Vec3f::Zero(), -10.);
   test_serialization(contact);
@@ -113,4 +123,43 @@ BOOST_AUTO_TEST_CASE(collision_data)
   distance_result.nearest_points[0].setRandom();
   distance_result.nearest_points[1].setRandom();
   test_serialization(distance_result);
+}
+
+BOOST_AUTO_TEST_CASE(test_BVHModel)
+{
+  std::vector<Vec3f> p1, p2;
+  std::vector<Triangle> t1, t2;
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+  
+  loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
+  loadOBJFile((path / "rob.obj").string().c_str(), p2, t2);
+
+  BVHModel<OBBRSS> m1,m2;
+
+  m1.beginModel();
+  m1.addSubModel(p1, t1);
+  m1.endModel();
+  BOOST_CHECK(m1 == m1);
+
+  m2.beginModel();
+  m2.addSubModel(p2, t2);
+  m2.endModel();
+  BOOST_CHECK(m2 == m2);
+  BOOST_CHECK(m1 != m2);
+  
+  // Test CollisionGeometry
+  {
+    CollisionGeometry & m1_cg = static_cast<CollisionGeometry &>(m1);
+    BVHModel<OBBRSS> m1_copy;
+    CollisionGeometry & m1_copy_cg = static_cast<CollisionGeometry &>(m1);
+    test_serialization(m1_cg,m1_copy_cg);
+  }
+  
+  // Test BVHModelBase
+  {
+    BVHModelBase & m1_base = static_cast<BVHModelBase &>(m1);
+    BVHModel<OBBRSS> m1_copy;
+    BVHModelBase & m1_copy_base = static_cast<BVHModelBase &>(m1);
+    test_serialization(m1_base,m1_copy_base);
+  }
 }
