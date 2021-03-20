@@ -107,6 +107,15 @@ public:
     delete [] tri_indices;
     delete [] prev_vertices;
   }
+  
+  /// \brief Comparison operators
+  bool operator==(const BVHModelBase & other) const;
+  
+  /// \brief Inequality operator
+  bool operator!=(const BVHModelBase & other) const
+  {
+    return !(*this == other);
+  }
 
   /// @brief Get the object type: it is a BVH
   OBJECT_TYPE getObjectType() const { return OT_BVH; }
