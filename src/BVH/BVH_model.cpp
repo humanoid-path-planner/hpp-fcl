@@ -98,6 +98,35 @@ BVHModelBase::BVHModelBase(const BVHModelBase& other) :
     prev_vertices = NULL;
 }
 
+bool BVHModelBase::operator==(const BVHModelBase & other) const
+{
+  bool result =
+     CollisionGeometry::operator==(static_cast<const CollisionGeometry &>(other))
+  && num_tris == other.num_tris
+  && num_vertices == other.num_vertices;
+  
+  if(!result) return false;
+  
+  for(size_t k = 0; k < num_tris; ++k)
+    if(tri_indices[k] != other.tri_indices[k])
+      return false;
+  
+  for(size_t k = 0; k < num_vertices; ++k)
+    if(vertices[k] != other.vertices[k])
+      return false;
+  
+  if(prev_vertices != NULL && other.prev_vertices != NULL)
+  {
+    for(size_t k = 0; k < num_vertices; ++k)
+    {
+      if(prev_vertices[k] != other.prev_vertices[k])
+        return false;
+    }
+  }
+      
+  return true;
+}
+
 void BVHModelBase::buildConvexRepresentation(bool share_memory)
 {
   if (!convex) {
