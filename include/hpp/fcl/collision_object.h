@@ -39,6 +39,8 @@
 #ifndef HPP_FCL_COLLISION_OBJECT_BASE_H
 #define HPP_FCL_COLLISION_OBJECT_BASE_H
 
+#include <limits>
+
 #include <hpp/fcl/deprecated.hh>
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/BV/AABB.h>
@@ -63,9 +65,12 @@ enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP
 class HPP_FCL_DLLAPI CollisionGeometry
 {
 public:
-  CollisionGeometry() : cost_density(1),
-                        threshold_occupied(1),
-                        threshold_free(0)
+  CollisionGeometry()
+  : aabb_center(Vec3f::Constant(std::numeric_limits<FCL_REAL>::max()))
+  , aabb_radius(-1)
+  , cost_density(1)
+  , threshold_occupied(1)
+  , threshold_free(0)
   {
   }
 
