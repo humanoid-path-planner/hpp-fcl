@@ -63,6 +63,12 @@ public:
   
   /// @brief Half dimensions of OBB
   Vec3f extent;
+  
+  OBB()
+  : axes(Matrix3f::Zero())
+  , To(Vec3f::Zero())
+  , extent(Vec3f::Zero())
+  {}
 
   /// @brief Check whether the OBB contains a point.
   bool contain(const Vec3f& p) const;
