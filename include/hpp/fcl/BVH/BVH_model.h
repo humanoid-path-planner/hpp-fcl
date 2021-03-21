@@ -39,8 +39,6 @@
 #ifndef HPP_FCL_BVH_MODEL_H
 #define HPP_FCL_BVH_MODEL_H
 
-#include <boost/serialization/access.hpp>
-
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/BVH/BVH_internal.h>
@@ -65,8 +63,7 @@ class HPP_FCL_DLLAPI BVHModelBase
 : public CollisionGeometry
 {
 public:
-  friend class boost::serialization::access;
-  
+
   /// @brief Geometry point data
   Vec3f* vertices;
 
