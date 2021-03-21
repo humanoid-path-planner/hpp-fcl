@@ -52,6 +52,10 @@
 #include <boost/archive/tmpdir.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 #include <boost/filesystem.hpp>
 
 namespace utf = boost::unit_test::framework;
@@ -67,12 +71,13 @@ bool check(const T & value, const T & other)
 template<typename T>
 void test_serialization(const T & value, T & other_value)
 {
-  std::string filename(boost::archive::tmpdir());
-  filename += "file.txt";
-//  std::cout << "filename: " << filename << std::endl;
+  const std::string tmp_dir(boost::archive::tmpdir());
+  const std::string txt_filename = tmp_dir + "file.txt";
+  const std::string bin_filename = tmp_dir + "file.bin";
 
+  // TXT
   {
-    std::ofstream ofs(filename.c_str());
+    std::ofstream ofs(txt_filename.c_str());
   
     boost::archive::text_oarchive oa(ofs);
     oa << value;
@@ -80,8 +85,24 @@ void test_serialization(const T & value, T & other_value)
   BOOST_CHECK(check(value,value));
   
   {
-    std::ifstream ifs(filename.c_str());
+    std::ifstream ifs(txt_filename.c_str());
     boost::archive::text_iarchive ia(ifs);
+
+    ia >> other_value;
+  }
+  BOOST_CHECK(check(value,other_value));
+  
+  // BIN
+  {
+    std::ofstream ofs(bin_filename.c_str(), std::ios::binary);
+    boost::archive::binary_oarchive oa(ofs);
+    oa << value;
+  }
+  BOOST_CHECK(check(value,value));
+  
+  {
+    std::ifstream ifs(bin_filename.c_str(), std::ios::binary);
+    boost::archive::binary_iarchive ia(ifs);
 
     ia >> other_value;
   }
@@ -161,5 +182,11 @@ BOOST_AUTO_TEST_CASE(test_BVHModel)
     BVHModel<OBBRSS> m1_copy;
     BVHModelBase & m1_copy_base = static_cast<BVHModelBase &>(m1);
     test_serialization(m1_base,m1_copy_base);
+  }
+  
+  // Test BVHModel
+  {
+    BVHModel<OBBRSS> m1_copy;
+    test_serialization(m1,m1_copy);
   }
 }
