@@ -677,8 +677,6 @@ class OutputStreams(object):
         if sys.version_info >= (3,):
             print (*args, file=self._out)
         else:
-            print("args:",args)
-            print(' '.join(str(arg) for arg in args).encode('utf-8'), file=self._out)
             print(' '.join(str(arg) for arg in args).decode("latin1"), file=self._out)
     def warn(self, *args):
         print (self.errorPrefix, *args, file=self._warn)
