@@ -88,7 +88,7 @@ struct CollisionRequest;
 template<short N>
 class HPP_FCL_DLLAPI KDOP
 {
-private:
+protected:
   /// @brief Origin's distances to N KDOP planes
   Eigen::Array<FCL_REAL, N, 1> dist_;
 

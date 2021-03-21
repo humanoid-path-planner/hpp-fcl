@@ -107,7 +107,7 @@ public:
     type = BVH_MODEL_UNKNOWN;
   }
 
-private:
+protected:
 
   /// @brief The axis based on which the split decision is made. For most BV, the axis is aligned with one of the world coordinate, so only split_axis is needed.
   /// For oriented node, we can use a vector to make a better split decision.

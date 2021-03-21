@@ -329,7 +329,7 @@ public:
     makeParentRelativeRecurse(0, I, Vec3f());
   }
 
-private:
+protected:
   void deleteBVs();
   bool allocateBVs();
 
