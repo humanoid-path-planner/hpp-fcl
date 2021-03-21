@@ -270,9 +270,10 @@ protected:
 /// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
 /// \tparam BV one of the bounding volume class in \ref Bounding_Volume.
 template<typename BV>
-class HPP_FCL_DLLAPI BVHModel : public BVHModelBase
+class HPP_FCL_DLLAPI BVHModel
+: public BVHModelBase
 {
-
+  typedef BVHModelBase Base;
 public:
   /// @brief Split rule to split one BV node into two children
   shared_ptr<BVSplitter<BV> > bv_splitter;
@@ -291,6 +292,74 @@ public:
   {
     delete [] bvs;
     delete [] primitive_indices;
+  }
+  
+  /// @brief Equality operator
+  bool operator==(const BVHModel & other) const
+  {
+    bool res = Base::operator==(other);
+    if(!res)
+      return false;
+    
+    int other_num_primitives = 0;
+    if(other.primitive_indices)
+    {
+      
+      switch(other.getModelType())
+      {
+        case BVH_MODEL_TRIANGLES:
+          other_num_primitives = num_tris;
+          break;
+        case BVH_MODEL_POINTCLOUD:
+          other_num_primitives = num_vertices;
+          break;
+        default:
+          ;
+      }
+    }
+    
+    int num_primitives = 0;
+    if(primitive_indices)
+    {
+      
+      switch(other.getModelType())
+      {
+        case BVH_MODEL_TRIANGLES:
+          num_primitives = num_tris;
+          break;
+        case BVH_MODEL_POINTCLOUD:
+          num_primitives = num_vertices;
+          break;
+        default:
+          ;
+      }
+    }
+    
+    if(num_primitives != other_num_primitives)
+      return false;
+    
+    for(int k = 0; k < num_primitives; ++k)
+    {
+      if(primitive_indices[k] != other.primitive_indices[k])
+        return false;
+    }
+    
+    if(num_bvs != other.num_bvs)
+      return false;
+    
+    for(int k = 0; k < num_bvs; ++k)
+    {
+      if(bvs[k] != other.bvs[k])
+        return false;
+    }
+    
+    return true;
+  }
+  
+  /// @brief Inequality operator
+  bool operator!=(const BVHModel & other) const
+  {
+    return !(*this == other);
   }
 
   /// @brief We provide getBV() and getNumBVs() because BVH may be compressed (in future), so we must provide some flexibility here

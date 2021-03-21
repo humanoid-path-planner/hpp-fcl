@@ -53,17 +53,30 @@ namespace fcl
 /// @{
 
 /// @brief Class merging the OBB and RSS, can handle collision and distance simultaneously
-class HPP_FCL_DLLAPI OBBRSS
+struct HPP_FCL_DLLAPI OBBRSS
 {
-public:
 
   /// @brief OBB member, for rotation
   OBB obb;
 
   /// @brief RSS member, for distance
   RSS rss;
+  
+  /// @brief Equality operator
+  bool operator==(const OBBRSS & other) const
+  {
+    return
+       obb == other.obb
+    && rss == other.rss;
+  }
+  
+  /// @brief Inequality operator
+  bool operator!=(const OBBRSS & other) const
+  {
+    return !(*this == other);
+  }
 
-/// @brief Check whether the OBBRSS contains a point
+  /// @brief Check whether the OBBRSS contains a point
   inline bool contain(const Vec3f& p) const
   {
     return obb.contain(p);

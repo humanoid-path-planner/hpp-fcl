@@ -75,6 +75,21 @@ struct HPP_FCL_DLLAPI BVNodeBase
   , first_primitive(-1)
   , num_primitives(-1)
   {}
+  
+  /// @brief Equality operator
+  bool operator==(const BVNodeBase & other) const
+  {
+    return
+       first_child == other.first_child
+    && first_primitive == other.first_primitive
+    && num_primitives == other.num_primitives;
+  }
+  
+  /// @brief Inequality operator
+  bool operator!=(const BVNodeBase & other) const
+  {
+    return !(*this == other);
+  }
 
   /// @brief Whether current node is a leaf node (i.e. contains a primitive index
   inline bool isLeaf() const { return first_child < 0; }

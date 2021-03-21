@@ -59,6 +59,16 @@ class HPP_FCL_DLLAPI kIOS
   {
     Vec3f o;
     FCL_REAL r;
+    
+    bool operator==(const kIOS_Sphere & other) const
+    {
+      return o == other.o && r == other.r;
+    }
+    
+    bool operator!=(const kIOS_Sphere & other) const
+    {
+      return !(*this == other);
+    }
   };
 
   /// @brief generate one sphere enclosing two spheres
@@ -88,6 +98,28 @@ class HPP_FCL_DLLAPI kIOS
   }
 public:
     
+  /// @brief Equality operator
+  bool operator==(const kIOS & other) const
+  {
+    bool res = obb == other.obb && num_spheres == other.num_spheres;
+    if(!res)
+      return false;
+    
+    for(size_t k = 0; k < num_spheres; ++k)
+    {
+      if(spheres[k] != other.spheres[k])
+        return false;
+    }
+    
+    return true;
+  }
+ 
+  /// @brief Inequality operator
+  bool operator!=(const kIOS & other) const
+  {
+    return !(*this == other);
+  }
+  
   /// @brief The (at most) five spheres for intersection
   kIOS_Sphere spheres[5];
 

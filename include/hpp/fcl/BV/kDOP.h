@@ -103,6 +103,18 @@ public:
   /// @brief Creating kDOP containing two points
   KDOP(const Vec3f& a, const Vec3f& b);
   
+  /// @brief Equality operator
+  bool operator==(const KDOP & other) const
+  {
+    return dist_.isApprox(other.dist_);
+  }
+ 
+  /// @brief Inequality operator
+  bool operator!=(const KDOP & other) const
+  {
+    return !(*this == other);
+  }
+  
   /// @brief Check whether two KDOPs overlap.
   bool overlap(const KDOP<N>& other) const;
 

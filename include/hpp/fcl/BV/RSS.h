@@ -52,9 +52,8 @@ struct CollisionRequest;
 /// @{
 
 /// @brief A class for rectangle sphere-swept bounding volume
-class HPP_FCL_DLLAPI RSS
+struct HPP_FCL_DLLAPI RSS
 {
-public:
   /// @brief Orientation of RSS. axis[i] is the ith column of the orientation matrix for the RSS; it is also the i-th principle direction of the RSS.
   /// We assume that axis[0] corresponds to the axis with the longest length, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
   Matrix3f axes;
@@ -75,6 +74,23 @@ public:
   , radius(-1)
   {
     length[0] = 0; length[1] = 0;
+  }
+  
+  /// @brief Equality operator
+  bool operator==(const RSS & other) const
+  {
+    return
+       axes == other.axes
+    && Tr == other.Tr
+    && length[0] == other.length[0]
+    && length[1] == other.length[1]
+    && radius == other.radius;
+  }
+ 
+  /// @brief Inequality operator
+  bool operator!=(const RSS & other) const
+  {
+    return !(*this == other);
   }
 
   /// @brief Check whether the RSS contains a point
