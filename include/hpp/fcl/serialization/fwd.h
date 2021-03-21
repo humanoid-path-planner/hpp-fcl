@@ -6,6 +6,7 @@
 #define HPP_FCL_SERIALIZATION_FWD_H
 
 #include <boost/serialization/split_free.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #include "hpp/fcl/serialization/eigen.h"
 

@@ -176,10 +176,16 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/internal/traversal.h
   include/hpp/fcl/serialization/fwd.h
   include/hpp/fcl/serialization/AABB.h
-  include/hpp/fcl/serialization/eigen.h
+  include/hpp/fcl/serialization/BV_node.h
+  include/hpp/fcl/serialization/BV_fitter.h
+  include/hpp/fcl/serialization/BV_splitter.h
+  include/hpp/fcl/serialization/BVH_model.h
   include/hpp/fcl/serialization/collision_data.h
   include/hpp/fcl/serialization/collision_object.h
-  include/hpp/fcl/serialization/BVH_model.h
+  include/hpp/fcl/serialization/eigen.h
+  include/hpp/fcl/serialization/OBB.h
+  include/hpp/fcl/serialization/RSS.h
+  include/hpp/fcl/serialization/OBBRSS.h
   )
 
 add_subdirectory(doc)
