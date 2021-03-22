@@ -255,6 +255,16 @@ void exposeCollisionGeometries ()
     .value ("BVH_MODEL_POINTCLOUD" , BVH_MODEL_POINTCLOUD)
   ;
   
+  enum_<BVHBuildState>("BVHBuildState")
+  .value("BVH_BUILD_STATE_EMPTY",BVH_BUILD_STATE_EMPTY)
+  .value("BVH_BUILD_STATE_BEGUN",BVH_BUILD_STATE_BEGUN)
+  .value("BVH_BUILD_STATE_PROCESSED",BVH_BUILD_STATE_PROCESSED)
+  .value("BVH_BUILD_STATE_UPDATE_BEGUN",BVH_BUILD_STATE_UPDATE_BEGUN)
+  .value("BVH_BUILD_STATE_UPDATED",BVH_BUILD_STATE_UPDATED)
+  .value("BVH_BUILD_STATE_REPLACE_BEGUN",BVH_BUILD_STATE_REPLACE_BEGUN)
+  .export_values()
+  ;
+  
   if(!eigenpy::register_symbolic_link_to_registered_type<OBJECT_TYPE>())
   {
     enum_<OBJECT_TYPE>("OBJECT_TYPE")
