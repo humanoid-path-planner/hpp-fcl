@@ -148,7 +148,7 @@ public:
 };
 
 /// @brief Capsule
-/// It is \f$ { x \in \mathcal{R}^3, d(x, AB) < radius } \f$
+/// It is \f$ { x~\in~\mathbb{R}^3, d(x, AB) \leq radius } \f$
 /// where \f$ d(x, AB) \f$ is the distance between the point x and the capsule
 /// segment AB, with \f$ A = (0,0,-halfLength), B = (0,0,halfLength) \f$.
 class HPP_FCL_DLLAPI Capsule : public ShapeBase
