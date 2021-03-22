@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2019-2020 CNRS-LAAS INRIA
+#  Copyright (c) 2019-2021 CNRS-LAAS INRIA
 #  Author: Joseph Mirabel
 #  All rights reserved.
 #
@@ -45,8 +45,7 @@ SET(${LIBRARY_NAME}_HEADERS
 SET(ENABLE_PYTHON_DOXYGEN_AUTODOC TRUE CACHE BOOL "Enable automatic documentation of Python bindings from Doxygen documentation")
 
 IF(    NOT ENABLE_PYTHON_DOXYGEN_AUTODOC
-    OR NOT DOXYGEN_FOUND
-    OR (APPLE AND PYTHON_VERSION_MAJOR LESS 2)) # Disable documentation on APPLE for python 2.
+    OR NOT DOXYGEN_FOUND)
   SET(ENABLE_DOXYGEN_AUTODOC FALSE)
 ELSE()
   SET(ENABLE_DOXYGEN_AUTODOC TRUE)
