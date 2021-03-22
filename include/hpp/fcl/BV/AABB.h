@@ -243,7 +243,7 @@ static inline AABB rotate(const AABB& aabb, const Matrix3f& R)
   const Eigen::DenseIndex bit[3] = { 1, 2, 4 };
   for (Eigen::DenseIndex ic = 1; ic < 8; ++ic) { // ic = 0 corresponds to aabb.min_. Skip it.
     for (Eigen::DenseIndex i = 0; i < 3; ++i) {
-      corner[i] = (ic && bit[i]) ? aabb.max_[i] : aabb.min_[i];
+      corner[i] = (ic & bit[i]) ? aabb.max_[i] : aabb.min_[i];
     }
     res += R * corner;
   }
