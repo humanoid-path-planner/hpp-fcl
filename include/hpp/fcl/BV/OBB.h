@@ -78,7 +78,7 @@ struct HPP_FCL_DLLAPI OBB
     && extent == other.extent;
   }
   
-  /// @brief Inequality operator
+  /// @brief Difference operator
   bool operator!=(const OBB & other) const
   {
     return !(*this == other);

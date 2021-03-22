@@ -87,7 +87,7 @@ struct HPP_FCL_DLLAPI RSS
     && radius == other.radius;
   }
  
-  /// @brief Inequality operator
+  /// @brief Difference operator
   bool operator!=(const RSS & other) const
   {
     return !(*this == other);

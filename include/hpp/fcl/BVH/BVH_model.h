@@ -113,7 +113,7 @@ public:
   /// \brief Comparison operators
   bool operator==(const BVHModelBase & other) const;
   
-  /// \brief Inequality operator
+  /// \brief Difference operator
   bool operator!=(const BVHModelBase & other) const
   {
     return !(*this == other);
@@ -356,7 +356,7 @@ public:
     return true;
   }
   
-  /// @brief Inequality operator
+  /// @brief Difference operator
   bool operator!=(const BVHModel & other) const
   {
     return !(*this == other);

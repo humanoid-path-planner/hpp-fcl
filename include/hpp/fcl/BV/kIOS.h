@@ -114,7 +114,7 @@ public:
     return true;
   }
  
-  /// @brief Inequality operator
+  /// @brief Difference operator
   bool operator!=(const kIOS & other) const
   {
     return !(*this == other);

@@ -109,7 +109,7 @@ public:
     return dist_.isApprox(other.dist_);
   }
  
-  /// @brief Inequality operator
+  /// @brief Difference operator
   bool operator!=(const KDOP & other) const
   {
     return !(*this == other);

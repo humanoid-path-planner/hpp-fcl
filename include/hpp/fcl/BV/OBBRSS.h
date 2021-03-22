@@ -70,7 +70,7 @@ struct HPP_FCL_DLLAPI OBBRSS
     && rss == other.rss;
   }
   
-  /// @brief Inequality operator
+  /// @brief Difference operator
   bool operator!=(const OBBRSS & other) const
   {
     return !(*this == other);

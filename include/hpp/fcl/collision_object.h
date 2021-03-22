@@ -90,7 +90,7 @@ public:
     ;
   }
   
-  /// \brief Inequality operator
+  /// \brief Difference operator
   bool operator!=(const CollisionGeometry & other) const
   {
     return !(*this == other);

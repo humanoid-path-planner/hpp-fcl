@@ -85,7 +85,7 @@ struct HPP_FCL_DLLAPI BVNodeBase
     && num_primitives == other.num_primitives;
   }
   
-  /// @brief Inequality operator
+  /// @brief Difference operator
   bool operator!=(const BVNodeBase & other) const
   {
     return !(*this == other);
@@ -119,7 +119,7 @@ struct HPP_FCL_DLLAPI BVNode : public BVNodeBase
     return Base::operator==(other) && bv == other.bv;
   }
   
-  /// @brief Inequality operator
+  /// @brief Difference operator
   bool operator!=(const BVNode & other) const
   {
     return !(*this == other);
