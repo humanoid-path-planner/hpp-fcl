@@ -106,13 +106,13 @@ public:
   /// @brief Equality operator
   bool operator==(const KDOP & other) const
   {
-    return dist_.isApprox(other.dist_);
+    return (dist_ == other.dist_).all();
   }
  
   /// @brief Difference operator
   bool operator!=(const KDOP & other) const
   {
-    return !(*this == other);
+    return (dist_ != other.dist_).any();
   }
   
   /// @brief Check whether two KDOPs overlap.
