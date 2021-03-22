@@ -77,6 +77,7 @@ void exposeCollisionAPI ()
       .value ("CONTACT", CONTACT)
       .value ("DISTANCE_LOWER_BOUND", DISTANCE_LOWER_BOUND)
       .value ("NO_REQUEST", NO_REQUEST)
+      .export_values()
       ;
   }
 

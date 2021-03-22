@@ -71,6 +71,7 @@ void exposeGJK()
       .value ("Valid", GJK::Valid)
       .value ("Inside", GJK::Inside)
       .value ("Failed", GJK::Failed)
+      .export_values()
       ;
   }
 

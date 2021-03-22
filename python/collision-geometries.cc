@@ -253,6 +253,7 @@ void exposeCollisionGeometries ()
     .value ("BVH_MODEL_UNKNOWN"    , BVH_MODEL_UNKNOWN)
     .value ("BVH_MODEL_TRIANGLES"  , BVH_MODEL_TRIANGLES)
     .value ("BVH_MODEL_POINTCLOUD" , BVH_MODEL_POINTCLOUD)
+    .export_values()
   ;
   
   enum_<BVHBuildState>("BVHBuildState")
@@ -272,6 +273,7 @@ void exposeCollisionGeometries ()
       .value ("OT_BVH"    , OT_BVH)
       .value ("OT_GEOM"   , OT_GEOM)
       .value ("OT_OCTREE" , OT_OCTREE)
+      .export_values()
       ;
   }
   
@@ -297,6 +299,7 @@ void exposeCollisionGeometries ()
       .value ("GEOM_HALFSPACE", GEOM_HALFSPACE)
       .value ("GEOM_TRIANGLE" , GEOM_TRIANGLE)
       .value ("GEOM_OCTREE"   , GEOM_OCTREE)
+      .export_values()
       ;
   }
   
