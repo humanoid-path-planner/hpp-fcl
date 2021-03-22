@@ -650,7 +650,11 @@ class OutputStreams(object):
             self._out = self._created_files[name]
         else:
             import codecs
-            self._out = codecs.open(fullname, mode='w', encoding="latin1")
+            if sys.version_info >= (3,):
+              encoding = 'utf-8'
+            else:
+              encoding = 'latin1'
+            self._out = codecs.open(fullname, mode='w', encoding=encoding)
             self._created_files[name] = self._out
 
             # Header
