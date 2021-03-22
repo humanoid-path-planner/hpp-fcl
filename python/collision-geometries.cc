@@ -408,6 +408,7 @@ void exposeCollisionGeometries ()
           bp::args("self","index"),"Retrieve the triangle given by its index.")
     .def_readonly ("num_vertices", &BVHModelBase::num_vertices)
     .def_readonly ("num_tris", &BVHModelBase::num_tris)
+    .def_readonly ("build_state", &BVHModelBase::build_state)
 
     .def_readonly ("convex", &BVHModelBase::convex)
 
