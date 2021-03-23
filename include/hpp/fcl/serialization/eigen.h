@@ -24,8 +24,8 @@ namespace boost
     
 #ifndef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
   
-    template <class Archive, typename Scalar, int Rows, int Cols, int _Options, int MaxRows, int MaxCols>
-    void save(Archive & ar, const Eigen::Matrix<Scalar,Rows,Cols,_Options,MaxRows,MaxCols> & m, const unsigned int /*version*/)
+    template <class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+    void save(Archive & ar, const Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols> & m, const unsigned int /*version*/)
     {
       Eigen::DenseIndex rows(m.rows()), cols(m.cols());
       if (Rows == Eigen::Dynamic)
@@ -36,7 +36,7 @@ namespace boost
     }
     
     template <class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-    void load(Archive & ar, Eigen::Matrix<Scalar,Rows,Cols,_Options,MaxRows,MaxCols> & m, const unsigned int /*version*/)
+    void load(Archive & ar, Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols> & m, const unsigned int /*version*/)
     {
       Eigen::DenseIndex rows = Rows, cols = Cols;
       if (Rows == Eigen::Dynamic)
@@ -47,8 +47,8 @@ namespace boost
       ar >> make_nvp("data",make_array(m.data(), (size_t)m.size()));
     }
     
-    template <class Archive, typename Scalar, int Rows, int Cols, int _Options, int MaxRows, int MaxCols>
-    void serialize(Archive & ar, Eigen::Matrix<Scalar,Rows,Cols,_Options,MaxRows,MaxCols> & m, const unsigned int version)
+    template <class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+    void serialize(Archive & ar, Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols> & m, const unsigned int version)
     {
       split_free(ar,m,version);
     }
