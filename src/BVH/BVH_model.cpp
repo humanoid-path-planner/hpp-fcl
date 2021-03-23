@@ -1106,11 +1106,11 @@ void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axe
 
   // make self parent relative
   rss.axes.noalias() = parent_axes.transpose() * obb.axes;
-  obb.axes.noalias() = rss.axes;
+  obb.axes = rss.axes;
 
   Vec3f t (obb.To - parent_c);
-  obb.To.noalias() = parent_axes.transpose() *t;
-  rss.Tr.noalias() = obb.To;
+  obb.To.noalias() = parent_axes.transpose() * t;
+  rss.Tr = obb.To;
 }
 
 
