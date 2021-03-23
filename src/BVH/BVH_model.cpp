@@ -262,6 +262,40 @@ int BVHModelBase::addVertex(const Vec3f& p)
   return BVH_OK;
 }
 
+int BVHModelBase::addTriangles(const Matrixx3i & triangles)
+{
+  if(build_state == BVH_BUILD_STATE_PROCESSED)
+  {
+    std::cerr << "BVH Warning! Call addSubModel() in a wrong order. addSubModel() was ignored. Must do a beginModel() to clear the model for addition of new vertices." << std::endl;
+    return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
+  }
+  
+  const int num_tris_to_add = (int)triangles.rows();
+
+  if(num_tris + num_tris_to_add > num_tris_allocated)
+  {
+    Triangle* temp = new Triangle[num_tris_allocated * 2 + num_tris_to_add];
+    if(!temp)
+    {
+      std::cerr << "BVH Error! Out of memory for tri_indices array on addSubModel() call!" << std::endl;
+      return BVH_ERR_MODEL_OUT_OF_MEMORY;
+    }
+
+    memcpy(temp, tri_indices, sizeof(Triangle) * (size_t)num_tris);
+    delete [] tri_indices;
+    tri_indices = temp;
+    num_tris_allocated = num_tris_allocated * 2 + num_tris_to_add;
+  }
+
+  for(Eigen::DenseIndex i = 0; i < triangles.rows(); ++i)
+  {
+    const Matrixx3i::ConstRowXpr triangle = triangles.row(i);
+    tri_indices[num_tris++].set(triangle[0], triangle[1], triangle[2]);
+  }
+
+  return BVH_OK;
+}
+
 int BVHModelBase::addVertices(const Matrixx3f & points)
 {
   if(build_state != BVH_BUILD_STATE_BEGUN)
