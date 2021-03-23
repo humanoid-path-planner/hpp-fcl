@@ -58,9 +58,27 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/filesystem.hpp>
 
+#include <boost/asio/streambuf.hpp>
+
 namespace utf = boost::unit_test::framework;
 
 using namespace hpp::fcl;
+
+template<typename T>
+void saveToBinary(const T & object,
+                  boost::asio::streambuf & buffer)
+{
+  boost::archive::binary_oarchive oa(buffer);
+  oa & object;
+}
+
+template<typename T>
+inline void loadFromBinary(T & object,
+                           boost::asio::streambuf & buffer)
+{
+  boost::archive::binary_iarchive ia(buffer);
+  ia >> object;
+}
 
 template<typename T>
 bool check(const T & value, const T & other)
@@ -68,52 +86,79 @@ bool check(const T & value, const T & other)
   return value == other;
 }
 
+enum SerializationMode
+{
+  TXT = 1,
+  XML = 2,
+  BIN = 4,
+  STREAM = 8
+};
+
 template<typename T>
-void test_serialization(const T & value, T & other_value)
+void test_serialization(const T & value, T & other_value,
+                        const int mode = TXT | XML | BIN | STREAM)
 {
   const std::string tmp_dir(boost::archive::tmpdir());
   const std::string txt_filename = tmp_dir + "file.txt";
   const std::string bin_filename = tmp_dir + "file.bin";
 
   // TXT
+  if(mode & 0x1)
   {
-    std::ofstream ofs(txt_filename.c_str());
-  
-    boost::archive::text_oarchive oa(ofs);
-    oa << value;
+    {
+      std::ofstream ofs(txt_filename.c_str());
+      
+      boost::archive::text_oarchive oa(ofs);
+      oa << value;
+    }
+    BOOST_CHECK(check(value,value));
+    
+    {
+      std::ifstream ifs(txt_filename.c_str());
+      boost::archive::text_iarchive ia(ifs);
+      
+      ia >> other_value;
+    }
+    BOOST_CHECK(check(value,other_value));
   }
-  BOOST_CHECK(check(value,value));
-  
-  {
-    std::ifstream ifs(txt_filename.c_str());
-    boost::archive::text_iarchive ia(ifs);
-
-    ia >> other_value;
-  }
-  BOOST_CHECK(check(value,other_value));
   
   // BIN
+  if(mode & 0x4)
   {
-    std::ofstream ofs(bin_filename.c_str(), std::ios::binary);
-    boost::archive::binary_oarchive oa(ofs);
-    oa << value;
+    {
+      std::ofstream ofs(bin_filename.c_str(), std::ios::binary);
+      boost::archive::binary_oarchive oa(ofs);
+      oa << value;
+    }
+    BOOST_CHECK(check(value,value));
+    
+    {
+      std::ifstream ifs(bin_filename.c_str(), std::ios::binary);
+      boost::archive::binary_iarchive ia(ifs);
+      
+      ia >> other_value;
+    }
+    BOOST_CHECK(check(value,other_value));
   }
-  BOOST_CHECK(check(value,value));
   
+  // Stream Buffer
+  if(mode & 0x8)
   {
-    std::ifstream ifs(bin_filename.c_str(), std::ios::binary);
-    boost::archive::binary_iarchive ia(ifs);
-
-    ia >> other_value;
+    boost::asio::streambuf buffer;
+    saveToBinary(value,buffer);
+    BOOST_CHECK(check(value,value));
+    
+    loadFromBinary(other_value,buffer);
+    BOOST_CHECK(check(value,other_value));
   }
-  BOOST_CHECK(check(value,other_value));
 }
 
 template<typename T>
-void test_serialization(const T & value)
+void test_serialization(const T & value,
+                        const int mode = TXT | XML | BIN | STREAM)
 {
   T other_value;
-  test_serialization(value,other_value);
+  test_serialization(value,other_value,mode);
 }
 
 BOOST_AUTO_TEST_CASE(test_aabb)
@@ -175,7 +220,7 @@ BOOST_AUTO_TEST_CASE(test_BVHModel)
     CollisionGeometry & m1_copy_cg = static_cast<CollisionGeometry &>(m1);
     test_serialization(m1_cg,m1_copy_cg);
   }
-  
+
   // Test BVHModelBase
   {
     BVHModelBase & m1_base = static_cast<BVHModelBase &>(m1);
@@ -183,10 +228,14 @@ BOOST_AUTO_TEST_CASE(test_BVHModel)
     BVHModelBase & m1_copy_base = static_cast<BVHModelBase &>(m1);
     test_serialization(m1_base,m1_copy_base);
   }
-  
+
   // Test BVHModel
   {
     BVHModel<OBBRSS> m1_copy;
     test_serialization(m1,m1_copy);
+  }
+  {
+    BVHModel<OBBRSS> m1_copy;
+    test_serialization(m1,m1_copy,STREAM);
   }
 }
