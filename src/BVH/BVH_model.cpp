@@ -810,7 +810,7 @@ bool BVHModel<BV>::allocateBVs()
 }
 
 template<typename BV>
-int BVHModel<BV>::memUsage(int msg) const
+int BVHModel<BV>::memUsage(const bool msg) const
 {
   int mem_bv_list = (int)sizeof(BV) * num_bvs;
   int mem_tri_list = (int)sizeof(Triangle) * num_tris;

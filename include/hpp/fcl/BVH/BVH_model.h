@@ -199,7 +199,7 @@ public:
   ///          (think of a U with 4 vertices and 3 edges).
   bool buildConvexHull(bool keepTriangle, const char* qhullCommand = NULL);
 
-  virtual int memUsage(int msg) const = 0;
+  virtual int memUsage(const bool msg = false) const = 0;
 
   /// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
   /// BV node. When traversing the BVH, this can save one matrix transformation.
@@ -391,7 +391,7 @@ public:
   NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
 
   /// @brief Check the number of memory used
-  int memUsage(int msg) const;
+  int memUsage(const bool msg) const;
 
   /// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
   /// BV node. When traversing the BVH, this can save one matrix transformation.
