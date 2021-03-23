@@ -321,31 +321,31 @@ public:
       }
     }
     
-    int num_primitives = 0;
-    if(primitive_indices)
-    {
-      
-      switch(other.getModelType())
-      {
-        case BVH_MODEL_TRIANGLES:
-          num_primitives = num_tris;
-          break;
-        case BVH_MODEL_POINTCLOUD:
-          num_primitives = num_vertices;
-          break;
-        default:
-          ;
-      }
-    }
-    
-    if(num_primitives != other_num_primitives)
-      return false;
-    
-    for(int k = 0; k < num_primitives; ++k)
-    {
-      if(primitive_indices[k] != other.primitive_indices[k])
-        return false;
-    }
+//    int num_primitives = 0;
+//    if(primitive_indices)
+//    {
+//
+//      switch(other.getModelType())
+//      {
+//        case BVH_MODEL_TRIANGLES:
+//          num_primitives = num_tris;
+//          break;
+//        case BVH_MODEL_POINTCLOUD:
+//          num_primitives = num_vertices;
+//          break;
+//        default:
+//          ;
+//      }
+//    }
+//
+//    if(num_primitives != other_num_primitives)
+//      return false;
+//
+//    for(int k = 0; k < num_primitives; ++k)
+//    {
+//      if(primitive_indices[k] != other.primitive_indices[k])
+//        return false;
+//    }
     
     if(num_bvs != other.num_bvs)
       return false;
