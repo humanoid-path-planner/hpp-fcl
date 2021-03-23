@@ -93,13 +93,16 @@ struct BVHModelBaseWrapper
 template <typename BV>
 void exposeBVHModel (const std::string& bvname)
 {
-  typedef BVHModel<BV> BVHModel_t;
+  typedef BVHModel<BV> BVH;
 
-  std::string type = "BVHModel" + bvname;
-  class_ <BVHModel_t, bases<BVHModelBase>, shared_ptr<BVHModel_t> >
-    (type.c_str(), doxygen::class_doc<BVHModel_t>(), no_init)
-    .def (dv::init<BVHModel_t>())
-    .def (dv::init<BVHModel_t, BVHModel_t>())
+  const std::string type_name = "BVHModel" + bvname;
+  class_ <BVH, bases<BVHModelBase>, shared_ptr<BVH> >
+    (type_name.c_str(), doxygen::class_doc<BVH>(), no_init)
+    .def (dv::init<BVH>())
+    .def (dv::init<BVH, BVH>())
+    .DEF_CLASS_FUNC(BVH,getNumBVs)
+    .DEF_CLASS_FUNC(BVH,makeParentRelative)
+    .DEF_CLASS_FUNC(BVH,memUsage)
     ;
 }
 
