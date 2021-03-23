@@ -34,13 +34,14 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/array.hpp>
 
-#ifndef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
 
 namespace boost
 {
   namespace serialization
   {
     
+#ifndef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
+  
     template <class Archive, typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
     void save(Archive & ar, const Eigen::Matrix<_Scalar,_Rows,_Cols,_Options,_MaxRows,_MaxCols> & m, const unsigned int /*version*/)
     {
@@ -69,10 +70,38 @@ namespace boost
     {
       split_free(ar,m,version);
     }
-
+  
+    template <class Archive, typename PlainObjectBase, int MapOptions, typename StrideType>
+    void save(Archive & ar, const Eigen::Map<PlainObjectBase,MapOptions,StrideType> & m, const unsigned int /*version*/)
+    {
+      Eigen::DenseIndex rows(m.rows()), cols(m.cols());
+      if (PlainObjectBase::RowsAtCompileTime == Eigen::Dynamic)
+        ar & BOOST_SERIALIZATION_NVP(rows);
+      if (PlainObjectBase::ColsAtCompileTime == Eigen::Dynamic)
+        ar & BOOST_SERIALIZATION_NVP(cols);
+      ar & make_nvp("data",make_array(m.data(), (size_t)m.size()));
+    }
+  
+    template <class Archive, typename PlainObjectBase, int MapOptions, typename StrideType>
+    void load(Archive & ar, Eigen::Map<PlainObjectBase,MapOptions,StrideType> & m, const unsigned int /*version*/)
+    {
+      Eigen::DenseIndex rows = PlainObjectBase::RowsAtCompileTime, cols = PlainObjectBase::ColsAtCompileTime;
+      if (PlainObjectBase::RowsAtCompileTime == Eigen::Dynamic)
+        ar >> BOOST_SERIALIZATION_NVP(rows);
+      if (PlainObjectBase::ColsAtCompileTime == Eigen::Dynamic)
+        ar >> BOOST_SERIALIZATION_NVP(cols);
+      m.resize(rows,cols);
+      ar >> make_nvp("data",make_array(m.data(), (size_t)m.size()));
+    }
+  
+    template <class Archive, typename PlainObjectBase, int MapOptions, typename StrideType>
+    void serialize(Archive & ar, Eigen::Map<PlainObjectBase,MapOptions,StrideType> & m, const unsigned int version)
+    {
+      split_free(ar,m,version);
+    }
+  
+#endif // ifned HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
   }
 }
-
-#endif // ifned HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
 
 #endif // ifndef HPP_FCL_SERIALIZATION_EIGEN_H
