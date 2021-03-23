@@ -67,6 +67,7 @@ typedef double FCL_REAL;
 typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
 typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3> Matrixx3f;
+typedef Eigen::Matrix<Eigen::DenseIndex, Eigen::Dynamic, 3> Matrixx3i;
 typedef Eigen::Vector2i support_func_guess_t;
 
 /// @brief Triangle with 3 indices for points
