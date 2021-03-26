@@ -77,6 +77,7 @@ void exposeCollisionAPI ()
       .value ("CONTACT", CONTACT)
       .value ("DISTANCE_LOWER_BOUND", DISTANCE_LOWER_BOUND)
       .value ("NO_REQUEST", NO_REQUEST)
+      .export_values()
       ;
   }
 
@@ -160,7 +161,10 @@ void exposeCollisionAPI ()
       .DEF_CLASS_FUNC (CollisionResult, addContact)
       .DEF_CLASS_FUNC (CollisionResult, clear)
       .DEF_CLASS_FUNC2 (CollisionResult, getContact , return_value_policy<copy_const_reference>())
-      .DEF_CLASS_FUNC2 (CollisionResult, getContacts, return_internal_reference<>())
+      .def(dv::member_func("getContacts",static_cast<void (CollisionResult::*)(std::vector<Contact> &) const>(&CollisionResult::getContacts)))
+      .def("getContacts",static_cast<const std::vector<Contact> & (CollisionResult::*)() const>(&CollisionResult::getContacts),
+           doxygen::member_func_doc(static_cast<const std::vector<Contact> & (CollisionResult::*)() const>(&CollisionResult::getContacts)),
+           return_internal_reference<>())
 
       .DEF_RW_CLASS_ATTRIB(CollisionResult, distance_lower_bound)
       ;

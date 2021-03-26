@@ -78,7 +78,7 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
   OBJECT_TYPE object_type2 = o2->getObjectType();
   NODE_TYPE node_type2 = o2->getNodeType();
 
-  FCL_REAL res = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL res = (std::numeric_limits<FCL_REAL>::max)();
 
   if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
   {

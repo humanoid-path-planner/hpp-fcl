@@ -111,7 +111,7 @@ inline void getDistances<9>(const Vec3f& p, FCL_REAL* d)
 template<short N>
 KDOP<N>::KDOP()
 {
-  FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL real_max = (std::numeric_limits<FCL_REAL>::max)();
   dist_.template head<N/2>().setConstant( real_max);
   dist_.template tail<N/2>().setConstant(-real_max);
 }

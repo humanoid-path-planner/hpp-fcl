@@ -93,13 +93,16 @@ struct BVHModelBaseWrapper
 template <typename BV>
 void exposeBVHModel (const std::string& bvname)
 {
-  typedef BVHModel<BV> BVHModel_t;
+  typedef BVHModel<BV> BVH;
 
-  std::string type = "BVHModel" + bvname;
-  class_ <BVHModel_t, bases<BVHModelBase>, shared_ptr<BVHModel_t> >
-    (type.c_str(), doxygen::class_doc<BVHModel_t>(), no_init)
-    .def (dv::init<BVHModel_t>())
-    .def (dv::init<BVHModel_t, BVHModel_t>())
+  const std::string type_name = "BVHModel" + bvname;
+  class_ <BVH, bases<BVHModelBase>, shared_ptr<BVH> >
+    (type_name.c_str(), doxygen::class_doc<BVH>(), no_init)
+    .def (dv::init<BVH>())
+    .def (dv::init<BVH, BVH>())
+    .DEF_CLASS_FUNC(BVH,getNumBVs)
+    .DEF_CLASS_FUNC(BVH,makeParentRelative)
+    .DEF_CLASS_FUNC(BVH,memUsage)
     ;
 }
 
@@ -253,6 +256,17 @@ void exposeCollisionGeometries ()
     .value ("BVH_MODEL_UNKNOWN"    , BVH_MODEL_UNKNOWN)
     .value ("BVH_MODEL_TRIANGLES"  , BVH_MODEL_TRIANGLES)
     .value ("BVH_MODEL_POINTCLOUD" , BVH_MODEL_POINTCLOUD)
+    .export_values()
+  ;
+  
+  enum_<BVHBuildState>("BVHBuildState")
+  .value("BVH_BUILD_STATE_EMPTY",BVH_BUILD_STATE_EMPTY)
+  .value("BVH_BUILD_STATE_BEGUN",BVH_BUILD_STATE_BEGUN)
+  .value("BVH_BUILD_STATE_PROCESSED",BVH_BUILD_STATE_PROCESSED)
+  .value("BVH_BUILD_STATE_UPDATE_BEGUN",BVH_BUILD_STATE_UPDATE_BEGUN)
+  .value("BVH_BUILD_STATE_UPDATED",BVH_BUILD_STATE_UPDATED)
+  .value("BVH_BUILD_STATE_REPLACE_BEGUN",BVH_BUILD_STATE_REPLACE_BEGUN)
+  .export_values()
   ;
   
   if(!eigenpy::register_symbolic_link_to_registered_type<OBJECT_TYPE>())
@@ -262,6 +276,7 @@ void exposeCollisionGeometries ()
       .value ("OT_BVH"    , OT_BVH)
       .value ("OT_GEOM"   , OT_GEOM)
       .value ("OT_OCTREE" , OT_OCTREE)
+      .export_values()
       ;
   }
   
@@ -287,6 +302,7 @@ void exposeCollisionGeometries ()
       .value ("GEOM_HALFSPACE", GEOM_HALFSPACE)
       .value ("GEOM_TRIANGLE" , GEOM_TRIANGLE)
       .value ("GEOM_OCTREE"   , GEOM_OCTREE)
+      .export_values()
       ;
   }
   
@@ -398,6 +414,7 @@ void exposeCollisionGeometries ()
           bp::args("self","index"),"Retrieve the triangle given by its index.")
     .def_readonly ("num_vertices", &BVHModelBase::num_vertices)
     .def_readonly ("num_tris", &BVHModelBase::num_tris)
+    .def_readonly ("build_state", &BVHModelBase::build_state)
 
     .def_readonly ("convex", &BVHModelBase::convex)
 
@@ -409,6 +426,7 @@ void exposeCollisionGeometries ()
     .def(dv::member_func("addVertex", &BVHModelBase::addVertex))
     .def(dv::member_func("addVertices", &BVHModelBase::addVertices))
     .def(dv::member_func("addTriangle", &BVHModelBase::addTriangle))
+    .def(dv::member_func("addTriangles", &BVHModelBase::addTriangles))
     .def(dv::member_func<int (BVHModelBase::*)(const Vec3fs&, const Triangles&)>("addSubModel", &BVHModelBase::addSubModel))
     .def(dv::member_func<int (BVHModelBase::*)(const Vec3fs&                  )>("addSubModel", &BVHModelBase::addSubModel))
     .def(dv::member_func("endModel", &BVHModelBase::endModel))

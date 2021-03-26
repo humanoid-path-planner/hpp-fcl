@@ -107,7 +107,7 @@ public:
     type = BVH_MODEL_UNKNOWN;
   }
 
-private:
+protected:
 
   /// @brief The axis based on which the split decision is made. For most BV, the axis is aligned with one of the world coordinate, so only split_axis is needed.
   /// For oriented node, we can use a vector to make a better split decision.
@@ -189,7 +189,7 @@ private:
       axis = 1;
 
     split_axis = axis;
-    std::vector<FCL_REAL> proj(num_primitives);
+    std::vector<FCL_REAL> proj((size_t)num_primitives);
 
     if(type == BVH_MODEL_TRIANGLES)
     {

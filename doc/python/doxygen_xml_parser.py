@@ -650,7 +650,11 @@ class OutputStreams(object):
             self._out = self._created_files[name]
         else:
             import codecs
-            self._out = codecs.open(fullname, mode='w', encoding="utf-8")
+            if sys.version_info >= (3,):
+              encoding = 'utf-8'
+            else:
+              encoding = 'latin1'
+            self._out = codecs.open(fullname, mode='w', encoding=encoding)
             self._created_files[name] = self._out
 
             # Header
@@ -677,7 +681,7 @@ class OutputStreams(object):
         if sys.version_info >= (3,):
             print (*args, file=self._out)
         else:
-            print(' '.join(str(arg) for arg in args).encode('utf-8'), file=self._out)
+            print(' '.join(str(arg) for arg in args).decode("latin1"), file=self._out)
     def warn(self, *args):
         print (self.errorPrefix, *args, file=self._warn)
     def err(self, *args):

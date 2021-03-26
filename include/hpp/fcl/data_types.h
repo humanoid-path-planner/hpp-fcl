@@ -67,6 +67,7 @@ typedef double FCL_REAL;
 typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
 typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3> Matrixx3f;
+typedef Eigen::Matrix<Eigen::DenseIndex, Eigen::Dynamic, 3> Matrixx3i;
 typedef Eigen::Vector2i support_func_guess_t;
 
 /// @brief Triangle with 3 indices for points
@@ -98,11 +99,16 @@ public:
 
   static inline size_type size() { return 3; }
 
-  bool operator== (const Triangle& other) const
+  bool operator==(const Triangle& other) const
   {
     return vids[0] == other.vids[0]
       &&   vids[1] == other.vids[1]
       &&   vids[2] == other.vids[2];
+  }
+  
+  bool operator!=(const Triangle& other) const
+  {
+    return !(*this == other);
   }
 
 private:

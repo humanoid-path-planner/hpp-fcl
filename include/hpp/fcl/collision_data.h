@@ -47,7 +47,6 @@
 #include <hpp/fcl/config.hh>
 #include <hpp/fcl/data_types.h>
 
-
 namespace hpp
 {
 namespace fcl
@@ -68,7 +67,6 @@ struct HPP_FCL_DLLAPI Contact
   /// if object 1 is octree, it is the id of the cell
   int b1;
 
-
   /// @brief contact primitive in object 2
   /// if object 2 is mesh or point cloud, it is the triangle or point id
   /// if object 2 is geometry shape, it is NONE (-1),
@@ -84,7 +82,6 @@ struct HPP_FCL_DLLAPI Contact
   /// @brief penetration depth
   FCL_REAL penetration_depth;
 
- 
   /// @brief invalid contact primitive information
   static const int NONE = -1;
 
@@ -120,12 +117,12 @@ struct HPP_FCL_DLLAPI Contact
   bool operator == (const Contact& other) const
   {
     return o1 == other.o1
-            && o2 == other.o2
-            && b1 == other.b1
-            && b2 == other.b2
-            && normal == other.normal
-            && pos == other.pos
-            && penetration_depth == other.penetration_depth;
+      && o2 == other.o2
+      && b1 == other.b1
+      && b2 == other.b2
+      && normal == other.normal
+      && pos == other.pos
+      && penetration_depth == other.penetration_depth;
   }
   
   bool operator != (const Contact& other) const
@@ -173,6 +170,11 @@ struct HPP_FCL_DLLAPI QueryResult
 
   /// @brief stores the last support function vertex index, when relevant.
   support_func_guess_t cached_support_func_guess;
+  
+  QueryResult()
+  : cached_gjk_guess(Vec3f::Zero())
+  , cached_support_func_guess(support_func_guess_t::Constant(-1))
+  {}
 };
 
 inline void QueryRequest::updateGuess(const QueryResult& result)
@@ -282,7 +284,7 @@ public:
   inline bool operator ==(const CollisionResult& other) const
   {
     return contacts == other.contacts 
-            && distance_lower_bound == other.distance_lower_bound;
+      && distance_lower_bound == other.distance_lower_bound;
   }
 
   /// @brief return binary collision result
@@ -315,12 +317,18 @@ public:
     contacts_.resize(contacts.size());
     std::copy(contacts.begin(), contacts.end(), contacts_.begin());
   }
+  
+  const std::vector<Contact> & getContacts() const
+  {
+    return contacts;
+  }
 
   /// @brief clear the results obtained
   void clear()
   {
     distance_lower_bound = (std::numeric_limits<FCL_REAL>::max)();
     contacts.clear();
+    distance_lower_bound = (std::numeric_limits<FCL_REAL>::max)();
   }
 
   /// @brief reposition Contact objects when fcl inverts them
@@ -404,7 +412,7 @@ public:
                  (std::numeric_limits<FCL_REAL>::max)()):
   min_distance(min_distance_), o1(NULL), o2(NULL), b1(NONE), b2(NONE)
   {
-    Vec3f nan (Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
+    const Vec3f nan (Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
     nearest_points [0] = nearest_points [1] = normal = nan;
   }
 
@@ -459,23 +467,26 @@ public:
   /// @brief clear the result
   void clear()
   {
+    const Vec3f nan (Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
     min_distance = (std::numeric_limits<FCL_REAL>::max)();
     o1 = NULL;
     o2 = NULL;
     b1 = NONE;
     b2 = NONE;
+    nearest_points [0] = nearest_points [1] = normal = nan;
   }
 
   /// @brief whether two DistanceResult are the same or not
   inline bool operator ==(const DistanceResult& other) const
   {
     bool is_same = min_distance == other.min_distance
-                  && nearest_points[0] == other.nearest_points[0]
-                  && nearest_points[1] == other.nearest_points[1]
-                  && o1 == other.o1
-                  && o2 == other.o2
-                  && b1 == other.b1
-                  && b2 == other.b2;
+      && nearest_points[0] == other.nearest_points[0]
+      && nearest_points[1] == other.nearest_points[1]
+      && normal == other.normal
+      && o1 == other.o1
+      && o2 == other.o2
+      && b1 == other.b1
+      && b2 == other.b2;
 
 // TODO: check also that two GeometryObject are indeed equal.
     if ((o1 != NULL) ^ (other.o1 != NULL)) return false;

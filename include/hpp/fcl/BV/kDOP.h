@@ -88,7 +88,7 @@ struct CollisionRequest;
 template<short N>
 class HPP_FCL_DLLAPI KDOP
 {
-private:
+protected:
   /// @brief Origin's distances to N KDOP planes
   Eigen::Array<FCL_REAL, N, 1> dist_;
 
@@ -102,6 +102,18 @@ public:
 
   /// @brief Creating kDOP containing two points
   KDOP(const Vec3f& a, const Vec3f& b);
+  
+  /// @brief Equality operator
+  bool operator==(const KDOP & other) const
+  {
+    return (dist_ == other.dist_).all();
+  }
+ 
+  /// @brief Difference operator
+  bool operator!=(const KDOP & other) const
+  {
+    return (dist_ != other.dist_).any();
+  }
   
   /// @brief Check whether two KDOPs overlap.
   bool overlap(const KDOP<N>& other) const;

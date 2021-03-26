@@ -885,7 +885,7 @@ namespace fcl {
       const Matrix3f* normalR = 0;
       FCL_REAL tmp = 0;
 
-      s = - std::numeric_limits<FCL_REAL>::max();
+      s = - (std::numeric_limits<FCL_REAL>::max)();
       invert_normal = 0;
       code = 0;
 
@@ -1747,7 +1747,7 @@ namespace fcl {
       Halfspace new_s2 = transform(s2, tf2);
 
       Vec3f v;
-      FCL_REAL depth = std::numeric_limits<FCL_REAL>::max();
+      FCL_REAL depth = (std::numeric_limits<FCL_REAL>::max)();
 
       for(int i = 0; i < s1.num_points; ++i)
         {
@@ -1838,7 +1838,7 @@ namespace fcl {
 
       ret = 0;
 
-      penetration_depth = std::numeric_limits<FCL_REAL>::max();
+      penetration_depth = (std::numeric_limits<FCL_REAL>::max)();
       Vec3f dir = (new_s1.n).cross(new_s2.n);
       FCL_REAL dir_norm = dir.squaredNorm();
       if(dir_norm < std::numeric_limits<FCL_REAL>::epsilon()) // parallel
@@ -1899,7 +1899,7 @@ namespace fcl {
 
       ret = 0;
 
-      penetration_depth = std::numeric_limits<FCL_REAL>::max();
+      penetration_depth = (std::numeric_limits<FCL_REAL>::max)();
       Vec3f dir = (new_s1.n).cross(new_s2.n);
       FCL_REAL dir_norm = dir.squaredNorm();
       if(dir_norm < std::numeric_limits<FCL_REAL>::epsilon()) // parallel
@@ -2122,7 +2122,7 @@ namespace fcl {
       bool outside = false;
       const Vec3f os_in_b_frame (Rb.transpose() * (os - ob));
       int axis = -1;
-      FCL_REAL min_d = std::numeric_limits<FCL_REAL>::max();
+      FCL_REAL min_d = (std::numeric_limits<FCL_REAL>::max)();
       for (int i = 0; i < 3; ++i) {
         FCL_REAL facedist;
         if        (os_in_b_frame(i) < - b.halfSide(i)) { // outside
@@ -2464,7 +2464,7 @@ namespace fcl {
       Plane new_s2 = transform(s2, tf2);
 
       Vec3f v_min, v_max;
-      FCL_REAL d_min = std::numeric_limits<FCL_REAL>::max(), d_max = -std::numeric_limits<FCL_REAL>::max();
+      FCL_REAL d_min = (std::numeric_limits<FCL_REAL>::max)(), d_max = -(std::numeric_limits<FCL_REAL>::max)();
 
       for(int i = 0; i < s1.num_points; ++i)
         {

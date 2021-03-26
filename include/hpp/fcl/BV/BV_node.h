@@ -68,6 +68,28 @@ struct HPP_FCL_DLLAPI BVNodeBase
 
   /// @brief The number of primitives belonging to the current node 
   int num_primitives;
+  
+  /// @brief Default constructor
+  BVNodeBase()
+  : first_child(0)
+  , first_primitive(-1)
+  , num_primitives(-1)
+  {}
+  
+  /// @brief Equality operator
+  bool operator==(const BVNodeBase & other) const
+  {
+    return
+       first_child == other.first_child
+    && first_primitive == other.first_primitive
+    && num_primitives == other.num_primitives;
+  }
+  
+  /// @brief Difference operator
+  bool operator!=(const BVNodeBase & other) const
+  {
+    return !(*this == other);
+  }
 
   /// @brief Whether current node is a leaf node (i.e. contains a primitive index
   inline bool isLeaf() const { return first_child < 0; }
@@ -86,8 +108,22 @@ struct HPP_FCL_DLLAPI BVNodeBase
 template<typename BV>
 struct HPP_FCL_DLLAPI BVNode : public BVNodeBase
 {
+  typedef BVNodeBase Base;
+  
   /// @brief bounding volume storing the geometry
   BV bv;
+  
+  /// @brief Equality operator
+  bool operator==(const BVNode & other) const
+  {
+    return Base::operator==(other) && bv == other.bv;
+  }
+  
+  /// @brief Difference operator
+  bool operator!=(const BVNode & other) const
+  {
+    return !(*this == other);
+  }
 
   /// @brief Check whether two BVNode collide
   bool overlap(const BVNode& other) const

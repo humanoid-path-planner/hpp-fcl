@@ -128,7 +128,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, int num_points,
   unsigned int* p_nneighbors = convex->nneighbors_;
   for (int i = 0; i < nvertex; ++i) {
     Neighbors& n = convex->neighbors[i];
-    if (nneighbors[i].size() >= std::numeric_limits<unsigned char>::max())
+    if (nneighbors[i].size() >= (std::numeric_limits<unsigned char>::max)())
       throw std::logic_error ("Too many neighbors.");
     n.count_ = (unsigned char)nneighbors[i].size();
     n.n_     = p_nneighbors;

@@ -85,6 +85,12 @@ public:
                                                          max_(a.cwiseMax(b).cwiseMax(c))
   {
   }
+  
+  /// @brief Comparison operator
+  bool operator==(const AABB & other) const
+  {
+    return min_ == other.min_ && max_ == other.max_;
+  }
 
   /// @name Bounding volume API
   /// Common API to BVs.
@@ -234,10 +240,10 @@ static inline AABB rotate(const AABB& aabb, const Matrix3f& R)
 {
   AABB res (R * aabb.min_);
   Vec3f corner (aabb.min_);
-  const std::size_t bit[3] = { 1, 2, 4 };
-  for (std::size_t ic = 1; ic < 8; ++ic) { // ic = 0 corresponds to aabb.min_. Skip it.
-    for (std::size_t i = 0; i < 3; ++i) {
-      corner[i] = (ic && bit[i]) ? aabb.max_[i] : aabb.min_[i];
+  const Eigen::DenseIndex bit[3] = { 1, 2, 4 };
+  for (Eigen::DenseIndex ic = 1; ic < 8; ++ic) { // ic = 0 corresponds to aabb.min_. Skip it.
+    for (Eigen::DenseIndex i = 0; i < 3; ++i) {
+      corner[i] = (ic & bit[i]) ? aabb.max_[i] : aabb.min_[i];
     }
     res += R * corner;
   }

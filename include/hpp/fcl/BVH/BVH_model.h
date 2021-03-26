@@ -59,9 +59,11 @@ template <typename BV> class BVFitter;
 template <typename BV> class BVSplitter;
 
 /// @brief A base class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
-class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry
+class HPP_FCL_DLLAPI BVHModelBase
+: public CollisionGeometry
 {
 public:
+
   /// @brief Geometry point data
   Vec3f* vertices;
 
@@ -95,17 +97,7 @@ public:
   }
 
   /// @brief Constructing an empty BVH
-  BVHModelBase() : vertices(NULL),
-                   tri_indices(NULL),
-                   prev_vertices(NULL),
-                   num_tris(0),
-                   num_vertices(0),
-                   build_state(BVH_BUILD_STATE_EMPTY),
-                   num_tris_allocated(0),
-                   num_vertices_allocated(0),
-                   num_vertex_updated(0)
-  {
-  }
+  BVHModelBase();
 
   /// @brief copy from another BVH
   BVHModelBase(const BVHModelBase& other);
@@ -116,6 +108,15 @@ public:
     delete [] vertices;
     delete [] tri_indices;
     delete [] prev_vertices;
+  }
+  
+  /// \brief Comparison operators
+  bool operator==(const BVHModelBase & other) const;
+  
+  /// \brief Difference operator
+  bool operator!=(const BVHModelBase & other) const
+  {
+    return !(*this == other);
   }
 
   /// @brief Get the object type: it is a BVH
@@ -132,6 +133,9 @@ public:
   
   /// @brief Add points in the new BVH model
   int addVertices(const Matrixx3f & points);
+  
+  /// @brief Add triangles in the new BVH model
+  int addTriangles(const Matrixx3i & triangles);
 
   /// @brief Add one triangle in the new BVH model
   int addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);
@@ -195,7 +199,7 @@ public:
   ///          (think of a U with 4 vertices and 3 edges).
   bool buildConvexHull(bool keepTriangle, const char* qhullCommand = NULL);
 
-  virtual int memUsage(int msg) const = 0;
+  virtual int memUsage(const bool msg = false) const = 0;
 
   /// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
   /// BV node. When traversing the BVH, this can save one matrix transformation.
@@ -269,9 +273,10 @@ protected:
 /// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
 /// \tparam BV one of the bounding volume class in \ref Bounding_Volume.
 template<typename BV>
-class HPP_FCL_DLLAPI BVHModel : public BVHModelBase
+class HPP_FCL_DLLAPI BVHModel
+: public BVHModelBase
 {
-
+  typedef BVHModelBase Base;
 public:
   /// @brief Split rule to split one BV node into two children
   shared_ptr<BVSplitter<BV> > bv_splitter;
@@ -290,6 +295,74 @@ public:
   {
     delete [] bvs;
     delete [] primitive_indices;
+  }
+  
+  /// @brief Equality operator
+  bool operator==(const BVHModel & other) const
+  {
+    bool res = Base::operator==(other);
+    if(!res)
+      return false;
+    
+    int other_num_primitives = 0;
+    if(other.primitive_indices)
+    {
+      
+      switch(other.getModelType())
+      {
+        case BVH_MODEL_TRIANGLES:
+          other_num_primitives = num_tris;
+          break;
+        case BVH_MODEL_POINTCLOUD:
+          other_num_primitives = num_vertices;
+          break;
+        default:
+          ;
+      }
+    }
+    
+//    int num_primitives = 0;
+//    if(primitive_indices)
+//    {
+//
+//      switch(other.getModelType())
+//      {
+//        case BVH_MODEL_TRIANGLES:
+//          num_primitives = num_tris;
+//          break;
+//        case BVH_MODEL_POINTCLOUD:
+//          num_primitives = num_vertices;
+//          break;
+//        default:
+//          ;
+//      }
+//    }
+//
+//    if(num_primitives != other_num_primitives)
+//      return false;
+//
+//    for(int k = 0; k < num_primitives; ++k)
+//    {
+//      if(primitive_indices[k] != other.primitive_indices[k])
+//        return false;
+//    }
+    
+    if(num_bvs != other.num_bvs)
+      return false;
+    
+    for(int k = 0; k < num_bvs; ++k)
+    {
+      if(bvs[k] != other.bvs[k])
+        return false;
+    }
+    
+    return true;
+  }
+  
+  /// @brief Difference operator
+  bool operator!=(const BVHModel & other) const
+  {
+    return !(*this == other);
   }
 
   /// @brief We provide getBV() and getNumBVs() because BVH may be compressed (in future), so we must provide some flexibility here
@@ -318,7 +391,7 @@ public:
   NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
 
   /// @brief Check the number of memory used
-  int memUsage(int msg) const;
+  int memUsage(const bool msg) const;
 
   /// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
   /// BV node. When traversing the BVH, this can save one matrix transformation.
@@ -328,7 +401,7 @@ public:
     makeParentRelativeRecurse(0, I, Vec3f());
   }
 
-private:
+protected:
   void deleteBVs();
   bool allocateBVs();
 

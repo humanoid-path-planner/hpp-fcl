@@ -51,10 +51,9 @@ struct CollisionRequest;
 /// @{
 
 /// @brief Oriented bounding box class
-class HPP_FCL_DLLAPI OBB
+struct HPP_FCL_DLLAPI OBB
 {
-public:
-  /// @brief Orientation of OBB. axis[i] is the ith column of the orientation matrix for the box; it is also the i-th principle direction of the box. 
+  /// @brief Orientation of OBB. axis[i] is the ith column of the orientation matrix for the box; it is also the i-th principle direction of the box.
   /// We assume that axis[0] corresponds to the axis with the longest box edge, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
   Matrix3f axes;
 
@@ -63,6 +62,27 @@ public:
   
   /// @brief Half dimensions of OBB
   Vec3f extent;
+  
+  OBB()
+  : axes(Matrix3f::Zero())
+  , To(Vec3f::Zero())
+  , extent(Vec3f::Zero())
+  {}
+  
+  /// @brief Equality operator
+  bool operator==(const OBB & other) const
+  {
+    return
+       axes == other.axes
+    && To == other.To
+    && extent == other.extent;
+  }
+  
+  /// @brief Difference operator
+  bool operator!=(const OBB & other) const
+  {
+    return !(*this == other);
+  }
 
   /// @brief Check whether the OBB contains a point.
   bool contain(const Vec3f& p) const;

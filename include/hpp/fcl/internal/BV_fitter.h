@@ -124,6 +124,7 @@ protected:
 template<typename BV>
 class HPP_FCL_DLLAPI BVFitter : public BVFitterTpl<BV>
 {
+  typedef BVFitterTpl<BV> Base;
 public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
   /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data
@@ -165,10 +166,10 @@ public:
   }
 
 protected:
-  using BVFitterTpl<BV>::vertices;
-  using BVFitterTpl<BV>::prev_vertices;
-  using BVFitterTpl<BV>::tri_indices;
-  using BVFitterTpl<BV>::type;
+  using Base::vertices;
+  using Base::prev_vertices;
+  using Base::tri_indices;
+  using Base::type;
 };
 
 /// @brief Specification of BVFitter for OBB bounding volume
