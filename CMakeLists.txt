@@ -162,7 +162,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/fwd.hh
   include/hpp/fcl/mesh_loader/assimp.h
   include/hpp/fcl/mesh_loader/loader.h
-  include/hpp/fcl/internal/BV_fitter.h
   include/hpp/fcl/internal/BV_splitter.h
   include/hpp/fcl/internal/intersect.h
   include/hpp/fcl/internal/tools.h
