@@ -540,7 +540,7 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
-  FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL real_max = (std::numeric_limits<FCL_REAL>::max)();
 
   Vec3f min_coord (real_max, real_max, real_max);
   Vec3f max_coord (-real_max, -real_max, -real_max);
@@ -585,7 +585,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
-  FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL real_max = (std::numeric_limits<FCL_REAL>::max)();
 
   Vec3f min_coord (real_max, real_max, real_max);
   Vec3f max_coord (-real_max, -real_max, -real_max);

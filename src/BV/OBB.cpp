@@ -120,7 +120,7 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2)
 
 
   Vec3f vertex[8], diff;
-  FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL real_max = (std::numeric_limits<FCL_REAL>::max)();
   Vec3f pmin(real_max, real_max, real_max);
   Vec3f pmax(-real_max, -real_max, -real_max);
 

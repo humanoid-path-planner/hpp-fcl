@@ -470,7 +470,7 @@ void GJK::initialize()
 {
   nfree = 0;
   status = Failed;
-  distance_upper_bound = std::numeric_limits<FCL_REAL>::max();
+  distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
   simplex = NULL;
 }
 

@@ -62,7 +62,7 @@
 using namespace hpp::fcl;
 namespace utf = boost::unit_test::framework;
 
-int num_max_contacts = std::numeric_limits<int>::max();
+int num_max_contacts = (std::numeric_limits<int>::max)();
 
 BOOST_AUTO_TEST_CASE(OBB_Box_test)
 {
