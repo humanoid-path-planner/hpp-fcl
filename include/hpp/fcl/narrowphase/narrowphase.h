@@ -103,7 +103,7 @@ namespace fcl
             {
               epa.getClosestPoints (shape, w0, w1);
               distance_lower_bound = -epa.depth;
-              if(normal) *normal = tf1.getRotation() * epa.normal;
+              if(normal) (*normal).noalias() = tf1.getRotation() * epa.normal;
               if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               return true;
             }
@@ -179,7 +179,7 @@ namespace fcl
             {
               epa.getClosestPoints (shape, w0, w1);
               distance = -epa.depth;
-              normal = tf1.getRotation() * epa.normal;
+              normal.noalias() = tf1.getRotation() * epa.normal;
               p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               assert (distance <= 1e-6);
             } else {
@@ -251,7 +251,7 @@ namespace fcl
         distance = 0;
         p1 = tf1.transform (w0);
         p2 = tf1.transform (w1);
-        normal = Vec3f (0,0,0);
+        normal.setZero();
         return false;
       }
       else if(gjk_status == details::GJK::Valid)
@@ -262,7 +262,8 @@ namespace fcl
           // assert (distance == (w0 - w1).norm());
           distance = gjk.distance;
 
-          normal = (tf1.getRotation() * gjk.ray).normalized();
+          normal.noalias() = tf1.getRotation() * gjk.ray;
+          normal.normalize();
           p1 = tf1.transform (p1);
           p2 = tf1.transform (p2);
           return true;
@@ -276,7 +277,8 @@ namespace fcl
             // Return contact points in case of collision
             //p1 = tf1.transform (p1);
             //p2 = tf1.transform (p2);
-            normal = (tf1.getRotation() * (p1 - p2)).normalized();
+            normal.noalias() = tf1.getRotation() * (p1 - p2);
+            normal.normalize();
             p1 = tf1.transform(p1);
             p2 = tf1.transform(p2);
           } else {
@@ -292,7 +294,7 @@ namespace fcl
               epa.getClosestPoints (shape, w0, w1);
               assert (epa.depth >= -eps);
               distance = (std::min) (0., -epa.depth);
-              normal = tf1.getRotation() * epa.normal;
+              normal.noalias() = tf1.getRotation() * epa.normal;
               p1 = tf1.transform(w0);
               p2 = tf1.transform(w1);
               return false;
