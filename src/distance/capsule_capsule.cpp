@@ -1,6 +1,6 @@
 /*
  * Software License Agreement (BSD License)
- *  Copyright (c) 2015-2019, CNRS - LAAS INRIA
+ *  Copyright (c) 2015-2021, CNRS-LAAS INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -75,9 +75,9 @@ namespace fcl {
   // Match algorithm of Real-Time Collision Detection, Christer Ericson - Closest Point of Two Line Segments
   template <>
   FCL_REAL ShapeShapeDistance <Capsule, Capsule> (const CollisionGeometry* o1, const Transform3f& tf1,
-   const CollisionGeometry* o2, const Transform3f& tf2,
-   const GJKSolver*, const DistanceRequest& request,
-   DistanceResult& result)
+                                                  const CollisionGeometry* o2, const Transform3f& tf2,
+                                                  const GJKSolver*, const DistanceRequest& request,
+                                                  DistanceResult& result)
   {
     const Capsule* capsule1 = static_cast <const Capsule*> (o1);
     const Capsule* capsule2 = static_cast <const Capsule*> (o2);
@@ -125,7 +125,9 @@ namespace fcl {
       // Second segment is degenerated
       clamped_linear(w1, p1, -c, a, d1);
       w2 = p2;
-    } else {
+    }
+    else
+    {
       // Always non-negative, equal 0 if the segments are colinear
       FCL_REAL denom = fmax(a*e-b*b, 0);
 
@@ -161,18 +163,20 @@ namespace fcl {
 
     // witness points achieving the distance between the two segments
     FCL_REAL distance = (w1 - w2).norm();
-    Vec3f normal = (w1 - w2) / distance;
+    const Vec3f normal = (w1 - w2) / distance;
     result.normal = normal;
 
     // capsule spcecific distance computation
     distance = distance - (radius1 + radius2);
     result.min_distance = distance;
+    
     // witness points for the capsules
     if (request.enable_nearest_points)
     {
       result.nearest_points[0] = w1 - radius1 * normal;
       result.nearest_points[1] = w2 + radius2 * normal;
     }
+    
     return distance;
   }
 
