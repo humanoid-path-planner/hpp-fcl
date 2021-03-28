@@ -5,7 +5,8 @@
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
  *  Copyright (c) 2018-2019, Centre National de la Recherche Scientifique
  *  All rights reserved.
- *
+ *  Copyright (c) 2021, INRIA
+ *  All rights reserved.
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
  *  are met:
@@ -39,6 +40,8 @@
 #ifndef HPP_FCL_NARROWPHASE_H
 #define HPP_FCL_NARROWPHASE_H
 
+#include <limits>
+
 #include <hpp/fcl/narrowphase/gjk.h>
 
 namespace hpp
@@ -69,6 +72,10 @@ namespace fcl
       shape.set (&s1, &s2, tf1, tf2);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
+      
+      if(enable_early_stopping)
+        gjk.setDistanceEarlyBreak(distance_upper_bound);
+      
       details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
       if(enable_cached_guess) {
         cached_guess = gjk.getGuessFromSimplex();
@@ -143,6 +150,10 @@ namespace fcl
       shape.set (&s, &tri);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
+      
+      if(enable_early_stopping)
+        gjk.setDistanceEarlyBreak(distance_upper_bound);
+      
       details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
       if(enable_cached_guess) {
         cached_guess = gjk.getGuessFromSimplex();
@@ -221,6 +232,10 @@ namespace fcl
       shape.set (&s1, &s2, tf1, tf2);
 
       details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
+      
+      if(enable_early_stopping)
+        gjk.setDistanceEarlyBreak(distance_upper_bound);
+      
       details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
       if(enable_cached_guess) {
         cached_guess = gjk.getGuessFromSimplex();
@@ -303,6 +318,8 @@ namespace fcl
       enable_cached_guess = false;
       cached_guess = Vec3f(1, 0, 0);
       support_func_cached_guess = support_func_guess_t::Zero();
+      enable_early_stopping = false;
+      distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
     }
 
     void enableCachedGuess(bool if_enable) const
@@ -346,6 +363,14 @@ namespace fcl
 
     /// @brief smart guess for the support function
     mutable support_func_guess_t support_func_cached_guess;
+    
+    /// @brief Whether GJK solver makes an early stopping if it proves that the distance between two geometries
+    ///        is above a certain threshold
+    mutable bool enable_early_stopping;
+    
+    /// @brief Distance above which the GJK solver stoppes its computations. The two witness points are incorrect,
+    ///        but with the guaranty that the two shapes have a distance greather than distance_upper_bound.
+    mutable FCL_REAL distance_upper_bound;
   };
 
   template<>
