@@ -102,7 +102,7 @@ void exposeBVHModel (const std::string& bvname)
     .def (dv::init<BVH, BVH>())
     .DEF_CLASS_FUNC(BVH,getNumBVs)
     .DEF_CLASS_FUNC(BVH,makeParentRelative)
-    .DEF_CLASS_FUNC(BVH,memUsage)
+    .DEF_CLASS_FUNC(BVHModelBase,memUsage)
     ;
 }
 
