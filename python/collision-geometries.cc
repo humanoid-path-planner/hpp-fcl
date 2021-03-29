@@ -103,6 +103,9 @@ void exposeBVHModel (const std::string& bvname)
     .DEF_CLASS_FUNC(BVH,getNumBVs)
     .DEF_CLASS_FUNC(BVH,makeParentRelative)
     .DEF_CLASS_FUNC(BVHModelBase,memUsage)
+    .def ("clone", &BVH::clone,
+          doxygen::member_func_doc(&BVH::clone),
+          return_value_policy<manage_new_object>())
     ;
 }
 
@@ -166,6 +169,9 @@ void exposeShapes ()
     .def (dv::init<Box, FCL_REAL,FCL_REAL,FCL_REAL>())
     .def (dv::init<Box, const Vec3f&>())
     .DEF_RW_CLASS_ATTRIB(Box,halfSide)
+    .def ("clone", &Box::clone,
+        doxygen::member_func_doc(&Box::clone),
+        return_value_policy<manage_new_object>())
     ;
 
   class_ <Capsule, bases<ShapeBase>, shared_ptr<Capsule> >
@@ -173,6 +179,9 @@ void exposeShapes ()
     .def (dv::init<Capsule, FCL_REAL, FCL_REAL>())
     .DEF_RW_CLASS_ATTRIB (Capsule, radius)
     .DEF_RW_CLASS_ATTRIB (Capsule, halfLength)
+    .def ("clone", &Capsule::clone,
+      doxygen::member_func_doc(&Capsule::clone),
+      return_value_policy<manage_new_object>())
     ;
 
   class_ <Cone, bases<ShapeBase>, shared_ptr<Cone> >
@@ -180,6 +189,9 @@ void exposeShapes ()
     .def (dv::init<Cone, FCL_REAL, FCL_REAL>())
     .DEF_RW_CLASS_ATTRIB (Cone, radius)
     .DEF_RW_CLASS_ATTRIB (Cone, halfLength)
+    .def ("clone", &Cone::clone,
+      doxygen::member_func_doc(&Cone::clone),
+      return_value_policy<manage_new_object>())
     ;
 
   class_ <ConvexBase, bases<ShapeBase>, shared_ptr<ConvexBase >, noncopyable>
@@ -192,6 +204,9 @@ void exposeShapes ()
         doxygen::member_func_doc(&ConvexBase::convexHull),
         return_value_policy<manage_new_object>())
     .staticmethod("convexHull")
+    .def ("clone", &ConvexBase::clone,
+      doxygen::member_func_doc(&ConvexBase::clone),
+      return_value_policy<manage_new_object>())
     ;
 
   class_ <Convex<Triangle>, bases<ConvexBase>, shared_ptr<Convex<Triangle> >, noncopyable>
@@ -206,6 +221,9 @@ void exposeShapes ()
     .def (dv::init<Cylinder, FCL_REAL, FCL_REAL>())
     .DEF_RW_CLASS_ATTRIB (Cylinder, radius)
     .DEF_RW_CLASS_ATTRIB (Cylinder, halfLength)
+    .def ("clone", &Cylinder::clone,
+          doxygen::member_func_doc(&Cylinder::clone),
+          return_value_policy<manage_new_object>())
     ;
 
   class_ <Halfspace, bases<ShapeBase>, shared_ptr<Halfspace> >
@@ -215,6 +233,9 @@ void exposeShapes ()
     .def (dv::init<Halfspace>())
     .DEF_RW_CLASS_ATTRIB (Halfspace, n)
     .DEF_RW_CLASS_ATTRIB (Halfspace, d)
+    .def ("clone", &Halfspace::clone,
+          doxygen::member_func_doc(&Halfspace::clone),
+          return_value_policy<manage_new_object>())
     ;
 
   class_ <Plane, bases<ShapeBase>, shared_ptr<Plane> >
@@ -224,12 +245,18 @@ void exposeShapes ()
     .def (dv::init<Plane>())
     .DEF_RW_CLASS_ATTRIB (Plane, n)
     .DEF_RW_CLASS_ATTRIB (Plane, d)
+    .def ("clone", &Plane::clone,
+          doxygen::member_func_doc(&Plane::clone),
+          return_value_policy<manage_new_object>())
     ;
 
   class_ <Sphere, bases<ShapeBase>, shared_ptr<Sphere> >
     ("Sphere", doxygen::class_doc<Sphere>(), no_init)
     .def (dv::init<Sphere, FCL_REAL>())
     .DEF_RW_CLASS_ATTRIB (Sphere, radius)
+    .def ("clone", &Sphere::clone,
+          doxygen::member_func_doc(&Sphere::clone),
+          return_value_policy<manage_new_object>())
     ;
 
   class_ <TriangleP, bases<ShapeBase>, shared_ptr<TriangleP> >
@@ -238,6 +265,9 @@ void exposeShapes ()
     .DEF_RW_CLASS_ATTRIB (TriangleP, a)
     .DEF_RW_CLASS_ATTRIB (TriangleP, b)
     .DEF_RW_CLASS_ATTRIB (TriangleP, c)
+    .def ("clone", &TriangleP::clone,
+          doxygen::member_func_doc(&TriangleP::clone),
+          return_value_policy<manage_new_object>())
     ;
 
 }
