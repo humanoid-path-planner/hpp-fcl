@@ -5,7 +5,8 @@
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
  *  Copyright (c) 2018-2019, Centre National de la Recherche Scientifique
  *  All rights reserved.
- *
+ *  Copyright (c) 2021, INRIA
+ *  All rights reserved.
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
  *  are met:
@@ -39,6 +40,8 @@
 #ifndef HPP_FCL_NARROWPHASE_H
 #define HPP_FCL_NARROWPHASE_H
 
+#include <limits>
+
 #include <hpp/fcl/narrowphase/gjk.h>
 
 namespace hpp
@@ -69,6 +72,9 @@ namespace fcl
       shape.set (&s1, &s2, tf1, tf2);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
+      
+      gjk.setDistanceEarlyBreak(distance_upper_bound);
+      
       details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
       if(enable_cached_guess) {
         cached_guess = gjk.getGuessFromSimplex();
@@ -96,7 +102,7 @@ namespace fcl
             {
               epa.getClosestPoints (shape, w0, w1);
               distance_lower_bound = -epa.depth;
-              if(normal) *normal = tf1.getRotation() * epa.normal;
+              if(normal) (*normal).noalias() = tf1.getRotation() * epa.normal;
               if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               return true;
             }
@@ -143,6 +149,9 @@ namespace fcl
       shape.set (&s, &tri);
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
+      
+      gjk.setDistanceEarlyBreak(distance_upper_bound);
+      
       details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
       if(enable_cached_guess) {
         cached_guess = gjk.getGuessFromSimplex();
@@ -168,7 +177,7 @@ namespace fcl
             {
               epa.getClosestPoints (shape, w0, w1);
               distance = -epa.depth;
-              normal = tf1.getRotation() * epa.normal;
+              normal.noalias() = tf1.getRotation() * epa.normal;
               p1 = p2 = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
               assert (distance <= 1e-6);
             } else {
@@ -221,6 +230,9 @@ namespace fcl
       shape.set (&s1, &s2, tf1, tf2);
 
       details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
+      
+      gjk.setDistanceEarlyBreak(distance_upper_bound);
+      
       details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
       if(enable_cached_guess) {
         cached_guess = gjk.getGuessFromSimplex();
@@ -236,7 +248,7 @@ namespace fcl
         distance = 0;
         p1 = tf1.transform (w0);
         p2 = tf1.transform (w1);
-        normal = Vec3f (0,0,0);
+        normal.setZero();
         return false;
       }
       else if(gjk_status == details::GJK::Valid)
@@ -247,7 +259,8 @@ namespace fcl
           // assert (distance == (w0 - w1).norm());
           distance = gjk.distance;
 
-          normal = (tf1.getRotation() * gjk.ray).normalized();
+          normal.noalias() = tf1.getRotation() * gjk.ray;
+          normal.normalize();
           p1 = tf1.transform (p1);
           p2 = tf1.transform (p2);
           return true;
@@ -261,7 +274,8 @@ namespace fcl
             // Return contact points in case of collision
             //p1 = tf1.transform (p1);
             //p2 = tf1.transform (p2);
-            normal = (tf1.getRotation() * (p1 - p2)).normalized();
+            normal.noalias() = tf1.getRotation() * (p1 - p2);
+            normal.normalize();
             p1 = tf1.transform(p1);
             p2 = tf1.transform(p2);
           } else {
@@ -277,7 +291,7 @@ namespace fcl
               epa.getClosestPoints (shape, w0, w1);
               assert (epa.depth >= -eps);
               distance = (std::min) (0., -epa.depth);
-              normal = tf1.getRotation() * epa.normal;
+              normal.noalias() = tf1.getRotation() * epa.normal;
               p1 = tf1.transform(w0);
               p2 = tf1.transform(w1);
               return false;
@@ -303,6 +317,7 @@ namespace fcl
       enable_cached_guess = false;
       cached_guess = Vec3f(1, 0, 0);
       support_func_cached_guess = support_func_guess_t::Zero();
+      distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
     }
 
     void enableCachedGuess(bool if_enable) const
@@ -346,6 +361,10 @@ namespace fcl
 
     /// @brief smart guess for the support function
     mutable support_func_guess_t support_func_cached_guess;
+    
+    /// @brief Distance above which the GJK solver stoppes its computations and processes to an early stopping.
+    ///        The two witness points are incorrect, but with the guaranty that the two shapes have a distance greather than distance_upper_bound.
+    mutable FCL_REAL distance_upper_bound;
   };
 
   template<>

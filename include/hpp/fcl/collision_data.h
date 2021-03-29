@@ -206,7 +206,7 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
 
   /// Whether a lower bound on distance is returned when objects are disjoint
   bool enable_distance_lower_bound;
-
+  
   /// @brief Distance below which objects are considered in collision.
   /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
   FCL_REAL security_margin;
@@ -214,24 +214,32 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
   /// @brief Distance below which bounding volumes are broken down.
   /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
   FCL_REAL break_distance;
+  
+  /// @brief Distance above which GJK solver makes an early stopping.
+  /// GJK stops searching for the closest points when it proves that the distance between two geometries is above this threshold.
+  ///
+  /// @remarks Consequently, the closest points might be incorrect, but allows to save computational ressources.
+  FCL_REAL distance_upper_bound;
 
   explicit CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_) :
     num_max_contacts(num_max_contacts_),
     enable_contact(flag & CONTACT),
     enable_distance_lower_bound (flag & DISTANCE_LOWER_BOUND),
     security_margin (0),
-    break_distance (1e-3)
+    break_distance (1e-3),
+    distance_upper_bound ((std::numeric_limits<FCL_REAL>::max)())
   {
   }
 
   CollisionRequest() :
-      num_max_contacts(1),
-      enable_contact(false),
-      enable_distance_lower_bound (false),
-      security_margin (0),
-      break_distance (1e-3)
-    {
-    }
+    num_max_contacts(1),
+    enable_contact(false),
+    enable_distance_lower_bound (false),
+    security_margin (0),
+    break_distance (1e-3),
+    distance_upper_bound ((std::numeric_limits<FCL_REAL>::max)())
+  {
+  }
 
   bool isSatisfied(const CollisionResult& result) const;
 
@@ -243,7 +251,8 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
       && enable_contact == other.enable_contact
       && enable_distance_lower_bound == other.enable_distance_lower_bound
       && security_margin == other.security_margin
-      && break_distance == other.break_distance;
+      && break_distance == other.break_distance
+      && distance_upper_bound == other.distance_upper_bound;
   }
 };
 

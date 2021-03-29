@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2021, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -97,7 +98,7 @@ public:
   ComputeCollision(const CollisionGeometry* o1, const CollisionGeometry* o2);
 
   std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
-      const CollisionRequest& request, CollisionResult& result) const
+                         const CollisionRequest& request, CollisionResult& result) const
   {
     bool cached = request.enable_cached_gjk_guess;
     solver.enable_cached_guess = cached;
@@ -105,6 +106,8 @@ public:
       solver.cached_guess = request.cached_gjk_guess;
       solver.support_func_cached_guess = request.cached_support_func_guess;
     }
+    
+    solver.distance_upper_bound = request.distance_upper_bound;
 
     std::size_t res;
     if (swap_geoms) {
@@ -122,7 +125,7 @@ public:
   }
 
   inline std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
-      CollisionRequest& request, CollisionResult& result) const
+                                CollisionRequest& request, CollisionResult& result) const
   {
     std::size_t res = operator()(tf1, tf2, (const CollisionRequest&) request, result);
     request.updateGuess (result);
