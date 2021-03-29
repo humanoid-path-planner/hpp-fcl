@@ -55,6 +55,11 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry
 {
 public:
   ShapeBase() {}
+  
+  /// \brief Copy constructor
+  ShapeBase(const ShapeBase & other)
+  : CollisionGeometry(other)
+  {}
 
   virtual ~ShapeBase () {};
 
@@ -74,12 +79,23 @@ public:
   {
   }
 
+  
+  TriangleP(const TriangleP & other)
+  : ShapeBase(other)
+  , a(other.a), b(other.b), c(other.c)
+  {}
+  
+  /// @brief Clone *this into a new TriangleP
+  virtual TriangleP* clone() const { return new TriangleP(*this); };
+  
   /// @brief virtual function of compute AABB in local coordinate
   void computeLocalAABB();
   
   NODE_TYPE getNodeType() const { return GEOM_TRIANGLE; }
 
   Vec3f a, b, c;
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Center at zero point, axis aligned box
@@ -93,6 +109,15 @@ public:
   Box(const Vec3f& side_) : ShapeBase(), halfSide(side_/2) 
   {
   }
+  
+  Box(const Box & other)
+  : ShapeBase(other)
+  , halfSide(other.halfSide)
+  {
+  }
+  
+  /// @brief Clone *this into a new Box
+  virtual Box* clone() const { return new Box(*this); };
 
   Box() {}
 
@@ -116,6 +141,8 @@ public:
     Vec3f s (halfSide.cwiseAbs2() * V);
     return (Vec3f (s[1] + s[2], s[0] + s[2], s[0] + s[1]) / 3).asDiagonal();
   }
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Center at zero point sphere
@@ -125,6 +152,15 @@ public:
   Sphere(FCL_REAL radius_) : ShapeBase(), radius(radius_)
   {
   }
+  
+  Sphere(const Sphere & other)
+  : ShapeBase(other)
+  , radius(other.radius)
+  {
+  }
+  
+  /// @brief Clone *this into a new Sphere
+  virtual Sphere* clone() const { return new Sphere(*this); };
   
   /// @brief Radius of the sphere 
   FCL_REAL radius;
@@ -145,6 +181,8 @@ public:
   {
     return 4 * boost::math::constants::pi<FCL_REAL>() * radius * radius * radius / 3;
   }
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Capsule
@@ -158,6 +196,16 @@ public:
   {
     halfLength = lz_/2;
   }
+  
+  Capsule(const Capsule & other)
+  : ShapeBase(other)
+  , radius(other.radius)
+  , halfLength(other.halfLength)
+  {
+  }
+  
+  /// @brief Clone *this into a new Capsule
+  virtual Capsule* clone() const { return new Capsule(*this); };
 
   /// @brief Radius of capsule 
   FCL_REAL radius;
@@ -191,6 +239,8 @@ public:
                           0, 0, iz).finished();
   }
   
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
 };
 
 /// @brief Cone
@@ -203,6 +253,16 @@ public:
   {
     halfLength = lz_/2;
   }
+  
+  Cone(const Cone & other)
+  : ShapeBase(other)
+  , radius(other.radius)
+  , halfLength(other.halfLength)
+  {
+  }
+  
+  /// @brief Clone *this into a new Cone
+  virtual Cone* clone() const { return new Cone(*this); };
 
   /// @brief Radius of the cone 
   FCL_REAL radius;
@@ -236,6 +296,8 @@ public:
   {
     return Vec3f(0, 0, -0.5 * halfLength);
   }
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Cylinder along Z axis.
@@ -247,6 +309,16 @@ public:
   {
     halfLength = lz_/2;
   }
+  
+  Cylinder(const Cylinder & other)
+  : ShapeBase(other)
+  , radius(other.radius)
+  , halfLength(other.halfLength)
+  {
+  }
+  
+  /// @brief Clone *this into a new Cylinder
+  virtual Cylinder* clone() const { return new Cylinder(*this); };
   
   /// @brief Radius of the cylinder 
   FCL_REAL radius;
@@ -274,6 +346,8 @@ public:
                           0, ix, 0,
                           0, 0, iz).finished();
   }
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Base for convex polytope.
@@ -297,6 +371,22 @@ public:
       bool keepTriangles, const char* qhullCommand = NULL);
 
   virtual ~ConvexBase();
+  
+  /// @brief Clone (deep copy).
+  virtual ConvexBase * clone() const
+  {
+    ConvexBase * copy_ptr = new ConvexBase(*this);
+    ConvexBase & copy = *copy_ptr;
+
+    if(!copy.own_storage_)
+    {
+      copy.points = new Vec3f[copy.num_points];
+      memcpy(copy.points, points, sizeof(Vec3f) * (size_t)copy.num_points);
+    }
+    copy.own_storage_ = true;
+    
+    return copy_ptr;
+  }
 
   /// @brief Compute AABB 
   void computeLocalAABB();
@@ -333,7 +423,9 @@ protected:
 
   /// @brief Initialize the points of the convex shape
   /// This also initializes the ConvexBase::center.
-  /// \param points_ list of 3D points
+  ///
+  /// \param ownStorage weither the ConvexBase owns the data.
+  /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
   void initialize(bool ownStorage, Vec3f* points_, int num_points_);
 
@@ -347,6 +439,10 @@ protected:
 
 private:
   void computeCenter();
+  
+public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 template <typename PolygonT> class Convex;
@@ -372,6 +468,16 @@ public:
   Halfspace() : ShapeBase(), n(1, 0, 0), d(0)
   {
   }
+  
+  Halfspace(const Halfspace & other)
+  : ShapeBase(other)
+  , n(other.n)
+  , d(other.d)
+  {
+  }
+  
+  /// @brief Clone *this into a new Halfspace
+  virtual Halfspace* clone() const { return new Halfspace(*this); };
 
   FCL_REAL signedDistance(const Vec3f& p) const
   {
@@ -399,13 +505,17 @@ protected:
 
   /// @brief Turn non-unit normal into unit
   void unitNormalTest();
+  
+public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Infinite plane 
 class HPP_FCL_DLLAPI Plane : public ShapeBase
 {
 public:
-  /// @brief Construct a plane with normal direction and offset 
+  /// @brief Construct a plane with normal direction and offset
   Plane(const Vec3f& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_) 
   { 
     unitNormalTest(); 
@@ -419,6 +529,16 @@ public:
 
   Plane() : ShapeBase(), n(1, 0, 0), d(0)
   {}
+  
+  Plane(const Plane & other)
+  : ShapeBase(other)
+  , n(other.n)
+  , d(other.d)
+  {
+  }
+  
+  /// @brief Clone *this into a new Plane
+  virtual Plane* clone() const { return new Plane(*this); };
 
   FCL_REAL signedDistance(const Vec3f& p) const
   {
@@ -446,6 +566,10 @@ protected:
   
   /// @brief Turn non-unit normal into unit 
   void unitNormalTest();
+  
+public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 }

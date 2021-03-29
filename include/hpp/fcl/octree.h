@@ -64,6 +64,8 @@ private:
   FCL_REAL free_threshold;
 
 public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   typedef octomap::OcTreeNode OcTreeNode;
 
@@ -86,6 +88,17 @@ public:
     occupancy_threshold = tree->getOccupancyThres();
     free_threshold = 0;
   }
+  
+  OcTree(const OcTree & other)
+  : CollisionGeometry(other)
+  , tree(other.tree)
+  , default_occupancy(other.default_occupancy)
+  , occupancy_threshold(other.occupancy_threshold)
+  , free_threshold(other.free_threshold)
+  {
+  }
+  
+  OcTree * clone() const { return new OcTree(*this); }
 
   /// @brief compute the AABB for the octree in its local coordinate system
   void computeLocalAABB() 

@@ -289,6 +289,9 @@ public:
 
   /// @brief copy from another BVH
   BVHModel(const BVHModel& other);
+  
+  /// @brief Clone *this into a new BVHModel
+  virtual BVHModel<BV> * clone() const { return new BVHModel(*this); }
 
   /// @brief deconstruction, delete mesh data related.
   ~BVHModel()

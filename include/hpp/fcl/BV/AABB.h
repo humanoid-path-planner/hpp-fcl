@@ -55,6 +55,7 @@ struct CollisionRequest;
 class HPP_FCL_DLLAPI AABB
 {
 public:
+  
   /// @brief The min point in the AABB
   Vec3f min_;
   /// @brief The max point in the AABB
@@ -224,7 +225,9 @@ public:
     min_ = min_ * ratio - core.min_;
     max_ = max_ * ratio - core.max_;
     return *this;
-  }  
+  }
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief translate the center of AABB by t
