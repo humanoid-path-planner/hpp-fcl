@@ -73,8 +73,7 @@ namespace fcl
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
       
-      if(enable_early_stopping)
-        gjk.setDistanceEarlyBreak(distance_upper_bound);
+      gjk.setDistanceEarlyBreak(distance_upper_bound);
       
       details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
       if(enable_cached_guess) {
@@ -151,8 +150,7 @@ namespace fcl
   
       details::GJK gjk((unsigned int )gjk_max_iterations, gjk_tolerance);
       
-      if(enable_early_stopping)
-        gjk.setDistanceEarlyBreak(distance_upper_bound);
+      gjk.setDistanceEarlyBreak(distance_upper_bound);
       
       details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
       if(enable_cached_guess) {
@@ -233,8 +231,7 @@ namespace fcl
 
       details::GJK gjk((unsigned int) gjk_max_iterations, gjk_tolerance);
       
-      if(enable_early_stopping)
-        gjk.setDistanceEarlyBreak(distance_upper_bound);
+      gjk.setDistanceEarlyBreak(distance_upper_bound);
       
       details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
       if(enable_cached_guess) {
@@ -320,7 +317,6 @@ namespace fcl
       enable_cached_guess = false;
       cached_guess = Vec3f(1, 0, 0);
       support_func_cached_guess = support_func_guess_t::Zero();
-      enable_early_stopping = false;
       distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
     }
 
@@ -366,12 +362,8 @@ namespace fcl
     /// @brief smart guess for the support function
     mutable support_func_guess_t support_func_cached_guess;
     
-    /// @brief Whether GJK solver makes an early stopping if it proves that the distance between two geometries
-    ///        is above a certain threshold
-    mutable bool enable_early_stopping;
-    
-    /// @brief Distance above which the GJK solver stoppes its computations. The two witness points are incorrect,
-    ///        but with the guaranty that the two shapes have a distance greather than distance_upper_bound.
+    /// @brief Distance above which the GJK solver stoppes its computations and processes to an early stopping.
+    ///        The two witness points are incorrect, but with the guaranty that the two shapes have a distance greather than distance_upper_bound.
     mutable FCL_REAL distance_upper_bound;
   };
 

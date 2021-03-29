@@ -192,7 +192,6 @@ enum CollisionRequestFlag
 {
   CONTACT               = 0x00001,
   DISTANCE_LOWER_BOUND  = 0x00002,
-  EARLY_STOPPING        = 0x00004,
   NO_REQUEST            = 0x01000
 };
 
@@ -208,9 +207,6 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
   /// Whether a lower bound on distance is returned when objects are disjoint
   bool enable_distance_lower_bound;
   
-  /// Whether GJK stops when it proves that the distance between two geometries is greater than distance_upper_bound.
-  bool enable_early_stopping;
-
   /// @brief Distance below which objects are considered in collision.
   /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
   FCL_REAL security_margin;
@@ -229,7 +225,6 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
     num_max_contacts(num_max_contacts_),
     enable_contact(flag & CONTACT),
     enable_distance_lower_bound (flag & DISTANCE_LOWER_BOUND),
-    enable_early_stopping (flag & EARLY_STOPPING),
     security_margin (0),
     break_distance (1e-3),
     distance_upper_bound ((std::numeric_limits<FCL_REAL>::max)())
@@ -240,7 +235,6 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
     num_max_contacts(1),
     enable_contact(false),
     enable_distance_lower_bound (false),
-    enable_early_stopping (false),
     security_margin (0),
     break_distance (1e-3),
     distance_upper_bound ((std::numeric_limits<FCL_REAL>::max)())
@@ -256,7 +250,6 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
       && num_max_contacts == other.num_max_contacts
       && enable_contact == other.enable_contact
       && enable_distance_lower_bound == other.enable_distance_lower_bound
-      && enable_early_stopping == other.enable_early_stopping
       && security_margin == other.security_margin
       && break_distance == other.break_distance
       && distance_upper_bound == other.distance_upper_bound;

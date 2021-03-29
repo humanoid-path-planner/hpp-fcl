@@ -107,8 +107,7 @@ public:
       solver.support_func_cached_guess = request.cached_support_func_guess;
     }
     
-    if(request.enable_early_stopping)
-      solver.distance_upper_bound = request.distance_upper_bound;
+    solver.distance_upper_bound = request.distance_upper_bound;
 
     std::size_t res;
     if (swap_geoms) {

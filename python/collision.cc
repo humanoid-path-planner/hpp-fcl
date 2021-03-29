@@ -76,7 +76,6 @@ void exposeCollisionAPI ()
     enum_ <CollisionRequestFlag> ("CollisionRequestFlag")
       .value ("CONTACT", CONTACT)
       .value ("DISTANCE_LOWER_BOUND", DISTANCE_LOWER_BOUND)
-      .value ("EARLY_STOPPING", EARLY_STOPPING)
       .value ("NO_REQUEST", NO_REQUEST)
       .export_values()
       ;
@@ -104,7 +103,6 @@ void exposeCollisionAPI ()
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_distance_lower_bound)
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, security_margin            )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, break_distance             )
-      .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_early_stopping      )
       .DEF_RW_CLASS_ATTRIB (CollisionRequest, distance_upper_bound       )
       ;
   }
