@@ -55,6 +55,8 @@ struct CollisionRequest;
 class HPP_FCL_DLLAPI AABB
 {
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
   /// @brief The min point in the AABB
   Vec3f min_;
   /// @brief The max point in the AABB

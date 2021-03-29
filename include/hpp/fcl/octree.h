@@ -64,6 +64,8 @@ private:
   FCL_REAL free_threshold;
 
 public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   typedef octomap::OcTreeNode OcTreeNode;
 

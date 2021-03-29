@@ -65,6 +65,8 @@ enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP
 class HPP_FCL_DLLAPI CollisionGeometry
 {
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
   CollisionGeometry()
   : aabb_center(Vec3f::Constant((std::numeric_limits<FCL_REAL>::max)()))
   , aabb_radius(-1)

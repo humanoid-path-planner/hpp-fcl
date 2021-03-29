@@ -80,6 +80,8 @@ public:
   NODE_TYPE getNodeType() const { return GEOM_TRIANGLE; }
 
   Vec3f a, b, c;
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Center at zero point, axis aligned box
@@ -145,6 +147,8 @@ public:
   {
     return 4 * boost::math::constants::pi<FCL_REAL>() * radius * radius * radius / 3;
   }
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Capsule
@@ -236,6 +240,8 @@ public:
   {
     return Vec3f(0, 0, -0.5 * halfLength);
   }
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Cylinder along Z axis.
@@ -274,6 +280,8 @@ public:
                           0, ix, 0,
                           0, 0, iz).finished();
   }
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Base for convex polytope.
@@ -347,6 +355,10 @@ protected:
 
 private:
   void computeCenter();
+  
+public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 template <typename PolygonT> class Convex;
@@ -399,6 +411,10 @@ protected:
 
   /// @brief Turn non-unit normal into unit
   void unitNormalTest();
+  
+public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Infinite plane 
@@ -446,6 +462,10 @@ protected:
   
   /// @brief Turn non-unit normal into unit 
   void unitNormalTest();
+  
+public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 }
