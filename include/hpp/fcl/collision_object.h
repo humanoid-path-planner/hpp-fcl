@@ -75,6 +75,16 @@ public:
   , threshold_free(0)
   {
   }
+  
+  /// \brief Copy constructor
+  CollisionGeometry(const CollisionGeometry & other)
+  : aabb_center(other.aabb_center)
+  , aabb_radius(other.aabb_radius)
+  , cost_density(other.cost_density)
+  , threshold_occupied(other.threshold_occupied)
+  , threshold_free(other.threshold_free)
+  {
+  }
 
   virtual ~CollisionGeometry() {}
   

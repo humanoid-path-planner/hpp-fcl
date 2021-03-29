@@ -55,6 +55,11 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry
 {
 public:
   ShapeBase() {}
+  
+  /// \brief Copy constructor
+  ShapeBase(const ShapeBase & other)
+  : CollisionGeometry(other)
+  {}
 
   virtual ~ShapeBase () {};
 
@@ -74,6 +79,11 @@ public:
   {
   }
 
+  
+  TriangleP(const TriangleP & other)
+  : ShapeBase(other)
+  , a(other.a), b(other.b), c(other.c)
+  {}
   /// @brief virtual function of compute AABB in local coordinate
   void computeLocalAABB();
   
@@ -128,6 +138,12 @@ public:
   {
   }
   
+  Sphere(const Sphere & other)
+  : ShapeBase(other)
+  , radius(other.radius)
+  {
+  }
+  
   /// @brief Radius of the sphere 
   FCL_REAL radius;
 
@@ -161,6 +177,13 @@ public:
   Capsule(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_)
   {
     halfLength = lz_/2;
+  }
+  
+  Capsule(const Capsule & other)
+  : ShapeBase(other)
+  , radius(other.radius)
+  , halfLength(other.halfLength)
+  {
   }
 
   /// @brief Radius of capsule 
@@ -207,6 +230,13 @@ public:
   {
     halfLength = lz_/2;
   }
+  
+  Cone(const Cone & other)
+  : ShapeBase(other)
+  , radius(other.radius)
+  , halfLength(other.halfLength)
+  {
+  }
 
   /// @brief Radius of the cone 
   FCL_REAL radius;
@@ -252,6 +282,13 @@ public:
   Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_)
   {
     halfLength = lz_/2;
+  }
+  
+  Cylinder(const Cylinder & other)
+  : ShapeBase(other)
+  , radius(other.radius)
+  , halfLength(other.halfLength)
+  {
   }
   
   /// @brief Radius of the cylinder 
@@ -384,6 +421,14 @@ public:
   Halfspace() : ShapeBase(), n(1, 0, 0), d(0)
   {
   }
+  
+  Halfspace(const Halfspace & other)
+  : ShapeBase(other)
+  , n(other.n)
+  , d(other.d)
+  {
+  }
+  
 
   FCL_REAL signedDistance(const Vec3f& p) const
   {
@@ -435,6 +480,13 @@ public:
 
   Plane() : ShapeBase(), n(1, 0, 0), d(0)
   {}
+  
+  Plane(const Plane & other)
+  : ShapeBase(other)
+  , n(other.n)
+  , d(other.d)
+  {
+  }
 
   FCL_REAL signedDistance(const Vec3f& p) const
   {
