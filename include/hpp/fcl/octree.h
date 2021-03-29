@@ -97,6 +97,8 @@ public:
   , free_threshold(other.free_threshold)
   {
   }
+  
+  OcTree * clone() const { return new OcTree(*this); }
 
   /// @brief compute the AABB for the octree in its local coordinate system
   void computeLocalAABB() 

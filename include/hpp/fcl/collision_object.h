@@ -88,6 +88,9 @@ public:
 
   virtual ~CollisionGeometry() {}
   
+  /// @brief Clone *this into a new CollisionGeometry
+  virtual CollisionGeometry* clone() const = 0;
+  
   /// \brief Equality operator
   bool operator==(const CollisionGeometry & other) const
   {
