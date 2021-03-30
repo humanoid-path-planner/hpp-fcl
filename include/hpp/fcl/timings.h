@@ -46,6 +46,9 @@ namespace hpp { namespace fcl {
     }
   }
 
+  ///
+  /// @brief This class mimics the way "boost/timer/timer.hpp" operates while using moder boost::chrono library.
+  ///
   struct Timer
   {
     
