@@ -81,14 +81,13 @@ void exposeCollisionAPI ()
       ;
   }
   
-  if(!eigenpy::register_symbolic_link_to_registered_type< ::boost::timer::cpu_times>())
+  if(!eigenpy::register_symbolic_link_to_registered_type<CPUTimes>())
   {
-    typedef ::boost::timer::cpu_times Times;
-    class_<Times>("cpu_times",no_init)
-    .def_readonly("wall",&Times::wall,"wall time in nano seconds (ns)")
-    .def_readonly("user",&Times::user,"user time in nano seconds (ns)")
-    .def_readonly("system",&Times::system,"system time in nano seconds (ns)")
-    .def("clear",&Times::clear,arg("self"),"Reset the time values.")
+    class_<CPUTimes>("CPUTimes",no_init)
+    .def_readonly("wall",&CPUTimes::wall,"wall time in micro seconds (us)")
+    .def_readonly("user",&CPUTimes::user,"user time in micro seconds (us)")
+    .def_readonly("system",&CPUTimes::system,"system time in micro seconds (us)")
+    .def("clear",&CPUTimes::clear,arg("self"),"Reset the time values.")
     ;
   }
 
