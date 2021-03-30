@@ -40,6 +40,8 @@
 #ifndef HPP_FCL_COLLISION_H
 #define HPP_FCL_COLLISION_H
 
+#include <boost/timer/timer.hpp>
+
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
@@ -110,11 +112,15 @@ public:
     solver.distance_upper_bound = request.distance_upper_bound;
 
     std::size_t res;
-    if (swap_geoms) {
-      res = func(o2, tf2, o1, tf1, &solver, request, result);
-      result.swapObjects();
-    } else {
-      res = func (o1, tf1, o2, tf2, &solver, request, result);
+    {
+      boost::timer::cpu_timer timer;
+      if (swap_geoms) {
+        res = func(o2, tf2, o1, tf1, &solver, request, result);
+        result.swapObjects();
+      } else {
+        res = func (o1, tf1, o2, tf2, &solver, request, result);
+      }
+      result.timings = timer.elapsed();
     }
 
     if (cached) {
