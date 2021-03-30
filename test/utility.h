@@ -70,11 +70,11 @@ namespace fcl
 typedef shared_ptr<octomap::OcTree> OcTreePtr_t;
 #endif
 
-class Timer
+class BenchTimer
 {
 public:
-  Timer();
-  ~Timer();
+  BenchTimer();
+  ~BenchTimer();
 
   void start();                               ///< start timer
   void stop();                                ///< stop the timer

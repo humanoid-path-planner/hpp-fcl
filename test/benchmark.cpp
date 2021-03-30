@@ -99,7 +99,7 @@ double distance (const std::vector<Transform3f>& tf,
 
   node.enable_statistics = verbose;
 
-  Timer timer;
+  BenchTimer timer;
   timer.start();
 
   for (std::size_t i = 0; i < tf.size(); ++i) {
@@ -125,7 +125,7 @@ double collide (const std::vector<Transform3f>& tf,
 
   node.enable_statistics = verbose;
 
-  Timer timer;
+  BenchTimer timer;
   timer.start();
 
   for (std::size_t i = 0; i < tf.size(); ++i) {

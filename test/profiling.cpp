@@ -96,7 +96,7 @@ void collide(const std::vector<Transform3f>& tf,
              Results& results)
 {
   Transform3f Id;
-  Timer timer;
+  BenchTimer timer;
   for (std::size_t i = 0; i < tf.size(); ++i) {
     timer.start();
     /* int num_contact = */
