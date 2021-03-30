@@ -38,11 +38,10 @@
 #ifndef HPP_FCL_DISTANCE_H
 #define HPP_FCL_DISTANCE_H
 
-#include <boost/timer/timer.hpp>
-
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/distance_func_matrix.h>
+#include <hpp/fcl/timings.h>
 
 namespace hpp
 {
@@ -106,7 +105,7 @@ public:
 
     FCL_REAL res;
     {
-      boost::timer::cpu_timer timer;
+      Timer timer;
       if (swap_geoms) {
         res = func(o2, tf2, o1, tf1, &solver, request, result);
         if (request.enable_nearest_points) {

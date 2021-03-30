@@ -40,12 +40,11 @@
 #ifndef HPP_FCL_COLLISION_H
 #define HPP_FCL_COLLISION_H
 
-#include <boost/timer/timer.hpp>
-
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/collision_func_matrix.h>
+#include <hpp/fcl/timings.h>
 
 namespace hpp
 {
@@ -113,7 +112,7 @@ public:
 
     std::size_t res;
     {
-      boost::timer::cpu_timer timer;
+      Timer timer;
       if (swap_geoms) {
         res = func(o2, tf2, o1, tf1, &solver, request, result);
         result.swapObjects();

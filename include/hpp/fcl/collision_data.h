@@ -42,11 +42,11 @@
 #include <vector>
 #include <set>
 #include <limits>
-#include <boost/timer/timer.hpp>
 
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/config.hh>
 #include <hpp/fcl/data_types.h>
+#include <hpp/fcl/timings.h>
 
 namespace hpp
 {
@@ -173,7 +173,7 @@ struct HPP_FCL_DLLAPI QueryResult
   support_func_guess_t cached_support_func_guess;
   
   /// @brief timings for the given request
-  boost::timer::cpu_times timings;
+  CPUTimes timings;
   
   QueryResult()
   : cached_gjk_guess(Vec3f::Zero())
