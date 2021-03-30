@@ -80,6 +80,17 @@ void exposeCollisionAPI ()
       .export_values()
       ;
   }
+  
+  if(!eigenpy::register_symbolic_link_to_registered_type< ::boost::timer::cpu_times>())
+  {
+    typedef ::boost::timer::cpu_times Times;
+    class_<Times>("cpu_times",no_init)
+    .def_readonly("wall",&Times::wall,"wall time in nano seconds (ns)")
+    .def_readonly("user",&Times::user,"user time in nano seconds (ns)")
+    .def_readonly("system",&Times::system,"system time in nano seconds (ns)")
+    .def("clear",&Times::clear,arg("self"),"Reset the time values.")
+    ;
+  }
 
   if(!eigenpy::register_symbolic_link_to_registered_type<QueryRequest>())
   {
@@ -149,6 +160,7 @@ void exposeCollisionAPI ()
         doxygen::class_doc<QueryResult>(), no_init)
       .DEF_RW_CLASS_ATTRIB (QueryResult, cached_gjk_guess         )
       .DEF_RW_CLASS_ATTRIB (QueryResult, cached_support_func_guess)
+      .DEF_RW_CLASS_ATTRIB (QueryResult, timings)
       ;
   }
 
