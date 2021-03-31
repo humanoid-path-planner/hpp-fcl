@@ -41,6 +41,7 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/distance_func_matrix.h>
+#include <hpp/fcl/timings.h>
 
 namespace hpp
 {
@@ -103,14 +104,18 @@ public:
     }
 
     FCL_REAL res;
-    if (swap_geoms) {
-      res = func(o2, tf2, o1, tf1, &solver, request, result);
-      if (request.enable_nearest_points) {
-        std::swap(result.o1, result.o2);
-        result.nearest_points[0].swap(result.nearest_points[1]);
+    {
+      Timer timer;
+      if (swap_geoms) {
+        res = func(o2, tf2, o1, tf1, &solver, request, result);
+        if (request.enable_nearest_points) {
+          std::swap(result.o1, result.o2);
+          result.nearest_points[0].swap(result.nearest_points[1]);
+        }
+      } else {
+        res = func (o1, tf1, o2, tf2, &solver, request, result);
       }
-    } else {
-      res = func (o1, tf1, o2, tf2, &solver, request, result);
+      result.timings = timer.elapsed();
     }
 
     if (cached) {

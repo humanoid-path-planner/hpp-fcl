@@ -80,6 +80,16 @@ void exposeCollisionAPI ()
       .export_values()
       ;
   }
+  
+  if(!eigenpy::register_symbolic_link_to_registered_type<CPUTimes>())
+  {
+    class_<CPUTimes>("CPUTimes",no_init)
+    .def_readonly("wall",&CPUTimes::wall,"wall time in micro seconds (us)")
+    .def_readonly("user",&CPUTimes::user,"user time in micro seconds (us)")
+    .def_readonly("system",&CPUTimes::system,"system time in micro seconds (us)")
+    .def("clear",&CPUTimes::clear,arg("self"),"Reset the time values.")
+    ;
+  }
 
   if(!eigenpy::register_symbolic_link_to_registered_type<QueryRequest>())
   {
@@ -149,6 +159,7 @@ void exposeCollisionAPI ()
         doxygen::class_doc<QueryResult>(), no_init)
       .DEF_RW_CLASS_ATTRIB (QueryResult, cached_gjk_guess         )
       .DEF_RW_CLASS_ATTRIB (QueryResult, cached_support_func_guess)
+      .DEF_RW_CLASS_ATTRIB (QueryResult, timings)
       ;
   }
 

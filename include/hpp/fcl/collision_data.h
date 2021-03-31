@@ -46,6 +46,7 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/config.hh>
 #include <hpp/fcl/data_types.h>
+#include <hpp/fcl/timings.h>
 
 namespace hpp
 {
@@ -170,6 +171,9 @@ struct HPP_FCL_DLLAPI QueryResult
 
   /// @brief stores the last support function vertex index, when relevant.
   support_func_guess_t cached_support_func_guess;
+  
+  /// @brief timings for the given request
+  CPUTimes timings;
   
   QueryResult()
   : cached_gjk_guess(Vec3f::Zero())
@@ -338,6 +342,7 @@ public:
     distance_lower_bound = (std::numeric_limits<FCL_REAL>::max)();
     contacts.clear();
     distance_lower_bound = (std::numeric_limits<FCL_REAL>::max)();
+    timings.clear();
   }
 
   /// @brief reposition Contact objects when fcl inverts them
@@ -483,6 +488,7 @@ public:
     b1 = NONE;
     b2 = NONE;
     nearest_points [0] = nearest_points [1] = normal = nan;
+    timings.clear();
   }
 
   /// @brief whether two DistanceResult are the same or not

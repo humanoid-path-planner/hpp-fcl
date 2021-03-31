@@ -11,7 +11,7 @@ namespace hpp
 namespace fcl
 {
 
-Timer::Timer()
+BenchTimer::BenchTimer()
 {
 #ifdef _WIN32
   QueryPerformanceFrequency(&frequency);
@@ -28,12 +28,12 @@ Timer::Timer()
 }
 
 
-Timer::~Timer()
+BenchTimer::~BenchTimer()
 {
 }
 
 
-void Timer::start()
+void BenchTimer::start()
 {
   stopped = 0; // reset stop flag
 #ifdef _WIN32
@@ -44,7 +44,7 @@ void Timer::start()
 }
 
 
-void Timer::stop()
+void BenchTimer::stop()
 {
   stopped = 1; // set timer stopped flag
 
@@ -56,7 +56,7 @@ void Timer::stop()
 }
 
 
-double Timer::getElapsedTimeInMicroSec()
+double BenchTimer::getElapsedTimeInMicroSec()
 {
 #ifdef _WIN32
   if(!stopped)
@@ -76,19 +76,19 @@ double Timer::getElapsedTimeInMicroSec()
 }
 
 
-double Timer::getElapsedTimeInMilliSec()
+double BenchTimer::getElapsedTimeInMilliSec()
 {
   return this->getElapsedTimeInMicroSec() * 0.001;
 }
 
 
-double Timer::getElapsedTimeInSec()
+double BenchTimer::getElapsedTimeInSec()
 {
   return this->getElapsedTimeInMicroSec() * 0.000001;
 }
 
 
-double Timer::getElapsedTime()
+double BenchTimer::getElapsedTime()
 {
   return this->getElapsedTimeInMilliSec();
 }

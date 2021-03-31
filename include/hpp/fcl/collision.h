@@ -44,6 +44,7 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/collision_func_matrix.h>
+#include <hpp/fcl/timings.h>
 
 namespace hpp
 {
@@ -110,11 +111,15 @@ public:
     solver.distance_upper_bound = request.distance_upper_bound;
 
     std::size_t res;
-    if (swap_geoms) {
-      res = func(o2, tf2, o1, tf1, &solver, request, result);
-      result.swapObjects();
-    } else {
-      res = func (o1, tf1, o2, tf2, &solver, request, result);
+    {
+      Timer timer;
+      if (swap_geoms) {
+        res = func(o2, tf2, o1, tf1, &solver, request, result);
+        result.swapObjects();
+      } else {
+        res = func (o1, tf1, o2, tf2, &solver, request, result);
+      }
+      result.timings = timer.elapsed();
     }
 
     if (cached) {

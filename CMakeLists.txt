@@ -81,7 +81,7 @@ EXPORT_BOOST_DEFAULT_OPTIONS()
 IF(WIN32)
   ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS chrono thread date_time serialization)
 ELSE(WIN32)
-  ADD_PROJECT_DEPENDENCY(Boost REQUIRED serialization)
+  ADD_PROJECT_DEPENDENCY(Boost REQUIRED chrono serialization)
 ENDIF(WIN32)
 if (BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
@@ -185,6 +185,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/OBB.h
   include/hpp/fcl/serialization/RSS.h
   include/hpp/fcl/serialization/OBBRSS.h
+  include/hpp/fcl/timings.h
   )
 
 add_subdirectory(doc)

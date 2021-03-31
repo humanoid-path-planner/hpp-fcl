@@ -175,12 +175,12 @@ TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   PUBLIC
   Boost::serialization
+  Boost::chrono
 )
 
 IF(WIN32)
   TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
     INTERFACE
-    Boost::chrono
     Boost::thread
     Boost::date_time
   )
