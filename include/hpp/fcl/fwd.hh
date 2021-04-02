@@ -42,11 +42,17 @@
 
 #include <hpp/fcl/config.hh>
 
+#if _WIN32
+  #define HPP_FCL_PRETTY_FUNCTION __FUNCSIG__
+#else
+  #define HPP_FCL_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#endif
+
 #define HPP_FCL_THROW_PRETTY(message,exception) \
 { \
 std::stringstream ss; \
 ss << "From file: " << __FILE__ << "\n"; \
-ss << "in function: " << __PRETTY_FUNCTION__ << "\n"; \
+ss << "in function: " << HPP_FCL_PRETTY_FUNCTION << "\n"; \
 ss << "at line: " << __LINE__ << "\n"; \
 ss << "message: " << message << "\n"; \
 throw exception(ss.str()); \
