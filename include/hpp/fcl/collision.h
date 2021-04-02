@@ -136,6 +136,8 @@ public:
     return res;
   }
   
+  virtual ~ComputeCollision() {};
+  
 protected:
   CollisionGeometry const *o1, *o2;
   GJKSolver solver;
@@ -143,8 +145,8 @@ protected:
   CollisionFunctionMatrix::CollisionFunc func;
   bool swap_geoms;
 
-  std::size_t run(const Transform3f& tf1, const Transform3f& tf2,
-                  const CollisionRequest& request, CollisionResult& result) const;
+  virtual std::size_t run(const Transform3f& tf1, const Transform3f& tf2,
+                          const CollisionRequest& request, CollisionResult& result) const;
 };
 
 

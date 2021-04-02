@@ -127,6 +127,8 @@ public:
     request.updateGuess (result);
     return res;
   }
+  
+  virtual ~ComputeDistance() {};
 
 protected:
   CollisionGeometry const *o1, *o2;
@@ -135,8 +137,8 @@ protected:
   DistanceFunctionMatrix::DistanceFunc func;
   bool swap_geoms;
   
-  FCL_REAL run(const Transform3f& tf1, const Transform3f& tf2,
-               const DistanceRequest& request, DistanceResult& result) const;
+  virtual FCL_REAL run(const Transform3f& tf1, const Transform3f& tf2,
+                       const DistanceRequest& request, DistanceResult& result) const;
 };
 
 
