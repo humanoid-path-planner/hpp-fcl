@@ -111,39 +111,41 @@ public:
     solver.distance_upper_bound = request.distance_upper_bound;
 
     std::size_t res;
+    if(request.enable_timings)
     {
       Timer timer;
-      if (swap_geoms) {
-        res = func(o2, tf2, o1, tf1, &solver, request, result);
-        result.swapObjects();
-      } else {
-        res = func (o1, tf1, o2, tf2, &solver, request, result);
-      }
+      res = run(tf1, tf2, request, result);
       result.timings = timer.elapsed();
     }
+    else
+      res = run(tf1, tf2, request, result);
 
     if (cached) {
       result.cached_gjk_guess = solver.cached_guess;
       result.cached_support_func_guess = solver.support_func_cached_guess;
     }
+    
     return res;
   }
-
-  inline std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
-                                CollisionRequest& request, CollisionResult& result) const
+  
+  std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
+                         CollisionRequest& request, CollisionResult& result) const
   {
     std::size_t res = operator()(tf1, tf2, (const CollisionRequest&) request, result);
     request.updateGuess (result);
     return res;
   }
-
-private:
+  
   CollisionGeometry const *o1, *o2;
   GJKSolver solver;
 
   CollisionFunctionMatrix::CollisionFunc func;
   bool swap_geoms;
+
+  std::size_t run(const Transform3f& tf1, const Transform3f& tf2,
+                  const CollisionRequest& request, CollisionResult& result) const;
 };
+
 
 } // namespace fcl
 } // namespace hpp
