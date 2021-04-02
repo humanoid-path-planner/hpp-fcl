@@ -41,6 +41,10 @@
 
 #include <hpp/fcl/config.hh>
 
+#if (__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
+  #define HPP_FCL_WITH_CXX11_SUPPORT
+#endif
+
 namespace hpp {
 namespace fcl {
   using boost::shared_ptr;
