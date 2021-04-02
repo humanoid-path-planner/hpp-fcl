@@ -128,8 +128,8 @@ public:
     return res;
   }
   
-  std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
-                         CollisionRequest& request, CollisionResult& result) const
+  inline std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
+                                CollisionRequest& request, CollisionResult& result) const
   {
     std::size_t res = operator()(tf1, tf2, (const CollisionRequest&) request, result);
     request.updateGuess (result);
