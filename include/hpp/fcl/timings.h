@@ -5,17 +5,19 @@
 #ifndef HPP_FCL_TIMINGS_FWD_H
 #define HPP_FCL_TIMINGS_FWD_H
 
-#include <boost/chrono.hpp>
-
 #include "hpp/fcl/fwd.hh"
+
+#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+  #include <chrono>
+#endif
 
 namespace hpp { namespace fcl {
 
   struct CPUTimes
   {
-    FCL_REAL wall;
-    FCL_REAL user;
-    FCL_REAL system;
+    double wall;
+    double user;
+    double system;
     
     CPUTimes()
     : wall(0)
@@ -30,29 +32,14 @@ namespace hpp { namespace fcl {
     
   };
 
-  namespace internal
-  {
-    inline void get_cpu_times(CPUTimes & current)
-    {
-      using namespace boost::chrono;
-      
-      process_real_cpu_clock::time_point wall = process_real_cpu_clock::now();
-      process_user_cpu_clock::time_point user = process_user_cpu_clock::now();
-      process_system_cpu_clock::time_point system = process_system_cpu_clock::now();
-      
-      current.wall = time_point_cast<nanoseconds>(wall).time_since_epoch().count()*1e-3;
-      current.user = time_point_cast<nanoseconds>(user).time_since_epoch().count()*1e-3;
-      current.system = time_point_cast<nanoseconds>(system).time_since_epoch().count()*1e-3;
-    }
-  }
-
   ///
   /// @brief This class mimics the way "boost/timer/timer.hpp" operates while using moder boost::chrono library.
   ///
-  struct Timer
+  struct HPP_FCL_DLLAPI Timer
   {
     
     Timer()
+    : m_is_stopped(true)
     {
       start();
     }
@@ -62,18 +49,26 @@ namespace hpp { namespace fcl {
       if(m_is_stopped)
         return m_times;
       
-      CPUTimes current;
-      internal::get_cpu_times(current);
-      current.wall -= m_times.wall;
-      current.user -= m_times.user;
-      current.system -= m_times.system;
+      
+      CPUTimes current(m_times);
+#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+      std::chrono::time_point<std::chrono::steady_clock> current_clock = std::chrono::steady_clock::now();
+      current.user += std::chrono::duration_cast<std::chrono::nanoseconds>(current_clock - m_start).count()*1e-3;
+#endif
       return current;
     }
     
     void start()
     {
-      m_is_stopped = false;
-      internal::get_cpu_times(m_times);
+      if(m_is_stopped)
+      {
+        m_is_stopped = false;
+        m_times.clear();
+        
+#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+        m_start = std::chrono::steady_clock::now();
+#endif
+      }
     }
     
     void stop()
@@ -82,24 +77,19 @@ namespace hpp { namespace fcl {
         return;
       m_is_stopped = true;
       
-      CPUTimes current;
-      internal::get_cpu_times(current);
-      m_times.wall = (current.wall - m_times.wall);
-      m_times.user = (current.user - m_times.user);
-      m_times.system = (current.system - m_times.system);
+#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+      m_end = std::chrono::steady_clock::now();
+      m_times.user += std::chrono::duration_cast<std::chrono::nanoseconds>(m_end - m_start).count()*1e-3;
+#endif
       
     }
     
     void resume()
     {
+#ifdef HPP_FCL_WITH_CXX11_SUPPORT
       if(m_is_stopped)
-      {
-        CPUTimes current(m_times);
-        start();
-        m_times.wall   -= current.wall;
-        m_times.user   -= current.user;
-        m_times.system -= current.system;
-      }
+        m_start = std::chrono::steady_clock::now();
+#endif
     }
     
     bool is_stopped() const
@@ -111,6 +101,10 @@ namespace hpp { namespace fcl {
     
     CPUTimes m_times;
     bool m_is_stopped;
+    
+#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+    std::chrono::time_point<std::chrono::steady_clock> m_start, m_end;
+#endif
   };
 
 }}
