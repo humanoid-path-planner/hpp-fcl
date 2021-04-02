@@ -33,7 +33,8 @@ namespace hpp { namespace fcl {
   };
 
   ///
-  /// @brief This class mimics the way "boost/timer/timer.hpp" operates while using moder boost::chrono library.
+  /// @brief This class mimics the way "boost/timer/timer.hpp" operates while using the modern std::chrono library.
+  ///        Importantly, this class will only have an effect for C++11 and more.
   ///
   struct HPP_FCL_DLLAPI Timer
   {
