@@ -38,8 +38,19 @@
 #define HPP_FCL_FWD_HH
 
 #include <boost/shared_ptr.hpp>
+#include <sstream>
 
 #include <hpp/fcl/config.hh>
+
+#define HPP_FCL_THROW_PRETTY(message,exception) \
+{ \
+std::stringstream ss; \
+ss << "From file: " << __FILE__ << "\n"; \
+ss << "in function: " << __PRETTY_FUNCTION__ << "\n"; \
+ss << "at line: " << __LINE__ << "\n"; \
+ss << "message: " << message << "\n"; \
+throw exception(ss.str()); \
+}
 
 #if (__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
   #define HPP_FCL_WITH_CXX11_SUPPORT
