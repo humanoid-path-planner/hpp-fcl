@@ -146,5 +146,23 @@ ComputeDistance::ComputeDistance(const CollisionGeometry* o1,
     func = looktable.distance_matrix[node_type1][node_type2];
 }
 
+FCL_REAL ComputeDistance::run(const Transform3f& tf1, const Transform3f& tf2,
+                              const DistanceRequest& request, DistanceResult& result) const
+{
+  FCL_REAL res;
+  
+  if (swap_geoms) {
+    res = func(o2, tf2, o1, tf1, &solver, request, result);
+    if (request.enable_nearest_points) {
+      std::swap(result.o1, result.o2);
+      result.nearest_points[0].swap(result.nearest_points[1]);
+    }
+  } else {
+    res = func (o1, tf1, o2, tf2, &solver, request, result);
+  }
+  
+  return res;
+}
+
 } // namespace fcl
 } // namespace hpp

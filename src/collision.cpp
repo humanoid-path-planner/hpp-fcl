@@ -158,5 +158,18 @@ ComputeCollision::ComputeCollision(const CollisionGeometry* o1,
     func = looktable.collision_matrix[node_type1][node_type2];
 }
 
+std::size_t ComputeCollision::run(const Transform3f& tf1, const Transform3f& tf2,
+       const CollisionRequest& request, CollisionResult& result) const
+{
+  std::size_t res;
+  if (swap_geoms) {
+    res = func(o2, tf2, o1, tf1, &solver, request, result);
+    result.swapObjects();
+  } else {
+    res = func (o1, tf1, o2, tf2, &solver, request, result);
+  }
+  return res;
+}
+
 } // namespace fcl
 } // namespace hpp

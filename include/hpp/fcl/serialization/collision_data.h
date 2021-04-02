@@ -49,6 +49,7 @@ namespace boost
       ar & make_nvp("enable_cached_gjk_guess",query_request.enable_cached_gjk_guess);
       ar & make_nvp("cached_gjk_guess",query_request.cached_gjk_guess);
       ar & make_nvp("cached_support_func_guess",query_request.cached_support_func_guess);
+      ar & make_nvp("enable_timings",query_request.enable_timings);
     }
   
     template <class Archive>

@@ -145,11 +145,15 @@ struct HPP_FCL_DLLAPI QueryRequest
 
   /// @brief the support function intial guess set by user
   support_func_guess_t cached_support_func_guess;
+  
+  /// @brief enable timings when performing collision/distance request
+  bool enable_timings;
 
   QueryRequest () :
     enable_cached_gjk_guess (false),
     cached_gjk_guess (1,0,0),
-    cached_support_func_guess(support_func_guess_t::Zero())
+    cached_support_func_guess(support_func_guess_t::Zero()),
+    enable_timings(false)
   {}
 
   void updateGuess(const QueryResult& result);
@@ -159,7 +163,8 @@ struct HPP_FCL_DLLAPI QueryRequest
   {
     return enable_cached_gjk_guess == other.enable_cached_gjk_guess
       && cached_gjk_guess == other.cached_gjk_guess
-      && cached_support_func_guess == other.cached_support_func_guess;
+      && cached_support_func_guess == other.cached_support_func_guess
+      && enable_timings == other.enable_timings;
   }
 };
 

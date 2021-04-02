@@ -104,19 +104,14 @@ public:
     }
 
     FCL_REAL res;
+    if(request.enable_timings)
     {
       Timer timer;
-      if (swap_geoms) {
-        res = func(o2, tf2, o1, tf1, &solver, request, result);
-        if (request.enable_nearest_points) {
-          std::swap(result.o1, result.o2);
-          result.nearest_points[0].swap(result.nearest_points[1]);
-        }
-      } else {
-        res = func (o1, tf1, o2, tf2, &solver, request, result);
-      }
+      res = run(tf1, tf2, request, result);
       result.timings = timer.elapsed();
     }
+    else
+      res = run(tf1, tf2, request, result);
 
     if (cached) {
       result.cached_gjk_guess = solver.cached_guess;
@@ -132,14 +127,21 @@ public:
     request.updateGuess (result);
     return res;
   }
+  
+  virtual ~ComputeDistance() {};
 
-private:
+protected:
   CollisionGeometry const *o1, *o2;
   GJKSolver solver;
 
   DistanceFunctionMatrix::DistanceFunc func;
   bool swap_geoms;
+  
+  virtual FCL_REAL run(const Transform3f& tf1, const Transform3f& tf2,
+                       const DistanceRequest& request, DistanceResult& result) const;
 };
+
+
 
 } // namespace fcl
 } // namespace hpp

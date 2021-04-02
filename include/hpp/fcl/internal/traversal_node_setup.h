@@ -51,6 +51,7 @@
 
 #include <hpp/fcl/BVH/BVH_utility.h>
 
+
 namespace hpp
 {
 namespace fcl
@@ -308,7 +309,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    throw std::invalid_argument("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
+    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
 
   if(!tf1.isIdentity())
   {
@@ -352,7 +353,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, 0>& node,
                 CollisionResult& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    throw std::invalid_argument("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
+    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -381,7 +382,7 @@ static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S>& node,
                                                        CollisionResult& result)
 {
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    throw std::invalid_argument("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
+    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -410,8 +411,10 @@ bool initialize(MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity>
                 CollisionResult& result,
                 bool use_refit = false, bool refit_bottomup = false)
 {
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    throw std::invalid_argument("model1 and model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
 
   if(!tf1.isIdentity())
   {
@@ -469,8 +472,10 @@ bool initialize(MeshCollisionTraversalNode<BV, 0>& node,
                 const BVHModel<BV>& model2, const Transform3f& tf2,
                 CollisionResult& result)
 {
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    throw std::invalid_argument("model1 and model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
 
   node.vertices1 = model1.vertices;
   node.vertices2 = model2.vertices;
@@ -485,8 +490,8 @@ bool initialize(MeshCollisionTraversalNode<BV, 0>& node,
 
   node.result = &result;
 
-  node.RT.R = tf1.getRotation().transpose() * tf2.getRotation();
-  node.RT.T = tf1.getRotation().transpose() * (tf2.getTranslation() - tf1.getTranslation());
+  node.RT.R.noalias() = tf1.getRotation().transpose() * tf2.getRotation();
+  node.RT.T.noalias() = tf1.getRotation().transpose() * (tf2.getTranslation() - tf1.getTranslation());
 
   return true;
 }
@@ -521,8 +526,10 @@ bool initialize(MeshDistanceTraversalNode<BV, RelativeTransformationIsIdentity>&
                 DistanceResult& result,
                 bool use_refit = false, bool refit_bottomup = false)
 {
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    throw std::invalid_argument("model1 and model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
 
   if(!tf1.isIdentity())
   {
@@ -583,8 +590,10 @@ bool initialize(MeshDistanceTraversalNode<BV, 0>& node,
                 const DistanceRequest& request,
                 DistanceResult& result)
 {
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    throw std::invalid_argument("model1 and model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
 
   node.request = request;
   node.result = &result;
@@ -618,7 +627,7 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    throw std::invalid_argument("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
+    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
 
   if(!tf1.isIdentity())
   {
@@ -665,7 +674,7 @@ bool initialize(ShapeMeshDistanceTraversalNode<S, BV>& node,
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    throw std::invalid_argument("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
+    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
   
   if(!tf2.isIdentity())
   {
@@ -714,7 +723,7 @@ static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S>& node,
                                                       DistanceResult& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    throw std::invalid_argument("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
+    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
 
   node.request = request;
   node.result = &result;
@@ -783,8 +792,8 @@ static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S>& node,
                                                       DistanceResult& result)
 {
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    throw std::invalid_argument("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.");
-
+    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+    
   node.request = request;
   node.result = &result;
 
