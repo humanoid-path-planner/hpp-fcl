@@ -147,6 +147,9 @@ protected:
 
   virtual std::size_t run(const Transform3f& tf1, const Transform3f& tf2,
                           const CollisionRequest& request, CollisionResult& result) const;
+public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 

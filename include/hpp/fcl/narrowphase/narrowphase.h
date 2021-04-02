@@ -365,6 +365,10 @@ namespace fcl
     /// @brief Distance above which the GJK solver stoppes its computations and processes to an early stopping.
     ///        The two witness points are incorrect, but with the guaranty that the two shapes have a distance greather than distance_upper_bound.
     mutable FCL_REAL distance_upper_bound;
+    
+  public:
+    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
   template<>

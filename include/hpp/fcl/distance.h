@@ -139,6 +139,9 @@ protected:
   
   virtual FCL_REAL run(const Transform3f& tf1, const Transform3f& tf2,
                        const DistanceRequest& request, DistanceResult& result) const;
+public:
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 
