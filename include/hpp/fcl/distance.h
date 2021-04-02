@@ -128,7 +128,7 @@ public:
     return res;
   }
 
-private:
+protected:
   CollisionGeometry const *o1, *o2;
   GJKSolver solver;
 

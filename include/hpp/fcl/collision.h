@@ -137,6 +137,8 @@ public:
   }
   
   CollisionGeometry const *o1, *o2;
+
+protected:
   GJKSolver solver;
 
   CollisionFunctionMatrix::CollisionFunc func;
