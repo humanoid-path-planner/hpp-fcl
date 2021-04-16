@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, CNRS - LAAS
+ *  Copyright (c) 2019-2021 CNRS - LAAS, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -75,6 +75,10 @@ Loader::Loader () : importer (new Assimp::Importer())
       aiComponent_MATERIALS |
       aiComponent_NORMALS
       );
+  
+  // remove LINES and POINTS
+  importer->SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE,
+                               aiPrimitiveType_LINE | aiPrimitiveType_POINT);
 
 }
 
@@ -93,7 +97,7 @@ void Loader::load (const std::string & resource_path)
       // TODO: I (Joseph Mirabel) have no idea whether degenerated triangles are
       // properly handled. Enabling aiProcess_FindDegenerates would throw an
       // exception when that happens. Is it too conservative ?
-      // aiProcess_FindDegenerates |
+      aiProcess_FindDegenerates |
       aiProcess_JoinIdenticalVertices
       );
 
