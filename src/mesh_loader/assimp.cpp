@@ -94,9 +94,6 @@ void Loader::load (const std::string & resource_path)
       aiProcess_Triangulate |
       aiProcess_RemoveComponent |
       aiProcess_ImproveCacheLocality |
-      // TODO: I (Joseph Mirabel) have no idea whether degenerated triangles are
-      // properly handled. Enabling aiProcess_FindDegenerates would throw an
-      // exception when that happens. Is it too conservative ?
       aiProcess_FindDegenerates |
       aiProcess_JoinIdenticalVertices
       );
