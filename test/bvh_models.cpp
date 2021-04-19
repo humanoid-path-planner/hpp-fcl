@@ -377,3 +377,14 @@ BOOST_AUTO_TEST_CASE (gerard_bauzil)
   testLoadGerardBauzil<kIOS>();
   testLoadGerardBauzil<OBBRSS>();
 }
+
+
+BOOST_AUTO_TEST_CASE(load_illformated_mesh)
+{
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+  const std::string filename = (path / "illformated_mesh.dae").string();
+  
+  MeshLoader loader;
+  BOOST_CHECK_NO_THROW(loader.load(filename));
+}
+
