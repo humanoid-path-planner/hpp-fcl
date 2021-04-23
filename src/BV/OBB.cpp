@@ -163,7 +163,7 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2)
 
 bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b)
 {
-  register FCL_REAL t, s;
+  FCL_REAL t, s;
   const FCL_REAL reps = 1e-6;
 
   Matrix3f Bf (B.array().abs() + reps);
@@ -313,7 +313,7 @@ namespace internal
   {
     // Bf = |B|
     // | B^T T| - Bf^T * a - b
-    register FCL_REAL s, t = 0;
+    FCL_REAL s, t = 0;
     s = std::abs(B.col(0).dot(T)) - Bf.col(0).dot(a) - b[0];
     if (s > 0) t += s*s;
     s = std::abs(B.col(1).dot(T)) - Bf.col(1).dot(a) - b[1];
