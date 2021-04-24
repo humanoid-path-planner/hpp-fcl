@@ -15,7 +15,6 @@ jobs:
           - {ROS_DISTRO: noetic}
     env:
       CCACHE_DIR: /github/home/.ccache # Enable ccache
-      UPSTREAM_WORKSPACE: dependencies.rosinstall
       BUILDER: catkin_tools
     runs-on: ubuntu-latest
     steps:
