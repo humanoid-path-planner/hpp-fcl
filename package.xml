@@ -21,8 +21,8 @@
   <doc_depend condition="$ROS_PYTHON_VERSION == 3">python3-lxml</doc_depend>
   <depend condition="$ROS_PYTHON_VERSION == 2">python</depend>
   <depend condition="$ROS_PYTHON_VERSION == 2">python-numpy</depend>
-  <depend condition="$ROS_PYTHON_VERSION == 3">python</depend>
-  <depend condition="$ROS_PYTHON_VERSION == 3">python-numpy</depend>
+  <depend condition="$ROS_PYTHON_VERSION == 3">python3</depend>
+  <depend condition="$ROS_PYTHON_VERSION == 3">python3-numpy</depend>
   <depend>eigen</depend>
   <depend>boost</depend>
   <depend>assimp</depend>
