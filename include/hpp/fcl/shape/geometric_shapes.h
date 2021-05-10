@@ -475,7 +475,15 @@ public:
   , d(other.d)
   {
   }
-  
+
+  /// @brief operator = 
+  Halfspace& operator = (const Halfspace& other)
+  {
+    n = other.n;
+    d = other.d;
+    return *this;
+  }
+
   /// @brief Clone *this into a new Halfspace
   virtual Halfspace* clone() const { return new Halfspace(*this); };
 
@@ -536,7 +544,15 @@ public:
   , d(other.d)
   {
   }
-  
+
+  /// @brief operator = 
+  Plane& operator = (const Plane& other)
+  {
+    n = other.n;
+    d = other.d;
+    return *this;
+  }
+
   /// @brief Clone *this into a new Plane
   virtual Plane* clone() const { return new Plane(*this); };
 
