@@ -453,7 +453,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
+  FCL_REAL BVDistanceLowerBound(int /*b1*/, int b2) const
   {
     return model1_bv.distance(model2->getBV(b2).bv);
   }
@@ -708,7 +708,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (one shape and one triangle)
-  void leafComputeDistance(int b1, int b2) const
+  void leafComputeDistance(int /*b1*/, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     
@@ -769,7 +769,7 @@ public:
   {
   }
 
-  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
+  FCL_REAL BVDistanceLowerBound(int /*b1*/, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
@@ -801,7 +801,7 @@ public:
   {
   }
 
-  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
+  FCL_REAL BVDistanceLowerBound(int /*b1*/, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
@@ -833,7 +833,7 @@ public:
   {    
   }
 
-  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
+  FCL_REAL BVDistanceLowerBound(int /*b1*/, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
