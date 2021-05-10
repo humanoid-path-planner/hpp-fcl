@@ -101,6 +101,11 @@ public:
                                  T(T_)
   {}
 
+  /// @brief Construct transform from other transform
+  Transform3f(const Transform3f& tf) : R(tf.R),
+                                       T(tf.T)
+  {}
+
   /// @brief operator = 
   Transform3f& operator = (const Transform3f& tf)
   {
