@@ -49,12 +49,11 @@ namespace hpp { namespace fcl {
     {
       if(m_is_stopped)
         return m_times;
-      
-      
+
       CPUTimes current(m_times);
 #ifdef HPP_FCL_WITH_CXX11_SUPPORT
       std::chrono::time_point<std::chrono::steady_clock> current_clock = std::chrono::steady_clock::now();
-      current.user += std::chrono::duration_cast<std::chrono::nanoseconds>(current_clock - m_start).count()*1e-3;
+      current.user += static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(current_clock - m_start).count())*1e-3;
 #endif
       return current;
     }
@@ -80,7 +79,7 @@ namespace hpp { namespace fcl {
       
 #ifdef HPP_FCL_WITH_CXX11_SUPPORT
       m_end = std::chrono::steady_clock::now();
-      m_times.user += std::chrono::duration_cast<std::chrono::nanoseconds>(m_end - m_start).count()*1e-3;
+      m_times.user += static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(m_end - m_start).count())*1e-3;
 #endif
       
     }
