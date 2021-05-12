@@ -107,17 +107,17 @@ bool BVHModelBase::operator==(const BVHModelBase & other) const
   
   if(!result) return false;
   
-  for(size_t k = 0; k < num_tris; ++k)
+  for(size_t k = 0; k < static_cast<size_t>(num_tris); ++k)
     if(tri_indices[k] != other.tri_indices[k])
       return false;
   
-  for(size_t k = 0; k < num_vertices; ++k)
+  for(size_t k = 0; k < static_cast<size_t>(num_vertices); ++k)
     if(vertices[k] != other.vertices[k])
       return false;
   
   if(prev_vertices != NULL && other.prev_vertices != NULL)
   {
-    for(size_t k = 0; k < num_vertices; ++k)
+    for(size_t k = 0; k < static_cast<size_t>(num_vertices); ++k)
     {
       if(prev_vertices[k] != other.prev_vertices[k])
         return false;

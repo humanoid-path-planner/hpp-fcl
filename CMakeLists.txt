@@ -83,11 +83,11 @@ IF(WIN32)
 ELSE(WIN32)
   ADD_PROJECT_DEPENDENCY(Boost REQUIRED chrono serialization)
 ENDIF(WIN32)
-if (BUILD_PYTHON_INTERFACE)
+if(BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
   search_for_boost_python(REQUIRED)
   find_package(Boost REQUIRED COMPONENTS system)
-endif ()
+endif(BUILD_PYTHON_INTERFACE)
 
 # Optional dependencies
 ADD_PROJECT_DEPENDENCY(octomap PKG_CONFIG_REQUIRES "octomap >= 1.6")
