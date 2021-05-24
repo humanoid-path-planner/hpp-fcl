@@ -826,7 +826,7 @@ int BVHModel<BV>::memUsage(const bool msg) const
     std::cerr << "Vertices: " << num_vertices << " allocated." << std::endl;
   }
 
-  return BVH_OK;
+  return total_mem;
 }
 
 template<typename BV>
