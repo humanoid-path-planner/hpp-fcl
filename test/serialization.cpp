@@ -45,6 +45,7 @@
 #include <hpp/fcl/serialization/collision_data.h>
 #include <hpp/fcl/serialization/AABB.h>
 #include <hpp/fcl/serialization/BVH_model.h>
+#include <hpp/fcl/serialization/geometric_shapes.h>
 
 #include "utility.h"
 #include "fcl_resources/config.h"
@@ -237,5 +238,52 @@ BOOST_AUTO_TEST_CASE(test_BVHModel)
   {
     BVHModel<OBBRSS> m1_copy;
     test_serialization(m1,m1_copy,STREAM);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_shapes)
+{
+  
+  {
+    TriangleP triangle(Vec3f::UnitX(),
+                       Vec3f::UnitY(),
+                       Vec3f::UnitZ());
+    TriangleP triangle_copy(Vec3f::Random(),Vec3f::Random(),Vec3f::Random());
+    test_serialization(triangle,triangle_copy);
+  }
+  
+  {
+    Box box(Vec3f::UnitX()), box_copy(Vec3f::Random());
+    test_serialization(box,box_copy);
+  }
+  
+  {
+    Sphere sphere(1.), sphere_copy(2.);
+    test_serialization(sphere,sphere_copy);
+  }
+  
+  {
+    Capsule capsule(1.,2.), capsule_copy(10.,10.);
+    test_serialization(capsule,capsule_copy);
+  }
+  
+  {
+    Cone cone(1.,2.), cone_copy(10.,10.);
+    test_serialization(cone,cone_copy);
+  }
+  
+  {
+    Cylinder cylinder(1.,2.), cylinder_copy(10.,10.);
+    test_serialization(cylinder,cylinder_copy);
+  }
+  
+  {
+    Halfspace hs(Vec3f::Random(),1.), hs_copy(Vec3f::Zero(),0.);
+    test_serialization(hs,hs_copy);
+  }
+  
+  {
+    Plane plane(Vec3f::Random(),1.), plane_copy(Vec3f::Zero(),0.);
+    test_serialization(plane,plane_copy);
   }
 }
