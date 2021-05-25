@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019-2020 CNRS-LAAS INRIA
+//  Copyright (c) 2019-2021 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -155,6 +155,29 @@ struct ConvexWrapper
           tris, (int)_tris.size()));
   }
 };
+
+
+template<typename T>
+void defComputeMemoryFootprint()
+{
+  doxygen::def("computeMemoryFootprint",&computeMemoryFootprint<T>);
+}
+
+void exposeComputeMemoryFootprint()
+{
+  defComputeMemoryFootprint<Sphere>();
+  defComputeMemoryFootprint<Cone>();
+  defComputeMemoryFootprint<Capsule>();
+  defComputeMemoryFootprint<Cylinder>();
+  defComputeMemoryFootprint<Box>();
+  defComputeMemoryFootprint<Plane>();
+  defComputeMemoryFootprint<Halfspace>();
+  defComputeMemoryFootprint<TriangleP>();
+  
+  defComputeMemoryFootprint< BVHModel<OBB> >();
+  defComputeMemoryFootprint< BVHModel<RSS> >();
+  defComputeMemoryFootprint< BVHModel<OBBRSS> >();
+}
 
 void exposeShapes ()
 {
@@ -470,6 +493,7 @@ void exposeCollisionGeometries ()
     ;
   exposeBVHModel<OBB    >("OBB"    );
   exposeBVHModel<OBBRSS >("OBBRSS" );
+  exposeComputeMemoryFootprint();
 }
 
 void exposeCollisionObject ()
