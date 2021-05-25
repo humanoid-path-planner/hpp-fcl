@@ -45,6 +45,8 @@
 #include <hpp/fcl/serialization/collision_data.h>
 #include <hpp/fcl/serialization/AABB.h>
 #include <hpp/fcl/serialization/BVH_model.h>
+#include <hpp/fcl/serialization/geometric_shapes.h>
+#include <hpp/fcl/serialization/memory.h>
 
 #include "utility.h"
 #include "fcl_resources/config.h"
@@ -238,4 +240,73 @@ BOOST_AUTO_TEST_CASE(test_BVHModel)
     BVHModel<OBBRSS> m1_copy;
     test_serialization(m1,m1_copy,STREAM);
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_shapes)
+{
+  
+  {
+    TriangleP triangle(Vec3f::UnitX(),
+                       Vec3f::UnitY(),
+                       Vec3f::UnitZ());
+    TriangleP triangle_copy(Vec3f::Random(),Vec3f::Random(),Vec3f::Random());
+    test_serialization(triangle,triangle_copy);
+  }
+  
+  {
+    Box box(Vec3f::UnitX()), box_copy(Vec3f::Random());
+    test_serialization(box,box_copy);
+  }
+  
+  {
+    Sphere sphere(1.), sphere_copy(2.);
+    test_serialization(sphere,sphere_copy);
+  }
+  
+  {
+    Capsule capsule(1.,2.), capsule_copy(10.,10.);
+    test_serialization(capsule,capsule_copy);
+  }
+  
+  {
+    Cone cone(1.,2.), cone_copy(10.,10.);
+    test_serialization(cone,cone_copy);
+  }
+  
+  {
+    Cylinder cylinder(1.,2.), cylinder_copy(10.,10.);
+    test_serialization(cylinder,cylinder_copy);
+  }
+  
+  {
+    Halfspace hs(Vec3f::Random(),1.), hs_copy(Vec3f::Zero(),0.);
+    test_serialization(hs,hs_copy);
+  }
+  
+  {
+    Plane plane(Vec3f::Random(),1.), plane_copy(Vec3f::Zero(),0.);
+    test_serialization(plane,plane_copy);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_memory_footprint)
+{
+  Sphere sphere(1.);
+  BOOST_CHECK(sizeof(Sphere) == computeMemoryFootprint(sphere));
+  
+  std::vector<Vec3f> p1;
+  std::vector<Triangle> t1;
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+  
+  loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
+
+  BVHModel<OBBRSS> m1;
+
+  m1.beginModel();
+  m1.addSubModel(p1, t1);
+  m1.endModel();
+  
+  std::cout << "computeMemoryFootprint(m1): " << computeMemoryFootprint(m1) << std::endl;
+  BOOST_CHECK(sizeof(BVHModel<OBBRSS>) < computeMemoryFootprint(m1));
+  BOOST_CHECK(m1.memUsage(false) == computeMemoryFootprint(m1));
 }

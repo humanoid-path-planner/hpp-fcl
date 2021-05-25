@@ -182,6 +182,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/collision_data.h
   include/hpp/fcl/serialization/collision_object.h
   include/hpp/fcl/serialization/eigen.h
+  include/hpp/fcl/serialization/geometric_shapes.h
+  include/hpp/fcl/serialization/memory.h
   include/hpp/fcl/serialization/OBB.h
   include/hpp/fcl/serialization/RSS.h
   include/hpp/fcl/serialization/OBBRSS.h

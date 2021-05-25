@@ -11,6 +11,7 @@
 #include "hpp/fcl/serialization/BV_node.h"
 #include "hpp/fcl/serialization/BV_splitter.h"
 #include "hpp/fcl/serialization/collision_object.h"
+#include "hpp/fcl/serialization/memory.h"
 
 namespace boost
 {
@@ -313,5 +314,23 @@ namespace boost
   
   }
 }
+
+namespace hpp {
+namespace fcl {
+
+namespace internal
+{
+  template<typename BV>
+  struct memory_footprint_evaluator< ::hpp::fcl::BVHModel<BV> >
+  {
+    static size_t run(const ::hpp::fcl::BVHModel<BV> & bvh_model)
+    {
+      return static_cast<size_t>(bvh_model.memUsage(false));
+    }
+  };
+}
+
+} // namespace fcl
+} // namespace hpp
 
 #endif // ifndef HPP_FCL_SERIALIZATION_BVH_MODEL_H
