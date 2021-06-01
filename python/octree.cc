@@ -1,10 +1,8 @@
 
-#include <boost/python.hpp>
+#include "fcl.hh"
 
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/octree.h>
-
-#include "fcl.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
