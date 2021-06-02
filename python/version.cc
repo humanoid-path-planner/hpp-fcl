@@ -3,7 +3,7 @@
 //
 
 #include "hpp/fcl/config.hh"
-#include <boost/python.hpp>
+#include "fcl.hh"
 #include <boost/preprocessor/stringize.hpp>
 
 namespace bp = boost::python;

@@ -32,9 +32,6 @@
 //  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-#include <boost/python.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-
 #include <eigenpy/eigenpy.hpp>
 
 #include <hpp/fcl/fwd.hh>
