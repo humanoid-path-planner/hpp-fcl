@@ -178,16 +178,19 @@ public:
   bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
+    bool disjoint;
     if (RTIsIdentity)
-      return !this->model1->getBV(b1).overlap(this->model2->getBV(b2),
+      disjoint = !this->model1->getBV(b1).overlap(this->model2->getBV(b2),
           this->request, sqrDistLowerBound);
     else {
-      bool res = !overlap(RT._R(), RT._T(),
+      disjoint = !overlap(RT._R(), RT._T(),
           this->model1->getBV(b1).bv, this->model2->getBV(b2).bv,
           this->request, sqrDistLowerBound);
-      assert (!res || sqrDistLowerBound > 0);
-      return res;
+      assert (!disjoint || sqrDistLowerBound > 0);
     }
+    if (disjoint)
+      internal::updateDistanceLowerBoundFromBV(this->request, *this->result, sqrDistLowerBound);
+    return disjoint;
   }
 
   /// Intersection testing between leaves (two triangles)
@@ -233,8 +236,9 @@ public:
     solver.shapeDistance (tri1, this->tf1, tri2, this->tf2,
                           distance, p1, p2, normal);
     FCL_REAL distToCollision = distance - this->request.security_margin;
-    sqrDistLowerBound = distance * distance;
     if (distToCollision <= 0) { // collision
+      sqrDistLowerBound = 0;
+
       Vec3f p (p1); // contact point
       FCL_REAL penetrationDepth (0);
       if(this->result->numContacts() < this->request.num_max_contacts) {
@@ -249,7 +253,11 @@ public:
                                          primitive_id1, primitive_id2,
                                          p, normal, penetrationDepth));
       }
-    }
+    } else 
+      sqrDistLowerBound = distToCollision * distToCollision;
+
+    internal::updateDistanceLowerBoundFromLeaf(this->request,
+        *this->result, distToCollision, p1, p2);
   }
 
   Vec3f* vertices1;

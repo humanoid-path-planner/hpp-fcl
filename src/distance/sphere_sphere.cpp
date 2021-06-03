@@ -38,6 +38,7 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/internal/shape_shape_func.h>
+#include <hpp/fcl/internal/traversal_node_base.h>
 
 // Note that partial specialization of template functions is not allowed.
 // Therefore, two implementations with the default narrow phase solvers are
@@ -122,8 +123,10 @@ namespace fcl {
     FCL_REAL penetrationDepth;
     // Unlike in distance computation, we consider the security margin.
     penetrationDepth = r1 + r2 + margin - dist;
-    bool collision = (penetrationDepth >= 0);
-    if (collision) {
+
+    internal::updateDistanceLowerBoundFromLeaf (request, result, -penetrationDepth,
+        center1 + unit * r1, center2 - unit * r2);
+    if (penetrationDepth >= 0) {
       // Take contact point at the middle of intersection between each sphere
       // and segment [c1 c2].
       FCL_REAL abscissa = .5 * r1 + .5 * (dist - r2);
@@ -132,7 +135,6 @@ namespace fcl {
       result.addContact (contact);
       return 1;
     }
-    result.updateDistanceLowerBound (-penetrationDepth);
     return 0;
   }
 } // namespace fcl
