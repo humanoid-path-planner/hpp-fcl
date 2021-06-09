@@ -200,6 +200,42 @@ BOOST_AUTO_TEST_CASE(box_sphere)
   }
 }
 
+BOOST_AUTO_TEST_CASE(sphere_sphere)
+{
+  shared_ptr < hpp::fcl::Sphere > sphere1(new hpp::fcl::Sphere(0.5));
+  shared_ptr < hpp::fcl::Sphere > sphere2(new hpp::fcl::Sphere(1.));
+  
+  Transform3f M1; M1.setIdentity();
+  Transform3f M2; M2.setIdentity();
+  
+  std::vector<Transform3f> transforms;
+  FCL_REAL extents[] = {-2., -2., -2., 2., 2., 2.};
+  const std::size_t n = 1000;
+
+  generateRandomTransforms(extents, transforms, n);
+  
+  FCL_REAL distanceLowerBound, distance;
+  bool col1, col2;
+  col1 = testDistanceLowerBound(M1,sphere1,sphere2,distanceLowerBound);
+  col2 = testDistance(M1,sphere1,sphere2,distance);
+  BOOST_CHECK(col1 == col2);
+  BOOST_CHECK(distanceLowerBound <= distance);
+  
+  for(std::size_t i = 0; i < transforms.size(); ++i)
+  {
+    FCL_REAL distanceLowerBound, distance;
+    bool col1, col2;
+    col1 = testDistanceLowerBound (transforms[i], sphere1, sphere2, distanceLowerBound);
+    col2 = testDistance (transforms[i], sphere1, sphere2, distance);
+    BOOST_CHECK (col1 == col2);
+    if (!col1) {
+      BOOST_CHECK_MESSAGE (distanceLowerBound <= distance,
+         "distance = " << distance << ", lower bound = "
+         << distanceLowerBound);
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE(box_mesh)
 {
   std::vector<Vec3f> p1;

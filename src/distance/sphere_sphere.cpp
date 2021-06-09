@@ -119,9 +119,9 @@ namespace fcl {
     Vec3f unit (0,0,0);
     if(dist > epsilon)
         unit = c1c2/dist;
-    FCL_REAL penetrationDepth;
     // Unlike in distance computation, we consider the security margin.
-    penetrationDepth = r1 + r2 + margin - dist;
+    FCL_REAL penetrationDepth = r1 + r2 + margin - dist;
+    result.updateDistanceLowerBound (-penetrationDepth);
     bool collision = (penetrationDepth >= 0);
     if (collision) {
       // Take contact point at the middle of intersection between each sphere
@@ -132,7 +132,6 @@ namespace fcl {
       result.addContact (contact);
       return 1;
     }
-    result.updateDistanceLowerBound (-penetrationDepth);
     return 0;
   }
 } // namespace fcl
