@@ -82,6 +82,7 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
   FCL_REAL distance = ShapeShapeDistance <T_SH1, T_SH2>
     (o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
 
+  size_t num_contacts = 0;
   if (distance <= 0) {
     if (result.numContacts () < request.num_max_contacts) {
       const Vec3f& p1 = distanceResult.nearest_points [0];
@@ -94,7 +95,7 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
 
       result.addContact (contact);
     }
-    return 1;
+    num_contacts = result.numContacts();
   }
   if (distance <= request.security_margin) {
     if (result.numContacts () < request.num_max_contacts) {
@@ -107,10 +108,10 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
           -distance+request.security_margin);
       result.addContact (contact);
     }
-    return 1;
+    num_contacts = result.numContacts();
   }
   result.updateDistanceLowerBound (distance);
-  return 0;
+  return num_contacts;
 }
 
 namespace details

@@ -285,7 +285,7 @@ public:
   {
   }
 
-  /// @brief Update the lower bound only if the distance in inferior.
+  /// @brief Update the lower bound only if the distance is inferior.
   inline void updateDistanceLowerBound (const FCL_REAL& distance_lower_bound_)
   {
     if (distance_lower_bound_ < distance_lower_bound)
