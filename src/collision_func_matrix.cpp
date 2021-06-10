@@ -97,7 +97,7 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
     }
     num_contacts = result.numContacts();
   }
-  if (distance <= request.security_margin) {
+  else if (distance <= request.security_margin) {
     if (result.numContacts () < request.num_max_contacts) {
       const Vec3f& p1 = distanceResult.nearest_points [0];
       const Vec3f& p2 = distanceResult.nearest_points [1];
