@@ -38,6 +38,7 @@
 #define BOOST_CHRONO_VERSION 2
 #include <boost/chrono/chrono.hpp>
 #include <boost/chrono/chrono_io.hpp>
+#include <boost/mpl/vector.hpp>
 
 #define BOOST_TEST_MODULE FCL_COLLISION
 #include <boost/test/included/unit_test.hpp>
