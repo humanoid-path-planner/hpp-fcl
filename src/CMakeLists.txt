@@ -85,7 +85,7 @@ if(HPP_FCL_HAS_OCTOMAP)
   list(APPEND ${LIBRARY_NAME}_SOURCES octree.cpp)
 endif(HPP_FCL_HAS_OCTOMAP)
 
-if(HPP_FCL_HAS_QHULL)
+if(HPP_FCL_HAS_QHULL AND NOT HPP_FCL_USE_SYSTEM_QHULL)
   set(
     libqhullcpp_HEADERS
     ${Qhullcpp_PREFIX}/libqhullcpp/Coordinates.h
@@ -188,9 +188,13 @@ ENDIF(WIN32)
 
 if(HPP_FCL_HAS_QHULL)
   target_compile_definitions(${LIBRARY_NAME} PRIVATE -DHPP_FCL_HAS_QHULL)
-  target_include_directories(${LIBRARY_NAME} SYSTEM PRIVATE
-    ${Qhull_r_INCLUDE_DIR} ${Qhullcpp_PREFIX})
-  target_link_libraries(${LIBRARY_NAME} PRIVATE "${Qhull_r_LIBRARY}")
+  if (HPP_FCL_USE_SYSTEM_QHULL)
+    target_link_libraries(${LIBRARY_NAME} PRIVATE Qhull::qhull_r Qhull::qhullcpp)
+  else()
+    target_include_directories(${LIBRARY_NAME} SYSTEM PRIVATE
+      ${Qhull_r_INCLUDE_DIR} ${Qhullcpp_PREFIX})
+    target_link_libraries(${LIBRARY_NAME} PRIVATE "${Qhull_r_LIBRARY}")
+  endif()
 endif()
 
 target_include_directories(${LIBRARY_NAME}

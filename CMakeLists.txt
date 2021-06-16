@@ -108,20 +108,29 @@ if(HPP_FCL_HAS_QHULL)
   if(DEFINED CMAKE_CXX_STANDARD AND CMAKE_CXX_STANDARD EQUAL 98)
     message(FATAL_ERROR "Cannot use qhull library with C++ < 11.\nYou may add -DCMAKE_CXX_STANDARD=11")
   endif()
-  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-parties)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-    ${CMAKE_SOURCE_DIR}/third-parties/qhull/src/libqhullcpp
-    ${CMAKE_CURRENT_BINARY_DIR}/third-parties/libqhullcpp
-    )
-  set(Qhullcpp_PREFIX ${CMAKE_BINARY_DIR}/third-parties)
-  find_path(Qhull_r_INCLUDE_DIR
-    NAMES libqhull_r/libqhull_r.h
-    PATHS ${Qhull_PREFIX}
-    )
-  find_library(Qhull_r_LIBRARY
-    NAMES libqhull_r.so
-    PATHS ${Qhull_PREFIX}
-    )
+  find_package(Qhull COMPONENTS qhull_r qhullcpp)
+  if(Qhull_FOUND)
+    set(HPP_FCL_USE_SYSTEM_QHULL TRUE)
+  else()
+    message(STATUS "Qhullcpp not found: it will be build from sources, if Qhull_r is found")
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-parties)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+      ${CMAKE_SOURCE_DIR}/third-parties/qhull/src/libqhullcpp
+      ${CMAKE_CURRENT_BINARY_DIR}/third-parties/libqhullcpp
+      )
+    set(Qhullcpp_PREFIX ${CMAKE_BINARY_DIR}/third-parties)
+    find_path(Qhull_r_INCLUDE_DIR
+      NAMES libqhull_r/libqhull_r.h
+      PATHS ${Qhull_PREFIX}
+      )
+    find_library(Qhull_r_LIBRARY
+      NAMES libqhull_r.so
+      PATHS ${Qhull_PREFIX}
+      )
+    if(NOT Qhull_r_LIBRARY)
+      message(FATAL_ERROR "Qhull_r not found, please install it or turn HPP_FCL_HAS_QHULL OFF")
+    endif()
+  endif()
 endif()
 
 FIND_PACKAGE(assimp REQUIRED)
