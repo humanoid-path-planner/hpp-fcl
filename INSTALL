@@ -7,7 +7,7 @@ Dependencies:
  - octomap (optional dependency, available at http://octomap.github.com)
  - Qhull (optional dependency, available at http://www.qhull.org)
 
-Boost and eigen are mandatory dependencies. If octomap is not found,
+Boost and Eigen are mandatory dependencies. If Octomap is not found,
 collision detection with octrees will not be possible.
 
 For installation, CMake will also be needed (http://cmake.org).
