@@ -51,7 +51,7 @@ using namespace hpp::fcl;
 
 FCL_REAL extents[6] = {0, 0, 0, 10, 10, 10};
 
-BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_libccd)
+BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere)
 {
   Sphere s1(20);
   Sphere s2(20);
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_libccd)
   }
 }
 
-BOOST_AUTO_TEST_CASE(consistency_distance_boxbox_libccd)
+BOOST_AUTO_TEST_CASE(consistency_distance_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_boxbox_libccd)
   }
 }
 
-BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder_libccd)
+BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder_libccd)
   }
 }
 
-BOOST_AUTO_TEST_CASE(consistency_distance_conecone_libccd)
+BOOST_AUTO_TEST_CASE(consistency_distance_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -791,7 +791,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_conecone_GJK)
 
 
 
-BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_libccd)
+BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -1008,7 +1008,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_libccd)
   BOOST_CHECK_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_libccd)
+BOOST_AUTO_TEST_CASE(consistency_collision_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -1128,7 +1128,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_libccd)
   BOOST_CHECK(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_libccd)
+BOOST_AUTO_TEST_CASE(consistency_collision_spherebox)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -1248,7 +1248,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_libccd)
   BOOST_CHECK_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_libccd)
+BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -1335,7 +1335,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_libccd)
   BOOST_CHECK_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_conecone_libccd)
+BOOST_AUTO_TEST_CASE(consistency_collision_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
