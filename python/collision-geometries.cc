@@ -508,9 +508,10 @@ void exposeCollisionObject ()
       .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Transform3f&>())
       .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Matrix3f&, const Vec3f&>())
 
-      .def ("getObjectType", &CollisionObject::getObjectType)
-      .def ("getNodeType", &CollisionObject::getNodeType)
-      .def ("computeAABB", &CollisionObject::computeAABB)
+      .DEF_CLASS_FUNC(CollisionObject, getObjectType)
+      .DEF_CLASS_FUNC(CollisionObject, getNodeType)
+      .DEF_CLASS_FUNC(CollisionObject, computeAABB)
+      .DEF_CLASS_FUNC2(CollisionObject, getAABB, bp::return_value_policy<bp::copy_const_reference>())
 
       .DEF_CLASS_FUNC2(CollisionObject, getTranslation, bp::return_value_policy<bp::copy_const_reference>())
       .DEF_CLASS_FUNC(CollisionObject, setTranslation)
@@ -523,9 +524,9 @@ void exposeCollisionObject ()
       .DEF_CLASS_FUNC(CollisionObject, isIdentityTransform)
       .DEF_CLASS_FUNC(CollisionObject, setIdentityTransform)
       
-      .def("collisionGeometry",
+      .def(dv::member_func("collisionGeometry",
           static_cast<const CollisionGeometryPtr_t& (CollisionObject::*) ()>(&CollisionObject::collisionGeometry),
-          bp::return_value_policy<bp::copy_const_reference>())
+          bp::return_value_policy<bp::copy_const_reference>()))
       ;
   }
 }
