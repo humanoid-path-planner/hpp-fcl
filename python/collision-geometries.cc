@@ -511,6 +511,7 @@ void exposeCollisionObject ()
       .def ("getObjectType", &CollisionObject::getObjectType)
       .def ("getNodeType", &CollisionObject::getNodeType)
       .def ("computeAABB", &CollisionObject::computeAABB)
+      .DEF_CLASS_FUNC2(CollisionObject, getAABB, bp::return_value_policy<bp::copy_const_reference>())
 
       .DEF_CLASS_FUNC2(CollisionObject, getTranslation, bp::return_value_policy<bp::copy_const_reference>())
       .DEF_CLASS_FUNC(CollisionObject, setTranslation)
