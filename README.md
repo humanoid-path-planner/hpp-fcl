@@ -7,6 +7,7 @@ HPP-FCL — An extension of the Flexible Collision Library
   <a href="https://anaconda.org/conda-forge/hpp-fcl"><img src="https://img.shields.io/conda/dn/conda-forge/hpp-fcl.svg" alt="Conda Downloads"/></a>
   <a href="https://anaconda.org/conda-forge/hpp-fcl"><img src="https://img.shields.io/conda/vn/conda-forge/hpp-fcl.svg" alt="Conda Version"/></a>
   <a href="https://conda.anaconda.org/conda-forge"><img src="https://anaconda.org/conda-forge/hpp-fcl/badges/installer/conda.svg" alt="Anaconda-Server Badge"/></a>
+  <a href="https://badge.fury.io/py/hpp-fcl"><img src="https://badge.fury.io/py/hpp-fcl.svg" alt="PyPI version" height="18"></a>
 </p>
 
 This project is initially a fork from https://github.com/flexible-collision-library/fcl and has evolved since then.
