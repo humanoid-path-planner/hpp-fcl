@@ -4,7 +4,7 @@ on: [push,pull_request]
 
 jobs:
   hpp-fcl-conda:
-    name: hpp-fcl on ${{ matrix.os }} with Conda
+    name: CI on ${{ matrix.os }} with Conda
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -14,10 +14,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Checkout submodules
-      run: |
-        git submodule update --init
+      with:
+        submodules: recursive
 
     - uses: conda-incubator/setup-miniconda@v2
       with:
@@ -32,17 +30,17 @@ jobs:
         conda activate hpp-fcl
         conda install cmake -c main
         conda install llvm-openmp -c conda-forge
-    
+
     - name: Build hpp-fcl
       shell: bash -l {0}
       run: |
         conda activate hpp-fcl
         echo $CONDA_PREFIX
-        
+
         mkdir build
         cd build
 
-        cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=$(which python3)
+        cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=$(which python3) -DGENERATE_PYTHON_STUBS=ON
         make -j2
         make build_tests
         export CTEST_OUTPUT_ON_FAILURE=1

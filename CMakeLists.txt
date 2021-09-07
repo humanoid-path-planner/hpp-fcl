@@ -56,6 +56,7 @@ include(cmake/python.cmake)
 include(cmake/hpp.cmake)
 include(cmake/apple.cmake)
 include(cmake/ide.cmake)
+include(CMakeDependentOption)
 
 SET(CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake-modules/
@@ -64,10 +65,24 @@ SET(CMAKE_MODULE_PATH
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
 
-OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" ON)
-
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
+
+OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" ON)
+CMAKE_DEPENDENT_OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF BUILD_PYTHON_INTERFACE OFF)
+
+#IF(WIN32)
+#  # Set default Windows build paths
+#  SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY
+#    ${PROJECT_BINARY_DIR}/Bin
+#    CACHE PATH "Single directory for all libraries")
+#  SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+#    ${PROJECT_BINARY_DIR}/Bin
+#    CACHE PATH "Single directory for all executables")
+#  SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+#    ${PROJECT_BINARY_DIR}/Bin
+#    CACHE PATH "Sing$le directory for all archives")
+#ENDIF(WIN32)
 
 ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.0")
 
