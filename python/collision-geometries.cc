@@ -33,6 +33,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 
 #include <eigenpy/eigenpy.hpp>
+#include <eigenpy/eigen-to-python.hpp>
 
 #include "fcl.hh"
 
@@ -77,8 +78,9 @@ typedef std::vector<Triangle> Triangles;
 
 struct BVHModelBaseWrapper
 {
-  typedef Eigen::Matrix<double,Eigen::Dynamic,3> MatrixX3;
-  typedef Eigen::Map<MatrixX3> MapMatrixX3;
+  typedef Eigen::Matrix<double,Eigen::Dynamic,3,Eigen::RowMajor> RowMatrixX3;
+  typedef Eigen::Map<RowMatrixX3> MapRowMatrixX3;
+  typedef Eigen::Ref<RowMatrixX3> RefRowMatrixX3;
   
   static Vec3f & vertice (BVHModelBase & bvh, int i)
   {
@@ -86,9 +88,9 @@ struct BVHModelBaseWrapper
     return bvh.vertices[i];
   }
 
-  static MapMatrixX3 vertices(BVHModelBase & bvh)
+  static RefRowMatrixX3 vertices(BVHModelBase & bvh)
   {
-    return MapMatrixX3(bvh.vertices[0].data(),bvh.num_vertices,3);
+    return MapRowMatrixX3(bvh.vertices[0].data(),bvh.num_vertices,3);
   }
   
   static Triangle tri_indices (const BVHModelBase& bvh, int i)
