@@ -119,10 +119,7 @@ public:
   virtual bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const = 0;
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs
-  virtual void leafCollides(int /*b1*/, int /*b2*/, FCL_REAL& /*sqrDistLowerBound*/) const
-  {
-    throw std::runtime_error ("Not implemented");
-  }
+  virtual void leafCollides(int /*b1*/, int /*b2*/, FCL_REAL& /*sqrDistLowerBound*/) const = 0;
 
   /// @brief Check whether the traversal can stop
   bool canStop() const { return this->request.isSatisfied(*(this->result)); }

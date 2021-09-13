@@ -77,12 +77,20 @@ typedef std::vector<Triangle> Triangles;
 
 struct BVHModelBaseWrapper
 {
-  static Vec3f vertices (const BVHModelBase& bvh, int i)
+  typedef Eigen::Matrix<double,Eigen::Dynamic,3> MatrixX3;
+  typedef Eigen::Map<MatrixX3> MapMatrixX3;
+  
+  static Vec3f & vertice (BVHModelBase & bvh, int i)
   {
     if (i >= bvh.num_vertices) throw std::out_of_range("index is out of range");
     return bvh.vertices[i];
   }
 
+  static MapMatrixX3 vertices(BVHModelBase & bvh)
+  {
+    return MapMatrixX3(bvh.vertices[0].data(),bvh.num_vertices,3);
+  }
+  
   static Triangle tri_indices (const BVHModelBase& bvh, int i)
   {
     if (i >= bvh.num_tris) throw std::out_of_range("index is out of range");
@@ -461,8 +469,12 @@ void exposeCollisionGeometries ()
 
   class_ <BVHModelBase, bases<CollisionGeometry>, BVHModelPtr_t, noncopyable>
     ("BVHModelBase", no_init)
+    .def ("vertice", &BVHModelBaseWrapper::vertice,
+          bp::args("self","index"),"Retrieve the vertex given by its index.",
+          bp::return_internal_reference<>())
     .def ("vertices", &BVHModelBaseWrapper::vertices,
-          bp::args("self","index"),"Retrieve the vertex given by its index.")
+          bp::args("self"),"Retrieve the vertex given by its index.",
+          bp::with_custodian_and_ward_postcall<0,1>())
     .def ("tri_indices", &BVHModelBaseWrapper::tri_indices,
           bp::args("self","index"),"Retrieve the triangle given by its index.")
     .def_readonly ("num_vertices", &BVHModelBase::num_vertices)

@@ -55,6 +55,7 @@ jobs:
           -DGENERATE_PYTHON_STUBS=OFF ^
           -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
           -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
+          -DHPP_FCL_HAS_QHULL=ON ^
           -DBUILD_PYTHON_INTERFACE=ON ^
           ..
 

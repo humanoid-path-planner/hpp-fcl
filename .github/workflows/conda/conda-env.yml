@@ -13,3 +13,4 @@ dependencies:
   - doxygen
   - lxml
   - pylatexenc
+  - qhull
