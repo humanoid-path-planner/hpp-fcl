@@ -474,8 +474,11 @@ void exposeCollisionGeometries ()
     .def ("vertice", &BVHModelBaseWrapper::vertice,
           bp::args("self","index"),"Retrieve the vertex given by its index.",
           bp::return_internal_reference<>())
+    .def ("vertices", &BVHModelBaseWrapper::vertice,
+          bp::args("self","index"),"Retrieve the vertex given by its index.",
+          bp::return_internal_reference<>())
     .def ("vertices", &BVHModelBaseWrapper::vertices,
-          bp::args("self"),"Retrieve the vertex given by its index.",
+          bp::args("self"),"Retrieve all the vertices.",
           bp::with_custodian_and_ward_postcall<0,1>())
     .def ("tri_indices", &BVHModelBaseWrapper::tri_indices,
           bp::args("self","index"),"Retrieve the triangle given by its index.")
