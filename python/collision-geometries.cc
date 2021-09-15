@@ -476,10 +476,13 @@ void exposeCollisionGeometries ()
           bp::return_internal_reference<>())
     .def ("vertices", &BVHModelBaseWrapper::vertex,
           bp::args("self","index"),"Retrieve the vertex given by its index.",
-          bp::return_internal_reference<>())
+          ::hpp::fcl::python::deprecated_member< bp::return_internal_reference<> >())
     .def ("vertices", &BVHModelBaseWrapper::vertices,
           bp::args("self"),"Retrieve all the vertices.",
           bp::with_custodian_and_ward_postcall<0,1>())
+//    .add_property ("vertices",
+//                   bp::make_function(&BVHModelBaseWrapper::vertices,bp::with_custodian_and_ward_postcall<0,1>()),
+//                   "Vertices of the BVH.")
     .def ("tri_indices", &BVHModelBaseWrapper::tri_indices,
           bp::args("self","index"),"Retrieve the triangle given by its index.")
     .def_readonly ("num_vertices", &BVHModelBase::num_vertices)
