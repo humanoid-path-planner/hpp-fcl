@@ -89,6 +89,8 @@ void exposeMeshLoader ()
 
 BOOST_PYTHON_MODULE(hppfcl)
 {
+  bp::import("warnings");
+  
   exposeVersion();
   exposeMaths();
   exposeCollisionGeometries();
