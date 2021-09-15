@@ -42,6 +42,7 @@ SET(LIBRARY_NAME hppfcl)
 
 SET(${LIBRARY_NAME}_HEADERS
   fcl.hh
+  deprecation.hh
   )
 
 SET(ENABLE_PYTHON_DOXYGEN_AUTODOC TRUE CACHE BOOL "Enable automatic documentation of Python bindings from Doxygen documentation")

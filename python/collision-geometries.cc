@@ -36,6 +36,7 @@
 #include <eigenpy/eigen-to-python.hpp>
 
 #include "fcl.hh"
+#include "deprecation.hh"
 
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/shape/geometric_shapes.h>
@@ -82,7 +83,7 @@ struct BVHModelBaseWrapper
   typedef Eigen::Map<RowMatrixX3> MapRowMatrixX3;
   typedef Eigen::Ref<RowMatrixX3> RefRowMatrixX3;
   
-  static Vec3f & vertice (BVHModelBase & bvh, int i)
+  static Vec3f & vertex (BVHModelBase & bvh, int i)
   {
     if (i >= bvh.num_vertices) throw std::out_of_range("index is out of range");
     return bvh.vertices[i];
@@ -471,12 +472,18 @@ void exposeCollisionGeometries ()
 
   class_ <BVHModelBase, bases<CollisionGeometry>, BVHModelPtr_t, noncopyable>
     ("BVHModelBase", no_init)
-    .def ("vertice", &BVHModelBaseWrapper::vertice,
+    .def ("vertex", &BVHModelBaseWrapper::vertex,
           bp::args("self","index"),"Retrieve the vertex given by its index.",
           bp::return_internal_reference<>())
+    .def ("vertices", &BVHModelBaseWrapper::vertex,
+          bp::args("self","index"),"Retrieve the vertex given by its index.",
+          ::hpp::fcl::python::deprecated_member< bp::return_internal_reference<> >())
     .def ("vertices", &BVHModelBaseWrapper::vertices,
-          bp::args("self"),"Retrieve the vertex given by its index.",
+          bp::args("self"),"Retrieve all the vertices.",
           bp::with_custodian_and_ward_postcall<0,1>())
+//    .add_property ("vertices",
+//                   bp::make_function(&BVHModelBaseWrapper::vertices,bp::with_custodian_and_ward_postcall<0,1>()),
+//                   "Vertices of the BVH.")
     .def ("tri_indices", &BVHModelBaseWrapper::tri_indices,
           bp::args("self","index"),"Retrieve the triangle given by its index.")
     .def_readonly ("num_vertices", &BVHModelBase::num_vertices)
