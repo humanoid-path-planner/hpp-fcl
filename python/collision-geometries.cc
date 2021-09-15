@@ -82,7 +82,7 @@ struct BVHModelBaseWrapper
   typedef Eigen::Map<RowMatrixX3> MapRowMatrixX3;
   typedef Eigen::Ref<RowMatrixX3> RefRowMatrixX3;
   
-  static Vec3f & vertice (BVHModelBase & bvh, int i)
+  static Vec3f & vertex (BVHModelBase & bvh, int i)
   {
     if (i >= bvh.num_vertices) throw std::out_of_range("index is out of range");
     return bvh.vertices[i];
@@ -471,10 +471,10 @@ void exposeCollisionGeometries ()
 
   class_ <BVHModelBase, bases<CollisionGeometry>, BVHModelPtr_t, noncopyable>
     ("BVHModelBase", no_init)
-    .def ("vertice", &BVHModelBaseWrapper::vertice,
+    .def ("vertex", &BVHModelBaseWrapper::vertex,
           bp::args("self","index"),"Retrieve the vertex given by its index.",
           bp::return_internal_reference<>())
-    .def ("vertices", &BVHModelBaseWrapper::vertice,
+    .def ("vertices", &BVHModelBaseWrapper::vertex,
           bp::args("self","index"),"Retrieve the vertex given by its index.",
           bp::return_internal_reference<>())
     .def ("vertices", &BVHModelBaseWrapper::vertices,
