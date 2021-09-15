@@ -36,6 +36,7 @@
 #include <eigenpy/eigen-to-python.hpp>
 
 #include "fcl.hh"
+#include "deprecation.hh"
 
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/shape/geometric_shapes.h>
