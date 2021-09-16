@@ -71,6 +71,7 @@
 using namespace boost::python;
 using namespace hpp::fcl;
 namespace dv = doxygen::visitor;
+namespace bp = boost::python;
 
 using boost::noncopyable;
 
@@ -122,10 +123,19 @@ void exposeBVHModel (const std::string& bvname)
 
 struct ConvexBaseWrapper
 {
-  static Vec3f points (const ConvexBase& convex, int i)
+  typedef Eigen::Matrix<double,Eigen::Dynamic,3,Eigen::RowMajor> RowMatrixX3;
+  typedef Eigen::Map<RowMatrixX3> MapRowMatrixX3;
+  typedef Eigen::Ref<RowMatrixX3> RefRowMatrixX3;
+  
+  static Vec3f & point (const ConvexBase& convex, int i)
   {
     if (i >= convex.num_points) throw std::out_of_range("index is out of range");
     return convex.points[i];
+  }
+  
+  static RefRowMatrixX3 points (const ConvexBase& convex)
+  {
+    return MapRowMatrixX3(convex.points[0].data(),convex.num_points,3);
   }
 
   static list neighbors (const ConvexBase& convex, int i)
@@ -232,7 +242,18 @@ void exposeShapes ()
     ("ConvexBase", doxygen::class_doc<ConvexBase>(), no_init)
     .DEF_RO_CLASS_ATTRIB (ConvexBase, center)
     .DEF_RO_CLASS_ATTRIB (ConvexBase, num_points)
-    .def ("points", &ConvexBaseWrapper::points)
+    .def ("point", &ConvexBaseWrapper::point,
+          bp::args("self","index"),"Retrieve the point given by its index.",
+          bp::return_internal_reference<>())
+    .def ("points", &ConvexBaseWrapper::point,
+          bp::args("self","index"),"Retrieve the point given by its index.",
+          ::hpp::fcl::python::deprecated_member< bp::return_internal_reference<> >())
+    .def ("points", &ConvexBaseWrapper::points,
+          bp::args("self"),"Retrieve all the points.",
+          bp::with_custodian_and_ward_postcall<0,1>())
+  //    .add_property ("points",
+  //                   bp::make_function(&ConvexBaseWrapper::points,bp::with_custodian_and_ward_postcall<0,1>()),
+  //                   "Points of the convex.")
     .def ("neighbors", &ConvexBaseWrapper::neighbors)
     .def ("convexHull", &ConvexBaseWrapper::convexHull,
         doxygen::member_func_doc(&ConvexBase::convexHull),
@@ -369,8 +390,6 @@ void exposeCollisionGeometries ()
       .export_values()
       ;
   }
-  
-  namespace bp = boost::python;
   
   class_<AABB>("AABB",
                "A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points",
