@@ -70,7 +70,7 @@ inline void minmax(FCL_REAL p, FCL_REAL& minv, FCL_REAL& maxv)
 
 /// @brief Compute the distances to planes with normals from KDOP vectors except those of AABB face planes
 template<short N>
-void getDistances(const Vec3f& p, FCL_REAL* d) {}
+void getDistances(const Vec3f& /*p*/, FCL_REAL* /*d*/) {}
 
 /// @brief Specification of getDistances
 template<>

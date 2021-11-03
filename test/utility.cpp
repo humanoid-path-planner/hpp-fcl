@@ -168,9 +168,9 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
         {
           if((!has_texture) && (!has_normal))
           {
-            tri[0] = atoi(data[0]) - 1;
-            tri[1] = atoi(data[1]) - 1;
-            tri[2] = atoi(data[2]) - 1;
+            tri[0] = (Triangle::index_type)(atoi(data[0]) - 1);
+            tri[1] = (Triangle::index_type)(atoi(data[1]) - 1);
+            tri[2] = (Triangle::index_type)(atoi(data[2]) - 1);
           }
           else
           {
@@ -183,7 +183,7 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
               else
                 v1 = data[t + i];
 
-              tri[i] = atoi(v1) - 1;
+              tri[i] = (Triangle::index_type)(atoi(v1) - 1);
             }
           }
           triangles.push_back(tri);
