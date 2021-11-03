@@ -219,13 +219,13 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transfor
   {
     for(unsigned int j = 0; j < tot; ++j)
     {
-      int a, b, c, d;
+      unsigned int a, b, c, d;
       a = j;
       b = (j == tot - 1) ? 0 : (j + 1);
       c = j + tot;
       d = (j == tot - 1) ? tot : (j + 1 + tot);
 
-      int start = i * tot;
+      unsigned int start = i * tot;
       tri_indices.push_back(Triangle(start + b, start + a, start + c));
       tri_indices.push_back(Triangle(start + b, start + c, start + d));
     }
@@ -311,13 +311,13 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
   {
     for(unsigned int j = 0; j < tot; ++j)
     {
-      int a, b, c, d;
+      unsigned int a, b, c, d;
       a = j;
       b = (j == tot - 1) ? 0 : (j + 1);
       c = j + tot;
       d = (j == tot - 1) ? tot : (j + 1 + tot);
 
-      int start = i * tot;
+      unsigned int start = i * tot;
       tri_indices.push_back(Triangle(start + b, start + a, start + c));
       tri_indices.push_back(Triangle(start + b, start + c, start + d));
     }

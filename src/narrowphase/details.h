@@ -1749,7 +1749,7 @@ namespace fcl {
       Vec3f v;
       FCL_REAL depth = (std::numeric_limits<FCL_REAL>::max)();
 
-      for(int i = 0; i < s1.num_points; ++i)
+      for(unsigned int i = 0; i < s1.num_points; ++i)
         {
           Vec3f p = tf1.transform(s1.points[i]);
 
@@ -2466,7 +2466,7 @@ namespace fcl {
       Vec3f v_min, v_max;
       FCL_REAL d_min = (std::numeric_limits<FCL_REAL>::max)(), d_max = -(std::numeric_limits<FCL_REAL>::max)();
 
-      for(int i = 0; i < s1.num_points; ++i)
+      for(unsigned int i = 0; i < s1.num_points; ++i)
         {
           Vec3f p = tf1.transform(s1.points[i]);
 

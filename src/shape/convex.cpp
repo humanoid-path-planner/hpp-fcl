@@ -21,7 +21,7 @@ using orgQhull::QhullRidgeSet;
 namespace hpp {
 namespace fcl {
 
-ConvexBase* ConvexBase::convexHull(const Vec3f* pts, int num_points,
+ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
     bool keepTriangles, const char* qhullCommand)
 {
 #ifdef HPP_FCL_HAS_QHULL
