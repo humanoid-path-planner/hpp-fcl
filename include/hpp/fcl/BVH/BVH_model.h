@@ -430,7 +430,7 @@ protected:
   int refitTree_bottomup();
 
   /// @brief Recursive kernel for hierarchy construction
-  int recursiveBuildTree(int bv_id, int first_primitive, int num_primitives);
+  int recursiveBuildTree(int bv_id, int first_primitive, unsigned int num_primitives);
 
   /// @brief Recursive kernel for bottomup refitting 
   int recursiveRefitTree_bottomup(int bv_id);

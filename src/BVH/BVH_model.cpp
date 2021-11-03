@@ -839,21 +839,21 @@ int BVHModel<BV>::buildTree()
 
   num_bvs = 1;
 
-  int num_primitives = 0;
+  unsigned int num_primitives = 0;
   switch(getModelType())
   {
     case BVH_MODEL_TRIANGLES:
-      num_primitives = num_tris;
+      num_primitives = (unsigned int)num_tris;
       break;
     case BVH_MODEL_POINTCLOUD:
-      num_primitives = num_vertices;
+      num_primitives = (unsigned int)num_vertices;
       break;
     default:
       std::cerr << "BVH Error: Model type not supported!" << std::endl;
       return BVH_ERR_UNSUPPORTED_FUNCTION;
   }
 
-  for(unsigned int i = 0; i < (unsigned int)num_primitives; ++i)
+  for(unsigned int i = 0; i < num_primitives; ++i)
     primitive_indices[i] = i;
   recursiveBuildTree(0, 0, num_primitives);
 
@@ -864,7 +864,7 @@ int BVHModel<BV>::buildTree()
 }
 
 template<typename BV>
-int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_primitives)
+int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, unsigned int num_primitives)
 {
   BVHModelType type = getModelType();
   BVNode<BV>* bvnode = bvs + bv_id;
@@ -887,8 +887,8 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_pri
     bvnode->first_child = num_bvs;
     num_bvs += 2;
 
-    int c1 = 0;
-    for(int i = 0; i < num_primitives; ++i)
+    unsigned int c1 = 0;
+    for(unsigned int i = 0; i < num_primitives; ++i)
     {
       Vec3f p;
       if(type == BVH_MODEL_POINTCLOUD) p = vertices[cur_primitive_indices[i]];
@@ -930,7 +930,7 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_pri
 
     if((c1 == 0) || (c1 == num_primitives)) c1 = num_primitives / 2;
 
-    int num_first_half = c1;
+    const unsigned int num_first_half = c1;
 
     recursiveBuildTree(bvnode->leftChild(), first_primitive, num_first_half);
     recursiveBuildTree(bvnode->rightChild(), first_primitive + num_first_half, num_primitives - num_first_half);

@@ -706,11 +706,11 @@ namespace fcl {
     // the intersection points are returned as x,y pairs in the 'ret' array.
     // the number of intersection points is returned by the function (this will
     // be in the range 0 to 8).
-    static int intersectRectQuad2(FCL_REAL h[2], FCL_REAL p[8], FCL_REAL ret[16])
+    static unsigned int intersectRectQuad2(FCL_REAL h[2], FCL_REAL p[8], FCL_REAL ret[16])
     {
       // q (and r) contain nq (and nr) coordinate points for the current (and
       // chopped) polygons
-      int nq = 4, nr = 0;
+      unsigned int nq = 4, nr = 0;
       FCL_REAL buffer[16];
       FCL_REAL* q = p;
       FCL_REAL* r = ret;
@@ -723,7 +723,7 @@ namespace fcl {
               FCL_REAL* pq = q;
               FCL_REAL* pr = r;
               nr = 0;
-              for(int i = nq; i > 0; --i)
+              for(unsigned int i = nq; i > 0; --i)
                 {
                   // go through all points in q and all lines between adjacent points
                   if(sign * pq[dir] < h[dir])
@@ -774,7 +774,7 @@ namespace fcl {
     // array iret (of size m). 'i0' is always the first entry in the array.
     // n must be in the range [1..8]. m must be in the range [1..n]. i0 must be
     // in the range [0..n-1].
-    static inline void cullPoints2(int n, FCL_REAL p[], int m, int i0, int iret[])
+    static inline void cullPoints2(unsigned int n, FCL_REAL p[], unsigned int m, unsigned int i0, unsigned int iret[])
     {
       // compute the centroid of the polygon in cx,cy
       FCL_REAL a, cx, cy, q;
@@ -792,7 +792,8 @@ namespace fcl {
           a = 0;
           cx = 0;
           cy = 0;
-          for(int i = 0; i < n-1; ++i)
+          assert(n > 0 && "n should be positive");
+          for(int i = 0; i < (int)n-1; ++i)
             {
               q = p[i*2]*p[i*2+3] - p[i*2+2]*p[i*2+1];
               a += q;
@@ -812,24 +813,23 @@ namespace fcl {
 
       // compute the angle of each point w.r.t. the centroid
       FCL_REAL A[8];
-      for(int i = 0; i < n; ++i)
+      for(unsigned int i = 0; i < n; ++i)
         A[i] = atan2(p[i*2+1]-cy,p[i*2]-cx);
 
       // search for points that have angles closest to A[i0] + i*(2*pi/m).
-      int avail[8];
-      for(int i = 0; i < n; ++i) avail[i] = 1;
+      int avail[] = { 1, 1, 1, 1, 1, 1, 1, 1 };
       avail[i0] = 0;
       iret[0] = i0;
       iret++;
       const double pi = boost::math::constants::pi<FCL_REAL>();
-      for(int j = 1; j < m; ++j)
+      for(unsigned int j = 1; j < m; ++j)
         {
           a = j*(2*pi/m) + A[i0];
           if (a > pi) a -= 2*pi;
           FCL_REAL maxdiff= 1e9, diff;
 
           *iret = i0;	// iret is not allowed to keep this value, but it sometimes does, when diff=#QNAN0
-          for(int i = 0; i < n; ++i)
+          for(unsigned int i = 0; i < n; ++i)
             {
               if(avail[i])
                 {
@@ -849,10 +849,10 @@ namespace fcl {
 
 
 
-    inline int boxBox2(const Vec3f& halfSide1, const Matrix3f& R1, const Vec3f& T1,
-                       const Vec3f& halfSide2, const Matrix3f& R2, const Vec3f& T2,
-                       Vec3f& normal, FCL_REAL* depth, int* return_code,
-                       int maxc, std::vector<ContactPoint>& contacts)
+    inline unsigned int boxBox2(const Vec3f& halfSide1, const Matrix3f& R1, const Vec3f& T1,
+                                const Vec3f& halfSide2, const Matrix3f& R2, const Vec3f& T2,
+                                Vec3f& normal, FCL_REAL* depth, int* return_code,
+                                unsigned int maxc, std::vector<ContactPoint>& contacts)
     {
       const FCL_REAL fudge_factor = FCL_REAL(1.05);
       Vec3f normalC;
@@ -1144,7 +1144,7 @@ namespace fcl {
       if(best_col_id != -1)
         normal = normalR->col(best_col_id);
       else
-        normal = R1 * normalC;
+        normal.noalias() = R1 * normalC;
 
       if(invert_normal)
         normal = -normal;
@@ -1227,7 +1227,7 @@ namespace fcl {
       else
         normal2 = -normal;
 
-      nr = Rb->transpose() * normal2;
+      nr.noalias() = Rb->transpose() * normal2;
       anr = nr.cwiseAbs();
 
       // find the largest compontent of anr: this corresponds to the normal
@@ -1329,7 +1329,7 @@ namespace fcl {
 
       // intersect the incident and reference faces
       FCL_REAL ret[16];
-      int n_intersect = intersectRectQuad2(rect, quad, ret);
+      const unsigned int n_intersect = intersectRectQuad2(rect, quad, ret);
       if(n_intersect < 1) { *return_code = code; return 0; } // this should never happen
 
       // convert the intersection points into reference-face coordinates,
@@ -1343,8 +1343,8 @@ namespace fcl {
       m12 *= det1;
       m21 *= det1;
       m22 *= det1;
-      int cnum = 0;	// number of penetrating contact points found
-      for(int j = 0; j < n_intersect; ++j)
+      unsigned int cnum = 0;	// number of penetrating contact points found
+      for(unsigned int j = 0; j < n_intersect; ++j)
         {
           FCL_REAL k1 =  m22*(ret[j*2]-c1) - m12*(ret[j*2+1]-c2);
           FCL_REAL k2 = -m21*(ret[j*2]-c1) + m11*(ret[j*2+1]-c2);
@@ -1368,7 +1368,7 @@ namespace fcl {
           if(code<4)
             {
               // we have less contacts than we need, so we use them all
-              for(int j = 0; j < cnum; ++j)
+              for(unsigned int j = 0; j < cnum; ++j)
                 {
                   Vec3f pointInWorld = points[j] + (*pa);
                   contacts.push_back(ContactPoint(-normal, pointInWorld, -dep[j]));
@@ -1377,7 +1377,7 @@ namespace fcl {
           else
             {
               // we have less contacts than we need, so we use them all
-              for(int j = 0; j < cnum; ++j)
+              for(unsigned int j = 0; j < cnum; ++j)
                 {
                   Vec3f pointInWorld = points[j] + (*pa) - normal * dep[j];
                   contacts.push_back(ContactPoint(-normal, pointInWorld, -dep[j]));
@@ -1388,9 +1388,9 @@ namespace fcl {
         {
           // we have more contacts than are wanted, some of them must be culled.
           // find the deepest point, it is always the first contact.
-          int i1 = 0;
+          unsigned int i1 = 0;
           FCL_REAL maxdepth = dep[0];
-          for(int i = 1; i < cnum; ++i)
+          for(unsigned int i = 1; i < cnum; ++i)
             {
               if(dep[i] > maxdepth)
                 {
@@ -1399,10 +1399,10 @@ namespace fcl {
                 }
             }
 
-          int iret[8];
+          unsigned int iret[8];
           cullPoints2(cnum, ret, maxc, i1, iret);
 
-          for(int j = 0; j < maxc; ++j)
+          for(unsigned int j = 0; j < maxc; ++j)
             {
               Vec3f posInWorld = points[iret[j]] + (*pa);
               if(code < 4)
