@@ -75,7 +75,7 @@ public:
   }
 
   /// @brief Compute the split rule according to a subset of geometry and the corresponding BV node
-  void computeRule(const BV& bv, unsigned int* primitive_indices, int num_primitives)
+  void computeRule(const BV& bv, unsigned int* primitive_indices, unsigned int num_primitives)
   {
     switch(split_method)
     {
@@ -130,7 +130,7 @@ protected:
   SplitMethodType split_method;
 
   /// @brief Split algorithm 1: Split the node from center
-  void computeRule_bvcenter(const BV& bv, unsigned int*, int)
+  void computeRule_bvcenter(const BV& bv, unsigned int*, unsigned int)
   {
     Vec3f center = bv.center();
     int axis = 2;
@@ -145,7 +145,7 @@ protected:
   }
 
   /// @brief Split algorithm 2: Split the node according to the mean of the data contained
-  void computeRule_mean(const BV& bv, unsigned int* primitive_indices, int num_primitives)
+  void computeRule_mean(const BV& bv, unsigned int* primitive_indices, unsigned int num_primitives)
   {
     int axis = 2;
 
@@ -179,7 +179,7 @@ protected:
   }
 
   /// @brief Split algorithm 3: Split the node according to the median of the data contained
-  void computeRule_median(const BV& bv, unsigned int* primitive_indices, int num_primitives)
+  void computeRule_median(const BV& bv, unsigned int* primitive_indices, unsigned int num_primitives)
   {
     int axis = 2;
 
@@ -232,40 +232,40 @@ template<>
 bool BVSplitter<OBBRSS>::apply(const Vec3f& q) const;
 
 template<>
-void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* primitive_indices, unsigned int num_primitives);
 
 template<>
-void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_indices, unsigned int num_primitives);
 
 template<>
-void BVSplitter<OBB>::computeRule_median(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<OBB>::computeRule_median(const OBB& bv, unsigned int* primitive_indices, unsigned int num_primitives);
 
 template<>
-void BVSplitter<RSS>::computeRule_bvcenter(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<RSS>::computeRule_bvcenter(const RSS& bv, unsigned int* primitive_indices, unsigned int num_primitives);
           
 template<>                        
-void BVSplitter<RSS>::computeRule_mean(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<RSS>::computeRule_mean(const RSS& bv, unsigned int* primitive_indices, unsigned int num_primitives);
 
 template<>
-void BVSplitter<RSS>::computeRule_median(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<RSS>::computeRule_median(const RSS& bv, unsigned int* primitive_indices, unsigned int num_primitives);
 
 template<>
-void BVSplitter<kIOS>::computeRule_bvcenter(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<kIOS>::computeRule_bvcenter(const kIOS& bv, unsigned int* primitive_indices, unsigned int num_primitives);
 
 template<>
-void BVSplitter<kIOS>::computeRule_mean(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<kIOS>::computeRule_mean(const kIOS& bv, unsigned int* primitive_indices, unsigned int num_primitives);
 
 template<>
-void BVSplitter<kIOS>::computeRule_median(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<kIOS>::computeRule_median(const kIOS& bv, unsigned int* primitive_indices, unsigned int num_primitives);
 
 template<>
-void BVSplitter<OBBRSS>::computeRule_bvcenter(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<OBBRSS>::computeRule_bvcenter(const OBBRSS& bv, unsigned int* primitive_indices, unsigned int num_primitives);
 
 template<>
-void BVSplitter<OBBRSS>::computeRule_mean(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<OBBRSS>::computeRule_mean(const OBBRSS& bv, unsigned int* primitive_indices, unsigned int num_primitives);
 
 template<>
-void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv, unsigned int* primitive_indices, unsigned int num_primitives);
 
 }
 
