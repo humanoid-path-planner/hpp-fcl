@@ -72,7 +72,7 @@ struct HPP_FCL_DLLAPI BVNodeBase
   /// @brief Default constructor
   BVNodeBase()
   : first_child(0)
-  , first_primitive(std::numeric_limits<unsigned int>::max()) // value we should help to raise an issue
+  , first_primitive((std::numeric_limits<unsigned int>::max)()) // value we should help to raise an issue
   , num_primitives(0)
   {}
   
