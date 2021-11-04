@@ -54,17 +54,17 @@ namespace fcl
 /// @param node collision node,
 /// @param b1, b2 ids of bounding volume nodes for object 1 and object 2
 /// @retval sqrDistLowerBound squared lower bound on distance between objects.
-void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
+void collisionRecurse(CollisionTraversalNodeBase* node, unsigned int b1, unsigned int b2,
 		      BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound);
 
 void collisionNonRecurse(CollisionTraversalNodeBase* node,
 		         BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound);
 
 /// @brief Recurse function for distance
-void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list);
+void distanceRecurse(DistanceTraversalNodeBase* node, unsigned int b1, unsigned int b2, BVHFrontList* front_list);
 
 /// @brief Recurse function for distance, using queue acceleration
-void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list, int qsize);
+void distanceQueueRecurse(DistanceTraversalNodeBase* node, unsigned int b1, unsigned int b2, BVHFrontList* front_list, unsigned int qsize);
 
 /// @brief Recurse function for front list propagation
 void propagateBVHFrontListCollisionRecurse

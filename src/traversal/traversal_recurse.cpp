@@ -44,7 +44,7 @@ namespace hpp
 {
 namespace fcl
 {
-void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, 
+void collisionRecurse(CollisionTraversalNodeBase* node, unsigned int b1, unsigned int b2, 
 		      BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)
 {
   FCL_REAL sqrDistLowerBound1 = 0, sqrDistLowerBound2 = 0;
@@ -65,8 +65,8 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
   }
   if(node->firstOverSecond(b1, b2))
   {
-    int c1 = node->getFirstLeftChild(b1);
-    int c2 = node->getFirstRightChild(b1);
+    unsigned int c1 = (unsigned int)node->getFirstLeftChild(b1);
+    unsigned int c2 = (unsigned int)node->getFirstRightChild(b1);
 
     collisionRecurse(node, c1, b2, front_list, sqrDistLowerBound1);
 
@@ -78,8 +78,8 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
   }
   else
   {
-    int c1 = node->getSecondLeftChild(b2);
-    int c2 = node->getSecondRightChild(b2);
+    unsigned int c1 = (unsigned int)node->getSecondLeftChild(b2);
+    unsigned int c2 = (unsigned int)node->getSecondRightChild(b2);
 
     collisionRecurse(node, b1, c1, front_list, sqrDistLowerBound1);
 
@@ -94,7 +94,7 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2,
 void collisionNonRecurse(CollisionTraversalNodeBase* node,
 		         BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound)
 {
-  typedef std::pair<int, int> BVPair_t;
+  typedef std::pair<unsigned int, unsigned int> BVPair_t;
   //typedef std::stack<BVPair_t, std::vector<BVPair_t> > Stack_t;
   typedef std::vector<BVPair_t> Stack_t;
 
@@ -106,8 +106,8 @@ void collisionNonRecurse(CollisionTraversalNodeBase* node,
   pairs.push_back (BVPair_t (0, 0));
 
   while (!pairs.empty()) {
-    int a = pairs.back().first,
-        b = pairs.back().second;
+    unsigned int a = pairs.back().first,
+                 b = pairs.back().second;
     pairs.pop_back();
 
     bool la = node->isFirstNodeLeaf(a);
@@ -142,15 +142,15 @@ void collisionNonRecurse(CollisionTraversalNodeBase* node,
 
     if(node->firstOverSecond(a, b))
     {
-      int c1 = node->getFirstLeftChild(a);
-      int c2 = node->getFirstRightChild(a);
+      unsigned int c1 = (unsigned int)node->getFirstLeftChild(a);
+      unsigned int c2 = (unsigned int)node->getFirstRightChild(a);
       pairs.push_back (BVPair_t (c2, b));
       pairs.push_back (BVPair_t (c1, b));
     }
     else
     {
-      int c1 = node->getSecondLeftChild(b);
-      int c2 = node->getSecondRightChild(b);
+      unsigned int c1 = (unsigned int)node->getSecondLeftChild(b);
+      unsigned int c2 = (unsigned int)node->getSecondRightChild(b);
       pairs.push_back (BVPair_t (a, c2));
       pairs.push_back (BVPair_t (a, c1));
     }
@@ -160,7 +160,7 @@ void collisionNonRecurse(CollisionTraversalNodeBase* node,
 /** Recurse function for self collision
  * Make sure node is set correctly so that the first and second tree are the same
  */
-void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list)
+void distanceRecurse(DistanceTraversalNodeBase* node, unsigned int b1, unsigned int b2, BVHFrontList* front_list)
 {
   bool l1 = node->isFirstNodeLeaf(b1);
   bool l2 = node->isSecondNodeLeaf(b2);
@@ -173,21 +173,21 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
     return;
   }
 
-  int a1, a2, c1, c2;
+  unsigned int a1, a2, c1, c2;
 
   if(node->firstOverSecond(b1, b2))
   {
-    a1 = node->getFirstLeftChild(b1);
+    a1 = (unsigned int)node->getFirstLeftChild(b1);
     a2 = b2;
-    c1 = node->getFirstRightChild(b1);
+    c1 = (unsigned int)node->getFirstRightChild(b1);
     c2 = b2;
   }
   else
   {
     a1 = b1;
-    a2 = node->getSecondLeftChild(b2);
+    a2 = (unsigned int)node->getSecondLeftChild(b2);
     c1 = b1;
-    c2 = node->getSecondRightChild(b2);
+    c2 = (unsigned int)node->getSecondRightChild(b2);
   }
 
   FCL_REAL d1 = node->BVDistanceLowerBound(a1, a2);
@@ -227,7 +227,7 @@ struct HPP_FCL_LOCAL BVT
   FCL_REAL d;
 
   /** @brief bv indices for a pair of bvs in two models */
-  int b1, b2;
+  unsigned int b1, b2;
 };
 
 /** @brief Comparer between two BVT */
@@ -280,7 +280,7 @@ struct HPP_FCL_LOCAL BVTQ
 };
 
 
-void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list, int qsize)
+void distanceQueueRecurse(DistanceTraversalNodeBase* node, unsigned int b1, unsigned int b2, BVHFrontList* front_list, unsigned int qsize)
 {
   BVTQ bvtq;
   bvtq.qsize = qsize;
@@ -313,8 +313,8 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
 
       if(node->firstOverSecond(min_test.b1, min_test.b2))
       {
-        int c1 = node->getFirstLeftChild(min_test.b1);
-        int c2 = node->getFirstRightChild(min_test.b1);
+        unsigned int c1 = (unsigned int)node->getFirstLeftChild(min_test.b1);
+        unsigned int c2 = (unsigned int)node->getFirstRightChild(min_test.b1);
         bvt1.b1 = c1;
         bvt1.b2 = min_test.b2;
         bvt1.d = node->BVDistanceLowerBound(bvt1.b1, bvt1.b2);
@@ -325,8 +325,8 @@ void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFr
       }
       else
       {
-        int c1 = node->getSecondLeftChild(min_test.b2);
-        int c2 = node->getSecondRightChild(min_test.b2);
+        unsigned int c1 = (unsigned int)node->getSecondLeftChild(min_test.b2);
+        unsigned int c2 = (unsigned int)node->getSecondRightChild(min_test.b2);
         bvt1.b1 = min_test.b1;
         bvt1.b2 = c1;
         bvt1.d = node->BVDistanceLowerBound(bvt1.b1, bvt1.b2);
@@ -366,8 +366,8 @@ void propagateBVHFrontListCollisionRecurse
   BVHFrontList append;
   for(front_iter = front_list->begin(); front_iter != front_list->end(); ++front_iter)
   {
-    int b1 = front_iter->left;
-    int b2 = front_iter->right;
+    unsigned int b1 = front_iter->left;
+    unsigned int b2 = front_iter->right;
     bool l1 = node->isFirstNodeLeaf(b1);
     bool l2 = node->isSecondNodeLeaf(b2);
 
@@ -381,16 +381,16 @@ void propagateBVHFrontListCollisionRecurse
       if(!node->BVDisjoints(b1, b2, sqrDistLowerBound)) {
         front_iter->valid = false;
         if(node->firstOverSecond(b1, b2)) {
-          int c1 = node->getFirstLeftChild(b1);
-          int c2 = node->getFirstRightChild(b1);
+          unsigned int c1 = (unsigned int)node->getFirstLeftChild(b1);
+          unsigned int c2 = (unsigned int)node->getFirstRightChild(b1);
 
           collisionRecurse(node, c1, b2, front_list, sqrDistLowerBound1);
           collisionRecurse(node, c2, b2, front_list, sqrDistLowerBound2);
           sqrDistLowerBound = std::min (sqrDistLowerBound1,
 					  sqrDistLowerBound2);
         } else {
-          int c1 = node->getSecondLeftChild(b2);
-          int c2 = node->getSecondRightChild(b2);
+          unsigned int c1 = (unsigned int)node->getSecondLeftChild(b2);
+          unsigned int c2 = (unsigned int)node->getSecondRightChild(b2);
 
           collisionRecurse(node, b1, c1, front_list, sqrDistLowerBound1);
           collisionRecurse(node, b1, c2, front_list, sqrDistLowerBound2);

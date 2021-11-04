@@ -86,7 +86,7 @@ struct Results {
   std::vector<CollisionResult> rs;
   Eigen::VectorXd times; // micro-seconds
 
-  Results (int i) : rs(i), times(i) {}
+  Results (size_t i) : rs(i), times((Eigen::DenseIndex)i) {}
 };
 
 void collide(const std::vector<Transform3f>& tf,
@@ -102,7 +102,7 @@ void collide(const std::vector<Transform3f>& tf,
     /* int num_contact = */
     collide (o1, tf[i], o2, Id, request, results.rs[i]);
     timer.stop();
-    results.times[i] = timer.getElapsedTimeInMicroSec();
+    results.times[(Eigen::DenseIndex)i] = timer.getElapsedTimeInMicroSec();
   }
 }
 
@@ -121,9 +121,9 @@ void printResults (const Geometry& g1, const Geometry& g2, const Results& rs)
 }
 
 #ifndef NDEBUG // if debug mode
-int Ntransform = 1;
+size_t Ntransform = 1;
 #else
-int Ntransform = 100;
+size_t Ntransform = 100;
 #endif
 FCL_REAL limit = 20;
 bool verbose = false;
@@ -137,7 +137,7 @@ void handleParam (int& iarg, const int& argc, char** argv, CollisionRequest& req
     std::string a(argv[iarg]);
     if (a == "-nb_transform") {
       CHECK_PARAM_NB(1, nb_transform);
-      Ntransform = atoi(argv[iarg+1]);
+      Ntransform = (size_t)atoi(argv[iarg+1]);
       OUT("nb_transform = " << Ntransform);
       iarg += 2;
     } else if (a == "-enable_distance_lower_bound") {

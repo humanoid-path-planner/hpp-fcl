@@ -66,7 +66,7 @@ HPP_FCL_DLLAPI void collide(CollisionTraversalNodeBase* node, const CollisionReq
 /// @brief distance computation on distance traversal node; can use front list to accelerate
 /// \todo should be HPP_FCL_LOCAL but used in unit test.
 HPP_FCL_DLLAPI void distance(DistanceTraversalNodeBase* node,
-                             BVHFrontList* front_list = NULL, int qsize = 2);
+                             BVHFrontList* front_list = NULL, unsigned int qsize = 2);
 }
 
 } // namespace hpp

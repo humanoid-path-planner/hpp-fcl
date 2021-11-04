@@ -138,13 +138,13 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVDistanceLowerBound(int, int) const
+  FCL_REAL BVDistanceLowerBound(unsigned int, unsigned int) const
   {
     return -1; // should not be used 
   }
 
   /// @brief Distance testing between leaves (two shapes)
-  void leafComputeDistance(int, int) const
+  void leafComputeDistance(unsigned int, unsigned int) const
   {
     FCL_REAL distance;
     Vec3f closest_p1, closest_p2, normal;

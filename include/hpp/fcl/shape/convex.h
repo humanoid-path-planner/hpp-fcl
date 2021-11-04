@@ -65,8 +65,8 @@ public:
   /// \param num_polygons_ the number of polygons.
   /// \note num_polygons_ is not the allocated size of polygons_.
   Convex(bool ownStorage,
-         Vec3f* points_, int num_points_,
-         PolygonT* polygons_, int num_polygons_);
+         Vec3f* points_, unsigned int num_points_,
+         PolygonT* polygons_, unsigned int num_polygons_);
 
   /// @brief Copy constructor 
   /// Only the list of neighbors is copied.
@@ -78,7 +78,7 @@ public:
   /// PolygonT should contains a list of vertices for each polygon,
   /// in counter clockwise order.
   PolygonT* polygons;
-  int num_polygons;
+  unsigned int num_polygons;
 
   /// based on http://number-none.com/blow/inertia/bb_inertia.doc
   Matrix3f computeMomentofInertia() const;

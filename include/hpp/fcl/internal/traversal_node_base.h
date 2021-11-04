@@ -63,25 +63,25 @@ public:
   virtual void postprocess() {}
 
   /// @brief Whether b is a leaf node in the first BVH tree 
-  virtual bool isFirstNodeLeaf(int /*b*/) const { return true; }
+  virtual bool isFirstNodeLeaf(unsigned int /*b*/) const { return true; }
 
   /// @brief Whether b is a leaf node in the second BVH tree
-  virtual bool isSecondNodeLeaf(int /*b*/) const { return true; }
+  virtual bool isSecondNodeLeaf(unsigned int /*b*/) const { return true; }
 
   /// @brief Traverse the subtree of the node in the first tree first
-  virtual bool firstOverSecond(int /*b1*/, int /*b2*/) const { return true; }
+  virtual bool firstOverSecond(unsigned int /*b1*/, unsigned int /*b2*/) const { return true; }
 
   /// @brief Get the left child of the node b in the first tree
-  virtual int getFirstLeftChild(int b) const { return b; }
+  virtual int getFirstLeftChild(unsigned int b) const { return (int)b; }
 
   /// @brief Get the right child of the node b in the first tree
-  virtual int getFirstRightChild(int b) const { return b; }
+  virtual int getFirstRightChild(unsigned int b) const { return (int)b; }
 
   /// @brief Get the left child of the node b in the second tree
-  virtual int getSecondLeftChild(int b) const { return b; }
+  virtual int getSecondLeftChild(unsigned int b) const { return (int)b; }
 
   /// @brief Get the right child of the node b in the second tree
-  virtual int getSecondRightChild(int b) const { return b; }
+  virtual int getSecondRightChild(unsigned int b) const { return (int)b; }
 
   /// @brief Whether store some statistics information during traversal
   void enableStatistics(bool enable) { enable_statistics = enable; }
@@ -110,16 +110,16 @@ public:
   virtual ~CollisionTraversalNodeBase() {}
 
   /// @brief BV test between b1 and b2
-  virtual bool BVDisjoints(int b1, int b2) const = 0;
+  virtual bool BVDisjoints(unsigned int b1, unsigned int b2) const = 0;
 
   /// BV test between b1 and b2
   /// @param b1, b2 Bounding volumes to test,
   /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
-  virtual bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const = 0;
+  virtual bool BVDisjoints(unsigned int b1, unsigned int b2, FCL_REAL& sqrDistLowerBound) const = 0;
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs
-  virtual void leafCollides(int /*b1*/, int /*b2*/, FCL_REAL& /*sqrDistLowerBound*/) const = 0;
+  virtual void leafCollides(unsigned int /*b1*/, unsigned int /*b2*/, FCL_REAL& /*sqrDistLowerBound*/) const = 0;
 
   /// @brief Check whether the traversal can stop
   bool canStop() const { return this->request.isSatisfied(*(this->result)); }
@@ -149,13 +149,13 @@ public:
   /// @brief BV test between b1 and b2
   /// @return a lower bound of the distance between the two BV.
   /// @note except for OBB, this method returns the distance.
-  virtual FCL_REAL BVDistanceLowerBound(int /*b1*/, int /*b2*/) const
+  virtual FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int /*b2*/) const
   {
     return (std::numeric_limits<FCL_REAL>::max)();
   }
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs
-  virtual void leafComputeDistance(int b1, int b2) const = 0;
+  virtual void leafComputeDistance(unsigned int b1, unsigned int b2) const = 0;
 
   /// @brief Check whether the traversal can stop
   virtual bool canStop(FCL_REAL /*c*/) const

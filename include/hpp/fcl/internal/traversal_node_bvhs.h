@@ -79,21 +79,21 @@ public:
   }
 
   /// @brief Whether the BV node in the first BVH tree is leaf
-  bool isFirstNodeLeaf(int b) const
+  bool isFirstNodeLeaf(unsigned int b) const
   {
     assert(model1 != NULL && "model1 is NULL");
     return model1->getBV(b).isLeaf();
   }
 
   /// @brief Whether the BV node in the second BVH tree is leaf
-  bool isSecondNodeLeaf(int b) const
+  bool isSecondNodeLeaf(unsigned int b) const
   {
     assert(model2 != NULL && "model2 is NULL");
     return model2->getBV(b).isLeaf();
   }
 
   /// @brief Determine the traversal order, is the first BVTT subtree better
-  bool firstOverSecond(int b1, int b2) const
+  bool firstOverSecond(unsigned int b1, unsigned int b2) const
   {
     FCL_REAL sz1 = model1->getBV(b1).bv.size();
     FCL_REAL sz2 = model2->getBV(b2).bv.size();
@@ -107,25 +107,25 @@ public:
   }
 
   /// @brief Obtain the left child of BV node in the first BVH
-  int getFirstLeftChild(int b) const
+  int getFirstLeftChild(unsigned int b) const
   {
     return model1->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the first BVH
-  int getFirstRightChild(int b) const
+  int getFirstRightChild(unsigned int b) const
   {
     return model1->getBV(b).rightChild();
   }
 
   /// @brief Obtain the left child of BV node in the second BVH
-  int getSecondLeftChild(int b) const
+  int getSecondLeftChild(unsigned int b) const
   {
     return model2->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the second BVH
-  int getSecondRightChild(int b) const
+  int getSecondRightChild(unsigned int b) const
   {
     return model2->getBV(b).rightChild();
   }
@@ -161,7 +161,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(int b1, int b2) const
+  bool BVDisjoints(unsigned int b1, unsigned int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -175,7 +175,7 @@ public:
   /// @param b1, b2 Bounding volumes to test,
   /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
-  bool BVDisjoints(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  bool BVDisjoints(unsigned int b1, unsigned int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -204,7 +204,7 @@ public:
   /// @note If the distance between objects is less than the security margin,
   ///       and the object are not colliding, the penetration depth is
   ///       negative.
-  void leafCollides(int b1, int b2, FCL_REAL& sqrDistLowerBound) const
+  void leafCollides(unsigned int b1, unsigned int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 
@@ -355,19 +355,19 @@ public:
   }
 
   /// @brief Whether the BV node in the first BVH tree is leaf
-  bool isFirstNodeLeaf(int b) const
+  bool isFirstNodeLeaf(unsigned int b) const
   {
     return model1->getBV(b).isLeaf();
   }
 
   /// @brief Whether the BV node in the second BVH tree is leaf
-  bool isSecondNodeLeaf(int b) const
+  bool isSecondNodeLeaf(unsigned int b) const
   {
     return model2->getBV(b).isLeaf();
   }
 
   /// @brief Determine the traversal order, is the first BVTT subtree better
-  bool firstOverSecond(int b1, int b2) const
+  bool firstOverSecond(unsigned int b1, unsigned int b2) const
   {
     FCL_REAL sz1 = model1->getBV(b1).bv.size();
     FCL_REAL sz2 = model2->getBV(b2).bv.size();
@@ -381,25 +381,25 @@ public:
   }
 
   /// @brief Obtain the left child of BV node in the first BVH
-  int getFirstLeftChild(int b) const
+  int getFirstLeftChild(unsigned int b) const
   {
     return model1->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the first BVH
-  int getFirstRightChild(int b) const
+  int getFirstRightChild(unsigned int b) const
   {
     return model1->getBV(b).rightChild();
   }
 
   /// @brief Obtain the left child of BV node in the second BVH
-  int getSecondLeftChild(int b) const
+  int getSecondLeftChild(unsigned int b) const
   {
     return model2->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the second BVH
-  int getSecondRightChild(int b) const
+  int getSecondRightChild(unsigned int b) const
   {
     return model2->getBV(b).rightChild();
   }
@@ -457,7 +457,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVDistanceLowerBound(int b1, int b2) const
+  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int b2) const
   {
     if(enable_statistics) num_bv_tests++;
     if (RTIsIdentity)
@@ -469,7 +469,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (two triangles)
-  void leafComputeDistance(int b1, int b2) const
+  void leafComputeDistance(unsigned int b1, unsigned int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 

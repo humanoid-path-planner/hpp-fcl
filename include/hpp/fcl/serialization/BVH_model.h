@@ -105,7 +105,7 @@ namespace boost
       
       ar >> make_nvp("base",boost::serialization::base_object<hpp::fcl::CollisionGeometry>(bvh_model));
       
-      int num_vertices;
+      unsigned int num_vertices;
       ar >> make_nvp("num_vertices",num_vertices);
       if(num_vertices != bvh_model.num_vertices)
       {
@@ -124,7 +124,7 @@ namespace boost
       else
         bvh_model.vertices = NULL;
       
-      int num_tris;
+      unsigned int num_tris;
       ar >> make_nvp("num_tris",num_tris);
       
       if(num_tris != bvh_model.num_tris)
@@ -292,7 +292,7 @@ namespace boost
       ar >> make_nvp("with_bvs",with_bvs);
       if(with_bvs)
       {
-        int num_bvs;
+        unsigned int num_bvs;
         ar >> make_nvp("num_bvs",num_bvs);
         
         if(num_bvs != bvh_model.num_bvs)

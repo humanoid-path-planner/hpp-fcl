@@ -388,7 +388,7 @@ private:
 
   template<typename BV>
   bool OcTreeMeshDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
-                                 const BVHModel<BV>* tree2, int root2,
+                                 const BVHModel<BV>* tree2, unsigned int root2,
                                  const Transform3f& tf1, const Transform3f& tf2) const
   {
     if(!tree1->nodeHasChildren(root1) && tree2->getBV(root2).isLeaf())
@@ -450,7 +450,7 @@ private:
       FCL_REAL d;
       AABB aabb1, aabb2;
       convertBV(bv1, tf1, aabb1);
-      int child = tree2->getBV(root2).leftChild();
+      unsigned int child = (unsigned int)tree2->getBV(root2).leftChild();
       convertBV(tree2->getBV(child).bv, tf2, aabb2);
       d = aabb1.distance(aabb2);
 
@@ -460,7 +460,7 @@ private:
           return true;
       }
 
-      child = tree2->getBV(root2).rightChild();
+      child = (unsigned int)tree2->getBV(root2).rightChild();
       convertBV(tree2->getBV(child).bv, tf2, aabb2);
       d = aabb1.distance(aabb2);
       
@@ -477,7 +477,7 @@ private:
 
   template<typename BV>
   bool OcTreeMeshIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
-                                  const BVHModel<BV>* tree2, int root2,
+                                  const BVHModel<BV>* tree2, unsigned int root2,
                                   const Transform3f& tf1, const Transform3f& tf2) const
   {
     if(!root1)
@@ -515,10 +515,10 @@ private:
       }
       else
       {
-        if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).leftChild(), tf1, tf2))
+        if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, (unsigned int)tree2->getBV(root2).leftChild(), tf1, tf2))
           return true;
 
-        if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).rightChild(), tf1, tf2))
+        if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, (unsigned int)tree2->getBV(root2).rightChild(), tf1, tf2))
           return true;
 
         return false;
@@ -613,10 +613,10 @@ private:
     }
     else
     {
-      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).leftChild(), tf1, tf2))
+      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, (unsigned int)tree2->getBV(root2).leftChild(), tf1, tf2))
         return true;
 
-      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).rightChild(), tf1, tf2))
+      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, (unsigned int)tree2->getBV(root2).rightChild(), tf1, tf2))
         return true;      
 
     }
@@ -904,17 +904,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVDisjoints(int, int) const
+  bool BVDisjoints(unsigned int, unsigned) const
   {
     return false;
   }
 
-  bool BVDisjoints(int, int, FCL_REAL&) const
+  bool BVDisjoints(unsigned, unsigned, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafCollides(int, int, FCL_REAL&) const
+  void leafCollides(unsigned, unsigned, FCL_REAL&) const
   {
     otsolver->OcTreeIntersect(model1, model2, tf1, tf2, request, *result);
   }
@@ -941,17 +941,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVDisjoints(int, int) const
+  bool BVDisjoints(unsigned int, unsigned int) const
   {
     return false;
   }
 
-  bool BVDisjoints(int, int, FCL_REAL&) const
+  bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafCollides(int, int, FCL_REAL&) const
+  void leafCollides(unsigned int, unsigned int, FCL_REAL&) const
   {
     otsolver->OcTreeShapeIntersect(model2, *model1, tf2, tf1, request, *result);
   }
@@ -979,17 +979,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVDisjoints(int, int) const
+  bool BVDisjoints(unsigned int, unsigned int) const
   {
     return false;
   }
 
-  bool BVDisjoints(int, int, fcl::FCL_REAL&) const
+  bool BVDisjoints(unsigned int, unsigned int, fcl::FCL_REAL&) const
   {
     return false;
   }
 
-  void leafCollides(int, int, FCL_REAL&) const
+  void leafCollides(unsigned int, unsigned int, FCL_REAL&) const
   {
     otsolver->OcTreeShapeIntersect(model1, *model2, tf1, tf2, request, *result);
   }
@@ -1016,17 +1016,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVDisjoints(int, int) const
+  bool BVDisjoints(unsigned int, unsigned int) const
   {
     return false;
   }
 
-  bool BVDisjoints(int, int, FCL_REAL&) const
+  bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafCollides(int, int, FCL_REAL&) const
+  void leafCollides(unsigned int, unsigned int, FCL_REAL&) const
   {
     otsolver->OcTreeMeshIntersect(model2, model1, tf2, tf1, request, *result);
   }
@@ -1053,17 +1053,17 @@ public:
     otsolver = NULL;
   }
 
-  bool BVDisjoints(int, int) const
+  bool BVDisjoints(unsigned int, unsigned int) const
   {
     return false;
   }
 
-  bool BVDisjoints(int, int, FCL_REAL&) const
+  bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafCollides(int, int, FCL_REAL&) const
+  void leafCollides(unsigned int, unsigned int, FCL_REAL&) const
   {
     otsolver->OcTreeMeshIntersect(model1, model2, tf1, tf2, request, *result);
   }
@@ -1094,17 +1094,17 @@ public:
   }
 
 
-  FCL_REAL BVDistanceLowerBound(int, int) const
+  FCL_REAL BVDistanceLowerBound(unsigned, unsigned) const
   {
     return -1;
   }
 
-  bool BVDistanceLowerBound(int, int, FCL_REAL&) const
+  bool BVDistanceLowerBound(unsigned, unsigned, FCL_REAL&) const
   {
     return false;
   }
 
-  void leafComputeDistance(int, int) const
+  void leafComputeDistance(unsigned, unsigned int) const
   {
     otsolver->OcTreeDistance(model1, model2, tf1, tf2, request, *result);
   }
@@ -1130,12 +1130,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVDistanceLowerBound(int, int) const
+  FCL_REAL BVDistanceLowerBound(unsigned int, unsigned int) const
   {
     return -1;
   }
 
-  void leafComputeDistance(int, int) const
+  void leafComputeDistance(unsigned int, unsigned int) const
   {
     otsolver->OcTreeShapeDistance(model2, *model1, tf2, tf1, request, *result);
   }
@@ -1159,12 +1159,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVDistanceLowerBound(int, int) const
+  FCL_REAL BVDistanceLowerBound(unsigned int, unsigned int) const
   {
     return -1;
   }
 
-  void leafComputeDistance(int, int) const
+  void leafComputeDistance(unsigned int, unsigned int) const
   {
     otsolver->OcTreeShapeDistance(model1, *model2, tf1, tf2, request, *result);
   }
@@ -1188,12 +1188,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVDistanceLowerBound(int, int) const
+  FCL_REAL BVDistanceLowerBound(unsigned int, unsigned int) const
   {
     return -1;
   }
 
-  void leafComputeDistance(int, int) const
+  void leafComputeDistance(unsigned int, unsigned int) const
   {
     otsolver->OcTreeMeshDistance(model2, model1, tf2, tf1, request, *result);
   }
@@ -1218,12 +1218,12 @@ public:
     otsolver = NULL;
   }
 
-  FCL_REAL BVDistanceLowerBound(int, int) const
+  FCL_REAL BVDistanceLowerBound(unsigned int, unsigned int) const
   {
     return -1;
   }
 
-  void leafComputeDistance(int, int) const
+  void leafComputeDistance(unsigned int, unsigned int) const
   {
     otsolver->OcTreeMeshDistance(model1, model2, tf1, tf2, request, *result);
   }

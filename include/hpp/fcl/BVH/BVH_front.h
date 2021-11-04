@@ -55,14 +55,15 @@ namespace fcl
 struct HPP_FCL_DLLAPI BVHFrontNode
 {
   /// @brief The nodes to start in the future, i.e. the wave front of the traversal tree.
-  int left, right;
+  unsigned int left, right;
 
   /// @brief The front node is not valid when collision is detected on the front node.
   bool valid;
 
-  BVHFrontNode(int left_, int right_) : left(left_),
-                                        right(right_),
-                                        valid(true)
+  BVHFrontNode(unsigned int left_, unsigned int right_)
+  : left(left_)
+  , right(right_)
+  , valid(true)
   {
   }
 };
@@ -71,7 +72,7 @@ struct HPP_FCL_DLLAPI BVHFrontNode
 typedef std::list<BVHFrontNode> BVHFrontList;
 
 /// @brief Add new front node into the front list
-inline void updateFrontList(BVHFrontList* front_list, int b1, int b2)
+inline void updateFrontList(BVHFrontList* front_list, unsigned int b1, unsigned int b2)
 {
   if(front_list) front_list->push_back(BVHFrontNode(b1, b2));
 }

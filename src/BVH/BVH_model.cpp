@@ -158,7 +158,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : BVHModelBase(other),
 {
   if(other.primitive_indices)
   {
-    int num_primitives = 0;
+    unsigned int num_primitives = 0;
     switch(other.getModelType())
     {
       case BVH_MODEL_TRIANGLES:
@@ -188,7 +188,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : BVHModelBase(other),
 }
 
 
-int BVHModelBase::beginModel(int num_tris_, int num_vertices_)
+int BVHModelBase::beginModel(unsigned int num_tris_, unsigned int num_vertices_)
 {
   if(build_state != BVH_BUILD_STATE_EMPTY)
   {
@@ -270,7 +270,7 @@ int BVHModelBase::addTriangles(const Matrixx3i & triangles)
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
   
-  const int num_tris_to_add = (int)triangles.rows();
+  const unsigned int num_tris_to_add = (unsigned int)triangles.rows();
 
   if(num_tris + num_tris_to_add > num_tris_allocated)
   {
@@ -306,7 +306,7 @@ int BVHModelBase::addVertices(const Matrixx3f & points)
 
   if(num_vertices + points.rows() > num_vertices_allocated)
   {
-    num_vertices_allocated = num_vertices + (int)points.rows();
+    num_vertices_allocated = num_vertices + (unsigned int)points.rows();
     Vec3f * temp = new Vec3f[num_vertices_allocated];
     if(!temp)
     {
@@ -348,7 +348,7 @@ int BVHModelBase::addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
     num_vertices_allocated = num_vertices_allocated * 2 + 2;
   }
 
-  int offset = num_vertices;
+  const unsigned int offset = num_vertices;
 
   vertices[num_vertices] = p1;
   num_vertices++;
@@ -388,7 +388,7 @@ int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps)
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
-  int num_vertices_to_add = (int)ps.size();
+  const unsigned int num_vertices_to_add = (unsigned int)ps.size();
 
   if(num_vertices + num_vertices_to_add - 1 >= num_vertices_allocated)
   {
@@ -422,7 +422,7 @@ int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Tr
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
   }
 
-  int num_vertices_to_add = (int)ps.size();
+  const unsigned int num_vertices_to_add = (unsigned int)ps.size();
 
   if(num_vertices + num_vertices_to_add - 1 >= num_vertices_allocated)
   {
@@ -439,7 +439,7 @@ int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Tr
     num_vertices_allocated = num_vertices_allocated * 2 + num_vertices_to_add - 1;
   }
 
-  int offset = num_vertices;
+  const unsigned int offset = num_vertices;
 
   for(size_t i = 0; i < (size_t)num_vertices_to_add; ++i)
   {
@@ -448,7 +448,7 @@ int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Tr
   }
 
 
-  int num_tris_to_add = (int)ts.size();
+  const unsigned int num_tris_to_add = (unsigned int)ts.size();
 
   if(num_tris + num_tris_to_add - 1 >= num_tris_allocated)
   {
@@ -745,7 +745,7 @@ int BVHModelBase::endUpdateModel(bool refit, bool bottomup)
 void BVHModelBase::computeLocalAABB()
 {
   AABB aabb_;
-  for(int i = 0; i < num_vertices; ++i)
+  for(unsigned int i = 0; i < num_vertices; ++i)
   {
     aabb_ += vertices[i];
   }
@@ -753,7 +753,7 @@ void BVHModelBase::computeLocalAABB()
   aabb_center = aabb_.center();
 
   aabb_radius = 0;
-  for(int i = 0; i < num_vertices; ++i)
+  for(unsigned int i = 0; i < num_vertices; ++i)
   {
     FCL_REAL r = (aabb_center - vertices[i]).squaredNorm();
     if(r > aabb_radius) aabb_radius = r;
@@ -790,7 +790,7 @@ template<typename BV>
 bool BVHModel<BV>::allocateBVs()
 {
   // construct BVH tree
-  int num_bvs_to_be_allocated = 0;
+  unsigned int num_bvs_to_be_allocated = 0;
   if(num_tris == 0)
     num_bvs_to_be_allocated = 2 * num_vertices - 1;
   else
@@ -812,9 +812,9 @@ bool BVHModel<BV>::allocateBVs()
 template<typename BV>
 int BVHModel<BV>::memUsage(const bool msg) const
 {
-  int mem_bv_list = (int)sizeof(BV) * num_bvs;
-  int mem_tri_list = (int)sizeof(Triangle) * num_tris;
-  int mem_vertex_list = (int)sizeof(Vec3f) * num_vertices;
+  unsigned int mem_bv_list = (unsigned int)sizeof(BV) * num_bvs;
+  unsigned int mem_tri_list = (unsigned int)sizeof(Triangle) * num_tris;
+  int mem_vertex_list = (unsigned int)sizeof(Vec3f) * num_vertices;
 
   int total_mem = mem_bv_list + mem_tri_list + mem_vertex_list +
     (int)sizeof(BVHModel<BV>);
@@ -864,7 +864,7 @@ int BVHModel<BV>::buildTree()
 }
 
 template<typename BV>
-int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, unsigned int num_primitives)
+int BVHModel<BV>::recursiveBuildTree(int bv_id, unsigned int first_primitive, unsigned int num_primitives)
 {
   BVHModelType type = getModelType();
   BVNode<BV>* bvnode = bvs + bv_id;
@@ -884,7 +884,7 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, unsigned in
   }
   else
   {
-    bvnode->first_child = num_bvs;
+    bvnode->first_child = (int)num_bvs;
     num_bvs += 2;
 
     unsigned int c1 = 0;
