@@ -46,36 +46,6 @@
 
 using namespace hpp::fcl;
 
-struct Quadrilateral
-{
-public:
-  typedef std::size_t index_type;
-  typedef int size_type;
-
-  Quadrilateral() {}
-
-  Quadrilateral(index_type p0, index_type p1, index_type p2, index_type p3)
-  {
-    set(p0, p1, p2, p3);
-  }
-
-  /// @brief Set the vertex indices of the triangle
-  inline void set(index_type p0, index_type p1, index_type p2, index_type p3)
-  {
-    vids[0] = p0; vids[1] = p1; vids[2] = p2; vids[3] = p3;
-  }
-
-  /// @access the triangle index
-  inline index_type operator[](int i) const { return vids[i]; }
-
-  inline index_type& operator[](int i) { return vids[i]; }
-
-  static inline size_type size() { return 4; }
-
-private:
-  index_type vids[4];
-};
-
 Convex<Quadrilateral> buildBox (FCL_REAL l, FCL_REAL w, FCL_REAL d)
 {
   Vec3f* pts = new Vec3f[8];
