@@ -89,7 +89,7 @@ void ConvexBase::computeCenter()
 {
   center.setZero();
   for(std::size_t i = 0; i < num_points; ++i)
-    center += points[i];
+    center += points[i]; // TODO(jcarpent): vectorization
   center /= num_points;
 }
 
@@ -106,7 +106,7 @@ void Halfspace::unitNormalTest()
   {
     n << 1, 0, 0;
     d = 0;
-  }  
+  }
 }
 
 void Plane::unitNormalTest()

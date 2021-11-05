@@ -152,9 +152,10 @@ bool BVHModelBase::buildConvexHull(bool keepTriangle, const char* qhullCommand)
 }
 
 template<typename BV>
-BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : BVHModelBase(other),
-                                                    bv_splitter(other.bv_splitter),
-                                                    bv_fitter(other.bv_fitter)
+BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
+: BVHModelBase(other)
+, bv_splitter(other.bv_splitter)
+, bv_fitter(other.bv_fitter)
 {
   if(other.primitive_indices)
   {

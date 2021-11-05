@@ -53,8 +53,8 @@ namespace fcl
 
 template<typename TypeA, typename TypeB>
 std::size_t Collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
-                               const GJKSolver* nsolver,
-                               const CollisionRequest& request, CollisionResult& result)
+                    const GJKSolver* nsolver,
+                    const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
@@ -138,7 +138,8 @@ template<typename T_BVH, typename T_SH,
   int _Options = details::bvh_shape_traits<T_BVH, T_SH>::Options>
 struct HPP_FCL_LOCAL BVHShapeCollider
 {
-  static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+  static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
+                             const CollisionGeometry* o2, const Transform3f& tf2,
                              const GJKSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
@@ -150,7 +151,8 @@ struct HPP_FCL_LOCAL BVHShapeCollider
       return oriented(o1, tf1, o2, tf2, nsolver, request, result);
   }
 
-  static std::size_t aligned(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+  static std::size_t aligned(const CollisionGeometry* o1, const Transform3f& tf1,
+                             const CollisionGeometry* o2, const Transform3f& tf2,
                              const GJKSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
@@ -169,9 +171,10 @@ struct HPP_FCL_LOCAL BVHShapeCollider
     return result.numContacts();
   }
 
-  static std::size_t oriented(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
-      const GJKSolver* nsolver,
-      const CollisionRequest& request, CollisionResult& result)
+  static std::size_t oriented(const CollisionGeometry* o1, const Transform3f& tf1,
+                              const CollisionGeometry* o2, const Transform3f& tf2,
+                              const GJKSolver* nsolver,
+                              const CollisionRequest& request, CollisionResult& result)
   {
     if(request.isSatisfied(result)) return result.numContacts();
 
@@ -189,7 +192,9 @@ struct HPP_FCL_LOCAL BVHShapeCollider
 namespace details
 {
 template<typename OrientedMeshCollisionTraversalNode, typename T_BVH>
-std::size_t orientedMeshCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t orientedMeshCollide(const CollisionGeometry* o1, const Transform3f& tf1,
+                                const CollisionGeometry* o2, const Transform3f& tf2,
+                                const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
@@ -206,7 +211,9 @@ std::size_t orientedMeshCollide(const CollisionGeometry* o1, const Transform3f& 
 }
 
 template<typename T_BVH>
-std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1,
+                       const CollisionGeometry* o2, const Transform3f& tf2,
+                       const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
   
@@ -228,27 +235,34 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, cons
 }
 
 template<>
-std::size_t BVHCollide<OBB>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t BVHCollide<OBB>(const CollisionGeometry* o1, const Transform3f& tf1,
+                            const CollisionGeometry* o2, const Transform3f& tf2,
+                            const CollisionRequest& request, CollisionResult& result)
 {
   return details::orientedMeshCollide<MeshCollisionTraversalNodeOBB, OBB>(o1, tf1, o2, tf2, request, result);
 }
 
 template<>
-std::size_t BVHCollide<OBBRSS>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t BVHCollide<OBBRSS>(const CollisionGeometry* o1, const Transform3f& tf1,
+                               const CollisionGeometry* o2, const Transform3f& tf2,
+                               const CollisionRequest& request, CollisionResult& result)
 {
   return details::orientedMeshCollide<MeshCollisionTraversalNodeOBBRSS, OBBRSS>(o1, tf1, o2, tf2, request, result);
 }
 
 
 template<>
-std::size_t BVHCollide<kIOS>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t BVHCollide<kIOS>(const CollisionGeometry* o1, const Transform3f& tf1,
+                             const CollisionGeometry* o2, const Transform3f& tf2,
+                             const CollisionRequest& request, CollisionResult& result)
 {
   return details::orientedMeshCollide<MeshCollisionTraversalNodekIOS, kIOS>(o1, tf1, o2, tf2, request, result);
 }
 
 
 template<typename T_BVH>
-std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1,
+                       const CollisionGeometry* o2, const Transform3f& tf2,
                        const GJKSolver* /*nsolver*/,
                        const CollisionRequest& request, CollisionResult& result)
 {
