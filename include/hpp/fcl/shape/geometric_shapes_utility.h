@@ -69,7 +69,7 @@ template<typename BV, typename S>
 inline void computeBV(const S& s, const Transform3f& tf, BV& bv)
 {
   std::vector<Vec3f> convex_bound_vertices = details::getBoundVertices(s, tf);
-  fit(&convex_bound_vertices[0], (int)convex_bound_vertices.size(), bv);
+  fit(&convex_bound_vertices[0], (unsigned int)convex_bound_vertices.size(), bv);
 }
 
 template<>

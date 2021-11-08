@@ -51,28 +51,28 @@ namespace fcl
 
 /// @brief Compute a bounding volume that fits a set of n points.
 template<typename BV>
-void fit(Vec3f* ps, int n, BV& bv)
+void fit(Vec3f* ps, unsigned int n, BV& bv)
 {
-  for(int i = 0; i < n; ++i)
+  for(unsigned int i = 0; i < n; ++i) // TODO(jcarpent): vectorize
   {
     bv += ps[i];
   }
 }
 
 template<>
-void fit<OBB>(Vec3f* ps, int n, OBB& bv);
+void fit<OBB>(Vec3f* ps, unsigned int n, OBB& bv);
 
 template<>
-void fit<RSS>(Vec3f* ps, int n, RSS& bv);
+void fit<RSS>(Vec3f* ps, unsigned int n, RSS& bv);
 
 template<>
-void fit<kIOS>(Vec3f* ps, int n, kIOS& bv);
+void fit<kIOS>(Vec3f* ps, unsigned int n, kIOS& bv);
 
 template<>
-void fit<OBBRSS>(Vec3f* ps, int n, OBBRSS& bv);
+void fit<OBBRSS>(Vec3f* ps, unsigned int n, OBBRSS& bv);
 
 template<>
-void fit<AABB>(Vec3f* ps, int n, AABB& bv);
+void fit<AABB>(Vec3f* ps, unsigned int n, AABB& bv);
 
 /// @brief The class for the default algorithm fitting a bounding volume to a set of points
 template<typename BV>
