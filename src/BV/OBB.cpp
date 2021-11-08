@@ -302,9 +302,7 @@ namespace internal
   {
     // |T| - |B| * b - a
     Vec3f AABB_corner (T.cwiseAbs () - a);
-    AABB_corner.noalias() -= Bf.col(0) * b[0];
-    AABB_corner.noalias() -= Bf.col(1) * b[1];
-    AABB_corner.noalias() -= Bf.col(2) * b[2];
+    AABB_corner.noalias() -= Bf * b;
     return AABB_corner.array().max(0).matrix().squaredNorm ();
   }
 
