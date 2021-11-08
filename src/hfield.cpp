@@ -1,8 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
- *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2021, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -33,49 +32,81 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** \author Justin Carpentier */
 
+#include <hpp/fcl/hfield.h>
 
-#include <../src/collision_node.h>
-#include <hpp/fcl/internal/traversal_recurse.h>
+#include <iostream>
+#include <string.h>
+
+#include <hpp/fcl/BV/BV.h>
+#include <hpp/fcl/shape/convex.h>
+
+#include <hpp/fcl/internal/BV_splitter.h>
+#include <hpp/fcl/internal/BV_fitter.h>
 
 namespace hpp
 {
 namespace fcl
 {
 
-void collide(CollisionTraversalNodeBase* node,
-             const CollisionRequest& request, CollisionResult& result,
-             BVHFrontList* front_list,
-             bool recursive)
+template<>
+NODE_TYPE HeightField<AABB>::getNodeType() const
 {
-  if(front_list && front_list->size() > 0)
-  {
-    propagateBVHFrontListCollisionRecurse(node, request, result, front_list);
-  }
-  else
-  {
-    FCL_REAL sqrDistLowerBound=0;
-    if (recursive)
-      collisionRecurse(node, 0, 0, front_list, sqrDistLowerBound);
-    else
-      collisionNonRecurse(node, front_list, sqrDistLowerBound);
-    result.updateDistanceLowerBound (sqrt (sqrDistLowerBound));
-  }
+  return HF_AABB;
 }
 
-void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list, unsigned int qsize)
+template<>
+NODE_TYPE HeightField<OBB>::getNodeType() const
 {
-  node->preprocess();
-  
-  if(qsize <= 2)
-    distanceRecurse(node, 0, 0, front_list);
-  else
-    distanceQueueRecurse(node, 0, 0, front_list, qsize);
-
-  node->postprocess();
+  return BV_UNKNOWN; // HF_OBB;
 }
 
+template<>
+NODE_TYPE HeightField<RSS>::getNodeType() const
+{
+  return BV_UNKNOWN; // HF_RSS;
 }
+
+template<>
+NODE_TYPE HeightField<kIOS>::getNodeType() const
+{
+  return BV_UNKNOWN; // BV_kIOS;
+}
+
+template<>
+NODE_TYPE HeightField<OBBRSS>::getNodeType() const
+{
+  return HF_OBBRSS;
+}
+
+template<>
+NODE_TYPE HeightField<KDOP<16> >::getNodeType() const
+{
+  return BV_UNKNOWN; // BV_KDOP16;
+}
+
+template<>
+NODE_TYPE HeightField<KDOP<18> >::getNodeType() const
+{
+  return BV_UNKNOWN; // BV_KDOP18;
+}
+
+template<>
+NODE_TYPE HeightField<KDOP<24> >::getNodeType() const
+{
+  return BV_UNKNOWN; // BV_KDOP24;
+}
+
+//template class HeightField<KDOP<16> >;
+//template class HeightField<KDOP<18> >;
+//template class HeightField<KDOP<24> >;
+template class HeightField<OBB>;
+template class HeightField<AABB>;
+template class HeightField<RSS>;
+//template class HeightField<kIOS>;
+template class HeightField<OBBRSS>;
+
+} // namespace fcl
 
 } // namespace hpp

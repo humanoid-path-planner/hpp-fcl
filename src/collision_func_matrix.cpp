@@ -69,6 +69,7 @@ std::size_t Collide(const CollisionGeometry* o1, const Transform3f& tf1,
 
   return result.numContacts();
 }
+
 #endif
 
 template<typename T_SH1, typename T_SH2>
@@ -189,6 +190,33 @@ struct HPP_FCL_LOCAL BVHShapeCollider
     return result.numContacts();
   }
 
+};
+
+/// @brief Collider functor for HeightField data structure
+/// \tparam _Options takes two values.
+///         - RelativeTransformationIsIdentity if object 1 should be moved
+///           into the frame of object 2 before computing collisions.
+///         - 0 if the query should be made with non-aligned object frames.
+template<typename BV, typename Shape>
+struct HPP_FCL_LOCAL HeightFieldShapeCollider
+{
+  typedef HeightField<BV> HF;
+  
+  static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
+                             const CollisionGeometry* o2, const Transform3f& tf2,
+                             const GJKSolver* nsolver,
+                             const CollisionRequest& request, CollisionResult& result)
+  {
+    if(request.isSatisfied(result)) return result.numContacts();
+
+    HeightFieldShapeCollisionTraversalNode<BV, Shape, 0> node (request);
+    const HF* obj1 = static_cast<const HF* >(o1);
+    const Shape* obj2 = static_cast<const Shape*>(o2);
+
+    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, result);
+    fcl::collide(&node, request, result);
+    return result.numContacts();
+  }
 };
 
 namespace details
@@ -423,6 +451,24 @@ CollisionFunctionMatrix::CollisionFunctionMatrix()
   collision_matrix[BV_OBBRSS][GEOM_CONVEX] = &BVHShapeCollider<OBBRSS, ConvexBase>::collide;
   collision_matrix[BV_OBBRSS][GEOM_PLANE] = &BVHShapeCollider<OBBRSS, Plane>::collide;
   collision_matrix[BV_OBBRSS][GEOM_HALFSPACE] = &BVHShapeCollider<OBBRSS, Halfspace>::collide;
+  
+  collision_matrix[HF_AABB][GEOM_BOX] = &HeightFieldShapeCollider<AABB, Box>::collide;
+  collision_matrix[HF_AABB][GEOM_SPHERE] = &HeightFieldShapeCollider<AABB, Sphere>::collide;
+  collision_matrix[HF_AABB][GEOM_CAPSULE] = &HeightFieldShapeCollider<AABB, Capsule>::collide;
+  collision_matrix[HF_AABB][GEOM_CONE] = &HeightFieldShapeCollider<AABB, Cone>::collide;
+  collision_matrix[HF_AABB][GEOM_CYLINDER] = &HeightFieldShapeCollider<AABB, Cylinder>::collide;
+  collision_matrix[HF_AABB][GEOM_CONVEX] = &HeightFieldShapeCollider<AABB, ConvexBase>::collide;
+  collision_matrix[HF_AABB][GEOM_PLANE] = &HeightFieldShapeCollider<AABB, Plane>::collide;
+  collision_matrix[HF_AABB][GEOM_HALFSPACE] = &HeightFieldShapeCollider<AABB, Halfspace>::collide;
+  
+  collision_matrix[HF_OBBRSS][GEOM_BOX] = &HeightFieldShapeCollider<OBBRSS, Box>::collide;
+  collision_matrix[HF_OBBRSS][GEOM_SPHERE] = &HeightFieldShapeCollider<OBBRSS, Sphere>::collide;
+  collision_matrix[HF_OBBRSS][GEOM_CAPSULE] = &HeightFieldShapeCollider<OBBRSS, Capsule>::collide;
+  collision_matrix[HF_OBBRSS][GEOM_CONE] = &HeightFieldShapeCollider<OBBRSS, Cone>::collide;
+  collision_matrix[HF_OBBRSS][GEOM_CYLINDER] = &HeightFieldShapeCollider<OBBRSS, Cylinder>::collide;
+  collision_matrix[HF_OBBRSS][GEOM_CONVEX] = &HeightFieldShapeCollider<OBBRSS, ConvexBase>::collide;
+  collision_matrix[HF_OBBRSS][GEOM_PLANE] = &HeightFieldShapeCollider<OBBRSS, Plane>::collide;
+  collision_matrix[HF_OBBRSS][GEOM_HALFSPACE] = &HeightFieldShapeCollider<OBBRSS, Halfspace>::collide;
 
   collision_matrix[BV_AABB][BV_AABB] = &BVHCollide<AABB>;
   collision_matrix[BV_OBB][BV_OBB] = &BVHCollide<OBB>;
