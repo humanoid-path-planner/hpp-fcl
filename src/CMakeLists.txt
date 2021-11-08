@@ -79,6 +79,7 @@ set(${LIBRARY_NAME}_SOURCES
   collision_utility.cpp
   mesh_loader/assimp.cpp
   mesh_loader/loader.cpp
+  hfield.cpp
   )
 
 if(HPP_FCL_HAS_OCTOMAP)
