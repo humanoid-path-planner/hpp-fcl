@@ -42,6 +42,7 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/shape/convex.h>
 #include <hpp/fcl/BVH/BVH_model.h>
+#include <hpp/fcl/hfield.h>
 #include <hpp/fcl/serialization/memory.h>
 #include <hpp/fcl/serialization/BVH_model.h>
 
@@ -50,6 +51,7 @@
 // BV_splitter is not defined in hpp/fcl/BVH/BVH_model.h
 #include <hpp/fcl/internal/BV_splitter.h>
 #include "doxygen_autodoc/hpp/fcl/BVH/BVH_model.h"
+#include "doxygen_autodoc/hpp/fcl/hfield.h"
 #include "doxygen_autodoc/hpp/fcl/shape/geometric_shapes.h"
 #include "doxygen_autodoc/functions.h"
 #endif
@@ -118,6 +120,45 @@ void exposeBVHModel (const std::string& bvname)
     .def ("clone", &BVH::clone,
           doxygen::member_func_doc(&BVH::clone),
           return_value_policy<manage_new_object>())
+    ;
+}
+
+template <typename BV>
+void exposeHeightField (const std::string & bvname)
+{
+  typedef HeightField<BV> Geometry;
+  typedef typename Geometry::Base Base;
+  typedef typename Geometry::Node Node;
+
+  const std::string type_name = "HeightField" + bvname;
+  class_ <Geometry, bases<Base>, shared_ptr<Geometry> >
+    (type_name.c_str(), doxygen::class_doc<Geometry>(), no_init)
+    .def (dv::init< HeightField<BV> >())
+    .def (dv::init< HeightField<BV> , const HeightField<BV> &>())
+    .def (dv::init< HeightField<BV> , FCL_REAL, FCL_REAL, const MatrixXf &, bp::optional<FCL_REAL> >())
+  
+    .DEF_CLASS_FUNC(Geometry,getXDim)
+    .DEF_CLASS_FUNC(Geometry,getYDim)
+    .DEF_CLASS_FUNC(Geometry,getMinHeight)
+    .DEF_CLASS_FUNC(Geometry,getMaxHeight)
+    .DEF_CLASS_FUNC(Geometry,getNodeType)
+    .DEF_CLASS_FUNC(Geometry,updateHeights)
+  
+    .def("clone", &Geometry::clone,
+         doxygen::member_func_doc(&Geometry::clone),
+         return_value_policy<manage_new_object>())
+    .def("getXGrid", &Geometry::getXGrid,
+         doxygen::member_func_doc(&Geometry::getXGrid),
+         bp::return_value_policy<bp::copy_const_reference>())
+    .def("getYGrid", &Geometry::getYGrid,
+         doxygen::member_func_doc(&Geometry::getYGrid),
+         bp::return_value_policy<bp::copy_const_reference>())
+    .def("getHeights", &Geometry::getHeights,
+         doxygen::member_func_doc(&Geometry::getHeights),
+         bp::return_value_policy<bp::copy_const_reference>())
+    .def("getBV", (Node & (Geometry::*)(unsigned int))&Geometry::getBV,
+         doxygen::member_func_doc((Node & (Geometry::*)(unsigned int))&Geometry::getBV),
+         bp::return_internal_reference<>())
     ;
 }
 
@@ -361,6 +402,7 @@ void exposeCollisionGeometries ()
       .value ("OT_BVH"    , OT_BVH)
       .value ("OT_GEOM"   , OT_GEOM)
       .value ("OT_OCTREE" , OT_OCTREE)
+      .value ("OT_HFIELD" , OT_HFIELD)
       .export_values()
       ;
   }
@@ -387,6 +429,8 @@ void exposeCollisionGeometries ()
       .value ("GEOM_HALFSPACE", GEOM_HALFSPACE)
       .value ("GEOM_TRIANGLE" , GEOM_TRIANGLE)
       .value ("GEOM_OCTREE"   , GEOM_OCTREE)
+      .value ("HF_AABB"       , HF_AABB)
+      .value ("HF_OBBRSS"     , HF_OBBRSS)
       .export_values()
       ;
   }
@@ -533,6 +577,8 @@ void exposeCollisionGeometries ()
     ;
   exposeBVHModel<OBB    >("OBB"    );
   exposeBVHModel<OBBRSS >("OBBRSS" );
+  exposeHeightField<OBBRSS>("OBBRSS");
+  exposeHeightField<AABB>("AABB");
   exposeComputeMemoryFootprint();
 }
 
