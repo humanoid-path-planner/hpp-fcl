@@ -369,7 +369,7 @@ public:
     if (   this->request.security_margin == 0
         && distance <= this->request.security_margin)
     {
-      this->result.addContact (Contact(this->model1 , this->model2,
+      this->result->addContact (Contact(this->model1 , this->model2,
                                        Contact::NONE, b2,
                                        .5 * (c1+c2), (c2-c1).normalized (),
                                        distance));
