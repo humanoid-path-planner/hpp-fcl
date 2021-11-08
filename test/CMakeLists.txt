@@ -53,6 +53,7 @@ add_fcl_test(obb obb.cpp)
 add_fcl_test(convex convex.cpp)
 
 add_fcl_test(bvh_models bvh_models.cpp)
+add_fcl_test(hfields hfields.cpp)
 
 add_fcl_test(profiling profiling.cpp)
 
@@ -69,12 +70,12 @@ IF(BUILD_TESTING)
 ELSE()
   add_executable(test-benchmark EXCLUDE_FROM_ALL benchmark.cpp)
 ENDIF()
-target_link_libraries(test-benchmark 
-  PUBLIC 
+target_link_libraries(test-benchmark
+  PUBLIC
   utility
   Boost::chrono
   Boost::filesystem
-  ${PROJECT_NAME} 
+  ${PROJECT_NAME}
   )
 
 ## Python tests
