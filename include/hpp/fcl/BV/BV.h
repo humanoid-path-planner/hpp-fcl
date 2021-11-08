@@ -97,6 +97,7 @@ struct Converter<AABB, OBB>
   
   static void convert(const AABB& bv1, OBB& bv2)
   {
+    bv2.To = bv1.center();
     bv2.extent.noalias() = (bv1.max_ - bv1.min_) * 0.5;
     bv2.axes.setIdentity();
   }
