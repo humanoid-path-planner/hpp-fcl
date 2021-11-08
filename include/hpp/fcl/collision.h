@@ -87,7 +87,7 @@ inline std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
   return res;
 }
 
-/// This class reduces the cost of identifying the geometry pair.
+/// @brief This class reduces the cost of identifying the geometry pair.
 /// This is mostly useful for repeated shape-shape queries.
 ///
 /// \code
@@ -96,6 +96,8 @@ inline std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
 /// \endcode
 class HPP_FCL_DLLAPI ComputeCollision {
 public:
+  
+  /// @brief Default constructor from two Collision Geometries.
   ComputeCollision(const CollisionGeometry* o1, const CollisionGeometry* o2);
 
   std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,

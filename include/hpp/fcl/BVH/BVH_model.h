@@ -284,10 +284,13 @@ public:
   /// @brief Fitting rule to fit a BV node to a set of geometry primitives
   shared_ptr<BVFitter<BV> > bv_fitter;
 
-  /// @brief Constructing an empty BVH
+  /// @brief Default constructor to build an empty BVH
   BVHModel();
 
-  /// @brief copy from another BVH
+  /// @brief Copy constructor from another BVH
+  ///
+  /// \param[in] other BVHModel to copy.
+  ///
   BVHModel(const BVHModel& other);
   
   /// @brief Clone *this into a new BVHModel
