@@ -78,6 +78,7 @@ namespace details
     const FCL_REAL max_height = cell.maxCoeff();
     
     assert(max_height > min_height && "max_height is lower than min_height"); // Check whether the geometry is degenerated
+    HPP_FCL_UNUSED_VARIABLE(max_height);
     
     Vec3f* pts = new Vec3f[8];
     pts[0] = Vec3f( x0, y0, min_height);
