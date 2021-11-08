@@ -111,7 +111,7 @@ void exposeBVHModel (const std::string& bvname)
   class_ <BVH, bases<BVHModelBase>, shared_ptr<BVH> >
     (type_name.c_str(), doxygen::class_doc<BVH>(), no_init)
     .def (dv::init<BVH>())
-    .def (dv::init<BVH, BVH>())
+    .def (dv::init<BVH, const BVH &>())
     .DEF_CLASS_FUNC(BVH,getNumBVs)
     .DEF_CLASS_FUNC(BVH,makeParentRelative)
     .DEF_CLASS_FUNC(BVHModelBase,memUsage)
