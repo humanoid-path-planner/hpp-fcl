@@ -89,7 +89,7 @@ namespace fcl
           if (gjk.hasPenetrationInformation(shape)) {
             gjk.getClosestPoints (shape, w0, w1);
             distance_lower_bound = gjk.distance;
-            if(normal) *normal = tf1.getRotation() * (w0 - w1).normalized();
+            if(normal) (*normal).noalias() = tf1.getRotation() * (w0 - w1).normalized();
             if(contact_points) *contact_points = tf1.transform((w0 + w1) / 2);
             return true;
           } else {
