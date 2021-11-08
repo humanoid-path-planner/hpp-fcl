@@ -52,7 +52,8 @@ namespace fcl
 #ifdef HPP_FCL_HAS_OCTOMAP
 
 template<typename TypeA, typename TypeB>
-std::size_t Collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t Collide(const CollisionGeometry* o1, const Transform3f& tf1,
+                    const CollisionGeometry* o2, const Transform3f& tf2,
                     const GJKSolver* nsolver,
                     const CollisionRequest& request, CollisionResult& result)
 {
@@ -71,7 +72,8 @@ std::size_t Collide(const CollisionGeometry* o1, const Transform3f& tf1, const C
 #endif
 
 template<typename T_SH1, typename T_SH2>
-std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1,
+                              const CollisionGeometry* o2, const Transform3f& tf2,
                               const GJKSolver* nsolver,
                               const CollisionRequest& request, CollisionResult& result)
 {
@@ -131,7 +133,7 @@ namespace details
 }
 
 /// \tparam _Options takes two values.
-///         - RelativeTransformationIsIdentity if object 1 should be moved the
+///         - RelativeTransformationIsIdentity if object 1 should be moved
 ///           into the frame of object 2 before computing collisions.
 ///         - 0 if the query should be made with non-aligned object frames.
 template<typename T_BVH, typename T_SH,
