@@ -87,6 +87,12 @@ public:
   {
   }
   
+  AABB & update(const Vec3f& min, const Vec3f& max)
+  {
+    min_ = min; max_ = max;
+    return *this;
+  }
+  
   /// @brief Comparison operator
   bool operator==(const AABB & other) const
   {
