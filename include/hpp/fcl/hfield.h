@@ -249,7 +249,7 @@ public:
   
   virtual HeightField<BV> * clone() const
   {
-    return new HeightField(x_dim, y_dim, heights, min_height);
+    return new HeightField(*this);
   }
   
   /// @brief deconstruction, delete mesh data related.
