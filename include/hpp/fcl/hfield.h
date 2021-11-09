@@ -462,7 +462,7 @@ protected:
                                               y_id + y_size_half, y_size - y_size_half);
       }
       
-      max_height = std::max(max_left_height,max_right_height);
+      max_height = (std::max)(max_left_height,max_right_height);
     }
 
 //    max_height = std::max(max_height,min_height);
