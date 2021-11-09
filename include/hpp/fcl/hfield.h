@@ -163,8 +163,9 @@ namespace details
   {
     static void run(const Vec3f & pointA, const Vec3f & pointB, BV & bv)
     {
-      AABB bv_aabb;
-      bv_aabb.update(pointA,pointB);
+      AABB bv_aabb(pointA,pointB);
+//      AABB bv_aabb;
+//      bv_aabb.update(pointA,pointB);
       convertBV(bv_aabb,bv);
     }
   };
@@ -174,7 +175,9 @@ namespace details
   {
     static void run(const Vec3f & pointA, const Vec3f & pointB, AABB & bv)
     {
-      bv.update(pointA,pointB);
+      AABB bv_aabb(pointA,pointB);
+      convertBV(bv_aabb,bv);
+//      bv.update(pointA,pointB);
     }
   };
 
