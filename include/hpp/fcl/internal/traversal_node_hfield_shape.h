@@ -260,7 +260,6 @@ public:
   /// @brief BV culling test in one BVTT node
   bool BVDisjoints(unsigned int b1, unsigned int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
-    std::cout << "BVDisjoints - 3" << std::endl;
     if(this->enable_statistics) this->num_bv_tests++;
     bool res;
     if (RTIsIdentity)
@@ -270,7 +269,6 @@ public:
     }
     else
     {
-      std::cout << "\t call !overlap(" << std::endl;
       res = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
                      this->model2_bv, this->model1->getBV(b1).bv,
                      this->request, sqrDistLowerBound);
