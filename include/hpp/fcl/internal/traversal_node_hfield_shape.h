@@ -390,487 +390,200 @@ public:
 
 /// @}
 
-///// @addtogroup Traversal_For_Distance
-///// @{
-//
-///// @brief Traversal node for distance computation between BVH and shape
-//template<typename BV, typename S>
-//class BVHShapeDistanceTraversalNode : public DistanceTraversalNodeBase
-//{
-//public:
-//  BVHShapeDistanceTraversalNode() : DistanceTraversalNodeBase()
-//  {
-//    model1 = NULL;
-//    model2 = NULL;
-//    
-//    num_bv_tests = 0;
-//    num_leaf_tests = 0;
-//    query_time_seconds = 0.0;
-//  }
-//
-//  /// @brief Whether the BV node in the first BVH tree is leaf
-//  bool isFirstNodeLeaf(unsigned int b) const
-//  {
-//    return model1->getBV(b).isLeaf();
-//  }
-//
-//  /// @brief Obtain the left child of BV node in the first BVH
-//  int getFirstLeftChild(unsigned int b) const
-//  {
-//    return model1->getBV(b).leftChild();
-//  }
-//
-//  /// @brief Obtain the right child of BV node in the first BVH
-//  int getFirstRightChild(unsigned int b) const
-//  {
-//    return model1->getBV(b).rightChild();
-//  }
-//
-//  /// @brief BV culling test in one BVTT node
-//  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int /*b2*/) const
-//  {
-//    return model1->getBV(b1).bv.distance(model2_bv);
-//  }
-//
-//  const BVHModel<BV>* model1;
-//  const S* model2;
-//  BV model2_bv;
-//
-//  mutable int num_bv_tests;
-//  mutable int num_leaf_tests;
-//  mutable FCL_REAL query_time_seconds;
-//};
-//
-///// @brief Traversal node for distance computation between shape and BVH
-//template<typename S, typename BV>
-//class ShapeBVHDistanceTraversalNode
-//: public DistanceTraversalNodeBase
-//{
-//public:
-//  ShapeBVHDistanceTraversalNode() : DistanceTraversalNodeBase()
-//  {
-//    model1 = NULL;
-//    model2 = NULL;
-//    
-//    num_bv_tests = 0;
-//    num_leaf_tests = 0;
-//    query_time_seconds = 0.0;
-//  }
-//
-//  /// @brief Whether the BV node in the second BVH tree is leaf
-//  bool isSecondNodeLeaf(unsigned int b) const
-//  {
-//    return model2->getBV(b).isLeaf();
-//  }
-//
-//  /// @brief Obtain the left child of BV node in the second BVH
-//  int getSecondLeftChild(unsigned int b) const
-//  {
-//    return model2->getBV(b).leftChild();
-//  }
-//
-//  /// @brief Obtain the right child of BV node in the second BVH
-//  int getSecondRightChild(unsigned int b) const
-//  {
-//    return model2->getBV(b).rightChild();
-//  }
-//
-//  /// @brief BV culling test in one BVTT node
-//  FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int b2) const
-//  {
-//    return model1_bv.distance(model2->getBV(b2).bv);
-//  }
-//
-//  const S* model1;
-//  const BVHModel<BV>* model2;
-//  BV model1_bv;
-//  
-//  mutable int num_bv_tests;
-//  mutable int num_leaf_tests;
-//  mutable FCL_REAL query_time_seconds;
-//};
-//                                  
-//
-///// @brief Traversal node for distance between mesh and shape
-//template<typename BV, typename S>
-//class HeightFieldShapeDistanceTraversalNode : public BVHShapeDistanceTraversalNode<BV, S>
-//{ 
-//public:
-//  HeightFieldShapeDistanceTraversalNode() : BVHShapeDistanceTraversalNode<BV, S>()
-//  {
-//    vertices = NULL;
-//    tri_indices = NULL;
-//
-//    rel_err = 0;
-//    abs_err = 0;
-//
-//    nsolver = NULL;
-//  }
-//
-//  /// @brief Distance testing between leaves (one triangle and one shape)
-//  void leafComputeDistance(unsigned int b1, unsigned int /*b2*/) const
-//  {
-//    if(this->enable_statistics) this->num_leaf_tests++;
-//    
-//    const BVNode<BV>& node = this->model1->getBV(b1);
-//    
-//    int primitive_id = node.primitiveId();
-//    
-//    const Triangle& tri_id = tri_indices[primitive_id];
-//
-//    const Vec3f& p1 = vertices[tri_id[0]];
-//    const Vec3f& p2 = vertices[tri_id[1]];
-//    const Vec3f& p3 = vertices[tri_id[2]];
-//    
-//    FCL_REAL d;
-//    Vec3f closest_p1, closest_p2, normal;
-//    nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
-//                                      Transform3f (), d, closest_p2, closest_p1,
-//                                      normal);
-//
-//    this->result->update(d, this->model1, this->model2, primitive_id,
-//                         DistanceResult::NONE, closest_p1, closest_p2,
-//                         normal);
-//  }
-//
-//  /// @brief Whether the traversal process can stop early
-//  bool canStop(FCL_REAL c) const
-//  {
-//    if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
-//      return true;
-//    return false;
-//  }
-//
-//  Vec3f* vertices;
-//  Triangle* tri_indices;
-//
-//  FCL_REAL rel_err;
-//  FCL_REAL abs_err;
-//    
-//  const GJKSolver* nsolver;
-//};
-//
-///// @cond IGNORE
-//namespace details
-//{
-//
-//template<typename BV, typename S>
-//void meshShapeDistanceOrientedNodeleafComputeDistance(unsigned int b1, unsigned int /* b2 */,
-//                                              const BVHModel<BV>* model1, const S& model2,
-//                                              Vec3f* vertices, Triangle* tri_indices,
-//                                              const Transform3f& tf1,
-//                                              const Transform3f& tf2,
-//                                              const GJKSolver* nsolver,
-//                                              bool enable_statistics,
-//                                              int & num_leaf_tests,
-//                                              const DistanceRequest& /* request */,
-//                                              DistanceResult& result)
-//{
-//  if(enable_statistics) num_leaf_tests++;
-//    
-//  const BVNode<BV>& node = model1->getBV(b1);
-//  int primitive_id = node.primitiveId();
-//
-//  const Triangle& tri_id = tri_indices[primitive_id];
-//  const Vec3f& p1 = vertices[tri_id[0]];
-//  const Vec3f& p2 = vertices[tri_id[1]];
-//  const Vec3f& p3 = vertices[tri_id[2]];
-//    
-//  FCL_REAL distance;
-//  Vec3f closest_p1, closest_p2, normal;
-//  nsolver->shapeTriangleInteraction(model2, tf2, p1, p2, p3, tf1, distance,
-//                                    closest_p2, closest_p1, normal);
-//
-//  result.update(distance, model1, &model2, primitive_id, DistanceResult::NONE,
-//                closest_p1, closest_p2, normal);
-//}
-//
-//
-//template<typename BV, typename S>
-//static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
-//                                                  Vec3f* vertices, Triangle* tri_indices, int init_tri_id,
-//                                                  const S& model2, const Transform3f& tf1, const Transform3f& tf2,
-//                                                  const GJKSolver* nsolver,
-//                                                  const DistanceRequest& /* request */,
-//                                                  DistanceResult& result)
-//{
-//  const Triangle& init_tri = tri_indices[init_tri_id];
-//  
-//  const Vec3f& p1 = vertices[init_tri[0]];
-//  const Vec3f& p2 = vertices[init_tri[1]];
-//  const Vec3f& p3 = vertices[init_tri[2]];
-//  
-//  FCL_REAL distance;
-//  Vec3f closest_p1, closest_p2, normal;
-//  nsolver->shapeTriangleInteraction(model2, tf2, p1, p2, p3, tf1, distance,
-//                                    closest_p2, closest_p1, normal);
-//
-//  result.update(distance, model1, &model2, init_tri_id, DistanceResult::NONE,
-//                closest_p1, closest_p2, normal);
-//}
-//
-//
-//}
-//
-///// @endcond
-//
-//
-//
-///// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, kIOS, OBBRSS)
-//template<typename S>
-//class HeightFieldShapeDistanceTraversalNodeRSS : public HeightFieldShapeDistanceTraversalNode<RSS, S>
-//{
-//public:
-//  HeightFieldShapeDistanceTraversalNodeRSS() : HeightFieldShapeDistanceTraversalNode<RSS, S>()
-//  {
-//  }
-//
-//  void preprocess()
-//  {
-//    details::distancePreprocessOrientedNode(this->model1, this->vertices, this->tri_indices, 0, 
-//                                            *(this->model2), this->tf1, this->tf2, this->nsolver, this->request, *(this->result));
-//  }
-//
-//  void postprocess()
-//  {
-//  }
-//
-//  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int /*b2*/) const
-//  {
-//    if(this->enable_statistics) this->num_bv_tests++;
-//    return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
-//  }
-//
-//  void leafComputeDistance(unsigned int b1, unsigned int b2) const
-//  {
-//    details::meshShapeDistanceOrientedNodeleafComputeDistance(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-//                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
-//  }
-//};
-//
-//
-//template<typename S>
-//class HeightFieldShapeDistanceTraversalNodekIOS : public HeightFieldShapeDistanceTraversalNode<kIOS, S>
-//{
-//public:
-//  HeightFieldShapeDistanceTraversalNodekIOS() : HeightFieldShapeDistanceTraversalNode<kIOS, S>()
-//  {
-//  }
-//
-//  void preprocess()
-//  {
-//    details::distancePreprocessOrientedNode(this->model1, this->vertices, this->tri_indices, 0, 
-//                                            *(this->model2), this->tf1, this->tf2, this->nsolver, this->request, *(this->result));
-//  }
-//
-//  void postprocess()
-//  {    
-//  }
-//
-//  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int /*b2*/) const
-//  {
-//    if(this->enable_statistics) this->num_bv_tests++;
-//    return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
-//  }
-//
-//  void leafComputeDistance(unsigned int b1, unsigned int b2) const
-//  {
-//    details::meshShapeDistanceOrientedNodeleafComputeDistance(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-//                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
-//  }
-//
-//};
-//
-//template<typename S>
-//class HeightFieldShapeDistanceTraversalNodeOBBRSS : public HeightFieldShapeDistanceTraversalNode<OBBRSS, S>
-//{
-//public:
-//  HeightFieldShapeDistanceTraversalNodeOBBRSS() : HeightFieldShapeDistanceTraversalNode<OBBRSS, S>()
-//  {
-//  }
-//
-//  void preprocess()
-//  {
-//    details::distancePreprocessOrientedNode(this->model1, this->vertices, this->tri_indices, 0, 
-//                                            *(this->model2), this->tf1, this->tf2, this->nsolver, this->request, *(this->result));
-//  }
-//
-//  void postprocess()
-//  {
-//    
-//  }
-//
-//  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int /*b2*/) const
-//  {
-//    if(this->enable_statistics) this->num_bv_tests++;
-//    return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
-//  }
-//
-//  void leafComputeDistance(unsigned int b1, unsigned int b2) const
-//  {
-//    details::meshShapeDistanceOrientedNodeleafComputeDistance(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-//                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
-//  }
-//  
-//};
-//
-///// @brief Traversal node for distance between shape and mesh
-//template<typename S, typename BV>
-//class ShapeHeightFieldDistanceTraversalNode : public ShapeBVHDistanceTraversalNode<S, BV>
-//{ 
-//public:
-//  ShapeHeightFieldDistanceTraversalNode() : ShapeBVHDistanceTraversalNode<S, BV>()
-//  {
-//    vertices = NULL;
-//    tri_indices = NULL;
-//
-//    rel_err = 0;
-//    abs_err = 0;
-//
-//    nsolver = NULL;
-//  }
-//
-//  /// @brief Distance testing between leaves (one shape and one triangle)
-//  void leafComputeDistance(unsigned int /*b1*/, unsigned int b2) const
-//  {
-//    if(this->enable_statistics) this->num_leaf_tests++;
-//    
-//    const BVNode<BV>& node = this->model2->getBV(b2);
-//    
-//    int primitive_id = node.primitiveId();
-//    
-//    const Triangle& tri_id = tri_indices[primitive_id];
-//
-//    const Vec3f& p1 = vertices[tri_id[0]];
-//    const Vec3f& p2 = vertices[tri_id[1]];
-//    const Vec3f& p3 = vertices[tri_id[2]];
-//    
-//    FCL_REAL distance;
-//    Vec3f closest_p1, closest_p2, normal;
-//    nsolver->shapeTriangleInteraction(*(this->model1), this->tf1, p1, p2, p3,
-//                                      Transform3f (), distance, closest_p1,
-//                                      closest_p2, normal);
-//
-//    this->result->update(distance, this->model1, this->model2,
-//                         DistanceResult::NONE, primitive_id, closest_p1,
-//                         closest_p2, normal);
-//  }
-//
-//  /// @brief Whether the traversal process can stop early
-//  bool canStop(FCL_REAL c) const
-//  {
-//    if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
-//      return true;
-//    return false;
-//  }
-//
-//  Vec3f* vertices;
-//  Triangle* tri_indices;
-//
-//  FCL_REAL rel_err;
-//  FCL_REAL abs_err;
-//    
-//  const GJKSolver* nsolver;
-//};
-//
-///// @brief Traversal node for distance between shape and mesh, when mesh BVH is one of the oriented node (RSS, kIOS, OBBRSS)
-//template<typename S>
-//class ShapeHeightFieldDistanceTraversalNodeRSS : public ShapeHeightFieldDistanceTraversalNode<S, RSS>
-//{
-//public:
-//  ShapeHeightFieldDistanceTraversalNodeRSS() : ShapeHeightFieldDistanceTraversalNode<S, RSS>()
-//  {
-//  }
-//
-//  void preprocess()
-//  {
-//    details::distancePreprocessOrientedNode(this->model2, this->vertices, this->tri_indices, 0,
-//                                            *(this->model1), this->tf2, this->tf1, this->nsolver, this->request, *(this->result));
-//  }
-//
-//  void postprocess()
-//  {
-//  }
-//
-//  FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int b2) const
-//  {
-//    if(this->enable_statistics) this->num_bv_tests++;
-//    return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
-//  }
-//
-//  void leafComputeDistance(unsigned int b1, unsigned int b2) const
-//  {
-//    details::meshShapeDistanceOrientedNodeleafComputeDistance(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-//                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
-//  }
-//
-//};
-//
-//template<typename S>
-//class ShapeHeightFieldDistanceTraversalNodekIOS : public ShapeHeightFieldDistanceTraversalNode<S, kIOS>
-//{
-//public:
-//  ShapeHeightFieldDistanceTraversalNodekIOS() : ShapeHeightFieldDistanceTraversalNode<S, kIOS>()
-//  {
-//  }
-//
-//  void preprocess()
-//  {
-//    details::distancePreprocessOrientedNode(this->model2, this->vertices, this->tri_indices, 0,
-//                                            *(this->model1), this->tf2, this->tf1, this->nsolver, *(this->result));
-//  }
-//
-//  void postprocess()
-//  {
-//  }
-//
-//  FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int b2) const
-//  {
-//    if(this->enable_statistics) this->num_bv_tests++;
-//    return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
-//  }
-//
-//  void leafComputeDistance(unsigned int b1, unsigned int b2) const
-//  {
-//    details::meshShapeDistanceOrientedNodeleafComputeDistance(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-//                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
-//  }
-//  
-//};
-//
-//template<typename S>
-//class ShapeHeightFieldDistanceTraversalNodeOBBRSS : public ShapeHeightFieldDistanceTraversalNode<S, OBBRSS>
-//{
-//public:
-//  ShapeHeightFieldDistanceTraversalNodeOBBRSS() : ShapeHeightFieldDistanceTraversalNode<S, OBBRSS>()
-//  {
-//  }
-//
-//  void preprocess()
-//  {
-//    details::distancePreprocessOrientedNode(this->model2, this->vertices, this->tri_indices, 0,
-//                                            *(this->model1), this->tf2, this->tf1, this->nsolver, *(this->result));
-//  }
-//
-//  void postprocess()
-//  {    
-//  }
-//
-//  FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int b2) const
-//  {
-//    if(this->enable_statistics) this->num_bv_tests++;
-//    return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
-//  }
-//
-//  void leafComputeDistance(unsigned int b1, unsigned int b2) const
-//  {
-//    details::meshShapeDistanceOrientedNodeleafComputeDistance(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-//                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
-//  }
-//  
-//};
-//
-///// @}
+/// @addtogroup Traversal_For_Distance
+/// @{
+
+/// @brief Traversal node for distance between height field and shape
+template<typename BV, typename S, int _Options = RelativeTransformationIsIdentity>
+class HeightFieldShapeDistanceTraversalNode
+: public DistanceTraversalNodeBase
+{
+public:
+  
+  typedef DistanceTraversalNodeBase Base;
+  
+  enum {
+    Options = _Options,
+    RTIsIdentity = _Options & RelativeTransformationIsIdentity
+  };
+
+  HeightFieldShapeDistanceTraversalNode()
+  : DistanceTraversalNodeBase()
+  {
+    model1 = NULL;
+    model2 = NULL;
+
+    num_leaf_tests = 0;
+    query_time_seconds = 0.0;
+    
+    rel_err = 0;
+    abs_err = 0;
+    nsolver = NULL;
+  }
+  
+  /// @brief Whether the BV node in the first BVH tree is leaf
+  bool isFirstNodeLeaf(unsigned int b) const
+  {
+    return model1->getBV(b).isLeaf();
+  }
+
+  /// @brief Obtain the left child of BV node in the first BVH
+  int getFirstLeftChild(unsigned int b) const
+  {
+    return model1->getBV(b).leftChild();
+  }
+
+  /// @brief Obtain the right child of BV node in the first BVH
+  int getFirstRightChild(unsigned int b) const
+  {
+    return model1->getBV(b).rightChild();
+  }
+  
+  /// @brief BV culling test in one BVTT node
+  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int /*b2*/) const
+  {
+    return model1->getBV(b1).bv.distance(model2_bv);
+  }
+
+  /// @brief Distance testing between leaves (one triangle and one shape)
+  void leafComputeDistance(unsigned int b1, unsigned int /*b2*/) const
+  {
+    if(this->enable_statistics) this->num_leaf_tests++;
+    
+    const BVNode<BV>& node = this->model1->getBV(b1);
+    
+    typedef Convex<Quadrilateral> ConvexT;
+    const ConvexT convex = details::buildConvex(node,*this->model1);
+    
+    FCL_REAL d;
+    Vec3f closest_p1, closest_p2, normal;
+    
+    nsolver->shapeDistance(convex, this->tf1,
+                           *(this->model2), this->tf2,
+                           d, closest_p1, closest_p2, normal);
+
+    this->result->update(d, this->model1, this->model2, b1,
+                         DistanceResult::NONE, closest_p1, closest_p2,
+                         normal);
+  }
+
+  /// @brief Whether the traversal process can stop early
+  bool canStop(FCL_REAL c) const
+  {
+    if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
+      return true;
+    return false;
+  }
+
+  FCL_REAL rel_err;
+  FCL_REAL abs_err;
+    
+  const GJKSolver* nsolver;
+  
+  const HeightField<BV>* model1;
+  const S* model2;
+  BV model2_bv;
+
+  mutable int num_bv_tests;
+  mutable int num_leaf_tests;
+  mutable FCL_REAL query_time_seconds;
+};
+
+/// @brief Traversal node for distance computation between shape and mesh
+template<typename S, typename BV, int _Options = RelativeTransformationIsIdentity>
+class ShapeHeightFieldDistanceTraversalNode
+: public DistanceTraversalNodeBase
+{
+public:
+  
+  typedef DistanceTraversalNodeBase Base;
+  
+  enum {
+    Options = _Options,
+    RTIsIdentity = _Options & RelativeTransformationIsIdentity
+  };
+
+  ShapeHeightFieldDistanceTraversalNode()
+  {
+    model1 = NULL;
+    model2 = NULL;
+
+    num_leaf_tests = 0;
+    query_time_seconds = 0.0;
+    
+    rel_err = 0;
+    abs_err = 0;
+    nsolver = NULL;
+  }
+  
+  /// @brief Alway extend the second model, which is a BVH model
+  bool firstOverSecond(unsigned int, unsigned int) const
+  {
+    return false;
+  }
+
+  /// @brief Whether the BV node in the second BVH tree is leaf
+  bool isSecondNodeLeaf(unsigned int b) const
+  {
+    return model2->getBV(b).isLeaf();
+  }
+
+  /// @brief Obtain the left child of BV node in the second BVH
+  int getSecondLeftChild(unsigned int b) const
+  {
+    return model2->getBV(b).leftChild();
+  }
+
+  /// @brief Obtain the right child of BV node in the second BVH
+  int getSecondRightChild(unsigned int b) const
+  {
+    return model2->getBV(b).rightChild();
+  }
+
+  /// @brief Distance testing between leaves (one triangle and one shape)
+  void leafComputeDistance(unsigned int /*b1*/, unsigned int b2) const
+  {
+    if(this->enable_statistics) this->num_leaf_tests++;
+    
+    const BVNode<BV>& node = this->model2->getBV(b2);
+    
+    typedef Convex<Quadrilateral> ConvexT;
+    const ConvexT convex = details::buildConvex(node,*this->model2);
+    
+    FCL_REAL d;
+    Vec3f closest_p1, closest_p2, normal;
+    
+    nsolver->shapeDistance(*(this->model1), this->tf1,
+                           convex, this->tf2,
+                           d, closest_p1, closest_p2, normal);
+    
+    this->result->update(d, this->model1, this->model2,
+                         DistanceResult::NONE, b2, closest_p1, closest_p2,
+                         normal);
+  }
+  
+  /// @brief Whether the traversal process can stop early
+  bool canStop(FCL_REAL c) const
+  {
+    if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
+      return true;
+    return false;
+  }
+
+  FCL_REAL rel_err;
+  FCL_REAL abs_err;
+
+  const GJKSolver* nsolver;
+  
+  const S* model1;
+  const HeightField<BV>* model2;
+  BV model1_bv;
+
+  mutable int num_leaf_tests;
+  mutable FCL_REAL query_time_seconds;
+};
+
+/// @}
 
 }} // namespace hpp::fcl
 
