@@ -87,9 +87,9 @@ public:
   {
   }
   
-  AABB & update(const Vec3f& min, const Vec3f& max)
+  AABB & update(const Vec3f& a, const Vec3f& b)
   {
-    min_ = min; max_ = max;
+    min_ = a.cwiseMin(b); max_ = a.cwiseMax(b);
     return *this;
   }
   
