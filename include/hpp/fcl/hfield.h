@@ -149,6 +149,8 @@ struct HPP_FCL_DLLAPI HFNode
     static const Matrix3f id3 = Matrix3f::Identity();
     return id3;
   }
+  
+  virtual ~HFNode() {}
 
   /// \cond
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
