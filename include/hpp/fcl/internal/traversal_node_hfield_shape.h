@@ -155,7 +155,6 @@ public:
   /// @brief BV culling test in one BVTT node
   bool BVDisjoints(unsigned int b1, unsigned int /*b2*/) const
   {
-    std::cout << "BVDisjoints" << std::endl;
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
       return !this->model1->getBV(b1).bv.overlap(this->model2_bv);
@@ -262,7 +261,8 @@ public:
     RTIsIdentity = _Options & RelativeTransformationIsIdentity
   };
 
-  ShapeHeightFieldCollisionTraversalNode()
+  ShapeHeightFieldCollisionTraversalNode(const CollisionRequest& request)
+  : CollisionTraversalNodeBase(request)
   {
     model1 = NULL;
     model2 = NULL;
