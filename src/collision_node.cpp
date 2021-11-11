@@ -64,7 +64,7 @@ void collide(CollisionTraversalNodeBase* node,
   }
 }
 
-void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list, int qsize)
+void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list, unsigned int qsize)
 {
   node->preprocess();
   

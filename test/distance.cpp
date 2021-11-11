@@ -59,7 +59,7 @@ template<typename BV>
 void distance_Test(const Transform3f& tf,
                    const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
                    const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
-                   int qsize,
+                   unsigned int qsize,
                    DistanceRes& distance_result,
                    bool verbose = true);
 
@@ -72,7 +72,7 @@ template<typename BV, typename TraversalNode>
 void distance_Test_Oriented(const Transform3f& tf,
                             const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
                             const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
-                            int qsize,
+                            unsigned int qsize,
                             DistanceRes& distance_result,
                             bool verbose = true);
 
@@ -335,7 +335,7 @@ template<typename BV, typename TraversalNode>
 void distance_Test_Oriented(const Transform3f& tf,
                             const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
                             const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
-                            int qsize,
+                            unsigned int qsize,
                             DistanceRes& distance_result,
                             bool verbose)
 {
@@ -385,7 +385,7 @@ template<typename BV>
 void distance_Test(const Transform3f& tf,
                    const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
                    const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
-                   int qsize,
+                   unsigned int qsize,
                    DistanceRes& distance_result,
                    bool verbose)
 {

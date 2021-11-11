@@ -47,8 +47,8 @@ namespace fcl
 {
 
 template <typename PolygonT>
-Convex<PolygonT>::Convex(bool own_storage, Vec3f* points_, int num_points_,
-       PolygonT* polygons_, int num_polygons_) : ConvexBase(),
+Convex<PolygonT>::Convex(bool own_storage, Vec3f* points_, unsigned int num_points_,
+       PolygonT* polygons_, unsigned int num_polygons_) : ConvexBase(),
   polygons     (polygons_),
   num_polygons (num_polygons_)
 {
@@ -88,9 +88,9 @@ Matrix3f Convex<PolygonT>::computeMomentofInertia() const
                  1/120.0, 1/60.0, 1/120.0,
                  1/120.0, 1/120.0, 1/60.0;
 
-  for(int i = 0; i < num_polygons; ++i)
+  for(unsigned int i = 0; i < num_polygons; ++i)
   {
-    const PolygonT& polygon (polygons[i]);
+    const PolygonT & polygon = polygons[i];
 
     // compute the center of the polygon
     Vec3f plane_center(0,0,0);
@@ -122,9 +122,9 @@ Vec3f Convex<PolygonT>::computeCOM() const
 
   Vec3f com(0,0,0);
   FCL_REAL vol = 0;
-  for(int i = 0; i < num_polygons; ++i)
+  for(unsigned int i = 0; i < num_polygons; ++i)
   {
-    const PolygonT& polygon (polygons[i]);
+    const PolygonT & polygon = polygons[i];
     // compute the center of the polygon
     Vec3f plane_center(0,0,0);
     for(size_type j = 0; j < polygon.size(); ++j)
@@ -155,9 +155,9 @@ FCL_REAL Convex<PolygonT>::computeVolume() const
   typedef typename PolygonT::index_type index_type;
 
   FCL_REAL vol = 0;
-  for(int i = 0; i < num_polygons; ++i)
+  for(unsigned int i = 0; i < num_polygons; ++i)
   {
-    const PolygonT& polygon (polygons[i]);
+    const PolygonT & polygon = polygons[i];
 
     // compute the center of the polygon
     Vec3f plane_center(0,0,0);
@@ -191,10 +191,10 @@ void Convex<PolygonT>::fillNeighbors()
   std::vector<std::set<index_type> > nneighbors (num_points);
   unsigned int c_nneighbors = 0;
 
-  for (int l = 0; l < num_polygons; ++l)
+  for (unsigned int l = 0; l < num_polygons; ++l)
   {
-    const PolygonT& polygon (polygons[l]);
-    size_type n = polygon.size();
+    const PolygonT & polygon = polygons[l];
+    const size_type n = polygon.size();
 
     for(size_type j = 0; j < polygon.size(); ++j)
     {
@@ -217,7 +217,7 @@ void Convex<PolygonT>::fillNeighbors()
 
   nneighbors_ = new unsigned int[c_nneighbors];
   unsigned int* p_nneighbors = nneighbors_;
-  for (int i = 0; i < num_points; ++i) {
+  for (unsigned int i = 0; i < num_points; ++i) {
     Neighbors& n = neighbors[i];
     if (nneighbors[i].size() >= (std::numeric_limits<unsigned char>::max)())
       throw std::logic_error ("Too many neighbors.");

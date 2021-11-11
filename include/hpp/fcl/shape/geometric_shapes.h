@@ -367,7 +367,7 @@ public:
   ///          Qhull.
   /// \note hpp-fcl must have been compiled with option \c HPP_FCL_HAS_QHULL set
   ///       to \c ON.
-  static ConvexBase* convexHull (const Vec3f* points, int num_points,
+  static ConvexBase* convexHull (const Vec3f* points, unsigned int num_points,
       bool keepTriangles, const char* qhullCommand = NULL);
 
   virtual ~ConvexBase();
@@ -396,7 +396,7 @@ public:
 
   /// @brief An array of the points of the polygon.
   Vec3f* points;
-  int num_points;
+  unsigned int num_points;
 
   struct HPP_FCL_DLLAPI Neighbors
   {
@@ -427,7 +427,7 @@ protected:
   /// \param ownStorage weither the ConvexBase owns the data.
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
-  void initialize(bool ownStorage, Vec3f* points_, int num_points_);
+  void initialize(bool ownStorage, Vec3f* points_, unsigned int num_points_);
 
   /// @brief Copy constructor 
   /// Only the list of neighbors is copied.

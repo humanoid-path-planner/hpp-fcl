@@ -44,7 +44,7 @@ namespace hpp
 namespace fcl
 {
 
-void ConvexBase::initialize(bool own_storage, Vec3f* points_, int num_points_)
+void ConvexBase::initialize(bool own_storage, Vec3f* points_, unsigned int num_points_)
 {
   points       = points_;
   num_points   = num_points_;

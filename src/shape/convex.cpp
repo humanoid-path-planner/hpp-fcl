@@ -21,7 +21,7 @@ using orgQhull::QhullRidgeSet;
 namespace hpp {
 namespace fcl {
 
-ConvexBase* ConvexBase::convexHull(const Vec3f* pts, int num_points,
+ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
     bool keepTriangles, const char* qhullCommand)
 {
 #ifdef HPP_FCL_HAS_QHULL
@@ -138,6 +138,10 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, int num_points,
   return convex;
 #else
   throw std::logic_error("Library built without qhull. Cannot build object of this type.");
+  HPP_FCL_UNUSED_VARIABLE(pts);
+  HPP_FCL_UNUSED_VARIABLE(num_points);
+  HPP_FCL_UNUSED_VARIABLE(keepTriangles);
+  HPP_FCL_UNUSED_VARIABLE(qhullCommand);
 #endif
 }
 } // namespace fcl

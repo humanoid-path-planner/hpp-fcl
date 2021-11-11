@@ -48,6 +48,8 @@
   #define HPP_FCL_PRETTY_FUNCTION __PRETTY_FUNCTION__
 #endif
 
+#define HPP_FCL_UNUSED_VARIABLE(var) (void)(var)
+
 #define HPP_FCL_THROW_PRETTY(message,exception) \
 { \
 std::stringstream ss; \

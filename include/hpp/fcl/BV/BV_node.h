@@ -64,16 +64,16 @@ struct HPP_FCL_DLLAPI BVNodeBase
 
   /// @brief The start id the primitive belonging to the current node. The index is referred to the primitive_indices in BVHModel and from that
   /// we can obtain the primitive's index in original data indirectly.
-  int first_primitive;
+  unsigned int first_primitive;
 
   /// @brief The number of primitives belonging to the current node 
-  int num_primitives;
+  unsigned int num_primitives;
   
   /// @brief Default constructor
   BVNodeBase()
   : first_child(0)
-  , first_primitive(-1)
-  , num_primitives(-1)
+  , first_primitive((std::numeric_limits<unsigned int>::max)()) // value we should help to raise an issue
+  , num_primitives(0)
   {}
   
   /// @brief Equality operator

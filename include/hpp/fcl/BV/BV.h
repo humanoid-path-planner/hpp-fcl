@@ -78,10 +78,9 @@ public:
   {
     const Vec3f& center = bv1.center();
     FCL_REAL r = (bv1.max_ - bv1.min_).norm() * 0.5;
-    Vec3f center2 = tf1.transform(center);
-    Vec3f delta(r, r, r);
-    bv2.min_ = center2 - delta;
-    bv2.max_ = center2 + delta;
+    const Vec3f center2 = tf1.transform(center);
+    bv2.min_ = center2 - Vec3f::Constant(r);
+    bv2.max_ = center2 + Vec3f::Constant(r);
   }
 };
 
@@ -91,9 +90,9 @@ class Converter<AABB, OBB>
 public:
   static void convert(const AABB& bv1, const Transform3f& tf1, OBB& bv2)
   {   
-    bv2.To.noalias() = tf1.transform(bv1.center());
+    bv2.To = tf1.transform(bv1.center());
     bv2.extent.noalias() = (bv1.max_ - bv1.min_) * 0.5;
-    bv2.axes.noalias() = tf1.getRotation();
+    bv2.axes = tf1.getRotation();
   }
 };
 
@@ -103,8 +102,8 @@ class Converter<OBB, OBB>
 public:
   static void convert(const OBB& bv1, const Transform3f& tf1, OBB& bv2)
   {
-    bv2.extent.noalias() = bv1.extent;
-    bv2.To.noalias() = tf1.transform(bv1.To);
+    bv2.extent = bv1.extent;
+    bv2.To = tf1.transform(bv1.To);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
   }
 };
@@ -125,8 +124,8 @@ class Converter<RSS, OBB>
 public:
   static void convert(const RSS& bv1, const Transform3f& tf1, OBB& bv2)
   {
-    bv2.extent.noalias() = Vec3f(bv1.length[0] * 0.5 + bv1.radius, bv1.length[1] * 0.5 + bv1.radius, bv1.radius);
-    bv2.To.noalias() = tf1.transform(bv1.Tr);
+    bv2.extent = Vec3f(bv1.length[0] * 0.5 + bv1.radius, bv1.length[1] * 0.5 + bv1.radius, bv1.radius);
+    bv2.To = tf1.transform(bv1.Tr);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
   }
 };
@@ -140,10 +139,9 @@ public:
   {
     const Vec3f& center = bv1.center();
     FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
-    Vec3f delta(r, r, r);
-    Vec3f center2 = tf1.transform(center);
-    bv2.min_ = center2 - delta;
-    bv2.max_ = center2 + delta;
+    const Vec3f center2 = tf1.transform(center);
+    bv2.min_ = center2 - Vec3f::Constant(r);
+    bv2.max_ = center2 + Vec3f::Constant(r);
   }
 };
 
@@ -180,7 +178,7 @@ class Converter<RSS, RSS>
 public:
   static void convert(const RSS& bv1, const Transform3f& tf1, RSS& bv2)
   {
-    bv2.Tr.noalias() = tf1.transform(bv1.Tr);
+    bv2.Tr = tf1.transform(bv1.Tr);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
 
     bv2.radius = bv1.radius;
@@ -209,11 +207,11 @@ public:
 
     /// Sort the AABB edges so that AABB extents are ordered.
     FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth() };
-    std::size_t id[3] = {0, 1, 2};
+    Eigen::DenseIndex id[3] = {0, 1, 2};
 
-    for(std::size_t i = 1; i < 3; ++i)
+    for(Eigen::DenseIndex i = 1; i < 3; ++i)
     {
-      for(std::size_t j = i; j > 0; --j)
+      for(Eigen::DenseIndex j = i; j > 0; --j)
       {
         if(d[j] > d[j-1])
         {
@@ -223,7 +221,7 @@ public:
             d[j-1] = tmp;
           }
           {
-            std::size_t tmp = id[j];
+            Eigen::DenseIndex tmp = id[j];
             id[j] = id[j-1];
             id[j-1] = tmp;
           }
@@ -231,17 +229,17 @@ public:
       }
     }
 
-    Vec3f extent = (bv1.max_ - bv1.min_) * 0.5;
+    const Vec3f extent = (bv1.max_ - bv1.min_) * 0.5;
     bv2.radius = extent[id[2]];
     bv2.length[0] = (extent[id[0]] - bv2.radius) * 2;
     bv2.length[1] = (extent[id[1]] - bv2.radius) * 2;
 
     const Matrix3f& R = tf1.getRotation();
-    bool left_hand = (id[0] == (id[1] + 1) % 3);
-    if (left_hand) bv2.axes.col(0).noalias() = -R.col(id[0]);
-    else           bv2.axes.col(0).noalias() =  R.col(id[0]);
-    bv2.axes.col(1).noalias() = R.col(id[1]);
-    bv2.axes.col(2).noalias() = R.col(id[2]);    
+    const bool left_hand = (id[0] == (id[1] + 1) % 3);
+    if (left_hand) bv2.axes.col(0) = -R.col(id[0]);
+    else           bv2.axes.col(0) =  R.col(id[0]);
+    bv2.axes.col(1) = R.col(id[1]);
+    bv2.axes.col(2) = R.col(id[2]);
   }
 };
 

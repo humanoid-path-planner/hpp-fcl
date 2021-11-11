@@ -84,7 +84,7 @@ struct BVHModelBaseWrapper
   typedef Eigen::Map<RowMatrixX3> MapRowMatrixX3;
   typedef Eigen::Ref<RowMatrixX3> RefRowMatrixX3;
   
-  static Vec3f & vertex (BVHModelBase & bvh, int i)
+  static Vec3f & vertex (BVHModelBase & bvh, unsigned int i)
   {
     if (i >= bvh.num_vertices) throw std::out_of_range("index is out of range");
     return bvh.vertices[i];
@@ -95,7 +95,7 @@ struct BVHModelBaseWrapper
     return MapRowMatrixX3(bvh.vertices[0].data(),bvh.num_vertices,3);
   }
   
-  static Triangle tri_indices (const BVHModelBase& bvh, int i)
+  static Triangle tri_indices (const BVHModelBase& bvh, unsigned int i)
   {
     if (i >= bvh.num_tris) throw std::out_of_range("index is out of range");
     return bvh.tri_indices[i];
@@ -127,7 +127,7 @@ struct ConvexBaseWrapper
   typedef Eigen::Map<RowMatrixX3> MapRowMatrixX3;
   typedef Eigen::Ref<RowMatrixX3> RefRowMatrixX3;
   
-  static Vec3f & point (const ConvexBase& convex, int i)
+  static Vec3f & point (const ConvexBase& convex, unsigned int i)
   {
     if (i >= convex.num_points) throw std::out_of_range("index is out of range");
     return convex.points[i];
@@ -138,7 +138,7 @@ struct ConvexBaseWrapper
     return MapRowMatrixX3(convex.points[0].data(),convex.num_points,3);
   }
 
-  static list neighbors (const ConvexBase& convex, int i)
+  static list neighbors (const ConvexBase& convex, unsigned int i)
   {
     if (i >= convex.num_points) throw std::out_of_range("index is out of range");
     list n;
@@ -150,7 +150,7 @@ struct ConvexBaseWrapper
   static ConvexBase* convexHull (const Vec3fs& points, bool keepTri,
       const char* qhullCommand)
   {
-    return ConvexBase::convexHull (points.data(), (int)points.size(), keepTri,
+    return ConvexBase::convexHull (points.data(), (unsigned int)points.size(), keepTri,
         qhullCommand);
   }
 };
@@ -160,7 +160,7 @@ struct ConvexWrapper
 {
   typedef Convex<PolygonT> Convex_t;
 
-  static PolygonT polygons (const Convex_t& convex, int i)
+  static PolygonT polygons (const Convex_t& convex, unsigned int i)
   {
     if (i >= convex.num_polygons) throw std::out_of_range("index is out of range");
     return convex.polygons[i];
@@ -172,8 +172,8 @@ struct ConvexWrapper
     for (std::size_t i = 0; i < _points.size(); ++i) points[i] = _points[i];
     Triangle* tris = new Triangle[_tris.size()];
     for (std::size_t i = 0; i < _tris.size(); ++i) tris[i] = _tris[i];
-    return shared_ptr<Convex_t>(new Convex_t(true, points, (int)_points.size(),
-          tris, (int)_tris.size()));
+    return shared_ptr<Convex_t>(new Convex_t(true, points, (unsigned int)_points.size(),
+          tris, (unsigned int)_tris.size()));
   }
 };
 

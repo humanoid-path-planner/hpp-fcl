@@ -74,10 +74,10 @@ public:
   Vec3f* prev_vertices;
 
   /// @brief Number of triangles
-  int num_tris;
+  unsigned int num_tris;
 
   /// @brief Number of points
-  int num_vertices;
+  unsigned int num_vertices;
 
   /// @brief The state of BVH building process
   BVHBuildState build_state;
@@ -126,7 +126,7 @@ public:
   void computeLocalAABB();
 
   /// @brief Begin a new BVH model
-  int beginModel(int num_tris = 0, int num_vertices = 0);
+  int beginModel(unsigned int num_tris = 0, unsigned int num_vertices = 0);
 
   /// @brief Add one point in the new BVH model
   int addVertex(const Vec3f& p);
@@ -209,7 +209,7 @@ public:
   {
     FCL_REAL vol = 0;
     Vec3f com(0,0,0);
-    for(int i = 0; i < num_tris; ++i)
+    for(unsigned int i = 0; i < num_tris; ++i)
     {
       const Triangle& tri = tri_indices[i];
       FCL_REAL d_six_vol = (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
@@ -223,7 +223,7 @@ public:
   FCL_REAL computeVolume() const
   {
     FCL_REAL vol = 0;
-    for(int i = 0; i < num_tris; ++i)
+    for(unsigned int i = 0; i < num_tris; ++i)
     {
       const Triangle& tri = tri_indices[i];
       FCL_REAL d_six_vol = (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
@@ -242,7 +242,7 @@ public:
                    1/120.0, 1/60.0, 1/120.0,
                    1/120.0, 1/120.0, 1/60.0;
 
-    for(int i = 0; i < num_tris; ++i)
+    for(unsigned int i = 0; i < num_tris; ++i)
     {
       const Triangle& tri = tri_indices[i];
       const Vec3f& v1 = vertices[tri[0]];
@@ -265,9 +265,9 @@ protected:
   /// @brief Refit the bounding volume hierarchy
   virtual int refitTree(bool bottomup) = 0;
 
-  int num_tris_allocated;
-  int num_vertices_allocated;
-  int num_vertex_updated; /// for ccd vertex update
+  unsigned int num_tris_allocated;
+  unsigned int num_vertices_allocated;
+  unsigned int num_vertex_updated; /// for ccd vertex update
 };
 
 /// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
@@ -307,7 +307,7 @@ public:
     if(!res)
       return false;
     
-    int other_num_primitives = 0;
+    unsigned int other_num_primitives = 0;
     if(other.primitive_indices)
     {
       
@@ -324,7 +324,7 @@ public:
       }
     }
     
-//    int num_primitives = 0;
+//    unsigned int num_primitives = 0;
 //    if(primitive_indices)
 //    {
 //
@@ -353,7 +353,7 @@ public:
     if(num_bvs != other.num_bvs)
       return false;
     
-    for(int k = 0; k < num_bvs; ++k)
+    for(unsigned int k = 0; k < num_bvs; ++k)
     {
       if(bvs[k] != other.bvs[k])
         return false;
@@ -371,21 +371,21 @@ public:
   /// @brief We provide getBV() and getNumBVs() because BVH may be compressed (in future), so we must provide some flexibility here
   
   /// @brief Access the bv giving the its index
-  const BVNode<BV>& getBV(int id) const
+  const BVNode<BV>& getBV(unsigned int i) const
   {
-    assert (id < num_bvs);
-    return bvs[id];
+    assert (i < num_bvs);
+    return bvs[i];
   }
 
   /// @brief Access the bv giving the its index
-  BVNode<BV>& getBV(int id)
+  BVNode<BV>& getBV(unsigned int i)
   {
-    assert (id < num_bvs);
-    return bvs[id];
+    assert (i < num_bvs);
+    return bvs[i];
   }
 
   /// @brief Get the number of bv in the BVH
-  int getNumBVs() const
+  unsigned int getNumBVs() const
   {
     return num_bvs;
   }
@@ -408,14 +408,14 @@ protected:
   void deleteBVs();
   bool allocateBVs();
 
-  int num_bvs_allocated;
+  unsigned int num_bvs_allocated;
   unsigned int* primitive_indices;
 
   /// @brief Bounding volume hierarchy
   BVNode<BV>* bvs;
 
   /// @brief Number of BV nodes in bounding volume hierarchy
-  int num_bvs;
+  unsigned int num_bvs;
 
   /// @brief Build the bounding volume hierarchy
   int buildTree();
@@ -430,7 +430,7 @@ protected:
   int refitTree_bottomup();
 
   /// @brief Recursive kernel for hierarchy construction
-  int recursiveBuildTree(int bv_id, int first_primitive, int num_primitives);
+  int recursiveBuildTree(int bv_id, unsigned int first_primitive, unsigned int num_primitives);
 
   /// @brief Recursive kernel for bottomup refitting 
   int recursiveRefitTree_bottomup(int bv_id);

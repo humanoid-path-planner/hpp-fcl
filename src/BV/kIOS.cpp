@@ -155,7 +155,7 @@ FCL_REAL kIOS::size() const
 FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
 {
   FCL_REAL d_max = 0;
-  int id_a = -1, id_b = -1;
+  long id_a = -1, id_b = -1;
   for(unsigned int i = 0; i < num_spheres; ++i)
   {
     for(unsigned int j = 0; j < other.num_spheres; ++j)
@@ -166,7 +166,7 @@ FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
         d_max = d;
         if(P && Q)
         {
-          id_a = i; id_b = j;
+          id_a = (long)i; id_b = (long)j;
         }
       }
     }
@@ -176,7 +176,7 @@ FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
   {
     if(id_a != -1 && id_b != -1)
     {
-      Vec3f v = spheres[id_a].o - spheres[id_b].o;
+      const Vec3f v = spheres[id_a].o - spheres[id_b].o;
       FCL_REAL len_v = v.norm();
       *P = spheres[id_a].o - v * (spheres[id_a].r / len_v);
       *Q = spheres[id_b].o + v * (spheres[id_b].r / len_v);

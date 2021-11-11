@@ -75,19 +75,19 @@ public:
   }
 
   /// @brief Whether the BV node in the first BVH tree is leaf
-  bool isFirstNodeLeaf(int b) const
+  bool isFirstNodeLeaf(unsigned int b) const
   {
     return model1->getBV(b).isLeaf();
   }
 
   /// @brief Obtain the left child of BV node in the first BVH
-  int getFirstLeftChild(int b) const
+  int getFirstLeftChild(unsigned int b) const
   {
     return model1->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the first BVH
-  int getFirstRightChild(int b) const
+  int getFirstRightChild(unsigned int b) const
   {
     return model1->getBV(b).rightChild();
   }
@@ -118,25 +118,25 @@ public:
   }
 
   /// @brief Alway extend the second model, which is a BVH model
-  bool firstOverSecond(int, int) const
+  bool firstOverSecond(unsigned int, unsigned int) const
   {
     return false;
   }
 
   /// @brief Whether the BV node in the second BVH tree is leaf
-  bool isSecondNodeLeaf(int b) const
+  bool isSecondNodeLeaf(unsigned int b) const
   {
     return model2->getBV(b).isLeaf();
   }
 
   /// @brief Obtain the left child of BV node in the second BVH
-  int getSecondLeftChild(int b) const
+  int getSecondLeftChild(unsigned int b) const
   {
     return model2->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the second BVH
-  int getSecondRightChild(int b) const
+  int getSecondRightChild(unsigned int b) const
   {
     return model2->getBV(b).rightChild();
   }
@@ -172,7 +172,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(int b1, int /*b2*/) const
+  bool BVDisjoints(unsigned int b1, unsigned int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -186,7 +186,7 @@ public:
   /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
   /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
+  bool BVDisjoints(unsigned int b1, unsigned int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     bool res;
@@ -201,7 +201,7 @@ public:
   }
 
   /// @brief Intersection testing between leaves (one triangle and one shape)
-  void leafCollides(int b1, int /*b2*/, FCL_REAL& sqrDistLowerBound) const
+  void leafCollides(unsigned int b1, unsigned int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     const BVNode<BV>& node = this->model1->getBV(b1);
@@ -280,7 +280,7 @@ public:
 
   /// BV test between b1 and b2
   /// @param b2 Bounding volumes to test,
-  bool BVDisjoints(int /*b1*/, int b2) const
+  bool BVDisjoints(unsigned int /*b1*/, unsigned int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
@@ -293,7 +293,7 @@ public:
   /// @param b2 Bounding volumes to test,
   /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
-  bool BVDisjoints(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
+  bool BVDisjoints(unsigned int /*b1*/, unsigned int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     bool res;
@@ -308,7 +308,7 @@ public:
   }
 
   /// @brief Intersection testing between leaves (one shape and one triangle)
-  void leafCollides(int /*b1*/, int b2, FCL_REAL& sqrDistLowerBound) const
+  void leafCollides(unsigned int /*b1*/, unsigned int b2, FCL_REAL& sqrDistLowerBound) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     const BVNode<BV>& node = this->model2->getBV(b2);
@@ -387,25 +387,25 @@ public:
   }
 
   /// @brief Whether the BV node in the first BVH tree is leaf
-  bool isFirstNodeLeaf(int b) const 
+  bool isFirstNodeLeaf(unsigned int b) const
   {
     return model1->getBV(b).isLeaf();
   }
 
   /// @brief Obtain the left child of BV node in the first BVH
-  int getFirstLeftChild(int b) const
+  int getFirstLeftChild(unsigned int b) const
   {
     return model1->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the first BVH
-  int getFirstRightChild(int b) const
+  int getFirstRightChild(unsigned int b) const
   {
     return model1->getBV(b).rightChild();
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVDistanceLowerBound(int b1, int /*b2*/) const
+  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int /*b2*/) const
   {
     return model1->getBV(b1).bv.distance(model2_bv);
   }
@@ -435,25 +435,25 @@ public:
   }
 
   /// @brief Whether the BV node in the second BVH tree is leaf
-  bool isSecondNodeLeaf(int b) const
+  bool isSecondNodeLeaf(unsigned int b) const
   {
     return model2->getBV(b).isLeaf();
   }
 
   /// @brief Obtain the left child of BV node in the second BVH
-  int getSecondLeftChild(int b) const
+  int getSecondLeftChild(unsigned int b) const
   {
     return model2->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the second BVH
-  int getSecondRightChild(int b) const
+  int getSecondRightChild(unsigned int b) const
   {
     return model2->getBV(b).rightChild();
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVDistanceLowerBound(int /*b1*/, int b2) const
+  FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int b2) const
   {
     return model1_bv.distance(model2->getBV(b2).bv);
   }
@@ -485,7 +485,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (one triangle and one shape)
-  void leafComputeDistance(int b1, int /*b2*/) const
+  void leafComputeDistance(unsigned int b1, unsigned int /*b2*/) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     
@@ -532,7 +532,7 @@ namespace details
 {
 
 template<typename BV, typename S>
-void meshShapeDistanceOrientedNodeleafComputeDistance(int b1, int /* b2 */,
+void meshShapeDistanceOrientedNodeleafComputeDistance(unsigned int b1, unsigned int /* b2 */,
                                               const BVHModel<BV>* model1, const S& model2,
                                               Vec3f* vertices, Triangle* tri_indices,
                                               const Transform3f& tf1,
@@ -612,13 +612,13 @@ public:
   {
   }
 
-  FCL_REAL BVDistanceLowerBound(int b1, int /*b2*/) const
+  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafComputeDistance(int b1, int b2) const
+  void leafComputeDistance(unsigned int b1, unsigned int b2) const
   {
     details::meshShapeDistanceOrientedNodeleafComputeDistance(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
@@ -644,13 +644,13 @@ public:
   {    
   }
 
-  FCL_REAL BVDistanceLowerBound(int b1, int /*b2*/) const
+  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafComputeDistance(int b1, int b2) const
+  void leafComputeDistance(unsigned int b1, unsigned int b2) const
   {
     details::meshShapeDistanceOrientedNodeleafComputeDistance(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
@@ -677,13 +677,13 @@ public:
     
   }
 
-  FCL_REAL BVDistanceLowerBound(int b1, int /*b2*/) const
+  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
-  void leafComputeDistance(int b1, int b2) const
+  void leafComputeDistance(unsigned int b1, unsigned int b2) const
   {
     details::meshShapeDistanceOrientedNodeleafComputeDistance(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
@@ -708,7 +708,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (one shape and one triangle)
-  void leafComputeDistance(int /*b1*/, int b2) const
+  void leafComputeDistance(unsigned int /*b1*/, unsigned int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     
@@ -769,13 +769,13 @@ public:
   {
   }
 
-  FCL_REAL BVDistanceLowerBound(int /*b1*/, int b2) const
+  FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafComputeDistance(int b1, int b2) const
+  void leafComputeDistance(unsigned int b1, unsigned int b2) const
   {
     details::meshShapeDistanceOrientedNodeleafComputeDistance(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
@@ -801,13 +801,13 @@ public:
   {
   }
 
-  FCL_REAL BVDistanceLowerBound(int /*b1*/, int b2) const
+  FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafComputeDistance(int b1, int b2) const
+  void leafComputeDistance(unsigned int b1, unsigned int b2) const
   {
     details::meshShapeDistanceOrientedNodeleafComputeDistance(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
@@ -833,13 +833,13 @@ public:
   {    
   }
 
-  FCL_REAL BVDistanceLowerBound(int /*b1*/, int b2) const
+  FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
-  void leafComputeDistance(int b1, int b2) const
+  void leafComputeDistance(unsigned int b1, unsigned int b2) const
   {
     details::meshShapeDistanceOrientedNodeleafComputeDistance(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));

@@ -502,7 +502,7 @@ void fit(Vec3f* ps, int n, AABB& bv)
   }
 }
 
-OBB BVFitter<OBB>::fit(unsigned int* primitive_indices, int num_primitives)
+OBB BVFitter<OBB>::fit(unsigned int* primitive_indices, unsigned int num_primitives)
 {
   OBB bv;
 
@@ -521,7 +521,7 @@ OBB BVFitter<OBB>::fit(unsigned int* primitive_indices, int num_primitives)
   return bv;
 }
 
-OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices, int num_primitives)
+OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices, unsigned int num_primitives)
 {
   OBBRSS bv;
   Matrix3f M;
@@ -549,7 +549,7 @@ OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices, int num_primitives
   return bv;
 }
 
-RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
+RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, unsigned int num_primitives)
 {
   RSS bv;
 
@@ -576,7 +576,7 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
   return bv;
 }
 
-kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
+kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, unsigned int num_primitives)
 {
   kIOS bv;
 
@@ -646,7 +646,7 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
   return bv;
 }
 
-AABB BVFitter<AABB>::fit(unsigned int* primitive_indices, int num_primitives)
+AABB BVFitter<AABB>::fit(unsigned int* primitive_indices, unsigned int num_primitives)
 {
   AABB bv;
   if (num_primitives == 0) return bv;
