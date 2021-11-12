@@ -131,7 +131,7 @@ struct HPP_FCL_DLLAPI Quadrilateral
     set(p0, p1, p2, p3);
   }
 
-  /// @brief Set the vertex indices of the triangle
+  /// @brief Set the vertex indices of the quadrilateral
   inline void set(index_type p0, index_type p1, index_type p2, index_type p3)
   {
     vids[0] = p0; vids[1] = p1; vids[2] = p2; vids[3] = p3;
