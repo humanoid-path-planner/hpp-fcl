@@ -185,7 +185,7 @@ struct HPP_FCL_LOCAL HeightFieldShapeDistancer
     HPP_FCL_UNUSED_VARIABLE(nsolver);
     HPP_FCL_UNUSED_VARIABLE(request);
     //TODO(jcarpent)
-    HPP_FCL_THROW_PRETTY("Function non implemented", std::invalid_argument);
+    HPP_FCL_THROW_PRETTY("Distance between a height field and a shape is not implemented", std::invalid_argument);
 //    if(request.isSatisfied(result)) return result.min_distance;
 //    HeightFieldShapeDistanceTraversalNode<T_HF, T_SH> node;
 //
