@@ -107,7 +107,7 @@ namespace details
   template<typename BV>
   void buildConvexTriangles(const HFNode<BV> & node,
                             const HeightField<BV> & model,
-                            Convex<Triangle> ** convex1, Convex<Triangle> ** convex2)
+                            Convex<Triangle> & convex1, Convex<Triangle> & convex2)
   {
     const MatrixXf & heights = model.getHeights();
     const VecXf & x_grid = model.getXGrid();
@@ -147,12 +147,12 @@ namespace details
       triangles[6].set(0, 3, 7); // z- side
       triangles[7].set(7, 4, 0); // z+ side
       
-      *convex1 = new Convex<Triangle>(true,
-                                      pts, // points
-                                      8, // num points
-                                      triangles,
-                                      8 // number of polygons
-                                      );
+      convex1 = Convex<Triangle>(true,
+                                 pts, // points
+                                 8, // num points
+                                 triangles,
+                                 8 // number of polygons
+                                 );
     }
     
     {
@@ -176,12 +176,12 @@ namespace details
       triangles[6].set(2, 3, 7); // z- side
       triangles[7].set(6, 2, 3); // z+ side
       
-      *convex2 = new Convex<Triangle>(true,
-                                      pts, // points
-                                      8, // num points
-                                      triangles,
-                                      8 // number of polygons
-                                      );
+      convex2 = Convex<Triangle>(true,
+                                 pts, // points
+                                 8, // num points
+                                 triangles,
+                                 8 // number of polygons
+                                 );
     }
 
   }
@@ -335,19 +335,16 @@ public:
 //    const ConvexQuadrilateral convex = details::buildConvexQuadrilateral(node,*this->model1);
     
     typedef Convex<Triangle> ConvexTriangle;
-    ConvexTriangle * convex1 = NULL;
-    ConvexTriangle * convex2 = NULL;
-    details::buildConvexTriangles(node,*this->model1,&convex1,&convex2);
+    ConvexTriangle convex1, convex2;
+    details::buildConvexTriangles(node,*this->model1,convex1,convex2);
     
     FCL_REAL distance;
     Vec3f c1, c2, normal;
     
-    bool collision = this->shapeDistance(*convex1, *convex2, this->tf1,
+    bool collision = this->shapeDistance(convex1, convex2, this->tf1,
                                          *(this->model2), this->tf2,
                                          distance, c1, c2, normal);
-    delete convex1;
-    delete convex2;
-    
+
     if(collision) {
       if(this->request.num_max_contacts > this->result->numContacts())
       {
@@ -521,16 +518,15 @@ public:
 //    const ConvexQuadrilateral convex = details::buildConvexQuadrilateral(node,*this->model2);
 
     typedef Convex<Triangle> ConvexTriangle;
-    ConvexTriangle * convex1 = NULL;
-    ConvexTriangle * convex2 = NULL;
-    details::buildConvexTriangles(node,*this->model1,&convex1,&convex2);
+    ConvexTriangle convex1, convex2;
+    details::buildConvexTriangles(node,*this->model1,convex1,convex2);
     
     FCL_REAL distance;
     Vec3f normal;
     Vec3f c1, c2; // closest points
 
     bool collision = this->shapeDistance(*(this->model1), this->tf1,
-                                         *convex1, *convex2, this->tf2,
+                                         convex1, convex2, this->tf2,
                                          distance, c1, c2, normal);
 
     if (collision) {
