@@ -75,10 +75,8 @@ namespace details
     y0 = y_grid[node.y_id],
     y1 = y_grid[node.y_id+1];
     const Eigen::Block<const MatrixXf,2,2> cell = heights.block<2,2>(node.y_id,node.x_id);
-    const FCL_REAL max_height = cell.maxCoeff();
     
-    assert(max_height > min_height && "max_height is lower than min_height"); // Check whether the geometry is degenerated
-    HPP_FCL_UNUSED_VARIABLE(max_height);
+    assert(cell.maxCoeff() > min_height && "max_height is lower than min_height"); // Check whether the geometry is degenerated
     
     Vec3f* pts = new Vec3f[8];
     pts[0] = Vec3f( x0, y0, min_height);
