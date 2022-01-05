@@ -219,7 +219,7 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
 #ifdef HPP_FCL_HAS_OCTOMAP
 OcTree loadOctreeFile (const std::string& filename, const FCL_REAL& resolution)
   {
-    OcTreePtr_t octree (new octomap::OcTree (filename));
+    octomap::OcTreePtr_t octree (new octomap::OcTree (filename));
     if (octree->getResolution() != resolution) {
       std::ostringstream oss;
       oss << "Resolution of the OcTree is " << octree->getResolution() <<

@@ -38,8 +38,9 @@ namespace hpp
 {
 namespace fcl
 {
-  OcTree makeOctree(const Eigen::Matrix<FCL_REAL,Eigen::Dynamic,3> & point_cloud,
-                    const FCL_REAL & resolution)
+  OcTreePtr_t makeOctree
+  (const Eigen::Matrix<FCL_REAL,Eigen::Dynamic,3>& point_cloud,
+   const FCL_REAL & resolution)
   {
     typedef Eigen::Matrix<FCL_REAL,Eigen::Dynamic,3> InputType;
     typedef InputType::ConstRowXpr RowType;
@@ -53,7 +54,7 @@ namespace fcl
     }
     octree->updateInnerOccupancy();
     
-    return OcTree(octree);
+    return OcTreePtr_t (new OcTree(octree));
   }
 }
 }

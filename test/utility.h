@@ -62,13 +62,15 @@
       "check " #Va ".isApprox(" #Vb ") failed "                                \
       "[\n" << (Va) << "\n!=\n" << (Vb) << "\n]")
 
+namespace octomap{
+#ifdef HPP_FCL_HAS_OCTOMAP
+typedef hpp::fcl::shared_ptr<octomap::OcTree> OcTreePtr_t;
+#endif
+}
 namespace hpp
 {
 namespace fcl
 {
-#ifdef HPP_FCL_HAS_OCTOMAP
-typedef shared_ptr<octomap::OcTree> OcTreePtr_t;
-#endif
 
 class BenchTimer
 {

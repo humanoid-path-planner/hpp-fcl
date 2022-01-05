@@ -81,6 +81,10 @@ namespace fcl {
 
   class BVHModelBase;
   typedef shared_ptr<BVHModelBase> BVHModelPtr_t;
+
+  class OcTree;
+  typedef shared_ptr<OcTree> OcTreePtr_t;
+  typedef shared_ptr<const OcTree> OcTreeConstPtr_t;
 }
 } // namespace hpp
 
