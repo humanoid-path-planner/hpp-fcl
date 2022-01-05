@@ -523,25 +523,25 @@ public:
 };
 
 inline CollisionRequestFlag operator~(CollisionRequestFlag a)
-{return static_cast<CollisionRequestFlag>(~static_cast<const int>(a));}
+{return static_cast<CollisionRequestFlag>(~static_cast<int>(a));}
 
 inline CollisionRequestFlag operator|(CollisionRequestFlag a, CollisionRequestFlag b)
-{return static_cast<CollisionRequestFlag>(static_cast<const int>(a) | static_cast<const int>(b));}
+{return static_cast<CollisionRequestFlag>(static_cast<int>(a) | static_cast<int>(b));}
 
 inline CollisionRequestFlag operator&(CollisionRequestFlag a, CollisionRequestFlag b)
-{return static_cast<CollisionRequestFlag>(static_cast<const int>(a) & static_cast<const int>(b));}
+{return static_cast<CollisionRequestFlag>(static_cast<int>(a) & static_cast<int>(b));}
 
 inline CollisionRequestFlag operator^(CollisionRequestFlag a, CollisionRequestFlag b)
-{return static_cast<CollisionRequestFlag>(static_cast<const int>(a) ^ static_cast<const int>(b));}
+{return static_cast<CollisionRequestFlag>(static_cast<int>(a) ^ static_cast<int>(b));}
 
 inline CollisionRequestFlag& operator|=(CollisionRequestFlag& a, CollisionRequestFlag b)
-{return (CollisionRequestFlag&)((int&)(a) |= static_cast<const int>(b));}
+{return (CollisionRequestFlag&)((int&)(a) |= static_cast<int>(b));}
 
 inline CollisionRequestFlag& operator&=(CollisionRequestFlag& a, CollisionRequestFlag b)
-{return (CollisionRequestFlag&)((int&)(a) &= static_cast<const int>(b));}
+{return (CollisionRequestFlag&)((int&)(a) &= static_cast<int>(b));}
 
 inline CollisionRequestFlag& operator^=(CollisionRequestFlag& a, CollisionRequestFlag b)
-{return (CollisionRequestFlag&)((int&)(a) ^= static_cast<const int>(b));}
+{return (CollisionRequestFlag&)((int&)(a) ^= static_cast<int>(b));}
 
 }
 

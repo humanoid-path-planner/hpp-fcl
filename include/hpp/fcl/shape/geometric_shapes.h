@@ -381,7 +381,7 @@ public:
     if(!copy.own_storage_)
     {
       copy.points = new Vec3f[copy.num_points];
-      memcpy(copy.points, points, sizeof(Vec3f) * (size_t)copy.num_points);
+      memcpy((void*)copy.points, points, sizeof(Vec3f) * (size_t)copy.num_points);
     }
     copy.own_storage_ = true;
     
