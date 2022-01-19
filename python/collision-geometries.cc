@@ -228,6 +228,7 @@ void defComputeMemoryFootprint()
 void exposeComputeMemoryFootprint()
 {
   defComputeMemoryFootprint<Sphere>();
+  defComputeMemoryFootprint<Ellipsoid>();
   defComputeMemoryFootprint<Cone>();
   defComputeMemoryFootprint<Capsule>();
   defComputeMemoryFootprint<Cylinder>();
@@ -355,6 +356,15 @@ void exposeShapes ()
           return_value_policy<manage_new_object>())
     ;
 
+  class_ <Ellipsoid, bases<ShapeBase>, shared_ptr<Ellipsoid> >
+    ("Ellipsoid", doxygen::class_doc<Ellipsoid>(), no_init)
+    .def (dv::init<Ellipsoid, FCL_REAL, FCL_REAL, FCL_REAL>())
+    .DEF_RW_CLASS_ATTRIB (Ellipsoid, radii)
+    .def ("clone", &Ellipsoid::clone,
+          doxygen::member_func_doc(&Ellipsoid::clone),
+          return_value_policy<manage_new_object>())
+    ;
+
   class_ <TriangleP, bases<ShapeBase>, shared_ptr<TriangleP> >
     ("TriangleP", doxygen::class_doc<TriangleP>(), no_init)
     .def (dv::init<TriangleP, const Vec3f&, const Vec3f&, const Vec3f&>())
@@ -421,6 +431,7 @@ void exposeCollisionGeometries ()
       .value ("BV_KDOP24", BV_KDOP24)
       .value ("GEOM_BOX"      , GEOM_BOX)
       .value ("GEOM_SPHERE"   , GEOM_SPHERE)
+      .value ("GEOM_ELLIPSOID"   , GEOM_ELLIPSOID)
       .value ("GEOM_CAPSULE"  , GEOM_CAPSULE)
       .value ("GEOM_CONE"     , GEOM_CONE)
       .value ("GEOM_CYLINDER" , GEOM_CYLINDER)

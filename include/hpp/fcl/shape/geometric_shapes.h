@@ -185,7 +185,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-/// @brief Center at zero point ellipsoid
+/// @brief Ellipsoid centered at point zero
 class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase
 {
 public:
@@ -199,7 +199,7 @@ public:
   {
   }
   
-  /// @brief Clone *this into a new Sphere
+  /// @brief Clone *this into a new Ellipsoid
   virtual Ellipsoid* clone() const { return new Ellipsoid(*this); };
   
   /// @brief Radii of the Ellipsoid (such that on boundary: x^2/rx^2 + y^2/ry^2 + z^2/rz^2 = 1)  
