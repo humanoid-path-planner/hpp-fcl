@@ -129,6 +129,19 @@ inline void getShapeSupport(const Sphere*, const Vec3f& /*dir*/, Vec3f& support,
   support.setZero();
 }
 
+inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir, Vec3f& support, int&, MinkowskiDiff::ShapeData*)
+{
+  FCL_REAL a2 = ellipsoid->radii[0] * ellipsoid->radii[0];
+  FCL_REAL b2 = ellipsoid->radii[1] * ellipsoid->radii[1];
+  FCL_REAL c2 = ellipsoid->radii[2] * ellipsoid->radii[2];
+
+  Vec3f v(a2 * dir[0], b2 * dir[1], c2 * dir[2]);
+
+  FCL_REAL d = std::sqrt(v.dot(dir));
+
+  support = v / d;
+}
+
 inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir, Vec3f& support, int&, MinkowskiDiff::ShapeData*)
 {
   support.head<2>().setZero();
@@ -300,6 +313,9 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
   case GEOM_SPHERE:
     CALL_GET_SHAPE_SUPPORT(Sphere);
     break;
+  case GEOM_ELLIPSOID:
+    CALL_GET_SHAPE_SUPPORT(Ellipsoid);
+    break;
   case GEOM_CAPSULE:
     CALL_GET_SHAPE_SUPPORT(Capsule);
     break;
@@ -381,6 +397,10 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, 
     inflation[1] = static_cast<const Sphere*>(s1)->radius;
     if (identity) return getSupportFuncTpl<Shape0, Sphere, true >;
     else          return getSupportFuncTpl<Shape0, Sphere, false>;
+  case GEOM_ELLIPSOID:
+    // TODO: what should we put for inflation[1]?
+    if (identity) return getSupportFuncTpl<Shape0, Ellipsoid, true >;
+    else          return getSupportFuncTpl<Shape0, Ellipsoid, false>;
   case GEOM_CAPSULE:
     inflation[1] = static_cast<const Capsule*>(s1)->radius;
     if (identity) return getSupportFuncTpl<Shape0, Capsule, true >;
@@ -420,6 +440,10 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0 (const ShapeBase* s0, 
   case GEOM_SPHERE:
     inflation[0] = static_cast<const Sphere*>(s0)->radius;
     return makeGetSupportFunction1<Sphere> (s1, identity, inflation, linear_log_convex_threshold);
+    break;
+  case GEOM_ELLIPSOID:
+    // TODO: what should we put for inflation[0]?
+    return makeGetSupportFunction1<Ellipsoid> (s1, identity, inflation, linear_log_convex_threshold);
     break;
   case GEOM_CAPSULE:
     inflation[0] = static_cast<const Capsule*>(s0)->radius;
