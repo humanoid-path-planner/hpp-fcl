@@ -272,6 +272,8 @@ BOOST_AUTO_TEST_CASE(building_constant_hfields)
 //  test_constant_hfields<OBBRSS>(1000,1000,min_altitude,max_altitude);
 
   test_constant_hfields<AABB>(2,2,min_altitude,max_altitude); // Simple case
+  test_constant_hfields<AABB>(20,2,min_altitude,max_altitude);
+  test_constant_hfields<AABB>(100,100,min_altitude,max_altitude);
 }
 
 BOOST_AUTO_TEST_CASE(hfield_with_square_hole)
