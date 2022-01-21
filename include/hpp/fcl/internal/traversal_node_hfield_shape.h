@@ -327,10 +327,12 @@ public:
   /// @brief Intersection testing between leaves (one Convex and one shape)
   void leafCollides(unsigned int b1, unsigned int /*b2*/, FCL_REAL& sqrDistLowerBound) const
   {
-//    std::cout << "leafCollides" << std::endl;
     if(this->enable_statistics) this->num_leaf_tests++;
     const HFNode<BV> & node = this->model1->getBV(b1);
 
+    // Split quadrilateral primitives into two convex shapes corresponding to polyhedron with triangular bases.
+    // This is essential to keep the convexity
+    
 //    typedef Convex<Quadrilateral> ConvexQuadrilateral;
 //    const ConvexQuadrilateral convex = details::buildConvexQuadrilateral(node,*this->model1);
     
