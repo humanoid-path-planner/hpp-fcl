@@ -187,6 +187,9 @@ namespace details
 
 /// @brief Data structure depicting a height field given by the base grid dimensions and the elevation along the grid.
 /// \tparam BV one of the bounding volume class in \ref Bounding_Volume.
+///
+/// An height field is defined by its base dimensions along the X and Y axes and a set ofpoints defined by their altitude, regularly dispatched on the grid.
+/// The height field is centered at the origin and the corners of the geometry correspond to the following coordinates [± x_dim/2; ± y_dim/2].
 template<typename BV>
 class HPP_FCL_DLLAPI HeightField
 : public CollisionGeometry
@@ -205,7 +208,14 @@ public:
   , max_height((std::numeric_limits<FCL_REAL>::max)())
   {}
   
-  /// @brief Constructing an HeightField from basic info
+  /// @brief Constructing an HeightField from its base dimensions and the set of heights points.
+  ///        The granularity of the height field along X and Y direction is extraded from the Z grid.
+  ///
+  /// \param[in] x_dim Dimension along the X axis
+  /// \param[in] y_dim Dimension along the Y axis
+  /// \param[in] heights Matrix containing the altitude of each point compositng the height field
+  /// \param[in] min_height Minimal height of the height field
+  ///
   HeightField(const FCL_REAL x_dim,
               const FCL_REAL y_dim,
               const MatrixXf & heights,
