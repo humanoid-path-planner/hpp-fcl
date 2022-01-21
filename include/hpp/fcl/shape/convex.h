@@ -86,6 +86,21 @@ public:
   Vec3f computeCOM() const;
 
   FCL_REAL computeVolume() const;
+  
+  ///
+  /// @brief Set the current Convex from a list of points and polygons.
+  ///
+  /// \param ownStorage whether this class owns the pointers of points and
+  ///                    polygons. If owned, they are deleted upon destruction.
+  /// \param points_ list of 3D points
+  /// \param num_points_ number of 3D points
+  /// \param polygons_ \copydoc Convex::polygons
+  /// \param num_polygons_ the number of polygons.
+  /// \note num_polygons_ is not the allocated size of polygons_.
+  ///
+  void set(bool ownStorage,
+           Vec3f* points_, unsigned int num_points_,
+           PolygonT* polygons_, unsigned int num_polygons_);
 
 protected:
   void fillNeighbors();

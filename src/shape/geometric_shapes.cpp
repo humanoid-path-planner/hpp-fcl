@@ -52,6 +52,12 @@ void ConvexBase::initialize(bool own_storage, Vec3f* points_, unsigned int num_p
   computeCenter();
 }
 
+void ConvexBase::set(bool own_storage_, Vec3f* points_, unsigned int num_points_)
+{
+  if(own_storage_ && points) delete [] points;
+  initialize(own_storage_,points_,num_points_);
+}
+
 ConvexBase::ConvexBase(const ConvexBase& other) :
   ShapeBase    (other),
   points       (other.points),
