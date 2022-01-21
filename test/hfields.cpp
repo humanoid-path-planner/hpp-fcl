@@ -87,11 +87,6 @@ void test_constant_hfields(const Eigen::DenseIndex nx, const Eigen::DenseIndex n
     }
   }
   
-//  const OBBRSS & bv = reinterpret_cast<const OBBRSS &>(hfield.getBV(0).bv);
-//  std::cout << "bv_center: " << bv.center().transpose() << std::endl;
-//  std::cout << "bv_extent: " << bv.obb.extent.transpose() << std::endl;
-//  std::cout << "bv_To: " << bv.obb.To.transpose() << std::endl;
-  
   // Test clone
   {
     HeightField<BV> * hfield_clone = hfield.clone();
@@ -283,15 +278,9 @@ BOOST_AUTO_TEST_CASE(hfield_with_square_hole)
 {
   const Eigen::DenseIndex nx = 100, ny = 100;
   
-//  const VecXf x_grid = VecXf::LinSpaced(nx,-1.,1.);
-//  const VecXf y_grid = VecXf::LinSpaced(ny,-1.,1.);
-  
   typedef AABB BV;
   const MatrixXf X = Eigen::RowVectorXd::LinSpaced(nx,-1.,1.).replicate(ny,1);
   const MatrixXf Y = Eigen::VectorXd::LinSpaced(ny,1.,-1.).replicate(1,nx);
-  
-  std::cout << "X:\n" << X << std::endl;
-  std::cout << "Y:\n" << Y << std::endl;
   
   const FCL_REAL dim_square = 0.5;
   
@@ -319,29 +308,6 @@ BOOST_AUTO_TEST_CASE(hfield_with_square_hole)
   
   const VecXf & x_grid = hfield.getXGrid();
   const VecXf & y_grid = hfield.getYGrid();
-  
-//  std::cout << "b1: " << result.getContact(0).b1 << std::endl;
-//  std::cout << "distance: " << result.getContact(0).penetration_depth << std::endl;
-//  const HFNode<BV> & node = hfield.getBV(result.getContact(0).b1);
-//  std::cout << "x0: " << x_grid[node.x_id] << std::endl;
-//  std::cout << "x1: " << x_grid[node.x_id+node.x_size] << std::endl;
-//  std::cout << "y0: " << y_grid[node.y_id] << std::endl;
-//  std::cout << "y1: " << y_grid[node.y_id+node.y_size] << std::endl;
-//
-//  const MatrixXf cell = heights.block<2,2>(node.y_id,node.x_id);
-//  std::cout << "cell(0,0): " << cell(0,0) << std::endl;
-//  std::cout << "cell(1,0): " << cell(1,0) << std::endl;
-//  std::cout << "cell(1,1): " << cell(1,1) << std::endl;
-//  std::cout << "cell(0,1): " << cell(0,1) << std::endl;
-//
-//  std::cout << "cell:\n" << cell << std::endl;
-//  std::cout << "heights:\n" << heights << std::endl;
-//
-//  const BV & bv = node.bv;
-//  std::cout << "center: " << bv.center().transpose() << std::endl;
-//  std::cout << "width: " << bv.width() << std::endl;
-//  std::cout << "height: " << bv.height() << std::endl;
-//  std::cout << "depth: " << bv.depth() << std::endl;
   
   sphere.radius = 0.51;
 
