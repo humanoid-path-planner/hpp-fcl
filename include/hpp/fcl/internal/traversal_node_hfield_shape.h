@@ -138,21 +138,21 @@ namespace details
       pts[7] = Vec3f( x1, y0, cell(0,1));
 
       Triangle* triangles = new Triangle[8];
-      triangles[0].set(0, 1, 3); // x+ side
-      triangles[1].set(4, 5, 7); // y- side
-      triangles[2].set(0, 1, 4); // x- side
-      triangles[3].set(4, 1, 5); // y+ side
-      triangles[4].set(1, 7, 3); // z- side
-      triangles[5].set(1, 5, 7); // z+ side
-      triangles[6].set(0, 3, 7); // z- side
-      triangles[7].set(7, 4, 0); // z+ side
+      triangles[0].set(0, 1, 3);
+      triangles[1].set(4, 5, 7);
+      triangles[2].set(0, 1, 4);
+      triangles[3].set(4, 1, 5);
+      triangles[4].set(1, 7, 3);
+      triangles[5].set(1, 5, 7);
+      triangles[6].set(0, 3, 7);
+      triangles[7].set(7, 4, 0);
       
-      convex1 = Convex<Triangle>(true,
-                                 pts, // points
-                                 8, // num points
-                                 triangles,
-                                 8 // number of polygons
-                                 );
+      convex1.set(true,
+                  pts, // points
+                  8, // num points
+                  triangles,
+                  8 // number of polygons
+                  );
     }
     
     {
@@ -167,21 +167,21 @@ namespace details
       pts[7] = Vec3f( x1, y0, cell(0,1));
 
       Triangle* triangles = new Triangle[8];
-      triangles[0].set(3, 2, 1); // x+ side
-      triangles[1].set(5, 6, 7); // y- side
-      triangles[2].set(1, 2, 5); // x- side
-      triangles[3].set(5, 2, 6); // y+ side
-      triangles[4].set(1, 3, 7); // z- side
-      triangles[5].set(1, 7, 5); // z+ side
-      triangles[6].set(2, 3, 7); // z- side
-      triangles[7].set(6, 2, 3); // z+ side
+      triangles[0].set(3, 2, 1);
+      triangles[1].set(5, 6, 7);
+      triangles[2].set(1, 2, 5);
+      triangles[3].set(5, 2, 6);
+      triangles[4].set(1, 3, 7);
+      triangles[5].set(1, 7, 5);
+      triangles[6].set(2, 3, 7);
+      triangles[7].set(6, 2, 3);
       
-      convex2 = Convex<Triangle>(true,
-                                 pts, // points
-                                 8, // num points
-                                 triangles,
-                                 8 // number of polygons
-                                 );
+      convex2.set(true,
+                  pts, // points
+                  8, // num points
+                  triangles,
+                  8 // number of polygons
+                  );
     }
 
   }
