@@ -78,12 +78,10 @@ template <typename PolygonT>
 void Convex<PolygonT>::set(bool own_storage, Vec3f* points_, unsigned int num_points_,
                            PolygonT* polygons_, unsigned int num_polygons_)
 {
+  if (own_storage_)
+    delete [] polygons;
   ConvexBase::set(own_storage,points_,num_points_);
 
-  if (own_storage_)
-  {
-    delete [] polygons;
-  }
   num_polygons = num_polygons_;
   polygons = polygons_;
   
