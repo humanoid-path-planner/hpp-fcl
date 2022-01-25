@@ -301,8 +301,9 @@ static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& chi
   ///
   /// \returns An OcTree that can be used for collision checking and more.
   ///
-  HPP_FCL_DLLAPI OcTree makeOctree(const Eigen::Matrix<FCL_REAL,Eigen::Dynamic,3> & point_cloud,
-                                   const FCL_REAL & resolution);
+  HPP_FCL_DLLAPI OcTreePtr_t makeOctree
+    (const Eigen::Matrix<FCL_REAL,Eigen::Dynamic,3> & point_cloud,
+     const FCL_REAL & resolution);
 
 }
 

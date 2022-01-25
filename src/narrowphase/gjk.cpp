@@ -206,7 +206,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir, Vec3f& suppo
   const Vec3f* pts = convex->points;
   const ConvexBase::Neighbors* nn = convex->neighbors;
 
-  if (hint < 0 || hint >= convex->num_points)
+  if (hint < 0 || hint >= (int)convex->num_points)
     hint = 0;
   FCL_REAL maxdot = pts[hint].dot(dir);
   FCL_REAL dot;
@@ -248,7 +248,7 @@ void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir, Vec3f& su
 
   hint = 0;
   FCL_REAL maxdot = pts[0].dot(dir);
-  for (int i = 1; i < convex->num_points; ++i) {
+  for (int i = 1; i < (int)convex->num_points; ++i) {
     FCL_REAL dot = pts[i].dot(dir);
     if (dot > maxdot) {
       maxdot = dot;
@@ -392,7 +392,8 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, 
     if (identity) return getSupportFuncTpl<Shape0, Cylinder, true >;
     else          return getSupportFuncTpl<Shape0, Cylinder, false>;
   case GEOM_CONVEX:
-    if (static_cast<const ConvexBase*>(s1)->num_points > linear_log_convex_threshold) {
+    if ((int)static_cast<const ConvexBase*>(s1)->num_points >
+	linear_log_convex_threshold) {
       if (identity) return getSupportFuncTpl<Shape0, LargeConvex, true >;
       else          return getSupportFuncTpl<Shape0, LargeConvex, false>;
     } else {
@@ -431,7 +432,8 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0 (const ShapeBase* s0, 
     return makeGetSupportFunction1<Cylinder> (s1, identity, inflation, linear_log_convex_threshold);
     break;
   case GEOM_CONVEX:
-    if (static_cast<const ConvexBase*>(s0)->num_points > linear_log_convex_threshold)
+    if ((int)static_cast<const ConvexBase*>(s0)->num_points >
+	linear_log_convex_threshold)
       return makeGetSupportFunction1<LargeConvex> (s1, identity, inflation, linear_log_convex_threshold);
     else
       return makeGetSupportFunction1<SmallConvex> (s1, identity, inflation, linear_log_convex_threshold);

@@ -82,7 +82,7 @@ hpp::fcl::OcTree makeOctree (const BVHModel <OBBRSS>& mesh,
   CollisionRequest request (hpp::fcl::CONTACT | hpp::fcl::DISTANCE_LOWER_BOUND, 1);
   CollisionResult result;
   Transform3f tfBox;
-  hpp::fcl::OcTreePtr_t octree (new octomap::OcTree (resolution));
+  octomap::OcTreePtr_t octree (new octomap::OcTree (resolution));
 
   for (FCL_REAL x = resolution * floor (m [0]/resolution); x <= M [0];
        x += resolution) {

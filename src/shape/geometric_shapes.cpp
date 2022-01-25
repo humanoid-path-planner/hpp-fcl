@@ -65,14 +65,15 @@ ConvexBase::ConvexBase(const ConvexBase& other) :
     if (own_storage_ && points) delete [] points;
 
     points = new Vec3f[num_points];
-    memcpy(points, other.points, sizeof(Vec3f) * num_points);
+    memcpy((void*)points, other.points, sizeof(Vec3f) * num_points);
   }
 
   neighbors = new Neighbors[num_points];
   memcpy(neighbors, other.neighbors, sizeof(Neighbors) * num_points);
 
   int c_nneighbors = 0;
-  for (int i = 0; i < num_points; ++i) c_nneighbors += neighbors[i].count();
+  for (std::size_t i = 0; i < num_points; ++i)
+    c_nneighbors += neighbors[i].count();
   nneighbors_ = new unsigned int[c_nneighbors];
   memcpy(nneighbors_, other.nneighbors_, sizeof(unsigned int) * c_nneighbors);
 }
@@ -87,7 +88,7 @@ ConvexBase::~ConvexBase ()
 void ConvexBase::computeCenter()
 {
   center.setZero();
-  for(int i = 0; i < num_points; ++i)
+  for(std::size_t i = 0; i < num_points; ++i)
     center += points[i];
   center /= num_points;
 }
