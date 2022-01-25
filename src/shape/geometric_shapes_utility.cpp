@@ -62,7 +62,7 @@ std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf)
   result[5] = tf.transform(Vec3f(-a,  b, -c));
   result[6] = tf.transform(Vec3f(-a, -b,  c));
   result[7] = tf.transform(Vec3f(-a, -b, -c));
-  
+
   return result;
 }
 
@@ -72,7 +72,7 @@ std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf)
   std::vector<Vec3f> result(12);
   const FCL_REAL m = (1 + sqrt(5.0)) / 2.0;
   FCL_REAL edge_size = sphere.radius * 6 / (sqrt(27.0) + sqrt(15.0));
-  
+
   FCL_REAL a = edge_size;
   FCL_REAL b = m * edge_size;
   result[0] = tf.transform(Vec3f(0, a, b));
@@ -152,7 +152,7 @@ std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& t
 std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf)
 {
   std::vector<Vec3f> result(7);
-  
+
   FCL_REAL hl = cone.halfLength;
   FCL_REAL r2 = cone.radius * 2 / sqrt(3.0);
   FCL_REAL a = 0.5 * r2;
@@ -166,7 +166,7 @@ std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf)
   result[5] = tf.transform(Vec3f(a, -b, -hl));
 
   result[6] = tf.transform(Vec3f(0, 0, hl));
-                          
+
   return result;
 }
 
@@ -364,7 +364,7 @@ void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf, AABB&
     else if(n[2] > 0) bv_.max_[2] = d;
   }
 
-  bv = bv_;  
+  bv = bv_;
 }
 
 template<>
@@ -372,7 +372,7 @@ void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv)
 {
   Plane new_s = transform(s, tf);
   const Vec3f& n = new_s.n;
-  const FCL_REAL& d = new_s.d;  
+  const FCL_REAL& d = new_s.d;
 
   AABB bv_;
   bv_.min_ = Vec3f::Constant(-(std::numeric_limits<FCL_REAL>::max)());
@@ -513,7 +513,7 @@ void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf, K
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
   for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
-  
+
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     if(n[0] > 0) bv.dist(D) = d;
@@ -569,7 +569,7 @@ void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf, K
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
   for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
-  
+
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     if(n[0] > 0) bv.dist(D) = d;
@@ -630,7 +630,7 @@ void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf, K
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
   for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
-  
+
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     if(n[0] > 0) bv.dist(D) = d;
@@ -704,8 +704,8 @@ void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv)
 
   bv.extent << 0, (std::numeric_limits<FCL_REAL>::max)(), (std::numeric_limits<FCL_REAL>::max)();
 
-  Vec3f p = s.n * s.d; 
-  bv.To = tf.transform(p); /// n'd' = R * n * (d + (R * n) * T) = R * (n * d) + T 
+  Vec3f p = s.n * s.d;
+  bv.To = tf.transform(p); /// n'd' = R * n * (d + (R * n) * T) = R * (n * d) + T
 }
 
 template<>
@@ -720,7 +720,7 @@ void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv)
   bv.length[1] = (std::numeric_limits<FCL_REAL>::max)();
 
   bv.radius = 0;
-  
+
   Vec3f p = s.n * s.d;
   bv.Tr = tf.transform(p);
 }
@@ -754,7 +754,7 @@ void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf, KDOP<16>&
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
   for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
-  
+
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;
@@ -805,7 +805,7 @@ void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf, KDOP<18>&
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
   for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
-  
+
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;
@@ -860,7 +860,7 @@ void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf, KDOP<24>&
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
   for(short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
-  
+
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;

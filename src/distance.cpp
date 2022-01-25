@@ -80,7 +80,7 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
 
   FCL_REAL res = (std::numeric_limits<FCL_REAL>::max)();
 
-  if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
+  if(object_type1 == OT_GEOM && (object_type2 == OT_BVH || object_type2 == OT_HFIELD))
   {
     if(!looktable.distance_matrix[node_type2][node_type1])
     {
@@ -130,7 +130,7 @@ ComputeDistance::ComputeDistance(const CollisionGeometry* o1,
   OBJECT_TYPE object_type2 = o2->getObjectType();
   NODE_TYPE node_type2 = o2->getNodeType();
 
-  swap_geoms = object_type1 == OT_GEOM && object_type2 == OT_BVH;
+  swap_geoms = object_type1 == OT_GEOM && (object_type2 == OT_BVH || object_type2 == OT_HFIELD);
 
   if(   ( swap_geoms && !looktable.distance_matrix[node_type2][node_type1])
      || (!swap_geoms && !looktable.distance_matrix[node_type1][node_type2]))

@@ -65,9 +65,11 @@ namespace fcl
 {
 typedef double FCL_REAL;
 typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
+typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 1> VecXf;
 typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3> Matrixx3f;
 typedef Eigen::Matrix<Eigen::DenseIndex, Eigen::Dynamic, 3> Matrixx3i;
+typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Eigen::Dynamic> MatrixXf;
 typedef Eigen::Vector2i support_func_guess_t;
 
 /// @brief Triangle with 3 indices for points
@@ -114,6 +116,49 @@ public:
 private:
   /// @brief indices for each vertex of triangle
   index_type vids[3];
+};
+
+/// @brief Quadrilateral with 4 indices for points
+struct HPP_FCL_DLLAPI Quadrilateral
+{
+  typedef std::size_t index_type;
+  typedef int size_type;
+
+  Quadrilateral() {}
+
+  Quadrilateral(index_type p0, index_type p1, index_type p2, index_type p3)
+  {
+    set(p0, p1, p2, p3);
+  }
+
+  /// @brief Set the vertex indices of the quadrilateral
+  inline void set(index_type p0, index_type p1, index_type p2, index_type p3)
+  {
+    vids[0] = p0; vids[1] = p1; vids[2] = p2; vids[3] = p3;
+  }
+
+  /// @access the quadrilatere index
+  inline index_type operator[](unsigned int i) const { return vids[i]; }
+
+  inline index_type& operator[](unsigned int i) { return vids[i]; }
+
+  static inline size_type size() { return 4; }
+  
+  bool operator==(const Quadrilateral& other) const
+  {
+    return vids[0] == other.vids[0]
+      &&   vids[1] == other.vids[1]
+      &&   vids[2] == other.vids[2]
+      &&   vids[3] == other.vids[3];
+  }
+  
+  bool operator!=(const Quadrilateral& other) const
+  {
+    return !(*this == other);
+  }
+
+private:
+  index_type vids[4];
 };
 
 }

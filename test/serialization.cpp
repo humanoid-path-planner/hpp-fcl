@@ -45,6 +45,7 @@
 #include <hpp/fcl/serialization/collision_data.h>
 #include <hpp/fcl/serialization/AABB.h>
 #include <hpp/fcl/serialization/BVH_model.h>
+#include <hpp/fcl/serialization/hfield.h>
 #include <hpp/fcl/serialization/geometric_shapes.h>
 #include <hpp/fcl/serialization/memory.h>
 
@@ -219,7 +220,7 @@ BOOST_AUTO_TEST_CASE(test_BVHModel)
   {
     CollisionGeometry & m1_cg = static_cast<CollisionGeometry &>(m1);
     BVHModel<OBBRSS> m1_copy;
-    CollisionGeometry & m1_copy_cg = static_cast<CollisionGeometry &>(m1);
+    CollisionGeometry & m1_copy_cg = static_cast<CollisionGeometry &>(m1_copy);
     test_serialization(m1_cg,m1_copy_cg);
   }
 
@@ -227,7 +228,7 @@ BOOST_AUTO_TEST_CASE(test_BVHModel)
   {
     BVHModelBase & m1_base = static_cast<BVHModelBase &>(m1);
     BVHModel<OBBRSS> m1_copy;
-    BVHModelBase & m1_copy_base = static_cast<BVHModelBase &>(m1);
+    BVHModelBase & m1_copy_base = static_cast<BVHModelBase &>(m1_copy);
     test_serialization(m1_base,m1_copy_base);
   }
 
@@ -239,6 +240,34 @@ BOOST_AUTO_TEST_CASE(test_BVHModel)
   {
     BVHModel<OBBRSS> m1_copy;
     test_serialization(m1,m1_copy,STREAM);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_HeightField)
+{
+  const FCL_REAL min_altitude = -1.;
+  const FCL_REAL x_dim = 1., y_dim = 2.;
+  const Eigen::DenseIndex nx = 100, ny = 200;
+  const MatrixXf heights = MatrixXf::Random(ny, nx);
+  
+  HeightField<OBBRSS> hfield(x_dim,y_dim,heights,min_altitude);
+  
+  // Test CollisionGeometry
+  {
+    CollisionGeometry & m1_cg = static_cast<CollisionGeometry &>(hfield);
+    HeightField<OBBRSS> m1_copy;
+    CollisionGeometry & m1_copy_cg = static_cast<CollisionGeometry &>(m1_copy);
+    test_serialization(m1_cg,m1_copy_cg);
+  }
+
+  // Test HeightField
+  {
+    HeightField<OBBRSS> hfield_copy;
+    test_serialization(hfield,hfield_copy);
+  }
+  {
+    HeightField<OBBRSS> hfield_copy;
+    test_serialization(hfield,hfield_copy,STREAM);
   }
 }
 

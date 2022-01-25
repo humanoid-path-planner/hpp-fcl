@@ -48,8 +48,6 @@ namespace fcl
 
 static const double kIOS_RATIO = 1.5;
 static const double invSinA = 2;
-static const double invCosA = 2.0 / sqrt(3.0);
-static const double sinA = 0.5;
 static const double cosA = sqrt(3.0) / 2.0;
 
 static inline void axisFromEigen(Vec3f eigenV[3], Matrix3f::Scalar eigenS[3], Matrix3f& axes)
@@ -127,7 +125,7 @@ void fit6(Vec3f* ps, OBB& bv)
 }
 
 
-void fitn(Vec3f* ps, int n, OBB& bv)
+void fitn(Vec3f* ps, unsigned int n, OBB& bv)
 {
   Matrix3f M;
   Vec3f E[3];
@@ -204,7 +202,7 @@ void fit6(Vec3f* ps, RSS& bv)
   bv = bv1 + bv2;
 }
 
-void fitn(Vec3f* ps, int n, RSS& bv)
+void fitn(Vec3f* ps, unsigned int n, RSS& bv)
 {
   Matrix3f M; // row first matrix
   Vec3f E[3]; // row first eigen-vectors
@@ -313,7 +311,7 @@ void fit3(Vec3f* ps, kIOS& bv)
   bv.spheres[2].o = center + delta;
 }
 
-void fitn(Vec3f* ps, int n, kIOS& bv)
+void fitn(Vec3f* ps, unsigned int n, kIOS& bv)
 {
   Matrix3f M;
   Vec3f E[3];
@@ -402,7 +400,7 @@ void fit3(Vec3f* ps, OBBRSS& bv)
   RSS_fit_functions::fit3(ps, bv.rss);
 }
 
-void fitn(Vec3f* ps, int n, OBBRSS& bv)
+void fitn(Vec3f* ps, unsigned int n, OBBRSS& bv)
 {
   OBB_fit_functions::fitn(ps, n, bv.obb);
   RSS_fit_functions::fitn(ps, n, bv.rss);
@@ -413,7 +411,7 @@ void fitn(Vec3f* ps, int n, OBBRSS& bv)
 
 
 template<>
-void fit(Vec3f* ps, int n, OBB& bv)
+void fit(Vec3f* ps, unsigned int n, OBB& bv)
 {
   switch(n)
   {
@@ -435,7 +433,7 @@ void fit(Vec3f* ps, int n, OBB& bv)
 }
 
 template<>
-void fit(Vec3f* ps, int n, RSS& bv)
+void fit(Vec3f* ps, unsigned int n, RSS& bv)
 {
   switch(n)
   {
@@ -454,7 +452,7 @@ void fit(Vec3f* ps, int n, RSS& bv)
 }
 
 template<>
-void fit(Vec3f* ps, int n, kIOS& bv)
+void fit(Vec3f* ps, unsigned int n, kIOS& bv)
 {
   switch(n)
   {
@@ -473,7 +471,7 @@ void fit(Vec3f* ps, int n, kIOS& bv)
 }
 
 template<>
-void fit(Vec3f* ps, int n, OBBRSS& bv)
+void fit(Vec3f* ps, unsigned int n, OBBRSS& bv)
 {
   switch(n)
   {
@@ -492,11 +490,11 @@ void fit(Vec3f* ps, int n, OBBRSS& bv)
 }
 
 template<>
-void fit(Vec3f* ps, int n, AABB& bv)
+void fit(Vec3f* ps, unsigned int n, AABB& bv)
 {
   if (n <= 0) return;
   bv = AABB (ps[0]);
-  for(int i = 1; i < n; ++i)
+  for(unsigned int i = 1; i < n; ++i)
   {
     bv += ps[i];
   }
@@ -656,7 +654,7 @@ AABB BVFitter<AABB>::fit(unsigned int* primitive_indices, unsigned int num_primi
     Triangle t0 = tri_indices[primitive_indices[0]];
     bv = AABB (vertices[t0[0]]);
 
-    for(int i = 0; i < num_primitives; ++i)
+    for(unsigned int i = 0; i < num_primitives; ++i)
     {
       Triangle t = tri_indices[primitive_indices[i]];
       bv += vertices[t[0]];
@@ -675,7 +673,7 @@ AABB BVFitter<AABB>::fit(unsigned int* primitive_indices, unsigned int num_primi
   else if(type == BVH_MODEL_POINTCLOUD)       /// The primitive is point
   {
     bv = AABB (vertices[primitive_indices[0]]);
-    for(int i = 0; i < num_primitives; ++i)
+    for(unsigned int i = 0; i < num_primitives; ++i)
     {
       bv += vertices[primitive_indices[i]];
 

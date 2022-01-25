@@ -50,8 +50,10 @@ namespace fcl
 #ifdef HPP_FCL_HAS_OCTOMAP
 
 template<typename TypeA, typename TypeB>
-FCL_REAL Distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
-                             const DistanceRequest& request, DistanceResult& result)
+FCL_REAL Distance(const CollisionGeometry* o1, const Transform3f& tf1,
+                  const CollisionGeometry* o2, const Transform3f& tf2,
+                  const GJKSolver* nsolver,
+                  const DistanceRequest& request, DistanceResult& result)
 {
   if(request.isSatisfied(result)) return result.min_distance;
   typename TraversalTraitsDistance<TypeA, TypeB>::CollisionTraversal_t node;
@@ -68,8 +70,10 @@ FCL_REAL Distance(const CollisionGeometry* o1, const Transform3f& tf1, const Col
 #endif
 
 template<typename T_SH1, typename T_SH2>
- FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
-                        const DistanceRequest& request, DistanceResult& result)
+ FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
+                             const CollisionGeometry* o2, const Transform3f& tf2,
+                             const GJKSolver* nsolver,
+                             const DistanceRequest& request, DistanceResult& result)
 {
   if(request.isSatisfied(result)) return result.min_distance;
   ShapeDistanceTraversalNode<T_SH1, T_SH2> node;
@@ -85,7 +89,9 @@ template<typename T_SH1, typename T_SH2>
 template<typename T_BVH, typename T_SH>
 struct HPP_FCL_LOCAL BVHShapeDistancer
 {
-  static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
+  static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
+                           const CollisionGeometry* o2, const Transform3f& tf2,
+                           const GJKSolver* nsolver,
                            const DistanceRequest& request, DistanceResult& result)
   {
     if(request.isSatisfied(result)) return result.min_distance;
@@ -107,7 +113,9 @@ namespace details
 {
 
 template<typename OrientedMeshShapeDistanceTraversalNode, typename T_BVH, typename T_SH>
-FCL_REAL orientedBVHShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
+FCL_REAL orientedBVHShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
+                                  const CollisionGeometry* o2, const Transform3f& tf2,
+                                  const GJKSolver* nsolver,
                                   const DistanceRequest& request, DistanceResult& result)
 {
   if(request.isSatisfied(result)) return result.min_distance;
@@ -126,7 +134,9 @@ FCL_REAL orientedBVHShapeDistance(const CollisionGeometry* o1, const Transform3f
 template<typename T_SH>
 struct HPP_FCL_LOCAL BVHShapeDistancer<RSS, T_SH>
 {
-  static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
+  static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
+                           const CollisionGeometry* o2, const Transform3f& tf2,
+                           const GJKSolver* nsolver,
                            const DistanceRequest& request, DistanceResult& result)
   {
     return details::orientedBVHShapeDistance<MeshShapeDistanceTraversalNodeRSS<T_SH>, RSS, T_SH>(o1, tf1, o2, tf2, nsolver, request, result);
@@ -137,8 +147,10 @@ struct HPP_FCL_LOCAL BVHShapeDistancer<RSS, T_SH>
 template<typename T_SH>
 struct HPP_FCL_LOCAL BVHShapeDistancer<kIOS, T_SH>
 {
-  static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
-                       const DistanceRequest& request, DistanceResult& result)
+  static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
+                           const CollisionGeometry* o2, const Transform3f& tf2,
+                           const GJKSolver* nsolver,
+                           const DistanceRequest& request, DistanceResult& result)
   {
     return details::orientedBVHShapeDistance<MeshShapeDistanceTraversalNodekIOS<T_SH>, kIOS, T_SH>(o1, tf1, o2, tf2, nsolver, request, result);
   }
@@ -147,10 +159,43 @@ struct HPP_FCL_LOCAL BVHShapeDistancer<kIOS, T_SH>
 template<typename T_SH>
 struct HPP_FCL_LOCAL BVHShapeDistancer<OBBRSS, T_SH>
 {
-  static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver* nsolver,
+  static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
+                           const CollisionGeometry* o2, const Transform3f& tf2,
+                           const GJKSolver* nsolver,
                            const DistanceRequest& request, DistanceResult& result)
   {
     return details::orientedBVHShapeDistance<MeshShapeDistanceTraversalNodeOBBRSS<T_SH>, OBBRSS, T_SH>(o1, tf1, o2, tf2, nsolver, request, result);
+  }
+};
+
+
+
+template<typename T_HF, typename T_SH>
+struct HPP_FCL_LOCAL HeightFieldShapeDistancer
+{
+  static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
+                           const CollisionGeometry* o2, const Transform3f& tf2,
+                           const GJKSolver* nsolver,
+                           const DistanceRequest& request, DistanceResult& result)
+  {
+    HPP_FCL_UNUSED_VARIABLE(o1);
+    HPP_FCL_UNUSED_VARIABLE(tf1);
+    HPP_FCL_UNUSED_VARIABLE(o2);
+    HPP_FCL_UNUSED_VARIABLE(tf2);
+    HPP_FCL_UNUSED_VARIABLE(nsolver);
+    HPP_FCL_UNUSED_VARIABLE(request);
+    //TODO(jcarpent)
+    HPP_FCL_THROW_PRETTY("Distance between a height field and a shape is not implemented", std::invalid_argument);
+//    if(request.isSatisfied(result)) return result.min_distance;
+//    HeightFieldShapeDistanceTraversalNode<T_HF, T_SH> node;
+//
+//    const HeightField<T_HF>* obj1 = static_cast<const HeightField<T_HF>* >(o1);
+//    const T_SH* obj2 = static_cast<const T_SH*>(o2);
+//
+//    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
+//    fcl::distance(&node);
+    
+    return result.min_distance;
   }
 };
 
@@ -179,7 +224,8 @@ FCL_REAL BVHDistance(const CollisionGeometry* o1, const Transform3f& tf1, const 
 namespace details
 {
 template<typename OrientedMeshDistanceTraversalNode, typename T_BVH>
-FCL_REAL orientedMeshDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+FCL_REAL orientedMeshDistance(const CollisionGeometry* o1, const Transform3f& tf1,
+                              const CollisionGeometry* o2, const Transform3f& tf2,
                               const DistanceRequest& request, DistanceResult& result)
 {
   if(request.isSatisfied(result)) return result.min_distance;
@@ -196,14 +242,16 @@ FCL_REAL orientedMeshDistance(const CollisionGeometry* o1, const Transform3f& tf
 }
 
 template<>
-FCL_REAL BVHDistance<RSS>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+FCL_REAL BVHDistance<RSS>(const CollisionGeometry* o1, const Transform3f& tf1,
+                          const CollisionGeometry* o2, const Transform3f& tf2,
                           const DistanceRequest& request, DistanceResult& result)
 {
   return details::orientedMeshDistance<MeshDistanceTraversalNodeRSS, RSS>(o1, tf1, o2, tf2, request, result);
 }
 
 template<>
-FCL_REAL BVHDistance<kIOS>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+FCL_REAL BVHDistance<kIOS>(const CollisionGeometry* o1, const Transform3f& tf1,
+                           const CollisionGeometry* o2, const Transform3f& tf2,
                            const DistanceRequest& request, DistanceResult& result)
 {
   return details::orientedMeshDistance<MeshDistanceTraversalNodekIOS, kIOS>(o1, tf1, o2, tf2, request, result);
@@ -211,7 +259,8 @@ FCL_REAL BVHDistance<kIOS>(const CollisionGeometry* o1, const Transform3f& tf1, 
 
 
 template<>
-FCL_REAL BVHDistance<OBBRSS>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+FCL_REAL BVHDistance<OBBRSS>(const CollisionGeometry* o1, const Transform3f& tf1,
+                             const CollisionGeometry* o2, const Transform3f& tf2,
                              const DistanceRequest& request, DistanceResult& result)
 {
   return details::orientedMeshDistance<MeshDistanceTraversalNodeOBBRSS, OBBRSS>(o1, tf1, o2, tf2, request, result);
@@ -219,7 +268,8 @@ FCL_REAL BVHDistance<OBBRSS>(const CollisionGeometry* o1, const Transform3f& tf1
 
 
 template<typename T_BVH>
-FCL_REAL BVHDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+FCL_REAL BVHDistance(const CollisionGeometry* o1, const Transform3f& tf1,
+                     const CollisionGeometry* o2, const Transform3f& tf2,
                      const GJKSolver* /*nsolver*/,
                      const DistanceRequest& request, DistanceResult& result)
 {
@@ -383,6 +433,24 @@ DistanceFunctionMatrix::DistanceFunctionMatrix()
   distance_matrix[BV_OBBRSS][GEOM_CONVEX] = &BVHShapeDistancer<OBBRSS, ConvexBase>::distance;
   distance_matrix[BV_OBBRSS][GEOM_PLANE] = &BVHShapeDistancer<OBBRSS, Plane>::distance;
   distance_matrix[BV_OBBRSS][GEOM_HALFSPACE] = &BVHShapeDistancer<OBBRSS, Halfspace>::distance;
+  
+  distance_matrix[HF_AABB][GEOM_BOX] = &HeightFieldShapeDistancer<AABB, Box>::distance;
+  distance_matrix[HF_AABB][GEOM_SPHERE] = &HeightFieldShapeDistancer<AABB, Sphere>::distance;
+  distance_matrix[HF_AABB][GEOM_CAPSULE] = &HeightFieldShapeDistancer<AABB, Capsule>::distance;
+  distance_matrix[HF_AABB][GEOM_CONE] = &HeightFieldShapeDistancer<AABB, Cone>::distance;
+  distance_matrix[HF_AABB][GEOM_CYLINDER] = &HeightFieldShapeDistancer<AABB, Cylinder>::distance;
+  distance_matrix[HF_AABB][GEOM_CONVEX] = &HeightFieldShapeDistancer<AABB, ConvexBase>::distance;
+  distance_matrix[HF_AABB][GEOM_PLANE] = &HeightFieldShapeDistancer<AABB, Plane>::distance;
+  distance_matrix[HF_AABB][GEOM_HALFSPACE] = &HeightFieldShapeDistancer<AABB, Halfspace>::distance;
+  
+  distance_matrix[HF_OBBRSS][GEOM_BOX] = &HeightFieldShapeDistancer<OBBRSS, Box>::distance;
+  distance_matrix[HF_OBBRSS][GEOM_SPHERE] = &HeightFieldShapeDistancer<OBBRSS, Sphere>::distance;
+  distance_matrix[HF_OBBRSS][GEOM_CAPSULE] = &HeightFieldShapeDistancer<OBBRSS, Capsule>::distance;
+  distance_matrix[HF_OBBRSS][GEOM_CONE] = &HeightFieldShapeDistancer<OBBRSS, Cone>::distance;
+  distance_matrix[HF_OBBRSS][GEOM_CYLINDER] = &HeightFieldShapeDistancer<OBBRSS, Cylinder>::distance;
+  distance_matrix[HF_OBBRSS][GEOM_CONVEX] = &HeightFieldShapeDistancer<OBBRSS, ConvexBase>::distance;
+  distance_matrix[HF_OBBRSS][GEOM_PLANE] = &HeightFieldShapeDistancer<OBBRSS, Plane>::distance;
+  distance_matrix[HF_OBBRSS][GEOM_HALFSPACE] = &HeightFieldShapeDistancer<OBBRSS, Halfspace>::distance;
 
   distance_matrix[BV_AABB][BV_AABB] = &BVHDistance<AABB>;
   distance_matrix[BV_OBB][BV_OBB] = &BVHDistance<OBB>;

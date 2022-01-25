@@ -126,8 +126,8 @@ void exposeCollisionAPI ()
   {
     class_ <Contact> ("Contact",
         doxygen::class_doc<Contact>(), init<>(arg("self"),"Default constructor"))
-      //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int>())
-      //.def(init<CollisionGeometryPtr_t, CollisionGeometryPtr_t, int, int, Vec3f, Vec3f, FCL_REAL>())
+      .def(dv::init<Contact, const CollisionGeometry*, const CollisionGeometry*, int, int>())
+      .def(dv::init<Contact, const CollisionGeometry*, const CollisionGeometry*, int, int, const Vec3f&, const Vec3f&, FCL_REAL>())
       .add_property ("o1",
           make_function(&geto<1>, return_value_policy<reference_existing_object>()),
           doxygen::class_attrib_doc<Contact>("o1"))

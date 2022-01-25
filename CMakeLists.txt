@@ -181,6 +181,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_object.h
   include/hpp/fcl/collision_utility.h
   include/hpp/fcl/octree.h
+  include/hpp/fcl/hfield.h
   include/hpp/fcl/fwd.hh
   include/hpp/fcl/mesh_loader/assimp.h
   include/hpp/fcl/mesh_loader/loader.h
@@ -191,6 +192,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/internal/traversal_node_base.h
   include/hpp/fcl/internal/traversal_node_bvh_shape.h
   include/hpp/fcl/internal/traversal_node_bvhs.h
+  include/hpp/fcl/internal/traversal_node_hfield_shape.h
   include/hpp/fcl/internal/traversal_node_octree.h
   include/hpp/fcl/internal/traversal_node_setup.h
   include/hpp/fcl/internal/traversal_node_shapes.h
@@ -209,6 +211,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/OBB.h
   include/hpp/fcl/serialization/RSS.h
   include/hpp/fcl/serialization/OBBRSS.h
+  include/hpp/fcl/serialization/hfield.h
   include/hpp/fcl/timings.h
   )
 

@@ -428,6 +428,13 @@ protected:
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
   void initialize(bool ownStorage, Vec3f* points_, unsigned int num_points_);
+  
+  /// @brief Set the points of the convex shape.
+  ///
+  /// \param ownStorage weither the ConvexBase owns the data.
+  /// \param points_ list of 3D points  ///
+  /// \param num_points_ number of 3D points
+  void set(bool ownStorage, Vec3f* points_, unsigned int num_points_);
 
   /// @brief Copy constructor 
   /// Only the list of neighbors is copied.

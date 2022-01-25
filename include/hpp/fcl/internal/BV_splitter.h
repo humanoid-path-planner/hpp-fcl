@@ -159,7 +159,7 @@ protected:
 
     if(type == BVH_MODEL_TRIANGLES)
     {
-      for(int i = 0; i < num_primitives; ++i)
+      for(unsigned int i = 0; i < num_primitives; ++i)
       {
         const Triangle& t = tri_indices[primitive_indices[i]];
         sum += (vertices[t[0]][split_axis] + vertices[t[1]][split_axis] + vertices[t[2]][split_axis]);
@@ -169,7 +169,7 @@ protected:
     }
     else if(type == BVH_MODEL_POINTCLOUD)
     {
-      for(int i = 0; i < num_primitives; ++i)
+      for(unsigned int i = 0; i < num_primitives; ++i)
       {
         sum += vertices[primitive_indices[i]][split_axis];
       }
@@ -193,7 +193,7 @@ protected:
 
     if(type == BVH_MODEL_TRIANGLES)
     {
-      for(int i = 0; i < num_primitives; ++i)
+      for(unsigned int i = 0; i < num_primitives; ++i)
       {
         const Triangle& t = tri_indices[primitive_indices[i]];
         proj[i] = (vertices[t[0]][split_axis] + vertices[t[1]][split_axis] + vertices[t[2]][split_axis]) / 3;
@@ -201,7 +201,7 @@ protected:
     }
     else if(type == BVH_MODEL_POINTCLOUD)
     {
-      for(int i = 0; i < num_primitives; ++i)
+      for(unsigned int i = 0; i < num_primitives; ++i)
         proj[i] = vertices[primitive_indices[i]][split_axis];
     }
 

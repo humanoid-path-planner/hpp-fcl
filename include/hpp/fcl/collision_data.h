@@ -86,6 +86,7 @@ struct HPP_FCL_DLLAPI Contact
   /// @brief invalid contact primitive information
   static const int NONE = -1;
 
+  /// @brief Default constructor
   Contact() : o1(NULL),
               o2(NULL),
               b1(NONE),
@@ -230,7 +231,12 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
   /// @remarks Consequently, the closest points might be incorrect, but allows to save computational ressources.
   FCL_REAL distance_upper_bound;
 
-  explicit CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_) :
+  /// @brief Constructor from a flag and a maximal number of contacts.
+  ///
+  /// @param[in] flag Collision request flag
+  /// @param[in] num_max_contacts  Maximal number of allowad contacts
+  ///
+  CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_) :
     num_max_contacts(num_max_contacts_),
     enable_contact(flag & CONTACT),
     enable_distance_lower_bound (flag & DISTANCE_LOWER_BOUND),
@@ -240,6 +246,7 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
   {
   }
 
+  /// @brief Default constructor.
   CollisionRequest() :
     num_max_contacts(1),
     enable_contact(false),

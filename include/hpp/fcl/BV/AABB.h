@@ -87,6 +87,12 @@ public:
   {
   }
   
+  AABB & update(const Vec3f& a, const Vec3f& b)
+  {
+    min_ = a.cwiseMin(b); max_ = a.cwiseMax(b);
+    return *this;
+  }
+  
   /// @brief Comparison operator
   bool operator==(const AABB & other) const
   {

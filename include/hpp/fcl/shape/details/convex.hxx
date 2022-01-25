@@ -63,7 +63,6 @@ Convex<PolygonT>::Convex(const Convex<PolygonT>& other) :
   num_polygons (other.num_polygons)
 {
   if (own_storage_) {
-    delete [] polygons;
     polygons = new PolygonT[num_polygons];
     memcpy(polygons, other.polygons, sizeof(PolygonT) * num_polygons);
   }
@@ -73,6 +72,20 @@ template <typename PolygonT>
 Convex<PolygonT>::~Convex()
 {
   if (own_storage_) delete [] polygons;
+}
+
+template <typename PolygonT>
+void Convex<PolygonT>::set(bool own_storage, Vec3f* points_, unsigned int num_points_,
+                           PolygonT* polygons_, unsigned int num_polygons_)
+{
+  if (own_storage_)
+    delete [] polygons;
+  ConvexBase::set(own_storage,points_,num_points_);
+
+  num_polygons = num_polygons_;
+  polygons = polygons_;
+  
+  fillNeighbors();
 }
 
 template <typename PolygonT>

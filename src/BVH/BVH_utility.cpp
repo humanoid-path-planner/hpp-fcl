@@ -64,14 +64,14 @@ namespace details
     // TODO use the BV hierarchy
     std::vector<bool> keep_vertex(model.num_vertices, false);
     std::vector<bool> keep_tri   (model.num_tris,     false);
-    std::size_t ntri = 0;
-    for (std::size_t i = 0; i < (std::size_t) model.num_tris; ++i) {
+    unsigned int ntri = 0;
+    for (unsigned int i = 0; i < model.num_tris; ++i) {
       const Triangle& t = model.tri_indices[i];
       
       bool keep_this_tri = keep_vertex[t[0]] || keep_vertex[t[1]] || keep_vertex[t[2]];
       
       if (!keep_this_tri) {
-        for (std::size_t j = 0; j < 3; ++j) {
+        for (unsigned int j = 0; j < 3; ++j) {
           if (aabb.contain(q * model.vertices[t[(int)j]])) {
             keep_this_tri = true;
             break;
@@ -98,11 +98,11 @@ namespace details
     if (ntri == 0) return NULL;
     
     BVHModel<BV>* new_model (new BVHModel<BV>());
-    new_model->beginModel((int)ntri,
-                          std::min((int)ntri * 3, (int)model.num_vertices));
-    std::vector<std::size_t> idxConversion (model.num_vertices);
+    new_model->beginModel(ntri,
+                          std::min(ntri * 3, model.num_vertices));
+    std::vector<unsigned int> idxConversion (model.num_vertices);
     assert(new_model->num_vertices == 0);
-    for (std::size_t i = 0; i < keep_vertex.size(); ++i) {
+    for (unsigned int i = 0; i < keep_vertex.size(); ++i) {
       if (keep_vertex[i]) {
         idxConversion[i] = new_model->num_vertices;
         new_model->vertices[new_model->num_vertices] = model.vertices[i];
@@ -110,7 +110,7 @@ namespace details
       }
     }
     assert(new_model->num_tris == 0);
-    for (std::size_t i = 0; i < keep_tri.size(); ++i) {
+    for (unsigned int i = 0; i < keep_tri.size(); ++i) {
       if (keep_tri[i]) {
         new_model->tri_indices[new_model->num_tris].set (
                                                          idxConversion[model.tri_indices[i][0]],
