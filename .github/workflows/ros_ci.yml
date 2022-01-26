@@ -14,9 +14,9 @@ jobs:
           - {ROS_DISTRO: melodic}
           - {ROS_DISTRO: noetic, BUILDER: catkin_tools}
           - {ROS_DISTRO: foxy}
-          - {ROS_DISTRO: galactic}
+          #- {ROS_DISTRO: galactic} ## Activate once eigenpy released to galactic
           - {ROS_DISTRO: foxy, PRERELEASE: true}
-          - {ROS_DISTRO: galactic, PRERELEASE: true}
+          #- {ROS_DISTRO: galactic, PRERELEASE: true} ## Activate once eigenpy released to galactic
     env:
       CCACHE_DIR: /github/home/.ccache # Enable ccache
     runs-on: ubuntu-latest
