@@ -154,6 +154,18 @@ endif()
 
 FIND_PACKAGE(assimp REQUIRED)
 
+# TODO: These warnings should be fixed
+# Ignore sign conversion warnings
+add_compile_options(-Wno-sign-conversion)
+# Ignore deprecated copy
+add_compile_options(-Wno-deprecated-copy)
+# Ignore conversion
+add_compile_options(-Wno-conversion)
+# Ignore sign compare
+add_compile_options(-Wno-sign-compare)
+# Ignore memaccess until replaced with std::copy
+add_compile_options(-Wno-class-memaccess)
+
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h
   include/hpp/fcl/BV/kIOS.h
