@@ -309,23 +309,23 @@ public:
     bool res = Base::operator==(other);
     if(!res)
       return false;
-    
-    unsigned int other_num_primitives = 0;
-    if(other.primitive_indices)
-    {
+
+    // unsigned int other_num_primitives = 0;
+    // if(other.primitive_indices)
+    // {
       
-      switch(other.getModelType())
-      {
-        case BVH_MODEL_TRIANGLES:
-          other_num_primitives = num_tris;
-          break;
-        case BVH_MODEL_POINTCLOUD:
-          other_num_primitives = num_vertices;
-          break;
-        default:
-          ;
-      }
-    }
+    //   switch(other.getModelType())
+    //   {
+    //     case BVH_MODEL_TRIANGLES:
+    //       other_num_primitives = num_tris;
+    //       break;
+    //     case BVH_MODEL_POINTCLOUD:
+    //       other_num_primitives = num_vertices;
+    //       break;
+    //     default:
+    //       ;
+    //   }
+    // }
     
 //    unsigned int num_primitives = 0;
 //    if(primitive_indices)
