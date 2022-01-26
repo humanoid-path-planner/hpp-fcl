@@ -12,10 +12,13 @@ jobs:
       matrix:
         env:
           - {ROS_DISTRO: melodic}
-          - {ROS_DISTRO: noetic}
+          - {ROS_DISTRO: noetic, BUILDER: catkin_tools}
+          - {ROS_DISTRO: foxy}
+          - {ROS_DISTRO: galactic}
+          - {ROS_DISTRO: foxy, PRERELEASE: true}
+          - {ROS_DISTRO: galactic, PRERELEASE: true}
     env:
       CCACHE_DIR: /github/home/.ccache # Enable ccache
-      BUILDER: catkin_tools
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
