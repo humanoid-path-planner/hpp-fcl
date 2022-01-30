@@ -91,6 +91,41 @@ std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf)
   return result;
 }
 
+// we use scaled icosahedron to bound the ellipsoid
+std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3f& tf)
+{
+  std::vector<Vec3f> result(12);
+  const FCL_REAL phi = (1 + sqrt(5.0)) / 2.0;
+
+  const FCL_REAL a = sqrt(3.0) / (phi * phi);
+  const FCL_REAL b = phi * a;
+  
+  const FCL_REAL& A = ellipsoid.radii[0];
+  const FCL_REAL& B = ellipsoid.radii[1];
+  const FCL_REAL& C = ellipsoid.radii[2];
+
+  FCL_REAL Aa = A * a;
+  FCL_REAL Ab = A * b;
+  FCL_REAL Ba = B * a;
+  FCL_REAL Bb = B * b;
+  FCL_REAL Ca = C * a;
+  FCL_REAL Cb = C * b;
+  result[0] = tf.transform(Vec3f(0, Ba, Cb));
+  result[1] = tf.transform(Vec3f(0, -Ba, Cb));
+  result[2] = tf.transform(Vec3f(0, Ba, -Cb));
+  result[3] = tf.transform(Vec3f(0, -Ba, -Cb));
+  result[4] = tf.transform(Vec3f(Aa, Bb, 0));
+  result[5] = tf.transform(Vec3f(-Aa, Bb, 0));
+  result[6] = tf.transform(Vec3f(Aa, -Bb, 0));
+  result[7] = tf.transform(Vec3f(-Aa, -Bb, 0));
+  result[8] = tf.transform(Vec3f(Ab, 0, Ca));
+  result[9] = tf.transform(Vec3f(Ab, 0, -Ca));
+  result[10] = tf.transform(Vec3f(-Ab, 0, Ca));
+  result[11] = tf.transform(Vec3f(-Ab, 0, -Ca));
+
+  return result;
+}
+
 std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& tf)
 {
   std::vector<Vec3f> result(36);
@@ -267,6 +302,17 @@ void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv)
   const Vec3f& T = tf.getTranslation();
 
   Vec3f v_delta(Vec3f::Constant(s.radius));
+  bv.max_ = T + v_delta;
+  bv.min_ = T - v_delta;
+}
+
+template<>
+void computeBV<AABB, Ellipsoid>(const Ellipsoid& e, const Transform3f& tf, AABB& bv)
+{
+  const Matrix3f& R = tf.getRotation();
+  const Vec3f& T = tf.getTranslation();
+
+  Vec3f v_delta = R * e.radii;
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
