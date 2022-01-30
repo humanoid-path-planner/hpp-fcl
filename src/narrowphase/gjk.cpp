@@ -742,7 +742,7 @@ bool GJK::encloseOrigin()
   switch(simplex->rank)
   {
   case 1:
-    for(size_t i = 0; i < 3; ++i)
+    for(int i = 0; i < 3; ++i)
     {
       axis[i] = 1;
       appendVertex(*simplex, axis, true, hint);
@@ -758,7 +758,7 @@ bool GJK::encloseOrigin()
   case 2:
     {
       Vec3f d = simplex->vertex[1]->w - simplex->vertex[0]->w;
-      for(size_t i = 0; i < 3; ++i)
+      for(int i = 0; i < 3; ++i)
       {
         axis[i] = 1;
         Vec3f p = d.cross(axis);
