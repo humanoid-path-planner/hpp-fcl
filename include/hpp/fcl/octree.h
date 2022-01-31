@@ -100,6 +100,8 @@ public:
   
   OcTree * clone() const { return new OcTree(*this); }
 
+  void exportAsObjFile(const std::string& filename) const;
+
   /// @brief compute the AABB for the octree in its local coordinate system
   void computeLocalAABB() 
   {
