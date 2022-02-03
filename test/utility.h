@@ -99,6 +99,20 @@ private:
 #endif
 };
 
+struct TStruct
+{
+  std::vector<double> records;
+  double overall_time;
+
+  TStruct() { overall_time = 0; }
+
+  void push_back(double t)
+  {
+    records.push_back(t);
+    overall_time += t;
+  }
+};
+
 extern const Eigen::IOFormat vfmt;
 extern const Eigen::IOFormat pyfmt;
 typedef Eigen::AngleAxis<FCL_REAL> AngleAxis;
@@ -185,6 +199,10 @@ std::ostream& operator<< (std::ostream& os, const Transform3f& tf);
 
 /// Get the argument --nb-run from argv
 std::size_t getNbRun (const int& argc, char const* const* argv, std::size_t defaultValue);
+
+void generateEnvironments(std::vector<CollisionObject*>& env, FCL_REAL env_scale, std::size_t n);
+
+void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, FCL_REAL env_scale, std::size_t n);
 
 }
 

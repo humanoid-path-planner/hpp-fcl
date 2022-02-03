@@ -233,9 +233,9 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir, Vec3f& suppo
     const ConvexBase::Neighbors& n = nn[hint];
     found = false;
     for (int in = 0; in < n.count(); ++in) {
-      const int ip = n[in];
-      if (visited[(size_t)ip]) continue;
-      visited[(size_t)ip] = true;
+      const unsigned int ip = n[in];
+      if (visited[ip]) continue;
+      visited[ip] = true;
       const FCL_REAL dot = pts[ip].dot(dir);
       bool better = false;
       if (dot > maxdot) {
@@ -245,7 +245,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir, Vec3f& suppo
         better = true;
       if (better) {
         maxdot = dot;
-        hint = ip;
+        hint = (int)ip;
         found = true;
       }
     }

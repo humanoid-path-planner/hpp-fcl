@@ -63,12 +63,16 @@ class HPP_FCL_DLLAPI Transform3f
   /// @brief Tranlation vector
   Vec3f T;
 public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /// @brief Default transform is no movement
   Transform3f()
   {
     setIdentity(); // set matrix_set true
   }
+  
+  static Transform3f Identity() { return Transform3f(); }
 
   /// @brief Construct transform from rotation and translation
   template <typename Matrixx3Like, typename Vector3Like>
@@ -119,9 +123,33 @@ public:
   {
     return T;
   }
+  
+  /// @brief get translation
+  inline const Vec3f& translation() const
+  {
+    return T;
+  }
+  
+  /// @brief get translation
+  inline Vec3f& translation()
+  {
+    return T;
+  }
 
   /// @brief get rotation
   inline const Matrix3f& getRotation() const
+  {
+    return R;
+  }
+  
+  /// @brief get rotation
+  inline const Matrix3f& rotation() const
+  {
+    return R;
+  }
+  
+  /// @brief get rotation
+  inline Matrix3f& rotation()
   {
     return R;
   }

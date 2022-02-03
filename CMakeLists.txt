@@ -164,6 +164,47 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/BV/AABB.h
   include/hpp/fcl/BV/OBB.h
   include/hpp/fcl/BV/kDOP.h
+  include/hpp/fcl/broadphase/broadphase_SSaP-inl.h
+  include/hpp/fcl/broadphase/broadphase_SSaP.h
+  include/hpp/fcl/broadphase/broadphase_SaP-inl.h
+  include/hpp/fcl/broadphase/broadphase_SaP.h
+  include/hpp/fcl/broadphase/broadphase_bruteforce-inl.h
+  include/hpp/fcl/broadphase/broadphase_bruteforce.h
+  include/hpp/fcl/broadphase/broadphase_collision_manager-inl.h
+  include/hpp/fcl/broadphase/broadphase_collision_manager.h
+  include/hpp/fcl/broadphase/broadphase_continuous_collision_manager-inl.h
+  include/hpp/fcl/broadphase/broadphase_continuous_collision_manager.h
+  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree-inl.h
+  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h
+  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array-inl.h
+  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h
+  include/hpp/fcl/broadphase/broadphase_interval_tree-inl.h
+  include/hpp/fcl/broadphase/broadphase_interval_tree.h
+  include/hpp/fcl/broadphase/broadphase_spatialhash-inl.h
+  include/hpp/fcl/broadphase/broadphase_spatialhash.h
+  include/hpp/fcl/broadphase/default_broadphase_callbacks.h
+  include/hpp/fcl/broadphase/detail/hierarchy_tree-inl.h
+  include/hpp/fcl/broadphase/detail/hierarchy_tree.h
+  include/hpp/fcl/broadphase/detail/hierarchy_tree_array-inl.h
+  include/hpp/fcl/broadphase/detail/hierarchy_tree_array.h
+  include/hpp/fcl/broadphase/detail/interval_tree-inl.h
+  include/hpp/fcl/broadphase/detail/interval_tree.h
+  include/hpp/fcl/broadphase/detail/interval_tree_node-inl.h
+  include/hpp/fcl/broadphase/detail/interval_tree_node.h
+  include/hpp/fcl/broadphase/detail/morton-inl.h
+  include/hpp/fcl/broadphase/detail/morton.h
+  include/hpp/fcl/broadphase/detail/node_base-inl.h
+  include/hpp/fcl/broadphase/detail/node_base.h
+  include/hpp/fcl/broadphase/detail/node_base_array-inl.h
+  include/hpp/fcl/broadphase/detail/node_base_array.h
+  include/hpp/fcl/broadphase/detail/simple_hash_table-inl.h
+  include/hpp/fcl/broadphase/detail/simple_hash_table.h
+  include/hpp/fcl/broadphase/detail/simple_interval-inl.h
+  include/hpp/fcl/broadphase/detail/simple_interval.h
+  include/hpp/fcl/broadphase/detail/sparse_hash_table-inl.h
+  include/hpp/fcl/broadphase/detail/sparse_hash_table.h
+  include/hpp/fcl/broadphase/detail/spatial_hash-inl.h
+  include/hpp/fcl/broadphase/detail/spatial_hash.h
   include/hpp/fcl/narrowphase/narrowphase.h
   include/hpp/fcl/narrowphase/gjk.h
   include/hpp/fcl/shape/convex.h
