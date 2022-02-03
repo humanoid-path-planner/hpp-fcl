@@ -49,23 +49,24 @@
 
 namespace hpp {
 namespace fcl {
+
 /// @brief Collision data for use with the DefaultCollisionFunction. It stores
 /// the collision request and the result given by collision algorithm (and
 /// stores the conclusion of whether further evaluation of the broadphase
 /// collision manager has been deemed unnecessary).
-struct DefaultCollisionData {
+struct CollisionData {
   CollisionRequest request;
   CollisionResult result;
 
   /// If `true`, requests that the broadphase evaluation stop.
   bool done;
   
-  DefaultCollisionData() : done(false) {}
+  CollisionData() : done(false) {}
 };
 
 /// @brief Provides a simple callback for the collision query in the
 /// BroadPhaseCollisionManager. It assumes the `data` parameter is non-null and
-/// points to an instance of DefaultCollisionData. It simply invokes the
+/// points to an instance of CollisionData. It simply invokes the
 /// `collide()` method on the culled pair of geometries and stores the results
 /// in the data's CollisionResult instance.
 ///
@@ -74,15 +75,15 @@ struct DefaultCollisionData {
 ///   - the collide() reports a collision for the culled pair, _and_
 ///   - we've reported the number of contacts requested in the CollisionRequest.
 ///
-/// For a given instance of DefaultCollisionData, if broadphase evaluation has
+/// For a given instance of CollisionData, if broadphase evaluation has
 /// already terminated (i.e., DefaultCollisionFunction() returned `true`),
-/// subsequent invocations with the same instance of DefaultCollisionData will
+/// subsequent invocations with the same instance of CollisionData will
 /// return immediately, requesting termination of broadphase evaluation (i.e.,
 /// return `true`).
 ///
 /// @param o1   The first object in the culled pair.
 /// @param o2   The second object in the culled pair.
-/// @param data A non-null pointer to a DefaultCollisionData instance.
+/// @param data A non-null pointer to a CollisionData instance.
 /// @return `true` if the broadphase evaluation should stop.
 /// @tparam S   The scalar type with which the computation will be performed.
 bool DefaultCollisionFunction(CollisionObject* o1,
@@ -90,7 +91,7 @@ bool DefaultCollisionFunction(CollisionObject* o1,
                               void* data)
 {
   assert(data != nullptr);
-  auto* collision_data = static_cast<DefaultCollisionData*>(data);
+  auto* collision_data = static_cast<CollisionData*>(data);
   const CollisionRequest& request = collision_data->request;
   CollisionResult& result = collision_data->result;
 
@@ -132,13 +133,13 @@ bool DefaultCollisionFunction(CollisionObject* o1,
 /// For a given instance of DefaultContinuousCollisionData, if broadphase
 /// evaluation has already terminated (i.e.,
 /// DefaultContinuousCollisionFunction() returned `true`), subsequent
-/// invocations with the same instance of DefaultCollisionData will return
+/// invocations with the same instance of CollisionData will return
 /// immediately, requesting termination of broadphase evaluation (i.e., return
 /// `true`).
 ///
 /// @param o1   The first object in the culled pair.
 /// @param o2   The second object in the culled pair.
-/// @param data A non-null pointer to a DefaultCollisionData instance.
+/// @param data A non-null pointer to a CollisionData instance.
 /// @return True if the broadphase evaluation should stop.
 /// @tparam S   The scalar type with which the computation will be performed.
 //bool DefaultContinuousCollisionFunction(ContinuousCollisionObject* o1,
@@ -160,19 +161,19 @@ bool DefaultCollisionFunction(CollisionObject* o1,
 /// the distance request and the result given by distance algorithm (and
 /// stores the conclusion of whether further evaluation of the broadphase
 /// collision manager has been deemed unnecessary).
-struct DefaultDistanceData {
+struct DistanceData {
   DistanceRequest request;
   DistanceResult result;
 
   /// If `true`, requests that the broadphase evaluation stop.
   bool done;
   
-  DefaultDistanceData() : done(false) {};
+  DistanceData() : done(false) {};
 };
 
 /// @brief Provides a simple callback for the distance query in the
 /// BroadPhaseCollisionManager. It assumes the `data` parameter is non-null and
-/// points to an instance of DefaultDistanceData. It simply invokes the
+/// points to an instance of DistanceData. It simply invokes the
 /// `distance()` method on the culled pair of geometries and stores the results
 /// in the data's DistanceResult instance.
 ///
@@ -180,15 +181,15 @@ struct DefaultDistanceData {
 ///   - The distance is less than or equal to zero (i.e., the pair is in
 ///     contact).
 ///
-/// For a given instance of DefaultDistanceData, if broadphase evaluation has
+/// For a given instance of DistanceData, if broadphase evaluation has
 /// already terminated (i.e., DefaultDistanceFunction() returned `true`),
-/// subsequent invocations with the same instance of DefaultDistanceData will
+/// subsequent invocations with the same instance of DistanceData will
 /// simply report the previously reported minimum distance and request
 /// termination of broadphase evaluation (i.e., return `true`).
 ///
 /// @param o1     The first object in the culled pair.
 /// @param o2     The second object in the culled pair.
-/// @param data   A non-null pointer to a DefaultDistanceData instance.
+/// @param data   A non-null pointer to a DistanceData instance.
 /// @param dist   The distance computed by distance().
 /// @return `true` if the broadphase evaluation should stop.
 /// @tparam S   The scalar type with which the computation will be performed.
@@ -196,7 +197,7 @@ bool DefaultDistanceFunction(CollisionObject* o1,
                              CollisionObject* o2,
                              void* data, FCL_REAL & dist) {
   assert(data != nullptr);
-  auto* cdata = static_cast<DefaultDistanceData*>(data);
+  auto* cdata = static_cast<DistanceData*>(data);
   const DistanceRequest& request = cdata->request;
   DistanceResult& result = cdata->result;
 

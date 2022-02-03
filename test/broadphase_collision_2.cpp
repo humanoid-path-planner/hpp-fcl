@@ -255,7 +255,7 @@ void broad_phase_collision_test(FCL_REAL env_scale,
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-  std::vector<DefaultCollisionData> self_data(managers.size());
+  std::vector<CollisionData> self_data(managers.size());
   for(size_t i = 0; i < managers.size(); ++i)
   {
     if(exhaustive) self_data[i].request.num_max_contacts = 100000;
@@ -295,7 +295,7 @@ void broad_phase_collision_test(FCL_REAL env_scale,
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<DefaultCollisionData> query_data(managers.size());
+    std::vector<CollisionData> query_data(managers.size());
     for(size_t j = 0; j < query_data.size(); ++j)
     {
       if(exhaustive) query_data[j].request.num_max_contacts = 100000;
