@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019-2021 CNRS-LAAS INRIA
+//  Copyright (c) 2019-2022 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -587,9 +587,9 @@ void exposeCollisionObject ()
   {
     class_ <CollisionObject, CollisionObjectPtr_t>
       ("CollisionObject", no_init)
-      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&>())
-      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Transform3f&>())
-      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Matrix3f&, const Vec3f&>())
+      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, bp::optional<bool> >())
+      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Transform3f&, bp::optional<bool> >())
+      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Matrix3f&, const Vec3f&, bp::optional<bool> >())
 
       .DEF_CLASS_FUNC(CollisionObject, getObjectType)
       .DEF_CLASS_FUNC(CollisionObject, getNodeType)
@@ -606,6 +606,7 @@ void exposeCollisionObject ()
 
       .DEF_CLASS_FUNC(CollisionObject, isIdentityTransform)
       .DEF_CLASS_FUNC(CollisionObject, setIdentityTransform)
+      .DEF_CLASS_FUNC2(CollisionObject, setCollisionGeometry, (bp::with_custodian_and_ward_postcall<1,2>()))
       
       .def(dv::member_func("collisionGeometry",
           static_cast<const CollisionGeometryPtr_t& (CollisionObject::*) ()>(&CollisionObject::collisionGeometry),
