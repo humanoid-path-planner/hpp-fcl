@@ -199,22 +199,30 @@ class HPP_FCL_DLLAPI CollisionObject
 {
 public:
  CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_,
-                 bool compute_local_aabb = true) :
-    cgeom(cgeom_), cgeom_const(cgeom_)
+                 bool compute_local_aabb = true)
+  : cgeom(cgeom_)
+  , cgeom_const(cgeom_)
+  , user_data(nullptr)
   {
     init(compute_local_aabb);
   }
 
   CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf,
-                  bool compute_local_aabb = true) :
-    cgeom(cgeom_), cgeom_const(cgeom_), t(tf)
+                  bool compute_local_aabb = true)
+  : cgeom(cgeom_)
+  , cgeom_const(cgeom_)
+  , t(tf)
+  , user_data(nullptr)
   {
     init(compute_local_aabb);
   }
 
   CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_, const Matrix3f& R, const Vec3f& T,
-                  bool compute_local_aabb = true):
-      cgeom(cgeom_), cgeom_const(cgeom_), t(R, T)
+                  bool compute_local_aabb = true)
+  : cgeom(cgeom_)
+  , cgeom_const(cgeom_)
+  , t(R, T)
+  , user_data(nullptr)
   {
     init(compute_local_aabb);
   }
