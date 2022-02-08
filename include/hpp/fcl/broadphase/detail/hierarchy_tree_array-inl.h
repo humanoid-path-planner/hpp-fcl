@@ -41,6 +41,7 @@
 #include "hpp/fcl/broadphase/detail/hierarchy_tree_array.h"
 
 #include <algorithm>
+#include <iostream>
 
 namespace hpp
 {
