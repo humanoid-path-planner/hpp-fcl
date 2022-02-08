@@ -44,6 +44,10 @@ SET(${LIBRARY_NAME}_HEADERS
   fwd.hh
   fcl.hh
   deprecation.hh
+  broadphase/fwd.hh
+  broadphase/broadphase_collision_manager.hh
+  broadphase/broadphase_callbacks.hh
+  broadphase/broadphase_dynamic_AABB_tree.hh
   )
 
 SET(ENABLE_PYTHON_DOXYGEN_AUTODOC TRUE CACHE BOOL "Enable automatic documentation of Python bindings from Doxygen documentation")

@@ -104,4 +104,5 @@ BOOST_PYTHON_MODULE(hppfcl)
 #ifdef HPP_FCL_HAS_OCTOMAP
   exposeOctree();
 #endif
+  exposeBroadPhase();
 }

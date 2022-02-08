@@ -1,0 +1,108 @@
+//
+// Software License Agreement (BSD License)
+//
+//  Copyright (c) 2022 INRIA
+//  Author: Justin Carpentier
+//  All rights reserved.
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions
+//  are met:
+//
+//   * Redistributions of source code must retain the above copyright
+//     notice, this list of conditions and the following disclaimer.
+//   * Redistributions in binary form must reproduce the above
+//     copyright notice, this list of conditions and the following
+//     disclaimer in the documentation and/or other materials provided
+//     with the distribution.
+//   * Neither the name of CNRS-LAAS. nor the names of its
+//     contributors may be used to endorse or promote products derived
+//     from this software without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+//  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+//  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+//  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+//  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+//  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+//  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+//  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+//  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
+
+#include <hpp/fcl/fwd.hh>
+#include "../fcl.hh"
+#include "../utils/function.hh"
+
+#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#include "doxygen_autodoc/functions.h"
+#include "doxygen_autodoc/hpp/fcl/broadphase/default_broadphase_callbacks.h"
+#endif
+
+#include "broadphase_callbacks.hh"
+#include "broadphase_collision_manager.hh"
+#include "broadphase_dynamic_AABB_tree.hh"
+
+using namespace hpp::fcl;
+
+bool defaultCollisionFunction_call(CollisionObject * o1,
+                                   CollisionObject * o2,
+                                   CollisionData * data)
+{
+  return defaultCollisionFunction(o1,o2,data);
+}
+
+bp::tuple defaultDistanceFunction_call(CollisionObject * o1,
+                                       CollisionObject * o2,
+                                       DistanceData * data)
+{
+  FCL_REAL dist;
+  bool res = defaultDistanceFunction(o1,o2,data,dist);
+  return bp::make_tuple(res,dist);
+}
+
+void exposeBroadPhase()
+{
+  CollisionCallBackBaseWrapper::expose();
+  DistanceCallBackBaseWrapper::expose();
+
+  // CollisionCallBackDefault
+  bp::class_<CollisionCallBackDefault, bp::bases<CollisionCallBackBase> >("CollisionCallBackDefault",bp::no_init)
+  .def(dv::init<CollisionCallBackDefault>())
+  .DEF_RW_CLASS_ATTRIB(CollisionCallBackDefault,data)
+  ;
+  
+  // DistanceCallBackDefault
+  bp::class_<DistanceCallBackDefault, bp::bases<DistanceCallBackBase> >("DistanceCallBackDefault",bp::no_init)
+  .def(dv::init<DistanceCallBackDefault>())
+  .DEF_RW_CLASS_ATTRIB(DistanceCallBackDefault,data)
+  ;
+  
+  // CollisionCallBackCollect
+  bp::class_<CollisionCallBackCollect, bp::bases<CollisionCallBackBase> >("CollisionCallBackCollect",bp::no_init)
+  .def(dv::init<CollisionCallBackCollect, const size_t>())
+  .DEF_CLASS_FUNC(CollisionCallBackCollect,numCollisionPairs)
+  .DEF_CLASS_FUNC2(CollisionCallBackCollect,getCollisionPairs, bp::return_value_policy<bp::copy_const_reference>())
+  .DEF_CLASS_FUNC(CollisionCallBackCollect,exist)
+  ;
+  
+  bp::class_<CollisionData>("CollisionData",bp::no_init)
+  .def(dv::init<CollisionData>())
+  .DEF_RW_CLASS_ATTRIB(CollisionData, request)
+  .DEF_RW_CLASS_ATTRIB(CollisionData, result)
+  .DEF_RW_CLASS_ATTRIB(CollisionData, done)
+  ;
+  
+  bp::class_<DistanceData>("DistanceData",bp::no_init)
+  .def(dv::init<DistanceData>())
+  .DEF_RW_CLASS_ATTRIB(DistanceData, request)
+  .DEF_RW_CLASS_ATTRIB(DistanceData, result)
+  .DEF_RW_CLASS_ATTRIB(DistanceData, done)
+  ;
+  
+  BroadPhaseCollisionManagerWrapper::expose();
+  DynamicAABBTreeCollisionManagerWrapper::expose();
+  
+}
