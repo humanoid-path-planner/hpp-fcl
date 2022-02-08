@@ -658,7 +658,7 @@ size_t HierarchyTree<BV>::topdown_1(size_t* lbeg, size_t* lend)
       for(size_t* i = lbeg; i < lend; ++i)
       {
        Vec3f x = nodes[*i].bv.center() - split_p;
-        for(size_t j = 0; j < 3; ++j)
+        for(int j = 0; j < 3; ++j)
           ++splitcount[j][x[j] > 0 ? 1 : 0];
       }
 
