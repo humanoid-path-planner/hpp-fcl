@@ -198,28 +198,25 @@ public:
 class HPP_FCL_DLLAPI CollisionObject
 {
 public:
- CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_) :
+ CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_,
+                 bool compute_local_aabb = true) :
     cgeom(cgeom_), cgeom_const(cgeom_)
   {
-    if (cgeom)
-    {
-      cgeom->computeLocalAABB();
-      computeAABB();
-    }
+    init(compute_local_aabb);
   }
 
-  CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf) :
+  CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf,
+                  bool compute_local_aabb = true) :
     cgeom(cgeom_), cgeom_const(cgeom_), t(tf)
   {
-    cgeom->computeLocalAABB();
-    computeAABB();
+    init(compute_local_aabb);
   }
 
-  CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_, const Matrix3f& R, const Vec3f& T):
-      cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3f(R, T))
+  CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_, const Matrix3f& R, const Vec3f& T,
+                  bool compute_local_aabb = true):
+      cgeom(cgeom_), cgeom_const(cgeom_), t(R, T)
   {
-    cgeom->computeLocalAABB();
-    computeAABB();
+    init(compute_local_aabb);
   }
 
   ~CollisionObject()
@@ -239,13 +236,13 @@ public:
   }
 
   /// @brief get the AABB in world space
-  inline const AABB& getAABB() const
+  const AABB& getAABB() const
   {
     return aabb;
   }
 
   /// @brief compute the AABB in world space
-  inline void computeAABB()
+  void computeAABB()
   {
     if(t.getRotation().isIdentity())
     {
@@ -302,15 +299,11 @@ public:
     t.setTranslation(T);
   }
 
-
-
   /// @brief set object's transform
   void setTransform(const Matrix3f& R, const Vec3f& T)
   {
     t.setTransform(R, T);
   }
-
- 
 
   /// @brief set object's transform
   void setTransform(const Transform3f& tf)
@@ -341,8 +334,32 @@ public:
   {
     return cgeom;
   }
-
+  
+  /// @brief Associate a new CollisionGeometry
+  ///
+  /// @param[in] collision_geometry The new CollisionGeometry
+  /// @param[in] compute_local_aabb Whether the local aabb of the input new has to be computed.
+  ///
+  void setCollisionGeometry(const boost::shared_ptr<CollisionGeometry> & collision_geometry,
+                            bool compute_local_aabb = true)
+  {
+    if(collision_geometry.get() != cgeom.get())
+    {
+      cgeom = collision_geometry;
+      init(compute_local_aabb);
+    }
+  }
+  
 protected:
+  
+  void init(bool compute_local_aabb = true)
+  {
+    if (cgeom)
+    {
+      if(compute_local_aabb) cgeom->computeLocalAABB();
+      computeAABB();
+    }
+  }
 
   shared_ptr<CollisionGeometry> cgeom;
   shared_ptr<const CollisionGeometry> cgeom_const;
