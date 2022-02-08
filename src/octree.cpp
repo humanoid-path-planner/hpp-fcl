@@ -202,19 +202,19 @@ void OcTree::exportAsObjFile(const std::string& filename) const
     throw std::runtime_error(std::string("failed to open file \"")+
                              filename + std::string("\""));
   // write vertices
-  os << "# list of vertices" << std::endl;
+  os << "# list of vertices\n";
   for (VectorVec3f::const_iterator it = vertices.begin();
        it != vertices.end(); ++it)
   {
     const Vec3f & v = *it;
-    os << "v " << v[0] << " " << v[1] << " " << v[2] << std::endl;
+    os << "v " << v[0] << " " << v[1] << " " << v[2] << '\n';
   }
-  os << std::endl << "# list of faces" << std::endl;
+  os << "\n# list of faces\n";
   for (VectorArray4::const_iterator it = faces.begin();
        it != faces.end(); ++it)
   {
     const Array4 & f = *it;
-    os << "f " << f[0] << " " << f[1] << " " << f[2] << " " << f[3] << std::endl;
+    os << "f " << f[0] << " " << f[1] << " " << f[2] << " " << f[3] << '\n';
   }
 }
 
