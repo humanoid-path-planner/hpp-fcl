@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(DynamicAABBTreeCollisionManager_class)
   objects.push_back(&object0);
   objects.push_back(&object1);
   
-  std::vector<const Eigen::Vector3d> positions;
+  std::vector<Eigen::Vector3d> positions;
   positions.push_back(position0);
   positions.push_back(position1);
 
