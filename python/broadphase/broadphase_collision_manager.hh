@@ -48,6 +48,8 @@
 #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_collision_manager.h"
 #endif
 
+#include <boost/algorithm/string/replace.hpp>
+
 namespace hpp { namespace fcl {
 
 struct BroadPhaseCollisionManagerWrapper
@@ -152,6 +154,19 @@ struct BroadPhaseCollisionManagerWrapper
          doxygen::member_func_doc((void (Base::*)(BroadPhaseCollisionManager *, DistanceCallBackBase *) const)&Base::distance))
     ;
   }
+  
+  template<typename Derived>
+  static void exposeDerived()
+  {
+    std::string class_name = boost::typeindex::type_id<Derived>().pretty_name();
+    boost::algorithm::replace_all(class_name, "hpp::fcl::", "");
+    
+    bp::class_<Derived, bp::bases<BroadPhaseCollisionManager> >(class_name.c_str(),bp::no_init)
+    .def(dv::init<Derived>())
+    ;
+  }
+  
+  
 }; // BroadPhaseCollisionManagerWrapper
 
 }}

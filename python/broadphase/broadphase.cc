@@ -36,14 +36,28 @@
 #include "../fcl.hh"
 #include "../utils/function.hh"
 
+#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "hpp/fcl/broadphase/broadphase_bruteforce.h"
+#include "hpp/fcl/broadphase/broadphase_SaP.h"
+#include "hpp/fcl/broadphase/broadphase_SSaP.h"
+#include "hpp/fcl/broadphase/broadphase_interval_tree.h"
+#include "hpp/fcl/broadphase/broadphase_spatialhash.h"
+
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
 #include "doxygen_autodoc/hpp/fcl/broadphase/default_broadphase_callbacks.h"
+#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_bruteforce.h"
+#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_SaP.h"
+#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_SSaP.h"
+#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_interval_tree.h"
+#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_spatialhash.h"
 #endif
 
 #include "broadphase_callbacks.hh"
 #include "broadphase_collision_manager.hh"
-#include "broadphase_dynamic_AABB_tree.hh"
 
 using namespace hpp::fcl;
 
@@ -103,6 +117,22 @@ void exposeBroadPhase()
   ;
   
   BroadPhaseCollisionManagerWrapper::expose();
-  DynamicAABBTreeCollisionManagerWrapper::expose();
   
+  BroadPhaseCollisionManagerWrapper::exposeDerived<DynamicAABBTreeCollisionManager>();
+  BroadPhaseCollisionManagerWrapper::exposeDerived<DynamicAABBTreeArrayCollisionManager>();
+  BroadPhaseCollisionManagerWrapper::exposeDerived<IntervalTreeCollisionManager>();
+  BroadPhaseCollisionManagerWrapper::exposeDerived<SSaPCollisionManager>();
+  BroadPhaseCollisionManagerWrapper::exposeDerived<SaPCollisionManager>();
+  BroadPhaseCollisionManagerWrapper::exposeDerived<NaiveCollisionManager>();
+  
+  // Specific case of SpatialHashingCollisionManager
+  {
+    typedef detail::SimpleHashTable<AABB, CollisionObject*, detail::SpatialHash> HashTable;
+    typedef SpatialHashingCollisionManager<HashTable> Derived;
+    bp::class_<Derived, bp::bases<BroadPhaseCollisionManager> >("SpatialHashingCollisionManager",bp::no_init)
+    .def(dv::init<Derived, FCL_REAL, const Vec3f &, const Vec3f &, bp::optional<unsigned int> >())
+    ;
+  }
+
+
 }
