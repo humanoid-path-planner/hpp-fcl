@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2020, Toyota Research Institute
+ *  Copyright (c) 2022, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -33,35 +34,59 @@
  */
 
 /** @author Sean Curtis (sean@tri.global) */
+/** @author Justin Carpentier (justin.carpentier@inria.fr) */
 
-#ifndef HPP_FCL_BROADPHASE_DEFAULTBROADPHASECALLBACKS_H
-#define HPP_FCL_BROADPHASE_DEFAULTBROADPHASECALLBACKS_H
+#ifndef HPP_FCL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H
+#define HPP_FCL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H
 
+#include "hpp/fcl/broadphase/broadphase_callbacks.h"
 #include "hpp/fcl/collision.h"
+#include "hpp/fcl/distance.h"
 //#include "hpp/fcl/narrowphase/continuous_collision.h"
 //#include "hpp/fcl/narrowphase/continuous_collision_request.h"
 //#include "hpp/fcl/narrowphase/continuous_collision_result.h"
-#include "hpp/fcl/distance.h"
 //#include "hpp/fcl/narrowphase/distance_request.h"
 //#include "hpp/fcl/narrowphase/distance_result.h"
-
-#include <algorithm>
 
 namespace hpp {
 namespace fcl {
 
-/// @brief Collision data for use with the DefaultCollisionFunction. It stores
-/// the collision request and the result given by collision algorithm (and
-/// stores the conclusion of whether further evaluation of the broadphase
-/// collision manager has been deemed unnecessary).
-struct CollisionData {
+/// @brief Collision data stores the collision request and the result given by collision algorithm.
+struct CollisionData
+{
+  CollisionData()
+  {
+    done = false;
+  }
+
+  /// @brief Collision request
   CollisionRequest request;
+
+  /// @brief Collision result
   CollisionResult result;
 
-  /// If `true`, requests that the broadphase evaluation stop.
+  /// @brief Whether the collision iteration can stop
   bool done;
-  
-  CollisionData() : done(false) {}
+};
+
+
+/// @brief Distance data stores the distance request and the result given by distance algorithm.
+struct DistanceData
+{
+  DistanceData()
+  {
+    done = false;
+  }
+
+  /// @brief Distance request
+  DistanceRequest request;
+
+  /// @brief Distance result
+  DistanceResult result;
+
+  /// @brief Whether the distance iteration can stop
+  bool done;
+
 };
 
 /// @brief Provides a simple callback for the collision query in the
@@ -76,7 +101,7 @@ struct CollisionData {
 ///   - we've reported the number of contacts requested in the CollisionRequest.
 ///
 /// For a given instance of CollisionData, if broadphase evaluation has
-/// already terminated (i.e., DefaultCollisionFunction() returned `true`),
+/// already terminated (i.e., defaultCollisionFunction() returned `true`),
 /// subsequent invocations with the same instance of CollisionData will
 /// return immediately, requesting termination of broadphase evaluation (i.e.,
 /// return `true`).
@@ -86,25 +111,9 @@ struct CollisionData {
 /// @param data A non-null pointer to a CollisionData instance.
 /// @return `true` if the broadphase evaluation should stop.
 /// @tparam S   The scalar type with which the computation will be performed.
-bool DefaultCollisionFunction(CollisionObject* o1,
+bool defaultCollisionFunction(CollisionObject* o1,
                               CollisionObject* o2,
-                              void* data)
-{
-  assert(data != nullptr);
-  auto* collision_data = static_cast<CollisionData*>(data);
-  const CollisionRequest& request = collision_data->request;
-  CollisionResult& result = collision_data->result;
-
-  if(collision_data->done) return true;
-
-  collide(o1, o2, request, result);
-
-  if (result.isCollision() && result.numContacts() >= request.num_max_contacts) {
-    collision_data->done = true;
-  }
-
-  return collision_data->done;
-}
+                              void* data);
 
 
 /// @brief Collision data for use with the DefaultContinuousCollisionFunction.
@@ -146,7 +155,7 @@ bool DefaultCollisionFunction(CollisionObject* o1,
 //                                        ContinuousCollisionObject* o2,
 //                                        void* data) {
 //  assert(data != nullptr);
-//  auto* cdata = static_cast<DefaultContinuousCollisionData<S>*>(data);
+//  auto* cdata = static_cast<DefaultContinuousCollisionData*>(data);
 //
 //  if (cdata->done) return true;
 //
@@ -156,20 +165,6 @@ bool DefaultCollisionFunction(CollisionObject* o1,
 //
 //  return cdata->done;
 //}
-
-/// @brief Distance data for use with the DefaultDistanceFunction. It stores
-/// the distance request and the result given by distance algorithm (and
-/// stores the conclusion of whether further evaluation of the broadphase
-/// collision manager has been deemed unnecessary).
-struct DistanceData {
-  DistanceRequest request;
-  DistanceResult result;
-
-  /// If `true`, requests that the broadphase evaluation stop.
-  bool done;
-  
-  DistanceData() : done(false) {};
-};
 
 /// @brief Provides a simple callback for the distance query in the
 /// BroadPhaseCollisionManager. It assumes the `data` parameter is non-null and
@@ -182,7 +177,7 @@ struct DistanceData {
 ///     contact).
 ///
 /// For a given instance of DistanceData, if broadphase evaluation has
-/// already terminated (i.e., DefaultDistanceFunction() returned `true`),
+/// already terminated (i.e., defaultDistanceFunction() returned `true`),
 /// subsequent invocations with the same instance of DistanceData will
 /// simply report the previously reported minimum distance and request
 /// termination of broadphase evaluation (i.e., return `true`).
@@ -193,30 +188,61 @@ struct DistanceData {
 /// @param dist   The distance computed by distance().
 /// @return `true` if the broadphase evaluation should stop.
 /// @tparam S   The scalar type with which the computation will be performed.
-bool DefaultDistanceFunction(CollisionObject* o1,
+bool defaultDistanceFunction(CollisionObject* o1,
                              CollisionObject* o2,
-                             void* data, FCL_REAL & dist) {
-  assert(data != nullptr);
-  auto* cdata = static_cast<DistanceData*>(data);
-  const DistanceRequest& request = cdata->request;
-  DistanceResult& result = cdata->result;
+                             void* data, FCL_REAL & dist);
 
-  if (cdata->done) {
-    dist = result.min_distance;
-    return true;
-  }
 
-  distance(o1, o2, request, result);
+/// @brief Default collision callback to check collision between collision objects.
+struct HPP_FCL_DLLAPI CollisionCallBackDefault
+: CollisionCallBackBase
+{
+  bool collide(CollisionObject* o1, CollisionObject* o2);
+  
+  CollisionData data;
+};
 
-  dist = result.min_distance;
+/// @brief Default distance callback to check collision between collision objects.
+struct HPP_FCL_DLLAPI DistanceCallBackDefault
+: DistanceCallBackBase
+{
+  bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL & dist);
+  
+  DistanceData data;
+};
 
-  if (dist <= 0) return true;  // in collision or in touch
-
-  return cdata->done;
-}
+/// @brief Collision callback to collect collision pairs potentially in contacts
+struct HPP_FCL_DLLAPI CollisionCallBackCollect
+: CollisionCallBackBase
+{
+  typedef std::pair<CollisionObject*, CollisionObject*> CollisionPair;
+  
+  /// @brief Default constructor.
+  CollisionCallBackCollect(const size_t max_size);
+  
+  bool collide(CollisionObject* o1, CollisionObject* o2);
+  
+  /// @brief Returns the number of registered collision pairs
+  size_t numCollisionPairs() const;
+  
+  /// @brief Returns a const reference to the active collision_pairs to check
+  const std::vector<CollisionPair> & getCollisionPairs() const;
+  
+  /// @brief Reset the callback
+  void init();
+  
+  /// @brief Check wether a collision pair exists
+  bool exist(const CollisionPair & pair) const;
+  
+protected:
+  
+  std::vector<CollisionPair> collision_pairs;
+  size_t max_size;
+  
+};
 
 }  // namespace fcl
 
 } // namespace hpp
 
-#endif  // HPP_FCL_BROADPHASE_DEFAULTBROADPHASECALLBACKS_H
+#endif  // HPP_FCL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H
