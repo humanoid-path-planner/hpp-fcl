@@ -1118,7 +1118,7 @@ public:
 
 
 /// @brief Traversal node for shape-octree distance
-template<typename S>
+template<typename Shape>
 class HPP_FCL_DLLAPI ShapeOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -1140,14 +1140,14 @@ public:
     otsolver->OcTreeShapeDistance(model2, *model1, tf2, tf1, request, *result);
   }
 
-  const S* model1;
+  const Shape* model1;
   const OcTree* model2;
 
   const OcTreeSolver* otsolver;
 };
 
 /// @brief Traversal node for octree-shape distance
-template<typename S>
+template<typename Shape>
 class HPP_FCL_DLLAPI OcTreeShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
 public:
@@ -1170,7 +1170,7 @@ public:
   }
 
   const OcTree* model1;
-  const S* model2;
+  const Shape* model2;
 
   const OcTreeSolver* otsolver;
 };
