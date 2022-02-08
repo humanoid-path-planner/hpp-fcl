@@ -45,6 +45,7 @@ set(${LIBRARY_NAME}_SOURCES
   BV/kDOP.cpp
   BV/OBBRSS.cpp
   BV/OBB.cpp
+  broadphase/default_broadphase_callbacks.cpp
   broadphase/detail/morton.cpp
   narrowphase/narrowphase.cpp
   narrowphase/gjk.cpp
