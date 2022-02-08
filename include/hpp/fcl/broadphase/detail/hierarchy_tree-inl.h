@@ -484,7 +484,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_1(const NodeVec
       for(it = lbeg; it < lend; ++it)
       {
        Vec3f x = (*it)->bv.center() - split_p;
-        for(size_t j = 0; j < 3; ++j)
+        for(int j = 0; j < 3; ++j)
           ++splitcount[j][x[j] > 0 ? 1 : 0];
       }
 
