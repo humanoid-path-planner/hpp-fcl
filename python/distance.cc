@@ -44,22 +44,7 @@
 #include "doxygen_autodoc/hpp/fcl/collision_data.h"
 #endif
 
-#include "../doc/python/doxygen.hh"
-#include "../doc/python/doxygen-boost.hh"
-
-#define DEF_RW_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
-  def_readwrite (#ATTRIB, &CLASS::ATTRIB,                                      \
-      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
-#define DEF_RO_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
-  def_readonly (#ATTRIB, &CLASS::ATTRIB,                                       \
-      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
-#define DEF_CLASS_FUNC(CLASS, ATTRIB)                                          \
-  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB))
-#define DEF_CLASS_FUNC2(CLASS, ATTRIB,policy)                                  \
-  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB),policy)
-
 using namespace boost::python;
-
 using namespace hpp::fcl;
 
 namespace dv = doxygen::visitor;

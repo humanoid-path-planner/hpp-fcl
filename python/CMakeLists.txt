@@ -41,6 +41,7 @@ SET_TARGET_PROPERTIES(python PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
 SET(LIBRARY_NAME hppfcl)
 
 SET(${LIBRARY_NAME}_HEADERS
+  fwd.hh
   fcl.hh
   deprecation.hh
   )
