@@ -182,6 +182,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/broadphase/broadphase_interval_tree.h
   include/hpp/fcl/broadphase/broadphase_spatialhash-inl.h
   include/hpp/fcl/broadphase/broadphase_spatialhash.h
+  include/hpp/fcl/broadphase/broadphase_callbacks.h
   include/hpp/fcl/broadphase/default_broadphase_callbacks.h
   include/hpp/fcl/broadphase/detail/hierarchy_tree-inl.h
   include/hpp/fcl/broadphase/detail/hierarchy_tree.h
