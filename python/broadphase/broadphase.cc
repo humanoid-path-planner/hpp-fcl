@@ -61,22 +61,6 @@
 
 using namespace hpp::fcl;
 
-bool defaultCollisionFunction_call(CollisionObject * o1,
-                                   CollisionObject * o2,
-                                   CollisionData * data)
-{
-  return defaultCollisionFunction(o1,o2,data);
-}
-
-bp::tuple defaultDistanceFunction_call(CollisionObject * o1,
-                                       CollisionObject * o2,
-                                       DistanceData * data)
-{
-  FCL_REAL dist;
-  bool res = defaultDistanceFunction(o1,o2,data,dist);
-  return bp::make_tuple(res,dist);
-}
-
 void exposeBroadPhase()
 {
   CollisionCallBackBaseWrapper::expose();
