@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
+ *  Copyright (c) 2022, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -186,15 +187,17 @@ struct CollisionDataForUniquenessChecking
 };
 
 //==============================================================================
-bool collisionFunctionForUniquenessChecking(
-    CollisionObject* o1, CollisionObject* o2, void* cdata_)
+struct CollisionFunctionForUniquenessChecking
+: CollisionCallBackBase
 {
-  auto* cdata = static_cast<CollisionDataForUniquenessChecking*>(cdata_);
-
-  BOOST_CHECK(cdata->checkUniquenessAndAddPair(o1, o2));
-
-  return false;
-}
+  bool collide(CollisionObject* o1, CollisionObject* o2)
+  {
+    BOOST_CHECK(data.checkUniquenessAndAddPair(o1, o2));
+    return false;
+  }
+  
+  CollisionDataForUniquenessChecking data;
+};
 
 //==============================================================================
 void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, bool verbose)
@@ -219,7 +222,7 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
   managers.push_back(new SpatialHashingCollisionManager<detail::SparseHashTable<AABB, CollisionObject*, detail::SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager());
-  managers.push_back(new DynamicAABBTreeCollisionManager_Array());
+  managers.push_back(new DynamicAABBTreeArrayCollisionManager());
 
   {
     DynamicAABBTreeCollisionManager* m = new DynamicAABBTreeCollisionManager();
@@ -228,7 +231,7 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
   }
 
   {
-    DynamicAABBTreeCollisionManager_Array* m = new DynamicAABBTreeCollisionManager_Array();
+    DynamicAABBTreeArrayCollisionManager* m = new DynamicAABBTreeArrayCollisionManager();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
@@ -288,8 +291,9 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
 
   for(size_t i = 0; i < managers.size(); ++i)
   {
+    CollisionFunctionForUniquenessChecking callback;
     timers[i].start();
-    managers[i]->collide(&self_data[i], collisionFunctionForUniquenessChecking);
+    managers[i]->collide(&callback);
     timers[i].stop();
     ts[i].push_back(timers[i].getElapsedTime());
   }
@@ -383,7 +387,7 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
   managers.push_back(new SpatialHashingCollisionManager<detail::SparseHashTable<AABB, CollisionObject*, detail::SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager());
-  managers.push_back(new DynamicAABBTreeCollisionManager_Array());
+  managers.push_back(new DynamicAABBTreeArrayCollisionManager());
 
   {
     DynamicAABBTreeCollisionManager* m = new DynamicAABBTreeCollisionManager();
@@ -392,7 +396,7 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
   }
 
   {
-    DynamicAABBTreeCollisionManager_Array* m = new DynamicAABBTreeCollisionManager_Array();
+    DynamicAABBTreeArrayCollisionManager* m = new DynamicAABBTreeArrayCollisionManager();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
@@ -457,8 +461,9 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
 
   for(size_t i = 0; i < managers.size(); ++i)
   {
+    CollisionCallBackDefault callback;
     timers[i].start();
-    managers[i]->collide(&self_data[i], DefaultCollisionFunction);
+    managers[i]->collide(&callback);
     timers[i].stop();
     ts[i].push_back(timers[i].getElapsedTime());
   }
@@ -489,41 +494,42 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<CollisionData> query_data(managers.size());
-    for(size_t j = 0; j < query_data.size(); ++j)
+    std::vector<CollisionCallBackDefault> query_callbacks(managers.size());
+    
+    for(size_t j = 0; j < query_callbacks.size(); ++j)
     {
-      if(exhaustive) query_data[j].request.num_max_contacts = 100000;
-      else query_data[j].request.num_max_contacts = num_max_contacts;
+      if(exhaustive) query_callbacks[j].data.request.num_max_contacts = 100000;
+      else query_callbacks[j].data.request.num_max_contacts = num_max_contacts;
     }
 
-    for(size_t j = 0; j < query_data.size(); ++j)
+    for(size_t j = 0; j < query_callbacks.size(); ++j)
     {
       timers[j].start();
-      managers[j]->collide(query[i], &query_data[j], DefaultCollisionFunction);
+      managers[j]->collide(query[i], &query_callbacks[j]);
       timers[j].stop();
       ts[j].push_back(timers[j].getElapsedTime());
     }
 
 
     // for(size_t j = 0; j < managers.size(); ++j)
-    //   std::cout << query_data[j].result.numContacts() << " ";
+    //   std::cout << query_callbacks[j].result.numContacts() << " ";
     // std::cout << std::endl;
 
     if(exhaustive)
     {
       for(size_t j = 1; j < managers.size(); ++j)
-        BOOST_CHECK(query_data[j].result.numContacts() == query_data[0].result.numContacts());
+        BOOST_CHECK(query_callbacks[j].data.result.numContacts() == query_callbacks[0].data.result.numContacts());
     }
     else
     {
       std::vector<bool> query_res(managers.size());
       for(size_t j = 0; j < query_res.size(); ++j)
-        query_res[j] = (query_data[j].result.numContacts() > 0);
+        query_res[j] = (query_callbacks[j].data.result.numContacts() > 0);
       for(size_t j = 1; j < query_res.size(); ++j)
         BOOST_CHECK(query_res[0] == query_res[j]);
 
       for(size_t j = 1; j < managers.size(); ++j)
-        BOOST_CHECK(query_data[j].result.numContacts() == query_data[0].result.numContacts());
+        BOOST_CHECK(query_callbacks[j].data.result.numContacts() == query_callbacks[0].data.result.numContacts());
     }
   }
 

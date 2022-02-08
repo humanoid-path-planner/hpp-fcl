@@ -222,7 +222,7 @@ void broad_phase_collision_test(FCL_REAL env_scale,
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager());
 
-  managers.push_back(new DynamicAABBTreeCollisionManager_Array());
+  managers.push_back(new DynamicAABBTreeArrayCollisionManager());
 
   {
     DynamicAABBTreeCollisionManager* m = new DynamicAABBTreeCollisionManager();
@@ -231,7 +231,7 @@ void broad_phase_collision_test(FCL_REAL env_scale,
   }
 
   {
-    DynamicAABBTreeCollisionManager_Array* m = new DynamicAABBTreeCollisionManager_Array();
+    DynamicAABBTreeArrayCollisionManager* m = new DynamicAABBTreeArrayCollisionManager();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
@@ -255,81 +255,81 @@ void broad_phase_collision_test(FCL_REAL env_scale,
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-  std::vector<CollisionData> self_data(managers.size());
+  std::vector<CollisionCallBackDefault> callbacks(managers.size());
   for(size_t i = 0; i < managers.size(); ++i)
   {
-    if(exhaustive) self_data[i].request.num_max_contacts = 100000;
-    else self_data[i].request.num_max_contacts = num_max_contacts;
+    if(exhaustive) callbacks[i].data.request.num_max_contacts = 100000;
+    else callbacks[i].data.request.num_max_contacts = num_max_contacts;
   }
 
   for(size_t i = 0; i < managers.size(); ++i)
   {
     timers[i].start();
-    managers[i]->collide(&self_data[i], DefaultCollisionFunction);
+    managers[i]->collide(&callbacks[i]);
     timers[i].stop();
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
   for(size_t i = 0; i < managers.size(); ++i)
-    std::cout << self_data[i].result.numContacts() << " ";
+    std::cout << callbacks[i].data.result.numContacts() << " ";
   std::cout << std::endl;
 
   if(exhaustive)
   {
     for(size_t i = 1; i < managers.size(); ++i)
-      BOOST_CHECK(self_data[i].result.numContacts() == self_data[0].result.numContacts());
+      BOOST_CHECK(callbacks[i].data.result.numContacts() == callbacks[0].data.result.numContacts());
   }
   else
   {
     std::vector<bool> self_res(managers.size());
     for(size_t i = 0; i < self_res.size(); ++i)
-      self_res[i] = (self_data[i].result.numContacts() > 0);
+      self_res[i] = (callbacks[i].data.result.numContacts() > 0);
 
     for(size_t i = 1; i < self_res.size(); ++i)
       BOOST_CHECK(self_res[0] == self_res[i]);
 
     for(size_t i = 1; i < managers.size(); ++i)
-      BOOST_CHECK(self_data[i].result.numContacts() == self_data[0].result.numContacts());
+      BOOST_CHECK(callbacks[i].data.result.numContacts() == callbacks[0].data.result.numContacts());
   }
 
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<CollisionData> query_data(managers.size());
-    for(size_t j = 0; j < query_data.size(); ++j)
+    std::vector<CollisionCallBackDefault> callbacks(managers.size());
+    for(size_t j = 0; j < managers.size(); ++j)
     {
-      if(exhaustive) query_data[j].request.num_max_contacts = 100000;
-      else query_data[j].request.num_max_contacts = num_max_contacts;
+      if(exhaustive) callbacks[j].data.request.num_max_contacts = 100000;
+      else callbacks[j].data.request.num_max_contacts = num_max_contacts;
     }
 
-    for(size_t j = 0; j < query_data.size(); ++j)
+    for(size_t j = 0; j < managers.size(); ++j)
     {
       timers[j].start();
-      managers[j]->collide(query[i], &query_data[j], DefaultCollisionFunction);
+      managers[j]->collide(query[i], &callbacks[j]);
       timers[j].stop();
       ts[j].push_back(timers[j].getElapsedTime());
     }
 
 
     // for(size_t j = 0; j < managers.size(); ++j)
-    //   std::cout << query_data[j].result.numContacts() << " ";
+    //   std::cout << callbacks[i].data.result.numContacts() << " ";
     // std::cout << std::endl;
 
     if(exhaustive)
     {
       for(size_t j = 1; j < managers.size(); ++j)
-        BOOST_CHECK(query_data[j].result.numContacts() == query_data[0].result.numContacts());
+        BOOST_CHECK(callbacks[j].data.result.numContacts() == callbacks[0].data.result.numContacts());
     }
     else
     {
       std::vector<bool> query_res(managers.size());
       for(size_t j = 0; j < query_res.size(); ++j)
-        query_res[j] = (query_data[j].result.numContacts() > 0);
+        query_res[j] = (callbacks[i].data.result.numContacts() > 0);
       for(size_t j = 1; j < query_res.size(); ++j)
         BOOST_CHECK(query_res[0] == query_res[j]);
 
       for(size_t j = 1; j < managers.size(); ++j)
-        BOOST_CHECK(query_data[j].result.numContacts() == query_data[0].result.numContacts());
+        BOOST_CHECK(callbacks[j].data.result.numContacts() == callbacks[0].data.result.numContacts());
     }
   }
 

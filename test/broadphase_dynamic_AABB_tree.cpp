@@ -61,22 +61,37 @@ struct CallBackData
 // so we can safely ignore the second parameter. We do not use the last
 // FCL_REAL& parameter, which specifies the distance beyond which the
 // pair of objects will be skipped.
-bool distance_callback(CollisionObject* a, CollisionObject*,
-                       void* callback_data, FCL_REAL&)
+
+struct DistanceCallBackDerived
+: DistanceCallBackBase
 {
-  // Unpack the data.
-  CallBackData* data = static_cast<CallBackData*>(callback_data);
-  const std::vector<CollisionObject*>& objects = *(data->objects);
-  const bool object0_first = a == objects[0];
-  BOOST_CHECK_EQUAL(data->expect_object0_then_object1, object0_first);
-  // TODO(DamrongGuoy): Remove the statement below when we solve the
-  //  repeatability problem as mentioned in:
-  //  https://github.com/flexible-collision-library/fcl/issues/368
-  // Expect to switch the order next time.
-  data->expect_object0_then_object1 = !data->expect_object0_then_object1;
-  // Return true to stop the tree traversal.
-  return true;
-}
+
+  bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL & dist)
+  {
+    return distance_callback(o1,o2,&data,dist);
+  }
+  
+  bool distance_callback(CollisionObject* a, CollisionObject*,
+                         void* callback_data, FCL_REAL&)
+  {
+    // Unpack the data.
+    CallBackData* data = static_cast<CallBackData*>(callback_data);
+    const std::vector<CollisionObject*>& objects = *(data->objects);
+    const bool object0_first = a == objects[0];
+    BOOST_CHECK_EQUAL(data->expect_object0_then_object1, object0_first);
+    // TODO(DamrongGuoy): Remove the statement below when we solve the
+    //  repeatability problem as mentioned in:
+    //  https://github.com/flexible-collision-library/fcl/issues/368
+    // Expect to switch the order next time.
+    data->expect_object0_then_object1 = !data->expect_object0_then_object1;
+    // Return true to stop the tree traversal.
+    return true;
+  }
+  
+  CallBackData data;
+};
+
+
 
 // Tests repeatability of a dynamic tree of two spheres when we call update()
 // and distance() again and again without changing the poses of the objects.
@@ -113,25 +128,25 @@ BOOST_AUTO_TEST_CASE(DynamicAABBTreeCollisionManager_class)
   objects.push_back(&object0);
   objects.push_back(&object1);
   
-  std::vector<const Eigen::Vector3d*> positions;
-  positions.push_back(&position0);
-  positions.push_back(&position1);
+  std::vector<const Eigen::Vector3d> positions;
+  positions.push_back(position0);
+  positions.push_back(position1);
 
   DynamicAABBTreeCollisionManager dynamic_tree;
-  for (int i = 0; i < static_cast<int>(objects.size()); ++i) {
-    objects[i]->setTranslation(*positions[i]);
+  for (size_t i = 0; i < objects.size(); ++i) {
+    objects[i]->setTranslation(positions[i]);
     objects[i]->computeAABB();
     dynamic_tree.registerObject(objects[i]);
   }
 
-  CallBackData data;
-  data.expect_object0_then_object1 = false;
-  data.objects = &objects;
+  DistanceCallBackDerived callback;
+  callback.data.expect_object0_then_object1 = false;
+  callback.data.objects = &objects;
   
   // We repeat update() and distance() many times.  Each time, in the
   // callback function, we check the order of the two objects.
   for (int count = 0; count < 8; ++count) {
     dynamic_tree.update();
-    dynamic_tree.distance(&data, distance_callback);
+    dynamic_tree.distance(&callback);
   }
 }
