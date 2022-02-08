@@ -106,6 +106,7 @@ SET(${LIBRARY_NAME}_SOURCES
   distance.cc
   fcl.cc
   gjk.cc
+  broadphase/broadphase.cc
   )
 
 IF(HPP_FCL_HAS_OCTOMAP)
