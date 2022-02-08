@@ -33,52 +33,59 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** @author Jia Pan  */
+/** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_DETAIL_NODEBASEARRAY_H
-#define HPP_FCL_BROADPHASE_DETAIL_NODEBASEARRAY_H
+#ifndef HPP_FCL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
+#define HPP_FCL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
 
-#include "hpp/fcl/data_types.h"
+#include "hpp/fcl/broadphase/detail/interval_tree_node.h"
 
-namespace hpp
+#include <iostream>
+#include <algorithm>
+
+namespace hpp {
+namespace fcl {
+namespace detail {
+
+//==============================================================================
+IntervalTreeNode::IntervalTreeNode()
 {
-namespace fcl
+  // Do nothing
+}
+
+//==============================================================================
+IntervalTreeNode::IntervalTreeNode(SimpleInterval* new_interval)
+  : stored_interval (new_interval),
+    key(new_interval->low),
+    high(new_interval->high),
+    max_high(high)
 {
+  // Do nothing
+}
 
-namespace detail
+//==============================================================================
+IntervalTreeNode::~IntervalTreeNode()
 {
+  // Do nothing
+}
 
-namespace implementation_array
+//==============================================================================
+void IntervalTreeNode::print(
+    IntervalTreeNode* nil, IntervalTreeNode* root) const
 {
+  stored_interval->print();
+  std::cout << ", k = " << key << ", h = " << high << ", mH = " << max_high;
+  std::cout << "  l->key = ";
+  if(left == nil) std::cout << "nullptr"; else std::cout << left->key;
+  std::cout << "  r->key = ";
+  if(right == nil) std::cout << "nullptr"; else std::cout << right->key;
+  std::cout << "  p->key = ";
+  if(parent == root) std::cout << "nullptr"; else std::cout << parent->key;
+  std::cout << "  red = " << (int)red << std::endl;
+}
 
-template<typename BV>
-struct NodeBase
-{
-  BV bv;
-
-  union
-  {
-    size_t parent;
-    size_t next;
-  };
-  
-  union
-  {
-    size_t children[2];
-    void* data;
-  };
-
-  uint32_t code;
-  
-  bool isLeaf() const;
-  bool isInternal() const;
-};
-
-} // namespace implementation_array
 } // namespace detail
 } // namespace fcl
 } // namespace hpp
-
-#include "hpp/fcl/broadphase/detail/node_base_array-inl.h"
 
 #endif

@@ -33,52 +33,32 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** @author Jia Pan  */
+/** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_DETAIL_NODEBASEARRAY_H
-#define HPP_FCL_BROADPHASE_DETAIL_NODEBASEARRAY_H
+#ifndef HPP_FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_INL_H
+#define HPP_FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_INL_H
 
-#include "hpp/fcl/data_types.h"
+#include "hpp/fcl/broadphase/detail/simple_interval.h"
+#include <algorithm>
 
-namespace hpp
+namespace hpp {
+namespace fcl {
+namespace detail {
+
+//==============================================================================
+SimpleInterval::~SimpleInterval()
 {
-namespace fcl
+  // Do nothing
+}
+
+//==============================================================================
+void SimpleInterval::print()
 {
+  // Do nothing
+}
 
-namespace detail
-{
-
-namespace implementation_array
-{
-
-template<typename BV>
-struct NodeBase
-{
-  BV bv;
-
-  union
-  {
-    size_t parent;
-    size_t next;
-  };
-  
-  union
-  {
-    size_t children[2];
-    void* data;
-  };
-
-  uint32_t code;
-  
-  bool isLeaf() const;
-  bool isInternal() const;
-};
-
-} // namespace implementation_array
 } // namespace detail
 } // namespace fcl
 } // namespace hpp
-
-#include "hpp/fcl/broadphase/detail/node_base_array-inl.h"
 
 #endif

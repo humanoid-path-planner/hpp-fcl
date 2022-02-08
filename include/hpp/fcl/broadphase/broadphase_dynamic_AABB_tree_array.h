@@ -54,7 +54,8 @@ namespace hpp
 namespace fcl
 {
 
-class HPP_FCL_DLLAPI DynamicAABBTreeCollisionManager_Array : public BroadPhaseCollisionManager
+class HPP_FCL_DLLAPI DynamicAABBTreeArrayCollisionManager
+: public BroadPhaseCollisionManager
 {
 public:
 
@@ -70,7 +71,7 @@ public:
   bool octree_as_geometry_collide;
   bool octree_as_geometry_distance;
   
-  DynamicAABBTreeCollisionManager_Array();
+  DynamicAABBTreeArrayCollisionManager();
 
   /// @brief add objects to the manager
   void registerObjects(const std::vector<CollisionObject*>& other_objs);
@@ -85,7 +86,7 @@ public:
   void setup();
 
   /// @brief update the condition of manager
-  void update();
+  virtual void update();
 
   /// @brief update the manager by explicitly given the object updated
   void update(CollisionObject* updated_obj);
@@ -100,22 +101,22 @@ public:
   void getObjects(std::vector<CollisionObject*>& objs) const;
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
+  void collide(CollisionObject* obj, CollisionCallBackBase * callback) const;
 
   /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const;
+  void distance(CollisionObject* obj, DistanceCallBackBase * callback) const;
 
   /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  void collide(void* cdata, CollisionCallBack callback) const;
+  void collide(CollisionCallBackBase * callback) const;
 
   /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(void* cdata, DistanceCallBack callback) const;
+  void distance(DistanceCallBackBase * callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager* other_manager_, void* cdata, CollisionCallBack callback) const;
+  void collide(BroadPhaseCollisionManager* other_manager_, CollisionCallBackBase * callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager* other_manager_, void* cdata, DistanceCallBack callback) const;
+  void distance(BroadPhaseCollisionManager* other_manager_, DistanceCallBackBase * callback) const;
   
   /// @brief whether the manager is empty
   bool empty() const;

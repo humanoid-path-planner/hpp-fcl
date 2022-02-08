@@ -39,11 +39,11 @@
 #define HPP_FCL_BROADPHASE_DETAIL_NODEBASE_INL_H
 
 #include "hpp/fcl/broadphase/detail/node_base.h"
+
 namespace hpp
 {
 namespace fcl
 {
-
 namespace detail
 {
 

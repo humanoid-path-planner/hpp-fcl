@@ -39,11 +39,12 @@
 #define HPP_FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
 
 #include "hpp/fcl/fwd.hh"
+#include "hpp/fcl/data_types.h"
+
 namespace hpp
 {
 namespace fcl
 {
-
 namespace detail
 {
 
@@ -63,7 +64,5 @@ public:
 } // namespace detail
 } // namespace fcl
 } // namespace hpp
-
-#include "hpp/fcl/broadphase/detail/simple_interval-inl.h"
 
 #endif

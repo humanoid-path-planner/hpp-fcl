@@ -41,8 +41,8 @@
 #include <vector>
 #include <map>
 #include <functional>
-#include <iostream>
-#include "hpp/fcl/warning.hh"
+
+#include "hpp/fcl/fwd.hh"
 #include "hpp/fcl/BV/AABB.h"
 #include "hpp/fcl/broadphase/detail/morton.h"
 #include "hpp/fcl/broadphase/detail/node_base_array.h"

@@ -40,6 +40,7 @@
 
 #include <set>
 #include <vector>
+#include <boost/function.hpp>
 
 #include "hpp/fcl/collision_object.h"
 #include "hpp/fcl/broadphase/broadphase_callbacks.h"
@@ -132,7 +133,5 @@ protected:
 
 } // namespace fcl
 } // namespace hpp
-
-#include "hpp/fcl/broadphase/broadphase_collision_manager-inl.h"
 
 #endif

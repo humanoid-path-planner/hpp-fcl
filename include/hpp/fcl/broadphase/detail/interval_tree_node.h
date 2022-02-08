@@ -93,6 +93,4 @@ protected:
 } // namespace fcl
 } // namespace hpp
 
-#include "hpp/fcl/broadphase/detail/interval_tree_node-inl.h"
-
 #endif

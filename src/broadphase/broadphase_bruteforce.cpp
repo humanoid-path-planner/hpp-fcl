@@ -35,9 +35,6 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROAD_PHASE_BRUTE_FORCE_INL_H
-#define HPP_FCL_BROAD_PHASE_BRUTE_FORCE_INL_H
-
 #include "hpp/fcl/broadphase/broadphase_bruteforce.h"
 
 #include <iterator>
@@ -47,56 +44,48 @@ namespace hpp {
 namespace fcl {
 
 //==============================================================================
-inline
 NaiveCollisionManager::NaiveCollisionManager()
 {
   // Do nothing
 }
 
 //==============================================================================
-inline
 void NaiveCollisionManager::registerObjects(const std::vector<CollisionObject*>& other_objs)
 {
   std::copy(other_objs.begin(), other_objs.end(), std::back_inserter(objs));
 }
 
 //==============================================================================
-inline
 void NaiveCollisionManager::unregisterObject(CollisionObject* obj)
 {
   objs.remove(obj);
 }
 
 //==============================================================================
-inline
 void NaiveCollisionManager::registerObject(CollisionObject* obj)
 {
   objs.push_back(obj);
 }
 
 //==============================================================================
-inline
 void NaiveCollisionManager::setup()
 {
   // Do nothing
 }
 
 //==============================================================================
-inline
 void NaiveCollisionManager::update()
 {
   // Do nothing
 }
 
 //==============================================================================
-inline
 void NaiveCollisionManager::clear()
 {
   objs.clear();
 }
 
 //==============================================================================
-inline
 void NaiveCollisionManager::getObjects(std::vector<CollisionObject*>& objs_) const
 {
   objs_.resize(objs.size());
@@ -104,22 +93,22 @@ void NaiveCollisionManager::getObjects(std::vector<CollisionObject*>& objs_) con
 }
 
 //==============================================================================
-inline
-void NaiveCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
+void NaiveCollisionManager::collide(CollisionObject* obj, CollisionCallBackBase * callback) const
 {
+  callback->init();
   if(size() == 0) return;
 
   for(auto* obj2 : objs)
   {
-    if(callback(obj, obj2, cdata))
+    if((*callback)(obj, obj2))
       return;
   }
 }
 
 //==============================================================================
-inline
-void NaiveCollisionManager::distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const
+void NaiveCollisionManager::distance(CollisionObject* obj, DistanceCallBackBase * callback) const
 {
+  callback->init();
   if(size() == 0) return;
 
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
@@ -127,16 +116,16 @@ void NaiveCollisionManager::distance(CollisionObject* obj, void* cdata, Distance
   {
     if(obj->getAABB().distance(obj2->getAABB()) < min_dist)
     {
-      if(callback(obj, obj2, cdata, min_dist))
+      if((*callback)(obj, obj2, min_dist))
         return;
     }
   }
 }
 
 //==============================================================================
-inline
-void NaiveCollisionManager::collide(void* cdata, CollisionCallBack callback) const
+void NaiveCollisionManager::collide(CollisionCallBackBase * callback) const
 {
+  callback->init();
   if(size() == 0) return;
 
   for(typename std::list<CollisionObject*>::const_iterator it1 = objs.begin(), end = objs.end();
@@ -147,7 +136,7 @@ void NaiveCollisionManager::collide(void* cdata, CollisionCallBack callback) con
     {
       if((*it1)->getAABB().overlap((*it2)->getAABB()))
       {
-        if(callback(*it1, *it2, cdata))
+        if((*callback)(*it1, *it2))
           return;
       }
     }
@@ -155,9 +144,9 @@ void NaiveCollisionManager::collide(void* cdata, CollisionCallBack callback) con
 }
 
 //==============================================================================
-inline
-void NaiveCollisionManager::distance(void* cdata, DistanceCallBack callback) const
+void NaiveCollisionManager::distance(DistanceCallBackBase * callback) const
 {
+  callback->init();
   if(size() == 0) return;
 
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
@@ -168,7 +157,7 @@ void NaiveCollisionManager::distance(void* cdata, DistanceCallBack callback) con
     {
       if((*it1)->getAABB().distance((*it2)->getAABB()) < min_dist)
       {
-        if(callback(*it1, *it2, cdata, min_dist))
+        if((*callback)(*it1, *it2, min_dist))
           return;
       }
     }
@@ -176,16 +165,16 @@ void NaiveCollisionManager::distance(void* cdata, DistanceCallBack callback) con
 }
 
 //==============================================================================
-inline
-void NaiveCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, void* cdata, CollisionCallBack callback) const
+void NaiveCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, CollisionCallBackBase * callback) const
 {
+  callback->init();
   NaiveCollisionManager* other_manager = static_cast<NaiveCollisionManager*>(other_manager_);
 
   if((size() == 0) || (other_manager->size() == 0)) return;
 
   if(this == other_manager)
   {
-    collide(cdata, callback);
+    collide(callback);
     return;
   }
 
@@ -195,7 +184,7 @@ void NaiveCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, 
     {
       if(obj1->getAABB().overlap(obj2->getAABB()))
       {
-        if(callback(obj1, obj2, cdata))
+        if((*callback)(obj1, obj2))
           return;
       }
     }
@@ -203,16 +192,16 @@ void NaiveCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, 
 }
 
 //==============================================================================
-inline
-void NaiveCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, void* cdata, DistanceCallBack callback) const
+void NaiveCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, DistanceCallBackBase * callback) const
 {
+  callback->init();
   NaiveCollisionManager* other_manager = static_cast<NaiveCollisionManager*>(other_manager_);
 
   if((size() == 0) || (other_manager->size() == 0)) return;
 
   if(this == other_manager)
   {
-    distance(cdata, callback);
+    distance(callback);
     return;
   }
 
@@ -223,7 +212,7 @@ void NaiveCollisionManager::distance(BroadPhaseCollisionManager* other_manager_,
     {
       if(obj1->getAABB().distance(obj2->getAABB()) < min_dist)
       {
-        if(callback(obj1, obj2, cdata, min_dist))
+        if((*callback)(obj1, obj2, min_dist))
           return;
       }
     }
@@ -231,21 +220,16 @@ void NaiveCollisionManager::distance(BroadPhaseCollisionManager* other_manager_,
 }
 
 //==============================================================================
-inline
 bool NaiveCollisionManager::empty() const
 {
   return objs.empty();
 }
 
 //==============================================================================
-inline
 size_t NaiveCollisionManager::size() const
 {
   return objs.size();
 }
 
 } // namespace fcl
-
 } // namespace hpp
-
-#endif

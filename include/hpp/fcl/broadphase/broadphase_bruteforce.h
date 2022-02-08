@@ -47,7 +47,8 @@ namespace fcl
 {
 
 /// @brief Brute force N-body collision manager
-class HPP_FCL_DLLAPI NaiveCollisionManager : public BroadPhaseCollisionManager
+class HPP_FCL_DLLAPI NaiveCollisionManager
+: public BroadPhaseCollisionManager
 {
 public:
   NaiveCollisionManager();
@@ -65,7 +66,7 @@ public:
   void setup();
 
   /// @brief update the condition of manager
-  void update();
+  virtual void update();
 
   /// @brief clear the manager
   void clear();
@@ -74,22 +75,22 @@ public:
   void getObjects(std::vector<CollisionObject*>& objs) const;
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
+  void collide(CollisionObject* obj, CollisionCallBackBase * callback) const;
 
   /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const;
+  void distance(CollisionObject* obj, DistanceCallBackBase * callback) const;
 
   /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  void collide(void* cdata, CollisionCallBack callback) const;
+  void collide(CollisionCallBackBase * callback) const;
 
   /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(void* cdata, DistanceCallBack callback) const;
+  void distance(DistanceCallBackBase * callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager* other_manager, void* cdata, CollisionCallBack callback) const;
+  void collide(BroadPhaseCollisionManager* other_manager, CollisionCallBackBase * callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager* other_manager, void* cdata, DistanceCallBack callback) const;
+  void distance(BroadPhaseCollisionManager* other_manager, DistanceCallBackBase * callback) const;
 
   /// @brief whether the manager is empty
   bool empty() const;
@@ -106,7 +107,5 @@ protected:
 } // namespace fcl
 
 } // namespace hpp
-
-#include "hpp/fcl/broadphase/broadphase_bruteforce-inl.h"
 
 #endif

@@ -39,6 +39,8 @@
 #define HPP_FCL_BROADPHASE_SPATIALHASH_H
 
 #include "hpp/fcl/BV/AABB.h"
+#include <vector>
+
 namespace hpp
 {
 namespace fcl
@@ -64,7 +66,5 @@ private:
 } // namespace detail
 } // namespace fcl
 } // namespace hpp
-
-#include "hpp/fcl/broadphase/detail/spatial_hash-inl.h"
 
 #endif

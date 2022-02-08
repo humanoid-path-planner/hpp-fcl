@@ -41,9 +41,8 @@
 #include <deque>
 #include <limits>
 #include <cstdlib>
-#include <iostream>
+
 #include "hpp/fcl/broadphase/detail/interval_tree_node.h"
-#include <algorithm>
 
 namespace hpp {
 namespace fcl {
@@ -130,7 +129,5 @@ private:
 } // namespace detail
 } // namespace fcl
 } // namespace hpp
-
-#include "hpp/fcl/broadphase/detail/interval_tree-inl.h"
 
 #endif

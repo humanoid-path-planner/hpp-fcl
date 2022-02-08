@@ -35,16 +35,12 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_BROADPHASECOLLISIONMANAGER_INL_H
-#define HPP_FCL_BROADPHASE_BROADPHASECOLLISIONMANAGER_INL_H
-
 #include "hpp/fcl/broadphase/broadphase_collision_manager.h"
 
 namespace hpp {
 namespace fcl {
 
 //==============================================================================
-inline
 BroadPhaseCollisionManager::BroadPhaseCollisionManager()
   : enable_tested_set_(false)
 {
@@ -52,14 +48,12 @@ BroadPhaseCollisionManager::BroadPhaseCollisionManager()
 }
 
 //==============================================================================
-inline
 BroadPhaseCollisionManager::~BroadPhaseCollisionManager()
 {
   // Do nothing
 }
 
 //==============================================================================
-inline
 void BroadPhaseCollisionManager::registerObjects(
     const std::vector<CollisionObject*>& other_objs)
 {
@@ -68,7 +62,6 @@ void BroadPhaseCollisionManager::registerObjects(
 }
 
 //==============================================================================
-inline
 void BroadPhaseCollisionManager::update(CollisionObject* updated_obj)
 {
   HPP_FCL_UNUSED_VARIABLE(updated_obj);
@@ -77,7 +70,6 @@ void BroadPhaseCollisionManager::update(CollisionObject* updated_obj)
 }
 
 //==============================================================================
-inline
 void BroadPhaseCollisionManager::update(
     const std::vector<CollisionObject*>& updated_objs)
 {
@@ -87,7 +79,6 @@ void BroadPhaseCollisionManager::update(
 }
 
 //==============================================================================
-inline
 bool BroadPhaseCollisionManager::inTestedSet(
     CollisionObject* a, CollisionObject* b) const
 {
@@ -96,7 +87,6 @@ bool BroadPhaseCollisionManager::inTestedSet(
 }
 
 //==============================================================================
-inline
 void BroadPhaseCollisionManager::insertTestedSet(
     CollisionObject* a, CollisionObject* b) const
 {
@@ -105,7 +95,4 @@ void BroadPhaseCollisionManager::insertTestedSet(
 }
 
 } // namespace fcl
-
 } // namespace hpp
-
-#endif

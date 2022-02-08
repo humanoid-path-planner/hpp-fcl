@@ -31,54 +31,56 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */
+ */ 
 
-/** @author Jia Pan  */
+/** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_DETAIL_NODEBASEARRAY_H
-#define HPP_FCL_BROADPHASE_DETAIL_NODEBASEARRAY_H
+#ifndef HPP_FCL_BROADPHASE_SPATIALHASH_INL_H
+#define HPP_FCL_BROADPHASE_SPATIALHASH_INL_H
 
-#include "hpp/fcl/data_types.h"
+#include "hpp/fcl/broadphase/detail/spatial_hash.h"
+#include <algorithm>
 
-namespace hpp
+namespace hpp {
+namespace fcl {
+namespace detail {
+
+//==============================================================================
+SpatialHash::SpatialHash(const AABB& scene_limit_, FCL_REAL cell_size_)
+  : cell_size(cell_size_), scene_limit(scene_limit_)
 {
-namespace fcl
-{
+  width[0] = std::ceil(scene_limit.width() / cell_size);
+  width[1] = std::ceil(scene_limit.height() / cell_size);
+  width[2] = std::ceil(scene_limit.depth() / cell_size);
+}
 
-namespace detail
+//==============================================================================
+std::vector<unsigned int> SpatialHash::operator()(const AABB& aabb) const
 {
+  int min_x = std::floor((aabb.min_[0] - scene_limit.min_[0]) / cell_size);
+  int max_x = std::ceil((aabb.max_[0] - scene_limit.min_[0]) / cell_size);
+  int min_y = std::floor((aabb.min_[1] - scene_limit.min_[1]) / cell_size);
+  int max_y = std::ceil((aabb.max_[1] - scene_limit.min_[1]) / cell_size);
+  int min_z = std::floor((aabb.min_[2] - scene_limit.min_[2]) / cell_size);
+  int max_z = std::ceil((aabb.max_[2] - scene_limit.min_[2]) / cell_size);
 
-namespace implementation_array
-{
-
-template<typename BV>
-struct NodeBase
-{
-  BV bv;
-
-  union
+  std::vector<unsigned int> keys((max_x - min_x) * (max_y - min_y) * (max_z - min_z));
+  int id = 0;
+  for(int x = min_x; x < max_x; ++x)
   {
-    size_t parent;
-    size_t next;
-  };
-  
-  union
-  {
-    size_t children[2];
-    void* data;
-  };
+    for(int y = min_y; y < max_y; ++y)
+    {
+      for(int z = min_z; z < max_z; ++z)
+      {
+        keys[id++] = x + y * width[0] + z * width[0] * width[1];
+      }
+    }
+  }
+  return keys;
+}
 
-  uint32_t code;
-  
-  bool isLeaf() const;
-  bool isInternal() const;
-};
-
-} // namespace implementation_array
 } // namespace detail
 } // namespace fcl
 } // namespace hpp
-
-#include "hpp/fcl/broadphase/detail/node_base_array-inl.h"
 
 #endif

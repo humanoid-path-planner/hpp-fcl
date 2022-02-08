@@ -35,10 +35,8 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROAD_PHASE_INTERVAL_TREE_INL_H
-#define HPP_FCL_BROAD_PHASE_INTERVAL_TREE_INL_H
-
 #include "hpp/fcl/broadphase/broadphase_interval_tree.h"
+
 namespace hpp
 {
 namespace fcl
@@ -356,14 +354,15 @@ void IntervalTreeCollisionManager::getObjects(std::vector<CollisionObject*>& obj
 }
 
 //==============================================================================
-void IntervalTreeCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
+void IntervalTreeCollisionManager::collide(CollisionObject* obj, CollisionCallBackBase * callback) const
 {
+  callback->init();
   if(size() == 0) return;
-  collide_(obj, cdata, callback);
+  collide_(obj, callback);
 }
 
 //==============================================================================
-bool IntervalTreeCollisionManager::collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
+bool IntervalTreeCollisionManager::collide_(CollisionObject* obj, CollisionCallBackBase * callback) const
 {
   static const unsigned int CUTOFF = 100;
 
@@ -383,32 +382,33 @@ bool IntervalTreeCollisionManager::collide_(CollisionObject* obj, void* cdata, C
         int d3 = results2.size();
 
         if(d1 >= d2 && d1 >= d3)
-          return checkColl(results0.begin(), results0.end(), obj, cdata, callback);
+          return checkColl(results0.begin(), results0.end(), obj, callback);
         else if(d2 >= d1 && d2 >= d3)
-          return checkColl(results1.begin(), results1.end(), obj, cdata, callback);
+          return checkColl(results1.begin(), results1.end(), obj, callback);
         else
-          return checkColl(results2.begin(), results2.end(), obj, cdata, callback);
+          return checkColl(results2.begin(), results2.end(), obj, callback);
       }
       else
-        return checkColl(results2.begin(), results2.end(), obj, cdata, callback);
+        return checkColl(results2.begin(), results2.end(), obj, callback);
     }
     else
-      return checkColl(results1.begin(), results1.end(), obj, cdata, callback);
+      return checkColl(results1.begin(), results1.end(), obj, callback);
   }
   else
-    return checkColl(results0.begin(), results0.end(), obj, cdata, callback);
+    return checkColl(results0.begin(), results0.end(), obj, callback);
 }
 
 //==============================================================================
-void IntervalTreeCollisionManager::distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const
+void IntervalTreeCollisionManager::distance(CollisionObject* obj, DistanceCallBackBase * callback) const
 {
+  callback->init();
   if(size() == 0) return;
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
-  distance_(obj, cdata, callback, min_dist);
+  distance_(obj, callback, min_dist);
 }
 
 //==============================================================================
-bool IntervalTreeCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
+bool IntervalTreeCollisionManager::distance_(CollisionObject* obj, DistanceCallBackBase * callback, FCL_REAL& min_dist) const
 {
   static const unsigned int CUTOFF = 100;
 
@@ -445,20 +445,20 @@ bool IntervalTreeCollisionManager::distance_(CollisionObject* obj, void* cdata, 
           int d3 = results2.size();
 
           if(d1 >= d2 && d1 >= d3)
-            dist_res = checkDist(results0.begin(), results0.end(), obj, cdata, callback, min_dist);
+            dist_res = checkDist(results0.begin(), results0.end(), obj, callback, min_dist);
           else if(d2 >= d1 && d2 >= d3)
-            dist_res = checkDist(results1.begin(), results1.end(), obj, cdata, callback, min_dist);
+            dist_res = checkDist(results1.begin(), results1.end(), obj, callback, min_dist);
           else
-            dist_res = checkDist(results2.begin(), results2.end(), obj, cdata, callback, min_dist);
+            dist_res = checkDist(results2.begin(), results2.end(), obj, callback, min_dist);
         }
         else
-          dist_res = checkDist(results2.begin(), results2.end(), obj, cdata, callback, min_dist);
+          dist_res = checkDist(results2.begin(), results2.end(), obj, callback, min_dist);
       }
       else
-        dist_res = checkDist(results1.begin(), results1.end(), obj, cdata, callback, min_dist);
+        dist_res = checkDist(results1.begin(), results1.end(), obj, callback, min_dist);
     }
     else
-      dist_res = checkDist(results0.begin(), results0.end(), obj, cdata, callback, min_dist);
+      dist_res = checkDist(results0.begin(), results0.end(), obj, callback, min_dist);
 
     if(dist_res) return true;
 
@@ -495,13 +495,14 @@ bool IntervalTreeCollisionManager::distance_(CollisionObject* obj, void* cdata, 
 }
 
 //==============================================================================
-void IntervalTreeCollisionManager::collide(void* cdata, CollisionCallBack callback) const
+void IntervalTreeCollisionManager::collide(CollisionCallBackBase * callback) const
 {
+  callback->init();
   if(size() == 0) return;
 
   std::set<CollisionObject*> active;
   std::set<std::pair<CollisionObject*, CollisionObject*> > overlap;
-  unsigned int n = endpoints[0].size();
+  size_t n = endpoints[0].size();
   FCL_REAL diff_x = endpoints[0][0].value - endpoints[0][n-1].value;
   FCL_REAL diff_y = endpoints[1][0].value - endpoints[1][n-1].value;
   FCL_REAL diff_z = endpoints[2][0].value - endpoints[2][n-1].value;
@@ -539,7 +540,7 @@ void IntervalTreeCollisionManager::collide(void* cdata, CollisionCallBack callba
 
           if(insert_res.second)
           {
-            if(callback(active_index, index, cdata))
+            if((*callback)(active_index, index))
               return;
           }
         }
@@ -553,8 +554,9 @@ void IntervalTreeCollisionManager::collide(void* cdata, CollisionCallBack callba
 }
 
 //==============================================================================
-void IntervalTreeCollisionManager::distance(void* cdata, DistanceCallBack callback) const
+void IntervalTreeCollisionManager::distance(DistanceCallBackBase * callback) const
 {
+  callback->init();
   if(size() == 0) return;
 
   this->enable_tested_set_ = true;
@@ -562,47 +564,49 @@ void IntervalTreeCollisionManager::distance(void* cdata, DistanceCallBack callba
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
 
   for(size_t i = 0; i < endpoints[0].size(); ++i)
-    if(distance_(endpoints[0][i].obj, cdata, callback, min_dist)) break;
+    if(distance_(endpoints[0][i].obj, callback, min_dist)) break;
 
   this->enable_tested_set_ = false;
   this->tested_set.clear();
 }
 
 //==============================================================================
-void IntervalTreeCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, void* cdata, CollisionCallBack callback) const
+void IntervalTreeCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, CollisionCallBackBase * callback) const
 {
+  callback->init();
   IntervalTreeCollisionManager* other_manager = static_cast<IntervalTreeCollisionManager*>(other_manager_);
 
   if((size() == 0) || (other_manager->size() == 0)) return;
 
   if(this == other_manager)
   {
-    collide(cdata, callback);
+    collide(callback);
     return;
   }
 
   if(this->size() < other_manager->size())
   {
     for(size_t i = 0, size = endpoints[0].size(); i < size; ++i)
-      if(other_manager->collide_(endpoints[0][i].obj, cdata, callback)) return;
+      if(other_manager->collide_(endpoints[0][i].obj, callback)) return;
   }
   else
   {
     for(size_t i = 0, size = other_manager->endpoints[0].size(); i < size; ++i)
-      if(collide_(other_manager->endpoints[0][i].obj, cdata, callback)) return;
+      if(collide_(other_manager->endpoints[0][i].obj, callback)) return;
   }
 }
 
 //==============================================================================
-void IntervalTreeCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, void* cdata, DistanceCallBack callback) const
+void IntervalTreeCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, DistanceCallBackBase * callback) const
 {
+  callback->init();
   IntervalTreeCollisionManager* other_manager = static_cast<IntervalTreeCollisionManager*>(other_manager_);
 
   if((size() == 0) || (other_manager->size() == 0)) return;
 
   if(this == other_manager)
   {
-    distance(cdata, callback);
+    distance(callback);
     return;
   }
 
@@ -611,12 +615,12 @@ void IntervalTreeCollisionManager::distance(BroadPhaseCollisionManager* other_ma
   if(this->size() < other_manager->size())
   {
     for(size_t i = 0, size = endpoints[0].size(); i < size; ++i)
-      if(other_manager->distance_(endpoints[0][i].obj, cdata, callback, min_dist)) return;
+      if(other_manager->distance_(endpoints[0][i].obj, callback, min_dist)) return;
   }
   else
   {
     for(size_t i = 0, size = other_manager->endpoints[0].size(); i < size; ++i)
-      if(distance_(other_manager->endpoints[0][i].obj, cdata, callback, min_dist)) return;
+      if(distance_(other_manager->endpoints[0][i].obj, callback, min_dist)) return;
   }
 }
 
@@ -637,8 +641,7 @@ bool IntervalTreeCollisionManager::checkColl(
     typename std::deque<detail::SimpleInterval*>::const_iterator pos_start,
     typename std::deque<detail::SimpleInterval*>::const_iterator pos_end,
     CollisionObject* obj,
-    void* cdata,
-    CollisionCallBack callback) const
+    CollisionCallBackBase * callback) const
 {
   while(pos_start < pos_end)
   {
@@ -647,7 +650,7 @@ bool IntervalTreeCollisionManager::checkColl(
     {
       if(ivl->obj->getAABB().overlap(obj->getAABB()))
       {
-        if(callback(ivl->obj, obj, cdata))
+        if((*callback)(ivl->obj, obj))
           return true;
       }
     }
@@ -663,8 +666,7 @@ bool IntervalTreeCollisionManager::checkDist(
     typename std::deque<detail::SimpleInterval*>::const_iterator pos_start,
     typename std::deque<detail::SimpleInterval*>::const_iterator pos_end,
     CollisionObject* obj,
-    void* cdata,
-    DistanceCallBack callback,
+    DistanceCallBackBase * callback,
     FCL_REAL& min_dist) const
 {
   while(pos_start < pos_end)
@@ -676,7 +678,7 @@ bool IntervalTreeCollisionManager::checkDist(
       {
         if(ivl->obj->getAABB().distance(obj->getAABB()) < min_dist)
         {
-          if(callback(ivl->obj, obj, cdata, min_dist))
+          if((*callback)(ivl->obj, obj, min_dist))
             return true;
         }
       }
@@ -686,7 +688,7 @@ bool IntervalTreeCollisionManager::checkDist(
         {
           if(ivl->obj->getAABB().distance(obj->getAABB()) < min_dist)
           {
-            if(callback(ivl->obj, obj, cdata, min_dist))
+            if((*callback)(ivl->obj, obj, min_dist))
               return true;
           }
 
@@ -719,7 +721,4 @@ IntervalTreeCollisionManager::SAPInterval::SAPInterval(
 }
 
 } // namespace fcl
-
 } // namespace hpp
-
-#endif

@@ -45,22 +45,23 @@ namespace hpp {
 namespace fcl {
 
 //==============================================================================
-template <typename S>
-BroadPhaseContinuousCollisionManager<S>::BroadPhaseContinuousCollisionManager()
+BroadPhaseContinuousCollisionManager::BroadPhaseContinuousCollisionManager()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename S>
-BroadPhaseContinuousCollisionManager<S>::~BroadPhaseContinuousCollisionManager()
+
+
+BroadPhaseContinuousCollisionManager::~BroadPhaseContinuousCollisionManager()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename S>
-void BroadPhaseContinuousCollisionManager<S>::registerObjects(
+
+
+void BroadPhaseContinuousCollisionManager::registerObjects(
     const std::vector<ContinuousCollisionObject*>& other_objs)
 {
   for(size_t i = 0; i < other_objs.size(); ++i)
@@ -68,8 +69,9 @@ void BroadPhaseContinuousCollisionManager<S>::registerObjects(
 }
 
 //==============================================================================
-template <typename S>
-void BroadPhaseContinuousCollisionManager<S>::update(
+
+
+void BroadPhaseContinuousCollisionManager::update(
     ContinuousCollisionObject* updated_obj)
 {
   HPP_FCL_UNUSED_VARIABLE(updated_obj);
@@ -78,8 +80,9 @@ void BroadPhaseContinuousCollisionManager<S>::update(
 }
 
 //==============================================================================
-template <typename S>
-void BroadPhaseContinuousCollisionManager<S>::update(
+
+
+void BroadPhaseContinuousCollisionManager::update(
     const std::vector<ContinuousCollisionObject*>& updated_objs)
 {
   HPP_FCL_UNUSED_VARIABLE(updated_objs);

@@ -39,6 +39,7 @@
 #define HPP_FCL_BROADPHASE_DETAIL_NODEBASEARRAY_INL_H
 
 #include "hpp/fcl/broadphase/detail/node_base_array.h"
+
 namespace hpp
 {
 namespace fcl

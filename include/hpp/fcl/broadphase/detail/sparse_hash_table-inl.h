@@ -39,6 +39,7 @@
 #define HPP_FCL_BROADPHASE_SPARSEHASHTABLE_INL_H
 
 #include "hpp/fcl/broadphase/detail/sparse_hash_table.h"
+
 namespace hpp
 {
 namespace fcl

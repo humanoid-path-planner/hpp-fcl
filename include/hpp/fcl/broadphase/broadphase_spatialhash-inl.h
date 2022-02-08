@@ -39,6 +39,7 @@
 #define HPP_FCL_BROADPHASE_BROADPAHSESPATIALHASH_INL_H
 
 #include "hpp/fcl/broadphase/broadphase_spatialhash.h"
+
 namespace hpp
 {
 namespace fcl
@@ -292,25 +293,25 @@ void SpatialHashingCollisionManager<HashTable>::getObjects(std::vector<Collision
 
 //==============================================================================
 template<typename HashTable>
-void SpatialHashingCollisionManager<HashTable>::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
+void SpatialHashingCollisionManager<HashTable>::collide(CollisionObject* obj, CollisionCallBackBase * callback) const
 {
   if(size() == 0) return;
-  collide_(obj, cdata, callback);
+  collide_(obj, callback);
 }
 
 //==============================================================================
 template<typename HashTable>
-void SpatialHashingCollisionManager<HashTable>::distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const
+void SpatialHashingCollisionManager<HashTable>::distance(CollisionObject* obj, DistanceCallBackBase * callback) const
 {
   if(size() == 0) return;
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
-  distance_(obj, cdata, callback, min_dist);
+  distance_(obj, callback, min_dist);
 }
 
 //==============================================================================
 template<typename HashTable>
 bool SpatialHashingCollisionManager<HashTable>::collide_(
-    CollisionObject* obj, void* cdata, CollisionCallBack callback) const
+    CollisionObject* obj, CollisionCallBackBase * callback) const
 {
   const auto& obj_aabb = obj->getAABB();
   AABB overlap_aabb;
@@ -323,7 +324,7 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(
       if(obj == obj2)
         continue;
 
-      if(callback(obj, obj2, cdata))
+      if((*callback)(obj, obj2))
         return true;
     }
 
@@ -334,7 +335,7 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(
         if(obj == obj2)
           continue;
 
-        if(callback(obj, obj2, cdata))
+        if((*callback)(obj, obj2))
           return true;
       }
     }
@@ -346,7 +347,7 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(
       if(obj == obj2)
         continue;
 
-      if(callback(obj, obj2, cdata))
+      if((*callback)(obj, obj2))
         return true;
     }
 
@@ -355,7 +356,7 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(
       if(obj == obj2)
         continue;
 
-      if(callback(obj, obj2, cdata))
+      if((*callback)(obj, obj2))
         return true;
     }
   }
@@ -366,7 +367,7 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(
 //==============================================================================
 template<typename HashTable>
 bool SpatialHashingCollisionManager<HashTable>::distance_(
-    CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
+    CollisionObject* obj, DistanceCallBackBase * callback, FCL_REAL& min_dist) const
 {
   auto delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   auto aabb = obj->getAABB();
@@ -388,7 +389,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(
     if(scene_limit.overlap(aabb, overlap_aabb))
     {
       if (distanceObjectToObjects(
-            obj, hash_table->query(overlap_aabb), cdata, callback, min_dist))
+            obj, hash_table->query(overlap_aabb), callback, min_dist))
       {
         return true;
       }
@@ -396,7 +397,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(
       if(!scene_limit.contain(aabb))
       {
         if (distanceObjectToObjects(
-              obj, objs_outside_scene_limit, cdata, callback, min_dist))
+              obj, objs_outside_scene_limit, callback, min_dist))
         {
           return true;
         }
@@ -405,13 +406,13 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(
     else
     {
       if (distanceObjectToObjects(
-            obj, objs_partially_penetrating_scene_limit, cdata, callback, min_dist))
+            obj, objs_partially_penetrating_scene_limit, callback, min_dist))
       {
         return true;
       }
 
       if (distanceObjectToObjects(
-            obj, objs_outside_scene_limit, cdata, callback, min_dist))
+            obj, objs_outside_scene_limit, callback, min_dist))
       {
         return true;
       }
@@ -452,7 +453,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(
 //==============================================================================
 template<typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::collide(
-    void* cdata, CollisionCallBack callback) const
+    CollisionCallBackBase * callback) const
 {
   if(size() == 0)
     return;
@@ -469,7 +470,7 @@ void SpatialHashingCollisionManager<HashTable>::collide(
       {
         if(obj1 < obj2)
         {
-          if(callback(obj1, obj2, cdata))
+          if((*callback)(obj1, obj2))
             return;
         }
       }
@@ -480,7 +481,7 @@ void SpatialHashingCollisionManager<HashTable>::collide(
         {
           if(obj1 < obj2)
           {
-            if(callback(obj1, obj2, cdata))
+            if((*callback)(obj1, obj2))
               return;
           }
         }
@@ -492,7 +493,7 @@ void SpatialHashingCollisionManager<HashTable>::collide(
       {
         if(obj1 < obj2)
         {
-          if(callback(obj1, obj2, cdata))
+          if((*callback)(obj1, obj2))
             return;
         }
       }
@@ -501,7 +502,7 @@ void SpatialHashingCollisionManager<HashTable>::collide(
       {
         if(obj1 < obj2)
         {
-          if(callback(obj1, obj2, cdata))
+          if((*callback)(obj1, obj2))
             return;
         }
       }
@@ -512,7 +513,7 @@ void SpatialHashingCollisionManager<HashTable>::collide(
 //==============================================================================
 template<typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::distance(
-    void* cdata, DistanceCallBack callback) const
+    DistanceCallBackBase * callback) const
 {
   if(size() == 0)
     return;
@@ -524,7 +525,7 @@ void SpatialHashingCollisionManager<HashTable>::distance(
 
   for(const auto& obj : objs)
   {
-    if(distance_(obj, cdata, callback, min_dist))
+    if(distance_(obj, callback, min_dist))
       break;
   }
 
@@ -534,7 +535,7 @@ void SpatialHashingCollisionManager<HashTable>::distance(
 
 //==============================================================================
 template<typename HashTable>
-void SpatialHashingCollisionManager<HashTable>::collide(BroadPhaseCollisionManager* other_manager_, void* cdata, CollisionCallBack callback) const
+void SpatialHashingCollisionManager<HashTable>::collide(BroadPhaseCollisionManager* other_manager_, CollisionCallBackBase * callback) const
 {
   auto* other_manager = static_cast<SpatialHashingCollisionManager<HashTable>* >(other_manager_);
 
@@ -543,7 +544,7 @@ void SpatialHashingCollisionManager<HashTable>::collide(BroadPhaseCollisionManag
 
   if(this == other_manager)
   {
-    collide(cdata, callback);
+    collide(callback);
     return;
   }
 
@@ -551,7 +552,7 @@ void SpatialHashingCollisionManager<HashTable>::collide(BroadPhaseCollisionManag
   {
     for(const auto& obj : objs)
     {
-      if(other_manager->collide_(obj, cdata, callback))
+      if(other_manager->collide_(obj, callback))
         return;
     }
   }
@@ -559,7 +560,7 @@ void SpatialHashingCollisionManager<HashTable>::collide(BroadPhaseCollisionManag
   {
     for(const auto& obj : other_manager->objs)
     {
-      if(collide_(obj, cdata, callback))
+      if(collide_(obj, callback))
         return;
     }
   }
@@ -567,7 +568,7 @@ void SpatialHashingCollisionManager<HashTable>::collide(BroadPhaseCollisionManag
 
 //==============================================================================
 template<typename HashTable>
-void SpatialHashingCollisionManager<HashTable>::distance(BroadPhaseCollisionManager* other_manager_, void* cdata, DistanceCallBack callback) const
+void SpatialHashingCollisionManager<HashTable>::distance(BroadPhaseCollisionManager* other_manager_, DistanceCallBackBase * callback) const
 {
   auto* other_manager = static_cast<SpatialHashingCollisionManager<HashTable>* >(other_manager_);
 
@@ -576,7 +577,7 @@ void SpatialHashingCollisionManager<HashTable>::distance(BroadPhaseCollisionMana
 
   if(this == other_manager)
   {
-    distance(cdata, callback);
+    distance(callback);
     return;
   }
 
@@ -585,12 +586,12 @@ void SpatialHashingCollisionManager<HashTable>::distance(BroadPhaseCollisionMana
   if(this->size() < other_manager->size())
   {
     for(const auto& obj : objs)
-      if(other_manager->distance_(obj, cdata, callback, min_dist)) return;
+      if(other_manager->distance_(obj, callback, min_dist)) return;
   }
   else
   {
     for(const auto& obj : other_manager->objs)
-      if(distance_(obj, cdata, callback, min_dist)) return;
+      if(distance_(obj, callback, min_dist)) return;
   }
 }
 
@@ -627,8 +628,7 @@ template<typename Container>
 bool SpatialHashingCollisionManager<HashTable>::distanceObjectToObjects(
     CollisionObject* obj,
     const Container& objs,
-    void* cdata,
-    DistanceCallBack callback,
+    DistanceCallBackBase * callback,
     FCL_REAL& min_dist) const
 {
   for(auto& obj2 : objs)
@@ -640,7 +640,7 @@ bool SpatialHashingCollisionManager<HashTable>::distanceObjectToObjects(
     {
       if(obj->getAABB().distance(obj2->getAABB()) < min_dist)
       {
-        if(callback(obj, obj2, cdata, min_dist))
+        if((*callback)(obj, obj2, min_dist))
           return true;
       }
     }
@@ -650,7 +650,7 @@ bool SpatialHashingCollisionManager<HashTable>::distanceObjectToObjects(
       {
         if(obj->getAABB().distance(obj2->getAABB()) < min_dist)
         {
-          if(callback(obj, obj2, cdata, min_dist))
+          if((*callback)(obj, obj2, min_dist))
             return true;
         }
 

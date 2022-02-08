@@ -46,6 +46,17 @@ set(${LIBRARY_NAME}_SOURCES
   BV/OBBRSS.cpp
   BV/OBB.cpp
   broadphase/default_broadphase_callbacks.cpp
+  broadphase/broadphase_dynamic_AABB_tree.cpp
+  broadphase/broadphase_dynamic_AABB_tree_array.cpp
+  broadphase/broadphase_bruteforce.cpp
+  broadphase/broadphase_collision_manager.cpp
+  broadphase/broadphase_SaP.cpp
+  broadphase/broadphase_SSaP.cpp
+  broadphase/broadphase_interval_tree.cpp
+  broadphase/detail/interval_tree.cpp
+  broadphase/detail/interval_tree_node.cpp
+  broadphase/detail/simple_interval.cpp
+  broadphase/detail/spatial_hash.cpp
   broadphase/detail/morton.cpp
   narrowphase/narrowphase.cpp
   narrowphase/gjk.cpp
