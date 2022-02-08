@@ -253,7 +253,7 @@ public:
   int bu_threshold;
 
 public:
-  static const size_t NULL_NODE = -1;
+  static const size_t NULL_NODE = std::numeric_limits<size_t>::max();
 };
 
 template<typename BV>
