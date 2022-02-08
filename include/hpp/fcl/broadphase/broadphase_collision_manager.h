@@ -92,6 +92,14 @@ public:
 
   /// @brief return the objects managed by the manager
   virtual void getObjects(std::vector<CollisionObject*>& objs) const = 0;
+  
+  /// @brief return the objects managed by the manager
+  virtual std::vector<CollisionObject*> getObjects() const
+  {
+    std::vector<CollisionObject*> res(size());
+    getObjects(res);
+    return res;
+  };
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
   virtual void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const = 0;
