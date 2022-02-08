@@ -64,8 +64,6 @@ class HPP_FCL_DLLAPI Transform3f
   Vec3f T;
 public:
   
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   /// @brief Default transform is no movement
   Transform3f()
   {
@@ -259,6 +257,8 @@ public:
   {
     return !(*this == other);
   }
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 template<typename Derived>
