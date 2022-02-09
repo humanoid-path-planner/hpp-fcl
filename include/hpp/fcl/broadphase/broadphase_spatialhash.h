@@ -54,7 +54,7 @@ namespace fcl
 /// @brief spatial hashing collision mananger
 template<typename HashTable
              = detail::SimpleHashTable<AABB, CollisionObject*, detail::SpatialHash> >
-class HPP_FCL_DLLAPI SpatialHashingCollisionManager
+class SpatialHashingCollisionManager
 : public BroadPhaseCollisionManager
 {
 public:
