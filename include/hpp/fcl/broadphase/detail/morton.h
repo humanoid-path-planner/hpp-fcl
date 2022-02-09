@@ -52,7 +52,6 @@ namespace detail
 {
 
 template <typename S>
-HPP_FCL_DLLAPI
 uint32_t quantize(S x, uint32_t n);
 
 /// @brief compute 30 bit morton code
@@ -68,11 +67,11 @@ uint64_t morton_code60(uint32_t x, uint32_t y, uint32_t z);
 /// a 30- or 60-bit code, respectively, and for `std::bitset<N>` where
 /// N is the length of the code and must be a multiple of 3.
 template<typename S, typename T>
-struct HPP_FCL_DLLAPI morton_functor {};
+struct morton_functor {};
 
 /// @brief Functor to compute 30 bit morton code for a given AABB
 template<typename S>
-struct HPP_FCL_DLLAPI morton_functor<S, uint32_t>
+struct morton_functor<S, uint32_t>
 {
   morton_functor(const AABB& bbox);
 
@@ -89,7 +88,7 @@ using morton_functoru32d = morton_functor<FCL_REAL, uint32_t>;
 
 /// @brief Functor to compute 60 bit morton code for a given AABB
 template<typename S>
-struct HPP_FCL_DLLAPI morton_functor<S, uint64_t>
+struct morton_functor<S, uint64_t>
 {
   morton_functor(const AABB& bbox);
 
@@ -105,7 +104,7 @@ struct HPP_FCL_DLLAPI morton_functor<S, uint64_t>
 /// @brief Functor to compute N bit morton code for a given AABB
 /// N must be a multiple of 3.
 template<typename S, size_t N>
-struct HPP_FCL_DLLAPI morton_functor<S, std::bitset<N>>
+struct morton_functor<S, std::bitset<N>>
 {
   static_assert(N%3==0, "Number of bits must be a multiple of 3");
 
