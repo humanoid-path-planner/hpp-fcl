@@ -56,17 +56,18 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
 
   if(start1 < end1)
   {
-    unsigned int start_id = start1 - endpoints[0].begin();
-    unsigned int end_id = end1 - endpoints[0].begin();
-    unsigned int cur_id = start_id;
-    for(unsigned int i = start_id; i < end_id; ++i)
+    size_t start_id = (size_t)(start1 - endpoints[0].begin());
+    size_t end_id = (size_t)(end1 - endpoints[0].begin());
+    size_t cur_id = (size_t)(start_id);
+    
+    for(size_t i = start_id; i < end_id; ++i)
     {
-      if(endpoints[0][i].obj != obj)
+      if(endpoints[0][(size_t)i].obj != obj)
       {
         if(i == cur_id) cur_id++;
         else
         {
-          endpoints[0][cur_id] = endpoints[0][i];
+          endpoints[0][(size_t)cur_id] = endpoints[0][(size_t)i];
           cur_id++;
         }
       }
@@ -82,10 +83,11 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
 
   if(start2 < end2)
   {
-    unsigned int start_id = start2 - endpoints[1].begin();
-    unsigned int end_id = end2 - endpoints[1].begin();
-    unsigned int cur_id = start_id;
-    for(unsigned int i = start_id; i < end_id; ++i)
+    size_t start_id = (size_t)(start2 - endpoints[1].begin());
+    size_t end_id = (size_t)(end2 - endpoints[1].begin());
+    size_t cur_id = (size_t)(start_id);
+    
+    for(size_t i = start_id; i < end_id; ++i)
     {
       if(endpoints[1][i].obj != obj)
       {
@@ -109,10 +111,11 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
 
   if(start3 < end3)
   {
-    unsigned int start_id = start3 - endpoints[2].begin();
-    unsigned int end_id = end3 - endpoints[2].begin();
-    unsigned int cur_id = start_id;
-    for(unsigned int i = start_id; i < end_id; ++i)
+    size_t start_id = (size_t)(start3 - endpoints[2].begin());
+    size_t end_id = (size_t)(end3 - endpoints[2].begin());
+    size_t cur_id = (size_t)(start_id);
+    
+    for(size_t i = start_id; i < end_id; ++i)
     {
       if(endpoints[2][i].obj != obj)
       {
@@ -203,7 +206,7 @@ void IntervalTreeCollisionManager::setup()
     for(int i = 0; i < 3; ++i)
       interval_trees[i] = new detail::IntervalTree;
 
-    for(unsigned int i = 0, size = endpoints[0].size(); i < size; ++i)
+    for(size_t i = 0, size = endpoints[0].size(); i < size; ++i)
     {
       EndPoint p = endpoints[0][i];
       CollisionObject* obj = p.obj;
@@ -232,7 +235,7 @@ void IntervalTreeCollisionManager::update()
 {
   setup_ = false;
 
-  for(unsigned int i = 0, size = endpoints[0].size(); i < size; ++i)
+  for(size_t i = 0, size = endpoints[0].size(); i < size; ++i)
   {
     if(endpoints[0][i].minmax == 0)
       endpoints[0][i].value = endpoints[0][i].obj->getAABB().min_[0];
@@ -240,7 +243,7 @@ void IntervalTreeCollisionManager::update()
       endpoints[0][i].value = endpoints[0][i].obj->getAABB().max_[0];
   }
 
-  for(unsigned int i = 0, size = endpoints[1].size(); i < size; ++i)
+  for(size_t  i = 0, size = endpoints[1].size(); i < size; ++i)
   {
     if(endpoints[1][i].minmax == 0)
       endpoints[1][i].value = endpoints[1][i].obj->getAABB().min_[1];
@@ -248,7 +251,7 @@ void IntervalTreeCollisionManager::update()
       endpoints[1][i].value = endpoints[1][i].obj->getAABB().max_[1];
   }
 
-  for(unsigned int i = 0, size = endpoints[2].size(); i < size; ++i)
+  for(size_t  i = 0, size = endpoints[2].size(); i < size; ++i)
   {
     if(endpoints[2][i].minmax == 0)
       endpoints[2][i].value = endpoints[2][i].obj->getAABB().min_[2];
@@ -343,8 +346,8 @@ void IntervalTreeCollisionManager::clear()
 void IntervalTreeCollisionManager::getObjects(std::vector<CollisionObject*>& objs) const
 {
   objs.resize(endpoints[0].size() / 2);
-  unsigned int j = 0;
-  for(unsigned int i = 0, size = endpoints[0].size(); i < size; ++i)
+  size_t j = 0;
+  for(size_t i = 0, size = endpoints[0].size(); i < size; ++i)
   {
     if(endpoints[0][i].minmax == 0)
     {
@@ -377,9 +380,9 @@ bool IntervalTreeCollisionManager::collide_(CollisionObject* obj, CollisionCallB
       results2 = interval_trees[2]->query(obj->getAABB().min_[2], obj->getAABB().max_[2]);
       if(results2.size() > CUTOFF)
       {
-        int d1 = results0.size();
-        int d2 = results1.size();
-        int d3 = results2.size();
+        size_t d1 = results0.size();
+        size_t d2 = results1.size();
+        size_t d3 = results2.size();
 
         if(d1 >= d2 && d1 >= d3)
           return checkColl(results0.begin(), results0.end(), obj, callback);
@@ -440,9 +443,9 @@ bool IntervalTreeCollisionManager::distance_(CollisionObject* obj, DistanceCallB
         results2 = interval_trees[2]->query(aabb.min_[2], aabb.max_[2]);
         if(results2.size() > CUTOFF)
         {
-          int d1 = results0.size();
-          int d2 = results1.size();
-          int d3 = results2.size();
+          size_t d1 = results0.size();
+          size_t d2 = results1.size();
+          size_t d3 = results2.size();
 
           if(d1 >= d2 && d1 >= d3)
             dist_res = checkDist(results0.begin(), results0.end(), obj, callback, min_dist);
