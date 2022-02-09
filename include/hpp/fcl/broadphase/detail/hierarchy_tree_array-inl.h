@@ -553,7 +553,7 @@ void HierarchyTree<BV>::bottomup(size_t* lbeg, size_t* lend)
   while(lbeg < lcur_end - 1)
   {
     size_t* min_it1 = nullptr, *min_it2 = nullptr;
-    FCL_REAL min_size = std::numeric_limits<FCL_REAL>::max();
+    FCL_REAL min_size = (std::numeric_limits<FCL_REAL>::max)();
     for(size_t* it1 = lbeg; it1 < lcur_end; ++it1)
     {
       for(size_t* it2 = it1 + 1; it2 < lcur_end; ++it2)

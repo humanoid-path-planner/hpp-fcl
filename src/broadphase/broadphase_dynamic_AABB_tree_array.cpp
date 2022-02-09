@@ -680,7 +680,7 @@ void DynamicAABBTreeArrayCollisionManager::distance(CollisionObject* obj, Distan
 {
   callback->init();
   if(size() == 0) return;
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   switch(obj->collisionGeometry()->getNodeType())
   {
 #if HPP_FCL_HAVE_OCTOMAP
@@ -714,7 +714,7 @@ void DynamicAABBTreeArrayCollisionManager::distance(DistanceCallBackBase * callb
 {
   callback->init();
   if(size() == 0) return;
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   detail::dynamic_AABB_tree_array::selfDistanceRecurse(dtree.getNodes(), dtree.getRoot(), callback, min_dist);
 }
 
@@ -733,7 +733,7 @@ void DynamicAABBTreeArrayCollisionManager::distance(BroadPhaseCollisionManager* 
   callback->init();
   DynamicAABBTreeArrayCollisionManager* other_manager = static_cast<DynamicAABBTreeArrayCollisionManager*>(other_manager_);
   if((size() == 0) || (other_manager->size() == 0)) return;
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   detail::dynamic_AABB_tree_array::distanceRecurse(dtree.getNodes(), dtree.getRoot(), other_manager->dtree.getNodes(), other_manager->dtree.getRoot(), callback, min_dist);
 }
 

@@ -291,7 +291,7 @@ void SSaPCollisionManager::distance(CollisionObject* obj, DistanceCallBackBase *
   callback->init();
   if(size() == 0) return;
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   distance_(obj, callback, min_dist);
 }
 
@@ -301,7 +301,7 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj, DistanceCallBackBase 
   static const unsigned int CUTOFF = 100;
   Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   Vec3f dummy_vector = obj->getAABB().max_;
-  if(min_dist < std::numeric_limits<FCL_REAL>::max())
+  if(min_dist < (std::numeric_limits<FCL_REAL>::max)())
     dummy_vector +=Vec3f(min_dist, min_dist, min_dist);
   
   typename std::vector<CollisionObject*>::const_iterator pos_start1 = objs_x.begin();
@@ -361,7 +361,7 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj, DistanceCallBackBase 
 
     if(status == 1)
     {
-      if(old_min_distance < std::numeric_limits<FCL_REAL>::max())
+      if(old_min_distance < (std::numeric_limits<FCL_REAL>::max)())
         break;
       else
       {
@@ -496,7 +496,7 @@ void SSaPCollisionManager::distance(DistanceCallBackBase * callback) const
   typename std::vector<CollisionObject*>::const_iterator it, it_end;
   selectOptimalAxis(objs_x, objs_y, objs_z, it, it_end);
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   for(; it != it_end; ++it)
   {
     if(distance_(*it, callback, min_dist))
@@ -546,7 +546,7 @@ void SSaPCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, 
     return;
   }
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   typename std::vector<CollisionObject*>::const_iterator it, end;
   if(this->size() < other_manager->size())
   {

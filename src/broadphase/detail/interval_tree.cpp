@@ -53,12 +53,12 @@ IntervalTree::IntervalTree()
   nil = new IntervalTreeNode;
   nil->left = nil->right = nil->parent = nil;
   nil->red = false;
-  nil->key = nil->high = nil->max_high = -std::numeric_limits<FCL_REAL>::max();
+  nil->key = nil->high = nil->max_high = -(std::numeric_limits<FCL_REAL>::max)();
   nil->stored_interval = nullptr;
 
   root = new IntervalTreeNode;
   root->parent = root->left = root->right = nil;
-  root->key = root->high = root->max_high = std::numeric_limits<FCL_REAL>::max();
+  root->key = root->high = root->max_high = (std::numeric_limits<FCL_REAL>::max)();
   root->red = false;
   root->stored_interval = nullptr;
 
@@ -445,7 +445,7 @@ SimpleInterval* IntervalTree::deleteNode(IntervalTreeNode* z)
   /// y is the node to splice out and x is its child
   if(y != z)
   {
-    y->max_high = -std::numeric_limits<FCL_REAL>::max();
+    y->max_high = -(std::numeric_limits<FCL_REAL>::max)();
     y->left = z->left;
     y->right = z->right;
     y->parent = z->parent;

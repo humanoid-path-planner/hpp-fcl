@@ -111,7 +111,7 @@ void NaiveCollisionManager::distance(CollisionObject* obj, DistanceCallBackBase 
   callback->init();
   if(size() == 0) return;
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   for(auto* obj2 : objs)
   {
     if(obj->getAABB().distance(obj2->getAABB()) < min_dist)
@@ -149,7 +149,7 @@ void NaiveCollisionManager::distance(DistanceCallBackBase * callback) const
   callback->init();
   if(size() == 0) return;
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   for(typename std::list<CollisionObject*>::const_iterator it1 = objs.begin(), end = objs.end(); it1 != end; ++it1)
   {
     typename std::list<CollisionObject*>::const_iterator it2 = it1; it2++;
@@ -205,7 +205,7 @@ void NaiveCollisionManager::distance(BroadPhaseCollisionManager* other_manager_,
     return;
   }
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   for(auto* obj1 : objs)
   {
     for(auto* obj2 : other_manager->objs)

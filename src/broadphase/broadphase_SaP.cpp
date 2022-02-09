@@ -629,7 +629,7 @@ bool SaPCollisionManager::distance_(CollisionObject* obj, DistanceCallBackBase *
  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   AABB aabb = obj->getAABB();
 
-  if(min_dist < std::numeric_limits<FCL_REAL>::max())
+  if(min_dist < (std::numeric_limits<FCL_REAL>::max)())
   {
    Vec3f min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
@@ -704,7 +704,7 @@ bool SaPCollisionManager::distance_(CollisionObject* obj, DistanceCallBackBase *
 
     if(status == 1)
     {
-      if(old_min_distance < std::numeric_limits<FCL_REAL>::max())
+      if(old_min_distance < (std::numeric_limits<FCL_REAL>::max)())
         break;
       else
       {
@@ -736,7 +736,7 @@ void SaPCollisionManager::distance(CollisionObject* obj, DistanceCallBackBase * 
   callback->init();
   if(size() == 0) return;
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
 
   distance_(obj, callback, min_dist);
 }
@@ -766,7 +766,7 @@ void SaPCollisionManager::distance(DistanceCallBackBase * callback) const
   this->enable_tested_set_ = true;
   this->tested_set.clear();
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
 
   for(auto it = AABB_arr.cbegin(), end = AABB_arr.cend(); it != end; ++it)
   {
@@ -824,7 +824,7 @@ void SaPCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, D
     return;
   }
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
 
   if(this->size() < other_manager->size())
   {

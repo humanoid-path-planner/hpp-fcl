@@ -304,7 +304,7 @@ template<typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::distance(CollisionObject* obj, DistanceCallBackBase * callback) const
 {
   if(size() == 0) return;
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   distance_(obj, callback, min_dist);
 }
 
@@ -371,7 +371,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(
 {
   auto delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   auto aabb = obj->getAABB();
-  if(min_dist < std::numeric_limits<FCL_REAL>::max())
+  if(min_dist < (std::numeric_limits<FCL_REAL>::max)())
   {
    Vec3f min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
@@ -420,7 +420,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(
 
     if(status == 1)
     {
-      if(old_min_distance < std::numeric_limits<FCL_REAL>::max())
+      if(old_min_distance < (std::numeric_limits<FCL_REAL>::max)())
       {
         break;
       }
@@ -521,7 +521,7 @@ void SpatialHashingCollisionManager<HashTable>::distance(
   this->enable_tested_set_ = true;
   this->tested_set.clear();
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
 
   for(const auto& obj : objs)
   {
@@ -581,7 +581,7 @@ void SpatialHashingCollisionManager<HashTable>::distance(BroadPhaseCollisionMana
     return;
   }
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
 
   if(this->size() < other_manager->size())
   {
