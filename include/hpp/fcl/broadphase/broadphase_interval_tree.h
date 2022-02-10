@@ -54,6 +54,9 @@ class HPP_FCL_DLLAPI IntervalTreeCollisionManager
 : public BroadPhaseCollisionManager
 {
 public:
+  typedef BroadPhaseCollisionManager Base;
+  using Base::getObjects;
+  
   IntervalTreeCollisionManager();
 
   ~IntervalTreeCollisionManager();

@@ -51,6 +51,9 @@ class HPP_FCL_DLLAPI NaiveCollisionManager
 : public BroadPhaseCollisionManager
 {
 public:
+  typedef BroadPhaseCollisionManager Base;
+  using Base::getObjects;
+  
   NaiveCollisionManager();
 
   /// @brief add objects to the manager

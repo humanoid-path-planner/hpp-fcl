@@ -58,11 +58,13 @@ class SpatialHashingCollisionManager
 : public BroadPhaseCollisionManager
 {
 public:
-  SpatialHashingCollisionManager(
-      FCL_REAL cell_size,
-      const Vec3f& scene_min,
-      const Vec3f& scene_max,
-      unsigned int default_table_size = 1000);
+  typedef BroadPhaseCollisionManager Base;
+  using Base::getObjects;
+  
+  SpatialHashingCollisionManager(FCL_REAL cell_size,
+                                 const Vec3f& scene_min,
+                                 const Vec3f& scene_max,
+                                 unsigned int default_table_size = 1000);
 
   ~SpatialHashingCollisionManager();
 

@@ -53,7 +53,9 @@ class HPP_FCL_DLLAPI SaPCollisionManager
 : public BroadPhaseCollisionManager
 {
 public:
-
+  typedef BroadPhaseCollisionManager Base;
+  using Base::getObjects;
+  
   SaPCollisionManager();
 
   ~SaPCollisionManager();

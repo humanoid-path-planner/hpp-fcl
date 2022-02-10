@@ -57,6 +57,8 @@ class HPP_FCL_DLLAPI DynamicAABBTreeCollisionManager
 : public BroadPhaseCollisionManager
 {
 public:
+  typedef BroadPhaseCollisionManager Base;
+  using Base::getObjects;
 
   using DynamicAABBNode = detail::NodeBase<AABB>;
   using DynamicAABBTable = std::unordered_map<CollisionObject*, DynamicAABBNode*> ;
