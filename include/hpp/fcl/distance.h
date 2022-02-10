@@ -102,7 +102,8 @@ public:
   virtual ~ComputeDistance() {};
 
 protected:
-  CollisionGeometry const *o1, *o2;
+  mutable const CollisionGeometry *o1;
+  mutable const CollisionGeometry *o2;
   GJKSolver solver;
 
   DistanceFunctionMatrix::DistanceFunc func;
