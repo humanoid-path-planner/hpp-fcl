@@ -84,8 +84,8 @@ struct BroadPhaseCollisionManagerWrapper
   void distance(BroadPhaseCollisionManager * other_manager, DistanceCallBackBase * callback) const
   { this->get_override("collide")(other_manager,callback); }
 
-  void empty() { this->get_override("empty")(); }
-  size_t size() { return this->get_override("size")(); }
+  void empty() const { this->get_override("empty")(); }
+  size_t size() const { return this->get_override("size")(); }
   
   static void expose()
   {
