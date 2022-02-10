@@ -200,6 +200,8 @@ struct HPP_FCL_DLLAPI CollisionCallBackDefault
   bool collide(CollisionObject* o1, CollisionObject* o2);
   
   CollisionData data;
+  
+  virtual ~CollisionCallBackDefault() {};
 };
 
 /// @brief Default distance callback to check collision between collision objects.
@@ -209,6 +211,8 @@ struct HPP_FCL_DLLAPI DistanceCallBackDefault
   bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL & dist);
   
   DistanceData data;
+  
+  virtual ~DistanceCallBackDefault() {};
 };
 
 /// @brief Collision callback to collect collision pairs potentially in contacts
@@ -233,6 +237,8 @@ struct HPP_FCL_DLLAPI CollisionCallBackCollect
   
   /// @brief Check wether a collision pair exists
   bool exist(const CollisionPair & pair) const;
+  
+  virtual ~CollisionCallBackCollect() {};
   
 protected:
   
