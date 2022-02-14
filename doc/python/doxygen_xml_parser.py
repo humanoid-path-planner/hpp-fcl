@@ -349,17 +349,17 @@ class ClassCompound (CompoundBase):
             elif memberdef.attrib['kind'] == "typedef":
                 ref = Reference (index=self.index,
                         id=memberdef.attrib["id"],
-                        name= self.name + "::" + memberdef.find("name").text)
+                        name= self._className() + "::" + memberdef.find("name").text)
                 self.index.registerReference (ref)
             elif memberdef.attrib['kind'] == "enum":
                 ref = Reference (index=self.index,
                         id=memberdef.attrib["id"],
-                        name= self.name + "::" + memberdef.find("name").text)
+                        name= self._className()+ "::" + memberdef.find("name").text)
                 self.index.registerReference (ref)
                 for value in memberdef.iterchildren("enumvalue"):
                     ref = Reference (index=self.index,
                             id=value.attrib["id"],
-                            name= self.name + "::" + memberdef.find("name").text)
+                            name= self._className() + "::" + memberdef.find("name").text)
                     self.index.registerReference (ref)
             elif memberdef.attrib['kind'] == "function":
                 self._memberfunc (memberdef)
