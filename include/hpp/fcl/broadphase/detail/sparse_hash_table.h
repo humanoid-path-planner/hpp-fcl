@@ -66,7 +66,7 @@ public:
 /// @brief A hash table implemented using unordered_map
 template <typename Key, typename Data, typename HashFnc,
           template<typename, typename> class TableT = unordered_map_hash_table>
-class HPP_FCL_DLLAPI SparseHashTable
+class SparseHashTable
 {
 protected:
   HashFnc h_;
