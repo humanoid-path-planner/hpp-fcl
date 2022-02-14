@@ -324,7 +324,7 @@ void broad_phase_collision_test(FCL_REAL env_scale,
     {
       std::vector<bool> query_res(managers.size());
       for(size_t j = 0; j < query_res.size(); ++j)
-        query_res[j] = (callbacks[i].data.result.numContacts() > 0);
+        query_res[j] = (callbacks[j].data.result.numContacts() > 0);
       for(size_t j = 1; j < query_res.size(); ++j)
         BOOST_CHECK(query_res[0] == query_res[j]);
 
