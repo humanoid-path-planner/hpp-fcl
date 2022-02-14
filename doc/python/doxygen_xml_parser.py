@@ -239,7 +239,12 @@ class MemberDef(Reference):
 
     def s_rettype (self):
         assert not self.special, "Member {} ({}) is a special function and no return type".format(self.name, self.id)
-        return self.xmlToType(self.rettype)
+        tplargs = " <" + ", ".join([ d['name'] for d in self.parent.template_params ]) + " > "
+        print("self.rettype",self.rettype)
+        if isinstance(self.parent, ClassCompound): 
+            return self.xmlToType(self.rettype, parentClass=self.parent, tplargs=tplargs)
+        else:
+            return self.xmlToType(self.rettype)
 
     def s_name (self):
         return self.xml.find('name').text.strip()
