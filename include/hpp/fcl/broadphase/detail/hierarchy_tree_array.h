@@ -62,12 +62,12 @@ namespace implementation_array
 template<typename BV>
 class HPP_FCL_DLLAPI HierarchyTree
 {
-  typedef NodeBase<BV> NodeType;
+  typedef NodeBase<BV> Node;
   
   struct SortByMorton
   {
-    SortByMorton(NodeType* nodes_in) : nodes(nodes_in) {}
-    SortByMorton(NodeType* nodes_in, uint32_t split_in)
+    SortByMorton(Node* nodes_in) : nodes(nodes_in) {}
+    SortByMorton(Node* nodes_in, uint32_t split_in)
         : nodes(nodes_in), split(split_in) {}
     bool operator() (size_t a, size_t b) const
     {
@@ -81,7 +81,7 @@ class HPP_FCL_DLLAPI HierarchyTree
       return false;
     }
 
-    NodeType* nodes{};
+    Node* nodes{};
     uint32_t split{};
   };
 
@@ -95,7 +95,7 @@ public:
   ~HierarchyTree();
 
   /// @brief Initialize the tree by a set of leaves using algorithm with a given level.
-  void init(NodeType* leaves, int n_leaves_, int level = 0);
+  void init(Node* leaves, int n_leaves_, int level = 0);
 
   /// @brief Initialize the tree by a set of leaves using algorithm with a given level.
   size_t insert(const BV& bv, void* data);
@@ -140,7 +140,7 @@ public:
   void refit();
 
   /// @brief extract all the leaves of the tree 
-  void extractLeaves(size_t root, NodeType*& leaves) const;
+  void extractLeaves(size_t root, Node*& leaves) const;
 
   /// @brief number of leaves in the tree
   size_t size() const;
@@ -149,7 +149,7 @@ public:
   size_t getRoot() const;
 
   /// @brief get the pointer to the nodes array
-  NodeType* getNodes() const;
+  Node* getNodes() const;
 
   /// @brief print the tree in a recursive way
   void print(size_t root, int depth);
@@ -180,18 +180,18 @@ private:
   size_t topdown_1(size_t* lbeg, size_t* lend);
 
   /// @brief init tree from leaves in the topdown manner (topdown_0 or topdown_1)
-  void init_0(NodeType* leaves, int n_leaves_);
+  void init_0(Node* leaves, int n_leaves_);
 
   /// @brief init tree from leaves using morton code. It uses morton_0, i.e., for nodes which is of depth more than the maximum bits of the morton code,
   /// we use bottomup method to construct the subtree, which is slow but can construct tree with high quality.
-  void init_1(NodeType* leaves, int n_leaves_);
+  void init_1(Node* leaves, int n_leaves_);
 
   /// @brief init tree from leaves using morton code. It uses morton_0, i.e., for nodes which is of depth more than the maximum bits of the morton code,
   /// we split the leaves into two parts with the same size simply using the node index. 
-  void init_2(NodeType* leaves, int n_leaves_);
+  void init_2(Node* leaves, int n_leaves_);
 
   /// @brief init tree from leaves using morton code. It uses morton_2, i.e., for all nodes, we simply divide the leaves into parts with the same size simply using the node index.
-  void init_3(NodeType* leaves, int n_leaves_);
+  void init_3(Node* leaves, int n_leaves_);
 
   size_t mortonRecurse_0(size_t* lbeg, size_t* lend, const uint32_t& split, int bits);
 
@@ -210,7 +210,7 @@ private:
   size_t removeLeaf(size_t leaf);
 
   /// @brief Delete all internal nodes and return all leaves nodes with given depth from root 
-  void fetchLeaves(size_t root, NodeType*& leaves, int depth = -1);
+  void fetchLeaves(size_t root, Node*& leaves, int depth = -1);
 
   size_t indexOf(size_t node);
 
@@ -235,7 +235,7 @@ private:
 
 protected:
   size_t root_node;
-  NodeType* nodes;
+  Node* nodes;
   size_t n_nodes;
   size_t n_nodes_alloc;
   

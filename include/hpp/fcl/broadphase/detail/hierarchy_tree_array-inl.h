@@ -61,7 +61,7 @@ HierarchyTree<BV>::HierarchyTree(int bu_threshold_, int topdown_level_)
   root_node = NULL_NODE;
   n_nodes = 0;
   n_nodes_alloc = 16;
-  nodes = new NodeType[n_nodes_alloc];
+  nodes = new Node[n_nodes_alloc];
   for(size_t i = 0; i < n_nodes_alloc - 1; ++i)
     nodes[i].next = i + 1;
   nodes[n_nodes_alloc - 1].next = NULL_NODE;
@@ -82,7 +82,7 @@ HierarchyTree<BV>::~HierarchyTree()
 
 //==============================================================================
 template<typename BV>
-void HierarchyTree<BV>::init(NodeType* leaves, int n_leaves_, int level)
+void HierarchyTree<BV>::init(Node* leaves, int n_leaves_, int level)
 {
   switch(level)
   {
@@ -105,13 +105,13 @@ void HierarchyTree<BV>::init(NodeType* leaves, int n_leaves_, int level)
 
 //==============================================================================
 template<typename BV>
-void HierarchyTree<BV>::init_0(NodeType* leaves, int n_leaves_)
+void HierarchyTree<BV>::init_0(Node* leaves, int n_leaves_)
 {
   clear();
 
   n_leaves = n_leaves_;
   root_node = NULL_NODE;
-  nodes = new NodeType[n_leaves * 2];
+  nodes = new Node[n_leaves * 2];
   std::copy(leaves, leaves + n_leaves, nodes);
   freelist = n_leaves;
   n_nodes = n_leaves;
@@ -133,13 +133,13 @@ void HierarchyTree<BV>::init_0(NodeType* leaves, int n_leaves_)
 
 //==============================================================================
 template<typename BV>
-void HierarchyTree<BV>::init_1(NodeType* leaves, int n_leaves_)
+void HierarchyTree<BV>::init_1(Node* leaves, int n_leaves_)
 {
   clear();
 
   n_leaves = n_leaves_;
   root_node = NULL_NODE;
-  nodes = new NodeType[n_leaves * 2];
+  nodes = new Node[n_leaves * 2];
   std::copy(leaves, leaves + n_leaves, nodes);
   freelist = n_leaves;
   n_nodes = n_leaves;
@@ -177,13 +177,13 @@ void HierarchyTree<BV>::init_1(NodeType* leaves, int n_leaves_)
 
 //==============================================================================
 template<typename BV>
-void HierarchyTree<BV>::init_2(NodeType* leaves, int n_leaves_)
+void HierarchyTree<BV>::init_2(Node* leaves, int n_leaves_)
 {
   clear();
 
   n_leaves = n_leaves_;
   root_node = NULL_NODE;
-  nodes = new NodeType[n_leaves * 2];
+  nodes = new Node[n_leaves * 2];
   std::copy(leaves, leaves + n_leaves, nodes);
   freelist = n_leaves;
   n_nodes = n_leaves;
@@ -221,13 +221,13 @@ void HierarchyTree<BV>::init_2(NodeType* leaves, int n_leaves_)
 
 //==============================================================================
 template<typename BV>
-void HierarchyTree<BV>::init_3(NodeType* leaves, int n_leaves_)
+void HierarchyTree<BV>::init_3(Node* leaves, int n_leaves_)
 {
   clear();
 
   n_leaves = n_leaves_;
   root_node = NULL_NODE;
-  nodes = new NodeType[n_leaves * 2];
+  nodes = new Node[n_leaves * 2];
   std::copy(leaves, leaves + n_leaves, nodes);
   freelist = n_leaves;
   n_nodes = n_leaves;
@@ -290,7 +290,7 @@ void HierarchyTree<BV>::clear()
   root_node = NULL_NODE;
   n_nodes = 0;
   n_nodes_alloc = 16;
-  nodes = new NodeType[n_nodes_alloc];
+  nodes = new Node[n_nodes_alloc];
   for(size_t i = 0; i < n_nodes_alloc; ++i)
     nodes[i].next = i + 1;
   nodes[n_nodes_alloc - 1].next = NULL_NODE;
@@ -384,8 +384,8 @@ void HierarchyTree<BV>::balanceBottomup()
 {
   if(root_node != NULL_NODE)
   {
-    NodeType* leaves = new NodeType[n_leaves];
-    NodeType* leaves_ = leaves;
+    Node* leaves = new Node[n_leaves];
+    Node* leaves_ = leaves;
     extractLeaves(root_node, leaves_);
     root_node = NULL_NODE;
     std::copy(leaves, leaves + n_leaves, nodes);
@@ -413,8 +413,8 @@ void HierarchyTree<BV>::balanceTopdown()
 {
   if(root_node != NULL_NODE)
   {
-    NodeType* leaves = new NodeType[n_leaves];
-    NodeType* leaves_ = leaves;
+    Node* leaves = new Node[n_leaves];
+    Node* leaves_ = leaves;
     extractLeaves(root_node, leaves_);
     root_node = NULL_NODE;
     std::copy(leaves, leaves + n_leaves, nodes);
@@ -465,7 +465,7 @@ void HierarchyTree<BV>::refit()
 
 //==============================================================================
 template<typename BV>
-void HierarchyTree<BV>::extractLeaves(size_t root, NodeType*& leaves) const
+void HierarchyTree<BV>::extractLeaves(size_t root, Node*& leaves) const
 {
   if(!nodes[root].isLeaf())
   {
@@ -495,7 +495,7 @@ size_t HierarchyTree<BV>::getRoot() const
 
 //==============================================================================
 template<typename BV>
-typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::getNodes() const
+typename HierarchyTree<BV>::Node* HierarchyTree<BV>::getNodes() const
 {
   return nodes;
 }
@@ -506,7 +506,7 @@ void HierarchyTree<BV>::print(size_t root, int depth)
 {
   for(int i = 0; i < depth; ++i)
     std::cout << " ";
-  NodeType* n = nodes + root;
+  Node* n = nodes + root;
   std::cout << " (" << n->bv.min_[0] << ", " << n->bv.min_[1] << ", " << n->bv.min_[2] << "; " << n->bv.max_[0] << ", " << n->bv.max_[1] << ", " << n->bv.max_[2] << ")" << std::endl;
   if(n->isLeaf())
   {
@@ -946,9 +946,9 @@ size_t HierarchyTree<BV>::allocateNode()
 {
   if(freelist == NULL_NODE)
   {
-    NodeType* old_nodes = nodes;
+    Node* old_nodes = nodes;
     n_nodes_alloc *= 2;
-    nodes = new NodeType[n_nodes_alloc];
+    nodes = new Node[n_nodes_alloc];
     std::copy(old_nodes, old_nodes + n_nodes, nodes);
     delete [] old_nodes;
 
@@ -1030,7 +1030,7 @@ void HierarchyTree<BV>::recurseRefit(size_t node)
 
 //==============================================================================
 template<typename BV>
-void HierarchyTree<BV>::fetchLeaves(size_t root, NodeType*& leaves, int depth)
+void HierarchyTree<BV>::fetchLeaves(size_t root, Node*& leaves, int depth)
 {
   if((!nodes[root].isLeaf()) && depth)
   {
