@@ -43,6 +43,7 @@
 #include <vector>
 #include <list>
 #include <unordered_map>
+
 namespace hpp
 {
 namespace fcl
@@ -52,7 +53,15 @@ namespace detail
 {
 
 template<typename U, typename V>
-class HPP_FCL_DLLAPI unordered_map_hash_table : public std::unordered_map<U, V> {};
+class HPP_FCL_DLLAPI unordered_map_hash_table
+: public std::unordered_map<U, V>
+{
+  typedef std::unordered_map<U, V> Base;
+
+public:
+  unordered_map_hash_table() : Base() {};
+  
+};
 
 /// @brief A hash table implemented using unordered_map
 template <typename Key, typename Data, typename HashFnc,
