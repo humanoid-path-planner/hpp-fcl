@@ -307,10 +307,7 @@ BOOST_AUTO_TEST_CASE(hfield_with_square_hole)
 
     BOOST_CHECK(!result.isCollision());
   }
-  
-  const VecXf & x_grid = hfield.getXGrid();
-  const VecXf & y_grid = hfield.getYGrid();
-  
+
   sphere.radius = 0.51;
 
   {
