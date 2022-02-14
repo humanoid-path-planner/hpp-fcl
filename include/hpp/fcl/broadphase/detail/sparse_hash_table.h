@@ -53,7 +53,7 @@ namespace detail
 {
 
 template<typename U, typename V>
-class HPP_FCL_DLLAPI unordered_map_hash_table
+class unordered_map_hash_table
 : public std::unordered_map<U, V>
 {
   typedef std::unordered_map<U, V> Base;
