@@ -50,6 +50,7 @@
 // FIXME for a reason I do not understand, doxygen fails to understand that
 // BV_splitter is not defined in hpp/fcl/BVH/BVH_model.h
 #include <hpp/fcl/internal/BV_splitter.h>
+#include <hpp/fcl/broadphase/detail/hierarchy_tree.h>
 #include "doxygen_autodoc/hpp/fcl/BVH/BVH_model.h"
 #include "doxygen_autodoc/hpp/fcl/hfield.h"
 #include "doxygen_autodoc/hpp/fcl/shape/geometric_shapes.h"
