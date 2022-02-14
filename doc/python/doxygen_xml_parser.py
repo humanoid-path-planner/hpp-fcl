@@ -165,6 +165,12 @@ class Reference(object):
                     t += " " + parentClass.name
                     if c.tail is not None and c.tail.lstrip()[0] != '<':
                         t += tplargs
+                elif parentClass is not None and c.attrib["kindref"] == "compound":
+                    has_templates = len(parentClass.template_params) > 0
+                    if has_templates:
+                        t += " typename " + parentClass._className() + "::" + c.text.strip() 
+                    else:
+                        t += " " + parentClass._className() + "::" + c.text.strip()
                 elif self.index.hasref(refid):
                     t += " " + self.index.getref(refid).name
                 else:
