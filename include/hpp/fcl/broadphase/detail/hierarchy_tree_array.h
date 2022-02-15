@@ -60,7 +60,7 @@ namespace implementation_array
 
 /// @brief Class for hierarchy tree structure
 template<typename BV>
-class HPP_FCL_DLLAPI HierarchyTree
+class HierarchyTree
 {
 public:
   typedef NodeBase<BV> Node;

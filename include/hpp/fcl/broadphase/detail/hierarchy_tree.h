@@ -57,7 +57,7 @@ namespace detail
 
 /// @brief Class for hierarchy tree structure
 template<typename BV>
-class HPP_FCL_DLLAPI HierarchyTree
+class HierarchyTree
 {
 public:
 
