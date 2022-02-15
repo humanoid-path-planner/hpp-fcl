@@ -58,7 +58,6 @@ namespace dynamic_AABB_tree_array
 
 //==============================================================================
 template <typename Derived>
-HPP_FCL_DLLAPI
 bool collisionRecurse_(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id,
@@ -166,7 +165,6 @@ bool collisionRecurse_(
 
 //==============================================================================
 template <typename Derived>
-HPP_FCL_DLLAPI
 bool distanceRecurse_(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id,
