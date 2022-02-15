@@ -130,7 +130,7 @@ def _templateParamToDict (param):
 
 def makeHeaderGuard (filename):
     import os
-    return filename.upper().replace('.', '_').replace('/', '_')
+    return filename.upper().replace('.', '_').replace('/', '_').replace('-', '_')
 
 def format_description (brief, detailed):
     b = [ el.text.strip() for el in brief   .iter() if el.text ] if brief    is not None else []
