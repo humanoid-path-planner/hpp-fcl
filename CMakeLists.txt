@@ -74,6 +74,9 @@ APPLY_DEFAULT_APPLE_CONFIGURATION()
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
+# Default C++ version should be C++11
+CHECK_MINIMAL_CXX_STANDARD(11 ENFORCE)
+
 OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" ON)
 CMAKE_DEPENDENT_OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF BUILD_PYTHON_INTERFACE OFF)
 
@@ -126,7 +129,6 @@ endif()
 
 option(HPP_FCL_HAS_QHULL "use qhull library to compute convex hulls." FALSE)
 if(HPP_FCL_HAS_QHULL)
-  CHECK_MINIMAL_CXX_STANDARD(11 ENFORCE)
   find_package(Qhull COMPONENTS qhull_r qhullcpp)
   if(Qhull_FOUND)
     set(HPP_FCL_USE_SYSTEM_QHULL TRUE)
