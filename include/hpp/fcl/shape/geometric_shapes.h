@@ -185,6 +185,51 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
+/// @brief Ellipsoid centered at point zero
+class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase
+{
+public:
+  Ellipsoid(FCL_REAL rx, FCL_REAL ry, FCL_REAL rz) : ShapeBase(), radii(rx, ry, rz)
+  {
+  }
+  
+  Ellipsoid(const Ellipsoid & other)
+  : ShapeBase(other)
+  , radii(other.radii)
+  {
+  }
+  
+  /// @brief Clone *this into a new Ellipsoid
+  virtual Ellipsoid* clone() const { return new Ellipsoid(*this); };
+  
+  /// @brief Radii of the Ellipsoid (such that on boundary: x^2/rx^2 + y^2/ry^2 + z^2/rz^2 = 1)  
+  Vec3f radii;
+
+  /// @brief Compute AABB 
+  void computeLocalAABB();
+
+  /// @brief Get node type: an ellipsoid 
+  NODE_TYPE getNodeType() const { return GEOM_ELLIPSOID; }
+
+  Matrix3f computeMomentofInertia() const
+  {
+    FCL_REAL V = computeVolume();
+    FCL_REAL a2 = V * radii[0] * radii[0];
+    FCL_REAL b2 = V * radii[1] * radii[1];
+    FCL_REAL c2 = V * radii[2] * radii[2];
+    return (Matrix3f() << 0.2 * (b2 + c2), 0, 0, 
+                          0, 0.2 * (a2 + c2), 0,
+                          0, 0, 0.2 * (a2 + b2)).finished();
+  }
+
+  FCL_REAL computeVolume() const
+  {
+    return 4 * boost::math::constants::pi<FCL_REAL>() * radii[0] * radii[1] * radii[2] / 3;
+  }
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+};
+
 /// @brief Capsule
 /// It is \f$ { x~\in~\mathbb{R}^3, d(x, AB) \leq radius } \f$
 /// where \f$ d(x, AB) \f$ is the distance between the point x and the capsule

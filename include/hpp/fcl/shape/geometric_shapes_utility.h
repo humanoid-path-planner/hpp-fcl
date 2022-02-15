@@ -55,6 +55,7 @@ namespace details
 /// @brief get the vertices of some convex shape which can bound the given shape in a specific configuration
 HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf);
 HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf);
+HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3f& tf);
 HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& tf);
 HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf);
 HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f& tf);
@@ -77,6 +78,9 @@ HPP_FCL_DLLAPI void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AA
 
 template<>
 HPP_FCL_DLLAPI void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv);
+
+template<>
+HPP_FCL_DLLAPI void computeBV<AABB, Ellipsoid>(const Ellipsoid& e, const Transform3f& tf, AABB& bv);
 
 template<>
 HPP_FCL_DLLAPI void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv);

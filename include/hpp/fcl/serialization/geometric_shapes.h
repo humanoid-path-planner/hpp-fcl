@@ -49,6 +49,15 @@ namespace boost
       ar & make_nvp("base",boost::serialization::base_object<hpp::fcl::ShapeBase>(sphere));
       ar & make_nvp("radius",sphere.radius);
     }
+
+    template <class Archive>
+    void serialize(Archive & ar,
+                   hpp::fcl::Ellipsoid & ellipsoid,
+                   const unsigned int /*version*/)
+    {
+      ar & make_nvp("base",boost::serialization::base_object<hpp::fcl::ShapeBase>(ellipsoid));
+      ar & make_nvp("radii",ellipsoid.radii);
+    }
   
     template <class Archive>
     void serialize(Archive & ar,
