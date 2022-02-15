@@ -62,8 +62,10 @@ namespace implementation_array
 template<typename BV>
 class HPP_FCL_DLLAPI HierarchyTree
 {
+public:
   typedef NodeBase<BV> Node;
   
+private:
   struct SortByMorton
   {
     SortByMorton(Node* nodes_in) : nodes(nodes_in) {}
@@ -84,8 +86,9 @@ class HPP_FCL_DLLAPI HierarchyTree
     Node* nodes{};
     uint32_t split{};
   };
-
+  
 public:
+
   /// @brief Create hierarchy tree with suitable setting.
   /// bu_threshold decides the height of tree node to start bottom-up construction / optimization;
   /// topdown_level decides different methods to construct tree in topdown manner.
