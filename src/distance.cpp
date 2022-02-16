@@ -195,15 +195,5 @@ FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
   return res;
 }
 
-FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
-                                     const Transform3f& tf2,
-                                     DistanceRequest& request,
-                                     DistanceResult& result) const
-{
-  FCL_REAL res = operator()(tf1, tf2, (const DistanceRequest&) request, result);
-  request.updateGuess (result);
-  return res;
-}
-
 } // namespace fcl
 } // namespace hpp

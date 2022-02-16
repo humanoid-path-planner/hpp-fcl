@@ -206,15 +206,5 @@ std::size_t ComputeCollision::operator()(const Transform3f& tf1,
   return res;
 }
 
-std::size_t ComputeCollision::operator()(const Transform3f& tf1,
-                                         const Transform3f& tf2,
-                                         CollisionRequest& request,
-                                         CollisionResult& result) const
-{
-  std::size_t res = operator()(tf1, tf2, (const CollisionRequest&) request, result);
-  request.updateGuess(result);
-  return res;
-}
-
 } // namespace fcl
 } // namespace hpp
