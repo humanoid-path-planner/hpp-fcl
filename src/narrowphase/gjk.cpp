@@ -398,7 +398,6 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1 (const ShapeBase* s1, 
     if (identity) return getSupportFuncTpl<Shape0, Sphere, true >;
     else          return getSupportFuncTpl<Shape0, Sphere, false>;
   case GEOM_ELLIPSOID:
-    // TODO: what should we put for inflation[1]?
     if (identity) return getSupportFuncTpl<Shape0, Ellipsoid, true >;
     else          return getSupportFuncTpl<Shape0, Ellipsoid, false>;
   case GEOM_CAPSULE:
@@ -442,7 +441,6 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0 (const ShapeBase* s0, 
     return makeGetSupportFunction1<Sphere> (s1, identity, inflation, linear_log_convex_threshold);
     break;
   case GEOM_ELLIPSOID:
-    // TODO: what should we put for inflation[0]?
     return makeGetSupportFunction1<Ellipsoid> (s1, identity, inflation, linear_log_convex_threshold);
     break;
   case GEOM_CAPSULE:
