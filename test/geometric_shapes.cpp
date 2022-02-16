@@ -405,7 +405,7 @@ void testBoxBoxContactPoints(const Matrix3f& R)
   vertices[6] << -1, -1,  1;
   vertices[7] << -1, -1, -1;
 
-  for (int i = 0; i < 8; ++i)
+  for (std::size_t i = 0; i < 8; ++i)
   {
     vertices[i].array() *= s2.halfSide.array();
   }
@@ -424,7 +424,7 @@ void testBoxBoxContactPoints(const Matrix3f& R)
   FCL_CHECK(res);
 
   // Compute global vertices
-  for (int i = 0; i < 8; ++i)
+  for (std::size_t i = 0; i < 8; ++i)
     vertices[i] = tf2.transform(vertices[i]);
 
   // Sort the vertices so that the lowest vertex along z-axis comes first

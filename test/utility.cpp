@@ -181,13 +181,13 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
           else
           {
             const char *v1;
-            for(int i = 0; i < 3; i++)
+            for(Triangle::index_type i = 0; i < 3; i++)
             {
               // vertex ID
               if(i == 0)
                 v1 = data[0];
               else
-                v1 = data[t + i];
+                v1 = data[(Triangle::index_type)t + i];
 
               tri[i] = (Triangle::index_type)(atoi(v1) - 1);
             }

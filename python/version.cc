@@ -12,14 +12,14 @@ inline bool checkVersionAtLeast(unsigned int major,
                                 unsigned int minor,
                                 unsigned int patch)
 {
-  return HPP_FCL_VERSION_AT_LEAST(major, minor, patch);
+  return HPP_FCL_VERSION_AT_LEAST((int)major, (int)minor, (int)patch);
 }
 
 inline bool checkVersionAtMost(unsigned int major,
                                unsigned int minor,
                                unsigned int patch)
 {
-  return HPP_FCL_VERSION_AT_MOST(major, minor, patch);
+  return HPP_FCL_VERSION_AT_MOST((int)major, (int)minor, (int)patch);
 }
 
 void exposeVersion()

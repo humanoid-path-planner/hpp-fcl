@@ -72,7 +72,7 @@ namespace details
       
       if (!keep_this_tri) {
         for (unsigned int j = 0; j < 3; ++j) {
-          if (aabb.contain(q * model.vertices[t[(int)j]])) {
+          if (aabb.contain(q * model.vertices[t[j]])) {
             keep_this_tri = true;
             break;
           }
@@ -272,9 +272,9 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
       unsigned int index = indirect_index ? indices[i] : i;
       const Triangle& t = ts[index];
 
-      for(int j = 0; j < 3; ++j)
+      for(Triangle::index_type j = 0; j < 3; ++j)
       {
-        int point_id = (int) t[j];
+        Triangle::index_type point_id = t[j];
         const Vec3f& p = ps[point_id];
         Vec3f v(p[0], p[1], p[2]);
         P[P_id][0] = axes.col(0).dot(v);
@@ -285,9 +285,9 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 
       if(ps2)
       {
-        for(int j = 0; j < 3; ++j)
+        for(Triangle::index_type j = 0; j < 3; ++j)
         {
-          int point_id = (int) t[j];
+          Triangle::index_type point_id = t[j];
           const Vec3f& p = ps2[point_id];
           // FIXME Is this right ?????
           Vec3f v(p[0], p[1], p[2]);
@@ -580,9 +580,9 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
     unsigned int index = indirect_index? indices[i] : i;
     const Triangle& t = ts[index];
 
-    for(int j = 0; j < 3; ++j)
+    for(Triangle::index_type j = 0; j < 3; ++j)
     {
-      int point_id = (int) t[j];
+      Triangle::index_type point_id = t[j];
       const Vec3f& p = ps[point_id];
       Vec3f proj(axes.transpose() * p);
 
@@ -595,9 +595,9 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
 
     if(ps2)
     {
-      for(int j = 0; j < 3; ++j)
+      for(Triangle::index_type j = 0; j < 3; ++j)
       {
-        int point_id = (int) t[j];
+        Triangle::index_type point_id = t[j];
         const Vec3f& p = ps2[point_id];
         Vec3f proj(axes.transpose() * p);
 
@@ -652,9 +652,9 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
     unsigned int index = indirect_index ? indices[i] : i;
     const Triangle& t = ts[index];
 
-    for(int j = 0; j < 3; ++j)
+    for(Triangle::index_type j = 0; j < 3; ++j)
     {
-      int point_id = (int) t[j];
+      Triangle::index_type point_id = t[j];
       const Vec3f& p = ps[point_id];
       
       FCL_REAL d = (p - query).squaredNorm();
@@ -663,9 +663,9 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
 
     if(ps2)
     {
-      for(int j = 0; j < 3; ++j)
+      for(Triangle::index_type j = 0; j < 3; ++j)
       {
-        int point_id = (int) t[j];
+        Triangle::index_type point_id = t[j];
         const Vec3f& p = ps2[point_id];
         
         FCL_REAL d = (p - query).squaredNorm();

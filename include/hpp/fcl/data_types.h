@@ -95,9 +95,9 @@ public:
   }
 
   /// @brief Access the triangle index
-  inline index_type operator[](int i) const { return vids[i]; }
+  inline index_type operator[](index_type i) const { return vids[i]; }
 
-  inline index_type& operator[](int i) { return vids[i]; }
+  inline index_type& operator[](index_type i) { return vids[i]; }
 
   static inline size_type size() { return 3; }
 
@@ -137,10 +137,10 @@ struct HPP_FCL_DLLAPI Quadrilateral
     vids[0] = p0; vids[1] = p1; vids[2] = p2; vids[3] = p3;
   }
 
-  /// @access the quadrilatere index
-  inline index_type operator[](unsigned int i) const { return vids[i]; }
+  /// @access the quadrilateral index
+  inline index_type operator[](index_type i) const { return vids[i]; }
 
-  inline index_type& operator[](unsigned int i) { return vids[i]; }
+  inline index_type& operator[](index_type i) { return vids[i]; }
 
   static inline size_type size() { return 4; }
   

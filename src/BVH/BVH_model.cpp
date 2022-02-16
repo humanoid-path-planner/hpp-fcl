@@ -291,7 +291,9 @@ int BVHModelBase::addTriangles(const Matrixx3i & triangles)
   for(Eigen::DenseIndex i = 0; i < triangles.rows(); ++i)
   {
     const Matrixx3i::ConstRowXpr triangle = triangles.row(i);
-    tri_indices[num_tris++].set(triangle[0], triangle[1], triangle[2]);
+    tri_indices[num_tris++].set(static_cast<Triangle::index_type>(triangle[0]),
+                                static_cast<Triangle::index_type>(triangle[1]),
+                                static_cast<Triangle::index_type>(triangle[2]));
   }
 
   return BVH_OK;
@@ -815,10 +817,10 @@ int BVHModel<BV>::memUsage(const bool msg) const
 {
   unsigned int mem_bv_list = (unsigned int)sizeof(BV) * num_bvs;
   unsigned int mem_tri_list = (unsigned int)sizeof(Triangle) * num_tris;
-  int mem_vertex_list = (unsigned int)sizeof(Vec3f) * num_vertices;
+  unsigned int mem_vertex_list = (unsigned int)sizeof(Vec3f) * num_vertices;
 
-  int total_mem = mem_bv_list + mem_tri_list + mem_vertex_list +
-    (int)sizeof(BVHModel<BV>);
+  unsigned int total_mem = mem_bv_list + mem_tri_list + mem_vertex_list +
+    (unsigned int)sizeof(BVHModel<BV>);
   if(msg)
   {
     std::cerr << "Total for model " << total_mem << " bytes." << std::endl;
@@ -827,7 +829,7 @@ int BVHModel<BV>::memUsage(const bool msg) const
     std::cerr << "Vertices: " << num_vertices << " allocated." << std::endl;
   }
 
-  return total_mem;
+  return static_cast<int>(total_mem);
 }
 
 template<typename BV>
@@ -996,7 +998,7 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
       if(prev_vertices)
       {
         Vec3f v[6];
-        for(int i = 0; i < 3; ++i)
+        for(Triangle::index_type i = 0; i < 3; ++i)
         {
           v[i] = prev_vertices[triangle[i]];
           v[i + 3] = vertices[triangle[i]];
@@ -1012,7 +1014,7 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
         Vec3f v[3];
         for(int i = 0; i < 3; ++i)
         {
-          v[i] = vertices[triangle[i]];
+          v[i] = vertices[triangle[(Triangle::index_type)i]];
         }
 
         fit(v, 3, bv);
