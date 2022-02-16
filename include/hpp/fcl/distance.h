@@ -102,8 +102,14 @@ public:
   virtual ~ComputeDistance() {};
 
 protected:
+  
+  // These pointers are made mutable to let the derived classes to update
+  // their values when updating the collision geometry (e.g. creating a new one).
+  // This feature should be used carefully to avoid any mis usage
+  // (e.g, changing the type of the collision geometry should be avoided).
   mutable const CollisionGeometry *o1;
   mutable const CollisionGeometry *o2;
+  
   GJKSolver solver;
 
   DistanceFunctionMatrix::DistanceFunc func;
