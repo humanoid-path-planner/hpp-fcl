@@ -1043,7 +1043,7 @@ template<typename BV>
 int BVHModel<BV>::refitTree_topdown()
 {
   bv_fitter->set(vertices, prev_vertices, tri_indices, getModelType());
-  for(int i = 0; i < num_bvs; ++i)
+  for(unsigned int i = 0; i < num_bvs; ++i)
   {
     BV bv = bv_fitter->fit(primitive_indices + bvs[i].first_primitive, bvs[i].num_primitives);
     bvs[i].bv = bv;
