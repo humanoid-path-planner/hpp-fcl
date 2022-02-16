@@ -79,7 +79,7 @@ BVHModelBase::BVHModelBase(const BVHModelBase& other) :
     std::copy(other.vertices, other.vertices + sizeof(Vec3f) * static_cast<std::size_t>(num_vertices), vertices);
   }
   else
-    vertices = NULL;
+    vertices = nullptr;
 
   if(other.tri_indices)
   {
@@ -87,7 +87,7 @@ BVHModelBase::BVHModelBase(const BVHModelBase& other) :
     std::copy(other.tri_indices, other.tri_indices + sizeof(Triangle) * static_cast<std::size_t>(num_tris), tri_indices);
   }
   else
-    tri_indices = NULL;
+    tri_indices = nullptr;
 
   if(other.prev_vertices)
   {
@@ -95,7 +95,7 @@ BVHModelBase::BVHModelBase(const BVHModelBase& other) :
     std::copy(other.prev_vertices, other.prev_vertices + sizeof(Vec3f) * static_cast<std::size_t>(num_vertices), prev_vertices);
   }
   else
-    prev_vertices = NULL;
+    prev_vertices = nullptr;
 }
 
 bool BVHModelBase::operator==(const BVHModelBase & other) const
@@ -115,7 +115,7 @@ bool BVHModelBase::operator==(const BVHModelBase & other) const
     if(vertices[k] != other.vertices[k])
       return false;
   
-  if(prev_vertices != NULL && other.prev_vertices != NULL)
+  if(prev_vertices != nullptr && other.prev_vertices != nullptr)
   {
     for(size_t k = 0; k < static_cast<size_t>(num_vertices); ++k)
     {
@@ -176,7 +176,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
     std::copy(other.primitive_indices, other.primitive_indices + num_primitives, primitive_indices);
   }
   else
-    primitive_indices = NULL;
+    primitive_indices = nullptr;
 
   num_bvs = num_bvs_allocated = other.num_bvs;
   if(other.bvs)
@@ -185,7 +185,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
     std::copy(other.bvs, other.bvs + sizeof(BVNode<BV>) * static_cast<std::size_t>(num_bvs), bvs);
   }
   else
-    bvs = NULL;
+    bvs = nullptr;
 }
 
 
@@ -193,9 +193,9 @@ int BVHModelBase::beginModel(unsigned int num_tris_, unsigned int num_vertices_)
 {
   if(build_state != BVH_BUILD_STATE_EMPTY)
   {
-    delete [] vertices; vertices = NULL;
-    delete [] tri_indices; tri_indices = NULL;
-    delete [] prev_vertices; prev_vertices = NULL;
+    delete [] vertices; vertices = nullptr;
+    delete [] tri_indices; tri_indices = nullptr;
+    delete [] prev_vertices; prev_vertices = nullptr;
 
     num_vertices_allocated = num_vertices = num_tris_allocated = num_tris = 0;
     deleteBVs();
