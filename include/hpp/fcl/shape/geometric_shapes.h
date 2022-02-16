@@ -115,7 +115,15 @@ public:
   , halfSide(other.halfSide)
   {
   }
-  
+
+  Box& operator=(const Box & other)
+  {
+    if (this == &other) return *this;
+
+    this->halfSide = other.halfSide;
+    return *this;
+  }
+
   /// @brief Clone *this into a new Box
   virtual Box* clone() const { return new Box(*this); };
 
@@ -361,7 +369,16 @@ public:
   , halfLength(other.halfLength)
   {
   }
-  
+
+  Cylinder& operator=(const Cylinder & other)
+  {
+    if (this == &other) return *this;
+
+    this->radius = other.radius;
+    this->halfLength = other.halfLength;
+    return *this;
+  }
+
   /// @brief Clone *this into a new Cylinder
   virtual Cylinder* clone() const { return new Cylinder(*this); };
   
