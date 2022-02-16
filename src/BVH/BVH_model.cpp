@@ -76,7 +76,7 @@ BVHModelBase::BVHModelBase(const BVHModelBase& other) :
   if(other.vertices)
   {
     vertices = new Vec3f[num_vertices];
-    memcpy(vertices, other.vertices, sizeof(Vec3f) * (size_t)num_vertices);
+    std::copy(other.vertices, other.vertices + sizeof(Vec3f) * static_cast<std::size_t>(num_vertices), vertices);
   }
   else
     vertices = NULL;
@@ -84,7 +84,7 @@ BVHModelBase::BVHModelBase(const BVHModelBase& other) :
   if(other.tri_indices)
   {
     tri_indices = new Triangle[num_tris];
-    memcpy(tri_indices, other.tri_indices, sizeof(Triangle) * (size_t)num_tris);
+    std::copy(other.tri_indices, other.tri_indices + sizeof(Triangle) * static_cast<std::size_t>(num_tris), tri_indices);
   }
   else
     tri_indices = NULL;
@@ -92,7 +92,7 @@ BVHModelBase::BVHModelBase(const BVHModelBase& other) :
   if(other.prev_vertices)
   {
     prev_vertices = new Vec3f[num_vertices];
-    memcpy(prev_vertices, other.prev_vertices, sizeof(Vec3f) * (size_t)num_vertices);
+    std::copy(other.prev_vertices, other.prev_vertices + sizeof(Vec3f) * static_cast<std::size_t>(num_vertices), prev_vertices);
   }
   else
     prev_vertices = NULL;
@@ -134,10 +134,10 @@ void BVHModelBase::buildConvexRepresentation(bool share_memory)
     Triangle* polygons = tri_indices;
     if (!share_memory) {
       points = new Vec3f[num_vertices];
-      memcpy(points, vertices, sizeof(Vec3f) * (size_t)num_vertices);
+      std::copy(vertices, vertices + sizeof(Vec3f) * static_cast<std::size_t>(num_vertices), points);
 
       polygons = new Triangle[num_tris];
-      memcpy(polygons, tri_indices, sizeof(Triangle) * (size_t)num_tris);
+      std::copy(tri_indices, tri_indices + sizeof(Triangle) * static_cast<std::size_t>(num_tris), polygons);
     }
     convex.reset(new Convex<Triangle>(!share_memory, points, num_vertices, polygons, num_tris));
   }
@@ -173,7 +173,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
     }
 
     primitive_indices = new unsigned int[num_primitives];
-    memcpy(primitive_indices, other.primitive_indices, sizeof(unsigned int) * (size_t)num_primitives);
+    std::copy(other.primitive_indices, other.primitive_indices + num_primitives, primitive_indices);
   }
   else
     primitive_indices = NULL;
@@ -182,7 +182,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
   if(other.bvs)
   {
     bvs = new BVNode<BV>[num_bvs];
-    memcpy(bvs, other.bvs, sizeof(BVNode<BV>) * (size_t)num_bvs);
+    std::copy(other.bvs, other.bvs + sizeof(BVNode<BV>) * static_cast<std::size_t>(num_bvs), bvs);
   }
   else
     bvs = NULL;
@@ -251,7 +251,7 @@ int BVHModelBase::addVertex(const Vec3f& p)
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vec3f) * (size_t)num_vertices);
+    std::copy(vertices, vertices + sizeof(Vec3f) * static_cast<std::size_t>(num_vertices), temp);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated *= 2;
@@ -315,7 +315,7 @@ int BVHModelBase::addVertices(const Matrixx3f & points)
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vec3f) * (size_t)num_vertices);
+    std::copy(vertices, vertices + sizeof(Vec3f) * static_cast<std::size_t>(num_vertices), temp);
     delete [] vertices;
     vertices = temp;
   }
@@ -343,7 +343,7 @@ int BVHModelBase::addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vec3f) * (size_t)num_vertices);
+    std::copy(vertices, vertices + sizeof(Vec3f) * static_cast<std::size_t>(num_vertices), temp);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated = num_vertices_allocated * 2 + 2;
@@ -400,7 +400,7 @@ int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps)
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vec3f) * (size_t)num_vertices);
+    std::copy(vertices, vertices + sizeof(Vec3f) * static_cast<std::size_t>(num_vertices), temp);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated = num_vertices_allocated * 2 + num_vertices_to_add - 1;
@@ -434,7 +434,7 @@ int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Tr
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vec3f) * (size_t)num_vertices);
+    std::copy(vertices, vertices + sizeof(Vec3f) * static_cast<std::size_t>(num_vertices), temp);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated = num_vertices_allocated * 2 + num_vertices_to_add - 1;
@@ -523,7 +523,7 @@ int BVHModelBase::endModel()
       std::cerr << "BVH Error! Out of memory for vertices array in endModel() call!" << std::endl;
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
-    memcpy(new_vertices, vertices, sizeof(Vec3f) * (size_t)num_vertices);
+    std::copy(vertices, vertices + sizeof(Vec3f) * static_cast<std::size_t>(num_vertices), new_vertices);
     delete [] vertices;
     vertices = new_vertices;
     num_vertices_allocated = num_vertices;
