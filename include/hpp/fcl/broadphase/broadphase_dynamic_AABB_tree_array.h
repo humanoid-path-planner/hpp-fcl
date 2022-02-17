@@ -66,8 +66,8 @@ public:
 
   int max_tree_nonbalanced_level;
   int tree_incremental_balance_pass;
-  int* tree_topdown_balance_threshold;
-  int* tree_topdown_level;
+  int* tree_topdown_balance_threshold{nullptr};
+  int* tree_topdown_level{nullptr};
   int tree_init_level;
 
   bool octree_as_geometry_collide;
@@ -129,7 +129,7 @@ public:
   const detail::implementation_array::HierarchyTree<AABB>& getTree() const;
 
 private:
-  detail::implementation_array::HierarchyTree<AABB> dtree;
+  detail::implementation_array::HierarchyTree<AABB> dtree{};
   std::unordered_map<CollisionObject*, size_t> table;
 
   bool setup_;
