@@ -216,6 +216,15 @@ public:
     overlap_part.max_ = max_.cwiseMin(other.max_);
     return true;
   }
+  
+  /// @brief Check whether two AABB are overlapped along specific axis
+  inline bool axisOverlap(const AABB & other, int axis_id) const
+  {
+    if(min_[axis_id] > other.max_[axis_id]) return false;
+    if(max_[axis_id] < other.min_[axis_id]) return false;
+
+    return true;
+  }
 
   /// @brief expand the half size of the AABB by delta, and keep the center unchanged.
   inline AABB& expand(const Vec3f& delta)

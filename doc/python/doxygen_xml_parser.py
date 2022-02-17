@@ -130,7 +130,7 @@ def _templateParamToDict (param):
 
 def makeHeaderGuard (filename):
     import os
-    return filename.upper().replace('.', '_').replace('/', '_')
+    return filename.upper().replace('.', '_').replace('/', '_').replace('-', '_')
 
 def format_description (brief, detailed):
     b = [ el.text.strip() for el in brief   .iter() if el.text ] if brief    is not None else []
@@ -164,7 +164,18 @@ class Reference(object):
                 if parentClass is not None and refid == parentClass.id:
                     t += " " + parentClass.name
                     if c.tail is not None and c.tail.lstrip()[0] != '<':
-                        t += tplargs
+                        if tplargs is not None:
+                            t += tplargs
+                elif parentClass is not None and isinstance(parentClass,ClassCompound) and parentClass.hasTypeDef(c.text.strip()):
+                    parent_has_templates = len(parentClass.template_params) > 0
+                    if parent_has_templates:
+                        t += " typename " + parentClass._className() + "::"
+                    else:
+                        t += " " + parentClass._className() + "::"
+                    self_has_templates = c.tail is not None and c.tail.strip().find('<') != -1
+                    if self_has_templates:
+                        t += " template "
+                    t += c.text.strip() 
                 elif self.index.hasref(refid):
                     t += " " + self.index.getref(refid).name
                 else:
@@ -205,9 +216,9 @@ class MemberDef(Reference):
 
     def prototypekey (self):
         prototype = (
-                self.xmlToType(self.rettype),
+                self.xmlToType(self.rettype, parentClass=self.parent),
                 tuple( [ tuple(t.items()) for t in self.template_params ]),
-                tuple( [ self.xmlToType(param.find('type')) for param in self.xml.findall("param") ] ),
+                tuple( [ self.xmlToType(param.find('type'), parentClass=self.parent) for param in self.xml.findall("param") ] ),
                 self.const,
                 )
         return prototype
@@ -224,7 +235,7 @@ class MemberDef(Reference):
             args = ", ".join(
                     [ self.xmlToType(type, array, parentClass=self.parent, tplargs=tplargs) for type,declname,array in self.params])
         else:
-            args = ", ".join([ self.xmlToType(type, array) for type,declname,array in self.params])
+            args = ", ".join([ self.xmlToType(type, array, parentClass=self.parent) for type,declname,array in self.params])
         return args
 
     def s_tpldecl (self):
@@ -233,7 +244,14 @@ class MemberDef(Reference):
 
     def s_rettype (self):
         assert not self.special, "Member {} ({}) is a special function and no return type".format(self.name, self.id)
-        return self.xmlToType(self.rettype)
+        if len(self.parent.template_params) > 0:
+            tplargs = " <" + ", ".join([ d['name'] for d in self.parent.template_params ]) + " > "
+        else:
+            tplargs = None
+        if isinstance(self.parent, ClassCompound): 
+            return self.xmlToType(self.rettype, parentClass=self.parent, tplargs=tplargs)
+        else:
+            return self.xmlToType(self.rettype)
 
     def s_name (self):
         return self.xml.find('name').text.strip()
@@ -332,6 +350,7 @@ class ClassCompound (CompoundBase):
         self.struct = (self.compound.attrib['kind'] == "struct")
         self.public = (self.definition.attrib['prot'] == "public")
         self.template_specialization = (self.name.find('<') > 0)
+        self.typedef = dict()
 
         # Handle templates
         self._templateParams (self.definition.find('templateparamlist'))
@@ -343,17 +362,19 @@ class ClassCompound (CompoundBase):
             elif memberdef.attrib['kind'] == "typedef":
                 ref = Reference (index=self.index,
                         id=memberdef.attrib["id"],
-                        name= self.name + "::" + memberdef.find("name").text)
+                        name= self._className() + "::" + memberdef.find("name").text)
                 self.index.registerReference (ref)
+                self.typedef[memberdef.find("name").text.strip()] = True
+
             elif memberdef.attrib['kind'] == "enum":
                 ref = Reference (index=self.index,
                         id=memberdef.attrib["id"],
-                        name= self.name + "::" + memberdef.find("name").text)
+                        name= self._className()+ "::" + memberdef.find("name").text)
                 self.index.registerReference (ref)
                 for value in memberdef.iterchildren("enumvalue"):
                     ref = Reference (index=self.index,
                             id=value.attrib["id"],
-                            name= self.name + "::" + memberdef.find("name").text)
+                            name= self._className() + "::" + memberdef.find("name").text)
                     self.index.registerReference (ref)
             elif memberdef.attrib['kind'] == "function":
                 self._memberfunc (memberdef)
@@ -374,6 +395,8 @@ class ClassCompound (CompoundBase):
             return self.name
         return self.name + " <" + ", ".join([ d['name'] for d in self.template_params ]) + " >"
 
+    def hasTypeDef(self, typename):
+        return typename in self.typedef
     def innerNamespace (self):
         return self._className()
 

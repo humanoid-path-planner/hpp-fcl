@@ -41,8 +41,12 @@ SET_TARGET_PROPERTIES(python PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
 SET(LIBRARY_NAME hppfcl)
 
 SET(${LIBRARY_NAME}_HEADERS
+  fwd.hh
   fcl.hh
   deprecation.hh
+  broadphase/fwd.hh
+  broadphase/broadphase_collision_manager.hh
+  broadphase/broadphase_callbacks.hh
   )
 
 SET(ENABLE_PYTHON_DOXYGEN_AUTODOC TRUE CACHE BOOL "Enable automatic documentation of Python bindings from Doxygen documentation")
@@ -101,6 +105,7 @@ SET(${LIBRARY_NAME}_SOURCES
   distance.cc
   fcl.cc
   gjk.cc
+  broadphase/broadphase.cc
   )
 
 IF(HPP_FCL_HAS_OCTOMAP)
@@ -115,7 +120,7 @@ IF(WIN32)
 ENDIF(WIN32)
 
 ADD_DEPENDENCIES(python ${LIBRARY_NAME})
-ADD_HEADER_GROUP(${LIBRARY_NAME}_HEADER)
+ADD_HEADER_GROUP(${LIBRARY_NAME}_HEADERS)
 ADD_SOURCE_GROUP(${LIBRARY_NAME}_SOURCES)
 IF(ENABLE_DOXYGEN_AUTODOC)
   ADD_DEPENDENCIES(${LIBRARY_NAME} generate_doxygen_cpp_doc)

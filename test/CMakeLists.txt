@@ -64,6 +64,11 @@ endif(HPP_FCL_HAS_OCTOMAP)
 
 add_fcl_test(serialization serialization.cpp)
 
+# Broadphase
+add_fcl_test(broadphase_dynamic_AABB_tree broadphase_dynamic_AABB_tree.cpp)
+add_fcl_test(broadphase_collision_1 broadphase_collision_1.cpp)
+add_fcl_test(broadphase_collision_2 broadphase_collision_2.cpp)
+
 ## Benchmark
 IF(BUILD_TESTING)
   add_executable(test-benchmark benchmark.cpp)

@@ -44,17 +44,7 @@
 #include "doxygen_autodoc/hpp/fcl/narrowphase/gjk.h"
 #endif
 
-#include "../doc/python/doxygen.hh"
-#include "../doc/python/doxygen-boost.hh"
-
-#define DEF_RW_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
-  def_readwrite (#ATTRIB, &CLASS::ATTRIB,                                      \
-      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
-#define DEF_CLASS_FUNC(CLASS, ATTRIB)                                          \
-  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB))
-
 using namespace boost::python;
-
 using namespace hpp::fcl;
 using hpp::fcl::details::MinkowskiDiff;
 using hpp::fcl::details::GJK;

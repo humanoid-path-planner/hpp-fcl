@@ -41,6 +41,7 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/collision_object.h>
+#include <hpp/fcl/broadphase/default_broadphase_callbacks.h>
 
 #ifdef HPP_FCL_HAS_OCTOMAP
 #include <hpp/fcl/octree.h>
@@ -99,6 +100,20 @@ private:
 #endif
 };
 
+struct TStruct
+{
+  std::vector<double> records;
+  double overall_time;
+
+  TStruct() { overall_time = 0; }
+
+  void push_back(double t)
+  {
+    records.push_back(t);
+    overall_time += t;
+  }
+};
+
 extern const Eigen::IOFormat vfmt;
 extern const Eigen::IOFormat pyfmt;
 typedef Eigen::AngleAxis<FCL_REAL> AngleAxis;
@@ -115,7 +130,7 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
 fcl::OcTree loadOctreeFile (const std::string& filename, const FCL_REAL& resolution);
 #endif
 
-/// @brief Generate one random transform whose translation is constrained by extents and rotation without constraints. 
+/// @brief Generate one random transform whose translation is constrained by extents and rotation without constraints.
 /// The translation is (x, y, z), and extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <= z <= extents[5]
 void generateRandomTransform(FCL_REAL extents[6], Transform3f& transform);
 
@@ -133,44 +148,6 @@ struct DistanceRes
   Vec3f p2;
 };
 
-/// @brief Collision data stores the collision request and the result given by collision algorithm. 
-struct CollisionData
-{
-CollisionData() : request (NO_REQUEST, 1)
-  {
-    done = false;
-  }
-
-  /// @brief Collision request
-  CollisionRequest request;
-
-  /// @brief Collision result
-  CollisionResult result;
-
-  /// @brief Whether the collision iteration can stop
-  bool done;
-};
-
-
-/// @brief Distance data stores the distance request and the result given by distance algorithm. 
-struct DistanceData
-{
-  DistanceData()
-  {
-    done = false;
-  }
-
-  /// @brief Distance request
-  DistanceRequest request;
-
-  /// @brief Distance result
-  DistanceResult result;
-
-  /// @brief Whether the distance iteration can stop
-  bool done;
-
-};
-
 /// @brief Default collision callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now.
 bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata);
 
@@ -185,6 +162,10 @@ std::ostream& operator<< (std::ostream& os, const Transform3f& tf);
 
 /// Get the argument --nb-run from argv
 std::size_t getNbRun (const int& argc, char const* const* argv, std::size_t defaultValue);
+
+void generateEnvironments(std::vector<CollisionObject*>& env, FCL_REAL env_scale, std::size_t n);
+
+void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, FCL_REAL env_scale, std::size_t n);
 
 }
 

@@ -8,9 +8,6 @@
 #include "doxygen_autodoc/functions.h"
 #endif
 
-#include "../doc/python/doxygen.hh"
-#include "../doc/python/doxygen-boost.hh"
-
 void exposeOctree()
 {
   using namespace hpp::fcl;

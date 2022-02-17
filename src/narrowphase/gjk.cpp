@@ -222,10 +222,9 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir, Vec3f& suppo
   if (hint < 0 || hint >= (int)convex->num_points)
     hint = 0;
   FCL_REAL maxdot = pts[hint].dot(dir);
-  FCL_REAL dot;
   std::vector<int8_t>& visited = data->visited;
   visited.assign(convex->num_points, false);
-  visited[hint] = true;
+  visited[(size_t)hint] = true;
   // when the first face is orthogonal to dir, all the dot products will be
   // equal. Yet, the neighbors must be visited.
   bool found = true, loose_check = true;
@@ -234,10 +233,10 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir, Vec3f& suppo
     const ConvexBase::Neighbors& n = nn[hint];
     found = false;
     for (int in = 0; in < n.count(); ++in) {
-      const int ip = n[in];
+      const unsigned int ip = n[in];
       if (visited[ip]) continue;
       visited[ip] = true;
-      dot = pts[ip].dot(dir);
+      const FCL_REAL dot = pts[ip].dot(dir);
       bool better = false;
       if (dot > maxdot) {
         better = true;
@@ -246,7 +245,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir, Vec3f& suppo
         better = true;
       if (better) {
         maxdot = dot;
-        hint = ip;
+        hint = (int)ip;
         found = true;
       }
     }
@@ -740,7 +739,7 @@ bool GJK::encloseOrigin()
   switch(simplex->rank)
   {
   case 1:
-    for(size_t i = 0; i < 3; ++i)
+    for(int i = 0; i < 3; ++i)
     {
       axis[i] = 1;
       appendVertex(*simplex, axis, true, hint);
@@ -756,7 +755,7 @@ bool GJK::encloseOrigin()
   case 2:
     {
       Vec3f d = simplex->vertex[1]->w - simplex->vertex[0]->w;
-      for(size_t i = 0; i < 3; ++i)
+      for(int i = 0; i < 3; ++i)
       {
         axis[i] = 1;
         Vec3f p = d.cross(axis);

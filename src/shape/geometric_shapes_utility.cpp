@@ -519,7 +519,7 @@ void computeBV<OBB, Halfspace>(const Halfspace&, const Transform3f&, OBB& bv)
   /// Half space can only have very rough OBB
   bv.axes.setIdentity();
   bv.To.setZero();
-  bv.extent.setConstant((std::numeric_limits<FCL_REAL>::max()));
+  bv.extent.setConstant(((std::numeric_limits<FCL_REAL>::max)()));
 }
 
 template<>

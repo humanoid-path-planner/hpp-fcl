@@ -1,6 +1,12 @@
 #include "utility.h"
+
+#include <hpp/fcl/BV/BV.h>
+#include <hpp/fcl/BVH/BVH_model.h>
+#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
+
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
+
 #include <cstdio>
 #include <cstddef>
 #include <fstream>
@@ -429,6 +435,66 @@ std::size_t getNbRun (const int& argc, char const* const* argv, std::size_t defa
       if (i+1 != argc)
         return (std::size_t)strtol(argv[i+1], NULL, 10);
   return defaultValue;
+}
+
+void generateEnvironments(std::vector<CollisionObject*>& env, FCL_REAL env_scale, std::size_t n)
+{
+  FCL_REAL extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
+  std::vector<Transform3f> transforms(n);
+
+  generateRandomTransforms(extents, transforms, n);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    Box* box = new Box(5, 10, 20);
+    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(box), transforms[i]));
+  }
+
+  generateRandomTransforms(extents, transforms, n);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    Sphere* sphere = new Sphere(30);
+    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(sphere), transforms[i]));
+  }
+
+  generateRandomTransforms(extents, transforms, n);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    Cylinder* cylinder = new Cylinder(10, 40);
+    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(cylinder), transforms[i]));
+  }
+}
+
+void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, FCL_REAL env_scale, std::size_t n)
+{
+  FCL_REAL extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
+  std::vector<Transform3f> transforms;
+
+  generateRandomTransforms(extents, transforms, n);
+  Box box(5, 10, 20);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    generateBVHModel(*model, box, Transform3f::Identity());
+    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(model), transforms[i]));
+  }
+
+  generateRandomTransforms(extents, transforms, n);
+  Sphere sphere(30);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    generateBVHModel(*model, sphere, Transform3f::Identity(), 16, 16);
+    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(model), transforms[i]));
+  }
+
+  generateRandomTransforms(extents, transforms, n);
+  Cylinder cylinder(10, 40);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    generateBVHModel(*model, cylinder, Transform3f::Identity(), 16, 16);
+    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(model), transforms[i]));
+  }
 }
 
 }

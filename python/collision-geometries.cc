@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2019-2021 CNRS-LAAS INRIA
+//  Copyright (c) 2019-2022 CNRS-LAAS INRIA
 //  Author: Joseph Mirabel
 //  All rights reserved.
 //
@@ -50,25 +50,12 @@
 // FIXME for a reason I do not understand, doxygen fails to understand that
 // BV_splitter is not defined in hpp/fcl/BVH/BVH_model.h
 #include <hpp/fcl/internal/BV_splitter.h>
+#include <hpp/fcl/broadphase/detail/hierarchy_tree.h>
 #include "doxygen_autodoc/hpp/fcl/BVH/BVH_model.h"
 #include "doxygen_autodoc/hpp/fcl/hfield.h"
 #include "doxygen_autodoc/hpp/fcl/shape/geometric_shapes.h"
 #include "doxygen_autodoc/functions.h"
 #endif
-
-#include "../doc/python/doxygen.hh"
-#include "../doc/python/doxygen-boost.hh"
-
-#define DEF_RW_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
-  def_readwrite (#ATTRIB, &CLASS::ATTRIB,                                      \
-      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
-#define DEF_RO_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
-  def_readonly (#ATTRIB, &CLASS::ATTRIB,                                       \
-      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
-#define DEF_CLASS_FUNC(CLASS, ATTRIB)                                          \
-  def (dv::member_func(#ATTRIB, &CLASS::ATTRIB))
-#define DEF_CLASS_FUNC2(CLASS, ATTRIB,policy)                                  \
-  def (dv::member_func(#ATTRIB, &CLASS::ATTRIB, policy))
 
 using namespace boost::python;
 using namespace hpp::fcl;
@@ -601,9 +588,9 @@ void exposeCollisionObject ()
   {
     class_ <CollisionObject, CollisionObjectPtr_t>
       ("CollisionObject", no_init)
-      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&>())
-      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Transform3f&>())
-      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Matrix3f&, const Vec3f&>())
+      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, bp::optional<bool> >())
+      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Transform3f&, bp::optional<bool> >())
+      .def (dv::init<CollisionObject, const CollisionGeometryPtr_t&, const Matrix3f&, const Vec3f&, bp::optional<bool> >())
 
       .DEF_CLASS_FUNC(CollisionObject, getObjectType)
       .DEF_CLASS_FUNC(CollisionObject, getNodeType)
@@ -620,6 +607,7 @@ void exposeCollisionObject ()
 
       .DEF_CLASS_FUNC(CollisionObject, isIdentityTransform)
       .DEF_CLASS_FUNC(CollisionObject, setIdentityTransform)
+      .DEF_CLASS_FUNC2(CollisionObject, setCollisionGeometry, (bp::with_custodian_and_ward_postcall<1,2>()))
       
       .def(dv::member_func("collisionGeometry",
           static_cast<const CollisionGeometryPtr_t& (CollisionObject::*) ()>(&CollisionObject::collisionGeometry),

@@ -78,7 +78,7 @@ ConvexBase::ConvexBase(const ConvexBase& other) :
   neighbors = new Neighbors[num_points];
   memcpy(neighbors, other.neighbors, sizeof(Neighbors) * num_points);
 
-  int c_nneighbors = 0;
+  size_t c_nneighbors = 0;
   for (std::size_t i = 0; i < num_points; ++i)
     c_nneighbors += neighbors[i].count();
   nneighbors_ = new unsigned int[c_nneighbors];

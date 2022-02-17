@@ -44,9 +44,6 @@
 #include "doxygen_autodoc/hpp/fcl/math/transform.h"
 #endif
 
-#include "../doc/python/doxygen.hh"
-#include "../doc/python/doxygen-boost.hh"
-
 using namespace boost::python;
 using namespace hpp::fcl;
 
@@ -100,6 +97,7 @@ void exposeMaths ()
     .def (dv::member_func("setTransform", &Transform3f::setTransform<Matrix3f,Vec3f>))
     .def (dv::member_func("setTransform", static_cast<void (Transform3f::*)(const Quaternion3f&, const Vec3f&)>(&Transform3f::setTransform)))
     .def (dv::member_func("setIdentity", &Transform3f::setIdentity))
+    .def (dv::member_func("Identity", &Transform3f::Identity)).staticmethod("Identity")
 
     .def (dv::member_func("transform", &Transform3f::transform<Vec3f>))
     .def ("inverseInPlace", &Transform3f::inverseInPlace, return_internal_reference<>(), doxygen::member_func_doc(&Transform3f::inverseInPlace))

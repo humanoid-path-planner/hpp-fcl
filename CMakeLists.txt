@@ -74,6 +74,9 @@ APPLY_DEFAULT_APPLE_CONFIGURATION()
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
+# Default C++ version should be C++11
+CHECK_MINIMAL_CXX_STANDARD(11 ENFORCE)
+
 OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" ON)
 CMAKE_DEPENDENT_OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF BUILD_PYTHON_INTERFACE OFF)
 
@@ -126,7 +129,6 @@ endif()
 
 option(HPP_FCL_HAS_QHULL "use qhull library to compute convex hulls." FALSE)
 if(HPP_FCL_HAS_QHULL)
-  CHECK_MINIMAL_CXX_STANDARD(11 ENFORCE)
   find_package(Qhull COMPONENTS qhull_r qhullcpp)
   if(Qhull_FOUND)
     set(HPP_FCL_USE_SYSTEM_QHULL TRUE)
@@ -164,6 +166,41 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/BV/AABB.h
   include/hpp/fcl/BV/OBB.h
   include/hpp/fcl/BV/kDOP.h
+  include/hpp/fcl/broadphase/broadphase_SSaP.h
+  include/hpp/fcl/broadphase/broadphase_SaP.h
+  include/hpp/fcl/broadphase/broadphase_bruteforce.h
+  include/hpp/fcl/broadphase/broadphase_collision_manager.h
+  include/hpp/fcl/broadphase/broadphase_continuous_collision_manager-inl.h
+  include/hpp/fcl/broadphase/broadphase_continuous_collision_manager.h
+  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree-inl.h
+  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h
+  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array-inl.h
+  include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h
+  include/hpp/fcl/broadphase/broadphase_interval_tree.h
+  include/hpp/fcl/broadphase/broadphase_spatialhash-inl.h
+  include/hpp/fcl/broadphase/broadphase_spatialhash.h
+  include/hpp/fcl/broadphase/broadphase_callbacks.h
+  include/hpp/fcl/broadphase/default_broadphase_callbacks.h
+  include/hpp/fcl/broadphase/detail/hierarchy_tree-inl.h
+  include/hpp/fcl/broadphase/detail/hierarchy_tree.h
+  include/hpp/fcl/broadphase/detail/hierarchy_tree_array-inl.h
+  include/hpp/fcl/broadphase/detail/hierarchy_tree_array.h
+  include/hpp/fcl/broadphase/detail/interval_tree.h
+  include/hpp/fcl/broadphase/detail/interval_tree_node.h
+  include/hpp/fcl/broadphase/detail/morton-inl.h
+  include/hpp/fcl/broadphase/detail/morton.h
+  include/hpp/fcl/broadphase/detail/node_base-inl.h
+  include/hpp/fcl/broadphase/detail/node_base.h
+  include/hpp/fcl/broadphase/detail/node_base_array-inl.h
+  include/hpp/fcl/broadphase/detail/node_base_array.h
+  include/hpp/fcl/broadphase/detail/simple_hash_table-inl.h
+  include/hpp/fcl/broadphase/detail/simple_hash_table.h
+  include/hpp/fcl/broadphase/detail/simple_interval-inl.h
+  include/hpp/fcl/broadphase/detail/simple_interval.h
+  include/hpp/fcl/broadphase/detail/sparse_hash_table-inl.h
+  include/hpp/fcl/broadphase/detail/sparse_hash_table.h
+  include/hpp/fcl/broadphase/detail/spatial_hash-inl.h
+  include/hpp/fcl/broadphase/detail/spatial_hash.h
   include/hpp/fcl/narrowphase/narrowphase.h
   include/hpp/fcl/narrowphase/gjk.h
   include/hpp/fcl/shape/convex.h

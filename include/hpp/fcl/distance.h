@@ -94,34 +94,10 @@ public:
   ComputeDistance(const CollisionGeometry* o1, const CollisionGeometry* o2);
 
   FCL_REAL operator()(const Transform3f& tf1, const Transform3f& tf2,
-      const DistanceRequest& request, DistanceResult& result) const
-  {
-    bool cached = request.enable_cached_gjk_guess;
-    solver.enable_cached_guess = cached;
-    if (cached) {
-      solver.cached_guess = request.cached_gjk_guess;
-      solver.support_func_cached_guess = request.cached_support_func_guess;
-    }
-
-    FCL_REAL res;
-    if(request.enable_timings)
-    {
-      Timer timer;
-      res = run(tf1, tf2, request, result);
-      result.timings = timer.elapsed();
-    }
-    else
-      res = run(tf1, tf2, request, result);
-
-    if (cached) {
-      result.cached_gjk_guess = solver.cached_guess;
-      result.cached_support_func_guess = solver.support_func_cached_guess;
-    }
-    return res;
-  }
+                      const DistanceRequest& request, DistanceResult& result) const;
 
   inline FCL_REAL operator()(const Transform3f& tf1, const Transform3f& tf2,
-      DistanceRequest& request, DistanceResult& result) const
+                             DistanceRequest& request, DistanceResult& result) const
   {
     FCL_REAL res = operator()(tf1, tf2, (const DistanceRequest&) request, result);
     request.updateGuess (result);
@@ -131,7 +107,14 @@ public:
   virtual ~ComputeDistance() {};
 
 protected:
-  CollisionGeometry const *o1, *o2;
+  
+  // These pointers are made mutable to let the derived classes to update
+  // their values when updating the collision geometry (e.g. creating a new one).
+  // This feature should be used carefully to avoid any mis usage
+  // (e.g, changing the type of the collision geometry should be avoided).
+  mutable const CollisionGeometry *o1;
+  mutable const CollisionGeometry *o2;
+  
   GJKSolver solver;
 
   DistanceFunctionMatrix::DistanceFunc func;

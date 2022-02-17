@@ -94,54 +94,35 @@ inline std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
 ///   ComputeCollision calc_collision (o1, o2);
 ///   std::size_t ncontacts = calc_collision(tf1, tf2, request, result);
 /// \endcode
-class HPP_FCL_DLLAPI ComputeCollision {
+class HPP_FCL_DLLAPI ComputeCollision
+{
 public:
   
   /// @brief Default constructor from two Collision Geometries.
   ComputeCollision(const CollisionGeometry* o1, const CollisionGeometry* o2);
 
   std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
-                         const CollisionRequest& request, CollisionResult& result) const
-  {
-    bool cached = request.enable_cached_gjk_guess;
-    solver.enable_cached_guess = cached;
-    if (cached) {
-      solver.cached_guess = request.cached_gjk_guess;
-      solver.support_func_cached_guess = request.cached_support_func_guess;
-    }
-    
-    solver.distance_upper_bound = request.distance_upper_bound;
-
-    std::size_t res;
-    if(request.enable_timings)
-    {
-      Timer timer;
-      res = run(tf1, tf2, request, result);
-      result.timings = timer.elapsed();
-    }
-    else
-      res = run(tf1, tf2, request, result);
-
-    if (cached) {
-      result.cached_gjk_guess = solver.cached_guess;
-      result.cached_support_func_guess = solver.support_func_cached_guess;
-    }
-    
-    return res;
-  }
+                         const CollisionRequest& request, CollisionResult& result) const;
   
   inline std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
                                 CollisionRequest& request, CollisionResult& result) const
   {
     std::size_t res = operator()(tf1, tf2, (const CollisionRequest&) request, result);
-    request.updateGuess (result);
+    request.updateGuess(result);
     return res;
   }
   
   virtual ~ComputeCollision() {};
   
 protected:
-  CollisionGeometry const *o1, *o2;
+  
+  // These pointers are made mutable to let the derived classes to update
+  // their values when updating the collision geometry (e.g. creating a new one).
+  // This feature should be used carefully to avoid any mis usage
+  // (e.g, changing the type of the collision geometry should be avoided).
+  mutable const CollisionGeometry *o1;
+  mutable const CollisionGeometry *o2;
+  
   GJKSolver solver;
 
   CollisionFunctionMatrix::CollisionFunc func;
