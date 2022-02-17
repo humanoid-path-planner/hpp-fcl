@@ -9,7 +9,9 @@ HPP-FCL — An extension of the Flexible Collision Library
   <a href="https://badge.fury.io/py/hpp-fcl"><img src="https://badge.fury.io/py/hpp-fcl.svg" alt="PyPI version"></a>
 </p>
 
-This project is initially a fork from https://github.com/flexible-collision-library/fcl and has evolved since then.
+[FCL](https://github.com/flexible-collision-library/fcl) was forked in 2015. Since then, a large part of the code has been rewritten or removed (for the unused part).
+The broadphase was reintroduced by J. Carpentier in 2022 based on the FCL version 0.7.0.
+
 The main new features are:
 - the use of a safety margin when detecting collision,
 - the computation of a lower bound of the distance between two objects when collision checking is performed and no collision is found.
@@ -20,7 +22,5 @@ This project is now used in many robotics frameworks such as [Pinocchio](https:/
 
 ## Acknowledgments
 
-[FCL](https://github.com/flexible-collision-library/fcl) was forked in 2015. Since then, a large part of the code has been rewritten or removed (for the unused part).
-The broadphase was reintroduced by J. Carpentier in 2022 based on the FCL version 0.7.0.
 The development of **HPP-FCL** is actively supported by the [Gepetto team](http://projects.laas.fr/gepetto/) [@LAAS-CNRS](http://www.laas.fr), the [Willow team](https://www.di.ens.fr/willow/) [@INRIA](http://www.inria.fr) and, to some extend, [Eureka Robotics](https://eurekarobotics.com/).
 
