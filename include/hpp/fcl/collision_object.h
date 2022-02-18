@@ -201,7 +201,6 @@ public:
  CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_,
                  bool compute_local_aabb = true)
   : cgeom(cgeom_)
-  , cgeom_const(cgeom_)
   , user_data(nullptr)
   {
     init(compute_local_aabb);
@@ -210,7 +209,6 @@ public:
   CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf,
                   bool compute_local_aabb = true)
   : cgeom(cgeom_)
-  , cgeom_const(cgeom_)
   , t(tf)
   , user_data(nullptr)
   {
@@ -220,7 +218,6 @@ public:
   CollisionObject(const shared_ptr<CollisionGeometry> &cgeom_, const Matrix3f& R, const Vec3f& T,
                   bool compute_local_aabb = true)
   : cgeom(cgeom_)
-  , cgeom_const(cgeom_)
   , t(R, T)
   , user_data(nullptr)
   {
@@ -332,9 +329,9 @@ public:
   }
 
   /// @brief get geometry from the object instance
-  const shared_ptr<const CollisionGeometry>& collisionGeometry() const
+  const shared_ptr<const CollisionGeometry> collisionGeometry() const
   {
-    return cgeom_const;
+    return cgeom;
   }
 
   /// @brief get geometry from the object instance
@@ -370,7 +367,6 @@ protected:
   }
 
   shared_ptr<CollisionGeometry> cgeom;
-  shared_ptr<const CollisionGeometry> cgeom_const;
 
   Transform3f t;
 
