@@ -486,17 +486,17 @@ void exposeCollisionGeometries ()
          static_cast<AABB& (AABB::*)(const AABB &, FCL_REAL)>(&AABB::expand),
          doxygen::member_func_doc(static_cast<AABB& (AABB::*)(const AABB &, FCL_REAL)>(&AABB::expand)),
          doxygen::member_func_args(static_cast<AABB& (AABB::*)(const AABB &, FCL_REAL)>(&AABB::expand)),
-         bp::return_self<>())
+         bp::return_internal_reference<>())
     .def("expand",
          static_cast<AABB& (AABB::*)(const FCL_REAL)>(&AABB::expand),
          doxygen::member_func_doc(static_cast<AABB& (AABB::*)(const FCL_REAL)>(&AABB::expand)),
          doxygen::member_func_args(static_cast<AABB& (AABB::*)(const FCL_REAL)>(&AABB::expand)),
-         bp::return_self<>())
+         bp::return_internal_reference<>())
     .def("expand",
          static_cast<AABB& (AABB::*)(const Vec3f &)>(&AABB::expand),
          doxygen::member_func_doc(static_cast<AABB& (AABB::*)(const Vec3f &)>(&AABB::expand)),
          doxygen::member_func_args(static_cast<AABB& (AABB::*)(const Vec3f &)>(&AABB::expand)),
-         bp::return_self<>())
+         bp::return_internal_reference<>())
   ;
   
   def("translate",
