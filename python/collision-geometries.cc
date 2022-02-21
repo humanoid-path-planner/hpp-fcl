@@ -51,7 +51,9 @@
 // BV_splitter is not defined in hpp/fcl/BVH/BVH_model.h
 #include <hpp/fcl/internal/BV_splitter.h>
 #include <hpp/fcl/broadphase/detail/hierarchy_tree.h>
+
 #include "doxygen_autodoc/hpp/fcl/BVH/BVH_model.h"
+#include "doxygen_autodoc/hpp/fcl/BV/AABB.h"
 #include "doxygen_autodoc/hpp/fcl/hfield.h"
 #include "doxygen_autodoc/hpp/fcl/shape/geometric_shapes.h"
 #include "doxygen_autodoc/functions.h"
@@ -481,15 +483,21 @@ void exposeCollisionGeometries ()
     .def("volume",&AABB::volume,bp::arg("self"),"Volume of the AABB.")
   
     .def("expand",
-         (AABB& (AABB::*)(const AABB &, FCL_REAL))&AABB::expand,
-         bp::args("self","core","ratio"),
-         "Expand the AABB by increase the thickness of the plate by a ratio.",
-         bp::return_internal_reference<>())
+         static_cast<AABB& (AABB::*)(const AABB &, FCL_REAL)>(&AABB::expand),
+         doxygen::member_func_doc(static_cast<AABB& (AABB::*)(const AABB &, FCL_REAL)>(&AABB::expand)),
+         doxygen::member_func_args(static_cast<AABB& (AABB::*)(const AABB &, FCL_REAL)>(&AABB::expand)),
+         bp::return_self<>())
     .def("expand",
-         (AABB& (AABB::*)(const Vec3f &))&AABB::expand,
-         bp::args("self","delta"),
-         "Expand the half size of the AABB by delta, and keep the center unchanged.",
-         bp::return_internal_reference<>());
+         static_cast<AABB& (AABB::*)(const FCL_REAL)>(&AABB::expand),
+         doxygen::member_func_doc(static_cast<AABB& (AABB::*)(const FCL_REAL)>(&AABB::expand)),
+         doxygen::member_func_args(static_cast<AABB& (AABB::*)(const FCL_REAL)>(&AABB::expand)),
+         bp::return_self<>())
+    .def("expand",
+         static_cast<AABB& (AABB::*)(const Vec3f &)>(&AABB::expand),
+         doxygen::member_func_doc(static_cast<AABB& (AABB::*)(const Vec3f &)>(&AABB::expand)),
+         doxygen::member_func_args(static_cast<AABB& (AABB::*)(const Vec3f &)>(&AABB::expand)),
+         bp::return_self<>())
+  ;
   
   def("translate",
       (AABB (*)(const AABB&, const Vec3f&))&translate,
