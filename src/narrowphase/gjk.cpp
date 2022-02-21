@@ -224,7 +224,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir, Vec3f& suppo
   FCL_REAL maxdot = pts[hint].dot(dir);
   std::vector<int8_t>& visited = data->visited;
   visited.assign(convex->num_points, false);
-  visited[(size_t)hint] = true;
+  visited[static_cast<std::size_t>(hint)] = true;
   // when the first face is orthogonal to dir, all the dot products will be
   // equal. Yet, the neighbors must be visited.
   bool found = true, loose_check = true;
@@ -245,7 +245,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir, Vec3f& suppo
         better = true;
       if (better) {
         maxdot = dot;
-        hint = (int)ip;
+        hint = static_cast<int>(ip);
         found = true;
       }
     }

@@ -36,8 +36,9 @@
 /** \author Jia Pan */
 
 #define BOOST_TEST_MODULE FCL_DISTANCE
+#include <chrono>
+
 #include <boost/test/included/unit_test.hpp>
-#include <boost/timer.hpp>
 #include <boost/filesystem.hpp>
 
 #include <hpp/fcl/internal/traversal_node_bvhs.h>
@@ -110,13 +111,13 @@ BOOST_AUTO_TEST_CASE(mesh_distance)
   DistanceRes res, res_now;
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    boost::timer timer_col;
+    auto timer_col = std::chrono::high_resolution_clock::now();
     collide_Test_OBB(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    col_time += timer_col.elapsed();
+    col_time += std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - timer_col).count();
 
-    boost::timer timer_dist;
+    auto timer_dist = std::chrono::high_resolution_clock::now();
     distance_Test_Oriented<RSS, MeshDistanceTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res, verbose);
-    dis_time += timer_dist.elapsed();
+    dis_time += std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - timer_dist).count();
 
     distance_Test_Oriented<RSS, MeshDistanceTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
 

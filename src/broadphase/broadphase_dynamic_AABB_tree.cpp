@@ -508,9 +508,9 @@ bool selfDistanceRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root,
 
 //==============================================================================
 DynamicAABBTreeCollisionManager::DynamicAABBTreeCollisionManager()
-  : tree_topdown_balance_threshold(&dtree.bu_threshold),
-    tree_topdown_level(&dtree.topdown_level)
 {
+  tree_topdown_balance_threshold = &dtree.bu_threshold;
+  tree_topdown_level = &dtree.topdown_level;
   max_tree_nonbalanced_level = 10;
   tree_incremental_balance_pass = 10;
   *tree_topdown_balance_threshold = 2;

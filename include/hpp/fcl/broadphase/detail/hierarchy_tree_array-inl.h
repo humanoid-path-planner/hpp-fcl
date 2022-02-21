@@ -652,7 +652,7 @@ size_t HierarchyTree<BV>::topdown_1(size_t* lbeg, size_t* lend)
         split_p += nodes[*i].bv.center();
         vol += nodes[*i].bv;
       }
-      split_p /= num_leaves;
+      split_p /= static_cast<FCL_REAL>(num_leaves);
       int best_axis = -1;
       int bestmidp = num_leaves;
       int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};

@@ -510,7 +510,7 @@ Project::ProjectResult Project::projectTriangle(const Vec3f& a, const Vec3f& b, 
         if(mindist < 0 || res_line.sqr_distance < mindist)
         {
           mindist = res_line.sqr_distance;
-          res.encode = static_cast<size_t>(((res_line.encode&1)?1<<i:0) + ((res_line.encode&2)?1<<j:0));
+          res.encode = static_cast<unsigned int>(((res_line.encode&1)?1<<i:0) + ((res_line.encode&2)?1<<j:0));
           res.parameterization[i] = res_line.parameterization[0];
           res.parameterization[j] = res_line.parameterization[1];
           res.parameterization[nexti[j]] = 0;
@@ -560,7 +560,7 @@ Project::ProjectResult Project::projectTetrahedra(const Vec3f& a, const Vec3f& b
         if(mindist < 0 || res_triangle.sqr_distance < mindist)
         {
           mindist = res_triangle.sqr_distance;
-          res.encode = static_cast<size_t>( (res_triangle.encode&1?1<<i:0) + (res_triangle.encode&2?1<<j:0) + (res_triangle.encode&4?8:0) );
+          res.encode = static_cast<unsigned int>( (res_triangle.encode&1?1<<i:0) + (res_triangle.encode&2?1<<j:0) + (res_triangle.encode&4?8:0) );
           res.parameterization[i] = res_triangle.parameterization[0];
           res.parameterization[j] = res_triangle.parameterization[1];
           res.parameterization[nexti[j]] = 0;
@@ -632,7 +632,7 @@ Project::ProjectResult Project::projectTriangleOrigin(const Vec3f& a, const Vec3
         if(mindist < 0 || res_line.sqr_distance < mindist)
         {
           mindist = res_line.sqr_distance;
-          res.encode = static_cast<size_t>(((res_line.encode&1)?1<<i:0) + ((res_line.encode&2)?1<<j:0));
+          res.encode = static_cast<unsigned int>(((res_line.encode&1)?1<<i:0) + ((res_line.encode&2)?1<<j:0));
           res.parameterization[i] = res_line.parameterization[0];
           res.parameterization[j] = res_line.parameterization[1];
           res.parameterization[nexti[j]] = 0;
@@ -682,7 +682,7 @@ Project::ProjectResult Project::projectTetrahedraOrigin(const Vec3f& a, const Ve
         if(mindist < 0 || res_triangle.sqr_distance < mindist)
         {
           mindist = res_triangle.sqr_distance;
-          res.encode = static_cast<size_t>( (res_triangle.encode&1?1<<i:0) + (res_triangle.encode&2?1<<j:0) + (res_triangle.encode&4?8:0) );
+          res.encode = static_cast<unsigned int>( (res_triangle.encode&1?1<<i:0) + (res_triangle.encode&2?1<<j:0) + (res_triangle.encode&4?8:0) );
           res.parameterization[i] = res_triangle.parameterization[0];
           res.parameterization[j] = res_triangle.parameterization[1];
           res.parameterization[nexti[j]] = 0;

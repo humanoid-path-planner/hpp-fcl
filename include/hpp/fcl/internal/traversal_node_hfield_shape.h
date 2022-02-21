@@ -223,13 +223,13 @@ public:
   /// @brief Obtain the left child of BV node in the first BVH
   int getFirstLeftChild(unsigned int b) const
   {
-    return model1->getBV(b).leftChild();
+    return static_cast<int>(model1->getBV(b).leftChild());
   }
 
   /// @brief Obtain the right child of BV node in the first BVH
   int getFirstRightChild(unsigned int b) const
   {
-    return model1->getBV(b).rightChild();
+    return static_cast<int>(model1->getBV(b).rightChild());
   }
 
   /// @brief BV culling test in one BVTT node
@@ -351,7 +351,7 @@ public:
       if(this->request.num_max_contacts > this->result->numContacts())
       {
         this->result->addContact(Contact(this->model1, this->model2,
-                                         b1, (int)Contact::NONE,
+                                         (int)b1, (int)Contact::NONE,
                                          c1, normal, distance));
         assert (this->result->isCollision());
         return;
@@ -363,7 +363,7 @@ public:
         && distance <= this->request.security_margin)
     {
       this->result->addContact(Contact(this->model1, this->model2,
-                                       b1, (int)Contact::NONE,
+                                       (int)b1, (int)Contact::NONE,
                                        .5 * (c1+c2), (c2-c1).normalized (),
                                        distance));
     }

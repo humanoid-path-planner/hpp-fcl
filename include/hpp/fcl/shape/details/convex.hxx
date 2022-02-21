@@ -108,15 +108,15 @@ Matrix3f Convex<PolygonT>::computeMomentofInertia() const
     // compute the center of the polygon
     Vec3f plane_center(0,0,0);
     for(size_type j = 0; j < polygon.size(); ++j)
-      plane_center += points[polygon[j]];
+      plane_center += points[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
     // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
     const Vec3f& v3 = plane_center;
     for(size_type j = 0; j < polygon.size(); ++j)
     {
-      index_type e_first = polygon[j];
-      index_type e_second = polygon[(j+1)%polygon.size()];
+      index_type e_first = polygon[static_cast<index_type>(j)];
+      index_type e_second = polygon[static_cast<index_type>((j+1)%polygon.size())];
       const Vec3f& v1 = points[e_first];
       const Vec3f& v2 = points[e_second];
       Matrix3f A; A << v1.transpose(), v2.transpose(), v3.transpose(); // this is A' in the original document
@@ -141,15 +141,15 @@ Vec3f Convex<PolygonT>::computeCOM() const
     // compute the center of the polygon
     Vec3f plane_center(0,0,0);
     for(size_type j = 0; j < polygon.size(); ++j)
-      plane_center += points[polygon[j]];
+      plane_center += points[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
     // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
     const Vec3f& v3 = plane_center;
     for(size_type j = 0; j < polygon.size(); ++j)
     {
-      index_type e_first = polygon[j];
-      index_type e_second = polygon[(j+1)%polygon.size()];
+      index_type e_first = polygon[static_cast<index_type>(j)];
+      index_type e_second = polygon[static_cast<index_type>((j+1)%polygon.size())];
       const Vec3f& v1 = points[e_first];
       const Vec3f& v2 = points[e_second];
       FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
@@ -175,15 +175,15 @@ FCL_REAL Convex<PolygonT>::computeVolume() const
     // compute the center of the polygon
     Vec3f plane_center(0,0,0);
     for(size_type j = 0; j < polygon.size(); ++j)
-      plane_center += points[polygon[j]];
+      plane_center += points[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
     // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero point) of the convex shape
     const Vec3f& v3 = plane_center;
     for(size_type j = 0; j < polygon.size(); ++j)
     {
-      index_type e_first = polygon[j];
-      index_type e_second = polygon[(j+1)%polygon.size()];
+      index_type e_first = polygon[static_cast<index_type>(j)];
+      index_type e_second = polygon[static_cast<index_type>((j+1)%polygon.size())];
       const Vec3f& v1 = points[e_first];
       const Vec3f& v2 = points[e_second];
       FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
@@ -213,9 +213,9 @@ void Convex<PolygonT>::fillNeighbors()
     {
       size_type i = (j==0  ) ? n-1 : j-1;
       size_type k = (j==n-1) ? 0   : j+1;
-      index_type pi = polygon[i],
-                 pj = polygon[j],
-                 pk = polygon[k];
+      index_type pi = polygon[(index_type)i],
+                 pj = polygon[(index_type)j],
+                 pk = polygon[(index_type)k];
       // Update neighbors of pj;
       if (nneighbors[pj].count(pi) == 0) {
         c_nneighbors++;

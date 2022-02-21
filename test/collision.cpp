@@ -606,7 +606,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh)
   }
 
   // Request all contacts and check that all methods give the same result.
-  mesh_mesh_run_test runner (transforms, CollisionRequest (CONTACT, num_max_contacts));
+  mesh_mesh_run_test runner (transforms, CollisionRequest (CONTACT, (size_t)num_max_contacts));
   runner.enable_statistics = true;
   boost::mpl::for_each<BVs_t, wrap<boost::mpl::placeholders::_1> > (runner);
 }

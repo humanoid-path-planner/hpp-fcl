@@ -13,11 +13,13 @@ jobs:
         env:
           - {ROS_DISTRO: melodic}
           - {ROS_DISTRO: noetic, BUILDER: catkin_tools}
+          #- {ROS_DISTRO: noetic, BUILDER: catkin_tools, ADDITIONAL_DEBS: clang, CC: clang, CXX: clang++}
           - {ROS_DISTRO: foxy}
           #- {ROS_DISTRO: galactic} ## Activate once eigenpy released to galactic
           - {ROS_DISTRO: foxy, PRERELEASE: true}
           #- {ROS_DISTRO: galactic, PRERELEASE: true} ## Activate once eigenpy released to galactic
     env:
+      AFTER_RUN_TARGET_TEST: 'cd /root/target_ws/build/hpp-fcl && make test'
       CCACHE_DIR: /github/home/.ccache # Enable ccache
     runs-on: ubuntu-latest
     steps:
