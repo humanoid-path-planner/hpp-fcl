@@ -304,7 +304,7 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
     return;
 
   std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
-  size_t w = 7;
+  int w = 7;
 
   std::cout << "collision timing summary" << std::endl;
   std::cout << env_size << " objs" << std::endl;
