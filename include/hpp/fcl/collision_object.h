@@ -79,6 +79,7 @@ public:
   CollisionGeometry(const CollisionGeometry & other)
   : aabb_center(other.aabb_center)
   , aabb_radius(other.aabb_radius)
+  , aabb_local(other.aabb_local)
   , cost_density(other.cost_density)
   , threshold_occupied(other.threshold_occupied)
   , threshold_free(other.threshold_free)
