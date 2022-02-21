@@ -264,7 +264,7 @@ void HierarchyTree<BV>::balanceTopdown()
 template<typename BV>
 void HierarchyTree<BV>::balanceIncremental(int iterations)
 {
-  if(iterations < 0) iterations = n_leaves;
+  if(iterations < 0) iterations = (int)n_leaves;
   if(root_node && (iterations > 0))
   {
     for(int i = 0; i < iterations; ++i)
@@ -426,7 +426,7 @@ void HierarchyTree<BV>::getMaxDepth(Node* node, size_t depth, size_t& max_depth)
 template<typename BV>
 typename HierarchyTree<BV>::Node* HierarchyTree<BV>::topdown_0(const NodeVecIterator lbeg, const NodeVecIterator lend)
 {
-  int num_leaves = lend - lbeg;
+  long num_leaves = lend - lbeg;
   if(num_leaves > 1)
   {
     if(num_leaves > bu_threshold)
@@ -464,7 +464,7 @@ typename HierarchyTree<BV>::Node* HierarchyTree<BV>::topdown_0(const NodeVecIter
 template<typename BV>
 typename HierarchyTree<BV>::Node* HierarchyTree<BV>::topdown_1(const NodeVecIterator lbeg, const NodeVecIterator lend)
 {
-  int num_leaves = lend - lbeg;
+  long num_leaves = lend - lbeg;
   if(num_leaves > 1)
   {
     if(num_leaves > bu_threshold)
@@ -479,7 +479,7 @@ typename HierarchyTree<BV>::Node* HierarchyTree<BV>::topdown_1(const NodeVecIter
       }
       split_p /= num_leaves;
       int best_axis = -1;
-      int bestmidp = num_leaves;
+      long bestmidp = num_leaves;
       int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};
       for(it = lbeg; it < lend; ++it)
       {
@@ -488,11 +488,11 @@ typename HierarchyTree<BV>::Node* HierarchyTree<BV>::topdown_1(const NodeVecIter
           ++splitcount[j][x[j] > 0 ? 1 : 0];
       }
 
-      for(size_t i = 0; i < 3; ++i)
+      for(int i = 0; i < 3; ++i)
       {
         if((splitcount[i][0] > 0) && (splitcount[i][1] > 0))
         {
-          int midp = std::abs(splitcount[i][0] - splitcount[i][1]);
+          long midp = std::abs(splitcount[i][0] - splitcount[i][1]);
           if(midp < bestmidp)
           {
             best_axis = i;
@@ -625,7 +625,7 @@ void HierarchyTree<BV>::init_3(std::vector<Node*>& leaves)
 template<typename BV>
 typename HierarchyTree<BV>::Node* HierarchyTree<BV>::mortonRecurse_0(const NodeVecIterator lbeg, const NodeVecIterator lend, const uint32_t& split, int bits)
 {
-  int num_leaves = lend - lbeg;
+  long num_leaves = lend - lbeg;
   if(num_leaves > 1)
   {
     if(bits > 0)
@@ -673,7 +673,7 @@ typename HierarchyTree<BV>::Node* HierarchyTree<BV>::mortonRecurse_0(const NodeV
 template<typename BV>
 typename HierarchyTree<BV>::Node* HierarchyTree<BV>::mortonRecurse_1(const NodeVecIterator lbeg, const NodeVecIterator lend, const uint32_t& split, int bits)
 {
-  int num_leaves = lend - lbeg;
+  long num_leaves = lend - lbeg;
   if(num_leaves > 1)
   {
     if(bits > 0)
@@ -727,7 +727,7 @@ typename HierarchyTree<BV>::Node* HierarchyTree<BV>::mortonRecurse_1(const NodeV
 template<typename BV>
 typename HierarchyTree<BV>::Node* HierarchyTree<BV>::mortonRecurse_2(const NodeVecIterator lbeg, const NodeVecIterator lend)
 {
-  int num_leaves = lend - lbeg;
+  long num_leaves = lend - lbeg;
   if(num_leaves > 1)
   {
     Node* child1 = mortonRecurse_2(lbeg, lbeg + num_leaves / 2);
@@ -770,8 +770,8 @@ typename HierarchyTree<BV>::Node* HierarchyTree<BV>::sort(Node* n, Node*& r)
   Node* p = n->parent;
   if(p > n)
   {
-    int i = indexOf(n);
-    int j = 1 - i;
+    size_t i = indexOf(n);
+    size_t j = 1 - i;
     Node* s = p->children[j];
     Node* q = p->parent;
     if(q) q->children[indexOf(p)] = n; else r = n;

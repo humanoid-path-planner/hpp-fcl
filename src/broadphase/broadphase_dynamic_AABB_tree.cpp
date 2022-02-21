@@ -322,7 +322,7 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root,
 
   if(!root->bv.overlap(query->getAABB())) return false;
 
-  int select_res = select(query->getAABB(), *(root->children[0]), *(root->children[1]));
+  size_t select_res = select(query->getAABB(), *(root->children[0]), *(root->children[1]));
 
   if(collisionRecurse(root->children[select_res], query, callback))
     return true;
@@ -574,17 +574,16 @@ void DynamicAABBTreeCollisionManager::setup()
 {
   if(!setup_)
   {
-    int num = dtree.size();
+    size_t num = dtree.size();
     if(num == 0)
     {
       setup_ = true;
       return;
     }
 
-    int height = dtree.getMaxHeight();
+    size_t height = dtree.getMaxHeight();
 
-
-    if(height - std::log((FCL_REAL)num) / std::log(2.0) < max_tree_nonbalanced_level)
+    if((height - std::log((FCL_REAL)num) / std::log(2.0)) < max_tree_nonbalanced_level)
       dtree.balanceIncremental(tree_incremental_balance_pass);
     else
       dtree.balanceTopdown();
