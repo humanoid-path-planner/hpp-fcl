@@ -247,19 +247,19 @@ bool SSaPCollisionManager::collide_(CollisionObject* obj, CollisionCallBackBase 
 
   const auto pos_start1 = objs_x.begin();
   const auto pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow());
-  unsigned int d1 = pos_end1 - pos_start1;
+  long d1 = pos_end1 - pos_start1;
 
   if(d1 > CUTOFF)
   {
     const auto pos_start2 = objs_y.begin();
     const auto pos_end2 = std::upper_bound(pos_start2, objs_y.end(), &dummyHigh, SortByYLow());
-    unsigned int d2 = pos_end2 - pos_start2;
+    long d2 = pos_end2 - pos_start2;
 
     if(d2 > CUTOFF)
     {
       const auto pos_start3 = objs_z.begin();
       const auto pos_end3 = std::upper_bound(pos_start3, objs_z.end(), &dummyHigh, SortByZLow());
-      unsigned int d3 = pos_end3 - pos_start3;
+      long d3 = pos_end3 - pos_start3;
 
       if(d3 > CUTOFF)
       {
@@ -320,19 +320,19 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj, DistanceCallBackBase 
     DummyCollisionObject dummyHigh((AABB(dummy_vector)));
 
     pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow());
-    unsigned int d1 = pos_end1 - pos_start1;
+    long d1 = pos_end1 - pos_start1;
 
     bool dist_res = false;
 
     if(d1 > CUTOFF)
     {
       pos_end2 = std::upper_bound(pos_start2, objs_y.end(), &dummyHigh, SortByYLow());
-      unsigned int d2 = pos_end2 - pos_start2;
+      long d2 = pos_end2 - pos_start2;
 
       if(d2 > CUTOFF)
       {
         pos_end3 = std::upper_bound(pos_start3, objs_z.end(), &dummyHigh, SortByZLow());
-        unsigned int d3 = pos_end3 - pos_start3;
+        long d3 = pos_end3 - pos_start3;
 
         if(d3 > CUTOFF)
         {
@@ -394,18 +394,18 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj, DistanceCallBackBase 
 }
 
 //==============================================================================
-size_t SSaPCollisionManager::selectOptimalAxis(const std::vector<CollisionObject*>& objs_x,
-                                               const std::vector<CollisionObject*>& objs_y,
-                                               const std::vector<CollisionObject*>& objs_z,
-                                               typename std::vector<CollisionObject*>::const_iterator& it_beg,
-                                               typename std::vector<CollisionObject*>::const_iterator& it_end)
+int SSaPCollisionManager::selectOptimalAxis(const std::vector<CollisionObject*>& objs_x,
+                                            const std::vector<CollisionObject*>& objs_y,
+                                            const std::vector<CollisionObject*>& objs_z,
+                                            typename std::vector<CollisionObject*>::const_iterator& it_beg,
+                                            typename std::vector<CollisionObject*>::const_iterator& it_end)
 {
   /// simple sweep and prune method
   FCL_REAL delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] - (objs_x[0])->getAABB().min_[0];
   FCL_REAL delta_y = (objs_x[objs_y.size() - 1])->getAABB().min_[1] - (objs_y[0])->getAABB().min_[1];
   FCL_REAL delta_z = (objs_z[objs_z.size() - 1])->getAABB().min_[2] - (objs_z[0])->getAABB().min_[2];
 
-  size_t axis = 0;
+  int axis = 0;
   if(delta_y > delta_x && delta_y > delta_z)
     axis = 1;
   else if(delta_z > delta_y && delta_z > delta_x)
@@ -437,10 +437,10 @@ void SSaPCollisionManager::collide(CollisionCallBackBase * callback) const
   if(size() == 0) return;
 
   typename std::vector<CollisionObject*>::const_iterator pos, run_pos, pos_end;
-  size_t axis = selectOptimalAxis(objs_x, objs_y, objs_z,
+  int axis = selectOptimalAxis(objs_x, objs_y, objs_z,
                                   pos, pos_end);
-  size_t axis2 = (axis + 1 > 2) ? 0 : (axis + 1);
-  size_t axis3 = (axis2 + 1 > 2) ? 0 : (axis2 + 1);
+  int axis2 = (axis + 1 > 2) ? 0 : (axis + 1);
+  int axis3 = (axis2 + 1 > 2) ? 0 : (axis2 + 1);
 
   run_pos = pos;
 

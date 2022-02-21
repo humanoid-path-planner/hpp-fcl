@@ -111,7 +111,7 @@ protected:
   
   bool distance_(CollisionObject* obj, DistanceCallBackBase * callback, FCL_REAL& min_dist) const;
 
-  static size_t selectOptimalAxis(
+  static int selectOptimalAxis(
       const std::vector<CollisionObject*>& objs_x,
       const std::vector<CollisionObject*>& objs_y,
       const std::vector<CollisionObject*>& objs_z,
