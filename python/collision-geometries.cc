@@ -595,7 +595,8 @@ void exposeCollisionObject ()
       .DEF_CLASS_FUNC(CollisionObject, getObjectType)
       .DEF_CLASS_FUNC(CollisionObject, getNodeType)
       .DEF_CLASS_FUNC(CollisionObject, computeAABB)
-      .DEF_CLASS_FUNC2(CollisionObject, getAABB, bp::return_value_policy<bp::copy_const_reference>())
+      .def(dv::member_func("getAABB",
+         static_cast<AABB & (CollisionObject::*)()>(&CollisionObject::getAABB), bp::return_internal_reference<>()))
 
       .DEF_CLASS_FUNC2(CollisionObject, getTranslation, bp::return_value_policy<bp::copy_const_reference>())
       .DEF_CLASS_FUNC(CollisionObject, setTranslation)
