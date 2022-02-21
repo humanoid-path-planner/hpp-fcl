@@ -238,6 +238,12 @@ public:
   {
     return aabb;
   }
+  
+  /// @brief get the AABB in world space
+  AABB& getAABB()
+  {
+    return aabb;
+  }
 
   /// @brief compute the AABB in world space
   void computeAABB()
