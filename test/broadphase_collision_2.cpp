@@ -342,7 +342,7 @@ void broad_phase_collision_test(FCL_REAL env_scale,
     delete managers[i];
 
   std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
-  size_t w = 7;
+  int w = 7;
 
   std::cout << "collision timing summary" << std::endl;
   std::cout << env_size << " objs, " << query_size << " queries" << std::endl;

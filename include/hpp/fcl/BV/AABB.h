@@ -233,6 +233,14 @@ public:
     max_ += delta;
     return *this;
   }
+  
+  /// @brief expand the half size of the AABB by a scalar delta, and keep the center unchanged.
+  inline AABB& expand(const FCL_REAL delta)
+  {
+    min_.array() -= delta;
+    max_.array() += delta;
+    return *this;
+  }
 
   /// @brief expand the aabb by increase the thickness of the plate by a ratio
   inline AABB& expand(const AABB& core, FCL_REAL ratio)
