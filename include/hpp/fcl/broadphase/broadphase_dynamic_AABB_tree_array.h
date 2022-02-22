@@ -76,16 +76,16 @@ public:
   DynamicAABBTreeArrayCollisionManager();
 
   /// @brief add objects to the manager
-  void registerObjects(const std::vector<CollisionObject*>& other_objs);
+  virtual void registerObjects(const std::vector<CollisionObject*>& other_objs);
   
   /// @brief add one object to the manager
-  void registerObject(CollisionObject* obj);
+  virtual void registerObject(CollisionObject* obj);
 
   /// @brief remove one object from the manager
-  void unregisterObject(CollisionObject* obj);
+  virtual void unregisterObject(CollisionObject* obj);
 
   /// @brief initialize the manager, related with the specific type of manager
-  void setup();
+  virtual void setup();
 
   /// @brief update the condition of manager
   virtual void update();
@@ -97,34 +97,34 @@ public:
   void update(const std::vector<CollisionObject*>& updated_objs);
 
   /// @brief clear the manager
-  void clear();
+  virtual void clear();
 
   /// @brief return the objects managed by the manager
-  void getObjects(std::vector<CollisionObject*>& objs) const;
+  virtual void getObjects(std::vector<CollisionObject*>& objs) const;
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject* obj, CollisionCallBackBase * callback) const;
+  virtual void collide(CollisionObject* obj, CollisionCallBackBase * callback) const;
 
   /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObject* obj, DistanceCallBackBase * callback) const;
+  virtual void distance(CollisionObject* obj, DistanceCallBackBase * callback) const;
 
   /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  void collide(CollisionCallBackBase * callback) const;
+  virtual void collide(CollisionCallBackBase * callback) const;
 
   /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(DistanceCallBackBase * callback) const;
+  virtual void distance(DistanceCallBackBase * callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager* other_manager_, CollisionCallBackBase * callback) const;
+  virtual void collide(BroadPhaseCollisionManager* other_manager_, CollisionCallBackBase * callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager* other_manager_, DistanceCallBackBase * callback) const;
+  virtual void distance(BroadPhaseCollisionManager* other_manager_, DistanceCallBackBase * callback) const;
   
   /// @brief whether the manager is empty
-  bool empty() const;
+  virtual bool empty() const;
   
   /// @brief the number of objects managed by the manager
-  size_t size() const;
+  virtual size_t size() const;
 
   const detail::implementation_array::HierarchyTree<AABB>& getTree() const;
 

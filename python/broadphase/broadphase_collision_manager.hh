@@ -70,22 +70,22 @@ struct BroadPhaseCollisionManagerWrapper
   
   std::vector<CollisionObject*> getObjects() const { return this->get_override("getObjects")(); }
   
-  void collide(CollisionCallBackBase * callback) const
+  virtual void collide(CollisionCallBackBase * callback) const
   { this->get_override("collide")(callback); }
-  void collide(CollisionObject * obj, CollisionCallBackBase * callback) const
+  virtual void collide(CollisionObject * obj, CollisionCallBackBase * callback) const
   { this->get_override("collide")(obj,callback); }
-  void collide(BroadPhaseCollisionManager * other_manager, CollisionCallBackBase * callback) const
+  virtual void collide(BroadPhaseCollisionManager * other_manager, CollisionCallBackBase * callback) const
   { this->get_override("collide")(other_manager,callback); }
   
-  void distance(DistanceCallBackBase * callback) const
+  virtual void distance(DistanceCallBackBase * callback) const
   { this->get_override("distance")(callback); }
-  void distance(CollisionObject * obj, DistanceCallBackBase * callback) const
+  virtual void distance(CollisionObject * obj, DistanceCallBackBase * callback) const
   { this->get_override("collide")(obj,callback); }
-  void distance(BroadPhaseCollisionManager * other_manager, DistanceCallBackBase * callback) const
+  virtual void distance(BroadPhaseCollisionManager * other_manager, DistanceCallBackBase * callback) const
   { this->get_override("collide")(other_manager,callback); }
 
   bool empty() const { return this->get_override("empty")(); }
-  size_t size() const { return this->get_override("size")(); }
+  virtual size_t size() const { return this->get_override("size")(); }
   
   static void expose()
   {
