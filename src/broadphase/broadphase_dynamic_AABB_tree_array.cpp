@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -82,7 +82,7 @@ bool collisionRecurse_(
 
           box->cost_density = tree2->getDefaultOccupancy();
 
-          CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+          CollisionObject obj2(shared_ptr<CollisionGeometry>(box), box_tf);
           return (*callback)(obj1, &obj2);
         }
       }
@@ -115,7 +115,7 @@ bool collisionRecurse_(
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+        CollisionObject obj2(shared_ptr<CollisionGeometry>(box), box_tf);
         return (*callback)(obj1, &obj2);
       }
       else return false;
@@ -180,7 +180,7 @@ bool distanceRecurse_(DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nod
       Box* box = new Box();
       Transform3f box_tf;
       constructBox(root2_bv, tf2, *box, box_tf);
-      CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+      CollisionObject obj(shared_ptr<CollisionGeometry>(box), box_tf);
       return (*callback)(static_cast<CollisionObject*>(root1->data), &obj, min_dist);
     }
     else return false;
@@ -292,7 +292,7 @@ bool collisionRecurse(DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nod
 {
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root = nodes + root_id;
   if(!root->bv.overlap(query->getAABB())) return false;
-  
+
   if(root->isLeaf())
   {
     return (*callback)(static_cast<CollisionObject*>(root->data), query);

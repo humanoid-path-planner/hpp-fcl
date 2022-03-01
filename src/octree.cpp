@@ -99,7 +99,7 @@ void computeNeighbors(const std::vector<boost::array<FCL_REAL, 6> >& boxes,
       fixedSize = s;
     else
       assert(s == fixedSize);
-    
+
     for(VectorArray6::const_iterator it = boxes.begin();
         it != boxes.end(); ++it)
     {
@@ -135,24 +135,24 @@ void OcTree::exportAsObjFile(const std::string& filename) const
   std::vector<internal::Neighbors> neighbors(boxes.size());
   internal::computeNeighbors(boxes, neighbors);
   // compute list of vertices and faces
-  
+
   typedef std::vector<Vec3f> VectorVec3f;
   std::vector<Vec3f> vertices;
-  
+
   typedef boost::array<std::size_t, 4> Array4;
   typedef std::vector<Array4> VectorArray4;
   std::vector<Array4> faces;
-  
+
   for (std::size_t i=0; i<boxes.size(); ++i)
   {
     const boost::array<FCL_REAL, 6>& box(boxes[i]);
     internal::Neighbors& n(neighbors[i]);
-    
+
     FCL_REAL x(box[0]);
     FCL_REAL y(box[1]);
     FCL_REAL z(box[2]);
     FCL_REAL size(box[3]);
-    
+
     vertices.push_back(Vec3f(x-.5*size, y-.5*size, z-.5*size));
     vertices.push_back(Vec3f(x+.5*size, y-.5*size, z-.5*size));
     vertices.push_back(Vec3f(x-.5*size, y+.5*size, z-.5*size));
@@ -161,7 +161,7 @@ void OcTree::exportAsObjFile(const std::string& filename) const
     vertices.push_back(Vec3f(x+.5*size, y-.5*size, z+.5*size));
     vertices.push_back(Vec3f(x-.5*size, y+.5*size, z+.5*size));
     vertices.push_back(Vec3f(x+.5*size, y+.5*size, z+.5*size));
-    
+
     // Add face only if box has no neighbor with the same face
     if (!n.minusX())
     {
@@ -193,7 +193,7 @@ void OcTree::exportAsObjFile(const std::string& filename) const
       Array4 a = {{8*i + 5, 8*i + 6, 8*i + 8, 8*i + 7}};
       faces.push_back(a);
     }
-    
+
   }
   // write obj in a file
   std::ofstream os;
@@ -223,8 +223,8 @@ OcTreePtr_t makeOctree(const Eigen::Matrix<FCL_REAL,Eigen::Dynamic,3>& point_clo
 {
   typedef Eigen::Matrix<FCL_REAL,Eigen::Dynamic,3> InputType;
   typedef InputType::ConstRowXpr RowType;
-  
-  boost::shared_ptr<octomap::OcTree> octree(new octomap::OcTree(resolution));
+
+  shared_ptr<octomap::OcTree> octree(new octomap::OcTree(resolution));
   for(Eigen::DenseIndex row_id = 0; row_id < point_cloud.rows(); ++row_id)
   {
     RowType row = point_cloud.row(row_id);
@@ -232,7 +232,7 @@ OcTreePtr_t makeOctree(const Eigen::Matrix<FCL_REAL,Eigen::Dynamic,3>& point_clo
     octree->updateNode(p, true);
   }
   octree->updateInnerOccupancy();
-  
+
   return OcTreePtr_t (new OcTree(octree));
 }
 }

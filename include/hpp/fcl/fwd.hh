@@ -37,7 +37,7 @@
 #ifndef HPP_FCL_FWD_HH
 #define HPP_FCL_FWD_HH
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <sstream>
 
 #include <hpp/fcl/config.hh>
@@ -66,7 +66,9 @@ throw exception(ss.str()); \
 
 namespace hpp {
 namespace fcl {
-  using boost::shared_ptr;
+  using std::shared_ptr;
+  using std::dynamic_pointer_cast;
+  using std::make_shared;
 
   class CollisionObject;
   typedef shared_ptr <CollisionObject> CollisionObjectPtr_t;

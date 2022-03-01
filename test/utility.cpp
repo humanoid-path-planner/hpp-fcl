@@ -357,7 +357,7 @@ bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cda
   if(cdata->done) { dist = result.min_distance; return true; }
 
   distance(o1, o2, request, result);
-  
+
   dist = result.min_distance;
 
   if(dist <= 0) return true; // in collision or in touch
@@ -446,21 +446,21 @@ void generateEnvironments(std::vector<CollisionObject*>& env, FCL_REAL env_scale
   for(std::size_t i = 0; i < n; ++i)
   {
     Box* box = new Box(5, 10, 20);
-    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(box), transforms[i]));
+    env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(box), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
   {
     Sphere* sphere = new Sphere(30);
-    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(sphere), transforms[i]));
+    env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(sphere), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
   {
     Cylinder* cylinder = new Cylinder(10, 40);
-    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(cylinder), transforms[i]));
+    env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(cylinder), transforms[i]));
   }
 }
 
@@ -475,7 +475,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, FCL_REAL env_s
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
     generateBVHModel(*model, box, Transform3f::Identity());
-    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(model), transforms[i]));
+    env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
@@ -484,7 +484,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, FCL_REAL env_s
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
     generateBVHModel(*model, sphere, Transform3f::Identity(), 16, 16);
-    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(model), transforms[i]));
+    env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
@@ -493,7 +493,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, FCL_REAL env_s
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
     generateBVHModel(*model, cylinder, Transform3f::Identity(), 16, 16);
-    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(model), transforms[i]));
+    env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 }
 

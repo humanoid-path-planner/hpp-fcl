@@ -74,15 +74,15 @@ public:
   , threshold_free(0)
   {
   }
-  
+
   /// \brief Copy constructor
   CollisionGeometry(const CollisionGeometry & other) = default;
 
   virtual ~CollisionGeometry() {}
-  
+
   /// @brief Clone *this into a new CollisionGeometry
   virtual CollisionGeometry* clone() const = 0;
-  
+
   /// \brief Equality operator
   bool operator==(const CollisionGeometry & other) const
   {
@@ -96,7 +96,7 @@ public:
 //    && user_data == other.user_data
     ;
   }
-  
+
   /// \brief Difference operator
   bool operator!=(const CollisionGeometry & other) const
   {
@@ -182,7 +182,7 @@ public:
                           C(2, 1) + V * com[2] * com[1],
                           C(2, 2) - V * (com[0] * com[0] + com[1] * com[1])).finished();
   }
-  
+
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 };
@@ -238,7 +238,7 @@ public:
   {
     return aabb;
   }
-  
+
   /// @brief get the AABB in world space
   AABB& getAABB()
   {
@@ -338,13 +338,13 @@ public:
   {
     return cgeom;
   }
-  
+
   /// @brief Associate a new CollisionGeometry
   ///
   /// @param[in] collision_geometry The new CollisionGeometry
   /// @param[in] compute_local_aabb Whether the local aabb of the input new has to be computed.
   ///
-  void setCollisionGeometry(const boost::shared_ptr<CollisionGeometry> & collision_geometry,
+  void setCollisionGeometry(const shared_ptr<CollisionGeometry> & collision_geometry,
                             bool compute_local_aabb = true)
   {
     if(collision_geometry.get() != cgeom.get())
@@ -353,9 +353,9 @@ public:
       init(compute_local_aabb);
     }
   }
-  
+
 protected:
-  
+
   void init(bool compute_local_aabb = true)
   {
     if (cgeom)

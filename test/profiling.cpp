@@ -15,7 +15,6 @@
 // hpp-fcl. If not, see <http://www.gnu.org/licenses/>.
 
 
-#include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 
 #include <hpp/fcl/fwd.hh>
@@ -58,7 +57,7 @@ CollisionGeometryPtr_t objToGeom (const std::string& filename)
   model->beginModel();
   model->addSubModel(pt, tri);
   model->endModel();
-  
+
   return CollisionGeometryPtr_t (model);
 }
 
@@ -74,10 +73,10 @@ struct Geometry {
   std::string type;
   CollisionGeometryPtr_t o;
 
-  Geometry (const std::string& t, CollisionGeometry* ob) : 
+  Geometry (const std::string& t, CollisionGeometry* ob) :
     type(t), o(ob)
   {}
-  Geometry (const std::string& t, const CollisionGeometryPtr_t& ob) : 
+  Geometry (const std::string& t, const CollisionGeometryPtr_t& ob) :
     type(t), o(ob)
   {}
 };
@@ -183,12 +182,12 @@ Geometry makeGeomFromParam(int& iarg, const int& argc, char** argv)
     OUT("Loading " << argv[iarg+2] << " as BVHModel<" << argv[iarg+1] << ">...");
     if (strcmp(argv[iarg+1], "obb") == 0) {
       o = meshToGeom<OBB>(argv[iarg+2]);
-      OUT("Mesh has " << boost::dynamic_pointer_cast<BVHModel<OBB> >(o)->num_tris << " triangles");
+      OUT("Mesh has " << dynamic_pointer_cast<BVHModel<OBB> >(o)->num_tris << " triangles");
       type = "mesh_obb";
     }
     else if (strcmp(argv[iarg+1], "obbrss") == 0) {
       o = meshToGeom<OBBRSS>(argv[iarg+2]);
-      OUT("Mesh has " << boost::dynamic_pointer_cast<BVHModel<OBBRSS> >(o)->num_tris << " triangles");
+      OUT("Mesh has " << dynamic_pointer_cast<BVHModel<OBBRSS> >(o)->num_tris << " triangles");
       type = "mesh_obbrss";
     }
     else
@@ -209,7 +208,7 @@ Geometry makeGeomFromParam(int& iarg, const int& argc, char** argv)
       OUT("Mesh AABB is " << o->aabb_local.min_.transpose() << " ---- " << o->aabb_local.max_.transpose() << " ...");
       o.reset(extract(o.get(), Transform3f(), aabb));
       if (!o) throw std::invalid_argument ("Failed to crop.");
-      OUT("Crop has " << boost::dynamic_pointer_cast<BVHModel<OBB> >(o)->num_tris << " triangles");
+      OUT("Crop has " << dynamic_pointer_cast<BVHModel<OBB> >(o)->num_tris << " triangles");
       iarg += 7;
     }
   } else if (a == "-capsule") {
@@ -229,7 +228,7 @@ Geometry makeGeomFromParam(int& iarg, const int& argc, char** argv)
 
 int main(int argc, char** argv)
 {
-  
+
   std::vector<Transform3f> transforms;
 
   CollisionRequest request;

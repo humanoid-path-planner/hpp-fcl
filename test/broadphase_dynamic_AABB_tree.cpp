@@ -70,7 +70,7 @@ struct DistanceCallBackDerived
   {
     return distance_callback(o1,o2,&data,dist);
   }
-  
+
   bool distance_callback(CollisionObject* a, CollisionObject*,
                          void* callback_data, FCL_REAL&)
   {
@@ -87,7 +87,7 @@ struct DistanceCallBackDerived
     // Return true to stop the tree traversal.
     return true;
   }
-  
+
   CallBackData data;
 };
 
@@ -106,8 +106,8 @@ struct DistanceCallBackDerived
 //
 BOOST_AUTO_TEST_CASE(DynamicAABBTreeCollisionManager_class)
 {
-  CollisionGeometryPtr_t sphere0 = boost::make_shared<Sphere>(0.1);
-  CollisionGeometryPtr_t sphere1 = boost::make_shared<Sphere>(0.2);
+  CollisionGeometryPtr_t sphere0 = make_shared<Sphere>(0.1);
+  CollisionGeometryPtr_t sphere1 = make_shared<Sphere>(0.2);
   CollisionObject object0(sphere0);
   CollisionObject object1(sphere1);
   const Eigen::Vector3d position0(0.1, 0.2, 0.3);
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(DynamicAABBTreeCollisionManager_class)
   std::vector<CollisionObject*> objects;
   objects.push_back(&object0);
   objects.push_back(&object1);
-  
+
   std::vector<Eigen::Vector3d> positions;
   positions.push_back(position0);
   positions.push_back(position1);
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(DynamicAABBTreeCollisionManager_class)
   DistanceCallBackDerived callback;
   callback.data.expect_object0_then_object1 = false;
   callback.data.objects = &objects;
-  
+
   // We repeat update() and distance() many times.  Each time, in the
   // callback function, we check the order of the two objects.
   for (int count = 0; count < 8; ++count) {
