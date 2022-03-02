@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -79,7 +79,7 @@ struct SortByZLow
 class HPP_FCL_DLLAPI DummyCollisionObject : public CollisionObject
 {
 public:
-  DummyCollisionObject(const AABB& aabb_) : CollisionObject(boost::shared_ptr<CollisionGeometry>())
+  DummyCollisionObject(const AABB& aabb_) : CollisionObject(shared_ptr<CollisionGeometry>())
   {
     this->aabb = aabb_;
   }
@@ -303,14 +303,14 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj, DistanceCallBackBase 
   Vec3f dummy_vector = obj->getAABB().max_;
   if(min_dist < (std::numeric_limits<FCL_REAL>::max)())
     dummy_vector +=Vec3f(min_dist, min_dist, min_dist);
-  
+
   typename std::vector<CollisionObject*>::const_iterator pos_start1 = objs_x.begin();
   typename std::vector<CollisionObject*>::const_iterator pos_start2 = objs_y.begin();
   typename std::vector<CollisionObject*>::const_iterator pos_start3 = objs_z.begin();
   typename std::vector<CollisionObject*>::const_iterator pos_end1 = objs_x.end();
   typename std::vector<CollisionObject*>::const_iterator pos_end2 = objs_y.end();
   typename std::vector<CollisionObject*>::const_iterator pos_end3 = objs_z.end();
-  
+
   int status = 1;
   FCL_REAL old_min_distance;
 

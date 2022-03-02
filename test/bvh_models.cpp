@@ -106,7 +106,7 @@ void testBVHModelPointCloud()
     BOOST_CHECK_EQUAL(model->num_tris, 0);
     BOOST_CHECK_EQUAL(model->build_state, BVH_BUILD_STATE_PROCESSED);
   }
-  
+
   {
     shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
 
@@ -120,7 +120,7 @@ void testBVHModelPointCloud()
                 << "Please see issue #67." << std::endl;
       return;
     }
-    
+
     Matrixx3f all_points((Eigen::DenseIndex)points.size(),3);
     for(size_t k = 0; k < points.size(); ++k)
       all_points.row((Eigen::DenseIndex)k) = points[k].transpose();
@@ -322,7 +322,7 @@ void testLoadPolyhedron ()
   scale.setConstant (-1);
   CachedMeshLoader loader (P1->getNodeType());
   CollisionGeometryPtr_t geom = loader.load (env, scale);
-  P2 = boost::dynamic_pointer_cast<Polyhedron_t> (geom);
+  P2 = dynamic_pointer_cast<Polyhedron_t> (geom);
   BOOST_REQUIRE (P2);
 
   BOOST_CHECK_EQUAL(P1->num_tris        , P2->num_tris);
@@ -383,8 +383,7 @@ BOOST_AUTO_TEST_CASE(load_illformated_mesh)
 {
   boost::filesystem::path path(TEST_RESOURCES_DIR);
   const std::string filename = (path / "illformated_mesh.dae").string();
-  
+
   MeshLoader loader;
   BOOST_CHECK_NO_THROW(loader.load(filename));
 }
-
