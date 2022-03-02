@@ -477,7 +477,7 @@ typename HierarchyTree<BV>::Node* HierarchyTree<BV>::topdown_1(const NodeVecIter
         split_p += (*it)->bv.center();
         vol += (*it)->bv;
       }
-      split_p /= num_leaves;
+      split_p /= static_cast<FCL_REAL>(num_leaves);
       int best_axis = -1;
       long bestmidp = num_leaves;
       int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};
