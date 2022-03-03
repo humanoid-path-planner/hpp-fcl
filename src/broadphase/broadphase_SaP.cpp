@@ -134,7 +134,7 @@ void SaPCollisionManager::registerObjects(const std::vector<CollisionObject*>& o
 
 
     FCL_REAL scale[3];
-    for(size_t coord = 0; coord < 3; ++coord)
+    for(long coord = 0; coord < 3; ++coord)
     {
       std::sort(endpoints.begin(), endpoints.end(),
                 std::bind(std::less<FCL_REAL>(),
@@ -325,9 +325,9 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb)
     int direction; // -1 reverse, 0 nochange, 1 forward
     EndPoint* temp;
 
-    if(current->lo->getVal(coord) > new_min[coord])
+    if(current->lo->getVal((size_t)coord) > new_min[coord])
       direction = -1;
-    else if(current->lo->getVal(coord) < new_min[coord])
+    else if(current->lo->getVal((size_t)coord) < new_min[coord])
       direction = 1;
     else direction = 0;
 
@@ -337,7 +337,7 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb)
       if(current->lo->prev[coord] != nullptr)
       {
         temp = current->lo;
-        while((temp != nullptr) && (temp->getVal(coord) > new_min[coord]))
+        while((temp != nullptr) && (temp->getVal((size_t)coord) > new_min[coord]))
         {
           if(temp->minmax == 1)
             if(temp->aabb->cached.overlap(dummy.cached))
@@ -365,11 +365,11 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb)
         }
       }
 
-      current->lo->getVal(coord) = new_min[coord];
+      current->lo->getVal((size_t)coord) = new_min[coord];
 
       // update hi end point
       temp = current->hi;
-      while(temp->getVal(coord) > new_max[coord])
+      while(temp->getVal((size_t)coord) > new_max[coord])
       {
         if((temp->minmax == 0) && (temp->aabb->cached.overlap(current->cached)))
           removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
@@ -385,7 +385,7 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb)
         temp->next[coord]->prev[coord] = current->hi;
       temp->next[coord] = current->hi;
 
-      current->hi->getVal(coord) = new_max[coord];
+      current->hi->getVal((size_t)coord) = new_max[coord];
     }
     else if(direction == 1)
     {
@@ -393,7 +393,7 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb)
       if(current->hi->next[coord] != nullptr)
       {
         temp = current->hi;
-        while((temp->next[coord] != nullptr) && (temp->getVal(coord) < new_max[coord]))
+        while((temp->next[coord] != nullptr) && (temp->getVal((size_t)coord) < new_max[coord]))
         {
           if(temp->minmax == 0)
             if(temp->aabb->cached.overlap(dummy.cached))
@@ -401,7 +401,7 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb)
           temp = temp->next[coord];
         }
 
-        if(temp->getVal(coord) < new_max[coord])
+        if(temp->getVal((size_t)coord) < new_max[coord])
         {
           current->hi->prev[coord]->next[coord] = current->hi->next[coord];
           current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
@@ -420,12 +420,12 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb)
         }
       }
 
-      current->hi->getVal(coord) = new_max[coord];
+      current->hi->getVal((size_t)coord) = new_max[coord];
 
       //then, update the "lo" endpoint of the interval.
       temp = current->lo;
 
-      while(temp->getVal(coord) < new_min[coord])
+      while(temp->getVal((size_t)coord) < new_min[coord])
       {
         if((temp->minmax == 1) && (temp->aabb->cached.overlap(current->cached)))
           removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
@@ -444,7 +444,7 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb)
       else
         elist[coord] = current->lo;
       temp->prev[coord] = current->lo;
-      current->lo->getVal(coord) = new_min[coord];
+      current->lo->getVal((size_t)coord) = new_min[coord];
     }
   }
 }
@@ -529,7 +529,7 @@ void SaPCollisionManager::clear()
 void SaPCollisionManager::getObjects(std::vector<CollisionObject*>& objs) const
 {
   objs.resize(AABB_arr.size());
-  int i = 0;
+  size_t i = 0;
   for(auto it = AABB_arr.cbegin(), end = AABB_arr.cend(); it != end; ++it, ++i)
   {
     objs[i] = (*it)->obj;
@@ -539,7 +539,7 @@ void SaPCollisionManager::getObjects(std::vector<CollisionObject*>& objs) const
 //==============================================================================
 bool SaPCollisionManager::collide_(CollisionObject* obj, CollisionCallBackBase * callback) const
 {
-  size_t axis = optimal_axis;
+  int axis = optimal_axis;
   const AABB& obj_aabb = obj->getAABB();
 
   FCL_REAL min_val = obj_aabb.min_[axis];
@@ -567,7 +567,7 @@ bool SaPCollisionManager::collide_(CollisionObject* obj, CollisionCallBackBase *
   {
     if(pos->aabb->obj != obj)
     {
-      if((pos->minmax == 0) && (pos->aabb->hi->getVal(axis) >= min_val))
+      if((pos->minmax == 0) && (pos->aabb->hi->getVal((size_t)axis) >= min_val))
       {
         if(pos->aabb->cached.overlap(obj->getAABB()))
           if((*callback)(obj, pos->aabb->obj))
@@ -670,7 +670,7 @@ bool SaPCollisionManager::distance_(CollisionObject* obj, DistanceCallBackBase *
     {
       // can change to pos->aabb->hi->getVal(axis) >= min_val - min_dist, and then update start_pos to end_pos.
       // but this seems slower.
-      if((pos->minmax == 0) && (pos->aabb->hi->getVal(axis) >= min_val))
+      if((pos->minmax == 0) && (pos->aabb->hi->getVal((size_t)axis) >= min_val))
       {
         CollisionObject* curr_obj = pos->aabb->obj;
         if(curr_obj != obj)
@@ -874,18 +874,18 @@ Vec3f&SaPCollisionManager::EndPoint::getVal()
 FCL_REAL SaPCollisionManager::EndPoint::getVal(size_t i) const
 {
   if(minmax)
-    return aabb->cached.max_[i];
+    return aabb->cached.max_[(int)i];
   else
-    return aabb->cached.min_[i];
+    return aabb->cached.min_[(int)i];
 }
 
 //==============================================================================
 FCL_REAL& SaPCollisionManager::EndPoint::getVal(size_t i)
 {
   if(minmax)
-    return aabb->cached.max_[i];
+    return aabb->cached.max_[(int)i];
   else
-    return aabb->cached.min_[i];
+    return aabb->cached.min_[(int)i];
 }
 
 //==============================================================================
