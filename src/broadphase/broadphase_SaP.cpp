@@ -134,7 +134,7 @@ void SaPCollisionManager::registerObjects(const std::vector<CollisionObject*>& o
 
 
     FCL_REAL scale[3];
-    for(long coord = 0; coord < 3; ++coord)
+    for(int coord = 0; coord < 3; ++coord)
     {
       std::sort(endpoints.begin(), endpoints.end(),
                 std::bind(std::less<FCL_REAL>(),
