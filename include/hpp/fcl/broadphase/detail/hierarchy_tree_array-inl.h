@@ -109,7 +109,7 @@ void HierarchyTree<BV>::init_0(Node* leaves, int n_leaves_)
 {
   clear();
 
-  n_leaves = n_leaves_;
+  n_leaves = (size_t)n_leaves_;
   root_node = NULL_NODE;
   nodes = new Node[n_leaves * 2];
   std::copy(leaves, leaves + n_leaves, nodes);
@@ -137,7 +137,7 @@ void HierarchyTree<BV>::init_1(Node* leaves, int n_leaves_)
 {
   clear();
 
-  n_leaves = n_leaves_;
+  n_leaves = (size_t)n_leaves_;
   root_node = NULL_NODE;
   nodes = new Node[n_leaves * 2];
   std::copy(leaves, leaves + n_leaves, nodes);
@@ -181,7 +181,7 @@ void HierarchyTree<BV>::init_2(Node* leaves, int n_leaves_)
 {
   clear();
 
-  n_leaves = n_leaves_;
+  n_leaves = (size_t)n_leaves_;
   root_node = NULL_NODE;
   nodes = new Node[n_leaves * 2];
   std::copy(leaves, leaves + n_leaves, nodes);
@@ -225,7 +225,7 @@ void HierarchyTree<BV>::init_3(Node* leaves, int n_leaves_)
 {
   clear();
 
-  n_leaves = n_leaves_;
+  n_leaves = (size_t)n_leaves_;
   root_node = NULL_NODE;
   nodes = new Node[n_leaves * 2];
   std::copy(leaves, leaves + n_leaves, nodes);
@@ -437,7 +437,7 @@ void HierarchyTree<BV>::balanceTopdown()
 template<typename BV>
 void HierarchyTree<BV>::balanceIncremental(int iterations)
 {
-  if(iterations < 0) iterations = n_leaves;
+  if(iterations < 0) iterations = (int)n_leaves;
   if((root_node != NULL_NODE) && (iterations > 0))
   {
     for(int i = 0; i < iterations; ++i)
@@ -611,7 +611,7 @@ size_t HierarchyTree<BV>::topdown_0(size_t* lbeg, size_t* lend)
       for(size_t* i = lbeg + 1; i < lend; ++i)
         vol += nodes[*i].bv;
 
-      int best_axis = 0;
+      size_t best_axis = 0;
       FCL_REAL extent[3] = {vol.width(), vol.height(), vol.depth()};
       if(extent[1] > extent[0]) best_axis = 1;
       if(extent[2] > extent[best_axis]) best_axis = 2;
@@ -654,7 +654,7 @@ size_t HierarchyTree<BV>::topdown_1(size_t* lbeg, size_t* lend)
       }
       split_p /= static_cast<FCL_REAL>(num_leaves);
       int best_axis = -1;
-      int bestmidp = num_leaves;
+      int bestmidp = (int)num_leaves;
       int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};
       for(size_t* i = lbeg; i < lend; ++i)
       {
@@ -670,7 +670,7 @@ size_t HierarchyTree<BV>::topdown_1(size_t* lbeg, size_t* lend)
           int midp = std::abs(splitcount[i][0] - splitcount[i][1]);
           if(midp < bestmidp)
           {
-            best_axis = i;
+            best_axis = (int)i;
             bestmidp = midp;
           }
         }
@@ -1057,7 +1057,7 @@ nodeBaseLess<BV>::nodeBaseLess(const NodeBase<BV>* nodes_, size_t d_)
 template<typename BV>
 bool nodeBaseLess<BV>::operator()(size_t i, size_t j) const
 {
-  if(nodes[i].bv.center()[d] < nodes[j].bv.center()[d])
+  if(nodes[i].bv.center()[(int)d] < nodes[j].bv.center()[(int)d])
     return true;
 
   return false;

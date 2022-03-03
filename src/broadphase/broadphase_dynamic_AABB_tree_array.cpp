@@ -298,7 +298,7 @@ bool collisionRecurse(DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nod
     return (*callback)(static_cast<CollisionObject*>(root->data), query);
   }
 
-  int select_res = implementation_array::select(query->getAABB(), root->children[0], root->children[1], nodes);
+  size_t select_res = implementation_array::select(query->getAABB(), root->children[0], root->children[1], nodes);
 
   if(collisionRecurse(nodes, root->children[select_res], query, callback))
     return true;
@@ -545,7 +545,7 @@ void DynamicAABBTreeArrayCollisionManager::registerObjects(
       table[other_objs[i]] = i;
     }
 
-    int n_leaves = other_objs.size();
+    int n_leaves = (int)other_objs.size();
 
     dtree.init(leaves, n_leaves, tree_init_level);
 
@@ -573,17 +573,17 @@ void DynamicAABBTreeArrayCollisionManager::setup()
 {
   if(!setup_)
   {
-    int num = dtree.size();
+    int num = (int)dtree.size();
     if(num == 0)
     {
       setup_ = true;
       return;
     }
 
-    int height = dtree.getMaxHeight();
+    int height = (int)dtree.getMaxHeight();
 
 
-    if(height - std::log((FCL_REAL)num) / std::log(2.0) < max_tree_nonbalanced_level)
+    if((FCL_REAL)height - std::log((FCL_REAL)num) / std::log(2.0) < max_tree_nonbalanced_level)
       dtree.balanceIncremental(tree_incremental_balance_pass);
     else
       dtree.balanceTopdown();

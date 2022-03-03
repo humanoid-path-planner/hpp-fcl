@@ -36,7 +36,5 @@ namespace dv = doxygen::visitor;
   def (dv::member_func(#ATTRIB, &CLASS::ATTRIB))
 #define DEF_CLASS_FUNC2(CLASS, ATTRIB,policy)                                  \
   def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB),policy)
-//#define DEF_CLASS_FUNC2(CLASS, ATTRIB,policy)                                  \
-//  def (dv::member_func(#ATTRIB, &CLASS::ATTRIB, policy))
 
 #endif // ifndef HPP_FCL_PYTHON_FWD_HH
