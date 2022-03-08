@@ -70,6 +70,10 @@ namespace fcl
 /// \note In the green hatched area, the distance lower bound is not known. It
 /// is only guaranted that it will be inferior to
 /// <em>distance - security_margin</em> and superior to \em break_distance.
+/// \note If CollisionRequest::security_margin is set to -inf, no collision test
+/// is performed by function hpp::fcl::collide or class
+/// hpp::fcl::ComputeCollision and the objects are considered as not
+/// colliding.
 
 } // namespace fcl
 } // namespace hpp
