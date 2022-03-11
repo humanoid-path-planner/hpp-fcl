@@ -219,6 +219,9 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
   
   /// @brief Distance below which objects are considered in collision.
   /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
+  /// @note If set to -inf, the objects tested for collision are considered
+  ///       as collision free and no test is actually performed by functions
+  ///       hpp::fcl::collide of class hpp::fcl::ComputeCollision.
   FCL_REAL security_margin;
 
   /// @brief Distance below which bounding volumes are broken down.
