@@ -8,7 +8,6 @@ macro(add_fcl_test test_name source)
   target_link_libraries(${test_name}
     PUBLIC
     hpp-fcl
-    Boost::unit_test_framework
     Boost::chrono
     Boost::filesystem
     Boost::timer
