@@ -526,7 +526,7 @@ private:
     && max_height == other.max_height
     && x_grid == other.x_grid
     && y_grid == other.y_grid
-//    && bvs == other.bvs
+    && bvs == other.bvs
     && num_bvs == other.num_bvs;
   }
   
