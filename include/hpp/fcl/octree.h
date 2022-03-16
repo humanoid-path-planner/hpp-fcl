@@ -68,7 +68,8 @@ public:
   typedef octomap::OcTreeNode OcTreeNode;
 
   /// @brief construct octree with a given resolution
-  OcTree(FCL_REAL resolution) : tree(shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))
+  explicit OcTree(FCL_REAL resolution)
+  : tree(shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))
   {
     default_occupancy = tree->getOccupancyThres();
 
@@ -78,7 +79,8 @@ public:
   }
 
   /// @brief construct octree from octomap
-  OcTree(const shared_ptr<const octomap::OcTree>& tree_) : tree(tree_)
+  explicit OcTree(const shared_ptr<const octomap::OcTree>& tree_)
+  : tree(tree_)
   {
     default_occupancy = tree->getOccupancyThres();
 
