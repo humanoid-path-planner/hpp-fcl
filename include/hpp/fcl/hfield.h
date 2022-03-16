@@ -512,6 +512,28 @@ public:
   /// @brief Get the BV type: default is unknown
   NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
 
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const HeightField & other = static_cast<const HeightField&>(_other);
+
+    return
+       x_dim == other.x_dim
+    && y_dim == other.y_dim
+    && heights == other.heights
+    && min_height == other.min_height
+    && max_height == other.max_height
+    && x_grid == other.x_grid
+    && y_grid == other.y_grid
+//    && bvs == other.bvs
+    && num_bvs == other.num_bvs;
+  }
+  
+public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 };
 
 /// @brief Specialization of getNodeType() for HeightField with different BV types
