@@ -273,12 +273,13 @@ public:
   /// @brief Compute the AABB for the HeightField, used for broad-phase collision
   void computeLocalAABB()
   {
-    Vec3f A(x_grid[0],y_grid[0],min_height);
-    Vec3f B(x_grid[x_grid.size()-1],y_grid[y_grid.size()-1],max_height);
-    AABB aabb_(A,B);
+    const Vec3f A(x_grid[0],y_grid[0],min_height);
+    const Vec3f B(x_grid[x_grid.size()-1],y_grid[y_grid.size()-1],max_height);
+    const AABB aabb_(A,B);
 
     aabb_radius = (A-B).norm()/2.;
     aabb_local = aabb_;
+    aabb_center = aabb_.center();
   }
   
   /// \brief Comparison operators
