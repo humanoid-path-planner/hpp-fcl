@@ -216,22 +216,6 @@ BOOST_AUTO_TEST_CASE(test_BVHModel)
   BOOST_CHECK(m2 == m2);
   BOOST_CHECK(m1 != m2);
   
-  // Test CollisionGeometry
-  {
-    CollisionGeometry & m1_cg = static_cast<CollisionGeometry &>(m1);
-    BVHModel<OBBRSS> m1_copy;
-    CollisionGeometry & m1_copy_cg = static_cast<CollisionGeometry &>(m1_copy);
-    test_serialization(m1_cg,m1_copy_cg);
-  }
-
-  // Test BVHModelBase
-  {
-    BVHModelBase & m1_base = static_cast<BVHModelBase &>(m1);
-    BVHModel<OBBRSS> m1_copy;
-    BVHModelBase & m1_copy_base = static_cast<BVHModelBase &>(m1_copy);
-    test_serialization(m1_base,m1_copy_base);
-  }
-
   // Test BVHModel
   {
     BVHModel<OBBRSS> m1_copy;
@@ -251,14 +235,6 @@ BOOST_AUTO_TEST_CASE(test_HeightField)
   const MatrixXf heights = MatrixXf::Random(ny, nx);
   
   HeightField<OBBRSS> hfield(x_dim,y_dim,heights,min_altitude);
-  
-  // Test CollisionGeometry
-  {
-    CollisionGeometry & m1_cg = static_cast<CollisionGeometry &>(hfield);
-    HeightField<OBBRSS> m1_copy;
-    CollisionGeometry & m1_copy_cg = static_cast<CollisionGeometry &>(m1_copy);
-    test_serialization(m1_cg,m1_copy_cg);
-  }
 
   // Test HeightField
   {

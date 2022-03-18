@@ -3,7 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
- *  Copyright (c) 2020, INRIA
+ *  Copyright (c) 2020-2022, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -108,15 +108,6 @@ public:
     delete [] vertices;
     delete [] tri_indices;
     delete [] prev_vertices;
-  }
-  
-  /// \brief Comparison operators
-  bool operator==(const BVHModelBase & other) const;
-  
-  /// \brief Difference operator
-  bool operator!=(const BVHModelBase & other) const
-  {
-    return !(*this == other);
   }
 
   /// @brief Get the object type: it is a BVH
@@ -268,6 +259,11 @@ protected:
   unsigned int num_tris_allocated;
   unsigned int num_vertices_allocated;
   unsigned int num_vertex_updated; /// for ccd vertex update
+  
+protected:
+  
+  /// \brief Comparison operators
+  virtual bool isEqual(const CollisionGeometry & other) const;
 };
 
 /// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
@@ -301,74 +297,6 @@ public:
   {
     delete [] bvs;
     delete [] primitive_indices;
-  }
-  
-  /// @brief Equality operator
-  bool operator==(const BVHModel & other) const
-  {
-    bool res = Base::operator==(other);
-    if(!res)
-      return false;
-
-    // unsigned int other_num_primitives = 0;
-    // if(other.primitive_indices)
-    // {
-      
-    //   switch(other.getModelType())
-    //   {
-    //     case BVH_MODEL_TRIANGLES:
-    //       other_num_primitives = num_tris;
-    //       break;
-    //     case BVH_MODEL_POINTCLOUD:
-    //       other_num_primitives = num_vertices;
-    //       break;
-    //     default:
-    //       ;
-    //   }
-    // }
-    
-//    unsigned int num_primitives = 0;
-//    if(primitive_indices)
-//    {
-//
-//      switch(other.getModelType())
-//      {
-//        case BVH_MODEL_TRIANGLES:
-//          num_primitives = num_tris;
-//          break;
-//        case BVH_MODEL_POINTCLOUD:
-//          num_primitives = num_vertices;
-//          break;
-//        default:
-//          ;
-//      }
-//    }
-//
-//    if(num_primitives != other_num_primitives)
-//      return false;
-//
-//    for(int k = 0; k < num_primitives; ++k)
-//    {
-//      if(primitive_indices[k] != other.primitive_indices[k])
-//        return false;
-//    }
-    
-    if(num_bvs != other.num_bvs)
-      return false;
-    
-    for(unsigned int k = 0; k < num_bvs; ++k)
-    {
-      if(bvs[k] != other.bvs[k])
-        return false;
-    }
-    
-    return true;
-  }
-  
-  /// @brief Difference operator
-  bool operator!=(const BVHModel & other) const
-  {
-    return !(*this == other);
   }
 
   /// @brief We provide getBV() and getNumBVs() because BVH may be compressed (in future), so we must provide some flexibility here
@@ -450,6 +378,73 @@ protected:
     }
 
     bvs[bv_id].bv = translate(bvs[bv_id].bv, -parent_c);
+  }
+  
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const BVHModel * other_ptr = dynamic_cast<const BVHModel *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const BVHModel & other = *other_ptr;
+    
+    bool res = Base::isEqual(other);
+    if(!res)
+      return false;
+
+    // unsigned int other_num_primitives = 0;
+    // if(other.primitive_indices)
+    // {
+      
+    //   switch(other.getModelType())
+    //   {
+    //     case BVH_MODEL_TRIANGLES:
+    //       other_num_primitives = num_tris;
+    //       break;
+    //     case BVH_MODEL_POINTCLOUD:
+    //       other_num_primitives = num_vertices;
+    //       break;
+    //     default:
+    //       ;
+    //   }
+    // }
+    
+//    unsigned int num_primitives = 0;
+//    if(primitive_indices)
+//    {
+//
+//      switch(other.getModelType())
+//      {
+//        case BVH_MODEL_TRIANGLES:
+//          num_primitives = num_tris;
+//          break;
+//        case BVH_MODEL_POINTCLOUD:
+//          num_primitives = num_vertices;
+//          break;
+//        default:
+//          ;
+//      }
+//    }
+//
+//    if(num_primitives != other_num_primitives)
+//      return false;
+//
+//    for(int k = 0; k < num_primitives; ++k)
+//    {
+//      if(primitive_indices[k] != other.primitive_indices[k])
+//        return false;
+//    }
+    
+    if(num_bvs != other.num_bvs)
+      return false;
+    
+    for(unsigned int k = 0; k < num_bvs; ++k)
+    {
+      if(bvs[k] != other.bvs[k])
+        return false;
+    }
+    
+    return true;
   }
 };
 

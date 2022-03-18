@@ -282,34 +282,6 @@ public:
     aabb_center = aabb_.center();
   }
   
-  /// \brief Comparison operators
-  bool operator==(const HeightField & other) const
-  {
-    bool res = Base::operator==(other);
-    if(!res)
-      return false;
-    
-    res |=
-       heights == other.heights
-    && x_dim == other.x_dim
-    && y_dim == other.y_dim
-    && min_height == other.min_height
-    && max_height == other.max_height
-    && x_grid == other.x_grid
-    && y_grid == other.y_grid
-    && bvs == other.bvs
-    && num_bvs == other.num_bvs
-    ;
-    
-    return res;
-  }
-  
-  /// \brief Difference operator
-  bool operator!=(const HeightField & other) const
-  {
-    return !(*this == other);
-  }
-  
   /// @brief Update Height Field height
   void updateHeights(const MatrixXf & new_heights)
   {
@@ -511,6 +483,30 @@ public:
   
   /// @brief Get the BV type: default is unknown
   NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
+
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const HeightField * other_ptr = dynamic_cast<const HeightField *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const HeightField & other = *other_ptr;
+
+    return
+       x_dim == other.x_dim
+    && y_dim == other.y_dim
+    && heights == other.heights
+    && min_height == other.min_height
+    && max_height == other.max_height
+    && x_grid == other.x_grid
+    && y_grid == other.y_grid
+    && bvs == other.bvs
+    && num_bvs == other.num_bvs;
+  }
+  
+public:
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 };
 

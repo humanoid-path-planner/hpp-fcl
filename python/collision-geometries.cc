@@ -534,6 +534,9 @@ void exposeCollisionGeometries ()
       .def_readwrite("cost_density",&CollisionGeometry::cost_density,"Collision cost for unit volume.")
       .def_readwrite("threshold_occupied",&CollisionGeometry::threshold_occupied,"Threshold for occupied ( >= is occupied).")
       .def_readwrite("threshold_free",&CollisionGeometry::threshold_free,"Threshold for free (<= is free).")
+    
+      .def(self == self)
+      .def(self != self)
       ;
   }
 

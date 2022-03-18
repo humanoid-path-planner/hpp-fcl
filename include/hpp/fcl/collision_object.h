@@ -40,6 +40,7 @@
 #define HPP_FCL_COLLISION_OBJECT_BASE_H
 
 #include <limits>
+#include <typeinfo>
 
 #include <hpp/fcl/deprecated.hh>
 #include <hpp/fcl/fwd.hh>
@@ -93,14 +94,14 @@ public:
     && aabb_center == other.aabb_center
     && aabb_radius == other.aabb_radius
     && aabb_local == other.aabb_local
-//    && user_data == other.user_data
+    && isEqual(other)
     ;
   }
 
   /// \brief Difference operator
   bool operator!=(const CollisionGeometry & other) const
   {
-    return !(*this == other);
+    return isNotEqual(other);
   }
 
   /// @brief get the type of the object
@@ -183,6 +184,18 @@ public:
                           C(2, 2) - V * (com[0] * com[0] + com[1] * com[1])).finished();
   }
 
+private:
+  
+  /// @brief equal operator with another object of derived type.
+  virtual bool isEqual(const CollisionGeometry & other) const = 0;
+  
+  /// @brief not equal operator with another object of derived type.
+  virtual bool isNotEqual(const CollisionGeometry & other) const
+  {
+    return !(*this == other);
+  }
+  
+public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 };

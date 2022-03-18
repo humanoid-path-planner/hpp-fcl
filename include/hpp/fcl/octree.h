@@ -65,12 +65,11 @@ private:
 
 public:
   
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   typedef octomap::OcTreeNode OcTreeNode;
 
   /// @brief construct octree with a given resolution
-  OcTree(FCL_REAL resolution) : tree(shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))
+  explicit OcTree(FCL_REAL resolution)
+  : tree(shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))
   {
     default_occupancy = tree->getOccupancyThres();
 
@@ -80,7 +79,8 @@ public:
   }
 
   /// @brief construct octree from octomap
-  OcTree(const shared_ptr<const octomap::OcTree>& tree_) : tree(tree_)
+  explicit OcTree(const shared_ptr<const octomap::OcTree>& tree_)
+  : tree(tree_)
   {
     default_occupancy = tree->getOccupancyThres();
 
@@ -256,6 +256,22 @@ public:
 
   /// @brief return node type, it is an octree
   NODE_TYPE getNodeType() const { return GEOM_OCTREE; }
+  
+private:
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const OcTree * other_ptr = dynamic_cast<const OcTree *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const OcTree & other = *other_ptr;
+    
+    return tree.get() == other.tree.get()
+    && default_occupancy == other.default_occupancy
+    && occupancy_threshold == other.occupancy_threshold
+    && free_threshold == other.free_threshold;
+  }
+  
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief compute the bounding volume of an octree node's i-th child
@@ -306,7 +322,7 @@ static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& chi
   HPP_FCL_DLLAPI OcTreePtr_t makeOctree(const Eigen::Matrix<FCL_REAL,Eigen::Dynamic,3> & point_cloud,
                                         const FCL_REAL resolution);
 
-}
+} // namespace hpp::fcl
 
 } // namespace hpp
 

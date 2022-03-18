@@ -98,11 +98,14 @@ BVHModelBase::BVHModelBase(const BVHModelBase& other) :
     prev_vertices = nullptr;
 }
 
-bool BVHModelBase::operator==(const BVHModelBase & other) const
+bool BVHModelBase::isEqual(const CollisionGeometry & _other) const
 {
+  const BVHModelBase * other_ptr = dynamic_cast<const BVHModelBase *>(&_other);
+  if(other_ptr == nullptr) return false;
+  const BVHModelBase & other = *other_ptr;
+
   bool result =
-     CollisionGeometry::operator==(static_cast<const CollisionGeometry &>(other))
-  && num_tris == other.num_tris
+     num_tris == other.num_tris
   && num_vertices == other.num_vertices;
   
   if(!result) return false;

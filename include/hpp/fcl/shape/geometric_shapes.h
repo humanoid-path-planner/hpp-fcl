@@ -95,6 +95,19 @@ public:
 
   Vec3f a, b, c;
   
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const TriangleP * other_ptr = dynamic_cast<const TriangleP *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const TriangleP & other = *other_ptr;
+    
+    return a == other.a && b == other.b && c == other.c;
+  }
+  
+public:
+  
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
@@ -127,6 +140,7 @@ public:
   /// @brief Clone *this into a new Box
   virtual Box* clone() const { return new Box(*this); };
 
+  /// @brief Default constructor
   Box() {}
 
   /// @brief box side half-length
@@ -149,6 +163,19 @@ public:
     Vec3f s (halfSide.cwiseAbs2() * V);
     return (Vec3f (s[1] + s[2], s[0] + s[2], s[0] + s[1]) / 3).asDiagonal();
   }
+  
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const Box * other_ptr = dynamic_cast<const Box *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Box & other = *other_ptr;
+    
+    return halfSide == other.halfSide;
+  }
+  
+public:
   
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -189,6 +216,19 @@ public:
   {
     return 4 * boost::math::constants::pi<FCL_REAL>() * radius * radius * radius / 3;
   }
+  
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const Sphere * other_ptr = dynamic_cast<const Sphere *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Sphere & other = *other_ptr;
+    
+    return radius == other.radius;
+  }
+  
+public:
   
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -234,6 +274,19 @@ public:
   {
     return 4 * boost::math::constants::pi<FCL_REAL>() * radii[0] * radii[1] * radii[2] / 3;
   }
+  
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const Ellipsoid * other_ptr = dynamic_cast<const Ellipsoid *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Ellipsoid & other = *other_ptr;
+    
+    return radii == other.radii;
+  }
+  
+public:
   
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -292,6 +345,19 @@ public:
                           0, 0, iz).finished();
   }
   
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const Capsule * other_ptr = dynamic_cast<const Capsule *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Capsule & other = *other_ptr;
+    
+    return radius == other.radius && halfLength == other.halfLength;
+  }
+  
+public:
+  
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
 };
@@ -349,6 +415,19 @@ public:
   {
     return Vec3f(0, 0, -0.5 * halfLength);
   }
+  
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const Cone * other_ptr = dynamic_cast<const Cone *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Cone & other = *other_ptr;
+    
+    return radius == other.radius && halfLength == other.halfLength;
+  }
+  
+public:
   
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -409,6 +488,19 @@ public:
                           0, 0, iz).finished();
   }
   
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const Cylinder * other_ptr = dynamic_cast<const Cylinder *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Cylinder & other = *other_ptr;
+    
+    return radius == other.radius && halfLength == other.halfLength;
+  }
+  
+public:
+  
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
@@ -468,6 +560,25 @@ public:
     unsigned char const& count () const { return count_; }
     unsigned int      & operator[] (int i)       { assert(i<count_); return n_[i]; }
     unsigned int const& operator[] (int i) const { assert(i<count_); return n_[i]; }
+    
+    bool operator==(const Neighbors & other) const
+    {
+      if(count_ != other.count_)
+        return false;
+      
+      for(int i = 0; i < count_; ++i)
+      {
+        if(n_[i] != other.n_[i])
+          return false;
+      }
+      
+      return true;
+    }
+    
+    bool operator!=(const Neighbors & other) const
+    {
+      return !(*this == other);
+    }
   };
   /// Neighbors of each vertex.
   /// It is an array of size num_points. For each vertex, it contains the number
@@ -508,6 +619,32 @@ protected:
 
 private:
   void computeCenter();
+  
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const ConvexBase * other_ptr = dynamic_cast<const ConvexBase *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const ConvexBase & other = *other_ptr;
+    
+    if(num_points != other.num_points)
+      return false;
+      
+    for(unsigned int i = 0; i < num_points; ++i)
+    {
+      if(points[i] != other.points[i])
+        return false;
+    }
+    
+    for(unsigned int i = 0; i < num_points; ++i)
+    {
+      if(neighbors[i] != other.neighbors[i])
+        return false;
+    }
+    
+    return center == other.center;
+  }
   
 public:
   
@@ -583,6 +720,17 @@ protected:
   /// @brief Turn non-unit normal into unit
   void unitNormalTest();
   
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const Halfspace * other_ptr = dynamic_cast<const Halfspace *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Halfspace & other = *other_ptr;
+    
+    return n == other.n && d == other.d;
+  }
+  
 public:
   
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -651,6 +799,17 @@ protected:
   
   /// @brief Turn non-unit normal into unit 
   void unitNormalTest();
+  
+private:
+  
+  virtual bool isEqual(const CollisionGeometry & _other) const
+  {
+    const Plane * other_ptr = dynamic_cast<const Plane *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Plane & other = *other_ptr;
+    
+    return n == other.n && d == other.d;
+  }
   
 public:
   

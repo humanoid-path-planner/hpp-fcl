@@ -47,10 +47,13 @@ namespace fcl
 {
 
 template <typename PolygonT>
-Convex<PolygonT>::Convex(bool own_storage, Vec3f* points_, unsigned int num_points_,
-       PolygonT* polygons_, unsigned int num_polygons_) : ConvexBase(),
-  polygons     (polygons_),
-  num_polygons (num_polygons_)
+Convex<PolygonT>::Convex(bool own_storage, Vec3f* points_,
+                         unsigned int num_points_,
+                         PolygonT* polygons_,
+                         unsigned int num_polygons_)
+: ConvexBase()
+, polygons     (polygons_)
+, num_polygons (num_polygons_)
 {
   initialize(own_storage, points_, num_points_);
   fillNeighbors();
@@ -75,8 +78,11 @@ Convex<PolygonT>::~Convex()
 }
 
 template <typename PolygonT>
-void Convex<PolygonT>::set(bool own_storage, Vec3f* points_, unsigned int num_points_,
-                           PolygonT* polygons_, unsigned int num_polygons_)
+void Convex<PolygonT>::set(bool own_storage,
+                           Vec3f* points_,
+                           unsigned int num_points_,
+                           PolygonT* polygons_,
+                           unsigned int num_polygons_)
 {
   if (own_storage_)
     delete [] polygons;
@@ -86,6 +92,17 @@ void Convex<PolygonT>::set(bool own_storage, Vec3f* points_, unsigned int num_po
   polygons = polygons_;
   
   fillNeighbors();
+}
+
+template <typename PolygonT>
+Convex<PolygonT> * Convex<PolygonT>::clone() const
+{
+  Vec3f * cloned_points = new Vec3f[num_points];
+  memcpy(cloned_points, polygons, sizeof(Vec3f) * num_points);
+  
+  PolygonT * cloned_polygons = new PolygonT[num_polygons];
+  memcpy(cloned_polygons, polygons, sizeof(PolygonT) * num_polygons);
+  return new Convex(true, cloned_points, num_points, cloned_polygons, num_polygons);;
 }
 
 template <typename PolygonT>
