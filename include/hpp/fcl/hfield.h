@@ -282,34 +282,6 @@ public:
     aabb_center = aabb_.center();
   }
   
-  /// \brief Comparison operators
-  bool operator==(const HeightField & other) const
-  {
-    bool res = Base::operator==(other);
-    if(!res)
-      return false;
-    
-    res |=
-       heights == other.heights
-    && x_dim == other.x_dim
-    && y_dim == other.y_dim
-    && min_height == other.min_height
-    && max_height == other.max_height
-    && x_grid == other.x_grid
-    && y_grid == other.y_grid
-    && bvs == other.bvs
-    && num_bvs == other.num_bvs
-    ;
-    
-    return res;
-  }
-  
-  /// \brief Difference operator
-  bool operator!=(const HeightField & other) const
-  {
-    return !(*this == other);
-  }
-  
   /// @brief Update Height Field height
   void updateHeights(const MatrixXf & new_heights)
   {
