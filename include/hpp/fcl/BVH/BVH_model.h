@@ -384,7 +384,10 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const BVHModel & other = static_cast<const BVHModel &>(_other);
+    const BVHModel * other_ptr = dynamic_cast<const BVHModel *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const BVHModel & other = *other_ptr;
+    
     bool res = Base::isEqual(other);
     if(!res)
       return false;

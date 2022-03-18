@@ -99,7 +99,10 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const TriangleP & other = static_cast<const TriangleP&>(_other);
+    const TriangleP * other_ptr = dynamic_cast<const TriangleP *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const TriangleP & other = *other_ptr;
+    
     return a == other.a && b == other.b && c == other.c;
   }
   
@@ -165,7 +168,10 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const Box & other = static_cast<const Box&>(_other);
+    const Box * other_ptr = dynamic_cast<const Box *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Box & other = *other_ptr;
+    
     return halfSide == other.halfSide;
   }
   
@@ -215,7 +221,10 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const Sphere & other = static_cast<const Sphere&>(_other);
+    const Sphere * other_ptr = dynamic_cast<const Sphere *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Sphere & other = *other_ptr;
+    
     return radius == other.radius;
   }
   
@@ -270,7 +279,10 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const Ellipsoid & other = static_cast<const Ellipsoid&>(_other);
+    const Ellipsoid * other_ptr = dynamic_cast<const Ellipsoid *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Ellipsoid & other = *other_ptr;
+    
     return radii == other.radii;
   }
   
@@ -337,7 +349,10 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const Capsule & other = static_cast<const Capsule&>(_other);
+    const Capsule * other_ptr = dynamic_cast<const Capsule *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Capsule & other = *other_ptr;
+    
     return radius == other.radius && halfLength == other.halfLength;
   }
   
@@ -405,7 +420,10 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const Cone & other = static_cast<const Cone&>(_other);
+    const Cone * other_ptr = dynamic_cast<const Cone *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Cone & other = *other_ptr;
+    
     return radius == other.radius && halfLength == other.halfLength;
   }
   
@@ -474,7 +492,10 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const Cylinder & other = static_cast<const Cylinder&>(_other);
+    const Cylinder * other_ptr = dynamic_cast<const Cylinder *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Cylinder & other = *other_ptr;
+    
     return radius == other.radius && halfLength == other.halfLength;
   }
   
@@ -603,7 +624,10 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const ConvexBase & other = static_cast<const ConvexBase&>(_other);
+    const ConvexBase * other_ptr = dynamic_cast<const ConvexBase *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const ConvexBase & other = *other_ptr;
+    
     if(num_points != other.num_points)
       return false;
       
@@ -700,7 +724,10 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const Halfspace & other = static_cast<const Halfspace&>(_other);
+    const Halfspace * other_ptr = dynamic_cast<const Halfspace *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Halfspace & other = *other_ptr;
+    
     return n == other.n && d == other.d;
   }
   
@@ -777,7 +804,10 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const Plane & other = static_cast<const Plane&>(_other);
+    const Plane * other_ptr = dynamic_cast<const Plane *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const Plane & other = *other_ptr;
+    
     return n == other.n && d == other.d;
   }
   

@@ -94,7 +94,7 @@ public:
     && aabb_center == other.aabb_center
     && aabb_radius == other.aabb_radius
     && aabb_local == other.aabb_local
-    && typeid(*this) == typeid(other) && isEqual(other)
+    && isEqual(other)
     ;
   }
 

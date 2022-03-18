@@ -100,8 +100,10 @@ BVHModelBase::BVHModelBase(const BVHModelBase& other) :
 
 bool BVHModelBase::isEqual(const CollisionGeometry & _other) const
 {
-  const BVHModelBase & other = static_cast<const BVHModelBase &>(_other);
-  
+  const BVHModelBase * other_ptr = dynamic_cast<const BVHModelBase *>(&_other);
+  if(other_ptr == nullptr) return false;
+  const BVHModelBase & other = *other_ptr;
+
   bool result =
      num_tris == other.num_tris
   && num_vertices == other.num_vertices;

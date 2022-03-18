@@ -260,7 +260,9 @@ public:
 private:
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const OcTree & other = static_cast<const OcTree&>(_other);
+    const OcTree * other_ptr = dynamic_cast<const OcTree *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const OcTree & other = *other_ptr;
     
     return tree.get() == other.tree.get()
     && default_occupancy == other.default_occupancy

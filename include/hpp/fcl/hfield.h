@@ -516,7 +516,9 @@ private:
   
   virtual bool isEqual(const CollisionGeometry & _other) const
   {
-    const HeightField & other = static_cast<const HeightField&>(_other);
+    const HeightField * other_ptr = dynamic_cast<const HeightField *>(&_other);
+    if(other_ptr == nullptr) return false;
+    const HeightField & other = *other_ptr;
 
     return
        x_dim == other.x_dim
