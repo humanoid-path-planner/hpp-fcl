@@ -92,15 +92,18 @@ public:
   ///
   /// \param ownStorage whether this class owns the pointers of points and
   ///                    polygons. If owned, they are deleted upon destruction.
-  /// \param points_ list of 3D points
-  /// \param num_points_ number of 3D points
-  /// \param polygons_ \copydoc Convex::polygons
-  /// \param num_polygons_ the number of polygons.
-  /// \note num_polygons_ is not the allocated size of polygons_.
+  /// \param points list of 3D points
+  /// \param num_points number of 3D points
+  /// \param polygons \copydoc Convex::polygons
+  /// \param num_polygons the number of polygons.
+  /// \note num_polygons is not the allocated size of polygons.
   ///
   void set(bool ownStorage,
-           Vec3f* points_, unsigned int num_points_,
-           PolygonT* polygons_, unsigned int num_polygons_);
+           Vec3f* points, unsigned int num_points,
+           PolygonT* polygons, unsigned int num_polygons);
+  
+  /// @brief Clone (deep copy).
+  virtual Convex<PolygonT> * clone() const;
 
 protected:
   void fillNeighbors();
