@@ -97,7 +97,12 @@ void Convex<PolygonT>::set(bool own_storage,
 template <typename PolygonT>
 Convex<PolygonT> * Convex<PolygonT>::clone() const
 {
-  return new Convex(true, points, num_points, polygons, num_polygons);;
+  Vec3f * cloned_points = new Vec3f[num_points];
+  memcpy(cloned_points, polygons, sizeof(Vec3f) * num_points);
+  
+  PolygonT * cloned_polygons = new PolygonT[num_polygons];
+  memcpy(cloned_polygons, polygons, sizeof(PolygonT) * num_polygons);
+  return new Convex(true, cloned_points, num_points, cloned_polygons, num_polygons);;
 }
 
 template <typename PolygonT>
