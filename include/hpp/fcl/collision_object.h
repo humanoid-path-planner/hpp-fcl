@@ -101,7 +101,7 @@ public:
   /// \brief Difference operator
   bool operator!=(const CollisionGeometry & other) const
   {
-    return typeid(*this) == typeid(other) && isNotEqual(other);
+    return isNotEqual(other);
   }
 
   /// @brief get the type of the object
