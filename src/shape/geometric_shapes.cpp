@@ -83,6 +83,8 @@ ConvexBase::ConvexBase(const ConvexBase& other) :
     c_nneighbors += neighbors[i].count();
   nneighbors_ = new unsigned int[c_nneighbors];
   memcpy(nneighbors_, other.nneighbors_, sizeof(unsigned int) * c_nneighbors);
+
+  ShapeBase::operator=(*this);
 }
 
 ConvexBase::~ConvexBase ()

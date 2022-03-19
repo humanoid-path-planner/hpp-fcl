@@ -538,6 +538,7 @@ public:
       memcpy((void*)copy.points, points, sizeof(Vec3f) * (size_t)copy.num_points);
     }
     copy.own_storage_ = true;
+    copy.ShapeBase::operator=(*this);
     
     return copy_ptr;
   }

@@ -102,7 +102,11 @@ Convex<PolygonT> * Convex<PolygonT>::clone() const
   
   PolygonT * cloned_polygons = new PolygonT[num_polygons];
   memcpy(cloned_polygons, polygons, sizeof(PolygonT) * num_polygons);
-  return new Convex(true, cloned_points, num_points, cloned_polygons, num_polygons);;
+  
+  Convex * copy_ptr = new Convex(true, cloned_points, num_points, cloned_polygons, num_polygons);
+  
+  copy_ptr->ShapeBase::operator=(*this);
+  return copy_ptr;
 }
 
 template <typename PolygonT>
