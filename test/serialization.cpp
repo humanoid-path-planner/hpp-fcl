@@ -337,5 +337,5 @@ BOOST_AUTO_TEST_CASE(test_memory_footprint)
   
   std::cout << "computeMemoryFootprint(m1): " << computeMemoryFootprint(m1) << std::endl;
   BOOST_CHECK(sizeof(BVHModel<OBBRSS>) < computeMemoryFootprint(m1));
-  BOOST_CHECK(m1.memUsage(false) == computeMemoryFootprint(m1));
+  BOOST_CHECK(static_cast<size_t>(m1.memUsage(false)) == computeMemoryFootprint(m1));
 }

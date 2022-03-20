@@ -138,13 +138,13 @@ struct QueryResult;
 /// @brief base class for all query requests
 struct HPP_FCL_DLLAPI QueryRequest
 {
-  /// @brief whether enable gjk intial guess
+  /// @brief whether enable gjk initial guess
   bool enable_cached_gjk_guess;
   
-  /// @brief the gjk intial guess set by user
+  /// @brief the gjk initial guess set by user
   Vec3f cached_gjk_guess;
 
-  /// @brief the support function intial guess set by user
+  /// @brief the support function initial guess set by user
   support_func_guess_t cached_support_func_guess;
   
   /// @brief enable timings when performing collision/distance request
@@ -228,13 +228,13 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest
   /// @brief Distance above which GJK solver makes an early stopping.
   /// GJK stops searching for the closest points when it proves that the distance between two geometries is above this threshold.
   ///
-  /// @remarks Consequently, the closest points might be incorrect, but allows to save computational ressources.
+  /// @remarks Consequently, the closest points might be incorrect, but allows to save computational resources.
   FCL_REAL distance_upper_bound;
 
   /// @brief Constructor from a flag and a maximal number of contacts.
   ///
   /// @param[in] flag Collision request flag
-  /// @param[in] num_max_contacts  Maximal number of allowad contacts
+  /// @param[in] num_max_contacts  Maximal number of allowed contacts
   ///
   CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_) :
     num_max_contacts(num_max_contacts_),
@@ -372,7 +372,7 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest
 
   /// @brief error threshold for approximate distance
   FCL_REAL rel_err; // relative error, between 0 and 1
-  FCL_REAL abs_err; // absoluate error
+  FCL_REAL abs_err; // absolute error
 
   /// \param enable_nearest_points_ enables the nearest points computation.
   /// \param rel_err_

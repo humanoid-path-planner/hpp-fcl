@@ -46,6 +46,12 @@ CMAKE_POLICY(SET CMP0022 NEW)
 SET(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
 SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
 
+# ----------------------------------------------------
+# --- OPTIONS  ---------------------------------------
+# Need to be set before including base.cmake
+# ----------------------------------------------------
+OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+
 # Check if the submodule cmake have been initialized
 IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake/base.cmake")
   MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")
@@ -231,3 +237,6 @@ ENDIF(HPP_FCL_HAS_OCTOMAP)
 
 # Install catkin package.xml
 INSTALL(FILES package.xml DESTINATION share/${PROJECT_NAME})
+# Allows Colcon to find non-Ament packages when using workspace underlays
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} DESTINATION share/ament_index/resource_index/packages)
