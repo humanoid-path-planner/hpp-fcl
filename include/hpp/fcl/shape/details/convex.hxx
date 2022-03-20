@@ -67,7 +67,7 @@ Convex<PolygonT>::Convex(const Convex<PolygonT>& other) :
 {
   if (own_storage_) {
     polygons = new PolygonT[num_polygons];
-    memcpy(polygons, other.polygons, sizeof(PolygonT) * num_polygons);
+    std::copy(other.polygons, other.polygons + num_polygons, polygons);
   }
 }
 
@@ -98,10 +98,10 @@ template <typename PolygonT>
 Convex<PolygonT> * Convex<PolygonT>::clone() const
 {
   Vec3f * cloned_points = new Vec3f[num_points];
-  memcpy(cloned_points, points, sizeof(Vec3f) * num_points);
+  std::copy(points, points + num_points, cloned_points);
   
   PolygonT * cloned_polygons = new PolygonT[num_polygons];
-  memcpy(cloned_polygons, polygons, sizeof(PolygonT) * num_polygons);
+  std::copy(polygons, polygons + num_polygons, cloned_polygons);
   
   Convex * copy_ptr = new Convex(true, cloned_points, num_points, cloned_polygons, num_polygons);
   
