@@ -439,6 +439,7 @@ void exposeCollisionGeometries ()
                "A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points",
                no_init)
     .def(init<>(bp::arg("self"), "Default constructor"))
+    .def(init<AABB>(bp::args("self","other"), "Copy constructor"))
     .def(init<Vec3f>(bp::args("self","v"),"Creating an AABB at position v with zero size."))
     .def(init<Vec3f,Vec3f>(bp::args("self","a","b"),"Creating an AABB with two endpoints a and b."))
     .def(init<AABB,Vec3f>(bp::args("self","core","delta"),"Creating an AABB centered as core and is of half-dimension delta."))
