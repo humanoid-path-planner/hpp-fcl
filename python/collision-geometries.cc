@@ -472,6 +472,9 @@ void exposeCollisionGeometries ()
 //         bp::args("self","other"),
 //         "Distance between two AABBs.")
   
+    .def(bp::self == bp::self)
+    .def(bp::self != bp::self)
+  
     .def(bp::self + bp::self)
     .def(bp::self += bp::self)
     .def(bp::self += Vec3f())
