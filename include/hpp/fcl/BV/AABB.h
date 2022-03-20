@@ -100,6 +100,11 @@ public:
   {
     return min_ == other.min_ && max_ == other.max_;
   }
+  
+  bool operator!=(const AABB & other) const
+  {
+    return !(*this == other);
+  }
 
   /// @name Bounding volume API
   /// Common API to BVs.
