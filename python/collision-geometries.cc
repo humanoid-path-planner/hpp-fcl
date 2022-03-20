@@ -472,6 +472,15 @@ void exposeCollisionGeometries ()
 //         bp::args("self","other"),
 //         "Distance between two AABBs.")
   
+    .add_property("min_",
+                  bp::make_function(+[](AABB & self) -> Vec3f & { return self.min_; }, bp::return_internal_reference<>()),
+                  bp::make_function(+[](AABB & self, const Vec3f & min_) -> void { self.min_ = min_; }),
+                  "The min point in the AABB.")
+    .add_property("max_",
+                  bp::make_function(+[](AABB & self) -> Vec3f & { return self.max_; }, bp::return_internal_reference<>()),
+                  bp::make_function(+[](AABB & self, const Vec3f & max_) -> void { self.max_ = max_; }),
+                  "The max point in the AABB.")
+  
     .def(bp::self == bp::self)
     .def(bp::self != bp::self)
   
