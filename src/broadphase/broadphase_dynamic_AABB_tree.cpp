@@ -600,6 +600,8 @@ void DynamicAABBTreeCollisionManager::update()
     CollisionObject* obj = it->first;
     DynamicAABBNode* node = it->second;
     node->bv = obj->getAABB();
+    if(node->bv.volume() <= 0.)
+      throw std::invalid_argument("The bounding volume has a negative volume.");
   }
 
   dtree.refit();
