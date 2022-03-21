@@ -439,6 +439,7 @@ void exposeCollisionGeometries ()
                "A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points",
                no_init)
     .def(init<>(bp::arg("self"), "Default constructor"))
+    .def(init<AABB>(bp::args("self","other"), "Copy constructor"))
     .def(init<Vec3f>(bp::args("self","v"),"Creating an AABB at position v with zero size."))
     .def(init<Vec3f,Vec3f>(bp::args("self","a","b"),"Creating an AABB with two endpoints a and b."))
     .def(init<AABB,Vec3f>(bp::args("self","core","delta"),"Creating an AABB centered as core and is of half-dimension delta."))
@@ -470,6 +471,18 @@ void exposeCollisionGeometries ()
 //         AABB_distance_proxy,
 //         bp::args("self","other"),
 //         "Distance between two AABBs.")
+  
+    .add_property("min_",
+                  bp::make_function(+[](AABB & self) -> Vec3f & { return self.min_; }, bp::return_internal_reference<>()),
+                  bp::make_function(+[](AABB & self, const Vec3f & min_) -> void { self.min_ = min_; }),
+                  "The min point in the AABB.")
+    .add_property("max_",
+                  bp::make_function(+[](AABB & self) -> Vec3f & { return self.max_; }, bp::return_internal_reference<>()),
+                  bp::make_function(+[](AABB & self, const Vec3f & max_) -> void { self.max_ = max_; }),
+                  "The max point in the AABB.")
+  
+    .def(bp::self == bp::self)
+    .def(bp::self != bp::self)
   
     .def(bp::self + bp::self)
     .def(bp::self += bp::self)

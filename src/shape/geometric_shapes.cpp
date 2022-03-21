@@ -70,19 +70,21 @@ ConvexBase::ConvexBase(const ConvexBase& other) :
     if (own_storage_ && points) delete [] points;
 
     points = new Vec3f[num_points];
-    memcpy((void*)points, other.points, sizeof(Vec3f) * num_points);
+    std::copy(other.points, other.points + num_points, points);
   }
   else
     points = other.points;
 
   neighbors = new Neighbors[num_points];
-  memcpy(neighbors, other.neighbors, sizeof(Neighbors) * num_points);
+  std::copy(other.neighbors, other.neighbors + num_points, neighbors);
 
   std::size_t c_nneighbors = 0;
   for (std::size_t i = 0; i < num_points; ++i)
     c_nneighbors += neighbors[i].count();
   nneighbors_ = new unsigned int[c_nneighbors];
-  memcpy(nneighbors_, other.nneighbors_, sizeof(unsigned int) * c_nneighbors);
+  std::copy(other.nneighbors_, other.nneighbors_ + c_nneighbors, nneighbors_);
+
+  ShapeBase::operator=(*this);
 }
 
 ConvexBase::~ConvexBase ()

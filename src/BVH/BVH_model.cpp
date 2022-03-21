@@ -285,7 +285,7 @@ int BVHModelBase::addTriangles(const Matrixx3i & triangles)
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, tri_indices, sizeof(Triangle) * (size_t)num_tris);
+    std::copy(tri_indices, tri_indices + num_tris, temp);
     delete [] tri_indices;
     tri_indices = temp;
     num_tris_allocated = num_tris_allocated * 2 + num_tris_to_add;
@@ -372,7 +372,7 @@ int BVHModelBase::addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, tri_indices, sizeof(Triangle) * (size_t)num_tris);
+    std::copy(tri_indices, tri_indices + num_tris, temp);
     delete [] tri_indices;
     tri_indices = temp;
     num_tris_allocated *= 2;
@@ -465,7 +465,7 @@ int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Tr
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, tri_indices, sizeof(Triangle) * (size_t)num_tris);
+    std::copy(tri_indices, tri_indices + num_tris, temp);
     delete [] tri_indices;
     tri_indices = temp;
     num_tris_allocated = num_tris_allocated * 2 + num_tris_to_add - 1;
@@ -507,7 +507,7 @@ int BVHModelBase::endModel()
         std::cerr << "BVH Error! Out of memory for tri_indices array in endModel() call!" << std::endl;
         return BVH_ERR_MODEL_OUT_OF_MEMORY;
       }
-      memcpy(new_tris, tri_indices, sizeof(Triangle) * (size_t)num_tris);
+      std::copy(tri_indices, tri_indices + num_tris, new_tris);
       delete [] tri_indices;
       tri_indices = new_tris;
       num_tris_allocated = num_tris;

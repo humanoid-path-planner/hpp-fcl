@@ -87,6 +87,8 @@ public:
   {
   }
   
+  AABB(const AABB & other) = default;
+  
   AABB & update(const Vec3f& a, const Vec3f& b)
   {
     min_ = a.cwiseMin(b); max_ = a.cwiseMax(b);
@@ -97,6 +99,11 @@ public:
   bool operator==(const AABB & other) const
   {
     return min_ == other.min_ && max_ == other.max_;
+  }
+  
+  bool operator!=(const AABB & other) const
+  {
+    return !(*this == other);
   }
 
   /// @name Bounding volume API
