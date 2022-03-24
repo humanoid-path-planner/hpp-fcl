@@ -229,6 +229,16 @@ public:
   {
     init(compute_local_aabb);
   }
+  
+  bool operator==(const CollisionObject & other) const
+  {
+    return cgeom == other.cgeom && t == other.t && user_data == other.user_data;
+  }
+  
+  bool operator!=(const CollisionObject & other) const
+  {
+    return !(*this == other);
+  }
 
   ~CollisionObject()
   {
