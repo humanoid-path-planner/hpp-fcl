@@ -104,6 +104,20 @@ public:
     return res;
   }
   
+  bool operator==(const ComputeDistance & other) const
+  {
+    return o1 == other.o1
+    && o2 == other.o2
+    && swap_geoms == other.swap_geoms
+    && solver == other.solver
+    && func == other.func;
+  }
+  
+  bool operator!=(const ComputeDistance & other) const
+  {
+    return !(*this == other);
+  }
+  
   virtual ~ComputeDistance() {};
 
 protected:
