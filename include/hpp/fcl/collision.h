@@ -116,9 +116,7 @@ public:
   {
     return o1 == other.o1
     && o2 == other.o2
-    && swap_geoms == other.swap_geoms
-    && solver == other.solver
-    && func == other.func;
+    && solver == other.solver;
   }
   
   bool operator!=(const ComputeCollision & other) const
