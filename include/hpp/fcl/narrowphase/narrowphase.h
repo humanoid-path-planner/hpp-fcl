@@ -334,6 +334,26 @@ namespace fcl
     {
       return cached_guess;
     }
+    
+    bool operator==(const GJKSolver & other) const
+    {
+      return
+      epa_max_face_num == other.epa_max_face_num
+      && epa_max_vertex_num == other.epa_max_vertex_num
+      && epa_max_iterations == other.epa_max_iterations
+      && epa_tolerance == other.epa_tolerance
+      && gjk_max_iterations == other.gjk_max_iterations
+      && enable_cached_guess == other.enable_cached_guess
+      && cached_guess == other.cached_guess
+      && support_func_cached_guess == other.support_func_cached_guess
+      && distance_upper_bound == other.distance_upper_bound
+      ;
+    }
+    
+    bool operator!=(const GJKSolver & other) const
+    {
+      return !(*this == other);
+    }
 
     /// @brief maximum number of simplex face used in EPA algorithm
     unsigned int epa_max_face_num;

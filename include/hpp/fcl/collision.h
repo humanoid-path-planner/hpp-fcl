@@ -112,6 +112,18 @@ public:
     return res;
   }
   
+  bool operator==(const ComputeCollision & other) const
+  {
+    return o1 == other.o1
+    && o2 == other.o2
+    && solver == other.solver;
+  }
+  
+  bool operator!=(const ComputeCollision & other) const
+  {
+    return !(*this == other);
+  }
+  
   virtual ~ComputeCollision() {};
   
 protected:
