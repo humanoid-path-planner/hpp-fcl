@@ -19,15 +19,13 @@
 
 #include <hpp/fcl/collision_object.h>
 
-namespace hpp
-{
-namespace fcl
-{
-  HPP_FCL_DLLAPI CollisionGeometry* extract(const CollisionGeometry* model,
-                                            const Transform3f& pose,
-                                            const AABB& aabb);
+namespace hpp {
+namespace fcl {
+HPP_FCL_DLLAPI CollisionGeometry* extract(const CollisionGeometry* model,
+                                          const Transform3f& pose,
+                                          const AABB& aabb);
 }
 
-} // namespace hpp
+}  // namespace hpp
 
-#endif // FCL_COLLISION_UTILITY_H
+#endif  // FCL_COLLISION_UTILITY_H

@@ -35,7 +35,6 @@
 
 /** \author Jeongseok Lee */
 
-
 #define BOOST_TEST_MODULE FCL_BVH_MODELS
 #include <boost/test/included/unit_test.hpp>
 #include <boost/filesystem.hpp>
@@ -54,32 +53,28 @@
 
 using namespace hpp::fcl;
 
-template<typename BV>
-void testBVHModelPointCloud()
-{
-
-  Box box (Vec3f::Ones());
+template <typename BV>
+void testBVHModelPointCloud() {
+  Box box(Vec3f::Ones());
   double a = box.halfSide[0];
   double b = box.halfSide[1];
   double c = box.halfSide[2];
   std::vector<Vec3f> points(8);
-  points[0] <<  a, -b,  c;
-  points[1] <<  a,  b,  c;
-  points[2] << -a,  b,  c;
-  points[3] << -a, -b,  c;
-  points[4] <<  a, -b, -c;
-  points[5] <<  a,  b, -c;
-  points[6] << -a,  b, -c;
+  points[0] << a, -b, c;
+  points[1] << a, b, c;
+  points[2] << -a, b, c;
+  points[3] << -a, -b, c;
+  points[4] << a, -b, -c;
+  points[5] << a, b, -c;
+  points[6] << -a, b, -c;
   points[7] << -a, -b, -c;
 
   {
     shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
 
-    if (model->getNodeType() != BV_AABB
-        && model->getNodeType() != BV_KDOP16
-        && model->getNodeType() != BV_KDOP18
-        && model->getNodeType() != BV_KDOP24)
-    {
+    if (model->getNodeType() != BV_AABB && model->getNodeType() != BV_KDOP16 &&
+        model->getNodeType() != BV_KDOP18 &&
+        model->getNodeType() != BV_KDOP24) {
       std::cout << "Abort test since '" << getNodeTypeName(model->getNodeType())
                 << "' does not support point cloud model. "
                 << "Please see issue #67." << std::endl;
@@ -91,8 +86,7 @@ void testBVHModelPointCloud()
     result = model->beginModel();
     BOOST_CHECK_EQUAL(result, BVH_OK);
 
-    for (std::size_t i = 0; i < points.size(); ++i)
-    {
+    for (std::size_t i = 0; i < points.size(); ++i) {
       result = model->addVertex(points[i]);
       BOOST_CHECK_EQUAL(result, BVH_OK);
     }
@@ -110,19 +104,17 @@ void testBVHModelPointCloud()
   {
     shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
 
-    if (model->getNodeType() != BV_AABB
-        && model->getNodeType() != BV_KDOP16
-        && model->getNodeType() != BV_KDOP18
-        && model->getNodeType() != BV_KDOP24)
-    {
+    if (model->getNodeType() != BV_AABB && model->getNodeType() != BV_KDOP16 &&
+        model->getNodeType() != BV_KDOP18 &&
+        model->getNodeType() != BV_KDOP24) {
       std::cout << "Abort test since '" << getNodeTypeName(model->getNodeType())
                 << "' does not support point cloud model. "
                 << "Please see issue #67." << std::endl;
       return;
     }
 
-    Matrixx3f all_points((Eigen::DenseIndex)points.size(),3);
-    for(size_t k = 0; k < points.size(); ++k)
+    Matrixx3f all_points((Eigen::DenseIndex)points.size(), 3);
+    for (size_t k = 0; k < points.size(); ++k)
       all_points.row((Eigen::DenseIndex)k) = points[k].transpose();
 
     int result;
@@ -143,25 +135,24 @@ void testBVHModelPointCloud()
   }
 }
 
-template<typename BV>
-void testBVHModelTriangles()
-{
+template <typename BV>
+void testBVHModelTriangles() {
   shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box box (Vec3f::Ones());
-  AABB aabb (Vec3f(-1,0,-1), Vec3f(1,1,1));
+  Box box(Vec3f::Ones());
+  AABB aabb(Vec3f(-1, 0, -1), Vec3f(1, 1, 1));
 
   double a = box.halfSide[0];
   double b = box.halfSide[1];
   double c = box.halfSide[2];
   std::vector<Vec3f> points(8);
   std::vector<Triangle> tri_indices(12);
-  points[0] <<  a, -b,  c;
-  points[1] <<  a,  b,  c;
-  points[2] << -a,  b,  c;
-  points[3] << -a, -b,  c;
-  points[4] <<  a, -b, -c;
-  points[5] <<  a,  b, -c;
-  points[6] << -a,  b, -c;
+  points[0] << a, -b, c;
+  points[1] << a, b, c;
+  points[2] << -a, b, c;
+  points[3] << -a, -b, c;
+  points[4] << a, -b, -c;
+  points[5] << a, b, -c;
+  points[6] << -a, b, -c;
   points[7] << -a, -b, -c;
 
   tri_indices[0].set(0, 4, 1);
@@ -182,9 +173,10 @@ void testBVHModelTriangles()
   result = model->beginModel();
   BOOST_CHECK_EQUAL(result, BVH_OK);
 
-  for (std::size_t i = 0; i < tri_indices.size(); ++i)
-  {
-    result = model->addTriangle(points[tri_indices[i][0]], points[tri_indices[i][1]], points[tri_indices[i][2]]);
+  for (std::size_t i = 0; i < tri_indices.size(); ++i) {
+    result =
+        model->addTriangle(points[tri_indices[i][0]], points[tri_indices[i][1]],
+                           points[tri_indices[i][2]]);
     BOOST_CHECK_EQUAL(result, BVH_OK);
   }
 
@@ -204,53 +196,52 @@ void testBVHModelTriangles()
   BOOST_CHECK_EQUAL(cropped->num_vertices, model->num_vertices - 6);
   BOOST_CHECK_EQUAL(cropped->num_tris, model->num_tris - 2);
 
-  pose.setTranslation(Vec3f(0,1,0));
+  pose.setTranslation(Vec3f(0, 1, 0));
   cropped.reset(BVHExtract(*model, pose, aabb));
   BOOST_REQUIRE(cropped);
   BOOST_CHECK(cropped->build_state == BVH_BUILD_STATE_PROCESSED);
   BOOST_CHECK_EQUAL(cropped->num_vertices, model->num_vertices - 6);
   BOOST_CHECK_EQUAL(cropped->num_tris, model->num_tris - 2);
 
-  pose.setTranslation(Vec3f(0,0,0));
-  FCL_REAL sqrt2_2 = std::sqrt(2)/2;
-  pose.setQuatRotation(Quaternion3f(sqrt2_2,sqrt2_2,0,0));
+  pose.setTranslation(Vec3f(0, 0, 0));
+  FCL_REAL sqrt2_2 = std::sqrt(2) / 2;
+  pose.setQuatRotation(Quaternion3f(sqrt2_2, sqrt2_2, 0, 0));
   cropped.reset(BVHExtract(*model, pose, aabb));
   BOOST_REQUIRE(cropped);
   BOOST_CHECK(cropped->build_state == BVH_BUILD_STATE_PROCESSED);
   BOOST_CHECK_EQUAL(cropped->num_vertices, model->num_vertices - 6);
   BOOST_CHECK_EQUAL(cropped->num_tris, model->num_tris - 2);
 
-  pose.setTranslation(-Vec3f(1,1,1));
+  pose.setTranslation(-Vec3f(1, 1, 1));
   pose.setQuatRotation(Quaternion3f::Identity());
   cropped.reset(BVHExtract(*model, pose, aabb));
   BOOST_CHECK(!cropped);
 
-  aabb = AABB(Vec3f(-0.1,-0.1,-0.1), Vec3f(0.1,0.1,0.1));
-  pose.setTranslation(Vec3f(-0.5,-0.5,0));
+  aabb = AABB(Vec3f(-0.1, -0.1, -0.1), Vec3f(0.1, 0.1, 0.1));
+  pose.setTranslation(Vec3f(-0.5, -0.5, 0));
   cropped.reset(BVHExtract(*model, pose, aabb));
   BOOST_REQUIRE(cropped);
   BOOST_CHECK_EQUAL(cropped->num_tris, 2);
   BOOST_CHECK_EQUAL(cropped->num_vertices, 6);
 }
 
-template<typename BV>
-void testBVHModelSubModel()
-{
+template <typename BV>
+void testBVHModelSubModel() {
   shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box box (Vec3f::Ones());
+  Box box(Vec3f::Ones());
 
   double a = box.halfSide[0];
   double b = box.halfSide[1];
   double c = box.halfSide[2];
   std::vector<Vec3f> points(8);
   std::vector<Triangle> tri_indices(12);
-  points[0] <<  a, -b,  c;
-  points[1] <<  a,  b,  c;
-  points[2] << -a,  b,  c;
-  points[3] << -a, -b,  c;
-  points[4] <<  a, -b, -c;
-  points[5] <<  a,  b, -c;
-  points[6] << -a,  b, -c;
+  points[0] << a, -b, c;
+  points[1] << a, b, c;
+  points[2] << -a, b, c;
+  points[3] << -a, -b, c;
+  points[4] << a, -b, -c;
+  points[5] << a, b, -c;
+  points[6] << -a, b, -c;
   points[7] << -a, -b, -c;
 
   tri_indices[0].set(0, 4, 1);
@@ -284,16 +275,14 @@ void testBVHModelSubModel()
   BOOST_CHECK_EQUAL(model->build_state, BVH_BUILD_STATE_PROCESSED);
 }
 
-template<typename BV>
-void testBVHModel()
-{
+template <typename BV>
+void testBVHModel() {
   testBVHModelTriangles<BV>();
   testBVHModelPointCloud<BV>();
   testBVHModelSubModel<BV>();
 }
 
-BOOST_AUTO_TEST_CASE(building_bvh_models)
-{
+BOOST_AUTO_TEST_CASE(building_bvh_models) {
   testBVHModel<AABB>();
   testBVHModel<OBB>();
   testBVHModel<RSS>();
@@ -304,62 +293,59 @@ BOOST_AUTO_TEST_CASE(building_bvh_models)
   testBVHModel<KDOP<24> >();
 }
 
-template<class BoundingVolume>
-void testLoadPolyhedron ()
-{
+template <class BoundingVolume>
+void testLoadPolyhedron() {
   boost::filesystem::path path(TEST_RESOURCES_DIR);
   std::string env = (path / "env.obj").string(),
               rob = (path / "rob.obj").string();
 
   typedef BVHModel<BoundingVolume> Polyhedron_t;
-  typedef shared_ptr <Polyhedron_t> PolyhedronPtr_t;
-  PolyhedronPtr_t P1 (new Polyhedron_t), P2;
+  typedef shared_ptr<Polyhedron_t> PolyhedronPtr_t;
+  PolyhedronPtr_t P1(new Polyhedron_t), P2;
 
   Vec3f scale;
-  scale.setConstant (1);
-  loadPolyhedronFromResource (env, scale, P1);
+  scale.setConstant(1);
+  loadPolyhedronFromResource(env, scale, P1);
 
-  scale.setConstant (-1);
-  CachedMeshLoader loader (P1->getNodeType());
-  CollisionGeometryPtr_t geom = loader.load (env, scale);
-  P2 = dynamic_pointer_cast<Polyhedron_t> (geom);
-  BOOST_REQUIRE (P2);
+  scale.setConstant(-1);
+  CachedMeshLoader loader(P1->getNodeType());
+  CollisionGeometryPtr_t geom = loader.load(env, scale);
+  P2 = dynamic_pointer_cast<Polyhedron_t>(geom);
+  BOOST_REQUIRE(P2);
 
-  BOOST_CHECK_EQUAL(P1->num_tris        , P2->num_tris);
-  BOOST_CHECK_EQUAL(P1->num_vertices    , P2->num_vertices);
-  BOOST_CHECK_EQUAL(P1->getNumBVs()     , P2->getNumBVs());
+  BOOST_CHECK_EQUAL(P1->num_tris, P2->num_tris);
+  BOOST_CHECK_EQUAL(P1->num_vertices, P2->num_vertices);
+  BOOST_CHECK_EQUAL(P1->getNumBVs(), P2->getNumBVs());
 
-  CollisionGeometryPtr_t geom2 = loader.load (env, scale);
-  BOOST_CHECK_EQUAL (geom, geom2);
+  CollisionGeometryPtr_t geom2 = loader.load(env, scale);
+  BOOST_CHECK_EQUAL(geom, geom2);
 }
 
-template<class BoundingVolume>
-void testLoadGerardBauzil ()
-{
+template <class BoundingVolume>
+void testLoadGerardBauzil() {
   boost::filesystem::path path(TEST_RESOURCES_DIR);
   std::string env = (path / "staircases_koroibot_hr.dae").string();
 
   typedef BVHModel<BoundingVolume> Polyhedron_t;
-  typedef shared_ptr <Polyhedron_t> PolyhedronPtr_t;
-  PolyhedronPtr_t P1 (new Polyhedron_t), P2;
+  typedef shared_ptr<Polyhedron_t> PolyhedronPtr_t;
+  PolyhedronPtr_t P1(new Polyhedron_t), P2;
 
   Vec3f scale;
-  scale.setConstant (1);
-  loadPolyhedronFromResource (env, scale, P1);
-  CollisionGeometryPtr_t cylinder (new Cylinder(.27, .27));
-  Transform3f pos (Vec3f (-1.33, 1.36, .14));
-  CollisionObject obj (cylinder, pos);
-  CollisionObject stairs (P1);
+  scale.setConstant(1);
+  loadPolyhedronFromResource(env, scale, P1);
+  CollisionGeometryPtr_t cylinder(new Cylinder(.27, .27));
+  Transform3f pos(Vec3f(-1.33, 1.36, .14));
+  CollisionObject obj(cylinder, pos);
+  CollisionObject stairs(P1);
 
   CollisionRequest request;
   CollisionResult result;
 
-  collide (&stairs, &obj, request, result);
-  BOOST_CHECK (result.isCollision ());
+  collide(&stairs, &obj, request, result);
+  BOOST_CHECK(result.isCollision());
 }
 
-BOOST_AUTO_TEST_CASE(load_polyhedron)
-{
+BOOST_AUTO_TEST_CASE(load_polyhedron) {
   testLoadPolyhedron<AABB>();
   testLoadPolyhedron<OBB>();
   testLoadPolyhedron<RSS>();
@@ -370,17 +356,14 @@ BOOST_AUTO_TEST_CASE(load_polyhedron)
   testLoadPolyhedron<KDOP<24> >();
 }
 
-BOOST_AUTO_TEST_CASE (gerard_bauzil)
-{
+BOOST_AUTO_TEST_CASE(gerard_bauzil) {
   testLoadGerardBauzil<OBB>();
   testLoadGerardBauzil<RSS>();
   testLoadGerardBauzil<kIOS>();
   testLoadGerardBauzil<OBBRSS>();
 }
 
-
-BOOST_AUTO_TEST_CASE(load_illformated_mesh)
-{
+BOOST_AUTO_TEST_CASE(load_illformated_mesh) {
   boost::filesystem::path path(TEST_RESOURCES_DIR);
   const std::string filename = (path / "illformated_mesh.dae").string();
 

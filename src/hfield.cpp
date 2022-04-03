@@ -45,68 +45,58 @@
 #include <hpp/fcl/internal/BV_splitter.h>
 #include <hpp/fcl/internal/BV_fitter.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-template<>
-NODE_TYPE HeightField<AABB>::getNodeType() const
-{
+template <>
+NODE_TYPE HeightField<AABB>::getNodeType() const {
   return HF_AABB;
 }
 
-template<>
-NODE_TYPE HeightField<OBB>::getNodeType() const
-{
-  return BV_UNKNOWN; // HF_OBB;
+template <>
+NODE_TYPE HeightField<OBB>::getNodeType() const {
+  return BV_UNKNOWN;  // HF_OBB;
 }
 
-template<>
-NODE_TYPE HeightField<RSS>::getNodeType() const
-{
-  return BV_UNKNOWN; // HF_RSS;
+template <>
+NODE_TYPE HeightField<RSS>::getNodeType() const {
+  return BV_UNKNOWN;  // HF_RSS;
 }
 
-template<>
-NODE_TYPE HeightField<kIOS>::getNodeType() const
-{
-  return BV_UNKNOWN; // BV_kIOS;
+template <>
+NODE_TYPE HeightField<kIOS>::getNodeType() const {
+  return BV_UNKNOWN;  // BV_kIOS;
 }
 
-template<>
-NODE_TYPE HeightField<OBBRSS>::getNodeType() const
-{
+template <>
+NODE_TYPE HeightField<OBBRSS>::getNodeType() const {
   return HF_OBBRSS;
 }
 
-template<>
-NODE_TYPE HeightField<KDOP<16> >::getNodeType() const
-{
-  return BV_UNKNOWN; // BV_KDOP16;
+template <>
+NODE_TYPE HeightField<KDOP<16> >::getNodeType() const {
+  return BV_UNKNOWN;  // BV_KDOP16;
 }
 
-template<>
-NODE_TYPE HeightField<KDOP<18> >::getNodeType() const
-{
-  return BV_UNKNOWN; // BV_KDOP18;
+template <>
+NODE_TYPE HeightField<KDOP<18> >::getNodeType() const {
+  return BV_UNKNOWN;  // BV_KDOP18;
 }
 
-template<>
-NODE_TYPE HeightField<KDOP<24> >::getNodeType() const
-{
-  return BV_UNKNOWN; // BV_KDOP24;
+template <>
+NODE_TYPE HeightField<KDOP<24> >::getNodeType() const {
+  return BV_UNKNOWN;  // BV_KDOP24;
 }
 
-//template class HeightField<KDOP<16> >;
-//template class HeightField<KDOP<18> >;
-//template class HeightField<KDOP<24> >;
+// template class HeightField<KDOP<16> >;
+// template class HeightField<KDOP<18> >;
+// template class HeightField<KDOP<24> >;
 template class HeightField<OBB>;
 template class HeightField<AABB>;
 template class HeightField<RSS>;
-//template class HeightField<kIOS>;
+// template class HeightField<kIOS>;
 template class HeightField<OBBRSS>;
 
-} // namespace fcl
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp

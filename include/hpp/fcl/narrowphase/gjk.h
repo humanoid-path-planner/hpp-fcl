@@ -43,23 +43,20 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/math/transform.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-namespace details
-{
+namespace details {
 
 /// @brief the support function for shape
 /// \param hint use to initialize the search when shape is a ConvexBase object.
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized, int& hint); 
+Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
+                 int& hint);
 
 /// @brief Minkowski difference class of two shapes
 ///
 /// @note The Minkowski difference is expressed in the frame of the first shape.
-struct HPP_FCL_DLLAPI MinkowskiDiff
-{
+struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// @brief points to two shapes
   const ShapeBase* shapes[2];
 
@@ -89,58 +86,59 @@ struct HPP_FCL_DLLAPI MinkowskiDiff
   /// \note It must set before the call to \ref set.
   int linear_log_convex_threshold;
 
-  typedef void (*GetSupportFunction) (const MinkowskiDiff& minkowskiDiff,
-      const Vec3f& dir, bool dirIsNormalized, Vec3f& support0, Vec3f& support1,
-      support_func_guess_t& hint, ShapeData data[2]);
+  typedef void (*GetSupportFunction)(const MinkowskiDiff& minkowskiDiff,
+                                     const Vec3f& dir, bool dirIsNormalized,
+                                     Vec3f& support0, Vec3f& support1,
+                                     support_func_guess_t& hint,
+                                     ShapeData data[2]);
   GetSupportFunction getSupportFunc;
 
-  MinkowskiDiff() : linear_log_convex_threshold (32), getSupportFunc (NULL) {}
+  MinkowskiDiff() : linear_log_convex_threshold(32), getSupportFunc(NULL) {}
 
   /// Set the two shapes,
   /// assuming the relative transformation between them is identity.
-  void set (const ShapeBase* shape0, const ShapeBase* shape1);
+  void set(const ShapeBase* shape0, const ShapeBase* shape1);
 
   /// Set the two shapes, with a relative transformation.
-  void set (const ShapeBase* shape0, const ShapeBase* shape1,
-      const Transform3f& tf0, const Transform3f& tf1);
+  void set(const ShapeBase* shape0, const ShapeBase* shape1,
+           const Transform3f& tf0, const Transform3f& tf1);
 
   /// @brief support function for shape0
-  inline Vec3f support0(const Vec3f& d, bool dIsNormalized, int& hint) const
-  {
+  inline Vec3f support0(const Vec3f& d, bool dIsNormalized, int& hint) const {
     return getSupport(shapes[0], d, dIsNormalized, hint);
   }
 
   /// @brief support function for shape1
-  inline Vec3f support1(const Vec3f& d, bool dIsNormalized, int& hint) const
-  {
-    return oR1 * getSupport(shapes[1], oR1.transpose() * d, dIsNormalized, hint) + ot1;
+  inline Vec3f support1(const Vec3f& d, bool dIsNormalized, int& hint) const {
+    return oR1 *
+               getSupport(shapes[1], oR1.transpose() * d, dIsNormalized, hint) +
+           ot1;
   }
 
   /// @brief support function for the pair of shapes
-  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp0, Vec3f& supp1, support_func_guess_t& hint) const
-  {
+  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp0,
+                      Vec3f& supp1, support_func_guess_t& hint) const {
     assert(getSupportFunc != NULL);
-    getSupportFunc(*this, d, dIsNormalized, supp0, supp1, hint, const_cast<ShapeData*>(data));
+    getSupportFunc(*this, d, dIsNormalized, supp0, supp1, hint,
+                   const_cast<ShapeData*>(data));
   }
 };
 
 /// @brief class for GJK algorithm
 ///
 /// @note The computations are performed in the frame of the first shape.
-struct HPP_FCL_DLLAPI GJK
-{
-  struct HPP_FCL_DLLAPI SimplexV
-  {
+struct HPP_FCL_DLLAPI GJK {
+  struct HPP_FCL_DLLAPI SimplexV {
     /// @brief support vector for shape 0 and 1.
-    Vec3f w0, w1; 
-    /// @brief support vector (i.e., the furthest point on the shape along the support direction)
+    Vec3f w0, w1;
+    /// @brief support vector (i.e., the furthest point on the shape along the
+    /// support direction)
     Vec3f w;
   };
 
   typedef unsigned char vertex_id_t;
 
-  struct HPP_FCL_DLLAPI Simplex
-  {
+  struct HPP_FCL_DLLAPI Simplex {
     /// @brief simplex vertex
     SimplexV* vertex[4];
     /// @brief size of simplex (number of vertices)
@@ -149,7 +147,7 @@ struct HPP_FCL_DLLAPI GJK
     Simplex() {}
   };
 
-  enum Status {Valid, Inside, Failed};
+  enum Status { Valid, Inside, Failed };
 
   MinkowskiDiff const* shape;
   Vec3f ray;
@@ -170,7 +168,6 @@ struct HPP_FCL_DLLAPI GJK
   FCL_REAL distance;
   Simplex simplices[2];
 
-
   /// \param max_iterations_ number of iteration before GJK returns failure.
   /// \param tolerance_ precision of the algorithm.
   ///
@@ -178,22 +175,22 @@ struct HPP_FCL_DLLAPI GJK
   /// with some vertices closer than this threshold.
   ///
   /// Suggested values are 100 iterations and a tolerance of 1e-6.
-  GJK(unsigned int max_iterations_, FCL_REAL tolerance_)  : max_iterations(max_iterations_),
-                                                            tolerance(tolerance_)
-  {
-    initialize(); 
+  GJK(unsigned int max_iterations_, FCL_REAL tolerance_)
+      : max_iterations(max_iterations_), tolerance(tolerance_) {
+    initialize();
   }
-  
+
   void initialize();
 
   /// @brief GJK algorithm, given the initial value guess
-  Status evaluate(const MinkowskiDiff& shape, const Vec3f& guess,
+  Status evaluate(
+      const MinkowskiDiff& shape, const Vec3f& guess,
       const support_func_guess_t& supportHint = support_func_guess_t::Zero());
 
-  /// @brief apply the support function along a direction, the result is return in sv
+  /// @brief apply the support function along a direction, the result is return
+  /// in sv
   inline void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv,
-      support_func_guess_t& hint) const
-  {
+                         support_func_guess_t& hint) const {
     shape->support(d, dIsNormalized, sv.w0, sv.w1, hint);
     sv.w.noalias() = sv.w0 - sv.w1;
   }
@@ -201,30 +198,24 @@ struct HPP_FCL_DLLAPI GJK
   /// @brief whether the simplex enclose the origin
   bool encloseOrigin();
 
-  /// @brief get the underlying simplex using in GJK, can be used for cache in next iteration
-  inline Simplex* getSimplex() const
-  {
-    return simplex;
-  }
+  /// @brief get the underlying simplex using in GJK, can be used for cache in
+  /// next iteration
+  inline Simplex* getSimplex() const { return simplex; }
 
   /// Tells whether the closest points are available.
-  bool hasClosestPoints ()
-  {
-    return distance < distance_upper_bound;
-  }
+  bool hasClosestPoints() { return distance < distance_upper_bound; }
 
   /// Tells whether the penetration information.
   ///
   /// In such case, most indepth points and penetration depth can be retrieved
   /// from GJK. Calling EPA has an undefined behaviour.
-  bool hasPenetrationInformation (const MinkowskiDiff& shape)
-  {
-    return distance > - shape.inflation.sum();
+  bool hasPenetrationInformation(const MinkowskiDiff& shape) {
+    return distance > -shape.inflation.sum();
   }
 
   /// Get the closest points on each object.
   /// @return true on success
-  bool getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
+  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
 
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;
@@ -233,12 +224,11 @@ struct HPP_FCL_DLLAPI GJK
   /// GJK stops when it proved the distance is more than this threshold.
   /// @note The closest points will be erroneous in this case.
   ///       If you want the closest points, set this to infinity (the default).
-  void setDistanceEarlyBreak (const FCL_REAL& dup)
-  {
+  void setDistanceEarlyBreak(const FCL_REAL& dup) {
     distance_upper_bound = dup;
   }
 
-private:
+ private:
   SimplexV store_v[4];
   SimplexV* free_v[4];
   vertex_id_t nfree;
@@ -255,7 +245,7 @@ private:
 
   /// @brief append one vertex to the simplex
   inline void appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized,
-      support_func_guess_t& hint);
+                           support_func_guess_t& hint);
 
   /// @brief Project origin (0) onto line a-b
   bool projectLineOrigin(const Simplex& current, Simplex& next);
@@ -267,86 +257,79 @@ private:
   bool projectTetrahedraOrigin(const Simplex& current, Simplex& next);
 };
 
-
 static const size_t EPA_MAX_FACES = 128;
 static const size_t EPA_MAX_VERTICES = 64;
 static const FCL_REAL EPA_EPS = 0.000001;
 static const size_t EPA_MAX_ITERATIONS = 255;
 
 /// @brief class for EPA algorithm
-struct HPP_FCL_DLLAPI EPA
-{
+struct HPP_FCL_DLLAPI EPA {
   typedef GJK::SimplexV SimplexV;
-  struct HPP_FCL_DLLAPI SimplexF
-  {
+  struct HPP_FCL_DLLAPI SimplexF {
     Vec3f n;
     FCL_REAL d;
-    SimplexV* vertex[3]; // a face has three vertices
-    SimplexF* f[3]; // a face has three adjacent faces
-    SimplexF* l[2]; // the pre and post faces in the list
+    SimplexV* vertex[3];  // a face has three vertices
+    SimplexF* f[3];       // a face has three adjacent faces
+    SimplexF* l[2];       // the pre and post faces in the list
     size_t e[3];
     size_t pass;
 
-    SimplexF () : n(Vec3f::Zero()) {};
+    SimplexF() : n(Vec3f::Zero()){};
   };
 
-  struct HPP_FCL_DLLAPI SimplexList
-  {
+  struct HPP_FCL_DLLAPI SimplexList {
     SimplexF* root;
     size_t count;
     SimplexList() : root(NULL), count(0) {}
-    void append(SimplexF* face)
-    {
+    void append(SimplexF* face) {
       face->l[0] = NULL;
       face->l[1] = root;
-      if(root) root->l[0] = face;
+      if (root) root->l[0] = face;
       root = face;
       ++count;
     }
 
-    void remove(SimplexF* face)
-    {
-      if(face->l[1]) face->l[1]->l[0] = face->l[0];
-      if(face->l[0]) face->l[0]->l[1] = face->l[1];
-      if(face == root) root = face->l[1];
+    void remove(SimplexF* face) {
+      if (face->l[1]) face->l[1]->l[0] = face->l[0];
+      if (face->l[0]) face->l[0]->l[1] = face->l[1];
+      if (face == root) root = face->l[1];
       --count;
     }
   };
 
-  static inline void bind(SimplexF* fa, size_t ea, SimplexF* fb, size_t eb)
-  {
-    fa->e[ea] = eb; fa->f[ea] = fb;
-    fb->e[eb] = ea; fb->f[eb] = fa;
+  static inline void bind(SimplexF* fa, size_t ea, SimplexF* fb, size_t eb) {
+    fa->e[ea] = eb;
+    fa->f[ea] = fb;
+    fb->e[eb] = ea;
+    fb->f[eb] = fa;
   }
 
-  struct HPP_FCL_DLLAPI SimplexHorizon
-  {
-    SimplexF* cf; // current face in the horizon
-    SimplexF* ff; // first face in the horizon
-    size_t nf; // number of faces in the horizon
+  struct HPP_FCL_DLLAPI SimplexHorizon {
+    SimplexF* cf;  // current face in the horizon
+    SimplexF* ff;  // first face in the horizon
+    size_t nf;     // number of faces in the horizon
     SimplexHorizon() : cf(NULL), ff(NULL), nf(0) {}
   };
 
-private:
+ private:
   unsigned int max_face_num;
   unsigned int max_vertex_num;
   unsigned int max_iterations;
   FCL_REAL tolerance;
 
-public:
-
+ public:
   enum Status {
-    Failed              = 0,
-    Valid               = 1,
-    AccuracyReached     = 1 << 1 | Valid ,
-    Degenerated         = 1 << 1 | Failed,
-    NonConvex           = 2 << 1 | Failed,
-    InvalidHull         = 3 << 1 | Failed,
-    OutOfFaces          = 4 << 1 | Failed,
-    OutOfVertices       = 5 << 1 | Failed,
-    FallBack            = 6 << 1 | Failed
+    Failed = 0,
+    Valid = 1,
+    AccuracyReached = 1 << 1 | Valid,
+    Degenerated = 1 << 1 | Failed,
+    NonConvex = 2 << 1 | Failed,
+    InvalidHull = 3 << 1 | Failed,
+    OutOfFaces = 4 << 1 | Failed,
+    OutOfVertices = 5 << 1 | Failed,
+    FallBack = 6 << 1 | Failed
   };
-  
+
   Status status;
   GJK::Simplex result;
   Vec3f normal;
@@ -356,18 +339,18 @@ public:
   size_t nextsv;
   SimplexList hull, stock;
 
-  EPA(unsigned int max_face_num_, unsigned int max_vertex_num_, unsigned int max_iterations_, FCL_REAL tolerance_) : max_face_num(max_face_num_),
-                                                                                                                     max_vertex_num(max_vertex_num_),
-                                                                                                                     max_iterations(max_iterations_),
-                                                                                                                     tolerance(tolerance_)
-  {
+  EPA(unsigned int max_face_num_, unsigned int max_vertex_num_,
+      unsigned int max_iterations_, FCL_REAL tolerance_)
+      : max_face_num(max_face_num_),
+        max_vertex_num(max_vertex_num_),
+        max_iterations(max_iterations_),
+        tolerance(tolerance_) {
     initialize();
   }
 
-  ~EPA()
-  {
-    delete [] sv_store;
-    delete [] fc_store;
+  ~EPA() {
+    delete[] sv_store;
+    delete[] fc_store;
   }
 
   void initialize();
@@ -379,9 +362,9 @@ public:
 
   /// Get the closest points on each object.
   /// @return true on success
-  bool getClosestPoints (const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
+  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
 
-private:
+ private:
   bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist);
 
   SimplexF* newFace(SimplexV* a, SimplexV* b, SimplexV* vertex, bool forced);
@@ -389,18 +372,15 @@ private:
   /// @brief Find the best polytope face to split
   SimplexF* findBest();
 
-  /// @brief the goal is to add a face connecting vertex w and face edge f[e] 
-  bool expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon& horizon);  
+  /// @brief the goal is to add a face connecting vertex w and face edge f[e]
+  bool expand(size_t pass, SimplexV* w, SimplexF* f, size_t e,
+              SimplexHorizon& horizon);
 };
 
+}  // namespace details
 
-} // details
+}  // namespace fcl
 
-
-
-}
-
-
-} // namespace hpp
+}  // namespace hpp
 
 #endif

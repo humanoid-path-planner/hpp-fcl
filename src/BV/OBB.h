@@ -34,22 +34,20 @@
  */
 
 #ifndef HPP_FCL_SRC_OBB_H
-# define HPP_FCL_SRC_OBB_H
+#define HPP_FCL_SRC_OBB_H
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-  bool obbDisjointAndLowerBoundDistance (const Matrix3f& B, const Vec3f& T,
-					 const Vec3f& a, const Vec3f& b,
-                                         const CollisionRequest& request,
-					 FCL_REAL& squaredLowerBoundDistance);
+bool obbDisjointAndLowerBoundDistance(const Matrix3f& B, const Vec3f& T,
+                                      const Vec3f& a, const Vec3f& b,
+                                      const CollisionRequest& request,
+                                      FCL_REAL& squaredLowerBoundDistance);
 
-  bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
-		   const Vec3f& b);
-} // namespace fcl
+bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
+                 const Vec3f& b);
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
-#endif // HPP_FCL_SRC_OBB_H
+#endif  // HPP_FCL_SRC_OBB_H

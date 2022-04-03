@@ -22,7 +22,7 @@ Install:
   cd build
   cmake ..
   make -jN # N is the maximum number of parallel compile jobs
-  
+
 Once the compilation is finished,
   make install
 will install the project. To specify the installation prefix,

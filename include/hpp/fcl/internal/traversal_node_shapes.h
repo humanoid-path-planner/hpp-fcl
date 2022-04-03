@@ -46,22 +46,19 @@
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/internal/traversal_node_base.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @addtogroup Traversal_For_Collision
 /// @{
 
 /// @brief Traversal node for collision between two shapes
-template<typename S1, typename S2>
-class HPP_FCL_DLLAPI ShapeCollisionTraversalNode : public CollisionTraversalNodeBase
-{
-public:
-  ShapeCollisionTraversalNode(const CollisionRequest& request) :
-  CollisionTraversalNodeBase(request)
-  {
+template <typename S1, typename S2>
+class HPP_FCL_DLLAPI ShapeCollisionTraversalNode
+    : public CollisionTraversalNodeBase {
+ public:
+  ShapeCollisionTraversalNode(const CollisionRequest& request)
+      : CollisionTraversalNodeBase(request) {
     model1 = NULL;
     model2 = NULL;
 
@@ -69,46 +66,37 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(int, int) const
-  {
-    return false;
-  }
+  bool BVDisjoints(int, int) const { return false; }
 
   /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(int, int, FCL_REAL&) const
-  {
-    throw std::runtime_error ("Not implemented");
+  bool BVDisjoints(int, int, FCL_REAL&) const {
+    throw std::runtime_error("Not implemented");
   }
 
   /// @brief Intersection testing between leaves (two shapes)
-  void leafCollides(int, int, FCL_REAL&) const
-  {
+  void leafCollides(int, int, FCL_REAL&) const {
     bool is_collision = false;
     FCL_REAL distance;
-    if(request.enable_contact && request.num_max_contacts > result->numContacts())
-    {
+    if (request.enable_contact &&
+        request.num_max_contacts > result->numContacts()) {
       Vec3f contact_point, normal;
-      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, distance, true,
-                                 &contact_point, &normal))
-      {
+      if (nsolver->shapeIntersect(*model1, tf1, *model2, tf2, distance, true,
+                                  &contact_point, &normal)) {
         is_collision = true;
-        result->addContact(Contact(model1, model2, Contact::NONE,
-                                   Contact::NONE, contact_point,
-                                   normal, distance));
+        result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE,
+                                   contact_point, normal, distance));
       }
-    }
-    else
-    {
+    } else {
       bool res = nsolver->shapeIntersect(*model1, tf1, *model2, tf2, distance,
-          request.enable_distance_lower_bound, NULL, NULL);
+                                         request.enable_distance_lower_bound,
+                                         NULL, NULL);
       if (request.enable_distance_lower_bound)
-        result->updateDistanceLowerBound (distance);
-      if(res)
-      {
+        result->updateDistanceLowerBound(distance);
+      if (res) {
         is_collision = true;
-        if(request.num_max_contacts > result->numContacts())
-          result->addContact(Contact(model1, model2, Contact::NONE,
-                                     Contact::NONE));
+        if (request.num_max_contacts > result->numContacts())
+          result->addContact(
+              Contact(model1, model2, Contact::NONE, Contact::NONE));
       }
     }
   }
@@ -125,12 +113,11 @@ public:
 /// @{
 
 /// @brief Traversal node for distance between two shapes
-template<typename S1, typename S2>
-class HPP_FCL_DLLAPI ShapeDistanceTraversalNode : public DistanceTraversalNodeBase
-{
-public:
-  ShapeDistanceTraversalNode() : DistanceTraversalNodeBase()
-  {
+template <typename S1, typename S2>
+class HPP_FCL_DLLAPI ShapeDistanceTraversalNode
+    : public DistanceTraversalNodeBase {
+ public:
+  ShapeDistanceTraversalNode() : DistanceTraversalNodeBase() {
     model1 = NULL;
     model2 = NULL;
 
@@ -138,14 +125,12 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVDistanceLowerBound(unsigned int, unsigned int) const
-  {
-    return -1; // should not be used 
+  FCL_REAL BVDistanceLowerBound(unsigned int, unsigned int) const {
+    return -1;  // should not be used
   }
 
   /// @brief Distance testing between leaves (two shapes)
-  void leafComputeDistance(unsigned int, unsigned int) const
-  {
+  void leafComputeDistance(unsigned int, unsigned int) const {
     FCL_REAL distance;
     Vec3f closest_p1, closest_p2, normal;
     nsolver->shapeDistance(*model1, tf1, *model2, tf2, distance, closest_p1,
@@ -162,9 +147,9 @@ public:
 
 /// @}
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 /// @endcond
 

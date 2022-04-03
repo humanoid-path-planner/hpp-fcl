@@ -14,7 +14,7 @@ namespace python {
 void exposeBroadPhase();
 
 }
-}
-}
+}  // namespace fcl
+}  // namespace hpp
 
-#endif // ifndef HPP_FCL_PYTHON_BROADPHASE_FWD_HH
+#endif  // ifndef HPP_FCL_PYTHON_BROADPHASE_FWD_HH

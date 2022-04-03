@@ -43,42 +43,48 @@
 #include <hpp/fcl/distance_func_matrix.h>
 #include <hpp/fcl/timings.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-/// @brief Main distance interface: given two collision objects, and the requirements for contacts, including whether return the nearest points, this function performs the distance between them. 
-/// Return value is the minimum distance generated between the two objects.
-HPP_FCL_DLLAPI FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
-                                 const DistanceRequest& request, DistanceResult& result);
+/// @brief Main distance interface: given two collision objects, and the
+/// requirements for contacts, including whether return the nearest points, this
+/// function performs the distance between them. Return value is the minimum
+/// distance generated between the two objects.
+HPP_FCL_DLLAPI FCL_REAL distance(const CollisionObject* o1,
+                                 const CollisionObject* o2,
+                                 const DistanceRequest& request,
+                                 DistanceResult& result);
 
-/// @copydoc distance(const CollisionObject*, const CollisionObject*, const DistanceRequest&, DistanceResult&)
-HPP_FCL_DLLAPI FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
-                                 const CollisionGeometry* o2, const Transform3f& tf2,
-                                 const DistanceRequest& request, DistanceResult& result);
+/// @copydoc distance(const CollisionObject*, const CollisionObject*, const
+/// DistanceRequest&, DistanceResult&)
+HPP_FCL_DLLAPI FCL_REAL distance(const CollisionGeometry* o1,
+                                 const Transform3f& tf1,
+                                 const CollisionGeometry* o2,
+                                 const Transform3f& tf2,
+                                 const DistanceRequest& request,
+                                 DistanceResult& result);
 
-/// @copydoc distance(const CollisionObject*, const CollisionObject*, const DistanceRequest&, DistanceResult&)
-/// \note this function update the initial guess of \c request if requested.
+/// @copydoc distance(const CollisionObject*, const CollisionObject*, const
+/// DistanceRequest&, DistanceResult&) \note this function update the initial
+/// guess of \c request if requested.
 ///       See QueryRequest::updateGuess
 inline FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
-    DistanceRequest& request, DistanceResult& result)
-{
-  FCL_REAL res = distance(o1, o2, (const DistanceRequest&) request, result);
-  request.updateGuess (result);
+                         DistanceRequest& request, DistanceResult& result) {
+  FCL_REAL res = distance(o1, o2, (const DistanceRequest&)request, result);
+  request.updateGuess(result);
   return res;
 }
 
-/// @copydoc distance(const CollisionObject*, const CollisionObject*, const DistanceRequest&, DistanceResult&)
-/// \note this function update the initial guess of \c request if requested.
+/// @copydoc distance(const CollisionObject*, const CollisionObject*, const
+/// DistanceRequest&, DistanceResult&) \note this function update the initial
+/// guess of \c request if requested.
 ///       See QueryRequest::updateGuess
 inline FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                          const CollisionGeometry* o2, const Transform3f& tf2,
-                         DistanceRequest& request, DistanceResult& result)
-{
-  FCL_REAL res = distance(o1, tf1, o2, tf2,
-      (const DistanceRequest&) request, result);
-  request.updateGuess (result);
+                         DistanceRequest& request, DistanceResult& result) {
+  FCL_REAL res =
+      distance(o1, tf1, o2, tf2, (const DistanceRequest&)request, result);
+  request.updateGuess(result);
   return res;
 }
 
@@ -90,60 +96,55 @@ inline FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
 ///   FCL_REAL distance = calc_distance(tf1, tf2, request, result);
 /// \endcode
 class HPP_FCL_DLLAPI ComputeDistance {
-public:
+ public:
   ComputeDistance(const CollisionGeometry* o1, const CollisionGeometry* o2);
 
   FCL_REAL operator()(const Transform3f& tf1, const Transform3f& tf2,
-                      const DistanceRequest& request, DistanceResult& result) const;
+                      const DistanceRequest& request,
+                      DistanceResult& result) const;
 
   inline FCL_REAL operator()(const Transform3f& tf1, const Transform3f& tf2,
-                             DistanceRequest& request, DistanceResult& result) const
-  {
-    FCL_REAL res = operator()(tf1, tf2, (const DistanceRequest&) request, result);
-    request.updateGuess (result);
+                             DistanceRequest& request,
+                             DistanceResult& result) const {
+    FCL_REAL res = operator()(tf1, tf2, (const DistanceRequest&)request,
+                              result);
+    request.updateGuess(result);
     return res;
   }
-  
-  bool operator==(const ComputeDistance & other) const
-  {
-    return o1 == other.o1
-    && o2 == other.o2
-    && swap_geoms == other.swap_geoms
-    && solver == other.solver
-    && func == other.func;
+
+  bool operator==(const ComputeDistance& other) const {
+    return o1 == other.o1 && o2 == other.o2 && swap_geoms == other.swap_geoms &&
+           solver == other.solver && func == other.func;
   }
-  
-  bool operator!=(const ComputeDistance & other) const
-  {
+
+  bool operator!=(const ComputeDistance& other) const {
     return !(*this == other);
   }
-  
-  virtual ~ComputeDistance() {};
 
-protected:
-  
+  virtual ~ComputeDistance(){};
+
+ protected:
   // These pointers are made mutable to let the derived classes to update
-  // their values when updating the collision geometry (e.g. creating a new one).
-  // This feature should be used carefully to avoid any mis usage
-  // (e.g, changing the type of the collision geometry should be avoided).
-  mutable const CollisionGeometry *o1;
-  mutable const CollisionGeometry *o2;
-  
+  // their values when updating the collision geometry (e.g. creating a new
+  // one). This feature should be used carefully to avoid any mis usage (e.g,
+  // changing the type of the collision geometry should be avoided).
+  mutable const CollisionGeometry* o1;
+  mutable const CollisionGeometry* o2;
+
   GJKSolver solver;
 
   DistanceFunctionMatrix::DistanceFunc func;
   bool swap_geoms;
-  
-  virtual FCL_REAL run(const Transform3f& tf1, const Transform3f& tf2,
-                       const DistanceRequest& request, DistanceResult& result) const;
-public:
 
+  virtual FCL_REAL run(const Transform3f& tf1, const Transform3f& tf2,
+                       const DistanceRequest& request,
+                       DistanceResult& result) const;
+
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-
-
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

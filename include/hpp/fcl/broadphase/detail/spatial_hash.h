@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -41,30 +41,25 @@
 #include "hpp/fcl/BV/AABB.h"
 #include <vector>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-namespace detail
-{
+namespace detail {
 
 /// @brief Spatial hash function: hash an AABB to a set of integer values
-struct HPP_FCL_DLLAPI SpatialHash
-{
+struct HPP_FCL_DLLAPI SpatialHash {
   SpatialHash(const AABB& scene_limit_, FCL_REAL cell_size_);
-    
-  std::vector<unsigned int> operator() (const AABB& aabb) const;
 
-private:
+  std::vector<unsigned int> operator()(const AABB& aabb) const;
 
+ private:
   FCL_REAL cell_size;
   AABB scene_limit;
   unsigned int width[3];
 };
 
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

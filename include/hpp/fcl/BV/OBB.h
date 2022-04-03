@@ -40,10 +40,8 @@
 
 #include <hpp/fcl/data_types.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 struct CollisionRequest;
 
@@ -51,48 +49,39 @@ struct CollisionRequest;
 /// @{
 
 /// @brief Oriented bounding box class
-struct HPP_FCL_DLLAPI OBB
-{
-  /// @brief Orientation of OBB. axis[i] is the ith column of the orientation matrix for the box; it is also the i-th principle direction of the box.
-  /// We assume that axis[0] corresponds to the axis with the longest box edge, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
+struct HPP_FCL_DLLAPI OBB {
+  /// @brief Orientation of OBB. axis[i] is the ith column of the orientation
+  /// matrix for the box; it is also the i-th principle direction of the box. We
+  /// assume that axis[0] corresponds to the axis with the longest box edge,
+  /// axis[1] corresponds to the shorter one and axis[2] corresponds to the
+  /// shortest one.
   Matrix3f axes;
 
   /// @brief Center of OBB
   Vec3f To;
-  
+
   /// @brief Half dimensions of OBB
   Vec3f extent;
-  
-  OBB()
-  : axes(Matrix3f::Zero())
-  , To(Vec3f::Zero())
-  , extent(Vec3f::Zero())
-  {}
-  
+
+  OBB() : axes(Matrix3f::Zero()), To(Vec3f::Zero()), extent(Vec3f::Zero()) {}
+
   /// @brief Equality operator
-  bool operator==(const OBB & other) const
-  {
-    return
-       axes == other.axes
-    && To == other.To
-    && extent == other.extent;
+  bool operator==(const OBB& other) const {
+    return axes == other.axes && To == other.To && extent == other.extent;
   }
-  
+
   /// @brief Difference operator
-  bool operator!=(const OBB & other) const
-  {
-    return !(*this == other);
-  }
+  bool operator!=(const OBB& other) const { return !(*this == other); }
 
   /// @brief Check whether the OBB contains a point.
   bool contain(const Vec3f& p) const;
 
   /// Check collision between two OBB
-  /// @return true if collision happens. 
+  /// @return true if collision happens.
   bool overlap(const OBB& other) const;
 
   /// Check collision between two OBB
-  /// @return true if collision happens. 
+  /// @return true if collision happens.
   /// @retval sqrDistLowerBound squared lower bound on distance between boxes if
   ///         they do not overlap.
   bool overlap(const OBB& other, const CollisionRequest& request,
@@ -101,69 +90,52 @@ struct HPP_FCL_DLLAPI OBB
   /// @brief Distance between two OBBs, not implemented.
   FCL_REAL distance(const OBB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
-  /// @brief A simple way to merge the OBB and a point (the result is not compact).
-  OBB& operator += (const Vec3f& p);
+  /// @brief A simple way to merge the OBB and a point (the result is not
+  /// compact).
+  OBB& operator+=(const Vec3f& p);
 
   /// @brief Merge the OBB and another OBB (the result is not compact).
-  OBB& operator += (const OBB& other)
-  {
-     *this = *this + other;
-     return *this;
+  OBB& operator+=(const OBB& other) {
+    *this = *this + other;
+    return *this;
   }
 
-  /// @brief Return the merged OBB of current OBB and the other one (the result is not compact).
-  OBB operator + (const OBB& other) const;
+  /// @brief Return the merged OBB of current OBB and the other one (the result
+  /// is not compact).
+  OBB operator+(const OBB& other) const;
 
   /// @brief Size of the OBB (used in BV_Splitter to order two OBBs)
-  inline FCL_REAL size() const
-  {
-    return extent.squaredNorm();
-  }
+  inline FCL_REAL size() const { return extent.squaredNorm(); }
 
   /// @brief Center of the OBB
-  inline const Vec3f& center() const
-  {
-    return To;
-  }
+  inline const Vec3f& center() const { return To; }
 
   /// @brief Width of the OBB.
-  inline FCL_REAL width() const
-  {
-    return 2 * extent[0];
-  }
+  inline FCL_REAL width() const { return 2 * extent[0]; }
 
   /// @brief Height of the OBB.
-  inline FCL_REAL height() const
-  {
-    return 2 * extent[1];
-  }
+  inline FCL_REAL height() const { return 2 * extent[1]; }
 
   /// @brief Depth of the OBB
-  inline FCL_REAL depth() const
-  {
-    return 2 * extent[2];
-  }
+  inline FCL_REAL depth() const { return 2 * extent[2]; }
 
   /// @brief Volume of the OBB
-  inline FCL_REAL volume() const
-  {
-    return width() * height() * depth();
-  }
+  inline FCL_REAL volume() const { return width() * height() * depth(); }
 };
-
 
 /// @brief Translate the OBB bv
 HPP_FCL_DLLAPI OBB translate(const OBB& bv, const Vec3f& t);
 
-/// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and b2 is in identity.
-HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0,
-                            const OBB& b1, const OBB& b2);
+/// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
+/// b2 is in identity.
+HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
+                            const OBB& b2);
 
-/// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and b2 is in identity.
+/// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
+/// b2 is in identity.
 HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
                             const OBB& b2, const CollisionRequest& request,
                             FCL_REAL& sqrDistLowerBound);
-
 
 /// Check collision between two boxes
 /// @param B, T orientation and position of first box,
@@ -172,8 +144,8 @@ HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
 /// The second box is in identity configuration.
 HPP_FCL_DLLAPI bool obbDisjoint(const Matrix3f& B, const Vec3f& T,
                                 const Vec3f& a, const Vec3f& b);
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 #endif

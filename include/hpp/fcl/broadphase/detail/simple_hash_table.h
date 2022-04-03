@@ -42,20 +42,16 @@
 #include <set>
 #include <vector>
 #include <list>
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-namespace detail
-{
+namespace detail {
 
 /// @brief A simple hash table implemented as multiple buckets. HashFnc is any
 /// extended hash function: HashFnc(key) = {index1, index2, ..., }
-template<typename Key, typename Data, typename HashFnc>
-class SimpleHashTable
-{
-protected:
+template <typename Key, typename Data, typename HashFnc>
+class SimpleHashTable {
+ protected:
   typedef std::list<Data> Bin;
 
   std::vector<Bin> table_;
@@ -64,7 +60,7 @@ protected:
 
   size_t table_size_;
 
-public:
+ public:
   SimpleHashTable(const HashFnc& h);
 
   /// @brief Init the number of bins in the hash table
@@ -84,9 +80,9 @@ public:
   void clear();
 };
 
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #include "hpp/fcl/broadphase/detail/simple_hash_table-inl.h"
 

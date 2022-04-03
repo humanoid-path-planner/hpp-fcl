@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -47,16 +47,14 @@ namespace detail {
 
 //==============================================================================
 SpatialHash::SpatialHash(const AABB& scene_limit_, FCL_REAL cell_size_)
-  : cell_size(cell_size_), scene_limit(scene_limit_)
-{
+    : cell_size(cell_size_), scene_limit(scene_limit_) {
   width[0] = std::ceil(scene_limit.width() / cell_size);
   width[1] = std::ceil(scene_limit.height() / cell_size);
   width[2] = std::ceil(scene_limit.depth() / cell_size);
 }
 
 //==============================================================================
-std::vector<unsigned int> SpatialHash::operator()(const AABB& aabb) const
-{
+std::vector<unsigned int> SpatialHash::operator()(const AABB& aabb) const {
   int min_x = std::floor((aabb.min_[0] - scene_limit.min_[0]) / cell_size);
   int max_x = std::ceil((aabb.max_[0] - scene_limit.min_[0]) / cell_size);
   int min_y = std::floor((aabb.min_[1] - scene_limit.min_[1]) / cell_size);
@@ -64,14 +62,12 @@ std::vector<unsigned int> SpatialHash::operator()(const AABB& aabb) const
   int min_z = std::floor((aabb.min_[2] - scene_limit.min_[2]) / cell_size);
   int max_z = std::ceil((aabb.max_[2] - scene_limit.min_[2]) / cell_size);
 
-  std::vector<unsigned int> keys((max_x - min_x) * (max_y - min_y) * (max_z - min_z));
+  std::vector<unsigned int> keys((max_x - min_x) * (max_y - min_y) *
+                                 (max_z - min_z));
   int id = 0;
-  for(int x = min_x; x < max_x; ++x)
-  {
-    for(int y = min_y; y < max_y; ++y)
-    {
-      for(int z = min_z; z < max_z; ++z)
-      {
+  for (int x = min_x; x < max_x; ++x) {
+    for (int y = min_y; y < max_y; ++y) {
+      for (int z = min_z; z < max_z; ++z) {
         keys[id++] = x + y * width[0] + z * width[0] * width[1];
       }
     }
@@ -79,8 +75,8 @@ std::vector<unsigned int> SpatialHash::operator()(const AABB& aabb) const
   return keys;
 }
 
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

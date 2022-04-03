@@ -5,14 +5,14 @@ sphere = fcl.Sphere(0.5)
 sphere_obj = fcl.CollisionObject(sphere)
 
 M_sphere = fcl.Transform3f.Identity()
-M_sphere.setTranslation(np.array([-0.6,0.,0.]))
+M_sphere.setTranslation(np.array([-0.6, 0.0, 0.0]))
 sphere_obj.setTransform(M_sphere)
 
 box = fcl.Box(np.array([0.5, 0.5, 0.5]))
 box_obj = fcl.CollisionObject(box)
 
 M_box = fcl.Transform3f.Identity()
-M_box.setTranslation(np.array([-0.6,0.,0.]))
+M_box.setTranslation(np.array([-0.6, 0.0, 0.0]))
 box_obj.setTransform(M_box)
 
 collision_manager = fcl.DynamicAABBTreeCollisionManager()

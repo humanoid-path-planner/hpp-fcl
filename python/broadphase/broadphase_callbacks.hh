@@ -47,56 +47,52 @@
 #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_callbacks.h"
 #endif
 
-namespace hpp { namespace fcl {
+namespace hpp {
+namespace fcl {
 
-struct CollisionCallBackBaseWrapper
-: CollisionCallBackBase, bp::wrapper<CollisionCallBackBase>
-{
+struct CollisionCallBackBaseWrapper : CollisionCallBackBase,
+                                      bp::wrapper<CollisionCallBackBase> {
   typedef CollisionCallBackBase Base;
-  
-  void init() { this->get_override("init")(); }
-  bool collide(CollisionObject* o1, CollisionObject* o2) { return this->get_override("collide")(o1,o2); }
-  
-  static void expose()
-  {
-    bp::class_<CollisionCallBackBaseWrapper, boost::noncopyable>("CollisionCallBackBase",bp::no_init)
-    .def("init",
-         bp::pure_virtual(&Base::init),
-         doxygen::member_func_doc(&Base::init))
-    .def("collide",
-         bp::pure_virtual(&Base::collide),
-         doxygen::member_func_doc(&Base::collide))
-    .def("__call__",
-         &Base::operator(),
-         doxygen::member_func_doc(&Base::operator()))
-    ;
-  }
-}; // CollisionCallBackBaseWrapper
 
-struct DistanceCallBackBaseWrapper
-: DistanceCallBackBase, bp::wrapper<DistanceCallBackBase>
-{
+  void init() { this->get_override("init")(); }
+  bool collide(CollisionObject* o1, CollisionObject* o2) {
+    return this->get_override("collide")(o1, o2);
+  }
+
+  static void expose() {
+    bp::class_<CollisionCallBackBaseWrapper, boost::noncopyable>(
+        "CollisionCallBackBase", bp::no_init)
+        .def("init", bp::pure_virtual(&Base::init),
+             doxygen::member_func_doc(&Base::init))
+        .def("collide", bp::pure_virtual(&Base::collide),
+             doxygen::member_func_doc(&Base::collide))
+        .def("__call__", &Base::operator(),
+             doxygen::member_func_doc(&Base::operator()));
+  }
+};  // CollisionCallBackBaseWrapper
+
+struct DistanceCallBackBaseWrapper : DistanceCallBackBase,
+                                     bp::wrapper<DistanceCallBackBase> {
   typedef DistanceCallBackBase Base;
-  
+
   void init() { this->get_override("init")(); }
-  bool distance(CollisionObject* o1, CollisionObject* o2) { return this->get_override("distance")(o1,o2); }
-  
-  static void expose()
-  {
-    bp::class_<DistanceCallBackBaseWrapper, boost::noncopyable>("DistanceCallBackBase",bp::no_init)
-    .def("init",
-         bp::pure_virtual(&Base::init),
-         doxygen::member_func_doc(&Base::init))
-    .def("distance",
-         bp::pure_virtual(&Base::distance),
-         doxygen::member_func_doc(&Base::distance))
-    .def("__call__",
-         &Base::operator(),
-         doxygen::member_func_doc(&Base::operator()))
-    ;
+  bool distance(CollisionObject* o1, CollisionObject* o2) {
+    return this->get_override("distance")(o1, o2);
   }
-}; // DistanceCallBackBaseWrapper
 
-}}
+  static void expose() {
+    bp::class_<DistanceCallBackBaseWrapper, boost::noncopyable>(
+        "DistanceCallBackBase", bp::no_init)
+        .def("init", bp::pure_virtual(&Base::init),
+             doxygen::member_func_doc(&Base::init))
+        .def("distance", bp::pure_virtual(&Base::distance),
+             doxygen::member_func_doc(&Base::distance))
+        .def("__call__", &Base::operator(),
+             doxygen::member_func_doc(&Base::operator()));
+  }
+};  // DistanceCallBackBaseWrapper
 
-#endif // ifndef HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH
+}  // namespace fcl
+}  // namespace hpp
+
+#endif  // ifndef HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH

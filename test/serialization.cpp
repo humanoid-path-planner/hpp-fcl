@@ -32,7 +32,6 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #define BOOST_TEST_MODULE FCL_SERIALIZATION
 #include <fstream>
 #include <boost/test/included/unit_test.hpp>
@@ -67,126 +66,108 @@ namespace utf = boost::unit_test::framework;
 
 using namespace hpp::fcl;
 
-template<typename T>
-void saveToBinary(const T & object,
-                  boost::asio::streambuf & buffer)
-{
+template <typename T>
+void saveToBinary(const T& object, boost::asio::streambuf& buffer) {
   boost::archive::binary_oarchive oa(buffer);
-  oa & object;
+  oa& object;
 }
 
-template<typename T>
-inline void loadFromBinary(T & object,
-                           boost::asio::streambuf & buffer)
-{
+template <typename T>
+inline void loadFromBinary(T& object, boost::asio::streambuf& buffer) {
   boost::archive::binary_iarchive ia(buffer);
   ia >> object;
 }
 
-template<typename T>
-bool check(const T & value, const T & other)
-{
+template <typename T>
+bool check(const T& value, const T& other) {
   return value == other;
 }
 
-enum SerializationMode
-{
-  TXT = 1,
-  XML = 2,
-  BIN = 4,
-  STREAM = 8
-};
+enum SerializationMode { TXT = 1, XML = 2, BIN = 4, STREAM = 8 };
 
-template<typename T>
-void test_serialization(const T & value, T & other_value,
-                        const int mode = TXT | XML | BIN | STREAM)
-{
+template <typename T>
+void test_serialization(const T& value, T& other_value,
+                        const int mode = TXT | XML | BIN | STREAM) {
   const std::string tmp_dir(boost::archive::tmpdir());
   const std::string txt_filename = tmp_dir + "file.txt";
   const std::string bin_filename = tmp_dir + "file.bin";
 
   // TXT
-  if(mode & 0x1)
-  {
+  if (mode & 0x1) {
     {
       std::ofstream ofs(txt_filename.c_str());
-      
+
       boost::archive::text_oarchive oa(ofs);
       oa << value;
     }
-    BOOST_CHECK(check(value,value));
-    
+    BOOST_CHECK(check(value, value));
+
     {
       std::ifstream ifs(txt_filename.c_str());
       boost::archive::text_iarchive ia(ifs);
-      
+
       ia >> other_value;
     }
-    BOOST_CHECK(check(value,other_value));
+    BOOST_CHECK(check(value, other_value));
   }
-  
+
   // BIN
-  if(mode & 0x4)
-  {
+  if (mode & 0x4) {
     {
       std::ofstream ofs(bin_filename.c_str(), std::ios::binary);
       boost::archive::binary_oarchive oa(ofs);
       oa << value;
     }
-    BOOST_CHECK(check(value,value));
-    
+    BOOST_CHECK(check(value, value));
+
     {
       std::ifstream ifs(bin_filename.c_str(), std::ios::binary);
       boost::archive::binary_iarchive ia(ifs);
-      
+
       ia >> other_value;
     }
-    BOOST_CHECK(check(value,other_value));
+    BOOST_CHECK(check(value, other_value));
   }
-  
+
   // Stream Buffer
-  if(mode & 0x8)
-  {
+  if (mode & 0x8) {
     boost::asio::streambuf buffer;
-    saveToBinary(value,buffer);
-    BOOST_CHECK(check(value,value));
-    
-    loadFromBinary(other_value,buffer);
-    BOOST_CHECK(check(value,other_value));
+    saveToBinary(value, buffer);
+    BOOST_CHECK(check(value, value));
+
+    loadFromBinary(other_value, buffer);
+    BOOST_CHECK(check(value, other_value));
   }
 }
 
-template<typename T>
-void test_serialization(const T & value,
-                        const int mode = TXT | XML | BIN | STREAM)
-{
+template <typename T>
+void test_serialization(const T& value,
+                        const int mode = TXT | XML | BIN | STREAM) {
   T other_value;
-  test_serialization(value,other_value,mode);
+  test_serialization(value, other_value, mode);
 }
 
-BOOST_AUTO_TEST_CASE(test_aabb)
-{
-  AABB aabb(-Vec3f::Ones(),Vec3f::Ones());
+BOOST_AUTO_TEST_CASE(test_aabb) {
+  AABB aabb(-Vec3f::Ones(), Vec3f::Ones());
   test_serialization(aabb);
 }
 
-BOOST_AUTO_TEST_CASE(test_collision_data)
-{
+BOOST_AUTO_TEST_CASE(test_collision_data) {
   Contact contact(NULL, NULL, 1, 2, Vec3f::Ones(), Vec3f::Zero(), -10.);
   test_serialization(contact);
-  
-  CollisionRequest collision_request(CONTACT,10);
+
+  CollisionRequest collision_request(CONTACT, 10);
   test_serialization(collision_request);
-  
+
   CollisionResult collision_result;
   collision_result.addContact(contact);
   collision_result.addContact(contact);
   collision_result.distance_lower_bound = 0.1;
   test_serialization(collision_result);
-  
-  DistanceRequest distance_request(true,1.,2.);
+
+  DistanceRequest distance_request(true, 1., 2.);
   test_serialization(distance_request);
-  
+
   DistanceResult distance_result;
   distance_result.normal.setOnes();
   distance_result.nearest_points[0].setRandom();
@@ -194,16 +175,15 @@ BOOST_AUTO_TEST_CASE(test_collision_data)
   test_serialization(distance_result);
 }
 
-BOOST_AUTO_TEST_CASE(test_BVHModel)
-{
+BOOST_AUTO_TEST_CASE(test_BVHModel) {
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
-  
+
   loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
   loadOBJFile((path / "rob.obj").string().c_str(), p2, t2);
 
-  BVHModel<OBBRSS> m1,m2;
+  BVHModel<OBBRSS> m1, m2;
 
   m1.beginModel();
   m1.addSubModel(p1, t1);
@@ -215,94 +195,88 @@ BOOST_AUTO_TEST_CASE(test_BVHModel)
   m2.endModel();
   BOOST_CHECK(m2 == m2);
   BOOST_CHECK(m1 != m2);
-  
+
   // Test BVHModel
   {
     BVHModel<OBBRSS> m1_copy;
-    test_serialization(m1,m1_copy);
+    test_serialization(m1, m1_copy);
   }
   {
     BVHModel<OBBRSS> m1_copy;
-    test_serialization(m1,m1_copy,STREAM);
+    test_serialization(m1, m1_copy, STREAM);
   }
 }
 
-BOOST_AUTO_TEST_CASE(test_HeightField)
-{
+BOOST_AUTO_TEST_CASE(test_HeightField) {
   const FCL_REAL min_altitude = -1.;
   const FCL_REAL x_dim = 1., y_dim = 2.;
   const Eigen::DenseIndex nx = 100, ny = 200;
   const MatrixXf heights = MatrixXf::Random(ny, nx);
-  
-  HeightField<OBBRSS> hfield(x_dim,y_dim,heights,min_altitude);
+
+  HeightField<OBBRSS> hfield(x_dim, y_dim, heights, min_altitude);
 
   // Test HeightField
   {
     HeightField<OBBRSS> hfield_copy;
-    test_serialization(hfield,hfield_copy);
+    test_serialization(hfield, hfield_copy);
   }
   {
     HeightField<OBBRSS> hfield_copy;
-    test_serialization(hfield,hfield_copy,STREAM);
+    test_serialization(hfield, hfield_copy, STREAM);
   }
 }
 
-BOOST_AUTO_TEST_CASE(test_shapes)
-{
-  
+BOOST_AUTO_TEST_CASE(test_shapes) {
   {
-    TriangleP triangle(Vec3f::UnitX(),
-                       Vec3f::UnitY(),
-                       Vec3f::UnitZ());
-    TriangleP triangle_copy(Vec3f::Random(),Vec3f::Random(),Vec3f::Random());
-    test_serialization(triangle,triangle_copy);
+    TriangleP triangle(Vec3f::UnitX(), Vec3f::UnitY(), Vec3f::UnitZ());
+    TriangleP triangle_copy(Vec3f::Random(), Vec3f::Random(), Vec3f::Random());
+    test_serialization(triangle, triangle_copy);
   }
-  
+
   {
     Box box(Vec3f::UnitX()), box_copy(Vec3f::Random());
-    test_serialization(box,box_copy);
+    test_serialization(box, box_copy);
   }
-  
+
   {
     Sphere sphere(1.), sphere_copy(2.);
-    test_serialization(sphere,sphere_copy);
+    test_serialization(sphere, sphere_copy);
   }
-  
+
   {
-    Capsule capsule(1.,2.), capsule_copy(10.,10.);
-    test_serialization(capsule,capsule_copy);
+    Capsule capsule(1., 2.), capsule_copy(10., 10.);
+    test_serialization(capsule, capsule_copy);
   }
-  
+
   {
-    Cone cone(1.,2.), cone_copy(10.,10.);
-    test_serialization(cone,cone_copy);
+    Cone cone(1., 2.), cone_copy(10., 10.);
+    test_serialization(cone, cone_copy);
   }
-  
+
   {
-    Cylinder cylinder(1.,2.), cylinder_copy(10.,10.);
-    test_serialization(cylinder,cylinder_copy);
+    Cylinder cylinder(1., 2.), cylinder_copy(10., 10.);
+    test_serialization(cylinder, cylinder_copy);
   }
-  
+
   {
-    Halfspace hs(Vec3f::Random(),1.), hs_copy(Vec3f::Zero(),0.);
-    test_serialization(hs,hs_copy);
+    Halfspace hs(Vec3f::Random(), 1.), hs_copy(Vec3f::Zero(), 0.);
+    test_serialization(hs, hs_copy);
   }
-  
+
   {
-    Plane plane(Vec3f::Random(),1.), plane_copy(Vec3f::Zero(),0.);
-    test_serialization(plane,plane_copy);
+    Plane plane(Vec3f::Random(), 1.), plane_copy(Vec3f::Zero(), 0.);
+    test_serialization(plane, plane_copy);
   }
 }
 
-BOOST_AUTO_TEST_CASE(test_memory_footprint)
-{
+BOOST_AUTO_TEST_CASE(test_memory_footprint) {
   Sphere sphere(1.);
   BOOST_CHECK(sizeof(Sphere) == computeMemoryFootprint(sphere));
-  
+
   std::vector<Vec3f> p1;
   std::vector<Triangle> t1;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
-  
+
   loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
 
   BVHModel<OBBRSS> m1;
@@ -310,8 +284,10 @@ BOOST_AUTO_TEST_CASE(test_memory_footprint)
   m1.beginModel();
   m1.addSubModel(p1, t1);
   m1.endModel();
-  
-  std::cout << "computeMemoryFootprint(m1): " << computeMemoryFootprint(m1) << std::endl;
+
+  std::cout << "computeMemoryFootprint(m1): " << computeMemoryFootprint(m1)
+            << std::endl;
   BOOST_CHECK(sizeof(BVHModel<OBBRSS>) < computeMemoryFootprint(m1));
-  BOOST_CHECK(static_cast<size_t>(m1.memUsage(false)) == computeMemoryFootprint(m1));
+  BOOST_CHECK(static_cast<size_t>(m1.memUsage(false)) ==
+              computeMemoryFootprint(m1));
 }

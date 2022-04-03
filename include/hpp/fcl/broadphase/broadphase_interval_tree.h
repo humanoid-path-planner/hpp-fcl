@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -44,19 +44,16 @@
 #include "hpp/fcl/broadphase/broadphase_collision_manager.h"
 #include "hpp/fcl/broadphase/detail/interval_tree.h"
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @brief Collision manager based on interval tree
 class HPP_FCL_DLLAPI IntervalTreeCollisionManager
-: public BroadPhaseCollisionManager
-{
-public:
+    : public BroadPhaseCollisionManager {
+ public:
   typedef BroadPhaseCollisionManager Base;
   using Base::getObjects;
-  
+
   IntervalTreeCollisionManager();
 
   ~IntervalTreeCollisionManager();
@@ -85,51 +82,56 @@ public:
   /// @brief return the objects managed by the manager
   void getObjects(std::vector<CollisionObject*>& objs) const;
 
-  /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject* obj, CollisionCallBackBase * callback) const;
+  /// @brief perform collision test between one object and all the objects
+  /// belonging to the manager
+  void collide(CollisionObject* obj, CollisionCallBackBase* callback) const;
 
-  /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObject* obj, DistanceCallBackBase * callback) const;
+  /// @brief perform distance computation between one object and all the objects
+  /// belonging to the manager
+  void distance(CollisionObject* obj, DistanceCallBackBase* callback) const;
 
-  /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  void collide(CollisionCallBackBase * callback) const;
+  /// @brief perform collision test for the objects belonging to the manager
+  /// (i.e., N^2 self collision)
+  void collide(CollisionCallBackBase* callback) const;
 
-  /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(DistanceCallBackBase * callback) const;
+  /// @brief perform distance test for the objects belonging to the manager
+  /// (i.e., N^2 self distance)
+  void distance(DistanceCallBackBase* callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager* other_manager, CollisionCallBackBase * callback) const;
+  void collide(BroadPhaseCollisionManager* other_manager,
+               CollisionCallBackBase* callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager* other_manager, DistanceCallBackBase * callback) const;
+  void distance(BroadPhaseCollisionManager* other_manager,
+                DistanceCallBackBase* callback) const;
 
   /// @brief whether the manager is empty
   bool empty() const;
-  
+
   /// @brief the number of objects managed by the manager
   size_t size() const;
 
-protected:
-
+ protected:
   /// @brief SAP end point
   /// @brief SAP end point
-  struct HPP_FCL_DLLAPI EndPoint
-  {
+  struct HPP_FCL_DLLAPI EndPoint {
     /// @brief object related with the end point
     CollisionObject* obj;
 
     /// @brief end point value
     FCL_REAL value;
 
-    /// @brief tag for whether it is a lower bound or higher bound of an interval, 0 for lo, and 1 for hi
+    /// @brief tag for whether it is a lower bound or higher bound of an
+    /// interval, 0 for lo, and 1 for hi
     char minmax;
 
-    bool operator<(const EndPoint &p) const;
+    bool operator<(const EndPoint& p) const;
   };
 
-  /// @brief Extention interval tree's interval to SAP interval, adding more information
-  struct HPP_FCL_DLLAPI SAPInterval : public detail::SimpleInterval
-  {
+  /// @brief Extention interval tree's interval to SAP interval, adding more
+  /// information
+  struct HPP_FCL_DLLAPI SAPInterval : public detail::SimpleInterval {
     CollisionObject* obj;
 
     SAPInterval(FCL_REAL low_, FCL_REAL high_, CollisionObject* obj_);
@@ -138,19 +140,18 @@ protected:
   bool checkColl(
       typename std::deque<detail::SimpleInterval*>::const_iterator pos_start,
       typename std::deque<detail::SimpleInterval*>::const_iterator pos_end,
-      CollisionObject* obj,
-      CollisionCallBackBase * callback) const;
+      CollisionObject* obj, CollisionCallBackBase* callback) const;
 
   bool checkDist(
       typename std::deque<detail::SimpleInterval*>::const_iterator pos_start,
       typename std::deque<detail::SimpleInterval*>::const_iterator pos_end,
-      CollisionObject* obj,
-      DistanceCallBackBase * callback,
+      CollisionObject* obj, DistanceCallBackBase* callback,
       FCL_REAL& min_dist) const;
 
-  bool collide_(CollisionObject* obj, CollisionCallBackBase * callback) const;
+  bool collide_(CollisionObject* obj, CollisionCallBackBase* callback) const;
 
-  bool distance_(CollisionObject* obj, DistanceCallBackBase * callback, FCL_REAL& min_dist) const;
+  bool distance_(CollisionObject* obj, DistanceCallBackBase* callback,
+                 FCL_REAL& min_dist) const;
 
   /// @brief vector stores all the end points
   std::vector<EndPoint> endpoints[3];
@@ -164,9 +165,8 @@ protected:
   bool setup_;
 };
 
+}  // namespace fcl
 
-} // namespace fcl
-
-} // namespace hpp
+}  // namespace hpp
 
 #endif

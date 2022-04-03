@@ -51,13 +51,10 @@
 namespace hpp {
 namespace fcl {
 
-/// @brief Collision data stores the collision request and the result given by collision algorithm.
-struct CollisionData
-{
-  CollisionData()
-  {
-    done = false;
-  }
+/// @brief Collision data stores the collision request and the result given by
+/// collision algorithm.
+struct CollisionData {
+  CollisionData() { done = false; }
 
   /// @brief Collision request
   CollisionRequest request;
@@ -69,14 +66,10 @@ struct CollisionData
   bool done;
 };
 
-
-/// @brief Distance data stores the distance request and the result given by distance algorithm.
-struct DistanceData
-{
-  DistanceData()
-  {
-    done = false;
-  }
+/// @brief Distance data stores the distance request and the result given by
+/// distance algorithm.
+struct DistanceData {
+  DistanceData() { done = false; }
 
   /// @brief Distance request
   DistanceRequest request;
@@ -86,7 +79,6 @@ struct DistanceData
 
   /// @brief Whether the distance iteration can stop
   bool done;
-
 };
 
 /// @brief Provides a simple callback for the collision query in the
@@ -111,23 +103,20 @@ struct DistanceData
 /// @param data A non-null pointer to a CollisionData instance.
 /// @return `true` if the broadphase evaluation should stop.
 /// @tparam S   The scalar type with which the computation will be performed.
-bool defaultCollisionFunction(CollisionObject* o1,
-                              CollisionObject* o2,
+bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2,
                               void* data);
-
 
 /// @brief Collision data for use with the DefaultContinuousCollisionFunction.
 /// It stores the collision request and the result given by the collision
 /// algorithm (and stores the conclusion of whether further evaluation of the
 /// broadphase collision manager has been deemed unnecessary).
-//struct DefaultContinuousCollisionData {
-//  ContinuousCollisionRequest request;
-//  ContinuousCollisionResult result;
+// struct DefaultContinuousCollisionData {
+//   ContinuousCollisionRequest request;
+//   ContinuousCollisionResult result;
 //
-//  /// If `true`, requests that the broadphase evaluation stop.
-//  bool done{false};
-//};
-
+//   /// If `true`, requests that the broadphase evaluation stop.
+//   bool done{false};
+// };
 
 /// @brief Provides a simple callback for the continuous collision query in the
 /// BroadPhaseCollisionManager. It assumes the `data` parameter is non-null and
@@ -151,20 +140,20 @@ bool defaultCollisionFunction(CollisionObject* o1,
 /// @param data A non-null pointer to a CollisionData instance.
 /// @return True if the broadphase evaluation should stop.
 /// @tparam S   The scalar type with which the computation will be performed.
-//bool DefaultContinuousCollisionFunction(ContinuousCollisionObject* o1,
-//                                        ContinuousCollisionObject* o2,
-//                                        void* data) {
-//  assert(data != nullptr);
-//  auto* cdata = static_cast<DefaultContinuousCollisionData*>(data);
+// bool DefaultContinuousCollisionFunction(ContinuousCollisionObject* o1,
+//                                         ContinuousCollisionObject* o2,
+//                                         void* data) {
+//   assert(data != nullptr);
+//   auto* cdata = static_cast<DefaultContinuousCollisionData*>(data);
 //
-//  if (cdata->done) return true;
+//   if (cdata->done) return true;
 //
-//  const ContinuousCollisionRequest& request = cdata->request;
-//  ContinuousCollisionResult& result = cdata->result;
-//  collide(o1, o2, request, result);
+//   const ContinuousCollisionRequest& request = cdata->request;
+//   ContinuousCollisionResult& result = cdata->result;
+//   collide(o1, o2, request, result);
 //
-//  return cdata->done;
-//}
+//   return cdata->done;
+// }
 
 /// @brief Provides a simple callback for the distance query in the
 /// BroadPhaseCollisionManager. It assumes the `data` parameter is non-null and
@@ -188,67 +177,59 @@ bool defaultCollisionFunction(CollisionObject* o1,
 /// @param dist   The distance computed by distance().
 /// @return `true` if the broadphase evaluation should stop.
 /// @tparam S   The scalar type with which the computation will be performed.
-bool defaultDistanceFunction(CollisionObject* o1,
-                             CollisionObject* o2,
-                             void* data, FCL_REAL & dist);
+bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2,
+                             void* data, FCL_REAL& dist);
 
-
-/// @brief Default collision callback to check collision between collision objects.
-struct HPP_FCL_DLLAPI CollisionCallBackDefault
-: CollisionCallBackBase
-{
+/// @brief Default collision callback to check collision between collision
+/// objects.
+struct HPP_FCL_DLLAPI CollisionCallBackDefault : CollisionCallBackBase {
   bool collide(CollisionObject* o1, CollisionObject* o2);
-  
+
   CollisionData data;
-  
-  virtual ~CollisionCallBackDefault() {};
+
+  virtual ~CollisionCallBackDefault(){};
 };
 
-/// @brief Default distance callback to check collision between collision objects.
-struct HPP_FCL_DLLAPI DistanceCallBackDefault
-: DistanceCallBackBase
-{
-  bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL & dist);
-  
+/// @brief Default distance callback to check collision between collision
+/// objects.
+struct HPP_FCL_DLLAPI DistanceCallBackDefault : DistanceCallBackBase {
+  bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL& dist);
+
   DistanceData data;
-  
-  virtual ~DistanceCallBackDefault() {};
+
+  virtual ~DistanceCallBackDefault(){};
 };
 
 /// @brief Collision callback to collect collision pairs potentially in contacts
-struct HPP_FCL_DLLAPI CollisionCallBackCollect
-: CollisionCallBackBase
-{
+struct HPP_FCL_DLLAPI CollisionCallBackCollect : CollisionCallBackBase {
   typedef std::pair<CollisionObject*, CollisionObject*> CollisionPair;
-  
+
   /// @brief Default constructor.
   CollisionCallBackCollect(const size_t max_size);
-  
+
   bool collide(CollisionObject* o1, CollisionObject* o2);
-  
+
   /// @brief Returns the number of registered collision pairs
   size_t numCollisionPairs() const;
-  
+
   /// @brief Returns a const reference to the active collision_pairs to check
-  const std::vector<CollisionPair> & getCollisionPairs() const;
-  
+  const std::vector<CollisionPair>& getCollisionPairs() const;
+
   /// @brief Reset the callback
   void init();
-  
+
   /// @brief Check wether a collision pair exists
-  bool exist(const CollisionPair & pair) const;
-  
-  virtual ~CollisionCallBackCollect() {};
-  
-protected:
-  
+  bool exist(const CollisionPair& pair) const;
+
+  virtual ~CollisionCallBackCollect(){};
+
+ protected:
   std::vector<CollisionPair> collision_pairs;
   size_t max_size;
-  
 };
 
 }  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 #endif  // HPP_FCL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H

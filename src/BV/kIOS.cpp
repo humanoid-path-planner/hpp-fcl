@@ -42,21 +42,15 @@
 #include <iostream>
 #include <limits>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-bool kIOS::overlap(const kIOS& other) const
-{
-  for(unsigned int i = 0; i < num_spheres; ++i)
-  {
-    for(unsigned int j = 0; j < other.num_spheres; ++j)
-    {
+bool kIOS::overlap(const kIOS& other) const {
+  for (unsigned int i = 0; i < num_spheres; ++i) {
+    for (unsigned int j = 0; j < other.num_spheres; ++j) {
       FCL_REAL o_dist = (spheres[i].o - other.spheres[j].o).squaredNorm();
       FCL_REAL sum_r = spheres[i].r + other.spheres[j].r;
-      if(o_dist > sum_r * sum_r)
-        return false;
+      if (o_dist > sum_r * sum_r) return false;
     }
   }
 
@@ -64,17 +58,14 @@ bool kIOS::overlap(const kIOS& other) const
 }
 
 bool kIOS::overlap(const kIOS& other, const CollisionRequest& request,
-                   FCL_REAL& sqrDistLowerBound) const
-{
-  for(unsigned int i = 0; i < num_spheres; ++i)
-  {
-    for(unsigned int j = 0; j < other.num_spheres; ++j)
-    {
+                   FCL_REAL& sqrDistLowerBound) const {
+  for (unsigned int i = 0; i < num_spheres; ++i) {
+    for (unsigned int j = 0; j < other.num_spheres; ++j) {
       FCL_REAL o_dist = (spheres[i].o - other.spheres[j].o).squaredNorm();
       FCL_REAL sum_r = spheres[i].r + other.spheres[j].r;
-      if(o_dist > sum_r * sum_r) {
+      if (o_dist > sum_r * sum_r) {
         o_dist = sqrt(o_dist) - sum_r;
-        sqrDistLowerBound = o_dist*o_dist;
+        sqrDistLowerBound = o_dist * o_dist;
         return false;
       }
     }
@@ -83,26 +74,20 @@ bool kIOS::overlap(const kIOS& other, const CollisionRequest& request,
   return obb.overlap(other.obb, request, sqrDistLowerBound);
 }
 
-bool kIOS::contain(const Vec3f& p) const
-{
-  for(unsigned int i = 0; i < num_spheres; ++i)
-  {
+bool kIOS::contain(const Vec3f& p) const {
+  for (unsigned int i = 0; i < num_spheres; ++i) {
     FCL_REAL r = spheres[i].r;
-    if((spheres[i].o - p).squaredNorm() > r * r)
-      return false;
+    if ((spheres[i].o - p).squaredNorm() > r * r) return false;
   }
 
   return true;
 }
 
-kIOS& kIOS::operator += (const Vec3f& p)
-{
-  for(unsigned int i = 0; i < num_spheres; ++i)
-  {
+kIOS& kIOS::operator+=(const Vec3f& p) {
+  for (unsigned int i = 0; i < num_spheres; ++i) {
     FCL_REAL r = spheres[i].r;
     FCL_REAL new_r_sqr = (p - spheres[i].o).squaredNorm();
-    if(new_r_sqr > r * r)
-    {
+    if (new_r_sqr > r * r) {
       spheres[i].r = sqrt(new_r_sqr);
     }
   }
@@ -111,71 +96,49 @@ kIOS& kIOS::operator += (const Vec3f& p)
   return *this;
 }
 
-kIOS kIOS::operator + (const kIOS& other) const
-{
+kIOS kIOS::operator+(const kIOS& other) const {
   kIOS result;
   unsigned int new_num_spheres = std::min(num_spheres, other.num_spheres);
-  for(unsigned int i = 0; i < new_num_spheres; ++i)
-  {
+  for (unsigned int i = 0; i < new_num_spheres; ++i) {
     result.spheres[i] = encloseSphere(spheres[i], other.spheres[i]);
   }
-    
+
   result.num_spheres = new_num_spheres;
 
   result.obb = obb + other.obb;
-  
+
   return result;
 }
 
-FCL_REAL kIOS::width() const
-{
-  return obb.width();
-}
+FCL_REAL kIOS::width() const { return obb.width(); }
 
-FCL_REAL kIOS::height() const
-{
-  return obb.height();
-}
-  
-FCL_REAL kIOS::depth() const
-{
-  return obb.depth();
-}
+FCL_REAL kIOS::height() const { return obb.height(); }
 
-FCL_REAL kIOS::volume() const
-{
-  return obb.volume();
-}
+FCL_REAL kIOS::depth() const { return obb.depth(); }
 
-FCL_REAL kIOS::size() const
-{
-  return volume();
-}
+FCL_REAL kIOS::volume() const { return obb.volume(); }
 
-FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
-{
+FCL_REAL kIOS::size() const { return volume(); }
+
+FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const {
   FCL_REAL d_max = 0;
   long id_a = -1, id_b = -1;
-  for(unsigned int i = 0; i < num_spheres; ++i)
-  {
-    for(unsigned int j = 0; j < other.num_spheres; ++j)
-    {
-      FCL_REAL d = (spheres[i].o - other.spheres[j].o).norm() - (spheres[i].r + other.spheres[j].r);
-      if(d_max < d)
-      {
+  for (unsigned int i = 0; i < num_spheres; ++i) {
+    for (unsigned int j = 0; j < other.num_spheres; ++j) {
+      FCL_REAL d = (spheres[i].o - other.spheres[j].o).norm() -
+                   (spheres[i].r + other.spheres[j].r);
+      if (d_max < d) {
         d_max = d;
-        if(P && Q)
-        {
-          id_a = (long)i; id_b = (long)j;
+        if (P && Q) {
+          id_a = (long)i;
+          id_b = (long)j;
         }
       }
     }
   }
 
-  if(P && Q)
-  {
-    if(id_a != -1 && id_b != -1)
-    {
+  if (P && Q) {
+    if (id_a != -1 && id_b != -1) {
       const Vec3f v = spheres[id_a].o - spheres[id_b].o;
       FCL_REAL len_v = v.norm();
       *P = spheres[id_a].o - v * (spheres[id_a].r / len_v);
@@ -186,64 +149,53 @@ FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
   return d_max;
 }
 
-  
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2)
-{
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1,
+             const kIOS& b2) {
   kIOS b2_temp = b2;
-  for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
-  {
+  for (unsigned int i = 0; i < b2_temp.num_spheres; ++i) {
     b2_temp.spheres[i].o = R0 * b2_temp.spheres[i].o + T0;
   }
 
-  
   b2_temp.obb.To = R0 * b2_temp.obb.To + T0;
   b2_temp.obb.axes.applyOnTheLeft(R0);
 
   return b1.overlap(b2_temp);
 }
 
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2,
-             const CollisionRequest& request,
-             FCL_REAL& sqrDistLowerBound)
-{
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1,
+             const kIOS& b2, const CollisionRequest& request,
+             FCL_REAL& sqrDistLowerBound) {
   kIOS b2_temp = b2;
-  for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
-  {
+  for (unsigned int i = 0; i < b2_temp.num_spheres; ++i) {
     b2_temp.spheres[i].o = R0 * b2_temp.spheres[i].o + T0;
   }
 
-  
   b2_temp.obb.To = R0 * b2_temp.obb.To + T0;
   b2_temp.obb.axes.applyOnTheLeft(R0);
 
   return b1.overlap(b2_temp, request, sqrDistLowerBound);
 }
 
-FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P, Vec3f* Q)
-{
+FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1,
+                  const kIOS& b2, Vec3f* P, Vec3f* Q) {
   kIOS b2_temp = b2;
-  for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
-  {
+  for (unsigned int i = 0; i < b2_temp.num_spheres; ++i) {
     b2_temp.spheres[i].o = R0 * b2_temp.spheres[i].o + T0;
   }
 
   return b1.distance(b2_temp, P, Q);
 }
 
-
-kIOS translate(const kIOS& bv, const Vec3f& t)
-{
+kIOS translate(const kIOS& bv, const Vec3f& t) {
   kIOS res(bv);
-  for(size_t i = 0; i < res.num_spheres; ++i)
-  {
+  for (size_t i = 0; i < res.num_spheres; ++i) {
     res.spheres[i].o += t;
   }
-  
+
   translate(res.obb, t);
   return res;
 }
 
+}  // namespace fcl
 
-}
-
-} // namespace hpp
+}  // namespace hpp

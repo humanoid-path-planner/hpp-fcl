@@ -37,13 +37,11 @@
 
 #include <hpp/fcl/collision_object.h>
 
-namespace hpp
-{
+namespace hpp {
 namespace fcl {
-  bool CollisionGeometry::isUncertain() const
-  {
-    return !isOccupied() && !isFree();
-  }
-} // namespace fcl
+bool CollisionGeometry::isUncertain() const {
+  return !isOccupied() && !isFree();
+}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp

@@ -44,56 +44,53 @@
 #include <hpp/fcl/BV/AABB.h>
 #include <iostream>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @brief Compute a bounding volume that fits a set of n points.
-template<typename BV>
-void fit(Vec3f* ps, unsigned int n, BV& bv)
-{
-  for(unsigned int i = 0; i < n; ++i) // TODO(jcarpent): vectorize
+template <typename BV>
+void fit(Vec3f* ps, unsigned int n, BV& bv) {
+  for (unsigned int i = 0; i < n; ++i)  // TODO(jcarpent): vectorize
   {
     bv += ps[i];
   }
 }
 
-template<>
+template <>
 void fit<OBB>(Vec3f* ps, unsigned int n, OBB& bv);
 
-template<>
+template <>
 void fit<RSS>(Vec3f* ps, unsigned int n, RSS& bv);
 
-template<>
+template <>
 void fit<kIOS>(Vec3f* ps, unsigned int n, kIOS& bv);
 
-template<>
+template <>
 void fit<OBBRSS>(Vec3f* ps, unsigned int n, OBBRSS& bv);
 
-template<>
+template <>
 void fit<AABB>(Vec3f* ps, unsigned int n, AABB& bv);
 
-/// @brief The class for the default algorithm fitting a bounding volume to a set of points
-template<typename BV>
-class HPP_FCL_DLLAPI BVFitterTpl
-{
-public:
+/// @brief The class for the default algorithm fitting a bounding volume to a
+/// set of points
+template <typename BV>
+class HPP_FCL_DLLAPI BVFitterTpl {
+ public:
   /// @brief default deconstructor
   virtual ~BVFitterTpl() {}
 
   /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
+  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_) {
     vertices = vertices_;
     prev_vertices = NULL;
     tri_indices = tri_indices_;
     type = type_;
   }
 
-  /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
-  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
+  /// @brief Prepare the geometry primitive data for fitting, for deformable
+  /// mesh
+  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_,
+           BVHModelType type_) {
     vertices = vertices_;
     prev_vertices = prev_vertices_;
     tri_indices = tri_indices_;
@@ -101,61 +98,58 @@ public:
   }
 
   /// @brief Compute the fitting BV
-  virtual BV fit(unsigned int* primitive_indices, unsigned int num_primitives) = 0;
+  virtual BV fit(unsigned int* primitive_indices,
+                 unsigned int num_primitives) = 0;
 
   /// @brief Clear the geometry primitive data
-  void clear()
-  {
+  void clear() {
     vertices = NULL;
     prev_vertices = NULL;
     tri_indices = NULL;
     type = BVH_MODEL_UNKNOWN;
   }
 
-protected:
-
+ protected:
   Vec3f* vertices;
   Vec3f* prev_vertices;
   Triangle* tri_indices;
   BVHModelType type;
 };
 
-/// @brief The class for the default algorithm fitting a bounding volume to a set of points
-template<typename BV>
-class HPP_FCL_DLLAPI BVFitter : public BVFitterTpl<BV>
-{
+/// @brief The class for the default algorithm fitting a bounding volume to a
+/// set of points
+template <typename BV>
+class HPP_FCL_DLLAPI BVFitter : public BVFitterTpl<BV> {
   typedef BVFitterTpl<BV> Base;
-public:
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data
-  BV fit(unsigned int* primitive_indices, unsigned int num_primitives)
-  {
+
+ public:
+  /// @brief Compute a bounding volume that fits a set of primitives (points or
+  /// triangles). The primitive data was set by set function and
+  /// primitive_indices is the primitive index relative to the data
+  BV fit(unsigned int* primitive_indices, unsigned int num_primitives) {
     BV bv;
 
-    if(type == BVH_MODEL_TRIANGLES)             /// The primitive is triangle
+    if (type == BVH_MODEL_TRIANGLES)  /// The primitive is triangle
     {
-      for(unsigned int i = 0; i < num_primitives; ++i)
-      {
+      for (unsigned int i = 0; i < num_primitives; ++i) {
         Triangle t = tri_indices[primitive_indices[i]];
         bv += vertices[t[0]];
         bv += vertices[t[1]];
         bv += vertices[t[2]];
 
-        if(prev_vertices)                      /// can fitting both current and previous frame
+        if (prev_vertices)  /// can fitting both current and previous frame
         {
           bv += prev_vertices[t[0]];
           bv += prev_vertices[t[1]];
           bv += prev_vertices[t[2]];
         }
       }
-    }
-    else if(type == BVH_MODEL_POINTCLOUD)       /// The primitive is point
+    } else if (type == BVH_MODEL_POINTCLOUD)  /// The primitive is point
     {
-      for(unsigned int i = 0; i < num_primitives; ++i)
-      {
+      for (unsigned int i = 0; i < num_primitives; ++i) {
         bv += vertices[primitive_indices[i]];
 
-        if(prev_vertices)                       /// can fitting both current and previous frame
+        if (prev_vertices)  /// can fitting both current and previous frame
         {
           bv += prev_vertices[primitive_indices[i]];
         }
@@ -165,65 +159,65 @@ public:
     return bv;
   }
 
-protected:
-  using Base::vertices;
+ protected:
   using Base::prev_vertices;
   using Base::tri_indices;
   using Base::type;
+  using Base::vertices;
 };
 
 /// @brief Specification of BVFitter for OBB bounding volume
-template<>
-class HPP_FCL_DLLAPI BVFitter<OBB> : public BVFitterTpl<OBB>
-{
-public:
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
+template <>
+class HPP_FCL_DLLAPI BVFitter<OBB> : public BVFitterTpl<OBB> {
+ public:
+  /// @brief Compute a bounding volume that fits a set of primitives (points or
+  /// triangles). The primitive data was set by set function and
+  /// primitive_indices is the primitive index relative to the data.
   OBB fit(unsigned int* primitive_indices, unsigned int num_primitives);
 };
 
 /// @brief Specification of BVFitter for RSS bounding volume
-template<>
-class HPP_FCL_DLLAPI BVFitter<RSS> : public BVFitterTpl<RSS>
-{
-public:
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
+template <>
+class HPP_FCL_DLLAPI BVFitter<RSS> : public BVFitterTpl<RSS> {
+ public:
+  /// @brief Compute a bounding volume that fits a set of primitives (points or
+  /// triangles). The primitive data was set by set function and
+  /// primitive_indices is the primitive index relative to the data.
   RSS fit(unsigned int* primitive_indices, unsigned int num_primitives);
 };
 
 /// @brief Specification of BVFitter for kIOS bounding volume
-template<>
-class HPP_FCL_DLLAPI BVFitter<kIOS> : public BVFitterTpl<kIOS>
-{
-public:
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
+template <>
+class HPP_FCL_DLLAPI BVFitter<kIOS> : public BVFitterTpl<kIOS> {
+ public:
+  /// @brief Compute a bounding volume that fits a set of primitives (points or
+  /// triangles). The primitive data was set by set function and
+  /// primitive_indices is the primitive index relative to the data.
   kIOS fit(unsigned int* primitive_indices, unsigned int num_primitives);
 };
 
 /// @brief Specification of BVFitter for OBBRSS bounding volume
-template<>
-class HPP_FCL_DLLAPI BVFitter<OBBRSS> : public BVFitterTpl<OBBRSS>
-{
-public:
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
+template <>
+class HPP_FCL_DLLAPI BVFitter<OBBRSS> : public BVFitterTpl<OBBRSS> {
+ public:
+  /// @brief Compute a bounding volume that fits a set of primitives (points or
+  /// triangles). The primitive data was set by set function and
+  /// primitive_indices is the primitive index relative to the data.
   OBBRSS fit(unsigned int* primitive_indices, unsigned int num_primitives);
 };
 
 /// @brief Specification of BVFitter for AABB bounding volume
-template<>
-class HPP_FCL_DLLAPI BVFitter<AABB> : public BVFitterTpl<AABB>
-{
-public:
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
+template <>
+class HPP_FCL_DLLAPI BVFitter<AABB> : public BVFitterTpl<AABB> {
+ public:
+  /// @brief Compute a bounding volume that fits a set of primitives (points or
+  /// triangles). The primitive data was set by set function and
+  /// primitive_indices is the primitive index relative to the data.
   AABB fit(unsigned int* primitive_indices, unsigned int num_primitives);
 };
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 #endif

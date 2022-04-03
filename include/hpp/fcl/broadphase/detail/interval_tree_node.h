@@ -41,23 +41,18 @@
 #include "hpp/fcl/broadphase/detail/simple_interval.h"
 #include "hpp/fcl/fwd.hh"
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-namespace detail
-{
+namespace detail {
 
 class HPP_FCL_DLLAPI IntervalTree;
 
 /// @brief The node for interval tree
-class HPP_FCL_DLLAPI IntervalTreeNode
-{
-public:
-
+class HPP_FCL_DLLAPI IntervalTreeNode {
+ public:
   friend class IntervalTree;
-  
+
   /// @brief Create an empty node
   IntervalTreeNode();
 
@@ -66,10 +61,11 @@ public:
 
   ~IntervalTreeNode();
 
-  /// @brief Print the interval node information: set left = nil and right = root
+  /// @brief Print the interval node information: set left = nil and right =
+  /// root
   void print(IntervalTreeNode* left, IntervalTreeNode* right) const;
 
-protected:
+ protected:
   /// @brief interval stored in the node
   SimpleInterval* stored_interval;
 
@@ -80,7 +76,7 @@ protected:
   FCL_REAL max_high;
 
   /// @brief red or black node: if red = false then the node is black
-  bool red;  
+  bool red;
 
   IntervalTreeNode* left;
 
@@ -89,8 +85,8 @@ protected:
   IntervalTreeNode* parent;
 };
 
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

@@ -40,18 +40,14 @@
 
 #include "hpp/fcl/data_types.h"
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-namespace detail
-{
+namespace detail {
 
 /// @brief dynamic AABB tree node
-template<typename BV>
-struct NodeBase
-{
+template <typename BV>
+struct NodeBase {
   /// @brief the bounding volume for the node
   BV bv;
 
@@ -64,8 +60,7 @@ struct NodeBase
   /// @brief whether is internal node
   bool isInternal() const;
 
-  union
-  {
+  union {
     /// @brief for leaf node, children nodes
     NodeBase<BV>* children[2];
     void* data;
@@ -77,9 +72,9 @@ struct NodeBase
   NodeBase();
 };
 
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #include "hpp/fcl/broadphase/detail/node_base-inl.h"
 

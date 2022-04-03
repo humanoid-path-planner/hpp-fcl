@@ -45,141 +45,130 @@
 //
 // One solution would be to make narrow phase solvers derive from an abstract
 // class and specialize the template for this abstract class.
-namespace hpp
-{
+namespace hpp {
 namespace fcl {
-  struct GJKSolver;
+struct GJKSolver;
 
-  /// Clamp num / denom in [0, 1]
-  FCL_REAL clamp(const FCL_REAL& num, const FCL_REAL& denom)
-  {
-    assert(denom >= 0.);
-    if      (num <= 0.   ) return 0.;
-    else if (num >= denom) return 1.;
-    else                   return num / denom;
-  }
+/// Clamp num / denom in [0, 1]
+FCL_REAL clamp(const FCL_REAL& num, const FCL_REAL& denom) {
+  assert(denom >= 0.);
+  if (num <= 0.)
+    return 0.;
+  else if (num >= denom)
+    return 1.;
+  else
+    return num / denom;
+}
 
-  /// Clamp s=s_n/s_d in [0, 1] and stores a + s * d in a_sd
-  void clamped_linear(Vec3f& a_sd, const Vec3f& a,
-      const FCL_REAL& s_n, const FCL_REAL& s_d, const Vec3f& d)
-  {
-    assert(s_d >= 0.);
-    if      (s_n <= 0. ) a_sd = a          ;
-    else if (s_n >= s_d) a_sd = a+        d;
-    else                 a_sd = a+s_n/s_d*d;
-  }
+/// Clamp s=s_n/s_d in [0, 1] and stores a + s * d in a_sd
+void clamped_linear(Vec3f& a_sd, const Vec3f& a, const FCL_REAL& s_n,
+                    const FCL_REAL& s_d, const Vec3f& d) {
+  assert(s_d >= 0.);
+  if (s_n <= 0.)
+    a_sd = a;
+  else if (s_n >= s_d)
+    a_sd = a + d;
+  else
+    a_sd = a + s_n / s_d * d;
+}
 
+// Compute the distance between C1 and C2 by computing the distance
+// between the two segments supporting the capsules.
+// Match algorithm of Real-Time Collision Detection, Christer Ericson - Closest
+// Point of Two Line Segments
+template <>
+FCL_REAL ShapeShapeDistance<Capsule, Capsule>(
+    const CollisionGeometry* o1, const Transform3f& tf1,
+    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
+    const DistanceRequest& request, DistanceResult& result) {
+  const Capsule* capsule1 = static_cast<const Capsule*>(o1);
+  const Capsule* capsule2 = static_cast<const Capsule*>(o2);
 
-  // Compute the distance between C1 and C2 by computing the distance
-  // between the two segments supporting the capsules.
-  // Match algorithm of Real-Time Collision Detection, Christer Ericson - Closest Point of Two Line Segments
-  template <>
-  FCL_REAL ShapeShapeDistance <Capsule, Capsule> (const CollisionGeometry* o1, const Transform3f& tf1,
-                                                  const CollisionGeometry* o2, const Transform3f& tf2,
-                                                  const GJKSolver*, const DistanceRequest& request,
-                                                  DistanceResult& result)
-  {
-    const Capsule* capsule1 = static_cast <const Capsule*> (o1);
-    const Capsule* capsule2 = static_cast <const Capsule*> (o2);
+  FCL_REAL EPSILON = std::numeric_limits<FCL_REAL>::epsilon() * 100;
 
-    FCL_REAL EPSILON = std::numeric_limits<FCL_REAL>::epsilon () * 100;
+  // We assume that capsules are centered at the origin.
+  const fcl::Vec3f& c1 = tf1.getTranslation();
+  const fcl::Vec3f& c2 = tf2.getTranslation();
+  // We assume that capsules are oriented along z-axis.
+  FCL_REAL halfLength1 = capsule1->halfLength;
+  FCL_REAL halfLength2 = capsule2->halfLength;
+  FCL_REAL radius1 = capsule1->radius;
+  FCL_REAL radius2 = capsule2->radius;
+  // direction of capsules
+  // ||d1|| = 2 * halfLength1
+  const fcl::Vec3f d1 = 2 * halfLength1 * tf1.getRotation().col(2);
+  const fcl::Vec3f d2 = 2 * halfLength2 * tf2.getRotation().col(2);
 
-    // We assume that capsules are centered at the origin.
-    const fcl::Vec3f& c1 = tf1.getTranslation ();
-    const fcl::Vec3f& c2 = tf2.getTranslation ();
-    // We assume that capsules are oriented along z-axis.
-    FCL_REAL halfLength1 = capsule1->halfLength;
-    FCL_REAL halfLength2 = capsule2->halfLength;
-    FCL_REAL radius1 = capsule1->radius;
-    FCL_REAL radius2 = capsule2->radius;
-    // direction of capsules
-    // ||d1|| = 2 * halfLength1
-    const fcl::Vec3f d1 = 2 * halfLength1 * tf1.getRotation().col(2);
-    const fcl::Vec3f d2 = 2 * halfLength2 * tf2.getRotation().col(2);
+  // Starting point of the segments
+  // p1 + d1 is the end point of the segment
+  const fcl::Vec3f p1 = c1 - d1 / 2;
+  const fcl::Vec3f p2 = c2 - d2 / 2;
+  const fcl::Vec3f r = p1 - p2;
+  FCL_REAL a = d1.dot(d1);
+  FCL_REAL b = d1.dot(d2);
+  FCL_REAL c = d1.dot(r);
+  FCL_REAL e = d2.dot(d2);
+  FCL_REAL f = d2.dot(r);
+  // S1 is parametrized by the equation p1 + s * d1
+  // S2 is parametrized by the equation p2 + t * d2
 
-    // Starting point of the segments
-    // p1 + d1 is the end point of the segment
-    const fcl::Vec3f p1 = c1 - d1 / 2;
-    const fcl::Vec3f p2 = c2 - d2 / 2;
-    const fcl::Vec3f r = p1-p2;
-    FCL_REAL a = d1.dot(d1);
-    FCL_REAL b = d1.dot(d2);
-    FCL_REAL c = d1.dot(r);
-    FCL_REAL e = d2.dot(d2);
-    FCL_REAL f = d2.dot(r);
-    // S1 is parametrized by the equation p1 + s * d1
-    // S2 is parametrized by the equation p2 + t * d2
-
-    Vec3f w1, w2;
-    if (a <= EPSILON) {
-      w1 = p1;
-      if (e <= EPSILON)
-        // Check if the segments degenerate into points
-        w2 = p2;
-      else
-        // First segment is degenerated
-        clamped_linear(w2, p2, f, e, d2);
-    }
-    else if (e <= EPSILON)
-    {
-      // Second segment is degenerated
-      clamped_linear(w1, p1, -c, a, d1);
+  Vec3f w1, w2;
+  if (a <= EPSILON) {
+    w1 = p1;
+    if (e <= EPSILON)
+      // Check if the segments degenerate into points
       w2 = p2;
-    }
     else
-    {
-      // Always non-negative, equal 0 if the segments are colinear
-      FCL_REAL denom = fmax(a*e-b*b, 0);
+      // First segment is degenerated
+      clamped_linear(w2, p2, f, e, d2);
+  } else if (e <= EPSILON) {
+    // Second segment is degenerated
+    clamped_linear(w1, p1, -c, a, d1);
+    w2 = p2;
+  } else {
+    // Always non-negative, equal 0 if the segments are colinear
+    FCL_REAL denom = fmax(a * e - b * b, 0);
 
-      FCL_REAL s;
-      FCL_REAL t;
-      if (denom > EPSILON)
-      {
-        s = clamp((b*f-c*e), denom);
-        t = b*s + f;
-      }
-      else
-      {
-        s = 0.;
-        t = f;
-      }
-
-      if (t <= 0.0)
-      {
-        w2 = p2;
-        clamped_linear (w1, p1, -c, a, d1);
-      }
-      else if (t >= e)
-      {
-        clamped_linear (w1, p1, (b - c), a, d1);
-        w2 = p2 + d2;
-      }
-      else
-      {
-        w1 = p1 + s*d1;
-        w2 = p2 + t/e*d2;
-      }
+    FCL_REAL s;
+    FCL_REAL t;
+    if (denom > EPSILON) {
+      s = clamp((b * f - c * e), denom);
+      t = b * s + f;
+    } else {
+      s = 0.;
+      t = f;
     }
 
-    // witness points achieving the distance between the two segments
-    FCL_REAL distance = (w1 - w2).norm();
-    const Vec3f normal = (w1 - w2) / distance;
-    result.normal = normal;
-
-    // capsule spcecific distance computation
-    distance = distance - (radius1 + radius2);
-    result.min_distance = distance;
-    
-    // witness points for the capsules
-    if (request.enable_nearest_points)
-    {
-      result.nearest_points[0] = w1 - radius1 * normal;
-      result.nearest_points[1] = w2 + radius2 * normal;
+    if (t <= 0.0) {
+      w2 = p2;
+      clamped_linear(w1, p1, -c, a, d1);
+    } else if (t >= e) {
+      clamped_linear(w1, p1, (b - c), a, d1);
+      w2 = p2 + d2;
+    } else {
+      w1 = p1 + s * d1;
+      w2 = p2 + t / e * d2;
     }
-    
-    return distance;
   }
 
-} // namespace fcl
+  // witness points achieving the distance between the two segments
+  FCL_REAL distance = (w1 - w2).norm();
+  const Vec3f normal = (w1 - w2) / distance;
+  result.normal = normal;
 
-} // namespace hpp
+  // capsule spcecific distance computation
+  distance = distance - (radius1 + radius2);
+  result.min_distance = distance;
+
+  // witness points for the capsules
+  if (request.enable_nearest_points) {
+    result.nearest_points[0] = w1 - radius1 * normal;
+    result.nearest_points[1] = w2 + radius2 * normal;
+  }
+
+  return distance;
+}
+
+}  // namespace fcl
+
+}  // namespace hpp

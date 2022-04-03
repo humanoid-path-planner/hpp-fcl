@@ -40,12 +40,9 @@
 
 #include "hpp/fcl/broadphase/detail/node_base.h"
 
-namespace hpp
-{
-namespace fcl
-{
-namespace detail
-{
+namespace hpp {
+namespace fcl {
+namespace detail {
 
 //============================================================================//
 //                                                                            //
@@ -55,29 +52,26 @@ namespace detail
 
 //==============================================================================
 template <typename BV>
-bool NodeBase<BV>::isLeaf() const
-{
+bool NodeBase<BV>::isLeaf() const {
   return (children[1] == nullptr);
 }
 
 //==============================================================================
 template <typename BV>
-bool NodeBase<BV>::isInternal() const
-{
+bool NodeBase<BV>::isInternal() const {
   return !isLeaf();
 }
 
 //==============================================================================
 template <typename BV>
-NodeBase<BV>::NodeBase()
-{
+NodeBase<BV>::NodeBase() {
   parent = nullptr;
   children[0] = nullptr;
   children[1] = nullptr;
 }
 
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

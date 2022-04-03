@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -41,19 +41,15 @@
 #include <list>
 #include "hpp/fcl/broadphase/broadphase_collision_manager.h"
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @brief Brute force N-body collision manager
-class HPP_FCL_DLLAPI NaiveCollisionManager
-: public BroadPhaseCollisionManager
-{
-public:
+class HPP_FCL_DLLAPI NaiveCollisionManager : public BroadPhaseCollisionManager {
+ public:
   typedef BroadPhaseCollisionManager Base;
   using Base::getObjects;
-  
+
   NaiveCollisionManager();
 
   /// @brief add objects to the manager
@@ -77,38 +73,43 @@ public:
   /// @brief return the objects managed by the manager
   void getObjects(std::vector<CollisionObject*>& objs) const;
 
-  /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject* obj, CollisionCallBackBase * callback) const;
+  /// @brief perform collision test between one object and all the objects
+  /// belonging to the manager
+  void collide(CollisionObject* obj, CollisionCallBackBase* callback) const;
 
-  /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObject* obj, DistanceCallBackBase * callback) const;
+  /// @brief perform distance computation between one object and all the objects
+  /// belonging to the manager
+  void distance(CollisionObject* obj, DistanceCallBackBase* callback) const;
 
-  /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  void collide(CollisionCallBackBase * callback) const;
+  /// @brief perform collision test for the objects belonging to the manager
+  /// (i.e., N^2 self collision)
+  void collide(CollisionCallBackBase* callback) const;
 
-  /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(DistanceCallBackBase * callback) const;
+  /// @brief perform distance test for the objects belonging to the manager
+  /// (i.e., N^2 self distance)
+  void distance(DistanceCallBackBase* callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager* other_manager, CollisionCallBackBase * callback) const;
+  void collide(BroadPhaseCollisionManager* other_manager,
+               CollisionCallBackBase* callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager* other_manager, DistanceCallBackBase * callback) const;
+  void distance(BroadPhaseCollisionManager* other_manager,
+                DistanceCallBackBase* callback) const;
 
   /// @brief whether the manager is empty
   bool empty() const;
-  
+
   /// @brief the number of objects managed by the manager
   size_t size() const;
 
-protected:
-
+ protected:
   /// @brief objects belonging to the manager are stored in a list structure
   std::list<CollisionObject*> objs;
 };
 
-} // namespace fcl
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 #endif

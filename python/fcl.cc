@@ -56,43 +56,38 @@ namespace dv = doxygen::visitor;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(load_overloads,MeshLoader::load,1,2)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(load_overloads, MeshLoader::load, 1, 2)
 #pragma GCC diagnostic pop
 
-void exposeMeshLoader ()
-{
+void exposeMeshLoader() {
   using namespace boost::python;
-  
-  if(!eigenpy::register_symbolic_link_to_registered_type<MeshLoader>())
-  {
-    class_ <MeshLoader, shared_ptr<MeshLoader> > ("MeshLoader",
-        doxygen::class_doc<MeshLoader>(),
-        init< optional< NODE_TYPE> >((arg("self"),arg("node_type")),
-          doxygen::constructor_doc<MeshLoader, const NODE_TYPE&>()))
-      .def ("load",&MeshLoader::load,
-            load_overloads((arg("self"),arg("filename"),arg("scale")),
-                           doxygen::member_func_doc(&MeshLoader::load)))
-      .def (dv::member_func("loadOctree",&MeshLoader::loadOctree))
-      ;
+
+  if (!eigenpy::register_symbolic_link_to_registered_type<MeshLoader>()) {
+    class_<MeshLoader, shared_ptr<MeshLoader> >(
+        "MeshLoader", doxygen::class_doc<MeshLoader>(),
+        init<optional<NODE_TYPE> >(
+            (arg("self"), arg("node_type")),
+            doxygen::constructor_doc<MeshLoader, const NODE_TYPE&>()))
+        .def("load", &MeshLoader::load,
+             load_overloads((arg("self"), arg("filename"), arg("scale")),
+                            doxygen::member_func_doc(&MeshLoader::load)))
+        .def(dv::member_func("loadOctree", &MeshLoader::loadOctree));
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type<CachedMeshLoader>())
-  {
-    class_ <CachedMeshLoader, bases<MeshLoader>, shared_ptr<CachedMeshLoader> > (
-        "CachedMeshLoader",
-        doxygen::class_doc<MeshLoader>(),
-        init< optional< NODE_TYPE> >((arg("self"),arg("node_type")),
-          doxygen::constructor_doc<CachedMeshLoader, const NODE_TYPE&>()))
-    ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<CachedMeshLoader>()) {
+    class_<CachedMeshLoader, bases<MeshLoader>, shared_ptr<CachedMeshLoader> >(
+        "CachedMeshLoader", doxygen::class_doc<MeshLoader>(),
+        init<optional<NODE_TYPE> >(
+            (arg("self"), arg("node_type")),
+            doxygen::constructor_doc<CachedMeshLoader, const NODE_TYPE&>()));
   }
 }
 
-BOOST_PYTHON_MODULE(hppfcl)
-{
+BOOST_PYTHON_MODULE(hppfcl) {
   namespace bp = boost::python;
-  
+
   PyImport_ImportModule("warnings");
-  
+
   exposeVersion();
   exposeMaths();
   exposeCollisionGeometries();

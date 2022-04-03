@@ -45,60 +45,56 @@
 
 #include <map>
 
-namespace hpp
-{
+namespace hpp {
 namespace fcl {
-  /// Base class for building polyhedron from files.
-  /// This class builds a new object for each file.
-  class HPP_FCL_DLLAPI MeshLoader
-  {
-    public:
-      virtual ~MeshLoader() {}
+/// Base class for building polyhedron from files.
+/// This class builds a new object for each file.
+class HPP_FCL_DLLAPI MeshLoader {
+ public:
+  virtual ~MeshLoader() {}
 
-      virtual BVHModelPtr_t load (const std::string& filename,
-                                  const Vec3f& scale = Vec3f::Ones());
+  virtual BVHModelPtr_t load(const std::string& filename,
+                             const Vec3f& scale = Vec3f::Ones());
 
-      /// Create an OcTree from a file in binary octomap format.
-      /// \todo add OctreePtr_t
-      virtual CollisionGeometryPtr_t loadOctree (const std::string& filename);
+  /// Create an OcTree from a file in binary octomap format.
+  /// \todo add OctreePtr_t
+  virtual CollisionGeometryPtr_t loadOctree(const std::string& filename);
 
-      MeshLoader (const NODE_TYPE& bvType = BV_OBBRSS) : bvType_ (bvType) {}
+  MeshLoader(const NODE_TYPE& bvType = BV_OBBRSS) : bvType_(bvType) {}
 
-    private:
-      const NODE_TYPE bvType_;
+ private:
+  const NODE_TYPE bvType_;
+};
+
+/// Class for building polyhedron from files with cache mechanism.
+/// This class builds a new object for each different file.
+/// If method CachedMeshLoader::load is called twice with the same arguments,
+/// the second call returns the result of the first call.
+class HPP_FCL_DLLAPI CachedMeshLoader : public MeshLoader {
+ public:
+  virtual ~CachedMeshLoader() {}
+
+  CachedMeshLoader(const NODE_TYPE& bvType = BV_OBBRSS) : MeshLoader(bvType) {}
+
+  virtual BVHModelPtr_t load(const std::string& filename, const Vec3f& scale);
+
+  struct HPP_FCL_DLLAPI Key {
+    std::string filename;
+    Vec3f scale;
+
+    Key(const std::string& f, const Vec3f& s) : filename(f), scale(s) {}
+
+    bool operator<(const CachedMeshLoader::Key& b) const;
   };
+  typedef std::map<Key, BVHModelPtr_t> Cache_t;
 
-  /// Class for building polyhedron from files with cache mechanism.
-  /// This class builds a new object for each different file.
-  /// If method CachedMeshLoader::load is called twice with the same arguments,
-  /// the second call returns the result of the first call.
-  class HPP_FCL_DLLAPI CachedMeshLoader : public MeshLoader
-  {
-    public:
-      virtual ~CachedMeshLoader() {}
+  const Cache_t& cache() const { return cache_; }
 
-      CachedMeshLoader (const NODE_TYPE& bvType = BV_OBBRSS) : MeshLoader (bvType) {}
+ private:
+  Cache_t cache_;
+};
+}  // namespace fcl
 
-      virtual BVHModelPtr_t load (const std::string& filename,
-          const Vec3f& scale);
+}  // namespace hpp
 
-      struct HPP_FCL_DLLAPI Key {
-        std::string filename;
-        Vec3f scale;
-
-        Key (const std::string& f, const Vec3f& s)
-          : filename (f), scale (s) {}
-
-        bool operator< (const CachedMeshLoader::Key& b) const;
-      };
-      typedef std::map <Key, BVHModelPtr_t> Cache_t;
-
-      const Cache_t & cache () const { return cache_; }
-    private:
-      Cache_t cache_;
-  };
-}
-
-} // namespace hpp
-
-#endif // FCL_MESH_LOADER_LOADER_H
+#endif  // FCL_MESH_LOADER_LOADER_H

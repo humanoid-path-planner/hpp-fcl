@@ -40,35 +40,32 @@
 namespace hpp {
 namespace fcl {
 
-bool defaultCollisionFunction(CollisionObject* o1,
-                              CollisionObject* o2,
-                              void* data)
-{
+bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2,
+                              void* data) {
   assert(data != nullptr);
   auto* collision_data = static_cast<CollisionData*>(data);
   const CollisionRequest& request = collision_data->request;
   CollisionResult& result = collision_data->result;
 
-  if(collision_data->done) return true;
+  if (collision_data->done) return true;
 
   collide(o1, o2, request, result);
 
-  if (result.isCollision() && result.numContacts() >= request.num_max_contacts)
-  {
+  if (result.isCollision() &&
+      result.numContacts() >= request.num_max_contacts) {
     collision_data->done = true;
   }
 
   return collision_data->done;
 }
 
-bool CollisionCallBackDefault::collide(CollisionObject* o1, CollisionObject* o2)
-{
-  return defaultCollisionFunction(o1,o2,&data);
+bool CollisionCallBackDefault::collide(CollisionObject* o1,
+                                       CollisionObject* o2) {
+  return defaultCollisionFunction(o1, o2, &data);
 }
 
-bool defaultDistanceFunction(CollisionObject* o1,
-                             CollisionObject* o2,
-                             void* data, FCL_REAL & dist) {
+bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2,
+                             void* data, FCL_REAL& dist) {
   assert(data != nullptr);
   auto* cdata = static_cast<DistanceData*>(data);
   const DistanceRequest& request = cdata->request;
@@ -88,43 +85,37 @@ bool defaultDistanceFunction(CollisionObject* o1,
   return cdata->done;
 }
 
-bool DistanceCallBackDefault::distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL & dist)
-{
-  return defaultDistanceFunction(o1,o2,&data,dist);
+bool DistanceCallBackDefault::distance(CollisionObject* o1, CollisionObject* o2,
+                                       FCL_REAL& dist) {
+  return defaultDistanceFunction(o1, o2, &data, dist);
 }
 
 CollisionCallBackCollect::CollisionCallBackCollect(const size_t max_size)
-: max_size(max_size)
-{
+    : max_size(max_size) {
   collision_pairs.resize(max_size);
 }
 
-bool CollisionCallBackCollect::collide(CollisionObject* o1, CollisionObject* o2)
-{
-  collision_pairs.push_back(std::make_pair(o1,o2));
+bool CollisionCallBackCollect::collide(CollisionObject* o1,
+                                       CollisionObject* o2) {
+  collision_pairs.push_back(std::make_pair(o1, o2));
   return false;
 }
 
-size_t CollisionCallBackCollect::numCollisionPairs() const
-{
+size_t CollisionCallBackCollect::numCollisionPairs() const {
   return collision_pairs.size();
 }
 
-const std::vector<CollisionCallBackCollect::CollisionPair> &
-CollisionCallBackCollect::getCollisionPairs() const
-{
+const std::vector<CollisionCallBackCollect::CollisionPair>&
+CollisionCallBackCollect::getCollisionPairs() const {
   return collision_pairs;
 }
 
-void CollisionCallBackCollect::init()
-{
-  collision_pairs.clear();
+void CollisionCallBackCollect::init() { collision_pairs.clear(); }
+
+bool CollisionCallBackCollect::exist(const CollisionPair& pair) const {
+  return std::find(collision_pairs.begin(), collision_pairs.end(), pair) !=
+         collision_pairs.end();
 }
 
-bool CollisionCallBackCollect::exist(const CollisionPair & pair) const
-{
-  return std::find(collision_pairs.begin(), collision_pairs.end(), pair) != collision_pairs.end();
-}
-
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp

@@ -52,142 +52,150 @@ using namespace hpp::fcl;
 
 namespace dv = doxygen::visitor;
 
-template<int index> const CollisionGeometry* geto(const Contact& c)
-{ return index == 1 ? c.o1 : c.o2; }
+template <int index>
+const CollisionGeometry* geto(const Contact& c) {
+  return index == 1 ? c.o1 : c.o2;
+}
 
-void exposeCollisionAPI ()
-{
-  if(!eigenpy::register_symbolic_link_to_registered_type<CollisionRequestFlag>())
-  {
-    enum_ <CollisionRequestFlag> ("CollisionRequestFlag")
-      .value ("CONTACT", CONTACT)
-      .value ("DISTANCE_LOWER_BOUND", DISTANCE_LOWER_BOUND)
-      .value ("NO_REQUEST", NO_REQUEST)
-      .export_values()
-      ;
-  }
-  
-  if(!eigenpy::register_symbolic_link_to_registered_type<CPUTimes>())
-  {
-    class_<CPUTimes>("CPUTimes",no_init)
-    .def_readonly("wall",&CPUTimes::wall,"wall time in micro seconds (us)")
-    .def_readonly("user",&CPUTimes::user,"user time in micro seconds (us)")
-    .def_readonly("system",&CPUTimes::system,"system time in micro seconds (us)")
-    .def("clear",&CPUTimes::clear,arg("self"),"Reset the time values.")
-    ;
+void exposeCollisionAPI() {
+  if (!eigenpy::register_symbolic_link_to_registered_type<
+          CollisionRequestFlag>()) {
+    enum_<CollisionRequestFlag>("CollisionRequestFlag")
+        .value("CONTACT", CONTACT)
+        .value("DISTANCE_LOWER_BOUND", DISTANCE_LOWER_BOUND)
+        .value("NO_REQUEST", NO_REQUEST)
+        .export_values();
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type<QueryRequest>())
-  {
-    class_ <QueryRequest> ("QueryRequest",
-        doxygen::class_doc<QueryRequest>(), no_init)
-      .DEF_RW_CLASS_ATTRIB (QueryRequest, enable_cached_gjk_guess    )
-      .DEF_RW_CLASS_ATTRIB (QueryRequest, cached_gjk_guess           )
-      .DEF_RW_CLASS_ATTRIB (QueryRequest, cached_support_func_guess  )
-      .DEF_RW_CLASS_ATTRIB (QueryRequest, enable_timings  )
-      .DEF_CLASS_FUNC (QueryRequest, updateGuess)
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<CPUTimes>()) {
+    class_<CPUTimes>("CPUTimes", no_init)
+        .def_readonly("wall", &CPUTimes::wall,
+                      "wall time in micro seconds (us)")
+        .def_readonly("user", &CPUTimes::user,
+                      "user time in micro seconds (us)")
+        .def_readonly("system", &CPUTimes::system,
+                      "system time in micro seconds (us)")
+        .def("clear", &CPUTimes::clear, arg("self"), "Reset the time values.");
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type<CollisionRequest>())
-  {
-    class_ <CollisionRequest, bases<QueryRequest> > ("CollisionRequest",
-        doxygen::class_doc<CollisionRequest>(), no_init)
-      .def (dv::init<CollisionRequest>())
-      .def (dv::init<CollisionRequest, const CollisionRequestFlag, size_t>())
-      .DEF_RW_CLASS_ATTRIB (CollisionRequest, num_max_contacts           )
-      .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_contact             )
-      .DEF_RW_CLASS_ATTRIB (CollisionRequest, enable_distance_lower_bound)
-      .DEF_RW_CLASS_ATTRIB (CollisionRequest, security_margin            )
-      .DEF_RW_CLASS_ATTRIB (CollisionRequest, break_distance             )
-      .DEF_RW_CLASS_ATTRIB (CollisionRequest, distance_upper_bound       )
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<QueryRequest>()) {
+    class_<QueryRequest>("QueryRequest", doxygen::class_doc<QueryRequest>(),
+                         no_init)
+        .DEF_RW_CLASS_ATTRIB(QueryRequest, enable_cached_gjk_guess)
+        .DEF_RW_CLASS_ATTRIB(QueryRequest, cached_gjk_guess)
+        .DEF_RW_CLASS_ATTRIB(QueryRequest, cached_support_func_guess)
+        .DEF_RW_CLASS_ATTRIB(QueryRequest, enable_timings)
+        .DEF_CLASS_FUNC(QueryRequest, updateGuess);
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<CollisionRequest> >())
-  {
-    class_< std::vector<CollisionRequest> >("StdVec_CollisionRequest")
-      .def(vector_indexing_suite< std::vector<CollisionRequest> >())
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<CollisionRequest>()) {
+    class_<CollisionRequest, bases<QueryRequest> >(
+        "CollisionRequest", doxygen::class_doc<CollisionRequest>(), no_init)
+        .def(dv::init<CollisionRequest>())
+        .def(dv::init<CollisionRequest, const CollisionRequestFlag, size_t>())
+        .DEF_RW_CLASS_ATTRIB(CollisionRequest, num_max_contacts)
+        .DEF_RW_CLASS_ATTRIB(CollisionRequest, enable_contact)
+        .DEF_RW_CLASS_ATTRIB(CollisionRequest, enable_distance_lower_bound)
+        .DEF_RW_CLASS_ATTRIB(CollisionRequest, security_margin)
+        .DEF_RW_CLASS_ATTRIB(CollisionRequest, break_distance)
+        .DEF_RW_CLASS_ATTRIB(CollisionRequest, distance_upper_bound);
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type<Contact>())
-  {
-    class_ <Contact> ("Contact",
-        doxygen::class_doc<Contact>(), init<>(arg("self"),"Default constructor"))
-      .def(dv::init<Contact, const CollisionGeometry*, const CollisionGeometry*, int, int>())
-      .def(dv::init<Contact, const CollisionGeometry*, const CollisionGeometry*, int, int, const Vec3f&, const Vec3f&, FCL_REAL>())
-      .add_property ("o1",
-          make_function(&geto<1>, return_value_policy<reference_existing_object>()),
-          doxygen::class_attrib_doc<Contact>("o1"))
-      .add_property ("o2",
-          make_function(&geto<2>, return_value_policy<reference_existing_object>()),
-          doxygen::class_attrib_doc<Contact>("o2"))
-      .DEF_RW_CLASS_ATTRIB (Contact, b1)
-      .DEF_RW_CLASS_ATTRIB (Contact, b2)
-      .DEF_RW_CLASS_ATTRIB (Contact, normal)
-      .DEF_RW_CLASS_ATTRIB (Contact, pos)
-      .DEF_RW_CLASS_ATTRIB (Contact, penetration_depth)
-      .def (self == self)
-      .def (self != self)
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<
+          std::vector<CollisionRequest> >()) {
+    class_<std::vector<CollisionRequest> >("StdVec_CollisionRequest")
+        .def(vector_indexing_suite<std::vector<CollisionRequest> >());
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<Contact> >())
-  {
-    class_< std::vector<Contact> >("StdVec_Contact")
-      .def(vector_indexing_suite< std::vector<Contact> >())
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<Contact>()) {
+    class_<Contact>("Contact", doxygen::class_doc<Contact>(),
+                    init<>(arg("self"), "Default constructor"))
+        .def(dv::init<Contact, const CollisionGeometry*,
+                      const CollisionGeometry*, int, int>())
+        .def(dv::init<Contact, const CollisionGeometry*,
+                      const CollisionGeometry*, int, int, const Vec3f&,
+                      const Vec3f&, FCL_REAL>())
+        .add_property(
+            "o1",
+            make_function(&geto<1>,
+                          return_value_policy<reference_existing_object>()),
+            doxygen::class_attrib_doc<Contact>("o1"))
+        .add_property(
+            "o2",
+            make_function(&geto<2>,
+                          return_value_policy<reference_existing_object>()),
+            doxygen::class_attrib_doc<Contact>("o2"))
+        .DEF_RW_CLASS_ATTRIB(Contact, b1)
+        .DEF_RW_CLASS_ATTRIB(Contact, b2)
+        .DEF_RW_CLASS_ATTRIB(Contact, normal)
+        .DEF_RW_CLASS_ATTRIB(Contact, pos)
+        .DEF_RW_CLASS_ATTRIB(Contact, penetration_depth)
+        .def(self == self)
+        .def(self != self);
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type<QueryResult>())
-  {
-    class_ <QueryResult> ("QueryResult",
-        doxygen::class_doc<QueryResult>(), no_init)
-      .DEF_RW_CLASS_ATTRIB (QueryResult, cached_gjk_guess         )
-      .DEF_RW_CLASS_ATTRIB (QueryResult, cached_support_func_guess)
-      .DEF_RW_CLASS_ATTRIB (QueryResult, timings)
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<
+          std::vector<Contact> >()) {
+    class_<std::vector<Contact> >("StdVec_Contact")
+        .def(vector_indexing_suite<std::vector<Contact> >());
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type< CollisionResult >())
-  {
-    class_ <CollisionResult, bases<QueryResult> > ("CollisionResult",
-        doxygen::class_doc<CollisionResult>(), no_init)
-      .def (dv::init<CollisionResult>())
-      .DEF_CLASS_FUNC (CollisionResult, isCollision)
-      .DEF_CLASS_FUNC (CollisionResult, numContacts)
-      .DEF_CLASS_FUNC (CollisionResult, addContact)
-      .DEF_CLASS_FUNC (CollisionResult, clear)
-      .DEF_CLASS_FUNC2 (CollisionResult, getContact , return_value_policy<copy_const_reference>())
-      .def(dv::member_func("getContacts",static_cast<void (CollisionResult::*)(std::vector<Contact> &) const>(&CollisionResult::getContacts)))
-      .def("getContacts",static_cast<const std::vector<Contact> & (CollisionResult::*)() const>(&CollisionResult::getContacts),
-           doxygen::member_func_doc(static_cast<const std::vector<Contact> & (CollisionResult::*)() const>(&CollisionResult::getContacts)),
-           return_internal_reference<>())
-
-      .DEF_RW_CLASS_ATTRIB(CollisionResult, distance_lower_bound)
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<QueryResult>()) {
+    class_<QueryResult>("QueryResult", doxygen::class_doc<QueryResult>(),
+                        no_init)
+        .DEF_RW_CLASS_ATTRIB(QueryResult, cached_gjk_guess)
+        .DEF_RW_CLASS_ATTRIB(QueryResult, cached_support_func_guess)
+        .DEF_RW_CLASS_ATTRIB(QueryResult, timings);
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<CollisionResult> >())
-  {
-    class_< std::vector<CollisionResult> >("StdVec_CollisionResult")
-      .def(vector_indexing_suite< std::vector<CollisionResult> >())
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<CollisionResult>()) {
+    class_<CollisionResult, bases<QueryResult> >(
+        "CollisionResult", doxygen::class_doc<CollisionResult>(), no_init)
+        .def(dv::init<CollisionResult>())
+        .DEF_CLASS_FUNC(CollisionResult, isCollision)
+        .DEF_CLASS_FUNC(CollisionResult, numContacts)
+        .DEF_CLASS_FUNC(CollisionResult, addContact)
+        .DEF_CLASS_FUNC(CollisionResult, clear)
+        .DEF_CLASS_FUNC2(CollisionResult, getContact,
+                         return_value_policy<copy_const_reference>())
+        .def(dv::member_func(
+            "getContacts",
+            static_cast<void (CollisionResult::*)(std::vector<Contact>&) const>(
+                &CollisionResult::getContacts)))
+        .def("getContacts",
+             static_cast<const std::vector<Contact>& (CollisionResult::*)()
+                             const>(&CollisionResult::getContacts),
+             doxygen::member_func_doc(
+                 static_cast<const std::vector<Contact>& (CollisionResult::*)()
+                                 const>(&CollisionResult::getContacts)),
+             return_internal_reference<>())
+
+        .DEF_RW_CLASS_ATTRIB(CollisionResult, distance_lower_bound);
   }
 
-  doxygen::def ("collide", static_cast< std::size_t (*)(const CollisionObject*, const CollisionObject*,
-        const CollisionRequest&, CollisionResult&) > (&collide));
-  doxygen::def ("collide", static_cast< std::size_t (*)(
-        const CollisionGeometry*, const Transform3f&,
-        const CollisionGeometry*, const Transform3f&,
-        CollisionRequest&, CollisionResult&) > (&collide));
+  if (!eigenpy::register_symbolic_link_to_registered_type<
+          std::vector<CollisionResult> >()) {
+    class_<std::vector<CollisionResult> >("StdVec_CollisionResult")
+        .def(vector_indexing_suite<std::vector<CollisionResult> >());
+  }
 
-  class_<ComputeCollision> ("ComputeCollision",
-      doxygen::class_doc<ComputeCollision>(), no_init)
-    .def (dv::init<ComputeCollision, const CollisionGeometry*, const CollisionGeometry*>())
-    .def ("__call__", static_cast< std::size_t (ComputeCollision::*)(
-        const Transform3f&, const Transform3f&,
-        CollisionRequest&, CollisionResult&) const> (&ComputeCollision::operator()));
+  doxygen::def("collide",
+               static_cast<std::size_t (*)(
+                   const CollisionObject*, const CollisionObject*,
+                   const CollisionRequest&, CollisionResult&)>(&collide));
+  doxygen::def(
+      "collide",
+      static_cast<std::size_t (*)(const CollisionGeometry*, const Transform3f&,
+                                  const CollisionGeometry*, const Transform3f&,
+                                  CollisionRequest&, CollisionResult&)>(
+          &collide));
 
+  class_<ComputeCollision>("ComputeCollision",
+                           doxygen::class_doc<ComputeCollision>(), no_init)
+      .def(dv::init<ComputeCollision, const CollisionGeometry*,
+                    const CollisionGeometry*>())
+      .def("__call__",
+           static_cast<std::size_t (ComputeCollision::*)(
+               const Transform3f&, const Transform3f&, CollisionRequest&,
+               CollisionResult&) const>(&ComputeCollision::operator()));
 }

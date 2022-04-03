@@ -8,7 +8,7 @@
 #include <hpp/fcl/fwd.hh>
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 namespace doxygen {
-  using hpp::fcl::shared_ptr;
+using hpp::fcl::shared_ptr;
 }
 #endif
 
@@ -26,15 +26,15 @@ namespace doxygen {
 namespace bp = boost::python;
 namespace dv = doxygen::visitor;
 
-#define DEF_RW_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
-  def_readwrite (#ATTRIB, &CLASS::ATTRIB,                                      \
-      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
-#define DEF_RO_CLASS_ATTRIB(CLASS, ATTRIB)                                     \
-  def_readonly (#ATTRIB, &CLASS::ATTRIB,                                       \
-      doxygen::class_attrib_doc<CLASS>(#ATTRIB))
-#define DEF_CLASS_FUNC(CLASS, ATTRIB)                                          \
-  def (dv::member_func(#ATTRIB, &CLASS::ATTRIB))
-#define DEF_CLASS_FUNC2(CLASS, ATTRIB,policy)                                  \
-  def (#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB),policy)
+#define DEF_RW_CLASS_ATTRIB(CLASS, ATTRIB) \
+  def_readwrite(#ATTRIB, &CLASS::ATTRIB,   \
+                doxygen::class_attrib_doc<CLASS>(#ATTRIB))
+#define DEF_RO_CLASS_ATTRIB(CLASS, ATTRIB) \
+  def_readonly(#ATTRIB, &CLASS::ATTRIB,    \
+               doxygen::class_attrib_doc<CLASS>(#ATTRIB))
+#define DEF_CLASS_FUNC(CLASS, ATTRIB) \
+  def(dv::member_func(#ATTRIB, &CLASS::ATTRIB))
+#define DEF_CLASS_FUNC2(CLASS, ATTRIB, policy) \
+  def(#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB), policy)
 
-#endif // ifndef HPP_FCL_PYTHON_FWD_HH
+#endif  // ifndef HPP_FCL_PYTHON_FWD_HH

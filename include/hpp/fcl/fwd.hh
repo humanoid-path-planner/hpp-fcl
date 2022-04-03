@@ -43,51 +43,50 @@
 #include <hpp/fcl/config.hh>
 
 #if _WIN32
-  #define HPP_FCL_PRETTY_FUNCTION __FUNCSIG__
+#define HPP_FCL_PRETTY_FUNCTION __FUNCSIG__
 #else
-  #define HPP_FCL_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#define HPP_FCL_PRETTY_FUNCTION __PRETTY_FUNCTION__
 #endif
 
 #define HPP_FCL_UNUSED_VARIABLE(var) (void)(var)
 
-#define HPP_FCL_THROW_PRETTY(message,exception) \
-{ \
-std::stringstream ss; \
-ss << "From file: " << __FILE__ << "\n"; \
-ss << "in function: " << HPP_FCL_PRETTY_FUNCTION << "\n"; \
-ss << "at line: " << __LINE__ << "\n"; \
-ss << "message: " << message << "\n"; \
-throw exception(ss.str()); \
-}
+#define HPP_FCL_THROW_PRETTY(message, exception)              \
+  {                                                           \
+    std::stringstream ss;                                     \
+    ss << "From file: " << __FILE__ << "\n";                  \
+    ss << "in function: " << HPP_FCL_PRETTY_FUNCTION << "\n"; \
+    ss << "at line: " << __LINE__ << "\n";                    \
+    ss << "message: " << message << "\n";                     \
+    throw exception(ss.str());                                \
+  }
 
 #if (__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
-  #define HPP_FCL_WITH_CXX11_SUPPORT
+#define HPP_FCL_WITH_CXX11_SUPPORT
 #endif
 
 namespace hpp {
 namespace fcl {
-  using std::shared_ptr;
-  using std::dynamic_pointer_cast;
-  using std::make_shared;
+using std::dynamic_pointer_cast;
+using std::make_shared;
+using std::shared_ptr;
 
-  class CollisionObject;
-  typedef shared_ptr <CollisionObject> CollisionObjectPtr_t;
-  typedef shared_ptr < const CollisionObject> CollisionObjectConstPtr_t;
-  class CollisionGeometry;
-  typedef shared_ptr <CollisionGeometry> CollisionGeometryPtr_t;
-  typedef shared_ptr <const CollisionGeometry>
-  CollisionGeometryConstPtr_t;
-  class Transform3f;
+class CollisionObject;
+typedef shared_ptr<CollisionObject> CollisionObjectPtr_t;
+typedef shared_ptr<const CollisionObject> CollisionObjectConstPtr_t;
+class CollisionGeometry;
+typedef shared_ptr<CollisionGeometry> CollisionGeometryPtr_t;
+typedef shared_ptr<const CollisionGeometry> CollisionGeometryConstPtr_t;
+class Transform3f;
 
-  class AABB;
+class AABB;
 
-  class BVHModelBase;
-  typedef shared_ptr<BVHModelBase> BVHModelPtr_t;
+class BVHModelBase;
+typedef shared_ptr<BVHModelBase> BVHModelPtr_t;
 
-  class OcTree;
-  typedef shared_ptr<OcTree> OcTreePtr_t;
-  typedef shared_ptr<const OcTree> OcTreeConstPtr_t;
-}
-} // namespace hpp
+class OcTree;
+typedef shared_ptr<OcTree> OcTreePtr_t;
+typedef shared_ptr<const OcTree> OcTreeConstPtr_t;
+}  // namespace fcl
+}  // namespace hpp
 
-#endif // HPP_FCL_FWD_HH
+#endif  // HPP_FCL_FWD_HH

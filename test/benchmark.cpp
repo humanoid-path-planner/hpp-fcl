@@ -24,7 +24,7 @@
 #include "utility.h"
 #include "fcl_resources/config.h"
 
-#define RUN_CASE(BV,tf,models,split) \
+#define RUN_CASE(BV, tf, models, split) \
   run<BV>(tf, models, split, #BV " - " #split ":\t")
 
 using namespace hpp::fcl;
@@ -32,52 +32,55 @@ using namespace hpp::fcl;
 bool verbose = false;
 FCL_REAL DELTA = 0.001;
 
-template<typename BV>
-void makeModel (const std::vector<Vec3f>& vertices, const std::vector<Triangle>& triangles,
-    SplitMethodType split_method, BVHModel<BV>& model);
+template <typename BV>
+void makeModel(const std::vector<Vec3f>& vertices,
+               const std::vector<Triangle>& triangles,
+               SplitMethodType split_method, BVHModel<BV>& model);
 
-template<typename BV, typename TraversalNode>
-double distance (const std::vector<Transform3f>& tf,
-               const BVHModel<BV>& m1, const BVHModel<BV>& m2,
-               bool verbose);
+template <typename BV, typename TraversalNode>
+double distance(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+                const BVHModel<BV>& m2, bool verbose);
 
-template<typename BV, typename TraversalNode>
-double collide (const std::vector<Transform3f>& tf,
-               const BVHModel<BV>& m1, const BVHModel<BV>& m2,
-               bool verbose);
+template <typename BV, typename TraversalNode>
+double collide(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+               const BVHModel<BV>& m2, bool verbose);
 
-template<typename BV>
-double run (const std::vector<Transform3f>& tf,
-    const BVHModel<BV> (&models)[2][3], int split_method,
-          const char* sm_name);
+template <typename BV>
+double run(const std::vector<Transform3f>& tf,
+           const BVHModel<BV> (&models)[2][3], int split_method,
+           const char* sm_name);
 
-template <typename BV> struct traits {
-};
+template <typename BV>
+struct traits {};
 
-template <> struct traits <RSS> {
+template <>
+struct traits<RSS> {
   typedef MeshCollisionTraversalNodeRSS CollisionTraversalNode;
-  typedef MeshDistanceTraversalNodeRSS  DistanceTraversalNode;
+  typedef MeshDistanceTraversalNodeRSS DistanceTraversalNode;
 };
 
-template <> struct traits <kIOS> {
+template <>
+struct traits<kIOS> {
   typedef MeshCollisionTraversalNodekIOS CollisionTraversalNode;
-  typedef MeshDistanceTraversalNodekIOS  DistanceTraversalNode;
+  typedef MeshDistanceTraversalNodekIOS DistanceTraversalNode;
 };
 
-template <> struct traits <OBB> {
+template <>
+struct traits<OBB> {
   typedef MeshCollisionTraversalNodeOBB CollisionTraversalNode;
   // typedef MeshDistanceTraversalNodeOBB  DistanceTraversalNode;
 };
 
-template <> struct traits <OBBRSS> {
+template <>
+struct traits<OBBRSS> {
   typedef MeshCollisionTraversalNodeOBBRSS CollisionTraversalNode;
-  typedef MeshDistanceTraversalNodeOBBRSS  DistanceTraversalNode;
+  typedef MeshDistanceTraversalNodeOBBRSS DistanceTraversalNode;
 };
 
-template<typename BV>
-void makeModel (const std::vector<Vec3f>& vertices, const std::vector<Triangle>& triangles,
-    SplitMethodType split_method, BVHModel<BV>& model)
-{
+template <typename BV>
+void makeModel(const std::vector<Vec3f>& vertices,
+               const std::vector<Triangle>& triangles,
+               SplitMethodType split_method, BVHModel<BV>& model) {
   model.bv_splitter.reset(new BVSplitter<BV>(split_method));
   model.bv_splitter.reset(new BVSplitter<BV>(split_method));
 
@@ -86,11 +89,9 @@ void makeModel (const std::vector<Vec3f>& vertices, const std::vector<Triangle>&
   model.endModel();
 }
 
-template<typename BV, typename TraversalNode>
-double distance (const std::vector<Transform3f>& tf,
-               const BVHModel<BV>& m1, const BVHModel<BV>& m2,
-               bool verbose)
-{
+template <typename BV, typename TraversalNode>
+double distance(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+                const BVHModel<BV>& m2, bool verbose) {
   Transform3f pose2;
 
   DistanceResult local_result;
@@ -103,7 +104,7 @@ double distance (const std::vector<Transform3f>& tf,
   timer.start();
 
   for (std::size_t i = 0; i < tf.size(); ++i) {
-    if(!initialize(node, m1, tf[i], m2, pose2, request, local_result))
+    if (!initialize(node, m1, tf[i], m2, pose2, request, local_result))
       std::cout << "initialize error" << std::endl;
 
     distance(&node, NULL);
@@ -112,16 +113,14 @@ double distance (const std::vector<Transform3f>& tf,
   return timer.getElapsedTimeInMicroSec();
 }
 
-template<typename BV, typename TraversalNode>
-double collide (const std::vector<Transform3f>& tf,
-               const BVHModel<BV>& m1, const BVHModel<BV>& m2,
-               bool verbose)
-{
+template <typename BV, typename TraversalNode>
+double collide(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+               const BVHModel<BV>& m2, bool verbose) {
   Transform3f pose2;
 
-  CollisionResult local_result;	
+  CollisionResult local_result;
   CollisionRequest request;
-  TraversalNode node (request);
+  TraversalNode node(request);
 
   node.enable_statistics = verbose;
 
@@ -129,9 +128,9 @@ double collide (const std::vector<Transform3f>& tf,
   timer.start();
 
   for (std::size_t i = 0; i < tf.size(); ++i) {
-    bool success (initialize(node, m1, tf[i], m2, pose2, local_result));
+    bool success(initialize(node, m1, tf[i], m2, pose2, local_result));
     (void)success;
-    assert (success);
+    assert(success);
 
     CollisionResult result;
     collide(&node, request, result);
@@ -141,36 +140,32 @@ double collide (const std::vector<Transform3f>& tf,
   return timer.getElapsedTimeInMicroSec();
 }
 
-template<typename BV>
-double run (const std::vector<Transform3f>& tf,
-          const BVHModel<BV> (&models)[2][3], int split_method,
-          const char* prefix)
-{
-  double col  = collide <BV, typename traits<BV>::CollisionTraversalNode>
-    (tf, models[0][split_method], models[1][split_method], verbose);
-  double dist = distance<BV, typename traits<BV>::DistanceTraversalNode>
-    (tf, models[0][split_method], models[1][split_method], verbose);
+template <typename BV>
+double run(const std::vector<Transform3f>& tf,
+           const BVHModel<BV> (&models)[2][3], int split_method,
+           const char* prefix) {
+  double col = collide<BV, typename traits<BV>::CollisionTraversalNode>(
+      tf, models[0][split_method], models[1][split_method], verbose);
+  double dist = distance<BV, typename traits<BV>::DistanceTraversalNode>(
+      tf, models[0][split_method], models[1][split_method], verbose);
 
   std::cout << prefix << " (" << col << ", " << dist << ")\n";
   return col + dist;
 }
 
-template<>
-double run<OBB> (const std::vector<Transform3f>& tf,
-                 const BVHModel<OBB> (&models)[2][3], int split_method,
-                 const char* prefix)
-{
-  double col  = collide <OBB,traits<OBB>::CollisionTraversalNode>
-    (tf, models[0][split_method], models[1][split_method], verbose);
+template <>
+double run<OBB>(const std::vector<Transform3f>& tf,
+                const BVHModel<OBB> (&models)[2][3], int split_method,
+                const char* prefix) {
+  double col = collide<OBB, traits<OBB>::CollisionTraversalNode>(
+      tf, models[0][split_method], models[1][split_method], verbose);
   double dist = 0;
 
   std::cout << prefix << " (\t" << col << ", \tNaN)\n";
   return col + dist;
 }
 
-
-int main (int, char*[])
-{
+int main(int, char*[]) {
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
@@ -179,38 +174,40 @@ int main (int, char*[])
 
   // Make models
   BVHModel<RSS> ms_rss[2][3];
-  makeModel (p1, t1, SPLIT_METHOD_MEAN     , ms_rss[0][SPLIT_METHOD_MEAN     ]);
-  makeModel (p1, t1, SPLIT_METHOD_BV_CENTER, ms_rss[0][SPLIT_METHOD_BV_CENTER]);
-  makeModel (p1, t1, SPLIT_METHOD_MEDIAN   , ms_rss[0][SPLIT_METHOD_MEDIAN   ]);
-  makeModel (p2, t2, SPLIT_METHOD_MEAN     , ms_rss[1][SPLIT_METHOD_MEAN     ]);
-  makeModel (p2, t2, SPLIT_METHOD_BV_CENTER, ms_rss[1][SPLIT_METHOD_BV_CENTER]);
-  makeModel (p2, t2, SPLIT_METHOD_MEDIAN   , ms_rss[1][SPLIT_METHOD_MEDIAN   ]);
+  makeModel(p1, t1, SPLIT_METHOD_MEAN, ms_rss[0][SPLIT_METHOD_MEAN]);
+  makeModel(p1, t1, SPLIT_METHOD_BV_CENTER, ms_rss[0][SPLIT_METHOD_BV_CENTER]);
+  makeModel(p1, t1, SPLIT_METHOD_MEDIAN, ms_rss[0][SPLIT_METHOD_MEDIAN]);
+  makeModel(p2, t2, SPLIT_METHOD_MEAN, ms_rss[1][SPLIT_METHOD_MEAN]);
+  makeModel(p2, t2, SPLIT_METHOD_BV_CENTER, ms_rss[1][SPLIT_METHOD_BV_CENTER]);
+  makeModel(p2, t2, SPLIT_METHOD_MEDIAN, ms_rss[1][SPLIT_METHOD_MEDIAN]);
 
   BVHModel<kIOS> ms_kios[2][3];
-  makeModel (p1, t1, SPLIT_METHOD_MEAN     , ms_kios[0][SPLIT_METHOD_MEAN     ]);
-  makeModel (p1, t1, SPLIT_METHOD_BV_CENTER, ms_kios[0][SPLIT_METHOD_BV_CENTER]);
-  makeModel (p1, t1, SPLIT_METHOD_MEDIAN   , ms_kios[0][SPLIT_METHOD_MEDIAN   ]);
-  makeModel (p2, t2, SPLIT_METHOD_MEAN     , ms_kios[1][SPLIT_METHOD_MEAN     ]);
-  makeModel (p2, t2, SPLIT_METHOD_BV_CENTER, ms_kios[1][SPLIT_METHOD_BV_CENTER]);
-  makeModel (p2, t2, SPLIT_METHOD_MEDIAN   , ms_kios[1][SPLIT_METHOD_MEDIAN   ]);
+  makeModel(p1, t1, SPLIT_METHOD_MEAN, ms_kios[0][SPLIT_METHOD_MEAN]);
+  makeModel(p1, t1, SPLIT_METHOD_BV_CENTER, ms_kios[0][SPLIT_METHOD_BV_CENTER]);
+  makeModel(p1, t1, SPLIT_METHOD_MEDIAN, ms_kios[0][SPLIT_METHOD_MEDIAN]);
+  makeModel(p2, t2, SPLIT_METHOD_MEAN, ms_kios[1][SPLIT_METHOD_MEAN]);
+  makeModel(p2, t2, SPLIT_METHOD_BV_CENTER, ms_kios[1][SPLIT_METHOD_BV_CENTER]);
+  makeModel(p2, t2, SPLIT_METHOD_MEDIAN, ms_kios[1][SPLIT_METHOD_MEDIAN]);
 
   BVHModel<OBB> ms_obb[2][3];
-  makeModel (p1, t1, SPLIT_METHOD_MEAN     , ms_obb[0][SPLIT_METHOD_MEAN     ]);
-  makeModel (p1, t1, SPLIT_METHOD_BV_CENTER, ms_obb[0][SPLIT_METHOD_BV_CENTER]);
-  makeModel (p1, t1, SPLIT_METHOD_MEDIAN   , ms_obb[0][SPLIT_METHOD_MEDIAN   ]);
-  makeModel (p2, t2, SPLIT_METHOD_MEAN     , ms_obb[1][SPLIT_METHOD_MEAN     ]);
-  makeModel (p2, t2, SPLIT_METHOD_BV_CENTER, ms_obb[1][SPLIT_METHOD_BV_CENTER]);
-  makeModel (p2, t2, SPLIT_METHOD_MEDIAN   , ms_obb[1][SPLIT_METHOD_MEDIAN   ]);
+  makeModel(p1, t1, SPLIT_METHOD_MEAN, ms_obb[0][SPLIT_METHOD_MEAN]);
+  makeModel(p1, t1, SPLIT_METHOD_BV_CENTER, ms_obb[0][SPLIT_METHOD_BV_CENTER]);
+  makeModel(p1, t1, SPLIT_METHOD_MEDIAN, ms_obb[0][SPLIT_METHOD_MEDIAN]);
+  makeModel(p2, t2, SPLIT_METHOD_MEAN, ms_obb[1][SPLIT_METHOD_MEAN]);
+  makeModel(p2, t2, SPLIT_METHOD_BV_CENTER, ms_obb[1][SPLIT_METHOD_BV_CENTER]);
+  makeModel(p2, t2, SPLIT_METHOD_MEDIAN, ms_obb[1][SPLIT_METHOD_MEDIAN]);
 
   BVHModel<OBBRSS> ms_obbrss[2][3];
-  makeModel (p1, t1, SPLIT_METHOD_MEAN     , ms_obbrss[0][SPLIT_METHOD_MEAN     ]);
-  makeModel (p1, t1, SPLIT_METHOD_BV_CENTER, ms_obbrss[0][SPLIT_METHOD_BV_CENTER]);
-  makeModel (p1, t1, SPLIT_METHOD_MEDIAN   , ms_obbrss[0][SPLIT_METHOD_MEDIAN   ]);
-  makeModel (p2, t2, SPLIT_METHOD_MEAN     , ms_obbrss[1][SPLIT_METHOD_MEAN     ]);
-  makeModel (p2, t2, SPLIT_METHOD_BV_CENTER, ms_obbrss[1][SPLIT_METHOD_BV_CENTER]);
-  makeModel (p2, t2, SPLIT_METHOD_MEDIAN   , ms_obbrss[1][SPLIT_METHOD_MEDIAN   ]);
+  makeModel(p1, t1, SPLIT_METHOD_MEAN, ms_obbrss[0][SPLIT_METHOD_MEAN]);
+  makeModel(p1, t1, SPLIT_METHOD_BV_CENTER,
+            ms_obbrss[0][SPLIT_METHOD_BV_CENTER]);
+  makeModel(p1, t1, SPLIT_METHOD_MEDIAN, ms_obbrss[0][SPLIT_METHOD_MEDIAN]);
+  makeModel(p2, t2, SPLIT_METHOD_MEAN, ms_obbrss[1][SPLIT_METHOD_MEAN]);
+  makeModel(p2, t2, SPLIT_METHOD_BV_CENTER,
+            ms_obbrss[1][SPLIT_METHOD_BV_CENTER]);
+  makeModel(p2, t2, SPLIT_METHOD_MEDIAN, ms_obbrss[1][SPLIT_METHOD_MEDIAN]);
 
-  std::vector<Transform3f> transforms; // t0
+  std::vector<Transform3f> transforms;  // t0
   FCL_REAL extents[] = {-3000, -3000, -3000, 3000, 3000, 3000};
   std::size_t n = 10000;
 

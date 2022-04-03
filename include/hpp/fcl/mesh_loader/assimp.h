@@ -45,28 +45,24 @@
 
 struct aiScene;
 namespace Assimp {
-  class Importer;
+class Importer;
 }
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-namespace internal
-{
+namespace internal {
 
-struct HPP_FCL_DLLAPI TriangleAndVertices
-{
-  std::vector <fcl::Vec3f> vertices_;
-  std::vector <fcl::Triangle> triangles_;
+struct HPP_FCL_DLLAPI TriangleAndVertices {
+  std::vector<fcl::Vec3f> vertices_;
+  std::vector<fcl::Triangle> triangles_;
 };
 
 struct HPP_FCL_DLLAPI Loader {
-  Loader ();
-  ~Loader ();
+  Loader();
+  ~Loader();
 
-  void load (const std::string& resource_path);
+  void load(const std::string& resource_path);
 
   Assimp::Importer* importer;
   aiScene const* scene;
@@ -80,10 +76,9 @@ struct HPP_FCL_DLLAPI Loader {
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-HPP_FCL_DLLAPI void buildMesh (const fcl::Vec3f & scale,
-                               const aiScene* scene,
-                               unsigned vertices_offset,
-                               TriangleAndVertices & tv);
+HPP_FCL_DLLAPI void buildMesh(const fcl::Vec3f& scale, const aiScene* scene,
+                              unsigned vertices_offset,
+                              TriangleAndVertices& tv);
 
 /**
  * @brief      Convert an assimp scene to a mesh
@@ -92,30 +87,27 @@ HPP_FCL_DLLAPI void buildMesh (const fcl::Vec3f & scale,
  * @param[in]  scene  Pointer to the assimp scene
  * @param[out] mesh  The mesh that must be built
  */
-template<class BoundingVolume>   
+template <class BoundingVolume>
 inline void meshFromAssimpScene(
-                         const fcl::Vec3f & scale,
-                         const aiScene* scene,
-                         const shared_ptr < BVHModel<BoundingVolume> > & mesh)
-{
+    const fcl::Vec3f& scale, const aiScene* scene,
+    const shared_ptr<BVHModel<BoundingVolume> >& mesh) {
   TriangleAndVertices tv;
-  
-  int res = mesh->beginModel ();
-  
-  if (res != fcl::BVH_OK)
-  {
+
+  int res = mesh->beginModel();
+
+  if (res != fcl::BVH_OK) {
     std::ostringstream error;
     error << "fcl BVHReturnCode = " << res;
-    throw std::runtime_error (error.str ());
+    throw std::runtime_error(error.str());
   }
-    
-  buildMesh (scale, scene, (unsigned) mesh->num_vertices, tv);
-  mesh->addSubModel (tv.vertices_, tv.triangles_);
-    
-  mesh->endModel ();
+
+  buildMesh(scale, scene, (unsigned)mesh->num_vertices, tv);
+  mesh->addSubModel(tv.vertices_, tv.triangles_);
+
+  mesh->endModel();
 }
 
-} // namespace internal
+}  // namespace internal
 
 /**
  * @brief      Read a mesh file and convert it to a polyhedral mesh
@@ -124,18 +116,17 @@ inline void meshFromAssimpScene(
  * @param[in]  scale          Scale to apply when reading the ressource
  * @param[out] polyhedron     The resulted polyhedron
  */
-template<class BoundingVolume>
-inline void loadPolyhedronFromResource (const std::string & resource_path,
-                                        const fcl::Vec3f & scale,
-                                        const shared_ptr < BVHModel<BoundingVolume> > & polyhedron)
-{
+template <class BoundingVolume>
+inline void loadPolyhedronFromResource(
+    const std::string& resource_path, const fcl::Vec3f& scale,
+    const shared_ptr<BVHModel<BoundingVolume> >& polyhedron) {
   internal::Loader scene;
-  scene.load (resource_path);
+  scene.load(resource_path);
 
-  internal::meshFromAssimpScene (scale, scene.scene, polyhedron);
+  internal::meshFromAssimpScene(scale, scene.scene, polyhedron);
 }
 
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp
 
-#endif // HPP_FCL_MESH_LOADER_ASSIMP_H
+#endif  // HPP_FCL_MESH_LOADER_ASSIMP_H

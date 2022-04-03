@@ -46,19 +46,17 @@ namespace fcl {
 namespace detail {
 
 //==============================================================================
-SimpleInterval::~SimpleInterval()
-{
+SimpleInterval::~SimpleInterval() {
   // Do nothing
 }
 
 //==============================================================================
-void SimpleInterval::print()
-{
+void SimpleInterval::print() {
   // Do nothing
 }
 
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

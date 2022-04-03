@@ -42,28 +42,23 @@ namespace fcl {
 
 //==============================================================================
 BroadPhaseCollisionManager::BroadPhaseCollisionManager()
-  : enable_tested_set_(false)
-{
+    : enable_tested_set_(false) {
   // Do nothing
 }
 
 //==============================================================================
-BroadPhaseCollisionManager::~BroadPhaseCollisionManager()
-{
+BroadPhaseCollisionManager::~BroadPhaseCollisionManager() {
   // Do nothing
 }
 
 //==============================================================================
 void BroadPhaseCollisionManager::registerObjects(
-    const std::vector<CollisionObject*>& other_objs)
-{
-  for(size_t i = 0; i < other_objs.size(); ++i)
-    registerObject(other_objs[i]);
+    const std::vector<CollisionObject*>& other_objs) {
+  for (size_t i = 0; i < other_objs.size(); ++i) registerObject(other_objs[i]);
 }
 
 //==============================================================================
-void BroadPhaseCollisionManager::update(CollisionObject* updated_obj)
-{
+void BroadPhaseCollisionManager::update(CollisionObject* updated_obj) {
   HPP_FCL_UNUSED_VARIABLE(updated_obj);
 
   update();
@@ -71,28 +66,29 @@ void BroadPhaseCollisionManager::update(CollisionObject* updated_obj)
 
 //==============================================================================
 void BroadPhaseCollisionManager::update(
-    const std::vector<CollisionObject*>& updated_objs)
-{
+    const std::vector<CollisionObject*>& updated_objs) {
   HPP_FCL_UNUSED_VARIABLE(updated_objs);
 
   update();
 }
 
 //==============================================================================
-bool BroadPhaseCollisionManager::inTestedSet(
-    CollisionObject* a, CollisionObject* b) const
-{
-  if(a < b) return tested_set.find(std::make_pair(a, b)) != tested_set.end();
-  else return tested_set.find(std::make_pair(b, a)) != tested_set.end();
+bool BroadPhaseCollisionManager::inTestedSet(CollisionObject* a,
+                                             CollisionObject* b) const {
+  if (a < b)
+    return tested_set.find(std::make_pair(a, b)) != tested_set.end();
+  else
+    return tested_set.find(std::make_pair(b, a)) != tested_set.end();
 }
 
 //==============================================================================
-void BroadPhaseCollisionManager::insertTestedSet(
-    CollisionObject* a, CollisionObject* b) const
-{
-  if(a < b) tested_set.insert(std::make_pair(a, b));
-  else tested_set.insert(std::make_pair(b, a));
+void BroadPhaseCollisionManager::insertTestedSet(CollisionObject* a,
+                                                 CollisionObject* b) const {
+  if (a < b)
+    tested_set.insert(std::make_pair(a, b));
+  else
+    tested_set.insert(std::make_pair(b, a));
 }
 
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp

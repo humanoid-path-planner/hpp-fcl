@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -45,17 +45,14 @@
 #include "hpp/fcl/collision_object.h"
 #include "hpp/fcl/broadphase/broadphase_callbacks.h"
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @brief Base class for broad phase collision. It helps to accelerate the
 /// collision/distance between N objects. Also support self collision, self
 /// distance and collision/distance with another M objects.
-class HPP_FCL_DLLAPI BroadPhaseCollisionManager
-{
-public:
+class HPP_FCL_DLLAPI BroadPhaseCollisionManager {
+ public:
   BroadPhaseCollisionManager();
 
   virtual ~BroadPhaseCollisionManager();
@@ -86,52 +83,59 @@ public:
 
   /// @brief return the objects managed by the manager
   virtual void getObjects(std::vector<CollisionObject*>& objs) const = 0;
-  
+
   /// @brief return the objects managed by the manager
-  virtual std::vector<CollisionObject*> getObjects() const
-  {
+  virtual std::vector<CollisionObject*> getObjects() const {
     std::vector<CollisionObject*> res(size());
     getObjects(res);
     return res;
   };
 
-  /// @brief perform collision test between one object and all the objects belonging to the manager
-  virtual void collide(CollisionObject* obj, CollisionCallBackBase * callback) const = 0;
+  /// @brief perform collision test between one object and all the objects
+  /// belonging to the manager
+  virtual void collide(CollisionObject* obj,
+                       CollisionCallBackBase* callback) const = 0;
 
-  /// @brief perform distance computation between one object and all the objects belonging to the manager
-  virtual void distance(CollisionObject* obj, DistanceCallBackBase * callback) const = 0;
+  /// @brief perform distance computation between one object and all the objects
+  /// belonging to the manager
+  virtual void distance(CollisionObject* obj,
+                        DistanceCallBackBase* callback) const = 0;
 
-  /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  virtual void collide(CollisionCallBackBase * callback) const = 0;
+  /// @brief perform collision test for the objects belonging to the manager
+  /// (i.e., N^2 self collision)
+  virtual void collide(CollisionCallBackBase* callback) const = 0;
 
-  /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  virtual void distance(DistanceCallBackBase * callback) const = 0;
-  
+  /// @brief perform distance test for the objects belonging to the manager
+  /// (i.e., N^2 self distance)
+  virtual void distance(DistanceCallBackBase* callback) const = 0;
+
   /// @brief perform collision test with objects belonging to another manager
-  virtual void collide(BroadPhaseCollisionManager* other_manager, CollisionCallBackBase * callback) const = 0;
-  
+  virtual void collide(BroadPhaseCollisionManager* other_manager,
+                       CollisionCallBackBase* callback) const = 0;
+
   /// @brief perform distance test with objects belonging to another manager
-  virtual void distance(BroadPhaseCollisionManager* other_manager, DistanceCallBackBase * callback) const = 0;
+  virtual void distance(BroadPhaseCollisionManager* other_manager,
+                        DistanceCallBackBase* callback) const = 0;
 
   /// @brief whether the manager is empty
   virtual bool empty() const = 0;
-  
+
   /// @brief the number of objects managed by the manager
   virtual size_t size() const = 0;
 
-protected:
-
-  /// @brief tools help to avoid repeating collision or distance callback for the pairs of objects tested before. It can be useful for some of the broadphase algorithms.
+ protected:
+  /// @brief tools help to avoid repeating collision or distance callback for
+  /// the pairs of objects tested before. It can be useful for some of the
+  /// broadphase algorithms.
   mutable std::set<std::pair<CollisionObject*, CollisionObject*> > tested_set;
   mutable bool enable_tested_set_;
 
   bool inTestedSet(CollisionObject* a, CollisionObject* b) const;
 
   void insertTestedSet(CollisionObject* a, CollisionObject* b) const;
-
 };
 
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

@@ -40,50 +40,51 @@
 
 #include <hpp/fcl/data_types.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @brief States for BVH construction
 /// empty->begun->processed ->replace_begun->processed -> ......
 ///                        |
 ///                        |-> update_begun -> updated -> .....
-enum BVHBuildState
-  {
-    BVH_BUILD_STATE_EMPTY,            /// empty state, immediately after constructor
-    BVH_BUILD_STATE_BEGUN,            /// after beginModel(), state for adding geometry primitives
-    BVH_BUILD_STATE_PROCESSED,        /// after tree has been build, ready for cd use
-    BVH_BUILD_STATE_UPDATE_BEGUN,     /// after beginUpdateModel(), state for updating geometry primitives
-    BVH_BUILD_STATE_UPDATED,          /// after tree has been build for updated geometry, ready for ccd use
-    BVH_BUILD_STATE_REPLACE_BEGUN     /// after beginReplaceModel(), state for replacing geometry primitives
-  };
+enum BVHBuildState {
+  BVH_BUILD_STATE_EMPTY,      /// empty state, immediately after constructor
+  BVH_BUILD_STATE_BEGUN,      /// after beginModel(), state for adding geometry
+                              /// primitives
+  BVH_BUILD_STATE_PROCESSED,  /// after tree has been build, ready for cd use
+  BVH_BUILD_STATE_UPDATE_BEGUN,  /// after beginUpdateModel(), state for
+                                 /// updating geometry primitives
+  BVH_BUILD_STATE_UPDATED,  /// after tree has been build for updated geometry,
+                            /// ready for ccd use
+  BVH_BUILD_STATE_REPLACE_BEGUN  /// after beginReplaceModel(), state for
+                                 /// replacing geometry primitives
+};
 
-/// @brief Error code for BVH 
-enum BVHReturnCode
-  {
-    BVH_OK = 0,                                 /// BVH is valid
-    BVH_ERR_MODEL_OUT_OF_MEMORY = -1,           /// Cannot allocate memory for vertices and triangles
-    BVH_ERR_BUILD_OUT_OF_SEQUENCE = -2,         /// BVH construction does not follow correct sequence
-    BVH_ERR_BUILD_EMPTY_MODEL = -3,             /// BVH geometry is not prepared
-    BVH_ERR_BUILD_EMPTY_PREVIOUS_FRAME = -4,    /// BVH geometry in previous frame is not prepared
-    BVH_ERR_UNSUPPORTED_FUNCTION = -5,          /// BVH funtion is not supported
-    BVH_ERR_UNUPDATED_MODEL = -6,               /// BVH model update failed
-    BVH_ERR_INCORRECT_DATA = -7,                /// BVH data is not valid
-    BVH_ERR_UNKNOWN = -8                        /// Unknown failure
-  };
+/// @brief Error code for BVH
+enum BVHReturnCode {
+  BVH_OK = 0,  /// BVH is valid
+  BVH_ERR_MODEL_OUT_OF_MEMORY =
+      -1,  /// Cannot allocate memory for vertices and triangles
+  BVH_ERR_BUILD_OUT_OF_SEQUENCE =
+      -2,  /// BVH construction does not follow correct sequence
+  BVH_ERR_BUILD_EMPTY_MODEL = -3,  /// BVH geometry is not prepared
+  BVH_ERR_BUILD_EMPTY_PREVIOUS_FRAME =
+      -4,  /// BVH geometry in previous frame is not prepared
+  BVH_ERR_UNSUPPORTED_FUNCTION = -5,  /// BVH funtion is not supported
+  BVH_ERR_UNUPDATED_MODEL = -6,       /// BVH model update failed
+  BVH_ERR_INCORRECT_DATA = -7,        /// BVH data is not valid
+  BVH_ERR_UNKNOWN = -8                /// Unknown failure
+};
 
 /// @brief BVH model type
-enum BVHModelType
-  {
-    BVH_MODEL_UNKNOWN,              /// @brief unknown model type
-    BVH_MODEL_TRIANGLES,            /// @brief triangle model
-    BVH_MODEL_POINTCLOUD            /// @brief point cloud model
-  };
+enum BVHModelType {
+  BVH_MODEL_UNKNOWN,    /// @brief unknown model type
+  BVH_MODEL_TRIANGLES,  /// @brief triangle model
+  BVH_MODEL_POINTCLOUD  /// @brief point cloud model
+};
 
+}  // namespace fcl
 
-}
-
-} // namespace hpp
+}  // namespace hpp
 
 #endif

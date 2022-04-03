@@ -38,135 +38,99 @@
 #ifndef HPP_FCL_OBBRSS_H
 #define HPP_FCL_OBBRSS_H
 
-
 #include <hpp/fcl/BV/OBB.h>
 #include <hpp/fcl/BV/RSS.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-  struct CollisionRequest;
+struct CollisionRequest;
 
 /// @addtogroup Bounding_Volume
 /// @{
 
-/// @brief Class merging the OBB and RSS, can handle collision and distance simultaneously
-struct HPP_FCL_DLLAPI OBBRSS
-{
-
+/// @brief Class merging the OBB and RSS, can handle collision and distance
+/// simultaneously
+struct HPP_FCL_DLLAPI OBBRSS {
   /// @brief OBB member, for rotation
   OBB obb;
 
   /// @brief RSS member, for distance
   RSS rss;
-  
+
   /// @brief Equality operator
-  bool operator==(const OBBRSS & other) const
-  {
-    return
-       obb == other.obb
-    && rss == other.rss;
+  bool operator==(const OBBRSS& other) const {
+    return obb == other.obb && rss == other.rss;
   }
-  
+
   /// @brief Difference operator
-  bool operator!=(const OBBRSS & other) const
-  {
-    return !(*this == other);
-  }
+  bool operator!=(const OBBRSS& other) const { return !(*this == other); }
 
   /// @brief Check whether the OBBRSS contains a point
-  inline bool contain(const Vec3f& p) const
-  {
-    return obb.contain(p);
-  }
+  inline bool contain(const Vec3f& p) const { return obb.contain(p); }
 
   /// @brief Check collision between two OBBRSS
-  bool overlap(const OBBRSS& other) const
-  {
-    return obb.overlap(other.obb);
-  }
+  bool overlap(const OBBRSS& other) const { return obb.overlap(other.obb); }
 
   /// Check collision between two OBBRSS
   /// @retval sqrDistLowerBound squared lower bound on distance between
   ///         objects if they do not overlap.
   bool overlap(const OBBRSS& other, const CollisionRequest& request,
-               FCL_REAL& sqrDistLowerBound) const
-  {
+               FCL_REAL& sqrDistLowerBound) const {
     return obb.overlap(other.obb, request, sqrDistLowerBound);
   }
 
-  /// @brief Distance between two OBBRSS; P and Q , is not NULL, returns the nearest points
-  FCL_REAL distance(const OBBRSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const
-  {
+  /// @brief Distance between two OBBRSS; P and Q , is not NULL, returns the
+  /// nearest points
+  FCL_REAL distance(const OBBRSS& other, Vec3f* P = NULL,
+                    Vec3f* Q = NULL) const {
     return rss.distance(other.rss, P, Q);
   }
 
   /// @brief Merge the OBBRSS and a point
-  OBBRSS& operator += (const Vec3f& p) 
-  {
+  OBBRSS& operator+=(const Vec3f& p) {
     obb += p;
     rss += p;
     return *this;
   }
 
   /// @brief Merge two OBBRSS
-  OBBRSS& operator += (const OBBRSS& other)
-  {
+  OBBRSS& operator+=(const OBBRSS& other) {
     *this = *this + other;
     return *this;
   }
 
   /// @brief Merge two OBBRSS
-  OBBRSS operator + (const OBBRSS& other) const
-  {
+  OBBRSS operator+(const OBBRSS& other) const {
     OBBRSS result;
     result.obb = obb + other.obb;
     result.rss = rss + other.rss;
     return result;
   }
 
-    /// @brief Size of the OBBRSS (used in BV_Splitter to order two OBBRSS)
-  inline FCL_REAL size() const
-  {
-    return obb.size();
-  }
+  /// @brief Size of the OBBRSS (used in BV_Splitter to order two OBBRSS)
+  inline FCL_REAL size() const { return obb.size(); }
 
   /// @brief Center of the OBBRSS
-  inline const Vec3f& center() const
-  {
-    return obb.center();
-  }
+  inline const Vec3f& center() const { return obb.center(); }
 
   /// @brief Width of the OBRSS
-  inline FCL_REAL width() const
-  {
-    return obb.width();
-  }
+  inline FCL_REAL width() const { return obb.width(); }
 
   /// @brief Height of the OBBRSS
-  inline FCL_REAL height() const
-  {
-    return obb.height();
-  }
+  inline FCL_REAL height() const { return obb.height(); }
 
   /// @brief Depth of the OBBRSS
-  inline FCL_REAL depth() const
-  {
-    return obb.depth();
-  }
+  inline FCL_REAL depth() const { return obb.depth(); }
 
   /// @brief Volume of the OBBRSS
-  inline FCL_REAL volume() const
-  {
-    return obb.volume();
-  }
+  inline FCL_REAL volume() const { return obb.volume(); }
 };
 
-/// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0) and b2 is in indentity
-inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2)
-{
+/// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0)
+/// and b2 is in indentity
+inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1,
+                    const OBBRSS& b2) {
   return overlap(R0, T0, b1.obb, b2.obb);
 }
 
@@ -174,23 +138,23 @@ inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const
 /// @param  R0, T0 configuration of b1
 /// @param  b1 first OBBRSS in configuration (R0, T0)
 /// @param  b2 second OBBRSS in identity position
-/// @retval sqrDistLowerBound squared lower bound on the distance if OBBRSS do not overlap.
+/// @retval sqrDistLowerBound squared lower bound on the distance if OBBRSS do
+/// not overlap.
 inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1,
                     const OBBRSS& b2, const CollisionRequest& request,
-	            FCL_REAL& sqrDistLowerBound)
-{
+                    FCL_REAL& sqrDistLowerBound) {
   return overlap(R0, T0, b1.obb, b2.obb, request, sqrDistLowerBound);
 }
 
-/// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0) and b2 is in indentity; P and Q, is not NULL, returns the nearest points
-inline FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL)
-{
+/// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0)
+/// and b2 is in indentity; P and Q, is not NULL, returns the nearest points
+inline FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1,
+                         const OBBRSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL) {
   return distance(R0, T0, b1.rss, b2.rss, P, Q);
 }
 
-}
+}  // namespace fcl
 
-
-} // namespace hpp
+}  // namespace hpp
 
 #endif

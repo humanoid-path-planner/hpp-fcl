@@ -35,44 +35,39 @@
 
 /** \author Jia Pan */
 
-
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-void ConvexBase::initialize(bool own_storage, Vec3f* points_, unsigned int num_points_)
-{
-  points       = points_;
-  num_points   = num_points_;
+void ConvexBase::initialize(bool own_storage, Vec3f* points_,
+                            unsigned int num_points_) {
+  points = points_;
+  num_points = num_points_;
   own_storage_ = own_storage;
   computeCenter();
 }
 
-void ConvexBase::set(bool own_storage_, Vec3f* points_, unsigned int num_points_)
-{
-  if(own_storage_ && points) delete [] points;
-  initialize(own_storage_,points_,num_points_);
+void ConvexBase::set(bool own_storage_, Vec3f* points_,
+                     unsigned int num_points_) {
+  if (own_storage_ && points) delete[] points;
+  initialize(own_storage_, points_, num_points_);
 }
 
-ConvexBase::ConvexBase(const ConvexBase& other) :
-  ShapeBase    (other),
-  num_points   (other.num_points),
-  center       (other.center),
-  own_storage_ (other.own_storage_)
-{
-  if (neighbors) delete [] neighbors;
-  if (nneighbors_) delete [] nneighbors_;
+ConvexBase::ConvexBase(const ConvexBase& other)
+    : ShapeBase(other),
+      num_points(other.num_points),
+      center(other.center),
+      own_storage_(other.own_storage_) {
+  if (neighbors) delete[] neighbors;
+  if (nneighbors_) delete[] nneighbors_;
   if (own_storage_) {
-    if (own_storage_ && points) delete [] points;
+    if (own_storage_ && points) delete[] points;
 
     points = new Vec3f[num_points];
     std::copy(other.points, other.points + num_points, points);
-  }
-  else
+  } else
     points = other.points;
 
   neighbors = new Neighbors[num_points];
@@ -87,124 +82,103 @@ ConvexBase::ConvexBase(const ConvexBase& other) :
   ShapeBase::operator=(*this);
 }
 
-ConvexBase::~ConvexBase ()
-{
-  if (neighbors) delete [] neighbors;
-  if (nneighbors_) delete [] nneighbors_;
-  if (own_storage_ && points) delete [] points;
+ConvexBase::~ConvexBase() {
+  if (neighbors) delete[] neighbors;
+  if (nneighbors_) delete[] nneighbors_;
+  if (own_storage_ && points) delete[] points;
 }
 
-void ConvexBase::computeCenter()
-{
+void ConvexBase::computeCenter() {
   center.setZero();
-  for(std::size_t i = 0; i < num_points; ++i)
-    center += points[i]; // TODO(jcarpent): vectorization
+  for (std::size_t i = 0; i < num_points; ++i)
+    center += points[i];  // TODO(jcarpent): vectorization
   center /= num_points;
 }
 
-void Halfspace::unitNormalTest()
-{
+void Halfspace::unitNormalTest() {
   FCL_REAL l = n.norm();
-  if(l > 0)
-  {
+  if (l > 0) {
     FCL_REAL inv_l = 1.0 / l;
     n *= inv_l;
     d *= inv_l;
-  }
-  else
-  {
+  } else {
     n << 1, 0, 0;
     d = 0;
   }
 }
 
-void Plane::unitNormalTest()
-{
+void Plane::unitNormalTest() {
   FCL_REAL l = n.norm();
-  if(l > 0)
-  {
+  if (l > 0) {
     FCL_REAL inv_l = 1.0 / l;
     n *= inv_l;
     d *= inv_l;
-  }
-  else
-  {
+  } else {
     n << 1, 0, 0;
     d = 0;
   }
 }
 
-void Box::computeLocalAABB()
-{
+void Box::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
-void Sphere::computeLocalAABB()
-{
+void Sphere::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
   aabb_radius = radius;
 }
 
-void Ellipsoid::computeLocalAABB()
-{
+void Ellipsoid::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
-void Capsule::computeLocalAABB()
-{
+void Capsule::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
-void Cone::computeLocalAABB()
-{
+void Cone::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
-void Cylinder::computeLocalAABB()
-{
+void Cylinder::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
-void ConvexBase::computeLocalAABB()
-{
+void ConvexBase::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
-void Halfspace::computeLocalAABB()
-{
+void Halfspace::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
-void Plane::computeLocalAABB()
-{
+void Plane::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
-void TriangleP::computeLocalAABB()
-{
+void TriangleP::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
+}  // namespace fcl
 
-}
-
-} // namespace hpp
+}  // namespace hpp

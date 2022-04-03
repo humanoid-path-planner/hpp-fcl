@@ -41,19 +41,20 @@
 #include <stdexcept>
 #include <hpp/fcl/data_types.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 struct CollisionRequest;
 
-  /// @addtogroup Bounding_Volume
-  /// @{
+/// @addtogroup Bounding_Volume
+/// @{
 
-/// @brief KDOP class describes the KDOP collision structures. K is set as the template parameter, which should be 16, 18, or 24
-///  The KDOP structure is defined by some pairs of parallel planes defined by some axes. 
-/// For K = 16, the planes are 6 AABB planes and 10 diagonal planes that cut off some space of the edges:
+/// @brief KDOP class describes the KDOP collision structures. K is set as the
+/// template parameter, which should be 16, 18, or 24
+///  The KDOP structure is defined by some pairs of parallel planes defined by
+///  some axes.
+/// For K = 16, the planes are 6 AABB planes and 10 diagonal planes that cut off
+/// some space of the edges:
 /// (-1,0,0) and (1,0,0)  -> indices 0 and 8
 /// (0,-1,0) and (0,1,0)  -> indices 1 and 9
 /// (0,0,-1) and (0,0,1)  -> indices 2 and 10
@@ -62,7 +63,8 @@ struct CollisionRequest;
 /// (0,-1,-1) and (0,1,1) -> indices 5 and 13
 /// (-1,1,0) and (1,-1,0) -> indices 6 and 14
 /// (-1,0,1) and (1,0,-1) -> indices 7 and 15
-/// For K = 18, the planes are 6 AABB planes and 12 diagonal planes that cut off some space of the edges:
+/// For K = 18, the planes are 6 AABB planes and 12 diagonal planes that cut off
+/// some space of the edges:
 /// (-1,0,0) and (1,0,0)  -> indices 0 and 9
 /// (0,-1,0) and (0,1,0)  -> indices 1 and 10
 /// (0,0,-1) and (0,0,1)  -> indices 2 and 11
@@ -72,7 +74,8 @@ struct CollisionRequest;
 /// (-1,1,0) and (1,-1,0) -> indices 6 and 15
 /// (-1,0,1) and (1,0,-1) -> indices 7 and 16
 /// (0,-1,1) and (0,1,-1) -> indices 8 and 17
-/// For K = 18, the planes are 6 AABB planes and 18 diagonal planes that cut off some space of the edges:
+/// For K = 18, the planes are 6 AABB planes and 18 diagonal planes that cut off
+/// some space of the edges:
 /// (-1,0,0) and (1,0,0)  -> indices 0 and 12
 /// (0,-1,0) and (0,1,0)  -> indices 1 and 13
 /// (0,0,-1) and (0,0,1)  -> indices 2 and 14
@@ -85,15 +88,13 @@ struct CollisionRequest;
 /// (-1, -1, 1) and (1, 1, -1) --> indices 9 and 21
 /// (-1, 1, -1) and (1, -1, 1) --> indices 10 and 22
 /// (1, -1, -1) and (-1, 1, 1) --> indices 11 and 23
-template<short N>
-class HPP_FCL_DLLAPI KDOP
-{
-protected:
+template <short N>
+class HPP_FCL_DLLAPI KDOP {
+ protected:
   /// @brief Origin's distances to N KDOP planes
   Eigen::Array<FCL_REAL, N, 1> dist_;
 
-public:
-
+ public:
   /// @brief Creating kDOP containing nothing
   KDOP();
 
@@ -102,118 +103,94 @@ public:
 
   /// @brief Creating kDOP containing two points
   KDOP(const Vec3f& a, const Vec3f& b);
-  
+
   /// @brief Equality operator
-  bool operator==(const KDOP & other) const
-  {
+  bool operator==(const KDOP& other) const {
     return (dist_ == other.dist_).all();
   }
- 
+
   /// @brief Difference operator
-  bool operator!=(const KDOP & other) const
-  {
+  bool operator!=(const KDOP& other) const {
     return (dist_ != other.dist_).any();
   }
-  
+
   /// @brief Check whether two KDOPs overlap.
   bool overlap(const KDOP<N>& other) const;
 
   /// @brief Check whether two KDOPs overlap.
-  /// @return true if collision happens. 
+  /// @return true if collision happens.
   /// @retval sqrDistLowerBound squared lower bound on distance between boxes if
   ///         they do not overlap.
   bool overlap(const KDOP<N>& other, const CollisionRequest& request,
                FCL_REAL& sqrDistLowerBound) const;
 
-    /// @brief The distance between two KDOP<N>. Not implemented.
-  FCL_REAL distance(const KDOP<N>& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  /// @brief The distance between two KDOP<N>. Not implemented.
+  FCL_REAL distance(const KDOP<N>& other, Vec3f* P = NULL,
+                    Vec3f* Q = NULL) const;
 
   /// @brief Merge the point and the KDOP
-  KDOP<N>& operator += (const Vec3f& p);
+  KDOP<N>& operator+=(const Vec3f& p);
 
   /// @brief Merge two KDOPs
-  KDOP<N>& operator += (const KDOP<N>& other);
+  KDOP<N>& operator+=(const KDOP<N>& other);
 
   /// @brief Create a KDOP by mergin two KDOPs
-  KDOP<N> operator + (const KDOP<N>& other) const;
+  KDOP<N> operator+(const KDOP<N>& other) const;
 
-   /// @brief Size of the kDOP (used in BV_Splitter to order two kDOPs)
-  inline FCL_REAL size() const
-  {
+  /// @brief Size of the kDOP (used in BV_Splitter to order two kDOPs)
+  inline FCL_REAL size() const {
     return width() * width() + height() * height() + depth() * depth();
   }
 
   /// @brief The (AABB) center
-  inline Vec3f center() const
-  {
-    return (dist_.template head<3>() + dist_.template segment<3>(N/2)) / 2;
+  inline Vec3f center() const {
+    return (dist_.template head<3>() + dist_.template segment<3>(N / 2)) / 2;
   }
-
 
   /// @brief The (AABB) width
-  inline FCL_REAL width() const
-  {
-    return dist_[N / 2] - dist_[0];
-  }
+  inline FCL_REAL width() const { return dist_[N / 2] - dist_[0]; }
 
   /// @brief The (AABB) height
-  inline FCL_REAL height() const
-  {
-    return dist_[N / 2 + 1] - dist_[1];
-  }
+  inline FCL_REAL height() const { return dist_[N / 2 + 1] - dist_[1]; }
 
   /// @brief The (AABB) depth
-  inline FCL_REAL depth() const
-  {
-    return dist_[N / 2 + 2] - dist_[2];
-  }
+  inline FCL_REAL depth() const { return dist_[N / 2 + 2] - dist_[2]; }
 
   /// @brief The (AABB) volume
-  inline FCL_REAL volume() const
-  {
-    return width() * height() * depth();
-  }
+  inline FCL_REAL volume() const { return width() * height() * depth(); }
 
-  inline FCL_REAL dist(short i) const
-  {
-    return dist_[i];
-  }
+  inline FCL_REAL dist(short i) const { return dist_[i]; }
 
-  inline FCL_REAL& dist(short i)
-  {
-    return dist_[i];
-  }
+  inline FCL_REAL& dist(short i) { return dist_[i]; }
 
   //// @brief Check whether one point is inside the KDOP
   bool inside(const Vec3f& p) const;
 
-  public:
+ public:
   /// \cond
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   /// \endcond
 };
 
-template<short N>
-bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/,
-             const KDOP<N>& /*b1*/, const KDOP<N>& /*b2*/)
-{
-  throw std::logic_error ("not implemented");
+template <short N>
+bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
+             const KDOP<N>& /*b2*/) {
+  throw std::logic_error("not implemented");
 }
 
-template<short N>
-bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/,
-             const KDOP<N>& /*b1*/, const KDOP<N>& /*b2*/,
-             const CollisionRequest& /*request*/, FCL_REAL& /*sqrDistLowerBound*/)
-{
-  throw std::logic_error ("not implemented");
+template <short N>
+bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
+             const KDOP<N>& /*b2*/, const CollisionRequest& /*request*/,
+             FCL_REAL& /*sqrDistLowerBound*/) {
+  throw std::logic_error("not implemented");
 }
 
 /// @brief translate the KDOP BV
-template<short N>
+template <short N>
 HPP_FCL_DLLAPI KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
 
-} // namespace fcl
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 #endif

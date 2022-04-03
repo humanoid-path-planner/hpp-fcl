@@ -65,20 +65,29 @@ using namespace hpp::fcl;
 
 /// @brief make sure if broadphase algorithms doesn't check twice for the same
 /// collision object pair
-void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, bool verbose = false);
+void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size,
+                                      bool verbose = false);
 
 /// @brief test for broad phase update
-void broad_phase_update_collision_test(FCL_REAL env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts = 1, bool exhaustive = false, bool use_mesh = false);
+void broad_phase_update_collision_test(FCL_REAL env_scale, std::size_t env_size,
+                                       std::size_t query_size,
+                                       std::size_t num_max_contacts = 1,
+                                       bool exhaustive = false,
+                                       bool use_mesh = false);
 
 #if USE_GOOGLEHASH
-template<typename U, typename V>
-struct GoogleSparseHashTable : public google::sparse_hash_map<U, V, std::tr1::hash<size_t>, std::equal_to<size_t> > {};
+template <typename U, typename V>
+struct GoogleSparseHashTable
+    : public google::sparse_hash_map<U, V, std::tr1::hash<size_t>,
+                                     std::equal_to<size_t>> {};
 
-template<typename U, typename V>
-struct GoogleDenseHashTable : public google::dense_hash_map<U, V, std::tr1::hash<size_t>, std::equal_to<size_t> >
-{
-  GoogleDenseHashTable() : google::dense_hash_map<U, V, std::tr1::hash<size_t>, std::equal_to<size_t> >()
-  {
+template <typename U, typename V>
+struct GoogleDenseHashTable
+    : public google::dense_hash_map<U, V, std::tr1::hash<size_t>,
+                                    std::equal_to<size_t>> {
+  GoogleDenseHashTable()
+      : google::dense_hash_map<U, V, std::tr1::hash<size_t>,
+                               std::equal_to<size_t>>() {
     this->set_empty_key(nullptr);
   }
 };
@@ -86,8 +95,7 @@ struct GoogleDenseHashTable : public google::dense_hash_map<U, V, std::tr1::hash
 
 /// make sure if broadphase algorithms doesn't check twice for the same
 /// collision object pair
-BOOST_AUTO_TEST_CASE(test_broad_phase_dont_duplicate_check)
-{
+BOOST_AUTO_TEST_CASE(test_broad_phase_dont_duplicate_check) {
 #ifdef NDEBUG
   broad_phase_duplicate_check_test(2000, 1000);
 #else
@@ -96,8 +104,7 @@ BOOST_AUTO_TEST_CASE(test_broad_phase_dont_duplicate_check)
 }
 
 /// check the update, only return collision or not
-BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision_binary)
-{
+BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision_binary) {
 #ifdef NDEBUG
   broad_phase_update_collision_test(2000, 100, 1000, 1, false);
   broad_phase_update_collision_test(2000, 1000, 1000, 1, false);
@@ -108,8 +115,7 @@ BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision_binary)
 }
 
 /// check the update, return 10 contacts
-BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision)
-{
+BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision) {
 #ifdef NDEBUG
   broad_phase_update_collision_test(2000, 100, 1000, 10, false);
   broad_phase_update_collision_test(2000, 1000, 1000, 10, false);
@@ -120,11 +126,10 @@ BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision)
 }
 
 /// check the update, exhaustive
-BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision_exhaustive)
-{
+BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision_exhaustive) {
 #ifdef NDEBUG
   broad_phase_update_collision_test(2000, 100, 1000, 1, true);
-  broad_phase_update_collision_test(2000, 1000  , 1000, 1, true);
+  broad_phase_update_collision_test(2000, 1000, 1000, 1, true);
 #else
   broad_phase_update_collision_test(2000, 10, 100, 1, true);
   broad_phase_update_collision_test(2000, 100, 100, 1, true);
@@ -132,8 +137,8 @@ BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision_exhaustive)
 }
 
 /// check broad phase update, in mesh, only return collision or not
-BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh_binary)
-{
+BOOST_AUTO_TEST_CASE(
+    test_core_mesh_bf_broad_phase_update_collision_mesh_binary) {
 #ifdef NDEBUG
   broad_phase_update_collision_test(2000, 100, 1000, 1, false, true);
   broad_phase_update_collision_test(2000, 1000, 1000, 1, false, true);
@@ -144,8 +149,7 @@ BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh_binary)
 }
 
 /// check broad phase update, in mesh, return 10 contacts
-BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh)
-{
+BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh) {
 #ifdef NDEBUG
   broad_phase_update_collision_test(2000, 100, 1000, 10, false, true);
   broad_phase_update_collision_test(2000, 1000, 1000, 10, false, true);
@@ -156,8 +160,8 @@ BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh)
 }
 
 /// check broad phase update, in mesh, exhaustive
-BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh_exhaustive)
-{
+BOOST_AUTO_TEST_CASE(
+    test_core_mesh_bf_broad_phase_update_collision_mesh_exhaustive) {
 #ifdef NDEBUG
   broad_phase_update_collision_test(2000, 100, 1000, 1, true, true);
   broad_phase_update_collision_test(2000, 1000, 1000, 1, true, true);
@@ -168,16 +172,13 @@ BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh_exhaust
 }
 
 //==============================================================================
-struct CollisionDataForUniquenessChecking
-{
+struct CollisionDataForUniquenessChecking {
   std::set<std::pair<CollisionObject*, CollisionObject*>> checkedPairs;
 
-  bool checkUniquenessAndAddPair(CollisionObject* o1, CollisionObject* o2)
-  {
+  bool checkUniquenessAndAddPair(CollisionObject* o1, CollisionObject* o2) {
     auto search = checkedPairs.find(std::make_pair(o1, o2));
 
-    if (search != checkedPairs.end())
-      return false;
+    if (search != checkedPairs.end()) return false;
 
     checkedPairs.emplace(o1, o2);
 
@@ -186,21 +187,18 @@ struct CollisionDataForUniquenessChecking
 };
 
 //==============================================================================
-struct CollisionFunctionForUniquenessChecking
-: CollisionCallBackBase
-{
-  bool collide(CollisionObject* o1, CollisionObject* o2)
-  {
+struct CollisionFunctionForUniquenessChecking : CollisionCallBackBase {
+  bool collide(CollisionObject* o1, CollisionObject* o2) {
     BOOST_CHECK(data.checkUniquenessAndAddPair(o1, o2));
     return false;
   }
-  
+
   CollisionDataForUniquenessChecking data;
 };
 
 //==============================================================================
-void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, bool verbose)
-{
+void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size,
+                                      bool verbose) {
   std::vector<TStruct> ts;
   std::vector<BenchTimer> timers;
 
@@ -214,11 +212,23 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
   managers.push_back(new IntervalTreeCollisionManager());
   Vec3f lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
-  FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
-  managers.push_back(new SpatialHashingCollisionManager<detail::SparseHashTable<AABB, CollisionObject*, detail::SpatialHash> >(cell_size, lower_limit, upper_limit));
+  FCL_REAL cell_size =
+      std::min(std::min((upper_limit[0] - lower_limit[0]) / 20,
+                        (upper_limit[1] - lower_limit[1]) / 20),
+               (upper_limit[2] - lower_limit[2]) / 20);
+  managers.push_back(
+      new SpatialHashingCollisionManager<
+          detail::SparseHashTable<AABB, CollisionObject*, detail::SpatialHash>>(
+          cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<detail::SparseHashTable<AABB, CollisionObject*, detail::SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<detail::SparseHashTable<AABB, CollisionObject*, detail::SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(
+      new SpatialHashingCollisionManager<detail::SparseHashTable<
+          AABB, CollisionObject*, detail::SpatialHash, GoogleSparseHashTable>>(
+          cell_size, lower_limit, upper_limit));
+  managers.push_back(
+      new SpatialHashingCollisionManager<detail::SparseHashTable<
+          AABB, CollisionObject*, detail::SpatialHash, GoogleDenseHashTable>>(
+          cell_size, lower_limit, upper_limit));
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager());
   managers.push_back(new DynamicAABBTreeArrayCollisionManager());
@@ -230,7 +240,8 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
   }
 
   {
-    DynamicAABBTreeArrayCollisionManager* m = new DynamicAABBTreeArrayCollisionManager();
+    DynamicAABBTreeArrayCollisionManager* m =
+        new DynamicAABBTreeArrayCollisionManager();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
@@ -238,16 +249,14 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
   ts.resize(managers.size());
   timers.resize(managers.size());
 
-  for(size_t i = 0; i < managers.size(); ++i)
-  {
+  for (size_t i = 0; i < managers.size(); ++i) {
     timers[i].start();
     managers[i]->registerObjects(env);
     timers[i].stop();
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-  for(size_t i = 0; i < managers.size(); ++i)
-  {
+  for (size_t i = 0; i < managers.size(); ++i) {
     timers[i].start();
     managers[i]->setup();
     timers[i].stop();
@@ -255,21 +264,26 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
   }
 
   // update the environment
-  FCL_REAL delta_angle_max = 10 / 360.0 * 2 * boost::math::constants::pi<FCL_REAL>();
+  FCL_REAL delta_angle_max =
+      10 / 360.0 * 2 * boost::math::constants::pi<FCL_REAL>();
   FCL_REAL delta_trans_max = 0.01 * env_scale;
-  for(size_t i = 0; i < env.size(); ++i)
-  {
-    FCL_REAL rand_angle_x = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_x = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
-    FCL_REAL rand_angle_y = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_y = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
-    FCL_REAL rand_angle_z = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_z = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
+  for (size_t i = 0; i < env.size(); ++i) {
+    FCL_REAL rand_angle_x =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
+    FCL_REAL rand_trans_x =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
+    FCL_REAL rand_angle_y =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
+    FCL_REAL rand_trans_y =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
+    FCL_REAL rand_angle_z =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
+    FCL_REAL rand_trans_z =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
 
-    Matrix3f dR(
-                Eigen::AngleAxisd(rand_angle_x, Vec3f::UnitX())
-                * Eigen::AngleAxisd(rand_angle_y, Vec3f::UnitY())
-                * Eigen::AngleAxisd(rand_angle_z, Vec3f::UnitZ()));
+    Matrix3f dR(Eigen::AngleAxisd(rand_angle_x, Vec3f::UnitX()) *
+                Eigen::AngleAxisd(rand_angle_y, Vec3f::UnitY()) *
+                Eigen::AngleAxisd(rand_angle_z, Vec3f::UnitZ()));
     Vec3f dT(rand_trans_x, rand_trans_y, rand_trans_z);
 
     Matrix3f R = env[i]->getRotation();
@@ -278,8 +292,7 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
     env[i]->computeAABB();
   }
 
-  for(size_t i = 0; i < managers.size(); ++i)
-  {
+  for (size_t i = 0; i < managers.size(); ++i) {
     timers[i].start();
     managers[i]->update();
     timers[i].stop();
@@ -288,8 +301,7 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
 
   std::vector<CollisionDataForUniquenessChecking> self_data(managers.size());
 
-  for(size_t i = 0; i < managers.size(); ++i)
-  {
+  for (size_t i = 0; i < managers.size(); ++i) {
     CollisionFunctionForUniquenessChecking callback;
     timers[i].start();
     managers[i]->collide(&callback);
@@ -297,11 +309,9 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-  for (auto obj : env)
-    delete obj;
+  for (auto obj : env) delete obj;
 
-  if (!verbose)
-    return;
+  if (!verbose) return;
 
   std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
   int w = 7;
@@ -309,60 +319,55 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size, 
   std::cout << "collision timing summary" << std::endl;
   std::cout << env_size << " objs" << std::endl;
   std::cout << "register time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
+  for (size_t i = 0; i < ts.size(); ++i)
     std::cout << std::setw(w) << ts[i].records[0] << " ";
   std::cout << std::endl;
 
   std::cout << "setup time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
+  for (size_t i = 0; i < ts.size(); ++i)
     std::cout << std::setw(w) << ts[i].records[1] << " ";
   std::cout << std::endl;
 
   std::cout << "update time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
+  for (size_t i = 0; i < ts.size(); ++i)
     std::cout << std::setw(w) << ts[i].records[2] << " ";
   std::cout << std::endl;
 
   std::cout << "self collision time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
+  for (size_t i = 0; i < ts.size(); ++i)
     std::cout << std::setw(w) << ts[i].records[3] << " ";
   std::cout << std::endl;
 
   std::cout << "collision time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
-  {
+  for (size_t i = 0; i < ts.size(); ++i) {
     FCL_REAL tmp = 0;
-    for(size_t j = 4; j < ts[i].records.size(); ++j)
-      tmp += ts[i].records[j];
+    for (size_t j = 4; j < ts[i].records.size(); ++j) tmp += ts[i].records[j];
     std::cout << std::setw(w) << tmp << " ";
   }
   std::cout << std::endl;
 
   std::cout << "overall time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
+  for (size_t i = 0; i < ts.size(); ++i)
     std::cout << std::setw(w) << ts[i].overall_time << " ";
   std::cout << std::endl;
   std::cout << std::endl;
 }
 
-void broad_phase_update_collision_test(FCL_REAL env_scale,
-                                       std::size_t env_size,
+void broad_phase_update_collision_test(FCL_REAL env_scale, std::size_t env_size,
                                        std::size_t query_size,
                                        std::size_t num_max_contacts,
-                                       bool exhaustive,
-                                       bool use_mesh)
-{
+                                       bool exhaustive, bool use_mesh) {
   std::vector<TStruct> ts;
   std::vector<BenchTimer> timers;
 
   std::vector<CollisionObject*> env;
-  if(use_mesh)
+  if (use_mesh)
     generateEnvironmentsMesh(env, env_scale, env_size);
   else
     generateEnvironments(env, env_scale, env_size);
 
   std::vector<CollisionObject*> query;
-  if(use_mesh)
+  if (use_mesh)
     generateEnvironmentsMesh(query, env_scale, query_size);
   else
     generateEnvironments(query, env_scale, query_size);
@@ -372,18 +377,30 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
   managers.push_back(new NaiveCollisionManager());
   managers.push_back(new SSaPCollisionManager());
 
-
   managers.push_back(new SaPCollisionManager());
   managers.push_back(new IntervalTreeCollisionManager());
 
   Vec3f lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
-  FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
-  // managers.push_back(new SpatialHashingCollisionManager(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<detail::SparseHashTable<AABB, CollisionObject*, detail::SpatialHash> >(cell_size, lower_limit, upper_limit));
+  FCL_REAL cell_size =
+      std::min(std::min((upper_limit[0] - lower_limit[0]) / 20,
+                        (upper_limit[1] - lower_limit[1]) / 20),
+               (upper_limit[2] - lower_limit[2]) / 20);
+  // managers.push_back(new SpatialHashingCollisionManager(cell_size,
+  // lower_limit, upper_limit));
+  managers.push_back(
+      new SpatialHashingCollisionManager<
+          detail::SparseHashTable<AABB, CollisionObject*, detail::SpatialHash>>(
+          cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<detail::SparseHashTable<AABB, CollisionObject*, detail::SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<detail::SparseHashTable<AABB, CollisionObject*, detail::SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(
+      new SpatialHashingCollisionManager<detail::SparseHashTable<
+          AABB, CollisionObject*, detail::SpatialHash, GoogleSparseHashTable>>(
+          cell_size, lower_limit, upper_limit));
+  managers.push_back(
+      new SpatialHashingCollisionManager<detail::SparseHashTable<
+          AABB, CollisionObject*, detail::SpatialHash, GoogleDenseHashTable>>(
+          cell_size, lower_limit, upper_limit));
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager());
   managers.push_back(new DynamicAABBTreeArrayCollisionManager());
@@ -395,7 +412,8 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
   }
 
   {
-    DynamicAABBTreeArrayCollisionManager* m = new DynamicAABBTreeArrayCollisionManager();
+    DynamicAABBTreeArrayCollisionManager* m =
+        new DynamicAABBTreeArrayCollisionManager();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
@@ -403,16 +421,14 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
   ts.resize(managers.size());
   timers.resize(managers.size());
 
-  for(size_t i = 0; i < managers.size(); ++i)
-  {
+  for (size_t i = 0; i < managers.size(); ++i) {
     timers[i].start();
     managers[i]->registerObjects(env);
     timers[i].stop();
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-  for(size_t i = 0; i < managers.size(); ++i)
-  {
+  for (size_t i = 0; i < managers.size(); ++i) {
     timers[i].start();
     managers[i]->setup();
     timers[i].stop();
@@ -420,21 +436,26 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
   }
 
   // update the environment
-  FCL_REAL delta_angle_max = 10 / 360.0 * 2 * boost::math::constants::pi<FCL_REAL>();
+  FCL_REAL delta_angle_max =
+      10 / 360.0 * 2 * boost::math::constants::pi<FCL_REAL>();
   FCL_REAL delta_trans_max = 0.01 * env_scale;
-  for(size_t i = 0; i < env.size(); ++i)
-  {
-    FCL_REAL rand_angle_x = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_x = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
-    FCL_REAL rand_angle_y = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_y = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
-    FCL_REAL rand_angle_z = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_z = 2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
+  for (size_t i = 0; i < env.size(); ++i) {
+    FCL_REAL rand_angle_x =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
+    FCL_REAL rand_trans_x =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
+    FCL_REAL rand_angle_y =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
+    FCL_REAL rand_trans_y =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
+    FCL_REAL rand_angle_z =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
+    FCL_REAL rand_trans_z =
+        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
 
-    Matrix3f dR(
-          Eigen::AngleAxisd(rand_angle_x, Vec3f::UnitX())
-          * Eigen::AngleAxisd(rand_angle_y, Vec3f::UnitY())
-          * Eigen::AngleAxisd(rand_angle_z, Vec3f::UnitZ()));
+    Matrix3f dR(Eigen::AngleAxisd(rand_angle_x, Vec3f::UnitX()) *
+                Eigen::AngleAxisd(rand_angle_y, Vec3f::UnitY()) *
+                Eigen::AngleAxisd(rand_angle_z, Vec3f::UnitZ()));
     Vec3f dT(rand_trans_x, rand_trans_y, rand_trans_z);
 
     Matrix3f R = env[i]->getRotation();
@@ -443,8 +464,7 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
     env[i]->computeAABB();
   }
 
-  for(size_t i = 0; i < managers.size(); ++i)
-  {
+  for (size_t i = 0; i < managers.size(); ++i) {
     timers[i].start();
     managers[i]->update();
     timers[i].stop();
@@ -452,14 +472,14 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
   }
 
   std::vector<CollisionData> self_data(managers.size());
-  for(size_t i = 0; i < managers.size(); ++i)
-  {
-    if(exhaustive) self_data[i].request.num_max_contacts = 100000;
-    else self_data[i].request.num_max_contacts = num_max_contacts;
+  for (size_t i = 0; i < managers.size(); ++i) {
+    if (exhaustive)
+      self_data[i].request.num_max_contacts = 100000;
+    else
+      self_data[i].request.num_max_contacts = num_max_contacts;
   }
 
-  for(size_t i = 0; i < managers.size(); ++i)
-  {
+  for (size_t i = 0; i < managers.size(); ++i) {
     CollisionCallBackDefault callback;
     timers[i].start();
     managers[i]->collide(&callback);
@@ -467,80 +487,69 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-
-  for(size_t i = 0; i < managers.size(); ++i)
+  for (size_t i = 0; i < managers.size(); ++i)
     std::cout << self_data[i].result.numContacts() << " ";
   std::cout << std::endl;
 
-  if(exhaustive)
-  {
-    for(size_t i = 1; i < managers.size(); ++i)
-      BOOST_CHECK(self_data[i].result.numContacts() == self_data[0].result.numContacts());
-  }
-  else
-  {
+  if (exhaustive) {
+    for (size_t i = 1; i < managers.size(); ++i)
+      BOOST_CHECK(self_data[i].result.numContacts() ==
+                  self_data[0].result.numContacts());
+  } else {
     std::vector<bool> self_res(managers.size());
-    for(size_t i = 0; i < self_res.size(); ++i)
+    for (size_t i = 0; i < self_res.size(); ++i)
       self_res[i] = (self_data[i].result.numContacts() > 0);
 
-    for(size_t i = 1; i < self_res.size(); ++i)
+    for (size_t i = 1; i < self_res.size(); ++i)
       BOOST_CHECK(self_res[0] == self_res[i]);
 
-    for(size_t i = 1; i < managers.size(); ++i)
-      BOOST_CHECK(self_data[i].result.numContacts() == self_data[0].result.numContacts());
+    for (size_t i = 1; i < managers.size(); ++i)
+      BOOST_CHECK(self_data[i].result.numContacts() ==
+                  self_data[0].result.numContacts());
   }
 
-
-  for(size_t i = 0; i < query.size(); ++i)
-  {
+  for (size_t i = 0; i < query.size(); ++i) {
     std::vector<CollisionCallBackDefault> query_callbacks(managers.size());
-    
-    for(size_t j = 0; j < query_callbacks.size(); ++j)
-    {
-      if(exhaustive) query_callbacks[j].data.request.num_max_contacts = 100000;
-      else query_callbacks[j].data.request.num_max_contacts = num_max_contacts;
+
+    for (size_t j = 0; j < query_callbacks.size(); ++j) {
+      if (exhaustive)
+        query_callbacks[j].data.request.num_max_contacts = 100000;
+      else
+        query_callbacks[j].data.request.num_max_contacts = num_max_contacts;
     }
 
-    for(size_t j = 0; j < query_callbacks.size(); ++j)
-    {
+    for (size_t j = 0; j < query_callbacks.size(); ++j) {
       timers[j].start();
       managers[j]->collide(query[i], &query_callbacks[j]);
       timers[j].stop();
       ts[j].push_back(timers[j].getElapsedTime());
     }
 
-
     // for(size_t j = 0; j < managers.size(); ++j)
     //   std::cout << query_callbacks[j].result.numContacts() << " ";
     // std::cout << std::endl;
 
-    if(exhaustive)
-    {
-      for(size_t j = 1; j < managers.size(); ++j)
-        BOOST_CHECK(query_callbacks[j].data.result.numContacts() == query_callbacks[0].data.result.numContacts());
-    }
-    else
-    {
+    if (exhaustive) {
+      for (size_t j = 1; j < managers.size(); ++j)
+        BOOST_CHECK(query_callbacks[j].data.result.numContacts() ==
+                    query_callbacks[0].data.result.numContacts());
+    } else {
       std::vector<bool> query_res(managers.size());
-      for(size_t j = 0; j < query_res.size(); ++j)
+      for (size_t j = 0; j < query_res.size(); ++j)
         query_res[j] = (query_callbacks[j].data.result.numContacts() > 0);
-      for(size_t j = 1; j < query_res.size(); ++j)
+      for (size_t j = 1; j < query_res.size(); ++j)
         BOOST_CHECK(query_res[0] == query_res[j]);
 
-      for(size_t j = 1; j < managers.size(); ++j)
-        BOOST_CHECK(query_callbacks[j].data.result.numContacts() == query_callbacks[0].data.result.numContacts());
+      for (size_t j = 1; j < managers.size(); ++j)
+        BOOST_CHECK(query_callbacks[j].data.result.numContacts() ==
+                    query_callbacks[0].data.result.numContacts());
     }
   }
 
+  for (size_t i = 0; i < env.size(); ++i) delete env[i];
+  for (size_t i = 0; i < query.size(); ++i) delete query[i];
 
-  for(size_t i = 0; i < env.size(); ++i)
-    delete env[i];
-  for(size_t i = 0; i < query.size(); ++i)
-    delete query[i];
-
-  for(size_t i = 0; i < managers.size(); ++i)
-    delete managers[i];
-
+  for (size_t i = 0; i < managers.size(); ++i) delete managers[i];
 
   std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
   int w = 7;
@@ -548,38 +557,35 @@ void broad_phase_update_collision_test(FCL_REAL env_scale,
   std::cout << "collision timing summary" << std::endl;
   std::cout << env_size << " objs, " << query_size << " queries" << std::endl;
   std::cout << "register time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
+  for (size_t i = 0; i < ts.size(); ++i)
     std::cout << std::setw(w) << ts[i].records[0] << " ";
   std::cout << std::endl;
 
   std::cout << "setup time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
+  for (size_t i = 0; i < ts.size(); ++i)
     std::cout << std::setw(w) << ts[i].records[1] << " ";
   std::cout << std::endl;
 
   std::cout << "update time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
+  for (size_t i = 0; i < ts.size(); ++i)
     std::cout << std::setw(w) << ts[i].records[2] << " ";
   std::cout << std::endl;
 
   std::cout << "self collision time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
+  for (size_t i = 0; i < ts.size(); ++i)
     std::cout << std::setw(w) << ts[i].records[3] << " ";
   std::cout << std::endl;
 
   std::cout << "collision time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
-  {
+  for (size_t i = 0; i < ts.size(); ++i) {
     FCL_REAL tmp = 0;
-    for(size_t j = 4; j < ts[i].records.size(); ++j)
-      tmp += ts[i].records[j];
+    for (size_t j = 4; j < ts[i].records.size(); ++j) tmp += ts[i].records[j];
     std::cout << std::setw(w) << tmp << " ";
   }
   std::cout << std::endl;
 
-
   std::cout << "overall time" << std::endl;
-  for(size_t i = 0; i < ts.size(); ++i)
+  for (size_t i = 0; i < ts.size(); ++i)
     std::cout << std::setw(w) << ts[i].overall_time << " ";
   std::cout << std::endl;
   std::cout << std::endl;
