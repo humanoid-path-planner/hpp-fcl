@@ -56,7 +56,7 @@ enum SplitMethodType {
 
 /// @brief A class describing the split rule that splits each BV node
 template <typename BV>
-class HPP_FCL_DLLAPI BVSplitter {
+class BVSplitter {
  public:
   BVSplitter(SplitMethodType method)
       : split_vector(0, 0, 0), split_method(method) {}
@@ -208,76 +208,76 @@ class HPP_FCL_DLLAPI BVSplitter {
 };
 
 template <>
-bool BVSplitter<OBB>::apply(const Vec3f& q) const;
+bool HPP_FCL_DLLAPI BVSplitter<OBB>::apply(const Vec3f& q) const;
 
 template <>
-bool BVSplitter<RSS>::apply(const Vec3f& q) const;
+bool HPP_FCL_DLLAPI BVSplitter<RSS>::apply(const Vec3f& q) const;
 
 template <>
-bool BVSplitter<kIOS>::apply(const Vec3f& q) const;
+bool HPP_FCL_DLLAPI BVSplitter<kIOS>::apply(const Vec3f& q) const;
 
 template <>
-bool BVSplitter<OBBRSS>::apply(const Vec3f& q) const;
+bool HPP_FCL_DLLAPI BVSplitter<OBBRSS>::apply(const Vec3f& q) const;
 
 template <>
-void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv,
-                                           unsigned int* primitive_indices,
-                                           unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<OBB>::computeRule_bvcenter(
+    const OBB& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 template <>
-void BVSplitter<OBB>::computeRule_mean(const OBB& bv,
-                                       unsigned int* primitive_indices,
-                                       unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<OBB>::computeRule_mean(
+    const OBB& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 template <>
-void BVSplitter<OBB>::computeRule_median(const OBB& bv,
-                                         unsigned int* primitive_indices,
-                                         unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<OBB>::computeRule_median(
+    const OBB& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 template <>
-void BVSplitter<RSS>::computeRule_bvcenter(const RSS& bv,
-                                           unsigned int* primitive_indices,
-                                           unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<RSS>::computeRule_bvcenter(
+    const RSS& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 template <>
-void BVSplitter<RSS>::computeRule_mean(const RSS& bv,
-                                       unsigned int* primitive_indices,
-                                       unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<RSS>::computeRule_mean(
+    const RSS& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 template <>
-void BVSplitter<RSS>::computeRule_median(const RSS& bv,
-                                         unsigned int* primitive_indices,
-                                         unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<RSS>::computeRule_median(
+    const RSS& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 template <>
-void BVSplitter<kIOS>::computeRule_bvcenter(const kIOS& bv,
-                                            unsigned int* primitive_indices,
-                                            unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<kIOS>::computeRule_bvcenter(
+    const kIOS& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 template <>
-void BVSplitter<kIOS>::computeRule_mean(const kIOS& bv,
-                                        unsigned int* primitive_indices,
-                                        unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<kIOS>::computeRule_mean(
+    const kIOS& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 template <>
-void BVSplitter<kIOS>::computeRule_median(const kIOS& bv,
-                                          unsigned int* primitive_indices,
-                                          unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<kIOS>::computeRule_median(
+    const kIOS& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 template <>
-void BVSplitter<OBBRSS>::computeRule_bvcenter(const OBBRSS& bv,
-                                              unsigned int* primitive_indices,
-                                              unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<OBBRSS>::computeRule_bvcenter(
+    const OBBRSS& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 template <>
-void BVSplitter<OBBRSS>::computeRule_mean(const OBBRSS& bv,
-                                          unsigned int* primitive_indices,
-                                          unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<OBBRSS>::computeRule_mean(
+    const OBBRSS& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 template <>
-void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv,
-                                            unsigned int* primitive_indices,
-                                            unsigned int num_primitives);
+void HPP_FCL_DLLAPI BVSplitter<OBBRSS>::computeRule_median(
+    const OBBRSS& bv, unsigned int* primitive_indices,
+    unsigned int num_primitives);
 
 }  // namespace fcl
 
