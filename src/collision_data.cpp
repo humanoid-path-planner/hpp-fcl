@@ -37,21 +37,17 @@
 
 #include <hpp/fcl/collision_data.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-bool CollisionRequest::isSatisfied(const CollisionResult& result) const
-{
+bool CollisionRequest::isSatisfied(const CollisionResult& result) const {
   return result.isCollision() && (num_max_contacts <= result.numContacts());
 }
 
-bool DistanceRequest::isSatisfied(const DistanceResult& result) const
-{
+bool DistanceRequest::isSatisfied(const DistanceResult& result) const {
   return (result.min_distance <= 0);
 }
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp

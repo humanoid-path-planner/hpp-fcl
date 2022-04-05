@@ -40,34 +40,28 @@
 
 #include "hpp/fcl/broadphase/detail/node_base_array.h"
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-namespace detail
-{
+namespace detail {
 
-namespace implementation_array
-{
+namespace implementation_array {
 
 //==============================================================================
-template<typename BV>
-bool NodeBase<BV>::isLeaf() const
-{
+template <typename BV>
+bool NodeBase<BV>::isLeaf() const {
   return (children[1] == (size_t)(-1));
 }
 
 //==============================================================================
-template<typename BV>
-bool NodeBase<BV>::isInternal() const
-{
+template <typename BV>
+bool NodeBase<BV>::isInternal() const {
   return !isLeaf();
 }
 
-} // namespace implementation_array
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace implementation_array
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

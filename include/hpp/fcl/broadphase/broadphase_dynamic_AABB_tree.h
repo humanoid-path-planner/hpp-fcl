@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -48,20 +48,18 @@
 #include "hpp/fcl/broadphase/broadphase_collision_manager.h"
 #include "hpp/fcl/broadphase/detail/hierarchy_tree.h"
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 class HPP_FCL_DLLAPI DynamicAABBTreeCollisionManager
-: public BroadPhaseCollisionManager
-{
-public:
+    : public BroadPhaseCollisionManager {
+ public:
   typedef BroadPhaseCollisionManager Base;
   using Base::getObjects;
 
   using DynamicAABBNode = detail::NodeBase<AABB>;
-  using DynamicAABBTable = std::unordered_map<CollisionObject*, DynamicAABBNode*> ;
+  using DynamicAABBTable =
+      std::unordered_map<CollisionObject*, DynamicAABBNode*>;
 
   int max_tree_nonbalanced_level;
   int tree_incremental_balance_pass;
@@ -76,7 +74,7 @@ public:
 
   /// @brief add objects to the manager
   void registerObjects(const std::vector<CollisionObject*>& other_objs);
-  
+
   /// @brief add one object to the manager
   void registerObject(CollisionObject* obj);
 
@@ -101,37 +99,43 @@ public:
   /// @brief return the objects managed by the manager
   void getObjects(std::vector<CollisionObject*>& objs) const;
 
-  /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject* obj, CollisionCallBackBase * callback) const;
+  /// @brief perform collision test between one object and all the objects
+  /// belonging to the manager
+  void collide(CollisionObject* obj, CollisionCallBackBase* callback) const;
 
-  /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObject* obj, DistanceCallBackBase * callback) const;
+  /// @brief perform distance computation between one object and all the objects
+  /// belonging to the manager
+  void distance(CollisionObject* obj, DistanceCallBackBase* callback) const;
 
-  /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  void collide(CollisionCallBackBase * callback) const;
+  /// @brief perform collision test for the objects belonging to the manager
+  /// (i.e., N^2 self collision)
+  void collide(CollisionCallBackBase* callback) const;
 
-  /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(DistanceCallBackBase * callback) const;
+  /// @brief perform distance test for the objects belonging to the manager
+  /// (i.e., N^2 self distance)
+  void distance(DistanceCallBackBase* callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager* other_manager_, CollisionCallBackBase * callback) const;
+  void collide(BroadPhaseCollisionManager* other_manager_,
+               CollisionCallBackBase* callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager* other_manager_, DistanceCallBackBase * callback) const;
-  
+  void distance(BroadPhaseCollisionManager* other_manager_,
+                DistanceCallBackBase* callback) const;
+
   /// @brief whether the manager is empty
   bool empty() const;
-  
+
   /// @brief the number of objects managed by the manager
   size_t size() const;
 
   /// @brief returns the AABB tree structure.
   const detail::HierarchyTree<AABB>& getTree() const;
-  
-  /// @brief returns the AABB tree structure.
-  detail::HierarchyTree<AABB> & getTree();
 
-private:
+  /// @brief returns the AABB tree structure.
+  detail::HierarchyTree<AABB>& getTree();
+
+ private:
   detail::HierarchyTree<AABB> dtree{};
   std::unordered_map<CollisionObject*, DynamicAABBNode*> table;
 
@@ -140,9 +144,9 @@ private:
   void update_(CollisionObject* updated_obj);
 };
 
-} // namespace fcl
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree-inl.h"
 

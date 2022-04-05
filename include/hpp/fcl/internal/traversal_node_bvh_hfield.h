@@ -55,117 +55,106 @@
 #include <vector>
 #include <cassert>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @addtogroup Traversal_For_Collision
 /// @{
 
-/// @brief Traversal node for collision between one BVH model and one HeightField
-template<typename BV1, typename BV2, int _Options = RelativeTransformationIsIdentity>
+/// @brief Traversal node for collision between one BVH model and one
+/// HeightField
+template <typename BV1, typename BV2,
+          int _Options = RelativeTransformationIsIdentity>
 class MeshHeightFieldCollisionTraversalNode
-: public CollisionTraversalNodeBase
-{
-public:
+    : public CollisionTraversalNodeBase {
+ public:
   enum {
     Options = _Options,
     RTIsIdentity = _Options & RelativeTransformationIsIdentity
   };
 
   MeshHeightFieldCollisionTraversalNode(const CollisionRequest& request)
-  : CollisionTraversalNodeBase(request)
-  {
+      : CollisionTraversalNodeBase(request) {
     model1 = NULL;
     model2 = NULL;
 
     num_bv_tests = 0;
     num_leaf_tests = 0;
     query_time_seconds = 0.0;
-    
+
     vertices1 = NULL;
     tri_indices1 = NULL;
   }
-  
+
   /// @brief Whether the BV node in the first BVH tree is leaf
-  bool isFirstNodeLeaf(unsigned int b) const
-  {
+  bool isFirstNodeLeaf(unsigned int b) const {
     assert(model1 != NULL && "model1 is NULL");
     return model1->getBV(b).isLeaf();
   }
 
   /// @brief Whether the BV node in the second BVH tree is leaf
-  bool isSecondNodeLeaf(unsigned int b) const
-  {
+  bool isSecondNodeLeaf(unsigned int b) const {
     assert(model2 != NULL && "model2 is NULL");
     return model2->getBV(b).isLeaf();
   }
 
   /// @brief Determine the traversal order, is the first BVTT subtree better
-  bool firstOverSecond(unsigned int b1, unsigned int b2) const
-  {
+  bool firstOverSecond(unsigned int b1, unsigned int b2) const {
     FCL_REAL sz1 = model1->getBV(b1).bv.size();
     FCL_REAL sz2 = model2->getBV(b2).bv.size();
 
     bool l1 = model1->getBV(b1).isLeaf();
     bool l2 = model2->getBV(b2).isLeaf();
 
-    if(l2 || (!l1 && (sz1 > sz2)))
-      return true;
+    if (l2 || (!l1 && (sz1 > sz2))) return true;
     return false;
   }
 
   /// @brief Obtain the left child of BV node in the first BVH
-  int getFirstLeftChild(unsigned int b) const
-  {
+  int getFirstLeftChild(unsigned int b) const {
     return model1->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the first BVH
-  int getFirstRightChild(unsigned int b) const
-  {
+  int getFirstRightChild(unsigned int b) const {
     return model1->getBV(b).rightChild();
   }
 
   /// @brief Obtain the left child of BV node in the second BVH
-  int getSecondLeftChild(unsigned int b) const
-  {
+  int getSecondLeftChild(unsigned int b) const {
     return model2->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the second BVH
-  int getSecondRightChild(unsigned int b) const
-  {
+  int getSecondRightChild(unsigned int b) const {
     return model2->getBV(b).rightChild();
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(unsigned int b1, unsigned int b2) const
-  {
-    if(this->enable_statistics) this->num_bv_tests++;
+  bool BVDisjoints(unsigned int b1, unsigned int b2) const {
+    if (this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
       return !this->model1->getBV(b1).overlap(this->model2->getBV(b2));
     else
-      return !overlap(RT._R(), RT._T(),
-          this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+      return !overlap(RT._R(), RT._T(), this->model1->getBV(b1).bv,
+                      this->model2->getBV(b2).bv);
   }
-  
+
   /// BV test between b1 and b2
   /// @param b1, b2 Bounding volumes to test,
   /// @retval sqrDistLowerBound square of a lower bound of the minimal
   ///         distance between bounding volumes.
-  bool BVDisjoints(unsigned int b1, unsigned int b2, FCL_REAL& sqrDistLowerBound) const
-  {
-    if(this->enable_statistics) this->num_bv_tests++;
+  bool BVDisjoints(unsigned int b1, unsigned int b2,
+                   FCL_REAL& sqrDistLowerBound) const {
+    if (this->enable_statistics) this->num_bv_tests++;
     if (RTIsIdentity)
       return !this->model1->getBV(b1).overlap(this->model2->getBV(b2),
-          this->request, sqrDistLowerBound);
+                                              this->request, sqrDistLowerBound);
     else {
-      bool res = !overlap(RT._R(), RT._T(),
-          this->model1->getBV(b1).bv, this->model2->getBV(b2).bv,
-          this->request, sqrDistLowerBound);
-      assert (!res || sqrDistLowerBound > 0);
+      bool res = !overlap(RT._R(), RT._T(), this->model1->getBV(b1).bv,
+                          this->model2->getBV(b2).bv, this->request,
+                          sqrDistLowerBound);
+      assert(!res || sqrDistLowerBound > 0);
       return res;
     }
   }
@@ -184,52 +173,53 @@ public:
   /// @note If the distance between objects is less than the security margin,
   ///       and the object are not colliding, the penetration depth is
   ///       negative.
-  void leafCollides(unsigned int b1, unsigned int b2, FCL_REAL& sqrDistLowerBound) const
-  {
-    if(this->enable_statistics) this->num_leaf_tests++;
+  void leafCollides(unsigned int b1, unsigned int b2,
+                    FCL_REAL& sqrDistLowerBound) const {
+    if (this->enable_statistics) this->num_leaf_tests++;
 
-    const BVNode<BV1> & node1 = this->model1->getBV(b1);
-    const HeightFieldNode<BV2> & node2 = this->model2->getBV(b2);
+    const BVNode<BV1>& node1 = this->model1->getBV(b1);
+    const HeightFieldNode<BV2>& node2 = this->model2->getBV(b2);
 
     int primitive_id1 = node1.primitiveId();
-    const Triangle & tri_id1 = tri_indices1[primitive_id1];
+    const Triangle& tri_id1 = tri_indices1[primitive_id1];
 
     const Vec3f& P1 = vertices1[tri_id1[0]];
     const Vec3f& P2 = vertices1[tri_id1[1]];
     const Vec3f& P3 = vertices1[tri_id1[2]];
 
-    TriangleP tri1 (P1, P2, P3);
-    
+    TriangleP tri1(P1, P2, P3);
+
     typedef Convex<Triangle> ConvexTriangle;
     ConvexTriangle convex1, convex2;
-    details::buildConvexTriangles(node2,*this->model2,convex2,convex2);
-    
+    details::buildConvexTriangles(node2, *this->model2, convex2, convex2);
+
     GJKSolver solver;
-    Vec3f p1, p2; // closest points if no collision contact points if collision.
+    Vec3f p1,
+        p2;  // closest points if no collision contact points if collision.
     Vec3f normal;
     FCL_REAL distance;
-    solver.shapeDistance (tri1, this->tf1, tri2, this->tf2,
-                          distance, p1, p2, normal);
+    solver.shapeDistance(tri1, this->tf1, tri2, this->tf2, distance, p1, p2,
+                         normal);
     FCL_REAL distToCollision = distance - this->request.security_margin;
     sqrDistLowerBound = distance * distance;
-    if (distToCollision <= 0) { // collision
-      Vec3f p (p1); // contact point
-      FCL_REAL penetrationDepth (0);
-      if(this->result->numContacts() < this->request.num_max_contacts) {
+    if (distToCollision <= 0) {  // collision
+      Vec3f p(p1);               // contact point
+      FCL_REAL penetrationDepth(0);
+      if (this->result->numContacts() < this->request.num_max_contacts) {
         // How much (Q1, Q2, Q3) should be moved so that all vertices are
         // above (P1, P2, P3).
         penetrationDepth = -distance;
         if (distance > 0) {
-          normal = (p2-p1).normalized ();
-          p = .5* (p1+p2);
+          normal = (p2 - p1).normalized();
+          p = .5 * (p1 + p2);
         }
         this->result->addContact(Contact(this->model1, this->model2,
-                                         primitive_id1, primitive_id2,
-                                         p, normal, penetrationDepth));
+                                         primitive_id1, primitive_id2, p,
+                                         normal, penetrationDepth));
       }
     }
   }
-  
+
   /// @brief The first BVH model
   const BVHModel<BV1>* model1;
   /// @brief The second HeightField model
@@ -240,97 +230,95 @@ public:
   mutable int num_leaf_tests;
   mutable FCL_REAL query_time_seconds;
 
-  Vec3f* vertices1
-  Triangle* tri_indices1;
+  Vec3f* vertices1 Triangle* tri_indices1;
 
   details::RelativeTransformation<!bool(RTIsIdentity)> RT;
 };
 
-/// @brief Traversal node for collision between two meshes if their underlying BVH node is oriented node (OBB, RSS, OBBRSS, kIOS)
-typedef MeshHeightFieldCollisionTraversalNode<OBB   , 0> MeshHeightFieldCollisionTraversalNodeOBB   ;
-typedef MeshHeightFieldCollisionTraversalNode<RSS   , 0> MeshHeightFieldCollisionTraversalNodeRSS   ;
-typedef MeshHeightFieldCollisionTraversalNode<kIOS  , 0> MeshHeightFieldCollisionTraversalNodekIOS  ;
-typedef MeshHeightFieldCollisionTraversalNode<OBBRSS, 0> MeshHeightFieldCollisionTraversalNodeOBBRSS;
+/// @brief Traversal node for collision between two meshes if their underlying
+/// BVH node is oriented node (OBB, RSS, OBBRSS, kIOS)
+typedef MeshHeightFieldCollisionTraversalNode<OBB, 0>
+    MeshHeightFieldCollisionTraversalNodeOBB;
+typedef MeshHeightFieldCollisionTraversalNode<RSS, 0>
+    MeshHeightFieldCollisionTraversalNodeRSS;
+typedef MeshHeightFieldCollisionTraversalNode<kIOS, 0>
+    MeshHeightFieldCollisionTraversalNodekIOS;
+typedef MeshHeightFieldCollisionTraversalNode<OBBRSS, 0>
+    MeshHeightFieldCollisionTraversalNodeOBBRSS;
 
 /// @}
 
-namespace details
-{
-  template<typename BV> struct DistanceTraversalBVDistanceLowerBound_impl
-  {
-    static FCL_REAL run(const BVNode<BV>& b1, const BVNode<BV>& b2)
-    {
-      return b1.distance(b2);
-    }
-    static FCL_REAL run(const Matrix3f& R, const Vec3f& T, const BVNode<BV>& b1, const BVNode<BV>& b2)
-    {
-      return distance(R, T, b1.bv, b2.bv);
-    }
-  };
+namespace details {
+template <typename BV>
+struct DistanceTraversalBVDistanceLowerBound_impl {
+  static FCL_REAL run(const BVNode<BV>& b1, const BVNode<BV>& b2) {
+    return b1.distance(b2);
+  }
+  static FCL_REAL run(const Matrix3f& R, const Vec3f& T, const BVNode<BV>& b1,
+                      const BVNode<BV>& b2) {
+    return distance(R, T, b1.bv, b2.bv);
+  }
+};
 
-  template<> struct DistanceTraversalBVDistanceLowerBound_impl<OBB>
-  {
-    static FCL_REAL run(const BVNode<OBB>& b1, const BVNode<OBB>& b2)
-    {
-      FCL_REAL sqrDistLowerBound;
-      CollisionRequest request (DISTANCE_LOWER_BOUND, 0);
-      // request.break_distance = ?
-      if (b1.overlap(b2, request, sqrDistLowerBound)) {
-        // TODO A penetration upper bound should be computed.
-        return -1;
-      }
-      return sqrt (sqrDistLowerBound);
+template <>
+struct DistanceTraversalBVDistanceLowerBound_impl<OBB> {
+  static FCL_REAL run(const BVNode<OBB>& b1, const BVNode<OBB>& b2) {
+    FCL_REAL sqrDistLowerBound;
+    CollisionRequest request(DISTANCE_LOWER_BOUND, 0);
+    // request.break_distance = ?
+    if (b1.overlap(b2, request, sqrDistLowerBound)) {
+      // TODO A penetration upper bound should be computed.
+      return -1;
     }
-    static FCL_REAL run(const Matrix3f& R, const Vec3f& T, const BVNode<OBB>& b1, const BVNode<OBB>& b2)
-    {
-      FCL_REAL sqrDistLowerBound;
-      CollisionRequest request (DISTANCE_LOWER_BOUND, 0);
-      // request.break_distance = ?
-      if (overlap(R, T, b1.bv, b2.bv, request, sqrDistLowerBound)) {
-        // TODO A penetration upper bound should be computed.
-        return -1;
-      }
-      return sqrt (sqrDistLowerBound);
+    return sqrt(sqrDistLowerBound);
+  }
+  static FCL_REAL run(const Matrix3f& R, const Vec3f& T, const BVNode<OBB>& b1,
+                      const BVNode<OBB>& b2) {
+    FCL_REAL sqrDistLowerBound;
+    CollisionRequest request(DISTANCE_LOWER_BOUND, 0);
+    // request.break_distance = ?
+    if (overlap(R, T, b1.bv, b2.bv, request, sqrDistLowerBound)) {
+      // TODO A penetration upper bound should be computed.
+      return -1;
     }
-  };
+    return sqrt(sqrDistLowerBound);
+  }
+};
 
-  template<> struct DistanceTraversalBVDistanceLowerBound_impl<AABB>
-  {
-    static FCL_REAL run(const BVNode<AABB>& b1, const BVNode<AABB>& b2)
-    {
-      FCL_REAL sqrDistLowerBound;
-      CollisionRequest request (DISTANCE_LOWER_BOUND, 0);
-      // request.break_distance = ?
-      if (b1.overlap(b2, request, sqrDistLowerBound)) {
-        // TODO A penetration upper bound should be computed.
-        return -1;
-      }
-      return sqrt (sqrDistLowerBound);
+template <>
+struct DistanceTraversalBVDistanceLowerBound_impl<AABB> {
+  static FCL_REAL run(const BVNode<AABB>& b1, const BVNode<AABB>& b2) {
+    FCL_REAL sqrDistLowerBound;
+    CollisionRequest request(DISTANCE_LOWER_BOUND, 0);
+    // request.break_distance = ?
+    if (b1.overlap(b2, request, sqrDistLowerBound)) {
+      // TODO A penetration upper bound should be computed.
+      return -1;
     }
-    static FCL_REAL run(const Matrix3f& R, const Vec3f& T, const BVNode<AABB>& b1, const BVNode<AABB>& b2)
-    {
-      FCL_REAL sqrDistLowerBound;
-      CollisionRequest request (DISTANCE_LOWER_BOUND, 0);
-      // request.break_distance = ?
-      if (overlap(R, T, b1.bv, b2.bv, request, sqrDistLowerBound)) {
-        // TODO A penetration upper bound should be computed.
-        return -1;
-      }
-      return sqrt (sqrDistLowerBound);
+    return sqrt(sqrDistLowerBound);
+  }
+  static FCL_REAL run(const Matrix3f& R, const Vec3f& T, const BVNode<AABB>& b1,
+                      const BVNode<AABB>& b2) {
+    FCL_REAL sqrDistLowerBound;
+    CollisionRequest request(DISTANCE_LOWER_BOUND, 0);
+    // request.break_distance = ?
+    if (overlap(R, T, b1.bv, b2.bv, request, sqrDistLowerBound)) {
+      // TODO A penetration upper bound should be computed.
+      return -1;
     }
-  };
-} // namespace details
+    return sqrt(sqrDistLowerBound);
+  }
+};
+}  // namespace details
 
 /// @addtogroup Traversal_For_Distance
 /// @{
 
 /// @brief Traversal node for distance computation between BVH models
-template<typename BV>
-class BVHDistanceTraversalNode : public DistanceTraversalNodeBase
-{
-public:
-  BVHDistanceTraversalNode() : DistanceTraversalNodeBase()
-  {
+template <typename BV>
+class BVHDistanceTraversalNode : public DistanceTraversalNodeBase {
+ public:
+  BVHDistanceTraversalNode() : DistanceTraversalNodeBase() {
     model1 = NULL;
     model2 = NULL;
 
@@ -340,52 +328,44 @@ public:
   }
 
   /// @brief Whether the BV node in the first BVH tree is leaf
-  bool isFirstNodeLeaf(unsigned int b) const
-  {
+  bool isFirstNodeLeaf(unsigned int b) const {
     return model1->getBV(b).isLeaf();
   }
 
   /// @brief Whether the BV node in the second BVH tree is leaf
-  bool isSecondNodeLeaf(unsigned int b) const
-  {
+  bool isSecondNodeLeaf(unsigned int b) const {
     return model2->getBV(b).isLeaf();
   }
 
   /// @brief Determine the traversal order, is the first BVTT subtree better
-  bool firstOverSecond(unsigned int b1, unsigned int b2) const
-  {
+  bool firstOverSecond(unsigned int b1, unsigned int b2) const {
     FCL_REAL sz1 = model1->getBV(b1).bv.size();
     FCL_REAL sz2 = model2->getBV(b2).bv.size();
 
     bool l1 = model1->getBV(b1).isLeaf();
     bool l2 = model2->getBV(b2).isLeaf();
 
-    if(l2 || (!l1 && (sz1 > sz2)))
-      return true;
+    if (l2 || (!l1 && (sz1 > sz2))) return true;
     return false;
   }
 
   /// @brief Obtain the left child of BV node in the first BVH
-  int getFirstLeftChild(unsigned int b) const
-  {
+  int getFirstLeftChild(unsigned int b) const {
     return model1->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the first BVH
-  int getFirstRightChild(unsigned int b) const
-  {
+  int getFirstRightChild(unsigned int b) const {
     return model1->getBV(b).rightChild();
   }
 
   /// @brief Obtain the left child of BV node in the second BVH
-  int getSecondLeftChild(unsigned int b) const
-  {
+  int getSecondLeftChild(unsigned int b) const {
     return model2->getBV(b).leftChild();
   }
 
   /// @brief Obtain the right child of BV node in the second BVH
-  int getSecondRightChild(unsigned int b) const
-  {
+  int getSecondRightChild(unsigned int b) const {
     return model2->getBV(b).rightChild();
   }
 
@@ -400,12 +380,10 @@ public:
   mutable FCL_REAL query_time_seconds;
 };
 
-
 /// @brief Traversal node for distance computation between two meshes
-template<typename BV, int _Options = RelativeTransformationIsIdentity>
-class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV>
-{
-public:
+template <typename BV, int _Options = RelativeTransformationIsIdentity>
+class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV> {
+ public:
   enum {
     Options = _Options,
     RTIsIdentity = _Options & RelativeTransformationIsIdentity
@@ -420,8 +398,7 @@ public:
   using BVHDistanceTraversalNode<BV>::num_bv_tests;
   using BVHDistanceTraversalNode<BV>::num_leaf_tests;
 
-  MeshDistanceTraversalNode() : BVHDistanceTraversalNode<BV>()
-  {
+  MeshDistanceTraversalNode() : BVHDistanceTraversalNode<BV>() {
     vertices1 = NULL;
     vertices2 = NULL;
     tri_indices1 = NULL;
@@ -431,32 +408,28 @@ public:
     abs_err = this->request.abs_err;
   }
 
-  void preprocess()
-  {
-    if(!RTIsIdentity) preprocessOrientedNode();
+  void preprocess() {
+    if (!RTIsIdentity) preprocessOrientedNode();
   }
 
-  void postprocess()
-  {
-    if(!RTIsIdentity) postprocessOrientedNode();
+  void postprocess() {
+    if (!RTIsIdentity) postprocessOrientedNode();
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int b2) const
-  {
-    if(enable_statistics) num_bv_tests++;
+  FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int b2) const {
+    if (enable_statistics) num_bv_tests++;
     if (RTIsIdentity)
-      return details::DistanceTraversalBVDistanceLowerBound_impl<BV>
-        ::run (model1->getBV(b1), model2->getBV(b2));
+      return details::DistanceTraversalBVDistanceLowerBound_impl<BV>::run(
+          model1->getBV(b1), model2->getBV(b2));
     else
-      return details::DistanceTraversalBVDistanceLowerBound_impl<BV>
-        ::run (RT._R(), RT._T(), model1->getBV(b1), model2->getBV(b2));
+      return details::DistanceTraversalBVDistanceLowerBound_impl<BV>::run(
+          RT._R(), RT._T(), model1->getBV(b1), model2->getBV(b2));
   }
 
   /// @brief Distance testing between leaves (two triangles)
-  void leafComputeDistance(unsigned int b1, unsigned int b2) const
-  {
-    if(this->enable_statistics) this->num_leaf_tests++;
+  void leafComputeDistance(unsigned int b1, unsigned int b2) const {
+    if (this->enable_statistics) this->num_leaf_tests++;
 
     const BVNode<BV>& node1 = this->model1->getBV(b1);
     const BVNode<BV>& node2 = this->model2->getBV(b2);
@@ -480,12 +453,11 @@ public:
 
     FCL_REAL d2;
     if (RTIsIdentity)
-      d2 = TriangleDistance::sqrTriDistance (t11, t12, t13, t21, t22, t23,
-          P1, P2);
+      d2 = TriangleDistance::sqrTriDistance(t11, t12, t13, t21, t22, t23, P1,
+                                            P2);
     else
-      d2 = TriangleDistance::sqrTriDistance (t11, t12, t13, t21, t22, t23,
-          RT._R(), RT._T(),
-          P1, P2);
+      d2 = TriangleDistance::sqrTriDistance(t11, t12, t13, t21, t22, t23,
+                                            RT._R(), RT._T(), P1, P2);
     FCL_REAL d = sqrt(d2);
 
     this->result->update(d, this->model1, this->model2, primitive_id1,
@@ -493,9 +465,9 @@ public:
   }
 
   /// @brief Whether the traversal process can stop early
-  bool canStop(FCL_REAL c) const
-  {
-    if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
+  bool canStop(FCL_REAL c) const {
+    if ((c >= this->result->min_distance - abs_err) &&
+        (c * (1 + rel_err) >= this->result->min_distance))
       return true;
     return false;
   }
@@ -512,9 +484,8 @@ public:
 
   details::RelativeTransformation<!bool(RTIsIdentity)> RT;
 
-private:
-  void preprocessOrientedNode()
-  {
+ private:
+  void preprocessOrientedNode() {
     const int init_tri_id1 = 0, init_tri_id2 = 0;
     const Triangle& init_tri1 = tri_indices1[init_tri_id1];
     const Triangle& init_tri2 = tri_indices2[init_tri_id2];
@@ -531,54 +502,53 @@ private:
     init_tri2_points[2] = vertices2[init_tri2[2]];
 
     Vec3f p1, p2, normal;
-    FCL_REAL distance = sqrt (TriangleDistance::sqrTriDistance
-        (init_tri1_points[0], init_tri1_points[1],
-         init_tri1_points[2], init_tri2_points[0],
-         init_tri2_points[1], init_tri2_points[2],
-         RT._R(), RT._T(), p1, p2));
+    FCL_REAL distance = sqrt(TriangleDistance::sqrTriDistance(
+        init_tri1_points[0], init_tri1_points[1], init_tri1_points[2],
+        init_tri2_points[0], init_tri2_points[1], init_tri2_points[2], RT._R(),
+        RT._T(), p1, p2));
 
     result->update(distance, model1, model2, init_tri_id1, init_tri_id2, p1, p2,
-        normal);
+                   normal);
   }
-  void postprocessOrientedNode()
-  {
-    /// the points obtained by triDistance are not in world space: both are in object1's local coordinate system, so we need to convert them into the world space.
-    if(request.enable_nearest_points && (result->o1 == model1) && (result->o2 == model2))
-    {
+  void postprocessOrientedNode() {
+    /// the points obtained by triDistance are not in world space: both are in
+    /// object1's local coordinate system, so we need to convert them into the
+    /// world space.
+    if (request.enable_nearest_points && (result->o1 == model1) &&
+        (result->o2 == model2)) {
       result->nearest_points[0] = tf1.transform(result->nearest_points[0]);
       result->nearest_points[1] = tf1.transform(result->nearest_points[1]);
     }
   }
 };
 
-/// @brief Traversal node for distance computation between two meshes if their underlying BVH node is oriented node (RSS, OBBRSS, kIOS)
-typedef MeshDistanceTraversalNode<RSS   , 0> MeshDistanceTraversalNodeRSS;
-typedef MeshDistanceTraversalNode<kIOS  , 0> MeshDistanceTraversalNodekIOS;
+/// @brief Traversal node for distance computation between two meshes if their
+/// underlying BVH node is oriented node (RSS, OBBRSS, kIOS)
+typedef MeshDistanceTraversalNode<RSS, 0> MeshDistanceTraversalNodeRSS;
+typedef MeshDistanceTraversalNode<kIOS, 0> MeshDistanceTraversalNodekIOS;
 typedef MeshDistanceTraversalNode<OBBRSS, 0> MeshDistanceTraversalNodeOBBRSS;
 
 /// @}
 
-/// @brief for OBB and RSS, there is local coordinate of BV, so normal need to be transformed
-namespace details
-{
+/// @brief for OBB and RSS, there is local coordinate of BV, so normal need to
+/// be transformed
+namespace details {
 
-template<typename BV>
-inline const Matrix3f& getBVAxes(const BV& bv)
-{
+template <typename BV>
+inline const Matrix3f& getBVAxes(const BV& bv) {
   return bv.axes;
 }
 
-template<>
-inline const Matrix3f& getBVAxes<OBBRSS>(const OBBRSS& bv)
-{
+template <>
+inline const Matrix3f& getBVAxes<OBBRSS>(const OBBRSS& bv) {
   return bv.obb.axes;
 }
 
-}
+}  // namespace details
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 /// @endcond
 

@@ -41,33 +41,29 @@
 
 #include "hpp/fcl/broadphase/detail/morton.h"
 
-
 namespace hpp {
-namespace fcl {/// @cond IGNORE
+namespace fcl {  /// @cond IGNORE
 namespace detail {
 
 //==============================================================================
 template <typename S>
-uint32_t quantize(S x, uint32_t n)
-{
-  return std::max(std::min((uint32_t)(x * (S)n), uint32_t(n-1)), uint32_t(0));
+uint32_t quantize(S x, uint32_t n) {
+  return std::max(std::min((uint32_t)(x * (S)n), uint32_t(n - 1)), uint32_t(0));
 }
 
 //==============================================================================
-template<typename S>
+template <typename S>
 morton_functor<S, uint32_t>::morton_functor(const AABB& bbox)
-  : base(bbox.min_),
-    inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
-    1.0 / (bbox.max_[1] - bbox.min_[1]),
-    1.0 / (bbox.max_[2] - bbox.min_[2]))
-{
+    : base(bbox.min_),
+      inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
+          1.0 / (bbox.max_[1] - bbox.min_[1]),
+          1.0 / (bbox.max_[2] - bbox.min_[2])) {
   // Do nothing
 }
 
 //==============================================================================
-template<typename S>
-uint32_t morton_functor<S, uint32_t>::operator()(const Vec3f& point) const
-{
+template <typename S>
+uint32_t morton_functor<S, uint32_t>::operator()(const Vec3f& point) const {
   uint32_t x = detail::quantize((point[0] - base[0]) * inv[0], 1024u);
   uint32_t y = detail::quantize((point[1] - base[1]) * inv[1], 1024u);
   uint32_t z = detail::quantize((point[2] - base[2]) * inv[2], 1024u);
@@ -76,20 +72,18 @@ uint32_t morton_functor<S, uint32_t>::operator()(const Vec3f& point) const
 }
 
 //==============================================================================
-template<typename S>
+template <typename S>
 morton_functor<S, uint64_t>::morton_functor(const AABB& bbox)
-  : base(bbox.min_),
-    inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
-    1.0 / (bbox.max_[1] - bbox.min_[1]),
-    1.0 / (bbox.max_[2] - bbox.min_[2]))
-{
+    : base(bbox.min_),
+      inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
+          1.0 / (bbox.max_[1] - bbox.min_[1]),
+          1.0 / (bbox.max_[2] - bbox.min_[2])) {
   // Do nothing
 }
 
 //==============================================================================
-template<typename S>
-uint64_t morton_functor<S, uint64_t>::operator()(const Vec3f& point) const
-{
+template <typename S>
+uint64_t morton_functor<S, uint64_t>::operator()(const Vec3f& point) const {
   uint32_t x = detail::quantize((point[0] - base[0]) * inv[0], 1u << 20);
   uint32_t y = detail::quantize((point[1] - base[1]) * inv[1], 1u << 20);
   uint32_t z = detail::quantize((point[2] - base[2]) * inv[2], 1u << 20);
@@ -98,35 +92,31 @@ uint64_t morton_functor<S, uint64_t>::operator()(const Vec3f& point) const
 }
 
 //==============================================================================
-template<typename S>
-constexpr size_t morton_functor<S, uint64_t>::bits()
-{
+template <typename S>
+constexpr size_t morton_functor<S, uint64_t>::bits() {
   return 60;
 }
 
 //==============================================================================
-template<typename S>
-constexpr size_t morton_functor<S, uint32_t>::bits()
-{
+template <typename S>
+constexpr size_t morton_functor<S, uint32_t>::bits() {
   return 30;
 }
 
 //==============================================================================
-template<typename S, size_t N>
+template <typename S, size_t N>
 morton_functor<S, std::bitset<N>>::morton_functor(const AABB& bbox)
-  : base(bbox.min_),
-    inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
-        1.0 / (bbox.max_[1] - bbox.min_[1]),
-        1.0 / (bbox.max_[2] - bbox.min_[2]))
-{
+    : base(bbox.min_),
+      inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
+          1.0 / (bbox.max_[1] - bbox.min_[1]),
+          1.0 / (bbox.max_[2] - bbox.min_[2])) {
   // Do nothing
 }
 
 //==============================================================================
-template<typename S, size_t N>
+template <typename S, size_t N>
 std::bitset<N> morton_functor<S, std::bitset<N>>::operator()(
-    const Vec3f& point) const
-{
+    const Vec3f& point) const {
   S x = (point[0] - base[0]) * inv[0];
   S y = (point[1] - base[1]) * inv[1];
   S z = (point[2] - base[2]) * inv[2];
@@ -137,29 +127,27 @@ std::bitset<N> morton_functor<S, std::bitset<N>>::operator()(
   y *= 2;
   z *= 2;
 
-  for(size_t i = 0; i < bits()/3; ++i)
-  {
+  for (size_t i = 0; i < bits() / 3; ++i) {
     bset[start_bit--] = ((z < 1) ? 0 : 1);
     bset[start_bit--] = ((y < 1) ? 0 : 1);
     bset[start_bit--] = ((x < 1) ? 0 : 1);
-    x = ((x >= 1) ? 2*(x-1) : 2*x);
-    y = ((y >= 1) ? 2*(y-1) : 2*y);
-    z = ((z >= 1) ? 2*(z-1) : 2*z);
+    x = ((x >= 1) ? 2 * (x - 1) : 2 * x);
+    y = ((y >= 1) ? 2 * (y - 1) : 2 * y);
+    z = ((z >= 1) ? 2 * (z - 1) : 2 * z);
   }
 
   return bset;
 }
 
 //==============================================================================
-template<typename S, size_t N>
-constexpr size_t morton_functor<S, std::bitset<N>>::bits()
-{
+template <typename S, size_t N>
+constexpr size_t morton_functor<S, std::bitset<N>>::bits() {
   return N;
 }
 
-} // namespace detail
+}  // namespace detail
 /// @endcond
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

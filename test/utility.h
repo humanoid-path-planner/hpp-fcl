@@ -48,50 +48,55 @@
 #endif
 
 #ifdef _WIN32
-#define NOMINMAX  // required to avoid compilation errors with Visual Studio 2010
+#define NOMINMAX  // required to avoid compilation errors with Visual Studio
+                  // 2010
 #include <windows.h>
 #else
 #include <sys/time.h>
 #endif
 
-#define EIGEN_VECTOR_IS_APPROX(Va, Vb, precision)                              \
-  BOOST_CHECK_MESSAGE(((Va) - (Vb)).isZero(precision),                         \
-      "check " #Va ".isApprox(" #Vb ") failed "                                \
-      "[\n" << (Va).transpose() << "\n!=\n" << (Vb).transpose() << "\n]")
+#define EIGEN_VECTOR_IS_APPROX(Va, Vb, precision)         \
+  BOOST_CHECK_MESSAGE(((Va) - (Vb)).isZero(precision),    \
+                      "check " #Va ".isApprox(" #Vb       \
+                      ") failed "                         \
+                      "[\n"                               \
+                          << (Va).transpose() << "\n!=\n" \
+                          << (Vb).transpose() << "\n]")
 #define EIGEN_MATRIX_IS_APPROX(Va, Vb, precision)                              \
-  BOOST_CHECK_MESSAGE(((Va) - (Vb)).isZero(precision),                         \
-      "check " #Va ".isApprox(" #Vb ") failed "                                \
-      "[\n" << (Va) << "\n!=\n" << (Vb) << "\n]")
+  BOOST_CHECK_MESSAGE(((Va) - (Vb)).isZero(precision), "check " #Va            \
+                                                       ".isApprox(" #Vb        \
+                                                       ") failed "             \
+                                                       "[\n"                   \
+                                                           << (Va) << "\n!=\n" \
+                                                           << (Vb) << "\n]")
 
-namespace octomap{
+namespace octomap {
 #ifdef HPP_FCL_HAS_OCTOMAP
 typedef hpp::fcl::shared_ptr<octomap::OcTree> OcTreePtr_t;
 #endif
-}
-namespace hpp
-{
-namespace fcl
-{
+}  // namespace octomap
+namespace hpp {
+namespace fcl {
 
-class BenchTimer
-{
-public:
+class BenchTimer {
+ public:
   BenchTimer();
   ~BenchTimer();
 
-  void start();                               ///< start timer
-  void stop();                                ///< stop the timer
-  double getElapsedTime();                    ///< get elapsed time in milli-second
-  double getElapsedTimeInSec();               ///< get elapsed time in second (same as getElapsedTime)
-  double getElapsedTimeInMilliSec();          ///< get elapsed time in milli-second
-  double getElapsedTimeInMicroSec();          ///< get elapsed time in micro-second
+  void start();                       ///< start timer
+  void stop();                        ///< stop the timer
+  double getElapsedTime();            ///< get elapsed time in milli-second
+  double getElapsedTimeInSec();       ///< get elapsed time in second (same as
+                                      ///< getElapsedTime)
+  double getElapsedTimeInMilliSec();  ///< get elapsed time in milli-second
+  double getElapsedTimeInMicroSec();  ///< get elapsed time in micro-second
 
-private:
-  double startTimeInMicroSec;                 ///< starting time in micro-second
-  double endTimeInMicroSec;                   ///< ending time in micro-second
-  int stopped;                                ///< stop flag
+ private:
+  double startTimeInMicroSec;  ///< starting time in micro-second
+  double endTimeInMicroSec;    ///< ending time in micro-second
+  int stopped;                 ///< stop flag
 #ifdef _WIN32
-  LARGE_INTEGER frequency;                    ///< ticks per second
+  LARGE_INTEGER frequency;  ///< ticks per second
   LARGE_INTEGER startCount;
   LARGE_INTEGER endCount;
 #else
@@ -100,15 +105,13 @@ private:
 #endif
 };
 
-struct TStruct
-{
+struct TStruct {
   std::vector<double> records;
   double overall_time;
 
   TStruct() { overall_time = 0; }
 
-  void push_back(double t)
-  {
+  void push_back(double t) {
     records.push_back(t);
     overall_time += t;
   }
@@ -122,53 +125,75 @@ extern const Vec3f UnitY;
 extern const Vec3f UnitZ;
 
 /// @brief Load an obj mesh file
-void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles);
+void loadOBJFile(const char* filename, std::vector<Vec3f>& points,
+                 std::vector<Triangle>& triangles);
 
-void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles);
+void saveOBJFile(const char* filename, std::vector<Vec3f>& points,
+                 std::vector<Triangle>& triangles);
 
 #ifdef HPP_FCL_HAS_OCTOMAP
-fcl::OcTree loadOctreeFile (const std::string& filename, const FCL_REAL& resolution);
+fcl::OcTree loadOctreeFile(const std::string& filename,
+                           const FCL_REAL& resolution);
 #endif
 
-/// @brief Generate one random transform whose translation is constrained by extents and rotation without constraints.
-/// The translation is (x, y, z), and extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <= z <= extents[5]
+/// @brief Generate one random transform whose translation is constrained by
+/// extents and rotation without constraints. The translation is (x, y, z), and
+/// extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <=
+/// z <= extents[5]
 void generateRandomTransform(FCL_REAL extents[6], Transform3f& transform);
 
-/// @brief Generate n random transforms whose translations are constrained by extents.
-void generateRandomTransforms(FCL_REAL extents[6], std::vector<Transform3f>& transforms, std::size_t n);
+/// @brief Generate n random transforms whose translations are constrained by
+/// extents.
+void generateRandomTransforms(FCL_REAL extents[6],
+                              std::vector<Transform3f>& transforms,
+                              std::size_t n);
 
-/// @brief Generate n random transforms whose translations are constrained by extents. Also generate another transforms2 which have additional random translation & rotation to the transforms generated.
-void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::vector<Transform3f>& transforms, std::vector<Transform3f>& transforms2, std::size_t n);
+/// @brief Generate n random transforms whose translations are constrained by
+/// extents. Also generate another transforms2 which have additional random
+/// translation & rotation to the transforms generated.
+void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3],
+                              FCL_REAL delta_rot,
+                              std::vector<Transform3f>& transforms,
+                              std::vector<Transform3f>& transforms2,
+                              std::size_t n);
 
-/// @ brief Structure for minimum distance between two meshes and the corresponding nearest point pair
-struct DistanceRes
-{
+/// @ brief Structure for minimum distance between two meshes and the
+/// corresponding nearest point pair
+struct DistanceRes {
   double distance;
   Vec3f p1;
   Vec3f p2;
 };
 
-/// @brief Default collision callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now.
-bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata);
+/// @brief Default collision callback for two objects o1 and o2 in broad phase.
+/// return value means whether the broad phase can stop now.
+bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2,
+                              void* cdata);
 
-/// @brief Default distance callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now. also return dist, i.e. the bmin distance till now
-bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& dist);
+/// @brief Default distance callback for two objects o1 and o2 in broad phase.
+/// return value means whether the broad phase can stop now. also return dist,
+/// i.e. the bmin distance till now
+bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2,
+                             void* cdata, FCL_REAL& dist);
 
 std::string getNodeTypeName(NODE_TYPE node_type);
 
 Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z);
 
-std::ostream& operator<< (std::ostream& os, const Transform3f& tf);
+std::ostream& operator<<(std::ostream& os, const Transform3f& tf);
 
 /// Get the argument --nb-run from argv
-std::size_t getNbRun (const int& argc, char const* const* argv, std::size_t defaultValue);
+std::size_t getNbRun(const int& argc, char const* const* argv,
+                     std::size_t defaultValue);
 
-void generateEnvironments(std::vector<CollisionObject*>& env, FCL_REAL env_scale, std::size_t n);
+void generateEnvironments(std::vector<CollisionObject*>& env,
+                          FCL_REAL env_scale, std::size_t n);
 
-void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, FCL_REAL env_scale, std::size_t n);
+void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
+                              FCL_REAL env_scale, std::size_t n);
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 #endif

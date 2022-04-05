@@ -49,8 +49,7 @@
 using namespace hpp::fcl;
 
 // Pack the data for callback function.
-struct CallBackData
-{
+struct CallBackData {
   bool expect_object0_then_object1;
   std::vector<CollisionObject*>* objects;
 };
@@ -62,18 +61,13 @@ struct CallBackData
 // FCL_REAL& parameter, which specifies the distance beyond which the
 // pair of objects will be skipped.
 
-struct DistanceCallBackDerived
-: DistanceCallBackBase
-{
-
-  bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL & dist)
-  {
-    return distance_callback(o1,o2,&data,dist);
+struct DistanceCallBackDerived : DistanceCallBackBase {
+  bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL& dist) {
+    return distance_callback(o1, o2, &data, dist);
   }
 
   bool distance_callback(CollisionObject* a, CollisionObject*,
-                         void* callback_data, FCL_REAL&)
-  {
+                         void* callback_data, FCL_REAL&) {
     // Unpack the data.
     CallBackData* data = static_cast<CallBackData*>(callback_data);
     const std::vector<CollisionObject*>& objects = *(data->objects);
@@ -91,8 +85,6 @@ struct DistanceCallBackDerived
   CallBackData data;
 };
 
-
-
 // Tests repeatability of a dynamic tree of two spheres when we call update()
 // and distance() again and again without changing the poses of the objects.
 // We only use the distance() method to invoke a hierarchy traversal.
@@ -104,8 +96,7 @@ struct DistanceCallBackDerived
 //  repeatability problem as mentioned in:
 //  https://github.com/flexible-collision-library/fcl/issues/368
 //
-BOOST_AUTO_TEST_CASE(DynamicAABBTreeCollisionManager_class)
-{
+BOOST_AUTO_TEST_CASE(DynamicAABBTreeCollisionManager_class) {
   CollisionGeometryPtr_t sphere0 = make_shared<Sphere>(0.1);
   CollisionGeometryPtr_t sphere1 = make_shared<Sphere>(0.2);
   CollisionObject object0(sphere0);

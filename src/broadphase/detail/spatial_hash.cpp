@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -47,31 +47,36 @@ namespace detail {
 
 //==============================================================================
 SpatialHash::SpatialHash(const AABB& scene_limit_, FCL_REAL cell_size_)
-  : cell_size(cell_size_), scene_limit(scene_limit_)
-{
-  width[0] = static_cast<unsigned int>(std::ceil(scene_limit.width() / cell_size));
-  width[1] = static_cast<unsigned int>(std::ceil(scene_limit.height() / cell_size));
-  width[2] = static_cast<unsigned int>(std::ceil(scene_limit.depth() / cell_size));
+    : cell_size(cell_size_), scene_limit(scene_limit_) {
+  width[0] =
+      static_cast<unsigned int>(std::ceil(scene_limit.width() / cell_size));
+  width[1] =
+      static_cast<unsigned int>(std::ceil(scene_limit.height() / cell_size));
+  width[2] =
+      static_cast<unsigned int>(std::ceil(scene_limit.depth() / cell_size));
 }
 
 //==============================================================================
-std::vector<unsigned int> SpatialHash::operator()(const AABB& aabb) const
-{
-  unsigned int min_x = static_cast<unsigned int>(std::floor((aabb.min_[0] - scene_limit.min_[0]) / cell_size));
-  unsigned int max_x = static_cast<unsigned int>(std::ceil((aabb.max_[0] - scene_limit.min_[0]) / cell_size));
-  unsigned int min_y = static_cast<unsigned int>(std::floor((aabb.min_[1] - scene_limit.min_[1]) / cell_size));
-  unsigned int max_y = static_cast<unsigned int>(std::ceil((aabb.max_[1] - scene_limit.min_[1]) / cell_size));
-  unsigned int min_z = static_cast<unsigned int>(std::floor((aabb.min_[2] - scene_limit.min_[2]) / cell_size));
-  unsigned int max_z = static_cast<unsigned int>(std::ceil((aabb.max_[2] - scene_limit.min_[2]) / cell_size));
+std::vector<unsigned int> SpatialHash::operator()(const AABB& aabb) const {
+  unsigned int min_x = static_cast<unsigned int>(
+      std::floor((aabb.min_[0] - scene_limit.min_[0]) / cell_size));
+  unsigned int max_x = static_cast<unsigned int>(
+      std::ceil((aabb.max_[0] - scene_limit.min_[0]) / cell_size));
+  unsigned int min_y = static_cast<unsigned int>(
+      std::floor((aabb.min_[1] - scene_limit.min_[1]) / cell_size));
+  unsigned int max_y = static_cast<unsigned int>(
+      std::ceil((aabb.max_[1] - scene_limit.min_[1]) / cell_size));
+  unsigned int min_z = static_cast<unsigned int>(
+      std::floor((aabb.min_[2] - scene_limit.min_[2]) / cell_size));
+  unsigned int max_z = static_cast<unsigned int>(
+      std::ceil((aabb.max_[2] - scene_limit.min_[2]) / cell_size));
 
-  std::vector<unsigned int> keys(static_cast<size_t>((max_x - min_x) * (max_y - min_y) * (max_z - min_z)));
+  std::vector<unsigned int> keys(
+      static_cast<size_t>((max_x - min_x) * (max_y - min_y) * (max_z - min_z)));
   size_t id = 0;
-  for(unsigned int x = min_x; x < max_x; ++x)
-  {
-    for(unsigned int y = min_y; y < max_y; ++y)
-    {
-      for(unsigned int z = min_z; z < max_z; ++z)
-      {
+  for (unsigned int x = min_x; x < max_x; ++x) {
+    for (unsigned int y = min_y; y < max_y; ++y) {
+      for (unsigned int z = min_z; z < max_z; ++z) {
         keys[id++] = x + y * width[0] + z * width[0] * width[1];
       }
     }
@@ -79,8 +84,8 @@ std::vector<unsigned int> SpatialHash::operator()(const AABB& aabb) const
   return keys;
 }
 
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

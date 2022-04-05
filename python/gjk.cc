@@ -46,58 +46,54 @@
 
 using namespace boost::python;
 using namespace hpp::fcl;
-using hpp::fcl::details::MinkowskiDiff;
-using hpp::fcl::details::GJK;
 using hpp::fcl::details::EPA;
+using hpp::fcl::details::GJK;
+using hpp::fcl::details::MinkowskiDiff;
 
-void exposeGJK()
-{
-  if(!eigenpy::register_symbolic_link_to_registered_type<GJK::Status>())
-  {
-    enum_ <GJK::Status> ("GJKStatus")
-      .value ("Valid", GJK::Valid)
-      .value ("Inside", GJK::Inside)
-      .value ("Failed", GJK::Failed)
-      .export_values()
-      ;
+void exposeGJK() {
+  if (!eigenpy::register_symbolic_link_to_registered_type<GJK::Status>()) {
+    enum_<GJK::Status>("GJKStatus")
+        .value("Valid", GJK::Valid)
+        .value("Inside", GJK::Inside)
+        .value("Failed", GJK::Failed)
+        .export_values();
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type<MinkowskiDiff>())
-  {
-    class_ <MinkowskiDiff> ("MinkowskiDiff", doxygen::class_doc<MinkowskiDiff>(), no_init)
-      .def (doxygen::visitor::init<MinkowskiDiff>())
-      .def ("set", static_cast < void (MinkowskiDiff::*)(
-            const ShapeBase*, const ShapeBase*)> (&MinkowskiDiff::set),
-          doxygen::member_func_doc(
-            static_cast < void (MinkowskiDiff::*)(
-              const ShapeBase*, const ShapeBase*)> (&MinkowskiDiff::set)))
-      .def ("set", static_cast < void (MinkowskiDiff::*)(
-            const ShapeBase*, const ShapeBase*,
-            const Transform3f& tf0, const Transform3f& tf1)> (&MinkowskiDiff::set),
-          doxygen::member_func_doc(
-            static_cast < void (MinkowskiDiff::*)(
-              const ShapeBase*, const ShapeBase*,
-              const Transform3f& tf0, const Transform3f& tf1)> (&MinkowskiDiff::set)))
-      .DEF_CLASS_FUNC(MinkowskiDiff, support0)
-      .DEF_CLASS_FUNC(MinkowskiDiff, support1)
-      .DEF_CLASS_FUNC(MinkowskiDiff, support)
-      .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, inflation)
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<MinkowskiDiff>()) {
+    class_<MinkowskiDiff>("MinkowskiDiff", doxygen::class_doc<MinkowskiDiff>(),
+                          no_init)
+        .def(doxygen::visitor::init<MinkowskiDiff>())
+        .def("set",
+             static_cast<void (MinkowskiDiff::*)(
+                 const ShapeBase*, const ShapeBase*)>(&MinkowskiDiff::set),
+             doxygen::member_func_doc(
+                 static_cast<void (MinkowskiDiff::*)(
+                     const ShapeBase*, const ShapeBase*)>(&MinkowskiDiff::set)))
+        .def("set",
+             static_cast<void (MinkowskiDiff::*)(
+                 const ShapeBase*, const ShapeBase*, const Transform3f& tf0,
+                 const Transform3f& tf1)>(&MinkowskiDiff::set),
+             doxygen::member_func_doc(
+                 static_cast<void (MinkowskiDiff::*)(
+                     const ShapeBase*, const ShapeBase*, const Transform3f& tf0,
+                     const Transform3f& tf1)>(&MinkowskiDiff::set)))
+        .DEF_CLASS_FUNC(MinkowskiDiff, support0)
+        .DEF_CLASS_FUNC(MinkowskiDiff, support1)
+        .DEF_CLASS_FUNC(MinkowskiDiff, support)
+        .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, inflation);
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type<GJK>())
-  {
-    class_ <GJK> ("GJK", doxygen::class_doc<GJK>(), no_init)
-     .def (doxygen::visitor::init<GJK, unsigned int, FCL_REAL>())
-      .DEF_RW_CLASS_ATTRIB (GJK, distance)
-      .DEF_RW_CLASS_ATTRIB (GJK, ray)
-      .DEF_RW_CLASS_ATTRIB (GJK, support_hint)
-      .DEF_CLASS_FUNC(GJK, evaluate)
-      .DEF_CLASS_FUNC(GJK, hasClosestPoints)
-      .DEF_CLASS_FUNC(GJK, hasPenetrationInformation)
-      .DEF_CLASS_FUNC(GJK, getClosestPoints)
-      .DEF_CLASS_FUNC(GJK, setDistanceEarlyBreak)
-      .DEF_CLASS_FUNC(GJK, getGuessFromSimplex)
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<GJK>()) {
+    class_<GJK>("GJK", doxygen::class_doc<GJK>(), no_init)
+        .def(doxygen::visitor::init<GJK, unsigned int, FCL_REAL>())
+        .DEF_RW_CLASS_ATTRIB(GJK, distance)
+        .DEF_RW_CLASS_ATTRIB(GJK, ray)
+        .DEF_RW_CLASS_ATTRIB(GJK, support_hint)
+        .DEF_CLASS_FUNC(GJK, evaluate)
+        .DEF_CLASS_FUNC(GJK, hasClosestPoints)
+        .DEF_CLASS_FUNC(GJK, hasPenetrationInformation)
+        .DEF_CLASS_FUNC(GJK, getClosestPoints)
+        .DEF_CLASS_FUNC(GJK, setDistanceEarlyBreak)
+        .DEF_CLASS_FUNC(GJK, getGuessFromSimplex);
   }
 }

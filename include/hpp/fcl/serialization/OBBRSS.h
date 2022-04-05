@@ -11,21 +11,17 @@
 #include "hpp/fcl/serialization/OBB.h"
 #include "hpp/fcl/serialization/RSS.h"
 
-namespace boost
-{
-  namespace serialization
-  {
-  
-    template <class Archive>
-    void serialize(Archive & ar,
-                   hpp::fcl::OBBRSS & bv,
-                   const unsigned int /*version*/)
-    {
-      ar & make_nvp("obb",bv.obb);
-      ar & make_nvp("rss",bv.rss);
-    }
+namespace boost {
+namespace serialization {
 
-  }
+template <class Archive>
+void serialize(Archive& ar, hpp::fcl::OBBRSS& bv,
+               const unsigned int /*version*/) {
+  ar& make_nvp("obb", bv.obb);
+  ar& make_nvp("rss", bv.rss);
 }
 
-#endif // ifndef HPP_FCL_SERIALIZATION_OBBRSS_H
+}  // namespace serialization
+}  // namespace boost
+
+#endif  // ifndef HPP_FCL_SERIALIZATION_OBBRSS_H

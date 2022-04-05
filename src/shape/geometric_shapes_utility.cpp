@@ -35,40 +35,35 @@
 
 /** \author Jia Pan */
 
-
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/internal/BV_fitter.h>
 #include <hpp/fcl/internal/tools.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-namespace details
-{
+namespace details {
 
-std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf)
-{
+std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf) {
   std::vector<Vec3f> result(8);
   FCL_REAL a = box.halfSide[0];
   FCL_REAL b = box.halfSide[1];
   FCL_REAL c = box.halfSide[2];
-  result[0] = tf.transform(Vec3f( a,  b,  c));
-  result[1] = tf.transform(Vec3f( a,  b, -c));
-  result[2] = tf.transform(Vec3f( a, -b,  c));
-  result[3] = tf.transform(Vec3f( a, -b, -c));
-  result[4] = tf.transform(Vec3f(-a,  b,  c));
-  result[5] = tf.transform(Vec3f(-a,  b, -c));
-  result[6] = tf.transform(Vec3f(-a, -b,  c));
+  result[0] = tf.transform(Vec3f(a, b, c));
+  result[1] = tf.transform(Vec3f(a, b, -c));
+  result[2] = tf.transform(Vec3f(a, -b, c));
+  result[3] = tf.transform(Vec3f(a, -b, -c));
+  result[4] = tf.transform(Vec3f(-a, b, c));
+  result[5] = tf.transform(Vec3f(-a, b, -c));
+  result[6] = tf.transform(Vec3f(-a, -b, c));
   result[7] = tf.transform(Vec3f(-a, -b, -c));
 
   return result;
 }
 
 // we use icosahedron to bound the sphere
-std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf)
-{
+std::vector<Vec3f> getBoundVertices(const Sphere& sphere,
+                                    const Transform3f& tf) {
   std::vector<Vec3f> result(12);
   const FCL_REAL m = (1 + sqrt(5.0)) / 2.0;
   FCL_REAL edge_size = sphere.radius * 6 / (sqrt(27.0) + sqrt(15.0));
@@ -92,14 +87,14 @@ std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf)
 }
 
 // we use scaled icosahedron to bound the ellipsoid
-std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3f& tf)
-{
+std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid,
+                                    const Transform3f& tf) {
   std::vector<Vec3f> result(12);
   const FCL_REAL phi = (1 + sqrt(5.0)) / 2.0;
 
   const FCL_REAL a = sqrt(3.0) / (phi * phi);
   const FCL_REAL b = phi * a;
-  
+
   const FCL_REAL& A = ellipsoid.radii[0];
   const FCL_REAL& B = ellipsoid.radii[1];
   const FCL_REAL& C = ellipsoid.radii[2];
@@ -126,8 +121,8 @@ std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& tf)
-{
+std::vector<Vec3f> getBoundVertices(const Capsule& capsule,
+                                    const Transform3f& tf) {
   std::vector<Vec3f> result(36);
   const FCL_REAL m = (1 + sqrt(5.0)) / 2.0;
 
@@ -136,7 +131,6 @@ std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& t
   FCL_REAL a = edge_size;
   FCL_REAL b = m * edge_size;
   FCL_REAL r2 = capsule.radius * 2 / sqrt(3.0);
-
 
   result[0] = tf.transform(Vec3f(0, a, b + hl));
   result[1] = tf.transform(Vec3f(0, -a, b + hl));
@@ -183,9 +177,7 @@ std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& t
   return result;
 }
 
-
-std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf)
-{
+std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf) {
   std::vector<Vec3f> result(7);
 
   FCL_REAL hl = cone.halfLength;
@@ -205,8 +197,8 @@ std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf)
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f& tf)
-{
+std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder,
+                                    const Transform3f& tf) {
   std::vector<Vec3f> result(12);
 
   FCL_REAL hl = cylinder.halfLength;
@@ -231,19 +223,18 @@ std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f&
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const ConvexBase& convex, const Transform3f& tf)
-{
+std::vector<Vec3f> getBoundVertices(const ConvexBase& convex,
+                                    const Transform3f& tf) {
   std::vector<Vec3f> result(convex.num_points);
-  for(std::size_t i = 0; i < convex.num_points; ++i)
-  {
+  for (std::size_t i = 0; i < convex.num_points; ++i) {
     result[i] = tf.transform(convex.points[i]);
   }
 
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const TriangleP& triangle, const Transform3f& tf)
-{
+std::vector<Vec3f> getBoundVertices(const TriangleP& triangle,
+                                    const Transform3f& tf) {
   std::vector<Vec3f> result(3);
   result[0] = tf.transform(triangle.a);
   result[1] = tf.transform(triangle.b);
@@ -252,10 +243,9 @@ std::vector<Vec3f> getBoundVertices(const TriangleP& triangle, const Transform3f
   return result;
 }
 
-} // end detail
+}  // namespace details
 
-Halfspace transform(const Halfspace& a, const Transform3f& tf)
-{
+Halfspace transform(const Halfspace& a, const Transform3f& tf) {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
   /// and the new half space becomes n' * x' <= d'
@@ -268,9 +258,7 @@ Halfspace transform(const Halfspace& a, const Transform3f& tf)
   return Halfspace(n, d);
 }
 
-
-Plane transform(const Plane& a, const Transform3f& tf)
-{
+Plane transform(const Plane& a, const Transform3f& tf) {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
   /// and the new half space becomes n' * x' <= d'
@@ -283,22 +271,18 @@ Plane transform(const Plane& a, const Transform3f& tf)
   return Plane(n, d);
 }
 
-
-
-template<>
-void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv)
-{
+template <>
+void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv) {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  Vec3f v_delta (R.cwiseAbs() * s.halfSide);
+  Vec3f v_delta(R.cwiseAbs() * s.halfSide);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
 
-template<>
-void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv)
-{
+template <>
+void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv) {
   const Vec3f& T = tf.getTranslation();
 
   Vec3f v_delta(Vec3f::Constant(s.radius));
@@ -306,9 +290,9 @@ void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv)
   bv.min_ = T - v_delta;
 }
 
-template<>
-void computeBV<AABB, Ellipsoid>(const Ellipsoid& e, const Transform3f& tf, AABB& bv)
-{
+template <>
+void computeBV<AABB, Ellipsoid>(const Ellipsoid& e, const Transform3f& tf,
+                                AABB& bv) {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
@@ -317,9 +301,9 @@ void computeBV<AABB, Ellipsoid>(const Ellipsoid& e, const Transform3f& tf, AABB&
   bv.min_ = T - v_delta;
 }
 
-template<>
-void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv)
-{
+template <>
+void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf,
+                              AABB& bv) {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
@@ -328,45 +312,49 @@ void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv)
   bv.min_ = T - v_delta;
 }
 
-template<>
-void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv)
-{
+template <>
+void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv) {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + fabs(R(0, 2) * s.halfLength);
-  FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + fabs(R(1, 2) * s.halfLength);
-  FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + fabs(R(2, 2) * s.halfLength);
+  FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) +
+                     fabs(R(0, 2) * s.halfLength);
+  FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) +
+                     fabs(R(1, 2) * s.halfLength);
+  FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) +
+                     fabs(R(2, 2) * s.halfLength);
 
   Vec3f v_delta(x_range, y_range, z_range);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
 
-template<>
-void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& bv)
-{
+template <>
+void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf,
+                               AABB& bv) {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + fabs(R(0, 2) * s.halfLength);
-  FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + fabs(R(1, 2) * s.halfLength);
-  FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + fabs(R(2, 2) * s.halfLength);
+  FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) +
+                     fabs(R(0, 2) * s.halfLength);
+  FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) +
+                     fabs(R(1, 2) * s.halfLength);
+  FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) +
+                     fabs(R(2, 2) * s.halfLength);
 
   Vec3f v_delta(x_range, y_range, z_range);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
 
-template<>
-void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, AABB& bv)
-{
+template <>
+void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf,
+                                 AABB& bv) {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
   AABB bv_;
-  for(std::size_t i = 0; i < s.num_points; ++i)
-  {
+  for (std::size_t i = 0; i < s.num_points; ++i) {
     Vec3f new_p = R * s.points[i] + T;
     bv_ += new_p;
   }
@@ -374,16 +362,15 @@ void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, AAB
   bv = bv_;
 }
 
-template<>
-void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3f& tf, AABB& bv)
-{
+template <>
+void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3f& tf,
+                                AABB& bv) {
   bv = AABB(tf.transform(s.a), tf.transform(s.b), tf.transform(s.c));
 }
 
-
-template<>
-void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf, AABB& bv)
-{
+template <>
+void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf,
+                                AABB& bv) {
   Halfspace new_s = transform(s, tf);
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
@@ -391,31 +378,31 @@ void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf, AABB&
   AABB bv_;
   bv_.min_ = Vec3f::Constant(-(std::numeric_limits<FCL_REAL>::max)());
   bv_.max_ = Vec3f::Constant((std::numeric_limits<FCL_REAL>::max)());
-  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
+  if (n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
     // normal aligned with x axis
-    if(n[0] < 0) bv_.min_[0] = -d;
-    else if(n[0] > 0) bv_.max_[0] = d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
+    if (n[0] < 0)
+      bv_.min_[0] = -d;
+    else if (n[0] > 0)
+      bv_.max_[0] = d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
     // normal aligned with y axis
-    if(n[1] < 0) bv_.min_[1] = -d;
-    else if(n[1] > 0) bv_.max_[1] = d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
-  {
+    if (n[1] < 0)
+      bv_.min_[1] = -d;
+    else if (n[1] > 0)
+      bv_.max_[1] = d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0) {
     // normal aligned with z axis
-    if(n[2] < 0) bv_.min_[2] = -d;
-    else if(n[2] > 0) bv_.max_[2] = d;
+    if (n[2] < 0)
+      bv_.min_[2] = -d;
+    else if (n[2] > 0)
+      bv_.max_[2] = d;
   }
 
   bv = bv_;
 }
 
-template<>
-void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv)
-{
+template <>
+void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv) {
   Plane new_s = transform(s, tf);
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
@@ -423,32 +410,34 @@ void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv)
   AABB bv_;
   bv_.min_ = Vec3f::Constant(-(std::numeric_limits<FCL_REAL>::max)());
   bv_.max_ = Vec3f::Constant((std::numeric_limits<FCL_REAL>::max)());
-  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
+  if (n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
     // normal aligned with x axis
-    if(n[0] < 0) { bv_.min_[0] = bv_.max_[0] = -d; }
-    else if(n[0] > 0) { bv_.min_[0] = bv_.max_[0] = d; }
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
+    if (n[0] < 0) {
+      bv_.min_[0] = bv_.max_[0] = -d;
+    } else if (n[0] > 0) {
+      bv_.min_[0] = bv_.max_[0] = d;
+    }
+  } else if (n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
     // normal aligned with y axis
-    if(n[1] < 0) { bv_.min_[1] = bv_.max_[1] = -d; }
-    else if(n[1] > 0) { bv_.min_[1] = bv_.max_[1] = d; }
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
-  {
+    if (n[1] < 0) {
+      bv_.min_[1] = bv_.max_[1] = -d;
+    } else if (n[1] > 0) {
+      bv_.min_[1] = bv_.max_[1] = d;
+    }
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0) {
     // normal aligned with z axis
-    if(n[2] < 0) { bv_.min_[2] = bv_.max_[2] = -d; }
-    else if(n[2] > 0) { bv_.min_[2] = bv_.max_[2] = d; }
+    if (n[2] < 0) {
+      bv_.min_[2] = bv_.max_[2] = -d;
+    } else if (n[2] > 0) {
+      bv_.min_[2] = bv_.max_[2] = d;
+    }
   }
 
   bv = bv_;
 }
 
-
-template<>
-void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
-{
+template <>
+void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv) {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
@@ -457,9 +446,8 @@ void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
   bv.extent = s.halfSide;
 }
 
-template<>
-void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
-{
+template <>
+void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv) {
   const Vec3f& T = tf.getTranslation();
 
   bv.To.noalias() = T;
@@ -467,9 +455,8 @@ void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
   bv.extent.setConstant(s.radius);
 }
 
-template<>
-void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
-{
+template <>
+void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv) {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
@@ -478,9 +465,8 @@ void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
   bv.extent << s.radius, s.radius, s.halfLength + s.radius;
 }
 
-template<>
-void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
-{
+template <>
+void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv) {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
@@ -489,9 +475,9 @@ void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
   bv.extent << s.radius, s.radius, s.halfLength;
 }
 
-template<>
-void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
-{
+template <>
+void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf,
+                              OBB& bv) {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
@@ -500,9 +486,9 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
   bv.extent << s.radius, s.radius, s.halfLength;
 }
 
-template<>
-void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, OBB& bv)
-{
+template <>
+void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf,
+                                OBB& bv) {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
@@ -513,250 +499,250 @@ void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf, OBB&
   bv.To = R * bv.To + T;
 }
 
-template<>
-void computeBV<OBB, Halfspace>(const Halfspace&, const Transform3f&, OBB& bv)
-{
+template <>
+void computeBV<OBB, Halfspace>(const Halfspace&, const Transform3f&, OBB& bv) {
   /// Half space can only have very rough OBB
   bv.axes.setIdentity();
   bv.To.setZero();
   bv.extent.setConstant(((std::numeric_limits<FCL_REAL>::max)()));
 }
 
-template<>
-void computeBV<RSS, Halfspace>(const Halfspace&, const Transform3f&, RSS& bv)
-{
+template <>
+void computeBV<RSS, Halfspace>(const Halfspace&, const Transform3f&, RSS& bv) {
   /// Half space can only have very rough RSS
   bv.axes.setIdentity();
   bv.Tr.setZero();
-  bv.length[0] = bv.length[1] = bv.radius = (std::numeric_limits<FCL_REAL>::max)();
+  bv.length[0] = bv.length[1] = bv.radius =
+      (std::numeric_limits<FCL_REAL>::max)();
 }
 
-template<>
-void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3f& tf, OBBRSS& bv)
-{
+template <>
+void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3f& tf,
+                                  OBBRSS& bv) {
   computeBV<OBB, Halfspace>(s, tf, bv.obb);
   computeBV<RSS, Halfspace>(s, tf, bv.rss);
 }
 
-template<>
-void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf, kIOS& bv)
-{
+template <>
+void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf,
+                                kIOS& bv) {
   bv.num_spheres = 1;
   computeBV<OBB, Halfspace>(s, tf, bv.obb);
   bv.spheres[0].o = Vec3f();
   bv.spheres[0].r = (std::numeric_limits<FCL_REAL>::max)();
 }
 
-template<>
-void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<16>& bv)
-{
+template <>
+void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf,
+                                    KDOP<16>& bv) {
   Halfspace new_s = transform(s, tf);
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const short D = 8;
-  for(short i = 0; i < D; ++i)
+  for (short i = 0; i < D; ++i)
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
-  for(short i = D; i < 2 * D; ++i)
+  for (short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
 
-  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(D) = d;
-    else bv.dist(0) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[1] > 0) bv.dist(D + 1) = d;
-    else bv.dist(1) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
-  {
-    if(n[2] > 0) bv.dist(D + 2) = d;
-    else bv.dist(2) = -d;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
-  {
-    if(n[0] > 0) bv.dist(D + 3) = n[0] * d * 2;
-    else bv.dist(3) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
-  {
-    if(n[1] > 0) bv.dist(D + 4) = n[0] * d * 2;
-    else bv.dist(4) = n[0] * d * 2;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
-  {
-    if(n[1] > 0) bv.dist(D + 5) = n[1] * d * 2;
-    else bv.dist(5) = n[1] * d * 2;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(D + 6) = n[0] * d * 2;
-    else bv.dist(6) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(D + 7) = n[0] * d * 2;
-    else bv.dist(7) = n[0] * d * 2;
+  if (n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(D) = d;
+    else
+      bv.dist(0) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[1] > 0)
+      bv.dist(D + 1) = d;
+    else
+      bv.dist(1) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0) {
+    if (n[2] > 0)
+      bv.dist(D + 2) = d;
+    else
+      bv.dist(2) = -d;
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] == n[1]) {
+    if (n[0] > 0)
+      bv.dist(D + 3) = n[0] * d * 2;
+    else
+      bv.dist(3) = n[0] * d * 2;
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] == n[2]) {
+    if (n[1] > 0)
+      bv.dist(D + 4) = n[0] * d * 2;
+    else
+      bv.dist(4) = n[0] * d * 2;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == n[2]) {
+    if (n[1] > 0)
+      bv.dist(D + 5) = n[1] * d * 2;
+    else
+      bv.dist(5) = n[1] * d * 2;
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(D + 6) = n[0] * d * 2;
+    else
+      bv.dist(6) = n[0] * d * 2;
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(D + 7) = n[0] * d * 2;
+    else
+      bv.dist(7) = n[0] * d * 2;
   }
 }
 
-template<>
-void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<18>& bv)
-{
+template <>
+void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf,
+                                    KDOP<18>& bv) {
   Halfspace new_s = transform(s, tf);
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const short D = 9;
 
-  for(short i = 0; i < D; ++i)
+  for (short i = 0; i < D; ++i)
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
-  for(short i = D; i < 2 * D; ++i)
+  for (short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
 
-  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(D) = d;
-    else bv.dist(0) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[1] > 0) bv.dist(D + 1) = d;
-    else bv.dist(1) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
-  {
-    if(n[2] > 0) bv.dist(D + 2) = d;
-    else bv.dist(2) = -d;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
-  {
-    if(n[0] > 0) bv.dist(D + 3) = n[0] * d * 2;
-    else bv.dist(3) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
-  {
-    if(n[1] > 0) bv.dist(D + 4) = n[0] * d * 2;
-    else bv.dist(4) = n[0] * d * 2;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
-  {
-    if(n[1] > 0) bv.dist(D + 5) = n[1] * d * 2;
-    else bv.dist(5) = n[1] * d * 2;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(D + 6) = n[0] * d * 2;
-    else bv.dist(6) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(D + 7) = n[0] * d * 2;
-    else bv.dist(7) = n[0] * d * 2;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
-  {
-    if(n[1] > 0) bv.dist(D + 8) = n[1] * d * 2;
-    else bv.dist(8) = n[1] * d * 2;
+  if (n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(D) = d;
+    else
+      bv.dist(0) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[1] > 0)
+      bv.dist(D + 1) = d;
+    else
+      bv.dist(1) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0) {
+    if (n[2] > 0)
+      bv.dist(D + 2) = d;
+    else
+      bv.dist(2) = -d;
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] == n[1]) {
+    if (n[0] > 0)
+      bv.dist(D + 3) = n[0] * d * 2;
+    else
+      bv.dist(3) = n[0] * d * 2;
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] == n[2]) {
+    if (n[1] > 0)
+      bv.dist(D + 4) = n[0] * d * 2;
+    else
+      bv.dist(4) = n[0] * d * 2;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == n[2]) {
+    if (n[1] > 0)
+      bv.dist(D + 5) = n[1] * d * 2;
+    else
+      bv.dist(5) = n[1] * d * 2;
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(D + 6) = n[0] * d * 2;
+    else
+      bv.dist(6) = n[0] * d * 2;
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(D + 7) = n[0] * d * 2;
+    else
+      bv.dist(7) = n[0] * d * 2;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0) {
+    if (n[1] > 0)
+      bv.dist(D + 8) = n[1] * d * 2;
+    else
+      bv.dist(8) = n[1] * d * 2;
   }
 }
 
-template<>
-void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<24>& bv)
-{
+template <>
+void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf,
+                                    KDOP<24>& bv) {
   Halfspace new_s = transform(s, tf);
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const short D = 12;
 
-  for(short i = 0; i < D; ++i)
+  for (short i = 0; i < D; ++i)
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
-  for(short i = D; i < 2 * D; ++i)
+  for (short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
 
-  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(D) = d;
-    else bv.dist(0) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[1] > 0) bv.dist(D + 1) = d;
-    else bv.dist(1) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
-  {
-    if(n[2] > 0) bv.dist(D + 2) = d;
-    else bv.dist(2) = -d;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
-  {
-    if(n[0] > 0) bv.dist(D + 3) = n[0] * d * 2;
-    else bv.dist(3) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
-  {
-    if(n[1] > 0) bv.dist(D + 4) = n[0] * d * 2;
-    else bv.dist(4) = n[0] * d * 2;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
-  {
-    if(n[1] > 0) bv.dist(D + 5) = n[1] * d * 2;
-    else bv.dist(5) = n[1] * d * 2;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(D + 6) = n[0] * d * 2;
-    else bv.dist(6) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(D + 7) = n[0] * d * 2;
-    else bv.dist(7) = n[0] * d * 2;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
-  {
-    if(n[1] > 0) bv.dist(D + 8) = n[1] * d * 2;
-    else bv.dist(8) = n[1] * d * 2;
-  }
-  else if(n[0] + n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(D + 9) = n[0] * d * 3;
-    else bv.dist(9) = n[0] * d * 3;
-  }
-  else if(n[0] + n[1] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(D + 10) = n[0] * d * 3;
-    else bv.dist(10) = n[0] * d * 3;
-  }
-  else if(n[0] + n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
-  {
-    if(n[1] > 0) bv.dist(D + 11) = n[1] * d * 3;
-    else bv.dist(11) = n[1] * d * 3;
+  if (n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(D) = d;
+    else
+      bv.dist(0) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[1] > 0)
+      bv.dist(D + 1) = d;
+    else
+      bv.dist(1) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0) {
+    if (n[2] > 0)
+      bv.dist(D + 2) = d;
+    else
+      bv.dist(2) = -d;
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] == n[1]) {
+    if (n[0] > 0)
+      bv.dist(D + 3) = n[0] * d * 2;
+    else
+      bv.dist(3) = n[0] * d * 2;
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] == n[2]) {
+    if (n[1] > 0)
+      bv.dist(D + 4) = n[0] * d * 2;
+    else
+      bv.dist(4) = n[0] * d * 2;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == n[2]) {
+    if (n[1] > 0)
+      bv.dist(D + 5) = n[1] * d * 2;
+    else
+      bv.dist(5) = n[1] * d * 2;
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(D + 6) = n[0] * d * 2;
+    else
+      bv.dist(6) = n[0] * d * 2;
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(D + 7) = n[0] * d * 2;
+    else
+      bv.dist(7) = n[0] * d * 2;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0) {
+    if (n[1] > 0)
+      bv.dist(D + 8) = n[1] * d * 2;
+    else
+      bv.dist(8) = n[1] * d * 2;
+  } else if (n[0] + n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(D + 9) = n[0] * d * 3;
+    else
+      bv.dist(9) = n[0] * d * 3;
+  } else if (n[0] + n[1] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(D + 10) = n[0] * d * 3;
+    else
+      bv.dist(10) = n[0] * d * 3;
+  } else if (n[0] + n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0) {
+    if (n[1] > 0)
+      bv.dist(D + 11) = n[1] * d * 3;
+    else
+      bv.dist(11) = n[1] * d * 3;
   }
 }
 
-
-
-template<>
-void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv)
-{
+template <>
+void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv) {
   Vec3f n = tf.getRotation() * s.n;
   generateCoordinateSystem(n, bv.axes.col(1), bv.axes.col(2));
   bv.axes.col(0).noalias() = n;
 
-  bv.extent << 0, (std::numeric_limits<FCL_REAL>::max)(), (std::numeric_limits<FCL_REAL>::max)();
+  bv.extent << 0, (std::numeric_limits<FCL_REAL>::max)(),
+      (std::numeric_limits<FCL_REAL>::max)();
 
   Vec3f p = s.n * s.d;
-  bv.To = tf.transform(p); /// n'd' = R * n * (d + (R * n) * T) = R * (n * d) + T
+  bv.To =
+      tf.transform(p);  /// n'd' = R * n * (d + (R * n) * T) = R * (n * d) + T
 }
 
-template<>
-void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv)
-{
+template <>
+void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv) {
   Vec3f n = tf.getRotation() * s.n;
 
   generateCoordinateSystem(n, bv.axes.col(1), bv.axes.col(2));
@@ -771,296 +757,245 @@ void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv)
   bv.Tr = tf.transform(p);
 }
 
-template<>
-void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3f& tf, OBBRSS& bv)
-{
+template <>
+void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3f& tf,
+                              OBBRSS& bv) {
   computeBV<OBB, Plane>(s, tf, bv.obb);
   computeBV<RSS, Plane>(s, tf, bv.rss);
 }
 
-template<>
-void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv)
-{
+template <>
+void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv) {
   bv.num_spheres = 1;
   computeBV<OBB, Plane>(s, tf, bv.obb);
   bv.spheres[0].o = Vec3f();
   bv.spheres[0].r = (std::numeric_limits<FCL_REAL>::max)();
 }
 
-template<>
-void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf, KDOP<16>& bv)
-{
+template <>
+void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf,
+                                KDOP<16>& bv) {
   Plane new_s = transform(s, tf);
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const short D = 8;
 
-  for(short i = 0; i < D; ++i)
+  for (short i = 0; i < D; ++i)
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
-  for(short i = D; i < 2 * D; ++i)
+  for (short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
 
-  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;
-    else bv.dist(0) = bv.dist(D) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[1] > 0) bv.dist(1) = bv.dist(D + 1) = d;
-    else bv.dist(1) = bv.dist(D + 1) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
-  {
-    if(n[2] > 0) bv.dist(2) = bv.dist(D + 2) = d;
-    else bv.dist(2) = bv.dist(D + 2) = -d;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
-  {
+  if (n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(0) = bv.dist(D) = d;
+    else
+      bv.dist(0) = bv.dist(D) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[1] > 0)
+      bv.dist(1) = bv.dist(D + 1) = d;
+    else
+      bv.dist(1) = bv.dist(D + 1) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0) {
+    if (n[2] > 0)
+      bv.dist(2) = bv.dist(D + 2) = d;
+    else
+      bv.dist(2) = bv.dist(D + 2) = -d;
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] == n[1]) {
     bv.dist(3) = bv.dist(D + 3) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
-  {
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] == n[2]) {
     bv.dist(4) = bv.dist(D + 4) = n[0] * d * 2;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
-  {
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == n[2]) {
     bv.dist(6) = bv.dist(D + 5) = n[1] * d * 2;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
-  {
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0) {
     bv.dist(6) = bv.dist(D + 6) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
-  {
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0) {
     bv.dist(7) = bv.dist(D + 7) = n[0] * d * 2;
   }
 }
 
-template<>
-void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf, KDOP<18>& bv)
-{
+template <>
+void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf,
+                                KDOP<18>& bv) {
   Plane new_s = transform(s, tf);
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const short D = 9;
 
-  for(short i = 0; i < D; ++i)
+  for (short i = 0; i < D; ++i)
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
-  for(short i = D; i < 2 * D; ++i)
+  for (short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
 
-  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;
-    else bv.dist(0) = bv.dist(D) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[1] > 0) bv.dist(1) = bv.dist(D + 1) = d;
-    else bv.dist(1) = bv.dist(D + 1) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
-  {
-    if(n[2] > 0) bv.dist(2) = bv.dist(D + 2) = d;
-    else bv.dist(2) = bv.dist(D + 2) = -d;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
-  {
+  if (n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(0) = bv.dist(D) = d;
+    else
+      bv.dist(0) = bv.dist(D) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[1] > 0)
+      bv.dist(1) = bv.dist(D + 1) = d;
+    else
+      bv.dist(1) = bv.dist(D + 1) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0) {
+    if (n[2] > 0)
+      bv.dist(2) = bv.dist(D + 2) = d;
+    else
+      bv.dist(2) = bv.dist(D + 2) = -d;
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] == n[1]) {
     bv.dist(3) = bv.dist(D + 3) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
-  {
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] == n[2]) {
     bv.dist(4) = bv.dist(D + 4) = n[0] * d * 2;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
-  {
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == n[2]) {
     bv.dist(5) = bv.dist(D + 5) = n[1] * d * 2;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
-  {
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0) {
     bv.dist(6) = bv.dist(D + 6) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
-  {
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0) {
     bv.dist(7) = bv.dist(D + 7) = n[0] * d * 2;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
-  {
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0) {
     bv.dist(8) = bv.dist(D + 8) = n[1] * d * 2;
   }
 }
 
-template<>
-void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf, KDOP<24>& bv)
-{
+template <>
+void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf,
+                                KDOP<24>& bv) {
   Plane new_s = transform(s, tf);
   const Vec3f& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const short D = 12;
 
-  for(short i = 0; i < D; ++i)
+  for (short i = 0; i < D; ++i)
     bv.dist(i) = -(std::numeric_limits<FCL_REAL>::max)();
-  for(short i = D; i < 2 * D; ++i)
+  for (short i = D; i < 2 * D; ++i)
     bv.dist(i) = (std::numeric_limits<FCL_REAL>::max)();
 
-  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;
-    else bv.dist(0) = bv.dist(D) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
-  {
-    if(n[1] > 0) bv.dist(1) = bv.dist(D + 1) = d;
-    else bv.dist(1) = bv.dist(D + 1) = -d;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
-  {
-    if(n[2] > 0) bv.dist(2) = bv.dist(D + 2) = d;
-    else bv.dist(2) = bv.dist(D + 2) = -d;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
-  {
+  if (n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[0] > 0)
+      bv.dist(0) = bv.dist(D) = d;
+    else
+      bv.dist(0) = bv.dist(D) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0) {
+    if (n[1] > 0)
+      bv.dist(1) = bv.dist(D + 1) = d;
+    else
+      bv.dist(1) = bv.dist(D + 1) = -d;
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0) {
+    if (n[2] > 0)
+      bv.dist(2) = bv.dist(D + 2) = d;
+    else
+      bv.dist(2) = bv.dist(D + 2) = -d;
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] == n[1]) {
     bv.dist(3) = bv.dist(D + 3) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
-  {
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] == n[2]) {
     bv.dist(4) = bv.dist(D + 4) = n[0] * d * 2;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
-  {
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] == n[2]) {
     bv.dist(5) = bv.dist(D + 5) = n[1] * d * 2;
-  }
-  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
-  {
+  } else if (n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0) {
     bv.dist(6) = bv.dist(D + 6) = n[0] * d * 2;
-  }
-  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
-  {
+  } else if (n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0) {
     bv.dist(7) = bv.dist(D + 7) = n[0] * d * 2;
-  }
-  else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
-  {
+  } else if (n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0) {
     bv.dist(8) = bv.dist(D + 8) = n[1] * d * 2;
-  }
-  else if(n[0] + n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
-  {
+  } else if (n[0] + n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0) {
     bv.dist(9) = bv.dist(D + 9) = n[0] * d * 3;
-  }
-  else if(n[0] + n[1] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
-  {
+  } else if (n[0] + n[1] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0) {
     bv.dist(10) = bv.dist(D + 10) = n[0] * d * 3;
-  }
-  else if(n[0] + n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
-  {
+  } else if (n[0] + n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0) {
     bv.dist(11) = bv.dist(D + 11) = n[1] * d * 3;
   }
 }
 
-
-void constructBox(const AABB& bv, Box& box, Transform3f& tf)
-{
+void constructBox(const AABB& bv, Box& box, Transform3f& tf) {
   box = Box(bv.max_ - bv.min_);
   tf = Transform3f(bv.center());
 }
 
-void constructBox(const OBB& bv, Box& box, Transform3f& tf)
-{
+void constructBox(const OBB& bv, Box& box, Transform3f& tf) {
   box = Box(bv.extent * 2);
   tf = Transform3f(bv.axes, bv.To);
 }
 
-void constructBox(const OBBRSS& bv, Box& box, Transform3f& tf)
-{
+void constructBox(const OBBRSS& bv, Box& box, Transform3f& tf) {
   box = Box(bv.obb.extent * 2);
   tf = Transform3f(bv.obb.axes, bv.obb.To);
 }
 
-void constructBox(const kIOS& bv, Box& box, Transform3f& tf)
-{
+void constructBox(const kIOS& bv, Box& box, Transform3f& tf) {
   box = Box(bv.obb.extent * 2);
   tf = Transform3f(bv.obb.axes, bv.obb.To);
 }
 
-void constructBox(const RSS& bv, Box& box, Transform3f& tf)
-{
+void constructBox(const RSS& bv, Box& box, Transform3f& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = Transform3f(bv.axes, bv.Tr);
 }
 
-void constructBox(const KDOP<16>& bv, Box& box, Transform3f& tf)
-{
+void constructBox(const KDOP<16>& bv, Box& box, Transform3f& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = Transform3f(bv.center());
 }
 
-void constructBox(const KDOP<18>& bv, Box& box, Transform3f& tf)
-{
+void constructBox(const KDOP<18>& bv, Box& box, Transform3f& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = Transform3f(bv.center());
 }
 
-void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf)
-{
+void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = Transform3f(bv.center());
 }
 
-
-
-void constructBox(const AABB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
-{
+void constructBox(const AABB& bv, const Transform3f& tf_bv, Box& box,
+                  Transform3f& tf) {
   box = Box(bv.max_ - bv.min_);
   tf = tf_bv * Transform3f(bv.center());
 }
 
-void constructBox(const OBB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
-{
+void constructBox(const OBB& bv, const Transform3f& tf_bv, Box& box,
+                  Transform3f& tf) {
   box = Box(bv.extent * 2);
   tf = tf_bv * Transform3f(bv.axes, bv.To);
 }
 
-void constructBox(const OBBRSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
-{
+void constructBox(const OBBRSS& bv, const Transform3f& tf_bv, Box& box,
+                  Transform3f& tf) {
   box = Box(bv.obb.extent * 2);
   tf = tf_bv * Transform3f(bv.obb.axes, bv.obb.To);
 }
 
-void constructBox(const kIOS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
-{
+void constructBox(const kIOS& bv, const Transform3f& tf_bv, Box& box,
+                  Transform3f& tf) {
   box = Box(bv.obb.extent * 2);
   tf = tf_bv * Transform3f(bv.obb.axes, bv.obb.To);
 }
 
-void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
-{
+void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box,
+                  Transform3f& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Transform3f(bv.axes, bv.Tr);
 }
 
-void constructBox(const KDOP<16>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
-{
+void constructBox(const KDOP<16>& bv, const Transform3f& tf_bv, Box& box,
+                  Transform3f& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Transform3f(bv.center());
 }
 
-void constructBox(const KDOP<18>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
-{
+void constructBox(const KDOP<18>& bv, const Transform3f& tf_bv, Box& box,
+                  Transform3f& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Transform3f(bv.center());
 }
 
-void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
-{
+void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box,
+                  Transform3f& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Transform3f(bv.center());
 }
 
+}  // namespace fcl
 
-
-}
-
-} // namespace hpp
+}  // namespace hpp

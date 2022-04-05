@@ -49,77 +49,77 @@ using namespace hpp::fcl;
 
 namespace dv = doxygen::visitor;
 
-struct DistanceRequestWrapper
-{
-  static Vec3f getNearestPoint1(const DistanceResult & res) { return res.nearest_points[0]; }
-  static Vec3f getNearestPoint2(const DistanceResult & res) { return res.nearest_points[1]; }
+struct DistanceRequestWrapper {
+  static Vec3f getNearestPoint1(const DistanceResult& res) {
+    return res.nearest_points[0];
+  }
+  static Vec3f getNearestPoint2(const DistanceResult& res) {
+    return res.nearest_points[1];
+  }
 };
 
-void exposeDistanceAPI ()
-{
-  if(!eigenpy::register_symbolic_link_to_registered_type<DistanceRequest>())
-  {
-    class_ <DistanceRequest, bases<QueryRequest> > ("DistanceRequest",
-        doxygen::class_doc<DistanceRequest>(),
-        init<optional<bool,FCL_REAL,FCL_REAL> >((arg("self"),
-                                                 arg("enable_nearest_points"),
-                                                 arg("rel_err"),
-                                                 arg("abs_err")),"Constructor"))
-      .DEF_RW_CLASS_ATTRIB (DistanceRequest, enable_nearest_points)
-      .DEF_RW_CLASS_ATTRIB (DistanceRequest, rel_err)
-      .DEF_RW_CLASS_ATTRIB (DistanceRequest, abs_err)
-      ;
+void exposeDistanceAPI() {
+  if (!eigenpy::register_symbolic_link_to_registered_type<DistanceRequest>()) {
+    class_<DistanceRequest, bases<QueryRequest> >(
+        "DistanceRequest", doxygen::class_doc<DistanceRequest>(),
+        init<optional<bool, FCL_REAL, FCL_REAL> >(
+            (arg("self"), arg("enable_nearest_points"), arg("rel_err"),
+             arg("abs_err")),
+            "Constructor"))
+        .DEF_RW_CLASS_ATTRIB(DistanceRequest, enable_nearest_points)
+        .DEF_RW_CLASS_ATTRIB(DistanceRequest, rel_err)
+        .DEF_RW_CLASS_ATTRIB(DistanceRequest, abs_err);
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<DistanceRequest> >())
-  {
-    class_< std::vector<DistanceRequest> >("StdVec_DistanceRequest")
-      .def(vector_indexing_suite< std::vector<DistanceRequest> >())
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<
+          std::vector<DistanceRequest> >()) {
+    class_<std::vector<DistanceRequest> >("StdVec_DistanceRequest")
+        .def(vector_indexing_suite<std::vector<DistanceRequest> >());
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type<DistanceResult>())
-  {
-    class_ <DistanceResult, bases<QueryResult> > ("DistanceResult",
-                             doxygen::class_doc<DistanceResult>(),
-                             no_init)
-      .def (dv::init<DistanceResult>())
-      .DEF_RW_CLASS_ATTRIB (DistanceResult, min_distance)
-      .DEF_RW_CLASS_ATTRIB(DistanceResult, normal)
-      //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
-      .def("getNearestPoint1",&DistanceRequestWrapper::getNearestPoint1,
-          doxygen::class_attrib_doc<DistanceResult>("nearest_points"))
-      .def("getNearestPoint2",&DistanceRequestWrapper::getNearestPoint2,
-          doxygen::class_attrib_doc<DistanceResult>("nearest_points"))
-      .DEF_RO_CLASS_ATTRIB (DistanceResult, o1)
-      .DEF_RO_CLASS_ATTRIB (DistanceResult, o2)
-      .DEF_RW_CLASS_ATTRIB (DistanceResult, b1)
-      .DEF_RW_CLASS_ATTRIB (DistanceResult, b2)
+  if (!eigenpy::register_symbolic_link_to_registered_type<DistanceResult>()) {
+    class_<DistanceResult, bases<QueryResult> >(
+        "DistanceResult", doxygen::class_doc<DistanceResult>(), no_init)
+        .def(dv::init<DistanceResult>())
+        .DEF_RW_CLASS_ATTRIB(DistanceResult, min_distance)
+        .DEF_RW_CLASS_ATTRIB(DistanceResult, normal)
+        //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
+        .def("getNearestPoint1", &DistanceRequestWrapper::getNearestPoint1,
+             doxygen::class_attrib_doc<DistanceResult>("nearest_points"))
+        .def("getNearestPoint2", &DistanceRequestWrapper::getNearestPoint2,
+             doxygen::class_attrib_doc<DistanceResult>("nearest_points"))
+        .DEF_RO_CLASS_ATTRIB(DistanceResult, o1)
+        .DEF_RO_CLASS_ATTRIB(DistanceResult, o2)
+        .DEF_RW_CLASS_ATTRIB(DistanceResult, b1)
+        .DEF_RW_CLASS_ATTRIB(DistanceResult, b2)
 
-      .def ("clear", &DistanceResult::clear,
-          doxygen::member_func_doc(&DistanceResult::clear))
-      ;
+        .def("clear", &DistanceResult::clear,
+             doxygen::member_func_doc(&DistanceResult::clear));
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type< std::vector<DistanceResult> >())
-  {
-    class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
-      .def(vector_indexing_suite< std::vector<DistanceResult> >())
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<
+          std::vector<DistanceResult> >()) {
+    class_<std::vector<DistanceResult> >("StdVec_DistanceResult")
+        .def(vector_indexing_suite<std::vector<DistanceResult> >());
   }
 
-  doxygen::def ("distance", static_cast< FCL_REAL (*)(const CollisionObject*, const CollisionObject*,
-        const DistanceRequest&, DistanceResult&) > (&distance));
-  doxygen::def ("distance", static_cast< FCL_REAL (*)(
-        const CollisionGeometry*, const Transform3f&,
-        const CollisionGeometry*, const Transform3f&,
-        DistanceRequest&, DistanceResult&) > (&distance));
+  doxygen::def(
+      "distance",
+      static_cast<FCL_REAL (*)(const CollisionObject*, const CollisionObject*,
+                               const DistanceRequest&, DistanceResult&)>(
+          &distance));
+  doxygen::def(
+      "distance",
+      static_cast<FCL_REAL (*)(const CollisionGeometry*, const Transform3f&,
+                               const CollisionGeometry*, const Transform3f&,
+                               DistanceRequest&, DistanceResult&)>(&distance));
 
-  class_<ComputeDistance> ("ComputeDistance",
-      doxygen::class_doc<ComputeDistance>(), no_init)
-    .def (dv::init<ComputeDistance, const CollisionGeometry*, const CollisionGeometry*>())
-    .def ("__call__", static_cast< FCL_REAL (ComputeDistance::*)(
-        const Transform3f&, const Transform3f&,
-        DistanceRequest&, DistanceResult&) const> (&ComputeDistance::operator()));
-
+  class_<ComputeDistance>("ComputeDistance",
+                          doxygen::class_doc<ComputeDistance>(), no_init)
+      .def(dv::init<ComputeDistance, const CollisionGeometry*,
+                    const CollisionGeometry*>())
+      .def("__call__",
+           static_cast<FCL_REAL (ComputeDistance::*)(
+               const Transform3f&, const Transform3f&, DistanceRequest&,
+               DistanceResult&) const>(&ComputeDistance::operator()));
 }

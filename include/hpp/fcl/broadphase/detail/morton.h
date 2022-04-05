@@ -42,14 +42,11 @@
 #include "hpp/fcl/BV/AABB.h"
 #include <bitset>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @cond IGNORE
-namespace detail
-{
+namespace detail {
 
 template <typename S>
 uint32_t quantize(S x, uint32_t n);
@@ -66,16 +63,15 @@ uint64_t morton_code60(uint32_t x, uint32_t y, uint32_t z);
 /// This is specialized for 32- and 64-bit unsigned integers giving
 /// a 30- or 60-bit code, respectively, and for `std::bitset<N>` where
 /// N is the length of the code and must be a multiple of 3.
-template<typename S, typename T>
+template <typename S, typename T>
 struct morton_functor {};
 
 /// @brief Functor to compute 30 bit morton code for a given AABB
-template<typename S>
-struct morton_functor<S, uint32_t>
-{
+template <typename S>
+struct morton_functor<S, uint32_t> {
   morton_functor(const AABB& bbox);
 
-  uint32_t operator() (const Vec3f& point) const;
+  uint32_t operator()(const Vec3f& point) const;
 
   const Vec3f base;
   const Vec3f inv;
@@ -87,30 +83,27 @@ using morton_functoru32f = morton_functor<float, uint32_t>;
 using morton_functoru32d = morton_functor<FCL_REAL, uint32_t>;
 
 /// @brief Functor to compute 60 bit morton code for a given AABB
-template<typename S>
-struct morton_functor<S, uint64_t>
-{
+template <typename S>
+struct morton_functor<S, uint64_t> {
   morton_functor(const AABB& bbox);
 
-  uint64_t operator() (const Vec3f& point) const;
+  uint64_t operator()(const Vec3f& point) const;
 
   const Vec3f base;
   const Vec3f inv;
 
   static constexpr size_t bits();
 };
-
 
 /// @brief Functor to compute N bit morton code for a given AABB
 /// N must be a multiple of 3.
-template<typename S, size_t N>
-struct morton_functor<S, std::bitset<N>>
-{
-  static_assert(N%3==0, "Number of bits must be a multiple of 3");
+template <typename S, size_t N>
+struct morton_functor<S, std::bitset<N>> {
+  static_assert(N % 3 == 0, "Number of bits must be a multiple of 3");
 
   morton_functor(const AABB& bbox);
 
-  std::bitset<N> operator() (const Vec3f& point) const;
+  std::bitset<N> operator()(const Vec3f& point) const;
 
   const Vec3f base;
   const Vec3f inv;
@@ -118,10 +111,10 @@ struct morton_functor<S, std::bitset<N>>
   static constexpr size_t bits();
 };
 
-} // namespace detail
+}  // namespace detail
 /// @endcond
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp
 
 #include "hpp/fcl/broadphase/detail/morton-inl.h"
 

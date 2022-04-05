@@ -40,73 +40,57 @@
 #include <limits>
 #include <hpp/fcl/collision_data.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-AABB::AABB() : min_(Vec3f::Constant((std::numeric_limits<FCL_REAL>::max)())),
-               max_(Vec3f::Constant(-(std::numeric_limits<FCL_REAL>::max)()))
-{
-}
+AABB::AABB()
+    : min_(Vec3f::Constant((std::numeric_limits<FCL_REAL>::max)())),
+      max_(Vec3f::Constant(-(std::numeric_limits<FCL_REAL>::max)())) {}
 
 bool AABB::overlap(const AABB& other, const CollisionRequest& request,
-                    FCL_REAL& sqrDistLowerBound) const
-{
-  const FCL_REAL breakDistance (request.break_distance + request.security_margin);
+                   FCL_REAL& sqrDistLowerBound) const {
+  const FCL_REAL breakDistance(request.break_distance +
+                               request.security_margin);
   const FCL_REAL breakDistance2 = breakDistance * breakDistance;
 
   sqrDistLowerBound = (min_ - other.max_).array().max(0).matrix().squaredNorm();
-  if(sqrDistLowerBound > breakDistance2) return false;
+  if (sqrDistLowerBound > breakDistance2) return false;
 
   sqrDistLowerBound = (other.min_ - max_).array().max(0).matrix().squaredNorm();
-  if(sqrDistLowerBound > breakDistance2) return false;
+  if (sqrDistLowerBound > breakDistance2) return false;
 
   return true;
 }
 
-FCL_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
-{
+FCL_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const {
   FCL_REAL result = 0;
-  for(Eigen::DenseIndex i = 0; i < 3; ++i)
-  {
+  for (Eigen::DenseIndex i = 0; i < 3; ++i) {
     const FCL_REAL& amin = min_[i];
     const FCL_REAL& amax = max_[i];
     const FCL_REAL& bmin = other.min_[i];
     const FCL_REAL& bmax = other.max_[i];
-    
-    if(amin > bmax)
-    {
+
+    if (amin > bmax) {
       FCL_REAL delta = bmax - amin;
       result += delta * delta;
-      if(P && Q)
-      {
+      if (P && Q) {
         (*P)[i] = amin;
         (*Q)[i] = bmax;
       }
-    }
-    else if(bmin > amax)
-    {
+    } else if (bmin > amax) {
       FCL_REAL delta = amax - bmin;
       result += delta * delta;
-      if(P && Q)
-      {
+      if (P && Q) {
         (*P)[i] = amax;
         (*Q)[i] = bmin;
       }
-    }
-    else
-    {
-      if(P && Q)
-      {
-        if(bmin >= amin)
-        {
+    } else {
+      if (P && Q) {
+        if (bmin >= amin) {
           FCL_REAL t = 0.5 * (amax + bmin);
           (*P)[i] = t;
           (*Q)[i] = t;
-        }
-        else
-        {
+        } else {
           FCL_REAL t = 0.5 * (amin + bmax);
           (*P)[i] = t;
           (*Q)[i] = t;
@@ -118,23 +102,18 @@ FCL_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
   return std::sqrt(result);
 }
 
-FCL_REAL AABB::distance(const AABB& other) const
-{
+FCL_REAL AABB::distance(const AABB& other) const {
   FCL_REAL result = 0;
-  for(Eigen::DenseIndex i = 0; i < 3; ++i)
-  {
+  for (Eigen::DenseIndex i = 0; i < 3; ++i) {
     const FCL_REAL& amin = min_[i];
     const FCL_REAL& amax = max_[i];
     const FCL_REAL& bmin = other.min_[i];
     const FCL_REAL& bmax = other.max_[i];
-    
-    if(amin > bmax)
-    {
+
+    if (amin > bmax) {
       FCL_REAL delta = bmax - amin;
       result += delta * delta;
-    }
-    else if(bmin > amax)
-    {
+    } else if (bmin > amax) {
       FCL_REAL delta = amax - bmin;
       result += delta * delta;
     }
@@ -143,20 +122,19 @@ FCL_REAL AABB::distance(const AABB& other) const
   return std::sqrt(result);
 }
 
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1, const AABB& b2)
-{
-  AABB bb1 (translate (rotate (b1, R0), T0));
-  return bb1.overlap (b2);
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+             const AABB& b2) {
+  AABB bb1(translate(rotate(b1, R0), T0));
+  return bb1.overlap(b2);
 }
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
-	     const AABB& b2, const CollisionRequest& request,
-             FCL_REAL& sqrDistLowerBound)
-{
-  AABB bb1 (translate (rotate (b1, R0), T0));
-  return bb1.overlap (b2, request, sqrDistLowerBound);
+             const AABB& b2, const CollisionRequest& request,
+             FCL_REAL& sqrDistLowerBound) {
+  AABB bb1(translate(rotate(b1, R0), T0));
+  return bb1.overlap(b2, request, sqrDistLowerBound);
 }
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp

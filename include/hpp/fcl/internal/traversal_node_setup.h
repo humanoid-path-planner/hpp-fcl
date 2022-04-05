@@ -55,25 +55,21 @@
 
 #include <hpp/fcl/BVH/BVH_utility.h>
 
-
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 #ifdef HPP_FCL_HAS_OCTOMAP
-/// @brief Initialize traversal node for collision between two octrees, given current object transform
-inline bool initialize(OcTreeCollisionTraversalNode& node,
-                       const OcTree& model1, const Transform3f& tf1,
-                       const OcTree& model2, const Transform3f& tf2,
-                       const OcTreeSolver* otsolver,
-                       CollisionResult& result)
-{
+/// @brief Initialize traversal node for collision between two octrees, given
+/// current object transform
+inline bool initialize(OcTreeCollisionTraversalNode& node, const OcTree& model1,
+                       const Transform3f& tf1, const OcTree& model2,
+                       const Transform3f& tf2, const OcTreeSolver* otsolver,
+                       CollisionResult& result) {
   node.result = &result;
 
   node.model1 = &model1;
   node.model2 = &model2;
-  
+
   node.otsolver = otsolver;
 
   node.tf1 = tf1;
@@ -82,37 +78,35 @@ inline bool initialize(OcTreeCollisionTraversalNode& node,
   return true;
 }
 
-/// @brief Initialize traversal node for distance between two octrees, given current object transform
-inline bool initialize(OcTreeDistanceTraversalNode& node,
-                       const OcTree& model1, const Transform3f& tf1,
-                       const OcTree& model2, const Transform3f& tf2,
-                       const OcTreeSolver* otsolver,
-                       const DistanceRequest& request,
-                       DistanceResult& result)
+/// @brief Initialize traversal node for distance between two octrees, given
+/// current object transform
+inline bool initialize(OcTreeDistanceTraversalNode& node, const OcTree& model1,
+                       const Transform3f& tf1, const OcTree& model2,
+                       const Transform3f& tf2, const OcTreeSolver* otsolver,
+                       const DistanceRequest& request, DistanceResult& result)
 
 {
   node.request = request;
   node.result = &result;
- 
+
   node.model1 = &model1;
   node.model2 = &model2;
-  
+
   node.otsolver = otsolver;
-  
+
   node.tf1 = tf1;
   node.tf2 = tf2;
 
   return true;
 }
 
-/// @brief Initialize traversal node for collision between one shape and one octree, given current object transform
-template<typename S>
-bool initialize(ShapeOcTreeCollisionTraversalNode<S>& node,
-                const S& model1, const Transform3f& tf1,
-                const OcTree& model2, const Transform3f& tf2,
-                const OcTreeSolver* otsolver,
-                CollisionResult& result)
-{
+/// @brief Initialize traversal node for collision between one shape and one
+/// octree, given current object transform
+template <typename S>
+bool initialize(ShapeOcTreeCollisionTraversalNode<S>& node, const S& model1,
+                const Transform3f& tf1, const OcTree& model2,
+                const Transform3f& tf2, const OcTreeSolver* otsolver,
+                CollisionResult& result) {
   node.result = &result;
 
   node.model1 = &model1;
@@ -126,14 +120,13 @@ bool initialize(ShapeOcTreeCollisionTraversalNode<S>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for collision between one octree and one shape, given current object transform
-template<typename S>
+/// @brief Initialize traversal node for collision between one octree and one
+/// shape, given current object transform
+template <typename S>
 bool initialize(OcTreeShapeCollisionTraversalNode<S>& node,
-                const OcTree& model1, const Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
-                const OcTreeSolver* otsolver,
-                CollisionResult& result)
-{
+                const OcTree& model1, const Transform3f& tf1, const S& model2,
+                const Transform3f& tf2, const OcTreeSolver* otsolver,
+                CollisionResult& result) {
   node.result = &result;
 
   node.model1 = &model1;
@@ -147,15 +140,13 @@ bool initialize(OcTreeShapeCollisionTraversalNode<S>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for distance between one shape and one octree, given current object transform
-template<typename S>
-bool initialize(ShapeOcTreeDistanceTraversalNode<S>& node,
-                const S& model1, const Transform3f& tf1,
-                const OcTree& model2, const Transform3f& tf2,
-                const OcTreeSolver* otsolver,
-                const DistanceRequest& request,
-                DistanceResult& result)
-{
+/// @brief Initialize traversal node for distance between one shape and one
+/// octree, given current object transform
+template <typename S>
+bool initialize(ShapeOcTreeDistanceTraversalNode<S>& node, const S& model1,
+                const Transform3f& tf1, const OcTree& model2,
+                const Transform3f& tf2, const OcTreeSolver* otsolver,
+                const DistanceRequest& request, DistanceResult& result) {
   node.request = request;
   node.result = &result;
 
@@ -170,15 +161,13 @@ bool initialize(ShapeOcTreeDistanceTraversalNode<S>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for distance between one octree and one shape, given current object transform
-template<typename S>
-bool initialize(OcTreeShapeDistanceTraversalNode<S>& node,
-                const OcTree& model1, const Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
-                const OcTreeSolver* otsolver,
-                const DistanceRequest& request,
-                DistanceResult& result)
-{
+/// @brief Initialize traversal node for distance between one octree and one
+/// shape, given current object transform
+template <typename S>
+bool initialize(OcTreeShapeDistanceTraversalNode<S>& node, const OcTree& model1,
+                const Transform3f& tf1, const S& model2, const Transform3f& tf2,
+                const OcTreeSolver* otsolver, const DistanceRequest& request,
+                DistanceResult& result) {
   node.request = request;
   node.result = &result;
 
@@ -193,14 +182,13 @@ bool initialize(OcTreeShapeDistanceTraversalNode<S>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for collision between one mesh and one octree, given current object transform
-template<typename BV>
+/// @brief Initialize traversal node for collision between one mesh and one
+/// octree, given current object transform
+template <typename BV>
 bool initialize(MeshOcTreeCollisionTraversalNode<BV>& node,
                 const BVHModel<BV>& model1, const Transform3f& tf1,
                 const OcTree& model2, const Transform3f& tf2,
-                const OcTreeSolver* otsolver,
-                CollisionResult& result)
-{
+                const OcTreeSolver* otsolver, CollisionResult& result) {
   node.result = &result;
 
   node.model1 = &model1;
@@ -214,14 +202,13 @@ bool initialize(MeshOcTreeCollisionTraversalNode<BV>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for collision between one octree and one mesh, given current object transform
-template<typename BV>
+/// @brief Initialize traversal node for collision between one octree and one
+/// mesh, given current object transform
+template <typename BV>
 bool initialize(OcTreeMeshCollisionTraversalNode<BV>& node,
                 const OcTree& model1, const Transform3f& tf1,
                 const BVHModel<BV>& model2, const Transform3f& tf2,
-                const OcTreeSolver* otsolver,
-                CollisionResult& result)
-{
+                const OcTreeSolver* otsolver, CollisionResult& result) {
   node.result = &result;
 
   node.model1 = &model1;
@@ -235,21 +222,20 @@ bool initialize(OcTreeMeshCollisionTraversalNode<BV>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for distance between one mesh and one octree, given current object transform
-template<typename BV>
+/// @brief Initialize traversal node for distance between one mesh and one
+/// octree, given current object transform
+template <typename BV>
 bool initialize(MeshOcTreeDistanceTraversalNode<BV>& node,
                 const BVHModel<BV>& model1, const Transform3f& tf1,
                 const OcTree& model2, const Transform3f& tf2,
-                const OcTreeSolver* otsolver,
-                const DistanceRequest& request,
-                DistanceResult& result)
-{
+                const OcTreeSolver* otsolver, const DistanceRequest& request,
+                DistanceResult& result) {
   node.request = request;
   node.result = &result;
 
   node.model1 = &model1;
   node.model2 = &model2;
-  
+
   node.otsolver = otsolver;
 
   node.tf1 = tf1;
@@ -258,21 +244,19 @@ bool initialize(MeshOcTreeDistanceTraversalNode<BV>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for collision between one octree and one mesh, given current object transform
-template<typename BV>
-bool initialize(OcTreeMeshDistanceTraversalNode<BV>& node,
-                const OcTree& model1, const Transform3f& tf1,
-                const BVHModel<BV>& model2, const Transform3f& tf2,
-                const OcTreeSolver* otsolver,
-                const DistanceRequest& request,
-                DistanceResult& result)
-{
+/// @brief Initialize traversal node for collision between one octree and one
+/// mesh, given current object transform
+template <typename BV>
+bool initialize(OcTreeMeshDistanceTraversalNode<BV>& node, const OcTree& model1,
+                const Transform3f& tf1, const BVHModel<BV>& model2,
+                const Transform3f& tf2, const OcTreeSolver* otsolver,
+                const DistanceRequest& request, DistanceResult& result) {
   node.request = request;
   node.result = &result;
 
   node.model1 = &model1;
   node.model2 = &model2;
-  
+
   node.otsolver = otsolver;
 
   node.tf1 = tf1;
@@ -283,15 +267,13 @@ bool initialize(OcTreeMeshDistanceTraversalNode<BV>& node,
 
 #endif
 
-
-/// @brief Initialize traversal node for collision between two geometric shapes, given current object transform
-template<typename S1, typename S2>
-bool initialize(ShapeCollisionTraversalNode<S1, S2>& node,
-                const S1& shape1, const Transform3f& tf1,
-                const S2& shape2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result)
-{
+/// @brief Initialize traversal node for collision between two geometric shapes,
+/// given current object transform
+template <typename S1, typename S2>
+bool initialize(ShapeCollisionTraversalNode<S1, S2>& node, const S1& shape1,
+                const Transform3f& tf1, const S2& shape2,
+                const Transform3f& tf2, const GJKSolver* nsolver,
+                CollisionResult& result) {
   node.model1 = &shape1;
   node.tf1 = tf1;
   node.model2 = &shape2;
@@ -299,28 +281,28 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2>& node,
   node.nsolver = nsolver;
 
   node.result = &result;
-  
+
   return true;
 }
 
-/// @brief Initialize traversal node for collision between one mesh and one shape, given current object transform
-template<typename BV, typename S>
+/// @brief Initialize traversal node for collision between one mesh and one
+/// shape, given current object transform
+template <typename BV, typename S>
 bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
-                BVHModel<BV>& model1, Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result,
-                bool use_refit = false, bool refit_bottomup = false)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+                BVHModel<BV>& model1, Transform3f& tf1, const S& model2,
+                const Transform3f& tf2, const GJKSolver* nsolver,
+                CollisionResult& result, bool use_refit = false,
+                bool refit_bottomup = false) {
+  if (model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
 
-  if(!tf1.isIdentity()) // TODO(jcarpent): vectorized version
+  if (!tf1.isIdentity())  // TODO(jcarpent): vectorized version
   {
     std::vector<Vec3f> vertices_transformed(model1.num_vertices);
-    for(unsigned int i = 0; i < model1.num_vertices; ++i)
-    {
-      const Vec3f & p = model1.vertices[i];
+    for (unsigned int i = 0; i < model1.num_vertices; ++i) {
+      const Vec3f& p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
       vertices_transformed[i] = new_v;
     }
@@ -348,16 +330,17 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for collision between one mesh and one shape
-template<typename BV, typename S>
+/// @brief Initialize traversal node for collision between one mesh and one
+/// shape
+template <typename BV, typename S>
 bool initialize(MeshShapeCollisionTraversalNode<BV, S, 0>& node,
                 const BVHModel<BV>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+                const GJKSolver* nsolver, CollisionResult& result) {
+  if (model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -375,21 +358,18 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, 0>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for collision between one mesh and one shape, given current object transform
-template<typename BV, typename S>
+/// @brief Initialize traversal node for collision between one mesh and one
+/// shape, given current object transform
+template <typename BV, typename S>
 bool initialize(HeightFieldShapeCollisionTraversalNode<BV, S>& node,
-                HeightField<BV>& model1, Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result,
-                bool use_refit = false, bool refit_bottomup = false)
-{
-  if(!tf1.isIdentity())
-  {
+                HeightField<BV>& model1, Transform3f& tf1, const S& model2,
+                const Transform3f& tf2, const GJKSolver* nsolver,
+                CollisionResult& result, bool use_refit = false,
+                bool refit_bottomup = false) {
+  if (!tf1.isIdentity()) {
     std::vector<Vec3f> vertices_transformed(model1.num_vertices);
-    for(unsigned int i = 0; i < model1.num_vertices; ++i)
-    {
-      const Vec3f & p = model1.vertices[i];
+    for (unsigned int i = 0; i < model1.num_vertices; ++i) {
+      const Vec3f& p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
       vertices_transformed[i] = new_v;
     }
@@ -417,14 +397,13 @@ bool initialize(HeightFieldShapeCollisionTraversalNode<BV, S>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for collision between one mesh and one shape
-template<typename BV, typename S>
+/// @brief Initialize traversal node for collision between one mesh and one
+/// shape
+template <typename BV, typename S>
 bool initialize(HeightFieldShapeCollisionTraversalNode<BV, S, 0>& node,
                 const HeightField<BV>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                CollisionResult& result)
-{
+                const GJKSolver* nsolver, CollisionResult& result) {
   node.model1 = &model1;
   node.tf1 = tf1;
   node.model2 = &model2;
@@ -439,17 +418,16 @@ bool initialize(HeightFieldShapeCollisionTraversalNode<BV, S, 0>& node,
 }
 
 /// @cond IGNORE
-namespace details
-{
-template<typename S, typename BV, template<typename> class OrientedNode>
-static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S>& node, 
-                                                       const S& model1, const Transform3f& tf1,
-                                                       const BVHModel<BV>& model2, const Transform3f& tf2,
-                                                       const GJKSolver* nsolver,
-                                                       CollisionResult& result)
-{
-  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+namespace details {
+template <typename S, typename BV, template <typename> class OrientedNode>
+static inline bool setupShapeMeshCollisionOrientedNode(
+    OrientedNode<S>& node, const S& model1, const Transform3f& tf1,
+    const BVHModel<BV>& model2, const Transform3f& tf2,
+    const GJKSolver* nsolver, CollisionResult& result) {
+  if (model2.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -466,28 +444,29 @@ static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S>& node,
 
   return true;
 }
-}
+}  // namespace details
 /// @endcond
 
+/// @brief Initialize traversal node for collision between two meshes, given the
+/// current transforms
+template <typename BV>
+bool initialize(
+    MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity>& node,
+    BVHModel<BV>& model1, Transform3f& tf1, BVHModel<BV>& model2,
+    Transform3f& tf2, CollisionResult& result, bool use_refit = false,
+    bool refit_bottomup = false) {
+  if (model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
+  if (model2.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
 
-/// @brief Initialize traversal node for collision between two meshes, given the current transforms
-template<typename BV>
-bool initialize(MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity>& node,
-                BVHModel<BV>& model1, Transform3f& tf1,
-                BVHModel<BV>& model2, Transform3f& tf2,
-                CollisionResult& result,
-                bool use_refit = false, bool refit_bottomup = false)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
-  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
-
-  if(!tf1.isIdentity())
-  {
+  if (!tf1.isIdentity()) {
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
-    for(unsigned int i = 0; i < model1.num_vertices; ++i)
-    {
+    for (unsigned int i = 0; i < model1.num_vertices; ++i) {
       Vec3f& p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
       vertices_transformed1[i] = new_v;
@@ -500,11 +479,9 @@ bool initialize(MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity>
     tf1.setIdentity();
   }
 
-  if(!tf2.isIdentity())
-  {
+  if (!tf2.isIdentity()) {
     std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
-    for(unsigned int i = 0; i < model2.num_vertices; ++i)
-    {
+    for (unsigned int i = 0; i < model2.num_vertices; ++i) {
       Vec3f& p = model2.vertices[i];
       Vec3f new_v = tf2.transform(p);
       vertices_transformed2[i] = new_v;
@@ -533,16 +510,19 @@ bool initialize(MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity>
   return true;
 }
 
-template<typename BV>
+template <typename BV>
 bool initialize(MeshCollisionTraversalNode<BV, 0>& node,
                 const BVHModel<BV>& model1, const Transform3f& tf1,
                 const BVHModel<BV>& model2, const Transform3f& tf2,
-                CollisionResult& result)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
-  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+                CollisionResult& result) {
+  if (model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
+  if (model2.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
 
   node.vertices1 = model1.vertices;
   node.vertices2 = model2.vertices;
@@ -558,20 +538,18 @@ bool initialize(MeshCollisionTraversalNode<BV, 0>& node,
   node.result = &result;
 
   node.RT.R.noalias() = tf1.getRotation().transpose() * tf2.getRotation();
-  node.RT.T.noalias() = tf1.getRotation().transpose() * (tf2.getTranslation() - tf1.getTranslation());
+  node.RT.T.noalias() = tf1.getRotation().transpose() *
+                        (tf2.getTranslation() - tf1.getTranslation());
 
   return true;
 }
 
 /// @brief Initialize traversal node for distance between two geometric shapes
-template<typename S1, typename S2>
-bool initialize(ShapeDistanceTraversalNode<S1, S2>& node,
-                const S1& shape1, const Transform3f& tf1,
-                const S2& shape2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                const DistanceRequest& request,
-                DistanceResult& result)
-{
+template <typename S1, typename S2>
+bool initialize(ShapeDistanceTraversalNode<S1, S2>& node, const S1& shape1,
+                const Transform3f& tf1, const S2& shape2,
+                const Transform3f& tf2, const GJKSolver* nsolver,
+                const DistanceRequest& request, DistanceResult& result) {
   node.request = request;
   node.result = &result;
 
@@ -584,26 +562,27 @@ bool initialize(ShapeDistanceTraversalNode<S1, S2>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for distance computation between two meshes, given the current transforms
-template<typename BV>
-bool initialize(MeshDistanceTraversalNode<BV, RelativeTransformationIsIdentity>& node,
-                BVHModel<BV>& model1, Transform3f& tf1,
-                BVHModel<BV>& model2, Transform3f& tf2,
-                const DistanceRequest& request,
-                DistanceResult& result,
-                bool use_refit = false, bool refit_bottomup = false)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
-  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+/// @brief Initialize traversal node for distance computation between two
+/// meshes, given the current transforms
+template <typename BV>
+bool initialize(
+    MeshDistanceTraversalNode<BV, RelativeTransformationIsIdentity>& node,
+    BVHModel<BV>& model1, Transform3f& tf1, BVHModel<BV>& model2,
+    Transform3f& tf2, const DistanceRequest& request, DistanceResult& result,
+    bool use_refit = false, bool refit_bottomup = false) {
+  if (model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
+  if (model2.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
 
-  if(!tf1.isIdentity())
-  {
+  if (!tf1.isIdentity()) {
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
-    for(unsigned int i = 0; i < model1.num_vertices; ++i)
-    {
-      const Vec3f & p = model1.vertices[i];
+    for (unsigned int i = 0; i < model1.num_vertices; ++i) {
+      const Vec3f& p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
       vertices_transformed1[i] = new_v;
     }
@@ -615,12 +594,10 @@ bool initialize(MeshDistanceTraversalNode<BV, RelativeTransformationIsIdentity>&
     tf1.setIdentity();
   }
 
-  if(!tf2.isIdentity())
-  {
+  if (!tf2.isIdentity()) {
     std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
-    for(unsigned int i = 0; i < model2.num_vertices; ++i)
-    {
-      const Vec3f & p = model2.vertices[i];
+    for (unsigned int i = 0; i < model2.num_vertices; ++i) {
+      const Vec3f& p = model2.vertices[i];
       Vec3f new_v = tf2.transform(p);
       vertices_transformed2[i] = new_v;
     }
@@ -650,17 +627,19 @@ bool initialize(MeshDistanceTraversalNode<BV, RelativeTransformationIsIdentity>&
 }
 
 /// @brief Initialize traversal node for distance computation between two meshes
-template<typename BV>
+template <typename BV>
 bool initialize(MeshDistanceTraversalNode<BV, 0>& node,
                 const BVHModel<BV>& model1, const Transform3f& tf1,
                 const BVHModel<BV>& model2, const Transform3f& tf2,
-                const DistanceRequest& request,
-                DistanceResult& result)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
-  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+                const DistanceRequest& request, DistanceResult& result) {
+  if (model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
+  if (model2.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
 
   node.request = request;
   node.result = &result;
@@ -676,32 +655,29 @@ bool initialize(MeshDistanceTraversalNode<BV, 0>& node,
   node.tri_indices1 = model1.tri_indices;
   node.tri_indices2 = model2.tri_indices;
 
-  relativeTransform(tf1.getRotation(), tf1.getTranslation(),
-      tf2.getRotation(), tf2.getTranslation(),
-      node.RT.R, node.RT.T);
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(),
+                    tf2.getTranslation(), node.RT.R, node.RT.T);
 
   return true;
 }
 
-/// @brief Initialize traversal node for distance computation between one mesh and one shape, given the current transforms
-template<typename BV, typename S>
+/// @brief Initialize traversal node for distance computation between one mesh
+/// and one shape, given the current transforms
+template <typename BV, typename S>
 bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
-                BVHModel<BV>& model1, Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                const DistanceRequest& request,
-                DistanceResult& result,
-                bool use_refit = false, bool refit_bottomup = false)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+                BVHModel<BV>& model1, Transform3f& tf1, const S& model2,
+                const Transform3f& tf2, const GJKSolver* nsolver,
+                const DistanceRequest& request, DistanceResult& result,
+                bool use_refit = false, bool refit_bottomup = false) {
+  if (model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
 
-  if(!tf1.isIdentity())
-  {
+  if (!tf1.isIdentity()) {
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
-    for(unsigned int i = 0; i < model1.num_vertices; ++i)
-    {
-      const Vec3f & p = model1.vertices[i];
+    for (unsigned int i = 0; i < model1.num_vertices; ++i) {
+      const Vec3f& p = model1.vertices[i];
       Vec3f new_v = tf1.transform(p);
       vertices_transformed1[i] = new_v;
     }
@@ -721,7 +697,7 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
   node.model2 = &model2;
   node.tf2 = tf2;
   node.nsolver = nsolver;
-  
+
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
 
@@ -730,25 +706,23 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
   return true;
 }
 
-/// @brief Initialize traversal node for distance computation between one shape and one mesh, given the current transforms
-template<typename S, typename BV>
-bool initialize(ShapeMeshDistanceTraversalNode<S, BV>& node,
-                const S& model1, const Transform3f& tf1,
-                BVHModel<BV>& model2, Transform3f& tf2,
-                const GJKSolver* nsolver,
-                const DistanceRequest& request,
-                DistanceResult& result,
-                bool use_refit = false, bool refit_bottomup = false)
-{
-  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
-  
-  if(!tf2.isIdentity())
-  {
+/// @brief Initialize traversal node for distance computation between one shape
+/// and one mesh, given the current transforms
+template <typename S, typename BV>
+bool initialize(ShapeMeshDistanceTraversalNode<S, BV>& node, const S& model1,
+                const Transform3f& tf1, BVHModel<BV>& model2, Transform3f& tf2,
+                const GJKSolver* nsolver, const DistanceRequest& request,
+                DistanceResult& result, bool use_refit = false,
+                bool refit_bottomup = false) {
+  if (model2.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
+
+  if (!tf2.isIdentity()) {
     std::vector<Vec3f> vertices_transformed(model2.num_vertices);
-    for(unsigned int i = 0; i < model2.num_vertices; ++i)
-    {
-      const Vec3f & p = model2.vertices[i];
+    for (unsigned int i = 0; i < model2.num_vertices; ++i) {
+      const Vec3f& p = model2.vertices[i];
       Vec3f new_v = tf2.transform(p);
       vertices_transformed[i] = new_v;
     }
@@ -773,24 +747,22 @@ bool initialize(ShapeMeshDistanceTraversalNode<S, BV>& node,
   node.tri_indices = model2.tri_indices;
 
   computeBV(model1, tf1, node.model1_bv);
-  
+
   return true;
 }
 
 /// @cond IGNORE
-namespace details
-{
+namespace details {
 
-template<typename BV, typename S, template<typename> class OrientedNode>
-static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S>& node, 
-                                                      const BVHModel<BV>& model1, const Transform3f& tf1,
-                                                      const S& model2, const Transform3f& tf2,
-                                                      const GJKSolver* nsolver,
-                                                      const DistanceRequest& request,
-                                                      DistanceResult& result)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
+template <typename BV, typename S, template <typename> class OrientedNode>
+static inline bool setupMeshShapeDistanceOrientedNode(
+    OrientedNode<S>& node, const BVHModel<BV>& model1, const Transform3f& tf1,
+    const S& model2, const Transform3f& tf2, const GJKSolver* nsolver,
+    const DistanceRequest& request, DistanceResult& result) {
+  if (model1.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
 
   node.request = request;
   node.result = &result;
@@ -808,59 +780,57 @@ static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S>& node,
 
   return true;
 }
-}
+}  // namespace details
 /// @endcond
 
-/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for RSS type
-template<typename S>
+/// @brief Initialize traversal node for distance computation between one mesh
+/// and one shape, specialized for RSS type
+template <typename S>
 bool initialize(MeshShapeDistanceTraversalNodeRSS<S>& node,
                 const BVHModel<RSS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                const DistanceRequest& request, 
-                DistanceResult& result)
-{
-  return details::setupMeshShapeDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+                const GJKSolver* nsolver, const DistanceRequest& request,
+                DistanceResult& result) {
+  return details::setupMeshShapeDistanceOrientedNode(
+      node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for kIOS type
-template<typename S>
+/// @brief Initialize traversal node for distance computation between one mesh
+/// and one shape, specialized for kIOS type
+template <typename S>
 bool initialize(MeshShapeDistanceTraversalNodekIOS<S>& node,
                 const BVHModel<kIOS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                const DistanceRequest& request,
-                DistanceResult& result)
-{
-  return details::setupMeshShapeDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);  
+                const GJKSolver* nsolver, const DistanceRequest& request,
+                DistanceResult& result) {
+  return details::setupMeshShapeDistanceOrientedNode(
+      node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for OBBRSS type
-template<typename S>
+/// @brief Initialize traversal node for distance computation between one mesh
+/// and one shape, specialized for OBBRSS type
+template <typename S>
 bool initialize(MeshShapeDistanceTraversalNodeOBBRSS<S>& node,
                 const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
                 const S& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                const DistanceRequest& request,
-                DistanceResult& result)
-{
-  return details::setupMeshShapeDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+                const GJKSolver* nsolver, const DistanceRequest& request,
+                DistanceResult& result) {
+  return details::setupMeshShapeDistanceOrientedNode(
+      node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
+namespace details {
+template <typename S, typename BV, template <typename> class OrientedNode>
+static inline bool setupShapeMeshDistanceOrientedNode(
+    OrientedNode<S>& node, const S& model1, const Transform3f& tf1,
+    const BVHModel<BV>& model2, const Transform3f& tf2,
+    const GJKSolver* nsolver, const DistanceRequest& request,
+    DistanceResult& result) {
+  if (model2.getModelType() != BVH_MODEL_TRIANGLES)
+    HPP_FCL_THROW_PRETTY(
+        "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
+        std::invalid_argument)
 
-namespace details
-{
-template<typename S, typename BV, template<typename> class OrientedNode>
-static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S>& node,
-                                                      const S& model1, const Transform3f& tf1,
-                                                      const BVHModel<BV>& model2, const Transform3f& tf2,
-                                                      const GJKSolver* nsolver,
-                                                      const DistanceRequest& request,
-                                                      DistanceResult& result)
-{
-  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY("model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",std::invalid_argument)
-    
   node.request = request;
   node.result = &result;
 
@@ -877,50 +847,46 @@ static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S>& node,
   node.R = tf2.getRotation();
   node.T = tf2.getTranslation();
 
-  return true;  
+  return true;
 }
-}
+}  // namespace details
 
-
-/// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for RSS type
-template<typename S>
-bool initialize(ShapeMeshDistanceTraversalNodeRSS<S>& node,
-                const S& model1, const Transform3f& tf1,
-                const BVHModel<RSS>& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                const DistanceRequest& request,
-                DistanceResult& result)
-{
-  return details::setupShapeMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+/// @brief Initialize traversal node for distance computation between one shape
+/// and one mesh, specialized for RSS type
+template <typename S>
+bool initialize(ShapeMeshDistanceTraversalNodeRSS<S>& node, const S& model1,
+                const Transform3f& tf1, const BVHModel<RSS>& model2,
+                const Transform3f& tf2, const GJKSolver* nsolver,
+                const DistanceRequest& request, DistanceResult& result) {
+  return details::setupShapeMeshDistanceOrientedNode(
+      node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for kIOS type
-template<typename S>
-bool initialize(ShapeMeshDistanceTraversalNodekIOS<S>& node,
-                const S& model1, const Transform3f& tf1,
-                const BVHModel<kIOS>& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                const DistanceRequest& request,
-                DistanceResult& result)
-{
-  return details::setupShapeMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+/// @brief Initialize traversal node for distance computation between one shape
+/// and one mesh, specialized for kIOS type
+template <typename S>
+bool initialize(ShapeMeshDistanceTraversalNodekIOS<S>& node, const S& model1,
+                const Transform3f& tf1, const BVHModel<kIOS>& model2,
+                const Transform3f& tf2, const GJKSolver* nsolver,
+                const DistanceRequest& request, DistanceResult& result) {
+  return details::setupShapeMeshDistanceOrientedNode(
+      node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for OBBRSS type
-template<typename S>
-bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<S>& node,
-                const S& model1, const Transform3f& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
-                const GJKSolver* nsolver,
-                const DistanceRequest& request,
-                DistanceResult& result)
-{
-  return details::setupShapeMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+/// @brief Initialize traversal node for distance computation between one shape
+/// and one mesh, specialized for OBBRSS type
+template <typename S>
+bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<S>& node, const S& model1,
+                const Transform3f& tf1, const BVHModel<OBBRSS>& model2,
+                const Transform3f& tf2, const GJKSolver* nsolver,
+                const DistanceRequest& request, DistanceResult& result) {
+  return details::setupShapeMeshDistanceOrientedNode(
+      node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 /// @endcond
 

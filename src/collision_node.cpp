@@ -35,40 +35,32 @@
 
 /** \author Jia Pan */
 
-
 #include <../src/collision_node.h>
 #include <hpp/fcl/internal/traversal_recurse.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-void collide(CollisionTraversalNodeBase* node,
-             const CollisionRequest& request, CollisionResult& result,
-             BVHFrontList* front_list,
-             bool recursive)
-{
-  if(front_list && front_list->size() > 0)
-  {
+void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
+             CollisionResult& result, BVHFrontList* front_list,
+             bool recursive) {
+  if (front_list && front_list->size() > 0) {
     propagateBVHFrontListCollisionRecurse(node, request, result, front_list);
-  }
-  else
-  {
-    FCL_REAL sqrDistLowerBound=0;
+  } else {
+    FCL_REAL sqrDistLowerBound = 0;
     if (recursive)
       collisionRecurse(node, 0, 0, front_list, sqrDistLowerBound);
     else
       collisionNonRecurse(node, front_list, sqrDistLowerBound);
-    result.updateDistanceLowerBound (sqrt (sqrDistLowerBound));
+    result.updateDistanceLowerBound(sqrt(sqrDistLowerBound));
   }
 }
 
-void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list, unsigned int qsize)
-{
+void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list,
+              unsigned int qsize) {
   node->preprocess();
-  
-  if(qsize <= 2)
+
+  if (qsize <= 2)
     distanceRecurse(node, 0, 0, front_list);
   else
     distanceQueueRecurse(node, 0, 0, front_list, qsize);
@@ -76,6 +68,6 @@ void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list, unsigne
   node->postprocess();
 }
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp

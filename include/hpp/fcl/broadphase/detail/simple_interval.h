@@ -41,28 +41,24 @@
 #include "hpp/fcl/fwd.hh"
 #include "hpp/fcl/data_types.h"
 
-namespace hpp
-{
-namespace fcl
-{
-namespace detail
-{
+namespace hpp {
+namespace fcl {
+namespace detail {
 
 /// @brief Interval trees implemented using red-black-trees as described in
 /// the book Introduction_To_Algorithms_ by Cormen, Leisserson, and Rivest.
-struct HPP_FCL_DLLAPI SimpleInterval
-{
-public:
+struct HPP_FCL_DLLAPI SimpleInterval {
+ public:
   virtual ~SimpleInterval();
-  
+
   virtual void print();
 
   /// @brief interval is defined as [low, high]
   FCL_REAL low, high;
 };
 
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

@@ -38,48 +38,42 @@
 #ifndef HPP_FCL_BVH_FRONT_H
 #define HPP_FCL_BVH_FRONT_H
 
-
 #include <list>
 
 #include <hpp/fcl/config.hh>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @brief Front list acceleration for collision
 /// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
-/// the traversal terminates while performing a query during a given time instance. The front list reflects the subset of a
-/// BVTT that is traversed for that particular proximity query.
-struct HPP_FCL_DLLAPI BVHFrontNode
-{
-  /// @brief The nodes to start in the future, i.e. the wave front of the traversal tree.
+/// the traversal terminates while performing a query during a given time
+/// instance. The front list reflects the subset of a BVTT that is traversed for
+/// that particular proximity query.
+struct HPP_FCL_DLLAPI BVHFrontNode {
+  /// @brief The nodes to start in the future, i.e. the wave front of the
+  /// traversal tree.
   unsigned int left, right;
 
-  /// @brief The front node is not valid when collision is detected on the front node.
+  /// @brief The front node is not valid when collision is detected on the front
+  /// node.
   bool valid;
 
   BVHFrontNode(unsigned int left_, unsigned int right_)
-  : left(left_)
-  , right(right_)
-  , valid(true)
-  {
-  }
+      : left(left_), right(right_), valid(true) {}
 };
 
 /// @brief BVH front list is a list of front nodes.
 typedef std::list<BVHFrontNode> BVHFrontList;
 
 /// @brief Add new front node into the front list
-inline void updateFrontList(BVHFrontList* front_list, unsigned int b1, unsigned int b2)
-{
-  if(front_list) front_list->push_back(BVHFrontNode(b1, b2));
+inline void updateFrontList(BVHFrontList* front_list, unsigned int b1,
+                            unsigned int b2) {
+  if (front_list) front_list->push_back(BVHFrontNode(b1, b2));
 }
 
+}  // namespace fcl
 
-}
-
-} // namespace hpp
+}  // namespace hpp
 
 #endif

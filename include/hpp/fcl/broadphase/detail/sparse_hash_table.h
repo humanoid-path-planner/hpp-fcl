@@ -44,42 +44,36 @@
 #include <list>
 #include <unordered_map>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-namespace detail
-{
+namespace detail {
 
-template<typename U, typename V>
-class unordered_map_hash_table
-: public std::unordered_map<U, V>
-{
+template <typename U, typename V>
+class unordered_map_hash_table : public std::unordered_map<U, V> {
   typedef std::unordered_map<U, V> Base;
 
-public:
-  unordered_map_hash_table() : Base() {};
-  
+ public:
+  unordered_map_hash_table() : Base(){};
 };
 
 /// @brief A hash table implemented using unordered_map
 template <typename Key, typename Data, typename HashFnc,
-          template<typename, typename> class TableT = unordered_map_hash_table>
-class SparseHashTable
-{
-protected:
+          template <typename, typename> class TableT = unordered_map_hash_table>
+class SparseHashTable {
+ protected:
   HashFnc h_;
   typedef std::list<Data> Bin;
   typedef TableT<size_t, Bin> Table;
-  
+
   Table table_;
-public:
+
+ public:
   SparseHashTable(const HashFnc& h);
 
   /// @brief Init the hash table. The bucket size is dynamically decided.
   void init(size_t);
-  
+
   /// @brief insert one key-value pair into the hash table
   void insert(Key key, Data value);
 
@@ -93,9 +87,9 @@ public:
   void clear();
 };
 
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #include "hpp/fcl/broadphase/detail/sparse_hash_table-inl.h"
 

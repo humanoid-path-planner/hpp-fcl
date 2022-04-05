@@ -33,16 +33,18 @@
  */
 
 #if !(__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
-  #define nullptr NULL
+#define nullptr NULL
 #endif
 #include <hpp/fcl/mesh_loader/assimp.h>
 
-// Assimp >= 5.0 is forcing the use of C++11 keywords. A fix has been submitted https://github.com/assimp/assimp/pull/2758.
-// The next lines fixes the bug for current version of hpp-fcl.
+// Assimp >= 5.0 is forcing the use of C++11 keywords. A fix has been submitted
+// https://github.com/assimp/assimp/pull/2758. The next lines fixes the bug for
+// current version of hpp-fcl.
 #include <assimp/defs.h>
-#if !(__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600)) && defined(AI_NO_EXCEPT)
-  #undef AI_NO_EXCEPT
-  #define AI_NO_EXCEPT
+#if !(__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600)) && \
+    defined(AI_NO_EXCEPT)
+#undef AI_NO_EXCEPT
+#define AI_NO_EXCEPT
 #endif
 
 #include <assimp/DefaultLogger.hpp>
@@ -52,62 +54,47 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-namespace hpp
-{
-namespace fcl
-{
-  
-namespace internal
-{
+namespace hpp {
+namespace fcl {
 
-Loader::Loader () : importer (new Assimp::Importer())
-{
+namespace internal {
+
+Loader::Loader() : importer(new Assimp::Importer()) {
   // set list of ignored parameters (parameters used for rendering)
-  importer->SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
-      aiComponent_TANGENTS_AND_BITANGENTS|
-      aiComponent_COLORS |
-      aiComponent_BONEWEIGHTS |
-      aiComponent_ANIMATIONS |
-      aiComponent_LIGHTS |
-      aiComponent_CAMERAS|
-      aiComponent_TEXTURES |
-      aiComponent_TEXCOORDS |
-      aiComponent_MATERIALS |
-      aiComponent_NORMALS
-      );
-  
+  importer->SetPropertyInteger(
+      AI_CONFIG_PP_RVC_FLAGS,
+      aiComponent_TANGENTS_AND_BITANGENTS | aiComponent_COLORS |
+          aiComponent_BONEWEIGHTS | aiComponent_ANIMATIONS |
+          aiComponent_LIGHTS | aiComponent_CAMERAS | aiComponent_TEXTURES |
+          aiComponent_TEXCOORDS | aiComponent_MATERIALS | aiComponent_NORMALS);
+
   // remove LINES and POINTS
   importer->SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE,
                                aiPrimitiveType_LINE | aiPrimitiveType_POINT);
-
 }
 
-Loader::~Loader ()
-{
- if (importer) delete importer;
+Loader::~Loader() {
+  if (importer) delete importer;
 }
 
-void Loader::load (const std::string & resource_path)
-{
-  scene = importer->ReadFile(resource_path.c_str(),
-      aiProcess_SortByPType |
-      aiProcess_Triangulate |
-      aiProcess_RemoveComponent |
-      aiProcess_ImproveCacheLocality |
-      aiProcess_FindDegenerates |
-      aiProcess_JoinIdenticalVertices
-      );
+void Loader::load(const std::string& resource_path) {
+  scene = importer->ReadFile(
+      resource_path.c_str(),
+      aiProcess_SortByPType | aiProcess_Triangulate |
+          aiProcess_RemoveComponent | aiProcess_ImproveCacheLocality |
+          aiProcess_FindDegenerates | aiProcess_JoinIdenticalVertices);
 
-  if (!scene)
-  {
-    const std::string exception_message (std::string ("Could not load resource ") + resource_path + std::string("\n") +
-                                         importer->GetErrorString () + std::string("\n") +
-                                         "Hint: the mesh directory may be wrong.");
+  if (!scene) {
+    const std::string exception_message(
+        std::string("Could not load resource ") + resource_path +
+        std::string("\n") + importer->GetErrorString() + std::string("\n") +
+        "Hint: the mesh directory may be wrong.");
     throw std::invalid_argument(exception_message);
   }
 
   if (!scene->HasMeshes())
-    throw std::invalid_argument (std::string ("No meshes found in file ")+resource_path);
+    throw std::invalid_argument(std::string("No meshes found in file ") +
+                                resource_path);
 }
 
 /**
@@ -119,72 +106,60 @@ void Loader::load (const std::string & resource_path)
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-unsigned recurseBuildMesh (
-    const fcl::Vec3f & scale,
-    const aiScene* scene,
-    const aiNode* node,
-    unsigned vertices_offset,
-    TriangleAndVertices & tv)
-{
+unsigned recurseBuildMesh(const fcl::Vec3f& scale, const aiScene* scene,
+                          const aiNode* node, unsigned vertices_offset,
+                          TriangleAndVertices& tv) {
   if (!node) return 0;
-  
+
   aiMatrix4x4 transform = node->mTransformation;
-  aiNode *pnode = node->mParent;
-  while (pnode)
-  {
+  aiNode* pnode = node->mParent;
+  while (pnode) {
     // Don't convert to y-up orientation, which is what the root node in
     // Assimp does
-    if (pnode->mParent != NULL)
-    {
+    if (pnode->mParent != NULL) {
       transform = pnode->mTransformation * transform;
     }
     pnode = pnode->mParent;
   }
-  
+
   unsigned nbVertices = 0;
-  for (uint32_t i = 0; i < node->mNumMeshes; i++)
-  {
+  for (uint32_t i = 0; i < node->mNumMeshes; i++) {
     aiMesh* input_mesh = scene->mMeshes[node->mMeshes[i]];
-    
+
     // Add the vertices
-    for (uint32_t j = 0; j < input_mesh->mNumVertices; j++)
-    {
+    for (uint32_t j = 0; j < input_mesh->mNumVertices; j++) {
       aiVector3D p = input_mesh->mVertices[j];
       p *= transform;
-      tv.vertices_.push_back (fcl::Vec3f (p.x * scale[0],
-                                          p.y * scale[1],
-                                          p.z * scale[2]));
+      tv.vertices_.push_back(
+          fcl::Vec3f(p.x * scale[0], p.y * scale[1], p.z * scale[2]));
     }
-    
+
     // add the indices
-    for (uint32_t j = 0; j < input_mesh->mNumFaces; j++)
-    {
+    for (uint32_t j = 0; j < input_mesh->mNumFaces; j++) {
       aiFace& face = input_mesh->mFaces[j];
       assert(face.mNumIndices == 3 && "The size of the face is not valid.");
-      tv.triangles_.push_back (fcl::Triangle(vertices_offset + face.mIndices[0],
-                                             vertices_offset + face.mIndices[1],
-                                             vertices_offset + face.mIndices[2]));
+      tv.triangles_.push_back(
+          fcl::Triangle(vertices_offset + face.mIndices[0],
+                        vertices_offset + face.mIndices[1],
+                        vertices_offset + face.mIndices[2]));
     }
 
     nbVertices += input_mesh->mNumVertices;
   }
-  
-  for (uint32_t i=0; i < node->mNumChildren; ++i)
-  {
-    nbVertices += recurseBuildMesh(scale, scene, node->mChildren[i], nbVertices, tv);
+
+  for (uint32_t i = 0; i < node->mNumChildren; ++i) {
+    nbVertices +=
+        recurseBuildMesh(scale, scene, node->mChildren[i], nbVertices, tv);
   }
 
   return nbVertices;
 }
 
-void buildMesh (const fcl::Vec3f & scale,
-                    const aiScene* scene,
-                    unsigned vertices_offset,
-                    TriangleAndVertices & tv)
-{
-  recurseBuildMesh (scale, scene, scene->mRootNode, vertices_offset, tv);
+void buildMesh(const fcl::Vec3f& scale, const aiScene* scene,
+               unsigned vertices_offset, TriangleAndVertices& tv) {
+  recurseBuildMesh(scale, scene, scene->mRootNode, vertices_offset, tv);
 }
 
-} // namespace internal
-} // namespace fcl
-} // namespace hpp
+}  // namespace internal
+}  // namespace fcl
+}  // namespace hpp

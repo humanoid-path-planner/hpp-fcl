@@ -51,9 +51,8 @@ namespace detail {
 /// @brief Class describes the information needed when we take the
 /// right branch in searching for intervals but possibly come back
 /// and check the left branch as well.
-struct HPP_FCL_DLLAPI it_recursion_node
-{
-public:
+struct HPP_FCL_DLLAPI it_recursion_node {
+ public:
   IntervalTreeNode* start_node;
 
   unsigned int parent_index;
@@ -61,12 +60,9 @@ public:
   bool try_right_branch;
 };
 
-
 /// @brief Interval tree
-class HPP_FCL_DLLAPI IntervalTree
-{
-public:
-
+class HPP_FCL_DLLAPI IntervalTree {
+ public:
   IntervalTree();
 
   ~IntervalTree();
@@ -92,8 +88,7 @@ public:
   /// @brief Return result for a given query
   std::deque<SimpleInterval*> query(FCL_REAL low, FCL_REAL high);
 
-protected:
-
+ protected:
   IntervalTreeNode* root;
 
   IntervalTreeNode* nil;
@@ -107,27 +102,28 @@ protected:
   /// @brief Inserts node into the tree as if it were a regular binary tree
   void recursiveInsert(IntervalTreeNode* node);
 
-  /// @brief recursively print a subtree 
+  /// @brief recursively print a subtree
   void recursivePrint(IntervalTreeNode* node) const;
 
   /// @brief recursively find the node corresponding to the interval
-  IntervalTreeNode* recursiveSearch(IntervalTreeNode* node, SimpleInterval* ivl) const;
+  IntervalTreeNode* recursiveSearch(IntervalTreeNode* node,
+                                    SimpleInterval* ivl) const;
 
-  /// @brief Travels up to the root fixing the max_high fields after an insertion or deletion
+  /// @brief Travels up to the root fixing the max_high fields after an
+  /// insertion or deletion
   void fixupMaxHigh(IntervalTreeNode* node);
 
   void deleteFixup(IntervalTreeNode* node);
 
-private:
+ private:
   unsigned int recursion_node_stack_size;
   it_recursion_node* recursion_node_stack;
   unsigned int current_parent;
   unsigned int recursion_node_stack_top;
 };
 
-
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

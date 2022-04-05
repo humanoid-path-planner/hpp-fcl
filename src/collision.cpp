@@ -35,30 +35,24 @@
 
 /** \author Jia Pan */
 
-
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/collision_func_matrix.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
 #include <iostream>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-CollisionFunctionMatrix& getCollisionFunctionLookTable()
-{
+CollisionFunctionMatrix& getCollisionFunctionLookTable() {
   static CollisionFunctionMatrix table;
   return table;
 }
 
 // reorder collision results in the order the call has been made.
-void CollisionResult::swapObjects()
-{
-  for(std::vector<Contact>::iterator it = contacts.begin();
-      it != contacts.end(); ++it)
-  {
+void CollisionResult::swapObjects() {
+  for (std::vector<Contact>::iterator it = contacts.begin();
+       it != contacts.end(); ++it) {
     std::swap(it->o1, it->o2);
     std::swap(it->b1, it->b2);
     it->normal *= -1;
@@ -66,18 +60,15 @@ void CollisionResult::swapObjects()
 }
 
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
-                    const CollisionRequest& request, CollisionResult& result)
-{
-  return collide(
-      o1->collisionGeometry().get(), o1->getTransform(),
-      o2->collisionGeometry().get(), o2->getTransform(),
-      request, result);
+                    const CollisionRequest& request, CollisionResult& result) {
+  return collide(o1->collisionGeometry().get(), o1->getTransform(),
+                 o2->collisionGeometry().get(), o2->getTransform(), request,
+                 result);
 }
 
 std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                     const CollisionGeometry* o2, const Transform3f& tf2,
-                    const CollisionRequest& request, CollisionResult& result)
-{
+                    const CollisionRequest& request, CollisionResult& result) {
   // If securit margin is set to -infinity, return that there is no collision
   if (request.security_margin == -std::numeric_limits<FCL_REAL>::infinity()) {
     result.clear();
@@ -92,42 +83,39 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
 
   const CollisionFunctionMatrix& looktable = getCollisionFunctionLookTable();
   std::size_t res;
-  if(request.num_max_contacts == 0)
-  {
-    HPP_FCL_THROW_PRETTY("Invalid number of max contacts (current value is 0).",std::invalid_argument);
+  if (request.num_max_contacts == 0) {
+    HPP_FCL_THROW_PRETTY("Invalid number of max contacts (current value is 0).",
+                         std::invalid_argument);
     res = 0;
-  }
-  else
-  {
+  } else {
     OBJECT_TYPE object_type1 = o1->getObjectType();
     OBJECT_TYPE object_type2 = o2->getObjectType();
     NODE_TYPE node_type1 = o1->getNodeType();
     NODE_TYPE node_type2 = o2->getNodeType();
 
-    if(object_type1 == OT_GEOM && (object_type2 == OT_BVH || object_type2 == OT_HFIELD))
-    {
-      if(!looktable.collision_matrix[node_type2][node_type1])
-      {
-        HPP_FCL_THROW_PRETTY("Collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported.",
+    if (object_type1 == OT_GEOM &&
+        (object_type2 == OT_BVH || object_type2 == OT_HFIELD)) {
+      if (!looktable.collision_matrix[node_type2][node_type1]) {
+        HPP_FCL_THROW_PRETTY("Collision function between node type "
+                                 << node_type1 << " and node type "
+                                 << node_type2 << " is not supported.",
                              std::invalid_argument);
         res = 0;
-      }
-      else
-      {
-        res = looktable.collision_matrix[node_type2][node_type1](o2, tf2, o1, tf1, &solver, request, result);
+      } else {
+        res = looktable.collision_matrix[node_type2][node_type1](
+            o2, tf2, o1, tf1, &solver, request, result);
         result.swapObjects();
       }
-    }
-    else
-    {
-      if(!looktable.collision_matrix[node_type1][node_type2])
-      {
-        HPP_FCL_THROW_PRETTY("Collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported.",
+    } else {
+      if (!looktable.collision_matrix[node_type1][node_type2]) {
+        HPP_FCL_THROW_PRETTY("Collision function between node type "
+                                 << node_type1 << " and node type "
+                                 << node_type2 << " is not supported.",
                              std::invalid_argument);
         res = 0;
-      }
-      else
-        res = looktable.collision_matrix[node_type1][node_type2](o1, tf1, o2, tf2, &solver, request, result);
+      } else
+        res = looktable.collision_matrix[node_type1][node_type2](
+            o1, tf1, o2, tf2, &solver, request, result);
     }
   }
   if (solver.enable_cached_guess) {
@@ -139,9 +127,8 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
 }
 
 ComputeCollision::ComputeCollision(const CollisionGeometry* o1,
-    const CollisionGeometry* o2)
-  : o1(o1), o2(o2)
-{
+                                   const CollisionGeometry* o2)
+    : o1(o1), o2(o2) {
   const CollisionFunctionMatrix& looktable = getCollisionFunctionLookTable();
 
   OBJECT_TYPE object_type1 = o1->getObjectType();
@@ -149,14 +136,14 @@ ComputeCollision::ComputeCollision(const CollisionGeometry* o1,
   OBJECT_TYPE object_type2 = o2->getObjectType();
   NODE_TYPE node_type2 = o2->getNodeType();
 
-  swap_geoms = object_type1 == OT_GEOM && (object_type2 == OT_BVH || object_type2 == OT_HFIELD);
+  swap_geoms = object_type1 == OT_GEOM &&
+               (object_type2 == OT_BVH || object_type2 == OT_HFIELD);
 
-  if(   ( swap_geoms && !looktable.collision_matrix[node_type2][node_type1])
-     || (!swap_geoms && !looktable.collision_matrix[node_type1][node_type2]))
-  {
+  if ((swap_geoms && !looktable.collision_matrix[node_type2][node_type1]) ||
+      (!swap_geoms && !looktable.collision_matrix[node_type1][node_type2])) {
     std::ostringstream oss;
-    oss << "Warning: collision function between node type " << node_type1 <<
-      " and node type " << node_type2 << " is not supported";
+    oss << "Warning: collision function between node type " << node_type1
+        << " and node type " << node_type2 << " is not supported";
     throw std::invalid_argument(oss.str());
   }
   if (swap_geoms)
@@ -165,9 +152,10 @@ ComputeCollision::ComputeCollision(const CollisionGeometry* o1,
     func = looktable.collision_matrix[node_type1][node_type2];
 }
 
-std::size_t ComputeCollision::run(const Transform3f& tf1, const Transform3f& tf2,
-       const CollisionRequest& request, CollisionResult& result) const
-{
+std::size_t ComputeCollision::run(const Transform3f& tf1,
+                                  const Transform3f& tf2,
+                                  const CollisionRequest& request,
+                                  CollisionResult& result) const {
   // If securit margin is set to -infinity, return that there is no collision
   if (request.security_margin == -std::numeric_limits<FCL_REAL>::infinity()) {
     result.clear();
@@ -178,7 +166,7 @@ std::size_t ComputeCollision::run(const Transform3f& tf1, const Transform3f& tf2
     res = func(o2, tf2, o1, tf1, &solver, request, result);
     result.swapObjects();
   } else {
-    res = func (o1, tf1, o2, tf2, &solver, request, result);
+    res = func(o1, tf1, o2, tf2, &solver, request, result);
   }
   return res;
 }
@@ -195,26 +183,24 @@ std::size_t ComputeCollision::operator()(const Transform3f& tf1,
     solver.cached_guess = request.cached_gjk_guess;
     solver.support_func_cached_guess = request.cached_support_func_guess;
   }
-  
+
   solver.distance_upper_bound = request.distance_upper_bound;
-  
+
   std::size_t res;
-  if(request.enable_timings)
-  {
+  if (request.enable_timings) {
     Timer timer;
     res = run(tf1, tf2, request, result);
     result.timings = timer.elapsed();
-  }
-  else
+  } else
     res = run(tf1, tf2, request, result);
-  
+
   if (cached) {
     result.cached_gjk_guess = solver.cached_guess;
     result.cached_support_func_guess = solver.support_func_cached_guess;
   }
-  
+
   return res;
 }
 
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp

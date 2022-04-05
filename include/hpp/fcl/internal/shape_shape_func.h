@@ -42,72 +42,74 @@
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
-namespace hpp
-{
-namespace fcl
-{
-  template<typename T_SH1, typename T_SH2>
-  HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance
-    (const CollisionGeometry* o1, const Transform3f& tf1,
-     const CollisionGeometry* o2, const Transform3f& tf2,
-     const GJKSolver* nsolver, const DistanceRequest& request,
-     DistanceResult& result);
+namespace hpp {
+namespace fcl {
+template <typename T_SH1, typename T_SH2>
+HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1,
+                                           const Transform3f& tf1,
+                                           const CollisionGeometry* o2,
+                                           const Transform3f& tf2,
+                                           const GJKSolver* nsolver,
+                                           const DistanceRequest& request,
+                                           DistanceResult& result);
 
-  template<typename T_SH1, typename T_SH2>
-  HPP_FCL_DLLAPI std::size_t ShapeShapeCollide
-    (const CollisionGeometry* o1, const Transform3f& tf1,
-     const CollisionGeometry* o2, const Transform3f& tf2, 
-     const GJKSolver* nsolver, const CollisionRequest& request,
-     CollisionResult& result);
+template <typename T_SH1, typename T_SH2>
+HPP_FCL_DLLAPI std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
+                                             const Transform3f& tf1,
+                                             const CollisionGeometry* o2,
+                                             const Transform3f& tf2,
+                                             const GJKSolver* nsolver,
+                                             const CollisionRequest& request,
+                                             CollisionResult& result);
 
-#define SHAPE_SHAPE_DISTANCE_SPECIALIZATION(T1,T2) \
-template<> \
-HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T1,T2> \
-  (const CollisionGeometry* o1, const Transform3f& tf1, \
-   const CollisionGeometry* o2, const Transform3f& tf2, \
-   const GJKSolver* nsolver, const DistanceRequest& request, \
-   DistanceResult& result); \
-template<> \
-HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T2,T1> \
-(const CollisionGeometry* o1, const Transform3f& tf1, \
- const CollisionGeometry* o2, const Transform3f& tf2, \
- const GJKSolver* nsolver, const DistanceRequest& request, \
- DistanceResult& result)
+#define SHAPE_SHAPE_DISTANCE_SPECIALIZATION(T1, T2)             \
+  template <>                                                   \
+  HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T1, T2>(           \
+      const CollisionGeometry* o1, const Transform3f& tf1,      \
+      const CollisionGeometry* o2, const Transform3f& tf2,      \
+      const GJKSolver* nsolver, const DistanceRequest& request, \
+      DistanceResult& result);                                  \
+  template <>                                                   \
+  HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T2, T1>(           \
+      const CollisionGeometry* o1, const Transform3f& tf1,      \
+      const CollisionGeometry* o2, const Transform3f& tf2,      \
+      const GJKSolver* nsolver, const DistanceRequest& request, \
+      DistanceResult& result)
 
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box,Halfspace);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box,Plane);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box,Sphere);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Capsule,Capsule);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Capsule,Halfspace);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Capsule,Plane);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Cone,Halfspace);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Cone,Plane);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Cylinder,Halfspace);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Cylinder,Plane);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere,Halfspace);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere,Plane);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere,Sphere);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere,Cylinder);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box, Halfspace);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box, Plane);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box, Sphere);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Capsule, Capsule);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Capsule, Halfspace);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Capsule, Plane);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Cone, Halfspace);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Cone, Plane);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Cylinder, Halfspace);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Cylinder, Plane);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Halfspace);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Plane);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Sphere);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Cylinder);
 
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(ConvexBase, Halfspace);
-  SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Halfspace);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(ConvexBase, Halfspace);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Halfspace);
 
 #undef SHAPE_SHAPE_DISTANCE_SPECIALIZATION
 
-#define SHAPE_SHAPE_COLLIDE_SPECIALIZATION(T1,T2) \
-template<> \
-HPP_FCL_DLLAPI std::size_t ShapeShapeCollide<T1,T2> \
-  (const CollisionGeometry* o1, const Transform3f& tf1, \
-   const CollisionGeometry* o2, const Transform3f& tf2, \
-   const GJKSolver* nsolver, const CollisionRequest& request, \
-   CollisionResult& result)
+#define SHAPE_SHAPE_COLLIDE_SPECIALIZATION(T1, T2)               \
+  template <>                                                    \
+  HPP_FCL_DLLAPI std::size_t ShapeShapeCollide<T1, T2>(          \
+      const CollisionGeometry* o1, const Transform3f& tf1,       \
+      const CollisionGeometry* o2, const Transform3f& tf2,       \
+      const GJKSolver* nsolver, const CollisionRequest& request, \
+      CollisionResult& result)
 
-  SHAPE_SHAPE_COLLIDE_SPECIALIZATION(Sphere,Sphere);
+SHAPE_SHAPE_COLLIDE_SPECIALIZATION(Sphere, Sphere);
 
 #undef SHAPE_SHAPE_COLLIDE_SPECIALIZATION
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 /// @endcond
 

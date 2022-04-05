@@ -38,9 +38,9 @@
 #ifndef HPP_FCL_MATH_TYPES_H
 #define HPP_FCL_MATH_TYPES_H
 
-# warning "This file is deprecated. Include <hpp/fcl/data_types.h> instead."
+#warning "This file is deprecated. Include <hpp/fcl/data_types.h> instead."
 
 // List of equivalent includes.
-# include <hpp/fcl/data_types.h>
+#include <hpp/fcl/data_types.h>
 
 #endif

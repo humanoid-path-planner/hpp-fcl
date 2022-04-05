@@ -44,32 +44,34 @@
 #include <hpp/fcl/internal/traversal_node_base.h>
 #include <hpp/fcl/internal/traversal_node_bvhs.h>
 
-/// @brief collision and distance function on traversal nodes. these functions provide a higher level abstraction for collision functions provided in collision_func_matrix
-namespace hpp
-{
-namespace fcl
-{
-
+/// @brief collision and distance function on traversal nodes. these functions
+/// provide a higher level abstraction for collision functions provided in
+/// collision_func_matrix
+namespace hpp {
+namespace fcl {
 
 /// collision on collision traversal node
-/// 
+///
 /// @param node node containing both objects to test,
 /// @retval squared lower bound to the distance between the objects if they
 ///         do not collide.
 /// @param front_list list of nodes visited by the query, can be used to
 ///        accelerate computation
 /// \todo should be HPP_FCL_LOCAL but used in unit test.
-HPP_FCL_DLLAPI void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
-                            CollisionResult& result, BVHFrontList* front_list = NULL,
+HPP_FCL_DLLAPI void collide(CollisionTraversalNodeBase* node,
+                            const CollisionRequest& request,
+                            CollisionResult& result,
+                            BVHFrontList* front_list = NULL,
                             bool recursive = true);
 
-/// @brief distance computation on distance traversal node; can use front list to accelerate
-/// \todo should be HPP_FCL_LOCAL but used in unit test.
+/// @brief distance computation on distance traversal node; can use front list
+/// to accelerate \todo should be HPP_FCL_LOCAL but used in unit test.
 HPP_FCL_DLLAPI void distance(DistanceTraversalNodeBase* node,
-                             BVHFrontList* front_list = NULL, unsigned int qsize = 2);
-}
+                             BVHFrontList* front_list = NULL,
+                             unsigned int qsize = 2);
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 /// @endcond
 

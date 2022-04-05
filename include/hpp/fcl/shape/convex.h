@@ -35,40 +35,36 @@
 
 /** \author Jia Pan */
 
-
 #ifndef HPP_FCL_SHAPE_CONVEX_H
 #define HPP_FCL_SHAPE_CONVEX_H
 
 #include <hpp/fcl/shape/geometric_shapes.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @brief Convex polytope
 /// @tparam PolygonT the polygon class. It must have method \c size() and
 ///         \c operator[](int i)
 template <typename PolygonT>
-class Convex : public ConvexBase
-{
-public:
+class Convex : public ConvexBase {
+ public:
   /// @brief Construct an uninitialized convex object
-  Convex () : ConvexBase(), polygons(NULL), num_polygons(0) {}
+  Convex() : ConvexBase(), polygons(NULL), num_polygons(0) {}
 
-  /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information
-  /// \param ownStorage whether this class owns the pointers of points and
+  /// @brief Constructing a convex, providing normal and offset of each polytype
+  /// surface, and the points and shape topology information \param ownStorage
+  /// whether this class owns the pointers of points and
   ///                    polygons. If owned, they are deleted upon destruction.
   /// \param points_ list of 3D points
   /// \param num_points_ number of 3D points
   /// \param polygons_ \copydoc Convex::polygons
   /// \param num_polygons_ the number of polygons.
   /// \note num_polygons_ is not the allocated size of polygons_.
-  Convex(bool ownStorage,
-         Vec3f* points_, unsigned int num_points_,
+  Convex(bool ownStorage, Vec3f* points_, unsigned int num_points_,
          PolygonT* polygons_, unsigned int num_polygons_);
 
-  /// @brief Copy constructor 
+  /// @brief Copy constructor
   /// Only the list of neighbors is copied.
   Convex(const Convex& other);
 
@@ -86,7 +82,7 @@ public:
   Vec3f computeCOM() const;
 
   FCL_REAL computeVolume() const;
-  
+
   ///
   /// @brief Set the current Convex from a list of points and polygons.
   ///
@@ -98,20 +94,19 @@ public:
   /// \param num_polygons the number of polygons.
   /// \note num_polygons is not the allocated size of polygons.
   ///
-  void set(bool ownStorage,
-           Vec3f* points, unsigned int num_points,
+  void set(bool ownStorage, Vec3f* points, unsigned int num_points,
            PolygonT* polygons, unsigned int num_polygons);
-  
-  /// @brief Clone (deep copy).
-  virtual Convex<PolygonT> * clone() const;
 
-protected:
+  /// @brief Clone (deep copy).
+  virtual Convex<PolygonT>* clone() const;
+
+ protected:
   void fillNeighbors();
 };
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 #include <hpp/fcl/shape/details/convex.hxx>
 

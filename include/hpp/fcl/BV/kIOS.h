@@ -40,86 +40,73 @@
 
 #include <hpp/fcl/BV/OBB.h>
 
-
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 struct CollisionRequest;
 
 /// @addtogroup Bounding_Volume
 /// @{
 
-/// @brief A class describing the kIOS collision structure, which is a set of spheres.
-class HPP_FCL_DLLAPI kIOS
-{
+/// @brief A class describing the kIOS collision structure, which is a set of
+/// spheres.
+class HPP_FCL_DLLAPI kIOS {
   /// @brief One sphere in kIOS
-  struct HPP_FCL_DLLAPI kIOS_Sphere
-  {
+  struct HPP_FCL_DLLAPI kIOS_Sphere {
     Vec3f o;
     FCL_REAL r;
-    
-    bool operator==(const kIOS_Sphere & other) const
-    {
+
+    bool operator==(const kIOS_Sphere& other) const {
       return o == other.o && r == other.r;
     }
-    
-    bool operator!=(const kIOS_Sphere & other) const
-    {
+
+    bool operator!=(const kIOS_Sphere& other) const {
       return !(*this == other);
     }
   };
 
   /// @brief generate one sphere enclosing two spheres
-  static kIOS_Sphere encloseSphere(const kIOS_Sphere& s0, const kIOS_Sphere& s1)
-  {
+  static kIOS_Sphere encloseSphere(const kIOS_Sphere& s0,
+                                   const kIOS_Sphere& s1) {
     Vec3f d = s1.o - s0.o;
     FCL_REAL dist2 = d.squaredNorm();
     FCL_REAL diff_r = s1.r - s0.r;
-      
+
     /** The sphere with the larger radius encloses the other */
-    if(diff_r * diff_r >= dist2)
-    {
-      if(s1.r > s0.r) return s1;
-      else return s0;
-    }
-    else /** spheres partially overlapping or disjoint */
+    if (diff_r * diff_r >= dist2) {
+      if (s1.r > s0.r)
+        return s1;
+      else
+        return s0;
+    } else /** spheres partially overlapping or disjoint */
     {
       float dist = (float)std::sqrt(dist2);
       kIOS_Sphere s;
       s.r = dist + s0.r + s1.r;
-      if(dist > 0)
+      if (dist > 0)
         s.o = s0.o + d * ((s.r - s0.r) / dist);
       else
         s.o = s0.o;
       return s;
     }
   }
-public:
-    
+
+ public:
   /// @brief Equality operator
-  bool operator==(const kIOS & other) const
-  {
+  bool operator==(const kIOS& other) const {
     bool res = obb == other.obb && num_spheres == other.num_spheres;
-    if(!res)
-      return false;
-    
-    for(size_t k = 0; k < num_spheres; ++k)
-    {
-      if(spheres[k] != other.spheres[k])
-        return false;
+    if (!res) return false;
+
+    for (size_t k = 0; k < num_spheres; ++k) {
+      if (spheres[k] != other.spheres[k]) return false;
     }
-    
+
     return true;
   }
- 
+
   /// @brief Difference operator
-  bool operator!=(const kIOS & other) const
-  {
-    return !(*this == other);
-  }
-  
+  bool operator!=(const kIOS& other) const { return !(*this == other); }
+
   /// @brief The (at most) five spheres for intersection
   kIOS_Sphere spheres[5];
 
@@ -143,26 +130,22 @@ public:
   FCL_REAL distance(const kIOS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
   /// @brief A simple way to merge the kIOS and a point
-  kIOS& operator += (const Vec3f& p);
+  kIOS& operator+=(const Vec3f& p);
 
   /// @brief Merge the kIOS and another kIOS
-  kIOS& operator += (const kIOS& other)
-  {
+  kIOS& operator+=(const kIOS& other) {
     *this = *this + other;
     return *this;
   }
 
   /// @brief Return the merged kIOS of current kIOS and the other one
-  kIOS operator + (const kIOS& other) const;
+  kIOS operator+(const kIOS& other) const;
 
   /// @brief size of the kIOS (used in BV_Splitter to order two kIOSs)
   FCL_REAL size() const;
 
   /// @brief Center of the kIOS
-  const Vec3f& center() const
-  {
-    return spheres[0].o;
-  }
+  const Vec3f& center() const { return spheres[0].o; }
 
   /// @brief Width of the kIOS
   FCL_REAL width() const;
@@ -177,20 +160,20 @@ public:
   FCL_REAL volume() const;
 };
 
-
 /// @brief Translate the kIOS BV
 HPP_FCL_DLLAPI kIOS translate(const kIOS& bv, const Vec3f& t);
 
-/// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0) and b2 is in identity.
+/// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0)
+/// and b2 is in identity.
 /// @todo Not efficient
-HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0,
-                            const kIOS& b1, const kIOS& b2);
+HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1,
+                            const kIOS& b2);
 
-/// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0) and b2 is in identity.
+/// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0)
+/// and b2 is in identity.
 /// @todo Not efficient
-HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0,
-                            const kIOS& b1, const kIOS& b2,
-                            const CollisionRequest& request,
+HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1,
+                            const kIOS& b2, const CollisionRequest& request,
                             FCL_REAL& sqrDistLowerBound);
 
 /// @brief Approximate distance between two kIOS bounding volumes
@@ -199,8 +182,8 @@ HPP_FCL_DLLAPI FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0,
                                  const kIOS& b1, const kIOS& b2,
                                  Vec3f* P = NULL, Vec3f* Q = NULL);
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 #endif

@@ -43,26 +43,25 @@
 
 #include <hpp/fcl/config.hh>
 
-namespace hpp
-{
+namespace hpp {
 
 #ifdef HPP_FCL_HAS_OCTOMAP
-  #define OCTOMAP_VERSION_AT_LEAST(x,y,z) \
-    (OCTOMAP_MAJOR_VERSION > x || (OCTOMAP_MAJOR_VERSION >= x && \
-    (OCTOMAP_MINOR_VERSION > y || (OCTOMAP_MINOR_VERSION >= y && \
-    OCTOMAP_PATCH_VERSION >= z))))
+#define OCTOMAP_VERSION_AT_LEAST(x, y, z) \
+  (OCTOMAP_MAJOR_VERSION > x ||           \
+   (OCTOMAP_MAJOR_VERSION >= x &&         \
+    (OCTOMAP_MINOR_VERSION > y ||         \
+     (OCTOMAP_MINOR_VERSION >= y && OCTOMAP_PATCH_VERSION >= z))))
 
-  #define OCTOMAP_VERSION_AT_MOST(x,y,z) \
-    (OCTOMAP_MAJOR_VERSION < x || (OCTOMAP_MAJOR_VERSION <= x && \
-    (OCTOMAP_MINOR_VERSION < y || (OCTOMAP_MINOR_VERSION <= y && \
-    OCTOMAP_PATCH_VERSION <= z))))
-#endif // HPP_FCL_HAS_OCTOMAP
-}
+#define OCTOMAP_VERSION_AT_MOST(x, y, z) \
+  (OCTOMAP_MAJOR_VERSION < x ||          \
+   (OCTOMAP_MAJOR_VERSION <= x &&        \
+    (OCTOMAP_MINOR_VERSION < y ||        \
+     (OCTOMAP_MINOR_VERSION <= y && OCTOMAP_PATCH_VERSION <= z))))
+#endif  // HPP_FCL_HAS_OCTOMAP
+}  // namespace hpp
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 typedef double FCL_REAL;
 typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 1> VecXf;
@@ -73,9 +72,8 @@ typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Eigen::Dynamic> MatrixXf;
 typedef Eigen::Vector2i support_func_guess_t;
 
 /// @brief Triangle with 3 indices for points
-class HPP_FCL_DLLAPI Triangle
-{
-public:
+class HPP_FCL_DLLAPI Triangle {
+ public:
   typedef std::size_t index_type;
   typedef int size_type;
 
@@ -83,15 +81,13 @@ public:
   Triangle() {}
 
   /// @brief Create a triangle with given vertex indices
-  Triangle(index_type p1, index_type p2, index_type p3)
-  {
-    set(p1, p2, p3);
-  }
+  Triangle(index_type p1, index_type p2, index_type p3) { set(p1, p2, p3); }
 
   /// @brief Set the vertex indices of the triangle
-  inline void set(index_type p1, index_type p2, index_type p3)
-  {
-    vids[0] = p1; vids[1] = p2; vids[2] = p3;
+  inline void set(index_type p1, index_type p2, index_type p3) {
+    vids[0] = p1;
+    vids[1] = p2;
+    vids[2] = p3;
   }
 
   /// @brief Access the triangle index
@@ -101,40 +97,35 @@ public:
 
   static inline size_type size() { return 3; }
 
-  bool operator==(const Triangle& other) const
-  {
-    return vids[0] == other.vids[0]
-      &&   vids[1] == other.vids[1]
-      &&   vids[2] == other.vids[2];
-  }
-  
-  bool operator!=(const Triangle& other) const
-  {
-    return !(*this == other);
+  bool operator==(const Triangle& other) const {
+    return vids[0] == other.vids[0] && vids[1] == other.vids[1] &&
+           vids[2] == other.vids[2];
   }
 
-private:
+  bool operator!=(const Triangle& other) const { return !(*this == other); }
+
+ private:
   /// @brief indices for each vertex of triangle
   index_type vids[3];
 };
 
 /// @brief Quadrilateral with 4 indices for points
-struct HPP_FCL_DLLAPI Quadrilateral
-{
+struct HPP_FCL_DLLAPI Quadrilateral {
   typedef std::size_t index_type;
   typedef int size_type;
 
   Quadrilateral() {}
 
-  Quadrilateral(index_type p0, index_type p1, index_type p2, index_type p3)
-  {
+  Quadrilateral(index_type p0, index_type p1, index_type p2, index_type p3) {
     set(p0, p1, p2, p3);
   }
 
   /// @brief Set the vertex indices of the quadrilateral
-  inline void set(index_type p0, index_type p1, index_type p2, index_type p3)
-  {
-    vids[0] = p0; vids[1] = p1; vids[2] = p2; vids[3] = p3;
+  inline void set(index_type p0, index_type p1, index_type p2, index_type p3) {
+    vids[0] = p0;
+    vids[1] = p1;
+    vids[2] = p2;
+    vids[3] = p3;
   }
 
   /// @access the quadrilateral index
@@ -143,27 +134,22 @@ struct HPP_FCL_DLLAPI Quadrilateral
   inline index_type& operator[](index_type i) { return vids[i]; }
 
   static inline size_type size() { return 4; }
-  
-  bool operator==(const Quadrilateral& other) const
-  {
-    return vids[0] == other.vids[0]
-      &&   vids[1] == other.vids[1]
-      &&   vids[2] == other.vids[2]
-      &&   vids[3] == other.vids[3];
+
+  bool operator==(const Quadrilateral& other) const {
+    return vids[0] == other.vids[0] && vids[1] == other.vids[1] &&
+           vids[2] == other.vids[2] && vids[3] == other.vids[3];
   }
-  
-  bool operator!=(const Quadrilateral& other) const
-  {
+
+  bool operator!=(const Quadrilateral& other) const {
     return !(*this == other);
   }
 
-private:
+ private:
   index_type vids[4];
 };
 
-}
+}  // namespace fcl
 
-} // namespace hpp
-
+}  // namespace hpp
 
 #endif

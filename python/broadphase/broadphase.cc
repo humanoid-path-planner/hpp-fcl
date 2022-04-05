@@ -47,7 +47,8 @@
 #include "doxygen_autodoc/functions.h"
 #include "doxygen_autodoc/hpp/fcl/broadphase/default_broadphase_callbacks.h"
 //#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
-//#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+//#include
+//"doxygen_autodoc/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
 //#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_bruteforce.h"
 //#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_SaP.h"
 //#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_SSaP.h"
@@ -60,62 +61,64 @@
 
 using namespace hpp::fcl;
 
-void exposeBroadPhase()
-{
+void exposeBroadPhase() {
   CollisionCallBackBaseWrapper::expose();
   DistanceCallBackBaseWrapper::expose();
 
   // CollisionCallBackDefault
-  bp::class_<CollisionCallBackDefault, bp::bases<CollisionCallBackBase> >("CollisionCallBackDefault",bp::no_init)
-  .def(dv::init<CollisionCallBackDefault>())
-  .DEF_RW_CLASS_ATTRIB(CollisionCallBackDefault,data)
-  ;
-  
+  bp::class_<CollisionCallBackDefault, bp::bases<CollisionCallBackBase> >(
+      "CollisionCallBackDefault", bp::no_init)
+      .def(dv::init<CollisionCallBackDefault>())
+      .DEF_RW_CLASS_ATTRIB(CollisionCallBackDefault, data);
+
   // DistanceCallBackDefault
-  bp::class_<DistanceCallBackDefault, bp::bases<DistanceCallBackBase> >("DistanceCallBackDefault",bp::no_init)
-  .def(dv::init<DistanceCallBackDefault>())
-  .DEF_RW_CLASS_ATTRIB(DistanceCallBackDefault,data)
-  ;
-  
+  bp::class_<DistanceCallBackDefault, bp::bases<DistanceCallBackBase> >(
+      "DistanceCallBackDefault", bp::no_init)
+      .def(dv::init<DistanceCallBackDefault>())
+      .DEF_RW_CLASS_ATTRIB(DistanceCallBackDefault, data);
+
   // CollisionCallBackCollect
-  bp::class_<CollisionCallBackCollect, bp::bases<CollisionCallBackBase> >("CollisionCallBackCollect",bp::no_init)
-  .def(dv::init<CollisionCallBackCollect, const size_t>())
-  .DEF_CLASS_FUNC(CollisionCallBackCollect,numCollisionPairs)
-  .DEF_CLASS_FUNC2(CollisionCallBackCollect,getCollisionPairs, bp::return_value_policy<bp::copy_const_reference>())
-  .DEF_CLASS_FUNC(CollisionCallBackCollect,exist)
-  ;
-  
-  bp::class_<CollisionData>("CollisionData",bp::no_init)
-  .def(dv::init<CollisionData>())
-  .DEF_RW_CLASS_ATTRIB(CollisionData, request)
-  .DEF_RW_CLASS_ATTRIB(CollisionData, result)
-  .DEF_RW_CLASS_ATTRIB(CollisionData, done)
-  ;
-  
-  bp::class_<DistanceData>("DistanceData",bp::no_init)
-  .def(dv::init<DistanceData>())
-  .DEF_RW_CLASS_ATTRIB(DistanceData, request)
-  .DEF_RW_CLASS_ATTRIB(DistanceData, result)
-  .DEF_RW_CLASS_ATTRIB(DistanceData, done)
-  ;
-  
+  bp::class_<CollisionCallBackCollect, bp::bases<CollisionCallBackBase> >(
+      "CollisionCallBackCollect", bp::no_init)
+      .def(dv::init<CollisionCallBackCollect, const size_t>())
+      .DEF_CLASS_FUNC(CollisionCallBackCollect, numCollisionPairs)
+      .DEF_CLASS_FUNC2(CollisionCallBackCollect, getCollisionPairs,
+                       bp::return_value_policy<bp::copy_const_reference>())
+      .DEF_CLASS_FUNC(CollisionCallBackCollect, exist);
+
+  bp::class_<CollisionData>("CollisionData", bp::no_init)
+      .def(dv::init<CollisionData>())
+      .DEF_RW_CLASS_ATTRIB(CollisionData, request)
+      .DEF_RW_CLASS_ATTRIB(CollisionData, result)
+      .DEF_RW_CLASS_ATTRIB(CollisionData, done);
+
+  bp::class_<DistanceData>("DistanceData", bp::no_init)
+      .def(dv::init<DistanceData>())
+      .DEF_RW_CLASS_ATTRIB(DistanceData, request)
+      .DEF_RW_CLASS_ATTRIB(DistanceData, result)
+      .DEF_RW_CLASS_ATTRIB(DistanceData, done);
+
   BroadPhaseCollisionManagerWrapper::expose();
-  
-  BroadPhaseCollisionManagerWrapper::exposeDerived<DynamicAABBTreeCollisionManager>();
-  BroadPhaseCollisionManagerWrapper::exposeDerived<DynamicAABBTreeArrayCollisionManager>();
-  BroadPhaseCollisionManagerWrapper::exposeDerived<IntervalTreeCollisionManager>();
+
+  BroadPhaseCollisionManagerWrapper::exposeDerived<
+      DynamicAABBTreeCollisionManager>();
+  BroadPhaseCollisionManagerWrapper::exposeDerived<
+      DynamicAABBTreeArrayCollisionManager>();
+  BroadPhaseCollisionManagerWrapper::exposeDerived<
+      IntervalTreeCollisionManager>();
   BroadPhaseCollisionManagerWrapper::exposeDerived<SSaPCollisionManager>();
   BroadPhaseCollisionManagerWrapper::exposeDerived<SaPCollisionManager>();
   BroadPhaseCollisionManagerWrapper::exposeDerived<NaiveCollisionManager>();
-  
+
   // Specific case of SpatialHashingCollisionManager
   {
-    typedef detail::SimpleHashTable<AABB, CollisionObject*, detail::SpatialHash> HashTable;
+    typedef detail::SimpleHashTable<AABB, CollisionObject *,
+                                    detail::SpatialHash>
+        HashTable;
     typedef SpatialHashingCollisionManager<HashTable> Derived;
-    bp::class_<Derived, bp::bases<BroadPhaseCollisionManager> >("SpatialHashingCollisionManager",bp::no_init)
-    .def(dv::init<Derived, FCL_REAL, const Vec3f &, const Vec3f &, bp::optional<unsigned int> >())
-    ;
+    bp::class_<Derived, bp::bases<BroadPhaseCollisionManager> >(
+        "SpatialHashingCollisionManager", bp::no_init)
+        .def(dv::init<Derived, FCL_REAL, const Vec3f &, const Vec3f &,
+                      bp::optional<unsigned int> >());
   }
-
-
 }

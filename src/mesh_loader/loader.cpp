@@ -38,72 +38,77 @@
 #include <hpp/fcl/mesh_loader/assimp.h>
 
 #ifdef HPP_FCL_HAS_OCTOMAP
-# include <hpp/fcl/octree.h>
+#include <hpp/fcl/octree.h>
 #endif
 
 #include <hpp/fcl/BV/BV.h>
 
-namespace hpp
-{
+namespace hpp {
 namespace fcl {
-  bool CachedMeshLoader::Key::operator< (const CachedMeshLoader::Key& b) const
-  {
-    const CachedMeshLoader::Key& a = *this;
-    for (int i = 0; i < 3; ++i) {
-      if (a.scale[i] < b.scale[i]) return true;
-      else if (a.scale[i] > b.scale[i]) return false;
-    }
-    return std::less<std::string>() (a.filename, b.filename);
+bool CachedMeshLoader::Key::operator<(const CachedMeshLoader::Key& b) const {
+  const CachedMeshLoader::Key& a = *this;
+  for (int i = 0; i < 3; ++i) {
+    if (a.scale[i] < b.scale[i])
+      return true;
+    else if (a.scale[i] > b.scale[i])
+      return false;
   }
+  return std::less<std::string>()(a.filename, b.filename);
+}
 
-  template <typename BV>
-  BVHModelPtr_t _load (const std::string& filename, const Vec3f& scale)
-  {
-    shared_ptr < BVHModel<BV> > polyhedron (new BVHModel<BV>);
-    loadPolyhedronFromResource (filename, scale, polyhedron);
-    return polyhedron;
-  }
+template <typename BV>
+BVHModelPtr_t _load(const std::string& filename, const Vec3f& scale) {
+  shared_ptr<BVHModel<BV> > polyhedron(new BVHModel<BV>);
+  loadPolyhedronFromResource(filename, scale, polyhedron);
+  return polyhedron;
+}
 
-  BVHModelPtr_t MeshLoader::load (const std::string& filename,
-      const Vec3f& scale)
-  {
-    switch (bvType_) {
-      case BV_AABB  : return _load <AABB  > (filename, scale);
-      case BV_OBB   : return _load <OBB   > (filename, scale);
-      case BV_RSS   : return _load <RSS   > (filename, scale);
-      case BV_kIOS  : return _load <kIOS  > (filename, scale);
-      case BV_OBBRSS: return _load <OBBRSS> (filename, scale);
-      case BV_KDOP16: return _load <KDOP<16> > (filename, scale);
-      case BV_KDOP18: return _load <KDOP<18> > (filename, scale);
-      case BV_KDOP24: return _load <KDOP<24> > (filename, scale);
-      default:
-        throw std::invalid_argument("Unhandled bouding volume type.");
-    }
-  }
-
-  CollisionGeometryPtr_t MeshLoader::loadOctree (const std::string& filename)
-  {
-#ifdef HPP_FCL_HAS_OCTOMAP
-    shared_ptr<octomap::OcTree> octree (new octomap::OcTree (filename));
-    return CollisionGeometryPtr_t (new hpp::fcl::OcTree (octree));
-#else
-    throw std::logic_error("hpp-fcl compiled without OctoMap. Cannot create OcTrees.");
-#endif
-  }
-
-  BVHModelPtr_t CachedMeshLoader::load (const std::string& filename,
-      const Vec3f& scale)
-  {
-    Key key (filename, scale);
-    Cache_t::const_iterator _cached = cache_.find (key);
-    if (_cached == cache_.end()) {
-      BVHModelPtr_t geom = MeshLoader::load (filename, scale);
-      cache_.insert (std::make_pair(key, geom));
-      return geom;
-    } else {
-      return _cached->second;
-    }
+BVHModelPtr_t MeshLoader::load(const std::string& filename,
+                               const Vec3f& scale) {
+  switch (bvType_) {
+    case BV_AABB:
+      return _load<AABB>(filename, scale);
+    case BV_OBB:
+      return _load<OBB>(filename, scale);
+    case BV_RSS:
+      return _load<RSS>(filename, scale);
+    case BV_kIOS:
+      return _load<kIOS>(filename, scale);
+    case BV_OBBRSS:
+      return _load<OBBRSS>(filename, scale);
+    case BV_KDOP16:
+      return _load<KDOP<16> >(filename, scale);
+    case BV_KDOP18:
+      return _load<KDOP<18> >(filename, scale);
+    case BV_KDOP24:
+      return _load<KDOP<24> >(filename, scale);
+    default:
+      throw std::invalid_argument("Unhandled bouding volume type.");
   }
 }
 
-} // namespace hpp
+CollisionGeometryPtr_t MeshLoader::loadOctree(const std::string& filename) {
+#ifdef HPP_FCL_HAS_OCTOMAP
+  shared_ptr<octomap::OcTree> octree(new octomap::OcTree(filename));
+  return CollisionGeometryPtr_t(new hpp::fcl::OcTree(octree));
+#else
+  throw std::logic_error(
+      "hpp-fcl compiled without OctoMap. Cannot create OcTrees.");
+#endif
+}
+
+BVHModelPtr_t CachedMeshLoader::load(const std::string& filename,
+                                     const Vec3f& scale) {
+  Key key(filename, scale);
+  Cache_t::const_iterator _cached = cache_.find(key);
+  if (_cached == cache_.end()) {
+    BVHModelPtr_t geom = MeshLoader::load(filename, scale);
+    cache_.insert(std::make_pair(key, geom));
+    return geom;
+  } else {
+    return _cached->second;
+  }
+}
+}  // namespace fcl
+
+}  // namespace hpp

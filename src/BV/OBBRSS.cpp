@@ -37,20 +37,16 @@
 
 #include <hpp/fcl/BV/OBBRSS.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-OBBRSS translate(const OBBRSS& bv, const Vec3f& t)
-{
+OBBRSS translate(const OBBRSS& bv, const Vec3f& t) {
   OBBRSS res(bv);
   res.obb.To += t;
   res.rss.Tr += t;
   return res;
 }
 
+}  // namespace fcl
 
-}
-
-} // namespace hpp
+}  // namespace hpp

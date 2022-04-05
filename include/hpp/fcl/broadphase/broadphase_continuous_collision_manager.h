@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -42,38 +42,36 @@
 #include "hpp/fcl/collision_object.h"
 #include "hpp/fcl/narrowphase/continuous_collision_object.h"
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @brief Callback for continuous collision between two objects. Return value
 /// is whether can stop now.
 template <typename S>
-using ContinuousCollisionCallBack = bool (*)(
-    ContinuousCollisionObject* o1,
-    ContinuousCollisionObject* o2, void* cdata);
+using ContinuousCollisionCallBack = bool (*)(ContinuousCollisionObject* o1,
+                                             ContinuousCollisionObject* o2,
+                                             void* cdata);
 
 /// @brief Callback for continuous distance between two objects, Return value is
 /// whether can stop now, also return the minimum distance till now.
 template <typename S>
-using ContinuousDistanceCallBack = bool (*)(
-    ContinuousCollisionObject* o1,
-    ContinuousCollisionObject* o2, S& dist);
+using ContinuousDistanceCallBack = bool (*)(ContinuousCollisionObject* o1,
+                                            ContinuousCollisionObject* o2,
+                                            S& dist);
 
 /// @brief Base class for broad phase continuous collision. It helps to
 /// accelerate the continuous collision/distance between N objects. Also support
 /// self collision, self distance and collision/distance with another M objects.
 template <typename S>
-class HPP_FCL_DLLAPI BroadPhaseContinuousCollisionManager
-{
-public:
+class HPP_FCL_DLLAPI BroadPhaseContinuousCollisionManager {
+ public:
   BroadPhaseContinuousCollisionManager();
 
   virtual ~BroadPhaseContinuousCollisionManager();
 
   /// @brief add objects to the manager
-  virtual void registerObjects(const std::vector<ContinuousCollisionObject*>& other_objs);
+  virtual void registerObjects(
+      const std::vector<ContinuousCollisionObject*>& other_objs);
 
   /// @brief add one object to the manager
   virtual void registerObject(ContinuousCollisionObject* obj) = 0;
@@ -91,45 +89,57 @@ public:
   virtual void update(ContinuousCollisionObject* updated_obj);
 
   /// @brief update the manager by explicitly given the set of objects update
-  virtual void update(const std::vector<ContinuousCollisionObject*>& updated_objs);
+  virtual void update(
+      const std::vector<ContinuousCollisionObject*>& updated_objs);
 
   /// @brief clear the manager
   virtual void clear() = 0;
 
   /// @brief return the objects managed by the manager
-  virtual void getObjects(std::vector<ContinuousCollisionObject*>& objs) const = 0;
+  virtual void getObjects(
+      std::vector<ContinuousCollisionObject*>& objs) const = 0;
 
-  /// @brief perform collision test between one object and all the objects belonging to the manager
-  virtual void collide(ContinuousCollisionObject* obj, CollisionCallBackBase * callback) const = 0;
+  /// @brief perform collision test between one object and all the objects
+  /// belonging to the manager
+  virtual void collide(ContinuousCollisionObject* obj,
+                       CollisionCallBackBase* callback) const = 0;
 
-  /// @brief perform distance computation between one object and all the objects belonging to the manager
-  virtual void distance(ContinuousCollisionObject* obj, DistanceCallBackBase * callback) const = 0;
+  /// @brief perform distance computation between one object and all the objects
+  /// belonging to the manager
+  virtual void distance(ContinuousCollisionObject* obj,
+                        DistanceCallBackBase* callback) const = 0;
 
-  /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  virtual void collide(CollisionCallBackBase * callback) const = 0;
+  /// @brief perform collision test for the objects belonging to the manager
+  /// (i.e., N^2 self collision)
+  virtual void collide(CollisionCallBackBase* callback) const = 0;
 
-  /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  virtual void distance(DistanceCallBackBase * callback) const = 0;
+  /// @brief perform distance test for the objects belonging to the manager
+  /// (i.e., N^2 self distance)
+  virtual void distance(DistanceCallBackBase* callback) const = 0;
 
   /// @brief perform collision test with objects belonging to another manager
-  virtual void collide(BroadPhaseContinuousCollisionManager* other_manager, CollisionCallBackBase * callback) const = 0;
+  virtual void collide(BroadPhaseContinuousCollisionManager* other_manager,
+                       CollisionCallBackBase* callback) const = 0;
 
   /// @brief perform distance test with objects belonging to another manager
-  virtual void distance(BroadPhaseContinuousCollisionManager* other_manager, DistanceCallBackBase * callback) const = 0;
+  virtual void distance(BroadPhaseContinuousCollisionManager* other_manager,
+                        DistanceCallBackBase* callback) const = 0;
 
   /// @brief whether the manager is empty
   virtual bool empty() const = 0;
-  
+
   /// @brief the number of objects managed by the manager
   virtual size_t size() const = 0;
 };
 
-using BroadPhaseContinuousCollisionManagerf = BroadPhaseContinuousCollisionManager<float>;
-using BroadPhaseContinuousCollisionManagerd = BroadPhaseContinuousCollisionManager<FCL_REAL>;
+using BroadPhaseContinuousCollisionManagerf =
+    BroadPhaseContinuousCollisionManager<float>;
+using BroadPhaseContinuousCollisionManagerd =
+    BroadPhaseContinuousCollisionManager<FCL_REAL>;
 
-} // namespace fcl
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 #include "hpp/fcl/broadphase/broadphase_continuous_collision_manager-inl.h"
 

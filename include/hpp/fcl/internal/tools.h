@@ -49,35 +49,28 @@
 #include <hpp/fcl/config.hh>
 #include <hpp/fcl/data_types.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-template<typename Derived>
+template <typename Derived>
 static inline typename Derived::Scalar triple(
-    const Eigen::MatrixBase<Derived>& x,
-    const Eigen::MatrixBase<Derived>& y,
-    const Eigen::MatrixBase<Derived>& z)
-{
+    const Eigen::MatrixBase<Derived>& x, const Eigen::MatrixBase<Derived>& y,
+    const Eigen::MatrixBase<Derived>& z) {
   return x.derived().dot(y.derived().cross(z.derived()));
 }
 
-template<typename Derived1, typename Derived2, typename Derived3>
-void generateCoordinateSystem(
-    const Eigen::MatrixBase<Derived1>& _w,
-    const Eigen::MatrixBase<Derived2>& _u,
-    const Eigen::MatrixBase<Derived3>& _v)
-{
+template <typename Derived1, typename Derived2, typename Derived3>
+void generateCoordinateSystem(const Eigen::MatrixBase<Derived1>& _w,
+                              const Eigen::MatrixBase<Derived2>& _u,
+                              const Eigen::MatrixBase<Derived3>& _v) {
   typedef typename Derived1::Scalar T;
 
-  Eigen::MatrixBase<Derived1>& w = const_cast < Eigen::MatrixBase<Derived1>& > (_w);
-  Eigen::MatrixBase<Derived2>& u = const_cast < Eigen::MatrixBase<Derived2>& > (_u);
-  Eigen::MatrixBase<Derived3>& v = const_cast < Eigen::MatrixBase<Derived3>& > (_v);
+  Eigen::MatrixBase<Derived1>& w = const_cast<Eigen::MatrixBase<Derived1>&>(_w);
+  Eigen::MatrixBase<Derived2>& u = const_cast<Eigen::MatrixBase<Derived2>&>(_u);
+  Eigen::MatrixBase<Derived3>& v = const_cast<Eigen::MatrixBase<Derived3>&>(_v);
 
   T inv_length;
-  if(std::abs(w[0]) >= std::abs(w[1]))
-  {
+  if (std::abs(w[0]) >= std::abs(w[1])) {
     inv_length = (T)1.0 / sqrt(w[0] * w[0] + w[2] * w[2]);
     u[0] = -w[2] * inv_length;
     u[1] = (T)0;
@@ -85,9 +78,7 @@ void generateCoordinateSystem(
     v[0] = w[1] * u[2];
     v[1] = w[2] * u[0] - w[0] * u[2];
     v[2] = -w[1] * u[0];
-  }
-  else
-  {
+  } else {
     inv_length = (T)1.0 / sqrt(w[1] * w[1] + w[2] * w[2]);
     u[0] = (T)0;
     u[1] = w[2] * inv_length;
@@ -99,19 +90,22 @@ void generateCoordinateSystem(
 }
 
 /* ----- Start Matrices ------ */
-template<typename Derived, typename OtherDerived>
-void relativeTransform(const Eigen::MatrixBase<Derived>& R1, const Eigen::MatrixBase<OtherDerived>& t1,
-                       const Eigen::MatrixBase<Derived>& R2, const Eigen::MatrixBase<OtherDerived>& t2,
-                       const Eigen::MatrixBase<Derived>& R , const Eigen::MatrixBase<OtherDerived>& t)
-{
-  const_cast< Eigen::MatrixBase<Derived>& >(R) = R1.transpose() * R2;
-  const_cast< Eigen::MatrixBase<OtherDerived>& >(t) = R1.transpose() * (t2 - t1);
+template <typename Derived, typename OtherDerived>
+void relativeTransform(const Eigen::MatrixBase<Derived>& R1,
+                       const Eigen::MatrixBase<OtherDerived>& t1,
+                       const Eigen::MatrixBase<Derived>& R2,
+                       const Eigen::MatrixBase<OtherDerived>& t2,
+                       const Eigen::MatrixBase<Derived>& R,
+                       const Eigen::MatrixBase<OtherDerived>& t) {
+  const_cast<Eigen::MatrixBase<Derived>&>(R) = R1.transpose() * R2;
+  const_cast<Eigen::MatrixBase<OtherDerived>&>(t) = R1.transpose() * (t2 - t1);
 }
 
-/// @brief compute the eigen vector and eigen vector of a matrix. dout is the eigen values, vout is the eigen vectors
-template<typename Derived, typename Vector>
-void eigen(const Eigen::MatrixBase<Derived>& m, typename Derived::Scalar dout[3], Vector* vout)
-{
+/// @brief compute the eigen vector and eigen vector of a matrix. dout is the
+/// eigen values, vout is the eigen vectors
+template <typename Derived, typename Vector>
+void eigen(const Eigen::MatrixBase<Derived>& m,
+           typename Derived::Scalar dout[3], Vector* vout) {
   typedef typename Derived::Scalar Scalar;
   Derived R(m.derived());
   int n = 3;
@@ -123,50 +117,46 @@ void eigen(const Eigen::MatrixBase<Derived>& m, typename Derived::Scalar dout[3]
   Scalar v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
   Scalar d[3];
 
-  for(ip = 0; ip < n; ++ip)
-  {
+  for (ip = 0; ip < n; ++ip) {
     b[ip] = d[ip] = R(ip, ip);
     z[ip] = 0;
   }
 
   nrot = 0;
 
-  for(i = 0; i < 50; ++i)
-  {
+  for (i = 0; i < 50; ++i) {
     sm = 0;
-    for(ip = 0; ip < n; ++ip)
-      for(iq = ip + 1; iq < n; ++iq)
-        sm += std::abs(R(ip, iq));
-    if(sm == 0.0)
-    {
+    for (ip = 0; ip < n; ++ip)
+      for (iq = ip + 1; iq < n; ++iq) sm += std::abs(R(ip, iq));
+    if (sm == 0.0) {
       vout[0] << v[0][0], v[0][1], v[0][2];
       vout[1] << v[1][0], v[1][1], v[1][2];
       vout[2] << v[2][0], v[2][1], v[2][2];
-      dout[0] = d[0]; dout[1] = d[1]; dout[2] = d[2];
+      dout[0] = d[0];
+      dout[1] = d[1];
+      dout[2] = d[2];
       return;
     }
 
-    if(i < 3) tresh = 0.2 * sm / (n * n);
-    else tresh = 0.0;
+    if (i < 3)
+      tresh = 0.2 * sm / (n * n);
+    else
+      tresh = 0.0;
 
-    for(ip = 0; ip < n; ++ip)
-    {
-      for(iq= ip + 1; iq < n; ++iq)
-      {
+    for (ip = 0; ip < n; ++ip) {
+      for (iq = ip + 1; iq < n; ++iq) {
         g = 100.0 * std::abs(R(ip, iq));
-        if(i > 3 &&
-           std::abs(d[ip]) + g == std::abs(d[ip]) &&
-           std::abs(d[iq]) + g == std::abs(d[iq]))
+        if (i > 3 && std::abs(d[ip]) + g == std::abs(d[ip]) &&
+            std::abs(d[iq]) + g == std::abs(d[iq]))
           R(ip, iq) = 0.0;
-        else if(std::abs(R(ip, iq)) > tresh)
-        {
+        else if (std::abs(R(ip, iq)) > tresh) {
           h = d[iq] - d[ip];
-          if(std::abs(h) + g == std::abs(h)) t = (R(ip, iq)) / h;
-          else
-          {
+          if (std::abs(h) + g == std::abs(h))
+            t = (R(ip, iq)) / h;
+          else {
             theta = 0.5 * h / (R(ip, iq));
-            t = 1.0 /(std::abs(theta) + std::sqrt(1.0 + theta * theta));
-            if(theta < 0.0) t = -t;
+            t = 1.0 / (std::abs(theta) + std::sqrt(1.0 + theta * theta));
+            if (theta < 0.0) t = -t;
           }
           c = 1.0 / std::sqrt(1 + t * t);
           s = t * c;
@@ -177,16 +167,35 @@ void eigen(const Eigen::MatrixBase<Derived>& m, typename Derived::Scalar dout[3]
           d[ip] -= h;
           d[iq] += h;
           R(ip, iq) = 0.0;
-          for(j = 0; j < ip; ++j) { g = R(j, ip); h = R(j, iq); R(j, ip) = g - s * (h + g * tau); R(j, iq) = h + s * (g - h * tau); }
-          for(j = ip + 1; j < iq; ++j) { g = R(ip, j); h = R(j, iq); R(ip, j) = g - s * (h + g * tau); R(j, iq) = h + s * (g - h * tau); }
-          for(j = iq + 1; j < n; ++j) { g = R(ip, j); h = R(iq, j); R(ip, j) = g - s * (h + g * tau); R(iq, j) = h + s * (g - h * tau); }
-          for(j = 0; j < n; ++j) { g = v[j][ip]; h = v[j][iq]; v[j][ip] = g - s * (h + g * tau); v[j][iq] = h + s * (g - h * tau); }
+          for (j = 0; j < ip; ++j) {
+            g = R(j, ip);
+            h = R(j, iq);
+            R(j, ip) = g - s * (h + g * tau);
+            R(j, iq) = h + s * (g - h * tau);
+          }
+          for (j = ip + 1; j < iq; ++j) {
+            g = R(ip, j);
+            h = R(j, iq);
+            R(ip, j) = g - s * (h + g * tau);
+            R(j, iq) = h + s * (g - h * tau);
+          }
+          for (j = iq + 1; j < n; ++j) {
+            g = R(ip, j);
+            h = R(iq, j);
+            R(ip, j) = g - s * (h + g * tau);
+            R(iq, j) = h + s * (g - h * tau);
+          }
+          for (j = 0; j < n; ++j) {
+            g = v[j][ip];
+            h = v[j][iq];
+            v[j][ip] = g - s * (h + g * tau);
+            v[j][iq] = h + s * (g - h * tau);
+          }
           nrot++;
         }
       }
     }
-    for(ip = 0; ip < n; ++ip)
-    {
+    for (ip = 0; ip < n; ++ip) {
       b[ip] += z[ip];
       d[ip] = b[ip];
       z[ip] = 0.0;
@@ -198,14 +207,15 @@ void eigen(const Eigen::MatrixBase<Derived>& m, typename Derived::Scalar dout[3]
   return;
 }
 
-template<typename Derived, typename OtherDerived>
-bool isEqual(const Eigen::MatrixBase<Derived>& lhs, const Eigen::MatrixBase<OtherDerived>& rhs, const FCL_REAL tol = std::numeric_limits<FCL_REAL>::epsilon()*100)
-{
+template <typename Derived, typename OtherDerived>
+bool isEqual(const Eigen::MatrixBase<Derived>& lhs,
+             const Eigen::MatrixBase<OtherDerived>& rhs,
+             const FCL_REAL tol = std::numeric_limits<FCL_REAL>::epsilon() *
+                                  100) {
   return ((lhs - rhs).array().abs() < tol).all();
 }
 
-}
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp
 
 #endif
-

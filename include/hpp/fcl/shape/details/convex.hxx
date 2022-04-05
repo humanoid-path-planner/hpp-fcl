@@ -34,37 +34,29 @@
 
 /** \author Joseph Mirabel */
 
-
 #ifndef HPP_FCL_SHAPE_CONVEX_HXX
 #define HPP_FCL_SHAPE_CONVEX_HXX
 
 #include <set>
 #include <vector>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 template <typename PolygonT>
 Convex<PolygonT>::Convex(bool own_storage, Vec3f* points_,
-                         unsigned int num_points_,
-                         PolygonT* polygons_,
+                         unsigned int num_points_, PolygonT* polygons_,
                          unsigned int num_polygons_)
-: ConvexBase()
-, polygons     (polygons_)
-, num_polygons (num_polygons_)
-{
+    : ConvexBase(), polygons(polygons_), num_polygons(num_polygons_) {
   initialize(own_storage, points_, num_points_);
   fillNeighbors();
 }
 
 template <typename PolygonT>
-Convex<PolygonT>::Convex(const Convex<PolygonT>& other) :
-  ConvexBase   (other),
-  polygons     (other.polygons),
-  num_polygons (other.num_polygons)
-{
+Convex<PolygonT>::Convex(const Convex<PolygonT>& other)
+    : ConvexBase(other),
+      polygons(other.polygons),
+      num_polygons(other.num_polygons) {
   if (own_storage_) {
     polygons = new PolygonT[num_polygons];
     std::copy(other.polygons, other.polygons + num_polygons, polygons);
@@ -72,75 +64,70 @@ Convex<PolygonT>::Convex(const Convex<PolygonT>& other) :
 }
 
 template <typename PolygonT>
-Convex<PolygonT>::~Convex()
-{
-  if (own_storage_) delete [] polygons;
+Convex<PolygonT>::~Convex() {
+  if (own_storage_) delete[] polygons;
 }
 
 template <typename PolygonT>
-void Convex<PolygonT>::set(bool own_storage,
-                           Vec3f* points_,
-                           unsigned int num_points_,
-                           PolygonT* polygons_,
-                           unsigned int num_polygons_)
-{
-  if (own_storage_)
-    delete [] polygons;
-  ConvexBase::set(own_storage,points_,num_points_);
+void Convex<PolygonT>::set(bool own_storage, Vec3f* points_,
+                           unsigned int num_points_, PolygonT* polygons_,
+                           unsigned int num_polygons_) {
+  if (own_storage_) delete[] polygons;
+  ConvexBase::set(own_storage, points_, num_points_);
 
   num_polygons = num_polygons_;
   polygons = polygons_;
-  
+
   fillNeighbors();
 }
 
 template <typename PolygonT>
-Convex<PolygonT> * Convex<PolygonT>::clone() const
-{
-  Vec3f * cloned_points = new Vec3f[num_points];
+Convex<PolygonT>* Convex<PolygonT>::clone() const {
+  Vec3f* cloned_points = new Vec3f[num_points];
   std::copy(points, points + num_points, cloned_points);
-  
-  PolygonT * cloned_polygons = new PolygonT[num_polygons];
+
+  PolygonT* cloned_polygons = new PolygonT[num_polygons];
   std::copy(polygons, polygons + num_polygons, cloned_polygons);
-  
-  Convex * copy_ptr = new Convex(true, cloned_points, num_points, cloned_polygons, num_polygons);
-  
+
+  Convex* copy_ptr = new Convex(true, cloned_points, num_points,
+                                cloned_polygons, num_polygons);
+
   copy_ptr->ShapeBase::operator=(*this);
   return copy_ptr;
 }
 
 template <typename PolygonT>
-Matrix3f Convex<PolygonT>::computeMomentofInertia() const
-{
+Matrix3f Convex<PolygonT>::computeMomentofInertia() const {
   typedef typename PolygonT::size_type size_type;
   typedef typename PolygonT::index_type index_type;
-  
+
   Matrix3f C = Matrix3f::Zero();
 
   Matrix3f C_canonical;
-  C_canonical << 1/60.0, 1/120.0, 1/120.0,
-                 1/120.0, 1/60.0, 1/120.0,
-                 1/120.0, 1/120.0, 1/60.0;
+  C_canonical << 1 / 60.0, 1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0, 1 / 120.0,
+      1 / 120.0, 1 / 120.0, 1 / 60.0;
 
-  for(unsigned int i = 0; i < num_polygons; ++i)
-  {
-    const PolygonT & polygon = polygons[i];
+  for (unsigned int i = 0; i < num_polygons; ++i) {
+    const PolygonT& polygon = polygons[i];
 
     // compute the center of the polygon
-    Vec3f plane_center(0,0,0);
-    for(size_type j = 0; j < polygon.size(); ++j)
+    Vec3f plane_center(0, 0, 0);
+    for (size_type j = 0; j < polygon.size(); ++j)
       plane_center += points[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
-    // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
+    // compute the volume of tetrahedron making by neighboring two points, the
+    // plane center and the reference point (zero) of the convex shape
     const Vec3f& v3 = plane_center;
-    for(size_type j = 0; j < polygon.size(); ++j)
-    {
+    for (size_type j = 0; j < polygon.size(); ++j) {
       index_type e_first = polygon[static_cast<index_type>(j)];
-      index_type e_second = polygon[static_cast<index_type>((j+1)%polygon.size())];
+      index_type e_second =
+          polygon[static_cast<index_type>((j + 1) % polygon.size())];
       const Vec3f& v1 = points[e_first];
       const Vec3f& v2 = points[e_second];
-      Matrix3f A; A << v1.transpose(), v2.transpose(), v3.transpose(); // this is A' in the original document
+      Matrix3f A;
+      A << v1.transpose(), v2.transpose(),
+          v3.transpose();  // this is A' in the original document
       C += A.transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
     }
   }
@@ -149,28 +136,27 @@ Matrix3f Convex<PolygonT>::computeMomentofInertia() const
 }
 
 template <typename PolygonT>
-Vec3f Convex<PolygonT>::computeCOM() const
-{
+Vec3f Convex<PolygonT>::computeCOM() const {
   typedef typename PolygonT::size_type size_type;
   typedef typename PolygonT::index_type index_type;
 
-  Vec3f com(0,0,0);
+  Vec3f com(0, 0, 0);
   FCL_REAL vol = 0;
-  for(unsigned int i = 0; i < num_polygons; ++i)
-  {
-    const PolygonT & polygon = polygons[i];
+  for (unsigned int i = 0; i < num_polygons; ++i) {
+    const PolygonT& polygon = polygons[i];
     // compute the center of the polygon
-    Vec3f plane_center(0,0,0);
-    for(size_type j = 0; j < polygon.size(); ++j)
+    Vec3f plane_center(0, 0, 0);
+    for (size_type j = 0; j < polygon.size(); ++j)
       plane_center += points[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
-    // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
+    // compute the volume of tetrahedron making by neighboring two points, the
+    // plane center and the reference point (zero) of the convex shape
     const Vec3f& v3 = plane_center;
-    for(size_type j = 0; j < polygon.size(); ++j)
-    {
+    for (size_type j = 0; j < polygon.size(); ++j) {
       index_type e_first = polygon[static_cast<index_type>(j)];
-      index_type e_second = polygon[static_cast<index_type>((j+1)%polygon.size())];
+      index_type e_second =
+          polygon[static_cast<index_type>((j + 1) % polygon.size())];
       const Vec3f& v1 = points[e_first];
       const Vec3f& v2 = points[e_second];
       FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
@@ -179,32 +165,31 @@ Vec3f Convex<PolygonT>::computeCOM() const
     }
   }
 
-  return com / (vol * 4); // here we choose zero as the reference
+  return com / (vol * 4);  // here we choose zero as the reference
 }
 
 template <typename PolygonT>
-FCL_REAL Convex<PolygonT>::computeVolume() const
-{
+FCL_REAL Convex<PolygonT>::computeVolume() const {
   typedef typename PolygonT::size_type size_type;
   typedef typename PolygonT::index_type index_type;
 
   FCL_REAL vol = 0;
-  for(unsigned int i = 0; i < num_polygons; ++i)
-  {
-    const PolygonT & polygon = polygons[i];
+  for (unsigned int i = 0; i < num_polygons; ++i) {
+    const PolygonT& polygon = polygons[i];
 
     // compute the center of the polygon
-    Vec3f plane_center(0,0,0);
-    for(size_type j = 0; j < polygon.size(); ++j)
+    Vec3f plane_center(0, 0, 0);
+    for (size_type j = 0; j < polygon.size(); ++j)
       plane_center += points[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
-    // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero point) of the convex shape
+    // compute the volume of tetrahedron making by neighboring two points, the
+    // plane center and the reference point (zero point) of the convex shape
     const Vec3f& v3 = plane_center;
-    for(size_type j = 0; j < polygon.size(); ++j)
-    {
+    for (size_type j = 0; j < polygon.size(); ++j) {
       index_type e_first = polygon[static_cast<index_type>(j)];
-      index_type e_second = polygon[static_cast<index_type>((j+1)%polygon.size())];
+      index_type e_second =
+          polygon[static_cast<index_type>((j + 1) % polygon.size())];
       const Vec3f& v1 = points[e_first];
       const Vec3f& v2 = points[e_second];
       FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
@@ -216,26 +201,22 @@ FCL_REAL Convex<PolygonT>::computeVolume() const
 }
 
 template <typename PolygonT>
-void Convex<PolygonT>::fillNeighbors()
-{
+void Convex<PolygonT>::fillNeighbors() {
   neighbors = new Neighbors[num_points];
 
   typedef typename PolygonT::size_type size_type;
   typedef typename PolygonT::index_type index_type;
-  std::vector<std::set<index_type> > nneighbors (num_points);
+  std::vector<std::set<index_type> > nneighbors(num_points);
   unsigned int c_nneighbors = 0;
 
-  for (unsigned int l = 0; l < num_polygons; ++l)
-  {
-    const PolygonT & polygon = polygons[l];
+  for (unsigned int l = 0; l < num_polygons; ++l) {
+    const PolygonT& polygon = polygons[l];
     const size_type n = polygon.size();
 
-    for(size_type j = 0; j < polygon.size(); ++j)
-    {
-      size_type i = (j==0  ) ? n-1 : j-1;
-      size_type k = (j==n-1) ? 0   : j+1;
-      index_type pi = polygon[(index_type)i],
-                 pj = polygon[(index_type)j],
+    for (size_type j = 0; j < polygon.size(); ++j) {
+      size_type i = (j == 0) ? n - 1 : j - 1;
+      size_type k = (j == n - 1) ? 0 : j + 1;
+      index_type pi = polygon[(index_type)i], pj = polygon[(index_type)j],
                  pk = polygon[(index_type)k];
       // Update neighbors of pj;
       if (nneighbors[pj].count(pi) == 0) {
@@ -254,16 +235,17 @@ void Convex<PolygonT>::fillNeighbors()
   for (unsigned int i = 0; i < num_points; ++i) {
     Neighbors& n = neighbors[i];
     if (nneighbors[i].size() >= (std::numeric_limits<unsigned char>::max)())
-      throw std::logic_error ("Too many neighbors.");
+      throw std::logic_error("Too many neighbors.");
     n.count_ = (unsigned char)nneighbors[i].size();
-    n.n_     = p_nneighbors;
-    p_nneighbors = std::copy (nneighbors[i].begin(), nneighbors[i].end(), p_nneighbors);
+    n.n_ = p_nneighbors;
+    p_nneighbors =
+        std::copy(nneighbors[i].begin(), nneighbors[i].end(), p_nneighbors);
   }
-  assert (p_nneighbors == nneighbors_ + c_nneighbors);
+  assert(p_nneighbors == nneighbors_ + c_nneighbors);
 }
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 #endif

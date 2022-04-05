@@ -32,10 +32,8 @@
 //  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// \mainpage
 /// \anchor hpp_fcl_documentation
@@ -52,10 +50,13 @@ namespace fcl
 /// \par Using hpp-fcl
 ///
 /// The main entry points to the library are functions
-/// \li hpp::fcl::collide(const CollisionObject*, const CollisionObject*, const CollisionRequest&, CollisionResult&)
-/// \li hpp::fcl::distance(const CollisionObject*, const CollisionObject*, const DistanceRequest&, DistanceResult&)
+/// \li hpp::fcl::collide(const CollisionObject*, const CollisionObject*, const
+/// CollisionRequest&, CollisionResult&) \li hpp::fcl::distance(const
+/// CollisionObject*, const CollisionObject*, const DistanceRequest&,
+/// DistanceResult&)
 ///
-/// \section hpp_fcl_collision_and_distance_lower_bound_computation Collision detection and distance lower bound
+/// \section hpp_fcl_collision_and_distance_lower_bound_computation Collision
+/// detection and distance lower bound
 ///
 /// Collision queries can return a distance lower bound between the two objects,
 /// which is computationally cheaper than computing the real distance.
@@ -75,5 +76,5 @@ namespace fcl
 /// hpp::fcl::ComputeCollision and the objects are considered as not
 /// colliding.
 
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp

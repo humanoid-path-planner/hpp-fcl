@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -41,19 +41,15 @@
 #include <vector>
 #include "hpp/fcl/broadphase/broadphase_collision_manager.h"
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-/// @brief Simple SAP collision manager 
-class HPP_FCL_DLLAPI SSaPCollisionManager
-: public BroadPhaseCollisionManager
-{
-public:
+/// @brief Simple SAP collision manager
+class HPP_FCL_DLLAPI SSaPCollisionManager : public BroadPhaseCollisionManager {
+ public:
   typedef BroadPhaseCollisionManager Base;
   using Base::getObjects;
-  
+
   SSaPCollisionManager();
 
   /// @brief remove one object from the manager
@@ -74,42 +70,56 @@ public:
   /// @brief return the objects managed by the manager
   void getObjects(std::vector<CollisionObject*>& objs) const;
 
-  /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject* obj, CollisionCallBackBase * callback) const;
+  /// @brief perform collision test between one object and all the objects
+  /// belonging to the manager
+  void collide(CollisionObject* obj, CollisionCallBackBase* callback) const;
 
-  /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObject* obj, DistanceCallBackBase * callback) const;
+  /// @brief perform distance computation between one object and all the objects
+  /// belonging to the manager
+  void distance(CollisionObject* obj, DistanceCallBackBase* callback) const;
 
-  /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  void collide(CollisionCallBackBase * callback) const;
+  /// @brief perform collision test for the objects belonging to the manager
+  /// (i.e., N^2 self collision)
+  void collide(CollisionCallBackBase* callback) const;
 
-  /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(DistanceCallBackBase * callback) const;
+  /// @brief perform distance test for the objects belonging to the manager
+  /// (i.e., N^2 self distance)
+  void distance(DistanceCallBackBase* callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager* other_manager, CollisionCallBackBase * callback) const;
+  void collide(BroadPhaseCollisionManager* other_manager,
+               CollisionCallBackBase* callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager* other_manager, DistanceCallBackBase * callback) const;
+  void distance(BroadPhaseCollisionManager* other_manager,
+                DistanceCallBackBase* callback) const;
 
   /// @brief whether the manager is empty
   bool empty() const;
-  
+
   /// @brief the number of objects managed by the manager
   size_t size() const;
 
-protected:
-  /// @brief check collision between one object and a list of objects, return value is whether stop is possible
-  bool checkColl(typename std::vector<CollisionObject*>::const_iterator pos_start, typename std::vector<CollisionObject*>::const_iterator pos_end,
-                 CollisionObject* obj, CollisionCallBackBase * callback) const;
-  
-  /// @brief check distance between one object and a list of objects, return value is whether stop is possible
-  bool checkDis(typename std::vector<CollisionObject*>::const_iterator pos_start, typename std::vector<CollisionObject*>::const_iterator pos_end,
-                CollisionObject* obj, DistanceCallBackBase * callback, FCL_REAL& min_dist) const;
+ protected:
+  /// @brief check collision between one object and a list of objects, return
+  /// value is whether stop is possible
+  bool checkColl(
+      typename std::vector<CollisionObject*>::const_iterator pos_start,
+      typename std::vector<CollisionObject*>::const_iterator pos_end,
+      CollisionObject* obj, CollisionCallBackBase* callback) const;
 
-  bool collide_(CollisionObject* obj, CollisionCallBackBase * callback) const;
-  
-  bool distance_(CollisionObject* obj, DistanceCallBackBase * callback, FCL_REAL& min_dist) const;
+  /// @brief check distance between one object and a list of objects, return
+  /// value is whether stop is possible
+  bool checkDis(
+      typename std::vector<CollisionObject*>::const_iterator pos_start,
+      typename std::vector<CollisionObject*>::const_iterator pos_end,
+      CollisionObject* obj, DistanceCallBackBase* callback,
+      FCL_REAL& min_dist) const;
+
+  bool collide_(CollisionObject* obj, CollisionCallBackBase* callback) const;
+
+  bool distance_(CollisionObject* obj, DistanceCallBackBase* callback,
+                 FCL_REAL& min_dist) const;
 
   static int selectOptimalAxis(
       const std::vector<CollisionObject*>& objs_x,
@@ -127,11 +137,12 @@ protected:
   /// @brief Objects sorted according to lower z value
   std::vector<CollisionObject*> objs_z;
 
-  /// @brief tag about whether the environment is maintained suitably (i.e., the objs_x, objs_y, objs_z are sorted correctly
+  /// @brief tag about whether the environment is maintained suitably (i.e., the
+  /// objs_x, objs_y, objs_z are sorted correctly
   bool setup_;
 };
 
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

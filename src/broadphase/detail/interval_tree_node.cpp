@@ -48,44 +48,49 @@ namespace fcl {
 namespace detail {
 
 //==============================================================================
-IntervalTreeNode::IntervalTreeNode()
-{
+IntervalTreeNode::IntervalTreeNode() {
   // Do nothing
 }
 
 //==============================================================================
 IntervalTreeNode::IntervalTreeNode(SimpleInterval* new_interval)
-  : stored_interval (new_interval),
-    key(new_interval->low),
-    high(new_interval->high),
-    max_high(high)
-{
+    : stored_interval(new_interval),
+      key(new_interval->low),
+      high(new_interval->high),
+      max_high(high) {
   // Do nothing
 }
 
 //==============================================================================
-IntervalTreeNode::~IntervalTreeNode()
-{
+IntervalTreeNode::~IntervalTreeNode() {
   // Do nothing
 }
 
 //==============================================================================
-void IntervalTreeNode::print(
-    IntervalTreeNode* nil, IntervalTreeNode* root) const
-{
+void IntervalTreeNode::print(IntervalTreeNode* nil,
+                             IntervalTreeNode* root) const {
   stored_interval->print();
   std::cout << ", k = " << key << ", h = " << high << ", mH = " << max_high;
   std::cout << "  l->key = ";
-  if(left == nil) std::cout << "nullptr"; else std::cout << left->key;
+  if (left == nil)
+    std::cout << "nullptr";
+  else
+    std::cout << left->key;
   std::cout << "  r->key = ";
-  if(right == nil) std::cout << "nullptr"; else std::cout << right->key;
+  if (right == nil)
+    std::cout << "nullptr";
+  else
+    std::cout << right->key;
   std::cout << "  p->key = ";
-  if(parent == root) std::cout << "nullptr"; else std::cout << parent->key;
+  if (parent == root)
+    std::cout << "nullptr";
+  else
+    std::cout << parent->key;
   std::cout << "  red = " << (int)red << std::endl;
 }
 
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

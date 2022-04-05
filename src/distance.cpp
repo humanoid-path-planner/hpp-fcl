@@ -41,29 +41,24 @@
 
 #include <iostream>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-DistanceFunctionMatrix& getDistanceFunctionLookTable()
-{
+DistanceFunctionMatrix& getDistanceFunctionLookTable() {
   static DistanceFunctionMatrix table;
   return table;
 }
 
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const DistanceRequest& request, DistanceResult& result)
-{
-  return distance(
-      o1->collisionGeometry().get(), o1->getTransform(),
-      o2->collisionGeometry().get(), o2->getTransform(),
-      request, result);
+FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
+                  const DistanceRequest& request, DistanceResult& result) {
+  return distance(o1->collisionGeometry().get(), o1->getTransform(),
+                  o2->collisionGeometry().get(), o2->getTransform(), request,
+                  result);
 }
 
 FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                   const CollisionGeometry* o2, const Transform3f& tf2,
-                  const DistanceRequest& request, DistanceResult& result)
-{
+                  const DistanceRequest& request, DistanceResult& result) {
   GJKSolver solver;
   solver.enable_cached_guess = request.enable_cached_gjk_guess;
   if (solver.enable_cached_guess) {
@@ -80,35 +75,33 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
 
   FCL_REAL res = (std::numeric_limits<FCL_REAL>::max)();
 
-  if(object_type1 == OT_GEOM && (object_type2 == OT_BVH || object_type2 == OT_HFIELD))
-  {
-    if(!looktable.distance_matrix[node_type2][node_type1])
-    {
-      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
-    }
-    else
-    {
-      res = looktable.distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1, &solver, request, result);
+  if (object_type1 == OT_GEOM &&
+      (object_type2 == OT_BVH || object_type2 == OT_HFIELD)) {
+    if (!looktable.distance_matrix[node_type2][node_type1]) {
+      std::cerr << "Warning: distance function between node type " << node_type1
+                << " and node type " << node_type2 << " is not supported"
+                << std::endl;
+    } else {
+      res = looktable.distance_matrix[node_type2][node_type1](
+          o2, tf2, o1, tf1, &solver, request, result);
       // If closest points are requested, switch object 1 and 2
       if (request.enable_nearest_points) {
-	const CollisionGeometry *tmpo = result.o1;
-	result.o1 = result.o2;
-	result.o2 = tmpo;
-	Vec3f tmpn (result.nearest_points [0]);
-	result.nearest_points [0] = result.nearest_points [1];
-	result.nearest_points [1] = tmpn;
+        const CollisionGeometry* tmpo = result.o1;
+        result.o1 = result.o2;
+        result.o2 = tmpo;
+        Vec3f tmpn(result.nearest_points[0]);
+        result.nearest_points[0] = result.nearest_points[1];
+        result.nearest_points[1] = tmpn;
       }
     }
-  }
-  else
-  {
-    if(!looktable.distance_matrix[node_type1][node_type2])
-    {
-      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
-    }
-    else
-    {
-      res = looktable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, &solver, request, result);    
+  } else {
+    if (!looktable.distance_matrix[node_type1][node_type2]) {
+      std::cerr << "Warning: distance function between node type " << node_type1
+                << " and node type " << node_type2 << " is not supported"
+                << std::endl;
+    } else {
+      res = looktable.distance_matrix[node_type1][node_type2](
+          o1, tf1, o2, tf2, &solver, request, result);
     }
   }
   if (solver.enable_cached_guess) {
@@ -120,9 +113,8 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
 }
 
 ComputeDistance::ComputeDistance(const CollisionGeometry* o1,
-    const CollisionGeometry* o2)
-  : o1(o1), o2(o2)
-{
+                                 const CollisionGeometry* o2)
+    : o1(o1), o2(o2) {
   const DistanceFunctionMatrix& looktable = getDistanceFunctionLookTable();
 
   OBJECT_TYPE object_type1 = o1->getObjectType();
@@ -130,14 +122,14 @@ ComputeDistance::ComputeDistance(const CollisionGeometry* o1,
   OBJECT_TYPE object_type2 = o2->getObjectType();
   NODE_TYPE node_type2 = o2->getNodeType();
 
-  swap_geoms = object_type1 == OT_GEOM && (object_type2 == OT_BVH || object_type2 == OT_HFIELD);
+  swap_geoms = object_type1 == OT_GEOM &&
+               (object_type2 == OT_BVH || object_type2 == OT_HFIELD);
 
-  if(   ( swap_geoms && !looktable.distance_matrix[node_type2][node_type1])
-     || (!swap_geoms && !looktable.distance_matrix[node_type1][node_type2]))
-  {
+  if ((swap_geoms && !looktable.distance_matrix[node_type2][node_type1]) ||
+      (!swap_geoms && !looktable.distance_matrix[node_type1][node_type2])) {
     std::ostringstream oss;
-    oss << "Warning: distance function between node type " << node_type1 <<
-      " and node type " << node_type2 << " is not supported";
+    oss << "Warning: distance function between node type " << node_type1
+        << " and node type " << node_type2 << " is not supported";
     throw std::invalid_argument(oss.str());
   }
   if (swap_geoms)
@@ -146,13 +138,11 @@ ComputeDistance::ComputeDistance(const CollisionGeometry* o1,
     func = looktable.distance_matrix[node_type1][node_type2];
 }
 
-FCL_REAL ComputeDistance::run(const Transform3f& tf1,
-                              const Transform3f& tf2,
+FCL_REAL ComputeDistance::run(const Transform3f& tf1, const Transform3f& tf2,
                               const DistanceRequest& request,
-                              DistanceResult& result) const
-{
+                              DistanceResult& result) const {
   FCL_REAL res;
-  
+
   if (swap_geoms) {
     res = func(o2, tf2, o1, tf1, &solver, request, result);
     if (request.enable_nearest_points) {
@@ -160,17 +150,16 @@ FCL_REAL ComputeDistance::run(const Transform3f& tf1,
       result.nearest_points[0].swap(result.nearest_points[1]);
     }
   } else {
-    res = func (o1, tf1, o2, tf2, &solver, request, result);
+    res = func(o1, tf1, o2, tf2, &solver, request, result);
   }
-  
+
   return res;
 }
 
 FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
                                      const Transform3f& tf2,
                                      const DistanceRequest& request,
-                                     DistanceResult& result) const
-{
+                                     DistanceResult& result) const {
   bool cached = request.enable_cached_gjk_guess;
   solver.enable_cached_guess = cached;
   if (cached) {
@@ -179,13 +168,11 @@ FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
   }
 
   FCL_REAL res;
-  if(request.enable_timings)
-  {
+  if (request.enable_timings) {
     Timer timer;
     res = run(tf1, tf2, request, result);
     result.timings = timer.elapsed();
-  }
-  else
+  } else
     res = run(tf1, tf2, request, result);
 
   if (cached) {
@@ -195,5 +182,5 @@ FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
   return res;
 }
 
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp

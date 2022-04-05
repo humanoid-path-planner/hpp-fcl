@@ -40,44 +40,37 @@
 
 #include "hpp/fcl/data_types.h"
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-namespace detail
-{
+namespace detail {
 
-namespace implementation_array
-{
+namespace implementation_array {
 
-template<typename BV>
-struct NodeBase
-{
+template <typename BV>
+struct NodeBase {
   BV bv;
 
-  union
-  {
+  union {
     size_t parent;
     size_t next;
   };
-  
-  union
-  {
+
+  union {
     size_t children[2];
     void* data;
   };
 
   uint32_t code;
-  
+
   bool isLeaf() const;
   bool isInternal() const;
 };
 
-} // namespace implementation_array
-} // namespace detail
-} // namespace fcl
-} // namespace hpp
+}  // namespace implementation_array
+}  // namespace detail
+}  // namespace fcl
+}  // namespace hpp
 
 #include "hpp/fcl/broadphase/detail/node_base_array-inl.h"
 

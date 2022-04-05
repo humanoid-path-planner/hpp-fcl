@@ -36,7 +36,6 @@
 
 /** \author Jia Pan */
 
-
 #ifndef HPP_FCL_COLLISION_H
 #define HPP_FCL_COLLISION_H
 
@@ -46,44 +45,51 @@
 #include <hpp/fcl/collision_func_matrix.h>
 #include <hpp/fcl/timings.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
-/// @brief Main collision interface: given two collision objects, and the requirements for contacts, including num of max contacts, whether perform exhaustive collision (i.e., returning 
-/// returning all the contact points), whether return detailed contact information (i.e., normal, contact point, depth; otherwise only contact primitive id is returned), this function
-/// performs the collision between them. 
+/// @brief Main collision interface: given two collision objects, and the
+/// requirements for contacts, including num of max contacts, whether perform
+/// exhaustive collision (i.e., returning returning all the contact points),
+/// whether return detailed contact information (i.e., normal, contact point,
+/// depth; otherwise only contact primitive id is returned), this function
+/// performs the collision between them.
 /// Return value is the number of contacts generated between the two objects.
-HPP_FCL_DLLAPI std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
-                                   const CollisionRequest& request, CollisionResult& result);
+HPP_FCL_DLLAPI std::size_t collide(const CollisionObject* o1,
+                                   const CollisionObject* o2,
+                                   const CollisionRequest& request,
+                                   CollisionResult& result);
 
-/// @copydoc collide(const CollisionObject*, const CollisionObject*, const CollisionRequest&, CollisionResult&)
-HPP_FCL_DLLAPI std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
-                                   const CollisionGeometry* o2, const Transform3f& tf2,
-                                   const CollisionRequest& request, CollisionResult& result);
+/// @copydoc collide(const CollisionObject*, const CollisionObject*, const
+/// CollisionRequest&, CollisionResult&)
+HPP_FCL_DLLAPI std::size_t collide(const CollisionGeometry* o1,
+                                   const Transform3f& tf1,
+                                   const CollisionGeometry* o2,
+                                   const Transform3f& tf2,
+                                   const CollisionRequest& request,
+                                   CollisionResult& result);
 
-/// @copydoc collide(const CollisionObject*, const CollisionObject*, const CollisionRequest&, CollisionResult&)
-/// \note this function update the initial guess of \c request if requested.
+/// @copydoc collide(const CollisionObject*, const CollisionObject*, const
+/// CollisionRequest&, CollisionResult&) \note this function update the initial
+/// guess of \c request if requested.
 ///       See QueryRequest::updateGuess
 inline std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
-                           CollisionRequest& request, CollisionResult& result)
-{
-  std::size_t res = collide(o1, o2, (const CollisionRequest&) request, result);
-  request.updateGuess (result);
+                           CollisionRequest& request, CollisionResult& result) {
+  std::size_t res = collide(o1, o2, (const CollisionRequest&)request, result);
+  request.updateGuess(result);
   return res;
 }
 
-/// @copydoc collide(const CollisionObject*, const CollisionObject*, const CollisionRequest&, CollisionResult&)
-/// \note this function update the initial guess of \c request if requested.
+/// @copydoc collide(const CollisionObject*, const CollisionObject*, const
+/// CollisionRequest&, CollisionResult&) \note this function update the initial
+/// guess of \c request if requested.
 ///       See QueryRequest::updateGuess
 inline std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                            const CollisionGeometry* o2, const Transform3f& tf2,
-                           CollisionRequest& request, CollisionResult& result)
-{
-  std::size_t res = collide(o1, tf1, o2, tf2,
-      (const CollisionRequest&) request, result);
-  request.updateGuess (result);
+                           CollisionRequest& request, CollisionResult& result) {
+  std::size_t res =
+      collide(o1, tf1, o2, tf2, (const CollisionRequest&)request, result);
+  request.updateGuess(result);
   return res;
 }
 
@@ -94,61 +100,56 @@ inline std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
 ///   ComputeCollision calc_collision (o1, o2);
 ///   std::size_t ncontacts = calc_collision(tf1, tf2, request, result);
 /// \endcode
-class HPP_FCL_DLLAPI ComputeCollision
-{
-public:
-  
+class HPP_FCL_DLLAPI ComputeCollision {
+ public:
   /// @brief Default constructor from two Collision Geometries.
   ComputeCollision(const CollisionGeometry* o1, const CollisionGeometry* o2);
 
   std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
-                         const CollisionRequest& request, CollisionResult& result) const;
-  
+                         const CollisionRequest& request,
+                         CollisionResult& result) const;
+
   inline std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
-                                CollisionRequest& request, CollisionResult& result) const
-  {
-    std::size_t res = operator()(tf1, tf2, (const CollisionRequest&) request, result);
+                                CollisionRequest& request,
+                                CollisionResult& result) const {
+    std::size_t res = operator()(tf1, tf2, (const CollisionRequest&)request,
+                                 result);
     request.updateGuess(result);
     return res;
   }
-  
-  bool operator==(const ComputeCollision & other) const
-  {
-    return o1 == other.o1
-    && o2 == other.o2
-    && solver == other.solver;
+
+  bool operator==(const ComputeCollision& other) const {
+    return o1 == other.o1 && o2 == other.o2 && solver == other.solver;
   }
-  
-  bool operator!=(const ComputeCollision & other) const
-  {
+
+  bool operator!=(const ComputeCollision& other) const {
     return !(*this == other);
   }
-  
-  virtual ~ComputeCollision() {};
-  
-protected:
-  
+
+  virtual ~ComputeCollision(){};
+
+ protected:
   // These pointers are made mutable to let the derived classes to update
-  // their values when updating the collision geometry (e.g. creating a new one).
-  // This feature should be used carefully to avoid any mis usage
-  // (e.g, changing the type of the collision geometry should be avoided).
-  mutable const CollisionGeometry *o1;
-  mutable const CollisionGeometry *o2;
-  
+  // their values when updating the collision geometry (e.g. creating a new
+  // one). This feature should be used carefully to avoid any mis usage (e.g,
+  // changing the type of the collision geometry should be avoided).
+  mutable const CollisionGeometry* o1;
+  mutable const CollisionGeometry* o2;
+
   GJKSolver solver;
 
   CollisionFunctionMatrix::CollisionFunc func;
   bool swap_geoms;
 
   virtual std::size_t run(const Transform3f& tf1, const Transform3f& tf2,
-                          const CollisionRequest& request, CollisionResult& result) const;
-public:
-  
+                          const CollisionRequest& request,
+                          CollisionResult& result) const;
+
+ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp
 
 #endif

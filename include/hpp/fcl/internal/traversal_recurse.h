@@ -45,35 +45,38 @@
 #include <hpp/fcl/internal/traversal_node_base.h>
 #include <hpp/fcl/internal/traversal_node_bvhs.h>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// Recurse function for collision
 /// @param node collision node,
 /// @param b1, b2 ids of bounding volume nodes for object 1 and object 2
 /// @retval sqrDistLowerBound squared lower bound on distance between objects.
-void collisionRecurse(CollisionTraversalNodeBase* node, unsigned int b1, unsigned int b2,
-		      BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound);
+void collisionRecurse(CollisionTraversalNodeBase* node, unsigned int b1,
+                      unsigned int b2, BVHFrontList* front_list,
+                      FCL_REAL& sqrDistLowerBound);
 
 void collisionNonRecurse(CollisionTraversalNodeBase* node,
-		         BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound);
+                         BVHFrontList* front_list, FCL_REAL& sqrDistLowerBound);
 
 /// @brief Recurse function for distance
-void distanceRecurse(DistanceTraversalNodeBase* node, unsigned int b1, unsigned int b2, BVHFrontList* front_list);
+void distanceRecurse(DistanceTraversalNodeBase* node, unsigned int b1,
+                     unsigned int b2, BVHFrontList* front_list);
 
 /// @brief Recurse function for distance, using queue acceleration
-void distanceQueueRecurse(DistanceTraversalNodeBase* node, unsigned int b1, unsigned int b2, BVHFrontList* front_list, unsigned int qsize);
+void distanceQueueRecurse(DistanceTraversalNodeBase* node, unsigned int b1,
+                          unsigned int b2, BVHFrontList* front_list,
+                          unsigned int qsize);
 
 /// @brief Recurse function for front list propagation
-void propagateBVHFrontListCollisionRecurse
-  (CollisionTraversalNodeBase* node, const CollisionRequest& request,
-   CollisionResult& result, BVHFrontList* front_list);
+void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase* node,
+                                           const CollisionRequest& request,
+                                           CollisionResult& result,
+                                           BVHFrontList* front_list);
 
-}
+}  // namespace fcl
 
-} // namespace hpp
+}  // namespace hpp
 
 /// @endcond
 

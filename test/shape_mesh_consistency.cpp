@@ -44,15 +44,13 @@
 #include <hpp/fcl/collision.h>
 #include "utility.h"
 
-
 using namespace hpp::fcl;
 
 #define BOOST_CHECK_FALSE(p) BOOST_CHECK(!(p))
 
 FCL_REAL extents[6] = {0, 0, 0, 10, 10, 10};
 
-BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere)
-{
+BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere) {
   Sphere s1(20);
   Sphere s2(20);
   BVHModel<RSS> s1_rss;
@@ -68,39 +66,46 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere)
 
   pose.setTranslation(Vec3f(50, 0, 0));
 
-  res.clear(); res1.clear();
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
 
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
+
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
 
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
   }
 
   pose.setTranslation(Vec3f(40.1, 0, 0));
@@ -108,42 +113,46 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere)
   res.clear(), res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
-
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
   }
 }
 
-BOOST_AUTO_TEST_CASE(consistency_distance_boxbox)
-{
+BOOST_AUTO_TEST_CASE(consistency_distance_boxbox) {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
 
@@ -160,81 +169,94 @@ BOOST_AUTO_TEST_CASE(consistency_distance_boxbox)
 
   pose.setTranslation(Vec3f(50, 0, 0));
 
-  res.clear(); res1.clear();
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.01);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.01);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.01);
 
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.01);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.01);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.01);
   }
 
   pose.setTranslation(Vec3f(15.1, 0, 0));
-  
-  res.clear(); res1.clear();
+
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
   }
 }
 
-BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder)
-{
+BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder) {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
 
@@ -251,81 +273,95 @@ BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder)
 
   pose.setTranslation(Vec3f(20, 0, 0));
 
-  res.clear(); res1.clear();
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.01);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.01);
+
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
-  
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.01);
+
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.01);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.01);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.01);
   }
-  
-  pose.setTranslation(Vec3f(15, 0, 0)); // libccd cannot use small value here :( 
-  
-  res.clear(); res1.clear();
+
+  pose.setTranslation(
+      Vec3f(15, 0, 0));  // libccd cannot use small value here :(
+
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
+
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
   }
 }
 
-BOOST_AUTO_TEST_CASE(consistency_distance_conecone)
-{
+BOOST_AUTO_TEST_CASE(consistency_distance_conecone) {
   Cone s1(5, 10);
   Cone s2(5, 10);
 
@@ -341,82 +377,95 @@ BOOST_AUTO_TEST_CASE(consistency_distance_conecone)
   Transform3f pose;
 
   pose.setTranslation(Vec3f(20, 0, 0));
-  
-  res.clear(); res1.clear();
+
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
+
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
+
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
   }
-  
-  pose.setTranslation(Vec3f(15, 0, 0)); // libccd cannot use small value here :( 
-  
-  res.clear(); res1.clear();
+
+  pose.setTranslation(
+      Vec3f(15, 0, 0));  // libccd cannot use small value here :(
+
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
+
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
   }
 }
 
-
-BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_GJK)
-{
+BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_GJK) {
   Sphere s1(20);
   Sphere s2(20);
   BVHModel<RSS> s1_rss;
@@ -432,83 +481,94 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_GJK)
 
   pose.setTranslation(Vec3f(50, 0, 0));
 
-  res.clear(); res1.clear();
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
 
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
+
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
 
-
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
   }
 
   pose.setTranslation(Vec3f(40.1, 0, 0));
 
-  res.clear(); res1.clear();
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 4);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              4);
 
-
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 4);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                4);
   }
 }
 
-BOOST_AUTO_TEST_CASE(consistency_distance_boxbox_GJK)
-{
+BOOST_AUTO_TEST_CASE(consistency_distance_boxbox_GJK) {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
 
@@ -525,81 +585,94 @@ BOOST_AUTO_TEST_CASE(consistency_distance_boxbox_GJK)
 
   pose.setTranslation(Vec3f(50, 0, 0));
 
-  res.clear(); res1.clear();
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.01);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.01);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.01);
 
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.01);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.01);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.01);
   }
 
   pose.setTranslation(Vec3f(15.1, 0, 0));
-  
-  res.clear(); res1.clear();
+
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
   }
 }
 
-BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder_GJK)
-{
+BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder_GJK) {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
 
@@ -608,98 +681,114 @@ BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder_GJK)
 
   generateBVHModel(s1_rss, s1, Transform3f(), 16, 16);
   generateBVHModel(s2_rss, s2, Transform3f(), 16, 16);
-  
+
   DistanceRequest request;
   DistanceResult res, res1;
 
   Transform3f pose;
 
   pose.setTranslation(Vec3f(20, 0, 0));
-  
-  res.clear(); res1.clear();
+
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
+
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
+
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    if(fabs(res1.min_distance - res.min_distance) / res.min_distance > 0.05)
-      std::cout << "low resolution: " << res1.min_distance << " " << res.min_distance << std::endl;
+    if (fabs(res1.min_distance - res.min_distance) / res.min_distance > 0.05)
+      std::cout << "low resolution: " << res1.min_distance << " "
+                << res.min_distance << std::endl;
     else
-      BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+      BOOST_CHECK(
+          fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    if(fabs(res1.min_distance - res.min_distance) / res.min_distance > 0.05)
-      std::cout << "low resolution: " << res1.min_distance << " " << res.min_distance << std::endl;
+    if (fabs(res1.min_distance - res.min_distance) / res.min_distance > 0.05)
+      std::cout << "low resolution: " << res1.min_distance << " "
+                << res.min_distance << std::endl;
     else
-      BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+      BOOST_CHECK(
+          fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    if(fabs(res1.min_distance - res.min_distance) / res.min_distance > 0.05)
-      std::cout << "low resolution: " << res1.min_distance << " " << res.min_distance << std::endl;
+    if (fabs(res1.min_distance - res.min_distance) / res.min_distance > 0.05)
+      std::cout << "low resolution: " << res1.min_distance << " "
+                << res.min_distance << std::endl;
     else
-      BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+      BOOST_CHECK(
+          fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
-  
+
   pose.setTranslation(Vec3f(10.1, 0, 0));
-  
-  res.clear(); res1.clear();
+
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
+
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
   }
 }
 
-BOOST_AUTO_TEST_CASE(consistency_distance_conecone_GJK)
-{
+BOOST_AUTO_TEST_CASE(consistency_distance_conecone_GJK) {
   Cone s1(5, 10);
   Cone s2(5, 10);
 
@@ -716,83 +805,94 @@ BOOST_AUTO_TEST_CASE(consistency_distance_conecone_GJK)
 
   pose.setTranslation(Vec3f(20, 0, 0));
 
-  res.clear(); res1.clear();
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
+
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              0.05);
+
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                0.05);
   }
-  
+
   pose.setTranslation(Vec3f(10.1, 0, 0));
-  
-  res.clear(); res1.clear();
+
+  res.clear();
+  res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
+
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
-  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
-  for(std::size_t i = 0; i < 10; ++i)
-  {
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+              2);
+
+  for (std::size_t i = 0; i < 10; ++i) {
     Transform3f t;
     generateRandomTransform(extents, t);
-    
+
     Transform3f pose1(t);
     Transform3f pose2 = t * pose;
 
-    res.clear(); res1.clear();
+    res.clear();
+    res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
-    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
+                2);
   }
 }
 
-
-
-BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere)
-{
+BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere) {
   Sphere s1(20);
   Sphere s2(10);
   BVHModel<AABB> s1_aabb;
@@ -805,13 +905,12 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere)
   generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request(false, 1, false);
   CollisionResult result;
 
   bool res;
 
   Transform3f pose, pose_aabb, pose_obb;
-
 
   // s2 is within s1
   // both are shapes --> collision
@@ -877,7 +976,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere)
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
-  
+
   pose.setTranslation(Vec3f(30, 0, 0));
   pose_aabb.setTranslation(Vec3f(30, 0, 0));
   pose_obb.setTranslation(Vec3f(30, 0, 0));
@@ -909,10 +1008,12 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere)
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
-  
+
   pose.setTranslation(Vec3f(29.9, 0, 0));
-  pose_aabb.setTranslation(Vec3f(29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
-  pose_obb.setTranslation(Vec3f(29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
+  pose_aabb.setTranslation(
+      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+  pose_obb.setTranslation(
+      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -942,10 +1043,11 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere)
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-
   pose.setTranslation(Vec3f(-29.9, 0, 0));
-  pose_aabb.setTranslation(Vec3f(-29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
-  pose_obb.setTranslation(Vec3f(-29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
+  pose_aabb.setTranslation(
+      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+  pose_obb.setTranslation(
+      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1008,8 +1110,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere)
   BOOST_CHECK_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_boxbox)
-{
+BOOST_AUTO_TEST_CASE(consistency_collision_boxbox) {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
 
@@ -1023,7 +1124,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox)
   generateBVHModel(s1_obb, s1, Transform3f());
   generateBVHModel(s2_obb, s2, Transform3f());
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request(false, 1, false);
   CollisionResult result;
 
   bool res;
@@ -1128,8 +1229,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox)
   BOOST_CHECK(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_spherebox)
-{
+BOOST_AUTO_TEST_CASE(consistency_collision_spherebox) {
   Sphere s1(20);
   Box s2(5, 5, 5);
 
@@ -1143,7 +1243,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox)
   generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3f());
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request(false, 1, false);
   CollisionResult result;
 
   bool res;
@@ -1248,8 +1348,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox)
   BOOST_CHECK_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder)
-{
+BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder) {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
 
@@ -1263,7 +1362,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder)
   generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request(false, 1, false);
   CollisionResult result;
 
   bool res;
@@ -1335,8 +1434,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder)
   BOOST_CHECK_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_conecone)
-{
+BOOST_AUTO_TEST_CASE(consistency_collision_conecone) {
   Cone s1(5, 10);
   Cone s2(5, 10);
 
@@ -1350,7 +1448,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone)
   generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request(false, 1, false);
   CollisionResult result;
 
   bool res;
@@ -1486,11 +1584,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone)
   BOOST_CHECK_FALSE(res);
 }
 
-
-
-
-BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK)
-{
+BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK) {
   Sphere s1(20);
   Sphere s2(10);
   BVHModel<AABB> s1_aabb;
@@ -1503,14 +1597,13 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK)
   generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request(false, 1, false);
 
   CollisionResult result;
 
   bool res;
 
   Transform3f pose, pose_aabb, pose_obb;
-
 
   // s2 is within s1
   // both are shapes --> collision
@@ -1576,7 +1669,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK)
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
-  
+
   pose.setTranslation(Vec3f(30, 0, 0));
   pose_aabb.setTranslation(Vec3f(30, 0, 0));
   pose_obb.setTranslation(Vec3f(30, 0, 0));
@@ -1608,10 +1701,12 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK)
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
-  
+
   pose.setTranslation(Vec3f(29.9, 0, 0));
-  pose_aabb.setTranslation(Vec3f(29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
-  pose_obb.setTranslation(Vec3f(29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
+  pose_aabb.setTranslation(
+      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+  pose_obb.setTranslation(
+      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1641,10 +1736,11 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK)
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-
   pose.setTranslation(Vec3f(-29.9, 0, 0));
-  pose_aabb.setTranslation(Vec3f(-29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
-  pose_obb.setTranslation(Vec3f(-29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
+  pose_aabb.setTranslation(
+      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+  pose_obb.setTranslation(
+      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1707,8 +1803,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK)
   BOOST_CHECK_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_GJK)
-{
+BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_GJK) {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
 
@@ -1722,7 +1817,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_GJK)
   generateBVHModel(s1_obb, s1, Transform3f());
   generateBVHModel(s2_obb, s2, Transform3f());
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request(false, 1, false);
 
   CollisionResult result;
 
@@ -1828,8 +1923,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_GJK)
   BOOST_CHECK(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_GJK)
-{
+BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_GJK) {
   Sphere s1(20);
   Box s2(5, 5, 5);
 
@@ -1843,7 +1937,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_GJK)
   generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3f());
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request(false, 1, false);
 
   CollisionResult result;
 
@@ -1949,8 +2043,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_GJK)
   BOOST_CHECK_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_GJK)
-{
+BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_GJK) {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
 
@@ -1964,7 +2057,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_GJK)
   generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request(false, 1, false);
 
   CollisionResult result;
 
@@ -2037,8 +2130,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_GJK)
   BOOST_CHECK_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(consistency_collision_conecone_GJK)
-{
+BOOST_AUTO_TEST_CASE(consistency_collision_conecone_GJK) {
   Cone s1(5, 10);
   Cone s2(5, 10);
 
@@ -2052,7 +2144,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone_GJK)
   generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
 
-  CollisionRequest request (false, 1, false);
+  CollisionRequest request(false, 1, false);
 
   CollisionResult result;
 

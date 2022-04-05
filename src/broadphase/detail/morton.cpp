@@ -38,39 +38,34 @@
 
 #include "hpp/fcl/broadphase/detail/morton-inl.h"
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @cond IGNORE
-namespace detail
-{
+namespace detail {
 
 //==============================================================================
-uint32_t morton_code(uint32_t x, uint32_t y, uint32_t z)
-{
+uint32_t morton_code(uint32_t x, uint32_t y, uint32_t z) {
   x = (x | (x << 16)) & 0x030000FF;
-  x = (x | (x <<  8)) & 0x0300F00F;
-  x = (x | (x <<  4)) & 0x030C30C3;
-  x = (x | (x <<  2)) & 0x09249249;
+  x = (x | (x << 8)) & 0x0300F00F;
+  x = (x | (x << 4)) & 0x030C30C3;
+  x = (x | (x << 2)) & 0x09249249;
 
   y = (y | (y << 16)) & 0x030000FF;
-  y = (y | (y <<  8)) & 0x0300F00F;
-  y = (y | (y <<  4)) & 0x030C30C3;
-  y = (y | (y <<  2)) & 0x09249249;
+  y = (y | (y << 8)) & 0x0300F00F;
+  y = (y | (y << 4)) & 0x030C30C3;
+  y = (y | (y << 2)) & 0x09249249;
 
   z = (z | (z << 16)) & 0x030000FF;
-  z = (z | (z <<  8)) & 0x0300F00F;
-  z = (z | (z <<  4)) & 0x030C30C3;
-  z = (z | (z <<  2)) & 0x09249249;
+  z = (z | (z << 8)) & 0x0300F00F;
+  z = (z | (z << 4)) & 0x030C30C3;
+  z = (z | (z << 2)) & 0x09249249;
 
   return x | (y << 1) | (z << 2);
 }
 
 //==============================================================================
-uint64_t morton_code60(uint32_t x, uint32_t y, uint32_t z)
-{
+uint64_t morton_code60(uint32_t x, uint32_t y, uint32_t z) {
   uint32_t lo_x = x & 1023u;
   uint32_t lo_y = y & 1023u;
   uint32_t lo_z = z & 1023u;
@@ -78,12 +73,11 @@ uint64_t morton_code60(uint32_t x, uint32_t y, uint32_t z)
   uint32_t hi_y = y >> 10u;
   uint32_t hi_z = z >> 10u;
 
-  return
-  ( uint64_t(morton_code(hi_x, hi_y, hi_z)) << 30)
-  | uint64_t(morton_code(lo_x, lo_y, lo_z));
+  return (uint64_t(morton_code(hi_x, hi_y, hi_z)) << 30) |
+         uint64_t(morton_code(lo_x, lo_y, lo_z));
 }
 
-} // namespace detail
+}  // namespace detail
 /// @endcond
-} // namespace fcl
-} // namespace hpp
+}  // namespace fcl
+}  // namespace hpp

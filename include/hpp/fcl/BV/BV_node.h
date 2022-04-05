@@ -35,7 +35,6 @@
 
 /** \author Jia Pan */
 
-
 #ifndef HPP_FCL_BV_NODE_H
 #define HPP_FCL_BV_NODE_H
 
@@ -44,102 +43,95 @@
 #include <hpp/fcl/BV/BV.h>
 #include <iostream>
 
-namespace hpp
-{
-namespace fcl
-{
+namespace hpp {
+namespace fcl {
 
 /// @defgroup Construction_Of_BVH Construction of BVHModel
 /// Classes which are used to build a BVHModel (Bounding Volume Hierarchy)
 /// @{
 
 /// @brief BVNodeBase encodes the tree structure for BVH
-struct HPP_FCL_DLLAPI BVNodeBase
-{
+struct HPP_FCL_DLLAPI BVNodeBase {
   /// @brief An index for first child node or primitive
   /// If the value is positive, it is the index of the first child bv node
   /// If the value is negative, it is -(primitive index + 1)
   /// Zero is not used.
   int first_child;
 
-  /// @brief The start id the primitive belonging to the current node. The index is referred to the primitive_indices in BVHModel and from that
-  /// we can obtain the primitive's index in original data indirectly.
+  /// @brief The start id the primitive belonging to the current node. The index
+  /// is referred to the primitive_indices in BVHModel and from that we can
+  /// obtain the primitive's index in original data indirectly.
   unsigned int first_primitive;
 
-  /// @brief The number of primitives belonging to the current node 
+  /// @brief The number of primitives belonging to the current node
   unsigned int num_primitives;
-  
+
   /// @brief Default constructor
   BVNodeBase()
-  : first_child(0)
-  , first_primitive((std::numeric_limits<unsigned int>::max)()) // value we should help to raise an issue
-  , num_primitives(0)
-  {}
-  
+      : first_child(0),
+        first_primitive(
+            (std::numeric_limits<unsigned int>::max)())  // value we should help
+                                                         // to raise an issue
+        ,
+        num_primitives(0) {}
+
   /// @brief Equality operator
-  bool operator==(const BVNodeBase & other) const
-  {
-    return
-       first_child == other.first_child
-    && first_primitive == other.first_primitive
-    && num_primitives == other.num_primitives;
-  }
-  
-  /// @brief Difference operator
-  bool operator!=(const BVNodeBase & other) const
-  {
-    return !(*this == other);
+  bool operator==(const BVNodeBase& other) const {
+    return first_child == other.first_child &&
+           first_primitive == other.first_primitive &&
+           num_primitives == other.num_primitives;
   }
 
-  /// @brief Whether current node is a leaf node (i.e. contains a primitive index
+  /// @brief Difference operator
+  bool operator!=(const BVNodeBase& other) const { return !(*this == other); }
+
+  /// @brief Whether current node is a leaf node (i.e. contains a primitive
+  /// index
   inline bool isLeaf() const { return first_child < 0; }
 
-  /// @brief Return the primitive index. The index is referred to the original data (i.e. vertices or tri_indices) in BVHModel
+  /// @brief Return the primitive index. The index is referred to the original
+  /// data (i.e. vertices or tri_indices) in BVHModel
   inline int primitiveId() const { return -(first_child + 1); }
 
-  /// @brief Return the index of the first child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
+  /// @brief Return the index of the first child. The index is referred to the
+  /// bounding volume array (i.e. bvs) in BVHModel
   inline int leftChild() const { return first_child; }
 
-  /// @brief Return the index of the second child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
+  /// @brief Return the index of the second child. The index is referred to the
+  /// bounding volume array (i.e. bvs) in BVHModel
   inline int rightChild() const { return first_child + 1; }
 };
 
-/// @brief A class describing a bounding volume node. It includes the tree structure providing in BVNodeBase and also the geometry data provided in BV template parameter.
-template<typename BV>
-struct HPP_FCL_DLLAPI BVNode : public BVNodeBase
-{
+/// @brief A class describing a bounding volume node. It includes the tree
+/// structure providing in BVNodeBase and also the geometry data provided in BV
+/// template parameter.
+template <typename BV>
+struct HPP_FCL_DLLAPI BVNode : public BVNodeBase {
   typedef BVNodeBase Base;
-  
+
   /// @brief bounding volume storing the geometry
   BV bv;
-  
+
   /// @brief Equality operator
-  bool operator==(const BVNode & other) const
-  {
+  bool operator==(const BVNode& other) const {
     return Base::operator==(other) && bv == other.bv;
   }
-  
+
   /// @brief Difference operator
-  bool operator!=(const BVNode & other) const
-  {
-    return !(*this == other);
-  }
+  bool operator!=(const BVNode& other) const { return !(*this == other); }
 
   /// @brief Check whether two BVNode collide
-  bool overlap(const BVNode& other) const
-  {
-    return bv.overlap(other.bv);
-  }
+  bool overlap(const BVNode& other) const { return bv.overlap(other.bv); }
   /// @brief Check whether two BVNode collide
   bool overlap(const BVNode& other, const CollisionRequest& request,
-               FCL_REAL& sqrDistLowerBound) const
-  {
+               FCL_REAL& sqrDistLowerBound) const {
     return bv.overlap(other.bv, request, sqrDistLowerBound);
   }
 
-  /// @brief Compute the distance between two BVNode. P1 and P2, if not NULL and the underlying BV supports distance, return the nearest points.
-  FCL_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const
-  {
+  /// @brief Compute the distance between two BVNode. P1 and P2, if not NULL and
+  /// the underlying BV supports distance, return the nearest points.
+  FCL_REAL distance(const BVNode& other, Vec3f* P1 = NULL,
+                    Vec3f* P2 = NULL) const {
     return bv.distance(other.bv, P1, P2);
   }
 
@@ -147,8 +139,7 @@ struct HPP_FCL_DLLAPI BVNode : public BVNodeBase
   Vec3f getCenter() const { return bv.center(); }
 
   /// @brief Access to the orientation of the BV
-  const Matrix3f& getOrientation() const
-  {
+  const Matrix3f& getOrientation() const {
     static const Matrix3f id3 = Matrix3f::Identity();
     return id3;
   }
@@ -158,27 +149,23 @@ struct HPP_FCL_DLLAPI BVNode : public BVNodeBase
   /// \endcond
 };
 
-template<>
-inline const Matrix3f& BVNode<OBB>::getOrientation() const 
-{
+template <>
+inline const Matrix3f& BVNode<OBB>::getOrientation() const {
   return bv.axes;
 }
 
-template<>
-inline const Matrix3f& BVNode<RSS>::getOrientation() const 
-{
+template <>
+inline const Matrix3f& BVNode<RSS>::getOrientation() const {
   return bv.axes;
 }
 
-template<>
-inline const Matrix3f& BVNode<OBBRSS>::getOrientation() const 
-{
+template <>
+inline const Matrix3f& BVNode<OBBRSS>::getOrientation() const {
   return bv.obb.axes;
 }
 
+}  // namespace fcl
 
-}
-
-} // namespace hpp
+}  // namespace hpp
 
 #endif
