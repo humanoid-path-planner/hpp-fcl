@@ -74,10 +74,16 @@ struct CollisionCallBackBaseWrapper : CollisionCallBackBase,
 struct DistanceCallBackBaseWrapper : DistanceCallBackBase,
                                      bp::wrapper<DistanceCallBackBase> {
   typedef DistanceCallBackBase Base;
+  typedef DistanceCallBackBaseWrapper Self;
 
   void init() { this->get_override("init")(); }
-  bool distance(CollisionObject* o1, CollisionObject* o2) {
-    return this->get_override("distance")(o1, o2);
+  bool distance(CollisionObject* o1, CollisionObject* o2,
+                Eigen::Matrix<double, 1, 1>& dist) {
+    return distance(o1, o2, dist.coeffRef(0, 0));
+  }
+
+  bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL& dist) {
+    return this->get_override("distance")(o1, o2, dist);
   }
 
   static void expose() {
@@ -85,7 +91,11 @@ struct DistanceCallBackBaseWrapper : DistanceCallBackBase,
         "DistanceCallBackBase", bp::no_init)
         .def("init", bp::pure_virtual(&Base::init),
              doxygen::member_func_doc(&Base::init))
-        .def("distance", bp::pure_virtual(&Base::distance),
+        .def("distance",
+             bp::pure_virtual(
+                 static_cast<bool (Self::*)(
+                     CollisionObject * o1, CollisionObject * o2,
+                     Eigen::Matrix<double, 1, 1> & dist)>(&Self::distance)),
              doxygen::member_func_doc(&Base::distance))
         .def("__call__", &Base::operator(),
              doxygen::member_func_doc(&Base::operator()));
