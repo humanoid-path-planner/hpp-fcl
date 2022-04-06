@@ -56,7 +56,10 @@ struct CollisionCallBackBaseWrapper : CollisionCallBackBase,
 
   void init() { this->get_override("init")(); }
   bool collide(CollisionObject* o1, CollisionObject* o2) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
     return this->get_override("collide")(o1, o2);
+#pragma GCC diagnostic pop
   }
 
   static void expose() {
@@ -83,7 +86,10 @@ struct DistanceCallBackBaseWrapper : DistanceCallBackBase,
   }
 
   bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL& dist) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
     return this->get_override("distance")(o1, o2, dist);
+#pragma GCC diagnostic pop
   }
 
   static void expose() {

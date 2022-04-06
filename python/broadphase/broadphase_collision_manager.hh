@@ -78,7 +78,10 @@ struct BroadPhaseCollisionManagerWrapper
   void clear() { this->get_override("clear")(); }
 
   std::vector<CollisionObject *> getObjects() const {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
     return this->get_override("getObjects")();
+#pragma GCC diagnostic pop
   }
 
   void collide(CollisionCallBackBase *callback) const {
@@ -103,8 +106,18 @@ struct BroadPhaseCollisionManagerWrapper
     this->get_override("collide")(other_manager, callback);
   }
 
-  bool empty() const { return this->get_override("empty")(); }
-  size_t size() const { return this->get_override("size")(); }
+  bool empty() const {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    return this->get_override("empty")();
+#pragma GCC diagnostic pop
+  }
+  size_t size() const {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+    return this->get_override("size")();
+#pragma GCC diagnostic pop
+  }
 
   static void expose() {
     bp::class_<BroadPhaseCollisionManagerWrapper, boost::noncopyable>(
