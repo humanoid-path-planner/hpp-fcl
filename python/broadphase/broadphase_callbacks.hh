@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2022 NRIA
+//  Copyright (c) 2022 INRIA
 //  Author: Justin Carpentier
 //  All rights reserved.
 //
@@ -15,7 +15,7 @@
 //     copyright notice, this list of conditions and the following
 //     disclaimer in the documentation and/or other materials provided
 //     with the distribution.
-//   * Neither the name of CNRS-LAAS. nor the names of its
+//   * Neither the name of INRIA nor the names of its
 //     contributors may be used to endorse or promote products derived
 //     from this software without specific prior written permission.
 //
