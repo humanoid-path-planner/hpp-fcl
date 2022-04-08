@@ -1,7 +1,7 @@
 //
 // Software License Agreement (BSD License)
 //
-//  Copyright (c) 2022 NRIA
+//  Copyright (c) 2022 INRIA
 //  Author: Justin Carpentier
 //  All rights reserved.
 //
@@ -15,7 +15,7 @@
 //     copyright notice, this list of conditions and the following
 //     disclaimer in the documentation and/or other materials provided
 //     with the distribution.
-//   * Neither the name of CNRS-LAAS. nor the names of its
+//   * Neither the name of INRIA nor the names of its
 //     contributors may be used to endorse or promote products derived
 //     from this software without specific prior written permission.
 //
@@ -56,7 +56,10 @@ struct CollisionCallBackBaseWrapper : CollisionCallBackBase,
 
   void init() { this->get_override("init")(); }
   bool collide(CollisionObject* o1, CollisionObject* o2) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
     return this->get_override("collide")(o1, o2);
+#pragma GCC diagnostic pop
   }
 
   static void expose() {
@@ -83,7 +86,10 @@ struct DistanceCallBackBaseWrapper : DistanceCallBackBase,
   }
 
   bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL& dist) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
     return this->get_override("distance")(o1, o2, dist);
+#pragma GCC diagnostic pop
   }
 
   static void expose() {

@@ -79,7 +79,7 @@ std::vector<Data> SimpleHashTable<Key, Data, HashFnc>::query(Key key) const {
   std::vector<unsigned int> indices = h_(key);
   std::set<Data> result;
   for (size_t i = 0; i < indices.size(); ++i) {
-    unsigned int index = indices[i] % range;
+    size_t index = indices[i] % range;
     std::copy(table_[index].begin(), table_[index].end(),
               std::inserter(result, result.end()));
   }
@@ -93,7 +93,7 @@ void SimpleHashTable<Key, Data, HashFnc>::remove(Key key, Data value) {
   size_t range = table_.size();
   std::vector<unsigned int> indices = h_(key);
   for (size_t i = 0; i < indices.size(); ++i) {
-    unsigned int index = indices[i] % range;
+    size_t index = indices[i] % range;
     table_[index].remove(value);
   }
 }
