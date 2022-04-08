@@ -56,7 +56,6 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
   ShapeBase(const ShapeBase& other) : CollisionGeometry(other) {}
 
   ShapeBase& operator=(const ShapeBase& other) {
-    if (this == &other) return *this;
     return *this;
   }
 
