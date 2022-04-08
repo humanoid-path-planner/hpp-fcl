@@ -40,6 +40,7 @@ set(PROJECT_DESCRIPTION
   "HPP fork of FCL -- The Flexible Collision Library"
   )
 SET(PROJECT_USE_CMAKE_EXPORT TRUE)
+SET(PROJECT_COMPATIBILITY_VERSION AnyNewerVersion)
 
 # Do not support CMake older than 2.8.12
 CMAKE_POLICY(SET CMP0022 NEW)
