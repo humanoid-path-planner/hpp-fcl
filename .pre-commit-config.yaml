@@ -5,7 +5,7 @@ repos:
     -   id: clang-format
         args: ['-i', '--style={BasedOnStyle: Google, SortIncludes: false}']
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.2.0
     hooks:
     -   id: trailing-whitespace
 -   repo: https://github.com/psf/black
