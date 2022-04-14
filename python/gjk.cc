@@ -83,6 +83,15 @@ void exposeGJK() {
         .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, inflation);
   }
 
+  if(!eigenpy::register_symbolic_link_to_registered_type<GJK::GJKVariant>())
+  {
+    enum_ <GJK::GJKVariant> ("GJKVariant")
+      .value ("Vanilla", GJK::Vanilla)
+      .value ("Nesterov", GJK::Nesterov)
+      .export_values()
+      ;
+  }
+
   if (!eigenpy::register_symbolic_link_to_registered_type<GJK>()) {
     class_<GJK>("GJK", doxygen::class_doc<GJK>(), no_init)
         .def(doxygen::visitor::init<GJK, unsigned int, FCL_REAL>())
@@ -94,6 +103,10 @@ void exposeGJK() {
         .DEF_CLASS_FUNC(GJK, hasPenetrationInformation)
         .DEF_CLASS_FUNC(GJK, getClosestPoints)
         .DEF_CLASS_FUNC(GJK, setDistanceEarlyBreak)
-        .DEF_CLASS_FUNC(GJK, getGuessFromSimplex);
+        .DEF_CLASS_FUNC(GJK, getGuessFromSimplex)
+        .DEF_CLASS_FUNC(GJK, setGJKVariant)
+        .DEF_CLASS_FUNC(GJK, setNormalizeSupportDirection)
+        .DEF_CLASS_FUNC(GJK, getIterations)
+        ;
   }
 }
