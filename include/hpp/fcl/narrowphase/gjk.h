@@ -148,6 +148,8 @@ struct HPP_FCL_DLLAPI GJK {
   };
 
   enum Status { Valid, Inside, Failed };
+  /// @brief Version used for GJK. Vanilla is default.
+  enum GJKVariant { Vanilla, Nesterov };
 
   MinkowskiDiff const* shape;
   Vec3f ray;
@@ -228,6 +230,14 @@ struct HPP_FCL_DLLAPI GJK {
     distance_upper_bound = dup;
   }
 
+  /// @brief Set which GJK version to use. Default is Vanilla.
+  inline void setGJKVariant(GJKVariant variant) { gjk_variant = variant; }
+
+  /// @brief Set wether or not to use the normalization heuristic when computing a support point.
+  /// Only effective if acceleration version of GJK is used.
+  /// Default is false.
+  inline void setNormalizeSupportDirection(bool normalize) { normalize_support_direction = normalize; }
+
  private:
   SimplexV store_v[4];
   SimplexV* free_v[4];
@@ -239,6 +249,8 @@ struct HPP_FCL_DLLAPI GJK {
   unsigned int max_iterations;
   FCL_REAL tolerance;
   FCL_REAL distance_upper_bound;
+  GJKVariant gjk_variant;
+  bool normalize_support_direction;
 
   /// @brief discard one vertex from the simplex
   inline void removeVertex(Simplex& simplex);

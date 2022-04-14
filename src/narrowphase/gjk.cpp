@@ -519,6 +519,8 @@ void GJK::initialize() {
   status = Failed;
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
   simplex = NULL;
+  gjk_variant = Vanilla;
+  normalize_support_direction = false;
 }
 
 Vec3f GJK::getGuessFromSimplex() const { return ray; }
@@ -644,6 +646,12 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   } else
     ray = guess;
 
+  // Momentum
+  GJKVariant current_gjk_variant = gjk_variant;
+  Vec3f w = ray;
+  Vec3f dir = ray;
+  Vec3f y;
+  FCL_REAL momentum;
   do {
     vertex_id_t next = (vertex_id_t)(1 - current);
     Simplex& curr_simplex = simplices[current];
@@ -663,15 +671,41 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       break;
     }
 
-    appendVertex(curr_simplex, -ray, false,
+    // Compute direction for support call
+    switch (current_gjk_variant) {
+      case Vanilla:
+        dir = ray;
+        break;
+
+      case Nesterov:
+        // Normalize heuristic for collision pairs involving meshes
+        if (normalize_support_direction)
+        {
+          momentum = (FCL_REAL(iterations) + 2) / (FCL_REAL(iterations) + 3);
+          y = momentum * ray + (1 - momentum) * w;
+          dir = momentum * dir / dir.norm() + (1 -momentum) * y / y.norm();
+        }
+        else
+        {
+          momentum = (FCL_REAL(iterations) + 1) / (FCL_REAL(iterations) + 3);
+          y =  momentum * ray + (1 - momentum) * w;
+          dir = momentum * dir + (1 - momentum) * y;
+        }
+        break;
+
+        default:
+          throw std::logic_error("Invalid momentum variant.");
+      }
+
+    appendVertex(curr_simplex, -dir, false,
                  support_hint);  // see below, ray points away from origin
 
     // check removed (by ?): when the new support point is close to previous
     // support points, stop (as the new simplex is degenerated)
-    const Vec3f& w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
+    w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
 
     // check B: no collision if omega > 0
-    FCL_REAL omega = ray.dot(w) / rl;
+    FCL_REAL omega = dir.dot(w) / dir.norm();
     if (omega > upper_bound) {
       distance = omega - inflation;
       break;
@@ -687,6 +721,10 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     // if(diff - tolerance * rl <= 0)
     if (iterations > 0 && diff - tolerance * rl <= 0) {
       if (iterations > 0) removeVertex(simplices[current]);
+      if (current_gjk_variant != Vanilla) {
+        current_gjk_variant = Vanilla;
+        continue;
+      }
       distance = rl - inflation;
       // TODO When inflation is strictly positive, the distance may be exactly
       // zero (so the ray is not zero) and we are not in the case rl <
