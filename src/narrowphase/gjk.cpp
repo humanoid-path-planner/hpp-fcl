@@ -621,8 +621,8 @@ bool GJK::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) {
 
 GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
                           const support_func_guess_t& supportHint) {
-  size_t iterations = 0;
   FCL_REAL alpha = 0;
+  iterations = 0;
   const FCL_REAL inflation = shape_.inflation.sum();
   const FCL_REAL upper_bound = distance_upper_bound + inflation;
 

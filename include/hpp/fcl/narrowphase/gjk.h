@@ -238,6 +238,9 @@ struct HPP_FCL_DLLAPI GJK {
   /// Default is false.
   inline void setNormalizeSupportDirection(bool normalize) { normalize_support_direction = normalize; }
 
+  /// @brief Get GJK number of iterations.
+  inline size_t getIterations() { return iterations; }
+
  private:
   SimplexV store_v[4];
   SimplexV* free_v[4];
@@ -251,6 +254,7 @@ struct HPP_FCL_DLLAPI GJK {
   FCL_REAL distance_upper_bound;
   GJKVariant gjk_variant;
   bool normalize_support_direction;
+  size_t iterations;
 
   /// @brief discard one vertex from the simplex
   inline void removeVertex(Simplex& simplex);
