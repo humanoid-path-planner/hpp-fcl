@@ -149,7 +149,7 @@ struct HPP_FCL_DLLAPI GJK {
 
   enum Status { Valid, Inside, Failed };
   /// @brief Version used for GJK. Vanilla is default.
-  enum GJKVariant { Vanilla, Nesterov };
+  enum GJKVariant { Default, NesterovAcceleration };
 
   MinkowskiDiff const* shape;
   Vec3f ray;
