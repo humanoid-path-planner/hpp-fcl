@@ -36,6 +36,7 @@
 /** \author Jia Pan */
 
 #include <hpp/fcl/distance.h>
+#include <hpp/fcl/collision_utility.h>
 #include <hpp/fcl/distance_func_matrix.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
@@ -78,9 +79,12 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
   if (object_type1 == OT_GEOM &&
       (object_type2 == OT_BVH || object_type2 == OT_HFIELD)) {
     if (!looktable.distance_matrix[node_type2][node_type1]) {
-      std::cerr << "Warning: distance function between node type " << node_type1
-                << " and node type " << node_type2 << " is not supported"
-                << std::endl;
+      HPP_FCL_THROW_PRETTY("Distance function between node type "
+                               << std::string(get_node_type_name(node_type1))
+                               << " and node type "
+                               << std::string(get_node_type_name(node_type2))
+                               << " is not yet supported.",
+                           std::invalid_argument);
     } else {
       res = looktable.distance_matrix[node_type2][node_type1](
           o2, tf2, o1, tf1, &solver, request, result);
@@ -96,9 +100,12 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
     }
   } else {
     if (!looktable.distance_matrix[node_type1][node_type2]) {
-      std::cerr << "Warning: distance function between node type " << node_type1
-                << " and node type " << node_type2 << " is not supported"
-                << std::endl;
+      HPP_FCL_THROW_PRETTY("Distance function between node type "
+                               << std::string(get_node_type_name(node_type1))
+                               << " and node type "
+                               << std::string(get_node_type_name(node_type2))
+                               << " is not yet supported.",
+                           std::invalid_argument);
     } else {
       res = looktable.distance_matrix[node_type1][node_type2](
           o1, tf1, o2, tf2, &solver, request, result);
@@ -127,10 +134,12 @@ ComputeDistance::ComputeDistance(const CollisionGeometry* o1,
 
   if ((swap_geoms && !looktable.distance_matrix[node_type2][node_type1]) ||
       (!swap_geoms && !looktable.distance_matrix[node_type1][node_type2])) {
-    std::ostringstream oss;
-    oss << "Warning: distance function between node type " << node_type1
-        << " and node type " << node_type2 << " is not supported";
-    throw std::invalid_argument(oss.str());
+    HPP_FCL_THROW_PRETTY("Distance function between node type "
+                             << std::string(get_node_type_name(node_type1))
+                             << " and node type "
+                             << std::string(get_node_type_name(node_type2))
+                             << " is not yet supported.",
+                         std::invalid_argument);
   }
   if (swap_geoms)
     func = looktable.distance_matrix[node_type2][node_type1];
