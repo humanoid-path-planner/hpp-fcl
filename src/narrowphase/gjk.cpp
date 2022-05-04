@@ -679,23 +679,20 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 
       case NesterovAcceleration:
         // Normalize heuristic for collision pairs involving meshes
-        if (normalize_support_direction)
-        {
+        if (normalize_support_direction) {
           momentum = (FCL_REAL(iterations) + 2) / (FCL_REAL(iterations) + 3);
           y = momentum * ray + (1 - momentum) * w;
-          dir = momentum * dir / dir.norm() + (1 -momentum) * y / y.norm();
-        }
-        else
-        {
+          dir = momentum * dir / dir.norm() + (1 - momentum) * y / y.norm();
+        } else {
           momentum = (FCL_REAL(iterations) + 1) / (FCL_REAL(iterations) + 3);
-          y =  momentum * ray + (1 - momentum) * w;
+          y = momentum * ray + (1 - momentum) * w;
           dir = momentum * dir + (1 - momentum) * y;
         }
         break;
 
-        default:
-          throw std::logic_error("Invalid momentum variant.");
-      }
+      default:
+        throw std::logic_error("Invalid momentum variant.");
+    }
 
     appendVertex(curr_simplex, -dir, false,
                  support_hint);  // see below, ray points away from origin

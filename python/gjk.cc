@@ -83,13 +83,11 @@ void exposeGJK() {
         .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, inflation);
   }
 
-  if(!eigenpy::register_symbolic_link_to_registered_type<GJK::GJKVariant>())
-  {
-    enum_ <GJK::GJKVariant> ("GJKVariant")
-      .value ("Default", GJK::Default)
-      .value ("NesterovAcceleration", GJK::NesterovAcceleration)
-      .export_values()
-      ;
+  if (!eigenpy::register_symbolic_link_to_registered_type<GJK::GJKVariant>()) {
+    enum_<GJK::GJKVariant>("GJKVariant")
+        .value("Default", GJK::Default)
+        .value("NesterovAcceleration", GJK::NesterovAcceleration)
+        .export_values();
   }
 
   if (!eigenpy::register_symbolic_link_to_registered_type<GJK>()) {
@@ -106,7 +104,6 @@ void exposeGJK() {
         .DEF_CLASS_FUNC(GJK, getGuessFromSimplex)
         .DEF_CLASS_FUNC(GJK, setGJKVariant)
         .DEF_CLASS_FUNC(GJK, setNormalizeSupportDirection)
-        .DEF_CLASS_FUNC(GJK, getIterations)
-        ;
+        .DEF_CLASS_FUNC(GJK, getIterations);
   }
 }

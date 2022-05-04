@@ -233,10 +233,12 @@ struct HPP_FCL_DLLAPI GJK {
   /// @brief Set which GJK version to use. Default is Vanilla.
   inline void setGJKVariant(GJKVariant variant) { gjk_variant = variant; }
 
-  /// @brief Set wether or not to use the normalization heuristic when computing a support point.
-  /// Only effective if acceleration version of GJK is used.
+  /// @brief Set wether or not to use the normalization heuristic when computing
+  /// a support point. Only effective if acceleration version of GJK is used.
   /// Default is false.
-  inline void setNormalizeSupportDirection(bool normalize) { normalize_support_direction = normalize; }
+  inline void setNormalizeSupportDirection(bool normalize) {
+    normalize_support_direction = normalize;
+  }
 
   /// @brief Get GJK number of iterations.
   inline size_t getIterations() { return iterations; }
