@@ -193,7 +193,8 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
   /// \param[in] x_dim Dimension along the X axis
   /// \param[in] y_dim Dimension along the Y axis
   /// \param[in] heights Matrix containing the altitude of each point compositng
-  /// the height field \param[in] min_height Minimal height of the height field
+  /// the height field
+  /// \param[in] min_height Minimal height of the height field
   ///
   HeightField(const FCL_REAL x_dim, const FCL_REAL y_dim,
               const MatrixXf& heights, const FCL_REAL min_height = (FCL_REAL)0)
