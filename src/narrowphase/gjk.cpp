@@ -519,7 +519,7 @@ void GJK::initialize() {
   status = Failed;
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
   simplex = NULL;
-  gjk_variant = Default;
+  gjk_variant = DefaultGJK;
   normalize_support_direction = false;
 }
 
@@ -673,7 +673,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 
     // Compute direction for support call
     switch (current_gjk_variant) {
-      case Default:
+      case DefaultGJK:
         dir = ray;
         break;
 
@@ -718,8 +718,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     // if(diff - tolerance * rl <= 0)
     if (iterations > 0 && diff - tolerance * rl <= 0) {
       if (iterations > 0) removeVertex(simplices[current]);
-      if (current_gjk_variant != Default) {
-        current_gjk_variant = Default;
+      if (current_gjk_variant != DefaultGJK) {
+        current_gjk_variant = DefaultGJK;
         continue;
       }
       distance = rl - inflation;
