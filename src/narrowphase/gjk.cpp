@@ -708,6 +708,16 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       break;
     }
 
+    // Check to remove acceleration
+    if (current_gjk_variant != DefaultGJK){
+      FCL_REAL frank_wolfe_duality_gap = 2 * ray.dot(ray - w);
+      if (frank_wolfe_duality_gap - tolerance <= 0){
+        removeVertex(simplices[current]);
+        current_gjk_variant = DefaultGJK;
+        continue; // continue to next iteration
+      }
+    }
+
     // check C: when the new support point is close to the sub-simplex where the
     // ray point lies, stop (as the new simplex again is degenerated)
     alpha = std::max(alpha, omega);
