@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v14.0.1
+    rev: v14.0.3
     hooks:
     -   id: clang-format
         args: ['-i', '--style={BasedOnStyle: Google, SortIncludes: false}']
