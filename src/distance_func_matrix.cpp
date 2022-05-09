@@ -310,12 +310,14 @@ DistanceFunctionMatrix::DistanceFunctionMatrix() {
   distance_matrix[GEOM_SPHERE][GEOM_ELLIPSOID] =
       &ShapeShapeDistance<Sphere, Ellipsoid>;
 
-  distance_matrix[GEOM_ELLIPSOID][GEOM_BOX] = &ShapeShapeDistance<Ellipsoid, Box>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_BOX] =
+      &ShapeShapeDistance<Ellipsoid, Box>;
   distance_matrix[GEOM_ELLIPSOID][GEOM_SPHERE] =
       &ShapeShapeDistance<Ellipsoid, Sphere>;
   distance_matrix[GEOM_ELLIPSOID][GEOM_CAPSULE] =
       &ShapeShapeDistance<Ellipsoid, Capsule>;
-  distance_matrix[GEOM_ELLIPSOID][GEOM_CONE] = &ShapeShapeDistance<Ellipsoid, Cone>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_CONE] =
+      &ShapeShapeDistance<Ellipsoid, Cone>;
   distance_matrix[GEOM_ELLIPSOID][GEOM_CYLINDER] =
       &ShapeShapeDistance<Ellipsoid, Cylinder>;
   distance_matrix[GEOM_ELLIPSOID][GEOM_CONVEX] =

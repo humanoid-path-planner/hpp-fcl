@@ -337,12 +337,14 @@ CollisionFunctionMatrix::CollisionFunctionMatrix() {
   collision_matrix[GEOM_SPHERE][GEOM_ELLIPSOID] =
       &ShapeShapeCollide<Sphere, Ellipsoid>;
 
-  collision_matrix[GEOM_ELLIPSOID][GEOM_BOX] = &ShapeShapeCollide<Ellipsoid, Box>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_BOX] =
+      &ShapeShapeCollide<Ellipsoid, Box>;
   collision_matrix[GEOM_ELLIPSOID][GEOM_SPHERE] =
       &ShapeShapeCollide<Ellipsoid, Sphere>;
   collision_matrix[GEOM_ELLIPSOID][GEOM_CAPSULE] =
       &ShapeShapeCollide<Ellipsoid, Capsule>;
-  collision_matrix[GEOM_ELLIPSOID][GEOM_CONE] = &ShapeShapeCollide<Ellipsoid, Cone>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_CONE] =
+      &ShapeShapeCollide<Ellipsoid, Cone>;
   collision_matrix[GEOM_ELLIPSOID][GEOM_CYLINDER] =
       &ShapeShapeCollide<Ellipsoid, Cylinder>;
   collision_matrix[GEOM_ELLIPSOID][GEOM_CONVEX] =
