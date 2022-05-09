@@ -71,6 +71,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     gjk.setDistanceEarlyBreak(distance_upper_bound);
 
+    if (enable_gjk_nesterov_acceleration)
+      gjk.setGJKVariant(details::GJK::GJKVariant::NesterovAcceleration);
+    else
+     gjk.setGJKVariant(details::GJK::GJKVariant::DefaultGJK);
+
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
@@ -228,6 +233,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     gjk.setDistanceEarlyBreak(distance_upper_bound);
 
+    if (enable_gjk_nesterov_acceleration)
+      gjk.setGJKVariant(details::GJK::GJKVariant::NesterovAcceleration);
+    else
+     gjk.setGJKVariant(details::GJK::GJKVariant::DefaultGJK);
+
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
@@ -306,6 +316,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
     distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
+    enable_gjk_nesterov_acceleration = false;
   }
 
   void enableCachedGuess(bool if_enable) const {
@@ -315,6 +326,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
   void setCachedGuess(const Vec3f& guess) const { cached_guess = guess; }
 
   Vec3f getCachedGuess() const { return cached_guess; }
+
+  void enableGJKNesterovAcceleration(bool if_enable) const {
+    enable_gjk_nesterov_acceleration = if_enable;
+  }
 
   bool operator==(const GJKSolver& other) const {
     return epa_max_face_num == other.epa_max_face_num &&
@@ -353,6 +368,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   /// @brief smart guess
   mutable Vec3f cached_guess;
+
+  /// @brief Wether Nesterov acceleration is used for GJK
+  mutable bool enable_gjk_nesterov_acceleration;
 
   /// @brief smart guess for the support function
   mutable support_func_guess_t support_func_cached_guess;
