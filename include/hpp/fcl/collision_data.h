@@ -120,6 +120,9 @@ struct HPP_FCL_DLLAPI QueryRequest {
   /// @brief whether enable gjk initial guess
   bool enable_cached_gjk_guess;
 
+  /// @brief whether to enable the Nesterov accleration of GJK
+  bool enable_gjk_nesterov_acceleration;
+
   /// @brief the gjk initial guess set by user
   Vec3f cached_gjk_guess;
 
@@ -131,6 +134,7 @@ struct HPP_FCL_DLLAPI QueryRequest {
 
   QueryRequest()
       : enable_cached_gjk_guess(false),
+        enable_gjk_nesterov_acceleration(false),
         cached_gjk_guess(1, 0, 0),
         cached_support_func_guess(support_func_guess_t::Zero()),
         enable_timings(false) {}

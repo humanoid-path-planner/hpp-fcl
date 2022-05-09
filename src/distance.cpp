@@ -62,6 +62,7 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                   const DistanceRequest& request, DistanceResult& result) {
   GJKSolver solver;
   solver.enable_cached_guess = request.enable_cached_gjk_guess;
+  solver.enableGJKNesterovAcceleration(request.enable_gjk_nesterov_acceleration);
   if (solver.enable_cached_guess) {
     solver.cached_guess = request.cached_gjk_guess;
     solver.support_func_cached_guess = request.cached_support_func_guess;
