@@ -71,10 +71,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     gjk.setDistanceEarlyBreak(distance_upper_bound);
 
-    if (enable_gjk_nesterov_acceleration)
-      gjk.setGJKVariant(details::GJK::GJKVariant::NesterovAcceleration);
-    else
-      gjk.setGJKVariant(details::GJK::GJKVariant::DefaultGJK);
+    gjk.setGJKVariant(gjk_variant);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {
@@ -233,10 +230,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     gjk.setDistanceEarlyBreak(distance_upper_bound);
 
-    if (enable_gjk_nesterov_acceleration)
-      gjk.setGJKVariant(details::GJK::GJKVariant::NesterovAcceleration);
-    else
-      gjk.setGJKVariant(details::GJK::GJKVariant::DefaultGJK);
+    gjk.setGJKVariant(gjk_variant);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {
@@ -316,7 +310,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
     distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
-    enable_gjk_nesterov_acceleration = false;
+    gjk_variant = DefaultGJK;
   }
 
   void enableCachedGuess(bool if_enable) const {
@@ -327,8 +321,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   Vec3f getCachedGuess() const { return cached_guess; }
 
-  void enableGJKNesterovAcceleration(bool if_enable) const {
-    enable_gjk_nesterov_acceleration = if_enable;
+  void setGJKVariant(const GJKVariant& variant) const {
+    gjk_variant = variant;
   }
 
   bool operator==(const GJKSolver& other) const {
@@ -369,8 +363,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// @brief smart guess
   mutable Vec3f cached_guess;
 
-  /// @brief Wether Nesterov acceleration is used for GJK
-  mutable bool enable_gjk_nesterov_acceleration;
+  /// @brief Variant to use for the GJK algorithm
+  mutable GJKVariant gjk_variant;
 
   /// @brief smart guess for the support function
   mutable support_func_guess_t support_func_cached_guess;

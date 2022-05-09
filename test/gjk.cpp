@@ -52,6 +52,7 @@ using hpp::fcl::Quaternion3f;
 using hpp::fcl::Transform3f;
 using hpp::fcl::TriangleP;
 using hpp::fcl::Vec3f;
+using hpp::fcl::GJKVariant;
 
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 1> vector_t;
 typedef Eigen::Matrix<FCL_REAL, 6, 1> vector6_t;
@@ -74,7 +75,8 @@ void test_gjk_distance_triangle_triangle(
                         "", "", "(", ")");
   std::size_t N = 10000;
   GJKSolver solver;
-  solver.enableGJKNesterovAcceleration(enable_gjk_nesterov_acceleration);
+  if (enable_gjk_nesterov_acceleration)
+    solver.setGJKVariant(GJKVariant::NesterovAcceleration);
   Transform3f tf1, tf2;
   Vec3f p1, p2, a1, a2;
   Matrix3f M;
@@ -332,7 +334,7 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
 
   details::GJK gjk(2, 1e-6);
   if (use_gjk_nesterov_acceleration)
-    gjk.setGJKVariant(details::GJK::GJKVariant::NesterovAcceleration);
+    gjk.setGJKVariant(GJKVariant::NesterovAcceleration);
   details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
 
   if (expect_collision)
@@ -388,7 +390,7 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
 
   details::GJK gjk(10, 1e-6);
   if (use_gjk_nesterov_acceleration)
-    gjk.setGJKVariant(details::GJK::GJKVariant::NesterovAcceleration);
+    gjk.setGJKVariant(GJKVariant::NesterovAcceleration);
   details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
 
   if (expect_collision)

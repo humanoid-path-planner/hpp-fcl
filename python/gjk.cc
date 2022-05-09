@@ -83,10 +83,10 @@ void exposeGJK() {
         .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, inflation);
   }
 
-  if (!eigenpy::register_symbolic_link_to_registered_type<GJK::GJKVariant>()) {
-    enum_<GJK::GJKVariant>("GJKVariant")
-        .value("DefaultGJK", GJK::DefaultGJK)
-        .value("NesterovAcceleration", GJK::NesterovAcceleration)
+  if (!eigenpy::register_symbolic_link_to_registered_type<GJKVariant>()) {
+    enum_<GJKVariant>("GJKVariant")
+        .value("DefaultGJK", DefaultGJK)
+        .value("NesterovAcceleration", NesterovAcceleration)
         .export_values();
   }
 

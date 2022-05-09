@@ -71,6 +71,9 @@ typedef Eigen::Matrix<Eigen::DenseIndex, Eigen::Dynamic, 3> Matrixx3i;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Eigen::Dynamic> MatrixXf;
 typedef Eigen::Vector2i support_func_guess_t;
 
+/// @brief Variant to use for the GJK algorithm
+enum GJKVariant { DefaultGJK, NesterovAcceleration };
+
 /// @brief Triangle with 3 indices for points
 class HPP_FCL_DLLAPI Triangle {
  public:
