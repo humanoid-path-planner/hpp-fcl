@@ -36,6 +36,7 @@
 /** \author Jia Pan */
 
 #include <hpp/fcl/collision.h>
+#include <hpp/fcl/collision_utility.h>
 #include <hpp/fcl/collision_func_matrix.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
@@ -97,8 +98,10 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
         (object_type2 == OT_BVH || object_type2 == OT_HFIELD)) {
       if (!looktable.collision_matrix[node_type2][node_type1]) {
         HPP_FCL_THROW_PRETTY("Collision function between node type "
-                                 << node_type1 << " and node type "
-                                 << node_type2 << " is not supported.",
+                                 << std::string(get_node_type_name(node_type1))
+                                 << " and node type "
+                                 << std::string(get_node_type_name(node_type2))
+                                 << " is not yet supported.",
                              std::invalid_argument);
         res = 0;
       } else {
@@ -109,8 +112,10 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
     } else {
       if (!looktable.collision_matrix[node_type1][node_type2]) {
         HPP_FCL_THROW_PRETTY("Collision function between node type "
-                                 << node_type1 << " and node type "
-                                 << node_type2 << " is not supported.",
+                                 << std::string(get_node_type_name(node_type1))
+                                 << " and node type "
+                                 << std::string(get_node_type_name(node_type2))
+                                 << " is not yet supported.",
                              std::invalid_argument);
         res = 0;
       } else
@@ -141,10 +146,12 @@ ComputeCollision::ComputeCollision(const CollisionGeometry* o1,
 
   if ((swap_geoms && !looktable.collision_matrix[node_type2][node_type1]) ||
       (!swap_geoms && !looktable.collision_matrix[node_type1][node_type2])) {
-    std::ostringstream oss;
-    oss << "Warning: collision function between node type " << node_type1
-        << " and node type " << node_type2 << " is not supported";
-    throw std::invalid_argument(oss.str());
+    HPP_FCL_THROW_PRETTY("Collision function between node type "
+                             << std::string(get_node_type_name(node_type1))
+                             << " and node type "
+                             << std::string(get_node_type_name(node_type2))
+                             << " is not yet supported.",
+                         std::invalid_argument);
   }
   if (swap_geoms)
     func = looktable.collision_matrix[node_type2][node_type1];

@@ -1,4 +1,5 @@
-// Copyright (c) 2017, Joseph Mirabel
+// Copyright (c) 2017 CNRS
+// Copyright (c) 2022 INRIA
 // Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
 //
 // This file is part of hpp-fcl.
@@ -21,10 +22,37 @@
 
 namespace hpp {
 namespace fcl {
+
 HPP_FCL_DLLAPI CollisionGeometry* extract(const CollisionGeometry* model,
                                           const Transform3f& pose,
                                           const AABB& aabb);
+
+/**
+ * \brief Returns the name associated to a NODE_TYPE
+ */
+inline const char* get_node_type_name(NODE_TYPE node_type) {
+  static const char* node_type_name_all[] = {
+      "BV_UNKNOWN",     "BV_AABB",       "BV_OBB",      "BV_RSS",
+      "BV_kIOS",        "BV_OBBRSS",     "BV_KDOP16",   "BV_KDOP18",
+      "BV_KDOP24",      "GEOM_BOX",      "GEOM_SPHERE", "GEOM_CAPSULE",
+      "GEOM_CONE",      "GEOM_CYLINDER", "GEOM_CONVEX", "GEOM_PLANE",
+      "GEOM_HALFSPACE", "GEOM_TRIANGLE", "GEOM_OCTREE", "GEOM_ELLIPSOID",
+      "HF_AABB",        "HF_OBBRSS",     "NODE_COUNT"};
+
+  return node_type_name_all[node_type];
 }
+
+/**
+ * \brief Returns the name associated to a OBJECT_TYPE
+ */
+inline const char* get_object_type_name(OBJECT_TYPE object_type) {
+  static const char* object_type_name_all[] = {
+      "OT_UNKNOWN", "OT_BVH", "OT_GEOM", "OT_OCTREE", "OT_HFIELD", "OT_COUNT"};
+
+  return object_type_name_all[object_type];
+}
+
+}  // namespace fcl
 
 }  // namespace hpp
 
