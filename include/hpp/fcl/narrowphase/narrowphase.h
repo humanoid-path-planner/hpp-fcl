@@ -321,9 +321,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   Vec3f getCachedGuess() const { return cached_guess; }
 
-  void setGJKVariant(const GJKVariant& variant) const {
-    gjk_variant = variant;
-  }
+  void setGJKVariant(const GJKVariant& variant) const { gjk_variant = variant; }
 
   bool operator==(const GJKSolver& other) const {
     return epa_max_face_num == other.epa_max_face_num &&

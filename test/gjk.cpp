@@ -47,12 +47,12 @@
 
 using hpp::fcl::FCL_REAL;
 using hpp::fcl::GJKSolver;
+using hpp::fcl::GJKVariant;
 using hpp::fcl::Matrix3f;
 using hpp::fcl::Quaternion3f;
 using hpp::fcl::Transform3f;
 using hpp::fcl::TriangleP;
 using hpp::fcl::Vec3f;
-using hpp::fcl::GJKVariant;
 
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 1> vector_t;
 typedef Eigen::Matrix<FCL_REAL, 6, 1> vector6_t;
