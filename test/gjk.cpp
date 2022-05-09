@@ -66,7 +66,8 @@ struct Result {
 
 typedef std::vector<Result> Results_t;
 
-void test_gjk_distance_triangle_triangle(bool enable_gjk_nesterov_acceleration) {
+void test_gjk_distance_triangle_triangle(
+    bool enable_gjk_nesterov_acceleration) {
   Eigen::IOFormat numpy(Eigen::FullPrecision, Eigen::DontAlignCols, ", ", ", ",
                         "np.array ((", "))", "", "");
   Eigen::IOFormat tuple(Eigen::FullPrecision, Eigen::DontAlignCols, "", ", ",

@@ -74,7 +74,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     if (enable_gjk_nesterov_acceleration)
       gjk.setGJKVariant(details::GJK::GJKVariant::NesterovAcceleration);
     else
-     gjk.setGJKVariant(details::GJK::GJKVariant::DefaultGJK);
+      gjk.setGJKVariant(details::GJK::GJKVariant::DefaultGJK);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {
@@ -236,7 +236,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     if (enable_gjk_nesterov_acceleration)
       gjk.setGJKVariant(details::GJK::GJKVariant::NesterovAcceleration);
     else
-     gjk.setGJKVariant(details::GJK::GJKVariant::DefaultGJK);
+      gjk.setGJKVariant(details::GJK::GJKVariant::DefaultGJK);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {

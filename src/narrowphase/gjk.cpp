@@ -709,12 +709,12 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     }
 
     // Check to remove acceleration
-    if (current_gjk_variant != DefaultGJK){
+    if (current_gjk_variant != DefaultGJK) {
       FCL_REAL frank_wolfe_duality_gap = 2 * ray.dot(ray - w);
-      if (frank_wolfe_duality_gap - tolerance <= 0){
+      if (frank_wolfe_duality_gap - tolerance <= 0) {
         removeVertex(simplices[current]);
         current_gjk_variant = DefaultGJK;
-        continue; // continue to next iteration
+        continue;  // continue to next iteration
       }
     }
 
