@@ -332,7 +332,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
            enable_cached_guess == other.enable_cached_guess &&
            cached_guess == other.cached_guess &&
            support_func_cached_guess == other.support_func_cached_guess &&
-           distance_upper_bound == other.distance_upper_bound;
+           distance_upper_bound == other.distance_upper_bound &&
+           gjk_variant == other.gjk_variant;
   }
 
   bool operator!=(const GJKSolver& other) const { return !(*this == other); }
