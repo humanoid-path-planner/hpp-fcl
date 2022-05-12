@@ -685,7 +685,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         if (normalize_support_direction) {
           momentum = (FCL_REAL(iterations) + 2) / (FCL_REAL(iterations) + 3);
           y = momentum * ray + (1 - momentum) * w;
-          dir = momentum * dir / dir.norm() + (1 - momentum) * y / y.norm();
+          FCL_REAL y_norm = y.norm();
+          // ray is the point of the Minkowski difference which currently the
+          // closest to the origin. Therefore, y.norm() > ray.norm() Hence, if
+          // check A above has not stopped the algorithm, we necessarily have
+          // y.norm() > tolerance. The following assert is just a safety check.
+          assert(y_norm > tolerance);
+          dir = momentum * dir / dir.norm() + (1 - momentum) * y / y_norm;
         } else {
           momentum = (FCL_REAL(iterations) + 1) / (FCL_REAL(iterations) + 3);
           y = momentum * ray + (1 - momentum) * w;
