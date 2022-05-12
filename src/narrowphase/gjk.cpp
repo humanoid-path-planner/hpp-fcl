@@ -520,7 +520,8 @@ void GJK::initialize() {
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
   simplex = NULL;
   gjk_variant = DefaultGJK;
-  normalize_support_direction = false;
+  // normalize_support_direction is only used in the Nesterov accelerated variant of GJK
+  normalize_support_direction = true;
 }
 
 Vec3f GJK::getGuessFromSimplex() const { return ray; }
@@ -678,7 +679,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         break;
 
       case NesterovAcceleration:
-        // Normalize heuristic for collision pairs involving meshes
+        // Normalize heuristic for collision pairs involving convex but not strictly-convex shapes
+        // This corresponds to most use cases.
         if (normalize_support_direction) {
           momentum = (FCL_REAL(iterations) + 2) / (FCL_REAL(iterations) + 3);
           y = momentum * ray + (1 - momentum) * w;
