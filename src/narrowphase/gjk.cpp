@@ -45,7 +45,7 @@ namespace fcl {
 namespace details {
 
 struct HPP_FCL_LOCAL shape_traits_base {
-  enum { NeedNormalizedDir = true };
+  enum { NeedNormalizedDir = true, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <typename Shape>
@@ -53,37 +53,42 @@ struct HPP_FCL_LOCAL shape_traits : shape_traits_base {};
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<TriangleP> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<Box> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<Sphere> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
+};
+
+template <>
+struct HPP_FCL_LOCAL shape_traits<Ellipsoid> : shape_traits_base {
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<Capsule> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<Cone> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<Cylinder> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<ConvexBase> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = true };
 };
 
 void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
@@ -488,10 +493,50 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
   }
 }
 
+bool getNormalizeSupportDirection(const ShapeBase* shape) {
+  switch (shape->getNodeType()) {
+    case GEOM_TRIANGLE:
+      return (bool)shape_traits<TriangleP>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_BOX:
+      return (bool)shape_traits<Box>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_SPHERE:
+      return (bool)shape_traits<Sphere>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_ELLIPSOID:
+      return (bool)shape_traits<Ellipsoid>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_CAPSULE:
+      return (bool)shape_traits<Capsule>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_CONE:
+      return (bool)shape_traits<Cone>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_CYLINDER:
+      return (bool)shape_traits<Cylinder>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_CONVEX:
+      return (bool)shape_traits<ConvexBase>::NeedNesterovNormalizeHeuristic;
+      break;
+    default:
+      throw std::logic_error("Unsupported geometric shape");
+  }
+}
+
+void getNormalizeSupportDirectionFromShapes(const ShapeBase* shape0,
+                                            const ShapeBase* shape1,
+                                            bool& normalize_support_direction) {
+  normalize_support_direction = getNormalizeSupportDirection(shape0) &&
+                                getNormalizeSupportDirection(shape1);
+}
+
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
                         const Transform3f& tf0, const Transform3f& tf1) {
   shapes[0] = shape0;
   shapes[1] = shape1;
+  getNormalizeSupportDirectionFromShapes(shape0, shape1,
+                                         normalize_support_direction);
 
   oR1 = tf0.getRotation().transpose() * tf1.getRotation();
   ot1 = tf0.getRotation().transpose() *
@@ -506,6 +551,8 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
   shapes[0] = shape0;
   shapes[1] = shape1;
+  getNormalizeSupportDirectionFromShapes(shape0, shape1,
+                                         normalize_support_direction);
 
   oR1.setIdentity();
   ot1.setZero();
@@ -520,9 +567,6 @@ void GJK::initialize() {
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
   simplex = NULL;
   gjk_variant = DefaultGJK;
-  // normalize_support_direction is only used in the Nesterov accelerated
-  // variant of GJK
-  normalize_support_direction = true;
 }
 
 Vec3f GJK::getGuessFromSimplex() const { return ray; }
@@ -654,6 +698,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   Vec3f dir = ray;
   Vec3f y;
   FCL_REAL momentum;
+  bool normalize_support_direction = shape->normalize_support_direction;
   do {
     vertex_id_t next = (vertex_id_t)(1 - current);
     Simplex& curr_simplex = simplices[current];

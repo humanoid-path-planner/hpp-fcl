@@ -80,6 +80,7 @@ void exposeGJK() {
         .DEF_CLASS_FUNC(MinkowskiDiff, support0)
         .DEF_CLASS_FUNC(MinkowskiDiff, support1)
         .DEF_CLASS_FUNC(MinkowskiDiff, support)
+        .DEF_CLASS_FUNC(MinkowskiDiff, setNormalizeSupportDirection)
         .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, inflation);
   }
 
@@ -103,7 +104,6 @@ void exposeGJK() {
         .DEF_CLASS_FUNC(GJK, setDistanceEarlyBreak)
         .DEF_CLASS_FUNC(GJK, getGuessFromSimplex)
         .DEF_CLASS_FUNC(GJK, setGJKVariant)
-        .DEF_CLASS_FUNC(GJK, setNormalizeSupportDirection)
         .DEF_CLASS_FUNC(GJK, getIterations);
   }
 }

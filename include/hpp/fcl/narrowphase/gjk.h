@@ -86,6 +86,11 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// \note It must set before the call to \ref set.
   int linear_log_convex_threshold;
 
+  /// @brief Wether or not to use the normalize heuristic in the GJK Nesterov
+  /// acceleration. This setting is only applied if the Nesterov acceleration in
+  /// the GJK class is active.
+  bool normalize_support_direction;
+
   typedef void (*GetSupportFunction)(const MinkowskiDiff& minkowskiDiff,
                                      const Vec3f& dir, bool dirIsNormalized,
                                      Vec3f& support0, Vec3f& support1,
@@ -121,6 +126,15 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
     assert(getSupportFunc != NULL);
     getSupportFunc(*this, d, dIsNormalized, supp0, supp1, hint,
                    const_cast<ShapeData*>(data));
+  }
+
+  /// @brief Set wether or not to use the normalization heuristic when computing
+  /// a support point. Only effective if acceleration version of GJK is used.
+  /// By default, when MinkowskiDiff::set is called, the normalization heuristic
+  /// is deduced from the shapes. The user can override this behavior with this
+  /// function.
+  inline void setNormalizeSupportDirection(bool normalize) {
+    normalize_support_direction = normalize;
   }
 };
 
@@ -231,13 +245,6 @@ struct HPP_FCL_DLLAPI GJK {
   /// @brief Set which GJK version to use. Default is Vanilla.
   inline void setGJKVariant(GJKVariant variant) { gjk_variant = variant; }
 
-  /// @brief Set wether or not to use the normalization heuristic when computing
-  /// a support point. Only effective if acceleration version of GJK is used.
-  /// Default is false.
-  inline void setNormalizeSupportDirection(bool normalize) {
-    normalize_support_direction = normalize;
-  }
-
   /// @brief Get GJK number of iterations.
   inline size_t getIterations() { return iterations; }
 
@@ -253,7 +260,6 @@ struct HPP_FCL_DLLAPI GJK {
   FCL_REAL tolerance;
   FCL_REAL distance_upper_bound;
   GJKVariant gjk_variant;
-  bool normalize_support_direction;
   size_t iterations;
 
   /// @brief discard one vertex from the simplex
