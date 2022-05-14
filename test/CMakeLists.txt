@@ -57,6 +57,7 @@ add_fcl_test(hfields hfields.cpp)
 add_fcl_test(profiling profiling.cpp)
 
 add_fcl_test(gjk gjk.cpp)
+add_fcl_test(nesterov_gjk nesterov_gjk.cpp)
 if(HPP_FCL_HAS_OCTOMAP)
   add_fcl_test(octree octree.cpp)
 endif(HPP_FCL_HAS_OCTOMAP)
