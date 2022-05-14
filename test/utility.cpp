@@ -449,6 +449,82 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
   }
 }
 
+/// Takes a point and projects it onto the surface of the unit sphere
+void toSphere(Vec3f& point) {
+  assert(point.norm() > 1e-8);
+  point /= point.norm();
+}
+
+/// Takes a point, projects it on the unit sphere and applies an ellipsoid
+/// transformation to it. A point x belongs to the surface of an ellipsoid if
+/// x^T * A * x = 1, where A = diag(1/r**2) with r being the radii of the
+/// ellipsoid. Thus, the point y = A^(1/2) * x belongs to the unit sphere if y *
+/// y = 1. Therefore, the tranformation which brings y to x is A^(-1/2) =
+/// diag(r).
+void toEllipsoid(Vec3f& point, const Ellipsoid& ellipsoid) {
+  toSphere(point);
+  point[0] *= ellipsoid.radii[0];
+  point[1] *= ellipsoid.radii[1];
+  point[2] *= ellipsoid.radii[2];
+}
+
+Convex<Triangle> constructPolytopeFromEllipsoid(const Ellipsoid& ellipsoid) {
+  FCL_REAL PHI = (1 + std::sqrt(5)) / 2;
+
+  // vertices
+  Vec3f* pts = new Vec3f[12];
+  pts[0] = Vec3f(-1, PHI, 0);
+  pts[1] = Vec3f(1, PHI, 0);
+  pts[2] = Vec3f(-1, -PHI, 0);
+  pts[3] = Vec3f(1, -PHI, 0);
+
+  pts[4] = Vec3f(0, -1, PHI);
+  pts[5] = Vec3f(0, 1, PHI);
+  pts[6] = Vec3f(0, -1, -PHI);
+  pts[7] = Vec3f(0, 1, -PHI);
+
+  pts[8] = Vec3f(PHI, 0, -1);
+  pts[9] = Vec3f(PHI, 0, 1);
+  pts[10] = Vec3f(-PHI, 0, -1);
+  pts[11] = Vec3f(-PHI, 0, 1);
+
+  for (int i = 0; i < 12; ++i) {
+    toEllipsoid(pts[i], ellipsoid);
+  }
+
+  // faces
+  Triangle* tris = new Triangle[20];
+  tris[0].set(0, 11, 5);
+  tris[1].set(0, 5, 1);
+  tris[2].set(0, 1, 7);
+  tris[3].set(0, 7, 10);
+  tris[4].set(0, 10, 11);
+
+  tris[5].set(1, 5, 9);
+  tris[6].set(5, 11, 4);
+  tris[7].set(11, 10, 2);
+  tris[8].set(10, 7, 6);
+  tris[9].set(7, 1, 8);
+
+  tris[10].set(3, 9, 4);
+  tris[11].set(3, 4, 2);
+  tris[12].set(3, 2, 6);
+  tris[13].set(3, 6, 8);
+  tris[14].set(3, 8, 9);
+
+  tris[15].set(4, 9, 5);
+  tris[16].set(2, 4, 11);
+  tris[17].set(6, 2, 10);
+  tris[18].set(8, 6, 7);
+  tris[19].set(9, 8, 1);
+  return Convex<Triangle>(true,
+                          pts,   // points
+                          12,    // num_points
+                          tris,  // triangles
+                          20     // number of triangles
+  );
+}
+
 }  // namespace fcl
 
 }  // namespace hpp
