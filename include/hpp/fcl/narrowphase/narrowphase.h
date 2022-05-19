@@ -71,6 +71,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     gjk.setDistanceEarlyBreak(distance_upper_bound);
 
+    gjk.setGJKVariant(gjk_variant);
+
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
@@ -228,6 +230,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     gjk.setDistanceEarlyBreak(distance_upper_bound);
 
+    gjk.setGJKVariant(gjk_variant);
+
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
@@ -306,6 +310,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
     distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
+    gjk_variant = DefaultGJK;
   }
 
   void enableCachedGuess(bool if_enable) const {
@@ -316,6 +321,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   Vec3f getCachedGuess() const { return cached_guess; }
 
+  void setGJKVariant(const GJKVariant& variant) const { gjk_variant = variant; }
+
   bool operator==(const GJKSolver& other) const {
     return epa_max_face_num == other.epa_max_face_num &&
            epa_max_vertex_num == other.epa_max_vertex_num &&
@@ -325,7 +332,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
            enable_cached_guess == other.enable_cached_guess &&
            cached_guess == other.cached_guess &&
            support_func_cached_guess == other.support_func_cached_guess &&
-           distance_upper_bound == other.distance_upper_bound;
+           distance_upper_bound == other.distance_upper_bound &&
+           gjk_variant == other.gjk_variant;
   }
 
   bool operator!=(const GJKSolver& other) const { return !(*this == other); }
@@ -353,6 +361,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   /// @brief smart guess
   mutable Vec3f cached_guess;
+
+  /// @brief Variant to use for the GJK algorithm
+  mutable GJKVariant gjk_variant;
 
   /// @brief smart guess for the support function
   mutable support_func_guess_t support_func_cached_guess;

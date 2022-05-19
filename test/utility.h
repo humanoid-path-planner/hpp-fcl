@@ -42,6 +42,7 @@
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/broadphase/default_broadphase_callbacks.h>
+#include <hpp/fcl/shape/convex.h>
 
 #ifdef HPP_FCL_HAS_OCTOMAP
 #include <hpp/fcl/octree.h>
@@ -191,6 +192,13 @@ void generateEnvironments(std::vector<CollisionObject*>& env,
 
 void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
                               FCL_REAL env_scale, std::size_t n);
+
+/// @brief We give an ellipsoid as input. The output is a 20 faces polytope
+/// which vertices belong to the original ellipsoid surface. The procedure is
+/// simple: we construct a icosahedron, see
+/// https://sinestesia.co/blog/tutorials/python-icospheres/ . We then apply an
+/// ellipsoid tranformation to each vertex of the icosahedron.
+Convex<Triangle> constructPolytopeFromEllipsoid(const Ellipsoid& ellipsoid);
 
 }  // namespace fcl
 

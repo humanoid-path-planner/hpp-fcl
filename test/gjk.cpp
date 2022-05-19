@@ -47,6 +47,7 @@
 
 using hpp::fcl::FCL_REAL;
 using hpp::fcl::GJKSolver;
+using hpp::fcl::GJKVariant;
 using hpp::fcl::Matrix3f;
 using hpp::fcl::Quaternion3f;
 using hpp::fcl::Transform3f;
@@ -66,13 +67,16 @@ struct Result {
 
 typedef std::vector<Result> Results_t;
 
-BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1) {
+void test_gjk_distance_triangle_triangle(
+    bool enable_gjk_nesterov_acceleration) {
   Eigen::IOFormat numpy(Eigen::FullPrecision, Eigen::DontAlignCols, ", ", ", ",
                         "np.array ((", "))", "", "");
   Eigen::IOFormat tuple(Eigen::FullPrecision, Eigen::DontAlignCols, "", ", ",
                         "", "", "(", ")");
   std::size_t N = 10000;
   GJKSolver solver;
+  if (enable_gjk_nesterov_acceleration)
+    solver.setGJKVariant(GJKVariant::NesterovAcceleration);
   Transform3f tf1, tf2;
   Vec3f p1, p2, a1, a2;
   Matrix3f M;
@@ -307,8 +311,14 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1) {
             << "s" << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1) {
+  test_gjk_distance_triangle_triangle(false);
+  test_gjk_distance_triangle_triangle(true);
+}
+
 void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
-                          bool expect_collision) {
+                          bool expect_collision,
+                          bool use_gjk_nesterov_acceleration) {
   using namespace hpp::fcl;
   Sphere sphere(1.);
 
@@ -323,6 +333,8 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
   BOOST_CHECK_EQUAL(shape.inflation[1], sphere.radius);
 
   details::GJK gjk(2, 1e-6);
+  if (use_gjk_nesterov_acceleration)
+    gjk.setGJKVariant(GJKVariant::NesterovAcceleration);
   details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
 
   if (expect_collision)
@@ -341,18 +353,27 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
 }
 
 BOOST_AUTO_TEST_CASE(sphere_sphere) {
-  test_gjk_unit_sphere(3., Vec3f(1, 0, 0), false);
-  test_gjk_unit_sphere(2.01, Vec3f(1, 0, 0), false);
-  test_gjk_unit_sphere(2., Vec3f(1, 0, 0), true);
-  test_gjk_unit_sphere(1., Vec3f(1, 0, 0), true);
+  test_gjk_unit_sphere(3., Vec3f(1, 0, 0), false, false);
+  test_gjk_unit_sphere(3., Vec3f(1, 0, 0), false, true);
+  test_gjk_unit_sphere(2.01, Vec3f(1, 0, 0), false, false);
+  test_gjk_unit_sphere(2.01, Vec3f(1, 0, 0), false, true);
+  test_gjk_unit_sphere(2., Vec3f(1, 0, 0), true, false);
+  test_gjk_unit_sphere(2., Vec3f(1, 0, 0), true, true);
+  test_gjk_unit_sphere(1., Vec3f(1, 0, 0), true, false);
+  test_gjk_unit_sphere(1., Vec3f(1, 0, 0), true, true);
 
-  test_gjk_unit_sphere(3., Vec3f::Random().normalized(), false);
-  test_gjk_unit_sphere(2.01, Vec3f::Random().normalized(), false);
-  test_gjk_unit_sphere(2., Vec3f::Random().normalized(), true);
-  test_gjk_unit_sphere(1., Vec3f::Random().normalized(), true);
+  test_gjk_unit_sphere(3., Vec3f::Random().normalized(), false, false);
+  test_gjk_unit_sphere(3., Vec3f::Random().normalized(), false, true);
+  test_gjk_unit_sphere(2.01, Vec3f::Random().normalized(), false, false);
+  test_gjk_unit_sphere(2.01, Vec3f::Random().normalized(), false, true);
+  test_gjk_unit_sphere(2., Vec3f::Random().normalized(), true, false);
+  test_gjk_unit_sphere(2., Vec3f::Random().normalized(), true, true);
+  test_gjk_unit_sphere(1., Vec3f::Random().normalized(), true, false);
+  test_gjk_unit_sphere(1., Vec3f::Random().normalized(), true, true);
 }
 
 void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
+                               bool use_gjk_nesterov_acceleration,
                                Vec3f w0_expected, Vec3f w1_expected) {
   using namespace hpp::fcl;
   Capsule capsule(1., 2.);  // Radius 1 and length 2
@@ -368,6 +389,8 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
   BOOST_CHECK_EQUAL(shape.inflation[1], 0.);
 
   details::GJK gjk(10, 1e-6);
+  if (use_gjk_nesterov_acceleration)
+    gjk.setGJKVariant(GJKVariant::NesterovAcceleration);
   details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
 
   if (expect_collision)
@@ -398,14 +421,23 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
 
 BOOST_AUTO_TEST_CASE(triangle_capsule) {
   // GJK -> no collision
-  test_gjk_triangle_capsule(Vec3f(1.01, 0, 0), false, Vec3f(1., 0, 0),
+  test_gjk_triangle_capsule(Vec3f(1.01, 0, 0), false, false, Vec3f(1., 0, 0),
+                            Vec3f(0., 0, 0));
+  // GJK + Nesterov acceleration -> no collision
+  test_gjk_triangle_capsule(Vec3f(1.01, 0, 0), false, true, Vec3f(1., 0, 0),
                             Vec3f(0., 0, 0));
 
   // GJK -> collision
-  test_gjk_triangle_capsule(Vec3f(0.5, 0, 0), true, Vec3f(1., 0, 0),
+  test_gjk_triangle_capsule(Vec3f(0.5, 0, 0), true, false, Vec3f(1., 0, 0),
+                            Vec3f(0., 0, 0));
+  // GJK + Nesterov acceleration -> collision
+  test_gjk_triangle_capsule(Vec3f(0.5, 0, 0), true, true, Vec3f(1., 0, 0),
                             Vec3f(0., 0, 0));
 
   // GJK + EPA -> collision
-  test_gjk_triangle_capsule(Vec3f(-0.5, -0.01, 0), true, Vec3f(0, 1, 0),
+  test_gjk_triangle_capsule(Vec3f(-0.5, -0.01, 0), true, false, Vec3f(0, 1, 0),
+                            Vec3f(0.5, 0, 0));
+  // GJK + Nesterov accleration + EPA -> collision
+  test_gjk_triangle_capsule(Vec3f(-0.5, -0.01, 0), true, true, Vec3f(0, 1, 0),
                             Vec3f(0.5, 0, 0));
 }

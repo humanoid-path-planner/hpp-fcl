@@ -45,7 +45,7 @@ namespace fcl {
 namespace details {
 
 struct HPP_FCL_LOCAL shape_traits_base {
-  enum { NeedNormalizedDir = true };
+  enum { NeedNormalizedDir = true, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <typename Shape>
@@ -53,37 +53,42 @@ struct HPP_FCL_LOCAL shape_traits : shape_traits_base {};
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<TriangleP> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<Box> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<Sphere> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
+};
+
+template <>
+struct HPP_FCL_LOCAL shape_traits<Ellipsoid> : shape_traits_base {
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<Capsule> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<Cone> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<Cylinder> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
 };
 
 template <>
 struct HPP_FCL_LOCAL shape_traits<ConvexBase> : shape_traits_base {
-  enum { NeedNormalizedDir = false };
+  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = true };
 };
 
 void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
@@ -488,10 +493,50 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
   }
 }
 
+bool getNormalizeSupportDirection(const ShapeBase* shape) {
+  switch (shape->getNodeType()) {
+    case GEOM_TRIANGLE:
+      return (bool)shape_traits<TriangleP>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_BOX:
+      return (bool)shape_traits<Box>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_SPHERE:
+      return (bool)shape_traits<Sphere>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_ELLIPSOID:
+      return (bool)shape_traits<Ellipsoid>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_CAPSULE:
+      return (bool)shape_traits<Capsule>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_CONE:
+      return (bool)shape_traits<Cone>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_CYLINDER:
+      return (bool)shape_traits<Cylinder>::NeedNesterovNormalizeHeuristic;
+      break;
+    case GEOM_CONVEX:
+      return (bool)shape_traits<ConvexBase>::NeedNesterovNormalizeHeuristic;
+      break;
+    default:
+      throw std::logic_error("Unsupported geometric shape");
+  }
+}
+
+void getNormalizeSupportDirectionFromShapes(const ShapeBase* shape0,
+                                            const ShapeBase* shape1,
+                                            bool& normalize_support_direction) {
+  normalize_support_direction = getNormalizeSupportDirection(shape0) &&
+                                getNormalizeSupportDirection(shape1);
+}
+
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
                         const Transform3f& tf0, const Transform3f& tf1) {
   shapes[0] = shape0;
   shapes[1] = shape1;
+  getNormalizeSupportDirectionFromShapes(shape0, shape1,
+                                         normalize_support_direction);
 
   oR1 = tf0.getRotation().transpose() * tf1.getRotation();
   ot1 = tf0.getRotation().transpose() *
@@ -506,6 +551,8 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
   shapes[0] = shape0;
   shapes[1] = shape1;
+  getNormalizeSupportDirectionFromShapes(shape0, shape1,
+                                         normalize_support_direction);
 
   oR1.setIdentity();
   ot1.setZero();
@@ -519,6 +566,7 @@ void GJK::initialize() {
   status = Failed;
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
   simplex = NULL;
+  gjk_variant = DefaultGJK;
 }
 
 Vec3f GJK::getGuessFromSimplex() const { return ray; }
@@ -619,8 +667,8 @@ bool GJK::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) {
 
 GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
                           const support_func_guess_t& supportHint) {
-  size_t iterations = 0;
   FCL_REAL alpha = 0;
+  iterations = 0;
   const FCL_REAL inflation = shape_.inflation.sum();
   const FCL_REAL upper_bound = distance_upper_bound + inflation;
 
@@ -644,6 +692,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   } else
     ray = guess;
 
+  // Momentum
+  GJKVariant current_gjk_variant = gjk_variant;
+  Vec3f w = ray;
+  Vec3f dir = ray;
+  Vec3f y;
+  FCL_REAL momentum;
+  bool normalize_support_direction = shape->normalize_support_direction;
   do {
     vertex_id_t next = (vertex_id_t)(1 - current);
     Simplex& curr_simplex = simplices[current];
@@ -663,18 +718,58 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       break;
     }
 
-    appendVertex(curr_simplex, -ray, false,
+    // Compute direction for support call
+    switch (current_gjk_variant) {
+      case DefaultGJK:
+        dir = ray;
+        break;
+
+      case NesterovAcceleration:
+        // Normalize heuristic for collision pairs involving convex but not
+        // strictly-convex shapes This corresponds to most use cases.
+        if (normalize_support_direction) {
+          momentum = (FCL_REAL(iterations) + 2) / (FCL_REAL(iterations) + 3);
+          y = momentum * ray + (1 - momentum) * w;
+          FCL_REAL y_norm = y.norm();
+          // ray is the point of the Minkowski difference which currently the
+          // closest to the origin. Therefore, y.norm() > ray.norm() Hence, if
+          // check A above has not stopped the algorithm, we necessarily have
+          // y.norm() > tolerance. The following assert is just a safety check.
+          assert(y_norm > tolerance);
+          dir = momentum * dir / dir.norm() + (1 - momentum) * y / y_norm;
+        } else {
+          momentum = (FCL_REAL(iterations) + 1) / (FCL_REAL(iterations) + 3);
+          y = momentum * ray + (1 - momentum) * w;
+          dir = momentum * dir + (1 - momentum) * y;
+        }
+        break;
+
+      default:
+        throw std::logic_error("Invalid momentum variant.");
+    }
+
+    appendVertex(curr_simplex, -dir, false,
                  support_hint);  // see below, ray points away from origin
 
     // check removed (by ?): when the new support point is close to previous
     // support points, stop (as the new simplex is degenerated)
-    const Vec3f& w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
+    w = curr_simplex.vertex[curr_simplex.rank - 1]->w;
 
     // check B: no collision if omega > 0
-    FCL_REAL omega = ray.dot(w) / rl;
+    FCL_REAL omega = dir.dot(w) / dir.norm();
     if (omega > upper_bound) {
       distance = omega - inflation;
       break;
+    }
+
+    // Check to remove acceleration
+    if (current_gjk_variant != DefaultGJK) {
+      FCL_REAL frank_wolfe_duality_gap = 2 * ray.dot(ray - w);
+      if (frank_wolfe_duality_gap - tolerance <= 0) {
+        removeVertex(simplices[current]);
+        current_gjk_variant = DefaultGJK;
+        continue;  // continue to next iteration
+      }
     }
 
     // check C: when the new support point is close to the sub-simplex where the
@@ -687,6 +782,10 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     // if(diff - tolerance * rl <= 0)
     if (iterations > 0 && diff - tolerance * rl <= 0) {
       if (iterations > 0) removeVertex(simplices[current]);
+      if (current_gjk_variant != DefaultGJK) {
+        current_gjk_variant = DefaultGJK;
+        continue;
+      }
       distance = rl - inflation;
       // TODO When inflation is strictly positive, the distance may be exactly
       // zero (so the ray is not zero) and we are not in the case rl <
