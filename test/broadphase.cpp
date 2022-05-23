@@ -101,9 +101,9 @@ struct GoogleDenseHashTable
 /// check broad phase distance
 BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_distance) {
   broad_phase_distance_test(200, 100, 100);
-  //  broad_phase_distance_test(200, 1000, 100);
-  //  broad_phase_distance_test(2000, 100, 100);
-  //  broad_phase_distance_test(2000, 1000, 100);
+  broad_phase_distance_test(200, 1000, 100);
+  broad_phase_distance_test(2000, 100, 100);
+  broad_phase_distance_test(2000, 1000, 100);
 }
 
 /// check broad phase self distance
@@ -114,19 +114,19 @@ BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_self_distance) {
 }
 
 /// check broad phase distance
-// BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_distance_mesh) {
-//#ifdef FCL_BUILD_TYPE_DEBUG
-//   broad_phase_distance_test(200, 10, 10, true);
-//   broad_phase_distance_test(200, 100, 10, true);
-//   broad_phase_distance_test(2000, 10, 10, true);
-//   broad_phase_distance_test(2000, 100, 10, true);
-//#else
-//   broad_phase_distance_test(200, 100, 100, true);
-//   broad_phase_distance_test(200, 1000, 100, true);
-//   broad_phase_distance_test(2000, 100, 100, true);
-//   broad_phase_distance_test(2000, 1000, 100, true);
-//#endif
-// }
+BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_distance_mesh) {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  broad_phase_distance_test(200, 10, 10, true);
+  broad_phase_distance_test(200, 100, 10, true);
+  broad_phase_distance_test(2000, 10, 10, true);
+  broad_phase_distance_test(2000, 100, 10, true);
+#else
+  broad_phase_distance_test(200, 100, 100, true);
+  broad_phase_distance_test(200, 1000, 100, true);
+  broad_phase_distance_test(2000, 100, 100, true);
+  broad_phase_distance_test(2000, 1000, 100, true);
+#endif
+}
 
 /// check broad phase self distance
 BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_self_distance_mesh) {
