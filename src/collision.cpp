@@ -164,7 +164,7 @@ std::size_t ComputeCollision::run(const Transform3f& tf1,
                                   const Transform3f& tf2,
                                   const CollisionRequest& request,
                                   CollisionResult& result) const {
-  // If securit margin is set to -infinity, return that there is no collision
+  // If security margin is set to -infinity, return that there is no collision
   if (request.security_margin == -std::numeric_limits<FCL_REAL>::infinity()) {
     result.clear();
     return false;
