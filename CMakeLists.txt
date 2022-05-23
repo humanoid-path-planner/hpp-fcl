@@ -167,6 +167,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/BV/AABB.h
   include/hpp/fcl/BV/OBB.h
   include/hpp/fcl/BV/kDOP.h
+  include/hpp/fcl/broadphase/broadphase.h
   include/hpp/fcl/broadphase/broadphase_SSaP.h
   include/hpp/fcl/broadphase/broadphase_SaP.h
   include/hpp/fcl/broadphase/broadphase_bruteforce.h
