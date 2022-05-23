@@ -1985,7 +1985,7 @@ inline bool boxSphereDistance(const Box& b, const Transform3f& tfb,
       }
     }
   }
-  normal.noalias() = pb - os;
+  normal = pb - os;
   FCL_REAL pdist = normal.norm();
   if (outside) {  // pb is on the box
     dist = pdist - s.radius;
