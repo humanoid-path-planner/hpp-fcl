@@ -398,6 +398,7 @@ void generateEnvironments(std::vector<CollisionObject*>& env,
     Box* box = new Box(5, 10, 20);
     env.push_back(
         new CollisionObject(shared_ptr<CollisionGeometry>(box), transforms[i]));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 
   generateRandomTransforms(extents, transforms, n);
@@ -405,6 +406,7 @@ void generateEnvironments(std::vector<CollisionObject*>& env,
     Sphere* sphere = new Sphere(30);
     env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(sphere),
                                       transforms[i]));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 
   generateRandomTransforms(extents, transforms, n);
@@ -412,6 +414,7 @@ void generateEnvironments(std::vector<CollisionObject*>& env,
     Cylinder* cylinder = new Cylinder(10, 40);
     env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(cylinder),
                                       transforms[i]));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 }
 
@@ -428,6 +431,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
     generateBVHModel(*model, box, Transform3f::Identity());
     env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model),
                                       transforms[i]));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 
   generateRandomTransforms(extents, transforms, n);
@@ -437,6 +441,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
     generateBVHModel(*model, sphere, Transform3f::Identity(), 16, 16);
     env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model),
                                       transforms[i]));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 
   generateRandomTransforms(extents, transforms, n);
@@ -446,6 +451,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
     generateBVHModel(*model, cylinder, Transform3f::Identity(), 16, 16);
     env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model),
                                       transforms[i]));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 }
 

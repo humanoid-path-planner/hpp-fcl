@@ -156,6 +156,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
@@ -170,6 +171,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
@@ -184,6 +186,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
@@ -198,6 +201,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 }
 
@@ -224,6 +228,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env,
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
@@ -240,6 +245,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env,
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
@@ -256,6 +262,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env,
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
@@ -272,6 +279,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env,
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
+    env.back()->collisionGeometry()->computeLocalAABB();
   }
 }
 
