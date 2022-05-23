@@ -95,8 +95,8 @@ struct GoogleDenseHashTable
 };
 #endif
 
-// TODO(jcarpent): fix these tests
-// (test_core_bf_broad_phase_distance,test_core_mesh_bf_broad_phase_distance_mesh)
+// TODO(jcarpent): fix this test
+//  - test_core_bf_broad_phase_distance
 
 /// check broad phase distance
 BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_distance) {
