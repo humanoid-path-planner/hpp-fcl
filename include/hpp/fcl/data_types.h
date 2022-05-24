@@ -74,6 +74,16 @@ typedef Eigen::Vector2i support_func_guess_t;
 /// @brief Variant to use for the GJK algorithm
 enum GJKVariant { DefaultGJK, NesterovAcceleration };
 
+/// @brief Which convergence criterion is used to stop the algorithm (when the
+/// shapes are not in collision). (default) VDB: Van den Bergen (A Fast and
+/// Robust GJK Implementation, 1999) DG: duality-gap, as used in the Frank-Wolfe
+/// and the vanilla 1988 GJK algorithms Hybrid: a mix between VDB and DG.
+enum GJKConvergenceCriterion { VDB, DualityGap, Hybrid };
+
+/// @brief Wether the convergence criterion is scaled on the norm of the
+/// solution or not
+enum GJKConvergenceCriterionType { Relative, Absolute };
+
 /// @brief Triangle with 3 indices for points
 class HPP_FCL_DLLAPI Triangle {
  public:
