@@ -161,6 +161,10 @@ struct HPP_FCL_DLLAPI GJK {
     Simplex() {}
   };
 
+  /// @brief Status of the GJK algorithm:
+  /// Valid: GJK converged and the shapes are not in collision.
+  /// Inside: GJK converged and the shapes are in collision.
+  /// Failed: GJK did not converge.
   enum Status { Valid, Inside, Failed };
 
   MinkowskiDiff const* shape;
