@@ -91,7 +91,8 @@ void exposeGJK() {
         .export_values();
   }
 
-  if (!eigenpy::register_symbolic_link_to_registered_type<GJKConvergenceCriterion>()) {
+  if (!eigenpy::register_symbolic_link_to_registered_type<
+          GJKConvergenceCriterion>()) {
     enum_<GJKConvergenceCriterion>("GJKConvergenceCriterion")
         .value("VDB", GJKConvergenceCriterion::VDB)
         .value("DualityGap", GJKConvergenceCriterion::DualityGap)
@@ -99,7 +100,8 @@ void exposeGJK() {
         .export_values();
   }
 
-  if (!eigenpy::register_symbolic_link_to_registered_type<GJKConvergenceCriterionType>()) {
+  if (!eigenpy::register_symbolic_link_to_registered_type<
+          GJKConvergenceCriterionType>()) {
     enum_<GJKConvergenceCriterionType>("GJKConvergenceCriterionType")
         .value("Absolute", GJKConvergenceCriterionType::Absolute)
         .value("Relative", GJKConvergenceCriterionType::Relative)
