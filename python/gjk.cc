@@ -91,6 +91,21 @@ void exposeGJK() {
         .export_values();
   }
 
+  if (!eigenpy::register_symbolic_link_to_registered_type<GJKConvergenceCriterion>()) {
+    enum_<GJKConvergenceCriterion>("GJKConvergenceCriterion")
+        .value("VDB", GJKConvergenceCriterion::VDB)
+        .value("DualityGap", GJKConvergenceCriterion::DualityGap)
+        .value("Hybrid", GJKConvergenceCriterion::Hybrid)
+        .export_values();
+  }
+
+  if (!eigenpy::register_symbolic_link_to_registered_type<GJKConvergenceCriterionType>()) {
+    enum_<GJKConvergenceCriterionType>("GJKConvergenceCriterionType")
+        .value("Absolute", GJKConvergenceCriterionType::Absolute)
+        .value("Relative", GJKConvergenceCriterionType::Relative)
+        .export_values();
+  }
+
   if (!eigenpy::register_symbolic_link_to_registered_type<GJK>()) {
     class_<GJK>("GJK", doxygen::class_doc<GJK>(), no_init)
         .def(doxygen::visitor::init<GJK, unsigned int, FCL_REAL>())
