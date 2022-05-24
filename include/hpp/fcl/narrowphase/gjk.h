@@ -98,7 +98,10 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
                                      ShapeData data[2]);
   GetSupportFunction getSupportFunc;
 
-  MinkowskiDiff() : linear_log_convex_threshold(32), getSupportFunc(NULL) {}
+  MinkowskiDiff()
+      : linear_log_convex_threshold(32),
+        getSupportFunc(NULL),
+        normalize_support_direction(false) {}
 
   /// Set the two shapes,
   /// assuming the relative transformation between them is identity.
