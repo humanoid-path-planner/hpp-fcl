@@ -72,6 +72,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
     gjk.setDistanceEarlyBreak(distance_upper_bound);
 
     gjk.setGJKVariant(gjk_variant);
+    gjk.setConvergenceCriterion(convergence_criterion);
+    gjk.setConvergenceCriterionType(convergence_criterion_type);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {
@@ -231,6 +233,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
     gjk.setDistanceEarlyBreak(distance_upper_bound);
 
     gjk.setGJKVariant(gjk_variant);
+    gjk.setConvergenceCriterion(convergence_criterion);
+    gjk.setConvergenceCriterionType(convergence_criterion_type);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {
@@ -310,7 +314,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
     distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
-    gjk_variant = DefaultGJK;
+    gjk_variant = GJKVariant::DefaultGJK;
+    convergence_criterion = GJKConvergenceCriterion::VDB;
+    convergence_criterion_type = GJKConvergenceCriterionType::Relative;
   }
 
   void enableCachedGuess(bool if_enable) const {
@@ -323,6 +329,16 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   void setGJKVariant(const GJKVariant& variant) const { gjk_variant = variant; }
 
+  void setGJKConvergenceCriterion(
+      const GJKConvergenceCriterion& criterion) const {
+    convergence_criterion = criterion;
+  }
+
+  void setGJKConvergenceCriterionType(
+      const GJKConvergenceCriterionType& criterion_type) const {
+    convergence_criterion_type = criterion_type;
+  }
+
   bool operator==(const GJKSolver& other) const {
     return epa_max_face_num == other.epa_max_face_num &&
            epa_max_vertex_num == other.epa_max_vertex_num &&
@@ -333,7 +349,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
            cached_guess == other.cached_guess &&
            support_func_cached_guess == other.support_func_cached_guess &&
            distance_upper_bound == other.distance_upper_bound &&
-           gjk_variant == other.gjk_variant;
+           gjk_variant == other.gjk_variant &&
+           convergence_criterion == other.convergence_criterion &&
+           convergence_criterion_type == other.convergence_criterion_type;
   }
 
   bool operator!=(const GJKSolver& other) const { return !(*this == other); }
@@ -364,6 +382,12 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   /// @brief Variant to use for the GJK algorithm
   mutable GJKVariant gjk_variant;
+
+  /// @brief Criterion used to stop GJK
+  mutable GJKConvergenceCriterion convergence_criterion;
+
+  /// @brief Relative or absolute
+  mutable GJKConvergenceCriterionType convergence_criterion_type;
 
   /// @brief smart guess for the support function
   mutable support_func_guess_t support_func_cached_guess;

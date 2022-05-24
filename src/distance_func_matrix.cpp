@@ -78,6 +78,8 @@ FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
   const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
 
   nsolver->setGJKVariant(request.gjk_variant);
+  nsolver->setGJKConvergenceCriterion(request.convergence_criterion);
+  nsolver->setGJKConvergenceCriterionType(request.convergence_criterion_type);
 
   initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
   distance(&node);
