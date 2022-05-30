@@ -1,7 +1,7 @@
 /*
  *  Software License Agreement (BSD License)
  *
- *  Copyright (c) 2022, CNRS-LAAS INRIA
+ *  Copyright (c) 2022, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@ using hpp::fcl::constructPolytopeFromEllipsoid;
 using hpp::fcl::Convex;
 using hpp::fcl::Ellipsoid;
 using hpp::fcl::FCL_REAL;
+using hpp::fcl::GJKSolver;
 using hpp::fcl::GJKVariant;
 using hpp::fcl::ShapeBase;
 using hpp::fcl::support_func_guess_t;
@@ -59,6 +60,26 @@ using hpp::fcl::Vec3f;
 using hpp::fcl::details::GJK;
 using hpp::fcl::details::MinkowskiDiff;
 using std::size_t;
+
+BOOST_AUTO_TEST_CASE(set_gjk_variant) {
+  GJKSolver solver;
+  GJK gjk(128, 1e-6);
+  MinkowskiDiff shape;
+
+  // Checking defaults
+  BOOST_CHECK(solver.gjk_variant == GJKVariant::DefaultGJK);
+  BOOST_CHECK(gjk.getGJKVariant() == GJKVariant::DefaultGJK);
+  BOOST_CHECK(shape.normalize_support_direction == false);
+
+  // Checking set
+  solver.setGJKVariant(GJKVariant::NesterovAcceleration);
+  gjk.setGJKVariant(GJKVariant::NesterovAcceleration);
+  shape.setNormalizeSupportDirection(true);
+
+  BOOST_CHECK(solver.gjk_variant == GJKVariant::NesterovAcceleration);
+  BOOST_CHECK(gjk.getGJKVariant() == GJKVariant::NesterovAcceleration);
+  BOOST_CHECK(shape.normalize_support_direction == true);
+}
 
 BOOST_AUTO_TEST_CASE(need_nesterov_normalize_support_direction) {
   Ellipsoid ellipsoid = Ellipsoid(1, 1, 1);

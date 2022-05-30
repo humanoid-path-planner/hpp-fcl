@@ -86,8 +86,25 @@ void exposeGJK() {
 
   if (!eigenpy::register_symbolic_link_to_registered_type<GJKVariant>()) {
     enum_<GJKVariant>("GJKVariant")
-        .value("DefaultGJK", DefaultGJK)
-        .value("NesterovAcceleration", NesterovAcceleration)
+        .value("DefaultGJK", GJKVariant::DefaultGJK)
+        .value("NesterovAcceleration", GJKVariant::NesterovAcceleration)
+        .export_values();
+  }
+
+  if (!eigenpy::register_symbolic_link_to_registered_type<
+          GJKConvergenceCriterion>()) {
+    enum_<GJKConvergenceCriterion>("GJKConvergenceCriterion")
+        .value("VDB", GJKConvergenceCriterion::VDB)
+        .value("DualityGap", GJKConvergenceCriterion::DualityGap)
+        .value("Hybrid", GJKConvergenceCriterion::Hybrid)
+        .export_values();
+  }
+
+  if (!eigenpy::register_symbolic_link_to_registered_type<
+          GJKConvergenceCriterionType>()) {
+    enum_<GJKConvergenceCriterionType>("GJKConvergenceCriterionType")
+        .value("Absolute", GJKConvergenceCriterionType::Absolute)
+        .value("Relative", GJKConvergenceCriterionType::Relative)
         .export_values();
   }
 

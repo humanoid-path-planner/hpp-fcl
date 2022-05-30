@@ -78,6 +78,8 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
   GJKSolver solver;
   solver.enable_cached_guess = request.enable_cached_gjk_guess;
   solver.setGJKVariant(request.gjk_variant);
+  solver.setGJKConvergenceCriterion(request.convergence_criterion);
+  solver.setGJKConvergenceCriterionType(request.convergence_criterion_type);
   if (solver.enable_cached_guess) {
     solver.cached_guess = request.cached_gjk_guess;
     solver.support_func_cached_guess = request.cached_support_func_guess;

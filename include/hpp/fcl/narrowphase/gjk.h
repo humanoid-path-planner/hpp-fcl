@@ -98,7 +98,10 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
                                      ShapeData data[2]);
   GetSupportFunction getSupportFunc;
 
-  MinkowskiDiff() : linear_log_convex_threshold(32), getSupportFunc(NULL) {}
+  MinkowskiDiff()
+      : linear_log_convex_threshold(32),
+        getSupportFunc(NULL),
+        normalize_support_direction(false) {}
 
   /// Set the two shapes,
   /// assuming the relative transformation between them is identity.
@@ -161,6 +164,10 @@ struct HPP_FCL_DLLAPI GJK {
     Simplex() {}
   };
 
+  /// @brief Status of the GJK algorithm:
+  /// Valid: GJK converged and the shapes are not in collision.
+  /// Inside: GJK converged and the shapes are in collision.
+  /// Failed: GJK did not converge.
   enum Status { Valid, Inside, Failed };
 
   MinkowskiDiff const* shape;
@@ -244,6 +251,28 @@ struct HPP_FCL_DLLAPI GJK {
 
   /// @brief Set which GJK version to use. Default is Vanilla.
   inline void setGJKVariant(GJKVariant variant) { gjk_variant = variant; }
+  inline GJKVariant getGJKVariant() { return gjk_variant; }
+
+  /// @brief Convergence check used to stop GJK when shapes are not in
+  /// collision.
+  bool checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
+                        const FCL_REAL& omega);
+
+  inline void setConvergenceCriterion(
+      const GJKConvergenceCriterion& criterion) {
+    convergence_criterion = criterion;
+  }
+  inline GJKConvergenceCriterion getConvergenceCriterion() {
+    return convergence_criterion;
+  }
+
+  inline void setConvergenceCriterionType(
+      const GJKConvergenceCriterionType& criterion_type) {
+    convergence_criterion_type = criterion_type;
+  }
+  inline GJKConvergenceCriterionType getConvergenceCriterionType() {
+    return convergence_criterion_type;
+  }
 
   /// @brief Get GJK number of iterations.
   inline size_t getIterations() { return iterations; }
@@ -261,6 +290,8 @@ struct HPP_FCL_DLLAPI GJK {
   FCL_REAL distance_upper_bound;
   GJKVariant gjk_variant;
   size_t iterations;
+  GJKConvergenceCriterion convergence_criterion;
+  GJKConvergenceCriterionType convergence_criterion_type;
 
   /// @brief discard one vertex from the simplex
   inline void removeVertex(Simplex& simplex);

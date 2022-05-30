@@ -566,7 +566,9 @@ void GJK::initialize() {
   status = Failed;
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
   simplex = NULL;
-  gjk_variant = DefaultGJK;
+  gjk_variant = GJKVariant::DefaultGJK;
+  convergence_criterion = GJKConvergenceCriterion::VDB;
+  convergence_criterion_type = GJKConvergenceCriterionType::Relative;
 }
 
 Vec3f GJK::getGuessFromSimplex() const { return ray; }
@@ -774,13 +776,11 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 
     // check C: when the new support point is close to the sub-simplex where the
     // ray point lies, stop (as the new simplex again is degenerated)
-    alpha = std::max(alpha, omega);
-    FCL_REAL diff(rl - alpha);
-    if (iterations == 0) diff = std::abs(diff);
+    bool cv_check_passed = checkConvergence(w, rl, alpha, omega);
     // TODO here, we can stop at iteration 0 if this condition is met.
     // We stopping at iteration 0, the closest point will not be valid.
     // if(diff - tolerance * rl <= 0)
-    if (iterations > 0 && diff - tolerance * rl <= 0) {
+    if (iterations > 0 && cv_check_passed) {
       if (iterations > 0) removeVertex(simplices[current]);
       if (current_gjk_variant != DefaultGJK) {
         current_gjk_variant = DefaultGJK;
@@ -833,6 +833,71 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   simplex = &simplices[current];
   assert(simplex->rank > 0 && simplex->rank < 5);
   return status;
+}
+
+bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
+                           const FCL_REAL& omega) {
+  FCL_REAL diff;
+  bool check_passed;
+  // x^* is the optimal solution (projection of origin onto the Minkowski
+  // difference).
+  //  x^k is the current iterate (x^k = `ray` in the code).
+  // Each criterion provides a different guarantee on the distance to the
+  // optimal solution.
+  switch (convergence_criterion) {
+    case VDB:
+      // alpha is the distance to the best separating hyperplane found so far
+      alpha = std::max(alpha, omega);
+      // ||x^*|| - ||x^k|| <= diff
+      diff = rl - alpha;
+      switch (convergence_criterion_type) {
+        case Absolute:
+          throw std::logic_error("VDB convergence criterion is relative.");
+          break;
+        case Relative:
+          check_passed = (diff - tolerance * rl) <= 0;
+          break;
+        default:
+          throw std::logic_error("Invalid convergence criterion type.");
+      }
+      break;
+
+    case DualityGap:
+      // ||x^* - x^k||^2 <= diff
+      diff = 2 * ray.dot(ray - w);
+      switch (convergence_criterion_type) {
+        case Absolute:
+          check_passed = (diff - tolerance) <= 0;
+          break;
+        case Relative:
+          check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
+          break;
+        default:
+          throw std::logic_error("Invalid convergence criterion type.");
+      }
+      break;
+
+    case Hybrid:
+      // alpha is the distance to the best separating hyperplane found so far
+      alpha = std::max(alpha, omega);
+      // ||x^* - x^k||^2 <= diff
+      diff = rl * rl - alpha * alpha;
+      switch (convergence_criterion_type) {
+        case Absolute:
+          check_passed = (diff - tolerance) <= 0;
+          break;
+        case Relative:
+          check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
+          break;
+        default:
+          throw std::logic_error("Invalid convergence criterion type.");
+      }
+      break;
+
+    default:
+      throw std::logic_error("Invalid convergence criterion.");
+  }
+  return check_passed;
 }
 
 inline void GJK::removeVertex(Simplex& simplex) {

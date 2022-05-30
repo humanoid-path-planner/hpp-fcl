@@ -123,6 +123,12 @@ struct HPP_FCL_DLLAPI QueryRequest {
   /// @brief whether to enable the Nesterov accleration of GJK
   GJKVariant gjk_variant;
 
+  /// @brief convergence criterion used to stop GJK
+  GJKConvergenceCriterion convergence_criterion;
+
+  /// @brief convergence criterion used to stop GJK
+  GJKConvergenceCriterionType convergence_criterion_type;
+
   /// @brief the gjk initial guess set by user
   Vec3f cached_gjk_guess;
 
@@ -135,6 +141,8 @@ struct HPP_FCL_DLLAPI QueryRequest {
   QueryRequest()
       : enable_cached_gjk_guess(false),
         gjk_variant(GJKVariant::DefaultGJK),
+        convergence_criterion(GJKConvergenceCriterion::VDB),
+        convergence_criterion_type(GJKConvergenceCriterionType::Relative),
         cached_gjk_guess(1, 0, 0),
         cached_support_func_guess(support_func_guess_t::Zero()),
         enable_timings(false) {}
