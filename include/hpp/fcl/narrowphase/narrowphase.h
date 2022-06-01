@@ -369,10 +369,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
   FCL_REAL epa_tolerance;
 
   /// @brief the threshold used in GJK to stop iteration
-  FCL_REAL gjk_tolerance;
+  mutable FCL_REAL gjk_tolerance;
 
   /// @brief maximum number of iterations used for GJK iterations
-  FCL_REAL gjk_max_iterations;
+  mutable size_t gjk_max_iterations;
 
   /// @brief Whether smart guess can be provided
   mutable bool enable_cached_guess;

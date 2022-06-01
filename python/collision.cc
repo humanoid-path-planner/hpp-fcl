@@ -81,6 +81,8 @@ void exposeCollisionAPI() {
   if (!eigenpy::register_symbolic_link_to_registered_type<QueryRequest>()) {
     class_<QueryRequest>("QueryRequest", doxygen::class_doc<QueryRequest>(),
                          no_init)
+        .DEF_RW_CLASS_ATTRIB(QueryRequest, gjk_tolerance)
+        .DEF_RW_CLASS_ATTRIB(QueryRequest, gjk_max_iterations)
         .DEF_RW_CLASS_ATTRIB(QueryRequest, enable_cached_gjk_guess)
         .DEF_RW_CLASS_ATTRIB(QueryRequest, cached_gjk_guess)
         .DEF_RW_CLASS_ATTRIB(QueryRequest, cached_support_func_guess)
