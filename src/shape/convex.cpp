@@ -21,6 +21,28 @@ using orgQhull::QhullVertexSet;
 namespace hpp {
 namespace fcl {
 
+// Reorders `tri` such that the dot product between the normal of triangle and
+// the vector `triangle barycentre - convex_tri.center` is positive.
+void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
+  Vec3f p0, p1, p2;
+  p0 = convex_tri->points[tri[0]];
+  p1 = convex_tri->points[tri[1]];
+  p2 = convex_tri->points[tri[2]];
+
+  Vec3f barycentre_tri, center_barycenter;
+  barycentre_tri = (p0 + p1 + p2) / 3;
+  center_barycenter = barycentre_tri - convex_tri->center;
+
+  Vec3f edge_tri1, edge_tri2, n_tri;
+  edge_tri1 = p1 - p0;
+  edge_tri2 = p2 - p1;
+  n_tri = edge_tri1.cross(edge_tri2);
+
+  if (center_barycenter.dot(n_tri) < 0) {
+    tri.set(tri[1], tri[0], tri[2]);
+  }
+}
+
 ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
                                    bool keepTriangles,
                                    const char* qhullCommand) {
@@ -76,6 +98,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   if (keepTriangles) {
     convex_tri->num_polygons = qh.facetCount();
     convex_tri->polygons = new Triangle[convex_tri->num_polygons];
+    convex_tri->computeCenter();
   }
 
   unsigned int c_nneighbors = 0;
@@ -92,7 +115,10 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
       Triangle tri(pts_to_vertices[f_vertices[0].point().id()],
                    pts_to_vertices[f_vertices[1].point().id()],
                    pts_to_vertices[f_vertices[2].point().id()]);
-      if (keepTriangles) convex_tri->polygons[i_polygon++] = tri;
+      if (keepTriangles) {
+        reorderTriangle(convex_tri, tri);
+        convex_tri->polygons[i_polygon++] = tri;
+      }
       for (size_type j = 0; j < n; ++j) {
         size_type i = (j == 0) ? n - 1 : j - 1;
         size_type k = (j == n - 1) ? 0 : j + 1;
