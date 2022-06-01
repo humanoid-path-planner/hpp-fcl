@@ -124,16 +124,17 @@ struct HPP_FCL_DLLAPI QueryRequest {
   GJKVariant gjk_variant;
 
   /// @brief convergence criterion used to stop GJK
-  GJKConvergenceCriterion convergence_criterion;
+  GJKConvergenceCriterion gjk_convergence_criterion;
 
   /// @brief convergence criterion used to stop GJK
-  GJKConvergenceCriterionType convergence_criterion_type;
+  GJKConvergenceCriterionType gjk_convergence_criterion_type;
 
   /// @brief tolerance for the GJK algorithm
   FCL_REAL gjk_tolerance;
 
   /// @brief maximum iteration for the GJK algorithm
   size_t gjk_max_iterations;
+
   /// @brief the gjk initial guess set by user
   Vec3f cached_gjk_guess;
 
@@ -146,8 +147,8 @@ struct HPP_FCL_DLLAPI QueryRequest {
   QueryRequest()
       : enable_cached_gjk_guess(false),
         gjk_variant(GJKVariant::DefaultGJK),
-        convergence_criterion(GJKConvergenceCriterion::VDB),
-        convergence_criterion_type(GJKConvergenceCriterionType::Relative),
+        gjk_convergence_criterion(GJKConvergenceCriterion::VDB),
+        gjk_convergence_criterion_type(GJKConvergenceCriterionType::Relative),
         gjk_tolerance(1e-6),
         gjk_max_iterations(128),
         cached_gjk_guess(1, 0, 0),

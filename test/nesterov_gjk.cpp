@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(set_gjk_variant) {
   BOOST_CHECK(shape.normalize_support_direction == false);
 
   // Checking set
-  solver.setGJKVariant(GJKVariant::NesterovAcceleration);
+  solver.gjk_variant = GJKVariant::NesterovAcceleration;
   gjk.setGJKVariant(GJKVariant::NesterovAcceleration);
   shape.setNormalizeSupportDirection(true);
 

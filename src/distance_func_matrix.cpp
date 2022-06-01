@@ -77,9 +77,10 @@ FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
   const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
   const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
 
-  nsolver->setGJKVariant(request.gjk_variant);
-  nsolver->setGJKConvergenceCriterion(request.convergence_criterion);
-  nsolver->setGJKConvergenceCriterionType(request.convergence_criterion_type);
+  nsolver->gjk_variant = request.gjk_variant;
+  nsolver->gjk_convergence_criterion = request.gjk_convergence_criterion;
+  nsolver->gjk_convergence_criterion_type =
+      request.gjk_convergence_criterion_type;
   nsolver->gjk_tolerance = request.gjk_tolerance;
   nsolver->gjk_max_iterations = request.gjk_max_iterations;
 
