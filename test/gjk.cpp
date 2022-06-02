@@ -334,7 +334,7 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
 
   details::GJK gjk(2, 1e-6);
   if (use_gjk_nesterov_acceleration)
-    gjk.setGJKVariant(GJKVariant::NesterovAcceleration);
+    gjk.gjk_variant = GJKVariant::NesterovAcceleration;
   details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
 
   if (expect_collision)
@@ -390,7 +390,7 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
 
   details::GJK gjk(10, 1e-6);
   if (use_gjk_nesterov_acceleration)
-    gjk.setGJKVariant(GJKVariant::NesterovAcceleration);
+    gjk.gjk_variant = GJKVariant::NesterovAcceleration;
   details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
 
   if (expect_collision)

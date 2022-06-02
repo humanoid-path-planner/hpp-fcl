@@ -71,9 +71,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     gjk.setDistanceEarlyBreak(distance_upper_bound);
 
-    gjk.setGJKVariant(gjk_variant);
-    gjk.setConvergenceCriterion(gjk_convergence_criterion);
-    gjk.setConvergenceCriterionType(gjk_convergence_criterion_type);
+    gjk.gjk_variant = gjk_variant;
+    gjk.convergence_criterion = gjk_convergence_criterion;
+    gjk.convergence_criterion_type = gjk_convergence_criterion_type;
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {
@@ -232,9 +232,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     gjk.setDistanceEarlyBreak(distance_upper_bound);
 
-    gjk.setGJKVariant(gjk_variant);
-    gjk.setConvergenceCriterion(gjk_convergence_criterion);
-    gjk.setConvergenceCriterionType(gjk_convergence_criterion_type);
+    gjk.gjk_variant = gjk_variant;
+    gjk.convergence_criterion = gjk_convergence_criterion;
+    gjk.convergence_criterion_type = gjk_convergence_criterion_type;
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (enable_cached_guess) {

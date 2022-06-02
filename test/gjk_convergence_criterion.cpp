@@ -69,24 +69,23 @@ BOOST_AUTO_TEST_CASE(set_cv_criterion) {
   BOOST_CHECK(solver.gjk_convergence_criterion_type ==
               GJKConvergenceCriterionType::Relative);
 
-  BOOST_CHECK(gjk.getConvergenceCriterion() == GJKConvergenceCriterion::VDB);
-  BOOST_CHECK(gjk.getConvergenceCriterionType() ==
+  BOOST_CHECK(gjk.convergence_criterion == GJKConvergenceCriterion::VDB);
+  BOOST_CHECK(gjk.convergence_criterion_type ==
               GJKConvergenceCriterionType::Relative);
 
   // Checking set
   solver.gjk_convergence_criterion = GJKConvergenceCriterion::DualityGap;
-  gjk.setConvergenceCriterion(GJKConvergenceCriterion::DualityGap);
+  gjk.convergence_criterion = GJKConvergenceCriterion::DualityGap;
   solver.gjk_convergence_criterion_type = GJKConvergenceCriterionType::Absolute;
-  gjk.setConvergenceCriterionType(GJKConvergenceCriterionType::Absolute);
+  gjk.convergence_criterion_type = GJKConvergenceCriterionType::Absolute;
 
   BOOST_CHECK(solver.gjk_convergence_criterion ==
               GJKConvergenceCriterion::DualityGap);
   BOOST_CHECK(solver.gjk_convergence_criterion_type ==
               GJKConvergenceCriterionType::Absolute);
 
-  BOOST_CHECK(gjk.getConvergenceCriterion() ==
-              GJKConvergenceCriterion::DualityGap);
-  BOOST_CHECK(gjk.getConvergenceCriterionType() ==
+  BOOST_CHECK(gjk.convergence_criterion == GJKConvergenceCriterion::DualityGap);
+  BOOST_CHECK(gjk.convergence_criterion_type ==
               GJKConvergenceCriterionType::Absolute);
 }
 
@@ -111,12 +110,12 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
   }
 
   GJK gjk2(max_iterations, tol);
-  gjk2.setConvergenceCriterion(GJKConvergenceCriterion::DualityGap);
-  gjk2.setConvergenceCriterionType(cv_type);
+  gjk2.convergence_criterion = GJKConvergenceCriterion::DualityGap;
+  gjk2.convergence_criterion_type = cv_type;
 
   GJK gjk3(max_iterations, tol);
-  gjk3.setConvergenceCriterion(GJKConvergenceCriterion::Hybrid);
-  gjk3.setConvergenceCriterionType(cv_type);
+  gjk3.convergence_criterion = GJKConvergenceCriterion::Hybrid;
+  gjk3.convergence_criterion_type = cv_type;
 
   // Minkowski difference
   MinkowskiDiff mink_diff;

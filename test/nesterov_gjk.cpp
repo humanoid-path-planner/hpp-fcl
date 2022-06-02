@@ -68,16 +68,16 @@ BOOST_AUTO_TEST_CASE(set_gjk_variant) {
 
   // Checking defaults
   BOOST_CHECK(solver.gjk_variant == GJKVariant::DefaultGJK);
-  BOOST_CHECK(gjk.getGJKVariant() == GJKVariant::DefaultGJK);
+  BOOST_CHECK(gjk.gjk_variant == GJKVariant::DefaultGJK);
   BOOST_CHECK(shape.normalize_support_direction == false);
 
   // Checking set
   solver.gjk_variant = GJKVariant::NesterovAcceleration;
-  gjk.setGJKVariant(GJKVariant::NesterovAcceleration);
+  gjk.gjk_variant = GJKVariant::NesterovAcceleration;
   shape.setNormalizeSupportDirection(true);
 
   BOOST_CHECK(solver.gjk_variant == GJKVariant::NesterovAcceleration);
-  BOOST_CHECK(gjk.getGJKVariant() == GJKVariant::NesterovAcceleration);
+  BOOST_CHECK(gjk.gjk_variant == GJKVariant::NesterovAcceleration);
   BOOST_CHECK(shape.normalize_support_direction == true);
 }
 
@@ -105,7 +105,7 @@ void test_nesterov_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
   FCL_REAL tolerance = 1e-6;
   GJK gjk(max_iterations, tolerance);
   GJK gjk_nesterov(max_iterations, tolerance);
-  gjk_nesterov.setGJKVariant(GJKVariant::NesterovAcceleration);
+  gjk_nesterov.gjk_variant = GJKVariant::NesterovAcceleration;
 
   // Minkowski difference
   MinkowskiDiff mink_diff;
