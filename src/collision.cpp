@@ -217,6 +217,12 @@ std::size_t ComputeCollision::operator()(const Transform3f& tf1,
   }
 
   solver.distance_upper_bound = request.distance_upper_bound;
+  solver.gjk_tolerance = request.gjk_tolerance;
+  solver.gjk_max_iterations = request.gjk_max_iterations;
+  solver.gjk_variant = request.gjk_variant;
+  solver.gjk_convergence_criterion = request.gjk_convergence_criterion;
+  solver.gjk_convergence_criterion_type =
+      request.gjk_convergence_criterion_type;
 
   std::size_t res;
   if (request.enable_timings) {

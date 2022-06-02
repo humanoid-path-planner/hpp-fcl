@@ -201,6 +201,13 @@ FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
     solver.support_func_cached_guess = request.cached_support_func_guess;
   }
 
+  solver.gjk_tolerance = request.gjk_tolerance;
+  solver.gjk_max_iterations = request.gjk_max_iterations;
+  solver.gjk_variant = request.gjk_variant;
+  solver.gjk_convergence_criterion = request.gjk_convergence_criterion;
+  solver.gjk_convergence_criterion_type =
+      request.gjk_convergence_criterion_type;
+
   FCL_REAL res;
   if (request.enable_timings) {
     Timer timer;
