@@ -61,6 +61,8 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                   const CollisionGeometry* o2, const Transform3f& tf2,
                   const DistanceRequest& request, DistanceResult& result) {
   GJKSolver solver;
+  solver.gjk_initial_guess = request.gjk_initial_guess;
+  // TODO: use gjk_initial_guess instead
   solver.enable_cached_guess = request.enable_cached_gjk_guess;
   solver.gjk_variant = request.gjk_variant;
   solver.gjk_convergence_criterion = request.gjk_convergence_criterion;
@@ -68,6 +70,11 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
       request.gjk_convergence_criterion_type;
   solver.gjk_tolerance = request.gjk_tolerance;
   solver.gjk_max_iterations = request.gjk_max_iterations;
+  if (solver.gjk_initial_guess == GJKInitialGuess::CachedGuess) {
+    solver.cached_guess = request.cached_gjk_guess;
+    solver.support_func_cached_guess = request.cached_support_func_guess;
+  }
+  // TODO: use gjk_initial_guess instead
   if (solver.enable_cached_guess) {
     solver.cached_guess = request.cached_gjk_guess;
     solver.support_func_cached_guess = request.cached_support_func_guess;
@@ -117,6 +124,11 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
           o1, tf1, o2, tf2, &solver, request, result);
     }
   }
+  if (solver.gjk_initial_guess == GJKInitialGuess::CachedGuess) {
+    result.cached_gjk_guess = solver.cached_guess;
+    result.cached_support_func_guess = solver.support_func_cached_guess;
+  }
+  // TODO: use gjk_initial_guess instead
   if (solver.enable_cached_guess) {
     result.cached_gjk_guess = solver.cached_guess;
     result.cached_support_func_guess = solver.support_func_cached_guess;
@@ -175,6 +187,13 @@ FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
                                      const Transform3f& tf2,
                                      const DistanceRequest& request,
                                      DistanceResult& result) const {
+  GJKInitialGuess gjk_initial_guess = request.gjk_initial_guess;
+  solver.gjk_initial_guess = gjk_initial_guess;
+  if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
+    solver.cached_guess = request.cached_gjk_guess;
+    solver.support_func_cached_guess = request.cached_support_func_guess;
+  }
+  // TODO: use gjk_initial_guess instead
   bool cached = request.enable_cached_gjk_guess;
   solver.enable_cached_guess = cached;
   if (cached) {
@@ -190,6 +209,11 @@ FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
   } else
     res = run(tf1, tf2, request, result);
 
+  if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
+    result.cached_gjk_guess = solver.cached_guess;
+    result.cached_support_func_guess = solver.support_func_cached_guess;
+  }
+  // TODO: use gjk_initial_guess instead
   if (cached) {
     result.cached_gjk_guess = solver.cached_guess;
     result.cached_support_func_guess = solver.support_func_cached_guess;
