@@ -50,6 +50,41 @@ namespace fcl {
 /// @brief collision and distance solver based on GJK algorithm implemented in
 /// fcl (rewritten the code from the GJK in bullet)
 struct HPP_FCL_DLLAPI GJKSolver {
+  /// @brief initialize GJK
+  template <typename S1, typename S2>
+  void initialize_gjk(details::GJK& gjk, const details::MinkowskiDiff& shape,
+                      const S1& s1, const S2& s2, Vec3f& guess,
+                      support_func_guess_t& support_hint) const {
+    switch (gjk_initial_guess) {
+      case GJKInitialGuess::DefaultGuess:
+        guess = Vec3f(1, 0, 0);
+        support_hint.setZero();
+        break;
+      case GJKInitialGuess::CachedGuess:
+        guess = cached_guess;
+        support_hint = support_func_cached_guess;
+        break;
+      case GJKInitialGuess::BoundingVolumeGuess:
+        guess.noalias() = s1.aabb_center - (shape.oR1 * s2.aabb_center + shape.ot1);
+        support_hint =
+            support_func_cached_guess;  // we could also put it to (0, 0)
+        break;
+      default:
+        throw std::logic_error("Wrong initial guess for GJK.");
+    }
+    // TODO: use gjk_initial_guess instead
+    if (enable_cached_guess) {
+      guess = cached_guess;
+      support_hint = support_func_cached_guess;
+    }
+
+    gjk.setDistanceEarlyBreak(distance_upper_bound);
+
+    gjk.gjk_variant = gjk_variant;
+    gjk.convergence_criterion = gjk_convergence_criterion;
+    gjk.convergence_criterion_type = gjk_convergence_criterion_type;
+  }
+
   /// @brief intersection checking between two shapes
   template <typename S1, typename S2>
   bool shapeIntersect(const S1& s1, const Transform3f& tf1, const S2& s2,
