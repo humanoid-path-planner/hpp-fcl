@@ -91,26 +91,20 @@ struct HPP_FCL_DLLAPI GJKSolver {
                       const Transform3f& tf2, FCL_REAL& distance_lower_bound,
                       bool enable_penetration, Vec3f* contact_points,
                       Vec3f* normal) const {
-    Vec3f guess(1, 0, 0);
-    support_func_guess_t support_hint;
-    if (enable_cached_guess) {
-      guess = cached_guess;
-      support_hint = support_func_cached_guess;
-    } else
-      support_hint.setZero();
-
     details::MinkowskiDiff shape;
     shape.set(&s1, &s2, tf1, tf2);
 
+    Vec3f guess;
+    support_func_guess_t support_hint;
     details::GJK gjk((unsigned int)gjk_max_iterations, gjk_tolerance);
-
-    gjk.setDistanceEarlyBreak(distance_upper_bound);
-
-    gjk.gjk_variant = gjk_variant;
-    gjk.convergence_criterion = gjk_convergence_criterion;
-    gjk.convergence_criterion_type = gjk_convergence_criterion_type;
+    initialize_gjk(gjk, shape, s1, s2, guess, support_hint);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+    if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
+      cached_guess = gjk.getGuessFromSimplex();
+      support_func_cached_guess = gjk.support_hint;
+    }
+    // TODO: use gjk_initial_guess instead
     if (enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
       support_func_cached_guess = gjk.support_hint;
@@ -173,22 +167,20 @@ struct HPP_FCL_DLLAPI GJKSolver {
     TriangleP tri(tf_1M2.transform(P1), tf_1M2.transform(P2),
                   tf_1M2.transform(P3));
 
-    Vec3f guess(1, 0, 0);
-    support_func_guess_t support_hint;
-    if (enable_cached_guess) {
-      guess = cached_guess;
-      support_hint = support_func_cached_guess;
-    } else
-      support_hint.setZero();
-
     details::MinkowskiDiff shape;
     shape.set(&s, &tri);
 
+    Vec3f guess;
+    support_func_guess_t support_hint;
     details::GJK gjk((unsigned int)gjk_max_iterations, gjk_tolerance);
-
-    gjk.setDistanceEarlyBreak(distance_upper_bound);
+    initialize_gjk(gjk, shape, s, tri, guess, support_hint);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+    if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
+      cached_guess = gjk.getGuessFromSimplex();
+      support_func_cached_guess = gjk.support_hint;
+    }
+    // TODO: use gjk_initial_guess instead
     if (enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
       support_func_cached_guess = gjk.support_hint;
@@ -252,26 +244,20 @@ struct HPP_FCL_DLLAPI GJKSolver {
 #ifndef NDEBUG
     FCL_REAL eps(sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
 #endif
-    Vec3f guess(1, 0, 0);
-    support_func_guess_t support_hint;
-    if (enable_cached_guess) {
-      guess = cached_guess;
-      support_hint = support_func_cached_guess;
-    } else
-      support_hint.setZero();
-
     details::MinkowskiDiff shape;
     shape.set(&s1, &s2, tf1, tf2);
 
+    Vec3f guess;
+    support_func_guess_t support_hint;
     details::GJK gjk((unsigned int)gjk_max_iterations, gjk_tolerance);
-
-    gjk.setDistanceEarlyBreak(distance_upper_bound);
-
-    gjk.gjk_variant = gjk_variant;
-    gjk.convergence_criterion = gjk_convergence_criterion;
-    gjk.convergence_criterion_type = gjk_convergence_criterion_type;
+    initialize_gjk(gjk, shape, s1, s2, guess, support_hint);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+    if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
+      cached_guess = gjk.getGuessFromSimplex();
+      support_func_cached_guess = gjk.support_hint;
+    }
+    // TODO: use gjk_initial_guess instead
     if (enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
       support_func_cached_guess = gjk.support_hint;
@@ -345,7 +331,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     epa_max_vertex_num = 64;
     epa_max_iterations = 255;
     epa_tolerance = 1e-6;
-    enable_cached_guess = false;
+    enable_cached_guess = false;  // TODO: use gjk_initial_guess instead
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
     distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
@@ -355,6 +341,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     gjk_convergence_criterion_type = GJKConvergenceCriterionType::Relative;
   }
 
+  // TODO: (enable/set/get)CachedGuess -> use gjk_initial_guess instead
   void enableCachedGuess(bool if_enable) const {
     enable_cached_guess = if_enable;
   }
@@ -369,7 +356,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
            epa_max_iterations == other.epa_max_iterations &&
            epa_tolerance == other.epa_tolerance &&
            gjk_max_iterations == other.gjk_max_iterations &&
-           enable_cached_guess == other.enable_cached_guess &&
+           enable_cached_guess ==
+               other.enable_cached_guess &&  // TODO: use gjk_initial_guess
+                                             // instead
            cached_guess == other.cached_guess &&
            support_func_cached_guess == other.support_func_cached_guess &&
            distance_upper_bound == other.distance_upper_bound &&
@@ -401,7 +390,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
   mutable size_t gjk_max_iterations;
 
   /// @brief Whether smart guess can be provided
-  mutable bool enable_cached_guess;
+  mutable bool enable_cached_guess HPP_FCL_DEPRECATED;
 
   /// @brief smart guess
   mutable Vec3f cached_guess;

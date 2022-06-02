@@ -468,22 +468,22 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
                      tf1.transform(s1.c)),
       t2(tf2.transform(s2.a), tf2.transform(s2.b), tf2.transform(s2.c));
 
-  Vec3f guess;
-  support_func_guess_t support_hint;
-  if (enable_cached_guess) {
-    guess = cached_guess;
-    support_hint = support_func_cached_guess;
-  } else {
-    support_hint.setZero();
-    guess = (t1.a + t1.b + t1.c - t2.a - t2.b - t2.c) / 3;
-  }
-  bool enable_penetration = true;
-
   details::MinkowskiDiff shape;
   shape.set(&t1, &t2);
 
+  Vec3f guess;
+  guess = (t1.a + t1.b + t1.c - t2.a - t2.b - t2.c) / 3;
+  support_func_guess_t support_hint;
+  bool enable_penetration = true;
   details::GJK gjk((unsigned int)gjk_max_iterations, gjk_tolerance);
+  initialize_gjk(gjk, shape, t1, t2, guess, support_hint);
+
   details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+  if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
+    cached_guess = gjk.getGuessFromSimplex();
+    support_func_cached_guess = gjk.support_hint;
+  }
+  // TODO: use gjk_initial_guess instead
   if (enable_cached_guess) {
     cached_guess = gjk.getGuessFromSimplex();
     support_func_cached_guess = gjk.support_hint;
