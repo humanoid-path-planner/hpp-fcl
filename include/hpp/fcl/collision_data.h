@@ -117,8 +117,12 @@ struct QueryResult;
 
 /// @brief base class for all query requests
 struct HPP_FCL_DLLAPI QueryRequest {
+  // @briefInitial guess to use for the GJK algorithm
+  GJKInitialGuess gjk_initial_guess;
+
   /// @brief whether enable gjk initial guess
-  bool enable_cached_gjk_guess;
+  /// Deprecated: use gjk_initial_guess instead
+  bool enable_cached_gjk_guess HPP_FCL_DEPRECATED;
 
   /// @brief whether to enable the Nesterov accleration of GJK
   GJKVariant gjk_variant;
@@ -145,7 +149,8 @@ struct HPP_FCL_DLLAPI QueryRequest {
   bool enable_timings;
 
   QueryRequest()
-      : enable_cached_gjk_guess(false),
+      : gjk_initial_guess(GJKInitialGuess::DefaultGuess),
+        enable_cached_gjk_guess(false),
         gjk_variant(GJKVariant::DefaultGJK),
         gjk_convergence_criterion(GJKConvergenceCriterion::VDB),
         gjk_convergence_criterion_type(GJKConvergenceCriterionType::Relative),
@@ -159,7 +164,8 @@ struct HPP_FCL_DLLAPI QueryRequest {
 
   /// @brief whether two QueryRequest are the same or not
   inline bool operator==(const QueryRequest& other) const {
-    return enable_cached_gjk_guess == other.enable_cached_gjk_guess &&
+    return gjk_initial_guess == other.gjk_initial_guess &&
+           enable_cached_gjk_guess == other.enable_cached_gjk_guess &&
            cached_gjk_guess == other.cached_gjk_guess &&
            cached_support_func_guess == other.cached_support_func_guess &&
            enable_timings == other.enable_timings;
@@ -183,6 +189,11 @@ struct HPP_FCL_DLLAPI QueryResult {
 };
 
 inline void QueryRequest::updateGuess(const QueryResult& result) {
+  if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
+    cached_gjk_guess = result.cached_gjk_guess;
+    cached_support_func_guess = result.cached_support_func_guess;
+  }
+  // TODO: use gjk_initial_guess instead
   if (enable_cached_gjk_guess) {
     cached_gjk_guess = result.cached_gjk_guess;
     cached_support_func_guess = result.cached_support_func_guess;
