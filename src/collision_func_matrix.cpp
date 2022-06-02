@@ -80,12 +80,6 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
 
   DistanceResult distanceResult;
   DistanceRequest distanceRequest(request.enable_contact);
-  nsolver->gjk_variant = request.gjk_variant;
-  nsolver->gjk_convergence_criterion = request.gjk_convergence_criterion;
-  nsolver->gjk_convergence_criterion_type =
-      request.gjk_convergence_criterion_type;
-  nsolver->gjk_tolerance = request.gjk_tolerance;
-  nsolver->gjk_max_iterations = request.gjk_max_iterations;
   FCL_REAL distance = ShapeShapeDistance<T_SH1, T_SH2>(
       o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
 
