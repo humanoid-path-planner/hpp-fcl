@@ -101,12 +101,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
     initialize_gjk(gjk, shape, s1, s2, guess, support_hint);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
-    if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
-      cached_guess = gjk.getGuessFromSimplex();
-      support_func_cached_guess = gjk.support_hint;
-    }
-    // TODO: use gjk_initial_guess instead
-    if (enable_cached_guess) {
+    if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
+        enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
       support_func_cached_guess = gjk.support_hint;
     }
@@ -177,12 +173,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
     initialize_gjk(gjk, shape, s, tri, guess, support_hint);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
-    if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
-      cached_guess = gjk.getGuessFromSimplex();
-      support_func_cached_guess = gjk.support_hint;
-    }
-    // TODO: use gjk_initial_guess instead
-    if (enable_cached_guess) {
+    if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
+        enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
       support_func_cached_guess = gjk.support_hint;
     }
@@ -254,12 +246,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
     initialize_gjk(gjk, shape, s1, s2, guess, support_hint);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
-    if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
-      cached_guess = gjk.getGuessFromSimplex();
-      support_func_cached_guess = gjk.support_hint;
-    }
-    // TODO: use gjk_initial_guess instead
-    if (enable_cached_guess) {
+    if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
+        enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
       support_func_cached_guess = gjk.support_hint;
     }
