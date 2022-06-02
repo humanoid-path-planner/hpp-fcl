@@ -314,6 +314,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
     distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
+    gjk_initial_guess = GJKInitialGuess::DefaultGuess;
     gjk_variant = GJKVariant::DefaultGJK;
     gjk_convergence_criterion = GJKConvergenceCriterion::VDB;
     gjk_convergence_criterion_type = GJKConvergenceCriterionType::Relative;
@@ -337,6 +338,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
            cached_guess == other.cached_guess &&
            support_func_cached_guess == other.support_func_cached_guess &&
            distance_upper_bound == other.distance_upper_bound &&
+           gjk_initial_guess == other.gjk_initial_guess &&
            gjk_variant == other.gjk_variant &&
            gjk_convergence_criterion == other.gjk_convergence_criterion &&
            gjk_convergence_criterion_type ==
@@ -368,6 +370,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   /// @brief smart guess
   mutable Vec3f cached_guess;
+
+  /// @brief which warm start to use for GJK
+  mutable GJKInitialGuess gjk_initial_guess;
 
   /// @brief Variant to use for the GJK algorithm
   mutable GJKVariant gjk_variant;
