@@ -65,7 +65,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
         support_hint = support_func_cached_guess;
         break;
       case GJKInitialGuess::BoundingVolumeGuess:
-        guess.noalias() = s1.aabb_center - (shape.oR1 * s2.aabb_center + shape.ot1);
+        guess.noalias() =
+            s1.aabb_center - (shape.oR1 * s2.aabb_center + shape.ot1);
         support_hint =
             support_func_cached_guess;  // we could also put it to (0, 0)
         break;
