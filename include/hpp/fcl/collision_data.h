@@ -122,7 +122,7 @@ struct HPP_FCL_DLLAPI QueryRequest {
 
   /// @brief whether enable gjk initial guess
   /// Deprecated: use gjk_initial_guess instead
-  bool enable_cached_gjk_guess HPP_FCL_DEPRECATED;
+  HPP_FCL_DEPRECATED bool enable_cached_gjk_guess;
 
   /// @brief whether to enable the Nesterov accleration of GJK
   GJKVariant gjk_variant;
