@@ -79,10 +79,13 @@ struct HPP_FCL_DLLAPI GJKSolver {
         throw std::logic_error("Wrong initial guess for GJK.");
     }
     // TODO: use gjk_initial_guess instead
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     if (enable_cached_guess) {
       guess = cached_guess;
       support_hint = support_func_cached_guess;
     }
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
     gjk.setDistanceEarlyBreak(distance_upper_bound);
 
@@ -106,11 +109,14 @@ struct HPP_FCL_DLLAPI GJKSolver {
     initialize_gjk(gjk, shape, s1, s2, guess, support_hint);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
         enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
       support_func_cached_guess = gjk.support_hint;
     }
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
     Vec3f w0, w1;
     switch (gjk_status) {
@@ -178,11 +184,15 @@ struct HPP_FCL_DLLAPI GJKSolver {
     initialize_gjk(gjk, shape, s, tri, guess, support_hint);
 
     details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
         enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
       support_func_cached_guess = gjk.support_hint;
     }
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
 
     Vec3f w0, w1;
     switch (gjk_status) {
@@ -317,6 +327,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
     }
   }
 
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// @brief default setting for GJK algorithm
   GJKSolver() {
     gjk_max_iterations = 128;
@@ -335,15 +347,22 @@ struct HPP_FCL_DLLAPI GJKSolver {
     gjk_convergence_criterion_type = GJKConvergenceCriterionType::Relative;
   }
 
+  /// @brief Copy constructor
+  GJKSolver(const GJKSolver& other) = default;
+
   // TODO: (enable/set/get)CachedGuess -> use gjk_initial_guess instead
   void enableCachedGuess(bool if_enable) const {
     enable_cached_guess = if_enable;
   }
 
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+
   void setCachedGuess(const Vec3f& guess) const { cached_guess = guess; }
 
   Vec3f getCachedGuess() const { return cached_guess; }
 
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   bool operator==(const GJKSolver& other) const {
     return epa_max_face_num == other.epa_max_face_num &&
            epa_max_vertex_num == other.epa_max_vertex_num &&
@@ -362,6 +381,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
            gjk_convergence_criterion_type ==
                other.gjk_convergence_criterion_type;
   }
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
   bool operator!=(const GJKSolver& other) const { return !(*this == other); }
 
@@ -386,6 +406,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// @brief Whether smart guess can be provided
   /// @Deprecated Use gjk_initial_guess instead
   HPP_FCL_DEPRECATED_MESSAGE("Use gjk_initial_guess instead")
+  mutable bool enable_cached_guess;
 
   /// @brief smart guess
   mutable Vec3f cached_guess;

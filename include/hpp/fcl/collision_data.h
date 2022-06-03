@@ -123,6 +123,7 @@ struct HPP_FCL_DLLAPI QueryRequest {
   /// @brief whether enable gjk initial guess
   /// @Deprecated Use gjk_initial_guess instead
   HPP_FCL_DEPRECATED_MESSAGE("Use gjk_initial_guess instead")
+  bool enable_cached_gjk_guess;
 
   /// @brief whether to enable the Nesterov accleration of GJK
   GJKVariant gjk_variant;
@@ -148,6 +149,9 @@ struct HPP_FCL_DLLAPI QueryRequest {
   /// @brief enable timings when performing collision/distance request
   bool enable_timings;
 
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  /// @brief Default constructor.
   QueryRequest()
       : gjk_initial_guess(GJKInitialGuess::DefaultGuess),
         enable_cached_gjk_guess(false),
@@ -160,15 +164,25 @@ struct HPP_FCL_DLLAPI QueryRequest {
         cached_support_func_guess(support_func_guess_t::Zero()),
         enable_timings(false) {}
 
+  /// @brief Copy  constructor.
+  QueryRequest(const QueryRequest& other) = default;
+
+  /// @brief Copy  assignment operator.
+  QueryRequest& operator=(const QueryRequest& other) = default;
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+
   void updateGuess(const QueryResult& result);
 
   /// @brief whether two QueryRequest are the same or not
   inline bool operator==(const QueryRequest& other) const {
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return gjk_initial_guess == other.gjk_initial_guess &&
            enable_cached_gjk_guess == other.enable_cached_gjk_guess &&
            cached_gjk_guess == other.cached_gjk_guess &&
            cached_support_func_guess == other.cached_support_func_guess &&
            enable_timings == other.enable_timings;
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
 };
 
@@ -194,10 +208,13 @@ inline void QueryRequest::updateGuess(const QueryResult& result) {
     cached_support_func_guess = result.cached_support_func_guess;
   }
   // TODO: use gjk_initial_guess instead
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   if (enable_cached_gjk_guess) {
     cached_gjk_guess = result.cached_gjk_guess;
     cached_support_func_guess = result.cached_support_func_guess;
   }
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 }
 
 struct CollisionResult;
