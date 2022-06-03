@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(set_cv_criterion) {
 void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
                            const GJKConvergenceCriterionType cv_type) {
   // Solvers
-  size_t max_iterations = 128;
+  unsigned int max_iterations = 128;
   // by default GJK uses the VDB convergence criterion, which is relative.
   GJK gjk1(max_iterations, 1e-6);
 

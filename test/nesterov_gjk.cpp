@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(need_nesterov_normalize_support_direction) {
 
 void test_nesterov_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
   // Solvers
-  size_t max_iterations = 128;
+  unsigned int max_iterations = 128;
   FCL_REAL tolerance = 1e-6;
   GJK gjk(max_iterations, tolerance);
   GJK gjk_nesterov(max_iterations, tolerance);
