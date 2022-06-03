@@ -13,10 +13,11 @@ HPP-FCL — An extension of the Flexible Collision Library
 The broadphase was reintroduced by J. Carpentier in 2022 based on the FCL version 0.7.0.
 
 The main new features are:
-- the use of a safety margin when detecting collision,
-- the computation of a lower bound of the distance between two objects when collision checking is performed and no collision is found.
-- the implementation of Python bindings for easy code prototyping.
-- the fix of various bugs.
+- the use of a safety margin when detecting collision
+- an accelerated version of Collision Detection *à la Nesterov* which leads to increased performances (up to a factor 2). More details are available in this [paper](https://hal.archives-ouvertes.fr/hal-03662157/).
+- the computation of a lower bound of the distance between two objects when collision checking is performed and no collision is found
+- the implementation of Python bindings for easy code prototyping
+- the fix of various bugs
 
 This project is now used in many robotics frameworks such as [Pinocchio](https://github.com/stack-of-tasks/pinocchio), an open-source software which implements efficient and versatile rigid body dynamics algorithms and the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc), an open-source software for Motion and Manipulation Planning.
 
