@@ -144,13 +144,13 @@ BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_self_distance_mesh) {
 
 void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
                                       double env_scale, std::size_t n) {
-  unsigned int n_edge = std::floor(std::pow(n, 1 / 3.0));
+  int n_edge = static_cast<int>(std::floor(std::pow(n, 1 / 3.0)));
 
   FCL_REAL step_size = env_scale * 2 / n_edge;
   FCL_REAL delta_size = step_size * 0.05;
   FCL_REAL single_size = step_size - 2 * delta_size;
 
-  unsigned int i = 0;
+  int i = 0;
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
     int x = i % (n_edge * n_edge);
     int y = (i - n_edge * n_edge * x) % n_edge;
@@ -214,13 +214,13 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
 
 void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env,
                                           double env_scale, std::size_t n) {
-  unsigned int n_edge = std::floor(std::pow(n, 1 / 3.0));
+  int n_edge = static_cast<int>(std::floor(std::pow(n, 1 / 3.0)));
 
   FCL_REAL step_size = env_scale * 2 / n_edge;
   FCL_REAL delta_size = step_size * 0.05;
   FCL_REAL single_size = step_size - 2 * delta_size;
 
-  std::size_t i = 0;
+  int i = 0;
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
     int x = i % (n_edge * n_edge);
     int y = (i - n_edge * n_edge * x) % n_edge;
@@ -385,7 +385,7 @@ void broad_phase_self_distance_test(double env_scale, std::size_t env_size,
   for (size_t i = 0; i < managers.size(); ++i) delete managers[i];
 
   std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
-  size_t w = 7;
+  int w = 7;
 
   std::cout << "self distance timing summary" << std::endl;
   std::cout << env.size() << " objs" << std::endl;
@@ -532,7 +532,8 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size,
       BOOST_CHECK(test);
 
       if (!test) {
-        std::cout << "j: " << typeid(*managers[j]).name() << std::endl;
+        const BroadPhaseCollisionManager& self = *managers[j];
+        std::cout << "j: " << typeid(self).name() << std::endl;
         std::cout << "query_callbacks[0].data.result.min_distance: "
                   << query_callbacks[0].data.result.min_distance << std::endl;
         std::cout << "query_callbacks[j].data.result.min_distance: "
@@ -547,7 +548,7 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size,
   for (size_t i = 0; i < managers.size(); ++i) delete managers[i];
 
   std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
-  size_t w = 7;
+  int w = 7;
 
   std::cout << "distance timing summary" << std::endl;
   std::cout << env_size << " objs, " << query_size << " queries" << std::endl;
