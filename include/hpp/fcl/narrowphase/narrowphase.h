@@ -384,7 +384,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   mutable size_t gjk_max_iterations;
 
   /// @brief Whether smart guess can be provided
-  HPP_FCL_DEPRECATED mutable bool enable_cached_guess;
+  /// @Deprecated Use gjk_initial_guess instead
+  HPP_FCL_DEPRECATED_MESSAGE("Use gjk_initial_guess instead")
 
   /// @brief smart guess
   mutable Vec3f cached_guess;
