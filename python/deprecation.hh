@@ -20,7 +20,7 @@ struct deprecated_warning_policy : Policy {
 
   template <class ArgumentPackage>
   bool precall(ArgumentPackage const& args) const {
-    PyErr_WarnEx(PyExc_UserWarning, m_warning_message.c_str(), 1);
+    PyErr_WarnEx(PyExc_DeprecationWarning, m_warning_message.c_str(), 1);
     return static_cast<const Policy*>(this)->precall(args);
   }
 
