@@ -117,17 +117,28 @@ struct QueryResult;
 
 /// @brief base class for all query requests
 struct HPP_FCL_DLLAPI QueryRequest {
+  // @briefInitial guess to use for the GJK algorithm
+  GJKInitialGuess gjk_initial_guess;
+
   /// @brief whether enable gjk initial guess
+  /// @Deprecated Use gjk_initial_guess instead
+  HPP_FCL_DEPRECATED_MESSAGE("Use gjk_initial_guess instead")
   bool enable_cached_gjk_guess;
 
   /// @brief whether to enable the Nesterov accleration of GJK
   GJKVariant gjk_variant;
 
   /// @brief convergence criterion used to stop GJK
-  GJKConvergenceCriterion convergence_criterion;
+  GJKConvergenceCriterion gjk_convergence_criterion;
 
   /// @brief convergence criterion used to stop GJK
-  GJKConvergenceCriterionType convergence_criterion_type;
+  GJKConvergenceCriterionType gjk_convergence_criterion_type;
+
+  /// @brief tolerance for the GJK algorithm
+  FCL_REAL gjk_tolerance;
+
+  /// @brief maximum iteration for the GJK algorithm
+  size_t gjk_max_iterations;
 
   /// @brief the gjk initial guess set by user
   Vec3f cached_gjk_guess;
@@ -138,23 +149,40 @@ struct HPP_FCL_DLLAPI QueryRequest {
   /// @brief enable timings when performing collision/distance request
   bool enable_timings;
 
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  /// @brief Default constructor.
   QueryRequest()
-      : enable_cached_gjk_guess(false),
+      : gjk_initial_guess(GJKInitialGuess::DefaultGuess),
+        enable_cached_gjk_guess(false),
         gjk_variant(GJKVariant::DefaultGJK),
-        convergence_criterion(GJKConvergenceCriterion::VDB),
-        convergence_criterion_type(GJKConvergenceCriterionType::Relative),
+        gjk_convergence_criterion(GJKConvergenceCriterion::VDB),
+        gjk_convergence_criterion_type(GJKConvergenceCriterionType::Relative),
+        gjk_tolerance(1e-6),
+        gjk_max_iterations(128),
         cached_gjk_guess(1, 0, 0),
         cached_support_func_guess(support_func_guess_t::Zero()),
         enable_timings(false) {}
+
+  /// @brief Copy  constructor.
+  QueryRequest(const QueryRequest& other) = default;
+
+  /// @brief Copy  assignment operator.
+  QueryRequest& operator=(const QueryRequest& other) = default;
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
   void updateGuess(const QueryResult& result);
 
   /// @brief whether two QueryRequest are the same or not
   inline bool operator==(const QueryRequest& other) const {
-    return enable_cached_gjk_guess == other.enable_cached_gjk_guess &&
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+    return gjk_initial_guess == other.gjk_initial_guess &&
+           enable_cached_gjk_guess == other.enable_cached_gjk_guess &&
            cached_gjk_guess == other.cached_gjk_guess &&
            cached_support_func_guess == other.cached_support_func_guess &&
            enable_timings == other.enable_timings;
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
 };
 
@@ -175,10 +203,18 @@ struct HPP_FCL_DLLAPI QueryResult {
 };
 
 inline void QueryRequest::updateGuess(const QueryResult& result) {
+  if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
+    cached_gjk_guess = result.cached_gjk_guess;
+    cached_support_func_guess = result.cached_support_func_guess;
+  }
+  // TODO: use gjk_initial_guess instead
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   if (enable_cached_gjk_guess) {
     cached_gjk_guess = result.cached_gjk_guess;
     cached_support_func_guess = result.cached_support_func_guess;
   }
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 }
 
 struct CollisionResult;

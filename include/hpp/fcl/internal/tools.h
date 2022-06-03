@@ -45,8 +45,6 @@
 #include <iostream>
 #include <limits>
 
-#include <hpp/fcl/deprecated.hh>
-#include <hpp/fcl/config.hh>
 #include <hpp/fcl/data_types.h>
 
 namespace hpp {

@@ -2,6 +2,7 @@
 // Software License Agreement (BSD License)
 //
 //  Copyright (c) 2014, CNRS-LAAS
+//  Copyright (c) 2022, Inria
 //  Author: Florent Lamiraux
 //
 //  All rights reserved.
@@ -41,6 +42,8 @@
 #include <sstream>
 
 #include <hpp/fcl/config.hh>
+#include <hpp/fcl/deprecated.hh>
+#include <hpp/fcl/warning.hh>
 
 #if _WIN32
 #define HPP_FCL_PRETTY_FUNCTION __FUNCSIG__
@@ -63,6 +66,22 @@
 #if (__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
 #define HPP_FCL_WITH_CXX11_SUPPORT
 #endif
+
+#if defined(__GNUC__) || defined(__clang__)
+#define HPP_FCL_COMPILER_DIAGNOSTIC_PUSH _Pragma("GCC diagnostic push")
+#define HPP_FCL_COMPILER_DIAGNOSTIC_POP _Pragma("GCC diagnostic pop")
+#define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS \
+  _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#elif defined(WIN32)
+#define HPP_FCL_COMPILER_DIAGNOSTIC_PUSH _Pragma("warning(push)")
+#define HPP_FCL_COMPILER_DIAGNOSTIC_POP _Pragma("warning(pop)")
+#define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS \
+  _Pragma("warning(disable : 4996)")
+#else
+#define HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+#define HPP_FCL_COMPILER_DIAGNOSTIC_POP
+#define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+#endif  // __GNUC__
 
 namespace hpp {
 namespace fcl {

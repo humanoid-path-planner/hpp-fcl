@@ -38,8 +38,13 @@ HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::Contact)
 template <class Archive>
 void serialize(Archive& ar, hpp::fcl::QueryRequest& query_request,
                const unsigned int /*version*/) {
+  ar& make_nvp("gjk_initial_guess", query_request.gjk_initial_guess);
+  // TODO: use gjk_initial_guess instead
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ar& make_nvp("enable_cached_gjk_guess",
                query_request.enable_cached_gjk_guess);
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
   ar& make_nvp("cached_gjk_guess", query_request.cached_gjk_guess);
   ar& make_nvp("cached_support_func_guess",
                query_request.cached_support_func_guess);
