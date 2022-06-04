@@ -52,7 +52,18 @@ void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
       collisionRecurse(node, 0, 0, front_list, sqrDistLowerBound);
     else
       collisionNonRecurse(node, front_list, sqrDistLowerBound);
-    result.updateDistanceLowerBound(sqrt(sqrDistLowerBound));
+
+    //    TODO(jcarpent): check if it is normal to comment the following line:
+    //    result.updateDistanceLowerBound (sqrt (sqrDistLowerBound));
+    if (!std::isnan(sqrDistLowerBound)) {
+      if (sqrDistLowerBound == 0) {
+        assert(result.distance_lower_bound <= 0);
+      } else {
+        assert(fabs(sqrDistLowerBound -
+                    result.distance_lower_bound * result.distance_lower_bound) <
+               1e-8);
+      }
+    }
   }
 }
 

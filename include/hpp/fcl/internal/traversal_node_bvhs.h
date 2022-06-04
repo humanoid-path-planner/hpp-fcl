@@ -163,16 +163,19 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
   bool BVDisjoints(unsigned int b1, unsigned int b2,
                    FCL_REAL& sqrDistLowerBound) const {
     if (this->enable_statistics) this->num_bv_tests++;
+    bool disjoint;
     if (RTIsIdentity)
-      return !this->model1->getBV(b1).overlap(this->model2->getBV(b2),
-                                              this->request, sqrDistLowerBound);
+      disjoint = !this->model1->getBV(b1).overlap(
+          this->model2->getBV(b2), this->request, sqrDistLowerBound);
     else {
-      bool res = !overlap(RT._R(), RT._T(), this->model1->getBV(b1).bv,
+      disjoint = !overlap(RT._R(), RT._T(), this->model1->getBV(b1).bv,
                           this->model2->getBV(b2).bv, this->request,
                           sqrDistLowerBound);
-      assert(!res || sqrDistLowerBound > 0);
-      return res;
     }
+    if (disjoint)
+      internal::updateDistanceLowerBoundFromBV(this->request, *this->result,
+                                               sqrDistLowerBound);
+    return disjoint;
   }
 
   /// Intersection testing between leaves (two triangles)
@@ -218,24 +221,28 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
     FCL_REAL distance;
     solver.shapeDistance(tri1, this->tf1, tri2, this->tf2, distance, p1, p2,
                          normal);
-    FCL_REAL distToCollision = distance - this->request.security_margin;
-    sqrDistLowerBound = distance * distance;
-    if (distToCollision <= 0) {  // collision
-      Vec3f p(p1);               // contact point
-      FCL_REAL penetrationDepth(0);
+
+    const FCL_REAL distToCollision = distance - this->request.security_margin;
+    if (distToCollision <=
+        this->request.collision_distance_threshold) {  // collision
+      sqrDistLowerBound = 0;
+      Vec3f p(p1);  // contact point
       if (this->result->numContacts() < this->request.num_max_contacts) {
         // How much (Q1, Q2, Q3) should be moved so that all vertices are
         // above (P1, P2, P3).
-        penetrationDepth = -distance;
         if (distance > 0) {
           normal = (p2 - p1).normalized();
           p = .5 * (p1 + p2);
         }
         this->result->addContact(Contact(this->model1, this->model2,
                                          primitive_id1, primitive_id2, p,
-                                         normal, penetrationDepth));
+                                         normal, -distance));
       }
-    }
+    } else
+      sqrDistLowerBound = distToCollision * distToCollision;
+
+    internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
+                                               distToCollision, p1, p2);
   }
 
   Vec3f* vertices1;

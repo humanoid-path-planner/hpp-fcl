@@ -170,16 +170,19 @@ class MeshShapeCollisionTraversalNode
   bool BVDisjoints(unsigned int b1, unsigned int /*b2*/,
                    FCL_REAL& sqrDistLowerBound) const {
     if (this->enable_statistics) this->num_bv_tests++;
-    bool res;
+    bool disjoint;
     if (RTIsIdentity)
-      res = !this->model1->getBV(b1).bv.overlap(this->model2_bv, this->request,
-                                                sqrDistLowerBound);
+      disjoint = !this->model1->getBV(b1).bv.overlap(
+          this->model2_bv, this->request, sqrDistLowerBound);
     else
-      res = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
-                     this->model2_bv, this->model1->getBV(b1).bv, this->request,
-                     sqrDistLowerBound);
-    assert(!res || sqrDistLowerBound > 0);
-    return res;
+      disjoint = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
+                          this->model2_bv, this->model1->getBV(b1).bv,
+                          this->request, sqrDistLowerBound);
+    if (disjoint)
+      internal::updateDistanceLowerBoundFromBV(this->request, *this->result,
+                                               sqrDistLowerBound);
+    assert(!disjoint || sqrDistLowerBound > 0);
+    return disjoint;
   }
 
   /// @brief Intersection testing between leaves (one triangle and one shape)
@@ -211,24 +214,34 @@ class MeshShapeCollisionTraversalNode
                                                     distance, c2, c1, normal);
     }
 
-    if (collision) {
+    FCL_REAL distToCollision = distance - this->request.security_margin;
+    //    if (collision) {
+    //      sqrDistLowerBound = 0;
+    //      if (this->request.num_max_contacts > this->result->numContacts()) {
+    //        this->result->addContact(Contact(this->model1, this->model2,
+    //                                         primitive_id, Contact::NONE, c1,
+    //                                         -normal, -distance));
+    //        assert(this->result->isCollision());
+    //      }
+    //    }
+    //    else
+    if (distToCollision <= this->request.collision_distance_threshold) {
+      sqrDistLowerBound = 0;
       if (this->request.num_max_contacts > this->result->numContacts()) {
-        this->result->addContact(Contact(this->model1, this->model2,
-                                         primitive_id, Contact::NONE, c1,
-                                         -normal, -distance));
-        assert(this->result->isCollision());
-        return;
+        this->result->addContact(
+            Contact(this->model1, this->model2, primitive_id, Contact::NONE,
+                    .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
       }
-    }
-    sqrDistLowerBound = distance * distance;
-    assert(distance > 0);
-    if (this->request.security_margin > 0 &&
-        distance <= this->request.security_margin) {
-      this->result->addContact(Contact(this->model1, this->model2, primitive_id,
-                                       Contact::NONE, .5 * (c1 + c2),
-                                       (c2 - c1).normalized(), -distance));
-    }
-    assert(!this->result->isCollision() || sqrDistLowerBound > 0);
+    } else
+      sqrDistLowerBound =
+          distToCollision *
+          distToCollision;  // TODO(jcarpent): should it be distToCollision *
+                            // distToCollision?
+
+    internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
+                                               distToCollision, c1, c2);
+
+    assert(this->result->isCollision() || sqrDistLowerBound > 0);
   }
 
   Vec3f* vertices;
@@ -273,16 +286,19 @@ class ShapeMeshCollisionTraversalNode
   bool BVDisjoints(unsigned int /*b1*/, unsigned int b2,
                    FCL_REAL& sqrDistLowerBound) const {
     if (this->enable_statistics) this->num_bv_tests++;
-    bool res;
+    bool disjoint;
     if (RTIsIdentity)
-      res = !this->model2->getBV(b2).bv.overlap(this->model1_bv,
-                                                sqrDistLowerBound);
+      disjoint = !this->model2->getBV(b2).bv.overlap(this->model1_bv,
+                                                     sqrDistLowerBound);
     else
-      res = !overlap(this->tf2.getRotation(), this->tf2.getTranslation(),
-                     this->model1_bv, this->model2->getBV(b2).bv,
-                     sqrDistLowerBound);
-    assert(!res || sqrDistLowerBound > 0);
-    return res;
+      disjoint = !overlap(this->tf2.getRotation(), this->tf2.getTranslation(),
+                          this->model1_bv, this->model2->getBV(b2).bv,
+                          sqrDistLowerBound);
+    if (disjoint)
+      internal::updateDistanceLowerBoundFromBV(this->request, *this->result,
+                                               sqrDistLowerBound);
+    assert(!disjoint || sqrDistLowerBound > 0);
+    return disjoint;
   }
 
   /// @brief Intersection testing between leaves (one shape and one triangle)
@@ -314,24 +330,31 @@ class ShapeMeshCollisionTraversalNode
                                                     c2, distance, normal);
     }
 
-    if (collision) {
+    FCL_REAL distToCollision = distance - this->request.security_margin;
+    //    if (collision) {
+    //      sqrDistLowerBound = 0;
+    //      if (this->request.num_max_contacts > this->result->numContacts()) {
+    //        this->result->addContact(Contact(this->model1, this->model2,
+    //                                         Contact::NONE, primitive_id, c1,
+    //                                         normal, -distance));
+    //        assert(this->result->isCollision());
+    //      }
+    //    }
+    //    else
+    if (distToCollision <= this->request.collision_distance_threshold) {
+      sqrDistLowerBound = 0;
       if (this->request.num_max_contacts > this->result->numContacts()) {
-        this->result->addContact(Contact(this->model1, this->model2,
-                                         Contact::NONE, primitive_id, c1,
-                                         normal, -distance));
-        assert(this->result->isCollision());
-        return;
+        this->result->addContact(
+            Contact(this->model1, this->model2, Contact::NONE, primitive_id,
+                    .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
       }
-    }
-    sqrDistLowerBound = distance * distance;
-    assert(distance > 0);
-    if (this->request.security_margin == 0 &&
-        distance <= this->request.security_margin) {
-      this->result.addContact(Contact(this->model1, this->model2, Contact::NONE,
-                                      primitive_id, .5 * (c1 + c2),
-                                      (c2 - c1).normalized(), -distance));
-    }
-    assert(!this->result->isCollision() || sqrDistLowerBound > 0);
+    } else
+      sqrDistLowerBound = distToCollision * distToCollision;
+
+    internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
+                                               distToCollision, c1, c2);
+
+    assert(this->result->isCollision() || sqrDistLowerBound > 0);
   }
 
   Vec3f* vertices;

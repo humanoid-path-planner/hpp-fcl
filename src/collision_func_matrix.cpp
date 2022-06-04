@@ -84,31 +84,28 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
       o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
 
   size_t num_contacts = 0;
-  if (distance <= 0) {
+  const Vec3f& p1 = distanceResult.nearest_points[0];
+  const Vec3f& p2 = distanceResult.nearest_points[1];
+  FCL_REAL distToCollision = distance - request.security_margin;
+
+  internal::updateDistanceLowerBoundFromLeaf(request, result, distToCollision,
+                                             p1, p2);
+  if (distToCollision <= request.collision_distance_threshold &&
+      result.numContacts() < request.num_max_contacts) {
     if (result.numContacts() < request.num_max_contacts) {
       const Vec3f& p1 = distanceResult.nearest_points[0];
       const Vec3f& p2 = distanceResult.nearest_points[1];
 
-      Contact contact(o1, o2, distanceResult.b1, distanceResult.b2,
-                      (p1 + p2) / 2, distanceResult.normal,
-                      -distance + request.security_margin);
+      Contact contact(
+          o1, o2, distanceResult.b1, distanceResult.b2, (p1 + p2) / 2,
+          (distance <= 0 ? distanceResult.normal : (p2 - p1).normalized()),
+          -distance);
 
-      result.addContact(contact);
-    }
-    num_contacts = result.numContacts();
-  } else if (distance <= request.security_margin) {
-    if (result.numContacts() < request.num_max_contacts) {
-      const Vec3f& p1 = distanceResult.nearest_points[0];
-      const Vec3f& p2 = distanceResult.nearest_points[1];
-
-      Contact contact(o1, o2, distanceResult.b1, distanceResult.b2,
-                      .5 * (p1 + p2), (p2 - p1).normalized(),
-                      -distance + request.security_margin);
       result.addContact(contact);
     }
     num_contacts = result.numContacts();
   }
-  result.updateDistanceLowerBound(distance);
+
   return num_contacts;
 }
 
