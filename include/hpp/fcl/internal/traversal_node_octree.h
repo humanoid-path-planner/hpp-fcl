@@ -46,6 +46,7 @@
 #include <hpp/fcl/octree.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
+#include <hpp/fcl/internal/shape_shape_func.h>
 
 namespace hpp {
 namespace fcl {
@@ -265,64 +266,8 @@ class HPP_FCL_DLLAPI OcTreeSolver {
                                    const AABB& bv1, const S& s, const OBB& obb2,
                                    const Transform3f& tf1,
                                    const Transform3f& tf2) const {
-    if (!root1) {
-      OBB obb1;
-      convertBV(bv1, tf1, obb1);
-      if (obb1.overlap(obb2)) {
-        Box box;
-        Transform3f box_tf;
-        constructBox(bv1, tf1, box, box_tf);
-
-        FCL_REAL distance;
-        if (solver->shapeIntersect(box, box_tf, s, tf2, distance, false, NULL,
-                                   NULL)) {
-          AABB overlap_part;
-          AABB aabb1, aabb2;
-          computeBV<AABB, Box>(box, box_tf, aabb1);
-          computeBV<AABB, S>(s, tf2, aabb2);
-          aabb1.overlap(aabb2, overlap_part);
-        }
-      }
-
-      return false;
-    } else if (!tree1->nodeHasChildren(root1)) {
-      if (tree1->isNodeOccupied(root1))  // occupied area
-      {
-        OBB obb1;
-        convertBV(bv1, tf1, obb1);
-        if (obb1.overlap(obb2)) {
-          Box box;
-          Transform3f box_tf;
-          constructBox(bv1, tf1, box, box_tf);
-
-          FCL_REAL distance;
-          if (!crequest->enable_contact) {
-            if (solver->shapeIntersect(box, box_tf, s, tf2, distance, false,
-                                       NULL, NULL)) {
-              if (cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(
-                    tree1, &s, static_cast<int>(root1 - tree1->getRoot()),
-                    Contact::NONE));
-            }
-          } else {
-            Vec3f contact;
-            Vec3f normal;
-
-            if (solver->shapeIntersect(box, box_tf, s, tf2, distance, true,
-                                       &contact, &normal)) {
-              if (cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(
-                    tree1, &s, static_cast<int>(root1 - tree1->getRoot()),
-                    Contact::NONE, contact, normal, distance));
-            }
-          }
-
-          return crequest->isSatisfied(*cresult);
-        } else
-          return false;
-      } else  // free area
-        return false;
-    }
+    // Empty OcTree is considered free.
+    if (!root1) return false;
 
     /// stop when 1) bounding boxes of two objects not overlap; OR
     ///           2) at least of one the nodes is free; OR
@@ -335,7 +280,36 @@ class HPP_FCL_DLLAPI OcTreeSolver {
     else {
       OBB obb1;
       convertBV(bv1, tf1, obb1);
-      if (!obb1.overlap(obb2)) return false;
+      FCL_REAL sqrDistLowerBound;
+      if (!obb1.overlap(obb2, *crequest, sqrDistLowerBound)) {
+        internal::updateDistanceLowerBoundFromBV(*crequest, *cresult,
+                                                 sqrDistLowerBound);
+        return false;
+      }
+    }
+
+    if (!tree1->nodeHasChildren(root1)) {
+      assert(tree1->isNodeOccupied(root1));  // it isn't free nor uncertain.
+
+      Box box;
+      Transform3f box_tf;
+      constructBox(bv1, tf1, box, box_tf);
+
+      bool contactNotAdded =
+          (cresult->numContacts() >= crequest->num_max_contacts);
+      std::size_t ncontact = ShapeShapeCollide<Box, S>(
+          &box, box_tf, &s, tf2, solver, *crequest, *cresult);
+      assert(ncontact == 0 || ncontact == 1);
+      if (!contactNotAdded && ncontact == 1) {
+        // Update contact information.
+        const Contact& c = cresult->getContact(cresult->numContacts() - 1);
+        cresult->setContact(
+            cresult->numContacts() - 1,
+            Contact(tree1, c.o2, static_cast<int>(root1 - tree1->getRoot()),
+                    c.b2, c.pos, c.normal, c.penetration_depth));
+      }
+
+      return crequest->isSatisfied(*cresult);
     }
 
     for (unsigned int i = 0; i < 8; ++i) {
@@ -436,100 +410,20 @@ class HPP_FCL_DLLAPI OcTreeSolver {
     return false;
   }
 
+  /// \return True if the request is satisfied.
   template <typename BV>
   bool OcTreeMeshIntersectRecurse(const OcTree* tree1,
                                   const OcTree::OcTreeNode* root1,
                                   const AABB& bv1, const BVHModel<BV>* tree2,
                                   unsigned int root2, const Transform3f& tf1,
                                   const Transform3f& tf2) const {
-    if (!root1) {
-      if (tree2->getBV(root2).isLeaf()) {
-        OBB obb1, obb2;
-        convertBV(bv1, tf1, obb1);
-        convertBV(tree2->getBV(root2).bv, tf2, obb2);
-        if (obb1.overlap(obb2)) {
-          Box box;
-          Transform3f box_tf;
-          constructBox(bv1, tf1, box, box_tf);
+    // FIXME(jmirabel) I do not understand why the BVHModel was traversed. The
+    // code in this if(!root1) did not output anything so the empty OcTree is
+    // considered free. Should an empty OcTree be considered free ?
 
-          int primitive_id = tree2->getBV(root2).primitiveId();
-          const Triangle& tri_id = tree2->tri_indices[primitive_id];
-          const Vec3f& p1 = tree2->vertices[tri_id[0]];
-          const Vec3f& p2 = tree2->vertices[tri_id[1]];
-          const Vec3f& p3 = tree2->vertices[tri_id[2]];
-          Vec3f c1, c2, normal;
-          FCL_REAL distance;
-          if (solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2,
-                                               distance, c1, c2, normal)) {
-            AABB overlap_part;
-            AABB aabb1;
-            computeBV<AABB, Box>(box, box_tf, aabb1);
-            AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
-            aabb1.overlap(aabb2, overlap_part);
-          }
-        }
-
-        return false;
-      } else {
-        if (OcTreeMeshIntersectRecurse(
-                tree1, root1, bv1, tree2,
-                (unsigned int)tree2->getBV(root2).leftChild(), tf1, tf2))
-          return true;
-
-        if (OcTreeMeshIntersectRecurse(
-                tree1, root1, bv1, tree2,
-                (unsigned int)tree2->getBV(root2).rightChild(), tf1, tf2))
-          return true;
-
-        return false;
-      }
-    } else if (!tree1->nodeHasChildren(root1) && tree2->getBV(root2).isLeaf()) {
-      if (tree1->isNodeOccupied(root1)) {
-        OBB obb1, obb2;
-        convertBV(bv1, tf1, obb1);
-        convertBV(tree2->getBV(root2).bv, tf2, obb2);
-        if (obb1.overlap(obb2)) {
-          Box box;
-          Transform3f box_tf;
-          constructBox(bv1, tf1, box, box_tf);
-
-          int primitive_id = tree2->getBV(root2).primitiveId();
-          const Triangle& tri_id = tree2->tri_indices[primitive_id];
-          const Vec3f& p1 = tree2->vertices[tri_id[0]];
-          const Vec3f& p2 = tree2->vertices[tri_id[1]];
-          const Vec3f& p3 = tree2->vertices[tri_id[2]];
-
-          if (!crequest->enable_contact) {
-            Vec3f c1, c2, normal;
-            FCL_REAL distance;
-            if (solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2,
-                                                 distance, c1, c2, normal)) {
-              if (cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(tree1, tree2,
-                                            (int)(root1 - tree1->getRoot()),
-                                            primitive_id));
-            }
-          } else {
-            Vec3f c1, c2;
-            FCL_REAL distance;
-            Vec3f normal;
-
-            if (solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2,
-                                                 distance, c1, c2, normal)) {
-              assert(crequest->security_margin == 0);
-              if (cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(
-                    Contact(tree1, tree2, (int)(root1 - tree1->getRoot()),
-                            primitive_id, c1, normal, -distance));
-            }
-          }
-
-          return crequest->isSatisfied(*cresult);
-        } else
-          return false;
-      } else  // free area
-        return false;
-    }
+    // Empty OcTree is considered free.
+    if (!root1) return false;
+    BVNode<BV> const& bvn2 = tree2->getBV(root2);
 
     /// stop when 1) bounding boxes of two objects not overlap; OR
     ///           2) at least one of the nodes is free; OR
@@ -544,11 +438,55 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       convertBV(bv1, tf1, obb1);
       convertBV(tree2->getBV(root2).bv, tf2, obb2);
       if (!obb1.overlap(obb2)) return false;
+      convertBV(bvn2.bv, tf2, obb2);
+      FCL_REAL sqrDistLowerBound;
+      if (!obb1.overlap(obb2, *crequest, sqrDistLowerBound)) {
+        internal::updateDistanceLowerBoundFromBV(*crequest, *cresult,
+                                                 sqrDistLowerBound);
+        return false;
+      }
     }
 
-    if (tree2->getBV(root2).isLeaf() ||
-        (tree1->nodeHasChildren(root1) &&
-         (bv1.size() > tree2->getBV(root2).bv.size()))) {
+    // Check if leaf collides.
+    if (!tree1->nodeHasChildren(root1) && bvn2.isLeaf()) {
+      assert(tree1->isNodeOccupied(root1));  // it isn't free nor uncertain.
+      Box box;
+      Transform3f box_tf;
+      constructBox(bv1, tf1, box, box_tf);
+
+      int primitive_id = bvn2.primitiveId();
+      const Triangle& tri_id = tree2->tri_indices[primitive_id];
+      const Vec3f& p1 = tree2->vertices[tri_id[0]];
+      const Vec3f& p2 = tree2->vertices[tri_id[1]];
+      const Vec3f& p3 = tree2->vertices[tri_id[2]];
+
+      Vec3f c1, c2, normal;
+      FCL_REAL distance;
+
+      bool collision = solver->shapeTriangleInteraction(
+          box, box_tf, p1, p2, p3, tf2, distance, c1, c2, normal);
+      FCL_REAL distToCollision = distance - crequest->security_margin;
+
+      if (cresult->numContacts() < crequest->num_max_contacts) {
+        if (collision) {
+          cresult->addContact(Contact(tree1, tree2,
+                                      (int)(root1 - tree1->getRoot()),
+                                      primitive_id, c1, normal, -distance));
+        } else if (distToCollision < 0) {
+          cresult->addContact(Contact(
+              tree1, tree2, (int)(root1 - tree1->getRoot()), primitive_id,
+              .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
+        }
+      }
+      internal::updateDistanceLowerBoundFromLeaf(*crequest, *cresult,
+                                                 distToCollision, c1, c2);
+
+      return crequest->isSatisfied(*cresult);
+    }
+
+    // Determine which tree to traverse first.
+    if (bvn2.isLeaf() ||
+        (tree1->nodeHasChildren(root1) && (bv1.size() > bvn2.bv.size()))) {
       for (unsigned int i = 0; i < 8; ++i) {
         if (tree1->nodeChildExists(root1, i)) {
           const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
@@ -561,14 +499,12 @@ class HPP_FCL_DLLAPI OcTreeSolver {
         }
       }
     } else {
-      if (OcTreeMeshIntersectRecurse(
-              tree1, root1, bv1, tree2,
-              (unsigned int)tree2->getBV(root2).leftChild(), tf1, tf2))
+      if (OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2,
+                                     (unsigned int)bvn2.leftChild(), tf1, tf2))
         return true;
 
-      if (OcTreeMeshIntersectRecurse(
-              tree1, root1, bv1, tree2,
-              (unsigned int)tree2->getBV(root2).rightChild(), tf1, tf2))
+      if (OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2,
+                                     (unsigned int)bvn2.rightChild(), tf1, tf2))
         return true;
     }
 
@@ -657,114 +593,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
                               const OcTree::OcTreeNode* root2, const AABB& bv2,
                               const Transform3f& tf1,
                               const Transform3f& tf2) const {
-    if (!root1 && !root2) {
-      OBB obb1, obb2;
-      convertBV(bv1, tf1, obb1);
-      convertBV(bv2, tf2, obb2);
-
-      if (obb1.overlap(obb2)) {
-        Box box1, box2;
-        Transform3f box1_tf, box2_tf;
-        constructBox(bv1, tf1, box1, box1_tf);
-        constructBox(bv2, tf2, box2, box2_tf);
-
-        AABB overlap_part;
-        AABB aabb1, aabb2;
-        computeBV<AABB, Box>(box1, box1_tf, aabb1);
-        computeBV<AABB, Box>(box2, box2_tf, aabb2);
-        aabb1.overlap(aabb2, overlap_part);
-      }
-
-      return false;
-    } else if (!root1 && root2) {
-      if (tree2->nodeHasChildren(root2)) {
-        for (unsigned int i = 0; i < 8; ++i) {
-          if (tree2->nodeChildExists(root2, i)) {
-            const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
-            AABB child_bv;
-            computeChildBV(bv2, i, child_bv);
-            if (OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, child, child_bv,
-                                       tf1, tf2))
-              return true;
-          } else {
-            AABB child_bv;
-            computeChildBV(bv2, i, child_bv);
-            if (OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, NULL, child_bv,
-                                       tf1, tf2))
-              return true;
-          }
-        }
-      } else {
-        if (OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, NULL, bv2, tf1,
-                                   tf2))
-          return true;
-      }
-
-      return false;
-    } else if (root1 && !root2) {
-      if (tree1->nodeHasChildren(root1)) {
-        for (unsigned int i = 0; i < 8; ++i) {
-          if (tree1->nodeChildExists(root1, i)) {
-            const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
-            AABB child_bv;
-            computeChildBV(bv1, i, child_bv);
-            if (OcTreeIntersectRecurse(tree1, child, child_bv, tree2, NULL, bv2,
-                                       tf1, tf2))
-              return true;
-          } else {
-            AABB child_bv;
-            computeChildBV(bv1, i, child_bv);
-            if (OcTreeIntersectRecurse(tree1, NULL, child_bv, tree2, NULL, bv2,
-                                       tf1, tf2))
-              return true;
-          }
-        }
-      } else {
-        if (OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, NULL, bv2, tf1,
-                                   tf2))
-          return true;
-      }
-
-      return false;
-    } else if (!tree1->nodeHasChildren(root1) &&
-               !tree2->nodeHasChildren(root2)) {
-      if (tree1->isNodeOccupied(root1) &&
-          tree2->isNodeOccupied(root2))  // occupied area
-      {
-        if (!crequest->enable_contact) {
-          OBB obb1, obb2;
-          convertBV(bv1, tf1, obb1);
-          convertBV(bv2, tf2, obb2);
-
-          if (obb1.overlap(obb2)) {
-            if (cresult->numContacts() < crequest->num_max_contacts)
-              cresult->addContact(Contact(
-                  tree1, tree2, static_cast<int>(root1 - tree1->getRoot()),
-                  static_cast<int>(root2 - tree2->getRoot())));
-          }
-        } else {
-          Box box1, box2;
-          Transform3f box1_tf, box2_tf;
-          constructBox(bv1, tf1, box1, box1_tf);
-          constructBox(bv2, tf2, box2, box2_tf);
-
-          Vec3f contact;
-          FCL_REAL distance;
-          Vec3f normal;
-          if (solver->shapeIntersect(box1, box1_tf, box2, box2_tf, distance,
-                                     true, &contact, &normal)) {
-            if (cresult->numContacts() < crequest->num_max_contacts)
-              cresult->addContact(Contact(
-                  tree1, tree2, static_cast<int>(root1 - tree1->getRoot()),
-                  static_cast<int>(root2 - tree2->getRoot()), contact, normal,
-                  distance));
-          }
-        }
-
-        return crequest->isSatisfied(*cresult);
-      } else  // free area (at least one node is free)
-        return false;
-    }
+    // Empty OcTree is considered free.
+    if (!root1) return false;
+    if (!root2) return false;
 
     /// stop when 1) bounding boxes of two objects not overlap; OR
     ///           2) at least one of the nodes is free; OR
@@ -774,13 +605,65 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       return false;
     else if ((tree1->isNodeUncertain(root1) || tree2->isNodeUncertain(root2)))
       return false;
-    else {
+
+    bool bothAreLeaves =
+        (!tree1->nodeHasChildren(root1) && !tree2->nodeHasChildren(root2));
+    if (!bothAreLeaves || !crequest->enable_contact) {
       OBB obb1, obb2;
       convertBV(bv1, tf1, obb1);
       convertBV(bv2, tf2, obb2);
-      if (!obb1.overlap(obb2)) return false;
+      FCL_REAL sqrDistLowerBound;
+      if (!obb1.overlap(obb2, *crequest, sqrDistLowerBound)) {
+        if (cresult->distance_lower_bound > 0 &&
+            sqrDistLowerBound <
+                cresult->distance_lower_bound * cresult->distance_lower_bound)
+          cresult->distance_lower_bound =
+              sqrt(sqrDistLowerBound) - crequest->security_margin;
+        return false;
+      }
+      if (!crequest->enable_contact) {  // Overlap
+        if (cresult->numContacts() < crequest->num_max_contacts)
+          cresult->addContact(
+              Contact(tree1, tree2, static_cast<int>(root1 - tree1->getRoot()),
+                      static_cast<int>(root2 - tree2->getRoot())));
+        return crequest->isSatisfied(*cresult);
+      }
     }
 
+    // Both node are leaves
+    if (bothAreLeaves) {
+      assert(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2));
+
+      Box box1, box2;
+      Transform3f box1_tf, box2_tf;
+      constructBox(bv1, tf1, box1, box1_tf);
+      constructBox(bv2, tf2, box2, box2_tf);
+
+      FCL_REAL distance;
+      Vec3f c1, c2, normal;
+      bool collision = solver->shapeDistance(box1, box1_tf, box2, box2_tf,
+                                             distance, c1, c2, normal);
+      FCL_REAL distToCollision = distance - crequest->security_margin;
+
+      if (cresult->numContacts() < crequest->num_max_contacts) {
+        if (collision)
+          cresult->addContact(
+              Contact(tree1, tree2, static_cast<int>(root1 - tree1->getRoot()),
+                      static_cast<int>(root2 - tree2->getRoot()), c1, normal,
+                      -distance));
+        else if (distToCollision <= 0)
+          cresult->addContact(
+              Contact(tree1, tree2, static_cast<int>(root1 - tree1->getRoot()),
+                      static_cast<int>(root2 - tree2->getRoot()),
+                      .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
+      }
+      internal::updateDistanceLowerBoundFromLeaf(*crequest, *cresult,
+                                                 distToCollision, c1, c2);
+
+      return crequest->isSatisfied(*cresult);
+    }
+
+    // Determine which tree to traverse first.
     if (!tree2->nodeHasChildren(root2) ||
         (tree1->nodeHasChildren(root1) && (bv1.size() > bv2.size()))) {
       for (unsigned int i = 0; i < 8; ++i) {
@@ -831,8 +714,10 @@ class HPP_FCL_DLLAPI OcTreeCollisionTraversalNode
 
   bool BVDisjoints(unsigned, unsigned, FCL_REAL&) const { return false; }
 
-  void leafCollides(unsigned, unsigned, FCL_REAL&) const {
+  void leafCollides(unsigned, unsigned, FCL_REAL& sqrDistLowerBound) const {
     otsolver->OcTreeIntersect(model1, model2, tf1, tf2, request, *result);
+    sqrDistLowerBound = std::max((FCL_REAL)0, result->distance_lower_bound);
+    sqrDistLowerBound *= sqrDistLowerBound;
   }
 
   const OcTree* model1;
