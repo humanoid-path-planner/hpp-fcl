@@ -1116,6 +1116,7 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   const Vec3f a_cross_c = A.cross(C);
 
   const FCL_REAL dummy_precision = Eigen::NumTraits<FCL_REAL>::epsilon();
+  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
 
 #define REGION_INSIDE()               \
   ray.setZero();                      \
@@ -1327,8 +1328,8 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
             if (ca * ca_da + cc * da_aa - cd * ca_aa <=
                 0) {  // if (ACD ^ AC).AO >= 0 / !a10.a11.a2.!a12.a5.a6
               assert(!(da * ca_da + dc * da_aa - dd * ca_aa <=
-                       dummy_precision));  // Not (ACD ^ AD).AO >= 0 /
-                                           // !a10.a11.a2.!a12.a5.a6.!a7
+                       -dummy_precision));  // Not (ACD ^ AD).AO >= 0 /
+                                            // !a10.a11.a2.!a12.a5.a6.!a7
               // Region ACD
               originToTriangle(current, a, c, d, (C - A).cross(D - A),
                                -D.dot(a_cross_c), next, ray);
@@ -1350,9 +1351,9 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
                                -C.dot(a_cross_b), next, ray);
               free_v[nfree++] = current.vertex[d];
             } else {  // not ABC.AO >= 0 / !a10.a11.a2.!a12.!a5.!a1
-              assert(!(
-                  da * ca_da + dc * da_aa - dd * ca_aa <=
-                  0));  // Not (ACD ^ AD).AO >= 0 / !a10.a11.a2.!a12.!a5.!a1.!a7
+              assert(!(da * ca_da + dc * da_aa - dd * ca_aa <=
+                       -dummy_precision));  // Not (ACD ^ AD).AO >= 0 /
+                                            // !a10.a11.a2.!a12.!a5.!a1.!a7
               // Region ACD
               originToTriangle(current, a, c, d, (C - A).cross(D - A),
                                -D.dot(a_cross_c), next, ray);
@@ -1405,8 +1406,8 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
             if (da * da_ba + dd * ba_aa - db * da_aa <=
                 0) {  // if (ADB ^ AD).AO >= 0 / !a10.!a11.a12.a3.a7.a8
               assert(!(ba * da_ba + bd * ba_aa - bb * da_aa <=
-                       dummy_precision));  // Not (ADB ^ AB).AO >= 0 /
-                                           // !a10.!a11.a12.a3.a7.a8.!a9
+                       -dummy_precision));  // Not (ADB ^ AB).AO >= 0 /
+                                            // !a10.!a11.a12.a3.a7.a8.!a9
               // Region ADB
               originToTriangle(current, a, d, b, (D - A).cross(B - A),
                                D.dot(a_cross_b), next, ray);
@@ -1431,8 +1432,8 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
               if (C.dot(a_cross_b) <=
                   0) {  // if ABC.AO >= 0 / !a10.!a11.a12.a3.!a7.!a2.a1
                 assert(!(ba * ba_ca + bb * ca_aa - bc * ba_aa <=
-                         dummy_precision));  // Not (ABC ^ AB).AO >= 0 /
-                                             // !a10.!a11.a12.a3.!a7.!a2.a1.!a4
+                         -dummy_precision));  // Not (ABC ^ AB).AO >= 0 /
+                                              // !a10.!a11.a12.a3.!a7.!a2.a1.!a4
                 // Region ADB
                 originToTriangle(current, a, d, b, (D - A).cross(B - A),
                                  D.dot(a_cross_b), next, ray);
