@@ -59,8 +59,8 @@ void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
       if (sqrDistLowerBound == 0) {
         assert(result.distance_lower_bound <= 0);
       } else {
-        assert(fabs(sqrDistLowerBound -
-                    result.distance_lower_bound * result.distance_lower_bound) <
+        assert(result.distance_lower_bound * result.distance_lower_bound -
+                   sqrDistLowerBound <
                1e-8);
       }
     }
