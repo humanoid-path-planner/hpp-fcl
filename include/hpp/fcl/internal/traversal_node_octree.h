@@ -436,8 +436,6 @@ class HPP_FCL_DLLAPI OcTreeSolver {
     else {
       OBB obb1, obb2;
       convertBV(bv1, tf1, obb1);
-      convertBV(tree2->getBV(root2).bv, tf2, obb2);
-      if (!obb1.overlap(obb2)) return false;
       convertBV(bvn2.bv, tf2, obb2);
       FCL_REAL sqrDistLowerBound;
       if (!obb1.overlap(obb2, *crequest, sqrDistLowerBound)) {
