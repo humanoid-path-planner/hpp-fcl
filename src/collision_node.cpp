@@ -53,8 +53,6 @@ void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
     else
       collisionNonRecurse(node, front_list, sqrDistLowerBound);
 
-    //    TODO(jcarpent): check if it is normal to comment the following line:
-    //    result.updateDistanceLowerBound (sqrt (sqrDistLowerBound));
     if (!std::isnan(sqrDistLowerBound)) {
       if (sqrDistLowerBound == 0) {
         assert(result.distance_lower_bound <= 0);
