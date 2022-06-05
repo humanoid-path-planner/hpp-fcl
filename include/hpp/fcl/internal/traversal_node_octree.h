@@ -745,8 +745,11 @@ class HPP_FCL_DLLAPI ShapeOcTreeCollisionTraversalNode
     return false;
   }
 
-  void leafCollides(unsigned int, unsigned int, FCL_REAL&) const {
+  void leafCollides(unsigned int, unsigned int,
+                    FCL_REAL& sqrDistLowerBound) const {
     otsolver->OcTreeShapeIntersect(model2, *model1, tf2, tf1, request, *result);
+    sqrDistLowerBound = std::max((FCL_REAL)0, result->distance_lower_bound);
+    sqrDistLowerBound *= sqrDistLowerBound;
   }
 
   const S* model1;
@@ -777,8 +780,11 @@ class HPP_FCL_DLLAPI OcTreeShapeCollisionTraversalNode
     return false;
   }
 
-  void leafCollides(unsigned int, unsigned int, FCL_REAL&) const {
+  void leafCollides(unsigned int, unsigned int,
+                    FCL_REAL& sqrDistLowerBound) const {
     otsolver->OcTreeShapeIntersect(model1, *model2, tf1, tf2, request, *result);
+    sqrDistLowerBound = std::max((FCL_REAL)0, result->distance_lower_bound);
+    sqrDistLowerBound *= sqrDistLowerBound;
   }
 
   const OcTree* model1;
@@ -808,8 +814,11 @@ class HPP_FCL_DLLAPI MeshOcTreeCollisionTraversalNode
     return false;
   }
 
-  void leafCollides(unsigned int, unsigned int, FCL_REAL&) const {
+  void leafCollides(unsigned int, unsigned int,
+                    FCL_REAL& sqrDistLowerBound) const {
     otsolver->OcTreeMeshIntersect(model2, model1, tf2, tf1, request, *result);
+    sqrDistLowerBound = std::max((FCL_REAL)0, result->distance_lower_bound);
+    sqrDistLowerBound *= sqrDistLowerBound;
   }
 
   const BVHModel<BV>* model1;
@@ -839,8 +848,12 @@ class HPP_FCL_DLLAPI OcTreeMeshCollisionTraversalNode
     return false;
   }
 
-  void leafCollides(unsigned int, unsigned int, FCL_REAL&) const {
+  void leafCollides(unsigned int, unsigned int,
+                    FCL_REAL& sqrDistLowerBound) const {
+    std::cout << "leafCollides" << std::endl;
     otsolver->OcTreeMeshIntersect(model1, model2, tf1, tf2, request, *result);
+    sqrDistLowerBound = std::max((FCL_REAL)0, result->distance_lower_bound);
+    sqrDistLowerBound *= sqrDistLowerBound;
   }
 
   const OcTree* model1;
