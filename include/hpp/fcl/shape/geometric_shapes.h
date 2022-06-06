@@ -200,6 +200,8 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
   Ellipsoid(FCL_REAL rx, FCL_REAL ry, FCL_REAL rz)
       : ShapeBase(), radii(rx, ry, rz) {}
 
+  Ellipsoid(const Vec3f& radii) : radii(radii) {}
+
   Ellipsoid(const Ellipsoid& other) : ShapeBase(other), radii(other.radii) {}
 
   /// @brief Clone *this into a new Ellipsoid
