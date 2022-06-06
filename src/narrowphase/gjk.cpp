@@ -769,8 +769,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       FCL_REAL frank_wolfe_duality_gap = 2 * ray.dot(ray - w);
       if (frank_wolfe_duality_gap - tolerance <= 0) {
         removeVertex(simplices[current]);
-        current_gjk_variant = DefaultGJK;
-        continue;  // continue to next iteration
+        current_gjk_variant = DefaultGJK;  // move back to classic GJK
+        continue;                          // continue to next iteration
       }
     }
 
@@ -783,7 +783,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     if (iterations > 0 && cv_check_passed) {
       if (iterations > 0) removeVertex(simplices[current]);
       if (current_gjk_variant != DefaultGJK) {
-        current_gjk_variant = DefaultGJK;
+        current_gjk_variant = DefaultGJK;  // move back to classic GJK
         continue;
       }
       distance = rl - inflation;
