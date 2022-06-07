@@ -325,23 +325,20 @@ class HeightFieldShapeCollisionTraversalNode
     FCL_REAL distance;
     Vec3f c1, c2, normal;
 
-    //    bool collision =
-    this->shapeDistance(convex1, convex2, this->tf1, *(this->model2), this->tf2,
-                        distance, c1, c2, normal);
+    bool collision =
+        this->shapeDistance(convex1, convex2, this->tf1, *(this->model2),
+                            this->tf2, distance, c1, c2, normal);
 
     FCL_REAL distToCollision = distance - this->request.security_margin;
-    //    if (collision) {
-    //      sqrDistLowerBound = 0;
-    //      if (this->request.num_max_contacts > this->result->numContacts()) {
-    //        this->result->addContact(Contact(this->model1, this->model2,
-    //        (int)b1,
-    //                                         (int)Contact::NONE, c1, normal,
-    //                                         -distance));
-    //        assert(this->result->isCollision());
-    //      }
-    //    }
-    //    else
-    if (distToCollision <= this->request.collision_distance_threshold) {
+    if (collision) {
+      sqrDistLowerBound = 0;
+      if (this->request.num_max_contacts > this->result->numContacts()) {
+        this->result->addContact(Contact(this->model1, this->model2, (int)b1,
+                                         (int)Contact::NONE, c1, normal,
+                                         -distance));
+        assert(this->result->isCollision());
+      }
+    } else if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
       if (this->request.num_max_contacts > this->result->numContacts()) {
         this->result->addContact(Contact(this->model1, this->model2, (int)b1,
@@ -509,22 +506,21 @@ class ShapeHeightFieldCollisionTraversalNode
     Vec3f normal;
     Vec3f c1, c2;  // closest points
 
-    //    bool collision =
-    this->shapeDistance(*(this->model1), this->tf1, convex1, convex2, this->tf2,
-                        distance, c1, c2, normal);
+    bool collision =
+        this->shapeDistance(*(this->model1), this->tf1, convex1, convex2,
+                            this->tf2, distance, c1, c2, normal);
 
     FCL_REAL distToCollision = distance - this->request.security_margin;
-    //    if (collision) {
-    //      sqrDistLowerBound = 0;
-    //      if (this->request.num_max_contacts > this->result->numContacts()) {
-    //        this->result->addContact(Contact(this->model1, this->model2,
-    //                                         Contact::NONE, b2, c1, normal,
-    //                                         distance));
-    //        assert(this->result->isCollision());
-    //        return;
-    //      }
-    //    } else
-    if (distToCollision < 0) {
+    if (collision) {
+      sqrDistLowerBound = 0;
+      if (this->request.num_max_contacts > this->result->numContacts()) {
+        this->result->addContact(Contact(this->model1, this->model2,
+                                         Contact::NONE, b2, c1, normal,
+                                         distance));
+        assert(this->result->isCollision());
+        return;
+      }
+    } else if (distToCollision < 0) {
       sqrDistLowerBound = 0;
       if (this->request.num_max_contacts > this->result->numContacts()) {
         this->result->addContact(Contact(this->model1, this->model2,
