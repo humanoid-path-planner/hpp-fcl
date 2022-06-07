@@ -131,7 +131,7 @@ class HPP_FCL_DLLAPI ComputeDistance {
   mutable const CollisionGeometry* o1;
   mutable const CollisionGeometry* o2;
 
-  GJKSolver solver;
+  mutable GJKSolver solver;
 
   DistanceFunctionMatrix::DistanceFunc func;
   bool swap_geoms;

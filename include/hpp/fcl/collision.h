@@ -136,7 +136,7 @@ class HPP_FCL_DLLAPI ComputeCollision {
   mutable const CollisionGeometry* o1;
   mutable const CollisionGeometry* o2;
 
-  GJKSolver solver;
+  mutable GJKSolver solver;
 
   CollisionFunctionMatrix::CollisionFunc func;
   bool swap_geoms;
