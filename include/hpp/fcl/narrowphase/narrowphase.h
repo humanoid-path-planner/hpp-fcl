@@ -5,7 +5,7 @@
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
  *  Copyright (c) 2018-2019, Centre National de la Recherche Scientifique
  *  All rights reserved.
- *  Copyright (c) 2021, INRIA
+ *  Copyright (c) 2021-2022, INRIA
  *  All rights reserved.
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
@@ -43,6 +43,7 @@
 #include <limits>
 
 #include <hpp/fcl/narrowphase/gjk.h>
+#include <hpp/fcl/collision_data.h>
 
 namespace hpp {
 namespace fcl {
@@ -329,7 +330,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-  /// @brief default setting for GJK algorithm
+  /// @brief Default constructor for GJK algorithm
   GJKSolver() {
     gjk_max_iterations = 128;
     gjk_tolerance = 1e-6;
@@ -345,6 +346,83 @@ struct HPP_FCL_DLLAPI GJKSolver {
     gjk_variant = GJKVariant::DefaultGJK;
     gjk_convergence_criterion = GJKConvergenceCriterion::VDB;
     gjk_convergence_criterion_type = GJKConvergenceCriterionType::Relative;
+  }
+
+  /// @brief Constructor from a DistanceRequest
+  ///
+  /// \param[in] request DistanceRequest input
+  ///
+  GJKSolver(const DistanceRequest& request) {
+    cached_guess = Vec3f(1, 0, 0);
+    support_func_cached_guess = support_func_guess_t::Zero();
+    distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
+
+    // EPS settings
+    epa_max_face_num = 128;
+    epa_max_vertex_num = 64;
+    epa_max_iterations = 255;
+    epa_tolerance = 1e-6;
+
+    set(request);
+  }
+
+  /// @brief setter from a DistanceRequest
+  ///
+  /// \param[in] request DistanceRequest input
+  ///
+  void set(const DistanceRequest& request) {
+    gjk_initial_guess = request.gjk_initial_guess;
+    // TODO: use gjk_initial_guess instead
+    enable_cached_guess = request.enable_cached_gjk_guess;
+    gjk_variant = request.gjk_variant;
+    gjk_convergence_criterion = request.gjk_convergence_criterion;
+    gjk_convergence_criterion_type = request.gjk_convergence_criterion_type;
+    gjk_tolerance = request.gjk_tolerance;
+    gjk_max_iterations = request.gjk_max_iterations;
+    if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
+        enable_cached_guess) {
+      cached_guess = request.cached_gjk_guess;
+      support_func_cached_guess = request.cached_support_func_guess;
+    }
+  }
+
+  /// @brief Constructor from a CollisionRequest
+  ///
+  /// \param[in] request CollisionRequest input
+  ///
+  GJKSolver(const CollisionRequest& request) {
+    cached_guess = Vec3f(1, 0, 0);
+    support_func_cached_guess = support_func_guess_t::Zero();
+    distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
+
+    // EPS settings
+    epa_max_face_num = 128;
+    epa_max_vertex_num = 64;
+    epa_max_iterations = 255;
+    epa_tolerance = 1e-6;
+
+    set(request);
+  }
+
+  /// @brief setter from a CollisionRequest
+  ///
+  /// \param[in] request CollisionRequest input
+  ///
+  void set(const CollisionRequest& request) {
+    gjk_initial_guess = request.gjk_initial_guess;
+    // TODO: use gjk_initial_guess instead
+    enable_cached_guess = request.enable_cached_gjk_guess;
+    gjk_variant = request.gjk_variant;
+    gjk_convergence_criterion = request.gjk_convergence_criterion;
+    gjk_convergence_criterion_type = request.gjk_convergence_criterion_type;
+    gjk_tolerance = request.gjk_tolerance;
+    gjk_max_iterations = request.gjk_max_iterations;
+    if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
+        enable_cached_guess) {
+      cached_guess = request.cached_gjk_guess;
+      support_func_cached_guess = request.cached_support_func_guess;
+    }
+    distance_upper_bound = request.distance_upper_bound;
   }
 
   /// @brief Copy constructor
