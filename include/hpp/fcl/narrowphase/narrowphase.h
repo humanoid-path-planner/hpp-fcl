@@ -201,7 +201,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         if (gjk.hasPenetrationInformation(shape)) {
           gjk.getClosestPoints(shape, w0, w1);
           distance = gjk.distance;
-          normal = tf1.getRotation() * (w0 - w1).normalized();
+          normal.noalias() = tf1.getRotation() * (w0 - w1).normalized();
           p1 = p2 = tf1.transform((w0 + w1) / 2);
         } else {
           details::EPA epa(epa_max_face_num, epa_max_vertex_num,
