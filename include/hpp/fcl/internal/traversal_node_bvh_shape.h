@@ -231,10 +231,7 @@ class MeshShapeCollisionTraversalNode
                     .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
       }
     } else
-      sqrDistLowerBound =
-          distToCollision *
-          distToCollision;  // TODO(jcarpent): should it be distToCollision *
-                            // distToCollision?
+      sqrDistLowerBound = distToCollision * distToCollision;
 
     internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
                                                distToCollision, c1, c2);
