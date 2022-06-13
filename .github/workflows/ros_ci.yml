@@ -19,7 +19,7 @@ jobs:
           - {ROS_DISTRO: foxy, PRERELEASE: true}
           #- {ROS_DISTRO: galactic, PRERELEASE: true} ## Activate once eigenpy released to galactic
     env:
-      AFTER_RUN_TARGET_TEST: 'cd /root/target_ws/build/hpp-fcl && make test'
+      AFTER_RUN_TARGET_TEST: 'cd /root/target_ws/build/hpp-fcl && make build_tests && ctest --output-on-failure'
       CCACHE_DIR: /github/home/.ccache # Enable ccache
     runs-on: ubuntu-latest
     steps:
