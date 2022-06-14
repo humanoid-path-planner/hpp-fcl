@@ -516,16 +516,16 @@ class ShapeHeightFieldCollisionTraversalNode
       if (this->request.num_max_contacts > this->result->numContacts()) {
         this->result->addContact(Contact(this->model1, this->model2,
                                          Contact::NONE, b2, c1, normal,
-                                         distance));
+                                         -distance));
         assert(this->result->isCollision());
         return;
       }
-    } else if (distToCollision < 0) {
+    } else if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
       if (this->request.num_max_contacts > this->result->numContacts()) {
         this->result->addContact(Contact(this->model1, this->model2,
                                          Contact::NONE, b2, .5 * (c1 + c2),
-                                         (c2 - c1).normalized(), distance));
+                                         (c2 - c1).normalized(), -distance));
       }
     } else
       sqrDistLowerBound = distToCollision * distToCollision;
