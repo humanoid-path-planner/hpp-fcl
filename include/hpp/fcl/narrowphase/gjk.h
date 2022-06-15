@@ -130,15 +130,6 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
     getSupportFunc(*this, d, dIsNormalized, supp0, supp1, hint,
                    const_cast<ShapeData*>(data));
   }
-
-  /// @brief Set wether or not to use the normalization heuristic when computing
-  /// a support point. Only effective if acceleration version of GJK is used.
-  /// By default, when MinkowskiDiff::set is called, the normalization heuristic
-  /// is deduced from the shapes. The user can override this behavior with this
-  /// function.
-  inline void setNormalizeSupportDirection(bool normalize) {
-    normalize_support_direction = normalize;
-  }
 };
 
 /// @brief class for GJK algorithm
