@@ -38,58 +38,12 @@
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/internal/tools.h>
+#include <hpp/fcl/shape/geometric_shapes_traits.h>
 
 namespace hpp {
 namespace fcl {
 
 namespace details {
-
-struct HPP_FCL_LOCAL shape_traits_base {
-  enum { NeedNormalizedDir = true, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <typename Shape>
-struct HPP_FCL_LOCAL shape_traits : shape_traits_base {};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<TriangleP> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Box> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Sphere> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Ellipsoid> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Capsule> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Cone> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Cylinder> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<ConvexBase> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = true };
-};
 
 void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
                      Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
