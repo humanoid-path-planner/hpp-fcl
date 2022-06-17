@@ -538,9 +538,9 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
   getNormalizeSupportDirectionFromShapes(shape0, shape1,
                                          normalize_support_direction);
 
-  oR1 = tf0.getRotation().transpose() * tf1.getRotation();
-  ot1 = tf0.getRotation().transpose() *
-        (tf1.getTranslation() - tf0.getTranslation());
+  oR1.noalias() = tf0.getRotation().transpose() * tf1.getRotation();
+  ot1.noalias() = tf0.getRotation().transpose() *
+                  (tf1.getTranslation() - tf0.getTranslation());
 
   bool identity = (oR1.isIdentity() && ot1.isZero());
 
