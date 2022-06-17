@@ -59,14 +59,6 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
 
   virtual ~ShapeBase(){};
 
-  /// \brief Inflate the shape by an amount given by value
-  ///
-  /// \param[in] value of the shape inflation.
-  ///
-  /// \returns a new inflated shape
-  virtual std::pair<ShapeBase*, Transform3f> inflated(
-      const FCL_REAL value) const = 0;
-
   /// @brief Get object type: a geometric shape
   OBJECT_TYPE getObjectType() const { return OT_GEOM; }
 };
@@ -92,19 +84,25 @@ class HPP_FCL_DLLAPI TriangleP : public ShapeBase {
 
   NODE_TYPE getNodeType() const { return GEOM_TRIANGLE; }
 
-  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
-    if (value == 0) return std::make_pair(new TriangleP(*this), Transform3f());
-    Vec3f AB(b - a), BC(c - b), CA(a - c);
-    AB.normalize();
-    BC.normalize();
-    CA.normalize();
-
-    Vec3f new_a(a + value * Vec3f(-AB + CA).normalized());
-    Vec3f new_b(b + value * Vec3f(-BC + AB).normalized());
-    Vec3f new_c(c + value * Vec3f(-CA + BC).normalized());
-
-    return std::make_pair(new TriangleP(new_a, new_b, new_c), Transform3f());
-  }
+  //  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
+  //    if (value == 0) return std::make_pair(new TriangleP(*this),
+  //    Transform3f()); Vec3f AB(b - a), BC(c - b), CA(a - c); AB.normalize();
+  //    BC.normalize();
+  //    CA.normalize();
+  //
+  //    Vec3f new_a(a + value * Vec3f(-AB + CA).normalized());
+  //    Vec3f new_b(b + value * Vec3f(-BC + AB).normalized());
+  //    Vec3f new_c(c + value * Vec3f(-CA + BC).normalized());
+  //
+  //    return std::make_pair(new TriangleP(new_a, new_b, new_c),
+  //    Transform3f());
+  //  }
+  //
+  //  FCL_REAL minInflationValue() const
+  //  {
+  //    return (std::numeric_limits<FCL_REAL>::max)(); // TODO(jcarpent):
+  //    implement
+  //  }
 
   Vec3f a, b, c;
 
@@ -161,14 +159,21 @@ class HPP_FCL_DLLAPI Box : public ShapeBase {
     return (Vec3f(s[1] + s[2], s[0] + s[2], s[0] + s[1]) / 3).asDiagonal();
   }
 
-  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
-    const FCL_REAL minimal_value = -halfSide.minCoeff();
-    if (value <= minimal_value)
-      HPP_FCL_THROW_PRETTY(
-          "value (" << value << ") "
-                    << "is two small. It should be at least: " << minimal_value,
-          std::invalid_argument);
-    return std::make_pair(new Box(2 * (halfSide + Vec3f::Constant(value))),
+  FCL_REAL minInflationValue() const { return -halfSide.minCoeff(); }
+
+  /// \brief Inflate the box by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated box and the related transform to account for the
+  /// change of shape frame
+  std::pair<Box, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
+      HPP_FCL_THROW_PRETTY("value (" << value << ") "
+                                     << "is two small. It should be at least: "
+                                     << minInflationValue(),
+                           std::invalid_argument);
+    return std::make_pair(Box(2 * (halfSide + Vec3f::Constant(value))),
                           Transform3f());
   }
 
@@ -214,13 +219,20 @@ class HPP_FCL_DLLAPI Sphere : public ShapeBase {
            radius / 3;
   }
 
-  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
-    const FCL_REAL minimal_value = -radius;
-    if (value <= minimal_value)
+  FCL_REAL minInflationValue() const { return -radius; }
+
+  /// \brief Inflate the sphere by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated sphere and the related transform to account for
+  /// the change of shape frame
+  std::pair<Sphere, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
       HPP_FCL_THROW_PRETTY(
-          "value is two small. It should be at least: " << minimal_value,
+          "value is two small. It should be at least: " << minInflationValue(),
           std::invalid_argument);
-    return std::make_pair(new Sphere(radius + value), Transform3f());
+    return std::make_pair(Sphere(radius + value), Transform3f());
   }
 
  private:
@@ -274,13 +286,20 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
            radii[2] / 3;
   }
 
-  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
-    const FCL_REAL minimal_value = -radii.minCoeff();
-    if (value <= minimal_value)
+  FCL_REAL minInflationValue() const { return -radii.minCoeff(); }
+
+  /// \brief Inflate the ellipsoid by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated ellipsoid and the related transform to account for
+  /// the change of shape frame
+  std::pair<Ellipsoid, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
       HPP_FCL_THROW_PRETTY(
-          "value is two small. It should be at least: " << minimal_value,
+          "value is two small. It should be at least: " << minInflationValue(),
           std::invalid_argument);
-    return std::make_pair(new Ellipsoid(radii + Vec3f::Constant(value)),
+    return std::make_pair(Ellipsoid(radii + Vec3f::Constant(value)),
                           Transform3f());
   }
 
@@ -345,13 +364,20 @@ class HPP_FCL_DLLAPI Capsule : public ShapeBase {
     return (Matrix3f() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
   }
 
-  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
-    const FCL_REAL minimal_value = -radius;
-    if (value <= minimal_value)
+  FCL_REAL minInflationValue() const { return -radius; }
+
+  /// \brief Inflate the capsule by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated capsule and the related transform to account for
+  /// the change of shape frame
+  std::pair<Capsule, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
       HPP_FCL_THROW_PRETTY(
-          "value is two small. It should be at least: " << minimal_value,
+          "value is two small. It should be at least: " << minInflationValue(),
           std::invalid_argument);
-    return std::make_pair(new Capsule(radius + value, 2 * halfLength),
+    return std::make_pair(Capsule(radius + value, 2 * halfLength),
                           Transform3f());
   }
 
@@ -411,11 +437,18 @@ class HPP_FCL_DLLAPI Cone : public ShapeBase {
 
   Vec3f computeCOM() const { return Vec3f(0, 0, -0.5 * halfLength); }
 
-  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
-    const FCL_REAL minimal_value = -(std::min)(radius, halfLength);
-    if (value <= minimal_value)
+  FCL_REAL minInflationValue() const { return -(std::min)(radius, halfLength); }
+
+  /// \brief Inflate the cone by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated cone and the related transform to account for the
+  /// change of shape frame
+  std::pair<Cone, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
       HPP_FCL_THROW_PRETTY(
-          "value is two small. It should be at least: " << minimal_value,
+          "value is two small. It should be at least: " << minInflationValue(),
           std::invalid_argument);
 
     // tan(alpha) = 2*halfLength/radius;
@@ -428,7 +461,7 @@ class HPP_FCL_DLLAPI Cone : public ShapeBase {
     const FCL_REAL new_cz = (top_inflation + bottom_inflation) / 2.;
     const FCL_REAL new_radius = new_lz / tan_alpha;
 
-    return std::make_pair(new Cone(new_radius, new_lz),
+    return std::make_pair(Cone(new_radius, new_lz),
                           Transform3f(Vec3f(0., 0., new_cz)));
   }
 
@@ -491,14 +524,21 @@ class HPP_FCL_DLLAPI Cylinder : public ShapeBase {
     return (Matrix3f() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
   }
 
-  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
-    const FCL_REAL minimal_value = -(std::min)(radius, halfLength);
-    if (value <= minimal_value)
+  FCL_REAL minInflationValue() const { return -(std::min)(radius, halfLength); }
+
+  /// \brief Inflate the cylinder by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated cylinder and the related transform to account for
+  /// the change of shape frame
+  std::pair<Cylinder, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
       HPP_FCL_THROW_PRETTY(
-          "value is two small. It should be at least: " << minimal_value,
+          "value is two small. It should be at least: " << minInflationValue(),
           std::invalid_argument);
-    return std::make_pair(
-        new Cylinder(radius + value, 2 * (halfLength + value)), Transform3f());
+    return std::make_pair(Cylinder(radius + value, 2 * (halfLength + value)),
+                          Transform3f());
   }
 
  private:
@@ -595,16 +635,6 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// @brief center of the convex polytope, this is used for collision: center
   /// is guaranteed in the internal of the polytope (as it is convex)
   Vec3f center;
-
-  /// @copydoc ShapeBase::inflated
-  /// @remarks Inflated should not be applied on Convex objects.
-  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
-    HPP_FCL_UNUSED_VARIABLE(value);
-    HPP_FCL_THROW_PRETTY(
-        "ConvexBase::inflated has not been implemented so far.",
-        std::logic_error);
-    return std::make_pair(static_cast<ShapeBase*>(NULL), Transform3f());
-  }
 
  protected:
   /// @brief Construct an uninitialized convex object
@@ -718,13 +748,6 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
   /// @brief Plane offset
   FCL_REAL d;
 
-  /// @copydoc ShapeBase::inflated
-  /// @remarks Inflated method has no effect on the Halfspace
-  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
-    HPP_FCL_UNUSED_VARIABLE(value);
-    return std::make_pair(clone(), Transform3f());
-  }
-
  protected:
   /// @brief Turn non-unit normal into unit
   void unitNormalTest();
@@ -785,13 +808,6 @@ class HPP_FCL_DLLAPI Plane : public ShapeBase {
 
   /// @brief Plane offset
   FCL_REAL d;
-
-  /// @copydoc ShapeBase::inflated
-  /// @remarks Inflated method has no effect on the Plane
-  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
-    HPP_FCL_UNUSED_VARIABLE(value);
-    return std::make_pair(clone(), Transform3f());
-  }
 
  protected:
   /// @brief Turn non-unit normal into unit
