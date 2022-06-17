@@ -431,17 +431,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// @brief Copy constructor
   GJKSolver(const GJKSolver& other) = default;
 
-  // TODO: (enable/set/get)CachedGuess -> use gjk_initial_guess instead
-  void enableCachedGuess(bool if_enable) const {
-    enable_cached_guess = if_enable;
-  }
-
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
-
-  void setCachedGuess(const Vec3f& guess) const { cached_guess = guess; }
-
-  Vec3f getCachedGuess() const { return cached_guess; }
-
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   bool operator==(const GJKSolver& other) const {
