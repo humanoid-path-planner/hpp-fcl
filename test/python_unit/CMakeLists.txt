@@ -4,6 +4,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   collision
   )
 
+ADD_DEPENDENCIES(build_tests hppfcl)
 FOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
   ADD_PYTHON_UNIT_TEST("py-${TEST}" "test/python_unit/${TEST}.py" "python")
 ENDFOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
