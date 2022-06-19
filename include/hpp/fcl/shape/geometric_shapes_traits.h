@@ -134,6 +134,16 @@ struct shape_traits<ConvexBase> : shape_traits_base {
   };
 };
 
+template <>
+struct shape_traits<Halfspace> : shape_traits_base {
+  enum {
+    NeedNormalizedDir = false,
+    NeedNesterovNormalizeHeuristic = false,
+    IsInflatable = true,
+    HasInflatedSupportFunction = false
+  };
+};
+
 }  // namespace fcl
 }  // namespace hpp
 

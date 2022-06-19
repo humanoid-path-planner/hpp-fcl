@@ -742,6 +742,24 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
   /// @brief Get node type: a half space
   NODE_TYPE getNodeType() const { return GEOM_HALFSPACE; }
 
+  FCL_REAL minInflationValue() const {
+    return std::numeric_limits<FCL_REAL>::lowest();
+  }
+
+  /// \brief Inflate the cylinder by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated cylinder and the related transform to account for
+  /// the change of shape frame
+  std::pair<Halfspace, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
+      HPP_FCL_THROW_PRETTY(
+          "value is two small. It should be at least: " << minInflationValue(),
+          std::invalid_argument);
+    return std::make_pair(Halfspace(n, d + value), Transform3f());
+  }
+
   /// @brief Plane normal
   Vec3f n;
 

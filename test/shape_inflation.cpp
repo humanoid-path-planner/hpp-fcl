@@ -102,6 +102,10 @@ bool isApprox(const TriangleP &s1, const TriangleP &s2, const FCL_REAL tol) {
          s1.c.isApprox(s2.c, tol);
 }
 
+bool isApprox(const Halfspace &s1, const Halfspace &s2, const FCL_REAL tol) {
+  return isApprox(s1.d, s2.d, tol) && s1.n.isApprox(s2.n, tol);
+}
+
 template <typename Shape>
 void test(const Shape &original_shape, const FCL_REAL inflation,
           const FCL_REAL tol = 1e-8) {
@@ -184,6 +188,9 @@ BOOST_AUTO_TEST_CASE(test_inflate) {
   const hpp::fcl::Cone cone(1., 4.);
   test(cone, 0.01, 1e-8);
   test_throw(cone, -1.1);
+
+  const hpp::fcl::Halfspace halfspace(Vec3f::UnitZ(), 0.);
+  test(halfspace, 0.01, 1e-8);
 
   //  const hpp::fcl::TriangleP triangle(Vec3f::UnitX(), Vec3f::UnitY(),
   //                                     Vec3f::UnitZ());
