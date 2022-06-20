@@ -46,7 +46,11 @@ namespace fcl {
 namespace details {
 
 void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
-                     Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
+                     Vec3f& support, int&, MinkowskiDiff::ShapeData*,
+                     const FCL_REAL& shape_deflation) {
+  HPP_FCL_UNUSED_VARIABLE(shape_deflation);
+  assert(shape_deflation == 0 && "shape_deflation should be equal to zero");
+
   FCL_REAL dota = dir.dot(triangle->a);
   FCL_REAL dotb = dir.dot(triangle->b);
   FCL_REAL dotc = dir.dot(triangle->c);
@@ -64,7 +68,11 @@ void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
 }
 
 inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
-                            int&, MinkowskiDiff::ShapeData*) {
+                            int&, MinkowskiDiff::ShapeData*,
+                            const FCL_REAL& shape_deflation) {
+  HPP_FCL_UNUSED_VARIABLE(shape_deflation);
+  assert(shape_deflation == 0 && "shape_deflation should be equal to zero");
+
   const FCL_REAL inflate = (dir.array() == 0).any() ? 1.00000001 : 1.;
   support.noalias() =
       (dir.array() > 0)
@@ -72,12 +80,20 @@ inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
 }
 
 inline void getShapeSupport(const Sphere*, const Vec3f& /*dir*/, Vec3f& support,
-                            int&, MinkowskiDiff::ShapeData*) {
+                            int&, MinkowskiDiff::ShapeData*,
+                            const FCL_REAL& shape_deflation) {
+  HPP_FCL_UNUSED_VARIABLE(shape_deflation);
+  assert(shape_deflation == 0 && "shape_deflation should be equal to zero");
+
   support.setZero();
 }
 
 inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
-                            Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
+                            Vec3f& support, int&, MinkowskiDiff::ShapeData*,
+                            const FCL_REAL& shape_deflation) {
+  HPP_FCL_UNUSED_VARIABLE(shape_deflation);
+  assert(shape_deflation == 0 && "shape_deflation should be equal to zero");
+
   FCL_REAL a2 = ellipsoid->radii[0] * ellipsoid->radii[0];
   FCL_REAL b2 = ellipsoid->radii[1] * ellipsoid->radii[1];
   FCL_REAL c2 = ellipsoid->radii[2] * ellipsoid->radii[2];
@@ -90,7 +106,11 @@ inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
 }
 
 inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
-                            Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
+                            Vec3f& support, int&, MinkowskiDiff::ShapeData*,
+                            const FCL_REAL& shape_deflation) {
+  HPP_FCL_UNUSED_VARIABLE(shape_deflation);
+  assert(shape_deflation == 0 && "shape_deflation should be equal to zero");
+
   support.head<2>().setZero();
   if (dir[2] > 0)
     support[2] = capsule->halfLength;
@@ -99,7 +119,11 @@ inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
 }
 
 void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support, int&,
-                     MinkowskiDiff::ShapeData*) {
+                     MinkowskiDiff::ShapeData*,
+                     const FCL_REAL& shape_deflation) {
+  HPP_FCL_UNUSED_VARIABLE(shape_deflation);
+  assert(shape_deflation == 0 && "shape_deflation should be equal to zero");
+
   // The cone radius is, for -h < z < h, (h - z) * r / (2*h)
   static const FCL_REAL inflate = 1.00001;
   FCL_REAL h = cone->halfLength;
@@ -137,7 +161,11 @@ void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support, int&,
 }
 
 void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
-                     int&, MinkowskiDiff::ShapeData*) {
+                     int&, MinkowskiDiff::ShapeData*,
+                     const FCL_REAL& shape_deflation) {
+  HPP_FCL_UNUSED_VARIABLE(shape_deflation);
+  assert(shape_deflation == 0 && "shape_deflation should be equal to zero");
+
   // The inflation makes the object look strictly convex to GJK and EPA. This
   // helps solving particular cases (e.g. a cylinder with itself at the same
   // position...)
@@ -166,9 +194,52 @@ void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
 struct SmallConvex : ShapeBase {};
 struct LargeConvex : ShapeBase {};
 
+inline void correctConvexBaseSupport(const ConvexBase* convex, Vec3f& support,
+                                     const int hint,
+                                     const FCL_REAL shape_deflation) {
+  const Vec3f* pts = convex->points;
+  const ConvexBase::Neighbors* nn = convex->neighbors;
+
+  const ConvexBase::Neighbors& n = nn[hint];
+  unsigned char num_neighbors = n.count();
+
+  if (num_neighbors == 0)
+    HPP_FCL_THROW_PRETTY("Point "
+                             << hint
+                             << " has zero neighbor.\n"
+                                "The convex geometry seems to be degenerated.",
+                         std::invalid_argument);
+
+  // step 1: Compute average neighborhood directions (pointing towards the
+  // interior of the convex object).
+  const Vec3f first_direction = (pts[n[0]] - support).normalized();
+  Vec3f average_dir = first_direction;
+  for (int in = 1; in < num_neighbors; ++in) {
+    const unsigned int ip = n[in];
+    average_dir += (pts[ip] - support).normalized();
+  }
+
+  average_dir.normalize();
+
+  // step 2: Compute the right penetration
+  const FCL_REAL cos_alpha = average_dir.dot(first_direction);
+  const FCL_REAL sin_acos_cos_alpha = std::sqrt(1. - cos_alpha * cos_alpha);
+  if (sin_acos_cos_alpha <= Eigen::NumTraits<FCL_REAL>::epsilon())
+    HPP_FCL_THROW_PRETTY(
+        "Degenerated neighborhood for the current convex geometry.\n"
+            << "sin_acos_cos_alpha: " << sin_acos_cos_alpha << "\n",
+        std::invalid_argument);
+  const FCL_REAL penetration_depth = -shape_deflation / sin_acos_cos_alpha;
+
+  // step3: Correct the support
+  support += penetration_depth * average_dir;
+}
+
 void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         Vec3f& support, int& hint,
-                        MinkowskiDiff::ShapeData* data) {
+                        MinkowskiDiff::ShapeData* data,
+                        const FCL_REAL& shape_deflation) {
+  assert(shape_deflation <= 0 && "shape_deflation should be negative");
   assert(data != NULL);
 
   const Vec3f* pts = convex->points;
@@ -205,11 +276,16 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   }
 
   support = pts[hint];
+
+  if (shape_deflation < 0) {
+    correctConvexBaseSupport(convex, support, hint, shape_deflation);
+  }
 }
 
 void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
-                           Vec3f& support, int& hint,
-                           MinkowskiDiff::ShapeData*) {
+                           Vec3f& support, int& hint, MinkowskiDiff::ShapeData*,
+                           const FCL_REAL& shape_deflation) {
+  assert(shape_deflation <= 0 && "shape_deflation should be negative");
   const Vec3f* pts = convex->points;
 
   hint = 0;
@@ -222,31 +298,38 @@ void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
     }
   }
   support = pts[hint];
+
+  if (shape_deflation < 0) {
+    correctConvexBaseSupport(convex, support, hint, shape_deflation);
+  }
 }
 
 void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
-                     int& hint, MinkowskiDiff::ShapeData*) {
+                     int& hint, MinkowskiDiff::ShapeData*,
+                     const FCL_REAL& shape_deflation) {
   // TODO add benchmark to set a proper value for switching between linear and
   // logarithmic.
   if (convex->num_points > 32) {
     MinkowskiDiff::ShapeData data;
-    getShapeSupportLog(convex, dir, support, hint, &data);
+    getShapeSupportLog(convex, dir, support, hint, &data, shape_deflation);
   } else
-    getShapeSupportLinear(convex, dir, support, hint, NULL);
+    getShapeSupportLinear(convex, dir, support, hint, NULL, shape_deflation);
 }
 
 inline void getShapeSupport(const SmallConvex* convex, const Vec3f& dir,
                             Vec3f& support, int& hint,
-                            MinkowskiDiff::ShapeData* data) {
+                            MinkowskiDiff::ShapeData* data,
+                            const FCL_REAL& shape_deflation) {
   getShapeSupportLinear(reinterpret_cast<const ConvexBase*>(convex), dir,
-                        support, hint, data);
+                        support, hint, data, shape_deflation);
 }
 
 inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
                             Vec3f& support, int& hint,
-                            MinkowskiDiff::ShapeData* data) {
+                            MinkowskiDiff::ShapeData* data,
+                            const FCL_REAL& shape_deflation) {
   getShapeSupportLog(reinterpret_cast<const ConvexBase*>(convex), dir, support,
-                     hint, data);
+                     hint, data, shape_deflation);
 }
 
 #define CALL_GET_SHAPE_SUPPORT(ShapeType)                              \
@@ -255,10 +338,10 @@ inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
       (shape_traits<ShapeType>::NeedNormalizedDir && !dirIsNormalized) \
           ? dir.normalized()                                           \
           : dir,                                                       \
-      support, hint, NULL)
+      support, hint, NULL, shape_deflation)
 
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
-                 int& hint) {
+                 int& hint, const FCL_REAL& shape_deflation) {
   Vec3f support;
   switch (shape->getNodeType()) {
     case GEOM_TRIANGLE:
@@ -301,12 +384,15 @@ template <typename Shape0, typename Shape1, bool TransformIsIdentity>
 void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3f& oR1,
                    const Vec3f& ot1, const Vec3f& dir, Vec3f& support0,
                    Vec3f& support1, support_func_guess_t& hint,
-                   MinkowskiDiff::ShapeData data[2]) {
-  getShapeSupport(s0, dir, support0, hint[0], &(data[0]));
+                   MinkowskiDiff::ShapeData data[2],
+                   const MinkowskiDiff::Array2d& shape_deflation) {
+  getShapeSupport(s0, dir, support0, hint[0], &(data[0]), shape_deflation[0]);
   if (TransformIsIdentity)
-    getShapeSupport(s1, -dir, support1, hint[1], &(data[1]));
+    getShapeSupport(s1, -dir, support1, hint[1], &(data[1]),
+                    shape_deflation[1]);
   else {
-    getShapeSupport(s1, -oR1.transpose() * dir, support1, hint[1], &(data[1]));
+    getShapeSupport(s1, -oR1.transpose() * dir, support1, hint[1], &(data[1]),
+                    shape_deflation[1]);
     support1 = oR1 * support1 + ot1;
   }
 }
@@ -334,7 +420,7 @@ void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
       static_cast<const Shape0*>(md.shapes[0]),
       static_cast<const Shape1*>(md.shapes[1]), md.oR1, md.ot1,
       (NeedNormalizedDir && !dirIsNormalized) ? dir.normalized() : dir,
-      support0, support1, hint, data);
+      support0, support1, hint, data, md.shape_deflation);
 }
 
 template <typename Shape0>

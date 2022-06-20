@@ -51,7 +51,7 @@ namespace details {
 /// @brief the support function for shape
 /// \param hint use to initialize the search when shape is a ConvexBase object.
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
-                 int& hint);
+                 int& hint, const FCL_REAL& shape_deflation);
 
 /// @brief Minkowski difference class of two shapes
 ///
@@ -79,7 +79,6 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   Vec3f ot1;
 
   /// @brief The radius of the sphere swepted volume.
-  /// The 2 values correspond to the inflation of shape 0 and shape 1.
   /// The 2 values correspond to the inflation of shape 0 and shape 1/
   /// These inflation values are used for Sphere and Capsule.
   Array2d inflation;
@@ -107,7 +106,6 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   GetSupportFunction getSupportFunc;
 
   MinkowskiDiff()
-      : linear_log_convex_threshold(32),
       : shape_deflation(0, 0),
         linear_log_convex_threshold(32),
         normalize_support_direction(false),
@@ -123,13 +121,13 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
   /// @brief support function for shape0
   inline Vec3f support0(const Vec3f& d, bool dIsNormalized, int& hint) const {
-    return getSupport(shapes[0], d, dIsNormalized, hint);
+    return getSupport(shapes[0], d, dIsNormalized, hint, shape_deflation[0]);
   }
 
   /// @brief support function for shape1
   inline Vec3f support1(const Vec3f& d, bool dIsNormalized, int& hint) const {
-    return oR1 *
-               getSupport(shapes[1], oR1.transpose() * d, dIsNormalized, hint) +
+    return oR1 * getSupport(shapes[1], oR1.transpose() * d, dIsNormalized, hint,
+                            shape_deflation[1]) +
            ot1;
   }
 
