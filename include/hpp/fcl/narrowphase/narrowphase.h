@@ -51,6 +51,8 @@ namespace fcl {
 /// @brief collision and distance solver based on GJK algorithm implemented in
 /// fcl (rewritten the code from the GJK in bullet)
 struct HPP_FCL_DLLAPI GJKSolver {
+  typedef Eigen::Array<FCL_REAL, 1, 2> Array2d;
+
   /// @brief initialize GJK
   template <typename S1, typename S2>
   void initialize_gjk(details::GJK& gjk, const details::MinkowskiDiff& shape,
@@ -103,6 +105,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
                       Vec3f* normal) const {
     details::MinkowskiDiff shape;
     shape.set(&s1, &s2, tf1, tf2);
+    shape.shape_deflation = shape_deflation;
 
     Vec3f guess;
     support_func_guess_t support_hint;
@@ -346,6 +349,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     gjk_variant = GJKVariant::DefaultGJK;
     gjk_convergence_criterion = GJKConvergenceCriterion::VDB;
     gjk_convergence_criterion_type = GJKConvergenceCriterionType::Relative;
+    shape_deflation.setZero();
   }
 
   /// @brief Constructor from a DistanceRequest
@@ -356,6 +360,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
     distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
+    shape_deflation.setZero();
 
     // EPS settings
     epa_max_face_num = 128;
@@ -393,6 +398,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   GJKSolver(const CollisionRequest& request) {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
+    distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
+    shape_deflation.setZero();
 
     // EPS settings
     epa_max_face_num = 128;
@@ -455,6 +462,15 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   bool operator!=(const GJKSolver& other) const { return !(*this == other); }
 
+  void resetShapeDeflation() const { shape_deflation.setZero(); }
+
+  void setShapeDeflation(const FCL_REAL shape1_deflation,
+                         const FCL_REAL shape2_deflation) const {
+    shape_deflation << shape1_deflation, shape2_deflation;
+    assert((shape_deflation <= 0).all() &&
+           "The deflation values should be negative.");
+  }
+
   /// @brief maximum number of simplex face used in EPA algorithm
   unsigned int epa_max_face_num;
 
@@ -501,6 +517,12 @@ struct HPP_FCL_DLLAPI GJKSolver {
   ///        The two witness points are incorrect, but with the guaranty that
   ///        the two shapes have a distance greather than distance_upper_bound.
   mutable FCL_REAL distance_upper_bound;
+
+  /// @brief Inflation values provided to the support functions associated to
+  /// each shape.
+  /// @note These inflation values are used to accound for negative
+  /// security_margin
+  mutable Array2d shape_deflation;
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
