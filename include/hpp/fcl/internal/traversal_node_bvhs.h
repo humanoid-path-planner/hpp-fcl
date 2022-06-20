@@ -146,16 +146,6 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
     tri_indices2 = NULL;
   }
 
-  /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(unsigned int b1, unsigned int b2) const {
-    if (this->enable_statistics) this->num_bv_tests++;
-    if (RTIsIdentity)
-      return !this->model1->getBV(b1).overlap(this->model2->getBV(b2));
-    else
-      return !overlap(RT._R(), RT._T(), this->model1->getBV(b1).bv,
-                      this->model2->getBV(b2).bv);
-  }
-
   /// BV test between b1 and b2
   /// @param b1, b2 Bounding volumes to test,
   /// @retval sqrDistLowerBound square of a lower bound of the minimal

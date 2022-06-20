@@ -108,9 +108,6 @@ class CollisionTraversalNodeBase : public TraversalNodeBase {
 
   virtual ~CollisionTraversalNodeBase() {}
 
-  /// @brief BV test between b1 and b2
-  virtual bool BVDisjoints(unsigned int b1, unsigned int b2) const = 0;
-
   /// BV test between b1 and b2
   /// @param b1, b2 Bounding volumes to test,
   /// @retval sqrDistLowerBound square of a lower bound of the minimal
