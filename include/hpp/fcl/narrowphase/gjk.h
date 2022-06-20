@@ -207,7 +207,7 @@ struct HPP_FCL_DLLAPI GJK {
   inline void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv,
                          support_func_guess_t& hint) const {
     shape->support(d, dIsNormalized, sv.w0, sv.w1, hint);
-    sv.w.noalias() = sv.w0 - sv.w1;
+    sv.w = sv.w0 - sv.w1;
   }
 
   /// @brief whether the simplex enclose the origin
