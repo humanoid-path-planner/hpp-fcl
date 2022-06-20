@@ -57,6 +57,8 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
 ///
 /// @note The Minkowski difference is expressed in the frame of the first shape.
 struct HPP_FCL_DLLAPI MinkowskiDiff {
+  typedef Eigen::Array<FCL_REAL, 1, 2> Array2d;
+
   /// @brief points to two shapes
   const ShapeBase* shapes[2];
 
@@ -78,7 +80,13 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
   /// @brief The radius of the sphere swepted volume.
   /// The 2 values correspond to the inflation of shape 0 and shape 1.
-  Eigen::Array<FCL_REAL, 1, 2> inflation;
+  /// The 2 values correspond to the inflation of shape 0 and shape 1/
+  /// These inflation values are used for Sphere and Capsule.
+  Array2d inflation;
+
+  /// @brief Deflation values associated to each support function.
+  /// The values are zero by default.
+  Array2d shape_deflation;
 
   /// @brief Number of points in a Convex object from which using a logarithmic
   /// support function is faster than a linear one.
@@ -100,6 +108,8 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
   MinkowskiDiff()
       : linear_log_convex_threshold(32),
+      : shape_deflation(0, 0),
+        linear_log_convex_threshold(32),
         normalize_support_direction(false),
         getSupportFunc(NULL) {}
 
