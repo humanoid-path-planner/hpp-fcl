@@ -69,9 +69,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
         break;
       case GJKInitialGuess::BoundingVolumeGuess:
         if (s1.aabb_radius < 0 || s2.aabb_radius < 0) {
-          throw std::logic_error(
-              "computeLocalAABB must have been called on the shapes when using "
-              "GJKInitialGuess::BoundingVolumeGuess.");
+          HPP_FCL_THROW_PRETTY(
+              "computeLocalAABB must have been called on the shapes before "
+              "using "
+              "GJKInitialGuess::BoundingVolumeGuess.",
+              std::logic_error);
         }
         guess.noalias() =
             s1.aabb_center - (shape.oR1 * s2.aabb_center + shape.ot1);
@@ -79,7 +81,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
             support_func_cached_guess;  // we could also put it to (0, 0)
         break;
       default:
-        throw std::logic_error("Wrong initial guess for GJK.");
+        HPP_FCL_THROW_PRETTY("Wrong initial guess for GJK.", std::logic_error);
     }
     // TODO: use gjk_initial_guess instead
     HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
