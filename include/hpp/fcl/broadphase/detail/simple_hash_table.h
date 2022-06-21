@@ -38,10 +38,10 @@
 #ifndef HPP_FCL_BROADPHASE_SIMPLEHASHTABLE_H
 #define HPP_FCL_BROADPHASE_SIMPLEHASHTABLE_H
 
-#include <stdexcept>
 #include <set>
 #include <vector>
 #include <list>
+
 namespace hpp {
 namespace fcl {
 

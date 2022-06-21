@@ -36,7 +36,6 @@
 
 #include "hpp/fcl/data_types.h"
 #include <boost/test/tools/old/interface.hpp>
-#include <stdexcept>
 #define BOOST_TEST_MODULE FCL_NESTEROV_GJK
 #include <boost/test/included/unit_test.hpp>
 
