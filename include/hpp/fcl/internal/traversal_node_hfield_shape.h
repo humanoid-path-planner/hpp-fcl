@@ -107,15 +107,17 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   const VecXf& x_grid = model.getXGrid();
   const VecXf& y_grid = model.getYGrid();
 
-  const FCL_REAL min_height = model.getMinHeight();
+  assert(deflation <= 0 && "deflation should be negative");
 
-  const FCL_REAL x0 = x_grid[node.x_id], x1 = x_grid[node.x_id + 1],
-                 y0 = y_grid[node.y_id], y1 = y_grid[node.y_id + 1];
+  const FCL_REAL min_height = model.getMinHeight() - deflation;
+
+  const FCL_REAL x0 = x_grid[node.x_id] - deflation,
+                 x1 = x_grid[node.x_id + 1] + deflation,
+                 y0 = y_grid[node.y_id] - deflation,
+                 y1 = y_grid[node.y_id + 1] + deflation;
+  const FCL_REAL max_height = node.max_height + deflation;
   const Eigen::Block<const MatrixXf, 2, 2> cell =
       heights.block<2, 2>(node.y_id, node.x_id);
-  const FCL_REAL max_height = cell.maxCoeff();
-
-  assert(deflation <= 0 && "deflation should be negative");
 
   assert(max_height > min_height &&
          "max_height is lower than min_height");  // Check whether the geometry
@@ -132,13 +134,6 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
     pts[5] = Vec3f(x0, y1, cell(1, 0));
     pts[6] = Vec3f(x1, y1, cell(1, 1));
     pts[7] = Vec3f(x1, y0, cell(0, 1));
-
-    const Vec3f normal_upper_triangular_face =
-        ((pts[7] - pts[4]).cross(pts[5] - pts[4])).normalized();
-    const FCL_REAL cos_alpha = normal_upper_triangular_face.dot(Vec3f::UnitZ());
-    pts[4][2] += deflation / cos_alpha;
-    pts[5][2] += deflation / cos_alpha;
-    pts[7][2] += deflation / cos_alpha;
 
     Triangle* triangles = new Triangle[8];
     triangles[0].set(0, 1, 3);  // bottom
@@ -160,14 +155,7 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
 
   {
     Vec3f* pts = new Vec3f[8];
-    pts[0] = Vec3f(x0, y0, min_height);
-    pts[1] = Vec3f(x0, y1, min_height);
-    pts[2] = Vec3f(x1, y1, min_height);
-    pts[3] = Vec3f(x1, y0, min_height);
-    pts[4] = Vec3f(x0, y0, cell(0, 0));
-    pts[5] = Vec3f(x0, y1, cell(1, 0));
-    pts[6] = Vec3f(x1, y1, cell(1, 1));
-    pts[7] = Vec3f(x1, y0, cell(0, 1));
+    memcpy(pts, convex1.points, 8 * sizeof(Vec3f));
 
     const Vec3f normal_upper_triangular_face =
         ((pts[7] - pts[5]).cross(pts[6] - pts[5])).normalized();
@@ -256,11 +244,12 @@ class HeightFieldShapeCollisionTraversalNode
       const Node& node = hfield.getBV(b1);
       const VecXf& x_grid = hfield.getXGrid();
       const VecXf& y_grid = hfield.getYGrid();
-      const Vec3f pointA(x_grid[node.x_id], y_grid[node.y_id],
-                         hfield.getMinHeight());
-      const Vec3f pointB(x_grid[node.x_id + node.x_size],
-                         y_grid[node.y_id + node.y_size],
-                         node.max_height - deflation);
+      const Vec3f pointA(x_grid[node.x_id] - deflation,
+                         y_grid[node.y_id] - deflation,
+                         hfield.getMinHeight() - deflation);
+      const Vec3f pointB(x_grid[node.x_id + node.x_size] + deflation,
+                         y_grid[node.y_id + node.y_size] + deflation,
+                         node.max_height + deflation);
 
       BV bv_deflated;
       details::UpdateBoundingVolume<BV>::run(pointA, pointB, bv_deflated);
