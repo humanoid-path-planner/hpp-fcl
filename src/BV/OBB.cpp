@@ -455,18 +455,18 @@ FCL_REAL OBB::distance(const OBB& /*other*/, Vec3f* /*P*/, Vec3f* /*Q*/) const {
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
              const OBB& b2) {
-  Vec3f Ttemp(R0 * b2.To + T0 - b1.To);
+  Vec3f Ttemp(R0.transpose() * (b2.To - T0) - b1.To);
   Vec3f T(b1.axes.transpose() * Ttemp);
-  Matrix3f R(b1.axes.transpose() * R0 * b2.axes);
+  Matrix3f R(b1.axes.transpose() * R0.transpose() * b2.axes);
 
   return !obbDisjoint(R, T, b1.extent, b2.extent);
 }
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2,
              const CollisionRequest& request, FCL_REAL& sqrDistLowerBound) {
-  Vec3f Ttemp(R0 * b2.To + T0 - b1.To);
+  Vec3f Ttemp(R0.transpose() * (b2.To - T0) - b1.To);
   Vec3f T(b1.axes.transpose() * Ttemp);
-  Matrix3f R(b1.axes.transpose() * R0 * b2.axes);
+  Matrix3f R(b1.axes.transpose() * R0.transpose() * b2.axes);
 
   return !obbDisjointAndLowerBoundDistance(R, T, b1.extent, b2.extent, request,
                                            sqrDistLowerBound);

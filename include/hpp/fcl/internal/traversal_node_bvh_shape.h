@@ -176,7 +176,7 @@ class MeshShapeCollisionTraversalNode
           this->model2_bv, this->request, sqrDistLowerBound);
     else
       disjoint = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
-                          this->model2_bv, this->model1->getBV(b1).bv,
+                          this->model1->getBV(b1).bv, this->model2_bv,
                           this->request, sqrDistLowerBound);
     if (disjoint)
       internal::updateDistanceLowerBoundFromBV(this->request, *this->result,
@@ -287,7 +287,7 @@ class ShapeMeshCollisionTraversalNode
                                                      sqrDistLowerBound);
     else
       disjoint = !overlap(this->tf2.getRotation(), this->tf2.getTranslation(),
-                          this->model1_bv, this->model2->getBV(b2).bv,
+                          this->model2->getBV(b2).bv, this->model1_bv,
                           sqrDistLowerBound);
     if (disjoint)
       internal::updateDistanceLowerBoundFromBV(this->request, *this->result,
