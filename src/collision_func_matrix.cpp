@@ -185,7 +185,7 @@ struct height_field_shape_collide_negative_security_margin<BV, ShapeType, true,
 
     if (security_margin < min_deflation) return result.numContacts();
 
-    const auto& deflated_result = o2.inflated(min_deflation);
+    const auto& deflated_result = o2.inflated(security_margin);
     const ShapeType& deflated_o2 = deflated_result.first;
     const Transform3f deflated_tf2 = tf2 * deflated_result.second;
 
