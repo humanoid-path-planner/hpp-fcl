@@ -60,11 +60,17 @@ struct HPP_FCL_DLLAPI HFNodeBase {
 
   Eigen::DenseIndex x_id, x_size;
   Eigen::DenseIndex y_id, y_size;
-  
+
   FCL_REAL max_height;
 
   /// @brief Default constructor
-  HFNodeBase() : first_child(0), x_id(-1), x_size(0), y_id(-1), y_size(0), max_height(std::numeric_limits<FCL_REAL>::lowest()) {}
+  HFNodeBase()
+      : first_child(0),
+        x_id(-1),
+        x_size(0),
+        y_id(-1),
+        y_size(0),
+        max_height(std::numeric_limits<FCL_REAL>::lowest()) {}
 
   /// @brief Comparison operator
   bool operator==(const HFNodeBase& other) const {
@@ -354,7 +360,7 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
 
       max_height = (std::max)(max_left_height, max_right_height);
     }
-    
+
     bv_node.max_height = max_height;
 
     const Vec3f pointA(x_grid[bv_node.x_id], y_grid[bv_node.y_id], min_height);

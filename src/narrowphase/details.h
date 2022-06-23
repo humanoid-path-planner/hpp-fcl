@@ -1619,7 +1619,8 @@ inline bool convexHalfspaceIntersect(
     const ConvexBase& s1, const Transform3f& tf1, const Halfspace& s2,
     const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth,
     Vec3f* normal) {
-  // No need to account for the shape_deflation in the case of Convex,Halfspace as Halfspace objects have an infinite value possible for deflation.
+  // No need to account for the shape_deflation in the case of Convex,Halfspace
+  // as Halfspace objects have an infinite value possible for deflation.
   Halfspace new_s2 = transform(s2, tf2);
 
   Vec3f v;

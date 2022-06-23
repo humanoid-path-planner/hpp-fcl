@@ -57,7 +57,7 @@ using hpp::fcl::DistanceResult;
 using hpp::fcl::Transform3f;
 using hpp::fcl::Vec3f;
 
-#define MATH_SQUARED(x) (x*x)
+#define MATH_SQUARED(x) (x * x)
 
 BOOST_AUTO_TEST_CASE(aabb_aabb) {
   CollisionGeometryPtr_t b1(new hpp::fcl::Box(1, 1, 1));
@@ -68,22 +68,23 @@ BOOST_AUTO_TEST_CASE(aabb_aabb) {
   hpp::fcl::Box s1(1, 1, 1);
   hpp::fcl::Box s2(1, 1, 1);
   const double tol = 1e-8;
-  
+
   AABB bv1, bv2;
   computeBV(s1, Transform3f(), bv1);
   computeBV(s2, Transform3f(), bv2);
-  
+
   // No security margin - collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
     AABB bv2_transformed;
     computeBV(s2, tf2_collision, bv2_transformed);
     FCL_REAL sqrDistLowerBound;
-    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    bool res =
+        bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(res);
     BOOST_CHECK_CLOSE(sqrDistLowerBound, 0, tol);
   }
-  
+
   // No security margin - no collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
@@ -93,11 +94,12 @@ BOOST_AUTO_TEST_CASE(aabb_aabb) {
     AABB bv2_transformed;
     computeBV(s2, tf2_no_collision, bv2_transformed);
     FCL_REAL sqrDistLowerBound;
-    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    bool res =
+        bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(!res);
     BOOST_CHECK_CLOSE(sqrDistLowerBound, MATH_SQUARED(distance), tol);
   }
-  
+
   // Security margin - collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
@@ -108,11 +110,12 @@ BOOST_AUTO_TEST_CASE(aabb_aabb) {
     AABB bv2_transformed;
     computeBV(s2, tf2_no_collision, bv2_transformed);
     FCL_REAL sqrDistLowerBound;
-    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    bool res =
+        bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(res);
     BOOST_CHECK_SMALL(sqrDistLowerBound, tol);
   }
-  
+
   // Negative security margin - collion because the two boxes are in contact
   {
     CollisionRequest collisionRequest(CONTACT, 1);
@@ -123,11 +126,12 @@ BOOST_AUTO_TEST_CASE(aabb_aabb) {
     AABB bv2_transformed;
     computeBV(s2, tf2, bv2_transformed);
     FCL_REAL sqrDistLowerBound;
-    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    bool res =
+        bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(res);
     BOOST_CHECK_SMALL(sqrDistLowerBound, tol);
   }
-  
+
   // Negative security margin - no collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
@@ -136,9 +140,12 @@ BOOST_AUTO_TEST_CASE(aabb_aabb) {
     AABB bv2_transformed;
     computeBV(s2, tf2_collision, bv2_transformed);
     FCL_REAL sqrDistLowerBound;
-    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    bool res =
+        bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(!res);
-    BOOST_CHECK_CLOSE(sqrDistLowerBound, MATH_SQUARED((std::sqrt(2)*collisionRequest.security_margin)), tol);
+    BOOST_CHECK_CLOSE(
+        sqrDistLowerBound,
+        MATH_SQUARED((std::sqrt(2) * collisionRequest.security_margin)), tol);
   }
 }
 
@@ -151,11 +158,11 @@ BOOST_AUTO_TEST_CASE(aabb_aabb_degenerated_cases) {
   hpp::fcl::Box s1(1, 1, 1);
   hpp::fcl::Box s2(1, 1, 1);
   const double tol = 1e-8;
-  
+
   AABB bv1, bv2;
   computeBV(s1, Transform3f(), bv1);
   computeBV(s2, Transform3f(), bv2);
-  
+
   // The two AABB are collocated
   {
     CollisionRequest collisionRequest(CONTACT, 1);
@@ -164,13 +171,13 @@ BOOST_AUTO_TEST_CASE(aabb_aabb_degenerated_cases) {
     AABB bv2_transformed;
     computeBV(s2, tf2_collision, bv2_transformed);
     FCL_REAL sqrDistLowerBound;
-    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    bool res =
+        bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(!res);
   }
-  
+
   const AABB bv3;
   BOOST_CHECK(!bv1.overlap(bv3));
-  
 }
 
 BOOST_AUTO_TEST_CASE(sphere_sphere) {
@@ -242,7 +249,8 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
     collide(s1.get(), tf1, s2.get(), tf2_collision, collisionRequest,
             collisionResult);
     BOOST_CHECK(!collisionResult.isCollision());
-    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound, -collisionRequest.security_margin, 1e-8);
+    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound,
+                      -collisionRequest.security_margin, 1e-8);
   }
 }
 
@@ -375,8 +383,11 @@ BOOST_AUTO_TEST_CASE(box_box) {
     collide(b1.get(), tf1, b2.get(), tf2_collision, collisionRequest,
             collisionResult);
     BOOST_CHECK(!collisionResult.isCollision());
-    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound,
-                      (collisionRequest.security_margin * tf2_collision.getTranslation()).norm(), tol);
+    BOOST_CHECK_CLOSE(
+        collisionResult.distance_lower_bound,
+        (collisionRequest.security_margin * tf2_collision.getTranslation())
+            .norm(),
+        tol);
   }
 
   // Negative security margin - collision
@@ -386,7 +397,8 @@ BOOST_AUTO_TEST_CASE(box_box) {
     CollisionResult collisionResult;
 
     const Transform3f tf2((tf2_collision.getTranslation() +
-                           Vec3f(0, collisionRequest.security_margin, collisionRequest.security_margin))
+                           Vec3f(0, collisionRequest.security_margin,
+                                 collisionRequest.security_margin))
                               .eval());
     collide(b1.get(), tf1, b2.get(), tf2, collisionRequest, collisionResult);
     BOOST_CHECK(collisionResult.isCollision());
@@ -395,9 +407,10 @@ BOOST_AUTO_TEST_CASE(box_box) {
   }
 }
 
-template<typename ShapeType1, typename ShapeType2>
-void test_shape_shape(const ShapeType1 & shape1, const Transform3f & tf1, const ShapeType2 & shape2, const Transform3f & tf2_collision, const FCL_REAL tol)
-{
+template <typename ShapeType1, typename ShapeType2>
+void test_shape_shape(const ShapeType1& shape1, const Transform3f& tf1,
+                      const ShapeType2& shape2,
+                      const Transform3f& tf2_collision, const FCL_REAL tol) {
   // No security margin - collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
@@ -445,8 +458,11 @@ void test_shape_shape(const ShapeType1 & shape1, const Transform3f & tf1, const 
     collide(&shape1, tf1, &shape2, tf2_collision, collisionRequest,
             collisionResult);
     BOOST_CHECK(!collisionResult.isCollision());
-    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound,
-                      (collisionRequest.security_margin * tf2_collision.getTranslation()).norm(), tol);
+    BOOST_CHECK_CLOSE(
+        collisionResult.distance_lower_bound,
+        (collisionRequest.security_margin * tf2_collision.getTranslation())
+            .norm(),
+        tol);
   }
 
   // Negative security margin - collision
@@ -456,7 +472,8 @@ void test_shape_shape(const ShapeType1 & shape1, const Transform3f & tf1, const 
     CollisionResult collisionResult;
 
     const Transform3f tf2((tf2_collision.getTranslation() +
-                           Vec3f(0, collisionRequest.security_margin, collisionRequest.security_margin))
+                           Vec3f(0, collisionRequest.security_margin,
+                                 collisionRequest.security_margin))
                               .eval());
     collide(&shape1, tf1, &shape2, tf2, collisionRequest, collisionResult);
     BOOST_CHECK(collisionResult.isCollision());
@@ -471,15 +488,14 @@ BOOST_AUTO_TEST_CASE(sphere_box) {
   BVHModel<OBBRSS> box_bvh_model = BVHModel<OBBRSS>();
   generateBVHModel(box_bvh_model, *box_ptr, Transform3f());
   box_bvh_model.buildConvexRepresentation(false);
-  ConvexBase & box_convex = *box_bvh_model.convex.get();
+  ConvexBase& box_convex = *box_bvh_model.convex.get();
   CollisionGeometryPtr_t s2(new hpp::fcl::Sphere(0.5));
 
   const Transform3f tf1;
   const Transform3f tf2_collision(Vec3f(0, 0, 1));
 
   const double tol = 1e-6;
-  
+
   test_shape_shape(*b1.get(), tf1, *s2.get(), tf2_collision, tol);
   test_shape_shape(box_convex, tf1, *s2.get(), tf2_collision, tol);
-  
 }

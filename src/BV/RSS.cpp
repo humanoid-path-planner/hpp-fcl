@@ -753,8 +753,8 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2,
   Vec3f T(b1.axes.transpose() * Ttemp);
   Matrix3f R(b1.axes.transpose() * R0 * b2.axes);
 
-  FCL_REAL dist =
-      rectDistance(R, T, b1.length, b2.length) - b1.radius - b2.radius - request.security_margin;
+  FCL_REAL dist = rectDistance(R, T, b1.length, b2.length) - b1.radius -
+                  b2.radius - request.security_margin;
   if (dist <= 0) return true;
   sqrDistLowerBound = dist * dist;
   return false;

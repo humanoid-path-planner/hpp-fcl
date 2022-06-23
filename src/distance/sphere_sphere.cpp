@@ -129,7 +129,7 @@ std::size_t ShapeShapeCollider<Sphere, Sphere>::run(
     return 1;
   }
   return 0;
- }
+}
 }  // namespace fcl
 
 }  // namespace hpp

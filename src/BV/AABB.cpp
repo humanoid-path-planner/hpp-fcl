@@ -49,12 +49,23 @@ AABB::AABB()
 
 bool AABB::overlap(const AABB& other, const CollisionRequest& request,
                    FCL_REAL& sqrDistLowerBound) const {
-  const FCL_REAL break_distance_squared = request.break_distance * request.break_distance;
-  
-  sqrDistLowerBound = (min_ - other.max_ - Vec3f::Constant(request.security_margin)).array().max(0).matrix().squaredNorm();
+  const FCL_REAL break_distance_squared =
+      request.break_distance * request.break_distance;
+
+  sqrDistLowerBound =
+      (min_ - other.max_ - Vec3f::Constant(request.security_margin))
+          .array()
+          .max(0)
+          .matrix()
+          .squaredNorm();
   if (sqrDistLowerBound > break_distance_squared) return false;
 
-  sqrDistLowerBound = (other.min_ - max_ - Vec3f::Constant(request.security_margin)).array().max(0).matrix().squaredNorm();
+  sqrDistLowerBound =
+      (other.min_ - max_ - Vec3f::Constant(request.security_margin))
+          .array()
+          .max(0)
+          .matrix()
+          .squaredNorm();
   if (sqrDistLowerBound > break_distance_squared) return false;
 
   return true;

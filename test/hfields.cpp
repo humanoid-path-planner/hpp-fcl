@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(building_constant_hfields) {
   test_constant_hfields<AABB>(100, 100, min_altitude, max_altitude);
 }
 
-template<typename BV>
+template <typename BV>
 void test_negative_security_margin(const Eigen::DenseIndex nx,
                                    const Eigen::DenseIndex ny,
                                    const FCL_REAL min_altitude,
@@ -277,7 +277,7 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
   const MatrixXf heights = MatrixXf::Constant(ny, nx, max_altitude);
 
   HeightField<BV> hfield(x_dim, y_dim, heights, min_altitude);
-  
+
   // Build equivalent object
   const Box equivalent_box(x_dim, y_dim, max_altitude - min_altitude);
   const Transform3f box_placement(
@@ -290,7 +290,7 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
   const Box box(Vec3f::Ones());
 
   Transform3f M_sphere, M_box;
-  
+
   // No collision case
   {
     const FCL_REAL eps_no_collision = +0.1 * (max_altitude - min_altitude);
@@ -317,7 +317,7 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
 
     BOOST_CHECK(!result_check_box.isCollision());
   }
-  
+
   // Collision case - positive security_margin
   {
     const FCL_REAL eps_no_collision = +0.1 * (max_altitude - min_altitude);
@@ -345,7 +345,7 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
 
     BOOST_CHECK(result_check_box.isCollision());
   }
-  
+
   // Collision case
   {
     const FCL_REAL eps_no_collision = -0.1 * (max_altitude - min_altitude);
@@ -372,7 +372,7 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
 
     BOOST_CHECK(result_check_box.isCollision());
   }
-  
+
   // No collision case - negative security_margin
   {
     const FCL_REAL eps_no_collision = -0.1 * (max_altitude - min_altitude);
@@ -404,7 +404,7 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
 
 BOOST_AUTO_TEST_CASE(negative_security_margin) {
   const FCL_REAL max_altitude = 1., min_altitude = 0.;
-  
+
   test_negative_security_margin<OBBRSS>(100, 100, min_altitude, max_altitude);
   test_negative_security_margin<AABB>(100, 100, min_altitude, max_altitude);
 }

@@ -101,8 +101,7 @@ Convex<Quadrilateral> buildConvexQuadrilateral(const HFNode<BV>& node,
 
 template <typename BV>
 void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
-                          Convex<Triangle>& convex1,
-                          Convex<Triangle>& convex2,
+                          Convex<Triangle>& convex1, Convex<Triangle>& convex2,
                           const FCL_REAL deflation) {
   const MatrixXf& heights = model.getHeights();
   const VecXf& x_grid = model.getXGrid();
@@ -134,15 +133,16 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
     pts[6] = Vec3f(x1, y1, cell(1, 1));
     pts[7] = Vec3f(x1, y0, cell(0, 1));
 
-    const Vec3f normal_upper_triangular_face = ((pts[7] - pts[4]).cross(pts[5] - pts[4])).normalized();
+    const Vec3f normal_upper_triangular_face =
+        ((pts[7] - pts[4]).cross(pts[5] - pts[4])).normalized();
     const FCL_REAL cos_alpha = normal_upper_triangular_face.dot(Vec3f::UnitZ());
     pts[4][2] += deflation / cos_alpha;
     pts[5][2] += deflation / cos_alpha;
     pts[7][2] += deflation / cos_alpha;
 
     Triangle* triangles = new Triangle[8];
-    triangles[0].set(0, 1, 3); // bottom
-    triangles[1].set(4, 5, 7); // top
+    triangles[0].set(0, 1, 3);  // bottom
+    triangles[1].set(4, 5, 7);  // top
     triangles[2].set(0, 1, 4);
     triangles[3].set(4, 1, 5);
     triangles[4].set(1, 7, 3);
@@ -169,15 +169,16 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
     pts[6] = Vec3f(x1, y1, cell(1, 1));
     pts[7] = Vec3f(x1, y0, cell(0, 1));
 
-    const Vec3f normal_upper_triangular_face = ((pts[7] - pts[5]).cross(pts[6] - pts[5])).normalized();
+    const Vec3f normal_upper_triangular_face =
+        ((pts[7] - pts[5]).cross(pts[6] - pts[5])).normalized();
     const FCL_REAL cos_alpha = normal_upper_triangular_face.dot(Vec3f::UnitZ());
     pts[5][2] += deflation / cos_alpha;
     pts[6][2] += deflation / cos_alpha;
     pts[7][2] += deflation / cos_alpha;
 
     Triangle* triangles = new Triangle[8];
-    triangles[0].set(3, 2, 1); // top
-    triangles[1].set(5, 6, 7); // bottom
+    triangles[0].set(3, 2, 1);  // top
+    triangles[1].set(5, 6, 7);  // bottom
     triangles[2].set(1, 2, 5);
     triangles[3].set(5, 2, 6);
     triangles[4].set(1, 3, 7);
@@ -202,7 +203,7 @@ class HeightFieldShapeCollisionTraversalNode
     : public CollisionTraversalNodeBase {
  public:
   typedef CollisionTraversalNodeBase Base;
-  typedef Eigen::Array<FCL_REAL,1,2> Array2d;
+  typedef Eigen::Array<FCL_REAL, 1, 2> Array2d;
 
   enum {
     Options = _Options,
@@ -249,15 +250,16 @@ class HeightFieldShapeCollisionTraversalNode
     bool disjoint;
     const FCL_REAL deflation = shape_inflation[0];
 
-    if(deflation < 0)
-    {
+    if (deflation < 0) {
       typedef typename HeightField<BV>::Node Node;
-      const HeightField<BV> & hfield = *this->model1;
-      const Node & node = hfield.getBV(b1);
+      const HeightField<BV>& hfield = *this->model1;
+      const Node& node = hfield.getBV(b1);
       const VecXf& x_grid = hfield.getXGrid();
       const VecXf& y_grid = hfield.getYGrid();
-      const Vec3f pointA(x_grid[node.x_id], y_grid[node.y_id], hfield.getMinHeight());
-      const Vec3f pointB(x_grid[node.x_id + node.x_size], y_grid[node.y_id + node.y_size],
+      const Vec3f pointA(x_grid[node.x_id], y_grid[node.y_id],
+                         hfield.getMinHeight());
+      const Vec3f pointB(x_grid[node.x_id + node.x_size],
+                         y_grid[node.y_id + node.y_size],
                          node.max_height - deflation);
 
       BV bv_deflated;
@@ -265,27 +267,24 @@ class HeightFieldShapeCollisionTraversalNode
 
       if (RTIsIdentity) {
         assert(false && "must never happened");
-        disjoint = !bv_deflated.overlap(
-                                        this->model2_bv, this->request, sqrDistLowerBound);
+        disjoint = !bv_deflated.overlap(this->model2_bv, this->request,
+                                        sqrDistLowerBound);
       } else {
         disjoint = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
-                            bv_deflated, this->model2_bv,
-                            this->request, sqrDistLowerBound);
+                            bv_deflated, this->model2_bv, this->request,
+                            sqrDistLowerBound);
       }
-    }
-    else
-    {
+    } else {
       if (RTIsIdentity) {
         assert(false && "must never happened");
         disjoint = !this->model1->getBV(b1).bv.overlap(
-                                                       this->model2_bv, this->request, sqrDistLowerBound);
+            this->model2_bv, this->request, sqrDistLowerBound);
       } else {
         disjoint = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
                             this->model1->getBV(b1).bv, this->model2_bv,
                             this->request, sqrDistLowerBound);
       }
     }
-
 
     if (disjoint)
       internal::updateDistanceLowerBoundFromBV(this->request, *this->result,
@@ -340,48 +339,53 @@ class HeightFieldShapeCollisionTraversalNode
     return false;
   }
 
-      template <typename Polygone>
-      bool shapeCollision(const Convex<Polygone>& convex1,
-                          const Convex<Polygone>& convex2, const Transform3f& tf1,
-                          const S& shape, const Transform3f& tf2, FCL_REAL& distance_lower_bound,
-                          Vec3f& contact_point, Vec3f& normal) const {
-        const Transform3f Id;
-        Vec3f contact_point2, normal2;
-        FCL_REAL distance_lower_bound2;
-        bool collision1, collision2;
-        if (RTIsIdentity)
-          collision1 = nsolver->shapeIntersect(convex1, Id, shape, tf2, distance_lower_bound,
-                                               true, &contact_point, &normal);
-        else
-          collision1 = nsolver->shapeIntersect(convex1, tf1, shape, tf2, distance_lower_bound,
-                                               true, &contact_point, &normal);
+  template <typename Polygone>
+  bool shapeCollision(const Convex<Polygone>& convex1,
+                      const Convex<Polygone>& convex2, const Transform3f& tf1,
+                      const S& shape, const Transform3f& tf2,
+                      FCL_REAL& distance_lower_bound, Vec3f& contact_point,
+                      Vec3f& normal) const {
+    const Transform3f Id;
+    Vec3f contact_point2, normal2;
+    FCL_REAL distance_lower_bound2;
+    bool collision1, collision2;
+    if (RTIsIdentity)
+      collision1 =
+          nsolver->shapeIntersect(convex1, Id, shape, tf2, distance_lower_bound,
+                                  true, &contact_point, &normal);
+    else
+      collision1 = nsolver->shapeIntersect(convex1, tf1, shape, tf2,
+                                           distance_lower_bound, true,
+                                           &contact_point, &normal);
 
-        if (RTIsIdentity)
-          collision2 = nsolver->shapeIntersect(convex2, Id, shape, tf2, distance_lower_bound2,
-                                               true, &contact_point2, &normal2);
-        else
-          collision2 = nsolver->shapeIntersect(convex2, tf1, shape, tf2, distance_lower_bound2,
-                                               true, &contact_point2, &normal2);
+    if (RTIsIdentity)
+      collision2 = nsolver->shapeIntersect(convex2, Id, shape, tf2,
+                                           distance_lower_bound2, true,
+                                           &contact_point2, &normal2);
+    else
+      collision2 = nsolver->shapeIntersect(convex2, tf1, shape, tf2,
+                                           distance_lower_bound2, true,
+                                           &contact_point2, &normal2);
 
-        if (collision1 && collision2) {
-          if (distance_lower_bound > distance_lower_bound2)  // switch values
-          {
-            distance_lower_bound = distance_lower_bound2;
-            contact_point = contact_point2;
-            normal = normal2;
-          }
-          return true;
-        } else if (collision1) {
-          return true;
-        } else if (collision2) {
-          distance_lower_bound = distance_lower_bound2;
-          contact_point = contact_point2;
-          normal = normal2;
-          return true;
-        }
-
-        return false;
+    if (collision1 && collision2) {
+      if (distance_lower_bound > distance_lower_bound2)  // switch values
+      {
+        distance_lower_bound = distance_lower_bound2;
+        contact_point = contact_point2;
+        normal = normal2;
       }
+      return true;
+    } else if (collision1) {
+      return true;
+    } else if (collision2) {
+      distance_lower_bound = distance_lower_bound2;
+      contact_point = contact_point2;
+      normal = normal2;
+      return true;
+    }
+
+    return false;
+  }
 
   /// @brief Intersection testing between leaves (one Convex and one shape)
   void leafCollides(unsigned int b1, unsigned int /*b2*/,
@@ -398,18 +402,20 @@ class HeightFieldShapeCollisionTraversalNode
 
     typedef Convex<Triangle> ConvexTriangle;
     ConvexTriangle convex1, convex2;
-    details::buildConvexTriangles(node, *this->model1, convex1, convex2, shape_inflation[0]);
+    details::buildConvexTriangles(node, *this->model1, convex1, convex2,
+                                  shape_inflation[0]);
 
     FCL_REAL distance;
-//    Vec3f contact_point, normal;
+    //    Vec3f contact_point, normal;
     Vec3f c1, c2, normal;
 
     bool collision =
-    this->shapeDistance(convex1, convex2, this->tf1, *(this->model2), this->tf2,
-                        distance, c1, c2, normal);
+        this->shapeDistance(convex1, convex2, this->tf1, *(this->model2),
+                            this->tf2, distance, c1, c2, normal);
 
-//    this->shapeCollision(convex1, convex2, this->tf1, *(this->model2), this->tf2,
-//                         distance, contact_point, normal);
+    //    this->shapeCollision(convex1, convex2, this->tf1, *(this->model2),
+    //    this->tf2,
+    //                         distance, contact_point, normal);
 
     FCL_REAL distToCollision = distance - this->request.security_margin;
     if (collision) {
@@ -430,8 +436,8 @@ class HeightFieldShapeCollisionTraversalNode
     } else
       sqrDistLowerBound = distToCollision * distToCollision;
 
-//    const Vec3f c1 = contact_point - distance * 0.5 * normal;
-//    const Vec3f c2 = contact_point + distance * 0.5 * normal;
+    //    const Vec3f c1 = contact_point - distance * 0.5 * normal;
+    //    const Vec3f c2 = contact_point + distance * 0.5 * normal;
     internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
                                                distToCollision, c1, c2);
 
@@ -497,7 +503,8 @@ class HeightFieldShapeDistanceTraversalNode : public DistanceTraversalNodeBase {
 
   /// @brief BV culling test in one BVTT node
   FCL_REAL BVDistanceLowerBound(unsigned int b1, unsigned int /*b2*/) const {
-    return model1->getBV(b1).bv.distance(model2_bv); //TODO(jcarpent): tf1 is not taken into account here.
+    return model1->getBV(b1).bv.distance(
+        model2_bv);  // TODO(jcarpent): tf1 is not taken into account here.
   }
 
   /// @brief Distance testing between leaves (one triangle and one shape)

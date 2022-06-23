@@ -56,9 +56,11 @@ std::size_t OctreeCollide(const CollisionGeometry* o1, const Transform3f& tf1,
                           const CollisionRequest& request,
                           CollisionResult& result) {
   if (request.isSatisfied(result)) return result.numContacts();
-  
-  if(request.security_margin < 0)
-    HPP_FCL_THROW_PRETTY("Negative security margin are not handled yet for Octree", std::invalid_argument);
+
+  if (request.security_margin < 0)
+    HPP_FCL_THROW_PRETTY(
+        "Negative security margin are not handled yet for Octree",
+        std::invalid_argument);
 
   typename TraversalTraitsCollision<TypeA, TypeB>::CollisionTraversal_t node(
       request);
@@ -105,9 +107,11 @@ struct HPP_FCL_LOCAL BVHShapeCollider {
                              const CollisionRequest& request,
                              CollisionResult& result) {
     if (request.isSatisfied(result)) return result.numContacts();
-    
-    if(request.security_margin < 0)
-      HPP_FCL_THROW_PRETTY("Negative security margin are not handled yet for BVHModel", std::invalid_argument);
+
+    if (request.security_margin < 0)
+      HPP_FCL_THROW_PRETTY(
+          "Negative security margin are not handled yet for BVHModel",
+          std::invalid_argument);
 
     if (_Options & RelativeTransformationIsIdentity)
       return aligned(o1, tf1, o2, tf2, nsolver, request, result);
@@ -157,108 +161,109 @@ struct HPP_FCL_LOCAL BVHShapeCollider {
 };
 
 /// @cond DEV
-namespace details
-{
+namespace details {
 
 // Forward declaration
-template<typename BV, typename ShapeType, bool shape_is_inflatable = shape_traits<ShapeType>::IsInflatable, bool shape_has_inflated_support_function = shape_traits<ShapeType>::HasInflatedSupportFunction>
+template <typename BV, typename ShapeType,
+          bool shape_is_inflatable = shape_traits<ShapeType>::IsInflatable,
+          bool shape_has_inflated_support_function =
+              shape_traits<ShapeType>::HasInflatedSupportFunction>
 struct height_field_shape_collide_negative_security_margin;
 
-template<typename BV, typename ShapeType>
-struct height_field_shape_collide_negative_security_margin<BV, ShapeType,true,false>
-{
+template <typename BV, typename ShapeType>
+struct height_field_shape_collide_negative_security_margin<BV, ShapeType, true,
+                                                           false> {
   typedef HeightField<BV> HF;
-  
-  static std::size_t run(const HF & o1,
-                         const Transform3f& tf1,
-                         const ShapeType & o2,
-                         const Transform3f& tf2,
+
+  static std::size_t run(const HF& o1, const Transform3f& tf1,
+                         const ShapeType& o2, const Transform3f& tf2,
                          const GJKSolver* nsolver,
                          const CollisionRequest& request,
-                         CollisionResult& result)
-  {
+                         CollisionResult& result) {
     const FCL_REAL min_deflation = o2.minInflationValue();
     const FCL_REAL security_margin = request.security_margin;
-    
-//    if(security_margin < min_deflation)
-//      HPP_FCL_THROW_PRETTY("The request security margin: "
-//                           << security_margin
-//                           << " is below the minimal security margin authorised by the pair of two shapes"
-//                           << "(" << std::string(get_node_type_name(o1.getNodeType()))
-//                           << "," << std::string(get_node_type_name(o2.getNodeType()))
-//                           << "): "
-//                           << min_deflation
-//                           << ".\n Please consider increasing the requested security margin.",
-//                           std::invalid_argument);
-    
-    const FCL_REAL deflation_value2 = (std::max)(0.5*min_deflation,security_margin);
-    const auto & deflated_result = o2.inflated(deflation_value2);
-    const ShapeType & deflated_o2 = deflated_result.first;
+
+    //    if(security_margin < min_deflation)
+    //      HPP_FCL_THROW_PRETTY("The request security margin: "
+    //                           << security_margin
+    //                           << " is below the minimal security margin
+    //                           authorised by the pair of two shapes"
+    //                           << "(" <<
+    //                           std::string(get_node_type_name(o1.getNodeType()))
+    //                           << "," <<
+    //                           std::string(get_node_type_name(o2.getNodeType()))
+    //                           << "): "
+    //                           << min_deflation
+    //                           << ".\n Please consider increasing the
+    //                           requested security margin.",
+    //                           std::invalid_argument);
+
+    const FCL_REAL deflation_value2 =
+        (std::max)(0.5 * min_deflation, security_margin);
+    const auto& deflated_result = o2.inflated(deflation_value2);
+    const ShapeType& deflated_o2 = deflated_result.first;
     const Transform3f deflated_tf2 = tf2 * deflated_result.second;
-    
+
     CollisionRequest deflated_request(request);
-    
-    deflated_request.security_margin = security_margin - deflation_value2; // We already account for the deflation of the shape.
-    
-    HeightFieldShapeCollisionTraversalNode<BV, ShapeType, 0> node(deflated_request);
+
+    deflated_request.security_margin =
+        security_margin -
+        deflation_value2;  // We already account for the deflation of the shape.
+
+    HeightFieldShapeCollisionTraversalNode<BV, ShapeType, 0> node(
+        deflated_request);
     node.shape_inflation[0] = deflated_request.security_margin;
-    
-    nsolver->setShapeDeflation(0.,0.);
-    
+
+    nsolver->setShapeDeflation(0., 0.);
+
     initialize(node, o1, tf1, deflated_o2, deflated_tf2, nsolver, result);
     fcl::collide(&node, deflated_request, result);
     return result.numContacts();
   }
 };
 
-template<typename BV, typename ShapeType>
-struct height_field_shape_collide_negative_security_margin<BV, ShapeType,false,true>
-{
+template <typename BV, typename ShapeType>
+struct height_field_shape_collide_negative_security_margin<BV, ShapeType, false,
+                                                           true> {
   typedef HeightField<BV> HF;
-  
-  static std::size_t run(const HF & o1,
-                         const Transform3f& tf1,
-                         const ShapeType & o2,
-                         const Transform3f& tf2,
+
+  static std::size_t run(const HF& o1, const Transform3f& tf1,
+                         const ShapeType& o2, const Transform3f& tf2,
                          const GJKSolver* nsolver,
                          const CollisionRequest& request,
-                         CollisionResult& result)
-  {
+                         CollisionResult& result) {
     HeightFieldShapeCollisionTraversalNode<BV, ShapeType, 0> node(request);
     node.shape_inflation[0] = 0.5 * request.security_margin;
-    
-    nsolver->setShapeDeflation(0.,0.5 * request.security_margin);
-    
+
+    nsolver->setShapeDeflation(0., 0.5 * request.security_margin);
+
     initialize(node, o1, tf1, o2, tf2, nsolver, result);
     fcl::collide(&node, request, result);
     return result.numContacts();
   }
 };
 
-template<typename BV, typename ShapeType>
-struct height_field_shape_collide_negative_security_margin<BV, ShapeType,false,false>
-{
+template <typename BV, typename ShapeType>
+struct height_field_shape_collide_negative_security_margin<BV, ShapeType, false,
+                                                           false> {
   typedef HeightField<BV> HF;
-  
-  static std::size_t run(const HF & o1,
-                         const Transform3f& /*tf1*/,
-                         const ShapeType & o2,
-                         const Transform3f& /*tf2*/,
+
+  static std::size_t run(const HF& o1, const Transform3f& /*tf1*/,
+                         const ShapeType& o2, const Transform3f& /*tf2*/,
                          const GJKSolver* /*nsolver*/,
                          const CollisionRequest& /*request*/,
-                         CollisionResult& /*result*/)
-  {
-    HPP_FCL_THROW_PRETTY("Negative security margin between node type "
-                         << std::string(get_node_type_name(o1.getNodeType()))
-                         << " and node type "
-                         << std::string(get_node_type_name(o2.getNodeType()))
-                         << " is not supported.",
-                         std::invalid_argument);
+                         CollisionResult& /*result*/) {
+    HPP_FCL_THROW_PRETTY(
+        "Negative security margin between node type "
+            << std::string(get_node_type_name(o1.getNodeType()))
+            << " and node type "
+            << std::string(get_node_type_name(o2.getNodeType()))
+            << " is not supported.",
+        std::invalid_argument);
     return 0;
   }
-
 };
-}
+}  // namespace details
 
 /// @endcond
 
@@ -278,23 +283,21 @@ struct HPP_FCL_LOCAL HeightFieldShapeCollider {
                              const CollisionRequest& request,
                              CollisionResult& result) {
     if (request.isSatisfied(result)) return result.numContacts();
-    
-    const HF & height_field = static_cast<const HF&>(*o1);
-    const Shape & shape = static_cast<const Shape&>(*o2);
-    
-    if(request.security_margin < 0)
-    {
-      return details::height_field_shape_collide_negative_security_margin<BV,Shape>::run(height_field, tf1, shape, tf2, nsolver, request, result);
-    }
-    else
-    {
+
+    const HF& height_field = static_cast<const HF&>(*o1);
+    const Shape& shape = static_cast<const Shape&>(*o2);
+
+    if (request.security_margin < 0) {
+      return details::height_field_shape_collide_negative_security_margin<
+          BV, Shape>::run(height_field, tf1, shape, tf2, nsolver, request,
+                          result);
+    } else {
       HeightFieldShapeCollisionTraversalNode<BV, Shape, 0> node(request);
 
       initialize(node, height_field, tf1, shape, tf2, nsolver, result);
       fcl::collide(&node, request, result);
       return result.numContacts();
     }
-
   }
 };
 
