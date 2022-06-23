@@ -230,7 +230,8 @@ class HPP_FCL_DLLAPI Sphere : public ShapeBase {
   std::pair<Sphere, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
       HPP_FCL_THROW_PRETTY(
-          "value is two small. It should be at least: " << minInflationValue(),
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
           std::invalid_argument);
     return std::make_pair(Sphere(radius + value), Transform3f());
   }
@@ -297,7 +298,8 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
   std::pair<Ellipsoid, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
       HPP_FCL_THROW_PRETTY(
-          "value is two small. It should be at least: " << minInflationValue(),
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
           std::invalid_argument);
     return std::make_pair(Ellipsoid(radii + Vec3f::Constant(value)),
                           Transform3f());
@@ -375,7 +377,8 @@ class HPP_FCL_DLLAPI Capsule : public ShapeBase {
   std::pair<Capsule, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
       HPP_FCL_THROW_PRETTY(
-          "value is two small. It should be at least: " << minInflationValue(),
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
           std::invalid_argument);
     return std::make_pair(Capsule(radius + value, 2 * halfLength),
                           Transform3f());
@@ -448,7 +451,8 @@ class HPP_FCL_DLLAPI Cone : public ShapeBase {
   std::pair<Cone, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
       HPP_FCL_THROW_PRETTY(
-          "value is two small. It should be at least: " << minInflationValue(),
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
           std::invalid_argument);
 
     // tan(alpha) = 2*halfLength/radius;
@@ -535,7 +539,8 @@ class HPP_FCL_DLLAPI Cylinder : public ShapeBase {
   std::pair<Cylinder, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
       HPP_FCL_THROW_PRETTY(
-          "value is two small. It should be at least: " << minInflationValue(),
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
           std::invalid_argument);
     return std::make_pair(Cylinder(radius + value, 2 * (halfLength + value)),
                           Transform3f());
@@ -755,7 +760,8 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
   std::pair<Halfspace, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
       HPP_FCL_THROW_PRETTY(
-          "value is two small. It should be at least: " << minInflationValue(),
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
           std::invalid_argument);
     return std::make_pair(Halfspace(n, d + value), Transform3f());
   }
