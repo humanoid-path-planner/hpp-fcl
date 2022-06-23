@@ -60,15 +60,17 @@ struct HPP_FCL_DLLAPI HFNodeBase {
 
   Eigen::DenseIndex x_id, x_size;
   Eigen::DenseIndex y_id, y_size;
+  
+  FCL_REAL max_height;
 
   /// @brief Default constructor
-  HFNodeBase() : first_child(0), x_id(-1), x_size(0), y_id(-1), y_size(0) {}
+  HFNodeBase() : first_child(0), x_id(-1), x_size(0), y_id(-1), y_size(0), max_height(std::numeric_limits<FCL_REAL>::lowest()) {}
 
   /// @brief Comparison operator
   bool operator==(const HFNodeBase& other) const {
     return first_child == other.first_child && x_id == other.x_id &&
            x_size == other.x_size && y_id == other.y_id &&
-           y_size == other.y_size;
+           y_size == other.y_size && max_height == other.max_height;
   }
 
   /// @brief Difference operator
@@ -352,6 +354,8 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
 
       max_height = (std::max)(max_left_height, max_right_height);
     }
+    
+    bv_node.max_height = max_height;
 
     const Vec3f pointA(x_grid[bv_node.x_id], y_grid[bv_node.y_id], min_height);
     const Vec3f pointB(x_grid[bv_node.x_id + bv_node.x_size],
@@ -372,14 +376,14 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
            "x_size or y_size are not of correct value");
     assert(bv_id < bvs.size() && "bv_id exceeds the vector dimension");
 
-    HFNode<BV>& bvnode = bvs[bv_id];
+    HFNode<BV>& bv_node = bvs[bv_id];
     FCL_REAL max_height;
     if (x_size == 1 &&
         y_size == 1)  // don't build any BV for the current child node
     {
       max_height = heights.block<2, 2>(y_id, x_id).maxCoeff();
     } else {
-      bvnode.first_child = num_bvs;
+      bv_node.first_child = num_bvs;
       num_bvs += 2;
 
       FCL_REAL max_left_height = min_height, max_right_height = min_height;
@@ -387,27 +391,28 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
       {
         Eigen::DenseIndex x_size_half = x_size / 2;
         if (x_size == 1) x_size_half = 1;
-        max_left_height = recursiveBuildTree(bvnode.leftChild(), x_id,
+        max_left_height = recursiveBuildTree(bv_node.leftChild(), x_id,
                                              x_size_half, y_id, y_size);
 
         max_right_height =
-            recursiveBuildTree(bvnode.rightChild(), x_id + x_size_half,
+            recursiveBuildTree(bv_node.rightChild(), x_id + x_size_half,
                                x_size - x_size_half, y_id, y_size);
       } else  // splitting along the Y axis
       {
         Eigen::DenseIndex y_size_half = y_size / 2;
         if (y_size == 1) y_size_half = 1;
-        max_left_height = recursiveBuildTree(bvnode.leftChild(), x_id, x_size,
+        max_left_height = recursiveBuildTree(bv_node.leftChild(), x_id, x_size,
                                              y_id, y_size_half);
 
         max_right_height =
-            recursiveBuildTree(bvnode.rightChild(), x_id, x_size,
+            recursiveBuildTree(bv_node.rightChild(), x_id, x_size,
                                y_id + y_size_half, y_size - y_size_half);
       }
 
       max_height = (std::max)(max_left_height, max_right_height);
     }
 
+    bv_node.max_height = max_height;
     //    max_height = std::max(max_height,min_height);
 
     const Vec3f pointA(x_grid[x_id], y_grid[y_id], min_height);
@@ -416,11 +421,11 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
     const Vec3f pointB(x_grid[x_id + x_size], y_grid[y_id + y_size],
                        max_height);
 
-    details::UpdateBoundingVolume<BV>::run(pointA, pointB, bvnode.bv);
-    bvnode.x_id = x_id;
-    bvnode.y_id = y_id;
-    bvnode.x_size = x_size;
-    bvnode.y_size = y_size;
+    details::UpdateBoundingVolume<BV>::run(pointA, pointB, bv_node.bv);
+    bv_node.x_id = x_id;
+    bv_node.y_id = y_id;
+    bv_node.x_size = x_size;
+    bv_node.y_size = y_size;
 
     return max_height;
   }
