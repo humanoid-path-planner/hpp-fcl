@@ -42,6 +42,8 @@
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/shape/geometric_shapes_utility.h>
+#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
 
 #include "utility.h"
 
@@ -202,7 +204,7 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
     BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound, distance, 1e-8);
   }
 
-  // Positive security margin
+  // Positive security margin - collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
     CollisionResult collisionResult;
@@ -229,8 +231,7 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
     collide(s1.get(), tf1, s2.get(), tf2, collisionRequest, collisionResult);
     BOOST_CHECK(collisionResult.isCollision());
     BOOST_CHECK_SMALL(collisionResult.distance_lower_bound, 1e-8);
-    BOOST_CHECK_CLOSE(-collisionResult.getContact(0).penetration_depth,
-                      distance, 1e-8);
+    BOOST_CHECK_SMALL(-collisionResult.getContact(0).penetration_depth, 1e-8);
   }
 
   // Negative security margin - no collision
@@ -241,7 +242,7 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
     collide(s1.get(), tf1, s2.get(), tf2_collision, collisionRequest,
             collisionResult);
     BOOST_CHECK(!collisionResult.isCollision());
-    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound, 0.01, 1e-8);
+    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound, -collisionRequest.security_margin, 1e-8);
   }
 }
 
@@ -303,8 +304,7 @@ BOOST_AUTO_TEST_CASE(capsule_capsule) {
     collide(c1.get(), tf1, c2.get(), tf2, collisionRequest, collisionResult);
     BOOST_CHECK(collisionResult.isCollision());
     BOOST_CHECK_SMALL(collisionResult.distance_lower_bound, 1e-8);
-    BOOST_CHECK_CLOSE(-collisionResult.getContact(0).penetration_depth,
-                      distance, 1e-8);
+    BOOST_CHECK_SMALL(-collisionResult.getContact(0).penetration_depth, 1e-8);
   }
 
   // Negative security margin - no collision
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE(box_box) {
   CollisionGeometryPtr_t b2(new hpp::fcl::Box(1, 1, 1));
 
   const Transform3f tf1;
-  const Transform3f tf2_collision(Vec3f(0, 0, 1));
+  const Transform3f tf2_collision(Vec3f(0, 1, 1));
 
   const double tol = 1e-3;
 
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE(box_box) {
     BOOST_CHECK_SMALL(-collisionResult.getContact(0).penetration_depth, 1e-8);
   }
 
-  // Positive security margin - no collision
+  // Negative security margin - no collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
     collisionRequest.security_margin = -0.01;
@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_CASE(box_box) {
             collisionResult);
     BOOST_CHECK(!collisionResult.isCollision());
     BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound,
-                      -collisionRequest.security_margin, tol);
+                      (collisionRequest.security_margin * tf2_collision.getTranslation()).norm(), tol);
   }
 
   // Negative security margin - collision
@@ -386,12 +386,100 @@ BOOST_AUTO_TEST_CASE(box_box) {
     CollisionResult collisionResult;
 
     const Transform3f tf2((tf2_collision.getTranslation() +
-                           Vec3f(0, 0, collisionRequest.security_margin))
+                           Vec3f(0, collisionRequest.security_margin, collisionRequest.security_margin))
                               .eval());
     collide(b1.get(), tf1, b2.get(), tf2, collisionRequest, collisionResult);
     BOOST_CHECK(collisionResult.isCollision());
     BOOST_CHECK_SMALL(collisionResult.distance_lower_bound, tol);
-    BOOST_CHECK_CLOSE(-collisionResult.getContact(0).penetration_depth,
-                      collisionRequest.security_margin, tol);
+    BOOST_CHECK_SMALL(-collisionResult.getContact(0).penetration_depth, tol);
   }
+}
+
+template<typename ShapeType1, typename ShapeType2>
+void test_shape_shape(const ShapeType1 & shape1, const Transform3f & tf1, const ShapeType2 & shape2, const Transform3f & tf2_collision, const FCL_REAL tol)
+{
+  // No security margin - collision
+  {
+    CollisionRequest collisionRequest(CONTACT, 1);
+    CollisionResult collisionResult;
+    collide(&shape1, tf1, &shape2, tf2_collision, collisionRequest,
+            collisionResult);
+    BOOST_CHECK(collisionResult.isCollision());
+    BOOST_CHECK_SMALL(collisionResult.distance_lower_bound, tol);
+    BOOST_CHECK_SMALL(-collisionResult.getContact(0).penetration_depth, 1e-8);
+  }
+
+  // No security margin - no collision
+  {
+    CollisionRequest collisionRequest(CONTACT, 1);
+    const double distance = 0.01;
+    const Transform3f tf2_no_collision(
+        (tf2_collision.getTranslation() + Vec3f(0, 0, distance)).eval());
+
+    CollisionResult collisionResult;
+    collide(&shape1, tf1, &shape2, tf2_no_collision, collisionRequest,
+            collisionResult);
+    BOOST_CHECK(!collisionResult.isCollision());
+    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound, distance, tol);
+  }
+
+  // Positive security margin - collision
+  {
+    CollisionRequest collisionRequest(CONTACT, 1);
+    const double distance = 0.01;
+    collisionRequest.security_margin = distance;
+    CollisionResult collisionResult;
+    collide(&shape1, tf1, &shape2, tf2_collision, collisionRequest,
+            collisionResult);
+    BOOST_CHECK(collisionResult.isCollision());
+    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound,
+                      -collisionRequest.security_margin, tol);
+    BOOST_CHECK_SMALL(-collisionResult.getContact(0).penetration_depth, 1e-8);
+  }
+
+  // Negative security margin - no collision
+  {
+    CollisionRequest collisionRequest(CONTACT, 1);
+    collisionRequest.security_margin = -0.01;
+    CollisionResult collisionResult;
+    collide(&shape1, tf1, &shape2, tf2_collision, collisionRequest,
+            collisionResult);
+    BOOST_CHECK(!collisionResult.isCollision());
+    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound,
+                      (collisionRequest.security_margin * tf2_collision.getTranslation()).norm(), tol);
+  }
+
+  // Negative security margin - collision
+  {
+    CollisionRequest collisionRequest(CONTACT, 1);
+    collisionRequest.security_margin = -0.01;
+    CollisionResult collisionResult;
+
+    const Transform3f tf2((tf2_collision.getTranslation() +
+                           Vec3f(0, collisionRequest.security_margin, collisionRequest.security_margin))
+                              .eval());
+    collide(&shape1, tf1, &shape2, tf2, collisionRequest, collisionResult);
+    BOOST_CHECK(collisionResult.isCollision());
+    BOOST_CHECK_SMALL(collisionResult.distance_lower_bound, tol);
+    BOOST_CHECK_SMALL(-collisionResult.getContact(0).penetration_depth, tol);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(sphere_box) {
+  Box* box_ptr = new hpp::fcl::Box(1, 1, 1);
+  CollisionGeometryPtr_t b1(box_ptr);
+  BVHModel<OBBRSS> box_bvh_model = BVHModel<OBBRSS>();
+  generateBVHModel(box_bvh_model, *box_ptr, Transform3f());
+  box_bvh_model.buildConvexRepresentation(false);
+  ConvexBase & box_convex = *box_bvh_model.convex.get();
+  CollisionGeometryPtr_t s2(new hpp::fcl::Sphere(0.5));
+
+  const Transform3f tf1;
+  const Transform3f tf2_collision(Vec3f(0, 0, 1));
+
+  const double tol = 1e-6;
+  
+  test_shape_shape(*b1.get(), tf1, *s2.get(), tf2_collision, tol);
+  test_shape_shape(box_convex, tf1, *s2.get(), tf2_collision, tol);
+  
 }
