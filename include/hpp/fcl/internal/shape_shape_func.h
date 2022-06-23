@@ -384,8 +384,7 @@ template <typename ShapeType1, typename ShapeType2>
 std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
                               const Transform3f& tf1,
                               const CollisionGeometry* o2,
-                              const Transform3f& tf2,
-                              const GJKSolver* nsolver,
+                              const Transform3f& tf2, const GJKSolver* nsolver,
                               const CollisionRequest& request,
                               CollisionResult& result) {
   if (request.security_margin < 0) {
