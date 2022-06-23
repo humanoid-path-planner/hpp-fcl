@@ -393,7 +393,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
   GJKSolver(const CollisionRequest& request) {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
-    distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
 
     // EPS settings
     epa_max_face_num = 128;
@@ -422,7 +421,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
       cached_guess = request.cached_gjk_guess;
       support_func_cached_guess = request.cached_support_func_guess;
     }
-    distance_upper_bound = request.distance_upper_bound;
+
+    // The distance upper bound should be at least greater to the requested
+    // security margin. Otherwise, we will likely miss some collisions.
+    distance_upper_bound = (std::max)(
+        0., (std::max)(request.distance_upper_bound, request.security_margin));
   }
 
   /// @brief Copy constructor
