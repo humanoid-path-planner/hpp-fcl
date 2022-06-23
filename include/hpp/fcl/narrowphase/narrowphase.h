@@ -424,8 +424,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     // The distance upper bound should be at least greater to the requested
     // security margin. Otherwise, we will likely miss some collisions.
-    distance_upper_bound =
-        (std::max)(0,(std::max)(request.distance_upper_bound, request.security_margin));
+    distance_upper_bound = (std::max)(
+        0, (std::max)(request.distance_upper_bound, request.security_margin));
   }
 
   /// @brief Copy constructor
