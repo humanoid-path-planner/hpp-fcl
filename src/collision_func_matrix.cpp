@@ -183,36 +183,20 @@ struct height_field_shape_collide_negative_security_margin<BV, ShapeType, true,
     const FCL_REAL min_deflation = o2.minInflationValue();
     const FCL_REAL security_margin = request.security_margin;
 
-    //    if(security_margin < min_deflation)
-    //      HPP_FCL_THROW_PRETTY("The request security margin: "
-    //                           << security_margin
-    //                           << " is below the minimal security margin
-    //                           authorised by the pair of two shapes"
-    //                           << "(" <<
-    //                           std::string(get_node_type_name(o1.getNodeType()))
-    //                           << "," <<
-    //                           std::string(get_node_type_name(o2.getNodeType()))
-    //                           << "): "
-    //                           << min_deflation
-    //                           << ".\n Please consider increasing the
-    //                           requested security margin.",
-    //                           std::invalid_argument);
+    if (security_margin < min_deflation) return result.numContacts();
 
-    const FCL_REAL deflation_value2 =
-        (std::max)(0.5 * min_deflation, security_margin);
-    const auto& deflated_result = o2.inflated(deflation_value2);
+    const auto& deflated_result = o2.inflated(min_deflation);
     const ShapeType& deflated_o2 = deflated_result.first;
     const Transform3f deflated_tf2 = tf2 * deflated_result.second;
 
     CollisionRequest deflated_request(request);
 
     deflated_request.security_margin =
-        security_margin -
-        deflation_value2;  // We already account for the deflation of the shape.
+        0;  // We already account for the deflation of the shape.
 
     HeightFieldShapeCollisionTraversalNode<BV, ShapeType, 0> node(
         deflated_request);
-    node.shape_inflation[0] = deflated_request.security_margin;
+    node.shape_inflation[0] = 0;
 
     nsolver->setShapeDeflation(0., 0.);
 
@@ -232,13 +216,18 @@ struct height_field_shape_collide_negative_security_margin<BV, ShapeType, false,
                          const GJKSolver* nsolver,
                          const CollisionRequest& request,
                          CollisionResult& result) {
-    HeightFieldShapeCollisionTraversalNode<BV, ShapeType, 0> node(request);
+    CollisionRequest deflated_request(request);
+    deflated_request.security_margin = 0;
+
+    HeightFieldShapeCollisionTraversalNode<BV, ShapeType, 0> node(
+        deflated_request);
+    // The deflation is splitted between the two objects.
     node.shape_inflation[0] = 0.5 * request.security_margin;
 
     nsolver->setShapeDeflation(0., 0.5 * request.security_margin);
 
     initialize(node, o1, tf1, o2, tf2, nsolver, result);
-    fcl::collide(&node, request, result);
+    fcl::collide(&node, deflated_request, result);
     return result.numContacts();
   }
 };
