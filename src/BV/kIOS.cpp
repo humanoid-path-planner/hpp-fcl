@@ -153,7 +153,8 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1,
              const kIOS& b2) {
   kIOS b2_temp = b2;
   for (unsigned int i = 0; i < b2_temp.num_spheres; ++i) {
-    b2_temp.spheres[i].o.noalias() = R0.transpose() * (b2_temp.spheres[i].o - T0);
+    b2_temp.spheres[i].o.noalias() =
+        R0.transpose() * (b2_temp.spheres[i].o - T0);
   }
 
   b2_temp.obb.To.noalias() = R0.transpose() * (b2_temp.obb.To - T0);
@@ -167,7 +168,8 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1,
              FCL_REAL& sqrDistLowerBound) {
   kIOS b2_temp = b2;
   for (unsigned int i = 0; i < b2_temp.num_spheres; ++i) {
-    b2_temp.spheres[i].o.noalias() = R0.transpose() * (b2_temp.spheres[i].o - T0);
+    b2_temp.spheres[i].o.noalias() =
+        R0.transpose() * (b2_temp.spheres[i].o - T0);
   }
 
   b2_temp.obb.To.noalias() = R0.transpose() * (b2_temp.obb.To - T0);
