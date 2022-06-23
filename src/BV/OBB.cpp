@@ -343,14 +343,19 @@ struct HPP_FCL_LOCAL obbDisjoint_check_Ai_cross_Bi {
 // This function tests whether bounding boxes should be broken down.
 //
 bool obbDisjointAndLowerBoundDistance(const Matrix3f& B, const Vec3f& T,
-                                      const Vec3f& a, const Vec3f& b,
+                                      const Vec3f& a_, const Vec3f& b_,
                                       const CollisionRequest& request,
                                       FCL_REAL& squaredLowerBoundDistance) {
-  const FCL_REAL breakDistance(request.break_distance +
-                               request.security_margin);
-  const FCL_REAL breakDistance2 = breakDistance * breakDistance;
+  
+  assert(request.security_margin > -2*(std::min)(a_.minCoeff(),b_.minCoeff()) - 10*Eigen::NumTraits<FCL_REAL>::epsilon()
+         && "A negative security margin could not be lower than the OBB extent.");
+//  const FCL_REAL breakDistance(request.break_distance +
+//                               request.security_margin);
+  const FCL_REAL breakDistance2 = request.break_distance * request.break_distance;
 
   Matrix3f Bf(B.cwiseAbs());
+  const Vec3f a((a_ + Vec3f::Constant(request.security_margin/2)).array().max(0));
+  const Vec3f b((b_ + Vec3f::Constant(request.security_margin/2)).array().max(0));
 
   // Corner of b axis aligned bounding box the closest to the origin
   squaredLowerBoundDistance = internal::obbDisjoint_check_A_axis(T, a, b, Bf);

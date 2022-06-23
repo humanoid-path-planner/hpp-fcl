@@ -55,6 +55,122 @@ using hpp::fcl::DistanceResult;
 using hpp::fcl::Transform3f;
 using hpp::fcl::Vec3f;
 
+#define MATH_SQUARED(x) (x*x)
+
+BOOST_AUTO_TEST_CASE(aabb_aabb) {
+  CollisionGeometryPtr_t b1(new hpp::fcl::Box(1, 1, 1));
+  CollisionGeometryPtr_t b2(new hpp::fcl::Box(1, 1, 1));
+
+  const Transform3f tf1;
+  const Transform3f tf2_collision(Vec3f(0, 1, 1));
+  hpp::fcl::Box s1(1, 1, 1);
+  hpp::fcl::Box s2(1, 1, 1);
+  const double tol = 1e-8;
+  
+  AABB bv1, bv2;
+  computeBV(s1, Transform3f(), bv1);
+  computeBV(s2, Transform3f(), bv2);
+  
+  // No security margin - collision
+  {
+    CollisionRequest collisionRequest(CONTACT, 1);
+    AABB bv2_transformed;
+    computeBV(s2, tf2_collision, bv2_transformed);
+    FCL_REAL sqrDistLowerBound;
+    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    BOOST_CHECK(res);
+    BOOST_CHECK_CLOSE(sqrDistLowerBound, 0, tol);
+  }
+  
+  // No security margin - no collision
+  {
+    CollisionRequest collisionRequest(CONTACT, 1);
+    const double distance = 0.01;
+    Transform3f tf2_no_collision(
+        Vec3f(tf2_collision.getTranslation() + Vec3f(0, 0, distance)));
+    AABB bv2_transformed;
+    computeBV(s2, tf2_no_collision, bv2_transformed);
+    FCL_REAL sqrDistLowerBound;
+    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    BOOST_CHECK(!res);
+    BOOST_CHECK_CLOSE(sqrDistLowerBound, MATH_SQUARED(distance), tol);
+  }
+  
+  // Security margin - collision
+  {
+    CollisionRequest collisionRequest(CONTACT, 1);
+    const double distance = 0.01;
+    collisionRequest.security_margin = distance;
+    Transform3f tf2_no_collision(
+        Vec3f(tf2_collision.getTranslation() + Vec3f(0, 0, distance)));
+    AABB bv2_transformed;
+    computeBV(s2, tf2_no_collision, bv2_transformed);
+    FCL_REAL sqrDistLowerBound;
+    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    BOOST_CHECK(res);
+    BOOST_CHECK_SMALL(sqrDistLowerBound, tol);
+  }
+  
+  // Negative security margin - collion because the two boxes are in contact
+  {
+    CollisionRequest collisionRequest(CONTACT, 1);
+    const double distance = -0.01;
+    collisionRequest.security_margin = distance;
+    const Transform3f tf2(
+        Vec3f(tf2_collision.getTranslation() + Vec3f(0, distance, distance)));
+    AABB bv2_transformed;
+    computeBV(s2, tf2, bv2_transformed);
+    FCL_REAL sqrDistLowerBound;
+    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    BOOST_CHECK(res);
+    BOOST_CHECK_SMALL(sqrDistLowerBound, tol);
+  }
+  
+  // Negative security margin - no collision
+  {
+    CollisionRequest collisionRequest(CONTACT, 1);
+    const double distance = -0.01;
+    collisionRequest.security_margin = distance;
+    AABB bv2_transformed;
+    computeBV(s2, tf2_collision, bv2_transformed);
+    FCL_REAL sqrDistLowerBound;
+    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    BOOST_CHECK(!res);
+    BOOST_CHECK_CLOSE(sqrDistLowerBound, MATH_SQUARED((std::sqrt(2)*collisionRequest.security_margin)), tol);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(aabb_aabb_degenerated_cases) {
+  CollisionGeometryPtr_t b1(new hpp::fcl::Box(1, 1, 1));
+  CollisionGeometryPtr_t b2(new hpp::fcl::Box(1, 1, 1));
+
+  const Transform3f tf1;
+  const Transform3f tf2_collision(Vec3f(0, 0, 0));
+  hpp::fcl::Box s1(1, 1, 1);
+  hpp::fcl::Box s2(1, 1, 1);
+  const double tol = 1e-8;
+  
+  AABB bv1, bv2;
+  computeBV(s1, Transform3f(), bv1);
+  computeBV(s2, Transform3f(), bv2);
+  
+  // The two AABB are collocated
+  {
+    CollisionRequest collisionRequest(CONTACT, 1);
+    const double distance = -2.;
+    collisionRequest.security_margin = distance;
+    AABB bv2_transformed;
+    computeBV(s2, tf2_collision, bv2_transformed);
+    FCL_REAL sqrDistLowerBound;
+    bool res = bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
+    BOOST_CHECK(!res);
+  }
+  
+  const AABB bv3;
+  BOOST_CHECK(!bv1.overlap(bv3));
+  
+}
+
 BOOST_AUTO_TEST_CASE(sphere_sphere) {
   CollisionGeometryPtr_t s1(new hpp::fcl::Sphere(1));
   CollisionGeometryPtr_t s2(new hpp::fcl::Sphere(2));
