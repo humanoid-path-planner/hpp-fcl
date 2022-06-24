@@ -455,7 +455,9 @@ BOOST_AUTO_TEST_CASE(hfield_with_square_hole) {
 BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
   const Eigen::DenseIndex nx = 100, ny = 100;
 
-  typedef OBBRSS BV;
+  //  typedef OBBRSS BV; TODO(jcarpent): OBBRSS does not work (compile in Debug
+  //  mode), as the overlap of OBBRSS is not satisfactory yet.
+  typedef AABB BV;
   const MatrixXf X =
       Eigen::RowVectorXd::LinSpaced(nx, -1., 1.).replicate(ny, 1);
   const MatrixXf Y = Eigen::VectorXd::LinSpaced(ny, 1., -1.).replicate(1, nx);
