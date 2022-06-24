@@ -77,6 +77,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         }
         guess.noalias() =
             s1.aabb_center - (shape.oR1 * s2.aabb_center + shape.ot1);
+        guess.normalize();
         support_hint.setZero();
         break;
       default:
