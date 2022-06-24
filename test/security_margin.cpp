@@ -238,7 +238,8 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
     collide(s1.get(), tf1, s2.get(), tf2, collisionRequest, collisionResult);
     BOOST_CHECK(collisionResult.isCollision());
     BOOST_CHECK_SMALL(collisionResult.distance_lower_bound, 1e-8);
-    BOOST_CHECK_SMALL(-collisionResult.getContact(0).penetration_depth, 1e-8);
+    BOOST_CHECK_CLOSE(-collisionResult.getContact(0).penetration_depth,
+                      distance, 1e-8);
   }
 
   // Negative security margin - no collision
@@ -312,7 +313,8 @@ BOOST_AUTO_TEST_CASE(capsule_capsule) {
     collide(c1.get(), tf1, c2.get(), tf2, collisionRequest, collisionResult);
     BOOST_CHECK(collisionResult.isCollision());
     BOOST_CHECK_SMALL(collisionResult.distance_lower_bound, 1e-8);
-    BOOST_CHECK_SMALL(-collisionResult.getContact(0).penetration_depth, 1e-8);
+    BOOST_CHECK_CLOSE(-collisionResult.getContact(0).penetration_depth,
+                      distance, 1e-8);
   }
 
   // Negative security margin - no collision
@@ -383,17 +385,15 @@ BOOST_AUTO_TEST_CASE(box_box) {
     collide(b1.get(), tf1, b2.get(), tf2_collision, collisionRequest,
             collisionResult);
     BOOST_CHECK(!collisionResult.isCollision());
-    BOOST_CHECK_CLOSE(
-        collisionResult.distance_lower_bound,
-        (collisionRequest.security_margin * tf2_collision.getTranslation())
-            .norm(),
-        tol);
+    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound,
+                      -collisionRequest.security_margin, tol);
   }
 
   // Negative security margin - collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
-    collisionRequest.security_margin = -0.01;
+    const FCL_REAL distance = -0.01;
+    collisionRequest.security_margin = distance;
     CollisionResult collisionResult;
 
     const Transform3f tf2((tf2_collision.getTranslation() +
@@ -403,7 +403,8 @@ BOOST_AUTO_TEST_CASE(box_box) {
     collide(b1.get(), tf1, b2.get(), tf2, collisionRequest, collisionResult);
     BOOST_CHECK(collisionResult.isCollision());
     BOOST_CHECK_SMALL(collisionResult.distance_lower_bound, tol);
-    BOOST_CHECK_SMALL(-collisionResult.getContact(0).penetration_depth, tol);
+    BOOST_CHECK_CLOSE(-collisionResult.getContact(0).penetration_depth,
+                      distance, tol);
   }
 }
 
@@ -468,7 +469,8 @@ void test_shape_shape(const ShapeType1& shape1, const Transform3f& tf1,
   // Negative security margin - collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
-    collisionRequest.security_margin = -0.01;
+    const FCL_REAL distance = -0.01;
+    collisionRequest.security_margin = distance;
     CollisionResult collisionResult;
 
     const Transform3f tf2((tf2_collision.getTranslation() +
@@ -478,7 +480,8 @@ void test_shape_shape(const ShapeType1& shape1, const Transform3f& tf1,
     collide(&shape1, tf1, &shape2, tf2, collisionRequest, collisionResult);
     BOOST_CHECK(collisionResult.isCollision());
     BOOST_CHECK_SMALL(collisionResult.distance_lower_bound, tol);
-    BOOST_CHECK_SMALL(-collisionResult.getContact(0).penetration_depth, tol);
+    BOOST_CHECK_CLOSE(-collisionResult.getContact(0).penetration_depth,
+                      distance, tol);
   }
 }
 

@@ -101,21 +101,17 @@ Convex<Quadrilateral> buildConvexQuadrilateral(const HFNode<BV>& node,
 
 template <typename BV>
 void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
-                          Convex<Triangle>& convex1, Convex<Triangle>& convex2,
-                          const FCL_REAL deflation) {
+                          Convex<Triangle>& convex1,
+                          Convex<Triangle>& convex2) {
   const MatrixXf& heights = model.getHeights();
   const VecXf& x_grid = model.getXGrid();
   const VecXf& y_grid = model.getYGrid();
 
-  assert(deflation <= 0 && "deflation should be negative");
+  const FCL_REAL min_height = model.getMinHeight();
 
-  const FCL_REAL min_height = model.getMinHeight() - deflation;
-
-  const FCL_REAL x0 = x_grid[node.x_id] - deflation,
-                 x1 = x_grid[node.x_id + 1] + deflation,
-                 y0 = y_grid[node.y_id] - deflation,
-                 y1 = y_grid[node.y_id + 1] + deflation;
-  const FCL_REAL max_height = node.max_height + deflation;
+  const FCL_REAL x0 = x_grid[node.x_id], x1 = x_grid[node.x_id + 1],
+                 y0 = y_grid[node.y_id], y1 = y_grid[node.y_id + 1];
+  const FCL_REAL max_height = node.max_height;
   const Eigen::Block<const MatrixXf, 2, 2> cell =
       heights.block<2, 2>(node.y_id, node.x_id);
 
@@ -156,13 +152,6 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   {
     Vec3f* pts = new Vec3f[8];
     memcpy(pts, convex1.points, 8 * sizeof(Vec3f));
-
-    const Vec3f normal_upper_triangular_face =
-        ((pts[7] - pts[5]).cross(pts[6] - pts[5])).normalized();
-    const FCL_REAL cos_alpha = normal_upper_triangular_face.dot(Vec3f::UnitZ());
-    pts[5][2] += deflation / cos_alpha;
-    pts[6][2] += deflation / cos_alpha;
-    pts[7][2] += deflation / cos_alpha;
 
     Triangle* triangles = new Triangle[8];
     triangles[0].set(3, 2, 1);  // top
@@ -236,43 +225,14 @@ class HeightFieldShapeCollisionTraversalNode
     if (this->enable_statistics) this->num_bv_tests++;
 
     bool disjoint;
-    const FCL_REAL deflation = shape_inflation[0];
-
-    if (deflation < 0) {
-      typedef typename HeightField<BV>::Node Node;
-      const HeightField<BV>& hfield = *this->model1;
-      const Node& node = hfield.getBV(b1);
-      const VecXf& x_grid = hfield.getXGrid();
-      const VecXf& y_grid = hfield.getYGrid();
-      const Vec3f pointA(x_grid[node.x_id] - deflation,
-                         y_grid[node.y_id] - deflation,
-                         hfield.getMinHeight() - deflation);
-      const Vec3f pointB(x_grid[node.x_id + node.x_size] + deflation,
-                         y_grid[node.y_id + node.y_size] + deflation,
-                         node.max_height + deflation);
-
-      BV bv_deflated;
-      details::UpdateBoundingVolume<BV>::run(pointA, pointB, bv_deflated);
-
-      if (RTIsIdentity) {
-        assert(false && "must never happened");
-        disjoint = !bv_deflated.overlap(this->model2_bv, this->request,
-                                        sqrDistLowerBound);
-      } else {
-        disjoint = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
-                            bv_deflated, this->model2_bv, this->request,
-                            sqrDistLowerBound);
-      }
+    if (RTIsIdentity) {
+      assert(false && "must never happened");
+      disjoint = !this->model1->getBV(b1).bv.overlap(
+          this->model2_bv, this->request, sqrDistLowerBound);
     } else {
-      if (RTIsIdentity) {
-        assert(false && "must never happened");
-        disjoint = !this->model1->getBV(b1).bv.overlap(
-            this->model2_bv, this->request, sqrDistLowerBound);
-      } else {
-        disjoint = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
-                            this->model1->getBV(b1).bv, this->model2_bv,
-                            this->request, sqrDistLowerBound);
-      }
+      disjoint = !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
+                          this->model1->getBV(b1).bv, this->model2_bv,
+                          this->request, sqrDistLowerBound);
     }
 
     if (disjoint)
@@ -391,8 +351,7 @@ class HeightFieldShapeCollisionTraversalNode
 
     typedef Convex<Triangle> ConvexTriangle;
     ConvexTriangle convex1, convex2;
-    details::buildConvexTriangles(node, *this->model1, convex1, convex2,
-                                  shape_inflation[0]);
+    details::buildConvexTriangles(node, *this->model1, convex1, convex2);
 
     FCL_REAL distance;
     //    Vec3f contact_point, normal;
@@ -407,20 +366,20 @@ class HeightFieldShapeCollisionTraversalNode
     //                         distance, contact_point, normal);
 
     FCL_REAL distToCollision = distance - this->request.security_margin;
-    if (collision) {
+    if (distToCollision <= this->request.collision_distance_threshold) {
+      sqrDistLowerBound = 0;
+      if (this->request.num_max_contacts > this->result->numContacts()) {
+        this->result->addContact(Contact(this->model1, this->model2, (int)b1,
+                                         (int)Contact::NONE, .5 * (c1 + c2),
+                                         (c2 - c1).normalized(), -distance));
+      }
+    } else if (collision && this->request.security_margin >= 0) {
       sqrDistLowerBound = 0;
       if (this->request.num_max_contacts > this->result->numContacts()) {
         this->result->addContact(Contact(this->model1, this->model2, (int)b1,
                                          (int)Contact::NONE, c1, normal,
                                          -distance));
         assert(this->result->isCollision());
-      }
-    } else if (distToCollision <= this->request.collision_distance_threshold) {
-      sqrDistLowerBound = 0;
-      if (this->request.num_max_contacts > this->result->numContacts()) {
-        this->result->addContact(Contact(this->model1, this->model2, (int)b1,
-                                         (int)Contact::NONE, .5 * (c1 + c2),
-                                         (c2 - c1).normalized(), -distance));
       }
     } else
       sqrDistLowerBound = distToCollision * distToCollision;

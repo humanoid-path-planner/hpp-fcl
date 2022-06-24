@@ -387,17 +387,8 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
                               const Transform3f& tf2, const GJKSolver* nsolver,
                               const CollisionRequest& request,
                               CollisionResult& result) {
-  if (request.security_margin < 0) {
-    const ShapeType1& shape1 = static_cast<const ShapeType1&>(*o1);
-    const ShapeType2& shape2 = static_cast<const ShapeType2&>(*o2);
-
-    return details::shape_shape_collide_negative_security_margin<
-        ShapeType1, ShapeType2>::run(shape1, tf1, shape2, tf2, nsolver, request,
-                                     result);
-  } else {
-    return ShapeShapeCollider<ShapeType1, ShapeType2>::run(
-        o1, tf1, o2, tf2, nsolver, request, result);
-  }
+  return ShapeShapeCollider<ShapeType1, ShapeType2>::run(
+      o1, tf1, o2, tf2, nsolver, request, result);
 }
 
 #define SHAPE_SHAPE_DISTANCE_SPECIALIZATION(T1, T2)             \

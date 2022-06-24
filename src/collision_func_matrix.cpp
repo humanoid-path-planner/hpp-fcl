@@ -276,17 +276,11 @@ struct HPP_FCL_LOCAL HeightFieldShapeCollider {
     const HF& height_field = static_cast<const HF&>(*o1);
     const Shape& shape = static_cast<const Shape&>(*o2);
 
-    if (request.security_margin < 0) {
-      return details::height_field_shape_collide_negative_security_margin<
-          BV, Shape>::run(height_field, tf1, shape, tf2, nsolver, request,
-                          result);
-    } else {
-      HeightFieldShapeCollisionTraversalNode<BV, Shape, 0> node(request);
+    HeightFieldShapeCollisionTraversalNode<BV, Shape, 0> node(request);
 
-      initialize(node, height_field, tf1, shape, tf2, nsolver, result);
-      fcl::collide(&node, request, result);
-      return result.numContacts();
-    }
+    initialize(node, height_field, tf1, shape, tf2, nsolver, result);
+    fcl::collide(&node, request, result);
+    return result.numContacts();
   }
 };
 
