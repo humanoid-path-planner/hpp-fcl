@@ -41,6 +41,7 @@
 #define HPP_FCL_NARROWPHASE_H
 
 #include <limits>
+#include <iostream>
 
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/collision_data.h>
@@ -75,9 +76,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
               "GJKInitialGuess::BoundingVolumeGuess.",
               std::logic_error);
         }
-        guess.noalias() =
-            s1.aabb_center - (shape.oR1 * s2.aabb_center + shape.ot1);
-        guess.normalize();
+        guess.noalias() = s1.aabb_local.center() -
+                          (shape.oR1 * s2.aabb_local.center() + shape.ot1);
         support_hint.setZero();
         break;
       default:
