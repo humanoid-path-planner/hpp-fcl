@@ -405,7 +405,8 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
 BOOST_AUTO_TEST_CASE(negative_security_margin) {
   const FCL_REAL max_altitude = 1., min_altitude = 0.;
 
-  test_negative_security_margin<OBBRSS>(100, 100, min_altitude, max_altitude);
+  //  test_negative_security_margin<OBBRSS>(100, 100, min_altitude,
+  //  max_altitude);
   test_negative_security_margin<AABB>(100, 100, min_altitude, max_altitude);
 }
 
@@ -448,5 +449,76 @@ BOOST_AUTO_TEST_CASE(hfield_with_square_hole) {
     collide(&hfield, hfield_pos, &sphere2, sphere_pos, request, result);
 
     BOOST_CHECK(result.isCollision());
+  }
+}
+
+BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
+  const Eigen::DenseIndex nx = 100, ny = 100;
+
+  typedef OBBRSS BV;
+  const MatrixXf X =
+      Eigen::RowVectorXd::LinSpaced(nx, -1., 1.).replicate(ny, 1);
+  const MatrixXf Y = Eigen::VectorXd::LinSpaced(ny, 1., -1.).replicate(1, nx);
+
+  const FCL_REAL dim_hole = 1;
+
+  const Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> hole =
+      (X.array().square() + Y.array().square() <= dim_hole);
+
+  const MatrixXf heights =
+      MatrixXf::Ones(ny, nx) - hole.cast<double>().matrix();
+
+  const HeightField<BV> hfield(2., 2., heights, -10.);
+
+  BOOST_CHECK(hfield.getXGrid()[0] == -1.);
+  BOOST_CHECK(hfield.getXGrid()[nx - 1] == +1.);
+
+  BOOST_CHECK(hfield.getYGrid()[0] == +1.);
+  BOOST_CHECK(hfield.getYGrid()[ny - 1] == -1.);
+
+  Sphere sphere(0.975);
+  const Transform3f sphere_pos(Vec3f(0., 0., 1.));
+  const Transform3f hfield_pos;
+
+  {
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = 0.;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+  }
+
+  {
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = 0.01;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    FCL_REAL dist = result.distance_lower_bound + request.security_margin;
+    std::cout << "dist: " << dist << std::endl;
+    std::cout << "distance_lower_bound: " << result.distance_lower_bound
+              << std::endl;
+    std::cout << "isCollision(): " << result.isCollision() << std::endl;
+
+    BOOST_CHECK(!result.isCollision());
+  }
+
+  {
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = 1. - sphere.radius;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(result.isCollision());
+  }
+
+  {
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = -0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
   }
 }
