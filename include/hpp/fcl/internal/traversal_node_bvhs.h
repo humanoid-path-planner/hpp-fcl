@@ -168,8 +168,8 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
       disjoint = !this->model1->getBV(b1).overlap(
           this->model2->getBV(b2), this->request, sqrDistLowerBound);
     else {
-      disjoint = !overlap(RT._R(), RT._T(), this->model1->getBV(b1).bv,
-                          this->model2->getBV(b2).bv, this->request,
+      disjoint = !overlap(RT._R(), RT._T(), this->model2->getBV(b2).bv,
+                          this->model1->getBV(b1).bv, this->request,
                           sqrDistLowerBound);
     }
     if (disjoint)
