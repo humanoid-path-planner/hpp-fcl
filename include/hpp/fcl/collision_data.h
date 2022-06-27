@@ -540,7 +540,7 @@ inline void updateDistanceLowerBoundFromBV(const CollisionRequest& req,
                                            const FCL_REAL& sqrDistLowerBound) {
   // BV cannot find negative distance.
   if (res.distance_lower_bound <= 0) return;
-  FCL_REAL new_dlb = std::sqrt(sqrDistLowerBound) - req.security_margin;
+  FCL_REAL new_dlb = std::sqrt(sqrDistLowerBound);  // - req.security_margin;
   if (new_dlb < res.distance_lower_bound) res.distance_lower_bound = new_dlb;
 }
 
