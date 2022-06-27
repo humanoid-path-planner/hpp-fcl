@@ -497,12 +497,6 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
     request.security_margin = 0.01;
     collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
 
-    FCL_REAL dist = result.distance_lower_bound + request.security_margin;
-    std::cout << "dist: " << dist << std::endl;
-    std::cout << "distance_lower_bound: " << result.distance_lower_bound
-              << std::endl;
-    std::cout << "isCollision(): " << result.isCollision() << std::endl;
-
     BOOST_CHECK(!result.isCollision());
   }
 
