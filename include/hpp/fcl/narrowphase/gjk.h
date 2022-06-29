@@ -51,7 +51,7 @@ namespace details {
 /// @brief the support function for shape
 /// \param hint use to initialize the search when shape is a ConvexBase object.
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
-                 int& hint, const FCL_REAL& shape_deflation);
+                 int& hint);
 
 /// @brief Minkowski difference class of two shapes
 ///
@@ -83,10 +83,6 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// These inflation values are used for Sphere and Capsule.
   Array2d inflation;
 
-  /// @brief Deflation values associated to each support function.
-  /// The values are zero by default.
-  Array2d shape_deflation;
-
   /// @brief Number of points in a Convex object from which using a logarithmic
   /// support function is faster than a linear one.
   /// It defaults to 32.
@@ -106,8 +102,7 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   GetSupportFunction getSupportFunc;
 
   MinkowskiDiff()
-      : shape_deflation(0, 0),
-        linear_log_convex_threshold(32),
+      : linear_log_convex_threshold(32),
         normalize_support_direction(false),
         getSupportFunc(NULL) {}
 
@@ -121,13 +116,13 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
   /// @brief support function for shape0
   inline Vec3f support0(const Vec3f& d, bool dIsNormalized, int& hint) const {
-    return getSupport(shapes[0], d, dIsNormalized, hint, shape_deflation[0]);
+    return getSupport(shapes[0], d, dIsNormalized, hint);
   }
 
   /// @brief support function for shape1
   inline Vec3f support1(const Vec3f& d, bool dIsNormalized, int& hint) const {
-    return oR1 * getSupport(shapes[1], oR1.transpose() * d, dIsNormalized, hint,
-                            shape_deflation[1]) +
+    return oR1 *
+               getSupport(shapes[1], oR1.transpose() * d, dIsNormalized, hint) +
            ot1;
   }
 

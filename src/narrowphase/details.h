@@ -1619,8 +1619,6 @@ inline bool convexHalfspaceIntersect(
     const ConvexBase& s1, const Transform3f& tf1, const Halfspace& s2,
     const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth,
     Vec3f* normal) {
-  // No need to account for the shape_deflation in the case of Convex,Halfspace
-  // as Halfspace objects have an infinite value possible for deflation.
   Halfspace new_s2 = transform(s2, tf2);
 
   Vec3f v;
@@ -1810,11 +1808,11 @@ inline bool halfspaceIntersect(const Halfspace& s1, const Transform3f& tf1,
 inline bool halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
                               const ShapeBase& s, const Transform3f& tf2,
                               FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
-                              Vec3f& normal, const FCL_REAL shape_deflation) {
+                              Vec3f& normal) {
   Vec3f n_w = tf1.getRotation() * h.n;
   Vec3f n_2(tf2.getRotation().transpose() * n_w);
   int hint = 0;
-  p2 = getSupport(&s, -n_2, true, hint, shape_deflation);
+  p2 = getSupport(&s, -n_2, true, hint);
   p2 = tf2.transform(p2);
 
   dist = (p2 - tf1.getTranslation()).dot(n_w) - h.d;

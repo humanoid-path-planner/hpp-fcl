@@ -45,18 +45,13 @@ namespace fcl {
 template <>
 FCL_REAL ShapeShapeDistance<TriangleP, Halfspace>(
     const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2,
-    const GJKSolver* nsolver, const DistanceRequest&, DistanceResult& result) {
-  assert(nsolver->shape_deflation[0] == 0 &&
-         "Shape deflation for the TriangleP object should be zero");
-  assert(nsolver->shape_deflation[1] == 0 &&
-         "Shape deflation for the HalfSpace object should be zero");
-
+    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
+    const DistanceRequest&, DistanceResult& result) {
   const TriangleP& s1 = static_cast<const TriangleP&>(*o1);
   const Halfspace& s2 = static_cast<const Halfspace&>(*o2);
   details::halfspaceDistance(s2, tf2, s1, tf1, result.min_distance,
                              result.nearest_points[1], result.nearest_points[0],
-                             result.normal, nsolver->shape_deflation[0]);
+                             result.normal);
   result.o1 = o1;
   result.o2 = o2;
   result.b1 = -1;
@@ -68,18 +63,13 @@ FCL_REAL ShapeShapeDistance<TriangleP, Halfspace>(
 template <>
 FCL_REAL ShapeShapeDistance<Halfspace, TriangleP>(
     const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2,
-    const GJKSolver* nsolver, const DistanceRequest&, DistanceResult& result) {
-  assert(nsolver->shape_deflation[0] == 0 &&
-         "Shape deflation for the HalfSpace object should be zero");
-  assert(nsolver->shape_deflation[1] == 0 &&
-         "Shape deflation for the TriangleP object should be zero");
-
+    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
+    const DistanceRequest&, DistanceResult& result) {
   const Halfspace& s1 = static_cast<const Halfspace&>(*o1);
   const TriangleP& s2 = static_cast<const TriangleP&>(*o2);
   details::halfspaceDistance(s1, tf1, s2, tf2, result.min_distance,
                              result.nearest_points[0], result.nearest_points[1],
-                             result.normal, nsolver->shape_deflation[1]);
+                             result.normal);
   result.o1 = o1;
   result.o2 = o2;
   result.b1 = -1;
