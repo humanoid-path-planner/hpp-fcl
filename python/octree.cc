@@ -13,7 +13,7 @@ void exposeOctree() {
   namespace bp = boost::python;
   namespace dv = doxygen::visitor;
 
-  bp::class_<OcTree, bp::bases<CollisionGeometry> >(
+  bp::class_<OcTree, bp::bases<CollisionGeometry>, shared_ptr<OcTree> >(
       "OcTree", doxygen::class_doc<OcTree>(), bp::no_init)
       .def(dv::init<OcTree, FCL_REAL>())
       .def(dv::member_func("getTreeDepth", &OcTree::getTreeDepth))
