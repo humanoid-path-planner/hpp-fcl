@@ -535,7 +535,7 @@ struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
 };
 
 namespace internal {
-inline void updateDistanceLowerBoundFromBV(const CollisionRequest& req,
+inline void updateDistanceLowerBoundFromBV(const CollisionRequest& /*req*/,
                                            CollisionResult& res,
                                            const FCL_REAL& sqrDistLowerBound) {
   // BV cannot find negative distance.
