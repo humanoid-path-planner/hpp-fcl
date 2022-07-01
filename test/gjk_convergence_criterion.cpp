@@ -140,18 +140,21 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
     BOOST_CHECK(gjk1.getIterations() <= max_iterations);
     Vec3f ray1 = gjk1.ray;
     res1 = gjk1.evaluate(mink_diff, init_guess, init_support_guess);
+    BOOST_CHECK(res1 != GJK::Status::Failed);
     EIGEN_VECTOR_IS_APPROX(gjk1.ray, ray1, 1e-8);
 
     GJK::Status res2 = gjk2.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(gjk2.getIterations() <= max_iterations);
     Vec3f ray2 = gjk2.ray;
     res2 = gjk2.evaluate(mink_diff, init_guess, init_support_guess);
+    BOOST_CHECK(res2 != GJK::Status::Failed);
     EIGEN_VECTOR_IS_APPROX(gjk2.ray, ray2, 1e-8);
 
     GJK::Status res3 = gjk3.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(gjk3.getIterations() <= max_iterations);
     Vec3f ray3 = gjk3.ray;
     res3 = gjk3.evaluate(mink_diff, init_guess, init_support_guess);
+    BOOST_CHECK(res3 != GJK::Status::Failed);
     EIGEN_VECTOR_IS_APPROX(gjk3.ray, ray3, 1e-8);
 
     // check that solutions are close enough
