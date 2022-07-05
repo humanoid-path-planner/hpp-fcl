@@ -68,8 +68,7 @@ jobs:
         git clone https://github.com/jcarpent/pybind11-stubgen.git
         python "%CD%\pybind11-stubgen\pybind11_stubgen\__init__.py" -o out hppfcl --boost-python --ignore-invalid signature --no-setup-py --root-module-suffix ""
         
-        ls out
-        cp -r out\* %CONDA_PREFIX%\Lib\site-packages
+        cp -r out\hppfcl %CONDA_PREFIX%\Lib\site-packages
 
         :: Testing
         :: ctest --output-on-failure -C Release -V
