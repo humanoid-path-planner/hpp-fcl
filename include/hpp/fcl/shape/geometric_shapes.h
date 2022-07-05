@@ -55,7 +55,7 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
   /// \brief Copy constructor
   ShapeBase(const ShapeBase& other) : CollisionGeometry(other) {}
 
-  ShapeBase& operator=(const ShapeBase& /*other*/) { return *this; }
+  ShapeBase& operator=(const ShapeBase& other) = default;
 
   virtual ~ShapeBase(){};
 
