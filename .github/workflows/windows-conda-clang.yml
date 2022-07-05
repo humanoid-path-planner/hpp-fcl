@@ -63,6 +63,7 @@ jobs:
         :: Build and Install
         cmake --build . --config Release --target install
         
+        ls install
         ls out
 
         :: Build stubs
