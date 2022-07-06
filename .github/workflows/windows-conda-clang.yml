@@ -39,8 +39,6 @@ jobs:
         set BOOST_ROOT_1_69_0=
         set BOOST_ROOT_1_72_0=
         set PATH=%PATH:C:\hostedtoolcache\windows\Boost\1.72.0;=%
-        
-        ls %CONDA_PREFIX%\Library\bin\
 
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
@@ -65,6 +63,9 @@ jobs:
         :: Build and Install
         cmake --build . --config Release --target install
         cp src\Release\hpp-fcl.dll out\hppfcl
+        cp %CONDA_PREFIX%\Library\bin\assimp-vc141-mt.dll out\hppfcl
+        cp %CONDA_PREFIX%\Library\bin\boost_python310.dll out\hppfcl
+        cp %CONDA_PREFIX%\Library\bin\eigenpy.dll out\hppfcl
 
         :: Build stubs
         set PYTHONPATH=out
