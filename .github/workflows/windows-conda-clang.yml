@@ -29,7 +29,6 @@ jobs:
     - name: Install cmake and update conda
       run: |
         conda install cmake -c main
-        ls $CONDA_PREFIX\Library
     - name: Build FCL
       shell: cmd /C CALL {0}
       env:
@@ -40,6 +39,8 @@ jobs:
         set BOOST_ROOT_1_69_0=
         set BOOST_ROOT_1_72_0=
         set PATH=%PATH:C:\hostedtoolcache\windows\Boost\1.72.0;=%
+        
+        ls %CONDA_PREFIX%\Library
 
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
