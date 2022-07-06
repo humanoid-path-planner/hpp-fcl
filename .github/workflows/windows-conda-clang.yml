@@ -64,10 +64,10 @@ jobs:
         cmake --build . --config Release --target install
         cp src\Release\hpp-fcl.dll out\hppfcl
         cp %CONDA_PREFIX%\Library\bin\assimp-vc141-mt.dll out\hppfcl
-        cp %CONDA_PREFIX%\Library\bin\boost_python310.dll out\hppfcl
         cp %CONDA_PREFIX%\Library\bin\eigenpy.dll out\hppfcl
         cp %CONDA_PREFIX%\Library\bin\qhull_r.dll out\hppfcl
         cp %CONDA_PREFIX%\Library\bin\zlib.dll out\hppfcl
+        python -c 'import shutil, os; shutil.copy(os.environ["CONDA_PREFIX"] + "\\Library\\bin\\boost_python" + "${{ matrix.python-version }}".replace(".", "") + ".dll", "out\\hppfcl")'
 
         :: Build stubs
         set PYTHONPATH=out
