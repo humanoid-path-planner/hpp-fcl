@@ -29,7 +29,7 @@ jobs:
     - name: Install cmake and update conda
       run: |
         conda install cmake -c main
-        ls %CONDA_PREFIX%\Library
+        ls $CONDA_PREFIX\Library
     - name: Build FCL
       shell: cmd /C CALL {0}
       env:
