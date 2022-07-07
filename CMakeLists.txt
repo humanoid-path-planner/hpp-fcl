@@ -209,6 +209,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/shape/details/convex.hxx
   include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
   include/hpp/fcl/shape/geometric_shapes.h
+  include/hpp/fcl/shape/geometric_shapes_traits.h
   include/hpp/fcl/shape/geometric_shapes_utility.h
   include/hpp/fcl/distance_func_matrix.h
   include/hpp/fcl/collision.h
@@ -232,6 +233,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/mesh_loader/loader.h
   include/hpp/fcl/internal/BV_fitter.h
   include/hpp/fcl/internal/BV_splitter.h
+  include/hpp/fcl/internal/shape_shape_func.h
   include/hpp/fcl/internal/intersect.h
   include/hpp/fcl/internal/tools.h
   include/hpp/fcl/internal/traversal_node_base.h

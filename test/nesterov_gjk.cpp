@@ -74,11 +74,9 @@ BOOST_AUTO_TEST_CASE(set_gjk_variant) {
   // Checking set
   solver.gjk_variant = GJKVariant::NesterovAcceleration;
   gjk.gjk_variant = GJKVariant::NesterovAcceleration;
-  shape.setNormalizeSupportDirection(true);
 
   BOOST_CHECK(solver.gjk_variant == GJKVariant::NesterovAcceleration);
   BOOST_CHECK(gjk.gjk_variant == GJKVariant::NesterovAcceleration);
-  BOOST_CHECK(shape.normalize_support_direction == true);
 }
 
 BOOST_AUTO_TEST_CASE(need_nesterov_normalize_support_direction) {

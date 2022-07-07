@@ -55,7 +55,7 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
   /// \brief Copy constructor
   ShapeBase(const ShapeBase& other) : CollisionGeometry(other) {}
 
-  ShapeBase& operator=(const ShapeBase& /*other*/) { return *this; }
+  ShapeBase& operator=(const ShapeBase& other) = default;
 
   virtual ~ShapeBase(){};
 
@@ -83,6 +83,26 @@ class HPP_FCL_DLLAPI TriangleP : public ShapeBase {
   void computeLocalAABB();
 
   NODE_TYPE getNodeType() const { return GEOM_TRIANGLE; }
+
+  //  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
+  //    if (value == 0) return std::make_pair(new TriangleP(*this),
+  //    Transform3f()); Vec3f AB(b - a), BC(c - b), CA(a - c); AB.normalize();
+  //    BC.normalize();
+  //    CA.normalize();
+  //
+  //    Vec3f new_a(a + value * Vec3f(-AB + CA).normalized());
+  //    Vec3f new_b(b + value * Vec3f(-BC + AB).normalized());
+  //    Vec3f new_c(c + value * Vec3f(-CA + BC).normalized());
+  //
+  //    return std::make_pair(new TriangleP(new_a, new_b, new_c),
+  //    Transform3f());
+  //  }
+  //
+  //  FCL_REAL minInflationValue() const
+  //  {
+  //    return (std::numeric_limits<FCL_REAL>::max)(); // TODO(jcarpent):
+  //    implement
+  //  }
 
   Vec3f a, b, c;
 
@@ -139,6 +159,24 @@ class HPP_FCL_DLLAPI Box : public ShapeBase {
     return (Vec3f(s[1] + s[2], s[0] + s[2], s[0] + s[1]) / 3).asDiagonal();
   }
 
+  FCL_REAL minInflationValue() const { return -halfSide.minCoeff(); }
+
+  /// \brief Inflate the box by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated box and the related transform to account for the
+  /// change of shape frame
+  std::pair<Box, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
+      HPP_FCL_THROW_PRETTY("value (" << value << ") "
+                                     << "is two small. It should be at least: "
+                                     << minInflationValue(),
+                           std::invalid_argument);
+    return std::make_pair(Box(2 * (halfSide + Vec3f::Constant(value))),
+                          Transform3f());
+  }
+
  private:
   virtual bool isEqual(const CollisionGeometry& _other) const {
     const Box* other_ptr = dynamic_cast<const Box*>(&_other);
@@ -181,6 +219,23 @@ class HPP_FCL_DLLAPI Sphere : public ShapeBase {
            radius / 3;
   }
 
+  FCL_REAL minInflationValue() const { return -radius; }
+
+  /// \brief Inflate the sphere by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated sphere and the related transform to account for
+  /// the change of shape frame
+  std::pair<Sphere, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
+      HPP_FCL_THROW_PRETTY(
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
+          std::invalid_argument);
+    return std::make_pair(Sphere(radius + value), Transform3f());
+  }
+
  private:
   virtual bool isEqual(const CollisionGeometry& _other) const {
     const Sphere* other_ptr = dynamic_cast<const Sphere*>(&_other);
@@ -199,6 +254,8 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
  public:
   Ellipsoid(FCL_REAL rx, FCL_REAL ry, FCL_REAL rz)
       : ShapeBase(), radii(rx, ry, rz) {}
+
+  Ellipsoid(const Vec3f& radii) : radii(radii) {}
 
   Ellipsoid(const Ellipsoid& other) : ShapeBase(other), radii(other.radii) {}
 
@@ -228,6 +285,24 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
   FCL_REAL computeVolume() const {
     return 4 * boost::math::constants::pi<FCL_REAL>() * radii[0] * radii[1] *
            radii[2] / 3;
+  }
+
+  FCL_REAL minInflationValue() const { return -radii.minCoeff(); }
+
+  /// \brief Inflate the ellipsoid by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated ellipsoid and the related transform to account for
+  /// the change of shape frame
+  std::pair<Ellipsoid, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
+      HPP_FCL_THROW_PRETTY(
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
+          std::invalid_argument);
+    return std::make_pair(Ellipsoid(radii + Vec3f::Constant(value)),
+                          Transform3f());
   }
 
  private:
@@ -291,6 +366,24 @@ class HPP_FCL_DLLAPI Capsule : public ShapeBase {
     return (Matrix3f() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
   }
 
+  FCL_REAL minInflationValue() const { return -radius; }
+
+  /// \brief Inflate the capsule by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated capsule and the related transform to account for
+  /// the change of shape frame
+  std::pair<Capsule, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
+      HPP_FCL_THROW_PRETTY(
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
+          std::invalid_argument);
+    return std::make_pair(Capsule(radius + value, 2 * halfLength),
+                          Transform3f());
+  }
+
  private:
   virtual bool isEqual(const CollisionGeometry& _other) const {
     const Capsule* other_ptr = dynamic_cast<const Capsule*>(&_other);
@@ -346,6 +439,35 @@ class HPP_FCL_DLLAPI Cone : public ShapeBase {
   }
 
   Vec3f computeCOM() const { return Vec3f(0, 0, -0.5 * halfLength); }
+
+  FCL_REAL minInflationValue() const { return -(std::min)(radius, halfLength); }
+
+  /// \brief Inflate the cone by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated cone and the related transform to account for the
+  /// change of shape frame
+  std::pair<Cone, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
+      HPP_FCL_THROW_PRETTY(
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
+          std::invalid_argument);
+
+    // tan(alpha) = 2*halfLength/radius;
+    const FCL_REAL tan_alpha = 2 * halfLength / radius;
+    const FCL_REAL sin_alpha = tan_alpha / std::sqrt(1 + tan_alpha * tan_alpha);
+    const FCL_REAL top_inflation = value / sin_alpha;
+    const FCL_REAL bottom_inflation = value;
+
+    const FCL_REAL new_lz = 2 * halfLength + top_inflation + bottom_inflation;
+    const FCL_REAL new_cz = (top_inflation + bottom_inflation) / 2.;
+    const FCL_REAL new_radius = new_lz / tan_alpha;
+
+    return std::make_pair(Cone(new_radius, new_lz),
+                          Transform3f(Vec3f(0., 0., new_cz)));
+  }
 
  private:
   virtual bool isEqual(const CollisionGeometry& _other) const {
@@ -404,6 +526,24 @@ class HPP_FCL_DLLAPI Cylinder : public ShapeBase {
     FCL_REAL ix = V * (radius * radius / 4 + halfLength * halfLength / 3);
     FCL_REAL iz = V * radius * radius / 2;
     return (Matrix3f() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
+  }
+
+  FCL_REAL minInflationValue() const { return -(std::min)(radius, halfLength); }
+
+  /// \brief Inflate the cylinder by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated cylinder and the related transform to account for
+  /// the change of shape frame
+  std::pair<Cylinder, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
+      HPP_FCL_THROW_PRETTY(
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
+          std::invalid_argument);
+    return std::make_pair(Cylinder(radius + value, 2 * (halfLength + value)),
+                          Transform3f());
   }
 
  private:
@@ -606,6 +746,25 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
 
   /// @brief Get node type: a half space
   NODE_TYPE getNodeType() const { return GEOM_HALFSPACE; }
+
+  FCL_REAL minInflationValue() const {
+    return std::numeric_limits<FCL_REAL>::lowest();
+  }
+
+  /// \brief Inflate the cylinder by an amount given by value
+  ///
+  /// \param[in] value of the shape inflation.
+  ///
+  /// \returns a new inflated cylinder and the related transform to account for
+  /// the change of shape frame
+  std::pair<Halfspace, Transform3f> inflated(const FCL_REAL value) const {
+    if (value <= minInflationValue())
+      HPP_FCL_THROW_PRETTY(
+          "value (" << value << ") is two small. It should be at least: "
+                    << minInflationValue(),
+          std::invalid_argument);
+    return std::make_pair(Halfspace(n, d + value), Transform3f());
+  }
 
   /// @brief Plane normal
   Vec3f n;

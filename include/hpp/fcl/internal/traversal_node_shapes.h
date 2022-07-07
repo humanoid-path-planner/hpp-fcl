@@ -66,11 +66,8 @@ class HPP_FCL_DLLAPI ShapeCollisionTraversalNode
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(int, int) const { return false; }
-
-  /// @brief BV culling test in one BVTT node
   bool BVDisjoints(int, int, FCL_REAL&) const {
-    throw std::runtime_error("Not implemented");
+    HPP_FCL_THROW_PRETTY("Not implemented", std::runtime_error);
   }
 
   /// @brief Intersection testing between leaves (two shapes)

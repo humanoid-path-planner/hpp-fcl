@@ -38,7 +38,6 @@
 #ifndef HPP_FCL_BROADPHASE_SPARSEHASHTABLE_H
 #define HPP_FCL_BROADPHASE_SPARSEHASHTABLE_H
 
-#include <stdexcept>
 #include <set>
 #include <vector>
 #include <list>

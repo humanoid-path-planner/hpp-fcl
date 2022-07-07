@@ -365,37 +365,7 @@ bool initialize(HeightFieldShapeCollisionTraversalNode<BV, S>& node,
                 HeightField<BV>& model1, Transform3f& tf1, const S& model2,
                 const Transform3f& tf2, const GJKSolver* nsolver,
                 CollisionResult& result, bool use_refit = false,
-                bool refit_bottomup = false) {
-  if (!tf1.isIdentity()) {
-    std::vector<Vec3f> vertices_transformed(model1.num_vertices);
-    for (unsigned int i = 0; i < model1.num_vertices; ++i) {
-      const Vec3f& p = model1.vertices[i];
-      Vec3f new_v = tf1.transform(p);
-      vertices_transformed[i] = new_v;
-    }
-
-    model1.beginReplaceModel();
-    model1.replaceSubModel(vertices_transformed);
-    model1.endReplaceModel(use_refit, refit_bottomup);
-
-    tf1.setIdentity();
-  }
-
-  node.model1 = &model1;
-  node.tf1 = tf1;
-  node.model2 = &model2;
-  node.tf2 = tf2;
-  node.nsolver = nsolver;
-
-  computeBV(model2, tf2, node.model2_bv);
-
-  node.vertices = model1.vertices;
-  node.tri_indices = model1.tri_indices;
-
-  node.result = &result;
-
-  return true;
-}
+                bool refit_bottomup = false);
 
 /// @brief Initialize traversal node for collision between one mesh and one
 /// shape

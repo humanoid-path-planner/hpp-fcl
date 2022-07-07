@@ -93,8 +93,7 @@ FCL_REAL ShapeShapeDistance<Sphere, Sphere>(
   return result.min_distance;
 }
 
-template <>
-std::size_t ShapeShapeCollide<Sphere, Sphere>(
+std::size_t ShapeShapeCollider<Sphere, Sphere>::run(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
     const CollisionRequest& request, CollisionResult& result) {

@@ -46,6 +46,7 @@
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
 #include <hpp/fcl/mesh_loader/assimp.h>
 #include <hpp/fcl/mesh_loader/loader.h>
 #include "utility.h"
@@ -369,4 +370,16 @@ BOOST_AUTO_TEST_CASE(load_illformated_mesh) {
 
   MeshLoader loader;
   BOOST_CHECK_NO_THROW(loader.load(filename));
+}
+
+BOOST_AUTO_TEST_CASE(test_convex) {
+  Box* box_ptr = new hpp::fcl::Box(1, 1, 1);
+  CollisionGeometryPtr_t b1(box_ptr);
+  BVHModel<OBBRSS> box_bvh_model = BVHModel<OBBRSS>();
+  generateBVHModel(box_bvh_model, *box_ptr, Transform3f());
+  box_bvh_model.buildConvexRepresentation(false);
+
+  box_bvh_model.convex->computeLocalAABB();
+  std::shared_ptr<ConvexBase> convex_copy(box_bvh_model.convex->clone());
+  BOOST_CHECK(*convex_copy.get() == *box_bvh_model.convex.get());
 }

@@ -108,9 +108,6 @@ class CollisionTraversalNodeBase : public TraversalNodeBase {
 
   virtual ~CollisionTraversalNodeBase() {}
 
-  /// @brief BV test between b1 and b2
-  virtual bool BVDisjoints(unsigned int b1, unsigned int b2) const = 0;
-
   /// BV test between b1 and b2
   /// @param b1, b2 Bounding volumes to test,
   /// @retval sqrDistLowerBound square of a lower bound of the minimal
@@ -166,28 +163,6 @@ class DistanceTraversalNodeBase : public TraversalNodeBase {
   /// @brief distance result kept during the traversal iteration
   DistanceResult* result;
 };
-
-namespace internal {
-inline void updateDistanceLowerBoundFromBV(const CollisionRequest& req,
-                                           CollisionResult& res,
-                                           const FCL_REAL& sqrDistLowerBound) {
-  // BV cannot find negative distance.
-  if (res.distance_lower_bound <= 0) return;
-  FCL_REAL new_dlb = std::sqrt(sqrDistLowerBound) - req.security_margin;
-  if (new_dlb < res.distance_lower_bound) res.distance_lower_bound = new_dlb;
-}
-
-inline void updateDistanceLowerBoundFromLeaf(const CollisionRequest&,
-                                             CollisionResult& res,
-                                             const FCL_REAL& distance,
-                                             const Vec3f& p0, const Vec3f& p1) {
-  if (distance < res.distance_lower_bound) {
-    res.distance_lower_bound = distance;
-    res.nearest_points[0] = p0;
-    res.nearest_points[1] = p1;
-  }
-}
-}  // namespace internal
 
 ///@}
 

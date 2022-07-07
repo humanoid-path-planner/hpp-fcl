@@ -38,7 +38,7 @@
 #ifndef HPP_FCL_KDOP_H
 #define HPP_FCL_KDOP_H
 
-#include <stdexcept>
+#include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/data_types.h>
 
 namespace hpp {
@@ -175,14 +175,14 @@ class HPP_FCL_DLLAPI KDOP {
 template <short N>
 bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
              const KDOP<N>& /*b2*/) {
-  throw std::logic_error("not implemented");
+  HPP_FCL_THROW_PRETTY("not implemented", std::logic_error);
 }
 
 template <short N>
 bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
              const KDOP<N>& /*b2*/, const CollisionRequest& /*request*/,
              FCL_REAL& /*sqrDistLowerBound*/) {
-  throw std::logic_error("not implemented");
+  HPP_FCL_THROW_PRETTY("not implemented", std::logic_error);
 }
 
 /// @brief translate the KDOP BV

@@ -184,7 +184,11 @@ class HPP_FCL_DLLAPI Transform3f {
   }
 
   /// @brief check whether the transform is identity
-  inline bool isIdentity() const { return R.isIdentity() && T.isZero(); }
+  inline bool isIdentity(
+      const FCL_REAL& prec =
+          Eigen::NumTraits<FCL_REAL>::dummy_precision()) const {
+    return R.isIdentity(prec) && T.isZero(prec);
+  }
 
   /// @brief set the transform to be identity transform
   inline void setIdentity() {

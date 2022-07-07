@@ -152,16 +152,6 @@ class MeshShapeCollisionTraversalNode
     nsolver = NULL;
   }
 
-  /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(unsigned int b1, unsigned int /*b2*/) const {
-    if (this->enable_statistics) this->num_bv_tests++;
-    if (RTIsIdentity)
-      return !this->model1->getBV(b1).bv.overlap(this->model2_bv);
-    else
-      return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(),
-                      this->model2_bv, this->model1->getBV(b1).bv);
-  }
-
   /// test between BV b1 and shape
   /// @param b1 BV to test,
   /// @retval sqrDistLowerBound square of a lower bound of the minimal
@@ -261,17 +251,6 @@ class ShapeMeshCollisionTraversalNode
     tri_indices = NULL;
 
     nsolver = NULL;
-  }
-
-  /// BV test between b1 and b2
-  /// @param b2 Bounding volumes to test,
-  bool BVDisjoints(unsigned int /*b1*/, unsigned int b2) const {
-    if (this->enable_statistics) this->num_bv_tests++;
-    if (RTIsIdentity)
-      return !this->model2->getBV(b2).bv.overlap(this->model1_bv);
-    else
-      return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(),
-                      this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   /// BV test between b1 and b2

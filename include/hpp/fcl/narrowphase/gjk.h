@@ -57,6 +57,8 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
 ///
 /// @note The Minkowski difference is expressed in the frame of the first shape.
 struct HPP_FCL_DLLAPI MinkowskiDiff {
+  typedef Eigen::Array<FCL_REAL, 1, 2> Array2d;
+
   /// @brief points to two shapes
   const ShapeBase* shapes[2];
 
@@ -77,8 +79,9 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   Vec3f ot1;
 
   /// @brief The radius of the sphere swepted volume.
-  /// The 2 values correspond to the inflation of shape 0 and shape 1.
-  Eigen::Array<FCL_REAL, 1, 2> inflation;
+  /// The 2 values correspond to the inflation of shape 0 and shape 1/
+  /// These inflation values are used for Sphere and Capsule.
+  Array2d inflation;
 
   /// @brief Number of points in a Convex object from which using a logarithmic
   /// support function is faster than a linear one.
@@ -129,15 +132,6 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
     assert(getSupportFunc != NULL);
     getSupportFunc(*this, d, dIsNormalized, supp0, supp1, hint,
                    const_cast<ShapeData*>(data));
-  }
-
-  /// @brief Set wether or not to use the normalization heuristic when computing
-  /// a support point. Only effective if acceleration version of GJK is used.
-  /// By default, when MinkowskiDiff::set is called, the normalization heuristic
-  /// is deduced from the shapes. The user can override this behavior with this
-  /// function.
-  inline void setNormalizeSupportDirection(bool normalize) {
-    normalize_support_direction = normalize;
   }
 };
 
@@ -216,7 +210,7 @@ struct HPP_FCL_DLLAPI GJK {
   inline void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv,
                          support_func_guess_t& hint) const {
     shape->support(d, dIsNormalized, sv.w0, sv.w1, hint);
-    sv.w.noalias() = sv.w0 - sv.w1;
+    sv.w = sv.w0 - sv.w1;
   }
 
   /// @brief whether the simplex enclose the origin

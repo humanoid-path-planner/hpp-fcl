@@ -80,8 +80,8 @@ void exposeGJK() {
         .DEF_CLASS_FUNC(MinkowskiDiff, support0)
         .DEF_CLASS_FUNC(MinkowskiDiff, support1)
         .DEF_CLASS_FUNC(MinkowskiDiff, support)
-        .DEF_CLASS_FUNC(MinkowskiDiff, setNormalizeSupportDirection)
-        .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, inflation);
+        .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, inflation)
+        .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, normalize_support_direction);
   }
 
   if (!eigenpy::register_symbolic_link_to_registered_type<GJKVariant>()) {

@@ -59,10 +59,10 @@ struct HPP_FCL_DLLAPI RelativeTransformation {
 template <>
 struct HPP_FCL_DLLAPI RelativeTransformation<false> {
   static const Matrix3f& _R() {
-    throw std::logic_error("should never reach this point");
+    HPP_FCL_THROW_PRETTY("should never reach this point", std::logic_error);
   }
   static const Vec3f& _T() {
-    throw std::logic_error("should never reach this point");
+    HPP_FCL_THROW_PRETTY("should never reach this point", std::logic_error);
   }
 };
 }  // namespace details

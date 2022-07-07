@@ -40,10 +40,13 @@
 /// @cond INTERNAL
 
 #include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/collision_utility.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
+#include <hpp/fcl/shape/geometric_shapes_traits.h>
 
 namespace hpp {
 namespace fcl {
+
 template <typename T_SH1, typename T_SH2>
 HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1,
                                            const Transform3f& tf1,
@@ -54,13 +57,56 @@ HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1,
                                            DistanceResult& result);
 
 template <typename T_SH1, typename T_SH2>
-HPP_FCL_DLLAPI std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
-                                             const Transform3f& tf1,
-                                             const CollisionGeometry* o2,
-                                             const Transform3f& tf2,
-                                             const GJKSolver* nsolver,
-                                             const CollisionRequest& request,
-                                             CollisionResult& result);
+struct ShapeShapeCollider {
+  static std::size_t run(const CollisionGeometry* o1, const Transform3f& tf1,
+                         const CollisionGeometry* o2, const Transform3f& tf2,
+                         const GJKSolver* nsolver,
+                         const CollisionRequest& request,
+                         CollisionResult& result) {
+    if (request.isSatisfied(result)) return result.numContacts();
+
+    DistanceResult distanceResult;
+    DistanceRequest distanceRequest(request.enable_contact);
+    FCL_REAL distance = ShapeShapeDistance<T_SH1, T_SH2>(
+        o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
+
+    size_t num_contacts = 0;
+    const Vec3f& p1 = distanceResult.nearest_points[0];
+    const Vec3f& p2 = distanceResult.nearest_points[1];
+    FCL_REAL distToCollision = distance - request.security_margin;
+
+    internal::updateDistanceLowerBoundFromLeaf(request, result, distToCollision,
+                                               p1, p2);
+    if (distToCollision <= request.collision_distance_threshold &&
+        result.numContacts() < request.num_max_contacts) {
+      if (result.numContacts() < request.num_max_contacts) {
+        const Vec3f& p1 = distanceResult.nearest_points[0];
+        const Vec3f& p2 = distanceResult.nearest_points[1];
+
+        Contact contact(
+            o1, o2, distanceResult.b1, distanceResult.b2, (p1 + p2) / 2,
+            (distance <= 0 ? distanceResult.normal : (p2 - p1).normalized()),
+            -distance);
+
+        result.addContact(contact);
+      }
+      num_contacts = result.numContacts();
+    }
+
+    return num_contacts;
+  }
+};
+
+template <typename ShapeType1, typename ShapeType2>
+std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
+                              const Transform3f& tf1,
+                              const CollisionGeometry* o2,
+                              const Transform3f& tf2, const GJKSolver* nsolver,
+                              const CollisionRequest& request,
+                              CollisionResult& result) {
+  return ShapeShapeCollider<ShapeType1, ShapeType2>::run(
+      o1, tf1, o2, tf2, nsolver, request, result);
+}
 
 #define SHAPE_SHAPE_DISTANCE_SPECIALIZATION(T1, T2)             \
   template <>                                                   \
@@ -96,13 +142,17 @@ SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Halfspace);
 
 #undef SHAPE_SHAPE_DISTANCE_SPECIALIZATION
 
-#define SHAPE_SHAPE_COLLIDE_SPECIALIZATION(T1, T2)               \
-  template <>                                                    \
-  HPP_FCL_DLLAPI std::size_t ShapeShapeCollide<T1, T2>(          \
-      const CollisionGeometry* o1, const Transform3f& tf1,       \
-      const CollisionGeometry* o2, const Transform3f& tf2,       \
-      const GJKSolver* nsolver, const CollisionRequest& request, \
-      CollisionResult& result)
+#define SHAPE_SHAPE_COLLIDE_SPECIALIZATION(T1, T2)                         \
+  template <>                                                              \
+  struct ShapeShapeCollider<T1, T2> {                                      \
+    static HPP_FCL_DLLAPI std::size_t run(const CollisionGeometry* o1,     \
+                                          const Transform3f& tf1,          \
+                                          const CollisionGeometry* o2,     \
+                                          const Transform3f& tf2,          \
+                                          const GJKSolver* nsolver,        \
+                                          const CollisionRequest& request, \
+                                          CollisionResult& result);        \
+  }
 
 SHAPE_SHAPE_COLLIDE_SPECIALIZATION(Sphere, Sphere);
 
