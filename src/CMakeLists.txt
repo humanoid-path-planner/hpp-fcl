@@ -173,20 +173,24 @@ add_library(${LIBRARY_NAME}
   ${${LIBRARY_NAME}_SOURCES}
   )
 
+set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "\$ORIGIN")
+
 # IDE sources and headers sorting
 ADD_SOURCE_GROUP(${LIBRARY_NAME}_SOURCES)
 ADD_HEADER_GROUP(PROJECT_HEADERS_FULL_PATH)
 
-TARGET_INCLUDE_DIRECTORIES(${LIBRARY_NAME}
-  SYSTEM PUBLIC
-  ${Boost_INCLUDE_DIRS}
-  )
-
-TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
-  PRIVATE
-  ${assimp_LIBRARIES}
-  # assimp::assimp # Not working
-  )
+if(TARGET assimp::assimp)
+  TARGET_LINK_LIBRARIES(${LIBRARY_NAME} PRIVATE assimp::assimp)
+else()
+  TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
+    PRIVATE
+    ${assimp_LIBRARIES}
+    )
+  target_include_directories(${LIBRARY_NAME}
+    SYSTEM PRIVATE
+    ${assimp_INCLUDE_DIR}
+    )
+endif()
 
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   PUBLIC
@@ -213,14 +217,14 @@ if(HPP_FCL_HAS_QHULL)
   endif()
 endif()
 
-target_include_directories(${LIBRARY_NAME}
-  SYSTEM PUBLIC
-  ${EIGEN3_INCLUDE_DIR}
-  )
-target_include_directories(${LIBRARY_NAME}
-  SYSTEM PRIVATE
-  ${assimp_INCLUDE_DIR}
-  )
+if(TARGET Eigen3::Eigen)
+  target_link_libraries(${LIBRARY_NAME} PUBLIC Eigen3::Eigen)
+else()
+  target_include_directories(${LIBRARY_NAME}
+    SYSTEM PUBLIC
+    ${EIGEN3_INCLUDE_DIR}
+    )
+endif()
 
 target_include_directories(${LIBRARY_NAME}
   PUBLIC
@@ -228,8 +232,12 @@ target_include_directories(${LIBRARY_NAME}
   )
 
 IF(octomap_FOUND)
-  target_include_directories(${LIBRARY_NAME} SYSTEM PUBLIC ${OCTOMAP_INCLUDE_DIRS})
-  target_link_libraries(${LIBRARY_NAME} PUBLIC ${OCTOMAP_LIBRARIES})
+  if(TARGET octomap)
+    target_link_libraries(${LIBRARY_NAME} PUBLIC octomap)
+  else()
+    target_include_directories(${LIBRARY_NAME} SYSTEM PUBLIC ${OCTOMAP_INCLUDE_DIRS})
+    target_link_libraries(${LIBRARY_NAME} PUBLIC ${OCTOMAP_LIBRARIES})
+  endif()
   target_compile_definitions (${LIBRARY_NAME} PUBLIC
     -DHPP_FCL_HAS_OCTOMAP
     -DHPP_FCL_HAVE_OCTOMAP
