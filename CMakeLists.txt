@@ -109,19 +109,7 @@ ELSE(WIN32)
   ADD_PROJECT_DEPENDENCY(Boost REQUIRED chrono serialization)
 ENDIF(WIN32)
 if(BUILD_PYTHON_INTERFACE)
-  set(PYTHON_COMPONENTS Interpreter)
-  if(CMAKE_VERSION VERSION_LESS "3.18")
-    # Development.Module only require headers, so it's best for our module
-    # But it's not available before CMake 3.18
-    set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} Development)
-  else()
-    set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} Development.Module)
-  endif()
-  if(NOT CMAKE_VERSION VERSION_LESS "3.14")
-    # NumPy provides a standard CMake imported target,
-    # But it's not available before CMake 3.14
-    set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} NumPy)
-  endif()
+  set(PYTHON_COMPONENTS Interpreter Development.Module NumPy)
   FINDPYTHON()
   search_for_boost_python(REQUIRED)
   find_package(Boost REQUIRED COMPONENTS system)
