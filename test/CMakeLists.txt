@@ -58,7 +58,6 @@ add_fcl_test(profiling profiling.cpp)
 
 add_fcl_test(gjk gjk.cpp)
 add_fcl_test(nesterov_gjk nesterov_gjk.cpp)
-add_fcl_test(benchmark_nesterov_gjk benchmark_nesterov_gjk.cpp)
 add_fcl_test(gjk_convergence_criterion gjk_convergence_criterion.cpp)
 if(HPP_FCL_HAS_OCTOMAP)
   add_fcl_test(octree octree.cpp)
@@ -76,16 +75,23 @@ add_fcl_test(broadphase_collision_2 broadphase_collision_2.cpp)
 ## Benchmark
 IF(BUILD_TESTING)
   add_executable(test-benchmark benchmark.cpp)
+  add_executable(benchmark-nesterov-gjk benchmark_nesterov_gjk.cpp)
 ELSE()
   add_executable(test-benchmark EXCLUDE_FROM_ALL benchmark.cpp)
+  add_executable(benchmark-nesterov-gjk EXCLUDE_FROM_ALL benchmark_nesterov_gjk.cpp)
 ENDIF()
-target_link_libraries(test-benchmark
-  PUBLIC
-  utility
-  Boost::chrono
-  Boost::filesystem
-  ${PROJECT_NAME}
-  )
+
+macro(add_fcl_benchmark benchmark_name)
+  target_link_libraries(${benchmark_name}
+    PUBLIC
+    utility
+    Boost::chrono
+    Boost::filesystem
+    ${PROJECT_NAME}
+    )
+endmacro(add_fcl_benchmark)
+add_fcl_benchmark(test-benchmark)
+add_fcl_benchmark(benchmark-nesterov-gjk)
 
 ## Python tests
 IF(BUILD_PYTHON_INTERFACE)
