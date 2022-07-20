@@ -70,7 +70,8 @@ struct HPP_FCL_DLLAPI Contact {
   /// if object 2 is octree, it is the id of the cell
   int b2;
 
-  /// @brief contact normal, pointing from o1 to o2
+  /// @brief contact normal, pointing from o1 to o2.
+  /// See DistanceResult::normal for a complete definition of the normal.
   Vec3f normal;
 
   /// @brief contact position, in world space
@@ -422,14 +423,23 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
 /// @brief distance result
 struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
  public:
-  /// @brief minimum distance between two objects. if two objects are in
+  /// @brief minimum distance between two objects. If two objects are in
   /// collision, min_distance <= 0.
   FCL_REAL min_distance;
 
   /// @brief nearest points
   Vec3f nearest_points[2];
 
-  /// In case both objects are in collision, store the normal
+  /// Stores the normal, defined as the normalized separation vector:
+  /// normal = (p2 - p1) / dist(o1, o2), where p1 = nearest_points[0]
+  /// belongs to o1 and p2 = nearest_points[1] belongs to o2 and dist(o1, o2) is
+  /// the **signed** distance between o1 and o2. The normal always points from
+  /// o1 to o2.
+  /// @note The separation vector is the smallest vector such that if o1 is
+  /// translated by it, o1 and o2 are in touching contact (they share at least
+  /// one contact point but have a zero intersection volume). If the shapes
+  /// overlap, dist(o1, o2) = -((p2-p1).norm()). Otherwise, dist(o1, o2) =
+  /// (p2-p1).norm().
   Vec3f normal;
 
   /// @brief collision object 1
