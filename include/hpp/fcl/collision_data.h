@@ -318,6 +318,13 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   /// @brief nearest points
   /// available only when distance_lower_bound is inferior to
   /// CollisionRequest::break_distance.
+  /// @note Also referred as "witness points" in other collision libraries.
+  /// The points p1 = nearest_points[0] and p2 = nearest_points[1] verify the
+  /// property that dist(o1, o2) * (p1 - p2) is the separation vector between o1
+  /// and o2, with dist(o1, o2) being the **signed** distance separating o1 from
+  /// o2. See \ref DistanceResult::normal for the definition of the separation
+  /// vector. If o1 and o2 have multiple contacts, the nearest_points are
+  /// associated with the contact which has the greatest penetration depth.
   Vec3f nearest_points[2];
 
  public:
@@ -427,7 +434,8 @@ struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
   /// collision, min_distance <= 0.
   FCL_REAL min_distance;
 
-  /// @brief nearest points
+  /// @brief nearest points.
+  /// See CollisionResult::nearest_points.
   Vec3f nearest_points[2];
 
   /// Stores the normal, defined as the normalized separation vector:
