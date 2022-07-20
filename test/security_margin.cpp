@@ -157,7 +157,6 @@ BOOST_AUTO_TEST_CASE(aabb_aabb_degenerated_cases) {
   const Transform3f tf2_collision(Vec3f(0, 0, 0));
   hpp::fcl::Box s1(1, 1, 1);
   hpp::fcl::Box s2(1, 1, 1);
-  const double tol = 1e-8;
 
   AABB bv1, bv2;
   computeBV(s1, Transform3f(), bv1);
