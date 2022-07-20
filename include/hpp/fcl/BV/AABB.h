@@ -78,6 +78,8 @@ class HPP_FCL_DLLAPI AABB {
 
   AABB(const AABB& other) = default;
 
+  AABB& operator=(const AABB& other) = default;
+
   AABB& update(const Vec3f& a, const Vec3f& b) {
     min_ = a.cwiseMin(b);
     max_ = a.cwiseMax(b);
