@@ -117,7 +117,7 @@ struct QueryResult;
 
 /// @brief base class for all query requests
 struct HPP_FCL_DLLAPI QueryRequest {
-  // @briefInitial guess to use for the GJK algorithm
+  // @brief Initial guess to use for the GJK algorithm
   GJKInitialGuess gjk_initial_guess;
 
   /// @brief whether enable gjk initial guess
@@ -233,7 +233,7 @@ enum CollisionRequestFlag {
 
 /// @brief request to the collision algorithm
 struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
-  /// @brief The maximum number of contacts will return
+  /// @brief The maximum number of contacts that can be returned
   size_t num_max_contacts;
 
   /// @brief whether the contact information (normal, penetration depth and
