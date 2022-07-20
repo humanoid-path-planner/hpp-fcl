@@ -66,6 +66,7 @@ struct ShapeShapeCollider {
     if (request.isSatisfied(result)) return result.numContacts();
 
     DistanceResult distanceResult;
+    // (louis) enable_contact not used yet but may be in the future
     DistanceRequest distanceRequest(request.enable_contact);
     FCL_REAL distance = ShapeShapeDistance<T_SH1, T_SH2>(
         o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);

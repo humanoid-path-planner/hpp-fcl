@@ -238,6 +238,8 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
 
   /// @brief whether the contact information (normal, penetration depth and
   /// contact position) will return
+  /// @note Only effective if the collision pair involves an Octree.
+  /// Otherwise, it is always true.
   bool enable_contact;
 
   /// Whether a lower bound on distance is returned when objects are disjoint
@@ -307,8 +309,9 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
  public:
   /// Lower bound on distance between objects if they are disjoint.
   /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
-  /// @note computed only on request (or if it does not add any computational
-  /// overhead).
+  /// @note Always computed. If \ref CollisionRequest::distance_upper_bound is
+  /// set to infinity, distance_lower_bound is the actual distance between the
+  /// shapes.
   FCL_REAL distance_lower_bound;
 
   /// @brief nearest points
