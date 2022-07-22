@@ -74,6 +74,10 @@ struct HPP_FCL_DLLAPI Contact {
   /// See DistanceResult::normal for a complete definition of the normal.
   Vec3f normal;
 
+  /// @brief nearest points associated to this contact.
+  /// See \ref CollisionResult::nearest_points.
+  Vec3f nearest_points[2];
+
   /// @brief contact position, in world space
   Vec3f pos;
 
@@ -98,7 +102,24 @@ struct HPP_FCL_DLLAPI Contact {
         b2(b2_),
         normal(normal_),
         pos(pos_),
-        penetration_depth(depth_) {}
+        penetration_depth(depth_) {
+    nearest_points[0] = pos - 0.5 * depth_ * normal_;
+    nearest_points[1] = pos + 0.5 * depth_ * normal_;
+  }
+
+  Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
+          int b2_, const Vec3f& p1, const Vec3f& p2, const Vec3f& normal_,
+          FCL_REAL depth_)
+      : o1(o1_),
+        o2(o2_),
+        b1(b1_),
+        b2(b2_),
+        normal(normal_),
+        penetration_depth(depth_) {
+    nearest_points[0] = p1;
+    nearest_points[1] = p2;
+    pos = (p1 + p2) / 2;
+  }
 
   bool operator<(const Contact& other) const {
     if (b1 == other.b1) return b2 < other.b2;
