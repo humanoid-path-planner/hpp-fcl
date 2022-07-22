@@ -84,8 +84,8 @@ struct ShapeShapeCollider {
         const Vec3f& p1 = distanceResult.nearest_points[0];
         const Vec3f& p2 = distanceResult.nearest_points[1];
 
-        Contact contact(o1, o2, distanceResult.b1, distanceResult.b2,
-                        (p1 + p2) / 2, distanceResult.normal, distance);
+        Contact contact(o1, o2, distanceResult.b1, distanceResult.b2, p1, p2,
+                        distanceResult.normal, distance);
 
         result.addContact(contact);
       }
