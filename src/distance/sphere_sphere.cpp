@@ -124,7 +124,7 @@ std::size_t ShapeShapeCollider<Sphere, Sphere>::run(
     FCL_REAL abscissa = .5 * r1 + .5 * (dist - r2);
     Vec3f contactPoint = center1 + abscissa * unit;
     Contact contact(o1, o2, -1, -1, contactPoint, unit,
-                    -(distToCollision + margin));
+                    distToCollision + margin);
     result.addContact(contact);
     return 1;
   }
