@@ -132,7 +132,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
           gjk.getClosestPoints(shape, w0, w1);
           distance_lower_bound = gjk.distance;
           if (normal)
-            (*normal).noalias() = tf1.getRotation() * (w0 - w1).normalized();
+            (*normal).noalias() = tf1.getRotation() * (w1 - w0).normalized();
           if (contact_points) *contact_points = tf1.transform((w0 + w1) / 2);
           return true;
         } else {
@@ -206,7 +206,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         if (gjk.hasPenetrationInformation(shape)) {
           gjk.getClosestPoints(shape, w0, w1);
           distance = gjk.distance;
-          normal.noalias() = tf1.getRotation() * (w0 - w1).normalized();
+          normal.noalias() = tf1.getRotation() * (w1 - w0).normalized();
           p1 = p2 = tf1.transform((w0 + w1) / 2);
         } else {
           details::EPA epa(epa_max_face_num, epa_max_vertex_num,
@@ -289,7 +289,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
       // assert (distance == (w0 - w1).norm());
       distance = gjk.distance;
 
-      normal.noalias() = tf1.getRotation() * gjk.ray;
+      normal.noalias() = -tf1.getRotation() * gjk.ray;
       normal.normalize();
       p1 = tf1.transform(p1);
       p2 = tf1.transform(p2);
@@ -302,7 +302,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         // Return contact points in case of collision
         // p1 = tf1.transform (p1);
         // p2 = tf1.transform (p2);
-        normal.noalias() = tf1.getRotation() * (p1 - p2);
+        normal.noalias() = tf1.getRotation() * (p2 - p1);
         normal.normalize();
         p1 = tf1.transform(p1);
         p2 = tf1.transform(p2);
