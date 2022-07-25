@@ -53,6 +53,7 @@ using hpp::fcl::DistanceRequest;
 using hpp::fcl::DistanceResult;
 using hpp::fcl::Ellipsoid;
 using hpp::fcl::FCL_REAL;
+using hpp::fcl::Plane;
 using hpp::fcl::shared_ptr;
 using hpp::fcl::Sphere;
 using hpp::fcl::Transform3f;
@@ -94,6 +95,8 @@ void test_normal_and_nearest_points(const ShapeType1& o1,
     // these functions should agree on the results regardless of collision or
     // not.
     Transform3f tf2 = transforms[i];
+    colres.clear();
+    distres.clear();
     size_t col = collide(&o1, tf1, &o2, tf2, colreq, colres);
     FCL_REAL dist = distance(&o1, tf1, &o2, tf2, distreq, distres);
 
@@ -189,8 +192,6 @@ void test_normal_and_nearest_points(const ShapeType1& o1,
         EIGEN_VECTOR_IS_APPROX(contact.normal, -(cp2 - cp1).normalized(), 1e-6);
       }
     }
-    colres.clear();
-    distres.clear();
   }
 }
 
@@ -242,6 +243,18 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_ellipsoid_box) {
   FCL_REAL rbox = 2 * r;
   shared_ptr<Ellipsoid> o1(new Ellipsoid(0.5 * r, 1.3 * r, 0.8 * r));
   shared_ptr<Box> o2(new Box(rbox, rbox, rbox));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
+
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_box_plane) {
+  FCL_REAL rbox = 1;
+  shared_ptr<Box> o1(new Box(rbox, rbox, rbox));
+  FCL_REAL offset = 0.1;
+  Vec3f n = Vec3f::Random();
+  n.normalize();
+  shared_ptr<Plane> o2(new Plane(n, offset));
 
   test_normal_and_nearest_points(*o1.get(), *o2.get());
   test_normal_and_nearest_points(*o2.get(), *o1.get());

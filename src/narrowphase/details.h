@@ -1893,58 +1893,32 @@ inline bool boxPlaneIntersect(const Box& s1, const Transform3f& tf1,
   const Vec3f A(Q.cwiseProduct(s1.halfSide));
 
   const FCL_REAL signed_dist = new_s2.signedDistance(T);
-  distance = std::abs(signed_dist) - A.lpNorm<1>();
-  if (distance > 0) {
-    // Is the box above or below the plane
-    const bool positive = signed_dist > 0;
-    // Set p1 at the center of the box
-    p1 = T;
-    for (Vec3f::Index i = 0; i < 3; ++i) {
-      // scalar product between box axis and plane normal
-      FCL_REAL alpha((positive ? 1 : -1) * R.col(i).dot(new_s2.n));
-      if (alpha > eps) {
-        p1 -= R.col(i) * s1.halfSide[i];
-      } else if (alpha < -eps) {
-        p1 += R.col(i) * s1.halfSide[i];
-      }
-    }
-    p2 = p1 - (positive ? distance : -distance) * new_s2.n;
-    assert(new_s2.distance(p2) < 3 * eps);
-    return false;
-  }
-
-  // find the deepest point
-  Vec3f p = T;
-
-  // when center is on the positive side of the plane, use a, b, c
-  // make (R^T n) (a v1 + b v2 + c v3) the minimum
-  // otherwise, use a, b, c make (R^T n) (a v1 + b v2 + c v3) the maximum
-  int sign = (signed_dist > 0) ? 1 : -1;
-
-  if (std::abs(Q[0] - 1) < planeIntersectTolerance<FCL_REAL>() ||
-      std::abs(Q[0] + 1) < planeIntersectTolerance<FCL_REAL>()) {
-    int sign2 = (A[0] > 0) ? -sign : sign;
-    p.noalias() += R.col(0) * (s1.halfSide[0] * sign2);
-  } else if (std::abs(Q[1] - 1) < planeIntersectTolerance<FCL_REAL>() ||
-             std::abs(Q[1] + 1) < planeIntersectTolerance<FCL_REAL>()) {
-    int sign2 = (A[1] > 0) ? -sign : sign;
-    p.noalias() += R.col(1) * (s1.halfSide[1] * sign2);
-  } else if (std::abs(Q[2] - 1) < planeIntersectTolerance<FCL_REAL>() ||
-             std::abs(Q[2] + 1) < planeIntersectTolerance<FCL_REAL>()) {
-    int sign2 = (A[2] > 0) ? -sign : sign;
-    p.noalias() += R.col(2) * (s1.halfSide[2] * sign2);
-  } else {
-    Vec3f tmp(sign * R * s1.halfSide);
-    p.noalias() += (A.array() > 0).select(-tmp, tmp);
-  }
-
-  // compute the contact point by project the deepest point onto the plane
   if (signed_dist > 0)
     normal = -new_s2.n;
   else
     normal = new_s2.n;
-  p1 = p2.noalias() = p - new_s2.n * new_s2.signedDistance(p);
-
+  distance = std::abs(signed_dist) - A.lpNorm<1>();
+  // Is the box above or below the plane
+  const bool positive = signed_dist > 0;
+  // TODO: if the plane is parallel to a face of the box,
+  // we should not return only one corner as witness point p1.
+  // Compute p1, point of the box deepest in the plane
+  p1 = T;
+  for (Vec3f::Index i = 0; i < 3; ++i) {
+    // scalar product between box axis and plane normal
+    // we also take into account which side of the plane the box is
+    FCL_REAL alpha((positive ? 1 : -1) * R.col(i).dot(new_s2.n));
+    if (alpha > eps) {
+      p1 -= R.col(i) * s1.halfSide[i];
+    } else if (alpha < -eps) {
+      p1 += R.col(i) * s1.halfSide[i];
+    }
+  }
+  p2 = p1 - (positive ? distance : -distance) * new_s2.n;
+  assert(new_s2.distance(p2) < 3 * eps);
+  if (distance > 0) {
+    return false;
+  }
   return true;
 }
 
