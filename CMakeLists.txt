@@ -96,10 +96,6 @@ CMAKE_DEPENDENT_OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associat
 
 ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.0")
 
-if(BUILD_PYTHON_INTERFACE)
-  FIND_PACKAGE(eigenpy 2.2 REQUIRED)
-endif()
-
 # Required dependencies
 SET_BOOST_DEFAULT_OPTIONS()
 EXPORT_BOOST_DEFAULT_OPTIONS()
@@ -113,6 +109,7 @@ if(BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
   search_for_boost_python(REQUIRED)
   find_package(Boost REQUIRED COMPONENTS system)
+  FIND_PACKAGE(eigenpy 2.2 REQUIRED)
 endif(BUILD_PYTHON_INTERFACE)
 
 # Optional dependencies
