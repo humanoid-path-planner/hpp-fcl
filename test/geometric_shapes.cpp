@@ -1261,7 +1261,9 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox) {
 
   tf1 = Transform3f();
   tf2 = Transform3f();
-  contact << 0, 0, 0;
+  Vec3f p1(2.5, 0, 0);
+  Vec3f p2(0, 0, 0);
+  contact << (p1 + p2) / 2;
   depth = -2.5;
   normal << 1, 0, 0;  // (1, 0, 0) or (-1, 0, 0)
   SET_LINE;
@@ -1269,7 +1271,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox) {
 
   tf1 = transform;
   tf2 = transform;
-  contact = transform.transform(Vec3f(0, 0, 0));
+  contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   SET_LINE;
@@ -1277,7 +1279,8 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox) {
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(1.25, 0, 0));
-  contact << 1.25, 0, 0;
+  p2 << 1.25, 0, 0;
+  contact << (p1 + p2) / 2;
   depth = -1.25;
   normal << 1, 0, 0;
   SET_LINE;
@@ -1285,7 +1288,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox) {
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(1.25, 0, 0));
-  contact = transform.transform(Vec3f(1.25, 0, 0));
+  contact = transform.transform((p1 + p2) / 2);
   depth = -1.25;
   normal = transform.getRotation() * Vec3f(1, 0, 0);
   SET_LINE;
@@ -1293,7 +1296,9 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox) {
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-1.25, 0, 0));
-  contact << -1.25, 0, 0;
+  p1 << -2.5, 0, 0;
+  p2 << -1.25, 0, 0;
+  contact << (p1 + p2) / 2;
   depth = -1.25;
   normal << -1, 0, 0;
   SET_LINE;
@@ -1301,7 +1306,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox) {
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-1.25, 0, 0));
-  contact = transform.transform(Vec3f(-1.25, 0, 0));
+  contact = transform.transform((p1 + p2) / 2);
   depth = -1.25;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
   SET_LINE;
