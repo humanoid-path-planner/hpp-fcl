@@ -67,7 +67,7 @@ jobs:
         cp %CONDA_PREFIX%\Library\bin\eigenpy.dll out\hppfcl
         cp %CONDA_PREFIX%\Library\bin\qhull_r.dll out\hppfcl
         cp %CONDA_PREFIX%\Library\bin\zlib.dll out\hppfcl
-        python -c 'import shutil, os; shutil.copy(os.environ["CONDA_PREFIX"] + "\\Library\\bin\\boost_python" + "${{ matrix.python-version }}".replace(".", "") + ".dll", "out\\hppfcl")'
+        python -c "import shutil, os; shutil.copy(os.environ['CONDA_PREFIX'] + '\\Library\\bin\\boost_python' + '${{ matrix.python-version }}'.replace('.', '') + '.dll', 'out\\hppfcl')"
 
         :: Build stubs
         set PYTHONPATH=out
