@@ -109,6 +109,7 @@ ELSE(WIN32)
   ADD_PROJECT_DEPENDENCY(Boost REQUIRED chrono serialization)
 ENDIF(WIN32)
 if(BUILD_PYTHON_INTERFACE)
+  set(PYTHON_COMPONENTS Interpreter Development.Module NumPy)
   FINDPYTHON()
   search_for_boost_python(REQUIRED)
   find_package(Boost REQUIRED COMPONENTS system)
@@ -209,6 +210,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/shape/details/convex.hxx
   include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
   include/hpp/fcl/shape/geometric_shapes.h
+  include/hpp/fcl/shape/geometric_shapes_traits.h
   include/hpp/fcl/shape/geometric_shapes_utility.h
   include/hpp/fcl/distance_func_matrix.h
   include/hpp/fcl/collision.h
@@ -232,6 +234,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/mesh_loader/loader.h
   include/hpp/fcl/internal/BV_fitter.h
   include/hpp/fcl/internal/BV_splitter.h
+  include/hpp/fcl/internal/shape_shape_func.h
   include/hpp/fcl/internal/intersect.h
   include/hpp/fcl/internal/tools.h
   include/hpp/fcl/internal/traversal_node_base.h
@@ -279,3 +282,7 @@ INSTALL(FILES package.xml DESTINATION share/${PROJECT_NAME})
 # Allows Colcon to find non-Ament packages when using workspace underlays
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} DESTINATION share/ament_index/resource_index/packages)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv "prepend-non-duplicate;AMENT_PREFIX_PATH;")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv "prepend-non-duplicate;PYTHONPATH;${PYTHON_SITELIB}")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv DESTINATION share/${PROJECT_NAME}/hook)

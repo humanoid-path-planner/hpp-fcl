@@ -40,6 +40,7 @@
 
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 
 #include <hpp/fcl/config.hh>
 #include <hpp/fcl/deprecated.hh>

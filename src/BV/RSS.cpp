@@ -37,8 +37,11 @@
 
 #include <hpp/fcl/BV/RSS.h>
 #include <hpp/fcl/BVH/BVH_utility.h>
-#include <iostream>
 #include <hpp/fcl/internal/tools.h>
+#include <hpp/fcl/collision_data.h>
+
+#include <iostream>
+
 namespace hpp {
 namespace fcl {
 
@@ -740,7 +743,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1,
 }
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2,
-             const CollisionRequest& /*request*/, FCL_REAL& sqrDistLowerBound) {
+             const CollisionRequest& request, FCL_REAL& sqrDistLowerBound) {
   // ROb2 = R0 . b2
   // where b2 = [ b2.axis [0] | b2.axis [1] | b2.axis [2] ]
 
@@ -750,8 +753,8 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2,
   Vec3f T(b1.axes.transpose() * Ttemp);
   Matrix3f R(b1.axes.transpose() * R0.transpose() * b2.axes);
 
-  FCL_REAL dist =
-      rectDistance(R, T, b1.length, b2.length) - b1.radius - b2.radius;
+  FCL_REAL dist = rectDistance(R, T, b1.length, b2.length) - b1.radius -
+                  b2.radius - request.security_margin;
   if (dist <= 0) return true;
   sqrDistLowerBound = dist * dist;
   return false;

@@ -225,8 +225,8 @@ BOOST_AUTO_TEST_CASE(convex_hull_quad) {
       Vec3f(0, 0, 1),
   });
 
-  ConvexBase* convexHull =
-      ConvexBase::convexHull(points.data(), (int)points.size(), false, NULL);
+  ConvexBase* convexHull = ConvexBase::convexHull(
+      points.data(), (unsigned int)points.size(), false, NULL);
 
   BOOST_REQUIRE_EQUAL(convexHull->num_points, 4);
   BOOST_CHECK_EQUAL(convexHull->neighbors[0].count(), 3);
@@ -249,8 +249,8 @@ BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
       Vec3f(0, 0, 0.99),
   });
 
-  ConvexBase* convexHull =
-      ConvexBase::convexHull(points.data(), (int)points.size(), false, NULL);
+  ConvexBase* convexHull = ConvexBase::convexHull(
+      points.data(), (unsigned int)points.size(), false, NULL);
 
   BOOST_REQUIRE_EQUAL(8, convexHull->num_points);
   for (int i = 0; i < 8; ++i) {
@@ -259,8 +259,8 @@ BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
   }
   delete convexHull;
 
-  convexHull =
-      ConvexBase::convexHull(points.data(), (int)points.size(), true, NULL);
+  convexHull = ConvexBase::convexHull(points.data(),
+                                      (unsigned int)points.size(), true, NULL);
   Convex<Triangle>* convex_tri = dynamic_cast<Convex<Triangle>*>(convexHull);
   BOOST_CHECK(convex_tri != NULL);
 

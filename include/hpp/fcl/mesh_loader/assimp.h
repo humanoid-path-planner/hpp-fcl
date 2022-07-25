@@ -96,9 +96,7 @@ inline void meshFromAssimpScene(
   int res = mesh->beginModel();
 
   if (res != fcl::BVH_OK) {
-    std::ostringstream error;
-    error << "fcl BVHReturnCode = " << res;
-    throw std::runtime_error(error.str());
+    HPP_FCL_THROW_PRETTY("fcl BVHReturnCode = " << res, std::runtime_error);
   }
 
   buildMesh(scale, scene, (unsigned)mesh->num_vertices, tv);

@@ -90,7 +90,10 @@ void exposeMaths() {
            return_value_policy<copy_const_reference>())
       .def("getRotation", &Transform3f::getRotation,
            return_value_policy<copy_const_reference>())
-      .def(dv::member_func("isIdentity", &Transform3f::isIdentity))
+      .def("isIdentity", &Transform3f::isIdentity,
+           (bp::arg("self"),
+            bp::arg("prec") = Eigen::NumTraits<FCL_REAL>::dummy_precision()),
+           doxygen::member_func_doc(&Transform3f::getTranslation))
 
       .def(dv::member_func("setQuatRotation", &Transform3f::setQuatRotation))
       .def("setTranslation", &Transform3f::setTranslation<Vec3f>)

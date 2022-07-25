@@ -41,6 +41,7 @@
 #define HPP_FCL_NARROWPHASE_H
 
 #include <limits>
+#include <iostream>
 
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/collision_data.h>
@@ -51,6 +52,8 @@ namespace fcl {
 /// @brief collision and distance solver based on GJK algorithm implemented in
 /// fcl (rewritten the code from the GJK in bullet)
 struct HPP_FCL_DLLAPI GJKSolver {
+  typedef Eigen::Array<FCL_REAL, 1, 2> Array2d;
+
   /// @brief initialize GJK
   template <typename S1, typename S2>
   void initialize_gjk(details::GJK& gjk, const details::MinkowskiDiff& shape,
@@ -66,18 +69,19 @@ struct HPP_FCL_DLLAPI GJKSolver {
         support_hint = support_func_cached_guess;
         break;
       case GJKInitialGuess::BoundingVolumeGuess:
-        if (s1.aabb_radius < 0 || s2.aabb_radius < 0) {
-          throw std::logic_error(
-              "computeLocalAABB must have been called on the shapes when using "
-              "GJKInitialGuess::BoundingVolumeGuess.");
+        if (s1.aabb_local.volume() < 0 || s2.aabb_local.volume() < 0) {
+          HPP_FCL_THROW_PRETTY(
+              "computeLocalAABB must have been called on the shapes before "
+              "using "
+              "GJKInitialGuess::BoundingVolumeGuess.",
+              std::logic_error);
         }
-        guess.noalias() =
-            s1.aabb_center - (shape.oR1 * s2.aabb_center + shape.ot1);
-        support_hint =
-            support_func_cached_guess;  // we could also put it to (0, 0)
+        guess.noalias() = s1.aabb_local.center() -
+                          (shape.oR1 * s2.aabb_local.center() + shape.ot1);
+        support_hint.setZero();
         break;
       default:
-        throw std::logic_error("Wrong initial guess for GJK.");
+        HPP_FCL_THROW_PRETTY("Wrong initial guess for GJK.", std::logic_error);
     }
     // TODO: use gjk_initial_guess instead
     HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
@@ -393,6 +397,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
   GJKSolver(const CollisionRequest& request) {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
+    distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
 
     // EPS settings
     epa_max_face_num = 128;
@@ -430,17 +435,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   /// @brief Copy constructor
   GJKSolver(const GJKSolver& other) = default;
-
-  // TODO: (enable/set/get)CachedGuess -> use gjk_initial_guess instead
-  void enableCachedGuess(bool if_enable) const {
-    enable_cached_guess = if_enable;
-  }
-
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
-
-  void setCachedGuess(const Vec3f& guess) const { cached_guess = guess; }
-
-  Vec3f getCachedGuess() const { return cached_guess; }
 
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS

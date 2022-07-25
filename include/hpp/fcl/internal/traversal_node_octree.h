@@ -708,8 +708,6 @@ class HPP_FCL_DLLAPI OcTreeCollisionTraversalNode
     otsolver = NULL;
   }
 
-  bool BVDisjoints(unsigned int, unsigned) const { return false; }
-
   bool BVDisjoints(unsigned, unsigned, FCL_REAL&) const { return false; }
 
   void leafCollides(unsigned, unsigned, FCL_REAL& sqrDistLowerBound) const {
@@ -738,8 +736,6 @@ class HPP_FCL_DLLAPI ShapeOcTreeCollisionTraversalNode
 
     otsolver = NULL;
   }
-
-  bool BVDisjoints(unsigned int, unsigned int) const { return false; }
 
   bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const {
     return false;
@@ -774,8 +770,6 @@ class HPP_FCL_DLLAPI OcTreeShapeCollisionTraversalNode
     otsolver = NULL;
   }
 
-  bool BVDisjoints(unsigned int, unsigned int) const { return false; }
-
   bool BVDisjoints(unsigned int, unsigned int, fcl::FCL_REAL&) const {
     return false;
   }
@@ -808,8 +802,6 @@ class HPP_FCL_DLLAPI MeshOcTreeCollisionTraversalNode
     otsolver = NULL;
   }
 
-  bool BVDisjoints(unsigned int, unsigned int) const { return false; }
-
   bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const {
     return false;
   }
@@ -841,8 +833,6 @@ class HPP_FCL_DLLAPI OcTreeMeshCollisionTraversalNode
 
     otsolver = NULL;
   }
-
-  bool BVDisjoints(unsigned int, unsigned int) const { return false; }
 
   bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const {
     return false;

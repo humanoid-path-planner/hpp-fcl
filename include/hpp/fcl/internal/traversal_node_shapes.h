@@ -66,23 +66,18 @@ class HPP_FCL_DLLAPI ShapeCollisionTraversalNode
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVDisjoints(int, int) const { return false; }
-
-  /// @brief BV culling test in one BVTT node
   bool BVDisjoints(int, int, FCL_REAL&) const {
-    throw std::runtime_error("Not implemented");
+    HPP_FCL_THROW_PRETTY("Not implemented", std::runtime_error);
   }
 
   /// @brief Intersection testing between leaves (two shapes)
   void leafCollides(int, int, FCL_REAL&) const {
-    bool is_collision = false;
     FCL_REAL distance;
     if (request.enable_contact &&
         request.num_max_contacts > result->numContacts()) {
       Vec3f contact_point, normal;
       if (nsolver->shapeIntersect(*model1, tf1, *model2, tf2, distance, true,
                                   &contact_point, &normal)) {
-        is_collision = true;
         result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE,
                                    contact_point, normal, distance));
       }
@@ -93,7 +88,6 @@ class HPP_FCL_DLLAPI ShapeCollisionTraversalNode
       if (request.enable_distance_lower_bound)
         result->updateDistanceLowerBound(distance);
       if (res) {
-        is_collision = true;
         if (request.num_max_contacts > result->numContacts())
           result->addContact(
               Contact(model1, model2, Contact::NONE, Contact::NONE));

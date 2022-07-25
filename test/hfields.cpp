@@ -268,6 +268,148 @@ BOOST_AUTO_TEST_CASE(building_constant_hfields) {
   test_constant_hfields<AABB>(100, 100, min_altitude, max_altitude);
 }
 
+template <typename BV>
+void test_negative_security_margin(const Eigen::DenseIndex nx,
+                                   const Eigen::DenseIndex ny,
+                                   const FCL_REAL min_altitude,
+                                   const FCL_REAL max_altitude) {
+  const FCL_REAL x_dim = 1., y_dim = 2.;
+  const MatrixXf heights = MatrixXf::Constant(ny, nx, max_altitude);
+
+  HeightField<BV> hfield(x_dim, y_dim, heights, min_altitude);
+
+  // Build equivalent object
+  const Box equivalent_box(x_dim, y_dim, max_altitude - min_altitude);
+  const Transform3f box_placement(
+      Matrix3f::Identity(), Vec3f(0., 0., (max_altitude + min_altitude) / 2.));
+
+  // Test collision
+  const Sphere sphere(1.);
+  static const Transform3f IdTransform;
+
+  const Box box(Vec3f::Ones());
+
+  Transform3f M_sphere, M_box;
+
+  // No collision case
+  {
+    const FCL_REAL eps_no_collision = +0.1 * (max_altitude - min_altitude);
+    M_sphere.setTranslation(
+        Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
+    M_box.setTranslation(
+        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
+    CollisionRequest request;
+
+    CollisionResult result;
+    collide(&hfield, IdTransform, &sphere, M_sphere, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+
+    CollisionResult result_check_sphere;
+    collide(&equivalent_box, IdTransform * box_placement, &sphere, M_sphere,
+            request, result_check_sphere);
+
+    BOOST_CHECK(!result_check_sphere.isCollision());
+
+    CollisionResult result_check_box;
+    collide(&equivalent_box, IdTransform * box_placement, &box, M_box, request,
+            result_check_box);
+
+    BOOST_CHECK(!result_check_box.isCollision());
+  }
+
+  // Collision case - positive security_margin
+  {
+    const FCL_REAL eps_no_collision = +0.1 * (max_altitude - min_altitude);
+    M_sphere.setTranslation(
+        Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
+    M_box.setTranslation(
+        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
+    CollisionRequest request;
+    request.security_margin = eps_no_collision + 1e-6;
+
+    CollisionResult result;
+    collide(&hfield, IdTransform, &sphere, M_sphere, request, result);
+
+    BOOST_CHECK(result.isCollision());
+
+    CollisionResult result_check_sphere;
+    collide(&equivalent_box, IdTransform * box_placement, &sphere, M_sphere,
+            request, result_check_sphere);
+
+    BOOST_CHECK(result_check_sphere.isCollision());
+
+    CollisionResult result_check_box;
+    collide(&equivalent_box, IdTransform * box_placement, &box, M_box, request,
+            result_check_box);
+
+    BOOST_CHECK(result_check_box.isCollision());
+  }
+
+  // Collision case
+  {
+    const FCL_REAL eps_no_collision = -0.1 * (max_altitude - min_altitude);
+    M_sphere.setTranslation(
+        Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
+    M_box.setTranslation(
+        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
+    CollisionRequest request;
+
+    CollisionResult result;
+    collide(&hfield, IdTransform, &sphere, M_sphere, request, result);
+
+    BOOST_CHECK(result.isCollision());
+
+    CollisionResult result_check_sphere;
+    collide(&equivalent_box, IdTransform * box_placement, &sphere, M_sphere,
+            request, result_check_sphere);
+
+    BOOST_CHECK(result_check_sphere.isCollision());
+
+    CollisionResult result_check_box;
+    collide(&equivalent_box, IdTransform * box_placement, &box, M_box, request,
+            result_check_box);
+
+    BOOST_CHECK(result_check_box.isCollision());
+  }
+
+  // No collision case - negative security_margin
+  {
+    const FCL_REAL eps_no_collision = -0.1 * (max_altitude - min_altitude);
+    M_sphere.setTranslation(
+        Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
+    M_box.setTranslation(
+        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
+    CollisionRequest request;
+    request.security_margin = eps_no_collision - 1e-4;
+
+    CollisionResult result;
+    collide(&hfield, IdTransform, &sphere, M_sphere, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+
+    CollisionResult result_check_sphere;
+    collide(&equivalent_box, IdTransform * box_placement, &sphere, M_sphere,
+            request, result_check_sphere);
+
+    BOOST_CHECK(!result_check_sphere.isCollision());
+
+    CollisionResult result_check_box;
+    collide(&equivalent_box, IdTransform * box_placement, &box, M_box, request,
+            result_check_box);
+
+    BOOST_CHECK(!result_check_box.isCollision());
+  }
+}
+
+BOOST_AUTO_TEST_CASE(negative_security_margin) {
+  const FCL_REAL max_altitude = 1., min_altitude = 0.;
+
+  //  test_negative_security_margin<OBBRSS>(100, 100, min_altitude,
+  //  max_altitude);
+  test_negative_security_margin<AABB>(100, 100, min_altitude, max_altitude);
+}
+
 BOOST_AUTO_TEST_CASE(hfield_with_square_hole) {
   const Eigen::DenseIndex nx = 100, ny = 100;
 
@@ -307,5 +449,72 @@ BOOST_AUTO_TEST_CASE(hfield_with_square_hole) {
     collide(&hfield, hfield_pos, &sphere2, sphere_pos, request, result);
 
     BOOST_CHECK(result.isCollision());
+  }
+}
+
+BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
+  const Eigen::DenseIndex nx = 100, ny = 100;
+
+  //  typedef OBBRSS BV; TODO(jcarpent): OBBRSS does not work (compile in Debug
+  //  mode), as the overlap of OBBRSS is not satisfactory yet.
+  typedef AABB BV;
+  const MatrixXf X =
+      Eigen::RowVectorXd::LinSpaced(nx, -1., 1.).replicate(ny, 1);
+  const MatrixXf Y = Eigen::VectorXd::LinSpaced(ny, 1., -1.).replicate(1, nx);
+
+  const FCL_REAL dim_hole = 1;
+
+  const Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> hole =
+      (X.array().square() + Y.array().square() <= dim_hole);
+
+  const MatrixXf heights =
+      MatrixXf::Ones(ny, nx) - hole.cast<double>().matrix();
+
+  const HeightField<BV> hfield(2., 2., heights, -10.);
+
+  BOOST_CHECK(hfield.getXGrid()[0] == -1.);
+  BOOST_CHECK(hfield.getXGrid()[nx - 1] == +1.);
+
+  BOOST_CHECK(hfield.getYGrid()[0] == +1.);
+  BOOST_CHECK(hfield.getYGrid()[ny - 1] == -1.);
+
+  Sphere sphere(0.975);
+  const Transform3f sphere_pos(Vec3f(0., 0., 1.));
+  const Transform3f hfield_pos;
+
+  {
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = 0.;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+  }
+
+  {
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = 0.01;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+  }
+
+  {
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = 1. - sphere.radius;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(result.isCollision());
+  }
+
+  {
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = -0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
   }
 }

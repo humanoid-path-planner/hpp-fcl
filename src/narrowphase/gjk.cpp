@@ -38,58 +38,12 @@
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/internal/tools.h>
+#include <hpp/fcl/shape/geometric_shapes_traits.h>
 
 namespace hpp {
 namespace fcl {
 
 namespace details {
-
-struct HPP_FCL_LOCAL shape_traits_base {
-  enum { NeedNormalizedDir = true, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <typename Shape>
-struct HPP_FCL_LOCAL shape_traits : shape_traits_base {};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<TriangleP> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Box> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Sphere> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Ellipsoid> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Capsule> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Cone> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<Cylinder> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = false };
-};
-
-template <>
-struct HPP_FCL_LOCAL shape_traits<ConvexBase> : shape_traits_base {
-  enum { NeedNormalizedDir = false, NeedNesterovNormalizeHeuristic = true };
-};
 
 void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
                      Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
@@ -538,9 +492,9 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
   getNormalizeSupportDirectionFromShapes(shape0, shape1,
                                          normalize_support_direction);
 
-  oR1 = tf0.getRotation().transpose() * tf1.getRotation();
-  ot1 = tf0.getRotation().transpose() *
-        (tf1.getTranslation() - tf0.getTranslation());
+  oR1.noalias() = tf0.getRotation().transpose() * tf1.getRotation();
+  ot1.noalias() = tf0.getRotation().transpose() *
+                  (tf1.getTranslation() - tf0.getTranslation());
 
   bool identity = (oR1.isIdentity() && ot1.isZero());
 
@@ -769,8 +723,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       FCL_REAL frank_wolfe_duality_gap = 2 * ray.dot(ray - w);
       if (frank_wolfe_duality_gap - tolerance <= 0) {
         removeVertex(simplices[current]);
-        current_gjk_variant = DefaultGJK;
-        continue;  // continue to next iteration
+        current_gjk_variant = DefaultGJK;  // move back to classic GJK
+        continue;                          // continue to next iteration
       }
     }
 
@@ -783,7 +737,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     if (iterations > 0 && cv_check_passed) {
       if (iterations > 0) removeVertex(simplices[current]);
       if (current_gjk_variant != DefaultGJK) {
-        current_gjk_variant = DefaultGJK;
+        current_gjk_variant = DefaultGJK;  // move back to classic GJK
         continue;
       }
       distance = rl - inflation;

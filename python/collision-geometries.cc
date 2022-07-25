@@ -322,6 +322,7 @@ void exposeShapes() {
   class_<Ellipsoid, bases<ShapeBase>, shared_ptr<Ellipsoid> >(
       "Ellipsoid", doxygen::class_doc<Ellipsoid>(), no_init)
       .def(dv::init<Ellipsoid, FCL_REAL, FCL_REAL, FCL_REAL>())
+      .def(dv::init<Ellipsoid, Vec3f>())
       .DEF_RW_CLASS_ATTRIB(Ellipsoid, radii)
       .def("clone", &Ellipsoid::clone,
            doxygen::member_func_doc(&Ellipsoid::clone),

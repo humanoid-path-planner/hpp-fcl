@@ -1,0 +1,6 @@
+{
+    "hooks": [
+        "share/hpp-fcl/hook/ament_prefix_path.dsv",
+        "share/hpp-fcl/hook/python_path.dsv"
+    ]
+}
