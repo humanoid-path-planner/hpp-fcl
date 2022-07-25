@@ -313,7 +313,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         if (epa_status & details::EPA::Valid ||
             epa_status == details::EPA::OutOfFaces        // Warnings
             || epa_status == details::EPA::OutOfVertices  // Warnings
-        ) {
+            || epa_status == details::EPA::FallBack) {
           Vec3f w0, w1;
           epa.getClosestPoints(shape, w0, w1);
           assert(epa.depth >= -eps);
