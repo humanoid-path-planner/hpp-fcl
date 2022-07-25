@@ -53,6 +53,7 @@ using hpp::fcl::DistanceRequest;
 using hpp::fcl::DistanceResult;
 using hpp::fcl::Ellipsoid;
 using hpp::fcl::FCL_REAL;
+using hpp::fcl::Halfspace;
 using hpp::fcl::Plane;
 using hpp::fcl::shared_ptr;
 using hpp::fcl::Sphere;
@@ -255,6 +256,18 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_box_plane) {
   Vec3f n = Vec3f::Random();
   n.normalize();
   shared_ptr<Plane> o2(new Plane(n, offset));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
+
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_box_halfspace) {
+  FCL_REAL rbox = 1;
+  shared_ptr<Box> o1(new Box(rbox, rbox, rbox));
+  FCL_REAL offset = 0.1;
+  Vec3f n = Vec3f::Random();
+  n.normalize();
+  shared_ptr<Halfspace> o2(new Halfspace(n, offset));
 
   test_normal_and_nearest_points(*o1.get(), *o2.get());
   test_normal_and_nearest_points(*o2.get(), *o1.get());
