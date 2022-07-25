@@ -8,7 +8,7 @@ dependencies:
   - assimp
   - numpy
   - boost
-  - eigenpy=2.7.6
+  - eigenpy
   - python
   - doxygen
   - lxml
