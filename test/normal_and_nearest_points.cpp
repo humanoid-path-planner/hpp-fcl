@@ -54,6 +54,7 @@ using hpp::fcl::DistanceResult;
 using hpp::fcl::Ellipsoid;
 using hpp::fcl::FCL_REAL;
 using hpp::fcl::shared_ptr;
+using hpp::fcl::Sphere;
 using hpp::fcl::Transform3f;
 using hpp::fcl::Triangle;
 using hpp::fcl::Vec3f;
@@ -191,6 +192,14 @@ void test_normal_and_nearest_points(const ShapeType1& o1,
     colres.clear();
     distres.clear();
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_sphere) {
+  FCL_REAL r = 0.5;
+  shared_ptr<Sphere> o1(new Sphere(r));
+  shared_ptr<Sphere> o2(new Sphere(r));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
 }
 
 BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_mesh_mesh) {
