@@ -1384,15 +1384,13 @@ inline bool sphereHalfspaceIntersect(const Sphere& s1, const Transform3f& tf1,
   Halfspace new_s2 = transform(s2, tf2);
   const Vec3f& center = tf1.getTranslation();
   distance = new_s2.signedDistance(center) - s1.radius;
-  if (distance <= 0) {
-    normal = -new_s2.n;  // pointing from s1 to s2
-    p1 = p2 = center - new_s2.n * s1.radius - (distance * 0.5) * new_s2.n;
-    return true;
-  } else {
-    p1 = center - s1.radius * new_s2.n;
-    p2 = p1 - distance * new_s2.n;
-    return false;
-  }
+  normal = -new_s2.n;  // pointing from s1 to s2
+  p1 = center - s1.radius * new_s2.n;
+  p2 = p1 - distance * new_s2.n;
+  assert(new_s2.distance(p2) <
+         3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+  if (distance > 0) return false;
+  return true;
 }
 
 /// @brief box half space, a, b, c  = +/- edge size

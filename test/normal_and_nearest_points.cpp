@@ -296,3 +296,15 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_capsule_halfspace) {
   test_normal_and_nearest_points(*o1.get(), *o2.get());
   test_normal_and_nearest_points(*o2.get(), *o1.get());
 }
+
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_halfspace) {
+  FCL_REAL r = 0.5;
+  shared_ptr<Sphere> o1(new Sphere(r));
+  FCL_REAL offset = 0.1;
+  Vec3f n = Vec3f::Random();
+  n.normalize();
+  shared_ptr<Halfspace> o2(new Halfspace(n, offset));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
