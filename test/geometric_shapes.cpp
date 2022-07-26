@@ -1081,26 +1081,50 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planesphere) {
   Vec3f contact;
   FCL_REAL depth;
   Vec3f normal;
+  Vec3f p1, p2;
 
-  tf1 = Transform3f();
+  FCL_REAL eps = 1e-6;
+  tf1 = Transform3f(Vec3f(eps, 0, 0));
   tf2 = Transform3f();
-  contact.setZero();
-  depth = -10;
+  depth = -10 + eps;
+  p1 << -10 + eps, 0, 0;
+  p2 << 0, 0, 0;
+  contact << (p1 + p2) / 2;
+  normal << -1, 0, 0;  // (1, 0, 0) or (-1, 0, 0)
+  SET_LINE;
+  testShapeIntersection(s, tf1, hs, tf2, true, &contact, &depth, &normal);
+
+  tf1 = transform * tf1;
+  tf2 = transform;
+  contact = transform.transform((p1 + p2) / 2);
+  normal =
+      transform.getRotation() * Vec3f(-1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  SET_LINE;
+  testShapeIntersection(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
+
+  eps = -1e-6;
+  tf1 = Transform3f(Vec3f(eps, 0, 0));
+  tf2 = Transform3f();
+  depth = -10 - eps;
+  p1 << 10 + eps, 0, 0;
+  p2 << 0, 0, 0;
+  contact << (p1 + p2) / 2;
   normal << 1, 0, 0;  // (1, 0, 0) or (-1, 0, 0)
   SET_LINE;
   testShapeIntersection(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = transform;
+  tf1 = transform * tf1;
   tf2 = transform;
-  contact = transform.transform(Vec3f(0, 0, 0));
-  depth = -10;
+  contact = transform.transform((p1 + p2) / 2);
   normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   SET_LINE;
   testShapeIntersection(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(5, 0, 0));
-  contact << 5, 0, 0;
+  p1 << 10, 0, 0;
+  p2 << 5, 0, 0;
+  contact << (p1 + p2) / 2;
   depth = -5;
   normal << 1, 0, 0;
   SET_LINE;
@@ -1108,7 +1132,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planesphere) {
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(5, 0, 0));
-  contact = transform.transform(Vec3f(5, 0, 0));
+  contact = transform.transform((p1 + p2) / 2);
   depth = -5;
   normal = transform.getRotation() * Vec3f(1, 0, 0);
   SET_LINE;
@@ -1116,7 +1140,9 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planesphere) {
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(-5, 0, 0));
-  contact << -5, 0, 0;
+  p1 << -10, 0, 0;
+  p2 << -5, 0, 0;
+  contact << (p1 + p2) / 2;
   depth = -5;
   normal << -1, 0, 0;
   SET_LINE;
@@ -1124,7 +1150,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planesphere) {
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-5, 0, 0));
-  contact = transform.transform(Vec3f(-5, 0, 0));
+  contact = transform.transform((p1 + p2) / 2);
   depth = -5;
   normal = transform.getRotation() * Vec3f(-1, 0, 0);
   SET_LINE;
