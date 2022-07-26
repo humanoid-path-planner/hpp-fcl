@@ -1915,10 +1915,9 @@ inline bool boxPlaneIntersect(const Box& s1, const Transform3f& tf1,
 }
 
 /// Taken from book Real Time Collision Detection, from Christer Ericson
-/// @param pb the closest point to the sphere center on the box surface
-/// @param ps when colliding, matches pb, which is inside the sphere.
-///           when not colliding, the closest point on the sphere
-/// @param normal direction of motion of the box
+/// @param pb the witness point on the box surface
+/// @param ps the witness point on the sphere.
+/// @param normal pointing from box to sphere
 /// @return true if the distance is negative (the shape overlaps).
 inline bool boxSphereDistance(const Box& b, const Transform3f& tfb,
                               const Sphere& s, const Transform3f& tfs,
@@ -1963,11 +1962,12 @@ inline bool boxSphereDistance(const Box& b, const Transform3f& tfb,
       normal = -Rb.col(axis);
     dist = -min_d - s.radius;
   }
+  ps = os - s.radius * normal;
   if (!outside || dist <= 0) {
-    ps = pb;
+    // project point pb onto the box's surface
+    pb = ps - dist * normal;
     return true;
   } else {
-    ps = os - s.radius * normal;
     return false;
   }
 }

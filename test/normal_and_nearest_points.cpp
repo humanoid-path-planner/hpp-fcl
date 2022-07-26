@@ -204,6 +204,16 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_sphere) {
   test_normal_and_nearest_points(*o1.get(), *o2.get());
 }
 
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_box) {
+  FCL_REAL r = 0.5;
+  FCL_REAL rbox = 2 * 0.5;
+  shared_ptr<Box> o1(new Box(rbox, rbox, rbox));
+  shared_ptr<Sphere> o2(new Sphere(r));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
+
 BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_mesh_mesh) {
   FCL_REAL r = 0.5;
   Convex<Triangle> o1_ = constructPolytopeFromEllipsoid(Ellipsoid(r, r, r));
