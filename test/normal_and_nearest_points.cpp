@@ -44,6 +44,7 @@
 #include "utility.h"
 
 using hpp::fcl::Box;
+using hpp::fcl::Capsule;
 using hpp::fcl::CollisionRequest;
 using hpp::fcl::CollisionResult;
 using hpp::fcl::constructPolytopeFromEllipsoid;
@@ -274,6 +275,19 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_box_plane) {
 BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_box_halfspace) {
   FCL_REAL rbox = 1;
   shared_ptr<Box> o1(new Box(rbox, rbox, rbox));
+  FCL_REAL offset = 0.1;
+  Vec3f n = Vec3f::Random();
+  n.normalize();
+  shared_ptr<Halfspace> o2(new Halfspace(n, offset));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
+
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_capsule_halfspace) {
+  FCL_REAL r = 0.5;
+  FCL_REAL d = 1.;
+  shared_ptr<Capsule> o1(new Capsule(r, d));
   FCL_REAL offset = 0.1;
   Vec3f n = Vec3f::Random();
   n.normalize();
