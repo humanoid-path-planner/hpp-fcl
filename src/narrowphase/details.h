@@ -1839,23 +1839,16 @@ inline bool spherePlaneIntersect(const Sphere& s1, const Transform3f& tf1,
   const Vec3f& center = tf1.getTranslation();
   FCL_REAL signed_dist = new_s2.signedDistance(center);
   distance = std::abs(signed_dist) - s1.radius;
-  if (distance <= 0) {
-    if (signed_dist > 0)
-      normal = -new_s2.n;
-    else
-      normal = new_s2.n;
-    p1 = p2 = center - new_s2.n * signed_dist;
-    return true;
-  } else {
-    if (signed_dist > 0) {
-      p1 = center - s1.radius * new_s2.n;
-      p2 = center - signed_dist * new_s2.n;
-    } else {
-      p1 = center + s1.radius * new_s2.n;
-      p2 = center + signed_dist * new_s2.n;
-    }
-    return false;
-  }
+  if (signed_dist > 0)
+    normal = -new_s2.n;
+  else
+    normal = new_s2.n;
+  p1 = center + s1.radius * normal;
+  p2 = p1 + distance * normal;
+  assert(new_s2.distance(p2) <
+         3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+  if (distance > 0) return false;
+  return false;
 }
 
 /// @brief box half space, a, b, c  = +/- edge size
