@@ -1460,6 +1460,7 @@ inline bool capsuleHalfspaceIntersect(const Capsule& s1, const Transform3f& tf1,
                                       const Transform3f& tf2,
                                       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
                                       Vec3f& normal) {
+  static const FCL_REAL eps(sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
   Halfspace new_s2 = transform(s2, tf2);
 
   const Matrix3f& R = tf1.getRotation();
@@ -1467,19 +1468,22 @@ inline bool capsuleHalfspaceIntersect(const Capsule& s1, const Transform3f& tf1,
 
   Vec3f dir_z = R.col(2);
 
+  normal = -new_s2.n;
   FCL_REAL cosa = dir_z.dot(new_s2.n);
   if (std::abs(cosa) < halfspaceIntersectTolerance<FCL_REAL>()) {
     // Capsule parallel to plane
+    // TODO: here we are returning p1 as the middle of the capsule's segment (+
+    // radius) but we might want to return both ends of the capsule instead. For
+    // that we need to implement the possibility of returning multiple contact
+    // points.
     FCL_REAL signed_dist = new_s2.signedDistance(T);
     distance = signed_dist - s1.radius;
+    p1 = T - s1.radius * new_s2.n;
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) < 3 * eps);
     if (distance > 0) {
-      p1 = T - s1.radius * new_s2.n;
-      p2 = p1 - distance * new_s2.n;
       return false;
     }
-
-    normal = -new_s2.n;
-    p1 = p2 = T + new_s2.n * (-0.5 * distance - s1.radius);
     return true;
   } else {
     int sign = (cosa > 0) ? -1 : 1;
@@ -1489,15 +1493,12 @@ inline bool capsuleHalfspaceIntersect(const Capsule& s1, const Transform3f& tf1,
 
     FCL_REAL signed_dist = new_s2.signedDistance(p);
     distance = signed_dist - s1.radius;
+    p1 = p - s1.radius * new_s2.n;
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) < 3 * eps);
     if (distance > 0) {
-      p1 = T - s1.radius * new_s2.n;
-      p2 = p1 - distance * new_s2.n;
       return false;
     }
-    normal = -new_s2.n;
-    // deepest point
-    Vec3f c = p - new_s2.n * s1.radius;
-    p1 = p2 = c - (0.5 * distance) * new_s2.n;
     return true;
   }
 }
