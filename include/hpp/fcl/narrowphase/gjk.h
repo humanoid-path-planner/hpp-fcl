@@ -254,6 +254,9 @@ struct HPP_FCL_DLLAPI GJK {
   /// @brief Get GJK number of iterations.
   inline size_t getIterations() { return iterations; }
 
+  /// @brief Get GJK tolerance.
+  inline FCL_REAL getTolerance() { return tolerance; }
+
  private:
   SimplexV store_v[4];
   SimplexV* free_v[4];

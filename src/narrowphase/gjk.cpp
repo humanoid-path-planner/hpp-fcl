@@ -1621,6 +1621,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   // the origin.
   status = FallBack;
   // TODO: define a better normal
+  assert(simplex.rank == 1 && simplex.vertex[0]->w.isZero(gjk.getTolerance()));
   normal = -guess;
   FCL_REAL nl = normal.norm();
   if (nl > 0)
