@@ -47,6 +47,7 @@ using hpp::fcl::Box;
 using hpp::fcl::Capsule;
 using hpp::fcl::CollisionRequest;
 using hpp::fcl::CollisionResult;
+using hpp::fcl::Cone;
 using hpp::fcl::constructPolytopeFromEllipsoid;
 using hpp::fcl::Contact;
 using hpp::fcl::Convex;
@@ -326,6 +327,19 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_mesh_halfspace) {
   Convex<Triangle> o1_ = constructPolytopeFromEllipsoid(Ellipsoid(r, r, r));
   shared_ptr<Convex<Triangle>> o1(new Convex<Triangle>(
       false, o1_.points, o1_.num_points, o1_.polygons, o1_.num_polygons));
+  FCL_REAL offset = 0.1;
+  Vec3f n = Vec3f::Random();
+  n.normalize();
+  shared_ptr<Halfspace> o2(new Halfspace(n, offset));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
+
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_cone_halfspace) {
+  FCL_REAL r = 0.5;
+  FCL_REAL h = 1.;
+  shared_ptr<Cone> o1(new Cone(r, h));
   FCL_REAL offset = 0.1;
   Vec3f n = Vec3f::Random();
   n.normalize();
