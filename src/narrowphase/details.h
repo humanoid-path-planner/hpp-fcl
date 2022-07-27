@@ -1566,16 +1566,18 @@ inline bool coneHalfspaceIntersect(const Cone& s1, const Transform3f& tf1,
   Vec3f dir_z = R.col(2);
   FCL_REAL cosa = dir_z.dot(new_s2.n);
 
-  if (cosa < halfspaceIntersectTolerance<FCL_REAL>()) {
+  normal = -new_s2.n;
+  if (std::abs(cosa) < halfspaceIntersectTolerance<FCL_REAL>()) {
+    // cone axis is parallel to plane
     FCL_REAL signed_dist = new_s2.signedDistance(T);
     distance = signed_dist - s1.radius;
+    p1 = T - dir_z * (s1.halfLength) - new_s2.n * s1.radius;
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (distance > 0) {
-      p1 = p2 = Vec3f(0, 0, 0);
       return false;
     } else {
-      normal = -new_s2.n;
-      p1 = p2 =
-          T - dir_z * (s1.halfLength) - new_s2.n * (0.5 * distance + s1.radius);
       return true;
     }
   } else {
@@ -1595,12 +1597,17 @@ inline bool coneHalfspaceIntersect(const Cone& s1, const Transform3f& tf1,
     FCL_REAL d1 = new_s2.signedDistance(a1);
     FCL_REAL d2 = new_s2.signedDistance(a2);
 
+    distance = std::min(d1, d2);
+    // TODO: when d1 == d2, we may want to return more than one contact point.
+    // There is an infinite amount but we may want to return a1 and a2 for
+    // example.
+    p1 = ((d1 < d2) ? a1 : a2);
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (d1 > 0 && d2 > 0)
       return false;
     else {
-      distance = std::min(d1, d2);
-      normal = -new_s2.n;
-      p1 = p2 = ((d1 < d2) ? a1 : a2) - (0.5 * distance) * new_s2.n;
       return true;
     }
   }
