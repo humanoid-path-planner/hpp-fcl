@@ -51,6 +51,7 @@ using hpp::fcl::Cone;
 using hpp::fcl::constructPolytopeFromEllipsoid;
 using hpp::fcl::Contact;
 using hpp::fcl::Convex;
+using hpp::fcl::Cylinder;
 using hpp::fcl::DistanceRequest;
 using hpp::fcl::DistanceResult;
 using hpp::fcl::Ellipsoid;
@@ -340,6 +341,19 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_cone_halfspace) {
   FCL_REAL r = 0.5;
   FCL_REAL h = 1.;
   shared_ptr<Cone> o1(new Cone(r, h));
+  FCL_REAL offset = 0.1;
+  Vec3f n = Vec3f::Random();
+  n.normalize();
+  shared_ptr<Halfspace> o2(new Halfspace(n, offset));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
+
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_cylinder_halfspace) {
+  FCL_REAL r = 0.5;
+  FCL_REAL h = 1.;
+  shared_ptr<Cylinder> o1(new Cylinder(r, h));
   FCL_REAL offset = 0.1;
   Vec3f n = Vec3f::Random();
   n.normalize();
