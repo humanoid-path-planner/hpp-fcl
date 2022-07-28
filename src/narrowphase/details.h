@@ -2087,14 +2087,17 @@ inline bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
   if (std::abs(cosa) < planeIntersectTolerance<FCL_REAL>()) {
     FCL_REAL d = new_s2.signedDistance(T);
     distance = std::abs(d) - s1.radius;
+    if (d < 0)
+      normal = new_s2.n;
+    else
+      normal = -new_s2.n;
+    p1 = T + s1.radius * normal;
+    p2 = p1 + distance * normal;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (distance > 0)
       return false;
     else {
-      if (d < 0)
-        normal = new_s2.n;
-      else
-        normal = -new_s2.n;
-      p1 = p2 = T - new_s2.n * d;
       return true;
     }
   } else {
@@ -2122,29 +2125,31 @@ inline bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
 
     FCL_REAL d1 = new_s2.signedDistance(c1);
     FCL_REAL d2 = new_s2.signedDistance(c2);
+    FCL_REAL abs_d1 = std::abs(d1);
+    FCL_REAL abs_d2 = std::abs(d2);
+    bool intersect = (d1 * d2 <= 0);
+    FCL_REAL sign = (intersect ? -1. : 1.);
 
-    if (d1 * d2 <= 0) {
-      FCL_REAL abs_d1 = std::abs(d1);
-      FCL_REAL abs_d2 = std::abs(d2);
-
-      if (abs_d1 > abs_d2) {
-        distance = -abs_d2;
-        p1 = p2 = c2 - new_s2.n * d2;
-        if (d2 < 0)
-          normal = -new_s2.n;
-        else
-          normal = new_s2.n;
-      } else {
-        distance = -abs_d1;
-        p1 = p2 = c1 - new_s2.n * d1;
-        if (d1 < 0)
-          normal = -new_s2.n;
-        else
-          normal = new_s2.n;
-      }
-      return true;
-    } else
-      return false;
+    if (abs_d1 > abs_d2) {
+      distance = (intersect ? -1. : 1.) * abs_d2;
+      p1 = c2;
+      if (d2 < 0)
+        normal = sign * new_s2.n;
+      else
+        normal = -sign * new_s2.n;
+    } else {
+      distance = (intersect ? -1. : 1.) * abs_d1;
+      p1 = c1;
+      if (d1 < 0)
+        normal = sign * new_s2.n;
+      else
+        normal = -sign * new_s2.n;
+    }
+    p2 = p1 + distance * normal;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+    if (distance > 0) return false;
+    return true;
   }
 }
 
