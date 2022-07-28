@@ -2163,16 +2163,17 @@ inline bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
   if (std::abs(cosa) < planeIntersectTolerance<FCL_REAL>()) {
     FCL_REAL d = new_s2.signedDistance(T);
     distance = std::abs(d) - s1.radius;
+    if (d > 0)
+      normal = -new_s2.n;
+    else
+      normal = new_s2.n;
+    p1 = T - dir_z * s1.halfLength + s1.radius * normal;
+    p2 = p1 + distance * normal;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (distance > 0) {
-      p1 = p2 = Vec3f(0, 0, 0);
       return false;
     } else {
-      if (d < 0)
-        normal = new_s2.n;
-      else
-        normal = -new_s2.n;
-      p1 = p2 = T - dir_z * (s1.halfLength) +
-                dir_z * (-distance / s1.radius * s1.halfLength) - new_s2.n * d;
       return true;
     }
   } else {
@@ -2186,6 +2187,10 @@ inline bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
       C *= s;
     }
 
+    // We are looking for the point of the cone deepest into the plane,
+    // on one side or the other.
+    // There are 3 candidates: the tip of the cone and the 2 points of the
+    // cone's circle opposite to each other aligned with axis C.
     Vec3f c[3];
     c[0] = T + dir_z * (s1.halfLength);
     c[1] = T - dir_z * (s1.halfLength) + C;
@@ -2197,65 +2202,64 @@ inline bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
     d[2] = new_s2.signedDistance(c[2]);
 
     if ((d[0] >= 0 && d[1] >= 0 && d[2] >= 0) ||
-        (d[0] <= 0 && d[1] <= 0 && d[2] <= 0))
+        (d[0] <= 0 && d[1] <= 0 && d[2] <= 0)) {
+      // All three candidate points on the cone are on the same side of the
+      // plane.
+      bool positive = (d[0] >= 0);
+      FCL_REAL sign = (positive ? 1. : -1.);
+      normal = -sign * new_s2.n;
+
+      distance = sign * d[0];
+      // p1 is the point of the cone closest to the plane.
+      int index_closest = 0;
+      for (int i = 1; i < 3; ++i) {
+        if (distance >= sign * d[i]) {
+          distance = sign * d[i];
+          index_closest = i;
+        }
+      }
+      assert(distance >= 0);
+      p1 = c[index_closest];
+      p2 = p1 + distance * normal;
+      assert(new_s2.distance(p2) <=
+             3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
       return false;
-    else {
+    } else {
+      // The cone is overlapping the plane.
+      // We look for the 2 points on each side of the plane which have the
+      // deepest penetration.
+      // Out of these 2 points, p1 is the one with the smallest penetration.
       bool positive[3];
       for (std::size_t i = 0; i < 3; ++i) positive[i] = (d[i] >= 0);
 
-      int n_positive = 0;
       FCL_REAL d_positive = 0, d_negative = 0;
-      for (std::size_t i = 0; i < 3; ++i) {
+      int index_positive(0), index_negative(0);
+      for (int i = 0; i < 3; ++i) {
         if (positive[i]) {
-          n_positive++;
-          if (d_positive <= d[i]) d_positive = d[i];
+          if (d_positive <= d[i]) {
+            d_positive = d[i];
+            index_positive = i;
+          }
         } else {
-          if (d_negative <= -d[i]) d_negative = -d[i];
+          if (d_negative <= -d[i]) {
+            d_negative = -d[i];
+            index_negative = i;
+          }
         }
       }
 
       distance = -std::min(d_positive, d_negative);
-      if (d_positive > d_negative)
+      assert(distance <= 0);
+      if (d_positive > d_negative) {
         normal = -new_s2.n;
-      else
-        normal = new_s2.n;
-      Vec3f p[2];
-      Vec3f q;
-
-      FCL_REAL p_d[2];
-      FCL_REAL q_d(0);
-
-      if (n_positive == 2) {
-        for (std::size_t i = 0, j = 0; i < 3; ++i) {
-          if (positive[i]) {
-            p[j] = c[i];
-            p_d[j] = d[i];
-            j++;
-          } else {
-            q = c[i];
-            q_d = d[i];
-          }
-        }
-
-        Vec3f t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
-        Vec3f t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
-        p1 = p2 = (t1 + t2) * 0.5;
+        p1 = c[index_negative];
       } else {
-        for (std::size_t i = 0, j = 0; i < 3; ++i) {
-          if (!positive[i]) {
-            p[j] = c[i];
-            p_d[j] = d[i];
-            j++;
-          } else {
-            q = c[i];
-            q_d = d[i];
-          }
-        }
-
-        Vec3f t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
-        Vec3f t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
-        p1 = p2 = (t1 + t2) * 0.5;
+        normal = new_s2.n;
+        p1 = c[index_positive];
       }
+      p2 = p1 + distance * normal;
+      assert(new_s2.distance(p2) <=
+             3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     }
     return true;
   }
