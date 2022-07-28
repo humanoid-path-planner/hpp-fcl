@@ -1615,7 +1615,13 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
     }
   }
 
+  // FallBack when the simplex given by GJK is of rank 1.
+  // Since the simplex only contains support points which convex
+  // combination describe the origin, the point in the simplex is actually
+  // the origin.
   status = FallBack;
+  // TODO: define a better normal
+  assert(simplex.rank == 1 && simplex.vertex[0]->w.isZero(gjk.getTolerance()));
   normal = -guess;
   FCL_REAL nl = normal.norm();
   if (nl > 0)
