@@ -1515,17 +1515,19 @@ inline bool cylinderHalfspaceIntersect(const Cylinder& s1,
   Vec3f dir_z = R.col(2);
   FCL_REAL cosa = dir_z.dot(new_s2.n);
 
-  if (cosa < halfspaceIntersectTolerance<FCL_REAL>()) {
+  normal = -new_s2.n;
+  if (std::abs(cosa) < halfspaceIntersectTolerance<FCL_REAL>()) {
+    // Cylinder is parallel to plane.
+    // TODO: we might want to return more than one contact point in this case.
     FCL_REAL signed_dist = new_s2.signedDistance(T);
     distance = signed_dist - s1.radius;
+    p1 = T - s1.radius * new_s2.n;
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (distance > 0) {
-      // TODO: compute closest points
-      p1 = p2 = Vec3f(0, 0, 0);
       return false;
     }
-
-    normal = -new_s2.n;
-    p1 = p2 = T - (0.5 * distance + s1.radius) * new_s2.n;
     return true;
   } else {
     Vec3f C = dir_z * cosa - new_s2.n;
@@ -1540,15 +1542,14 @@ inline bool cylinderHalfspaceIntersect(const Cylinder& s1,
 
     int sign = (cosa > 0) ? -1 : 1;
     // deepest point
-    Vec3f p = T + dir_z * (s1.halfLength * sign) + C;
-    distance = new_s2.signedDistance(p);
+    p1 = T + dir_z * (s1.halfLength * sign) + C;
+    distance = new_s2.signedDistance(p1);
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (distance > 0) {
-      // TODO: compute closest points
-      p1 = p2 = Vec3f(0, 0, 0);
       return false;
     } else {
-      normal = -new_s2.n;
-      p1 = p2 = p - (0.5 * distance) * new_s2.n;
       return true;
     }
   }
