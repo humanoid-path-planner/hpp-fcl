@@ -1438,7 +1438,7 @@ inline bool boxHalfspaceIntersect(const Box& s1, const Transform3f& tf1,
       p1 += R.col(i) * s1.halfSide[i];
     }
   }
-  p2.noalias() = p1 - distance * new_s2.n;
+  p2 = p1 - distance * new_s2.n;
   assert(new_s2.signedDistance(p2) < 3 * eps);
   if (distance > 0) {
     return false;
