@@ -39,6 +39,7 @@
 #define HPP_FCL_COLLISION_DATA_H
 
 #include <vector>
+#include <array>
 #include <set>
 #include <limits>
 
@@ -76,7 +77,7 @@ struct HPP_FCL_DLLAPI Contact {
 
   /// @brief nearest points associated to this contact.
   /// See \ref CollisionResult::nearest_points.
-  Vec3f nearest_points[2];
+  std::array<Vec3f, 2> nearest_points;
 
   /// @brief contact position, in world space
   Vec3f pos;
@@ -457,7 +458,7 @@ struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
 
   /// @brief nearest points.
   /// See CollisionResult::nearest_points.
-  Vec3f nearest_points[2];
+  std::array<Vec3f, 2> nearest_points;
 
   /// Stores the normal, defined as the normalized separation vector:
   /// normal = (p2 - p1) / dist(o1, o2), where p1 = nearest_points[0]

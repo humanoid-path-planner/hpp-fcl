@@ -27,6 +27,7 @@ void load(Archive& ar, hpp::fcl::Contact& contact,
   ar >> make_nvp("b1", contact.b1);
   ar >> make_nvp("b2", contact.b2);
   ar >> make_nvp("normal", contact.normal);
+  ar >> make_nvp("nearest_points", contact.nearest_points);
   ar >> make_nvp("pos", contact.pos);
   ar >> make_nvp("penetration_depth", contact.penetration_depth);
   contact.o1 = NULL;
@@ -115,7 +116,7 @@ void save(Archive& ar, const hpp::fcl::DistanceResult& distance_result,
   ar& make_nvp("base", boost::serialization::base_object<hpp::fcl::QueryResult>(
                            distance_result));
   ar& make_nvp("min_distance", distance_result.min_distance);
-  ar& make_nvp("nearest_points", make_array(distance_result.nearest_points, 2));
+  ar& make_nvp("nearest_points", distance_result.nearest_points);
   ar& make_nvp("normal", distance_result.normal);
   ar& make_nvp("b1", distance_result.b1);
   ar& make_nvp("b2", distance_result.b2);
@@ -128,8 +129,7 @@ void load(Archive& ar, hpp::fcl::DistanceResult& distance_result,
       make_nvp("base", boost::serialization::base_object<hpp::fcl::QueryResult>(
                            distance_result));
   ar >> make_nvp("min_distance", distance_result.min_distance);
-  ar >>
-      make_nvp("nearest_points", make_array(distance_result.nearest_points, 2));
+  ar >> make_nvp("nearest_points", distance_result.nearest_points);
   ar >> make_nvp("normal", distance_result.normal);
   ar >> make_nvp("b1", distance_result.b1);
   ar >> make_nvp("b2", distance_result.b2);
