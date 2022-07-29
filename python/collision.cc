@@ -168,6 +168,7 @@ void exposeCollisionAPI() {
         .DEF_RW_CLASS_ATTRIB(Contact, b1)
         .DEF_RW_CLASS_ATTRIB(Contact, b2)
         .DEF_RW_CLASS_ATTRIB(Contact, normal)
+        .DEF_RW_CLASS_ATTRIB(Contact, nearest_points)
         .DEF_RW_CLASS_ATTRIB(Contact, pos)
         .DEF_RW_CLASS_ATTRIB(Contact, penetration_depth)
         .def(self == self)
