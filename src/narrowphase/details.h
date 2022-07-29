@@ -1983,85 +1983,79 @@ inline bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
   const Vec3f& T1 = tf1.getTranslation();
 
   Vec3f dir_z = R1.col(2);
+  FCL_REAL cosa = dir_z.dot(new_s2.n);
 
-  // ends of capsule inner segment
-  Vec3f a1 = T1 + dir_z * s1.halfLength;
-  Vec3f a2 = T1 - dir_z * s1.halfLength;
-
-  FCL_REAL d1 = new_s2.signedDistance(a1);
-  FCL_REAL d2 = new_s2.signedDistance(a2);
-
-  FCL_REAL abs_d1 = std::abs(d1);
-  FCL_REAL abs_d2 = std::abs(d2);
-
-  // two end points on different side of the plane
-  // the contact point is the intersect of axis with the plane
-  // the normal is the direction to avoid intersection
-  // the depth is the minimum distance to resolve the collision
-  if (d1 * d2 < -planeIntersectTolerance<FCL_REAL>()) {
-    if (abs_d1 < abs_d2) {
-      distance = -abs_d1 - s1.radius;
-      p1 = p2 =
-          a1 * (abs_d2 / (abs_d1 + abs_d2)) + a2 * (abs_d1 / (abs_d1 + abs_d2));
-      if (d1 < 0)
-        normal = -new_s2.n;
-      else
-        normal = new_s2.n;
-    } else {
-      distance = -abs_d2 - s1.radius;
-      p1 = p2 =
-          a1 * (abs_d2 / (abs_d1 + abs_d2)) + a2 * (abs_d1 / (abs_d1 + abs_d2));
-      if (d2 < 0)
-        normal = -new_s2.n;
-      else
-        normal = new_s2.n;
-    }
-    assert(!p1.hasNaN() && !p2.hasNaN());
-    return true;
-  }
-
-  if (abs_d1 > s1.radius && abs_d2 > s1.radius) {
-    // Here both capsule ends are on the same side of the plane
-    if (d1 > 0)
+  if (std::abs(cosa) < planeIntersectTolerance<FCL_REAL>()) {
+    // The capsule axis is parallel to the plane.
+    FCL_REAL d = new_s2.signedDistance(T1);
+    distance = std::abs(d) - s1.radius;
+    if (d < 0)
       normal = new_s2.n;
     else
       normal = -new_s2.n;
-    if (abs_d1 < abs_d2) {
-      distance = abs_d1 - s1.radius;
-      p1 = a1 - s1.radius * normal;
-      p2 = p1 - distance * normal;
-    } else {
-      distance = abs_d2 - s1.radius;
-      p1 = a2 - s1.radius * normal;
-      p2 = p1 - distance * normal;
+    p1 = T1 + s1.radius * normal;
+    p2 = p1 + distance * normal;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+    if (distance > 0)
+      return false;
+    else {
+      return true;
     }
-    assert(!p1.hasNaN() && !p2.hasNaN());
-    return false;
   } else {
-    // Both capsule ends are on the same side of the plane, but one
-    // is closer than the capsule radius, hence collision
-    distance = std::min(abs_d1, abs_d2) - s1.radius;
+    // ends of capsule inner segment
+    Vec3f a1 = T1 + dir_z * s1.halfLength;
+    Vec3f a2 = T1 - dir_z * s1.halfLength;
 
-    if (abs_d1 <= s1.radius && abs_d2 <= s1.radius) {
-      Vec3f c1 = a1 - new_s2.n * d1;
-      Vec3f c2 = a2 - new_s2.n * d2;
-      p1 = p2 = (c1 + c2) * 0.5;
-    } else if (abs_d1 <= s1.radius) {
-      Vec3f c = a1 - new_s2.n * d1;
-      p1 = p2 = c;
-    } else if (abs_d2 <= s1.radius) {
-      Vec3f c = a2 - new_s2.n * d2;
-      p1 = p2 = c;
+    FCL_REAL d1 = new_s2.signedDistance(a1);
+    FCL_REAL d2 = new_s2.signedDistance(a2);
+
+    FCL_REAL abs_d1 = std::abs(d1);
+    FCL_REAL abs_d2 = std::abs(d2);
+
+    if (d1 * d2 <= 0) {
+      // Two end points of the capsule are on different sides of the plane.
+      if (abs_d1 < abs_d2) {
+        distance = -abs_d1 - s1.radius;
+        if (d1 > 0)
+          normal = new_s2.n;
+        else
+          normal = -new_s2.n;
+        p1 = a1 + s1.radius * normal;
+      } else {
+        distance = -abs_d2 - s1.radius;
+        if (d2 > 0)
+          normal = new_s2.n;
+        else
+          normal = -new_s2.n;
+        p1 = a2 + s1.radius * normal;
+      }
+      assert(distance <= 0);
+      p2 = p1 + distance * normal;
+      assert(new_s2.distance(p2) <=
+             3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+      assert(!p1.hasNaN() && !p2.hasNaN());
+      return true;
     } else {
-      assert(false);
-    }
+      // Both capsule ends are on the same side of the plane.
+      distance = std::min(abs_d1, abs_d2) - s1.radius;
+      if (d1 < 0)
+        normal = new_s2.n;
+      else
+        normal = -new_s2.n;
 
-    if (d1 < 0)
-      normal = new_s2.n;
-    else
-      normal = -new_s2.n;
-    assert(!p1.hasNaN() && !p2.hasNaN());
-    return true;
+      if (abs_d1 <= abs_d2) {
+        p1 = a1 + s1.radius * normal;
+      } else {
+        p1 = a2 + s1.radius * normal;
+      }
+      p2 = p1 + distance * normal;
+      assert(new_s2.distance(p2) <=
+             3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+      assert(!p1.hasNaN() && !p2.hasNaN());
+      if (distance > 0) return true;
+      return false;
+    }
   }
   assert(false);
 }
