@@ -179,23 +179,19 @@ inline bool sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
         assert(fabs(dist) - (p1 - p2).norm() < eps);
       } else {
         // Center of sphere is on cylinder boundary
-        normal = .5 * (A + B) - p2;
+        normal = p2 - .5 * (A + B);
+        assert(u.dot(normal) >= 0);
         normal.normalize();
-        p1 = p2;
         dist = -r1;
+        p1 = S + r1 * normal;
       }
     }
   } else if (s <= (s2.halfLength * 2)) {
     // 0 < s <= s2.lz
     normal = -v;
     dist = dPS - r1 - r2;
-    if (dPS <= r2) {
-      // Sphere center is inside cylinder
-      p1 = p2 = S;
-    } else {
-      p2 = P + r2 * v;
-      p1 = S - r1 * v;
-    }
+    p2 = P + r2 * v;
+    p1 = S - r1 * v;
   } else {
     // lz < s
     if (dPS <= r2) {
@@ -216,15 +212,12 @@ inline bool sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
         assert(fabs(dist) - (p1 - p2).norm() < eps);
       } else {
         // Center of sphere is on cylinder boundary
-        normal = .5 * (A + B) - p2;
+        normal = p2 - .5 * (A + B);
         normal.normalize();
-        p1 = p2;
+        p1 = S + r1 * normal;
         dist = -r1;
       }
     }
-  }
-  if (dist < 0) {
-    p1 = p2 = .5 * (p1 + p2);
   }
   return (dist > 0);
 }
