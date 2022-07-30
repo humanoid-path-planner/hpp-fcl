@@ -59,7 +59,6 @@ IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake/base.cmake")
 ENDIF()
 
 include(cmake/boost.cmake)
-include(cmake/python.cmake)
 include(cmake/hpp.cmake)
 include(cmake/apple.cmake)
 include(cmake/ide.cmake)
@@ -97,7 +96,7 @@ CMAKE_DEPENDENT_OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associat
 ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.0")
 
 if(BUILD_PYTHON_INTERFACE)
-  FIND_PACKAGE(eigenpy 2.2 REQUIRED)
+  FIND_PACKAGE(eigenpy 2.7.10 REQUIRED)
 endif()
 
 # Required dependencies
@@ -109,9 +108,6 @@ ELSE(WIN32)
   ADD_PROJECT_DEPENDENCY(Boost REQUIRED chrono serialization)
 ENDIF(WIN32)
 if(BUILD_PYTHON_INTERFACE)
-  set(PYTHON_COMPONENTS Interpreter Development.Module NumPy)
-  FINDPYTHON()
-  search_for_boost_python(REQUIRED)
   find_package(Boost REQUIRED COMPONENTS system)
 endif(BUILD_PYTHON_INTERFACE)
 
