@@ -1802,13 +1802,15 @@ inline bool halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
                               FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
                               Vec3f& normal) {
   Vec3f n_w = tf1.getRotation() * h.n;
+  FCL_REAL d_w = h.d + n_w.dot(tf1.getTranslation());
   Vec3f n_2(tf2.getRotation().transpose() * n_w);
   int hint = 0;
   p2 = getSupport(&s, -n_2, true, hint);
-  p2 = tf2.transform(p2);
+  p2.noalias() = tf2.transform(p2);
 
-  dist = (p2 - tf1.getTranslation()).dot(n_w) - h.d;
+  dist = p2.dot(n_w) - d_w;
   p1 = p2 - dist * n_w;
+  assert(std::abs(p1.dot(n_w) - d_w) <= 1e-8);
   normal = n_w;
 
   return dist <= 0;

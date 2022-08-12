@@ -421,3 +421,15 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_cylinder) {
   test_normal_and_nearest_points(*o1.get(), *o2.get());
   test_normal_and_nearest_points(*o2.get(), *o1.get());
 }
+
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_ellipsoid_halfspace) {
+  Vec3f radii(0.3, 0.5, 0.2);
+  FCL_REAL offset = 0.1;
+  Vec3f n = Vec3f::Random();
+  n.normalize();
+  shared_ptr<Ellipsoid> o1(new Ellipsoid(radii));
+  shared_ptr<Halfspace> o2(new Halfspace(n, offset));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}

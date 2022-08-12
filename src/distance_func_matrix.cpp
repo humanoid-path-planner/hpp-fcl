@@ -323,7 +323,8 @@ DistanceFunctionMatrix::DistanceFunctionMatrix() {
   distance_matrix[GEOM_ELLIPSOID][GEOM_CONVEX] =
       &ShapeShapeDistance<Ellipsoid, ConvexBase>;
   // TODO Louis: Ellipsoid - Plane
-  // TODO Louis: Ellipsoid - Halfspace
+  distance_matrix[GEOM_ELLIPSOID][GEOM_HALFSPACE] =
+      &ShapeShapeDistance<Ellipsoid, Halfspace>;
   distance_matrix[GEOM_ELLIPSOID][GEOM_ELLIPSOID] =
       &ShapeShapeDistance<Ellipsoid, Ellipsoid>;
 
@@ -424,7 +425,8 @@ DistanceFunctionMatrix::DistanceFunctionMatrix() {
       &ShapeShapeDistance<Halfspace, Plane>;
   distance_matrix[GEOM_HALFSPACE][GEOM_HALFSPACE] =
       &ShapeShapeDistance<Halfspace, Halfspace>;
-  // TODO Louis: Ellipsoid - Halfspace
+  distance_matrix[GEOM_HALFSPACE][GEOM_ELLIPSOID] =
+      &ShapeShapeDistance<Halfspace, Ellipsoid>;
 
   /* AABB distance not implemented */
   /*

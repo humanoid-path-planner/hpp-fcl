@@ -79,6 +79,7 @@ set(${LIBRARY_NAME}_SOURCES
   distance/sphere_halfspace.cpp
   distance/sphere_plane.cpp
   distance/sphere_capsule.cpp
+  distance/ellipsoid_halfspace.cpp
   distance/convex_halfspace.cpp
   distance/triangle_halfspace.cpp
   intersect.cpp
