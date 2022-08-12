@@ -2471,6 +2471,30 @@ inline FCL_REAL computePenetration(const Vec3f& P1, const Vec3f& P2,
   return computePenetration(globalP1, globalP2, globalP3, globalQ1, globalQ2,
                             globalQ3, normal);
 }
+
+inline bool ellipsoidPlaneIntersect(const Ellipsoid& s1, const Transform3f& tf1,
+                                    const Plane& s2, const Transform3f& tf2,
+                                    FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+                                    Vec3f& normal) {
+  Vec3f n_w = tf2.getRotation() * s2.n;
+  FCL_REAL d_w = s2.d + n_w.dot(tf2.getTranslation());
+
+  const Vec3f& center = tf1.getTranslation();
+  FCL_REAL signed_dist = n_w.dot(center) - d_w;
+  if (signed_dist > 0)
+    normal = -n_w;
+  else {
+    normal = n_w;
+    d_w = s2.d - n_w.dot(tf2.getTranslation());
+  }
+  int hint = 0;
+  p1 = getSupport(&s1, tf1.getRotation().transpose() * normal, true, hint);
+  p1.noalias() = tf1.transform(p1);
+  distance = -normal.dot(p1) - d_w;
+  p2 = p1 + distance * normal;
+  assert(std::abs(-normal.dot(p2) - d_w) <= 1e-8);
+  return distance <= 0;
+}
 }  // namespace details
 }  // namespace fcl
 }  // namespace hpp
