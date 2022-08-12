@@ -207,6 +207,16 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_sphere) {
   test_normal_and_nearest_points(*o1.get(), *o2.get());
 }
 
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_capsule) {
+  FCL_REAL r = 0.5;
+  FCL_REAL h = 1.;
+  shared_ptr<Sphere> o1(new Sphere(r));
+  shared_ptr<Capsule> o2(new Capsule(r, h));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
+
 BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_box) {
   FCL_REAL r = 0.5;
   FCL_REAL rbox = 2 * 0.5;
