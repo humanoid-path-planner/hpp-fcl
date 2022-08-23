@@ -4,6 +4,7 @@
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
  *  Copyright (c) 2018-2019, Centre National de la Recherche Scientifique
+ *  Copyright (c) 2021-2022, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -123,7 +124,6 @@ inline bool sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
   p2 = segment_point - normal * s2.radius;
 
   if (dist <= 0) {
-    p1 = p2 = .5 * (p1 + p2);
     return false;
   }
   return true;
@@ -1802,13 +1802,15 @@ inline bool halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
                               FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
                               Vec3f& normal) {
   Vec3f n_w = tf1.getRotation() * h.n;
+  FCL_REAL d_w = h.d + n_w.dot(tf1.getTranslation());
   Vec3f n_2(tf2.getRotation().transpose() * n_w);
   int hint = 0;
   p2 = getSupport(&s, -n_2, true, hint);
-  p2 = tf2.transform(p2);
+  p2.noalias() = tf2.transform(p2);
 
-  dist = (p2 - tf1.getTranslation()).dot(n_w) - h.d;
+  dist = p2.dot(n_w) - d_w;
   p1 = p2 - dist * n_w;
+  assert(std::abs(p1.dot(n_w) - d_w) <= 1e-8);
   normal = n_w;
 
   return dist <= 0;
@@ -2468,6 +2470,30 @@ inline FCL_REAL computePenetration(const Vec3f& P1, const Vec3f& P2,
   Vec3f globalQ3(tf2.transform(Q3));
   return computePenetration(globalP1, globalP2, globalP3, globalQ1, globalQ2,
                             globalQ3, normal);
+}
+
+inline bool ellipsoidPlaneIntersect(const Ellipsoid& s1, const Transform3f& tf1,
+                                    const Plane& s2, const Transform3f& tf2,
+                                    FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+                                    Vec3f& normal) {
+  Vec3f n_w = tf2.getRotation() * s2.n;
+  FCL_REAL d_w = s2.d + n_w.dot(tf2.getTranslation());
+
+  const Vec3f& center = tf1.getTranslation();
+  FCL_REAL signed_dist = n_w.dot(center) - d_w;
+  if (signed_dist > 0)
+    normal = -n_w;
+  else {
+    normal = n_w;
+    d_w = s2.d - n_w.dot(tf2.getTranslation());
+  }
+  int hint = 0;
+  p1 = getSupport(&s1, tf1.getRotation().transpose() * normal, true, hint);
+  p1.noalias() = tf1.transform(p1);
+  distance = -normal.dot(p1) - d_w;
+  p2 = p1 + distance * normal;
+  assert(std::abs(-normal.dot(p2) - d_w) <= 1e-8);
+  return distance <= 0;
 }
 }  // namespace details
 }  // namespace fcl

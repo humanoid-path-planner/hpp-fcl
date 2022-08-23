@@ -207,6 +207,16 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_sphere) {
   test_normal_and_nearest_points(*o1.get(), *o2.get());
 }
 
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_capsule) {
+  FCL_REAL r = 0.5;
+  FCL_REAL h = 1.;
+  shared_ptr<Sphere> o1(new Sphere(r));
+  shared_ptr<Capsule> o2(new Capsule(r, h));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
+
 BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_box) {
   FCL_REAL r = 0.5;
   FCL_REAL rbox = 2 * 0.5;
@@ -407,6 +417,30 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_cylinder) {
   FCL_REAL h = 1.;
   shared_ptr<Sphere> o1(new Sphere(r));
   shared_ptr<Cylinder> o2(new Cylinder(r, h));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
+
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_ellipsoid_halfspace) {
+  Vec3f radii(0.3, 0.5, 0.2);
+  FCL_REAL offset = 0.1;
+  Vec3f n = Vec3f::Random();
+  n.normalize();
+  shared_ptr<Ellipsoid> o1(new Ellipsoid(radii));
+  shared_ptr<Halfspace> o2(new Halfspace(n, offset));
+
+  test_normal_and_nearest_points(*o1.get(), *o2.get());
+  test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
+
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_ellispoid_plane) {
+  Vec3f radii(0.3, 0.5, 0.4);
+  FCL_REAL offset = 0.1;
+  Vec3f n = Vec3f::Random();
+  n.normalize();
+  shared_ptr<Ellipsoid> o1(new Ellipsoid(radii));
+  shared_ptr<Plane> o2(new Plane(n, offset));
 
   test_normal_and_nearest_points(*o1.get(), *o2.get());
   test_normal_and_nearest_points(*o2.get(), *o1.get());
