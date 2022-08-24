@@ -114,29 +114,7 @@ endif()
 
 option(HPP_FCL_HAS_QHULL "use qhull library to compute convex hulls." FALSE)
 if(HPP_FCL_HAS_QHULL)
-  find_package(Qhull COMPONENTS qhull_r qhullcpp)
-  if(Qhull_FOUND)
-    set(HPP_FCL_USE_SYSTEM_QHULL TRUE)
-  else()
-    message(STATUS "Qhullcpp not found: it will be build from sources, if Qhull_r is found")
-    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-parties)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-      ${CMAKE_SOURCE_DIR}/third-parties/qhull/src/libqhullcpp
-      ${CMAKE_CURRENT_BINARY_DIR}/third-parties/libqhullcpp
-      )
-    set(Qhullcpp_PREFIX ${CMAKE_BINARY_DIR}/third-parties)
-    find_path(Qhull_r_INCLUDE_DIR
-      NAMES libqhull_r/libqhull_r.h
-      PATHS ${Qhull_PREFIX}
-      )
-    find_library(Qhull_r_LIBRARY
-      NAMES libqhull_r.so
-      PATHS ${Qhull_PREFIX}
-      )
-    if(NOT Qhull_r_LIBRARY)
-      message(FATAL_ERROR "Qhull_r not found, please install it or turn HPP_FCL_HAS_QHULL OFF")
-    endif()
-  endif()
+  ADD_PROJECT_DEPENDENCY(Qhull REQUIRED COMPONENTS qhull_r qhullcpp)
 endif()
 
 ADD_PROJECT_DEPENDENCY(assimp REQUIRED FIND_EXTERNAL "assimp")
