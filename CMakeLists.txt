@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2014-2020 CNRS-LAAS, INRIA
+#  Copyright (c) 2014-2022 CNRS-LAAS, INRIA
 #  Author: Florent Lamiraux, Joseph Mirabel
 #  All rights reserved.
 #
@@ -139,7 +139,7 @@ if(HPP_FCL_HAS_QHULL)
   endif()
 endif()
 
-FIND_PACKAGE(assimp REQUIRED)
+ADD_PROJECT_DEPENDENCY(assimp REQUIRED FIND_EXTERNAL "assimp")
 
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h
