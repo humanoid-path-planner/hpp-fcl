@@ -11,16 +11,16 @@ jobs:
     strategy:
       matrix:
         env:
-          - {ROS_DISTRO: melodic}
-          - {ROS_DISTRO: noetic, BUILDER: catkin_tools}
-          #- {ROS_DISTRO: noetic, BUILDER: catkin_tools, ADDITIONAL_DEBS: clang, CC: clang, CXX: clang++}
+          - {ROS_DISTRO: melodic, PRERELEASE: false}
+          - {ROS_DISTRO: noetic}
           - {ROS_DISTRO: foxy}
-          #- {ROS_DISTRO: galactic} ## Activate once eigenpy released to galactic
-          - {ROS_DISTRO: foxy, PRERELEASE: true}
-          #- {ROS_DISTRO: galactic, PRERELEASE: true} ## Activate once eigenpy released to galactic
+          - {ROS_DISTRO: galactic}
+          - {ROS_DISTRO: rolling}
+          - {ROS_DISTRO: humble}
     env:
-      AFTER_RUN_TARGET_TEST: 'cd /root/target_ws/build/hpp-fcl && make build_tests && ctest --output-on-failure'
       CCACHE_DIR: /github/home/.ccache # Enable ccache
+      BUILDER: colcon
+      PRERELEASE: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
