@@ -114,7 +114,7 @@ endif()
 
 option(HPP_FCL_HAS_QHULL "use qhull library to compute convex hulls." FALSE)
 if(HPP_FCL_HAS_QHULL)
-  ADD_PROJECT_DEPENDENCY(Qhull REQUIRED COMPONENTS qhull_r qhullcpp)
+  ADD_PROJECT_DEPENDENCY(Qhull REQUIRED COMPONENTS qhull_r qhullcpp FIND_EXTERNAL Qhull)
 endif()
 
 ADD_PROJECT_DEPENDENCY(assimp REQUIRED FIND_EXTERNAL "assimp")
