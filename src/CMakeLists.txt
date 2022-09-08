@@ -142,7 +142,7 @@ ENDIF(WIN32)
 
 if(HPP_FCL_HAS_QHULL)
   target_compile_definitions(${LIBRARY_NAME} PRIVATE -DHPP_FCL_HAS_QHULL)
-  target_link_libraries(${LIBRARY_NAME} PRIVATE Qhull::qhull_r Qhull::qhullcpp)
+  target_link_libraries(${LIBRARY_NAME} PRIVATE QHULL::QHULL)
 endif()
 
 MODERNIZE_TARGET_LINK_LIBRARIES(${PROJECT_NAME} SCOPE PUBLIC
