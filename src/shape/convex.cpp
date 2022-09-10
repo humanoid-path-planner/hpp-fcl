@@ -72,7 +72,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
 
   // Initialize the vertices
   int nvertex = (qh.vertexCount());
-  Vec3f* vertices = new Vec3f[nvertex];
+  Vec3f* vertices = new Vec3f[size_t(nvertex)];
   QhullVertexList vertexList(qh.vertexList());
   int i_vertex = 0;
   for (QhullVertexList::const_iterator v = vertexList.begin();
@@ -93,7 +93,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   convex->initialize(true, vertices, static_cast<unsigned int>(nvertex));
 
   // Build the neighbors
-  convex->neighbors = new Neighbors[nvertex];
+  convex->neighbors = new Neighbors[size_t(nvertex)];
   std::vector<std::set<index_type> > nneighbors(static_cast<size_t>(nvertex));
   if (keepTriangles) {
     convex_tri->num_polygons = static_cast<unsigned int>(qh.facetCount());
