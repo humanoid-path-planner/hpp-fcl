@@ -22,7 +22,7 @@ jobs:
         activate-environment: hpp-fcl
         auto-update-conda: true
         environment-file: .github/workflows/conda/conda-env.yml
-        python-version: 3.8
+        python-version: 3.7
 
     - name: Install cmake and update conda
       shell: bash -l {0}
