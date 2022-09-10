@@ -150,6 +150,12 @@ struct HPP_FCL_DLLAPI GJKSolver {
               *contact_points =
                   tf1.transform(w0 - epa.normal * (epa.depth * 0.5));
             return true;
+          } else if (epa_status == details::EPA::FallBack) {
+            epa.getClosestPoints(shape, w0, w1);
+            distance_lower_bound = -epa.depth;  // Should be zero
+            if (normal) (*normal).noalias() = tf1.getRotation() * epa.normal;
+            if (contact_points) *contact_points = tf1.transform(w0);
+            return true;
           }
           distance_lower_bound = -(std::numeric_limits<FCL_REAL>::max)();
           // EPA failed but we know there is a collision so we should

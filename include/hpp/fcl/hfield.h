@@ -42,7 +42,6 @@
 #include <hpp/fcl/BV/BV_node.h>
 #include <hpp/fcl/BVH/BVH_internal.h>
 
-#include <boost/integer/integer_log2.hpp>
 #include <vector>
 
 namespace hpp {
