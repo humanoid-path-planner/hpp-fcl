@@ -317,8 +317,18 @@ class HeightFieldShapeCollisionTraversalNode
                                            &contact_point2, &normal2);
 
     if (collision1 && collision2) {
-      if (distance_lower_bound > distance_lower_bound2)  // switch values
-      {
+      // In some case, EPA might returns something like
+      // -(std::numeric_limits<FCL_REAL>::max)().
+      if (distance_lower_bound != -(std::numeric_limits<FCL_REAL>::max)() &&
+          distance_lower_bound2 != -(std::numeric_limits<FCL_REAL>::max)()) {
+        if (distance_lower_bound > distance_lower_bound2)  // switch values
+        {
+          distance_lower_bound = distance_lower_bound2;
+          contact_point = contact_point2;
+          normal = normal2;
+        }
+      } else if (distance_lower_bound2 !=
+                 -(std::numeric_limits<FCL_REAL>::max)()) {
         distance_lower_bound = distance_lower_bound2;
         contact_point = contact_point2;
         normal = normal2;
