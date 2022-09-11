@@ -18,11 +18,11 @@ if(WIN32)
 
 	if(MSVC12)
 		set(ASSIMP_MSVC_VERSIONS "vc120")
-	elseif(MSVC14)
-		set(ASSIMP_MSVC_VERSIONS "vc140;vc141")
+	else()
+		set(ASSIMP_MSVC_VERSIONS "vc140;vc141;vc142;vc143")
 	endif(MSVC12)
 
-	if(MSVC12 OR MSVC14)
+	if(MSVC)
 
     foreach(ASSIMP_MSVC_VERSION ${ASSIMP_MSVC_VERSIONS})
       find_path(ASSIMP_LIBRARY_DIR
