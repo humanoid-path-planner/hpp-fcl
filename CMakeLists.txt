@@ -52,6 +52,24 @@ SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
 # Need to be set before including base.cmake
 # ----------------------------------------------------
 OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+OPTION(HPP_FCL_USE_OCTOMAP "Build hpp-fcl with octomap" ON)
+OPTION(HPP_FCL_BUILD_TESTS "Build the tests or not" ON)
+OPTION(HPP_FCL_BUILD_CORE_ONLY "Only build the core functionality of hpp-fcl (no mesh loaders, no ROS, no tests)" OFF)
+OPTION(HPP_FCL_BUILD_SHARED_LIBRARY "Build hpp-fcl as a shared library. Otherwise static." ON)
+
+IF (HPP_FCL_BUILD_CORE_ONLY)
+  SET(INSTALL_DOCUMENTATION OFF)
+
+  # tests fail to link without assimp.
+  SET(HPP_FCL_BUILD_TESTS OFF)
+  MESSAGE(WARNING "BUILDING CORE ONLY - TESTS ARE OFF.")
+ENDIF()
+
+IF (HPP_FCL_BUILD_SHARED_LIBRARY)
+  SET(HPP_FCL_BUILD_TYPE SHARED)
+ELSE()
+  SET(HPP_FCL_BUILD_TYPE STATIC)
+ENDIF()
 
 # Check if the submodule cmake have been initialized
 IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake/base.cmake")
@@ -112,18 +130,23 @@ if(BUILD_PYTHON_INTERFACE)
 endif(BUILD_PYTHON_INTERFACE)
 
 # Optional dependencies
-ADD_PROJECT_DEPENDENCY(octomap PKG_CONFIG_REQUIRES "octomap >= 1.6")
-if(octomap_FOUND)
-  SET(HPP_FCL_HAS_OCTOMAP TRUE)
-  string(REPLACE "." ";" VERSION_LIST ${octomap_VERSION})
-  list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
-  list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
-  list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
-  message(STATUS "FCL uses Octomap")
-else()
+IF(HPP_FCL_USE_OCTOMAP)
+  ADD_PROJECT_DEPENDENCY(octomap PKG_CONFIG_REQUIRES "octomap >= 1.6")
+  if(octomap_FOUND)
+    SET(HPP_FCL_HAS_OCTOMAP TRUE)
+    string(REPLACE "." ";" VERSION_LIST ${octomap_VERSION})
+    list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
+    list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
+    list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
+    message(STATUS "FCL uses Octomap")
+  else()
+    SET(HPP_FCL_HAS_OCTOMAP FALSE)
+    message(STATUS "FCL does not use Octomap")
+  endif()
+ELSE()
   SET(HPP_FCL_HAS_OCTOMAP FALSE)
   message(STATUS "FCL does not use Octomap")
-endif()
+ENDIF()
 
 option(HPP_FCL_HAS_QHULL "use qhull library to compute convex hulls." FALSE)
 if(HPP_FCL_HAS_QHULL)
@@ -151,8 +174,6 @@ if(HPP_FCL_HAS_QHULL)
     endif()
   endif()
 endif()
-
-FIND_PACKAGE(assimp REQUIRED)
 
 SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_data.h
@@ -226,8 +247,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/octree.h
   include/hpp/fcl/hfield.h
   include/hpp/fcl/fwd.hh
-  include/hpp/fcl/mesh_loader/assimp.h
-  include/hpp/fcl/mesh_loader/loader.h
   include/hpp/fcl/internal/BV_fitter.h
   include/hpp/fcl/internal/BV_splitter.h
   include/hpp/fcl/internal/shape_shape_func.h
@@ -259,12 +278,24 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/timings.h
   )
 
-add_subdirectory(doc)
+IF(NOT HPP_FCL_BUILD_CORE_ONLY)
+  FIND_PACKAGE(assimp REQUIRED)
+  LIST(APPEND ${PROJECT_NAME}_HEADERS include/hpp/fcl/mesh_loader/assimp.h include/hpp/fcl/mesh_loader/loader.h)
+ENDIF()
+
+IF (INSTALL_DOCUMENTATION)
+  add_subdirectory(doc)
+ENDIF()
+
 add_subdirectory(src)
+
 if (BUILD_PYTHON_INTERFACE)
   add_subdirectory(python)
 endif ()
-add_subdirectory(test)
+
+IF (HPP_FCL_BUILD_TESTS)
+  add_subdirectory(test)
+ENDIF()
 
 pkg_config_append_libs("hpp-fcl")
 IF(HPP_FCL_HAS_OCTOMAP)
@@ -273,12 +304,14 @@ IF(HPP_FCL_HAS_OCTOMAP)
     "-DHPP_FCL_HAS_OCTOMAP -DHPP_FCL_HAVE_OCTOMAP -DFCL_HAVE_OCTOMAP -DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION} -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION} -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION}")
 ENDIF(HPP_FCL_HAS_OCTOMAP)
 
-# Install catkin package.xml
-INSTALL(FILES package.xml DESTINATION share/${PROJECT_NAME})
-# Allows Colcon to find non-Ament packages when using workspace underlays
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} DESTINATION share/ament_index/resource_index/packages)
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv "prepend-non-duplicate;AMENT_PREFIX_PATH;")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv "prepend-non-duplicate;PYTHONPATH;${PYTHON_SITELIB}")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
+IF (NOT HPP_FCL_BUILD_CORE_ONLY)
+  # Install catkin package.xml
+  INSTALL(FILES package.xml DESTINATION share/${PROJECT_NAME})
+  # Allows Colcon to find non-Ament packages when using workspace underlays
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} DESTINATION share/ament_index/resource_index/packages)
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv "prepend-non-duplicate;AMENT_PREFIX_PATH;")
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv "prepend-non-duplicate;PYTHONPATH;${PYTHON_SITELIB}")
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
+ENDIF()
