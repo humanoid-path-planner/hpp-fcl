@@ -1452,6 +1452,8 @@ inline bool capsuleHalfspaceIntersect(const Capsule& s1, const Transform3f& tf1,
                                       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
                                       Vec3f& normal) {
   static const FCL_REAL eps(sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+  HPP_FCL_ONLY_USED_FOR_DEBUG(eps);
+
   Halfspace new_s2 = transform(s2, tf2);
 
   const Matrix3f& R = tf1.getRotation();

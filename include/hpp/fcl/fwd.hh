@@ -54,6 +54,12 @@
 
 #define HPP_FCL_UNUSED_VARIABLE(var) (void)(var)
 
+#ifdef NDEBUG
+#define HPP_FCL_ONLY_USED_FOR_DEBUG(var) HPP_FCL_UNUSED_VARIABLE(var)
+#else
+#define HPP_FCL_ONLY_USED_FOR_DEBUG(var)
+#endif
+
 #define HPP_FCL_THROW_PRETTY(message, exception)              \
   {                                                           \
     std::stringstream ss;                                     \
