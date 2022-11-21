@@ -42,11 +42,11 @@
 #include "hpp/fcl/broadphase/broadphase_callbacks.h"
 #include "hpp/fcl/collision.h"
 #include "hpp/fcl/distance.h"
-//#include "hpp/fcl/narrowphase/continuous_collision.h"
-//#include "hpp/fcl/narrowphase/continuous_collision_request.h"
-//#include "hpp/fcl/narrowphase/continuous_collision_result.h"
-//#include "hpp/fcl/narrowphase/distance_request.h"
-//#include "hpp/fcl/narrowphase/distance_result.h"
+// #include "hpp/fcl/narrowphase/continuous_collision.h"
+// #include "hpp/fcl/narrowphase/continuous_collision_request.h"
+// #include "hpp/fcl/narrowphase/continuous_collision_result.h"
+// #include "hpp/fcl/narrowphase/distance_request.h"
+// #include "hpp/fcl/narrowphase/distance_result.h"
 
 namespace hpp {
 namespace fcl {

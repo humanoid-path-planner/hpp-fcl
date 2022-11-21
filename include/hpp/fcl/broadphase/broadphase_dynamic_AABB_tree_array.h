@@ -43,9 +43,9 @@
 #include <limits>
 
 #include "hpp/fcl/fwd.hh"
-//#include "hpp/fcl/BV/utility.h"
+// #include "hpp/fcl/BV/utility.h"
 #include "hpp/fcl/shape/geometric_shapes.h"
-//#include "hpp/fcl/geometry/shape/utility.h"
+// #include "hpp/fcl/geometry/shape/utility.h"
 #include "hpp/fcl/broadphase/broadphase_collision_manager.h"
 #include "hpp/fcl/broadphase/detail/hierarchy_tree_array.h"
 
