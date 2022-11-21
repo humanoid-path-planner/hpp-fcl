@@ -67,7 +67,7 @@ struct HPP_FCL_DLLAPI RSS {
   /// @brief Radius of sphere summed with rectangle to form RSS
   FCL_REAL radius;
 
-  /// @brief Default constructor with default values
+  ///  @brief Default constructor with default values
   RSS() : axes(Matrix3f::Zero()), Tr(Vec3f::Zero()), radius(-1) {
     length[0] = 0;
     length[1] = 0;

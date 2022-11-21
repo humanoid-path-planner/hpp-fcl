@@ -42,7 +42,7 @@
 #define BOOST_TEST_MODULE BROADPHASE_DYNAMIC_AABB_TREE
 #include <boost/test/included/unit_test.hpp>
 
-//#include "hpp/fcl/data_types.h"
+// #include "hpp/fcl/data_types.h"
 #include "hpp/fcl/shape/geometric_shapes.h"
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 

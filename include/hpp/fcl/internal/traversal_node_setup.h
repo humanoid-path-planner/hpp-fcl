@@ -46,7 +46,7 @@
 #include <hpp/fcl/internal/traversal_node_bvhs.h>
 #include <hpp/fcl/internal/traversal_node_bvh_shape.h>
 
-//#include <hpp/fcl/internal/traversal_node_hfields.h>
+// #include <hpp/fcl/internal/traversal_node_hfields.h>
 #include <hpp/fcl/internal/traversal_node_hfield_shape.h>
 
 #ifdef HPP_FCL_HAS_OCTOMAP

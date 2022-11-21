@@ -52,7 +52,7 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
  public:
   ShapeBase() {}
 
-  /// \brief Copy constructor
+  ///  \brief Copy constructor
   ShapeBase(const ShapeBase& other) : CollisionGeometry(other) {}
 
   ShapeBase& operator=(const ShapeBase& other) = default;
@@ -581,7 +581,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 
   virtual ~ConvexBase();
 
-  /// @brief Clone (deep copy).
+  ///  @brief Clone (deep copy).
   virtual ConvexBase* clone() const {
     ConvexBase* copy_ptr = new ConvexBase(*this);
     ConvexBase& copy = *copy_ptr;
