@@ -28,11 +28,10 @@ inline CollisionGeometry* extractBVHtpl(const CollisionGeometry* model,
                                         const AABB& aabb) {
   // Ensure AABB is already computed
   if (model->aabb_radius < 0)
-    HPP_FCL_THROW_PRETTY("Collision geometry AABB should be computed first.",std::invalid_argument);
-  AABB objAabb = rotate(
-      translate(model->aabb_local, pose.getTranslation()),
-      pose.getRotation()
-  );
+    HPP_FCL_THROW_PRETTY("Collision geometry AABB should be computed first.",
+                         std::invalid_argument);
+  AABB objAabb = rotate(translate(model->aabb_local, pose.getTranslation()),
+                        pose.getRotation());
   if (!objAabb.overlap(aabb)) {
     // No intersection.
     return nullptr;
