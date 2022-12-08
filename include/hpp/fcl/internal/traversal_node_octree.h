@@ -4,6 +4,8 @@
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
  *  All rights reserved.
+ *  Copyright (c) 2022, INRIA
+ *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
@@ -43,6 +45,7 @@
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/internal/traversal_node_base.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
+#include <hpp/fcl/hfield.h>
 #include <hpp/fcl/octree.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
@@ -424,6 +427,104 @@ class HPP_FCL_DLLAPI OcTreeSolver {
     // Empty OcTree is considered free.
     if (!root1) return false;
     BVNode<BV> const& bvn2 = tree2->getBV(root2);
+
+    /// stop when 1) bounding boxes of two objects not overlap; OR
+    ///           2) at least one of the nodes is free; OR
+    ///           2) (two uncertain nodes OR one node occupied and one node
+    ///           uncertain) AND cost not required
+    if (tree1->isNodeFree(root1))
+      return false;
+    else if ((tree1->isNodeUncertain(root1) || tree2->isUncertain()))
+      return false;
+    else {
+      OBB obb1, obb2;
+      convertBV(bv1, tf1, obb1);
+      convertBV(bvn2.bv, tf2, obb2);
+      FCL_REAL sqrDistLowerBound;
+      if (!obb1.overlap(obb2, *crequest, sqrDistLowerBound)) {
+        internal::updateDistanceLowerBoundFromBV(*crequest, *cresult,
+                                                 sqrDistLowerBound);
+        return false;
+      }
+    }
+
+    // Check if leaf collides.
+    if (!tree1->nodeHasChildren(root1) && bvn2.isLeaf()) {
+      assert(tree1->isNodeOccupied(root1));  // it isn't free nor uncertain.
+      Box box;
+      Transform3f box_tf;
+      constructBox(bv1, tf1, box, box_tf);
+
+      int primitive_id = bvn2.primitiveId();
+      const Triangle& tri_id = tree2->tri_indices[primitive_id];
+      const Vec3f& p1 = tree2->vertices[tri_id[0]];
+      const Vec3f& p2 = tree2->vertices[tri_id[1]];
+      const Vec3f& p3 = tree2->vertices[tri_id[2]];
+
+      Vec3f c1, c2, normal;
+      FCL_REAL distance;
+
+      bool collision = solver->shapeTriangleInteraction(
+          box, box_tf, p1, p2, p3, tf2, distance, c1, c2, normal);
+      FCL_REAL distToCollision = distance - crequest->security_margin;
+
+      if (cresult->numContacts() < crequest->num_max_contacts) {
+        if (collision) {
+          cresult->addContact(Contact(tree1, tree2,
+                                      (int)(root1 - tree1->getRoot()),
+                                      primitive_id, c1, normal, -distance));
+        } else if (distToCollision < 0) {
+          cresult->addContact(Contact(
+              tree1, tree2, (int)(root1 - tree1->getRoot()), primitive_id,
+              .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
+        }
+      }
+      internal::updateDistanceLowerBoundFromLeaf(*crequest, *cresult,
+                                                 distToCollision, c1, c2);
+
+      return crequest->isSatisfied(*cresult);
+    }
+
+    // Determine which tree to traverse first.
+    if (bvn2.isLeaf() ||
+        (tree1->nodeHasChildren(root1) && (bv1.size() > bvn2.bv.size()))) {
+      for (unsigned int i = 0; i < 8; ++i) {
+        if (tree1->nodeChildExists(root1, i)) {
+          const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
+          AABB child_bv;
+          computeChildBV(bv1, i, child_bv);
+
+          if (OcTreeMeshIntersectRecurse(tree1, child, child_bv, tree2, root2,
+                                         tf1, tf2))
+            return true;
+        }
+      }
+    } else {
+      if (OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2,
+                                     (unsigned int)bvn2.leftChild(), tf1, tf2))
+        return true;
+
+      if (OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2,
+                                     (unsigned int)bvn2.rightChild(), tf1, tf2))
+        return true;
+    }
+
+    return false;
+  }
+
+  /// \return True if the request is satisfied.
+  template <typename BV>
+  bool OcTreeHeightFieldIntersectRecurse(
+      const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
+      const HeightField<BV>* tree2, unsigned int root2, const Transform3f& tf1,
+      const Transform3f& tf2) const {
+    // FIXME(jmirabel) I do not understand why the BVHModel was traversed. The
+    // code in this if(!root1) did not output anything so the empty OcTree is
+    // considered free. Should an empty OcTree be considered free ?
+
+    // Empty OcTree is considered free.
+    if (!root1) return false;
+    HFNode<BV> const& bvn2 = tree2->getBV(root2);
 
     /// stop when 1) bounding boxes of two objects not overlap; OR
     ///           2) at least one of the nodes is free; OR
