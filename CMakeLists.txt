@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2014-2020 CNRS-LAAS, INRIA
+#  Copyright (c) 2014-2022 CNRS-LAAS, INRIA
 #  Author: Florent Lamiraux, Joseph Mirabel
 #  All rights reserved.
 #
@@ -256,6 +256,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/RSS.h
   include/hpp/fcl/serialization/OBBRSS.h
   include/hpp/fcl/serialization/hfield.h
+  include/hpp/fcl/serialization/quadrilateral.h
   include/hpp/fcl/serialization/triangle.h
   include/hpp/fcl/timings.h
   )

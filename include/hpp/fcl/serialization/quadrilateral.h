@@ -1,0 +1,26 @@
+//
+// Copyright (c) 2022 INRIA
+//
+
+#ifndef HPP_FCL_SERIALIZATION_QUADRILATERAL_H
+#define HPP_FCL_SERIALIZATION_QUADRILATERAL_H
+
+#include "hpp/fcl/data_types.h"
+#include "hpp/fcl/serialization/fwd.h"
+
+namespace boost {
+namespace serialization {
+
+template <class Archive>
+void serialize(Archive &ar, hpp::fcl::Quadrilateral &quadrilateral,
+               const unsigned int /*version*/) {
+  ar &make_nvp("p0", quadrilateral[0]);
+  ar &make_nvp("p1", quadrilateral[1]);
+  ar &make_nvp("p2", quadrilateral[2]);
+  ar &make_nvp("p3", quadrilateral[3]);
+}
+
+}  // namespace serialization
+}  // namespace boost
+
+#endif  // ifndef HPP_FCL_SERIALIZATION_QUADRILATERAL_H
