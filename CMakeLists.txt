@@ -256,6 +256,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/RSS.h
   include/hpp/fcl/serialization/OBBRSS.h
   include/hpp/fcl/serialization/hfield.h
+  include/hpp/fcl/serialization/triangle.h
   include/hpp/fcl/timings.h
   )
 
