@@ -1,7 +1,7 @@
 /*
  *  Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021 INRIA.
+ *  Copyright (c) 2021-2022 INRIA.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -241,6 +241,11 @@ BOOST_AUTO_TEST_CASE(test_shapes) {
   {
     Sphere sphere(1.), sphere_copy(2.);
     test_serialization(sphere, sphere_copy);
+  }
+
+  {
+    Ellipsoid ellipsoid(1., 2., 3.), ellipsoid_copy(0., 0., 0.);
+    test_serialization(ellipsoid, ellipsoid_copy);
   }
 
   {
