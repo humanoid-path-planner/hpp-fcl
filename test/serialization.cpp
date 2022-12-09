@@ -208,6 +208,7 @@ BOOST_AUTO_TEST_CASE(test_BVHModel) {
   }
 }
 
+#ifdef HPP_FCL_HAS_QHULL
 BOOST_AUTO_TEST_CASE(test_Convex) {
   std::vector<Vec3f> p1;
   std::vector<Triangle> t1;
@@ -231,6 +232,7 @@ BOOST_AUTO_TEST_CASE(test_Convex) {
     test_serialization(convex, convex_copy);
   }
 }
+#endif
 
 BOOST_AUTO_TEST_CASE(test_HeightField) {
   const FCL_REAL min_altitude = -1.;
