@@ -46,6 +46,7 @@
 #include <hpp/fcl/serialization/BVH_model.h>
 #include <hpp/fcl/serialization/hfield.h>
 #include <hpp/fcl/serialization/geometric_shapes.h>
+#include <hpp/fcl/serialization/convex.h>
 #include <hpp/fcl/serialization/memory.h>
 
 #include "utility.h"
@@ -204,6 +205,30 @@ BOOST_AUTO_TEST_CASE(test_BVHModel) {
   {
     BVHModel<OBBRSS> m1_copy;
     test_serialization(m1, m1_copy, STREAM);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_Convex) {
+  std::vector<Vec3f> p1;
+  std::vector<Triangle> t1;
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+
+  loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
+
+  BVHModel<OBBRSS> m1;
+
+  m1.beginModel();
+  m1.addSubModel(p1, t1);
+  m1.endModel();
+
+  m1.buildConvexHull(true);
+
+  Convex<Triangle>& convex = static_cast<Convex<Triangle>&>(*m1.convex.get());
+
+  // Test Convex
+  {
+    Convex<Triangle> convex_copy;
+    test_serialization(convex, convex_copy);
   }
 }
 
