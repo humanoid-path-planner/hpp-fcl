@@ -35,6 +35,10 @@
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/eigen-to-python.hpp>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <sstream>
+
 #include "fcl.hh"
 #include "deprecation.hh"
 
@@ -43,8 +47,13 @@
 #include <hpp/fcl/shape/convex.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/hfield.h>
+
 #include <hpp/fcl/serialization/memory.h>
+#include <hpp/fcl/serialization/AABB.h>
 #include <hpp/fcl/serialization/BVH_model.h>
+#include <hpp/fcl/serialization/hfield.h>
+#include <hpp/fcl/serialization/geometric_shapes.h>
+#include <hpp/fcl/serialization/convex.h>
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 // FIXME for a reason I do not understand, doxygen fails to understand that
@@ -68,6 +77,43 @@ using boost::noncopyable;
 
 typedef std::vector<Vec3f> Vec3fs;
 typedef std::vector<Triangle> Triangles;
+
+template <typename T>
+struct PickleObject : bp::pickle_suite {
+  static bp::tuple getinitargs(const T&) { return bp::make_tuple(); }
+
+  static bp::tuple getstate(const T& obj) {
+    std::stringstream ss;
+    boost::archive::text_oarchive oa(ss);
+    oa& obj;
+
+    return bp::make_tuple(bp::str(ss.str()));
+  }
+
+  static void setstate(T& obj, bp::tuple tup) {
+    if (bp::len(tup) == 0 || bp::len(tup) > 1) {
+      throw eigenpy::Exception(
+          "Pickle was not able to reconstruct the object from the loaded "
+          "data.\n"
+          "The pickle data structure contains too many elements.");
+    }
+
+    bp::object py_obj = tup[0];
+    boost::python::extract<std::string> obj_as_string(py_obj.ptr());
+    if (obj_as_string.check()) {
+      const std::string str = obj_as_string;
+      std::istringstream is(str);
+      boost::archive::text_iarchive ia(is, boost::archive::no_codecvt);
+      ia >> obj;
+    } else {
+      throw eigenpy::Exception(
+          "Pickle was not able to reconstruct the model from the loaded data.\n"
+          "The entry is not a string.");
+    }
+  }
+
+  static bool getstate_manages_dict() { return false; }
+};
 
 struct BVHModelBaseWrapper {
   typedef Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor> RowMatrixX3;
@@ -102,7 +148,8 @@ void exposeBVHModel(const std::string& bvname) {
       .DEF_CLASS_FUNC(BVH, makeParentRelative)
       .DEF_CLASS_FUNC(BVHModelBase, memUsage)
       .def("clone", &BVH::clone, doxygen::member_func_doc(&BVH::clone),
-           return_value_policy<manage_new_object>());
+           return_value_policy<manage_new_object>())
+      .def_pickle(PickleObject<BVH>());
 }
 
 template <typename BV>
@@ -141,7 +188,8 @@ void exposeHeightField(const std::string& bvname) {
       .def("getBV", (Node & (Geometry::*)(unsigned int)) & Geometry::getBV,
            doxygen::member_func_doc((Node & (Geometry::*)(unsigned int)) &
                                     Geometry::getBV),
-           bp::return_internal_reference<>());
+           bp::return_internal_reference<>())
+      .def_pickle(PickleObject<Geometry>());
 }
 
 struct ConvexBaseWrapper {
@@ -231,7 +279,8 @@ void exposeShapes() {
       .def(dv::init<Box, const Vec3f&>())
       .DEF_RW_CLASS_ATTRIB(Box, halfSide)
       .def("clone", &Box::clone, doxygen::member_func_doc(&Box::clone),
-           return_value_policy<manage_new_object>());
+           return_value_policy<manage_new_object>())
+      .def_pickle(PickleObject<Box>());
 
   class_<Capsule, bases<ShapeBase>, shared_ptr<Capsule> >(
       "Capsule", doxygen::class_doc<Capsule>(), no_init)
@@ -239,7 +288,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Capsule, radius)
       .DEF_RW_CLASS_ATTRIB(Capsule, halfLength)
       .def("clone", &Capsule::clone, doxygen::member_func_doc(&Capsule::clone),
-           return_value_policy<manage_new_object>());
+           return_value_policy<manage_new_object>())
+      .def_pickle(PickleObject<Capsule>());
 
   class_<Cone, bases<ShapeBase>, shared_ptr<Cone> >(
       "Cone", doxygen::class_doc<Cone>(), no_init)
@@ -247,7 +297,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Cone, radius)
       .DEF_RW_CLASS_ATTRIB(Cone, halfLength)
       .def("clone", &Cone::clone, doxygen::member_func_doc(&Cone::clone),
-           return_value_policy<manage_new_object>());
+           return_value_policy<manage_new_object>())
+      .def_pickle(PickleObject<Cone>());
 
   class_<ConvexBase, bases<ShapeBase>, shared_ptr<ConvexBase>, noncopyable>(
       "ConvexBase", doxygen::class_doc<ConvexBase>(), no_init)
@@ -280,7 +331,8 @@ void exposeShapes() {
                       no_init)
       .def("__init__", make_constructor(&ConvexWrapper<Triangle>::constructor))
       .DEF_RO_CLASS_ATTRIB(Convex<Triangle>, num_polygons)
-      .def("polygons", &ConvexWrapper<Triangle>::polygons);
+      .def("polygons", &ConvexWrapper<Triangle>::polygons)
+      .def_pickle(PickleObject<Convex<Triangle> >());
 
   class_<Cylinder, bases<ShapeBase>, shared_ptr<Cylinder> >(
       "Cylinder", doxygen::class_doc<Cylinder>(), no_init)
@@ -289,7 +341,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Cylinder, halfLength)
       .def("clone", &Cylinder::clone,
            doxygen::member_func_doc(&Cylinder::clone),
-           return_value_policy<manage_new_object>());
+           return_value_policy<manage_new_object>())
+      .def_pickle(PickleObject<Cylinder>());
 
   class_<Halfspace, bases<ShapeBase>, shared_ptr<Halfspace> >(
       "Halfspace", doxygen::class_doc<Halfspace>(), no_init)
@@ -300,7 +353,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Halfspace, d)
       .def("clone", &Halfspace::clone,
            doxygen::member_func_doc(&Halfspace::clone),
-           return_value_policy<manage_new_object>());
+           return_value_policy<manage_new_object>())
+      .def_pickle(PickleObject<Halfspace>());
 
   class_<Plane, bases<ShapeBase>, shared_ptr<Plane> >(
       "Plane", doxygen::class_doc<Plane>(), no_init)
@@ -310,14 +364,16 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Plane, n)
       .DEF_RW_CLASS_ATTRIB(Plane, d)
       .def("clone", &Plane::clone, doxygen::member_func_doc(&Plane::clone),
-           return_value_policy<manage_new_object>());
+           return_value_policy<manage_new_object>())
+      .def_pickle(PickleObject<Plane>());
 
   class_<Sphere, bases<ShapeBase>, shared_ptr<Sphere> >(
       "Sphere", doxygen::class_doc<Sphere>(), no_init)
       .def(dv::init<Sphere, FCL_REAL>())
       .DEF_RW_CLASS_ATTRIB(Sphere, radius)
       .def("clone", &Sphere::clone, doxygen::member_func_doc(&Sphere::clone),
-           return_value_policy<manage_new_object>());
+           return_value_policy<manage_new_object>())
+      .def_pickle(PickleObject<Sphere>());
 
   class_<Ellipsoid, bases<ShapeBase>, shared_ptr<Ellipsoid> >(
       "Ellipsoid", doxygen::class_doc<Ellipsoid>(), no_init)
@@ -326,7 +382,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Ellipsoid, radii)
       .def("clone", &Ellipsoid::clone,
            doxygen::member_func_doc(&Ellipsoid::clone),
-           return_value_policy<manage_new_object>());
+           return_value_policy<manage_new_object>())
+      .def_pickle(PickleObject<Ellipsoid>());
 
   class_<TriangleP, bases<ShapeBase>, shared_ptr<TriangleP> >(
       "TriangleP", doxygen::class_doc<TriangleP>(), no_init)
@@ -336,7 +393,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(TriangleP, c)
       .def("clone", &TriangleP::clone,
            doxygen::member_func_doc(&TriangleP::clone),
-           return_value_policy<manage_new_object>());
+           return_value_policy<manage_new_object>())
+      .def_pickle(PickleObject<TriangleP>());
 }
 
 boost::python::tuple AABB_distance_proxy(const AABB& self, const AABB& other) {
@@ -484,7 +542,8 @@ void exposeCollisionGeometries() {
            //         Vec3f &)>(&AABB::expand)),
            //         doxygen::member_func_args(static_cast<AABB&
            //         (AABB::*)(const Vec3f &)>(&AABB::expand)),
-           bp::return_internal_reference<>());
+           bp::return_internal_reference<>())
+      .def_pickle(PickleObject<AABB>());
 
   def("translate", (AABB(*)(const AABB&, const Vec3f&)) & translate,
       bp::args("aabb", "t"), "Translate the center of AABB by t");
