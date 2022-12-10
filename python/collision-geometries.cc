@@ -35,10 +35,6 @@
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/eigen-to-python.hpp>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <sstream>
-
 #include "fcl.hh"
 #include "deprecation.hh"
 
@@ -54,6 +50,8 @@
 #include <hpp/fcl/serialization/hfield.h>
 #include <hpp/fcl/serialization/geometric_shapes.h>
 #include <hpp/fcl/serialization/convex.h>
+
+#include "pickle.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 // FIXME for a reason I do not understand, doxygen fails to understand that
@@ -77,43 +75,6 @@ using boost::noncopyable;
 
 typedef std::vector<Vec3f> Vec3fs;
 typedef std::vector<Triangle> Triangles;
-
-template <typename T>
-struct PickleObject : bp::pickle_suite {
-  static bp::tuple getinitargs(const T&) { return bp::make_tuple(); }
-
-  static bp::tuple getstate(const T& obj) {
-    std::stringstream ss;
-    boost::archive::text_oarchive oa(ss);
-    oa& obj;
-
-    return bp::make_tuple(bp::str(ss.str()));
-  }
-
-  static void setstate(T& obj, bp::tuple tup) {
-    if (bp::len(tup) == 0 || bp::len(tup) > 1) {
-      throw eigenpy::Exception(
-          "Pickle was not able to reconstruct the object from the loaded "
-          "data.\n"
-          "The pickle data structure contains too many elements.");
-    }
-
-    bp::object py_obj = tup[0];
-    boost::python::extract<std::string> obj_as_string(py_obj.ptr());
-    if (obj_as_string.check()) {
-      const std::string str = obj_as_string;
-      std::istringstream is(str);
-      boost::archive::text_iarchive ia(is, boost::archive::no_codecvt);
-      ia >> obj;
-    } else {
-      throw eigenpy::Exception(
-          "Pickle was not able to reconstruct the model from the loaded data.\n"
-          "The entry is not a string.");
-    }
-  }
-
-  static bool getstate_manages_dict() { return false; }
-};
 
 struct BVHModelBaseWrapper {
   typedef Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor> RowMatrixX3;
