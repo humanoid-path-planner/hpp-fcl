@@ -3,7 +3,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   api
   collision
   collision_manager
-  pickle
+  pickling
   )
 
 ADD_DEPENDENCIES(build_tests hppfcl)
