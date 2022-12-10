@@ -2,6 +2,8 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   geometric_shapes
   api
   collision
+  collision_manager
+  pickle
   )
 
 ADD_DEPENDENCIES(build_tests hppfcl)
