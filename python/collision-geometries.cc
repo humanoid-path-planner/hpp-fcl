@@ -236,6 +236,7 @@ void exposeShapes() {
   class_<Box, bases<ShapeBase>, shared_ptr<Box> >(
       "Box", doxygen::class_doc<ShapeBase>(), no_init)
       .def(dv::init<Box>())
+      .def(dv::init<Box, const Box&>())
       .def(dv::init<Box, FCL_REAL, FCL_REAL, FCL_REAL>())
       .def(dv::init<Box, const Vec3f&>())
       .DEF_RW_CLASS_ATTRIB(Box, halfSide)
@@ -245,7 +246,9 @@ void exposeShapes() {
 
   class_<Capsule, bases<ShapeBase>, shared_ptr<Capsule> >(
       "Capsule", doxygen::class_doc<Capsule>(), no_init)
+      .def(dv::init<Capsule>())
       .def(dv::init<Capsule, FCL_REAL, FCL_REAL>())
+      .def(dv::init<Capsule, const Capsule&>())
       .DEF_RW_CLASS_ATTRIB(Capsule, radius)
       .DEF_RW_CLASS_ATTRIB(Capsule, halfLength)
       .def("clone", &Capsule::clone, doxygen::member_func_doc(&Capsule::clone),
@@ -254,7 +257,9 @@ void exposeShapes() {
 
   class_<Cone, bases<ShapeBase>, shared_ptr<Cone> >(
       "Cone", doxygen::class_doc<Cone>(), no_init)
+      .def(dv::init<Cone>())
       .def(dv::init<Cone, FCL_REAL, FCL_REAL>())
+      .def(dv::init<Cone, const Cone&>())
       .DEF_RW_CLASS_ATTRIB(Cone, radius)
       .DEF_RW_CLASS_ATTRIB(Cone, halfLength)
       .def("clone", &Cone::clone, doxygen::member_func_doc(&Cone::clone),
@@ -291,13 +296,17 @@ void exposeShapes() {
          noncopyable>("Convex", doxygen::class_doc<Convex<Triangle> >(),
                       no_init)
       .def("__init__", make_constructor(&ConvexWrapper<Triangle>::constructor))
+      .def(dv::init<Convex<Triangle> >())
+      .def(dv::init<Convex<Triangle>, const Convex<Triangle>&>())
       .DEF_RO_CLASS_ATTRIB(Convex<Triangle>, num_polygons)
       .def("polygons", &ConvexWrapper<Triangle>::polygons)
       .def_pickle(PickleObject<Convex<Triangle> >());
 
   class_<Cylinder, bases<ShapeBase>, shared_ptr<Cylinder> >(
       "Cylinder", doxygen::class_doc<Cylinder>(), no_init)
+      .def(dv::init<Cylinder>())
       .def(dv::init<Cylinder, FCL_REAL, FCL_REAL>())
+      .def(dv::init<Cylinder, const Cylinder&>())
       .DEF_RW_CLASS_ATTRIB(Cylinder, radius)
       .DEF_RW_CLASS_ATTRIB(Cylinder, halfLength)
       .def("clone", &Cylinder::clone,
@@ -308,6 +317,7 @@ void exposeShapes() {
   class_<Halfspace, bases<ShapeBase>, shared_ptr<Halfspace> >(
       "Halfspace", doxygen::class_doc<Halfspace>(), no_init)
       .def(dv::init<Halfspace, const Vec3f&, FCL_REAL>())
+      .def(dv::init<Halfspace, const Halfspace&>())
       .def(dv::init<Halfspace, FCL_REAL, FCL_REAL, FCL_REAL, FCL_REAL>())
       .def(dv::init<Halfspace>())
       .DEF_RW_CLASS_ATTRIB(Halfspace, n)
@@ -320,6 +330,7 @@ void exposeShapes() {
   class_<Plane, bases<ShapeBase>, shared_ptr<Plane> >(
       "Plane", doxygen::class_doc<Plane>(), no_init)
       .def(dv::init<Plane, const Vec3f&, FCL_REAL>())
+      .def(dv::init<Plane, const Plane&>())
       .def(dv::init<Plane, FCL_REAL, FCL_REAL, FCL_REAL, FCL_REAL>())
       .def(dv::init<Plane>())
       .DEF_RW_CLASS_ATTRIB(Plane, n)
@@ -330,6 +341,8 @@ void exposeShapes() {
 
   class_<Sphere, bases<ShapeBase>, shared_ptr<Sphere> >(
       "Sphere", doxygen::class_doc<Sphere>(), no_init)
+      .def(dv::init<Sphere>())
+      .def(dv::init<Sphere, const Sphere&>())
       .def(dv::init<Sphere, FCL_REAL>())
       .DEF_RW_CLASS_ATTRIB(Sphere, radius)
       .def("clone", &Sphere::clone, doxygen::member_func_doc(&Sphere::clone),
@@ -338,8 +351,10 @@ void exposeShapes() {
 
   class_<Ellipsoid, bases<ShapeBase>, shared_ptr<Ellipsoid> >(
       "Ellipsoid", doxygen::class_doc<Ellipsoid>(), no_init)
+      .def(dv::init<Ellipsoid>())
       .def(dv::init<Ellipsoid, FCL_REAL, FCL_REAL, FCL_REAL>())
       .def(dv::init<Ellipsoid, Vec3f>())
+      .def(dv::init<Ellipsoid, const Ellipsoid&>())
       .DEF_RW_CLASS_ATTRIB(Ellipsoid, radii)
       .def("clone", &Ellipsoid::clone,
            doxygen::member_func_doc(&Ellipsoid::clone),
@@ -348,7 +363,9 @@ void exposeShapes() {
 
   class_<TriangleP, bases<ShapeBase>, shared_ptr<TriangleP> >(
       "TriangleP", doxygen::class_doc<TriangleP>(), no_init)
+      .def(dv::init<TriangleP>())
       .def(dv::init<TriangleP, const Vec3f&, const Vec3f&, const Vec3f&>())
+      .def(dv::init<TriangleP, const TriangleP&>())
       .DEF_RW_CLASS_ATTRIB(TriangleP, a)
       .DEF_RW_CLASS_ATTRIB(TriangleP, b)
       .DEF_RW_CLASS_ATTRIB(TriangleP, c)
