@@ -2,8 +2,8 @@ import unittest
 from test_case import TestCase
 import hppfcl
 
-import numpy as np
 import pickle
+import numpy as np
 
 
 def tetahedron():
