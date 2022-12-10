@@ -193,7 +193,7 @@ class HPP_FCL_DLLAPI Box : public ShapeBase {
 /// @brief Center at zero point sphere
 class HPP_FCL_DLLAPI Sphere : public ShapeBase {
  public:
-  Sphere(FCL_REAL radius_) : ShapeBase(), radius(radius_) {}
+  explicit Sphere(FCL_REAL radius_) : ShapeBase(), radius(radius_) {}
 
   Sphere(const Sphere& other) : ShapeBase(other), radius(other.radius) {}
 
@@ -255,7 +255,7 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
   Ellipsoid(FCL_REAL rx, FCL_REAL ry, FCL_REAL rz)
       : ShapeBase(), radii(rx, ry, rz) {}
 
-  Ellipsoid(const Vec3f& radii) : radii(radii) {}
+  explicit Ellipsoid(const Vec3f& radii) : radii(radii) {}
 
   Ellipsoid(const Ellipsoid& other) : ShapeBase(other), radii(other.radii) {}
 
