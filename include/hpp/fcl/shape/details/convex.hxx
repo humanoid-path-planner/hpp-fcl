@@ -202,6 +202,7 @@ FCL_REAL Convex<PolygonT>::computeVolume() const {
 
 template <typename PolygonT>
 void Convex<PolygonT>::fillNeighbors() {
+  if (neighbors) delete[] neighbors;
   neighbors = new Neighbors[num_points];
 
   typedef typename PolygonT::size_type size_type;
@@ -230,7 +231,9 @@ void Convex<PolygonT>::fillNeighbors() {
     }
   }
 
+  if (nneighbors_) delete[] nneighbors_;
   nneighbors_ = new unsigned int[c_nneighbors];
+
   unsigned int* p_nneighbors = nneighbors_;
   for (unsigned int i = 0; i < num_points; ++i) {
     Neighbors& n = neighbors[i];
