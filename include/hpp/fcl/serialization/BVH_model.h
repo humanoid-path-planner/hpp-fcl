@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #ifndef HPP_FCL_SERIALIZATION_BVH_MODEL_H
@@ -12,6 +12,7 @@
 #include "hpp/fcl/serialization/BV_splitter.h"
 #include "hpp/fcl/serialization/collision_object.h"
 #include "hpp/fcl/serialization/memory.h"
+#include "hpp/fcl/serialization/triangle.h"
 
 namespace boost {
 namespace serialization {
@@ -23,14 +24,6 @@ struct BVHModelBaseAccessor : hpp::fcl::BVHModelBase {
   using Base::num_vertices_allocated;
 };
 }  // namespace internal
-
-template <class Archive>
-void serialize(Archive &ar, hpp::fcl::Triangle &triangle,
-               const unsigned int /*version*/) {
-  ar &make_nvp("p0", triangle[0]);
-  ar &make_nvp("p1", triangle[1]);
-  ar &make_nvp("p2", triangle[2]);
-}
 
 template <class Archive>
 void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,

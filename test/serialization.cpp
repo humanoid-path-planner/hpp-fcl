@@ -1,7 +1,7 @@
 /*
  *  Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021 INRIA.
+ *  Copyright (c) 2021-2022 INRIA.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@
 #include <hpp/fcl/serialization/BVH_model.h>
 #include <hpp/fcl/serialization/hfield.h>
 #include <hpp/fcl/serialization/geometric_shapes.h>
+#include <hpp/fcl/serialization/convex.h>
 #include <hpp/fcl/serialization/memory.h>
 
 #include "utility.h"
@@ -207,6 +208,32 @@ BOOST_AUTO_TEST_CASE(test_BVHModel) {
   }
 }
 
+#ifdef HPP_FCL_HAS_QHULL
+BOOST_AUTO_TEST_CASE(test_Convex) {
+  std::vector<Vec3f> p1;
+  std::vector<Triangle> t1;
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+
+  loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
+
+  BVHModel<OBBRSS> m1;
+
+  m1.beginModel();
+  m1.addSubModel(p1, t1);
+  m1.endModel();
+
+  m1.buildConvexHull(true);
+
+  Convex<Triangle>& convex = static_cast<Convex<Triangle>&>(*m1.convex.get());
+
+  // Test Convex
+  {
+    Convex<Triangle> convex_copy;
+    test_serialization(convex, convex_copy);
+  }
+}
+#endif
+
 BOOST_AUTO_TEST_CASE(test_HeightField) {
   const FCL_REAL min_altitude = -1.;
   const FCL_REAL x_dim = 1., y_dim = 2.;
@@ -241,6 +268,11 @@ BOOST_AUTO_TEST_CASE(test_shapes) {
   {
     Sphere sphere(1.), sphere_copy(2.);
     test_serialization(sphere, sphere_copy);
+  }
+
+  {
+    Ellipsoid ellipsoid(1., 2., 3.), ellipsoid_copy(0., 0., 0.);
+    test_serialization(ellipsoid, ellipsoid_copy);
   }
 
   {

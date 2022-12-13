@@ -14,7 +14,6 @@ jobs:
           - {ROS_DISTRO: melodic, PRERELEASE: false}
           - {ROS_DISTRO: noetic}
           - {ROS_DISTRO: foxy}
-          - {ROS_DISTRO: galactic}
           - {ROS_DISTRO: rolling}
           - {ROS_DISTRO: humble}
     env:

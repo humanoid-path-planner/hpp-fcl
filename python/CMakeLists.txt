@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2019-2021 CNRS-LAAS INRIA
+#  Copyright (c) 2019-2022 CNRS-LAAS INRIA
 #  Author: Joseph Mirabel
 #  All rights reserved.
 #
@@ -47,6 +47,7 @@ SET(${LIBRARY_NAME}_HEADERS
   broadphase/fwd.hh
   broadphase/broadphase_collision_manager.hh
   broadphase/broadphase_callbacks.hh
+  pickle.hh
   )
 
 SET(ENABLE_PYTHON_DOXYGEN_AUTODOC TRUE CACHE BOOL "Enable automatic documentation of Python bindings from Doxygen documentation")

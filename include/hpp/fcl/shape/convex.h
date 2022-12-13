@@ -97,7 +97,7 @@ class Convex : public ConvexBase {
   void set(bool ownStorage, Vec3f* points, unsigned int num_points,
            PolygonT* polygons, unsigned int num_polygons);
 
-  /// @brief Clone (deep copy).
+  ///  @brief Clone (deep copy).
   virtual Convex<PolygonT>* clone() const;
 
  protected:

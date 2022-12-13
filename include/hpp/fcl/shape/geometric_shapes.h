@@ -52,7 +52,7 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
  public:
   ShapeBase() {}
 
-  /// \brief Copy constructor
+  ///  \brief Copy constructor
   ShapeBase(const ShapeBase& other) : CollisionGeometry(other) {}
 
   ShapeBase& operator=(const ShapeBase& other) = default;
@@ -70,6 +70,8 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
 /// @brief Triangle stores the points instead of only indices of points
 class HPP_FCL_DLLAPI TriangleP : public ShapeBase {
  public:
+  TriangleP(){};
+
   TriangleP(const Vec3f& a_, const Vec3f& b_, const Vec3f& c_)
       : ShapeBase(), a(a_), b(b_), c(c_) {}
 
@@ -193,7 +195,10 @@ class HPP_FCL_DLLAPI Box : public ShapeBase {
 /// @brief Center at zero point sphere
 class HPP_FCL_DLLAPI Sphere : public ShapeBase {
  public:
-  Sphere(FCL_REAL radius_) : ShapeBase(), radius(radius_) {}
+  /// @brief Default constructor
+  Sphere() {}
+
+  explicit Sphere(FCL_REAL radius_) : ShapeBase(), radius(radius_) {}
 
   Sphere(const Sphere& other) : ShapeBase(other), radius(other.radius) {}
 
@@ -252,10 +257,13 @@ class HPP_FCL_DLLAPI Sphere : public ShapeBase {
 /// @brief Ellipsoid centered at point zero
 class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
  public:
+  /// @brief Default constructor
+  Ellipsoid() {}
+
   Ellipsoid(FCL_REAL rx, FCL_REAL ry, FCL_REAL rz)
       : ShapeBase(), radii(rx, ry, rz) {}
 
-  Ellipsoid(const Vec3f& radii) : radii(radii) {}
+  explicit Ellipsoid(const Vec3f& radii) : radii(radii) {}
 
   Ellipsoid(const Ellipsoid& other) : ShapeBase(other), radii(other.radii) {}
 
@@ -324,6 +332,9 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
 /// segment AB, with \f$ A = (0,0,-halfLength), B = (0,0,halfLength) \f$.
 class HPP_FCL_DLLAPI Capsule : public ShapeBase {
  public:
+  /// @brief Default constructor
+  Capsule() {}
+
   Capsule(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_) {
     halfLength = lz_ / 2;
   }
@@ -402,6 +413,9 @@ class HPP_FCL_DLLAPI Capsule : public ShapeBase {
 /// \f$ z = halfLength \f$.
 class HPP_FCL_DLLAPI Cone : public ShapeBase {
  public:
+  /// @brief Default constructor
+  Cone() {}
+
   Cone(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_) {
     halfLength = lz_ / 2;
   }
@@ -486,6 +500,9 @@ class HPP_FCL_DLLAPI Cone : public ShapeBase {
 /// The cylinder is defined at its centroid.
 class HPP_FCL_DLLAPI Cylinder : public ShapeBase {
  public:
+  /// @brief Default constructor
+  Cylinder() {}
+
   Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_) {
     halfLength = lz_ / 2;
   }
@@ -581,7 +598,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 
   virtual ~ConvexBase();
 
-  /// @brief Clone (deep copy).
+  ///  @brief Clone (deep copy).
   virtual ConvexBase* clone() const {
     ConvexBase* copy_ptr = new ConvexBase(*this);
     ConvexBase& copy = *copy_ptr;
