@@ -3,8 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
- *  All rights reserved.
- *  Copyright (c) 2022, INRIA
+ *  Copyright (c) 2022-2023, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -44,6 +43,7 @@
 
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/internal/traversal_node_base.h>
+#include <hpp/fcl/internal/traversal_node_hfield_shape.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/hfield.h>
 #include <hpp/fcl/octree.h>
@@ -149,6 +149,34 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
     OcTreeMeshDistanceRecurse(tree1, 0, tree2, tree2->getRoot(),
                               tree2->getRootBV(), tf1, tf2);
+  }
+
+  template <typename BV>
+  void OcTreeHeightFieldIntersect(
+      const OcTree* tree1, const HeightField<BV>* tree2, const Transform3f& tf1,
+      const Transform3f& tf2, const CollisionRequest& request_,
+      CollisionResult& result_, FCL_REAL& sqrDistLowerBound) const {
+    crequest = &request_;
+    cresult = &result_;
+
+    OcTreeHeightFieldIntersectRecurse(tree1, tree1->getRoot(),
+                                      tree1->getRootBV(), tree2, 0, tf1, tf2,
+                                      sqrDistLowerBound);
+  }
+
+  template <typename BV>
+  void HeightFieldOcTreeIntersect(const HeightField<BV>* tree1,
+                                  const OcTree* tree2, const Transform3f& tf1,
+                                  const Transform3f& tf2,
+                                  const CollisionRequest& request_,
+                                  CollisionResult& result_,
+                                  FCL_REAL& sqrDistLowerBound) const {
+    crequest = &request_;
+    cresult = &result_;
+
+    HeightFieldOcTreeIntersectRecurse(tree1, 0, tree2, tree2->getRoot(),
+                                      tree2->getRootBV(), tf1, tf2,
+                                      sqrDistLowerBound);
   }
 
   /// @brief collision between octree and shape
@@ -517,7 +545,7 @@ class HPP_FCL_DLLAPI OcTreeSolver {
   bool OcTreeHeightFieldIntersectRecurse(
       const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
       const HeightField<BV>* tree2, unsigned int root2, const Transform3f& tf1,
-      const Transform3f& tf2) const {
+      const Transform3f& tf2, FCL_REAL& sqrDistLowerBound) const {
     // FIXME(jmirabel) I do not understand why the BVHModel was traversed. The
     // code in this if(!root1) did not output anything so the empty OcTree is
     // considered free. Should an empty OcTree be considered free ?
@@ -538,8 +566,10 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       OBB obb1, obb2;
       convertBV(bv1, tf1, obb1);
       convertBV(bvn2.bv, tf2, obb2);
-      FCL_REAL sqrDistLowerBound;
-      if (!obb1.overlap(obb2, *crequest, sqrDistLowerBound)) {
+      FCL_REAL sqrDistLowerBound_;
+      if (!obb1.overlap(obb2, *crequest, sqrDistLowerBound_)) {
+        if (sqrDistLowerBound_ < sqrDistLowerBound)
+          sqrDistLowerBound = sqrDistLowerBound_;
         internal::updateDistanceLowerBoundFromBV(*crequest, *cresult,
                                                  sqrDistLowerBound);
         return false;
@@ -553,33 +583,42 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       Transform3f box_tf;
       constructBox(bv1, tf1, box, box_tf);
 
-      int primitive_id = bvn2.primitiveId();
-      const Triangle& tri_id = tree2->tri_indices[primitive_id];
-      const Vec3f& p1 = tree2->vertices[tri_id[0]];
-      const Vec3f& p2 = tree2->vertices[tri_id[1]];
-      const Vec3f& p3 = tree2->vertices[tri_id[2]];
+      typedef Convex<Triangle> ConvexTriangle;
+      ConvexTriangle convex1, convex2;
+      details::buildConvexTriangles(bvn2, *tree2, convex1, convex2);
 
       Vec3f c1, c2, normal;
       FCL_REAL distance;
 
-      bool collision = solver->shapeTriangleInteraction(
-          box, box_tf, p1, p2, p3, tf2, distance, c1, c2, normal);
+      bool collision = details::shapeDistance<Triangle, Box, 0>(
+          solver, convex1, convex2, tf2, box, box_tf, distance, c1, c2, normal);
+
       FCL_REAL distToCollision = distance - crequest->security_margin;
 
-      if (cresult->numContacts() < crequest->num_max_contacts) {
-        if (collision) {
-          cresult->addContact(Contact(tree1, tree2,
-                                      (int)(root1 - tree1->getRoot()),
-                                      primitive_id, c1, normal, -distance));
-        } else if (distToCollision < 0) {
+      if (distToCollision <= crequest->collision_distance_threshold) {
+        sqrDistLowerBound = 0;
+        if (crequest->num_max_contacts > cresult->numContacts()) {
           cresult->addContact(Contact(
-              tree1, tree2, (int)(root1 - tree1->getRoot()), primitive_id,
+              tree1, tree2, (int)(root1 - tree1->getRoot()), (int)Contact::NONE,
               .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
         }
-      }
+      } else if (collision && crequest->security_margin >= 0) {
+        sqrDistLowerBound = 0;
+        if (crequest->num_max_contacts > cresult->numContacts()) {
+          cresult->addContact(
+              Contact(tree1, tree2, (int)(root1 - tree1->getRoot()),
+                      (int)Contact::NONE, c1, normal, -distance));
+          assert(cresult->isCollision());
+        }
+      } else
+        sqrDistLowerBound = distToCollision * distToCollision;
+
+      //    const Vec3f c1 = contact_point - distance * 0.5 * normal;
+      //    const Vec3f c2 = contact_point + distance * 0.5 * normal;
       internal::updateDistanceLowerBoundFromLeaf(*crequest, *cresult,
                                                  distToCollision, c1, c2);
 
+      assert(cresult->isCollision() || sqrDistLowerBound > 0);
       return crequest->isSatisfied(*cresult);
     }
 
@@ -592,18 +631,21 @@ class HPP_FCL_DLLAPI OcTreeSolver {
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
 
-          if (OcTreeMeshIntersectRecurse(tree1, child, child_bv, tree2, root2,
-                                         tf1, tf2))
+          if (OcTreeHeightFieldIntersectRecurse(tree1, child, child_bv, tree2,
+                                                root2, tf1, tf2,
+                                                sqrDistLowerBound))
             return true;
         }
       }
     } else {
-      if (OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2,
-                                     (unsigned int)bvn2.leftChild(), tf1, tf2))
+      if (OcTreeHeightFieldIntersectRecurse(tree1, root1, bv1, tree2,
+                                            (unsigned int)bvn2.leftChild(), tf1,
+                                            tf2, sqrDistLowerBound))
         return true;
 
-      if (OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2,
-                                     (unsigned int)bvn2.rightChild(), tf1, tf2))
+      if (OcTreeHeightFieldIntersectRecurse(tree1, root1, bv1, tree2,
+                                            (unsigned int)bvn2.rightChild(),
+                                            tf1, tf2, sqrDistLowerBound))
         return true;
     }
 
@@ -948,6 +990,37 @@ class HPP_FCL_DLLAPI OcTreeMeshCollisionTraversalNode
 
   const OcTree* model1;
   const BVHModel<BV>* model2;
+
+  Transform3f tf1, tf2;
+
+  const OcTreeSolver* otsolver;
+};
+
+/// @brief Traversal node for octree-mesh collision
+template <typename BV>
+class HPP_FCL_DLLAPI OcTreeHeightFieldCollisionTraversalNode
+    : public CollisionTraversalNodeBase {
+ public:
+  OcTreeHeightFieldCollisionTraversalNode(const CollisionRequest& request)
+      : CollisionTraversalNodeBase(request) {
+    model1 = NULL;
+    model2 = NULL;
+
+    otsolver = NULL;
+  }
+
+  bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const {
+    return false;
+  }
+
+  void leafCollides(unsigned int, unsigned int,
+                    FCL_REAL& sqrDistLowerBound) const {
+    otsolver->OcTreeHeightFieldIntersect(model1, model2, tf1, tf2, request,
+                                         *result, sqrDistLowerBound);
+  }
+
+  const OcTree* model1;
+  const HeightField<BV>* model2;
 
   Transform3f tf1, tf2;
 
