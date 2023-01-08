@@ -48,6 +48,11 @@ struct HPP_FCL_LOCAL TraversalTraitsCollision<BVHModel<T_BVH>, OcTree> {
   typedef MeshOcTreeCollisionTraversalNode<T_BVH> CollisionTraversal_t;
 };
 
+template <typename T_BVH>
+struct HPP_FCL_LOCAL TraversalTraitsCollision<OcTree, HeightField<T_BVH> > {
+  typedef OcTreeHeightFieldCollisionTraversalNode<T_BVH> CollisionTraversal_t;
+};
+
 #endif
 
 // TraversalTraitsDistance for distance_func_matrix.cpp
