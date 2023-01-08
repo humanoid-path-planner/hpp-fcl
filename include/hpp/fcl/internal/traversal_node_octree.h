@@ -941,7 +941,6 @@ class HPP_FCL_DLLAPI OcTreeMeshCollisionTraversalNode
 
   void leafCollides(unsigned int, unsigned int,
                     FCL_REAL& sqrDistLowerBound) const {
-    std::cout << "leafCollides" << std::endl;
     otsolver->OcTreeMeshIntersect(model1, model2, tf1, tf2, request, *result);
     sqrDistLowerBound = std::max((FCL_REAL)0, result->distance_lower_bound);
     sqrDistLowerBound *= sqrDistLowerBound;
