@@ -171,6 +171,113 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
     );
   }
 }
+
+template <typename Polygone, typename Shape, int Options>
+bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
+                   const Convex<Polygone>& convex2, const Transform3f& tf1,
+                   const Shape& shape, const Transform3f& tf2,
+                   FCL_REAL& distance, Vec3f& c1, Vec3f& c2, Vec3f& normal) {
+  enum { RTIsIdentity = Options & RelativeTransformationIsIdentity };
+
+  const Transform3f Id;
+  Vec3f contact2_1, contact2_2, normal2;
+  FCL_REAL distance2;
+  bool collision1, collision2;
+  if (RTIsIdentity)
+    collision1 = !nsolver->shapeDistance(convex1, Id, shape, tf2, distance, c1,
+                                         c2, normal);
+  else
+    collision1 = !nsolver->shapeDistance(convex1, tf1, shape, tf2, distance, c1,
+                                         c2, normal);
+
+  if (RTIsIdentity)
+    collision2 = !nsolver->shapeDistance(convex2, Id, shape, tf2, distance2,
+                                         contact2_1, contact2_2, normal);
+  else
+    collision2 = !nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
+                                         contact2_1, contact2_2, normal2);
+
+  if (collision1 && collision2) {
+    if (distance > distance2)  // switch values
+    {
+      distance = distance2;
+      c1 = contact2_1;
+      c2 = contact2_2;
+      normal = normal2;
+    }
+    return true;
+  } else if (collision1) {
+    return true;
+  } else if (collision2) {
+    distance = distance2;
+    c1 = contact2_1;
+    c2 = contact2_2;
+    normal = normal2;
+    return true;
+  }
+
+  return false;
+}
+
+template <typename Polygone, typename Shape, int Options>
+bool shapeCollision(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
+                    const Convex<Polygone>& convex2, const Transform3f& tf1,
+                    const Shape& shape, const Transform3f& tf2,
+                    FCL_REAL& distance_lower_bound, Vec3f& contact_point,
+                    Vec3f& normal) {
+  enum { RTIsIdentity = Options & RelativeTransformationIsIdentity };
+
+  const Transform3f Id;
+  Vec3f contact_point2, normal2;
+  FCL_REAL distance_lower_bound2;
+  bool collision1, collision2;
+  if (RTIsIdentity)
+    collision1 =
+        nsolver->shapeIntersect(convex1, Id, shape, tf2, distance_lower_bound,
+                                true, &contact_point, &normal);
+  else
+    collision1 =
+        nsolver->shapeIntersect(convex1, tf1, shape, tf2, distance_lower_bound,
+                                true, &contact_point, &normal);
+
+  if (RTIsIdentity)
+    collision2 =
+        nsolver->shapeIntersect(convex2, Id, shape, tf2, distance_lower_bound2,
+                                true, &contact_point2, &normal2);
+  else
+    collision2 =
+        nsolver->shapeIntersect(convex2, tf1, shape, tf2, distance_lower_bound2,
+                                true, &contact_point2, &normal2);
+
+  if (collision1 && collision2) {
+    // In some case, EPA might returns something like
+    // -(std::numeric_limits<FCL_REAL>::max)().
+    if (distance_lower_bound != -(std::numeric_limits<FCL_REAL>::max)() &&
+        distance_lower_bound2 != -(std::numeric_limits<FCL_REAL>::max)()) {
+      if (distance_lower_bound > distance_lower_bound2)  // switch values
+      {
+        distance_lower_bound = distance_lower_bound2;
+        contact_point = contact_point2;
+        normal = normal2;
+      }
+    } else if (distance_lower_bound2 !=
+               -(std::numeric_limits<FCL_REAL>::max)()) {
+      distance_lower_bound = distance_lower_bound2;
+      contact_point = contact_point2;
+      normal = normal2;
+    }
+    return true;
+  } else if (collision1) {
+    return true;
+  } else if (collision2) {
+    distance_lower_bound = distance_lower_bound2;
+    contact_point = contact_point2;
+    normal = normal2;
+    return true;
+  }
+
+  return false;
+}
 }  // namespace details
 
 /// @brief Traversal node for collision between height field and shape
@@ -243,109 +350,6 @@ class HeightFieldShapeCollisionTraversalNode
     return disjoint;
   }
 
-  template <typename Polygone>
-  bool shapeDistance(const Convex<Polygone>& convex1,
-                     const Convex<Polygone>& convex2, const Transform3f& tf1,
-                     const S& shape, const Transform3f& tf2, FCL_REAL& distance,
-                     Vec3f& c1, Vec3f& c2, Vec3f& normal) const {
-    const Transform3f Id;
-    Vec3f contact2_1, contact2_2, normal2;
-    FCL_REAL distance2;
-    bool collision1, collision2;
-    if (RTIsIdentity)
-      collision1 = !nsolver->shapeDistance(convex1, Id, shape, tf2, distance,
-                                           c1, c2, normal);
-    else
-      collision1 = !nsolver->shapeDistance(convex1, tf1, shape, tf2, distance,
-                                           c1, c2, normal);
-
-    if (RTIsIdentity)
-      collision2 = !nsolver->shapeDistance(convex2, Id, shape, tf2, distance2,
-                                           c1, c2, normal);
-    else
-      collision2 = !nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
-                                           contact2_1, contact2_2, normal2);
-
-    if (collision1 && collision2) {
-      if (distance > distance2)  // switch values
-      {
-        distance = distance2;
-        c1 = contact2_1;
-        c2 = contact2_2;
-        normal = normal2;
-      }
-      return true;
-    } else if (collision1) {
-      return true;
-    } else if (collision2) {
-      distance = distance2;
-      c1 = contact2_1;
-      c2 = contact2_2;
-      normal = normal2;
-      return true;
-    }
-
-    return false;
-  }
-
-  template <typename Polygone>
-  bool shapeCollision(const Convex<Polygone>& convex1,
-                      const Convex<Polygone>& convex2, const Transform3f& tf1,
-                      const S& shape, const Transform3f& tf2,
-                      FCL_REAL& distance_lower_bound, Vec3f& contact_point,
-                      Vec3f& normal) const {
-    const Transform3f Id;
-    Vec3f contact_point2, normal2;
-    FCL_REAL distance_lower_bound2;
-    bool collision1, collision2;
-    if (RTIsIdentity)
-      collision1 =
-          nsolver->shapeIntersect(convex1, Id, shape, tf2, distance_lower_bound,
-                                  true, &contact_point, &normal);
-    else
-      collision1 = nsolver->shapeIntersect(convex1, tf1, shape, tf2,
-                                           distance_lower_bound, true,
-                                           &contact_point, &normal);
-
-    if (RTIsIdentity)
-      collision2 = nsolver->shapeIntersect(convex2, Id, shape, tf2,
-                                           distance_lower_bound2, true,
-                                           &contact_point2, &normal2);
-    else
-      collision2 = nsolver->shapeIntersect(convex2, tf1, shape, tf2,
-                                           distance_lower_bound2, true,
-                                           &contact_point2, &normal2);
-
-    if (collision1 && collision2) {
-      // In some case, EPA might returns something like
-      // -(std::numeric_limits<FCL_REAL>::max)().
-      if (distance_lower_bound != -(std::numeric_limits<FCL_REAL>::max)() &&
-          distance_lower_bound2 != -(std::numeric_limits<FCL_REAL>::max)()) {
-        if (distance_lower_bound > distance_lower_bound2)  // switch values
-        {
-          distance_lower_bound = distance_lower_bound2;
-          contact_point = contact_point2;
-          normal = normal2;
-        }
-      } else if (distance_lower_bound2 !=
-                 -(std::numeric_limits<FCL_REAL>::max)()) {
-        distance_lower_bound = distance_lower_bound2;
-        contact_point = contact_point2;
-        normal = normal2;
-      }
-      return true;
-    } else if (collision1) {
-      return true;
-    } else if (collision2) {
-      distance_lower_bound = distance_lower_bound2;
-      contact_point = contact_point2;
-      normal = normal2;
-      return true;
-    }
-
-    return false;
-  }
-
   /// @brief Intersection testing between leaves (one Convex and one shape)
   void leafCollides(unsigned int b1, unsigned int /*b2*/,
                     FCL_REAL& sqrDistLowerBound) const {
@@ -367,9 +371,9 @@ class HeightFieldShapeCollisionTraversalNode
     //    Vec3f contact_point, normal;
     Vec3f c1, c2, normal;
 
-    bool collision =
-        this->shapeDistance(convex1, convex2, this->tf1, *(this->model2),
-                            this->tf2, distance, c1, c2, normal);
+    bool collision = details::shapeDistance<Triangle, S, Options>(
+        nsolver, convex1, convex2, this->tf1, *(this->model2), this->tf2,
+        distance, c1, c2, normal);
 
     //    this->shapeCollision(convex1, convex2, this->tf1, *(this->model2),
     //    this->tf2,
