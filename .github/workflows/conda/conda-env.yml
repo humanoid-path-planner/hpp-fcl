@@ -14,3 +14,4 @@ dependencies:
   - lxml
   - pylatexenc
   - qhull
+  - compilers=1.4.2  # [osx]
