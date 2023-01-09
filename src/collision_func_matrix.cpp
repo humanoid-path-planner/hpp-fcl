@@ -680,6 +680,10 @@ CollisionFunctionMatrix::CollisionFunctionMatrix() {
       &OctreeCollide<BVHModel<KDOP<18> >, OcTree>;
   collision_matrix[BV_KDOP24][GEOM_OCTREE] =
       &OctreeCollide<BVHModel<KDOP<24> >, OcTree>;
+  collision_matrix[HF_AABB][GEOM_OCTREE] =
+      &OctreeCollide<HeightField<AABB>, OcTree>;
+  collision_matrix[HF_OBBRSS][GEOM_OCTREE] =
+      &OctreeCollide<HeightField<OBBRSS>, OcTree>;
 #endif
 }
 // template struct CollisionFunctionMatrix;
