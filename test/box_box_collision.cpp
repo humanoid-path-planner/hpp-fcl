@@ -9,13 +9,13 @@
 #include "utility.h"
 
 using hpp::fcl::Box;
-using hpp::fcl::FCL_REAL;
-using hpp::fcl::Vec3f;
-using hpp::fcl::Transform3f;
+using hpp::fcl::collide;
 using hpp::fcl::CollisionRequest;
 using hpp::fcl::CollisionResult;
-using hpp::fcl::collide;
 using hpp::fcl::ComputeCollision;
+using hpp::fcl::FCL_REAL;
+using hpp::fcl::Transform3f;
+using hpp::fcl::Vec3f;
 
 BOOST_AUTO_TEST_CASE(box_box_collision) {
   // Define boxes
