@@ -715,6 +715,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     FCL_REAL omega = dir.dot(w) / dir.norm();
     if (omega > upper_bound) {
       distance = omega - inflation;
+      status = EarlyStopped;
       break;
     }
 

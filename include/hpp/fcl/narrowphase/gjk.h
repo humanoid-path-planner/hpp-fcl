@@ -162,7 +162,7 @@ struct HPP_FCL_DLLAPI GJK {
   /// Valid: GJK converged and the shapes are not in collision.
   /// Inside: GJK converged and the shapes are in collision.
   /// Failed: GJK did not converge.
-  enum Status { Valid, Inside, Failed };
+  enum Status { Valid, Inside, Failed, EarlyStopped };
 
   MinkowskiDiff const* shape;
   Vec3f ray;
