@@ -76,16 +76,23 @@ add_fcl_test(broadphase_collision_2 broadphase_collision_2.cpp)
 ## Benchmark
 IF(BUILD_TESTING)
   add_executable(test-benchmark benchmark.cpp)
+  add_executable(benchmark-nesterov-gjk benchmark_nesterov_gjk.cpp)
 ELSE()
   add_executable(test-benchmark EXCLUDE_FROM_ALL benchmark.cpp)
+  add_executable(benchmark-nesterov-gjk EXCLUDE_FROM_ALL benchmark_nesterov_gjk.cpp)
 ENDIF()
-target_link_libraries(test-benchmark
-  PUBLIC
-  utility
-  Boost::chrono
-  Boost::filesystem
-  ${PROJECT_NAME}
-  )
+
+macro(add_fcl_benchmark benchmark_name)
+  target_link_libraries(${benchmark_name}
+    PUBLIC
+    utility
+    Boost::chrono
+    Boost::filesystem
+    ${PROJECT_NAME}
+    )
+endmacro(add_fcl_benchmark)
+add_fcl_benchmark(test-benchmark)
+add_fcl_benchmark(benchmark-nesterov-gjk)
 
 ## Python tests
 IF(BUILD_PYTHON_INTERFACE)
