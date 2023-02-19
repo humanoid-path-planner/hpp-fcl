@@ -15,7 +15,6 @@ jobs:
           - {ROS_DISTRO: noetic}
           - {ROS_DISTRO: foxy}
           - {ROS_DISTRO: rolling}
-          - {ROS_DISTRO: humble}
     env:
       CCACHE_DIR: /github/home/.ccache # Enable ccache
       BUILDER: colcon

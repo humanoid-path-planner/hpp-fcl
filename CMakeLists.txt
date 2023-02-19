@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2014-2022 CNRS-LAAS, INRIA
+#  Copyright (c) 2014-2023 CNRS-LAAS, INRIA
 #  Author: Florent Lamiraux, Joseph Mirabel
 #  All rights reserved.
 #
@@ -267,7 +267,9 @@ add_subdirectory(src)
 if (BUILD_PYTHON_INTERFACE)
   add_subdirectory(python)
 endif ()
-add_subdirectory(test)
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif(BUILD_TESTING)
 
 pkg_config_append_libs("hpp-fcl")
 IF(HPP_FCL_HAS_OCTOMAP)
