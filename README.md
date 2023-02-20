@@ -13,8 +13,8 @@ HPP-FCL — An extension of the Flexible Collision Library
 The broadphase was reintroduced by J. Carpentier in 2022 based on the FCL version 0.7.0.
 
 Compared to the original [FCL](https://github.com/flexible-collision-library/fcl) library, the main new features are:
-- a dedicated implementation of the GJK algorithm (we do not rely anymore on [libccd](https://github.com/danfis/libccd))
-- the use of a safety margin when detecting collision
+- a dedicated and efficient implementation of the GJK algorithm (we do not rely anymore on [libccd](https://github.com/danfis/libccd))
+- the support of safety margins for collision detection
 - an accelerated version of Collision Detection *à la Nesterov* which leads to increased performances (up to a factor 2). More details are available in this [paper](https://hal.archives-ouvertes.fr/hal-03662157/)
 - the computation of a lower bound of the distance between two objects when collision checking is performed and no collision is found
 - the implementation of Python bindings for easy code prototyping
