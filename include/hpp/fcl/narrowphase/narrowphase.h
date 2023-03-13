@@ -5,7 +5,7 @@
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
  *  Copyright (c) 2018-2019, Centre National de la Recherche Scientifique
  *  All rights reserved.
- *  Copyright (c) 2021-2022, INRIA
+ *  Copyright (c) 2021-2023, INRIA
  *  All rights reserved.
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
@@ -313,7 +313,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         // Return contact points in case of collision
         // p1 = tf1.transform (p1);
         // p2 = tf1.transform (p2);
-        normal.noalias() = tf1.getRotation() * (p2 - p1);
+        normal.noalias() = tf1.getRotation() * (p1 - p2);
         normal.normalize();
         p1 = tf1.transform(p1);
         p2 = tf1.transform(p2);
