@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021, INRIA.
+ *  Copyright (c) 2021-2023, INRIA.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -133,9 +133,9 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
 
     Triangle* triangles = new Triangle[8];
     triangles[0].set(0, 1, 3);  // bottom
-    triangles[1].set(4, 5, 7);  // top
-    triangles[2].set(0, 1, 4);
-    triangles[3].set(4, 1, 5);
+    triangles[1].set(4, 7, 5);  // top
+    triangles[2].set(0, 4, 1);
+    triangles[3].set(4, 5, 1);
     triangles[4].set(1, 7, 3);
     triangles[5].set(1, 5, 7);
     triangles[6].set(0, 3, 7);
@@ -154,14 +154,14 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
     memcpy(pts, convex1.points, 8 * sizeof(Vec3f));
 
     Triangle* triangles = new Triangle[8];
-    triangles[0].set(3, 2, 1);  // top
-    triangles[1].set(5, 6, 7);  // bottom
-    triangles[2].set(1, 2, 5);
-    triangles[3].set(5, 2, 6);
+    triangles[0].set(3, 1, 2);  // top
+    triangles[1].set(5, 7, 6);  // bottom
+    triangles[2].set(1, 5, 2);
+    triangles[3].set(5, 6, 2);
     triangles[4].set(1, 3, 7);
     triangles[5].set(1, 7, 5);
-    triangles[6].set(2, 3, 7);
-    triangles[7].set(6, 2, 3);
+    triangles[6].set(2, 7, 3);
+    triangles[7].set(6, 3, 2);
 
     convex2.set(true,
                 pts,  // points
