@@ -121,74 +121,163 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   HPP_FCL_UNUSED_VARIABLE(max_height);
 
   {
-    Vec3f* pts = new Vec3f[8];
-    pts[0] = Vec3f(x0, y0, min_height);
-    pts[1] = Vec3f(x0, y1, min_height);
-    pts[2] = Vec3f(x1, y1, min_height);
-    pts[3] = Vec3f(x1, y0, min_height);
-    pts[4] = Vec3f(x0, y0, cell(0, 0));
-    pts[5] = Vec3f(x0, y1, cell(1, 0));
-    pts[6] = Vec3f(x1, y1, cell(1, 1));
-    pts[7] = Vec3f(x1, y0, cell(0, 1));
+    Vec3f* pts = new Vec3f[6];
+    pts[0] = Vec3f(x0, y0, min_height);  //
+    pts[1] = Vec3f(x0, y1, min_height);  //
+    //    pts[2] = Vec3f(x1, y1, min_height);
+    pts[2] = Vec3f(x1, y0, min_height);  //
+    pts[3] = Vec3f(x0, y0, cell(0, 0));  //
+    pts[4] = Vec3f(x0, y1, cell(1, 0));  //
+    //    pts[6] = Vec3f(x1, y1, cell(1, 1));
+    pts[5] = Vec3f(x1, y0, cell(0, 1));  //
 
     Triangle* triangles = new Triangle[8];
-    triangles[0].set(0, 1, 3);  // bottom
-    triangles[1].set(4, 7, 5);  // top
-    triangles[2].set(0, 4, 1);
-    triangles[3].set(4, 5, 1);
-    triangles[4].set(1, 7, 3);
-    triangles[5].set(1, 5, 7);
-    triangles[6].set(0, 3, 7);
-    triangles[7].set(7, 4, 0);
+    triangles[0].set(0, 1, 2);  // bottom
+    triangles[1].set(3, 5, 4);  // top
+    triangles[2].set(0, 3, 1);
+    triangles[3].set(3, 4, 1);
+    triangles[4].set(1, 5, 2);
+    triangles[5].set(1, 4, 5);
+    triangles[6].set(0, 2, 5);
+    triangles[7].set(5, 3, 0);
 
     convex1.set(true,
                 pts,  // points
-                8,    // num points
+                6,    // num points
                 triangles,
                 8  // number of polygons
     );
   }
 
   {
-    Vec3f* pts = new Vec3f[8];
-    memcpy(pts, convex1.points, 8 * sizeof(Vec3f));
+    Vec3f* pts = new Vec3f[6];
+
+    //    pts[0] = Vec3f(x0, y0, min_height);
+    pts[0] = Vec3f(x0, y1, min_height);
+    pts[1] = Vec3f(x1, y1, min_height);
+    pts[2] = Vec3f(x1, y0, min_height);
+    //    pts[4] = Vec3f(x0, y0, cell(0, 0));
+    pts[3] = Vec3f(x0, y1, cell(1, 0));
+    pts[4] = Vec3f(x1, y1, cell(1, 1));
+    pts[5] = Vec3f(x1, y0, cell(0, 1));
 
     Triangle* triangles = new Triangle[8];
-    triangles[0].set(3, 1, 2);  // top
-    triangles[1].set(5, 7, 6);  // bottom
-    triangles[2].set(1, 5, 2);
-    triangles[3].set(5, 6, 2);
-    triangles[4].set(1, 3, 7);
-    triangles[5].set(1, 7, 5);
-    triangles[6].set(2, 7, 3);
-    triangles[7].set(6, 3, 2);
+    triangles[0].set(2, 0, 1);  // bottom
+    triangles[1].set(3, 5, 4);  // top
+    triangles[2].set(0, 3, 1);
+    triangles[3].set(3, 4, 1);
+    triangles[4].set(0, 2, 5);
+    triangles[5].set(0, 5, 3);
+    triangles[6].set(1, 5, 2);
+    triangles[7].set(4, 2, 1);
 
     convex2.set(true,
                 pts,  // points
-                8,    // num points
+                6,    // num points
                 triangles,
                 8  // number of polygons
     );
   }
 }
 
+inline Vec3f projectTriangle(const Vec3f& pointA, const Vec3f& pointB,
+                             const Vec3f& pointC, const Vec3f& point) {
+  const Project::ProjectResult result =
+      Project::projectTriangle(pointA, pointB, pointC, point);
+  Vec3f res = result.parameterization[0] * pointA +
+              result.parameterization[1] * pointB +
+              result.parameterization[2] * pointC;
+
+  return res;
+}
+
+template <typename Polygone, typename Shape>
+bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
+                   const Transform3f& shape_pose, FCL_REAL& distance,
+                   Vec3f& contact_1, Vec3f& contact_2, Vec3f& normal,
+                   Vec3f& normal_top) {
+  //  std::cout << "binCorrection start" << std::endl;
+  const Polygone& top_triangle = convex.polygons[1];
+  const Vec3f* points = convex.points;
+  const Vec3f pointA = points[top_triangle[0]];
+  const Vec3f pointB = points[top_triangle[1]];
+  const Vec3f pointC = points[top_triangle[2]];
+  normal_top = (pointB - pointA).cross(pointC - pointA).normalized();
+  if (normal_top[2] < 0) normal_top *= -1.;
+
+  //  std::cout << "pointA: " << pointA.transpose() << std::endl;
+  //  std::cout << "pointB: " << pointB.transpose() << std::endl;
+  //  std::cout << "pointC: " << pointC.transpose() << std::endl;
+
+  assert(!normal_top.array().isNaN().any() && "normal1_top is ill-defined");
+
+  //  std::cout << "normal_top: " << normal_top.transpose() << std::endl;
+  //  std::cout << "normal: " << normal.transpose() << std::endl;
+
+  const Vec3f contact_1_projected =
+      projectTriangle(pointA, pointB, pointC, contact_1);
+
+  //  std::cout << "contact_1_projected: " << contact_1_projected.transpose() <<
+  //  std::endl; std::cout << "contact_1: " << contact_1.transpose() <<
+  //  std::endl;
+  // correct projection if the normal corresponds to the sides of the bin
+  if (!contact_1_projected.isApprox(contact_1)) {
+    //    std::cout << "need correction" << std::endl;
+    int hint = 0;
+    const Vec3f _support = getSupport(
+        &shape, shape_pose.rotation().transpose() * normal_top, true, hint);
+    const Vec3f support =
+        shape_pose.rotation() * _support + shape_pose.translation();
+
+    // Project support into the inclined bin having triangle
+    const FCL_REAL offset_plane = normal_top.dot(pointA);
+    const Plane projection_plane(normal_top, offset_plane);
+    const FCL_REAL distance_support_projection_plane =
+        projection_plane.signedDistance(support);
+
+    //    assert(distance_support_projection_plane <= 0 &&
+    //           "penetration distance should be negative.");
+    const Vec3f projected_support =
+        support - distance_support_projection_plane * normal_top;
+
+    // We need now to project the projected in the triangle shape
+    contact_1 = projectTriangle(pointA, pointB, pointC, projected_support);
+    contact_2 = contact_1 + distance_support_projection_plane * normal_top;
+    normal = normal_top;
+    distance = distance_support_projection_plane;
+    //    std::cout << "binCorrection end" << std::endl;
+    return true;
+  }
+  //  std::cout << "binCorrection end" << std::endl;
+
+  return false;
+}
+
 template <typename Polygone, typename Shape, int Options>
 bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
                    const Convex<Polygone>& convex2, const Transform3f& tf1,
                    const Shape& shape, const Transform3f& tf2,
-                   FCL_REAL& distance, Vec3f& c1, Vec3f& c2, Vec3f& normal) {
+                   FCL_REAL& distance, Vec3f& c1, Vec3f& c2, Vec3f& normal,
+                   Vec3f& normal_top) {
   enum { RTIsIdentity = Options & RelativeTransformationIsIdentity };
 
   const Transform3f Id;
-  Vec3f contact2_1, contact2_2, normal2;
-  FCL_REAL distance2;
+  Vec3f contact1_1, contact1_2, normal1, normal1_top;
+  Vec3f contact2_1, contact2_2, normal2, normal2_top;
+  FCL_REAL distance1, distance2;
   bool collision1, collision2;
   if (RTIsIdentity)
-    collision1 = !nsolver->shapeDistance(convex1, Id, shape, tf2, distance, c1,
-                                         c2, normal);
+    collision1 = !nsolver->shapeDistance(convex1, Id, shape, tf2, distance1,
+                                         contact1_1, contact1_2, normal1);
   else
-    collision1 = !nsolver->shapeDistance(convex1, tf1, shape, tf2, distance, c1,
-                                         c2, normal);
+    collision1 = !nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1,
+                                         contact1_1, contact1_2, normal1);
+
+  //  if(collision1)
+  //  std::cout << "collision1: " << collision1 << std::endl;
+  binCorrection(convex1, shape, tf2, distance1, contact1_1, contact1_2, normal1,
+                normal1_top);
+  //  std::cout << "collision1: " << collision1 << std::endl;
 
   if (RTIsIdentity)
     collision2 = !nsolver->shapeDistance(convex2, Id, shape, tf2, distance2,
@@ -197,25 +286,60 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     collision2 = !nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
                                          contact2_1, contact2_2, normal2);
 
+  //  if(collision2)
+  //  std::cout << "collision2: " << collision2 << std::endl;
+  binCorrection(convex2, shape, tf2, distance2, contact2_1, contact2_2, normal2,
+                normal2_top);
+  //  std::cout << "collision2: " << collision2 << std::endl;
+
+  //  std::cout << "collision1: " << collision1 << std::endl;
+  //  std::cout << "collision2: " << collision2 << std::endl;
   if (collision1 && collision2) {
-    if (distance > distance2)  // switch values
+    if (distance1 > distance2)  // switch values
     {
       distance = distance2;
       c1 = contact2_1;
       c2 = contact2_2;
       normal = normal2;
+      normal_top = normal2_top;
+    } else {
+      distance = distance1;
+      c1 = contact1_1;
+      c2 = contact1_2;
+      normal = normal1;
+      normal_top = normal1_top;
     }
     return true;
   } else if (collision1) {
+    distance = distance1;
+    c1 = contact1_1;
+    c2 = contact1_2;
+    normal = normal1;
+    normal_top = normal1_top;
     return true;
   } else if (collision2) {
     distance = distance2;
     c1 = contact2_1;
     c2 = contact2_2;
     normal = normal2;
+    normal_top = normal2_top;
     return true;
   }
 
+  if (distance1 > distance2)  // switch values
+  {
+    distance = distance2;
+    c1 = contact2_1;
+    c2 = contact2_2;
+    normal = normal2;
+    normal_top = normal2_top;
+  } else {
+    distance = distance1;
+    c1 = contact1_1;
+    c2 = contact1_2;
+    normal = normal1;
+    normal_top = normal1_top;
+  }
   return false;
 }
 
@@ -305,6 +429,7 @@ class HeightFieldShapeCollisionTraversalNode
 
     nsolver = NULL;
     shape_inflation.setZero();
+    count = 0;
   }
 
   /// @brief Whether the BV node in the first BVH tree is leaf
@@ -353,6 +478,9 @@ class HeightFieldShapeCollisionTraversalNode
   /// @brief Intersection testing between leaves (one Convex and one shape)
   void leafCollides(unsigned int b1, unsigned int /*b2*/,
                     FCL_REAL& sqrDistLowerBound) const {
+    //    std::cout << "leafCollides begin" << std::endl;
+    //    std::cout << "count: " << count << std::endl;
+    count++;
     if (this->enable_statistics) this->num_leaf_tests++;
     const HFNode<BV>& node = this->model1->getBV(b1);
 
@@ -369,18 +497,29 @@ class HeightFieldShapeCollisionTraversalNode
 
     FCL_REAL distance;
     //    Vec3f contact_point, normal;
-    Vec3f c1, c2, normal;
+    Vec3f c1, c2, normal, normal_top;
 
     bool collision = details::shapeDistance<Triangle, S, Options>(
         nsolver, convex1, convex2, this->tf1, *(this->model2), this->tf2,
-        distance, c1, c2, normal);
+        distance, c1, c2, normal, normal_top);
 
     //    this->shapeCollision(convex1, convex2, this->tf1, *(this->model2),
     //    this->tf2,
     //                         distance, contact_point, normal);
 
-    FCL_REAL distToCollision = distance - this->request.security_margin;
+    FCL_REAL distToCollision =
+        distance - this->request.security_margin * (normal_top.dot(normal));
+    //    std::cout << "---" << std::endl;
+    //    std::cout << "collision:" << collision << std::endl;
+    //    std::cout << "distToCollision: " << distToCollision << std::endl;
+    //    std::cout << "distance: " << distance << std::endl;
+    //    std::cout << "this->request.security_margin: "
+    //              << this->request.security_margin << std::endl;
+    //    std::cout << "normal:" << normal.transpose() << std::endl;
+    //    std::cout << "c1:" << c1.transpose() << std::endl;
+    //    std::cout << "c2:" << c2.transpose() << std::endl;
     if (collision && this->request.security_margin >= 0) {
+      //      std::cout << "case 1" << std::endl;
       sqrDistLowerBound = 0;
       if (this->request.num_max_contacts > this->result->numContacts()) {
         this->result->addContact(Contact(this->model1, this->model2, (int)b1,
@@ -389,11 +528,12 @@ class HeightFieldShapeCollisionTraversalNode
         assert(this->result->isCollision());
       }
     } else if (distToCollision <= this->request.collision_distance_threshold) {
+      //      std::cout << "case 2" << std::endl;
       sqrDistLowerBound = 0;
       if (this->request.num_max_contacts > this->result->numContacts()) {
         this->result->addContact(Contact(this->model1, this->model2, (int)b1,
                                          (int)Contact::NONE, .5 * (c1 + c2),
-                                         (c2 - c1).normalized(), -distance));
+                                         normal, -distance));
       }
     } else
       sqrDistLowerBound = distToCollision * distToCollision;
@@ -404,6 +544,8 @@ class HeightFieldShapeCollisionTraversalNode
                                                distToCollision, c1, c2);
 
     assert(this->result->isCollision() || sqrDistLowerBound > 0);
+
+    //    std::cout << "leafCollides end" << std::endl;
   }
 
   const GJKSolver* nsolver;
@@ -417,6 +559,7 @@ class HeightFieldShapeCollisionTraversalNode
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
   mutable FCL_REAL query_time_seconds;
+  mutable int count;
 };
 
 /// @}
