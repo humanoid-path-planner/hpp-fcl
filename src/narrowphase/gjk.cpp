@@ -36,6 +36,7 @@
 
 /** \author Jia Pan */
 
+#include "hpp/fcl/shape/geometric_shapes.h"
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/internal/tools.h>
@@ -258,6 +259,10 @@ inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
           : dir,                                                       \
       support, hint, NULL)
 
+inline void getSphereSupport(const Sphere* sphere, const Vec3f& dir, Vec3f& support) {
+  support = sphere->radius * (dir.normalized());
+}
+
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
                  int& hint) {
   Vec3f support;
@@ -269,7 +274,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
       CALL_GET_SHAPE_SUPPORT(Box);
       break;
     case GEOM_SPHERE:
-      CALL_GET_SHAPE_SUPPORT(Sphere);
+      getSphereSupport(static_cast<const Sphere*>(shape), dir, support);
       break;
     case GEOM_ELLIPSOID:
       CALL_GET_SHAPE_SUPPORT(Ellipsoid);

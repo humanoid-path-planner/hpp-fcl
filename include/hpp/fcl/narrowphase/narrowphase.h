@@ -317,6 +317,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         normal.normalize();
         p1 = tf1.transform(p1);
         p2 = tf1.transform(p2);
+        return true;
       } else {
         details::EPA epa(epa_max_face_num, epa_max_vertex_num,
                          epa_max_iterations, epa_tolerance);
@@ -332,7 +333,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
           normal.noalias() = tf1.getRotation() * epa.normal;
           p1 = tf1.transform(w0);
           p2 = tf1.transform(w1);
-          return false;
+          return true;
         }
         distance = -(std::numeric_limits<FCL_REAL>::max)();
         gjk.getClosestPoints(shape, p1, p2);

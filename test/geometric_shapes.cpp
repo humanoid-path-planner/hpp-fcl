@@ -3015,12 +3015,12 @@ BOOST_AUTO_TEST_CASE(shapeDistance_boxbox) {
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                               closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
                               closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver1.shapeDistance(s2, Transform3f(), s2,
                               Transform3f(Vec3f(10.1, 0, 0)), dist, closest_p1,
@@ -3167,12 +3167,12 @@ BOOST_AUTO_TEST_CASE(shapeDistance_cylindercylinder) {
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                               closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
                               closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2,
                               Transform3f(Vec3f(10.1, 0, 0)), dist, closest_p1,
@@ -3213,12 +3213,12 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecone) {
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                               closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
                               closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2,
                               Transform3f(Vec3f(10.1, 0, 0)), dist, closest_p1,
@@ -3259,12 +3259,12 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecylinder) {
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                               closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
                               closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2,
                               Transform3f(Vec3f(10.1, 0, 0)), dist, closest_p1,
@@ -3999,12 +3999,12 @@ BOOST_AUTO_TEST_CASE(boxbox) {
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                               closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
                               closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2,
                               Transform3f(Vec3f(15.1, 0, 0)), dist, closest_p1,
@@ -4091,12 +4091,12 @@ BOOST_AUTO_TEST_CASE(cylindercylinder) {
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                               closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
                               closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2,
                               Transform3f(Vec3f(10.1, 0, 0)), dist, closest_p1,
@@ -4137,12 +4137,12 @@ BOOST_AUTO_TEST_CASE(conecone) {
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                               closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
                               closest_p2, normal);
   BOOST_CHECK(dist <= 0);
-  BOOST_CHECK_FALSE(res);
+  BOOST_CHECK(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2,
                               Transform3f(Vec3f(10.1, 0, 0)), dist, closest_p1,

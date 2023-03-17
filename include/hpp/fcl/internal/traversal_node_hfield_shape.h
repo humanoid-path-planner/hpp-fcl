@@ -216,18 +216,28 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
   //  std::cout << "normal: " << normal.transpose() << std::endl;
 
   // We correct only if a collision occurs between the shape and the bin
-  if (!is_collision) return false;
+  // if (!is_collision) return false;
   const Vec3f contact_1_projected =
       projectTriangle(pointA, pointB, pointC, contact_1);
+
+  bool hfield_witness_is_on_bin_side;
+  if (!contact_1_projected.isApprox(contact_1)) {
+    hfield_witness_is_on_bin_side = true;
+  } else {
+    hfield_witness_is_on_bin_side = false;
+    normal = normal_top;
+  }
 
   //  std::cout << "contact_1_projected: " << contact_1_projected.transpose() <<
   //  std::endl; std::cout << "contact_1: " << contact_1.transpose() <<
   //  std::endl;
   // correct projection if the normal corresponds to the sides of the bin
-    //    std::cout << "need correction" << std::endl;
+  //    std::cout << "need correction" << std::endl;
+  // We correct only if there is a collision with the bin
+  if (is_collision) {
     int hint = 0;
     const Vec3f _support = getSupport(
-        &shape, shape_pose.rotation().transpose() * normal_top, true, hint);
+        &shape, -shape_pose.rotation().transpose() * normal_top, true, hint);
     const Vec3f support =
         shape_pose.rotation() * _support + shape_pose.translation();
 
@@ -246,14 +256,23 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
     contact_1 = projectTriangle(pointA, pointB, pointC, projected_support);
     contact_2 = contact_1 + distance_support_projection_plane * normal_top;
     normal = normal_top;
-    distance = distance_support_projection_plane;
-    //    std::cout << "binCorrection end" << std::endl;
-
-  if (!contact_1_projected.isApprox(contact_1)) {
-    return true;
+    distance = -(contact_1 - contact_2).norm();
+    // contact_2 = support;
   }
+
+  // if (is_collision) {
+    // distance = -(contact_1 - contact_2).norm();
+    // if (hfield_witness_is_on_bin_side)
+    // normal = (contact_1 - contact_2).normalized();
+  // } else {
+    // distance = (contact_1 - contact_2).norm();
+    // if (hfield_witness_is_on_bin_side)
+    // normal = (contact_2 - contact_1).normalized();
+  // }
+  //    std::cout << "binCorrection end" << std::endl;
+
   //  std::cout << "binCorrection end" << std::endl;
-  return false;
+  return hfield_witness_is_on_bin_side;
 }
 
 template <typename Polygone, typename Shape, int Options>
@@ -261,7 +280,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
                    const Convex<Polygone>& convex2, const Transform3f& tf1,
                    const Shape& shape, const Transform3f& tf2,
                    FCL_REAL& distance, Vec3f& c1, Vec3f& c2, Vec3f& normal,
-                   Vec3f& normal_top, bool& was_projected) {
+                   Vec3f& normal_top, bool& hfield_witness_is_on_bin_side) {
   enum { RTIsIdentity = Options & RelativeTransformationIsIdentity };
 
   const Transform3f Id;
@@ -269,31 +288,33 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
   Vec3f contact2_1, contact2_2, normal2, normal2_top;
   FCL_REAL distance1, distance2;
   bool collision1, collision2;
-  bool was_projected1, was_projected2;
+  bool hfield_witness_is_on_bin_side1, hfield_witness_is_on_bin_side2;
   if (RTIsIdentity)
-    collision1 = !nsolver->shapeDistance(convex1, Id, shape, tf2, distance1,
-                                         contact1_1, contact1_2, normal1);
+    nsolver->shapeDistance(convex1, Id, shape, tf2, distance1,
+                           contact1_1, contact1_2, normal1);
   else
-    collision1 = !nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1,
-                                         contact1_1, contact1_2, normal1);
+    nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1,
+                           contact1_1, contact1_2, normal1);
+  collision1 = (distance1 < 0);
 
   // if(collision1)
   //  std::cout << "collision1: " << collision1 << std::endl;
-  was_projected1 =
+  hfield_witness_is_on_bin_side1 =
       binCorrection(convex1, shape, tf2, distance1, contact1_1, contact1_2,
                     normal1, normal1_top, collision1);
   //  std::cout << "collision1: " << collision1 << std::endl;
 
   if (RTIsIdentity)
-    collision2 = !nsolver->shapeDistance(convex2, Id, shape, tf2, distance2,
-                                         contact2_1, contact2_2, normal);
+    nsolver->shapeDistance(convex2, Id, shape, tf2, distance2,
+                           contact2_1, contact2_2, normal);
   else
-    collision2 = !nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
-                                         contact2_1, contact2_2, normal2);
+    nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
+                           contact2_1, contact2_2, normal2);
+  collision2 = (distance2 < 0);
 
   // if(collision2)
   //  std::cout << "collision2: " << collision2 << std::endl;
-  was_projected2 =
+  hfield_witness_is_on_bin_side2 =
       binCorrection(convex2, shape, tf2, distance2, contact2_1, contact2_2,
                     normal2, normal2_top, collision2);
   //  std::cout << "collision2: " << collision2 << std::endl;
@@ -308,14 +329,14 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
       c2 = contact2_2;
       normal = normal2;
       normal_top = normal2_top;
-      was_projected = was_projected2;
+      hfield_witness_is_on_bin_side = hfield_witness_is_on_bin_side2;
     } else {
       distance = distance1;
       c1 = contact1_1;
       c2 = contact1_2;
       normal = normal1;
       normal_top = normal1_top;
-      was_projected = was_projected1;
+      hfield_witness_is_on_bin_side = hfield_witness_is_on_bin_side1;
     }
     return true;
   } else if (collision1) {
@@ -324,7 +345,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     c2 = contact1_2;
     normal = normal1;
     normal_top = normal1_top;
-    was_projected = was_projected1;
+    hfield_witness_is_on_bin_side = hfield_witness_is_on_bin_side1;
     return true;
   } else if (collision2) {
     distance = distance2;
@@ -332,7 +353,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     c2 = contact2_2;
     normal = normal2;
     normal_top = normal2_top;
-    was_projected = was_projected2;
+    hfield_witness_is_on_bin_side = hfield_witness_is_on_bin_side2;
     return true;
   }
 
@@ -343,14 +364,14 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     c2 = contact2_2;
     normal = normal2;
     normal_top = normal2_top;
-    was_projected = was_projected2;
+    hfield_witness_is_on_bin_side = hfield_witness_is_on_bin_side2;
   } else {
     distance = distance1;
     c1 = contact1_1;
     c2 = contact1_2;
     normal = normal1;
     normal_top = normal1_top;
-    was_projected = was_projected1;
+    hfield_witness_is_on_bin_side = hfield_witness_is_on_bin_side1;
   }
   return false;
 }
@@ -510,11 +531,11 @@ class HeightFieldShapeCollisionTraversalNode
     FCL_REAL distance;
     //    Vec3f contact_point, normal;
     Vec3f c1, c2, normal, normal_top;
-    bool was_projected;
+    bool hfield_witness_is_on_bin_side;
 
     bool collision = details::shapeDistance<Triangle, S, Options>(
         nsolver, convex1, convex2, this->tf1, *(this->model2), this->tf2,
-        distance, c1, c2, normal, normal_top, was_projected);
+        distance, c1, c2, normal, normal_top, hfield_witness_is_on_bin_side);
 
     //    this->shapeCollision(convex1, convex2, this->tf1, *(this->model2),
     //    this->tf2,
@@ -534,7 +555,7 @@ class HeightFieldShapeCollisionTraversalNode
     if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
       if (this->result->numContacts() < this->request.num_max_contacts) {
-        if (collision || !was_projected) {
+        if (normal_top.isApprox(normal) && (collision || !hfield_witness_is_on_bin_side)) {
           this->result->addContact(Contact(this->model1, this->model2, (int)b1,
                                            (int)Contact::NONE, c1, c2, normal,
                                            distance));
