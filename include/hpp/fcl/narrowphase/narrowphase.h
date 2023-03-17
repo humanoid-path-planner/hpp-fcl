@@ -300,6 +300,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
       p1 = tf1.transform(p1);
       p2 = tf1.transform(p2);
       return true;
+    } else if (gjk_status == details::GJK::EarlyStopped) {
+      distance = gjk.distance;
+      p1 = p2 = normal =
+          Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+      return true;
     } else {
       assert(gjk_status == details::GJK::Inside);
       if (gjk.hasPenetrationInformation(shape)) {
