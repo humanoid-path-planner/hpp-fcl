@@ -278,8 +278,9 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
 
   // if(collision1)
   //  std::cout << "collision1: " << collision1 << std::endl;
-  applied_correction1 = binCorrection(convex1, shape, tf2, distance1, contact1_1, contact1_2, normal1,
-                                      normal1_top, collision1);
+  applied_correction1 =
+      binCorrection(convex1, shape, tf2, distance1, contact1_1, contact1_2,
+                    normal1, normal1_top, collision1);
   //  std::cout << "collision1: " << collision1 << std::endl;
 
   if (RTIsIdentity)
@@ -291,8 +292,9 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
 
   // if(collision2)
   //  std::cout << "collision2: " << collision2 << std::endl;
-  applied_correction2 = binCorrection(convex2, shape, tf2, distance2, contact2_1, contact2_2, normal2,
-                                      normal2_top, collision2);
+  applied_correction2 =
+      binCorrection(convex2, shape, tf2, distance2, contact2_1, contact2_2,
+                    normal2, normal2_top, collision2);
   //  std::cout << "collision2: " << collision2 << std::endl;
 
   //  std::cout << "collision1: " << collision1 << std::endl;
