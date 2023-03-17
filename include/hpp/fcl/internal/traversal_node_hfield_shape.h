@@ -224,7 +224,6 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
   //  std::endl; std::cout << "contact_1: " << contact_1.transpose() <<
   //  std::endl;
   // correct projection if the normal corresponds to the sides of the bin
-  if (!contact_1_projected.isApprox(contact_1)) {
     //    std::cout << "need correction" << std::endl;
     int hint = 0;
     const Vec3f _support = getSupport(
@@ -249,6 +248,8 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
     normal = normal_top;
     distance = distance_support_projection_plane;
     //    std::cout << "binCorrection end" << std::endl;
+
+  if (!contact_1_projected.isApprox(contact_1)) {
     return true;
   }
   //  std::cout << "binCorrection end" << std::endl;
@@ -260,7 +261,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
                    const Convex<Polygone>& convex2, const Transform3f& tf1,
                    const Shape& shape, const Transform3f& tf2,
                    FCL_REAL& distance, Vec3f& c1, Vec3f& c2, Vec3f& normal,
-                   Vec3f& normal_top, bool& applied_correction) {
+                   Vec3f& normal_top, bool& was_projected) {
   enum { RTIsIdentity = Options & RelativeTransformationIsIdentity };
 
   const Transform3f Id;
@@ -268,7 +269,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
   Vec3f contact2_1, contact2_2, normal2, normal2_top;
   FCL_REAL distance1, distance2;
   bool collision1, collision2;
-  bool applied_correction1, applied_correction2;
+  bool was_projected1, was_projected2;
   if (RTIsIdentity)
     collision1 = !nsolver->shapeDistance(convex1, Id, shape, tf2, distance1,
                                          contact1_1, contact1_2, normal1);
@@ -278,7 +279,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
 
   // if(collision1)
   //  std::cout << "collision1: " << collision1 << std::endl;
-  applied_correction1 =
+  was_projected1 =
       binCorrection(convex1, shape, tf2, distance1, contact1_1, contact1_2,
                     normal1, normal1_top, collision1);
   //  std::cout << "collision1: " << collision1 << std::endl;
@@ -292,7 +293,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
 
   // if(collision2)
   //  std::cout << "collision2: " << collision2 << std::endl;
-  applied_correction2 =
+  was_projected2 =
       binCorrection(convex2, shape, tf2, distance2, contact2_1, contact2_2,
                     normal2, normal2_top, collision2);
   //  std::cout << "collision2: " << collision2 << std::endl;
@@ -307,14 +308,14 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
       c2 = contact2_2;
       normal = normal2;
       normal_top = normal2_top;
-      applied_correction = applied_correction2;
+      was_projected = was_projected2;
     } else {
       distance = distance1;
       c1 = contact1_1;
       c2 = contact1_2;
       normal = normal1;
       normal_top = normal1_top;
-      applied_correction = applied_correction1;
+      was_projected = was_projected1;
     }
     return true;
   } else if (collision1) {
@@ -323,7 +324,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     c2 = contact1_2;
     normal = normal1;
     normal_top = normal1_top;
-    applied_correction = applied_correction1;
+    was_projected = was_projected1;
     return true;
   } else if (collision2) {
     distance = distance2;
@@ -331,7 +332,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     c2 = contact2_2;
     normal = normal2;
     normal_top = normal2_top;
-    applied_correction = applied_correction2;
+    was_projected = was_projected2;
     return true;
   }
 
@@ -342,14 +343,14 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     c2 = contact2_2;
     normal = normal2;
     normal_top = normal2_top;
-    applied_correction = applied_correction2;
+    was_projected = was_projected2;
   } else {
     distance = distance1;
     c1 = contact1_1;
     c2 = contact1_2;
     normal = normal1;
     normal_top = normal1_top;
-    applied_correction = applied_correction1;
+    was_projected = was_projected1;
   }
   return false;
 }
@@ -509,11 +510,11 @@ class HeightFieldShapeCollisionTraversalNode
     FCL_REAL distance;
     //    Vec3f contact_point, normal;
     Vec3f c1, c2, normal, normal_top;
-    bool applied_correction;
+    bool was_projected;
 
     bool collision = details::shapeDistance<Triangle, S, Options>(
         nsolver, convex1, convex2, this->tf1, *(this->model2), this->tf2,
-        distance, c1, c2, normal, normal_top, applied_correction);
+        distance, c1, c2, normal, normal_top, was_projected);
 
     //    this->shapeCollision(convex1, convex2, this->tf1, *(this->model2),
     //    this->tf2,
@@ -533,7 +534,7 @@ class HeightFieldShapeCollisionTraversalNode
     if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
       if (this->result->numContacts() < this->request.num_max_contacts) {
-        if (collision || !applied_correction) {
+        if (collision || !was_projected) {
           this->result->addContact(Contact(this->model1, this->model2, (int)b1,
                                            (int)Contact::NONE, c1, c2, normal,
                                            distance));
