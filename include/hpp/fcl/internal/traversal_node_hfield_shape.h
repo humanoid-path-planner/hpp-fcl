@@ -261,13 +261,13 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
   }
 
   // if (is_collision) {
-    // distance = -(contact_1 - contact_2).norm();
-    // if (hfield_witness_is_on_bin_side)
-    // normal = (contact_1 - contact_2).normalized();
+  // distance = -(contact_1 - contact_2).norm();
+  // if (hfield_witness_is_on_bin_side)
+  // normal = (contact_1 - contact_2).normalized();
   // } else {
-    // distance = (contact_1 - contact_2).norm();
-    // if (hfield_witness_is_on_bin_side)
-    // normal = (contact_2 - contact_1).normalized();
+  // distance = (contact_1 - contact_2).norm();
+  // if (hfield_witness_is_on_bin_side)
+  // normal = (contact_2 - contact_1).normalized();
   // }
   //    std::cout << "binCorrection end" << std::endl;
 
@@ -290,11 +290,11 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
   bool collision1, collision2;
   bool hfield_witness_is_on_bin_side1, hfield_witness_is_on_bin_side2;
   if (RTIsIdentity)
-    nsolver->shapeDistance(convex1, Id, shape, tf2, distance1,
-                           contact1_1, contact1_2, normal1);
+    nsolver->shapeDistance(convex1, Id, shape, tf2, distance1, contact1_1,
+                           contact1_2, normal1);
   else
-    nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1,
-                           contact1_1, contact1_2, normal1);
+    nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1, contact1_1,
+                           contact1_2, normal1);
   collision1 = (distance1 < 0);
 
   // if(collision1)
@@ -305,11 +305,11 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
   //  std::cout << "collision1: " << collision1 << std::endl;
 
   if (RTIsIdentity)
-    nsolver->shapeDistance(convex2, Id, shape, tf2, distance2,
-                           contact2_1, contact2_2, normal);
+    nsolver->shapeDistance(convex2, Id, shape, tf2, distance2, contact2_1,
+                           contact2_2, normal);
   else
-    nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
-                           contact2_1, contact2_2, normal2);
+    nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2, contact2_1,
+                           contact2_2, normal2);
   collision2 = (distance2 < 0);
 
   // if(collision2)
@@ -555,7 +555,8 @@ class HeightFieldShapeCollisionTraversalNode
     if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
       if (this->result->numContacts() < this->request.num_max_contacts) {
-        if (normal_top.isApprox(normal) && (collision || !hfield_witness_is_on_bin_side)) {
+        if (normal_top.isApprox(normal) &&
+            (collision || !hfield_witness_is_on_bin_side)) {
           this->result->addContact(Contact(this->model1, this->model2, (int)b1,
                                            (int)Contact::NONE, c1, c2, normal,
                                            distance));

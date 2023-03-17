@@ -259,7 +259,8 @@ inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
           : dir,                                                       \
       support, hint, NULL)
 
-inline void getSphereSupport(const Sphere* sphere, const Vec3f& dir, Vec3f& support) {
+inline void getSphereSupport(const Sphere* sphere, const Vec3f& dir,
+                             Vec3f& support) {
   support = sphere->radius * (dir.normalized());
 }
 
