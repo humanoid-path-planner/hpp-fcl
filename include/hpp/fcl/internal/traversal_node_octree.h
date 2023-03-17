@@ -589,10 +589,11 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       Vec3f c1, c2, normal, normal_top;
       FCL_REAL distance;
+      bool dummy_bool;
 
       bool collision = details::shapeDistance<Triangle, Box, 0>(
           solver, convex1, convex2, tf2, box, box_tf, distance, c2, c1, normal,
-          normal_top);
+          normal_top, dummy_bool);
 
       FCL_REAL distToCollision = distance - crequest->security_margin;
 
@@ -702,10 +703,11 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       Vec3f c1, c2, normal, normal_top;
       FCL_REAL distance;
+      bool dummy_bool;
 
       bool collision = details::shapeDistance<Triangle, Box, 0>(
           solver, convex1, convex2, tf1, box, box_tf, distance, c1, c2, normal,
-          normal_top);
+          normal_top, dummy_bool);
 
       FCL_REAL distToCollision = distance - crequest->security_margin;
 

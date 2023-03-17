@@ -45,6 +45,7 @@
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/internal/traversal_node_base.h>
 #include <hpp/fcl/internal/traversal.h>
+#include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/hfield.h>
 #include <hpp/fcl/shape/convex.h>
 
@@ -195,7 +196,7 @@ template <typename Polygone, typename Shape>
 bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
                    const Transform3f& shape_pose, FCL_REAL& distance,
                    Vec3f& contact_1, Vec3f& contact_2, Vec3f& normal,
-                   Vec3f& normal_top) {
+                   Vec3f& normal_top, bool& is_collision) {
   //  std::cout << "binCorrection start" << std::endl;
   const Polygone& top_triangle = convex.polygons[1];
   const Vec3f* points = convex.points;
@@ -209,11 +210,13 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
   //  std::cout << "pointB: " << pointB.transpose() << std::endl;
   //  std::cout << "pointC: " << pointC.transpose() << std::endl;
 
-  assert(!normal_top.array().isNaN().any() && "normal1_top is ill-defined");
+  assert(!normal_top.array().isNaN().any() && "normal_top is ill-defined");
 
   //  std::cout << "normal_top: " << normal_top.transpose() << std::endl;
   //  std::cout << "normal: " << normal.transpose() << std::endl;
 
+  // We correct only if a collision occurs between the shape and the bin
+  if (!is_collision) return false;
   const Vec3f contact_1_projected =
       projectTriangle(pointA, pointB, pointC, contact_1);
 
@@ -249,7 +252,6 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
     return true;
   }
   //  std::cout << "binCorrection end" << std::endl;
-
   return false;
 }
 
@@ -258,7 +260,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
                    const Convex<Polygone>& convex2, const Transform3f& tf1,
                    const Shape& shape, const Transform3f& tf2,
                    FCL_REAL& distance, Vec3f& c1, Vec3f& c2, Vec3f& normal,
-                   Vec3f& normal_top) {
+                   Vec3f& normal_top, bool& applied_correction) {
   enum { RTIsIdentity = Options & RelativeTransformationIsIdentity };
 
   const Transform3f Id;
@@ -266,6 +268,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
   Vec3f contact2_1, contact2_2, normal2, normal2_top;
   FCL_REAL distance1, distance2;
   bool collision1, collision2;
+  bool applied_correction1, applied_correction2;
   if (RTIsIdentity)
     collision1 = !nsolver->shapeDistance(convex1, Id, shape, tf2, distance1,
                                          contact1_1, contact1_2, normal1);
@@ -273,10 +276,10 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     collision1 = !nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1,
                                          contact1_1, contact1_2, normal1);
 
-  //  if(collision1)
+  // if(collision1)
   //  std::cout << "collision1: " << collision1 << std::endl;
-  binCorrection(convex1, shape, tf2, distance1, contact1_1, contact1_2, normal1,
-                normal1_top);
+  applied_correction1 = binCorrection(convex1, shape, tf2, distance1, contact1_1, contact1_2, normal1,
+                                      normal1_top, collision1);
   //  std::cout << "collision1: " << collision1 << std::endl;
 
   if (RTIsIdentity)
@@ -286,10 +289,10 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     collision2 = !nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
                                          contact2_1, contact2_2, normal2);
 
-  //  if(collision2)
+  // if(collision2)
   //  std::cout << "collision2: " << collision2 << std::endl;
-  binCorrection(convex2, shape, tf2, distance2, contact2_1, contact2_2, normal2,
-                normal2_top);
+  applied_correction2 = binCorrection(convex2, shape, tf2, distance2, contact2_1, contact2_2, normal2,
+                                      normal2_top, collision2);
   //  std::cout << "collision2: " << collision2 << std::endl;
 
   //  std::cout << "collision1: " << collision1 << std::endl;
@@ -302,12 +305,14 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
       c2 = contact2_2;
       normal = normal2;
       normal_top = normal2_top;
+      applied_correction = applied_correction2;
     } else {
       distance = distance1;
       c1 = contact1_1;
       c2 = contact1_2;
       normal = normal1;
       normal_top = normal1_top;
+      applied_correction = applied_correction1;
     }
     return true;
   } else if (collision1) {
@@ -316,6 +321,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     c2 = contact1_2;
     normal = normal1;
     normal_top = normal1_top;
+    applied_correction = applied_correction1;
     return true;
   } else if (collision2) {
     distance = distance2;
@@ -323,6 +329,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     c2 = contact2_2;
     normal = normal2;
     normal_top = normal2_top;
+    applied_correction = applied_correction2;
     return true;
   }
 
@@ -333,12 +340,14 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     c2 = contact2_2;
     normal = normal2;
     normal_top = normal2_top;
+    applied_correction = applied_correction2;
   } else {
     distance = distance1;
     c1 = contact1_1;
     c2 = contact1_2;
     normal = normal1;
     normal_top = normal1_top;
+    applied_correction = applied_correction1;
   }
   return false;
 }
@@ -498,10 +507,11 @@ class HeightFieldShapeCollisionTraversalNode
     FCL_REAL distance;
     //    Vec3f contact_point, normal;
     Vec3f c1, c2, normal, normal_top;
+    bool applied_correction;
 
     bool collision = details::shapeDistance<Triangle, S, Options>(
         nsolver, convex1, convex2, this->tf1, *(this->model2), this->tf2,
-        distance, c1, c2, normal, normal_top);
+        distance, c1, c2, normal, normal_top, applied_correction);
 
     //    this->shapeCollision(convex1, convex2, this->tf1, *(this->model2),
     //    this->tf2,
@@ -518,30 +528,23 @@ class HeightFieldShapeCollisionTraversalNode
     //    std::cout << "normal:" << normal.transpose() << std::endl;
     //    std::cout << "c1:" << c1.transpose() << std::endl;
     //    std::cout << "c2:" << c2.transpose() << std::endl;
-    if (collision && this->request.security_margin >= 0) {
-      //      std::cout << "case 1" << std::endl;
+    if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
-      if (this->request.num_max_contacts > this->result->numContacts()) {
-        this->result->addContact(Contact(this->model1, this->model2, (int)b1,
-                                         (int)Contact::NONE, c1, normal,
-                                         -distance));
-        assert(this->result->isCollision());
-      }
-    } else if (distToCollision <= this->request.collision_distance_threshold) {
-      //      std::cout << "case 2" << std::endl;
-      sqrDistLowerBound = 0;
-      if (this->request.num_max_contacts > this->result->numContacts()) {
-        this->result->addContact(Contact(this->model1, this->model2, (int)b1,
-                                         (int)Contact::NONE, .5 * (c1 + c2),
-                                         normal, -distance));
+      if (this->result->numContacts() < this->request.num_max_contacts) {
+        if (collision || !applied_correction) {
+          this->result->addContact(Contact(this->model1, this->model2, (int)b1,
+                                           (int)Contact::NONE, c1, c2, normal,
+                                           distance));
+          assert(this->result->isCollision());
+        }
       }
     } else
-      sqrDistLowerBound = distToCollision * distToCollision;
+      sqrDistLowerBound = distance * distance;
 
     //    const Vec3f c1 = contact_point - distance * 0.5 * normal;
     //    const Vec3f c2 = contact_point + distance * 0.5 * normal;
     internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
-                                               distToCollision, c1, c2);
+                                               distance, c1, c2);
 
     assert(this->result->isCollision() || sqrDistLowerBound > 0);
 
