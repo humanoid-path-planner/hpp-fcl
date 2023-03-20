@@ -380,7 +380,7 @@ struct mesh_mesh_run_test {
         }
         BENCHMARK(local_result.numContacts());
         BENCHMARK(local_result.distance_lower_bound);
-        BENCHMARK(timer.elapsed().user);
+        BENCHMARK(timer.duration().count());
         BENCHMARK_NEXT();
 
         if (local_result.numContacts() > 0) {
@@ -431,7 +431,7 @@ struct mesh_mesh_run_test {
         }
         BENCHMARK(local_result.numContacts());
         BENCHMARK(local_result.distance_lower_bound);
-        BENCHMARK(timer.elapsed().user);
+        BENCHMARK(timer.duration().count());
         BENCHMARK_NEXT();
 
         if (local_result.numContacts() > 0) {
@@ -475,7 +475,7 @@ struct mesh_mesh_run_test {
         }
         BENCHMARK(local_result.numContacts());
         BENCHMARK(local_result.distance_lower_bound);
-        BENCHMARK(timer.elapsed().user);
+        BENCHMARK(timer.duration().count());
         BENCHMARK_NEXT();
 
         if (local_result.numContacts() > 0) {
