@@ -2,6 +2,10 @@ name: Build hpp-fcl for Mac OS X/Linux via pip
 
 on: [push, pull_request]
 
+env:
+    CTEST_OUTPUT_ON_FAILURE: 1
+    CTEST_PARALLEL_LEVEL: 4
+
 jobs:
   hpp-fcl-pip:
     name: CI on ${{ matrix.os }} / python ${{ matrix.python-version }} with pip
@@ -24,5 +28,5 @@ jobs:
       - run: echo "CMAKE_PREFIX_PATH=$(python -m cmeel cmake)" >> $GITHUB_ENV
       - run: echo "LD_LIBRARY_PATH=$(python -m cmeel lib)" >> $GITHUB_ENV
       - run: cmake -B build -S . -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0"
-      - run: cmake --build build
+      - run: cmake --build build -j 4
       - run: cmake --build build -t test
