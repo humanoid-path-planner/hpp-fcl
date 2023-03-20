@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2014-2016, CNRS-LAAS
+ *  Copyright (c) 2023, Inria
  *  Author: Florent Lamiraux
  *  All rights reserved.
  *
@@ -48,69 +49,6 @@
 #include "utility.h"
 
 using namespace hpp::fcl;
-
-int getNumCPUs() {
-  int NumCPUs = 0;
-  int MaxID = -1;
-  std::ifstream f("/proc/cpuinfo");
-  if (!f.is_open()) {
-    std::cerr << "failed to open /proc/cpuinfo\n";
-    return -1;
-  }
-  const std::string Key = "processor";
-  std::string ln;
-  while (std::getline(f, ln)) {
-    if (ln.empty()) continue;
-    size_t SplitIdx = ln.find(':');
-    std::string value;
-    if (SplitIdx != std::string::npos) value = ln.substr(SplitIdx + 1);
-    if (ln.size() >= Key.size() && ln.compare(0, Key.size(), Key) == 0) {
-      NumCPUs++;
-      if (!value.empty()) {
-        int CurID = (int)strtol(value.c_str(), NULL, 10);
-        MaxID = std::max(CurID, MaxID);
-      }
-    }
-  }
-  if (f.bad()) {
-    std::cerr << "Failure reading /proc/cpuinfo\n";
-    return -1;
-  }
-  if (!f.eof()) {
-    std::cerr << "Failed to read to end of /proc/cpuinfo\n";
-    return -1;
-  }
-  f.close();
-
-  if ((MaxID + 1) != NumCPUs) {
-    fprintf(stderr,
-            "CPU ID assignments in /proc/cpuinfo seem messed up."
-            " This is usually caused by a bad BIOS.\n");
-  }
-  return NumCPUs;
-}
-
-bool checkCpuScalingEnabled() {
-  int num_cpus = getNumCPUs();
-
-  // We don't have a valid CPU count, so don't even bother.
-  if (num_cpus <= 0) return false;
-  // On Linux, the CPUfreq subsystem exposes CPU information as files on the
-  // local file system. If reading the exported files fails, then we may not be
-  // running on Linux, so we silently ignore all the read errors.
-  std::string res;
-  for (int cpu = 0; cpu < num_cpus; ++cpu) {
-    std::ostringstream oss;
-    oss << "/sys/devices/system/cpu/cpu" << cpu << "/cpufreq/scaling_governor";
-    std::string governor_file = oss.str();
-    std::ifstream f(governor_file.c_str());
-    if (!f.is_open()) return false;
-    f >> res;
-    if (!f.good()) return false;
-    if (res != "performance") return true;
-  }
-  return false;
-}
 
 void randomOBBs(Vec3f& a, Vec3f& b, FCL_REAL extentNorm) {
   // Extent norm is between 0 and extentNorm on each axis
@@ -1378,15 +1316,13 @@ int main(int argc, char** argv) {
     output = &std::cout;
   }
 
-  bool cpuScalingEnabled = checkCpuScalingEnabled();
-  if (cpuScalingEnabled)
-    std::cerr << "CPU scaling is enabled."
-                 "\n\tThe benchmark real time measurements may be noisy and "
-                 "will incur extra overhead."
-                 "\n\tUse the following commands to turn on and off."
-                 "\n\t\tsudo cpufreq-set --governor performance"
-                 "\n\t\tsudo cpufreq-set --governor powersave"
-                 "\n";
+  std::cout << "The benchmark real time measurements may be noisy and "
+               "will incur extra overhead."
+               "\nUse the following commands to turn ON:"
+               "\n\tsudo cpufreq-set --governor performance"
+               "\nor OFF:"
+               "\n\tsudo cpufreq-set --governor powersave"
+               "\n";
 
   std::size_t nbFailure = obb_overlap_and_lower_bound_distance(output);
   if (nbFailure > INT_MAX) return INT_MAX;
