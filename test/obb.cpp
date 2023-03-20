@@ -38,9 +38,7 @@
 #include <fstream>
 #include <sstream>
 
-#define BOOST_CHRONO_VERSION 2
-#include <boost/chrono/chrono.hpp>
-#include <boost/chrono/chrono_io.hpp>
+#include <chrono>
 
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
@@ -88,7 +86,7 @@ void randomTransform(Matrix3f& B, Vec3f& T, const Vec3f& a, const Vec3f& b,
 #define PRODUCT(M33, v3) (M33 * v3)
 #endif
 
-typedef boost::chrono::high_resolution_clock clock_type;
+typedef std::chrono::high_resolution_clock clock_type;
 typedef clock_type::duration duration_type;
 
 const char* sep = ",\t";
@@ -1142,25 +1140,26 @@ struct BenchmarkResult {
   bool failure;
 
   static std::ostream& headers(std::ostream& os) {
-    duration_type dummy(1);
-    std::string unit = " (" +
-                       boost::chrono::duration_units_default<>().get_unit(
-                           boost::chrono::duration_style::symbol, dummy) +
-                       ")";
-    os << boost::chrono::symbol_format << "separating axis" << sep
-       << "distance lower bound" << sep << "distance" << sep << "failure" << sep
-       << "Runtime Loop" << unit << sep << "Manual Loop Unrolling 1" << unit
-       << sep << "Manual Loop Unrolling 2" << unit << sep
-       << "Template Unrolling" << unit << sep << "Partial Template Unrolling"
-       << unit << sep << "Original (LowerBound)" << unit << sep
-       << "Original (NoLowerBound)" << unit;
+    const std::string unit = " (us)";
+    os << "separating axis" << sep << "distance lower bound" << sep
+       << "distance" << sep << "failure" << sep << "Runtime Loop" << unit << sep
+       << "Manual Loop Unrolling 1" << unit << sep << "Manual Loop Unrolling 2"
+       << unit << sep << "Template Unrolling" << unit << sep
+       << "Partial Template Unrolling" << unit << sep << "Original (LowerBound)"
+       << unit << sep << "Original (NoLowerBound)" << unit;
     return os;
   }
 
   std::ostream& print(std::ostream& os) const {
     os << ifId << sep << std::sqrt(squaredLowerBoundDistance) << sep << distance
        << sep << failure;
-    for (int i = 0; i < NB_METHODS; ++i) os << sep << duration[i].count();
+    for (int i = 0; i < NB_METHODS; ++i)
+      os << sep
+         << static_cast<double>(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    duration[i])
+                    .count()) *
+                1e-3;
     return os;
   }
 };
