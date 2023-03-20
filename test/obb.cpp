@@ -1316,6 +1316,14 @@ int main(int argc, char** argv) {
     output = &std::cout;
   }
 
+  std::cout << "The benchmark real time measurements may be noisy and "
+               "will incur extra overhead."
+               "\nUse the following commands to turn ON:"
+               "\n\tsudo cpufreq-set --governor performance"
+               "\nor OFF:"
+               "\n\tsudo cpufreq-set --governor powersave"
+               "\n";
+
   std::size_t nbFailure = obb_overlap_and_lower_bound_distance(output);
   if (nbFailure > INT_MAX) return INT_MAX;
   return (int)nbFailure;
