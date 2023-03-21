@@ -1,5 +1,5 @@
 # Find Boost.UnitTestFramework
-FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework filesystem chrono timer)
+FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework filesystem)
 
 config_files(fcl_resources/config.h)
 
@@ -8,9 +8,7 @@ macro(add_fcl_test test_name source)
   target_link_libraries(${test_name}
     PUBLIC
     hpp-fcl
-    Boost::chrono
     Boost::filesystem
-    Boost::timer
     utility
     )
   IF(NOT WIN32)
@@ -74,7 +72,6 @@ add_executable(test-benchmark benchmark.cpp)
 target_link_libraries(test-benchmark
   PUBLIC
   utility
-  Boost::chrono
   Boost::filesystem
   ${PROJECT_NAME}
   )
