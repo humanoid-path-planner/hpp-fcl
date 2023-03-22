@@ -326,7 +326,7 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
 };
 
 inline FCL_REAL Contact::getDistanceToCollision(
-    const CollisionRequest& request) {
+    const CollisionRequest& request) const {
   return penetration_depth - request.security_margin;
 }
 
