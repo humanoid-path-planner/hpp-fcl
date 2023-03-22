@@ -212,8 +212,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
         if (gjk.hasPenetrationInformation(shape)) {
           gjk.getClosestPoints(shape, w0, w1);
           distance = gjk.distance;
-          normal.noalias() = tf1.getRotation() * (w1 - w0).normalized();
-          p1 = p2 = tf1.transform((w0 + w1) / 2);
+          normal.noalias() = tf1.getRotation() * (w0 - w1).normalized();
+          p1 = tf1.transform(w0);
+          p2 = tf1.transform(w1);
         } else {
           details::EPA epa(epa_max_face_num, epa_max_vertex_num,
                            epa_max_iterations, epa_tolerance);
@@ -225,16 +226,25 @@ struct HPP_FCL_DLLAPI GJKSolver {
             epa.getClosestPoints(shape, w0, w1);
             distance = -epa.depth;
             normal.noalias() = tf1.getRotation() * epa.normal;
-            p1 = p2 = tf1.transform(w0 - epa.normal * (epa.depth * 0.5));
+            p1 = tf1.transform(w0);
+            p2 = tf1.transform(w1);
             assert(distance <= 1e-6);
           } else {
             distance = -(std::numeric_limits<FCL_REAL>::max)();
             gjk.getClosestPoints(shape, w0, w1);
-            p1 = p2 = tf1.transform(w0);
+            p1 = tf1.transform(w0);
+            p2 = tf1.transform(w1);
           }
         }
         break;
       case details::GJK::Valid:
+        gjk.getClosestPoints(shape, w0, w1);
+        distance = gjk.distance;
+        normal.noalias() = -tf1.getRotation() * gjk.ray;
+        normal.normalize();
+        p1 = tf1.transform(w0);
+        p2 = tf1.transform(w1);
+        break;
       case details::GJK::Failed:
         col = false;
 
@@ -246,6 +256,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
         p1 = tf1.transform(p1);
         p2 = tf1.transform(p2);
+        normal.setZero();
         assert(distance > 0);
         break;
       default:
