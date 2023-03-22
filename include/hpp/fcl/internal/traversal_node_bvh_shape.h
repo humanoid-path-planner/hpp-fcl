@@ -193,32 +193,24 @@ class MeshShapeCollisionTraversalNode
     Vec3f normal;
     Vec3f c1, c2;  // closest point
 
-    bool collision;
     if (RTIsIdentity) {
       static const Transform3f Id;
-      collision = nsolver->shapeTriangleInteraction(
-          *(this->model2), this->tf2, p1, p2, p3, Id, distance, c2, c1, normal);
+      nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
+                                        Id, distance, c2, c1, normal);
     } else {
-      collision = nsolver->shapeTriangleInteraction(*(this->model2), this->tf2,
-                                                    p1, p2, p3, this->tf1,
-                                                    distance, c2, c1, normal);
+      nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
+                                        this->tf1, distance, c2, c1, normal);
     }
 
+    // TODO @louis: change things here as in hfields & ShapeShapeDistance
     FCL_REAL distToCollision = distance - this->request.security_margin;
-    if (collision) {
+    if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
       if (this->request.num_max_contacts > this->result->numContacts()) {
         this->result->addContact(Contact(this->model1, this->model2,
-                                         primitive_id, Contact::NONE, c1,
-                                         -normal, -distance));
+                                         primitive_id, Contact::NONE, c1, c2,
+                                         normal, distance));
         assert(this->result->isCollision());
-      }
-    } else if (distToCollision <= this->request.collision_distance_threshold) {
-      sqrDistLowerBound = 0;
-      if (this->request.num_max_contacts > this->result->numContacts()) {
-        this->result->addContact(
-            Contact(this->model1, this->model2, primitive_id, Contact::NONE,
-                    .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
       }
     } else
       sqrDistLowerBound = distToCollision * distToCollision;
