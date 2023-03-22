@@ -135,7 +135,7 @@ struct HPP_FCL_DLLAPI Contact {
 
   bool operator!=(const Contact& other) const { return !(*this == other); }
 
-  inline FCL_REAL getDistanceToCollision(const CollisionRequest& request);
+  FCL_REAL getDistanceToCollision(const CollisionRequest& request) const;
 };
 
 struct QueryResult;
