@@ -898,21 +898,16 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       FCL_REAL distance;
       Vec3f c1, c2, normal;
-      bool collision = solver->shapeDistance(box1, box1_tf, box2, box2_tf,
-                                             distance, c1, c2, normal);
+      solver->shapeDistance(box1, box1_tf, box2, box2_tf, distance, c1, c2,
+                            normal);
       FCL_REAL distToCollision = distance - crequest->security_margin;
 
       if (cresult->numContacts() < crequest->num_max_contacts) {
-        if (collision)
+        if (distToCollision <= crequest->collision_distance_threshold)
           cresult->addContact(
               Contact(tree1, tree2, static_cast<int>(root1 - tree1->getRoot()),
-                      static_cast<int>(root2 - tree2->getRoot()), c1, normal,
-                      -distance));
-        else if (distToCollision <= 0)
-          cresult->addContact(
-              Contact(tree1, tree2, static_cast<int>(root1 - tree1->getRoot()),
-                      static_cast<int>(root2 - tree2->getRoot()),
-                      .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
+                      static_cast<int>(root2 - tree2->getRoot()), c1, c2,
+                      normal, distance));
       }
       internal::updateDistanceLowerBoundFromLeaf(*crequest, *cresult,
                                                  distToCollision, c1, c2);
