@@ -238,6 +238,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         }
         break;
       case details::GJK::Valid:
+        col = false;
         gjk.getClosestPoints(shape, w0, w1);
         distance = gjk.distance;
         normal.noalias() = -tf1.getRotation() * gjk.ray;
