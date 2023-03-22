@@ -492,19 +492,15 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       Vec3f c1, c2, normal;
       FCL_REAL distance;
 
-      bool collision = solver->shapeTriangleInteraction(
-          box, box_tf, p1, p2, p3, tf2, distance, c1, c2, normal);
+      solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2, distance,
+                                       c1, c2, normal);
       FCL_REAL distToCollision = distance - crequest->security_margin;
 
       if (cresult->numContacts() < crequest->num_max_contacts) {
-        if (collision) {
+        if (distToCollision <= crequest->collision_distance_threshold) {
           cresult->addContact(Contact(tree1, tree2,
                                       (int)(root1 - tree1->getRoot()),
-                                      primitive_id, c1, normal, -distance));
-        } else if (distToCollision < 0) {
-          cresult->addContact(Contact(
-              tree1, tree2, (int)(root1 - tree1->getRoot()), primitive_id,
-              .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
+                                      primitive_id, c1, c2, normal, distance));
         }
       }
       internal::updateDistanceLowerBoundFromLeaf(*crequest, *cresult,
