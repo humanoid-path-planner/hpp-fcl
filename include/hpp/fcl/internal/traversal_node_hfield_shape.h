@@ -564,12 +564,12 @@ class HeightFieldShapeCollisionTraversalNode
         }
       }
     } else
-      sqrDistLowerBound = distance * distance;
+      sqrDistLowerBound = distToCollision * distToCollision;
 
     //    const Vec3f c1 = contact_point - distance * 0.5 * normal;
     //    const Vec3f c2 = contact_point + distance * 0.5 * normal;
     internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
-                                               distance, c1, c2);
+                                               distToCollision, c1, c2);
 
     assert(this->result->isCollision() || sqrDistLowerBound > 0);
 
@@ -588,6 +588,9 @@ class HeightFieldShapeCollisionTraversalNode
   mutable int num_leaf_tests;
   mutable FCL_REAL query_time_seconds;
   mutable int count;
+  mutable bool passed_here1 = false;
+  mutable bool passed_here2 = false;
+  mutable bool passed_here3 = false;
 };
 
 /// @}
