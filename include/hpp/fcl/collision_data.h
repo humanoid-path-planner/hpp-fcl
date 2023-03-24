@@ -134,6 +134,8 @@ struct HPP_FCL_DLLAPI Contact {
   }
 
   bool operator!=(const Contact& other) const { return !(*this == other); }
+
+  FCL_REAL getDistanceToCollision(const CollisionRequest& request) const;
 };
 
 struct QueryResult;
@@ -322,6 +324,11 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
            distance_upper_bound == other.distance_upper_bound;
   }
 };
+
+inline FCL_REAL Contact::getDistanceToCollision(
+    const CollisionRequest& request) const {
+  return penetration_depth - request.security_margin;
+}
 
 /// @brief collision result
 struct HPP_FCL_DLLAPI CollisionResult : QueryResult {

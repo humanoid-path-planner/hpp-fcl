@@ -216,17 +216,16 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
     if (distToCollision <=
         this->request.collision_distance_threshold) {  // collision
       sqrDistLowerBound = 0;
-      Vec3f p(p1);  // contact point
       if (this->result->numContacts() < this->request.num_max_contacts) {
         // How much (Q1, Q2, Q3) should be moved so that all vertices are
         // above (P1, P2, P3).
-        if (distance > 0) {
-          normal = (p2 - p1).normalized();
-          p = .5 * (p1 + p2);
-        }
+        // The normal is already computed by GJK, no need to recompute it.
+        // if (distance > 0) {
+        //   normal = (p2 - p1).normalized();
+        // }
         this->result->addContact(Contact(this->model1, this->model2,
-                                         primitive_id1, primitive_id2, p,
-                                         normal, -distance));
+                                         primitive_id1, primitive_id2, p1, p2,
+                                         normal, distance));
       }
     } else
       sqrDistLowerBound = distToCollision * distToCollision;
