@@ -235,6 +235,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         }
         break;
       case details::GJK::Valid:
+      case details::GJK::EarlyStopped:
       case details::GJK::Failed:
         col = false;
 
@@ -250,7 +251,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         break;
       default:
         assert(false && "should not reach type part.");
-        return true;
+        throw std::logic_error("GJKSolver: should not reach this part.");
     }
     return col;
   }
