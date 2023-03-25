@@ -6,6 +6,7 @@
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
+#include "doxygen_autodoc/hpp/fcl/octree.h"
 #endif
 
 void exposeOctree() {
