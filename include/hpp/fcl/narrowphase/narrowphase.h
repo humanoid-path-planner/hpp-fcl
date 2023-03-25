@@ -238,6 +238,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         }
         break;
       case details::GJK::Valid:
+      case details::GJK::EarlyStopped:
         col = false;
         gjk.getClosestPoints(shape, w0, w1);
         distance = gjk.distance;
@@ -262,7 +263,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         break;
       default:
         assert(false && "should not reach type part.");
-        return true;
+        throw std::logic_error("GJKSolver: should not reach this part.");
     }
     return col;
   }

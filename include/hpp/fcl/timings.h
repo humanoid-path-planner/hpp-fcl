@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2023 INRIA
 //
 
 #ifndef HPP_FCL_TIMINGS_FWD_H
@@ -30,7 +30,18 @@ struct CPUTimes {
 ///        Importantly, this class will only have an effect for C++11 and more.
 ///
 struct HPP_FCL_DLLAPI Timer {
-  Timer() : m_is_stopped(true) { start(); }
+#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+  typedef std::chrono::steady_clock clock_type;
+  typedef clock_type::duration duration_type;
+#endif
+
+  /// \brief Default constructor for the timer
+  ///
+  /// \param[in] start_on_construction if true, the timer will be run just after
+  /// the object is created
+  Timer(const bool start_on_construction = true) : m_is_stopped(true) {
+    if (start_on_construction) Timer::start();
+  }
 
   CPUTimes elapsed() const {
     if (m_is_stopped) return m_times;
@@ -47,6 +58,10 @@ struct HPP_FCL_DLLAPI Timer {
 #endif
     return current;
   }
+
+#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+  duration_type duration() const { return (m_end - m_start); }
+#endif
 
   void start() {
     if (m_is_stopped) {
@@ -75,7 +90,10 @@ struct HPP_FCL_DLLAPI Timer {
 
   void resume() {
 #ifdef HPP_FCL_WITH_CXX11_SUPPORT
-    if (m_is_stopped) m_start = std::chrono::steady_clock::now();
+    if (m_is_stopped) {
+      m_start = std::chrono::steady_clock::now();
+      m_is_stopped = false;
+    }
 #endif
   }
 
