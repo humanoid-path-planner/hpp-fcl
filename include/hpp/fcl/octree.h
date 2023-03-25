@@ -156,7 +156,8 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
         FCL_REAL c = (*it).getOccupancy();
         FCL_REAL t = tree->getOccupancyThres();
 
-        const Vec6f box(x, y, z, size, c, t);
+        Vec6f box;
+        box << x, y, z, size, c, t;
         boxes.push_back(box);
       }
     }
