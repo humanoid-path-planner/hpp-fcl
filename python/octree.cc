@@ -1,6 +1,8 @@
 
 #include "fcl.hh"
 
+#include <eigenpy/std-vector.hpp>
+
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/octree.h>
 
@@ -18,6 +20,7 @@ void exposeOctree() {
       "OcTree", doxygen::class_doc<OcTree>(), bp::no_init)
       .def(dv::init<OcTree, FCL_REAL>())
       .def(dv::member_func("getTreeDepth", &OcTree::getTreeDepth))
+      .def(dv::member_func("getResolution", &OcTree::getResolution))
       .def(dv::member_func("getOccupancyThres", &OcTree::getOccupancyThres))
       .def(dv::member_func("getFreeThres", &OcTree::getFreeThres))
       .def(dv::member_func("getDefaultOccupancy", &OcTree::getDefaultOccupancy))
@@ -25,7 +28,11 @@ void exposeOctree() {
                            &OcTree::setCellDefaultOccupancy))
       .def(dv::member_func("setOccupancyThres", &OcTree::setOccupancyThres))
       .def(dv::member_func("setFreeThres", &OcTree::setFreeThres))
-      .def(dv::member_func("getRootBV", &OcTree::getRootBV));
+      .def(dv::member_func("getRootBV", &OcTree::getRootBV))
+      .def(dv::member_func("toBoxes", &OcTree::toBoxes));
 
   doxygen::def("makeOctree", &makeOctree);
+  eigenpy::enableEigenPySpecific<Vec6f>();
+  eigenpy::StdVectorPythonVisitor<std::vector<Vec6f>, true>::expose(
+      "StdVec_Vec6");
 }
