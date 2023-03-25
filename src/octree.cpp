@@ -54,13 +54,13 @@ struct Neighbors {
   void hasNeighboordPlusZ() { value |= 0x20; }
 };  // struct neighbors
 
-void computeNeighbors(const std::vector<boost::array<FCL_REAL, 6> >& boxes,
+void computeNeighbors(const std::vector<Vec6f>& boxes,
                       std::vector<Neighbors>& neighbors) {
-  typedef std::vector<boost::array<FCL_REAL, 6> > VectorArray6;
+  typedef std::vector<Vec6f> VectorVec6f;
   FCL_REAL fixedSize = -1;
   FCL_REAL e(1e-8);
   for (std::size_t i = 0; i < boxes.size(); ++i) {
-    const boost::array<FCL_REAL, 6>& box(boxes[i]);
+    const Vec6f& box(boxes[i]);
     Neighbors& n(neighbors[i]);
     FCL_REAL x(box[0]);
     FCL_REAL y(box[1]);
@@ -71,9 +71,9 @@ void computeNeighbors(const std::vector<boost::array<FCL_REAL, 6> >& boxes,
     else
       assert(s == fixedSize);
 
-    for (VectorArray6::const_iterator it = boxes.begin(); it != boxes.end();
+    for (VectorVec6f::const_iterator it = boxes.begin(); it != boxes.end();
          ++it) {
-      const boost::array<FCL_REAL, 6>& otherBox = *it;
+      const Vec6f& otherBox = *it;
       FCL_REAL xo(otherBox[0]);
       FCL_REAL yo(otherBox[1]);
       FCL_REAL zo(otherBox[2]);
@@ -105,7 +105,7 @@ void computeNeighbors(const std::vector<boost::array<FCL_REAL, 6> >& boxes,
 }  // namespace internal
 
 void OcTree::exportAsObjFile(const std::string& filename) const {
-  std::vector<boost::array<FCL_REAL, 6> > boxes(this->toBoxes());
+  std::vector<Vec6f> boxes(this->toBoxes());
   std::vector<internal::Neighbors> neighbors(boxes.size());
   internal::computeNeighbors(boxes, neighbors);
   // compute list of vertices and faces
@@ -118,7 +118,7 @@ void OcTree::exportAsObjFile(const std::string& filename) const {
   std::vector<Array4> faces;
 
   for (std::size_t i = 0; i < boxes.size(); ++i) {
-    const boost::array<FCL_REAL, 6>& box(boxes[i]);
+    const Vec6f& box(boxes[i]);
     internal::Neighbors& n(neighbors[i]);
 
     FCL_REAL x(box[0]);

@@ -111,8 +111,11 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
     return AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta));
   }
 
-  /// @brief Returns the depth of octree
+  /// @brief Returns the depth of the octree
   unsigned int getTreeDepth() const { return tree->getTreeDepth(); }
+
+  /// @brief Returns the resolution of the octree
+  FCL_REAL getResolution() const { return tree->getResolution(); }
 
   /// @brief get the root node of the octree
   OcTreeNode* getRoot() const { return tree->getRoot(); }
@@ -137,8 +140,8 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
   /// @brief transform the octree into a bunch of boxes; uncertainty information
   /// is kept in the boxes. However, we only keep the occupied boxes (i.e., the
   /// boxes whose occupied probability is higher enough).
-  std::vector<boost::array<FCL_REAL, 6> > toBoxes() const {
-    std::vector<boost::array<FCL_REAL, 6> > boxes;
+  std::vector<Vec6f> toBoxes() const {
+    std::vector<Vec6f> boxes;
     boxes.reserve(tree->size() / 2);
     for (octomap::OcTree::iterator
              it = tree->begin((unsigned char)tree->getTreeDepth()),
@@ -146,14 +149,14 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
          it != end; ++it) {
       // if(tree->isNodeOccupied(*it))
       if (isNodeOccupied(&*it)) {
-        FCL_REAL size = it.getSize();
         FCL_REAL x = it.getX();
         FCL_REAL y = it.getY();
         FCL_REAL z = it.getZ();
+        FCL_REAL size = it.getSize();
         FCL_REAL c = (*it).getOccupancy();
         FCL_REAL t = tree->getOccupancyThres();
 
-        boost::array<FCL_REAL, 6> box = {{x, y, z, size, c, t}};
+        const Vec6f box(x, y, z, size, c, t);
         boxes.push_back(box);
       }
     }
