@@ -88,6 +88,7 @@ void exposeDistanceAPI() {
              doxygen::class_attrib_doc<DistanceResult>("nearest_points"))
         .def("getNearestPoint2", &DistanceRequestWrapper::getNearestPoint2,
              doxygen::class_attrib_doc<DistanceResult>("nearest_points"))
+        .DEF_RO_CLASS_ATTRIB(DistanceResult, nearest_points)
         .DEF_RO_CLASS_ATTRIB(DistanceResult, o1)
         .DEF_RO_CLASS_ATTRIB(DistanceResult, o2)
         .DEF_RW_CLASS_ATTRIB(DistanceResult, b1)

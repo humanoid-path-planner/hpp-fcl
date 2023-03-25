@@ -222,6 +222,46 @@ bool initialize(OcTreeMeshCollisionTraversalNode<BV>& node,
   return true;
 }
 
+/// @brief Initialize traversal node for collision between one octree and one
+/// height field, given current object transform
+template <typename BV>
+bool initialize(OcTreeHeightFieldCollisionTraversalNode<BV>& node,
+                const OcTree& model1, const Transform3f& tf1,
+                const HeightField<BV>& model2, const Transform3f& tf2,
+                const OcTreeSolver* otsolver, CollisionResult& result) {
+  node.result = &result;
+
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
+/// @brief Initialize traversal node for collision between one height field and
+/// one octree, given current object transform
+template <typename BV>
+bool initialize(HeightFieldOcTreeCollisionTraversalNode<BV>& node,
+                const HeightField<BV>& model1, const Transform3f& tf1,
+                const OcTree& model2, const Transform3f& tf2,
+                const OcTreeSolver* otsolver, CollisionResult& result) {
+  node.result = &result;
+
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
 /// @brief Initialize traversal node for distance between one mesh and one
 /// octree, given current object transform
 template <typename BV>

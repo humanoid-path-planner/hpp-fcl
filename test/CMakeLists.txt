@@ -28,6 +28,7 @@ add_fcl_test(math math.cpp)
 
 add_fcl_test(collision collision.cpp)
 add_fcl_test(distance distance.cpp)
+add_fcl_test(normal_and_nearest_points normal_and_nearest_points.cpp)
 add_fcl_test(distance_lower_bound distance_lower_bound.cpp)
 add_fcl_test(security_margin security_margin.cpp)
 add_fcl_test(geometric_shapes geometric_shapes.cpp)
