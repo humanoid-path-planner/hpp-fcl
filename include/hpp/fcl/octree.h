@@ -114,6 +114,9 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
   /// @brief Returns the depth of the octree
   unsigned int getTreeDepth() const { return tree->getTreeDepth(); }
 
+  /// @brief Returns the size of the octree
+  unsigned long size() const { return tree->size(); }
+
   /// @brief Returns the resolution of the octree
   FCL_REAL getResolution() const { return tree->getResolution(); }
 

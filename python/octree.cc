@@ -22,6 +22,7 @@ void exposeOctree() {
       .def("clone", &OcTree::clone, doxygen::member_func_doc(&OcTree::clone),
            bp::return_value_policy<bp::manage_new_object>())
       .def(dv::member_func("getTreeDepth", &OcTree::getTreeDepth))
+      .def(dv::member_func("size", &OcTree::size))
       .def(dv::member_func("getResolution", &OcTree::getResolution))
       .def(dv::member_func("getOccupancyThres", &OcTree::getOccupancyThres))
       .def(dv::member_func("getFreeThres", &OcTree::getFreeThres))
