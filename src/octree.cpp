@@ -191,9 +191,7 @@ OcTreePtr_t makeOctree(
   shared_ptr<octomap::OcTree> octree(new octomap::OcTree(resolution));
   for (Eigen::DenseIndex row_id = 0; row_id < point_cloud.rows(); ++row_id) {
     RowType row = point_cloud.row(row_id);
-    octomap::point3d p(static_cast<float>(row[0]), static_cast<float>(row[1]),
-                       static_cast<float>(row[2]));
-    octree->updateNode(p, true);
+    octree->updateNode(row[0], row[1], row[2], true, true);
   }
   octree->updateInnerOccupancy();
 
