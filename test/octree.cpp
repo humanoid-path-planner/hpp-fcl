@@ -124,6 +124,14 @@ BOOST_AUTO_TEST_CASE(octree_mesh) {
 
   std::cout << "Finished loading octree." << std::endl;
 
+  // Test operator==
+  {
+    BOOST_CHECK(envOctree == envOctree);
+    BOOST_CHECK(envOctree == OcTree(envOctree));
+
+    const OcTree envOctree_from_tree(envOctree.getTree());
+    BOOST_CHECK(envOctree == envOctree_from_tree);
+  }
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-2000, -2000, 0, 2000, 2000, 2000};
 #ifndef NDEBUG  // if debug mode
