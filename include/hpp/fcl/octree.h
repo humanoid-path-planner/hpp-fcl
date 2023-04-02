@@ -83,6 +83,7 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
     free_threshold = 0;
   }
 
+  ///  \brief Copy constructor
   OcTree(const OcTree& other)
       : CollisionGeometry(other),
         tree(other.tree),
@@ -90,6 +91,7 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
         occupancy_threshold(other.occupancy_threshold),
         free_threshold(other.free_threshold) {}
 
+  /// \brief Clone *this into a new Octree
   OcTree* clone() const { return new OcTree(*this); }
 
   void exportAsObjFile(const std::string& filename) const;
