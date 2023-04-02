@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2020, INRIA
+ *  Copyright (c) 2020-2023, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -113,7 +113,7 @@ void OcTree::exportAsObjFile(const std::string& filename) const {
   typedef std::vector<Vec3f> VectorVec3f;
   std::vector<Vec3f> vertices;
 
-  typedef boost::array<std::size_t, 4> Array4;
+  typedef std::array<std::size_t, 4> Array4;
   typedef std::vector<Array4> VectorArray4;
   std::vector<Array4> faces;
 

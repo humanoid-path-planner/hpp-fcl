@@ -38,8 +38,6 @@
 #ifndef HPP_FCL_OCTREE_H
 #define HPP_FCL_OCTREE_H
 
-#include <boost/array.hpp>
-
 #include <octomap/octomap.h>
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/BV/AABB.h>
