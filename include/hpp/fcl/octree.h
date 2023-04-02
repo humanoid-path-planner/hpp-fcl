@@ -94,6 +94,9 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
   /// \brief Clone *this into a new Octree
   OcTree* clone() const { return new OcTree(*this); }
 
+  /// \brief Returns the tree associated to the underlying octomap OcTree.
+  shared_ptr<const octomap::OcTree> getTree() const { return tree; }
+
   void exportAsObjFile(const std::string& filename) const;
 
   /// @brief compute the AABB for the octree in its local coordinate system
