@@ -235,7 +235,7 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
     if (other_ptr == nullptr) return false;
     const OcTree& other = *other_ptr;
 
-    return tree.get() == other.tree.get() &&
+    return (tree.get() == other.tree.get() || toBoxes() == other.toBoxes()) &&
            default_occupancy == other.default_occupancy &&
            occupancy_threshold == other.occupancy_threshold &&
            free_threshold == other.free_threshold;
