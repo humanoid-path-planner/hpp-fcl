@@ -11,6 +11,11 @@
 #include "doxygen_autodoc/hpp/fcl/octree.h"
 #endif
 
+std::string tobytes(const hpp::fcl::OcTree& self) {
+  const std::vector<uint8_t> bytes = self.tobytes();
+  return std::string(bytes.begin(), bytes.end());
+}
+
 void exposeOctree() {
   using namespace hpp::fcl;
   namespace bp = boost::python;
@@ -32,7 +37,8 @@ void exposeOctree() {
       .def(dv::member_func("setOccupancyThres", &OcTree::setOccupancyThres))
       .def(dv::member_func("setFreeThres", &OcTree::setFreeThres))
       .def(dv::member_func("getRootBV", &OcTree::getRootBV))
-      .def(dv::member_func("toBoxes", &OcTree::toBoxes));
+      .def(dv::member_func("toBoxes", &OcTree::toBoxes))
+      .def("tobytes", tobytes, doxygen::member_func_doc(&OcTree::tobytes));
 
   doxygen::def("makeOctree", &makeOctree);
   eigenpy::enableEigenPySpecific<Vec6f>();
