@@ -132,6 +132,14 @@ BOOST_AUTO_TEST_CASE(octree_mesh) {
     const OcTree envOctree_from_tree(envOctree.getTree());
     BOOST_CHECK(envOctree == envOctree_from_tree);
   }
+
+  // Test tobytes()
+  {
+    const std::vector<uint8_t> bytes = envOctree.tobytes();
+    BOOST_CHECK(bytes.size() > 0 && bytes.size() <= envOctree.toBoxes().size() *
+                                                        3 * sizeof(FCL_REAL));
+  }
+
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-2000, -2000, 0, 2000, 2000, 2000};
 #ifndef NDEBUG  // if debug mode

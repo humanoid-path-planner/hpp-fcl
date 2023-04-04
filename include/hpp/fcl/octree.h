@@ -38,6 +38,8 @@
 #ifndef HPP_FCL_OCTREE_H
 #define HPP_FCL_OCTREE_H
 
+#include <algorithm>
+
 #include <octomap/octomap.h>
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/BV/AABB.h>
@@ -168,6 +170,27 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
       }
     }
     return boxes;
+  }
+
+  /// \brief Returns a byte description of *this
+  std::vector<uint8_t> tobytes() const {
+    typedef Eigen::Matrix<float, 3, 1> Vec3float;
+    const size_t total_size = (tree->size() * sizeof(FCL_REAL) * 3) / 2;
+    std::vector<uint8_t> bytes;
+    bytes.reserve(total_size);
+
+    for (octomap::OcTree::iterator
+             it = tree->begin((unsigned char)tree->getTreeDepth()),
+             end = tree->end();
+         it != end; ++it) {
+      const Vec3f box_dim =
+          Eigen::Map<Vec3float>(&it.getCoordinate().x()).cast<FCL_REAL>();
+      if (isNodeOccupied(&*it))
+        std::copy(box_dim.data(), box_dim.data() + sizeof(FCL_REAL) * 3,
+                  std::back_inserter(bytes));
+    }
+
+    return bytes;
   }
 
   /// @brief the threshold used to decide whether one node is occupied, this is
