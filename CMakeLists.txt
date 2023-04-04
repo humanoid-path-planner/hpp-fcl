@@ -263,6 +263,7 @@ SET(${PROJECT_NAME}_HEADERS
 IF(HPP_FCL_HAS_OCTOMAP)
   LIST(APPEND ${PROJECT_NAME}_HEADERS
     include/hpp/fcl/octree.h
+    include/hpp/fcl/serialization/octree.h
     include/hpp/fcl/internal/traversal_node_octree.h
   )
 ENDIF(HPP_FCL_HAS_OCTOMAP)
