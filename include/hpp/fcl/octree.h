@@ -204,10 +204,10 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
              it = tree->begin((unsigned char)tree->getTreeDepth()),
              end = tree->end();
          it != end; ++it) {
-      const Vec3f box_dim =
+      const Vec3f box_pos =
           Eigen::Map<Vec3float>(&it.getCoordinate().x()).cast<FCL_REAL>();
       if (isNodeOccupied(&*it))
-        std::copy(box_dim.data(), box_dim.data() + sizeof(FCL_REAL) * 3,
+        std::copy(box_pos.data(), box_pos.data() + sizeof(FCL_REAL) * 3,
                   std::back_inserter(bytes));
     }
 
