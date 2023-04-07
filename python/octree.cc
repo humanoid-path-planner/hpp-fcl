@@ -13,9 +13,9 @@
 
 bp::object toPyBytes(std::vector<uint8_t>& bytes) {
 #if PY_MAJOR_VERSION == 2
-  PyObject* py_buf PyBuffer_FromMemory(
-      (char*)bytes.data(),
-      Py_ssize_t(bytes.size())) return bp::object(bp::handle<>(py_buf));
+  PyObject* py_buf =
+      PyBuffer_FromMemory((char*)bytes.data(), Py_ssize_t(bytes.size()));
+  return bp::object(bp::handle<>(py_buf));
 #else
   PyObject* py_buf = PyMemoryView_FromMemory(
       (char*)bytes.data(), Py_ssize_t(bytes.size()), PyBUF_READ);
