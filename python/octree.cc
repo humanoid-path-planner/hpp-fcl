@@ -11,9 +11,11 @@
 #include "doxygen_autodoc/hpp/fcl/octree.h"
 #endif
 
-std::string tobytes(const hpp::fcl::OcTree& self) {
-  const std::vector<uint8_t> bytes = self.tobytes();
-  return std::string(bytes.begin(), bytes.end());
+bp::object tobytes(const hpp::fcl::OcTree& self) {
+  std::vector<uint8_t> bytes = self.tobytes();
+  PyObject* py_buf = PyMemoryView_FromMemory(
+      (char*)bytes.data(), Py_ssize_t(bytes.size()), PyBUF_READ);
+  return bp::object(bp::handle<>(PyBytes_FromObject(py_buf)));
 }
 
 void exposeOctree() {
