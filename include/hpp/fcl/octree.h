@@ -103,7 +103,28 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
 
   /// @brief compute the AABB for the octree in its local coordinate system
   void computeLocalAABB() {
-    aabb_local = getRootBV();
+    typedef Eigen::Matrix<float, 3, 1> Vec3float;
+    Vec3float max_extent, min_extent;
+
+    octomap::OcTree::iterator it =
+        tree->begin((unsigned char)tree->getTreeDepth());
+    octomap::OcTree::iterator end = tree->end();
+
+    if (it == end) return;
+
+    max_extent = min_extent = Eigen::Map<Vec3float>(&it.getCoordinate().x());
+    for (++it; it != end; ++it) {
+      Eigen::Map<Vec3float> pos(&it.getCoordinate().x());
+      max_extent = max_extent.array().max(pos.array());
+      min_extent = min_extent.array().min(pos.array());
+    }
+
+    // Account for the size of the boxes.
+    const FCL_REAL resolution = tree->getResolution();
+    max_extent.array() += float(resolution / 2.);
+    min_extent.array() -= float(resolution / 2.);
+
+    aabb_local = AABB(min_extent.cast<FCL_REAL>(), max_extent.cast<FCL_REAL>());
     aabb_center = aabb_local.center();
     aabb_radius = (aabb_local.min_ - aabb_center).norm();
   }
