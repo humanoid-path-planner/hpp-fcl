@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 CNRS INRIA
+// Copyright (c) 2019-2023 CNRS INRIA
 //
 
 #include "hpp/fcl/config.hh"
@@ -24,6 +24,18 @@ void exposeVersion() {
   bp::scope().attr("HPP_FCL_MAJOR_VERSION") = HPP_FCL_MAJOR_VERSION;
   bp::scope().attr("HPP_FCL_MINOR_VERSION") = HPP_FCL_MINOR_VERSION;
   bp::scope().attr("HPP_FCL_PATCH_VERSION") = HPP_FCL_PATCH_VERSION;
+
+#if HPP_FCL_HAS_QHULL
+  bp::scope().attr("WITH_QHULL") = true;
+#else
+  bp::scope().attr("WITH_QHULL") = false;
+#endif
+
+#if HPP_FCL_HAS_OCTOMAP
+  bp::scope().attr("WITH_OCTOMAP") = true;
+#else
+  bp::scope().attr("WITH_OCTOMAP") = false;
+#endif
 
   bp::def("checkVersionAtLeast", &checkVersionAtLeast,
           bp::args("major", "minor", "patch"),
