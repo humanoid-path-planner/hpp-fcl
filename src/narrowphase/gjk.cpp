@@ -707,6 +707,11 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         }
         break;
 
+      case PolyakAcceleration:
+        momentum = 1 / (FCL_REAL(iterations) + 1);
+        dir = momentum * dir + (1 - momentum) * ray;
+        break;
+
       default:
         throw std::logic_error("Invalid momentum variant.");
     }
