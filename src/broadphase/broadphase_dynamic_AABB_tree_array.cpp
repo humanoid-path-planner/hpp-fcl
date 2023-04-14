@@ -37,7 +37,7 @@
 
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
 
-#if HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAVE_OCTOMAP
 #include "hpp/fcl/octree.h"
 #endif
 namespace hpp {

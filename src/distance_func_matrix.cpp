@@ -66,6 +66,22 @@ FCL_REAL Distance(const CollisionGeometry* o1, const Transform3f& tf1,
 
 #endif
 
+HPP_FCL_LOCAL FCL_REAL distance_function_not_implemented(
+    const CollisionGeometry* o1, const Transform3f& /*tf1*/,
+    const CollisionGeometry* o2, const Transform3f& /*tf2*/,
+    const GJKSolver* /*nsolver*/, const DistanceRequest& /*request*/,
+    DistanceResult& /*result*/) {
+  NODE_TYPE node_type1 = o1->getNodeType();
+  NODE_TYPE node_type2 = o2->getNodeType();
+
+  HPP_FCL_THROW_PRETTY("Distance function between node type "
+                           << std::string(get_node_type_name(node_type1))
+                           << " and node type "
+                           << std::string(get_node_type_name(node_type2))
+                           << " is not yet supported.",
+                       std::invalid_argument);
+}
+
 template <typename T_SH1, typename T_SH2>
 FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
                             const CollisionGeometry* o2, const Transform3f& tf2,
@@ -649,6 +665,8 @@ DistanceFunctionMatrix::DistanceFunctionMatrix() {
       &Distance<BVHModel<KDOP<18> >, OcTree>;
   distance_matrix[BV_KDOP24][GEOM_OCTREE] =
       &Distance<BVHModel<KDOP<24> >, OcTree>;
+  distance_matrix[HF_AABB][GEOM_OCTREE] = &distance_function_not_implemented;
+  distance_matrix[HF_OBBRSS][GEOM_OCTREE] = &distance_function_not_implemented;
 #endif
 }
 // template struct DistanceFunctionMatrix;

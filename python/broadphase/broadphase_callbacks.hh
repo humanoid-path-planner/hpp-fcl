@@ -100,8 +100,8 @@ struct DistanceCallBackBaseWrapper : DistanceCallBackBase,
         .def("distance",
              bp::pure_virtual(
                  static_cast<bool (Self::*)(
-                     CollisionObject * o1, CollisionObject * o2,
-                     Eigen::Matrix<double, 1, 1> & dist)>(&Self::distance)),
+                     CollisionObject* o1, CollisionObject* o2,
+                     Eigen::Matrix<double, 1, 1>& dist)>(&Self::distance)),
              doxygen::member_func_doc(&Base::distance))
         .def("__call__", &Base::operator(),
              doxygen::member_func_doc(&Base::operator()));
