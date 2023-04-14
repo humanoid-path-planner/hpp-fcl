@@ -80,7 +80,7 @@ typedef Eigen::Vector2i support_func_guess_t;
 enum GJKInitialGuess { DefaultGuess, CachedGuess, BoundingVolumeGuess };
 
 /// @brief Variant to use for the GJK algorithm
-enum GJKVariant { DefaultGJK, NesterovAcceleration };
+enum GJKVariant { DefaultGJK, PolyakAcceleration, NesterovAcceleration };
 
 /// @brief Which convergence criterion is used to stop the algorithm (when the
 /// shapes are not in collision). (default) VDB: Van den Bergen (A Fast and
