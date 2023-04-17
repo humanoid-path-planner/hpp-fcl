@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(TestSpheres) {
         continue;
 
       //			std::cout << "i: " << i << ", j: " << j <<
-      //std::endl;
+      // std::endl;
       sphere2Tf.setQuatRotation(
           Eigen::AngleAxis<double>(DegToRad(i), Vec3f::UnitZ()) *
           Eigen::AngleAxis<double>(DegToRad(j), Vec3f::UnitY()));
@@ -125,8 +125,8 @@ BOOST_AUTO_TEST_CASE(TestTriangles) {
         CollisionResult result;
 
         /// assertion: src/collision_node.cpp:58
-        //				BOOST_CHECK_NO_THROW(compute(tri2Tf, tri1Tf,
-        //request, result));
+        //				BOOST_CHECK_NO_THROW(compute(tri2Tf,
+        //tri1Tf, request, result));
       }
     }
   }
