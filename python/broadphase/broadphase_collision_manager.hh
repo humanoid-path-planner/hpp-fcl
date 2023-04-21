@@ -49,6 +49,7 @@
 #endif
 
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/type_index.hpp>
 
 namespace hpp {
 namespace fcl {
