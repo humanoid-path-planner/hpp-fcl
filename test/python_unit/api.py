@@ -2,7 +2,6 @@ import unittest
 from test_case import TestCase
 import hppfcl
 
-hppfcl.switchToNumpyArray()
 import numpy as np
 
 
