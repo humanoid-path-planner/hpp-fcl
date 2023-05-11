@@ -68,6 +68,8 @@ SET(CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake-modules/
   ${CMAKE_MODULE_PATH})
 
+set_default_cmake_build_type("RelWithDebInfo")
+
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
 
