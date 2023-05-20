@@ -89,9 +89,11 @@ enum SerializationMode { TXT = 1, XML = 2, BIN = 4, STREAM = 8 };
 template <typename T>
 void test_serialization(const T& value, T& other_value,
                         const int mode = TXT | XML | BIN | STREAM) {
-  const std::string tmp_dir(boost::archive::tmpdir());
-  const std::string txt_filename = tmp_dir + "file.txt";
-  const std::string bin_filename = tmp_dir + "file.bin";
+  const boost::filesystem::path tmp_path(boost::archive::tmpdir());
+  const boost::filesystem::path txt_path("file.txt");
+  const boost::filesystem::path bin_path("file.bin");
+  const boost::filesystem::path txt_filename(tmp_path / txt_path);
+  const boost::filesystem::path bin_filename(tmp_path / bin_path);
 
   // TXT
   if (mode & 0x1) {
