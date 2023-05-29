@@ -26,7 +26,7 @@ jobs:
       with:
         path: ~/conda_pkgs_dir
         key:
-          ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
+          ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{
           hashFiles('.github/workflows/conda/conda-env.yml') }}
     - uses: goanpeca/setup-miniconda@v1
       env:
@@ -44,6 +44,7 @@ jobs:
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       run: |
+        %CONDA_PREFIX%\python -V
         :: unset extra Boost envs
         set Boost_ROOT=
         set BOOST_ROOT_1_69_0=
