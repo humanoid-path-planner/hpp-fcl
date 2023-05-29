@@ -1,5 +1,5 @@
 # Find Boost.UnitTestFramework
-FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework filesystem chrono timer)
+FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework filesystem)
 
 config_files(fcl_resources/config.h)
 
@@ -8,9 +8,7 @@ macro(add_fcl_test test_name source)
   target_link_libraries(${test_name}
     PUBLIC
     hpp-fcl
-    Boost::chrono
     Boost::filesystem
-    Boost::timer
     utility
     )
   IF(NOT WIN32)
@@ -23,11 +21,7 @@ endmacro(add_fcl_test)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-IF(BUILD_TESTING)
-  add_library(utility STATIC utility.cpp)
-ELSE()
-  add_library(utility STATIC EXCLUDE_FROM_ALL utility.cpp)
-ENDIF()
+add_library(utility STATIC utility.cpp)
 target_link_libraries(utility PUBLIC ${PROJECT_NAME})
 
 add_fcl_test(math math.cpp)
@@ -45,6 +39,7 @@ SET_TESTS_PROPERTIES(frontlist PROPERTIES TIMEOUT 7200)
 # add_fcl_test(sphere_capsule sphere_capsule.cpp)
 add_fcl_test(capsule_capsule capsule_capsule.cpp)
 add_fcl_test(box_box_distance box_box_distance.cpp)
+add_fcl_test(box_box_collision box_box_collision.cpp)
 add_fcl_test(simple simple.cpp)
 add_fcl_test(capsule_box_1 capsule_box_1.cpp)
 add_fcl_test(capsule_box_2 capsule_box_2.cpp)
@@ -73,15 +68,10 @@ add_fcl_test(broadphase_collision_1 broadphase_collision_1.cpp)
 add_fcl_test(broadphase_collision_2 broadphase_collision_2.cpp)
 
 ## Benchmark
-IF(BUILD_TESTING)
-  add_executable(test-benchmark benchmark.cpp)
-ELSE()
-  add_executable(test-benchmark EXCLUDE_FROM_ALL benchmark.cpp)
-ENDIF()
+add_executable(test-benchmark benchmark.cpp)
 target_link_libraries(test-benchmark
   PUBLIC
   utility
-  Boost::chrono
   Boost::filesystem
   ${PROJECT_NAME}
   )

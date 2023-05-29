@@ -35,9 +35,6 @@
 
 /** \author Joseph Mirabel */
 
-#define BOOST_CHRONO_VERSION 2
-#include <boost/chrono/chrono.hpp>
-#include <boost/chrono/chrono_io.hpp>
 #include <boost/mpl/vector.hpp>
 
 #define BOOST_TEST_MODULE FCL_COLLISION
@@ -56,6 +53,8 @@
 #include <hpp/fcl/internal/traversal_node_setup.h>
 #include "../src/collision_node.h"
 #include <hpp/fcl/internal/BV_splitter.h>
+
+#include <hpp/fcl/timings.h>
 
 #include "utility.h"
 #include "fcl_resources/config.h"
@@ -243,9 +242,6 @@ typedef boost::mpl::vector<OBB, RSS, KDOP<24>, KDOP<18>, KDOP<16>, kIOS, OBBRSS>
 std::vector<SplitMethodType> splitMethods = boost::assign::list_of(
     SPLIT_METHOD_MEAN)(SPLIT_METHOD_MEDIAN)(SPLIT_METHOD_BV_CENTER);
 
-typedef boost::chrono::high_resolution_clock clock_type;
-typedef clock_type::duration duration_type;
-
 #define BV_STR_SPECIALIZATION(bv) \
   template <>                     \
   const char* str<bv>() {         \
@@ -345,7 +341,7 @@ struct mesh_mesh_run_test {
     loadPolyhedronFromResource(TEST_RESOURCES_DIR "/rob.obj", Vec3f::Ones(),
                                model2);
 
-    clock_type::time_point start, end;
+    Timer timer(false);
     const Transform3f tf2;
     const std::size_t N = transforms.size();
 
@@ -356,8 +352,8 @@ struct mesh_mesh_run_test {
       ++indent;
 
       for (std::size_t i = 0; i < transforms.size(); ++i) {
-        start = clock_type::now();
         const Transform3f& tf1 = transforms[i];
+        timer.start();
 
         CollisionResult local_result;
         MeshCollisionTraversalNode<BV, 0> node(request);
@@ -369,7 +365,7 @@ struct mesh_mesh_run_test {
 
         collide(&node, request, local_result);
 
-        end = clock_type::now();
+        timer.stop();
 
         BENCHMARK(str<BV>());
         BENCHMARK(1);
@@ -384,7 +380,7 @@ struct mesh_mesh_run_test {
         }
         BENCHMARK(local_result.numContacts());
         BENCHMARK(local_result.distance_lower_bound);
-        BENCHMARK((end - start).count());
+        BENCHMARK(timer.duration().count());
         BENCHMARK_NEXT();
 
         if (local_result.numContacts() > 0) {
@@ -400,9 +396,9 @@ struct mesh_mesh_run_test {
       ++indent;
 
       for (std::size_t i = 0; i < transforms.size(); ++i) {
-        start = clock_type::now();
         const Transform3f tf1 = transforms[i];
 
+        timer.start();
         CollisionResult local_result;
         MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity> node(
             request);
@@ -421,7 +417,7 @@ struct mesh_mesh_run_test {
         delete model1_tmp;
         delete model2_tmp;
 
-        end = clock_type::now();
+        timer.stop();
         BENCHMARK(str<BV>());
         BENCHMARK(2);
         BENCHMARK(splitMethod);
@@ -435,7 +431,7 @@ struct mesh_mesh_run_test {
         }
         BENCHMARK(local_result.numContacts());
         BENCHMARK(local_result.distance_lower_bound);
-        BENCHMARK((end - start).count());
+        BENCHMARK(timer.duration().count());
         BENCHMARK_NEXT();
 
         if (local_result.numContacts() > 0) {
@@ -452,7 +448,7 @@ struct mesh_mesh_run_test {
       ++indent;
 
       for (std::size_t i = 0; i < transforms.size(); ++i) {
-        start = clock_type::now();
+        timer.start();
         const Transform3f tf1 = transforms[i];
 
         CollisionResult local_result;
@@ -465,7 +461,7 @@ struct mesh_mesh_run_test {
 
         collide(&node, request, local_result, NULL, false);
 
-        end = clock_type::now();
+        timer.stop();
         BENCHMARK(str<BV>());
         BENCHMARK(0);
         BENCHMARK(splitMethod);
@@ -479,7 +475,7 @@ struct mesh_mesh_run_test {
         }
         BENCHMARK(local_result.numContacts());
         BENCHMARK(local_result.distance_lower_bound);
-        BENCHMARK((end - start).count());
+        BENCHMARK(timer.duration().count());
         BENCHMARK_NEXT();
 
         if (local_result.numContacts() > 0) {

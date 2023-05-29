@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2014-2020 CNRS-LAAS, INRIA
+#  Copyright (c) 2014-2023 CNRS-LAAS, INRIA
 #  Author: Florent Lamiraux, Joseph Mirabel
 #  All rights reserved.
 #
@@ -54,29 +54,41 @@ SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
 OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
 
 # Check if the submodule cmake have been initialized
-IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake/base.cmake")
-  MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")
-ENDIF()
+set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake/base.cmake")
+  if(${CMAKE_VERSION} VERSION_LESS "3.14.0")
+    message(
+      FATAL_ERROR
+        "\nPlease run the following command first:\ngit submodule update --init\n"
+    )
+  else()
+    message(STATUS "JRL cmakemodules not found. Let's fetch it.")
+    include(FetchContent)
+    FetchContent_Declare(
+      "jrl-cmakemodules"
+      GIT_REPOSITORY "https://github.com/jrl-umi3218/jrl-cmakemodules.git")
+    FetchContent_MakeAvailable("jrl-cmakemodules")
+    FetchContent_GetProperties("jrl-cmakemodules" SOURCE_DIR JRL_CMAKE_MODULES)
+  endif()
+endif()
 
-include(cmake/boost.cmake)
-include(cmake/python.cmake)
-include(cmake/hpp.cmake)
-include(cmake/apple.cmake)
-include(cmake/ide.cmake)
+include("${JRL_CMAKE_MODULES}/boost.cmake")
+include("${JRL_CMAKE_MODULES}/hpp.cmake")
+include("${JRL_CMAKE_MODULES}/apple.cmake")
+include("${JRL_CMAKE_MODULES}/ide.cmake")
 include(CMakeDependentOption)
 
 SET(CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake-modules/
   ${CMAKE_MODULE_PATH})
 
+set_default_cmake_build_type("RelWithDebInfo")
+
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
 
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
-
-# Default C++ version should be C++11
-CHECK_MINIMAL_CXX_STANDARD(11 ENFORCE)
 
 OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" ON)
 CMAKE_DEPENDENT_OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF BUILD_PYTHON_INTERFACE OFF)
@@ -97,7 +109,7 @@ CMAKE_DEPENDENT_OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associat
 ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.0")
 
 if(BUILD_PYTHON_INTERFACE)
-  FIND_PACKAGE(eigenpy 2.2 REQUIRED)
+  FIND_PACKAGE(eigenpy 2.7.10 REQUIRED)
 endif()
 
 # Required dependencies
@@ -109,11 +121,16 @@ ELSE(WIN32)
   ADD_PROJECT_DEPENDENCY(Boost REQUIRED chrono serialization)
 ENDIF(WIN32)
 if(BUILD_PYTHON_INTERFACE)
-  set(PYTHON_COMPONENTS Interpreter Development.Module NumPy)
-  FINDPYTHON()
-  search_for_boost_python(REQUIRED)
   find_package(Boost REQUIRED COMPONENTS system)
 endif(BUILD_PYTHON_INTERFACE)
+
+if(Boost_VERSION_STRING VERSION_LESS 1.81)
+  # Default C++ version should be C++11
+  CHECK_MINIMAL_CXX_STANDARD(11 ENFORCE)
+else()
+  # Boost.Math will be C++14 starting in July 2023 (Boost 1.82 release)
+  CHECK_MINIMAL_CXX_STANDARD(14 ENFORCE)
+endif()
 
 # Optional dependencies
 ADD_PROJECT_DEPENDENCY(octomap PKG_CONFIG_REQUIRES "octomap >= 1.6")
@@ -253,6 +270,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/BVH_model.h
   include/hpp/fcl/serialization/collision_data.h
   include/hpp/fcl/serialization/collision_object.h
+  include/hpp/fcl/serialization/convex.h
   include/hpp/fcl/serialization/eigen.h
   include/hpp/fcl/serialization/geometric_shapes.h
   include/hpp/fcl/serialization/memory.h
@@ -260,6 +278,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/RSS.h
   include/hpp/fcl/serialization/OBBRSS.h
   include/hpp/fcl/serialization/hfield.h
+  include/hpp/fcl/serialization/quadrilateral.h
+  include/hpp/fcl/serialization/triangle.h
   include/hpp/fcl/timings.h
   )
 
@@ -268,7 +288,9 @@ add_subdirectory(src)
 if (BUILD_PYTHON_INTERFACE)
   add_subdirectory(python)
 endif ()
-add_subdirectory(test)
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif(BUILD_TESTING)
 
 pkg_config_append_libs("hpp-fcl")
 IF(HPP_FCL_HAS_OCTOMAP)

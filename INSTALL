@@ -3,7 +3,8 @@ Dependencies:
 ============
 
  - Eigen
- - Boost (thread, date_time, unit_test_framework, filesystem)
+ - Boost (thread, date_time, filesystem)
+ - assimp
  - octomap (optional dependency, available at http://octomap.github.com)
  - Qhull (optional dependency, available at http://www.qhull.org)
 
@@ -11,6 +12,12 @@ Boost and Eigen are mandatory dependencies. If Octomap is not found,
 collision detection with octrees will not be possible.
 
 For installation, CMake will also be needed (http://cmake.org).
+
+Test dependencies:
+=================
+
+When building tests (BUILD_TESTING=ON), additional dependencies are required:
+  - Boost (unit_test_framework, timer)
 
 Install:
 =======

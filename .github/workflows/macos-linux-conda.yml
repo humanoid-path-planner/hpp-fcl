@@ -13,7 +13,7 @@ jobs:
         os: ["ubuntu-latest", "macos-latest"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -22,7 +22,14 @@ jobs:
         activate-environment: hpp-fcl
         auto-update-conda: true
         environment-file: .github/workflows/conda/conda-env.yml
-        python-version: 3.8
+        python-version: 3.7
+
+    - name: Install compilers on OSX
+      if: contains(matrix.os, 'macos')
+      shell: bash -l {0}
+      run: |
+        conda activate hpp-fcl
+        conda install compilers=1.4.2 -c conda-forge
 
     - name: Install cmake and update conda
       shell: bash -l {0}
@@ -35,6 +42,7 @@ jobs:
       shell: bash -l {0}
       run: |
         conda activate hpp-fcl
+        conda list
         echo $CONDA_PREFIX
 
         mkdir build

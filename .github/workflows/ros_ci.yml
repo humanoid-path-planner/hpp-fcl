@@ -11,26 +11,24 @@ jobs:
     strategy:
       matrix:
         env:
-          - {ROS_DISTRO: melodic}
-          - {ROS_DISTRO: noetic, BUILDER: catkin_tools}
-          #- {ROS_DISTRO: noetic, BUILDER: catkin_tools, ADDITIONAL_DEBS: clang, CC: clang, CXX: clang++}
+          - {ROS_DISTRO: melodic, PRERELEASE: false}
+          - {ROS_DISTRO: noetic}
           - {ROS_DISTRO: foxy}
-          #- {ROS_DISTRO: galactic} ## Activate once eigenpy released to galactic
-          - {ROS_DISTRO: foxy, PRERELEASE: true}
-          #- {ROS_DISTRO: galactic, PRERELEASE: true} ## Activate once eigenpy released to galactic
+          - {ROS_DISTRO: rolling}
     env:
-      AFTER_RUN_TARGET_TEST: 'cd /root/target_ws/build/hpp-fcl && make build_tests && ctest --output-on-failure'
       CCACHE_DIR: /github/home/.ccache # Enable ccache
+      BUILDER: colcon
+      PRERELEASE: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       # This step will fetch/store the directory used by ccache before/after the ci run
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}
       # Run industrial_ci
-      - uses: 'ros-industrial/industrial_ci@master'
+      - uses: 'ros-industrial/industrial_ci@6a8f546cbd31fbd5c9f77e3409265c8b39abc3d6'
         env: ${{ matrix.env }}

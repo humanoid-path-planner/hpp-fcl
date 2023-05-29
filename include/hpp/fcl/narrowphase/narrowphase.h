@@ -150,6 +150,12 @@ struct HPP_FCL_DLLAPI GJKSolver {
               *contact_points =
                   tf1.transform(w0 - epa.normal * (epa.depth * 0.5));
             return true;
+          } else if (epa_status == details::EPA::FallBack) {
+            epa.getClosestPoints(shape, w0, w1);
+            distance_lower_bound = -epa.depth;  // Should be zero
+            if (normal) (*normal).noalias() = tf1.getRotation() * epa.normal;
+            if (contact_points) *contact_points = tf1.transform(w0);
+            return true;
           }
           distance_lower_bound = -(std::numeric_limits<FCL_REAL>::max)();
           // EPA failed but we know there is a collision so we should
@@ -229,6 +235,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         }
         break;
       case details::GJK::Valid:
+      case details::GJK::EarlyStopped:
       case details::GJK::Failed:
         col = false;
 
@@ -244,7 +251,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         break;
       default:
         assert(false && "should not reach type part.");
-        return true;
+        throw std::logic_error("GJKSolver: should not reach this part.");
     }
     return col;
   }
@@ -293,6 +300,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
       normal.normalize();
       p1 = tf1.transform(p1);
       p2 = tf1.transform(p2);
+      return true;
+    } else if (gjk_status == details::GJK::EarlyStopped) {
+      distance = gjk.distance;
+      p1 = p2 = normal =
+          Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
       return true;
     } else {
       assert(gjk_status == details::GJK::Inside);

@@ -53,12 +53,12 @@ struct TriangleWrapper {
   static Triangle::index_type getitem(const Triangle& t, int i) {
     if (i >= 3 || i <= -3)
       PyErr_SetString(PyExc_IndexError, "Index out of range");
-    return t[(i % 3)];
+    return t[static_cast<hpp::fcl::Triangle::index_type>(i % 3)];
   }
   static void setitem(Triangle& t, int i, Triangle::index_type v) {
     if (i >= 3 || i <= -3)
       PyErr_SetString(PyExc_IndexError, "Index out of range");
-    t[(i % 3)] = v;
+    t[static_cast<hpp::fcl::Triangle::index_type>(i % 3)] = v;
   }
 };
 
