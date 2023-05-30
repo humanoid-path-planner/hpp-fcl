@@ -28,7 +28,7 @@ jobs:
         key:
           ${{ runner.os }}-conda-${{ matrix.python-version }}-${{ env.CACHE_NUMBER }}-${{
           hashFiles('.github/workflows/conda/conda-env.yml') }}
-    - uses: goanpeca/setup-miniconda@v1
+    - uses: conda-incubator/setup-miniconda@v1
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       with:
@@ -84,7 +84,7 @@ jobs:
         set PYTHONPATH=out
         git clone https://github.com/jcarpent/pybind11-stubgen.git
         python "%CD%\pybind11-stubgen\pybind11_stubgen\__init__.py" -o out hppfcl --boost-python --ignore-invalid signature --no-setup-py --root-module-suffix ""
-        
+
         cp -r out\hppfcl %CONDA_PREFIX%\Lib\site-packages
 
         :: Testing
