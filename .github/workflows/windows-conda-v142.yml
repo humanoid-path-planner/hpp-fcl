@@ -23,7 +23,7 @@ jobs:
       with:
         activate-environment: fcl
         environment-file: .github/workflows/conda/conda-env.yml
-        python-version: 3.7
+        python-version: 3.10
     - name: Install cmake and update conda
       run: |
         conda install cmake -c main
