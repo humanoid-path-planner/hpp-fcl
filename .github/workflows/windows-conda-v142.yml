@@ -57,18 +57,22 @@ jobs:
           -DHPP_FCL_HAS_QHULL=ON ^
           -DBUILD_PYTHON_INTERFACE=ON ^
           ..
+        if errorlevel 1 exit 1
 
         :: Build and Install
         cmake --build . --config Release --target install
-
+        if errorlevel 1 exit 1
 
         :: Build stubs
         git clone https://github.com/jcarpent/pybind11-stubgen.git
         python "%CD%\pybind11-stubgen\pybind11_stubgen\__init__.py" -o %CONDA_PREFIX%\Lib\site-packages hppfcl --boost-python --ignore-invalid signature --no-setup-py --root-module-suffix ""
+        if errorlevel 1 exit 1
 
         :: Testing
         ctest --output-on-failure -C Release -V
+        if errorlevel 1 exit 1
 
         :: Test Python import
         cd ..
         python -c "import hppfcl"
+        if errorlevel 1 exit 1
