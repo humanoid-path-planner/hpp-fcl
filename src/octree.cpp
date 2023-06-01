@@ -33,6 +33,7 @@
  */
 
 #include <hpp/fcl/octree.h>
+#include <array>
 
 namespace hpp {
 namespace fcl {
