@@ -39,6 +39,7 @@
 #define HPP_FCL_COLLISION_DATA_H
 
 #include <vector>
+#include <array>
 #include <set>
 #include <limits>
 
@@ -70,8 +71,13 @@ struct HPP_FCL_DLLAPI Contact {
   /// if object 2 is octree, it is the id of the cell
   int b2;
 
-  /// @brief contact normal, pointing from o1 to o2
+  /// @brief contact normal, pointing from o1 to o2.
+  /// See DistanceResult::normal for a complete definition of the normal.
   Vec3f normal;
+
+  /// @brief nearest points associated to this contact.
+  /// See \ref CollisionResult::nearest_points.
+  std::array<Vec3f, 2> nearest_points;
 
   /// @brief contact position, in world space
   Vec3f pos;
@@ -97,7 +103,24 @@ struct HPP_FCL_DLLAPI Contact {
         b2(b2_),
         normal(normal_),
         pos(pos_),
-        penetration_depth(depth_) {}
+        penetration_depth(depth_) {
+    nearest_points[0] = pos - 0.5 * depth_ * normal_;
+    nearest_points[1] = pos + 0.5 * depth_ * normal_;
+  }
+
+  Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
+          int b2_, const Vec3f& p1, const Vec3f& p2, const Vec3f& normal_,
+          FCL_REAL depth_)
+      : o1(o1_),
+        o2(o2_),
+        b1(b1_),
+        b2(b2_),
+        normal(normal_),
+        penetration_depth(depth_) {
+    nearest_points[0] = p1;
+    nearest_points[1] = p2;
+    pos = (p1 + p2) / 2;
+  }
 
   bool operator<(const Contact& other) const {
     if (b1 == other.b1) return b2 < other.b2;
@@ -111,13 +134,15 @@ struct HPP_FCL_DLLAPI Contact {
   }
 
   bool operator!=(const Contact& other) const { return !(*this == other); }
+
+  FCL_REAL getDistanceToCollision(const CollisionRequest& request) const;
 };
 
 struct QueryResult;
 
 /// @brief base class for all query requests
 struct HPP_FCL_DLLAPI QueryRequest {
-  // @briefInitial guess to use for the GJK algorithm
+  // @brief Initial guess to use for the GJK algorithm
   GJKInitialGuess gjk_initial_guess;
 
   /// @brief whether enable gjk initial guess
@@ -233,11 +258,13 @@ enum CollisionRequestFlag {
 
 /// @brief request to the collision algorithm
 struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
-  /// @brief The maximum number of contacts will return
+  /// @brief The maximum number of contacts that can be returned
   size_t num_max_contacts;
 
   /// @brief whether the contact information (normal, penetration depth and
   /// contact position) will return
+  /// @note Only effective if the collision pair involves an Octree.
+  /// Otherwise, it is always true.
   bool enable_contact;
 
   /// Whether a lower bound on distance is returned when objects are disjoint
@@ -298,6 +325,11 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   }
 };
 
+inline FCL_REAL Contact::getDistanceToCollision(
+    const CollisionRequest& request) const {
+  return penetration_depth - request.security_margin;
+}
+
 /// @brief collision result
 struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
  private:
@@ -307,13 +339,21 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
  public:
   /// Lower bound on distance between objects if they are disjoint.
   /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
-  /// @note computed only on request (or if it does not add any computational
-  /// overhead).
+  /// @note Always computed. If \ref CollisionRequest::distance_upper_bound is
+  /// set to infinity, distance_lower_bound is the actual distance between the
+  /// shapes.
   FCL_REAL distance_lower_bound;
 
   /// @brief nearest points
   /// available only when distance_lower_bound is inferior to
   /// CollisionRequest::break_distance.
+  /// @note Also referred as "witness points" in other collision libraries.
+  /// The points p1 = nearest_points[0] and p2 = nearest_points[1] verify the
+  /// property that dist(o1, o2) * (p1 - p2) is the separation vector between o1
+  /// and o2, with dist(o1, o2) being the **signed** distance separating o1 from
+  /// o2. See \ref DistanceResult::normal for the definition of the separation
+  /// vector. If o1 and o2 have multiple contacts, the nearest_points are
+  /// associated with the contact which has the greatest penetration depth.
   Vec3f nearest_points[2];
 
  public:
@@ -419,14 +459,24 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
 /// @brief distance result
 struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
  public:
-  /// @brief minimum distance between two objects. if two objects are in
+  /// @brief minimum distance between two objects. If two objects are in
   /// collision, min_distance <= 0.
   FCL_REAL min_distance;
 
-  /// @brief nearest points
-  Vec3f nearest_points[2];
+  /// @brief nearest points.
+  /// See CollisionResult::nearest_points.
+  std::array<Vec3f, 2> nearest_points;
 
-  /// In case both objects are in collision, store the normal
+  /// Stores the normal, defined as the normalized separation vector:
+  /// normal = (p2 - p1) / dist(o1, o2), where p1 = nearest_points[0]
+  /// belongs to o1 and p2 = nearest_points[1] belongs to o2 and dist(o1, o2) is
+  /// the **signed** distance between o1 and o2. The normal always points from
+  /// o1 to o2.
+  /// @note The separation vector is the smallest vector such that if o1 is
+  /// translated by it, o1 and o2 are in touching contact (they share at least
+  /// one contact point but have a zero intersection volume). If the shapes
+  /// overlap, dist(o1, o2) = -((p2-p1).norm()). Otherwise, dist(o1, o2) =
+  /// (p2-p1).norm().
   Vec3f normal;
 
   /// @brief collision object 1
@@ -537,7 +587,7 @@ struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
 namespace internal {
 inline void updateDistanceLowerBoundFromBV(const CollisionRequest& /*req*/,
                                            CollisionResult& res,
-                                           const FCL_REAL& sqrDistLowerBound) {
+                                           const FCL_REAL sqrDistLowerBound) {
   // BV cannot find negative distance.
   if (res.distance_lower_bound <= 0) return;
   FCL_REAL new_dlb = std::sqrt(sqrDistLowerBound);  // - req.security_margin;

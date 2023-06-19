@@ -109,7 +109,7 @@ CMAKE_DEPENDENT_OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associat
 ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.0")
 
 if(BUILD_PYTHON_INTERFACE)
-  FIND_PACKAGE(eigenpy 2.7.10 REQUIRED)
+  FIND_PACKAGE(eigenpy 2.9.2 REQUIRED)
 endif()
 
 # Required dependencies
@@ -244,7 +244,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/BVH/BVH_utility.h
   include/hpp/fcl/collision_object.h
   include/hpp/fcl/collision_utility.h
-  include/hpp/fcl/octree.h
   include/hpp/fcl/hfield.h
   include/hpp/fcl/fwd.hh
   include/hpp/fcl/mesh_loader/assimp.h
@@ -258,7 +257,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/internal/traversal_node_bvh_shape.h
   include/hpp/fcl/internal/traversal_node_bvhs.h
   include/hpp/fcl/internal/traversal_node_hfield_shape.h
-  include/hpp/fcl/internal/traversal_node_octree.h
   include/hpp/fcl/internal/traversal_node_setup.h
   include/hpp/fcl/internal/traversal_node_shapes.h
   include/hpp/fcl/internal/traversal_recurse.h
@@ -282,6 +280,14 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/triangle.h
   include/hpp/fcl/timings.h
   )
+
+IF(HPP_FCL_HAS_OCTOMAP)
+  LIST(APPEND ${PROJECT_NAME}_HEADERS
+    include/hpp/fcl/octree.h
+    include/hpp/fcl/serialization/octree.h
+    include/hpp/fcl/internal/traversal_node_octree.h
+  )
+ENDIF(HPP_FCL_HAS_OCTOMAP)
 
 add_subdirectory(doc)
 add_subdirectory(src)

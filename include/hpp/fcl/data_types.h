@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2023, Inria
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -64,6 +65,7 @@ namespace hpp {
 namespace fcl {
 typedef double FCL_REAL;
 typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
+typedef Eigen::Matrix<FCL_REAL, 6, 1> Vec6f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 1> VecXf;
 typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3> Matrixx3f;
@@ -80,7 +82,7 @@ typedef Eigen::Vector2i support_func_guess_t;
 enum GJKInitialGuess { DefaultGuess, CachedGuess, BoundingVolumeGuess };
 
 /// @brief Variant to use for the GJK algorithm
-enum GJKVariant { DefaultGJK, NesterovAcceleration };
+enum GJKVariant { DefaultGJK, PolyakAcceleration, NesterovAcceleration };
 
 /// @brief Which convergence criterion is used to stop the algorithm (when the
 /// shapes are not in collision). (default) VDB: Van den Bergen (A Fast and
