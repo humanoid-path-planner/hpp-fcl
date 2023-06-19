@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2019-2022 CNRS-LAAS INRIA
+#  Copyright (c) 2019-2023 CNRS-LAAS INRIA
 #  Author: Joseph Mirabel
 #  All rights reserved.
 #
@@ -32,6 +32,7 @@
 #  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
 
+include(${PROJECT_SOURCE_DIR}/cmake/python-helpers.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/stubs.cmake)
 
 ADD_CUSTOM_TARGET(python)

@@ -430,19 +430,23 @@ class ClassCompound(CompoundBase):
                 self.typedef[memberdef.find("name").text.strip()] = True
 
             elif memberdef.attrib["kind"] == "enum":
+                if memberdef.find("name").text is None:
+                    ref_name = self._className() + "::" + "anonymous_enum"
+                else:
+                    ref_name = self._className() + "::" + memberdef.find("name").text
                 ref = Reference(
                     index=self.index,
                     id=memberdef.attrib["id"],
-                    name=self._className() + "::" + memberdef.find("name").text,
+                    name=ref_name,
                 )
                 self.index.registerReference(ref)
                 for value in memberdef.iterchildren("enumvalue"):
-                    ref = Reference(
+                    value_ref = Reference(
                         index=self.index,
                         id=value.attrib["id"],
-                        name=self._className() + "::" + memberdef.find("name").text,
+                        name=ref.name,
                     )
-                    self.index.registerReference(ref)
+                    self.index.registerReference(value_ref)
             elif memberdef.attrib["kind"] == "function":
                 self._memberfunc(memberdef)
 
