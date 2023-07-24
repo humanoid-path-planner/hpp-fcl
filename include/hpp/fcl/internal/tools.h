@@ -35,11 +35,10 @@
 
 /** \author Joseph Mirabel */
 
-#ifndef HPP_FCL_MATH_TOOLS_H
-#define HPP_FCL_MATH_TOOLS_H
+#ifndef HPP_FCL_INTERNAL_TOOLS_H
+#define HPP_FCL_INTERNAL_TOOLS_H
 
-#include <Eigen/Dense>
-#include <Eigen/Geometry>
+#include <hpp/fcl/fwd.hh>
 
 #include <cmath>
 #include <iostream>
