@@ -110,6 +110,7 @@ void eigen(const Eigen::MatrixBase<Derived>& m,
   int j, iq, ip, i;
   Scalar tresh, theta, tau, t, sm, s, h, g, c;
   int nrot;
+  HPP_FCL_UNUSED_VARIABLE(nrot);
   Scalar b[3];
   Scalar z[3];
   Scalar v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
