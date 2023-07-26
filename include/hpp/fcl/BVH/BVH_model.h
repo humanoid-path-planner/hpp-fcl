@@ -328,7 +328,7 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   /// save one matrix transformation.
   void makeParentRelative() {
     Matrix3f I(Matrix3f::Identity());
-    makeParentRelativeRecurse(0, I, Vec3f());
+    makeParentRelativeRecurse(0, I, Vec3f::Zero());
   }
 
  protected:

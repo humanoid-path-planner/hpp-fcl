@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: Thanks for using HPP-FCL. Please use the following metadata to cite us in your documents.
+title: HPP-FCL - An extension of the Flexible Collision Library
+abstract: An extension of the Flexible Collision Library
+  - family-names: Pan
+    given-names: Jia
+  - family-names: Chitta
+    given-names: Sachin
+  - family-names: Pan
+    given-names: Jia
+  - family-names: Manocha
+    given-names: Dinesh
+  - family-names: Mirabel
+    given-names: Joseph
+  - family-names: Carpentier
+    given-names: Justin
+    orcid: "https://orcid.org/0000-0001-6585-2894"
+  - family-names: Montaut
+    given-names: Louis
+version: 2.3.5
+date-released: "2023-07-11"
+license: BSD-2-Clause
+repository-code: "https://github.com/humanoid-path-planner/hpp-fcl"

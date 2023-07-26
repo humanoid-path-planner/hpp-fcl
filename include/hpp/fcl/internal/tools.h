@@ -35,11 +35,10 @@
 
 /** \author Joseph Mirabel */
 
-#ifndef HPP_FCL_MATH_TOOLS_H
-#define HPP_FCL_MATH_TOOLS_H
+#ifndef HPP_FCL_INTERNAL_TOOLS_H
+#define HPP_FCL_INTERNAL_TOOLS_H
 
-#include <Eigen/Dense>
-#include <Eigen/Geometry>
+#include <hpp/fcl/fwd.hh>
 
 #include <cmath>
 #include <iostream>
@@ -110,6 +109,7 @@ void eigen(const Eigen::MatrixBase<Derived>& m,
   int j, iq, ip, i;
   Scalar tresh, theta, tau, t, sm, s, h, g, c;
   int nrot;
+  HPP_FCL_UNUSED_VARIABLE(nrot);
   Scalar b[3];
   Scalar z[3];
   Scalar v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
