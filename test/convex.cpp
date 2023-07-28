@@ -46,15 +46,16 @@
 using namespace hpp::fcl;
 
 Convex<Quadrilateral> buildBox(FCL_REAL l, FCL_REAL w, FCL_REAL d) {
-  Vec3f* pts = new Vec3f[8];
-  pts[0] = Vec3f(l, w, d);
-  pts[1] = Vec3f(l, w, -d);
-  pts[2] = Vec3f(l, -w, d);
-  pts[3] = Vec3f(l, -w, -d);
-  pts[4] = Vec3f(-l, w, d);
-  pts[5] = Vec3f(-l, w, -d);
-  pts[6] = Vec3f(-l, -w, d);
-  pts[7] = Vec3f(-l, -w, -d);
+  std::shared_ptr<Vec3f> pts(new Vec3f[8]);
+  Vec3f* pts_ = pts.get();
+  pts_[0] = Vec3f(l, w, d);
+  pts_[1] = Vec3f(l, w, -d);
+  pts_[2] = Vec3f(l, -w, d);
+  pts_[3] = Vec3f(l, -w, -d);
+  pts_[4] = Vec3f(-l, w, d);
+  pts_[5] = Vec3f(-l, w, -d);
+  pts_[6] = Vec3f(-l, -w, d);
+  pts_[7] = Vec3f(-l, -w, -d);
 
   Quadrilateral* polygons = new Quadrilateral[6];
   polygons[0].set(0, 2, 3, 1);  // x+ side
@@ -201,32 +202,32 @@ BOOST_AUTO_TEST_CASE(compare_convex_box) {
 
 #ifdef HPP_FCL_HAS_QHULL
 BOOST_AUTO_TEST_CASE(convex_hull_throw) {
-  std::vector<Vec3f> points({
-      Vec3f(1, 1, 1),
-      Vec3f(0, 0, 0),
-      Vec3f(1, 0, 0),
-  });
+  std::shared_ptr<Vec3f> points(new Vec3f[3]);
+  Vec3f* points_ = points.get();
+  points_[0] = Vec3f(1, 1, 1);
+  points_[1] = Vec3f(0, 0, 0);
+  points_[2] = Vec3f(1, 0, 0);
 
-  BOOST_CHECK_THROW(ConvexBase::convexHull(points.data(), 0, false, NULL),
+  BOOST_CHECK_THROW(ConvexBase::convexHull(points, 0, false, NULL),
                     std::invalid_argument);
-  BOOST_CHECK_THROW(ConvexBase::convexHull(points.data(), 1, false, NULL),
+  BOOST_CHECK_THROW(ConvexBase::convexHull(points, 1, false, NULL),
                     std::invalid_argument);
-  BOOST_CHECK_THROW(ConvexBase::convexHull(points.data(), 2, false, NULL),
+  BOOST_CHECK_THROW(ConvexBase::convexHull(points, 2, false, NULL),
                     std::invalid_argument);
-  BOOST_CHECK_THROW(ConvexBase::convexHull(points.data(), 3, false, NULL),
+  BOOST_CHECK_THROW(ConvexBase::convexHull(points, 3, false, NULL),
                     std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_CASE(convex_hull_quad) {
-  std::vector<Vec3f> points({
-      Vec3f(1, 1, 1),
-      Vec3f(0, 0, 0),
-      Vec3f(1, 0, 0),
-      Vec3f(0, 0, 1),
-  });
+  std::shared_ptr<Vec3f> points(new Vec3f[4]);
+  Vec3f* points_ = points.get();
+  points_[0] = Vec3f(1, 1, 1);
+  points_[1] = Vec3f(0, 0, 0);
+  points_[2] = Vec3f(1, 0, 0);
+  points_[3] = Vec3f(0, 0, 1);
 
   ConvexBase* convexHull = ConvexBase::convexHull(
-      points.data(), (unsigned int)points.size(), false, NULL);
+      points, 4, false, NULL);
 
   BOOST_REQUIRE_EQUAL(convexHull->num_points, 4);
   BOOST_CHECK_EQUAL(convexHull->neighbors[0].count(), 3);
@@ -236,37 +237,39 @@ BOOST_AUTO_TEST_CASE(convex_hull_quad) {
 }
 
 BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
-  std::vector<Vec3f> points({
-      Vec3f(1, 1, 1),
-      Vec3f(1, 1, -1),
-      Vec3f(1, -1, 1),
-      Vec3f(1, -1, -1),
-      Vec3f(-1, 1, 1),
-      Vec3f(-1, 1, -1),
-      Vec3f(-1, -1, 1),
-      Vec3f(-1, -1, -1),
-      Vec3f(0, 0, 0),
-      Vec3f(0, 0, 0.99),
-  });
+  std::shared_ptr<Vec3f> points(new Vec3f[9]);
+  Vec3f* points_ = points.get();
+  points_[0] = Vec3f(1, 1, 1);
+  points_[1] = Vec3f(1, 1, -1);
+  points_[2] = Vec3f(1, -1, 1);
+  points_[3] = Vec3f(1, -1, -1);
+  points_[4] = Vec3f(-1, 1, 1);
+  points_[5] = Vec3f(-1, 1, -1);
+  points_[6] = Vec3f(-1, -1, 1);
+  points_[7] = Vec3f(-1, -1, -1);
+  points_[8] = Vec3f(0, 0, 0);
+  points_[9] = Vec3f(0, 0, 0.99);
 
   ConvexBase* convexHull = ConvexBase::convexHull(
-      points.data(), (unsigned int)points.size(), false, NULL);
+      points, 9, false, NULL);
 
   BOOST_REQUIRE_EQUAL(8, convexHull->num_points);
+  const Vec3f* cvxhull_points = convexHull->points.get();
   for (int i = 0; i < 8; ++i) {
-    BOOST_CHECK(convexHull->points[i].cwiseAbs() == Vec3f(1, 1, 1));
+    BOOST_CHECK(cvxhull_points[i].cwiseAbs() == Vec3f(1, 1, 1));
     BOOST_CHECK_EQUAL(convexHull->neighbors[i].count(), 3);
   }
   delete convexHull;
 
-  convexHull = ConvexBase::convexHull(points.data(),
-                                      (unsigned int)points.size(), true, NULL);
+  convexHull = ConvexBase::convexHull(points,
+                                      9, true, NULL);
   Convex<Triangle>* convex_tri = dynamic_cast<Convex<Triangle>*>(convexHull);
   BOOST_CHECK(convex_tri != NULL);
 
   BOOST_REQUIRE_EQUAL(8, convexHull->num_points);
+  cvxhull_points = convexHull->points.get();
   for (int i = 0; i < 8; ++i) {
-    BOOST_CHECK(convexHull->points[i].cwiseAbs() == Vec3f(1, 1, 1));
+    BOOST_CHECK(cvxhull_points[i].cwiseAbs() == Vec3f(1, 1, 1));
     BOOST_CHECK(convexHull->neighbors[i].count() >= 3);
     BOOST_CHECK(convexHull->neighbors[i].count() <= 6);
   }

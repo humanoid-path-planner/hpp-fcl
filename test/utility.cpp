@@ -478,24 +478,25 @@ Convex<Triangle> constructPolytopeFromEllipsoid(const Ellipsoid& ellipsoid) {
   FCL_REAL PHI = (1 + std::sqrt(5)) / 2;
 
   // vertices
-  Vec3f* pts = new Vec3f[12];
-  pts[0] = Vec3f(-1, PHI, 0);
-  pts[1] = Vec3f(1, PHI, 0);
-  pts[2] = Vec3f(-1, -PHI, 0);
-  pts[3] = Vec3f(1, -PHI, 0);
+  std::shared_ptr<Vec3f> pts(new Vec3f[12]);
+  Vec3f* pts_ = pts.get();
+  pts_[0] = Vec3f(-1, PHI, 0);
+  pts_[1] = Vec3f(1, PHI, 0);
+  pts_[2] = Vec3f(-1, -PHI, 0);
+  pts_[3] = Vec3f(1, -PHI, 0);
 
-  pts[4] = Vec3f(0, -1, PHI);
-  pts[5] = Vec3f(0, 1, PHI);
-  pts[6] = Vec3f(0, -1, -PHI);
-  pts[7] = Vec3f(0, 1, -PHI);
+  pts_[4] = Vec3f(0, -1, PHI);
+  pts_[5] = Vec3f(0, 1, PHI);
+  pts_[6] = Vec3f(0, -1, -PHI);
+  pts_[7] = Vec3f(0, 1, -PHI);
 
-  pts[8] = Vec3f(PHI, 0, -1);
-  pts[9] = Vec3f(PHI, 0, 1);
-  pts[10] = Vec3f(-PHI, 0, -1);
-  pts[11] = Vec3f(-PHI, 0, 1);
+  pts_[8] = Vec3f(PHI, 0, -1);
+  pts_[9] = Vec3f(PHI, 0, 1);
+  pts_[10] = Vec3f(-PHI, 0, -1);
+  pts_[11] = Vec3f(-PHI, 0, 1);
 
   for (int i = 0; i < 12; ++i) {
-    toEllipsoid(pts[i], ellipsoid);
+    toEllipsoid(pts_[i], ellipsoid);
   }
 
   // faces

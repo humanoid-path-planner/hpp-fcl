@@ -44,7 +44,7 @@ namespace hpp {
 namespace fcl {
 
 template <typename PolygonT>
-Convex<PolygonT>::Convex(bool own_storage, Vec3f* points_,
+Convex<PolygonT>::Convex(bool own_storage, std::shared_ptr<Vec3f> points_,
                          unsigned int num_points_, PolygonT* polygons_,
                          unsigned int num_polygons_)
     : ConvexBase(), polygons(polygons_), num_polygons(num_polygons_) {
@@ -69,7 +69,7 @@ Convex<PolygonT>::~Convex() {
 }
 
 template <typename PolygonT>
-void Convex<PolygonT>::set(bool own_storage, Vec3f* points_,
+void Convex<PolygonT>::set(bool own_storage, std::shared_ptr<Vec3f> points_,
                            unsigned int num_points_, PolygonT* polygons_,
                            unsigned int num_polygons_) {
   if (own_storage_) delete[] polygons;
@@ -83,8 +83,8 @@ void Convex<PolygonT>::set(bool own_storage, Vec3f* points_,
 
 template <typename PolygonT>
 Convex<PolygonT>* Convex<PolygonT>::clone() const {
-  Vec3f* cloned_points = new Vec3f[num_points];
-  std::copy(points, points + num_points, cloned_points);
+  std::shared_ptr<Vec3f> cloned_points(new Vec3f[num_points]);
+  std::copy(points.get(), points.get() + num_points, cloned_points.get());
 
   PolygonT* cloned_polygons = new PolygonT[num_polygons];
   std::copy(polygons, polygons + num_polygons, cloned_polygons);
@@ -107,13 +107,14 @@ Matrix3f Convex<PolygonT>::computeMomentofInertia() const {
   C_canonical << 1 / 60.0, 1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0, 1 / 120.0,
       1 / 120.0, 1 / 120.0, 1 / 60.0;
 
+  const Vec3f* points_ = points.get();
   for (unsigned int i = 0; i < num_polygons; ++i) {
     const PolygonT& polygon = polygons[i];
 
     // compute the center of the polygon
     Vec3f plane_center(0, 0, 0);
     for (size_type j = 0; j < polygon.size(); ++j)
-      plane_center += points[polygon[(index_type)j]];
+      plane_center += points_[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
     // compute the volume of tetrahedron making by neighboring two points, the
@@ -123,8 +124,8 @@ Matrix3f Convex<PolygonT>::computeMomentofInertia() const {
       index_type e_first = polygon[static_cast<index_type>(j)];
       index_type e_second =
           polygon[static_cast<index_type>((j + 1) % polygon.size())];
-      const Vec3f& v1 = points[e_first];
-      const Vec3f& v2 = points[e_second];
+      const Vec3f& v1 = points_[e_first];
+      const Vec3f& v2 = points_[e_second];
       Matrix3f A;
       A << v1.transpose(), v2.transpose(),
           v3.transpose();  // this is A' in the original document
@@ -142,12 +143,13 @@ Vec3f Convex<PolygonT>::computeCOM() const {
 
   Vec3f com(0, 0, 0);
   FCL_REAL vol = 0;
+  const Vec3f* points_ = points.get();
   for (unsigned int i = 0; i < num_polygons; ++i) {
     const PolygonT& polygon = polygons[i];
     // compute the center of the polygon
     Vec3f plane_center(0, 0, 0);
     for (size_type j = 0; j < polygon.size(); ++j)
-      plane_center += points[polygon[(index_type)j]];
+      plane_center += points_[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
     // compute the volume of tetrahedron making by neighboring two points, the
@@ -157,11 +159,11 @@ Vec3f Convex<PolygonT>::computeCOM() const {
       index_type e_first = polygon[static_cast<index_type>(j)];
       index_type e_second =
           polygon[static_cast<index_type>((j + 1) % polygon.size())];
-      const Vec3f& v1 = points[e_first];
-      const Vec3f& v2 = points[e_second];
+      const Vec3f& v1 = points_[e_first];
+      const Vec3f& v2 = points_[e_second];
       FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
       vol += d_six_vol;
-      com += (points[e_first] + points[e_second] + plane_center) * d_six_vol;
+      com += (points_[e_first] + points_[e_second] + plane_center) * d_six_vol;
     }
   }
 
@@ -174,13 +176,14 @@ FCL_REAL Convex<PolygonT>::computeVolume() const {
   typedef typename PolygonT::index_type index_type;
 
   FCL_REAL vol = 0;
+  const Vec3f* points_ = points.get();
   for (unsigned int i = 0; i < num_polygons; ++i) {
     const PolygonT& polygon = polygons[i];
 
     // compute the center of the polygon
     Vec3f plane_center(0, 0, 0);
     for (size_type j = 0; j < polygon.size(); ++j)
-      plane_center += points[polygon[(index_type)j]];
+      plane_center += points_[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
     // compute the volume of tetrahedron making by neighboring two points, the
@@ -190,8 +193,8 @@ FCL_REAL Convex<PolygonT>::computeVolume() const {
       index_type e_first = polygon[static_cast<index_type>(j)];
       index_type e_second =
           polygon[static_cast<index_type>((j + 1) % polygon.size())];
-      const Vec3f& v1 = points[e_first];
-      const Vec3f& v2 = points[e_second];
+      const Vec3f& v1 = points_[e_first];
+      const Vec3f& v2 = points_[e_second];
       FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
       vol += d_six_vol;
     }

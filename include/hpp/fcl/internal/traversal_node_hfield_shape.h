@@ -74,15 +74,16 @@ Convex<Quadrilateral> buildConvexQuadrilateral(const HFNode<BV>& node,
          "max_height is lower than min_height");  // Check whether the geometry
                                                   // is degenerated
 
-  Vec3f* pts = new Vec3f[8];
-  pts[0] = Vec3f(x0, y0, min_height);
-  pts[1] = Vec3f(x0, y1, min_height);
-  pts[2] = Vec3f(x1, y1, min_height);
-  pts[3] = Vec3f(x1, y0, min_height);
-  pts[4] = Vec3f(x0, y0, cell(0, 0));
-  pts[5] = Vec3f(x0, y1, cell(1, 0));
-  pts[6] = Vec3f(x1, y1, cell(1, 1));
-  pts[7] = Vec3f(x1, y0, cell(0, 1));
+  std::shared_ptr<Vec3f> pts(new Vec3f[8]);
+  Vec3f* pts_ = pts.get();
+  pts_[0] = Vec3f(x0, y0, min_height);
+  pts_[1] = Vec3f(x0, y1, min_height);
+  pts_[2] = Vec3f(x1, y1, min_height);
+  pts_[3] = Vec3f(x1, y0, min_height);
+  pts_[4] = Vec3f(x0, y0, cell(0, 0));
+  pts_[5] = Vec3f(x0, y1, cell(1, 0));
+  pts_[6] = Vec3f(x1, y1, cell(1, 1));
+  pts_[7] = Vec3f(x1, y0, cell(0, 1));
 
   Quadrilateral* polygons = new Quadrilateral[6];
   polygons[0].set(0, 3, 2, 1);  // x+ side

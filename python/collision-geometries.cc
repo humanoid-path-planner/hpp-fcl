@@ -161,11 +161,11 @@ struct ConvexBaseWrapper {
   static Vec3f& point(const ConvexBase& convex, unsigned int i) {
     if (i >= convex.num_points)
       throw std::out_of_range("index is out of range");
-    return convex.points[i];
+    return (convex.points.get())[i];
   }
 
   static RefRowMatrixX3 points(const ConvexBase& convex) {
-    return MapRowMatrixX3(convex.points[0].data(), convex.num_points, 3);
+    return MapRowMatrixX3((convex.points.get())[0].data(), convex.num_points, 3);
   }
 
   static list neighbors(const ConvexBase& convex, unsigned int i) {
@@ -179,7 +179,7 @@ struct ConvexBaseWrapper {
 
   static ConvexBase* convexHull(const Vec3fs& points, bool keepTri,
                                 const char* qhullCommand) {
-    return ConvexBase::convexHull(points.data(), (unsigned int)points.size(),
+    return ConvexBase::_convexHull(points.data(), (unsigned int)points.size(),
                                   keepTri, qhullCommand);
   }
 };
@@ -196,8 +196,9 @@ struct ConvexWrapper {
 
   static shared_ptr<Convex_t> constructor(const Vec3fs& _points,
                                           const Triangles& _tris) {
-    Vec3f* points = new Vec3f[_points.size()];
-    for (std::size_t i = 0; i < _points.size(); ++i) points[i] = _points[i];
+    std::shared_ptr<Vec3f> points(new Vec3f[_points.size()]);
+    Vec3f* points_ = points.get();
+    for (std::size_t i = 0; i < _points.size(); ++i) points_[i] = _points[i];
     Triangle* tris = new Triangle[_tris.size()];
     for (std::size_t i = 0; i < _tris.size(); ++i) tris[i] = _tris[i];
     return shared_ptr<Convex_t>(new Convex_t(true, points,
@@ -285,7 +286,7 @@ void exposeShapes() {
       //                   "Points of the convex.")
       .def("neighbors", &ConvexBaseWrapper::neighbors)
       .def("convexHull", &ConvexBaseWrapper::convexHull,
-           doxygen::member_func_doc(&ConvexBase::convexHull),
+           doxygen::member_func_doc(&ConvexBase::_convexHull),
            return_value_policy<manage_new_object>())
       .staticmethod("convexHull")
       .def("clone", &ConvexBase::clone,

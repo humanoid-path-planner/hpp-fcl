@@ -25,9 +25,9 @@ namespace fcl {
 // the vector `triangle barycentre - convex_tri.center` is positive.
 void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
   Vec3f p0, p1, p2;
-  p0 = convex_tri->points[tri[0]];
-  p1 = convex_tri->points[tri[1]];
-  p2 = convex_tri->points[tri[2]];
+  p0 = (convex_tri->points.get())[tri[0]];
+  p1 = (convex_tri->points.get())[tri[1]];
+  p2 = (convex_tri->points.get())[tri[2]];
 
   Vec3f barycentre_tri, center_barycenter;
   barycentre_tri = (p0 + p1 + p2) / 3;
@@ -43,9 +43,16 @@ void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
   }
 }
 
-ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
+ConvexBase* ConvexBase::convexHull(const std::shared_ptr<Vec3f> pts, unsigned int num_points,
                                    bool keepTriangles,
                                    const char* qhullCommand) {
+  return ConvexBase::_convexHull(pts.get(), num_points, keepTriangles, qhullCommand);
+}
+
+ConvexBase* ConvexBase::_convexHull(const Vec3f* pts, unsigned int num_points,
+                                   bool keepTriangles,
+                                   const char* qhullCommand) 
+{
 #ifdef HPP_FCL_HAS_QHULL
   if (num_points <= 3) {
     throw std::invalid_argument(
@@ -72,14 +79,15 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
 
   // Initialize the vertices
   int nvertex = (qh.vertexCount());
-  Vec3f* vertices = new Vec3f[size_t(nvertex)];
+  std::shared_ptr<Vec3f> vertices(new Vec3f[size_t(nvertex)]);
+  Vec3f* vertices_ = vertices.get();
   QhullVertexList vertexList(qh.vertexList());
   int i_vertex = 0;
   for (QhullVertexList::const_iterator v = vertexList.begin();
        v != vertexList.end(); ++v) {
     QhullPoint pt((*v).point());
     pts_to_vertices[(size_t)pt.id()] = (int)i_vertex;
-    vertices[i_vertex] = Vec3f(pt[0], pt[1], pt[2]);
+    vertices_[i_vertex] = Vec3f(pt[0], pt[1], pt[2]);
     ++i_vertex;
   }
   assert(i_vertex == nvertex);
