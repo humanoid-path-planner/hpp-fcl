@@ -13,7 +13,6 @@ using orgQhull::Qhull;
 using orgQhull::QhullFacet;
 using orgQhull::QhullPoint;
 using orgQhull::QhullRidgeSet;
-using orgQhull::QhullVertex;
 using orgQhull::QhullVertexList;
 using orgQhull::QhullVertexSet;
 #endif
@@ -166,7 +165,7 @@ ConvexBase* ConvexBase::_convexHull(const Vec3f* pts, unsigned int num_points,
       }
     }
   }
-  assert(!keepTriangles || i_polygon == qh.facetCount());
+  assert(!keepTriangles || static_cast<int>(i_polygon) == qh.facetCount());
 
   // Fill the neighbor attribute of the returned object.
   convex->nneighbors_ = new unsigned int[c_nneighbors];
