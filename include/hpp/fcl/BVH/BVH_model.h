@@ -44,6 +44,7 @@
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/BV_node.h>
 #include <vector>
+#include <memory>
 
 namespace hpp {
 namespace fcl {
@@ -63,13 +64,13 @@ class BVSplitter;
 class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
  public:
   /// @brief Geometry point data
-  Vec3f* vertices;
+  std::shared_ptr<Vec3f> vertices;
 
   /// @brief Geometry triangle index data, will be NULL for point clouds
   Triangle* tri_indices;
 
   /// @brief Geometry point data in previous frame
-  Vec3f* prev_vertices;
+  std::shared_ptr<Vec3f> prev_vertices;
 
   /// @brief Number of triangles
   unsigned int num_tris;
@@ -101,9 +102,7 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
 
   /// @brief deconstruction, delete mesh data related.
   virtual ~BVHModelBase() {
-    delete[] vertices;
     delete[] tri_indices;
-    delete[] prev_vertices;
   }
 
   /// @brief Get the object type: it is a BVH
@@ -203,13 +202,14 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
   Vec3f computeCOM() const {
     FCL_REAL vol = 0;
     Vec3f com(0, 0, 0);
+    const Vec3f* vertices_ = vertices.get();
     for (unsigned int i = 0; i < num_tris; ++i) {
       const Triangle& tri = tri_indices[i];
       FCL_REAL d_six_vol =
-          (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
+          (vertices_[tri[0]].cross(vertices_[tri[1]])).dot(vertices_[tri[2]]);
       vol += d_six_vol;
       com +=
-          (vertices[tri[0]] + vertices[tri[1]] + vertices[tri[2]]) * d_six_vol;
+          (vertices_[tri[0]] + vertices_[tri[1]] + vertices_[tri[2]]) * d_six_vol;
     }
 
     return com / (vol * 4);
@@ -217,10 +217,11 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
 
   FCL_REAL computeVolume() const {
     FCL_REAL vol = 0;
+    const Vec3f* vertices_ = vertices.get();
     for (unsigned int i = 0; i < num_tris; ++i) {
       const Triangle& tri = tri_indices[i];
       FCL_REAL d_six_vol =
-          (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
+          (vertices_[tri[0]].cross(vertices_[tri[1]])).dot(vertices_[tri[2]]);
       vol += d_six_vol;
     }
 
@@ -234,11 +235,12 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
     C_canonical << 1 / 60.0, 1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0,
         1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0;
 
+    const Vec3f* vertices_ = vertices.get();
     for (unsigned int i = 0; i < num_tris; ++i) {
       const Triangle& tri = tri_indices[i];
-      const Vec3f& v1 = vertices[tri[0]];
-      const Vec3f& v2 = vertices[tri[1]];
-      const Vec3f& v3 = vertices[tri[2]];
+      const Vec3f& v1 = vertices_[tri[0]];
+      const Vec3f& v2 = vertices_[tri[1]];
+      const Vec3f& v3 = vertices_[tri[2]];
       Matrix3f A;
       A << v1.transpose(), v2.transpose(), v3.transpose();
       C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);

@@ -62,6 +62,7 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
   std::vector<bool> keep_vertex(model.num_vertices, false);
   std::vector<bool> keep_tri(model.num_tris, false);
   unsigned int ntri = 0;
+  const Vec3f* model_vertices_ = model.vertices.get();
   for (unsigned int i = 0; i < model.num_tris; ++i) {
     const Triangle& t = model.tri_indices[i];
 
@@ -70,14 +71,14 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
 
     if (!keep_this_tri) {
       for (unsigned int j = 0; j < 3; ++j) {
-        if (aabb.contain(q * model.vertices[t[j]])) {
+        if (aabb.contain(q * model_vertices_[t[j]])) {
           keep_this_tri = true;
           break;
         }
       }
-      const Vec3f& p0 = model.vertices[t[0]];
-      const Vec3f& p1 = model.vertices[t[1]];
-      const Vec3f& p2 = model.vertices[t[2]];
+      const Vec3f& p0 = model_vertices_[t[0]];
+      const Vec3f& p1 = model_vertices_[t[1]];
+      const Vec3f& p2 = model_vertices_[t[2]];
       Vec3f c1, c2, normal;
       FCL_REAL distance;
       if (!keep_this_tri &&
@@ -99,10 +100,11 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
   new_model->beginModel(ntri, std::min(ntri * 3, model.num_vertices));
   std::vector<unsigned int> idxConversion(model.num_vertices);
   assert(new_model->num_vertices == 0);
+  Vec3f* new_model_vertices_ = new_model->vertices.get();
   for (unsigned int i = 0; i < keep_vertex.size(); ++i) {
     if (keep_vertex[i]) {
       idxConversion[i] = new_model->num_vertices;
-      new_model->vertices[new_model->num_vertices] = model.vertices[i];
+      new_model_vertices_[new_model->num_vertices] = model_vertices_[i];
       new_model->num_vertices++;
     }
   }

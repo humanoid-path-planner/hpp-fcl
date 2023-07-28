@@ -123,13 +123,14 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   HPP_FCL_UNUSED_VARIABLE(max_height);
 
   {
-    Vec3f* pts = new Vec3f[6];
-    pts[0] = Vec3f(x0, y0, min_height);  //
-    pts[1] = Vec3f(x0, y1, min_height);  //
-    pts[2] = Vec3f(x1, y0, min_height);  //
-    pts[3] = Vec3f(x0, y0, cell(0, 0));  //
-    pts[4] = Vec3f(x0, y1, cell(1, 0));  //
-    pts[5] = Vec3f(x1, y0, cell(0, 1));  //
+    std::shared_ptr<Vec3f> pts(new Vec3f[6]);
+    Vec3f* pts_ = pts.get();
+    pts_[0] = Vec3f(x0, y0, min_height);  //
+    pts_[1] = Vec3f(x0, y1, min_height);  //
+    pts_[2] = Vec3f(x1, y0, min_height);  //
+    pts_[3] = Vec3f(x0, y0, cell(0, 0));  //
+    pts_[4] = Vec3f(x0, y1, cell(1, 0));  //
+    pts_[5] = Vec3f(x1, y0, cell(0, 1));  //
 
     Triangle* triangles = new Triangle[8];
     triangles[0].set(0, 1, 2);  // bottom
@@ -150,14 +151,14 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   }
 
   {
-    Vec3f* pts = new Vec3f[6];
-
-    pts[0] = Vec3f(x0, y1, min_height);
-    pts[1] = Vec3f(x1, y1, min_height);
-    pts[2] = Vec3f(x1, y0, min_height);
-    pts[3] = Vec3f(x0, y1, cell(1, 0));
-    pts[4] = Vec3f(x1, y1, cell(1, 1));
-    pts[5] = Vec3f(x1, y0, cell(0, 1));
+    std::shared_ptr<Vec3f> pts(new Vec3f[6]);
+    Vec3f* pts_ = pts.get();
+    pts_[0] = Vec3f(x0, y1, min_height);
+    pts_[1] = Vec3f(x1, y1, min_height);
+    pts_[2] = Vec3f(x1, y0, min_height);
+    pts_[3] = Vec3f(x0, y1, cell(1, 0));
+    pts_[4] = Vec3f(x1, y1, cell(1, 1));
+    pts_[5] = Vec3f(x1, y0, cell(0, 1));
 
     Triangle* triangles = new Triangle[8];
     triangles[0].set(2, 0, 1);  // bottom
@@ -195,7 +196,7 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
                    Vec3f& contact_1, Vec3f& contact_2, Vec3f& normal,
                    Vec3f& normal_top, bool& is_collision) {
   const Polygone& top_triangle = convex.polygons[1];
-  const Vec3f* points = convex.points;
+  const Vec3f* points = convex.points.get();
   const Vec3f pointA = points[top_triangle[0]];
   const Vec3f pointB = points[top_triangle[1]];
   const Vec3f pointC = points[top_triangle[2]];
