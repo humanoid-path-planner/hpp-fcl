@@ -41,24 +41,22 @@
 namespace hpp {
 namespace fcl {
 
-void ConvexBase::initialize(bool own_storage, std::shared_ptr<Vec3f> points_,
+void ConvexBase::initialize(std::shared_ptr<Vec3f> points_,
                             unsigned int num_points_) {
   points = points_;
   num_points = num_points_;
-  own_storage_ = own_storage;
   computeCenter();
 }
 
-void ConvexBase::set(bool own_storage_, std::shared_ptr<Vec3f> points_,
+void ConvexBase::set(std::shared_ptr<Vec3f> points_,
                      unsigned int num_points_) {
-  initialize(own_storage_, points_, num_points_);
+  initialize(points_, num_points_);
 }
 
 ConvexBase::ConvexBase(const ConvexBase& other)
     : ShapeBase(other),
       num_points(other.num_points),
-      center(other.center),
-      own_storage_(other.own_storage_) {
+      center(other.center) {
 
   if (other.points.get()) {
     points.reset(new Vec3f[num_points]);

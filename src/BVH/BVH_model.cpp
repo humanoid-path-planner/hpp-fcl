@@ -127,7 +127,7 @@ void BVHModelBase::buildConvexRepresentation(bool share_memory) {
       polygons.reset(new Triangle[num_tris]);
       std::copy(tri_indices.get(), tri_indices.get() + num_tris, polygons.get());
     }
-    convex.reset(new Convex<Triangle>(!share_memory, points, num_vertices,
+    convex.reset(new Convex<Triangle>(points, num_vertices,
                                       polygons, num_tris));
   }
 }

@@ -525,8 +525,7 @@ Convex<Triangle> constructPolytopeFromEllipsoid(const Ellipsoid& ellipsoid) {
   tris_[17].set(6, 2, 10);
   tris_[18].set(8, 6, 7);
   tris_[19].set(9, 8, 1);
-  return Convex<Triangle>(true,
-                          pts,   // points
+  return Convex<Triangle>(pts,   // points
                           12,    // num_points
                           tris,  // triangles
                           20     // number of triangles

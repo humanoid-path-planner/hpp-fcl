@@ -614,7 +614,6 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
     copy.points.reset(new Vec3f[num_points]);
     std::copy(points.get(), points.get() + num_points, copy.points.get());
 
-    copy.own_storage_ = true;
     copy.ShapeBase::operator=(*this);
 
     return copy_ptr;
@@ -671,8 +670,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// Initialization is done with ConvexBase::initialize.
   ConvexBase()
       : ShapeBase(),
-        num_points(0),
-        own_storage_(false) {}
+        num_points(0) {}
 
   /// @brief Initialize the points of the convex shape
   /// This also initializes the ConvexBase::center.
@@ -680,22 +678,20 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// \param ownStorage weither the ConvexBase owns the data.
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
-  void initialize(bool ownStorage, std::shared_ptr<Vec3f> points_, unsigned int num_points_);
+  void initialize(std::shared_ptr<Vec3f> points_, unsigned int num_points_);
 
   /// @brief Set the points of the convex shape.
   ///
   /// \param ownStorage weither the ConvexBase owns the data.
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
-  void set(bool ownStorage, std::shared_ptr<Vec3f> points_, unsigned int num_points_);
+  void set(std::shared_ptr<Vec3f> points_, unsigned int num_points_);
 
   /// @brief Copy constructor
   /// Only the list of neighbors is copied.
   ConvexBase(const ConvexBase& other);
 
   std::shared_ptr<unsigned int> nneighbors_;
-
-  bool own_storage_;
 
  private:
   void computeCenter();

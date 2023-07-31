@@ -97,7 +97,7 @@ ConvexBase* ConvexBase::_convexHull(const Vec3f* pts, unsigned int num_points,
     convex = convex_tri = new Convex<Triangle>();
   else
     convex = new ConvexBase;
-  convex->initialize(true, vertices, static_cast<unsigned int>(nvertex));
+  convex->initialize(vertices, static_cast<unsigned int>(nvertex));
 
   // Build the neighbors
   convex->neighbors.reset(new Neighbors[size_t(nvertex)]);

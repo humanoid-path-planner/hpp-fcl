@@ -204,9 +204,9 @@ struct ConvexWrapper {
     std::shared_ptr<Triangle> tris(new Triangle[_tris.size()]);
     Triangle* tris_ = tris.get();
     for (std::size_t i = 0; i < _tris.size(); ++i) tris_[i] = _tris[i];
-    return shared_ptr<Convex_t>(new Convex_t(true, points,
-                                             (unsigned int)_points.size(), tris,
-                                             (unsigned int)_tris.size()));
+    return shared_ptr<Convex_t>(new Convex_t(points,
+                                            (unsigned int)_points.size(), tris,
+                                            (unsigned int)_tris.size()));
   }
 };
 

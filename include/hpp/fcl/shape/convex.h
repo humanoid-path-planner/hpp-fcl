@@ -61,7 +61,7 @@ class Convex : public ConvexBase {
   /// \param polygons_ \copydoc Convex::polygons
   /// \param num_polygons_ the number of polygons.
   /// \note num_polygons_ is not the allocated size of polygons_.
-  Convex(bool ownStorage, std::shared_ptr<Vec3f> points_, unsigned int num_points_,
+  Convex(std::shared_ptr<Vec3f> points_, unsigned int num_points_,
          std::shared_ptr<PolygonT> polygons_, unsigned int num_polygons_);
 
   /// @brief Copy constructor
@@ -94,7 +94,7 @@ class Convex : public ConvexBase {
   /// \param num_polygons the number of polygons.
   /// \note num_polygons is not the allocated size of polygons.
   ///
-  void set(bool ownStorage, std::shared_ptr<Vec3f> points, unsigned int num_points,
+  void set(std::shared_ptr<Vec3f> points, unsigned int num_points,
            std::shared_ptr<PolygonT> polygons, unsigned int num_polygons);
 
   ///  @brief Clone (deep copy).

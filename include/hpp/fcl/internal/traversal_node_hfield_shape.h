@@ -94,8 +94,7 @@ Convex<Quadrilateral> buildConvexQuadrilateral(const HFNode<BV>& node,
   polygons_[4].set(3, 0, 4, 7);  // z- side
   polygons_[5].set(4, 5, 6, 7);  // z+ side
 
-  return Convex<Quadrilateral>(true,
-                               pts,  // points
+  return Convex<Quadrilateral>(pts,  // points
                                8,    // num points
                                polygons,
                                6  // number of polygons
@@ -144,8 +143,7 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
     triangles_[6].set(0, 2, 5);
     triangles_[7].set(5, 3, 0);
 
-    convex1.set(true,
-                pts,  // points
+    convex1.set(pts,  // points
                 6,    // num points
                 triangles,
                 8  // number of polygons
@@ -173,8 +171,7 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
     triangles_[6].set(1, 5, 2);
     triangles_[7].set(4, 2, 1);
 
-    convex2.set(true,
-                pts,  // points
+    convex2.set(pts,  // points
                 6,    // num points
                 triangles,
                 8  // number of polygons

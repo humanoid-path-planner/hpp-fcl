@@ -66,8 +66,7 @@ Convex<Quadrilateral> buildBox(FCL_REAL l, FCL_REAL w, FCL_REAL d) {
   polygons_[4].set(1, 3, 7, 5);  // z- side
   polygons_[5].set(0, 2, 6, 4);  // z+ side
 
-  return Convex<Quadrilateral>(true,
-                               pts,  // points
+  return Convex<Quadrilateral>(pts,  // points
                                8,    // num points
                                polygons,
                                6  // number of polygons

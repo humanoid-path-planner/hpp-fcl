@@ -44,11 +44,11 @@ namespace hpp {
 namespace fcl {
 
 template <typename PolygonT>
-Convex<PolygonT>::Convex(bool own_storage, std::shared_ptr<Vec3f> points_,
+Convex<PolygonT>::Convex(std::shared_ptr<Vec3f> points_,
                          unsigned int num_points_, std::shared_ptr<PolygonT> polygons_,
                          unsigned int num_polygons_)
     : ConvexBase(), polygons(polygons_), num_polygons(num_polygons_) {
-  initialize(own_storage, points_, num_points_);
+  initialize(points_, num_points_);
   fillNeighbors();
 }
 
@@ -68,10 +68,10 @@ Convex<PolygonT>::~Convex() {
 }
 
 template <typename PolygonT>
-void Convex<PolygonT>::set(bool own_storage, std::shared_ptr<Vec3f> points_,
+void Convex<PolygonT>::set(std::shared_ptr<Vec3f> points_,
                            unsigned int num_points_, std::shared_ptr<PolygonT> polygons_,
                            unsigned int num_polygons_) {
-  ConvexBase::set(own_storage, points_, num_points_);
+  ConvexBase::set(points_, num_points_);
 
   num_polygons = num_polygons_;
   polygons = polygons_;
@@ -87,7 +87,7 @@ Convex<PolygonT>* Convex<PolygonT>::clone() const {
   std::shared_ptr<PolygonT> cloned_polygons(new PolygonT[num_polygons]);
   std::copy(polygons.get(), polygons.get() + num_polygons, cloned_polygons.get());
 
-  Convex* copy_ptr = new Convex(true, cloned_points, num_points,
+  Convex* copy_ptr = new Convex(cloned_points, num_points,
                                 cloned_polygons, num_polygons);
 
   copy_ptr->ShapeBase::operator=(*this);
