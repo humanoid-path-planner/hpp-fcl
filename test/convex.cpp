@@ -80,39 +80,39 @@ BOOST_AUTO_TEST_CASE(convex) {
 
   // Check neighbors
   for (int i = 0; i < 8; ++i) {
-    BOOST_CHECK_EQUAL(box.neighbors[i].count(), 3);
+    BOOST_CHECK_EQUAL(box.neighbors.get()[i].count(), 3);
   }
-  BOOST_CHECK_EQUAL(box.neighbors[0][0], 1);
-  BOOST_CHECK_EQUAL(box.neighbors[0][1], 2);
-  BOOST_CHECK_EQUAL(box.neighbors[0][2], 4);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[0][0], 1);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[0][1], 2);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[0][2], 4);
 
-  BOOST_CHECK_EQUAL(box.neighbors[1][0], 0);
-  BOOST_CHECK_EQUAL(box.neighbors[1][1], 3);
-  BOOST_CHECK_EQUAL(box.neighbors[1][2], 5);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[1][0], 0);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[1][1], 3);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[1][2], 5);
 
-  BOOST_CHECK_EQUAL(box.neighbors[2][0], 0);
-  BOOST_CHECK_EQUAL(box.neighbors[2][1], 3);
-  BOOST_CHECK_EQUAL(box.neighbors[2][2], 6);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[2][0], 0);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[2][1], 3);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[2][2], 6);
 
-  BOOST_CHECK_EQUAL(box.neighbors[3][0], 1);
-  BOOST_CHECK_EQUAL(box.neighbors[3][1], 2);
-  BOOST_CHECK_EQUAL(box.neighbors[3][2], 7);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[3][0], 1);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[3][1], 2);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[3][2], 7);
 
-  BOOST_CHECK_EQUAL(box.neighbors[4][0], 0);
-  BOOST_CHECK_EQUAL(box.neighbors[4][1], 5);
-  BOOST_CHECK_EQUAL(box.neighbors[4][2], 6);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[4][0], 0);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[4][1], 5);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[4][2], 6);
 
-  BOOST_CHECK_EQUAL(box.neighbors[5][0], 1);
-  BOOST_CHECK_EQUAL(box.neighbors[5][1], 4);
-  BOOST_CHECK_EQUAL(box.neighbors[5][2], 7);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[5][0], 1);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[5][1], 4);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[5][2], 7);
 
-  BOOST_CHECK_EQUAL(box.neighbors[6][0], 2);
-  BOOST_CHECK_EQUAL(box.neighbors[6][1], 4);
-  BOOST_CHECK_EQUAL(box.neighbors[6][2], 7);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[6][0], 2);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[6][1], 4);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[6][2], 7);
 
-  BOOST_CHECK_EQUAL(box.neighbors[7][0], 3);
-  BOOST_CHECK_EQUAL(box.neighbors[7][1], 5);
-  BOOST_CHECK_EQUAL(box.neighbors[7][2], 6);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[7][0], 3);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[7][1], 5);
+  BOOST_CHECK_EQUAL(box.neighbors.get()[7][2], 6);
 }
 
 template <typename Sa, typename Sb>
@@ -231,9 +231,9 @@ BOOST_AUTO_TEST_CASE(convex_hull_quad) {
       points, 4, false, NULL);
 
   BOOST_REQUIRE_EQUAL(convexHull->num_points, 4);
-  BOOST_CHECK_EQUAL(convexHull->neighbors[0].count(), 3);
-  BOOST_CHECK_EQUAL(convexHull->neighbors[1].count(), 3);
-  BOOST_CHECK_EQUAL(convexHull->neighbors[2].count(), 3);
+  BOOST_CHECK_EQUAL(convexHull->neighbors.get()[0].count(), 3);
+  BOOST_CHECK_EQUAL(convexHull->neighbors.get()[1].count(), 3);
+  BOOST_CHECK_EQUAL(convexHull->neighbors.get()[2].count(), 3);
   delete convexHull;
 }
 
@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
   const Vec3f* cvxhull_points = convexHull->points.get();
   for (int i = 0; i < 8; ++i) {
     BOOST_CHECK(cvxhull_points[i].cwiseAbs() == Vec3f(1, 1, 1));
-    BOOST_CHECK_EQUAL(convexHull->neighbors[i].count(), 3);
+    BOOST_CHECK_EQUAL(convexHull->neighbors.get()[i].count(), 3);
   }
   delete convexHull;
 
@@ -271,8 +271,8 @@ BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
   cvxhull_points = convexHull->points.get();
   for (int i = 0; i < 8; ++i) {
     BOOST_CHECK(cvxhull_points[i].cwiseAbs() == Vec3f(1, 1, 1));
-    BOOST_CHECK(convexHull->neighbors[i].count() >= 3);
-    BOOST_CHECK(convexHull->neighbors[i].count() <= 6);
+    BOOST_CHECK(convexHull->neighbors.get()[i].count() >= 3);
+    BOOST_CHECK(convexHull->neighbors.get()[i].count() <= 6);
   }
   delete convexHull;
 }

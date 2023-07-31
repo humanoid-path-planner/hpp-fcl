@@ -174,7 +174,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   assert(data != NULL);
 
   const Vec3f* pts = convex->points.get();
-  const ConvexBase::Neighbors* nn = convex->neighbors;
+  const ConvexBase::Neighbors* nn = convex->neighbors.get();
 
   if (hint < 0 || hint >= (int)convex->num_points) hint = 0;
   FCL_REAL maxdot = pts[hint].dot(dir);

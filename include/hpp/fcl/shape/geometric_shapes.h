@@ -656,10 +656,11 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 
     bool operator!=(const Neighbors& other) const { return !(*this == other); }
   };
+
   /// Neighbors of each vertex.
   /// It is an array of size num_points. For each vertex, it contains the number
   /// of neighbors and a list of indices to them.
-  Neighbors* neighbors;
+  std::shared_ptr<Neighbors> neighbors;
 
   /// @brief center of the convex polytope, this is used for collision: center
   /// is guaranteed in the internal of the polytope (as it is convex)
@@ -671,8 +672,6 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   ConvexBase()
       : ShapeBase(),
         num_points(0),
-        neighbors(NULL),
-        nneighbors_(NULL),
         own_storage_(false) {}
 
   /// @brief Initialize the points of the convex shape
@@ -694,7 +693,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// Only the list of neighbors is copied.
   ConvexBase(const ConvexBase& other);
 
-  unsigned int* nneighbors_;
+  std::shared_ptr<unsigned int> nneighbors_;
 
   bool own_storage_;
 
@@ -715,8 +714,10 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
       if (points_[i] != (other_points_)[i]) return false;
     }
 
+    const Neighbors* neighbors_ = neighbors.get();
+    const Neighbors* other_neighbors_ = other.neighbors.get();
     for (unsigned int i = 0; i < num_points; ++i) {
-      if (neighbors[i] != other.neighbors[i]) return false;
+      if (neighbors_[i] != other_neighbors_[i]) return false;
     }
 
     return center == other.center;

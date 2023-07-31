@@ -206,8 +206,7 @@ FCL_REAL Convex<PolygonT>::computeVolume() const {
 
 template <typename PolygonT>
 void Convex<PolygonT>::fillNeighbors() {
-  if (neighbors) delete[] neighbors;
-  neighbors = new Neighbors[num_points];
+  neighbors.reset(new Neighbors[num_points]);
 
   typedef typename PolygonT::size_type size_type;
   typedef typename PolygonT::index_type index_type;
@@ -236,12 +235,12 @@ void Convex<PolygonT>::fillNeighbors() {
     }
   }
 
-  if (nneighbors_) delete[] nneighbors_;
-  nneighbors_ = new unsigned int[c_nneighbors];
+  nneighbors_.reset(new unsigned int[c_nneighbors]);
 
-  unsigned int* p_nneighbors = nneighbors_;
+  unsigned int* p_nneighbors = nneighbors_.get();
+  Neighbors* neighbors_ = neighbors.get();
   for (unsigned int i = 0; i < num_points; ++i) {
-    Neighbors& n = neighbors[i];
+    Neighbors& n = neighbors_[i];
     if (nneighbors[i].size() >= (std::numeric_limits<unsigned char>::max)())
       HPP_FCL_THROW_PRETTY("Too many neighbors.", std::logic_error);
     n.count_ = (unsigned char)nneighbors[i].size();
@@ -249,7 +248,7 @@ void Convex<PolygonT>::fillNeighbors() {
     p_nneighbors =
         std::copy(nneighbors[i].begin(), nneighbors[i].end(), p_nneighbors);
   }
-  assert(p_nneighbors == nneighbors_ + c_nneighbors);
+  assert(p_nneighbors == nneighbors_.get() + c_nneighbors);
 }
 
 }  // namespace fcl
