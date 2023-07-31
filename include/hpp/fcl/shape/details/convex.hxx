@@ -45,7 +45,7 @@ namespace fcl {
 
 template <typename PolygonT>
 Convex<PolygonT>::Convex(bool own_storage, std::shared_ptr<Vec3f> points_,
-                         unsigned int num_points_, PolygonT* polygons_,
+                         unsigned int num_points_, std::shared_ptr<PolygonT> polygons_,
                          unsigned int num_polygons_)
     : ConvexBase(), polygons(polygons_), num_polygons(num_polygons_) {
   initialize(own_storage, points_, num_points_);
@@ -55,24 +55,22 @@ Convex<PolygonT>::Convex(bool own_storage, std::shared_ptr<Vec3f> points_,
 template <typename PolygonT>
 Convex<PolygonT>::Convex(const Convex<PolygonT>& other)
     : ConvexBase(other),
-      polygons(other.polygons),
       num_polygons(other.num_polygons) {
-  if (own_storage_) {
-    polygons = new PolygonT[num_polygons];
-    std::copy(other.polygons, other.polygons + num_polygons, polygons);
-  }
+  if (other.polygons.get()) {
+    polygons.reset(new PolygonT[num_polygons]);
+    std::copy(other.polygons.get(), other.polygons.get() + num_polygons, polygons.get());
+  } else 
+    polygons.reset();
 }
 
 template <typename PolygonT>
 Convex<PolygonT>::~Convex() {
-  if (own_storage_) delete[] polygons;
 }
 
 template <typename PolygonT>
 void Convex<PolygonT>::set(bool own_storage, std::shared_ptr<Vec3f> points_,
-                           unsigned int num_points_, PolygonT* polygons_,
+                           unsigned int num_points_, std::shared_ptr<PolygonT> polygons_,
                            unsigned int num_polygons_) {
-  if (own_storage_) delete[] polygons;
   ConvexBase::set(own_storage, points_, num_points_);
 
   num_polygons = num_polygons_;
@@ -86,8 +84,8 @@ Convex<PolygonT>* Convex<PolygonT>::clone() const {
   std::shared_ptr<Vec3f> cloned_points(new Vec3f[num_points]);
   std::copy(points.get(), points.get() + num_points, cloned_points.get());
 
-  PolygonT* cloned_polygons = new PolygonT[num_polygons];
-  std::copy(polygons, polygons + num_polygons, cloned_polygons);
+  std::shared_ptr<PolygonT> cloned_polygons(new PolygonT[num_polygons]);
+  std::copy(polygons.get(), polygons.get() + num_polygons, cloned_polygons.get());
 
   Convex* copy_ptr = new Convex(true, cloned_points, num_points,
                                 cloned_polygons, num_polygons);
@@ -108,8 +106,9 @@ Matrix3f Convex<PolygonT>::computeMomentofInertia() const {
       1 / 120.0, 1 / 120.0, 1 / 60.0;
 
   const Vec3f* points_ = points.get();
+  const PolygonT* polygons_ = polygons.get();
   for (unsigned int i = 0; i < num_polygons; ++i) {
-    const PolygonT& polygon = polygons[i];
+    const PolygonT& polygon = polygons_[i];
 
     // compute the center of the polygon
     Vec3f plane_center(0, 0, 0);
@@ -144,8 +143,9 @@ Vec3f Convex<PolygonT>::computeCOM() const {
   Vec3f com(0, 0, 0);
   FCL_REAL vol = 0;
   const Vec3f* points_ = points.get();
+  const PolygonT* polygons_ = polygons.get();
   for (unsigned int i = 0; i < num_polygons; ++i) {
-    const PolygonT& polygon = polygons[i];
+    const PolygonT& polygon = polygons_[i];
     // compute the center of the polygon
     Vec3f plane_center(0, 0, 0);
     for (size_type j = 0; j < polygon.size(); ++j)
@@ -177,8 +177,9 @@ FCL_REAL Convex<PolygonT>::computeVolume() const {
 
   FCL_REAL vol = 0;
   const Vec3f* points_ = points.get();
+  const PolygonT* polygons_ = polygons.get();
   for (unsigned int i = 0; i < num_polygons; ++i) {
-    const PolygonT& polygon = polygons[i];
+    const PolygonT& polygon = polygons_[i];
 
     // compute the center of the polygon
     Vec3f plane_center(0, 0, 0);
@@ -213,8 +214,9 @@ void Convex<PolygonT>::fillNeighbors() {
   std::vector<std::set<index_type> > nneighbors(num_points);
   unsigned int c_nneighbors = 0;
 
+  const PolygonT* polygons_ = polygons.get();
   for (unsigned int l = 0; l < num_polygons; ++l) {
-    const PolygonT& polygon = polygons[l];
+    const PolygonT& polygon = polygons_[l];
     const size_type n = polygon.size();
 
     for (size_type j = 0; j < polygon.size(); ++j) {

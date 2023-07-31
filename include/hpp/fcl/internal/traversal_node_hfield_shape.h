@@ -195,7 +195,7 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
                    const Transform3f& shape_pose, FCL_REAL& distance,
                    Vec3f& contact_1, Vec3f& contact_2, Vec3f& normal,
                    Vec3f& normal_top, bool& is_collision) {
-  const Polygone& top_triangle = convex.polygons[1];
+  const Polygone& top_triangle = convex.polygons.get()[1];
   const Vec3f* points = convex.points.get();
   const Vec3f pointA = points[top_triangle[0]];
   const Vec3f pointB = points[top_triangle[1]];
