@@ -92,7 +92,7 @@ struct BVHModelBaseWrapper {
 
   static Triangle tri_indices(const BVHModelBase& bvh, unsigned int i) {
     if (i >= bvh.num_tris) throw std::out_of_range("index is out of range");
-    return bvh.tri_indices[i];
+    return bvh.tri_indices.get()[i];
   }
 };
 

@@ -85,13 +85,14 @@ Convex<Quadrilateral> buildConvexQuadrilateral(const HFNode<BV>& node,
   pts_[6] = Vec3f(x1, y1, cell(1, 1));
   pts_[7] = Vec3f(x1, y0, cell(0, 1));
 
-  Quadrilateral* polygons = new Quadrilateral[6];
-  polygons[0].set(0, 3, 2, 1);  // x+ side
-  polygons[1].set(0, 1, 5, 4);  // y- side
-  polygons[2].set(1, 2, 6, 5);  // x- side
-  polygons[3].set(2, 3, 7, 6);  // y+ side
-  polygons[4].set(3, 0, 4, 7);  // z- side
-  polygons[5].set(4, 5, 6, 7);  // z+ side
+  std::shared_ptr<Quadrilateral> polygons(new Quadrilateral[6]);
+  Quadrilateral* polygons_ = polygons.get();
+  polygons_[0].set(0, 3, 2, 1);  // x+ side
+  polygons_[1].set(0, 1, 5, 4);  // y- side
+  polygons_[2].set(1, 2, 6, 5);  // x- side
+  polygons_[3].set(2, 3, 7, 6);  // y+ side
+  polygons_[4].set(3, 0, 4, 7);  // z- side
+  polygons_[5].set(4, 5, 6, 7);  // z+ side
 
   return Convex<Quadrilateral>(true,
                                pts,  // points
@@ -132,15 +133,16 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
     pts_[4] = Vec3f(x0, y1, cell(1, 0));  //
     pts_[5] = Vec3f(x1, y0, cell(0, 1));  //
 
-    Triangle* triangles = new Triangle[8];
-    triangles[0].set(0, 1, 2);  // bottom
-    triangles[1].set(3, 5, 4);  // top
-    triangles[2].set(0, 3, 1);
-    triangles[3].set(3, 4, 1);
-    triangles[4].set(1, 5, 2);
-    triangles[5].set(1, 4, 5);
-    triangles[6].set(0, 2, 5);
-    triangles[7].set(5, 3, 0);
+    std::shared_ptr<Triangle> triangles(new Triangle[8]);
+    Triangle* triangles_ = triangles.get();
+    triangles_[0].set(0, 1, 2);  // bottom
+    triangles_[1].set(3, 5, 4);  // top
+    triangles_[2].set(0, 3, 1);
+    triangles_[3].set(3, 4, 1);
+    triangles_[4].set(1, 5, 2);
+    triangles_[5].set(1, 4, 5);
+    triangles_[6].set(0, 2, 5);
+    triangles_[7].set(5, 3, 0);
 
     convex1.set(true,
                 pts,  // points
@@ -160,15 +162,16 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
     pts_[4] = Vec3f(x1, y1, cell(1, 1));
     pts_[5] = Vec3f(x1, y0, cell(0, 1));
 
-    Triangle* triangles = new Triangle[8];
-    triangles[0].set(2, 0, 1);  // bottom
-    triangles[1].set(3, 5, 4);  // top
-    triangles[2].set(0, 3, 1);
-    triangles[3].set(3, 4, 1);
-    triangles[4].set(0, 2, 5);
-    triangles[5].set(0, 5, 3);
-    triangles[6].set(1, 5, 2);
-    triangles[7].set(4, 2, 1);
+    std::shared_ptr<Triangle> triangles(new Triangle[8]);
+    Triangle* triangles_ = triangles.get();
+    triangles_[0].set(2, 0, 1);  // bottom
+    triangles_[1].set(3, 5, 4);  // top
+    triangles_[2].set(0, 3, 1);
+    triangles_[3].set(3, 4, 1);
+    triangles_[4].set(0, 2, 5);
+    triangles_[5].set(0, 5, 3);
+    triangles_[6].set(1, 5, 2);
+    triangles_[7].set(4, 2, 1);
 
     convex2.set(true,
                 pts,  // points

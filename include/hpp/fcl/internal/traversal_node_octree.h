@@ -371,7 +371,7 @@ class HPP_FCL_DLLAPI OcTreeSolver {
         constructBox(bv1, tf1, box, box_tf);
 
         int primitive_id = tree2->getBV(root2).primitiveId();
-        const Triangle& tri_id = tree2->tri_indices[primitive_id];
+        const Triangle& tri_id = tree2->tri_indices.get()[primitive_id];
         const Vec3f& p1 = tree2->vertices.get()[tri_id[0]];
         const Vec3f& p2 = tree2->vertices.get()[tri_id[1]];
         const Vec3f& p3 = tree2->vertices.get()[tri_id[2]];
@@ -484,7 +484,7 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       constructBox(bv1, tf1, box, box_tf);
 
       int primitive_id = bvn2.primitiveId();
-      const Triangle& tri_id = tree2->tri_indices[primitive_id];
+      const Triangle& tri_id = tree2->tri_indices.get()[primitive_id];
       const Vec3f& p1 = tree2->vertices.get()[tri_id[0]];
       const Vec3f& p2 = tree2->vertices.get()[tri_id[1]];
       const Vec3f& p3 = tree2->vertices.get()[tri_id[2]];
