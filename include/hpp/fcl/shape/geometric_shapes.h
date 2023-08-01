@@ -603,20 +603,11 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 
   virtual ~ConvexBase();
 
-  ///  @brief Clone (deep copy).
-  /// TODO(louis): to be consistent with BVHModel, clone and copy constructor
-  /// should have the same behavior and duplicate the data.
-  /// So we need to copy neighbors here.
+  /// @brief Clone (deep copy).
+  /// This method is consistent with BVHModel `clone` method.
+  /// The copy constructor is called, which duplicates the data.
   virtual ConvexBase* clone() const {
-    ConvexBase* copy_ptr = new ConvexBase(*this);
-    ConvexBase& copy = *copy_ptr;
-
-    copy.points.reset(new Vec3f[num_points]);
-    std::copy(points.get(), points.get() + num_points, copy.points.get());
-
-    copy.ShapeBase::operator=(*this);
-
-    return copy_ptr;
+    return new ConvexBase(*this);
   }
 
   /// @brief Compute AABB

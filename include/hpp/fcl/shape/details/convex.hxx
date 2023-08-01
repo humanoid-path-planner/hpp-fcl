@@ -81,17 +81,7 @@ void Convex<PolygonT>::set(std::shared_ptr<Vec3f> points_,
 
 template <typename PolygonT>
 Convex<PolygonT>* Convex<PolygonT>::clone() const {
-  std::shared_ptr<Vec3f> cloned_points(new Vec3f[num_points]);
-  std::copy(points.get(), points.get() + num_points, cloned_points.get());
-
-  std::shared_ptr<PolygonT> cloned_polygons(new PolygonT[num_polygons]);
-  std::copy(polygons.get(), polygons.get() + num_polygons, cloned_polygons.get());
-
-  Convex* copy_ptr = new Convex(cloned_points, num_points,
-                                cloned_polygons, num_polygons);
-
-  copy_ptr->ShapeBase::operator=(*this);
-  return copy_ptr;
+  return new Convex(*this);
 }
 
 template <typename PolygonT>
