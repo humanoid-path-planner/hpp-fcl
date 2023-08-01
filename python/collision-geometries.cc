@@ -181,8 +181,8 @@ struct ConvexBaseWrapper {
 
   static ConvexBase* convexHull(const Vec3fs& points, bool keepTri,
                                 const char* qhullCommand) {
-    return ConvexBase::_convexHull(points.data(), (unsigned int)points.size(),
-                                   keepTri, qhullCommand);
+    return ConvexBase::convexHull(points.data(), (unsigned int)points.size(),
+                                  keepTri, qhullCommand);
   }
 };
 
@@ -290,7 +290,7 @@ void exposeShapes() {
       //                   "Points of the convex.")
       .def("neighbors", &ConvexBaseWrapper::neighbors)
       .def("convexHull", &ConvexBaseWrapper::convexHull,
-           doxygen::member_func_doc(&ConvexBase::_convexHull),
+           // doxygen::member_func_doc(&ConvexBase::convexHull),
            return_value_policy<manage_new_object>())
       .staticmethod("convexHull")
       .def("clone", &ConvexBase::clone,

@@ -42,16 +42,16 @@ void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
   }
 }
 
-ConvexBase* ConvexBase::convexHull(const std::shared_ptr<Vec3f> pts, unsigned int num_points,
-                                   bool keepTriangles,
+ConvexBase* ConvexBase::convexHull(const std::shared_ptr<const Vec3f> pts,
+                                   unsigned int num_points, bool keepTriangles,
                                    const char* qhullCommand) {
-  return ConvexBase::_convexHull(pts.get(), num_points, keepTriangles, qhullCommand);
+  return ConvexBase::convexHull(pts.get(), num_points, keepTriangles,
+                                qhullCommand);
 }
 
-ConvexBase* ConvexBase::_convexHull(const Vec3f* pts, unsigned int num_points,
+ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
                                    bool keepTriangles,
-                                   const char* qhullCommand) 
-{
+                                   const char* qhullCommand) {
 #ifdef HPP_FCL_HAS_QHULL
   if (num_points <= 3) {
     throw std::invalid_argument(

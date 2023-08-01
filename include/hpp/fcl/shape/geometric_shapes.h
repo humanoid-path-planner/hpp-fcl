@@ -593,13 +593,14 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   ///          Qhull.
   /// \note hpp-fcl must have been compiled with option \c HPP_FCL_HAS_QHULL set
   ///       to \c ON.
-  static ConvexBase* convexHull(const std::shared_ptr<Vec3f> points, unsigned int num_points,
-                                bool keepTriangles,
+  static ConvexBase* convexHull(const std::shared_ptr<const Vec3f> points,
+                                unsigned int num_points, bool keepTriangles,
                                 const char* qhullCommand = NULL);
 
-  static ConvexBase* _convexHull(const Vec3f* points, unsigned int num_points,
-                                bool keepTriangles,
-                                const char* qhullCommand = NULL);
+  // TODO(louis): put this method in private sometime in the future.
+  HPP_FCL_DEPRECATED static ConvexBase* convexHull(
+      const Vec3f* points, unsigned int num_points, bool keepTriangles,
+      const char* qhullCommand = NULL);
 
   virtual ~ConvexBase();
 
