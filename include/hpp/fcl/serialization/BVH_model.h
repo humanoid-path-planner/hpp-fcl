@@ -56,7 +56,8 @@ void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
     typedef Eigen::Matrix<Triangle::index_type, 3, Eigen::Dynamic>
         AsTriangleMatrix;
     const Eigen::Map<const AsTriangleMatrix> tri_indices_map(
-        reinterpret_cast<const Triangle::index_type *>(bvh_model.tri_indices.get()),
+        reinterpret_cast<const Triangle::index_type *>(
+            bvh_model.tri_indices.get()),
         3, bvh_model.num_tris);
     ar &make_nvp("tri_indices", tri_indices_map);
   }
@@ -124,8 +125,8 @@ void load(Archive &ar, hpp::fcl::BVHModelBase &bvh_model,
     typedef Eigen::Matrix<Triangle::index_type, 3, Eigen::Dynamic>
         AsTriangleMatrix;
     Eigen::Map<AsTriangleMatrix> tri_indices_map(
-        reinterpret_cast<Triangle::index_type *>(bvh_model.tri_indices.get()), 3,
-        bvh_model.num_tris);
+        reinterpret_cast<Triangle::index_type *>(bvh_model.tri_indices.get()),
+        3, bvh_model.num_tris);
     ar &make_nvp("tri_indices", tri_indices_map);
   } else
     bvh_model.tri_indices.reset();
@@ -141,7 +142,8 @@ void load(Archive &ar, hpp::fcl::BVHModelBase &bvh_model,
   if (has_prev_vertices) {
     if (num_vertices != bvh_model.num_vertices) {
       bvh_model.prev_vertices.reset();
-      if (num_vertices > 0) bvh_model.prev_vertices.reset(new Vec3f[num_vertices]);
+      if (num_vertices > 0)
+        bvh_model.prev_vertices.reset(new Vec3f[num_vertices]);
     }
     if (num_vertices > 0) {
       typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;

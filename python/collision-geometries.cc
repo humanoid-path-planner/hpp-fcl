@@ -165,7 +165,8 @@ struct ConvexBaseWrapper {
   }
 
   static RefRowMatrixX3 points(const ConvexBase& convex) {
-    return MapRowMatrixX3((convex.points.get())[0].data(), convex.num_points, 3);
+    return MapRowMatrixX3((convex.points.get())[0].data(), convex.num_points,
+                          3);
   }
 
   static list neighbors(const ConvexBase& convex, unsigned int i) {
@@ -181,7 +182,7 @@ struct ConvexBaseWrapper {
   static ConvexBase* convexHull(const Vec3fs& points, bool keepTri,
                                 const char* qhullCommand) {
     return ConvexBase::_convexHull(points.data(), (unsigned int)points.size(),
-                                  keepTri, qhullCommand);
+                                   keepTri, qhullCommand);
   }
 };
 
@@ -205,8 +206,8 @@ struct ConvexWrapper {
     Triangle* tris_ = tris.get();
     for (std::size_t i = 0; i < _tris.size(); ++i) tris_[i] = _tris[i];
     return shared_ptr<Convex_t>(new Convex_t(points,
-                                            (unsigned int)_points.size(), tris,
-                                            (unsigned int)_tris.size()));
+                                             (unsigned int)_points.size(), tris,
+                                             (unsigned int)_tris.size()));
   }
 };
 

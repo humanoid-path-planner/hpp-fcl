@@ -67,20 +67,22 @@ BVHModelBase::BVHModelBase(const BVHModelBase& other)
       num_vertices_allocated(other.num_vertices) {
   if (other.vertices.get()) {
     vertices.reset(new Vec3f[num_vertices]);
-    std::copy(other.vertices.get(), other.vertices.get() + num_vertices, vertices.get());
+    std::copy(other.vertices.get(), other.vertices.get() + num_vertices,
+              vertices.get());
   } else
     vertices.reset();
 
   if (other.tri_indices.get()) {
     tri_indices.reset(new Triangle[num_tris]);
-    std::copy(other.tri_indices.get(), other.tri_indices.get() + num_tris, tri_indices.get());
+    std::copy(other.tri_indices.get(), other.tri_indices.get() + num_tris,
+              tri_indices.get());
   } else
     tri_indices.reset();
 
   if (other.prev_vertices.get()) {
     prev_vertices.reset(new Vec3f[num_vertices]);
-    std::copy(other.prev_vertices.get(), other.prev_vertices.get() + num_vertices,
-              prev_vertices.get());
+    std::copy(other.prev_vertices.get(),
+              other.prev_vertices.get() + num_vertices, prev_vertices.get());
   } else
     prev_vertices.reset();
 }
@@ -125,10 +127,11 @@ void BVHModelBase::buildConvexRepresentation(bool share_memory) {
       std::copy(vertices.get(), vertices.get() + num_vertices, points.get());
 
       polygons.reset(new Triangle[num_tris]);
-      std::copy(tri_indices.get(), tri_indices.get() + num_tris, polygons.get());
+      std::copy(tri_indices.get(), tri_indices.get() + num_tris,
+                polygons.get());
     }
-    convex.reset(new Convex<Triangle>(points, num_vertices,
-                                      polygons, num_tris));
+    convex.reset(
+        new Convex<Triangle>(points, num_vertices, polygons, num_tris));
   }
 }
 
@@ -275,9 +278,10 @@ int BVHModelBase::addTriangles(const Matrixx3i& triangles) {
   Triangle* tri_indices_ = tri_indices.get();
   for (Eigen::DenseIndex i = 0; i < triangles.rows(); ++i) {
     const Matrixx3i::ConstRowXpr triangle = triangles.row(i);
-    tri_indices_[num_tris++].set(static_cast<Triangle::index_type>(triangle[0]),
-                                 static_cast<Triangle::index_type>(triangle[1]),
-                                 static_cast<Triangle::index_type>(triangle[2]));
+    tri_indices_[num_tris++].set(
+        static_cast<Triangle::index_type>(triangle[0]),
+        static_cast<Triangle::index_type>(triangle[1]),
+        static_cast<Triangle::index_type>(triangle[2]));
   }
 
   return BVH_OK;
@@ -460,7 +464,7 @@ int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps,
   for (size_t i = 0; i < (size_t)num_tris_to_add; ++i) {
     const Triangle& t = ts[i];
     tri_indices_[num_tris].set(t[0] + (size_t)offset, t[1] + (size_t)offset,
-                              t[2] + (size_t)offset);
+                               t[2] + (size_t)offset);
     num_tris++;
   }
 
@@ -994,7 +998,8 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id) {
 
 template <typename BV>
 int BVHModel<BV>::refitTree_topdown() {
-  bv_fitter->set(vertices.get(), prev_vertices.get(), tri_indices.get(), getModelType());
+  bv_fitter->set(vertices.get(), prev_vertices.get(), tri_indices.get(),
+                 getModelType());
   for (unsigned int i = 0; i < num_bvs; ++i) {
     BV bv = bv_fitter->fit(primitive_indices + bvs[i].first_primitive,
                            bvs[i].num_primitives);

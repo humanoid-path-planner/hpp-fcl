@@ -226,8 +226,7 @@ BOOST_AUTO_TEST_CASE(convex_hull_quad) {
   points_[2] = Vec3f(1, 0, 0);
   points_[3] = Vec3f(0, 0, 1);
 
-  ConvexBase* convexHull = ConvexBase::convexHull(
-      points, 4, false, NULL);
+  ConvexBase* convexHull = ConvexBase::convexHull(points, 4, false, NULL);
 
   BOOST_REQUIRE_EQUAL(convexHull->num_points, 4);
   BOOST_CHECK_EQUAL(convexHull->neighbors.get()[0].count(), 3);
@@ -250,8 +249,7 @@ BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
   points_[8] = Vec3f(0, 0, 0);
   points_[9] = Vec3f(0, 0, 0.99);
 
-  ConvexBase* convexHull = ConvexBase::convexHull(
-      points, 9, false, NULL);
+  ConvexBase* convexHull = ConvexBase::convexHull(points, 9, false, NULL);
 
   BOOST_REQUIRE_EQUAL(8, convexHull->num_points);
   const Vec3f* cvxhull_points = convexHull->points.get();
@@ -261,8 +259,7 @@ BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
   }
   delete convexHull;
 
-  convexHull = ConvexBase::convexHull(points,
-                                      9, true, NULL);
+  convexHull = ConvexBase::convexHull(points, 9, true, NULL);
   Convex<Triangle>* convex_tri = dynamic_cast<Convex<Triangle>*>(convexHull);
   BOOST_CHECK(convex_tri != NULL);
 
@@ -290,7 +287,8 @@ BOOST_AUTO_TEST_CASE(convex_copy_constructor) {
   points_[8] = Vec3f(0, 0, 0);
   points_[9] = Vec3f(0, 0, 0.99);
 
-  Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(ConvexBase::convexHull(points, 9, true, NULL));
+  Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(
+      ConvexBase::convexHull(points, 9, true, NULL));
   Convex<Triangle>* convexHullTriCopy = new Convex<Triangle>(*convexHullTri);
   BOOST_CHECK(*convexHullTri == *convexHullTriCopy);
 }
@@ -309,7 +307,8 @@ BOOST_AUTO_TEST_CASE(convex_clone) {
   points_[8] = Vec3f(0, 0, 0);
   points_[9] = Vec3f(0, 0, 0.99);
 
-  Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(ConvexBase::convexHull(points, 9, true, NULL));
+  Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(
+      ConvexBase::convexHull(points, 9, true, NULL));
   Convex<Triangle>* convexHullTriCopy;
   convexHullTriCopy = convexHullTri->clone();
   BOOST_CHECK(*convexHullTri == *convexHullTriCopy);

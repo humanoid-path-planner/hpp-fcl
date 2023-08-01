@@ -101,8 +101,7 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
   BVHModelBase(const BVHModelBase& other);
 
   /// @brief deconstruction, delete mesh data related.
-  virtual ~BVHModelBase() {
-  }
+  virtual ~BVHModelBase() {}
 
   /// @brief Get the object type: it is a BVH
   OBJECT_TYPE getObjectType() const { return OT_BVH; }
@@ -208,8 +207,8 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
       FCL_REAL d_six_vol =
           (vertices_[tri[0]].cross(vertices_[tri[1]])).dot(vertices_[tri[2]]);
       vol += d_six_vol;
-      com +=
-          (vertices_[tri[0]] + vertices_[tri[1]] + vertices_[tri[2]]) * d_six_vol;
+      com += (vertices_[tri[0]] + vertices_[tri[1]] + vertices_[tri[2]]) *
+             d_six_vol;
     }
 
     return com / (vol * 4);

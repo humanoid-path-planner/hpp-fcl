@@ -606,9 +606,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// @brief Clone (deep copy).
   /// This method is consistent with BVHModel `clone` method.
   /// The copy constructor is called, which duplicates the data.
-  virtual ConvexBase* clone() const {
-    return new ConvexBase(*this);
-  }
+  virtual ConvexBase* clone() const { return new ConvexBase(*this); }
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -659,9 +657,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
  protected:
   /// @brief Construct an uninitialized convex object
   /// Initialization is done with ConvexBase::initialize.
-  ConvexBase()
-      : ShapeBase(),
-        num_points(0) {}
+  ConvexBase() : ShapeBase(), num_points(0) {}
 
   /// @brief Initialize the points of the convex shape
   /// This also initializes the ConvexBase::center.

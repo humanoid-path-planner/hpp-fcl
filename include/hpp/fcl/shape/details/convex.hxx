@@ -45,7 +45,8 @@ namespace fcl {
 
 template <typename PolygonT>
 Convex<PolygonT>::Convex(std::shared_ptr<Vec3f> points_,
-                         unsigned int num_points_, std::shared_ptr<PolygonT> polygons_,
+                         unsigned int num_points_,
+                         std::shared_ptr<PolygonT> polygons_,
                          unsigned int num_polygons_)
     : ConvexBase(), polygons(polygons_), num_polygons(num_polygons_) {
   initialize(points_, num_points_);
@@ -54,22 +55,22 @@ Convex<PolygonT>::Convex(std::shared_ptr<Vec3f> points_,
 
 template <typename PolygonT>
 Convex<PolygonT>::Convex(const Convex<PolygonT>& other)
-    : ConvexBase(other),
-      num_polygons(other.num_polygons) {
+    : ConvexBase(other), num_polygons(other.num_polygons) {
   if (other.polygons.get()) {
     polygons.reset(new PolygonT[num_polygons]);
-    std::copy(other.polygons.get(), other.polygons.get() + num_polygons, polygons.get());
-  } else 
+    std::copy(other.polygons.get(), other.polygons.get() + num_polygons,
+              polygons.get());
+  } else
     polygons.reset();
 }
 
 template <typename PolygonT>
-Convex<PolygonT>::~Convex() {
-}
+Convex<PolygonT>::~Convex() {}
 
 template <typename PolygonT>
 void Convex<PolygonT>::set(std::shared_ptr<Vec3f> points_,
-                           unsigned int num_points_, std::shared_ptr<PolygonT> polygons_,
+                           unsigned int num_points_,
+                           std::shared_ptr<PolygonT> polygons_,
                            unsigned int num_polygons_) {
   ConvexBase::set(points_, num_points_);
 
