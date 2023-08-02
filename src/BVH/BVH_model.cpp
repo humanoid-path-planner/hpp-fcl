@@ -814,10 +814,8 @@ int BVHModel<BV>::memUsage(const bool msg) const {
 template <typename BV>
 int BVHModel<BV>::buildTree() {
   // set BVFitter
-  // TODO(louis): bv_fitter shared_ptr?
   bv_fitter->set(vertices.get(), tri_indices.get(), getModelType());
   // set SplitRule
-  // TODO(louis): bv_splitter shared_ptr?
   bv_splitter->set(vertices.get(), tri_indices.get(), getModelType());
 
   num_bvs = 1;
@@ -949,7 +947,6 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id) {
         v[1] = vertices.get()[primitive_id];
         fit(v, 2, bv);
       } else
-        // TODO(louis): does fit need shared_ptr?
         fit(vertices.get() + primitive_id, 1, bv);
 
       bvnode->bv = bv;
