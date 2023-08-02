@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE(convex_hull_quad) {
 }
 
 BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
-  std::shared_ptr<Vec3f> points(new Vec3f[9]);
+  std::shared_ptr<Vec3f> points(new Vec3f[10]);
   Vec3f* points_ = points.get();
   points_[0] = Vec3f(1, 1, 1);
   points_[1] = Vec3f(1, 1, -1);
@@ -285,7 +285,6 @@ BOOST_AUTO_TEST_CASE(convex_copy_constructor) {
   points_[6] = Vec3f(-1, -1, 1);
   points_[7] = Vec3f(-1, -1, -1);
   points_[8] = Vec3f(0, 0, 0);
-  points_[9] = Vec3f(0, 0, 0.99);
 
   Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(
       ConvexBase::convexHull(points, 9, true, NULL));
@@ -305,7 +304,6 @@ BOOST_AUTO_TEST_CASE(convex_clone) {
   points_[6] = Vec3f(-1, -1, 1);
   points_[7] = Vec3f(-1, -1, -1);
   points_[8] = Vec3f(0, 0, 0);
-  points_[9] = Vec3f(0, 0, 0.99);
 
   Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(
       ConvexBase::convexHull(points, 9, true, NULL));
