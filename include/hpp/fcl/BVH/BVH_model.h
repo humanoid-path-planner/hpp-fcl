@@ -278,10 +278,10 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
 
  public:
   /// @brief Split rule to split one BV node into two children
-  shared_ptr<BVSplitter<BV> > bv_splitter;
+  shared_ptr<BVSplitter<BV>> bv_splitter;
 
   /// @brief Fitting rule to fit a BV node to a set of geometry primitives
-  shared_ptr<BVFitter<BV> > bv_fitter;
+  shared_ptr<BVFitter<BV>> bv_fitter;
 
   /// @brief Default constructor to build an empty BVH
   BVHModel();
@@ -296,10 +296,7 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   virtual BVHModel<BV>* clone() const { return new BVHModel(*this); }
 
   /// @brief deconstruction, delete mesh data related.
-  ~BVHModel() {
-    delete[] bvs;
-    delete[] primitive_indices;
-  }
+  ~BVHModel() { delete[] primitive_indices; }
 
   /// @brief We provide getBV() and getNumBVs() because BVH may be compressed
   /// (in future), so we must provide some flexibility here
@@ -307,13 +304,13 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   /// @brief Access the bv giving the its index
   const BVNode<BV>& getBV(unsigned int i) const {
     assert(i < num_bvs);
-    return bvs[i];
+    return bvs.get()[i];
   }
 
   /// @brief Access the bv giving the its index
   BVNode<BV>& getBV(unsigned int i) {
     assert(i < num_bvs);
-    return bvs[i];
+    return bvs.get()[i];
   }
 
   /// @brief Get the number of bv in the BVH
@@ -342,7 +339,7 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   unsigned int* primitive_indices;
 
   /// @brief Bounding volume hierarchy
-  BVNode<BV>* bvs;
+  std::shared_ptr<BVNode<BV>> bvs;
 
   /// @brief Number of BV nodes in bounding volume hierarchy
   unsigned int num_bvs;
@@ -373,15 +370,16 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   /// OBBRSS), special implementation is provided.
   void makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
                                  const Vec3f& parent_c) {
-    if (!bvs[bv_id].isLeaf()) {
-      makeParentRelativeRecurse(bvs[bv_id].first_child, parent_axes,
-                                bvs[bv_id].getCenter());
+    BVNode<BV>* bvs_ = bvs.get();
+    if (!bvs_[bv_id].isLeaf()) {
+      makeParentRelativeRecurse(bvs_[bv_id].first_child, parent_axes,
+                                bvs_[bv_id].getCenter());
 
-      makeParentRelativeRecurse(bvs[bv_id].first_child + 1, parent_axes,
-                                bvs[bv_id].getCenter());
+      makeParentRelativeRecurse(bvs_[bv_id].first_child + 1, parent_axes,
+                                bvs_[bv_id].getCenter());
     }
 
-    bvs[bv_id].bv = translate(bvs[bv_id].bv, -parent_c);
+    bvs_[bv_id].bv = translate(bvs_[bv_id].bv, -parent_c);
   }
 
  private:
@@ -438,8 +436,10 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
 
     if (num_bvs != other.num_bvs) return false;
 
+    BVNode<BV>* bvs_ = bvs.get();
+    BVNode<BV>* other_bvs_ = other.bvs.get();
     for (unsigned int k = 0; k < num_bvs; ++k) {
-      if (bvs[k] != other.bvs[k]) return false;
+      if (bvs_[k] != other_bvs_[k]) return false;
     }
 
     return true;
@@ -478,13 +478,13 @@ template <>
 NODE_TYPE BVHModel<OBBRSS>::getNodeType() const;
 
 template <>
-NODE_TYPE BVHModel<KDOP<16> >::getNodeType() const;
+NODE_TYPE BVHModel<KDOP<16>>::getNodeType() const;
 
 template <>
-NODE_TYPE BVHModel<KDOP<18> >::getNodeType() const;
+NODE_TYPE BVHModel<KDOP<18>>::getNodeType() const;
 
 template <>
-NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const;
+NODE_TYPE BVHModel<KDOP<24>>::getNodeType() const;
 
 }  // namespace fcl
 
