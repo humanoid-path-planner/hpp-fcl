@@ -296,7 +296,7 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   virtual BVHModel<BV>* clone() const { return new BVHModel(*this); }
 
   /// @brief deconstruction, delete mesh data related.
-  ~BVHModel() { delete[] primitive_indices; }
+  ~BVHModel() {}
 
   /// @brief We provide getBV() and getNumBVs() because BVH may be compressed
   /// (in future), so we must provide some flexibility here
@@ -336,7 +336,7 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   bool allocateBVs();
 
   unsigned int num_bvs_allocated;
-  unsigned int* primitive_indices;
+  std::shared_ptr<unsigned int> primitive_indices;
 
   /// @brief Bounding volume hierarchy
   std::shared_ptr<BVNode<BV>> bvs;

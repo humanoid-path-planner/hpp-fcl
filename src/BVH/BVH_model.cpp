@@ -148,7 +148,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
     : BVHModelBase(other),
       bv_splitter(other.bv_splitter),
       bv_fitter(other.bv_fitter) {
-  if (other.primitive_indices) {
+  if (other.primitive_indices.get()) {
     unsigned int num_primitives = 0;
     switch (other.getModelType()) {
       case BVH_MODEL_TRIANGLES:
@@ -160,11 +160,12 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
       default:;
     }
 
-    primitive_indices = new unsigned int[num_primitives];
-    std::copy(other.primitive_indices, other.primitive_indices + num_primitives,
-              primitive_indices);
+    primitive_indices.reset(new unsigned int[num_primitives]);
+    std::copy(other.primitive_indices.get(),
+              other.primitive_indices.get() + num_primitives,
+              primitive_indices.get());
   } else
-    primitive_indices = nullptr;
+    primitive_indices.reset();
 
   num_bvs = num_bvs_allocated = other.num_bvs;
   if (other.bvs.get()) {
@@ -760,14 +761,12 @@ BVHModel<BV>::BVHModel()
       bv_splitter(new BVSplitter<BV>(SPLIT_METHOD_MEAN)),
       bv_fitter(new BVFitter<BV>()),
       num_bvs_allocated(0),
-      primitive_indices(NULL),
       num_bvs(0) {}
 
 template <typename BV>
 void BVHModel<BV>::deleteBVs() {
   bvs.reset();
-  delete[] primitive_indices;
-  primitive_indices = NULL;
+  primitive_indices.reset();
   num_bvs_allocated = num_bvs = 0;
 }
 
@@ -781,8 +780,8 @@ bool BVHModel<BV>::allocateBVs() {
     num_bvs_to_be_allocated = 2 * num_tris - 1;
 
   bvs.reset(new BVNode<BV>[num_bvs_to_be_allocated]);
-  primitive_indices = new unsigned int[num_bvs_to_be_allocated];
-  if (!(bvs.get()) || !primitive_indices) {
+  primitive_indices.reset(new unsigned int[num_bvs_to_be_allocated]);
+  if (!(bvs.get()) || !(primitive_indices.get())) {
     std::cerr << "BVH Error! Out of memory for BV array in endModel()!"
               << std::endl;
     return false;
@@ -832,7 +831,8 @@ int BVHModel<BV>::buildTree() {
       return BVH_ERR_UNSUPPORTED_FUNCTION;
   }
 
-  for (unsigned int i = 0; i < num_primitives; ++i) primitive_indices[i] = i;
+  unsigned int* primitive_indices_ = primitive_indices.get();
+  for (unsigned int i = 0; i < num_primitives; ++i) primitive_indices_[i] = i;
   recursiveBuildTree(0, 0, num_primitives);
 
   bv_fitter->clear();
@@ -846,7 +846,8 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, unsigned int first_primitive,
                                      unsigned int num_primitives) {
   BVHModelType type = getModelType();
   BVNode<BV>* bvnode = bvs.get() + bv_id;
-  unsigned int* cur_primitive_indices = primitive_indices + first_primitive;
+  unsigned int* cur_primitive_indices =
+      primitive_indices.get() + first_primitive;
 
   // constructing BV
   BV bv = bv_fitter->fit(cur_primitive_indices, num_primitives);
@@ -998,8 +999,9 @@ int BVHModel<BV>::refitTree_topdown() {
   bv_fitter->set(vertices.get(), prev_vertices.get(), tri_indices.get(),
                  getModelType());
   BVNode<BV>* bvs_ = bvs.get();
+  unsigned int* primitive_indices_ = primitive_indices.get();
   for (unsigned int i = 0; i < num_bvs; ++i) {
-    BV bv = bv_fitter->fit(primitive_indices + bvs_[i].first_primitive,
+    BV bv = bv_fitter->fit(primitive_indices_ + bvs_[i].first_primitive,
                            bvs_[i].num_primitives);
     bvs_[i].bv = bv;
   }
