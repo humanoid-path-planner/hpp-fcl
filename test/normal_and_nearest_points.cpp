@@ -231,10 +231,10 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_mesh_mesh) {
   FCL_REAL r = 0.5;
   Convex<Triangle> o1_ = constructPolytopeFromEllipsoid(Ellipsoid(r, r, r));
   shared_ptr<Convex<Triangle>> o1(new Convex<Triangle>(
-      false, o1_.points, o1_.num_points, o1_.polygons, o1_.num_polygons));
+      o1_.points, o1_.num_points, o1_.polygons, o1_.num_polygons));
   Convex<Triangle> o2_ = constructPolytopeFromEllipsoid(Ellipsoid(r, r, r));
   shared_ptr<Convex<Triangle>> o2(new Convex<Triangle>(
-      false, o2_.points, o2_.num_points, o2_.polygons, o2_.num_polygons));
+      o2_.points, o2_.num_points, o2_.polygons, o2_.num_polygons));
 
   test_normal_and_nearest_points(*o1.get(), *o2.get());
 }
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_mesh_box) {
   FCL_REAL rbox = 2 * 0.5;
   Convex<Triangle> o1_ = constructPolytopeFromEllipsoid(Ellipsoid(r, r, r));
   shared_ptr<Convex<Triangle>> o1(new Convex<Triangle>(
-      false, o1_.points, o1_.num_points, o1_.polygons, o1_.num_polygons));
+      o1_.points, o1_.num_points, o1_.polygons, o1_.num_polygons));
   shared_ptr<Box> o2(new Box(rbox, rbox, rbox));
 
   test_normal_and_nearest_points(*o1.get(), *o2.get());
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_mesh_ellipsoid) {
   FCL_REAL r = 0.5;
   Convex<Triangle> o1_ = constructPolytopeFromEllipsoid(Ellipsoid(r, r, r));
   shared_ptr<Convex<Triangle>> o1(new Convex<Triangle>(
-      false, o1_.points, o1_.num_points, o1_.polygons, o1_.num_polygons));
+      o1_.points, o1_.num_points, o1_.polygons, o1_.num_polygons));
   shared_ptr<Ellipsoid> o2(new Ellipsoid(0.5 * r, 1.3 * r, 0.8 * r));
 
   test_normal_and_nearest_points(*o1.get(), *o2.get());
@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_mesh_halfspace) {
   FCL_REAL r = 0.5;
   Convex<Triangle> o1_ = constructPolytopeFromEllipsoid(Ellipsoid(r, r, r));
   shared_ptr<Convex<Triangle>> o1(new Convex<Triangle>(
-      false, o1_.points, o1_.num_points, o1_.polygons, o1_.num_polygons));
+      o1_.points, o1_.num_points, o1_.polygons, o1_.num_polygons));
   FCL_REAL offset = 0.1;
   Vec3f n = Vec3f::Random();
   n.normalize();

@@ -41,57 +41,54 @@
 namespace hpp {
 namespace fcl {
 
-void ConvexBase::initialize(bool own_storage, Vec3f* points_,
+void ConvexBase::initialize(std::shared_ptr<Vec3f> points_,
                             unsigned int num_points_) {
   points = points_;
   num_points = num_points_;
-  own_storage_ = own_storage;
   computeCenter();
 }
 
-void ConvexBase::set(bool own_storage_, Vec3f* points_,
-                     unsigned int num_points_) {
-  if (own_storage_ && points) delete[] points;
-  initialize(own_storage_, points_, num_points_);
+void ConvexBase::set(std::shared_ptr<Vec3f> points_, unsigned int num_points_) {
+  initialize(points_, num_points_);
 }
 
 ConvexBase::ConvexBase(const ConvexBase& other)
-    : ShapeBase(other),
-      num_points(other.num_points),
-      center(other.center),
-      own_storage_(other.own_storage_) {
-  if (neighbors) delete[] neighbors;
-  if (nneighbors_) delete[] nneighbors_;
-  if (own_storage_) {
-    if (own_storage_ && points) delete[] points;
-
-    points = new Vec3f[num_points];
-    std::copy(other.points, other.points + num_points, points);
+    : ShapeBase(other), num_points(other.num_points), center(other.center) {
+  if (other.points.get()) {
+    points.reset(new Vec3f[num_points]);
+    std::copy(other.points.get(), other.points.get() + num_points,
+              points.get());
   } else
-    points = other.points;
+    points.reset();
 
-  neighbors = new Neighbors[num_points];
-  std::copy(other.neighbors, other.neighbors + num_points, neighbors);
+  if (other.neighbors.get()) {
+    neighbors.reset(new Neighbors[num_points]);
+    std::copy(other.neighbors.get(), other.neighbors.get() + num_points,
+              neighbors.get());
+  } else
+    neighbors.reset();
 
-  std::size_t c_nneighbors = 0;
-  for (std::size_t i = 0; i < num_points; ++i)
-    c_nneighbors += neighbors[i].count();
-  nneighbors_ = new unsigned int[c_nneighbors];
-  std::copy(other.nneighbors_, other.nneighbors_ + c_nneighbors, nneighbors_);
+  if (other.nneighbors_.get()) {
+    std::size_t c_nneighbors = 0;
+    const Neighbors* neighbors_ = neighbors.get();
+    for (std::size_t i = 0; i < num_points; ++i)
+      c_nneighbors += neighbors_[i].count();
+    nneighbors_.reset(new unsigned int[c_nneighbors]);
+    std::copy(other.nneighbors_.get(), other.nneighbors_.get() + c_nneighbors,
+              nneighbors_.get());
+  } else
+    nneighbors_.reset();
 
   ShapeBase::operator=(*this);
 }
 
-ConvexBase::~ConvexBase() {
-  if (neighbors) delete[] neighbors;
-  if (nneighbors_) delete[] nneighbors_;
-  if (own_storage_ && points) delete[] points;
-}
+ConvexBase::~ConvexBase() {}
 
 void ConvexBase::computeCenter() {
   center.setZero();
+  const Vec3f* points_ = points.get();
   for (std::size_t i = 0; i < num_points; ++i)
-    center += points[i];  // TODO(jcarpent): vectorization
+    center += points_[i];  // TODO(jcarpent): vectorization
   center /= num_points;
 }
 

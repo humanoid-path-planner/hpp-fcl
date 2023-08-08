@@ -50,7 +50,7 @@ template <typename PolygonT>
 class Convex : public ConvexBase {
  public:
   /// @brief Construct an uninitialized convex object
-  Convex() : ConvexBase(), polygons(NULL), num_polygons(0) {}
+  Convex() : ConvexBase(), num_polygons(0) {}
 
   /// @brief Constructing a convex, providing normal and offset of each polytype
   /// surface, and the points and shape topology information \param ownStorage
@@ -61,8 +61,8 @@ class Convex : public ConvexBase {
   /// \param polygons_ \copydoc Convex::polygons
   /// \param num_polygons_ the number of polygons.
   /// \note num_polygons_ is not the allocated size of polygons_.
-  Convex(bool ownStorage, Vec3f* points_, unsigned int num_points_,
-         PolygonT* polygons_, unsigned int num_polygons_);
+  Convex(std::shared_ptr<Vec3f> points_, unsigned int num_points_,
+         std::shared_ptr<PolygonT> polygons_, unsigned int num_polygons_);
 
   /// @brief Copy constructor
   /// Only the list of neighbors is copied.
@@ -73,7 +73,7 @@ class Convex : public ConvexBase {
   /// @brief An array of PolygonT object.
   /// PolygonT should contains a list of vertices for each polygon,
   /// in counter clockwise order.
-  PolygonT* polygons;
+  std::shared_ptr<PolygonT> polygons;
   unsigned int num_polygons;
 
   /// based on http://number-none.com/blow/inertia/bb_inertia.doc
@@ -94,8 +94,8 @@ class Convex : public ConvexBase {
   /// \param num_polygons the number of polygons.
   /// \note num_polygons is not the allocated size of polygons.
   ///
-  void set(bool ownStorage, Vec3f* points, unsigned int num_points,
-           PolygonT* polygons, unsigned int num_polygons);
+  void set(std::shared_ptr<Vec3f> points, unsigned int num_points,
+           std::shared_ptr<PolygonT> polygons, unsigned int num_polygons);
 
   ///  @brief Clone (deep copy).
   virtual Convex<PolygonT>* clone() const;

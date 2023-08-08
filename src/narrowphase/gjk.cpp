@@ -173,8 +173,8 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         MinkowskiDiff::ShapeData* data) {
   assert(data != NULL);
 
-  const Vec3f* pts = convex->points;
-  const ConvexBase::Neighbors* nn = convex->neighbors;
+  const Vec3f* pts = convex->points.get();
+  const ConvexBase::Neighbors* nn = convex->neighbors.get();
 
   if (hint < 0 || hint >= (int)convex->num_points) hint = 0;
   FCL_REAL maxdot = pts[hint].dot(dir);
@@ -212,7 +212,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
 void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
                            Vec3f& support, int& hint,
                            MinkowskiDiff::ShapeData*) {
-  const Vec3f* pts = convex->points;
+  const Vec3f* pts = convex->points.get();
 
   hint = 0;
   FCL_REAL maxdot = pts[0].dot(dir);

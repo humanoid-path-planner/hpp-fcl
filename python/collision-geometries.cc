@@ -83,16 +83,16 @@ struct BVHModelBaseWrapper {
 
   static Vec3f& vertex(BVHModelBase& bvh, unsigned int i) {
     if (i >= bvh.num_vertices) throw std::out_of_range("index is out of range");
-    return bvh.vertices[i];
+    return bvh.vertices.get()[i];
   }
 
   static RefRowMatrixX3 vertices(BVHModelBase& bvh) {
-    return MapRowMatrixX3(bvh.vertices[0].data(), bvh.num_vertices, 3);
+    return MapRowMatrixX3(bvh.vertices.get()[0].data(), bvh.num_vertices, 3);
   }
 
   static Triangle tri_indices(const BVHModelBase& bvh, unsigned int i) {
     if (i >= bvh.num_tris) throw std::out_of_range("index is out of range");
-    return bvh.tri_indices[i];
+    return bvh.tri_indices.get()[i];
   }
 };
 
@@ -161,19 +161,21 @@ struct ConvexBaseWrapper {
   static Vec3f& point(const ConvexBase& convex, unsigned int i) {
     if (i >= convex.num_points)
       throw std::out_of_range("index is out of range");
-    return convex.points[i];
+    return (convex.points.get())[i];
   }
 
   static RefRowMatrixX3 points(const ConvexBase& convex) {
-    return MapRowMatrixX3(convex.points[0].data(), convex.num_points, 3);
+    return MapRowMatrixX3((convex.points.get())[0].data(), convex.num_points,
+                          3);
   }
 
   static list neighbors(const ConvexBase& convex, unsigned int i) {
     if (i >= convex.num_points)
       throw std::out_of_range("index is out of range");
     list n;
-    for (unsigned char j = 0; j < convex.neighbors[i].count(); ++j)
-      n.append(convex.neighbors[i][j]);
+    const ConvexBase::Neighbors* neighbors_ = convex.neighbors.get();
+    for (unsigned char j = 0; j < neighbors_[i].count(); ++j)
+      n.append(neighbors_[i][j]);
     return n;
   }
 
@@ -191,16 +193,19 @@ struct ConvexWrapper {
   static PolygonT polygons(const Convex_t& convex, unsigned int i) {
     if (i >= convex.num_polygons)
       throw std::out_of_range("index is out of range");
-    return convex.polygons[i];
+    return convex.polygons.get()[i];
   }
 
   static shared_ptr<Convex_t> constructor(const Vec3fs& _points,
                                           const Triangles& _tris) {
-    Vec3f* points = new Vec3f[_points.size()];
-    for (std::size_t i = 0; i < _points.size(); ++i) points[i] = _points[i];
-    Triangle* tris = new Triangle[_tris.size()];
-    for (std::size_t i = 0; i < _tris.size(); ++i) tris[i] = _tris[i];
-    return shared_ptr<Convex_t>(new Convex_t(true, points,
+    std::shared_ptr<Vec3f> points(new Vec3f[_points.size()]);
+    Vec3f* points_ = points.get();
+    for (std::size_t i = 0; i < _points.size(); ++i) points_[i] = _points[i];
+
+    std::shared_ptr<Triangle> tris(new Triangle[_tris.size()]);
+    Triangle* tris_ = tris.get();
+    for (std::size_t i = 0; i < _tris.size(); ++i) tris_[i] = _tris[i];
+    return shared_ptr<Convex_t>(new Convex_t(points,
                                              (unsigned int)_points.size(), tris,
                                              (unsigned int)_tris.size()));
   }
@@ -285,7 +290,7 @@ void exposeShapes() {
       //                   "Points of the convex.")
       .def("neighbors", &ConvexBaseWrapper::neighbors)
       .def("convexHull", &ConvexBaseWrapper::convexHull,
-           doxygen::member_func_doc(&ConvexBase::convexHull),
+           // doxygen::member_func_doc(&ConvexBase::convexHull),
            return_value_policy<manage_new_object>())
       .staticmethod("convexHull")
       .def("clone", &ConvexBase::clone,

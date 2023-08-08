@@ -43,6 +43,7 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/data_types.h>
 #include <string.h>
+#include <memory>
 
 namespace hpp {
 namespace fcl {
@@ -592,26 +593,21 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   ///          Qhull.
   /// \note hpp-fcl must have been compiled with option \c HPP_FCL_HAS_QHULL set
   ///       to \c ON.
-  static ConvexBase* convexHull(const Vec3f* points, unsigned int num_points,
-                                bool keepTriangles,
+  static ConvexBase* convexHull(const std::shared_ptr<const Vec3f> points,
+                                unsigned int num_points, bool keepTriangles,
                                 const char* qhullCommand = NULL);
+
+  // TODO(louis): put this method in private sometime in the future.
+  HPP_FCL_DEPRECATED static ConvexBase* convexHull(
+      const Vec3f* points, unsigned int num_points, bool keepTriangles,
+      const char* qhullCommand = NULL);
 
   virtual ~ConvexBase();
 
-  ///  @brief Clone (deep copy).
-  virtual ConvexBase* clone() const {
-    ConvexBase* copy_ptr = new ConvexBase(*this);
-    ConvexBase& copy = *copy_ptr;
-
-    if (!copy.own_storage_) {
-      copy.points = new Vec3f[copy.num_points];
-      std::copy(points, points + num_points, copy.points);
-    }
-    copy.own_storage_ = true;
-    copy.ShapeBase::operator=(*this);
-
-    return copy_ptr;
-  }
+  /// @brief Clone (deep copy).
+  /// This method is consistent with BVHModel `clone` method.
+  /// The copy constructor is called, which duplicates the data.
+  virtual ConvexBase* clone() const { return new ConvexBase(*this); }
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -620,7 +616,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
   /// @brief An array of the points of the polygon.
-  Vec3f* points;
+  std::shared_ptr<Vec3f> points;
   unsigned int num_points;
 
   struct HPP_FCL_DLLAPI Neighbors {
@@ -649,10 +645,11 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 
     bool operator!=(const Neighbors& other) const { return !(*this == other); }
   };
+
   /// Neighbors of each vertex.
   /// It is an array of size num_points. For each vertex, it contains the number
   /// of neighbors and a list of indices to them.
-  Neighbors* neighbors;
+  std::shared_ptr<Neighbors> neighbors;
 
   /// @brief center of the convex polytope, this is used for collision: center
   /// is guaranteed in the internal of the polytope (as it is convex)
@@ -661,13 +658,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
  protected:
   /// @brief Construct an uninitialized convex object
   /// Initialization is done with ConvexBase::initialize.
-  ConvexBase()
-      : ShapeBase(),
-        points(NULL),
-        num_points(0),
-        neighbors(NULL),
-        nneighbors_(NULL),
-        own_storage_(false) {}
+  ConvexBase() : ShapeBase(), num_points(0) {}
 
   /// @brief Initialize the points of the convex shape
   /// This also initializes the ConvexBase::center.
@@ -675,22 +666,20 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// \param ownStorage weither the ConvexBase owns the data.
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
-  void initialize(bool ownStorage, Vec3f* points_, unsigned int num_points_);
+  void initialize(std::shared_ptr<Vec3f> points_, unsigned int num_points_);
 
   /// @brief Set the points of the convex shape.
   ///
   /// \param ownStorage weither the ConvexBase owns the data.
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
-  void set(bool ownStorage, Vec3f* points_, unsigned int num_points_);
+  void set(std::shared_ptr<Vec3f> points_, unsigned int num_points_);
 
   /// @brief Copy constructor
   /// Only the list of neighbors is copied.
   ConvexBase(const ConvexBase& other);
 
-  unsigned int* nneighbors_;
-
-  bool own_storage_;
+  std::shared_ptr<unsigned int> nneighbors_;
 
  private:
   void computeCenter();
@@ -703,12 +692,16 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 
     if (num_points != other.num_points) return false;
 
+    const Vec3f* points_ = points.get();
+    const Vec3f* other_points_ = other.points.get();
     for (unsigned int i = 0; i < num_points; ++i) {
-      if (points[i] != other.points[i]) return false;
+      if (points_[i] != (other_points_)[i]) return false;
     }
 
+    const Neighbors* neighbors_ = neighbors.get();
+    const Neighbors* other_neighbors_ = other.neighbors.get();
     for (unsigned int i = 0; i < num_points; ++i) {
-      if (neighbors[i] != other.neighbors[i]) return false;
+      if (neighbors_[i] != other_neighbors_[i]) return false;
     }
 
     return center == other.center;

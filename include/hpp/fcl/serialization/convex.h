@@ -19,7 +19,6 @@ namespace serialization {
 namespace internal {
 struct ConvexBaseAccessor : hpp::fcl::ConvexBase {
   typedef hpp::fcl::ConvexBase Base;
-  using Base::own_storage_;
 };
 
 }  // namespace internal
@@ -29,27 +28,21 @@ void serialize(Archive &ar, hpp::fcl::ConvexBase &convex_base,
                const unsigned int /*version*/) {
   using namespace hpp::fcl;
 
-  typedef internal::ConvexBaseAccessor Accessor;
-  Accessor &accessor = reinterpret_cast<Accessor &>(convex_base);
-
   ar &make_nvp("base", boost::serialization::base_object<hpp::fcl::ShapeBase>(
                            convex_base));
   const unsigned int num_points_previous = convex_base.num_points;
   ar &make_nvp("num_points", convex_base.num_points);
 
   if (Archive::is_loading::value) {
-    if (num_points_previous != convex_base.num_points ||
-        !accessor.own_storage_) {
-      delete[] convex_base.points;
-      convex_base.points = new hpp::fcl::Vec3f[convex_base.num_points];
-      accessor.own_storage_ = true;
+    if (num_points_previous != convex_base.num_points) {
+      convex_base.points.reset(new Vec3f[convex_base.num_points]);
     }
   }
 
   {
     typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> MatrixPoints;
     Eigen::Map<MatrixPoints> points_map(
-        reinterpret_cast<double *>(convex_base.points), 3,
+        reinterpret_cast<double *>(convex_base.points.get()), 3,
         convex_base.num_points);
     ar &make_nvp("points", points_map);
   }
@@ -82,12 +75,11 @@ void serialize(Archive &ar, hpp::fcl::Convex<PolygonT> &convex_,
 
   if (Archive::is_loading::value) {
     if (num_polygons_previous != convex.num_polygons) {
-      delete[] convex.polygons;
-      convex.polygons = new PolygonT[convex.num_polygons];
+      convex.polygons.reset(new PolygonT[convex.num_polygons]);
     }
   }
 
-  ar &make_array<PolygonT>(convex.polygons, convex.num_polygons);
+  ar &make_array<PolygonT>(convex.polygons.get(), convex.num_polygons);
 
   if (Archive::is_loading::value) convex.fillNeighbors();
 }
