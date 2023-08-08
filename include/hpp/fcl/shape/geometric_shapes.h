@@ -612,7 +612,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// @brief Compute AABB
   void computeLocalAABB();
 
-  /// @brief Get node type: a conex polytope
+  /// @brief Get node type: a convex polytope
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
   /// @brief An array of the points of the polygon.
