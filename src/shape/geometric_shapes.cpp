@@ -45,6 +45,9 @@ void ConvexBase::initialize(std::shared_ptr<Vec3f> points_,
                             unsigned int num_points_) {
   points = points_;
   num_points = num_points_;
+  num_normals_and_offsets = 0;
+  normals.reset();
+  offsets.reset();
   computeCenter();
 }
 
@@ -53,7 +56,10 @@ void ConvexBase::set(std::shared_ptr<Vec3f> points_, unsigned int num_points_) {
 }
 
 ConvexBase::ConvexBase(const ConvexBase& other)
-    : ShapeBase(other), num_points(other.num_points), center(other.center) {
+    : ShapeBase(other),
+      num_points(other.num_points),
+      num_normals_and_offsets(other.num_normals_and_offsets),
+      center(other.center) {
   if (other.points.get()) {
     points.reset(new Vec3f[num_points]);
     std::copy(other.points.get(), other.points.get() + num_points,
@@ -78,6 +84,20 @@ ConvexBase::ConvexBase(const ConvexBase& other)
               nneighbors_.get());
   } else
     nneighbors_.reset();
+
+  if (other.normals.get()) {
+    normals.reset(new Vec3f[num_normals_and_offsets]);
+    std::copy(other.normals.get(),
+              other.normals.get() + num_normals_and_offsets, normals.get());
+  } else
+    normals.reset();
+
+  if (other.offsets.get()) {
+    offsets.reset(new double[num_normals_and_offsets]);
+    std::copy(other.offsets.get(),
+              other.offsets.get() + num_normals_and_offsets, offsets.get());
+  } else
+    offsets.reset();
 
   ShapeBase::operator=(*this);
 }
