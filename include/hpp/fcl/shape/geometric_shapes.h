@@ -732,6 +732,18 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
       if (neighbors_[i] != other_neighbors_[i]) return false;
     }
 
+    const Vec3f* normals_ = normals.get();
+    const Vec3f* other_normals_ = other.normals.get();
+    for (unsigned int i = 0; i < num_normals_and_offsets; ++i) {
+      if (normals_[i] != other_normals_[i]) return false;
+    }
+
+    const double* offsets_ = offsets.get();
+    const double* other_offsets_ = other.offsets.get();
+    for (unsigned int i = 0; i < num_normals_and_offsets; ++i) {
+      if (offsets_[i] != other_offsets_[i]) return false;
+    }
+
     return center == other.center;
   }
 
