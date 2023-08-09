@@ -1,11 +1,13 @@
 #include <hpp/fcl/shape/convex.h>
 
+#ifdef HPP_FCL_HAS_QHULL
 using orgQhull::Qhull;
 using orgQhull::QhullFacet;
 using orgQhull::QhullPoint;
 using orgQhull::QhullRidgeSet;
 using orgQhull::QhullVertexList;
 using orgQhull::QhullVertexSet;
+#endif
 
 namespace hpp {
 namespace fcl {
