@@ -1,21 +1,11 @@
 #include <hpp/fcl/shape/convex.h>
 
-#ifdef HPP_FCL_HAS_QHULL
-#include <libqhullcpp/QhullError.h>
-#include <libqhullcpp/QhullFacet.h>
-#include <libqhullcpp/QhullLinkedList.h>
-#include <libqhullcpp/QhullVertex.h>
-#include <libqhullcpp/QhullVertexSet.h>
-#include <libqhullcpp/QhullRidge.h>
-#include <libqhullcpp/Qhull.h>
-
 using orgQhull::Qhull;
 using orgQhull::QhullFacet;
 using orgQhull::QhullPoint;
 using orgQhull::QhullRidgeSet;
 using orgQhull::QhullVertexList;
 using orgQhull::QhullVertexSet;
-#endif
 
 namespace hpp {
 namespace fcl {
@@ -167,6 +157,10 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   }
   assert(!keepTriangles || static_cast<int>(i_polygon) == qh.facetCount());
 
+  // Build the double representation (free in this case because qhull has
+  // alreday run)
+  convex->buildDoubleDescriptionFromQHullResult(qh);
+
   // Fill the neighbor attribute of the returned object.
   convex->nneighbors_.reset(new unsigned int[c_nneighbors]);
   unsigned int* p_nneighbors = convex->nneighbors_.get();
@@ -191,5 +185,46 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   HPP_FCL_UNUSED_VARIABLE(qhullCommand);
 #endif
 }
+
+#ifdef HPP_FCL_HAS_QHULL
+void ConvexBase::buildDoubleDescription() {
+  if (num_points <= 3) {
+    throw std::invalid_argument(
+        "You shouldn't use this function with a convex less than"
+        " 4 points.");
+  }
+
+  Qhull qh;
+  const char* command = "Qt";
+  qh.runQhull("", 3, static_cast<int>(num_points), points.get()[0].data(),
+              command);
+
+  if (qh.qhullStatus() != qh_ERRnone) {
+    if (qh.hasQhullMessage()) std::cerr << qh.qhullMessage() << std::endl;
+    throw std::logic_error("Qhull failed");
+  }
+
+  buildDoubleDescriptionFromQHullResult(qh);
+}
+
+void ConvexBase::buildDoubleDescriptionFromQHullResult(const Qhull& qh) {
+  num_normals_and_offsets = static_cast<unsigned int>(qh.facetCount());
+  normals.reset(new Vec3f[num_normals_and_offsets]);
+  Vec3f* normals_ = normals.get();
+  offsets.reset(new double[num_normals_and_offsets]);
+  double* offsets_ = offsets.get();
+  unsigned int i_normal = 0;
+  for (QhullFacet facet = qh.beginFacet(); facet != qh.endFacet();
+       facet = facet.next()) {
+    const orgQhull::QhullHyperplane& plane = facet.hyperplane();
+    normals_[i_normal] = Vec3f(plane.coordinates()[0], plane.coordinates()[1],
+                               plane.coordinates()[2]);
+    offsets_[i_normal] = plane.offset();
+    i_normal++;
+  }
+  assert(static_cast<int>(i_normal) == qh.facetCount());
+}
+#endif
+
 }  // namespace fcl
 }  // namespace hpp

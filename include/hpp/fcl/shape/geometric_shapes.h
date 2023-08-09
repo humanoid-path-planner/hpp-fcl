@@ -45,6 +45,18 @@
 #include <string.h>
 #include <memory>
 
+#ifdef HPP_FCL_HAS_QHULL
+#include <libqhullcpp/QhullError.h>
+#include <libqhullcpp/QhullFacet.h>
+#include <libqhullcpp/QhullLinkedList.h>
+#include <libqhullcpp/QhullVertex.h>
+#include <libqhullcpp/QhullVertexSet.h>
+#include <libqhullcpp/QhullRidge.h>
+#include <libqhullcpp/Qhull.h>
+
+using orgQhull::Qhull;
+#endif
+
 namespace hpp {
 namespace fcl {
 
@@ -619,6 +631,22 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   std::shared_ptr<Vec3f> points;
   unsigned int num_points;
 
+  /// @brief An array of the normals of the polygon.
+  std::shared_ptr<Vec3f> normals;
+  /// @brief An array of the offsets to the normals of the polygon.
+  /// Note: there are as many offsets as normals.
+  std::shared_ptr<double> offsets;
+  unsigned int num_normals_and_offsets;
+
+#ifdef HPP_FCL_HAS_QHULL
+ public:
+  void buildDoubleDescription();
+
+ protected:
+  void buildDoubleDescriptionFromQHullResult(const Qhull& qh);
+#endif
+
+ public:
   struct HPP_FCL_DLLAPI Neighbors {
     unsigned char count_;
     unsigned int* n_;
