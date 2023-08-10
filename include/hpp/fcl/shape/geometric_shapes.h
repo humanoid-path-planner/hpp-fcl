@@ -46,15 +46,9 @@
 #include <memory>
 
 #ifdef HPP_FCL_HAS_QHULL
-#include <libqhullcpp/QhullError.h>
-#include <libqhullcpp/QhullFacet.h>
-#include <libqhullcpp/QhullLinkedList.h>
-#include <libqhullcpp/QhullVertex.h>
-#include <libqhullcpp/QhullVertexSet.h>
-#include <libqhullcpp/QhullRidge.h>
-#include <libqhullcpp/Qhull.h>
-
-using orgQhull::Qhull;
+namespace orgQhull {
+class Qhull;
+}
 #endif
 
 namespace hpp {
@@ -643,7 +637,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   void buildDoubleDescription();
 
  protected:
-  void buildDoubleDescriptionFromQHullResult(const Qhull& qh);
+  void buildDoubleDescriptionFromQHullResult(const orgQhull::Qhull& qh);
 #endif
 
  public:

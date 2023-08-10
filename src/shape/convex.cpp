@@ -1,6 +1,14 @@
 #include <hpp/fcl/shape/convex.h>
 
 #ifdef HPP_FCL_HAS_QHULL
+#include <libqhullcpp/QhullError.h>
+#include <libqhullcpp/QhullFacet.h>
+#include <libqhullcpp/QhullLinkedList.h>
+#include <libqhullcpp/QhullVertex.h>
+#include <libqhullcpp/QhullVertexSet.h>
+#include <libqhullcpp/QhullRidge.h>
+#include <libqhullcpp/Qhull.h>
+
 using orgQhull::Qhull;
 using orgQhull::QhullFacet;
 using orgQhull::QhullPoint;
