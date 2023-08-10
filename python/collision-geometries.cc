@@ -157,10 +157,9 @@ struct ConvexBaseWrapper {
   typedef Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor> RowMatrixX3;
   typedef Eigen::Map<RowMatrixX3> MapRowMatrixX3;
   typedef Eigen::Ref<RowMatrixX3> RefRowMatrixX3;
-  typedef Eigen::Matrix<double, Eigen::Dynamic, 1, Eigen::RowMajor>
-      VecOfDoubles;
-  typedef Eigen::Map<RowMatrixX3> MapVecOfDoubles;
-  typedef Eigen::Ref<RowMatrixX3> RefVecOfDoubles;
+  typedef Eigen::VectorXd VecOfDoubles;
+  typedef Eigen::Map<VecOfDoubles> MapVecOfDoubles;
+  typedef Eigen::Ref<VecOfDoubles> RefVecOfDoubles;
 
   static Vec3f& point(const ConvexBase& convex, unsigned int i) {
     if (i >= convex.num_points)
