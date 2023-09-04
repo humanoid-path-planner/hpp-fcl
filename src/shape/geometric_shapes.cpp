@@ -41,7 +41,7 @@
 namespace hpp {
 namespace fcl {
 
-void ConvexBase::initialize(std::shared_ptr<Vec3f> points_,
+void ConvexBase::initialize(std::shared_ptr<std::vector<Vec3f>> points_,
                             unsigned int num_points_) {
   points = points_;
   num_points = num_points_;
@@ -51,7 +51,8 @@ void ConvexBase::initialize(std::shared_ptr<Vec3f> points_,
   computeCenter();
 }
 
-void ConvexBase::set(std::shared_ptr<Vec3f> points_, unsigned int num_points_) {
+void ConvexBase::set(std::shared_ptr<std::vector<Vec3f>> points_,
+                     unsigned int num_points_) {
   initialize(points_, num_points_);
 }
 
@@ -61,9 +62,11 @@ ConvexBase::ConvexBase(const ConvexBase& other)
       num_normals_and_offsets(other.num_normals_and_offsets),
       center(other.center) {
   if (other.points.get()) {
-    points.reset(new Vec3f[num_points]);
-    std::copy(other.points.get(), other.points.get() + num_points,
-              points.get());
+    if (other.points->size() > 0) {
+      // Deep copy of other points
+      points.reset(new std::vector<Vec3f>(*other.points));
+    } else
+      points.reset();
   } else
     points.reset();
 
@@ -106,7 +109,7 @@ ConvexBase::~ConvexBase() {}
 
 void ConvexBase::computeCenter() {
   center.setZero();
-  const Vec3f* points_ = points.get();
+  const std::vector<Vec3f>& points_ = *points;
   for (std::size_t i = 0; i < num_points; ++i)
     center += points_[i];  // TODO(jcarpent): vectorization
   center /= num_points;

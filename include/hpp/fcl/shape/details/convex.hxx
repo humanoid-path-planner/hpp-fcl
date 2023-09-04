@@ -44,7 +44,7 @@ namespace hpp {
 namespace fcl {
 
 template <typename PolygonT>
-Convex<PolygonT>::Convex(std::shared_ptr<Vec3f> points_,
+Convex<PolygonT>::Convex(std::shared_ptr<std::vector<Vec3f>> points_,
                          unsigned int num_points_,
                          std::shared_ptr<PolygonT> polygons_,
                          unsigned int num_polygons_)
@@ -68,7 +68,7 @@ template <typename PolygonT>
 Convex<PolygonT>::~Convex() {}
 
 template <typename PolygonT>
-void Convex<PolygonT>::set(std::shared_ptr<Vec3f> points_,
+void Convex<PolygonT>::set(std::shared_ptr<std::vector<Vec3f>> points_,
                            unsigned int num_points_,
                            std::shared_ptr<PolygonT> polygons_,
                            unsigned int num_polygons_) {
@@ -96,7 +96,7 @@ Matrix3f Convex<PolygonT>::computeMomentofInertia() const {
   C_canonical << 1 / 60.0, 1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0, 1 / 120.0,
       1 / 120.0, 1 / 120.0, 1 / 60.0;
 
-  const Vec3f* points_ = points.get();
+  const std::vector<Vec3f>& points_ = *(points);
   const PolygonT* polygons_ = polygons.get();
   for (unsigned int i = 0; i < num_polygons; ++i) {
     const PolygonT& polygon = polygons_[i];
@@ -133,7 +133,7 @@ Vec3f Convex<PolygonT>::computeCOM() const {
 
   Vec3f com(0, 0, 0);
   FCL_REAL vol = 0;
-  const Vec3f* points_ = points.get();
+  const std::vector<Vec3f>& points_ = *(points);
   const PolygonT* polygons_ = polygons.get();
   for (unsigned int i = 0; i < num_polygons; ++i) {
     const PolygonT& polygon = polygons_[i];
@@ -167,7 +167,7 @@ FCL_REAL Convex<PolygonT>::computeVolume() const {
   typedef typename PolygonT::index_type index_type;
 
   FCL_REAL vol = 0;
-  const Vec3f* points_ = points.get();
+  const std::vector<Vec3f>& points_ = *(points);
   const PolygonT* polygons_ = polygons.get();
   for (unsigned int i = 0; i < num_polygons; ++i) {
     const PolygonT& polygon = polygons_[i];
@@ -201,7 +201,7 @@ void Convex<PolygonT>::fillNeighbors() {
 
   typedef typename PolygonT::size_type size_type;
   typedef typename PolygonT::index_type index_type;
-  std::vector<std::set<index_type> > nneighbors(num_points);
+  std::vector<std::set<index_type>> nneighbors(num_points);
   unsigned int c_nneighbors = 0;
 
   const PolygonT* polygons_ = polygons.get();

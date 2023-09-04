@@ -173,11 +173,11 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         MinkowskiDiff::ShapeData* data) {
   assert(data != NULL);
 
-  const Vec3f* pts = convex->points.get();
+  const std::vector<Vec3f>& pts = *(convex->points);
   const ConvexBase::Neighbors* nn = convex->neighbors.get();
 
   if (hint < 0 || hint >= (int)convex->num_points) hint = 0;
-  FCL_REAL maxdot = pts[hint].dot(dir);
+  FCL_REAL maxdot = pts[static_cast<size_t>(hint)].dot(dir);
   std::vector<int8_t>& visited = data->visited;
   visited.assign(convex->num_points, false);
   visited[static_cast<std::size_t>(hint)] = true;
@@ -206,24 +206,24 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
     }
   }
 
-  support = pts[hint];
+  support = pts[static_cast<size_t>(hint)];
 }
 
 void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
                            Vec3f& support, int& hint,
                            MinkowskiDiff::ShapeData*) {
-  const Vec3f* pts = convex->points.get();
+  const std::vector<Vec3f>& pts = *(convex->points);
 
   hint = 0;
   FCL_REAL maxdot = pts[0].dot(dir);
   for (int i = 1; i < (int)convex->num_points; ++i) {
-    FCL_REAL dot = pts[i].dot(dir);
+    FCL_REAL dot = pts[static_cast<size_t>(i)].dot(dir);
     if (dot > maxdot) {
       maxdot = dot;
       hint = i;
     }
   }
-  support = pts[hint];
+  support = pts[static_cast<size_t>(hint)];
 }
 
 void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,

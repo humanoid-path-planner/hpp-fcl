@@ -164,12 +164,11 @@ struct ConvexBaseWrapper {
   static Vec3f& point(const ConvexBase& convex, unsigned int i) {
     if (i >= convex.num_points)
       throw std::out_of_range("index is out of range");
-    return (convex.points.get())[i];
+    return (*(convex.points))[i];
   }
 
   static RefRowMatrixX3 points(const ConvexBase& convex) {
-    return MapRowMatrixX3((convex.points.get())[0].data(), convex.num_points,
-                          3);
+    return MapRowMatrixX3((*(convex.points))[0].data(), convex.num_points, 3);
   }
 
   static Vec3f& normal(const ConvexBase& convex, unsigned int i) {
@@ -223,8 +222,9 @@ struct ConvexWrapper {
 
   static shared_ptr<Convex_t> constructor(const Vec3fs& _points,
                                           const Triangles& _tris) {
-    std::shared_ptr<Vec3f> points(new Vec3f[_points.size()]);
-    Vec3f* points_ = points.get();
+    std::shared_ptr<std::vector<Vec3f>> points(
+        new std::vector<Vec3f>(_points.size()));
+    std::vector<Vec3f>& points_ = *points;
     for (std::size_t i = 0; i < _points.size(); ++i) points_[i] = _points[i];
 
     std::shared_ptr<Triangle> tris(new Triangle[_tris.size()]);

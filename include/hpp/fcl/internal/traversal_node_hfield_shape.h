@@ -74,16 +74,16 @@ Convex<Quadrilateral> buildConvexQuadrilateral(const HFNode<BV>& node,
          "max_height is lower than min_height");  // Check whether the geometry
                                                   // is degenerated
 
-  std::shared_ptr<Vec3f> pts(new Vec3f[8]);
-  Vec3f* pts_ = pts.get();
-  pts_[0] = Vec3f(x0, y0, min_height);
-  pts_[1] = Vec3f(x0, y1, min_height);
-  pts_[2] = Vec3f(x1, y1, min_height);
-  pts_[3] = Vec3f(x1, y0, min_height);
-  pts_[4] = Vec3f(x0, y0, cell(0, 0));
-  pts_[5] = Vec3f(x0, y1, cell(1, 0));
-  pts_[6] = Vec3f(x1, y1, cell(1, 1));
-  pts_[7] = Vec3f(x1, y0, cell(0, 1));
+  std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
+      Vec3f(x0, y0, min_height),
+      Vec3f(x0, y1, min_height),
+      Vec3f(x1, y1, min_height),
+      Vec3f(x1, y0, min_height),
+      Vec3f(x0, y0, cell(0, 0)),
+      Vec3f(x0, y1, cell(1, 0)),
+      Vec3f(x1, y1, cell(1, 1)),
+      Vec3f(x1, y0, cell(0, 1)),
+  }));
 
   std::shared_ptr<Quadrilateral> polygons(new Quadrilateral[6]);
   Quadrilateral* polygons_ = polygons.get();
@@ -123,14 +123,14 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   HPP_FCL_UNUSED_VARIABLE(max_height);
 
   {
-    std::shared_ptr<Vec3f> pts(new Vec3f[6]);
-    Vec3f* pts_ = pts.get();
-    pts_[0] = Vec3f(x0, y0, min_height);  //
-    pts_[1] = Vec3f(x0, y1, min_height);  //
-    pts_[2] = Vec3f(x1, y0, min_height);  //
-    pts_[3] = Vec3f(x0, y0, cell(0, 0));  //
-    pts_[4] = Vec3f(x0, y1, cell(1, 0));  //
-    pts_[5] = Vec3f(x1, y0, cell(0, 1));  //
+    std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
+        Vec3f(x0, y0, min_height),
+        Vec3f(x0, y1, min_height),
+        Vec3f(x1, y0, min_height),
+        Vec3f(x0, y0, cell(0, 0)),
+        Vec3f(x0, y1, cell(1, 0)),
+        Vec3f(x1, y0, cell(0, 1)),
+    }));
 
     std::shared_ptr<Triangle> triangles(new Triangle[8]);
     Triangle* triangles_ = triangles.get();
@@ -151,14 +151,14 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   }
 
   {
-    std::shared_ptr<Vec3f> pts(new Vec3f[6]);
-    Vec3f* pts_ = pts.get();
-    pts_[0] = Vec3f(x0, y1, min_height);
-    pts_[1] = Vec3f(x1, y1, min_height);
-    pts_[2] = Vec3f(x1, y0, min_height);
-    pts_[3] = Vec3f(x0, y1, cell(1, 0));
-    pts_[4] = Vec3f(x1, y1, cell(1, 1));
-    pts_[5] = Vec3f(x1, y0, cell(0, 1));
+    std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
+        Vec3f(x0, y1, min_height),
+        Vec3f(x1, y1, min_height),
+        Vec3f(x1, y0, min_height),
+        Vec3f(x0, y1, cell(1, 0)),
+        Vec3f(x1, y1, cell(1, 1)),
+        Vec3f(x1, y0, cell(0, 1)),
+    }));
 
     std::shared_ptr<Triangle> triangles(new Triangle[8]);
     Triangle* triangles_ = triangles.get();
@@ -196,7 +196,7 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
                    Vec3f& contact_1, Vec3f& contact_2, Vec3f& normal,
                    Vec3f& normal_top, bool& is_collision) {
   const Polygone& top_triangle = convex.polygons.get()[1];
-  const Vec3f* points = convex.points.get();
+  const std::vector<Vec3f>& points = *(convex.points);
   const Vec3f pointA = points[top_triangle[0]];
   const Vec3f pointB = points[top_triangle[1]];
   const Vec3f pointC = points[top_triangle[2]];

@@ -1618,7 +1618,7 @@ inline bool convexHalfspaceIntersect(
   Vec3f v;
   FCL_REAL depth = (std::numeric_limits<FCL_REAL>::max)();
 
-  const Vec3f* points_ = s1.points.get();
+  const std::vector<Vec3f>& points_ = *(s1.points);
   for (unsigned int i = 0; i < s1.num_points; ++i) {
     Vec3f p = tf1.transform(points_[i]);
 
@@ -2272,7 +2272,7 @@ inline bool convexPlaneIntersect(const ConvexBase& s1, const Transform3f& tf1,
   FCL_REAL d_min = (std::numeric_limits<FCL_REAL>::max)(),
            d_max = -(std::numeric_limits<FCL_REAL>::max)();
 
-  const Vec3f* points_ = s1.points.get();
+  const std::vector<Vec3f>& points_ = *(s1.points);
   for (unsigned int i = 0; i < s1.num_points; ++i) {
     Vec3f p = tf1.transform(points_[i]);
 

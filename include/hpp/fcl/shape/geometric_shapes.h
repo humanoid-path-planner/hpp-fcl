@@ -599,7 +599,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   ///          Qhull.
   /// \note hpp-fcl must have been compiled with option \c HPP_FCL_HAS_QHULL set
   ///       to \c ON.
-  static ConvexBase* convexHull(const std::shared_ptr<const Vec3f> points,
+  static ConvexBase* convexHull(std::shared_ptr<std::vector<Vec3f>> points,
                                 unsigned int num_points, bool keepTriangles,
                                 const char* qhullCommand = NULL);
 
@@ -622,7 +622,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
   /// @brief An array of the points of the polygon.
-  std::shared_ptr<Vec3f> points;
+  std::shared_ptr<std::vector<Vec3f>> points;
   unsigned int num_points;
 
   /// @brief An array of the normals of the polygon.
@@ -688,14 +688,16 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// \param ownStorage weither the ConvexBase owns the data.
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
-  void initialize(std::shared_ptr<Vec3f> points_, unsigned int num_points_);
+  void initialize(std::shared_ptr<std::vector<Vec3f>> points_,
+                  unsigned int num_points_);
 
   /// @brief Set the points of the convex shape.
   ///
   /// \param ownStorage weither the ConvexBase owns the data.
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
-  void set(std::shared_ptr<Vec3f> points_, unsigned int num_points_);
+  void set(std::shared_ptr<std::vector<Vec3f>> points_,
+           unsigned int num_points_);
 
   /// @brief Copy constructor
   /// Only the list of neighbors is copied.
@@ -714,8 +716,8 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 
     if (num_points != other.num_points) return false;
 
-    const Vec3f* points_ = points.get();
-    const Vec3f* other_points_ = other.points.get();
+    const std::vector<Vec3f>& points_ = *points;
+    const std::vector<Vec3f>& other_points_ = *(other.points);
     for (unsigned int i = 0; i < num_points; ++i) {
       if (points_[i] != (other_points_)[i]) return false;
     }

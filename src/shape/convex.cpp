@@ -24,9 +24,9 @@ namespace fcl {
 // the vector `triangle barycentre - convex_tri.center` is positive.
 void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
   Vec3f p0, p1, p2;
-  p0 = (convex_tri->points.get())[tri[0]];
-  p1 = (convex_tri->points.get())[tri[1]];
-  p2 = (convex_tri->points.get())[tri[2]];
+  p0 = (*(convex_tri->points))[tri[0]];
+  p1 = (*(convex_tri->points))[tri[1]];
+  p2 = (*(convex_tri->points))[tri[2]];
 
   Vec3f barycentre_tri, center_barycenter;
   barycentre_tri = (p0 + p1 + p2) / 3;
@@ -42,10 +42,10 @@ void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
   }
 }
 
-ConvexBase* ConvexBase::convexHull(const std::shared_ptr<const Vec3f> pts,
+ConvexBase* ConvexBase::convexHull(std::shared_ptr<std::vector<Vec3f>> pts,
                                    unsigned int num_points, bool keepTriangles,
                                    const char* qhullCommand) {
-  return ConvexBase::convexHull(pts.get(), num_points, keepTriangles,
+  return ConvexBase::convexHull(pts->data(), num_points, keepTriangles,
                                 qhullCommand);
 }
 
@@ -77,16 +77,16 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   std::vector<int> pts_to_vertices(num_points, -1);
 
   // Initialize the vertices
-  int nvertex = (qh.vertexCount());
-  std::shared_ptr<Vec3f> vertices(new Vec3f[size_t(nvertex)]);
-  Vec3f* vertices_ = vertices.get();
+  size_t nvertex = static_cast<size_t>(qh.vertexCount());
+  std::shared_ptr<std::vector<Vec3f>> vertices(
+      new std::vector<Vec3f>(size_t(nvertex)));
   QhullVertexList vertexList(qh.vertexList());
-  int i_vertex = 0;
+  size_t i_vertex = 0;
   for (QhullVertexList::const_iterator v = vertexList.begin();
        v != vertexList.end(); ++v) {
     QhullPoint pt((*v).point());
     pts_to_vertices[(size_t)pt.id()] = (int)i_vertex;
-    vertices_[i_vertex] = Vec3f(pt[0], pt[1], pt[2]);
+    (*vertices)[i_vertex] = Vec3f(pt[0], pt[1], pt[2]);
     ++i_vertex;
   }
   assert(i_vertex == nvertex);
@@ -101,7 +101,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
 
   // Build the neighbors
   convex->neighbors.reset(new Neighbors[size_t(nvertex)]);
-  std::vector<std::set<index_type> > nneighbors(static_cast<size_t>(nvertex));
+  std::vector<std::set<index_type>> nneighbors(static_cast<size_t>(nvertex));
   if (keepTriangles) {
     convex_tri->num_polygons = static_cast<unsigned int>(qh.facetCount());
     convex_tri->polygons.reset(new Triangle[convex_tri->num_polygons]);
@@ -206,7 +206,7 @@ void ConvexBase::buildDoubleDescription() {
 
   Qhull qh;
   const char* command = "Qt";
-  qh.runQhull("", 3, static_cast<int>(num_points), points.get()[0].data(),
+  qh.runQhull("", 3, static_cast<int>(num_points), (*points)[0].data(),
               command);
 
   if (qh.qhullStatus() != qh_ERRnone) {

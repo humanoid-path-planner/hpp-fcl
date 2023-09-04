@@ -36,7 +36,7 @@ void serialize(Archive &ar, hpp::fcl::ConvexBase &convex_base,
 
   if (Archive::is_loading::value) {
     if (num_points_previous != convex_base.num_points) {
-      convex_base.points.reset(new Vec3f[convex_base.num_points]);
+      convex_base.points.reset(new std::vector<Vec3f>(convex_base.num_points));
       convex_base.normals.reset(new Vec3f[convex_base.num_normals_and_offsets]);
       convex_base.offsets.reset(
           new double[convex_base.num_normals_and_offsets]);
@@ -46,7 +46,7 @@ void serialize(Archive &ar, hpp::fcl::ConvexBase &convex_base,
   {
     typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> MatrixPoints;
     Eigen::Map<MatrixPoints> points_map(
-        reinterpret_cast<double *>(convex_base.points.get()), 3,
+        reinterpret_cast<double *>(convex_base.points->data()), 3,
         convex_base.num_points);
     ar &make_nvp("points", points_map);
   }
