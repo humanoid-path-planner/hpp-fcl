@@ -165,28 +165,14 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
       bv_splitter(other.bv_splitter),
       bv_fitter(other.bv_fitter) {
   if (other.primitive_indices.get()) {
-    unsigned int num_primitives = 0;
-    switch (other.getModelType()) {
-      case BVH_MODEL_TRIANGLES:
-        num_primitives = num_tris;
-        break;
-      case BVH_MODEL_POINTCLOUD:
-        num_primitives = num_vertices;
-        break;
-      default:;
-    }
-
-    primitive_indices.reset(new unsigned int[num_primitives]);
-    std::copy(other.primitive_indices.get(),
-              other.primitive_indices.get() + num_primitives,
-              primitive_indices.get());
+    primitive_indices.reset(
+        new std::vector<unsigned int>(*(other.primitive_indices)));
   } else
     primitive_indices.reset();
 
   num_bvs = num_bvs_allocated = other.num_bvs;
   if (other.bvs.get()) {
-    bvs.reset(new BVNode<BV>[num_bvs]);
-    std::copy(other.bvs.get(), other.bvs.get() + num_bvs, bvs.get());
+    bvs.reset(new std::vector<BVNode<BV>>(*(other.bvs)));
   } else
     bvs.reset();
 }
@@ -825,8 +811,9 @@ bool BVHModel<BV>::allocateBVs() {
   else
     num_bvs_to_be_allocated = 2 * num_tris - 1;
 
-  bvs.reset(new BVNode<BV>[num_bvs_to_be_allocated]);
-  primitive_indices.reset(new unsigned int[num_bvs_to_be_allocated]);
+  bvs.reset(new std::vector<BVNode<BV>>(num_bvs_to_be_allocated));
+  primitive_indices.reset(
+      new std::vector<unsigned int>(num_bvs_to_be_allocated));
   if (!(bvs.get()) || !(primitive_indices.get())) {
     std::cerr << "BVH Error! Out of memory for BV array in endModel()!"
               << std::endl;
@@ -879,7 +866,7 @@ int BVHModel<BV>::buildTree() {
       return BVH_ERR_UNSUPPORTED_FUNCTION;
   }
 
-  unsigned int* primitive_indices_ = primitive_indices.get();
+  std::vector<unsigned int>& primitive_indices_ = *primitive_indices;
   for (unsigned int i = 0; i < num_primitives; ++i) primitive_indices_[i] = i;
   recursiveBuildTree(0, 0, num_primitives);
 
@@ -893,9 +880,9 @@ template <typename BV>
 int BVHModel<BV>::recursiveBuildTree(int bv_id, unsigned int first_primitive,
                                      unsigned int num_primitives) {
   BVHModelType type = getModelType();
-  BVNode<BV>* bvnode = bvs.get() + bv_id;
+  BVNode<BV>* bvnode = bvs->data() + bv_id;
   unsigned int* cur_primitive_indices =
-      primitive_indices.get() + first_primitive;
+      primitive_indices->data() + first_primitive;
 
   // constructing BV
   BV bv = bv_fitter->fit(cur_primitive_indices, num_primitives);
@@ -982,7 +969,7 @@ int BVHModel<BV>::refitTree_bottomup() {
 
 template <typename BV>
 int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id) {
-  BVNode<BV>* bvnode = bvs.get() + bv_id;
+  BVNode<BV>* bvnode = bvs->data() + bv_id;
   if (bvnode->isLeaf()) {
     BVHModelType type = getModelType();
     int primitive_id = -(bvnode->first_child + 1);
@@ -1032,8 +1019,8 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id) {
   } else {
     recursiveRefitTree_bottomup(bvnode->leftChild());
     recursiveRefitTree_bottomup(bvnode->rightChild());
-    bvnode->bv =
-        bvs.get()[bvnode->leftChild()].bv + bvs.get()[bvnode->rightChild()].bv;
+    bvnode->bv = (*bvs)[static_cast<size_t>(bvnode->leftChild())].bv +
+                 (*bvs)[static_cast<size_t>(bvnode->rightChild())].bv;
     // TODO use bv_fitter to build BV. See comment in refitTree_bottomup
     // unsigned int* cur_primitive_indices = primitive_indices +
     // bvnode->first_primitive; bvnode->bv =
@@ -1049,8 +1036,8 @@ int BVHModel<BV>::refitTree_topdown() {
   Vec3f* prev_vertices_ = prev_vertices.get() ? prev_vertices->data() : NULL;
   Triangle* tri_indices_ = tri_indices.get() ? tri_indices->data() : NULL;
   bv_fitter->set(vertices_, prev_vertices_, tri_indices_, getModelType());
-  BVNode<BV>* bvs_ = bvs.get();
-  unsigned int* primitive_indices_ = primitive_indices.get();
+  BVNode<BV>* bvs_ = bvs->data();
+  unsigned int* primitive_indices_ = primitive_indices->data();
   for (unsigned int i = 0; i < num_bvs; ++i) {
     BV bv = bv_fitter->fit(primitive_indices_ + bvs_[i].first_primitive,
                            bvs_[i].num_primitives);
@@ -1065,12 +1052,14 @@ int BVHModel<BV>::refitTree_topdown() {
 template <>
 void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
                                               const Vec3f& parent_c) {
-  BVNode<OBB>* bvs_ = bvs.get();
-  OBB& obb = bvs_[bv_id].bv;
-  if (!bvs_[bv_id].isLeaf()) {
-    makeParentRelativeRecurse(bvs_[bv_id].first_child, obb.axes, obb.To);
+  std::vector<BVNode<OBB>>& bvs_ = *bvs;
+  OBB& obb = bvs_[static_cast<size_t>(bv_id)].bv;
+  if (!bvs_[static_cast<size_t>(bv_id)].isLeaf()) {
+    makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child,
+                              obb.axes, obb.To);
 
-    makeParentRelativeRecurse(bvs_[bv_id].first_child + 1, obb.axes, obb.To);
+    makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child + 1,
+                              obb.axes, obb.To);
   }
 
   // make self parent relative
@@ -1084,12 +1073,14 @@ void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
 template <>
 void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
                                               const Vec3f& parent_c) {
-  BVNode<RSS>* bvs_ = bvs.get();
-  RSS& rss = bvs_[bv_id].bv;
-  if (!bvs_[bv_id].isLeaf()) {
-    makeParentRelativeRecurse(bvs_[bv_id].first_child, rss.axes, rss.Tr);
+  std::vector<BVNode<RSS>>& bvs_ = *bvs;
+  RSS& rss = bvs_[static_cast<size_t>(bv_id)].bv;
+  if (!bvs_[static_cast<size_t>(bv_id)].isLeaf()) {
+    makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child,
+                              rss.axes, rss.Tr);
 
-    makeParentRelativeRecurse(bvs_[bv_id].first_child + 1, rss.axes, rss.Tr);
+    makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child + 1,
+                              rss.axes, rss.Tr);
   }
 
   // make self parent relative
@@ -1104,13 +1095,15 @@ template <>
 void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id,
                                                  Matrix3f& parent_axes,
                                                  const Vec3f& parent_c) {
-  BVNode<OBBRSS>* bvs_ = bvs.get();
-  OBB& obb = bvs_[bv_id].bv.obb;
-  RSS& rss = bvs_[bv_id].bv.rss;
-  if (!bvs_[bv_id].isLeaf()) {
-    makeParentRelativeRecurse(bvs_[bv_id].first_child, obb.axes, obb.To);
+  std::vector<BVNode<OBBRSS>> bvs_ = *bvs;
+  OBB& obb = bvs_[static_cast<size_t>(bv_id)].bv.obb;
+  RSS& rss = bvs_[static_cast<size_t>(bv_id)].bv.rss;
+  if (!bvs_[static_cast<size_t>(bv_id)].isLeaf()) {
+    makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child,
+                              obb.axes, obb.To);
 
-    makeParentRelativeRecurse(bvs_[bv_id].first_child + 1, obb.axes, obb.To);
+    makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child + 1,
+                              obb.axes, obb.To);
   }
 
   // make self parent relative

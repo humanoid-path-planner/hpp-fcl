@@ -341,13 +341,13 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   /// @brief Access the bv giving the its index
   const BVNode<BV>& getBV(unsigned int i) const {
     assert(i < num_bvs);
-    return bvs.get()[i];
+    return (*bvs)[i];
   }
 
   /// @brief Access the bv giving the its index
   BVNode<BV>& getBV(unsigned int i) {
     assert(i < num_bvs);
-    return bvs.get()[i];
+    return (*bvs)[i];
   }
 
   /// @brief Get the number of bv in the BVH
@@ -373,10 +373,10 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   bool allocateBVs();
 
   unsigned int num_bvs_allocated;
-  std::shared_ptr<unsigned int> primitive_indices;
+  std::shared_ptr<std::vector<unsigned int>> primitive_indices;
 
   /// @brief Bounding volume hierarchy
-  std::shared_ptr<BVNode<BV>> bvs;
+  std::shared_ptr<std::vector<BVNode<BV>>> bvs;
 
   /// @brief Number of BV nodes in bounding volume hierarchy
   unsigned int num_bvs;
@@ -407,16 +407,19 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   /// OBBRSS), special implementation is provided.
   void makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
                                  const Vec3f& parent_c) {
-    BVNode<BV>* bvs_ = bvs.get();
-    if (!bvs_[bv_id].isLeaf()) {
-      makeParentRelativeRecurse(bvs_[bv_id].first_child, parent_axes,
-                                bvs_[bv_id].getCenter());
+    std::vector<BVNode<BV>>& bvs_ = *bvs;
+    if (!bvs_[static_cast<size_t>(bv_id)].isLeaf()) {
+      makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child,
+                                parent_axes,
+                                bvs_[static_cast<size_t>(bv_id)].getCenter());
 
-      makeParentRelativeRecurse(bvs_[bv_id].first_child + 1, parent_axes,
-                                bvs_[bv_id].getCenter());
+      makeParentRelativeRecurse(
+          bvs_[static_cast<size_t>(bv_id)].first_child + 1, parent_axes,
+          bvs_[static_cast<size_t>(bv_id)].getCenter());
     }
 
-    bvs_[bv_id].bv = translate(bvs_[bv_id].bv, -parent_c);
+    bvs_[static_cast<size_t>(bv_id)].bv =
+        translate(bvs_[static_cast<size_t>(bv_id)].bv, -parent_c);
   }
 
  private:
@@ -473,8 +476,8 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
 
     if (num_bvs != other.num_bvs) return false;
 
-    BVNode<BV>* bvs_ = bvs.get();
-    BVNode<BV>* other_bvs_ = other.bvs.get();
+    const std::vector<BVNode<BV>>& bvs_ = *bvs;
+    const std::vector<BVNode<BV>>& other_bvs_ = *(other.bvs);
     for (unsigned int k = 0; k < num_bvs; ++k) {
       if (bvs_[k] != other_bvs_[k]) return false;
     }

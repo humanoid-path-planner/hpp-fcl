@@ -229,14 +229,14 @@ void save(Archive &ar, const hpp::fcl::BVHModel<BV> &bvh_model_,
   //      }
   //
 
-  if (bvh_model.bvs) {
+  if (bvh_model.bvs.get()) {
     const bool with_bvs = true;
     ar &make_nvp("with_bvs", with_bvs);
     ar &make_nvp("num_bvs", bvh_model.num_bvs);
     ar &make_nvp(
         "bvs",
         make_array(
-            reinterpret_cast<const char *>(bvh_model.bvs.get()),
+            reinterpret_cast<const char *>(bvh_model.bvs->data()),
             sizeof(Node) *
                 (std::size_t)bvh_model.num_bvs));  // Assuming BVs are POD.
   } else {
@@ -284,11 +284,12 @@ void load(Archive &ar, hpp::fcl::BVHModel<BV> &bvh_model_,
     if (num_bvs != bvh_model.num_bvs) {
       bvh_model.bvs.reset();
       bvh_model.num_bvs = num_bvs;
-      if (num_bvs > 0) bvh_model.bvs.reset(new BVNode<BV>[num_bvs]);
+      if (num_bvs > 0)
+        bvh_model.bvs.reset(new std::vector<BVNode<BV>>(num_bvs));
     }
     if (num_bvs > 0) {
       ar >> make_nvp("bvs",
-                     make_array(reinterpret_cast<char *>(bvh_model.bvs.get()),
+                     make_array(reinterpret_cast<char *>(bvh_model.bvs->data()),
                                 sizeof(Node) * (std::size_t)num_bvs));
     } else
       bvh_model.bvs = NULL;

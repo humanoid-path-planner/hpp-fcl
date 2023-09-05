@@ -370,7 +370,8 @@ class HPP_FCL_DLLAPI OcTreeSolver {
         Transform3f box_tf;
         constructBox(bv1, tf1, box, box_tf);
 
-        int primitive_id = tree2->getBV(root2).primitiveId();
+        size_t primitive_id =
+            static_cast<size_t>(tree2->getBV(root2).primitiveId());
         const Triangle& tri_id = (*(tree2->tri_indices))[primitive_id];
         const Vec3f& p1 = (*(tree2->vertices))[tri_id[0]];
         const Vec3f& p2 = (*(tree2->vertices))[tri_id[1]];
@@ -382,7 +383,8 @@ class HPP_FCL_DLLAPI OcTreeSolver {
                                          closest_p1, closest_p2, normal);
 
         dresult->update(dist, tree1, tree2, (int)(root1 - tree1->getRoot()),
-                        primitive_id, closest_p1, closest_p2, normal);
+                        static_cast<int>(primitive_id), closest_p1, closest_p2,
+                        normal);
 
         return drequest->isSatisfied(*dresult);
       } else
@@ -483,7 +485,7 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       Transform3f box_tf;
       constructBox(bv1, tf1, box, box_tf);
 
-      int primitive_id = bvn2.primitiveId();
+      size_t primitive_id = static_cast<size_t>(bvn2.primitiveId());
       const Triangle& tri_id = (*(tree2->tri_indices))[primitive_id];
       const Vec3f& p1 = (*(tree2->vertices))[tri_id[0]];
       const Vec3f& p2 = (*(tree2->vertices))[tri_id[1]];
@@ -498,9 +500,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       if (cresult->numContacts() < crequest->num_max_contacts) {
         if (distToCollision <= crequest->collision_distance_threshold) {
-          cresult->addContact(Contact(tree1, tree2,
-                                      (int)(root1 - tree1->getRoot()),
-                                      primitive_id, c1, c2, normal, distance));
+          cresult->addContact(Contact(
+              tree1, tree2, (int)(root1 - tree1->getRoot()),
+              static_cast<int>(primitive_id), c1, c2, normal, distance));
         }
       }
       internal::updateDistanceLowerBoundFromLeaf(*crequest, *cresult,
