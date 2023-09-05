@@ -304,7 +304,7 @@ namespace fcl {
 
 namespace internal {
 template <typename BV>
-struct memory_footprint_evaluator< ::hpp::fcl::BVHModel<BV> > {
+struct memory_footprint_evaluator<::hpp::fcl::BVHModel<BV>> {
   static size_t run(const ::hpp::fcl::BVHModel<BV> &bvh_model) {
     return static_cast<size_t>(bvh_model.memUsage(false));
   }

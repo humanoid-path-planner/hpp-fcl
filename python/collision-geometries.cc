@@ -101,7 +101,7 @@ void exposeBVHModel(const std::string& bvname) {
   typedef BVHModel<BV> BVH;
 
   const std::string type_name = "BVHModel" + bvname;
-  class_<BVH, bases<BVHModelBase>, shared_ptr<BVH> >(
+  class_<BVH, bases<BVHModelBase>, shared_ptr<BVH>>(
       type_name.c_str(), doxygen::class_doc<BVH>(), no_init)
       .def(dv::init<BVH>())
       .def(dv::init<BVH, const BVH&>())
@@ -120,12 +120,12 @@ void exposeHeightField(const std::string& bvname) {
   typedef typename Geometry::Node Node;
 
   const std::string type_name = "HeightField" + bvname;
-  class_<Geometry, bases<Base>, shared_ptr<Geometry> >(
+  class_<Geometry, bases<Base>, shared_ptr<Geometry>>(
       type_name.c_str(), doxygen::class_doc<Geometry>(), no_init)
-      .def(dv::init<HeightField<BV> >())
+      .def(dv::init<HeightField<BV>>())
       .def(dv::init<HeightField<BV>, const HeightField<BV>&>())
       .def(dv::init<HeightField<BV>, FCL_REAL, FCL_REAL, const MatrixXf&,
-                    bp::optional<FCL_REAL> >())
+                    bp::optional<FCL_REAL>>())
 
       .DEF_CLASS_FUNC(Geometry, getXDim)
       .DEF_CLASS_FUNC(Geometry, getYDim)
@@ -189,8 +189,8 @@ struct ConvexBaseWrapper {
   }
 
   static RefVecOfDoubles offsets(const ConvexBase& convex) {
-    return MapVecOfDoubles(convex.offsets->data(), convex.num_normals_and_offsets,
-                           1);
+    return MapVecOfDoubles(convex.offsets->data(),
+                           convex.num_normals_and_offsets, 1);
   }
 
   static list neighbors(const ConvexBase& convex, unsigned int i) {
@@ -253,9 +253,9 @@ void exposeComputeMemoryFootprint() {
   defComputeMemoryFootprint<Halfspace>();
   defComputeMemoryFootprint<TriangleP>();
 
-  defComputeMemoryFootprint<BVHModel<OBB> >();
-  defComputeMemoryFootprint<BVHModel<RSS> >();
-  defComputeMemoryFootprint<BVHModel<OBBRSS> >();
+  defComputeMemoryFootprint<BVHModel<OBB>>();
+  defComputeMemoryFootprint<BVHModel<RSS>>();
+  defComputeMemoryFootprint<BVHModel<OBBRSS>>();
 }
 
 void exposeShapes() {
@@ -264,7 +264,7 @@ void exposeShapes() {
       //.def ("getObjectType", &CollisionGeometry::getObjectType)
       ;
 
-  class_<Box, bases<ShapeBase>, shared_ptr<Box> >(
+  class_<Box, bases<ShapeBase>, shared_ptr<Box>>(
       "Box", doxygen::class_doc<ShapeBase>(), no_init)
       .def(dv::init<Box>())
       .def(dv::init<Box, const Box&>())
@@ -275,7 +275,7 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Box>());
 
-  class_<Capsule, bases<ShapeBase>, shared_ptr<Capsule> >(
+  class_<Capsule, bases<ShapeBase>, shared_ptr<Capsule>>(
       "Capsule", doxygen::class_doc<Capsule>(), no_init)
       .def(dv::init<Capsule>())
       .def(dv::init<Capsule, FCL_REAL, FCL_REAL>())
@@ -286,7 +286,7 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Capsule>());
 
-  class_<Cone, bases<ShapeBase>, shared_ptr<Cone> >(
+  class_<Cone, bases<ShapeBase>, shared_ptr<Cone>>(
       "Cone", doxygen::class_doc<Cone>(), no_init)
       .def(dv::init<Cone>())
       .def(dv::init<Cone, FCL_REAL, FCL_REAL>())
@@ -308,7 +308,7 @@ void exposeShapes() {
       .def("points", &ConvexBaseWrapper::point, bp::args("self", "index"),
            "Retrieve the point given by its index.",
            ::hpp::fcl::python::deprecated_member<
-               bp::return_internal_reference<> >())
+               bp::return_internal_reference<>>())
       .def("points", &ConvexBaseWrapper::points, bp::args("self"),
            "Retrieve all the points.",
            bp::with_custodian_and_ward_postcall<0, 1>())
@@ -335,17 +335,16 @@ void exposeShapes() {
            doxygen::member_func_doc(&ConvexBase::clone),
            return_value_policy<manage_new_object>());
 
-  class_<Convex<Triangle>, bases<ConvexBase>, shared_ptr<Convex<Triangle> >,
-         noncopyable>("Convex", doxygen::class_doc<Convex<Triangle> >(),
-                      no_init)
+  class_<Convex<Triangle>, bases<ConvexBase>, shared_ptr<Convex<Triangle>>,
+         noncopyable>("Convex", doxygen::class_doc<Convex<Triangle>>(), no_init)
       .def("__init__", make_constructor(&ConvexWrapper<Triangle>::constructor))
-      .def(dv::init<Convex<Triangle> >())
+      .def(dv::init<Convex<Triangle>>())
       .def(dv::init<Convex<Triangle>, const Convex<Triangle>&>())
       .DEF_RO_CLASS_ATTRIB(Convex<Triangle>, num_polygons)
       .def("polygons", &ConvexWrapper<Triangle>::polygons)
-      .def_pickle(PickleObject<Convex<Triangle> >());
+      .def_pickle(PickleObject<Convex<Triangle>>());
 
-  class_<Cylinder, bases<ShapeBase>, shared_ptr<Cylinder> >(
+  class_<Cylinder, bases<ShapeBase>, shared_ptr<Cylinder>>(
       "Cylinder", doxygen::class_doc<Cylinder>(), no_init)
       .def(dv::init<Cylinder>())
       .def(dv::init<Cylinder, FCL_REAL, FCL_REAL>())
@@ -357,7 +356,7 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Cylinder>());
 
-  class_<Halfspace, bases<ShapeBase>, shared_ptr<Halfspace> >(
+  class_<Halfspace, bases<ShapeBase>, shared_ptr<Halfspace>>(
       "Halfspace", doxygen::class_doc<Halfspace>(), no_init)
       .def(dv::init<Halfspace, const Vec3f&, FCL_REAL>())
       .def(dv::init<Halfspace, const Halfspace&>())
@@ -370,7 +369,7 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Halfspace>());
 
-  class_<Plane, bases<ShapeBase>, shared_ptr<Plane> >(
+  class_<Plane, bases<ShapeBase>, shared_ptr<Plane>>(
       "Plane", doxygen::class_doc<Plane>(), no_init)
       .def(dv::init<Plane, const Vec3f&, FCL_REAL>())
       .def(dv::init<Plane, const Plane&>())
@@ -382,7 +381,7 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Plane>());
 
-  class_<Sphere, bases<ShapeBase>, shared_ptr<Sphere> >(
+  class_<Sphere, bases<ShapeBase>, shared_ptr<Sphere>>(
       "Sphere", doxygen::class_doc<Sphere>(), no_init)
       .def(dv::init<Sphere>())
       .def(dv::init<Sphere, const Sphere&>())
@@ -392,7 +391,7 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Sphere>());
 
-  class_<Ellipsoid, bases<ShapeBase>, shared_ptr<Ellipsoid> >(
+  class_<Ellipsoid, bases<ShapeBase>, shared_ptr<Ellipsoid>>(
       "Ellipsoid", doxygen::class_doc<Ellipsoid>(), no_init)
       .def(dv::init<Ellipsoid>())
       .def(dv::init<Ellipsoid, FCL_REAL, FCL_REAL, FCL_REAL>())
@@ -404,7 +403,7 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Ellipsoid>());
 
-  class_<TriangleP, bases<ShapeBase>, shared_ptr<TriangleP> >(
+  class_<TriangleP, bases<ShapeBase>, shared_ptr<TriangleP>>(
       "TriangleP", doxygen::class_doc<TriangleP>(), no_init)
       .def(dv::init<TriangleP>())
       .def(dv::init<TriangleP, const Vec3f&, const Vec3f&, const Vec3f&>())
@@ -625,7 +624,7 @@ void exposeCollisionGeometries() {
       .def("vertices", &BVHModelBaseWrapper::vertex, bp::args("self", "index"),
            "Retrieve the vertex given by its index.",
            ::hpp::fcl::python::deprecated_member<
-               bp::return_internal_reference<> >())
+               bp::return_internal_reference<>>())
       .def("vertices", &BVHModelBaseWrapper::vertices, bp::args("self"),
            "Retrieve all the vertices.",
            bp::with_custodian_and_ward_postcall<0, 1>())
@@ -677,11 +676,11 @@ void exposeCollisionObject() {
   if (!eigenpy::register_symbolic_link_to_registered_type<CollisionObject>()) {
     class_<CollisionObject, CollisionObjectPtr_t>("CollisionObject", no_init)
         .def(dv::init<CollisionObject, const CollisionGeometryPtr_t&,
-                      bp::optional<bool> >())
+                      bp::optional<bool>>())
         .def(dv::init<CollisionObject, const CollisionGeometryPtr_t&,
-                      const Transform3f&, bp::optional<bool> >())
+                      const Transform3f&, bp::optional<bool>>())
         .def(dv::init<CollisionObject, const CollisionGeometryPtr_t&,
-                      const Matrix3f&, const Vec3f&, bp::optional<bool> >())
+                      const Matrix3f&, const Vec3f&, bp::optional<bool>>())
 
         .DEF_CLASS_FUNC(CollisionObject, getObjectType)
         .DEF_CLASS_FUNC(CollisionObject, getNodeType)

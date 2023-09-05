@@ -1141,23 +1141,23 @@ NODE_TYPE BVHModel<OBBRSS>::getNodeType() const {
 }
 
 template <>
-NODE_TYPE BVHModel<KDOP<16> >::getNodeType() const {
+NODE_TYPE BVHModel<KDOP<16>>::getNodeType() const {
   return BV_KDOP16;
 }
 
 template <>
-NODE_TYPE BVHModel<KDOP<18> >::getNodeType() const {
+NODE_TYPE BVHModel<KDOP<18>>::getNodeType() const {
   return BV_KDOP18;
 }
 
 template <>
-NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const {
+NODE_TYPE BVHModel<KDOP<24>>::getNodeType() const {
   return BV_KDOP24;
 }
 
-template class BVHModel<KDOP<16> >;
-template class BVHModel<KDOP<18> >;
-template class BVHModel<KDOP<24> >;
+template class BVHModel<KDOP<16>>;
+template class BVHModel<KDOP<18>>;
+template class BVHModel<KDOP<24>>;
 template class BVHModel<OBB>;
 template class BVHModel<AABB>;
 template class BVHModel<RSS>;
