@@ -67,7 +67,7 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
   std::shared_ptr<std::vector<Vec3f>> vertices;
 
   /// @brief Geometry triangle index data, will be NULL for point clouds
-  std::shared_ptr<Triangle> tri_indices;
+  std::shared_ptr<std::vector<Triangle>> tri_indices;
 
   /// @brief Geometry point data in previous frame
   std::shared_ptr<std::vector<Vec3f>> prev_vertices;
@@ -200,22 +200,28 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
   Vec3f computeCOM() const {
     FCL_REAL vol = 0;
     Vec3f com(0, 0, 0);
-    if (vertices.get()) {
-      const std::vector<Vec3f>& vertices_ = *vertices;
-      const Triangle* tri_indices_ = tri_indices.get();
-      for (unsigned int i = 0; i < num_tris; ++i) {
-        const Triangle& tri = tri_indices_[i];
-        FCL_REAL d_six_vol =
-          (vertices_[tri[0]].cross(vertices_[tri[1]])).dot(vertices_[tri[2]]);
-        vol += d_six_vol;
-        com += (vertices_[tri[0]] + vertices_[tri[1]] + vertices_[tri[2]]) *
-          d_six_vol;
-      }
-    } else {
+    if (!(vertices.get())) {
       std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
                    "vertices."
                 << std::endl;
       return com;
+    }
+    const std::vector<Vec3f>& vertices_ = *vertices;
+    if (!(tri_indices.get())) {
+      std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
+                   "triangles."
+                << std::endl;
+      return com;
+    }
+    const std::vector<Triangle>& tri_indices_ = *tri_indices;
+
+    for (unsigned int i = 0; i < num_tris; ++i) {
+      const Triangle& tri = tri_indices_[i];
+      FCL_REAL d_six_vol =
+          (vertices_[tri[0]].cross(vertices_[tri[1]])).dot(vertices_[tri[2]]);
+      vol += d_six_vol;
+      com += (vertices_[tri[0]] + vertices_[tri[1]] + vertices_[tri[2]]) *
+             d_six_vol;
     }
 
     return com / (vol * 4);
@@ -223,19 +229,25 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
 
   FCL_REAL computeVolume() const {
     FCL_REAL vol = 0;
-    if (vertices.get()) {
-      const std::vector<Vec3f>& vertices_ = *vertices;
-      const Triangle* tri_indices_ = tri_indices.get();
-      for (unsigned int i = 0; i < num_tris; ++i) {
-        const Triangle& tri = tri_indices_[i];
-        FCL_REAL d_six_vol =
-          (vertices_[tri[0]].cross(vertices_[tri[1]])).dot(vertices_[tri[2]]);
-        vol += d_six_vol;
-      }
-    } else {
-      std::cerr << "BVH Error in `computeVolume`! The BVHModel does not "
-                   "contain vertices."
+    if (!(vertices.get())) {
+      std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
+                   "vertices."
                 << std::endl;
+      return vol;
+    }
+    const std::vector<Vec3f>& vertices_ = *vertices;
+    if (!(tri_indices.get())) {
+      std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
+                   "triangles."
+                << std::endl;
+      return vol;
+    }
+    const std::vector<Triangle>& tri_indices_ = *tri_indices;
+    for (unsigned int i = 0; i < num_tris; ++i) {
+      const Triangle& tri = tri_indices_[i];
+      FCL_REAL d_six_vol =
+          (vertices_[tri[0]].cross(vertices_[tri[1]])).dot(vertices_[tri[2]]);
+      vol += d_six_vol;
     }
 
     return vol / 6;
@@ -248,22 +260,28 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
     C_canonical << 1 / 60.0, 1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0,
         1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0;
 
-    if (vertices.get()) {
-      const std::vector<Vec3f>& vertices_ = *vertices;
-      const Triangle* tri_indices_ = tri_indices.get();
-      for (unsigned int i = 0; i < num_tris; ++i) {
-        const Triangle& tri = tri_indices_[i];
-        const Vec3f& v1 = vertices_[tri[0]];
-        const Vec3f& v2 = vertices_[tri[1]];
-        const Vec3f& v3 = vertices_[tri[2]];
-        Matrix3f A;
-        A << v1.transpose(), v2.transpose(), v3.transpose();
-        C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
-      }
-    } else {
+    if (!(vertices.get())) {
       std::cerr << "BVH Error in `computeMomentofInertia`! The BVHModel does "
                    "not contain vertices."
                 << std::endl;
+      return C;
+    }
+    const std::vector<Vec3f>& vertices_ = *vertices;
+    if (!(vertices.get())) {
+      std::cerr << "BVH Error in `computeMomentofInertia`! The BVHModel does "
+                   "not contain vertices."
+                << std::endl;
+      return C;
+    }
+    const std::vector<Triangle>& tri_indices_ = *tri_indices;
+    for (unsigned int i = 0; i < num_tris; ++i) {
+      const Triangle& tri = tri_indices_[i];
+      const Vec3f& v1 = vertices_[tri[0]];
+      const Vec3f& v2 = vertices_[tri[1]];
+      const Vec3f& v3 = vertices_[tri[2]];
+      Matrix3f A;
+      A << v1.transpose(), v2.transpose(), v3.transpose();
+      C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
     }
 
     return C.trace() * Matrix3f::Identity() - C;

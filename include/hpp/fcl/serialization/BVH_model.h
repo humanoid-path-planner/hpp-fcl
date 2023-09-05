@@ -52,12 +52,12 @@ void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
   }
 
   ar &make_nvp("num_tris", bvh_model.num_tris);
-  if (bvh_model.num_tris > 0) {
+  if (bvh_model.num_tris > 0 && bvh_model.tri_indices.get()) {
     typedef Eigen::Matrix<Triangle::index_type, 3, Eigen::Dynamic>
         AsTriangleMatrix;
     const Eigen::Map<const AsTriangleMatrix> tri_indices_map(
         reinterpret_cast<const Triangle::index_type *>(
-            bvh_model.tri_indices.get()),
+            bvh_model.tri_indices->data()),
         3, bvh_model.num_tris);
     ar &make_nvp("tri_indices", tri_indices_map);
   }
@@ -120,13 +120,14 @@ void load(Archive &ar, hpp::fcl::BVHModelBase &bvh_model,
   if (num_tris != bvh_model.num_tris) {
     bvh_model.tri_indices.reset();
     bvh_model.num_tris = num_tris;
-    if (num_tris > 0) bvh_model.tri_indices.reset(new Triangle[num_tris]);
+    if (num_tris > 0)
+      bvh_model.tri_indices.reset(new std::vector<Triangle>(num_tris));
   }
   if (num_tris > 0) {
     typedef Eigen::Matrix<Triangle::index_type, 3, Eigen::Dynamic>
         AsTriangleMatrix;
     Eigen::Map<AsTriangleMatrix> tri_indices_map(
-        reinterpret_cast<Triangle::index_type *>(bvh_model.tri_indices.get()),
+        reinterpret_cast<Triangle::index_type *>(bvh_model.tri_indices->data()),
         3, bvh_model.num_tris);
     ar &make_nvp("tri_indices", tri_indices_map);
   } else

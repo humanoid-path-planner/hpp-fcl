@@ -365,7 +365,8 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
   computeBV(model2, tf2, node.model2_bv);
 
   node.vertices = model1.vertices.get() ? model1.vertices->data() : NULL;
-  node.tri_indices = model1.tri_indices.get();
+  node.tri_indices =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
 
   node.result = &result;
 
@@ -393,7 +394,8 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, 0>& node,
   computeBV(model2, tf2, node.model2_bv);
 
   node.vertices = model1.vertices.get() ? model1.vertices->data() : NULL;
-  node.tri_indices = model1.tri_indices.get();
+  node.tri_indices =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
 
   node.result = &result;
 
@@ -450,7 +452,8 @@ static inline bool setupShapeMeshCollisionOrientedNode(
   computeBV(model1, tf1, node.model1_bv);
 
   node.vertices = model2.vertices.get() ? model2.vertices->data() : NULL;
-  node.tri_indices = model2.tri_indices.get();
+  node.tri_indices =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   node.result = &result;
 
@@ -516,8 +519,10 @@ bool initialize(
   node.vertices1 = model1.vertices.get() ? model1.vertices->data() : NULL;
   node.vertices2 = model2.vertices.get() ? model2.vertices->data() : NULL;
 
-  node.tri_indices1 = model1.tri_indices.get();
-  node.tri_indices2 = model2.tri_indices.get();
+  node.tri_indices1 =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
+  node.tri_indices2 =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   node.result = &result;
 
@@ -541,8 +546,10 @@ bool initialize(MeshCollisionTraversalNode<BV, 0>& node,
   node.vertices1 = model1.vertices ? model1.vertices->data() : NULL;
   node.vertices2 = model2.vertices ? model2.vertices->data() : NULL;
 
-  node.tri_indices1 = model1.tri_indices.get();
-  node.tri_indices2 = model2.tri_indices.get();
+  node.tri_indices1 =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
+  node.tri_indices2 =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -636,8 +643,10 @@ bool initialize(
   node.vertices1 = model1.vertices.get() ? model1.vertices->data() : NULL;
   node.vertices2 = model2.vertices.get() ? model2.vertices->data() : NULL;
 
-  node.tri_indices1 = model1.tri_indices.get();
-  node.tri_indices2 = model2.tri_indices.get();
+  node.tri_indices1 =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
+  node.tri_indices2 =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   return true;
 }
@@ -668,8 +677,10 @@ bool initialize(MeshDistanceTraversalNode<BV, 0>& node,
   node.vertices1 = model1.vertices.get() ? model1.vertices->data() : NULL;
   node.vertices2 = model2.vertices.get() ? model2.vertices->data() : NULL;
 
-  node.tri_indices1 = model1.tri_indices.get();
-  node.tri_indices2 = model2.tri_indices.get();
+  node.tri_indices1 =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
+  node.tri_indices2 =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(),
                     tf2.getTranslation(), node.RT.R, node.RT.T);
@@ -716,7 +727,8 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
   node.nsolver = nsolver;
 
   node.vertices = model1.vertices.get() ? model1.vertices->data() : NULL;
-  node.tri_indices = model1.tri_indices.get();
+  node.tri_indices =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
 
   computeBV(model2, tf2, node.model2_bv);
 
@@ -762,7 +774,8 @@ bool initialize(ShapeMeshDistanceTraversalNode<S, BV>& node, const S& model1,
   node.nsolver = nsolver;
 
   node.vertices = model2.vertices.get() ? model2.vertices->data() : NULL;
-  node.tri_indices = model2.tri_indices.get();
+  node.tri_indices =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   computeBV(model1, tf1, node.model1_bv);
 
@@ -794,7 +807,8 @@ static inline bool setupMeshShapeDistanceOrientedNode(
   computeBV(model2, tf2, node.model2_bv);
 
   node.vertices = model1.vertices.get() ? model1.vertices->data() : NULL;
-  node.tri_indices = model1.tri_indices.get();
+  node.tri_indices =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
 
   return true;
 }
@@ -861,7 +875,8 @@ static inline bool setupShapeMeshDistanceOrientedNode(
   computeBV(model1, tf1, node.model1_bv);
 
   node.vertices = model2.vertices.get() ? model2.vertices->data() : NULL;
-  node.tri_indices = model2.tri_indices.get();
+  node.tri_indices =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
   node.R = tf2.getRotation();
   node.T = tf2.getTranslation();
 

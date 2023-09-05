@@ -63,7 +63,7 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
   std::vector<bool> keep_tri(model.num_tris, false);
   unsigned int ntri = 0;
   const std::vector<Vec3f>& model_vertices_ = *(model.vertices);
-  const Triangle* model_tri_indices_ = model.tri_indices.get();
+  const std::vector<Triangle>& model_tri_indices_ = *(model.tri_indices);
   for (unsigned int i = 0; i < model.num_tris; ++i) {
     const Triangle& t = model_tri_indices_[i];
 
@@ -110,7 +110,7 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
     }
   }
   assert(new_model->num_tris == 0);
-  Triangle* new_model_tri_indices_ = new_model->tri_indices.get();
+  std::vector<Triangle>& new_model_tri_indices_ = *(new_model->tri_indices);
   for (unsigned int i = 0; i < keep_tri.size(); ++i) {
     if (keep_tri[i]) {
       new_model_tri_indices_[new_model->num_tris].set(
