@@ -77,17 +77,13 @@ ConvexBase::ConvexBase(const ConvexBase& other)
   } else
     nneighbors_.reset();
 
-  if (other.normals.get()) {
-    normals.reset(new Vec3f[num_normals_and_offsets]);
-    std::copy(other.normals.get(),
-              other.normals.get() + num_normals_and_offsets, normals.get());
+  if (other.normals.get() && other.normals->size() > 0) {
+    normals.reset(new std::vector<Vec3f>(*(other.normals)));
   } else
     normals.reset();
 
-  if (other.offsets.get()) {
-    offsets.reset(new double[num_normals_and_offsets]);
-    std::copy(other.offsets.get(),
-              other.offsets.get() + num_normals_and_offsets, offsets.get());
+  if (other.offsets.get() && other.offsets->size() > 0) {
+    offsets.reset(new std::vector<double>(*(other.offsets)));
   } else
     offsets.reset();
 

@@ -220,10 +220,10 @@ void ConvexBase::buildDoubleDescription() {
 
 void ConvexBase::buildDoubleDescriptionFromQHullResult(const Qhull& qh) {
   num_normals_and_offsets = static_cast<unsigned int>(qh.facetCount());
-  normals.reset(new Vec3f[num_normals_and_offsets]);
-  Vec3f* normals_ = normals.get();
-  offsets.reset(new double[num_normals_and_offsets]);
-  double* offsets_ = offsets.get();
+  normals.reset(new std::vector<Vec3f>(num_normals_and_offsets));
+  std::vector<Vec3f>& normals_ = *normals;
+  offsets.reset(new std::vector<double>(num_normals_and_offsets));
+  std::vector<double>& offsets_ = *offsets;
   unsigned int i_normal = 0;
   for (QhullFacet facet = qh.beginFacet(); facet != qh.endFacet();
        facet = facet.next()) {

@@ -174,22 +174,22 @@ struct ConvexBaseWrapper {
   static Vec3f& normal(const ConvexBase& convex, unsigned int i) {
     if (i >= convex.num_normals_and_offsets)
       throw std::out_of_range("index is out of range");
-    return (convex.normals.get())[i];
+    return (*(convex.normals))[i];
   }
 
   static RefRowMatrixX3 normals(const ConvexBase& convex) {
-    return MapRowMatrixX3((convex.normals.get())[0].data(),
+    return MapRowMatrixX3((*(convex.normals))[0].data(),
                           convex.num_normals_and_offsets, 3);
   }
 
   static double offset(const ConvexBase& convex, unsigned int i) {
     if (i >= convex.num_normals_and_offsets)
       throw std::out_of_range("index is out of range");
-    return (convex.offsets.get())[i];
+    return (*(convex.offsets))[i];
   }
 
   static RefVecOfDoubles offsets(const ConvexBase& convex) {
-    return MapVecOfDoubles(convex.offsets.get(), convex.num_normals_and_offsets,
+    return MapVecOfDoubles(convex.offsets->data(), convex.num_normals_and_offsets,
                            1);
   }
 

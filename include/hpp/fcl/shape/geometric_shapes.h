@@ -626,10 +626,10 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   unsigned int num_points;
 
   /// @brief An array of the normals of the polygon.
-  std::shared_ptr<Vec3f> normals;
+  std::shared_ptr<std::vector<Vec3f>> normals;
   /// @brief An array of the offsets to the normals of the polygon.
   /// Note: there are as many offsets as normals.
-  std::shared_ptr<double> offsets;
+  std::shared_ptr<std::vector<double>> offsets;
   unsigned int num_normals_and_offsets;
 
 #ifdef HPP_FCL_HAS_QHULL
@@ -738,16 +738,26 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
       }
     }
 
-    const Vec3f* normals_ = normals.get();
-    const Vec3f* other_normals_ = other.normals.get();
-    for (unsigned int i = 0; i < num_normals_and_offsets; ++i) {
-      if (normals_[i] != other_normals_[i]) return false;
+    if ((!(normals.get()) && other.normals.get()) ||
+        (normals.get() && !(other.normals.get())))
+      return false;
+    if (normals.get() && other.normals.get()) {
+      const std::vector<Vec3f>& normals_ = *normals;
+      const std::vector<Vec3f>& other_normals_ = *(other.normals);
+      for (unsigned int i = 0; i < num_normals_and_offsets; ++i) {
+        if (normals_[i] != other_normals_[i]) return false;
+      }
     }
 
-    const double* offsets_ = offsets.get();
-    const double* other_offsets_ = other.offsets.get();
-    for (unsigned int i = 0; i < num_normals_and_offsets; ++i) {
-      if (offsets_[i] != other_offsets_[i]) return false;
+    if ((!(offsets.get()) && other.offsets.get()) ||
+        (offsets.get() && !(other.offsets.get())))
+      return false;
+    if (offsets.get() && other.offsets.get()) {
+      const std::vector<double>& offsets_ = *offsets;
+      const std::vector<double>& other_offsets_ = *(other.offsets);
+      for (unsigned int i = 0; i < num_normals_and_offsets; ++i) {
+        if (offsets_[i] != other_offsets_[i]) return false;
+      }
     }
 
     return center == other.center;
