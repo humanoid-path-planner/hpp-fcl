@@ -85,14 +85,14 @@ Convex<Quadrilateral> buildConvexQuadrilateral(const HFNode<BV>& node,
       Vec3f(x1, y0, cell(0, 1)),
   }));
 
-  std::shared_ptr<Quadrilateral> polygons(new Quadrilateral[6]);
-  Quadrilateral* polygons_ = polygons.get();
-  polygons_[0].set(0, 3, 2, 1);  // x+ side
-  polygons_[1].set(0, 1, 5, 4);  // y- side
-  polygons_[2].set(1, 2, 6, 5);  // x- side
-  polygons_[3].set(2, 3, 7, 6);  // y+ side
-  polygons_[4].set(3, 0, 4, 7);  // z- side
-  polygons_[5].set(4, 5, 6, 7);  // z+ side
+  std::shared_ptr<std::vector<Quadrilateral>> polygons(
+      new std::vector<Quadrilateral>(6));
+  (*polygons)[0].set(0, 3, 2, 1);  // x+ side
+  (*polygons)[1].set(0, 1, 5, 4);  // y- side
+  (*polygons)[2].set(1, 2, 6, 5);  // x- side
+  (*polygons)[3].set(2, 3, 7, 6);  // y+ side
+  (*polygons)[4].set(3, 0, 4, 7);  // z- side
+  (*polygons)[5].set(4, 5, 6, 7);  // z+ side
 
   return Convex<Quadrilateral>(pts,  // points
                                8,    // num points
@@ -132,16 +132,16 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
         Vec3f(x1, y0, cell(0, 1)),
     }));
 
-    std::shared_ptr<Triangle> triangles(new Triangle[8]);
-    Triangle* triangles_ = triangles.get();
-    triangles_[0].set(0, 1, 2);  // bottom
-    triangles_[1].set(3, 5, 4);  // top
-    triangles_[2].set(0, 3, 1);
-    triangles_[3].set(3, 4, 1);
-    triangles_[4].set(1, 5, 2);
-    triangles_[5].set(1, 4, 5);
-    triangles_[6].set(0, 2, 5);
-    triangles_[7].set(5, 3, 0);
+    std::shared_ptr<std::vector<Triangle>> triangles(
+        new std::vector<Triangle>(8));
+    (*triangles)[0].set(0, 1, 2);  // bottom
+    (*triangles)[1].set(3, 5, 4);  // top
+    (*triangles)[2].set(0, 3, 1);
+    (*triangles)[3].set(3, 4, 1);
+    (*triangles)[4].set(1, 5, 2);
+    (*triangles)[5].set(1, 4, 5);
+    (*triangles)[6].set(0, 2, 5);
+    (*triangles)[7].set(5, 3, 0);
 
     convex1.set(pts,  // points
                 6,    // num points
@@ -160,16 +160,16 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
         Vec3f(x1, y0, cell(0, 1)),
     }));
 
-    std::shared_ptr<Triangle> triangles(new Triangle[8]);
-    Triangle* triangles_ = triangles.get();
-    triangles_[0].set(2, 0, 1);  // bottom
-    triangles_[1].set(3, 5, 4);  // top
-    triangles_[2].set(0, 3, 1);
-    triangles_[3].set(3, 4, 1);
-    triangles_[4].set(0, 2, 5);
-    triangles_[5].set(0, 5, 3);
-    triangles_[6].set(1, 5, 2);
-    triangles_[7].set(4, 2, 1);
+    std::shared_ptr<std::vector<Triangle>> triangles(
+        new std::vector<Triangle>(8));
+    (*triangles)[0].set(2, 0, 1);  // bottom
+    (*triangles)[1].set(3, 5, 4);  // top
+    (*triangles)[2].set(0, 3, 1);
+    (*triangles)[3].set(3, 4, 1);
+    (*triangles)[4].set(0, 2, 5);
+    (*triangles)[5].set(0, 5, 3);
+    (*triangles)[6].set(1, 5, 2);
+    (*triangles)[7].set(4, 2, 1);
 
     convex2.set(pts,  // points
                 6,    // num points
@@ -195,7 +195,7 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
                    const Transform3f& shape_pose, FCL_REAL& distance,
                    Vec3f& contact_1, Vec3f& contact_2, Vec3f& normal,
                    Vec3f& normal_top, bool& is_collision) {
-  const Polygone& top_triangle = convex.polygons.get()[1];
+  const Polygone& top_triangle = (*(convex.polygons))[1];
   const std::vector<Vec3f>& points = *(convex.points);
   const Vec3f pointA = points[top_triangle[0]];
   const Vec3f pointB = points[top_triangle[1]];

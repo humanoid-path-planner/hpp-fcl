@@ -39,6 +39,7 @@
 
 #include <set>
 #include <vector>
+#include <iostream>
 
 namespace hpp {
 namespace fcl {
@@ -46,7 +47,7 @@ namespace fcl {
 template <typename PolygonT>
 Convex<PolygonT>::Convex(std::shared_ptr<std::vector<Vec3f>> points_,
                          unsigned int num_points_,
-                         std::shared_ptr<PolygonT> polygons_,
+                         std::shared_ptr<std::vector<PolygonT>> polygons_,
                          unsigned int num_polygons_)
     : ConvexBase(), polygons(polygons_), num_polygons(num_polygons_) {
   initialize(points_, num_points_);
@@ -57,9 +58,7 @@ template <typename PolygonT>
 Convex<PolygonT>::Convex(const Convex<PolygonT>& other)
     : ConvexBase(other), num_polygons(other.num_polygons) {
   if (other.polygons.get()) {
-    polygons.reset(new PolygonT[num_polygons]);
-    std::copy(other.polygons.get(), other.polygons.get() + num_polygons,
-              polygons.get());
+    polygons.reset(new std::vector<PolygonT>(*(other.polygons)));
   } else
     polygons.reset();
 }
@@ -70,7 +69,7 @@ Convex<PolygonT>::~Convex() {}
 template <typename PolygonT>
 void Convex<PolygonT>::set(std::shared_ptr<std::vector<Vec3f>> points_,
                            unsigned int num_points_,
-                           std::shared_ptr<PolygonT> polygons_,
+                           std::shared_ptr<std::vector<PolygonT>> polygons_,
                            unsigned int num_polygons_) {
   ConvexBase::set(points_, num_points_);
 
@@ -96,8 +95,20 @@ Matrix3f Convex<PolygonT>::computeMomentofInertia() const {
   C_canonical << 1 / 60.0, 1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0, 1 / 120.0,
       1 / 120.0, 1 / 120.0, 1 / 60.0;
 
-  const std::vector<Vec3f>& points_ = *(points);
-  const PolygonT* polygons_ = polygons.get();
+  if (!(points.get())) {
+    std::cerr
+        << "Error in `Convex::computeMomentofInertia`! Convex has no vertices."
+        << std::endl;
+    return C;
+  }
+  const std::vector<Vec3f>& points_ = *points;
+  if (!(polygons.get())) {
+    std::cerr
+        << "Error in `Convex::computeMomentofInertia`! Convex has no polygons."
+        << std::endl;
+    return C;
+  }
+  const std::vector<PolygonT>& polygons_ = *polygons;
   for (unsigned int i = 0; i < num_polygons; ++i) {
     const PolygonT& polygon = polygons_[i];
 
@@ -133,8 +144,18 @@ Vec3f Convex<PolygonT>::computeCOM() const {
 
   Vec3f com(0, 0, 0);
   FCL_REAL vol = 0;
-  const std::vector<Vec3f>& points_ = *(points);
-  const PolygonT* polygons_ = polygons.get();
+  if (!(points.get())) {
+    std::cerr << "Error in `Convex::computeCOM`! Convex has no vertices."
+              << std::endl;
+    return com;
+  }
+  const std::vector<Vec3f>& points_ = *points;
+  if (!(polygons.get())) {
+    std::cerr << "Error in `Convex::computeCOM`! Convex has no polygons."
+              << std::endl;
+    return com;
+  }
+  const std::vector<PolygonT>& polygons_ = *polygons;
   for (unsigned int i = 0; i < num_polygons; ++i) {
     const PolygonT& polygon = polygons_[i];
     // compute the center of the polygon
@@ -167,8 +188,18 @@ FCL_REAL Convex<PolygonT>::computeVolume() const {
   typedef typename PolygonT::index_type index_type;
 
   FCL_REAL vol = 0;
-  const std::vector<Vec3f>& points_ = *(points);
-  const PolygonT* polygons_ = polygons.get();
+  if (!(points.get())) {
+    std::cerr << "Error in `Convex::computeVolume`! Convex has no vertices."
+              << std::endl;
+    return vol;
+  }
+  const std::vector<Vec3f>& points_ = *points;
+  if (!(polygons.get())) {
+    std::cerr << "Error in `Convex::computeVolume`! Convex has no polygons."
+              << std::endl;
+    return vol;
+  }
+  const std::vector<PolygonT>& polygons_ = *polygons;
   for (unsigned int i = 0; i < num_polygons; ++i) {
     const PolygonT& polygon = polygons_[i];
 
@@ -204,7 +235,11 @@ void Convex<PolygonT>::fillNeighbors() {
   std::vector<std::set<index_type>> nneighbors(num_points);
   unsigned int c_nneighbors = 0;
 
-  const PolygonT* polygons_ = polygons.get();
+  if (!(polygons.get())) {
+    std::cerr << "Error in `Convex::fillNeighbors`! Convex has no polygons."
+              << std::endl;
+  }
+  const std::vector<PolygonT>& polygons_ = *polygons;
   for (unsigned int l = 0; l < num_polygons; ++l) {
     const PolygonT& polygon = polygons_[l];
     const size_type n = polygon.size();

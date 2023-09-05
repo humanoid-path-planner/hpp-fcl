@@ -217,7 +217,7 @@ struct ConvexWrapper {
   static PolygonT polygons(const Convex_t& convex, unsigned int i) {
     if (i >= convex.num_polygons)
       throw std::out_of_range("index is out of range");
-    return convex.polygons.get()[i];
+    return (*convex.polygons)[i];
   }
 
   static shared_ptr<Convex_t> constructor(const Vec3fs& _points,
@@ -227,8 +227,9 @@ struct ConvexWrapper {
     std::vector<Vec3f>& points_ = *points;
     for (std::size_t i = 0; i < _points.size(); ++i) points_[i] = _points[i];
 
-    std::shared_ptr<Triangle> tris(new Triangle[_tris.size()]);
-    Triangle* tris_ = tris.get();
+    std::shared_ptr<std::vector<Triangle>> tris(
+        new std::vector<Triangle>(_tris.size()));
+    std::vector<Triangle>& tris_ = *tris;
     for (std::size_t i = 0; i < _tris.size(); ++i) tris_[i] = _tris[i];
     return shared_ptr<Convex_t>(new Convex_t(points,
                                              (unsigned int)_points.size(), tris,

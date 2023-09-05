@@ -104,7 +104,8 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   std::vector<std::set<index_type>> nneighbors(static_cast<size_t>(nvertex));
   if (keepTriangles) {
     convex_tri->num_polygons = static_cast<unsigned int>(qh.facetCount());
-    convex_tri->polygons.reset(new Triangle[convex_tri->num_polygons]);
+    convex_tri->polygons.reset(
+        new std::vector<Triangle>(convex_tri->num_polygons));
     convex_tri->computeCenter();
   }
 
@@ -128,7 +129,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
               f_vertices[2].point().id())]));
       if (keepTriangles) {
         reorderTriangle(convex_tri, tri);
-        convex_tri->polygons.get()[i_polygon++] = tri;
+        (*convex_tri->polygons)[i_polygon++] = tri;
       }
       for (size_t j = 0; j < n; ++j) {
         size_t i = (j == 0) ? n - 1 : j - 1;

@@ -95,11 +95,11 @@ void serialize(Archive &ar, hpp::fcl::Convex<PolygonT> &convex_,
 
   if (Archive::is_loading::value) {
     if (num_polygons_previous != convex.num_polygons) {
-      convex.polygons.reset(new PolygonT[convex.num_polygons]);
+      convex.polygons.reset(new std::vector<PolygonT>(convex.num_polygons));
     }
   }
 
-  ar &make_array<PolygonT>(convex.polygons.get(), convex.num_polygons);
+  ar &make_array<PolygonT>(convex.polygons->data(), convex.num_polygons);
 
   if (Archive::is_loading::value) convex.fillNeighbors();
 }
