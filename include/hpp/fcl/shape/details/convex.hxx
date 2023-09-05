@@ -228,7 +228,7 @@ FCL_REAL Convex<PolygonT>::computeVolume() const {
 
 template <typename PolygonT>
 void Convex<PolygonT>::fillNeighbors() {
-  neighbors.reset(new Neighbors[num_points]);
+  neighbors.reset(new std::vector<Neighbors>(num_points));
 
   typedef typename PolygonT::size_type size_type;
   typedef typename PolygonT::index_type index_type;
@@ -261,10 +261,10 @@ void Convex<PolygonT>::fillNeighbors() {
     }
   }
 
-  nneighbors_.reset(new unsigned int[c_nneighbors]);
+  nneighbors_.reset(new std::vector<unsigned int>(c_nneighbors));
 
-  unsigned int* p_nneighbors = nneighbors_.get();
-  Neighbors* neighbors_ = neighbors.get();
+  unsigned int* p_nneighbors = nneighbors_->data();
+  std::vector<Neighbors>& neighbors_ = *neighbors;
   for (unsigned int i = 0; i < num_points; ++i) {
     Neighbors& n = neighbors_[i];
     if (nneighbors[i].size() >= (std::numeric_limits<unsigned char>::max)())
@@ -274,7 +274,7 @@ void Convex<PolygonT>::fillNeighbors() {
     p_nneighbors =
         std::copy(nneighbors[i].begin(), nneighbors[i].end(), p_nneighbors);
   }
-  assert(p_nneighbors == nneighbors_.get() + c_nneighbors);
+  assert(p_nneighbors == nneighbors_->data() + c_nneighbors);
 }
 
 }  // namespace fcl

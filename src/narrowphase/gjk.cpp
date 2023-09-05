@@ -174,7 +174,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   assert(data != NULL);
 
   const std::vector<Vec3f>& pts = *(convex->points);
-  const ConvexBase::Neighbors* nn = convex->neighbors.get();
+  const std::vector<ConvexBase::Neighbors>& nn = *(convex->neighbors);
 
   if (hint < 0 || hint >= (int)convex->num_points) hint = 0;
   FCL_REAL maxdot = pts[static_cast<size_t>(hint)].dot(dir);
@@ -185,7 +185,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   // equal. Yet, the neighbors must be visited.
   bool found = true, loose_check = true;
   while (found) {
-    const ConvexBase::Neighbors& n = nn[hint];
+    const ConvexBase::Neighbors& n = nn[static_cast<size_t>(hint)];
     found = false;
     for (int in = 0; in < n.count(); ++in) {
       const unsigned int ip = n[in];

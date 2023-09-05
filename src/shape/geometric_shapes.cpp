@@ -61,30 +61,19 @@ ConvexBase::ConvexBase(const ConvexBase& other)
       num_points(other.num_points),
       num_normals_and_offsets(other.num_normals_and_offsets),
       center(other.center) {
-  if (other.points.get()) {
-    if (other.points->size() > 0) {
-      // Deep copy of other points
-      points.reset(new std::vector<Vec3f>(*other.points));
-    } else
-      points.reset();
+  if (other.points.get() && other.points->size() > 0) {
+    // Deep copy of other points
+    points.reset(new std::vector<Vec3f>(*other.points));
   } else
     points.reset();
 
-  if (other.neighbors.get()) {
-    neighbors.reset(new Neighbors[num_points]);
-    std::copy(other.neighbors.get(), other.neighbors.get() + num_points,
-              neighbors.get());
+  if (other.neighbors.get() && other.neighbors->size() > 0) {
+    neighbors.reset(new std::vector<Neighbors>(*(other.neighbors)));
   } else
     neighbors.reset();
 
-  if (other.nneighbors_.get()) {
-    std::size_t c_nneighbors = 0;
-    const Neighbors* neighbors_ = neighbors.get();
-    for (std::size_t i = 0; i < num_points; ++i)
-      c_nneighbors += neighbors_[i].count();
-    nneighbors_.reset(new unsigned int[c_nneighbors]);
-    std::copy(other.nneighbors_.get(), other.nneighbors_.get() + c_nneighbors,
-              nneighbors_.get());
+  if (other.nneighbors_.get() && other.nneighbors_->size() > 0) {
+    nneighbors_.reset(new std::vector<unsigned int>(*(other.nneighbors_)));
   } else
     nneighbors_.reset();
 

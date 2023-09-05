@@ -100,7 +100,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   convex->initialize(vertices, static_cast<unsigned int>(nvertex));
 
   // Build the neighbors
-  convex->neighbors.reset(new Neighbors[size_t(nvertex)]);
+  convex->neighbors.reset(new std::vector<Neighbors>(size_t(nvertex)));
   std::vector<std::set<index_type>> nneighbors(static_cast<size_t>(nvertex));
   if (keepTriangles) {
     convex_tri->num_polygons = static_cast<unsigned int>(qh.facetCount());
@@ -173,9 +173,9 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   convex->buildDoubleDescriptionFromQHullResult(qh);
 
   // Fill the neighbor attribute of the returned object.
-  convex->nneighbors_.reset(new unsigned int[c_nneighbors]);
-  unsigned int* p_nneighbors = convex->nneighbors_.get();
-  Neighbors* neighbors_ = convex->neighbors.get();
+  convex->nneighbors_.reset(new std::vector<unsigned int>(c_nneighbors));
+  unsigned int* p_nneighbors = convex->nneighbors_->data();
+  std::vector<Neighbors>& neighbors_ = *(convex->neighbors);
   for (size_t i = 0; i < static_cast<size_t>(nvertex); ++i) {
     Neighbors& n = neighbors_[i];
     if (nneighbors[i].size() >= (std::numeric_limits<unsigned char>::max)())
@@ -185,7 +185,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
     p_nneighbors =
         std::copy(nneighbors[i].begin(), nneighbors[i].end(), p_nneighbors);
   }
-  assert(p_nneighbors == convex->nneighbors_.get() + c_nneighbors);
+  assert(p_nneighbors == convex->nneighbors_->data() + c_nneighbors);
   return convex;
 #else
   throw std::logic_error(

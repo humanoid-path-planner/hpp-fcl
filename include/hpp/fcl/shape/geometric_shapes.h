@@ -671,7 +671,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// Neighbors of each vertex.
   /// It is an array of size num_points. For each vertex, it contains the number
   /// of neighbors and a list of indices to them.
-  std::shared_ptr<Neighbors> neighbors;
+  std::shared_ptr<std::vector<Neighbors>> neighbors;
 
   /// @brief center of the convex polytope, this is used for collision: center
   /// is guaranteed in the internal of the polytope (as it is convex)
@@ -703,7 +703,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// Only the list of neighbors is copied.
   ConvexBase(const ConvexBase& other);
 
-  std::shared_ptr<unsigned int> nneighbors_;
+  std::shared_ptr<std::vector<unsigned int>> nneighbors_;
 
  private:
   void computeCenter();
@@ -716,16 +716,26 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 
     if (num_points != other.num_points) return false;
 
-    const std::vector<Vec3f>& points_ = *points;
-    const std::vector<Vec3f>& other_points_ = *(other.points);
-    for (unsigned int i = 0; i < num_points; ++i) {
-      if (points_[i] != (other_points_)[i]) return false;
+    if ((!(points.get()) && other.points.get()) ||
+        (points.get() && !(other.points.get())))
+      return false;
+    if (points.get() && other.points.get()) {
+      const std::vector<Vec3f>& points_ = *points;
+      const std::vector<Vec3f>& other_points_ = *(other.points);
+      for (unsigned int i = 0; i < num_points; ++i) {
+        if (points_[i] != (other_points_)[i]) return false;
+      }
     }
 
-    const Neighbors* neighbors_ = neighbors.get();
-    const Neighbors* other_neighbors_ = other.neighbors.get();
-    for (unsigned int i = 0; i < num_points; ++i) {
-      if (neighbors_[i] != other_neighbors_[i]) return false;
+    if ((!(neighbors.get()) && other.neighbors.get()) ||
+        (neighbors.get() && !(other.neighbors.get())))
+      return false;
+    if (neighbors.get() && other.neighbors.get()) {
+      const std::vector<Neighbors>& neighbors_ = *neighbors;
+      const std::vector<Neighbors>& other_neighbors_ = *(other.neighbors);
+      for (unsigned int i = 0; i < num_points; ++i) {
+        if (neighbors_[i] != other_neighbors_[i]) return false;
+      }
     }
 
     const Vec3f* normals_ = normals.get();

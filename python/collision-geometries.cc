@@ -197,7 +197,7 @@ struct ConvexBaseWrapper {
     if (i >= convex.num_points)
       throw std::out_of_range("index is out of range");
     list n;
-    const ConvexBase::Neighbors* neighbors_ = convex.neighbors.get();
+    const std::vector<ConvexBase::Neighbors>& neighbors_ = *(convex.neighbors);
     for (unsigned char j = 0; j < neighbors_[i].count(); ++j)
       n.append(neighbors_[i][j]);
     return n;
