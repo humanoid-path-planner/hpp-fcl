@@ -83,11 +83,11 @@ struct BVHModelBaseWrapper {
 
   static Vec3f& vertex(BVHModelBase& bvh, unsigned int i) {
     if (i >= bvh.num_vertices) throw std::out_of_range("index is out of range");
-    return bvh.vertices.get()[i];
+    return (*(bvh.vertices))[i];
   }
 
   static RefRowMatrixX3 vertices(BVHModelBase& bvh) {
-    return MapRowMatrixX3(bvh.vertices.get()[0].data(), bvh.num_vertices, 3);
+    return MapRowMatrixX3((*(bvh.vertices))[0].data(), bvh.num_vertices, 3);
   }
 
   static Triangle tri_indices(const BVHModelBase& bvh, unsigned int i) {

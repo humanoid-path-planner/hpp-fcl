@@ -43,10 +43,10 @@ void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
                    bvh_model));
 
   ar &make_nvp("num_vertices", bvh_model.num_vertices);
-  if (bvh_model.num_vertices > 0) {
+  if (bvh_model.num_vertices > 0 && bvh_model.vertices.get()) {
     typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
     const Eigen::Map<const AsVertixMatrix> vertices_map(
-        reinterpret_cast<const double *>(bvh_model.vertices.get()), 3,
+        reinterpret_cast<const double *>(bvh_model.vertices->data()), 3,
         bvh_model.num_vertices);
     ar &make_nvp("vertices", vertices_map);
   }
@@ -68,7 +68,7 @@ void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
     ar << make_nvp("has_prev_vertices", has_prev_vertices);
     typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
     const Eigen::Map<const AsVertixMatrix> prev_vertices_map(
-        reinterpret_cast<const double *>(bvh_model.prev_vertices.get()), 3,
+        reinterpret_cast<const double *>(bvh_model.prev_vertices->data()), 3,
         bvh_model.num_vertices);
     ar &make_nvp("prev_vertices", prev_vertices_map);
   } else {
@@ -102,12 +102,13 @@ void load(Archive &ar, hpp::fcl::BVHModelBase &bvh_model,
   if (num_vertices != bvh_model.num_vertices) {
     bvh_model.vertices.reset();
     bvh_model.num_vertices = num_vertices;
-    if (num_vertices > 0) bvh_model.vertices.reset(new Vec3f[num_vertices]);
+    if (num_vertices > 0)
+      bvh_model.vertices.reset(new std::vector<Vec3f>(num_vertices));
   }
   if (num_vertices > 0) {
     typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
     Eigen::Map<AsVertixMatrix> vertices_map(
-        reinterpret_cast<double *>(bvh_model.vertices.get()), 3,
+        reinterpret_cast<double *>(bvh_model.vertices->data()), 3,
         bvh_model.num_vertices);
     ar >> make_nvp("vertices", vertices_map);
   } else
@@ -143,12 +144,12 @@ void load(Archive &ar, hpp::fcl::BVHModelBase &bvh_model,
     if (num_vertices != bvh_model.num_vertices) {
       bvh_model.prev_vertices.reset();
       if (num_vertices > 0)
-        bvh_model.prev_vertices.reset(new Vec3f[num_vertices]);
+        bvh_model.prev_vertices.reset(new std::vector<Vec3f>(num_vertices));
     }
     if (num_vertices > 0) {
       typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
       Eigen::Map<AsVertixMatrix> prev_vertices_map(
-          reinterpret_cast<double *>(bvh_model.prev_vertices.get()), 3,
+          reinterpret_cast<double *>(bvh_model.prev_vertices->data()), 3,
           bvh_model.num_vertices);
       ar &make_nvp("prev_vertices", prev_vertices_map);
     }

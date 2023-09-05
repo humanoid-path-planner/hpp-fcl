@@ -372,9 +372,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
         int primitive_id = tree2->getBV(root2).primitiveId();
         const Triangle& tri_id = tree2->tri_indices.get()[primitive_id];
-        const Vec3f& p1 = tree2->vertices.get()[tri_id[0]];
-        const Vec3f& p2 = tree2->vertices.get()[tri_id[1]];
-        const Vec3f& p3 = tree2->vertices.get()[tri_id[2]];
+        const Vec3f& p1 = (*(tree2->vertices))[tri_id[0]];
+        const Vec3f& p2 = (*(tree2->vertices))[tri_id[1]];
+        const Vec3f& p3 = (*(tree2->vertices))[tri_id[2]];
 
         FCL_REAL dist;
         Vec3f closest_p1, closest_p2, normal;
@@ -485,9 +485,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       int primitive_id = bvn2.primitiveId();
       const Triangle& tri_id = tree2->tri_indices.get()[primitive_id];
-      const Vec3f& p1 = tree2->vertices.get()[tri_id[0]];
-      const Vec3f& p2 = tree2->vertices.get()[tri_id[1]];
-      const Vec3f& p3 = tree2->vertices.get()[tri_id[2]];
+      const Vec3f& p1 = (*(tree2->vertices))[tri_id[0]];
+      const Vec3f& p2 = (*(tree2->vertices))[tri_id[1]];
+      const Vec3f& p3 = (*(tree2->vertices))[tri_id[2]];
 
       Vec3f c1, c2, normal;
       FCL_REAL distance;

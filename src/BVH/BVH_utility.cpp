@@ -62,7 +62,7 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
   std::vector<bool> keep_vertex(model.num_vertices, false);
   std::vector<bool> keep_tri(model.num_tris, false);
   unsigned int ntri = 0;
-  const Vec3f* model_vertices_ = model.vertices.get();
+  const std::vector<Vec3f>& model_vertices_ = *(model.vertices);
   const Triangle* model_tri_indices_ = model.tri_indices.get();
   for (unsigned int i = 0; i < model.num_tris; ++i) {
     const Triangle& t = model_tri_indices_[i];
@@ -101,7 +101,7 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
   new_model->beginModel(ntri, std::min(ntri * 3, model.num_vertices));
   std::vector<unsigned int> idxConversion(model.num_vertices);
   assert(new_model->num_vertices == 0);
-  Vec3f* new_model_vertices_ = new_model->vertices.get();
+  std::vector<Vec3f>& new_model_vertices_ = *(new_model->vertices);
   for (unsigned int i = 0; i < keep_vertex.size(); ++i) {
     if (keep_vertex[i]) {
       idxConversion[i] = new_model->num_vertices;
