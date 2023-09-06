@@ -43,6 +43,7 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/data_types.h>
 #include <string.h>
+#include <vector>
 #include <memory>
 
 #ifdef HPP_FCL_HAS_QHULL
