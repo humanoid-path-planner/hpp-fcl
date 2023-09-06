@@ -476,10 +476,14 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
 
     if (num_bvs != other.num_bvs) return false;
 
-    const std::vector<BVNode<BV>>& bvs_ = *bvs;
-    const std::vector<BVNode<BV>>& other_bvs_ = *(other.bvs);
-    for (unsigned int k = 0; k < num_bvs; ++k) {
-      if (bvs_[k] != other_bvs_[k]) return false;
+    if ((!(bvs.get()) && other.bvs.get()) || (bvs.get() && !(other.bvs.get())))
+      return false;
+    if (bvs.get() && other.bvs.get()) {
+      const std::vector<BVNode<BV>>& bvs_ = *bvs;
+      const std::vector<BVNode<BV>>& other_bvs_ = *(other.bvs);
+      for (unsigned int k = 0; k < num_bvs; ++k) {
+        if (bvs_[k] != other_bvs_[k]) return false;
+      }
     }
 
     return true;
