@@ -195,25 +195,33 @@ int BVHModelBase::beginModel(unsigned int num_tris_,
   num_vertices_allocated = num_vertices_;
   num_tris_allocated = num_tris_;
 
-  tri_indices.reset(new std::vector<Triangle>(num_tris_allocated));
-  if (!(tri_indices.get())) {
-    std::cerr << "BVH Error! Out of memory for tri_indices array on "
-                 "BeginModel() call!"
-              << std::endl;
-    return BVH_ERR_MODEL_OUT_OF_MEMORY;
-  }
+  if (num_tris_allocated > 0) {
+    tri_indices.reset(new std::vector<Triangle>(num_tris_allocated));
+    if (!(tri_indices.get())) {
+      std::cerr << "BVH Error! Out of memory for tri_indices array on "
+                   "BeginModel() call!"
+                << std::endl;
+      return BVH_ERR_MODEL_OUT_OF_MEMORY;
+    }
+  } else
+    tri_indices.reset();
 
-  vertices.reset(new std::vector<Vec3f>(num_vertices_allocated));
-  if (!(vertices.get())) {
-    std::cerr
-        << "BVH Error! Out of memory for vertices array on BeginModel() call!"
-        << std::endl;
-    return BVH_ERR_MODEL_OUT_OF_MEMORY;
-  }
+  if (num_vertices_allocated > 0) {
+    vertices.reset(new std::vector<Vec3f>(num_vertices_allocated));
+    if (!(vertices.get())) {
+      std::cerr
+          << "BVH Error! Out of memory for vertices array on BeginModel() call!"
+          << std::endl;
+      return BVH_ERR_MODEL_OUT_OF_MEMORY;
+    }
+  } else {
+    vertices.reset();
+    prev_vertices.reset();
+  };
 
   if (build_state != BVH_BUILD_STATE_EMPTY) {
     std::cerr
-        << "BVH Warning! Call beginModel() on a BVHModel that is not empty. "
+        << "BVH Warning! Calling beginModel() on a BVHModel that is not empty. "
            "This model was cleared and previous triangles/vertices were lost."
         << std::endl;
     build_state = BVH_BUILD_STATE_EMPTY;
@@ -393,7 +401,7 @@ int BVHModelBase::addTriangle(const Vec3f& p1, const Vec3f& p2,
 
 int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps) {
   if (build_state == BVH_BUILD_STATE_PROCESSED) {
-    std::cerr << "BVH Warning! Call addSubModel() in a wrong order. "
+    std::cerr << "BVH Warning! Calling addSubModel() in a wrong order. "
                  "addSubModel() was ignored. Must do a beginModel() to clear "
                  "the model for addition of new vertices."
               << std::endl;
@@ -432,7 +440,7 @@ int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps) {
 int BVHModelBase::addSubModel(const std::vector<Vec3f>& ps,
                               const std::vector<Triangle>& ts) {
   if (build_state == BVH_BUILD_STATE_PROCESSED) {
-    std::cerr << "BVH Warning! Call addSubModel() in a wrong order. "
+    std::cerr << "BVH Warning! Calling addSubModel() in a wrong order. "
                  "addSubModel() was ignored. Must do a beginModel() to clear "
                  "the model for addition of new vertices."
               << std::endl;
@@ -535,20 +543,25 @@ int BVHModelBase::endModel() {
   }
 
   if (num_vertices_allocated > num_vertices) {
-    std::shared_ptr<std::vector<Vec3f>> new_vertices(
-        new std::vector<Vec3f>(num_vertices));
-    if (!(new_vertices.get())) {
-      std::cerr
-          << "BVH Error! Out of memory for vertices array in endModel() call!"
-          << std::endl;
-      return BVH_ERR_MODEL_OUT_OF_MEMORY;
-    }
+    if (num_vertices > 0) {
+      std::shared_ptr<std::vector<Vec3f>> new_vertices(
+          new std::vector<Vec3f>(num_vertices));
+      if (!(new_vertices.get())) {
+        std::cerr
+            << "BVH Error! Out of memory for vertices array in endModel() call!"
+            << std::endl;
+        return BVH_ERR_MODEL_OUT_OF_MEMORY;
+      }
 
-    for (size_t i = 0; i < num_vertices; ++i) {
-      (*new_vertices)[i] = (*vertices)[i];
+      for (size_t i = 0; i < num_vertices; ++i) {
+        (*new_vertices)[i] = (*vertices)[i];
+      }
+      vertices = new_vertices;
+      num_vertices_allocated = num_vertices;
+    } else {
+      vertices.reset();
+      num_vertices = num_vertices_allocated = 0;
     }
-    vertices = new_vertices;
-    num_vertices_allocated = num_vertices;
   }
 
   // construct BVH tree

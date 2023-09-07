@@ -63,7 +63,7 @@ void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
   }
   ar &make_nvp("build_state", bvh_model.build_state);
 
-  if (bvh_model.prev_vertices.get()) {
+  if (bvh_model.num_vertices > 0 && bvh_model.prev_vertices.get()) {
     const bool has_prev_vertices = true;
     ar << make_nvp("has_prev_vertices", has_prev_vertices);
     typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
@@ -292,7 +292,7 @@ void load(Archive &ar, hpp::fcl::BVHModel<BV> &bvh_model_,
                      make_array(reinterpret_cast<char *>(bvh_model.bvs->data()),
                                 sizeof(Node) * (std::size_t)num_bvs));
     } else
-      bvh_model.bvs = NULL;
+      bvh_model.bvs.reset();
   }
 }
 
