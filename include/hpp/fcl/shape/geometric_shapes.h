@@ -43,7 +43,14 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/data_types.h>
 #include <string.h>
+#include <vector>
 #include <memory>
+
+#ifdef HPP_FCL_HAS_QHULL
+namespace orgQhull {
+class Qhull;
+}
+#endif
 
 namespace hpp {
 namespace fcl {
@@ -593,7 +600,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   ///          Qhull.
   /// \note hpp-fcl must have been compiled with option \c HPP_FCL_HAS_QHULL set
   ///       to \c ON.
-  static ConvexBase* convexHull(const std::shared_ptr<const Vec3f> points,
+  static ConvexBase* convexHull(std::shared_ptr<std::vector<Vec3f>> points,
                                 unsigned int num_points, bool keepTriangles,
                                 const char* qhullCommand = NULL);
 
@@ -612,13 +619,29 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// @brief Compute AABB
   void computeLocalAABB();
 
-  /// @brief Get node type: a conex polytope
+  /// @brief Get node type: a convex polytope
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
   /// @brief An array of the points of the polygon.
-  std::shared_ptr<Vec3f> points;
+  std::shared_ptr<std::vector<Vec3f>> points;
   unsigned int num_points;
 
+  /// @brief An array of the normals of the polygon.
+  std::shared_ptr<std::vector<Vec3f>> normals;
+  /// @brief An array of the offsets to the normals of the polygon.
+  /// Note: there are as many offsets as normals.
+  std::shared_ptr<std::vector<double>> offsets;
+  unsigned int num_normals_and_offsets;
+
+#ifdef HPP_FCL_HAS_QHULL
+ public:
+  void buildDoubleDescription();
+
+ protected:
+  void buildDoubleDescriptionFromQHullResult(const orgQhull::Qhull& qh);
+#endif
+
+ public:
   struct HPP_FCL_DLLAPI Neighbors {
     unsigned char count_;
     unsigned int* n_;
@@ -649,7 +672,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// Neighbors of each vertex.
   /// It is an array of size num_points. For each vertex, it contains the number
   /// of neighbors and a list of indices to them.
-  std::shared_ptr<Neighbors> neighbors;
+  std::shared_ptr<std::vector<Neighbors>> neighbors;
 
   /// @brief center of the convex polytope, this is used for collision: center
   /// is guaranteed in the internal of the polytope (as it is convex)
@@ -666,20 +689,22 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// \param ownStorage weither the ConvexBase owns the data.
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
-  void initialize(std::shared_ptr<Vec3f> points_, unsigned int num_points_);
+  void initialize(std::shared_ptr<std::vector<Vec3f>> points_,
+                  unsigned int num_points_);
 
   /// @brief Set the points of the convex shape.
   ///
   /// \param ownStorage weither the ConvexBase owns the data.
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
-  void set(std::shared_ptr<Vec3f> points_, unsigned int num_points_);
+  void set(std::shared_ptr<std::vector<Vec3f>> points_,
+           unsigned int num_points_);
 
   /// @brief Copy constructor
   /// Only the list of neighbors is copied.
   ConvexBase(const ConvexBase& other);
 
-  std::shared_ptr<unsigned int> nneighbors_;
+  std::shared_ptr<std::vector<unsigned int>> nneighbors_;
 
  private:
   void computeCenter();
@@ -692,16 +717,48 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 
     if (num_points != other.num_points) return false;
 
-    const Vec3f* points_ = points.get();
-    const Vec3f* other_points_ = other.points.get();
-    for (unsigned int i = 0; i < num_points; ++i) {
-      if (points_[i] != (other_points_)[i]) return false;
+    if ((!(points.get()) && other.points.get()) ||
+        (points.get() && !(other.points.get())))
+      return false;
+    if (points.get() && other.points.get()) {
+      const std::vector<Vec3f>& points_ = *points;
+      const std::vector<Vec3f>& other_points_ = *(other.points);
+      for (unsigned int i = 0; i < num_points; ++i) {
+        if (points_[i] != (other_points_)[i]) return false;
+      }
     }
 
-    const Neighbors* neighbors_ = neighbors.get();
-    const Neighbors* other_neighbors_ = other.neighbors.get();
-    for (unsigned int i = 0; i < num_points; ++i) {
-      if (neighbors_[i] != other_neighbors_[i]) return false;
+    if ((!(neighbors.get()) && other.neighbors.get()) ||
+        (neighbors.get() && !(other.neighbors.get())))
+      return false;
+    if (neighbors.get() && other.neighbors.get()) {
+      const std::vector<Neighbors>& neighbors_ = *neighbors;
+      const std::vector<Neighbors>& other_neighbors_ = *(other.neighbors);
+      for (unsigned int i = 0; i < num_points; ++i) {
+        if (neighbors_[i] != other_neighbors_[i]) return false;
+      }
+    }
+
+    if ((!(normals.get()) && other.normals.get()) ||
+        (normals.get() && !(other.normals.get())))
+      return false;
+    if (normals.get() && other.normals.get()) {
+      const std::vector<Vec3f>& normals_ = *normals;
+      const std::vector<Vec3f>& other_normals_ = *(other.normals);
+      for (unsigned int i = 0; i < num_normals_and_offsets; ++i) {
+        if (normals_[i] != other_normals_[i]) return false;
+      }
+    }
+
+    if ((!(offsets.get()) && other.offsets.get()) ||
+        (offsets.get() && !(other.offsets.get())))
+      return false;
+    if (offsets.get() && other.offsets.get()) {
+      const std::vector<double>& offsets_ = *offsets;
+      const std::vector<double>& other_offsets_ = *(other.offsets);
+      for (unsigned int i = 0; i < num_normals_and_offsets; ++i) {
+        if (offsets_[i] != other_offsets_[i]) return false;
+      }
     }
 
     return center == other.center;

@@ -182,6 +182,16 @@ BOOST_AUTO_TEST_CASE(test_collision_data) {
   test_serialization(distance_result);
 }
 
+template <typename T>
+void checkEqualStdVector(const std::vector<T>& v1, const std::vector<T>& v2) {
+  BOOST_CHECK(v1.size() == v2.size());
+  if (v1.size() == v2.size()) {
+    for (size_t i = 0; i < v1.size(); i++) {
+      BOOST_CHECK(v1[i] == v2[i]);
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_BVHModel) {
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;
@@ -195,11 +205,19 @@ BOOST_AUTO_TEST_CASE(test_BVHModel) {
   m1.beginModel();
   m1.addSubModel(p1, t1);
   m1.endModel();
+  BOOST_CHECK(m1.num_vertices == p1.size());
+  BOOST_CHECK(m1.num_tris == t1.size());
+  checkEqualStdVector(*m1.vertices, p1);
+  checkEqualStdVector(*m1.tri_indices, t1);
   BOOST_CHECK(m1 == m1);
 
   m2.beginModel();
   m2.addSubModel(p2, t2);
   m2.endModel();
+  BOOST_CHECK(m2.num_vertices == p2.size());
+  BOOST_CHECK(m2.num_tris == t2.size());
+  checkEqualStdVector(*m2.vertices, p2);
+  checkEqualStdVector(*m2.tri_indices, t2);
   BOOST_CHECK(m2 == m2);
   BOOST_CHECK(m1 != m2);
 

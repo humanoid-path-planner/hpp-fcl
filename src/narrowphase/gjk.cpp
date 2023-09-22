@@ -173,11 +173,11 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         MinkowskiDiff::ShapeData* data) {
   assert(data != NULL);
 
-  const Vec3f* pts = convex->points.get();
-  const ConvexBase::Neighbors* nn = convex->neighbors.get();
+  const std::vector<Vec3f>& pts = *(convex->points);
+  const std::vector<ConvexBase::Neighbors>& nn = *(convex->neighbors);
 
   if (hint < 0 || hint >= (int)convex->num_points) hint = 0;
-  FCL_REAL maxdot = pts[hint].dot(dir);
+  FCL_REAL maxdot = pts[static_cast<size_t>(hint)].dot(dir);
   std::vector<int8_t>& visited = data->visited;
   visited.assign(convex->num_points, false);
   visited[static_cast<std::size_t>(hint)] = true;
@@ -185,7 +185,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   // equal. Yet, the neighbors must be visited.
   bool found = true, loose_check = true;
   while (found) {
-    const ConvexBase::Neighbors& n = nn[hint];
+    const ConvexBase::Neighbors& n = nn[static_cast<size_t>(hint)];
     found = false;
     for (int in = 0; in < n.count(); ++in) {
       const unsigned int ip = n[in];
@@ -206,24 +206,24 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
     }
   }
 
-  support = pts[hint];
+  support = pts[static_cast<size_t>(hint)];
 }
 
 void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
                            Vec3f& support, int& hint,
                            MinkowskiDiff::ShapeData*) {
-  const Vec3f* pts = convex->points.get();
+  const std::vector<Vec3f>& pts = *(convex->points);
 
   hint = 0;
   FCL_REAL maxdot = pts[0].dot(dir);
   for (int i = 1; i < (int)convex->num_points; ++i) {
-    FCL_REAL dot = pts[i].dot(dir);
+    FCL_REAL dot = pts[static_cast<size_t>(i)].dot(dir);
     if (dot > maxdot) {
       maxdot = dot;
       hint = i;
     }
   }
-  support = pts[hint];
+  support = pts[static_cast<size_t>(hint)];
 }
 
 void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,

@@ -338,10 +338,11 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
         "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
-  if (!tf1.isIdentity())  // TODO(jcarpent): vectorized version
+  if (!tf1.isIdentity() &&
+      model1.vertices.get())  // TODO(jcarpent): vectorized version
   {
     std::vector<Vec3f> vertices_transformed(model1.num_vertices);
-    const Vec3f* model1_vertices_ = model1.vertices.get();
+    const std::vector<Vec3f>& model1_vertices_ = *(model1.vertices);
     for (unsigned int i = 0; i < model1.num_vertices; ++i) {
       const Vec3f& p = model1_vertices_[i];
       Vec3f new_v = tf1.transform(p);
@@ -363,8 +364,9 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
 
   computeBV(model2, tf2, node.model2_bv);
 
-  node.vertices = model1.vertices.get();
-  node.tri_indices = model1.tri_indices.get();
+  node.vertices = model1.vertices.get() ? model1.vertices->data() : NULL;
+  node.tri_indices =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
 
   node.result = &result;
 
@@ -391,8 +393,9 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, 0>& node,
 
   computeBV(model2, tf2, node.model2_bv);
 
-  node.vertices = model1.vertices.get();
-  node.tri_indices = model1.tri_indices.get();
+  node.vertices = model1.vertices.get() ? model1.vertices->data() : NULL;
+  node.tri_indices =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
 
   node.result = &result;
 
@@ -448,8 +451,9 @@ static inline bool setupShapeMeshCollisionOrientedNode(
 
   computeBV(model1, tf1, node.model1_bv);
 
-  node.vertices = model2.vertices.get();
-  node.tri_indices = model2.tri_indices.get();
+  node.vertices = model2.vertices.get() ? model2.vertices->data() : NULL;
+  node.tri_indices =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   node.result = &result;
 
@@ -475,9 +479,9 @@ bool initialize(
         "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
-  if (!tf1.isIdentity()) {
+  if (!tf1.isIdentity() && model1.vertices.get()) {
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
-    const Vec3f* model1_vertices_ = model1.vertices.get();
+    const std::vector<Vec3f>& model1_vertices_ = *(model1.vertices);
     for (unsigned int i = 0; i < model1.num_vertices; ++i) {
       const Vec3f& p = model1_vertices_[i];
       Vec3f new_v = tf1.transform(p);
@@ -491,9 +495,9 @@ bool initialize(
     tf1.setIdentity();
   }
 
-  if (!tf2.isIdentity()) {
+  if (!tf2.isIdentity() && model2.vertices.get()) {
     std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
-    const Vec3f* model2_vertices_ = model2.vertices.get();
+    const std::vector<Vec3f>& model2_vertices_ = *(model2.vertices);
     for (unsigned int i = 0; i < model2.num_vertices; ++i) {
       const Vec3f& p = model2_vertices_[i];
       Vec3f new_v = tf2.transform(p);
@@ -512,11 +516,13 @@ bool initialize(
   node.model2 = &model2;
   node.tf2 = tf2;
 
-  node.vertices1 = model1.vertices.get();
-  node.vertices2 = model2.vertices.get();
+  node.vertices1 = model1.vertices.get() ? model1.vertices->data() : NULL;
+  node.vertices2 = model2.vertices.get() ? model2.vertices->data() : NULL;
 
-  node.tri_indices1 = model1.tri_indices.get();
-  node.tri_indices2 = model2.tri_indices.get();
+  node.tri_indices1 =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
+  node.tri_indices2 =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   node.result = &result;
 
@@ -537,11 +543,13 @@ bool initialize(MeshCollisionTraversalNode<BV, 0>& node,
         "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
-  node.vertices1 = model1.vertices.get();
-  node.vertices2 = model2.vertices.get();
+  node.vertices1 = model1.vertices ? model1.vertices->data() : NULL;
+  node.vertices2 = model2.vertices ? model2.vertices->data() : NULL;
 
-  node.tri_indices1 = model1.tri_indices.get();
-  node.tri_indices2 = model2.tri_indices.get();
+  node.tri_indices1 =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
+  node.tri_indices2 =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -592,9 +600,9 @@ bool initialize(
         "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
-  if (!tf1.isIdentity()) {
-    const Vec3f* model1_vertices_ = model1.vertices.get();
+  if (!tf1.isIdentity() && model1.vertices.get()) {
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
+    const std::vector<Vec3f>& model1_vertices_ = *(model1.vertices);
     for (unsigned int i = 0; i < model1.num_vertices; ++i) {
       const Vec3f& p = model1_vertices_[i];
       Vec3f new_v = tf1.transform(p);
@@ -608,9 +616,9 @@ bool initialize(
     tf1.setIdentity();
   }
 
-  if (!tf2.isIdentity()) {
-    const Vec3f* model2_vertices_ = model2.vertices.get();
+  if (!tf2.isIdentity() && model2.vertices.get()) {
     std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
+    const std::vector<Vec3f>& model2_vertices_ = *(model2.vertices);
     for (unsigned int i = 0; i < model2.num_vertices; ++i) {
       const Vec3f& p = model2_vertices_[i];
       Vec3f new_v = tf2.transform(p);
@@ -632,11 +640,13 @@ bool initialize(
   node.model2 = &model2;
   node.tf2 = tf2;
 
-  node.vertices1 = model1.vertices.get();
-  node.vertices2 = model2.vertices.get();
+  node.vertices1 = model1.vertices.get() ? model1.vertices->data() : NULL;
+  node.vertices2 = model2.vertices.get() ? model2.vertices->data() : NULL;
 
-  node.tri_indices1 = model1.tri_indices.get();
-  node.tri_indices2 = model2.tri_indices.get();
+  node.tri_indices1 =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
+  node.tri_indices2 =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   return true;
 }
@@ -664,11 +674,13 @@ bool initialize(MeshDistanceTraversalNode<BV, 0>& node,
   node.model2 = &model2;
   node.tf2 = tf2;
 
-  node.vertices1 = model1.vertices.get();
-  node.vertices2 = model2.vertices.get();
+  node.vertices1 = model1.vertices.get() ? model1.vertices->data() : NULL;
+  node.vertices2 = model2.vertices.get() ? model2.vertices->data() : NULL;
 
-  node.tri_indices1 = model1.tri_indices.get();
-  node.tri_indices2 = model2.tri_indices.get();
+  node.tri_indices1 =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
+  node.tri_indices2 =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(),
                     tf2.getTranslation(), node.RT.R, node.RT.T);
@@ -689,8 +701,8 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
         "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
-  const Vec3f* model1_vertices_ = model1.vertices.get();
-  if (!tf1.isIdentity()) {
+  if (!tf1.isIdentity() && model1.vertices.get()) {
+    const std::vector<Vec3f>& model1_vertices_ = *(model1.vertices);
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
     for (unsigned int i = 0; i < model1.num_vertices; ++i) {
       const Vec3f& p = model1_vertices_[i];
@@ -714,8 +726,9 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
   node.tf2 = tf2;
   node.nsolver = nsolver;
 
-  node.vertices = model1.vertices.get();
-  node.tri_indices = model1.tri_indices.get();
+  node.vertices = model1.vertices.get() ? model1.vertices->data() : NULL;
+  node.tri_indices =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
 
   computeBV(model2, tf2, node.model2_bv);
 
@@ -735,9 +748,9 @@ bool initialize(ShapeMeshDistanceTraversalNode<S, BV>& node, const S& model1,
         "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
-  if (!tf2.isIdentity()) {
+  if (!tf2.isIdentity() && model2.vertices.get()) {
     std::vector<Vec3f> vertices_transformed(model2.num_vertices);
-    const Vec3f* model2_vertices_ = model2.vertices.get();
+    const std::vector<Vec3f>& model2_vertices_ = *(model2.vertices);
     for (unsigned int i = 0; i < model2.num_vertices; ++i) {
       const Vec3f& p = model2_vertices_[i];
       Vec3f new_v = tf2.transform(p);
@@ -760,8 +773,9 @@ bool initialize(ShapeMeshDistanceTraversalNode<S, BV>& node, const S& model1,
   node.tf2 = tf2;
   node.nsolver = nsolver;
 
-  node.vertices = model2.vertices.get();
-  node.tri_indices = model2.tri_indices.get();
+  node.vertices = model2.vertices.get() ? model2.vertices->data() : NULL;
+  node.tri_indices =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
   computeBV(model1, tf1, node.model1_bv);
 
@@ -792,8 +806,9 @@ static inline bool setupMeshShapeDistanceOrientedNode(
 
   computeBV(model2, tf2, node.model2_bv);
 
-  node.vertices = model1.vertices.get();
-  node.tri_indices = model1.tri_indices.get();
+  node.vertices = model1.vertices.get() ? model1.vertices->data() : NULL;
+  node.tri_indices =
+      model1.tri_indices.get() ? model1.tri_indices->data() : NULL;
 
   return true;
 }
@@ -859,8 +874,9 @@ static inline bool setupShapeMeshDistanceOrientedNode(
 
   computeBV(model1, tf1, node.model1_bv);
 
-  node.vertices = model2.vertices.get();
-  node.tri_indices = model2.tri_indices.get();
+  node.vertices = model2.vertices.get() ? model2.vertices->data() : NULL;
+  node.tri_indices =
+      model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
   node.R = tf2.getRotation();
   node.T = tf2.getTranslation();
 

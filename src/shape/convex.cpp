@@ -24,9 +24,9 @@ namespace fcl {
 // the vector `triangle barycentre - convex_tri.center` is positive.
 void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
   Vec3f p0, p1, p2;
-  p0 = (convex_tri->points.get())[tri[0]];
-  p1 = (convex_tri->points.get())[tri[1]];
-  p2 = (convex_tri->points.get())[tri[2]];
+  p0 = (*(convex_tri->points))[tri[0]];
+  p1 = (*(convex_tri->points))[tri[1]];
+  p2 = (*(convex_tri->points))[tri[2]];
 
   Vec3f barycentre_tri, center_barycenter;
   barycentre_tri = (p0 + p1 + p2) / 3;
@@ -42,10 +42,10 @@ void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
   }
 }
 
-ConvexBase* ConvexBase::convexHull(const std::shared_ptr<const Vec3f> pts,
+ConvexBase* ConvexBase::convexHull(std::shared_ptr<std::vector<Vec3f>> pts,
                                    unsigned int num_points, bool keepTriangles,
                                    const char* qhullCommand) {
-  return ConvexBase::convexHull(pts.get(), num_points, keepTriangles,
+  return ConvexBase::convexHull(pts->data(), num_points, keepTriangles,
                                 qhullCommand);
 }
 
@@ -77,16 +77,16 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   std::vector<int> pts_to_vertices(num_points, -1);
 
   // Initialize the vertices
-  int nvertex = (qh.vertexCount());
-  std::shared_ptr<Vec3f> vertices(new Vec3f[size_t(nvertex)]);
-  Vec3f* vertices_ = vertices.get();
+  size_t nvertex = static_cast<size_t>(qh.vertexCount());
+  std::shared_ptr<std::vector<Vec3f>> vertices(
+      new std::vector<Vec3f>(size_t(nvertex)));
   QhullVertexList vertexList(qh.vertexList());
-  int i_vertex = 0;
+  size_t i_vertex = 0;
   for (QhullVertexList::const_iterator v = vertexList.begin();
        v != vertexList.end(); ++v) {
     QhullPoint pt((*v).point());
     pts_to_vertices[(size_t)pt.id()] = (int)i_vertex;
-    vertices_[i_vertex] = Vec3f(pt[0], pt[1], pt[2]);
+    (*vertices)[i_vertex] = Vec3f(pt[0], pt[1], pt[2]);
     ++i_vertex;
   }
   assert(i_vertex == nvertex);
@@ -100,11 +100,12 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   convex->initialize(vertices, static_cast<unsigned int>(nvertex));
 
   // Build the neighbors
-  convex->neighbors.reset(new Neighbors[size_t(nvertex)]);
-  std::vector<std::set<index_type> > nneighbors(static_cast<size_t>(nvertex));
+  convex->neighbors.reset(new std::vector<Neighbors>(size_t(nvertex)));
+  std::vector<std::set<index_type>> nneighbors(static_cast<size_t>(nvertex));
   if (keepTriangles) {
     convex_tri->num_polygons = static_cast<unsigned int>(qh.facetCount());
-    convex_tri->polygons.reset(new Triangle[convex_tri->num_polygons]);
+    convex_tri->polygons.reset(
+        new std::vector<Triangle>(convex_tri->num_polygons));
     convex_tri->computeCenter();
   }
 
@@ -128,7 +129,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
               f_vertices[2].point().id())]));
       if (keepTriangles) {
         reorderTriangle(convex_tri, tri);
-        convex_tri->polygons.get()[i_polygon++] = tri;
+        (*convex_tri->polygons)[i_polygon++] = tri;
       }
       for (size_t j = 0; j < n; ++j) {
         size_t i = (j == 0) ? n - 1 : j - 1;
@@ -167,10 +168,14 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   }
   assert(!keepTriangles || static_cast<int>(i_polygon) == qh.facetCount());
 
+  // Build the double representation (free in this case because qhull has
+  // alreday run)
+  convex->buildDoubleDescriptionFromQHullResult(qh);
+
   // Fill the neighbor attribute of the returned object.
-  convex->nneighbors_.reset(new unsigned int[c_nneighbors]);
-  unsigned int* p_nneighbors = convex->nneighbors_.get();
-  Neighbors* neighbors_ = convex->neighbors.get();
+  convex->nneighbors_.reset(new std::vector<unsigned int>(c_nneighbors));
+  unsigned int* p_nneighbors = convex->nneighbors_->data();
+  std::vector<Neighbors>& neighbors_ = *(convex->neighbors);
   for (size_t i = 0; i < static_cast<size_t>(nvertex); ++i) {
     Neighbors& n = neighbors_[i];
     if (nneighbors[i].size() >= (std::numeric_limits<unsigned char>::max)())
@@ -180,7 +185,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
     p_nneighbors =
         std::copy(nneighbors[i].begin(), nneighbors[i].end(), p_nneighbors);
   }
-  assert(p_nneighbors == convex->nneighbors_.get() + c_nneighbors);
+  assert(p_nneighbors == convex->nneighbors_->data() + c_nneighbors);
   return convex;
 #else
   throw std::logic_error(
@@ -191,5 +196,46 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   HPP_FCL_UNUSED_VARIABLE(qhullCommand);
 #endif
 }
+
+#ifdef HPP_FCL_HAS_QHULL
+void ConvexBase::buildDoubleDescription() {
+  if (num_points <= 3) {
+    throw std::invalid_argument(
+        "You shouldn't use this function with a convex less than"
+        " 4 points.");
+  }
+
+  Qhull qh;
+  const char* command = "Qt";
+  qh.runQhull("", 3, static_cast<int>(num_points), (*points)[0].data(),
+              command);
+
+  if (qh.qhullStatus() != qh_ERRnone) {
+    if (qh.hasQhullMessage()) std::cerr << qh.qhullMessage() << std::endl;
+    throw std::logic_error("Qhull failed");
+  }
+
+  buildDoubleDescriptionFromQHullResult(qh);
+}
+
+void ConvexBase::buildDoubleDescriptionFromQHullResult(const Qhull& qh) {
+  num_normals_and_offsets = static_cast<unsigned int>(qh.facetCount());
+  normals.reset(new std::vector<Vec3f>(num_normals_and_offsets));
+  std::vector<Vec3f>& normals_ = *normals;
+  offsets.reset(new std::vector<double>(num_normals_and_offsets));
+  std::vector<double>& offsets_ = *offsets;
+  unsigned int i_normal = 0;
+  for (QhullFacet facet = qh.beginFacet(); facet != qh.endFacet();
+       facet = facet.next()) {
+    const orgQhull::QhullHyperplane& plane = facet.hyperplane();
+    normals_[i_normal] = Vec3f(plane.coordinates()[0], plane.coordinates()[1],
+                               plane.coordinates()[2]);
+    offsets_[i_normal] = plane.offset();
+    i_normal++;
+  }
+  assert(static_cast<int>(i_normal) == qh.facetCount());
+}
+#endif
+
 }  // namespace fcl
 }  // namespace hpp

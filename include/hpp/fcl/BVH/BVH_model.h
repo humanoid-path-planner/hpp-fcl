@@ -64,13 +64,13 @@ class BVSplitter;
 class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
  public:
   /// @brief Geometry point data
-  std::shared_ptr<Vec3f> vertices;
+  std::shared_ptr<std::vector<Vec3f>> vertices;
 
   /// @brief Geometry triangle index data, will be NULL for point clouds
-  std::shared_ptr<Triangle> tri_indices;
+  std::shared_ptr<std::vector<Triangle>> tri_indices;
 
   /// @brief Geometry point data in previous frame
-  std::shared_ptr<Vec3f> prev_vertices;
+  std::shared_ptr<std::vector<Vec3f>> prev_vertices;
 
   /// @brief Number of triangles
   unsigned int num_tris;
@@ -200,8 +200,21 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
   Vec3f computeCOM() const {
     FCL_REAL vol = 0;
     Vec3f com(0, 0, 0);
-    const Vec3f* vertices_ = vertices.get();
-    const Triangle* tri_indices_ = tri_indices.get();
+    if (!(vertices.get())) {
+      std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
+                   "vertices."
+                << std::endl;
+      return com;
+    }
+    const std::vector<Vec3f>& vertices_ = *vertices;
+    if (!(tri_indices.get())) {
+      std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
+                   "triangles."
+                << std::endl;
+      return com;
+    }
+    const std::vector<Triangle>& tri_indices_ = *tri_indices;
+
     for (unsigned int i = 0; i < num_tris; ++i) {
       const Triangle& tri = tri_indices_[i];
       FCL_REAL d_six_vol =
@@ -216,8 +229,20 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
 
   FCL_REAL computeVolume() const {
     FCL_REAL vol = 0;
-    const Vec3f* vertices_ = vertices.get();
-    const Triangle* tri_indices_ = tri_indices.get();
+    if (!(vertices.get())) {
+      std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
+                   "vertices."
+                << std::endl;
+      return vol;
+    }
+    const std::vector<Vec3f>& vertices_ = *vertices;
+    if (!(tri_indices.get())) {
+      std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
+                   "triangles."
+                << std::endl;
+      return vol;
+    }
+    const std::vector<Triangle>& tri_indices_ = *tri_indices;
     for (unsigned int i = 0; i < num_tris; ++i) {
       const Triangle& tri = tri_indices_[i];
       FCL_REAL d_six_vol =
@@ -235,8 +260,20 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
     C_canonical << 1 / 60.0, 1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0,
         1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0;
 
-    const Vec3f* vertices_ = vertices.get();
-    const Triangle* tri_indices_ = tri_indices.get();
+    if (!(vertices.get())) {
+      std::cerr << "BVH Error in `computeMomentofInertia`! The BVHModel does "
+                   "not contain vertices."
+                << std::endl;
+      return C;
+    }
+    const std::vector<Vec3f>& vertices_ = *vertices;
+    if (!(vertices.get())) {
+      std::cerr << "BVH Error in `computeMomentofInertia`! The BVHModel does "
+                   "not contain vertices."
+                << std::endl;
+      return C;
+    }
+    const std::vector<Triangle>& tri_indices_ = *tri_indices;
     for (unsigned int i = 0; i < num_tris; ++i) {
       const Triangle& tri = tri_indices_[i];
       const Vec3f& v1 = vertices_[tri[0]];
@@ -304,13 +341,13 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   /// @brief Access the bv giving the its index
   const BVNode<BV>& getBV(unsigned int i) const {
     assert(i < num_bvs);
-    return bvs.get()[i];
+    return (*bvs)[i];
   }
 
   /// @brief Access the bv giving the its index
   BVNode<BV>& getBV(unsigned int i) {
     assert(i < num_bvs);
-    return bvs.get()[i];
+    return (*bvs)[i];
   }
 
   /// @brief Get the number of bv in the BVH
@@ -336,10 +373,10 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   bool allocateBVs();
 
   unsigned int num_bvs_allocated;
-  std::shared_ptr<unsigned int> primitive_indices;
+  std::shared_ptr<std::vector<unsigned int>> primitive_indices;
 
   /// @brief Bounding volume hierarchy
-  std::shared_ptr<BVNode<BV>> bvs;
+  std::shared_ptr<std::vector<BVNode<BV>>> bvs;
 
   /// @brief Number of BV nodes in bounding volume hierarchy
   unsigned int num_bvs;
@@ -370,16 +407,19 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   /// OBBRSS), special implementation is provided.
   void makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
                                  const Vec3f& parent_c) {
-    BVNode<BV>* bvs_ = bvs.get();
-    if (!bvs_[bv_id].isLeaf()) {
-      makeParentRelativeRecurse(bvs_[bv_id].first_child, parent_axes,
-                                bvs_[bv_id].getCenter());
+    std::vector<BVNode<BV>>& bvs_ = *bvs;
+    if (!bvs_[static_cast<size_t>(bv_id)].isLeaf()) {
+      makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child,
+                                parent_axes,
+                                bvs_[static_cast<size_t>(bv_id)].getCenter());
 
-      makeParentRelativeRecurse(bvs_[bv_id].first_child + 1, parent_axes,
-                                bvs_[bv_id].getCenter());
+      makeParentRelativeRecurse(
+          bvs_[static_cast<size_t>(bv_id)].first_child + 1, parent_axes,
+          bvs_[static_cast<size_t>(bv_id)].getCenter());
     }
 
-    bvs_[bv_id].bv = translate(bvs_[bv_id].bv, -parent_c);
+    bvs_[static_cast<size_t>(bv_id)].bv =
+        translate(bvs_[static_cast<size_t>(bv_id)].bv, -parent_c);
   }
 
  private:
@@ -436,10 +476,14 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
 
     if (num_bvs != other.num_bvs) return false;
 
-    BVNode<BV>* bvs_ = bvs.get();
-    BVNode<BV>* other_bvs_ = other.bvs.get();
-    for (unsigned int k = 0; k < num_bvs; ++k) {
-      if (bvs_[k] != other_bvs_[k]) return false;
+    if ((!(bvs.get()) && other.bvs.get()) || (bvs.get() && !(other.bvs.get())))
+      return false;
+    if (bvs.get() && other.bvs.get()) {
+      const std::vector<BVNode<BV>>& bvs_ = *bvs;
+      const std::vector<BVNode<BV>>& other_bvs_ = *(other.bvs);
+      for (unsigned int k = 0; k < num_bvs; ++k) {
+        if (bvs_[k] != other_bvs_[k]) return false;
+      }
     }
 
     return true;
