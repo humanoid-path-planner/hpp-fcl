@@ -96,7 +96,7 @@ def _templateParamToDict(param):
     if defname is None and declname is None:
         typetext = type_.text
         if typetext is None:
-          typetext = ""
+            typetext = ""
         for c in type_.iter():
             if c == type_:
                 continue
