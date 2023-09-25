@@ -95,6 +95,10 @@ def _templateParamToDict(param):
     # - the name of the template argument is recognized as the name of a type...
     if defname is None and declname is None:
         typetext = type.text
+        if typetext is None:
+            print("type: ", type)
+            print("declname: ", declname)
+            print("defname: ", defname)
         for c in type.iter():
             if c == type:
                 continue
