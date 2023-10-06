@@ -39,6 +39,7 @@
 #ifndef HPP_FCL_GJK_H
 #define HPP_FCL_GJK_H
 
+#include <array>
 #include <vector>
 
 #include <hpp/fcl/shape/geometric_shapes.h>
@@ -65,6 +66,7 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
   struct ShapeData {
     std::vector<int8_t> visited;
+    mutable size_t num_support_dotprods;
   };
 
   /// @brief Store temporary data for the computation of the support point for
@@ -260,6 +262,9 @@ struct HPP_FCL_DLLAPI GJK {
   /// @brief Get GJK number of iterations.
   inline int getIterationsMomentumStopped() { return iterations_momentum_stop; }
 
+  /// @brief Get GJK number of iterations.
+  std::array<size_t, 2> getNumSupportDotprods() { return num_support_dotprods; }
+
   /// @brief Get GJK tolerance.
   inline FCL_REAL getTolerance() { return tolerance; }
 
@@ -276,6 +281,8 @@ struct HPP_FCL_DLLAPI GJK {
   FCL_REAL distance_upper_bound;
   size_t iterations;
   int iterations_momentum_stop;
+  // Number of dot products done in the support function for each shape
+  std::array<size_t, 2> num_support_dotprods;
 
   /// @brief discard one vertex from the simplex
   inline void removeVertex(Simplex& simplex);

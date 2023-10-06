@@ -179,6 +179,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   if (hint < 0 || hint >= (int)convex->num_points) hint = 0;
   FCL_REAL maxdot = pts[static_cast<size_t>(hint)].dot(dir);
   std::vector<int8_t>& visited = data->visited;
+  size_t num_support_dotprods = 0;
   visited.assign(convex->num_points, false);
   visited[static_cast<std::size_t>(hint)] = true;
   // when the first face is orthogonal to dir, all the dot products will be
@@ -192,6 +193,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
       if (visited[ip]) continue;
       visited[ip] = true;
       const FCL_REAL dot = pts[ip].dot(dir);
+      num_support_dotprods++;
       bool better = false;
       if (dot > maxdot) {
         better = true;
@@ -206,6 +208,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
     }
   }
 
+  data->num_support_dotprods = num_support_dotprods;
   support = pts[static_cast<size_t>(hint)];
 }
 
@@ -223,6 +226,7 @@ void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
       hint = i;
     }
   }
+
   support = pts[static_cast<size_t>(hint)];
 }
 
@@ -532,6 +536,8 @@ void GJK::initialize() {
   convergence_criterion_type = GJKConvergenceCriterionType::Relative;
   iterations = 0;
   iterations_momentum_stop = 0;
+  num_support_dotprods[0] = 0;
+  num_support_dotprods[1] = 0;
 }
 
 Vec3f GJK::getGuessFromSimplex() const { return ray; }
@@ -881,6 +887,8 @@ inline void GJK::appendVertex(Simplex& simplex, const Vec3f& v,
                               bool isNormalized, support_func_guess_t& hint) {
   simplex.vertex[simplex.rank] = free_v[--nfree];  // set the memory
   getSupport(v, isNormalized, *simplex.vertex[simplex.rank++], hint);
+  num_support_dotprods[0] += shape->data[0].num_support_dotprods;
+  num_support_dotprods[1] += shape->data[1].num_support_dotprods;
 }
 
 bool GJK::encloseOrigin() {
