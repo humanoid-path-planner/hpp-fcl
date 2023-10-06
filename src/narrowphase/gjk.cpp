@@ -1458,6 +1458,7 @@ void EPA::initialize() {
   nextsv = 0;
   for (size_t i = 0; i < max_face_num; ++i)
     stock.append(&fc_store[max_face_num - i - 1]);
+  iterations = 0;
 }
 
 bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b,
@@ -1573,7 +1574,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
                                     // minimum distance to origin) to split
       SimplexF outer = *best;
       size_t pass = 0;
-      size_t iterations = 0;
+      iterations = 0;
 
       // set the face connectivity
       bind(tetrahedron[0], 0, tetrahedron[1], 0);

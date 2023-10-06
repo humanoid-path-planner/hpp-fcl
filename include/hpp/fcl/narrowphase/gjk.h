@@ -360,11 +360,16 @@ struct HPP_FCL_DLLAPI EPA {
     SimplexHorizon() : cf(NULL), ff(NULL), nf(0) {}
   };
 
+ public:
+  FCL_REAL getTolerance() { return tolerance; }
+  size_t getIterations() { return iterations; }
+
  private:
   unsigned int max_face_num;
   unsigned int max_vertex_num;
   unsigned int max_iterations;
   FCL_REAL tolerance;
+  size_t iterations;
 
  public:
   enum Status {
