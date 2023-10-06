@@ -257,16 +257,20 @@ struct HPP_FCL_DLLAPI GJK {
                         const FCL_REAL& omega);
 
   /// @brief Get GJK number of iterations.
-  inline size_t getIterations() { return iterations; }
+  inline size_t getIterations() const { return iterations; }
 
   /// @brief Get GJK number of iterations.
-  inline int getIterationsMomentumStopped() { return iterations_momentum_stop; }
+  inline int getIterationsMomentumStopped() const {
+    return iterations_momentum_stop;
+  }
 
   /// @brief Get GJK number of iterations.
-  std::array<size_t, 2> getNumSupportDotprods() { return num_support_dotprods; }
+  inline std::array<size_t, 2> getNumSupportDotprods() const {
+    return num_support_dotprods;
+  }
 
   /// @brief Get GJK tolerance.
-  inline FCL_REAL getTolerance() { return tolerance; }
+  inline FCL_REAL getTolerance() const { return tolerance; }
 
  private:
   SimplexV store_v[4];
@@ -372,8 +376,8 @@ struct HPP_FCL_DLLAPI EPA {
   };
 
  public:
-  FCL_REAL getTolerance() { return tolerance; }
-  size_t getIterations() { return iterations; }
+  inline FCL_REAL getTolerance() const { return tolerance; }
+  inline size_t getIterations() const { return iterations; }
 
  private:
   unsigned int max_face_num;
