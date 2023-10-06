@@ -129,7 +129,7 @@ inline FCL_REAL _computeDistanceForCase1(const Vec3f& T, const Vec3f& a,
   AABB_corner.noalias() = T.cwiseAbs() - Bf * b - a;
 #endif
   // */
-  return AABB_corner.array().max(0).matrix().squaredNorm();
+  return AABB_corner.array().max(FCL_REAL(0)).matrix().squaredNorm();
 }
 
 inline FCL_REAL _computeDistanceForCase2(const Matrix3f& B, const Vec3f& T,
@@ -138,7 +138,7 @@ inline FCL_REAL _computeDistanceForCase2(const Matrix3f& B, const Vec3f& T,
   /*
   Vec3f AABB_corner(PRODUCT(B.transpose(), T).cwiseAbs() - b);
   AABB_corner.noalias() -= PRODUCT(Bf.transpose(), a);
-  return AABB_corner.array().max(0).matrix().squaredNorm ();
+  return AABB_corner.array().max(FCL_REAL(0)).matrix().squaredNorm ();
   /*/
 #if MANUAL_PRODUCT
   FCL_REAL s, t = 0;
@@ -151,7 +151,7 @@ inline FCL_REAL _computeDistanceForCase2(const Matrix3f& B, const Vec3f& T,
   return t;
 #else
   Vec3f AABB_corner((B.transpose() * T).cwiseAbs() - Bf.transpose() * a - b);
-  return AABB_corner.array().max(0).matrix().squaredNorm();
+  return AABB_corner.array().max(FCL_REAL(0)).matrix().squaredNorm();
 #endif
   // */
 }

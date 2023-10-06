@@ -292,7 +292,7 @@ inline FCL_REAL obbDisjoint_check_A_axis(const Vec3f& T, const Vec3f& a,
   // |T| - |B| * b - a
   Vec3f AABB_corner(T.cwiseAbs() - a);
   AABB_corner.noalias() -= Bf * b;
-  return AABB_corner.array().max(0).matrix().squaredNorm();
+  return AABB_corner.array().max(FCL_REAL(0)).matrix().squaredNorm();
 }
 
 inline FCL_REAL obbDisjoint_check_B_axis(const Matrix3f& B, const Vec3f& T,
@@ -356,10 +356,12 @@ bool obbDisjointAndLowerBoundDistance(const Matrix3f& B, const Vec3f& T,
       request.break_distance * request.break_distance;
 
   Matrix3f Bf(B.cwiseAbs());
-  const Vec3f a(
-      (a_ + Vec3f::Constant(request.security_margin / 2)).array().max(0));
-  const Vec3f b(
-      (b_ + Vec3f::Constant(request.security_margin / 2)).array().max(0));
+  const Vec3f a((a_ + Vec3f::Constant(request.security_margin / 2))
+                    .array()
+                    .max(FCL_REAL(0)));
+  const Vec3f b((b_ + Vec3f::Constant(request.security_margin / 2))
+                    .array()
+                    .max(FCL_REAL(0)));
 
   // Corner of b axis aligned bounding box the closest to the origin
   squaredLowerBoundDistance = internal::obbDisjoint_check_A_axis(T, a, b, Bf);

@@ -87,16 +87,18 @@ template_include_extern = """#include <{filename}>
 
 
 def _templateParamToDict(param):
-    type = param.find("type")
+    type_ = param.find("type")
     declname = param.find("declname")
     defname = param.find("defname")
     # FIXME type may contain references in two ways:
     # - the real param type
     # - the name of the template argument is recognized as the name of a type...
     if defname is None and declname is None:
-        typetext = type.text
-        for c in type.iter():
-            if c == type:
+        typetext = type_.text
+        if typetext is None:
+            typetext = ""
+        for c in type_.iter():
+            if c == type_:
                 continue
             if c.text is not None:
                 typetext += c.text
@@ -111,10 +113,10 @@ def _templateParamToDict(param):
                 assert len(s) == 2
                 return {"type": s[0].strip(), "name": s[1].strip()}
         else:
-            return {"type": type.text, "name": ""}
+            return {"type": type_.text, "name": ""}
     else:
         assert defname.text == declname.text
-        return {"type": type.text, "name": defname.text}
+        return {"type": type_.text, "name": defname.text}
 
 
 def makeHeaderGuard(filename):
