@@ -257,6 +257,9 @@ struct HPP_FCL_DLLAPI GJK {
   /// @brief Get GJK number of iterations.
   inline size_t getIterations() { return iterations; }
 
+  /// @brief Get GJK number of iterations.
+  inline int getIterationsMomentumStopped() { return iterations_momentum_stop; }
+
   /// @brief Get GJK tolerance.
   inline FCL_REAL getTolerance() { return tolerance; }
 
@@ -272,6 +275,7 @@ struct HPP_FCL_DLLAPI GJK {
   FCL_REAL tolerance;
   FCL_REAL distance_upper_bound;
   size_t iterations;
+  int iterations_momentum_stop;
 
   /// @brief discard one vertex from the simplex
   inline void removeVertex(Simplex& simplex);
