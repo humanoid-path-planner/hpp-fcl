@@ -308,8 +308,8 @@ struct HPP_FCL_DLLAPI GJK {
   /// which reuse checks from edges.
   /// Finally, in addition to the voronoi procedure, checks relying on the order
   /// of construction
-  // of the simplex are added. To know more about these, visit
-  // https://caseymuratori.com/blog_0003.
+  /// of the simplex are added. To know more about these, visit
+  /// https://caseymuratori.com/blog_0003.
   bool projectLineOrigin(const Simplex& current, Simplex& next);
 
   /// @brief Project origin (0) onto triangle a-b-c
