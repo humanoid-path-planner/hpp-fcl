@@ -2,6 +2,7 @@
  *  Software License Agreement (BSD License)
  *
  *  Copyright (c) 2019, CNRS-LAAS.
+ *  Copyright (c) 2023, INRIA.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -42,7 +43,9 @@
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
+#include <hpp/fcl/hfield.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
+#include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/internal/BV_splitter.h>
 
 #include "utility.h"
@@ -50,16 +53,7 @@
 
 namespace utf = boost::unit_test::framework;
 
-using hpp::fcl::BVHModel;
-using hpp::fcl::BVSplitter;
-using hpp::fcl::CollisionRequest;
-using hpp::fcl::CollisionResult;
-using hpp::fcl::FCL_REAL;
-using hpp::fcl::OBBRSS;
-using hpp::fcl::OcTree;
-using hpp::fcl::Transform3f;
-using hpp::fcl::Triangle;
-using hpp::fcl::Vec3f;
+using namespace hpp::fcl;
 
 void makeMesh(const std::vector<Vec3f>& vertices,
               const std::vector<Triangle>& triangles, BVHModel<OBBRSS>& model) {
@@ -108,7 +102,7 @@ hpp::fcl::OcTree makeOctree(const BVHModel<OBBRSS>& mesh,
   return OcTree(octree);
 }
 
-BOOST_AUTO_TEST_CASE(OCTREE) {
+BOOST_AUTO_TEST_CASE(octree_mesh) {
   Eigen::IOFormat tuple(Eigen::FullPrecision, Eigen::DontAlignCols, "", ", ",
                         "", "", "(", ")");
   FCL_REAL resolution(10.);
@@ -129,6 +123,22 @@ BOOST_AUTO_TEST_CASE(OCTREE) {
       hpp::fcl::loadOctreeFile((path / "env.octree").string(), resolution));
 
   std::cout << "Finished loading octree." << std::endl;
+
+  // Test operator==
+  {
+    BOOST_CHECK(envOctree == envOctree);
+    BOOST_CHECK(envOctree == OcTree(envOctree));
+
+    const OcTree envOctree_from_tree(envOctree.getTree());
+    BOOST_CHECK(envOctree == envOctree_from_tree);
+  }
+
+  // Test tobytes()
+  {
+    const std::vector<uint8_t> bytes = envOctree.tobytes();
+    BOOST_CHECK(bytes.size() > 0 && bytes.size() <= envOctree.toBoxes().size() *
+                                                        3 * sizeof(FCL_REAL));
+  }
 
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-2000, -2000, 0, 2000, 2000, 2000};
@@ -162,6 +172,79 @@ BOOST_AUTO_TEST_CASE(OCTREE) {
       hpp::fcl::DistanceResult dres;
       hpp::fcl::distance(&robMesh, tf1, &envMesh, tf2, dreq, dres);
       std::cout << "distance mesh mesh: " << dres.min_distance << std::endl;
+      BOOST_CHECK(dres.min_distance < sqrt(2.) * resolution);
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(octree_height_field) {
+  Eigen::IOFormat tuple(Eigen::FullPrecision, Eigen::DontAlignCols, "", ", ",
+                        "", "", "(", ")");
+  FCL_REAL resolution(10.);
+  std::vector<Vec3f> pEnv;
+  std::vector<Triangle> tEnv;
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+  loadOBJFile((path / "env.obj").string().c_str(), pEnv, tEnv);
+
+  BVHModel<OBBRSS> envMesh;
+  // Build meshes with robot and environment
+  makeMesh(pEnv, tEnv, envMesh);
+  // Build octomap with environment
+  envMesh.computeLocalAABB();
+  // Load octree built from envMesh by makeOctree(envMesh, resolution)
+  OcTree envOctree(
+      hpp::fcl::loadOctreeFile((path / "env.octree").string(), resolution));
+
+  std::cout << "Finished loading octree." << std::endl;
+
+  // Building hfield
+  const FCL_REAL x_dim = 10, y_dim = 20;
+  const int nx = 100, ny = 100;
+  const FCL_REAL max_altitude = 1., min_altitude = 0.;
+  const MatrixXf heights = MatrixXf::Constant(ny, nx, max_altitude);
+
+  HeightField<AABB> hfield(x_dim, y_dim, heights, min_altitude);
+  hfield.computeLocalAABB();
+
+  std::vector<Transform3f> transforms;
+  FCL_REAL extents[] = {-2000, -2000, 0, 2000, 2000, 2000};
+#ifndef NDEBUG  // if debug mode
+  std::size_t N = 1000;
+#else
+  std::size_t N = 100000;
+#endif
+  N = hpp::fcl::getNbRun(utf::master_test_suite().argc,
+                         utf::master_test_suite().argv, N);
+
+  generateRandomTransforms(extents, transforms, 2 * N);
+
+  CollisionRequest request(hpp::fcl::CONTACT | hpp::fcl::DISTANCE_LOWER_BOUND,
+                           1);
+  for (std::size_t i = 0; i < N; ++i) {
+    CollisionResult resultBox;
+    CollisionResult resultHfield1, resultHfield2;
+    Transform3f tf1(transforms[2 * i]);
+    Transform3f tf2(transforms[2 * i + 1]);
+
+    Box box;
+    Transform3f box_tf;
+    constructBox(hfield.aabb_local, tf2, box, box_tf);
+
+    // Test collision between octree and equivalent box.
+    hpp::fcl::collide(&envOctree, tf1, &box, box_tf, request, resultBox);
+    // Test collision between octree and hfield.
+    hpp::fcl::collide(&envOctree, tf1, &hfield, tf2, request, resultHfield1);
+    hpp::fcl::collide(&hfield, tf2, &envOctree, tf1, request, resultHfield2);
+
+    bool resBox(resultBox.isCollision());
+    bool resHfield(resultHfield1.isCollision());
+    BOOST_CHECK(resBox == resHfield);
+    BOOST_CHECK(resultHfield1.isCollision() == resultHfield2.isCollision());
+    if (!resBox && resHfield) {
+      hpp::fcl::DistanceRequest dreq;
+      hpp::fcl::DistanceResult dres;
+      hpp::fcl::distance(&envMesh, tf1, &box, box_tf, dreq, dres);
+      std::cout << "distance mesh box: " << dres.min_distance << std::endl;
       BOOST_CHECK(dres.min_distance < sqrt(2.) * resolution);
     }
   }

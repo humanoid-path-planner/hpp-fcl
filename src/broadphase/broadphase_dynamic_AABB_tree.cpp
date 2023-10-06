@@ -39,7 +39,7 @@
 
 #include <limits>
 
-#if HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAVE_OCTOMAP
 #include "hpp/fcl/octree.h"
 #endif
 

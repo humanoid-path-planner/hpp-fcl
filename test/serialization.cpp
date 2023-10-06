@@ -49,6 +49,10 @@
 #include <hpp/fcl/serialization/convex.h>
 #include <hpp/fcl/serialization/memory.h>
 
+#ifdef HPP_FCL_HAS_OCTOMAP
+#include <hpp/fcl/serialization/octree.h>
+#endif
+
 #include "utility.h"
 #include "fcl_resources/config.h"
 
@@ -178,6 +182,16 @@ BOOST_AUTO_TEST_CASE(test_collision_data) {
   test_serialization(distance_result);
 }
 
+template <typename T>
+void checkEqualStdVector(const std::vector<T>& v1, const std::vector<T>& v2) {
+  BOOST_CHECK(v1.size() == v2.size());
+  if (v1.size() == v2.size()) {
+    for (size_t i = 0; i < v1.size(); i++) {
+      BOOST_CHECK(v1[i] == v2[i]);
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_BVHModel) {
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;
@@ -191,11 +205,19 @@ BOOST_AUTO_TEST_CASE(test_BVHModel) {
   m1.beginModel();
   m1.addSubModel(p1, t1);
   m1.endModel();
+  BOOST_CHECK(m1.num_vertices == p1.size());
+  BOOST_CHECK(m1.num_tris == t1.size());
+  checkEqualStdVector(*m1.vertices, p1);
+  checkEqualStdVector(*m1.tri_indices, t1);
   BOOST_CHECK(m1 == m1);
 
   m2.beginModel();
   m2.addSubModel(p2, t2);
   m2.endModel();
+  BOOST_CHECK(m2.num_vertices == p2.size());
+  BOOST_CHECK(m2.num_tris == t2.size());
+  checkEqualStdVector(*m2.vertices, p2);
+  checkEqualStdVector(*m2.tri_indices, t2);
   BOOST_CHECK(m2 == m2);
   BOOST_CHECK(m1 != m2);
 
@@ -302,6 +324,45 @@ BOOST_AUTO_TEST_CASE(test_shapes) {
     test_serialization(plane, plane_copy);
   }
 }
+
+#ifdef HPP_FCL_HAS_OCTOMAP
+BOOST_AUTO_TEST_CASE(test_octree) {
+  const FCL_REAL resolution = 1e-2;
+  const Matrixx3f points = Matrixx3f::Random(1000, 3);
+  OcTreePtr_t octree_ptr = makeOctree(points, resolution);
+  const OcTree& octree = *octree_ptr.get();
+
+  const std::string tmp_dir(boost::archive::tmpdir());
+  const std::string txt_filename = tmp_dir + "file.txt";
+  const std::string bin_filename = tmp_dir + "file.bin";
+
+  {
+    std::ofstream ofs(bin_filename.c_str(), std::ios::binary);
+    boost::archive::binary_oarchive oa(ofs);
+    oa << octree;
+  }
+
+  OcTree octree_value(1.);
+  {
+    std::ifstream ifs(bin_filename.c_str(),
+                      std::fstream::binary | std::fstream::in);
+    boost::archive::binary_iarchive ia(ifs);
+
+    ia >> octree_value;
+  }
+
+  BOOST_CHECK(octree.getTree() == octree.getTree());
+  BOOST_CHECK(octree_value.getTree() == octree_value.getTree());
+  //  BOOST_CHECK(octree.getTree() == octree_value.getTree());
+  BOOST_CHECK(octree.getResolution() == octree_value.getResolution());
+  BOOST_CHECK(octree.getTree()->size() == octree_value.getTree()->size());
+  BOOST_CHECK(octree.toBoxes().size() == octree_value.toBoxes().size());
+  BOOST_CHECK(octree == octree_value);
+
+  OcTree octree_copy(1.);
+  test_serialization(octree, octree_copy);
+}
+#endif
 
 BOOST_AUTO_TEST_CASE(test_memory_footprint) {
   Sphere sphere(1.);

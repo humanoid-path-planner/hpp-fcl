@@ -80,7 +80,7 @@ template <>
 FCL_REAL ShapeShapeDistance<Capsule, Capsule>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const DistanceRequest& request, DistanceResult& result) {
+    const DistanceRequest& /*request*/, DistanceResult& result) {
   const Capsule* capsule1 = static_cast<const Capsule*>(o1);
   const Capsule* capsule2 = static_cast<const Capsule*>(o2);
 
@@ -153,18 +153,15 @@ FCL_REAL ShapeShapeDistance<Capsule, Capsule>(
 
   // witness points achieving the distance between the two segments
   FCL_REAL distance = (w1 - w2).norm();
-  const Vec3f normal = (w1 - w2) / distance;
-  result.normal = normal;
 
   // capsule spcecific distance computation
   distance = distance - (radius1 + radius2);
   result.min_distance = distance;
 
-  // witness points for the capsules
-  if (request.enable_nearest_points) {
-    result.nearest_points[0] = w1 - radius1 * normal;
-    result.nearest_points[1] = w2 + radius2 * normal;
-  }
+  // Normal points from o1 to o2
+  result.normal = (w2 - w1).normalized();
+  result.nearest_points[0] = w1 + radius1 * result.normal;
+  result.nearest_points[1] = w2 - radius2 * result.normal;
 
   return distance;
 }

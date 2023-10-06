@@ -74,22 +74,10 @@ FCL_REAL ShapeShapeDistance<Sphere, Sphere>(
   FCL_REAL dist = c1c2.norm();
   Vec3f unit(0, 0, 0);
   if (dist > epsilon) unit = c1c2 / dist;
-  FCL_REAL penetrationDepth;
-  penetrationDepth = r1 + r2 - dist;
-  bool collision = (penetrationDepth >= 0);
-  result.min_distance = -penetrationDepth;
-  if (collision) {
-    // Take contact point at the middle of intersection between each sphere
-    // and segment [c1 c2].
-    FCL_REAL abscissa = .5 * r1 + .5 * (dist - r2);
-    Vec3f contact = center1 + abscissa * unit;
-    result.nearest_points[0] = result.nearest_points[1] = contact;
-    return result.min_distance;
-  } else {
-    FCL_REAL abs1(r1), abs2(dist - r2);
-    result.nearest_points[0] = center1 + abs1 * unit;
-    result.nearest_points[1] = center1 + abs2 * unit;
-  }
+  result.min_distance = dist - (r1 + r2);
+  result.normal = unit;
+  result.nearest_points[0] = center1 + r1 * unit;
+  result.nearest_points[1] = center2 - r2 * unit;
   return result.min_distance;
 }
 
@@ -101,7 +89,7 @@ std::size_t ShapeShapeCollider<Sphere, Sphere>::run(
   const Sphere* s1 = static_cast<const Sphere*>(o1);
   const Sphere* s2 = static_cast<const Sphere*>(o2);
 
-  // We assume that capsules are centered at the origin.
+  // We assume that spheres are centered at the origin.
   const fcl::Vec3f& center1 = tf1.getTranslation();
   const fcl::Vec3f& center2 = tf2.getTranslation();
   FCL_REAL r1 = s1->radius;
@@ -119,12 +107,8 @@ std::size_t ShapeShapeCollider<Sphere, Sphere>::run(
                                              center1 + unit * r1,
                                              center2 - unit * r2);
   if (distToCollision <= request.collision_distance_threshold) {
-    // Take contact point at the middle of intersection between each sphere
-    // and segment [c1 c2].
-    FCL_REAL abscissa = .5 * r1 + .5 * (dist - r2);
-    Vec3f contactPoint = center1 + abscissa * unit;
-    Contact contact(o1, o2, -1, -1, contactPoint, unit,
-                    -(distToCollision + margin));
+    Contact contact(o1, o2, -1, -1, center1 + unit * r1, center2 - unit * r2,
+                    unit, distToCollision + margin);
     result.addContact(contact);
     return 1;
   }

@@ -108,8 +108,7 @@ void eigen(const Eigen::MatrixBase<Derived>& m,
   int n = 3;
   int j, iq, ip, i;
   Scalar tresh, theta, tau, t, sm, s, h, g, c;
-  int nrot;
-  HPP_FCL_UNUSED_VARIABLE(nrot);
+
   Scalar b[3];
   Scalar z[3];
   Scalar v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
@@ -119,8 +118,6 @@ void eigen(const Eigen::MatrixBase<Derived>& m,
     b[ip] = d[ip] = R(ip, ip);
     z[ip] = 0;
   }
-
-  nrot = 0;
 
   for (i = 0; i < 50; ++i) {
     sm = 0;
@@ -189,7 +186,6 @@ void eigen(const Eigen::MatrixBase<Derived>& m,
             v[j][ip] = g - s * (h + g * tau);
             v[j][iq] = h + s * (g - h * tau);
           }
-          nrot++;
         }
       }
     }

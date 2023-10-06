@@ -44,6 +44,7 @@
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/BV_node.h>
 #include <vector>
+#include <memory>
 
 namespace hpp {
 namespace fcl {
@@ -63,13 +64,13 @@ class BVSplitter;
 class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
  public:
   /// @brief Geometry point data
-  Vec3f* vertices;
+  std::shared_ptr<std::vector<Vec3f>> vertices;
 
   /// @brief Geometry triangle index data, will be NULL for point clouds
-  Triangle* tri_indices;
+  std::shared_ptr<std::vector<Triangle>> tri_indices;
 
   /// @brief Geometry point data in previous frame
-  Vec3f* prev_vertices;
+  std::shared_ptr<std::vector<Vec3f>> prev_vertices;
 
   /// @brief Number of triangles
   unsigned int num_tris;
@@ -100,11 +101,7 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
   BVHModelBase(const BVHModelBase& other);
 
   /// @brief deconstruction, delete mesh data related.
-  virtual ~BVHModelBase() {
-    delete[] vertices;
-    delete[] tri_indices;
-    delete[] prev_vertices;
-  }
+  virtual ~BVHModelBase() {}
 
   /// @brief Get the object type: it is a BVH
   OBJECT_TYPE getObjectType() const { return OT_BVH; }
@@ -203,13 +200,28 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
   Vec3f computeCOM() const {
     FCL_REAL vol = 0;
     Vec3f com(0, 0, 0);
+    if (!(vertices.get())) {
+      std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
+                   "vertices."
+                << std::endl;
+      return com;
+    }
+    const std::vector<Vec3f>& vertices_ = *vertices;
+    if (!(tri_indices.get())) {
+      std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
+                   "triangles."
+                << std::endl;
+      return com;
+    }
+    const std::vector<Triangle>& tri_indices_ = *tri_indices;
+
     for (unsigned int i = 0; i < num_tris; ++i) {
-      const Triangle& tri = tri_indices[i];
+      const Triangle& tri = tri_indices_[i];
       FCL_REAL d_six_vol =
-          (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
+          (vertices_[tri[0]].cross(vertices_[tri[1]])).dot(vertices_[tri[2]]);
       vol += d_six_vol;
-      com +=
-          (vertices[tri[0]] + vertices[tri[1]] + vertices[tri[2]]) * d_six_vol;
+      com += (vertices_[tri[0]] + vertices_[tri[1]] + vertices_[tri[2]]) *
+             d_six_vol;
     }
 
     return com / (vol * 4);
@@ -217,10 +229,24 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
 
   FCL_REAL computeVolume() const {
     FCL_REAL vol = 0;
+    if (!(vertices.get())) {
+      std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
+                   "vertices."
+                << std::endl;
+      return vol;
+    }
+    const std::vector<Vec3f>& vertices_ = *vertices;
+    if (!(tri_indices.get())) {
+      std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
+                   "triangles."
+                << std::endl;
+      return vol;
+    }
+    const std::vector<Triangle>& tri_indices_ = *tri_indices;
     for (unsigned int i = 0; i < num_tris; ++i) {
-      const Triangle& tri = tri_indices[i];
+      const Triangle& tri = tri_indices_[i];
       FCL_REAL d_six_vol =
-          (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
+          (vertices_[tri[0]].cross(vertices_[tri[1]])).dot(vertices_[tri[2]]);
       vol += d_six_vol;
     }
 
@@ -234,11 +260,25 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
     C_canonical << 1 / 60.0, 1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0,
         1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0;
 
+    if (!(vertices.get())) {
+      std::cerr << "BVH Error in `computeMomentofInertia`! The BVHModel does "
+                   "not contain vertices."
+                << std::endl;
+      return C;
+    }
+    const std::vector<Vec3f>& vertices_ = *vertices;
+    if (!(vertices.get())) {
+      std::cerr << "BVH Error in `computeMomentofInertia`! The BVHModel does "
+                   "not contain vertices."
+                << std::endl;
+      return C;
+    }
+    const std::vector<Triangle>& tri_indices_ = *tri_indices;
     for (unsigned int i = 0; i < num_tris; ++i) {
-      const Triangle& tri = tri_indices[i];
-      const Vec3f& v1 = vertices[tri[0]];
-      const Vec3f& v2 = vertices[tri[1]];
-      const Vec3f& v3 = vertices[tri[2]];
+      const Triangle& tri = tri_indices_[i];
+      const Vec3f& v1 = vertices_[tri[0]];
+      const Vec3f& v2 = vertices_[tri[1]];
+      const Vec3f& v3 = vertices_[tri[2]];
       Matrix3f A;
       A << v1.transpose(), v2.transpose(), v3.transpose();
       C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
@@ -275,10 +315,10 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
 
  public:
   /// @brief Split rule to split one BV node into two children
-  shared_ptr<BVSplitter<BV> > bv_splitter;
+  shared_ptr<BVSplitter<BV>> bv_splitter;
 
   /// @brief Fitting rule to fit a BV node to a set of geometry primitives
-  shared_ptr<BVFitter<BV> > bv_fitter;
+  shared_ptr<BVFitter<BV>> bv_fitter;
 
   /// @brief Default constructor to build an empty BVH
   BVHModel();
@@ -293,10 +333,7 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   virtual BVHModel<BV>* clone() const { return new BVHModel(*this); }
 
   /// @brief deconstruction, delete mesh data related.
-  ~BVHModel() {
-    delete[] bvs;
-    delete[] primitive_indices;
-  }
+  ~BVHModel() {}
 
   /// @brief We provide getBV() and getNumBVs() because BVH may be compressed
   /// (in future), so we must provide some flexibility here
@@ -304,13 +341,13 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   /// @brief Access the bv giving the its index
   const BVNode<BV>& getBV(unsigned int i) const {
     assert(i < num_bvs);
-    return bvs[i];
+    return (*bvs)[i];
   }
 
   /// @brief Access the bv giving the its index
   BVNode<BV>& getBV(unsigned int i) {
     assert(i < num_bvs);
-    return bvs[i];
+    return (*bvs)[i];
   }
 
   /// @brief Get the number of bv in the BVH
@@ -336,10 +373,10 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   bool allocateBVs();
 
   unsigned int num_bvs_allocated;
-  unsigned int* primitive_indices;
+  std::shared_ptr<std::vector<unsigned int>> primitive_indices;
 
   /// @brief Bounding volume hierarchy
-  BVNode<BV>* bvs;
+  std::shared_ptr<std::vector<BVNode<BV>>> bvs;
 
   /// @brief Number of BV nodes in bounding volume hierarchy
   unsigned int num_bvs;
@@ -370,15 +407,19 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   /// OBBRSS), special implementation is provided.
   void makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
                                  const Vec3f& parent_c) {
-    if (!bvs[bv_id].isLeaf()) {
-      makeParentRelativeRecurse(bvs[bv_id].first_child, parent_axes,
-                                bvs[bv_id].getCenter());
+    std::vector<BVNode<BV>>& bvs_ = *bvs;
+    if (!bvs_[static_cast<size_t>(bv_id)].isLeaf()) {
+      makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child,
+                                parent_axes,
+                                bvs_[static_cast<size_t>(bv_id)].getCenter());
 
-      makeParentRelativeRecurse(bvs[bv_id].first_child + 1, parent_axes,
-                                bvs[bv_id].getCenter());
+      makeParentRelativeRecurse(
+          bvs_[static_cast<size_t>(bv_id)].first_child + 1, parent_axes,
+          bvs_[static_cast<size_t>(bv_id)].getCenter());
     }
 
-    bvs[bv_id].bv = translate(bvs[bv_id].bv, -parent_c);
+    bvs_[static_cast<size_t>(bv_id)].bv =
+        translate(bvs_[static_cast<size_t>(bv_id)].bv, -parent_c);
   }
 
  private:
@@ -435,8 +476,14 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
 
     if (num_bvs != other.num_bvs) return false;
 
-    for (unsigned int k = 0; k < num_bvs; ++k) {
-      if (bvs[k] != other.bvs[k]) return false;
+    if ((!(bvs.get()) && other.bvs.get()) || (bvs.get() && !(other.bvs.get())))
+      return false;
+    if (bvs.get() && other.bvs.get()) {
+      const std::vector<BVNode<BV>>& bvs_ = *bvs;
+      const std::vector<BVNode<BV>>& other_bvs_ = *(other.bvs);
+      for (unsigned int k = 0; k < num_bvs; ++k) {
+        if (bvs_[k] != other_bvs_[k]) return false;
+      }
     }
 
     return true;
@@ -475,13 +522,13 @@ template <>
 NODE_TYPE BVHModel<OBBRSS>::getNodeType() const;
 
 template <>
-NODE_TYPE BVHModel<KDOP<16> >::getNodeType() const;
+NODE_TYPE BVHModel<KDOP<16>>::getNodeType() const;
 
 template <>
-NODE_TYPE BVHModel<KDOP<18> >::getNodeType() const;
+NODE_TYPE BVHModel<KDOP<18>>::getNodeType() const;
 
 template <>
-NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const;
+NODE_TYPE BVHModel<KDOP<24>>::getNodeType() const;
 
 }  // namespace fcl
 

@@ -4,6 +4,7 @@
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
  *  Copyright (c) 2018-2019, Centre National de la Recherche Scientifique
+ *  Copyright (c) 2021-2022, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -123,7 +124,6 @@ inline bool sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
   p2 = segment_point - normal * s2.radius;
 
   if (dist <= 0) {
-    p1 = p2 = .5 * (p1 + p2);
     return false;
   }
   return true;
@@ -179,23 +179,19 @@ inline bool sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
         assert(fabs(dist) - (p1 - p2).norm() < eps);
       } else {
         // Center of sphere is on cylinder boundary
-        normal = .5 * (A + B) - p2;
+        normal = p2 - .5 * (A + B);
+        assert(u.dot(normal) >= 0);
         normal.normalize();
-        p1 = p2;
         dist = -r1;
+        p1 = S + r1 * normal;
       }
     }
   } else if (s <= (s2.halfLength * 2)) {
     // 0 < s <= s2.lz
     normal = -v;
     dist = dPS - r1 - r2;
-    if (dPS <= r2) {
-      // Sphere center is inside cylinder
-      p1 = p2 = S;
-    } else {
-      p2 = P + r2 * v;
-      p1 = S - r1 * v;
-    }
+    p2 = P + r2 * v;
+    p1 = S - r1 * v;
   } else {
     // lz < s
     if (dPS <= r2) {
@@ -216,15 +212,12 @@ inline bool sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
         assert(fabs(dist) - (p1 - p2).norm() < eps);
       } else {
         // Center of sphere is on cylinder boundary
-        normal = .5 * (A + B) - p2;
+        normal = p2 - .5 * (A + B);
         normal.normalize();
-        p1 = p2;
+        p1 = S + r1 * normal;
         dist = -r1;
       }
     }
-  }
-  if (dist < 0) {
-    p1 = p2 = .5 * (p1 + p2);
   }
   return (dist > 0);
 }
@@ -1384,15 +1377,13 @@ inline bool sphereHalfspaceIntersect(const Sphere& s1, const Transform3f& tf1,
   Halfspace new_s2 = transform(s2, tf2);
   const Vec3f& center = tf1.getTranslation();
   distance = new_s2.signedDistance(center) - s1.radius;
-  if (distance <= 0) {
-    normal = -new_s2.n;  // pointing from s1 to s2
-    p1 = p2 = center - new_s2.n * s1.radius - (distance * 0.5) * new_s2.n;
-    return true;
-  } else {
-    p1 = center - s1.radius * new_s2.n;
-    p2 = p1 - distance * new_s2.n;
-    return false;
-  }
+  normal = -new_s2.n;  // pointing from s1 to s2
+  p1 = center - s1.radius * new_s2.n;
+  p2 = p1 - distance * new_s2.n;
+  assert(new_s2.distance(p2) <
+         3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+  if (distance > 0) return false;
+  return true;
 }
 
 /// @brief box half space, a, b, c  = +/- edge size
@@ -1419,6 +1410,10 @@ inline bool boxHalfspaceIntersect(const Box& s1, const Transform3f& tf1,
                                   const Halfspace& s2, const Transform3f& tf2,
                                   FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
                                   Vec3f& normal) {
+  // TODO: when witness face of box is parallel to the plane/halfspace,
+  // we may want to return more than one contact point. For example,
+  // we can return the four corners of the box.
+  static const FCL_REAL eps(sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
   Halfspace new_s2 = transform(s2, tf2);
 
   const Matrix3f& R = tf1.getRotation();
@@ -1429,37 +1424,25 @@ inline bool boxHalfspaceIntersect(const Box& s1, const Transform3f& tf1,
   // A: scalar products of each side with normal
   const Vec3f A(Q.cwiseProduct(s1.halfSide));
 
+  normal = -new_s2.n;
   distance = new_s2.signedDistance(T) - A.lpNorm<1>();
+
+  // compute p1 -> point of the box deepest inside the hyperplane
+  p1 = T;
+  for (Vec3f::Index i = 0; i < 3; ++i) {
+    // scalar product between box axis and hyperplane normal
+    FCL_REAL alpha(R.col(i).dot(new_s2.n));
+    if (alpha > eps) {
+      p1 -= R.col(i) * s1.halfSide[i];
+    } else if (alpha < -eps) {
+      p1 += R.col(i) * s1.halfSide[i];
+    }
+  }
+  p2 = p1 - distance * new_s2.n;
+  assert(new_s2.signedDistance(p2) < 3 * eps);
   if (distance > 0) {
-    p1.noalias() = T + R * (A.array() > 0).select(s1.halfSide, -s1.halfSide);
-    p2.noalias() = p1 - distance * new_s2.n;
     return false;
   }
-
-  /// find deepest point
-  Vec3f p(T);
-  int sign = 0;
-
-  if (std::abs(Q[0] - 1) < halfspaceIntersectTolerance<FCL_REAL>() ||
-      std::abs(Q[0] + 1) < halfspaceIntersectTolerance<FCL_REAL>()) {
-    sign = (A[0] > 0) ? -1 : 1;
-    p += R.col(0) * (s1.halfSide[0] * sign);
-  } else if (std::abs(Q[1] - 1) < halfspaceIntersectTolerance<FCL_REAL>() ||
-             std::abs(Q[1] + 1) < halfspaceIntersectTolerance<FCL_REAL>()) {
-    sign = (A[1] > 0) ? -1 : 1;
-    p += R.col(1) * (s1.halfSide[1] * sign);
-  } else if (std::abs(Q[2] - 1) < halfspaceIntersectTolerance<FCL_REAL>() ||
-             std::abs(Q[2] + 1) < halfspaceIntersectTolerance<FCL_REAL>()) {
-    sign = (A[2] > 0) ? -1 : 1;
-    p += R.col(2) * (s1.halfSide[2] * sign);
-  } else {
-    p.noalias() += R * (A.array() > 0).select(-s1.halfSide, s1.halfSide);
-  }
-
-  /// compute the contact point from the deepest point
-  normal = -new_s2.n;
-  p1 = p2 = p - new_s2.n * (distance * 0.5);
-
   return true;
 }
 
@@ -1468,6 +1451,9 @@ inline bool capsuleHalfspaceIntersect(const Capsule& s1, const Transform3f& tf1,
                                       const Transform3f& tf2,
                                       FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
                                       Vec3f& normal) {
+  static const FCL_REAL eps(sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+  HPP_FCL_ONLY_USED_FOR_DEBUG(eps);
+
   Halfspace new_s2 = transform(s2, tf2);
 
   const Matrix3f& R = tf1.getRotation();
@@ -1475,19 +1461,22 @@ inline bool capsuleHalfspaceIntersect(const Capsule& s1, const Transform3f& tf1,
 
   Vec3f dir_z = R.col(2);
 
+  normal = -new_s2.n;
   FCL_REAL cosa = dir_z.dot(new_s2.n);
   if (std::abs(cosa) < halfspaceIntersectTolerance<FCL_REAL>()) {
     // Capsule parallel to plane
+    // TODO: here we are returning p1 as the middle of the capsule's segment (+
+    // radius) but we might want to return both ends of the capsule instead. For
+    // that we need to implement the possibility of returning multiple contact
+    // points.
     FCL_REAL signed_dist = new_s2.signedDistance(T);
     distance = signed_dist - s1.radius;
+    p1 = T - s1.radius * new_s2.n;
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) < 3 * eps);
     if (distance > 0) {
-      p1 = T - s1.radius * new_s2.n;
-      p2 = p1 - distance * new_s2.n;
       return false;
     }
-
-    normal = -new_s2.n;
-    p1 = p2 = T + new_s2.n * (-0.5 * distance - s1.radius);
     return true;
   } else {
     int sign = (cosa > 0) ? -1 : 1;
@@ -1497,15 +1486,12 @@ inline bool capsuleHalfspaceIntersect(const Capsule& s1, const Transform3f& tf1,
 
     FCL_REAL signed_dist = new_s2.signedDistance(p);
     distance = signed_dist - s1.radius;
+    p1 = p - s1.radius * new_s2.n;
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) < 3 * eps);
     if (distance > 0) {
-      p1 = T - s1.radius * new_s2.n;
-      p2 = p1 - distance * new_s2.n;
       return false;
     }
-    normal = -new_s2.n;
-    // deepest point
-    Vec3f c = p - new_s2.n * s1.radius;
-    p1 = p2 = c - (0.5 * distance) * new_s2.n;
     return true;
   }
 }
@@ -1524,17 +1510,19 @@ inline bool cylinderHalfspaceIntersect(const Cylinder& s1,
   Vec3f dir_z = R.col(2);
   FCL_REAL cosa = dir_z.dot(new_s2.n);
 
-  if (cosa < halfspaceIntersectTolerance<FCL_REAL>()) {
+  normal = -new_s2.n;
+  if (std::abs(cosa) < halfspaceIntersectTolerance<FCL_REAL>()) {
+    // Cylinder is parallel to plane.
+    // TODO: we might want to return more than one contact point in this case.
     FCL_REAL signed_dist = new_s2.signedDistance(T);
     distance = signed_dist - s1.radius;
+    p1 = T - s1.radius * new_s2.n;
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (distance > 0) {
-      // TODO: compute closest points
-      p1 = p2 = Vec3f(0, 0, 0);
       return false;
     }
-
-    normal = -new_s2.n;
-    p1 = p2 = T - (0.5 * distance + s1.radius) * new_s2.n;
     return true;
   } else {
     Vec3f C = dir_z * cosa - new_s2.n;
@@ -1549,15 +1537,14 @@ inline bool cylinderHalfspaceIntersect(const Cylinder& s1,
 
     int sign = (cosa > 0) ? -1 : 1;
     // deepest point
-    Vec3f p = T + dir_z * (s1.halfLength * sign) + C;
-    distance = new_s2.signedDistance(p);
+    p1 = T + dir_z * (s1.halfLength * sign) + C;
+    distance = new_s2.signedDistance(p1);
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (distance > 0) {
-      // TODO: compute closest points
-      p1 = p2 = Vec3f(0, 0, 0);
       return false;
     } else {
-      normal = -new_s2.n;
-      p1 = p2 = p - (0.5 * distance) * new_s2.n;
       return true;
     }
   }
@@ -1575,16 +1562,18 @@ inline bool coneHalfspaceIntersect(const Cone& s1, const Transform3f& tf1,
   Vec3f dir_z = R.col(2);
   FCL_REAL cosa = dir_z.dot(new_s2.n);
 
-  if (cosa < halfspaceIntersectTolerance<FCL_REAL>()) {
+  normal = -new_s2.n;
+  if (std::abs(cosa) < halfspaceIntersectTolerance<FCL_REAL>()) {
+    // cone axis is parallel to plane
     FCL_REAL signed_dist = new_s2.signedDistance(T);
     distance = signed_dist - s1.radius;
+    p1 = T - dir_z * (s1.halfLength) - new_s2.n * s1.radius;
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (distance > 0) {
-      p1 = p2 = Vec3f(0, 0, 0);
       return false;
     } else {
-      normal = -new_s2.n;
-      p1 = p2 =
-          T - dir_z * (s1.halfLength) - new_s2.n * (0.5 * distance + s1.radius);
       return true;
     }
   } else {
@@ -1604,12 +1593,17 @@ inline bool coneHalfspaceIntersect(const Cone& s1, const Transform3f& tf1,
     FCL_REAL d1 = new_s2.signedDistance(a1);
     FCL_REAL d2 = new_s2.signedDistance(a2);
 
+    distance = std::min(d1, d2);
+    // TODO: when d1 == d2, we may want to return more than one contact point.
+    // There is an infinite amount but we may want to return a1 and a2 for
+    // example.
+    p1 = ((d1 < d2) ? a1 : a2);
+    p2 = p1 - distance * new_s2.n;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (d1 > 0 && d2 > 0)
       return false;
     else {
-      distance = std::min(d1, d2);
-      normal = -new_s2.n;
-      p1 = p2 = ((d1 < d2) ? a1 : a2) - (0.5 * distance) * new_s2.n;
       return true;
     }
   }
@@ -1624,8 +1618,9 @@ inline bool convexHalfspaceIntersect(
   Vec3f v;
   FCL_REAL depth = (std::numeric_limits<FCL_REAL>::max)();
 
+  const std::vector<Vec3f>& points_ = *(s1.points);
   for (unsigned int i = 0; i < s1.num_points; ++i) {
-    Vec3f p = tf1.transform(s1.points[i]);
+    Vec3f p = tf1.transform(points_[i]);
 
     FCL_REAL d = new_s2.signedDistance(p);
     if (d < depth) {
@@ -1810,13 +1805,15 @@ inline bool halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
                               FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
                               Vec3f& normal) {
   Vec3f n_w = tf1.getRotation() * h.n;
+  FCL_REAL d_w = h.d + n_w.dot(tf1.getTranslation());
   Vec3f n_2(tf2.getRotation().transpose() * n_w);
   int hint = 0;
   p2 = getSupport(&s, -n_2, true, hint);
-  p2 = tf2.transform(p2);
+  p2.noalias() = tf2.transform(p2);
 
-  dist = (p2 - tf1.getTranslation()).dot(n_w) - h.d;
+  dist = p2.dot(n_w) - d_w;
   p1 = p2 - dist * n_w;
+  assert(std::abs(p1.dot(n_w) - d_w) <= 1e-8);
   normal = n_w;
 
   return dist <= 0;
@@ -1848,23 +1845,16 @@ inline bool spherePlaneIntersect(const Sphere& s1, const Transform3f& tf1,
   const Vec3f& center = tf1.getTranslation();
   FCL_REAL signed_dist = new_s2.signedDistance(center);
   distance = std::abs(signed_dist) - s1.radius;
-  if (distance <= 0) {
-    if (signed_dist > 0)
-      normal = -new_s2.n;
-    else
-      normal = new_s2.n;
-    p1 = p2 = center - new_s2.n * signed_dist;
-    return true;
-  } else {
-    if (signed_dist > 0) {
-      p1 = center - s1.radius * new_s2.n;
-      p2 = center - signed_dist * new_s2.n;
-    } else {
-      p1 = center + s1.radius * new_s2.n;
-      p2 = center + signed_dist * new_s2.n;
-    }
-    return false;
-  }
+  if (signed_dist > 0)
+    normal = -new_s2.n;
+  else
+    normal = new_s2.n;
+  p1 = center + s1.radius * normal;
+  p2 = p1 + distance * normal;
+  assert(new_s2.distance(p2) <
+         3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+  if (distance > 0) return false;
+  return false;
 }
 
 /// @brief box half space, a, b, c  = +/- edge size
@@ -1893,66 +1883,39 @@ inline bool boxPlaneIntersect(const Box& s1, const Transform3f& tf1,
   const Vec3f A(Q.cwiseProduct(s1.halfSide));
 
   const FCL_REAL signed_dist = new_s2.signedDistance(T);
-  distance = std::abs(signed_dist) - A.lpNorm<1>();
-  if (distance > 0) {
-    // Is the box above or below the plane
-    const bool positive = signed_dist > 0;
-    // Set p1 at the center of the box
-    p1 = T;
-    for (Vec3f::Index i = 0; i < 3; ++i) {
-      // scalar product between box axis and plane normal
-      FCL_REAL alpha((positive ? 1 : -1) * R.col(i).dot(new_s2.n));
-      if (alpha > eps) {
-        p1 -= R.col(i) * s1.halfSide[i];
-      } else if (alpha < -eps) {
-        p1 += R.col(i) * s1.halfSide[i];
-      }
-    }
-    p2 = p1 - (positive ? distance : -distance) * new_s2.n;
-    assert(new_s2.distance(p2) < 3 * eps);
-    return false;
-  }
-
-  // find the deepest point
-  Vec3f p = T;
-
-  // when center is on the positive side of the plane, use a, b, c
-  // make (R^T n) (a v1 + b v2 + c v3) the minimum
-  // otherwise, use a, b, c make (R^T n) (a v1 + b v2 + c v3) the maximum
-  int sign = (signed_dist > 0) ? 1 : -1;
-
-  if (std::abs(Q[0] - 1) < planeIntersectTolerance<FCL_REAL>() ||
-      std::abs(Q[0] + 1) < planeIntersectTolerance<FCL_REAL>()) {
-    int sign2 = (A[0] > 0) ? -sign : sign;
-    p.noalias() += R.col(0) * (s1.halfSide[0] * sign2);
-  } else if (std::abs(Q[1] - 1) < planeIntersectTolerance<FCL_REAL>() ||
-             std::abs(Q[1] + 1) < planeIntersectTolerance<FCL_REAL>()) {
-    int sign2 = (A[1] > 0) ? -sign : sign;
-    p.noalias() += R.col(1) * (s1.halfSide[1] * sign2);
-  } else if (std::abs(Q[2] - 1) < planeIntersectTolerance<FCL_REAL>() ||
-             std::abs(Q[2] + 1) < planeIntersectTolerance<FCL_REAL>()) {
-    int sign2 = (A[2] > 0) ? -sign : sign;
-    p.noalias() += R.col(2) * (s1.halfSide[2] * sign2);
-  } else {
-    Vec3f tmp(sign * R * s1.halfSide);
-    p.noalias() += (A.array() > 0).select(-tmp, tmp);
-  }
-
-  // compute the contact point by project the deepest point onto the plane
   if (signed_dist > 0)
     normal = -new_s2.n;
   else
     normal = new_s2.n;
-  p1 = p2.noalias() = p - new_s2.n * new_s2.signedDistance(p);
-
+  distance = std::abs(signed_dist) - A.lpNorm<1>();
+  // Is the box above or below the plane
+  const bool positive = signed_dist > 0;
+  // TODO: if the plane is parallel to a face of the box,
+  // we should not return only one corner as witness point p1.
+  // Compute p1, point of the box deepest in the plane
+  p1 = T;
+  for (Vec3f::Index i = 0; i < 3; ++i) {
+    // scalar product between box axis and plane normal
+    // we also take into account which side of the plane the box is
+    FCL_REAL alpha((positive ? 1 : -1) * R.col(i).dot(new_s2.n));
+    if (alpha > eps) {
+      p1 -= R.col(i) * s1.halfSide[i];
+    } else if (alpha < -eps) {
+      p1 += R.col(i) * s1.halfSide[i];
+    }
+  }
+  p2 = p1 - (positive ? distance : -distance) * new_s2.n;
+  assert(new_s2.distance(p2) < 3 * eps);
+  if (distance > 0) {
+    return false;
+  }
   return true;
 }
 
 /// Taken from book Real Time Collision Detection, from Christer Ericson
-/// @param pb the closest point to the sphere center on the box surface
-/// @param ps when colliding, matches pb, which is inside the sphere.
-///           when not colliding, the closest point on the sphere
-/// @param normal direction of motion of the box
+/// @param pb the witness point on the box surface
+/// @param ps the witness point on the sphere.
+/// @param normal pointing from box to sphere
 /// @return true if the distance is negative (the shape overlaps).
 inline bool boxSphereDistance(const Box& b, const Transform3f& tfb,
                               const Sphere& s, const Transform3f& tfs,
@@ -1997,11 +1960,12 @@ inline bool boxSphereDistance(const Box& b, const Transform3f& tfb,
       normal = -Rb.col(axis);
     dist = -min_d - s.radius;
   }
+  ps = os - s.radius * normal;
   if (!outside || dist <= 0) {
-    ps = pb;
+    // project point pb onto the box's surface
+    pb = ps - dist * normal;
     return true;
   } else {
-    ps = os - s.radius * normal;
     return false;
   }
 }
@@ -2017,85 +1981,79 @@ inline bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
   const Vec3f& T1 = tf1.getTranslation();
 
   Vec3f dir_z = R1.col(2);
+  FCL_REAL cosa = dir_z.dot(new_s2.n);
 
-  // ends of capsule inner segment
-  Vec3f a1 = T1 + dir_z * s1.halfLength;
-  Vec3f a2 = T1 - dir_z * s1.halfLength;
-
-  FCL_REAL d1 = new_s2.signedDistance(a1);
-  FCL_REAL d2 = new_s2.signedDistance(a2);
-
-  FCL_REAL abs_d1 = std::abs(d1);
-  FCL_REAL abs_d2 = std::abs(d2);
-
-  // two end points on different side of the plane
-  // the contact point is the intersect of axis with the plane
-  // the normal is the direction to avoid intersection
-  // the depth is the minimum distance to resolve the collision
-  if (d1 * d2 < -planeIntersectTolerance<FCL_REAL>()) {
-    if (abs_d1 < abs_d2) {
-      distance = -abs_d1 - s1.radius;
-      p1 = p2 =
-          a1 * (abs_d2 / (abs_d1 + abs_d2)) + a2 * (abs_d1 / (abs_d1 + abs_d2));
-      if (d1 < 0)
-        normal = -new_s2.n;
-      else
-        normal = new_s2.n;
-    } else {
-      distance = -abs_d2 - s1.radius;
-      p1 = p2 =
-          a1 * (abs_d2 / (abs_d1 + abs_d2)) + a2 * (abs_d1 / (abs_d1 + abs_d2));
-      if (d2 < 0)
-        normal = -new_s2.n;
-      else
-        normal = new_s2.n;
-    }
-    assert(!p1.hasNaN() && !p2.hasNaN());
-    return true;
-  }
-
-  if (abs_d1 > s1.radius && abs_d2 > s1.radius) {
-    // Here both capsule ends are on the same side of the plane
-    if (d1 > 0)
+  if (std::abs(cosa) < planeIntersectTolerance<FCL_REAL>()) {
+    // The capsule axis is parallel to the plane.
+    FCL_REAL d = new_s2.signedDistance(T1);
+    distance = std::abs(d) - s1.radius;
+    if (d < 0)
       normal = new_s2.n;
     else
       normal = -new_s2.n;
-    if (abs_d1 < abs_d2) {
-      distance = abs_d1 - s1.radius;
-      p1 = a1 - s1.radius * normal;
-      p2 = p1 - distance * normal;
-    } else {
-      distance = abs_d2 - s1.radius;
-      p1 = a2 - s1.radius * normal;
-      p2 = p1 - distance * normal;
+    p1 = T1 + s1.radius * normal;
+    p2 = p1 + distance * normal;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+    if (distance > 0)
+      return false;
+    else {
+      return true;
     }
-    assert(!p1.hasNaN() && !p2.hasNaN());
-    return false;
   } else {
-    // Both capsule ends are on the same side of the plane, but one
-    // is closer than the capsule radius, hence collision
-    distance = std::min(abs_d1, abs_d2) - s1.radius;
+    // ends of capsule inner segment
+    Vec3f a1 = T1 + dir_z * s1.halfLength;
+    Vec3f a2 = T1 - dir_z * s1.halfLength;
 
-    if (abs_d1 <= s1.radius && abs_d2 <= s1.radius) {
-      Vec3f c1 = a1 - new_s2.n * d1;
-      Vec3f c2 = a2 - new_s2.n * d2;
-      p1 = p2 = (c1 + c2) * 0.5;
-    } else if (abs_d1 <= s1.radius) {
-      Vec3f c = a1 - new_s2.n * d1;
-      p1 = p2 = c;
-    } else if (abs_d2 <= s1.radius) {
-      Vec3f c = a2 - new_s2.n * d2;
-      p1 = p2 = c;
+    FCL_REAL d1 = new_s2.signedDistance(a1);
+    FCL_REAL d2 = new_s2.signedDistance(a2);
+
+    FCL_REAL abs_d1 = std::abs(d1);
+    FCL_REAL abs_d2 = std::abs(d2);
+
+    if (d1 * d2 <= 0) {
+      // Two end points of the capsule are on different sides of the plane.
+      if (abs_d1 < abs_d2) {
+        distance = -abs_d1 - s1.radius;
+        if (d1 > 0)
+          normal = new_s2.n;
+        else
+          normal = -new_s2.n;
+        p1 = a1 + s1.radius * normal;
+      } else {
+        distance = -abs_d2 - s1.radius;
+        if (d2 > 0)
+          normal = new_s2.n;
+        else
+          normal = -new_s2.n;
+        p1 = a2 + s1.radius * normal;
+      }
+      assert(distance <= 0);
+      p2 = p1 + distance * normal;
+      assert(new_s2.distance(p2) <=
+             3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+      assert(!p1.hasNaN() && !p2.hasNaN());
+      return true;
     } else {
-      assert(false);
-    }
+      // Both capsule ends are on the same side of the plane.
+      distance = std::min(abs_d1, abs_d2) - s1.radius;
+      if (d1 < 0)
+        normal = new_s2.n;
+      else
+        normal = -new_s2.n;
 
-    if (d1 < 0)
-      normal = new_s2.n;
-    else
-      normal = -new_s2.n;
-    assert(!p1.hasNaN() && !p2.hasNaN());
-    return true;
+      if (abs_d1 <= abs_d2) {
+        p1 = a1 + s1.radius * normal;
+      } else {
+        p1 = a2 + s1.radius * normal;
+      }
+      p2 = p1 + distance * normal;
+      assert(new_s2.distance(p2) <=
+             3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+      assert(!p1.hasNaN() && !p2.hasNaN());
+      if (distance > 0) return true;
+      return false;
+    }
   }
   assert(false);
 }
@@ -2121,14 +2079,17 @@ inline bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
   if (std::abs(cosa) < planeIntersectTolerance<FCL_REAL>()) {
     FCL_REAL d = new_s2.signedDistance(T);
     distance = std::abs(d) - s1.radius;
+    if (d < 0)
+      normal = new_s2.n;
+    else
+      normal = -new_s2.n;
+    p1 = T + s1.radius * normal;
+    p2 = p1 + distance * normal;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (distance > 0)
       return false;
     else {
-      if (d < 0)
-        normal = new_s2.n;
-      else
-        normal = -new_s2.n;
-      p1 = p2 = T - new_s2.n * d;
       return true;
     }
   } else {
@@ -2156,29 +2117,31 @@ inline bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
 
     FCL_REAL d1 = new_s2.signedDistance(c1);
     FCL_REAL d2 = new_s2.signedDistance(c2);
+    FCL_REAL abs_d1 = std::abs(d1);
+    FCL_REAL abs_d2 = std::abs(d2);
+    bool intersect = (d1 * d2 <= 0);
+    FCL_REAL sign = (intersect ? -1. : 1.);
 
-    if (d1 * d2 <= 0) {
-      FCL_REAL abs_d1 = std::abs(d1);
-      FCL_REAL abs_d2 = std::abs(d2);
-
-      if (abs_d1 > abs_d2) {
-        distance = -abs_d2;
-        p1 = p2 = c2 - new_s2.n * d2;
-        if (d2 < 0)
-          normal = -new_s2.n;
-        else
-          normal = new_s2.n;
-      } else {
-        distance = -abs_d1;
-        p1 = p2 = c1 - new_s2.n * d1;
-        if (d1 < 0)
-          normal = -new_s2.n;
-        else
-          normal = new_s2.n;
-      }
-      return true;
-    } else
-      return false;
+    if (abs_d1 > abs_d2) {
+      distance = (intersect ? -1. : 1.) * abs_d2;
+      p1 = c2;
+      if (d2 < 0)
+        normal = sign * new_s2.n;
+      else
+        normal = -sign * new_s2.n;
+    } else {
+      distance = (intersect ? -1. : 1.) * abs_d1;
+      p1 = c1;
+      if (d1 < 0)
+        normal = sign * new_s2.n;
+      else
+        normal = -sign * new_s2.n;
+    }
+    p2 = p1 + distance * normal;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+    if (distance > 0) return false;
+    return true;
   }
 }
 
@@ -2197,16 +2160,17 @@ inline bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
   if (std::abs(cosa) < planeIntersectTolerance<FCL_REAL>()) {
     FCL_REAL d = new_s2.signedDistance(T);
     distance = std::abs(d) - s1.radius;
+    if (d > 0)
+      normal = -new_s2.n;
+    else
+      normal = new_s2.n;
+    p1 = T - dir_z * s1.halfLength + s1.radius * normal;
+    p2 = p1 + distance * normal;
+    assert(new_s2.distance(p2) <=
+           3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     if (distance > 0) {
-      p1 = p2 = Vec3f(0, 0, 0);
       return false;
     } else {
-      if (d < 0)
-        normal = new_s2.n;
-      else
-        normal = -new_s2.n;
-      p1 = p2 = T - dir_z * (s1.halfLength) +
-                dir_z * (-distance / s1.radius * s1.halfLength) - new_s2.n * d;
       return true;
     }
   } else {
@@ -2220,6 +2184,10 @@ inline bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
       C *= s;
     }
 
+    // We are looking for the point of the cone deepest into the plane,
+    // on one side or the other.
+    // There are 3 candidates: the tip of the cone and the 2 points of the
+    // cone's circle opposite to each other aligned with axis C.
     Vec3f c[3];
     c[0] = T + dir_z * (s1.halfLength);
     c[1] = T - dir_z * (s1.halfLength) + C;
@@ -2231,65 +2199,64 @@ inline bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
     d[2] = new_s2.signedDistance(c[2]);
 
     if ((d[0] >= 0 && d[1] >= 0 && d[2] >= 0) ||
-        (d[0] <= 0 && d[1] <= 0 && d[2] <= 0))
+        (d[0] <= 0 && d[1] <= 0 && d[2] <= 0)) {
+      // All three candidate points on the cone are on the same side of the
+      // plane.
+      bool positive = (d[0] >= 0);
+      FCL_REAL sign = (positive ? 1. : -1.);
+      normal = -sign * new_s2.n;
+
+      distance = sign * d[0];
+      // p1 is the point of the cone closest to the plane.
+      int index_closest = 0;
+      for (int i = 1; i < 3; ++i) {
+        if (distance >= sign * d[i]) {
+          distance = sign * d[i];
+          index_closest = i;
+        }
+      }
+      assert(distance >= 0);
+      p1 = c[index_closest];
+      p2 = p1 + distance * normal;
+      assert(new_s2.distance(p2) <=
+             3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
       return false;
-    else {
+    } else {
+      // The cone is overlapping the plane.
+      // We look for the 2 points on each side of the plane which have the
+      // deepest penetration.
+      // Out of these 2 points, p1 is the one with the smallest penetration.
       bool positive[3];
       for (std::size_t i = 0; i < 3; ++i) positive[i] = (d[i] >= 0);
 
-      int n_positive = 0;
       FCL_REAL d_positive = 0, d_negative = 0;
-      for (std::size_t i = 0; i < 3; ++i) {
+      int index_positive(0), index_negative(0);
+      for (int i = 0; i < 3; ++i) {
         if (positive[i]) {
-          n_positive++;
-          if (d_positive <= d[i]) d_positive = d[i];
+          if (d_positive <= d[i]) {
+            d_positive = d[i];
+            index_positive = i;
+          }
         } else {
-          if (d_negative <= -d[i]) d_negative = -d[i];
+          if (d_negative <= -d[i]) {
+            d_negative = -d[i];
+            index_negative = i;
+          }
         }
       }
 
       distance = -std::min(d_positive, d_negative);
-      if (d_positive > d_negative)
+      assert(distance <= 0);
+      if (d_positive > d_negative) {
         normal = -new_s2.n;
-      else
-        normal = new_s2.n;
-      Vec3f p[2];
-      Vec3f q;
-
-      FCL_REAL p_d[2];
-      FCL_REAL q_d(0);
-
-      if (n_positive == 2) {
-        for (std::size_t i = 0, j = 0; i < 3; ++i) {
-          if (positive[i]) {
-            p[j] = c[i];
-            p_d[j] = d[i];
-            j++;
-          } else {
-            q = c[i];
-            q_d = d[i];
-          }
-        }
-
-        Vec3f t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
-        Vec3f t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
-        p1 = p2 = (t1 + t2) * 0.5;
+        p1 = c[index_negative];
       } else {
-        for (std::size_t i = 0, j = 0; i < 3; ++i) {
-          if (!positive[i]) {
-            p[j] = c[i];
-            p_d[j] = d[i];
-            j++;
-          } else {
-            q = c[i];
-            q_d = d[i];
-          }
-        }
-
-        Vec3f t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
-        Vec3f t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
-        p1 = p2 = (t1 + t2) * 0.5;
+        normal = new_s2.n;
+        p1 = c[index_positive];
       }
+      p2 = p1 + distance * normal;
+      assert(new_s2.distance(p2) <=
+             3 * sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
     }
     return true;
   }
@@ -2305,8 +2272,9 @@ inline bool convexPlaneIntersect(const ConvexBase& s1, const Transform3f& tf1,
   FCL_REAL d_min = (std::numeric_limits<FCL_REAL>::max)(),
            d_max = -(std::numeric_limits<FCL_REAL>::max)();
 
+  const std::vector<Vec3f>& points_ = *(s1.points);
   for (unsigned int i = 0; i < s1.num_points; ++i) {
-    Vec3f p = tf1.transform(s1.points[i]);
+    Vec3f p = tf1.transform(points_[i]);
 
     FCL_REAL d = new_s2.signedDistance(p);
 
@@ -2506,6 +2474,30 @@ inline FCL_REAL computePenetration(const Vec3f& P1, const Vec3f& P2,
   Vec3f globalQ3(tf2.transform(Q3));
   return computePenetration(globalP1, globalP2, globalP3, globalQ1, globalQ2,
                             globalQ3, normal);
+}
+
+inline bool ellipsoidPlaneIntersect(const Ellipsoid& s1, const Transform3f& tf1,
+                                    const Plane& s2, const Transform3f& tf2,
+                                    FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+                                    Vec3f& normal) {
+  Vec3f n_w = tf2.getRotation() * s2.n;
+  FCL_REAL d_w = s2.d + n_w.dot(tf2.getTranslation());
+
+  const Vec3f& center = tf1.getTranslation();
+  FCL_REAL signed_dist = n_w.dot(center) - d_w;
+  if (signed_dist > 0)
+    normal = -n_w;
+  else {
+    normal = n_w;
+    d_w = s2.d - n_w.dot(tf2.getTranslation());
+  }
+  int hint = 0;
+  p1 = getSupport(&s1, tf1.getRotation().transpose() * normal, true, hint);
+  p1.noalias() = tf1.transform(p1);
+  distance = -normal.dot(p1) - d_w;
+  p2 = p1 + distance * normal;
+  assert(std::abs(-normal.dot(p2) - d_w) <= 1e-8);
+  return distance <= 0;
 }
 }  // namespace details
 }  // namespace fcl

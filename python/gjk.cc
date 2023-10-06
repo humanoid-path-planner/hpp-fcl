@@ -87,6 +87,7 @@ void exposeGJK() {
   if (!eigenpy::register_symbolic_link_to_registered_type<GJKVariant>()) {
     enum_<GJKVariant>("GJKVariant")
         .value("DefaultGJK", GJKVariant::DefaultGJK)
+        .value("PolyakAcceleration", GJKVariant::PolyakAcceleration)
         .value("NesterovAcceleration", GJKVariant::NesterovAcceleration)
         .export_values();
   }
