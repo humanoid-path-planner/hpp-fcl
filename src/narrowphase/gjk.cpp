@@ -640,6 +640,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
                           const support_func_guess_t& supportHint) {
   FCL_REAL alpha = 0;
   iterations = 0;
+  num_support_dotprods[0] = 0;
+  num_support_dotprods[1] = 0;
   const FCL_REAL inflation = shape_.inflation.sum();
   const FCL_REAL upper_bound = distance_upper_bound + inflation;
 
