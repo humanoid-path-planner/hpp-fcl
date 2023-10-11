@@ -269,22 +269,28 @@ BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
 }
 
 BOOST_AUTO_TEST_CASE(convex_copy_constructor) {
-  std::shared_ptr<std::vector<Vec3f>> points(new std::vector<Vec3f>({
-      Vec3f(1, 1, 1),
-      Vec3f(1, 1, -1),
-      Vec3f(1, -1, 1),
-      Vec3f(1, -1, -1),
-      Vec3f(-1, 1, 1),
-      Vec3f(-1, 1, -1),
-      Vec3f(-1, -1, 1),
-      Vec3f(-1, -1, -1),
-      Vec3f(0, 0, 0),
-  }));
+  Convex<Triangle>* convexHullTriCopy;
+  {
+    std::shared_ptr<std::vector<Vec3f>> points(new std::vector<Vec3f>({
+        Vec3f(1, 1, 1),
+        Vec3f(1, 1, -1),
+        Vec3f(1, -1, 1),
+        Vec3f(1, -1, -1),
+        Vec3f(-1, 1, 1),
+        Vec3f(-1, 1, -1),
+        Vec3f(-1, -1, 1),
+        Vec3f(-1, -1, -1),
+        Vec3f(0, 0, 0),
+    }));
 
-  Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(
-      ConvexBase::convexHull(points, 9, true, NULL));
-  Convex<Triangle>* convexHullTriCopy = new Convex<Triangle>(*convexHullTri);
-  BOOST_CHECK(*convexHullTri == *convexHullTriCopy);
+    Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(
+        ConvexBase::convexHull(points, 9, true, NULL));
+    convexHullTriCopy = new Convex<Triangle>(*convexHullTri);
+    BOOST_CHECK(*convexHullTri == *convexHullTriCopy);
+  }
+  Convex<Triangle>* convexHullTriCopyOfCopy =
+      new Convex<Triangle>(*convexHullTriCopy);
+  BOOST_CHECK(*convexHullTriCopyOfCopy == *convexHullTriCopy);
 }
 
 BOOST_AUTO_TEST_CASE(convex_clone) {
