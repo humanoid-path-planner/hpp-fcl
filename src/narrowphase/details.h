@@ -1676,6 +1676,7 @@ inline bool halfspaceTriangleIntersect(const Halfspace& s1,
     p1 = p2 = v - (0.5 * depth) * new_s1.n;
     return true;
   } else {
+    normal = new_s1.n;
     p1 = v - depth * new_s1.n;
     p2 = v;
     return false;
