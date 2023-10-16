@@ -70,7 +70,7 @@ using namespace hpp::fcl;
 template <typename T>
 void saveToBinary(const T& object, boost::asio::streambuf& buffer) {
   boost::archive::binary_oarchive oa(buffer);
-  oa& object;
+  oa & object;
 }
 
 template <typename T>
