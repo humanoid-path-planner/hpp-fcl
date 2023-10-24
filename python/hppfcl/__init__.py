@@ -31,6 +31,6 @@
 #  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
 
-# ruff: noqa: F403
+# ruff: noqa: F401, F403
 from .hppfcl import *
-from .hppfcl import __raw_version__, __version__  # noqa
+from .hppfcl import __raw_version__, __version__
