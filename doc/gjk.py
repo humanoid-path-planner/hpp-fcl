@@ -247,9 +247,9 @@ implications = [
 def set_test_values(current_tests, test_values, itest, value):
     def satisfies(values, indices):
         for k in indices:
-            if k > 0 and values[k - 1] != True:
+            if k > 0 and values[k - 1] is not True:
                 return False
-            if k < 0 and values[-k - 1] != False:
+            if k < 0 and values[-k - 1] is not False:
                 return False
         return True
 
@@ -286,17 +286,17 @@ def set_tests_values(current_tests, test_values, itests, values):
 def apply_test_values(cases, test_values):
     def canSatisfy(values, indices):
         for k in indices:
-            if k > 0 and values[k - 1] == False:
+            if k > 0 and values[k - 1] is False:
                 return False
-            if k < 0 and values[-k - 1] == True:
+            if k < 0 and values[-k - 1] is True:
                 return False
         return True
 
     def satisfies(values, indices):
         for k in indices:
-            if k > 0 and values[k - 1] != True:
+            if k > 0 and values[k - 1] is not True:
                 return False
-            if k < 0 and values[-k - 1] != False:
+            if k < 0 and values[-k - 1] is not False:
                 return False
         return True
 
@@ -337,7 +337,7 @@ def max_number_of_tests(
     prevScore=0,
 ):
     for test in current_tests:
-        assert test_values[test] == None, "Test " + str(test) + " already performed"
+        assert test_values[test] is None, "Test " + str(test) + " already performed"
 
     left_cases = apply_test_values(cases, test_values)
 
@@ -444,7 +444,7 @@ def printOrder(order, indent="", start=True, file=sys.stdout, curTests=[]):
                 + "const Vec3f& {} (current.vertex[{}]->w);".format(l.upper(), l),
                 file=file,
             )
-        print(indent + "const FCL_REAL aa = A.squaredNorm();".format(l), file=file)
+        print(indent + "const FCL_REAL aa = A.squaredNorm();".format(), file=file)
         for l in "dcb":
             for m in "abcd":
                 if m <= l:
@@ -502,7 +502,7 @@ def printOrder(order, indent="", start=True, file=sys.stdout, curTests=[]):
         elif region == "A":
             print(indent + "originToPoint (current, a, A, next, ray);", file=file)
         elif len(region) == 2:
-            a = region[0]
+            region[0]
             B = region[1]
             print(
                 indent

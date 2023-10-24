@@ -80,7 +80,7 @@ class XmlDocString(object):
             if brief is not None:
                 self._newline()
             self.visit(detailled)
-        from sys import stdout, stderr, version_info
+        from sys import version_info
 
         self.writeErrors(output)
         self._clean()
