@@ -121,7 +121,6 @@ def _templateParamToDict(param):
 
 
 def makeHeaderGuard(filename):
-
     return filename.upper().replace(".", "_").replace("/", "_").replace("-", "_")
 
 
@@ -326,7 +325,6 @@ class MemberDef(Reference):
         return ", ".join([arg.format(n) for n in argnames])
 
     def include(self):
-
         loc = self.xml.find("location")
         # The location is based on $CMAKE_SOURCE_DIR. Remove first directory.
         return loc.attrib["file"].split("/", 1)[1]
