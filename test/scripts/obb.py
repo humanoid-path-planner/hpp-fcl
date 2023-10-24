@@ -1,6 +1,9 @@
-import matplotlib.pyplot as plt
-import csv, sys, numpy as np
+import csv
+import sys
 from math import sqrt
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 filename = sys.argv[1]
 
@@ -67,9 +70,25 @@ if time_vs_sep_axis:
         plt.figure(iplot)
     plt.title("Time, with std dev, versus separating axis")
     for k, n in enumerate(fieldnames[4:]):
-        # plt.errorbar ([ np.linspace(0, 11, 12) + shift for shift in np.linspace (-0.2, 0.2, ) ], means[k], stddevs[k], label=n)
+        # plt.errorbar(
+        # [
+        # np.linspace(0, 11, 12) + shift
+        # for shift in np.linspace(
+        # -0.2,
+        # 0.2,
+        # )
+        # ],
+        # means[k],
+        # stddevs[k],
+        # label=n,
+        # )
         plt.errorbar(np.linspace(0, 11, 12), means[k], stddevs[k], label=n)
-        # plt.errorbar (np.linspace(0, 11, 12), means[k],  [ [ 0 ] * len(stddevs[k]), stddevs[k] ], label=n)
+        # plt.errorbar(
+        # np.linspace(0, 11, 12),
+        # means[k],
+        # [[0] * len(stddevs[k]), stddevs[k]],
+        # label=n,
+        # )
     plt.xlim([-0.5, 11.5])
     plt.ylabel("Time (ns)")
     plt.xlabel("Separating axis")
@@ -120,23 +139,23 @@ if avg_time_vs_impl:
         zip(fieldnames[4:], _means, _stddev, _mins, _maxs), key=lambda x: x[1]
     )
     plt.errorbar(
-        [f for f, m, s, l, u in _sorted],
-        [m for f, m, s, l, u in _sorted],
-        [s for f, m, s, l, u in _sorted],
+        [f for f, _, _, _, _ in _sorted],
+        [m for _, m, _, _, _ in _sorted],
+        [s for _, _, s, _, _ in _sorted],
         fmt="go",
         linestyle="",
         label="mean and std deviation",
     )
     plt.plot(
-        [f for f, m, s, l, u in _sorted],
-        [l for f, m, s, l, u in _sorted],
+        [f for f, _, _, _, _ in _sorted],
+        [v for _, _, _, v, _ in _sorted],
         "b+",
         ls="",
         label="min",
     )
     plt.plot(
-        [f for f, m, s, l, u in _sorted],
-        [u for f, m, s, l, u in _sorted],
+        [f for f, _, _, _, _ in _sorted],
+        [u for _, _, _, _, u in _sorted],
         "r+",
         ls="",
         label="max",

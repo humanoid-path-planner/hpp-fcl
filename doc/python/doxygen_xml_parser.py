@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# ruff: noqa: E501
 
 from __future__ import print_function
 from lxml import etree
