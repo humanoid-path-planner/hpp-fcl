@@ -32,4 +32,3 @@
 #  POSSIBILITY OF SUCH DAMAGE.
 
 from .hppfcl import *
-from .hppfcl import __version__, __raw_version__

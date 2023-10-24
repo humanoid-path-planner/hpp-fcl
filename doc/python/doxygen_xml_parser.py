@@ -120,7 +120,6 @@ def _templateParamToDict(param):
 
 
 def makeHeaderGuard(filename):
-    import os
 
     return filename.upper().replace(".", "_").replace("/", "_").replace("-", "_")
 
@@ -326,7 +325,6 @@ class MemberDef(Reference):
         return ", ".join([arg.format(n) for n in argnames])
 
     def include(self):
-        import os.path
 
         loc = self.xml.find("location")
         # The location is based on $CMAKE_SOURCE_DIR. Remove first directory.
@@ -705,8 +703,6 @@ class Index:
 
     def write(self):
         # Header
-        from os.path import abspath, dirname
-        from time import asctime
 
         self.output.open("doxygen_xml_parser_for_cmake.hh")
         # self.output.out ("// Generated on {}".format (asctime()))
@@ -821,7 +817,7 @@ class OutputStreams(object):
         self._created_files = dict()
 
     def open(self, name):
-        assert self._out == None, "You did not close the previous file"
+        assert self._out is None, "You did not close the previous file"
         import os
 
         fullname = os.path.join(self.output_dir, name)
@@ -895,4 +891,4 @@ if __name__ == "__main__":
     index.parseCompound()
     index.write()
     index.output.writeFooterAndCloseFiles()
-    assert index.output._out == None
+    assert index.output._out is None

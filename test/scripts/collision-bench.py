@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
-import csv, sys, numpy as np
-from math import sqrt
+import csv, sys
 
 filename = sys.argv[1]
 
