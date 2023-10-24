@@ -59,14 +59,14 @@ class XmlDocString(object):
 
     def _clean(self):
         s = 0
-        for l in self.lines:
-            if len(l.strip()) == 0:
+        for line in self.lines:
+            if len(line.strip()) == 0:
                 s += 1
             else:
                 break
         e = len(self.lines)
-        for l in reversed(self.lines):
-            if len(l.strip()) == 0:
+        for line in reversed(self.lines):
+            if len(line.strip()) == 0:
                 e -= 1
             else:
                 break
@@ -80,7 +80,7 @@ class XmlDocString(object):
             if brief is not None:
                 self._newline()
             self.visit(detailled)
-        from sys import stdout, stderr, version_info
+        from sys import version_info
 
         self.writeErrors(output)
         self._clean()

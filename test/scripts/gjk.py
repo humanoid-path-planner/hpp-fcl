@@ -1,6 +1,5 @@
 # This script displays two triangles and two spheres in gepetto-gui
 # It is useful to debug distance computation between two triangles.
-import numpy as np
 from gepetto.corbaserver import Client
 
 Red = [1, 0, 0, 0.5]
