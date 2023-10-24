@@ -2,7 +2,7 @@ ci:
     autoupdate_branch: 'devel'
 repos:
 -   repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v17.0.2
+    rev: v17.0.3
     hooks:
     -   id: clang-format
         args: ['--style={BasedOnStyle: Google, SortIncludes: false}']
@@ -11,6 +11,6 @@ repos:
     hooks:
     -   id: trailing-whitespace
 -   repo: https://github.com/psf/black
-    rev: 23.9.1
+    rev: 23.10.0
     hooks:
     -   id: black
