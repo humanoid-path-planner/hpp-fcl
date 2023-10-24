@@ -1,6 +1,6 @@
 # Datas for compare_convex_box
-from gepetto.corbaserver import Client
 from gepetto import Quaternion
+from gepetto.corbaserver import Client
 
 
 def translate(tr, t, d):
@@ -10,7 +10,7 @@ def translate(tr, t, d):
 cl = Client()
 try:
     cl.gui.getWindowID("fcl")
-except:
+except Exception:
     cl.gui.createWindow("fcl")
 
 cl.gui.addBox("fcl/b0", 2, 2, 2, [1, 0, 0, 0.5])

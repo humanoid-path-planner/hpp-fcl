@@ -59,14 +59,14 @@ class XmlDocString(object):
 
     def _clean(self):
         s = 0
-        for l in self.lines:
-            if len(l.strip()) == 0:
+        for line in self.lines:
+            if len(line.strip()) == 0:
                 s += 1
             else:
                 break
         e = len(self.lines)
-        for l in reversed(self.lines):
-            if len(l.strip()) == 0:
+        for line in reversed(self.lines):
+            if len(line.strip()) == 0:
                 e -= 1
             else:
                 break
