@@ -33,3 +33,4 @@
 
 # ruff: noqa: F403
 from .hppfcl import *
+from .hppfcl import __raw_version__, __version__  # noqa
