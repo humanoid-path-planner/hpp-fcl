@@ -257,9 +257,6 @@ struct HPP_FCL_DLLAPI GJK {
                         const FCL_REAL& omega);
 
   /// @brief Get GJK number of iterations.
-  inline size_t getIterations() const { return iterations; }
-
-  /// @brief Get GJK number of iterations.
   inline int getIterationsMomentumStopped() const {
     return iterations_momentum_stop;
   }
@@ -268,9 +265,6 @@ struct HPP_FCL_DLLAPI GJK {
   inline std::array<size_t, 2> getNumSupportDotprods() const {
     return num_support_dotprods;
   }
-
-  /// @brief Get GJK tolerance.
-  inline FCL_REAL getTolerance() const { return tolerance; }
 
  private:
   SimplexV store_v[4];
@@ -281,10 +275,14 @@ struct HPP_FCL_DLLAPI GJK {
   Status status;
 
   unsigned int max_iterations;
-  FCL_REAL tolerance;
   FCL_REAL distance_upper_bound;
-  size_t iterations;
   int iterations_momentum_stop;
+
+ public:
+  FCL_REAL tolerance;
+  size_t iterations;
+
+ private:
   // Number of dot products done in the support function for each shape
   std::array<size_t, 2> num_support_dotprods;
 
@@ -375,14 +373,12 @@ struct HPP_FCL_DLLAPI EPA {
     SimplexHorizon() : cf(NULL), ff(NULL), nf(0) {}
   };
 
- public:
-  inline FCL_REAL getTolerance() const { return tolerance; }
-  inline size_t getIterations() const { return iterations; }
-
  private:
   unsigned int max_face_num;
   unsigned int max_vertex_num;
   unsigned int max_iterations;
+
+ public:
   FCL_REAL tolerance;
   size_t iterations;
 
