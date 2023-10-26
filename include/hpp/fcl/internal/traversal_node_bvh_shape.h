@@ -209,7 +209,7 @@ class MeshShapeCollisionTraversalNode
       if (this->request.num_max_contacts > this->result->numContacts()) {
         this->result->addContact(Contact(this->model1, this->model2,
                                          primitive_id, Contact::NONE, c1, c2,
-                                         normal, distance));
+                                         -normal, distance));
         assert(this->result->isCollision());
       }
     } else

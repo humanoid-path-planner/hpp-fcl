@@ -1668,19 +1668,17 @@ inline bool halfspaceTriangleIntersect(const Halfspace& s1,
     depth = d;
     v = p;
   }
+
   // v is the vertex with minimal projection abscissa (depth) on normal to
   // plane,
   distance = depth;
+  normal = new_s1.n;
+  p1 = v - depth * normal;
+  p2 = v;
   if (depth <= 0) {
-    normal = new_s1.n;
-    p1 = p2 = v - (0.5 * depth) * new_s1.n;
     return true;
-  } else {
-    normal = new_s1.n;
-    p1 = v - depth * new_s1.n;
-    p2 = v;
-    return false;
   }
+  return false;
 }
 
 /// @brief return whether plane collides with halfspace
