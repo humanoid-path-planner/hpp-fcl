@@ -24,7 +24,7 @@ struct PickleObject : boost::python::pickle_suite {
   static boost::python::tuple getstate(const T& obj) {
     std::stringstream ss;
     boost::archive::text_oarchive oa(ss);
-    oa& obj;
+    oa & obj;
 
     return boost::python::make_tuple(boost::python::str(ss.str()));
   }

@@ -10,7 +10,8 @@ plane_fmt = ""
 edge_fmt = "{j}a * {b}a_{c}a + {j}{b} * {c}a_aa - {j}{c} * {b}a_aa"
 
 # These checks must be negative and not positive, as in the cheat sheet.
-# They are the same as in the cheat sheet, except that we consider (...).dot(A) instead of (...).dot(-A)
+# They are the same as in the cheat sheet, except that we consider (...).dot(A)
+# instead of (...).dot(-A)
 plane_tests = ["C.dot (a_cross_b)", "D.dot(a_cross_c)", "-D.dot(a_cross_b)"]
 checks = (
     plane_tests
@@ -247,9 +248,9 @@ implications = [
 def set_test_values(current_tests, test_values, itest, value):
     def satisfies(values, indices):
         for k in indices:
-            if k > 0 and values[k - 1] != True:
+            if k > 0 and values[k - 1] is not True:
                 return False
-            if k < 0 and values[-k - 1] != False:
+            if k < 0 and values[-k - 1] is not False:
                 return False
         return True
 
@@ -286,17 +287,17 @@ def set_tests_values(current_tests, test_values, itests, values):
 def apply_test_values(cases, test_values):
     def canSatisfy(values, indices):
         for k in indices:
-            if k > 0 and values[k - 1] == False:
+            if k > 0 and values[k - 1] is False:
                 return False
-            if k < 0 and values[-k - 1] == True:
+            if k < 0 and values[-k - 1] is True:
                 return False
         return True
 
     def satisfies(values, indices):
         for k in indices:
-            if k > 0 and values[k - 1] != True:
+            if k > 0 and values[k - 1] is not True:
                 return False
-            if k < 0 and values[-k - 1] != False:
+            if k < 0 and values[-k - 1] is not False:
                 return False
         return True
 
@@ -337,7 +338,7 @@ def max_number_of_tests(
     prevScore=0,
 ):
     for test in current_tests:
-        assert test_values[test] == None, "Test " + str(test) + " already performed"
+        assert test_values[test] is None, "Test " + str(test) + " already performed"
 
     left_cases = apply_test_values(cases, test_values)
 
@@ -375,7 +376,8 @@ def max_number_of_tests(
             remaining_tests = None
 
         if remaining_tests is not None:
-            # Do not put this in try catch as I do not want other ValueError to be understood as an infeasible branch.
+            # Do not put this in try catch as I do not want other ValueError to be
+            # understood as an infeasible branch.
             score_if_t, order_if_t = max_number_of_tests(
                 remaining_tests,
                 left_cases,
@@ -396,7 +398,8 @@ def max_number_of_tests(
             remaining_tests = None
 
         if remaining_tests is not None:
-            # Do not put this in try catch as I do not want other ValueError to be understood as an infeasible branch.
+            # Do not put this in try catch as I do not want other ValueError to be
+            # understood as an infeasible branch.
             score_if_f, order_if_f = max_number_of_tests(
                 remaining_tests,
                 left_cases,
@@ -438,37 +441,37 @@ def printOrder(order, indent="", start=True, file=sys.stdout, curTests=[]):
             file=file,
         )
         print(indent + "const vertex_id_t a = 3, b = 2, c = 1, d = 0;", file=file)
-        for l in "abcd":
+        for v in "abcd":
             print(
                 indent
-                + "const Vec3f& {} (current.vertex[{}]->w);".format(l.upper(), l),
+                + "const Vec3f& {} (current.vertex[{}]->w);".format(v.upper(), v),
                 file=file,
             )
-        print(indent + "const FCL_REAL aa = A.squaredNorm();".format(l), file=file)
-        for l in "dcb":
+        print(indent + "const FCL_REAL aa = A.squaredNorm();".format(), file=file)
+        for v in "dcb":
             for m in "abcd":
-                if m <= l:
+                if m <= v:
                     print(
                         indent
                         + "const FCL_REAL {0}{1}    = {2}.dot({3});".format(
-                            l, m, l.upper(), m.upper()
+                            v, m, v.upper(), m.upper()
                         ),
                         file=file,
                     )
                 else:
                     print(
-                        indent + "const FCL_REAL& {0}{1}    = {1}{0};".format(l, m),
+                        indent + "const FCL_REAL& {0}{1}    = {1}{0};".format(v, m),
                         file=file,
                     )
-            print(indent + "const FCL_REAL {0}a_aa = {0}a - aa;".format(l), file=file)
+            print(indent + "const FCL_REAL {0}a_aa = {0}a - aa;".format(v), file=file)
         for l0, l1 in zip("bcd", "cdb"):
             print(
                 indent + "const FCL_REAL {0}a_{1}a = {0}a - {1}a;".format(l0, l1),
                 file=file,
             )
-        for l in "bc":
+        for v in "bc":
             print(
-                indent + "const Vec3f a_cross_{0} = A.cross({1});".format(l, l.upper()),
+                indent + "const Vec3f a_cross_{0} = A.cross({1});".format(v, v.upper()),
                 file=file,
             )
         print("", file=file)
@@ -502,15 +505,12 @@ def printOrder(order, indent="", start=True, file=sys.stdout, curTests=[]):
         elif region == "A":
             print(indent + "originToPoint (current, a, A, next, ray);", file=file)
         elif len(region) == 2:
-            a = region[0]
+            region[0]
             B = region[1]
             print(
-                indent
-                + "originToSegment (current, a, {b}, A, {B}, {B}-A, -{b}a_aa, next, ray);".format(
-                    **{
-                        "b": B.lower(),
-                        "B": B,
-                    }
+                indent + "originToSegment "
+                "(current, a, {b}, A, {B}, {B}-A, -{b}a_aa, next, ray);".format(
+                    **{"b": B.lower(), "B": B}
                 ),
                 file=file,
             )
@@ -524,8 +524,8 @@ def printOrder(order, indent="", start=True, file=sys.stdout, curTests=[]):
             else:
                 test = "-" + test
             print(
-                indent
-                + "originToTriangle (current, a, {b}, {c}, ({B}-A).cross({C}-A), {t}, next, ray);".format(
+                indent + "originToTriangle "
+                "(current, a, {b}, {c}, ({B}-A).cross({C}-A), {t}, next, ray);".format(
                     **{"b": B.lower(), "c": C.lower(), "B": B, "C": C, "t": test}
                 ),
                 file=file,

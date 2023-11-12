@@ -1,6 +1,5 @@
 # Load "env.obj" and "rob.obj" in gepetto-gui
 
-import numpy as np
 import os
 from gepetto.corbaserver import Client
 

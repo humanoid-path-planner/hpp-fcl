@@ -1,6 +1,7 @@
+import csv
+import sys
+
 import matplotlib.pyplot as plt
-import csv, sys, numpy as np
-from math import sqrt
 
 filename = sys.argv[1]
 
@@ -43,8 +44,8 @@ cases = [
 idx_reorder = sorted(list(range(len(xvals))), key=lambda i: xvals[i])
 
 
-def reorder(l):
-    return [l[i] for i in idx_reorder]
+def reorder(v):
+    return [v[i] for i in idx_reorder]
 
 
 xvals_s = reorder(xvals)
