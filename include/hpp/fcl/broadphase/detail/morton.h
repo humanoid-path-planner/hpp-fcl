@@ -40,6 +40,7 @@
 #define HPP_FCL_MORTON_H
 
 #include "hpp/fcl/BV/AABB.h"
+#include <cstdint>
 #include <bitset>
 
 namespace hpp {
