@@ -8,13 +8,13 @@ env:
 
 jobs:
   hpp-fcl-pip:
-    name: "CI on ${{ matrix.os }} / python ${{ matrix.python-version }} with pip"
-    runs-on: "${{ matrix.os }}"
+    name: "CI on ${{ matrix.os }} / py ${{ matrix.python-version }} with pip"
+    runs-on: "${{ matrix.os }}-latest"
 
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macos-latest"]
+        os: ["ubuntu", "macos"]
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
