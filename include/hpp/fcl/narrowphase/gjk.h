@@ -163,6 +163,8 @@ struct HPP_FCL_DLLAPI GJK {
   /// Valid: GJK converged and the shapes are not in collision.
   /// Inside: GJK converged and the shapes are in collision.
   /// Failed: GJK did not converge.
+  /// EarlyStopped: GJK found a separating hyperplane and exited before
+  /// converting. The shapes are not in collision.
   enum Status { Valid, Inside, Failed, EarlyStopped };
 
   MinkowskiDiff const* shape;

@@ -40,6 +40,9 @@
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/BV/OBBRSS.h>
+#include <hpp/fcl/BVH/BVH_model.h>
+#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
 
 #include "utility.h"
 
@@ -81,7 +84,11 @@ template <typename ShapeType1, typename ShapeType2>
 void test_normal_and_nearest_points(const ShapeType1& o1,
                                     const ShapeType2& o2) {
   // Generate random poses for o2
+#ifndef NDEBUG  // if debug mode
+  std::size_t n = 1;
+#else
   size_t n = 10000;
+#endif
   FCL_REAL extents[] = {-2., -2., -2., 2., 2., 2.};
   std::vector<Transform3f> transforms;
   generateRandomTransforms(extents, transforms, n);
@@ -444,4 +451,86 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_ellispoid_plane) {
 
   test_normal_and_nearest_points(*o1.get(), *o2.get());
   test_normal_and_nearest_points(*o2.get(), *o1.get());
+}
+
+using hpp::fcl::BVHModel;
+using hpp::fcl::OBBRSS;
+
+void test_normal_and_nearest_points(const BVHModel<OBBRSS>& o1,
+                                    const Halfspace& o2) {
+  // Generate random poses for o2
+#ifndef NDEBUG  // if debug mode
+  std::size_t n = 1;
+#else
+  size_t n = 10000;
+#endif
+  FCL_REAL extents[] = {-2., -2., -2., 2., 2., 2.};
+  std::vector<Transform3f> transforms;
+  generateRandomTransforms(extents, transforms, n);
+  Transform3f tf1 = Transform3f::Identity();
+  transforms[0] = Transform3f::Identity();
+
+  CollisionRequest colreq;
+  colreq.distance_upper_bound = std::numeric_limits<FCL_REAL>::max();
+  colreq.num_max_contacts = 100;
+  CollisionResult colres;
+  DistanceRequest distreq;
+  DistanceResult distres;
+
+  for (size_t i = 0; i < n; i++) {
+    Transform3f tf2 = transforms[i];
+    colres.clear();
+    distres.clear();
+    size_t col = collide(&o1, tf1, &o2, tf2, colreq, colres);
+    FCL_REAL dist = distance(&o1, tf1, &o2, tf2, distreq, distres);
+
+    if (col) {
+      BOOST_CHECK(dist <= 0.);
+      BOOST_CHECK_CLOSE(dist, distres.min_distance, 1e-6);
+      for (size_t c = 0; c < colres.numContacts(); c++) {
+        Contact contact = colres.getContact(c);
+        BOOST_CHECK(contact.penetration_depth <= 0);
+        BOOST_CHECK(contact.penetration_depth >= colres.distance_lower_bound);
+
+        Vec3f cp1 = contact.nearest_points[0];
+        Vec3f cp2 = contact.nearest_points[1];
+        BOOST_CHECK_CLOSE(contact.penetration_depth, -(cp2 - cp1).norm(), 1e-6);
+        EIGEN_VECTOR_IS_APPROX(
+            cp1, cp2 - contact.penetration_depth * contact.normal, 1e-6);
+
+        Vec3f separation_vector = contact.penetration_depth * contact.normal;
+        EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, 1e-6);
+
+        if (dist < 0) {
+          EIGEN_VECTOR_IS_APPROX(contact.normal, -(cp2 - cp1).normalized(),
+                                 1e-6);
+        }
+      }
+    } else {
+      BOOST_CHECK(dist >= 0.);
+      BOOST_CHECK_CLOSE(distres.min_distance, dist, 1e-6);
+      BOOST_CHECK_CLOSE(dist, colres.distance_lower_bound, 1e-6);
+    }
+  }
+}
+
+void test_normal_and_nearest_points(const Halfspace& o1,
+                                    const BVHModel<OBBRSS>& o2) {
+  test_normal_and_nearest_points(o2, o1);
+}
+
+BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_bvh_halfspace) {
+  Box* box_ptr = new hpp::fcl::Box(1, 1, 1);
+  hpp::fcl::CollisionGeometryPtr_t b1(box_ptr);
+  BVHModel<hpp::fcl::OBBRSS> o1 = BVHModel<OBBRSS>();
+  generateBVHModel(o1, *box_ptr, Transform3f());
+  o1.buildConvexRepresentation(false);
+
+  FCL_REAL offset = 0.1;
+  Vec3f n = Vec3f::Random();
+  n.normalize();
+  shared_ptr<Halfspace> o2(new Halfspace(n, offset));
+
+  test_normal_and_nearest_points(o1, *o2.get());
+  test_normal_and_nearest_points(*o2.get(), o1);
 }
