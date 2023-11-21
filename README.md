@@ -29,12 +29,12 @@ This project is now used in many robotics frameworks such as [Pinocchio](https:/
 
 ## A high performance library
 
-Unlike the original FCL library, HPP-FCL implements the well-established [GJK algorithm](https://en.wikipedia.org/wiki/Gilbert%E2%80%93Johnson%E2%80%93Keerthi_distance_algorithm) and [its variants](https://hal.archives-ouvertes.fr/hal-03662157/) for collision detection and distance computation. These implementations lead to state-of-the-art performances, as depicted by the figures below. 
+Unlike the original FCL library, HPP-FCL implements the well-established [GJK algorithm](https://en.wikipedia.org/wiki/Gilbert%E2%80%93Johnson%E2%80%93Keerthi_distance_algorithm) and [its variants](https://hal.archives-ouvertes.fr/hal-03662157/) for collision detection and distance computation. These implementations lead to state-of-the-art performances, as depicted by the figures below.
 
-On the one hand, we have benchmarked HPP-FCL against major software alternatives of the state of the art: 
+On the one hand, we have benchmarked HPP-FCL against major software alternatives of the state of the art:
 1. the [Bullet simulator](https://github.com/bulletphysics/bullet3),
 2. the original [FCL library](https://github.com/flexible-collision-library/fcl) (used in the [Drake framework]()),
-3. the [libccd library](https://github.com/danfis/libccd) (used in [MuJoCo](http://mujoco.org/)). 
+3. the [libccd library](https://github.com/danfis/libccd) (used in [MuJoCo](http://mujoco.org/)).
 
 The results are depicted in the following figure, that notably shows that the accelerated variants of GJK largely outperform by a large margin (from 5x up to 15x times faster).
 
