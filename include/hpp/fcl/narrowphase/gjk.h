@@ -309,11 +309,6 @@ struct HPP_FCL_DLLAPI GJK {
   bool projectTetrahedraOrigin(const Simplex& current, Simplex& next);
 };
 
-static const size_t EPA_MAX_FACES = 128;
-static const size_t EPA_MAX_VERTICES = 64;
-static const FCL_REAL EPA_EPS = 0.000001;
-static const size_t EPA_MAX_ITERATIONS = 255;
-
 /// @brief class for EPA algorithm
 struct HPP_FCL_DLLAPI EPA {
   typedef GJK::SimplexV SimplexV;
@@ -363,12 +358,11 @@ struct HPP_FCL_DLLAPI EPA {
     SimplexHorizon() : cf(NULL), ff(NULL), nf(0) {}
   };
 
- private:
-  unsigned int max_face_num;
-  unsigned int max_vertex_num;
-  unsigned int max_iterations;
-
  public:
+  size_t max_face_num;
+  size_t max_vertex_num;
+  size_t max_iterations;
+
   FCL_REAL tolerance;
   size_t iterations;
 
@@ -394,8 +388,8 @@ struct HPP_FCL_DLLAPI EPA {
   size_t nextsv;
   SimplexList hull, stock;
 
-  EPA(unsigned int max_face_num_, unsigned int max_vertex_num_,
-      unsigned int max_iterations_, FCL_REAL tolerance_)
+  EPA(size_t max_face_num_, size_t max_vertex_num_, size_t max_iterations_,
+      FCL_REAL tolerance_)
       : max_face_num(max_face_num_),
         max_vertex_num(max_vertex_num_),
         max_iterations(max_iterations_),
