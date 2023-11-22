@@ -171,6 +171,18 @@ struct HPP_FCL_DLLAPI QueryRequest {
   /// @brief the support function initial guess set by user
   support_func_guess_t cached_support_func_guess;
 
+  /// @brief max number of faces for EPA
+  size_t epa_max_face_num;
+
+  /// @brief max number of vertices for EPA
+  size_t epa_max_vertex_num;
+
+  /// @brief max number of iterations for EPA
+  size_t epa_max_iterations;
+
+  /// @brief tolerance for EPA
+  FCL_REAL epa_tolerance;
+
   /// @brief enable timings when performing collision/distance request
   bool enable_timings;
 
@@ -190,6 +202,10 @@ struct HPP_FCL_DLLAPI QueryRequest {
         gjk_max_iterations(128),
         cached_gjk_guess(1, 0, 0),
         cached_support_func_guess(support_func_guess_t::Zero()),
+        epa_max_face_num(128),
+        epa_max_vertex_num(64),
+        epa_max_iterations(255),
+        epa_tolerance(1e-6),
         enable_timings(false),
         collision_distance_threshold(
             Eigen::NumTraits<FCL_REAL>::dummy_precision()) {}
