@@ -158,8 +158,8 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
 
     // Make sure GJK and Nesterov accelerated GJK converges in a reasonable
     // amount of iterations
-    BOOST_CHECK(gjk.getIterations() < max_iterations);
-    BOOST_CHECK(gjk_nesterov.getIterations() < max_iterations);
+    BOOST_CHECK(gjk.iterations < max_iterations);
+    BOOST_CHECK(gjk_nesterov.iterations < max_iterations);
 
     // ------------
     // -- Polyak --
@@ -179,8 +179,8 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
 
     // Make sure GJK and Polyak accelerated GJK converges in a reasonable
     // amount of iterations
-    BOOST_CHECK(gjk.getIterations() < max_iterations);
-    BOOST_CHECK(gjk_polyak.getIterations() < max_iterations);
+    BOOST_CHECK(gjk.iterations < max_iterations);
+    BOOST_CHECK(gjk_polyak.iterations < max_iterations);
   }
 }
 

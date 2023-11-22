@@ -223,6 +223,7 @@ void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
       hint = i;
     }
   }
+
   support = pts[static_cast<size_t>(hint)];
 }
 
@@ -530,6 +531,8 @@ void GJK::initialize() {
   gjk_variant = GJKVariant::DefaultGJK;
   convergence_criterion = GJKConvergenceCriterion::VDB;
   convergence_criterion_type = GJKConvergenceCriterionType::Relative;
+  iterations = 0;
+  iterations_momentum_stop = 0;
 }
 
 Vec3f GJK::getGuessFromSimplex() const { return ray; }
@@ -657,6 +660,9 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 
   // Momentum
   GJKVariant current_gjk_variant = gjk_variant;
+  // If at the end of gjk, iterations_stop_momentum has a value of -1,
+  // this means momentum has not been stopped.
+  if (current_gjk_variant != DefaultGJK) iterations_momentum_stop = -1;
   Vec3f w = ray;
   Vec3f dir = ray;
   Vec3f y;
@@ -737,7 +743,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       if (frank_wolfe_duality_gap - tolerance <= 0) {
         removeVertex(simplices[current]);
         current_gjk_variant = DefaultGJK;  // move back to classic GJK
-        continue;                          // continue to next iteration
+        iterations_momentum_stop = static_cast<int>(iterations);
+        continue;  // continue to next iteration
       }
     }
 
@@ -1458,6 +1465,7 @@ void EPA::initialize() {
   nextsv = 0;
   for (size_t i = 0; i < max_face_num; ++i)
     stock.append(&fc_store[max_face_num - i - 1]);
+  iterations = 0;
 }
 
 bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b,
@@ -1573,7 +1581,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
                                     // minimum distance to origin) to split
       SimplexF outer = *best;
       size_t pass = 0;
-      size_t iterations = 0;
+      iterations = 0;
 
       // set the face connectivity
       bind(tetrahedron[0], 0, tetrahedron[1], 0);
@@ -1634,7 +1642,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   // the origin.
   status = FallBack;
   // TODO: define a better normal
-  assert(simplex.rank == 1 && simplex.vertex[0]->w.isZero(gjk.getTolerance()));
+  assert(simplex.rank == 1 && simplex.vertex[0]->w.isZero(gjk.tolerance));
   normal = -guess;
   FCL_REAL nl = normal.norm();
   if (nl > 0)

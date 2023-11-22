@@ -255,10 +255,9 @@ struct HPP_FCL_DLLAPI GJK {
                         const FCL_REAL& omega);
 
   /// @brief Get GJK number of iterations.
-  inline size_t getIterations() { return iterations; }
-
-  /// @brief Get GJK tolerance.
-  inline FCL_REAL getTolerance() { return tolerance; }
+  inline int getIterationsMomentumStopped() const {
+    return iterations_momentum_stop;
+  }
 
  private:
   SimplexV store_v[4];
@@ -269,10 +268,14 @@ struct HPP_FCL_DLLAPI GJK {
   Status status;
 
   unsigned int max_iterations;
-  FCL_REAL tolerance;
   FCL_REAL distance_upper_bound;
+  int iterations_momentum_stop;
+
+ public:
+  FCL_REAL tolerance;
   size_t iterations;
 
+ private:
   /// @brief discard one vertex from the simplex
   inline void removeVertex(Simplex& simplex);
 
@@ -293,8 +296,8 @@ struct HPP_FCL_DLLAPI GJK {
   /// which reuse checks from edges.
   /// Finally, in addition to the voronoi procedure, checks relying on the order
   /// of construction
-  // of the simplex are added. To know more about these, visit
-  // https://caseymuratori.com/blog_0003.
+  /// of the simplex are added. To know more about these, visit
+  /// https://caseymuratori.com/blog_0003.
   bool projectLineOrigin(const Simplex& current, Simplex& next);
 
   /// @brief Project origin (0) onto triangle a-b-c
@@ -364,7 +367,10 @@ struct HPP_FCL_DLLAPI EPA {
   unsigned int max_face_num;
   unsigned int max_vertex_num;
   unsigned int max_iterations;
+
+ public:
   FCL_REAL tolerance;
+  size_t iterations;
 
  public:
   enum Status {

@@ -118,12 +118,13 @@ void exposeGJK() {
         .DEF_RW_CLASS_ATTRIB(GJK, gjk_variant)
         .DEF_RW_CLASS_ATTRIB(GJK, convergence_criterion)
         .DEF_RW_CLASS_ATTRIB(GJK, convergence_criterion_type)
+        .DEF_RW_CLASS_ATTRIB(GJK, iterations)
+        .DEF_RW_CLASS_ATTRIB(GJK, tolerance)
         .DEF_CLASS_FUNC(GJK, evaluate)
         .DEF_CLASS_FUNC(GJK, hasClosestPoints)
         .DEF_CLASS_FUNC(GJK, hasPenetrationInformation)
         .DEF_CLASS_FUNC(GJK, getClosestPoints)
         .DEF_CLASS_FUNC(GJK, setDistanceEarlyBreak)
-        .DEF_CLASS_FUNC(GJK, getGuessFromSimplex)
-        .DEF_CLASS_FUNC(GJK, getIterations);
+        .DEF_CLASS_FUNC(GJK, getGuessFromSimplex);
   }
 }
