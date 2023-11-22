@@ -305,6 +305,11 @@ class HPP_FCL_DLLAPI CollisionObject {
     return cgeom;
   }
 
+  /// @brief get geometry from the object instance, as raw pointer
+  const CollisionGeometry* collisionGeometryRaw() const {
+    return cgeom.get();
+  }
+
   /// @brief get geometry from the object instance
   const shared_ptr<CollisionGeometry>& collisionGeometry() { return cgeom; }
 
