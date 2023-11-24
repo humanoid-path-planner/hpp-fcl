@@ -62,8 +62,8 @@ void CollisionResult::swapObjects() {
 
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
                     const CollisionRequest& request, CollisionResult& result) {
-  return collide(o1->collisionGeometry().get(), o1->getTransform(),
-                 o2->collisionGeometry().get(), o2->getTransform(), request,
+  return collide(o1->collisionGeometryPtr(), o1->getTransform(),
+                 o2->collisionGeometryPtr(), o2->getTransform(), request,
                  result);
 }
 
