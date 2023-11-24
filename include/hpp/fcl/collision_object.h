@@ -300,13 +300,19 @@ class HPP_FCL_DLLAPI CollisionObject {
   /// @brief set the object in local coordinate
   void setIdentityTransform() { t.setIdentity(); }
 
-  /// @brief get geometry from the object instance
+  /// @brief get shared pointer to collision geometry of the object instance
   const shared_ptr<const CollisionGeometry> collisionGeometry() const {
     return cgeom;
   }
 
-  /// @brief get geometry from the object instance
+  /// @brief get shared pointer to collision geometry of the object instance
   const shared_ptr<CollisionGeometry>& collisionGeometry() { return cgeom; }
+
+  /// @brief get raw pointer to collision geometry of the object instance
+  const CollisionGeometry* collisionGeometryPtr() const { return cgeom.get(); }
+
+  /// @brief get raw pointer to collision geometry of the object instance
+  CollisionGeometry* collisionGeometryPtr() { return cgeom.get(); }
 
   /// @brief Associate a new CollisionGeometry
   ///

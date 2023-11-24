@@ -622,7 +622,7 @@ void DynamicAABBTreeArrayCollisionManager::collide(
     case GEOM_OCTREE: {
       if (!octree_as_geometry_collide) {
         const OcTree* octree =
-            static_cast<const OcTree*>(obj->collisionGeometry().get());
+            static_cast<const OcTree*>(obj->collisionGeometryPtr());
         detail::dynamic_AABB_tree_array::collisionRecurse(
             dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(),
             octree->getRootBV(), obj->getTransform(), callback);
@@ -648,7 +648,7 @@ void DynamicAABBTreeArrayCollisionManager::distance(
     case GEOM_OCTREE: {
       if (!octree_as_geometry_distance) {
         const OcTree* octree =
-            static_cast<const OcTree*>(obj->collisionGeometry().get());
+            static_cast<const OcTree*>(obj->collisionGeometryPtr());
         detail::dynamic_AABB_tree_array::distanceRecurse(
             dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(),
             octree->getRootBV(), obj->getTransform(), callback, min_dist);

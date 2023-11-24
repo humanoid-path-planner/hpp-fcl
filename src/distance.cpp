@@ -52,8 +52,8 @@ DistanceFunctionMatrix& getDistanceFunctionLookTable() {
 
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
                   const DistanceRequest& request, DistanceResult& result) {
-  return distance(o1->collisionGeometry().get(), o1->getTransform(),
-                  o2->collisionGeometry().get(), o2->getTransform(), request,
+  return distance(o1->collisionGeometryPtr(), o1->getTransform(),
+                  o2->collisionGeometryPtr(), o2->getTransform(), request,
                   result);
 }
 
