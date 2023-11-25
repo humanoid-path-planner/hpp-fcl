@@ -52,7 +52,7 @@ jobs:
           -G "Visual Studio 16 2019" -T "ClangCl" -DCMAKE_GENERATOR_PLATFORM=x64 ^
           -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
           -DCMAKE_BUILD_TYPE=Release ^
-          -DGENERATE_PYTHON_STUBS=OFF ^
+          -DGENERATE_PYTHON_STUBS=ON ^
           -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
           -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
           -DHPP_FCL_HAS_QHULL=ON ^
@@ -62,11 +62,6 @@ jobs:
 
         :: Build and Install
         cmake --build . --config Release --target install
-        if errorlevel 1 exit 1
-
-        :: Build stubs
-        git clone https://github.com/jcarpent/pybind11-stubgen.git
-        python "%CD%\pybind11-stubgen\pybind11_stubgen\__init__.py" -o %CONDA_PREFIX%\Lib\site-packages hppfcl --boost-python --ignore-invalid signature --no-setup-py --root-module-suffix ""
         if errorlevel 1 exit 1
 
         :: Testing
