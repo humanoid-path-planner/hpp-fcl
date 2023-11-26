@@ -42,7 +42,7 @@ void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
   }
 }
 
-ConvexBase* ConvexBase::convexHull(std::shared_ptr<std::vector<Vec3f>> pts,
+ConvexBase* ConvexBase::convexHull(std::shared_ptr<std::vector<Vec3f>>& pts,
                                    unsigned int num_points, bool keepTriangles,
                                    const char* qhullCommand) {
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
