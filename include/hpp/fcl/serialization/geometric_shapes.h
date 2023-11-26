@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2023 INRIA
 //
 
 #ifndef HPP_FCL_SERIALIZATION_GEOMETRIC_SHAPES_H
@@ -7,6 +7,7 @@
 
 #include "hpp/fcl/shape/geometric_shapes.h"
 #include "hpp/fcl/serialization/fwd.h"
+#include "hpp/fcl/serialization/collision_object.h"
 
 namespace boost {
 namespace serialization {
