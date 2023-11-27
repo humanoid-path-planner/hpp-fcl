@@ -514,7 +514,7 @@ class HeightFieldShapeCollisionTraversalNode
     //    const Vec3f c1 = contact_point - distance * 0.5 * normal;
     //    const Vec3f c2 = contact_point + distance * 0.5 * normal;
     internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
-                                               distToCollision, c1, c2);
+                                               distToCollision, c1, c2, normal);
 
     assert(this->result->isCollision() || sqrDistLowerBound > 0);
   }

@@ -231,7 +231,7 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
       sqrDistLowerBound = distToCollision * distToCollision;
 
     internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
-                                               distToCollision, p1, p2);
+                                               distToCollision, p1, p2, normal);
   }
 
   Vec3f* vertices1;
