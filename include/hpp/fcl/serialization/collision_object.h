@@ -48,8 +48,8 @@ namespace fcl {
 template <typename BV>
 class HeightField;
 
-class OBB;
-class OBBRSS;
+struct OBB;
+struct OBBRSS;
 class AABB;
 
 namespace serialization {
