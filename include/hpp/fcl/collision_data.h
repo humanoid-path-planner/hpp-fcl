@@ -294,7 +294,7 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   size_t num_max_contacts;
 
   /// @brief whether the contact information (normal, penetration depth and
-  /// contact position) will return
+  /// contact position) will return.
   /// @note Only effective if the collision pair involves an Octree.
   /// Otherwise, it is always true.
   bool enable_contact;
@@ -384,6 +384,10 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   /// only when distance_lower_bound is inferior to
   /// CollisionRequest::break_distance.
   Vec3f nearest_points[2];
+
+  /// @brief normal associated to nearest_points.
+  /// Same as `CollisionResult::nearest_points` but for the normal.
+  Vec3f normal;
 
  public:
   CollisionResult()
@@ -617,11 +621,13 @@ inline void updateDistanceLowerBoundFromBV(const CollisionRequest& /*req*/,
 inline void updateDistanceLowerBoundFromLeaf(const CollisionRequest&,
                                              CollisionResult& res,
                                              const FCL_REAL& distance,
-                                             const Vec3f& p0, const Vec3f& p1) {
+                                             const Vec3f& p0, const Vec3f& p1,
+                                             const Vec3f& normal) {
   if (distance < res.distance_lower_bound) {
     res.distance_lower_bound = distance;
     res.nearest_points[0] = p0;
     res.nearest_points[1] = p1;
+    res.normal = normal;
   }
 }
 }  // namespace internal
