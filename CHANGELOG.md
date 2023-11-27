@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Add method to `CollisionObject` to get `CollisionGeometry` raw pointer
+
+### Fixed
+- Fix RPATH computation on OSX
+- Fix Python stubs generation on Windows
+
 ## [2.3.7] - 2023-11-15
 
 ### What's Changed
