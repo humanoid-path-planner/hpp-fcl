@@ -48,9 +48,23 @@ namespace fcl {
 template <typename BV>
 class HeightField;
 
+template <typename PolygonT>
+class Convex;
+
 struct OBB;
 struct OBBRSS;
 class AABB;
+
+class OcTree;
+class Box;
+class Sphere;
+class Ellipsoid;
+class Capsule;
+class Cone;
+class TriangleP;
+class Cylinder;
+class Halfspace;
+class Plane;
 
 namespace serialization {
 template <>
