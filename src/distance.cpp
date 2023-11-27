@@ -88,9 +88,8 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
         const CollisionGeometry* tmpo = result.o1;
         result.o1 = result.o2;
         result.o2 = tmpo;
-        Vec3f tmpn(result.nearest_points[0]);
-        result.nearest_points[0] = result.nearest_points[1];
-        result.nearest_points[1] = tmpn;
+        result.nearest_points[0].swap(result.nearest_points[1]);
+        result.normal *= -1;
       }
     }
   } else {
@@ -153,6 +152,7 @@ FCL_REAL ComputeDistance::run(const Transform3f& tf1, const Transform3f& tf2,
     if (request.enable_nearest_points) {
       std::swap(result.o1, result.o2);
       result.nearest_points[0].swap(result.nearest_points[1]);
+      result.normal *= -1;
     }
   } else {
     res = func(o1, tf1, o2, tf2, &solver, request, result);
