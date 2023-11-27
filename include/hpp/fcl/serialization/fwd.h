@@ -16,4 +16,16 @@
     split_free(ar, value, version);                                      \
   }
 
+namespace hpp {
+namespace fcl {
+namespace serialization {
+template <typename T>
+struct register_type {
+  template <class Archive>
+  static void on(Archive& /*ar*/) {}
+};
+}  // namespace serialization
+}  // namespace fcl
+}  // namespace hpp
+
 #endif  // ifndef HPP_FCL_SERIALIZATION_FWD_H

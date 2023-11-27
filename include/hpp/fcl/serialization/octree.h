@@ -32,23 +32,43 @@ void save(Archive &ar, const hpp::fcl::OcTree &octree,
   typedef internal::OcTreeAccessor Accessor;
   const Accessor &access = reinterpret_cast<const Accessor &>(octree);
 
+  std::ostringstream stream;
+  access.tree->write(stream);
+  const std::string stream_str = stream.str();
+  ar << make_nvp("tree_data", stream_str);
+
+  // const double resolution = octree.getResolution();
+  // ar << make_nvp("resolution", resolution);
+
   ar << make_nvp("base", base_object<hpp::fcl::CollisionGeometry>(octree));
   ar << make_nvp("default_occupancy", access.default_occupancy);
   ar << make_nvp("occupancy_threshold", access.occupancy_threshold);
   ar << make_nvp("free_threshold", access.free_threshold);
+}
 
-  const double resolution = octree.getResolution();
-  ar << make_nvp("resolution", resolution);
+template <class Archive>
+void load_construct_data(Archive &ar, hpp::fcl::OcTree *octree_ptr,
+                         const unsigned int /*version*/) {
+  std::string stream_str;
+  ar >> make_nvp("tree_data", stream_str);
+  std::istringstream stream(stream_str);
 
-  std::ostringstream stream;
-  access.tree->write(stream);
-  //  std::cout << "stream:" << std::endl;
-  //  std::cout << stream.str() << std::endl;
-  //  stream.seekg(0, std::ios::end);
-  //  const int stream_size = stream.tellg();
-  //  ar << make_nvp("tree_size",stream_size);
-  const std::string stream_str = stream.str();
-  ar << make_nvp("tree_data", stream_str);
+  octomap::AbstractOcTree *tree_raw_ptr = octomap::AbstractOcTree::read(stream);
+  std::shared_ptr<const octomap::OcTree> tree_ptr(
+      dynamic_cast<octomap::OcTree *>(tree_raw_ptr));
+
+  new (octree_ptr) hpp::fcl::OcTree(tree_ptr);
+  hpp::fcl::OcTree &octree = *octree_ptr;
+  typedef internal::OcTreeAccessor Accessor;
+  Accessor &access = reinterpret_cast<Accessor &>(octree);
+
+  // double resolution;
+  // ar >> make_nvp("resolution", resolution);
+
+  ar >> make_nvp("base", base_object<hpp::fcl::CollisionGeometry>(octree));
+  ar >> make_nvp("default_occupancy", access.default_occupancy);
+  ar >> make_nvp("occupancy_threshold", access.occupancy_threshold);
+  ar >> make_nvp("free_threshold", access.free_threshold);
 }
 
 template <class Archive>
@@ -57,28 +77,21 @@ void load(Archive &ar, hpp::fcl::OcTree &octree,
   typedef internal::OcTreeAccessor Accessor;
   Accessor &access = reinterpret_cast<Accessor &>(octree);
 
-  ar >> make_nvp("base", base_object<hpp::fcl::CollisionGeometry>(octree));
-  ar >> make_nvp("default_occupancy", access.default_occupancy);
-  ar >> make_nvp("occupancy_threshold", access.occupancy_threshold);
-  ar >> make_nvp("free_threshold", access.free_threshold);
-  double resolution;
-  ar >> make_nvp("resolution", resolution);
-
   std::string stream_str;
   ar >> make_nvp("tree_data", stream_str);
   std::istringstream stream(stream_str);
 
-  //  std::shared_ptr<const octomap::OcTree> new_octree(new
-  //  octomap::OcTree(resolution));
-
   octomap::AbstractOcTree *new_tree = octomap::AbstractOcTree::read(stream);
-  //  const_cast<octomap::OcTree &>(*new_octree).readBinaryData(stream);
   access.tree = std::shared_ptr<const octomap::OcTree>(
       dynamic_cast<octomap::OcTree *>(new_tree));
-  //  const_cast<octomap::OcTree &>(*access.tree) = new_octree.get();
 
-  //  const_cast<octomap::OcTree &>(*access.tree).clear();
-  //  const_cast<octomap::OcTree &>(*access.tree).readBinaryData(stream);
+  // double resolution;
+  // ar >> make_nvp("resolution", resolution);
+
+  ar >> make_nvp("base", base_object<hpp::fcl::CollisionGeometry>(octree));
+  ar >> make_nvp("default_occupancy", access.default_occupancy);
+  ar >> make_nvp("occupancy_threshold", access.occupancy_threshold);
+  ar >> make_nvp("free_threshold", access.free_threshold);
 }
 
 template <class Archive>
