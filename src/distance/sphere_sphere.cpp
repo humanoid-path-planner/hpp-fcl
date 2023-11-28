@@ -98,17 +98,17 @@ std::size_t ShapeShapeCollider<Sphere, Sphere>::run(
 
   Vec3f c1c2 = center2 - center1;
   FCL_REAL dist = c1c2.norm();
-  Vec3f unit(0, 0, 0);
-  if (dist > epsilon) unit = c1c2 / dist;
+  Vec3f normal(0, 0, 0);
+  if (dist > epsilon) normal = c1c2 / dist;
   // Unlike in distance computation, we consider the security margin.
   FCL_REAL distToCollision = dist - (r1 + r2 + margin);
 
+  Vec3f p1 = center1 + normal * r1;
+  Vec3f p2 = center2 - normal * r2;
   internal::updateDistanceLowerBoundFromLeaf(request, result, distToCollision,
-                                             center1 + unit * r1,
-                                             center2 - unit * r2);
+                                             p1, p2, normal);
   if (distToCollision <= request.collision_distance_threshold) {
-    Contact contact(o1, o2, -1, -1, center1 + unit * r1, center2 - unit * r2,
-                    unit, distToCollision + margin);
+    Contact contact(o1, o2, -1, -1, p1, p2, normal, distToCollision + margin);
     result.addContact(contact);
     return 1;
   }

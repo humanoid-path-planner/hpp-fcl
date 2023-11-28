@@ -56,6 +56,7 @@ void CollisionResult::swapObjects() {
        it != contacts.end(); ++it) {
     std::swap(it->o1, it->o2);
     std::swap(it->b1, it->b2);
+    it->nearest_points[0].swap(it->nearest_points[1]);
     it->normal *= -1;
   }
 }
@@ -104,6 +105,8 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
         res = looktable.collision_matrix[node_type2][node_type1](
             o2, tf2, o1, tf1, &solver, request, result);
         result.swapObjects();
+        result.nearest_points[0].swap(result.nearest_points[1]);
+        result.normal *= -1;
       }
     } else {
       if (!looktable.collision_matrix[node_type1][node_type2]) {
@@ -169,6 +172,8 @@ std::size_t ComputeCollision::run(const Transform3f& tf1,
   if (swap_geoms) {
     res = func(o2, tf2, o1, tf1, &solver, request, result);
     result.swapObjects();
+    result.nearest_points[0].swap(result.nearest_points[1]);
+    result.normal *= -1;
   } else {
     res = func(o1, tf1, o2, tf2, &solver, request, result);
   }

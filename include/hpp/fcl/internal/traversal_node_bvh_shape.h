@@ -215,8 +215,8 @@ class MeshShapeCollisionTraversalNode
     } else
       sqrDistLowerBound = distToCollision * distToCollision;
 
-    internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
-                                               distToCollision, c1, c2);
+    internal::updateDistanceLowerBoundFromLeaf(
+        this->request, *this->result, distToCollision, c1, c2, -normal);
 
     assert(this->result->isCollision() || sqrDistLowerBound > 0);
   }

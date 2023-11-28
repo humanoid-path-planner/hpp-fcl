@@ -72,11 +72,27 @@ struct HPP_FCL_DLLAPI Contact {
   int b2;
 
   /// @brief contact normal, pointing from o1 to o2.
-  /// See DistanceResult::normal for a complete definition of the normal.
+  /// The normal defined as the normalized separation vector:
+  /// normal = (p2 - p1) / dist(o1, o2), where p1 = nearest_points[0]
+  /// belongs to o1 and p2 = nearest_points[1] belongs to o2 and dist(o1, o2) is
+  /// the **signed** distance between o1 and o2. The normal always points from
+  /// o1 to o2.
+  /// @note The separation vector is the smallest vector such that if o1 is
+  /// translated by it, o1 and o2 are in touching contact (they share at least
+  /// one contact point but have a zero intersection volume). If the shapes
+  /// overlap, dist(o1, o2) = -((p2-p1).norm()). Otherwise, dist(o1, o2) =
+  /// (p2-p1).norm().
   Vec3f normal;
 
   /// @brief nearest points associated to this contact.
-  /// See \ref CollisionResult::nearest_points.
+  /// @note Also referred as "witness points" in other collision libraries.
+  /// The points p1 = nearest_points[0] and p2 = nearest_points[1] verify the
+  /// property that dist(o1, o2) * (p1 - p2) is the separation vector between o1
+  /// and o2, with dist(o1, o2) being the **signed** distance separating o1 from
+  /// o2. See \ref DistanceResult::normal for the definition of the separation
+  /// vector. If o1 and o2 have multiple contacts, the nearest_points are
+  /// associated with the contact which has the greatest penetration depth.
+  /// TODO (louis): rename `nearest_points` to `witness_points`.
   std::array<Vec3f, 2> nearest_points;
 
   /// @brief contact position, in world space
@@ -278,7 +294,7 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   size_t num_max_contacts;
 
   /// @brief whether the contact information (normal, penetration depth and
-  /// contact position) will return
+  /// contact position) will return.
   /// @note Only effective if the collision pair involves an Octree.
   /// Otherwise, it is always true.
   bool enable_contact;
@@ -360,17 +376,18 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   /// shapes.
   FCL_REAL distance_lower_bound;
 
-  /// @brief nearest points
-  /// available only when distance_lower_bound is inferior to
+  /// @brief nearest points.
+  /// A `CollisionResult` can have multiple contacts.
+  /// The nearest points in `CollisionResults` correspond to the witness points
+  /// associated with the smallest distance i.e the `distance_lower_bound`.
+  /// For bounding volumes and BVHs, these nearest points are available
+  /// only when distance_lower_bound is inferior to
   /// CollisionRequest::break_distance.
-  /// @note Also referred as "witness points" in other collision libraries.
-  /// The points p1 = nearest_points[0] and p2 = nearest_points[1] verify the
-  /// property that dist(o1, o2) * (p1 - p2) is the separation vector between o1
-  /// and o2, with dist(o1, o2) being the **signed** distance separating o1 from
-  /// o2. See \ref DistanceResult::normal for the definition of the separation
-  /// vector. If o1 and o2 have multiple contacts, the nearest_points are
-  /// associated with the contact which has the greatest penetration depth.
   Vec3f nearest_points[2];
+
+  /// @brief normal associated to nearest_points.
+  /// Same as `CollisionResult::nearest_points` but for the normal.
+  Vec3f normal;
 
  public:
   CollisionResult()
@@ -483,16 +500,7 @@ struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
   /// See CollisionResult::nearest_points.
   std::array<Vec3f, 2> nearest_points;
 
-  /// Stores the normal, defined as the normalized separation vector:
-  /// normal = (p2 - p1) / dist(o1, o2), where p1 = nearest_points[0]
-  /// belongs to o1 and p2 = nearest_points[1] belongs to o2 and dist(o1, o2) is
-  /// the **signed** distance between o1 and o2. The normal always points from
-  /// o1 to o2.
-  /// @note The separation vector is the smallest vector such that if o1 is
-  /// translated by it, o1 and o2 are in touching contact (they share at least
-  /// one contact point but have a zero intersection volume). If the shapes
-  /// overlap, dist(o1, o2) = -((p2-p1).norm()). Otherwise, dist(o1, o2) =
-  /// (p2-p1).norm().
+  /// @brief normal.
   Vec3f normal;
 
   /// @brief collision object 1
@@ -613,11 +621,13 @@ inline void updateDistanceLowerBoundFromBV(const CollisionRequest& /*req*/,
 inline void updateDistanceLowerBoundFromLeaf(const CollisionRequest&,
                                              CollisionResult& res,
                                              const FCL_REAL& distance,
-                                             const Vec3f& p0, const Vec3f& p1) {
+                                             const Vec3f& p0, const Vec3f& p1,
+                                             const Vec3f& normal) {
   if (distance < res.distance_lower_bound) {
     res.distance_lower_bound = distance;
     res.nearest_points[0] = p0;
     res.nearest_points[1] = p1;
+    res.normal = normal;
   }
 }
 }  // namespace internal

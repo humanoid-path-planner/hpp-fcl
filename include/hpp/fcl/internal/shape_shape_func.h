@@ -74,10 +74,11 @@ struct ShapeShapeCollider {
     size_t num_contacts = 0;
     const Vec3f& p1 = distanceResult.nearest_points[0];
     const Vec3f& p2 = distanceResult.nearest_points[1];
+    const Vec3f& normal = distanceResult.normal;
     FCL_REAL distToCollision = distance - request.security_margin;
 
     internal::updateDistanceLowerBoundFromLeaf(request, result, distToCollision,
-                                               p1, p2);
+                                               p1, p2, normal);
     if (distToCollision <= request.collision_distance_threshold &&
         result.numContacts() < request.num_max_contacts) {
       if (result.numContacts() < request.num_max_contacts) {
@@ -85,7 +86,7 @@ struct ShapeShapeCollider {
         const Vec3f& p2 = distanceResult.nearest_points[1];
 
         Contact contact(o1, o2, distanceResult.b1, distanceResult.b2, p1, p2,
-                        distanceResult.normal, distance);
+                        normal, distance);
 
         result.addContact(contact);
       }

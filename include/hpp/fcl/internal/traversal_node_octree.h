@@ -340,6 +340,8 @@ class HPP_FCL_DLLAPI OcTreeSolver {
                     c.b2, c.pos, c.normal, c.penetration_depth));
       }
 
+      // no need to call `internal::updateDistanceLowerBoundFromLeaf` here
+      // as it is already done internally in `ShapeShapeCollide` above.
       return crequest->isSatisfied(*cresult);
     }
 
@@ -505,9 +507,8 @@ class HPP_FCL_DLLAPI OcTreeSolver {
               static_cast<int>(primitive_id), c1, c2, normal, distance));
         }
       }
-      internal::updateDistanceLowerBoundFromLeaf(*crequest, *cresult,
-                                                 distToCollision, c1, c2);
-
+      internal::updateDistanceLowerBoundFromLeaf(
+          *crequest, *cresult, distToCollision, c1, c2, normal);
       return crequest->isSatisfied(*cresult);
     }
 
@@ -611,8 +612,8 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       //    const Vec3f c1 = contact_point - distance * 0.5 * normal;
       //    const Vec3f c2 = contact_point + distance * 0.5 * normal;
-      internal::updateDistanceLowerBoundFromLeaf(*crequest, *cresult,
-                                                 distToCollision, c1, c2);
+      internal::updateDistanceLowerBoundFromLeaf(
+          *crequest, *cresult, distToCollision, c1, c2, -normal);
 
       assert(cresult->isCollision() || sqrDistLowerBound > 0);
       return crequest->isSatisfied(*cresult);
@@ -721,8 +722,8 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       //    const Vec3f c1 = contact_point - distance * 0.5 * normal;
       //    const Vec3f c2 = contact_point + distance * 0.5 * normal;
-      internal::updateDistanceLowerBoundFromLeaf(*crequest, *cresult,
-                                                 distToCollision, c1, c2);
+      internal::updateDistanceLowerBoundFromLeaf(
+          *crequest, *cresult, distToCollision, c1, c2, normal);
 
       assert(cresult->isCollision() || sqrDistLowerBound > 0);
       return crequest->isSatisfied(*cresult);
@@ -868,7 +869,7 @@ class HPP_FCL_DLLAPI OcTreeSolver {
               sqrt(sqrDistLowerBound) - crequest->security_margin;
         return false;
       }
-      if (!crequest->enable_contact) {  // Overlap
+      if (crequest->enable_contact) {  // Overlap
         if (cresult->numContacts() < crequest->num_max_contacts)
           cresult->addContact(
               Contact(tree1, tree2, static_cast<int>(root1 - tree1->getRoot()),
@@ -899,8 +900,8 @@ class HPP_FCL_DLLAPI OcTreeSolver {
                       static_cast<int>(root2 - tree2->getRoot()), c1, c2,
                       normal, distance));
       }
-      internal::updateDistanceLowerBoundFromLeaf(*crequest, *cresult,
-                                                 distToCollision, c1, c2);
+      internal::updateDistanceLowerBoundFromLeaf(
+          *crequest, *cresult, distToCollision, c1, c2, normal);
 
       return crequest->isSatisfied(*cresult);
     }
