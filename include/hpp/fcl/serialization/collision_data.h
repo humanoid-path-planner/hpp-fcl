@@ -76,6 +76,7 @@ void serialize(Archive& ar, hpp::fcl::CollisionRequest& collision_request,
                collision_request.enable_distance_lower_bound);
   ar& make_nvp("security_margin", collision_request.security_margin);
   ar& make_nvp("break_distance", collision_request.break_distance);
+  ar& make_nvp("distance_upper_bound", collision_request.distance_upper_bound);
 }
 
 template <class Archive>
@@ -85,6 +86,8 @@ void save(Archive& ar, const hpp::fcl::CollisionResult& collision_result,
                            collision_result));
   ar& make_nvp("contacts", collision_result.getContacts());
   ar& make_nvp("distance_lower_bound", collision_result.distance_lower_bound);
+  ar& make_nvp("nearest_points", collision_result.nearest_points);
+  ar& make_nvp("normal", collision_result.normal);
 }
 
 template <class Archive>
@@ -99,6 +102,11 @@ void load(Archive& ar, hpp::fcl::CollisionResult& collision_result,
   for (size_t k = 0; k < contacts.size(); ++k)
     collision_result.addContact(contacts[k]);
   ar >> make_nvp("distance_lower_bound", collision_result.distance_lower_bound);
+  std::array<hpp::fcl::Vec3f, 2> nearest_points;
+  ar >> make_nvp("nearest_points", nearest_points);
+  collision_result.nearest_points[0] = nearest_points[0];
+  collision_result.nearest_points[1] = nearest_points[1];
+  ar >> make_nvp("normal", collision_result.normal);
 }
 
 HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::CollisionResult)

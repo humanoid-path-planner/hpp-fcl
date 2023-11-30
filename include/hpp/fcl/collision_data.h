@@ -410,7 +410,7 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   /// For bounding volumes and BVHs, these nearest points are available
   /// only when distance_lower_bound is inferior to
   /// CollisionRequest::break_distance.
-  Vec3f nearest_points[2];
+  std::array<Vec3f, 2> nearest_points;
 
  public:
   CollisionResult()
