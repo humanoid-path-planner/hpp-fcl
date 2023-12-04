@@ -107,18 +107,14 @@ struct HPP_FCL_DLLAPI Contact {
   /// @brief Default constructor
   Contact() : o1(NULL), o2(NULL), b1(NONE), b2(NONE) {
     penetration_depth = (std::numeric_limits<FCL_REAL>::max)();
-    const Vec3f nan(
-        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
-    nearest_points[0] = nearest_points[1] = normal = pos = nan;
+    nearest_points[0] = nearest_points[1] = normal = pos = Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
   }
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
           int b2_)
       : o1(o1_), o2(o2_), b1(b1_), b2(b2_) {
     penetration_depth = (std::numeric_limits<FCL_REAL>::max)();
-    const Vec3f nan(
-        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
-    nearest_points[0] = nearest_points[1] = normal = pos = nan;
+    nearest_points[0] = nearest_points[1] = normal = pos = Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
   }
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
@@ -415,9 +411,7 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
  public:
   CollisionResult()
       : distance_lower_bound((std::numeric_limits<FCL_REAL>::max)()) {
-    const Vec3f nan(
-        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
-    nearest_points[0] = nearest_points[1] = normal = nan;
+    nearest_points[0] = nearest_points[1] = normal = Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
   }
 
   /// @brief Update the lower bound only if the distance is inferior.
@@ -481,9 +475,7 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
     distance_lower_bound = (std::numeric_limits<FCL_REAL>::max)();
     contacts.clear();
     timings.clear();
-    const Vec3f nan(
-        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
-    nearest_points[0] = nearest_points[1] = normal = nan;
+    nearest_points[0] = nearest_points[1] = normal = Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
   }
 
   /// @brief reposition Contact objects when fcl inverts them
