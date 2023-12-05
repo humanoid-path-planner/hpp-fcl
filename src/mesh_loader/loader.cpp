@@ -37,6 +37,8 @@
 #include <hpp/fcl/mesh_loader/loader.h>
 #include <hpp/fcl/mesh_loader/assimp.h>
 
+#include <boost/filesystem.hpp>
+
 #ifdef HPP_FCL_HAS_OCTOMAP
 #include <hpp/fcl/octree.h>
 #endif
@@ -100,14 +102,26 @@ CollisionGeometryPtr_t MeshLoader::loadOctree(const std::string& filename) {
 BVHModelPtr_t CachedMeshLoader::load(const std::string& filename,
                                      const Vec3f& scale) {
   Key key(filename, scale);
-  Cache_t::const_iterator _cached = cache_.find(key);
-  if (_cached == cache_.end()) {
-    BVHModelPtr_t geom = MeshLoader::load(filename, scale);
-    cache_.insert(std::make_pair(key, geom));
-    return geom;
-  } else {
-    return _cached->second;
+
+  std::time_t mtime = 0;
+  try {
+    mtime = boost::filesystem::last_write_time(filename);
+
+    Cache_t::const_iterator _cached = cache_.find(key);
+    if (_cached != cache_.end() && _cached->second.mtime == mtime)
+      // File found in cache and mtime is the same
+      return _cached->second.model;
+  } catch (boost::filesystem::filesystem_error&) {
+    // Could not stat. Make sure we will try to load the file so that
+    // there will be a file not found error.
   }
+
+  BVHModelPtr_t geom = MeshLoader::load(filename, scale);
+  Value val;
+  val.model = geom;
+  val.mtime = mtime;
+  cache_[key] = val;
+  return geom;
 }
 }  // namespace fcl
 

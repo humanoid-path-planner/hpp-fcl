@@ -191,6 +191,7 @@ TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   PUBLIC
   Boost::serialization
   Boost::chrono
+  Boost::filesystem
 )
 
 IF(WIN32)
