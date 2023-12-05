@@ -170,6 +170,9 @@ BOOST_AUTO_TEST_CASE(test_collision_data) {
   collision_result.addContact(contact);
   collision_result.addContact(contact);
   collision_result.distance_lower_bound = 0.1;
+  collision_result.normal.setOnes();
+  collision_result.nearest_points[0].setRandom();
+  collision_result.nearest_points[1].setRandom();
   test_serialization(collision_result);
 
   DistanceRequest distance_request(true, 1., 2.);
