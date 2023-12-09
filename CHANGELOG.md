@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- CachedMeshLoader checks file last modification time.
+
 ## [2.4.0] - 2023-11-27
 
 ### Added
