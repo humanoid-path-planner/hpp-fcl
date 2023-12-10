@@ -221,6 +221,12 @@ struct HPP_FCL_DLLAPI CollisionCallBackCollect : CollisionCallBackBase {
   /// @brief Check wether a collision pair exists
   bool exist(const CollisionPair& pair) const;
 
+  /// @brief Check if two collision objects form an active collision pair
+  inline bool isPairInCollision(CollisionObject* o1, CollisionObject* o2) {
+    CollisionPair pair = std::make_pair(o1, o2);
+    return exist(pair);
+  }
+
   virtual ~CollisionCallBackCollect(){};
 
  protected:

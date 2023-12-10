@@ -84,7 +84,8 @@ void exposeBroadPhase() {
       .DEF_CLASS_FUNC(CollisionCallBackCollect, numCollisionPairs)
       .DEF_CLASS_FUNC2(CollisionCallBackCollect, getCollisionPairs,
                        bp::return_value_policy<bp::copy_const_reference>())
-      .DEF_CLASS_FUNC(CollisionCallBackCollect, exist);
+      .DEF_CLASS_FUNC(CollisionCallBackCollect, exist)
+      .DEF_CLASS_FUNC(CollisionCallBackCollect, isPairInCollision);
 
   bp::class_<CollisionData>("CollisionData", bp::no_init)
       .def(dv::init<CollisionData>())
