@@ -2,7 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2020, Toyota Research Institute
- *  Copyright (c) 2022, INRIA
+ *  Copyright (c) 2022-2023, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -218,7 +218,7 @@ struct HPP_FCL_DLLAPI CollisionCallBackCollect : CollisionCallBackBase {
   /// @brief Reset the callback
   void init();
 
-  /// @brief Check wether a collision pair exists
+  /// @brief Check whether a collision pair exists
   bool exist(const CollisionPair& pair) const;
 
   virtual ~CollisionCallBackCollect(){};
