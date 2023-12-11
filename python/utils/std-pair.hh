@@ -23,9 +23,9 @@ struct StdPairConverter {
     if (PyTuple_Size(obj) != 2) return 0;
     {
       boost::python::tuple tuple(boost::python::borrowed(obj));
-      boost::python::extract<T> elt1(tuple[0]);
+      boost::python::extract<T1> elt1(tuple[0]);
       if (!elt1.check()) return 0;
-      boost::python::extract<T> elt2(tuple[1]);
+      boost::python::extract<T2> elt2(tuple[1]);
       if (!elt2.check()) return 0;
     }
     return obj;
@@ -36,12 +36,13 @@ struct StdPairConverter {
       boost::python::converter::rvalue_from_python_stage1_data* memory) {
     boost::python::tuple tuple(boost::python::borrowed(obj));
     void* storage =
-        ((boost::python::converter::rvalue_from_python_storage<pair_type>*)
-             memory)
+        reinterpret_cast<
+            boost::python::converter::rvalue_from_python_storage<pair_type>*>(
+            reinterpret_cast<void*>(memory))
             ->storage.bytes;
     new (storage) pair_type(boost::python::extract<T1>(tuple[0]),
                             boost::python::extract<T2>(tuple[1]));
-    data->convertible = storage;
+    memory->convertible = storage;
   }
 
   static PyTypeObject const* get_pytype() {
