@@ -112,6 +112,11 @@ CollisionCallBackCollect::getCollisionPairs() const {
 
 void CollisionCallBackCollect::init() { collision_pairs.clear(); }
 
+bool CollisionCallBackCollect::exist(CollisionObject* o1,
+                                     CollisionObject* o2) const {
+  return exist(std::make_pair(o1, o2));
+}
+
 bool CollisionCallBackCollect::exist(const CollisionPair& pair) const {
   return std::find(collision_pairs.begin(), collision_pairs.end(), pair) !=
          collision_pairs.end();
