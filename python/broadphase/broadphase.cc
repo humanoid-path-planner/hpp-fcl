@@ -34,6 +34,7 @@
 
 #include <hpp/fcl/fwd.hh>
 #include "../fcl.hh"
+#include "../utils/std-pair.hh"
 
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
@@ -92,6 +93,8 @@ void exposeBroadPhase() {
                            (bool(CollisionCallBackCollect::*)(
                                CollisionObject *, CollisionObject *) const) &
                                CollisionCallBackCollect::exist));
+
+  StdPairConverter<CollisionCallBackCollect::CollisionPair>::registration();
 
   bp::class_<CollisionData>("CollisionData", bp::no_init)
       .def(dv::init<CollisionData>())
