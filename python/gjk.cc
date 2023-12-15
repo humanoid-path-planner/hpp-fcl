@@ -92,6 +92,14 @@ void exposeGJK() {
         .export_values();
   }
 
+  if (!eigenpy::register_symbolic_link_to_registered_type<GJKInitialGuess>()) {
+    enum_<GJKInitialGuess>("GJKInitialGuess")
+        .value("DefaultGuess", GJKInitialGuess::DefaultGuess)
+        .value("CachedGuess", GJKInitialGuess::CachedGuess)
+        .value("BoundingVolumeGuess", GJKInitialGuess::BoundingVolumeGuess)
+        .export_values();
+  }
+
   if (!eigenpy::register_symbolic_link_to_registered_type<
           GJKConvergenceCriterion>()) {
     enum_<GJKConvergenceCriterion>("GJKConvergenceCriterion")
