@@ -289,11 +289,10 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
 
   SaPAABB* current = updated_aabb;
 
-  Vec3f new_min = current->obj->getAABB().min_;
-  Vec3f new_max = current->obj->getAABB().max_;
+  const AABB current_aabb = current->obj->getAABB();
 
-  SaPAABB dummy;
-  dummy.cached = current->obj->getAABB();
+  const Vec3f& new_min = current_aabb.min_;
+  const Vec3f& new_max = current_aabb.max_;
 
   for (int coord = 0; coord < 3; ++coord) {
     int direction;  // -1 reverse, 0 nochange, 1 forward
