@@ -300,9 +300,9 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
     int direction;  // -1 reverse, 0 nochange, 1 forward
     EndPoint* temp;
 
-    if (current->lo->getVal((size_t)coord) > new_min[coord])
+    if (current->lo->getVal(coord) > new_min[coord])
       direction = -1;
-    else if (current->lo->getVal((size_t)coord) < new_min[coord])
+    else if (current->lo->getVal(coord) < new_min[coord])
       direction = 1;
     else
       direction = 0;
@@ -336,7 +336,8 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
         }
       }
 
-      current->lo->getVal((size_t)coord) = new_min[coord];
+      // Update the value of the lower bound along axis coord
+      current->lo->getVal(coord) = new_min[coord];
 
       // update hi end point
       temp = current->hi;
@@ -362,14 +363,14 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
       if (current->hi->next[coord] != nullptr) {
         temp = current->hi;
         while ((temp->next[coord] != nullptr) &&
-               (temp->getVal((size_t)coord) < new_max[coord])) {
+               (temp->getVal(coord) < new_max[coord])) {
           if (temp->minmax == 0)
             if (temp->aabb->cached.overlap(dummy.cached))
               addToOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
           temp = temp->next[coord];
         }
 
-        if (temp->getVal((size_t)coord) < new_max[coord]) {
+        if (temp->getVal(coord) < new_max[coord]) {
           current->hi->prev[coord]->next[coord] = current->hi->next[coord];
           current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
           current->hi->prev[coord] = temp;
@@ -385,7 +386,7 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
         }
       }
 
-      current->hi->getVal((size_t)coord) = new_max[coord];
+      current->hi->getVal(coord) = new_max[coord];
 
       // then, update the "lo" endpoint of the interval.
       temp = current->lo;
