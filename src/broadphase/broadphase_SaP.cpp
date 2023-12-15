@@ -310,8 +310,7 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
     if (direction == -1) {
       // first update the "lo" endpoint of the interval
       if (current->lo->prev[coord] != nullptr) {
-        while ((temp != nullptr) &&
-               (temp->getVal((size_t)coord) > new_min[coord])) {
+        while ((temp != nullptr) && (temp->getVal(coord) > new_min[coord])) {
           temp = current->lo->prev[coord];
           if (temp->minmax == 1)
             if (temp->aabb->cached.overlap(dummy.cached))
@@ -362,7 +361,7 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
         current->hi->getVal(coord) = new_max[coord];
       }
 
-      current->hi->getVal((size_t)coord) = new_max[coord];
+      current->hi->getVal(coord) = new_max[coord];
     } else if (direction == 1) {
       // here, we first update the "hi" endpoint.
       if (current->hi->next[coord] != nullptr) {
