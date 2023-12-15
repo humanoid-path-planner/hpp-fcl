@@ -181,28 +181,29 @@ void SaPCollisionManager::registerObjects(
 
 //==============================================================================
 void SaPCollisionManager::registerObject(CollisionObject* obj) {
-  SaPAABB* curr = new SaPAABB;
-  curr->cached = obj->getAABB();
-  curr->obj = obj;
-  curr->lo = new EndPoint;
-  curr->lo->minmax = 0;
-  curr->lo->aabb = curr;
+  // Initialize a new SaPAABB associated with current Collision Object
+  SaPAABB* new_sap = new SaPAABB;
+  new_sap->cached = obj->getAABB();
+  new_sap->obj = obj;
 
-  curr->hi = new EndPoint;
-  curr->hi->minmax = 1;
-  curr->hi->aabb = curr;
+  new_sap->lo = new EndPoint;
+  new_sap->lo->minmax = 0;
+  new_sap->lo->aabb = new_sap;
 
+  new_sap->hi = new EndPoint;
+  new_sap->hi->minmax = 1;
+  new_sap->hi->aabb = new_sap;
   for (int coord = 0; coord < 3; ++coord) {
     EndPoint* current = elist[coord];
 
     // first insert the lo end point
     if (current == nullptr)  // empty list
     {
-      elist[coord] = curr->lo;
-      curr->lo->prev[coord] = curr->lo->next[coord] = nullptr;
+      elist[coord] = new_sap->lo;
+      new_sap->lo->prev[coord] = new_sap->lo->next[coord] = nullptr;
     } else  // otherwise, find the correct location in the list and insert
     {
-      EndPoint* curr_lo = curr->lo;
+      EndPoint* curr_lo = new_sap->lo;
       FCL_REAL curr_lo_val = curr_lo->getVal()[coord];
       while ((current->getVal()[coord] < curr_lo_val) &&
              (current->next[coord] != nullptr))
@@ -211,13 +212,16 @@ void SaPCollisionManager::registerObject(CollisionObject* obj) {
       if (current->getVal()[coord] >= curr_lo_val) {
         curr_lo->prev[coord] = current->prev[coord];
         curr_lo->next[coord] = current;
-        if (current->prev[coord] == nullptr)
-          elist[coord] = curr_lo;
+        if (current->prev[coord] == nullptr)  // current was the first box
+          elist[coord] =
+              curr_lo;  // new_sap->lo becomes the new first box on the axis
         else
           current->prev[coord]->next[coord] = curr_lo;
 
-        current->prev[coord] = curr_lo;
-      } else {
+        current->prev[coord] =
+            curr_lo;  // new_sap->lo becomes the predecessor of current
+      } else {  // current->next[coord] == nullptr, so the current is just the
+                // cell before current->
         curr_lo->prev[coord] = current;
         curr_lo->next[coord] = nullptr;
         current->next[coord] = curr_lo;
@@ -225,16 +229,16 @@ void SaPCollisionManager::registerObject(CollisionObject* obj) {
     }
 
     // now insert hi end point
-    current = curr->lo;
+    current = new_sap->lo;
 
-    EndPoint* curr_hi = curr->hi;
+    EndPoint* curr_hi = new_sap->hi;
     FCL_REAL curr_hi_val = curr_hi->getVal()[coord];
 
     if (coord == 0) {
       while ((current->getVal()[coord] < curr_hi_val) &&
              (current->next[coord] != nullptr)) {
-        if (current != curr->lo)
-          if (current->aabb->cached.overlap(curr->cached))
+        if (current != new_sap->lo)
+          if (current->aabb->cached.overlap(new_sap->cached))
             overlap_pairs.emplace_back(current->aabb->obj, obj);
 
         current = current->next[coord];
@@ -248,9 +252,7 @@ void SaPCollisionManager::registerObject(CollisionObject* obj) {
     if (current->getVal()[coord] >= curr_hi_val) {
       curr_hi->prev[coord] = current->prev[coord];
       curr_hi->next[coord] = current;
-      if (current->prev[coord] == nullptr)
-        elist[coord] = curr_hi;
-      else
+      if (current->prev[coord] != nullptr)
         current->prev[coord]->next[coord] = curr_hi;
 
       current->prev[coord] = curr_hi;
@@ -261,9 +263,9 @@ void SaPCollisionManager::registerObject(CollisionObject* obj) {
     }
   }
 
-  AABB_arr.push_back(curr);
+  AABB_arr.push_back(new_sap);
 
-  obj_aabb_map[obj] = curr;
+  obj_aabb_map[obj] = new_sap;
 
   updateVelist();
 }
