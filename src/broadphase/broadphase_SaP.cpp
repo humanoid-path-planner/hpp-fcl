@@ -310,9 +310,9 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
     if (direction == -1) {
       // first update the "lo" endpoint of the interval
       if (current->lo->prev[coord] != nullptr) {
-        temp = current->lo;
         while ((temp != nullptr) &&
                (temp->getVal((size_t)coord) > new_min[coord])) {
+          temp = current->lo->prev[coord];
           if (temp->minmax == 1)
             if (temp->aabb->cached.overlap(dummy.cached))
               addToOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
@@ -340,28 +340,33 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
       current->lo->getVal(coord) = new_min[coord];
 
       // update hi end point
-      temp = current->hi;
-      while (temp->getVal((size_t)coord) > new_max[coord]) {
-        if ((temp->minmax == 0) &&
-            (temp->aabb->cached.overlap(current->cached)))
-          removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
-        temp = temp->prev[coord];
-      }
+      if (current->hi->prev[coord] != nullptr) {
+        temp = current->hi->prev[coord];
 
-      current->hi->prev[coord]->next[coord] = current->hi->next[coord];
-      if (current->hi->next[coord] != nullptr)
-        current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
-      current->hi->prev[coord] = temp;
-      current->hi->next[coord] = temp->next[coord];
-      if (temp->next[coord] != nullptr)
-        temp->next[coord]->prev[coord] = current->hi;
-      temp->next[coord] = current->hi;
+        while ((temp != nullptr) && (temp->getVal(coord) > new_max[coord])) {
+          if ((temp->minmax == 0) &&
+              (temp->aabb->cached.overlap(current->cached)))
+            removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
+          temp = temp->prev[coord];
+        }
+
+        current->hi->prev[coord]->next[coord] = current->hi->next[coord];
+        if (current->hi->next[coord] != nullptr)
+          current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
+        current->hi->prev[coord] = temp;  // Wrong line
+        current->hi->next[coord] = temp->next[coord];
+        if (temp->next[coord] != nullptr)
+          temp->next[coord]->prev[coord] = current->hi;
+        temp->next[coord] = current->hi;
+
+        current->hi->getVal(coord) = new_max[coord];
+      }
 
       current->hi->getVal((size_t)coord) = new_max[coord];
     } else if (direction == 1) {
       // here, we first update the "hi" endpoint.
       if (current->hi->next[coord] != nullptr) {
-        temp = current->hi;
+        temp = current->hi->next[coord];
         while ((temp->next[coord] != nullptr) &&
                (temp->getVal(coord) < new_max[coord])) {
           if (temp->minmax == 0)
@@ -389,28 +394,31 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
       current->hi->getVal(coord) = new_max[coord];
 
       // then, update the "lo" endpoint of the interval.
-      temp = current->lo;
+      if (current->lo->next[coord] != nullptr) {
+        temp = current->lo->next[coord];
 
-      while (temp->getVal((size_t)coord) < new_min[coord]) {
-        if ((temp->minmax == 1) &&
-            (temp->aabb->cached.overlap(current->cached)))
-          removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
-        temp = temp->next[coord];
+        while ((temp->next[coord] != nullptr) &&
+               (temp->getVal(coord) < new_min[coord])) {
+          if ((temp->minmax == 1) &&
+              (temp->aabb->cached.overlap(current->cached)))
+            removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
+          temp = temp->next[coord];
+        }
+
+        if (current->lo->prev[coord] != nullptr)
+          current->lo->prev[coord]->next[coord] = current->lo->next[coord];
+        else
+          elist[coord] = current->lo->next[coord];
+        current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
+        current->lo->prev[coord] = temp->prev[coord];
+        current->lo->next[coord] = temp;
+        if (temp->prev[coord] != nullptr)
+          temp->prev[coord]->next[coord] = current->lo;
+        else
+          elist[coord] = current->lo;
+        temp->prev[coord] = current->lo;
+        current->lo->getVal(coord) = new_min[coord];
       }
-
-      if (current->lo->prev[coord] != nullptr)
-        current->lo->prev[coord]->next[coord] = current->lo->next[coord];
-      else
-        elist[coord] = current->lo->next[coord];
-      current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
-      current->lo->prev[coord] = temp->prev[coord];
-      current->lo->next[coord] = temp;
-      if (temp->prev[coord] != nullptr)
-        temp->prev[coord]->next[coord] = current->lo;
-      else
-        elist[coord] = current->lo;
-      temp->prev[coord] = current->lo;
-      current->lo->getVal((size_t)coord) = new_min[coord];
     }
   }
 }
