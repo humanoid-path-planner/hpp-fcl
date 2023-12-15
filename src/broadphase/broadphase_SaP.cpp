@@ -310,8 +310,8 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
     if (direction == -1) {
       // first update the "lo" endpoint of the interval
       if (current->lo->prev[coord] != nullptr) {
+        temp = current->lo->prev[coord];
         while ((temp != nullptr) && (temp->getVal(coord) > new_min[coord])) {
-          temp = current->lo->prev[coord];
           if (temp->minmax == 1)
             if (temp->aabb->cached.overlap(current_aabb))
               addToOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
