@@ -313,7 +313,7 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
         while ((temp != nullptr) && (temp->getVal(coord) > new_min[coord])) {
           temp = current->lo->prev[coord];
           if (temp->minmax == 1)
-            if (temp->aabb->cached.overlap(dummy.cached))
+            if (temp->aabb->cached.overlap(current_aabb))
               addToOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
           temp = temp->prev[coord];
         }
@@ -369,7 +369,7 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
         while ((temp->next[coord] != nullptr) &&
                (temp->getVal(coord) < new_max[coord])) {
           if (temp->minmax == 0)
-            if (temp->aabb->cached.overlap(dummy.cached))
+            if (temp->aabb->cached.overlap(current_aabb))
               addToOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
           temp = temp->next[coord];
         }
