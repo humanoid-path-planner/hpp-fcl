@@ -124,10 +124,10 @@ void SaPCollisionManager::registerObjects(
       std::sort(
           endpoints.begin(), endpoints.end(),
           std::bind(std::less<FCL_REAL>(),
-                    std::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const>(
+                    std::bind(static_cast<FCL_REAL (EndPoint::*)(int) const>(
                                   &EndPoint::getVal),
                               std::placeholders::_1, coord),
-                    std::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const>(
+                    std::bind(static_cast<FCL_REAL (EndPoint::*)(int) const>(
                                   &EndPoint::getVal),
                               std::placeholders::_2, coord)));
 
@@ -512,10 +512,10 @@ bool SaPCollisionManager::collide_(CollisionObject* obj,
   const auto res_it = std::upper_bound(
       velist[axis].begin(), velist[axis].end(), &dummy,
       std::bind(std::less<FCL_REAL>(),
-                std::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const>(
+                std::bind(static_cast<FCL_REAL (EndPoint::*)(int) const>(
                               &EndPoint::getVal),
                           std::placeholders::_1, axis),
-                std::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const>(
+                std::bind(static_cast<FCL_REAL (EndPoint::*)(int) const>(
                               &EndPoint::getVal),
                           std::placeholders::_2, axis)));
 
@@ -526,8 +526,7 @@ bool SaPCollisionManager::collide_(CollisionObject* obj,
 
   while (pos != end_pos) {
     if (pos->aabb->obj != obj) {
-      if ((pos->minmax == 0) &&
-          (pos->aabb->hi->getVal((size_t)axis) >= min_val)) {
+      if ((pos->minmax == 0) && (pos->aabb->hi->getVal(axis) >= min_val)) {
         if (pos->aabb->cached.overlap(obj->getAABB()))
           if ((*callback)(obj, pos->aabb->obj)) return true;
       }
@@ -607,10 +606,10 @@ bool SaPCollisionManager::distance_(CollisionObject* obj,
     const auto res_it = std::upper_bound(
         velist[axis].begin(), velist[axis].end(), &dummy,
         std::bind(std::less<FCL_REAL>(),
-                  std::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const>(
+                  std::bind(static_cast<FCL_REAL (EndPoint::*)(int) const>(
                                 &EndPoint::getVal),
                             std::placeholders::_1, axis),
-                  std::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const>(
+                  std::bind(static_cast<FCL_REAL (EndPoint::*)(int) const>(
                                 &EndPoint::getVal),
                             std::placeholders::_2, axis)));
 
@@ -622,8 +621,7 @@ bool SaPCollisionManager::distance_(CollisionObject* obj,
     while (pos != end_pos) {
       // can change to pos->aabb->hi->getVal(axis) >= min_val - min_dist, and
       // then update start_pos to end_pos. but this seems slower.
-      if ((pos->minmax == 0) &&
-          (pos->aabb->hi->getVal((size_t)axis) >= min_val)) {
+      if ((pos->minmax == 0) && (pos->aabb->hi->getVal(axis) >= min_val)) {
         CollisionObject* curr_obj = pos->aabb->obj;
         if (curr_obj != obj) {
           if (!this->enable_tested_set_) {
@@ -789,19 +787,19 @@ Vec3f& SaPCollisionManager::EndPoint::getVal() {
 }
 
 //==============================================================================
-FCL_REAL SaPCollisionManager::EndPoint::getVal(size_t i) const {
+FCL_REAL SaPCollisionManager::EndPoint::getVal(int i) const {
   if (minmax)
-    return aabb->cached.max_[(int)i];
+    return aabb->cached.max_[i];
   else
-    return aabb->cached.min_[(int)i];
+    return aabb->cached.min_[i];
 }
 
 //==============================================================================
-FCL_REAL& SaPCollisionManager::EndPoint::getVal(size_t i) {
+FCL_REAL& SaPCollisionManager::EndPoint::getVal(int i) {
   if (minmax)
-    return aabb->cached.max_[(int)i];
+    return aabb->cached.max_[i];
   else
-    return aabb->cached.min_[(int)i];
+    return aabb->cached.min_[i];
 }
 
 //==============================================================================
