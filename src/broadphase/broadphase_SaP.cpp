@@ -277,8 +277,8 @@ void SaPCollisionManager::setup() {
   FCL_REAL scale[3];
   scale[0] = (velist[0].back())->getVal(0) - velist[0][0]->getVal(0);
   scale[1] = (velist[1].back())->getVal(1) - velist[1][0]->getVal(1);
-  ;
   scale[2] = (velist[2].back())->getVal(2) - velist[2][0]->getVal(2);
+
   int axis = 0;
   if (scale[axis] < scale[1]) axis = 1;
   if (scale[axis] < scale[2]) axis = 2;
