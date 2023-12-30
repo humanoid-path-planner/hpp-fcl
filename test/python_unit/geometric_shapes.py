@@ -156,6 +156,11 @@ class TestGeometricShapes(TestCase):
         Ic_ref = np.diag([Icx_ref, Icx_ref, Iz_ref])
         self.assertApprox(Ic, Ic_ref)
 
+    def test_BVH(self):
+        bvh = hppfcl.BVHModelOBBRSS()
+        self.assertEqual(bvh.num_vertices, 0)
+        self.assertEqual(bvh.vertices().shape, (0, 3))
+
     def test_convex(self):
         verts = hppfcl.StdVec_Vec3f()
         faces = hppfcl.StdVec_Triangle()
