@@ -87,7 +87,10 @@ struct BVHModelBaseWrapper {
   }
 
   static RefRowMatrixX3 vertices(BVHModelBase& bvh) {
-    return MapRowMatrixX3((*(bvh.vertices))[0].data(), bvh.num_vertices, 3);
+    if (bvh.num_vertices > 0)
+      return MapRowMatrixX3(bvh.vertices->data()->data(), bvh.num_vertices, 3);
+    else
+      return MapRowMatrixX3(NULL, bvh.num_vertices, 3);
   }
 
   static Triangle tri_indices(const BVHModelBase& bvh, unsigned int i) {
