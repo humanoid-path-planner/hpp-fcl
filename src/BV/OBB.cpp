@@ -116,10 +116,10 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2) {
 inline OBB merge_smalldist(const OBB& b1, const OBB& b2) {
   OBB b;
   b.To = (b1.To + b2.To) * 0.5;
-  Quaternion3f q0(b1.axes), q1(b2.axes);
+  Quatf q0(b1.axes), q1(b2.axes);
   if (q0.dot(q1) < 0) q1.coeffs() *= -1;
 
-  Quaternion3f q((q0.coeffs() + q1.coeffs()).normalized());
+  Quatf q((q0.coeffs() + q1.coeffs()).normalized());
   b.axes = q.toRotationMatrix();
 
   Vec3f vertex[8], diff;
