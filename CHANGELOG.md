@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - CachedMeshLoader checks file last modification time.
+- Fix call to clear methods for {Collision,Distance}Data inside init function ([#509](https://github.com/humanoid-path-planner/hpp-fcl/pull/509))
 
 ## [2.4.0] - 2023-11-27
 
