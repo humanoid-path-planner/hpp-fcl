@@ -195,6 +195,10 @@ bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2,
 /// @brief Default collision callback to check collision between collision
 /// objects.
 struct HPP_FCL_DLLAPI CollisionCallBackDefault : CollisionCallBackBase {
+  /// @brief Initialize the callback.
+  /// Clears the collision result and sets the done boolean to false.
+  void init() { data.clear(); }
+
   bool collide(CollisionObject* o1, CollisionObject* o2);
 
   CollisionData data;
@@ -205,6 +209,10 @@ struct HPP_FCL_DLLAPI CollisionCallBackDefault : CollisionCallBackBase {
 /// @brief Default distance callback to check collision between collision
 /// objects.
 struct HPP_FCL_DLLAPI DistanceCallBackDefault : DistanceCallBackBase {
+  /// @brief Initialize the callback.
+  /// Clears the distance result and sets the done boolean to false.
+  void init() { data.clear(); }
+
   bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL& dist);
 
   DistanceData data;
