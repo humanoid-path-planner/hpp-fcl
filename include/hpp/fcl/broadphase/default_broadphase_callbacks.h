@@ -64,6 +64,12 @@ struct CollisionData {
 
   /// @brief Whether the collision iteration can stop
   bool done;
+
+  /// @brief Clears the CollisionData
+  void clear() {
+    result.clear();
+    done = false;
+  }
 };
 
 /// @brief Distance data stores the distance request and the result given by
@@ -79,6 +85,12 @@ struct DistanceData {
 
   /// @brief Whether the distance iteration can stop
   bool done;
+
+  /// @brief Clears the DistanceData
+  void clear() {
+    result.clear();
+    done = false;
+  }
 };
 
 /// @brief Provides a simple callback for the collision query in the
