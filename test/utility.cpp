@@ -365,8 +365,8 @@ std::string getNodeTypeName(NODE_TYPE node_type) {
     return std::string("invalid");
 }
 
-Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z) {
-  Quaternion3f q;
+Quatf makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z) {
+  Quatf q;
   q.w() = w;
   q.x() = x;
   q.y() = y;

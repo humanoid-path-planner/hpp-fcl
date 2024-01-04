@@ -111,7 +111,7 @@ Vec3f rotate(Vec3f input, FCL_REAL w, Vec3f vec) {
 }
 
 BOOST_AUTO_TEST_CASE(quaternion) {
-  Quaternion3f q1(Quaternion3f::Identity()), q2, q3;
+  Quatf q1(Quatf::Identity()), q2, q3;
   q2 = fromAxisAngle(Vec3f(0, 0, 1), M_PI / 2);
   q3 = q2.inverse();
 
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(quaternion) {
 }
 
 BOOST_AUTO_TEST_CASE(transform) {
-  Quaternion3f q = fromAxisAngle(Vec3f(0, 0, 1), M_PI / 2);
+  Quatf q = fromAxisAngle(Vec3f(0, 0, 1), M_PI / 2);
   Vec3f T(0, 1, 2);
   Transform3f tf(q, T);
 

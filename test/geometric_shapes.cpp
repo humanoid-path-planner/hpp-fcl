@@ -239,12 +239,12 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_cylinderbox) {
   Box s2(1.6, 0.6, 0.025);
 
   Transform3f tf1(
-      Quaternion3f(0.5279170511703305, -0.50981118132505521,
-                   -0.67596178682051911, 0.0668715876735793),
+      Quatf(0.5279170511703305, -0.50981118132505521, -0.67596178682051911,
+            0.0668715876735793),
       Vec3f(0.041218354748013122, 1.2022554710435607, 0.77338855025700015));
 
   Transform3f tf2(
-      Quaternion3f(0.70738826916719977, 0, 0, 0.70682518110536596),
+      Quatf(0.70738826916719977, 0, 0, 0.70682518110536596),
       Vec3f(-0.29936284351096382, 0.80023864435868775, 0.71750000000000003));
 
   GJKSolver solver;
@@ -285,8 +285,8 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_cylinderbox) {
   s1 = Cylinder(0.06, 0.1);
   tf1.setTranslation(
       Vec3f(-0.66734052046473924, 0.22219183277457269, 0.76825248755616293));
-  tf1.setQuatRotation(Quaternion3f(0.52613359459338371, 0.32189408354839893,
-                                   0.70415587451837913, -0.35175580165512249));
+  tf1.setQuatRotation(Quatf(0.52613359459338371, 0.32189408354839893,
+                            0.70415587451837913, -0.35175580165512249));
   res = solver.shapeDistance(s1, tf1, s2, tf2, distance, p1, p2, normal);
 }
 
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox) {
   // FCL_REAL depth;
   Vec3f normal;
 
-  Quaternion3f q;
+  Quatf q;
   q = AngleAxis((FCL_REAL)3.140 / 6, UnitZ);
 
   tf1 = Transform3f();
@@ -3402,7 +3402,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox) {
   // FCL_REAL depth;
   Vec3f normal;
 
-  Quaternion3f q;
+  Quatf q;
   q = AngleAxis((FCL_REAL)3.140 / 6, UnitZ);
 
   tf1 = Transform3f();
