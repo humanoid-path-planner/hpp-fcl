@@ -90,13 +90,15 @@ void exposeBroadPhase() {
       .def(dv::init<CollisionData>())
       .DEF_RW_CLASS_ATTRIB(CollisionData, request)
       .DEF_RW_CLASS_ATTRIB(CollisionData, result)
-      .DEF_RW_CLASS_ATTRIB(CollisionData, done);
+      .DEF_RW_CLASS_ATTRIB(CollisionData, done)
+      .DEF_CLASS_FUNC(CollisionData, clear);
 
   bp::class_<DistanceData>("DistanceData", bp::no_init)
       .def(dv::init<DistanceData>())
       .DEF_RW_CLASS_ATTRIB(DistanceData, request)
       .DEF_RW_CLASS_ATTRIB(DistanceData, result)
-      .DEF_RW_CLASS_ATTRIB(DistanceData, done);
+      .DEF_RW_CLASS_ATTRIB(DistanceData, done)
+      .DEF_CLASS_FUNC(DistanceData, clear);
 
   BroadPhaseCollisionManagerWrapper::expose();
 
