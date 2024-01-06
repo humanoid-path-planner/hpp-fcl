@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2014, 2020 CNRS-LAAS
+#  Copyright (c) 2014, 2020-2024 CNRS-LAAS INRIA
 #  Author: Florent Lamiraux
 #  All rights reserved.
 #
@@ -96,6 +96,7 @@ set(${LIBRARY_NAME}_SOURCES
   mesh_loader/assimp.cpp
   mesh_loader/loader.cpp
   hfield.cpp
+  serialization/serialization.cpp
   )
 
 if(HPP_FCL_HAS_OCTOMAP)

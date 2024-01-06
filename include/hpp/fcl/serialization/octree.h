@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2023 INRIA
+// Copyright (c) 2023-2024 INRIA
 //
 
 #ifndef HPP_FCL_SERIALIZATION_OCTREE_H
@@ -86,5 +86,7 @@ void serialize(Archive &ar, hpp::fcl::OcTree &octree,
 
 }  // namespace serialization
 }  // namespace boost
+
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::OcTree)
 
 #endif  // ifndef HPP_FCL_SERIALIZATION_OCTREE_H

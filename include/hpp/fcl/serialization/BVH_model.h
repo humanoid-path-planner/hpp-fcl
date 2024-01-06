@@ -314,4 +314,13 @@ struct memory_footprint_evaluator<::hpp::fcl::BVHModel<BV>> {
 }  // namespace fcl
 }  // namespace hpp
 
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::AABB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::OBB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::RSS>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::OBBRSS>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::kIOS>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::KDOP<16>>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::KDOP<18>>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::KDOP<24>>)
+
 #endif  // ifndef HPP_FCL_SERIALIZATION_BVH_MODEL_H
