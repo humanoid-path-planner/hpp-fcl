@@ -1,7 +1,7 @@
 /*
  *  Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021-2022 INRIA.
+ *  Copyright (c) 2021-2023 INRIA.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -95,8 +95,10 @@ void test_serialization(const T& value, T& other_value,
                         const int mode = TXT | XML | BIN | STREAM) {
   const boost::filesystem::path tmp_path(boost::archive::tmpdir());
   const boost::filesystem::path txt_path("file.txt");
+  const boost::filesystem::path xml_path("file.xml");
   const boost::filesystem::path bin_path("file.bin");
   const boost::filesystem::path txt_filename(tmp_path / txt_path);
+  const boost::filesystem::path xml_filename(tmp_path / xml_path);
   const boost::filesystem::path bin_filename(tmp_path / bin_path);
 
   // TXT
@@ -114,6 +116,24 @@ void test_serialization(const T& value, T& other_value,
       boost::archive::text_iarchive ia(ifs);
 
       ia >> other_value;
+    }
+    BOOST_CHECK(check(value, other_value));
+  }
+
+  // XML
+  if (mode & 0x2) {
+    {
+      std::ofstream ofs(xml_filename.c_str());
+      boost::archive::xml_oarchive oa(ofs);
+      oa << boost::serialization::make_nvp("value", value);
+    }
+    BOOST_CHECK(check(value, value));
+
+    {
+      std::ifstream ifs(xml_filename.c_str());
+      boost::archive::xml_iarchive ia(ifs, boost::archive::no_codecvt);
+
+      ia >> boost::serialization::make_nvp("value", other_value);
     }
     BOOST_CHECK(check(value, other_value));
   }
