@@ -88,13 +88,76 @@ bool check(const T& value, const T& other) {
   return value == other;
 }
 
+template <typename T>
+bool check_ptr(const T* value, const T* other) {
+  return *value == *other;
+}
+
 enum SerializationMode { TXT = 1, XML = 2, BIN = 4, STREAM = 8 };
+
+template <typename T>
+void test_serialization(const T* value, T& other_value,
+                        const int mode = TXT | XML | BIN | STREAM) {
+  test_serialization(*value, other_value, mode);
+}
+
+template <typename T,
+          bool is_base = std::is_base_of<T, CollisionGeometry>::value>
+struct test_pointer_serialization_impl {
+  static void run(const T&, T&, const int) {}
+};
+
+template <typename T>
+struct test_pointer_serialization_impl<T, true> {
+  static void run(const T& value, T& other_value, const int mode) {
+    const CollisionGeometry* ptr = &value;
+    CollisionGeometry* other_ptr = &other_value;
+
+    const boost::filesystem::path tmp_path(boost::archive::tmpdir());
+    const boost::filesystem::path txt_path("file.txt");
+    const boost::filesystem::path txt_ptr_path("ptr_file.txt");
+    const boost::filesystem::path xml_path("file.xml");
+    const boost::filesystem::path bin_path("file.bin");
+    const boost::filesystem::path txt_filename(tmp_path / txt_path);
+    const boost::filesystem::path xml_filename(tmp_path / xml_path);
+    const boost::filesystem::path bin_filename(tmp_path / bin_path);
+
+    // TXT
+    if (mode & 0x1) {
+      {
+        std::ofstream ofs(txt_filename.c_str());
+
+        boost::archive::text_oarchive oa(ofs);
+        oa << ptr;
+      }
+      BOOST_CHECK(check(*reinterpret_cast<const CollisionGeometry*>(ptr),
+                        *reinterpret_cast<const CollisionGeometry*>(ptr)));
+
+      {
+        std::ifstream ifs(txt_filename.c_str());
+        boost::archive::text_iarchive ia(ifs);
+
+        ia >> other_ptr;
+      }
+      BOOST_CHECK(
+          check(*reinterpret_cast<const CollisionGeometry*>(ptr),
+                *reinterpret_cast<const CollisionGeometry*>(other_ptr)));
+    }
+  }
+};
+
+template <typename T>
+void test_pointer_serialization(const T& value, T& other_value,
+                                const int mode = TXT | XML | BIN | STREAM) {
+  test_pointer_serialization_impl<T>::run(value, other_value, mode);
+}
 
 template <typename T>
 void test_serialization(const T& value, T& other_value,
                         const int mode = TXT | XML | BIN | STREAM) {
   const boost::filesystem::path tmp_path(boost::archive::tmpdir());
   const boost::filesystem::path txt_path("file.txt");
+  const boost::filesystem::path txt_ptr_path("ptr_file.txt");
   const boost::filesystem::path xml_path("file.xml");
   const boost::filesystem::path bin_path("file.bin");
   const boost::filesystem::path txt_filename(tmp_path / txt_path);
@@ -165,6 +228,31 @@ void test_serialization(const T& value, T& other_value,
     loadFromBinary(other_value, buffer);
     BOOST_CHECK(check(value, other_value));
   }
+
+  // Test std::shared_ptr<T>
+  {
+    const boost::filesystem::path txt_ptr_filename(tmp_path / txt_ptr_path);
+    std::shared_ptr<T> ptr = std::make_shared<T>(value);
+
+    {
+      std::ofstream ofs(txt_ptr_filename.c_str());
+
+      boost::archive::text_oarchive oa(ofs);
+      oa << ptr;
+    }
+    BOOST_CHECK(check_ptr(ptr.get(), ptr.get()));
+
+    std::shared_ptr<T> other_ptr = nullptr;
+    {
+      std::ifstream ifs(txt_ptr_filename.c_str());
+      boost::archive::text_iarchive ia(ifs);
+
+      ia >> other_ptr;
+    }
+    BOOST_CHECK(check_ptr(ptr.get(), other_ptr.get()));
+  }
+
+  test_pointer_serialization(value, other_value);
 }
 
 template <typename T>
@@ -278,6 +366,36 @@ BOOST_AUTO_TEST_CASE(test_Convex) {
     Convex<Triangle> convex_copy;
     test_serialization(convex, convex_copy);
   }
+
+  // Test std::shared_ptr<CollisionGeometry>
+  {
+    const boost::filesystem::path tmp_dir(boost::archive::tmpdir());
+    const boost::filesystem::path txt_filename = tmp_dir / "file.txt";
+    const boost::filesystem::path bin_filename = tmp_dir / "file.bin";
+    Convex<Triangle> convex_copy;
+
+    std::shared_ptr<CollisionGeometry> ptr =
+        std::make_shared<Convex<Triangle>>(convex);
+    BOOST_CHECK(ptr.get());
+    {
+      std::ofstream ofs(txt_filename.c_str());
+
+      boost::archive::text_oarchive oa(ofs);
+      oa << ptr;
+    }
+    BOOST_CHECK(check(*reinterpret_cast<Convex<Triangle>*>(ptr.get()), convex));
+
+    std::shared_ptr<CollisionGeometry> other_ptr = nullptr;
+    BOOST_CHECK(!other_ptr.get());
+    {
+      std::ifstream ifs(txt_filename.c_str());
+      boost::archive::text_iarchive ia(ifs);
+
+      ia >> other_ptr;
+    }
+    BOOST_CHECK(
+        check(convex, *reinterpret_cast<Convex<Triangle>*>(other_ptr.get())));
+  }
 }
 #endif
 
@@ -355,9 +473,9 @@ BOOST_AUTO_TEST_CASE(test_octree) {
   OcTreePtr_t octree_ptr = makeOctree(points, resolution);
   const OcTree& octree = *octree_ptr.get();
 
-  const std::string tmp_dir(boost::archive::tmpdir());
-  const std::string txt_filename = tmp_dir + "file.txt";
-  const std::string bin_filename = tmp_dir + "file.bin";
+  const boost::filesystem::path tmp_dir(boost::archive::tmpdir());
+  const boost::filesystem::path txt_filename = tmp_dir / "file.txt";
+  const boost::filesystem::path bin_filename = tmp_dir / "file.bin";
 
   {
     std::ofstream ofs(bin_filename.c_str(), std::ios::binary);
