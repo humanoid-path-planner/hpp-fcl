@@ -466,9 +466,6 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
            y_grid == other.y_grid && bvs == other.bvs &&
            num_bvs == other.num_bvs;
   }
-
- public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Specialization of getNodeType() for HeightField with different BV
