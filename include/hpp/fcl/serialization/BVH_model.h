@@ -72,7 +72,6 @@ void load(Archive &ar, hpp::fcl::BVHModelBase &bvh_model,
                  boost::serialization::base_object<hpp::fcl::CollisionGeometry>(
                      bvh_model));
 
-  unsigned int num_vertices;
   ar >> make_nvp("num_vertices", bvh_model.num_vertices);
   ar >> make_nvp("vertices", bvh_model.vertices);
 

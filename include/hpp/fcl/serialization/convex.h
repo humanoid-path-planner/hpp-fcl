@@ -103,8 +103,6 @@ void serialize(Archive &ar, hpp::fcl::Convex<PolygonT> &convex_,
 
   Accessor &convex = reinterpret_cast<Accessor &>(convex_);
   ar &make_nvp("base", boost::serialization::base_object<ConvexBase>(convex_));
-  static_assert(std::is_polymorphic<ConvexBase>::value);
-  static_assert(std::is_polymorphic<hpp::fcl::Convex<PolygonT>>::value);
 
   const unsigned int num_polygons_previous = convex.num_polygons;
   ar &make_nvp("num_polygons", convex.num_polygons);
