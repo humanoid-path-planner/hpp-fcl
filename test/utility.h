@@ -137,6 +137,9 @@ fcl::OcTree loadOctreeFile(const std::string& filename,
                            const FCL_REAL& resolution);
 #endif
 
+/// @brief Convert Euler angle representation to rotation matric.
+void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3f& R);
+
 /// @brief Generate one random transform whose translation is constrained by
 /// extents and rotation without constraints. The translation is (x, y, z), and
 /// extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <=
