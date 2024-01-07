@@ -43,38 +43,13 @@ void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
                    bvh_model));
 
   ar &make_nvp("num_vertices", bvh_model.num_vertices);
-  if (bvh_model.num_vertices > 0 && bvh_model.vertices.get()) {
-    typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
-    const Eigen::Map<const AsVertixMatrix> vertices_map(
-        reinterpret_cast<const double *>(bvh_model.vertices->data()), 3,
-        bvh_model.num_vertices);
-    ar &make_nvp("vertices", vertices_map);
-  }
+  ar &make_nvp("vertices", bvh_model.vertices);
 
   ar &make_nvp("num_tris", bvh_model.num_tris);
-  if (bvh_model.num_tris > 0 && bvh_model.tri_indices.get()) {
-    typedef Eigen::Matrix<Triangle::index_type, 3, Eigen::Dynamic>
-        AsTriangleMatrix;
-    const Eigen::Map<const AsTriangleMatrix> tri_indices_map(
-        reinterpret_cast<const Triangle::index_type *>(
-            bvh_model.tri_indices->data()),
-        3, bvh_model.num_tris);
-    ar &make_nvp("tri_indices", tri_indices_map);
-  }
+  ar &make_nvp("tri_indices", bvh_model.tri_indices);
   ar &make_nvp("build_state", bvh_model.build_state);
 
-  if (bvh_model.num_vertices > 0 && bvh_model.prev_vertices.get()) {
-    const bool has_prev_vertices = true;
-    ar << make_nvp("has_prev_vertices", has_prev_vertices);
-    typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
-    const Eigen::Map<const AsVertixMatrix> prev_vertices_map(
-        reinterpret_cast<const double *>(bvh_model.prev_vertices->data()), 3,
-        bvh_model.num_vertices);
-    ar &make_nvp("prev_vertices", prev_vertices_map);
-  } else {
-    const bool has_prev_vertices = false;
-    ar &make_nvp("has_prev_vertices", has_prev_vertices);
-  }
+  ar &make_nvp("prev_vertices", bvh_model.prev_vertices);
 
   //      if(bvh_model.convex)
   //      {
@@ -98,64 +73,14 @@ void load(Archive &ar, hpp::fcl::BVHModelBase &bvh_model,
                      bvh_model));
 
   unsigned int num_vertices;
-  ar >> make_nvp("num_vertices", num_vertices);
-  if (num_vertices != bvh_model.num_vertices) {
-    bvh_model.vertices.reset();
-    bvh_model.num_vertices = num_vertices;
-    if (num_vertices > 0)
-      bvh_model.vertices.reset(new std::vector<Vec3f>(num_vertices));
-  }
-  if (num_vertices > 0) {
-    typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
-    Eigen::Map<AsVertixMatrix> vertices_map(
-        reinterpret_cast<double *>(bvh_model.vertices->data()), 3,
-        bvh_model.num_vertices);
-    ar >> make_nvp("vertices", vertices_map);
-  } else
-    bvh_model.vertices.reset();
+  ar >> make_nvp("num_vertices", bvh_model.num_vertices);
+  ar >> make_nvp("vertices", bvh_model.vertices);
 
-  unsigned int num_tris;
-  ar >> make_nvp("num_tris", num_tris);
-
-  if (num_tris != bvh_model.num_tris) {
-    bvh_model.tri_indices.reset();
-    bvh_model.num_tris = num_tris;
-    if (num_tris > 0)
-      bvh_model.tri_indices.reset(new std::vector<Triangle>(num_tris));
-  }
-  if (num_tris > 0) {
-    typedef Eigen::Matrix<Triangle::index_type, 3, Eigen::Dynamic>
-        AsTriangleMatrix;
-    Eigen::Map<AsTriangleMatrix> tri_indices_map(
-        reinterpret_cast<Triangle::index_type *>(bvh_model.tri_indices->data()),
-        3, bvh_model.num_tris);
-    ar &make_nvp("tri_indices", tri_indices_map);
-  } else
-    bvh_model.tri_indices.reset();
-
+  ar >> make_nvp("num_tris", bvh_model.num_tris);
+  ar >> make_nvp("tri_indices", bvh_model.tri_indices);
   ar >> make_nvp("build_state", bvh_model.build_state);
 
-  typedef internal::BVHModelBaseAccessor Accessor;
-  reinterpret_cast<Accessor &>(bvh_model).num_tris_allocated = num_tris;
-  reinterpret_cast<Accessor &>(bvh_model).num_vertices_allocated = num_vertices;
-
-  bool has_prev_vertices;
-  ar >> make_nvp("has_prev_vertices", has_prev_vertices);
-  if (has_prev_vertices) {
-    if (num_vertices != bvh_model.num_vertices) {
-      bvh_model.prev_vertices.reset();
-      if (num_vertices > 0)
-        bvh_model.prev_vertices.reset(new std::vector<Vec3f>(num_vertices));
-    }
-    if (num_vertices > 0) {
-      typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
-      Eigen::Map<AsVertixMatrix> prev_vertices_map(
-          reinterpret_cast<double *>(bvh_model.prev_vertices->data()), 3,
-          bvh_model.num_vertices);
-      ar &make_nvp("prev_vertices", prev_vertices_map);
-    }
-  } else
-    bvh_model.prev_vertices.reset();
+  ar >> make_nvp("prev_vertices", bvh_model.prev_vertices);
 
   //      bool has_convex = true;
   //      ar >> make_nvp("has_convex",has_convex);
