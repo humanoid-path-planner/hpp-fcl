@@ -95,6 +95,8 @@ class HPP_FCL_DLLAPI KDOP {
   Eigen::Array<FCL_REAL, N, 1> dist_;
 
  public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   /// @brief Creating kDOP containing nothing
   KDOP();
 
