@@ -57,9 +57,10 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
                                    const char* qhullCommand) {
 #ifdef HPP_FCL_HAS_QHULL
   if (num_points <= 3) {
-    throw std::invalid_argument(
+    HPP_FCL_THROW_PRETTY(
         "You shouldn't use this function with less than"
-        " 4 points.");
+        " 4 points.",
+        std::invalid_argument);
   }
   assert(pts[0].data() + 3 == pts[1].data());
 
@@ -70,7 +71,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
 
   if (qh.qhullStatus() != qh_ERRnone) {
     if (qh.hasQhullMessage()) std::cerr << qh.qhullMessage() << std::endl;
-    throw std::logic_error("Qhull failed");
+    HPP_FCL_THROW_PRETTY("Qhull failed", std::logic_error);
   }
 
   typedef std::size_t index_type;
@@ -143,9 +144,10 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
       }
     } else {
       if (keepTriangles) {  // TODO I think there is a memory leak here.
-        throw std::invalid_argument(
+        HPP_FCL_THROW_PRETTY(
             "You requested to keep triangles so you "
-            "must pass option \"Qt\" to qhull via the qhull command argument.");
+            "must pass option \"Qt\" to qhull via the qhull command argument.",
+            std::invalid_argument);
       }
       // Non-simplicial faces have more than 3 vertices and contains a list of
       // rigdes. Ridges are (3-1)D simplex (i.e. one edge). We mark the two
@@ -182,7 +184,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   for (size_t i = 0; i < static_cast<size_t>(nvertex); ++i) {
     Neighbors& n = neighbors_[i];
     if (nneighbors[i].size() >= (std::numeric_limits<unsigned char>::max)())
-      throw std::logic_error("Too many neighbors.");
+      HPP_FCL_THROW_PRETTY("Too many neighbors.", std::logic_error);
     n.count_ = (unsigned char)nneighbors[i].size();
     n.n_ = p_nneighbors;
     p_nneighbors =
@@ -191,8 +193,9 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   assert(p_nneighbors == convex->nneighbors_->data() + c_nneighbors);
   return convex;
 #else
-  throw std::logic_error(
-      "Library built without qhull. Cannot build object of this type.");
+  HPP_FCL_THROW_PRETTY(
+      "Library built without qhull. Cannot build object of this type.",
+      std::logic_error);
   HPP_FCL_UNUSED_VARIABLE(pts);
   HPP_FCL_UNUSED_VARIABLE(num_points);
   HPP_FCL_UNUSED_VARIABLE(keepTriangles);
@@ -203,9 +206,10 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
 #ifdef HPP_FCL_HAS_QHULL
 void ConvexBase::buildDoubleDescription() {
   if (num_points <= 3) {
-    throw std::invalid_argument(
+    HPP_FCL_THROW_PRETTY(
         "You shouldn't use this function with a convex less than"
-        " 4 points.");
+        " 4 points.",
+        std::invalid_argument);
   }
 
   Qhull qh;
@@ -215,7 +219,7 @@ void ConvexBase::buildDoubleDescription() {
 
   if (qh.qhullStatus() != qh_ERRnone) {
     if (qh.hasQhullMessage()) std::cerr << qh.qhullMessage() << std::endl;
-    throw std::logic_error("Qhull failed");
+    HPP_FCL_THROW_PRETTY("Qhull failed", std::logic_error);
   }
 
   buildDoubleDescriptionFromQHullResult(qh);

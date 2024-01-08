@@ -444,8 +444,9 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   /// @brief get the i-th contact calculated
   const Contact& getContact(size_t i) const {
     if (contacts.size() == 0)
-      throw std::invalid_argument(
-          "The number of contacts is zero. No Contact can be returned.");
+      HPP_FCL_THROW_PRETTY(
+          "The number of contacts is zero. No Contact can be returned.",
+          std::invalid_argument);
 
     if (i < contacts.size())
       return contacts[i];
@@ -456,8 +457,9 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   /// @brief set the i-th contact calculated
   void setContact(size_t i, const Contact& c) {
     if (contacts.size() == 0)
-      throw std::invalid_argument(
-          "The number of contacts is zero. No Contact can be returned.");
+      HPP_FCL_THROW_PRETTY(
+          "The number of contacts is zero. No Contact can be returned.",
+          std::invalid_argument);
 
     if (i < contacts.size())
       contacts[i] = c;

@@ -166,8 +166,10 @@ void OcTree::exportAsObjFile(const std::string& filename) const {
   std::ofstream os;
   os.open(filename);
   if (!os.is_open())
-    throw std::runtime_error(std::string("failed to open file \"") + filename +
-                             std::string("\""));
+    HPP_FCL_THROW_PRETTY(
+        (std::string("failed to open file \"") + filename + std::string("\""))
+            .c_str(),
+        std::runtime_error);
   // write vertices
   os << "# list of vertices\n";
   for (VectorVec3f::const_iterator it = vertices.begin(); it != vertices.end();

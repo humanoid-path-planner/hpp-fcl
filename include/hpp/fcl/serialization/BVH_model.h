@@ -32,10 +32,11 @@ void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
   if (!(bvh_model.build_state == BVH_BUILD_STATE_PROCESSED ||
         bvh_model.build_state == BVH_BUILD_STATE_UPDATED) &&
       (bvh_model.getModelType() == BVH_MODEL_TRIANGLES)) {
-    throw std::invalid_argument(
+    HPP_FCL_THROW_PRETTY(
         "The BVH model is not in a BVH_BUILD_STATE_PROCESSED or "
         "BVH_BUILD_STATE_UPDATED state.\n"
-        "The BVHModel could not be serialized.");
+        "The BVHModel could not be serialized.",
+        std::invalid_argument);
   }
 
   ar &make_nvp("base",

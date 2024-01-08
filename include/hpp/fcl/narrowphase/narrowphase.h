@@ -263,7 +263,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
         break;
       default:
         assert(false && "should not reach type part.");
-        throw std::logic_error("GJKSolver: should not reach this part.");
+        HPP_FCL_THROW_PRETTY("GJKSolver: should not reach this part.",
+                             std::logic_error)
     }
     return col;
   }

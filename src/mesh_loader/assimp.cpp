@@ -89,12 +89,13 @@ void Loader::load(const std::string& resource_path) {
         std::string("Could not load resource ") + resource_path +
         std::string("\n") + importer->GetErrorString() + std::string("\n") +
         "Hint: the mesh directory may be wrong.");
-    throw std::invalid_argument(exception_message);
+    HPP_FCL_THROW_PRETTY(exception_message.c_str(), std::invalid_argument);
   }
 
   if (!scene->HasMeshes())
-    throw std::invalid_argument(std::string("No meshes found in file ") +
-                                resource_path);
+    HPP_FCL_THROW_PRETTY(
+        (std::string("No meshes found in file ") + resource_path).c_str(),
+        std::invalid_argument);
 }
 
 /**
