@@ -140,7 +140,7 @@ struct HPP_FCL_DLLAPI HFNode : public HFNodeBase {
   Vec3f getCenter() const { return bv.center(); }
 
   /// @brief Access to the orientation of the BV
-  Matrix3f::IdentityReturnType getOrientation() const {
+  hpp::fcl::Matrix3f::IdentityReturnType getOrientation() const {
     return Matrix3f::Identity();
   }
 
