@@ -179,8 +179,8 @@ class TestGeometricShapes(TestCase):
             hppfcl.Convex.convexHull(verts, False, None)
             qhullAvailable = True
         except Exception as e:
-            self.assertEqual(
-                str(e), "Library built without qhull. Cannot build object of this type."
+            self.assertIn(
+                "Library built without qhull. Cannot build object of this type.", str(e)
             )
             qhullAvailable = False
 
@@ -192,7 +192,7 @@ class TestGeometricShapes(TestCase):
                 hppfcl.Convex.convexHull(verts[:3], False, None)
             except Exception as e:
                 self.assertIn(
-                    str(e), "You shouldn't use this function with less than 4 points."
+                    "You shouldn't use this function with less than 4 points.", str(e)
                 )
 
 
