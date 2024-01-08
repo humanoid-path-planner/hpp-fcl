@@ -38,6 +38,7 @@
 #define HPP_FCL_HEIGHT_FIELD_H
 
 #include <hpp/fcl/fwd.hh>
+#include <hpp/fcl/data_types.h>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/BV/BV_node.h>
 #include <hpp/fcl/BVH/BVH_internal.h>

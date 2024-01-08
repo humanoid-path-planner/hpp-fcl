@@ -45,6 +45,7 @@
 #include <hpp/fcl/BV/BV_node.h>
 #include <vector>
 #include <memory>
+#include <iostream>
 
 namespace hpp {
 namespace fcl {
