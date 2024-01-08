@@ -210,7 +210,8 @@ void load(Archive &ar, hpp::fcl::BVHModel<BV> &bvh_model_,
       bvh_model.bvs.reset();
       bvh_model.num_bvs = num_bvs;
       if (num_bvs > 0)
-        bvh_model.bvs.reset(new std::vector<BVNode<BV>>(num_bvs));
+        bvh_model.bvs.reset(new
+                            typename BVHModel<BV>::bv_node_vector_t(num_bvs));
     }
     if (num_bvs > 0) {
       ar >> make_nvp("bvs",

@@ -172,7 +172,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
 
   num_bvs = num_bvs_allocated = other.num_bvs;
   if (other.bvs.get()) {
-    bvs.reset(new std::vector<BVNode<BV>>(*(other.bvs)));
+    bvs.reset(new bv_node_vector_t(*(other.bvs)));
   } else
     bvs.reset();
 }
@@ -824,7 +824,7 @@ bool BVHModel<BV>::allocateBVs() {
   else
     num_bvs_to_be_allocated = 2 * num_tris - 1;
 
-  bvs.reset(new std::vector<BVNode<BV>>(num_bvs_to_be_allocated));
+  bvs.reset(new bv_node_vector_t(num_bvs_to_be_allocated));
   primitive_indices.reset(
       new std::vector<unsigned int>(num_bvs_to_be_allocated));
   if (!(bvs.get()) || !(primitive_indices.get())) {
@@ -1065,7 +1065,7 @@ int BVHModel<BV>::refitTree_topdown() {
 template <>
 void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
                                               const Vec3f& parent_c) {
-  std::vector<BVNode<OBB>>& bvs_ = *bvs;
+  bv_node_vector_t& bvs_ = *bvs;
   OBB& obb = bvs_[static_cast<size_t>(bv_id)].bv;
   if (!bvs_[static_cast<size_t>(bv_id)].isLeaf()) {
     makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child,
@@ -1086,7 +1086,7 @@ void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
 template <>
 void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
                                               const Vec3f& parent_c) {
-  std::vector<BVNode<RSS>>& bvs_ = *bvs;
+  bv_node_vector_t& bvs_ = *bvs;
   RSS& rss = bvs_[static_cast<size_t>(bv_id)].bv;
   if (!bvs_[static_cast<size_t>(bv_id)].isLeaf()) {
     makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child,
@@ -1108,7 +1108,7 @@ template <>
 void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id,
                                                  Matrix3f& parent_axes,
                                                  const Vec3f& parent_c) {
-  std::vector<BVNode<OBBRSS>> bvs_ = *bvs;
+  bv_node_vector_t& bvs_ = *bvs;
   OBB& obb = bvs_[static_cast<size_t>(bv_id)].bv.obb;
   RSS& rss = bvs_[static_cast<size_t>(bv_id)].bv.rss;
   if (!bvs_[static_cast<size_t>(bv_id)].isLeaf()) {
