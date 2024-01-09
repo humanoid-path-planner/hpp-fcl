@@ -42,8 +42,6 @@ jobs:
     - name: Build FCL
       shell: cmd /C CALL {0}
       run: |
-        conda list
-
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
         :: Tell Ninja to use clang-cl
         set CC=clang-cl

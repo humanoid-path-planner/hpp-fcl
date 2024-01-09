@@ -41,8 +41,6 @@ jobs:
     - name: Build FCL
       shell: cmd /C CALL {0}
       run: |
-        conda list
-
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
         :: Create build
