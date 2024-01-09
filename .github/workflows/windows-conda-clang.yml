@@ -45,13 +45,16 @@ jobs:
       shell: cmd /C CALL {0}
       run: |
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
+        :: Tell Ninja to use clang-cl
+        set CC=clang-cl
+        set CXX=clang-cl
 
         :: Create build
         mkdir build
         pushd build
 
         cmake ^
-          -G "Visual Studio 16 2019" -T "ClangCl" -DCMAKE_GENERATOR_PLATFORM=x64 ^
+          -G "Ninja" ^
           -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ^
           -DCMAKE_BUILD_TYPE=Release ^
