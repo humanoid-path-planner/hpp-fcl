@@ -4,7 +4,7 @@ on: [push,pull_request]
 
 jobs:
   hpp-fcl-conda:
-    name: CI on ${{ matrix.os }} with Conda - ${{ matrix.build_type }} ${{ matrix.cxx_options }}
+    name: CI on ${{ matrix.os }} with Conda Python ${{ matrix.python-version }} - ${{ matrix.build_type }} ${{ matrix.cxx_options }}
     runs-on: ${{ matrix.os }}
     env:
       CCACHE_BASEDIR: "${GITHUB_WORKSPACE}"
@@ -35,8 +35,8 @@ jobs:
     - uses: actions/cache@v3
       with:
         path: .ccache
-        key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.cxx_options }}-${{ github.sha }}
-        restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.cxx_options }}-
+        key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.cxx_options }}-${{ matrix.python-version }}-${{ github.sha }}
+        restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.cxx_options }}-${{ matrix.python-version }}-
 
     - uses: conda-incubator/setup-miniconda@v3
       with:
