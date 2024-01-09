@@ -17,3 +17,4 @@ dependencies:
   - cmake
   - ccache
   - pkg-config
+  - ninja
