@@ -63,7 +63,7 @@ jobs:
           -DPYTHON_EXECUTABLE=$(which python3) \
           -DGENERATE_PYTHON_STUBS=ON \
           -DHPP_FCL_HAS_QHULL=ON
-        make -j
+        make -j2
         make build_tests
         export CTEST_OUTPUT_ON_FAILURE=1
         make test
