@@ -182,6 +182,10 @@ if(UNIX)
   set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "${${PROJECT_NAME}_INSTALL_RPATH}")
 endif()
 
+IF(MSVC)
+  target_compile_options(${PROJECT_NAME} PUBLIC "/bigobj")
+ENDIF()
+
 # IDE sources and headers sorting
 ADD_SOURCE_GROUP(${LIBRARY_NAME}_SOURCES)
 ADD_HEADER_GROUP(PROJECT_HEADERS_FULL_PATH)
