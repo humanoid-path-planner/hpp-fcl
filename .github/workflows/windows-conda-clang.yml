@@ -69,7 +69,7 @@ jobs:
         if errorlevel 1 exit 1
 
         :: Testing
-        ctest --output-on-failure -C Release -V
+        ctest --output-on-failure -C Release
         if errorlevel 1 exit 1
 
         :: Test Python import
