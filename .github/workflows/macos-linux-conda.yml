@@ -55,25 +55,24 @@ jobs:
         mkdir build
         cd build
 
-        export CXXFLAGS=${{ matrix.cxx_options }}
         cmake .. \
+          -G "Ninja" \
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
           -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_CXX_FLAGS=${{ matrix.cxx_options }} \
           -DPYTHON_EXECUTABLE=$(which python3) \
           -DGENERATE_PYTHON_STUBS=ON \
           -DHPP_FCL_HAS_QHULL=ON
-        make -j2
-        make build_tests
-        export CTEST_OUTPUT_ON_FAILURE=1
-        make test
-        make install
+        cmake --build . -j2
+        ctest --output-on-failure
+        cmake --install .
 
     - name: Uninstall hpp-fcl
       shell: bash -el {0}
       run: |
         cd build
-        make uninstall
+        cmake --build . --target uninstall
 
   check:
     if: always()

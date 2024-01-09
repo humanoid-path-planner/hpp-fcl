@@ -5,10 +5,10 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     env:
-      ccache_basedir: "${github_workspace}"
-      ccache_dir: "${github_workspace}/.ccache"
-      ccache_compress: true
-      ccache_compresslevel: 6
+      CCACHE_BASEDIR: "${GITHUB_WORKSPACE}"
+      CCACHE_DIR: "${GITHUB_WORKSPACE}/.ccache"
+      CCACHE_COMPRESS: true
+      CCACHE_COMPRESSLEVEL: 6
 
     strategy:
       fail-fast: false
@@ -37,14 +37,12 @@ jobs:
       with:
         activate-environment: fcl
         auto-update-conda: true
-        environment-file: .github/workflows/conda/conda-env.yml
+        environment-file: .github/workflows/conda/conda-env-windows.yml
         python-version: "3.10"
         auto-activate-base: false
 
     - name: Build FCL
       shell: cmd /C CALL {0}
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       run: |
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
