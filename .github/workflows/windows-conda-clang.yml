@@ -32,8 +32,6 @@ jobs:
         restore-keys: ccache-windows-conda-clang-${{ matrix.os }}-${{ matrix.compiler }}-
 
     - uses: conda-incubator/setup-miniconda@v3
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       with:
         activate-environment: fcl
         auto-update-conda: true
@@ -44,6 +42,8 @@ jobs:
     - name: Build FCL
       shell: cmd /C CALL {0}
       run: |
+        conda list
+
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
         :: Tell Ninja to use clang-cl
         set CC=clang-cl
