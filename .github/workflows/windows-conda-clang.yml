@@ -4,6 +4,12 @@ on: [push,pull_request]
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    env:
+      ccache_basedir: "${github_workspace}"
+      ccache_dir: "${github_workspace}/.ccache"
+      ccache_compress: true
+      ccache_compresslevel: 6
+
     strategy:
       fail-fast: false
       matrix:
@@ -15,42 +21,41 @@ jobs:
             compiler: clang-cl
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
-    - uses: conda-incubator/setup-miniconda@v2
+
+    - uses: actions/cache@v3
+      with:
+        path: .ccache
+        key: ccache-windows-conda-clang-${{ matrix.os }}-${{ matrix.compiler }}-${{ github.sha }}
+        restore-keys: ccache-windows-conda-clang-${{ matrix.os }}-${{ matrix.compiler }}-
+
+    - uses: conda-incubator/setup-miniconda@v3
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       with:
         activate-environment: fcl
+        auto-update-conda: true
         environment-file: .github/workflows/conda/conda-env.yml
         python-version: "3.10"
-    - name: Install cmake and update conda
-      run: |
-        conda install cmake -c main
+        auto-activate-base: false
 
     - name: Build FCL
       shell: cmd /C CALL {0}
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       run: |
-        :: unset extra Boost envs
-        set Boost_ROOT=
-        set BOOST_ROOT_1_69_0=
-        set BOOST_ROOT_1_72_0=
-        set PATH=%PATH:C:\hostedtoolcache\windows\Boost\1.72.0;=%
-
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
         :: Create build
         mkdir build
         pushd build
 
-        :: Configure
-        set PKG_CONFIG_PATH=%CONDA_PREFIX%\Library\share\pkgconfig:%CONDA_PREFIX%\Library\share\pkgconfig
         cmake ^
           -G "Visual Studio 16 2019" -T "ClangCl" -DCMAKE_GENERATOR_PLATFORM=x64 ^
           -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ^
           -DCMAKE_BUILD_TYPE=Release ^
           -DGENERATE_PYTHON_STUBS=ON ^
           -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^

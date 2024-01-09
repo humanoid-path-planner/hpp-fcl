@@ -16,4 +16,6 @@ dependencies:
   - qhull
   - cmake
   - ccache
+  - cxx-compiler
+  - llvm-openmp
   - pkg-config

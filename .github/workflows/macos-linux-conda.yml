@@ -6,6 +6,11 @@ jobs:
   hpp-fcl-conda:
     name: CI on ${{ matrix.os }} with Conda - ${{ matrix.build_type }} ${{ matrix.cxx_options }}
     runs-on: ${{ matrix.os }}
+    env:
+      CCACHE_BASEDIR: "${GITHUB_WORKSPACE}"
+      CCACHE_DIR: "${GITHUB_WORKSPACE}/.ccache"
+      CCACHE_COMPRESS: true
+      CCACHE_COMPRESSLEVEL: 6
 
     strategy:
       fail-fast: false
@@ -23,28 +28,27 @@ jobs:
             os: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: actions/cache@v3
       with:
-        activate-environment: hpp-fcl
-        auto-update-conda: true
-        environment-file: .github/workflows/conda/conda-env.yml
-        python-version: ${{ matrix.python-version }}
+        path: .ccache
+        key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.cxx_options }}-${{ github.sha }}
+        restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.cxx_options }}-
 
-    - name: Install cmake and update conda
-      shell: bash -l {0}
-      run: |
-        conda activate hpp-fcl
-        conda install cmake -c main
-        conda install compilers llvm-openmp -c conda-forge
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        activate-environment: fcl
+        auto-update-conda: true
+        environment-file: .github/workflows/conda/conda-env-macos-linux.yml
+        python-version: ${{ matrix.python-version }}
+        auto-activate-base: false
 
     - name: Build hpp-fcl
-      shell: bash -l {0}
+      shell: bash -el {0}
       run: |
-        conda activate hpp-fcl
         conda list
         echo $CONDA_PREFIX
 
@@ -52,15 +56,21 @@ jobs:
         cd build
 
         export CXXFLAGS=${{ matrix.cxx_options }}
-        cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DPYTHON_EXECUTABLE=$(which python3) -DGENERATE_PYTHON_STUBS=ON -DHPP_FCL_HAS_QHULL=ON
-        make -j2
+        cmake .. \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DPYTHON_EXECUTABLE=$(which python3) \
+          -DGENERATE_PYTHON_STUBS=ON \
+          -DHPP_FCL_HAS_QHULL=ON
+        make -j
         make build_tests
         export CTEST_OUTPUT_ON_FAILURE=1
         make test
         make install
 
     - name: Uninstall hpp-fcl
-      shell: bash -l {0}
+      shell: bash -el {0}
       run: |
         cd build
         make uninstall
