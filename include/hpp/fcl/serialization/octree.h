@@ -42,7 +42,12 @@ void save(Archive &ar, const hpp::fcl::OcTree &octree,
   std::ostringstream stream;
   access.tree->write(stream);
   const std::string stream_str = stream.str();
-  ar << make_nvp("tree_data", stream_str);
+  auto size = stream_str.size();
+  // We can't directly serialize stream_str because it contains binary data.
+  // This create a bug on Windows with text_archive
+  ar << make_nvp("tree_data_size", size);
+  ar << make_nvp("tree_data",
+                 make_array(stream_str.c_str(), stream_str.size()));
 
   ar << make_nvp("base", base_object<hpp::fcl::CollisionGeometry>(octree));
   ar << make_nvp("default_occupancy", access.default_occupancy);
@@ -64,8 +69,13 @@ void load(Archive &ar, hpp::fcl::OcTree &octree,
   typedef internal::OcTreeAccessor Accessor;
   Accessor &access = reinterpret_cast<Accessor &>(octree);
 
+  std::size_t tree_data_size;
+  ar >> make_nvp("tree_data_size", tree_data_size);
+
   std::string stream_str;
-  ar >> make_nvp("tree_data", stream_str);
+  stream_str.resize(tree_data_size);
+  /// TODO use stream_str.data in C++17
+  ar >> make_nvp("tree_data", make_array(&stream_str[0], tree_data_size));
   std::istringstream stream(stream_str);
 
   octomap::AbstractOcTree *new_tree = octomap::AbstractOcTree::read(stream);
