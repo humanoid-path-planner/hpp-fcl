@@ -75,6 +75,7 @@ void load(Archive &ar, hpp::fcl::OcTree &octree,
   std::string stream_str;
   stream_str.resize(tree_data_size);
   /// TODO use stream_str.data in C++17
+  assert(tree_data_size > 0 && "tree_data_size should be greater than 0");
   ar >> make_nvp("tree_data", make_array(&stream_str[0], tree_data_size));
   std::istringstream stream(stream_str);
 
