@@ -32,10 +32,11 @@ void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
   if (!(bvh_model.build_state == BVH_BUILD_STATE_PROCESSED ||
         bvh_model.build_state == BVH_BUILD_STATE_UPDATED) &&
       (bvh_model.getModelType() == BVH_MODEL_TRIANGLES)) {
-    throw std::invalid_argument(
+    HPP_FCL_THROW_PRETTY(
         "The BVH model is not in a BVH_BUILD_STATE_PROCESSED or "
         "BVH_BUILD_STATE_UPDATED state.\n"
-        "The BVHModel could not be serialized.");
+        "The BVHModel could not be serialized.",
+        std::invalid_argument);
   }
 
   ar &make_nvp("base",
@@ -43,38 +44,13 @@ void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
                    bvh_model));
 
   ar &make_nvp("num_vertices", bvh_model.num_vertices);
-  if (bvh_model.num_vertices > 0 && bvh_model.vertices.get()) {
-    typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
-    const Eigen::Map<const AsVertixMatrix> vertices_map(
-        reinterpret_cast<const double *>(bvh_model.vertices->data()), 3,
-        bvh_model.num_vertices);
-    ar &make_nvp("vertices", vertices_map);
-  }
+  ar &make_nvp("vertices", bvh_model.vertices);
 
   ar &make_nvp("num_tris", bvh_model.num_tris);
-  if (bvh_model.num_tris > 0 && bvh_model.tri_indices.get()) {
-    typedef Eigen::Matrix<Triangle::index_type, 3, Eigen::Dynamic>
-        AsTriangleMatrix;
-    const Eigen::Map<const AsTriangleMatrix> tri_indices_map(
-        reinterpret_cast<const Triangle::index_type *>(
-            bvh_model.tri_indices->data()),
-        3, bvh_model.num_tris);
-    ar &make_nvp("tri_indices", tri_indices_map);
-  }
+  ar &make_nvp("tri_indices", bvh_model.tri_indices);
   ar &make_nvp("build_state", bvh_model.build_state);
 
-  if (bvh_model.num_vertices > 0 && bvh_model.prev_vertices.get()) {
-    const bool has_prev_vertices = true;
-    ar << make_nvp("has_prev_vertices", has_prev_vertices);
-    typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
-    const Eigen::Map<const AsVertixMatrix> prev_vertices_map(
-        reinterpret_cast<const double *>(bvh_model.prev_vertices->data()), 3,
-        bvh_model.num_vertices);
-    ar &make_nvp("prev_vertices", prev_vertices_map);
-  } else {
-    const bool has_prev_vertices = false;
-    ar &make_nvp("has_prev_vertices", has_prev_vertices);
-  }
+  ar &make_nvp("prev_vertices", bvh_model.prev_vertices);
 
   //      if(bvh_model.convex)
   //      {
@@ -97,65 +73,14 @@ void load(Archive &ar, hpp::fcl::BVHModelBase &bvh_model,
                  boost::serialization::base_object<hpp::fcl::CollisionGeometry>(
                      bvh_model));
 
-  unsigned int num_vertices;
-  ar >> make_nvp("num_vertices", num_vertices);
-  if (num_vertices != bvh_model.num_vertices) {
-    bvh_model.vertices.reset();
-    bvh_model.num_vertices = num_vertices;
-    if (num_vertices > 0)
-      bvh_model.vertices.reset(new std::vector<Vec3f>(num_vertices));
-  }
-  if (num_vertices > 0) {
-    typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
-    Eigen::Map<AsVertixMatrix> vertices_map(
-        reinterpret_cast<double *>(bvh_model.vertices->data()), 3,
-        bvh_model.num_vertices);
-    ar >> make_nvp("vertices", vertices_map);
-  } else
-    bvh_model.vertices.reset();
+  ar >> make_nvp("num_vertices", bvh_model.num_vertices);
+  ar >> make_nvp("vertices", bvh_model.vertices);
 
-  unsigned int num_tris;
-  ar >> make_nvp("num_tris", num_tris);
-
-  if (num_tris != bvh_model.num_tris) {
-    bvh_model.tri_indices.reset();
-    bvh_model.num_tris = num_tris;
-    if (num_tris > 0)
-      bvh_model.tri_indices.reset(new std::vector<Triangle>(num_tris));
-  }
-  if (num_tris > 0) {
-    typedef Eigen::Matrix<Triangle::index_type, 3, Eigen::Dynamic>
-        AsTriangleMatrix;
-    Eigen::Map<AsTriangleMatrix> tri_indices_map(
-        reinterpret_cast<Triangle::index_type *>(bvh_model.tri_indices->data()),
-        3, bvh_model.num_tris);
-    ar &make_nvp("tri_indices", tri_indices_map);
-  } else
-    bvh_model.tri_indices.reset();
-
+  ar >> make_nvp("num_tris", bvh_model.num_tris);
+  ar >> make_nvp("tri_indices", bvh_model.tri_indices);
   ar >> make_nvp("build_state", bvh_model.build_state);
 
-  typedef internal::BVHModelBaseAccessor Accessor;
-  reinterpret_cast<Accessor &>(bvh_model).num_tris_allocated = num_tris;
-  reinterpret_cast<Accessor &>(bvh_model).num_vertices_allocated = num_vertices;
-
-  bool has_prev_vertices;
-  ar >> make_nvp("has_prev_vertices", has_prev_vertices);
-  if (has_prev_vertices) {
-    if (num_vertices != bvh_model.num_vertices) {
-      bvh_model.prev_vertices.reset();
-      if (num_vertices > 0)
-        bvh_model.prev_vertices.reset(new std::vector<Vec3f>(num_vertices));
-    }
-    if (num_vertices > 0) {
-      typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> AsVertixMatrix;
-      Eigen::Map<AsVertixMatrix> prev_vertices_map(
-          reinterpret_cast<double *>(bvh_model.prev_vertices->data()), 3,
-          bvh_model.num_vertices);
-      ar &make_nvp("prev_vertices", prev_vertices_map);
-    }
-  } else
-    bvh_model.prev_vertices.reset();
+  ar >> make_nvp("prev_vertices", bvh_model.prev_vertices);
 
   //      bool has_convex = true;
   //      ar >> make_nvp("has_convex",has_convex);
@@ -285,7 +210,8 @@ void load(Archive &ar, hpp::fcl::BVHModel<BV> &bvh_model_,
       bvh_model.bvs.reset();
       bvh_model.num_bvs = num_bvs;
       if (num_bvs > 0)
-        bvh_model.bvs.reset(new std::vector<BVNode<BV>>(num_bvs));
+        bvh_model.bvs.reset(new
+                            typename BVHModel<BV>::bv_node_vector_t(num_bvs));
     }
     if (num_bvs > 0) {
       ar >> make_nvp("bvs",
@@ -313,5 +239,14 @@ struct memory_footprint_evaluator<::hpp::fcl::BVHModel<BV>> {
 
 }  // namespace fcl
 }  // namespace hpp
+
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::AABB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::OBB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::RSS>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::OBBRSS>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::kIOS>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::KDOP<16>>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::KDOP<18>>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::KDOP<24>>)
 
 #endif  // ifndef HPP_FCL_SERIALIZATION_BVH_MODEL_H

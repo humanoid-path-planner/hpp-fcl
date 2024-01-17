@@ -486,6 +486,12 @@ class HeightFieldShapeCollisionTraversalNode
     ConvexTriangle convex1, convex2;
     details::buildConvexTriangles(node, *this->model1, convex1, convex2);
 
+    // Compute aabb_local for BoundingVolumeGuess case in the GJK solver
+    if (nsolver->gjk_initial_guess == GJKInitialGuess::BoundingVolumeGuess) {
+      convex1.computeLocalAABB();
+      convex2.computeLocalAABB();
+    }
+
     FCL_REAL distance;
     //    Vec3f contact_point, normal;
     Vec3f c1, c2, normal, normal_top;

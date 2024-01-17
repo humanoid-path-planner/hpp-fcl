@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2024 INRIA
 //
 
 #ifndef HPP_FCL_SERIALIZATION_HFIELD_H
@@ -71,5 +71,10 @@ void serialize(Archive &ar, hpp::fcl::HeightField<BV> &hf_model,
 }
 }  // namespace serialization
 }  // namespace boost
+
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::HeightField<::hpp::fcl::AABB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::HeightField<::hpp::fcl::OBB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(
+    ::hpp::fcl::HeightField<::hpp::fcl::OBBRSS>)
 
 #endif  // ifndef HPP_FCL_SERIALIZATION_HFIELD_H

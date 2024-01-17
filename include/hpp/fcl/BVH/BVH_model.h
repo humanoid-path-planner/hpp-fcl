@@ -45,6 +45,7 @@
 #include <hpp/fcl/BV/BV_node.h>
 #include <vector>
 #include <memory>
+#include <iostream>
 
 namespace hpp {
 namespace fcl {
@@ -314,6 +315,9 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   typedef BVHModelBase Base;
 
  public:
+  using bv_node_vector_t =
+      std::vector<BVNode<BV>, Eigen::aligned_allocator<BVNode<BV>>>;
+
   /// @brief Split rule to split one BV node into two children
   shared_ptr<BVSplitter<BV>> bv_splitter;
 
@@ -376,7 +380,7 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   std::shared_ptr<std::vector<unsigned int>> primitive_indices;
 
   /// @brief Bounding volume hierarchy
-  std::shared_ptr<std::vector<BVNode<BV>>> bvs;
+  std::shared_ptr<bv_node_vector_t> bvs;
 
   /// @brief Number of BV nodes in bounding volume hierarchy
   unsigned int num_bvs;
@@ -407,7 +411,7 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
   /// OBBRSS), special implementation is provided.
   void makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
                                  const Vec3f& parent_c) {
-    std::vector<BVNode<BV>>& bvs_ = *bvs;
+    bv_node_vector_t& bvs_ = *bvs;
     if (!bvs_[static_cast<size_t>(bv_id)].isLeaf()) {
       makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child,
                                 parent_axes,
@@ -479,8 +483,8 @@ class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
     if ((!(bvs.get()) && other.bvs.get()) || (bvs.get() && !(other.bvs.get())))
       return false;
     if (bvs.get() && other.bvs.get()) {
-      const std::vector<BVNode<BV>>& bvs_ = *bvs;
-      const std::vector<BVNode<BV>>& other_bvs_ = *(other.bvs);
+      const bv_node_vector_t& bvs_ = *bvs;
+      const bv_node_vector_t& other_bvs_ = *(other.bvs);
       for (unsigned int k = 0; k < num_bvs; ++k) {
         if (bvs_[k] != other_bvs_[k]) return false;
       }

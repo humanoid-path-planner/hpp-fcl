@@ -53,6 +53,8 @@ struct CollisionRequest;
 class HPP_FCL_DLLAPI kIOS {
   /// @brief One sphere in kIOS
   struct HPP_FCL_DLLAPI kIOS_Sphere {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     Vec3f o;
     FCL_REAL r;
 
@@ -92,6 +94,8 @@ class HPP_FCL_DLLAPI kIOS {
   }
 
  public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   /// @brief Equality operator
   bool operator==(const kIOS& other) const {
     bool res = obb == other.obb && num_spheres == other.num_spheres;

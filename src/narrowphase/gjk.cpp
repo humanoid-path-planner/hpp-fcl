@@ -402,7 +402,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
           return getSupportFuncTpl<Shape0, SmallConvex, false>;
       }
     default:
-      throw std::logic_error("Unsupported geometric shape");
+      HPP_FCL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
   }
 }
 
@@ -451,7 +451,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
             s1, identity, inflation, linear_log_convex_threshold);
       break;
     default:
-      throw std::logic_error("Unsupported geometric shape");
+      HPP_FCL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
   }
 }
 
@@ -482,7 +482,7 @@ bool getNormalizeSupportDirection(const ShapeBase* shape) {
       return (bool)shape_traits<ConvexBase>::NeedNesterovNormalizeHeuristic;
       break;
     default:
-      throw std::logic_error("Unsupported geometric shape");
+      HPP_FCL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
   }
 }
 
@@ -586,7 +586,8 @@ bool getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
                                                     vs[2]->w, vs[3]->w);
       break;
     default:
-      throw std::logic_error("The simplex rank must be in [ 1, 4 ]");
+      HPP_FCL_THROW_PRETTY("The simplex rank must be in [ 1, 4 ]",
+                           std::logic_error);
   }
   w0.setZero();
   w1.setZero();
@@ -719,7 +720,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         break;
 
       default:
-        throw std::logic_error("Invalid momentum variant.");
+        HPP_FCL_THROW_PRETTY("Invalid momentum variant.", std::logic_error);
     }
 
     appendVertex(curr_simplex, -dir, false,
@@ -789,7 +790,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         inside = projectTetrahedraOrigin(curr_simplex, next_simplex);
         break;
       default:
-        throw std::logic_error("Invalid simplex rank");
+        HPP_FCL_THROW_PRETTY("Invalid simplex rank", std::logic_error);
     }
     assert(nfree + next_simplex.rank == 4);
     current = next;
@@ -826,13 +827,15 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
       diff = rl - alpha;
       switch (convergence_criterion_type) {
         case Absolute:
-          throw std::logic_error("VDB convergence criterion is relative.");
+          HPP_FCL_THROW_PRETTY("VDB convergence criterion is relative.",
+                               std::logic_error);
           break;
         case Relative:
           check_passed = (diff - tolerance * rl) <= 0;
           break;
         default:
-          throw std::logic_error("Invalid convergence criterion type.");
+          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
+                               std::logic_error);
       }
       break;
 
@@ -847,7 +850,8 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
           check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
           break;
         default:
-          throw std::logic_error("Invalid convergence criterion type.");
+          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
+                               std::logic_error);
       }
       break;
 
@@ -864,12 +868,13 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
           check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
           break;
         default:
-          throw std::logic_error("Invalid convergence criterion type.");
+          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
+                               std::logic_error);
       }
       break;
 
     default:
-      throw std::logic_error("Invalid convergence criterion.");
+      HPP_FCL_THROW_PRETTY("Invalid convergence criterion.", std::logic_error);
   }
   return check_passed;
 }

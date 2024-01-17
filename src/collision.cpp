@@ -177,6 +177,13 @@ std::size_t ComputeCollision::run(const Transform3f& tf1,
   } else {
     res = func(o1, tf1, o2, tf2, &solver, request, result);
   }
+
+  if (solver.gjk_initial_guess == GJKInitialGuess::CachedGuess ||
+      solver.enable_cached_guess) {
+    result.cached_gjk_guess = solver.cached_guess;
+    result.cached_support_func_guess = solver.support_func_cached_guess;
+  }
+
   return res;
 }
 
@@ -195,12 +202,6 @@ std::size_t ComputeCollision::operator()(const Transform3f& tf1,
     result.timings = timer.elapsed();
   } else
     res = run(tf1, tf2, request, result);
-
-  if (solver.gjk_initial_guess == GJKInitialGuess::CachedGuess ||
-      solver.enable_cached_guess) {
-    result.cached_gjk_guess = solver.cached_guess;
-    result.cached_support_func_guess = solver.support_func_cached_guess;
-  }
 
   return res;
 }

@@ -77,7 +77,7 @@ include("${JRL_CMAKE_MODULES}/ide.cmake")
 include(CMakeDependentOption)
 
 SET(CMAKE_MODULE_PATH
-  ${CMAKE_SOURCE_DIR}/cmake-modules/
+  ${CMAKE_SOURCE_DIR}/cmake/find-external/assimp
   ${CMAKE_MODULE_PATH})
 
 set_default_cmake_build_type("RelWithDebInfo")

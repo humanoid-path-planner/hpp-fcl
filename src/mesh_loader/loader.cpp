@@ -83,7 +83,8 @@ BVHModelPtr_t MeshLoader::load(const std::string& filename,
     case BV_KDOP24:
       return _load<KDOP<24> >(filename, scale);
     default:
-      throw std::invalid_argument("Unhandled bouding volume type.");
+      HPP_FCL_THROW_PRETTY("Unhandled bouding volume type.",
+                           std::invalid_argument);
   }
 }
 
@@ -92,8 +93,9 @@ CollisionGeometryPtr_t MeshLoader::loadOctree(const std::string& filename) {
   shared_ptr<octomap::OcTree> octree(new octomap::OcTree(filename));
   return CollisionGeometryPtr_t(new hpp::fcl::OcTree(octree));
 #else
-  throw std::logic_error(
-      "hpp-fcl compiled without OctoMap. Cannot create OcTrees.");
+  HPP_FCL_THROW_PRETTY(
+      "hpp-fcl compiled without OctoMap. Cannot create OcTrees.",
+      std::logic_error);
 #endif
 }
 

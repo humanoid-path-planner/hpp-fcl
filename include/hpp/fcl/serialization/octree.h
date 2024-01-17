@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2023 INRIA
+// Copyright (c) 2023-2024 INRIA
 //
 
 #ifndef HPP_FCL_SERIALIZATION_OCTREE_H
@@ -27,6 +27,13 @@ struct OcTreeAccessor : hpp::fcl::OcTree {
 }  // namespace internal
 
 template <class Archive>
+void save_construct_data(Archive &ar, const hpp::fcl::OcTree *octree_ptr,
+                         const unsigned int /*version*/) {
+  const double resolution = octree_ptr->getResolution();
+  ar << make_nvp("resolution", resolution);
+}
+
+template <class Archive>
 void save(Archive &ar, const hpp::fcl::OcTree &octree,
           const unsigned int /*version*/) {
   typedef internal::OcTreeAccessor Accessor;
@@ -35,10 +42,12 @@ void save(Archive &ar, const hpp::fcl::OcTree &octree,
   std::ostringstream stream;
   access.tree->write(stream);
   const std::string stream_str = stream.str();
-  ar << make_nvp("tree_data", stream_str);
-
-  // const double resolution = octree.getResolution();
-  // ar << make_nvp("resolution", resolution);
+  auto size = stream_str.size();
+  // We can't directly serialize stream_str because it contains binary data.
+  // This create a bug on Windows with text_archive
+  ar << make_nvp("tree_data_size", size);
+  ar << make_nvp("tree_data",
+                 make_array(stream_str.c_str(), stream_str.size()));
 
   ar << make_nvp("base", base_object<hpp::fcl::CollisionGeometry>(octree));
   ar << make_nvp("default_occupancy", access.default_occupancy);
@@ -49,26 +58,9 @@ void save(Archive &ar, const hpp::fcl::OcTree &octree,
 template <class Archive>
 void load_construct_data(Archive &ar, hpp::fcl::OcTree *octree_ptr,
                          const unsigned int /*version*/) {
-  std::string stream_str;
-  ar >> make_nvp("tree_data", stream_str);
-  std::istringstream stream(stream_str);
-
-  octomap::AbstractOcTree *tree_raw_ptr = octomap::AbstractOcTree::read(stream);
-  std::shared_ptr<const octomap::OcTree> tree_ptr(
-      dynamic_cast<octomap::OcTree *>(tree_raw_ptr));
-
-  new (octree_ptr) hpp::fcl::OcTree(tree_ptr);
-  hpp::fcl::OcTree &octree = *octree_ptr;
-  typedef internal::OcTreeAccessor Accessor;
-  Accessor &access = reinterpret_cast<Accessor &>(octree);
-
-  // double resolution;
-  // ar >> make_nvp("resolution", resolution);
-
-  ar >> make_nvp("base", base_object<hpp::fcl::CollisionGeometry>(octree));
-  ar >> make_nvp("default_occupancy", access.default_occupancy);
-  ar >> make_nvp("occupancy_threshold", access.occupancy_threshold);
-  ar >> make_nvp("free_threshold", access.free_threshold);
+  double resolution;
+  ar >> make_nvp("resolution", resolution);
+  new (octree_ptr) hpp::fcl::OcTree(resolution);
 }
 
 template <class Archive>
@@ -77,16 +69,19 @@ void load(Archive &ar, hpp::fcl::OcTree &octree,
   typedef internal::OcTreeAccessor Accessor;
   Accessor &access = reinterpret_cast<Accessor &>(octree);
 
+  std::size_t tree_data_size;
+  ar >> make_nvp("tree_data_size", tree_data_size);
+
   std::string stream_str;
-  ar >> make_nvp("tree_data", stream_str);
+  stream_str.resize(tree_data_size);
+  /// TODO use stream_str.data in C++17
+  assert(tree_data_size > 0 && "tree_data_size should be greater than 0");
+  ar >> make_nvp("tree_data", make_array(&stream_str[0], tree_data_size));
   std::istringstream stream(stream_str);
 
   octomap::AbstractOcTree *new_tree = octomap::AbstractOcTree::read(stream);
   access.tree = std::shared_ptr<const octomap::OcTree>(
       dynamic_cast<octomap::OcTree *>(new_tree));
-
-  // double resolution;
-  // ar >> make_nvp("resolution", resolution);
 
   ar >> make_nvp("base", base_object<hpp::fcl::CollisionGeometry>(octree));
   ar >> make_nvp("default_occupancy", access.default_occupancy);
@@ -102,5 +97,7 @@ void serialize(Archive &ar, hpp::fcl::OcTree &octree,
 
 }  // namespace serialization
 }  // namespace boost
+
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::OcTree)
 
 #endif  // ifndef HPP_FCL_SERIALIZATION_OCTREE_H

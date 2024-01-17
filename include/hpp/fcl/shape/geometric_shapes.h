@@ -681,7 +681,11 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
  protected:
   /// @brief Construct an uninitialized convex object
   /// Initialization is done with ConvexBase::initialize.
-  ConvexBase() : ShapeBase(), num_points(0) {}
+  ConvexBase()
+      : ShapeBase(),
+        num_points(0),
+        num_normals_and_offsets(0),
+        center(Vec3f::Zero()) {}
 
   /// @brief Initialize the points of the convex shape
   /// This also initializes the ConvexBase::center.

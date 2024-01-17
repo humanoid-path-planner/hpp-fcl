@@ -52,6 +52,8 @@ struct CollisionRequest;
 /// @brief Class merging the OBB and RSS, can handle collision and distance
 /// simultaneously
 struct HPP_FCL_DLLAPI OBBRSS {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   /// @brief OBB member, for rotation
   OBB obb;
 

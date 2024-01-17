@@ -269,8 +269,8 @@ class HPP_FCL_DLLAPI CollisionObject {
         max_world.array() = t.getRotation().row(k).array() *
                             cgeom->aabb_local.max_.transpose().array();
 
-        aabb.min_[k] += min_world.array().min(max_world.array()).sum();
-        aabb.max_[k] += min_world.array().max(max_world.array()).sum();
+        aabb.min_[k] += (min_world.array().min)(max_world.array()).sum();
+        aabb.max_[k] += (min_world.array().max)(max_world.array()).sum();
       }
     }
   }
