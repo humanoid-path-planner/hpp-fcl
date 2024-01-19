@@ -301,7 +301,8 @@ void HierarchyTree<BV>::bottomup(const NodeVecIterator lbeg,
                                  const NodeVecIterator lend) {
   NodeVecIterator lcur_end = lend;
   while (lbeg < lcur_end - 1) {
-    NodeVecIterator min_it1, min_it2;
+    NodeVecIterator min_it1 = lbeg;
+    NodeVecIterator min_it2 = lbeg + 1;
     FCL_REAL min_size = (std::numeric_limits<FCL_REAL>::max)();
     for (NodeVecIterator it1 = lbeg; it1 < lcur_end; ++it1) {
       for (NodeVecIterator it2 = it1 + 1; it2 < lcur_end; ++it2) {
