@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - CachedMeshLoader checks file last modification time.
 - Fix call to clear methods for {Collision,Distance}Data inside init function ([#509](https://github.com/humanoid-path-planner/hpp-fcl/pull/509))
 - CMake: fix submodule use in bindings in ([#512](https://github.com/humanoid-path-planner/hpp-fcl/pull/512))
+- Fix bug in DynamicAABBTreeCollisionManager (see [#514](https://github.com/humanoid-path-planner/hpp-fcl/issues/514)) in ([#515](https://github.com/humanoid-path-planner/hpp-fcl/pull/515))
 
 ## [2.4.0] - 2023-11-27
 
