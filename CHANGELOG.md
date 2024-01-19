@@ -17,6 +17,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix call to clear methods for {Collision,Distance}Data inside init function ([#509](https://github.com/humanoid-path-planner/hpp-fcl/pull/509))
 - CMake: fix submodule use in bindings in ([#512](https://github.com/humanoid-path-planner/hpp-fcl/pull/512))
 - Fix bug in DynamicAABBTreeCollisionManager (see [#514](https://github.com/humanoid-path-planner/hpp-fcl/issues/514)) in ([#515](https://github.com/humanoid-path-planner/hpp-fcl/pull/515))
+### Added
+- In struct Contact
+  - Documentation of the members,
+  - initialization of normal, closest points and contact point in constructors
+  - method getDistanceToCollision
+- New variant of GJK (PolyakAcceleration).
+- Specialization of distance computation between
+  - Sphere and Capsule,
+  - Ellipsoid and Halfspace,
+  - Ellipsoid and Plane.
+- Collision computation between Octree and HeightField.
+
+### Changed
+- Matrixx3f and Matrixx3i become row major.
+- Use shared pointers to vectors instead of arrays for vertices and triangles in class BVHModelBase.
+
+### Removed
+- members related epa in class QueryRequest
 
 ## [2.4.0] - 2023-11-27
 
