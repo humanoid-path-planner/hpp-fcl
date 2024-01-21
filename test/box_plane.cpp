@@ -292,12 +292,12 @@ BOOST_AUTO_TEST_CASE(box_plane_collision)
     BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
 
     // Check depth
-    BOOST_CHECK_SMALL(cp.penetration_depth - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
 
     // Check if contact is in right place
     BOOST_CHECK_SMALL(cp.pos[0] - 0.25, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[1] - 0, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[2] - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
 
     // ortogonal positive y
     tf1 = hpp::fcl::Vec3f(0, 0.75, 0);
@@ -317,11 +317,11 @@ BOOST_AUTO_TEST_CASE(box_plane_collision)
     BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
 
     // Check depth
-    BOOST_CHECK_SMALL(cp.penetration_depth - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
 
-    BOOST_CHECK_SMALL(cp.pos[0] - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
     BOOST_CHECK_SMALL(cp.pos[1] - 0.25, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[2] - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
 
     // ortogonal positive z
     tf1 = hpp::fcl::Vec3f(0, 0, 0.75);
@@ -341,10 +341,10 @@ BOOST_AUTO_TEST_CASE(box_plane_collision)
     BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
 
     // Check depth
-    BOOST_CHECK_SMALL(cp.penetration_depth - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
 
-    BOOST_CHECK_SMALL(cp.pos[0] - 0, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[1] - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
     BOOST_CHECK_SMALL(cp.pos[2] - 0.25, 1e-12);
 
     // ortogonal negative x
@@ -365,11 +365,11 @@ BOOST_AUTO_TEST_CASE(box_plane_collision)
     BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
 
     // Check depth
-    BOOST_CHECK_SMALL(cp.penetration_depth - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
 
     BOOST_CHECK_SMALL(cp.pos[0] - 0.25, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[1] - 0, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[2] - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
 
     // ortogonal negative y
     tf1 = hpp::fcl::Vec3f(0, -0.25, 0);
@@ -389,11 +389,11 @@ BOOST_AUTO_TEST_CASE(box_plane_collision)
     BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
 
     // Check depth
-    BOOST_CHECK_SMALL(cp.penetration_depth - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
 
-    BOOST_CHECK_SMALL(cp.pos[0] - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
     BOOST_CHECK_SMALL(cp.pos[1] - 0.25, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[2] - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
 
     // ortogonal negative z
     tf1 = hpp::fcl::Vec3f(0, 0, -0.25);
@@ -413,10 +413,10 @@ BOOST_AUTO_TEST_CASE(box_plane_collision)
     BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
 
     // Check depth
-    BOOST_CHECK_SMALL(cp.penetration_depth - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
 
-    BOOST_CHECK_SMALL(cp.pos[0] - 0, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[1] - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
     BOOST_CHECK_SMALL(cp.pos[2] - 0.25, 1e-12);
 
     // intersecting positive
@@ -440,9 +440,9 @@ BOOST_AUTO_TEST_CASE(box_plane_collision)
     // Check depth
     BOOST_CHECK_SMALL(cp.penetration_depth - 0.4, 1e-12);
 
-    BOOST_CHECK_SMALL(cp.pos[0] - 0, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[1] - 0, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[2] - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
 
     // intersecting negative
     tf1 = hpp::fcl::Vec3f(-0.1, 0, 0);
@@ -465,11 +465,11 @@ BOOST_AUTO_TEST_CASE(box_plane_collision)
     // Check depth
     BOOST_CHECK_SMALL(cp.penetration_depth - 0.4, 1e-12);
 
-    BOOST_CHECK_SMALL(cp.pos[0] - 0, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[1] - 0, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[2] - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
 
-    // Rotated, stanting on its one edge
+    // Rotated, stanting on its one edge with positive Z
     hpp::fcl::eulerToMatrix(0, M_PI / 4, M_PI / 2 - atan(sqrt(2)), R1);
     tf1 = hpp::fcl::Vec3f(0, 0, sqrt(3) * 0.5);
     plane_n = hpp::fcl::Vec3f(0, 0, 1);
@@ -488,9 +488,59 @@ BOOST_AUTO_TEST_CASE(box_plane_collision)
     BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
 
     // Check depth
-    BOOST_CHECK_SMALL(cp.penetration_depth - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
 
-    BOOST_CHECK_SMALL(cp.pos[0] - 0, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[1] - 0, 1e-12);
-    BOOST_CHECK_SMALL(cp.pos[2] - 0, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
+
+    // Rotated, stanting on its one edge with negative Z
+    hpp::fcl::eulerToMatrix(0, M_PI / 4, M_PI / 2 - atan(sqrt(2)), R1);
+    tf1 = hpp::fcl::Vec3f(0, 0, -sqrt(3) * 0.5);
+    plane_n = hpp::fcl::Vec3f(0, 0, 1);
+    collisionResult = getCollision(
+        box_side, plane_n, plane_d, R1, tf1);
+
+    BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
+
+    np1 = collisionResult.nearest_points[0];
+    np2 = collisionResult.nearest_points[1];
+
+    cp = collisionResult.getContact(0);
+
+    // Check if points equal
+    BOOST_CHECK_SMALL((np1 - np2).squaredNorm(), 1e-12);
+    BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
+
+    // Check depth
+    BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
+
+    BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
+
+    // Rotated, stanting on its side with positive Z
+    hpp::fcl::eulerToMatrix(0, M_PI / 4, 0, R1);
+    tf1 = hpp::fcl::Vec3f(1, 2, -sqrt(2) * 0.5);
+    plane_n = hpp::fcl::Vec3f(0, 0, 1);
+    collisionResult = getCollision(
+        box_side, plane_n, plane_d, R1, tf1);
+
+    BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
+
+    np1 = collisionResult.nearest_points[0];
+    np2 = collisionResult.nearest_points[1];
+
+    cp = collisionResult.getContact(0);
+
+    // Check if points equal
+    BOOST_CHECK_SMALL((np1 - np2).squaredNorm(), 1e-12);
+    BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
+
+    // Check depth
+    BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
+
+    BOOST_CHECK_SMALL(cp.pos[0] - 1, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[1] - 2, 1e-12);
+    BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
 }

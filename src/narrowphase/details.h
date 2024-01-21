@@ -1934,8 +1934,8 @@ inline bool boxPlaneIntersect(const Box& s1, const Transform3f& tf1,
     int sign2 = (A[2] > 0) ? -sign : sign;
     p.noalias() += R.col(2) * (s1.halfSide[2] * sign2);
   } else {
-    Vec3f tmp(sign * R * s1.halfSide);
-    p.noalias() += (A.array() > 0).select(-tmp, tmp);
+    Vec3f tmp(sign * s1.halfSide);
+    p.noalias() += R * (A.array() > 0).select(-tmp, tmp);
   }
 
   // compute the contact point by project the deepest point onto the plane
