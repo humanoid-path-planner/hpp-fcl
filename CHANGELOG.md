@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2.4.1] - 2024-01-23
+
 ### Fixed
 - CachedMeshLoader checks file last modification time.
 - Fix call to clear methods for {Collision,Distance}Data inside init function ([#509](https://github.com/humanoid-path-planner/hpp-fcl/pull/509))
@@ -439,7 +441,8 @@ Now Eigen is at the heart of linear algebra computations.
 First release
 
 
-[Unreleased]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.1...HEAD
+[2.4.1]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.3.7...v2.4.0
 [2.3.7]: https://github.com/humanoid-path-planner/hpp-fcl/compare/2.3.6...v2.3.7
 [2.3.6]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.3.5...v2.3.6
