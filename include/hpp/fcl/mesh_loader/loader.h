@@ -44,6 +44,7 @@
 #include <hpp/fcl/collision_object.h>
 
 #include <map>
+#include <ctime>
 
 namespace hpp {
 namespace fcl {
@@ -86,7 +87,11 @@ class HPP_FCL_DLLAPI CachedMeshLoader : public MeshLoader {
 
     bool operator<(const CachedMeshLoader::Key& b) const;
   };
-  typedef std::map<Key, BVHModelPtr_t> Cache_t;
+  struct HPP_FCL_DLLAPI Value {
+    BVHModelPtr_t model;
+    std::time_t mtime;
+  };
+  typedef std::map<Key, Value> Cache_t;
 
   const Cache_t& cache() const { return cache_; }
 

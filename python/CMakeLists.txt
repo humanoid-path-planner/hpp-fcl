@@ -32,8 +32,8 @@
 #  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
 
-include(${PROJECT_SOURCE_DIR}/cmake/python-helpers.cmake)
-include(${PROJECT_SOURCE_DIR}/cmake/stubs.cmake)
+include(${JRL_CMAKE_MODULES}/python-helpers.cmake)
+include(${JRL_CMAKE_MODULES}/stubs.cmake)
 
 ADD_CUSTOM_TARGET(python)
 SET_TARGET_PROPERTIES(python PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
