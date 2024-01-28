@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2024 INRIA
 //
 
 #ifndef HPP_FCL_SERIALIZATION_GEOMETRIC_SHAPES_H
@@ -7,6 +7,7 @@
 
 #include "hpp/fcl/shape/geometric_shapes.h"
 #include "hpp/fcl/serialization/fwd.h"
+#include "hpp/fcl/serialization/collision_object.h"
 
 namespace boost {
 namespace serialization {
@@ -100,5 +101,17 @@ void serialize(Archive& ar, hpp::fcl::Plane& plane,
 
 }  // namespace serialization
 }  // namespace boost
+
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::ShapeBase)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::CollisionGeometry)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::TriangleP)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::Box)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::Sphere)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::Ellipsoid)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::Capsule)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::Cone)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::Cylinder)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::Halfspace)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::Plane)
 
 #endif  // ifndef HPP_FCL_SERIALIZATION_GEOMETRIC_SHAPES_H

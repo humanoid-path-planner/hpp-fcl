@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2021-2022, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -162,6 +163,8 @@ struct HPP_FCL_DLLAPI GJK {
   /// Valid: GJK converged and the shapes are not in collision.
   /// Inside: GJK converged and the shapes are in collision.
   /// Failed: GJK did not converge.
+  /// EarlyStopped: GJK found a separating hyperplane and exited before
+  /// converting. The shapes are not in collision.
   enum Status { Valid, Inside, Failed, EarlyStopped };
 
   MinkowskiDiff const* shape;
@@ -252,10 +255,9 @@ struct HPP_FCL_DLLAPI GJK {
                         const FCL_REAL& omega);
 
   /// @brief Get GJK number of iterations.
-  inline size_t getIterations() { return iterations; }
-
-  /// @brief Get GJK tolerance.
-  inline FCL_REAL getTolerance() { return tolerance; }
+  inline int getIterationsMomentumStopped() const {
+    return iterations_momentum_stop;
+  }
 
  private:
   SimplexV store_v[4];
@@ -266,10 +268,14 @@ struct HPP_FCL_DLLAPI GJK {
   Status status;
 
   unsigned int max_iterations;
-  FCL_REAL tolerance;
   FCL_REAL distance_upper_bound;
+  int iterations_momentum_stop;
+
+ public:
+  FCL_REAL tolerance;
   size_t iterations;
 
+ private:
   /// @brief discard one vertex from the simplex
   inline void removeVertex(Simplex& simplex);
 
@@ -290,8 +296,8 @@ struct HPP_FCL_DLLAPI GJK {
   /// which reuse checks from edges.
   /// Finally, in addition to the voronoi procedure, checks relying on the order
   /// of construction
-  // of the simplex are added. To know more about these, visit
-  // https://caseymuratori.com/blog_0003.
+  /// of the simplex are added. To know more about these, visit
+  /// https://caseymuratori.com/blog_0003.
   bool projectLineOrigin(const Simplex& current, Simplex& next);
 
   /// @brief Project origin (0) onto triangle a-b-c
@@ -302,11 +308,6 @@ struct HPP_FCL_DLLAPI GJK {
   /// See \ref projectLineOrigin for an explanation on simplex projections.
   bool projectTetrahedraOrigin(const Simplex& current, Simplex& next);
 };
-
-static const size_t EPA_MAX_FACES = 128;
-static const size_t EPA_MAX_VERTICES = 64;
-static const FCL_REAL EPA_EPS = 0.000001;
-static const size_t EPA_MAX_ITERATIONS = 255;
 
 /// @brief class for EPA algorithm
 struct HPP_FCL_DLLAPI EPA {
@@ -357,11 +358,13 @@ struct HPP_FCL_DLLAPI EPA {
     SimplexHorizon() : cf(NULL), ff(NULL), nf(0) {}
   };
 
- private:
-  unsigned int max_face_num;
-  unsigned int max_vertex_num;
-  unsigned int max_iterations;
+ public:
+  size_t max_face_num;
+  size_t max_vertex_num;
+  size_t max_iterations;
+
   FCL_REAL tolerance;
+  size_t iterations;
 
  public:
   enum Status {
@@ -385,8 +388,8 @@ struct HPP_FCL_DLLAPI EPA {
   size_t nextsv;
   SimplexList hull, stock;
 
-  EPA(unsigned int max_face_num_, unsigned int max_vertex_num_,
-      unsigned int max_iterations_, FCL_REAL tolerance_)
+  EPA(size_t max_face_num_, size_t max_vertex_num_, size_t max_iterations_,
+      FCL_REAL tolerance_)
       : max_face_num(max_face_num_),
         max_vertex_num(max_vertex_num_),
         max_iterations(max_iterations_),

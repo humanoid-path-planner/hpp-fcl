@@ -34,6 +34,7 @@
 
 #include <hpp/fcl/fwd.hh>
 #include "../fcl.hh"
+#include "../utils/std-pair.hh"
 
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
@@ -66,25 +67,34 @@ void exposeBroadPhase() {
   DistanceCallBackBaseWrapper::expose();
 
   // CollisionCallBackDefault
-  bp::class_<CollisionCallBackDefault, bp::bases<CollisionCallBackBase> >(
+  bp::class_<CollisionCallBackDefault, bp::bases<CollisionCallBackBase>>(
       "CollisionCallBackDefault", bp::no_init)
       .def(dv::init<CollisionCallBackDefault>())
       .DEF_RW_CLASS_ATTRIB(CollisionCallBackDefault, data);
 
   // DistanceCallBackDefault
-  bp::class_<DistanceCallBackDefault, bp::bases<DistanceCallBackBase> >(
+  bp::class_<DistanceCallBackDefault, bp::bases<DistanceCallBackBase>>(
       "DistanceCallBackDefault", bp::no_init)
       .def(dv::init<DistanceCallBackDefault>())
       .DEF_RW_CLASS_ATTRIB(DistanceCallBackDefault, data);
 
   // CollisionCallBackCollect
-  bp::class_<CollisionCallBackCollect, bp::bases<CollisionCallBackBase> >(
+  bp::class_<CollisionCallBackCollect, bp::bases<CollisionCallBackBase>>(
       "CollisionCallBackCollect", bp::no_init)
       .def(dv::init<CollisionCallBackCollect, const size_t>())
       .DEF_CLASS_FUNC(CollisionCallBackCollect, numCollisionPairs)
       .DEF_CLASS_FUNC2(CollisionCallBackCollect, getCollisionPairs,
                        bp::return_value_policy<bp::copy_const_reference>())
-      .DEF_CLASS_FUNC(CollisionCallBackCollect, exist);
+      .def(dv::member_func(
+          "exist", (bool(CollisionCallBackCollect::*)(
+                       const CollisionCallBackCollect::CollisionPair &) const) &
+                       CollisionCallBackCollect::exist))
+      .def(dv::member_func("exist",
+                           (bool(CollisionCallBackCollect::*)(
+                               CollisionObject *, CollisionObject *) const) &
+                               CollisionCallBackCollect::exist));
+
+  StdPairConverter<CollisionCallBackCollect::CollisionPair>::registration();
 
   bp::class_<CollisionData>("CollisionData", bp::no_init)
       .def(dv::init<CollisionData>())
@@ -118,9 +128,9 @@ void exposeBroadPhase() {
                                     detail::SpatialHash>
         HashTable;
     typedef SpatialHashingCollisionManager<HashTable> Derived;
-    bp::class_<Derived, bp::bases<BroadPhaseCollisionManager> >(
+    bp::class_<Derived, bp::bases<BroadPhaseCollisionManager>>(
         "SpatialHashingCollisionManager", bp::no_init)
         .def(dv::init<Derived, FCL_REAL, const Vec3f &, const Vec3f &,
-                      bp::optional<unsigned int> >());
+                      bp::optional<unsigned int>>());
   }
 }

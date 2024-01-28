@@ -66,6 +66,7 @@ struct ShapeShapeCollider {
     if (request.isSatisfied(result)) return result.numContacts();
 
     DistanceResult distanceResult;
+    // (louis) enable_contact not used yet but may be in the future
     DistanceRequest distanceRequest(request.enable_contact);
     FCL_REAL distance = ShapeShapeDistance<T_SH1, T_SH2>(
         o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
@@ -73,20 +74,19 @@ struct ShapeShapeCollider {
     size_t num_contacts = 0;
     const Vec3f& p1 = distanceResult.nearest_points[0];
     const Vec3f& p2 = distanceResult.nearest_points[1];
+    const Vec3f& normal = distanceResult.normal;
     FCL_REAL distToCollision = distance - request.security_margin;
 
     internal::updateDistanceLowerBoundFromLeaf(request, result, distToCollision,
-                                               p1, p2);
+                                               p1, p2, normal);
     if (distToCollision <= request.collision_distance_threshold &&
         result.numContacts() < request.num_max_contacts) {
       if (result.numContacts() < request.num_max_contacts) {
         const Vec3f& p1 = distanceResult.nearest_points[0];
         const Vec3f& p2 = distanceResult.nearest_points[1];
 
-        Contact contact(
-            o1, o2, distanceResult.b1, distanceResult.b2, (p1 + p2) / 2,
-            (distance <= 0 ? distanceResult.normal : (p2 - p1).normalized()),
-            -distance);
+        Contact contact(o1, o2, distanceResult.b1, distanceResult.b2, p1, p2,
+                        normal, distance);
 
         result.addContact(contact);
       }
@@ -136,6 +136,11 @@ SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Plane);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Sphere);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Cylinder);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Capsule);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Ellipsoid, Halfspace);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Ellipsoid, Plane);
+// TODO
+// SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, TriangleP);
 
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(ConvexBase, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Halfspace);

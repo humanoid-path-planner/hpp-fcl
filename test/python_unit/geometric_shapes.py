@@ -156,6 +156,11 @@ class TestGeometricShapes(TestCase):
         Ic_ref = np.diag([Icx_ref, Icx_ref, Iz_ref])
         self.assertApprox(Ic, Ic_ref)
 
+    def test_BVH(self):
+        bvh = hppfcl.BVHModelOBBRSS()
+        self.assertEqual(bvh.num_vertices, 0)
+        self.assertEqual(bvh.vertices().shape, (0, 3))
+
     def test_convex(self):
         verts = hppfcl.StdVec_Vec3f()
         faces = hppfcl.StdVec_Triangle()
@@ -174,8 +179,8 @@ class TestGeometricShapes(TestCase):
             hppfcl.Convex.convexHull(verts, False, None)
             qhullAvailable = True
         except Exception as e:
-            self.assertEqual(
-                str(e), "Library built without qhull. Cannot build object of this type."
+            self.assertIn(
+                "Library built without qhull. Cannot build object of this type.", str(e)
             )
             qhullAvailable = False
 
@@ -187,7 +192,7 @@ class TestGeometricShapes(TestCase):
                 hppfcl.Convex.convexHull(verts[:3], False, None)
             except Exception as e:
                 self.assertIn(
-                    str(e), "You shouldn't use this function with less than 4 points."
+                    "You shouldn't use this function with less than 4 points.", str(e)
                 )
 
 

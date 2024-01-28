@@ -226,8 +226,9 @@ std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder,
 std::vector<Vec3f> getBoundVertices(const ConvexBase& convex,
                                     const Transform3f& tf) {
   std::vector<Vec3f> result(convex.num_points);
+  const std::vector<Vec3f>& points_ = *(convex.points);
   for (std::size_t i = 0; i < convex.num_points; ++i) {
-    result[i] = tf.transform(convex.points[i]);
+    result[i] = tf.transform(points_[i]);
   }
 
   return result;
@@ -354,8 +355,9 @@ void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf,
   const Vec3f& T = tf.getTranslation();
 
   AABB bv_;
+  const std::vector<Vec3f>& points_ = *(s.points);
   for (std::size_t i = 0; i < s.num_points; ++i) {
-    Vec3f new_p = R * s.points[i] + T;
+    Vec3f new_p = R * points_[i] + T;
     bv_ += new_p;
   }
 
@@ -492,7 +494,7 @@ void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf,
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  fit(s.points, s.num_points, bv);
+  fit(s.points->data(), s.num_points, bv);
 
   bv.axes.applyOnTheLeft(R);
 

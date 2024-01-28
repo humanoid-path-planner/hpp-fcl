@@ -60,7 +60,8 @@ CollisionGeometry* extractBVH(const CollisionGeometry* model,
     case BV_KDOP24:
       return extractBVHtpl<KDOP<24> >(model, pose, aabb);
     default:
-      throw std::runtime_error("Unknown type of bounding volume");
+      HPP_FCL_THROW_PRETTY("Unknown type of bounding volume",
+                           std::runtime_error);
   }
 }
 }  // namespace details
@@ -72,8 +73,9 @@ CollisionGeometry* extract(const CollisionGeometry* model,
       return details::extractBVH(model, pose, aabb);
     // case OT_GEOM: return model;
     default:
-      throw std::runtime_error(
-          "Extraction is not implemented for this type of object");
+      HPP_FCL_THROW_PRETTY(
+          "Extraction is not implemented for this type of object",
+          std::runtime_error);
   }
 }
 }  // namespace fcl

@@ -39,7 +39,7 @@
 
 #include <limits>
 
-#if HPP_FCL_HAVE_OCTOMAP
+#ifdef HPP_FCL_HAVE_OCTOMAP
 #include "hpp/fcl/octree.h"
 #endif
 
@@ -515,7 +515,8 @@ void DynamicAABBTreeCollisionManager::update() {
     DynamicAABBNode* node = it->second;
     node->bv = obj->getAABB();
     if (node->bv.volume() <= 0.)
-      throw std::invalid_argument("The bounding volume has a negative volume.");
+      HPP_FCL_THROW_PRETTY("The bounding volume has a negative volume.",
+                           std::invalid_argument)
   }
 
   dtree.refit();

@@ -319,8 +319,10 @@ CollisionFunctionMatrix::CollisionFunctionMatrix() {
       &ShapeShapeCollide<Ellipsoid, Cylinder>;
   collision_matrix[GEOM_ELLIPSOID][GEOM_CONVEX] =
       &ShapeShapeCollide<Ellipsoid, ConvexBase>;
-  // TODO Louis: Ellipsoid - Plane
-  // TODO Louis: Ellipsoid - Halfspace
+  collision_matrix[GEOM_ELLIPSOID][GEOM_PLANE] =
+      &ShapeShapeCollide<Ellipsoid, Plane>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_HALFSPACE] =
+      &ShapeShapeCollide<Ellipsoid, Halfspace>;
   collision_matrix[GEOM_ELLIPSOID][GEOM_ELLIPSOID] =
       &ShapeShapeCollide<Ellipsoid, Ellipsoid>;
 
@@ -403,7 +405,8 @@ CollisionFunctionMatrix::CollisionFunctionMatrix() {
   collision_matrix[GEOM_PLANE][GEOM_PLANE] = &ShapeShapeCollide<Plane, Plane>;
   collision_matrix[GEOM_PLANE][GEOM_HALFSPACE] =
       &ShapeShapeCollide<Plane, Halfspace>;
-  // TODO Louis: Ellipsoid - Plane
+  collision_matrix[GEOM_PLANE][GEOM_ELLIPSOID] =
+      &ShapeShapeCollide<Plane, Ellipsoid>;
 
   collision_matrix[GEOM_HALFSPACE][GEOM_BOX] =
       &ShapeShapeCollide<Halfspace, Box>;
@@ -421,7 +424,8 @@ CollisionFunctionMatrix::CollisionFunctionMatrix() {
       &ShapeShapeCollide<Halfspace, Plane>;
   collision_matrix[GEOM_HALFSPACE][GEOM_HALFSPACE] =
       &ShapeShapeCollide<Halfspace, Halfspace>;
-  // TODO Louis: Ellipsoid - Halfspace
+  collision_matrix[GEOM_HALFSPACE][GEOM_ELLIPSOID] =
+      &ShapeShapeCollide<Halfspace, Ellipsoid>;
 
   collision_matrix[BV_AABB][GEOM_BOX] = &BVHShapeCollider<AABB, Box>::collide;
   collision_matrix[BV_AABB][GEOM_SPHERE] =
@@ -657,6 +661,10 @@ CollisionFunctionMatrix::CollisionFunctionMatrix() {
       &OctreeCollide<OcTree, BVHModel<KDOP<18> > >;
   collision_matrix[GEOM_OCTREE][BV_KDOP24] =
       &OctreeCollide<OcTree, BVHModel<KDOP<24> > >;
+  collision_matrix[GEOM_OCTREE][HF_AABB] =
+      &OctreeCollide<OcTree, HeightField<AABB> >;
+  collision_matrix[GEOM_OCTREE][HF_OBBRSS] =
+      &OctreeCollide<OcTree, HeightField<OBBRSS> >;
 
   collision_matrix[BV_AABB][GEOM_OCTREE] =
       &OctreeCollide<BVHModel<AABB>, OcTree>;
@@ -672,6 +680,10 @@ CollisionFunctionMatrix::CollisionFunctionMatrix() {
       &OctreeCollide<BVHModel<KDOP<18> >, OcTree>;
   collision_matrix[BV_KDOP24][GEOM_OCTREE] =
       &OctreeCollide<BVHModel<KDOP<24> >, OcTree>;
+  collision_matrix[HF_AABB][GEOM_OCTREE] =
+      &OctreeCollide<HeightField<AABB>, OcTree>;
+  collision_matrix[HF_OBBRSS][GEOM_OCTREE] =
+      &OctreeCollide<HeightField<OBBRSS>, OcTree>;
 #endif
 }
 // template struct CollisionFunctionMatrix;

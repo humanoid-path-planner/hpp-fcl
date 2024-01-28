@@ -49,7 +49,7 @@ using hpp::fcl::FCL_REAL;
 using hpp::fcl::GJKSolver;
 using hpp::fcl::GJKVariant;
 using hpp::fcl::Matrix3f;
-using hpp::fcl::Quaternion3f;
+using hpp::fcl::Quatf;
 using hpp::fcl::Transform3f;
 using hpp::fcl::TriangleP;
 using hpp::fcl::Vec3f;
@@ -103,8 +103,8 @@ void test_gjk_distance_triangle_triangle(
       Q2_loc = Vec3f(-10.926, -1.284259033203125, 3.7281499023437501);
       Q3_loc = Vec3f(-10.926, -1.2866180419921875, 3.72335400390625);
       Transform3f tf(
-          Quaternion3f(-0.42437287410898855, -0.26862477561450587,
-                       -0.46249645019513175, 0.73064726592483387),
+          Quatf(-0.42437287410898855, -0.26862477561450587,
+                -0.46249645019513175, 0.73064726592483387),
           Vec3f(-12.824601270753471, -1.6840516940066426, 3.8914453043793844));
       tf1 = tf;
     } else if (i == 1) {
@@ -323,8 +323,8 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
   Sphere sphere(1.);
 
   typedef Eigen::Matrix<FCL_REAL, 4, 1> Vec4f;
-  Transform3f tf0(Quaternion3f(Vec4f::Random().normalized()), Vec3f::Zero()),
-      tf1(Quaternion3f(Vec4f::Random().normalized()), center_distance * ray);
+  Transform3f tf0(Quatf(Vec4f::Random().normalized()), Vec3f::Zero()),
+      tf1(Quatf(Vec4f::Random().normalized()), center_distance * ray);
 
   details::MinkowskiDiff shape;
   shape.set(&sphere, &sphere, tf0, tf1);

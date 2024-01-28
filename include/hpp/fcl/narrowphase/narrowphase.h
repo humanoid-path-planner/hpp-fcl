@@ -5,7 +5,7 @@
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
  *  Copyright (c) 2018-2019, Centre National de la Recherche Scientifique
  *  All rights reserved.
- *  Copyright (c) 2021-2022, INRIA
+ *  Copyright (c) 2021-2023, INRIA
  *  All rights reserved.
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
@@ -132,7 +132,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
           gjk.getClosestPoints(shape, w0, w1);
           distance_lower_bound = gjk.distance;
           if (normal)
-            (*normal).noalias() = tf1.getRotation() * (w0 - w1).normalized();
+            (*normal).noalias() = tf1.getRotation() * (w1 - w0).normalized();
           if (contact_points) *contact_points = tf1.transform((w0 + w1) / 2);
           return true;
         } else {
@@ -213,7 +213,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
           gjk.getClosestPoints(shape, w0, w1);
           distance = gjk.distance;
           normal.noalias() = tf1.getRotation() * (w0 - w1).normalized();
-          p1 = p2 = tf1.transform((w0 + w1) / 2);
+          p1 = tf1.transform(w0);
+          p2 = tf1.transform(w1);
         } else {
           details::EPA epa(epa_max_face_num, epa_max_vertex_num,
                            epa_max_iterations, epa_tolerance);
@@ -225,17 +226,27 @@ struct HPP_FCL_DLLAPI GJKSolver {
             epa.getClosestPoints(shape, w0, w1);
             distance = -epa.depth;
             normal.noalias() = tf1.getRotation() * epa.normal;
-            p1 = p2 = tf1.transform(w0 - epa.normal * (epa.depth * 0.5));
+            p1 = tf1.transform(w0);
+            p2 = tf1.transform(w1);
             assert(distance <= 1e-6);
           } else {
             distance = -(std::numeric_limits<FCL_REAL>::max)();
             gjk.getClosestPoints(shape, w0, w1);
-            p1 = p2 = tf1.transform(w0);
+            p1 = tf1.transform(w0);
+            p2 = tf1.transform(w1);
           }
         }
         break;
       case details::GJK::Valid:
       case details::GJK::EarlyStopped:
+        col = false;
+        gjk.getClosestPoints(shape, w0, w1);
+        distance = gjk.distance;
+        normal.noalias() = -tf1.getRotation() * gjk.ray;
+        normal.normalize();
+        p1 = tf1.transform(w0);
+        p2 = tf1.transform(w1);
+        break;
       case details::GJK::Failed:
         col = false;
 
@@ -247,11 +258,13 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
         p1 = tf1.transform(p1);
         p2 = tf1.transform(p2);
+        normal.setZero();
         assert(distance > 0);
         break;
       default:
         assert(false && "should not reach type part.");
-        throw std::logic_error("GJKSolver: should not reach this part.");
+        HPP_FCL_THROW_PRETTY("GJKSolver: should not reach this part.",
+                             std::logic_error)
     }
     return col;
   }
@@ -296,7 +309,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
       // assert (distance == (w0 - w1).norm());
       distance = gjk.distance;
 
-      normal.noalias() = tf1.getRotation() * gjk.ray;
+      normal.noalias() = -tf1.getRotation() * gjk.ray;
       normal.normalize();
       p1 = tf1.transform(p1);
       p2 = tf1.transform(p2);
@@ -318,6 +331,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         normal.normalize();
         p1 = tf1.transform(p1);
         p2 = tf1.transform(p2);
+        return true;
       } else {
         details::EPA epa(epa_max_face_num, epa_max_vertex_num,
                          epa_max_iterations, epa_tolerance);
@@ -333,7 +347,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
           normal.noalias() = tf1.getRotation() * epa.normal;
           p1 = tf1.transform(w0);
           p2 = tf1.transform(w1);
-          return false;
+          return true;
         }
         distance = -(std::numeric_limits<FCL_REAL>::max)();
         gjk.getClosestPoints(shape, p1, p2);
@@ -373,12 +387,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
     support_func_cached_guess = support_func_guess_t::Zero();
     distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
 
-    // EPS settings
-    epa_max_face_num = 128;
-    epa_max_vertex_num = 64;
-    epa_max_iterations = 255;
-    epa_tolerance = 1e-6;
-
     set(request);
   }
 
@@ -400,6 +408,12 @@ struct HPP_FCL_DLLAPI GJKSolver {
       cached_guess = request.cached_gjk_guess;
       support_func_cached_guess = request.cached_support_func_guess;
     }
+
+    // EPA settings
+    epa_max_face_num = request.epa_max_face_num;
+    epa_max_vertex_num = request.epa_max_vertex_num;
+    epa_max_iterations = request.epa_max_iterations;
+    epa_tolerance = request.epa_tolerance;
   }
 
   /// @brief Constructor from a CollisionRequest
@@ -410,12 +424,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
     distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
-
-    // EPS settings
-    epa_max_face_num = 128;
-    epa_max_vertex_num = 64;
-    epa_max_iterations = 255;
-    epa_tolerance = 1e-6;
 
     set(request);
   }
@@ -443,6 +451,12 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // security margin. Otherwise, we will likely miss some collisions.
     distance_upper_bound = (std::max)(
         0., (std::max)(request.distance_upper_bound, request.security_margin));
+
+    // EPA settings
+    epa_max_face_num = request.epa_max_face_num;
+    epa_max_vertex_num = request.epa_max_vertex_num;
+    epa_max_iterations = request.epa_max_iterations;
+    epa_tolerance = request.epa_tolerance;
   }
 
   /// @brief Copy constructor
@@ -473,16 +487,16 @@ struct HPP_FCL_DLLAPI GJKSolver {
   bool operator!=(const GJKSolver& other) const { return !(*this == other); }
 
   /// @brief maximum number of simplex face used in EPA algorithm
-  unsigned int epa_max_face_num;
+  mutable size_t epa_max_face_num;
 
   /// @brief maximum number of simplex vertex used in EPA algorithm
-  unsigned int epa_max_vertex_num;
+  mutable size_t epa_max_vertex_num;
 
   /// @brief maximum number of iterations used for EPA iterations
-  unsigned int epa_max_iterations;
+  mutable size_t epa_max_iterations;
 
   /// @brief the threshold used in EPA to stop iteration
-  FCL_REAL epa_tolerance;
+  mutable FCL_REAL epa_tolerance;
 
   /// @brief the threshold used in GJK to stop iteration
   mutable FCL_REAL gjk_tolerance;

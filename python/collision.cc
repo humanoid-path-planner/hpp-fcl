@@ -59,6 +59,15 @@ const CollisionGeometry* geto(const Contact& c) {
   return index == 1 ? c.o1 : c.o2;
 }
 
+struct ContactWrapper {
+  static Vec3f getNearestPoint1(const Contact& contact) {
+    return contact.nearest_points[0];
+  }
+  static Vec3f getNearestPoint2(const Contact& contact) {
+    return contact.nearest_points[1];
+  }
+};
+
 void exposeCollisionAPI() {
   if (!eigenpy::register_symbolic_link_to_registered_type<
           CollisionRequestFlag>()) {
@@ -152,9 +161,14 @@ void exposeCollisionAPI() {
             make_function(&geto<2>,
                           return_value_policy<reference_existing_object>()),
             doxygen::class_attrib_doc<Contact>("o2"))
+        .def("getNearestPoint1", &ContactWrapper::getNearestPoint1,
+             doxygen::class_attrib_doc<Contact>("nearest_points"))
+        .def("getNearestPoint2", &ContactWrapper::getNearestPoint2,
+             doxygen::class_attrib_doc<Contact>("nearest_points"))
         .DEF_RW_CLASS_ATTRIB(Contact, b1)
         .DEF_RW_CLASS_ATTRIB(Contact, b2)
         .DEF_RW_CLASS_ATTRIB(Contact, normal)
+        .DEF_RW_CLASS_ATTRIB(Contact, nearest_points)
         .DEF_RW_CLASS_ATTRIB(Contact, pos)
         .DEF_RW_CLASS_ATTRIB(Contact, penetration_depth)
         .def(self == self)

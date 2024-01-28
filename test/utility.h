@@ -179,7 +179,7 @@ bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2,
 
 std::string getNodeTypeName(NODE_TYPE node_type);
 
-Quaternion3f makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z);
+Quatf makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z);
 
 std::ostream& operator<<(std::ostream& os, const Transform3f& tf);
 

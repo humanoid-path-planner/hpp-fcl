@@ -206,7 +206,7 @@ void testBVHModelTriangles() {
 
   pose.setTranslation(Vec3f(0, 0, 0));
   FCL_REAL sqrt2_2 = std::sqrt(2) / 2;
-  pose.setQuatRotation(Quaternion3f(sqrt2_2, sqrt2_2, 0, 0));
+  pose.setQuatRotation(Quatf(sqrt2_2, sqrt2_2, 0, 0));
   cropped.reset(BVHExtract(*model, pose, aabb));
   BOOST_REQUIRE(cropped);
   BOOST_CHECK(cropped->build_state == BVH_BUILD_STATE_PROCESSED);
@@ -214,7 +214,7 @@ void testBVHModelTriangles() {
   BOOST_CHECK_EQUAL(cropped->num_tris, model->num_tris - 2);
 
   pose.setTranslation(-Vec3f(1, 1, 1));
-  pose.setQuatRotation(Quaternion3f::Identity());
+  pose.setQuatRotation(Quatf::Identity());
   cropped.reset(BVHExtract(*model, pose, aabb));
   BOOST_CHECK(!cropped);
 

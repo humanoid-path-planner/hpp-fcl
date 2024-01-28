@@ -1,0 +1,20 @@
+name: fcl
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - eigen
+  - octomap
+  - assimp
+  - numpy
+  - boost
+  - eigenpy
+  - python
+  - doxygen
+  - lxml
+  - pylatexenc
+  - qhull
+  - cmake
+  - ccache
+  - pkg-config
+  - ninja

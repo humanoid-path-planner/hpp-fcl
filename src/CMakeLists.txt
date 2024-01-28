@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2014, 2020 CNRS-LAAS
+#  Copyright (c) 2014, 2020-2024 CNRS-LAAS INRIA
 #  Author: Florent Lamiraux
 #  All rights reserved.
 #
@@ -78,6 +78,9 @@ set(${LIBRARY_NAME}_SOURCES
   distance/sphere_cylinder.cpp
   distance/sphere_halfspace.cpp
   distance/sphere_plane.cpp
+  distance/sphere_capsule.cpp
+  distance/ellipsoid_halfspace.cpp
+  distance/ellipsoid_plane.cpp
   distance/convex_halfspace.cpp
   distance/triangle_halfspace.cpp
   intersect.cpp
@@ -93,6 +96,7 @@ set(${LIBRARY_NAME}_SOURCES
   mesh_loader/assimp.cpp
   mesh_loader/loader.cpp
   hfield.cpp
+  serialization/serialization.cpp
   )
 
 if(HPP_FCL_HAS_OCTOMAP)
@@ -177,6 +181,10 @@ if(UNIX)
   get_relative_rpath(${CMAKE_INSTALL_FULL_LIBDIR} ${PROJECT_NAME}_INSTALL_RPATH)
   set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "${${PROJECT_NAME}_INSTALL_RPATH}")
 endif()
+
+IF(MSVC)
+  target_compile_options(${PROJECT_NAME} PUBLIC "/bigobj")
+ENDIF()
 
 # IDE sources and headers sorting
 ADD_SOURCE_GROUP(${LIBRARY_NAME}_SOURCES)

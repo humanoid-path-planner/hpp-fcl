@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2021-2022, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -35,6 +36,7 @@
 
 /** \author Jia Pan */
 
+#include "hpp/fcl/shape/geometric_shapes.h"
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/internal/tools.h>
@@ -171,11 +173,11 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         MinkowskiDiff::ShapeData* data) {
   assert(data != NULL);
 
-  const Vec3f* pts = convex->points;
-  const ConvexBase::Neighbors* nn = convex->neighbors;
+  const std::vector<Vec3f>& pts = *(convex->points);
+  const std::vector<ConvexBase::Neighbors>& nn = *(convex->neighbors);
 
   if (hint < 0 || hint >= (int)convex->num_points) hint = 0;
-  FCL_REAL maxdot = pts[hint].dot(dir);
+  FCL_REAL maxdot = pts[static_cast<size_t>(hint)].dot(dir);
   std::vector<int8_t>& visited = data->visited;
   visited.assign(convex->num_points, false);
   visited[static_cast<std::size_t>(hint)] = true;
@@ -183,7 +185,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   // equal. Yet, the neighbors must be visited.
   bool found = true, loose_check = true;
   while (found) {
-    const ConvexBase::Neighbors& n = nn[hint];
+    const ConvexBase::Neighbors& n = nn[static_cast<size_t>(hint)];
     found = false;
     for (int in = 0; in < n.count(); ++in) {
       const unsigned int ip = n[in];
@@ -204,24 +206,25 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
     }
   }
 
-  support = pts[hint];
+  support = pts[static_cast<size_t>(hint)];
 }
 
 void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
                            Vec3f& support, int& hint,
                            MinkowskiDiff::ShapeData*) {
-  const Vec3f* pts = convex->points;
+  const std::vector<Vec3f>& pts = *(convex->points);
 
   hint = 0;
   FCL_REAL maxdot = pts[0].dot(dir);
   for (int i = 1; i < (int)convex->num_points; ++i) {
-    FCL_REAL dot = pts[i].dot(dir);
+    FCL_REAL dot = pts[static_cast<size_t>(i)].dot(dir);
     if (dot > maxdot) {
       maxdot = dot;
       hint = i;
     }
   }
-  support = pts[hint];
+
+  support = pts[static_cast<size_t>(hint)];
 }
 
 void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
@@ -257,6 +260,11 @@ inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
           : dir,                                                       \
       support, hint, NULL)
 
+inline void getSphereSupport(const Sphere* sphere, const Vec3f& dir,
+                             Vec3f& support) {
+  support = sphere->radius * (dir.normalized());
+}
+
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
                  int& hint) {
   Vec3f support;
@@ -268,7 +276,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
       CALL_GET_SHAPE_SUPPORT(Box);
       break;
     case GEOM_SPHERE:
-      CALL_GET_SHAPE_SUPPORT(Sphere);
+      getSphereSupport(static_cast<const Sphere*>(shape), dir, support);
       break;
     case GEOM_ELLIPSOID:
       CALL_GET_SHAPE_SUPPORT(Ellipsoid);
@@ -394,7 +402,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
           return getSupportFuncTpl<Shape0, SmallConvex, false>;
       }
     default:
-      throw std::logic_error("Unsupported geometric shape");
+      HPP_FCL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
   }
 }
 
@@ -443,7 +451,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
             s1, identity, inflation, linear_log_convex_threshold);
       break;
     default:
-      throw std::logic_error("Unsupported geometric shape");
+      HPP_FCL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
   }
 }
 
@@ -474,7 +482,7 @@ bool getNormalizeSupportDirection(const ShapeBase* shape) {
       return (bool)shape_traits<ConvexBase>::NeedNesterovNormalizeHeuristic;
       break;
     default:
-      throw std::logic_error("Unsupported geometric shape");
+      HPP_FCL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
   }
 }
 
@@ -523,6 +531,8 @@ void GJK::initialize() {
   gjk_variant = GJKVariant::DefaultGJK;
   convergence_criterion = GJKConvergenceCriterion::VDB;
   convergence_criterion_type = GJKConvergenceCriterionType::Relative;
+  iterations = 0;
+  iterations_momentum_stop = 0;
 }
 
 Vec3f GJK::getGuessFromSimplex() const { return ray; }
@@ -576,7 +586,8 @@ bool getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
                                                     vs[2]->w, vs[3]->w);
       break;
     default:
-      throw std::logic_error("The simplex rank must be in [ 1, 4 ]");
+      HPP_FCL_THROW_PRETTY("The simplex rank must be in [ 1, 4 ]",
+                           std::logic_error);
   }
   w0.setZero();
   w1.setZero();
@@ -650,6 +661,9 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 
   // Momentum
   GJKVariant current_gjk_variant = gjk_variant;
+  // If at the end of gjk, iterations_stop_momentum has a value of -1,
+  // this means momentum has not been stopped.
+  if (current_gjk_variant != DefaultGJK) iterations_momentum_stop = -1;
   Vec3f w = ray;
   Vec3f dir = ray;
   Vec3f y;
@@ -700,8 +714,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         }
         break;
 
+      case PolyakAcceleration:
+        momentum = 1 / (FCL_REAL(iterations) + 1);
+        dir = momentum * dir + (1 - momentum) * ray;
+        break;
+
       default:
-        throw std::logic_error("Invalid momentum variant.");
+        HPP_FCL_THROW_PRETTY("Invalid momentum variant.", std::logic_error);
     }
 
     appendVertex(curr_simplex, -dir, false,
@@ -725,7 +744,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       if (frank_wolfe_duality_gap - tolerance <= 0) {
         removeVertex(simplices[current]);
         current_gjk_variant = DefaultGJK;  // move back to classic GJK
-        continue;                          // continue to next iteration
+        iterations_momentum_stop = static_cast<int>(iterations);
+        continue;  // continue to next iteration
       }
     }
 
@@ -770,7 +790,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         inside = projectTetrahedraOrigin(curr_simplex, next_simplex);
         break;
       default:
-        throw std::logic_error("Invalid simplex rank");
+        HPP_FCL_THROW_PRETTY("Invalid simplex rank", std::logic_error);
     }
     assert(nfree + next_simplex.rank == 4);
     current = next;
@@ -807,13 +827,15 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
       diff = rl - alpha;
       switch (convergence_criterion_type) {
         case Absolute:
-          throw std::logic_error("VDB convergence criterion is relative.");
+          HPP_FCL_THROW_PRETTY("VDB convergence criterion is relative.",
+                               std::logic_error);
           break;
         case Relative:
           check_passed = (diff - tolerance * rl) <= 0;
           break;
         default:
-          throw std::logic_error("Invalid convergence criterion type.");
+          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
+                               std::logic_error);
       }
       break;
 
@@ -828,7 +850,8 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
           check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
           break;
         default:
-          throw std::logic_error("Invalid convergence criterion type.");
+          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
+                               std::logic_error);
       }
       break;
 
@@ -845,12 +868,13 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
           check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
           break;
         default:
-          throw std::logic_error("Invalid convergence criterion type.");
+          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
+                               std::logic_error);
       }
       break;
 
     default:
-      throw std::logic_error("Invalid convergence criterion.");
+      HPP_FCL_THROW_PRETTY("Invalid convergence criterion.", std::logic_error);
   }
   return check_passed;
 }
@@ -1446,6 +1470,7 @@ void EPA::initialize() {
   nextsv = 0;
   for (size_t i = 0; i < max_face_num; ++i)
     stock.append(&fc_store[max_face_num - i - 1]);
+  iterations = 0;
 }
 
 bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b,
@@ -1561,7 +1586,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
                                     // minimum distance to origin) to split
       SimplexF outer = *best;
       size_t pass = 0;
-      size_t iterations = 0;
+      iterations = 0;
 
       // set the face connectivity
       bind(tetrahedron[0], 0, tetrahedron[1], 0);
@@ -1622,7 +1647,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   // the origin.
   status = FallBack;
   // TODO: define a better normal
-  assert(simplex.rank == 1 && simplex.vertex[0]->w.isZero(gjk.getTolerance()));
+  assert(simplex.rank == 1 && simplex.vertex[0]->w.isZero(gjk.tolerance));
   normal = -guess;
   FCL_REAL nl = normal.norm();
   if (nl > 0)

@@ -41,4 +41,55 @@ HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::CollisionGeometry)
 }  // namespace serialization
 }  // namespace boost
 
+namespace hpp {
+namespace fcl {
+
+// fwd declaration
+template <typename BV>
+class HeightField;
+
+template <typename PolygonT>
+class Convex;
+
+struct OBB;
+struct OBBRSS;
+class AABB;
+
+class OcTree;
+class Box;
+class Sphere;
+class Ellipsoid;
+class Capsule;
+class Cone;
+class TriangleP;
+class Cylinder;
+class Halfspace;
+class Plane;
+
+namespace serialization {
+template <>
+struct register_type<CollisionGeometry> {
+  template <class Archive>
+  static void on(Archive& ar) {
+    ar.template register_type<Box>();
+    ar.template register_type<Sphere>();
+    ar.template register_type<Ellipsoid>();
+    ar.template register_type<TriangleP>();
+    ar.template register_type<Capsule>();
+    ar.template register_type<Cone>();
+    ar.template register_type<Cylinder>();
+    ar.template register_type<Halfspace>();
+    ar.template register_type<Plane>();
+    ar.template register_type<OcTree>();
+    ar.template register_type<HeightField<OBB>>();
+    ar.template register_type<HeightField<OBBRSS>>();
+    ar.template register_type<HeightField<AABB>>();
+    ar.template register_type<Convex<Triangle>>();
+    ;
+  }
+};
+}  // namespace serialization
+}  // namespace fcl
+}  // namespace hpp
+
 #endif  // ifndef HPP_FCL_SERIALIZATION_COLLISION_OBJECT_H

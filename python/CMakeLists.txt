@@ -49,6 +49,7 @@ SET(${LIBRARY_NAME}_HEADERS
   broadphase/broadphase_collision_manager.hh
   broadphase/broadphase_callbacks.hh
   pickle.hh
+  utils/std-pair.hh
   )
 
 SET(ENABLE_PYTHON_DOXYGEN_AUTODOC TRUE CACHE BOOL "Enable automatic documentation of Python bindings from Doxygen documentation")
@@ -129,7 +130,6 @@ IF(ENABLE_DOXYGEN_AUTODOC)
   TARGET_COMPILE_DEFINITIONS(${LIBRARY_NAME} PRIVATE -DHPP_FCL_HAS_DOXYGEN_AUTODOC)
 ENDIF()
 
-TARGET_LINK_BOOST_PYTHON(${LIBRARY_NAME} PUBLIC)
 TARGET_LINK_LIBRARIES(${LIBRARY_NAME} PUBLIC
   ${PROJECT_NAME}
   eigenpy::eigenpy

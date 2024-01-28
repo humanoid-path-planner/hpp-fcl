@@ -95,6 +95,8 @@ class HPP_FCL_DLLAPI KDOP {
   Eigen::Array<FCL_REAL, N, 1> dist_;
 
  public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   /// @brief Creating kDOP containing nothing
   KDOP();
 
@@ -165,11 +167,6 @@ class HPP_FCL_DLLAPI KDOP {
 
   //// @brief Check whether one point is inside the KDOP
   bool inside(const Vec3f& p) const;
-
- public:
-  /// \cond
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  /// \endcond
 };
 
 template <short N>

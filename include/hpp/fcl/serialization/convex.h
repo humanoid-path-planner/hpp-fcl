@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 INRIA
+// Copyright (c) 2022-2024 INRIA
 //
 
 #ifndef HPP_FCL_SERIALIZATION_CONVEX_H
@@ -19,7 +19,6 @@ namespace serialization {
 namespace internal {
 struct ConvexBaseAccessor : hpp::fcl::ConvexBase {
   typedef hpp::fcl::ConvexBase Base;
-  using Base::own_storage_;
 };
 
 }  // namespace internal
@@ -29,29 +28,57 @@ void serialize(Archive &ar, hpp::fcl::ConvexBase &convex_base,
                const unsigned int /*version*/) {
   using namespace hpp::fcl;
 
-  typedef internal::ConvexBaseAccessor Accessor;
-  Accessor &accessor = reinterpret_cast<Accessor &>(convex_base);
-
   ar &make_nvp("base", boost::serialization::base_object<hpp::fcl::ShapeBase>(
                            convex_base));
   const unsigned int num_points_previous = convex_base.num_points;
+  const unsigned int num_normals_and_offsets_previous =
+      convex_base.num_normals_and_offsets;
   ar &make_nvp("num_points", convex_base.num_points);
+  ar &make_nvp("num_normals_and_offsets", convex_base.num_normals_and_offsets);
 
   if (Archive::is_loading::value) {
-    if (num_points_previous != convex_base.num_points ||
-        !accessor.own_storage_) {
-      delete[] convex_base.points;
-      convex_base.points = new hpp::fcl::Vec3f[convex_base.num_points];
-      accessor.own_storage_ = true;
+    if (num_points_previous != convex_base.num_points) {
+      convex_base.points.reset();
+      if (convex_base.num_points > 0)
+        convex_base.points.reset(
+            new std::vector<Vec3f>(convex_base.num_points));
+    }
+
+    if (num_normals_and_offsets_previous !=
+        convex_base.num_normals_and_offsets) {
+      convex_base.normals.reset();
+      convex_base.offsets.reset();
+      if (convex_base.num_normals_and_offsets > 0) {
+        convex_base.normals.reset(
+            new std::vector<Vec3f>(convex_base.num_normals_and_offsets));
+        convex_base.offsets.reset(
+            new std::vector<double>(convex_base.num_normals_and_offsets));
+      }
     }
   }
 
-  {
+  if (convex_base.num_points > 0) {
     typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> MatrixPoints;
     Eigen::Map<MatrixPoints> points_map(
-        reinterpret_cast<double *>(convex_base.points), 3,
+        reinterpret_cast<double *>(convex_base.points->data()), 3,
         convex_base.num_points);
     ar &make_nvp("points", points_map);
+  }
+
+  if (convex_base.num_normals_and_offsets > 0) {
+    typedef Eigen::Matrix<FCL_REAL, 3, Eigen::Dynamic> MatrixPoints;
+    Eigen::Map<MatrixPoints> normals_map(
+        reinterpret_cast<double *>(convex_base.normals->data()), 3,
+        convex_base.num_normals_and_offsets);
+    ar &make_nvp("normals", normals_map);
+  }
+
+  if (convex_base.num_normals_and_offsets > 0) {
+    typedef Eigen::Matrix<FCL_REAL, 1, Eigen::Dynamic> VecOfDoubles;
+    Eigen::Map<VecOfDoubles> offsets_map(
+        reinterpret_cast<double *>(convex_base.offsets->data()), 1,
+        convex_base.num_normals_and_offsets);
+    ar &make_nvp("offsets", offsets_map);
   }
 
   ar &make_nvp("center", convex_base.center);
@@ -75,25 +102,27 @@ void serialize(Archive &ar, hpp::fcl::Convex<PolygonT> &convex_,
   typedef internal::ConvexAccessor<PolygonT> Accessor;
 
   Accessor &convex = reinterpret_cast<Accessor &>(convex_);
-  ar &make_nvp("base", boost::serialization::base_object<ConvexBase>(convex));
+  ar &make_nvp("base", boost::serialization::base_object<ConvexBase>(convex_));
 
   const unsigned int num_polygons_previous = convex.num_polygons;
   ar &make_nvp("num_polygons", convex.num_polygons);
 
   if (Archive::is_loading::value) {
     if (num_polygons_previous != convex.num_polygons) {
-      delete[] convex.polygons;
-      convex.polygons = new PolygonT[convex.num_polygons];
+      convex.polygons.reset(new std::vector<PolygonT>(convex.num_polygons));
     }
   }
 
-  ar &make_array<PolygonT>(convex.polygons, convex.num_polygons);
+  ar &make_array<PolygonT>(convex.polygons->data(), convex.num_polygons);
 
   if (Archive::is_loading::value) convex.fillNeighbors();
 }
 
 }  // namespace serialization
 }  // namespace boost
+
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(hpp::fcl::Convex<hpp::fcl::Triangle>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(hpp::fcl::Convex<hpp::fcl::Quadrilateral>)
 
 namespace hpp {
 namespace fcl {

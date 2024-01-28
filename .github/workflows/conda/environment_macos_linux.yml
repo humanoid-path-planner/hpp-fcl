@@ -14,3 +14,9 @@ dependencies:
   - lxml
   - pylatexenc
   - qhull
+  - cmake
+  - ccache
+  - cxx-compiler
+  - llvm-openmp
+  - pkg-config
+  - ninja
