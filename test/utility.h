@@ -149,6 +149,8 @@ void generateRandomTransforms(FCL_REAL extents[6],
                               std::vector<Transform3f>& transforms,
                               std::size_t n);
 
+void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3f& R);
+
 /// @brief Generate n random transforms whose translations are constrained by
 /// extents. Also generate another transforms2 which have additional random
 /// translation & rotation to the transforms generated.
