@@ -149,6 +149,7 @@ void generateRandomTransforms(FCL_REAL extents[6],
                               std::vector<Transform3f>& transforms,
                               std::size_t n);
 
+/// @brief Convert Euler angles around each axis into the rotation matrix.
 void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3f& R);
 
 /// @brief Generate n random transforms whose translations are constrained by
