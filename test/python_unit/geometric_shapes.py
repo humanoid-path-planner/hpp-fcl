@@ -120,9 +120,7 @@ class TestGeometricShapes(TestCase):
         V_ref = cylinder.radius * cylinder.radius * np.pi * 2.0 * cylinder.halfLength
         self.assertApprox(V, V_ref)
         I0 = cylinder.computeMomentofInertia()
-        Ix_ref = (
-            V_ref * (3 * cylinder.radius**2 + 4 * cylinder.halfLength**2) / 12.0
-        )
+        Ix_ref = V_ref * (3 * cylinder.radius**2 + 4 * cylinder.halfLength**2) / 12.0
         Iz_ref = V_ref * cylinder.radius**2 / 2.0
         I0_ref = np.diag([Ix_ref, Ix_ref, Iz_ref])
         self.assertApprox(I0, I0_ref)
