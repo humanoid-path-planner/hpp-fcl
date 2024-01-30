@@ -622,9 +622,9 @@ class ClassCompound(CompoundBase):
             )
             output.out(
                 template_member_func_doc.format(
-                    template="template <{}>\n".format(tplargs)
-                    if len(tplargs) > 0
-                    else "",
+                    template=(
+                        "template <{}>\n".format(tplargs) if len(tplargs) > 0 else ""
+                    ),
                     rettype=member.s_rettype(),
                     classname_prefix=classname_prefix,
                     argsstring=member.s_prototypeArgs(),
@@ -658,9 +658,9 @@ class ClassCompound(CompoundBase):
             )
             output.out(
                 template_member_func_args.format(
-                    template="template <{}>\n".format(tplargs)
-                    if len(tplargs) > 0
-                    else "",
+                    template=(
+                        "template <{}>\n".format(tplargs) if len(tplargs) > 0 else ""
+                    ),
                     rettype=member.s_rettype(),
                     n=n_args + 1,
                     default_args=default_args,
@@ -772,9 +772,9 @@ class Index:
             )
             self.output.out(
                 template_static_func_doc.format(
-                    template="template <{}>\n".format(tplargs)
-                    if len(tplargs) > 0
-                    else "",
+                    template=(
+                        "template <{}>\n".format(tplargs) if len(tplargs) > 0 else ""
+                    ),
                     rettype=member.s_rettype(),
                     argsstring=member.s_prototypeArgs(),
                     body=body,
