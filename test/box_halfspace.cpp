@@ -237,7 +237,7 @@ hpp::fcl::CollisionResult getCollision(
       new hpp::fcl::Halfspace(halfspace_n, halfspace_d));
 
   hpp::fcl::CollisionObject o1(s1, R1, t1);
-  hpp::fcl::CollisionObject o2(s2, hpp::fcl::Vec3f(0.0, 0.0, 0.0));
+  hpp::fcl::CollisionObject o2(s2, hpp::fcl::Transform3f::Identity());
 
   // Enable computation of nearest points
   hpp::fcl::CollisionRequest collisionRequest(
@@ -258,13 +258,14 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   hpp::fcl::CollisionResult collisionResult;
   hpp::fcl::Vec3f np0;
   hpp::fcl::Vec3f np1;
-  hpp::fcl::Contact cp;
+  hpp::fcl::Contact contact;
 
   // Ortogonal positive x
   // Expected:
   // - one contact point at the rear side of the Box
-  // - closest points equal
-  // - contact point at the [0.25, 0.0, 0.0]
+  // - contact points equal
+  // - contact points at [0.25, 0.0, 0.0]
+  // - penetration depth equal to 0.0
   t1 = hpp::fcl::Vec3f(0.75, 0.0, 0.0);
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
@@ -273,25 +274,24 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   np0 = collisionResult.nearest_points[0];
   np1 = collisionResult.nearest_points[1];
 
-  cp = collisionResult.getContact(0);
+  contact = collisionResult.getContact(0);
 
-  // Check if points equal
-  BOOST_CHECK_SMALL((np0 - np1).squaredNorm(), 1e-12);
-  BOOST_CHECK_SMALL((np0 - cp.pos).squaredNorm(), 1e-12);
+  // Check if contact points are in right place
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[0], Vec3f(0.25, 0, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[1], contact.nearest_points[0],
+                         1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.nearest_points[0], 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, np1, 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.pos, 1e-12);
 
   // Check depth
-  BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
-
-  // Check if contact is in right place
-  BOOST_CHECK_SMALL(cp.pos[0] - 0.25, 1e-12);
-  BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
-  BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
+  BOOST_CHECK_CLOSE(contact.penetration_depth, 0, 1e-12);
 
   // Ortogonal positive y
   // Expected:
   // - one contact point at the right side of the Box
-  // - closest points equal
-  // - contact point at the [0.0, 0.25, 0.0]
+  // - contact points equal
+  // - contact points at [0.0, 0.25, 0.0]
   // - penetration depth equal to 0.0
   t1 = hpp::fcl::Vec3f(0.0, 0.75, 0.0);
   halfspace_n = hpp::fcl::Vec3f(0.0, 1.0, 0.0);
@@ -302,24 +302,24 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   np0 = collisionResult.nearest_points[0];
   np1 = collisionResult.nearest_points[1];
 
-  cp = collisionResult.getContact(0);
+  contact = collisionResult.getContact(0);
 
-  // Check if points equal
-  BOOST_CHECK_SMALL((np0 - np1).squaredNorm(), 1e-12);
-  BOOST_CHECK_SMALL((np0 - cp.pos).squaredNorm(), 1e-12);
+  // Check if contact points are in right place
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[0], Vec3f(0, 0.25, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[1], contact.nearest_points[0],
+                         1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.nearest_points[0], 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, np1, 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.pos, 1e-12);
 
   // Check depth
-  BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
-
-  BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
-  BOOST_CHECK_SMALL(cp.pos[1] - 0.25, 1e-12);
-  BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
+  BOOST_CHECK_CLOSE(contact.penetration_depth, 0, 1e-12);
 
   // Ortogonal positive z
   // Expected:
   // - one contact point at the bottom of the Box
-  // - closest points equal
-  // - contact point at the [0.0, 0.0, 0.25]
+  // - contact points equal
+  // - contact points at [0.0, 0.0, 0.25]
   // - penetration depth equal to 0.0
   t1 = hpp::fcl::Vec3f(0.0, 0.0, 0.75);
   halfspace_n = hpp::fcl::Vec3f(0.0, 0.0, 1.0);
@@ -330,27 +330,26 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   np0 = collisionResult.nearest_points[0];
   np1 = collisionResult.nearest_points[1];
 
-  cp = collisionResult.getContact(0);
+  contact = collisionResult.getContact(0);
 
-  // Check if points equal
-  BOOST_CHECK_SMALL((np0 - np1).squaredNorm(), 1e-12);
-  BOOST_CHECK_SMALL((np0 - cp.pos).squaredNorm(), 1e-12);
+  // Check if contact points are in right place
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[0], Vec3f(0, 0, 0.25), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[1], contact.nearest_points[0],
+                         1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.nearest_points[0], 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, np1, 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.pos, 1e-12);
 
   // Check depth
-  BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
-
-  BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
-  BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
-  BOOST_CHECK_SMALL(cp.pos[2] - 0.25, 1e-12);
+  BOOST_CHECK_CLOSE(contact.penetration_depth, 0, 1e-12);
 
   // Test for the symetry of the contacts
 
   // Ortogonal negative x
   // Expected:
   // - one contact point at the front of the Box
-  // - closest point of Box is at [-1.25, 0.0, 0.0]
-  // - closest point of Halfspace and contact
-  //   point are equal and at [0.25, 0.0, 0.0]
+  // - contact point of Box is at [-0.75, 0.0, 0.0]
+  // - contact point of Halfspace at [0.25, 0.0, 0.0]
   // - penetration depth equal to -1.0
   t1 = hpp::fcl::Vec3f(-0.25, 0.0, 0.0);
   halfspace_n = hpp::fcl::Vec3f(1.0, 0.0, 0.0);
@@ -361,30 +360,29 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   np0 = collisionResult.nearest_points[0];
   np1 = collisionResult.nearest_points[1];
 
-  cp = collisionResult.getContact(0);
+  contact = collisionResult.getContact(0);
 
   // Check position of Box closest point
-  BOOST_CHECK_SMALL(np0[0] + 1.25, 1e-12);
-  BOOST_CHECK_SMALL(np0[1], 1e-12);
-  BOOST_CHECK_SMALL(np0[2], 1e-12);
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[0], Vec3f(-0.75, 0, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.nearest_points[0], 1e-12);
 
   // Check position of Halfspace closest point
-  BOOST_CHECK_SMALL(np1[0] - 0.25, 1e-12);
-  BOOST_CHECK_SMALL(np1[1], 1e-12);
-  BOOST_CHECK_SMALL(np1[2], 1e-12);
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[1], Vec3f(0.25, 0, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np1, contact.nearest_points[1], 1e-12);
 
-  // Halfspace cloest point and contact point are the same
-  BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
+  // We should have cp = (np0 + np1)/2
+  EIGEN_VECTOR_IS_APPROX(
+      contact.pos,
+      0.5 * (contact.nearest_points[0] + contact.nearest_points[1]), 1e-12);
 
-  // Check depth
-  BOOST_CHECK_SMALL(cp.penetration_depth + 1.0, 1e-12);
+  // Check penetration depth
+  BOOST_CHECK_CLOSE(contact.penetration_depth, -1.0, 1e-12);
 
   // Ortogonal negative y
   // Expected:
   // - one contact point at the front of the Box
-  // - closest point of Box is at [0.0, -1.25, 0.0]
-  // - closest point of Halfspace and contact
-  //   point are equal and at [0.0, 0.25, 0.0]
+  // - contact point of Box is at [0.0, -0.75, 0.0]
+  // - contact point of Halfspace at [0.0, 0.25, 0.0]
   // - penetration depth equal to -1.0
   t1 = hpp::fcl::Vec3f(0.0, -0.25, 0.0);
   halfspace_n = hpp::fcl::Vec3f(0.0, 1.0, 0.0);
@@ -395,30 +393,29 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   np0 = collisionResult.nearest_points[0];
   np1 = collisionResult.nearest_points[1];
 
-  cp = collisionResult.getContact(0);
+  contact = collisionResult.getContact(0);
 
   // Check position of Box closest point
-  BOOST_CHECK_SMALL(np0[0], 1e-12);
-  BOOST_CHECK_SMALL(np0[1] + 1.25, 1e-12);
-  BOOST_CHECK_SMALL(np0[2], 1e-12);
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[0], Vec3f(0, -0.75, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.nearest_points[0], 1e-12);
 
   // Check position of Halfspace closest point
-  BOOST_CHECK_SMALL(np1[0], 1e-12);
-  BOOST_CHECK_SMALL(np1[1] - 0.25, 1e-12);
-  BOOST_CHECK_SMALL(np1[2], 1e-12);
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[1], Vec3f(0, 0.25, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np1, contact.nearest_points[1], 1e-12);
 
-  // Halfspace cloest point and contact point are the same
-  BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
+  // We should have cp = (np0 + np1)/2
+  EIGEN_VECTOR_IS_APPROX(
+      contact.pos,
+      0.5 * (contact.nearest_points[0] + contact.nearest_points[1]), 1e-12);
 
   // Check depth
-  BOOST_CHECK_SMALL(cp.penetration_depth + 1.0, 1e-12);
+  BOOST_CHECK_CLOSE(contact.penetration_depth, -1.0, 1e-12);
 
   // Ortogonal negative z
   // Expected:
   // - one contact point at the front of the Box
-  // - closest point of Box is at [0.0, 0.0, -1.25]
-  // - closest point of Halfspace and contact
-  //   point are equal and at [0.0, 0.0, 0.25]
+  // - contact point of Box is at [0.0, -0.75, 0.0]
+  // - contact point of Halfspace at [0.0, 0.25, 0.0]
   // - penetration depth equal to -1.0
   t1 = hpp::fcl::Vec3f(0.0, 0.0, -0.25);
   halfspace_n = hpp::fcl::Vec3f(0.0, 0.0, 1.0);
@@ -429,29 +426,29 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   np0 = collisionResult.nearest_points[0];
   np1 = collisionResult.nearest_points[1];
 
-  cp = collisionResult.getContact(0);
+  contact = collisionResult.getContact(0);
 
   // Check position of Box closest point
-  BOOST_CHECK_SMALL(np0[0], 1e-12);
-  BOOST_CHECK_SMALL(np0[1], 1e-12);
-  BOOST_CHECK_SMALL(np0[2] + 1.25, 1e-12);
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[0], Vec3f(0, 0, -0.75), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.nearest_points[0], 1e-12);
 
   // Check position of Halfspace closest point
-  BOOST_CHECK_SMALL(np1[0], 1e-12);
-  BOOST_CHECK_SMALL(np1[1], 1e-12);
-  BOOST_CHECK_SMALL(np1[2] - 0.25, 1e-12);
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[1], Vec3f(0, 0, 0.25), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np1, contact.nearest_points[1], 1e-12);
 
-  // Halfspace cloest point and contact point are the same
-  BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
+  // We should have cp = (np0 + np1)/2
+  EIGEN_VECTOR_IS_APPROX(
+      contact.pos,
+      0.5 * (contact.nearest_points[0] + contact.nearest_points[1]), 1e-12);
 
   // Check depth
-  BOOST_CHECK_SMALL(cp.penetration_depth + 1.0, 1e-12);
+  BOOST_CHECK_CLOSE(contact.penetration_depth, -1.0, 1e-12);
 
   // Intersecting positive
   // Expected:
   // - one contact point lying on the surface of the Halfspace and
   //   equal to its closest point
-  // - closest point of Box on the surface at the point [0.4, 0.0, 0.0]
+  // - closest point of Box on the surface at the point [-0.4, 0.0, 0.0]
   // - closest point of Halfspace on the surface at the point [0.0, 0.0, 0.0]
   // - penetration depth equal to 0.4
   t1 = hpp::fcl::Vec3f(0.1, 0.0, 0.0);
@@ -464,23 +461,22 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   np0 = collisionResult.nearest_points[0];
   np1 = collisionResult.nearest_points[1];
 
-  cp = collisionResult.getContact(0);
+  contact = collisionResult.getContact(0);
+  // Check position of Box closest point
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[0], Vec3f(-0.4, 0, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.nearest_points[0], 1e-12);
 
-  // Closest point of Box should be at the side
-  BOOST_CHECK_SMALL(np0[0] + 0.4, 1e-12);
-  BOOST_CHECK_SMALL(np0[1], 1e-12);
-  BOOST_CHECK_SMALL(np0[2], 1e-12);
+  // Check position of Halfspace closest point
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[1], Vec3f(0, 0, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np1, contact.nearest_points[1], 1e-12);
 
-  // Closest point of Halfspace should at the origin
-  BOOST_CHECK_SMALL(np1[0], 1e-12);
-  BOOST_CHECK_SMALL(np1[1], 1e-12);
-  BOOST_CHECK_SMALL(np1[2], 1e-12);
-
-  // Closest point at the Halfspace and contact point should be the same
-  BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
+  // We should have cp = (np0 + np1)/2
+  EIGEN_VECTOR_IS_APPROX(
+      contact.pos,
+      0.5 * (contact.nearest_points[0] + contact.nearest_points[1]), 1e-12);
 
   // Check depth
-  BOOST_CHECK_SMALL(cp.penetration_depth + 0.4, 1e-12);
+  BOOST_CHECK_CLOSE(contact.penetration_depth, -0.4, 1e-12);
 
   // Intersecting negative
   // Expected:
@@ -499,28 +495,35 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   np0 = collisionResult.nearest_points[0];
   np1 = collisionResult.nearest_points[1];
 
-  cp = collisionResult.getContact(0);
+  contact = collisionResult.getContact(0);
 
-  // Closest point of Box should be at the side
-  BOOST_CHECK_SMALL(np0[0] + 0.6, 1e-12);
-  BOOST_CHECK_SMALL(np0[1], 1e-12);
-  BOOST_CHECK_SMALL(np0[2], 1e-12);
+  BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
 
-  // Closest point of Halfspace should at the origin
-  BOOST_CHECK_SMALL(np1[0], 1e-12);
-  BOOST_CHECK_SMALL(np1[1], 1e-12);
-  BOOST_CHECK_SMALL(np1[2], 1e-12);
+  np0 = collisionResult.nearest_points[0];
+  np1 = collisionResult.nearest_points[1];
 
-  // Closest point at the Halfspace and contact point should be the same
-  BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
+  contact = collisionResult.getContact(0);
+
+  // Check position of Box closest point
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[0], Vec3f(-0.6, 0, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.nearest_points[0], 1e-12);
+
+  // Check position of Halfspace closest point
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[1], Vec3f(0, 0, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np1, contact.nearest_points[1], 1e-12);
+
+  // We should have cp = (np0 + np1)/2
+  EIGEN_VECTOR_IS_APPROX(
+      contact.pos,
+      0.5 * (contact.nearest_points[0] + contact.nearest_points[1]), 1e-12);
 
   // Check depth
-  BOOST_CHECK_SMALL(cp.penetration_depth + 0.6, 1e-12);
+  BOOST_CHECK_CLOSE(contact.penetration_depth, -0.6, 1e-12);
 
   // Rotated, stanting on its one edge
   // Expected:
   // - one contact point on the tip of the Box
-  // - closest points and contact point equal and at [0.0, 0.0, 0.0]
+  // - both contact points at [0.0, 0.0, 0.0]
   // - penetration depth equal to 0.0
   hpp::fcl::eulerToMatrix(0.0, M_PI / 4.0, M_PI / 2.0 - atan(sqrt(2.0)), R1);
   t1 = hpp::fcl::Vec3f(0.0, 0.0, sqrt(3.0) * 0.5);
@@ -532,25 +535,24 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   np0 = collisionResult.nearest_points[0];
   np1 = collisionResult.nearest_points[1];
 
-  cp = collisionResult.getContact(0);
+  contact = collisionResult.getContact(0);
 
-  // All points should be equal
-  BOOST_CHECK_SMALL((np0 - np1).squaredNorm(), 1e-12);
-  BOOST_CHECK_SMALL((np0 - cp.pos).squaredNorm(), 1e-12);
+  // Check if contact points are in right place
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[0], Vec3f(0, 0, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[1], contact.nearest_points[0],
+                         1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.nearest_points[0], 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, np1, 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.pos, 1e-12);
 
-  // Depth should be zero
-  BOOST_CHECK_SMALL(cp.penetration_depth, 1e-12);
-
-  BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
-  BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
-  BOOST_CHECK_SMALL(cp.pos[2], 1e-12);
+  // Check depth
+  BOOST_CHECK_CLOSE(contact.penetration_depth, 0, 1e-12);
 
   // Rotated, stanting on its one edge, partially intersecting
   // Expected:
-  // - one contact point at the origin
-  // - closest point of Box at its tip at the point [0.0, 0.0, -0.1]
-  // - closest point of Halfspace on the surface at the point [0.0, 0.0, 0.0]
-  // - penetration depth equal to 0.1
+  // - contact point of Box at its tip at the point [0.0, 0.0, -0.1]
+  // - contact point of Halfspace on the surface at the point [0.0, 0.0, 0.0]
+  // - penetration depth equal to -0.1
   hpp::fcl::eulerToMatrix(0.0, M_PI / 4.0, M_PI / 2.0 - atan(sqrt(2.0)), R1);
   t1 = hpp::fcl::Vec3f(0.0, 0.0, sqrt(3.0) * 0.5 - 0.1);
   halfspace_n = hpp::fcl::Vec3f(0.0, 0.0, 1.0);
@@ -561,30 +563,29 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   np0 = collisionResult.nearest_points[0];
   np1 = collisionResult.nearest_points[1];
 
-  cp = collisionResult.getContact(0);
+  contact = collisionResult.getContact(0);
 
-  // Closest point of the Box below origin
-  BOOST_CHECK_SMALL(np0[0], 1e-12);
-  BOOST_CHECK_SMALL(np0[1], 1e-12);
-  BOOST_CHECK_SMALL(np0[2] + 0.1, 1e-12);
+  // Check position of Box closest point
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[0], Vec3f(0, 0, -0.1), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.nearest_points[0], 1e-12);
 
-  // Closest point of the Halfspace is at origin
-  BOOST_CHECK_SMALL(np1[0], 1e-12);
-  BOOST_CHECK_SMALL(np1[1], 1e-12);
-  BOOST_CHECK_SMALL(np1[2], 1e-12);
+  // Check position of Halfspace closest point
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[1], Vec3f(0, 0, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np1, contact.nearest_points[1], 1e-12);
 
-  // Closest point of the Halfspace and contact point are the same
-  BOOST_CHECK_SMALL((np1 - cp.pos).squaredNorm(), 1e-12);
+  // We should have cp = (np0 + np1)/2
+  EIGEN_VECTOR_IS_APPROX(
+      contact.pos,
+      0.5 * (contact.nearest_points[0] + contact.nearest_points[1]), 1e-12);
 
   // Check depth
-  BOOST_CHECK_SMALL(cp.penetration_depth + 0.1, 1e-12);
+  BOOST_CHECK_CLOSE(contact.penetration_depth, -0.1, 1e-12);
 
   // Rotated, stanting on its one edge, full intersecting
   // Expected:
-  // - contact point at the furthest tip of the Box at point [0.0, 0.0, 2.0]
-  // - closest point of Box at its tip at the point [0.0, 0.0, -0.1]
-  // - closest point of Halfspace on the surface at the point [0.0, 0.0, 0.0]
-  // - penetration depth equal to 0.1
+  // - contact point of Box at its tip at the point [0.0, 0.0, -2.]
+  // - contact point of Halfspace on the surface at the point [0.0, 0.0, 0.0]
+  // - penetration depth equal to -2.0
   hpp::fcl::eulerToMatrix(0.0, M_PI / 4.0, M_PI / 2.0 - atan(sqrt(2.0)), R1);
   t1 = hpp::fcl::Vec3f(0.0, 0.0, sqrt(3.0) * 0.5 - 2.0);
   halfspace_n = hpp::fcl::Vec3f(0.0, 0.0, 1.0);
@@ -595,23 +596,21 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   np0 = collisionResult.nearest_points[0];
   np1 = collisionResult.nearest_points[1];
 
-  cp = collisionResult.getContact(0);
+  contact = collisionResult.getContact(0);
 
-  // Closest point of the Box below origin
-  BOOST_CHECK_SMALL(np0[0], 1e-12);
-  BOOST_CHECK_SMALL(np0[1], 1e-12);
-  BOOST_CHECK_SMALL(np0[2] + 2.0, 1e-12);
+  // Check position of Box closest point
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[0], Vec3f(0, 0, -2.0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np0, contact.nearest_points[0], 1e-12);
 
-  // Closest point of the Halfspace is at origin
-  BOOST_CHECK_SMALL(np1[0], 1e-12);
-  BOOST_CHECK_SMALL(np1[1], 1e-12);
-  BOOST_CHECK_SMALL(np1[2], 1e-12);
+  // Check position of Halfspace closest point
+  EIGEN_VECTOR_IS_APPROX(contact.nearest_points[1], Vec3f(0, 0, 0), 1e-12);
+  EIGEN_VECTOR_IS_APPROX(np1, contact.nearest_points[1], 1e-12);
 
-  // Collision point is at the tip of the Box
-  BOOST_CHECK_SMALL(cp.pos[0], 1e-12);
-  BOOST_CHECK_SMALL(cp.pos[1], 1e-12);
-  BOOST_CHECK_SMALL(cp.pos[2] + 2.0, 1e-12);
+  // We should have cp = (np0 + np1)/2
+  EIGEN_VECTOR_IS_APPROX(
+      contact.pos,
+      0.5 * (contact.nearest_points[0] + contact.nearest_points[1]), 1e-12);
 
   // Check depth
-  BOOST_CHECK_SMALL(cp.penetration_depth + 2.0, 1e-12);
+  BOOST_CHECK_CLOSE(contact.penetration_depth, -2.0, 1e-12);
 }
