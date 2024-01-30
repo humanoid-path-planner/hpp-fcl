@@ -43,48 +43,56 @@
 
 #include "utility.h"
 
+using hpp::fcl::Box;
+using hpp::fcl::CollisionRequest;
+using hpp::fcl::CollisionResult;
+using hpp::fcl::Halfspace;
+using hpp::fcl::Matrix3f;
+using hpp::fcl::Transform3f;
+using hpp::fcl::Vec3f;
+
 BOOST_AUTO_TEST_CASE(box_halfspace_contact) {
-  hpp::fcl::Box box(1.0, 1.0, 1.0);
-  hpp::fcl::Halfspace halfspace({1.0, 0.0, 0.0}, 0.0);
+  Box box(1.0, 1.0, 1.0);
+  Halfspace halfspace({1.0, 0.0, 0.0}, 0.0);
 
   // Define transforms
-  hpp::fcl::Transform3f T1 = hpp::fcl::Transform3f::Identity();
-  hpp::fcl::Transform3f T2 = hpp::fcl::Transform3f::Identity();
+  Transform3f T1 = Transform3f::Identity();
+  Transform3f T2 = Transform3f::Identity();
 
   // Compute collision
-  hpp::fcl::CollisionRequest req;
+  CollisionRequest req;
   req.enable_cached_gjk_guess = true;
   req.distance_upper_bound = 1e-6;
-  hpp::fcl::CollisionResult res;
+  CollisionResult res;
   hpp::fcl::ComputeCollision collide_functor(&box, &halfspace);
 
   // Intersection
-  T1.setTranslation(hpp::fcl::Vec3f(0.0, 0.0, 0.0));
+  T1.setTranslation(Vec3f(0.0, 0.0, 0.0));
   res.clear();
   BOOST_CHECK(collide(&box, T1, &halfspace, T2, req, res) == true);
   res.clear();
   BOOST_CHECK(collide_functor(T1, T2, req, res) == true);
 
   // Far from each other
-  T1.setTranslation(hpp::fcl::Vec3f(2.0, 0.0, 0.0));
+  T1.setTranslation(Vec3f(2.0, 0.0, 0.0));
   res.clear();
   BOOST_CHECK(collide(&box, T1, &halfspace, T2, req, res) == false);
   res.clear();
   BOOST_CHECK(collide_functor(T1, T2, req, res) == false);
 
   // Touching
-  T1.setTranslation(hpp::fcl::Vec3f(2.0, 0.0, 0.0));
+  T1.setTranslation(Vec3f(2.0, 0.0, 0.0));
   res.clear();
   BOOST_CHECK(collide(&box, T1, &halfspace, T2, req, res) == false);
   res.clear();
   BOOST_CHECK(collide_functor(T1, T2, req, res) == false);
 
   // Rotated
-  hpp::fcl::Matrix3f R;
+  Matrix3f R;
   hpp::fcl::eulerToMatrix(M_PI / 4.0, 0.0, 0.0, R);
 
   // Rotated intersection
-  T1.setTranslation(hpp::fcl::Vec3f(2.0, 0.0, 0.0));
+  T1.setTranslation(Vec3f(2.0, 0.0, 0.0));
   T1.setRotation(R);
   res.clear();
   BOOST_CHECK(collide(&box, T1, &halfspace, T2, req, res) == false);
@@ -92,7 +100,7 @@ BOOST_AUTO_TEST_CASE(box_halfspace_contact) {
   BOOST_CHECK(collide_functor(T1, T2, req, res) == false);
 
   // Rotated collision
-  T1.setTranslation(hpp::fcl::Vec3f(0.5, 0.0, 0.0));
+  T1.setTranslation(Vec3f(0.5, 0.0, 0.0));
   T1.setRotation(R);
   res.clear();
   BOOST_CHECK(collide(&box, T1, &halfspace, T2, req, res) == true);
@@ -100,7 +108,7 @@ BOOST_AUTO_TEST_CASE(box_halfspace_contact) {
   BOOST_CHECK(collide_functor(T1, T2, req, res) == true);
 
   // Rotated touching
-  T1.setTranslation(hpp::fcl::Vec3f(0.5 * sqrt(2.0), 0.0, 0.0));
+  T1.setTranslation(Vec3f(0.5 * sqrt(2.0), 0.0, 0.0));
   T1.setRotation(R);
   res.clear();
   BOOST_CHECK(collide(&box, T1, &halfspace, T2, req, res) == true);
@@ -109,54 +117,54 @@ BOOST_AUTO_TEST_CASE(box_halfspace_contact) {
 }
 
 BOOST_AUTO_TEST_CASE(box_halfspace_contact_tilted_halfspace) {
-  hpp::fcl::Box box(1.0, 1.0, 1.0);
-  hpp::fcl::Halfspace halfspace({sqrt(2.0), sqrt(2.0), 0.0}, -0.5);
+  Box box(1.0, 1.0, 1.0);
+  Halfspace halfspace({sqrt(2.0), sqrt(2.0), 0.0}, -0.5);
 
   // Define transforms
-  hpp::fcl::Transform3f T1 = hpp::fcl::Transform3f::Identity();
-  hpp::fcl::Transform3f T2 = hpp::fcl::Transform3f::Identity();
+  Transform3f T1 = Transform3f::Identity();
+  Transform3f T2 = Transform3f::Identity();
 
   // Compute collision
-  hpp::fcl::CollisionRequest req;
+  CollisionRequest req;
   req.enable_cached_gjk_guess = true;
   req.distance_upper_bound = 1e-6;
-  hpp::fcl::CollisionResult res;
+  CollisionResult res;
   hpp::fcl::ComputeCollision collide_functor(&box, &halfspace);
 
   // Intersection
-  T1.setTranslation(hpp::fcl::Vec3f(0.0, 0.0, 0.0));
+  T1.setTranslation(Vec3f(0.0, 0.0, 0.0));
   res.clear();
   BOOST_CHECK(collide(&box, T1, &halfspace, T2, req, res) == true);
   res.clear();
   BOOST_CHECK(collide_functor(T1, T2, req, res) == true);
 
   // Far from each other
-  T1.setTranslation(hpp::fcl::Vec3f(2.0, 0.0, 0.0));
+  T1.setTranslation(Vec3f(2.0, 0.0, 0.0));
   res.clear();
   BOOST_CHECK(collide(&box, T1, &halfspace, T2, req, res) == false);
   res.clear();
   BOOST_CHECK(collide_functor(T1, T2, req, res) == false);
 
   // Touching
-  T1.setTranslation(hpp::fcl::Vec3f(2.0, 0.0, 0.0));
+  T1.setTranslation(Vec3f(2.0, 0.0, 0.0));
   res.clear();
   BOOST_CHECK(collide(&box, T1, &halfspace, T2, req, res) == false);
   res.clear();
   BOOST_CHECK(collide_functor(T1, T2, req, res) == false);
 }
 
-hpp::fcl::DistanceResult getDistance(
-    const hpp::fcl::Vec3f &box_side = hpp::fcl::Vec3f(1.0, 1.0, 1.0),
-    const hpp::fcl::Vec3f &halfspace_n = hpp::fcl::Vec3f(1.0, 0.0, 0.0),
-    const hpp::fcl::FCL_REAL halfspace_d = 0.0,
-    const hpp::fcl::Matrix3f R1 = hpp::fcl::Matrix3f::Identity(),
-    const hpp::fcl::Vec3f &t1 = hpp::fcl::Vec3f(0.0, 0.0, 0.0)) {
-  hpp::fcl::CollisionGeometryPtr_t s1(new hpp::fcl::Box(box_side));
-  hpp::fcl::CollisionGeometryPtr_t s2(
-      new hpp::fcl::Halfspace(halfspace_n, halfspace_d));
+hpp::fcl::DistanceResult getDistance(const Vec3f &box_side = Vec3f(1.0, 1.0,
+                                                                   1.0),
+                                     const Vec3f &halfspace_n = Vec3f(1.0, 0.0,
+                                                                      0.0),
+                                     const hpp::fcl::FCL_REAL halfspace_d = 0.0,
+                                     const Matrix3f R1 = Matrix3f::Identity(),
+                                     const Vec3f &t1 = Vec3f(0.0, 0.0, 0.0)) {
+  hpp::fcl::CollisionGeometryPtr_t s1(new Box(box_side));
+  hpp::fcl::CollisionGeometryPtr_t s2(new Halfspace(halfspace_n, halfspace_d));
 
   hpp::fcl::CollisionObject o1(s1, R1, t1);
-  hpp::fcl::CollisionObject o2(s2, hpp::fcl::Vec3f(0.0, 0.0, 0.0));
+  hpp::fcl::CollisionObject o2(s2, Vec3f(0.0, 0.0, 0.0));
 
   // Enable computation of nearest points
   hpp::fcl::DistanceRequest distanceRequest(true, 0.0, 0.0);
@@ -167,97 +175,94 @@ hpp::fcl::DistanceResult getDistance(
 }
 
 BOOST_AUTO_TEST_CASE(box_halfspace_distance) {
-  hpp::fcl::Vec3f box_side(1.0, 1.0, 1.0);
-  hpp::fcl::Vec3f halfspace_n(1.0, 0.0, 0.0);
+  Vec3f box_side(1.0, 1.0, 1.0);
+  Vec3f halfspace_n(1.0, 0.0, 0.0);
   hpp::fcl::FCL_REAL halfspace_d = 0.0;
-  hpp::fcl::Matrix3f R1 = hpp::fcl::Matrix3f::Identity();
+  Matrix3f R1 = Matrix3f::Identity();
 
-  hpp::fcl::Vec3f t1;
+  Vec3f t1;
   hpp::fcl::DistanceResult distanceResult;
 
   // Ortogonal positive x
-  t1 = hpp::fcl::Vec3f(6.0, 0.0, 0.0);
+  t1 = Vec3f(6.0, 0.0, 0.0);
   distanceResult = getDistance(box_side, halfspace_n, halfspace_d, R1, t1);
   BOOST_CHECK_SMALL(distanceResult.min_distance - 5.5, 1e-12);
 
   // Ortogonal positive y
-  t1 = hpp::fcl::Vec3f(0.0, 7.0, 0.0);
-  halfspace_n = hpp::fcl::Vec3f(0.0, 1.0, 0.0);
+  t1 = Vec3f(0.0, 7.0, 0.0);
+  halfspace_n = Vec3f(0.0, 1.0, 0.0);
   distanceResult = getDistance(box_side, halfspace_n, halfspace_d, R1, t1);
   BOOST_CHECK_SMALL(distanceResult.min_distance - 6.5, 1e-12);
 
   // Ortogonal positive z
-  t1 = hpp::fcl::Vec3f(0.0, 0.0, 8.0);
-  halfspace_n = hpp::fcl::Vec3f(0.0, 0.0, 1.0);
+  t1 = Vec3f(0.0, 0.0, 8.0);
+  halfspace_n = Vec3f(0.0, 0.0, 1.0);
   distanceResult = getDistance(box_side, halfspace_n, halfspace_d, R1, t1);
   BOOST_CHECK_SMALL(distanceResult.min_distance - 7.5, 1e-12);
 
   // Ortogonal negative x
-  t1 = hpp::fcl::Vec3f(-6.0, 0.0, 0.0);
-  halfspace_n = hpp::fcl::Vec3f(1.0, 0.0, 0.0);
+  t1 = Vec3f(-6.0, 0.0, 0.0);
+  halfspace_n = Vec3f(1.0, 0.0, 0.0);
   distanceResult = getDistance(box_side, halfspace_n, halfspace_d, R1, t1);
   BOOST_CHECK_SMALL(distanceResult.min_distance + 6.5, 1e-12);
 
   // Ortogonal negative y
-  t1 = hpp::fcl::Vec3f(0.0, -7.0, 0.0);
-  halfspace_n = hpp::fcl::Vec3f(0.0, 1.0, 0.0);
+  t1 = Vec3f(0.0, -7.0, 0.0);
+  halfspace_n = Vec3f(0.0, 1.0, 0.0);
   distanceResult = getDistance(box_side, halfspace_n, halfspace_d, R1, t1);
   BOOST_CHECK_SMALL(distanceResult.min_distance + 7.5, 1e-12);
 
   // Ortogonal negative z
-  t1 = hpp::fcl::Vec3f(0.0, 0.0, -8.0);
-  halfspace_n = hpp::fcl::Vec3f(0.0, 0.0, 1.0);
+  t1 = Vec3f(0.0, 0.0, -8.0);
+  halfspace_n = Vec3f(0.0, 0.0, 1.0);
   distanceResult = getDistance(box_side, halfspace_n, halfspace_d, R1, t1);
   BOOST_CHECK_SMALL(distanceResult.min_distance + 8.5, 1e-12);
 
   // Rotated front
-  t1 = hpp::fcl::Vec3f(6.0, 0.0, 0.0);
-  halfspace_n = hpp::fcl::Vec3f(1.0, 0.0, 0.0);
+  t1 = Vec3f(6.0, 0.0, 0.0);
+  halfspace_n = Vec3f(1.0, 0.0, 0.0);
 
   hpp::fcl::eulerToMatrix(M_PI / 4.0, 0.0, 0.0, R1);
   distanceResult = getDistance(box_side, halfspace_n, halfspace_d, R1, t1);
   BOOST_CHECK_SMALL(distanceResult.min_distance - 6.0 + 0.5 * sqrt(2.0), 1e-12);
 
   // Rotated back
-  t1 = hpp::fcl::Vec3f(-6.0, 0.0, 0.0);
-  halfspace_n = hpp::fcl::Vec3f(1.0, 0.0, 0.0);
+  t1 = Vec3f(-6.0, 0.0, 0.0);
+  halfspace_n = Vec3f(1.0, 0.0, 0.0);
   hpp::fcl::eulerToMatrix(M_PI / 4.0, 0.0, 0.0, R1);
   distanceResult = getDistance(box_side, halfspace_n, halfspace_d, R1, t1);
   BOOST_CHECK_SMALL(distanceResult.min_distance + 6.0 + 0.5 * sqrt(2.0), 1e-12);
 }
 
-hpp::fcl::CollisionResult getCollision(
-    const hpp::fcl::Vec3f &box_side = hpp::fcl::Vec3f(1.0, 1.0, 1.0),
-    const hpp::fcl::Vec3f &halfspace_n = hpp::fcl::Vec3f(1.0, 0.0, 0.0),
-    const hpp::fcl::FCL_REAL halfspace_d = 0.0,
-    const hpp::fcl::Matrix3f R1 = hpp::fcl::Matrix3f::Identity(),
-    const hpp::fcl::Vec3f &t1 = hpp::fcl::Vec3f(0.0, 0.0, 0.0)) {
-  hpp::fcl::CollisionGeometryPtr_t s1(new hpp::fcl::Box(box_side));
-  hpp::fcl::CollisionGeometryPtr_t s2(
-      new hpp::fcl::Halfspace(halfspace_n, halfspace_d));
+CollisionResult getCollision(const Vec3f &box_side = Vec3f(1.0, 1.0, 1.0),
+                             const Vec3f &halfspace_n = Vec3f(1.0, 0.0, 0.0),
+                             const hpp::fcl::FCL_REAL halfspace_d = 0.0,
+                             const Matrix3f R1 = Matrix3f::Identity(),
+                             const Vec3f &t1 = Vec3f(0.0, 0.0, 0.0)) {
+  hpp::fcl::CollisionGeometryPtr_t s1(new Box(box_side));
+  hpp::fcl::CollisionGeometryPtr_t s2(new Halfspace(halfspace_n, halfspace_d));
 
   hpp::fcl::CollisionObject o1(s1, R1, t1);
-  hpp::fcl::CollisionObject o2(s2, hpp::fcl::Transform3f::Identity());
+  hpp::fcl::CollisionObject o2(s2, Transform3f::Identity());
 
   // Enable computation of nearest points
-  hpp::fcl::CollisionRequest collisionRequest(
-      hpp::fcl::CollisionRequestFlag::CONTACT, 1);
-  hpp::fcl::CollisionResult collisionResult;
+  CollisionRequest collisionRequest(hpp::fcl::CollisionRequestFlag::CONTACT, 1);
+  CollisionResult collisionResult;
 
   hpp::fcl::collide(&o1, &o2, collisionRequest, collisionResult);
   return collisionResult;
 }
 
 BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
-  hpp::fcl::Vec3f box_side(1.0, 1.0, 1.0);
-  hpp::fcl::Vec3f halfspace_n(1.0, 0.0, 0.0);
+  Vec3f box_side(1.0, 1.0, 1.0);
+  Vec3f halfspace_n(1.0, 0.0, 0.0);
   hpp::fcl::FCL_REAL halfspace_d = 0.25;
-  hpp::fcl::Matrix3f R1 = hpp::fcl::Matrix3f::Identity();
+  Matrix3f R1 = Matrix3f::Identity();
 
-  hpp::fcl::Vec3f t1;
-  hpp::fcl::CollisionResult collisionResult;
-  hpp::fcl::Vec3f np0;
-  hpp::fcl::Vec3f np1;
+  Vec3f t1;
+  CollisionResult collisionResult;
+  Vec3f np0;
+  Vec3f np1;
   hpp::fcl::Contact contact;
 
   // Ortogonal positive x
@@ -266,7 +271,7 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   // - contact points equal
   // - contact points at [0.25, 0.0, 0.0]
   // - penetration depth equal to 0.0
-  t1 = hpp::fcl::Vec3f(0.75, 0.0, 0.0);
+  t1 = Vec3f(0.75, 0.0, 0.0);
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
   BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
@@ -293,8 +298,8 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   // - contact points equal
   // - contact points at [0.0, 0.25, 0.0]
   // - penetration depth equal to 0.0
-  t1 = hpp::fcl::Vec3f(0.0, 0.75, 0.0);
-  halfspace_n = hpp::fcl::Vec3f(0.0, 1.0, 0.0);
+  t1 = Vec3f(0.0, 0.75, 0.0);
+  halfspace_n = Vec3f(0.0, 1.0, 0.0);
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
   BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
@@ -321,8 +326,8 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   // - contact points equal
   // - contact points at [0.0, 0.0, 0.25]
   // - penetration depth equal to 0.0
-  t1 = hpp::fcl::Vec3f(0.0, 0.0, 0.75);
-  halfspace_n = hpp::fcl::Vec3f(0.0, 0.0, 1.0);
+  t1 = Vec3f(0.0, 0.0, 0.75);
+  halfspace_n = Vec3f(0.0, 0.0, 1.0);
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
   BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
@@ -351,8 +356,8 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   // - contact point of Box is at [-0.75, 0.0, 0.0]
   // - contact point of Halfspace at [0.25, 0.0, 0.0]
   // - penetration depth equal to -1.0
-  t1 = hpp::fcl::Vec3f(-0.25, 0.0, 0.0);
-  halfspace_n = hpp::fcl::Vec3f(1.0, 0.0, 0.0);
+  t1 = Vec3f(-0.25, 0.0, 0.0);
+  halfspace_n = Vec3f(1.0, 0.0, 0.0);
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
   BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
@@ -384,8 +389,8 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   // - contact point of Box is at [0.0, -0.75, 0.0]
   // - contact point of Halfspace at [0.0, 0.25, 0.0]
   // - penetration depth equal to -1.0
-  t1 = hpp::fcl::Vec3f(0.0, -0.25, 0.0);
-  halfspace_n = hpp::fcl::Vec3f(0.0, 1.0, 0.0);
+  t1 = Vec3f(0.0, -0.25, 0.0);
+  halfspace_n = Vec3f(0.0, 1.0, 0.0);
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
   BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
@@ -417,8 +422,8 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   // - contact point of Box is at [0.0, -0.75, 0.0]
   // - contact point of Halfspace at [0.0, 0.25, 0.0]
   // - penetration depth equal to -1.0
-  t1 = hpp::fcl::Vec3f(0.0, 0.0, -0.25);
-  halfspace_n = hpp::fcl::Vec3f(0.0, 0.0, 1.0);
+  t1 = Vec3f(0.0, 0.0, -0.25);
+  halfspace_n = Vec3f(0.0, 0.0, 1.0);
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
   BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
@@ -451,8 +456,8 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   // - closest point of Box on the surface at the point [-0.4, 0.0, 0.0]
   // - closest point of Halfspace on the surface at the point [0.0, 0.0, 0.0]
   // - penetration depth equal to 0.4
-  t1 = hpp::fcl::Vec3f(0.1, 0.0, 0.0);
-  halfspace_n = hpp::fcl::Vec3f(1.0, 0.0, 0.0);
+  t1 = Vec3f(0.1, 0.0, 0.0);
+  halfspace_n = Vec3f(1.0, 0.0, 0.0);
   halfspace_d = 0.0;
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
@@ -485,8 +490,8 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   // - closest point of Box on the surface at the point [-0.6, 0.0, 0.0]
   // - closest point of Halfspace on the surface at the point [0.0, 0.0, 0.0]
   // - penetration depth equal to -0.6
-  t1 = hpp::fcl::Vec3f(-0.1, 0.0, 0.0);
-  halfspace_n = hpp::fcl::Vec3f(1.0, 0.0, 0.0);
+  t1 = Vec3f(-0.1, 0.0, 0.0);
+  halfspace_n = Vec3f(1.0, 0.0, 0.0);
   halfspace_d = 0.0;
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
@@ -526,8 +531,8 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   // - both contact points at [0.0, 0.0, 0.0]
   // - penetration depth equal to 0.0
   hpp::fcl::eulerToMatrix(0.0, M_PI / 4.0, M_PI / 2.0 - atan(sqrt(2.0)), R1);
-  t1 = hpp::fcl::Vec3f(0.0, 0.0, sqrt(3.0) * 0.5);
-  halfspace_n = hpp::fcl::Vec3f(0.0, 0.0, 1.0);
+  t1 = Vec3f(0.0, 0.0, sqrt(3.0) * 0.5);
+  halfspace_n = Vec3f(0.0, 0.0, 1.0);
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
   BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
@@ -554,8 +559,8 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   // - contact point of Halfspace on the surface at the point [0.0, 0.0, 0.0]
   // - penetration depth equal to -0.1
   hpp::fcl::eulerToMatrix(0.0, M_PI / 4.0, M_PI / 2.0 - atan(sqrt(2.0)), R1);
-  t1 = hpp::fcl::Vec3f(0.0, 0.0, sqrt(3.0) * 0.5 - 0.1);
-  halfspace_n = hpp::fcl::Vec3f(0.0, 0.0, 1.0);
+  t1 = Vec3f(0.0, 0.0, sqrt(3.0) * 0.5 - 0.1);
+  halfspace_n = Vec3f(0.0, 0.0, 1.0);
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
   BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
@@ -587,8 +592,8 @@ BOOST_AUTO_TEST_CASE(box_halfspace_collision) {
   // - contact point of Halfspace on the surface at the point [0.0, 0.0, 0.0]
   // - penetration depth equal to -2.0
   hpp::fcl::eulerToMatrix(0.0, M_PI / 4.0, M_PI / 2.0 - atan(sqrt(2.0)), R1);
-  t1 = hpp::fcl::Vec3f(0.0, 0.0, sqrt(3.0) * 0.5 - 2.0);
-  halfspace_n = hpp::fcl::Vec3f(0.0, 0.0, 1.0);
+  t1 = Vec3f(0.0, 0.0, sqrt(3.0) * 0.5 - 2.0);
+  halfspace_n = Vec3f(0.0, 0.0, 1.0);
   collisionResult = getCollision(box_side, halfspace_n, halfspace_d, R1, t1);
 
   BOOST_CHECK_EQUAL(collisionResult.numContacts(), 1);
