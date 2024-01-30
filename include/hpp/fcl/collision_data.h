@@ -95,7 +95,10 @@ struct HPP_FCL_DLLAPI Contact {
   /// TODO (louis): rename `nearest_points` to `witness_points`.
   std::array<Vec3f, 2> nearest_points;
 
-  /// @brief contact position, in world space
+  /// @brief contact position, in world space.
+  /// The position is the middle point of the segment [p1, p2] where
+  /// p1 and p1 are the nearest points (i.e. neareast_points[0] and
+  /// nearest_points[1] respectively). Thus we always have pos = (p1 + p2)/2.
   Vec3f pos;
 
   /// @brief penetration depth
