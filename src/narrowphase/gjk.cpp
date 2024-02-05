@@ -1480,7 +1480,7 @@ void EPA::reset(size_t max_iterations_, FCL_REAL tolerance_) {
   sv_store.resize(max_iterations + 4);
   fc_store.resize(2 * max_iterations + 4);
   status = DidNotRun;
-  normal = Vec3f(0, 0, 0);
+  normal.setZero();
   depth = 0;
   closest_face = nullptr;
   result.reset();
