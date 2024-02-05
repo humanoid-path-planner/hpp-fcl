@@ -1469,7 +1469,7 @@ void EPA::initialize() {
   sv_store = new SimplexV[max_vertex_num];
   fc_store = new SimplexF[max_face_num];
   status = Failed;
-  normal = Vec3f(0, 0, 0);
+  normal.setZero();
   depth = 0;
   nextsv = 0;
   for (size_t i = 0; i < max_face_num; ++i)

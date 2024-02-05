@@ -520,22 +520,22 @@ struct HPP_FCL_DLLAPI GJKSolver {
   bool operator!=(const GJKSolver& other) const { return !(*this == other); }
 
   /// @brief maximum number of simplex face used in EPA algorithm
-  mutable size_t epa_max_face_num;
+  size_t epa_max_face_num;
 
   /// @brief maximum number of simplex vertex used in EPA algorithm
-  mutable size_t epa_max_vertex_num;
+  size_t epa_max_vertex_num;
 
   /// @brief maximum number of iterations used for EPA iterations
-  mutable size_t epa_max_iterations;
+  size_t epa_max_iterations;
 
   /// @brief the threshold used in EPA to stop iteration
-  mutable FCL_REAL epa_tolerance;
+  FCL_REAL epa_tolerance;
 
   /// @brief the threshold used in GJK to stop iteration
-  mutable FCL_REAL gjk_tolerance;
+  FCL_REAL gjk_tolerance;
 
   /// @brief maximum number of iterations used for GJK iterations
-  mutable size_t gjk_max_iterations;
+  size_t gjk_max_iterations;
 
   /// @brief Whether smart guess can be provided
   /// @Deprecated Use gjk_initial_guess instead
@@ -564,7 +564,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// processes to an early stopping.
   ///        The two witness points are incorrect, but with the guaranty that
   ///        the two shapes have a distance greather than distance_upper_bound.
-  mutable FCL_REAL distance_upper_bound;
+  FCL_REAL distance_upper_bound;
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
