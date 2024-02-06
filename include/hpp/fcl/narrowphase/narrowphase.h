@@ -540,22 +540,22 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// @brief Whether smart guess can be provided
   /// @Deprecated Use gjk_initial_guess instead
   HPP_FCL_DEPRECATED_MESSAGE("Use gjk_initial_guess instead")
-  mutable bool enable_cached_guess;
+  bool enable_cached_guess;
 
   /// @brief smart guess
   mutable Vec3f cached_guess;
 
   /// @brief which warm start to use for GJK
-  mutable GJKInitialGuess gjk_initial_guess;
+  GJKInitialGuess gjk_initial_guess;
 
   /// @brief Variant to use for the GJK algorithm
-  mutable GJKVariant gjk_variant;
+  GJKVariant gjk_variant;
 
   /// @brief Criterion used to stop GJK
-  mutable GJKConvergenceCriterion gjk_convergence_criterion;
+  GJKConvergenceCriterion gjk_convergence_criterion;
 
   /// @brief Relative or absolute
-  mutable GJKConvergenceCriterionType gjk_convergence_criterion_type;
+  GJKConvergenceCriterionType gjk_convergence_criterion_type;
 
   /// @brief smart guess for the support function
   mutable support_func_guess_t support_func_cached_guess;
