@@ -11,6 +11,8 @@
 #ifndef HPP_FCL_SERIALIZATION_EIGEN_H
 #define HPP_FCL_SERIALIZATION_EIGEN_H
 
+#ifndef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
+
 #include <Eigen/Dense>
 
 #include <boost/serialization/split_free.hpp>
@@ -39,8 +41,6 @@ struct traits<boost::serialization::U> {
 
 namespace boost {
 namespace serialization {
-
-#ifndef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
 
 template <class Archive, typename Scalar, int Rows, int Cols, int Options,
           int MaxRows, int MaxCols>
@@ -108,8 +108,9 @@ void serialize(Archive& ar,
   split_free(ar, m, version);
 }
 
-#endif  // ifned HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
 }  // namespace serialization
 }  // namespace boost
+//
+#endif  // ifned HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
 
 #endif  // ifndef HPP_FCL_SERIALIZATION_EIGEN_H
