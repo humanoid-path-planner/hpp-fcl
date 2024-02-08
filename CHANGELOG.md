@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - CMake: fix assimp finder
 - Don't define GCC7 Boost serialization hack when `HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION` is defined ([#530](https://github.com/humanoid-path-planner/hpp-fcl/pull/530))
+- Default parameters for narrowphase algorithms (GJK and EPA).
+- Fixed assertion checks that were sometimes failing in GJK simplex projection and BVH `collide`.
 
 ## [2.4.1] - 2024-01-23
 
