@@ -337,8 +337,7 @@ void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
   assert(!NeedNormalizedDir || dirIsNormalized ||
          fabs(dir.normalized().squaredNorm() - 1) < GJK_MINIMUM_TOLERANCE);
   // Don't need normalized direction. Check that dir is not zero.
-  assert(NeedNormalizedDir ||
-         dir.cwiseAbs().maxCoeff() >= GJK_MINIMUM_TOLERANCE);
+  assert(NeedNormalizedDir || dir.norm() >= GJK_MINIMUM_TOLERANCE);
 #endif
   getSupportTpl<Shape0, Shape1, TransformIsIdentity>(
       static_cast<const Shape0*>(md.shapes[0]),
