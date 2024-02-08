@@ -47,6 +47,7 @@
 #include <hpp/fcl/config.hh>
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/timings.h>
+#include <hpp/fcl/narrowphase/narrowphase_defaults.h>
 
 namespace hpp {
 namespace fcl {
@@ -224,14 +225,14 @@ struct HPP_FCL_DLLAPI QueryRequest {
         gjk_variant(GJKVariant::DefaultGJK),
         gjk_convergence_criterion(GJKConvergenceCriterion::VDB),
         gjk_convergence_criterion_type(GJKConvergenceCriterionType::Relative),
-        gjk_tolerance(1e-6),
-        gjk_max_iterations(128),
+        gjk_tolerance(GJK_DEFAULT_TOLERANCE),
+        gjk_max_iterations(GJK_DEFAULT_MAX_ITERATIONS),
         cached_gjk_guess(1, 0, 0),
         cached_support_func_guess(support_func_guess_t::Zero()),
-        epa_max_face_num(128),
-        epa_max_vertex_num(64),
-        epa_max_iterations(255),
-        epa_tolerance(1e-6),
+        epa_max_face_num(EPA_DEFAULT_MAX_FACES),
+        epa_max_vertex_num(EPA_DEFAULT_MAX_VERTICES),
+        epa_max_iterations(EPA_DEFAULT_MAX_ITERATIONS),
+        epa_tolerance(EPA_DEFAULT_TOLERANCE),
         enable_timings(false),
         collision_distance_threshold(
             Eigen::NumTraits<FCL_REAL>::dummy_precision()) {}

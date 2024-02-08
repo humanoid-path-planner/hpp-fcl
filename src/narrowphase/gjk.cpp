@@ -36,11 +36,12 @@
 
 /** \author Jia Pan */
 
-#include "hpp/fcl/shape/geometric_shapes.h"
+#include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/internal/tools.h>
 #include <hpp/fcl/shape/geometric_shapes_traits.h>
+#include <hpp/fcl/narrowphase/narrowphase_defaults.h>
 
 namespace hpp {
 namespace fcl {
@@ -331,12 +332,13 @@ void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
 #ifndef NDEBUG
   // Need normalized direction and direction is normalized
   assert(!NeedNormalizedDir || !dirIsNormalized ||
-         fabs(dir.squaredNorm() - 1) < 1e-6);
+         fabs(dir.squaredNorm() - 1) < GJK_MINIMUM_TOLERANCE);
   // Need normalized direction but direction is not normalized.
   assert(!NeedNormalizedDir || dirIsNormalized ||
-         fabs(dir.normalized().squaredNorm() - 1) < 1e-6);
+         fabs(dir.normalized().squaredNorm() - 1) < GJK_MINIMUM_TOLERANCE);
   // Don't need normalized direction. Check that dir is not zero.
-  assert(NeedNormalizedDir || dir.cwiseAbs().maxCoeff() >= 1e-6);
+  assert(NeedNormalizedDir ||
+         dir.cwiseAbs().maxCoeff() >= GJK_MINIMUM_TOLERANCE);
 #endif
   getSupportTpl<Shape0, Shape1, TransformIsIdentity>(
       static_cast<const Shape0*>(md.shapes[0]),
