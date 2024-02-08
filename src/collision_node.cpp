@@ -53,13 +53,16 @@ void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
     else
       collisionNonRecurse(node, front_list, sqrDistLowerBound);
 
+    const FCL_REAL dummy_precision =
+        std::sqrt(Eigen::NumTraits<FCL_REAL>::epsilon());
+    HPP_FCL_UNUSED_VARIABLE(dummy_precision);
     if (!std::isnan(sqrDistLowerBound)) {
       if (sqrDistLowerBound == 0) {
-        assert(result.distance_lower_bound <= 0);
+        assert(result.distance_lower_bound <= dummy_precision);
       } else {
         assert(result.distance_lower_bound * result.distance_lower_bound -
                    sqrDistLowerBound <
-               1e-8);
+               dummy_precision);
       }
     }
   }

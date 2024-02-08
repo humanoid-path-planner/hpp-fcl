@@ -49,6 +49,7 @@ add_fcl_test(obb obb.cpp)
 add_fcl_test(convex convex.cpp)
 
 add_fcl_test(bvh_models bvh_models.cpp)
+add_fcl_test(collision_node_asserts collision_node_asserts.cpp)
 add_fcl_test(hfields hfields.cpp)
 
 add_fcl_test(profiling profiling.cpp)
