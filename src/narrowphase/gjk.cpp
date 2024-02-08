@@ -1095,7 +1095,10 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   const Vec3f a_cross_b = A.cross(B);
   const Vec3f a_cross_c = A.cross(C);
 
-  const FCL_REAL dummy_precision = Eigen::NumTraits<FCL_REAL>::epsilon();
+  // dummy_precision is 1e-14 if FCL_REAL is double
+  //                    1e-5  if FCL_REAL is float
+  static const FCL_REAL dummy_precision(
+      100 * std::numeric_limits<FCL_REAL>::epsilon());
   HPP_FCL_UNUSED_VARIABLE(dummy_precision);
 
 #define REGION_INSIDE()               \
@@ -1287,8 +1290,8 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
             }       // end of (ACD ^ AD).AO >= 0
           } else {  // not (ACD ^ AC).AO >= 0 / !a10.a11.a2.a12.!a6
             assert(!(da * ca_da + dc * da_aa - dd * ca_aa <=
-                     dummy_precision));  // Not (ACD ^ AD).AO >= 0 /
-                                         // !a10.a11.a2.a12.!a6.!a7
+                     -dummy_precision));  // Not (ACD ^ AD).AO >= 0 /
+                                          // !a10.a11.a2.a12.!a6.!a7
             if (ca * ba_ca + cb * ca_aa - cc * ba_aa <=
                 0) {  // if (ABC ^ AC).AO >= 0 / !a10.a11.a2.a12.!a6.!a7.a5
               // Region AC

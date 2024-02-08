@@ -34,6 +34,7 @@ add_fcl_test(security_margin security_margin.cpp)
 add_fcl_test(geometric_shapes geometric_shapes.cpp)
 add_fcl_test(shape_inflation shape_inflation.cpp)
 #add_fcl_test(shape_mesh_consistency shape_mesh_consistency.cpp)
+add_fcl_test(gjk_asserts gjk_asserts.cpp)
 add_fcl_test(frontlist frontlist.cpp)
 SET_TESTS_PROPERTIES(frontlist PROPERTIES TIMEOUT 7200)
 
