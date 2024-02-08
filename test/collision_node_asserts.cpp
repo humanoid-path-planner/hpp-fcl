@@ -1,5 +1,6 @@
 #define BOOST_TEST_MODULE FCL_COLLISION_NODE_ASSERT
 
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <boost/test/included/unit_test.hpp>
 #include <hpp/fcl/BVH/BVH_model.h>
