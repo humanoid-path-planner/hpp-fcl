@@ -1,15 +1,16 @@
 #define BOOST_TEST_MODULE FCL_GJK_ASSERTS
 
-#define _USE_MATH_DEFINES
-#include <cmath>
 #include <boost/test/included/unit_test.hpp>
+#include <boost/math/constants/constants.hpp>
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/collision.h>
 
 using namespace hpp::fcl;
 
+constexpr FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+
 double DegToRad(const double& deg) {
-  static double degToRad = M_PI / 180.;
+  static double degToRad = pi / 180.;
   return deg * degToRad;
 }
 std::vector<Vec3f> dirs{Vec3f::UnitZ(),  -Vec3f::UnitZ(), Vec3f::UnitY(),
@@ -19,7 +20,7 @@ void CreateSphereMesh(BVHModel<OBBRSS>& model, const double& radius) {
   size_t polarSteps{32};
   size_t azimuthSteps{32};
 
-  const float PI = static_cast<float>(M_PI);
+  const float PI = static_cast<float>(pi);
 
   const float polarStep = PI / (float)(polarSteps - 1);
   const float azimuthStep = 2.0f * PI / (float)(azimuthSteps - 1);
