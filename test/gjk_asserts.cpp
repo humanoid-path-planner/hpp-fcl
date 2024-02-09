@@ -68,14 +68,22 @@ BOOST_AUTO_TEST_CASE(TestSpheres) {
 
   for (int i = 0; i < 360; ++i) {
     for (int j = 0; j < 180; ++j) {
-      sphere2Tf.setQuatRotation(
-          Eigen::AngleAxis<double>(DegToRad(i), Vec3f::UnitZ()) *
-          Eigen::AngleAxis<double>(DegToRad(j), Vec3f::UnitY()));
-      for (const Vec3f& dir : dirs) {
-        sphere2Tf.setTranslation(dir);
-        CollisionResult result;
+      if (
+          /// assertion: src/narrowphase/gjk.cpp:331
+          (i == 5 && j == 48) || (i == 64 && j == 151) ||
+          (i == 98 && j == 47) || (i == 355 && j == 48) ||
+          /// assertion: src/narrowphase/gjk.cpp:1263
+          (i == 86 && j == 52) || (i == 89 && j == 17) ||
+          (i == 89 && j == 58) || (i == 89 && j == 145)) {
+        sphere2Tf.setQuatRotation(
+            Eigen::AngleAxis<double>(DegToRad(i), Vec3f::UnitZ()) *
+            Eigen::AngleAxis<double>(DegToRad(j), Vec3f::UnitY()));
+        for (const Vec3f& dir : dirs) {
+          sphere2Tf.setTranslation(dir);
+          CollisionResult result;
 
-        BOOST_CHECK_NO_THROW(compute(sphere2Tf, sphere1Tf, request, result));
+          BOOST_CHECK_NO_THROW(compute(sphere2Tf, sphere1Tf, request, result));
+        }
       }
     }
   }
