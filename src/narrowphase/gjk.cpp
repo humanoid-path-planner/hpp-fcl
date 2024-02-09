@@ -1477,16 +1477,19 @@ void EPA::reset(size_t max_vertex_num_, size_t max_face_num_) {
   status = DidNotRun;
   normal = Vec3f(0, 0, 0);
   depth = 0;
-  nextsv = 0;
   result.reset();
   hull.reset();
+  num_vertices = 0;
   stock.reset();
+  // The stock is initialized with the faces in reverse order so that the
+  // hull and the stock do not overlap (the stock will shring as the hull will
+  // grow).
   for (size_t i = 0; i < max_face_num; ++i)
     stock.append(&fc_store[max_face_num - i - 1]);
   iterations = 0;
 }
 
-bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b,
+bool EPA::getEdgeDist(SimplexFace* face, SimplexVertex* a, SimplexVertex* b,
                       FCL_REAL& dist) {
   Vec3f ab = b->w - a->w;
   Vec3f n_ab = ab.cross(face->n);
@@ -1515,10 +1518,10 @@ bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b,
   return false;
 }
 
-EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c,
-                            bool forced) {
-  if (stock.root) {
-    SimplexF* face = stock.root;
+EPA::SimplexFace* EPA::newFace(SimplexVertex* a, SimplexVertex* b,
+                               SimplexVertex* c, bool forced) {
+  if (stock.root != nullptr) {
+    SimplexFace* face = stock.root;
     stock.remove(face);
     hull.append(face);
     face->pass = 0;
@@ -1526,10 +1529,9 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c,
     face->vertex[1] = b;
     face->vertex[2] = c;
     face->n = (b->w - a->w).cross(c->w - a->w);
-    FCL_REAL l = face->n.norm();
 
-    if (l > Eigen::NumTraits<FCL_REAL>::epsilon()) {
-      face->n /= l;
+    if (face->n.norm() > Eigen::NumTraits<FCL_REAL>::epsilon()) {
+      face->n.normalize();
 
       if (!(getEdgeDist(face, a, b, face->d) ||
             getEdgeDist(face, b, c, face->d) ||
@@ -1546,18 +1548,18 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c,
 
     hull.remove(face);
     stock.append(face);
-    return NULL;
+    return nullptr;
   }
 
   status = stock.root ? OutOfVertices : OutOfFaces;
-  return NULL;
+  return nullptr;
 }
 
 /** @brief Find the best polytope face to split */
-EPA::SimplexF* EPA::findBest() {
-  SimplexF* minf = hull.root;
+EPA::SimplexFace* EPA::findBest() {
+  SimplexFace* minf = hull.root;
   FCL_REAL mind = minf->d * minf->d;
-  for (SimplexF* f = minf->l[1]; f; f = f->l[1]) {
+  for (SimplexFace* f = minf->next_face; f; f = f->next_face) {
     FCL_REAL sqd = f->d * f->d;
     if (sqd < mind) {
       minf = f;
@@ -1572,33 +1574,38 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   support_func_guess_t hint(gjk.support_hint);
   bool enclosed_origin = gjk.encloseOrigin();
   if ((simplex.rank > 1) && enclosed_origin) {
+    assert(simplex.rank == 4 &&
+           "When starting EPA, simplex should be of rank 4.");
     while (hull.root) {
-      SimplexF* f = hull.root;
+      SimplexFace* f = hull.root;
       hull.remove(f);
       stock.append(f);
     }
+    assert(hull.count == 0);
+    assert(stock.count == max_face_num);
 
     status = Valid;
-    nextsv = 0;
+    num_vertices = 0;
 
+    // Make sure the tetrahedron has its normals pointing outside.
     if ((simplex.vertex[0]->w - simplex.vertex[3]->w)
             .dot((simplex.vertex[1]->w - simplex.vertex[3]->w)
                      .cross(simplex.vertex[2]->w - simplex.vertex[3]->w)) < 0) {
-      SimplexV* tmp = simplex.vertex[0];
+      SimplexVertex* tmp = simplex.vertex[0];
       simplex.vertex[0] = simplex.vertex[1];
       simplex.vertex[1] = tmp;
     }
 
-    SimplexF* tetrahedron[] = {
+    SimplexFace* tetrahedron[] = {
         newFace(simplex.vertex[0], simplex.vertex[1], simplex.vertex[2], true),
         newFace(simplex.vertex[1], simplex.vertex[0], simplex.vertex[3], true),
         newFace(simplex.vertex[2], simplex.vertex[1], simplex.vertex[3], true),
         newFace(simplex.vertex[0], simplex.vertex[2], simplex.vertex[3], true)};
 
     if (hull.count == 4) {
-      SimplexF* best = findBest();  // find the best face (the face with the
-                                    // minimum distance to origin) to split
-      SimplexF outer = *best;
+      SimplexFace* best = findBest();  // find the best face (the face with the
+                                       // minimum distance to origin) to split
+      SimplexFace outer = *best;
       size_t pass = 0;
       iterations = 0;
 
@@ -1612,13 +1619,13 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
 
       status = Valid;
       for (; iterations < max_iterations; ++iterations) {
-        if (nextsv >= max_vertex_num) {
+        if (num_vertices >= max_vertex_num) {
           status = OutOfVertices;
           break;
         }
 
         SimplexHorizon horizon;
-        SimplexV* w = &sv_store[nextsv++];
+        SimplexVertex* w = &sv_store[num_vertices++];
         bool valid = true;
         best->pass = ++pass;
         // At the moment, SimplexF.n is always normalized. This could be revised
@@ -1630,15 +1637,16 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
           break;
         }
         for (size_t j = 0; (j < 3) && valid; ++j)
-          valid &= expand(pass, w, best->f[j], best->e[j], horizon);
+          valid &= expand(pass, w, best->adjacent_faces[j],
+                          best->adjacent_edge[j], horizon);
 
-        if (!valid || horizon.nf < 3) {
+        if (!valid || horizon.num_faces < 3) {
           // The status has already been set by the expand function.
           assert(!(status & Valid));
           break;
         }
         // need to add the edge connectivity between first and last faces
-        bind(horizon.ff, 2, horizon.cf, 1);
+        bind(horizon.first_face, 2, horizon.current_face, 1);
         hull.remove(best);
         stock.append(best);
         best = findBest();
@@ -1654,6 +1662,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
       result.vertex[2] = outer.vertex[2];
       return status;
     }
+    assert(false && "The tetrahedron with which EPA started is degenerated.");
   }
 
   // FallBack when the simplex given by GJK is of rank 1.
@@ -1676,7 +1685,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
 }
 
 /** @brief the goal is to add a face connecting vertex w and face edge f[e] */
-bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e,
+bool EPA::expand(size_t pass, SimplexVertex* w, SimplexFace* f, size_t e,
                  SimplexHorizon& horizon) {
   static const size_t nexti[] = {1, 2, 0};
   static const size_t previ[] = {2, 0, 1};
@@ -1692,10 +1701,10 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e,
   // with the old face f.
   if (f->n.dot(w->w - f->vertex[e]->w) <
       -Eigen::NumTraits<FCL_REAL>::epsilon()) {
-    SimplexF* nf = newFace(f->vertex[e1], f->vertex[e], w, false);
-    if (nf) {
+    SimplexFace* new_face = newFace(f->vertex[e1], f->vertex[e], w, false);
+    if (new_face != nullptr) {
       // add face-face connectivity
-      bind(nf, 0, f, e);
+      bind(new_face, 0, f, e);
 
       // if there is last face in the horizon, then need to add another
       // connectivity, i.e. the edge connecting the current new add edge and the
@@ -1703,13 +1712,13 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e,
       // the final face need to connect with the first face, this will be
       // handled in the evaluate function. Notice the face is anti-clockwise, so
       // the edges are 0 (bottom), 1 (right), 2 (left)
-      if (horizon.cf)
-        bind(nf, 2, horizon.cf, 1);
+      if (horizon.current_face)
+        bind(new_face, 2, horizon.current_face, 1);
       else
-        horizon.ff = nf;
+        horizon.first_face = new_face;
 
-      horizon.cf = nf;
-      ++horizon.nf;
+      horizon.current_face = new_face;
+      ++horizon.num_faces;
       return true;
     }
     return false;
@@ -1719,8 +1728,8 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e,
   // faces and delete the old face
   const size_t e2 = previ[e];
   f->pass = pass;
-  if (expand(pass, w, f->f[e1], f->e[e1], horizon) &&
-      expand(pass, w, f->f[e2], f->e[e2], horizon)) {
+  if (expand(pass, w, f->adjacent_faces[e1], f->adjacent_edge[e1], horizon) &&
+      expand(pass, w, f->adjacent_faces[e2], f->adjacent_edge[e2], horizon)) {
     hull.remove(f);
     stock.append(f);
     return true;

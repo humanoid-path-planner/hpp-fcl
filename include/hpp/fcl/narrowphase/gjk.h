@@ -332,57 +332,72 @@ struct HPP_FCL_DLLAPI GJK {
 
 /// @brief class for EPA algorithm
 struct HPP_FCL_DLLAPI EPA {
-  typedef GJK::SimplexV SimplexV;
-  struct HPP_FCL_DLLAPI SimplexF {
+  typedef GJK::SimplexV SimplexVertex;
+  struct HPP_FCL_DLLAPI SimplexFace {
     Vec3f n;
     FCL_REAL d;
-    SimplexV* vertex[3];  // a face has three vertices
-    SimplexF* f[3];       // a face has three adjacent faces
-    SimplexF* l[2];       // the pre and post faces in the list
-    size_t e[3];
+    SimplexVertex* vertex[3];        // A face has three vertices.
+    SimplexFace* adjacent_faces[3];  // A face has three adjacent faces.
+    SimplexFace* prev_face;          // The previous face in the list.
+    SimplexFace* next_face;          // The next face in the list.
+    size_t adjacent_edge[3];         // Each face has 3 edges: `0`, `1` and `2`.
+                              // The i-th adjacent face is bound (to this face)
+                              // along its `adjacent_edge[i]`-th edge
+                              // (with 0 <= i <= 2).
     size_t pass;
 
-    SimplexF() : n(Vec3f::Zero()){};
+    SimplexFace() : n(Vec3f::Zero()){};
   };
 
-  struct HPP_FCL_DLLAPI SimplexList {
-    SimplexF* root;
+  /// @brief The simplex list of EPA is a linked list of faces.
+  /// Note: EPA's linked list does **not** own any memory.
+  /// The memory it refers to is contiguous and owned by a std::vector.
+  struct HPP_FCL_DLLAPI SimplexFaceList {
+    SimplexFace* root;
     size_t count;
-    SimplexList() : root(NULL), count(0) {}
+    SimplexFaceList() : root(nullptr), count(0) {}
 
     void reset() {
-      root = NULL;
+      root = nullptr;
       count = 0;
     }
 
-    void append(SimplexF* face) {
-      face->l[0] = NULL;
-      face->l[1] = root;
-      if (root) root->l[0] = face;
+    void append(SimplexFace* face) {
+      face->prev_face = nullptr;
+      face->next_face = root;
+      if (root != nullptr) root->prev_face = face;
       root = face;
       ++count;
     }
 
-    void remove(SimplexF* face) {
-      if (face->l[1]) face->l[1]->l[0] = face->l[0];
-      if (face->l[0]) face->l[0]->l[1] = face->l[1];
-      if (face == root) root = face->l[1];
+    void remove(SimplexFace* face) {
+      if (face->next_face != nullptr)
+        face->next_face->prev_face = face->prev_face;
+      if (face->prev_face != nullptr)
+        face->prev_face->next_face = face->next_face;
+      if (face == root) root = face->next_face;
       --count;
     }
   };
 
-  static inline void bind(SimplexF* fa, size_t ea, SimplexF* fb, size_t eb) {
-    fa->e[ea] = eb;
-    fa->f[ea] = fb;
-    fb->e[eb] = ea;
-    fb->f[eb] = fa;
+  /// @brief We bind the face `fa` along its edge `ea` to the face `fb` along
+  /// its edge `fb`.
+  static inline void bind(SimplexFace* fa, size_t ea, SimplexFace* fb,
+                          size_t eb) {
+    assert(ea == 0 || ea == 1 || ea == 2);
+    assert(eb == 0 || eb == 1 || eb == 2);
+    fa->adjacent_edge[ea] = eb;
+    fa->adjacent_faces[ea] = fb;
+    fb->adjacent_edge[eb] = ea;
+    fb->adjacent_faces[eb] = fa;
   }
 
   struct HPP_FCL_DLLAPI SimplexHorizon {
-    SimplexF* cf;  // current face in the horizon
-    SimplexF* ff;  // first face in the horizon
-    size_t nf;     // number of faces in the horizon
-    SimplexHorizon() : cf(NULL), ff(NULL), nf(0) {}
+    SimplexFace* current_face;  // current face in the horizon
+    SimplexFace* first_face;    // first face in the horizon
+    size_t num_faces;           // number of faces in the horizon
+    SimplexHorizon()
+        : current_face(nullptr), first_face(nullptr), num_faces(0) {}
   };
 
   enum Status {
@@ -412,10 +427,10 @@ struct HPP_FCL_DLLAPI EPA {
   FCL_REAL depth;
 
  private:
-  std::vector<SimplexV> sv_store;
-  std::vector<SimplexF> fc_store;
-  size_t nextsv;
-  SimplexList hull, stock;
+  std::vector<SimplexVertex> sv_store;
+  std::vector<SimplexFace> fc_store;
+  size_t num_vertices;  // number of vertices in polytpoe constructed by EPA
+  SimplexFaceList hull, stock;
 
  public:
   EPA(size_t max_face_num_, size_t max_vertex_num_, size_t max_iterations_,
@@ -464,15 +479,17 @@ struct HPP_FCL_DLLAPI EPA {
   /// Otherwise use \ref reset.
   void initialize();
 
-  bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist);
+  bool getEdgeDist(SimplexFace* face, SimplexVertex* a, SimplexVertex* b,
+                   FCL_REAL& dist);
 
-  SimplexF* newFace(SimplexV* a, SimplexV* b, SimplexV* vertex, bool forced);
+  SimplexFace* newFace(SimplexVertex* a, SimplexVertex* b,
+                       SimplexVertex* vertex, bool forced);
 
   /// @brief Find the best polytope face to split
-  SimplexF* findBest();
+  SimplexFace* findBest();
 
   /// @brief the goal is to add a face connecting vertex w and face edge f[e]
-  bool expand(size_t pass, SimplexV* w, SimplexF* f, size_t e,
+  bool expand(size_t pass, SimplexVertex* w, SimplexFace* f, size_t e,
               SimplexHorizon& horizon);
 };
 
