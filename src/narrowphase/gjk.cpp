@@ -36,11 +36,12 @@
 
 /** \author Jia Pan */
 
-#include "hpp/fcl/shape/geometric_shapes.h"
+#include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/internal/tools.h>
 #include <hpp/fcl/shape/geometric_shapes_traits.h>
+#include <hpp/fcl/narrowphase/narrowphase_defaults.h>
 
 namespace hpp {
 namespace fcl {
@@ -331,12 +332,12 @@ void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
 #ifndef NDEBUG
   // Need normalized direction and direction is normalized
   assert(!NeedNormalizedDir || !dirIsNormalized ||
-         fabs(dir.squaredNorm() - 1) < 1e-6);
+         fabs(dir.squaredNorm() - 1) < GJK_MINIMUM_TOLERANCE);
   // Need normalized direction but direction is not normalized.
   assert(!NeedNormalizedDir || dirIsNormalized ||
-         fabs(dir.normalized().squaredNorm() - 1) < 1e-6);
+         fabs(dir.normalized().squaredNorm() - 1) < GJK_MINIMUM_TOLERANCE);
   // Don't need normalized direction. Check that dir is not zero.
-  assert(NeedNormalizedDir || dir.cwiseAbs().maxCoeff() >= 1e-6);
+  assert(NeedNormalizedDir || dir.norm() >= GJK_MINIMUM_TOLERANCE);
 #endif
   getSupportTpl<Shape0, Shape1, TransformIsIdentity>(
       static_cast<const Shape0*>(md.shapes[0]),
@@ -1094,7 +1095,10 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   const Vec3f a_cross_b = A.cross(B);
   const Vec3f a_cross_c = A.cross(C);
 
-  const FCL_REAL dummy_precision = Eigen::NumTraits<FCL_REAL>::epsilon();
+  // dummy_precision is 1e-14 if FCL_REAL is double
+  //                    1e-5  if FCL_REAL is float
+  const FCL_REAL dummy_precision(100 *
+                                 std::numeric_limits<FCL_REAL>::epsilon());
   HPP_FCL_UNUSED_VARIABLE(dummy_precision);
 
 #define REGION_INSIDE()               \
@@ -1286,8 +1290,8 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
             }       // end of (ACD ^ AD).AO >= 0
           } else {  // not (ACD ^ AC).AO >= 0 / !a10.a11.a2.a12.!a6
             assert(!(da * ca_da + dc * da_aa - dd * ca_aa <=
-                     dummy_precision));  // Not (ACD ^ AD).AO >= 0 /
-                                         // !a10.a11.a2.a12.!a6.!a7
+                     -dummy_precision));  // Not (ACD ^ AD).AO >= 0 /
+                                          // !a10.a11.a2.a12.!a6.!a7
             if (ca * ba_ca + cb * ca_aa - cc * ba_aa <=
                 0) {  // if (ABC ^ AC).AO >= 0 / !a10.a11.a2.a12.!a6.!a7.a5
               // Region AC

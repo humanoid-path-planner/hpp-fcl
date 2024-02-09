@@ -45,6 +45,7 @@
 
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/collision_data.h>
+#include <hpp/fcl/narrowphase/narrowphase_defaults.h>
 
 namespace hpp {
 namespace fcl {
@@ -362,12 +363,12 @@ struct HPP_FCL_DLLAPI GJKSolver {
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// @brief Default constructor for GJK algorithm
   GJKSolver() {
-    gjk_max_iterations = 128;
-    gjk_tolerance = 1e-6;
-    epa_max_face_num = 128;
-    epa_max_vertex_num = 64;
-    epa_max_iterations = 255;
-    epa_tolerance = 1e-6;
+    gjk_max_iterations = GJK_DEFAULT_MAX_ITERATIONS;
+    gjk_tolerance = GJK_DEFAULT_TOLERANCE;
+    epa_max_face_num = EPA_DEFAULT_MAX_FACES;
+    epa_max_vertex_num = EPA_DEFAULT_MAX_VERTICES;
+    epa_max_iterations = EPA_DEFAULT_MAX_ITERATIONS;
+    epa_tolerance = EPA_DEFAULT_TOLERANCE;
     enable_cached_guess = false;  // TODO: use gjk_initial_guess instead
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
@@ -395,6 +396,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// \param[in] request DistanceRequest input
   ///
   void set(const DistanceRequest& request) {
+    // ---------------------
+    // GJK settings
     gjk_initial_guess = request.gjk_initial_guess;
     // TODO: use gjk_initial_guess instead
     enable_cached_guess = request.enable_cached_gjk_guess;
@@ -409,11 +412,30 @@ struct HPP_FCL_DLLAPI GJKSolver {
       support_func_cached_guess = request.cached_support_func_guess;
     }
 
+    // ---------------------
     // EPA settings
     epa_max_face_num = request.epa_max_face_num;
     epa_max_vertex_num = request.epa_max_vertex_num;
     epa_max_iterations = request.epa_max_iterations;
     epa_tolerance = request.epa_tolerance;
+
+    // Only in debug mode, to warn the user
+#ifndef NDEBUG
+    if (gjk_tolerance < GJK_MINIMUM_TOLERANCE) {
+      std::cout << "WARNING - GJK: using a tolerance (";
+      std::cout << gjk_tolerance;
+      std::cout << ") which is lower than the recommended lowest tolerance (";
+      std::cout << GJK_DEFAULT_TOLERANCE;
+      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+    }
+    if (epa_tolerance < EPA_MINIMUM_TOLERANCE) {
+      std::cout << "WARNING - EPA: using a tolerance (";
+      std::cout << epa_tolerance;
+      std::cout << ") which is lower than the recommended lowest tolerance (";
+      std::cout << EPA_MINIMUM_TOLERANCE;
+      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+    }
+#endif
   }
 
   /// @brief Constructor from a CollisionRequest
@@ -433,6 +455,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// \param[in] request CollisionRequest input
   ///
   void set(const CollisionRequest& request) {
+    // ---------------------
+    // GJK settings
     gjk_initial_guess = request.gjk_initial_guess;
     // TODO: use gjk_initial_guess instead
     enable_cached_guess = request.enable_cached_gjk_guess;
@@ -452,6 +476,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     distance_upper_bound = (std::max)(
         0., (std::max)(request.distance_upper_bound, request.security_margin));
 
+    // ---------------------
     // EPA settings
     epa_max_face_num = request.epa_max_face_num;
     epa_max_vertex_num = request.epa_max_vertex_num;
@@ -527,7 +552,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// @brief smart guess for the support function
   mutable support_func_guess_t support_func_cached_guess;
 
-  /// @brief Distance above which the GJK solver stoppes its computations and
+  /// @brief Distance above which the GJK solver stops its computations and
   /// processes to an early stopping.
   ///        The two witness points are incorrect, but with the guaranty that
   ///        the two shapes have a distance greather than distance_upper_bound.

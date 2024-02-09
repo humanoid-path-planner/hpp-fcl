@@ -1,8 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
- *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2024, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -33,57 +32,35 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/// This file defines different macros used to characterize the default behavior
+/// of the narrowphase algorithms GJK and EPA.
 
-#include <../src/collision_node.h>
-#include <hpp/fcl/internal/traversal_recurse.h>
+#ifndef HPP_FCL_NARROWPHASE_DEFAULTS
+#define HPP_FCL_NARROWPHASE_DEFAULTS
+
+#include <hpp/fcl/data_types.h>
 
 namespace hpp {
 namespace fcl {
 
-void checkResultLowerBound(const CollisionResult& result,
-                           FCL_REAL sqrDistLowerBound) {
-  const FCL_REAL dummy_precision =
-      std::sqrt(Eigen::NumTraits<FCL_REAL>::epsilon());
-  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
-  if (sqrDistLowerBound == 0) {
-    assert(result.distance_lower_bound <= dummy_precision);
-  } else {
-    assert(result.distance_lower_bound * result.distance_lower_bound -
-               sqrDistLowerBound <
-           dummy_precision);
-  }
-}
+/// GJK
+constexpr size_t GJK_DEFAULT_MAX_ITERATIONS = 128;
+constexpr FCL_REAL GJK_DEFAULT_TOLERANCE = 1e-6;
+/// Note: if the considered shapes are on the order of the meter, and the
+/// convergence criterion of GJK is the default VDB criterion,
+/// setting a tolerance of 1e-6 on the GJK algorithm makes it precise up to
+/// the micro-meter.
+/// The same is true for EPA.
+constexpr FCL_REAL GJK_MINIMUM_TOLERANCE = 1e-6;
 
-void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
-             CollisionResult& result, BVHFrontList* front_list,
-             bool recursive) {
-  if (front_list && front_list->size() > 0) {
-    propagateBVHFrontListCollisionRecurse(node, request, result, front_list);
-  } else {
-    FCL_REAL sqrDistLowerBound = 0;
-    if (recursive)
-      collisionRecurse(node, 0, 0, front_list, sqrDistLowerBound);
-    else
-      collisionNonRecurse(node, front_list, sqrDistLowerBound);
-    if (!std::isnan(sqrDistLowerBound)) {
-      checkResultLowerBound(result, sqrDistLowerBound);
-    }
-  }
-}
-
-void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list,
-              unsigned int qsize) {
-  node->preprocess();
-
-  if (qsize <= 2)
-    distanceRecurse(node, 0, 0, front_list);
-  else
-    distanceQueueRecurse(node, 0, 0, front_list, qsize);
-
-  node->postprocess();
-}
+/// EPA
+constexpr size_t EPA_DEFAULT_MAX_ITERATIONS = 255;
+constexpr FCL_REAL EPA_DEFAULT_TOLERANCE = 1e-6;
+constexpr FCL_REAL EPA_MINIMUM_TOLERANCE = 1e-6;
+constexpr size_t EPA_DEFAULT_MAX_FACES = 128;
+constexpr size_t EPA_DEFAULT_MAX_VERTICES = 64;
 
 }  // namespace fcl
-
 }  // namespace hpp
+
+#endif  // HPP_FCL_NARROWPHASE_DEFAULTS
