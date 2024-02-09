@@ -8,7 +8,7 @@
 
 using namespace hpp::fcl;
 
-inline double DegToRad(const double& deg) {
+double DegToRad(const double& deg) {
   static double degToRad = M_PI / 180.;
   return deg * degToRad;
 }

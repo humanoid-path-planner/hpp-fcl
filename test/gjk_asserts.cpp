@@ -8,14 +8,14 @@
 
 using namespace hpp::fcl;
 
-inline double DegToRad(const double& deg) {
+double DegToRad(const double& deg) {
   static double degToRad = M_PI / 180.;
   return deg * degToRad;
 }
 std::vector<Vec3f> dirs{Vec3f::UnitZ(),  -Vec3f::UnitZ(), Vec3f::UnitY(),
                         -Vec3f::UnitY(), Vec3f::UnitX(),  -Vec3f::UnitX()};
 
-inline void CreateSphereMesh(BVHModel<OBBRSS>& model, const double& radius) {
+void CreateSphereMesh(BVHModel<OBBRSS>& model, const double& radius) {
   size_t polarSteps{32};
   size_t azimuthSteps{32};
 
