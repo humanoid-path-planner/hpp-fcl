@@ -38,21 +38,29 @@
 #ifndef HPP_FCL_NARROWPHASE_DEFAULTS
 #define HPP_FCL_NARROWPHASE_DEFAULTS
 
+#include <hpp/fcl/data_types.h>
+
+namespace hpp {
+namespace fcl {
+
 /// GJK
-#define GJK_DEFAULT_MAX_ITERATIONS 128
-#define GJK_DEFAULT_TOLERANCE 1e-6
+constexpr size_t GJK_DEFAULT_MAX_ITERATIONS = 128;
+constexpr FCL_REAL GJK_DEFAULT_TOLERANCE = 1e-6;
 /// Note: if the considered shapes are on the order of the meter, and the
 /// convergence criterion of GJK is the default VDB criterion,
 /// setting a tolerance of 1e-6 on the GJK algorithm makes it precise up to
 /// the micro-meter.
 /// The same is true for EPA.
-#define GJK_MINIMUM_TOLERANCE 1e-6
+constexpr FCL_REAL GJK_MINIMUM_TOLERANCE = 1e-6;
 
 /// EPA
-#define EPA_DEFAULT_MAX_ITERATIONS 255
-#define EPA_DEFAULT_TOLERANCE 1e-6
-#define EPA_MINIMUM_TOLERANCE 1e-6
-#define EPA_DEFAULT_MAX_FACES 128
-#define EPA_DEFAULT_MAX_VERTICES 64
+constexpr size_t EPA_DEFAULT_MAX_ITERATIONS = 255;
+constexpr FCL_REAL EPA_DEFAULT_TOLERANCE = 1e-6;
+constexpr FCL_REAL EPA_MINIMUM_TOLERANCE = 1e-6;
+constexpr size_t EPA_DEFAULT_MAX_FACES = 128;
+constexpr size_t EPA_DEFAULT_MAX_VERTICES = 64;
+
+}  // namespace fcl
+}  // namespace hpp
 
 #endif  // HPP_FCL_NARROWPHASE_DEFAULTS
