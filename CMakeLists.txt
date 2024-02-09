@@ -130,6 +130,8 @@ else()
   CHECK_MINIMAL_CXX_STANDARD(14 ENFORCE)
 endif()
 
+option(HPP_FCL_TURN_ASSERT_INTO_EXCEPTION "turn some critical HPP-FCL asserts to exception." FALSE)
+
 # Optional dependencies
 ADD_PROJECT_DEPENDENCY(octomap PKG_CONFIG_REQUIRES "octomap >= 1.6")
 if(octomap_FOUND)
