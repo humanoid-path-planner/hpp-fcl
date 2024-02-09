@@ -1097,8 +1097,8 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
 
   // dummy_precision is 1e-14 if FCL_REAL is double
   //                    1e-5  if FCL_REAL is float
-  static const FCL_REAL dummy_precision(
-      100 * std::numeric_limits<FCL_REAL>::epsilon());
+  const FCL_REAL dummy_precision(100 *
+                                 std::numeric_limits<FCL_REAL>::epsilon());
   HPP_FCL_UNUSED_VARIABLE(dummy_precision);
 
 #define REGION_INSIDE()               \
