@@ -167,11 +167,19 @@ struct HPP_FCL_DLLAPI GJK {
   /// converting. The shapes are not in collision.
   enum Status { DidNotRun, Failed, Valid, Inside, EarlyStopped };
 
-  MinkowskiDiff const* shape;
-  Vec3f ray;
+ public:
+  FCL_REAL distance_upper_bound;
+  unsigned int max_iterations;
+  FCL_REAL tolerance;
+  size_t iterations;
+  Status status;
+  int iterations_momentum_stop;
   GJKVariant gjk_variant;
   GJKConvergenceCriterion convergence_criterion;
   GJKConvergenceCriterionType convergence_criterion_type;
+
+  MinkowskiDiff const* shape;
+  Vec3f ray;
   support_func_guess_t support_hint;
   /// The distance computed by GJK. The possible values are
   /// - \f$ d = - R - 1 \f$ when a collision is detected and GJK
@@ -187,8 +195,16 @@ struct HPP_FCL_DLLAPI GJK {
   /// MinkowskiDiff::inflation and \f$ d_{ub} \f$ is the
   /// GJK::distance_upper_bound.
   FCL_REAL distance;
+  Simplex* simplex;  // Pointer to the result of the last run of GJK.
+
+ private:
+  SimplexV store_v[4];
+  SimplexV* free_v[4];
+  vertex_id_t nfree;
+  vertex_id_t current;
   Simplex simplices[2];
 
+ public:
   /// \param max_iterations_ number of iteration before GJK returns failure.
   /// \param tolerance_ precision of the algorithm.
   ///
@@ -258,22 +274,6 @@ struct HPP_FCL_DLLAPI GJK {
   inline int getIterationsMomentumStopped() const {
     return iterations_momentum_stop;
   }
-
- private:
-  SimplexV store_v[4];
-  SimplexV* free_v[4];
-  vertex_id_t nfree;
-  vertex_id_t current;
-  Simplex* simplex;
-  Status status;
-
-  unsigned int max_iterations;
-  FCL_REAL distance_upper_bound;
-  int iterations_momentum_stop;
-
- public:
-  FCL_REAL tolerance;
-  size_t iterations;
 
  private:
   /// @brief discard one vertex from the simplex
