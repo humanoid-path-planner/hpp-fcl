@@ -526,7 +526,7 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
 
 void GJK::initialize() {
   nfree = 0;
-  status = Failed;
+  status = DidNotRun;
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
   simplex = NULL;
   gjk_variant = GJKVariant::DefaultGJK;
@@ -1468,7 +1468,7 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
 void EPA::initialize() {
   sv_store = new SimplexV[max_vertex_num];
   fc_store = new SimplexF[max_face_num];
-  status = Failed;
+  status = DidNotRun;
   normal = Vec3f(0, 0, 0);
   depth = 0;
   nextsv = 0;

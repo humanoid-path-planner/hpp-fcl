@@ -101,7 +101,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
   }
 
   /// @brief intersection checking between two shapes.
-  /// Note (12 feb, 2024): this function is never called in the
+  /// @return true if the shapes are colliding.
+  /// @note the variables `gjk_status` and `epa_status` can be used to
+  /// check if GJK or EPA ran successfully.
+  /// @note (12 feb, 2024): this function is never called in the
   /// hpp-fcl library.
   /// Either the `shapeDistance` in this file is called or a specialized
   /// function. However, this function is still tested in the test suite,
@@ -119,7 +122,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     details::GJK gjk((unsigned int)gjk_max_iterations, gjk_tolerance);
     initialize_gjk(gjk, shape, s1, s2, guess, support_hint);
 
-    details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+    gjk_status = gjk.evaluate(shape, guess, support_hint);
     HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
     HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
@@ -144,7 +147,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         } else {
           details::EPA epa(epa_max_face_num, epa_max_vertex_num,
                            epa_max_iterations, epa_tolerance);
-          details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
+          epa_status = epa.evaluate(gjk, -guess);
           if (epa_status & details::EPA::Valid ||
               epa_status == details::EPA::OutOfFaces        // Warnings
               || epa_status == details::EPA::OutOfVertices  // Warnings
@@ -180,6 +183,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   //// @brief intersection checking between one shape and a triangle with
   /// transformation
   /// @return true if the shape are colliding.
+  /// The variables `gjk_status` and `epa_status` can be used to
+  /// check if GJK or EPA ran successfully.
   template <typename S>
   bool shapeTriangleInteraction(const S& s, const Transform3f& tf1,
                                 const Vec3f& P1, const Vec3f& P2,
@@ -200,7 +205,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     details::GJK gjk((unsigned int)gjk_max_iterations, gjk_tolerance);
     initialize_gjk(gjk, shape, s, tri, guess, support_hint);
 
-    details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+    gjk_status = gjk.evaluate(shape, guess, support_hint);
 
     HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
     HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
@@ -224,7 +229,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         } else {
           details::EPA epa(epa_max_face_num, epa_max_vertex_num,
                            epa_max_iterations, epa_tolerance);
-          details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
+          epa_status = epa.evaluate(gjk, -guess);
           if (epa_status & details::EPA::Valid ||
               epa_status == details::EPA::OutOfFaces        // Warnings
               || epa_status == details::EPA::OutOfVertices  // Warnings
@@ -277,7 +282,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
     return col;
   }
 
-  /// @brief distance computation between two shapes
+  /// @brief distance computation between two shapes.
+  /// @return true if no error occured, false otherwise.
+  /// The variables `gjk_status` and `epa_status` can be used to
+  /// understand the reason of the failure.
   template <typename S1, typename S2>
   bool shapeDistance(const S1& s1, const Transform3f& tf1, const S2& s2,
                      const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1,
@@ -293,7 +301,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     details::GJK gjk((unsigned int)gjk_max_iterations, gjk_tolerance);
     initialize_gjk(gjk, shape, s1, s2, guess, support_hint);
 
-    details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+    gjk_status = gjk.evaluate(shape, guess, support_hint);
     if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
         enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
@@ -341,7 +349,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
       } else {
         details::EPA epa(epa_max_face_num, epa_max_vertex_num,
                          epa_max_iterations, epa_tolerance);
-        details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
+        epa_status = epa.evaluate(gjk, -guess);
         if (epa_status & details::EPA::Valid ||
             epa_status == details::EPA::OutOfFaces        // Warnings
             || epa_status == details::EPA::OutOfVertices  // Warnings
@@ -371,20 +379,23 @@ struct HPP_FCL_DLLAPI GJKSolver {
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// @brief Default constructor for GJK algorithm
   GJKSolver() {
-    gjk_max_iterations = GJK_DEFAULT_MAX_ITERATIONS;
-    gjk_tolerance = GJK_DEFAULT_TOLERANCE;
+    epa_status = details::EPA::Status::DidNotRun;
     epa_max_face_num = EPA_DEFAULT_MAX_FACES;
     epa_max_vertex_num = EPA_DEFAULT_MAX_VERTICES;
     epa_max_iterations = EPA_DEFAULT_MAX_ITERATIONS;
     epa_tolerance = EPA_DEFAULT_TOLERANCE;
-    enable_cached_guess = false;  // TODO: use gjk_initial_guess instead
-    cached_guess = Vec3f(1, 0, 0);
-    support_func_cached_guess = support_func_guess_t::Zero();
-    distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
+
+    gjk_status = details::GJK::Status::DidNotRun;
+    gjk_max_iterations = GJK_DEFAULT_MAX_ITERATIONS;
+    gjk_tolerance = GJK_DEFAULT_TOLERANCE;
     gjk_initial_guess = GJKInitialGuess::DefaultGuess;
     gjk_variant = GJKVariant::DefaultGJK;
     gjk_convergence_criterion = GJKConvergenceCriterion::VDB;
     gjk_convergence_criterion_type = GJKConvergenceCriterionType::Relative;
+    enable_cached_guess = false;  // TODO: use gjk_initial_guess instead
+    cached_guess = Vec3f(1, 0, 0);
+    support_func_cached_guess = support_func_guess_t::Zero();
+    distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
   }
 
   /// @brief Constructor from a DistanceRequest
@@ -427,8 +438,13 @@ struct HPP_FCL_DLLAPI GJKSolver {
     epa_max_iterations = request.epa_max_iterations;
     epa_tolerance = request.epa_tolerance;
 
-    // Only in debug mode, to warn the user
+    // ---------------------
+    // Reset GJK and EPA status
+    gjk_status = details::GJK::Status::DidNotRun;
+    epa_status = details::EPA::Status::DidNotRun;
+
 #ifndef NDEBUG
+    // Only in debug mode, to warn the user
     if (gjk_tolerance < GJK_MINIMUM_TOLERANCE) {
       std::cout << "WARNING - GJK: using a tolerance (";
       std::cout << gjk_tolerance;
@@ -490,6 +506,29 @@ struct HPP_FCL_DLLAPI GJKSolver {
     epa_max_vertex_num = request.epa_max_vertex_num;
     epa_max_iterations = request.epa_max_iterations;
     epa_tolerance = request.epa_tolerance;
+
+    // ---------------------
+    // Reset GJK and EPA status
+    epa_status = details::EPA::Status::DidNotRun;
+    gjk_status = details::GJK::Status::DidNotRun;
+
+#ifndef NDEBUG
+    // Only in debug mode, to warn the user
+    if (gjk_tolerance < GJK_MINIMUM_TOLERANCE) {
+      std::cout << "WARNING - GJK: using a tolerance (";
+      std::cout << gjk_tolerance;
+      std::cout << ") which is lower than the recommended lowest tolerance (";
+      std::cout << GJK_DEFAULT_TOLERANCE;
+      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+    }
+    if (epa_tolerance < EPA_MINIMUM_TOLERANCE) {
+      std::cout << "WARNING - EPA: using a tolerance (";
+      std::cout << epa_tolerance;
+      std::cout << ") which is lower than the recommended lowest tolerance (";
+      std::cout << EPA_MINIMUM_TOLERANCE;
+      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+    }
+#endif
   }
 
   /// @brief Copy constructor
@@ -519,17 +558,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   bool operator!=(const GJKSolver& other) const { return !(*this == other); }
 
-  /// @brief maximum number of simplex face used in EPA algorithm
-  mutable size_t epa_max_face_num;
-
-  /// @brief maximum number of simplex vertex used in EPA algorithm
-  mutable size_t epa_max_vertex_num;
-
-  /// @brief maximum number of iterations used for EPA iterations
-  mutable size_t epa_max_iterations;
-
-  /// @brief the threshold used in EPA to stop iteration
-  mutable FCL_REAL epa_tolerance;
+  /// @brief status of the GJK algorithm after GJKSolver was used
+  mutable details::GJK::Status gjk_status;
 
   /// @brief the threshold used in GJK to stop iteration
   mutable FCL_REAL gjk_tolerance;
@@ -565,6 +595,21 @@ struct HPP_FCL_DLLAPI GJKSolver {
   ///        The two witness points are incorrect, but with the guaranty that
   ///        the two shapes have a distance greather than distance_upper_bound.
   mutable FCL_REAL distance_upper_bound;
+
+  /// @brief status of the EPA algorithm after GJKSolver was used
+  mutable details::EPA::Status epa_status;
+
+  /// @brief maximum number of simplex face used in EPA algorithm
+  mutable size_t epa_max_face_num;
+
+  /// @brief maximum number of simplex vertex used in EPA algorithm
+  mutable size_t epa_max_vertex_num;
+
+  /// @brief maximum number of iterations used for EPA iterations
+  mutable size_t epa_max_iterations;
+
+  /// @brief the threshold used in EPA to stop iteration
+  mutable FCL_REAL epa_tolerance;
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

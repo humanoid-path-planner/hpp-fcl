@@ -165,7 +165,7 @@ struct HPP_FCL_DLLAPI GJK {
   /// Failed: GJK did not converge.
   /// EarlyStopped: GJK found a separating hyperplane and exited before
   /// converting. The shapes are not in collision.
-  enum Status { Valid, Inside, Failed, EarlyStopped };
+  enum Status { DidNotRun, Failed, Valid, Inside, EarlyStopped };
 
   MinkowskiDiff const* shape;
   Vec3f ray;
@@ -368,6 +368,7 @@ struct HPP_FCL_DLLAPI EPA {
 
  public:
   enum Status {
+    DidNotRun = -1,
     Failed = 0,
     Valid = 1,
     AccuracyReached = 1 << 1 | Valid,
