@@ -181,11 +181,11 @@ struct HPP_FCL_DLLAPI GJK {
 
  public:
   FCL_REAL distance_upper_bound;
-  unsigned int max_iterations;
+  size_t max_iterations;
   FCL_REAL tolerance;
   size_t iterations;
   Status status;
-  int iterations_momentum_stop;
+  size_t iterations_momentum_stop;
   GJKVariant gjk_variant;
   GJKConvergenceCriterion convergence_criterion;
   GJKConvergenceCriterionType convergence_criterion_type;
@@ -224,7 +224,7 @@ struct HPP_FCL_DLLAPI GJK {
   /// with some vertices closer than this threshold.
   ///
   /// Suggested values are 100 iterations and a tolerance of 1e-6.
-  GJK(unsigned int max_iterations_, FCL_REAL tolerance_)
+  GJK(size_t max_iterations_, FCL_REAL tolerance_)
       : max_iterations(max_iterations_), tolerance(tolerance_) {
     initialize();
   }
@@ -287,7 +287,7 @@ struct HPP_FCL_DLLAPI GJK {
                         const FCL_REAL& omega);
 
   /// @brief Get GJK number of iterations.
-  inline int getIterationsMomentumStopped() const {
+  inline size_t getIterationsMomentumStopped() const {
     return iterations_momentum_stop;
   }
 

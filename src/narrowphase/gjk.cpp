@@ -666,9 +666,6 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 
   // Momentum
   GJKVariant current_gjk_variant = gjk_variant;
-  // If at the end of gjk, iterations_stop_momentum has a value of -1,
-  // this means momentum has not been stopped.
-  if (current_gjk_variant != DefaultGJK) iterations_momentum_stop = -1;
   Vec3f w = ray;
   Vec3f dir = ray;
   Vec3f y;
@@ -749,7 +746,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       if (frank_wolfe_duality_gap - tolerance <= 0) {
         removeVertex(simplices[current]);
         current_gjk_variant = DefaultGJK;  // move back to classic GJK
-        iterations_momentum_stop = static_cast<int>(iterations);
+        iterations_momentum_stop = iterations;
         continue;  // continue to next iteration
       }
     }
@@ -764,6 +761,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       if (iterations > 0) removeVertex(simplices[current]);
       if (current_gjk_variant != DefaultGJK) {
         current_gjk_variant = DefaultGJK;  // move back to classic GJK
+        iterations_momentum_stop = iterations;
         continue;
       }
       distance = rl - inflation;
