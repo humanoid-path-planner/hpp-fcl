@@ -374,15 +374,6 @@ struct HPP_FCL_DLLAPI EPA {
     SimplexHorizon() : cf(NULL), ff(NULL), nf(0) {}
   };
 
- public:
-  size_t max_face_num;
-  size_t max_vertex_num;
-  size_t max_iterations;
-
-  FCL_REAL tolerance;
-  size_t iterations;
-
- public:
   enum Status {
     DidNotRun = -1,
     Failed = 0,
@@ -396,15 +387,26 @@ struct HPP_FCL_DLLAPI EPA {
     FallBack = 6 << 1 | Failed
   };
 
+ public:
+  size_t max_face_num;
+  size_t max_vertex_num;
+  size_t max_iterations;
+
+  FCL_REAL tolerance;
+  size_t iterations;
+
   Status status;
   GJK::Simplex result;
   Vec3f normal;
   FCL_REAL depth;
+
+ private:
   SimplexV* sv_store;
   SimplexF* fc_store;
   size_t nextsv;
   SimplexList hull, stock;
 
+ public:
   EPA(size_t max_face_num_, size_t max_vertex_num_, size_t max_iterations_,
       FCL_REAL tolerance_)
       : max_face_num(max_face_num_),
