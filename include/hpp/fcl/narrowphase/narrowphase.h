@@ -562,30 +562,30 @@ struct HPP_FCL_DLLAPI GJKSolver {
   mutable details::GJK::Status gjk_status;
 
   /// @brief the threshold used in GJK to stop iteration
-  mutable FCL_REAL gjk_tolerance;
+  FCL_REAL gjk_tolerance;
 
   /// @brief maximum number of iterations used for GJK iterations
-  mutable size_t gjk_max_iterations;
+  size_t gjk_max_iterations;
 
   /// @brief Whether smart guess can be provided
   /// @Deprecated Use gjk_initial_guess instead
   HPP_FCL_DEPRECATED_MESSAGE("Use gjk_initial_guess instead")
-  mutable bool enable_cached_guess;
+  bool enable_cached_guess;
 
   /// @brief smart guess
   mutable Vec3f cached_guess;
 
   /// @brief which warm start to use for GJK
-  mutable GJKInitialGuess gjk_initial_guess;
+  GJKInitialGuess gjk_initial_guess;
 
   /// @brief Variant to use for the GJK algorithm
-  mutable GJKVariant gjk_variant;
+  GJKVariant gjk_variant;
 
   /// @brief Criterion used to stop GJK
-  mutable GJKConvergenceCriterion gjk_convergence_criterion;
+  GJKConvergenceCriterion gjk_convergence_criterion;
 
   /// @brief Relative or absolute
-  mutable GJKConvergenceCriterionType gjk_convergence_criterion_type;
+  GJKConvergenceCriterionType gjk_convergence_criterion_type;
 
   /// @brief smart guess for the support function
   mutable support_func_guess_t support_func_cached_guess;
@@ -594,22 +594,22 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// processes to an early stopping.
   ///        The two witness points are incorrect, but with the guaranty that
   ///        the two shapes have a distance greather than distance_upper_bound.
-  mutable FCL_REAL distance_upper_bound;
+  FCL_REAL distance_upper_bound;
 
   /// @brief status of the EPA algorithm after GJKSolver was used
   mutable details::EPA::Status epa_status;
 
   /// @brief maximum number of simplex face used in EPA algorithm
-  mutable size_t epa_max_face_num;
+  size_t epa_max_face_num;
 
   /// @brief maximum number of simplex vertex used in EPA algorithm
-  mutable size_t epa_max_vertex_num;
+  size_t epa_max_vertex_num;
 
   /// @brief maximum number of iterations used for EPA iterations
-  mutable size_t epa_max_iterations;
+  size_t epa_max_iterations;
 
   /// @brief the threshold used in EPA to stop iteration
-  mutable FCL_REAL epa_tolerance;
+  FCL_REAL epa_tolerance;
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
