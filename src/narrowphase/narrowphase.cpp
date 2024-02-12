@@ -37,8 +37,6 @@
 
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
-#include <vector>
-
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/internal/intersect.h>
 #include "details.h"

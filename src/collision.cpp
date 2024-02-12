@@ -40,8 +40,6 @@
 #include <hpp/fcl/collision_func_matrix.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
-#include <iostream>
-
 namespace hpp {
 namespace fcl {
 
