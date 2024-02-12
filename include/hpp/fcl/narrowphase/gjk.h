@@ -164,6 +164,11 @@ struct HPP_FCL_DLLAPI GJK {
     vertex_id_t rank;
 
     Simplex() {}
+
+    inline void reset() {
+      rank = 0;
+      for (size_t i = 0; i < 4; ++i) vertex[i] = nullptr;
+    }
   };
 
   /// @brief Status of the GJK algorithm:
@@ -344,6 +349,12 @@ struct HPP_FCL_DLLAPI EPA {
     SimplexF* root;
     size_t count;
     SimplexList() : root(NULL), count(0) {}
+
+    void reset() {
+      root = NULL;
+      count = 0;
+    }
+
     void append(SimplexF* face) {
       face->l[0] = NULL;
       face->l[1] = root;
@@ -421,7 +432,15 @@ struct HPP_FCL_DLLAPI EPA {
     delete[] fc_store;
   }
 
-  void initialize();
+  /// @brief resets the EPA algorithm, preparing it for a new run.
+  /// It potentially reallocates memory for the vertices and faces
+  /// if the passed parameters are bigger than the previous ones.
+  /// This function does **not** modify the parameters of the EPA algorithm,
+  /// i.e. the maximum number of iterations and the tolerance.
+  /// @note calling this function destroys the previous state of EPA.
+  /// In the future, we may want to copy it instead, i.e. when EPA will
+  /// be (properly) warm-startable.
+  void reset(size_t max_vertex_num_, size_t max_face_num_);
 
   /// \return a Status which can be demangled using (status & Valid) or
   ///         (status & Failed). The other values provide a more detailled
@@ -433,6 +452,11 @@ struct HPP_FCL_DLLAPI EPA {
   bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
 
  private:
+  /// @brief Allocates memory for the EPA algorithm.
+  /// This function should only be called by the constructor.
+  /// Otherwise use \ref reset.
+  void initialize();
+
   bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist);
 
   SimplexF* newFace(SimplexV* a, SimplexV* b, SimplexV* vertex, bool forced);

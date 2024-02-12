@@ -1472,10 +1472,33 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
 void EPA::initialize() {
   sv_store = new SimplexV[max_vertex_num];
   fc_store = new SimplexF[max_face_num];
+  reset(max_vertex_num, max_face_num);
+}
+
+void EPA::reset(size_t max_vertex_num_, size_t max_face_num_) {
+  if (max_vertex_num_ > max_vertex_num) {
+    HPP_FCL_ASSERT(sv_store != nullptr,
+                   "The `sv_store` member of EPA is nullptr and should not be.",
+                   std::logic_error);
+    if (sv_store != nullptr) delete[] sv_store;
+    sv_store = new SimplexV[max_vertex_num_];
+    max_vertex_num = max_vertex_num_;
+  }
+  if (max_face_num_ > max_face_num) {
+    HPP_FCL_ASSERT(fc_store != nullptr,
+                   "The `fc_store` member of EPA is nullptr and should not be.",
+                   std::logic_error);
+    if (fc_store != nullptr) delete[] fc_store;
+    fc_store = new SimplexF[max_face_num_];
+    max_face_num = max_face_num_;
+  }
   status = DidNotRun;
   normal = Vec3f(0, 0, 0);
   depth = 0;
   nextsv = 0;
+  result.reset();
+  hull.reset();
+  stock.reset();
   for (size_t i = 0; i < max_face_num; ++i)
     stock.append(&fc_store[max_face_num - i - 1]);
   iterations = 0;
