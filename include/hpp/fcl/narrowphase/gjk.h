@@ -150,6 +150,13 @@ struct HPP_FCL_DLLAPI GJK {
 
   typedef unsigned char vertex_id_t;
 
+  /// @brief A simplex is a set of up to 4 vertices.
+  /// Its rank is the number of vertices it contains.
+  /// @note This data structure does **not** own the vertices it refers to.
+  /// To be efficient, the constructor of `GJK` creates storage for 4 vertices.
+  /// Since GJK does not need any more storage, it reuses these vertices
+  /// throughout the algorithm by using multiple instance of this `Simplex`
+  /// class.
   struct HPP_FCL_DLLAPI Simplex {
     /// @brief simplex vertex
     SimplexV* vertex[4];
@@ -217,7 +224,11 @@ struct HPP_FCL_DLLAPI GJK {
     initialize();
   }
 
-  void initialize();
+  /// @brief resets the GJK algorithm, preparing it for a new run.
+  /// This function does **not** modify the parameters of the GJK algorithm,
+  /// i.e. the maximum number of iterations, the tolerance, the variant of GJK,
+  /// or its convergene criterion.
+  void reset();
 
   /// @brief GJK algorithm, given the initial value guess
   Status evaluate(
@@ -276,6 +287,11 @@ struct HPP_FCL_DLLAPI GJK {
   }
 
  private:
+  /// @brief Initializes the GJK algorithm.
+  /// This function should only be called by the constructor.
+  /// Otherwise use \ref reset.
+  void initialize();
+
   /// @brief discard one vertex from the simplex
   inline void removeVertex(Simplex& simplex);
 

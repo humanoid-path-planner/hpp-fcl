@@ -525,13 +525,17 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
 }
 
 void GJK::initialize() {
-  nfree = 0;
-  status = DidNotRun;
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
-  simplex = NULL;
   gjk_variant = GJKVariant::DefaultGJK;
   convergence_criterion = GJKConvergenceCriterion::VDB;
   convergence_criterion_type = GJKConvergenceCriterionType::Relative;
+  reset();
+}
+
+void GJK::reset() {
+  status = DidNotRun;
+  nfree = 0;
+  simplex = NULL;
   iterations = 0;
   iterations_momentum_stop = 0;
 }
@@ -646,11 +650,11 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   free_v[3] = &store_v[3];
 
   nfree = 4;
-  current = 0;
   status = Valid;
   shape = &shape_;
   distance = 0.0;
-  simplices[0].rank = 0;
+  current = 0;
+  simplices[current].rank = 0;
   support_hint = supportHint;
 
   FCL_REAL rl = guess.norm();
