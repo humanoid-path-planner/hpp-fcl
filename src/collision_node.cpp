@@ -43,6 +43,7 @@ namespace fcl {
 
 void checkResultLowerBound(const CollisionResult& result,
                            FCL_REAL sqrDistLowerBound) {
+  HPP_FCL_UNUSED_VARIABLE(result);
   const FCL_REAL dummy_precision =
       std::sqrt(Eigen::NumTraits<FCL_REAL>::epsilon());
   HPP_FCL_UNUSED_VARIABLE(dummy_precision);

@@ -191,7 +191,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                 const Vec3f& P3, const Transform3f& tf2,
                                 FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
                                 Vec3f& normal) const {
-    bool col;
+    bool col = false;
     // Express everything in frame 1
     const Transform3f tf_1M2(tf1.inverseTimes(tf2));
     TriangleP tri(tf_1M2.transform(P1), tf_1M2.transform(P2),
