@@ -49,7 +49,8 @@ SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
 # --- OPTIONS  ---------------------------------------
 # Need to be set before including base.cmake
 # ----------------------------------------------------
-OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+option(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+option(HPP_FCL_TURN_ASSERT_INTO_EXCEPTION "turn some critical HPP-FCL asserts to exception." FALSE)
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -129,8 +130,6 @@ else()
   # Boost.Math will be C++14 starting in July 2023 (Boost 1.82 release)
   CHECK_MINIMAL_CXX_STANDARD(14 ENFORCE)
 endif()
-
-option(HPP_FCL_TURN_ASSERT_INTO_EXCEPTION "turn some critical HPP-FCL asserts to exception." FALSE)
 
 # Optional dependencies
 ADD_PROJECT_DEPENDENCY(octomap PKG_CONFIG_REQUIRES "octomap >= 1.6")
