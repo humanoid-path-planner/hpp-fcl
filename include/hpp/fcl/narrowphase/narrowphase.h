@@ -100,7 +100,12 @@ struct HPP_FCL_DLLAPI GJKSolver {
     gjk.convergence_criterion_type = gjk_convergence_criterion_type;
   }
 
-  /// @brief intersection checking between two shapes
+  /// @brief intersection checking between two shapes.
+  /// Note (12 feb, 2024): this function is never called in the
+  /// hpp-fcl library.
+  /// Either the `shapeDistance` in this file is called or a specialized
+  /// function. However, this function is still tested in the test suite,
+  /// notably in `test/collision.cpp` and `test/geometric_shapes.cpp`.
   template <typename S1, typename S2>
   bool shapeIntersect(const S1& s1, const Transform3f& tf1, const S2& s2,
                       const Transform3f& tf2, FCL_REAL& distance_lower_bound,
@@ -229,7 +234,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
             normal.noalias() = tf1.getRotation() * epa.normal;
             p1 = tf1.transform(w0);
             p2 = tf1.transform(w1);
-            assert(distance <= 1e-6);
+            HPP_FCL_ASSERT(
+                distance <= epa.tolerance,
+                "Distance should be negative (at least below EPA tolerance).",
+                std::logic_error);
           } else {
             distance = -(std::numeric_limits<FCL_REAL>::max)();
             gjk.getClosestPoints(shape, w0, w1);
@@ -263,9 +271,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
         assert(distance > 0);
         break;
       default:
-        assert(false && "should not reach type part.");
-        HPP_FCL_THROW_PRETTY("GJKSolver: should not reach this part.",
-                             std::logic_error)
+        HPP_FCL_ASSERT(false, "GJKSolver: should not reach this part.",
+                       std::logic_error)
     }
     return col;
   }
@@ -326,8 +333,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
         gjk.getClosestPoints(shape, p1, p2);
         distance = gjk.distance;
         // Return contact points in case of collision
-        // p1 = tf1.transform (p1);
-        // p2 = tf1.transform (p2);
         normal.noalias() = tf1.getRotation() * (p1 - p2);
         normal.normalize();
         p1 = tf1.transform(p1);
@@ -343,8 +348,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
             || epa_status == details::EPA::FallBack) {
           Vec3f w0, w1;
           epa.getClosestPoints(shape, w0, w1);
-          assert(epa.depth >= -eps);
           distance = (std::min)(0., -epa.depth);
+          HPP_FCL_ASSERT(distance <= epa.tolerance,
+                         "Distance should be negative (or at least below EPA's "
+                         "tolerance).",
+                         std::logic_error);
           normal.noalias() = tf1.getRotation() * epa.normal;
           p1 = tf1.transform(w0);
           p2 = tf1.transform(w1);

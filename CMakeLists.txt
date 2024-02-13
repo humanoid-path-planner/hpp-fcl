@@ -49,7 +49,8 @@ SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
 # --- OPTIONS  ---------------------------------------
 # Need to be set before including base.cmake
 # ----------------------------------------------------
-OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+option(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+option(HPP_FCL_TURN_ASSERT_INTO_EXCEPTION "turn some critical HPP-FCL asserts to exception." FALSE)
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")

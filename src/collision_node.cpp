@@ -47,11 +47,16 @@ void checkResultLowerBound(const CollisionResult& result,
       std::sqrt(Eigen::NumTraits<FCL_REAL>::epsilon());
   HPP_FCL_UNUSED_VARIABLE(dummy_precision);
   if (sqrDistLowerBound == 0) {
-    assert(result.distance_lower_bound <= dummy_precision);
+    HPP_FCL_ASSERT(result.distance_lower_bound <= dummy_precision,
+                   "Distance lower bound should not be positive.",
+                   std::logic_error);
   } else {
-    assert(result.distance_lower_bound * result.distance_lower_bound -
-               sqrDistLowerBound <
-           dummy_precision);
+    HPP_FCL_ASSERT(
+        result.distance_lower_bound * result.distance_lower_bound -
+                sqrDistLowerBound <
+            dummy_precision,
+        "Distance lower bound and sqrDistLowerBound should coincide.",
+        std::logic_error);
   }
 }
 
