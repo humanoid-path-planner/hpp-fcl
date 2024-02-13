@@ -57,8 +57,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   /// @brief initialize GJK
   template <typename S1, typename S2>
-  void getGJKInitialGuess(const details::MinkowskiDiff& shape, const S1& s1,
-                          const S2& s2, Vec3f& guess,
+  void getGJKInitialGuess(const S1& s1, const S2& s2, Vec3f& guess,
                           support_func_guess_t& support_hint) const {
     switch (gjk_initial_guess) {
       case GJKInitialGuess::DefaultGuess:
@@ -78,7 +77,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
               std::logic_error);
         }
         guess.noalias() = s1.aabb_local.center() -
-                          (shape.oR1 * s2.aabb_local.center() + shape.ot1);
+                          (minkowski_difference.oR1 * s2.aabb_local.center() +
+                           minkowski_difference.ot1);
         support_hint.setZero();
         break;
       default:
@@ -108,17 +108,16 @@ struct HPP_FCL_DLLAPI GJKSolver {
                       const Transform3f& tf2, FCL_REAL& distance_lower_bound,
                       bool enable_penetration, Vec3f* contact_points,
                       Vec3f* normal) const {
-    details::MinkowskiDiff shape;
-    shape.set(&s1, &s2, tf1, tf2);
+    minkowski_difference.set(&s1, &s2, tf1, tf2);
 
     // Reset GJK algorithm
     gjk.reset();
 
     Vec3f guess;
     support_func_guess_t support_hint;
-    getGJKInitialGuess(shape, s1, s2, guess, support_hint);
+    getGJKInitialGuess(s1, s2, guess, support_hint);
 
-    gjk.evaluate(shape, guess, support_hint);
+    gjk.evaluate(minkowski_difference, guess, support_hint);
     HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
     HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
@@ -133,8 +132,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
       case details::GJK::Inside:
         if (!enable_penetration && contact_points == NULL && normal == NULL)
           return true;
-        if (gjk.hasPenetrationInformation(shape)) {
-          gjk.getClosestPoints(shape, w0, w1);
+        if (gjk.hasPenetrationInformation(minkowski_difference)) {
+          gjk.getClosestPoints(minkowski_difference, w0, w1);
           distance_lower_bound = gjk.distance;
           if (normal)
             (*normal).noalias() = tf1.getRotation() * (w1 - w0).normalized();
@@ -149,7 +148,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
               epa.status == details::EPA::OutOfFaces        // Warnings
               || epa.status == details::EPA::OutOfVertices  // Warnings
           ) {
-            epa.getClosestPoints(shape, w0, w1);
+            epa.getClosestPoints(minkowski_difference, w0, w1);
             distance_lower_bound = -epa.depth;
             if (normal) (*normal).noalias() = tf1.getRotation() * epa.normal;
             if (contact_points)
@@ -157,7 +156,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
                   tf1.transform(w0 - epa.normal * (epa.depth * 0.5));
             return true;
           } else if (epa.status == details::EPA::FallBack) {
-            epa.getClosestPoints(shape, w0, w1);
+            epa.getClosestPoints(minkowski_difference, w0, w1);
             distance_lower_bound = -epa.depth;  // Should be zero
             if (normal) (*normal).noalias() = tf1.getRotation() * epa.normal;
             if (contact_points) *contact_points = tf1.transform(w0);
@@ -194,17 +193,16 @@ struct HPP_FCL_DLLAPI GJKSolver {
     TriangleP tri(tf_1M2.transform(P1), tf_1M2.transform(P2),
                   tf_1M2.transform(P3));
 
-    details::MinkowskiDiff shape;
-    shape.set(&s, &tri);
+    minkowski_difference.set(&s, &tri);
 
     // Reset GJK algorithm
     gjk.reset();
 
     Vec3f guess;
     support_func_guess_t support_hint;
-    getGJKInitialGuess(shape, s, tri, guess, support_hint);
+    getGJKInitialGuess(s, tri, guess, support_hint);
 
-    gjk.evaluate(shape, guess, support_hint);
+    gjk.evaluate(minkowski_difference, guess, support_hint);
 
     HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
     HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
@@ -219,8 +217,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
     switch (gjk.status) {
       case details::GJK::Inside:
         col = true;
-        if (gjk.hasPenetrationInformation(shape)) {
-          gjk.getClosestPoints(shape, w0, w1);
+        if (gjk.hasPenetrationInformation(minkowski_difference)) {
+          gjk.getClosestPoints(minkowski_difference, w0, w1);
           distance = gjk.distance;
           normal.noalias() = tf1.getRotation() * (w0 - w1).normalized();
           p1 = tf1.transform(w0);
@@ -234,7 +232,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
               epa.status == details::EPA::OutOfFaces        // Warnings
               || epa.status == details::EPA::OutOfVertices  // Warnings
           ) {
-            epa.getClosestPoints(shape, w0, w1);
+            epa.getClosestPoints(minkowski_difference, w0, w1);
             distance = -epa.depth;
             normal.noalias() = tf1.getRotation() * epa.normal;
             p1 = tf1.transform(w0);
@@ -245,7 +243,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
                 std::logic_error);
           } else {
             distance = -(std::numeric_limits<FCL_REAL>::max)();
-            gjk.getClosestPoints(shape, w0, w1);
+            gjk.getClosestPoints(minkowski_difference, w0, w1);
             p1 = tf1.transform(w0);
             p2 = tf1.transform(w1);
           }
@@ -254,7 +252,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
       case details::GJK::Valid:
       case details::GJK::EarlyStopped:
         col = false;
-        gjk.getClosestPoints(shape, w0, w1);
+        gjk.getClosestPoints(minkowski_difference, w0, w1);
         distance = gjk.distance;
         normal.noalias() = -tf1.getRotation() * gjk.ray;
         normal.normalize();
@@ -264,7 +262,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
       case details::GJK::Failed:
         col = false;
 
-        gjk.getClosestPoints(shape, p1, p2);
+        gjk.getClosestPoints(minkowski_difference, p1, p2);
         // TODO On degenerated case, the closest point may be wrong
         // (i.e. an object face normal is colinear to gjk.ray
         // assert (distance == (w0 - w1).norm());
@@ -293,17 +291,16 @@ struct HPP_FCL_DLLAPI GJKSolver {
 #ifndef NDEBUG
     FCL_REAL eps(sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
 #endif
-    details::MinkowskiDiff shape;
-    shape.set(&s1, &s2, tf1, tf2);
+    minkowski_difference.set(&s1, &s2, tf1, tf2);
 
     // Reset GJK algorithm
     gjk.reset();
 
     Vec3f guess;
     support_func_guess_t support_hint;
-    getGJKInitialGuess(shape, s1, s2, guess, support_hint);
+    getGJKInitialGuess(s1, s2, guess, support_hint);
 
-    gjk.evaluate(shape, guess, support_hint);
+    gjk.evaluate(minkowski_difference, guess, support_hint);
     if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
         enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
@@ -314,14 +311,14 @@ struct HPP_FCL_DLLAPI GJKSolver {
       // TODO: understand why GJK fails between cylinder and box
       assert(distance * distance < sqrt(eps));
       Vec3f w0, w1;
-      gjk.getClosestPoints(shape, w0, w1);
+      gjk.getClosestPoints(minkowski_difference, w0, w1);
       distance = 0;
       p1 = tf1.transform(w0);
       p2 = tf1.transform(w1);
       normal.setZero();
       return false;
     } else if (gjk.status == details::GJK::Valid) {
-      gjk.getClosestPoints(shape, p1, p2);
+      gjk.getClosestPoints(minkowski_difference, p1, p2);
       // TODO On degenerated case, the closest point may be wrong
       // (i.e. an object face normal is colinear to gjk.ray
       // assert (distance == (w0 - w1).norm());
@@ -339,8 +336,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
       return true;
     } else {
       assert(gjk.status == details::GJK::Inside);
-      if (gjk.hasPenetrationInformation(shape)) {
-        gjk.getClosestPoints(shape, p1, p2);
+      if (gjk.hasPenetrationInformation(minkowski_difference)) {
+        gjk.getClosestPoints(minkowski_difference, p1, p2);
         distance = gjk.distance;
         // Return contact points in case of collision
         normal.noalias() = tf1.getRotation() * (p1 - p2);
@@ -358,7 +355,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
             || epa.status == details::EPA::OutOfVertices  // Warnings
             || epa.status == details::EPA::FallBack) {
           Vec3f w0, w1;
-          epa.getClosestPoints(shape, w0, w1);
+          epa.getClosestPoints(minkowski_difference, w0, w1);
           distance = (std::min)(0., -epa.depth);
           HPP_FCL_ASSERT(distance <= epa.tolerance,
                          "Distance should be negative (or at least below EPA's "
@@ -370,7 +367,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
           return true;
         }
         distance = -(std::numeric_limits<FCL_REAL>::max)();
-        gjk.getClosestPoints(shape, p1, p2);
+        gjk.getClosestPoints(minkowski_difference, p1, p2);
         p1 = tf1.transform(p1);
         p2 = tf1.transform(p2);
       }
@@ -598,6 +595,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   /// @brief EPA algorithm
   mutable details::EPA epa;
+
+  /// @brief Minkowski difference used by GJK and EPA algorithms
+  mutable details::MinkowskiDiff minkowski_difference;
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

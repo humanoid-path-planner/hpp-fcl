@@ -466,8 +466,7 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
                      tf1.transform(s1.c)),
       t2(tf2.transform(s2.a), tf2.transform(s2.b), tf2.transform(s2.c));
 
-  details::MinkowskiDiff shape;
-  shape.set(&t1, &t2);
+  minkowski_difference.set(&t1, &t2);
 
   // Reset GJK algorithm
   gjk.reset();
@@ -477,17 +476,18 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
   guess = (t1.a + t1.b + t1.c - t2.a - t2.b - t2.c) / 3;
   support_func_guess_t support_hint;
   bool enable_penetration = true;
-  getGJKInitialGuess(shape, t1, t2, guess, support_hint);
+  getGJKInitialGuess(t1, t2, guess, support_hint);
   epa.status = details::EPA::DidNotRun;  // EPA is never called in this function
 
-  details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
+  details::GJK::Status gjk_status =
+      gjk.evaluate(minkowski_difference, guess, support_hint);
   if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
       enable_cached_guess) {
     cached_guess = gjk.getGuessFromSimplex();
     support_func_cached_guess = gjk.support_hint;
   }
 
-  gjk.getClosestPoints(shape, p1, p2);
+  gjk.getClosestPoints(minkowski_difference, p1, p2);
 
   if ((gjk_status == details::GJK::Valid) ||
       (gjk_status == details::GJK::Failed)) {
