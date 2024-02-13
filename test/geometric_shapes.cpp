@@ -418,8 +418,8 @@ void testBoxBoxContactPoints(const Matrix3f& R) {
   double distance;
 
   // Make sure the two boxes are colliding
-  solver1.gjk_tolerance = 1e-5;
-  solver1.epa_tolerance = 1e-5;
+  solver1.gjk.tolerance = 1e-5;
+  solver1.epa.tolerance = 1e-5;
   bool res =
       solver1.shapeIntersect(s1, tf1, s2, tf2, distance, true, &point, &normal);
   FCL_CHECK(res);

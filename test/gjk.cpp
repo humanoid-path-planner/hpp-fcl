@@ -76,7 +76,7 @@ void test_gjk_distance_triangle_triangle(
   std::size_t N = 10000;
   GJKSolver solver;
   if (enable_gjk_nesterov_acceleration)
-    solver.gjk_variant = GJKVariant::NesterovAcceleration;
+    solver.gjk.gjk_variant = GJKVariant::NesterovAcceleration;
   Transform3f tf1, tf2;
   Vec3f p1, p2, a1, a2;
   Matrix3f M;

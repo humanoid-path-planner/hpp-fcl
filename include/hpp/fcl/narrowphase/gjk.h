@@ -427,6 +427,18 @@ struct HPP_FCL_DLLAPI EPA {
     initialize();
   }
 
+  /// @brief Copy constructor of EPA.
+  /// Mostly needed for the copy constructor of `GJKSolver`.
+  EPA(const EPA& other)
+      : max_face_num(other.max_face_num),
+        max_vertex_num(other.max_vertex_num),
+        max_iterations(other.max_iterations),
+        tolerance(other.tolerance) {
+    initialize();
+    memcpy(sv_store, other.sv_store, max_vertex_num * sizeof(SimplexV));
+    memcpy(fc_store, other.fc_store, max_face_num * sizeof(SimplexF));
+  }
+
   ~EPA() {
     delete[] sv_store;
     delete[] fc_store;

@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE(set_cv_criterion) {
   GJK gjk(128, 1e-6);
 
   // Checking defaults
-  BOOST_CHECK(solver.gjk_convergence_criterion == GJKConvergenceCriterion::VDB);
-  BOOST_CHECK(solver.gjk_convergence_criterion_type ==
+  BOOST_CHECK(solver.gjk.convergence_criterion == GJKConvergenceCriterion::VDB);
+  BOOST_CHECK(solver.gjk.convergence_criterion_type ==
               GJKConvergenceCriterionType::Relative);
 
   BOOST_CHECK(gjk.convergence_criterion == GJKConvergenceCriterion::VDB);
@@ -73,14 +73,14 @@ BOOST_AUTO_TEST_CASE(set_cv_criterion) {
               GJKConvergenceCriterionType::Relative);
 
   // Checking set
-  solver.gjk_convergence_criterion = GJKConvergenceCriterion::DualityGap;
+  solver.gjk.convergence_criterion = GJKConvergenceCriterion::DualityGap;
   gjk.convergence_criterion = GJKConvergenceCriterion::DualityGap;
-  solver.gjk_convergence_criterion_type = GJKConvergenceCriterionType::Absolute;
+  solver.gjk.convergence_criterion_type = GJKConvergenceCriterionType::Absolute;
   gjk.convergence_criterion_type = GJKConvergenceCriterionType::Absolute;
 
-  BOOST_CHECK(solver.gjk_convergence_criterion ==
+  BOOST_CHECK(solver.gjk.convergence_criterion ==
               GJKConvergenceCriterion::DualityGap);
-  BOOST_CHECK(solver.gjk_convergence_criterion_type ==
+  BOOST_CHECK(solver.gjk.convergence_criterion_type ==
               GJKConvergenceCriterionType::Absolute);
 
   BOOST_CHECK(gjk.convergence_criterion == GJKConvergenceCriterion::DualityGap);

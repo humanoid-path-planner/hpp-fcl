@@ -67,21 +67,21 @@ BOOST_AUTO_TEST_CASE(set_gjk_variant) {
   MinkowskiDiff shape;
 
   // Checking defaults
-  BOOST_CHECK(solver.gjk_variant == GJKVariant::DefaultGJK);
+  BOOST_CHECK(solver.gjk.gjk_variant == GJKVariant::DefaultGJK);
   BOOST_CHECK(gjk.gjk_variant == GJKVariant::DefaultGJK);
   BOOST_CHECK(shape.normalize_support_direction == false);
 
   // Checking set
-  solver.gjk_variant = GJKVariant::NesterovAcceleration;
+  solver.gjk.gjk_variant = GJKVariant::NesterovAcceleration;
   gjk.gjk_variant = GJKVariant::NesterovAcceleration;
 
-  BOOST_CHECK(solver.gjk_variant == GJKVariant::NesterovAcceleration);
+  BOOST_CHECK(solver.gjk.gjk_variant == GJKVariant::NesterovAcceleration);
   BOOST_CHECK(gjk.gjk_variant == GJKVariant::NesterovAcceleration);
 
-  solver.gjk_variant = GJKVariant::PolyakAcceleration;
+  solver.gjk.gjk_variant = GJKVariant::PolyakAcceleration;
   gjk.gjk_variant = GJKVariant::PolyakAcceleration;
 
-  BOOST_CHECK(solver.gjk_variant == GJKVariant::PolyakAcceleration);
+  BOOST_CHECK(solver.gjk.gjk_variant == GJKVariant::PolyakAcceleration);
   BOOST_CHECK(gjk.gjk_variant == GJKVariant::PolyakAcceleration);
 }
 

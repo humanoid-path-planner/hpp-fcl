@@ -469,12 +469,16 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
   details::MinkowskiDiff shape;
   shape.set(&t1, &t2);
 
+  // Reset GJK algorithm
+  gjk.reset();
+
+  // Get GJK initial guess
   Vec3f guess;
   guess = (t1.a + t1.b + t1.c - t2.a - t2.b - t2.c) / 3;
   support_func_guess_t support_hint;
   bool enable_penetration = true;
-  details::GJK gjk((unsigned int)gjk_max_iterations, gjk_tolerance);
-  initialize_gjk(gjk, shape, t1, t2, guess, support_hint);
+  getGJKInitialGuess(shape, t1, t2, guess, support_hint);
+  epa.status = details::EPA::DidNotRun;  // EPA is never called in this function
 
   details::GJK::Status gjk_status = gjk.evaluate(shape, guess, support_hint);
   if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
