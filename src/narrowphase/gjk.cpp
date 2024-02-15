@@ -1588,7 +1588,8 @@ EPA::SimplexF* EPA::findBest() {
 EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   GJK::Simplex& simplex = *gjk.getSimplex();
   support_func_guess_t hint(gjk.support_hint);
-  if ((simplex.rank > 1) && gjk.encloseOrigin()) {
+  bool enclosed_origin = gjk.encloseOrigin();
+  if ((simplex.rank > 1) && enclosed_origin) {
     while (hull.root) {
       SimplexF* f = hull.root;
       hull.remove(f);
@@ -1662,6 +1663,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
         outer = *best;
       }
 
+      status = ((iterations) < max_iterations) ? status : Failed;
       normal = outer.n;
       depth = outer.d;
       result.rank = 3;
