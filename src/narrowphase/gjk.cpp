@@ -800,7 +800,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     if (!inside) rl = ray.norm();
     if (inside || rl == 0) {
       status = Inside;
-      distance = -inflation - 1.;
+      distance = -inflation;
       break;
     }
 
