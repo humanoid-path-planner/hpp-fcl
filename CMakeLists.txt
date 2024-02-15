@@ -50,7 +50,11 @@ SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
 # Need to be set before including base.cmake
 # ----------------------------------------------------
 option(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
-option(HPP_FCL_TURN_ASSERT_INTO_EXCEPTION "turn some critical HPP-FCL asserts to exception." FALSE)
+option(HPP_FCL_TURN_ASSERT_INTO_EXCEPTION "Turn some critical HPP-FCL asserts to exception." FALSE)
+option(HPP_FCL_ENABLE_LOGGING "Activate logging for warnings or error messages. Turned on by default in Debug." FALSE)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(HPP_FCL_ENABLE_LOGGING TRUE)
+endif()
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -116,8 +120,14 @@ SET_BOOST_DEFAULT_OPTIONS()
 EXPORT_BOOST_DEFAULT_OPTIONS()
 IF(WIN32)
   ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS chrono thread date_time serialization filesystem)
+  if (HPP_FCL_ENABLE_LOGGING)
+    ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS log)
+  endif()
 ELSE(WIN32)
   ADD_PROJECT_DEPENDENCY(Boost REQUIRED chrono serialization filesystem)
+  if (HPP_FCL_ENABLE_LOGGING)
+    ADD_PROJECT_DEPENDENCY(Boost REQUIRED log)
+  endif()
 ENDIF(WIN32)
 if(BUILD_PYTHON_INTERFACE)
   find_package(Boost REQUIRED COMPONENTS system)
@@ -247,6 +257,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/collision_utility.h
   include/hpp/fcl/hfield.h
   include/hpp/fcl/fwd.hh
+  include/hpp/fcl/logging.h
   include/hpp/fcl/mesh_loader/assimp.h
   include/hpp/fcl/mesh_loader/loader.h
   include/hpp/fcl/internal/BV_fitter.h
