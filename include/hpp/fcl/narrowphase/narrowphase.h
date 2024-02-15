@@ -46,6 +46,7 @@
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/narrowphase/narrowphase_defaults.h>
+#include <hpp/fcl/logging.h>
 
 namespace hpp {
 namespace fcl {
@@ -53,12 +54,78 @@ namespace fcl {
 /// @brief collision and distance solver based on GJK algorithm implemented in
 /// fcl (rewritten the code from the GJK in bullet)
 struct HPP_FCL_DLLAPI GJKSolver {
+ public:
   typedef Eigen::Array<FCL_REAL, 1, 2> Array2d;
 
+  /// @brief intersection checking between two shapes.
+  /// @return true if the shapes are colliding.
+  /// @note the variables `gjk_status` and `epa_status` can be used to
+  /// check if GJK or EPA ran successfully.
+  /// @note (12 feb, 2024): this function is never called in the
+  /// hpp-fcl library.
+  /// Either the `shapeDistance` in this file is called or a specialized
+  /// function. However, this function is still tested in the test suite,
+  /// notably in `test/collision.cpp` and `test/geometric_shapes.cpp`.
+  template <typename S1, typename S2>
+  bool shapeIntersect(const S1& s1, const Transform3f& tf1, const S2& s2,
+                      const Transform3f& tf2, FCL_REAL& distance_lower_bound,
+                      bool enable_penetration, Vec3f* contact_points,
+                      Vec3f* normal) const {
+    HPP_FCL_UNUSED_VARIABLE(enable_penetration);
+    minkowski_difference.set(&s1, &s2, tf1, tf2);
+    Vec3f p1, p2;
+    Vec3f n;
+    FCL_REAL distance;
+    bool gjk_and_epa_ran_successfully = runGJKAndEPA(tf1, distance, p1, p2, n);
+    HPP_FCL_UNUSED_VARIABLE(gjk_and_epa_ran_successfully);
+    if (normal != NULL) *normal = n;
+    if (contact_points != NULL) *contact_points = 0.5 * (p1 + p2);
+    distance_lower_bound = distance;
+    return (gjk.status == details::GJK::Inside);
+  }
+
+  //// @brief intersection checking between one shape and a triangle with
+  /// transformation
+  /// @return true if the shape are colliding.
+  /// The variables `gjk_status` and `epa_status` can be used to
+  /// check if GJK or EPA ran successfully.
+  template <typename S>
+  bool shapeTriangleInteraction(const S& s, const Transform3f& tf1,
+                                const Vec3f& P1, const Vec3f& P2,
+                                const Vec3f& P3, const Transform3f& tf2,
+                                FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+                                Vec3f& normal) const {
+    // Express everything in frame 1
+    const Transform3f tf_1M2(tf1.inverseTimes(tf2));
+    TriangleP tri(tf_1M2.transform(P1), tf_1M2.transform(P2),
+                  tf_1M2.transform(P3));
+
+    minkowski_difference.set(&s, &tri);
+    bool gjk_and_epa_ran_successfully =
+        runGJKAndEPA(tf1, distance, p1, p2, normal);
+    HPP_FCL_UNUSED_VARIABLE(gjk_and_epa_ran_successfully);
+    return (gjk.status == details::GJK::Inside);
+  }
+
+  /// @brief distance computation between two shapes.
+  /// @return true if no error occured, false otherwise.
+  /// The variables `gjk_status` and `epa_status` can be used to
+  /// understand the reason of the failure.
+  template <typename S1, typename S2>
+  bool shapeDistance(const S1& s1, const Transform3f& tf1, const S2& s2,
+                     const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1,
+                     Vec3f& p2, Vec3f& normal) const {
+    minkowski_difference.set(&s1, &s2, tf1, tf2);
+    bool gjk_and_epa_ran_successfully =
+        runGJKAndEPA(tf1, distance, p1, p2, normal);
+    return gjk_and_epa_ran_successfully;
+  }
+
+ protected:
   /// @brief initialize GJK
   template <typename S1, typename S2>
-  void getGJKInitialGuess(const S1& s1, const S2& s2, Vec3f& guess,
-                          support_func_guess_t& support_hint) const {
+  inline void getGJKInitialGuess(const S1& s1, const S2& s2, Vec3f& guess,
+                                 support_func_guess_t& support_hint) const {
     switch (gjk_initial_guess) {
       case GJKInitialGuess::DefaultGuess:
         guess = Vec3f(1, 0, 0);
@@ -93,288 +160,278 @@ struct HPP_FCL_DLLAPI GJKSolver {
     }
     HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
+  /// @brief Runs the GJK algorithm; if the shapes are in found in collision,
+  /// also runs the EPA algorithm.
+  /// This function assumes the minkowski difference has been already been set,
+  /// i.e. `minkowski_difference.set(&s1, &s2, tf1, tf2);` has been called.
+  /// @return true if no error occured, false otherwise.
+  inline bool runGJKAndEPA(const Transform3f& tf1, FCL_REAL& distance,
+                           Vec3f& p1, Vec3f& p2, Vec3f& normal) const {
+    bool gjk_and_epa_ran_successfully = true;
 
-  /// @brief intersection checking between two shapes.
-  /// @return true if the shapes are colliding.
-  /// @note the variables `gjk_status` and `epa_status` can be used to
-  /// check if GJK or EPA ran successfully.
-  /// @note (12 feb, 2024): this function is never called in the
-  /// hpp-fcl library.
-  /// Either the `shapeDistance` in this file is called or a specialized
-  /// function. However, this function is still tested in the test suite,
-  /// notably in `test/collision.cpp` and `test/geometric_shapes.cpp`.
-  template <typename S1, typename S2>
-  bool shapeIntersect(const S1& s1, const Transform3f& tf1, const S2& s2,
-                      const Transform3f& tf2, FCL_REAL& distance_lower_bound,
-                      bool enable_penetration, Vec3f* contact_points,
-                      Vec3f* normal) const {
-    minkowski_difference.set(&s1, &s2, tf1, tf2);
-
-    // Reset GJK algorithm
+    // Reset internal state of GJK algorithm
     gjk.reset();
 
+    // Get initial guess for GJK: default, cached or bounding volume guess
     Vec3f guess;
     support_func_guess_t support_hint;
-    getGJKInitialGuess(s1, s2, guess, support_hint);
+    getGJKInitialGuess(*minkowski_difference.shapes[0],
+                       *minkowski_difference.shapes[1], guess, support_hint);
 
     gjk.evaluate(minkowski_difference, guess, support_hint);
-    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
         enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
       support_func_cached_guess = gjk.support_hint;
     }
-    HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
-    Vec3f w0, w1;
     switch (gjk.status) {
-      case details::GJK::Inside:
-        if (!enable_penetration && contact_points == NULL && normal == NULL)
-          return true;
-        if (gjk.hasPenetrationInformation(minkowski_difference)) {
-          gjk.getClosestPoints(minkowski_difference, w0, w1);
-          distance_lower_bound = gjk.distance;
-          if (normal)
-            (*normal).noalias() = tf1.getRotation() * (w1 - w0).normalized();
-          if (contact_points) *contact_points = tf1.transform((w0 + w1) / 2);
-          return true;
-        } else {
-          // Reset EPA algorithm
-          epa.reset(epa_max_face_num, epa_max_vertex_num);
-
-          epa.evaluate(gjk, -guess);
-          if (epa.status & details::EPA::Valid ||
-              epa.status == details::EPA::OutOfFaces        // Warnings
-              || epa.status == details::EPA::OutOfVertices  // Warnings
-          ) {
-            epa.getClosestPoints(minkowski_difference, w0, w1);
-            distance_lower_bound = -epa.depth;
-            if (normal) (*normal).noalias() = tf1.getRotation() * epa.normal;
-            if (contact_points)
-              *contact_points =
-                  tf1.transform(w0 - epa.normal * (epa.depth * 0.5));
-            return true;
-          } else if (epa.status == details::EPA::FallBack) {
-            epa.getClosestPoints(minkowski_difference, w0, w1);
-            distance_lower_bound = -epa.depth;  // Should be zero
-            if (normal) (*normal).noalias() = tf1.getRotation() * epa.normal;
-            if (contact_points) *contact_points = tf1.transform(w0);
-            return true;
-          }
-          distance_lower_bound = -(std::numeric_limits<FCL_REAL>::max)();
-          // EPA failed but we know there is a collision so we should
-          return true;
-        }
-        break;
-      case details::GJK::Valid:
-        distance_lower_bound = gjk.distance;
-        break;
-      default:;
-    }
-
-    return false;
-  }
-
-  //// @brief intersection checking between one shape and a triangle with
-  /// transformation
-  /// @return true if the shape are colliding.
-  /// The variables `gjk_status` and `epa_status` can be used to
-  /// check if GJK or EPA ran successfully.
-  template <typename S>
-  bool shapeTriangleInteraction(const S& s, const Transform3f& tf1,
-                                const Vec3f& P1, const Vec3f& P2,
-                                const Vec3f& P3, const Transform3f& tf2,
-                                FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
-                                Vec3f& normal) const {
-    bool col = false;
-    // Express everything in frame 1
-    const Transform3f tf_1M2(tf1.inverseTimes(tf2));
-    TriangleP tri(tf_1M2.transform(P1), tf_1M2.transform(P2),
-                  tf_1M2.transform(P3));
-
-    minkowski_difference.set(&s, &tri);
-
-    // Reset GJK algorithm
-    gjk.reset();
-
-    Vec3f guess;
-    support_func_guess_t support_hint;
-    getGJKInitialGuess(s, tri, guess, support_hint);
-
-    gjk.evaluate(minkowski_difference, guess, support_hint);
-
-    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-    if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
-        enable_cached_guess) {
-      cached_guess = gjk.getGuessFromSimplex();
-      support_func_cached_guess = gjk.support_hint;
-    }
-    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-
-    Vec3f w0, w1;
-    switch (gjk.status) {
-      case details::GJK::Inside:
-        col = true;
-        if (gjk.hasPenetrationInformation(minkowski_difference)) {
-          gjk.getClosestPoints(minkowski_difference, w0, w1);
-          distance = gjk.distance;
-          normal.noalias() = tf1.getRotation() * (w0 - w1).normalized();
-          p1 = tf1.transform(w0);
-          p2 = tf1.transform(w1);
-        } else {
-          // Reset EPA algorithm
-          epa.reset(epa_max_face_num, epa_max_vertex_num);
-
-          epa.evaluate(gjk, -guess);
-          if (epa.status & details::EPA::Valid ||
-              epa.status == details::EPA::OutOfFaces        // Warnings
-              || epa.status == details::EPA::OutOfVertices  // Warnings
-          ) {
-            epa.getClosestPoints(minkowski_difference, w0, w1);
-            distance = -epa.depth;
-            normal.noalias() = tf1.getRotation() * epa.normal;
-            p1 = tf1.transform(w0);
-            p2 = tf1.transform(w1);
-            HPP_FCL_ASSERT(
-                distance <= epa.tolerance,
-                "Distance should be negative (at least below EPA tolerance).",
-                std::logic_error);
-          } else {
-            distance = -(std::numeric_limits<FCL_REAL>::max)();
-            gjk.getClosestPoints(minkowski_difference, w0, w1);
-            p1 = tf1.transform(w0);
-            p2 = tf1.transform(w1);
-          }
-        }
-        break;
-      case details::GJK::Valid:
-      case details::GJK::EarlyStopped:
-        col = false;
-        gjk.getClosestPoints(minkowski_difference, w0, w1);
-        distance = gjk.distance;
-        normal.noalias() = -tf1.getRotation() * gjk.ray;
-        normal.normalize();
-        p1 = tf1.transform(w0);
-        p2 = tf1.transform(w1);
+      case details::GJK::DidNotRun:
+        HPP_FCL_ASSERT(false, "GJK did not run. It should have!",
+                       std::logic_error);
+        distance = -(std::numeric_limits<FCL_REAL>::max)();
+        p1 = p2 = normal =
+            Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+        gjk_and_epa_ran_successfully = false;
         break;
       case details::GJK::Failed:
-        col = false;
-
-        gjk.getClosestPoints(minkowski_difference, p1, p2);
-        // TODO On degenerated case, the closest point may be wrong
-        // (i.e. an object face normal is colinear to gjk.ray
-        // assert (distance == (w0 - w1).norm());
-        distance = gjk.distance;
-
-        p1 = tf1.transform(p1);
-        p2 = tf1.transform(p2);
-        normal.setZero();
-        assert(distance > 0);
+        //
+        // GJK ran out of iterations.
+        HPP_FCL_LOG_WARNING("GJK ran out of iterations.");
+        GJKNoCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+        gjk_and_epa_ran_successfully = false;
         break;
-      default:
-        HPP_FCL_ASSERT(false, "GJKSolver: should not reach this part.",
-                       std::logic_error)
-    }
-    return col;
-  }
-
-  /// @brief distance computation between two shapes.
-  /// @return true if no error occured, false otherwise.
-  /// The variables `gjk_status` and `epa_status` can be used to
-  /// understand the reason of the failure.
-  template <typename S1, typename S2>
-  bool shapeDistance(const S1& s1, const Transform3f& tf1, const S2& s2,
-                     const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1,
-                     Vec3f& p2, Vec3f& normal) const {
-#ifndef NDEBUG
-    FCL_REAL eps(sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
-#endif
-    minkowski_difference.set(&s1, &s2, tf1, tf2);
-
-    // Reset GJK algorithm
-    gjk.reset();
-
-    Vec3f guess;
-    support_func_guess_t support_hint;
-    getGJKInitialGuess(s1, s2, guess, support_hint);
-
-    gjk.evaluate(minkowski_difference, guess, support_hint);
-    if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
-        enable_cached_guess) {
-      cached_guess = gjk.getGuessFromSimplex();
-      support_func_cached_guess = gjk.support_hint;
-    }
-
-    if (gjk.status == details::GJK::Failed) {
-      // TODO: understand why GJK fails between cylinder and box
-      assert(distance * distance < sqrt(eps));
-      Vec3f w0, w1;
-      gjk.getClosestPoints(minkowski_difference, w0, w1);
-      distance = 0;
-      p1 = tf1.transform(w0);
-      p2 = tf1.transform(w1);
-      normal.setZero();
-      return false;
-    } else if (gjk.status == details::GJK::Valid) {
-      gjk.getClosestPoints(minkowski_difference, p1, p2);
-      // TODO On degenerated case, the closest point may be wrong
-      // (i.e. an object face normal is colinear to gjk.ray
-      // assert (distance == (w0 - w1).norm());
-      distance = gjk.distance;
-
-      normal.noalias() = -tf1.getRotation() * gjk.ray;
-      normal.normalize();
-      p1 = tf1.transform(p1);
-      p2 = tf1.transform(p2);
-      return true;
-    } else if (gjk.status == details::GJK::EarlyStopped) {
-      distance = gjk.distance;
-      p1 = p2 = normal =
-          Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
-      return true;
-    } else {
-      assert(gjk.status == details::GJK::Inside);
-      if (gjk.hasPenetrationInformation(minkowski_difference)) {
-        gjk.getClosestPoints(minkowski_difference, p1, p2);
-        distance = gjk.distance;
-        // Return contact points in case of collision
-        normal.noalias() = tf1.getRotation() * (p1 - p2);
-        normal.normalize();
-        p1 = tf1.transform(p1);
-        p2 = tf1.transform(p2);
-        return true;
-      } else {
-        // Reset EPA algorithm
-        epa.reset(epa_max_face_num, epa_max_vertex_num);
-
-        epa.evaluate(gjk, -guess);
-        if (epa.status & details::EPA::Valid ||
-            epa.status == details::EPA::OutOfFaces        // Warnings
-            || epa.status == details::EPA::OutOfVertices  // Warnings
-            || epa.status == details::EPA::FallBack) {
-          Vec3f w0, w1;
-          epa.getClosestPoints(minkowski_difference, w0, w1);
-          distance = (std::min)(0., -epa.depth);
-          HPP_FCL_ASSERT(distance <= epa.tolerance,
-                         "Distance should be negative (or at least below EPA's "
-                         "tolerance).",
+      case details::GJK::EarlyStopped:
+        //
+        // Case where GJK early stopped because the distance was found to be
+        // above the `distance_upper_bound`.
+        // The two witness points have no meaning.
+        GJKEarlyStopExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                  normal);
+        HPP_FCL_ASSERT(
+            distance >= gjk.distance_upper_bound,
+            "The distance should be bigger than GJK's `distance_upper_bound`.",
+            std::logic_error);
+        break;
+      case details::GJK::Valid:
+        //
+        // Case where GJK converged and proved that the shapes are not in
+        // collision, i.e their distance is above GJK's tolerance (default
+        // 1e-6).
+        GJKNoCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+        HPP_FCL_ASSERT(std::abs((p1 - p2).norm() - distance) < gjk.tolerance,
+                       "The distance found by GJK should coincide with the "
+                       "distance between the closest points.",
+                       std::logic_error);
+        break;
+      case details::GJK::Inside:
+        //
+        // Case where GJK found the shapes to be in collision, i.e. their
+        // distance is below GJK's tolerance (default 1e-6).
+        if (gjk.hasPenetrationInformation(minkowski_difference)) {
+          //
+          // Case where the shapes are inflated (sphere or capsule).
+          // When the shapes are inflated, the GJK algorithm can provide the
+          // witness points and the normal.
+          GJKCollisionWithInflationExtractWitnessPointsAndNormal(
+              tf1, distance, p1, p2, normal);
+          HPP_FCL_ASSERT(distance < gjk.tolerance,
+                         "The distance found by GJK should be negative (or at )"
+                         "least below GJK's tolerance.",
                          std::logic_error);
-          normal.noalias() = tf1.getRotation() * epa.normal;
-          p1 = tf1.transform(w0);
-          p2 = tf1.transform(w1);
-          return true;
+          // + because the distance is negative.
+          HPP_FCL_ASSERT(std::abs((p1 - p2).norm() + distance) < gjk.tolerance,
+                         "The distance found by GJK should coincide with the "
+                         "distance between the closest points.",
+                         std::logic_error);
+        } else {
+          //
+          // Case where the shapes are not inflated (box, cylinder, cone, convex
+          // meshes etc.). We need to run the EPA algorithm to find the witness
+          // points, penetration depth and the normal.
+
+          // Reset EPA algorithm. Potentially allocate memory if
+          // `epa_max_face_num` or `epa_max_vertex_num` are bigger than EPA's
+          // current storage.
+          epa.reset(epa_max_face_num, epa_max_vertex_num);
+
+          // TODO: understand why EPA's performance is so bad on cylinders and
+          // cones.
+          epa.evaluate(gjk, -guess);
+
+          switch (epa.status) {
+            //
+            // In the following switch cases, until the "Valid" case,
+            // EPA either ran out of iterations, of faces or of vertices.
+            // The depth, witness points and the normal are still valid,
+            // simply not at the precision of EPA's tolerance.
+            // The flag `HPP_FCL_ENABLE_LOGGING` enables feebdack on these
+            // cases.
+            //
+            // TODO: Remove OutOfFaces and OutOfVertices statuses and simply
+            // compute the upper bound on max faces and max vertices as a
+            // function of the number of iterations.
+            case details::EPA::OutOfFaces:
+              HPP_FCL_LOG_WARNING("EPA ran out of faces.");
+              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+            case details::EPA::OutOfVertices:
+              HPP_FCL_LOG_WARNING("EPA ran out of vertices.");
+              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+            case details::EPA::Failed:
+              HPP_FCL_LOG_WARNING("EPA ran out of iterations.");
+              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+            case details::EPA::Valid:
+            case details::EPA::AccuracyReached:
+              HPP_FCL_ASSERT(
+                  -epa.depth <= epa.tolerance,
+                  "EPA's penetration distance should be negative (or "
+                  "at least below EPA's "
+                  "tolerance).",
+                  std::logic_error);
+              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+              break;
+              //
+              // In the following cases, EPA failed to run, in a bad way.
+              // The produced witness points, penetration depth and normal
+              // may make no sense.
+            case details::EPA::DidNotRun:
+              HPP_FCL_ASSERT(false, "EPA did not run. It should have!",
+                             std::logic_error);
+              HPP_FCL_LOG_ERROR("EPA error: did not run. It should have.");
+              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                     normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+            case details::EPA::Degenerated:
+              HPP_FCL_ASSERT(false,
+                             "EPA created a polytope with a degenerated face.",
+                             std::logic_error);
+              HPP_FCL_LOG_ERROR(
+                  "EPA error: created a polytope with a degenerated face.");
+              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                     normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+            case details::EPA::NonConvex:
+              HPP_FCL_ASSERT(false, "EPA got called onto non-convex shapes.",
+                             std::logic_error);
+              HPP_FCL_LOG_ERROR(
+                  "EPA error: EPA got called onto non-convex shapes.");
+              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                     normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+            case details::EPA::InvalidHull:
+              HPP_FCL_ASSERT(false, "EPA created an invalid polytope.",
+                             std::logic_error);
+              HPP_FCL_LOG_ERROR("EPA error: created an invalid polytope.");
+              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                     normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+            case details::EPA::FallBack:
+              HPP_FCL_ASSERT(
+                  false,
+                  "EPA went into fallback mode. It should never do that.",
+                  std::logic_error);
+              HPP_FCL_LOG_ERROR("EPA error: FallBack.");
+              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                     normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+          }
         }
-        distance = -(std::numeric_limits<FCL_REAL>::max)();
-        gjk.getClosestPoints(minkowski_difference, p1, p2);
-        p1 = tf1.transform(p1);
-        p2 = tf1.transform(p2);
-      }
-      return false;
+        break;  // End of case details::GJK::Inside
     }
+    return gjk_and_epa_ran_successfully;
   }
 
+  inline void GJKEarlyStopExtractWitnessPointsAndNormal(const Transform3f& tf1,
+                                                        FCL_REAL& distance,
+                                                        Vec3f& p1, Vec3f& p2,
+                                                        Vec3f& normal) const {
+    HPP_FCL_UNUSED_VARIABLE(tf1);
+    distance = gjk.distance;
+    p1 = p2 = normal =
+        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+    // If we absolutely want to return some witness points, we could use
+    // the following code (or simply merge the early stopped case with the
+    // valid case below):
+    // gjk.getClosestPoints(minkowski_difference, p1, p2);
+    // p1 = tf1.transform(p1);
+    // p2 = tf1.transform(p2);
+    // normal.noalias() = -tf1.getRotation() * gjk.ray;
+    // normal.normalize();
+  }
+
+  inline void GJKNoCollisionExtractWitnessPointsAndNormal(
+      const Transform3f& tf1, FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+      Vec3f& normal) const {
+    // Apart from early stopping, there are two cases where GJK says there is no
+    // collision:
+    // 1. GJK proved the distance is above its tolerance (default 1e-6).
+    // 2. GJK ran out of iterations.
+    // In any case, `gjk.ray`'s norm is bigger than GJK's tolerance and thus
+    // it can safely be normalized.
+    distance = gjk.distance;
+    HPP_FCL_ASSERT(
+        gjk.ray.norm() > gjk.tolerance,
+        "The norm of GJK's ray should be bigger than GJK's tolerance.",
+        std::logic_error);
+    normal.noalias() = -tf1.getRotation() * gjk.ray;
+    normal.normalize();
+    // TODO: On degenerated case, the closest points may be non-unique.
+    // (i.e. an object face normal is colinear to `gjk.ray`)
+    gjk.getClosestPoints(minkowski_difference, p1, p2);
+    p1 = tf1.transform(p1);
+    p2 = tf1.transform(p2);
+  }
+
+  inline void GJKCollisionWithInflationExtractWitnessPointsAndNormal(
+      const Transform3f& tf1, FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+      Vec3f& normal) const {
+    distance = gjk.distance;
+    gjk.getClosestPoints(minkowski_difference, p1, p2);
+    normal.noalias() = tf1.getRotation() * (p1 - p2);
+    normal.normalize();
+    p1 = tf1.transform(p1);
+    p2 = tf1.transform(p2);
+  }
+
+  inline void EPAValidExtractWitnessPointsAndNormal(const Transform3f& tf1,
+                                                    FCL_REAL& distance,
+                                                    Vec3f& p1, Vec3f& p2,
+                                                    Vec3f& normal) const {
+    distance = (std::min)(0., -epa.depth);
+    epa.getClosestPoints(minkowski_difference, p1, p2);
+    normal.noalias() = tf1.getRotation() * epa.normal;
+    p1 = tf1.transform(p1);
+    p2 = tf1.transform(p2);
+  }
+
+  inline void EPAFailedExtractWitnessPointsAndNormal(const Transform3f& tf1,
+                                                     FCL_REAL& distance,
+                                                     Vec3f& p1, Vec3f& p2,
+                                                     Vec3f& normal) const {
+    HPP_FCL_UNUSED_VARIABLE(tf1);
+    distance = -(std::numeric_limits<FCL_REAL>::max)();
+    p1 = p2 = normal =
+        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+  }
+
+ public:
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// @brief Default constructor for GJK algorithm
