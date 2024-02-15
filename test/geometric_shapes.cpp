@@ -3164,15 +3164,47 @@ BOOST_AUTO_TEST_CASE(shapeDistance_cylindercylinder) {
   bool res;
   FCL_REAL dist;
 
-  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                              closest_p1, closest_p2, normal);
-  BOOST_CHECK(dist <= 0);
-  BOOST_CHECK(res);
+  {
+    // The following situations corresponds to the case where the two cylinders
+    // are exactly superposed. This is the worst case for EPA which will take
+    // forever to converge with default parameters.
+    res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
+                                closest_p1, closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(!res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
-                              closest_p2, normal);
-  BOOST_CHECK(dist <= 0);
-  BOOST_CHECK(res);
+    res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
+                                closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(!res);
+
+    // To handle the superposing case, we have to decrease the tolerance of EPA
+    // and allow it to work with more vertices and faces.
+    size_t epa_max_face_num_backup = solver1.epa_max_face_num;
+    size_t epa_max_vertices_num_backup = solver1.epa_max_vertex_num;
+    FCL_REAL epa_tolerance_backup = solver1.epa.tolerance;
+    size_t epa_max_iterations_backup = solver1.epa.max_iterations;
+    solver1.epa_max_face_num = 1000;
+    solver1.epa_max_vertex_num = 1000;
+    solver1.epa.tolerance = 1e-2;
+    solver1.epa.max_iterations = 1000;
+
+    res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
+                                closest_p1, closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(res);
+
+    res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
+                                closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(res);
+
+    // We restore the original values of the EPA parameters
+    solver1.epa_max_face_num = epa_max_face_num_backup;
+    solver1.epa_max_vertex_num = epa_max_vertices_num_backup;
+    solver1.epa.tolerance = epa_tolerance_backup;
+    solver1.epa.max_iterations = epa_max_iterations_backup;
+  }
 
   res = solver1.shapeDistance(s1, Transform3f(), s2,
                               Transform3f(Vec3f(10.1, 0, 0)), dist, closest_p1,
@@ -3210,15 +3242,47 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecone) {
   bool res;
   FCL_REAL dist;
 
-  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                              closest_p1, closest_p2, normal);
-  BOOST_CHECK(dist <= 0);
-  BOOST_CHECK(res);
+  {
+    // The following situations corresponds to the case where the two cones
+    // are exactly superposed. This is the worst case for EPA which will take
+    // forever to converge with default parameters.
+    res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
+                                closest_p1, closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(!res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
-                              closest_p2, normal);
-  BOOST_CHECK(dist <= 0);
-  BOOST_CHECK(res);
+    res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
+                                closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(!res);
+
+    // To handle the superposing case, we have to decrease the tolerance of EPA
+    // and allow it to work with more vertices and faces.
+    size_t epa_max_face_num_backup = solver1.epa_max_face_num;
+    size_t epa_max_vertices_num_backup = solver1.epa_max_vertex_num;
+    FCL_REAL epa_tolerance_backup = solver1.epa.tolerance;
+    size_t epa_max_iterations_backup = solver1.epa.max_iterations;
+    solver1.epa_max_face_num = 1000;
+    solver1.epa_max_vertex_num = 1000;
+    solver1.epa.tolerance = 1e-2;
+    solver1.epa.max_iterations = 1000;
+
+    res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
+                                closest_p1, closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(res);
+
+    res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
+                                closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(res);
+
+    // We restore the original values of the EPA parameters
+    solver1.epa_max_face_num = epa_max_face_num_backup;
+    solver1.epa_max_vertex_num = epa_max_vertices_num_backup;
+    solver1.epa.tolerance = epa_tolerance_backup;
+    solver1.epa.max_iterations = epa_max_iterations_backup;
+  }
 
   res = solver1.shapeDistance(s1, Transform3f(), s2,
                               Transform3f(Vec3f(10.1, 0, 0)), dist, closest_p1,
@@ -3256,15 +3320,47 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecylinder) {
   bool res;
   FCL_REAL dist;
 
-  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                              closest_p1, closest_p2, normal);
-  BOOST_CHECK(dist <= 0);
-  BOOST_CHECK(res);
+  {
+    // The following situations corresponds to the case where the two cones
+    // are exactly superposed. This is the worst case for EPA which will take
+    // forever to converge with default parameters.
+    res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
+                                closest_p1, closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(!res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
-                              closest_p2, normal);
-  BOOST_CHECK(dist <= 0);
-  BOOST_CHECK(res);
+    res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
+                                closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(!res);
+
+    // To handle the superposing case, we have to decrease the tolerance of EPA
+    // and allow it to work with more vertices and faces.
+    size_t epa_max_face_num_backup = solver1.epa_max_face_num;
+    size_t epa_max_vertices_num_backup = solver1.epa_max_vertex_num;
+    FCL_REAL epa_tolerance_backup = solver1.epa.tolerance;
+    size_t epa_max_iterations_backup = solver1.epa.max_iterations;
+    solver1.epa_max_face_num = 1000;
+    solver1.epa_max_vertex_num = 1000;
+    solver1.epa.tolerance = 1e-2;
+    solver1.epa.max_iterations = 1000;
+
+    res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
+                                closest_p1, closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(res);
+
+    res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
+                                closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(res);
+
+    // We restore the original values of the EPA parameters
+    solver1.epa_max_face_num = epa_max_face_num_backup;
+    solver1.epa_max_vertex_num = epa_max_vertices_num_backup;
+    solver1.epa.tolerance = epa_tolerance_backup;
+    solver1.epa.max_iterations = epa_max_iterations_backup;
+  }
 
   res = solver1.shapeDistance(s1, Transform3f(), s2,
                               Transform3f(Vec3f(10.1, 0, 0)), dist, closest_p1,
@@ -4088,16 +4184,47 @@ BOOST_AUTO_TEST_CASE(cylindercylinder) {
   bool res;
   FCL_REAL dist;
 
-  res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                              closest_p1, closest_p2, normal);
-  BOOST_CHECK(dist <= 0);
-  BOOST_CHECK(res);
+  {
+    // The following situations corresponds to the case where the two cylinders
+    // are exactly superposed. This is the worst case for EPA which will take
+    // forever to converge with default parameters.
+    res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
+                                closest_p1, closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(!res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
-                              closest_p2, normal);
-  BOOST_CHECK(dist <= 0);
-  BOOST_CHECK(res);
+    res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
+                                closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(!res);
 
+    // To handle the superposing case, we have to decrease the tolerance of EPA
+    // and allow it to work with more vertices and faces.
+    size_t epa_max_face_num_backup = solver1.epa_max_face_num;
+    size_t epa_max_vertices_num_backup = solver1.epa_max_vertex_num;
+    FCL_REAL epa_tolerance_backup = solver1.epa.tolerance;
+    size_t epa_max_iterations_backup = solver1.epa.max_iterations;
+    solver1.epa_max_face_num = 1000;
+    solver1.epa_max_vertex_num = 1000;
+    solver1.epa.tolerance = 1e-2;
+    solver1.epa.max_iterations = 1000;
+
+    res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
+                                closest_p1, closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(res);
+
+    res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
+                                closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(res);
+
+    // We restore the original values of the EPA parameters
+    solver1.epa_max_face_num = epa_max_face_num_backup;
+    solver1.epa_max_vertex_num = epa_max_vertices_num_backup;
+    solver1.epa.tolerance = epa_tolerance_backup;
+    solver1.epa.max_iterations = epa_max_iterations_backup;
+  }
   res = solver2.shapeDistance(s1, Transform3f(), s2,
                               Transform3f(Vec3f(10.1, 0, 0)), dist, closest_p1,
                               closest_p2, normal);
@@ -4134,15 +4261,47 @@ BOOST_AUTO_TEST_CASE(conecone) {
   bool res;
   FCL_REAL dist;
 
-  res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                              closest_p1, closest_p2, normal);
-  BOOST_CHECK(dist <= 0);
-  BOOST_CHECK(res);
+  {
+    // The following situations corresponds to the case where the two cylinders
+    // are exactly superposed. This is the worst case for EPA which will take
+    // forever to converge with default parameters.
+    res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
+                                closest_p1, closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(!res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
-                              closest_p2, normal);
-  BOOST_CHECK(dist <= 0);
-  BOOST_CHECK(res);
+    res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
+                                closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(!res);
+
+    // To handle the superposing case, we have to decrease the tolerance of EPA
+    // and allow it to work with more vertices and faces.
+    size_t epa_max_face_num_backup = solver1.epa_max_face_num;
+    size_t epa_max_vertices_num_backup = solver1.epa_max_vertex_num;
+    FCL_REAL epa_tolerance_backup = solver1.epa.tolerance;
+    size_t epa_max_iterations_backup = solver1.epa.max_iterations;
+    solver1.epa_max_face_num = 1000;
+    solver1.epa_max_vertex_num = 1000;
+    solver1.epa.tolerance = 1e-2;
+    solver1.epa.max_iterations = 1000;
+
+    res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
+                                closest_p1, closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(res);
+
+    res = solver1.shapeDistance(s1, transform, s2, transform, dist, closest_p1,
+                                closest_p2, normal);
+    BOOST_CHECK(dist <= 0);
+    BOOST_CHECK(res);
+
+    // We restore the original values of the EPA parameters
+    solver1.epa_max_face_num = epa_max_face_num_backup;
+    solver1.epa_max_vertex_num = epa_max_vertices_num_backup;
+    solver1.epa.tolerance = epa_tolerance_backup;
+    solver1.epa.max_iterations = epa_max_iterations_backup;
+  }
 
   res = solver2.shapeDistance(s1, Transform3f(), s2,
                               Transform3f(Vec3f(10.1, 0, 0)), dist, closest_p1,
