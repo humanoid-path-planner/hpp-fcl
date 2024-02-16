@@ -322,6 +322,8 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   bool enable_contact;
 
   /// Whether a lower bound on distance is returned when objects are disjoint
+  /// TODO(louis): remove/deprecate enable_distance_lower bound.
+  /// It's not used in the code base anymore.
   bool enable_distance_lower_bound;
 
   /// @brief Distance below which objects are considered in collision.
