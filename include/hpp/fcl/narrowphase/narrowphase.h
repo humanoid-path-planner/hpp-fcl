@@ -73,9 +73,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
                       Vec3f* normal) const {
     HPP_FCL_UNUSED_VARIABLE(enable_penetration);
     minkowski_difference.set(&s1, &s2, tf1, tf2);
-    Vec3f p1, p2;
-    Vec3f n;
-    FCL_REAL distance;
+    Vec3f p1(Vec3f::Zero()), p2(Vec3f::Zero());
+    Vec3f n(Vec3f::Zero());
+    FCL_REAL distance((std::numeric_limits<FCL_REAL>::max)());
     bool gjk_and_epa_ran_successfully = runGJKAndEPA(tf1, distance, p1, p2, n);
     HPP_FCL_UNUSED_VARIABLE(gjk_and_epa_ran_successfully);
     if (normal != NULL) *normal = n;
