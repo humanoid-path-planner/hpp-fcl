@@ -179,11 +179,14 @@ struct HPP_FCL_DLLAPI GJKSolver {
                        *minkowski_difference.shapes[1], guess, support_hint);
 
     gjk.evaluate(minkowski_difference, guess, support_hint);
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
         enable_cached_guess) {
       cached_guess = gjk.getGuessFromSimplex();
       support_func_cached_guess = gjk.support_hint;
     }
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
     switch (gjk.status) {
       case details::GJK::DidNotRun:
