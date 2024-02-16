@@ -493,7 +493,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     gjk.tolerance = request.gjk_tolerance;
     gjk.max_iterations = request.gjk_max_iterations;
     // For distance computation, we don't want GJK to early stop
-    gjk.setDistanceEarlyBreak(std::numeric_limits<FCL_REAL>::max());
+    gjk.setDistanceEarlyBreak((std::numeric_limits<FCL_REAL>::max)());
     gjk.gjk_variant = request.gjk_variant;
     gjk.convergence_criterion = request.gjk_convergence_criterion;
     gjk.convergence_criterion_type = request.gjk_convergence_criterion_type;
