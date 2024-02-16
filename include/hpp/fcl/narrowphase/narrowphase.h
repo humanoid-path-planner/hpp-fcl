@@ -124,8 +124,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
  protected:
   /// @brief initialize GJK
   template <typename S1, typename S2>
-  inline void getGJKInitialGuess(const S1& s1, const S2& s2, Vec3f& guess,
-                                 support_func_guess_t& support_hint) const {
+  void getGJKInitialGuess(const S1& s1, const S2& s2, Vec3f& guess,
+                          support_func_guess_t& support_hint) const {
     switch (gjk_initial_guess) {
       case GJKInitialGuess::DefaultGuess:
         guess = Vec3f(1, 0, 0);
@@ -165,8 +165,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// This function assumes the minkowski difference has been already been set,
   /// i.e. `minkowski_difference.set(&s1, &s2, tf1, tf2);` has been called.
   /// @return true if no error occured, false otherwise.
-  inline bool runGJKAndEPA(const Transform3f& tf1, FCL_REAL& distance,
-                           Vec3f& p1, Vec3f& p2, Vec3f& normal) const {
+  bool runGJKAndEPA(const Transform3f& tf1, FCL_REAL& distance, Vec3f& p1,
+                    Vec3f& p2, Vec3f& normal) const {
     bool gjk_and_epa_ran_successfully = true;
 
     // Reset internal state of GJK algorithm
@@ -358,10 +358,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
     return gjk_and_epa_ran_successfully;
   }
 
-  inline void GJKEarlyStopExtractWitnessPointsAndNormal(const Transform3f& tf1,
-                                                        FCL_REAL& distance,
-                                                        Vec3f& p1, Vec3f& p2,
-                                                        Vec3f& normal) const {
+  void GJKEarlyStopExtractWitnessPointsAndNormal(const Transform3f& tf1,
+                                                 FCL_REAL& distance, Vec3f& p1,
+                                                 Vec3f& p2,
+                                                 Vec3f& normal) const {
     HPP_FCL_UNUSED_VARIABLE(tf1);
     distance = gjk.distance;
     p1 = p2 = normal =
@@ -376,9 +376,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // normal.normalize();
   }
 
-  inline void GJKNoCollisionExtractWitnessPointsAndNormal(
-      const Transform3f& tf1, FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
-      Vec3f& normal) const {
+  void GJKNoCollisionExtractWitnessPointsAndNormal(const Transform3f& tf1,
+                                                   FCL_REAL& distance,
+                                                   Vec3f& p1, Vec3f& p2,
+                                                   Vec3f& normal) const {
     // Apart from early stopping, there are two cases where GJK says there is no
     // collision:
     // 1. GJK proved the distance is above its tolerance (default 1e-6).
@@ -399,7 +400,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     p2 = tf1.transform(p2);
   }
 
-  inline void GJKCollisionWithInflationExtractWitnessPointsAndNormal(
+  void GJKCollisionWithInflationExtractWitnessPointsAndNormal(
       const Transform3f& tf1, FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
       Vec3f& normal) const {
     distance = gjk.distance;
@@ -410,10 +411,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
     p2 = tf1.transform(p2);
   }
 
-  inline void EPAValidExtractWitnessPointsAndNormal(const Transform3f& tf1,
-                                                    FCL_REAL& distance,
-                                                    Vec3f& p1, Vec3f& p2,
-                                                    Vec3f& normal) const {
+  void EPAValidExtractWitnessPointsAndNormal(const Transform3f& tf1,
+                                             FCL_REAL& distance, Vec3f& p1,
+                                             Vec3f& p2, Vec3f& normal) const {
     distance = (std::min)(0., -epa.depth);
     epa.getClosestPoints(minkowski_difference, p1, p2);
     normal.noalias() = tf1.getRotation() * epa.normal;
@@ -421,10 +421,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
     p2 = tf1.transform(p2);
   }
 
-  inline void EPAFailedExtractWitnessPointsAndNormal(const Transform3f& tf1,
-                                                     FCL_REAL& distance,
-                                                     Vec3f& p1, Vec3f& p2,
-                                                     Vec3f& normal) const {
+  void EPAFailedExtractWitnessPointsAndNormal(const Transform3f& tf1,
+                                              FCL_REAL& distance, Vec3f& p1,
+                                              Vec3f& p2, Vec3f& normal) const {
     HPP_FCL_UNUSED_VARIABLE(tf1);
     distance = -(std::numeric_limits<FCL_REAL>::max)();
     p1 = p2 = normal =

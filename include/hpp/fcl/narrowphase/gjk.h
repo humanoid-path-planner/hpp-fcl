@@ -165,7 +165,7 @@ struct HPP_FCL_DLLAPI GJK {
 
     Simplex() {}
 
-    inline void reset() {
+    void reset() {
       rank = 0;
       for (size_t i = 0; i < 4; ++i) vertex[i] = nullptr;
     }
