@@ -535,7 +535,7 @@ void GJK::initialize() {
 void GJK::reset() {
   status = DidNotRun;
   nfree = 0;
-  simplex = NULL;
+  simplex = nullptr;
   iterations = 0;
   iterations_momentum_stop = 0;
 }
