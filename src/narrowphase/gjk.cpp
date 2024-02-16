@@ -1467,31 +1467,13 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   return false;
 }
 
-void EPA::initialize() {
-  if (max_vertex_num > 0) {
-    sv_store = new SimplexV[max_vertex_num];
-  } else {
-    sv_store = nullptr;
-  }
-  if (max_face_num > 0) {
-    fc_store = new SimplexF[max_face_num];
-  } else {
-    fc_store = nullptr;
-  }
-  reset(max_vertex_num, max_face_num);
-}
+void EPA::initialize() { reset(max_vertex_num, max_face_num); }
 
 void EPA::reset(size_t max_vertex_num_, size_t max_face_num_) {
-  if (max_vertex_num_ > max_vertex_num) {
-    if (sv_store != nullptr) delete[] sv_store;
-    sv_store = new SimplexV[max_vertex_num_];
-    max_vertex_num = max_vertex_num_;
-  }
-  if (max_face_num_ > max_face_num) {
-    if (fc_store != nullptr) delete[] fc_store;
-    fc_store = new SimplexF[max_face_num_];
-    max_face_num = max_face_num_;
-  }
+  sv_store.resize(max_vertex_num_);
+  max_vertex_num = max_vertex_num_;
+  fc_store.resize(max_face_num_);
+  max_face_num = max_face_num_;
   status = DidNotRun;
   normal = Vec3f(0, 0, 0);
   depth = 0;

@@ -412,8 +412,8 @@ struct HPP_FCL_DLLAPI EPA {
   FCL_REAL depth;
 
  private:
-  SimplexV* sv_store;
-  SimplexF* fc_store;
+  std::vector<SimplexV> sv_store;
+  std::vector<SimplexF> fc_store;
   size_t nextsv;
   SimplexList hull, stock;
 
@@ -433,15 +433,10 @@ struct HPP_FCL_DLLAPI EPA {
       : max_face_num(other.max_face_num),
         max_vertex_num(other.max_vertex_num),
         max_iterations(other.max_iterations),
-        tolerance(other.tolerance) {
+        tolerance(other.tolerance),
+        sv_store(other.sv_store),
+        fc_store(other.fc_store) {
     initialize();
-    memcpy(sv_store, other.sv_store, max_vertex_num * sizeof(SimplexV));
-    memcpy(fc_store, other.fc_store, max_face_num * sizeof(SimplexF));
-  }
-
-  ~EPA() {
-    delete[] sv_store;
-    delete[] fc_store;
   }
 
   /// @brief resets the EPA algorithm, preparing it for a new run.
