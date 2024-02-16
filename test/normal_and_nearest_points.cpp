@@ -67,6 +67,11 @@ using hpp::fcl::Transform3f;
 using hpp::fcl::Triangle;
 using hpp::fcl::Vec3f;
 
+// This test suite is designed to operate on any pair of primitive shapes:
+// spheres, capsules, boxes, ellipsoids, cones, cylinders, planes, halfspaces,
+// convex meshes. Do not use this file for BVH, octree etc. It would not make
+// sense.
+
 // This test is designed to check if the normal and the nearest points
 // are properly handled as defined in DistanceResult::normal.
 // Regardless of wether or not the two shapes are in intersection, regardless of
@@ -81,8 +86,10 @@ using hpp::fcl::Vec3f;
 // --> finally, if abs(dist) > 0, we should have normal = sign(dist) * (p2 -
 // p1).normalized() and p1 = p2 - dist * normal
 template <typename ShapeType1, typename ShapeType2>
-void test_normal_and_nearest_points(const ShapeType1& o1,
-                                    const ShapeType2& o2) {
+void test_normal_and_nearest_points(
+    const ShapeType1& o1, const ShapeType2& o2,
+    FCL_REAL gjk_tolerance = hpp::fcl::GJK_DEFAULT_TOLERANCE,
+    FCL_REAL epa_tolerance = hpp::fcl::EPA_DEFAULT_TOLERANCE) {
   // Generate random poses for o2
 #ifndef NDEBUG  // if debug mode
   std::size_t n = 1;
@@ -96,8 +103,18 @@ void test_normal_and_nearest_points(const ShapeType1& o1,
 
   CollisionRequest colreq;
   colreq.distance_upper_bound = std::numeric_limits<FCL_REAL>::max();
+  // For strictly convex shapes, the default tolerance of EPA is way too low.
+  // Because EPA is basically trying to fit a polytope to a strictly convex
+  // surface, it might take it a lot of iterations to converge to a low
+  // tolerance. A solution is to increase the number of iterations and the
+  // tolerance (and/or increase the number of faces and vertices EPA is allowed
+  // to work with).
+  colreq.gjk_tolerance = gjk_tolerance;
+  colreq.epa_tolerance = epa_tolerance;
   CollisionResult colres;
   DistanceRequest distreq;
+  distreq.gjk_tolerance = gjk_tolerance;
+  distreq.epa_tolerance = epa_tolerance;
   DistanceResult distres;
 
   for (size_t i = 0; i < n; i++) {
@@ -111,25 +128,29 @@ void test_normal_and_nearest_points(const ShapeType1& o1,
     size_t col = collide(&o1, tf1, &o2, tf2, colreq, colres);
     FCL_REAL dist = distance(&o1, tf1, &o2, tf2, distreq, distres);
 
+    const FCL_REAL dummy_precision(100 *
+                                   std::numeric_limits<FCL_REAL>::epsilon());
     if (col) {
       BOOST_CHECK(dist <= 0.);
-      BOOST_CHECK_CLOSE(dist, distres.min_distance, 1e-6);
+      BOOST_CHECK_CLOSE(dist, distres.min_distance, dummy_precision);
       Contact contact = colres.getContact(0);
-      BOOST_CHECK_CLOSE(dist, contact.penetration_depth, 1e-6);
+      BOOST_CHECK_CLOSE(dist, contact.penetration_depth, dummy_precision);
 
       Vec3f cp1 = contact.nearest_points[0];
-      EIGEN_VECTOR_IS_APPROX(cp1, distres.nearest_points[0], 1e-6);
+      EIGEN_VECTOR_IS_APPROX(cp1, distres.nearest_points[0], dummy_precision);
 
       Vec3f cp2 = contact.nearest_points[1];
-      EIGEN_VECTOR_IS_APPROX(cp2, distres.nearest_points[1], 1e-6);
-      BOOST_CHECK_CLOSE(contact.penetration_depth, -(cp2 - cp1).norm(), 1e-6);
-      EIGEN_VECTOR_IS_APPROX(cp1, cp2 - dist * distres.normal, 1e-6);
+      EIGEN_VECTOR_IS_APPROX(cp2, distres.nearest_points[1], dummy_precision);
+      BOOST_CHECK_CLOSE(contact.penetration_depth, -(cp2 - cp1).norm(),
+                        epa_tolerance);
+      EIGEN_VECTOR_IS_APPROX(cp1, cp2 - dist * distres.normal, epa_tolerance);
 
       Vec3f separation_vector = contact.penetration_depth * contact.normal;
-      EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, 1e-6);
+      EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, epa_tolerance);
 
       if (dist < 0) {
-        EIGEN_VECTOR_IS_APPROX(contact.normal, -(cp2 - cp1).normalized(), 1e-6);
+        EIGEN_VECTOR_IS_APPROX(contact.normal, -(cp2 - cp1).normalized(),
+                               epa_tolerance);
       }
 
       // Separate the shapes
@@ -142,34 +163,36 @@ void test_normal_and_nearest_points(const ShapeType1& o1,
       dist = distance(&o1, tf1, &o2, tf2, distreq, distres);
       BOOST_CHECK(dist > 0);
       BOOST_CHECK(!col);
-      BOOST_CHECK_CLOSE(colres.distance_lower_bound, dist, 1e-6);
+      BOOST_CHECK_CLOSE(colres.distance_lower_bound, dist, epa_tolerance);
       BOOST_CHECK(fabs(colres.distance_lower_bound - eps) <= 1e-2);
       cp1 = distres.nearest_points[0];
       cp2 = distres.nearest_points[1];
-      BOOST_CHECK_CLOSE(dist, (cp1 - cp2).norm(), 1e-6);
-      EIGEN_VECTOR_IS_APPROX(cp1, cp2 - dist * distres.normal, 1e-6);
+      BOOST_CHECK_CLOSE(dist, (cp1 - cp2).norm(), epa_tolerance);
+      EIGEN_VECTOR_IS_APPROX(cp1, cp2 - dist * distres.normal, epa_tolerance);
 
       separation_vector = dist * distres.normal;
-      EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, 1e-6);
+      EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, epa_tolerance);
 
       if (dist > 0) {
-        EIGEN_VECTOR_IS_APPROX(distres.normal, (cp2 - cp1).normalized(), 1e-6);
+        EIGEN_VECTOR_IS_APPROX(distres.normal, (cp2 - cp1).normalized(),
+                               gjk_tolerance);
       }
     } else {
       BOOST_CHECK(dist >= 0.);
-      BOOST_CHECK_CLOSE(distres.min_distance, dist, 1e-6);
-      BOOST_CHECK_CLOSE(dist, colres.distance_lower_bound, 1e-6);
+      BOOST_CHECK_CLOSE(distres.min_distance, dist, dummy_precision);
+      BOOST_CHECK_CLOSE(dist, colres.distance_lower_bound, dummy_precision);
 
       Vec3f cp1 = distres.nearest_points[0];
       Vec3f cp2 = distres.nearest_points[1];
-      BOOST_CHECK_CLOSE(dist, (cp1 - cp2).norm(), 1e-6);
-      EIGEN_VECTOR_IS_APPROX(cp1, cp2 - dist * distres.normal, 1e-6);
+      BOOST_CHECK_CLOSE(dist, (cp1 - cp2).norm(), gjk_tolerance);
+      EIGEN_VECTOR_IS_APPROX(cp1, cp2 - dist * distres.normal, gjk_tolerance);
 
       Vec3f separation_vector = dist * distres.normal;
-      EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, 1e-6);
+      EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, gjk_tolerance);
 
       if (dist > 0) {
-        EIGEN_VECTOR_IS_APPROX(distres.normal, (cp2 - cp1).normalized(), 1e-6);
+        EIGEN_VECTOR_IS_APPROX(distres.normal, (cp2 - cp1).normalized(),
+                               gjk_tolerance);
       }
 
       // Bring the shapes in collision
@@ -185,22 +208,24 @@ void test_normal_and_nearest_points(const ShapeType1& o1,
       // Contrary to Contact::penetration_depth,
       // CollisionResult::distance_lower_bound is a signed distance like
       // DistanceResult::min_distance
-      BOOST_CHECK_CLOSE(colres.distance_lower_bound, dist, 1e-6);
+      BOOST_CHECK_CLOSE(colres.distance_lower_bound, dist, dummy_precision);
       BOOST_CHECK(fabs(colres.distance_lower_bound - -eps) <= 1e-2);
       Contact contact = colres.getContact(0);
       cp1 = contact.nearest_points[0];
-      EIGEN_VECTOR_IS_APPROX(cp1, distres.nearest_points[0], 1e-6);
+      EIGEN_VECTOR_IS_APPROX(cp1, distres.nearest_points[0], dummy_precision);
 
       cp2 = contact.nearest_points[1];
-      EIGEN_VECTOR_IS_APPROX(cp2, distres.nearest_points[1], 1e-6);
-      BOOST_CHECK_CLOSE(contact.penetration_depth, -(cp2 - cp1).norm(), 1e-6);
-      EIGEN_VECTOR_IS_APPROX(cp1, cp2 - dist * distres.normal, 1e-6);
+      EIGEN_VECTOR_IS_APPROX(cp2, distres.nearest_points[1], dummy_precision);
+      BOOST_CHECK_CLOSE(contact.penetration_depth, -(cp2 - cp1).norm(),
+                        epa_tolerance);
+      EIGEN_VECTOR_IS_APPROX(cp1, cp2 - dist * distres.normal, epa_tolerance);
 
       separation_vector = contact.penetration_depth * contact.normal;
-      EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, 1e-6);
+      EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, epa_tolerance);
 
       if (dist < 0) {
-        EIGEN_VECTOR_IS_APPROX(contact.normal, -(cp2 - cp1).normalized(), 1e-6);
+        EIGEN_VECTOR_IS_APPROX(contact.normal, -(cp2 - cp1).normalized(),
+                               epa_tolerance);
       }
     }
   }
@@ -265,8 +290,16 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_mesh_ellipsoid) {
       o1_.points, o1_.num_points, o1_.polygons, o1_.num_polygons));
   shared_ptr<Ellipsoid> o2(new Ellipsoid(0.5 * r, 1.3 * r, 0.8 * r));
 
-  test_normal_and_nearest_points(*o1.get(), *o2.get());
-  test_normal_and_nearest_points(*o2.get(), *o1.get());
+  FCL_REAL gjk_tolerance = 1e-6;
+  // With EPA's tolerance set at 1e-3, the precision on the normal, contact
+  // points and penetration depth is on the order of the milimeter. However, EPA
+  // (currently) cannot converge to lower tolerances on strictly convex shapes
+  // in a reasonable amount of iterations.
+  FCL_REAL epa_tolerance = 1e-3;
+  test_normal_and_nearest_points(*o1.get(), *o2.get(), gjk_tolerance,
+                                 epa_tolerance);
+  test_normal_and_nearest_points(*o2.get(), *o1.get(), gjk_tolerance,
+                                 epa_tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_box_plane) {
