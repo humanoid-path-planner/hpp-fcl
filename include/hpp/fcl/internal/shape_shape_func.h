@@ -67,13 +67,11 @@ struct ShapeShapeDistancer {
 };
 
 template <typename ShapeType1, typename ShapeType2>
-HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1,
-                                           const Transform3f& tf1,
-                                           const CollisionGeometry* o2,
-                                           const Transform3f& tf2,
-                                           const GJKSolver* nsolver,
-                                           const DistanceRequest& request,
-                                           DistanceResult& result) {
+FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
+                            const CollisionGeometry* o2, const Transform3f& tf2,
+                            const GJKSolver* nsolver,
+                            const DistanceRequest& request,
+                            DistanceResult& result) {
   return ShapeShapeDistancer<ShapeType1, ShapeType2>::run(
       o1, tf1, o2, tf2, nsolver, request, result);
 }
