@@ -76,7 +76,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
     Vec3f p1(Vec3f::Zero()), p2(Vec3f::Zero());
     Vec3f n(Vec3f::Zero());
     FCL_REAL distance((std::numeric_limits<FCL_REAL>::max)());
-    bool gjk_and_epa_ran_successfully = runGJKAndEPA(tf1, distance, p1, p2, n);
+    bool gjk_and_epa_ran_successfully =
+        runGJKAndEPA(s1, tf1, s2, tf2, distance, p1, p2, n);
     HPP_FCL_UNUSED_VARIABLE(gjk_and_epa_ran_successfully);
     if (normal != NULL) *normal = n;
     if (contact_points != NULL) *contact_points = 0.5 * (p1 + p2);
@@ -100,9 +101,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
     TriangleP tri(tf_1M2.transform(P1), tf_1M2.transform(P2),
                   tf_1M2.transform(P3));
 
-    minkowski_difference.set(&s, &tri);
+    bool relative_transformation_already_computed = true;
     bool gjk_and_epa_ran_successfully =
-        runGJKAndEPA(tf1, distance, p1, p2, normal);
+        runGJKAndEPA(s, tf1, tri, tf_1M2, distance, p1, p2, normal,
+                     relative_transformation_already_computed);
     HPP_FCL_UNUSED_VARIABLE(gjk_and_epa_ran_successfully);
     return (gjk.status == details::GJK::Inside);
   }
@@ -115,9 +117,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   bool shapeDistance(const S1& s1, const Transform3f& tf1, const S2& s2,
                      const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1,
                      Vec3f& p2, Vec3f& normal) const {
-    minkowski_difference.set(&s1, &s2, tf1, tf2);
     bool gjk_and_epa_ran_successfully =
-        runGJKAndEPA(tf1, distance, p1, p2, normal);
+        runGJKAndEPA(s1, tf1, s2, tf2, distance, p1, p2, normal);
     return gjk_and_epa_ran_successfully;
   }
 
@@ -165,11 +166,19 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// This function assumes the minkowski difference has been already been set,
   /// i.e. `minkowski_difference.set(&s1, &s2, tf1, tf2);` has been called.
   /// @return true if no error occured, false otherwise.
-  bool runGJKAndEPA(const Transform3f& tf1, FCL_REAL& distance, Vec3f& p1,
-                    Vec3f& p2, Vec3f& normal) const {
+  template <typename S1, typename S2>
+  bool runGJKAndEPA(
+      const S1& s1, const Transform3f& tf1, const S2& s2,
+      const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+      Vec3f& normal,
+      bool relative_transformation_already_computed = false) const {
     bool gjk_and_epa_ran_successfully = true;
 
     // Reset internal state of GJK algorithm
+    if (relative_transformation_already_computed)
+      minkowski_difference.set(&s1, &s2);
+    else
+      minkowski_difference.set(&s1, &s2, tf1, tf2);
     gjk.reset();
 
     // Get initial guess for GJK: default, cached or bounding volume guess
