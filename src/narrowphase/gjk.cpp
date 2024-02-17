@@ -1551,7 +1551,7 @@ EPA::SimplexFace* EPA::newFace(SimplexVertex* a, SimplexVertex* b,
     return nullptr;
   }
 
-  status = stock.root ? OutOfVertices : OutOfFaces;
+  status = OutOfFaces;
   return nullptr;
 }
 
