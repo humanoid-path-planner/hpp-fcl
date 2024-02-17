@@ -48,6 +48,7 @@
 #include <hpp/fcl/mesh_loader/loader.h>
 
 #include <hpp/fcl/collision.h>
+#include <hpp/fcl/internal/traversal_node_hfield_shape.h>
 
 #include "utility.h"
 #include <iostream>
@@ -516,5 +517,148 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
     collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
 
     BOOST_CHECK(!result.isCollision());
+  }
+}
+
+bool isApprox(const FCL_REAL v1, const FCL_REAL v2, const FCL_REAL tol = 1e-6) {
+  return std::fabs(v1 - v2) <= tol;
+}
+
+Vec3f computeFaceNormal(const Triangle& triangle,
+                        const std::vector<Vec3f>& points) {
+  const Vec3f pointA = points[triangle[0]];
+  const Vec3f pointB = points[triangle[1]];
+  const Vec3f pointC = points[triangle[2]];
+
+  return (pointB - pointA).cross(pointC - pointA).normalized();
+}
+
+BOOST_AUTO_TEST_CASE(test_hfield_bin_face_normal_orientation) {
+  const FCL_REAL sphere_radius = 1.;
+  Sphere sphere(sphere_radius);
+  MatrixXf altitutes(2, 2);
+  FCL_REAL altitude_value = 1.;
+  altitutes.fill(altitude_value);
+
+  typedef AABB BV;
+  HeightField<BV> hfield(1., 1., altitutes, 0.);
+
+  const HeightField<BV>::BVS& nodes = hfield.getNodes();
+  BOOST_CHECK(nodes.size() == 1);
+  const HeightField<BV>::Node& node = nodes[0];
+
+  Convex<Triangle> convex1, convex2;
+  details::buildConvexTriangles(node, hfield, convex1, convex2);
+
+  // Check face normals for convex1
+  {
+    const std::vector<Vec3f>& points = *(convex1.points);
+    // BOTTOM
+    {
+      const Triangle& triangle = (*(convex1.polygons))[0];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle, points).isApprox(-Vec3f::UnitZ()));
+    }
+
+    // TOP
+    {
+      const Triangle& triangle = (*(convex1.polygons))[1];
+
+      BOOST_CHECK(computeFaceNormal(triangle, points).isApprox(Vec3f::UnitZ()));
+    }
+
+    // WEST sides
+    {
+      const Triangle& triangle1 = (*(convex1.polygons))[2];
+      const Triangle& triangle2 = (*(convex1.polygons))[3];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(-Vec3f::UnitX()));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(-Vec3f::UnitX()));
+    }
+
+    // SOUTH-EAST sides
+    {
+      const Vec3f south_east_normal = Vec3f(1., -1., 0).normalized();
+
+      const Triangle& triangle1 = (*(convex1.polygons))[4];
+      const Triangle& triangle2 = (*(convex1.polygons))[5];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(south_east_normal));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(south_east_normal));
+    }
+
+    // NORTH sides
+    {
+      const Triangle& triangle1 = (*(convex1.polygons))[6];
+      const Triangle& triangle2 = (*(convex1.polygons))[7];
+
+      std::cout << "computeFaceNormal(triangle1,points): "
+                << computeFaceNormal(triangle1, points).transpose()
+                << std::endl;
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(Vec3f::UnitY()));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(Vec3f::UnitY()));
+    }
+  }
+
+  // Check face normals for convex2
+  {
+    const std::vector<Vec3f>& points = *(convex2.points);
+
+    // BOTTOM
+    {
+      const Triangle& triangle = (*(convex2.polygons))[0];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle, points).isApprox(-Vec3f::UnitZ()));
+    }
+
+    // TOP
+    {
+      const Triangle& triangle = (*(convex2.polygons))[1];
+
+      BOOST_CHECK(computeFaceNormal(triangle, points).isApprox(Vec3f::UnitZ()));
+    }
+
+    // SOUTH sides
+    {
+      const Triangle& triangle1 = (*(convex2.polygons))[2];
+      const Triangle& triangle2 = (*(convex2.polygons))[3];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(-Vec3f::UnitY()));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(-Vec3f::UnitY()));
+    }
+
+    // NORTH-WEST sides
+    {
+      const Vec3f north_west_normal = Vec3f(-1., 1., 0).normalized();
+
+      const Triangle& triangle1 = (*(convex2.polygons))[4];
+      const Triangle& triangle2 = (*(convex2.polygons))[5];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(north_west_normal));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(north_west_normal));
+    }
+
+    // EAST sides
+    {
+      const Triangle& triangle1 = (*(convex2.polygons))[6];
+      const Triangle& triangle2 = (*(convex2.polygons))[7];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(Vec3f::UnitX()));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(Vec3f::UnitX()));
+    }
   }
 }

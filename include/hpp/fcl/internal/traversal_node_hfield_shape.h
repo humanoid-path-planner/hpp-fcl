@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021-2023, INRIA.
+ *  Copyright (c) 2021-2024, INRIA.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -124,24 +124,24 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
 
   {
     std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
-        Vec3f(x0, y0, min_height),
-        Vec3f(x0, y1, min_height),
-        Vec3f(x1, y0, min_height),
-        Vec3f(x0, y0, cell(0, 0)),
-        Vec3f(x0, y1, cell(1, 0)),
-        Vec3f(x1, y0, cell(0, 1)),
+        Vec3f(x0, y0, min_height),  // A
+        Vec3f(x0, y1, min_height),  // B
+        Vec3f(x1, y0, min_height),  // C
+        Vec3f(x0, y0, cell(0, 0)),  // D
+        Vec3f(x0, y1, cell(1, 0)),  // E
+        Vec3f(x1, y0, cell(0, 1)),  // F
     }));
 
     std::shared_ptr<std::vector<Triangle>> triangles(
         new std::vector<Triangle>(8));
-    (*triangles)[0].set(0, 1, 2);  // bottom
-    (*triangles)[1].set(3, 5, 4);  // top
-    (*triangles)[2].set(0, 3, 1);
-    (*triangles)[3].set(3, 4, 1);
-    (*triangles)[4].set(1, 5, 2);
-    (*triangles)[5].set(1, 4, 5);
-    (*triangles)[6].set(0, 2, 5);
-    (*triangles)[7].set(5, 3, 0);
+    (*triangles)[0].set(0, 2, 1);  // bottom
+    (*triangles)[1].set(3, 4, 5);  // top
+    (*triangles)[2].set(0, 1, 3);  // West 1
+    (*triangles)[3].set(3, 1, 4);  // West 2
+    (*triangles)[4].set(1, 2, 5);  // South-East 1
+    (*triangles)[5].set(1, 5, 4);  // South-East 1
+    (*triangles)[6].set(0, 5, 2);  // North 1
+    (*triangles)[7].set(5, 0, 3);  // North 2
 
     convex1.set(pts,  // points
                 6,    // num points
@@ -152,24 +152,24 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
 
   {
     std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
-        Vec3f(x0, y1, min_height),
-        Vec3f(x1, y1, min_height),
-        Vec3f(x1, y0, min_height),
-        Vec3f(x0, y1, cell(1, 0)),
-        Vec3f(x1, y1, cell(1, 1)),
-        Vec3f(x1, y0, cell(0, 1)),
+        Vec3f(x0, y1, min_height),  // A
+        Vec3f(x1, y1, min_height),  // B
+        Vec3f(x1, y0, min_height),  // C
+        Vec3f(x0, y1, cell(1, 0)),  // D
+        Vec3f(x1, y1, cell(1, 1)),  // E
+        Vec3f(x1, y0, cell(0, 1)),  // F
     }));
 
     std::shared_ptr<std::vector<Triangle>> triangles(
         new std::vector<Triangle>(8));
-    (*triangles)[0].set(2, 0, 1);  // bottom
-    (*triangles)[1].set(3, 5, 4);  // top
-    (*triangles)[2].set(0, 3, 1);
-    (*triangles)[3].set(3, 4, 1);
-    (*triangles)[4].set(0, 2, 5);
-    (*triangles)[5].set(0, 5, 3);
-    (*triangles)[6].set(1, 5, 2);
-    (*triangles)[7].set(4, 2, 1);
+    (*triangles)[0].set(2, 1, 0);  // bottom
+    (*triangles)[1].set(3, 4, 5);  // top
+    (*triangles)[2].set(0, 1, 3);  // South 1
+    (*triangles)[3].set(3, 1, 4);  // South 2
+    (*triangles)[4].set(0, 5, 2);  // North West 1
+    (*triangles)[5].set(0, 3, 5);  // North West 2
+    (*triangles)[6].set(1, 2, 5);  // East 1
+    (*triangles)[7].set(4, 1, 2);  // East 2
 
     convex2.set(pts,  // points
                 6,    // num points
