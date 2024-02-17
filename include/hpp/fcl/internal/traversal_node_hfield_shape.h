@@ -373,7 +373,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1,
                            compute_penetration, contact1_1, contact1_2,
                            normal1);
-  collision1 = (distance1 < 0);
+  collision1 = (distance1 <= 0);
 
   hfield_witness_is_on_bin_side1 =
       binCorrection(convex1, shape, tf2, distance1, contact1_1, contact1_2,
@@ -386,7 +386,7 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
                            compute_penetration, contact2_1, contact2_2,
                            normal2);
-  collision2 = (distance2 < 0);
+  collision2 = (distance2 <= 0);
 
   hfield_witness_is_on_bin_side2 =
       binCorrection(convex2, shape, tf2, distance2, contact2_1, contact2_2,
