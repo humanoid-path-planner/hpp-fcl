@@ -69,19 +69,20 @@ struct HPP_FCL_DLLAPI GJKSolver {
   template <typename S1, typename S2>
   bool shapeIntersect(const S1& s1, const Transform3f& tf1, const S2& s2,
                       const Transform3f& tf2, FCL_REAL& distance_lower_bound,
-                      bool enable_penetration, Vec3f* contact_points,
+                      bool compute_penetration, Vec3f* contact_points,
                       Vec3f* normal) const {
-    HPP_FCL_UNUSED_VARIABLE(enable_penetration);
     minkowski_difference.set(&s1, &s2, tf1, tf2);
     Vec3f p1(Vec3f::Zero()), p2(Vec3f::Zero());
     Vec3f n(Vec3f::Zero());
     FCL_REAL distance((std::numeric_limits<FCL_REAL>::max)());
-    bool gjk_and_epa_ran_successfully =
-        runGJKAndEPA(s1, tf1, s2, tf2, distance, p1, p2, n);
+    bool gjk_and_epa_ran_successfully = runGJKAndEPA(
+        s1, tf1, s2, tf2, distance, compute_penetration, p1, p2, n);
     HPP_FCL_UNUSED_VARIABLE(gjk_and_epa_ran_successfully);
-    if (normal != NULL) *normal = n;
-    if (contact_points != NULL) *contact_points = 0.5 * (p1 + p2);
     distance_lower_bound = distance;
+    if (compute_penetration) {
+      if (normal != NULL) *normal = n;
+      if (contact_points != NULL) *contact_points = 0.5 * (p1 + p2);
+    }
     return (gjk.status == details::GJK::Inside);
   }
 
@@ -94,8 +95,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   bool shapeTriangleInteraction(const S& s, const Transform3f& tf1,
                                 const Vec3f& P1, const Vec3f& P2,
                                 const Vec3f& P3, const Transform3f& tf2,
-                                FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
-                                Vec3f& normal) const {
+                                FCL_REAL& distance, bool compute_penetration,
+                                Vec3f& p1, Vec3f& p2, Vec3f& normal) const {
     // Express everything in frame 1
     const Transform3f tf_1M2(tf1.inverseTimes(tf2));
     TriangleP tri(tf_1M2.transform(P1), tf_1M2.transform(P2),
@@ -103,8 +104,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     bool relative_transformation_already_computed = true;
     bool gjk_and_epa_ran_successfully =
-        runGJKAndEPA(s, tf1, tri, tf_1M2, distance, p1, p2, normal,
-                     relative_transformation_already_computed);
+        runGJKAndEPA(s, tf1, tri, tf_1M2, distance, compute_penetration, p1, p2,
+                     normal, relative_transformation_already_computed);
     HPP_FCL_UNUSED_VARIABLE(gjk_and_epa_ran_successfully);
     return (gjk.status == details::GJK::Inside);
   }
@@ -115,10 +116,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// understand the reason of the failure.
   template <typename S1, typename S2>
   bool shapeDistance(const S1& s1, const Transform3f& tf1, const S2& s2,
-                     const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1,
-                     Vec3f& p2, Vec3f& normal) const {
-    bool gjk_and_epa_ran_successfully =
-        runGJKAndEPA(s1, tf1, s2, tf2, distance, p1, p2, normal);
+                     const Transform3f& tf2, FCL_REAL& distance,
+                     bool compute_penetration, Vec3f& p1, Vec3f& p2,
+                     Vec3f& normal) const {
+    bool gjk_and_epa_ran_successfully = runGJKAndEPA(
+        s1, tf1, s2, tf2, distance, compute_penetration, p1, p2, normal);
     return gjk_and_epa_ran_successfully;
   }
 
@@ -169,8 +171,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   template <typename S1, typename S2>
   bool runGJKAndEPA(
       const S1& s1, const Transform3f& tf1, const S2& s2,
-      const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
-      Vec3f& normal,
+      const Transform3f& tf2, FCL_REAL& distance, bool compute_penetration,
+      Vec3f& p1, Vec3f& p2, Vec3f& normal,
       bool relative_transformation_already_computed = false) const {
     bool gjk_and_epa_ran_successfully = true;
 
@@ -242,127 +244,138 @@ struct HPP_FCL_DLLAPI GJKSolver {
         //
         // Case where GJK found the shapes to be in collision, i.e. their
         // distance is below GJK's tolerance (default 1e-6).
-        if (gjk.hasPenetrationInformation(minkowski_difference)) {
-          //
-          // Case where the shapes are inflated (sphere or capsule).
-          // When the shapes are inflated, the GJK algorithm can provide the
-          // witness points and the normal.
-          GJKCollisionWithInflationExtractWitnessPointsAndNormal(
-              tf1, distance, p1, p2, normal);
-          HPP_FCL_ASSERT(distance < gjk.tolerance,
-                         "The distance found by GJK should be negative (or at )"
-                         "least below GJK's tolerance.",
-                         std::logic_error);
-          // + because the distance is negative.
-          HPP_FCL_ASSERT(std::abs((p1 - p2).norm() + distance) < gjk.tolerance,
-                         "The distance found by GJK should coincide with the "
-                         "distance between the closest points.",
-                         std::logic_error);
+        if (!compute_penetration) {
+          distance = -gjk.distance;
+          p1 = p2 = normal =
+              Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+          // If we absolutely wanted to return some witness points and normal,
+          // we could use `GJKNoCollisionExtractWitnessPointsAndNormal` and
+          // set the normal to zero.
         } else {
-          //
-          // Case where the shapes are not inflated (box, cylinder, cone, convex
-          // meshes etc.). We need to run the EPA algorithm to find the witness
-          // points, penetration depth and the normal.
-
-          // Reset EPA algorithm. Potentially allocate memory if
-          // `epa_max_face_num` or `epa_max_vertex_num` are bigger than EPA's
-          // current storage.
-          epa.reset(epa_max_face_num, epa_max_vertex_num);
-
-          // TODO: understand why EPA's performance is so bad on cylinders and
-          // cones.
-          epa.evaluate(gjk, -guess);
-
-          switch (epa.status) {
+          if (gjk.hasPenetrationInformation(minkowski_difference)) {
             //
-            // In the following switch cases, until the "Valid" case,
-            // EPA either ran out of iterations, of faces or of vertices.
-            // The depth, witness points and the normal are still valid,
-            // simply not at the precision of EPA's tolerance.
-            // The flag `HPP_FCL_ENABLE_LOGGING` enables feebdack on these
-            // cases.
+            // Case where the shapes are inflated (sphere or capsule).
+            // When the shapes are inflated, the GJK algorithm can provide the
+            // witness points and the normal.
+            GJKCollisionWithInflationExtractWitnessPointsAndNormal(
+                tf1, distance, p1, p2, normal);
+            HPP_FCL_ASSERT(
+                distance < gjk.tolerance,
+                "The distance found by GJK should be negative (or at )"
+                "least below GJK's tolerance.",
+                std::logic_error);
+            // + because the distance is negative.
+            HPP_FCL_ASSERT(
+                std::abs((p1 - p2).norm() + distance) < gjk.tolerance,
+                "The distance found by GJK should coincide with the "
+                "distance between the closest points.",
+                std::logic_error);
+          } else {
             //
-            // TODO: Remove OutOfFaces and OutOfVertices statuses and simply
-            // compute the upper bound on max faces and max vertices as a
-            // function of the number of iterations.
-            case details::EPA::OutOfFaces:
-              HPP_FCL_LOG_WARNING("EPA ran out of faces.");
-              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
-              gjk_and_epa_ran_successfully = false;
-              break;
-            case details::EPA::OutOfVertices:
-              HPP_FCL_LOG_WARNING("EPA ran out of vertices.");
-              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
-              gjk_and_epa_ran_successfully = false;
-              break;
-            case details::EPA::Failed:
-              HPP_FCL_LOG_WARNING("EPA ran out of iterations.");
-              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
-              gjk_and_epa_ran_successfully = false;
-              break;
-            case details::EPA::Valid:
-            case details::EPA::AccuracyReached:
-              HPP_FCL_ASSERT(
-                  -epa.depth <= epa.tolerance,
-                  "EPA's penetration distance should be negative (or "
-                  "at least below EPA's "
-                  "tolerance).",
-                  std::logic_error);
-              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
-              break;
+            // Case where the shapes are not inflated (box, cylinder, cone,
+            // convex meshes etc.). We need to run the EPA algorithm to find the
+            // witness points, penetration depth and the normal.
+
+            // Reset EPA algorithm. Potentially allocate memory if
+            // `epa_max_face_num` or `epa_max_vertex_num` are bigger than EPA's
+            // current storage.
+            epa.reset(epa_max_face_num, epa_max_vertex_num);
+
+            // TODO: understand why EPA's performance is so bad on cylinders and
+            // cones.
+            epa.evaluate(gjk, -guess);
+
+            switch (epa.status) {
               //
-              // In the following cases, EPA failed to run, in a bad way.
-              // The produced witness points, penetration depth and normal
-              // may make no sense.
-            case details::EPA::DidNotRun:
-              HPP_FCL_ASSERT(false, "EPA did not run. It should have!",
-                             std::logic_error);
-              HPP_FCL_LOG_ERROR("EPA error: did not run. It should have.");
-              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                     normal);
-              gjk_and_epa_ran_successfully = false;
-              break;
-            case details::EPA::Degenerated:
-              HPP_FCL_ASSERT(false,
-                             "EPA created a polytope with a degenerated face.",
-                             std::logic_error);
-              HPP_FCL_LOG_ERROR(
-                  "EPA error: created a polytope with a degenerated face.");
-              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                     normal);
-              gjk_and_epa_ran_successfully = false;
-              break;
-            case details::EPA::NonConvex:
-              HPP_FCL_ASSERT(false, "EPA got called onto non-convex shapes.",
-                             std::logic_error);
-              HPP_FCL_LOG_ERROR(
-                  "EPA error: EPA got called onto non-convex shapes.");
-              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                     normal);
-              gjk_and_epa_ran_successfully = false;
-              break;
-            case details::EPA::InvalidHull:
-              HPP_FCL_ASSERT(false, "EPA created an invalid polytope.",
-                             std::logic_error);
-              HPP_FCL_LOG_ERROR("EPA error: created an invalid polytope.");
-              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                     normal);
-              gjk_and_epa_ran_successfully = false;
-              break;
-            case details::EPA::FallBack:
-              HPP_FCL_ASSERT(
-                  false,
-                  "EPA went into fallback mode. It should never do that.",
-                  std::logic_error);
-              HPP_FCL_LOG_ERROR("EPA error: FallBack.");
-              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                     normal);
-              gjk_and_epa_ran_successfully = false;
-              break;
+              // In the following switch cases, until the "Valid" case,
+              // EPA either ran out of iterations, of faces or of vertices.
+              // The depth, witness points and the normal are still valid,
+              // simply not at the precision of EPA's tolerance.
+              // The flag `HPP_FCL_ENABLE_LOGGING` enables feebdack on these
+              // cases.
+              //
+              // TODO: Remove OutOfFaces and OutOfVertices statuses and simply
+              // compute the upper bound on max faces and max vertices as a
+              // function of the number of iterations.
+              case details::EPA::OutOfFaces:
+                HPP_FCL_LOG_WARNING("EPA ran out of faces.");
+                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                      normal);
+                gjk_and_epa_ran_successfully = false;
+                break;
+              case details::EPA::OutOfVertices:
+                HPP_FCL_LOG_WARNING("EPA ran out of vertices.");
+                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                      normal);
+                gjk_and_epa_ran_successfully = false;
+                break;
+              case details::EPA::Failed:
+                HPP_FCL_LOG_WARNING("EPA ran out of iterations.");
+                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                      normal);
+                gjk_and_epa_ran_successfully = false;
+                break;
+              case details::EPA::Valid:
+              case details::EPA::AccuracyReached:
+                HPP_FCL_ASSERT(
+                    -epa.depth <= epa.tolerance,
+                    "EPA's penetration distance should be negative (or "
+                    "at least below EPA's "
+                    "tolerance).",
+                    std::logic_error);
+                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                      normal);
+                break;
+                //
+                // In the following cases, EPA failed to run, in a bad way.
+                // The produced witness points, penetration depth and normal
+                // may make no sense.
+              case details::EPA::DidNotRun:
+                HPP_FCL_ASSERT(false, "EPA did not run. It should have!",
+                               std::logic_error);
+                HPP_FCL_LOG_ERROR("EPA error: did not run. It should have.");
+                EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                       normal);
+                gjk_and_epa_ran_successfully = false;
+                break;
+              case details::EPA::Degenerated:
+                HPP_FCL_ASSERT(
+                    false, "EPA created a polytope with a degenerated face.",
+                    std::logic_error);
+                HPP_FCL_LOG_ERROR(
+                    "EPA error: created a polytope with a degenerated face.");
+                EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                       normal);
+                gjk_and_epa_ran_successfully = false;
+                break;
+              case details::EPA::NonConvex:
+                HPP_FCL_ASSERT(false, "EPA got called onto non-convex shapes.",
+                               std::logic_error);
+                HPP_FCL_LOG_ERROR(
+                    "EPA error: EPA got called onto non-convex shapes.");
+                EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                       normal);
+                gjk_and_epa_ran_successfully = false;
+                break;
+              case details::EPA::InvalidHull:
+                HPP_FCL_ASSERT(false, "EPA created an invalid polytope.",
+                               std::logic_error);
+                HPP_FCL_LOG_ERROR("EPA error: created an invalid polytope.");
+                EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                       normal);
+                gjk_and_epa_ran_successfully = false;
+                break;
+              case details::EPA::FallBack:
+                HPP_FCL_ASSERT(
+                    false,
+                    "EPA went into fallback mode. It should never do that.",
+                    std::logic_error);
+                HPP_FCL_LOG_ERROR("EPA error: FallBack.");
+                EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                       normal);
+                gjk_and_epa_ran_successfully = false;
+                break;
+            }
           }
         }
         break;  // End of case details::GJK::Inside
@@ -674,20 +687,21 @@ struct HPP_FCL_DLLAPI GJKSolver {
 template <>
 HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction(
     const Sphere& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
-    const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1,
-    Vec3f& p2, Vec3f& normal) const;
+    const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+    bool compute_penetration, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
 template <>
 HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction(
     const Halfspace& s, const Transform3f& tf1, const Vec3f& P1,
     const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-    FCL_REAL& distance, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
+    FCL_REAL& distance, bool compute_penetration, Vec3f& p1, Vec3f& p2,
+    Vec3f& normal) const;
 
 template <>
 HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction(
     const Plane& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
-    const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1,
-    Vec3f& p2, Vec3f& normal) const;
+    const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
+    bool compute_penetration, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
 #define SHAPE_INTERSECT_SPECIALIZATION_BASE(S1, S2)                 \
   template <>                                                       \
@@ -720,12 +734,12 @@ SHAPE_INTERSECT_SPECIALIZATION(Plane, Cone);
 #undef SHAPE_INTERSECT_SPECIALIZATION
 #undef SHAPE_INTERSECT_SPECIALIZATION_BASE
 
-#define SHAPE_DISTANCE_SPECIALIZATION_BASE(S1, S2)                  \
-  template <>                                                       \
-  HPP_FCL_DLLAPI bool GJKSolver::shapeDistance<S1, S2>(             \
-      const S1& s1, const Transform3f& tf1, const S2& s2,           \
-      const Transform3f& tf2, FCL_REAL& dist, Vec3f& p1, Vec3f& p2, \
-      Vec3f& normal) const
+#define SHAPE_DISTANCE_SPECIALIZATION_BASE(S1, S2)                      \
+  template <>                                                           \
+  HPP_FCL_DLLAPI bool GJKSolver::shapeDistance<S1, S2>(                 \
+      const S1& s1, const Transform3f& tf1, const S2& s2,               \
+      const Transform3f& tf2, FCL_REAL& dist, bool compute_penetration, \
+      Vec3f& p1, Vec3f& p2, Vec3f& normal) const
 
 #define SHAPE_DISTANCE_SPECIALIZATION(S1, S2) \
   SHAPE_DISTANCE_SPECIALIZATION_BASE(S1, S2); \
@@ -756,7 +770,7 @@ SHAPE_DISTANCE_SPECIALIZATION_BASE(TriangleP, TriangleP);
   HPP_FCL_DLLAPI bool GJKSolver::shapeIntersect<Shape1, Shape2>(  \
       const Shape1& s1, const Transform3f& tf1, const Shape2& s2, \
       const Transform3f& tf2, FCL_REAL& distance_lower_bound,     \
-      bool enable_penetration, Vec3f* contact_points, Vec3f* normal) const
+      bool compute_penetration, Vec3f* contact_points, Vec3f* normal) const
 #define HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Shape, doc) \
   HPP_FCL_DECLARE_SHAPE_INTERSECT(Shape, Shape, doc)
 #define HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Shape1, Shape2, doc) \
@@ -772,7 +786,7 @@ template <>
 HPP_FCL_DLLAPI bool GJKSolver::shapeIntersect<Box, Sphere>(
     const Box& s1, const Transform3f& tf1, const Sphere& s2,
     const Transform3f& tf2, FCL_REAL& distance_lower_bound,
-    bool enable_penetration, Vec3f* contact_points, Vec3f* normal) const;
+    bool compute_penetration, Vec3f* contact_points, Vec3f* normal) const;
 
 #ifdef IS_DOXYGEN  // for doxygen only
 /** \todo currently disabled and to re-enable it, API of function
@@ -782,7 +796,7 @@ template <>
 HPP_FCL_DLLAPI bool GJKSolver::shapeIntersect<Box, Box>(
     const Box& s1, const Transform3f& tf1, const Box& s2,
     const Transform3f& tf2, FCL_REAL& distance_lower_bound,
-    bool enable_penetration, Vec3f* contact_points, Vec3f* normal) const;
+    bool compute_penetration, Vec3f* contact_points, Vec3f* normal) const;
 #endif
 // HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Box,);
 HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Box, Halfspace, );
@@ -813,13 +827,14 @@ HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Plane, Halfspace, );
 
 // param doc is the doxygen detailled description (should be enclosed in /** */
 // and contain no dot for some obscure reasons).
-#define HPP_FCL_DECLARE_SHAPE_TRIANGLE(Shape, doc)                  \
-  /** @brief Fast implementation for Shape-Triangle interaction. */ \
-  doc template <>                                                   \
-  HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction<Shape>(   \
-      const Shape& s, const Transform3f& tf1, const Vec3f& P1,      \
-      const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,     \
-      FCL_REAL& distance, Vec3f& p1, Vec3f& p2, Vec3f& normal) const
+#define HPP_FCL_DECLARE_SHAPE_TRIANGLE(Shape, doc)                        \
+  /** @brief Fast implementation for Shape-Triangle interaction. */       \
+  doc template <>                                                         \
+  HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction<Shape>(         \
+      const Shape& s, const Transform3f& tf1, const Vec3f& P1,            \
+      const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,           \
+      FCL_REAL& distance, bool compute_penetration, Vec3f& p1, Vec3f& p2, \
+      Vec3f& normal) const
 
 HPP_FCL_DECLARE_SHAPE_TRIANGLE(Sphere, );
 HPP_FCL_DECLARE_SHAPE_TRIANGLE(Halfspace, );
@@ -834,13 +849,13 @@ HPP_FCL_DECLARE_SHAPE_TRIANGLE(Plane, );
 
 // param doc is the doxygen detailled description (should be enclosed in /** */
 // and contain no dot for some obscure reasons).
-#define HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape1, Shape2, doc)         \
-  /** @brief Fast implementation for Shape1-Shape2 distance. */     \
-  doc template <>                                                   \
-  bool HPP_FCL_DLLAPI GJKSolver::shapeDistance<Shape1, Shape2>(     \
-      const Shape1& s1, const Transform3f& tf1, const Shape2& s2,   \
-      const Transform3f& tf2, FCL_REAL& dist, Vec3f& p1, Vec3f& p2, \
-      Vec3f& normal) const
+#define HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape1, Shape2, doc)           \
+  /** @brief Fast implementation for Shape1-Shape2 distance. */       \
+  doc template <>                                                     \
+  bool HPP_FCL_DLLAPI GJKSolver::shapeDistance<Shape1, Shape2>(       \
+      const Shape1& s1, const Transform3f& tf1, const Shape2& s2,     \
+      const Transform3f& tf2, FCL_REAL& dist, bool compute_collision, \
+      Vec3f& p1, Vec3f& p2, Vec3f& normal) const
 #define HPP_FCL_DECLARE_SHAPE_DISTANCE_SELF(Shape, doc) \
   HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape, Shape, doc)
 #define HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR(Shape1, Shape2, doc) \
