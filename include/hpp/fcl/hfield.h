@@ -247,6 +247,8 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
 
   virtual HeightField<BV>* clone() const { return new HeightField(*this); }
 
+  const BVS& getNodes() const { return bvs; }
+
   /// @brief deconstruction, delete mesh data related.
   virtual ~HeightField() {}
 
