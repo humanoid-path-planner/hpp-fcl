@@ -38,6 +38,7 @@
 
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/distance.h>
+#include "deprecation.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
@@ -46,6 +47,7 @@
 
 using namespace boost::python;
 using namespace hpp::fcl;
+using namespace hpp::fcl::python;
 
 namespace dv = doxygen::visitor;
 
@@ -66,7 +68,25 @@ void exposeDistanceAPI() {
             (arg("self"), arg("enable_nearest_points"), arg("rel_err"),
              arg("abs_err")),
             "Constructor"))
-        .DEF_RW_CLASS_ATTRIB(DistanceRequest, enable_nearest_points)
+        .add_property(
+            "enable_nearest_points",
+            bp::make_function(
+                +[](DistanceRequest& self) -> bool {
+                  return self.enable_nearest_points;
+                },
+                deprecated_warning_policy<>(
+                    "enable_nearest_points has been marked as deprecated. "
+                    "Nearest points are always computed when computing "
+                    "distance.")),
+            bp::make_function(
+                +[](DistanceRequest& self, const bool value) -> void {
+                  self.enable_nearest_points = value;
+                },
+                deprecated_warning_policy<>(
+                    "enable_nearest_points has been marked as deprecated. "
+                    "Nearest points are always computed when computing "
+                    "distance.")),
+            doxygen::class_attrib_doc<DistanceRequest>("enable_nearest_points"))
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, rel_err)
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, abs_err);
   }

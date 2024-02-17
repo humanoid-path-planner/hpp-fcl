@@ -504,6 +504,9 @@ struct DistanceResult;
 /// @brief request to the distance computation
 struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
   /// @brief whether to return the nearest points
+  HPP_FCL_DEPRECATED_MESSAGE(
+      "`enable_nearest_points` is deprecated. Nearest points are always "
+      "computed.")
   bool enable_nearest_points;
 
   /// @brief error threshold for approximate distance
@@ -513,19 +516,25 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
   /// \param enable_nearest_points_ enables the nearest points computation.
   /// \param rel_err_
   /// \param abs_err_
-  DistanceRequest(bool enable_nearest_points_ = false, FCL_REAL rel_err_ = 0.0,
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  DistanceRequest(bool enable_nearest_points_ = true, FCL_REAL rel_err_ = 0.0,
                   FCL_REAL abs_err_ = 0.0)
       : enable_nearest_points(enable_nearest_points_),
         rel_err(rel_err_),
         abs_err(abs_err_) {}
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
   bool isSatisfied(const DistanceResult& result) const;
 
   /// @brief whether two DistanceRequest are the same or not
   inline bool operator==(const DistanceRequest& other) const {
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return QueryRequest::operator==(other) &&
            enable_nearest_points == other.enable_nearest_points &&
            rel_err == other.rel_err && abs_err == other.abs_err;
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
 };
 
