@@ -225,10 +225,8 @@ inline Vec3f computeTriangleNormal(const Triangle& triangle,
   const Vec3f pointB = points[triangle[1]];
   const Vec3f pointC = points[triangle[2]];
 
-  const Vec3f normal = (pointB - pointA)
-                           .cross(pointC - pointA)
-                           .normalized() assert(!normal.array().isNaN().any() &&
-                                                "normal is ill-defined");
+  const Vec3f normal = (pointB - pointA).cross(pointC - pointA).normalized();
+  assert(!normal.array().isNaN().any() && "normal is ill-defined");
 
   return normal;
 }
@@ -246,31 +244,31 @@ inline Vec3f projectPointOnTriangle(const Vec3f& contact_point,
   return contact_point_projected;
 }
 
-inline bool isContactPointLyingOnTriangle(
+inline FCL_REAL distanceContactPoinToTriangle(
     const Vec3f& contact_point, const Triangle& triangle,
-    const std::vector<Vec3f>& points, const FCL_REAL prec = FCL_REAL(1e-12)) {
+    const std::vector<Vec3f>& points) {
   const Vec3f contact_point_projected =
       projectPointOnTriangle(contact_point, triangle, points);
-  return contact_point_projected.isApprox(contact_point, prec);
+  return (contact_point_projected - contact_point).norm();
 }
 
-template <char face_id>
-bool isContactPointLyingOnFace(const Vec3f& contact_point,
-                               const Convex<Triangle>& convex,
-                               const FCL_REAL prec = FCL_REAL(1e-12)) {
+inline FCL_REAL distanceContactPointToFace(const size_t face_id,
+                                           const Vec3f& contact_point,
+                                           const Convex<Triangle>& convex) {
   const std::vector<Vec3f>& points = *(convex.points);
   if (face_id <= 1) {
     const Triangle& triangle = (*(convex.polygons))[face_id];
-    return isContactPointLyingOnTriangle(contact_point, triangle, points, prec);
+    return distanceContactPoinToTriangle(contact_point, triangle, points);
   } else {
     const Triangle& triangle1 = (*(convex.polygons))[face_id];
-    const bool is_lying_on_triangle1 =
-        isContactPointLyingOnTriangle(contact_point, triangle1, points, prec);
-    if (is_lying_on_triangle1) return true;
+    const FCL_REAL distance_to_triangle1 =
+        distanceContactPoinToTriangle(contact_point, triangle1, points);
+
     const Triangle& triangle2 = (*(convex.polygons))[face_id + 1];
-    const bool is_lying_on_triangle2 =
-        isContactPointLyingOnTriangle(contact_point, triangle2, points, prec);
-    return is_lying_on_triangle2;
+    const FCL_REAL distance_to_triangle2 =
+        distanceContactPoinToTriangle(contact_point, triangle2, points);
+
+    return (std::min)(distance_to_triangle1, distance_to_triangle2);
   }
 }
 
@@ -278,40 +276,75 @@ template <typename Polygone, typename Shape>
 bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
                    const Transform3f& shape_pose, FCL_REAL& distance,
                    Vec3f& contact_1, Vec3f& contact_2, Vec3f& normal,
-                   Vec3f& normal_top, const bool is_collision) {
-  const Polygone& top_triangle = (*(convex.polygons))[1];
+                   Vec3f& face_normal, const bool is_collision) {
+  const FCL_REAL prec = 1e-12;
   const std::vector<Vec3f>& points = *(convex.points);
 
-  normal_top = computeTriangleNormal(top_triangle, points);
+  bool hfield_witness_is_on_bin_side;
 
-  bool hfield_witness_is_on_bin_side =
-      isContactPointLyingOnFace<1>(contact_1, convex);
+  const FCL_REAL distance_to_bottom_face =
+      distanceContactPointToFace(0, contact_1, convex);
+
+  const FCL_REAL distance_to_top_face =
+      distanceContactPointToFace(1, contact_1, convex);
+
+  const bool hfield_witness_is_on_bottom_face = distance_to_bottom_face <= prec;
+  const bool hfield_witness_is_on_top_face = distance_to_top_face <= prec;
+
+  //  const bool witness_is_clostest_top_top_face = distance_to_top_face <=
+  //  distance_to_bottom_face; const bool witness_is_clostest_top_bottom_face =
+  //  distance_to_bottom_face < distance_to_top_face;
+
+  Vec3f face_pointA;
+  Triangle face_triangle;
+  if (hfield_witness_is_on_top_face)  // || witness_is_clostest_top_top_face)
+  {
+    const Polygone& top_triangle = (*(convex.polygons))[1];
+    const Vec3f normal_top = computeTriangleNormal(top_triangle, points);
+
+    face_normal = normal_top;
+    face_pointA = points[top_triangle[0]];
+    face_triangle = top_triangle;
+
+  } else if (
+      hfield_witness_is_on_bottom_face)  // ||
+                                         // witness_is_clostest_top_bottom_face)
+  {
+    const Polygone& bottom_triangle = (*(convex.polygons))[0];
+    const Vec3f normal_bottom = computeTriangleNormal(bottom_triangle, points);
+
+    face_normal = normal_bottom;
+    face_pointA = points[bottom_triangle[0]];
+    face_triangle = bottom_triangle;
+  }
 
   // We correct only if there is a collision with the bin
   if (is_collision) {
     int hint = 0;
     const Vec3f _support = getSupport(
-        &shape, -shape_pose.rotation().transpose() * normal_top, true, hint);
+        &shape, -shape_pose.rotation().transpose() * face_normal, true, hint);
     const Vec3f support =
         shape_pose.rotation() * _support + shape_pose.translation();
 
     // Project support into the inclined bin having triangle
-    const Vec3f pointA = points[top_triangle[0]];
-    const FCL_REAL offset_plane = normal_top.dot(pointA);
-    const Plane projection_plane(normal_top, offset_plane);
+    const FCL_REAL offset_plane = face_normal.dot(face_pointA);
+    const Plane projection_plane(face_normal, offset_plane);
     const FCL_REAL distance_support_projection_plane =
         projection_plane.signedDistance(support);
 
     const Vec3f projected_support =
-        support - distance_support_projection_plane * normal_top;
+        support - distance_support_projection_plane * face_normal;
 
     // We need now to project the projected in the triangle shape
-    contact_1 = projectPointOnTriangle(projected_support, top_triangle, points);
-    contact_2 = contact_1 + distance_support_projection_plane * normal_top;
-    normal = normal_top;
+    contact_1 =
+        projectPointOnTriangle(projected_support, face_triangle, points);
+    contact_2 = contact_1 + distance_support_projection_plane * face_normal;
+    normal = face_normal;
     distance = -distance_support_projection_plane;
   }
 
+  hfield_witness_is_on_bin_side =
+      !hfield_witness_is_on_top_face || !hfield_witness_is_on_bottom_face;
   return hfield_witness_is_on_bin_side;
 }
 
