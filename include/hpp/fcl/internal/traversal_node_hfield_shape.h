@@ -605,19 +605,19 @@ class HeightFieldShapeCollisionTraversalNode
 
     FCL_REAL distance;
     //    Vec3f contact_point, normal;
-    Vec3f c1, c2, normal, normal_top;
+    Vec3f c1, c2, normal, normal_face;
     bool hfield_witness_is_on_bin_side;
 
     bool collision = details::shapeDistance<Triangle, S, Options>(
         nsolver, convex1, convex2, this->tf1, *(this->model2), this->tf2,
-        distance, c1, c2, normal, normal_top, hfield_witness_is_on_bin_side);
+        distance, c1, c2, normal, normal_face, hfield_witness_is_on_bin_side);
 
     FCL_REAL distToCollision =
-        distance - this->request.security_margin * (normal_top.dot(normal));
+        distance - this->request.security_margin * (normal_face.dot(normal));
     if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
       if (this->result->numContacts() < this->request.num_max_contacts) {
-        if (normal_top.isApprox(normal) &&
+        if (normal_face.isApprox(normal) &&
             (collision || !hfield_witness_is_on_bin_side)) {
           this->result->addContact(Contact(this->model1, this->model2, (int)b1,
                                            (int)Contact::NONE, c1, c2, normal,
