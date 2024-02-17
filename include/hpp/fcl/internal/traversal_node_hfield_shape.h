@@ -237,7 +237,7 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
     contact_1 = projectTriangle(pointA, pointB, pointC, projected_support);
     contact_2 = contact_1 + distance_support_projection_plane * normal_top;
     normal = normal_top;
-    distance = -(contact_1 - contact_2).norm();
+    distance = -distance_support_projection_plane;
   }
 
   return hfield_witness_is_on_bin_side;
