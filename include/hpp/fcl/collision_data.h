@@ -322,8 +322,9 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   bool enable_contact;
 
   /// Whether a lower bound on distance is returned when objects are disjoint
-  /// TODO(louis): remove/deprecate enable_distance_lower bound.
-  /// It's not used in the code base anymore.
+  HPP_FCL_DEPRECATED_MESSAGE(
+      "`enable_distance_lower_bound` is deprecated. A lower bound on distance "
+      "is always computed.")
   bool enable_distance_lower_bound;
 
   /// @brief Distance below which objects are considered in collision.
@@ -350,6 +351,8 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   /// @param[in] flag Collision request flag
   /// @param[in] num_max_contacts  Maximal number of allowed contacts
   ///
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_)
       : num_max_contacts(num_max_contacts_),
         enable_contact(flag & CONTACT),
@@ -366,11 +369,14 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
         security_margin(0),
         break_distance(1e-3),
         distance_upper_bound((std::numeric_limits<FCL_REAL>::max)()) {}
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
   bool isSatisfied(const CollisionResult& result) const;
 
   /// @brief whether two CollisionRequest are the same or not
   inline bool operator==(const CollisionRequest& other) const {
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return QueryRequest::operator==(other) &&
            num_max_contacts == other.num_max_contacts &&
            enable_contact == other.enable_contact &&
@@ -378,6 +384,7 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
            security_margin == other.security_margin &&
            break_distance == other.break_distance &&
            distance_upper_bound == other.distance_upper_bound;
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
 };
 
