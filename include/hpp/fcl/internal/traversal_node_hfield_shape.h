@@ -340,11 +340,11 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
         projectPointOnTriangle(projected_support, face_triangle, points);
     contact_2 = contact_1 + distance_support_projection_plane * face_normal;
     normal = face_normal;
-    distance = -distance_support_projection_plane;
+    distance = -std::fabs(distance_support_projection_plane);
   }
 
   hfield_witness_is_on_bin_side =
-      !hfield_witness_is_on_top_face || !hfield_witness_is_on_bottom_face;
+      !hfield_witness_is_on_top_face && !hfield_witness_is_on_bottom_face;
   return hfield_witness_is_on_bin_side;
 }
 
