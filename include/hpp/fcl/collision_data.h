@@ -509,18 +509,27 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
       "computed.")
   bool enable_nearest_points;
 
+  /// @brief whether to compute the penetration depth when objects are in
+  /// collision.
+  /// Turning this off can save computation time if only the distance
+  /// when objects are disjoint is needed.
+  bool enable_signed_distance;
+
   /// @brief error threshold for approximate distance
   FCL_REAL rel_err;  // relative error, between 0 and 1
   FCL_REAL abs_err;  // absolute error
 
   /// \param enable_nearest_points_ enables the nearest points computation.
+  /// \param enable_signed_distance_ allows to compute the penetration depth
   /// \param rel_err_
   /// \param abs_err_
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-  DistanceRequest(bool enable_nearest_points_ = true, FCL_REAL rel_err_ = 0.0,
+  DistanceRequest(bool enable_nearest_points_ = true,
+                  bool enable_signed_distance_ = true, FCL_REAL rel_err_ = 0.0,
                   FCL_REAL abs_err_ = 0.0)
       : enable_nearest_points(enable_nearest_points_),
+        enable_signed_distance(enable_signed_distance_),
         rel_err(rel_err_),
         abs_err(abs_err_) {}
   HPP_FCL_COMPILER_DIAGNOSTIC_POP
@@ -533,6 +542,7 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
     HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return QueryRequest::operator==(other) &&
            enable_nearest_points == other.enable_nearest_points &&
+           enable_signed_distance == other.enable_signed_distance &&
            rel_err == other.rel_err && abs_err == other.abs_err;
     HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
@@ -541,8 +551,9 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
 /// @brief distance result
 struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
  public:
-  /// @brief minimum distance between two objects. If two objects are in
-  /// collision, min_distance <= 0.
+  /// @brief minimum distance between two objects.
+  /// If two objects are in collision and
+  /// DistanceRequest::enable_signed_distance is activated, min_distance <= 0.
   FCL_REAL min_distance;
 
   /// @brief normal.
