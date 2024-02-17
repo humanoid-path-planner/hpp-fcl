@@ -317,8 +317,6 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
 
   /// @brief whether the contact information (normal, penetration depth and
   /// contact position) will return.
-  /// @note Only effective if the collision pair involves an Octree.
-  /// Otherwise, it is always true.
   bool enable_contact;
 
   /// Whether a lower bound on distance is returned when objects are disjoint
@@ -364,7 +362,7 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   /// @brief Default constructor.
   CollisionRequest()
       : num_max_contacts(1),
-        enable_contact(false),
+        enable_contact(true),
         enable_distance_lower_bound(false),
         security_margin(0),
         break_distance(1e-3),
