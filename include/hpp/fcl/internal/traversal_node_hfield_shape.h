@@ -257,12 +257,17 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
   FCL_REAL distance1, distance2;
   bool collision1, collision2;
   bool hfield_witness_is_on_bin_side1, hfield_witness_is_on_bin_side2;
+  // Because we do bin comparison and correction, we always compute penetration
+  // information.
+  bool compute_penetration = true;
   if (RTIsIdentity)
-    nsolver->shapeDistance(convex1, Id, shape, tf2, distance1, contact1_1,
-                           contact1_2, normal1);
+    nsolver->shapeDistance(convex1, Id, shape, tf2, distance1,
+                           compute_penetration, contact1_1, contact1_2,
+                           normal1);
   else
-    nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1, contact1_1,
-                           contact1_2, normal1);
+    nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1,
+                           compute_penetration, contact1_1, contact1_2,
+                           normal1);
   collision1 = (distance1 < 0);
 
   hfield_witness_is_on_bin_side1 =
@@ -270,11 +275,12 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
                     normal1, normal1_top, collision1);
 
   if (RTIsIdentity)
-    nsolver->shapeDistance(convex2, Id, shape, tf2, distance2, contact2_1,
-                           contact2_2, normal);
+    nsolver->shapeDistance(convex2, Id, shape, tf2, distance2,
+                           compute_penetration, contact2_1, contact2_2, normal);
   else
-    nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2, contact2_1,
-                           contact2_2, normal2);
+    nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
+                           compute_penetration, contact2_1, contact2_2,
+                           normal2);
   collision2 = (distance2 < 0);
 
   hfield_witness_is_on_bin_side2 =

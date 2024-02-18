@@ -327,8 +327,8 @@ bool GJKSolver::shapeIntersect<Plane, Plane>(
 template <>
 bool GJKSolver::shapeTriangleInteraction(
     const Sphere& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
-    const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance, Vec3f& p1,
-    Vec3f& p2, Vec3f& normal) const {
+    const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance, bool,
+    Vec3f& p1, Vec3f& p2, Vec3f& normal) const {
   return details::sphereTriangleIntersect(s, tf1, tf2.transform(P1),
                                           tf2.transform(P2), tf2.transform(P3),
                                           distance, p1, p2, normal);
@@ -338,7 +338,7 @@ template <>
 bool GJKSolver::shapeTriangleInteraction(
     const Halfspace& s, const Transform3f& tf1, const Vec3f& P1,
     const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-    FCL_REAL& distance, Vec3f& p1, Vec3f& p2, Vec3f& normal) const {
+    FCL_REAL& distance, bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) const {
   return details::halfspaceTriangleIntersect(s, tf1, P1, P2, P3, tf2, distance,
                                              p1, p2, normal);
 }
@@ -348,7 +348,7 @@ bool GJKSolver::shapeTriangleInteraction(const Plane& s, const Transform3f& tf1,
                                          const Vec3f& P1, const Vec3f& P2,
                                          const Vec3f& P3,
                                          const Transform3f& tf2,
-                                         FCL_REAL& distance, Vec3f& p1,
+                                         FCL_REAL& distance, bool, Vec3f& p1,
                                          Vec3f& p2, Vec3f& normal) const {
   return details::planeTriangleIntersect(s, tf1, P1, P2, P3, tf2, distance, p1,
                                          p2, normal);
@@ -383,7 +383,7 @@ bool GJKSolver::shapeDistance<Sphere, Capsule>(const Sphere& s1,
                                                const Transform3f& tf1,
                                                const Capsule& s2,
                                                const Transform3f& tf2,
-                                               FCL_REAL& dist, Vec3f& p1,
+                                               FCL_REAL& dist, bool, Vec3f& p1,
                                                Vec3f& p2, Vec3f& normal) const {
   return details::sphereCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2, normal);
 }
@@ -393,7 +393,7 @@ bool GJKSolver::shapeDistance<Capsule, Sphere>(const Capsule& s1,
                                                const Transform3f& tf1,
                                                const Sphere& s2,
                                                const Transform3f& tf2,
-                                               FCL_REAL& dist, Vec3f& p1,
+                                               FCL_REAL& dist, bool, Vec3f& p1,
                                                Vec3f& p2, Vec3f& normal) const {
   return details::sphereCapsuleDistance(s2, tf2, s1, tf1, dist, p2, p1, normal);
 }
@@ -403,8 +403,8 @@ bool GJKSolver::shapeDistance<Box, Sphere>(const Box& s1,
                                            const Transform3f& tf1,
                                            const Sphere& s2,
                                            const Transform3f& tf2,
-                                           FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
-                                           Vec3f& normal) const {
+                                           FCL_REAL& dist, bool, Vec3f& p1,
+                                           Vec3f& p2, Vec3f& normal) const {
   return !details::boxSphereDistance(s1, tf1, s2, tf2, dist, p1, p2, normal);
 }
 
@@ -413,8 +413,8 @@ bool GJKSolver::shapeDistance<Sphere, Box>(const Sphere& s1,
                                            const Transform3f& tf1,
                                            const Box& s2,
                                            const Transform3f& tf2,
-                                           FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
-                                           Vec3f& normal) const {
+                                           FCL_REAL& dist, bool, Vec3f& p1,
+                                           Vec3f& p2, Vec3f& normal) const {
   bool collide =
       details::boxSphereDistance(s2, tf2, s1, tf1, dist, p2, p1, normal);
   normal *= -1;
@@ -424,7 +424,7 @@ bool GJKSolver::shapeDistance<Sphere, Box>(const Sphere& s1,
 template <>
 bool GJKSolver::shapeDistance<Sphere, Cylinder>(
     const Sphere& s1, const Transform3f& tf1, const Cylinder& s2,
-    const Transform3f& tf2, FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
+    const Transform3f& tf2, FCL_REAL& dist, bool, Vec3f& p1, Vec3f& p2,
     Vec3f& normal) const {
   return details::sphereCylinderDistance(s1, tf1, s2, tf2, dist, p1, p2,
                                          normal);
@@ -433,7 +433,7 @@ bool GJKSolver::shapeDistance<Sphere, Cylinder>(
 template <>
 bool GJKSolver::shapeDistance<Cylinder, Sphere>(
     const Cylinder& s1, const Transform3f& tf1, const Sphere& s2,
-    const Transform3f& tf2, FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
+    const Transform3f& tf2, FCL_REAL& dist, bool, Vec3f& p1, Vec3f& p2,
     Vec3f& normal) const {
   return details::sphereCylinderDistance(s2, tf2, s1, tf1, dist, p2, p1,
                                          normal);
@@ -444,7 +444,7 @@ bool GJKSolver::shapeDistance<Sphere, Sphere>(const Sphere& s1,
                                               const Transform3f& tf1,
                                               const Sphere& s2,
                                               const Transform3f& tf2,
-                                              FCL_REAL& dist, Vec3f& p1,
+                                              FCL_REAL& dist, bool, Vec3f& p1,
                                               Vec3f& p2, Vec3f& normal) const {
   return details::sphereSphereDistance(s1, tf1, s2, tf2, dist, p1, p2, normal);
 }
@@ -452,7 +452,7 @@ bool GJKSolver::shapeDistance<Sphere, Sphere>(const Sphere& s1,
 template <>
 bool GJKSolver::shapeDistance<Capsule, Capsule>(
     const Capsule& /*s1*/, const Transform3f& /*tf1*/, const Capsule& /*s2*/,
-    const Transform3f& /*tf2*/, FCL_REAL& /*dist*/, Vec3f& /*p1*/,
+    const Transform3f& /*tf2*/, FCL_REAL& /*dist*/, bool, Vec3f& /*p1*/,
     Vec3f& /*p2*/, Vec3f& /*normal*/) const {
   abort();
 }
@@ -460,7 +460,7 @@ bool GJKSolver::shapeDistance<Capsule, Capsule>(
 template <>
 bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
     const TriangleP& s1, const Transform3f& tf1, const TriangleP& s2,
-    const Transform3f& tf2, FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
+    const Transform3f& tf2, FCL_REAL& dist, bool, Vec3f& p1, Vec3f& p2,
     Vec3f& normal) const {
   const TriangleP t1(tf1.transform(s1.a), tf1.transform(s1.b),
                      tf1.transform(s1.c)),

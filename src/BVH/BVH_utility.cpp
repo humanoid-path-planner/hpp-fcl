@@ -82,9 +82,12 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
       const Vec3f& p2 = model_vertices_[t[2]];
       Vec3f c1, c2, normal;
       FCL_REAL distance;
+      bool compute_penetration = false;  // we only need to know if there is a
+                                         // collision or not
       if (!keep_this_tri &&
           gjk.shapeTriangleInteraction(box, box_pose, p0, p1, p2, Transform3f(),
-                                       distance, c1, c2, normal)) {
+                                       distance, compute_penetration, c1, c2,
+                                       normal)) {
         keep_this_tri = true;
       }
     }

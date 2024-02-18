@@ -209,8 +209,12 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
         p2;  // closest points if no collision contact points if collision.
     Vec3f normal;
     FCL_REAL distance;
-    solver.shapeDistance(tri1, this->tf1, tri2, this->tf2, distance, p1, p2,
-                         normal);
+    // If the security margin is negative, we have to compute the penetration
+    // to get the correct distance to compare to the security margin.
+    bool compute_penetration =
+        (this->request.enable_contact || this->request.security_margin < 0);
+    solver.shapeDistance(tri1, this->tf1, tri2, this->tf2, distance,
+                         compute_penetration, p1, p2, normal);
 
     const FCL_REAL distToCollision = distance - this->request.security_margin;
     if (distToCollision <=
