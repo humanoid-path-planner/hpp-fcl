@@ -273,7 +273,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
             // Reset EPA algorithm. Potentially allocate memory if
             // `epa_max_face_num` or `epa_max_vertex_num` are bigger than EPA's
             // current storage.
-            epa.reset(epa_max_face_num, epa_max_vertex_num);
+            // TODO(louis): EPA creates only 2 faces and 1 vertex per iteration.
+            // (+ the 4 (or 8 in the future) faces at the beginning
+            //  + the 4 vertices (or 6 in the future) at the beginning)
+            // Compute max faces/vertices based on number of iterations.
+            epa.reset(epa_max_vertex_num, epa_max_face_num);
 
             // TODO: understand why EPA's performance is so bad on cylinders and
             // cones.
