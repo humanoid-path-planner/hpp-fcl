@@ -128,9 +128,17 @@ class HPP_FCL_DLLAPI Triangle {
 
   bool operator!=(const Triangle& other) const { return !(*this == other); }
 
+  bool isValid() const {
+    return vids[0] != (std::numeric_limits<index_type>::max)() &&
+           vids[1] != (std::numeric_limits<index_type>::max)() &&
+           vids[2] != (std::numeric_limits<index_type>::max)();
+  }
+
  private:
   /// @brief indices for each vertex of triangle
-  index_type vids[3];
+  index_type vids[3] = {(std::numeric_limits<index_type>::max)(),
+                        (std::numeric_limits<index_type>::max)(),
+                        (std::numeric_limits<index_type>::max)()};
 };
 
 /// @brief Quadrilateral with 4 indices for points
