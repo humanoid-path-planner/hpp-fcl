@@ -77,7 +77,12 @@ void exposeDistanceAPI() {
                 deprecated_warning_policy<>(
                     "enable_nearest_points has been marked as deprecated. "
                     "Nearest points are always computed when computing "
-                    "distance.")),
+                    "distance. They are the points of the shapes that achieve "
+                    "a distance of "
+                    "DistanceResult::min_distance.\n"
+                    "Use `enable_signed_distance` if you want to compute a "
+                    "signed minimum "
+                    "distance (and thus its corresponding nearest points).")),
             bp::make_function(
                 +[](DistanceRequest& self, const bool value) -> void {
                   self.enable_nearest_points = value;
@@ -85,7 +90,12 @@ void exposeDistanceAPI() {
                 deprecated_warning_policy<>(
                     "enable_nearest_points has been marked as deprecated. "
                     "Nearest points are always computed when computing "
-                    "distance.")),
+                    "distance. They are the points of the shapes that achieve "
+                    "a distance of "
+                    "DistanceResult::min_distance.\n"
+                    "Use `enable_signed_distance` if you want to compute a "
+                    "signed minimum "
+                    "distance (and thus its corresponding nearest points).")),
             doxygen::class_attrib_doc<DistanceRequest>("enable_nearest_points"))
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, rel_err)
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, abs_err);

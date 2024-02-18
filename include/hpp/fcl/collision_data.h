@@ -501,16 +501,29 @@ struct DistanceResult;
 
 /// @brief request to the distance computation
 struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
-  /// @brief whether to return the nearest points
+  /// @brief whether to return the nearest points.
+  /// Nearest points are always computed and are the points of the shapes that
+  /// achieve a distance of `DistanceResult::min_distance`.
   HPP_FCL_DEPRECATED_MESSAGE(
       "`enable_nearest_points` is deprecated. Nearest points are always "
-      "computed.")
+      "computed; they are the points of the shapes that achieve a distance of "
+      "`DistanceResult::min_distance`.\n"
+      "Use `enable_signed_distance` if you want to compute a signed minimum "
+      "distance (and thus its corresponding nearest points).")
   bool enable_nearest_points;
 
   /// @brief whether to compute the penetration depth when objects are in
   /// collision.
   /// Turning this off can save computation time if only the distance
   /// when objects are disjoint is needed.
+  /// @note The minimum distance between the shapes is stored in
+  /// `DistanceResult::min_distance`.
+  /// If `enable_signed_distance` is off, `DistanceResult::min_distance`
+  /// is always positive.
+  /// If `enable_signed_distance` is on, `DistanceResult::min_distance`
+  /// can be positive or negative.
+  /// The nearest points are the points of the shapes that achieve
+  /// a distance of `DistanceResult::min_distance`.
   bool enable_signed_distance;
 
   /// @brief error threshold for approximate distance
@@ -552,6 +565,8 @@ struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
   /// @brief minimum distance between two objects.
   /// If two objects are in collision and
   /// DistanceRequest::enable_signed_distance is activated, min_distance <= 0.
+  /// @note The nearest points are the points of the shapes that achieve a
+  /// distance of `DistanceResult::min_distance`.
   FCL_REAL min_distance;
 
   /// @brief normal.
