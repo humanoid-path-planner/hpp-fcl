@@ -1576,6 +1576,9 @@ EPA::SimplexFace* EPA::findClosestFace() {
 EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   GJK::Simplex& simplex = *gjk.getSimplex();
   support_func_guess_t hint(gjk.support_hint);
+
+  // TODO(louis): we might want to start with a hexahedron if the
+  // simplex given by GJK is of rank <= 3.
   bool enclosed_origin = gjk.encloseOrigin();
   if ((simplex.rank > 1) && enclosed_origin) {
     assert(simplex.rank == 4 &&
@@ -1633,6 +1636,9 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
           break;
         }
 
+        // Step 1: find the support point in the direction of the closest_face
+        // normal.
+        // --------------------------------------------------------------------------
         SimplexHorizon horizon;
         SimplexVertex& w = sv_store[num_vertices++];
         bool valid = true;
@@ -1640,20 +1646,45 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
         // At the moment, SimplexF.n is always normalized. This could be revised
         // in the future...
         gjk.getSupport(closest_face->n, true, w, hint);
-        FCL_REAL wdist = closest_face->n.dot(w.w) - closest_face->d;
-        if (wdist <= tolerance) {
+
+        // Step 2: check for convergence.
+        // ------------------------------
+        // Preambule to understand the convergence criterion of EPA:
+        // the support we just added is in the direction of the normal of
+        // the closest_face. Therefore, the support point will **always**
+        // lie "after" the closest_face, i.e closest_face.n.dot(w.w) > 0.
+        assert(closest_face->n.dot(w.w) > 0 &&
+               "The support is not in the right direction.");
+        //
+        // 1) First check: `fdist` (see below) is an upper bound of how much
+        // more penetration depth we can expect to "gain" by adding `w` to EPA's
+        // polytope. This first check, as any convergence check, should be both
+        // absolute and relative. This allows to adapt the tolerance to the
+        // scale of the objects.
+        const SimplexVertex& vf1 = sv_store[closest_face->vertex_id[0]];
+        const SimplexVertex& vf2 = sv_store[closest_face->vertex_id[1]];
+        const SimplexVertex& vf3 = sv_store[closest_face->vertex_id[2]];
+        FCL_REAL fdist = closest_face->n.dot(w.w - vf1.w);
+        FCL_REAL wnorm = w.w.norm();
+        // TODO(louis): we might want to use tol_abs and tol_rel; this might
+        // obfuscate the code for the user though.
+        if (fdist <= tolerance + tolerance * wnorm) {
           status = AccuracyReached;
           break;
         }
-        // The computed support cannot be a vertex of the `closest_face`,
-        // otherwise EPA should have exited with `wdist <= tolerance`.
-        assert((w.w - sv_store[closest_face->vertex_id[0]].w).norm() >
-               std::numeric_limits<FCL_REAL>::epsilon());
-        assert((w.w - sv_store[closest_face->vertex_id[1]].w).norm() >
-               std::numeric_limits<FCL_REAL>::epsilon());
-        assert((w.w - sv_store[closest_face->vertex_id[2]].w).norm() >
-               std::numeric_limits<FCL_REAL>::epsilon());
+        // 2) Second check: the expand function **assumes** that the support we
+        // just computed is not a vertex of the face. We make sure that this
+        // is the case:
+        // TODO(louis): should we use squaredNorm everywhere instead of norm?
+        if ((w.w - vf1.w).norm() <= tolerance + tolerance * wnorm ||
+            (w.w - vf2.w).norm() <= tolerance + tolerance * wnorm ||
+            (w.w - vf3.w).norm() <= tolerance + tolerance * wnorm) {
+          status = AccuracyReached;
+          break;
+        }
 
+        // Step 3: expand the polytope
+        // ---------------------------
         for (size_t j = 0; (j < 3) && valid; ++j)
           valid &= expand(pass, w, closest_face->adjacent_faces[j],
                           closest_face->adjacent_edge[j], horizon);
@@ -1702,6 +1733,48 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   return status;
 }
 
+// Use this function to debug `EPA::expand` if needed.
+// void EPA::PrintExpandLooping(const SimplexFace* f, const SimplexVertex& w) {
+//     std::cout << "Vertices:\n";
+//     for (size_t i = 0; i < num_vertices; ++i) {
+//       std::cout << "[";
+//       std::cout << sv_store[i].w(0) << ", ";
+//       std::cout << sv_store[i].w(1) << ", ";
+//       std::cout << sv_store[i].w(2) << "]\n";
+//     }
+//     //
+//     std::cout << "\nTriangles:\n";
+//     SimplexFace* face = hull.root;
+//     for (size_t i = 0; i < hull.count; ++i) {
+//       std::cout << "[";
+//       std::cout << face->vertex_id[0] << ", ";
+//       std::cout << face->vertex_id[1] << ", ";
+//       std::cout << face->vertex_id[2] << "]\n";
+//       face = face->next_face;
+//     }
+//     //
+//     std::cout << "\nNormals:\n";
+//     face = hull.root;
+//     for (size_t i = 0; i < hull.count; ++i) {
+//       std::cout << "[";
+//       std::cout << face->n(0) << ", ";
+//       std::cout << face->n(1) << ", ";
+//       std::cout << face->n(2) << "]\n";
+//       face = face->next_face;
+//     }
+//     //
+//     std::cout << "\nClosest face:\n";
+//     face = hull.root;
+//     for (size_t i = 0; i < hull.count; ++i) {
+//       if (face == closest_face) {
+//         std::cout << i << "\n";
+//       }
+//       face = face->next_face;
+//     }
+//     std::cout << "\nSupport point:\n";
+//     std::cout << "[" << w.w(0) << ", " << w.w(1) << ", " << w.w(2) << "]\n";
+// }
+
 /** @brief the goal is to add a face connecting vertex w and face edge f[e] */
 bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
                  SimplexHorizon& horizon) {
@@ -1712,6 +1785,12 @@ bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
 
   // Check if we loop through expand indefinitely.
   if (f->pass == pass) {
+    // Uncomment the following line and the associated EPA method
+    // to debug the infinite loop if needed.
+    // EPAPrintExpandLooping(this, f);
+    if (f == closest_face) {
+      assert(false && "EPA is looping indefinitely.");
+    }
     status = InvalidHull;
     return false;
   }

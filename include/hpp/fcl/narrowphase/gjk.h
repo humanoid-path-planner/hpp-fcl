@@ -491,6 +491,9 @@ struct HPP_FCL_DLLAPI EPA {
   /// @brief the goal is to add a face connecting vertex w and face edge f[e]
   bool expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
               SimplexHorizon& horizon);
+
+  // @brief Use this function to debug expand if needed.
+  // void PrintExpandLooping(const SimplexFace* f, const SimplexVertex& w);
 };
 
 }  // namespace details
