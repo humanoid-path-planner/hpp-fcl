@@ -54,6 +54,15 @@ namespace fcl {
 struct HPP_FCL_DLLAPI HFNodeBase {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+  enum class FaceOrientation {
+    TOP = 1,
+    BOTTOM = 1,
+    NORTH = 2,
+    EAST = 4,
+    SOUTH = 8,
+    WEST = 16
+  };
+
   /// @brief An index for first child node or primitive
   /// If the value is positive, it is the index of the first child bv node
   /// If the value is negative, it is -(primitive index + 1)
@@ -64,6 +73,7 @@ struct HPP_FCL_DLLAPI HFNodeBase {
   Eigen::DenseIndex y_id, y_size;
 
   FCL_REAL max_height;
+  int contact_active_faces;
 
   /// @brief Default constructor
   HFNodeBase()
@@ -72,13 +82,15 @@ struct HPP_FCL_DLLAPI HFNodeBase {
         x_size(0),
         y_id(-1),
         y_size(0),
-        max_height(std::numeric_limits<FCL_REAL>::lowest()) {}
+        max_height(std::numeric_limits<FCL_REAL>::lowest()),
+        contact_active_faces(0) {}
 
   /// @brief Comparison operator
   bool operator==(const HFNodeBase& other) const {
     return first_child == other.first_child && x_id == other.x_id &&
            x_size == other.x_size && y_id == other.y_id &&
-           y_size == other.y_size && max_height == other.max_height;
+           y_size == other.y_size && max_height == other.max_height &&
+           contact_active_faces == other.contact_active_faces;
   }
 
   /// @brief Difference operator
@@ -103,6 +115,15 @@ struct HPP_FCL_DLLAPI HFNodeBase {
     return Eigen::Vector2i(x_id + x_size / 2, y_id + y_size / 2);
   }
 };
+
+inline HFNodeBase::FaceOrientation operator&(HFNodeBase::FaceOrientation a,
+                                             HFNodeBase::FaceOrientation b) {
+  return HFNodeBase::FaceOrientation(int(a) & int(b));
+}
+
+inline int operator&(int a, HFNodeBase::FaceOrientation b) {
+  return a & int(b);
+}
 
 template <typename BV>
 struct HPP_FCL_DLLAPI HFNode : public HFNodeBase {
@@ -435,6 +456,24 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
     bv_node.y_id = y_id;
     bv_node.x_size = x_size;
     bv_node.y_size = y_size;
+
+    if (bv_node.isLeaf()) {
+      int& contact_active_faces = bv_node.contact_active_faces;
+      contact_active_faces |= int(HFNodeBase::FaceOrientation::TOP);
+      contact_active_faces |= int(HFNodeBase::FaceOrientation::BOTTOM);
+
+      if (bv_node.x_id == 0)  // first col
+        contact_active_faces |= int(HFNodeBase::FaceOrientation::WEST);
+
+      if (bv_node.y_id == 0)  // first row (TOP)
+        contact_active_faces |= int(HFNodeBase::FaceOrientation::NORTH);
+
+      if (bv_node.x_id + 1 == heights.cols() - 1)  // last col
+        contact_active_faces |= int(HFNodeBase::FaceOrientation::EAST);
+
+      if (bv_node.y_id + 1 == heights.rows() - 1)  // last row (BOTTOM)
+        contact_active_faces |= int(HFNodeBase::FaceOrientation::SOUTH);
+    }
 
     return max_height;
   }

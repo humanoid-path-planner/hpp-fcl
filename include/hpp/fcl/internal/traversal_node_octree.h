@@ -609,7 +609,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       typedef Convex<Triangle> ConvexTriangle;
       ConvexTriangle convex1, convex2;
-      details::buildConvexTriangles(bvn2, *tree2, convex1, convex2);
+      int convex1_active_faces, convex2_active_faces;
+      details::buildConvexTriangles(bvn2, *tree2, convex1, convex1_active_faces,
+                                    convex2, convex2_active_faces);
       if (solver->gjk_initial_guess == GJKInitialGuess::BoundingVolumeGuess) {
         convex1.computeLocalAABB();
         convex2.computeLocalAABB();
@@ -620,8 +622,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       bool hfield_witness_is_on_bin_side;
 
       bool collision = details::shapeDistance<Triangle, Box, 0>(
-          solver, convex1, convex2, tf2, box, box_tf, distance, c2, c1, normal,
-          normal_top, hfield_witness_is_on_bin_side);
+          solver, convex1, convex1_active_faces, convex2, convex2_active_faces,
+          tf2, box, box_tf, distance, c2, c1, normal, normal_top,
+          hfield_witness_is_on_bin_side);
 
       FCL_REAL distToCollision =
           distance - crequest->security_margin * (normal_top.dot(normal));
@@ -726,7 +729,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       typedef Convex<Triangle> ConvexTriangle;
       ConvexTriangle convex1, convex2;
-      details::buildConvexTriangles(bvn1, *tree1, convex1, convex2);
+      int convex1_active_faces, convex2_active_faces;
+      details::buildConvexTriangles(bvn1, *tree1, convex1, convex1_active_faces,
+                                    convex2, convex2_active_faces);
       if (solver->gjk_initial_guess == GJKInitialGuess::BoundingVolumeGuess) {
         convex1.computeLocalAABB();
         convex2.computeLocalAABB();
@@ -737,8 +742,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       bool hfield_witness_is_on_bin_side;
 
       bool collision = details::shapeDistance<Triangle, Box, 0>(
-          solver, convex1, convex2, tf1, box, box_tf, distance, c1, c2, normal,
-          normal_top, hfield_witness_is_on_bin_side);
+          solver, convex1, convex1_active_faces, convex2, convex2_active_faces,
+          tf1, box, box_tf, distance, c1, c2, normal, normal_top,
+          hfield_witness_is_on_bin_side);
 
       FCL_REAL distToCollision =
           distance - crequest->security_margin * (normal_top.dot(normal));
