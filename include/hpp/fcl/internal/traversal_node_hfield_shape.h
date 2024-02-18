@@ -297,8 +297,8 @@ bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
 
   Vec3f face_pointA;
   Triangle face_triangle;
-  if (hfield_witness_is_on_top_face)  // || witness_is_clostest_top_top_face)
-  {
+  if (hfield_witness_is_on_top_face) {  // || witness_is_clostest_top_top_face)
+                                        // {
     const Polygone& top_triangle = (*(convex.polygons))[1];
     const Vec3f normal_top = computeTriangleNormal(top_triangle, points);
 

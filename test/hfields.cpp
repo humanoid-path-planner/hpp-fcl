@@ -662,3 +662,85 @@ BOOST_AUTO_TEST_CASE(test_hfield_bin_face_normal_orientation) {
     }
   }
 }
+
+BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
+  const FCL_REAL sphere_radius = 1.;
+  Sphere sphere(sphere_radius);
+  MatrixXf altitutes(2, 2);
+  FCL_REAL altitude_value = 1.;
+  altitutes.fill(altitude_value);
+
+  typedef AABB BV;
+  HeightField<BV> hfield(1., 1., altitutes, 0.);
+
+  const HeightField<BV>::BVS& nodes = hfield.getNodes();
+  BOOST_CHECK(nodes.size() == 1);
+  const HeightField<BV>::Node& node = nodes[0];
+
+  // Collision from the TOP
+  {
+    const Transform3f sphere_pos(Vec3f(0., 0., 2.));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = -0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+    BOOST_CHECK(
+        isApprox(result.distance_lower_bound, -request.security_margin));
+  }
+
+  // Same, but with a positive margin.
+  {
+    const Transform3f sphere_pos(Vec3f(0., 0., 2.));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = +0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(result.isCollision());
+    if (result.isCollision()) {
+      const Contact& contact = result.getContact(0);
+      BOOST_CHECK(contact.normal.isApprox(Vec3f::UnitZ()));
+      std::cout << "contact.penetration_depth: " << contact.penetration_depth
+                << std::endl;
+      BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
+    }
+  }
+
+  // Collision from the BOTTOM
+  {
+    const Transform3f sphere_pos(Vec3f(0., 0., -1.));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = -0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+  }
+
+  {
+    const Transform3f sphere_pos(Vec3f(0., 0., -1.));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = +0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(result.isCollision());
+    {
+      const Contact& contact = result.getContact(0);
+      BOOST_CHECK(contact.normal.isApprox(-Vec3f::UnitZ()));
+      std::cout << "contact.penetration_depth: " << contact.penetration_depth
+                << std::endl;
+      BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
+    }
+  }
+}
