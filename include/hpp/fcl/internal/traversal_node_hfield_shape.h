@@ -287,10 +287,10 @@ inline FCL_REAL distanceContactPoinToTriangle(
   return (contact_point_projected - contact_point).norm();
 }
 
-inline FCL_REAL distanceContactPointToFace(const int face_id,
+inline FCL_REAL distanceContactPointToFace(const size_t face_id,
                                            const Vec3f& contact_point,
                                            const Convex<Triangle>& convex,
-                                           int& closest_face_id) {
+                                           size_t& closest_face_id) {
   assert((face_id >= 0 && face_id < 8) && "face_id should be in [0;7]");
 
   const std::vector<Vec3f>& points = *(convex.points);
@@ -331,7 +331,7 @@ bool binCorrection(const Convex<Polygone>& convex,
   //  int closest_face_id_bottom_face = -1;
   //  int closest_face_id_top_face = -1;
 
-  std::vector<int> active_faces;
+  std::vector<size_t> active_faces;
   active_faces.reserve(5);
   active_faces.push_back(0);
   active_faces.push_back(1);
@@ -342,8 +342,8 @@ bool binCorrection(const Convex<Polygone>& convex,
 
   Triangle face_triangle;
   FCL_REAL shortest_distance_to_face = (std::numeric_limits<FCL_REAL>::max)();
-  for (const int active_face : active_faces) {
-    int closest_face_id;
+  for (const size_t active_face : active_faces) {
+    size_t closest_face_id;
     const FCL_REAL distance_to_face = distanceContactPointToFace(
         active_face, contact_1, convex, closest_face_id);
 
