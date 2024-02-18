@@ -336,7 +336,7 @@ struct HPP_FCL_DLLAPI EPA {
   struct HPP_FCL_DLLAPI SimplexFace {
     Vec3f n;
     FCL_REAL d;
-    SimplexVertex* vertex[3];        // A face has three vertices.
+    size_t vertex_id[3];             // Index of vertex in sv_store.
     SimplexFace* adjacent_faces[3];  // A face has three adjacent faces.
     SimplexFace* prev_face;          // The previous face in the list.
     SimplexFace* next_face;          // The next face in the list.
@@ -425,6 +425,7 @@ struct HPP_FCL_DLLAPI EPA {
   GJK::Simplex result;
   Vec3f normal;
   FCL_REAL depth;
+  SimplexFace* closest_face;
 
  private:
   std::vector<SimplexVertex> sv_store;
@@ -479,17 +480,16 @@ struct HPP_FCL_DLLAPI EPA {
   /// Otherwise use \ref reset.
   void initialize();
 
-  bool getEdgeDist(SimplexFace* face, SimplexVertex* a, SimplexVertex* b,
-                   FCL_REAL& dist);
+  bool getEdgeDist(SimplexFace* face, const SimplexVertex& a,
+                   const SimplexVertex& b, FCL_REAL& dist);
 
-  SimplexFace* newFace(SimplexVertex* a, SimplexVertex* b,
-                       SimplexVertex* vertex, bool forced);
+  SimplexFace* newFace(size_t id_a, size_t id_b, size_t id_vertex, bool forced);
 
   /// @brief Find the best polytope face to split
-  SimplexFace* findBest();
+  SimplexFace* findClosestFace();
 
   /// @brief the goal is to add a face connecting vertex w and face edge f[e]
-  bool expand(size_t pass, SimplexVertex* w, SimplexFace* f, size_t e,
+  bool expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
               SimplexHorizon& horizon);
 };
 

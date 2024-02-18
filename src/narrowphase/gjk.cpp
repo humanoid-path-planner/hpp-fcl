@@ -1477,6 +1477,7 @@ void EPA::reset(size_t max_vertex_num_, size_t max_face_num_) {
   status = DidNotRun;
   normal = Vec3f(0, 0, 0);
   depth = 0;
+  closest_face = nullptr;
   result.reset();
   hull.reset();
   num_vertices = 0;
@@ -1489,27 +1490,27 @@ void EPA::reset(size_t max_vertex_num_, size_t max_face_num_) {
   iterations = 0;
 }
 
-bool EPA::getEdgeDist(SimplexFace* face, SimplexVertex* a, SimplexVertex* b,
-                      FCL_REAL& dist) {
-  Vec3f ab = b->w - a->w;
+bool EPA::getEdgeDist(SimplexFace* face, const SimplexVertex& a,
+                      const SimplexVertex& b, FCL_REAL& dist) {
+  Vec3f ab = b.w - a.w;
   Vec3f n_ab = ab.cross(face->n);
-  FCL_REAL a_dot_nab = a->w.dot(n_ab);
+  FCL_REAL a_dot_nab = a.w.dot(n_ab);
 
   if (a_dot_nab < 0)  // the origin is on the outside part of ab
   {
     // following is similar to projectOrigin for two points
     // however, as we dont need to compute the parameterization, dont need to
     // compute 0 or 1
-    FCL_REAL a_dot_ab = a->w.dot(ab);
-    FCL_REAL b_dot_ab = b->w.dot(ab);
+    FCL_REAL a_dot_ab = a.w.dot(ab);
+    FCL_REAL b_dot_ab = b.w.dot(ab);
 
     if (a_dot_ab > 0)
-      dist = a->w.norm();
+      dist = a.w.norm();
     else if (b_dot_ab < 0)
-      dist = b->w.norm();
+      dist = b.w.norm();
     else {
       dist = std::sqrt(std::max(
-          a->w.squaredNorm() - a_dot_ab * a_dot_ab / ab.squaredNorm(), 0.));
+          a.w.squaredNorm() - a_dot_ab * a_dot_ab / ab.squaredNorm(), 0.));
     }
 
     return true;
@@ -1518,17 +1519,20 @@ bool EPA::getEdgeDist(SimplexFace* face, SimplexVertex* a, SimplexVertex* b,
   return false;
 }
 
-EPA::SimplexFace* EPA::newFace(SimplexVertex* a, SimplexVertex* b,
-                               SimplexVertex* c, bool forced) {
+EPA::SimplexFace* EPA::newFace(size_t id_a, size_t id_b, size_t id_c,
+                               bool forced) {
   if (stock.root != nullptr) {
     SimplexFace* face = stock.root;
     stock.remove(face);
     hull.append(face);
     face->pass = 0;
-    face->vertex[0] = a;
-    face->vertex[1] = b;
-    face->vertex[2] = c;
-    face->n = (b->w - a->w).cross(c->w - a->w);
+    face->vertex_id[0] = id_a;
+    face->vertex_id[1] = id_b;
+    face->vertex_id[2] = id_c;
+    const SimplexVertex& a = sv_store[id_a];
+    const SimplexVertex& b = sv_store[id_b];
+    const SimplexVertex& c = sv_store[id_c];
+    face->n = (b.w - a.w).cross(c.w - a.w);
 
     if (face->n.norm() > Eigen::NumTraits<FCL_REAL>::epsilon()) {
       face->n.normalize();
@@ -1536,7 +1540,7 @@ EPA::SimplexFace* EPA::newFace(SimplexVertex* a, SimplexVertex* b,
       if (!(getEdgeDist(face, a, b, face->d) ||
             getEdgeDist(face, b, c, face->d) ||
             getEdgeDist(face, c, a, face->d))) {
-        face->d = a->w.dot(face->n);
+        face->d = a.w.dot(face->n);
       }
 
       if (forced || face->d >= -tolerance)
@@ -1556,7 +1560,7 @@ EPA::SimplexFace* EPA::newFace(SimplexVertex* a, SimplexVertex* b,
 }
 
 /** @brief Find the best polytope face to split */
-EPA::SimplexFace* EPA::findBest() {
+EPA::SimplexFace* EPA::findClosestFace() {
   SimplexFace* minf = hull.root;
   FCL_REAL mind = minf->d * minf->d;
   for (SimplexFace* f = minf->next_face; f; f = f->next_face) {
@@ -1596,19 +1600,17 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
       simplex.vertex[1] = tmp;
     }
 
-    SimplexFace* tetrahedron[] = {
-        newFace(simplex.vertex[0], simplex.vertex[1], simplex.vertex[2], true),
-        newFace(simplex.vertex[1], simplex.vertex[0], simplex.vertex[3], true),
-        newFace(simplex.vertex[2], simplex.vertex[1], simplex.vertex[3], true),
-        newFace(simplex.vertex[0], simplex.vertex[2], simplex.vertex[3], true)};
+    // Add the 4 vertices to sv_store
+    for (size_t i = 0; i < 4; ++i) {
+      sv_store[num_vertices++] = *simplex.vertex[i];
+    }
+
+    SimplexFace* tetrahedron[] = {newFace(0, 1, 2, true),  //
+                                  newFace(1, 0, 3, true),  //
+                                  newFace(2, 1, 3, true),  //
+                                  newFace(0, 2, 3, true)};
 
     if (hull.count == 4) {
-      SimplexFace* best = findBest();  // find the best face (the face with the
-                                       // minimum distance to origin) to split
-      SimplexFace outer = *best;
-      size_t pass = 0;
-      iterations = 0;
-
       // set the face connectivity
       bind(tetrahedron[0], 0, tetrahedron[1], 0);
       bind(tetrahedron[0], 1, tetrahedron[2], 0);
@@ -1617,7 +1619,14 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
       bind(tetrahedron[1], 2, tetrahedron[2], 1);
       bind(tetrahedron[2], 2, tetrahedron[3], 1);
 
+      closest_face =
+          findClosestFace();  // find the best face (the face with the
+                              // minimum distance to origin) to split
+      SimplexFace outer = *closest_face;
+
       status = Valid;
+      iterations = 0;
+      size_t pass = 0;
       for (; iterations < max_iterations; ++iterations) {
         if (num_vertices >= max_vertex_num) {
           status = OutOfVertices;
@@ -1625,20 +1634,29 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
         }
 
         SimplexHorizon horizon;
-        SimplexVertex* w = &sv_store[num_vertices++];
+        SimplexVertex& w = sv_store[num_vertices++];
         bool valid = true;
-        best->pass = ++pass;
+        closest_face->pass = ++pass;
         // At the moment, SimplexF.n is always normalized. This could be revised
         // in the future...
-        gjk.getSupport(best->n, true, *w, hint);
-        FCL_REAL wdist = best->n.dot(w->w) - best->d;
+        gjk.getSupport(closest_face->n, true, w, hint);
+        FCL_REAL wdist = closest_face->n.dot(w.w) - closest_face->d;
         if (wdist <= tolerance) {
           status = AccuracyReached;
           break;
         }
+        // The computed support cannot be a vertex of the `closest_face`,
+        // otherwise EPA should have exited with `wdist <= tolerance`.
+        assert((w.w - sv_store[closest_face->vertex_id[0]].w).norm() >
+               std::numeric_limits<FCL_REAL>::epsilon());
+        assert((w.w - sv_store[closest_face->vertex_id[1]].w).norm() >
+               std::numeric_limits<FCL_REAL>::epsilon());
+        assert((w.w - sv_store[closest_face->vertex_id[2]].w).norm() >
+               std::numeric_limits<FCL_REAL>::epsilon());
+
         for (size_t j = 0; (j < 3) && valid; ++j)
-          valid &= expand(pass, w, best->adjacent_faces[j],
-                          best->adjacent_edge[j], horizon);
+          valid &= expand(pass, w, closest_face->adjacent_faces[j],
+                          closest_face->adjacent_edge[j], horizon);
 
         if (!valid || horizon.num_faces < 3) {
           // The status has already been set by the expand function.
@@ -1647,19 +1665,19 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
         }
         // need to add the edge connectivity between first and last faces
         bind(horizon.first_face, 2, horizon.current_face, 1);
-        hull.remove(best);
-        stock.append(best);
-        best = findBest();
-        outer = *best;
+        hull.remove(closest_face);
+        stock.append(closest_face);
+        closest_face = findClosestFace();
+        outer = *closest_face;
       }
 
       status = ((iterations) < max_iterations) ? status : Failed;
       normal = outer.n;
       depth = outer.d;
       result.rank = 3;
-      result.vertex[0] = outer.vertex[0];
-      result.vertex[1] = outer.vertex[1];
-      result.vertex[2] = outer.vertex[2];
+      result.vertex[0] = &sv_store[outer.vertex_id[0]];
+      result.vertex[1] = &sv_store[outer.vertex_id[1]];
+      result.vertex[2] = &sv_store[outer.vertex_id[2]];
       return status;
     }
     assert(false && "The tetrahedron with which EPA started is degenerated.");
@@ -1685,11 +1703,14 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
 }
 
 /** @brief the goal is to add a face connecting vertex w and face edge f[e] */
-bool EPA::expand(size_t pass, SimplexVertex* w, SimplexFace* f, size_t e,
+bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
                  SimplexHorizon& horizon) {
   static const size_t nexti[] = {1, 2, 0};
   static const size_t previ[] = {2, 0, 1};
+  const size_t id_w =
+      num_vertices - 1;  // w is always the last vertex added to sv_store
 
+  // Check if we loop through expand indefinitely.
   if (f->pass == pass) {
     status = InvalidHull;
     return false;
@@ -1697,11 +1718,43 @@ bool EPA::expand(size_t pass, SimplexVertex* w, SimplexFace* f, size_t e,
 
   const size_t e1 = nexti[e];
 
-  // case 1: the new face is not degenerated, i.e., the new face is not coplanar
-  // with the old face f.
-  if (f->n.dot(w->w - f->vertex[e]->w) <
-      -Eigen::NumTraits<FCL_REAL>::epsilon()) {
-    SimplexFace* new_face = newFace(f->vertex[e1], f->vertex[e], w, false);
+  // Preambule: when expanding the polytope, the `closest_face` is always
+  // deleted. This is handled in EPA::evaluate after calling the expand
+  // function. This function handles how the neighboring face `f` of the
+  // `closest_face` is connected to the new support point. (Note: because
+  // `expand` is recursive, `f` can also denote a face of a face of the
+  // `closest_face`, and so on. But the reasoning is the same.)
+  //
+  // EPA can handle `f` in two ways, depending on where the new support point
+  // is located:
+  // 1) If it is "below" `f`, then `f` is preserved. A new face is created
+  //    and connects to the edge `e` of `f`. This new face is made of the
+  //    two points of the edge `e` of `f` and the new support point `w`.
+  //    Geometrically, this corresponds to the case where the projection of
+  //    the origin on the `closest_face` is **inside** the triangle defined by
+  //    the `closest_face`.
+  // 2) If it is "above" `f`, then `f` has to be deleted, simply because the
+  //    edge `e` of `f` is not part of the convex hull anymore.
+  //    The two faces adjacent to `f` are thus expanded following
+  //    either 1) or 2).
+  //    Geometrically, this corresponds to the case where the projection of
+  //    the origin on the `closest_face` is on an edge of the triangle defined
+  //    by the `closest_face`. The projection of the origin cannot lie on a
+  //    vertex of the `closest_face` because EPA should have exited before
+  //    reaching this point.
+  //
+  // The following checks for these two cases.
+  // This check is however subject to numerical precision and due to the
+  // recursive nature of `expand`, it is safer to go through the first case.
+  // This is because `expand` can potentially loop indefinitly if the
+  // Minkowski difference is very flat (hence the check above).
+  const FCL_REAL dummy_precision(100 *
+                                 std::numeric_limits<FCL_REAL>::epsilon());
+  const SimplexVertex& vf = sv_store[f->vertex_id[e]];
+  if (f->n.dot(w.w - vf.w) < dummy_precision) {
+    // case 1: the support point is "below" `f`.
+    SimplexFace* new_face =
+        newFace(f->vertex_id[e1], f->vertex_id[e], id_w, false);
     if (new_face != nullptr) {
       // add face-face connectivity
       bind(new_face, 0, f, e);
@@ -1724,8 +1777,7 @@ bool EPA::expand(size_t pass, SimplexVertex* w, SimplexFace* f, size_t e,
     return false;
   }
 
-  // case 2: the new face is coplanar with the old face f. We need to add two
-  // faces and delete the old face
+  // case 2: the support point is "above" `f`.
   const size_t e2 = previ[e];
   f->pass = pass;
   if (expand(pass, w, f->adjacent_faces[e1], f->adjacent_edge[e1], horizon) &&
