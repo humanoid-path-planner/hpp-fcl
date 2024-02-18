@@ -97,6 +97,7 @@ void exposeDistanceAPI() {
                     "signed minimum "
                     "distance (and thus its corresponding nearest points).")),
             doxygen::class_attrib_doc<DistanceRequest>("enable_nearest_points"))
+        .DEF_RW_CLASS_ATTRIB(DistanceRequest, enable_signed_distance)
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, rel_err)
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, abs_err);
   }
