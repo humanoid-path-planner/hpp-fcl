@@ -834,7 +834,7 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
                                std::logic_error);
           break;
         case Relative:
-          check_passed = (diff - tolerance * rl) <= 0;
+          check_passed = (diff - (tolerance + tolerance * rl)) <= 0;
           break;
         default:
           HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
