@@ -244,32 +244,26 @@ struct HPP_FCL_DLLAPI GJKSolver {
         //
         // Case where GJK found the shapes to be in collision, i.e. their
         // distance is below GJK's tolerance (default 1e-6).
-        if (!compute_penetration) {
-          distance = -gjk.distance;
-          p1 = p2 = normal =
-              Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
-          // If we absolutely wanted to return some witness points and normal,
-          // we could use `GJKNoCollisionExtractWitnessPointsAndNormal` and
-          // set the normal to zero.
+        if (gjk.hasPenetrationInformation(minkowski_difference)) {
+          //
+          // Case where the shapes are inflated (sphere or capsule).
+          // When the shapes are inflated, the GJK algorithm can provide the
+          // witness points and the normal.
+          GJKCollisionWithInflationExtractWitnessPointsAndNormal(
+              tf1, distance, p1, p2, normal);
+          HPP_FCL_ASSERT(distance < gjk.tolerance,
+                         "The distance found by GJK should be negative (or at )"
+                         "least below GJK's tolerance.",
+                         std::logic_error);
+          // + because the distance is negative.
+          HPP_FCL_ASSERT(std::abs((p1 - p2).norm() + distance) < gjk.tolerance,
+                         "The distance found by GJK should coincide with the "
+                         "distance between the closest points.",
+                         std::logic_error);
         } else {
-          if (gjk.hasPenetrationInformation(minkowski_difference)) {
-            //
-            // Case where the shapes are inflated (sphere or capsule).
-            // When the shapes are inflated, the GJK algorithm can provide the
-            // witness points and the normal.
-            GJKCollisionWithInflationExtractWitnessPointsAndNormal(
-                tf1, distance, p1, p2, normal);
-            HPP_FCL_ASSERT(
-                distance < gjk.tolerance,
-                "The distance found by GJK should be negative (or at )"
-                "least below GJK's tolerance.",
-                std::logic_error);
-            // + because the distance is negative.
-            HPP_FCL_ASSERT(
-                std::abs((p1 - p2).norm() + distance) < gjk.tolerance,
-                "The distance found by GJK should coincide with the "
-                "distance between the closest points.",
-                std::logic_error);
+          if (!compute_penetration) {
+            GJKCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                      normal);
           } else {
             //
             // Case where the shapes are not inflated (box, cylinder, cone,
@@ -434,6 +428,20 @@ struct HPP_FCL_DLLAPI GJKSolver {
     normal.normalize();
     p1 = tf1.transform(p1);
     p2 = tf1.transform(p2);
+  }
+
+  void GJKCollisionExtractWitnessPointsAndNormal(const Transform3f& tf1,
+                                                 FCL_REAL& distance, Vec3f& p1,
+                                                 Vec3f& p2,
+                                                 Vec3f& normal) const {
+    HPP_FCL_ASSERT(gjk.distance <= gjk.tolerance,
+                   "The distance should be lower than GJK's tolerance.",
+                   std::logic_error);
+    distance = gjk.distance;
+    gjk.getClosestPoints(minkowski_difference, p1, p2);
+    p1 = tf1.transform(p1);
+    p2 = tf1.transform(p2);
+    normal = Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
   }
 
   void EPAValidExtractWitnessPointsAndNormal(const Transform3f& tf1,
