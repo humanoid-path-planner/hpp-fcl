@@ -262,8 +262,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
         FCL_REAL dist;
         Vec3f closest_p1, closest_p2, normal;
-        solver->shapeDistance(box, box_tf, s, tf2, dist, closest_p1, closest_p2,
-                              normal);
+        bool compute_penetration = drequest->enable_signed_distance;
+        solver->shapeDistance(box, box_tf, s, tf2, dist, compute_penetration,
+                              closest_p1, closest_p2, normal);
 
         dresult->update(dist, tree1, &s, (int)(root1 - tree1->getRoot()),
                         DistanceResult::NONE, closest_p1, closest_p2, normal);
@@ -392,8 +393,10 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
         FCL_REAL dist;
         Vec3f closest_p1, closest_p2, normal;
+        bool compute_penetration = drequest->enable_signed_distance;
         solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2, dist,
-                                         closest_p1, closest_p2, normal);
+                                         compute_penetration, closest_p1,
+                                         closest_p2, normal);
 
         dresult->update(dist, tree1, tree2, (int)(root1 - tree1->getRoot()),
                         static_cast<int>(primitive_id), closest_p1, closest_p2,
@@ -509,9 +512,14 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       Vec3f c1, c2, normal;
       FCL_REAL distance;
+      // If security_margin is negative, we compute we always need to compute
+      // penetration information to be able to compare it to the security
+      // margin.
+      bool compute_penetration =
+          (crequest->enable_contact || crequest->security_margin < 0);
 
       solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2, distance,
-                                       c1, c2, normal);
+                                       compute_penetration, c1, c2, normal);
       FCL_REAL distToCollision = distance - crequest->security_margin;
 
       if (cresult->numContacts() < crequest->num_max_contacts) {
@@ -807,8 +815,10 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
         FCL_REAL dist;
         Vec3f closest_p1, closest_p2, normal;
-        solver->shapeDistance(box1, box1_tf, box2, box2_tf, dist, closest_p1,
-                              closest_p2, normal);
+        bool compute_penetration = drequest->enable_signed_distance;
+        solver->shapeDistance(box1, box1_tf, box2, box2_tf, dist,
+                              compute_penetration, closest_p1, closest_p2,
+                              normal);
 
         dresult->update(dist, tree1, tree2, (int)(root1 - tree1->getRoot()),
                         (int)(root2 - tree2->getRoot()), closest_p1, closest_p2,
@@ -927,8 +937,10 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       FCL_REAL distance;
       Vec3f c1, c2, normal;
-      solver->shapeDistance(box1, box1_tf, box2, box2_tf, distance, c1, c2,
-                            normal);
+      bool compute_penetration =
+          (crequest->enable_contact || crequest->security_margin < 0);
+      solver->shapeDistance(box1, box1_tf, box2, box2_tf, distance,
+                            compute_penetration, c1, c2, normal);
       FCL_REAL distToCollision = distance - crequest->security_margin;
 
       if (cresult->numContacts() < crequest->num_max_contacts) {

@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE(set_cv_criterion) {
   GJK gjk(128, 1e-6);
 
   // Checking defaults
-  BOOST_CHECK(solver.gjk_convergence_criterion == GJKConvergenceCriterion::VDB);
-  BOOST_CHECK(solver.gjk_convergence_criterion_type ==
+  BOOST_CHECK(solver.gjk.convergence_criterion == GJKConvergenceCriterion::VDB);
+  BOOST_CHECK(solver.gjk.convergence_criterion_type ==
               GJKConvergenceCriterionType::Relative);
 
   BOOST_CHECK(gjk.convergence_criterion == GJKConvergenceCriterion::VDB);
@@ -73,14 +73,14 @@ BOOST_AUTO_TEST_CASE(set_cv_criterion) {
               GJKConvergenceCriterionType::Relative);
 
   // Checking set
-  solver.gjk_convergence_criterion = GJKConvergenceCriterion::DualityGap;
+  solver.gjk.convergence_criterion = GJKConvergenceCriterion::DualityGap;
   gjk.convergence_criterion = GJKConvergenceCriterion::DualityGap;
-  solver.gjk_convergence_criterion_type = GJKConvergenceCriterionType::Absolute;
+  solver.gjk.convergence_criterion_type = GJKConvergenceCriterionType::Absolute;
   gjk.convergence_criterion_type = GJKConvergenceCriterionType::Absolute;
 
-  BOOST_CHECK(solver.gjk_convergence_criterion ==
+  BOOST_CHECK(solver.gjk.convergence_criterion ==
               GJKConvergenceCriterion::DualityGap);
-  BOOST_CHECK(solver.gjk_convergence_criterion_type ==
+  BOOST_CHECK(solver.gjk.convergence_criterion_type ==
               GJKConvergenceCriterionType::Absolute);
 
   BOOST_CHECK(gjk.convergence_criterion == GJKConvergenceCriterion::DualityGap);
@@ -136,21 +136,21 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
     mink_diff.set(&shape0, &shape1, identity, transforms[i]);
 
     GJK::Status res1 = gjk1.evaluate(mink_diff, init_guess, init_support_guess);
-    BOOST_CHECK(gjk1.iterations <= max_iterations);
+    BOOST_CHECK(gjk1.getNumIterations() <= max_iterations);
     Vec3f ray1 = gjk1.ray;
     res1 = gjk1.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res1 != GJK::Status::Failed);
     EIGEN_VECTOR_IS_APPROX(gjk1.ray, ray1, 1e-8);
 
     GJK::Status res2 = gjk2.evaluate(mink_diff, init_guess, init_support_guess);
-    BOOST_CHECK(gjk2.iterations <= max_iterations);
+    BOOST_CHECK(gjk2.getNumIterations() <= max_iterations);
     Vec3f ray2 = gjk2.ray;
     res2 = gjk2.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res2 != GJK::Status::Failed);
     EIGEN_VECTOR_IS_APPROX(gjk2.ray, ray2, 1e-8);
 
     GJK::Status res3 = gjk3.evaluate(mink_diff, init_guess, init_support_guess);
-    BOOST_CHECK(gjk3.iterations <= max_iterations);
+    BOOST_CHECK(gjk3.getNumIterations() <= max_iterations);
     Vec3f ray3 = gjk3.ray;
     res3 = gjk3.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res3 != GJK::Status::Failed);

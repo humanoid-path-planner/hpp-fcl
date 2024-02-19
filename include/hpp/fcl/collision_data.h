@@ -177,6 +177,18 @@ struct HPP_FCL_DLLAPI QueryRequest {
   HPP_FCL_DEPRECATED_MESSAGE("Use gjk_initial_guess instead")
   bool enable_cached_gjk_guess;
 
+  /// @brief the gjk initial guess set by user
+  Vec3f cached_gjk_guess;
+
+  /// @brief the support function initial guess set by user
+  support_func_guess_t cached_support_func_guess;
+
+  /// @brief maximum iteration for the GJK algorithm
+  size_t gjk_max_iterations;
+
+  /// @brief tolerance for the GJK algorithm
+  FCL_REAL gjk_tolerance;
+
   /// @brief whether to enable the Nesterov accleration of GJK
   GJKVariant gjk_variant;
 
@@ -185,24 +197,6 @@ struct HPP_FCL_DLLAPI QueryRequest {
 
   /// @brief convergence criterion used to stop GJK
   GJKConvergenceCriterionType gjk_convergence_criterion_type;
-
-  /// @brief tolerance for the GJK algorithm
-  FCL_REAL gjk_tolerance;
-
-  /// @brief maximum iteration for the GJK algorithm
-  size_t gjk_max_iterations;
-
-  /// @brief the gjk initial guess set by user
-  Vec3f cached_gjk_guess;
-
-  /// @brief the support function initial guess set by user
-  support_func_guess_t cached_support_func_guess;
-
-  /// @brief max number of faces for EPA
-  size_t epa_max_face_num;
-
-  /// @brief max number of vertices for EPA
-  size_t epa_max_vertex_num;
 
   /// @brief max number of iterations for EPA
   size_t epa_max_iterations;
@@ -222,15 +216,13 @@ struct HPP_FCL_DLLAPI QueryRequest {
   QueryRequest()
       : gjk_initial_guess(GJKInitialGuess::DefaultGuess),
         enable_cached_gjk_guess(false),
+        cached_gjk_guess(1, 0, 0),
+        cached_support_func_guess(support_func_guess_t::Zero()),
+        gjk_max_iterations(GJK_DEFAULT_MAX_ITERATIONS),
+        gjk_tolerance(GJK_DEFAULT_TOLERANCE),
         gjk_variant(GJKVariant::DefaultGJK),
         gjk_convergence_criterion(GJKConvergenceCriterion::VDB),
         gjk_convergence_criterion_type(GJKConvergenceCriterionType::Relative),
-        gjk_tolerance(GJK_DEFAULT_TOLERANCE),
-        gjk_max_iterations(GJK_DEFAULT_MAX_ITERATIONS),
-        cached_gjk_guess(1, 0, 0),
-        cached_support_func_guess(support_func_guess_t::Zero()),
-        epa_max_face_num(EPA_DEFAULT_MAX_FACES),
-        epa_max_vertex_num(EPA_DEFAULT_MAX_VERTICES),
         epa_max_iterations(EPA_DEFAULT_MAX_ITERATIONS),
         epa_tolerance(EPA_DEFAULT_TOLERANCE),
         enable_timings(false),
@@ -260,8 +252,6 @@ struct HPP_FCL_DLLAPI QueryRequest {
            gjk_max_iterations == other.gjk_max_iterations &&
            cached_gjk_guess == other.cached_gjk_guess &&
            cached_support_func_guess == other.cached_support_func_guess &&
-           epa_max_face_num == other.epa_max_face_num &&
-           epa_max_vertex_num == other.epa_max_vertex_num &&
            epa_max_iterations == other.epa_max_iterations &&
            epa_tolerance == other.epa_tolerance &&
            enable_timings == other.enable_timings &&
@@ -317,11 +307,12 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
 
   /// @brief whether the contact information (normal, penetration depth and
   /// contact position) will return.
-  /// @note Only effective if the collision pair involves an Octree.
-  /// Otherwise, it is always true.
   bool enable_contact;
 
   /// Whether a lower bound on distance is returned when objects are disjoint
+  HPP_FCL_DEPRECATED_MESSAGE(
+      "`enable_distance_lower_bound` is deprecated. A lower bound on distance "
+      "is always computed.")
   bool enable_distance_lower_bound;
 
   /// @brief Distance below which objects are considered in collision.
@@ -348,6 +339,8 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   /// @param[in] flag Collision request flag
   /// @param[in] num_max_contacts  Maximal number of allowed contacts
   ///
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_)
       : num_max_contacts(num_max_contacts_),
         enable_contact(flag & CONTACT),
@@ -359,16 +352,19 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   /// @brief Default constructor.
   CollisionRequest()
       : num_max_contacts(1),
-        enable_contact(false),
+        enable_contact(true),
         enable_distance_lower_bound(false),
         security_margin(0),
         break_distance(1e-3),
         distance_upper_bound((std::numeric_limits<FCL_REAL>::max)()) {}
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
   bool isSatisfied(const CollisionResult& result) const;
 
   /// @brief whether two CollisionRequest are the same or not
   inline bool operator==(const CollisionRequest& other) const {
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return QueryRequest::operator==(other) &&
            num_max_contacts == other.num_max_contacts &&
            enable_contact == other.enable_contact &&
@@ -376,6 +372,7 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
            security_margin == other.security_margin &&
            break_distance == other.break_distance &&
            distance_upper_bound == other.distance_upper_bound;
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
 };
 
@@ -494,37 +491,77 @@ struct DistanceResult;
 
 /// @brief request to the distance computation
 struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
-  /// @brief whether to return the nearest points
+  /// @brief whether to return the nearest points.
+  /// Nearest points are always computed and are the points of the shapes that
+  /// achieve a distance of `DistanceResult::min_distance`.
+  HPP_FCL_DEPRECATED_MESSAGE(
+      "`enable_nearest_points` is deprecated. Nearest points are always "
+      "computed; they are the points of the shapes that achieve a distance of "
+      "`DistanceResult::min_distance`.\n"
+      "Use `enable_signed_distance` if you want to compute a signed minimum "
+      "distance (and thus its corresponding nearest points).")
   bool enable_nearest_points;
+
+  /// @brief whether to compute the penetration depth when objects are in
+  /// collision.
+  /// Turning this off can save computation time if only the distance
+  /// when objects are disjoint is needed.
+  /// @note The minimum distance between the shapes is stored in
+  /// `DistanceResult::min_distance`.
+  /// If `enable_signed_distance` is off, `DistanceResult::min_distance`
+  /// is always positive.
+  /// If `enable_signed_distance` is on, `DistanceResult::min_distance`
+  /// can be positive or negative.
+  /// The nearest points are the points of the shapes that achieve
+  /// a distance of `DistanceResult::min_distance`.
+  bool enable_signed_distance;
 
   /// @brief error threshold for approximate distance
   FCL_REAL rel_err;  // relative error, between 0 and 1
   FCL_REAL abs_err;  // absolute error
 
   /// \param enable_nearest_points_ enables the nearest points computation.
+  /// \param enable_signed_distance_ allows to compute the penetration depth
   /// \param rel_err_
   /// \param abs_err_
-  DistanceRequest(bool enable_nearest_points_ = false, FCL_REAL rel_err_ = 0.0,
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  DistanceRequest(bool enable_nearest_points_ = true,
+                  bool enable_signed_distance_ = true, FCL_REAL rel_err_ = 0.0,
                   FCL_REAL abs_err_ = 0.0)
       : enable_nearest_points(enable_nearest_points_),
+        enable_signed_distance(enable_signed_distance_),
         rel_err(rel_err_),
         abs_err(abs_err_) {}
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
   bool isSatisfied(const DistanceResult& result) const;
 
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  DistanceRequest& operator=(const DistanceRequest& other) = default;
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+
   /// @brief whether two DistanceRequest are the same or not
   inline bool operator==(const DistanceRequest& other) const {
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return QueryRequest::operator==(other) &&
            enable_nearest_points == other.enable_nearest_points &&
+           enable_signed_distance == other.enable_signed_distance &&
            rel_err == other.rel_err && abs_err == other.abs_err;
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
 };
 
 /// @brief distance result
 struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
  public:
-  /// @brief minimum distance between two objects. If two objects are in
-  /// collision, min_distance <= 0.
+  /// @brief minimum distance between two objects.
+  /// If two objects are in collision and
+  /// DistanceRequest::enable_signed_distance is activated, min_distance <= 0.
+  /// @note The nearest points are the points of the shapes that achieve a
+  /// distance of `DistanceResult::min_distance`.
   FCL_REAL min_distance;
 
   /// @brief normal.

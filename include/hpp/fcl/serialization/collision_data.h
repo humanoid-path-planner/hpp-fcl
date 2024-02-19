@@ -53,6 +53,17 @@ void serialize(Archive& ar, hpp::fcl::QueryRequest& query_request,
   ar& make_nvp("cached_gjk_guess", query_request.cached_gjk_guess);
   ar& make_nvp("cached_support_func_guess",
                query_request.cached_support_func_guess);
+  ar& make_nvp("gjk_max_iterations", query_request.gjk_max_iterations);
+  ar& make_nvp("gjk_tolerance", query_request.gjk_tolerance);
+  ar& make_nvp("gjk_variant", query_request.gjk_variant);
+  ar& make_nvp("gjk_convergence_criterion",
+               query_request.gjk_convergence_criterion);
+  ar& make_nvp("gjk_convergence_criterion_type",
+               query_request.gjk_convergence_criterion_type);
+  ar& make_nvp("epa_max_iterations", query_request.epa_max_iterations);
+  ar& make_nvp("epa_tolerance", query_request.epa_tolerance);
+  ar& make_nvp("collision_distance_threshold",
+               query_request.collision_distance_threshold);
   ar& make_nvp("enable_timings", query_request.enable_timings);
 }
 
@@ -117,7 +128,12 @@ void serialize(Archive& ar, hpp::fcl::DistanceRequest& distance_request,
   ar& make_nvp("base",
                boost::serialization::base_object<hpp::fcl::QueryRequest>(
                    distance_request));
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ar& make_nvp("enable_nearest_points", distance_request.enable_nearest_points);
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  ar& make_nvp("enable_signed_distance",
+               distance_request.enable_signed_distance);
   ar& make_nvp("rel_err", distance_request.rel_err);
   ar& make_nvp("abs_err", distance_request.abs_err);
 }

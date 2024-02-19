@@ -12,6 +12,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Don't define GCC7 Boost serialization hack when `HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION` is defined ([#530](https://github.com/humanoid-path-planner/hpp-fcl/pull/530))
 - Default parameters for narrowphase algorithms (GJK and EPA); fixed assertion checks that were sometimes failing in GJK simplex projection and BVH `collide` ([#531](https://github.com/humanoid-path-planner/hpp-fcl/pull/531)).
 - Created a new macro `HPP_FCL_ASSERT` which behaves as an assert by default. When the option `HPP_FCL_TURN_ASSERT_INTO_EXCEPTION` is turned on, it replaces the macro by an exception ([#533](https://github.com/humanoid-path-planner/hpp-fcl/pull/533)). Also fixed an EPA assert in `GJKSolver`.
+- Simplify internals of hpp-fcl ([#535](https://github.com/humanoid-path-planner/hpp-fcl/pull/535)):
+  - Computing distance between 2 primitives shapes does not use a traversal node anymore.
+  - Removed successive mallocs in GJK/EPA when using an instance of `GJKSolver` multiple times.
+  - `GJKSolver` now deals with **all** statuses of GJK/EPA. Some of these statuses represent a bad behavior of GJK/EPA and now trigger an assertion in Debug mode. Usefull for debugging these algos.
+  - Logging was added with macros like `HPP_FCL_LOG_(INFO/DEBUG/WARNING/ERROR)`; hpp-fcl can now log usefull info when the preprocessor option `HPP_FCL_ENABLE_LOGGING` is enabled.
+  - Deprecated `enable_distance_lower_bound` in `CollisionRequest`; a lower bound on distance is always computed.
+  - Deprecated `enable_nearest_points` in `DistanceRequest`; they are always computed and are the points of the shapes that achieve a distance of `DistanceResult::min_distance`.
+  - Added `enable_signed_distance` flag in `DistanceRequest` (default `true`). Turn this of for better performance if only the distance when objects are disjoint is needed.
+  - The internal collision and distance functions of hpp-fcl now use `CollisionRequest::enable_contact` and `DistanceRequest::enable_signed_distance` to control whether or not penetration information should be computed. There are many scenarios where we don't need the penetration information and only want to know if objects are colliding and compute their distance only if they are disjoint. These flags allow the user to control the trade-off between performance vs. information of the library.
+  - Fix convergence criterion of EPA; made GJK and EPA convergence criterion absolute + relative to scale to the shapes' dimensions; remove max face/vertices fields from EPA (these can be deduced from the max number of iterations)
 
 ## [2.4.1] - 2024-01-23
 

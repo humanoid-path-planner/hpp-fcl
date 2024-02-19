@@ -40,6 +40,7 @@
 #include <../src/collision_node.h>
 #include <hpp/fcl/internal/shape_shape_func.h>
 #include <hpp/fcl/internal/traversal_node_setup.h>
+#include <hpp/fcl/internal/shape_shape_func.h>
 #include <../src/traits_traversal.h>
 
 namespace hpp {
@@ -80,23 +81,6 @@ HPP_FCL_LOCAL FCL_REAL distance_function_not_implemented(
                            << std::string(get_node_type_name(node_type2))
                            << " is not yet supported.",
                        std::invalid_argument);
-}
-
-template <typename T_SH1, typename T_SH2>
-FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
-                            const CollisionGeometry* o2, const Transform3f& tf2,
-                            const GJKSolver* nsolver,
-                            const DistanceRequest& request,
-                            DistanceResult& result) {
-  if (request.isSatisfied(result)) return result.min_distance;
-  ShapeDistanceTraversalNode<T_SH1, T_SH2> node;
-  const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
-  const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
-
-  initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
-  distance(&node);
-
-  return result.min_distance;
 }
 
 template <typename T_BVH, typename T_SH>

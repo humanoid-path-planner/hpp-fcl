@@ -76,7 +76,7 @@ void test_gjk_distance_triangle_triangle(
   std::size_t N = 10000;
   GJKSolver solver;
   if (enable_gjk_nesterov_acceleration)
-    solver.gjk_variant = GJKVariant::NesterovAcceleration;
+    solver.gjk.gjk_variant = GJKVariant::NesterovAcceleration;
   Transform3f tf1, tf2;
   Vec3f p1, p2, a1, a2;
   Matrix3f M;
@@ -136,10 +136,12 @@ void test_gjk_distance_triangle_triangle(
     TriangleP tri1(P1_loc, P2_loc, P3_loc);
     TriangleP tri2(Q1_loc, Q2_loc, Q3_loc);
     Vec3f normal;
+    bool compute_penetration = true;
 
     bool res;
     start = clock();
-    res = solver.shapeDistance(tri1, tf1, tri2, tf2, distance, p1, p2, normal);
+    res = solver.shapeDistance(tri1, tf1, tri2, tf2, distance,
+                               compute_penetration, p1, p2, normal);
     end = clock();
     results[i].timeGjk = end - start;
     results[i].collision = !res;
@@ -152,8 +154,8 @@ void test_gjk_distance_triangle_triangle(
       FCL_REAL penetration_depth(-distance);
       assert(penetration_depth >= 0);
       tf2.setTranslation((penetration_depth + 10 - 4) * normal);
-      res =
-          solver.shapeDistance(tri1, tf1, tri2, tf2, distance, c1, c2, normal2);
+      res = solver.shapeDistance(tri1, tf1, tri2, tf2, distance,
+                                 compute_penetration, c1, c2, normal2);
       if (!res) {
         std::cerr << "P1 = " << P1_loc.format(tuple) << std::endl;
         std::cerr << "P2 = " << P2_loc.format(tuple) << std::endl;
@@ -409,7 +411,7 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
   if (status == details::GJK::Valid || gjk.hasPenetrationInformation(shape)) {
     gjk.getClosestPoints(shape, w0, w1);
   } else {
-    details::EPA epa(128, 64, 255, 1e-6);
+    details::EPA epa(64, 1e-6);
     details::EPA::Status epa_status = epa.evaluate(gjk, Vec3f(1, 0, 0));
     BOOST_CHECK_EQUAL(epa_status, details::EPA::AccuracyReached);
     epa.getClosestPoints(shape, w0, w1);

@@ -32,36 +32,23 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/// This file defines different macros used to characterize the default behavior
-/// of the narrowphase algorithms GJK and EPA.
+/// This file defines basic logging macros for HPP-FCL, based on Boost.Log.
+/// To enable logging, define the preprocessor macro `HPP_FCL_ENABLE_LOGGING`.
 
-#ifndef HPP_FCL_NARROWPHASE_DEFAULTS
-#define HPP_FCL_NARROWPHASE_DEFAULTS
+#ifndef HPP_FCL_LOGGING_H
+#define HPP_FCL_LOGGING_H
 
-#include <hpp/fcl/data_types.h>
+#ifdef HPP_FCL_ENABLE_LOGGING
+#include <boost/log/trivial.hpp>
+#define HPP_FCL_LOG_INFO(message) BOOST_LOG_TRIVIAL(info) << message
+#define HPP_FCL_LOG_DEBUG(message) BOOST_LOG_TRIVIAL(debug) << message
+#define HPP_FCL_LOG_WARNING(message) BOOST_LOG_TRIVIAL(warning) << message
+#define HPP_FCL_LOG_ERROR(message) BOOST_LOG_TRIVIAL(error) << message
+#else
+#define HPP_FCL_LOG_INFO(message)
+#define HPP_FCL_LOG_DEBUG(message)
+#define HPP_FCL_LOG_WARNING(message)
+#define HPP_FCL_LOG_ERROR(message)
+#endif
 
-namespace hpp {
-namespace fcl {
-
-/// GJK
-constexpr size_t GJK_DEFAULT_MAX_ITERATIONS = 128;
-constexpr FCL_REAL GJK_DEFAULT_TOLERANCE = 1e-6;
-/// Note: if the considered shapes are on the order of the meter, and the
-/// convergence criterion of GJK is the default VDB criterion,
-/// setting a tolerance of 1e-6 on the GJK algorithm makes it precise up to
-/// the micro-meter.
-/// The same is true for EPA.
-constexpr FCL_REAL GJK_MINIMUM_TOLERANCE = 1e-6;
-
-/// EPA
-/// EPA build a polytope which maximum size is:
-///   - `#iterations + 4` vertices
-///   - `2 x #iterations + 4` faces
-constexpr size_t EPA_DEFAULT_MAX_ITERATIONS = 64;
-constexpr FCL_REAL EPA_DEFAULT_TOLERANCE = 1e-6;
-constexpr FCL_REAL EPA_MINIMUM_TOLERANCE = 1e-6;
-
-}  // namespace fcl
-}  // namespace hpp
-
-#endif  // HPP_FCL_NARROWPHASE_DEFAULTS
+#endif  // HPP_FCL_LOGGING_H

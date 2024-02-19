@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2014, CNRS-LAAS
+ *  Copyright (c) 2024, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -48,13 +49,34 @@ namespace hpp {
 namespace fcl {
 
 template <typename T_SH1, typename T_SH2>
-HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1,
-                                           const Transform3f& tf1,
-                                           const CollisionGeometry* o2,
-                                           const Transform3f& tf2,
-                                           const GJKSolver* nsolver,
-                                           const DistanceRequest& request,
-                                           DistanceResult& result);
+struct ShapeShapeDistancer {
+  static FCL_REAL run(const CollisionGeometry* o1, const Transform3f& tf1,
+                      const CollisionGeometry* o2, const Transform3f& tf2,
+                      const GJKSolver* nsolver, const DistanceRequest& request,
+                      DistanceResult& result) {
+    if (request.isSatisfied(result)) return result.min_distance;
+    FCL_REAL distance;
+    Vec3f closest_p1, closest_p2, normal;
+    const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
+    const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
+    nsolver->shapeDistance(*obj1, tf1, *obj2, tf2, distance,
+                           request.enable_signed_distance, closest_p1,
+                           closest_p2, normal);
+    result.update(distance, obj1, obj2, DistanceResult::NONE,
+                  DistanceResult::NONE, closest_p1, closest_p2, normal);
+    return distance;
+  }
+};
+
+template <typename ShapeType1, typename ShapeType2>
+FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
+                            const CollisionGeometry* o2, const Transform3f& tf2,
+                            const GJKSolver* nsolver,
+                            const DistanceRequest& request,
+                            DistanceResult& result) {
+  return ShapeShapeDistancer<ShapeType1, ShapeType2>::run(
+      o1, tf1, o2, tf2, nsolver, request, result);
+}
 
 template <typename T_SH1, typename T_SH2>
 struct ShapeShapeCollider {
@@ -66,8 +88,12 @@ struct ShapeShapeCollider {
     if (request.isSatisfied(result)) return result.numContacts();
 
     DistanceResult distanceResult;
-    // (louis) enable_contact not used yet but may be in the future
-    DistanceRequest distanceRequest(request.enable_contact);
+    DistanceRequest distanceRequest;
+    // If the security margin is negative, we have to compute the signed
+    // distance. Otherwise comparison against the secrurity margin makes no
+    // sense.
+    distanceRequest.enable_signed_distance =
+        (request.enable_contact || request.security_margin < 0);
     FCL_REAL distance = ShapeShapeDistance<T_SH1, T_SH2>(
         o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
 
