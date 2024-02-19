@@ -622,9 +622,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       bool hfield_witness_is_on_bin_side;
 
       bool collision = details::shapeDistance<Triangle, Box, 0>(
-          solver, convex1, convex1_active_faces, convex2, convex2_active_faces,
-          tf2, box, box_tf, distance, c2, c1, normal, normal_top,
-          hfield_witness_is_on_bin_side);
+          solver, *crequest, convex1, convex1_active_faces, convex2,
+          convex2_active_faces, tf2, box, box_tf, distance, c2, c1, normal,
+          normal_top, hfield_witness_is_on_bin_side);
 
       FCL_REAL distToCollision =
           distance - crequest->security_margin * (normal_top.dot(normal));
@@ -742,9 +742,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       bool hfield_witness_is_on_bin_side;
 
       bool collision = details::shapeDistance<Triangle, Box, 0>(
-          solver, convex1, convex1_active_faces, convex2, convex2_active_faces,
-          tf1, box, box_tf, distance, c1, c2, normal, normal_top,
-          hfield_witness_is_on_bin_side);
+          solver, *crequest, convex1, convex1_active_faces, convex2,
+          convex2_active_faces, tf1, box, box_tf, distance, c1, c2, normal,
+          normal_top, hfield_witness_is_on_bin_side);
 
       FCL_REAL distToCollision =
           distance - crequest->security_margin * (normal_top.dot(normal));

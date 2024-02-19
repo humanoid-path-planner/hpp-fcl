@@ -395,7 +395,8 @@ bool binCorrection(const Convex<Polygone>& convex,
 }
 
 template <typename Polygone, typename Shape, int Options>
-bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
+bool shapeDistance(const GJKSolver* nsolver, const CollisionRequest& request,
+                   const Convex<Polygone>& convex1,
                    const int convex1_active_faces,
                    const Convex<Polygone>& convex2,
                    const int convex2_active_faces, const Transform3f& tf1,
@@ -421,7 +422,8 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1,
                            compute_penetration, contact1_1, contact1_2,
                            normal1);
-  collision1 = (distance1 <= 0);
+  collision1 = (distance1 - request.security_margin <=
+                request.collision_distance_threshold);
 
   hfield_witness_is_on_bin_side1 =
       binCorrection(convex1, convex1_active_faces, shape, tf2, distance1,
@@ -434,7 +436,8 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
                            compute_penetration, contact2_1, contact2_2,
                            normal2);
-  collision2 = (distance2 <= 0);
+  collision2 = (distance2 - request.security_margin <=
+                request.collision_distance_threshold);
 
   hfield_witness_is_on_bin_side2 =
       binCorrection(convex2, convex2_active_faces, shape, tf2, distance2,
@@ -660,9 +663,9 @@ class HeightFieldShapeCollisionTraversalNode
     bool hfield_witness_is_on_bin_side;
 
     bool collision = details::shapeDistance<Triangle, S, Options>(
-        nsolver, convex1, convex1_active_faces, convex2, convex2_active_faces,
-        this->tf1, *(this->model2), this->tf2, distance, c1, c2, normal,
-        normal_face, hfield_witness_is_on_bin_side);
+        nsolver, this->request, convex1, convex1_active_faces, convex2,
+        convex2_active_faces, this->tf1, *(this->model2), this->tf2, distance,
+        c1, c2, normal, normal_face, hfield_witness_is_on_bin_side);
 
     FCL_REAL distToCollision =
         distance - this->request.security_margin * (normal_face.dot(normal));
