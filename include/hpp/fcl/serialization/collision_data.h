@@ -117,7 +117,12 @@ void serialize(Archive& ar, hpp::fcl::DistanceRequest& distance_request,
   ar& make_nvp("base",
                boost::serialization::base_object<hpp::fcl::QueryRequest>(
                    distance_request));
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ar& make_nvp("enable_nearest_points", distance_request.enable_nearest_points);
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  ar& make_nvp("enable_signed_distance",
+               distance_request.enable_signed_distance);
   ar& make_nvp("rel_err", distance_request.rel_err);
   ar& make_nvp("abs_err", distance_request.abs_err);
 }
