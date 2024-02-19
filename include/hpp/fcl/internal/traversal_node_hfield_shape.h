@@ -342,6 +342,7 @@ bool binCorrection(const Convex<Polygone>& convex,
 
   Triangle face_triangle;
   FCL_REAL shortest_distance_to_face = (std::numeric_limits<FCL_REAL>::max)();
+  face_normal = normal;
   for (const size_t active_face : active_faces) {
     size_t closest_face_id;
     const FCL_REAL distance_to_face = distanceContactPointToFace(
