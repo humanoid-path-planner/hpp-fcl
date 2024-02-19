@@ -547,6 +547,11 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
 
   bool isSatisfied(const DistanceResult& result) const;
 
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  DistanceRequest& operator=(const DistanceRequest& other) = default;
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+
   /// @brief whether two DistanceRequest are the same or not
   inline bool operator==(const DistanceRequest& other) const {
     HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
