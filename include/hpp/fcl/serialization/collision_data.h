@@ -53,6 +53,17 @@ void serialize(Archive& ar, hpp::fcl::QueryRequest& query_request,
   ar& make_nvp("cached_gjk_guess", query_request.cached_gjk_guess);
   ar& make_nvp("cached_support_func_guess",
                query_request.cached_support_func_guess);
+  ar& make_nvp("gjk_max_iterations", query_request.gjk_max_iterations);
+  ar& make_nvp("gjk_tolerance", query_request.gjk_tolerance);
+  ar& make_nvp("gjk_variant", query_request.gjk_variant);
+  ar& make_nvp("gjk_convergence_criterion",
+               query_request.gjk_convergence_criterion);
+  ar& make_nvp("gjk_convergence_criterion_type",
+               query_request.gjk_convergence_criterion_type);
+  ar& make_nvp("epa_max_iterations", query_request.epa_max_iterations);
+  ar& make_nvp("epa_tolerance", query_request.epa_tolerance);
+  ar& make_nvp("collision_distance_threshold",
+               query_request.collision_distance_threshold);
   ar& make_nvp("enable_timings", query_request.enable_timings);
 }
 
