@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2014, CNRS-LAAS
+ *  Copyright (c) 2024, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without

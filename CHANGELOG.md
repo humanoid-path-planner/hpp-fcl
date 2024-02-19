@@ -21,7 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Deprecated `enable_nearest_points` in `DistanceRequest`; they are always computed and are the points of the shapes that achieve a distance of `DistanceResult::min_distance`.
   - Added `enable_signed_distance` flag in `DistanceRequest` (default `true`). Turn this of for better performance if only the distance when objects are disjoint is needed.
   - The internal collision and distance functions of hpp-fcl now use `CollisionRequest::enable_contact` and `DistanceRequest::enable_signed_distance` to control whether or not penetration information should be computed. There are many scenarios where we don't need the penetration information and only want to know if objects are colliding and compute their distance only if they are disjoint. These flags allow the user to control the trade-off between performance vs. information of the library.
-  - Fix a numerical precision bug in EPA's `expand` method.
+  - Fix convergence criterion of EPA; made GJK and EPA convergence criterion absolute + relative to scale to the shapes' dimensions; remove max face/vertices fields from EPA (these can be deduced from the max number of iterations)
 
 ## [2.4.1] - 2024-01-23
 
