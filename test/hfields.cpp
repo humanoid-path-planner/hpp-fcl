@@ -483,28 +483,23 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
   const Transform3f sphere_pos(Vec3f(0., 0., 1.));
   const Transform3f hfield_pos;
 
-  {
+  const FCL_REAL thresholds[3] = {0., 0.01, -0.005};
+
+  for (int i = 0; i < 3; ++i) {
     CollisionResult result;
     CollisionRequest request;
-    request.security_margin = 0.;
+    request.security_margin = thresholds[i];
     collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
 
     BOOST_CHECK(!result.isCollision());
   }
 
-  {
+  // Increase the size of the sphere to force the collision
+  sphere.radius = 1.01;
+  for (int i = 0; i < 3; ++i) {
     CollisionResult result;
     CollisionRequest request;
-    request.security_margin = 0.01;
-    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
-
-    BOOST_CHECK(!result.isCollision());
-  }
-
-  {
-    CollisionResult result;
-    CollisionRequest request;
-    request.security_margin = 1. - sphere.radius;
+    request.security_margin = thresholds[i];
     collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
 
     BOOST_CHECK(result.isCollision());
@@ -513,7 +508,7 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
   {
     CollisionResult result;
     CollisionRequest request;
-    request.security_margin = -0.005;
+    request.security_margin = -0.02;
     collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
 
     BOOST_CHECK(!result.isCollision());
