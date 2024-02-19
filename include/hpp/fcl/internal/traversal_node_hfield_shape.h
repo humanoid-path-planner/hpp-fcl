@@ -668,8 +668,7 @@ class HeightFieldShapeCollisionTraversalNode
         convex2_active_faces, this->tf1, *(this->model2), this->tf2, distance,
         c1, c2, normal, normal_face, hfield_witness_is_on_bin_side);
 
-    FCL_REAL distToCollision =
-        distance - this->request.security_margin * (normal_face.dot(normal));
+    FCL_REAL distToCollision = distance - this->request.security_margin;
     if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
       if (this->result->numContacts() < this->request.num_max_contacts) {
