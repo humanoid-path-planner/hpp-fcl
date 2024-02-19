@@ -479,6 +479,9 @@ struct HPP_FCL_DLLAPI EPA {
   /// @brief Get the number of vertices in the polytope of the last run of EPA.
   size_t getNumVertices() const { return num_vertices; }
 
+  /// @brief Get the number of faces in the polytope of the last run of EPA.
+  size_t getNumFaces() const { return hull.count; }
+
   /// @brief resets the EPA algorithm, preparing it for a new run.
   /// It potentially reallocates memory for the vertices and faces
   /// if the passed parameters are bigger than the previous ones.
