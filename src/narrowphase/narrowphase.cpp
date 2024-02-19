@@ -469,7 +469,7 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
   minkowski_difference.set(&t1, &t2);
 
   // Reset GJK algorithm
-  gjk.reset();
+  gjk.reset(gjk_max_iterations, gjk_tolerance);
 
   // Get GJK initial guess
   Vec3f guess;

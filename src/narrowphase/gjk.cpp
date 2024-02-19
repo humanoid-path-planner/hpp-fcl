@@ -529,10 +529,12 @@ void GJK::initialize() {
   gjk_variant = GJKVariant::DefaultGJK;
   convergence_criterion = GJKConvergenceCriterion::VDB;
   convergence_criterion_type = GJKConvergenceCriterionType::Relative;
-  reset();
+  reset(max_iterations, tolerance);
 }
 
-void GJK::reset() {
+void GJK::reset(size_t max_iterations_, FCL_REAL tolerance_) {
+  max_iterations = max_iterations_;
+  tolerance = tolerance_;
   status = DidNotRun;
   nfree = 0;
   simplex = nullptr;
@@ -1467,13 +1469,16 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   return false;
 }
 
-void EPA::initialize() { reset(max_vertex_num, max_face_num); }
+void EPA::initialize() { reset(max_iterations, tolerance); }
 
-void EPA::reset(size_t max_vertex_num_, size_t max_face_num_) {
-  sv_store.resize(max_vertex_num_);
-  max_vertex_num = max_vertex_num_;
-  fc_store.resize(max_face_num_);
-  max_face_num = max_face_num_;
+void EPA::reset(size_t max_iterations_, FCL_REAL tolerance_) {
+  max_iterations = max_iterations_;
+  tolerance = tolerance_;
+  // EPA creates only 2 faces and 1 vertex per iteration.
+  // (+ the 4 (or 8 in the future) faces at the beginning
+  //  + the 4 vertices (or 6 in the future) at the beginning)
+  sv_store.resize(max_iterations + 4);
+  fc_store.resize(2 * max_iterations + 4);
   status = DidNotRun;
   normal = Vec3f(0, 0, 0);
   depth = 0;
@@ -1485,8 +1490,8 @@ void EPA::reset(size_t max_vertex_num_, size_t max_face_num_) {
   // The stock is initialized with the faces in reverse order so that the
   // hull and the stock do not overlap (the stock will shring as the hull will
   // grow).
-  for (size_t i = 0; i < max_face_num; ++i)
-    stock.append(&fc_store[max_face_num - i - 1]);
+  for (size_t i = 0; i < fc_store.size(); ++i)
+    stock.append(&fc_store[fc_store.size() - i - 1]);
   iterations = 0;
 }
 
@@ -1555,6 +1560,7 @@ EPA::SimplexFace* EPA::newFace(size_t id_a, size_t id_b, size_t id_c,
     return nullptr;
   }
 
+  assert(hull.count >= fc_store.size() && "EPA: should not be out of faces.");
   status = OutOfFaces;
   return nullptr;
 }
@@ -1589,7 +1595,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
       stock.append(f);
     }
     assert(hull.count == 0);
-    assert(stock.count == max_face_num);
+    assert(stock.count == fc_store.size());
 
     status = Valid;
     num_vertices = 0;
@@ -1631,7 +1637,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
       iterations = 0;
       size_t pass = 0;
       for (; iterations < max_iterations; ++iterations) {
-        if (num_vertices >= max_vertex_num) {
+        if (num_vertices >= sv_store.size()) {
           status = OutOfVertices;
           break;
         }
@@ -1720,7 +1726,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   // the origin.
   status = FallBack;
   // TODO: define a better normal
-  assert(simplex.rank == 1 && simplex.vertex[0]->w.isZero(gjk.tolerance));
+  assert(simplex.rank == 1 && simplex.vertex[0]->w.isZero(gjk.getTolerance()));
   normal = -guess;
   FCL_REAL nl = normal.norm();
   if (nl > 0)

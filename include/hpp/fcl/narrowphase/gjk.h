@@ -181,11 +181,7 @@ struct HPP_FCL_DLLAPI GJK {
 
  public:
   FCL_REAL distance_upper_bound;
-  size_t max_iterations;
-  FCL_REAL tolerance;
-  size_t iterations;
   Status status;
-  size_t iterations_momentum_stop;
   GJKVariant gjk_variant;
   GJKConvergenceCriterion convergence_criterion;
   GJKConvergenceCriterionType convergence_criterion_type;
@@ -210,11 +206,18 @@ struct HPP_FCL_DLLAPI GJK {
   Simplex* simplex;  // Pointer to the result of the last run of GJK.
 
  private:
+  // max_iteration and tolerance are made private
+  // because they are meant to be set by the `reset` function.
+  size_t max_iterations;
+  FCL_REAL tolerance;
+
   SimplexV store_v[4];
   SimplexV* free_v[4];
   vertex_id_t nfree;
   vertex_id_t current;
   Simplex simplices[2];
+  size_t iterations;
+  size_t iterations_momentum_stop;
 
  public:
   /// \param max_iterations_ number of iteration before GJK returns failure.
@@ -233,7 +236,7 @@ struct HPP_FCL_DLLAPI GJK {
   /// This function does **not** modify the parameters of the GJK algorithm,
   /// i.e. the maximum number of iterations, the tolerance, the variant of GJK,
   /// or its convergene criterion.
-  void reset();
+  void reset(size_t max_iterations_, FCL_REAL tolerance_);
 
   /// @brief GJK algorithm, given the initial value guess
   Status evaluate(
@@ -286,8 +289,18 @@ struct HPP_FCL_DLLAPI GJK {
   bool checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
                         const FCL_REAL& omega);
 
-  /// @brief Get GJK number of iterations.
-  inline size_t getIterationsMomentumStopped() const {
+  /// @brief Get the max number of iterations of GJK.
+  size_t getNumMaxIterations() const { return max_iterations; }
+
+  /// @brief Get the tolerance of GJK.
+  FCL_REAL getTolerance() const { return tolerance; }
+
+  /// @brief Get the number of iterations of the last run of GJK.
+  size_t getNumIterations() const { return iterations; }
+
+  /// @brief Get GJK number of iterations before momentum stops.
+  /// Only usefull if the Nesterov or Polyak acceleration activated.
+  size_t getNumIterationsMomentumStopped() const {
     return iterations_momentum_stop;
   }
 
@@ -414,13 +427,6 @@ struct HPP_FCL_DLLAPI EPA {
   };
 
  public:
-  size_t max_face_num;
-  size_t max_vertex_num;
-  size_t max_iterations;
-
-  FCL_REAL tolerance;
-  size_t iterations;
-
   Status status;
   GJK::Simplex result;
   Vec3f normal;
@@ -428,32 +434,50 @@ struct HPP_FCL_DLLAPI EPA {
   SimplexFace* closest_face;
 
  private:
+  // max_iteration and tolerance are made private
+  // because they are meant to be set by the `reset` function.
+  size_t max_iterations;
+  FCL_REAL tolerance;
+
   std::vector<SimplexVertex> sv_store;
   std::vector<SimplexFace> fc_store;
-  size_t num_vertices;  // number of vertices in polytpoe constructed by EPA
   SimplexFaceList hull, stock;
+  size_t num_vertices;  // number of vertices in polytpoe constructed by EPA
+  size_t iterations;
 
  public:
-  EPA(size_t max_face_num_, size_t max_vertex_num_, size_t max_iterations_,
-      FCL_REAL tolerance_)
-      : max_face_num(max_face_num_),
-        max_vertex_num(max_vertex_num_),
-        max_iterations(max_iterations_),
-        tolerance(tolerance_) {
+  EPA(size_t max_iterations_, FCL_REAL tolerance_)
+      : max_iterations(max_iterations_), tolerance(tolerance_) {
     initialize();
   }
 
   /// @brief Copy constructor of EPA.
   /// Mostly needed for the copy constructor of `GJKSolver`.
   EPA(const EPA& other)
-      : max_face_num(other.max_face_num),
-        max_vertex_num(other.max_vertex_num),
-        max_iterations(other.max_iterations),
+      : max_iterations(other.max_iterations),
         tolerance(other.tolerance),
         sv_store(other.sv_store),
         fc_store(other.fc_store) {
     initialize();
   }
+
+  /// @brief Get the max number of iterations of EPA.
+  size_t getNumMaxIterations() const { return max_iterations; }
+
+  /// @brief Get the max number of vertices of EPA.
+  size_t getNumMaxVertices() const { return sv_store.size(); }
+
+  /// @brief Get the max number of faces of EPA.
+  size_t getNumMaxFaces() const { return fc_store.size(); }
+
+  /// @brief Get the tolerance of EPA.
+  FCL_REAL getTolerance() const { return tolerance; }
+
+  /// @brief Get the number of iterations of the last run of EPA.
+  size_t getNumIterations() const { return iterations; }
+
+  /// @brief Get the number of vertices in the polytope of the last run of EPA.
+  size_t getNumVertices() const { return num_vertices; }
 
   /// @brief resets the EPA algorithm, preparing it for a new run.
   /// It potentially reallocates memory for the vertices and faces
@@ -463,7 +487,7 @@ struct HPP_FCL_DLLAPI EPA {
   /// @note calling this function destroys the previous state of EPA.
   /// In the future, we may want to copy it instead, i.e. when EPA will
   /// be (properly) warm-startable.
-  void reset(size_t max_vertex_num_, size_t max_face_num_);
+  void reset(size_t max_iterations, FCL_REAL tolerance);
 
   /// \return a Status which can be demangled using (status & Valid) or
   ///         (status & Failed). The other values provide a more detailled

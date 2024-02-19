@@ -422,8 +422,8 @@ void testBoxBoxContactPoints(const Matrix3f& R) {
   double distance;
 
   // Make sure the two boxes are colliding
-  solver1.gjk.tolerance = 1e-5;
-  solver1.epa.tolerance = 1e-5;
+  solver1.gjk_tolerance = 1e-5;
+  solver1.epa_tolerance = 1e-5;
   bool res =
       solver1.shapeIntersect(s1, tf1, s2, tf2, distance, true, &point, &normal);
   FCL_CHECK(res);
@@ -3208,14 +3208,10 @@ BOOST_AUTO_TEST_CASE(shapeDistance_cylindercylinder) {
 
     // To handle the superposing case, we have to decrease the tolerance of EPA
     // and allow it to work with more vertices and faces.
-    size_t epa_max_face_num_backup = solver1.epa_max_face_num;
-    size_t epa_max_vertices_num_backup = solver1.epa_max_vertex_num;
-    FCL_REAL epa_tolerance_backup = solver1.epa.tolerance;
-    size_t epa_max_iterations_backup = solver1.epa.max_iterations;
-    solver1.epa_max_face_num = 1000;
-    solver1.epa_max_vertex_num = 1000;
-    solver1.epa.tolerance = 1e-2;
-    solver1.epa.max_iterations = 1000;
+    FCL_REAL epa_tolerance_backup = solver1.epa_tolerance;
+    size_t epa_max_iterations_backup = solver1.epa_max_iterations;
+    solver1.epa_tolerance = 1e-2;
+    solver1.epa_max_iterations = 1000;
 
     res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                                 compute_penetration, closest_p1, closest_p2,
@@ -3230,10 +3226,8 @@ BOOST_AUTO_TEST_CASE(shapeDistance_cylindercylinder) {
     BOOST_CHECK(res);
 
     // We restore the original values of the EPA parameters
-    solver1.epa_max_face_num = epa_max_face_num_backup;
-    solver1.epa_max_vertex_num = epa_max_vertices_num_backup;
-    solver1.epa.tolerance = epa_tolerance_backup;
-    solver1.epa.max_iterations = epa_max_iterations_backup;
+    solver1.epa_tolerance = epa_tolerance_backup;
+    solver1.epa_max_iterations = epa_max_iterations_backup;
   }
 
   res = solver1.shapeDistance(
@@ -3291,14 +3285,10 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecone) {
 
     // To handle the superposing case, we have to decrease the tolerance of EPA
     // and allow it to work with more vertices and faces.
-    size_t epa_max_face_num_backup = solver1.epa_max_face_num;
-    size_t epa_max_vertices_num_backup = solver1.epa_max_vertex_num;
-    FCL_REAL epa_tolerance_backup = solver1.epa.tolerance;
-    size_t epa_max_iterations_backup = solver1.epa.max_iterations;
-    solver1.epa_max_face_num = 1000;
-    solver1.epa_max_vertex_num = 1000;
-    solver1.epa.tolerance = 1e-2;
-    solver1.epa.max_iterations = 1000;
+    FCL_REAL epa_tolerance_backup = solver1.epa_tolerance;
+    size_t epa_max_iterations_backup = solver1.epa_max_iterations;
+    solver1.epa_tolerance = 1e-2;
+    solver1.epa_max_iterations = 1000;
 
     res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                                 compute_penetration, closest_p1, closest_p2,
@@ -3313,10 +3303,8 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecone) {
     BOOST_CHECK(res);
 
     // We restore the original values of the EPA parameters
-    solver1.epa_max_face_num = epa_max_face_num_backup;
-    solver1.epa_max_vertex_num = epa_max_vertices_num_backup;
-    solver1.epa.tolerance = epa_tolerance_backup;
-    solver1.epa.max_iterations = epa_max_iterations_backup;
+    solver1.epa_tolerance = epa_tolerance_backup;
+    solver1.epa_max_iterations = epa_max_iterations_backup;
   }
 
   res = solver1.shapeDistance(
@@ -3374,14 +3362,10 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecylinder) {
 
     // To handle the superposing case, we have to decrease the tolerance of EPA
     // and allow it to work with more vertices and faces.
-    size_t epa_max_face_num_backup = solver1.epa_max_face_num;
-    size_t epa_max_vertices_num_backup = solver1.epa_max_vertex_num;
-    FCL_REAL epa_tolerance_backup = solver1.epa.tolerance;
-    size_t epa_max_iterations_backup = solver1.epa.max_iterations;
-    solver1.epa_max_face_num = 1000;
-    solver1.epa_max_vertex_num = 1000;
-    solver1.epa.tolerance = 1e-2;
-    solver1.epa.max_iterations = 1000;
+    FCL_REAL epa_tolerance_backup = solver1.epa_tolerance;
+    size_t epa_max_iterations_backup = solver1.epa_max_iterations;
+    solver1.epa_tolerance = 1e-2;
+    solver1.epa_max_iterations = 1000;
 
     res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                                 compute_penetration, closest_p1, closest_p2,
@@ -3396,10 +3380,8 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecylinder) {
     BOOST_CHECK(res);
 
     // We restore the original values of the EPA parameters
-    solver1.epa_max_face_num = epa_max_face_num_backup;
-    solver1.epa_max_vertex_num = epa_max_vertices_num_backup;
-    solver1.epa.tolerance = epa_tolerance_backup;
-    solver1.epa.max_iterations = epa_max_iterations_backup;
+    solver1.epa_tolerance = epa_tolerance_backup;
+    solver1.epa_max_iterations = epa_max_iterations_backup;
   }
 
   res = solver1.shapeDistance(
@@ -4263,14 +4245,10 @@ BOOST_AUTO_TEST_CASE(cylindercylinder) {
 
     // To handle the superposing case, we have to decrease the tolerance of EPA
     // and allow it to work with more vertices and faces.
-    size_t epa_max_face_num_backup = solver1.epa_max_face_num;
-    size_t epa_max_vertices_num_backup = solver1.epa_max_vertex_num;
-    FCL_REAL epa_tolerance_backup = solver1.epa.tolerance;
-    size_t epa_max_iterations_backup = solver1.epa.max_iterations;
-    solver1.epa_max_face_num = 1000;
-    solver1.epa_max_vertex_num = 1000;
-    solver1.epa.tolerance = 1e-2;
-    solver1.epa.max_iterations = 1000;
+    FCL_REAL epa_tolerance_backup = solver1.epa_tolerance;
+    size_t epa_max_iterations_backup = solver1.epa_max_iterations;
+    solver1.epa_tolerance = 1e-2;
+    solver1.epa_max_iterations = 1000;
 
     res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                                 compute_penetration, closest_p1, closest_p2,
@@ -4285,10 +4263,8 @@ BOOST_AUTO_TEST_CASE(cylindercylinder) {
     BOOST_CHECK(res);
 
     // We restore the original values of the EPA parameters
-    solver1.epa_max_face_num = epa_max_face_num_backup;
-    solver1.epa_max_vertex_num = epa_max_vertices_num_backup;
-    solver1.epa.tolerance = epa_tolerance_backup;
-    solver1.epa.max_iterations = epa_max_iterations_backup;
+    solver1.epa_tolerance = epa_tolerance_backup;
+    solver1.epa_max_iterations = epa_max_iterations_backup;
   }
   res = solver2.shapeDistance(
       s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), dist,
@@ -4345,14 +4321,10 @@ BOOST_AUTO_TEST_CASE(conecone) {
 
     // To handle the superposing case, we have to decrease the tolerance of EPA
     // and allow it to work with more vertices and faces.
-    size_t epa_max_face_num_backup = solver1.epa_max_face_num;
-    size_t epa_max_vertices_num_backup = solver1.epa_max_vertex_num;
-    FCL_REAL epa_tolerance_backup = solver1.epa.tolerance;
-    size_t epa_max_iterations_backup = solver1.epa.max_iterations;
-    solver1.epa_max_face_num = 1000;
-    solver1.epa_max_vertex_num = 1000;
-    solver1.epa.tolerance = 1e-2;
-    solver1.epa.max_iterations = 1000;
+    FCL_REAL epa_tolerance_backup = solver1.epa_tolerance;
+    size_t epa_max_iterations_backup = solver1.epa_max_iterations;
+    solver1.epa_tolerance = 1e-2;
+    solver1.epa_max_iterations = 1000;
 
     res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
                                 compute_penetration, closest_p1, closest_p2,
@@ -4367,10 +4339,8 @@ BOOST_AUTO_TEST_CASE(conecone) {
     BOOST_CHECK(res);
 
     // We restore the original values of the EPA parameters
-    solver1.epa_max_face_num = epa_max_face_num_backup;
-    solver1.epa_max_vertex_num = epa_max_vertices_num_backup;
-    solver1.epa.tolerance = epa_tolerance_backup;
-    solver1.epa.max_iterations = epa_max_iterations_backup;
+    solver1.epa_tolerance = epa_tolerance_backup;
+    solver1.epa_max_iterations = epa_max_iterations_backup;
   }
 
   res = solver2.shapeDistance(

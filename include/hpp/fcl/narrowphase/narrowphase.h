@@ -181,7 +181,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
       minkowski_difference.set(&s1, &s2);
     else
       minkowski_difference.set(&s1, &s2, tf1, tf2);
-    gjk.reset();
+    gjk.reset(gjk_max_iterations, gjk_tolerance);
 
     // Get initial guess for GJK: default, cached or bounding volume guess
     Vec3f guess;
@@ -235,10 +235,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
         // 1e-6).
         GJKNoCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                     normal);
-        HPP_FCL_ASSERT(std::abs((p1 - p2).norm() - distance) < gjk.tolerance,
-                       "The distance found by GJK should coincide with the "
-                       "distance between the closest points.",
-                       std::logic_error);
+        HPP_FCL_ASSERT(
+            std::abs((p1 - p2).norm() - distance) < gjk.getTolerance(),
+            "The distance found by GJK should coincide with the "
+            "distance between the closest points.",
+            std::logic_error);
         break;
       case details::GJK::Inside:
         //
@@ -251,15 +252,16 @@ struct HPP_FCL_DLLAPI GJKSolver {
           // witness points and the normal.
           GJKCollisionWithInflationExtractWitnessPointsAndNormal(
               tf1, distance, p1, p2, normal);
-          HPP_FCL_ASSERT(distance < gjk.tolerance,
+          HPP_FCL_ASSERT(distance < gjk.getTolerance(),
                          "The distance found by GJK should be negative (or at )"
                          "least below GJK's tolerance.",
                          std::logic_error);
           // + because the distance is negative.
-          HPP_FCL_ASSERT(std::abs((p1 - p2).norm() + distance) < gjk.tolerance,
-                         "The distance found by GJK should coincide with the "
-                         "distance between the closest points.",
-                         std::logic_error);
+          HPP_FCL_ASSERT(
+              std::abs((p1 - p2).norm() + distance) < gjk.getTolerance(),
+              "The distance found by GJK should coincide with the "
+              "distance between the closest points.",
+              std::logic_error);
         } else {
           if (!compute_penetration) {
             GJKCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
@@ -273,11 +275,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
             // Reset EPA algorithm. Potentially allocate memory if
             // `epa_max_face_num` or `epa_max_vertex_num` are bigger than EPA's
             // current storage.
-            // TODO(louis): EPA creates only 2 faces and 1 vertex per iteration.
-            // (+ the 4 (or 8 in the future) faces at the beginning
-            //  + the 4 vertices (or 6 in the future) at the beginning)
-            // Compute max faces/vertices based on number of iterations.
-            epa.reset(epa_max_vertex_num, epa_max_face_num);
+            epa.reset(epa_max_iterations, epa_tolerance);
 
             // TODO: understand why EPA's performance is so bad on cylinders and
             // cones.
@@ -316,7 +314,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
               case details::EPA::Valid:
               case details::EPA::AccuracyReached:
                 HPP_FCL_ASSERT(
-                    -epa.depth <= epa.tolerance,
+                    -epa.depth <= epa.getTolerance(),
                     "EPA's penetration distance should be negative (or "
                     "at least below EPA's "
                     "tolerance).",
@@ -411,7 +409,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // it can safely be normalized.
     distance = gjk.distance;
     HPP_FCL_ASSERT(
-        gjk.ray.norm() > gjk.tolerance,
+        gjk.ray.norm() > gjk.getTolerance(),
         "The norm of GJK's ray should be bigger than GJK's tolerance.",
         std::logic_error);
     normal.noalias() = -tf1.getRotation() * gjk.ray;
@@ -438,7 +436,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                                  FCL_REAL& distance, Vec3f& p1,
                                                  Vec3f& p2,
                                                  Vec3f& normal) const {
-    HPP_FCL_ASSERT(gjk.distance <= gjk.tolerance,
+    HPP_FCL_ASSERT(gjk.distance <= gjk.getTolerance(),
                    "The distance should be lower than GJK's tolerance.",
                    std::logic_error);
     distance = gjk.distance;
@@ -474,14 +472,16 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// By default, we don't want EPA to allocate memory because
   /// certain functions of the `GJKSolver` class have specializations
   /// which don't use EPA (and/or GJK).
-  /// So we set the maximum number of faces and vertices of EPA to zero.
+  /// So we give EPA's constructor a max number of iterations of zero.
   /// Only the functions that need EPA will reset the algorithm and allocate
   /// memory if needed.
   GJKSolver()
       : gjk(GJK_DEFAULT_MAX_ITERATIONS, GJK_DEFAULT_TOLERANCE),
-        epa(0, 0, EPA_DEFAULT_MAX_ITERATIONS, EPA_DEFAULT_TOLERANCE) {
-    epa_max_face_num = EPA_DEFAULT_MAX_FACES;
-    epa_max_vertex_num = EPA_DEFAULT_MAX_VERTICES;
+        epa(0, EPA_DEFAULT_TOLERANCE) {
+    gjk_max_iterations = GJK_DEFAULT_MAX_ITERATIONS;
+    gjk_tolerance = GJK_DEFAULT_TOLERANCE;
+    epa_max_iterations = EPA_DEFAULT_MAX_ITERATIONS;
+    epa_tolerance = EPA_DEFAULT_TOLERANCE;
 
     gjk_initial_guess = GJKInitialGuess::DefaultGuess;
     enable_cached_guess = false;  // TODO: use gjk_initial_guess instead
@@ -500,11 +500,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// \param[in] request DistanceRequest input
   ///
   /// See the default constructor; by default, we don't want
-  /// EPA to allocate memory so we set the maximum number of faces and vertices
-  /// of EPA to zero.
+  /// EPA to allocate memory so we call EPA's constructor with 0 max
+  /// number of iterations.
   GJKSolver(const DistanceRequest& request)
       : gjk(request.gjk_max_iterations, request.gjk_tolerance),
-        epa(0, 0, request.epa_max_iterations, request.epa_tolerance) {
+        epa(0, request.epa_tolerance) {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
     distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
@@ -526,22 +526,19 @@ struct HPP_FCL_DLLAPI GJKSolver {
       cached_guess = request.cached_gjk_guess;
       support_func_cached_guess = request.cached_support_func_guess;
     }
-    gjk.tolerance = request.gjk_tolerance;
-    gjk.max_iterations = request.gjk_max_iterations;
+    gjk_max_iterations = request.gjk_max_iterations;
+    gjk_tolerance = request.gjk_tolerance;
     // For distance computation, we don't want GJK to early stop
     gjk.setDistanceEarlyBreak((std::numeric_limits<FCL_REAL>::max)());
     gjk.gjk_variant = request.gjk_variant;
     gjk.convergence_criterion = request.gjk_convergence_criterion;
     gjk.convergence_criterion_type = request.gjk_convergence_criterion_type;
+    gjk.status = details::GJK::Status::DidNotRun;
 
     // ---------------------
     // EPA settings
-    epa_max_face_num = request.epa_max_face_num;
-    epa_max_vertex_num = request.epa_max_vertex_num;
-    epa.max_iterations = request.epa_max_iterations;
-    epa.tolerance = request.epa_tolerance;
-
-    gjk.status = details::GJK::Status::DidNotRun;
+    epa_max_iterations = request.epa_max_iterations;
+    epa_tolerance = request.epa_tolerance;
     epa.status = details::EPA::Status::DidNotRun;
 
 #ifndef NDEBUG
@@ -568,11 +565,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// \param[in] request CollisionRequest input
   ///
   /// See the default constructor; by default, we don't want
-  /// EPA to allocate memory so we set the maximum number of faces and vertices
-  /// of EPA to zero.
+  /// EPA to allocate memory so we call EPA's constructor with 0 max
+  /// number of iterations.
   GJKSolver(const CollisionRequest& request)
       : gjk(request.gjk_max_iterations, request.gjk_tolerance),
-        epa(0, 0, request.epa_max_iterations, request.epa_tolerance) {
+        epa(0, request.epa_tolerance) {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
     distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
@@ -595,8 +592,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
       cached_guess = request.cached_gjk_guess;
       support_func_cached_guess = request.cached_support_func_guess;
     }
-    gjk.tolerance = request.gjk_tolerance;
-    gjk.max_iterations = request.gjk_max_iterations;
+    gjk_tolerance = request.gjk_tolerance;
+    gjk_max_iterations = request.gjk_max_iterations;
     // The distance upper bound should be at least greater to the requested
     // security margin. Otherwise, we will likely miss some collisions.
     distance_upper_bound = (std::max)(
@@ -608,10 +605,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     // ---------------------
     // EPA settings
-    epa_max_face_num = request.epa_max_face_num;
-    epa_max_vertex_num = request.epa_max_vertex_num;
-    epa.max_iterations = request.epa_max_iterations;
-    epa.tolerance = request.epa_tolerance;
+    epa_max_iterations = request.epa_max_iterations;
+    epa_tolerance = request.epa_tolerance;
 
     // ---------------------
     // Reset GJK and EPA status
@@ -643,12 +638,14 @@ struct HPP_FCL_DLLAPI GJKSolver {
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   bool operator==(const GJKSolver& other) const {
-    return epa_max_face_num == other.epa_max_face_num &&
-           epa_max_vertex_num == other.epa_max_vertex_num &&
-           enable_cached_guess ==
+    return enable_cached_guess ==
                other.enable_cached_guess &&  // TODO: use gjk_initial_guess
                                              // instead
            cached_guess == other.cached_guess &&
+           gjk_max_iterations == other.gjk_max_iterations &&
+           gjk_tolerance == other.gjk_tolerance &&
+           epa_max_iterations == other.epa_max_iterations &&
+           epa_tolerance == other.epa_tolerance &&
            support_func_cached_guess == other.support_func_cached_guess &&
            distance_upper_bound == other.distance_upper_bound &&
            gjk_initial_guess == other.gjk_initial_guess;
@@ -677,11 +674,17 @@ struct HPP_FCL_DLLAPI GJKSolver {
   ///        the two shapes have a distance greather than distance_upper_bound.
   FCL_REAL distance_upper_bound;
 
-  /// @brief maximum number of simplex face used in EPA algorithm
-  size_t epa_max_face_num;
+  /// @brief maximum number of iterations of GJK
+  size_t gjk_max_iterations;
 
-  /// @brief maximum number of simplex vertex used in EPA algorithm
-  size_t epa_max_vertex_num;
+  /// @brief tolerance of GJK
+  FCL_REAL gjk_tolerance;
+
+  /// @brief maximum number of iterations of EPA
+  size_t epa_max_iterations;
+
+  /// @brief tolerance of EPA
+  FCL_REAL epa_tolerance;
 
   /// @brief GJK algorithm
   mutable details::GJK gjk;

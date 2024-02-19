@@ -177,6 +177,18 @@ struct HPP_FCL_DLLAPI QueryRequest {
   HPP_FCL_DEPRECATED_MESSAGE("Use gjk_initial_guess instead")
   bool enable_cached_gjk_guess;
 
+  /// @brief the gjk initial guess set by user
+  Vec3f cached_gjk_guess;
+
+  /// @brief the support function initial guess set by user
+  support_func_guess_t cached_support_func_guess;
+
+  /// @brief maximum iteration for the GJK algorithm
+  size_t gjk_max_iterations;
+
+  /// @brief tolerance for the GJK algorithm
+  FCL_REAL gjk_tolerance;
+
   /// @brief whether to enable the Nesterov accleration of GJK
   GJKVariant gjk_variant;
 
@@ -185,24 +197,6 @@ struct HPP_FCL_DLLAPI QueryRequest {
 
   /// @brief convergence criterion used to stop GJK
   GJKConvergenceCriterionType gjk_convergence_criterion_type;
-
-  /// @brief tolerance for the GJK algorithm
-  FCL_REAL gjk_tolerance;
-
-  /// @brief maximum iteration for the GJK algorithm
-  size_t gjk_max_iterations;
-
-  /// @brief the gjk initial guess set by user
-  Vec3f cached_gjk_guess;
-
-  /// @brief the support function initial guess set by user
-  support_func_guess_t cached_support_func_guess;
-
-  /// @brief max number of faces for EPA
-  size_t epa_max_face_num;
-
-  /// @brief max number of vertices for EPA
-  size_t epa_max_vertex_num;
 
   /// @brief max number of iterations for EPA
   size_t epa_max_iterations;
@@ -222,15 +216,13 @@ struct HPP_FCL_DLLAPI QueryRequest {
   QueryRequest()
       : gjk_initial_guess(GJKInitialGuess::DefaultGuess),
         enable_cached_gjk_guess(false),
+        cached_gjk_guess(1, 0, 0),
+        cached_support_func_guess(support_func_guess_t::Zero()),
+        gjk_max_iterations(GJK_DEFAULT_MAX_ITERATIONS),
+        gjk_tolerance(GJK_DEFAULT_TOLERANCE),
         gjk_variant(GJKVariant::DefaultGJK),
         gjk_convergence_criterion(GJKConvergenceCriterion::VDB),
         gjk_convergence_criterion_type(GJKConvergenceCriterionType::Relative),
-        gjk_tolerance(GJK_DEFAULT_TOLERANCE),
-        gjk_max_iterations(GJK_DEFAULT_MAX_ITERATIONS),
-        cached_gjk_guess(1, 0, 0),
-        cached_support_func_guess(support_func_guess_t::Zero()),
-        epa_max_face_num(EPA_DEFAULT_MAX_FACES),
-        epa_max_vertex_num(EPA_DEFAULT_MAX_VERTICES),
         epa_max_iterations(EPA_DEFAULT_MAX_ITERATIONS),
         epa_tolerance(EPA_DEFAULT_TOLERANCE),
         enable_timings(false),
@@ -260,8 +252,6 @@ struct HPP_FCL_DLLAPI QueryRequest {
            gjk_max_iterations == other.gjk_max_iterations &&
            cached_gjk_guess == other.cached_gjk_guess &&
            cached_support_func_guess == other.cached_support_func_guess &&
-           epa_max_face_num == other.epa_max_face_num &&
-           epa_max_vertex_num == other.epa_max_vertex_num &&
            epa_max_iterations == other.epa_max_iterations &&
            epa_tolerance == other.epa_tolerance &&
            enable_timings == other.enable_timings &&

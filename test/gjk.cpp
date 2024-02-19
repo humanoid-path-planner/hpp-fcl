@@ -411,7 +411,7 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
   if (status == details::GJK::Valid || gjk.hasPenetrationInformation(shape)) {
     gjk.getClosestPoints(shape, w0, w1);
   } else {
-    details::EPA epa(128, 64, 255, 1e-6);
+    details::EPA epa(64, 1e-6);
     details::EPA::Status epa_status = epa.evaluate(gjk, Vec3f(1, 0, 0));
     BOOST_CHECK_EQUAL(epa_status, details::EPA::AccuracyReached);
     epa.getClosestPoints(shape, w0, w1);

@@ -120,6 +120,8 @@ void exposeCollisionAPI() {
             doxygen::class_attrib_doc<QueryRequest>("enable_cached_gjk_guess"))
         .DEF_RW_CLASS_ATTRIB(QueryRequest, cached_gjk_guess)
         .DEF_RW_CLASS_ATTRIB(QueryRequest, cached_support_func_guess)
+        .DEF_RW_CLASS_ATTRIB(QueryRequest, epa_max_iterations)
+        .DEF_RW_CLASS_ATTRIB(QueryRequest, epa_tolerance)
         .DEF_RW_CLASS_ATTRIB(QueryRequest, enable_timings)
         .DEF_CLASS_FUNC(QueryRequest, updateGuess);
   }

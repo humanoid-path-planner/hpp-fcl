@@ -54,11 +54,12 @@ constexpr FCL_REAL GJK_DEFAULT_TOLERANCE = 1e-6;
 constexpr FCL_REAL GJK_MINIMUM_TOLERANCE = 1e-6;
 
 /// EPA
-constexpr size_t EPA_DEFAULT_MAX_ITERATIONS = 255;
+/// EPA build a polytope which maximum size is:
+///   - `#iterations + 4` vertices
+///   - `2 x #iterations + 4` faces
+constexpr size_t EPA_DEFAULT_MAX_ITERATIONS = 64;
 constexpr FCL_REAL EPA_DEFAULT_TOLERANCE = 1e-6;
 constexpr FCL_REAL EPA_MINIMUM_TOLERANCE = 1e-6;
-constexpr size_t EPA_DEFAULT_MAX_FACES = 128;
-constexpr size_t EPA_DEFAULT_MAX_VERTICES = 64;
 
 }  // namespace fcl
 }  // namespace hpp
