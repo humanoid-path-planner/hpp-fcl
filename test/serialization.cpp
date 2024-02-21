@@ -45,6 +45,7 @@
 #include <hpp/fcl/serialization/AABB.h>
 #include <hpp/fcl/serialization/BVH_model.h>
 #include <hpp/fcl/serialization/hfield.h>
+#include <hpp/fcl/serialization/transform.h>
 #include <hpp/fcl/serialization/geometric_shapes.h>
 #include <hpp/fcl/serialization/convex.h>
 #include <hpp/fcl/serialization/memory.h>
@@ -416,6 +417,15 @@ BOOST_AUTO_TEST_CASE(test_HeightField) {
     HeightField<OBBRSS> hfield_copy;
     test_serialization(hfield, hfield_copy, STREAM);
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_transform) {
+  Transform3f T;
+  T.setQuatRotation(Quaternion3f::UnitRandom());
+  T.setTranslation(Vec3f::Random());
+
+  Transform3f T_copy;
+  test_serialization(T, T_copy);
 }
 
 BOOST_AUTO_TEST_CASE(test_shapes) {

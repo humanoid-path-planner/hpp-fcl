@@ -264,6 +264,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/internal/traversal_recurse.h
   include/hpp/fcl/internal/traversal.h
   include/hpp/fcl/serialization/fwd.h
+  include/hpp/fcl/serialization/transform.h
   include/hpp/fcl/serialization/AABB.h
   include/hpp/fcl/serialization/BV_node.h
   include/hpp/fcl/serialization/BV_splitter.h

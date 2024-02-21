@@ -57,7 +57,7 @@ class HPP_FCL_DLLAPI Transform3f {
   /// @brief Matrix cache
   Matrix3f R;
 
-  /// @brief Tranlation vector
+  /// @brief Translation vector
   Vec3f T;
 
  public:
@@ -197,7 +197,7 @@ class HPP_FCL_DLLAPI Transform3f {
   }
 
   bool operator==(const Transform3f& other) const {
-    return R == other.R && (T == other.getTranslation());
+    return (R == other.getRotation()) && (T == other.getTranslation());
   }
 
   bool operator!=(const Transform3f& other) const { return !(*this == other); }
