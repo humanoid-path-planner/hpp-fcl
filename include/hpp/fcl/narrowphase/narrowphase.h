@@ -41,7 +41,6 @@
 #define HPP_FCL_NARROWPHASE_H
 
 #include <limits>
-#include <iostream>
 
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/collision_data.h>
@@ -541,23 +540,22 @@ struct HPP_FCL_DLLAPI GJKSolver {
     epa_tolerance = request.epa_tolerance;
     epa.status = details::EPA::Status::DidNotRun;
 
-#ifndef NDEBUG
-    // Only in debug mode, to warn the user
     if (request.gjk_tolerance < GJK_MINIMUM_TOLERANCE) {
-      std::cout << "WARNING - GJK: using a tolerance (";
-      std::cout << request.gjk_tolerance;
-      std::cout << ") which is lower than the recommended lowest tolerance (";
-      std::cout << GJK_DEFAULT_TOLERANCE;
-      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+      HPP_FCL_LOG_WARNING(
+          "WARNING - GJK: using a tolerance ("
+          << request.gjk_tolerance
+          << ") which is lower than the recommended lowest tolerance ("
+          << GJK_DEFAULT_TOLERANCE
+          << "). Selecting this tolerance might trigger assertions.\n");
     }
     if (request.epa_tolerance < EPA_MINIMUM_TOLERANCE) {
-      std::cout << "WARNING - EPA: using a tolerance (";
-      std::cout << request.epa_tolerance;
-      std::cout << ") which is lower than the recommended lowest tolerance (";
-      std::cout << EPA_MINIMUM_TOLERANCE;
-      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+      HPP_FCL_LOG_WARNING(
+          "WARNING - EPA: using a tolerance ("
+          << request.epa_tolerance
+          << ") which is lower than the recommended lowest tolerance ("
+          << EPA_MINIMUM_TOLERANCE
+          << "). Selecting this tolerance might trigger assertions.\n");
     }
-#endif
   }
 
   /// @brief Constructor from a CollisionRequest
@@ -613,23 +611,22 @@ struct HPP_FCL_DLLAPI GJKSolver {
     gjk.status = details::GJK::Status::DidNotRun;
     epa.status = details::EPA::Status::DidNotRun;
 
-#ifndef NDEBUG
-    // Only in debug mode, to warn the user
     if (request.gjk_tolerance < GJK_MINIMUM_TOLERANCE) {
-      std::cout << "WARNING - GJK: using a tolerance (";
-      std::cout << request.gjk_tolerance;
-      std::cout << ") which is lower than the recommended lowest tolerance (";
-      std::cout << GJK_DEFAULT_TOLERANCE;
-      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+      HPP_FCL_LOG_WARNING(
+          "WARNING - GJK: using a tolerance ("
+          << request.gjk_tolerance
+          << ") which is lower than the recommended lowest tolerance ("
+          << GJK_DEFAULT_TOLERANCE
+          << "). Selecting this tolerance might trigger assertions.\n");
     }
     if (request.epa_tolerance < EPA_MINIMUM_TOLERANCE) {
-      std::cout << "WARNING - EPA: using a tolerance (";
-      std::cout << request.epa_tolerance;
-      std::cout << ") which is lower than the recommended lowest tolerance (";
-      std::cout << EPA_MINIMUM_TOLERANCE;
-      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+      HPP_FCL_LOG_WARNING(
+          "WARNING - EPA: using a tolerance ("
+          << request.epa_tolerance
+          << ") which is lower than the recommended lowest tolerance ("
+          << EPA_MINIMUM_TOLERANCE
+          << "). Selecting this tolerance might trigger assertions.\n");
     }
-#endif
   }
 
   /// @brief Copy constructor
