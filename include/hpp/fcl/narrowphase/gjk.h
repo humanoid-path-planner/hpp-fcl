@@ -349,7 +349,9 @@ struct HPP_FCL_DLLAPI EPA {
   struct HPP_FCL_DLLAPI SimplexFace {
     Vec3f n;
     FCL_REAL d;
-    size_t vertex_id[3];             // Index of vertex in sv_store.
+    bool ignore;          // If the origin does not project inside the face, we
+                          // ignore this face.
+    size_t vertex_id[3];  // Index of vertex in sv_store.
     SimplexFace* adjacent_faces[3];  // A face has three adjacent faces.
     SimplexFace* prev_face;          // The previous face in the list.
     SimplexFace* next_face;          // The next face in the list.
@@ -359,7 +361,7 @@ struct HPP_FCL_DLLAPI EPA {
                               // (with 0 <= i <= 2).
     size_t pass;
 
-    SimplexFace() : n(Vec3f::Zero()){};
+    SimplexFace() : n(Vec3f::Zero()), ignore(false){};
   };
 
   /// @brief The simplex list of EPA is a linked list of faces.
@@ -510,7 +512,16 @@ struct HPP_FCL_DLLAPI EPA {
   bool getEdgeDist(SimplexFace* face, const SimplexVertex& a,
                    const SimplexVertex& b, FCL_REAL& dist);
 
-  SimplexFace* newFace(size_t id_a, size_t id_b, size_t id_vertex, bool forced);
+  /// @brief Add a new face to the polytope; used at the beginning of EPA.
+  /// Note: sometimes the origin can be located outside EPA's starting polytope.
+  /// This is fine, we simply make sure to compute quantities in the right
+  /// normal direction to set the `ignore` flag correctly.
+  SimplexFace* createInitialPolytopeFace(size_t id_a, size_t id_b, size_t id_c);
+
+  /// @brief Add a new face to the polytope.
+  /// This function sets the `ignore` flag to `true` if the origin does not
+  /// project inside the face.
+  SimplexFace* newFace(size_t id_a, size_t id_b, size_t id_vertex);
 
   /// @brief Find the best polytope face to split
   SimplexFace* findClosestFace();
