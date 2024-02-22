@@ -38,10 +38,10 @@
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/serialization/transform.h>
-#include <fstream>
 
 #include "fcl.hh"
 #include "pickle.hh"
+#include "serialize.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/hpp/fcl/math/transform.h"
@@ -66,22 +66,8 @@ struct TriangleWrapper {
 };
 
 struct Transform3fWrapper {
-  static void save(const Transform3f& self, const std::string& path) {
-    std::ofstream ofs(path.c_str());
-    if (!ofs.is_open()) throw std::runtime_error("Could not open file " + path);
-    boost::archive::text_oarchive oa(ofs);
-    oa << self;
-  }
-
-  static Transform3f* load(const std::string& path) {
-    std::ifstream ifs(path.c_str());
-    if (!ifs.is_open()) throw std::runtime_error("Could not open file " + path);
-    Transform3f t = Transform3f();
-    boost::archive::text_iarchive ia(ifs);
-    ia >> t;
-    Transform3f* t_ptr = new Transform3f(t);
-    return t_ptr;
-  }
+  CLASS_WRAPPER_SAVE_FUNC(Transform3f)
+  CLASS_WRAPPER_LOAD_FUNC(Transform3f)
 };
 
 void exposeMaths() {
@@ -140,14 +126,8 @@ void exposeMaths() {
       .def(self *= self)
       .def(self == self)
       .def(self != self)
-      // Save/load
-      // -- C++ compatible serialization
-      .def("save", &Transform3fWrapper::save, args("self", "path"),
-           "Save a hpp::fcl::Transform3f")
-      .def("load", &Transform3fWrapper::load, args("path"),
-           "Load a hpp::fcl::Transform3f",
-           return_value_policy<manage_new_object>())
-      // -- Python pickling
+      .DEF_SAVE_CLASS("Transform3f", Transform3fWrapper)
+      .DEF_LOAD_CLASS("Transform3f", Transform3fWrapper)
       .def_pickle(PickleObject<Transform3f>());
 
   class_<Triangle>("Triangle", no_init)

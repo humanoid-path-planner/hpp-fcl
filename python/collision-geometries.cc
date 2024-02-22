@@ -52,6 +52,7 @@
 #include <hpp/fcl/serialization/convex.h>
 
 #include "pickle.hh"
+#include "serialize.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 // FIXME for a reason I do not understand, doxygen fails to understand that
@@ -238,6 +239,9 @@ struct ConvexWrapper {
                                              (unsigned int)_points.size(), tris,
                                              (unsigned int)_tris.size()));
   }
+
+  CLASS_WRAPPER_SAVE_FUNC(Convex_t)
+  CLASS_WRAPPER_LOAD_FUNC(Convex_t)
 };
 
 template <typename T>
@@ -261,6 +265,51 @@ void exposeComputeMemoryFootprint() {
   defComputeMemoryFootprint<BVHModel<OBBRSS>>();
 }
 
+struct BoxWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(Box)
+  CLASS_WRAPPER_LOAD_FUNC(Box)
+};
+
+struct CapsuleWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(Capsule)
+  CLASS_WRAPPER_LOAD_FUNC(Capsule)
+};
+
+struct ConeWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(Cone)
+  CLASS_WRAPPER_LOAD_FUNC(Cone)
+};
+
+struct CylinderWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(Cylinder)
+  CLASS_WRAPPER_LOAD_FUNC(Cylinder)
+};
+
+struct EllipsoidWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(Ellipsoid)
+  CLASS_WRAPPER_LOAD_FUNC(Ellipsoid)
+};
+
+struct HalfspaceWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(Halfspace)
+  CLASS_WRAPPER_LOAD_FUNC(Halfspace)
+};
+
+struct PlaneWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(Plane)
+  CLASS_WRAPPER_LOAD_FUNC(Plane)
+};
+
+struct SphereWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(Sphere)
+  CLASS_WRAPPER_LOAD_FUNC(Sphere)
+};
+
+struct TrianglePWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(TriangleP)
+  CLASS_WRAPPER_LOAD_FUNC(TriangleP)
+};
+
 void exposeShapes() {
   class_<ShapeBase, bases<CollisionGeometry>, shared_ptr<ShapeBase>,
          noncopyable>("ShapeBase", doxygen::class_doc<ShapeBase>(), no_init)
@@ -276,6 +325,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Box, halfSide)
       .def("clone", &Box::clone, doxygen::member_func_doc(&Box::clone),
            return_value_policy<manage_new_object>())
+      .DEF_SAVE_CLASS("Box", BoxWrapper)
+      .DEF_LOAD_CLASS("Box", BoxWrapper)
       .def_pickle(PickleObject<Box>());
 
   class_<Capsule, bases<ShapeBase>, shared_ptr<Capsule>>(
@@ -287,6 +338,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Capsule, halfLength)
       .def("clone", &Capsule::clone, doxygen::member_func_doc(&Capsule::clone),
            return_value_policy<manage_new_object>())
+      .DEF_SAVE_CLASS("Capsule", CapsuleWrapper)
+      .DEF_LOAD_CLASS("Capsule", CapsuleWrapper)
       .def_pickle(PickleObject<Capsule>());
 
   class_<Cone, bases<ShapeBase>, shared_ptr<Cone>>(
@@ -298,6 +351,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Cone, halfLength)
       .def("clone", &Cone::clone, doxygen::member_func_doc(&Cone::clone),
            return_value_policy<manage_new_object>())
+      .DEF_SAVE_CLASS("Cone", ConeWrapper)
+      .DEF_LOAD_CLASS("Cone", ConeWrapper)
       .def_pickle(PickleObject<Cone>());
 
   class_<ConvexBase, bases<ShapeBase>, shared_ptr<ConvexBase>, noncopyable>(
@@ -345,6 +400,8 @@ void exposeShapes() {
       .def(dv::init<Convex<Triangle>, const Convex<Triangle>&>())
       .DEF_RO_CLASS_ATTRIB(Convex<Triangle>, num_polygons)
       .def("polygons", &ConvexWrapper<Triangle>::polygons)
+      .DEF_SAVE_CLASS("Convex", ConvexWrapper<Triangle>)
+      .DEF_LOAD_CLASS("Convex", ConvexWrapper<Triangle>)
       .def_pickle(PickleObject<Convex<Triangle>>());
 
   class_<Cylinder, bases<ShapeBase>, shared_ptr<Cylinder>>(
@@ -357,6 +414,8 @@ void exposeShapes() {
       .def("clone", &Cylinder::clone,
            doxygen::member_func_doc(&Cylinder::clone),
            return_value_policy<manage_new_object>())
+      .DEF_SAVE_CLASS("Cylinder", CylinderWrapper)
+      .DEF_LOAD_CLASS("Cylinder", CylinderWrapper)
       .def_pickle(PickleObject<Cylinder>());
 
   class_<Halfspace, bases<ShapeBase>, shared_ptr<Halfspace>>(
@@ -370,6 +429,8 @@ void exposeShapes() {
       .def("clone", &Halfspace::clone,
            doxygen::member_func_doc(&Halfspace::clone),
            return_value_policy<manage_new_object>())
+      .DEF_SAVE_CLASS("Halfspace", HalfspaceWrapper)
+      .DEF_LOAD_CLASS("Halfspace", HalfspaceWrapper)
       .def_pickle(PickleObject<Halfspace>());
 
   class_<Plane, bases<ShapeBase>, shared_ptr<Plane>>(
@@ -382,6 +443,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Plane, d)
       .def("clone", &Plane::clone, doxygen::member_func_doc(&Plane::clone),
            return_value_policy<manage_new_object>())
+      .DEF_SAVE_CLASS("Plane", PlaneWrapper)
+      .DEF_LOAD_CLASS("Plane", PlaneWrapper)
       .def_pickle(PickleObject<Plane>());
 
   class_<Sphere, bases<ShapeBase>, shared_ptr<Sphere>>(
@@ -392,6 +455,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Sphere, radius)
       .def("clone", &Sphere::clone, doxygen::member_func_doc(&Sphere::clone),
            return_value_policy<manage_new_object>())
+      .DEF_SAVE_CLASS("Sphere", SphereWrapper)
+      .DEF_LOAD_CLASS("Sphere", SphereWrapper)
       .def_pickle(PickleObject<Sphere>());
 
   class_<Ellipsoid, bases<ShapeBase>, shared_ptr<Ellipsoid>>(
@@ -404,6 +469,8 @@ void exposeShapes() {
       .def("clone", &Ellipsoid::clone,
            doxygen::member_func_doc(&Ellipsoid::clone),
            return_value_policy<manage_new_object>())
+      .DEF_SAVE_CLASS("Ellipsoid", EllipsoidWrapper)
+      .DEF_LOAD_CLASS("Ellipsoid", EllipsoidWrapper)
       .def_pickle(PickleObject<Ellipsoid>());
 
   class_<TriangleP, bases<ShapeBase>, shared_ptr<TriangleP>>(
@@ -417,6 +484,8 @@ void exposeShapes() {
       .def("clone", &TriangleP::clone,
            doxygen::member_func_doc(&TriangleP::clone),
            return_value_policy<manage_new_object>())
+      .DEF_SAVE_CLASS("TriangleP", TrianglePWrapper)
+      .DEF_LOAD_CLASS("TriangleP", TrianglePWrapper)
       .def_pickle(PickleObject<TriangleP>());
 }
 

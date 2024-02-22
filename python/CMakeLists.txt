@@ -49,6 +49,7 @@ SET(${LIBRARY_NAME}_HEADERS
   broadphase/broadphase_collision_manager.hh
   broadphase/broadphase_callbacks.hh
   pickle.hh
+  serialize.hh
   utils/std-pair.hh
   )
 
