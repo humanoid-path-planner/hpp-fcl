@@ -38,7 +38,10 @@
 
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/distance.h>
+#include <hpp/fcl/serialization/collision_data.h>
 #include "deprecation.hh"
+
+#include "serialize.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
@@ -51,13 +54,21 @@ using namespace hpp::fcl::python;
 
 namespace dv = doxygen::visitor;
 
-struct DistanceRequestWrapper {
+struct DistanceResultWrapper {
   static Vec3f getNearestPoint1(const DistanceResult& res) {
     return res.nearest_points[0];
   }
   static Vec3f getNearestPoint2(const DistanceResult& res) {
     return res.nearest_points[1];
   }
+
+  CLASS_WRAPPER_SAVE_FUNC(DistanceResult)
+  CLASS_WRAPPER_LOAD_FUNC(DistanceResult)
+};
+
+struct DistanceRequestWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(DistanceRequest)
+  CLASS_WRAPPER_LOAD_FUNC(DistanceRequest)
 };
 
 void exposeDistanceAPI() {
@@ -99,7 +110,9 @@ void exposeDistanceAPI() {
             doxygen::class_attrib_doc<DistanceRequest>("enable_nearest_points"))
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, enable_signed_distance)
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, rel_err)
-        .DEF_RW_CLASS_ATTRIB(DistanceRequest, abs_err);
+        .DEF_RW_CLASS_ATTRIB(DistanceRequest, abs_err)
+        .DEF_SAVE_CLASS("DistanceRequest", DistanceRequestWrapper)
+        .DEF_LOAD_CLASS("DistanceRequest", DistanceRequestWrapper);
   }
 
   if (!eigenpy::register_symbolic_link_to_registered_type<
@@ -115,9 +128,9 @@ void exposeDistanceAPI() {
         .DEF_RW_CLASS_ATTRIB(DistanceResult, min_distance)
         .DEF_RW_CLASS_ATTRIB(DistanceResult, normal)
         //.def_readwrite ("nearest_points", &DistanceResult::nearest_points)
-        .def("getNearestPoint1", &DistanceRequestWrapper::getNearestPoint1,
+        .def("getNearestPoint1", &DistanceResultWrapper::getNearestPoint1,
              doxygen::class_attrib_doc<DistanceResult>("nearest_points"))
-        .def("getNearestPoint2", &DistanceRequestWrapper::getNearestPoint2,
+        .def("getNearestPoint2", &DistanceResultWrapper::getNearestPoint2,
              doxygen::class_attrib_doc<DistanceResult>("nearest_points"))
         .DEF_RO_CLASS_ATTRIB(DistanceResult, nearest_points)
         .DEF_RO_CLASS_ATTRIB(DistanceResult, o1)
@@ -126,7 +139,9 @@ void exposeDistanceAPI() {
         .DEF_RW_CLASS_ATTRIB(DistanceResult, b2)
 
         .def("clear", &DistanceResult::clear,
-             doxygen::member_func_doc(&DistanceResult::clear));
+             doxygen::member_func_doc(&DistanceResult::clear))
+        .DEF_SAVE_CLASS("DistanceResult", DistanceResultWrapper)
+        .DEF_LOAD_CLASS("DistanceResult", DistanceResultWrapper);
   }
 
   if (!eigenpy::register_symbolic_link_to_registered_type<

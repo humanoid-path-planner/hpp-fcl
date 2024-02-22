@@ -36,9 +36,11 @@
 
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/collision.h>
+#include <hpp/fcl/serialization/collision_data.h>
 
 #include "fcl.hh"
 #include "deprecation.hh"
+#include "serialize.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
@@ -66,6 +68,16 @@ struct ContactWrapper {
   static Vec3f getNearestPoint2(const Contact& contact) {
     return contact.nearest_points[1];
   }
+};
+
+struct CollisionRequestWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(CollisionRequest)
+  CLASS_WRAPPER_LOAD_FUNC(CollisionRequest)
+};
+
+struct CollisionResultWrapper {
+  CLASS_WRAPPER_SAVE_FUNC(CollisionResult)
+  CLASS_WRAPPER_LOAD_FUNC(CollisionResult)
 };
 
 void exposeCollisionAPI() {
@@ -155,7 +167,10 @@ void exposeCollisionAPI() {
                 "enable_distance_lower_bound"))
         .DEF_RW_CLASS_ATTRIB(CollisionRequest, security_margin)
         .DEF_RW_CLASS_ATTRIB(CollisionRequest, break_distance)
-        .DEF_RW_CLASS_ATTRIB(CollisionRequest, distance_upper_bound);
+        .DEF_RW_CLASS_ATTRIB(CollisionRequest, distance_upper_bound)
+        .DEF_SAVE_CLASS("CollisionRequest", CollisionRequestWrapper)
+        .DEF_LOAD_CLASS("CollisionRequest", CollisionRequestWrapper);
+    ;
   }
 
   if (!eigenpy::register_symbolic_link_to_registered_type<
@@ -232,7 +247,9 @@ void exposeCollisionAPI() {
                                  const>(&CollisionResult::getContacts)),
              return_internal_reference<>())
 
-        .DEF_RW_CLASS_ATTRIB(CollisionResult, distance_lower_bound);
+        .DEF_RW_CLASS_ATTRIB(CollisionResult, distance_lower_bound)
+        .DEF_SAVE_CLASS("CollisionResult", CollisionResultWrapper)
+        .DEF_LOAD_CLASS("CollisionResult", CollisionResultWrapper);
   }
 
   if (!eigenpy::register_symbolic_link_to_registered_type<

@@ -83,8 +83,11 @@ void serialize(Archive& ar, hpp::fcl::CollisionRequest& collision_request,
                    collision_request));
   ar& make_nvp("num_max_contacts", collision_request.num_max_contacts);
   ar& make_nvp("enable_contact", collision_request.enable_contact);
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ar& make_nvp("enable_distance_lower_bound",
                collision_request.enable_distance_lower_bound);
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
   ar& make_nvp("security_margin", collision_request.security_margin);
   ar& make_nvp("break_distance", collision_request.break_distance);
   ar& make_nvp("distance_upper_bound", collision_request.distance_upper_bound);
