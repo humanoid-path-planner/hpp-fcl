@@ -65,6 +65,7 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
   struct ShapeData {
     std::vector<int8_t> visited;
+    Vec3f last_dir = Vec3f::Zero();
   };
 
   /// @brief Store temporary data for the computation of the support point for

@@ -99,6 +99,8 @@ ConvexBase::ConvexBase(const ConvexBase& other)
   } else
     offsets.reset();
 
+  support_warm_start = other.support_warm_start;
+
   ShapeBase::operator=(*this);
 }
 

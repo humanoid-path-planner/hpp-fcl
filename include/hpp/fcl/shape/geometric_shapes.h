@@ -678,6 +678,27 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// is guaranteed in the internal of the polytope (as it is convex)
   Vec3f center;
 
+  /// @brief The support warm start polytope contains points of `this` which
+  /// are support points in specific directions of space.
+  /// This struct is used to warm start the support function computation for
+  /// large meshes (`num_points` > 32).
+  struct SupportWarmStartPolytope {
+    /// @brief Array of support points to warm start the support function
+    /// computation.
+    std::vector<Vec3f> points;
+
+    /// @brief Indices of the support points warm starts.
+    /// These are the indices of the real convex, not the indices of points in
+    /// the warm start polytope.
+    std::vector<int> indices;
+  };
+
+  static constexpr size_t num_support_warm_starts = 14;
+  SupportWarmStartPolytope support_warm_start;
+
+  /// @brief Build the support points warm starts.
+  void buildSupportWarmStart();
+
  protected:
   /// @brief Construct an uninitialized convex object
   /// Initialization is done with ConvexBase::initialize.

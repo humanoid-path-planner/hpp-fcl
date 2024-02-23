@@ -174,13 +174,27 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         MinkowskiDiff::ShapeData* data) {
   assert(data != NULL);
 
+  if (!data->last_dir.isZero() && data->last_dir.dot(dir.normalized()) < 0.9 &&
+      convex->support_warm_start.points.size() > 0) {
+    // Change hint if last dir is too far from current dir.
+    FCL_REAL maxdot = convex->support_warm_start.points[0].dot(dir);
+    hint = convex->support_warm_start.indices[0];
+    for (size_t i = 1; i < convex->support_warm_start.points.size(); ++i) {
+      FCL_REAL dot = convex->support_warm_start.points[i].dot(dir);
+      if (dot > maxdot) {
+        maxdot = dot;
+        hint = convex->support_warm_start.indices[i];
+      }
+    }
+  }
+
   const std::vector<Vec3f>& pts = *(convex->points);
   const std::vector<ConvexBase::Neighbors>& nn = *(convex->neighbors);
 
   if (hint < 0 || hint >= (int)convex->num_points) hint = 0;
   FCL_REAL maxdot = pts[static_cast<size_t>(hint)].dot(dir);
   std::vector<int8_t>& visited = data->visited;
-  visited.assign(convex->num_points, false);
+  std::fill(visited.begin(), visited.end(), false);
   visited[static_cast<std::size_t>(hint)] = true;
   // when the first face is orthogonal to dir, all the dot products will be
   // equal. Yet, the neighbors must be visited.
@@ -208,6 +222,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   }
 
   support = pts[static_cast<size_t>(hint)];
+  data->last_dir = dir.normalized();
 }
 
 void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
@@ -232,11 +247,12 @@ void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
                      int& hint, MinkowskiDiff::ShapeData*) {
   // TODO add benchmark to set a proper value for switching between linear and
   // logarithmic.
-  if (convex->num_points > 32) {
+  if (convex->num_points > 32 && convex->neighbors != nullptr) {
     MinkowskiDiff::ShapeData data;
+    data.visited.assign(convex->num_points, false);
     getShapeSupportLog(convex, dir, support, hint, &data);
   } else
-    getShapeSupportLinear(convex, dir, support, hint, NULL);
+    getShapeSupportLinear(convex, dir, support, hint, nullptr);
 }
 
 inline void getShapeSupport(const SmallConvex* convex, const Vec3f& dir,
@@ -349,7 +365,7 @@ void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
 template <typename Shape0>
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
     const ShapeBase* s1, bool identity, Eigen::Array<FCL_REAL, 1, 2>& inflation,
-    int linear_log_convex_threshold) {
+    int linear_log_convex_threshold, MinkowskiDiff::ShapeData data[2]) {
   inflation[1] = 0;
   switch (s1->getNodeType()) {
     case GEOM_TRIANGLE:
@@ -389,9 +405,10 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
         return getSupportFuncTpl<Shape0, Cylinder, true>;
       else
         return getSupportFuncTpl<Shape0, Cylinder, false>;
-    case GEOM_CONVEX:
-      if ((int)static_cast<const ConvexBase*>(s1)->num_points >
-          linear_log_convex_threshold) {
+    case GEOM_CONVEX: {
+      const ConvexBase* convex1 = static_cast<const ConvexBase*>(s1);
+      if ((int)convex1->num_points > linear_log_convex_threshold) {
+        data[1].visited.assign(convex1->num_points, false);
         if (identity)
           return getSupportFuncTpl<Shape0, LargeConvex, true>;
         else
@@ -402,6 +419,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
         else
           return getSupportFuncTpl<Shape0, SmallConvex, false>;
       }
+    }
     default:
       HPP_FCL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
   }
@@ -409,48 +427,51 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
 
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
     const ShapeBase* s0, const ShapeBase* s1, bool identity,
-    Eigen::Array<FCL_REAL, 1, 2>& inflation, int linear_log_convex_threshold) {
+    Eigen::Array<FCL_REAL, 1, 2>& inflation, int linear_log_convex_threshold,
+    MinkowskiDiff::ShapeData data[2]) {
   inflation[0] = 0;
   switch (s0->getNodeType()) {
     case GEOM_TRIANGLE:
-      return makeGetSupportFunction1<TriangleP>(s1, identity, inflation,
-                                                linear_log_convex_threshold);
+      return makeGetSupportFunction1<TriangleP>(
+          s1, identity, inflation, linear_log_convex_threshold, data);
       break;
     case GEOM_BOX:
       return makeGetSupportFunction1<Box>(s1, identity, inflation,
-                                          linear_log_convex_threshold);
+                                          linear_log_convex_threshold, data);
       break;
     case GEOM_SPHERE:
       inflation[0] = static_cast<const Sphere*>(s0)->radius;
       return makeGetSupportFunction1<Sphere>(s1, identity, inflation,
-                                             linear_log_convex_threshold);
+                                             linear_log_convex_threshold, data);
       break;
     case GEOM_ELLIPSOID:
-      return makeGetSupportFunction1<Ellipsoid>(s1, identity, inflation,
-                                                linear_log_convex_threshold);
+      return makeGetSupportFunction1<Ellipsoid>(
+          s1, identity, inflation, linear_log_convex_threshold, data);
       break;
     case GEOM_CAPSULE:
       inflation[0] = static_cast<const Capsule*>(s0)->radius;
-      return makeGetSupportFunction1<Capsule>(s1, identity, inflation,
-                                              linear_log_convex_threshold);
+      return makeGetSupportFunction1<Capsule>(
+          s1, identity, inflation, linear_log_convex_threshold, data);
       break;
     case GEOM_CONE:
       return makeGetSupportFunction1<Cone>(s1, identity, inflation,
-                                           linear_log_convex_threshold);
+                                           linear_log_convex_threshold, data);
       break;
     case GEOM_CYLINDER:
-      return makeGetSupportFunction1<Cylinder>(s1, identity, inflation,
-                                               linear_log_convex_threshold);
+      return makeGetSupportFunction1<Cylinder>(
+          s1, identity, inflation, linear_log_convex_threshold, data);
       break;
-    case GEOM_CONVEX:
-      if ((int)static_cast<const ConvexBase*>(s0)->num_points >
-          linear_log_convex_threshold)
+    case GEOM_CONVEX: {
+      const ConvexBase* convex0 = static_cast<const ConvexBase*>(s0);
+      if ((int)convex0->num_points > linear_log_convex_threshold) {
+        data[0].visited.assign(convex0->num_points, false);
         return makeGetSupportFunction1<LargeConvex>(
-            s1, identity, inflation, linear_log_convex_threshold);
-      else
+            s1, identity, inflation, linear_log_convex_threshold, data);
+      } else
         return makeGetSupportFunction1<SmallConvex>(
-            s1, identity, inflation, linear_log_convex_threshold);
+            s1, identity, inflation, linear_log_convex_threshold, data);
       break;
+    }
     default:
       HPP_FCL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
   }
@@ -508,7 +529,7 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
   bool identity = (oR1.isIdentity() && ot1.isZero());
 
   getSupportFunc = makeGetSupportFunction0(shape0, shape1, identity, inflation,
-                                           linear_log_convex_threshold);
+                                           linear_log_convex_threshold, data);
 }
 
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
@@ -521,7 +542,7 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
   ot1.setZero();
 
   getSupportFunc = makeGetSupportFunction0(shape0, shape1, true, inflation,
-                                           linear_log_convex_threshold);
+                                           linear_log_convex_threshold, data);
 }
 
 void GJK::initialize() {
@@ -1948,6 +1969,52 @@ bool EPA::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) {
 }
 
 }  // namespace details
+
+void ConvexBase::buildSupportWarmStart() {
+  this->support_warm_start.points.resize(ConvexBase::num_support_warm_starts);
+  this->support_warm_start.indices.resize(ConvexBase::num_support_warm_starts);
+  Vec3f axiis(0, 0, 0);
+  int hint = 0;
+  for (int i = 0; i < 3; ++i) {
+    axiis(i) = 1;
+    hpp::fcl::details::getShapeSupport(
+        this, axiis,
+        this->support_warm_start.points[static_cast<size_t>(2 * i + 0)], hint,
+        nullptr);
+    this->support_warm_start.indices[static_cast<size_t>(2 * i + 0)] = hint;
+
+    axiis(i) = -1;
+    hpp::fcl::details::getShapeSupport(
+        this, axiis,
+        this->support_warm_start.points[static_cast<size_t>(2 * i + 1)], hint,
+        nullptr);
+    this->support_warm_start.indices[static_cast<size_t>(2 * i + 1)] = hint;
+
+    axiis(i) = 0;
+  }
+
+  Vec3f eis[4] = {Vec3f(1, 1, 1),    //
+                  Vec3f(-1, 1, 1),   //
+                  Vec3f(-1, -1, 1),  //
+                  Vec3f(1, -1, 1)};
+
+  const size_t already_computed = 6;
+  for (size_t ei_index = 0; ei_index < 4; ++ei_index) {
+    hpp::fcl::details::getShapeSupport(
+        this, eis[ei_index],
+        this->support_warm_start.points[already_computed + 2 * ei_index + 0],
+        hint, nullptr);
+    this->support_warm_start.indices[already_computed + 2 * ei_index + 0] =
+        hint;
+
+    hpp::fcl::details::getShapeSupport(
+        this, -eis[ei_index],
+        this->support_warm_start.points[already_computed + 2 * ei_index + 1],
+        hint, nullptr);
+    this->support_warm_start.indices[already_computed + 2 * ei_index + 1] =
+        hint;
+  }
+}
 
 }  // namespace fcl
 

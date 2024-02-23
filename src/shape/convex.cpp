@@ -191,6 +191,10 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
         std::copy(nneighbors[i].begin(), nneighbors[i].end(), p_nneighbors);
   }
   assert(p_nneighbors == convex->nneighbors_->data() + c_nneighbors);
+
+  // Now that the neighbors are computed, we can call the
+  // `buildSupportWarmStart` function.
+  convex->buildSupportWarmStart();
   return convex;
 #else
   HPP_FCL_THROW_PRETTY(
