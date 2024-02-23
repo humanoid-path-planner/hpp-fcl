@@ -449,10 +449,50 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                              FCL_REAL& distance, Vec3f& p1,
                                              Vec3f& p2, Vec3f& normal) const {
     distance = (std::min)(0., -epa.depth);
-    epa.getClosestPoints(minkowski_difference, p1, p2);
     normal.noalias() = tf1.getRotation() * epa.normal;
-    p1 = tf1.transform(p1);
-    p2 = tf1.transform(p2);
+    epa.getClosestPoints(minkowski_difference, p1, p2);
+    // The following is very important to understand why EPA can sometimes
+    // return a normal that is not colinear to the vector $p_1 - p_2$ when
+    // working with tolerances like $\epsilon = 10^{-3}$.
+    // It can be resumed with a simple idea:
+    //     EPA is an algorithm meant to find the penetration depth and the
+    //     normal. It is not meant to find the closest points.
+    // Again, the issue here is **not** the normal, it's $p_1$ and $p_2$.
+    //
+    // More details:
+    // We'll denote $S_1$ and $S_2$ the two shapes, $n$ the normal and $p_1$ and
+    // $p_2$ the witness points. In theory, when EPA converges to $\epsilon =
+    // 0$, the normal and witness points verify the following property (P):
+    //   - $p_1 \in \partial \sigma_{S_1}(n)$,
+    //   - $p_2 \in \partial \sigma_{S_2}(-n),
+    // where $\sigma_{S_1}$ and $\sigma_{S_2}$ are the support functions of
+    // $S_1$ and $S_2$. The $\partial \sigma(n)$ simply denotes the support set
+    // of the support function in the direction $n$. (Note: I am leaving out the
+    // details of frame choice for the support function, to avoid making the
+    // mathematical notation too heavy.)
+    // --> In practice, EPA converges to $\epsilon > 0$.
+    // On polytopes and the likes, this does not change much and the property
+    // given above is still valid.
+    // --> However, this is very different on curved surfaces, such as
+    // ellipsoids, cylinders, cones, capsules etc. For these shapes, converging
+    // at $\epsilon = 10^{-6}$ or to $\epsilon = 10^{-3}$ does not change the
+    // normal much, but the property (P) given above is no longer valid, which
+    // means that the points $p_1$ and $p_2$ do not necessarily belong to the
+    // support sets in the direction of $n$ and thus $n$ and $p_1 - p_2$ are not
+    // colinear.
+    //
+    // Do not panic! This is fine.
+    // Although the property above is not verified, it's almost verified,
+    // meaning that $p_1$ and $p_2$ belong to support sets in directions that
+    // are very close to $n$.
+    //
+    // Solution to compute better $p_1$ and $p_2$:
+    // We compute the middle points of the current $p_1$ and $p_2$ and we use
+    // the normal and the distance given by EPA to compute the new $p_1$ and
+    // $p_2$.
+    Vec3f p = tf1.transform((p1 + p2) * 0.5);
+    p1 = p - normal * distance * 0.5;
+    p2 = p + normal * distance * 0.5;
   }
 
   void EPAFailedExtractWitnessPointsAndNormal(const Transform3f& tf1,
