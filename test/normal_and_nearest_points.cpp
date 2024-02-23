@@ -103,13 +103,11 @@ void test_normal_and_nearest_points(
   colreq.gjk_tolerance = gjk_tolerance;
   colreq.epa_max_iterations = epa_max_iterations;
   colreq.epa_tolerance = epa_tolerance;
-  CollisionResult colres;
   DistanceRequest distreq;
   distreq.gjk_max_iterations = gjk_max_iterations;
   distreq.gjk_tolerance = gjk_tolerance;
   distreq.epa_max_iterations = epa_max_iterations;
   distreq.epa_tolerance = epa_tolerance;
-  DistanceResult distres;
 
   for (size_t i = 0; i < n; i++) {
     // Run both `distance` and `collide`.
@@ -117,8 +115,8 @@ void test_normal_and_nearest_points(
     // these functions should agree on the results regardless of collision or
     // not.
     Transform3f tf2 = transforms[i];
-    colres.clear();
-    distres.clear();
+    CollisionResult colres;
+    DistanceResult distres;
     size_t col = collide(&o1, tf1, &o2, tf2, colreq, colres);
     FCL_REAL dist = distance(&o1, tf1, &o2, tf2, distreq, distres);
 
@@ -148,30 +146,33 @@ void test_normal_and_nearest_points(
       }
 
       // Separate the shapes
-      Vec3f t = tf1.getTranslation();
+      Transform3f new_tf1 = tf1;
       FCL_REAL eps = 1e-2;
-      tf1.setTranslation(t + separation_vector - eps * contact.normal);
-      colres.clear();
-      distres.clear();
-      size_t new_col = collide(&o1, tf1, &o2, tf2, colreq, colres);
-      FCL_REAL new_dist = distance(&o1, tf1, &o2, tf2, distreq, distres);
+      new_tf1.setTranslation(tf1.getTranslation() + separation_vector -
+                             eps * contact.normal);
+      CollisionResult new_colres;
+      DistanceResult new_distres;
+      size_t new_col = collide(&o1, new_tf1, &o2, tf2, colreq, new_colres);
+      FCL_REAL new_dist =
+          distance(&o1, new_tf1, &o2, tf2, distreq, new_distres);
       BOOST_CHECK(new_dist > 0);
       BOOST_CHECK(!new_col);
-      BOOST_CHECK(!colres.isCollision());
-      BOOST_CHECK_CLOSE(colres.distance_lower_bound, new_dist, epa_tolerance);
-      // BOOST_CHECK_CLOSE(colres.distance_lower_bound, eps, 1); // 1% tolerance
-      cp1 = distres.nearest_points[0];
-      cp2 = distres.nearest_points[1];
-      BOOST_CHECK_CLOSE(new_dist, (cp1 - cp2).norm(), epa_tolerance);
-      EIGEN_VECTOR_IS_APPROX(cp1, cp2 - new_dist * distres.normal,
+      BOOST_CHECK(!new_colres.isCollision());
+      BOOST_CHECK_CLOSE(new_colres.distance_lower_bound, new_dist,
+                        epa_tolerance);
+      Vec3f new_cp1 = new_distres.nearest_points[0];
+      Vec3f new_cp2 = new_distres.nearest_points[1];
+      BOOST_CHECK_CLOSE(new_dist, (new_cp1 - new_cp2).norm(), epa_tolerance);
+      EIGEN_VECTOR_IS_APPROX(new_cp1, new_cp2 - new_dist * new_distres.normal,
                              epa_tolerance);
 
-      separation_vector = new_dist * distres.normal;
-      EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, epa_tolerance);
+      Vec3f new_separation_vector = new_dist * new_distres.normal;
+      EIGEN_VECTOR_IS_APPROX(new_separation_vector, new_cp2 - new_cp1,
+                             epa_tolerance);
 
-      if (dist > 0) {
-        EIGEN_VECTOR_IS_APPROX(distres.normal, (cp2 - cp1).normalized(),
-                               gjk_tolerance);
+      if (new_dist > 0) {
+        EIGEN_VECTOR_IS_APPROX(new_distres.normal,
+                               (new_cp2 - new_cp1).normalized(), gjk_tolerance);
       }
     } else {
       BOOST_CHECK(dist >= 0.);
@@ -198,34 +199,41 @@ void test_normal_and_nearest_points(
       // If you translate one of the cones by the separation vector and it
       // happens to be parallel to the axis of the cone, the two shapes will
       // still be disjoint.
-      Vec3f t = tf1.getTranslation();
       FCL_REAL eps = 1e-2;
-      tf1.setTranslation(t + separation_vector + eps * distres.normal);
-      colres.clear();
-      distres.clear();
-      collide(&o1, tf1, &o2, tf2, colreq, colres);
-      FCL_REAL new_dist = distance(&o1, tf1, &o2, tf2, distreq, distres);
+      Transform3f new_tf1 = tf1;
+      new_tf1.setTranslation(tf1.getTranslation() + separation_vector +
+                             eps * distres.normal);
+      CollisionResult new_colres;
+      DistanceResult new_distres;
+      collide(&o1, new_tf1, &o2, tf2, colreq, new_colres);
+      FCL_REAL new_dist =
+          distance(&o1, new_tf1, &o2, tf2, distreq, new_distres);
       BOOST_CHECK(new_dist < dist);
-      BOOST_CHECK_CLOSE(colres.distance_lower_bound, new_dist, dummy_precision);
+      BOOST_CHECK_CLOSE(new_colres.distance_lower_bound, new_dist,
+                        dummy_precision);
       // tolerance
-      if (colres.isCollision()) {
-        Contact contact = colres.getContact(0);
-        cp1 = contact.nearest_points[0];
-        EIGEN_VECTOR_IS_APPROX(cp1, distres.nearest_points[0], dummy_precision);
+      if (new_colres.isCollision()) {
+        Contact contact = new_colres.getContact(0);
+        Vec3f new_cp1 = contact.nearest_points[0];
+        EIGEN_VECTOR_IS_APPROX(new_cp1, new_distres.nearest_points[0],
+                               dummy_precision);
 
-        cp2 = contact.nearest_points[1];
-        EIGEN_VECTOR_IS_APPROX(cp2, distres.nearest_points[1], dummy_precision);
-        BOOST_CHECK_CLOSE(contact.penetration_depth, -(cp2 - cp1).norm(),
-                          epa_tolerance);
-        EIGEN_VECTOR_IS_APPROX(cp1, cp2 - new_dist * distres.normal,
+        Vec3f new_cp2 = contact.nearest_points[1];
+        EIGEN_VECTOR_IS_APPROX(new_cp2, new_distres.nearest_points[1],
+                               dummy_precision);
+        BOOST_CHECK_CLOSE(contact.penetration_depth,
+                          -(new_cp2 - new_cp1).norm(), epa_tolerance);
+        EIGEN_VECTOR_IS_APPROX(new_cp1, new_cp2 - new_dist * new_distres.normal,
                                epa_tolerance);
 
-        separation_vector = contact.penetration_depth * contact.normal;
-        EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, epa_tolerance);
+        Vec3f new_separation_vector =
+            contact.penetration_depth * contact.normal;
+        EIGEN_VECTOR_IS_APPROX(new_separation_vector, new_cp2 - new_cp1,
+                               epa_tolerance);
 
         if (new_dist < 0) {
-          EIGEN_VECTOR_IS_APPROX(contact.normal, -(cp2 - cp1).normalized(),
-                                 epa_tolerance);
+          EIGEN_VECTOR_IS_APPROX(
+              contact.normal, -(new_cp2 - new_cp1).normalized(), epa_tolerance);
         }
       }
     }
