@@ -431,47 +431,56 @@ BOOST_AUTO_TEST_CASE(test_transform) {
 BOOST_AUTO_TEST_CASE(test_shapes) {
   {
     TriangleP triangle(Vec3f::UnitX(), Vec3f::UnitY(), Vec3f::UnitZ());
+    triangle.computeLocalAABB();
     TriangleP triangle_copy(Vec3f::Random(), Vec3f::Random(), Vec3f::Random());
     test_serialization(triangle, triangle_copy);
   }
 
   {
     Box box(Vec3f::UnitX()), box_copy(Vec3f::Random());
+    box.computeLocalAABB();
     test_serialization(box, box_copy);
   }
 
   {
     Sphere sphere(1.), sphere_copy(2.);
+    sphere.computeLocalAABB();
     test_serialization(sphere, sphere_copy);
   }
 
   {
     Ellipsoid ellipsoid(1., 2., 3.), ellipsoid_copy(0., 0., 0.);
+    ellipsoid.computeLocalAABB();
     test_serialization(ellipsoid, ellipsoid_copy);
   }
 
   {
     Capsule capsule(1., 2.), capsule_copy(10., 10.);
+    capsule.computeLocalAABB();
     test_serialization(capsule, capsule_copy);
   }
 
   {
     Cone cone(1., 2.), cone_copy(10., 10.);
+    cone.computeLocalAABB();
     test_serialization(cone, cone_copy);
   }
 
   {
     Cylinder cylinder(1., 2.), cylinder_copy(10., 10.);
+    cylinder.computeLocalAABB();
     test_serialization(cylinder, cylinder_copy);
   }
 
   {
     Halfspace hs(Vec3f::Random(), 1.), hs_copy(Vec3f::Zero(), 0.);
+    hs.computeLocalAABB();
     test_serialization(hs, hs_copy);
   }
 
   {
     Plane plane(Vec3f::Random(), 1.), plane_copy(Vec3f::Zero(), 0.);
+    plane.computeLocalAABB();
     test_serialization(plane, plane_copy);
   }
 }
