@@ -234,9 +234,8 @@ struct HPP_FCL_DLLAPI GJK {
   }
 
   /// @brief resets the GJK algorithm, preparing it for a new run.
-  /// This function does **not** modify the parameters of the GJK algorithm,
-  /// i.e. the maximum number of iterations, the tolerance, the variant of GJK,
-  /// or its convergene criterion.
+  /// Other than the maximum number of iterations and the tolerance,
+  /// this function does **not** modify the parameters of the GJK algorithm.
   void reset(size_t max_iterations_, FCL_REAL tolerance_);
 
   /// @brief GJK algorithm, given the initial value guess

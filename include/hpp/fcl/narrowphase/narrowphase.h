@@ -124,7 +124,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   }
 
  protected:
-  /// @brief initialize GJK
+  /// @brief initialize GJK.
+  /// This method assumes `minkowski_difference` has been set.
   template <typename S1, typename S2>
   void getGJKInitialGuess(const S1& s1, const S2& s2, Vec3f& guess,
                           support_func_guess_t& support_hint) const {
@@ -162,10 +163,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
     }
     HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
+
   /// @brief Runs the GJK algorithm; if the shapes are in found in collision,
   /// also runs the EPA algorithm.
-  /// This function assumes the minkowski difference has been already been set,
-  /// i.e. `minkowski_difference.set(&s1, &s2, tf1, tf2);` has been called.
   /// @return true if no error occured, false otherwise.
   template <typename S1, typename S2>
   bool runGJKAndEPA(
@@ -181,6 +181,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     else
       minkowski_difference.set(&s1, &s2, tf1, tf2);
     gjk.reset(gjk_max_iterations, gjk_tolerance);
+    epa.status = details::EPA::Status::DidNotRun;
 
     // Get initial guess for GJK: default, cached or bounding volume guess
     Vec3f guess;
