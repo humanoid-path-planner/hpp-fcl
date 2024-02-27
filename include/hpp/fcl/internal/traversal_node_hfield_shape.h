@@ -279,7 +279,7 @@ inline Vec3f projectPointOnTriangle(const Vec3f& contact_point,
   return contact_point_projected;
 }
 
-inline FCL_REAL distanceContactPoinToTriangle(
+inline FCL_REAL distanceContactPointToTriangle(
     const Vec3f& contact_point, const Triangle& triangle,
     const std::vector<Vec3f>& points) {
   const Vec3f contact_point_projected =
@@ -297,15 +297,15 @@ inline FCL_REAL distanceContactPointToFace(const size_t face_id,
   if (face_id <= 1) {
     const Triangle& triangle = (*(convex.polygons))[face_id];
     closest_face_id = face_id;
-    return distanceContactPoinToTriangle(contact_point, triangle, points);
+    return distanceContactPointToTriangle(contact_point, triangle, points);
   } else {
     const Triangle& triangle1 = (*(convex.polygons))[face_id];
     const FCL_REAL distance_to_triangle1 =
-        distanceContactPoinToTriangle(contact_point, triangle1, points);
+        distanceContactPointToTriangle(contact_point, triangle1, points);
 
     const Triangle& triangle2 = (*(convex.polygons))[face_id + 1];
     const FCL_REAL distance_to_triangle2 =
-        distanceContactPoinToTriangle(contact_point, triangle2, points);
+        distanceContactPointToTriangle(contact_point, triangle2, points);
 
     if (distance_to_triangle1 > distance_to_triangle2) {
       closest_face_id = face_id + 1;
