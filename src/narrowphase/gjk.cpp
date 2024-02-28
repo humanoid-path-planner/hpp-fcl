@@ -1937,10 +1937,11 @@ bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
       // the final face need to connect with the first face, this will be
       // handled in the evaluate function. Notice the face is anti-clockwise, so
       // the edges are 0 (bottom), 1 (right), 2 (left)
-      if (horizon.current_face)
+      if (horizon.current_face != nullptr) {
         bind(new_face, 2, horizon.current_face, 1);
-      else
+      } else {
         horizon.first_face = new_face;
+      }
 
       horizon.current_face = new_face;
       ++horizon.num_faces;
