@@ -1995,10 +1995,10 @@ void ConvexBase::buildSupportWarmStart() {
     axiis(i) = 0;
   }
 
-  Vec3f eis[4] = {Vec3f(1, 1, 1),    //
-                  Vec3f(-1, 1, 1),   //
-                  Vec3f(-1, -1, 1),  //
-                  Vec3f(1, -1, 1)};
+  std::array<Vec3f, 4> eis = {Vec3f(1, 1, 1),    //
+                              Vec3f(-1, 1, 1),   //
+                              Vec3f(-1, -1, 1),  //
+                              Vec3f(1, -1, 1)};
 
   const size_t already_computed = 6;
   for (size_t ei_index = 0; ei_index < 4; ++ei_index) {
