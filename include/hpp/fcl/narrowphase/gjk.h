@@ -501,7 +501,7 @@ struct HPP_FCL_DLLAPI EPA {
 
   /// Get the closest points on each object.
   /// @return true on success
-  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
+  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const;
 
  private:
   /// @brief Allocates memory for the EPA algorithm.

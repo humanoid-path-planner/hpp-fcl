@@ -1961,7 +1961,8 @@ bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
   return false;
 }
 
-bool EPA::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) {
+bool EPA::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0,
+                           Vec3f& w1) const {
   bool res = details::getClosestPoints(result, w0, w1);
   if (!res) return false;
   details::inflate<false>(shape, w0, w1);
