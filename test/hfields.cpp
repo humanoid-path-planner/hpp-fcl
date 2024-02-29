@@ -48,6 +48,7 @@
 #include <hpp/fcl/mesh_loader/loader.h>
 
 #include <hpp/fcl/collision.h>
+#include <hpp/fcl/internal/traversal_node_hfield_shape.h>
 
 #include "utility.h"
 #include <iostream>
@@ -482,28 +483,23 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
   const Transform3f sphere_pos(Vec3f(0., 0., 1.));
   const Transform3f hfield_pos;
 
-  {
+  const FCL_REAL thresholds[3] = {0., 0.01, -0.005};
+
+  for (int i = 0; i < 3; ++i) {
     CollisionResult result;
     CollisionRequest request;
-    request.security_margin = 0.;
+    request.security_margin = thresholds[i];
     collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
 
     BOOST_CHECK(!result.isCollision());
   }
 
-  {
+  // Increase the size of the sphere to force the collision
+  sphere.radius = 1.01;
+  for (int i = 0; i < 3; ++i) {
     CollisionResult result;
     CollisionRequest request;
-    request.security_margin = 0.01;
-    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
-
-    BOOST_CHECK(!result.isCollision());
-  }
-
-  {
-    CollisionResult result;
-    CollisionRequest request;
-    request.security_margin = 1. - sphere.radius;
+    request.security_margin = thresholds[i];
     collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
 
     BOOST_CHECK(result.isCollision());
@@ -512,9 +508,419 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
   {
     CollisionResult result;
     CollisionRequest request;
+    request.security_margin = -0.02;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+  }
+}
+
+bool isApprox(const FCL_REAL v1, const FCL_REAL v2, const FCL_REAL tol = 1e-6) {
+  return std::fabs(v1 - v2) <= tol;
+}
+
+Vec3f computeFaceNormal(const Triangle& triangle,
+                        const std::vector<Vec3f>& points) {
+  const Vec3f pointA = points[triangle[0]];
+  const Vec3f pointB = points[triangle[1]];
+  const Vec3f pointC = points[triangle[2]];
+
+  return (pointB - pointA).cross(pointC - pointA).normalized();
+}
+
+BOOST_AUTO_TEST_CASE(test_hfield_bin_face_normal_orientation) {
+  const FCL_REAL sphere_radius = 1.;
+  Sphere sphere(sphere_radius);
+  MatrixXf altitutes(2, 2);
+  FCL_REAL altitude_value = 1.;
+  altitutes.fill(altitude_value);
+
+  typedef AABB BV;
+  HeightField<BV> hfield(1., 1., altitutes, 0.);
+
+  const HeightField<BV>::BVS& nodes = hfield.getNodes();
+  BOOST_CHECK(nodes.size() == 1);
+  const HeightField<BV>::Node& node = nodes[0];
+
+  typedef HFNodeBase::FaceOrientation FaceOrientation;
+  BOOST_CHECK((node.contact_active_faces & FaceOrientation::BOTTOM) ==
+              int(FaceOrientation::BOTTOM));
+  BOOST_CHECK((node.contact_active_faces & FaceOrientation::TOP) ==
+              int(FaceOrientation::TOP));
+  BOOST_CHECK((node.contact_active_faces & FaceOrientation::NORTH) ==
+              int(FaceOrientation::NORTH));
+  BOOST_CHECK((node.contact_active_faces & FaceOrientation::SOUTH) ==
+              int(FaceOrientation::SOUTH));
+  BOOST_CHECK((node.contact_active_faces & FaceOrientation::EAST) ==
+              int(FaceOrientation::EAST));
+  BOOST_CHECK((node.contact_active_faces & FaceOrientation::WEST) ==
+              int(FaceOrientation::WEST));
+
+  Convex<Triangle> convex1, convex2;
+  int convex1_active_faces, convex2_active_faces;
+  details::buildConvexTriangles(node, hfield, convex1, convex1_active_faces,
+                                convex2, convex2_active_faces);
+
+  // Check face normals for convex1
+  {
+    const std::vector<Vec3f>& points = *(convex1.points);
+    // BOTTOM
+    {
+      const Triangle& triangle = (*(convex1.polygons))[0];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle, points).isApprox(-Vec3f::UnitZ()));
+    }
+
+    // TOP
+    {
+      const Triangle& triangle = (*(convex1.polygons))[1];
+
+      BOOST_CHECK(computeFaceNormal(triangle, points).isApprox(Vec3f::UnitZ()));
+    }
+
+    // WEST sides
+    {
+      const Triangle& triangle1 = (*(convex1.polygons))[2];
+      const Triangle& triangle2 = (*(convex1.polygons))[3];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(-Vec3f::UnitX()));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(-Vec3f::UnitX()));
+    }
+
+    // SOUTH-EAST sides
+    {
+      const Vec3f south_east_normal = Vec3f(1., -1., 0).normalized();
+
+      const Triangle& triangle1 = (*(convex1.polygons))[4];
+      const Triangle& triangle2 = (*(convex1.polygons))[5];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(south_east_normal));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(south_east_normal));
+    }
+
+    // NORTH sides
+    {
+      const Triangle& triangle1 = (*(convex1.polygons))[6];
+      const Triangle& triangle2 = (*(convex1.polygons))[7];
+
+      std::cout << "computeFaceNormal(triangle1,points): "
+                << computeFaceNormal(triangle1, points).transpose()
+                << std::endl;
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(Vec3f::UnitY()));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(Vec3f::UnitY()));
+    }
+  }
+
+  // Check face normals for convex2
+  {
+    const std::vector<Vec3f>& points = *(convex2.points);
+
+    // BOTTOM
+    {
+      const Triangle& triangle = (*(convex2.polygons))[0];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle, points).isApprox(-Vec3f::UnitZ()));
+    }
+
+    // TOP
+    {
+      const Triangle& triangle = (*(convex2.polygons))[1];
+
+      BOOST_CHECK(computeFaceNormal(triangle, points).isApprox(Vec3f::UnitZ()));
+    }
+
+    // SOUTH sides
+    {
+      const Triangle& triangle1 = (*(convex2.polygons))[2];
+      const Triangle& triangle2 = (*(convex2.polygons))[3];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(-Vec3f::UnitY()));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(-Vec3f::UnitY()));
+    }
+
+    // NORTH-WEST sides
+    {
+      const Vec3f north_west_normal = Vec3f(-1., 1., 0).normalized();
+
+      const Triangle& triangle1 = (*(convex2.polygons))[4];
+      const Triangle& triangle2 = (*(convex2.polygons))[5];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(north_west_normal));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(north_west_normal));
+    }
+
+    // EAST sides
+    {
+      const Triangle& triangle1 = (*(convex2.polygons))[6];
+      const Triangle& triangle2 = (*(convex2.polygons))[7];
+
+      BOOST_CHECK(
+          computeFaceNormal(triangle1, points).isApprox(Vec3f::UnitX()));
+      BOOST_CHECK(
+          computeFaceNormal(triangle2, points).isApprox(Vec3f::UnitX()));
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_hfield_bin_active_faces) {
+  typedef HFNodeBase::FaceOrientation FaceOrientation;
+  const FCL_REAL sphere_radius = 1.;
+  Sphere sphere(sphere_radius);
+  MatrixXf altitutes(3, 3);
+  FCL_REAL altitude_value = 1.;
+  altitutes.fill(altitude_value);
+
+  typedef AABB BV;
+  HeightField<BV> hfield(1., 1., altitutes, 0.);
+
+  const HeightField<BV>::BVS& nodes = hfield.getNodes();
+  BOOST_CHECK(nodes.size() == 7);
+
+  for (const auto& node : nodes) {
+    if (node.isLeaf()) {
+      BOOST_CHECK((node.contact_active_faces & FaceOrientation::BOTTOM) ==
+                  int(FaceOrientation::BOTTOM));
+      BOOST_CHECK((node.contact_active_faces & FaceOrientation::TOP) ==
+                  int(FaceOrientation::TOP));
+
+      if (node.x_id == 0)
+        BOOST_CHECK((node.contact_active_faces & FaceOrientation::WEST) ==
+                    int(FaceOrientation::WEST));
+      if (node.y_id == 0)
+        BOOST_CHECK((node.contact_active_faces & FaceOrientation::NORTH) ==
+                    int(FaceOrientation::NORTH));
+
+      if (node.x_id == 1)
+        BOOST_CHECK((node.contact_active_faces & FaceOrientation::EAST) ==
+                    int(FaceOrientation::EAST));
+      if (node.y_id == 1)
+        BOOST_CHECK((node.contact_active_faces & FaceOrientation::SOUTH) ==
+                    int(FaceOrientation::SOUTH));
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
+  const FCL_REAL sphere_radius = 1.;
+  Sphere sphere(sphere_radius);
+  MatrixXf altitutes(2, 2);
+  FCL_REAL altitude_value = 1.;
+  altitutes.fill(altitude_value);
+
+  typedef AABB BV;
+  HeightField<BV> hfield(1., 1., altitutes, 0.);
+
+  const HeightField<BV>::BVS& nodes = hfield.getNodes();
+  BOOST_CHECK(nodes.size() == 1);
+  const HeightField<BV>::Node& node = nodes[0];
+
+  // Collision from the TOP
+  {
+    const Transform3f sphere_pos(Vec3f(0., 0., 2.));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
     request.security_margin = -0.005;
     collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
 
     BOOST_CHECK(!result.isCollision());
+    BOOST_CHECK(
+        isApprox(result.distance_lower_bound, -request.security_margin));
+  }
+
+  // Same, but with a positive margin.
+  {
+    const Transform3f sphere_pos(Vec3f(0., 0., 2.));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = +0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(result.isCollision());
+    if (result.isCollision()) {
+      const Contact& contact = result.getContact(0);
+      BOOST_CHECK(contact.normal.isApprox(Vec3f::UnitZ()));
+      std::cout << "contact.penetration_depth: " << contact.penetration_depth
+                << std::endl;
+      BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
+    }
+  }
+
+  // Collision from the BOTTOM
+  {
+    const Transform3f sphere_pos(Vec3f(0., 0., -1.));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = -0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+  }
+
+  {
+    const Transform3f sphere_pos(Vec3f(0., 0., -1.));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = +0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(result.isCollision());
+    {
+      const Contact& contact = result.getContact(0);
+      BOOST_CHECK(contact.normal.isApprox(-Vec3f::UnitZ()));
+      std::cout << "contact.penetration_depth: " << contact.penetration_depth
+                << std::endl;
+      BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
+    }
+  }
+
+  // Collision from the WEST
+  {
+    const Transform3f sphere_pos(
+        Vec3f(hfield.getXGrid()[0] - sphere_radius, 0., 0.5));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = -0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+  }
+
+  {
+    const Transform3f sphere_pos(
+        Vec3f(hfield.getXGrid()[0] - sphere_radius, 0., 0.5));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = +0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(result.isCollision());
+    if (result.isCollision()) {
+      const Contact& contact = result.getContact(0);
+      BOOST_CHECK(contact.normal.isApprox(-Vec3f::UnitX()));
+      BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
+    }
+  }
+
+  // Collision from the EAST
+  {
+    const Transform3f sphere_pos(
+        Vec3f(hfield.getXGrid()[1] + sphere_radius, 0., 0.5));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = -0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+  }
+
+  {
+    const Transform3f sphere_pos(
+        Vec3f(hfield.getXGrid()[1] + sphere_radius, 0., 0.5));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = +0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(result.isCollision());
+
+    if (result.isCollision()) {
+      const Contact& contact = result.getContact(0);
+      BOOST_CHECK(contact.normal.isApprox(Vec3f::UnitX()));
+      BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
+    }
+  }
+
+  // Collision from the NORTH
+  {
+    const Transform3f sphere_pos(
+        Vec3f(0., hfield.getYGrid()[0] + sphere_radius, 0.5));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = -0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+  }
+
+  {
+    const Transform3f sphere_pos(
+        Vec3f(0., hfield.getYGrid()[0] + sphere_radius, 0.5));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = +0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(result.isCollision());
+
+    if (result.isCollision()) {
+      const Contact& contact = result.getContact(0);
+      BOOST_CHECK(contact.normal.isApprox(Vec3f::UnitY()));
+      BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
+    }
+  }
+
+  // Collision from the SOUTH
+  {
+    const Transform3f sphere_pos(
+        Vec3f(0., hfield.getYGrid()[1] - sphere_radius, 0.5));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = -0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(!result.isCollision());
+  }
+
+  {
+    const Transform3f sphere_pos(
+        Vec3f(0., hfield.getYGrid()[1] - sphere_radius, 0.5));
+    const Transform3f hfield_pos;
+
+    CollisionResult result;
+    CollisionRequest request;
+    request.security_margin = +0.005;
+    collide(&hfield, hfield_pos, &sphere, sphere_pos, request, result);
+
+    BOOST_CHECK(result.isCollision());
+
+    if (result.isCollision()) {
+      const Contact& contact = result.getContact(0);
+      BOOST_CHECK(contact.normal.isApprox(-Vec3f::UnitY()));
+      BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
+    }
   }
 }

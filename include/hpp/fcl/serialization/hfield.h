@@ -22,6 +22,7 @@ void serialize(Archive &ar, hpp::fcl::HFNodeBase &node,
   ar &make_nvp("y_id", node.y_id);
   ar &make_nvp("y_size", node.y_size);
   ar &make_nvp("max_height", node.max_height);
+  ar &make_nvp("contact_active_faces", node.contact_active_faces);
 }
 
 template <class Archive, typename BV>

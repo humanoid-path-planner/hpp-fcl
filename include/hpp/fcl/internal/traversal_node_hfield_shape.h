@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021-2023, INRIA.
+ *  Copyright (c) 2021-2024, INRIA.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -101,10 +101,27 @@ Convex<Quadrilateral> buildConvexQuadrilateral(const HFNode<BV>& node,
   );
 }
 
+enum class FaceOrientationConvexPart1 {
+  BOTTOM = 0,
+  TOP = 1,
+  WEST = 2,
+  SOUTH_EAST = 4,
+  NORTH = 8,
+};
+
+enum class FaceOrientationConvexPart2 {
+  BOTTOM = 0,
+  TOP = 1,
+  SOUTH = 2,
+  NORTH_WEST = 4,
+  EAST = 8,
+};
+
 template <typename BV>
 void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
-                          Convex<Triangle>& convex1,
-                          Convex<Triangle>& convex2) {
+                          Convex<Triangle>& convex1, int& convex1_active_faces,
+                          Convex<Triangle>& convex2,
+                          int& convex2_active_faces) {
   const MatrixXf& heights = model.getHeights();
   const VecXf& x_grid = model.getXGrid();
   const VecXf& y_grid = model.getYGrid();
@@ -117,6 +134,40 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   const Eigen::Block<const MatrixXf, 2, 2> cell =
       heights.block<2, 2>(node.y_id, node.x_id);
 
+  const int contact_active_faces = node.contact_active_faces;
+  convex1_active_faces = 0;
+  convex2_active_faces = 0;
+
+  typedef HFNodeBase::FaceOrientation FaceOrientation;
+
+  if (contact_active_faces & FaceOrientation::TOP) {
+    convex1_active_faces |= int(details::FaceOrientationConvexPart1::TOP);
+    convex2_active_faces |= int(details::FaceOrientationConvexPart2::TOP);
+  }
+
+  if (contact_active_faces & FaceOrientation::BOTTOM) {
+    convex1_active_faces |= int(details::FaceOrientationConvexPart1::BOTTOM);
+    convex2_active_faces |= int(details::FaceOrientationConvexPart2::BOTTOM);
+  }
+
+  // Specific orientation for Convex1
+  if (contact_active_faces & FaceOrientation::WEST) {
+    convex1_active_faces |= int(details::FaceOrientationConvexPart1::WEST);
+  }
+
+  if (contact_active_faces & FaceOrientation::NORTH) {
+    convex1_active_faces |= int(details::FaceOrientationConvexPart1::NORTH);
+  }
+
+  // Specific orientation for Convex2
+  if (contact_active_faces & FaceOrientation::EAST) {
+    convex2_active_faces |= int(details::FaceOrientationConvexPart2::EAST);
+  }
+
+  if (contact_active_faces & FaceOrientation::SOUTH) {
+    convex2_active_faces |= int(details::FaceOrientationConvexPart2::SOUTH);
+  }
+
   assert(max_height > min_height &&
          "max_height is lower than min_height");  // Check whether the geometry
                                                   // is degenerated
@@ -124,24 +175,24 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
 
   {
     std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
-        Vec3f(x0, y0, min_height),
-        Vec3f(x0, y1, min_height),
-        Vec3f(x1, y0, min_height),
-        Vec3f(x0, y0, cell(0, 0)),
-        Vec3f(x0, y1, cell(1, 0)),
-        Vec3f(x1, y0, cell(0, 1)),
+        Vec3f(x0, y0, min_height),  // A
+        Vec3f(x0, y1, min_height),  // B
+        Vec3f(x1, y0, min_height),  // C
+        Vec3f(x0, y0, cell(0, 0)),  // D
+        Vec3f(x0, y1, cell(1, 0)),  // E
+        Vec3f(x1, y0, cell(0, 1)),  // F
     }));
 
     std::shared_ptr<std::vector<Triangle>> triangles(
         new std::vector<Triangle>(8));
-    (*triangles)[0].set(0, 1, 2);  // bottom
-    (*triangles)[1].set(3, 5, 4);  // top
-    (*triangles)[2].set(0, 3, 1);
-    (*triangles)[3].set(3, 4, 1);
-    (*triangles)[4].set(1, 5, 2);
-    (*triangles)[5].set(1, 4, 5);
-    (*triangles)[6].set(0, 2, 5);
-    (*triangles)[7].set(5, 3, 0);
+    (*triangles)[0].set(0, 2, 1);  // bottom
+    (*triangles)[1].set(3, 4, 5);  // top
+    (*triangles)[2].set(0, 1, 3);  // West 1
+    (*triangles)[3].set(3, 1, 4);  // West 2
+    (*triangles)[4].set(1, 2, 5);  // South-East 1
+    (*triangles)[5].set(1, 5, 4);  // South-East 1
+    (*triangles)[6].set(0, 5, 2);  // North 1
+    (*triangles)[7].set(5, 0, 3);  // North 2
 
     convex1.set(pts,  // points
                 6,    // num points
@@ -152,24 +203,24 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
 
   {
     std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
-        Vec3f(x0, y1, min_height),
-        Vec3f(x1, y1, min_height),
-        Vec3f(x1, y0, min_height),
-        Vec3f(x0, y1, cell(1, 0)),
-        Vec3f(x1, y1, cell(1, 1)),
-        Vec3f(x1, y0, cell(0, 1)),
+        Vec3f(x0, y1, min_height),  // A
+        Vec3f(x1, y1, min_height),  // B
+        Vec3f(x1, y0, min_height),  // C
+        Vec3f(x0, y1, cell(1, 0)),  // D
+        Vec3f(x1, y1, cell(1, 1)),  // E
+        Vec3f(x1, y0, cell(0, 1)),  // F
     }));
 
     std::shared_ptr<std::vector<Triangle>> triangles(
         new std::vector<Triangle>(8));
-    (*triangles)[0].set(2, 0, 1);  // bottom
-    (*triangles)[1].set(3, 5, 4);  // top
-    (*triangles)[2].set(0, 3, 1);
-    (*triangles)[3].set(3, 4, 1);
-    (*triangles)[4].set(0, 2, 5);
-    (*triangles)[5].set(0, 5, 3);
-    (*triangles)[6].set(1, 5, 2);
-    (*triangles)[7].set(4, 2, 1);
+    (*triangles)[0].set(2, 1, 0);  // bottom
+    (*triangles)[1].set(3, 4, 5);  // top
+    (*triangles)[2].set(0, 1, 3);  // South 1
+    (*triangles)[3].set(3, 1, 4);  // South 2
+    (*triangles)[4].set(0, 5, 2);  // North West 1
+    (*triangles)[5].set(0, 3, 5);  // North West 2
+    (*triangles)[6].set(1, 2, 5);  // East 1
+    (*triangles)[7].set(4, 1, 2);  // East 2
 
     convex2.set(pts,  // points
                 6,    // num points
@@ -190,62 +241,166 @@ inline Vec3f projectTriangle(const Vec3f& pointA, const Vec3f& pointB,
   return res;
 }
 
+inline Vec3f projectTetrahedra(const Vec3f& pointA, const Vec3f& pointB,
+                               const Vec3f& pointC, const Vec3f& pointD,
+                               const Vec3f& point) {
+  const Project::ProjectResult result =
+      Project::projectTetrahedra(pointA, pointB, pointC, pointD, point);
+  Vec3f res = result.parameterization[0] * pointA +
+              result.parameterization[1] * pointB +
+              result.parameterization[2] * pointC +
+              result.parameterization[3] * pointD;
+
+  return res;
+}
+
+inline Vec3f computeTriangleNormal(const Triangle& triangle,
+                                   const std::vector<Vec3f>& points) {
+  const Vec3f pointA = points[triangle[0]];
+  const Vec3f pointB = points[triangle[1]];
+  const Vec3f pointC = points[triangle[2]];
+
+  const Vec3f normal = (pointB - pointA).cross(pointC - pointA).normalized();
+  assert(!normal.array().isNaN().any() && "normal is ill-defined");
+
+  return normal;
+}
+
+inline Vec3f projectPointOnTriangle(const Vec3f& contact_point,
+                                    const Triangle& triangle,
+                                    const std::vector<Vec3f>& points) {
+  const Vec3f pointA = points[triangle[0]];
+  const Vec3f pointB = points[triangle[1]];
+  const Vec3f pointC = points[triangle[2]];
+
+  const Vec3f contact_point_projected =
+      projectTriangle(pointA, pointB, pointC, contact_point);
+
+  return contact_point_projected;
+}
+
+inline FCL_REAL distanceContactPointToTriangle(
+    const Vec3f& contact_point, const Triangle& triangle,
+    const std::vector<Vec3f>& points) {
+  const Vec3f contact_point_projected =
+      projectPointOnTriangle(contact_point, triangle, points);
+  return (contact_point_projected - contact_point).norm();
+}
+
+inline FCL_REAL distanceContactPointToFace(const size_t face_id,
+                                           const Vec3f& contact_point,
+                                           const Convex<Triangle>& convex,
+                                           size_t& closest_face_id) {
+  assert((face_id >= 0 && face_id < 8) && "face_id should be in [0;7]");
+
+  const std::vector<Vec3f>& points = *(convex.points);
+  if (face_id <= 1) {
+    const Triangle& triangle = (*(convex.polygons))[face_id];
+    closest_face_id = face_id;
+    return distanceContactPointToTriangle(contact_point, triangle, points);
+  } else {
+    const Triangle& triangle1 = (*(convex.polygons))[face_id];
+    const FCL_REAL distance_to_triangle1 =
+        distanceContactPointToTriangle(contact_point, triangle1, points);
+
+    const Triangle& triangle2 = (*(convex.polygons))[face_id + 1];
+    const FCL_REAL distance_to_triangle2 =
+        distanceContactPointToTriangle(contact_point, triangle2, points);
+
+    if (distance_to_triangle1 > distance_to_triangle2) {
+      closest_face_id = face_id + 1;
+      return distance_to_triangle2;
+    } else {
+      closest_face_id = face_id;
+      return distance_to_triangle1;
+    }
+  }
+}
+
 template <typename Polygone, typename Shape>
-bool binCorrection(const Convex<Polygone>& convex, const Shape& shape,
+bool binCorrection(const Convex<Polygone>& convex,
+                   const int convex_active_faces, const Shape& shape,
                    const Transform3f& shape_pose, FCL_REAL& distance,
                    Vec3f& contact_1, Vec3f& contact_2, Vec3f& normal,
-                   Vec3f& normal_top, bool& is_collision) {
-  const Polygone& top_triangle = (*(convex.polygons))[1];
+                   Vec3f& face_normal, const bool is_collision) {
+  const FCL_REAL prec = 1e-12;
   const std::vector<Vec3f>& points = *(convex.points);
-  const Vec3f pointA = points[top_triangle[0]];
-  const Vec3f pointB = points[top_triangle[1]];
-  const Vec3f pointC = points[top_triangle[2]];
-  normal_top = (pointB - pointA).cross(pointC - pointA).normalized();
-  if (normal_top[2] < 0) normal_top *= -1.;
 
-  assert(!normal_top.array().isNaN().any() && "normal_top is ill-defined");
+  bool hfield_witness_is_on_bin_side = true;
 
-  const Vec3f contact_1_projected =
-      projectTriangle(pointA, pointB, pointC, contact_1);
+  //  int closest_face_id_bottom_face = -1;
+  //  int closest_face_id_top_face = -1;
 
-  bool hfield_witness_is_on_bin_side;
-  if (!contact_1_projected.isApprox(contact_1)) {
-    hfield_witness_is_on_bin_side = true;
-  } else {
-    hfield_witness_is_on_bin_side = false;
-    normal = normal_top;
+  std::vector<size_t> active_faces;
+  active_faces.reserve(5);
+  active_faces.push_back(0);
+  active_faces.push_back(1);
+
+  if (convex_active_faces & 2) active_faces.push_back(2);
+  if (convex_active_faces & 4) active_faces.push_back(4);
+  if (convex_active_faces & 8) active_faces.push_back(6);
+
+  Triangle face_triangle;
+  FCL_REAL shortest_distance_to_face = (std::numeric_limits<FCL_REAL>::max)();
+  face_normal = normal;
+  for (const size_t active_face : active_faces) {
+    size_t closest_face_id;
+    const FCL_REAL distance_to_face = distanceContactPointToFace(
+        active_face, contact_1, convex, closest_face_id);
+
+    const bool contact_point_is_on_face = distance_to_face <= prec;
+    if (contact_point_is_on_face) {
+      hfield_witness_is_on_bin_side = false;
+      face_triangle = (*(convex.polygons))[closest_face_id];
+      shortest_distance_to_face = distance_to_face;
+      break;
+    } else if (distance_to_face < shortest_distance_to_face) {
+      face_triangle = (*(convex.polygons))[closest_face_id];
+      shortest_distance_to_face = distance_to_face;
+    }
   }
 
   // We correct only if there is a collision with the bin
   if (is_collision) {
+    if (!face_triangle.isValid())
+      HPP_FCL_THROW_PRETTY("face_triangle is not initialized",
+                           std::logic_error);
+
+    const Vec3f face_pointA = points[face_triangle[0]];
+    face_normal = computeTriangleNormal(face_triangle, points);
+
     int hint = 0;
     const Vec3f _support = getSupport(
-        &shape, -shape_pose.rotation().transpose() * normal_top, true, hint);
+        &shape, -shape_pose.rotation().transpose() * face_normal, true, hint);
     const Vec3f support =
         shape_pose.rotation() * _support + shape_pose.translation();
 
     // Project support into the inclined bin having triangle
-    const FCL_REAL offset_plane = normal_top.dot(pointA);
-    const Plane projection_plane(normal_top, offset_plane);
+    const FCL_REAL offset_plane = face_normal.dot(face_pointA);
+    const Plane projection_plane(face_normal, offset_plane);
     const FCL_REAL distance_support_projection_plane =
         projection_plane.signedDistance(support);
 
     const Vec3f projected_support =
-        support - distance_support_projection_plane * normal_top;
+        support - distance_support_projection_plane * face_normal;
 
     // We need now to project the projected in the triangle shape
-    contact_1 = projectTriangle(pointA, pointB, pointC, projected_support);
-    contact_2 = contact_1 + distance_support_projection_plane * normal_top;
-    normal = normal_top;
-    distance = -(contact_1 - contact_2).norm();
+    contact_1 =
+        projectPointOnTriangle(projected_support, face_triangle, points);
+    contact_2 = contact_1 + distance_support_projection_plane * face_normal;
+    normal = face_normal;
+    distance = -std::fabs(distance_support_projection_plane);
   }
 
   return hfield_witness_is_on_bin_side;
 }
 
 template <typename Polygone, typename Shape, int Options>
-bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
-                   const Convex<Polygone>& convex2, const Transform3f& tf1,
+bool shapeDistance(const GJKSolver* nsolver, const CollisionRequest& request,
+                   const Convex<Polygone>& convex1,
+                   const int convex1_active_faces,
+                   const Convex<Polygone>& convex2,
+                   const int convex2_active_faces, const Transform3f& tf1,
                    const Shape& shape, const Transform3f& tf2,
                    FCL_REAL& distance, Vec3f& c1, Vec3f& c2, Vec3f& normal,
                    Vec3f& normal_top, bool& hfield_witness_is_on_bin_side) {
@@ -268,11 +423,12 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1,
                            compute_penetration, contact1_1, contact1_2,
                            normal1);
-  collision1 = (distance1 < 0);
+  collision1 = (distance1 - request.security_margin <=
+                request.collision_distance_threshold);
 
   hfield_witness_is_on_bin_side1 =
-      binCorrection(convex1, shape, tf2, distance1, contact1_1, contact1_2,
-                    normal1, normal1_top, collision1);
+      binCorrection(convex1, convex1_active_faces, shape, tf2, distance1,
+                    contact1_1, contact1_2, normal1, normal1_top, collision1);
 
   if (RTIsIdentity)
     nsolver->shapeDistance(convex2, Id, shape, tf2, distance2,
@@ -281,11 +437,12 @@ bool shapeDistance(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
     nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
                            compute_penetration, contact2_1, contact2_2,
                            normal2);
-  collision2 = (distance2 < 0);
+  collision2 = (distance2 - request.security_margin <=
+                request.collision_distance_threshold);
 
   hfield_witness_is_on_bin_side2 =
-      binCorrection(convex2, shape, tf2, distance2, contact2_1, contact2_2,
-                    normal2, normal2_top, collision2);
+      binCorrection(convex2, convex2_active_faces, shape, tf2, distance2,
+                    contact2_1, contact2_2, normal2, normal2_top, collision2);
 
   if (collision1 && collision2) {
     if (distance1 > distance2)  // switch values
@@ -490,7 +647,10 @@ class HeightFieldShapeCollisionTraversalNode
 
     typedef Convex<Triangle> ConvexTriangle;
     ConvexTriangle convex1, convex2;
-    details::buildConvexTriangles(node, *this->model1, convex1, convex2);
+    int convex1_active_faces, convex2_active_faces;
+    details::buildConvexTriangles(node, *this->model1, convex1,
+                                  convex1_active_faces, convex2,
+                                  convex2_active_faces);
 
     // Compute aabb_local for BoundingVolumeGuess case in the GJK solver
     if (nsolver->gjk_initial_guess == GJKInitialGuess::BoundingVolumeGuess) {
@@ -500,19 +660,19 @@ class HeightFieldShapeCollisionTraversalNode
 
     FCL_REAL distance;
     //    Vec3f contact_point, normal;
-    Vec3f c1, c2, normal, normal_top;
+    Vec3f c1, c2, normal, normal_face;
     bool hfield_witness_is_on_bin_side;
 
     bool collision = details::shapeDistance<Triangle, S, Options>(
-        nsolver, convex1, convex2, this->tf1, *(this->model2), this->tf2,
-        distance, c1, c2, normal, normal_top, hfield_witness_is_on_bin_side);
+        nsolver, this->request, convex1, convex1_active_faces, convex2,
+        convex2_active_faces, this->tf1, *(this->model2), this->tf2, distance,
+        c1, c2, normal, normal_face, hfield_witness_is_on_bin_side);
 
-    FCL_REAL distToCollision =
-        distance - this->request.security_margin * (normal_top.dot(normal));
+    FCL_REAL distToCollision = distance - this->request.security_margin;
     if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
       if (this->result->numContacts() < this->request.num_max_contacts) {
-        if (normal_top.isApprox(normal) &&
+        if (normal_face.isApprox(normal) &&
             (collision || !hfield_witness_is_on_bin_side)) {
           this->result->addContact(Contact(this->model1, this->model2, (int)b1,
                                            (int)Contact::NONE, c1, c2, normal,
