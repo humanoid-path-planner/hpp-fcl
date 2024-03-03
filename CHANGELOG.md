@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - The internal collision and distance functions of hpp-fcl now use `CollisionRequest::enable_contact` and `DistanceRequest::enable_signed_distance` to control whether or not penetration information should be computed. There are many scenarios where we don't need the penetration information and only want to know if objects are colliding and compute their distance only if they are disjoint. These flags allow the user to control the trade-off between performance vs. information of the library.
   - Fix convergence criterion of EPA; made GJK and EPA convergence criterion absolute + relative to scale to the shapes' dimensions; remove max face/vertices fields from EPA (these can be deduced from the max number of iterations)
 - Account for lateral borders in Height Fields model.
+- Fix printing of deprecated message ([#540](https://github.com/humanoid-path-planner/hpp-fcl/pull/540)).
 
 ## [2.4.1] - 2024-01-23
 
