@@ -61,8 +61,8 @@ class HPP_FCL_DLLAPI IntervalTreeNode {
 
   ~IntervalTreeNode();
 
-  /// @brief Print the interval node information: set left = nil and right =
-  /// root
+  /// @brief Print the interval node information: set left = invalid_node and
+  /// right = root
   void print(IntervalTreeNode* left, IntervalTreeNode* right) const;
 
  protected:
