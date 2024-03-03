@@ -91,7 +91,7 @@ class HPP_FCL_DLLAPI IntervalTree {
  protected:
   IntervalTreeNode* root;
 
-  IntervalTreeNode* nil;
+  IntervalTreeNode* invalid_node;
 
   /// @brief left rotation of tree node
   void leftRotate(IntervalTreeNode* node);

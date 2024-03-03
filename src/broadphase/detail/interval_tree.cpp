@@ -48,15 +48,16 @@ namespace detail {
 
 //==============================================================================
 IntervalTree::IntervalTree() {
-  nil = new IntervalTreeNode;
-  nil->left = nil->right = nil->parent = nil;
-  nil->red = false;
-  nil->key = nil->high = nil->max_high =
+  invalid_node = new IntervalTreeNode;
+  invalid_node->left = invalid_node->right = invalid_node->parent =
+      invalid_node;
+  invalid_node->red = false;
+  invalid_node->key = invalid_node->high = invalid_node->max_high =
       -(std::numeric_limits<FCL_REAL>::max)();
-  nil->stored_interval = nullptr;
+  invalid_node->stored_interval = nullptr;
 
   root = new IntervalTreeNode;
-  root->parent = root->left = root->right = nil;
+  root->parent = root->left = root->right = invalid_node;
   root->key = root->high = root->max_high =
       (std::numeric_limits<FCL_REAL>::max)();
   root->red = false;
@@ -75,11 +76,11 @@ IntervalTree::~IntervalTree() {
   IntervalTreeNode* x = root->left;
   std::deque<IntervalTreeNode*> nodes_to_free;
 
-  if (x != nil) {
-    if (x->left != nil) {
+  if (x != invalid_node) {
+    if (x->left != invalid_node) {
       nodes_to_free.push_back(x->left);
     }
-    if (x->right != nil) {
+    if (x->right != invalid_node) {
       nodes_to_free.push_back(x->right);
     }
 
@@ -87,16 +88,16 @@ IntervalTree::~IntervalTree() {
     while (nodes_to_free.size() > 0) {
       x = nodes_to_free.back();
       nodes_to_free.pop_back();
-      if (x->left != nil) {
+      if (x->left != invalid_node) {
         nodes_to_free.push_back(x->left);
       }
-      if (x->right != nil) {
+      if (x->right != invalid_node) {
         nodes_to_free.push_back(x->right);
       }
       delete x;
     }
   }
-  delete nil;
+  delete invalid_node;
   delete root;
   free(recursion_node_stack);
 }
@@ -108,7 +109,7 @@ void IntervalTree::leftRotate(IntervalTreeNode* x) {
   y = x->right;
   x->right = y->left;
 
-  if (y->left != nil) y->left->parent = x;
+  if (y->left != invalid_node) y->left->parent = x;
 
   y->parent = x->parent;
 
@@ -132,7 +133,7 @@ void IntervalTree::rightRotate(IntervalTreeNode* y) {
   x = y->left;
   y->left = x->right;
 
-  if (nil != x->right) x->right->parent = y;
+  if (invalid_node != x->right) x->right->parent = y;
 
   x->parent = y->parent;
   if (y == y->parent->left)
@@ -153,10 +154,10 @@ void IntervalTree::recursiveInsert(IntervalTreeNode* z) {
   IntervalTreeNode* x;
   IntervalTreeNode* y;
 
-  z->left = z->right = nil;
+  z->left = z->right = invalid_node;
   y = root;
   x = root->left;
-  while (x != nil) {
+  while (x != invalid_node) {
     y = x;
     if (x->key > z->key)
       x = x->left;
@@ -234,8 +235,8 @@ IntervalTreeNode* IntervalTree::insert(SimpleInterval* new_interval) {
 IntervalTreeNode* IntervalTree::getSuccessor(IntervalTreeNode* x) const {
   IntervalTreeNode* y;
 
-  if (nil != (y = x->right)) {
-    while (y->left != nil) y = y->left;
+  if (invalid_node != (y = x->right)) {
+    while (y->left != invalid_node) y = y->left;
     return y;
   } else {
     y = x->parent;
@@ -243,7 +244,7 @@ IntervalTreeNode* IntervalTree::getSuccessor(IntervalTreeNode* x) const {
       x = y;
       y = y->parent;
     }
-    if (y == root) return nil;
+    if (y == root) return invalid_node;
     return y;
   }
 }
@@ -252,13 +253,13 @@ IntervalTreeNode* IntervalTree::getSuccessor(IntervalTreeNode* x) const {
 IntervalTreeNode* IntervalTree::getPredecessor(IntervalTreeNode* x) const {
   IntervalTreeNode* y;
 
-  if (nil != (y = x->left)) {
-    while (y->right != nil) y = y->right;
+  if (invalid_node != (y = x->left)) {
+    while (y->right != invalid_node) y = y->right;
     return y;
   } else {
     y = x->parent;
     while (x == y->left) {
-      if (y == root) return nil;
+      if (y == root) return invalid_node;
       x = y;
       y = y->parent;
     }
@@ -268,9 +269,9 @@ IntervalTreeNode* IntervalTree::getPredecessor(IntervalTreeNode* x) const {
 
 //==============================================================================
 void IntervalTree::recursivePrint(IntervalTreeNode* x) const {
-  if (x != nil) {
+  if (x != invalid_node) {
     recursivePrint(x->left);
-    x->print(nil, root);
+    x->print(invalid_node, root);
     recursivePrint(x->right);
   }
 }
@@ -346,16 +347,16 @@ void IntervalTree::deleteNode(SimpleInterval* ivl) {
 //==============================================================================
 IntervalTreeNode* IntervalTree::recursiveSearch(IntervalTreeNode* node,
                                                 SimpleInterval* ivl) const {
-  if (node != nil) {
+  if (node != invalid_node) {
     if (node->stored_interval == ivl) return node;
 
     IntervalTreeNode* left = recursiveSearch(node->left, ivl);
-    if (left != nil) return left;
+    if (left != invalid_node) return left;
     IntervalTreeNode* right = recursiveSearch(node->right, ivl);
-    if (right != nil) return right;
+    if (right != invalid_node) return right;
   }
 
-  return nil;
+  return invalid_node;
 }
 
 //==============================================================================
@@ -364,8 +365,10 @@ SimpleInterval* IntervalTree::deleteNode(IntervalTreeNode* z) {
   IntervalTreeNode* x;
   SimpleInterval* node_to_delete = z->stored_interval;
 
-  y = ((z->left == nil) || (z->right == nil)) ? z : getSuccessor(z);
-  x = (y->left == nil) ? y->right : y->left;
+  y = ((z->left == invalid_node) || (z->right == invalid_node))
+          ? z
+          : getSuccessor(z);
+  x = (y->left == invalid_node) ? y->right : y->left;
   if (root == (x->parent = y->parent)) {
     root->left = x;
   } else {
@@ -376,7 +379,7 @@ SimpleInterval* IntervalTree::deleteNode(IntervalTreeNode* z) {
     }
   }
 
-  /// @brief y should not be nil in this case
+  /// @brief y should not be invalid_node in this case
   /// y is the node to splice out and x is its child
   if (y != z) {
     y->max_high = -(std::numeric_limits<FCL_REAL>::max)();
@@ -419,7 +422,7 @@ bool overlap(FCL_REAL a1, FCL_REAL a2, FCL_REAL b1, FCL_REAL b2) {
 std::deque<SimpleInterval*> IntervalTree::query(FCL_REAL low, FCL_REAL high) {
   std::deque<SimpleInterval*> result_stack;
   IntervalTreeNode* x = root->left;
-  bool run = (x != nil);
+  bool run = (x != invalid_node);
 
   current_parent = 0;
 
@@ -445,14 +448,14 @@ std::deque<SimpleInterval*> IntervalTree::query(FCL_REAL low, FCL_REAL high) {
     } else
       x = x->right;
 
-    run = (x != nil);
+    run = (x != invalid_node);
     while ((!run) && (recursion_node_stack_top > 1)) {
       if (recursion_node_stack[--recursion_node_stack_top].try_right_branch) {
         x = recursion_node_stack[recursion_node_stack_top].start_node->right;
         current_parent =
             recursion_node_stack[recursion_node_stack_top].parent_index;
         recursion_node_stack[current_parent].try_right_branch = true;
-        run = (x != nil);
+        run = (x != invalid_node);
       }
     }
   }
