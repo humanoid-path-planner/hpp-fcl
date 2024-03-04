@@ -71,12 +71,6 @@ class Convex : public ConvexBase {
 
   ~Convex();
 
-  /// @brief An array of PolygonT object.
-  /// PolygonT should contains a list of vertices for each polygon,
-  /// in counter clockwise order.
-  std::shared_ptr<std::vector<PolygonT>> polygons;
-  unsigned int num_polygons;
-
   /// based on http://number-none.com/blow/inertia/bb_inertia.doc
   Matrix3f computeMomentofInertia() const;
 
@@ -99,8 +93,14 @@ class Convex : public ConvexBase {
            std::shared_ptr<std::vector<PolygonT>> polygons,
            unsigned int num_polygons);
 
-  ///  @brief Clone (deep copy).
+  /// @brief Clone (deep copy)
   virtual Convex<PolygonT>* clone() const;
+
+  /// @brief An array of PolygonT object.
+  /// PolygonT should contains a list of vertices for each polygon,
+  /// in counter clockwise order.
+  std::shared_ptr<std::vector<PolygonT>> polygons;
+  unsigned int num_polygons;
 
  protected:
   void fillNeighbors();

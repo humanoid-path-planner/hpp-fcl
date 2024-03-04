@@ -43,12 +43,16 @@ namespace fcl {
 
 void ConvexBase::initialize(std::shared_ptr<std::vector<Vec3f>> points_,
                             unsigned int num_points_) {
-  points = points_;
-  num_points = num_points_;
-  num_normals_and_offsets = 0;
-  normals.reset();
-  offsets.reset();
-  computeCenter();
+  this->points = points_;
+  this->num_points = num_points_;
+  HPP_FCL_ASSERT(this->points->size() == this->num_points,
+                 "The number of points is not consistent with the size of the "
+                 "points vector",
+                 std::logic_error);
+  this->num_normals_and_offsets = 0;
+  this->normals.reset();
+  this->offsets.reset();
+  this->computeCenter();
 }
 
 void ConvexBase::set(std::shared_ptr<std::vector<Vec3f>> points_,

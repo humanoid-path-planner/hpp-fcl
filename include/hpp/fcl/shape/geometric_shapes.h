@@ -622,26 +622,15 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// @brief Get node type: a convex polytope
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
-  /// @brief An array of the points of the polygon.
-  std::shared_ptr<std::vector<Vec3f>> points;
-  unsigned int num_points;
-
-  /// @brief An array of the normals of the polygon.
-  std::shared_ptr<std::vector<Vec3f>> normals;
-  /// @brief An array of the offsets to the normals of the polygon.
-  /// Note: there are as many offsets as normals.
-  std::shared_ptr<std::vector<double>> offsets;
-  unsigned int num_normals_and_offsets;
-
 #ifdef HPP_FCL_HAS_QHULL
- public:
+  /// @brief Builds the double description of the convex polytope, i.e. the set
+  /// of hyperplanes which intersection form the polytope.
   void buildDoubleDescription();
-
- protected:
-  void buildDoubleDescriptionFromQHullResult(const orgQhull::Qhull& qh);
 #endif
 
- public:
+  /// @brief Build the support points warm starts.
+  void buildSupportWarmStart();
+
   struct HPP_FCL_DLLAPI Neighbors {
     unsigned char count_;
     unsigned int* n_;
@@ -669,17 +658,28 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
     bool operator!=(const Neighbors& other) const { return !(*this == other); }
   };
 
-  /// Neighbors of each vertex.
+  /// @brief An array of the points of the polygon.
+  std::shared_ptr<std::vector<Vec3f>> points;
+  unsigned int num_points;
+
+  /// @brief An array of the normals of the polygon.
+  std::shared_ptr<std::vector<Vec3f>> normals;
+  /// @brief An array of the offsets to the normals of the polygon.
+  /// Note: there are as many offsets as normals.
+  std::shared_ptr<std::vector<double>> offsets;
+  unsigned int num_normals_and_offsets;
+
+  /// @brief Neighbors of each vertex.
   /// It is an array of size num_points. For each vertex, it contains the number
-  /// of neighbors and a list of indices to them.
+  /// of neighbors and a list of indices pointing to them.
   std::shared_ptr<std::vector<Neighbors>> neighbors;
 
   /// @brief center of the convex polytope, this is used for collision: center
   /// is guaranteed in the internal of the polytope (as it is convex)
   Vec3f center;
 
-  /// @brief The support warm start polytope contains points of `this` which
-  /// are support points in specific directions of space.
+  /// @brief The support warm start polytope contains certain points of `this`
+  /// which are support points in specific directions of space.
   /// This struct is used to warm start the support function computation for
   /// large meshes (`num_points` > 32).
   struct SupportWarmStartPolytope {
@@ -693,11 +693,11 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
     std::vector<int> indices;
   };
 
+  /// @brief Number of support warm starts.
   static constexpr size_t num_support_warm_starts = 14;
-  SupportWarmStartPolytope support_warm_start;
 
-  /// @brief Build the support points warm starts.
-  void buildSupportWarmStart();
+  /// @brief Support warm start polytopes.
+  SupportWarmStartPolytope support_warm_start;
 
  protected:
   /// @brief Construct an uninitialized convex object
@@ -729,12 +729,20 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   /// Only the list of neighbors is copied.
   ConvexBase(const ConvexBase& other);
 
+#ifdef HPP_FCL_HAS_QHULL
+  void buildDoubleDescriptionFromQHullResult(const orgQhull::Qhull& qh);
+#endif
+
+  /// @brief Array of indices of the neighbors of each vertex.
+  /// Since we don't know a priori the number of neighbors of each vertex, we
+  /// store the indices of the neighbors in a single array.
+  /// The `neighbors` attribute, an array of `Neighbors`, is used to point each
+  /// vertex to the right indices in the `nneighbors_` array.
   std::shared_ptr<std::vector<unsigned int>> nneighbors_;
 
  private:
   void computeCenter();
 
- private:
   virtual bool isEqual(const CollisionGeometry& _other) const {
     const ConvexBase* other_ptr = dynamic_cast<const ConvexBase*>(&_other);
     if (other_ptr == nullptr) return false;

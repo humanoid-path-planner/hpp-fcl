@@ -50,9 +50,9 @@ Convex<PolygonT>::Convex(std::shared_ptr<std::vector<Vec3f>> points_,
                          std::shared_ptr<std::vector<PolygonT>> polygons_,
                          unsigned int num_polygons_)
     : ConvexBase(), polygons(polygons_), num_polygons(num_polygons_) {
-  initialize(points_, num_points_);
-  fillNeighbors();
-  buildSupportWarmStart();
+  this->initialize(points_, num_points_);
+  this->fillNeighbors();
+  this->buildSupportWarmStart();
 }
 
 template <typename PolygonT>
@@ -74,11 +74,11 @@ void Convex<PolygonT>::set(std::shared_ptr<std::vector<Vec3f>> points_,
                            unsigned int num_polygons_) {
   ConvexBase::set(points_, num_points_);
 
-  num_polygons = num_polygons_;
-  polygons = polygons_;
+  this->num_polygons = num_polygons_;
+  this->polygons = polygons_;
 
-  fillNeighbors();
-  buildSupportWarmStart();
+  this->fillNeighbors();
+  this->buildSupportWarmStart();
 }
 
 template <typename PolygonT>
