@@ -172,10 +172,17 @@ struct LargeConvex : ShapeBase {};
 void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         Vec3f& support, int& hint,
                         MinkowskiDiff::ShapeData* data) {
-  assert(data != NULL);
+  assert(data != nullptr && "data is null.");
+  assert(convex->neighbors != nullptr && "Convex has no neighbors.");
+  assert(convex->support_warm_start.points.size() > 0 &&
+         "Convex has no support warm starts.");
 
-  if (!data->last_dir.isZero() && data->last_dir.dot(dir.normalized()) < 0.9 &&
-      convex->support_warm_start.points.size() > 0) {
+  // Use warm start if current support direction is distant from last support
+  // direction.
+  const double use_warm_start_threshold = 0.9;
+  Vec3f dir_normalized = dir.normalized();
+  if (!data->last_dir.isZero() && !convex->support_warm_start.points.empty() &&
+      data->last_dir.dot(dir_normalized) < use_warm_start_threshold) {
     // Change hint if last dir is too far from current dir.
     FCL_REAL maxdot = convex->support_warm_start.points[0].dot(dir);
     hint = convex->support_warm_start.indices[0];
@@ -187,6 +194,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
       }
     }
   }
+  data->last_dir = dir_normalized;
 
   const std::vector<Vec3f>& pts = *(convex->points);
   const std::vector<ConvexBase::Neighbors>& nn = *(convex->neighbors);
@@ -222,7 +230,6 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   }
 
   support = pts[static_cast<size_t>(hint)];
-  data->last_dir = dir.normalized();
 }
 
 void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
@@ -247,7 +254,8 @@ void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
                      int& hint, MinkowskiDiff::ShapeData*) {
   // TODO add benchmark to set a proper value for switching between linear and
   // logarithmic.
-  if (convex->num_points > 32 && convex->neighbors != nullptr) {
+  if (convex->num_points > ConvexBase::num_vertices_large_convex_threshold &&
+      convex->neighbors != nullptr) {
     MinkowskiDiff::ShapeData data;
     data.visited.assign(convex->num_points, false);
     getShapeSupportLog(convex, dir, support, hint, &data);
@@ -365,7 +373,7 @@ void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
 template <typename Shape0>
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
     const ShapeBase* s1, bool identity, Eigen::Array<FCL_REAL, 1, 2>& inflation,
-    int linear_log_convex_threshold, MinkowskiDiff::ShapeData data[2]) {
+    MinkowskiDiff::ShapeData data[2]) {
   inflation[1] = 0;
   switch (s1->getNodeType()) {
     case GEOM_TRIANGLE:
@@ -407,7 +415,8 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
         return getSupportFuncTpl<Shape0, Cylinder, false>;
     case GEOM_CONVEX: {
       const ConvexBase* convex1 = static_cast<const ConvexBase*>(s1);
-      if ((int)convex1->num_points > linear_log_convex_threshold) {
+      if ((int)convex1->num_points >
+          ConvexBase::num_vertices_large_convex_threshold) {
         data[1].visited.assign(convex1->num_points, false);
         if (identity)
           return getSupportFuncTpl<Shape0, LargeConvex, true>;
@@ -427,49 +436,42 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
 
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
     const ShapeBase* s0, const ShapeBase* s1, bool identity,
-    Eigen::Array<FCL_REAL, 1, 2>& inflation, int linear_log_convex_threshold,
-    MinkowskiDiff::ShapeData data[2]) {
+    Eigen::Array<FCL_REAL, 1, 2>& inflation, MinkowskiDiff::ShapeData data[2]) {
   inflation[0] = 0;
   switch (s0->getNodeType()) {
     case GEOM_TRIANGLE:
-      return makeGetSupportFunction1<TriangleP>(
-          s1, identity, inflation, linear_log_convex_threshold, data);
+      return makeGetSupportFunction1<TriangleP>(s1, identity, inflation, data);
       break;
     case GEOM_BOX:
-      return makeGetSupportFunction1<Box>(s1, identity, inflation,
-                                          linear_log_convex_threshold, data);
+      return makeGetSupportFunction1<Box>(s1, identity, inflation, data);
       break;
     case GEOM_SPHERE:
       inflation[0] = static_cast<const Sphere*>(s0)->radius;
-      return makeGetSupportFunction1<Sphere>(s1, identity, inflation,
-                                             linear_log_convex_threshold, data);
+      return makeGetSupportFunction1<Sphere>(s1, identity, inflation, data);
       break;
     case GEOM_ELLIPSOID:
-      return makeGetSupportFunction1<Ellipsoid>(
-          s1, identity, inflation, linear_log_convex_threshold, data);
+      return makeGetSupportFunction1<Ellipsoid>(s1, identity, inflation, data);
       break;
     case GEOM_CAPSULE:
       inflation[0] = static_cast<const Capsule*>(s0)->radius;
-      return makeGetSupportFunction1<Capsule>(
-          s1, identity, inflation, linear_log_convex_threshold, data);
+      return makeGetSupportFunction1<Capsule>(s1, identity, inflation, data);
       break;
     case GEOM_CONE:
-      return makeGetSupportFunction1<Cone>(s1, identity, inflation,
-                                           linear_log_convex_threshold, data);
+      return makeGetSupportFunction1<Cone>(s1, identity, inflation, data);
       break;
     case GEOM_CYLINDER:
-      return makeGetSupportFunction1<Cylinder>(
-          s1, identity, inflation, linear_log_convex_threshold, data);
+      return makeGetSupportFunction1<Cylinder>(s1, identity, inflation, data);
       break;
     case GEOM_CONVEX: {
       const ConvexBase* convex0 = static_cast<const ConvexBase*>(s0);
-      if ((int)convex0->num_points > linear_log_convex_threshold) {
+      if ((int)convex0->num_points >
+          ConvexBase::num_vertices_large_convex_threshold) {
         data[0].visited.assign(convex0->num_points, false);
-        return makeGetSupportFunction1<LargeConvex>(
-            s1, identity, inflation, linear_log_convex_threshold, data);
+        return makeGetSupportFunction1<LargeConvex>(s1, identity, inflation,
+                                                    data);
       } else
-        return makeGetSupportFunction1<SmallConvex>(
-            s1, identity, inflation, linear_log_convex_threshold, data);
+        return makeGetSupportFunction1<SmallConvex>(s1, identity, inflation,
+                                                    data);
       break;
     }
     default:
@@ -528,8 +530,8 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
 
   bool identity = (oR1.isIdentity() && ot1.isZero());
 
-  getSupportFunc = makeGetSupportFunction0(shape0, shape1, identity, inflation,
-                                           linear_log_convex_threshold, data);
+  getSupportFunc =
+      makeGetSupportFunction0(shape0, shape1, identity, inflation, data);
 }
 
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
@@ -541,8 +543,8 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
   oR1.setIdentity();
   ot1.setZero();
 
-  getSupportFunc = makeGetSupportFunction0(shape0, shape1, true, inflation,
-                                           linear_log_convex_threshold, data);
+  getSupportFunc =
+      makeGetSupportFunction0(shape0, shape1, true, inflation, data);
 }
 
 void GJK::initialize() {
@@ -1973,24 +1975,34 @@ bool EPA::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0,
 }  // namespace details
 
 void ConvexBase::buildSupportWarmStart() {
-  this->support_warm_start.points.resize(ConvexBase::num_support_warm_starts);
-  this->support_warm_start.indices.resize(ConvexBase::num_support_warm_starts);
+  if (this->points->size() < ConvexBase::num_vertices_large_convex_threshold) {
+    return;
+  }
+
+  this->support_warm_start.points.reserve(ConvexBase::num_support_warm_starts);
+  this->support_warm_start.indices.reserve(ConvexBase::num_support_warm_starts);
+
   Vec3f axiis(0, 0, 0);
-  int hint = 0;
   for (int i = 0; i < 3; ++i) {
     axiis(i) = 1;
-    hpp::fcl::details::getShapeSupport(
-        this, axiis,
-        this->support_warm_start.points[static_cast<size_t>(2 * i + 0)], hint,
-        nullptr);
-    this->support_warm_start.indices[static_cast<size_t>(2 * i + 0)] = hint;
+    {
+      Vec3f support;
+      int support_index{0};
+      hpp::fcl::details::getShapeSupport(this, axiis, support, support_index,
+                                         nullptr);
+      this->support_warm_start.points.emplace_back(support);
+      this->support_warm_start.indices.emplace_back(support_index);
+    }
 
     axiis(i) = -1;
-    hpp::fcl::details::getShapeSupport(
-        this, axiis,
-        this->support_warm_start.points[static_cast<size_t>(2 * i + 1)], hint,
-        nullptr);
-    this->support_warm_start.indices[static_cast<size_t>(2 * i + 1)] = hint;
+    {
+      Vec3f support;
+      int support_index{0};
+      hpp::fcl::details::getShapeSupport(this, axiis, support, support_index,
+                                         nullptr);
+      this->support_warm_start.points.emplace_back(support);
+      this->support_warm_start.indices.emplace_back(support_index);
+    }
 
     axiis(i) = 0;
   }
@@ -2000,21 +2012,32 @@ void ConvexBase::buildSupportWarmStart() {
                               Vec3f(-1, -1, 1),  //
                               Vec3f(1, -1, 1)};
 
-  const size_t already_computed = 6;
   for (size_t ei_index = 0; ei_index < 4; ++ei_index) {
-    hpp::fcl::details::getShapeSupport(
-        this, eis[ei_index],
-        this->support_warm_start.points[already_computed + 2 * ei_index + 0],
-        hint, nullptr);
-    this->support_warm_start.indices[already_computed + 2 * ei_index + 0] =
-        hint;
+    {
+      Vec3f support;
+      int support_index{0};
+      hpp::fcl::details::getShapeSupport(this, eis[ei_index], support,
+                                         support_index, nullptr);
+      this->support_warm_start.points.emplace_back(support);
+      this->support_warm_start.indices.emplace_back(support_index);
+    }
 
-    hpp::fcl::details::getShapeSupport(
-        this, -eis[ei_index],
-        this->support_warm_start.points[already_computed + 2 * ei_index + 1],
-        hint, nullptr);
-    this->support_warm_start.indices[already_computed + 2 * ei_index + 1] =
-        hint;
+    {
+      Vec3f support;
+      int support_index{0};
+      hpp::fcl::details::getShapeSupport(this, -eis[ei_index], support,
+                                         support_index, nullptr);
+      this->support_warm_start.points.emplace_back(support);
+      this->support_warm_start.indices.emplace_back(support_index);
+    }
+  }
+
+  if (this->support_warm_start.points.size() !=
+          ConvexBase::num_support_warm_starts ||
+      this->support_warm_start.indices.size() !=
+          ConvexBase::num_support_warm_starts) {
+    HPP_FCL_THROW_PRETTY("Wrong number of support warm starts.",
+                         std::runtime_error);
   }
 }
 

@@ -85,12 +85,6 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// These inflation values are used for Sphere and Capsule.
   Array2d inflation;
 
-  /// @brief Number of points in a Convex object from which using a logarithmic
-  /// support function is faster than a linear one.
-  /// It defaults to 32.
-  /// \note It must set before the call to \ref set.
-  int linear_log_convex_threshold;
-
   /// @brief Wether or not to use the normalize heuristic in the GJK Nesterov
   /// acceleration. This setting is only applied if the Nesterov acceleration in
   /// the GJK class is active.
@@ -103,10 +97,7 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
                                      ShapeData data[2]);
   GetSupportFunction getSupportFunc;
 
-  MinkowskiDiff()
-      : linear_log_convex_threshold(32),
-        normalize_support_direction(false),
-        getSupportFunc(NULL) {}
+  MinkowskiDiff() : normalize_support_direction(false), getSupportFunc(NULL) {}
 
   /// Set the two shapes,
   /// assuming the relative transformation between them is identity.

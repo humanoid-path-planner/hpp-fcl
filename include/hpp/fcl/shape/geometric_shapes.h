@@ -628,9 +628,6 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   void buildDoubleDescription();
 #endif
 
-  /// @brief Build the support points warm starts.
-  void buildSupportWarmStart();
-
   struct HPP_FCL_DLLAPI Neighbors {
     unsigned char count_;
     unsigned int* n_;
@@ -657,6 +654,10 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 
     bool operator!=(const Neighbors& other) const { return !(*this == other); }
   };
+
+  /// @brief Above this threshold, the convex polytope is considered large.
+  /// This influcences the way the support function is computed.
+  static constexpr size_t num_vertices_large_convex_threshold = 32;
 
   /// @brief An array of the points of the polygon.
   std::shared_ptr<std::vector<Vec3f>> points;
@@ -732,6 +733,9 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 #ifdef HPP_FCL_HAS_QHULL
   void buildDoubleDescriptionFromQHullResult(const orgQhull::Qhull& qh);
 #endif
+
+  /// @brief Build the support points warm starts.
+  void buildSupportWarmStart();
 
   /// @brief Array of indices of the neighbors of each vertex.
   /// Since we don't know a priori the number of neighbors of each vertex, we
