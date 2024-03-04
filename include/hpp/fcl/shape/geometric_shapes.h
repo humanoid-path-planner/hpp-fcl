@@ -698,7 +698,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   static constexpr size_t num_support_warm_starts = 14;
 
   /// @brief Support warm start polytopes.
-  SupportWarmStartPolytope support_warm_start;
+  SupportWarmStartPolytope support_warm_starts;
 
  protected:
   /// @brief Construct an uninitialized convex object
@@ -795,6 +795,22 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
       const std::vector<double>& other_offsets_ = *(other.offsets);
       for (unsigned int i = 0; i < num_normals_and_offsets; ++i) {
         if (offsets_[i] != other_offsets_[i]) return false;
+      }
+    }
+
+    if (this->support_warm_starts.points.size() !=
+            other.support_warm_starts.points.size() ||
+        this->support_warm_starts.indices.size() !=
+            other.support_warm_starts.indices.size()) {
+      return false;
+    }
+
+    for (size_t i = 0; i < this->support_warm_starts.points.size(); ++i) {
+      if (this->support_warm_starts.points[i] !=
+              other.support_warm_starts.points[i] ||
+          this->support_warm_starts.indices[i] !=
+              other.support_warm_starts.indices[i]) {
+        return false;
       }
     }
 

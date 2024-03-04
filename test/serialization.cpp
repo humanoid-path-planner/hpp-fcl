@@ -483,6 +483,24 @@ BOOST_AUTO_TEST_CASE(test_shapes) {
     plane.computeLocalAABB();
     test_serialization(plane, plane_copy);
   }
+
+  {
+    const size_t num_points = 500;
+    std::shared_ptr<std::vector<Vec3f>> points =
+        std::make_shared<std::vector<Vec3f>>();
+    points->reserve(num_points);
+    for (size_t i = 0; i < num_points; i++) {
+      points->emplace_back(Vec3f::Random());
+    }
+    using Convex = Convex<Triangle>;
+    // using ConvexBase = hpp::fcl::ConvexBase;
+    std::unique_ptr<Convex> convex =
+        std::unique_ptr<Convex>(static_cast<Convex*>(ConvexBase::convexHull(
+            points, static_cast<unsigned int>(points->size()), true)));
+
+    Convex convex_copy;
+    test_serialization(*convex, convex_copy);
+  }
 }
 
 #ifdef HPP_FCL_HAS_OCTOMAP

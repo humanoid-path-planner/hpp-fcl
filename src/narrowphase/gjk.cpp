@@ -174,23 +174,23 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         MinkowskiDiff::ShapeData* data) {
   assert(data != nullptr && "data is null.");
   assert(convex->neighbors != nullptr && "Convex has no neighbors.");
-  assert(convex->support_warm_start.points.size() > 0 &&
+  assert(convex->support_warm_starts.points.size() > 0 &&
          "Convex has no support warm starts.");
 
   // Use warm start if current support direction is distant from last support
   // direction.
   const double use_warm_start_threshold = 0.9;
   Vec3f dir_normalized = dir.normalized();
-  if (!data->last_dir.isZero() && !convex->support_warm_start.points.empty() &&
+  if (!data->last_dir.isZero() && !convex->support_warm_starts.points.empty() &&
       data->last_dir.dot(dir_normalized) < use_warm_start_threshold) {
     // Change hint if last dir is too far from current dir.
-    FCL_REAL maxdot = convex->support_warm_start.points[0].dot(dir);
-    hint = convex->support_warm_start.indices[0];
-    for (size_t i = 1; i < convex->support_warm_start.points.size(); ++i) {
-      FCL_REAL dot = convex->support_warm_start.points[i].dot(dir);
+    FCL_REAL maxdot = convex->support_warm_starts.points[0].dot(dir);
+    hint = convex->support_warm_starts.indices[0];
+    for (size_t i = 1; i < convex->support_warm_starts.points.size(); ++i) {
+      FCL_REAL dot = convex->support_warm_starts.points[i].dot(dir);
       if (dot > maxdot) {
         maxdot = dot;
-        hint = convex->support_warm_start.indices[i];
+        hint = convex->support_warm_starts.indices[i];
       }
     }
   }
@@ -1979,8 +1979,9 @@ void ConvexBase::buildSupportWarmStart() {
     return;
   }
 
-  this->support_warm_start.points.reserve(ConvexBase::num_support_warm_starts);
-  this->support_warm_start.indices.reserve(ConvexBase::num_support_warm_starts);
+  this->support_warm_starts.points.reserve(ConvexBase::num_support_warm_starts);
+  this->support_warm_starts.indices.reserve(
+      ConvexBase::num_support_warm_starts);
 
   Vec3f axiis(0, 0, 0);
   for (int i = 0; i < 3; ++i) {
@@ -1990,8 +1991,8 @@ void ConvexBase::buildSupportWarmStart() {
       int support_index{0};
       hpp::fcl::details::getShapeSupport(this, axiis, support, support_index,
                                          nullptr);
-      this->support_warm_start.points.emplace_back(support);
-      this->support_warm_start.indices.emplace_back(support_index);
+      this->support_warm_starts.points.emplace_back(support);
+      this->support_warm_starts.indices.emplace_back(support_index);
     }
 
     axiis(i) = -1;
@@ -2000,8 +2001,8 @@ void ConvexBase::buildSupportWarmStart() {
       int support_index{0};
       hpp::fcl::details::getShapeSupport(this, axiis, support, support_index,
                                          nullptr);
-      this->support_warm_start.points.emplace_back(support);
-      this->support_warm_start.indices.emplace_back(support_index);
+      this->support_warm_starts.points.emplace_back(support);
+      this->support_warm_starts.indices.emplace_back(support_index);
     }
 
     axiis(i) = 0;
@@ -2018,8 +2019,8 @@ void ConvexBase::buildSupportWarmStart() {
       int support_index{0};
       hpp::fcl::details::getShapeSupport(this, eis[ei_index], support,
                                          support_index, nullptr);
-      this->support_warm_start.points.emplace_back(support);
-      this->support_warm_start.indices.emplace_back(support_index);
+      this->support_warm_starts.points.emplace_back(support);
+      this->support_warm_starts.indices.emplace_back(support_index);
     }
 
     {
@@ -2027,14 +2028,14 @@ void ConvexBase::buildSupportWarmStart() {
       int support_index{0};
       hpp::fcl::details::getShapeSupport(this, -eis[ei_index], support,
                                          support_index, nullptr);
-      this->support_warm_start.points.emplace_back(support);
-      this->support_warm_start.indices.emplace_back(support_index);
+      this->support_warm_starts.points.emplace_back(support);
+      this->support_warm_starts.indices.emplace_back(support_index);
     }
   }
 
-  if (this->support_warm_start.points.size() !=
+  if (this->support_warm_starts.points.size() !=
           ConvexBase::num_support_warm_starts ||
-      this->support_warm_start.indices.size() !=
+      this->support_warm_starts.indices.size() !=
           ConvexBase::num_support_warm_starts) {
     HPP_FCL_THROW_PRETTY("Wrong number of support warm starts.",
                          std::runtime_error);
