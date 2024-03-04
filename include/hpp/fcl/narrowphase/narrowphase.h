@@ -656,7 +656,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   /// @brief Whether smart guess can be provided
   /// @Deprecated Use gjk_initial_guess instead
-  HPP_FCL_DEPRECATED_MESSAGE("Use gjk_initial_guess instead")
+  HPP_FCL_DEPRECATED_MESSAGE(Use gjk_initial_guess instead)
   bool enable_cached_guess;
 
   /// @brief smart guess
