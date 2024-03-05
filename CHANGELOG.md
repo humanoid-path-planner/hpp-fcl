@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Account for lateral borders in Height Fields model.
 - Fix compilation error on recent APPLE compilers ([#539](https://github.com/humanoid-path-planner/hpp-fcl/pull/539)).
 - Fix printing of deprecated message ([#540](https://github.com/humanoid-path-planner/hpp-fcl/pull/540)).
+- Fix CMAKE_INSTALL_{} path for installation ([#543](https://github.com/humanoid-path-planner/hpp-fcl/pull/543))
 
 ## [2.4.1] - 2024-01-23
 
