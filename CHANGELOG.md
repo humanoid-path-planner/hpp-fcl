@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Fix CMAKE_INSTALL_{} path for installation ([#543](https://github.com/humanoid-path-planner/hpp-fcl/pull/543))
+
 ## [2.4.1] - 2024-01-23
 
 ### Fixed
