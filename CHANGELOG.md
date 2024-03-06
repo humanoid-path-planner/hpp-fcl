@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- updated cmake module to fix documentation generation
+
 ## [2.4.2] - 2024-03-06
 
 ### Fixed
