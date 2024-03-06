@@ -174,8 +174,6 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         MinkowskiDiff::ShapeData* data) {
   assert(data != nullptr && "data is null.");
   assert(convex->neighbors != nullptr && "Convex has no neighbors.");
-  assert(convex->support_warm_starts.points.size() > 0 &&
-         "Convex has no support warm starts.");
 
   // Use warm start if current support direction is distant from last support
   // direction.
