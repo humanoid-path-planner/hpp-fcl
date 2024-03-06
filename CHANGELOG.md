@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2.4.3] - 2024-03-06
+
 ### Fixed
 - updated cmake module to fix documentation generation
 - test documentation in conda ci
@@ -450,7 +452,8 @@ Now Eigen is at the heart of linear algebra computations.
 First release
 
 
-[Unreleased]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.2...HEAD
+[Unreleased]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.3...HEAD
+[2.4.3]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.3.7...v2.4.0
