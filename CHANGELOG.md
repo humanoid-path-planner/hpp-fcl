@@ -26,6 +26,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix compilation error on recent APPLE compilers ([#539](https://github.com/humanoid-path-planner/hpp-fcl/pull/539)).
 - Fix printing of deprecated message ([#540](https://github.com/humanoid-path-planner/hpp-fcl/pull/540)).
 
+## [2.4.4] - 2024-03-06
+
 ## [2.4.3] - 2024-03-06
 
 ### Fixed
@@ -490,7 +492,8 @@ Now Eigen is at the heart of linear algebra computations.
 First release
 
 
-[Unreleased]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.3...HEAD
+[Unreleased]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.4...HEAD
+[2.4.4]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.3...v2.4.4
 [2.4.3]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.0...v2.4.1
