@@ -38,14 +38,16 @@
 #ifndef HPP_FCL_TRANSFORM_H
 #define HPP_FCL_TRANSFORM_H
 
+#include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/data_types.h>
 
 namespace hpp {
 namespace fcl {
 
-typedef Eigen::Quaternion<FCL_REAL> Quaternion3f;
+HPP_FCL_DEPRECATED typedef Eigen::Quaternion<FCL_REAL> Quaternion3f;
+typedef Eigen::Quaternion<FCL_REAL> Quatf;
 
-static inline std::ostream& operator<<(std::ostream& o, const Quaternion3f& q) {
+static inline std::ostream& operator<<(std::ostream& o, const Quatf& q) {
   o << "(" << q.w() << " " << q.x() << " " << q.y() << " " << q.z() << ")";
   return o;
 }
@@ -74,14 +76,14 @@ class HPP_FCL_DLLAPI Transform3f {
 
   /// @brief Construct transform from rotation and translation
   template <typename Vector3Like>
-  Transform3f(const Quaternion3f& q_, const Eigen::MatrixBase<Vector3Like>& T_)
+  Transform3f(const Quatf& q_, const Eigen::MatrixBase<Vector3Like>& T_)
       : R(q_.toRotationMatrix()), T(T_) {}
 
   /// @brief Construct transform from rotation
   Transform3f(const Matrix3f& R_) : R(R_), T(Vec3f::Zero()) {}
 
   /// @brief Construct transform from rotation
-  Transform3f(const Quaternion3f& q_) : R(q_), T(Vec3f::Zero()) {}
+  Transform3f(const Quatf& q_) : R(q_), T(Vec3f::Zero()) {}
 
   /// @brief Construct transform from translation
   Transform3f(const Vec3f& T_) : R(Matrix3f::Identity()), T(T_) {}
@@ -115,7 +117,7 @@ class HPP_FCL_DLLAPI Transform3f {
   inline Matrix3f& rotation() { return R; }
 
   /// @brief get quaternion
-  inline Quaternion3f getQuatRotation() const { return Quaternion3f(R); }
+  inline Quatf getQuatRotation() const { return Quatf(R); }
 
   /// @brief set transform from rotation and translation
   template <typename Matrix3Like, typename Vector3Like>
@@ -126,7 +128,7 @@ class HPP_FCL_DLLAPI Transform3f {
   }
 
   /// @brief set transform from rotation and translation
-  inline void setTransform(const Quaternion3f& q_, const Vec3f& T_) {
+  inline void setTransform(const Quatf& q_, const Vec3f& T_) {
     R = q_.toRotationMatrix();
     T = T_;
   }
@@ -144,9 +146,7 @@ class HPP_FCL_DLLAPI Transform3f {
   }
 
   /// @brief set transform from rotation
-  inline void setQuatRotation(const Quaternion3f& q_) {
-    R = q_.toRotationMatrix();
-  }
+  inline void setQuatRotation(const Quatf& q_) { R = q_.toRotationMatrix(); }
 
   /// @brief transform a given vector by the transform
   template <typename Derived>
@@ -206,9 +206,9 @@ class HPP_FCL_DLLAPI Transform3f {
 };
 
 template <typename Derived>
-inline Quaternion3f fromAxisAngle(const Eigen::MatrixBase<Derived>& axis,
-                                  FCL_REAL angle) {
-  return Quaternion3f(Eigen::AngleAxis<FCL_REAL>(angle, axis));
+inline Quatf fromAxisAngle(const Eigen::MatrixBase<Derived>& axis,
+                           FCL_REAL angle) {
+  return Quatf(Eigen::AngleAxis<FCL_REAL>(angle, axis));
 }
 
 }  // namespace fcl

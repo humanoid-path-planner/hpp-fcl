@@ -41,6 +41,26 @@
 namespace hpp {
 namespace fcl {
 
+void checkResultLowerBound(const CollisionResult& result,
+                           FCL_REAL sqrDistLowerBound) {
+  HPP_FCL_UNUSED_VARIABLE(result);
+  const FCL_REAL dummy_precision =
+      std::sqrt(Eigen::NumTraits<FCL_REAL>::epsilon());
+  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+  if (sqrDistLowerBound == 0) {
+    HPP_FCL_ASSERT(result.distance_lower_bound <= dummy_precision,
+                   "Distance lower bound should not be positive.",
+                   std::logic_error);
+  } else {
+    HPP_FCL_ASSERT(
+        result.distance_lower_bound * result.distance_lower_bound -
+                sqrDistLowerBound <
+            dummy_precision,
+        "Distance lower bound and sqrDistLowerBound should coincide.",
+        std::logic_error);
+  }
+}
+
 void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
              CollisionResult& result, BVHFrontList* front_list,
              bool recursive) {
@@ -52,15 +72,8 @@ void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
       collisionRecurse(node, 0, 0, front_list, sqrDistLowerBound);
     else
       collisionNonRecurse(node, front_list, sqrDistLowerBound);
-
     if (!std::isnan(sqrDistLowerBound)) {
-      if (sqrDistLowerBound == 0) {
-        assert(result.distance_lower_bound <= 0);
-      } else {
-        assert(result.distance_lower_bound * result.distance_lower_bound -
-                   sqrDistLowerBound <
-               1e-8);
-      }
+      checkResultLowerBound(result, sqrDistLowerBound);
     }
   }
 }

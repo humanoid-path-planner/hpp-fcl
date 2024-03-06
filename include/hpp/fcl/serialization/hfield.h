@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2024 INRIA
 //
 
 #ifndef HPP_FCL_SERIALIZATION_HFIELD_H
@@ -22,6 +22,7 @@ void serialize(Archive &ar, hpp::fcl::HFNodeBase &node,
   ar &make_nvp("y_id", node.y_id);
   ar &make_nvp("y_size", node.y_size);
   ar &make_nvp("max_height", node.max_height);
+  ar &make_nvp("contact_active_faces", node.contact_active_faces);
 }
 
 template <class Archive, typename BV>
@@ -71,5 +72,10 @@ void serialize(Archive &ar, hpp::fcl::HeightField<BV> &hf_model,
 }
 }  // namespace serialization
 }  // namespace boost
+
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::HeightField<::hpp::fcl::AABB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::HeightField<::hpp::fcl::OBB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(
+    ::hpp::fcl::HeightField<::hpp::fcl::OBBRSS>)
 
 #endif  // ifndef HPP_FCL_SERIALIZATION_HFIELD_H

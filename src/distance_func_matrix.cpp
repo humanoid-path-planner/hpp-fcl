@@ -40,6 +40,7 @@
 #include <../src/collision_node.h>
 #include <hpp/fcl/internal/shape_shape_func.h>
 #include <hpp/fcl/internal/traversal_node_setup.h>
+#include <hpp/fcl/internal/shape_shape_func.h>
 #include <../src/traits_traversal.h>
 
 namespace hpp {
@@ -66,21 +67,20 @@ FCL_REAL Distance(const CollisionGeometry* o1, const Transform3f& tf1,
 
 #endif
 
-template <typename T_SH1, typename T_SH2>
-FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
-                            const CollisionGeometry* o2, const Transform3f& tf2,
-                            const GJKSolver* nsolver,
-                            const DistanceRequest& request,
-                            DistanceResult& result) {
-  if (request.isSatisfied(result)) return result.min_distance;
-  ShapeDistanceTraversalNode<T_SH1, T_SH2> node;
-  const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
-  const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
+HPP_FCL_LOCAL FCL_REAL distance_function_not_implemented(
+    const CollisionGeometry* o1, const Transform3f& /*tf1*/,
+    const CollisionGeometry* o2, const Transform3f& /*tf2*/,
+    const GJKSolver* /*nsolver*/, const DistanceRequest& /*request*/,
+    DistanceResult& /*result*/) {
+  NODE_TYPE node_type1 = o1->getNodeType();
+  NODE_TYPE node_type2 = o2->getNodeType();
 
-  initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
-  distance(&node);
-
-  return result.min_distance;
+  HPP_FCL_THROW_PRETTY("Distance function between node type "
+                           << std::string(get_node_type_name(node_type1))
+                           << " and node type "
+                           << std::string(get_node_type_name(node_type2))
+                           << " is not yet supported.",
+                       std::invalid_argument);
 }
 
 template <typename T_BVH, typename T_SH>
@@ -322,8 +322,10 @@ DistanceFunctionMatrix::DistanceFunctionMatrix() {
       &ShapeShapeDistance<Ellipsoid, Cylinder>;
   distance_matrix[GEOM_ELLIPSOID][GEOM_CONVEX] =
       &ShapeShapeDistance<Ellipsoid, ConvexBase>;
-  // TODO Louis: Ellipsoid - Plane
-  // TODO Louis: Ellipsoid - Halfspace
+  distance_matrix[GEOM_ELLIPSOID][GEOM_PLANE] =
+      &ShapeShapeDistance<Ellipsoid, Plane>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_HALFSPACE] =
+      &ShapeShapeDistance<Ellipsoid, Halfspace>;
   distance_matrix[GEOM_ELLIPSOID][GEOM_ELLIPSOID] =
       &ShapeShapeDistance<Ellipsoid, Ellipsoid>;
 
@@ -406,7 +408,8 @@ DistanceFunctionMatrix::DistanceFunctionMatrix() {
   distance_matrix[GEOM_PLANE][GEOM_PLANE] = &ShapeShapeDistance<Plane, Plane>;
   distance_matrix[GEOM_PLANE][GEOM_HALFSPACE] =
       &ShapeShapeDistance<Plane, Halfspace>;
-  // TODO Louis: Ellipsoid - Plane
+  distance_matrix[GEOM_PLANE][GEOM_ELLIPSOID] =
+      &ShapeShapeDistance<Plane, Ellipsoid>;
 
   distance_matrix[GEOM_HALFSPACE][GEOM_BOX] =
       &ShapeShapeDistance<Halfspace, Box>;
@@ -424,7 +427,8 @@ DistanceFunctionMatrix::DistanceFunctionMatrix() {
       &ShapeShapeDistance<Halfspace, Plane>;
   distance_matrix[GEOM_HALFSPACE][GEOM_HALFSPACE] =
       &ShapeShapeDistance<Halfspace, Halfspace>;
-  // TODO Louis: Ellipsoid - Halfspace
+  distance_matrix[GEOM_HALFSPACE][GEOM_ELLIPSOID] =
+      &ShapeShapeDistance<Halfspace, Ellipsoid>;
 
   /* AABB distance not implemented */
   /*
@@ -645,6 +649,10 @@ DistanceFunctionMatrix::DistanceFunctionMatrix() {
       &Distance<BVHModel<KDOP<18> >, OcTree>;
   distance_matrix[BV_KDOP24][GEOM_OCTREE] =
       &Distance<BVHModel<KDOP<24> >, OcTree>;
+  distance_matrix[GEOM_OCTREE][HF_AABB] = &distance_function_not_implemented;
+  distance_matrix[GEOM_OCTREE][HF_OBBRSS] = &distance_function_not_implemented;
+  distance_matrix[HF_AABB][GEOM_OCTREE] = &distance_function_not_implemented;
+  distance_matrix[HF_OBBRSS][GEOM_OCTREE] = &distance_function_not_implemented;
 #endif
 }
 // template struct DistanceFunctionMatrix;

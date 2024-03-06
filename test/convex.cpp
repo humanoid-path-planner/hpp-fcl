@@ -46,26 +46,21 @@
 using namespace hpp::fcl;
 
 Convex<Quadrilateral> buildBox(FCL_REAL l, FCL_REAL w, FCL_REAL d) {
-  Vec3f* pts = new Vec3f[8];
-  pts[0] = Vec3f(l, w, d);
-  pts[1] = Vec3f(l, w, -d);
-  pts[2] = Vec3f(l, -w, d);
-  pts[3] = Vec3f(l, -w, -d);
-  pts[4] = Vec3f(-l, w, d);
-  pts[5] = Vec3f(-l, w, -d);
-  pts[6] = Vec3f(-l, -w, d);
-  pts[7] = Vec3f(-l, -w, -d);
+  std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>(
+      {Vec3f(l, w, d), Vec3f(l, w, -d), Vec3f(l, -w, d), Vec3f(l, -w, -d),
+       Vec3f(-l, w, d), Vec3f(-l, w, -d), Vec3f(-l, -w, d),
+       Vec3f(-l, -w, -d)}));
 
-  Quadrilateral* polygons = new Quadrilateral[6];
-  polygons[0].set(0, 2, 3, 1);  // x+ side
-  polygons[1].set(2, 6, 7, 3);  // y- side
-  polygons[2].set(4, 5, 7, 6);  // x- side
-  polygons[3].set(0, 1, 5, 4);  // y+ side
-  polygons[4].set(1, 3, 7, 5);  // z- side
-  polygons[5].set(0, 2, 6, 4);  // z+ side
+  std::shared_ptr<std::vector<Quadrilateral>> polygons(
+      new std::vector<Quadrilateral>(6));
+  (*polygons)[0].set(0, 2, 3, 1);  // x+ side
+  (*polygons)[1].set(2, 6, 7, 3);  // y- side
+  (*polygons)[2].set(4, 5, 7, 6);  // x- side
+  (*polygons)[3].set(0, 1, 5, 4);  // y+ side
+  (*polygons)[4].set(1, 3, 7, 5);  // z- side
+  (*polygons)[5].set(0, 2, 6, 4);  // z+ side
 
-  return Convex<Quadrilateral>(true,
-                               pts,  // points
+  return Convex<Quadrilateral>(pts,  // points
                                8,    // num points
                                polygons,
                                6  // number of polygons
@@ -77,40 +72,40 @@ BOOST_AUTO_TEST_CASE(convex) {
   Convex<Quadrilateral> box(buildBox(l, w, d));
 
   // Check neighbors
-  for (int i = 0; i < 8; ++i) {
-    BOOST_CHECK_EQUAL(box.neighbors[i].count(), 3);
+  for (size_t i = 0; i < 8; ++i) {
+    BOOST_CHECK_EQUAL((*box.neighbors)[i].count(), 3);
   }
-  BOOST_CHECK_EQUAL(box.neighbors[0][0], 1);
-  BOOST_CHECK_EQUAL(box.neighbors[0][1], 2);
-  BOOST_CHECK_EQUAL(box.neighbors[0][2], 4);
+  BOOST_CHECK_EQUAL((*box.neighbors)[0][0], 1);
+  BOOST_CHECK_EQUAL((*box.neighbors)[0][1], 2);
+  BOOST_CHECK_EQUAL((*box.neighbors)[0][2], 4);
 
-  BOOST_CHECK_EQUAL(box.neighbors[1][0], 0);
-  BOOST_CHECK_EQUAL(box.neighbors[1][1], 3);
-  BOOST_CHECK_EQUAL(box.neighbors[1][2], 5);
+  BOOST_CHECK_EQUAL((*box.neighbors)[1][0], 0);
+  BOOST_CHECK_EQUAL((*box.neighbors)[1][1], 3);
+  BOOST_CHECK_EQUAL((*box.neighbors)[1][2], 5);
 
-  BOOST_CHECK_EQUAL(box.neighbors[2][0], 0);
-  BOOST_CHECK_EQUAL(box.neighbors[2][1], 3);
-  BOOST_CHECK_EQUAL(box.neighbors[2][2], 6);
+  BOOST_CHECK_EQUAL((*box.neighbors)[2][0], 0);
+  BOOST_CHECK_EQUAL((*box.neighbors)[2][1], 3);
+  BOOST_CHECK_EQUAL((*box.neighbors)[2][2], 6);
 
-  BOOST_CHECK_EQUAL(box.neighbors[3][0], 1);
-  BOOST_CHECK_EQUAL(box.neighbors[3][1], 2);
-  BOOST_CHECK_EQUAL(box.neighbors[3][2], 7);
+  BOOST_CHECK_EQUAL((*box.neighbors)[3][0], 1);
+  BOOST_CHECK_EQUAL((*box.neighbors)[3][1], 2);
+  BOOST_CHECK_EQUAL((*box.neighbors)[3][2], 7);
 
-  BOOST_CHECK_EQUAL(box.neighbors[4][0], 0);
-  BOOST_CHECK_EQUAL(box.neighbors[4][1], 5);
-  BOOST_CHECK_EQUAL(box.neighbors[4][2], 6);
+  BOOST_CHECK_EQUAL((*box.neighbors)[4][0], 0);
+  BOOST_CHECK_EQUAL((*box.neighbors)[4][1], 5);
+  BOOST_CHECK_EQUAL((*box.neighbors)[4][2], 6);
 
-  BOOST_CHECK_EQUAL(box.neighbors[5][0], 1);
-  BOOST_CHECK_EQUAL(box.neighbors[5][1], 4);
-  BOOST_CHECK_EQUAL(box.neighbors[5][2], 7);
+  BOOST_CHECK_EQUAL((*box.neighbors)[5][0], 1);
+  BOOST_CHECK_EQUAL((*box.neighbors)[5][1], 4);
+  BOOST_CHECK_EQUAL((*box.neighbors)[5][2], 7);
 
-  BOOST_CHECK_EQUAL(box.neighbors[6][0], 2);
-  BOOST_CHECK_EQUAL(box.neighbors[6][1], 4);
-  BOOST_CHECK_EQUAL(box.neighbors[6][2], 7);
+  BOOST_CHECK_EQUAL((*box.neighbors)[6][0], 2);
+  BOOST_CHECK_EQUAL((*box.neighbors)[6][1], 4);
+  BOOST_CHECK_EQUAL((*box.neighbors)[6][2], 7);
 
-  BOOST_CHECK_EQUAL(box.neighbors[7][0], 3);
-  BOOST_CHECK_EQUAL(box.neighbors[7][1], 5);
-  BOOST_CHECK_EQUAL(box.neighbors[7][2], 6);
+  BOOST_CHECK_EQUAL((*box.neighbors)[7][0], 3);
+  BOOST_CHECK_EQUAL((*box.neighbors)[7][1], 5);
+  BOOST_CHECK_EQUAL((*box.neighbors)[7][2], 6);
 }
 
 template <typename Sa, typename Sb>
@@ -201,42 +196,38 @@ BOOST_AUTO_TEST_CASE(compare_convex_box) {
 
 #ifdef HPP_FCL_HAS_QHULL
 BOOST_AUTO_TEST_CASE(convex_hull_throw) {
-  std::vector<Vec3f> points({
-      Vec3f(1, 1, 1),
-      Vec3f(0, 0, 0),
-      Vec3f(1, 0, 0),
-  });
+  std::shared_ptr<std::vector<Vec3f>> points(
+      new std::vector<Vec3f>({Vec3f(1, 1, 1), Vec3f(0, 0, 0), Vec3f(1, 0, 0)}));
 
-  BOOST_CHECK_THROW(ConvexBase::convexHull(points.data(), 0, false, NULL),
+  BOOST_CHECK_THROW(ConvexBase::convexHull(points, 0, false, NULL),
                     std::invalid_argument);
-  BOOST_CHECK_THROW(ConvexBase::convexHull(points.data(), 1, false, NULL),
+  BOOST_CHECK_THROW(ConvexBase::convexHull(points, 1, false, NULL),
                     std::invalid_argument);
-  BOOST_CHECK_THROW(ConvexBase::convexHull(points.data(), 2, false, NULL),
+  BOOST_CHECK_THROW(ConvexBase::convexHull(points, 2, false, NULL),
                     std::invalid_argument);
-  BOOST_CHECK_THROW(ConvexBase::convexHull(points.data(), 3, false, NULL),
+  BOOST_CHECK_THROW(ConvexBase::convexHull(points, 3, false, NULL),
                     std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_CASE(convex_hull_quad) {
-  std::vector<Vec3f> points({
+  std::shared_ptr<std::vector<Vec3f>> points(new std::vector<Vec3f>({
       Vec3f(1, 1, 1),
       Vec3f(0, 0, 0),
       Vec3f(1, 0, 0),
       Vec3f(0, 0, 1),
-  });
+  }));
 
-  ConvexBase* convexHull = ConvexBase::convexHull(
-      points.data(), (unsigned int)points.size(), false, NULL);
+  ConvexBase* convexHull = ConvexBase::convexHull(points, 4, false, NULL);
 
   BOOST_REQUIRE_EQUAL(convexHull->num_points, 4);
-  BOOST_CHECK_EQUAL(convexHull->neighbors[0].count(), 3);
-  BOOST_CHECK_EQUAL(convexHull->neighbors[1].count(), 3);
-  BOOST_CHECK_EQUAL(convexHull->neighbors[2].count(), 3);
+  BOOST_CHECK_EQUAL((*(convexHull->neighbors))[0].count(), 3);
+  BOOST_CHECK_EQUAL((*(convexHull->neighbors))[1].count(), 3);
+  BOOST_CHECK_EQUAL((*(convexHull->neighbors))[2].count(), 3);
   delete convexHull;
 }
 
 BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
-  std::vector<Vec3f> points({
+  std::shared_ptr<std::vector<Vec3f>> points(new std::vector<Vec3f>({
       Vec3f(1, 1, 1),
       Vec3f(1, 1, -1),
       Vec3f(1, -1, 1),
@@ -247,29 +238,79 @@ BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
       Vec3f(-1, -1, -1),
       Vec3f(0, 0, 0),
       Vec3f(0, 0, 0.99),
-  });
+  }));
 
-  ConvexBase* convexHull = ConvexBase::convexHull(
-      points.data(), (unsigned int)points.size(), false, NULL);
+  ConvexBase* convexHull = ConvexBase::convexHull(points, 9, false, NULL);
 
   BOOST_REQUIRE_EQUAL(8, convexHull->num_points);
-  for (int i = 0; i < 8; ++i) {
-    BOOST_CHECK(convexHull->points[i].cwiseAbs() == Vec3f(1, 1, 1));
-    BOOST_CHECK_EQUAL(convexHull->neighbors[i].count(), 3);
+  {
+    const std::vector<Vec3f>& cvxhull_points = *(convexHull->points);
+    for (size_t i = 0; i < 8; ++i) {
+      BOOST_CHECK(cvxhull_points[i].cwiseAbs() == Vec3f(1, 1, 1));
+      BOOST_CHECK_EQUAL((*(convexHull->neighbors))[i].count(), 3);
+    }
   }
   delete convexHull;
 
-  convexHull = ConvexBase::convexHull(points.data(),
-                                      (unsigned int)points.size(), true, NULL);
+  convexHull = ConvexBase::convexHull(points, 9, true, NULL);
   Convex<Triangle>* convex_tri = dynamic_cast<Convex<Triangle>*>(convexHull);
   BOOST_CHECK(convex_tri != NULL);
 
   BOOST_REQUIRE_EQUAL(8, convexHull->num_points);
-  for (int i = 0; i < 8; ++i) {
-    BOOST_CHECK(convexHull->points[i].cwiseAbs() == Vec3f(1, 1, 1));
-    BOOST_CHECK(convexHull->neighbors[i].count() >= 3);
-    BOOST_CHECK(convexHull->neighbors[i].count() <= 6);
+  {
+    const std::vector<Vec3f>& cvxhull_points = *(convexHull->points);
+    for (size_t i = 0; i < 8; ++i) {
+      BOOST_CHECK(cvxhull_points[i].cwiseAbs() == Vec3f(1, 1, 1));
+      BOOST_CHECK((*(convexHull->neighbors))[i].count() >= 3);
+      BOOST_CHECK((*(convexHull->neighbors))[i].count() <= 6);
+    }
   }
   delete convexHull;
 }
+
+BOOST_AUTO_TEST_CASE(convex_copy_constructor) {
+  Convex<Triangle>* convexHullTriCopy;
+  {
+    std::shared_ptr<std::vector<Vec3f>> points(new std::vector<Vec3f>({
+        Vec3f(1, 1, 1),
+        Vec3f(1, 1, -1),
+        Vec3f(1, -1, 1),
+        Vec3f(1, -1, -1),
+        Vec3f(-1, 1, 1),
+        Vec3f(-1, 1, -1),
+        Vec3f(-1, -1, 1),
+        Vec3f(-1, -1, -1),
+        Vec3f(0, 0, 0),
+    }));
+
+    Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(
+        ConvexBase::convexHull(points, 9, true, NULL));
+    convexHullTriCopy = new Convex<Triangle>(*convexHullTri);
+    BOOST_CHECK(*convexHullTri == *convexHullTriCopy);
+  }
+  Convex<Triangle>* convexHullTriCopyOfCopy =
+      new Convex<Triangle>(*convexHullTriCopy);
+  BOOST_CHECK(*convexHullTriCopyOfCopy == *convexHullTriCopy);
+}
+
+BOOST_AUTO_TEST_CASE(convex_clone) {
+  std::shared_ptr<std::vector<Vec3f>> points(new std::vector<Vec3f>({
+      Vec3f(1, 1, 1),
+      Vec3f(1, 1, -1),
+      Vec3f(1, -1, 1),
+      Vec3f(1, -1, -1),
+      Vec3f(-1, 1, 1),
+      Vec3f(-1, 1, -1),
+      Vec3f(-1, -1, 1),
+      Vec3f(-1, -1, -1),
+      Vec3f(0, 0, 0),
+  }));
+
+  Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(
+      ConvexBase::convexHull(points, 9, true, NULL));
+  Convex<Triangle>* convexHullTriCopy;
+  convexHullTriCopy = convexHullTri->clone();
+  BOOST_CHECK(*convexHullTri == *convexHullTriCopy);
+}
+
 #endif

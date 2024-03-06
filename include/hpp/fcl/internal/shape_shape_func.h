@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2014, CNRS-LAAS
+ *  Copyright (c) 2024, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -48,13 +49,34 @@ namespace hpp {
 namespace fcl {
 
 template <typename T_SH1, typename T_SH2>
-HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1,
-                                           const Transform3f& tf1,
-                                           const CollisionGeometry* o2,
-                                           const Transform3f& tf2,
-                                           const GJKSolver* nsolver,
-                                           const DistanceRequest& request,
-                                           DistanceResult& result);
+struct ShapeShapeDistancer {
+  static FCL_REAL run(const CollisionGeometry* o1, const Transform3f& tf1,
+                      const CollisionGeometry* o2, const Transform3f& tf2,
+                      const GJKSolver* nsolver, const DistanceRequest& request,
+                      DistanceResult& result) {
+    if (request.isSatisfied(result)) return result.min_distance;
+    FCL_REAL distance;
+    Vec3f closest_p1, closest_p2, normal;
+    const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
+    const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
+    nsolver->shapeDistance(*obj1, tf1, *obj2, tf2, distance,
+                           request.enable_signed_distance, closest_p1,
+                           closest_p2, normal);
+    result.update(distance, obj1, obj2, DistanceResult::NONE,
+                  DistanceResult::NONE, closest_p1, closest_p2, normal);
+    return distance;
+  }
+};
+
+template <typename ShapeType1, typename ShapeType2>
+FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
+                            const CollisionGeometry* o2, const Transform3f& tf2,
+                            const GJKSolver* nsolver,
+                            const DistanceRequest& request,
+                            DistanceResult& result) {
+  return ShapeShapeDistancer<ShapeType1, ShapeType2>::run(
+      o1, tf1, o2, tf2, nsolver, request, result);
+}
 
 template <typename T_SH1, typename T_SH2>
 struct ShapeShapeCollider {
@@ -66,27 +88,31 @@ struct ShapeShapeCollider {
     if (request.isSatisfied(result)) return result.numContacts();
 
     DistanceResult distanceResult;
-    DistanceRequest distanceRequest(request.enable_contact);
+    DistanceRequest distanceRequest;
+    // If the security margin is negative, we have to compute the signed
+    // distance. Otherwise comparison against the secrurity margin makes no
+    // sense.
+    distanceRequest.enable_signed_distance =
+        (request.enable_contact || request.security_margin < 0);
     FCL_REAL distance = ShapeShapeDistance<T_SH1, T_SH2>(
         o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
 
     size_t num_contacts = 0;
     const Vec3f& p1 = distanceResult.nearest_points[0];
     const Vec3f& p2 = distanceResult.nearest_points[1];
+    const Vec3f& normal = distanceResult.normal;
     FCL_REAL distToCollision = distance - request.security_margin;
 
     internal::updateDistanceLowerBoundFromLeaf(request, result, distToCollision,
-                                               p1, p2);
+                                               p1, p2, normal);
     if (distToCollision <= request.collision_distance_threshold &&
         result.numContacts() < request.num_max_contacts) {
       if (result.numContacts() < request.num_max_contacts) {
         const Vec3f& p1 = distanceResult.nearest_points[0];
         const Vec3f& p2 = distanceResult.nearest_points[1];
 
-        Contact contact(
-            o1, o2, distanceResult.b1, distanceResult.b2, (p1 + p2) / 2,
-            (distance <= 0 ? distanceResult.normal : (p2 - p1).normalized()),
-            -distance);
+        Contact contact(o1, o2, distanceResult.b1, distanceResult.b2, p1, p2,
+                        normal, distance);
 
         result.addContact(contact);
       }
@@ -136,6 +162,11 @@ SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Plane);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Sphere);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Cylinder);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Capsule);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Ellipsoid, Halfspace);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Ellipsoid, Plane);
+// TODO
+// SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, TriangleP);
 
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(ConvexBase, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Halfspace);

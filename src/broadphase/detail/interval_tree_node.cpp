@@ -67,17 +67,17 @@ IntervalTreeNode::~IntervalTreeNode() {
 }
 
 //==============================================================================
-void IntervalTreeNode::print(IntervalTreeNode* nil,
+void IntervalTreeNode::print(IntervalTreeNode* invalid_node,
                              IntervalTreeNode* root) const {
   stored_interval->print();
   std::cout << ", k = " << key << ", h = " << high << ", mH = " << max_high;
   std::cout << "  l->key = ";
-  if (left == nil)
+  if (left == invalid_node)
     std::cout << "nullptr";
   else
     std::cout << left->key;
   std::cout << "  r->key = ";
-  if (right == nil)
+  if (right == invalid_node)
     std::cout << "nullptr";
   else
     std::cout << right->key;

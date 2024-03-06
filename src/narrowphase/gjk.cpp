@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2021-2024, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -35,10 +36,12 @@
 
 /** \author Jia Pan */
 
+#include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/internal/tools.h>
 #include <hpp/fcl/shape/geometric_shapes_traits.h>
+#include <hpp/fcl/narrowphase/narrowphase_defaults.h>
 
 namespace hpp {
 namespace fcl {
@@ -171,11 +174,11 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         MinkowskiDiff::ShapeData* data) {
   assert(data != NULL);
 
-  const Vec3f* pts = convex->points;
-  const ConvexBase::Neighbors* nn = convex->neighbors;
+  const std::vector<Vec3f>& pts = *(convex->points);
+  const std::vector<ConvexBase::Neighbors>& nn = *(convex->neighbors);
 
   if (hint < 0 || hint >= (int)convex->num_points) hint = 0;
-  FCL_REAL maxdot = pts[hint].dot(dir);
+  FCL_REAL maxdot = pts[static_cast<size_t>(hint)].dot(dir);
   std::vector<int8_t>& visited = data->visited;
   visited.assign(convex->num_points, false);
   visited[static_cast<std::size_t>(hint)] = true;
@@ -183,7 +186,7 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   // equal. Yet, the neighbors must be visited.
   bool found = true, loose_check = true;
   while (found) {
-    const ConvexBase::Neighbors& n = nn[hint];
+    const ConvexBase::Neighbors& n = nn[static_cast<size_t>(hint)];
     found = false;
     for (int in = 0; in < n.count(); ++in) {
       const unsigned int ip = n[in];
@@ -204,24 +207,25 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
     }
   }
 
-  support = pts[hint];
+  support = pts[static_cast<size_t>(hint)];
 }
 
 void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
                            Vec3f& support, int& hint,
                            MinkowskiDiff::ShapeData*) {
-  const Vec3f* pts = convex->points;
+  const std::vector<Vec3f>& pts = *(convex->points);
 
   hint = 0;
   FCL_REAL maxdot = pts[0].dot(dir);
   for (int i = 1; i < (int)convex->num_points; ++i) {
-    FCL_REAL dot = pts[i].dot(dir);
+    FCL_REAL dot = pts[static_cast<size_t>(i)].dot(dir);
     if (dot > maxdot) {
       maxdot = dot;
       hint = i;
     }
   }
-  support = pts[hint];
+
+  support = pts[static_cast<size_t>(hint)];
 }
 
 void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
@@ -257,6 +261,11 @@ inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
           : dir,                                                       \
       support, hint, NULL)
 
+inline void getSphereSupport(const Sphere* sphere, const Vec3f& dir,
+                             Vec3f& support) {
+  support = sphere->radius * (dir.normalized());
+}
+
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
                  int& hint) {
   Vec3f support;
@@ -268,7 +277,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
       CALL_GET_SHAPE_SUPPORT(Box);
       break;
     case GEOM_SPHERE:
-      CALL_GET_SHAPE_SUPPORT(Sphere);
+      getSphereSupport(static_cast<const Sphere*>(shape), dir, support);
       break;
     case GEOM_ELLIPSOID:
       CALL_GET_SHAPE_SUPPORT(Ellipsoid);
@@ -323,12 +332,12 @@ void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
 #ifndef NDEBUG
   // Need normalized direction and direction is normalized
   assert(!NeedNormalizedDir || !dirIsNormalized ||
-         fabs(dir.squaredNorm() - 1) < 1e-6);
+         fabs(dir.squaredNorm() - 1) < GJK_MINIMUM_TOLERANCE);
   // Need normalized direction but direction is not normalized.
   assert(!NeedNormalizedDir || dirIsNormalized ||
-         fabs(dir.normalized().squaredNorm() - 1) < 1e-6);
+         fabs(dir.normalized().squaredNorm() - 1) < GJK_MINIMUM_TOLERANCE);
   // Don't need normalized direction. Check that dir is not zero.
-  assert(NeedNormalizedDir || dir.cwiseAbs().maxCoeff() >= 1e-6);
+  assert(NeedNormalizedDir || dir.norm() >= GJK_MINIMUM_TOLERANCE);
 #endif
   getSupportTpl<Shape0, Shape1, TransformIsIdentity>(
       static_cast<const Shape0*>(md.shapes[0]),
@@ -394,7 +403,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
           return getSupportFuncTpl<Shape0, SmallConvex, false>;
       }
     default:
-      throw std::logic_error("Unsupported geometric shape");
+      HPP_FCL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
   }
 }
 
@@ -443,7 +452,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
             s1, identity, inflation, linear_log_convex_threshold);
       break;
     default:
-      throw std::logic_error("Unsupported geometric shape");
+      HPP_FCL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
   }
 }
 
@@ -474,7 +483,7 @@ bool getNormalizeSupportDirection(const ShapeBase* shape) {
       return (bool)shape_traits<ConvexBase>::NeedNesterovNormalizeHeuristic;
       break;
     default:
-      throw std::logic_error("Unsupported geometric shape");
+      HPP_FCL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
   }
 }
 
@@ -516,13 +525,21 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
 }
 
 void GJK::initialize() {
-  nfree = 0;
-  status = Failed;
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
-  simplex = NULL;
   gjk_variant = GJKVariant::DefaultGJK;
   convergence_criterion = GJKConvergenceCriterion::VDB;
   convergence_criterion_type = GJKConvergenceCriterionType::Relative;
+  reset(max_iterations, tolerance);
+}
+
+void GJK::reset(size_t max_iterations_, FCL_REAL tolerance_) {
+  max_iterations = max_iterations_;
+  tolerance = tolerance_;
+  status = DidNotRun;
+  nfree = 0;
+  simplex = nullptr;
+  iterations = 0;
+  iterations_momentum_stop = 0;
 }
 
 Vec3f GJK::getGuessFromSimplex() const { return ray; }
@@ -576,7 +593,8 @@ bool getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
                                                     vs[2]->w, vs[3]->w);
       break;
     default:
-      throw std::logic_error("The simplex rank must be in [ 1, 4 ]");
+      HPP_FCL_THROW_PRETTY("The simplex rank must be in [ 1, 4 ]",
+                           std::logic_error);
   }
   w0.setZero();
   w1.setZero();
@@ -634,11 +652,11 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   free_v[3] = &store_v[3];
 
   nfree = 4;
-  current = 0;
   status = Valid;
   shape = &shape_;
   distance = 0.0;
-  simplices[0].rank = 0;
+  current = 0;
+  simplices[current].rank = 0;
   support_hint = supportHint;
 
   FCL_REAL rl = guess.norm();
@@ -700,8 +718,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         }
         break;
 
+      case PolyakAcceleration:
+        momentum = 1 / (FCL_REAL(iterations) + 1);
+        dir = momentum * dir + (1 - momentum) * ray;
+        break;
+
       default:
-        throw std::logic_error("Invalid momentum variant.");
+        HPP_FCL_THROW_PRETTY("Invalid momentum variant.", std::logic_error);
     }
 
     appendVertex(curr_simplex, -dir, false,
@@ -725,7 +748,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       if (frank_wolfe_duality_gap - tolerance <= 0) {
         removeVertex(simplices[current]);
         current_gjk_variant = DefaultGJK;  // move back to classic GJK
-        continue;                          // continue to next iteration
+        iterations_momentum_stop = iterations;
+        continue;  // continue to next iteration
       }
     }
 
@@ -739,6 +763,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       if (iterations > 0) removeVertex(simplices[current]);
       if (current_gjk_variant != DefaultGJK) {
         current_gjk_variant = DefaultGJK;  // move back to classic GJK
+        iterations_momentum_stop = iterations;
         continue;
       }
       distance = rl - inflation;
@@ -770,14 +795,14 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         inside = projectTetrahedraOrigin(curr_simplex, next_simplex);
         break;
       default:
-        throw std::logic_error("Invalid simplex rank");
+        HPP_FCL_THROW_PRETTY("Invalid simplex rank", std::logic_error);
     }
     assert(nfree + next_simplex.rank == 4);
     current = next;
     if (!inside) rl = ray.norm();
     if (inside || rl == 0) {
       status = Inside;
-      distance = -inflation - 1.;
+      distance = -inflation;
       break;
     }
 
@@ -807,13 +832,15 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
       diff = rl - alpha;
       switch (convergence_criterion_type) {
         case Absolute:
-          throw std::logic_error("VDB convergence criterion is relative.");
+          HPP_FCL_THROW_PRETTY("VDB convergence criterion is relative.",
+                               std::logic_error);
           break;
         case Relative:
-          check_passed = (diff - tolerance * rl) <= 0;
+          check_passed = (diff - (tolerance + tolerance * rl)) <= 0;
           break;
         default:
-          throw std::logic_error("Invalid convergence criterion type.");
+          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
+                               std::logic_error);
       }
       break;
 
@@ -828,7 +855,8 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
           check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
           break;
         default:
-          throw std::logic_error("Invalid convergence criterion type.");
+          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
+                               std::logic_error);
       }
       break;
 
@@ -845,12 +873,13 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
           check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
           break;
         default:
-          throw std::logic_error("Invalid convergence criterion type.");
+          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
+                               std::logic_error);
       }
       break;
 
     default:
-      throw std::logic_error("Invalid convergence criterion.");
+      HPP_FCL_THROW_PRETTY("Invalid convergence criterion.", std::logic_error);
   }
   return check_passed;
 }
@@ -1070,7 +1099,10 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   const Vec3f a_cross_b = A.cross(B);
   const Vec3f a_cross_c = A.cross(C);
 
-  const FCL_REAL dummy_precision = Eigen::NumTraits<FCL_REAL>::epsilon();
+  // dummy_precision is 1e-14 if FCL_REAL is double
+  //                    1e-5  if FCL_REAL is float
+  const FCL_REAL dummy_precision(100 *
+                                 std::numeric_limits<FCL_REAL>::epsilon());
   HPP_FCL_UNUSED_VARIABLE(dummy_precision);
 
 #define REGION_INSIDE()               \
@@ -1262,8 +1294,8 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
             }       // end of (ACD ^ AD).AO >= 0
           } else {  // not (ACD ^ AC).AO >= 0 / !a10.a11.a2.a12.!a6
             assert(!(da * ca_da + dc * da_aa - dd * ca_aa <=
-                     dummy_precision));  // Not (ACD ^ AD).AO >= 0 /
-                                         // !a10.a11.a2.a12.!a6.!a7
+                     -dummy_precision));  // Not (ACD ^ AD).AO >= 0 /
+                                          // !a10.a11.a2.a12.!a6.!a7
             if (ca * ba_ca + cb * ca_aa - cc * ba_aa <=
                 0) {  // if (ABC ^ AC).AO >= 0 / !a10.a11.a2.a12.!a6.!a7.a5
               // Region AC
@@ -1437,38 +1469,53 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   return false;
 }
 
-void EPA::initialize() {
-  sv_store = new SimplexV[max_vertex_num];
-  fc_store = new SimplexF[max_face_num];
-  status = Failed;
-  normal = Vec3f(0, 0, 0);
+void EPA::initialize() { reset(max_iterations, tolerance); }
+
+void EPA::reset(size_t max_iterations_, FCL_REAL tolerance_) {
+  max_iterations = max_iterations_;
+  tolerance = tolerance_;
+  // EPA creates only 2 faces and 1 vertex per iteration.
+  // (+ the 4 (or 8 in the future) faces at the beginning
+  //  + the 4 vertices (or 6 in the future) at the beginning)
+  sv_store.resize(max_iterations + 4);
+  fc_store.resize(2 * max_iterations + 4);
+  status = DidNotRun;
+  normal.setZero();
   depth = 0;
-  nextsv = 0;
-  for (size_t i = 0; i < max_face_num; ++i)
-    stock.append(&fc_store[max_face_num - i - 1]);
+  closest_face = nullptr;
+  result.reset();
+  hull.reset();
+  num_vertices = 0;
+  stock.reset();
+  // The stock is initialized with the faces in reverse order so that the
+  // hull and the stock do not overlap (the stock will shring as the hull will
+  // grow).
+  for (size_t i = 0; i < fc_store.size(); ++i)
+    stock.append(&fc_store[fc_store.size() - i - 1]);
+  iterations = 0;
 }
 
-bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b,
-                      FCL_REAL& dist) {
-  Vec3f ab = b->w - a->w;
+bool EPA::getEdgeDist(SimplexFace* face, const SimplexVertex& a,
+                      const SimplexVertex& b, FCL_REAL& dist) {
+  Vec3f ab = b.w - a.w;
   Vec3f n_ab = ab.cross(face->n);
-  FCL_REAL a_dot_nab = a->w.dot(n_ab);
+  FCL_REAL a_dot_nab = a.w.dot(n_ab);
 
   if (a_dot_nab < 0)  // the origin is on the outside part of ab
   {
     // following is similar to projectOrigin for two points
     // however, as we dont need to compute the parameterization, dont need to
     // compute 0 or 1
-    FCL_REAL a_dot_ab = a->w.dot(ab);
-    FCL_REAL b_dot_ab = b->w.dot(ab);
+    FCL_REAL a_dot_ab = a.w.dot(ab);
+    FCL_REAL b_dot_ab = b.w.dot(ab);
 
     if (a_dot_ab > 0)
-      dist = a->w.norm();
+      dist = a.w.norm();
     else if (b_dot_ab < 0)
-      dist = b->w.norm();
+      dist = b.w.norm();
     else {
       dist = std::sqrt(std::max(
-          a->w.squaredNorm() - a_dot_ab * a_dot_ab / ab.squaredNorm(), 0.));
+          a.w.squaredNorm() - a_dot_ab * a_dot_ab / ab.squaredNorm(), 0.));
     }
 
     return true;
@@ -1477,26 +1524,28 @@ bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b,
   return false;
 }
 
-EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c,
-                            bool forced) {
-  if (stock.root) {
-    SimplexF* face = stock.root;
+EPA::SimplexFace* EPA::newFace(size_t id_a, size_t id_b, size_t id_c,
+                               bool forced) {
+  if (stock.root != nullptr) {
+    SimplexFace* face = stock.root;
     stock.remove(face);
     hull.append(face);
     face->pass = 0;
-    face->vertex[0] = a;
-    face->vertex[1] = b;
-    face->vertex[2] = c;
-    face->n = (b->w - a->w).cross(c->w - a->w);
-    FCL_REAL l = face->n.norm();
+    face->vertex_id[0] = id_a;
+    face->vertex_id[1] = id_b;
+    face->vertex_id[2] = id_c;
+    const SimplexVertex& a = sv_store[id_a];
+    const SimplexVertex& b = sv_store[id_b];
+    const SimplexVertex& c = sv_store[id_c];
+    face->n = (b.w - a.w).cross(c.w - a.w);
 
-    if (l > Eigen::NumTraits<FCL_REAL>::epsilon()) {
-      face->n /= l;
+    if (face->n.norm() > Eigen::NumTraits<FCL_REAL>::epsilon()) {
+      face->n.normalize();
 
       if (!(getEdgeDist(face, a, b, face->d) ||
             getEdgeDist(face, b, c, face->d) ||
             getEdgeDist(face, c, a, face->d))) {
-        face->d = a->w.dot(face->n);
+        face->d = a.w.dot(face->n);
       }
 
       if (forced || face->d >= -tolerance)
@@ -1508,18 +1557,19 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c,
 
     hull.remove(face);
     stock.append(face);
-    return NULL;
+    return nullptr;
   }
 
-  status = stock.root ? OutOfVertices : OutOfFaces;
-  return NULL;
+  assert(hull.count >= fc_store.size() && "EPA: should not be out of faces.");
+  status = OutOfFaces;
+  return nullptr;
 }
 
 /** @brief Find the best polytope face to split */
-EPA::SimplexF* EPA::findBest() {
-  SimplexF* minf = hull.root;
+EPA::SimplexFace* EPA::findClosestFace() {
+  SimplexFace* minf = hull.root;
   FCL_REAL mind = minf->d * minf->d;
-  for (SimplexF* f = minf->l[1]; f; f = f->l[1]) {
+  for (SimplexFace* f = minf->next_face; f; f = f->next_face) {
     FCL_REAL sqd = f->d * f->d;
     if (sqd < mind) {
       minf = f;
@@ -1532,37 +1582,44 @@ EPA::SimplexF* EPA::findBest() {
 EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   GJK::Simplex& simplex = *gjk.getSimplex();
   support_func_guess_t hint(gjk.support_hint);
-  if ((simplex.rank > 1) && gjk.encloseOrigin()) {
+
+  // TODO(louis): we might want to start with a hexahedron if the
+  // simplex given by GJK is of rank <= 3.
+  bool enclosed_origin = gjk.encloseOrigin();
+  if ((simplex.rank > 1) && enclosed_origin) {
+    assert(simplex.rank == 4 &&
+           "When starting EPA, simplex should be of rank 4.");
     while (hull.root) {
-      SimplexF* f = hull.root;
+      SimplexFace* f = hull.root;
       hull.remove(f);
       stock.append(f);
     }
+    assert(hull.count == 0);
+    assert(stock.count == fc_store.size());
 
     status = Valid;
-    nextsv = 0;
+    num_vertices = 0;
 
+    // Make sure the tetrahedron has its normals pointing outside.
     if ((simplex.vertex[0]->w - simplex.vertex[3]->w)
             .dot((simplex.vertex[1]->w - simplex.vertex[3]->w)
                      .cross(simplex.vertex[2]->w - simplex.vertex[3]->w)) < 0) {
-      SimplexV* tmp = simplex.vertex[0];
+      SimplexVertex* tmp = simplex.vertex[0];
       simplex.vertex[0] = simplex.vertex[1];
       simplex.vertex[1] = tmp;
     }
 
-    SimplexF* tetrahedron[] = {
-        newFace(simplex.vertex[0], simplex.vertex[1], simplex.vertex[2], true),
-        newFace(simplex.vertex[1], simplex.vertex[0], simplex.vertex[3], true),
-        newFace(simplex.vertex[2], simplex.vertex[1], simplex.vertex[3], true),
-        newFace(simplex.vertex[0], simplex.vertex[2], simplex.vertex[3], true)};
+    // Add the 4 vertices to sv_store
+    for (size_t i = 0; i < 4; ++i) {
+      sv_store[num_vertices++] = *simplex.vertex[i];
+    }
+
+    SimplexFace* tetrahedron[] = {newFace(0, 1, 2, true),  //
+                                  newFace(1, 0, 3, true),  //
+                                  newFace(2, 1, 3, true),  //
+                                  newFace(0, 2, 3, true)};
 
     if (hull.count == 4) {
-      SimplexF* best = findBest();  // find the best face (the face with the
-                                    // minimum distance to origin) to split
-      SimplexF outer = *best;
-      size_t pass = 0;
-      size_t iterations = 0;
-
       // set the face connectivity
       bind(tetrahedron[0], 0, tetrahedron[1], 0);
       bind(tetrahedron[0], 1, tetrahedron[2], 0);
@@ -1571,49 +1628,96 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
       bind(tetrahedron[1], 2, tetrahedron[2], 1);
       bind(tetrahedron[2], 2, tetrahedron[3], 1);
 
+      closest_face =
+          findClosestFace();  // find the best face (the face with the
+                              // minimum distance to origin) to split
+      SimplexFace outer = *closest_face;
+
       status = Valid;
+      iterations = 0;
+      size_t pass = 0;
       for (; iterations < max_iterations; ++iterations) {
-        if (nextsv >= max_vertex_num) {
+        if (num_vertices >= sv_store.size()) {
           status = OutOfVertices;
           break;
         }
 
+        // Step 1: find the support point in the direction of the closest_face
+        // normal.
+        // --------------------------------------------------------------------------
         SimplexHorizon horizon;
-        SimplexV* w = &sv_store[nextsv++];
+        SimplexVertex& w = sv_store[num_vertices++];
         bool valid = true;
-        best->pass = ++pass;
+        closest_face->pass = ++pass;
         // At the moment, SimplexF.n is always normalized. This could be revised
         // in the future...
-        gjk.getSupport(best->n, true, *w, hint);
-        FCL_REAL wdist = best->n.dot(w->w) - best->d;
-        if (wdist <= tolerance) {
+        gjk.getSupport(closest_face->n, true, w, hint);
+
+        // Step 2: check for convergence.
+        // ------------------------------
+        // Preambule to understand the convergence criterion of EPA:
+        // the support we just added is in the direction of the normal of
+        // the closest_face. Therefore, the support point will **always**
+        // lie "after" the closest_face, i.e closest_face.n.dot(w.w) > 0.
+        assert(closest_face->n.dot(w.w) > 0 &&
+               "The support is not in the right direction.");
+        //
+        // 1) First check: `fdist` (see below) is an upper bound of how much
+        // more penetration depth we can expect to "gain" by adding `w` to EPA's
+        // polytope. This first check, as any convergence check, should be both
+        // absolute and relative. This allows to adapt the tolerance to the
+        // scale of the objects.
+        const SimplexVertex& vf1 = sv_store[closest_face->vertex_id[0]];
+        const SimplexVertex& vf2 = sv_store[closest_face->vertex_id[1]];
+        const SimplexVertex& vf3 = sv_store[closest_face->vertex_id[2]];
+        FCL_REAL fdist = closest_face->n.dot(w.w - vf1.w);
+        FCL_REAL wnorm = w.w.norm();
+        // TODO(louis): we might want to use tol_abs and tol_rel; this might
+        // obfuscate the code for the user though.
+        if (fdist <= tolerance + tolerance * wnorm) {
           status = AccuracyReached;
           break;
         }
-        for (size_t j = 0; (j < 3) && valid; ++j)
-          valid &= expand(pass, w, best->f[j], best->e[j], horizon);
+        // 2) Second check: the expand function **assumes** that the support we
+        // just computed is not a vertex of the face. We make sure that this
+        // is the case:
+        // TODO(louis): should we use squaredNorm everywhere instead of norm?
+        if ((w.w - vf1.w).norm() <= tolerance + tolerance * wnorm ||
+            (w.w - vf2.w).norm() <= tolerance + tolerance * wnorm ||
+            (w.w - vf3.w).norm() <= tolerance + tolerance * wnorm) {
+          status = AccuracyReached;
+          break;
+        }
 
-        if (!valid || horizon.nf < 3) {
+        // Step 3: expand the polytope
+        // ---------------------------
+        for (size_t j = 0; (j < 3) && valid; ++j)
+          valid &= expand(pass, w, closest_face->adjacent_faces[j],
+                          closest_face->adjacent_edge[j], horizon);
+
+        if (!valid || horizon.num_faces < 3) {
           // The status has already been set by the expand function.
           assert(!(status & Valid));
           break;
         }
         // need to add the edge connectivity between first and last faces
-        bind(horizon.ff, 2, horizon.cf, 1);
-        hull.remove(best);
-        stock.append(best);
-        best = findBest();
-        outer = *best;
+        bind(horizon.first_face, 2, horizon.current_face, 1);
+        hull.remove(closest_face);
+        stock.append(closest_face);
+        closest_face = findClosestFace();
+        outer = *closest_face;
       }
 
+      status = ((iterations) < max_iterations) ? status : Failed;
       normal = outer.n;
       depth = outer.d;
       result.rank = 3;
-      result.vertex[0] = outer.vertex[0];
-      result.vertex[1] = outer.vertex[1];
-      result.vertex[2] = outer.vertex[2];
+      result.vertex[0] = &sv_store[outer.vertex_id[0]];
+      result.vertex[1] = &sv_store[outer.vertex_id[1]];
+      result.vertex[2] = &sv_store[outer.vertex_id[2]];
       return status;
     }
+    assert(false && "The tetrahedron with which EPA started is degenerated.");
   }
 
   // FallBack when the simplex given by GJK is of rank 1.
@@ -1635,27 +1739,110 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   return status;
 }
 
+// Use this function to debug `EPA::expand` if needed.
+// void EPA::PrintExpandLooping(const SimplexFace* f, const SimplexVertex& w) {
+//     std::cout << "Vertices:\n";
+//     for (size_t i = 0; i < num_vertices; ++i) {
+//       std::cout << "[";
+//       std::cout << sv_store[i].w(0) << ", ";
+//       std::cout << sv_store[i].w(1) << ", ";
+//       std::cout << sv_store[i].w(2) << "]\n";
+//     }
+//     //
+//     std::cout << "\nTriangles:\n";
+//     SimplexFace* face = hull.root;
+//     for (size_t i = 0; i < hull.count; ++i) {
+//       std::cout << "[";
+//       std::cout << face->vertex_id[0] << ", ";
+//       std::cout << face->vertex_id[1] << ", ";
+//       std::cout << face->vertex_id[2] << "]\n";
+//       face = face->next_face;
+//     }
+//     //
+//     std::cout << "\nNormals:\n";
+//     face = hull.root;
+//     for (size_t i = 0; i < hull.count; ++i) {
+//       std::cout << "[";
+//       std::cout << face->n(0) << ", ";
+//       std::cout << face->n(1) << ", ";
+//       std::cout << face->n(2) << "]\n";
+//       face = face->next_face;
+//     }
+//     //
+//     std::cout << "\nClosest face:\n";
+//     face = hull.root;
+//     for (size_t i = 0; i < hull.count; ++i) {
+//       if (face == closest_face) {
+//         std::cout << i << "\n";
+//       }
+//       face = face->next_face;
+//     }
+//     std::cout << "\nSupport point:\n";
+//     std::cout << "[" << w.w(0) << ", " << w.w(1) << ", " << w.w(2) << "]\n";
+// }
+
 /** @brief the goal is to add a face connecting vertex w and face edge f[e] */
-bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e,
+bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
                  SimplexHorizon& horizon) {
   static const size_t nexti[] = {1, 2, 0};
   static const size_t previ[] = {2, 0, 1};
+  const size_t id_w =
+      num_vertices - 1;  // w is always the last vertex added to sv_store
 
+  // Check if we loop through expand indefinitely.
   if (f->pass == pass) {
+    // Uncomment the following line and the associated EPA method
+    // to debug the infinite loop if needed.
+    // EPAPrintExpandLooping(this, f);
+    if (f == closest_face) {
+      assert(false && "EPA is looping indefinitely.");
+    }
     status = InvalidHull;
     return false;
   }
 
   const size_t e1 = nexti[e];
 
-  // case 1: the new face is not degenerated, i.e., the new face is not coplanar
-  // with the old face f.
-  if (f->n.dot(w->w - f->vertex[e]->w) <
-      -Eigen::NumTraits<FCL_REAL>::epsilon()) {
-    SimplexF* nf = newFace(f->vertex[e1], f->vertex[e], w, false);
-    if (nf) {
+  // Preambule: when expanding the polytope, the `closest_face` is always
+  // deleted. This is handled in EPA::evaluate after calling the expand
+  // function. This function handles how the neighboring face `f` of the
+  // `closest_face` is connected to the new support point. (Note: because
+  // `expand` is recursive, `f` can also denote a face of a face of the
+  // `closest_face`, and so on. But the reasoning is the same.)
+  //
+  // EPA can handle `f` in two ways, depending on where the new support point
+  // is located:
+  // 1) If it is "below" `f`, then `f` is preserved. A new face is created
+  //    and connects to the edge `e` of `f`. This new face is made of the
+  //    two points of the edge `e` of `f` and the new support point `w`.
+  //    Geometrically, this corresponds to the case where the projection of
+  //    the origin on the `closest_face` is **inside** the triangle defined by
+  //    the `closest_face`.
+  // 2) If it is "above" `f`, then `f` has to be deleted, simply because the
+  //    edge `e` of `f` is not part of the convex hull anymore.
+  //    The two faces adjacent to `f` are thus expanded following
+  //    either 1) or 2).
+  //    Geometrically, this corresponds to the case where the projection of
+  //    the origin on the `closest_face` is on an edge of the triangle defined
+  //    by the `closest_face`. The projection of the origin cannot lie on a
+  //    vertex of the `closest_face` because EPA should have exited before
+  //    reaching this point.
+  //
+  // The following checks for these two cases.
+  // This check is however subject to numerical precision and due to the
+  // recursive nature of `expand`, it is safer to go through the first case.
+  // This is because `expand` can potentially loop indefinitly if the
+  // Minkowski difference is very flat (hence the check above).
+  const FCL_REAL dummy_precision(100 *
+                                 std::numeric_limits<FCL_REAL>::epsilon());
+  const SimplexVertex& vf = sv_store[f->vertex_id[e]];
+  if (f->n.dot(w.w - vf.w) < dummy_precision) {
+    // case 1: the support point is "below" `f`.
+    SimplexFace* new_face =
+        newFace(f->vertex_id[e1], f->vertex_id[e], id_w, false);
+    if (new_face != nullptr) {
       // add face-face connectivity
-      bind(nf, 0, f, e);
+      bind(new_face, 0, f, e);
 
       // if there is last face in the horizon, then need to add another
       // connectivity, i.e. the edge connecting the current new add edge and the
@@ -1663,24 +1850,23 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e,
       // the final face need to connect with the first face, this will be
       // handled in the evaluate function. Notice the face is anti-clockwise, so
       // the edges are 0 (bottom), 1 (right), 2 (left)
-      if (horizon.cf)
-        bind(nf, 2, horizon.cf, 1);
+      if (horizon.current_face)
+        bind(new_face, 2, horizon.current_face, 1);
       else
-        horizon.ff = nf;
+        horizon.first_face = new_face;
 
-      horizon.cf = nf;
-      ++horizon.nf;
+      horizon.current_face = new_face;
+      ++horizon.num_faces;
       return true;
     }
     return false;
   }
 
-  // case 2: the new face is coplanar with the old face f. We need to add two
-  // faces and delete the old face
+  // case 2: the support point is "above" `f`.
   const size_t e2 = previ[e];
   f->pass = pass;
-  if (expand(pass, w, f->f[e1], f->e[e1], horizon) &&
-      expand(pass, w, f->f[e2], f->e[e2], horizon)) {
+  if (expand(pass, w, f->adjacent_faces[e1], f->adjacent_edge[e1], horizon) &&
+      expand(pass, w, f->adjacent_faces[e2], f->adjacent_edge[e2], horizon)) {
     hull.remove(f);
     stock.append(f);
     return true;

@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_1) {
   CollisionObject o2(s2, tf2);
 
   // Enable computation of nearest points
-  DistanceRequest distanceRequest(true, 0, 0);
+  DistanceRequest distanceRequest(true, true, 0, 0);
   DistanceResult distanceResult;
 
   hpp::fcl::distance(&o1, &o2, distanceRequest, distanceResult);
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_2) {
   CollisionObject o2(s2, tf2);
 
   // Enable computation of nearest points
-  DistanceRequest distanceRequest(true, 0, 0);
+  DistanceRequest distanceRequest(true, true, 0, 0);
   DistanceResult distanceResult;
 
   hpp::fcl::distance(&o1, &o2, distanceRequest, distanceResult);
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_4) {
   hpp::fcl::Box s2(1, 1, 1);
 
   // Enable computation of nearest points
-  DistanceRequest distanceRequest(true, 0, 0);
+  DistanceRequest distanceRequest(true, true, 0, 0);
   DistanceResult distanceResult;
   double distance;
 

@@ -120,9 +120,7 @@ class TestGeometricShapes(TestCase):
         V_ref = cylinder.radius * cylinder.radius * np.pi * 2.0 * cylinder.halfLength
         self.assertApprox(V, V_ref)
         I0 = cylinder.computeMomentofInertia()
-        Ix_ref = (
-            V_ref * (3 * cylinder.radius**2 + 4 * cylinder.halfLength**2) / 12.0
-        )
+        Ix_ref = V_ref * (3 * cylinder.radius**2 + 4 * cylinder.halfLength**2) / 12.0
         Iz_ref = V_ref * cylinder.radius**2 / 2.0
         I0_ref = np.diag([Ix_ref, Ix_ref, Iz_ref])
         self.assertApprox(I0, I0_ref)
@@ -156,6 +154,11 @@ class TestGeometricShapes(TestCase):
         Ic_ref = np.diag([Icx_ref, Icx_ref, Iz_ref])
         self.assertApprox(Ic, Ic_ref)
 
+    def test_BVH(self):
+        bvh = hppfcl.BVHModelOBBRSS()
+        self.assertEqual(bvh.num_vertices, 0)
+        self.assertEqual(bvh.vertices().shape, (0, 3))
+
     def test_convex(self):
         verts = hppfcl.StdVec_Vec3f()
         faces = hppfcl.StdVec_Triangle()
@@ -174,8 +177,8 @@ class TestGeometricShapes(TestCase):
             hppfcl.Convex.convexHull(verts, False, None)
             qhullAvailable = True
         except Exception as e:
-            self.assertEqual(
-                str(e), "Library built without qhull. Cannot build object of this type."
+            self.assertIn(
+                "Library built without qhull. Cannot build object of this type.", str(e)
             )
             qhullAvailable = False
 
@@ -187,7 +190,7 @@ class TestGeometricShapes(TestCase):
                 hppfcl.Convex.convexHull(verts[:3], False, None)
             except Exception as e:
                 self.assertIn(
-                    str(e), "You shouldn't use this function with less than 4 points."
+                    "You shouldn't use this function with less than 4 points.", str(e)
                 )
 
 

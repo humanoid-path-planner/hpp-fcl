@@ -49,7 +49,9 @@ SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
 # --- OPTIONS  ---------------------------------------
 # Need to be set before including base.cmake
 # ----------------------------------------------------
-OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+option(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+option(HPP_FCL_TURN_ASSERT_INTO_EXCEPTION "Turn some critical HPP-FCL asserts to exception." FALSE)
+option(HPP_FCL_ENABLE_LOGGING "Activate logging for warnings or error messages. Turned on by default in Debug." FALSE)
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -77,7 +79,7 @@ include("${JRL_CMAKE_MODULES}/ide.cmake")
 include(CMakeDependentOption)
 
 SET(CMAKE_MODULE_PATH
-  ${CMAKE_SOURCE_DIR}/cmake-modules/
+  ${JRL_CMAKE_MODULES}/find-external/assimp/
   ${CMAKE_MODULE_PATH})
 
 set_default_cmake_build_type("RelWithDebInfo")
@@ -107,17 +109,16 @@ CMAKE_DEPENDENT_OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associat
 ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.0")
 
 if(BUILD_PYTHON_INTERFACE)
-  FIND_PACKAGE(eigenpy 2.7.10 REQUIRED)
+  FIND_PACKAGE(eigenpy 2.9.2 REQUIRED)
 endif()
 
 # Required dependencies
 SET_BOOST_DEFAULT_OPTIONS()
 EXPORT_BOOST_DEFAULT_OPTIONS()
-IF(WIN32)
-  ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS chrono thread date_time serialization filesystem)
-ELSE(WIN32)
-  ADD_PROJECT_DEPENDENCY(Boost REQUIRED chrono serialization filesystem)
-ENDIF(WIN32)
+ADD_PROJECT_DEPENDENCY(Boost REQUIRED chrono thread date_time serialization filesystem)
+if (HPP_FCL_ENABLE_LOGGING)
+  ADD_PROJECT_DEPENDENCY(Boost REQUIRED log)
+endif()
 if(BUILD_PYTHON_INTERFACE)
   find_package(Boost REQUIRED COMPONENTS system)
 endif(BUILD_PYTHON_INTERFACE)
@@ -222,6 +223,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/broadphase/detail/spatial_hash.h
   include/hpp/fcl/narrowphase/narrowphase.h
   include/hpp/fcl/narrowphase/gjk.h
+  include/hpp/fcl/narrowphase/narrowphase_defaults.h
   include/hpp/fcl/shape/convex.h
   include/hpp/fcl/shape/details/convex.hxx
   include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
@@ -243,9 +245,9 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/BVH/BVH_utility.h
   include/hpp/fcl/collision_object.h
   include/hpp/fcl/collision_utility.h
-  include/hpp/fcl/octree.h
   include/hpp/fcl/hfield.h
   include/hpp/fcl/fwd.hh
+  include/hpp/fcl/logging.h
   include/hpp/fcl/mesh_loader/assimp.h
   include/hpp/fcl/mesh_loader/loader.h
   include/hpp/fcl/internal/BV_fitter.h
@@ -257,7 +259,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/internal/traversal_node_bvh_shape.h
   include/hpp/fcl/internal/traversal_node_bvhs.h
   include/hpp/fcl/internal/traversal_node_hfield_shape.h
-  include/hpp/fcl/internal/traversal_node_octree.h
   include/hpp/fcl/internal/traversal_node_setup.h
   include/hpp/fcl/internal/traversal_node_shapes.h
   include/hpp/fcl/internal/traversal_recurse.h
@@ -281,6 +282,14 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/triangle.h
   include/hpp/fcl/timings.h
   )
+
+IF(HPP_FCL_HAS_OCTOMAP)
+  LIST(APPEND ${PROJECT_NAME}_HEADERS
+    include/hpp/fcl/octree.h
+    include/hpp/fcl/serialization/octree.h
+    include/hpp/fcl/internal/traversal_node_octree.h
+  )
+ENDIF(HPP_FCL_HAS_OCTOMAP)
 
 add_subdirectory(doc)
 add_subdirectory(src)

@@ -40,8 +40,6 @@
 #include <hpp/fcl/collision_func_matrix.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
-#include <iostream>
-
 namespace hpp {
 namespace fcl {
 
@@ -56,6 +54,7 @@ void CollisionResult::swapObjects() {
        it != contacts.end(); ++it) {
     std::swap(it->o1, it->o2);
     std::swap(it->b1, it->b2);
+    it->nearest_points[0].swap(it->nearest_points[1]);
     it->normal *= -1;
   }
 }
@@ -70,7 +69,7 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
 std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                     const CollisionGeometry* o2, const Transform3f& tf2,
                     const CollisionRequest& request, CollisionResult& result) {
-  // If securit margin is set to -infinity, return that there is no collision
+  // If security margin is set to -infinity, return that there is no collision
   if (request.security_margin == -std::numeric_limits<FCL_REAL>::infinity()) {
     result.clear();
     return false;
@@ -104,6 +103,8 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
         res = looktable.collision_matrix[node_type2][node_type1](
             o2, tf2, o1, tf1, &solver, request, result);
         result.swapObjects();
+        result.nearest_points[0].swap(result.nearest_points[1]);
+        result.normal *= -1;
       }
     } else {
       if (!looktable.collision_matrix[node_type1][node_type2]) {
@@ -169,9 +170,18 @@ std::size_t ComputeCollision::run(const Transform3f& tf1,
   if (swap_geoms) {
     res = func(o2, tf2, o1, tf1, &solver, request, result);
     result.swapObjects();
+    result.nearest_points[0].swap(result.nearest_points[1]);
+    result.normal *= -1;
   } else {
     res = func(o1, tf1, o2, tf2, &solver, request, result);
   }
+
+  if (solver.gjk_initial_guess == GJKInitialGuess::CachedGuess ||
+      solver.enable_cached_guess) {
+    result.cached_gjk_guess = solver.cached_guess;
+    result.cached_support_func_guess = solver.support_func_cached_guess;
+  }
+
   return res;
 }
 
@@ -190,12 +200,6 @@ std::size_t ComputeCollision::operator()(const Transform3f& tf1,
     result.timings = timer.elapsed();
   } else
     res = run(tf1, tf2, request, result);
-
-  if (solver.gjk_initial_guess == GJKInitialGuess::CachedGuess ||
-      solver.enable_cached_guess) {
-    result.cached_gjk_guess = solver.cached_guess;
-    result.cached_support_func_guess = solver.support_func_cached_guess;
-  }
 
   return res;
 }

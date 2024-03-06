@@ -1,7 +1,7 @@
 #
 # Software License Agreement (BSD License)
 #
-#  Copyright (c) 2014, 2020 CNRS-LAAS
+#  Copyright (c) 2014, 2020-2024 CNRS-LAAS INRIA
 #  Author: Florent Lamiraux
 #  All rights reserved.
 #
@@ -78,6 +78,9 @@ set(${LIBRARY_NAME}_SOURCES
   distance/sphere_cylinder.cpp
   distance/sphere_halfspace.cpp
   distance/sphere_plane.cpp
+  distance/sphere_capsule.cpp
+  distance/ellipsoid_halfspace.cpp
+  distance/ellipsoid_plane.cpp
   distance/convex_halfspace.cpp
   distance/triangle_halfspace.cpp
   intersect.cpp
@@ -93,6 +96,7 @@ set(${LIBRARY_NAME}_SOURCES
   mesh_loader/assimp.cpp
   mesh_loader/loader.cpp
   hfield.cpp
+  serialization/serialization.cpp
   )
 
 if(HPP_FCL_HAS_OCTOMAP)
@@ -178,6 +182,10 @@ if(UNIX)
   set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "${${PROJECT_NAME}_INSTALL_RPATH}")
 endif()
 
+IF(MSVC)
+  target_compile_options(${PROJECT_NAME} PUBLIC "/bigobj")
+ENDIF()
+
 # IDE sources and headers sorting
 ADD_SOURCE_GROUP(${LIBRARY_NAME}_SOURCES)
 ADD_HEADER_GROUP(PROJECT_HEADERS_FULL_PATH)
@@ -194,6 +202,12 @@ TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
   Boost::filesystem
 )
 
+if (HPP_FCL_ENABLE_LOGGING)
+  TARGET_LINK_LIBRARIES(${LIBRARY_NAME} PUBLIC Boost::log)
+  # The compile flag `BOOST_LOG_DYN_LINK` is required here.
+  target_compile_definitions(${LIBRARY_NAME} PUBLIC HPP_FCL_ENABLE_LOGGING BOOST_LOG_DYN_LINK)
+endif()
+
 IF(WIN32)
   TARGET_LINK_LIBRARIES(${LIBRARY_NAME}
     INTERFACE
@@ -201,6 +215,10 @@ IF(WIN32)
     Boost::date_time
   )
 ENDIF(WIN32)
+
+if (HPP_FCL_TURN_ASSERT_INTO_EXCEPTION)
+  target_compile_definitions(${LIBRARY_NAME} PUBLIC -DHPP_FCL_TURN_ASSERT_INTO_EXCEPTION)
+endif()
 
 if(HPP_FCL_HAS_QHULL)
   target_compile_definitions(${LIBRARY_NAME} PRIVATE -DHPP_FCL_HAS_QHULL)

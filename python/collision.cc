@@ -59,6 +59,15 @@ const CollisionGeometry* geto(const Contact& c) {
   return index == 1 ? c.o1 : c.o2;
 }
 
+struct ContactWrapper {
+  static Vec3f getNearestPoint1(const Contact& contact) {
+    return contact.nearest_points[0];
+  }
+  static Vec3f getNearestPoint2(const Contact& contact) {
+    return contact.nearest_points[1];
+  }
+};
+
 void exposeCollisionAPI() {
   if (!eigenpy::register_symbolic_link_to_registered_type<
           CollisionRequestFlag>()) {
@@ -111,6 +120,8 @@ void exposeCollisionAPI() {
             doxygen::class_attrib_doc<QueryRequest>("enable_cached_gjk_guess"))
         .DEF_RW_CLASS_ATTRIB(QueryRequest, cached_gjk_guess)
         .DEF_RW_CLASS_ATTRIB(QueryRequest, cached_support_func_guess)
+        .DEF_RW_CLASS_ATTRIB(QueryRequest, epa_max_iterations)
+        .DEF_RW_CLASS_ATTRIB(QueryRequest, epa_tolerance)
         .DEF_RW_CLASS_ATTRIB(QueryRequest, enable_timings)
         .DEF_CLASS_FUNC(QueryRequest, updateGuess);
   }
@@ -122,7 +133,26 @@ void exposeCollisionAPI() {
         .def(dv::init<CollisionRequest, const CollisionRequestFlag, size_t>())
         .DEF_RW_CLASS_ATTRIB(CollisionRequest, num_max_contacts)
         .DEF_RW_CLASS_ATTRIB(CollisionRequest, enable_contact)
-        .DEF_RW_CLASS_ATTRIB(CollisionRequest, enable_distance_lower_bound)
+        .add_property(
+            "enable_distance_lower_bound",
+            bp::make_function(
+                +[](CollisionRequest& self) -> bool {
+                  return self.enable_distance_lower_bound;
+                },
+                deprecated_warning_policy<>(
+                    "enable_distance_lower_bound has been marked as "
+                    "deprecated. "
+                    "A lower bound on distance is always computed.\n")),
+            bp::make_function(
+                +[](CollisionRequest& self, const bool value) -> void {
+                  self.enable_distance_lower_bound = value;
+                },
+                deprecated_warning_policy<>(
+                    "enable_distance_lower_bound has been marked as "
+                    "deprecated. "
+                    "A lower bound on distance is always computed.\n")),
+            doxygen::class_attrib_doc<CollisionRequest>(
+                "enable_distance_lower_bound"))
         .DEF_RW_CLASS_ATTRIB(CollisionRequest, security_margin)
         .DEF_RW_CLASS_ATTRIB(CollisionRequest, break_distance)
         .DEF_RW_CLASS_ATTRIB(CollisionRequest, distance_upper_bound);
@@ -152,9 +182,14 @@ void exposeCollisionAPI() {
             make_function(&geto<2>,
                           return_value_policy<reference_existing_object>()),
             doxygen::class_attrib_doc<Contact>("o2"))
+        .def("getNearestPoint1", &ContactWrapper::getNearestPoint1,
+             doxygen::class_attrib_doc<Contact>("nearest_points"))
+        .def("getNearestPoint2", &ContactWrapper::getNearestPoint2,
+             doxygen::class_attrib_doc<Contact>("nearest_points"))
         .DEF_RW_CLASS_ATTRIB(Contact, b1)
         .DEF_RW_CLASS_ATTRIB(Contact, b2)
         .DEF_RW_CLASS_ATTRIB(Contact, normal)
+        .DEF_RW_CLASS_ATTRIB(Contact, nearest_points)
         .DEF_RW_CLASS_ATTRIB(Contact, pos)
         .DEF_RW_CLASS_ATTRIB(Contact, penetration_depth)
         .def(self == self)

@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021, INRIA
+ *  Copyright (c) 2021-2024, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@
 #define HPP_FCL_HEIGHT_FIELD_H
 
 #include <hpp/fcl/fwd.hh>
+#include <hpp/fcl/data_types.h>
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/BV/BV_node.h>
 #include <hpp/fcl/BVH/BVH_internal.h>
@@ -51,6 +52,17 @@ namespace fcl {
 /// @{
 
 struct HPP_FCL_DLLAPI HFNodeBase {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  enum class FaceOrientation {
+    TOP = 1,
+    BOTTOM = 1,
+    NORTH = 2,
+    EAST = 4,
+    SOUTH = 8,
+    WEST = 16
+  };
+
   /// @brief An index for first child node or primitive
   /// If the value is positive, it is the index of the first child bv node
   /// If the value is negative, it is -(primitive index + 1)
@@ -61,6 +73,7 @@ struct HPP_FCL_DLLAPI HFNodeBase {
   Eigen::DenseIndex y_id, y_size;
 
   FCL_REAL max_height;
+  int contact_active_faces;
 
   /// @brief Default constructor
   HFNodeBase()
@@ -69,13 +82,15 @@ struct HPP_FCL_DLLAPI HFNodeBase {
         x_size(0),
         y_id(-1),
         y_size(0),
-        max_height(std::numeric_limits<FCL_REAL>::lowest()) {}
+        max_height(std::numeric_limits<FCL_REAL>::lowest()),
+        contact_active_faces(0) {}
 
   /// @brief Comparison operator
   bool operator==(const HFNodeBase& other) const {
     return first_child == other.first_child && x_id == other.x_id &&
            x_size == other.x_size && y_id == other.y_id &&
-           y_size == other.y_size && max_height == other.max_height;
+           y_size == other.y_size && max_height == other.max_height &&
+           contact_active_faces == other.contact_active_faces;
   }
 
   /// @brief Difference operator
@@ -101,8 +116,19 @@ struct HPP_FCL_DLLAPI HFNodeBase {
   }
 };
 
+inline HFNodeBase::FaceOrientation operator&(HFNodeBase::FaceOrientation a,
+                                             HFNodeBase::FaceOrientation b) {
+  return HFNodeBase::FaceOrientation(int(a) & int(b));
+}
+
+inline int operator&(int a, HFNodeBase::FaceOrientation b) {
+  return a & int(b);
+}
+
 template <typename BV>
 struct HPP_FCL_DLLAPI HFNode : public HFNodeBase {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   typedef HFNodeBase Base;
 
   /// @brief bounding volume storing the geometry
@@ -135,16 +161,11 @@ struct HPP_FCL_DLLAPI HFNode : public HFNodeBase {
   Vec3f getCenter() const { return bv.center(); }
 
   /// @brief Access to the orientation of the BV
-  const Matrix3f& getOrientation() const {
-    static const Matrix3f id3 = Matrix3f::Identity();
-    return id3;
+  hpp::fcl::Matrix3f::IdentityReturnType getOrientation() const {
+    return Matrix3f::Identity();
   }
 
   virtual ~HFNode() {}
-
-  /// \cond
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  /// \endcond
 };
 
 namespace details {
@@ -181,10 +202,12 @@ struct UpdateBoundingVolume<AABB> {
 template <typename BV>
 class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
  public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   typedef CollisionGeometry Base;
 
   typedef HFNode<BV> Node;
-  typedef std::vector<Node> BVS;
+  typedef std::vector<Node, Eigen::aligned_allocator<Node> > BVS;
 
   /// @brief Constructing an empty HeightField
   HeightField()
@@ -244,6 +267,8 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
   FCL_REAL getMaxHeight() const { return max_height; }
 
   virtual HeightField<BV>* clone() const { return new HeightField(*this); }
+
+  const BVS& getNodes() const { return bvs; }
 
   /// @brief deconstruction, delete mesh data related.
   virtual ~HeightField() {}
@@ -432,6 +457,24 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
     bv_node.x_size = x_size;
     bv_node.y_size = y_size;
 
+    if (bv_node.isLeaf()) {
+      int& contact_active_faces = bv_node.contact_active_faces;
+      contact_active_faces |= int(HFNodeBase::FaceOrientation::TOP);
+      contact_active_faces |= int(HFNodeBase::FaceOrientation::BOTTOM);
+
+      if (bv_node.x_id == 0)  // first col
+        contact_active_faces |= int(HFNodeBase::FaceOrientation::WEST);
+
+      if (bv_node.y_id == 0)  // first row (TOP)
+        contact_active_faces |= int(HFNodeBase::FaceOrientation::NORTH);
+
+      if (bv_node.x_id + 1 == heights.cols() - 1)  // last col
+        contact_active_faces |= int(HFNodeBase::FaceOrientation::EAST);
+
+      if (bv_node.y_id + 1 == heights.rows() - 1)  // last row (BOTTOM)
+        contact_active_faces |= int(HFNodeBase::FaceOrientation::SOUTH);
+    }
+
     return max_height;
   }
 
@@ -465,9 +508,6 @@ class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
            y_grid == other.y_grid && bvs == other.bvs &&
            num_bvs == other.num_bvs;
   }
-
- public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Specialization of getNodeType() for HeightField with different BV

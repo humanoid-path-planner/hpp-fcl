@@ -1,5 +1,9 @@
 0067c8aa66aac548601e2a3fd029aa264cc59f2a
 76b68f785df31b00e153290b45ec290a9c5f7963
+# ruff --fix . (Guilhem Saurel, 2023-10-25)
+02cef56abfacee590c8444fd379c8837bf007fa1
+# black . (Guilhem Saurel, 2023-10-25)
+febfbcbe9c98cdb4e0c7bbf4554a6925b391834b
 # ruff --fix . (Guilhem Saurel, 2023-10-24)
 58dee5ae90eded5125825a2da0fe76a5031f3334
 # black . (Guilhem Saurel, 2023-10-24)

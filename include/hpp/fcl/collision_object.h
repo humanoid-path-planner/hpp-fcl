@@ -260,10 +260,18 @@ class HPP_FCL_DLLAPI CollisionObject {
     if (t.getRotation().isIdentity()) {
       aabb = translate(cgeom->aabb_local, t.getTranslation());
     } else {
-      Vec3f center(t.transform(cgeom->aabb_center));
-      Vec3f delta(Vec3f::Constant(cgeom->aabb_radius));
-      aabb.min_ = center - delta;
-      aabb.max_ = center + delta;
+      aabb.min_ = aabb.max_ = t.getTranslation();
+
+      Vec3f min_world, max_world;
+      for (int k = 0; k < 3; ++k) {
+        min_world.array() = t.getRotation().row(k).array() *
+                            cgeom->aabb_local.min_.transpose().array();
+        max_world.array() = t.getRotation().row(k).array() *
+                            cgeom->aabb_local.max_.transpose().array();
+
+        aabb.min_[k] += (min_world.array().min)(max_world.array()).sum();
+        aabb.max_[k] += (min_world.array().max)(max_world.array()).sum();
+      }
     }
   }
 

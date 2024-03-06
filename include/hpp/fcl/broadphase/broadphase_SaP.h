@@ -152,9 +152,9 @@ class HPP_FCL_DLLAPI SaPCollisionManager : public BroadPhaseCollisionManager {
     /// @brief set the value of the end point
     Vec3f& getVal();
 
-    FCL_REAL getVal(size_t i) const;
+    FCL_REAL getVal(int i) const;
 
-    FCL_REAL& getVal(size_t i);
+    FCL_REAL& getVal(int i);
   };
 
   /// @brief A pair of objects that are not culling away and should further

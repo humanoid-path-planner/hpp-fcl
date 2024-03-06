@@ -66,8 +66,7 @@ bool testDistanceLowerBound(const Transform3f& tf,
                             FCL_REAL& distance) {
   Transform3f pose1(tf), pose2;
 
-  CollisionRequest request(hpp::fcl::NO_REQUEST, 1);
-  request.enable_distance_lower_bound = true;
+  CollisionRequest request;
 
   CollisionResult result;
   CollisionObject co1(m1, pose1);

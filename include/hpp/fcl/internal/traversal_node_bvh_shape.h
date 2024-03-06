@@ -192,39 +192,37 @@ class MeshShapeCollisionTraversalNode
     FCL_REAL distance;
     Vec3f normal;
     Vec3f c1, c2;  // closest point
+    // If security margin is negative, we have to compute the penetration if
+    // needed
+    bool compute_penetration =
+        (this->request.enable_contact || this->request.security_margin < 0);
 
-    bool collision;
     if (RTIsIdentity) {
       static const Transform3f Id;
-      collision = nsolver->shapeTriangleInteraction(
-          *(this->model2), this->tf2, p1, p2, p3, Id, distance, c2, c1, normal);
+      nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
+                                        Id, distance, compute_penetration, c2,
+                                        c1, normal);
     } else {
-      collision = nsolver->shapeTriangleInteraction(*(this->model2), this->tf2,
-                                                    p1, p2, p3, this->tf1,
-                                                    distance, c2, c1, normal);
+      nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
+                                        this->tf1, distance,
+                                        compute_penetration, c2, c1, normal);
     }
 
+    // TODO @louis: change things here as in hfields & ShapeShapeDistance
     FCL_REAL distToCollision = distance - this->request.security_margin;
-    if (collision) {
+    if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
       if (this->request.num_max_contacts > this->result->numContacts()) {
         this->result->addContact(Contact(this->model1, this->model2,
-                                         primitive_id, Contact::NONE, c1,
-                                         -normal, -distance));
+                                         primitive_id, Contact::NONE, c1, c2,
+                                         -normal, distance));
         assert(this->result->isCollision());
-      }
-    } else if (distToCollision <= this->request.collision_distance_threshold) {
-      sqrDistLowerBound = 0;
-      if (this->request.num_max_contacts > this->result->numContacts()) {
-        this->result->addContact(
-            Contact(this->model1, this->model2, primitive_id, Contact::NONE,
-                    .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
       }
     } else
       sqrDistLowerBound = distToCollision * distToCollision;
 
-    internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
-                                               distToCollision, c1, c2);
+    internal::updateDistanceLowerBoundFromLeaf(
+        this->request, *this->result, distToCollision, c1, c2, -normal);
 
     assert(this->result->isCollision() || sqrDistLowerBound > 0);
   }
@@ -455,9 +453,10 @@ class MeshShapeDistanceTraversalNode
 
     FCL_REAL d;
     Vec3f closest_p1, closest_p2, normal;
+    bool compute_penetration = this->request.enable_signed_distance;
     nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
-                                      Transform3f(), d, closest_p2, closest_p1,
-                                      normal);
+                                      Transform3f(), d, compute_penetration,
+                                      closest_p2, closest_p1, normal);
 
     this->result->update(d, this->model1, this->model2, primitive_id,
                          DistanceResult::NONE, closest_p1, closest_p2, normal);
@@ -488,8 +487,8 @@ void meshShapeDistanceOrientedNodeleafComputeDistance(
     unsigned int b1, unsigned int /* b2 */, const BVHModel<BV>* model1,
     const S& model2, Vec3f* vertices, Triangle* tri_indices,
     const Transform3f& tf1, const Transform3f& tf2, const GJKSolver* nsolver,
-    bool enable_statistics, int& num_leaf_tests,
-    const DistanceRequest& /* request */, DistanceResult& result) {
+    bool enable_statistics, int& num_leaf_tests, const DistanceRequest& request,
+    DistanceResult& result) {
   if (enable_statistics) num_leaf_tests++;
 
   const BVNode<BV>& node = model1->getBV(b1);
@@ -502,8 +501,10 @@ void meshShapeDistanceOrientedNodeleafComputeDistance(
 
   FCL_REAL distance;
   Vec3f closest_p1, closest_p2, normal;
+  bool compute_penetration = request.enable_signed_distance;
   nsolver->shapeTriangleInteraction(model2, tf2, p1, p2, p3, tf1, distance,
-                                    closest_p2, closest_p1, normal);
+                                    compute_penetration, closest_p2, closest_p1,
+                                    normal);
 
   result.update(distance, model1, &model2, primitive_id, DistanceResult::NONE,
                 closest_p1, closest_p2, normal);
@@ -514,7 +515,7 @@ static inline void distancePreprocessOrientedNode(
     const BVHModel<BV>* model1, Vec3f* vertices, Triangle* tri_indices,
     int init_tri_id, const S& model2, const Transform3f& tf1,
     const Transform3f& tf2, const GJKSolver* nsolver,
-    const DistanceRequest& /* request */, DistanceResult& result) {
+    const DistanceRequest& request, DistanceResult& result) {
   const Triangle& init_tri = tri_indices[init_tri_id];
 
   const Vec3f& p1 = vertices[init_tri[0]];
@@ -523,8 +524,10 @@ static inline void distancePreprocessOrientedNode(
 
   FCL_REAL distance;
   Vec3f closest_p1, closest_p2, normal;
+  bool compute_penetration = request.enable_signed_distance;
   nsolver->shapeTriangleInteraction(model2, tf2, p1, p2, p3, tf1, distance,
-                                    closest_p2, closest_p1, normal);
+                                    compute_penetration, closest_p2, closest_p1,
+                                    normal);
 
   result.update(distance, model1, &model2, init_tri_id, DistanceResult::NONE,
                 closest_p1, closest_p2, normal);

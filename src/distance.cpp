@@ -83,15 +83,9 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
     } else {
       res = looktable.distance_matrix[node_type2][node_type1](
           o2, tf2, o1, tf1, &solver, request, result);
-      // If closest points are requested, switch object 1 and 2
-      if (request.enable_nearest_points) {
-        const CollisionGeometry* tmpo = result.o1;
-        result.o1 = result.o2;
-        result.o2 = tmpo;
-        Vec3f tmpn(result.nearest_points[0]);
-        result.nearest_points[0] = result.nearest_points[1];
-        result.nearest_points[1] = tmpn;
-      }
+      std::swap(result.o1, result.o2);
+      result.nearest_points[0].swap(result.nearest_points[1]);
+      result.normal *= -1;
     }
   } else {
     if (!looktable.distance_matrix[node_type1][node_type2]) {
@@ -150,10 +144,9 @@ FCL_REAL ComputeDistance::run(const Transform3f& tf1, const Transform3f& tf2,
 
   if (swap_geoms) {
     res = func(o2, tf2, o1, tf1, &solver, request, result);
-    if (request.enable_nearest_points) {
-      std::swap(result.o1, result.o2);
-      result.nearest_points[0].swap(result.nearest_points[1]);
-    }
+    std::swap(result.o1, result.o2);
+    result.nearest_points[0].swap(result.nearest_points[1]);
+    result.normal *= -1;
   } else {
     res = func(o1, tf1, o2, tf2, &solver, request, result);
   }

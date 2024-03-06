@@ -209,30 +209,33 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
         p2;  // closest points if no collision contact points if collision.
     Vec3f normal;
     FCL_REAL distance;
-    solver.shapeDistance(tri1, this->tf1, tri2, this->tf2, distance, p1, p2,
-                         normal);
+    // If the security margin is negative, we have to compute the penetration
+    // to get the correct distance to compare to the security margin.
+    bool compute_penetration =
+        (this->request.enable_contact || this->request.security_margin < 0);
+    solver.shapeDistance(tri1, this->tf1, tri2, this->tf2, distance,
+                         compute_penetration, p1, p2, normal);
 
     const FCL_REAL distToCollision = distance - this->request.security_margin;
     if (distToCollision <=
         this->request.collision_distance_threshold) {  // collision
       sqrDistLowerBound = 0;
-      Vec3f p(p1);  // contact point
       if (this->result->numContacts() < this->request.num_max_contacts) {
         // How much (Q1, Q2, Q3) should be moved so that all vertices are
         // above (P1, P2, P3).
-        if (distance > 0) {
-          normal = (p2 - p1).normalized();
-          p = .5 * (p1 + p2);
-        }
+        // The normal is already computed by GJK, no need to recompute it.
+        // if (distance > 0) {
+        //   normal = (p2 - p1).normalized();
+        // }
         this->result->addContact(Contact(this->model1, this->model2,
-                                         primitive_id1, primitive_id2, p,
-                                         normal, -distance));
+                                         primitive_id1, primitive_id2, p1, p2,
+                                         normal, distance));
       }
     } else
       sqrDistLowerBound = distToCollision * distToCollision;
 
     internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
-                                               distToCollision, p1, p2);
+                                               distToCollision, p1, p2, normal);
   }
 
   Vec3f* vertices1;

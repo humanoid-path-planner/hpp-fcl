@@ -70,7 +70,7 @@ void randomTransform(Matrix3f& B, Vec3f& T, const Vec3f& a, const Vec3f& b,
   T = (Vec3f::Random() / sqrt(3)) * 1.5 * N;
   // T.setZero();
 
-  Quaternion3f q;
+  Quatf q;
   q.coeffs().setRandom();
   q.normalize();
   B = q;
@@ -110,7 +110,9 @@ bool distance(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b,
   Transform3f tfa, tfb(B, T);
 
   Vec3f p1, p2, normal;
-  return gjk.shapeDistance(ba, tfa, bb, tfb, distance, p1, p2, normal);
+  bool compute_penetration = true;
+  return gjk.shapeDistance(ba, tfa, bb, tfb, distance, compute_penetration, p1,
+                           p2, normal);
 }
 
 inline FCL_REAL _computeDistanceForCase1(const Vec3f& T, const Vec3f& a,
@@ -1204,7 +1206,7 @@ BenchmarkResult benchmark_obb_case(const Matrix3f& B, const Vec3f& T,
     result.failure = false;
   }
   if (result.failure) {
-    std::cerr << "\nR = " << Quaternion3f(B).coeffs().transpose().format(py_fmt)
+    std::cerr << "\nR = " << Quatf(B).coeffs().transpose().format(py_fmt)
               << "\nT = " << T.transpose().format(py_fmt)
               << "\na = " << a.transpose().format(py_fmt)
               << "\nb = " << b.transpose().format(py_fmt)

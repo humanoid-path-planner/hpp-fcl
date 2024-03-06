@@ -39,9 +39,7 @@
 #define HPP_FCL_BV_NODE_H
 
 #include <hpp/fcl/data_types.h>
-
 #include <hpp/fcl/BV/BV.h>
-#include <iostream>
 
 namespace hpp {
 namespace fcl {

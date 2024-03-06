@@ -4,63 +4,75 @@ on: [push,pull_request]
 
 jobs:
   hpp-fcl-conda:
-    name: CI on ${{ matrix.os }} with Conda
+    name: CI on ${{ matrix.os }} with Conda Python ${{ matrix.python-version }} - ${{ matrix.build_type }} ${{ matrix.cxx_options }}
     runs-on: ${{ matrix.os }}
+    env:
+      CCACHE_BASEDIR: "${GITHUB_WORKSPACE}"
+      CCACHE_DIR: "${GITHUB_WORKSPACE}/.ccache"
+      CCACHE_COMPRESS: true
+      CCACHE_COMPRESSLEVEL: 6
 
     strategy:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "macos-latest"]
         python-version: ["3.8", "3.12"]
+        cxx_options: ['', '-mavx2']
+        build_type: [Release, Debug]
+        exclude:
+          - build_type: Debug
+            cxx_options: -mavx2
+            os: macos-latest
+          - build_type: Release
+            cxx_options: -mavx2
+            os: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: actions/cache@v3
       with:
-        activate-environment: hpp-fcl
+        path: .ccache
+        key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.cxx_options }}-${{ matrix.python-version }}-${{ github.sha }}
+        restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.cxx_options }}-${{ matrix.python-version }}-
+
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        activate-environment: fcl
         auto-update-conda: true
-        environment-file: .github/workflows/conda/conda-env.yml
+        environment-file: .github/workflows/conda/environment_macos_linux.yml
         python-version: ${{ matrix.python-version }}
-
-    - name: Install compilers on OSX
-      if: contains(matrix.os, 'macos')
-      shell: bash -l {0}
-      run: |
-        conda activate hpp-fcl
-        conda install compilers=1.4.2 -c conda-forge
-
-    - name: Install cmake and update conda
-      shell: bash -l {0}
-      run: |
-        conda activate hpp-fcl
-        conda install cmake -c main
-        conda install llvm-openmp -c conda-forge
+        auto-activate-base: false
 
     - name: Build hpp-fcl
-      shell: bash -l {0}
+      shell: bash -el {0}
       run: |
-        conda activate hpp-fcl
         conda list
         echo $CONDA_PREFIX
 
         mkdir build
         cd build
 
-        cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=$(which python3) -DGENERATE_PYTHON_STUBS=ON -DHPP_FCL_HAS_QHULL=ON
-        make -j2
-        make build_tests
-        export CTEST_OUTPUT_ON_FAILURE=1
-        make test
-        make install
+        cmake .. \
+          -G "Ninja" \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_CXX_FLAGS=${{ matrix.cxx_options }} \
+          -DPYTHON_EXECUTABLE=$(which python3) \
+          -DGENERATE_PYTHON_STUBS=ON \
+          -DHPP_FCL_HAS_QHULL=ON
+        cmake --build . -j2
+        ctest --output-on-failure
+        cmake --install .
 
     - name: Uninstall hpp-fcl
-      shell: bash -l {0}
+      shell: bash -el {0}
       run: |
         cd build
-        make uninstall
+        cmake --build . --target uninstall
 
   check:
     if: always()

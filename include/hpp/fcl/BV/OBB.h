@@ -50,6 +50,8 @@ struct CollisionRequest;
 
 /// @brief Oriented bounding box class
 struct HPP_FCL_DLLAPI OBB {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   /// @brief Orientation of OBB. axis[i] is the ith column of the orientation
   /// matrix for the box; it is also the i-th principle direction of the box. We
   /// assume that axis[0] corresponds to the axis with the longest box edge,

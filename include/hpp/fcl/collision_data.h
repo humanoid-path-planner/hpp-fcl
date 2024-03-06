@@ -39,6 +39,7 @@
 #define HPP_FCL_COLLISION_DATA_H
 
 #include <vector>
+#include <array>
 #include <set>
 #include <limits>
 
@@ -46,6 +47,7 @@
 #include <hpp/fcl/config.hh>
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/timings.h>
+#include <hpp/fcl/narrowphase/narrowphase_defaults.h>
 
 namespace hpp {
 namespace fcl {
@@ -70,8 +72,29 @@ struct HPP_FCL_DLLAPI Contact {
   /// if object 2 is octree, it is the id of the cell
   int b2;
 
-  /// @brief contact normal, pointing from o1 to o2
+  /// @brief contact normal, pointing from o1 to o2.
+  /// The normal defined as the normalized separation vector:
+  /// normal = (p2 - p1) / dist(o1, o2), where p1 = nearest_points[0]
+  /// belongs to o1 and p2 = nearest_points[1] belongs to o2 and dist(o1, o2) is
+  /// the **signed** distance between o1 and o2. The normal always points from
+  /// o1 to o2.
+  /// @note The separation vector is the smallest vector such that if o1 is
+  /// translated by it, o1 and o2 are in touching contact (they share at least
+  /// one contact point but have a zero intersection volume). If the shapes
+  /// overlap, dist(o1, o2) = -((p2-p1).norm()). Otherwise, dist(o1, o2) =
+  /// (p2-p1).norm().
   Vec3f normal;
+
+  /// @brief nearest points associated to this contact.
+  /// @note Also referred as "witness points" in other collision libraries.
+  /// The points p1 = nearest_points[0] and p2 = nearest_points[1] verify the
+  /// property that dist(o1, o2) * (p1 - p2) is the separation vector between o1
+  /// and o2, with dist(o1, o2) being the **signed** distance separating o1 from
+  /// o2. See \ref DistanceResult::normal for the definition of the separation
+  /// vector. If o1 and o2 have multiple contacts, the nearest_points are
+  /// associated with the contact which has the greatest penetration depth.
+  /// TODO (louis): rename `nearest_points` to `witness_points`.
+  std::array<Vec3f, 2> nearest_points;
 
   /// @brief contact position, in world space
   Vec3f pos;
@@ -83,11 +106,19 @@ struct HPP_FCL_DLLAPI Contact {
   static const int NONE = -1;
 
   /// @brief Default constructor
-  Contact() : o1(NULL), o2(NULL), b1(NONE), b2(NONE) {}
+  Contact() : o1(NULL), o2(NULL), b1(NONE), b2(NONE) {
+    penetration_depth = (std::numeric_limits<FCL_REAL>::max)();
+    nearest_points[0] = nearest_points[1] = normal = pos =
+        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+  }
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
           int b2_)
-      : o1(o1_), o2(o2_), b1(b1_), b2(b2_) {}
+      : o1(o1_), o2(o2_), b1(b1_), b2(b2_) {
+    penetration_depth = (std::numeric_limits<FCL_REAL>::max)();
+    nearest_points[0] = nearest_points[1] = normal = pos =
+        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+  }
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
           int b2_, const Vec3f& pos_, const Vec3f& normal_, FCL_REAL depth_)
@@ -97,7 +128,24 @@ struct HPP_FCL_DLLAPI Contact {
         b2(b2_),
         normal(normal_),
         pos(pos_),
-        penetration_depth(depth_) {}
+        penetration_depth(depth_) {
+    nearest_points[0] = pos - 0.5 * depth_ * normal_;
+    nearest_points[1] = pos + 0.5 * depth_ * normal_;
+  }
+
+  Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
+          int b2_, const Vec3f& p1, const Vec3f& p2, const Vec3f& normal_,
+          FCL_REAL depth_)
+      : o1(o1_),
+        o2(o2_),
+        b1(b1_),
+        b2(b2_),
+        normal(normal_),
+        penetration_depth(depth_) {
+    nearest_points[0] = p1;
+    nearest_points[1] = p2;
+    pos = (p1 + p2) / 2;
+  }
 
   bool operator<(const Contact& other) const {
     if (b1 == other.b1) return b2 < other.b2;
@@ -107,23 +155,39 @@ struct HPP_FCL_DLLAPI Contact {
   bool operator==(const Contact& other) const {
     return o1 == other.o1 && o2 == other.o2 && b1 == other.b1 &&
            b2 == other.b2 && normal == other.normal && pos == other.pos &&
+           nearest_points[0] == other.nearest_points[0] &&
+           nearest_points[1] == other.nearest_points[1] &&
            penetration_depth == other.penetration_depth;
   }
 
   bool operator!=(const Contact& other) const { return !(*this == other); }
+
+  FCL_REAL getDistanceToCollision(const CollisionRequest& request) const;
 };
 
 struct QueryResult;
 
 /// @brief base class for all query requests
 struct HPP_FCL_DLLAPI QueryRequest {
-  // @briefInitial guess to use for the GJK algorithm
+  // @brief Initial guess to use for the GJK algorithm
   GJKInitialGuess gjk_initial_guess;
 
   /// @brief whether enable gjk initial guess
   /// @Deprecated Use gjk_initial_guess instead
-  HPP_FCL_DEPRECATED_MESSAGE("Use gjk_initial_guess instead")
+  HPP_FCL_DEPRECATED_MESSAGE(Use gjk_initial_guess instead)
   bool enable_cached_gjk_guess;
+
+  /// @brief the gjk initial guess set by user
+  Vec3f cached_gjk_guess;
+
+  /// @brief the support function initial guess set by user
+  support_func_guess_t cached_support_func_guess;
+
+  /// @brief maximum iteration for the GJK algorithm
+  size_t gjk_max_iterations;
+
+  /// @brief tolerance for the GJK algorithm
+  FCL_REAL gjk_tolerance;
 
   /// @brief whether to enable the Nesterov accleration of GJK
   GJKVariant gjk_variant;
@@ -134,17 +198,11 @@ struct HPP_FCL_DLLAPI QueryRequest {
   /// @brief convergence criterion used to stop GJK
   GJKConvergenceCriterionType gjk_convergence_criterion_type;
 
-  /// @brief tolerance for the GJK algorithm
-  FCL_REAL gjk_tolerance;
+  /// @brief max number of iterations for EPA
+  size_t epa_max_iterations;
 
-  /// @brief maximum iteration for the GJK algorithm
-  size_t gjk_max_iterations;
-
-  /// @brief the gjk initial guess set by user
-  Vec3f cached_gjk_guess;
-
-  /// @brief the support function initial guess set by user
-  support_func_guess_t cached_support_func_guess;
+  /// @brief tolerance for EPA
+  FCL_REAL epa_tolerance;
 
   /// @brief enable timings when performing collision/distance request
   bool enable_timings;
@@ -158,13 +216,15 @@ struct HPP_FCL_DLLAPI QueryRequest {
   QueryRequest()
       : gjk_initial_guess(GJKInitialGuess::DefaultGuess),
         enable_cached_gjk_guess(false),
+        cached_gjk_guess(1, 0, 0),
+        cached_support_func_guess(support_func_guess_t::Zero()),
+        gjk_max_iterations(GJK_DEFAULT_MAX_ITERATIONS),
+        gjk_tolerance(GJK_DEFAULT_TOLERANCE),
         gjk_variant(GJKVariant::DefaultGJK),
         gjk_convergence_criterion(GJKConvergenceCriterion::VDB),
         gjk_convergence_criterion_type(GJKConvergenceCriterionType::Relative),
-        gjk_tolerance(1e-6),
-        gjk_max_iterations(128),
-        cached_gjk_guess(1, 0, 0),
-        cached_support_func_guess(support_func_guess_t::Zero()),
+        epa_max_iterations(EPA_DEFAULT_MAX_ITERATIONS),
+        epa_tolerance(EPA_DEFAULT_TOLERANCE),
         enable_timings(false),
         collision_distance_threshold(
             Eigen::NumTraits<FCL_REAL>::dummy_precision()) {}
@@ -184,9 +244,18 @@ struct HPP_FCL_DLLAPI QueryRequest {
     HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return gjk_initial_guess == other.gjk_initial_guess &&
            enable_cached_gjk_guess == other.enable_cached_gjk_guess &&
+           gjk_variant == other.gjk_variant &&
+           gjk_convergence_criterion == other.gjk_convergence_criterion &&
+           gjk_convergence_criterion_type ==
+               other.gjk_convergence_criterion_type &&
+           gjk_tolerance == other.gjk_tolerance &&
+           gjk_max_iterations == other.gjk_max_iterations &&
            cached_gjk_guess == other.cached_gjk_guess &&
            cached_support_func_guess == other.cached_support_func_guess &&
-           enable_timings == other.enable_timings;
+           epa_max_iterations == other.epa_max_iterations &&
+           epa_tolerance == other.epa_tolerance &&
+           enable_timings == other.enable_timings &&
+           collision_distance_threshold == other.collision_distance_threshold;
     HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
 };
@@ -233,14 +302,17 @@ enum CollisionRequestFlag {
 
 /// @brief request to the collision algorithm
 struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
-  /// @brief The maximum number of contacts will return
+  /// @brief The maximum number of contacts that can be returned
   size_t num_max_contacts;
 
   /// @brief whether the contact information (normal, penetration depth and
-  /// contact position) will return
+  /// contact position) will return.
   bool enable_contact;
 
   /// Whether a lower bound on distance is returned when objects are disjoint
+  HPP_FCL_DEPRECATED_MESSAGE(
+      `enable_distance_lower_bound` is deprecated
+           .A lower bound on distance is always computed.)
   bool enable_distance_lower_bound;
 
   /// @brief Distance below which objects are considered in collision.
@@ -267,6 +339,8 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   /// @param[in] flag Collision request flag
   /// @param[in] num_max_contacts  Maximal number of allowed contacts
   ///
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_)
       : num_max_contacts(num_max_contacts_),
         enable_contact(flag & CONTACT),
@@ -278,16 +352,19 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   /// @brief Default constructor.
   CollisionRequest()
       : num_max_contacts(1),
-        enable_contact(false),
+        enable_contact(true),
         enable_distance_lower_bound(false),
         security_margin(0),
         break_distance(1e-3),
         distance_upper_bound((std::numeric_limits<FCL_REAL>::max)()) {}
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
   bool isSatisfied(const CollisionResult& result) const;
 
   /// @brief whether two CollisionRequest are the same or not
   inline bool operator==(const CollisionRequest& other) const {
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return QueryRequest::operator==(other) &&
            num_max_contacts == other.num_max_contacts &&
            enable_contact == other.enable_contact &&
@@ -295,8 +372,14 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
            security_margin == other.security_margin &&
            break_distance == other.break_distance &&
            distance_upper_bound == other.distance_upper_bound;
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
 };
+
+inline FCL_REAL Contact::getDistanceToCollision(
+    const CollisionRequest& request) const {
+  return penetration_depth - request.security_margin;
+}
 
 /// @brief collision result
 struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
@@ -307,18 +390,30 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
  public:
   /// Lower bound on distance between objects if they are disjoint.
   /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
-  /// @note computed only on request (or if it does not add any computational
-  /// overhead).
+  /// @note Always computed. If \ref CollisionRequest::distance_upper_bound is
+  /// set to infinity, distance_lower_bound is the actual distance between the
+  /// shapes.
   FCL_REAL distance_lower_bound;
 
-  /// @brief nearest points
-  /// available only when distance_lower_bound is inferior to
+  /// @brief normal associated to nearest_points.
+  /// Same as `CollisionResult::nearest_points` but for the normal.
+  Vec3f normal;
+
+  /// @brief nearest points.
+  /// A `CollisionResult` can have multiple contacts.
+  /// The nearest points in `CollisionResults` correspond to the witness points
+  /// associated with the smallest distance i.e the `distance_lower_bound`.
+  /// For bounding volumes and BVHs, these nearest points are available
+  /// only when distance_lower_bound is inferior to
   /// CollisionRequest::break_distance.
-  Vec3f nearest_points[2];
+  std::array<Vec3f, 2> nearest_points;
 
  public:
   CollisionResult()
-      : distance_lower_bound((std::numeric_limits<FCL_REAL>::max)()) {}
+      : distance_lower_bound((std::numeric_limits<FCL_REAL>::max)()) {
+    nearest_points[0] = nearest_points[1] = normal =
+        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+  }
 
   /// @brief Update the lower bound only if the distance is inferior.
   inline void updateDistanceLowerBound(const FCL_REAL& distance_lower_bound_) {
@@ -332,7 +427,10 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   /// @brief whether two CollisionResult are the same or not
   inline bool operator==(const CollisionResult& other) const {
     return contacts == other.contacts &&
-           distance_lower_bound == other.distance_lower_bound;
+           distance_lower_bound == other.distance_lower_bound &&
+           nearest_points[0] == other.nearest_points[0] &&
+           nearest_points[1] == other.nearest_points[1] &&
+           normal == other.normal;
   }
 
   /// @brief return binary collision result
@@ -344,8 +442,9 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   /// @brief get the i-th contact calculated
   const Contact& getContact(size_t i) const {
     if (contacts.size() == 0)
-      throw std::invalid_argument(
-          "The number of contacts is zero. No Contact can be returned.");
+      HPP_FCL_THROW_PRETTY(
+          "The number of contacts is zero. No Contact can be returned.",
+          std::invalid_argument);
 
     if (i < contacts.size())
       return contacts[i];
@@ -356,8 +455,9 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   /// @brief set the i-th contact calculated
   void setContact(size_t i, const Contact& c) {
     if (contacts.size() == 0)
-      throw std::invalid_argument(
-          "The number of contacts is zero. No Contact can be returned.");
+      HPP_FCL_THROW_PRETTY(
+          "The number of contacts is zero. No Contact can be returned.",
+          std::invalid_argument);
 
     if (i < contacts.size())
       contacts[i] = c;
@@ -377,8 +477,9 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   void clear() {
     distance_lower_bound = (std::numeric_limits<FCL_REAL>::max)();
     contacts.clear();
-    distance_lower_bound = (std::numeric_limits<FCL_REAL>::max)();
     timings.clear();
+    nearest_points[0] = nearest_points[1] = normal =
+        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
   }
 
   /// @brief reposition Contact objects when fcl inverts them
@@ -390,44 +491,86 @@ struct DistanceResult;
 
 /// @brief request to the distance computation
 struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
-  /// @brief whether to return the nearest points
+  /// @brief whether to return the nearest points.
+  /// Nearest points are always computed and are the points of the shapes that
+  /// achieve a distance of `DistanceResult::min_distance`.
+  HPP_FCL_DEPRECATED_MESSAGE(
+      `enable_nearest_points` is deprecated.Nearest points are always computed;
+       they are the points of the shapes that achieve a distance of
+      `DistanceResult::min_distance`
+           .\n Use `enable_signed_distance` if you want to compute a signed
+               minimum distance(and thus its corresponding nearest points)
+           .)
   bool enable_nearest_points;
+
+  /// @brief whether to compute the penetration depth when objects are in
+  /// collision.
+  /// Turning this off can save computation time if only the distance
+  /// when objects are disjoint is needed.
+  /// @note The minimum distance between the shapes is stored in
+  /// `DistanceResult::min_distance`.
+  /// If `enable_signed_distance` is off, `DistanceResult::min_distance`
+  /// is always positive.
+  /// If `enable_signed_distance` is on, `DistanceResult::min_distance`
+  /// can be positive or negative.
+  /// The nearest points are the points of the shapes that achieve
+  /// a distance of `DistanceResult::min_distance`.
+  bool enable_signed_distance;
 
   /// @brief error threshold for approximate distance
   FCL_REAL rel_err;  // relative error, between 0 and 1
   FCL_REAL abs_err;  // absolute error
 
   /// \param enable_nearest_points_ enables the nearest points computation.
+  /// \param enable_signed_distance_ allows to compute the penetration depth
   /// \param rel_err_
   /// \param abs_err_
-  DistanceRequest(bool enable_nearest_points_ = false, FCL_REAL rel_err_ = 0.0,
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  DistanceRequest(bool enable_nearest_points_ = true,
+                  bool enable_signed_distance_ = true, FCL_REAL rel_err_ = 0.0,
                   FCL_REAL abs_err_ = 0.0)
       : enable_nearest_points(enable_nearest_points_),
+        enable_signed_distance(enable_signed_distance_),
         rel_err(rel_err_),
         abs_err(abs_err_) {}
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
   bool isSatisfied(const DistanceResult& result) const;
 
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  DistanceRequest& operator=(const DistanceRequest& other) = default;
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+
   /// @brief whether two DistanceRequest are the same or not
   inline bool operator==(const DistanceRequest& other) const {
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return QueryRequest::operator==(other) &&
            enable_nearest_points == other.enable_nearest_points &&
+           enable_signed_distance == other.enable_signed_distance &&
            rel_err == other.rel_err && abs_err == other.abs_err;
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
 };
 
 /// @brief distance result
 struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
  public:
-  /// @brief minimum distance between two objects. if two objects are in
-  /// collision, min_distance <= 0.
+  /// @brief minimum distance between two objects.
+  /// If two objects are in collision and
+  /// DistanceRequest::enable_signed_distance is activated, min_distance <= 0.
+  /// @note The nearest points are the points of the shapes that achieve a
+  /// distance of `DistanceResult::min_distance`.
   FCL_REAL min_distance;
 
-  /// @brief nearest points
-  Vec3f nearest_points[2];
-
-  /// In case both objects are in collision, store the normal
+  /// @brief normal.
   Vec3f normal;
+
+  /// @brief nearest points.
+  /// See CollisionResult::nearest_points.
+  std::array<Vec3f, 2> nearest_points;
 
   /// @brief collision object 1
   const CollisionGeometry* o1;
@@ -537,7 +680,7 @@ struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
 namespace internal {
 inline void updateDistanceLowerBoundFromBV(const CollisionRequest& /*req*/,
                                            CollisionResult& res,
-                                           const FCL_REAL& sqrDistLowerBound) {
+                                           const FCL_REAL sqrDistLowerBound) {
   // BV cannot find negative distance.
   if (res.distance_lower_bound <= 0) return;
   FCL_REAL new_dlb = std::sqrt(sqrDistLowerBound);  // - req.security_margin;
@@ -547,11 +690,13 @@ inline void updateDistanceLowerBoundFromBV(const CollisionRequest& /*req*/,
 inline void updateDistanceLowerBoundFromLeaf(const CollisionRequest&,
                                              CollisionResult& res,
                                              const FCL_REAL& distance,
-                                             const Vec3f& p0, const Vec3f& p1) {
+                                             const Vec3f& p0, const Vec3f& p1,
+                                             const Vec3f& normal) {
   if (distance < res.distance_lower_bound) {
     res.distance_lower_bound = distance;
     res.nearest_points[0] = p0;
     res.nearest_points[1] = p1;
+    res.normal = normal;
   }
 }
 }  // namespace internal

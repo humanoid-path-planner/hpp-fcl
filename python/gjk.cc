@@ -87,7 +87,16 @@ void exposeGJK() {
   if (!eigenpy::register_symbolic_link_to_registered_type<GJKVariant>()) {
     enum_<GJKVariant>("GJKVariant")
         .value("DefaultGJK", GJKVariant::DefaultGJK)
+        .value("PolyakAcceleration", GJKVariant::PolyakAcceleration)
         .value("NesterovAcceleration", GJKVariant::NesterovAcceleration)
+        .export_values();
+  }
+
+  if (!eigenpy::register_symbolic_link_to_registered_type<GJKInitialGuess>()) {
+    enum_<GJKInitialGuess>("GJKInitialGuess")
+        .value("DefaultGuess", GJKInitialGuess::DefaultGuess)
+        .value("CachedGuess", GJKInitialGuess::CachedGuess)
+        .value("BoundingVolumeGuess", GJKInitialGuess::BoundingVolumeGuess)
         .export_values();
   }
 
@@ -117,12 +126,16 @@ void exposeGJK() {
         .DEF_RW_CLASS_ATTRIB(GJK, gjk_variant)
         .DEF_RW_CLASS_ATTRIB(GJK, convergence_criterion)
         .DEF_RW_CLASS_ATTRIB(GJK, convergence_criterion_type)
+        .DEF_CLASS_FUNC(GJK, reset)
         .DEF_CLASS_FUNC(GJK, evaluate)
+        .DEF_CLASS_FUNC(GJK, getTolerance)
+        .DEF_CLASS_FUNC(GJK, getNumMaxIterations)
+        .DEF_CLASS_FUNC(GJK, getNumIterations)
+        .DEF_CLASS_FUNC(GJK, getNumIterationsMomentumStopped)
         .DEF_CLASS_FUNC(GJK, hasClosestPoints)
         .DEF_CLASS_FUNC(GJK, hasPenetrationInformation)
         .DEF_CLASS_FUNC(GJK, getClosestPoints)
         .DEF_CLASS_FUNC(GJK, setDistanceEarlyBreak)
-        .DEF_CLASS_FUNC(GJK, getGuessFromSimplex)
-        .DEF_CLASS_FUNC(GJK, getIterations);
+        .DEF_CLASS_FUNC(GJK, getGuessFromSimplex);
   }
 }

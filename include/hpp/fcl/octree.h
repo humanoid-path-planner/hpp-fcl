@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2022-2023, Inria
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -38,7 +39,7 @@
 #ifndef HPP_FCL_OCTREE_H
 #define HPP_FCL_OCTREE_H
 
-#include <boost/array.hpp>
+#include <algorithm>
 
 #include <octomap/octomap.h>
 #include <hpp/fcl/fwd.hh>
@@ -51,7 +52,7 @@ namespace fcl {
 /// @brief Octree is one type of collision geometry which can encode uncertainty
 /// information in the sensor data.
 class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
- private:
+ protected:
   shared_ptr<const octomap::OcTree> tree;
 
   FCL_REAL default_occupancy;
@@ -85,6 +86,7 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
     free_threshold = 0;
   }
 
+  ///  \brief Copy constructor
   OcTree(const OcTree& other)
       : CollisionGeometry(other),
         tree(other.tree),
@@ -92,13 +94,38 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
         occupancy_threshold(other.occupancy_threshold),
         free_threshold(other.free_threshold) {}
 
+  /// \brief Clone *this into a new Octree
   OcTree* clone() const { return new OcTree(*this); }
+
+  /// \brief Returns the tree associated to the underlying octomap OcTree.
+  shared_ptr<const octomap::OcTree> getTree() const { return tree; }
 
   void exportAsObjFile(const std::string& filename) const;
 
   /// @brief compute the AABB for the octree in its local coordinate system
   void computeLocalAABB() {
-    aabb_local = getRootBV();
+    typedef Eigen::Matrix<float, 3, 1> Vec3float;
+    Vec3float max_extent, min_extent;
+
+    octomap::OcTree::iterator it =
+        tree->begin((unsigned char)tree->getTreeDepth());
+    octomap::OcTree::iterator end = tree->end();
+
+    if (it == end) return;
+
+    max_extent = min_extent = Eigen::Map<Vec3float>(&it.getCoordinate().x());
+    for (++it; it != end; ++it) {
+      Eigen::Map<Vec3float> pos(&it.getCoordinate().x());
+      max_extent = max_extent.array().max(pos.array());
+      min_extent = min_extent.array().min(pos.array());
+    }
+
+    // Account for the size of the boxes.
+    const FCL_REAL resolution = tree->getResolution();
+    max_extent.array() += float(resolution / 2.);
+    min_extent.array() -= float(resolution / 2.);
+
+    aabb_local = AABB(min_extent.cast<FCL_REAL>(), max_extent.cast<FCL_REAL>());
     aabb_center = aabb_local.center();
     aabb_radius = (aabb_local.min_ - aabb_center).norm();
   }
@@ -111,8 +138,14 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
     return AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta));
   }
 
-  /// @brief Returns the depth of octree
+  /// @brief Returns the depth of the octree
   unsigned int getTreeDepth() const { return tree->getTreeDepth(); }
+
+  /// @brief Returns the size of the octree
+  unsigned long size() const { return tree->size(); }
+
+  /// @brief Returns the resolution of the octree
+  FCL_REAL getResolution() const { return tree->getResolution(); }
 
   /// @brief get the root node of the octree
   OcTreeNode* getRoot() const { return tree->getRoot(); }
@@ -137,8 +170,8 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
   /// @brief transform the octree into a bunch of boxes; uncertainty information
   /// is kept in the boxes. However, we only keep the occupied boxes (i.e., the
   /// boxes whose occupied probability is higher enough).
-  std::vector<boost::array<FCL_REAL, 6> > toBoxes() const {
-    std::vector<boost::array<FCL_REAL, 6> > boxes;
+  std::vector<Vec6f> toBoxes() const {
+    std::vector<Vec6f> boxes;
     boxes.reserve(tree->size() / 2);
     for (octomap::OcTree::iterator
              it = tree->begin((unsigned char)tree->getTreeDepth()),
@@ -146,18 +179,40 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
          it != end; ++it) {
       // if(tree->isNodeOccupied(*it))
       if (isNodeOccupied(&*it)) {
-        FCL_REAL size = it.getSize();
         FCL_REAL x = it.getX();
         FCL_REAL y = it.getY();
         FCL_REAL z = it.getZ();
+        FCL_REAL size = it.getSize();
         FCL_REAL c = (*it).getOccupancy();
         FCL_REAL t = tree->getOccupancyThres();
 
-        boost::array<FCL_REAL, 6> box = {{x, y, z, size, c, t}};
+        Vec6f box;
+        box << x, y, z, size, c, t;
         boxes.push_back(box);
       }
     }
     return boxes;
+  }
+
+  /// \brief Returns a byte description of *this
+  std::vector<uint8_t> tobytes() const {
+    typedef Eigen::Matrix<float, 3, 1> Vec3float;
+    const size_t total_size = (tree->size() * sizeof(FCL_REAL) * 3) / 2;
+    std::vector<uint8_t> bytes;
+    bytes.reserve(total_size);
+
+    for (octomap::OcTree::iterator
+             it = tree->begin((unsigned char)tree->getTreeDepth()),
+             end = tree->end();
+         it != end; ++it) {
+      const Vec3f box_pos =
+          Eigen::Map<Vec3float>(&it.getCoordinate().x()).cast<FCL_REAL>();
+      if (isNodeOccupied(&*it))
+        std::copy(box_pos.data(), box_pos.data() + sizeof(FCL_REAL) * 3,
+                  std::back_inserter(bytes));
+    }
+
+    return bytes;
   }
 
   /// @brief the threshold used to decide whether one node is occupied, this is
@@ -225,7 +280,7 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
     if (other_ptr == nullptr) return false;
     const OcTree& other = *other_ptr;
 
-    return tree.get() == other.tree.get() &&
+    return (tree.get() == other.tree.get() || toBoxes() == other.toBoxes()) &&
            default_occupancy == other.default_occupancy &&
            occupancy_threshold == other.occupancy_threshold &&
            free_threshold == other.free_threshold;
