@@ -57,6 +57,8 @@ jobs:
 
         cmake .. \
           -G "Ninja" \
+          -DBUILD_DOCUMENTATION=ON \
+          -DINSTALL_DOCUMENTATION=ON \
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
           -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
