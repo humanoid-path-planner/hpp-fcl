@@ -38,6 +38,8 @@
 
 using namespace hpp::fcl;
 
+#include "hpp/fcl/serialization/transform.h"
+#include "hpp/fcl/serialization/collision_data.h"
 #include "hpp/fcl/serialization/geometric_shapes.h"
 #include "hpp/fcl/serialization/convex.h"
 #include "hpp/fcl/serialization/hfield.h"
@@ -45,6 +47,13 @@ using namespace hpp::fcl;
 #ifdef HPP_FCL_HAS_OCTOMAP
 #include "hpp/fcl/serialization/octree.h"
 #endif
+
+HPP_FCL_SERIALIZATION_DEFINE_EXPORT(Transform3f)
+
+HPP_FCL_SERIALIZATION_DEFINE_EXPORT(CollisionRequest)
+HPP_FCL_SERIALIZATION_DEFINE_EXPORT(CollisionResult)
+HPP_FCL_SERIALIZATION_DEFINE_EXPORT(DistanceRequest)
+HPP_FCL_SERIALIZATION_DEFINE_EXPORT(DistanceResult)
 
 HPP_FCL_SERIALIZATION_DEFINE_EXPORT(ShapeBase)
 HPP_FCL_SERIALIZATION_DEFINE_EXPORT(CollisionGeometry)

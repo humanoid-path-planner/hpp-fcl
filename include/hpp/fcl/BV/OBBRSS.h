@@ -38,8 +38,8 @@
 #ifndef HPP_FCL_OBBRSS_H
 #define HPP_FCL_OBBRSS_H
 
-#include <hpp/fcl/BV/OBB.h>
-#include <hpp/fcl/BV/RSS.h>
+#include "hpp/fcl/BV/OBB.h"
+#include "hpp/fcl/BV/RSS.h"
 
 namespace hpp {
 namespace fcl {

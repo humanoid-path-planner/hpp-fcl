@@ -49,8 +49,8 @@ SET(${LIBRARY_NAME}_HEADERS
   broadphase/broadphase_collision_manager.hh
   broadphase/broadphase_callbacks.hh
   pickle.hh
-  serialize.hh
   utils/std-pair.hh
+  serializable.hh
   )
 
 SET(ENABLE_PYTHON_DOXYGEN_AUTODOC TRUE CACHE BOOL "Enable automatic documentation of Python bindings from Doxygen documentation")

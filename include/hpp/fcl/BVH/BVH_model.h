@@ -39,10 +39,11 @@
 #ifndef HPP_FCL_BVH_MODEL_H
 #define HPP_FCL_BVH_MODEL_H
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/BVH/BVH_internal.h>
-#include <hpp/fcl/BV/BV_node.h>
+#include "hpp/fcl/fwd.hh"
+#include "hpp/fcl/collision_object.h"
+#include "hpp/fcl/BVH/BVH_internal.h"
+#include "hpp/fcl/BV/BV_node.h"
+
 #include <vector>
 #include <memory>
 #include <iostream>

@@ -264,6 +264,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/internal/traversal_recurse.h
   include/hpp/fcl/internal/traversal.h
   include/hpp/fcl/serialization/fwd.h
+  include/hpp/fcl/serialization/serializer.h
+  include/hpp/fcl/serialization/archive.h
   include/hpp/fcl/serialization/transform.h
   include/hpp/fcl/serialization/AABB.h
   include/hpp/fcl/serialization/BV_node.h
@@ -278,6 +280,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/OBB.h
   include/hpp/fcl/serialization/RSS.h
   include/hpp/fcl/serialization/OBBRSS.h
+  include/hpp/fcl/serialization/kIOS.h
+  include/hpp/fcl/serialization/kDOP.h
   include/hpp/fcl/serialization/hfield.h
   include/hpp/fcl/serialization/quadrilateral.h
   include/hpp/fcl/serialization/triangle.h

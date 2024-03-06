@@ -34,4 +34,6 @@ void load(Archive& ar, hpp::fcl::Transform3f& tf,
 }  // namespace serialization
 }  // namespace boost
 
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::Transform3f)
+
 #endif  // HPP_FCL_SERIALIZATION_TRANSFORM_H

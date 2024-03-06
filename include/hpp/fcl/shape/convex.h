@@ -38,7 +38,7 @@
 #ifndef HPP_FCL_SHAPE_CONVEX_H
 #define HPP_FCL_SHAPE_CONVEX_H
 
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "hpp/fcl/shape/geometric_shapes.h"
 
 namespace hpp {
 namespace fcl {
@@ -110,6 +110,6 @@ class Convex : public ConvexBase {
 
 }  // namespace hpp
 
-#include <hpp/fcl/shape/details/convex.hxx>
+#include "hpp/fcl/shape/details/convex.hxx"
 
 #endif

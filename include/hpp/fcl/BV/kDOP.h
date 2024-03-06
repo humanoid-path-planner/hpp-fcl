@@ -38,8 +38,8 @@
 #ifndef HPP_FCL_KDOP_H
 #define HPP_FCL_KDOP_H
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/data_types.h>
+#include "hpp/fcl/fwd.hh"
+#include "hpp/fcl/data_types.h"
 
 namespace hpp {
 namespace fcl {

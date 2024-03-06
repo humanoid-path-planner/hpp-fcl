@@ -176,4 +176,9 @@ HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::DistanceResult)
 }  // namespace serialization
 }  // namespace boost
 
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::CollisionRequest)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::CollisionResult)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::DistanceRequest)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::DistanceResult)
+
 #endif  // ifndef HPP_FCL_SERIALIZATION_COLLISION_DATA_H

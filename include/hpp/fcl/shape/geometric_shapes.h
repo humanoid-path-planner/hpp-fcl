@@ -38,13 +38,13 @@
 #ifndef HPP_FCL_GEOMETRIC_SHAPES_H
 #define HPP_FCL_GEOMETRIC_SHAPES_H
 
-#include <boost/math/constants/constants.hpp>
-
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/data_types.h>
-#include <string.h>
 #include <vector>
 #include <memory>
+
+#include <boost/math/constants/constants.hpp>
+
+#include "hpp/fcl/collision_object.h"
+#include "hpp/fcl/data_types.h"
 
 #ifdef HPP_FCL_HAS_QHULL
 namespace orgQhull {

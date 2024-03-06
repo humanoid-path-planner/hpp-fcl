@@ -41,7 +41,7 @@
 
 #include "fcl.hh"
 #include "pickle.hh"
-#include "serialize.hh"
+#include "serializable.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/hpp/fcl/math/transform.h"
@@ -49,6 +49,7 @@
 
 using namespace boost::python;
 using namespace hpp::fcl;
+using namespace hpp::fcl::python;
 
 namespace dv = doxygen::visitor;
 
@@ -63,11 +64,6 @@ struct TriangleWrapper {
       PyErr_SetString(PyExc_IndexError, "Index out of range");
     t[static_cast<hpp::fcl::Triangle::index_type>(i % 3)] = v;
   }
-};
-
-struct Transform3fWrapper {
-  CLASS_WRAPPER_SAVE_FUNC(Transform3f)
-  CLASS_WRAPPER_LOAD_FUNC(Transform3f)
 };
 
 void exposeMaths() {
@@ -126,9 +122,8 @@ void exposeMaths() {
       .def(self *= self)
       .def(self == self)
       .def(self != self)
-      .DEF_SAVE_CLASS("Transform3f", Transform3fWrapper)
-      .DEF_LOAD_CLASS("Transform3f", Transform3fWrapper)
-      .def_pickle(PickleObject<Transform3f>());
+      .def_pickle(PickleObject<Transform3f>())
+      .def(SerializableVisitor<Transform3f>());
 
   class_<Triangle>("Triangle", no_init)
       .def(dv::init<Triangle>())
