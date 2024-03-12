@@ -2,14 +2,14 @@ ci:
   autoupdate_branch: devel
 repos:
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.2.2
+  rev: v0.3.2
   hooks:
   - id: ruff
     args:
     - --fix
     - --exit-non-zero-on-fix
 - repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v17.0.6
+  rev: v18.1.1
   hooks:
   - id: clang-format
     args:
