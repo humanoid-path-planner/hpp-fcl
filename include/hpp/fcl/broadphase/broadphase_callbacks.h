@@ -50,7 +50,7 @@ namespace fcl {
 struct HPP_FCL_DLLAPI CollisionCallBackBase {
   /// @brief Initialization of the callback before running the collision
   /// broadphase manager.
-  virtual void init(){};
+  virtual void init() {};
 
   /// @brief Collision evaluation between two objects in collision.
   ///        This callback will cause the broadphase evaluation to stop if it
@@ -73,7 +73,7 @@ struct HPP_FCL_DLLAPI CollisionCallBackBase {
 struct HPP_FCL_DLLAPI DistanceCallBackBase {
   /// @brief Initialization of the callback before running the collision
   /// broadphase manager.
-  virtual void init(){};
+  virtual void init() {};
 
   /// @brief Distance evaluation between two objects in collision.
   ///        This callback will cause the broadphase evaluation to stop if it
