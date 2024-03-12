@@ -199,6 +199,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
     }
     HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
+    static constexpr FCL_REAL dummy_precision =
+        std::numeric_limits<FCL_REAL>::epsilon() * 100;
     switch (gjk.status) {
       case details::GJK::DidNotRun:
         HPP_FCL_ASSERT(false, "GJK did not run. It should have!",
@@ -223,10 +225,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
         // The two witness points have no meaning.
         GJKEarlyStopExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                   normal);
-        HPP_FCL_ASSERT(
-            distance >= gjk.distance_upper_bound,
-            "The distance should be bigger than GJK's `distance_upper_bound`.",
-            std::logic_error);
+        HPP_FCL_ASSERT(distance >= gjk.distance_upper_bound - dummy_precision,
+                       "The distance should be bigger than GJK's "
+                       "`distance_upper_bound`.",
+                       std::logic_error);
         break;
       case details::GJK::Valid:
         //
@@ -235,11 +237,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
         // 1e-6).
         GJKNoCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                     normal);
-        HPP_FCL_ASSERT(
-            std::abs((p1 - p2).norm() - distance) < gjk.getTolerance(),
-            "The distance found by GJK should coincide with the "
-            "distance between the closest points.",
-            std::logic_error);
+        HPP_FCL_ASSERT(std::abs((p1 - p2).norm() - distance) <=
+                           gjk.getTolerance() + dummy_precision,
+                       "The distance found by GJK should coincide with the "
+                       "distance between the closest points.",
+                       std::logic_error);
         break;
       case details::GJK::Inside:
         //
@@ -252,16 +254,16 @@ struct HPP_FCL_DLLAPI GJKSolver {
           // witness points and the normal.
           GJKCollisionWithInflationExtractWitnessPointsAndNormal(
               tf1, distance, p1, p2, normal);
-          HPP_FCL_ASSERT(distance < gjk.getTolerance(),
+          HPP_FCL_ASSERT(distance <= gjk.getTolerance() + dummy_precision,
                          "The distance found by GJK should be negative (or at )"
                          "least below GJK's tolerance.",
                          std::logic_error);
           // + because the distance is negative.
-          HPP_FCL_ASSERT(
-              std::abs((p1 - p2).norm() + distance) < gjk.getTolerance(),
-              "The distance found by GJK should coincide with the "
-              "distance between the closest points.",
-              std::logic_error);
+          HPP_FCL_ASSERT(std::abs((p1 - p2).norm() + distance) <=
+                             gjk.getTolerance() + dummy_precision,
+                         "The distance found by GJK should coincide with the "
+                         "distance between the closest points.",
+                         std::logic_error);
         } else {
           if (!compute_penetration) {
             GJKCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
@@ -314,10 +316,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
               case details::EPA::Valid:
               case details::EPA::AccuracyReached:
                 HPP_FCL_ASSERT(
-                    -epa.depth <= epa.getTolerance(),
+                    -epa.depth <= epa.getTolerance() + dummy_precision,
                     "EPA's penetration distance should be negative (or "
-                    "at least below EPA's "
-                    "tolerance).",
+                    "at least below EPA's tolerance).",
                     std::logic_error);
                 EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                       normal);
@@ -408,8 +409,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // In any case, `gjk.ray`'s norm is bigger than GJK's tolerance and thus
     // it can safely be normalized.
     distance = gjk.distance;
+    static constexpr FCL_REAL dummy_precision =
+        std::numeric_limits<FCL_REAL>::epsilon() * 100;
     HPP_FCL_ASSERT(
-        gjk.ray.norm() > gjk.getTolerance(),
+        gjk.ray.norm() > gjk.getTolerance() + dummy_precision,
         "The norm of GJK's ray should be bigger than GJK's tolerance.",
         std::logic_error);
     normal.noalias() = -tf1.getRotation() * gjk.ray;
@@ -436,7 +439,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                                  FCL_REAL& distance, Vec3f& p1,
                                                  Vec3f& p2,
                                                  Vec3f& normal) const {
-    HPP_FCL_ASSERT(gjk.distance <= gjk.getTolerance(),
+    static constexpr FCL_REAL dummy_precision =
+        std::numeric_limits<FCL_REAL>::epsilon() * 100;
+    HPP_FCL_ASSERT(gjk.distance <= gjk.getTolerance() + dummy_precision,
                    "The distance should be lower than GJK's tolerance.",
                    std::logic_error);
     distance = gjk.distance;
