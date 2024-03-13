@@ -41,6 +41,8 @@
 #include <hpp/fcl/serialization/collision_data.h>
 #include "deprecation.hh"
 
+#include "serializable.hh"
+
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
 #include "doxygen_autodoc/hpp/fcl/collision_data.h"
@@ -100,7 +102,8 @@ void exposeDistanceAPI() {
             doxygen::class_attrib_doc<DistanceRequest>("enable_nearest_points"))
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, enable_signed_distance)
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, rel_err)
-        .DEF_RW_CLASS_ATTRIB(DistanceRequest, abs_err);
+        .DEF_RW_CLASS_ATTRIB(DistanceRequest, abs_err)
+        .def(SerializableVisitor<DistanceRequest>());
   }
 
   if (!eigenpy::register_symbolic_link_to_registered_type<
@@ -127,7 +130,8 @@ void exposeDistanceAPI() {
         .DEF_RW_CLASS_ATTRIB(DistanceResult, b2)
 
         .def("clear", &DistanceResult::clear,
-             doxygen::member_func_doc(&DistanceResult::clear));
+             doxygen::member_func_doc(&DistanceResult::clear))
+        .def(SerializableVisitor<DistanceResult>());
   }
 
   if (!eigenpy::register_symbolic_link_to_registered_type<
