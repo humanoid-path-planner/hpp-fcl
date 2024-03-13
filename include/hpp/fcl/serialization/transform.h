@@ -11,29 +11,14 @@
 namespace boost {
 namespace serialization {
 
-HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::Transform3f)
-
 template <class Archive>
-void save(Archive& ar, const hpp::fcl::Transform3f& tf,
-          const unsigned int /*version*/) {
-  ar& make_nvp("R", tf.getRotation());
-  ar& make_nvp("T", tf.getTranslation());
-}
-
-template <class Archive>
-void load(Archive& ar, hpp::fcl::Transform3f& tf,
-          const unsigned int /*version*/) {
-  hpp::fcl::Matrix3f R;
-  ar >> make_nvp("R", R);
-  tf.setRotation(R);
-  hpp::fcl::Vec3f T;
-  ar >> make_nvp("T", T);
-  tf.setTranslation(T);
+void serialize(Archive& ar, hpp::fcl::Transform3f& tf,
+               const unsigned int /*version*/) {
+  ar& make_nvp("R", tf.rotation());
+  ar& make_nvp("T", tf.translation());
 }
 
 }  // namespace serialization
 }  // namespace boost
-
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::Transform3f)
 
 #endif  // HPP_FCL_SERIALIZATION_TRANSFORM_H

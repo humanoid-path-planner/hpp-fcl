@@ -48,8 +48,6 @@ using namespace hpp::fcl;
 #include "hpp/fcl/serialization/octree.h"
 #endif
 
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(Transform3f)
-
 HPP_FCL_SERIALIZATION_DEFINE_EXPORT(CollisionRequest)
 HPP_FCL_SERIALIZATION_DEFINE_EXPORT(CollisionResult)
 HPP_FCL_SERIALIZATION_DEFINE_EXPORT(DistanceRequest)
