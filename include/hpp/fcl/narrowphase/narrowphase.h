@@ -201,6 +201,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     static constexpr FCL_REAL dummy_precision =
         std::numeric_limits<FCL_REAL>::epsilon() * 100;
+    HPP_FCL_UNUSED_VARIABLE(dummy_precision);
     switch (gjk.status) {
       case details::GJK::DidNotRun:
         HPP_FCL_ASSERT(false, "GJK did not run. It should have!",
@@ -411,6 +412,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     distance = gjk.distance;
     static constexpr FCL_REAL dummy_precision =
         std::numeric_limits<FCL_REAL>::epsilon() * 100;
+    HPP_FCL_UNUSED_VARIABLE(dummy_precision);
     HPP_FCL_ASSERT(
         gjk.ray.norm() > gjk.getTolerance() + dummy_precision,
         "The norm of GJK's ray should be bigger than GJK's tolerance.",
@@ -441,6 +443,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                                  Vec3f& normal) const {
     static constexpr FCL_REAL dummy_precision =
         std::numeric_limits<FCL_REAL>::epsilon() * 100;
+    HPP_FCL_UNUSED_VARIABLE(dummy_precision);
     HPP_FCL_ASSERT(gjk.distance <= gjk.getTolerance() + dummy_precision,
                    "The distance should be lower than GJK's tolerance.",
                    std::logic_error);
