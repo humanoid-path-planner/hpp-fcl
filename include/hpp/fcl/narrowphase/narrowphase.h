@@ -41,7 +41,6 @@
 #define HPP_FCL_NARROWPHASE_H
 
 #include <limits>
-#include <iostream>
 
 #include <hpp/fcl/narrowphase/gjk.h>
 #include <hpp/fcl/collision_data.h>
@@ -125,7 +124,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
   }
 
  protected:
-  /// @brief initialize GJK
+  /// @brief initialize GJK.
+  /// This method assumes `minkowski_difference` has been set.
   template <typename S1, typename S2>
   void getGJKInitialGuess(const S1& s1, const S2& s2, Vec3f& guess,
                           support_func_guess_t& support_hint) const {
@@ -163,10 +163,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
     }
     HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
+
   /// @brief Runs the GJK algorithm; if the shapes are in found in collision,
   /// also runs the EPA algorithm.
-  /// This function assumes the minkowski difference has been already been set,
-  /// i.e. `minkowski_difference.set(&s1, &s2, tf1, tf2);` has been called.
   /// @return true if no error occured, false otherwise.
   template <typename S1, typename S2>
   bool runGJKAndEPA(
@@ -182,6 +181,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     else
       minkowski_difference.set(&s1, &s2, tf1, tf2);
     gjk.reset(gjk_max_iterations, gjk_tolerance);
+    epa.status = details::EPA::Status::DidNotRun;
 
     // Get initial guess for GJK: default, cached or bounding volume guess
     Vec3f guess;
@@ -199,6 +199,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
     }
     HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
+    static constexpr FCL_REAL dummy_precision =
+        std::numeric_limits<FCL_REAL>::epsilon() * 100;
+    HPP_FCL_UNUSED_VARIABLE(dummy_precision);
     switch (gjk.status) {
       case details::GJK::DidNotRun:
         HPP_FCL_ASSERT(false, "GJK did not run. It should have!",
@@ -223,10 +226,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
         // The two witness points have no meaning.
         GJKEarlyStopExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                   normal);
-        HPP_FCL_ASSERT(
-            distance >= gjk.distance_upper_bound,
-            "The distance should be bigger than GJK's `distance_upper_bound`.",
-            std::logic_error);
+        HPP_FCL_ASSERT(distance >= gjk.distance_upper_bound - dummy_precision,
+                       "The distance should be bigger than GJK's "
+                       "`distance_upper_bound`.",
+                       std::logic_error);
         break;
       case details::GJK::Valid:
         //
@@ -235,11 +238,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
         // 1e-6).
         GJKNoCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                     normal);
-        HPP_FCL_ASSERT(
-            std::abs((p1 - p2).norm() - distance) < gjk.getTolerance(),
-            "The distance found by GJK should coincide with the "
-            "distance between the closest points.",
-            std::logic_error);
+        HPP_FCL_ASSERT(std::abs((p1 - p2).norm() - distance) <=
+                           gjk.getTolerance() + dummy_precision,
+                       "The distance found by GJK should coincide with the "
+                       "distance between the closest points.",
+                       std::logic_error);
         break;
       case details::GJK::Inside:
         //
@@ -252,16 +255,16 @@ struct HPP_FCL_DLLAPI GJKSolver {
           // witness points and the normal.
           GJKCollisionWithInflationExtractWitnessPointsAndNormal(
               tf1, distance, p1, p2, normal);
-          HPP_FCL_ASSERT(distance < gjk.getTolerance(),
+          HPP_FCL_ASSERT(distance <= gjk.getTolerance() + dummy_precision,
                          "The distance found by GJK should be negative (or at )"
                          "least below GJK's tolerance.",
                          std::logic_error);
           // + because the distance is negative.
-          HPP_FCL_ASSERT(
-              std::abs((p1 - p2).norm() + distance) < gjk.getTolerance(),
-              "The distance found by GJK should coincide with the "
-              "distance between the closest points.",
-              std::logic_error);
+          HPP_FCL_ASSERT(std::abs((p1 - p2).norm() + distance) <=
+                             gjk.getTolerance() + dummy_precision,
+                         "The distance found by GJK should coincide with the "
+                         "distance between the closest points.",
+                         std::logic_error);
         } else {
           if (!compute_penetration) {
             GJKCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
@@ -314,10 +317,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
               case details::EPA::Valid:
               case details::EPA::AccuracyReached:
                 HPP_FCL_ASSERT(
-                    -epa.depth <= epa.getTolerance(),
+                    -epa.depth <= epa.getTolerance() + dummy_precision,
                     "EPA's penetration distance should be negative (or "
-                    "at least below EPA's "
-                    "tolerance).",
+                    "at least below EPA's tolerance).",
                     std::logic_error);
                 EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                       normal);
@@ -408,8 +410,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // In any case, `gjk.ray`'s norm is bigger than GJK's tolerance and thus
     // it can safely be normalized.
     distance = gjk.distance;
+    static constexpr FCL_REAL dummy_precision =
+        std::numeric_limits<FCL_REAL>::epsilon() * 100;
+    HPP_FCL_UNUSED_VARIABLE(dummy_precision);
     HPP_FCL_ASSERT(
-        gjk.ray.norm() > gjk.getTolerance(),
+        gjk.ray.norm() > gjk.getTolerance() + dummy_precision,
         "The norm of GJK's ray should be bigger than GJK's tolerance.",
         std::logic_error);
     normal.noalias() = -tf1.getRotation() * gjk.ray;
@@ -436,7 +441,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                                  FCL_REAL& distance, Vec3f& p1,
                                                  Vec3f& p2,
                                                  Vec3f& normal) const {
-    HPP_FCL_ASSERT(gjk.distance <= gjk.getTolerance(),
+    static constexpr FCL_REAL dummy_precision =
+        std::numeric_limits<FCL_REAL>::epsilon() * 100;
+    HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+    HPP_FCL_ASSERT(gjk.distance <= gjk.getTolerance() + dummy_precision,
                    "The distance should be lower than GJK's tolerance.",
                    std::logic_error);
     distance = gjk.distance;
@@ -450,10 +458,50 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                              FCL_REAL& distance, Vec3f& p1,
                                              Vec3f& p2, Vec3f& normal) const {
     distance = (std::min)(0., -epa.depth);
-    epa.getClosestPoints(minkowski_difference, p1, p2);
     normal.noalias() = tf1.getRotation() * epa.normal;
-    p1 = tf1.transform(p1);
-    p2 = tf1.transform(p2);
+    epa.getClosestPoints(minkowski_difference, p1, p2);
+    // The following is very important to understand why EPA can sometimes
+    // return a normal that is not colinear to the vector $p_1 - p_2$ when
+    // working with tolerances like $\epsilon = 10^{-3}$.
+    // It can be resumed with a simple idea:
+    //     EPA is an algorithm meant to find the penetration depth and the
+    //     normal. It is not meant to find the closest points.
+    // Again, the issue here is **not** the normal, it's $p_1$ and $p_2$.
+    //
+    // More details:
+    // We'll denote $S_1$ and $S_2$ the two shapes, $n$ the normal and $p_1$ and
+    // $p_2$ the witness points. In theory, when EPA converges to $\epsilon =
+    // 0$, the normal and witness points verify the following property (P):
+    //   - $p_1 \in \partial \sigma_{S_1}(n)$,
+    //   - $p_2 \in \partial \sigma_{S_2}(-n),
+    // where $\sigma_{S_1}$ and $\sigma_{S_2}$ are the support functions of
+    // $S_1$ and $S_2$. The $\partial \sigma(n)$ simply denotes the support set
+    // of the support function in the direction $n$. (Note: I am leaving out the
+    // details of frame choice for the support function, to avoid making the
+    // mathematical notation too heavy.)
+    // --> In practice, EPA converges to $\epsilon > 0$.
+    // On polytopes and the likes, this does not change much and the property
+    // given above is still valid.
+    // --> However, this is very different on curved surfaces, such as
+    // ellipsoids, cylinders, cones, capsules etc. For these shapes, converging
+    // at $\epsilon = 10^{-6}$ or to $\epsilon = 10^{-3}$ does not change the
+    // normal much, but the property (P) given above is no longer valid, which
+    // means that the points $p_1$ and $p_2$ do not necessarily belong to the
+    // support sets in the direction of $n$ and thus $n$ and $p_1 - p_2$ are not
+    // colinear.
+    //
+    // Do not panic! This is fine.
+    // Although the property above is not verified, it's almost verified,
+    // meaning that $p_1$ and $p_2$ belong to support sets in directions that
+    // are very close to $n$.
+    //
+    // Solution to compute better $p_1$ and $p_2$:
+    // We compute the middle points of the current $p_1$ and $p_2$ and we use
+    // the normal and the distance given by EPA to compute the new $p_1$ and
+    // $p_2$.
+    Vec3f p = tf1.transform((p1 + p2) * 0.5);
+    p1 = p - normal * distance * 0.5;
+    p2 = p + normal * distance * 0.5;
   }
 
   void EPAFailedExtractWitnessPointsAndNormal(const Transform3f& tf1,
@@ -541,23 +589,22 @@ struct HPP_FCL_DLLAPI GJKSolver {
     epa_tolerance = request.epa_tolerance;
     epa.status = details::EPA::Status::DidNotRun;
 
-#ifndef NDEBUG
-    // Only in debug mode, to warn the user
     if (request.gjk_tolerance < GJK_MINIMUM_TOLERANCE) {
-      std::cout << "WARNING - GJK: using a tolerance (";
-      std::cout << request.gjk_tolerance;
-      std::cout << ") which is lower than the recommended lowest tolerance (";
-      std::cout << GJK_DEFAULT_TOLERANCE;
-      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+      HPP_FCL_LOG_WARNING(
+          "WARNING - GJK: using a tolerance ("
+          << request.gjk_tolerance
+          << ") which is lower than the recommended lowest tolerance ("
+          << GJK_DEFAULT_TOLERANCE
+          << "). Selecting this tolerance might trigger assertions.\n");
     }
     if (request.epa_tolerance < EPA_MINIMUM_TOLERANCE) {
-      std::cout << "WARNING - EPA: using a tolerance (";
-      std::cout << request.epa_tolerance;
-      std::cout << ") which is lower than the recommended lowest tolerance (";
-      std::cout << EPA_MINIMUM_TOLERANCE;
-      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+      HPP_FCL_LOG_WARNING(
+          "WARNING - EPA: using a tolerance ("
+          << request.epa_tolerance
+          << ") which is lower than the recommended lowest tolerance ("
+          << EPA_MINIMUM_TOLERANCE
+          << "). Selecting this tolerance might trigger assertions.\n");
     }
-#endif
   }
 
   /// @brief Constructor from a CollisionRequest
@@ -613,23 +660,22 @@ struct HPP_FCL_DLLAPI GJKSolver {
     gjk.status = details::GJK::Status::DidNotRun;
     epa.status = details::EPA::Status::DidNotRun;
 
-#ifndef NDEBUG
-    // Only in debug mode, to warn the user
     if (request.gjk_tolerance < GJK_MINIMUM_TOLERANCE) {
-      std::cout << "WARNING - GJK: using a tolerance (";
-      std::cout << request.gjk_tolerance;
-      std::cout << ") which is lower than the recommended lowest tolerance (";
-      std::cout << GJK_DEFAULT_TOLERANCE;
-      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+      HPP_FCL_LOG_WARNING(
+          "WARNING - GJK: using a tolerance ("
+          << request.gjk_tolerance
+          << ") which is lower than the recommended lowest tolerance ("
+          << GJK_DEFAULT_TOLERANCE
+          << "). Selecting this tolerance might trigger assertions.\n");
     }
     if (request.epa_tolerance < EPA_MINIMUM_TOLERANCE) {
-      std::cout << "WARNING - EPA: using a tolerance (";
-      std::cout << request.epa_tolerance;
-      std::cout << ") which is lower than the recommended lowest tolerance (";
-      std::cout << EPA_MINIMUM_TOLERANCE;
-      std::cout << "). Selecting this tolerance might trigger assertions.\n";
+      HPP_FCL_LOG_WARNING(
+          "WARNING - EPA: using a tolerance ("
+          << request.epa_tolerance
+          << ") which is lower than the recommended lowest tolerance ("
+          << EPA_MINIMUM_TOLERANCE
+          << "). Selecting this tolerance might trigger assertions.\n");
     }
-#endif
   }
 
   /// @brief Copy constructor

@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+- [#549](https://github.com/humanoid-path-planner/hpp-fcl/pull/549)
+  - Optimize EPA: ignore useless faces in EPA's polytope; warm-start support computation for `Convex`; fix edge-cases witness points computation.
+  - Add `Serializable` trait to transform, collision data, collision geometries, bounding volumes, bvh models, hfields. Collision problems can now be serialized from C++ and sent to python and vice versa.
 
 ### Fixed
 

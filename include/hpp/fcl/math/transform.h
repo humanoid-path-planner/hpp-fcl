@@ -38,8 +38,8 @@
 #ifndef HPP_FCL_TRANSFORM_H
 #define HPP_FCL_TRANSFORM_H
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/data_types.h>
+#include "hpp/fcl/fwd.hh"
+#include "hpp/fcl/data_types.h"
 
 namespace hpp {
 namespace fcl {
@@ -57,7 +57,7 @@ class HPP_FCL_DLLAPI Transform3f {
   /// @brief Matrix cache
   Matrix3f R;
 
-  /// @brief Tranlation vector
+  /// @brief Translation vector
   Vec3f T;
 
  public:
@@ -197,7 +197,7 @@ class HPP_FCL_DLLAPI Transform3f {
   }
 
   bool operator==(const Transform3f& other) const {
-    return R == other.R && (T == other.getTranslation());
+    return (R == other.getRotation()) && (T == other.getTranslation());
   }
 
   bool operator!=(const Transform3f& other) const { return !(*this == other); }

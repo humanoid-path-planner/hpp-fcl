@@ -65,6 +65,7 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
   struct ShapeData {
     std::vector<int8_t> visited;
+    Vec3f last_dir = Vec3f::Zero();
   };
 
   /// @brief Store temporary data for the computation of the support point for
@@ -84,12 +85,6 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// These inflation values are used for Sphere and Capsule.
   Array2d inflation;
 
-  /// @brief Number of points in a Convex object from which using a logarithmic
-  /// support function is faster than a linear one.
-  /// It defaults to 32.
-  /// \note It must set before the call to \ref set.
-  int linear_log_convex_threshold;
-
   /// @brief Wether or not to use the normalize heuristic in the GJK Nesterov
   /// acceleration. This setting is only applied if the Nesterov acceleration in
   /// the GJK class is active.
@@ -102,10 +97,7 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
                                      ShapeData data[2]);
   GetSupportFunction getSupportFunc;
 
-  MinkowskiDiff()
-      : linear_log_convex_threshold(32),
-        normalize_support_direction(false),
-        getSupportFunc(NULL) {}
+  MinkowskiDiff() : normalize_support_direction(false), getSupportFunc(NULL) {}
 
   /// Set the two shapes,
   /// assuming the relative transformation between them is identity.
@@ -233,9 +225,8 @@ struct HPP_FCL_DLLAPI GJK {
   }
 
   /// @brief resets the GJK algorithm, preparing it for a new run.
-  /// This function does **not** modify the parameters of the GJK algorithm,
-  /// i.e. the maximum number of iterations, the tolerance, the variant of GJK,
-  /// or its convergene criterion.
+  /// Other than the maximum number of iterations and the tolerance,
+  /// this function does **not** modify the parameters of the GJK algorithm.
   void reset(size_t max_iterations_, FCL_REAL tolerance_);
 
   /// @brief GJK algorithm, given the initial value guess
@@ -349,7 +340,9 @@ struct HPP_FCL_DLLAPI EPA {
   struct HPP_FCL_DLLAPI SimplexFace {
     Vec3f n;
     FCL_REAL d;
-    size_t vertex_id[3];             // Index of vertex in sv_store.
+    bool ignore;          // If the origin does not project inside the face, we
+                          // ignore this face.
+    size_t vertex_id[3];  // Index of vertex in sv_store.
     SimplexFace* adjacent_faces[3];  // A face has three adjacent faces.
     SimplexFace* prev_face;          // The previous face in the list.
     SimplexFace* next_face;          // The next face in the list.
@@ -359,7 +352,7 @@ struct HPP_FCL_DLLAPI EPA {
                               // (with 0 <= i <= 2).
     size_t pass;
 
-    SimplexFace() : n(Vec3f::Zero()){};
+    SimplexFace() : n(Vec3f::Zero()), ignore(false){};
   };
 
   /// @brief The simplex list of EPA is a linked list of faces.
@@ -499,7 +492,7 @@ struct HPP_FCL_DLLAPI EPA {
 
   /// Get the closest points on each object.
   /// @return true on success
-  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
+  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const;
 
  private:
   /// @brief Allocates memory for the EPA algorithm.
@@ -510,7 +503,16 @@ struct HPP_FCL_DLLAPI EPA {
   bool getEdgeDist(SimplexFace* face, const SimplexVertex& a,
                    const SimplexVertex& b, FCL_REAL& dist);
 
-  SimplexFace* newFace(size_t id_a, size_t id_b, size_t id_vertex, bool forced);
+  /// @brief Add a new face to the polytope; used at the beginning of EPA.
+  /// Note: sometimes the origin can be located outside EPA's starting polytope.
+  /// This is fine, we simply make sure to compute quantities in the right
+  /// normal direction to set the `ignore` flag correctly.
+  SimplexFace* createInitialPolytopeFace(size_t id_a, size_t id_b, size_t id_c);
+
+  /// @brief Add a new face to the polytope.
+  /// This function sets the `ignore` flag to `true` if the origin does not
+  /// project inside the face.
+  SimplexFace* newFace(size_t id_a, size_t id_b, size_t id_vertex);
 
   /// @brief Find the best polytope face to split
   SimplexFace* findClosestFace();

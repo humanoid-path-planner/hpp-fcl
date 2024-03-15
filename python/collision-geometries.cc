@@ -52,6 +52,7 @@
 #include <hpp/fcl/serialization/convex.h>
 
 #include "pickle.hh"
+#include "serializable.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 // FIXME for a reason I do not understand, doxygen fails to understand that
@@ -68,6 +69,7 @@
 
 using namespace boost::python;
 using namespace hpp::fcl;
+using namespace hpp::fcl::python;
 namespace dv = doxygen::visitor;
 namespace bp = boost::python;
 
@@ -113,7 +115,8 @@ void exposeBVHModel(const std::string& bvname) {
       .DEF_CLASS_FUNC(BVHModelBase, memUsage)
       .def("clone", &BVH::clone, doxygen::member_func_doc(&BVH::clone),
            return_value_policy<manage_new_object>())
-      .def_pickle(PickleObject<BVH>());
+      .def_pickle(PickleObject<BVH>())
+      .def(SerializableVisitor<BVH>());
 }
 
 template <typename BV>
@@ -153,7 +156,8 @@ void exposeHeightField(const std::string& bvname) {
            doxygen::member_func_doc((Node & (Geometry::*)(unsigned int)) &
                                     Geometry::getBV),
            bp::return_internal_reference<>())
-      .def_pickle(PickleObject<Geometry>());
+      .def_pickle(PickleObject<Geometry>())
+      .def(SerializableVisitor<Geometry>());
 }
 
 struct ConvexBaseWrapper {
@@ -276,7 +280,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Box, halfSide)
       .def("clone", &Box::clone, doxygen::member_func_doc(&Box::clone),
            return_value_policy<manage_new_object>())
-      .def_pickle(PickleObject<Box>());
+      .def_pickle(PickleObject<Box>())
+      .def(SerializableVisitor<Box>());
 
   class_<Capsule, bases<ShapeBase>, shared_ptr<Capsule>>(
       "Capsule", doxygen::class_doc<Capsule>(), no_init)
@@ -287,7 +292,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Capsule, halfLength)
       .def("clone", &Capsule::clone, doxygen::member_func_doc(&Capsule::clone),
            return_value_policy<manage_new_object>())
-      .def_pickle(PickleObject<Capsule>());
+      .def_pickle(PickleObject<Capsule>())
+      .def(SerializableVisitor<Capsule>());
 
   class_<Cone, bases<ShapeBase>, shared_ptr<Cone>>(
       "Cone", doxygen::class_doc<Cone>(), no_init)
@@ -298,7 +304,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Cone, halfLength)
       .def("clone", &Cone::clone, doxygen::member_func_doc(&Cone::clone),
            return_value_policy<manage_new_object>())
-      .def_pickle(PickleObject<Cone>());
+      .def_pickle(PickleObject<Cone>())
+      .def(SerializableVisitor<Cone>());
 
   class_<ConvexBase, bases<ShapeBase>, shared_ptr<ConvexBase>, noncopyable>(
       "ConvexBase", doxygen::class_doc<ConvexBase>(), no_init)
@@ -345,7 +352,8 @@ void exposeShapes() {
       .def(dv::init<Convex<Triangle>, const Convex<Triangle>&>())
       .DEF_RO_CLASS_ATTRIB(Convex<Triangle>, num_polygons)
       .def("polygons", &ConvexWrapper<Triangle>::polygons)
-      .def_pickle(PickleObject<Convex<Triangle>>());
+      .def_pickle(PickleObject<Convex<Triangle>>())
+      .def(SerializableVisitor<Convex<Triangle>>());
 
   class_<Cylinder, bases<ShapeBase>, shared_ptr<Cylinder>>(
       "Cylinder", doxygen::class_doc<Cylinder>(), no_init)
@@ -357,7 +365,8 @@ void exposeShapes() {
       .def("clone", &Cylinder::clone,
            doxygen::member_func_doc(&Cylinder::clone),
            return_value_policy<manage_new_object>())
-      .def_pickle(PickleObject<Cylinder>());
+      .def_pickle(PickleObject<Cylinder>())
+      .def(SerializableVisitor<Cylinder>());
 
   class_<Halfspace, bases<ShapeBase>, shared_ptr<Halfspace>>(
       "Halfspace", doxygen::class_doc<Halfspace>(), no_init)
@@ -370,7 +379,8 @@ void exposeShapes() {
       .def("clone", &Halfspace::clone,
            doxygen::member_func_doc(&Halfspace::clone),
            return_value_policy<manage_new_object>())
-      .def_pickle(PickleObject<Halfspace>());
+      .def_pickle(PickleObject<Halfspace>())
+      .def(SerializableVisitor<Halfspace>());
 
   class_<Plane, bases<ShapeBase>, shared_ptr<Plane>>(
       "Plane", doxygen::class_doc<Plane>(), no_init)
@@ -382,7 +392,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Plane, d)
       .def("clone", &Plane::clone, doxygen::member_func_doc(&Plane::clone),
            return_value_policy<manage_new_object>())
-      .def_pickle(PickleObject<Plane>());
+      .def_pickle(PickleObject<Plane>())
+      .def(SerializableVisitor<Plane>());
 
   class_<Sphere, bases<ShapeBase>, shared_ptr<Sphere>>(
       "Sphere", doxygen::class_doc<Sphere>(), no_init)
@@ -392,7 +403,8 @@ void exposeShapes() {
       .DEF_RW_CLASS_ATTRIB(Sphere, radius)
       .def("clone", &Sphere::clone, doxygen::member_func_doc(&Sphere::clone),
            return_value_policy<manage_new_object>())
-      .def_pickle(PickleObject<Sphere>());
+      .def_pickle(PickleObject<Sphere>())
+      .def(SerializableVisitor<Sphere>());
 
   class_<Ellipsoid, bases<ShapeBase>, shared_ptr<Ellipsoid>>(
       "Ellipsoid", doxygen::class_doc<Ellipsoid>(), no_init)
@@ -404,7 +416,8 @@ void exposeShapes() {
       .def("clone", &Ellipsoid::clone,
            doxygen::member_func_doc(&Ellipsoid::clone),
            return_value_policy<manage_new_object>())
-      .def_pickle(PickleObject<Ellipsoid>());
+      .def_pickle(PickleObject<Ellipsoid>())
+      .def(SerializableVisitor<Ellipsoid>());
 
   class_<TriangleP, bases<ShapeBase>, shared_ptr<TriangleP>>(
       "TriangleP", doxygen::class_doc<TriangleP>(), no_init)
@@ -417,7 +430,8 @@ void exposeShapes() {
       .def("clone", &TriangleP::clone,
            doxygen::member_func_doc(&TriangleP::clone),
            return_value_policy<manage_new_object>())
-      .def_pickle(PickleObject<TriangleP>());
+      .def_pickle(PickleObject<TriangleP>())
+      .def(SerializableVisitor<TriangleP>());
 }
 
 boost::python::tuple AABB_distance_proxy(const AABB& self, const AABB& other) {
@@ -566,7 +580,8 @@ void exposeCollisionGeometries() {
            //         doxygen::member_func_args(static_cast<AABB&
            //         (AABB::*)(const Vec3f &)>(&AABB::expand)),
            bp::return_internal_reference<>())
-      .def_pickle(PickleObject<AABB>());
+      .def_pickle(PickleObject<AABB>())
+      .def(SerializableVisitor<AABB>());
 
   def("translate", (AABB(*)(const AABB&, const Vec3f&)) & translate,
       bp::args("aabb", "t"), "Translate the center of AABB by t");

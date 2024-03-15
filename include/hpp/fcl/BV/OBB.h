@@ -38,7 +38,7 @@
 #ifndef HPP_FCL_OBB_H
 #define HPP_FCL_OBB_H
 
-#include <hpp/fcl/data_types.h>
+#include "hpp/fcl/data_types.h"
 
 namespace hpp {
 namespace fcl {

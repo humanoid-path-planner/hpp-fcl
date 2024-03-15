@@ -71,9 +71,9 @@
   }
 
 #ifdef HPP_FCL_TURN_ASSERT_INTO_EXCEPTION
-#define HPP_FCL_ASSERT(check, message, exception)         \
-  {                                                       \
-    if (!check) HPP_FCL_THROW_PRETTY(message, exception); \
+#define HPP_FCL_ASSERT(check, message, exception)                 \
+  {                                                               \
+    if (check == false) HPP_FCL_THROW_PRETTY(message, exception); \
   }
 #else
 #define HPP_FCL_ASSERT(check, message, exception) \

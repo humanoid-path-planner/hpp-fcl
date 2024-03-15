@@ -36,9 +36,11 @@
 
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/collision.h>
+#include <hpp/fcl/serialization/collision_data.h>
 
 #include "fcl.hh"
 #include "deprecation.hh"
+#include "serializable.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
@@ -155,7 +157,8 @@ void exposeCollisionAPI() {
                 "enable_distance_lower_bound"))
         .DEF_RW_CLASS_ATTRIB(CollisionRequest, security_margin)
         .DEF_RW_CLASS_ATTRIB(CollisionRequest, break_distance)
-        .DEF_RW_CLASS_ATTRIB(CollisionRequest, distance_upper_bound);
+        .DEF_RW_CLASS_ATTRIB(CollisionRequest, distance_upper_bound)
+        .def(SerializableVisitor<CollisionRequest>());
   }
 
   if (!eigenpy::register_symbolic_link_to_registered_type<
@@ -232,7 +235,8 @@ void exposeCollisionAPI() {
                                  const>(&CollisionResult::getContacts)),
              return_internal_reference<>())
 
-        .DEF_RW_CLASS_ATTRIB(CollisionResult, distance_lower_bound);
+        .DEF_RW_CLASS_ATTRIB(CollisionResult, distance_lower_bound)
+        .def(SerializableVisitor<CollisionResult>());
   }
 
   if (!eigenpy::register_symbolic_link_to_registered_type<

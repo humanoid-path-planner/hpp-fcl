@@ -37,8 +37,11 @@
 
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/math/transform.h>
+#include <hpp/fcl/serialization/transform.h>
 
 #include "fcl.hh"
+#include "pickle.hh"
+#include "serializable.hh"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/hpp/fcl/math/transform.h"
@@ -46,6 +49,7 @@
 
 using namespace boost::python;
 using namespace hpp::fcl;
+using namespace hpp::fcl::python;
 
 namespace dv = doxygen::visitor;
 
@@ -117,7 +121,9 @@ void exposeMaths() {
       .def(self * self)
       .def(self *= self)
       .def(self == self)
-      .def(self != self);
+      .def(self != self)
+      .def_pickle(PickleObject<Transform3f>())
+      .def(SerializableVisitor<Transform3f>());
 
   class_<Triangle>("Triangle", no_init)
       .def(dv::init<Triangle>())
