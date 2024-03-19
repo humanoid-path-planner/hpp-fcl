@@ -241,8 +241,8 @@ void test_normal_and_nearest_points(
 }
 
 template <size_t VecSize>
-Eigen::Vector<FCL_REAL, VecSize> generateRandomVector(FCL_REAL min,
-                                                      FCL_REAL max) {
+Eigen::Matrix<FCL_REAL, VecSize, 1> generateRandomVector(FCL_REAL min,
+                                                         FCL_REAL max) {
   typedef Eigen::Vector<FCL_REAL, VecSize> VecType;
   // Generate a random vector in the [min, max] range
   VecType v = VecType::Random() * (max - min) * 0.5 +
