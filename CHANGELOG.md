@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+- Fixed too low tolerance in GJK/EPA asserts ([#554](https://github.com/humanoid-path-planner/hpp-fcl/pull/554))
 - Fixed `normal_and_nearest_points` test (no need to have Eigen 3.4) ([#553](https://github.com/humanoid-path-planner/hpp-fcl/pull/553))
 - [#549](https://github.com/humanoid-path-planner/hpp-fcl/pull/549)
   - Optimize EPA: ignore useless faces in EPA's polytope; warm-start support computation for `Convex`; fix edge-cases witness points computation.
