@@ -1120,10 +1120,8 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   const Vec3f a_cross_b = A.cross(B);
   const Vec3f a_cross_c = A.cross(C);
 
-  // dummy_precision is 1e-14 if FCL_REAL is double
-  //                    1e-5  if FCL_REAL is float
-  const FCL_REAL dummy_precision(100 *
-                                 std::numeric_limits<FCL_REAL>::epsilon());
+  const FCL_REAL dummy_precision(
+      3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
   HPP_FCL_UNUSED_VARIABLE(dummy_precision);
 
 #define REGION_INSIDE()               \
@@ -1747,7 +1745,8 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
         // the support we just added is in the direction of the normal of
         // the closest_face. Therefore, the support point will **always**
         // lie "after" the closest_face, i.e closest_face.n.dot(w.w) > 0.
-        assert(closest_face->n.dot(w.w) > 0 &&
+        assert(closest_face->n.dot(w.w) >
+                   -3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon()) &&
                "The support is not in the right direction.");
         //
         // 1) First check: `fdist` (see below) is an upper bound of how much
@@ -1921,8 +1920,8 @@ bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
   // recursive nature of `expand`, it is safer to go through the first case.
   // This is because `expand` can potentially loop indefinitly if the
   // Minkowski difference is very flat (hence the check above).
-  const FCL_REAL dummy_precision(100 *
-                                 std::numeric_limits<FCL_REAL>::epsilon());
+  const FCL_REAL dummy_precision(
+      3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
   const SimplexVertex& vf = sv_store[f->vertex_id[e]];
   if (f->n.dot(w.w - vf.w) < dummy_precision) {
     // case 1: the support point is "below" `f`.
