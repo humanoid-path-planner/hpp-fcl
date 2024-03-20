@@ -54,7 +54,7 @@ void exposeGJK() {
   if (!eigenpy::register_symbolic_link_to_registered_type<GJK::Status>()) {
     enum_<GJK::Status>("GJKStatus")
         .value("NoCollision", GJK::NoCollision)
-        .value("Inside", GJK::Inside)
+        .value("Inside", GJK::Collision)
         .value("Failed", GJK::Failed)
         .export_values();
   }

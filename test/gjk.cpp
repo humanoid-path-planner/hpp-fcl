@@ -340,7 +340,7 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
   details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
 
   if (expect_collision)
-    BOOST_CHECK_EQUAL(status, details::GJK::Inside);
+    BOOST_CHECK_EQUAL(status, details::GJK::Collision);
   else
     BOOST_CHECK_EQUAL(status, details::GJK::NoCollision);
 
@@ -396,7 +396,7 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
   details::GJK::Status status = gjk.evaluate(shape, Vec3f(1, 0, 0));
 
   if (expect_collision)
-    BOOST_CHECK_EQUAL(status, details::GJK::Inside);
+    BOOST_CHECK_EQUAL(status, details::GJK::Collision);
   else {
     BOOST_CHECK_EQUAL(status, details::GJK::NoCollision);
 

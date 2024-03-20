@@ -708,7 +708,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
                          // return touch
     {
       assert(rl > 0);
-      status = Inside;
+      status = Collision;
       distance = -inflation;  // should we take rl into account ?
       break;
     }
@@ -791,7 +791,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       // TODO When inflation is strictly positive, the distance may be exactly
       // zero (so the ray is not zero) and we are not in the case rl <
       // tolerance.
-      if (distance < tolerance) status = Inside;
+      if (distance < tolerance) status = Collision;
       break;
     }
 
@@ -822,7 +822,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     current = next;
     if (!inside) rl = ray.norm();
     if (inside || rl == 0) {
-      status = Inside;
+      status = Collision;
       distance = -inflation;
       break;
     }

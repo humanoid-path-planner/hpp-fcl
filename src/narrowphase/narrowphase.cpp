@@ -497,7 +497,7 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
     dist = gjk.distance;
 
     return true;
-  } else if (gjk_status == details::GJK::Inside) {
+  } else if (gjk_status == details::GJK::Collision) {
     if (enable_penetration) {
       FCL_REAL penetrationDepth = details::computePenetration(
           t1.a, t1.b, t1.c, t2.a, t2.b, t2.c, normal);
