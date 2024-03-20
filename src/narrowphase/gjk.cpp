@@ -548,7 +548,7 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
 void GJK::initialize() {
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
   gjk_variant = GJKVariant::DefaultGJK;
-  convergence_criterion = GJKConvergenceCriterion::VDB;
+  convergence_criterion = GJKConvergenceCriterion::Default;
   convergence_criterion_type = GJKConvergenceCriterionType::Relative;
   reset(max_iterations, tolerance);
 }
@@ -838,71 +838,57 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 
 bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
                            const FCL_REAL& omega) {
-  FCL_REAL diff;
-  bool check_passed;
   // x^* is the optimal solution (projection of origin onto the Minkowski
   // difference).
   //  x^k is the current iterate (x^k = `ray` in the code).
   // Each criterion provides a different guarantee on the distance to the
   // optimal solution.
   switch (convergence_criterion) {
-    case VDB:
+    case Default: {
       // alpha is the distance to the best separating hyperplane found so far
       alpha = std::max(alpha, omega);
       // ||x^*|| - ||x^k|| <= diff
-      diff = rl - alpha;
-      switch (convergence_criterion_type) {
-        case Absolute:
-          HPP_FCL_THROW_PRETTY("VDB convergence criterion is relative.",
-                               std::logic_error);
-          break;
-        case Relative:
-          check_passed = (diff - (tolerance + tolerance * rl)) <= 0;
-          break;
-        default:
-          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
-                               std::logic_error);
-      }
-      break;
+      const FCL_REAL diff = rl - alpha;
+      return ((diff - (tolerance + tolerance * rl)) <= 0);
+    } break;
 
-    case DualityGap:
+    case DualityGap: {
       // ||x^* - x^k||^2 <= diff
-      diff = 2 * ray.dot(ray - w);
+      const FCL_REAL diff = 2 * ray.dot(ray - w);
       switch (convergence_criterion_type) {
         case Absolute:
-          check_passed = (diff - tolerance) <= 0;
+          return ((diff - tolerance) <= 0);
           break;
         case Relative:
-          check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
+          return (((diff / tolerance * rl) - tolerance * rl) <= 0);
           break;
         default:
           HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
                                std::logic_error);
       }
-      break;
+    } break;
 
-    case Hybrid:
+    case Hybrid: {
       // alpha is the distance to the best separating hyperplane found so far
       alpha = std::max(alpha, omega);
       // ||x^* - x^k||^2 <= diff
-      diff = rl * rl - alpha * alpha;
+      const FCL_REAL diff = rl * rl - alpha * alpha;
       switch (convergence_criterion_type) {
         case Absolute:
-          check_passed = (diff - tolerance) <= 0;
+          return ((diff - tolerance) <= 0);
           break;
         case Relative:
-          check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
+          return (((diff / tolerance * rl) - tolerance * rl) <= 0);
           break;
         default:
           HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
                                std::logic_error);
       }
-      break;
+    } break;
 
     default:
       HPP_FCL_THROW_PRETTY("Invalid convergence criterion.", std::logic_error);
   }
-  return check_passed;
 }
 
 inline void GJK::removeVertex(Simplex& simplex) {

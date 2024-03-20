@@ -53,9 +53,11 @@ using hpp::fcl::details::MinkowskiDiff;
 void exposeGJK() {
   if (!eigenpy::register_symbolic_link_to_registered_type<GJK::Status>()) {
     enum_<GJK::Status>("GJKStatus")
-        .value("NoCollision", GJK::NoCollision)
-        .value("Inside", GJK::Collision)
-        .value("Failed", GJK::Failed)
+        .value("Failed", GJK::Status::Failed)
+        .value("DidNotRun", GJK::Status::DidNotRun)
+        .value("NoCollision", GJK::Status::NoCollision)
+        .value("NoCollisionEarlyStopped", GJK::Status::NoCollisionEarlyStopped)
+        .value("Collision", GJK::Status::Collision)
         .export_values();
   }
 
@@ -103,7 +105,7 @@ void exposeGJK() {
   if (!eigenpy::register_symbolic_link_to_registered_type<
           GJKConvergenceCriterion>()) {
     enum_<GJKConvergenceCriterion>("GJKConvergenceCriterion")
-        .value("VDB", GJKConvergenceCriterion::VDB)
+        .value("Default", GJKConvergenceCriterion::Default)
         .value("DualityGap", GJKConvergenceCriterion::DualityGap)
         .value("Hybrid", GJKConvergenceCriterion::Hybrid)
         .export_values();

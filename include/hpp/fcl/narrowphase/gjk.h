@@ -164,17 +164,20 @@ struct HPP_FCL_DLLAPI GJK {
   };
 
   /// @brief Status of the GJK algorithm:
+  /// DidNotRun: GJK has not been run.
+  /// Failed: GJK did not converge (it exceeded the maximum number of
+  /// iterations).
+  /// NoCollisionEarlyStopped: GJK found a separating hyperplane and exited
+  ///     before converting. The shapes are not in collision.
   /// NoCollision: GJK converged and the shapes are not in collision.
   /// Collision: GJK converged and the shapes are in collision.
   /// Failed: GJK did not converge.
-  /// NoCollisionEarlyStopped: GJK found a separating hyperplane and exited
-  /// before converting. The shapes are not in collision.
   enum Status {
     DidNotRun,
     Failed,
+    NoCollisionEarlyStopped,
     NoCollision,
-    Collision,
-    NoCollisionEarlyStopped
+    Collision
   };
 
  public:

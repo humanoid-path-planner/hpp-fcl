@@ -89,7 +89,7 @@ enum GJKVariant { DefaultGJK, PolyakAcceleration, NesterovAcceleration };
 /// shapes are not in collision). (default) VDB: Van den Bergen (A Fast and
 /// Robust GJK Implementation, 1999) DG: duality-gap, as used in the Frank-Wolfe
 /// and the vanilla 1988 GJK algorithms Hybrid: a mix between VDB and DG.
-enum GJKConvergenceCriterion { VDB, DualityGap, Hybrid };
+enum GJKConvergenceCriterion { Default, DualityGap, Hybrid };
 
 /// @brief Wether the convergence criterion is scaled on the norm of the
 /// solution or not

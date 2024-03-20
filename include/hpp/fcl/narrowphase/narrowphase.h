@@ -539,7 +539,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
     // Default settings for GJK algorithm
     gjk.gjk_variant = GJKVariant::DefaultGJK;
-    gjk.convergence_criterion = GJKConvergenceCriterion::VDB;
+    gjk.convergence_criterion = GJKConvergenceCriterion::Default;
     gjk.convergence_criterion_type = GJKConvergenceCriterionType::Relative;
   }
 
