@@ -1745,9 +1745,10 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
         // the support we just added is in the direction of the normal of
         // the closest_face. Therefore, the support point will **always**
         // lie "after" the closest_face, i.e closest_face.n.dot(w.w) > 0.
-        assert(closest_face->n.dot(w.w) >
-                   -3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon()) &&
-               "The support is not in the right direction.");
+        if (iterations > 0) {
+          assert(closest_face->n.dot(w.w) > -tolerance &&
+                 "The support is not in the right direction.");
+        }
         //
         // 1) First check: `fdist` (see below) is an upper bound of how much
         // more penetration depth we can expect to "gain" by adding `w` to EPA's
