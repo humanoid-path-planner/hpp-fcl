@@ -414,7 +414,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon());
     HPP_FCL_UNUSED_VARIABLE(dummy_precision);
     HPP_FCL_ASSERT(
-        gjk.ray.norm() > gjk.getTolerance() + dummy_precision,
+        gjk.ray.norm() > gjk.getTolerance() - dummy_precision,
         "The norm of GJK's ray should be bigger than GJK's tolerance.",
         std::logic_error);
     normal.noalias() = -tf1.getRotation() * gjk.ray;
