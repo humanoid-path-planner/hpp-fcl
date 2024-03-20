@@ -199,8 +199,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
     }
     HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
-    static constexpr FCL_REAL dummy_precision =
-        std::numeric_limits<FCL_REAL>::epsilon() * 100;
+    const FCL_REAL dummy_precision =
+        3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon());
     HPP_FCL_UNUSED_VARIABLE(dummy_precision);
     switch (gjk.status) {
       case details::GJK::DidNotRun:
@@ -410,11 +410,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // In any case, `gjk.ray`'s norm is bigger than GJK's tolerance and thus
     // it can safely be normalized.
     distance = gjk.distance;
-    static constexpr FCL_REAL dummy_precision =
-        std::numeric_limits<FCL_REAL>::epsilon() * 100;
+    const FCL_REAL dummy_precision =
+        3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon());
     HPP_FCL_UNUSED_VARIABLE(dummy_precision);
     HPP_FCL_ASSERT(
-        gjk.ray.norm() > gjk.getTolerance() + dummy_precision,
+        gjk.ray.norm() > gjk.getTolerance() - dummy_precision,
         "The norm of GJK's ray should be bigger than GJK's tolerance.",
         std::logic_error);
     normal.noalias() = -tf1.getRotation() * gjk.ray;
@@ -441,8 +441,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                                  FCL_REAL& distance, Vec3f& p1,
                                                  Vec3f& p2,
                                                  Vec3f& normal) const {
-    static constexpr FCL_REAL dummy_precision =
-        std::numeric_limits<FCL_REAL>::epsilon() * 100;
+    const FCL_REAL dummy_precision =
+        3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon());
     HPP_FCL_UNUSED_VARIABLE(dummy_precision);
     HPP_FCL_ASSERT(gjk.distance <= gjk.getTolerance() + dummy_precision,
                    "The distance should be lower than GJK's tolerance.",
