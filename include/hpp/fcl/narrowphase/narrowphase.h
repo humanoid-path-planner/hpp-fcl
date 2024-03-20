@@ -219,7 +219,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                                     normal);
         gjk_and_epa_ran_successfully = false;
         break;
-      case details::GJK::EarlyStopped:
+      case details::GJK::NoCollisionEarlyStopped:
         //
         // Case where GJK early stopped because the distance was found to be
         // above the `distance_upper_bound`.
