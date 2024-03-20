@@ -53,7 +53,7 @@ using hpp::fcl::details::MinkowskiDiff;
 void exposeGJK() {
   if (!eigenpy::register_symbolic_link_to_registered_type<GJK::Status>()) {
     enum_<GJK::Status>("GJKStatus")
-        .value("Valid", GJK::Valid)
+        .value("NoCollision", GJK::NoCollision)
         .value("Inside", GJK::Inside)
         .value("Failed", GJK::Failed)
         .export_values();

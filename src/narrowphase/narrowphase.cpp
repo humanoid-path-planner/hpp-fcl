@@ -489,7 +489,7 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
 
   gjk.getClosestPoints(minkowski_difference, p1, p2);
 
-  if ((gjk_status == details::GJK::Valid) ||
+  if ((gjk_status == details::GJK::NoCollision) ||
       (gjk_status == details::GJK::Failed)) {
     // TODO On degenerated case, the closest point may be wrong
     // (i.e. an object face normal is colinear to gjk.ray

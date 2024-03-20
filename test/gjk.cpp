@@ -342,7 +342,7 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
   if (expect_collision)
     BOOST_CHECK_EQUAL(status, details::GJK::Inside);
   else
-    BOOST_CHECK_EQUAL(status, details::GJK::Valid);
+    BOOST_CHECK_EQUAL(status, details::GJK::NoCollision);
 
   Vec3f w0, w1;
   gjk.getClosestPoints(shape, w0, w1);
@@ -398,17 +398,18 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
   if (expect_collision)
     BOOST_CHECK_EQUAL(status, details::GJK::Inside);
   else {
-    BOOST_CHECK_EQUAL(status, details::GJK::Valid);
+    BOOST_CHECK_EQUAL(status, details::GJK::NoCollision);
 
     // Check that guess works as expected
     Vec3f guess = gjk.getGuessFromSimplex();
     details::GJK gjk2(3, 1e-6);
     details::GJK::Status status2 = gjk2.evaluate(shape, guess);
-    BOOST_CHECK_EQUAL(status2, details::GJK::Valid);
+    BOOST_CHECK_EQUAL(status2, details::GJK::NoCollision);
   }
 
   Vec3f w0, w1;
-  if (status == details::GJK::Valid || gjk.hasPenetrationInformation(shape)) {
+  if (status == details::GJK::NoCollision ||
+      gjk.hasPenetrationInformation(shape)) {
     gjk.getClosestPoints(shape, w0, w1);
   } else {
     details::EPA epa(64, 1e-6);

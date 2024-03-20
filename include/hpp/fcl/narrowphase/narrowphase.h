@@ -231,7 +231,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
                        "`distance_upper_bound`.",
                        std::logic_error);
         break;
-      case details::GJK::Valid:
+      case details::GJK::NoCollision:
         //
         // Case where GJK converged and proved that the shapes are not in
         // collision, i.e their distance is above GJK's tolerance (default

@@ -673,7 +673,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   free_v[3] = &store_v[3];
 
   nfree = 4;
-  status = Valid;
+  status = NoCollision;
   shape = &shape_;
   distance = 0.0;
   current = 0;
@@ -829,7 +829,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 
     status = ((++iterations) < max_iterations) ? status : Failed;
 
-  } while (status == Valid);
+  } while (status == NoCollision);
 
   simplex = &simplices[current];
   assert(simplex->rank > 0 && simplex->rank < 5);

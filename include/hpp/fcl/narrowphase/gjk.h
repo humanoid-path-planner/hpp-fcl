@@ -169,7 +169,7 @@ struct HPP_FCL_DLLAPI GJK {
   /// Failed: GJK did not converge.
   /// EarlyStopped: GJK found a separating hyperplane and exited before
   /// converting. The shapes are not in collision.
-  enum Status { DidNotRun, Failed, Valid, Inside, EarlyStopped };
+  enum Status { DidNotRun, Failed, NoCollision, Inside, EarlyStopped };
 
  public:
   FCL_REAL distance_upper_bound;
