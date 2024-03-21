@@ -82,7 +82,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
       if (normal != NULL) *normal = n;
       if (contact_points != NULL) *contact_points = 0.5 * (p1 + p2);
     }
-    return (gjk.status == details::GJK::Collision);
+    return (gjk.status == details::GJK::Collision ||
+            gjk.status == details::GJK::CollisionWithPenetrationInformation);
   }
 
   //// @brief intersection checking between one shape and a triangle with
@@ -106,7 +107,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
         runGJKAndEPA(s, tf1, tri, tf_1M2, distance, compute_penetration, p1, p2,
                      normal, relative_transformation_already_computed);
     HPP_FCL_UNUSED_VARIABLE(gjk_and_epa_ran_successfully);
-    return (gjk.status == details::GJK::Collision);
+    return (gjk.status == details::GJK::Collision ||
+            gjk.status == details::GJK::CollisionWithPenetrationInformation);
   }
 
   /// @brief distance computation between two shapes.
