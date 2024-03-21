@@ -260,11 +260,11 @@ struct HPP_FCL_DLLAPI GJK {
   inline Simplex* getSimplex() const { return simplex; }
 
   /// Tells whether the closest points are available.
-  bool hasClosestPoints() { return distance < distance_upper_bound; }
+  bool hasClosestPoints() const { return distance < distance_upper_bound; }
 
   /// Get the closest points on each object.
   /// @return true on success
-  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
+  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const;
 
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;
@@ -280,7 +280,7 @@ struct HPP_FCL_DLLAPI GJK {
   /// @brief Convergence check used to stop GJK when shapes are not in
   /// collision.
   bool checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
-                        const FCL_REAL& omega);
+                        const FCL_REAL& omega) const;
 
   /// @brief Get the max number of iterations of GJK.
   size_t getNumMaxIterations() const { return max_iterations; }

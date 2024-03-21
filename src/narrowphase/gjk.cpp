@@ -653,7 +653,8 @@ void inflate(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) {
 
 }  // namespace details
 
-bool GJK::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) {
+bool GJK::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0,
+                           Vec3f& w1) const {
   bool res = details::getClosestPoints(*simplex, w0, w1);
   if (!res) return false;
   details::inflate<true>(shape, w0, w1);
@@ -840,7 +841,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 }
 
 bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
-                           const FCL_REAL& omega) {
+                           const FCL_REAL& omega) const {
   // x^* is the optimal solution (projection of origin onto the Minkowski
   // difference).
   //  x^k is the current iterate (x^k = `ray` in the code).
