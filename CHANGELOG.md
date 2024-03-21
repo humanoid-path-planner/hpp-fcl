@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+- [API change] Renamed default convergence criterion from `VDB` to `Default` ([#556](https://github.com/humanoid-path-planner/hpp-fcl/pull/556))
+- Fixed EPA returning nans on cases where it could return an estimate of the normal and penetration depth. ([#556](https://github.com/humanoid-path-planner/hpp-fcl/pull/556))
 - Fixed too low tolerance in GJK/EPA asserts ([#554](https://github.com/humanoid-path-planner/hpp-fcl/pull/554))
 - Fixed `normal_and_nearest_points` test (no need to have Eigen 3.4) ([#553](https://github.com/humanoid-path-planner/hpp-fcl/pull/553))
 - [#549](https://github.com/humanoid-path-planner/hpp-fcl/pull/549)
