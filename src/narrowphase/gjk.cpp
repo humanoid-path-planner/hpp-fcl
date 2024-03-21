@@ -1119,6 +1119,7 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   next.rank = 4;                      \
   return true;
 
+  // clang-format off
   if (ba_aa <= 0) {                // if AB.AO >= 0 / a10
     if (-D.dot(a_cross_b) <= 0) {  // if ADB.AO >= 0 / a10.a3
       if (ba * da_ba + bd * ba_aa - bb * da_aa <=
@@ -1469,6 +1470,7 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
       }  // end of AD.AO >= 0
     }  // end of AC.AO >= 0
   }  // end of AB.AO >= 0
+  // clang-format on
 
 #undef REGION_INSIDE
   return false;
@@ -1529,60 +1531,6 @@ bool EPA::getEdgeDist(SimplexFace* face, const SimplexVertex& a,
   return false;
 }
 
-EPA::SimplexFace* EPA::createInitialPolytopeFace(size_t id_a, size_t id_b,
-                                                 size_t id_c) {
-  if (stock.root != nullptr) {
-    SimplexFace* face = stock.root;
-    stock.remove(face);
-    hull.append(face);
-    face->pass = 0;
-    face->vertex_id[0] = id_a;
-    face->vertex_id[1] = id_b;
-    face->vertex_id[2] = id_c;
-    const SimplexVertex& a = sv_store[id_a];
-    const SimplexVertex& b = sv_store[id_b];
-    const SimplexVertex& c = sv_store[id_c];
-    face->n = (b.w - a.w).cross(c.w - a.w);
-
-    if (face->n.norm() > Eigen::NumTraits<FCL_REAL>::epsilon()) {
-      face->n.normalize();
-      // When creating the original polytope out of GJK's simplex,
-      // it's possible the origin lies outside the polytope.
-      // This is fine, but to check if the origin lies inside/outside the face,
-      // we simply need to do it in the right direction.
-      Vec3f n = face->n;
-      if (face->n.dot(a.w) < -tolerance ||  //
-          face->n.dot(b.w) < -tolerance ||  //
-          face->n.dot(c.w) < -tolerance) {
-        n = -face->n;
-      }
-
-      FCL_REAL a_dot_nab = a.w.dot((b.w - a.w).cross(n));
-      FCL_REAL b_dot_nbc = b.w.dot((c.w - b.w).cross(n));
-      FCL_REAL c_dot_nca = c.w.dot((a.w - c.w).cross(n));
-      if (!(a_dot_nab < -tolerance ||  //
-            b_dot_nbc < -tolerance ||  //
-            c_dot_nca < -tolerance)) {
-        face->d = a.w.dot(face->n);
-        face->ignore = false;
-      } else {
-        face->d = std::numeric_limits<FCL_REAL>::max();
-        face->ignore = true;
-      }
-      return face;
-    } else
-      status = Degenerated;
-
-    hull.remove(face);
-    stock.append(face);
-    return nullptr;
-  }
-
-  assert(hull.count >= fc_store.size() && "EPA: should not be out of faces.");
-  status = OutOfFaces;
-  return nullptr;
-}
-
 EPA::SimplexFace* EPA::newFace(size_t id_a, size_t id_b, size_t id_c) {
   if (stock.root != nullptr) {
     SimplexFace* face = stock.root;
@@ -1606,9 +1554,9 @@ EPA::SimplexFace* EPA::newFace(size_t id_a, size_t id_b, size_t id_c) {
       FCL_REAL a_dot_nab = a.w.dot((b.w - a.w).cross(face->n));
       FCL_REAL b_dot_nbc = b.w.dot((c.w - b.w).cross(face->n));
       FCL_REAL c_dot_nca = c.w.dot((a.w - c.w).cross(face->n));
-      if (!(a_dot_nab < -tolerance ||  //
-            b_dot_nbc < -tolerance ||  //
-            c_dot_nca < -tolerance)) {
+      if (a_dot_nab >= -tolerance &&  //
+          b_dot_nbc >= -tolerance &&  //
+          c_dot_nca >= -tolerance) {
         face->d = a.w.dot(face->n);
         face->ignore = false;
       } else {
@@ -1686,10 +1634,10 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
       sv_store[num_vertices++] = *simplex.vertex[i];
     }
 
-    SimplexFace* tetrahedron[] = {createInitialPolytopeFace(0, 1, 2),  //
-                                  createInitialPolytopeFace(1, 0, 3),  //
-                                  createInitialPolytopeFace(2, 1, 3),  //
-                                  createInitialPolytopeFace(0, 2, 3)};
+    SimplexFace* tetrahedron[] = {newFace(0, 1, 2),  //
+                                  newFace(1, 0, 3),  //
+                                  newFace(2, 1, 3),  //
+                                  newFace(0, 2, 3)};
 
     if (hull.count == 4) {
       // set the face connectivity

@@ -512,12 +512,6 @@ struct HPP_FCL_DLLAPI EPA {
   bool getEdgeDist(SimplexFace* face, const SimplexVertex& a,
                    const SimplexVertex& b, FCL_REAL& dist);
 
-  /// @brief Add a new face to the polytope; used at the beginning of EPA.
-  /// Note: sometimes the origin can be located outside EPA's starting polytope.
-  /// This is fine, we simply make sure to compute quantities in the right
-  /// normal direction to set the `ignore` flag correctly.
-  SimplexFace* createInitialPolytopeFace(size_t id_a, size_t id_b, size_t id_c);
-
   /// @brief Add a new face to the polytope.
   /// This function sets the `ignore` flag to `true` if the origin does not
   /// project inside the face.
