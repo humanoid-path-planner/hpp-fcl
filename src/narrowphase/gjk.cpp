@@ -1816,9 +1816,7 @@ bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
     // Uncomment the following line and the associated EPA method
     // to debug the infinite loop if needed.
     // EPAPrintExpandLooping(this, f);
-    if (f == closest_face) {
-      assert(false && "EPA is looping indefinitely.");
-    }
+    assert(f != closest_face && "EPA is looping indefinitely.");
     status = InvalidHull;
     return false;
   }
