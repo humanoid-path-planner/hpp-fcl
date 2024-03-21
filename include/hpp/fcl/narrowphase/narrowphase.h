@@ -420,6 +420,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                                  FCL_REAL& distance, Vec3f& p1,
                                                  Vec3f& p2,
                                                  Vec3f& normal) const {
+    HPP_FCL_UNUSED_VARIABLE(tf1);
     const FCL_REAL dummy_precision =
         3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon());
     HPP_FCL_UNUSED_VARIABLE(dummy_precision);
