@@ -177,6 +177,7 @@ struct HPP_FCL_DLLAPI GJK {
     Failed,
     NoCollisionEarlyStopped,
     NoCollision,
+    CollisionWithPenetrationInformation,
     Collision
   };
 
@@ -260,14 +261,6 @@ struct HPP_FCL_DLLAPI GJK {
 
   /// Tells whether the closest points are available.
   bool hasClosestPoints() { return distance < distance_upper_bound; }
-
-  /// Tells whether the penetration information.
-  ///
-  /// In such case, most indepth points and penetration depth can be retrieved
-  /// from GJK. Calling EPA has an undefined behaviour.
-  bool hasPenetrationInformation(const MinkowskiDiff& shape) {
-    return distance > -shape.inflation.sum();
-  }
 
   /// Get the closest points on each object.
   /// @return true on success

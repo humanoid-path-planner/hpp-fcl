@@ -57,6 +57,8 @@ void exposeGJK() {
         .value("DidNotRun", GJK::Status::DidNotRun)
         .value("NoCollision", GJK::Status::NoCollision)
         .value("NoCollisionEarlyStopped", GJK::Status::NoCollisionEarlyStopped)
+        .value("CollisionWithPenetrationInformation",
+               GJK::Status::CollisionWithPenetrationInformation)
         .value("Collision", GJK::Status::Collision)
         .export_values();
   }
@@ -135,7 +137,6 @@ void exposeGJK() {
         .DEF_CLASS_FUNC(GJK, getNumIterations)
         .DEF_CLASS_FUNC(GJK, getNumIterationsMomentumStopped)
         .DEF_CLASS_FUNC(GJK, hasClosestPoints)
-        .DEF_CLASS_FUNC(GJK, hasPenetrationInformation)
         .DEF_CLASS_FUNC(GJK, getClosestPoints)
         .DEF_CLASS_FUNC(GJK, setDistanceEarlyBreak)
         .DEF_CLASS_FUNC(GJK, getGuessFromSimplex);

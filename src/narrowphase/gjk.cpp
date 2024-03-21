@@ -700,13 +700,14 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     Simplex& next_simplex = simplices[next];
 
     // check A: when origin is near the existing simplex, stop
-    // TODO this is an early stop which may cause the following issue.
-    // - EPA will not run correctly because it starts with a tetrahedron which
-    //   does not include the origin. Note that, at this stage, we do not know
-    //   whether a tetrahedron including the origin exists.
     if (rl < tolerance)  // mean origin is near the face of original simplex,
                          // return touch
     {
+      // At this point, GJK has converged but we don't know if GJK is enough to
+      // recover penetration information.
+      // EPA needs to be run.
+      // Unless the Minkowski difference is degenerated, EPA will run fine even
+      // if the final simplex of GJK is not a tetrahedron.
       assert(rl > 0);
       status = Collision;
       distance = -inflation;  // should we take rl into account ?
@@ -777,9 +778,6 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     // check C: when the new support point is close to the sub-simplex where the
     // ray point lies, stop (as the new simplex again is degenerated)
     bool cv_check_passed = checkConvergence(w, rl, alpha, omega);
-    // TODO here, we can stop at iteration 0 if this condition is met.
-    // We stopping at iteration 0, the closest point will not be valid.
-    // if(diff - tolerance * rl <= 0)
     if (iterations > 0 && cv_check_passed) {
       if (iterations > 0) removeVertex(simplices[current]);
       if (current_gjk_variant != DefaultGJK) {
@@ -787,11 +785,16 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         iterations_momentum_stop = iterations;
         continue;
       }
-      distance = rl - inflation;
       // TODO When inflation is strictly positive, the distance may be exactly
       // zero (so the ray is not zero) and we are not in the case rl <
       // tolerance.
-      if (distance < tolerance) status = Collision;
+
+      // At this point, GJK has converged and penetration information can always
+      // be recovered without running EPA.
+      distance = rl - inflation;
+      if (distance < tolerance) {
+        status = CollisionWithPenetrationInformation;
+      }
       break;
     }
 

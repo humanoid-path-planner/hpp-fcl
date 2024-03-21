@@ -244,126 +244,115 @@ struct HPP_FCL_DLLAPI GJKSolver {
                        "distance between the closest points.",
                        std::logic_error);
         break;
+      //
+      // Next are the cases where GJK found the shapes to be in collision, i.e.
+      // their distance is below GJK's tolerance (default 1e-6).
+      case details::GJK::CollisionWithPenetrationInformation:
+        GJKCollisionWithPenetrationInfoExtractWitnessPointsAndNormal(
+            tf1, distance, p1, p2, normal);
+        HPP_FCL_ASSERT(distance <= gjk.getTolerance() + dummy_precision,
+                       "The distance found by GJK should be negative (or at )"
+                       "least below GJK's tolerance.",
+                       std::logic_error);
+        break;
       case details::GJK::Collision:
-        //
-        // Case where GJK found the shapes to be in collision, i.e. their
-        // distance is below GJK's tolerance (default 1e-6).
-        if (gjk.hasPenetrationInformation(minkowski_difference)) {
-          //
-          // Case where the shapes are inflated (sphere or capsule).
-          // When the shapes are inflated, the GJK algorithm can provide the
-          // witness points and the normal.
-          GJKCollisionWithInflationExtractWitnessPointsAndNormal(
-              tf1, distance, p1, p2, normal);
-          HPP_FCL_ASSERT(distance <= gjk.getTolerance() + dummy_precision,
-                         "The distance found by GJK should be negative (or at )"
-                         "least below GJK's tolerance.",
-                         std::logic_error);
-          // + because the distance is negative.
-          HPP_FCL_ASSERT(std::abs((p1 - p2).norm() + distance) <=
-                             gjk.getTolerance() + dummy_precision,
-                         "The distance found by GJK should coincide with the "
-                         "distance between the closest points.",
-                         std::logic_error);
+        if (!compute_penetration) {
+          // Skip EPA and set the witness points and the normal to nans.
+          GJKCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
         } else {
-          if (!compute_penetration) {
-            GJKCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                      normal);
-          } else {
+          //
+          // Case where the shapes are not inflated (box, cylinder, cone,
+          // convex meshes etc.). We need to run the EPA algorithm to find the
+          // witness points, penetration depth and the normal.
+
+          // Reset EPA algorithm. Potentially allocate memory if
+          // `epa_max_face_num` or `epa_max_vertex_num` are bigger than EPA's
+          // current storage.
+          epa.reset(epa_max_iterations, epa_tolerance);
+
+          // TODO: understand why EPA's performance is so bad on cylinders and
+          // cones.
+          epa.evaluate(gjk, -guess);
+
+          switch (epa.status) {
             //
-            // Case where the shapes are not inflated (box, cylinder, cone,
-            // convex meshes etc.). We need to run the EPA algorithm to find the
-            // witness points, penetration depth and the normal.
-
-            // Reset EPA algorithm. Potentially allocate memory if
-            // `epa_max_face_num` or `epa_max_vertex_num` are bigger than EPA's
-            // current storage.
-            epa.reset(epa_max_iterations, epa_tolerance);
-
-            // TODO: understand why EPA's performance is so bad on cylinders and
-            // cones.
-            epa.evaluate(gjk, -guess);
-
-            switch (epa.status) {
-              //
-              // In the following switch cases, until the "Valid" case,
-              // EPA either ran out of iterations, of faces or of vertices.
-              // The depth, witness points and the normal are still valid,
-              // simply not at the precision of EPA's tolerance.
-              // The flag `HPP_FCL_ENABLE_LOGGING` enables feebdack on these
-              // cases.
-              //
-              // TODO: Remove OutOfFaces and OutOfVertices statuses and simply
-              // compute the upper bound on max faces and max vertices as a
-              // function of the number of iterations.
-              case details::EPA::OutOfFaces:
-                HPP_FCL_LOG_WARNING("EPA ran out of faces.");
-                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                      normal);
-                gjk_and_epa_ran_successfully = false;
-                break;
-              case details::EPA::OutOfVertices:
-                HPP_FCL_LOG_WARNING("EPA ran out of vertices.");
-                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                      normal);
-                gjk_and_epa_ran_successfully = false;
-                break;
-              case details::EPA::Failed:
-                HPP_FCL_LOG_WARNING("EPA ran out of iterations.");
-                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                      normal);
-                gjk_and_epa_ran_successfully = false;
-                break;
-              case details::EPA::Valid:
-              case details::EPA::AccuracyReached:
-                HPP_FCL_ASSERT(
-                    -epa.depth <= epa.getTolerance() + dummy_precision,
-                    "EPA's penetration distance should be negative (or "
-                    "at least below EPA's tolerance).",
-                    std::logic_error);
-                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                      normal);
-                break;
-              case details::EPA::Degenerated:
-                HPP_FCL_LOG_WARNING(
-                    "EPA warning: created a polytope with a degenerated face.");
-                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                      normal);
-                gjk_and_epa_ran_successfully = true;
-                break;
-              case details::EPA::NonConvex:
-                HPP_FCL_LOG_WARNING(
-                    "EPA warning: EPA got called onto non-convex shapes.");
-                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                      normal);
-                gjk_and_epa_ran_successfully = true;
-                break;
-              case details::EPA::InvalidHull:
-                HPP_FCL_LOG_WARNING(
-                    "EPA warning: created an invalid polytope.");
-                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                      normal);
-                gjk_and_epa_ran_successfully = true;
-                break;
-              case details::EPA::DidNotRun:
-                HPP_FCL_ASSERT(false, "EPA did not run. It should have!",
-                               std::logic_error);
-                HPP_FCL_LOG_ERROR("EPA error: did not run. It should have.");
-                EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                       normal);
-                gjk_and_epa_ran_successfully = false;
-                break;
-              case details::EPA::FallBack:
-                HPP_FCL_ASSERT(
-                    false,
-                    "EPA went into fallback mode. It should never do that.",
-                    std::logic_error);
-                HPP_FCL_LOG_ERROR("EPA error: FallBack.");
-                EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                       normal);
-                gjk_and_epa_ran_successfully = false;
-                break;
-            }
+            // In the following switch cases, until the "Valid" case,
+            // EPA either ran out of iterations, of faces or of vertices.
+            // The depth, witness points and the normal are still valid,
+            // simply not at the precision of EPA's tolerance.
+            // The flag `HPP_FCL_ENABLE_LOGGING` enables feebdack on these
+            // cases.
+            //
+            // TODO: Remove OutOfFaces and OutOfVertices statuses and simply
+            // compute the upper bound on max faces and max vertices as a
+            // function of the number of iterations.
+            case details::EPA::OutOfFaces:
+              HPP_FCL_LOG_WARNING("EPA ran out of faces.");
+              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+            case details::EPA::OutOfVertices:
+              HPP_FCL_LOG_WARNING("EPA ran out of vertices.");
+              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+            case details::EPA::Failed:
+              HPP_FCL_LOG_WARNING("EPA ran out of iterations.");
+              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+            case details::EPA::Valid:
+            case details::EPA::AccuracyReached:
+              HPP_FCL_ASSERT(
+                  -epa.depth <= epa.getTolerance() + dummy_precision,
+                  "EPA's penetration distance should be negative (or "
+                  "at least below EPA's tolerance).",
+                  std::logic_error);
+              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+              break;
+            case details::EPA::Degenerated:
+              HPP_FCL_LOG_WARNING(
+                  "EPA warning: created a polytope with a degenerated face.");
+              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+              gjk_and_epa_ran_successfully = true;
+              break;
+            case details::EPA::NonConvex:
+              HPP_FCL_LOG_WARNING(
+                  "EPA warning: EPA got called onto non-convex shapes.");
+              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+              gjk_and_epa_ran_successfully = true;
+              break;
+            case details::EPA::InvalidHull:
+              HPP_FCL_LOG_WARNING("EPA warning: created an invalid polytope.");
+              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                    normal);
+              gjk_and_epa_ran_successfully = true;
+              break;
+            case details::EPA::DidNotRun:
+              HPP_FCL_ASSERT(false, "EPA did not run. It should have!",
+                             std::logic_error);
+              HPP_FCL_LOG_ERROR("EPA error: did not run. It should have.");
+              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                     normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
+            case details::EPA::FallBack:
+              HPP_FCL_ASSERT(
+                  false,
+                  "EPA went into fallback mode. It should never do that.",
+                  std::logic_error);
+              HPP_FCL_LOG_ERROR("EPA error: FallBack.");
+              EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                     normal);
+              gjk_and_epa_ran_successfully = false;
+              break;
           }
         }
         break;  // End of case details::GJK::Inside
@@ -416,7 +405,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     p2 = tf1.transform(p2);
   }
 
-  void GJKCollisionWithInflationExtractWitnessPointsAndNormal(
+  void GJKCollisionWithPenetrationInfoExtractWitnessPointsAndNormal(
       const Transform3f& tf1, FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
       Vec3f& normal) const {
     distance = gjk.distance;
@@ -439,9 +428,8 @@ struct HPP_FCL_DLLAPI GJKSolver {
                    std::logic_error);
     distance = gjk.distance;
     gjk.getClosestPoints(minkowski_difference, p1, p2);
-    p1 = tf1.transform(p1);
-    p2 = tf1.transform(p2);
-    normal = Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+    p1 = p2 = normal =
+        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
   }
 
   void EPAValidExtractWitnessPointsAndNormal(const Transform3f& tf1,
