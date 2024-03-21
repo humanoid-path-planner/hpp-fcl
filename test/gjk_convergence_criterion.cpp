@@ -64,11 +64,12 @@ BOOST_AUTO_TEST_CASE(set_cv_criterion) {
   GJK gjk(128, 1e-6);
 
   // Checking defaults
-  BOOST_CHECK(solver.gjk.convergence_criterion == GJKConvergenceCriterion::VDB);
+  BOOST_CHECK(solver.gjk.convergence_criterion ==
+              GJKConvergenceCriterion::Default);
   BOOST_CHECK(solver.gjk.convergence_criterion_type ==
               GJKConvergenceCriterionType::Relative);
 
-  BOOST_CHECK(gjk.convergence_criterion == GJKConvergenceCriterion::VDB);
+  BOOST_CHECK(gjk.convergence_criterion == GJKConvergenceCriterion::Default);
   BOOST_CHECK(gjk.convergence_criterion_type ==
               GJKConvergenceCriterionType::Relative);
 

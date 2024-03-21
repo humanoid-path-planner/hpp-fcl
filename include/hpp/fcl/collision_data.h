@@ -201,7 +201,8 @@ struct HPP_FCL_DLLAPI QueryRequest {
   /// @brief max number of iterations for EPA
   size_t epa_max_iterations;
 
-  /// @brief tolerance for EPA
+  /// @brief tolerance for EPA.
+  /// Note: setting EPA's tolerance to less than GJK's is not recommended.
   FCL_REAL epa_tolerance;
 
   /// @brief enable timings when performing collision/distance request
@@ -221,7 +222,7 @@ struct HPP_FCL_DLLAPI QueryRequest {
         gjk_max_iterations(GJK_DEFAULT_MAX_ITERATIONS),
         gjk_tolerance(GJK_DEFAULT_TOLERANCE),
         gjk_variant(GJKVariant::DefaultGJK),
-        gjk_convergence_criterion(GJKConvergenceCriterion::VDB),
+        gjk_convergence_criterion(GJKConvergenceCriterion::Default),
         gjk_convergence_criterion_type(GJKConvergenceCriterionType::Relative),
         epa_max_iterations(EPA_DEFAULT_MAX_ITERATIONS),
         epa_tolerance(EPA_DEFAULT_TOLERANCE),

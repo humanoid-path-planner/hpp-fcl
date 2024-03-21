@@ -164,12 +164,22 @@ struct HPP_FCL_DLLAPI GJK {
   };
 
   /// @brief Status of the GJK algorithm:
-  /// Valid: GJK converged and the shapes are not in collision.
-  /// Inside: GJK converged and the shapes are in collision.
+  /// DidNotRun: GJK has not been run.
+  /// Failed: GJK did not converge (it exceeded the maximum number of
+  /// iterations).
+  /// NoCollisionEarlyStopped: GJK found a separating hyperplane and exited
+  ///     before converting. The shapes are not in collision.
+  /// NoCollision: GJK converged and the shapes are not in collision.
+  /// Collision: GJK converged and the shapes are in collision.
   /// Failed: GJK did not converge.
-  /// EarlyStopped: GJK found a separating hyperplane and exited before
-  /// converting. The shapes are not in collision.
-  enum Status { DidNotRun, Failed, Valid, Inside, EarlyStopped };
+  enum Status {
+    DidNotRun,
+    Failed,
+    NoCollisionEarlyStopped,
+    NoCollision,
+    CollisionWithPenetrationInformation,
+    Collision
+  };
 
  public:
   FCL_REAL distance_upper_bound;
@@ -250,19 +260,11 @@ struct HPP_FCL_DLLAPI GJK {
   inline Simplex* getSimplex() const { return simplex; }
 
   /// Tells whether the closest points are available.
-  bool hasClosestPoints() { return distance < distance_upper_bound; }
-
-  /// Tells whether the penetration information.
-  ///
-  /// In such case, most indepth points and penetration depth can be retrieved
-  /// from GJK. Calling EPA has an undefined behaviour.
-  bool hasPenetrationInformation(const MinkowskiDiff& shape) {
-    return distance > -shape.inflation.sum();
-  }
+  bool hasClosestPoints() const { return distance < distance_upper_bound; }
 
   /// Get the closest points on each object.
   /// @return true on success
-  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1);
+  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const;
 
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;
@@ -278,7 +280,7 @@ struct HPP_FCL_DLLAPI GJK {
   /// @brief Convergence check used to stop GJK when shapes are not in
   /// collision.
   bool checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
-                        const FCL_REAL& omega);
+                        const FCL_REAL& omega) const;
 
   /// @brief Get the max number of iterations of GJK.
   size_t getNumMaxIterations() const { return max_iterations; }
@@ -502,12 +504,6 @@ struct HPP_FCL_DLLAPI EPA {
 
   bool getEdgeDist(SimplexFace* face, const SimplexVertex& a,
                    const SimplexVertex& b, FCL_REAL& dist);
-
-  /// @brief Add a new face to the polytope; used at the beginning of EPA.
-  /// Note: sometimes the origin can be located outside EPA's starting polytope.
-  /// This is fine, we simply make sure to compute quantities in the right
-  /// normal direction to set the `ignore` flag correctly.
-  SimplexFace* createInitialPolytopeFace(size_t id_a, size_t id_b, size_t id_c);
 
   /// @brief Add a new face to the polytope.
   /// This function sets the `ignore` flag to `true` if the origin does not

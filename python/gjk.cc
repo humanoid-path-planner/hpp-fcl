@@ -53,9 +53,13 @@ using hpp::fcl::details::MinkowskiDiff;
 void exposeGJK() {
   if (!eigenpy::register_symbolic_link_to_registered_type<GJK::Status>()) {
     enum_<GJK::Status>("GJKStatus")
-        .value("Valid", GJK::Valid)
-        .value("Inside", GJK::Inside)
-        .value("Failed", GJK::Failed)
+        .value("Failed", GJK::Status::Failed)
+        .value("DidNotRun", GJK::Status::DidNotRun)
+        .value("NoCollision", GJK::Status::NoCollision)
+        .value("NoCollisionEarlyStopped", GJK::Status::NoCollisionEarlyStopped)
+        .value("CollisionWithPenetrationInformation",
+               GJK::Status::CollisionWithPenetrationInformation)
+        .value("Collision", GJK::Status::Collision)
         .export_values();
   }
 
@@ -103,7 +107,7 @@ void exposeGJK() {
   if (!eigenpy::register_symbolic_link_to_registered_type<
           GJKConvergenceCriterion>()) {
     enum_<GJKConvergenceCriterion>("GJKConvergenceCriterion")
-        .value("VDB", GJKConvergenceCriterion::VDB)
+        .value("Default", GJKConvergenceCriterion::Default)
         .value("DualityGap", GJKConvergenceCriterion::DualityGap)
         .value("Hybrid", GJKConvergenceCriterion::Hybrid)
         .export_values();
@@ -133,7 +137,6 @@ void exposeGJK() {
         .DEF_CLASS_FUNC(GJK, getNumIterations)
         .DEF_CLASS_FUNC(GJK, getNumIterationsMomentumStopped)
         .DEF_CLASS_FUNC(GJK, hasClosestPoints)
-        .DEF_CLASS_FUNC(GJK, hasPenetrationInformation)
         .DEF_CLASS_FUNC(GJK, getClosestPoints)
         .DEF_CLASS_FUNC(GJK, setDistanceEarlyBreak)
         .DEF_CLASS_FUNC(GJK, getGuessFromSimplex);

@@ -489,7 +489,7 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
 
   gjk.getClosestPoints(minkowski_difference, p1, p2);
 
-  if ((gjk_status == details::GJK::Valid) ||
+  if ((gjk_status == details::GJK::NoCollision) ||
       (gjk_status == details::GJK::Failed)) {
     // TODO On degenerated case, the closest point may be wrong
     // (i.e. an object face normal is colinear to gjk.ray
@@ -497,7 +497,7 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
     dist = gjk.distance;
 
     return true;
-  } else if (gjk_status == details::GJK::Inside) {
+  } else if (gjk_status == details::GJK::Collision) {
     if (enable_penetration) {
       FCL_REAL penetrationDepth = details::computePenetration(
           t1.a, t1.b, t1.c, t2.a, t2.b, t2.c, normal);

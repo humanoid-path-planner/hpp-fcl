@@ -548,7 +548,7 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
 void GJK::initialize() {
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
   gjk_variant = GJKVariant::DefaultGJK;
-  convergence_criterion = GJKConvergenceCriterion::VDB;
+  convergence_criterion = GJKConvergenceCriterion::Default;
   convergence_criterion_type = GJKConvergenceCriterionType::Relative;
   reset(max_iterations, tolerance);
 }
@@ -653,7 +653,8 @@ void inflate(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) {
 
 }  // namespace details
 
-bool GJK::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) {
+bool GJK::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0,
+                           Vec3f& w1) const {
   bool res = details::getClosestPoints(*simplex, w0, w1);
   if (!res) return false;
   details::inflate<true>(shape, w0, w1);
@@ -673,7 +674,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   free_v[3] = &store_v[3];
 
   nfree = 4;
-  status = Valid;
+  status = NoCollision;
   shape = &shape_;
   distance = 0.0;
   current = 0;
@@ -700,15 +701,16 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     Simplex& next_simplex = simplices[next];
 
     // check A: when origin is near the existing simplex, stop
-    // TODO this is an early stop which may cause the following issue.
-    // - EPA will not run correctly because it starts with a tetrahedron which
-    //   does not include the origin. Note that, at this stage, we do not know
-    //   whether a tetrahedron including the origin exists.
     if (rl < tolerance)  // mean origin is near the face of original simplex,
                          // return touch
     {
+      // At this point, GJK has converged but we don't know if GJK is enough to
+      // recover penetration information.
+      // EPA needs to be run.
+      // Unless the Minkowski difference is degenerated, EPA will run fine even
+      // if the final simplex of GJK is not a tetrahedron.
       assert(rl > 0);
-      status = Inside;
+      status = Collision;
       distance = -inflation;  // should we take rl into account ?
       break;
     }
@@ -759,7 +761,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     FCL_REAL omega = dir.dot(w) / dir.norm();
     if (omega > upper_bound) {
       distance = omega - inflation;
-      status = EarlyStopped;
+      status = NoCollisionEarlyStopped;
       break;
     }
 
@@ -777,9 +779,6 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     // check C: when the new support point is close to the sub-simplex where the
     // ray point lies, stop (as the new simplex again is degenerated)
     bool cv_check_passed = checkConvergence(w, rl, alpha, omega);
-    // TODO here, we can stop at iteration 0 if this condition is met.
-    // We stopping at iteration 0, the closest point will not be valid.
-    // if(diff - tolerance * rl <= 0)
     if (iterations > 0 && cv_check_passed) {
       if (iterations > 0) removeVertex(simplices[current]);
       if (current_gjk_variant != DefaultGJK) {
@@ -787,11 +786,16 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         iterations_momentum_stop = iterations;
         continue;
       }
-      distance = rl - inflation;
       // TODO When inflation is strictly positive, the distance may be exactly
       // zero (so the ray is not zero) and we are not in the case rl <
       // tolerance.
-      if (distance < tolerance) status = Inside;
+
+      // At this point, GJK has converged and penetration information can always
+      // be recovered without running EPA.
+      distance = rl - inflation;
+      if (distance < tolerance) {
+        status = CollisionWithPenetrationInformation;
+      }
       break;
     }
 
@@ -822,14 +826,14 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     current = next;
     if (!inside) rl = ray.norm();
     if (inside || rl == 0) {
-      status = Inside;
+      status = Collision;
       distance = -inflation;
       break;
     }
 
     status = ((++iterations) < max_iterations) ? status : Failed;
 
-  } while (status == Valid);
+  } while (status == NoCollision);
 
   simplex = &simplices[current];
   assert(simplex->rank > 0 && simplex->rank < 5);
@@ -837,72 +841,58 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 }
 
 bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
-                           const FCL_REAL& omega) {
-  FCL_REAL diff;
-  bool check_passed;
+                           const FCL_REAL& omega) const {
   // x^* is the optimal solution (projection of origin onto the Minkowski
   // difference).
   //  x^k is the current iterate (x^k = `ray` in the code).
   // Each criterion provides a different guarantee on the distance to the
   // optimal solution.
   switch (convergence_criterion) {
-    case VDB:
+    case Default: {
       // alpha is the distance to the best separating hyperplane found so far
       alpha = std::max(alpha, omega);
       // ||x^*|| - ||x^k|| <= diff
-      diff = rl - alpha;
-      switch (convergence_criterion_type) {
-        case Absolute:
-          HPP_FCL_THROW_PRETTY("VDB convergence criterion is relative.",
-                               std::logic_error);
-          break;
-        case Relative:
-          check_passed = (diff - (tolerance + tolerance * rl)) <= 0;
-          break;
-        default:
-          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
-                               std::logic_error);
-      }
-      break;
+      const FCL_REAL diff = rl - alpha;
+      return ((diff - (tolerance + tolerance * rl)) <= 0);
+    } break;
 
-    case DualityGap:
+    case DualityGap: {
       // ||x^* - x^k||^2 <= diff
-      diff = 2 * ray.dot(ray - w);
+      const FCL_REAL diff = 2 * ray.dot(ray - w);
       switch (convergence_criterion_type) {
         case Absolute:
-          check_passed = (diff - tolerance) <= 0;
+          return ((diff - tolerance) <= 0);
           break;
         case Relative:
-          check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
+          return (((diff / tolerance * rl) - tolerance * rl) <= 0);
           break;
         default:
           HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
                                std::logic_error);
       }
-      break;
+    } break;
 
-    case Hybrid:
+    case Hybrid: {
       // alpha is the distance to the best separating hyperplane found so far
       alpha = std::max(alpha, omega);
       // ||x^* - x^k||^2 <= diff
-      diff = rl * rl - alpha * alpha;
+      const FCL_REAL diff = rl * rl - alpha * alpha;
       switch (convergence_criterion_type) {
         case Absolute:
-          check_passed = (diff - tolerance) <= 0;
+          return ((diff - tolerance) <= 0);
           break;
         case Relative:
-          check_passed = ((diff / tolerance * rl) - tolerance * rl) <= 0;
+          return (((diff / tolerance * rl) - tolerance * rl) <= 0);
           break;
         default:
           HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
                                std::logic_error);
       }
-      break;
+    } break;
 
     default:
       HPP_FCL_THROW_PRETTY("Invalid convergence criterion.", std::logic_error);
   }
-  return check_passed;
 }
 
 inline void GJK::removeVertex(Simplex& simplex) {
@@ -1133,6 +1123,7 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   next.rank = 4;                      \
   return true;
 
+  // clang-format off
   if (ba_aa <= 0) {                // if AB.AO >= 0 / a10
     if (-D.dot(a_cross_b) <= 0) {  // if ADB.AO >= 0 / a10.a3
       if (ba * da_ba + bd * ba_aa - bb * da_aa <=
@@ -1483,6 +1474,7 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
       }  // end of AD.AO >= 0
     }  // end of AC.AO >= 0
   }  // end of AB.AO >= 0
+  // clang-format on
 
 #undef REGION_INSIDE
   return false;
@@ -1543,60 +1535,6 @@ bool EPA::getEdgeDist(SimplexFace* face, const SimplexVertex& a,
   return false;
 }
 
-EPA::SimplexFace* EPA::createInitialPolytopeFace(size_t id_a, size_t id_b,
-                                                 size_t id_c) {
-  if (stock.root != nullptr) {
-    SimplexFace* face = stock.root;
-    stock.remove(face);
-    hull.append(face);
-    face->pass = 0;
-    face->vertex_id[0] = id_a;
-    face->vertex_id[1] = id_b;
-    face->vertex_id[2] = id_c;
-    const SimplexVertex& a = sv_store[id_a];
-    const SimplexVertex& b = sv_store[id_b];
-    const SimplexVertex& c = sv_store[id_c];
-    face->n = (b.w - a.w).cross(c.w - a.w);
-
-    if (face->n.norm() > Eigen::NumTraits<FCL_REAL>::epsilon()) {
-      face->n.normalize();
-      // When creating the original polytope out of GJK's simplex,
-      // it's possible the origin lies outside the polytope.
-      // This is fine, but to check if the origin lies inside/outside the face,
-      // we simply need to do it in the right direction.
-      Vec3f n = face->n;
-      if (face->n.dot(a.w) < -tolerance ||  //
-          face->n.dot(b.w) < -tolerance ||  //
-          face->n.dot(c.w) < -tolerance) {
-        n = -face->n;
-      }
-
-      FCL_REAL a_dot_nab = a.w.dot((b.w - a.w).cross(n));
-      FCL_REAL b_dot_nbc = b.w.dot((c.w - b.w).cross(n));
-      FCL_REAL c_dot_nca = c.w.dot((a.w - c.w).cross(n));
-      if (!(a_dot_nab < -tolerance ||  //
-            b_dot_nbc < -tolerance ||  //
-            c_dot_nca < -tolerance)) {
-        face->d = a.w.dot(face->n);
-        face->ignore = false;
-      } else {
-        face->d = std::numeric_limits<FCL_REAL>::max();
-        face->ignore = true;
-      }
-      return face;
-    } else
-      status = Degenerated;
-
-    hull.remove(face);
-    stock.append(face);
-    return nullptr;
-  }
-
-  assert(hull.count >= fc_store.size() && "EPA: should not be out of faces.");
-  status = OutOfFaces;
-  return nullptr;
-}
-
 EPA::SimplexFace* EPA::newFace(size_t id_a, size_t id_b, size_t id_c) {
   if (stock.root != nullptr) {
     SimplexFace* face = stock.root;
@@ -1620,9 +1558,9 @@ EPA::SimplexFace* EPA::newFace(size_t id_a, size_t id_b, size_t id_c) {
       FCL_REAL a_dot_nab = a.w.dot((b.w - a.w).cross(face->n));
       FCL_REAL b_dot_nbc = b.w.dot((c.w - b.w).cross(face->n));
       FCL_REAL c_dot_nca = c.w.dot((a.w - c.w).cross(face->n));
-      if (!(a_dot_nab < -tolerance ||  //
-            b_dot_nbc < -tolerance ||  //
-            c_dot_nca < -tolerance)) {
+      if (a_dot_nab >= -tolerance &&  //
+          b_dot_nbc >= -tolerance &&  //
+          c_dot_nca >= -tolerance) {
         face->d = a.w.dot(face->n);
         face->ignore = false;
       } else {
@@ -1700,10 +1638,10 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
       sv_store[num_vertices++] = *simplex.vertex[i];
     }
 
-    SimplexFace* tetrahedron[] = {createInitialPolytopeFace(0, 1, 2),  //
-                                  createInitialPolytopeFace(1, 0, 3),  //
-                                  createInitialPolytopeFace(2, 1, 3),  //
-                                  createInitialPolytopeFace(0, 2, 3)};
+    SimplexFace* tetrahedron[] = {newFace(0, 1, 2),  //
+                                  newFace(1, 0, 3),  //
+                                  newFace(2, 1, 3),  //
+                                  newFace(0, 2, 3)};
 
     if (hull.count == 4) {
       // set the face connectivity
@@ -1882,9 +1820,7 @@ bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
     // Uncomment the following line and the associated EPA method
     // to debug the infinite loop if needed.
     // EPAPrintExpandLooping(this, f);
-    if (f == closest_face) {
-      assert(false && "EPA is looping indefinitely.");
-    }
+    assert(f != closest_face && "EPA is looping indefinitely.");
     status = InvalidHull;
     return false;
   }
