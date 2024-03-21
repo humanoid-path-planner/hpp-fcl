@@ -324,41 +324,31 @@ struct HPP_FCL_DLLAPI GJKSolver {
                 EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                       normal);
                 break;
-                //
-                // In the following cases, EPA failed to run, in a bad way.
-                // The produced witness points, penetration depth and normal
-                // may make no sense.
+              case details::EPA::Degenerated:
+                HPP_FCL_LOG_WARNING(
+                    "EPA warning: created a polytope with a degenerated face.");
+                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                      normal);
+                gjk_and_epa_ran_successfully = true;
+                break;
+              case details::EPA::NonConvex:
+                HPP_FCL_LOG_WARNING(
+                    "EPA warning: EPA got called onto non-convex shapes.");
+                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                      normal);
+                gjk_and_epa_ran_successfully = true;
+                break;
+              case details::EPA::InvalidHull:
+                HPP_FCL_LOG_WARNING(
+                    "EPA warning: created an invalid polytope.");
+                EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
+                                                      normal);
+                gjk_and_epa_ran_successfully = true;
+                break;
               case details::EPA::DidNotRun:
                 HPP_FCL_ASSERT(false, "EPA did not run. It should have!",
                                std::logic_error);
                 HPP_FCL_LOG_ERROR("EPA error: did not run. It should have.");
-                EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                       normal);
-                gjk_and_epa_ran_successfully = false;
-                break;
-              case details::EPA::Degenerated:
-                HPP_FCL_ASSERT(
-                    false, "EPA created a polytope with a degenerated face.",
-                    std::logic_error);
-                HPP_FCL_LOG_ERROR(
-                    "EPA error: created a polytope with a degenerated face.");
-                EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                       normal);
-                gjk_and_epa_ran_successfully = false;
-                break;
-              case details::EPA::NonConvex:
-                HPP_FCL_ASSERT(false, "EPA got called onto non-convex shapes.",
-                               std::logic_error);
-                HPP_FCL_LOG_ERROR(
-                    "EPA error: EPA got called onto non-convex shapes.");
-                EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                       normal);
-                gjk_and_epa_ran_successfully = false;
-                break;
-              case details::EPA::InvalidHull:
-                HPP_FCL_ASSERT(false, "EPA created an invalid polytope.",
-                               std::logic_error);
-                HPP_FCL_LOG_ERROR("EPA error: created an invalid polytope.");
                 EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                        normal);
                 gjk_and_epa_ran_successfully = false;
