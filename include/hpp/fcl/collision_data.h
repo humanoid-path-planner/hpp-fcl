@@ -201,7 +201,8 @@ struct HPP_FCL_DLLAPI QueryRequest {
   /// @brief max number of iterations for EPA
   size_t epa_max_iterations;
 
-  /// @brief tolerance for EPA
+  /// @brief tolerance for EPA.
+  /// Note: setting EPA's tolerance to less than GJK's is not recommended.
   FCL_REAL epa_tolerance;
 
   /// @brief enable timings when performing collision/distance request
