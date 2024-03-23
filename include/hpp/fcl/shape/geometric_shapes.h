@@ -61,7 +61,9 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
   ShapeBase() {}
 
   ///  \brief Copy constructor
-  ShapeBase(const ShapeBase& other) : CollisionGeometry(other) {}
+  ShapeBase(const ShapeBase& other)
+      : CollisionGeometry(other),
+        m_swept_sphere_radius(other.m_swept_sphere_radius) {}
 
   ShapeBase& operator=(const ShapeBase& other) = default;
 
@@ -69,6 +71,26 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
 
   /// @brief Get object type: a geometric shape
   OBJECT_TYPE getObjectType() const { return OT_GEOM; }
+
+  /// @brief Set radius of sphere swept around the shape.
+  /// Must be >= 0.
+  void setSweptSphereRadius(FCL_REAL radius) {
+    if (radius < 0) {
+      HPP_FCL_THROW_PRETTY(
+          "Inflation (i.e. swept sphere radius) must be positive.",
+          std::invalid_argument);
+    }
+    this->m_swept_sphere_radius = radius;
+  }
+
+  /// @brief Get radius of sphere swept around the shape.
+  /// This radius is always >= 0.
+  FCL_REAL getSweptSphereRadius() const { return this->m_swept_sphere_radius; }
+
+ protected:
+  /// \brief Radius of the sphere swept around the shape.
+  /// Default value is 0.
+  FCL_REAL m_swept_sphere_radius{0};
 };
 
 /// @defgroup Geometric_Shapes Geometric shapes
@@ -171,7 +193,8 @@ class HPP_FCL_DLLAPI Box : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -halfSide.minCoeff(); }
 
-  /// \brief Inflate the box by an amount given by value
+  /// \brief Inflate the box by an amount given by `value`.
+  /// This value can be negative down to `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -234,7 +257,8 @@ class HPP_FCL_DLLAPI Sphere : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -radius; }
 
-  /// \brief Inflate the sphere by an amount given by value
+  /// \brief Inflate the sphere by an amount given by `value`.
+  /// This value can be negative down to `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -305,7 +329,8 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -radii.minCoeff(); }
 
-  /// \brief Inflate the ellipsoid by an amount given by value
+  /// \brief Inflate the ellipsoid by an amount given by `value`.
+  /// This value can be negative down to `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -387,7 +412,8 @@ class HPP_FCL_DLLAPI Capsule : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -radius; }
 
-  /// \brief Inflate the capsule by an amount given by value
+  /// \brief Inflate the capsule by an amount given by `value`.
+  /// This value can be negative down to `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -464,7 +490,8 @@ class HPP_FCL_DLLAPI Cone : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -(std::min)(radius, halfLength); }
 
-  /// \brief Inflate the cone by an amount given by value
+  /// \brief Inflate the cone by an amount given by `value`.
+  /// This value can be negative down to `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -555,7 +582,8 @@ class HPP_FCL_DLLAPI Cylinder : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -(std::min)(radius, halfLength); }
 
-  /// \brief Inflate the cylinder by an amount given by value
+  /// \brief Inflate the cylinder by an amount given by `value`.
+  /// This value can be negative down to `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -871,7 +899,8 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
     return std::numeric_limits<FCL_REAL>::lowest();
   }
 
-  /// \brief Inflate the cylinder by an amount given by value
+  /// \brief Inflate the cylinder by an amount given by `value`.
+  /// This value can be negative down to `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
