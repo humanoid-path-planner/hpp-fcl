@@ -516,7 +516,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
     enable_cached_guess = false;  // TODO: use gjk_initial_guess instead
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
-    distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
 
     // Default settings for GJK algorithm
     gjk.gjk_variant = GJKVariant::DefaultGJK;
@@ -531,12 +530,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// See the default constructor; by default, we don't want
   /// EPA to allocate memory so we call EPA's constructor with 0 max
   /// number of iterations.
-  GJKSolver(const DistanceRequest& request)
+  explicit GJKSolver(const DistanceRequest& request)
       : gjk(request.gjk_max_iterations, request.gjk_tolerance),
         epa(0, request.epa_tolerance) {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
-    distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
 
     set(request);
   }
@@ -578,12 +576,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// See the default constructor; by default, we don't want
   /// EPA to allocate memory so we call EPA's constructor with 0 max
   /// number of iterations.
-  GJKSolver(const CollisionRequest& request)
+  explicit GJKSolver(const CollisionRequest& request)
       : gjk(request.gjk_max_iterations, request.gjk_tolerance),
         epa(0, request.epa_tolerance) {
     cached_guess = Vec3f(1, 0, 0);
     support_func_cached_guess = support_func_guess_t::Zero();
-    distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
 
     set(request);
   }
@@ -607,7 +604,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     gjk_max_iterations = request.gjk_max_iterations;
     // The distance upper bound should be at least greater to the requested
     // security margin. Otherwise, we will likely miss some collisions.
-    distance_upper_bound = (std::max)(
+    const double distance_upper_bound = (std::max)(
         0., (std::max)(request.distance_upper_bound, request.security_margin));
     gjk.setDistanceEarlyBreak(distance_upper_bound);
     gjk.gjk_variant = request.gjk_variant;
@@ -640,7 +637,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
            epa_max_iterations == other.epa_max_iterations &&
            epa_tolerance == other.epa_tolerance &&
            support_func_cached_guess == other.support_func_cached_guess &&
-           distance_upper_bound == other.distance_upper_bound &&
            gjk_initial_guess == other.gjk_initial_guess;
   }
   HPP_FCL_COMPILER_DIAGNOSTIC_POP
@@ -655,17 +651,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// @brief smart guess
   mutable Vec3f cached_guess;
 
-  /// @brief which warm start to use for GJK
-  GJKInitialGuess gjk_initial_guess;
-
   /// @brief smart guess for the support function
   mutable support_func_guess_t support_func_cached_guess;
 
-  /// @brief Distance above which the GJK solver stops its computations and
-  /// processes to an early stopping.
-  ///        The two witness points are incorrect, but with the guaranty that
-  ///        the two shapes have a distance greather than distance_upper_bound.
-  FCL_REAL distance_upper_bound;
+  /// @brief which warm start to use for GJK
+  GJKInitialGuess gjk_initial_guess;
 
   /// @brief maximum number of iterations of GJK
   size_t gjk_max_iterations;
