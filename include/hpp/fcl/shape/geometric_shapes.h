@@ -899,12 +899,12 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
     return std::numeric_limits<FCL_REAL>::lowest();
   }
 
-  /// \brief Inflate the cylinder by an amount given by `value`.
+  /// \brief Inflate the halfspace by an amount given by `value`.
   /// This value can be negative down to `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
-  /// \returns a new inflated cylinder and the related transform to account for
+  /// \returns a new inflated halfspace and the related transform to account for
   /// the change of shape frame
   std::pair<Halfspace, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
