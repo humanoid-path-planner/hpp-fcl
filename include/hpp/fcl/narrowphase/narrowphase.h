@@ -569,23 +569,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
     epa_max_iterations = request.epa_max_iterations;
     epa_tolerance = request.epa_tolerance;
     epa.status = details::EPA::Status::DidNotRun;
-
-    if (request.gjk_tolerance < GJK_MINIMUM_TOLERANCE) {
-      HPP_FCL_LOG_WARNING(
-          "WARNING - GJK: using a tolerance ("
-          << request.gjk_tolerance
-          << ") which is lower than the recommended lowest tolerance ("
-          << GJK_DEFAULT_TOLERANCE
-          << "). Selecting this tolerance might trigger assertions.\n");
-    }
-    if (request.epa_tolerance < EPA_MINIMUM_TOLERANCE) {
-      HPP_FCL_LOG_WARNING(
-          "WARNING - EPA: using a tolerance ("
-          << request.epa_tolerance
-          << ") which is lower than the recommended lowest tolerance ("
-          << EPA_MINIMUM_TOLERANCE
-          << "). Selecting this tolerance might trigger assertions.\n");
-    }
   }
 
   /// @brief Constructor from a CollisionRequest
@@ -640,23 +623,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // Reset GJK and EPA status
     gjk.status = details::GJK::Status::DidNotRun;
     epa.status = details::EPA::Status::DidNotRun;
-
-    if (request.gjk_tolerance < GJK_MINIMUM_TOLERANCE) {
-      HPP_FCL_LOG_WARNING(
-          "WARNING - GJK: using a tolerance ("
-          << request.gjk_tolerance
-          << ") which is lower than the recommended lowest tolerance ("
-          << GJK_DEFAULT_TOLERANCE
-          << "). Selecting this tolerance might trigger assertions.\n");
-    }
-    if (request.epa_tolerance < EPA_MINIMUM_TOLERANCE) {
-      HPP_FCL_LOG_WARNING(
-          "WARNING - EPA: using a tolerance ("
-          << request.epa_tolerance
-          << ") which is lower than the recommended lowest tolerance ("
-          << EPA_MINIMUM_TOLERANCE
-          << "). Selecting this tolerance might trigger assertions.\n");
-    }
   }
 
   /// @brief Copy constructor

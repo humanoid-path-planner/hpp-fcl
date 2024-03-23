@@ -186,7 +186,10 @@ struct HPP_FCL_DLLAPI QueryRequest {
   /// @brief maximum iteration for the GJK algorithm
   size_t gjk_max_iterations;
 
-  /// @brief tolerance for the GJK algorithm
+  /// @brief tolerance for the GJK algorithm.
+  /// Note: This tolerance determines the precision on the estimated distance
+  /// between two geometries which are not in collision.
+  /// It is recommended to not set this tolerance to less than 1e-6.
   FCL_REAL gjk_tolerance;
 
   /// @brief whether to enable the Nesterov accleration of GJK
@@ -202,7 +205,10 @@ struct HPP_FCL_DLLAPI QueryRequest {
   size_t epa_max_iterations;
 
   /// @brief tolerance for EPA.
-  /// Note: setting EPA's tolerance to less than GJK's is not recommended.
+  /// Note: This tolerance determines the precision on the estimated distance
+  /// between two geometries which are in collision.
+  /// It is recommended to not set this tolerance to less than 1e-6.
+  /// Also, setting EPA's tolerance to less than GJK's is not recommended.
   FCL_REAL epa_tolerance;
 
   /// @brief enable timings when performing collision/distance request
