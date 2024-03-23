@@ -1807,7 +1807,7 @@ inline bool halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
   FCL_REAL d_w = h.d + n_w.dot(tf1.getTranslation());
   Vec3f n_2(tf2.getRotation().transpose() * n_w);
   int hint = 0;
-  p2 = getSupport(&s, -n_2, true, hint);
+  p2 = getSupport(&s, -n_2, hint);
   p2.noalias() = tf2.transform(p2);
 
   dist = p2.dot(n_w) - d_w;
@@ -2491,7 +2491,7 @@ inline bool ellipsoidPlaneIntersect(const Ellipsoid& s1, const Transform3f& tf1,
     d_w = s2.d - n_w.dot(tf2.getTranslation());
   }
   int hint = 0;
-  p1 = getSupport(&s1, tf1.getRotation().transpose() * normal, true, hint);
+  p1 = getSupport(&s1, tf1.getRotation().transpose() * normal, hint);
   p1.noalias() = tf1.transform(p1);
   distance = -normal.dot(p1) - d_w;
   p2 = p1 + distance * normal;

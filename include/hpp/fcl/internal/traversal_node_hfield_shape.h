@@ -371,7 +371,7 @@ bool binCorrection(const Convex<Polygone>& convex,
 
     int hint = 0;
     const Vec3f _support = getSupport(
-        &shape, -shape_pose.rotation().transpose() * face_normal, true, hint);
+        &shape, -shape_pose.rotation().transpose() * face_normal, hint);
     const Vec3f support =
         shape_pose.rotation() * _support + shape_pose.translation();
 

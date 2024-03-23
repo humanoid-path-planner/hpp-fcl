@@ -275,21 +275,16 @@ inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
                      hint, data);
 }
 
-#define CALL_GET_SHAPE_SUPPORT(ShapeType)                              \
-  getShapeSupport(                                                     \
-      static_cast<const ShapeType*>(shape),                            \
-      (shape_traits<ShapeType>::NeedNormalizedDir && !dirIsNormalized) \
-          ? dir.normalized()                                           \
-          : dir,                                                       \
-      support, hint, NULL)
+#define CALL_GET_SHAPE_SUPPORT(ShapeType)                                   \
+  getShapeSupport(static_cast<const ShapeType*>(shape), dir, support, hint, \
+                  NULL)
 
 inline void getSphereSupport(const Sphere* sphere, const Vec3f& dir,
                              Vec3f& support) {
   support = sphere->radius * (dir.normalized());
 }
 
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
-                 int& hint) {
+Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint) {
   Vec3f support;
   switch (shape->getNodeType()) {
     case GEOM_TRIANGLE:
@@ -344,28 +339,14 @@ void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3f& oR1,
 
 template <typename Shape0, typename Shape1, bool TransformIsIdentity>
 void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
-                       bool dirIsNormalized, Vec3f& support0, Vec3f& support1,
+                       Vec3f& support0, Vec3f& support1,
                        support_func_guess_t& hint,
                        MinkowskiDiff::ShapeData data[2]) {
-  enum {
-    NeedNormalizedDir = bool((bool)shape_traits<Shape0>::NeedNormalizedDir ||
-                             (bool)shape_traits<Shape1>::NeedNormalizedDir)
-  };
-#ifndef NDEBUG
-  // Need normalized direction and direction is normalized
-  assert(!NeedNormalizedDir || !dirIsNormalized ||
-         fabs(dir.squaredNorm() - 1) < GJK_MINIMUM_TOLERANCE);
-  // Need normalized direction but direction is not normalized.
-  assert(!NeedNormalizedDir || dirIsNormalized ||
-         fabs(dir.normalized().squaredNorm() - 1) < GJK_MINIMUM_TOLERANCE);
-  // Don't need normalized direction. Check that dir is not zero.
-  assert(NeedNormalizedDir || dir.norm() >= GJK_MINIMUM_TOLERANCE);
-#endif
+  assert(dir.norm() > Eigen::NumTraits<FCL_REAL>::epsilon());
   getSupportTpl<Shape0, Shape1, TransformIsIdentity>(
       static_cast<const Shape0*>(md.shapes[0]),
-      static_cast<const Shape1*>(md.shapes[1]), md.oR1, md.ot1,
-      (NeedNormalizedDir && !dirIsNormalized) ? dir.normalized() : dir,
-      support0, support1, hint, data);
+      static_cast<const Shape1*>(md.shapes[1]), md.oR1, md.ot1, dir, support0,
+      support1, hint, data);
 }
 
 template <typename Shape0>
@@ -750,8 +731,8 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         HPP_FCL_THROW_PRETTY("Invalid momentum variant.", std::logic_error);
     }
 
-    appendVertex(curr_simplex, -dir, false,
-                 support_hint);  // see below, ray points away from origin
+    // see below, ray points away from origin
+    appendVertex(curr_simplex, -dir, support_hint);
 
     // check removed (by ?): when the new support point is close to previous
     // support points, stop (as the new simplex is degenerated)
@@ -900,9 +881,9 @@ inline void GJK::removeVertex(Simplex& simplex) {
 }
 
 inline void GJK::appendVertex(Simplex& simplex, const Vec3f& v,
-                              bool isNormalized, support_func_guess_t& hint) {
+                              support_func_guess_t& hint) {
   simplex.vertex[simplex.rank] = free_v[--nfree];  // set the memory
-  getSupport(v, isNormalized, *simplex.vertex[simplex.rank++], hint);
+  getSupport(v, *simplex.vertex[simplex.rank++], hint);
 }
 
 bool GJK::encloseOrigin() {
@@ -912,11 +893,11 @@ bool GJK::encloseOrigin() {
     case 1:
       for (int i = 0; i < 3; ++i) {
         axis[i] = 1;
-        appendVertex(*simplex, axis, true, hint);
+        appendVertex(*simplex, axis, hint);
         if (encloseOrigin()) return true;
         removeVertex(*simplex);
         axis[i] = -1;
-        appendVertex(*simplex, -axis, true, hint);
+        appendVertex(*simplex, -axis, hint);
         if (encloseOrigin()) return true;
         removeVertex(*simplex);
         axis[i] = 0;
@@ -928,10 +909,10 @@ bool GJK::encloseOrigin() {
         axis[i] = 1;
         Vec3f p = d.cross(axis);
         if (!p.isZero()) {
-          appendVertex(*simplex, p, false, hint);
+          appendVertex(*simplex, p, hint);
           if (encloseOrigin()) return true;
           removeVertex(*simplex);
-          appendVertex(*simplex, -p, false, hint);
+          appendVertex(*simplex, -p, hint);
           if (encloseOrigin()) return true;
           removeVertex(*simplex);
         }
@@ -943,10 +924,10 @@ bool GJK::encloseOrigin() {
           (simplex->vertex[1]->w - simplex->vertex[0]->w)
               .cross(simplex->vertex[2]->w - simplex->vertex[0]->w);
       if (!axis.isZero()) {
-        appendVertex(*simplex, axis, false, hint);
+        appendVertex(*simplex, axis, hint);
         if (encloseOrigin()) return true;
         removeVertex(*simplex);
-        appendVertex(*simplex, -axis, false, hint);
+        appendVertex(*simplex, -axis, hint);
         if (encloseOrigin()) return true;
         removeVertex(*simplex);
       }
@@ -1675,7 +1656,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
         closest_face->pass = ++pass;
         // At the moment, SimplexF.n is always normalized. This could be revised
         // in the future...
-        gjk.getSupport(closest_face->n, true, w, hint);
+        gjk.getSupport(closest_face->n, w, hint);
 
         // Step 2: check for convergence.
         // ------------------------------

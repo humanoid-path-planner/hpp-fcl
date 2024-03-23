@@ -50,9 +50,8 @@ namespace fcl {
 namespace details {
 
 /// @brief the support function for shape
-/// \param hint use to initialize the search when shape is a ConvexBase object.
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
-                 int& hint);
+/// \param hint used to initialize the search when shape is a ConvexBase object.
+Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint);
 
 /// @brief Minkowski difference class of two shapes
 ///
@@ -91,8 +90,8 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   bool normalize_support_direction;
 
   typedef void (*GetSupportFunction)(const MinkowskiDiff& minkowskiDiff,
-                                     const Vec3f& dir, bool dirIsNormalized,
-                                     Vec3f& support0, Vec3f& support1,
+                                     const Vec3f& dir, Vec3f& support0,
+                                     Vec3f& support1,
                                      support_func_guess_t& hint,
                                      ShapeData data[2]);
   GetSupportFunction getSupportFunc;
@@ -108,23 +107,27 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
            const Transform3f& tf0, const Transform3f& tf1);
 
   /// @brief support function for shape0
-  inline Vec3f support0(const Vec3f& d, bool dIsNormalized, int& hint) const {
-    return getSupport(shapes[0], d, dIsNormalized, hint);
+  /// \param hint used to initialize the search when shape is a ConvexBase
+  /// object.
+  inline Vec3f support0(const Vec3f& d, int& hint) const {
+    return getSupport(shapes[0], d, hint);
   }
 
   /// @brief support function for shape1
-  inline Vec3f support1(const Vec3f& d, bool dIsNormalized, int& hint) const {
-    return oR1 *
-               getSupport(shapes[1], oR1.transpose() * d, dIsNormalized, hint) +
-           ot1;
+  /// \param hint used to initialize the search when shape is a ConvexBase
+  /// object.
+  inline Vec3f support1(const Vec3f& d, int& hint) const {
+    return oR1 * getSupport(shapes[1], oR1.transpose() * d, hint) + ot1;
   }
 
-  /// @brief support function for the pair of shapes
-  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp0,
-                      Vec3f& supp1, support_func_guess_t& hint) const {
+  /// @brief Support function for the pair of shapes. This method assumes `set`
+  /// has already been called.
+  /// \param hint used to initialize the search when shape is a ConvexBase
+  /// object.
+  inline void support(const Vec3f& d, Vec3f& supp0, Vec3f& supp1,
+                      support_func_guess_t& hint) const {
     assert(getSupportFunc != NULL);
-    getSupportFunc(*this, d, dIsNormalized, supp0, supp1, hint,
-                   const_cast<ShapeData*>(data));
+    getSupportFunc(*this, d, supp0, supp1, hint, const_cast<ShapeData*>(data));
   }
 };
 
@@ -246,9 +249,9 @@ struct HPP_FCL_DLLAPI GJK {
 
   /// @brief apply the support function along a direction, the result is return
   /// in sv
-  inline void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv,
+  inline void getSupport(const Vec3f& d, SimplexV& sv,
                          support_func_guess_t& hint) const {
-    shape->support(d, dIsNormalized, sv.w0, sv.w1, hint);
+    shape->support(d, sv.w0, sv.w1, hint);
     sv.w = sv.w0 - sv.w1;
   }
 
@@ -307,7 +310,7 @@ struct HPP_FCL_DLLAPI GJK {
   inline void removeVertex(Simplex& simplex);
 
   /// @brief append one vertex to the simplex
-  inline void appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized,
+  inline void appendVertex(Simplex& simplex, const Vec3f& v,
                            support_func_guess_t& hint);
 
   /// @brief Project origin (0) onto line a-b
