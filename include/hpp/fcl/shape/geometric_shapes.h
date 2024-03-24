@@ -144,7 +144,8 @@ class HPP_FCL_DLLAPI TriangleP : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const TriangleP& other = *other_ptr;
 
-    return a == other.a && b == other.b && c == other.c;
+    return a == other.a && b == other.b && c == other.c &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -217,7 +218,8 @@ class HPP_FCL_DLLAPI Box : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Box& other = *other_ptr;
 
-    return halfSide == other.halfSide;
+    return halfSide == other.halfSide &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -281,7 +283,8 @@ class HPP_FCL_DLLAPI Sphere : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Sphere& other = *other_ptr;
 
-    return radius == other.radius;
+    return radius == other.radius &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -355,7 +358,8 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Ellipsoid& other = *other_ptr;
 
-    return radii == other.radii;
+    return radii == other.radii &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -439,7 +443,8 @@ class HPP_FCL_DLLAPI Capsule : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Capsule& other = *other_ptr;
 
-    return radius == other.radius && halfLength == other.halfLength;
+    return radius == other.radius && halfLength == other.halfLength &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -529,7 +534,8 @@ class HPP_FCL_DLLAPI Cone : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Cone& other = *other_ptr;
 
-    return radius == other.radius && halfLength == other.halfLength;
+    return radius == other.radius && halfLength == other.halfLength &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -611,7 +617,8 @@ class HPP_FCL_DLLAPI Cylinder : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Cylinder& other = *other_ptr;
 
-    return radius == other.radius && halfLength == other.halfLength;
+    return radius == other.radius && halfLength == other.halfLength &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -848,7 +855,8 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
       }
     }
 
-    return center == other.center;
+    return center == other.center &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -891,9 +899,13 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
   /// @brief Clone *this into a new Halfspace
   virtual Halfspace* clone() const { return new Halfspace(*this); };
 
-  FCL_REAL signedDistance(const Vec3f& p) const { return n.dot(p) - d; }
+  FCL_REAL signedDistance(const Vec3f& p) const {
+    return n.dot(p) - (d + this->getSweptSphereRadius());
+  }
 
-  FCL_REAL distance(const Vec3f& p) const { return std::abs(n.dot(p) - d); }
+  FCL_REAL distance(const Vec3f& p) const {
+    return std::abs(n.dot(p) - (d + this->getSweptSphereRadius()));
+  }
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -938,7 +950,8 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Halfspace& other = *other_ptr;
 
-    return n == other.n && d == other.d;
+    return n == other.n && d == other.d &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -973,9 +986,13 @@ class HPP_FCL_DLLAPI Plane : public ShapeBase {
   /// @brief Clone *this into a new Plane
   virtual Plane* clone() const { return new Plane(*this); };
 
-  FCL_REAL signedDistance(const Vec3f& p) const { return n.dot(p) - d; }
+  FCL_REAL signedDistance(const Vec3f& p) const {
+    return n.dot(p) - (d + this->getSweptSphereRadius());
+  }
 
-  FCL_REAL distance(const Vec3f& p) const { return std::abs(n.dot(p) - d); }
+  FCL_REAL distance(const Vec3f& p) const {
+    return std::abs(n.dot(p) - (d + this->getSweptSphereRadius()));
+  }
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -999,7 +1016,8 @@ class HPP_FCL_DLLAPI Plane : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Plane& other = *other_ptr;
 
-    return n == other.n && d == other.d;
+    return n == other.n && d == other.d &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:

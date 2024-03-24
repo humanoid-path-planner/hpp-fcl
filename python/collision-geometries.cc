@@ -269,7 +269,10 @@ void exposeShapes() {
   class_<ShapeBase, bases<CollisionGeometry>, shared_ptr<ShapeBase>,
          noncopyable>("ShapeBase", doxygen::class_doc<ShapeBase>(), no_init)
       //.def ("getObjectType", &CollisionGeometry::getObjectType)
-      ;
+      .def(dv::member_func("setSweptSphereRadius",
+                           &ShapeBase::setSweptSphereRadius))
+      .def(dv::member_func("getSweptSphereRadius",
+                           &ShapeBase::getSweptSphereRadius));
 
   class_<Box, bases<ShapeBase>, shared_ptr<Box>>(
       "Box", doxygen::class_doc<ShapeBase>(), no_init)
