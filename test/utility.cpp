@@ -532,6 +532,54 @@ Convex<Triangle> constructPolytopeFromEllipsoid(const Ellipsoid& ellipsoid) {
   );
 }
 
+Box makeRandomBox(FCL_REAL min_size, FCL_REAL max_size) {
+  return Box(Vec3f(rand_interval(min_size, max_size),
+                   rand_interval(min_size, max_size),
+                   rand_interval(min_size, max_size)));
+}
+
+Sphere makeRandomSphere(FCL_REAL min_size, FCL_REAL max_size) {
+  return Sphere(rand_interval(min_size, max_size));
+}
+
+Ellipsoid makeRandomEllipsoid(FCL_REAL min_size, FCL_REAL max_size) {
+  return Ellipsoid(Vec3f(rand_interval(min_size, max_size),
+                         rand_interval(min_size, max_size),
+                         rand_interval(min_size, max_size)));
+}
+
+Capsule makeRandomCapsule(std::array<FCL_REAL, 2> min_size,
+                          std::array<FCL_REAL, 2> max_size) {
+  return Capsule(rand_interval(min_size[0], max_size[0]),
+                 rand_interval(min_size[1], max_size[1]));
+}
+
+Cone makeRandomCone(std::array<FCL_REAL, 2> min_size,
+                    std::array<FCL_REAL, 2> max_size) {
+  return Cone(rand_interval(min_size[0], max_size[0]),
+              rand_interval(min_size[1], max_size[1]));
+}
+
+Cylinder makeRandomCylinder(std::array<FCL_REAL, 2> min_size,
+                            std::array<FCL_REAL, 2> max_size) {
+  return Cylinder(rand_interval(min_size[0], max_size[0]),
+                  rand_interval(min_size[1], max_size[1]));
+}
+
+Convex<Triangle> makeRandomConvex(FCL_REAL min_size, FCL_REAL max_size) {
+  Ellipsoid ellipsoid = makeRandomEllipsoid(min_size, max_size);
+  return constructPolytopeFromEllipsoid(ellipsoid);
+}
+
+Plane makeRandomPlane(FCL_REAL min_size, FCL_REAL max_size) {
+  return Plane(Vec3f::Random().normalized(), rand_interval(min_size, max_size));
+}
+
+Halfspace makeRandomHalfspace(FCL_REAL min_size, FCL_REAL max_size) {
+  return Halfspace(Vec3f::Random().normalized(),
+                   rand_interval(min_size, max_size));
+}
+
 }  // namespace fcl
 
 }  // namespace hpp

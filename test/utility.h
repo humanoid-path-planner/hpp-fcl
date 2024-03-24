@@ -56,20 +56,26 @@
 #include <sys/time.h>
 #endif
 
-#define EIGEN_VECTOR_IS_APPROX(Va, Vb, precision)         \
-  BOOST_CHECK_MESSAGE(((Va) - (Vb)).isZero(precision),    \
-                      "check " #Va ".isApprox(" #Vb       \
-                      ") failed "                         \
-                      "[\n"                               \
-                          << (Va).transpose() << "\n!=\n" \
+#define EIGEN_VECTOR_IS_APPROX(Va, Vb, precision)                            \
+  BOOST_CHECK_MESSAGE(((Va) - (Vb)).isZero(precision),                       \
+                      "check " #Va ".isApprox(" #Vb ") failed at precision " \
+                          << precision << " [\n"                             \
+                          << (Va).transpose() << "\n!=\n"                    \
                           << (Vb).transpose() << "\n]")
-#define EIGEN_MATRIX_IS_APPROX(Va, Vb, precision)                              \
-  BOOST_CHECK_MESSAGE(((Va) - (Vb)).isZero(precision), "check " #Va            \
-                                                       ".isApprox(" #Vb        \
-                                                       ") failed "             \
-                                                       "[\n"                   \
-                                                           << (Va) << "\n!=\n" \
-                                                           << (Vb) << "\n]")
+
+#define EIGEN_MATRIX_IS_APPROX(Va, Vb, precision)                            \
+  BOOST_CHECK_MESSAGE(((Va) - (Vb)).isZero(precision),                       \
+                      "check " #Va ".isApprox(" #Vb ") failed at precision " \
+                          << precision << " [\n"                             \
+                          << (Va) << "\n!=\n"                                \
+                          << (Vb) << "\n]")
+
+#define FCL_REAL_IS_APPROX(Va, Vb, precision)                                \
+  BOOST_CHECK_MESSAGE(std::abs((Va) - (Vb)) < precision,                     \
+                      "check " #Va ".isApprox(" #Vb ") failed at precision " \
+                          << precision << " [\n"                             \
+                          << Va << "\n!=\n"                                  \
+                          << Vb << "\n]")
 
 namespace octomap {
 #ifdef HPP_FCL_HAS_OCTOMAP
@@ -199,6 +205,27 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
 /// https://sinestesia.co/blog/tutorials/python-icospheres/ . We then apply an
 /// ellipsoid tranformation to each vertex of the icosahedron.
 Convex<Triangle> constructPolytopeFromEllipsoid(const Ellipsoid& ellipsoid);
+
+Box makeRandomBox(FCL_REAL min_size, FCL_REAL max_size);
+
+Sphere makeRandomSphere(FCL_REAL min_size, FCL_REAL max_size);
+
+Ellipsoid makeRandomEllipsoid(FCL_REAL min_size, FCL_REAL max_size);
+
+Capsule makeRandomCapsule(std::array<FCL_REAL, 2> min_size,
+                          std::array<FCL_REAL, 2> max_size);
+
+Cone makeRandomCone(std::array<FCL_REAL, 2> min_size,
+                    std::array<FCL_REAL, 2> max_size);
+
+Cylinder makeRandomCylinder(std::array<FCL_REAL, 2> min_size,
+                            std::array<FCL_REAL, 2> max_size);
+
+Convex<Triangle> makeRandomConvex(FCL_REAL min_size, FCL_REAL max_size);
+
+Plane makeRandomPlane(FCL_REAL min_size, FCL_REAL max_size);
+
+Halfspace makeRandomHalfspace(FCL_REAL min_size, FCL_REAL max_size);
 
 }  // namespace fcl
 
