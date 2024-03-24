@@ -169,7 +169,15 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// @brief Runs the GJK algorithm; if the shapes are in found in collision,
   /// also runs the EPA algorithm.
   /// @return true if no error occured, false otherwise.
-  template <typename S1, typename S2>
+  /// @tparam InflateSupportsDuringIterations whether the supports should be
+  /// inflated during the iterations of GJK and EPA.
+  /// Please leave this default value to `false` unless you know what you are
+  /// doing. This template parameter is only used for debugging/testing
+  /// purposes. In short, there is no need to take into account the swept sphere
+  /// radius when computing supports in the iterations of GJK and EPA. GJK and
+  /// EPA will correct the solution once they have converged.
+  template <typename S1, typename S2,
+            bool InflateSupportsDuringIterations = false>
   bool runGJKAndEPA(
       const S1& s1, const Transform3f& tf1, const S2& s2,
       const Transform3f& tf2, FCL_REAL& distance, bool compute_penetration,
@@ -178,14 +186,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
     bool gjk_and_epa_ran_successfully = true;
 
     // Reset internal state of GJK algorithm
-    // We don't take into account the swept sphere radius when computing
-    // supports in the iterations of GJK and EPA. GJK and EPA will correct the
-    // solution once they have converged.
-    bool constexpr use_inflated_support = false;
     if (relative_transformation_already_computed)
-      minkowski_difference.set<use_inflated_support>(&s1, &s2);
+      minkowski_difference.set<InflateSupportsDuringIterations>(&s1, &s2);
     else
-      minkowski_difference.set<use_inflated_support>(&s1, &s2, tf1, tf2);
+      minkowski_difference.set<InflateSupportsDuringIterations>(&s1, &s2, tf1,
+                                                                tf2);
     gjk.reset(gjk_max_iterations, gjk_tolerance);
     epa.status = details::EPA::Status::DidNotRun;
 
