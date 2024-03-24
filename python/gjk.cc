@@ -67,23 +67,68 @@ void exposeGJK() {
     class_<MinkowskiDiff>("MinkowskiDiff", doxygen::class_doc<MinkowskiDiff>(),
                           no_init)
         .def(doxygen::visitor::init<MinkowskiDiff>())
-        .def("set",
-             static_cast<void (MinkowskiDiff::*)(
-                 const ShapeBase*, const ShapeBase*)>(&MinkowskiDiff::set),
-             doxygen::member_func_doc(
-                 static_cast<void (MinkowskiDiff::*)(
-                     const ShapeBase*, const ShapeBase*)>(&MinkowskiDiff::set)))
-        .def("set",
-             static_cast<void (MinkowskiDiff::*)(
-                 const ShapeBase*, const ShapeBase*, const Transform3f& tf0,
-                 const Transform3f& tf1)>(&MinkowskiDiff::set),
-             doxygen::member_func_doc(
-                 static_cast<void (MinkowskiDiff::*)(
-                     const ShapeBase*, const ShapeBase*, const Transform3f& tf0,
-                     const Transform3f& tf1)>(&MinkowskiDiff::set)))
-        .DEF_CLASS_FUNC(MinkowskiDiff, support0)
-        .DEF_CLASS_FUNC(MinkowskiDiff, support1)
-        .DEF_CLASS_FUNC(MinkowskiDiff, support)
+        .def(
+            "set",
+            +[](MinkowskiDiff& self, const ShapeBase* shape0,
+                const ShapeBase* shape1, bool inflate_supports) {
+              if (inflate_supports) {
+                self.set<true>(shape0, shape1);
+              } else {
+                self.set<false>(shape0, shape1);
+              }
+            },
+            bp::args("self", "shape0", "shape1", "inflate_supports"),
+            "Set the shapes of the Minkowski difference.")
+
+        .def(
+            "set",
+            +[](MinkowskiDiff& self, const ShapeBase* shape0,
+                const ShapeBase* shape1, const Transform3f& tf0,
+                const Transform3f& tf1, bool inflate_supports) {
+              if (inflate_supports) {
+                self.set<true>(shape0, shape1, tf0, tf1);
+              } else {
+                self.set<false>(shape0, shape1, tf0, tf1);
+              }
+            },
+            bp::args("self", "shape0", "shape1", "inflate_supports"),
+            "Set the shapes of the Minkowski difference.")
+
+        .def(
+            "support0",
+            +[](MinkowskiDiff& self, const Vec3f& dir, int& hint,
+                bool inflate_support) {
+              if (inflate_support) {
+                self.support0<true>(dir, hint);
+              } else {
+                self.support0<false>(dir, hint);
+              }
+            },
+            bp::args("self", "dir", "hint", "inflate_support"),
+            "Support of shape0 of the Minkowski difference. Set "
+            "`inflate_support` to true to take into account the swept sphere "
+            "radius of the shape.")
+
+        .def(
+            "support1",
+            +[](MinkowskiDiff& self, const Vec3f& dir, int& hint,
+                bool inflate_support) {
+              if (inflate_support) {
+                self.support1<true>(dir, hint);
+              } else {
+                self.support1<false>(dir, hint);
+              }
+            },
+            bp::args("self", "dir", "hint", "inflate_support"),
+            "Support of shape1 of the Minkowski difference. Set "
+            "`inflate_support` to true to take into account the swept sphere "
+            "radius of the shape.")
+
+        .def("support", &MinkowskiDiff::support,
+             "Compute Supports of shape0 and shape1 of the Minkowski "
+             "difference.",
+             (arg("dir"), arg("supp0"), arg("supp1"), arg("hint")))
+
         .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, inflation)
         .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, normalize_support_direction);
   }

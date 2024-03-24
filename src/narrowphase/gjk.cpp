@@ -48,6 +48,7 @@ namespace fcl {
 
 namespace details {
 
+template <bool InflateSupport>
 void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
                      Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
   FCL_REAL dota = dir.dot(triangle->a);
@@ -64,21 +65,40 @@ void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
     else
       support = triangle->b;
   }
+
+  if (InflateSupport) {
+    support += triangle->getSweptSphereRadius() * dir.normalized();
+  }
 }
 
+template <bool InflateSupport>
 inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
                             int&, MinkowskiDiff::ShapeData*) {
   const FCL_REAL inflate = (dir.array() == 0).any() ? 1.00000001 : 1.;
   support.noalias() =
       (dir.array() > 0)
           .select(inflate * box->halfSide, -inflate * box->halfSide);
+
+  if (InflateSupport) {
+    support += box->getSweptSphereRadius() * dir.normalized();
+  }
 }
 
-inline void getShapeSupport(const Sphere*, const Vec3f& /*dir*/, Vec3f& support,
-                            int&, MinkowskiDiff::ShapeData*) {
+template <bool InflateSupport>
+inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir,
+                            Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
   support.setZero();
+
+  if (InflateSupport) {
+    support +=
+        (sphere->getSweptSphereRadius() + sphere->radius) * dir.normalized();
+  }
+
+  HPP_FCL_UNUSED_VARIABLE(sphere);
+  HPP_FCL_UNUSED_VARIABLE(dir);
 }
 
+template <bool InflateSupport>
 inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
                             Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
   FCL_REAL a2 = ellipsoid->radii[0] * ellipsoid->radii[0];
@@ -90,8 +110,13 @@ inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
   FCL_REAL d = std::sqrt(v.dot(dir));
 
   support = v / d;
+
+  if (InflateSupport) {
+    support += ellipsoid->getSweptSphereRadius() * dir.normalized();
+  }
 }
 
+template <bool InflateSupport>
 inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
                             Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
   support.head<2>().setZero();
@@ -99,8 +124,14 @@ inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
     support[2] = capsule->halfLength;
   else
     support[2] = -capsule->halfLength;
+
+  if (InflateSupport) {
+    support +=
+        (capsule->getSweptSphereRadius() + capsule->radius) * dir.normalized();
+  }
 }
 
+template <bool InflateSupport>
 void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support, int&,
                      MinkowskiDiff::ShapeData*) {
   // The cone radius is, for -h < z < h, (h - z) * r / (2*h)
@@ -114,31 +145,35 @@ void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support, int&,
       support[2] = h;
     else
       support[2] = -inflate * h;
-    return;
+  } else {
+    FCL_REAL zdist = dir[0] * dir[0] + dir[1] * dir[1];
+    FCL_REAL len = zdist + dir[2] * dir[2];
+    zdist = std::sqrt(zdist);
+
+    if (dir[2] <= 0) {
+      FCL_REAL rad = r / zdist;
+      support.head<2>() = rad * dir.head<2>();
+      support[2] = -h;
+    } else {
+      len = std::sqrt(len);
+      FCL_REAL sin_a = r / std::sqrt(r * r + 4 * h * h);
+
+      if (dir[2] > len * sin_a)
+        support << 0, 0, h;
+      else {
+        FCL_REAL rad = r / zdist;
+        support.head<2>() = rad * dir.head<2>();
+        support[2] = -h;
+      }
+    }
   }
-  FCL_REAL zdist = dir[0] * dir[0] + dir[1] * dir[1];
-  FCL_REAL len = zdist + dir[2] * dir[2];
-  zdist = std::sqrt(zdist);
 
-  if (dir[2] <= 0) {
-    FCL_REAL rad = r / zdist;
-    support.head<2>() = rad * dir.head<2>();
-    support[2] = -h;
-    return;
-  }
-
-  len = std::sqrt(len);
-  FCL_REAL sin_a = r / std::sqrt(r * r + 4 * h * h);
-
-  if (dir[2] > len * sin_a)
-    support << 0, 0, h;
-  else {
-    FCL_REAL rad = r / zdist;
-    support.head<2>() = rad * dir.head<2>();
-    support[2] = -h;
+  if (InflateSupport) {
+    support += cone->getSweptSphereRadius() * dir.normalized();
   }
 }
 
+template <bool InflateSupport>
 void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
                      int&, MinkowskiDiff::ShapeData*) {
   // The inflation makes the object look strictly convex to GJK and EPA. This
@@ -162,13 +197,19 @@ void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
     support.head<2>().setZero();
   else
     support.head<2>() = dir.head<2>().normalized() * r;
+
   assert(fabs(support[0] * dir[1] - support[1] * dir[0]) <
          sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
+
+  if (InflateSupport) {
+    support += cylinder->getSweptSphereRadius() * dir.normalized();
+  }
 }
 
 struct SmallConvex : ShapeBase {};
 struct LargeConvex : ShapeBase {};
 
+template <bool InflateSupport>
 void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         Vec3f& support, int& hint,
                         MinkowskiDiff::ShapeData* data) {
@@ -228,8 +269,13 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   }
 
   support = pts[static_cast<size_t>(hint)];
+
+  if (InflateSupport) {
+    support += convex->getSweptSphereRadius() * dir.normalized();
+  }
 }
 
+template <bool InflateSupport>
 void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
                            Vec3f& support, int& hint,
                            MinkowskiDiff::ShapeData*) {
@@ -246,8 +292,13 @@ void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
   }
 
   support = pts[static_cast<size_t>(hint)];
+
+  if (InflateSupport) {
+    support += convex->getSweptSphereRadius() * dir.normalized();
+  }
 }
 
+template <bool InflateSupport>
 void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
                      int& hint, MinkowskiDiff::ShapeData*) {
   // TODO add benchmark to set a proper value for switching between linear and
@@ -256,34 +307,32 @@ void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
       convex->neighbors != nullptr) {
     MinkowskiDiff::ShapeData data;
     data.visited.assign(convex->num_points, false);
-    getShapeSupportLog(convex, dir, support, hint, &data);
+    getShapeSupportLog<InflateSupport>(convex, dir, support, hint, &data);
   } else
-    getShapeSupportLinear(convex, dir, support, hint, nullptr);
+    getShapeSupportLinear<InflateSupport>(convex, dir, support, hint, nullptr);
 }
 
+template <bool InflateSupport>
 inline void getShapeSupport(const SmallConvex* convex, const Vec3f& dir,
                             Vec3f& support, int& hint,
                             MinkowskiDiff::ShapeData* data) {
-  getShapeSupportLinear(reinterpret_cast<const ConvexBase*>(convex), dir,
-                        support, hint, data);
+  getShapeSupportLinear<InflateSupport>(
+      reinterpret_cast<const ConvexBase*>(convex), dir, support, hint, data);
 }
 
+template <bool InflateSupport>
 inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
                             Vec3f& support, int& hint,
                             MinkowskiDiff::ShapeData* data) {
-  getShapeSupportLog(reinterpret_cast<const ConvexBase*>(convex), dir, support,
-                     hint, data);
+  getShapeSupportLog<InflateSupport>(
+      reinterpret_cast<const ConvexBase*>(convex), dir, support, hint, data);
 }
 
-#define CALL_GET_SHAPE_SUPPORT(ShapeType)                                   \
-  getShapeSupport(static_cast<const ShapeType*>(shape), dir, support, hint, \
-                  NULL)
+#define CALL_GET_SHAPE_SUPPORT(ShapeType)                                    \
+  getShapeSupport<InflateSupport>(static_cast<const ShapeType*>(shape), dir, \
+                                  support, hint, NULL)
 
-inline void getSphereSupport(const Sphere* sphere, const Vec3f& dir,
-                             Vec3f& support) {
-  support = sphere->radius * (dir.normalized());
-}
-
+template <bool InflateSupport>
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint) {
   Vec3f support;
   switch (shape->getNodeType()) {
@@ -294,7 +343,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint) {
       CALL_GET_SHAPE_SUPPORT(Box);
       break;
     case GEOM_SPHERE:
-      getSphereSupport(static_cast<const Sphere*>(shape), dir, support);
+      CALL_GET_SHAPE_SUPPORT(Sphere);
       break;
     case GEOM_ELLIPSOID:
       CALL_GET_SHAPE_SUPPORT(Ellipsoid);
@@ -321,91 +370,111 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint) {
   return support;
 }
 
+// Explicit instantiation
+template Vec3f getSupport<true>(const ShapeBase*, const Vec3f&, int&);
+template Vec3f getSupport<false>(const ShapeBase*, const Vec3f&, int&);
+
 #undef CALL_GET_SHAPE_SUPPORT
 
-template <typename Shape0, typename Shape1, bool TransformIsIdentity>
+template <typename Shape0, typename Shape1, bool TransformIsIdentity,
+          bool InflateSupports>
 void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3f& oR1,
                    const Vec3f& ot1, const Vec3f& dir, Vec3f& support0,
                    Vec3f& support1, support_func_guess_t& hint,
                    MinkowskiDiff::ShapeData data[2]) {
-  getShapeSupport(s0, dir, support0, hint[0], &(data[0]));
+  assert(dir.norm() > Eigen::NumTraits<FCL_REAL>::epsilon());
+  getShapeSupport<InflateSupports>(s0, dir, support0, hint[0], &(data[0]));
+
   if (TransformIsIdentity)
-    getShapeSupport(s1, -dir, support1, hint[1], &(data[1]));
+    getShapeSupport<InflateSupports>(s1, -dir, support1, hint[1], &(data[1]));
   else {
-    getShapeSupport(s1, -oR1.transpose() * dir, support1, hint[1], &(data[1]));
+    getShapeSupport<InflateSupports>(s1, -oR1.transpose() * dir, support1,
+                                     hint[1], &(data[1]));
     support1 = oR1 * support1 + ot1;
   }
 }
 
-template <typename Shape0, typename Shape1, bool TransformIsIdentity>
+template <typename Shape0, typename Shape1, bool TransformIsIdentity,
+          bool InflateSupports>
 void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
                        Vec3f& support0, Vec3f& support1,
                        support_func_guess_t& hint,
                        MinkowskiDiff::ShapeData data[2]) {
-  assert(dir.norm() > Eigen::NumTraits<FCL_REAL>::epsilon());
-  getSupportTpl<Shape0, Shape1, TransformIsIdentity>(
+  getSupportTpl<Shape0, Shape1, TransformIsIdentity, InflateSupports>(
       static_cast<const Shape0*>(md.shapes[0]),
       static_cast<const Shape1*>(md.shapes[1]), md.oR1, md.ot1, dir, support0,
       support1, hint, data);
 }
 
-template <typename Shape0>
+template <typename Shape0, bool InflateSupports>
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
     const ShapeBase* s1, bool identity, Eigen::Array<FCL_REAL, 1, 2>& inflation,
     MinkowskiDiff::ShapeData data[2]) {
-  inflation[1] = s1->getSweptSphereRadius();
+  // See `makeGetSupportFunction0` for more info on `InflateSupports`.
+  if (InflateSupports) {
+    inflation[1] = 0;
+  } else {
+    inflation[1] = s1->getSweptSphereRadius();
+  }
+
   switch (s1->getNodeType()) {
     case GEOM_TRIANGLE:
       if (identity)
-        return getSupportFuncTpl<Shape0, TriangleP, true>;
+        return getSupportFuncTpl<Shape0, TriangleP, true, InflateSupports>;
       else
-        return getSupportFuncTpl<Shape0, TriangleP, false>;
+        return getSupportFuncTpl<Shape0, TriangleP, false, InflateSupports>;
     case GEOM_BOX:
       if (identity)
-        return getSupportFuncTpl<Shape0, Box, true>;
+        return getSupportFuncTpl<Shape0, Box, true, InflateSupports>;
       else
-        return getSupportFuncTpl<Shape0, Box, false>;
+        return getSupportFuncTpl<Shape0, Box, false, InflateSupports>;
     case GEOM_SPHERE:
-      inflation[1] += static_cast<const Sphere*>(s1)->radius;
+      if (!InflateSupports) {
+        // Sphere can be considered as an inflated point.
+        inflation[1] += static_cast<const Sphere*>(s1)->radius;
+      }
       if (identity)
-        return getSupportFuncTpl<Shape0, Sphere, true>;
+        return getSupportFuncTpl<Shape0, Sphere, true, InflateSupports>;
       else
-        return getSupportFuncTpl<Shape0, Sphere, false>;
+        return getSupportFuncTpl<Shape0, Sphere, false, InflateSupports>;
     case GEOM_ELLIPSOID:
       if (identity)
-        return getSupportFuncTpl<Shape0, Ellipsoid, true>;
+        return getSupportFuncTpl<Shape0, Ellipsoid, true, InflateSupports>;
       else
-        return getSupportFuncTpl<Shape0, Ellipsoid, false>;
+        return getSupportFuncTpl<Shape0, Ellipsoid, false, InflateSupports>;
     case GEOM_CAPSULE:
-      inflation[1] += static_cast<const Capsule*>(s1)->radius;
+      if (!InflateSupports) {
+        // Sphere can be considered as an inflated segment.
+        inflation[1] += static_cast<const Capsule*>(s1)->radius;
+      }
       if (identity)
-        return getSupportFuncTpl<Shape0, Capsule, true>;
+        return getSupportFuncTpl<Shape0, Capsule, true, InflateSupports>;
       else
-        return getSupportFuncTpl<Shape0, Capsule, false>;
+        return getSupportFuncTpl<Shape0, Capsule, false, InflateSupports>;
     case GEOM_CONE:
       if (identity)
-        return getSupportFuncTpl<Shape0, Cone, true>;
+        return getSupportFuncTpl<Shape0, Cone, true, InflateSupports>;
       else
-        return getSupportFuncTpl<Shape0, Cone, false>;
+        return getSupportFuncTpl<Shape0, Cone, false, InflateSupports>;
     case GEOM_CYLINDER:
       if (identity)
-        return getSupportFuncTpl<Shape0, Cylinder, true>;
+        return getSupportFuncTpl<Shape0, Cylinder, true, InflateSupports>;
       else
-        return getSupportFuncTpl<Shape0, Cylinder, false>;
+        return getSupportFuncTpl<Shape0, Cylinder, false, InflateSupports>;
     case GEOM_CONVEX: {
       const ConvexBase* convex1 = static_cast<const ConvexBase*>(s1);
       if (static_cast<size_t>(convex1->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         data[1].visited.assign(convex1->num_points, false);
         if (identity)
-          return getSupportFuncTpl<Shape0, LargeConvex, true>;
+          return getSupportFuncTpl<Shape0, LargeConvex, true, InflateSupports>;
         else
-          return getSupportFuncTpl<Shape0, LargeConvex, false>;
+          return getSupportFuncTpl<Shape0, LargeConvex, false, InflateSupports>;
       } else {
         if (identity)
-          return getSupportFuncTpl<Shape0, SmallConvex, true>;
+          return getSupportFuncTpl<Shape0, SmallConvex, true, InflateSupports>;
         else
-          return getSupportFuncTpl<Shape0, SmallConvex, false>;
+          return getSupportFuncTpl<Shape0, SmallConvex, false, InflateSupports>;
       }
     }
     default:
@@ -413,44 +482,75 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
   }
 }
 
+template <bool InflateSupports>
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
     const ShapeBase* s0, const ShapeBase* s1, bool identity,
     Eigen::Array<FCL_REAL, 1, 2>& inflation, MinkowskiDiff::ShapeData data[2]) {
-  inflation[0] = s0->getSweptSphereRadius();
+  //
+  // If `InflateSupports` is true, the support will be inflated by the swept
+  // sphere radius of the shapes.
+  // Otherwise, this information is simply stored in the Minkowski's difference
+  // inflation array. This array is then used to inflate the support points when
+  // GJK or EPA have converged.
+  //
+  // In practice, it is detrimental to inflate the support points at each
+  // iteration of GJK or EPA. This is because it makes corners and edges of
+  // shapes look strictly convex to the algorithms, which leads to poor
+  // convergence.
+  // The inflation template parameter is only here for debugging purposes.
+  if (InflateSupports) {
+    inflation[0] = 0;
+  } else {
+    inflation[0] = s0->getSweptSphereRadius();
+  }
+
   switch (s0->getNodeType()) {
     case GEOM_TRIANGLE:
-      return makeGetSupportFunction1<TriangleP>(s1, identity, inflation, data);
+      return makeGetSupportFunction1<TriangleP, InflateSupports>(
+          s1, identity, inflation, data);
       break;
     case GEOM_BOX:
-      return makeGetSupportFunction1<Box>(s1, identity, inflation, data);
+      return makeGetSupportFunction1<Box, InflateSupports>(s1, identity,
+                                                           inflation, data);
       break;
     case GEOM_SPHERE:
-      inflation[0] += static_cast<const Sphere*>(s0)->radius;
-      return makeGetSupportFunction1<Sphere>(s1, identity, inflation, data);
+      if (!InflateSupports) {
+        // Sphere can be considered as an inflated point.
+        inflation[0] += static_cast<const Sphere*>(s0)->radius;
+      }
+      return makeGetSupportFunction1<Sphere, InflateSupports>(s1, identity,
+                                                              inflation, data);
       break;
     case GEOM_ELLIPSOID:
-      return makeGetSupportFunction1<Ellipsoid>(s1, identity, inflation, data);
+      return makeGetSupportFunction1<Ellipsoid, InflateSupports>(
+          s1, identity, inflation, data);
       break;
     case GEOM_CAPSULE:
-      inflation[0] += static_cast<const Capsule*>(s0)->radius;
-      return makeGetSupportFunction1<Capsule>(s1, identity, inflation, data);
+      if (!InflateSupports) {
+        // Capsule can be considered as an inflated segment.
+        inflation[0] += static_cast<const Capsule*>(s0)->radius;
+      }
+      return makeGetSupportFunction1<Capsule, InflateSupports>(s1, identity,
+                                                               inflation, data);
       break;
     case GEOM_CONE:
-      return makeGetSupportFunction1<Cone>(s1, identity, inflation, data);
+      return makeGetSupportFunction1<Cone, InflateSupports>(s1, identity,
+                                                            inflation, data);
       break;
     case GEOM_CYLINDER:
-      return makeGetSupportFunction1<Cylinder>(s1, identity, inflation, data);
+      return makeGetSupportFunction1<Cylinder, InflateSupports>(
+          s1, identity, inflation, data);
       break;
     case GEOM_CONVEX: {
       const ConvexBase* convex0 = static_cast<const ConvexBase*>(s0);
-      if ((int)convex0->num_points >
+      if (static_cast<size_t>(convex0->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         data[0].visited.assign(convex0->num_points, false);
-        return makeGetSupportFunction1<LargeConvex>(s1, identity, inflation,
-                                                    data);
+        return makeGetSupportFunction1<LargeConvex, InflateSupports>(
+            s1, identity, inflation, data);
       } else
-        return makeGetSupportFunction1<SmallConvex>(s1, identity, inflation,
-                                                    data);
+        return makeGetSupportFunction1<SmallConvex, InflateSupports>(
+            s1, identity, inflation, data);
       break;
     }
     default:
@@ -496,6 +596,7 @@ void getNormalizeSupportDirectionFromShapes(const ShapeBase* shape0,
                                 getNormalizeSupportDirection(shape1);
 }
 
+template <bool InflateSupports>
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
                         const Transform3f& tf0, const Transform3f& tf1) {
   shapes[0] = shape0;
@@ -509,10 +610,11 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
 
   bool identity = (oR1.isIdentity() && ot1.isZero());
 
-  getSupportFunc =
-      makeGetSupportFunction0(shape0, shape1, identity, inflation, data);
+  getSupportFunc = makeGetSupportFunction0<InflateSupports>(
+      shape0, shape1, identity, inflation, data);
 }
 
+template <bool InflateSupports>
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
   shapes[0] = shape0;
   shapes[1] = shape1;
@@ -522,9 +624,17 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
   oR1.setIdentity();
   ot1.setZero();
 
-  getSupportFunc =
-      makeGetSupportFunction0(shape0, shape1, true, inflation, data);
+  getSupportFunc = makeGetSupportFunction0<InflateSupports>(
+      shape0, shape1, true, inflation, data);
 }
+
+// Explicit instantiation
+template void MinkowskiDiff::set<true>(const ShapeBase*, const ShapeBase*);
+template void MinkowskiDiff::set<true>(const ShapeBase*, const ShapeBase*,
+                                       const Transform3f&, const Transform3f&);
+template void MinkowskiDiff::set<false>(const ShapeBase*, const ShapeBase*);
+template void MinkowskiDiff::set<false>(const ShapeBase*, const ShapeBase*,
+                                        const Transform3f&, const Transform3f&);
 
 void GJK::initialize() {
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
@@ -1915,8 +2025,8 @@ void ConvexBase::buildSupportWarmStart() {
     {
       Vec3f support;
       int support_index{0};
-      hpp::fcl::details::getShapeSupport(this, axiis, support, support_index,
-                                         nullptr);
+      hpp::fcl::details::getShapeSupport<false>(this, axiis, support,
+                                                support_index, nullptr);
       this->support_warm_starts.points.emplace_back(support);
       this->support_warm_starts.indices.emplace_back(support_index);
     }
@@ -1925,8 +2035,8 @@ void ConvexBase::buildSupportWarmStart() {
     {
       Vec3f support;
       int support_index{0};
-      hpp::fcl::details::getShapeSupport(this, axiis, support, support_index,
-                                         nullptr);
+      hpp::fcl::details::getShapeSupport<false>(this, axiis, support,
+                                                support_index, nullptr);
       this->support_warm_starts.points.emplace_back(support);
       this->support_warm_starts.indices.emplace_back(support_index);
     }
@@ -1943,8 +2053,8 @@ void ConvexBase::buildSupportWarmStart() {
     {
       Vec3f support;
       int support_index{0};
-      hpp::fcl::details::getShapeSupport(this, eis[ei_index], support,
-                                         support_index, nullptr);
+      hpp::fcl::details::getShapeSupport<false>(this, eis[ei_index], support,
+                                                support_index, nullptr);
       this->support_warm_starts.points.emplace_back(support);
       this->support_warm_starts.indices.emplace_back(support_index);
     }
@@ -1952,8 +2062,8 @@ void ConvexBase::buildSupportWarmStart() {
     {
       Vec3f support;
       int support_index{0};
-      hpp::fcl::details::getShapeSupport(this, -eis[ei_index], support,
-                                         support_index, nullptr);
+      hpp::fcl::details::getShapeSupport<false>(this, -eis[ei_index], support,
+                                                support_index, nullptr);
       this->support_warm_starts.points.emplace_back(support);
       this->support_warm_starts.indices.emplace_back(support_index);
     }

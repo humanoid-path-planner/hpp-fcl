@@ -466,7 +466,8 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
                      tf1.transform(s1.c)),
       t2(tf2.transform(s2.a), tf2.transform(s2.b), tf2.transform(s2.c));
 
-  minkowski_difference.set(&t1, &t2);
+  bool constexpr use_inflated_supports = false;
+  minkowski_difference.set<use_inflated_supports>(&t1, &t2);
 
   // Reset GJK algorithm
   gjk.reset(gjk_max_iterations, gjk_tolerance);

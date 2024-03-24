@@ -70,7 +70,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
                       const Transform3f& tf2, FCL_REAL& distance_lower_bound,
                       bool compute_penetration, Vec3f* contact_points,
                       Vec3f* normal) const {
-    minkowski_difference.set(&s1, &s2, tf1, tf2);
     Vec3f p1(Vec3f::Zero()), p2(Vec3f::Zero());
     Vec3f n(Vec3f::Zero());
     FCL_REAL distance((std::numeric_limits<FCL_REAL>::max)());
@@ -179,10 +178,14 @@ struct HPP_FCL_DLLAPI GJKSolver {
     bool gjk_and_epa_ran_successfully = true;
 
     // Reset internal state of GJK algorithm
+    // We don't take into account the swept sphere radius when computing
+    // supports in the iterations of GJK and EPA. GJK and EPA will correct the
+    // solution once they have converged.
+    bool constexpr use_inflated_support = false;
     if (relative_transformation_already_computed)
-      minkowski_difference.set(&s1, &s2);
+      minkowski_difference.set<use_inflated_support>(&s1, &s2);
     else
-      minkowski_difference.set(&s1, &s2, tf1, tf2);
+      minkowski_difference.set<use_inflated_support>(&s1, &s2, tf1, tf2);
     gjk.reset(gjk_max_iterations, gjk_tolerance);
     epa.status = details::EPA::Status::DidNotRun;
 

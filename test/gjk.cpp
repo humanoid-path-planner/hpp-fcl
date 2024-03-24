@@ -332,7 +332,11 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray, double inflation,
   bool expect_collision = center_distance <= 2 * (r + inflation);
 
   details::MinkowskiDiff shape;
-  shape.set(&sphere, &sphere, tf0, tf1);
+  // We use the minkowski difference in the scope of GJK/EPA, so there is no
+  // need to inflate the supports. After they have converged, GJK and EPA take
+  // care of handling the shapes swept sphere radius.
+  bool constexpr inflate_supports = false;
+  shape.set<inflate_supports>(&sphere, &sphere, tf0, tf1);
 
   BOOST_CHECK_EQUAL(shape.inflation[0],
                     sphere.radius + sphere.getSweptSphereRadius());
@@ -413,7 +417,8 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
   tf1.setTranslation(T);
 
   details::MinkowskiDiff shape;
-  shape.set(&capsule, &triangle, tf0, tf1);
+  bool constexpr inflate_supports = false;
+  shape.set<inflate_supports>(&capsule, &triangle, tf0, tf1);
 
   BOOST_CHECK_EQUAL(shape.inflation[0], capsule.radius);
   BOOST_CHECK_EQUAL(shape.inflation[1], 0.);

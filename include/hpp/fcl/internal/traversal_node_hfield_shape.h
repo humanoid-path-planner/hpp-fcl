@@ -370,7 +370,10 @@ bool binCorrection(const Convex<Polygone>& convex,
     face_normal = computeTriangleNormal(face_triangle, points);
 
     int hint = 0;
-    const Vec3f _support = getSupport(
+    // Since we compute the support manually, we need to take into account the
+    // sphere swept radius of the shape.
+    bool constexpr use_inflated_support = true;
+    const Vec3f _support = getSupport<use_inflated_support>(
         &shape, -shape_pose.rotation().transpose() * face_normal, hint);
     const Vec3f support =
         shape_pose.rotation() * _support + shape_pose.translation();
