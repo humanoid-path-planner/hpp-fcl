@@ -130,9 +130,7 @@ struct SweptSphereGJKSolver : public GJKSolver {
 };
 
 template <typename S1, typename S2>
-void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2,
-                                        const Transform3f& tf1,
-                                        const Transform3f& tf2) {
+void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
   SweptSphereGJKSolver solver;
   // The swept sphere radius is detrimental to the convergence of GJK
   // and EPA. This gets worse as the radius of the swept sphere increases.
@@ -143,175 +141,96 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2,
   solver.epa_max_iterations = 1000;
   const bool compute_penetration = true;
 
-  std::array<FCL_REAL, 2> distance;
-  std::array<Vec3f, 2> p1;
-  std::array<Vec3f, 2> p2;
-  std::array<Vec3f, 2> normal;
+  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
+  std::size_t n = 10;
+  std::vector<Transform3f> tf1s;
+  std::vector<Transform3f> tf2s;
+  generateRandomTransforms(extents, tf1s, n);
+  generateRandomTransforms(extents, tf2s, n);
+  const std::array<FCL_REAL, 4> inflations = {0, 0.1, 1., 10.};
 
-  // Default hppfcl behavior - Don't take swept sphere radius into account
-  // during GJK/EPA iterations. Correct the solution afterwards.
-  solver.shapeDistance(shape1, tf1, shape2, tf2, distance[0],
-                       compute_penetration, p1[0], p2[0], normal[0], false);
+  for (const FCL_REAL& inflation1 : inflations) {
+    shape1.setSweptSphereRadius(inflation1);
+    for (const FCL_REAL& inflation2 : inflations) {
+      shape2.setSweptSphereRadius(inflation2);
+      for (std::size_t i = 0; i < n; ++i) {
+        Transform3f tf1 = tf1s[i];
+        Transform3f tf2 = tf2s[i];
 
-  // Take swept sphere radius into account during GJK/EPA iterations
-  solver.shapeDistance(shape1, tf1, shape2, tf2, distance[1],
-                       compute_penetration, p1[1], p2[1], normal[1], true);
+        SET_LINE;
 
-  // Precision is dependent on the inflation.
-  // The issue of precision does not come from the default behavior of hppfcl,
-  // but from the result in which we manually take the swept sphere radius into
-  // account in GJK/EPA iterations.
-  const FCL_REAL precision =
-      3 * sqrt(tol) + (1 / 100.0) * std::max(shape1.getSweptSphereRadius(),
-                                             shape2.getSweptSphereRadius());
+        std::array<FCL_REAL, 2> distance;
+        std::array<Vec3f, 2> p1;
+        std::array<Vec3f, 2> p2;
+        std::array<Vec3f, 2> normal;
 
-  // Check that the distance is the same
-  HPP_FCL_CHECK_REAL_CLOSE(distance[0], distance[1], precision);
+        // Default hppfcl behavior - Don't take swept sphere radius into account
+        // during GJK/EPA iterations. Correct the solution afterwards.
+        solver.shapeDistance(shape1, tf1, shape2, tf2, distance[0],
+                             compute_penetration, p1[0], p2[0], normal[0],
+                             false);
 
-  // Check that the normal is the same
-  HPP_FCL_CHECK_CONDITION(normal[0].dot(normal[1]) > 0);
-  HPP_FCL_CHECK_CONDITION(std::abs(1 - normal[0].dot(normal[1])) < precision);
+        // Take swept sphere radius into account during GJK/EPA iterations
+        solver.shapeDistance(shape1, tf1, shape2, tf2, distance[1],
+                             compute_penetration, p1[1], p2[1], normal[1],
+                             true);
 
-  // Check that the witness points are the same
-  HPP_FCL_CHECK_VECTOR_CLOSE(p1[0], p1[1], precision);
-  HPP_FCL_CHECK_VECTOR_CLOSE(p2[0], p2[1], precision);
-  if (!((p1[0] - p1[1]).isZero(precision))) {
-    std::cout << "(p1[0] - p1[1]).norm() = " << (p1[0] - p1[1]).norm()
-              << std::endl;
-  }
-  if (!((p2[0] - p2[1]).isZero(precision))) {
-    std::cout << "(p2[0] - p2[1]).norm() = " << (p2[0] - p2[1]).norm()
-              << std::endl;
+        // Precision is dependent on the inflation.
+        // The issue of precision does not come from the default behavior of
+        // hppfcl, but from the result in which we manually take the swept
+        // sphere radius into account in GJK/EPA iterations.
+        const FCL_REAL precision =
+            3 * sqrt(tol) +
+            (1 / 100.0) * std::max(shape1.getSweptSphereRadius(),
+                                   shape2.getSweptSphereRadius());
+
+        // Check that the distance is the same
+        HPP_FCL_CHECK_REAL_CLOSE(distance[0], distance[1], precision);
+
+        // Check that the normal is the same
+        HPP_FCL_CHECK_CONDITION(normal[0].dot(normal[1]) > 0);
+        HPP_FCL_CHECK_CONDITION(std::abs(1 - normal[0].dot(normal[1])) <
+                                precision);
+
+        // Check that the witness points are the same
+        HPP_FCL_CHECK_VECTOR_CLOSE(p1[0], p1[1], precision);
+        HPP_FCL_CHECK_VECTOR_CLOSE(p2[0], p2[1], precision);
+      }
+    }
   }
 }
 
 static const FCL_REAL min_shape_size = 0.1;
 static const FCL_REAL max_shape_size = 0.5;
-static const std::array<FCL_REAL, 4> inflations = {0, 0.1, 1., 10.};
 
 BOOST_AUTO_TEST_CASE(ssr_mesh_mesh) {
   Convex<Triangle> shape1 = makeRandomConvex(min_shape_size, max_shape_size);
   Convex<Triangle> shape2 = makeRandomConvex(min_shape_size, max_shape_size);
-
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
-  std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
-  generateRandomTransforms(extents, tf1s, n);
-  generateRandomTransforms(extents, tf2s, n);
-
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
-      for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
-        SET_LINE;
-        test_gjksolver_swept_sphere_radius(shape1, shape2, tf1, tf2);
-      }
-    }
-  }
+  test_gjksolver_swept_sphere_radius(shape1, shape2);
 }
 
 BOOST_AUTO_TEST_CASE(ssr_mesh_ellipsoid) {
   Convex<Triangle> shape1 = makeRandomConvex(min_shape_size, max_shape_size);
   Ellipsoid shape2 = makeRandomEllipsoid(min_shape_size, max_shape_size);
-
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
-  std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
-  generateRandomTransforms(extents, tf1s, n);
-  generateRandomTransforms(extents, tf2s, n);
-
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
-      for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
-        SET_LINE;
-        test_gjksolver_swept_sphere_radius(shape1, shape2, tf1, tf2);
-      }
-    }
-  }
+  test_gjksolver_swept_sphere_radius(shape1, shape2);
 }
 
 BOOST_AUTO_TEST_CASE(ssr_box_box) {
   Box shape1 = makeRandomBox(min_shape_size, max_shape_size);
   Box shape2 = makeRandomBox(min_shape_size, max_shape_size);
-
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
-  std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
-  generateRandomTransforms(extents, tf1s, n);
-  generateRandomTransforms(extents, tf2s, n);
-
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
-      for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
-        SET_LINE;
-        test_gjksolver_swept_sphere_radius(shape1, shape2, tf1, tf2);
-      }
-    }
-  }
+  test_gjksolver_swept_sphere_radius(shape1, shape2);
 }
 
 BOOST_AUTO_TEST_CASE(ssr_ellipsoid_ellipsoid) {
   Ellipsoid shape1 = makeRandomEllipsoid(min_shape_size, max_shape_size);
   Ellipsoid shape2 = makeRandomEllipsoid(min_shape_size, max_shape_size);
-
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
-  std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
-  generateRandomTransforms(extents, tf1s, n);
-  generateRandomTransforms(extents, tf2s, n);
-
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
-      for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
-        SET_LINE;
-        test_gjksolver_swept_sphere_radius(shape1, shape2, tf1, tf2);
-      }
-    }
-  }
+  test_gjksolver_swept_sphere_radius(shape1, shape2);
 }
 
 BOOST_AUTO_TEST_CASE(ssr_ellipsoid_box) {
   Ellipsoid shape1 = makeRandomEllipsoid(min_shape_size, max_shape_size);
   Box shape2 = makeRandomBox(min_shape_size, max_shape_size);
-
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
-  std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
-  generateRandomTransforms(extents, tf1s, n);
-  generateRandomTransforms(extents, tf2s, n);
-
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
-      for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
-        SET_LINE;
-        test_gjksolver_swept_sphere_radius(shape1, shape2, tf1, tf2);
-      }
-    }
-  }
+  test_gjksolver_swept_sphere_radius(shape1, shape2);
 }
 
 BOOST_AUTO_TEST_CASE(ssr_cone_cone) {
@@ -319,52 +238,14 @@ BOOST_AUTO_TEST_CASE(ssr_cone_cone) {
                                {max_shape_size, max_shape_size});
   Cone shape2 = makeRandomCone({min_shape_size / 2, min_shape_size},
                                {max_shape_size, max_shape_size});
-
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
-  std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
-  generateRandomTransforms(extents, tf1s, n);
-  generateRandomTransforms(extents, tf2s, n);
-
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
-      for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
-        SET_LINE;
-        test_gjksolver_swept_sphere_radius(shape1, shape2, tf1, tf2);
-      }
-    }
-  }
+  test_gjksolver_swept_sphere_radius(shape1, shape2);
 }
 
 BOOST_AUTO_TEST_CASE(ssr_cone_ellipsoid) {
   Cone shape1 = makeRandomCone({min_shape_size / 2, min_shape_size},
                                {max_shape_size, max_shape_size});
   Ellipsoid shape2 = makeRandomEllipsoid(min_shape_size, max_shape_size);
-
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
-  std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
-  generateRandomTransforms(extents, tf1s, n);
-  generateRandomTransforms(extents, tf2s, n);
-
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
-      for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
-        SET_LINE;
-        test_gjksolver_swept_sphere_radius(shape1, shape2, tf1, tf2);
-      }
-    }
-  }
+  test_gjksolver_swept_sphere_radius(shape1, shape2);
 }
 
 BOOST_AUTO_TEST_CASE(ssr_capsule_capsule) {
@@ -372,26 +253,7 @@ BOOST_AUTO_TEST_CASE(ssr_capsule_capsule) {
                                      {max_shape_size, max_shape_size});
   Capsule shape2 = makeRandomCapsule({min_shape_size / 2, min_shape_size},
                                      {max_shape_size, max_shape_size});
-
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
-  std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
-  generateRandomTransforms(extents, tf1s, n);
-  generateRandomTransforms(extents, tf2s, n);
-
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
-      for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
-        SET_LINE;
-        test_gjksolver_swept_sphere_radius(shape1, shape2, tf1, tf2);
-      }
-    }
-  }
+  test_gjksolver_swept_sphere_radius(shape1, shape2);
 }
 
 BOOST_AUTO_TEST_CASE(ssr_capsule_cone) {
@@ -399,26 +261,7 @@ BOOST_AUTO_TEST_CASE(ssr_capsule_cone) {
                                      {max_shape_size, max_shape_size});
   Cone shape2 = makeRandomCone({min_shape_size / 2, min_shape_size},
                                {max_shape_size, max_shape_size});
-
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
-  std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
-  generateRandomTransforms(extents, tf1s, n);
-  generateRandomTransforms(extents, tf2s, n);
-
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
-      for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
-        SET_LINE;
-        test_gjksolver_swept_sphere_radius(shape1, shape2, tf1, tf2);
-      }
-    }
-  }
+  test_gjksolver_swept_sphere_radius(shape1, shape2);
 }
 
 BOOST_AUTO_TEST_CASE(ssr_cylinder_cylinder) {
@@ -426,24 +269,5 @@ BOOST_AUTO_TEST_CASE(ssr_cylinder_cylinder) {
                                        {max_shape_size, max_shape_size});
   Cylinder shape2 = makeRandomCylinder({min_shape_size / 2, min_shape_size},
                                        {max_shape_size, max_shape_size});
-
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
-  std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
-  generateRandomTransforms(extents, tf1s, n);
-  generateRandomTransforms(extents, tf2s, n);
-
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
-      for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
-        SET_LINE;
-        test_gjksolver_swept_sphere_radius(shape1, shape2, tf1, tf2);
-      }
-    }
-  }
+  test_gjksolver_swept_sphere_radius(shape1, shape2);
 }
