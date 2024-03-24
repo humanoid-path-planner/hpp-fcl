@@ -660,7 +660,26 @@ Vec3f GJK::getGuessFromSimplex() const { return ray; }
 
 namespace details {
 
-bool getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
+// This function computes the weights associated with projecting the origin
+// onto the final simplex of GJK or EPA.
+// The origin is always a convex combination of the supports of the simplex.
+// The weights are then linearly distributed among the shapes' supports, thanks
+// to the following property:
+//   if s is a support of the Minkowski difference, then:
+//   w = w.w0 - w.w1, with w.w0 a support of shape0 and w.w1 a support of
+//   shape1.
+// clang-format off
+// Suppose the final simplex is of rank 2:
+// We have 0 = alpha * w[0] + (1 - alpha) * w[1], with alpha the weight of the convex
+// decomposition, then:
+//    0 = alpha * (w[0].w0 - w[0].w1) + (1 - alpha) * (w[1].w0 - w[1].w1)
+// => 0 = alpha * w[0].w0 + (1 - alpha) * w[1].w0
+//      - alpha * w[0].w1 - (1 - alpha) * w[1].w1
+// Therefore we have two witness points:
+//   w0 = alpha * w[0].w0 + (1 - alpha) * w[1].w0
+//   w1 = alpha * w[0].w1 + (1 - alpha) * w[1].w1
+// clang-format on
+void getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
   GJK::SimplexV* const* vs = simplex.vertex;
 
   for (GJK::vertex_id_t i = 0; i < simplex.rank; ++i) {
@@ -672,7 +691,7 @@ bool getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
     case 1:
       w0 = vs[0]->w0;
       w1 = vs[0]->w1;
-      return true;
+      return;
     case 2: {
       const Vec3f &a = vs[0]->w, a0 = vs[0]->w0, a1 = vs[0]->w1, b = vs[1]->w,
                   b0 = vs[1]->w0, b1 = vs[1]->w1;
@@ -697,7 +716,7 @@ bool getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
         }
       }
     }
-      return true;
+      return;
     case 3:
       // TODO avoid the reprojection
       projection = Project::projectTriangleOrigin(vs[0]->w, vs[1]->w, vs[2]->w);
@@ -716,7 +735,7 @@ bool getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
     w0 += projection.parameterization[i] * vs[i]->w0;
     w1 += projection.parameterization[i] * vs[i]->w1;
   }
-  return true;
+  return;
 }
 
 /// Inflate the points along a normal.
@@ -731,13 +750,6 @@ void inflate(const MinkowskiDiff& shape, const Vec3f& normal, Vec3f& w0,
   const FCL_REAL dummy_precision =
       Eigen::NumTraits<FCL_REAL>::dummy_precision();
   assert((normal.norm() - 1) < dummy_precision);
-  if ((w1 - w0).norm() > dummy_precision) {
-    if (Separated) {
-      assert((w1 - w0).normalized().dot(normal) >= -dummy_precision);
-    } else {
-      assert((w0 - w1).normalized().dot(normal) >= -dummy_precision);
-    }
-  }
 #endif
 
   const Eigen::Array<FCL_REAL, 1, 2>& I(shape.inflation);
@@ -750,12 +762,15 @@ void inflate(const MinkowskiDiff& shape, const Vec3f& normal, Vec3f& w0,
 
 }  // namespace details
 
-bool GJK::getClosestPoints(const MinkowskiDiff& shape, const Vec3f& normal,
-                           Vec3f& w0, Vec3f& w1) const {
-  bool res = details::getClosestPoints(*simplex, w0, w1);
-  if (!res) return false;
+void GJK::getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
+                                    Vec3f& w1, Vec3f& normal) const {
+  details::getClosestPoints(*simplex, w0, w1);
+  if ((w1 - w0).norm() > Eigen::NumTraits<FCL_REAL>::dummy_precision()) {
+    normal = (w1 - w0).normalized();
+  } else {
+    normal = -this->ray.normalized();
+  }
   details::inflate<true>(shape, normal, w0, w1);
-  return true;
 }
 
 GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
@@ -2000,12 +2015,15 @@ bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
   return false;
 }
 
-bool EPA::getClosestPoints(const MinkowskiDiff& shape, const Vec3f& normal,
-                           Vec3f& w0, Vec3f& w1) const {
-  bool res = details::getClosestPoints(result, w0, w1);
-  if (!res) return false;
+void EPA::getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
+                                    Vec3f& w1, Vec3f& normal) const {
+  details::getClosestPoints(result, w0, w1);
+  if ((w0 - w1).norm() > Eigen::NumTraits<FCL_REAL>::dummy_precision()) {
+    normal = (w0 - w1).normalized();
+  } else {
+    normal = this->normal;
+  }
   details::inflate<false>(shape, normal, w0, w1);
-  return true;
 }
 
 }  // namespace details

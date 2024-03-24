@@ -487,15 +487,13 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
     support_func_cached_guess = gjk.support_hint;
   }
 
-  normal.noalias() = -gjk.ray.normalized();
-  gjk.getClosestPoints(minkowski_difference, normal, p1, p2);
+  gjk.getWitnessPointsAndNormal(minkowski_difference, p1, p2, normal);
 
   if (gjk_status != details::GJK::Collision) {
     // TODO On degenerated case, the closest point may be wrong
     // (i.e. an object face normal is colinear to gjk.ray
     // assert (dist == (w0 - w1).norm());
     dist = gjk.distance;
-    normal = tf1.getRotation() * normal;
     assert(gjk.ray.norm() > gjk.getTolerance());
     return true;
   } else {

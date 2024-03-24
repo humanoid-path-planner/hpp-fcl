@@ -1809,7 +1809,7 @@ inline bool halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
   int hint = 0;
   bool constexpr use_swept_sphere_radius_in_support = true;
   p2 = getSupport<use_swept_sphere_radius_in_support>(&s, -n_2, hint);
-  p2.noalias() = tf2.transform(p2);
+  p2 = tf2.transform(p2);
 
   dist = p2.dot(n_w) - d_w;
   p1 = p2 - dist * n_w;
@@ -2495,7 +2495,7 @@ inline bool ellipsoidPlaneIntersect(const Ellipsoid& s1, const Transform3f& tf1,
   bool constexpr use_swept_sphere_radius_in_support = true;
   p1 = getSupport<use_swept_sphere_radius_in_support>(
       &s1, tf1.getRotation().transpose() * normal, hint);
-  p1.noalias() = tf1.transform(p1);
+  p1 = tf1.transform(p1);
   distance = -normal.dot(p1) - d_w;
   p2 = p1 + distance * normal;
   assert(std::abs(-normal.dot(p2) - d_w) <= 1e-8);

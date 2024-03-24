@@ -182,7 +182,7 @@ void exposeGJK() {
         .DEF_CLASS_FUNC(GJK, getNumIterations)
         .DEF_CLASS_FUNC(GJK, getNumIterationsMomentumStopped)
         .DEF_CLASS_FUNC(GJK, hasClosestPoints)
-        .DEF_CLASS_FUNC(GJK, getClosestPoints)
+        .DEF_CLASS_FUNC(GJK, getWitnessPointsAndNormal)
         .DEF_CLASS_FUNC(GJK, setDistanceEarlyBreak)
         .DEF_CLASS_FUNC(GJK, getGuessFromSimplex);
   }

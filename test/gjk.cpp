@@ -356,11 +356,8 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray, double inflation,
     BOOST_CHECK_EQUAL(status, details::GJK::NoCollision);
   }
 
-  Vec3f w0, w1;
-  Vec3f normal = tf0.rotation().transpose() *
-                 ray.normalized();  // GJK's normal is expressed in the local
-                                    // frame of the first object
-  gjk.getClosestPoints(shape, normal, w0, w1);
+  Vec3f w0, w1, normal;
+  gjk.getWitnessPointsAndNormal(shape, w0, w1, normal);
 
   Vec3f w0_expected(tf0.inverse().transform(tf0.getTranslation() + ray) +
                     inflation * normal);
@@ -442,17 +439,15 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
     BOOST_CHECK_EQUAL(status2, details::GJK::NoCollision);
   }
 
-  Vec3f w0, w1;
+  Vec3f w0, w1, normal;
   if (status == details::GJK::NoCollision ||
       status == details::GJK::CollisionWithPenetrationInformation) {
-    Vec3f normal = -gjk.ray.normalized();
-    gjk.getClosestPoints(shape, normal, w0, w1);
+    gjk.getWitnessPointsAndNormal(shape, w0, w1, normal);
   } else {
     details::EPA epa(64, 1e-6);
     details::EPA::Status epa_status = epa.evaluate(gjk, Vec3f(1, 0, 0));
     BOOST_CHECK_EQUAL(epa_status, details::EPA::AccuracyReached);
-    Vec3f normal = epa.normal;
-    epa.getClosestPoints(shape, normal, w0, w1);
+    epa.getWitnessPointsAndNormal(shape, w0, w1, normal);
   }
 
   EIGEN_VECTOR_IS_APPROX(w0, w0_expected, 1e-10);

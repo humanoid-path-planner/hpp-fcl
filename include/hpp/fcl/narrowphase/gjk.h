@@ -299,16 +299,14 @@ struct HPP_FCL_DLLAPI GJK {
   /// Tells whether the closest points are available.
   bool hasClosestPoints() const { return distance < distance_upper_bound; }
 
-  /// Get the closest points on each object.
+  /// Get the witness points on each object, and the corresponding normal.
   /// @param[in] shape is the Minkowski difference of the two shapes.
-  /// @param[in] normal is the normal of the separating plane found by
-  /// GJK. It points from shape0 to shape1. The normal is used to inflate the
-  /// shapes if they have a non-zero inflation.
   /// @param[out] w0 is the witness point on shape0.
   /// @param[out] w1 is the witness point on shape1.
-  /// @return true on success.
-  bool getClosestPoints(const MinkowskiDiff& shape, const Vec3f& normal,
-                        Vec3f& w0, Vec3f& w1) const;
+  /// @param[out] normal is the normal of the separating plane found by
+  /// GJK. It points from shape0 to shape1.
+  void getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
+                                 Vec3f& w1, Vec3f& normal) const;
 
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;
@@ -536,16 +534,15 @@ struct HPP_FCL_DLLAPI EPA {
   ///         status
   Status evaluate(GJK& gjk, const Vec3f& guess);
 
-  /// Get the closest points on each object.
+  /// Get the witness points on each object, and the corresponding normal.
   /// @param[in] shape is the Minkowski difference of the two shapes.
+  /// @param[out] w0 is the witness point on shape0.
+  /// @param[out] w1 is the witness point on shape1.
   /// @param[in] normal is the normal found by EPA. It points from shape0 to
   /// shape1. The normal is used to inflate the shapes if they have a non-zero
   /// inflation.
-  /// @param[out] w0 is the witness point on shape0.
-  /// @param[out] w1 is the witness point on shape1.
-  /// @return true on success.
-  bool getClosestPoints(const MinkowskiDiff& shape, const Vec3f& normal,
-                        Vec3f& w0, Vec3f& w1) const;
+  void getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
+                                 Vec3f& w1, Vec3f& normal) const;
 
  private:
   /// @brief Allocates memory for the EPA algorithm.

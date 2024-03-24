@@ -376,11 +376,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // If we absolutely want to return some witness points, we could use
     // the following code (or simply merge the early stopped case with the
     // valid case below):
-    // gjk.getClosestPoints(minkowski_difference, p1, p2);
+    // gjk.getWitnessPointsAndNormal(minkowski_difference, p1, p2, normal);
     // p1 = tf1.transform(p1);
     // p2 = tf1.transform(p2);
-    // normal.noalias() = -tf1.getRotation() * gjk.ray;
-    // normal.normalize();
+    // normal = tf1.getRotation() * normal;
   }
 
   void GJKExtractWitnessPointsAndNormal(const Transform3f& tf1,
@@ -402,13 +401,12 @@ struct HPP_FCL_DLLAPI GJKSolver {
         std::logic_error);
 
     distance = gjk.distance;
-    normal = -gjk.ray.normalized();
     // TODO: On degenerated case, the closest points may be non-unique.
     // (i.e. an object face normal is colinear to `gjk.ray`)
-    gjk.getClosestPoints(minkowski_difference, normal, p1, p2);
+    gjk.getWitnessPointsAndNormal(minkowski_difference, p1, p2, normal);
     p1 = tf1.transform(p1);
     p2 = tf1.transform(p2);
-    normal.noalias() = tf1.getRotation() * normal;
+    normal = tf1.getRotation() * normal;
   }
 
   void GJKCollisionExtractWitnessPointsAndNormal(const Transform3f& tf1,
@@ -433,7 +431,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                         FCL_REAL& distance, Vec3f& p1,
                                         Vec3f& p2, Vec3f& normal) const {
     distance = (std::min)(0., -epa.depth);
-    epa.getClosestPoints(minkowski_difference, epa.normal, p1, p2);
+    epa.getWitnessPointsAndNormal(minkowski_difference, p1, p2, normal);
     // The following is very important to understand why EPA can sometimes
     // return a normal that is not colinear to the vector $p_1 - p_2$ when
     // working with tolerances like $\epsilon = 10^{-3}$.
@@ -473,10 +471,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // We compute the middle points of the current $p_1$ and $p_2$ and we use
     // the normal and the distance given by EPA to compute the new $p_1$ and
     // $p_2$.
-    normal.noalias() = tf1.getRotation() * epa.normal;
-    Vec3f p = tf1.transform((p1 + p2) * 0.5);
-    p1 = p - normal * distance * 0.5;
-    p2 = p + normal * distance * 0.5;
+    p1 = tf1.transform(p1);
+    p2 = tf1.transform(p2);
+    normal = tf1.getRotation() * normal;
   }
 
   void EPAFailedExtractWitnessPointsAndNormal(const Transform3f& tf1,
