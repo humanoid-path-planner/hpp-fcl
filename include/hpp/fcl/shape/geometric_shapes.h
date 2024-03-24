@@ -90,6 +90,12 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
  protected:
   /// \brief Radius of the sphere swept around the shape.
   /// Default value is 0.
+  /// Note: this property differs from `inflated` method of certain
+  /// derived classes (e.g. Box, Sphere, Ellipsoid, Capsule, Cone, Cylinder)
+  /// in the sense that inflated returns a new shape which can be inflated but
+  /// also deflated.
+  /// The swept sphere radius is a property of the shape itself and can be
+  /// manually updated between collision checks.
   FCL_REAL m_swept_sphere_radius{0};
 };
 
