@@ -130,10 +130,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// This method assumes `minkowski_difference` has been set.
   template <typename S1, typename S2>
   void getGJKInitialGuess(const S1& s1, const S2& s2, Vec3f& guess,
-                          support_func_guess_t& support_hint) const {
+                          support_func_guess_t& support_hint,
+                          const Vec3f& default_guess = Vec3f(1, 0, 0)) const {
     switch (gjk_initial_guess) {
       case GJKInitialGuess::DefaultGuess:
-        guess = Vec3f(1, 0, 0);
+        guess = default_guess;
         support_hint.setZero();
         break;
       case GJKInitialGuess::CachedGuess:
@@ -204,6 +205,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     const FCL_REAL dummy_precision =
         3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon());
     HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+
     switch (gjk.status) {
       case details::GJK::DidNotRun:
         HPP_FCL_ASSERT(false, "GJK did not run. It should have!",
@@ -217,8 +219,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         //
         // GJK ran out of iterations.
         HPP_FCL_LOG_WARNING("GJK ran out of iterations.");
-        GJKNoCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
+        GJKExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
         gjk_and_epa_ran_successfully = false;
         break;
       case details::GJK::NoCollisionEarlyStopped:
@@ -232,30 +233,31 @@ struct HPP_FCL_DLLAPI GJKSolver {
                        "The distance should be bigger than GJK's "
                        "`distance_upper_bound`.",
                        std::logic_error);
+        gjk_and_epa_ran_successfully = true;
         break;
       case details::GJK::NoCollision:
         //
         // Case where GJK converged and proved that the shapes are not in
         // collision, i.e their distance is above GJK's tolerance (default
         // 1e-6).
-        GJKNoCollisionExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
+        GJKExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
         HPP_FCL_ASSERT(std::abs((p1 - p2).norm() - distance) <=
                            gjk.getTolerance() + dummy_precision,
                        "The distance found by GJK should coincide with the "
                        "distance between the closest points.",
                        std::logic_error);
+        gjk_and_epa_ran_successfully = true;
         break;
       //
       // Next are the cases where GJK found the shapes to be in collision, i.e.
       // their distance is below GJK's tolerance (default 1e-6).
       case details::GJK::CollisionWithPenetrationInformation:
-        GJKCollisionWithPenetrationInfoExtractWitnessPointsAndNormal(
-            tf1, distance, p1, p2, normal);
+        GJKExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
         HPP_FCL_ASSERT(distance <= gjk.getTolerance() + dummy_precision,
-                       "The distance found by GJK should be negative (or at )"
+                       "The distance found by GJK should be negative or at "
                        "least below GJK's tolerance.",
                        std::logic_error);
+        gjk_and_epa_ran_successfully = true;
         break;
       case details::GJK::Collision:
         if (!compute_penetration) {
@@ -264,9 +266,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                                     normal);
         } else {
           //
-          // Case where the shapes are not inflated (box, cylinder, cone,
-          // convex meshes etc.). We need to run the EPA algorithm to find the
-          // witness points, penetration depth and the normal.
+          // GJK was not enough to recover the penetration information.
+          // We need to run the EPA algorithm to find the witness points,
+          // penetration depth and the normal.
 
           // Reset EPA algorithm. Potentially allocate memory if
           // `epa_max_face_num` or `epa_max_vertex_num` are bigger than EPA's
@@ -291,20 +293,17 @@ struct HPP_FCL_DLLAPI GJKSolver {
             // function of the number of iterations.
             case details::EPA::OutOfFaces:
               HPP_FCL_LOG_WARNING("EPA ran out of faces.");
-              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
+              EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               gjk_and_epa_ran_successfully = false;
               break;
             case details::EPA::OutOfVertices:
               HPP_FCL_LOG_WARNING("EPA ran out of vertices.");
-              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
+              EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               gjk_and_epa_ran_successfully = false;
               break;
             case details::EPA::Failed:
               HPP_FCL_LOG_WARNING("EPA ran out of iterations.");
-              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
+              EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               gjk_and_epa_ran_successfully = false;
               break;
             case details::EPA::Valid:
@@ -314,27 +313,23 @@ struct HPP_FCL_DLLAPI GJKSolver {
                   "EPA's penetration distance should be negative (or "
                   "at least below EPA's tolerance).",
                   std::logic_error);
-              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
+              EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               break;
             case details::EPA::Degenerated:
               HPP_FCL_LOG_WARNING(
                   "EPA warning: created a polytope with a degenerated face.");
-              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
+              EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               gjk_and_epa_ran_successfully = true;
               break;
             case details::EPA::NonConvex:
               HPP_FCL_LOG_WARNING(
                   "EPA warning: EPA got called onto non-convex shapes.");
-              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
+              EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               gjk_and_epa_ran_successfully = true;
               break;
             case details::EPA::InvalidHull:
               HPP_FCL_LOG_WARNING("EPA warning: created an invalid polytope.");
-              EPAValidExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
-                                                    normal);
+              EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               gjk_and_epa_ran_successfully = true;
               break;
             case details::EPA::DidNotRun:
@@ -357,7 +352,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
               break;
           }
         }
-        break;  // End of case details::GJK::Inside
+        break;  // End of case details::GJK::Collision
     }
     return gjk_and_epa_ran_successfully;
   }
@@ -380,42 +375,32 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // normal.normalize();
   }
 
-  void GJKNoCollisionExtractWitnessPointsAndNormal(const Transform3f& tf1,
-                                                   FCL_REAL& distance,
-                                                   Vec3f& p1, Vec3f& p2,
-                                                   Vec3f& normal) const {
+  void GJKExtractWitnessPointsAndNormal(const Transform3f& tf1,
+                                        FCL_REAL& distance, Vec3f& p1,
+                                        Vec3f& p2, Vec3f& normal) const {
     // Apart from early stopping, there are two cases where GJK says there is no
     // collision:
     // 1. GJK proved the distance is above its tolerance (default 1e-6).
     // 2. GJK ran out of iterations.
     // In any case, `gjk.ray`'s norm is bigger than GJK's tolerance and thus
     // it can safely be normalized.
-    distance = gjk.distance;
     const FCL_REAL dummy_precision =
         3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon());
     HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+
     HPP_FCL_ASSERT(
         gjk.ray.norm() > gjk.getTolerance() - dummy_precision,
         "The norm of GJK's ray should be bigger than GJK's tolerance.",
         std::logic_error);
-    normal.noalias() = -tf1.getRotation() * gjk.ray;
-    normal.normalize();
+
+    distance = gjk.distance;
+    normal = -gjk.ray.normalized();
     // TODO: On degenerated case, the closest points may be non-unique.
     // (i.e. an object face normal is colinear to `gjk.ray`)
-    gjk.getClosestPoints(minkowski_difference, p1, p2);
+    gjk.getClosestPoints(minkowski_difference, normal, p1, p2);
     p1 = tf1.transform(p1);
     p2 = tf1.transform(p2);
-  }
-
-  void GJKCollisionWithPenetrationInfoExtractWitnessPointsAndNormal(
-      const Transform3f& tf1, FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
-      Vec3f& normal) const {
-    distance = gjk.distance;
-    gjk.getClosestPoints(minkowski_difference, p1, p2);
-    normal.noalias() = tf1.getRotation() * (p1 - p2);
-    normal.normalize();
-    p1 = tf1.transform(p1);
-    p2 = tf1.transform(p2);
+    normal.noalias() = tf1.getRotation() * normal;
   }
 
   void GJKCollisionExtractWitnessPointsAndNormal(const Transform3f& tf1,
@@ -426,21 +411,21 @@ struct HPP_FCL_DLLAPI GJKSolver {
     const FCL_REAL dummy_precision =
         3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon());
     HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+
     HPP_FCL_ASSERT(gjk.distance <= gjk.getTolerance() + dummy_precision,
                    "The distance should be lower than GJK's tolerance.",
                    std::logic_error);
+
     distance = gjk.distance;
-    gjk.getClosestPoints(minkowski_difference, p1, p2);
     p1 = p2 = normal =
         Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
   }
 
-  void EPAValidExtractWitnessPointsAndNormal(const Transform3f& tf1,
-                                             FCL_REAL& distance, Vec3f& p1,
-                                             Vec3f& p2, Vec3f& normal) const {
+  void EPAExtractWitnessPointsAndNormal(const Transform3f& tf1,
+                                        FCL_REAL& distance, Vec3f& p1,
+                                        Vec3f& p2, Vec3f& normal) const {
     distance = (std::min)(0., -epa.depth);
-    normal.noalias() = tf1.getRotation() * epa.normal;
-    epa.getClosestPoints(minkowski_difference, p1, p2);
+    epa.getClosestPoints(minkowski_difference, epa.normal, p1, p2);
     // The following is very important to understand why EPA can sometimes
     // return a normal that is not colinear to the vector $p_1 - p_2$ when
     // working with tolerances like $\epsilon = 10^{-3}$.
@@ -480,6 +465,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // We compute the middle points of the current $p_1$ and $p_2$ and we use
     // the normal and the distance given by EPA to compute the new $p_1$ and
     // $p_2$.
+    normal.noalias() = tf1.getRotation() * epa.normal;
     Vec3f p = tf1.transform((p1 + p2) * 0.5);
     p1 = p - normal * distance * 0.5;
     p2 = p + normal * distance * 0.5;

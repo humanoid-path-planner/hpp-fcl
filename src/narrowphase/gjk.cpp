@@ -353,7 +353,7 @@ template <typename Shape0>
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
     const ShapeBase* s1, bool identity, Eigen::Array<FCL_REAL, 1, 2>& inflation,
     MinkowskiDiff::ShapeData data[2]) {
-  inflation[1] = 0;
+  inflation[1] = s1->getSweptSphereRadius();
   switch (s1->getNodeType()) {
     case GEOM_TRIANGLE:
       if (identity)
@@ -366,7 +366,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
       else
         return getSupportFuncTpl<Shape0, Box, false>;
     case GEOM_SPHERE:
-      inflation[1] = static_cast<const Sphere*>(s1)->radius;
+      inflation[1] += static_cast<const Sphere*>(s1)->radius;
       if (identity)
         return getSupportFuncTpl<Shape0, Sphere, true>;
       else
@@ -377,7 +377,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
       else
         return getSupportFuncTpl<Shape0, Ellipsoid, false>;
     case GEOM_CAPSULE:
-      inflation[1] = static_cast<const Capsule*>(s1)->radius;
+      inflation[1] += static_cast<const Capsule*>(s1)->radius;
       if (identity)
         return getSupportFuncTpl<Shape0, Capsule, true>;
       else
@@ -416,7 +416,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
     const ShapeBase* s0, const ShapeBase* s1, bool identity,
     Eigen::Array<FCL_REAL, 1, 2>& inflation, MinkowskiDiff::ShapeData data[2]) {
-  inflation[0] = 0;
+  inflation[0] = s0->getSweptSphereRadius();
   switch (s0->getNodeType()) {
     case GEOM_TRIANGLE:
       return makeGetSupportFunction1<TriangleP>(s1, identity, inflation, data);
@@ -425,14 +425,14 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
       return makeGetSupportFunction1<Box>(s1, identity, inflation, data);
       break;
     case GEOM_SPHERE:
-      inflation[0] = static_cast<const Sphere*>(s0)->radius;
+      inflation[0] += static_cast<const Sphere*>(s0)->radius;
       return makeGetSupportFunction1<Sphere>(s1, identity, inflation, data);
       break;
     case GEOM_ELLIPSOID:
       return makeGetSupportFunction1<Ellipsoid>(s1, identity, inflation, data);
       break;
     case GEOM_CAPSULE:
-      inflation[0] = static_cast<const Capsule*>(s0)->radius;
+      inflation[0] += static_cast<const Capsule*>(s0)->radius;
       return makeGetSupportFunction1<Capsule>(s1, identity, inflation, data);
       break;
     case GEOM_CONE:
@@ -537,6 +537,8 @@ void GJK::initialize() {
 void GJK::reset(size_t max_iterations_, FCL_REAL tolerance_) {
   max_iterations = max_iterations_;
   tolerance = tolerance_;
+  HPP_FCL_ASSERT(tolerance_ > 0, "Tolerance must be positive.",
+                 std::invalid_argument);
   status = DidNotRun;
   nfree = 0;
   simplex = nullptr;
@@ -607,38 +609,42 @@ bool getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
   return true;
 }
 
-/// Inflate the points
+/// Inflate the points along a normal.
+/// The normal is typically the normal of the separating plane found by GJK
+/// or the normal found by EPA.
+/// The normal should follow hpp-fcl convention: it points from shape0 to
+/// shape1.
 template <bool Separated>
-void inflate(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) {
+void inflate(const MinkowskiDiff& shape, const Vec3f& normal, Vec3f& w0,
+             Vec3f& w1) {
+#ifndef NDEBUG
+  const FCL_REAL dummy_precision =
+      Eigen::NumTraits<FCL_REAL>::dummy_precision();
+  assert((normal.norm() - 1) < dummy_precision);
+  if ((w1 - w0).norm() > dummy_precision) {
+    if (Separated) {
+      assert((w1 - w0).normalized().dot(normal) >= -dummy_precision);
+    } else {
+      assert((w0 - w1).normalized().dot(normal) >= -dummy_precision);
+    }
+  }
+#endif
+
   const Eigen::Array<FCL_REAL, 1, 2>& I(shape.inflation);
   Eigen::Array<bool, 1, 2> inflate(I > 0);
   if (!inflate.any()) return;
-  Vec3f w(w0 - w1);
-  FCL_REAL n2 = w.squaredNorm();
-  // TODO should be use a threshold (Eigen::NumTraits<FCL_REAL>::epsilon()) ?
-  if (n2 == 0.) {
-    if (inflate[0]) w0[0] += I[0] * (Separated ? -1 : 1);
-    if (inflate[1]) w1[0] += I[1] * (Separated ? 1 : -1);
-    return;
-  }
 
-  w /= std::sqrt(n2);
-  if (Separated) {
-    if (inflate[0]) w0 -= I[0] * w;
-    if (inflate[1]) w1 += I[1] * w;
-  } else {
-    if (inflate[0]) w0 += I[0] * w;
-    if (inflate[1]) w1 -= I[1] * w;
-  }
+  if (inflate[0]) w0 += I[0] * normal;
+  if (inflate[1]) w1 -= I[1] * normal;
 }
 
 }  // namespace details
 
-bool GJK::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0,
-                           Vec3f& w1) const {
+bool GJK::getClosestPoints(const MinkowskiDiff& shape, const Vec3f& normal,
+                           Vec3f& w0, Vec3f& w1) const {
   bool res = details::getClosestPoints(*simplex, w0, w1);
   if (!res) return false;
-  details::inflate<true>(shape, w0, w1);
+  details::inflate<true>(shape, normal, w0, w1);
   return true;
 }
 
@@ -692,7 +698,10 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
       // if the final simplex of GJK is not a tetrahedron.
       assert(rl > 0);
       status = Collision;
-      distance = -inflation;  // should we take rl into account ?
+      // GJK is not enough to recover the penetration depth, hence we ignore the
+      // inflation for now.
+      // EPA needs to be run to recover the penetration depth.
+      distance = rl;
       break;
     }
 
@@ -767,15 +776,14 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         iterations_momentum_stop = iterations;
         continue;
       }
-      // TODO When inflation is strictly positive, the distance may be exactly
-      // zero (so the ray is not zero) and we are not in the case rl <
-      // tolerance.
-
-      // At this point, GJK has converged and penetration information can always
-      // be recovered without running EPA.
+      // At this point, GJK has converged and we know that rl > tolerance (see
+      // check above). Therefore, penetration information can always be
+      // recovered without running EPA.
       distance = rl - inflation;
       if (distance < tolerance) {
         status = CollisionWithPenetrationInformation;
+      } else {
+        status = NoCollision;
       }
       break;
     }
@@ -805,10 +813,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
     }
     assert(nfree + next_simplex.rank == 4);
     current = next;
-    if (!inside) rl = ray.norm();
+    rl = ray.norm();
     if (inside || rl == 0) {
       status = Collision;
-      distance = -inflation;
+      // GJK is not enough to recover the penetration depth, hence we ignore the
+      // inflation for now.
+      // EPA needs to be run to recover the penetration depth.
+      distance = rl;
       break;
     }
 
@@ -1717,7 +1728,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
 
       status = ((iterations) < max_iterations) ? status : Failed;
       normal = outer.n;
-      depth = outer.d;
+      depth = outer.d + gjk.shape->inflation.sum();
       result.rank = 3;
       result.vertex[0] = &sv_store[outer.vertex_id[0]];
       result.vertex[1] = &sv_store[outer.vertex_id[1]];
@@ -1879,11 +1890,11 @@ bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
   return false;
 }
 
-bool EPA::getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0,
-                           Vec3f& w1) const {
+bool EPA::getClosestPoints(const MinkowskiDiff& shape, const Vec3f& normal,
+                           Vec3f& w0, Vec3f& w1) const {
   bool res = details::getClosestPoints(result, w0, w1);
   if (!res) return false;
-  details::inflate<false>(shape, w0, w1);
+  details::inflate<false>(shape, normal, w0, w1);
   return true;
 }
 

@@ -234,6 +234,8 @@ struct HPP_FCL_DLLAPI GJK {
   /// Suggested values are 100 iterations and a tolerance of 1e-6.
   GJK(size_t max_iterations_, FCL_REAL tolerance_)
       : max_iterations(max_iterations_), tolerance(tolerance_) {
+    HPP_FCL_ASSERT(tolerance_ > 0, "Tolerance must be positive.",
+                   std::invalid_argument);
     initialize();
   }
 
@@ -266,8 +268,15 @@ struct HPP_FCL_DLLAPI GJK {
   bool hasClosestPoints() const { return distance < distance_upper_bound; }
 
   /// Get the closest points on each object.
-  /// @return true on success
-  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const;
+  /// @param[in] shape is the Minkowski difference of the two shapes.
+  /// @param[in] normal is the normal of the separating plane found by
+  /// GJK. It points from shape0 to shape1. The normal is used to inflate the
+  /// shapes if they have a non-zero inflation.
+  /// @param[out] w0 is the witness point on shape0.
+  /// @param[out] w1 is the witness point on shape1.
+  /// @return true on success.
+  bool getClosestPoints(const MinkowskiDiff& shape, const Vec3f& normal,
+                        Vec3f& w0, Vec3f& w1) const;
 
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;
@@ -496,8 +505,15 @@ struct HPP_FCL_DLLAPI EPA {
   Status evaluate(GJK& gjk, const Vec3f& guess);
 
   /// Get the closest points on each object.
-  /// @return true on success
-  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const;
+  /// @param[in] shape is the Minkowski difference of the two shapes.
+  /// @param[in] normal is the normal found by EPA. It points from shape0 to
+  /// shape1. The normal is used to inflate the shapes if they have a non-zero
+  /// inflation.
+  /// @param[out] w0 is the witness point on shape0.
+  /// @param[out] w1 is the witness point on shape1.
+  /// @return true on success.
+  bool getClosestPoints(const MinkowskiDiff& shape, const Vec3f& normal,
+                        Vec3f& w0, Vec3f& w1) const;
 
  private:
   /// @brief Allocates memory for the EPA algorithm.

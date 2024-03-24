@@ -473,10 +473,9 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
 
   // Get GJK initial guess
   Vec3f guess;
-  guess = (t1.a + t1.b + t1.c - t2.a - t2.b - t2.c) / 3;
+  Vec3f default_guess = (t1.a + t1.b + t1.c - t2.a - t2.b - t2.c) / 3;
   support_func_guess_t support_hint;
-  bool enable_penetration = true;
-  getGJKInitialGuess(t1, t2, guess, support_hint);
+  getGJKInitialGuess(t1, t2, guess, support_hint, default_guess);
   epa.status = details::EPA::DidNotRun;  // EPA is never called in this function
 
   details::GJK::Status gjk_status =
@@ -487,28 +486,22 @@ bool GJKSolver::shapeDistance<TriangleP, TriangleP>(
     support_func_cached_guess = gjk.support_hint;
   }
 
-  gjk.getClosestPoints(minkowski_difference, p1, p2);
+  normal.noalias() = -gjk.ray.normalized();
+  gjk.getClosestPoints(minkowski_difference, normal, p1, p2);
 
-  if ((gjk_status == details::GJK::NoCollision) ||
-      (gjk_status == details::GJK::Failed)) {
+  if (gjk_status != details::GJK::Collision) {
     // TODO On degenerated case, the closest point may be wrong
     // (i.e. an object face normal is colinear to gjk.ray
     // assert (dist == (w0 - w1).norm());
     dist = gjk.distance;
-
+    normal = tf1.getRotation() * normal;
+    assert(gjk.ray.norm() > gjk.getTolerance());
     return true;
-  } else if (gjk_status == details::GJK::Collision) {
-    if (enable_penetration) {
-      FCL_REAL penetrationDepth = details::computePenetration(
-          t1.a, t1.b, t1.c, t2.a, t2.b, t2.c, normal);
-      dist = -penetrationDepth;
-      assert(dist <= 1e-6);
-      // GJK says Inside when below GJK.tolerance. So non intersecting
-      // triangle may trigger "Inside" and have no penetration.
-      return penetrationDepth < 0;
-    }
-    dist = 0;
-    return false;
+  } else {
+    FCL_REAL penetrationDepth =
+        details::computePenetration(t1.a, t1.b, t1.c, t2.a, t2.b, t2.c, normal);
+    dist = -penetrationDepth;
+    return dist > 0;
   }
   assert(false && "should not reach this point");
   return false;
