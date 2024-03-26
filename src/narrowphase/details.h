@@ -84,7 +84,9 @@ inline bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
   Vec3f diff = s_c - segment_point;
 
   FCL_REAL diffN = diff.norm();
-  distance = diffN - s1.radius - s2.radius;
+  FCL_REAL r1 = s1.radius + s1.getSweptSphereRadius();
+  FCL_REAL r2 = s2.radius + s2.getSweptSphereRadius();
+  distance = diffN - r1 - r2;
 
   if (distance > 0) return false;
 
@@ -93,7 +95,7 @@ inline bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
   if (normal_) *normal_ = -diff / diffN;
 
   if (contact_points) {
-    *contact_points = segment_point + diff * s2.radius;
+    *contact_points = segment_point + diff * r2;
   }
 
   return true;
@@ -112,7 +114,9 @@ inline bool sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
   lineSegmentPointClosestToPoint(s_c, pos1, pos2, segment_point);
   normal = segment_point - s_c;
   FCL_REAL norm(normal.norm());
-  dist = norm - s1.radius - s2.radius;
+  FCL_REAL r1 = s1.radius + s1.getSweptSphereRadius();
+  FCL_REAL r2 = s2.radius + s2.getSweptSphereRadius();
+  dist = norm - r1 - r2;
 
   static const FCL_REAL eps(std::numeric_limits<FCL_REAL>::epsilon());
   if (norm > eps) {
@@ -120,13 +124,10 @@ inline bool sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
   } else {
     normal << 1, 0, 0;
   }
-  p1 = s_c + normal * s1.radius;
-  p2 = segment_point - normal * s2.radius;
+  p1 = s_c + normal * r1;
+  p2 = segment_point - normal * r2;
 
-  if (dist <= 0) {
-    return false;
-  }
-  return true;
+  return (dist > 0);
 }
 
 inline bool sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,

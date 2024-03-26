@@ -92,8 +92,8 @@ FCL_REAL ShapeShapeDistance<Capsule, Capsule>(
   // We assume that capsules are oriented along z-axis.
   FCL_REAL halfLength1 = capsule1->halfLength;
   FCL_REAL halfLength2 = capsule2->halfLength;
-  FCL_REAL radius1 = capsule1->radius;
-  FCL_REAL radius2 = capsule2->radius;
+  FCL_REAL radius1 = (capsule1->radius + capsule1->getSweptSphereRadius());
+  FCL_REAL radius2 = (capsule2->radius + capsule2->getSweptSphereRadius());
   // direction of capsules
   // ||d1|| = 2 * halfLength1
   const fcl::Vec3f d1 = 2 * halfLength1 * tf1.getRotation().col(2);
