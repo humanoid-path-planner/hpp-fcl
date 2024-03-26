@@ -33,8 +33,6 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cmath>
-#include <limits>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/internal/shape_shape_func.h>
@@ -64,8 +62,8 @@ FCL_REAL ShapeShapeDistance<Sphere, Sphere>(
   // We assume that spheres are centered at the origin of their frame.
   const fcl::Vec3f& center1 = tf1.getTranslation();
   const fcl::Vec3f& center2 = tf2.getTranslation();
-  FCL_REAL r1 = s1->radius;
-  FCL_REAL r2 = s2->radius;
+  FCL_REAL r1 = (s1->radius + s1->getSweptSphereRadius());
+  FCL_REAL r2 = (s2->radius + s2->getSweptSphereRadius());
 
   result.o1 = o1;
   result.o2 = o2;
@@ -92,8 +90,8 @@ std::size_t ShapeShapeCollider<Sphere, Sphere>::run(
   // We assume that spheres are centered at the origin.
   const fcl::Vec3f& center1 = tf1.getTranslation();
   const fcl::Vec3f& center2 = tf2.getTranslation();
-  FCL_REAL r1 = s1->radius;
-  FCL_REAL r2 = s2->radius;
+  FCL_REAL r1 = (s1->radius + s1->getSweptSphereRadius());
+  FCL_REAL r2 = (s2->radius + s2->getSweptSphereRadius());
   FCL_REAL margin = request.security_margin;
 
   Vec3f c1c2 = center2 - center1;
@@ -108,7 +106,7 @@ std::size_t ShapeShapeCollider<Sphere, Sphere>::run(
   internal::updateDistanceLowerBoundFromLeaf(request, result, distToCollision,
                                              p1, p2, normal);
   if (distToCollision <= request.collision_distance_threshold) {
-    Contact contact(o1, o2, -1, -1, p1, p2, normal, distToCollision + margin);
+    Contact contact(o1, o2, -1, -1, p1, p2, normal, dist - (r1 + r2));
     result.addContact(contact);
     return 1;
   }
