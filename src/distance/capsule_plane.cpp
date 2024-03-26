@@ -36,8 +36,6 @@
 
 /** \author Florent Lamiraux */
 
-#include <cmath>
-#include <limits>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
