@@ -82,7 +82,9 @@ set(${LIBRARY_NAME}_SOURCES
   distance/ellipsoid_halfspace.cpp
   distance/ellipsoid_plane.cpp
   distance/convex_halfspace.cpp
+  distance/convex_plane.cpp
   distance/triangle_halfspace.cpp
+  distance/triangle_plane.cpp
   intersect.cpp
   math/transform.cpp
   traversal/traversal_recurse.cpp

@@ -48,7 +48,7 @@
 namespace hpp {
 namespace fcl {
 
-template <typename T_SH1, typename T_SH2>
+template <typename ShapeType1, typename ShapeType2>
 struct ShapeShapeDistancer {
   static FCL_REAL run(const CollisionGeometry* o1, const Transform3f& tf1,
                       const CollisionGeometry* o2, const Transform3f& tf2,
@@ -57,8 +57,8 @@ struct ShapeShapeDistancer {
     if (request.isSatisfied(result)) return result.min_distance;
     FCL_REAL distance;
     Vec3f closest_p1, closest_p2, normal;
-    const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
-    const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
+    const ShapeType1* obj1 = static_cast<const ShapeType1*>(o1);
+    const ShapeType2* obj2 = static_cast<const ShapeType2*>(o2);
     nsolver->shapeDistance(*obj1, tf1, *obj2, tf2, distance,
                            request.enable_signed_distance, closest_p1,
                            closest_p2, normal);
@@ -165,11 +165,10 @@ SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Cylinder);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Capsule);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Ellipsoid, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Ellipsoid, Plane);
-// TODO
-// SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, TriangleP);
-
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(ConvexBase, Halfspace);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(ConvexBase, Plane);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Halfspace);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Plane);
 
 #undef SHAPE_SHAPE_DISTANCE_SPECIALIZATION
 

@@ -872,11 +872,14 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 template <typename PolygonT>
 class Convex;
 
-/// @brief Half Space: this is equivalent to the Plane in ODE. The separation
-/// plane is defined as n * x = d; Points in the negative side of the separation
-/// plane (i.e. {x | n * x < d}) are inside the half space and points in the
-/// positive side of the separation plane (i.e. {x | n * x > d}) are outside the
-/// half space
+/// @brief Half Space: this is equivalent to the Plane in ODE.
+/// A Half space has a priviledged direction: the direction of the normal.
+/// The separation plane is defined as n * x = d; Points in the negative side of
+/// the separation plane (i.e. {x | n * x < d}) are inside the half space and
+/// points in the positive side of the separation plane (i.e. {x | n * x > d})
+/// are outside the half space.
+/// Note: prefer using a Halfspace instead of a Plane if possible, it has better
+/// behavior w.r.t. collision detection algorithms.
 class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
  public:
   /// @brief Construct a half space with normal direction and offset
@@ -910,7 +913,7 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
   }
 
   FCL_REAL distance(const Vec3f& p) const {
-    return std::abs(n.dot(p) - (d + this->getSweptSphereRadius()));
+    return std::abs(this->signedDistance(p));
   }
 
   /// @brief Compute AABB
@@ -964,7 +967,10 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-/// @brief Infinite plane
+/// @brief Infinite plane.
+/// A plane can be viewed as two half spaces; it has no priviledged direction.
+/// Note: prefer using a Halfspace instead of a Plane if possible, it has better
+/// behavior w.r.t. collision detection algorithms.
 class HPP_FCL_DLLAPI Plane : public ShapeBase {
  public:
   /// @brief Construct a plane with normal direction and offset
@@ -993,11 +999,20 @@ class HPP_FCL_DLLAPI Plane : public ShapeBase {
   virtual Plane* clone() const { return new Plane(*this); };
 
   FCL_REAL signedDistance(const Vec3f& p) const {
-    return n.dot(p) - (d + this->getSweptSphereRadius());
+    const FCL_REAL non_inflated_signed_dist = n.dot(p) - d;
+    FCL_REAL signed_dist =
+        std::abs(n.dot(p) - d) - this->getSweptSphereRadius();
+    if (non_inflated_signed_dist >= 0) {
+      return signed_dist;
+    }
+    if (signed_dist >= 0) {
+      return -signed_dist;
+    }
+    return signed_dist;
   }
 
   FCL_REAL distance(const Vec3f& p) const {
-    return std::abs(n.dot(p) - (d + this->getSweptSphereRadius()));
+    return std::abs(std::abs(n.dot(p) - d) - this->getSweptSphereRadius());
   }
 
   /// @brief Compute AABB
