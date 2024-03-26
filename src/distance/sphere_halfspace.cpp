@@ -55,13 +55,14 @@ FCL_REAL ShapeShapeDistance<Sphere, Halfspace>(
     const DistanceRequest&, DistanceResult& result) {
   const Sphere& s1 = static_cast<const Sphere&>(*o1);
   const Halfspace& s2 = static_cast<const Halfspace&>(*o2);
-  details::sphereHalfspaceIntersect(s1, tf1, s2, tf2, result.min_distance,
-                                    result.nearest_points[0],
-                                    result.nearest_points[1], result.normal);
+  details::halfspaceDistance(s2, tf2, s1, tf1, result.min_distance,
+                             result.nearest_points[1], result.nearest_points[0],
+                             result.normal);
   result.o1 = o1;
   result.o2 = o2;
   result.b1 = -1;
   result.b2 = -1;
+  result.normal = -result.normal;
   return result.min_distance;
 }
 
@@ -72,14 +73,13 @@ FCL_REAL ShapeShapeDistance<Halfspace, Sphere>(
     const DistanceRequest&, DistanceResult& result) {
   const Halfspace& s1 = static_cast<const Halfspace&>(*o1);
   const Sphere& s2 = static_cast<const Sphere&>(*o2);
-  details::sphereHalfspaceIntersect(s2, tf2, s1, tf1, result.min_distance,
-                                    result.nearest_points[1],
-                                    result.nearest_points[0], result.normal);
+  details::halfspaceDistance(s1, tf1, s2, tf2, result.min_distance,
+                             result.nearest_points[0], result.nearest_points[1],
+                             result.normal);
   result.o1 = o1;
   result.o2 = o2;
   result.b1 = -1;
   result.b2 = -1;
-  result.normal = -result.normal;
   return result.min_distance;
 }
 }  // namespace fcl

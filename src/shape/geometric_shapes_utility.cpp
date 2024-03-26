@@ -255,8 +255,10 @@ Halfspace transform(const Halfspace& a, const Transform3f& tf) {
 
   Vec3f n = tf.getRotation() * a.n;
   FCL_REAL d = a.d + n.dot(tf.getTranslation());
+  Halfspace result(n, d);
+  result.setSweptSphereRadius(a.getSweptSphereRadius());
 
-  return Halfspace(n, d);
+  return result;
 }
 
 Plane transform(const Plane& a, const Transform3f& tf) {
@@ -268,8 +270,23 @@ Plane transform(const Plane& a, const Transform3f& tf) {
 
   Vec3f n = tf.getRotation() * a.n;
   FCL_REAL d = a.d + n.dot(tf.getTranslation());
+  Plane result(n, d);
+  result.setSweptSphereRadius(a.getSweptSphereRadius());
 
-  return Plane(n, d);
+  return result;
+}
+
+std::array<Halfspace, 2> transformToHalfspaces(const Plane& a,
+                                               const Transform3f& tf) {
+  // A plane can be represented by two halfspaces
+
+  Vec3f n = tf.getRotation() * a.n;
+  FCL_REAL d = a.d + n.dot(tf.getTranslation());
+  std::array<Halfspace, 2> result = {Halfspace(n, d), Halfspace(-n, -d)};
+  result[0].setSweptSphereRadius(a.getSweptSphereRadius());
+  result[1].setSweptSphereRadius(a.getSweptSphereRadius());
+
+  return result;
 }
 
 template <>

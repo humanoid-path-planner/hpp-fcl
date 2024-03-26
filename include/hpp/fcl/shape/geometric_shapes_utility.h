@@ -251,6 +251,9 @@ HPP_FCL_DLLAPI Halfspace transform(const Halfspace& a, const Transform3f& tf);
 
 HPP_FCL_DLLAPI Plane transform(const Plane& a, const Transform3f& tf);
 
+HPP_FCL_DLLAPI std::array<Halfspace, 2> transformToHalfspaces(
+    const Plane& a, const Transform3f& tf);
+
 }  // namespace fcl
 
 }  // namespace hpp

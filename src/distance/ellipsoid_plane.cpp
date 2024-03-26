@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021-2022, INRIA
+ *  Copyright (c) 2021-2024, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,9 +34,6 @@
 
 /** \author Louis Montaut */
 
-#include <cmath>
-#include <limits>
-#include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
 #include <hpp/fcl/internal/shape_shape_func.h>
@@ -53,13 +50,14 @@ FCL_REAL ShapeShapeDistance<Ellipsoid, Plane>(
     const DistanceRequest&, DistanceResult& result) {
   const Ellipsoid& s1 = static_cast<const Ellipsoid&>(*o1);
   const Plane& s2 = static_cast<const Plane&>(*o2);
-  details::ellipsoidPlaneIntersect(s1, tf1, s2, tf2, result.min_distance,
-                                   result.nearest_points[0],
-                                   result.nearest_points[1], result.normal);
+  details::planeDistance(s2, tf2, s1, tf1, result.min_distance,
+                         result.nearest_points[1], result.nearest_points[0],
+                         result.normal);
   result.o1 = o1;
   result.o2 = o2;
   result.b1 = -1;
   result.b2 = -1;
+  result.normal = -result.normal;
   return result.min_distance;
 }
 
@@ -70,14 +68,13 @@ FCL_REAL ShapeShapeDistance<Plane, Ellipsoid>(
     const DistanceRequest&, DistanceResult& result) {
   const Plane& s1 = static_cast<const Plane&>(*o1);
   const Ellipsoid& s2 = static_cast<const Ellipsoid&>(*o2);
-  details::ellipsoidPlaneIntersect(s2, tf2, s1, tf1, result.min_distance,
-                                   result.nearest_points[1],
-                                   result.nearest_points[0], result.normal);
+  details::planeDistance(s1, tf1, s2, tf2, result.min_distance,
+                         result.nearest_points[0], result.nearest_points[1],
+                         result.normal);
   result.o1 = o1;
   result.o2 = o2;
   result.b1 = -1;
   result.b2 = -1;
-  result.normal = -result.normal;
   return result.min_distance;
 }
 }  // namespace fcl

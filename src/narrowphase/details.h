@@ -4,7 +4,7 @@
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
  *  Copyright (c) 2018-2019, Centre National de la Recherche Scientifique
- *  Copyright (c) 2021-2022, INRIA
+ *  Copyright (c) 2021-2024, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -1803,18 +1803,82 @@ inline bool halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
                               const ShapeBase& s, const Transform3f& tf2,
                               FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
                               Vec3f& normal) {
-  Vec3f n_w = tf1.getRotation() * h.n;
-  FCL_REAL d_w = h.d + n_w.dot(tf1.getTranslation());
-  Vec3f n_2(tf2.getRotation().transpose() * n_w);
+  // TODO(louis): handle multiple contact points when the halfspace normal is
+  // parallel to the shape's surface (every primitive except sphere and
+  // ellipsoid).
+
+  // Express halfspace in world frame
+  Halfspace new_h = transform(h, tf1);
+
+  // Express halfspace normal in shape frame
+  Vec3f n_2(tf2.getRotation().transpose() * new_h.n);
+
+  // Compute support of shape in direction of halfspace normal
   int hint = 0;
-  bool constexpr use_swept_sphere_radius_in_support = true;
-  p2 = getSupport<use_swept_sphere_radius_in_support>(&s, -n_2, hint);
+  constexpr bool use_swept_sphere_radius_in_support = true;
+  p2.noalias() = getSupport<use_swept_sphere_radius_in_support>(&s, -n_2, hint);
   p2 = tf2.transform(p2);
 
-  dist = p2.dot(n_w) - d_w;
-  p1 = p2 - dist * n_w;
-  assert(std::abs(p1.dot(n_w) - d_w) <= 1e-8);
-  normal = n_w;
+  dist = new_h.signedDistance(p2);
+  p1.noalias() = p2 - dist * new_h.n;
+  normal.noalias() = new_h.n;
+
+  const FCL_REAL dummy_precision =
+      std::sqrt(Eigen::NumTraits<FCL_REAL>::dummy_precision());
+  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+  assert(new_h.distance(p1) <= dummy_precision);
+
+  return dist <= 0;
+}
+
+/// @param p1 closest (or most penetrating) point on the Plane,
+/// @param p2 closest (or most penetrating) point on the shape,
+/// @param normal the halfspace normal.
+/// @return true if the distance is negative (the shape overlaps).
+inline bool planeDistance(const Plane& plane, const Transform3f& tf1,
+                          const ShapeBase& s, const Transform3f& tf2,
+                          FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+  // TODO(louis): handle multiple contact points when the plane normal is
+  // parallel to the shape's surface (every primitive except sphere and
+  // ellipsoid).
+
+  // Express plane as two halfspaces in world frame
+  std::array<Halfspace, 2> new_h = transformToHalfspaces(plane, tf1);
+
+  // Express halfspace normals in shape frame
+  Vec3f n_h1(tf2.getRotation().transpose() * new_h[0].n);
+  Vec3f n_h2(tf2.getRotation().transpose() * new_h[1].n);
+
+  // Compute support of shape in direction of halfspace normal and its opposite
+  int hint = 0;
+  constexpr bool inflate_support_if_needed = true;
+  Vec3f p2h1 = getSupport<inflate_support_if_needed>(&s, -n_h1, hint);
+  p2h1 = tf2.transform(p2h1);
+
+  hint = 0;
+  Vec3f p2h2 = getSupport<inflate_support_if_needed>(&s, -n_h2, hint);
+  p2h2 = tf2.transform(p2h2);
+
+  FCL_REAL dist1 = new_h[0].signedDistance(p2h1);
+  FCL_REAL dist2 = new_h[1].signedDistance(p2h2);
+
+  const FCL_REAL dummy_precision =
+      std::sqrt(Eigen::NumTraits<FCL_REAL>::dummy_precision());
+  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+
+  if (dist1 >= dist2) {
+    dist = dist1;
+    p2.noalias() = p2h1;
+    p1.noalias() = p2 - dist * new_h[0].n;
+    normal.noalias() = new_h[0].n;
+    assert(new_h[0].distance(p1) <= dummy_precision);
+  } else {
+    dist = dist2;
+    p2.noalias() = p2h2;
+    p1.noalias() = p2 - dist * new_h[1].n;
+    normal.noalias() = new_h[1].n;
+    assert(new_h[1].distance(p1) <= dummy_precision);
+  }
 
   return dist <= 0;
 }
