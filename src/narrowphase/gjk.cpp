@@ -74,10 +74,15 @@ void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
 template <bool InflateSupport>
 inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
                             int&, MinkowskiDiff::ShapeData*) {
-  const FCL_REAL inflate = (dir.array() == 0).any() ? 1.00000001 : 1.;
-  support.noalias() =
-      (dir.array() > 0)
-          .select(inflate * box->halfSide, -inflate * box->halfSide);
+  // The inflate value is simply to make the specialized functions with box
+  // have a preferred side for edge cases.
+  static const FCL_REAL inflate = (dir.array() == 0).any() ? 1 + 1e-10 : 1.;
+  static const FCL_REAL dummy_precision =
+      Eigen::NumTraits<FCL_REAL>::dummy_precision();
+  Vec3f support1 = (dir.array() > dummy_precision).select(box->halfSide, 0);
+  Vec3f support2 =
+      (dir.array() < -dummy_precision).select(-inflate * box->halfSide, 0);
+  support.noalias() = support1 + support2;
 
   if (InflateSupport) {
     support += box->getSweptSphereRadius() * dir.normalized();
@@ -87,11 +92,11 @@ inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
 template <bool InflateSupport>
 inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir,
                             Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
-  support.setZero();
-
   if (InflateSupport) {
-    support +=
-        (sphere->getSweptSphereRadius() + sphere->radius) * dir.normalized();
+    support.noalias() =
+        (sphere->radius + sphere->getSweptSphereRadius()) * dir.normalized();
+  } else {
+    support.setZero();
   }
 
   HPP_FCL_UNUSED_VARIABLE(sphere);
@@ -119,32 +124,41 @@ inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
 template <bool InflateSupport>
 inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
                             Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
-  support.head<2>().setZero();
-  if (dir[2] > 0)
+  static const FCL_REAL dummy_precision =
+      Eigen::NumTraits<FCL_REAL>::dummy_precision();
+  support.setZero();
+  if (dir[2] > dummy_precision) {
     support[2] = capsule->halfLength;
-  else
+  } else if (dir[2] < -dummy_precision) {
     support[2] = -capsule->halfLength;
+  }
 
   if (InflateSupport) {
     support +=
-        (capsule->getSweptSphereRadius() + capsule->radius) * dir.normalized();
+        (capsule->radius + capsule->getSweptSphereRadius()) * dir.normalized();
   }
 }
 
 template <bool InflateSupport>
 void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support, int&,
                      MinkowskiDiff::ShapeData*) {
+  static const FCL_REAL dummy_precision =
+      Eigen::NumTraits<FCL_REAL>::dummy_precision();
+
   // The cone radius is, for -h < z < h, (h - z) * r / (2*h)
-  static const FCL_REAL inflate = 1.00001;
+  // The inflate value is simply to make the specialized functions with cone
+  // have a preferred side for edge cases.
+  static const FCL_REAL inflate = 1 + 1e-10;
   FCL_REAL h = cone->halfLength;
   FCL_REAL r = cone->radius;
 
-  if (dir.head<2>().isZero()) {
+  if (dir.head<2>().isZero(dummy_precision)) {
     support.head<2>().setZero();
-    if (dir[2] > 0)
+    if (dir[2] > dummy_precision) {
       support[2] = h;
-    else
+    } else {
       support[2] = -inflate * h;
+    }
   } else {
     FCL_REAL zdist = dir[0] * dir[0] + dir[1] * dir[1];
     FCL_REAL len = zdist + dir[2] * dir[2];
@@ -176,27 +190,32 @@ void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support, int&,
 template <bool InflateSupport>
 void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
                      int&, MinkowskiDiff::ShapeData*) {
-  // The inflation makes the object look strictly convex to GJK and EPA. This
-  // helps solving particular cases (e.g. a cylinder with itself at the same
-  // position...)
-  static const FCL_REAL inflate = 1.00001;
+  static const FCL_REAL dummy_precision =
+      Eigen::NumTraits<FCL_REAL>::dummy_precision();
+
+  // The inflate value is simply to make the specialized functions with cylinder
+  // have a preferred side for edge cases.
+  static const FCL_REAL inflate = 1 + 1e-10;
   FCL_REAL half_h = cylinder->halfLength;
   FCL_REAL r = cylinder->radius;
 
-  if (dir.head<2>() == Eigen::Matrix<FCL_REAL, 2, 1>::Zero()) half_h *= inflate;
+  const bool dir_is_aligned_with_z = dir.head<2>().isZero(dummy_precision);
+  if (dir_is_aligned_with_z) half_h *= inflate;
 
-  if (dir[2] > 0)
+  if (dir[2] > dummy_precision) {
     support[2] = half_h;
-  else if (dir[2] < 0)
+  } else if (dir[2] < -dummy_precision) {
     support[2] = -half_h;
-  else {
+  } else {
     support[2] = 0;
     r *= inflate;
   }
-  if (dir.head<2>() == Eigen::Matrix<FCL_REAL, 2, 1>::Zero())
+
+  if (dir_is_aligned_with_z) {
     support.head<2>().setZero();
-  else
+  } else {
     support.head<2>() = dir.head<2>().normalized() * r;
+  }
 
   assert(fabs(support[0] * dir[1] - support[1] * dir[0]) <
          sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
