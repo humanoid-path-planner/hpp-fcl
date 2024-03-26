@@ -3,6 +3,8 @@
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
+#include <hpp/fcl/collision_utility.h>
+#include <hpp/fcl/fwd.hh>
 
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
@@ -578,6 +580,51 @@ Plane makeRandomPlane(FCL_REAL min_size, FCL_REAL max_size) {
 Halfspace makeRandomHalfspace(FCL_REAL min_size, FCL_REAL max_size) {
   return Halfspace(Vec3f::Random().normalized(),
                    rand_interval(min_size, max_size));
+}
+
+std::shared_ptr<ShapeBase> makeRandomGeometry(NODE_TYPE node_type) {
+  switch (node_type) {
+    case GEOM_TRIANGLE:
+      HPP_FCL_THROW_PRETTY(std::string(HPP_FCL_PRETTY_FUNCTION) + " for " +
+                               std::string(get_node_type_name(node_type)) +
+                               " is not yet implemented.",
+                           std::invalid_argument);
+      break;
+    case GEOM_BOX:
+      return std::make_shared<Box>(makeRandomBox(0.1, 1.0));
+      break;
+    case GEOM_SPHERE:
+      return std::make_shared<Sphere>(makeRandomSphere(0.1, 1.0));
+      break;
+    case GEOM_ELLIPSOID:
+      return std::make_shared<Ellipsoid>(makeRandomEllipsoid(0.1, 1.0));
+      break;
+    case GEOM_CAPSULE:
+      return std::make_shared<Capsule>(
+          makeRandomCapsule({0.1, 0.2}, {0.8, 1.0}));
+      break;
+    case GEOM_CONE:
+      return std::make_shared<Cone>(makeRandomCone({0.1, 0.2}, {0.8, 1.0}));
+      break;
+    case GEOM_CYLINDER:
+      return std::make_shared<Cylinder>(
+          makeRandomCylinder({0.1, 0.2}, {0.8, 1.0}));
+      break;
+    case GEOM_CONVEX:
+      return std::make_shared<Convex<Triangle>>(makeRandomConvex(0.1, 1.0));
+      break;
+    case GEOM_PLANE:
+      return std::make_shared<Plane>(makeRandomPlane(0.1, 1.0));
+      break;
+    case GEOM_HALFSPACE:
+      return std::make_shared<Halfspace>(makeRandomHalfspace(0.1, 1.0));
+      break;
+    default:
+      HPP_FCL_THROW_PRETTY(std::string(get_node_type_name(node_type)) +
+                               " is not a primitive shape.",
+                           std::invalid_argument);
+      break;
+  }
 }
 
 }  // namespace fcl

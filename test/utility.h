@@ -227,6 +227,8 @@ Plane makeRandomPlane(FCL_REAL min_size, FCL_REAL max_size);
 
 Halfspace makeRandomHalfspace(FCL_REAL min_size, FCL_REAL max_size);
 
+std::shared_ptr<ShapeBase> makeRandomGeometry(NODE_TYPE node_type);
+
 }  // namespace fcl
 
 }  // namespace hpp

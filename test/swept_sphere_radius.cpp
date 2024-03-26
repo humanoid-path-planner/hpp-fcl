@@ -271,3 +271,110 @@ BOOST_AUTO_TEST_CASE(ssr_cylinder_cylinder) {
                                        {max_shape_size, max_shape_size});
   test_gjksolver_swept_sphere_radius(shape1, shape2);
 }
+
+template <typename S1, typename S2>
+void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
+  std::cout << "Testing collision between "
+            << std::string(get_node_type_name(shape1.getNodeType())) << " and "
+            << std::string(get_node_type_name(shape2.getNodeType())) << '\n';
+
+  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
+  std::size_t n = 1;
+  std::vector<Transform3f> tf1s;
+  std::vector<Transform3f> tf2s;
+  generateRandomTransforms(extents, tf1s, n);
+  generateRandomTransforms(extents, tf2s, n);
+
+  const std::array<FCL_REAL, 4> inflations = {0, 0.1, 1., 10.};
+  for (const FCL_REAL& inflation1 : inflations) {
+    shape1.setSweptSphereRadius(inflation1);
+    for (const FCL_REAL& inflation2 : inflations) {
+      shape2.setSweptSphereRadius(inflation2);
+      for (std::size_t i = 0; i < n; ++i) {
+        Transform3f tf1 = tf1s[i];
+        Transform3f tf2 = tf2s[i];
+
+        SET_LINE;
+        CollisionRequest request;
+        request.enable_contact = true;
+        // We make sure we get witness points by setting the security margin to
+        // infinity. That way shape1 and shape2 will always be considered in
+        // collision.
+        request.security_margin = std::numeric_limits<FCL_REAL>::max();
+        const FCL_REAL tol = 1e-6;
+        request.gjk_tolerance = tol;
+        request.epa_tolerance = tol;
+
+        std::array<CollisionResult, 2> result;
+
+        // Without swept sphere radius
+        const FCL_REAL inflation1 = shape1.getSweptSphereRadius();
+        const FCL_REAL inflation2 = shape2.getSweptSphereRadius();
+        shape1.setSweptSphereRadius(0.);
+        shape2.setSweptSphereRadius(0.);
+        hpp::fcl::collide(&shape1, tf1, &shape2, tf2, request, result[0]);
+
+        // With swept sphere radius
+        shape1.setSweptSphereRadius(inflation1);
+        shape2.setSweptSphereRadius(inflation2);
+        hpp::fcl::collide(&shape1, tf1, &shape2, tf2, request, result[1]);
+
+        BOOST_CHECK(result[0].isCollision());
+        BOOST_CHECK(result[1].isCollision());
+        if (result[0].isCollision() && result[1].isCollision()) {
+          std::array<Contact, 2> contact;
+          contact[0] = result[0].getContact(0);
+          contact[1] = result[1].getContact(0);
+
+          // Precision is dependent on the inflation.
+          // The issue of precision does not come from the default behavior of
+          // hppfcl, but from the result in which we manually take the swept
+          // sphere radius into account in GJK/EPA iterations.
+          const FCL_REAL precision =
+              3 * sqrt(tol) + (1 / 100.0) * std::max(inflation1, inflation2);
+          const FCL_REAL inflation = inflation1 + inflation2;
+
+          // Check that the distance is the same
+          HPP_FCL_CHECK_REAL_CLOSE(contact[0].penetration_depth - inflation,
+                                   contact[1].penetration_depth, precision);
+
+          // Check that the normal is the same
+          HPP_FCL_CHECK_CONDITION((contact[0].normal).dot(contact[1].normal) >
+                                  0);
+          HPP_FCL_CHECK_CONDITION(
+              std::abs(1 - (contact[0].normal).dot(contact[1].normal)) <
+              precision);
+
+          // Check that the witness points are the same
+          HPP_FCL_CHECK_VECTOR_CLOSE(
+              contact[0].nearest_points[0] + inflation1 * contact[0].normal,
+              contact[1].nearest_points[0], precision);
+          HPP_FCL_CHECK_VECTOR_CLOSE(
+              contact[0].nearest_points[1] - inflation2 * contact[0].normal,
+              contact[1].nearest_points[1], precision);
+        }
+      }
+    }
+  }
+}
+
+const std::vector<NODE_TYPE> tested_geometries = {
+    GEOM_BOX,      GEOM_SPHERE, GEOM_ELLIPSOID, GEOM_CAPSULE,  GEOM_CONE,
+    GEOM_CYLINDER, GEOM_CONVEX, GEOM_PLANE,     GEOM_HALFSPACE};
+
+BOOST_AUTO_TEST_CASE(ssr_geom_geom) {
+  // Each possible geom pair is tested twice
+  for (const NODE_TYPE& shape_type1 : tested_geometries) {
+    for (const NODE_TYPE& shape_type2 : tested_geometries) {
+      if (shape_type1 == GEOM_PLANE || shape_type1 == GEOM_HALFSPACE) {
+        if (shape_type2 == GEOM_PLANE || shape_type2 == GEOM_HALFSPACE) {
+          // TODO(louis): check plane-plane plane-halfspace etc. collisions
+          continue;
+        }
+      }
+      std::shared_ptr<ShapeBase> shape1 = makeRandomGeometry(shape_type1);
+      std::shared_ptr<ShapeBase> shape2 = makeRandomGeometry(shape_type2);
+      test_collide_swept_sphere_radius(*shape1, *shape2);
+    }
+  }
+}
