@@ -502,65 +502,6 @@ bool shapeDistance(const GJKSolver* nsolver, const CollisionRequest& request,
   return false;
 }
 
-template <typename Polygone, typename Shape, int Options>
-bool shapeCollision(const GJKSolver* nsolver, const Convex<Polygone>& convex1,
-                    const Convex<Polygone>& convex2, const Transform3f& tf1,
-                    const Shape& shape, const Transform3f& tf2,
-                    FCL_REAL& distance_lower_bound, Vec3f& contact_point,
-                    Vec3f& normal) {
-  enum { RTIsIdentity = Options & RelativeTransformationIsIdentity };
-
-  const Transform3f Id;
-  Vec3f contact_point2, normal2;
-  FCL_REAL distance_lower_bound2;
-  bool collision1, collision2;
-  if (RTIsIdentity)
-    collision1 =
-        nsolver->shapeIntersect(convex1, Id, shape, tf2, distance_lower_bound,
-                                true, &contact_point, &normal);
-  else
-    collision1 =
-        nsolver->shapeIntersect(convex1, tf1, shape, tf2, distance_lower_bound,
-                                true, &contact_point, &normal);
-
-  if (RTIsIdentity)
-    collision2 =
-        nsolver->shapeIntersect(convex2, Id, shape, tf2, distance_lower_bound2,
-                                true, &contact_point2, &normal2);
-  else
-    collision2 =
-        nsolver->shapeIntersect(convex2, tf1, shape, tf2, distance_lower_bound2,
-                                true, &contact_point2, &normal2);
-
-  if (collision1 && collision2) {
-    // In some case, EPA might returns something like
-    // -(std::numeric_limits<FCL_REAL>::max)().
-    if (distance_lower_bound != -(std::numeric_limits<FCL_REAL>::max)() &&
-        distance_lower_bound2 != -(std::numeric_limits<FCL_REAL>::max)()) {
-      if (distance_lower_bound > distance_lower_bound2)  // switch values
-      {
-        distance_lower_bound = distance_lower_bound2;
-        contact_point = contact_point2;
-        normal = normal2;
-      }
-    } else if (distance_lower_bound2 !=
-               -(std::numeric_limits<FCL_REAL>::max)()) {
-      distance_lower_bound = distance_lower_bound2;
-      contact_point = contact_point2;
-      normal = normal2;
-    }
-    return true;
-  } else if (collision1) {
-    return true;
-  } else if (collision2) {
-    distance_lower_bound = distance_lower_bound2;
-    contact_point = contact_point2;
-    normal = normal2;
-    return true;
-  }
-
-  return false;
-}
 }  // namespace details
 
 /// @brief Traversal node for collision between height field and shape
@@ -758,7 +699,8 @@ class HeightFieldShapeDistanceTraversalNode : public DistanceTraversalNodeBase {
         model2_bv);  // TODO(jcarpent): tf1 is not taken into account here.
   }
 
-  /// @brief Distance testing between leaves (one triangle and one shape)
+  /// @brief Distance testing between leaves (one bin of the height field and
+  /// one shape)
   void leafComputeDistance(unsigned int b1, unsigned int /*b2*/) const {
     if (this->enable_statistics) this->num_leaf_tests++;
 
