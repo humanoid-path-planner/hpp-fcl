@@ -46,6 +46,7 @@
 #include <iostream>
 #include <hpp/fcl/internal/tools.h>
 #include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
+#include <hpp/fcl/internal/shape_shape_func.h>
 
 using namespace hpp::fcl;
 
@@ -358,15 +359,16 @@ void testBoxBoxContactPoints(const Matrix3f& R) {
   Transform3f tf2 = Transform3f(R);
 
   Vec3f normal;
-  Vec3f point(0., 0., 0.);
+  Vec3f p1, p2;
   double distance;
 
   // Make sure the two boxes are colliding
   solver1.gjk_tolerance = 1e-5;
   solver1.epa_tolerance = 1e-5;
-  bool res =
-      solver1.shapeIntersect(s1, tf1, s2, tf2, distance, true, &point, &normal);
-  FCL_CHECK(res);
+  const bool compute_penetration = true;
+  solver1.shapeDistance(s1, tf1, s2, tf2, distance, compute_penetration, p1, p2,
+                        normal);
+  FCL_CHECK(distance <= 0);
 
   // Compute global vertices
   for (std::size_t i = 0; i < 8; ++i) vertices[i] = tf2.transform(vertices[i]);
@@ -376,6 +378,7 @@ void testBoxBoxContactPoints(const Matrix3f& R) {
 
   // The lowest vertex along z-axis should be the contact point
   FCL_CHECK(normal.isApprox(Vec3f(0, 0, 1), 1e-6));
+  Vec3f point = 0.5 * (p1 + p2);
   FCL_CHECK(vertices[0].head<2>().isApprox(point.head<2>(), 1e-6));
   FCL_CHECK(vertices[0][2] <= point[2] && point[2] < 0);
 }

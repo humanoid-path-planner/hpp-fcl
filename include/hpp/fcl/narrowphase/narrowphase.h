@@ -56,35 +56,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
  public:
   typedef Eigen::Array<FCL_REAL, 1, 2> Array2d;
 
-  /// @brief intersection checking between two shapes.
-  /// @return true if the shapes are colliding.
-  /// @note the variables `gjk_status` and `epa_status` can be used to
-  /// check if GJK or EPA ran successfully.
-  /// @note (12 feb, 2024): this function is never called in the
-  /// hpp-fcl library.
-  /// Either the `shapeDistance` in this file is called or a specialized
-  /// function. However, this function is still tested in the test suite,
-  /// notably in `test/collision.cpp` and `test/geometric_shapes.cpp`.
-  template <typename S1, typename S2>
-  bool shapeIntersect(const S1& s1, const Transform3f& tf1, const S2& s2,
-                      const Transform3f& tf2, FCL_REAL& distance_lower_bound,
-                      bool compute_penetration, Vec3f* contact_points,
-                      Vec3f* normal) const {
-    Vec3f p1(Vec3f::Zero()), p2(Vec3f::Zero());
-    Vec3f n(Vec3f::Zero());
-    FCL_REAL distance((std::numeric_limits<FCL_REAL>::max)());
-    bool gjk_and_epa_ran_successfully = runGJKAndEPA(
-        s1, tf1, s2, tf2, distance, compute_penetration, p1, p2, n);
-    HPP_FCL_UNUSED_VARIABLE(gjk_and_epa_ran_successfully);
-    distance_lower_bound = distance;
-    if (compute_penetration) {
-      if (normal != NULL) *normal = n;
-      if (contact_points != NULL) *contact_points = 0.5 * (p1 + p2);
-    }
-    return (gjk.status == details::GJK::Collision ||
-            gjk.status == details::GJK::CollisionWithPenetrationInformation);
-  }
-
   //// @brief intersection checking between one shape and a triangle with
   /// transformation
   /// @return true if the shape are colliding.
@@ -692,37 +663,6 @@ HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction(
     const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
     bool compute_penetration, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
 
-#define SHAPE_INTERSECT_SPECIALIZATION_BASE(S1, S2)                 \
-  template <>                                                       \
-  HPP_FCL_DLLAPI bool GJKSolver::shapeIntersect<S1, S2>(            \
-      const S1& s1, const Transform3f& tf1, const S2& s2,           \
-      const Transform3f& tf2, FCL_REAL& distance_lower_bound, bool, \
-      Vec3f* contact_points, Vec3f* normal) const
-
-#define SHAPE_INTERSECT_SPECIALIZATION(S1, S2) \
-  SHAPE_INTERSECT_SPECIALIZATION_BASE(S1, S2); \
-  SHAPE_INTERSECT_SPECIALIZATION_BASE(S2, S1)
-
-SHAPE_INTERSECT_SPECIALIZATION(Sphere, Capsule);
-SHAPE_INTERSECT_SPECIALIZATION_BASE(Sphere, Sphere);
-SHAPE_INTERSECT_SPECIALIZATION(Sphere, Box);
-SHAPE_INTERSECT_SPECIALIZATION(Sphere, Halfspace);
-SHAPE_INTERSECT_SPECIALIZATION(Sphere, Plane);
-
-SHAPE_INTERSECT_SPECIALIZATION(Halfspace, Box);
-SHAPE_INTERSECT_SPECIALIZATION(Halfspace, Capsule);
-SHAPE_INTERSECT_SPECIALIZATION(Halfspace, Cylinder);
-SHAPE_INTERSECT_SPECIALIZATION(Halfspace, Cone);
-SHAPE_INTERSECT_SPECIALIZATION(Halfspace, Plane);
-
-SHAPE_INTERSECT_SPECIALIZATION(Plane, Box);
-SHAPE_INTERSECT_SPECIALIZATION(Plane, Capsule);
-SHAPE_INTERSECT_SPECIALIZATION(Plane, Cylinder);
-SHAPE_INTERSECT_SPECIALIZATION(Plane, Cone);
-
-#undef SHAPE_INTERSECT_SPECIALIZATION
-#undef SHAPE_INTERSECT_SPECIALIZATION_BASE
-
 #define SHAPE_DISTANCE_SPECIALIZATION_BASE(S1, S2)                      \
   template <>                                                           \
   HPP_FCL_DLLAPI bool GJKSolver::shapeDistance<S1, S2>(                 \
@@ -748,68 +688,6 @@ SHAPE_DISTANCE_SPECIALIZATION_BASE(TriangleP, TriangleP);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wc99-extensions"
 #endif
-/// \name Shape intersection specializations
-/// \{
-
-// param doc is the doxygen detailled description (should be enclosed in /** */
-// and contain no dot for some obscure reasons).
-#define HPP_FCL_DECLARE_SHAPE_INTERSECT(Shape1, Shape2, doc)      \
-  /** @brief Fast implementation for Shape1-Shape2 collision. */  \
-  doc template <>                                                 \
-  HPP_FCL_DLLAPI bool GJKSolver::shapeIntersect<Shape1, Shape2>(  \
-      const Shape1& s1, const Transform3f& tf1, const Shape2& s2, \
-      const Transform3f& tf2, FCL_REAL& distance_lower_bound,     \
-      bool compute_penetration, Vec3f* contact_points, Vec3f* normal) const
-#define HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Shape, doc) \
-  HPP_FCL_DECLARE_SHAPE_INTERSECT(Shape, Shape, doc)
-#define HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Shape1, Shape2, doc) \
-  HPP_FCL_DECLARE_SHAPE_INTERSECT(Shape1, Shape2, doc);           \
-  HPP_FCL_DECLARE_SHAPE_INTERSECT(Shape2, Shape1, doc)
-
-HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Sphere, );
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Sphere, Capsule, );
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Sphere, Halfspace, );
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Sphere, Plane, );
-
-template <>
-HPP_FCL_DLLAPI bool GJKSolver::shapeIntersect<Box, Sphere>(
-    const Box& s1, const Transform3f& tf1, const Sphere& s2,
-    const Transform3f& tf2, FCL_REAL& distance_lower_bound,
-    bool compute_penetration, Vec3f* contact_points, Vec3f* normal) const;
-
-#ifdef IS_DOXYGEN  // for doxygen only
-/** \todo currently disabled and to re-enable it, API of function
- *  \ref obbDisjointAndLowerBoundDistance should be modified.
- *  */
-template <>
-HPP_FCL_DLLAPI bool GJKSolver::shapeIntersect<Box, Box>(
-    const Box& s1, const Transform3f& tf1, const Box& s2,
-    const Transform3f& tf2, FCL_REAL& distance_lower_bound,
-    bool compute_penetration, Vec3f* contact_points, Vec3f* normal) const;
-#endif
-// HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Box,);
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Box, Halfspace, );
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Box, Plane, );
-
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Capsule, Halfspace, );
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Capsule, Plane, );
-
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Cylinder, Halfspace, );
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Cylinder, Plane, );
-
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Cone, Halfspace, );
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Cone, Plane, );
-
-HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Halfspace, );
-
-HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF(Plane, );
-HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR(Plane, Halfspace, );
-
-#undef HPP_FCL_DECLARE_SHAPE_INTERSECT
-#undef HPP_FCL_DECLARE_SHAPE_INTERSECT_SELF
-#undef HPP_FCL_DECLARE_SHAPE_INTERSECT_PAIR
-
-/// \}
 
 /// \name Shape triangle interaction specializations
 /// \{
