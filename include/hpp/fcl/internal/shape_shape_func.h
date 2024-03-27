@@ -78,7 +78,7 @@ FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
       o1, tf1, o2, tf2, nsolver, request, result);
 }
 
-template <typename T_SH1, typename T_SH2>
+template <typename ShapeType1, typename ShapeType2>
 struct ShapeShapeCollider {
   static std::size_t run(const CollisionGeometry* o1, const Transform3f& tf1,
                          const CollisionGeometry* o2, const Transform3f& tf2,
@@ -94,7 +94,7 @@ struct ShapeShapeCollider {
     // sense.
     distanceRequest.enable_signed_distance =
         (request.enable_contact || request.security_margin < 0);
-    FCL_REAL distance = ShapeShapeDistance<T_SH1, T_SH2>(
+    FCL_REAL distance = ShapeShapeDistance<ShapeType1, ShapeType2>(
         o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
 
     size_t num_contacts = 0;
