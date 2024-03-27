@@ -411,7 +411,6 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
   tf1.setTranslation(T);
 
   details::MinkowskiDiff shape;
-  bool constexpr inflate_supports = false;
   // No need to inflate supports when using GJK/EPA; these algos will
   // correctly handle the inflation after they have converged.
   bool constexpr InflateSupportsDuringGjkEpaIterations = false;
