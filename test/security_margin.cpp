@@ -186,6 +186,10 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
   const Transform3f tf1;
   const Transform3f tf2_collision(Vec3f(0, 0, 3));
 
+  // NOTE: when comparing a result to zero, **do not use BOOST_CHECK_CLOSE**!
+  // Zero is not close to any other number, so the test will always fail.
+  // Instead, use BOOST_CHECK_SMALL.
+
   // No security margin - collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
@@ -193,7 +197,7 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
     collide(s1.get(), tf1, s2.get(), tf2_collision, collisionRequest,
             collisionResult);
     BOOST_CHECK(collisionResult.isCollision());
-    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound, 0, 1e-8);
+    BOOST_CHECK_SMALL(collisionResult.distance_lower_bound, 1e-8);
     BOOST_CHECK_SMALL(collisionResult.getContact(0).penetration_depth, 1e-8);
   }
 
@@ -220,7 +224,7 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
         Vec3f(tf2_collision.getTranslation() + Vec3f(0, 0, distance)));
     collide(s1.get(), tf1, s2.get(), tf2, collisionRequest, collisionResult);
     BOOST_CHECK(collisionResult.isCollision());
-    BOOST_CHECK_CLOSE(collisionResult.distance_lower_bound, 0, 1e-8);
+    BOOST_CHECK_SMALL(collisionResult.distance_lower_bound, 1e-8);
     BOOST_CHECK_CLOSE(collisionResult.getContact(0).penetration_depth, distance,
                       1e-8);
   }
