@@ -40,11 +40,11 @@
 
 /// @cond INTERNAL
 
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/BV/BV.h>
-#include <hpp/fcl/shape/geometric_shapes_utility.h>
-#include <hpp/fcl/internal/traversal_node_base.h>
+#include "hpp/fcl/collision_data.h"
+#include "hpp/fcl/BV/BV.h"
+#include "hpp/fcl/shape/geometric_shapes_utility.h"
+#include "hpp/fcl/internal/traversal_node_base.h"
+#include "hpp/fcl/internal/shape_shape_func.h"
 
 namespace hpp {
 namespace fcl {
@@ -72,27 +72,8 @@ class HPP_FCL_DLLAPI ShapeCollisionTraversalNode
 
   /// @brief Intersection testing between leaves (two shapes)
   void leafCollides(int, int, FCL_REAL&) const {
-    FCL_REAL distance;
-    if (request.enable_contact &&
-        request.num_max_contacts > result->numContacts()) {
-      Vec3f contact_point, normal;
-      if (nsolver->shapeIntersect(*model1, tf1, *model2, tf2, distance, true,
-                                  &contact_point, &normal)) {
-        result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE,
-                                   contact_point, normal, distance));
-      }
-    } else {
-      bool res = nsolver->shapeIntersect(*model1, tf1, *model2, tf2, distance,
-                                         request.enable_distance_lower_bound,
-                                         NULL, NULL);
-      if (request.enable_distance_lower_bound)
-        result->updateDistanceLowerBound(distance);
-      if (res) {
-        if (request.num_max_contacts > result->numContacts())
-          result->addContact(
-              Contact(model1, model2, Contact::NONE, Contact::NONE));
-      }
-    }
+    ShapeShapeCollide<S1, S2>(this->model1, this->tf1, this->model2, this->tf2,
+                              this->nsolver, this->request, *(this->result));
   }
 
   const S1* model1;
