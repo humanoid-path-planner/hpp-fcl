@@ -290,15 +290,15 @@ BOOST_AUTO_TEST_CASE(collide_spheresphere) {
 
   tf1 = Transform3f();
   tf2 = Transform3f();
-  normal.setZero();  // If the centers of two sphere are at the same position,
-                     // the normal is (0, 0, 0)
+  normal << 1, 0, 0;  // If the centers of two sphere are at the same position,
+                      // the normal is (1, 0, 0)
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform;
-  normal.setZero();  // If the centers of two sphere are at the same position,
-                     // the normal is (0, 0, 0)
+  normal << 1, 0, 0;  // If the centers of two sphere are at the same position,
+                      // the normal is (1, 0, 0)
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
