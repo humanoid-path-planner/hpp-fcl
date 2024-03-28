@@ -264,33 +264,44 @@ inline bool projectInTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3,
   return false;
 }
 
-// Intersection between sphere and triangle
-// Sphere is in position tf1, Triangle is expressed in global frame
-inline bool sphereTriangleIntersect(const Sphere& s, const Transform3f& tf1,
-                                    const Vec3f& P1, const Vec3f& P2,
-                                    const Vec3f& P3, FCL_REAL& distance,
-                                    Vec3f& p1, Vec3f& p2, Vec3f& normal_) {
-  Vec3f normal = (P2 - P1).cross(P3 - P1);
-  normal.normalize();
+/// @param p1 closest (or most penetrating) point on the first Sphere,
+/// @param p2 closest (or most penetrating) point on the second Sphere,
+/// @param normal pointing from shape 1 to shape 2 (sphere1 to sphere2).
+inline void sphereTriangleDistance(const Sphere& s, const Transform3f& tf1,
+                                   const TriangleP& tri, const Transform3f& tf2,
+                                   FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
+                                   Vec3f& normal) {
+  const Vec3f& P1 = tf2.transform(tri.a);
+  const Vec3f& P2 = tf2.transform(tri.b);
+  const Vec3f& P3 = tf2.transform(tri.c);
+
+  Vec3f tri_normal = (P2 - P1).cross(P3 - P1);
+  tri_normal.normalize();
   const Vec3f& center = tf1.getTranslation();
-  const FCL_REAL& radius = s.radius;
+  // Note: comparing an object with a swept-sphere radius of r1 against another
+  // object with a swept-sphere radius of r2 is equivalent to comparing the
+  // first object with a swept-sphere radius of r1 + r2 against the second
+  // object with a swept-sphere radius of 0.
+  const FCL_REAL& radius =
+      s.radius + s.getSweptSphereRadius() + tri.getSweptSphereRadius();
   assert(radius >= 0);
+  assert(s.radius >= 0);
   Vec3f p1_to_center = center - P1;
-  FCL_REAL distance_from_plane = p1_to_center.dot(normal);
+  FCL_REAL distance_from_plane = p1_to_center.dot(tri_normal);
   Vec3f closest_point(
       Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
   FCL_REAL min_distance_sqr, distance_sqr;
 
   if (distance_from_plane < 0) {
     distance_from_plane *= -1;
-    normal *= -1;
+    tri_normal *= -1;
   }
 
-  if (projectInTriangle(P1, P2, P3, normal, center)) {
-    closest_point = center - normal * distance_from_plane;
+  if (projectInTriangle(P1, P2, P3, tri_normal, center)) {
+    closest_point = center - tri_normal * distance_from_plane;
     min_distance_sqr = distance_from_plane;
   } else {
-    // Compute distance to each each and take minimal distance
+    // Compute distance to each edge and take minimal distance
     Vec3f nearest_on_edge;
     min_distance_sqr = segmentSqrDistance(P1, P2, center, closest_point);
 
@@ -308,18 +319,17 @@ inline bool sphereTriangleIntersect(const Sphere& s, const Transform3f& tf1,
 
   if (min_distance_sqr < radius * radius) {
     // Collision
-    normal_ = (closest_point - center).normalized();
-    p1 = p2 = closest_point;
+    normal = (closest_point - center).normalized();
+    p1 = center + normal * (s.radius + s.getSweptSphereRadius());
+    p2 = closest_point - normal * tri.getSweptSphereRadius();
     distance = sqrt(min_distance_sqr) - radius;
     assert(distance < 0);
-    return true;
   } else {
-    normal_ = (closest_point - center).normalized();
-    p1 = center + normal_ * radius;
-    p2 = closest_point;
+    normal = (closest_point - center).normalized();
+    p1 = center + normal * (s.radius + s.getSweptSphereRadius());
+    p2 = closest_point - normal * tri.getSweptSphereRadius();
     distance = sqrt(min_distance_sqr) - radius;
     assert(distance >= 0);
-    return false;
   }
 }
 

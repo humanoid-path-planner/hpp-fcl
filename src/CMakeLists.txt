@@ -85,6 +85,8 @@ set(${LIBRARY_NAME}_SOURCES
   distance/convex_plane.cpp
   distance/triangle_halfspace.cpp
   distance/triangle_plane.cpp
+  distance/triangle_triangle.cpp
+  distance/triangle_sphere.cpp
   intersect.cpp
   math/transform.cpp
   traversal/traversal_recurse.cpp

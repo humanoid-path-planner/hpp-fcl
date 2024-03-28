@@ -148,7 +148,7 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
       const GJKSolver* nsolver, const DistanceRequest& request, \
       DistanceResult& result)
 
-// Shape intersect algorithms based on:
+// Shape distance algorithms based on:
 // - built-in function: 0
 // - GJK:               1
 //
@@ -158,7 +158,7 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+-----------+--------+
 // | box        |  1  |   0    |    1    |   1  |    1     |   0   |      0     |    1     |    1      |    1   |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+-----------+--------+
-// | sphere     |/////|   0    |    0    |   1  |    0     |   0   |      0     |    1     |    1      |    1   |
+// | sphere     |/////|   0    |    0    |   1  |    0     |   0   |      0     |    0     |    1      |    1   |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+-----------+--------+
 // | capsule    |/////|////////|    0    |   1  |    1     |   0   |      0     |    1     |    1      |    1   |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+-----------+--------+
@@ -178,8 +178,8 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+-----------+--------+
 //
 // Number of pairs: 55
-//   - Specialized: 25
-//   - GJK:         30
+//   - Specialized: 26
+//   - GJK:         29
 // clang-format on
 
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box, Halfspace);
@@ -203,7 +203,8 @@ SHAPE_SHAPE_DISTANCE_SPECIALIZATION(ConvexBase, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(ConvexBase, Plane);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Plane);
-// SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, TriangleP);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, TriangleP);
+SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Sphere);
 // SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Plane, Halfspace);
 // SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Plane, Plane);
 // SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Halfspace, Halfspace);
