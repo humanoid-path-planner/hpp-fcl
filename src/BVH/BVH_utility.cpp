@@ -38,6 +38,7 @@
 #include <hpp/fcl/BVH/BVH_utility.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
+#include <hpp/fcl/internal/shape_shape_func.h>
 
 namespace hpp {
 namespace fcl {
@@ -56,6 +57,8 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
   box_pose = pose.inverseTimes(box_pose);
 
   GJKSolver gjk;
+  // Early-stop GJK as soon as a separating plane is found
+  gjk.gjk.setDistanceEarlyBreak(1e-3);
 
   // Check what triangles should be kept.
   // TODO use the BV hierarchy
@@ -77,17 +80,22 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
           break;
         }
       }
-      const Vec3f& p0 = model_vertices_[t[0]];
-      const Vec3f& p1 = model_vertices_[t[1]];
-      const Vec3f& p2 = model_vertices_[t[2]];
-      Vec3f c1, c2, normal;
-      FCL_REAL distance;
-      bool compute_penetration = false;  // we only need to know if there is a
-                                         // collision or not
-      if (!keep_this_tri &&
-          gjk.shapeTriangleInteraction(box, box_pose, p0, p1, p2, Transform3f(),
-                                       distance, compute_penetration, c1, c2,
-                                       normal)) {
+
+      const TriangleP tri(model_vertices_[t[0]], model_vertices_[t[1]],
+                          model_vertices_[t[2]]);
+      const bool enable_nearest_points = false;
+      const bool compute_penetration = false;  // we only need to know if there
+                                               // is a collision or not
+      const DistanceRequest distanceRequest(enable_nearest_points,
+                                            compute_penetration);
+      DistanceResult distanceResult;
+      const FCL_REAL distance = ShapeShapeDistance<Box, TriangleP>(
+          &box, box_pose, &tri, Transform3f(), &gjk, distanceRequest,
+          distanceResult);
+      bool is_collision =
+          (distance <= gjk.getDistancePrecision(compute_penetration));
+
+      if (!keep_this_tri && is_collision) {
         keep_this_tri = true;
       }
     }

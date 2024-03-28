@@ -87,13 +87,15 @@ struct ShapeShapeCollider {
                          CollisionResult& result) {
     if (request.isSatisfied(result)) return result.numContacts();
 
+    // When reaching this point, `nsolver` has already been set up
+    // by the CollisionRequest `request`.
+    // The only thing we need to pass to `ShapeShapeDistance` is whether or
+    // not penetration information is should be computed in case of collision.
+    const bool compute_penetration =
+        request.enable_contact || (request.security_margin < 0);
+    DistanceRequest distanceRequest(compute_penetration, compute_penetration);
     DistanceResult distanceResult;
-    DistanceRequest distanceRequest;
-    // If the security margin is negative, we have to compute the signed
-    // distance. Otherwise comparison against the secrurity margin makes no
-    // sense.
-    distanceRequest.enable_signed_distance =
-        (request.enable_contact || request.security_margin < 0);
+
     FCL_REAL distance = ShapeShapeDistance<ShapeType1, ShapeType2>(
         o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
 

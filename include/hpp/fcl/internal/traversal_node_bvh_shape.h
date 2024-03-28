@@ -47,6 +47,7 @@
 #include <hpp/fcl/internal/traversal_node_base.h>
 #include <hpp/fcl/internal/traversal.h>
 #include <hpp/fcl/BVH/BVH_model.h>
+#include <hpp/fcl/internal/shape_shape_func.h>
 
 namespace hpp {
 namespace fcl {
@@ -86,47 +87,6 @@ class BVHShapeCollisionTraversalNode : public CollisionTraversalNodeBase {
   const BVHModel<BV>* model1;
   const S* model2;
   BV model2_bv;
-
-  mutable int num_bv_tests;
-  mutable int num_leaf_tests;
-  mutable FCL_REAL query_time_seconds;
-};
-
-/// @brief Traversal node for collision between shape and BVH
-template <typename S, typename BV>
-class ShapeBVHCollisionTraversalNode : public CollisionTraversalNodeBase {
- public:
-  ShapeBVHCollisionTraversalNode(const CollisionRequest& request)
-      : CollisionTraversalNodeBase(request) {
-    model1 = NULL;
-    model2 = NULL;
-
-    num_bv_tests = 0;
-    num_leaf_tests = 0;
-    query_time_seconds = 0.0;
-  }
-
-  /// @brief Alway extend the second model, which is a BVH model
-  bool firstOverSecond(unsigned int, unsigned int) const { return false; }
-
-  /// @brief Whether the BV node in the second BVH tree is leaf
-  bool isSecondNodeLeaf(unsigned int b) const {
-    return model2->getBV(b).isLeaf();
-  }
-
-  /// @brief Obtain the left child of BV node in the second BVH
-  int getSecondLeftChild(unsigned int b) const {
-    return model2->getBV(b).leftChild();
-  }
-
-  /// @brief Obtain the right child of BV node in the second BVH
-  int getSecondRightChild(unsigned int b) const {
-    return model2->getBV(b).rightChild();
-  }
-
-  const S* model1;
-  const BVHModel<BV>* model2;
-  BV model1_bv;
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
@@ -183,149 +143,53 @@ class MeshShapeCollisionTraversalNode
 
     int primitive_id = node.primitiveId();
 
-    const Triangle& tri_id = tri_indices[primitive_id];
+    const Triangle& tri_id = this->tri_indices[primitive_id];
+    const TriangleP tri(this->vertices[tri_id[0]], this->vertices[tri_id[1]],
+                        this->vertices[tri_id[2]]);
 
-    const Vec3f& p1 = vertices[tri_id[0]];
-    const Vec3f& p2 = vertices[tri_id[1]];
-    const Vec3f& p3 = vertices[tri_id[2]];
+    // When reaching this point, `this->solver` has already been set up
+    // by the CollisionRequest `this->request`.
+    // The only thing we need to pass to `ShapeShapeDistance` is whether or
+    // not penetration information is should be computed in case of collision.
+    const bool compute_penetration =
+        this->request.enable_contact || (this->request.security_margin < 0);
+    const DistanceRequest distanceRequest(compute_penetration,
+                                          compute_penetration);
+    DistanceResult distanceResult;
 
     FCL_REAL distance;
-    Vec3f normal;
-    Vec3f c1, c2;  // closest point
-    // If security margin is negative, we have to compute the penetration if
-    // needed
-    bool compute_penetration =
-        (this->request.enable_contact || this->request.security_margin < 0);
-
     if (RTIsIdentity) {
       static const Transform3f Id;
-      nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
-                                        Id, distance, compute_penetration, c2,
-                                        c1, normal);
+      distance = ShapeShapeDistance<TriangleP, S>(
+          &tri, Id, this->model2, this->tf2, this->nsolver, distanceRequest,
+          distanceResult);
     } else {
-      nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
-                                        this->tf1, distance,
-                                        compute_penetration, c2, c1, normal);
+      distance = ShapeShapeDistance<TriangleP, S>(
+          &tri, this->tf1, this->model2, this->tf2, this->nsolver,
+          distanceRequest, distanceResult);
     }
+    const Vec3f& c1 = distanceResult.nearest_points[0];  // cp of triangle
+    const Vec3f& c2 = distanceResult.nearest_points[1];  // cp of shape
+    const Vec3f& normal = distanceResult.normal;
+    const FCL_REAL distToCollision = distance - this->request.security_margin;
 
-    // TODO @louis: change things here as in hfields & ShapeShapeDistance
-    FCL_REAL distToCollision = distance - this->request.security_margin;
+    internal::updateDistanceLowerBoundFromLeaf(this->request, *(this->result),
+                                               distToCollision, c1, c2, normal);
+
     if (distToCollision <= this->request.collision_distance_threshold) {
       sqrDistLowerBound = 0;
-      if (this->request.num_max_contacts > this->result->numContacts()) {
+      if (this->result->numContacts() < this->request.num_max_contacts) {
         this->result->addContact(Contact(this->model1, this->model2,
                                          primitive_id, Contact::NONE, c1, c2,
-                                         -normal, distance));
+                                         normal, distance));
         assert(this->result->isCollision());
       }
-    } else
-      sqrDistLowerBound = distToCollision * distToCollision;
-
-    internal::updateDistanceLowerBoundFromLeaf(
-        this->request, *this->result, distToCollision, c1, c2, -normal);
-
-    assert(this->result->isCollision() || sqrDistLowerBound > 0);
-  }
-
-  Vec3f* vertices;
-  Triangle* tri_indices;
-
-  const GJKSolver* nsolver;
-};
-
-/// @brief Traversal node for collision between shape and mesh
-template <typename S, typename BV,
-          int _Options = RelativeTransformationIsIdentity>
-class ShapeMeshCollisionTraversalNode
-    : public ShapeBVHCollisionTraversalNode<S, BV> {
- public:
-  enum {
-    Options = _Options,
-    RTIsIdentity = _Options & RelativeTransformationIsIdentity
-  };
-
-  ShapeMeshCollisionTraversalNode() : ShapeBVHCollisionTraversalNode<S, BV>() {
-    vertices = NULL;
-    tri_indices = NULL;
-
-    nsolver = NULL;
-  }
-
-  /// BV test between b1 and b2
-  /// @param b2 Bounding volumes to test,
-  /// @retval sqrDistLowerBound square of a lower bound of the minimal
-  ///         distance between bounding volumes.
-  bool BVDisjoints(unsigned int /*b1*/, unsigned int b2,
-                   FCL_REAL& sqrDistLowerBound) const {
-    if (this->enable_statistics) this->num_bv_tests++;
-    bool disjoint;
-    if (RTIsIdentity)
-      disjoint = !this->model2->getBV(b2).bv.overlap(this->model1_bv,
-                                                     sqrDistLowerBound);
-    else
-      disjoint = !overlap(this->tf2.getRotation(), this->tf2.getTranslation(),
-                          this->model2->getBV(b2).bv, this->model1_bv,
-                          sqrDistLowerBound);
-    if (disjoint)
-      internal::updateDistanceLowerBoundFromBV(this->request, *this->result,
-                                               sqrDistLowerBound);
-    assert(!disjoint || sqrDistLowerBound > 0);
-    return disjoint;
-  }
-
-  /// @brief Intersection testing between leaves (one shape and one triangle)
-  void leafCollides(unsigned int /*b1*/, unsigned int b2,
-                    FCL_REAL& sqrDistLowerBound) const {
-    if (this->enable_statistics) this->num_leaf_tests++;
-    const BVNode<BV>& node = this->model2->getBV(b2);
-
-    int primitive_id = node.primitiveId();
-
-    const Triangle& tri_id = tri_indices[primitive_id];
-
-    const Vec3f& p1 = vertices[tri_id[0]];
-    const Vec3f& p2 = vertices[tri_id[1]];
-    const Vec3f& p3 = vertices[tri_id[2]];
-
-    FCL_REAL distance;
-    Vec3f normal;
-    Vec3f c1, c2;  // closest points
-
-    bool collision;
-    if (RTIsIdentity) {
-      static const Transform3f Id;
-      collision = nsolver->shapeTriangleInteraction(
-          *(this->model1), this->tf1, p1, p2, p3, Id, c1, c2, distance, normal);
     } else {
-      collision = nsolver->shapeTriangleInteraction(*(this->model1), this->tf1,
-                                                    p1, p2, p3, this->tf2, c1,
-                                                    c2, distance, normal);
+      sqrDistLowerBound = distToCollision * distToCollision;
     }
 
-    FCL_REAL distToCollision = distance - this->request.security_margin;
-    if (collision) {
-      sqrDistLowerBound = 0;
-      if (this->request.num_max_contacts > this->result->numContacts()) {
-        this->result->addContact(Contact(this->model1, this->model2,
-                                         Contact::NONE, primitive_id, c1,
-                                         normal, -distance));
-        assert(this->result->isCollision());
-      }
-    } else if (distToCollision <= this->request.collision_distance_threshold) {
-      sqrDistLowerBound = 0;
-      if (this->request.num_max_contacts > this->result->numContacts()) {
-        this->result->addContact(
-            Contact(this->model1, this->model2, Contact::NONE, primitive_id,
-                    .5 * (c1 + c2), (c2 - c1).normalized(), -distance));
-      }
-    } else
-      sqrDistLowerBound = distToCollision * distToCollision;
-
-    internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
-                                               distToCollision, c1, c2);
-
     assert(this->result->isCollision() || sqrDistLowerBound > 0);
-  }
+  }  // leafCollides
 
   Vec3f* vertices;
   Triangle* tri_indices;
@@ -446,20 +310,18 @@ class MeshShapeDistanceTraversalNode
     int primitive_id = node.primitiveId();
 
     const Triangle& tri_id = tri_indices[primitive_id];
+    const TriangleP tri(this->vertices[tri_id[0]], this->vertices[tri_id[1]],
+                        this->vertices[tri_id[2]]);
 
-    const Vec3f& p1 = vertices[tri_id[0]];
-    const Vec3f& p2 = vertices[tri_id[1]];
-    const Vec3f& p3 = vertices[tri_id[2]];
+    DistanceResult distanceResult;
+    const FCL_REAL distance = ShapeShapeDistance<TriangleP, S>(
+        &tri, this->tf1, this->model2, this->tf2, this->nsolver, this->request,
+        distanceResult);
 
-    FCL_REAL d;
-    Vec3f closest_p1, closest_p2, normal;
-    bool compute_penetration = this->request.enable_signed_distance;
-    nsolver->shapeTriangleInteraction(*(this->model2), this->tf2, p1, p2, p3,
-                                      Transform3f(), d, compute_penetration,
-                                      closest_p2, closest_p1, normal);
-
-    this->result->update(d, this->model1, this->model2, primitive_id,
-                         DistanceResult::NONE, closest_p1, closest_p2, normal);
+    this->result->update(distance, this->model1, this->model2, primitive_id,
+                         DistanceResult::NONE, distanceResult.nearest_points[0],
+                         distanceResult.nearest_points[1],
+                         distanceResult.normal);
   }
 
   /// @brief Whether the traversal process can stop early
@@ -495,19 +357,16 @@ void meshShapeDistanceOrientedNodeleafComputeDistance(
   int primitive_id = node.primitiveId();
 
   const Triangle& tri_id = tri_indices[primitive_id];
-  const Vec3f& p1 = vertices[tri_id[0]];
-  const Vec3f& p2 = vertices[tri_id[1]];
-  const Vec3f& p3 = vertices[tri_id[2]];
+  const TriangleP tri(vertices[tri_id[0]], vertices[tri_id[1]],
+                      vertices[tri_id[2]]);
 
-  FCL_REAL distance;
-  Vec3f closest_p1, closest_p2, normal;
-  bool compute_penetration = request.enable_signed_distance;
-  nsolver->shapeTriangleInteraction(model2, tf2, p1, p2, p3, tf1, distance,
-                                    compute_penetration, closest_p2, closest_p1,
-                                    normal);
+  DistanceResult distanceResult;
+  const FCL_REAL distance = ShapeShapeDistance<TriangleP, S>(
+      &tri, tf1, &model2, tf2, nsolver, request, distanceResult);
 
   result.update(distance, model1, &model2, primitive_id, DistanceResult::NONE,
-                closest_p1, closest_p2, normal);
+                distanceResult.nearest_points[0],
+                distanceResult.nearest_points[1], distanceResult.normal);
 }
 
 template <typename BV, typename S>
@@ -516,21 +375,16 @@ static inline void distancePreprocessOrientedNode(
     int init_tri_id, const S& model2, const Transform3f& tf1,
     const Transform3f& tf2, const GJKSolver* nsolver,
     const DistanceRequest& request, DistanceResult& result) {
-  const Triangle& init_tri = tri_indices[init_tri_id];
+  const Triangle& tri_id = tri_indices[init_tri_id];
+  const TriangleP tri(vertices[tri_id[0]], vertices[tri_id[1]],
+                      vertices[tri_id[2]]);
 
-  const Vec3f& p1 = vertices[init_tri[0]];
-  const Vec3f& p2 = vertices[init_tri[1]];
-  const Vec3f& p3 = vertices[init_tri[2]];
-
-  FCL_REAL distance;
-  Vec3f closest_p1, closest_p2, normal;
-  bool compute_penetration = request.enable_signed_distance;
-  nsolver->shapeTriangleInteraction(model2, tf2, p1, p2, p3, tf1, distance,
-                                    compute_penetration, closest_p2, closest_p1,
-                                    normal);
-
+  DistanceResult distanceResult;
+  const FCL_REAL distance = ShapeShapeDistance<TriangleP, S>(
+      &tri, tf1, &model2, tf2, nsolver, request, distanceResult);
   result.update(distance, model1, &model2, init_tri_id, DistanceResult::NONE,
-                closest_p1, closest_p2, normal);
+                distanceResult.nearest_points[0],
+                distanceResult.nearest_points[1], distanceResult.normal);
 }
 
 }  // namespace details
@@ -629,159 +483,9 @@ class MeshShapeDistanceTraversalNodeOBBRSS
   }
 };
 
-/// @brief Traversal node for distance between shape and mesh
-template <typename S, typename BV>
-class ShapeMeshDistanceTraversalNode
-    : public ShapeBVHDistanceTraversalNode<S, BV> {
- public:
-  ShapeMeshDistanceTraversalNode() : ShapeBVHDistanceTraversalNode<S, BV>() {
-    vertices = NULL;
-    tri_indices = NULL;
-
-    rel_err = 0;
-    abs_err = 0;
-
-    nsolver = NULL;
-  }
-
-  /// @brief Distance testing between leaves (one shape and one triangle)
-  void leafComputeDistance(unsigned int /*b1*/, unsigned int b2) const {
-    if (this->enable_statistics) this->num_leaf_tests++;
-
-    const BVNode<BV>& node = this->model2->getBV(b2);
-
-    int primitive_id = node.primitiveId();
-
-    const Triangle& tri_id = tri_indices[primitive_id];
-
-    const Vec3f& p1 = vertices[tri_id[0]];
-    const Vec3f& p2 = vertices[tri_id[1]];
-    const Vec3f& p3 = vertices[tri_id[2]];
-
-    FCL_REAL distance;
-    Vec3f closest_p1, closest_p2, normal;
-    nsolver->shapeTriangleInteraction(*(this->model1), this->tf1, p1, p2, p3,
-                                      Transform3f(), distance, closest_p1,
-                                      closest_p2, normal);
-
-    this->result->update(distance, this->model1, this->model2,
-                         DistanceResult::NONE, primitive_id, closest_p1,
-                         closest_p2, normal);
-  }
-
-  /// @brief Whether the traversal process can stop early
-  bool canStop(FCL_REAL c) const {
-    if ((c >= this->result->min_distance - abs_err) &&
-        (c * (1 + rel_err) >= this->result->min_distance))
-      return true;
-    return false;
-  }
-
-  Vec3f* vertices;
-  Triangle* tri_indices;
-
-  FCL_REAL rel_err;
-  FCL_REAL abs_err;
-
-  const GJKSolver* nsolver;
-};
-
-/// @brief Traversal node for distance between shape and mesh, when mesh BVH is
-/// one of the oriented node (RSS, kIOS, OBBRSS)
-template <typename S>
-class ShapeMeshDistanceTraversalNodeRSS
-    : public ShapeMeshDistanceTraversalNode<S, RSS> {
- public:
-  ShapeMeshDistanceTraversalNodeRSS()
-      : ShapeMeshDistanceTraversalNode<S, RSS>() {}
-
-  void preprocess() {
-    details::distancePreprocessOrientedNode(
-        this->model2, this->vertices, this->tri_indices, 0, *(this->model1),
-        this->tf2, this->tf1, this->nsolver, this->request, *(this->result));
-  }
-
-  void postprocess() {}
-
-  FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int b2) const {
-    if (this->enable_statistics) this->num_bv_tests++;
-    return distance(this->tf2.getRotation(), this->tf2.getTranslation(),
-                    this->model1_bv, this->model2->getBV(b2).bv);
-  }
-
-  void leafComputeDistance(unsigned int b1, unsigned int b2) const {
-    details::meshShapeDistanceOrientedNodeleafComputeDistance(
-        b2, b1, this->model2, *(this->model1), this->vertices,
-        this->tri_indices, this->tf2, this->tf1, this->nsolver,
-        this->enable_statistics, this->num_leaf_tests, this->request,
-        *(this->result));
-  }
-};
-
-template <typename S>
-class ShapeMeshDistanceTraversalNodekIOS
-    : public ShapeMeshDistanceTraversalNode<S, kIOS> {
- public:
-  ShapeMeshDistanceTraversalNodekIOS()
-      : ShapeMeshDistanceTraversalNode<S, kIOS>() {}
-
-  void preprocess() {
-    details::distancePreprocessOrientedNode(
-        this->model2, this->vertices, this->tri_indices, 0, *(this->model1),
-        this->tf2, this->tf1, this->nsolver, *(this->result));
-  }
-
-  void postprocess() {}
-
-  FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int b2) const {
-    if (this->enable_statistics) this->num_bv_tests++;
-    return distance(this->tf2.getRotation(), this->tf2.getTranslation(),
-                    this->model1_bv, this->model2->getBV(b2).bv);
-  }
-
-  void leafComputeDistance(unsigned int b1, unsigned int b2) const {
-    details::meshShapeDistanceOrientedNodeleafComputeDistance(
-        b2, b1, this->model2, *(this->model1), this->vertices,
-        this->tri_indices, this->tf2, this->tf1, this->nsolver,
-        this->enable_statistics, this->num_leaf_tests, this->request,
-        *(this->result));
-  }
-};
-
-template <typename S>
-class ShapeMeshDistanceTraversalNodeOBBRSS
-    : public ShapeMeshDistanceTraversalNode<S, OBBRSS> {
- public:
-  ShapeMeshDistanceTraversalNodeOBBRSS()
-      : ShapeMeshDistanceTraversalNode<S, OBBRSS>() {}
-
-  void preprocess() {
-    details::distancePreprocessOrientedNode(
-        this->model2, this->vertices, this->tri_indices, 0, *(this->model1),
-        this->tf2, this->tf1, this->nsolver, *(this->result));
-  }
-
-  void postprocess() {}
-
-  FCL_REAL BVDistanceLowerBound(unsigned int /*b1*/, unsigned int b2) const {
-    if (this->enable_statistics) this->num_bv_tests++;
-    return distance(this->tf2.getRotation(), this->tf2.getTranslation(),
-                    this->model1_bv, this->model2->getBV(b2).bv);
-  }
-
-  void leafComputeDistance(unsigned int b1, unsigned int b2) const {
-    details::meshShapeDistanceOrientedNodeleafComputeDistance(
-        b2, b1, this->model2, *(this->model1), this->vertices,
-        this->tri_indices, this->tf2, this->tf1, this->nsolver,
-        this->enable_statistics, this->num_leaf_tests, this->request,
-        *(this->result));
-  }
-};
-
 /// @}
 
 }  // namespace fcl
-
 }  // namespace hpp
 
 /// @endcond
