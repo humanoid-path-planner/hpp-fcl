@@ -699,10 +699,12 @@ BOOST_AUTO_TEST_CASE(collide_conecone) {
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  tf2 = transform * Transform3f(Vec3f(9.9, 0, 0.00001));
+  normal = Vec3f(2 * (s1.halfLength + s2.halfLength), 0, s1.radius + s2.radius)
+               .normalized();
+  normal = transform.getRotation() * normal;
   SET_LINE;
-  testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
+  testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, true, tol_gjk);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.1, 0, 0));
@@ -762,13 +764,27 @@ BOOST_AUTO_TEST_CASE(collide_conecylinder) {
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(9.9, 0, 0));
-  normal << 1, 0, 0;
+  normal =
+      Vec3f(2 * (s1.halfLength + s2.halfLength), 0, -(s1.radius + s2.radius))
+          .normalized();
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  normal = transform.getRotation() * normal;
+  SET_LINE;
+  testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(9.9, 0, 0.1));
+  normal << 1, 0, 0;
+  SET_LINE;
+  testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(9.9, 0, 0.1));
+  normal = transform.getRotation() * normal;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
