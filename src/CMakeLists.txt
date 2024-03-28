@@ -58,7 +58,6 @@ set(${LIBRARY_NAME}_SOURCES
   broadphase/detail/simple_interval.cpp
   broadphase/detail/spatial_hash.cpp
   broadphase/detail/morton.cpp
-  narrowphase/narrowphase.cpp
   narrowphase/gjk.cpp
   narrowphase/details.h
   shape/convex.cpp

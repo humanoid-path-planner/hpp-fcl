@@ -56,29 +56,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
  public:
   typedef Eigen::Array<FCL_REAL, 1, 2> Array2d;
 
-  //// @brief intersection checking between one shape and a triangle with
-  /// transformation
-  /// @return true if the shape are colliding.
-  /// The variables `gjk_status` and `epa_status` can be used to
-  /// check if GJK or EPA ran successfully.
-  template <typename S>
-  bool shapeTriangleInteraction(const S& s, const Transform3f& tf1,
-                                const Vec3f& P1, const Vec3f& P2,
-                                const Vec3f& P3, const Transform3f& tf2,
-                                FCL_REAL& distance, bool compute_penetration,
-                                Vec3f& p1, Vec3f& p2, Vec3f& normal) const {
-    // Express everything in frame 1
-    const Transform3f tf_1M2(tf1.inverseTimes(tf2));
-    TriangleP tri(tf_1M2.transform(P1), tf_1M2.transform(P2),
-                  tf_1M2.transform(P3));
-
-    bool relative_transformation_already_computed = true;
-    bool gjk_and_epa_ran_successfully =
-        runGJKAndEPA(s, tf1, tri, tf_1M2, distance, compute_penetration, p1, p2,
-                     normal, relative_transformation_already_computed);
-    HPP_FCL_UNUSED_VARIABLE(gjk_and_epa_ran_successfully);
-    return (gjk.status == details::GJK::Collision ||
-            gjk.status == details::GJK::CollisionWithPenetrationInformation);
+  /// @brief Helper to return the precision of the solver on the distance
+  /// estimate, depending on whether or not `compute_penetration` is true.
+  FCL_REAL getDistancePrecision(const bool compute_penetration) const {
+    return compute_penetration ? (std::max)(gjk_tolerance, epa_tolerance)
+                               : gjk_tolerance;
   }
 
   /// @brief distance computation between two shapes.
@@ -644,117 +626,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-template <>
-HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction(
-    const Sphere& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
-    const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
-    bool compute_penetration, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
-
-template <>
-HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction(
-    const Halfspace& s, const Transform3f& tf1, const Vec3f& P1,
-    const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-    FCL_REAL& distance, bool compute_penetration, Vec3f& p1, Vec3f& p2,
-    Vec3f& normal) const;
-
-template <>
-HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction(
-    const Plane& s, const Transform3f& tf1, const Vec3f& P1, const Vec3f& P2,
-    const Vec3f& P3, const Transform3f& tf2, FCL_REAL& distance,
-    bool compute_penetration, Vec3f& p1, Vec3f& p2, Vec3f& normal) const;
-
-#define SHAPE_DISTANCE_SPECIALIZATION_BASE(S1, S2)                      \
-  template <>                                                           \
-  HPP_FCL_DLLAPI bool GJKSolver::shapeDistance<S1, S2>(                 \
-      const S1& s1, const Transform3f& tf1, const S2& s2,               \
-      const Transform3f& tf2, FCL_REAL& dist, bool compute_penetration, \
-      Vec3f& p1, Vec3f& p2, Vec3f& normal) const
-
-#define SHAPE_DISTANCE_SPECIALIZATION(S1, S2) \
-  SHAPE_DISTANCE_SPECIALIZATION_BASE(S1, S2); \
-  SHAPE_DISTANCE_SPECIALIZATION_BASE(S2, S1)
-
-SHAPE_DISTANCE_SPECIALIZATION(Sphere, Capsule);
-SHAPE_DISTANCE_SPECIALIZATION(Sphere, Box);
-SHAPE_DISTANCE_SPECIALIZATION(Sphere, Cylinder);
-SHAPE_DISTANCE_SPECIALIZATION_BASE(Sphere, Sphere);
-SHAPE_DISTANCE_SPECIALIZATION_BASE(Capsule, Capsule);
-SHAPE_DISTANCE_SPECIALIZATION_BASE(TriangleP, TriangleP);
-
-#undef SHAPE_DISTANCE_SPECIALIZATION
-#undef SHAPE_DISTANCE_SPECIALIZATION_BASE
-
-#if !(__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wc99-extensions"
-#endif
-
-/// \name Shape triangle interaction specializations
-/// \{
-
-// param doc is the doxygen detailled description (should be enclosed in /** */
-// and contain no dot for some obscure reasons).
-#define HPP_FCL_DECLARE_SHAPE_TRIANGLE(Shape, doc)                        \
-  /** @brief Fast implementation for Shape-Triangle interaction. */       \
-  doc template <>                                                         \
-  HPP_FCL_DLLAPI bool GJKSolver::shapeTriangleInteraction<Shape>(         \
-      const Shape& s, const Transform3f& tf1, const Vec3f& P1,            \
-      const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,           \
-      FCL_REAL& distance, bool compute_penetration, Vec3f& p1, Vec3f& p2, \
-      Vec3f& normal) const
-
-HPP_FCL_DECLARE_SHAPE_TRIANGLE(Sphere, );
-HPP_FCL_DECLARE_SHAPE_TRIANGLE(Halfspace, );
-HPP_FCL_DECLARE_SHAPE_TRIANGLE(Plane, );
-
-#undef HPP_FCL_DECLARE_SHAPE_TRIANGLE
-
-/// \}
-
-/// \name Shape distance specializations
-/// \{
-
-// param doc is the doxygen detailled description (should be enclosed in /** */
-// and contain no dot for some obscure reasons).
-#define HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape1, Shape2, doc)           \
-  /** @brief Fast implementation for Shape1-Shape2 distance. */       \
-  doc template <>                                                     \
-  bool HPP_FCL_DLLAPI GJKSolver::shapeDistance<Shape1, Shape2>(       \
-      const Shape1& s1, const Transform3f& tf1, const Shape2& s2,     \
-      const Transform3f& tf2, FCL_REAL& dist, bool compute_collision, \
-      Vec3f& p1, Vec3f& p2, Vec3f& normal) const
-#define HPP_FCL_DECLARE_SHAPE_DISTANCE_SELF(Shape, doc) \
-  HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape, Shape, doc)
-#define HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR(Shape1, Shape2, doc) \
-  HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape1, Shape2, doc);           \
-  HPP_FCL_DECLARE_SHAPE_DISTANCE(Shape2, Shape1, doc)
-
-HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR(Sphere, Box, );
-HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR(Sphere, Capsule, );
-HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR(Sphere, Cylinder, );
-HPP_FCL_DECLARE_SHAPE_DISTANCE_SELF(Sphere, );
-
-HPP_FCL_DECLARE_SHAPE_DISTANCE_SELF(
-    Capsule,
-    /** Closest points are based on two line-segments. */
-);
-
-HPP_FCL_DECLARE_SHAPE_DISTANCE_SELF(
-    TriangleP,
-    /** Do not run EPA algorithm to compute penetration depth. Use a dedicated
-       method. */
-);
-
-#undef HPP_FCL_DECLARE_SHAPE_DISTANCE
-#undef HPP_FCL_DECLARE_SHAPE_DISTANCE_SELF
-#undef HPP_FCL_DECLARE_SHAPE_DISTANCE_PAIR
-
-/// \}
-#if !(__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
-#pragma GCC diagnostic pop
-#endif
 }  // namespace fcl
-
 }  // namespace hpp
 
 #endif
