@@ -138,15 +138,14 @@ void test_gjk_distance_triangle_triangle(
     Vec3f normal;
     bool compute_penetration = true;
 
-    bool res;
     start = clock();
-    res = solver.shapeDistance(tri1, tf1, tri2, tf2, distance,
-                               compute_penetration, p1, p2, normal);
+    solver.shapeDistance(tri1, tf1, tri2, tf2, distance, compute_penetration,
+                         p1, p2, normal);
     end = clock();
+    bool res = (distance <= solver.getDistancePrecision(compute_penetration));
     results[i].timeGjk = end - start;
-    results[i].collision = !res;
-    assert(res == (distance > 0));
-    if (!res) {
+    results[i].collision = res;
+    if (res) {
       Vec3f c1, c2, normal2;
       ++nCol;
       // check that moving triangle 2 by the penetration depth in the
@@ -154,9 +153,10 @@ void test_gjk_distance_triangle_triangle(
       FCL_REAL penetration_depth(-distance);
       assert(penetration_depth >= 0);
       tf2.setTranslation((penetration_depth + 10 - 4) * normal);
-      res = solver.shapeDistance(tri1, tf1, tri2, tf2, distance,
-                                 compute_penetration, c1, c2, normal2);
-      if (!res) {
+      solver.shapeDistance(tri1, tf1, tri2, tf2, distance, compute_penetration,
+                           c1, c2, normal2);
+      res = (distance <= solver.getDistancePrecision(compute_penetration));
+      if (res) {
         std::cerr << "P1 = " << P1_loc.format(tuple) << std::endl;
         std::cerr << "P2 = " << P2_loc.format(tuple) << std::endl;
         std::cerr << "P3 = " << P3_loc.format(tuple) << std::endl;

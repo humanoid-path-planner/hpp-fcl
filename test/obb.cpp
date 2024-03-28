@@ -111,8 +111,9 @@ bool distance(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b,
 
   Vec3f p1, p2, normal;
   bool compute_penetration = true;
-  return gjk.shapeDistance(ba, tfa, bb, tfb, distance, compute_penetration, p1,
-                           p2, normal);
+  gjk.shapeDistance(ba, tfa, bb, tfb, distance, compute_penetration, p1, p2,
+                    normal);
+  return (distance <= gjk.getDistancePrecision(compute_penetration));
 }
 
 inline FCL_REAL _computeDistanceForCase1(const Vec3f& T, const Vec3f& a,

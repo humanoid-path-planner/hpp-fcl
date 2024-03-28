@@ -113,7 +113,7 @@ int line;
 
 struct SweptSphereGJKSolver : public GJKSolver {
   template <typename S1, typename S2>
-  bool shapeDistance(const S1& s1, const Transform3f& tf1, const S2& s2,
+  void shapeDistance(const S1& s1, const Transform3f& tf1, const S2& s2,
                      const Transform3f& tf2, FCL_REAL& distance,
                      bool compute_penetration, Vec3f& p1, Vec3f& p2,
                      Vec3f& normal,
