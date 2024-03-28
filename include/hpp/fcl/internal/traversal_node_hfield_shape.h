@@ -43,6 +43,7 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
+#include <hpp/fcl/internal/shape_shape_func.h>
 #include <hpp/fcl/internal/traversal_node_base.h>
 #include <hpp/fcl/internal/traversal.h>
 #include <hpp/fcl/internal/intersect.h>
@@ -410,40 +411,50 @@ bool shapeDistance(const GJKSolver* nsolver, const CollisionRequest& request,
   enum { RTIsIdentity = Options & RelativeTransformationIsIdentity };
 
   const Transform3f Id;
-  Vec3f contact1_1, contact1_2, normal1, normal1_top;
-  Vec3f contact2_1, contact2_2, normal2, normal2_top;
-  FCL_REAL distance1, distance2;
-  bool collision1, collision2;
-  bool hfield_witness_is_on_bin_side1, hfield_witness_is_on_bin_side2;
-  // Because we do bin comparison and correction, we always compute penetration
-  // information.
+  // The solver `nsolver` has already been set up by the collision request
+  // `request`. If GJK early stopping is enabled through `request`, it will be
+  // used.
+  // The only thing we need to make sure is that in case of collision, the
+  // penetration information is computed (as we do bins comparison).
   bool compute_penetration = true;
-  if (RTIsIdentity)
-    nsolver->shapeDistance(convex1, Id, shape, tf2, distance1,
-                           compute_penetration, contact1_1, contact1_2,
-                           normal1);
-  else
-    nsolver->shapeDistance(convex1, tf1, shape, tf2, distance1,
-                           compute_penetration, contact1_1, contact1_2,
-                           normal1);
-  collision1 = (distance1 - request.security_margin <=
-                request.collision_distance_threshold);
+  DistanceRequest drequest(compute_penetration, compute_penetration);
+  DistanceResult dresult1;
+  DistanceResult dresult2;
+  FCL_REAL distance1, distance2;
 
-  hfield_witness_is_on_bin_side1 =
+  if (RTIsIdentity) {
+    distance1 = ShapeShapeDistance<Convex<Polygone>, Shape>(
+        &convex1, Id, &shape, tf2, nsolver, drequest, dresult1);
+  } else {
+    distance1 = ShapeShapeDistance<Convex<Polygone>, Shape>(
+        &convex1, tf1, &shape, tf2, nsolver, drequest, dresult1);
+  }
+  bool collision1 = (distance1 - request.security_margin <=
+                     request.collision_distance_threshold);
+
+  Vec3f& contact1_1 = dresult1.nearest_points[0];
+  Vec3f& contact1_2 = dresult1.nearest_points[1];
+  Vec3f& normal1 = dresult1.normal;
+  Vec3f normal1_top;
+  bool hfield_witness_is_on_bin_side1 =
       binCorrection(convex1, convex1_active_faces, shape, tf2, distance1,
                     contact1_1, contact1_2, normal1, normal1_top, collision1);
 
-  if (RTIsIdentity)
-    nsolver->shapeDistance(convex2, Id, shape, tf2, distance2,
-                           compute_penetration, contact2_1, contact2_2, normal);
-  else
-    nsolver->shapeDistance(convex2, tf1, shape, tf2, distance2,
-                           compute_penetration, contact2_1, contact2_2,
-                           normal2);
-  collision2 = (distance2 - request.security_margin <=
-                request.collision_distance_threshold);
+  if (RTIsIdentity) {
+    distance2 = ShapeShapeDistance<Convex<Polygone>, Shape>(
+        &convex2, Id, &shape, tf2, nsolver, drequest, dresult2);
+  } else {
+    distance2 = ShapeShapeDistance<Convex<Polygone>, Shape>(
+        &convex2, tf1, &shape, tf2, nsolver, drequest, dresult2);
+  }
+  Vec3f& contact2_1 = dresult2.nearest_points[0];
+  Vec3f& contact2_2 = dresult2.nearest_points[1];
+  Vec3f& normal2 = dresult2.normal;
+  Vec3f normal2_top;
+  bool collision2 = (distance2 - request.security_margin <=
+                     request.collision_distance_threshold);
 
-  hfield_witness_is_on_bin_side2 =
+  bool hfield_witness_is_on_bin_side2 =
       binCorrection(convex2, convex2_active_faces, shape, tf2, distance2,
                     contact2_1, contact2_2, normal2, normal2_top, collision2);
 
@@ -701,6 +712,8 @@ class HeightFieldShapeDistanceTraversalNode : public DistanceTraversalNodeBase {
 
   /// @brief Distance testing between leaves (one bin of the height field and
   /// one shape)
+  /// TODO(louis): deal with Hfield-Shape distance just like in Hfield-Shape
+  /// collision (bin correction etc).
   void leafComputeDistance(unsigned int b1, unsigned int /*b2*/) const {
     if (this->enable_statistics) this->num_leaf_tests++;
 
@@ -710,14 +723,15 @@ class HeightFieldShapeDistanceTraversalNode : public DistanceTraversalNodeBase {
     const ConvexQuadrilateral convex =
         details::buildConvexQuadrilateral(node, *this->model1);
 
-    FCL_REAL d;
-    Vec3f closest_p1, closest_p2, normal;
+    DistanceResult distanceResult;
+    const FCL_REAL distance = ShapeShapeDistance<ConvexQuadrilateral, S>(
+        &convex, this->tf1, this->model2, this->tf2, this->nsolver,
+        this->request, distanceResult);
 
-    nsolver->shapeDistance(convex, this->tf1, *(this->model2), this->tf2, d,
-                           closest_p1, closest_p2, normal);
-
-    this->result->update(d, this->model1, this->model2, b1,
-                         DistanceResult::NONE, closest_p1, closest_p2, normal);
+    this->result->update(distance, this->model1, this->model2, b1,
+                         DistanceResult::NONE, distanceResult.nearest_points[0],
+                         distanceResult.nearest_points[1],
+                         distanceResult.normal);
   }
 
   /// @brief Whether the traversal process can stop early
