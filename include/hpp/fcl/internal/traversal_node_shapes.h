@@ -106,12 +106,8 @@ class HPP_FCL_DLLAPI ShapeDistanceTraversalNode
 
   /// @brief Distance testing between leaves (two shapes)
   void leafComputeDistance(unsigned int, unsigned int) const {
-    FCL_REAL distance;
-    Vec3f closest_p1, closest_p2, normal;
-    nsolver->shapeDistance(*model1, tf1, *model2, tf2, distance, closest_p1,
-                           closest_p2, normal);
-    result->update(distance, model1, model2, DistanceResult::NONE,
-                   DistanceResult::NONE, closest_p1, closest_p2, normal);
+    ShapeShapeDistance<S1, S2>(this->model1, this->tf1, this->model2, this->tf2,
+                               this->nsolver, this->request, *(this->result));
   }
 
   const S1* model1;
