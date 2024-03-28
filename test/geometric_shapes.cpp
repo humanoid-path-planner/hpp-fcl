@@ -828,154 +828,355 @@ BOOST_AUTO_TEST_CASE(collide_conecylinder) {
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_spheretriangle) {
   Sphere s(10);
-  Vec3f t[3];
-  t[0] << 20, 0, 0;
-  t[1] << -20, 0, 0;
-  t[2] << 0, 20, 0;
 
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  Vec3f c1, c2, normal;
-  FCL_REAL distance;
-  bool compute_penetration = true;
-  bool res;
+  Vec3f normal;
 
-  res = solver1.shapeTriangleInteraction(s, Transform3f(), t[0], t[1], t[2],
-                                         Transform3f(), distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
+  //
+  // Testing collision x, y, z
+  //
+  {
+    Vec3f t[3];
+    t[0] << 20, 0, 0;
+    t[1] << -20, 0, 0;
+    t[2] << 0, 20, 0;
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();  // identity
 
-  res = solver1.shapeTriangleInteraction(s, transform, t[0], t[1], t[2],
-                                         transform, distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
+    tf_tri.setTranslation(Vec3f(0, 0, 0.001));
+    normal << 0, 0, 1;
+    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
 
-  t[0] << 30, 0, 0;
-  t[1] << 9.9, -20, 0;
-  t[2] << 9.9, 20, 0;
-  res = solver1.shapeTriangleInteraction(s, Transform3f(), t[0], t[1], t[2],
-                                         Transform3f(), distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
+    tf_tri.setTranslation(Vec3f(0, 0, -0.001));
+    normal << 0, 0, -1;
+    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+  }
 
-  res = solver1.shapeTriangleInteraction(s, transform, t[0], t[1], t[2],
-                                         transform, distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
+  {
+    Vec3f t[3];
+    t[0] << 30, 0, 0;
+    t[1] << 9.9, -20, 0;
+    t[2] << 9.9, 20, 0;
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();
 
-  res = solver1.shapeTriangleInteraction(s, Transform3f(), t[0], t[1], t[2],
-                                         Transform3f(), distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
+    tf_tri.setTranslation(Vec3f(0, 0, 0.001));
+    normal << 0, 0, 1;
+    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
 
-  res = solver1.shapeTriangleInteraction(s, transform, t[0], t[1], t[2],
-                                         transform, distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+    tf_tri.setTranslation(Vec3f(0, 0, -0.001));
+    normal << 0, 0, -1;
+    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+  }
+
+  {
+    Vec3f t[3];
+    t[0] << 30, 0, 0;
+    t[1] << -20, 0, 0;
+    t[2] << 0, 0, 20;
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();
+
+    tf_tri.setTranslation(Vec3f(0, 0.001, 0));
+    normal << 0, 1, 0;
+    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+
+    tf_tri.setTranslation(Vec3f(0, -0.001, 0));
+    normal << 0, -1, 0;
+    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+  }
+
+  {
+    Vec3f t[3];
+    t[0] << 0, 30, 0;
+    t[1] << 0, -10, 0;
+    t[2] << 0, 0, 20;
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();
+
+    tf_tri.setTranslation(Vec3f(0.001, 0, 0));
+    normal << 1, 0, 0;
+    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+
+    tf_tri.setTranslation(Vec3f(-0.001, 0, 0));
+    normal << -1, 0, 0;
+    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+  }
+
+  //
+  // Testing no collision x, y, z
+  //
+  {
+    Vec3f t[3];
+    t[0] << 20, 0, 0;
+    t[1] << -20, 0, 0;
+    t[2] << 0, 20, 0;
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();
+
+    tf_tri.setTranslation(Vec3f(0, 0, 10.1));
+    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, transform, tri, transform * tf_tri, false);
+
+    tf_tri.setTranslation(Vec3f(0, 0, -10.1));
+    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, transform, tri, transform * tf_tri, false);
+  }
+
+  {
+    Vec3f t[3];
+    t[0] << 20, 0, 0;
+    t[1] << -20, 0, 0;
+    t[2] << 0, 0, 20;
+    TriangleP tri(t[0], t[1], t[2]);
+
+    Transform3f tf_tri = Transform3f();
+    tf_tri.setTranslation(Vec3f(0, 10.1, 0));
+    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, transform, tri, transform * tf_tri, false);
+
+    tf_tri.setTranslation(Vec3f(0, -10.1, 0));
+    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, transform, tri, transform * tf_tri, false);
+  }
+
+  {
+    Vec3f t[3];
+    t[0] << 0, 20, 0;
+    t[1] << 0, -20, 0;
+    t[2] << 0, 0, 20;
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();
+
+    tf_tri.setTranslation(Vec3f(10.1, 0, 0));
+    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, transform, tri, transform * tf_tri, false);
+
+    tf_tri.setTranslation(Vec3f(-10.1, 0, 0));
+    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, transform, tri, transform * tf_tri, false);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacetriangle) {
-  Halfspace hs(Vec3f(1, 0, 0), 0);
-  Vec3f t[3];
-  t[0] << 20, 0, 0;
-  t[1] << -20, 0, 0;
-  t[2] << 0, 20, 0;
+  Halfspace hs(Vec3f(0, 0, 1), 0);
 
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  Vec3f c1, c2;
-  FCL_REAL distance;
   Vec3f normal;
-  bool compute_penetration = true;
-  bool res;
+  normal = hs.n;  // with halfspaces, it's simple: normal is always
+                  // the normal of the halfspace.
 
-  res = solver1.shapeTriangleInteraction(hs, Transform3f(), t[0], t[1], t[2],
-                                         Transform3f(), distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
+  {
+    Vec3f t[3];
+    t[0] << 20, 0, 0;
+    t[1] << -20, 0, 0;
+    t[2] << 0, 20, 0;
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();  // identity
 
-  res = solver1.shapeTriangleInteraction(hs, transform, t[0], t[1], t[2],
-                                         transform, distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
+    tf_tri.setTranslation(Vec3f(0, 0, -0.001));
+    normal = hs.n;
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(hs, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
 
-  t[0] << 20, 0, 0;
-  t[1] << 0, -20, 0;
-  t[2] << 0, 20, 0;
-  res = solver1.shapeTriangleInteraction(hs, Transform3f(), t[0], t[1], t[2],
-                                         Transform3f(), distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
+    tf_tri.setTranslation(Vec3f(0, 0, 0.001));
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
-  res = solver1.shapeTriangleInteraction(hs, transform, t[0], t[1], t[2],
-                                         transform, distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+    tf_tri.setTranslation(Vec3f(1, 1, 0.001));
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
-  res = solver1.shapeTriangleInteraction(hs, Transform3f(), t[0], t[1], t[2],
-                                         Transform3f(), distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
+    tf_tri.setTranslation(Vec3f(-1, -1, 0.001));
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, transform, tri, transform * tf_tri, false);
+  }
 
-  res = solver1.shapeTriangleInteraction(hs, transform, t[0], t[1], t[2],
-                                         transform, distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  {
+    Vec3f t[3];
+    t[0] << 30, 0, 0;
+    t[1] << -20, 0, 0;
+    t[2] << 0, 0, 20;
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();
+
+    tf_tri.setTranslation(Vec3f(0, 0, -0.001));
+    normal = hs.n;
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(hs, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+
+    tf_tri.setTranslation(Vec3f(0, 0, 0.001));
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, transform, tri, transform * tf_tri, false);
+
+    tf_tri.setTranslation(Vec3f(1, 1, 0.001));
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, transform, tri, transform * tf_tri, false);
+
+    tf_tri.setTranslation(Vec3f(-1, -1, 0.001));
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, transform, tri, transform * tf_tri, false);
+  }
+
+  {
+    Vec3f t[3];
+    t[0] << 0, 30, 0;
+    t[1] << 0, -10, 0;
+    t[2] << 0, 0, 20;
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();
+
+    tf_tri.setTranslation(Vec3f(0, 0, -0.001));
+    normal = hs.n;
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(hs, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+
+    tf_tri.setTranslation(Vec3f(0, 0, 0.001));
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, transform, tri, transform * tf_tri, false);
+
+    tf_tri.setTranslation(Vec3f(1, 1, 0.001));
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, transform, tri, transform * tf_tri, false);
+
+    tf_tri.setTranslation(Vec3f(-1, -1, 0.001));
+    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, transform, tri, transform * tf_tri, false);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_planetriangle) {
-  Plane hs(Vec3f(1, 0, 0), 0);
-  Vec3f t[3];
-  t[0] << 20, 0, 0;
-  t[1] << -20, 0, 0;
-  t[2] << 0, 20, 0;
-
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  Vec3f c1, c2;
-  FCL_REAL distance;
   Vec3f normal;
-  bool compute_penetration = true;
-  bool res;
 
-  res = solver1.shapeTriangleInteraction(hs, Transform3f(), t[0], t[1], t[2],
-                                         Transform3f(), distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
+  {
+    Vec3f t[3];
+    t[0] << 20, 0, 0.05;
+    t[1] << -20, 0, 0.05;
+    t[2] << 0, 20, -0.1;
+    Plane pl(Vec3f(0, 0, 1), 0);
 
-  res = solver1.shapeTriangleInteraction(hs, transform, t[0], t[1], t[2],
-                                         transform, distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();  // identity
+    normal = -pl.n;
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
 
-  t[0] << 20, 0, 0;
-  t[1] << -0.1, -20, 0;
-  t[2] << -0.1, 20, 0;
+    tf_tri.setTranslation(Vec3f(0, 0, 0.05));
+    normal = pl.n;
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
 
-  res = solver1.shapeTriangleInteraction(hs, transform, t[0], t[1], t[2],
-                                         transform, distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
+    tf_tri.setTranslation(Vec3f(0, 0, -0.06));
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, transform, tri, transform * tf_tri, false);
 
-  res = solver1.shapeTriangleInteraction(hs, Transform3f(), t[0], t[1], t[2],
-                                         Transform3f(), distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(isEqual(normal, Vec3f(1, 0, 0), 1e-9));
+    tf_tri.setTranslation(Vec3f(0, 0, 0.11));
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, transform, tri, transform * tf_tri, false);
+  }
 
-  res = solver1.shapeTriangleInteraction(hs, transform, t[0], t[1], t[2],
-                                         transform, distance,
-                                         compute_penetration, c1, c2, normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(isEqual(normal, transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  {
+    Vec3f t[3];
+    t[0] << 30, 0.05, 0;
+    t[1] << -20, 0.05, 0;
+    t[2] << 0, -0.1, 20;
+    Plane pl(Vec3f(0, 1, 0), 0);
+
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();  // identity
+    normal = -pl.n;
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+
+    tf_tri.setTranslation(Vec3f(0, 0.05, 0));
+    normal = pl.n;
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+
+    tf_tri.setTranslation(Vec3f(0, -0.06, 0));
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, transform, tri, transform * tf_tri, false);
+
+    tf_tri.setTranslation(Vec3f(0, 0.11, 0));
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, transform, tri, transform * tf_tri, false);
+  }
+
+  {
+    Vec3f t[3];
+    t[0] << 0, 30, 0;
+    t[1] << 0, -10, 0;
+    t[2] << 0, 0, 20;
+    Plane pl(Vec3f(1, 0, 0), 0);
+
+    TriangleP tri(t[0], t[1], t[2]);
+    Transform3f tf_tri = Transform3f();  // identity
+    normal = -pl.n;
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+
+    tf_tri.setTranslation(Vec3f(0.05, 0, 0));
+    normal = pl.n;
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    normal = transform.getRotation() * normal;
+    testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
+                     &normal);
+
+    tf_tri.setTranslation(Vec3f(-0.06, 0, 0));
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, transform, tri, transform * tf_tri, false);
+
+    tf_tri.setTranslation(Vec3f(0.11, 0, 0));
+    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, transform, tri, transform * tf_tri, false);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(collide_halfspacesphere) {
