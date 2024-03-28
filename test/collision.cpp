@@ -139,7 +139,6 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test) {
     FCL_REAL len = (aabb1.max_[0] - aabb1.min_[0]) * 0.5;
     OBB obb2;
     GJKSolver solver;
-    FCL_REAL distance;
 
     {
       Sphere sphere(len);
