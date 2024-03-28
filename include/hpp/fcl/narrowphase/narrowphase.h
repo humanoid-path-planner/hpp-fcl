@@ -79,6 +79,19 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// @brief smart guess for the support function
   mutable support_func_guess_t support_func_cached_guess;
 
+  /// @brief If GJK can guarantee that the distance between the shapes is
+  /// greater than this value, it will early stop.
+  FCL_REAL distance_upper_bound;
+
+  /// @brief Variant of the GJK algorithm (Default, Nesterov or Polyak).
+  GJKVariant gjk_variant;
+
+  /// @brief Convergence criterion for GJK
+  GJKConvergenceCriterion gjk_convergence_criterion;
+
+  /// @brief Absolute or relative convergence criterion for GJK
+  GJKConvergenceCriterionType gjk_convergence_criterion_type;
+
   /// @brief EPA algorithm
   mutable details::EPA epa;
 
@@ -108,14 +121,13 @@ struct HPP_FCL_DLLAPI GJKSolver {
         enable_cached_guess(false),  // Use gjk_initial_guess instead
         cached_guess(Vec3f(1, 0, 0)),
         support_func_cached_guess(support_func_guess_t::Zero()),
+        distance_upper_bound((std::numeric_limits<FCL_REAL>::max)()),
+        gjk_variant(GJKVariant::DefaultGJK),
+        gjk_convergence_criterion(GJKConvergenceCriterion::Default),
+        gjk_convergence_criterion_type(GJKConvergenceCriterionType::Absolute),
         epa(0, EPA_DEFAULT_TOLERANCE),
         epa_max_iterations(EPA_DEFAULT_MAX_ITERATIONS),
-        epa_tolerance(EPA_DEFAULT_TOLERANCE) {
-    // Default settings for GJK algorithm
-    gjk.gjk_variant = GJKVariant::DefaultGJK;
-    gjk.convergence_criterion = GJKConvergenceCriterion::Default;
-    gjk.convergence_criterion_type = GJKConvergenceCriterionType::Relative;
-  }
+        epa_tolerance(EPA_DEFAULT_TOLERANCE) {}
 
   /// @brief Constructor from a DistanceRequest
   ///
@@ -152,18 +164,21 @@ struct HPP_FCL_DLLAPI GJKSolver {
     this->gjk_max_iterations = request.gjk_max_iterations;
     this->gjk_tolerance = request.gjk_tolerance;
     // For distance computation, we don't want GJK to early stop
-    this->gjk.setDistanceEarlyBreak((std::numeric_limits<FCL_REAL>::max)());
-    this->gjk.gjk_variant = request.gjk_variant;
-    this->gjk.convergence_criterion = request.gjk_convergence_criterion;
-    this->gjk.convergence_criterion_type =
+    this->distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
+    this->gjk_variant = request.gjk_variant;
+    this->gjk_convergence_criterion = request.gjk_convergence_criterion;
+    this->gjk_convergence_criterion_type =
         request.gjk_convergence_criterion_type;
-    this->gjk.status = details::GJK::Status::DidNotRun;
 
     // ---------------------
     // EPA settings
     this->epa_max_iterations = request.epa_max_iterations;
     this->epa_tolerance = request.epa_tolerance;
+
+    // ---------------------
+    // Reset GJK and EPA status
     this->epa.status = details::EPA::Status::DidNotRun;
+    this->gjk.status = details::GJK::Status::DidNotRun;
   }
 
   /// @brief Constructor from a CollisionRequest
@@ -203,12 +218,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
     this->gjk_max_iterations = request.gjk_max_iterations;
     // The distance upper bound should be at least greater to the requested
     // security margin. Otherwise, we will likely miss some collisions.
-    const double distance_upper_bound = (std::max)(
+    this->distance_upper_bound = (std::max)(
         0., (std::max)(request.distance_upper_bound, request.security_margin));
-    this->gjk.setDistanceEarlyBreak(distance_upper_bound);
-    this->gjk.gjk_variant = request.gjk_variant;
-    this->gjk.convergence_criterion = request.gjk_convergence_criterion;
-    this->gjk.convergence_criterion_type =
+    this->gjk_variant = request.gjk_variant;
+    this->gjk_convergence_criterion = request.gjk_convergence_criterion;
+    this->gjk_convergence_criterion_type =
         request.gjk_convergence_criterion_type;
 
     // ---------------------
@@ -231,12 +245,17 @@ struct HPP_FCL_DLLAPI GJKSolver {
     return this->enable_cached_guess ==
                other.enable_cached_guess &&  // use gjk_initial_guess instead
            this->cached_guess == other.cached_guess &&
+           this->support_func_cached_guess == other.support_func_cached_guess &&
            this->gjk_max_iterations == other.gjk_max_iterations &&
            this->gjk_tolerance == other.gjk_tolerance &&
+           this->distance_upper_bound == other.distance_upper_bound &&
+           this->gjk_variant == other.gjk_variant &&
+           this->gjk_convergence_criterion == other.gjk_convergence_criterion &&
+           this->gjk_convergence_criterion_type ==
+               other.gjk_convergence_criterion_type &&
+           this->gjk_initial_guess == other.gjk_initial_guess &&
            this->epa_max_iterations == other.epa_max_iterations &&
-           this->epa_tolerance == other.epa_tolerance &&
-           this->support_func_cached_guess == other.support_func_cached_guess &&
-           this->gjk_initial_guess == other.gjk_initial_guess;
+           this->epa_tolerance == other.epa_tolerance;
   }
   HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
@@ -376,6 +395,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
       this->minkowski_difference.set<InflateSupportsDuringIterations>(&s1, &s2,
                                                                       tf1, tf2);
     this->gjk.reset(this->gjk_max_iterations, this->gjk_tolerance);
+    this->gjk.setDistanceEarlyBreak(this->distance_upper_bound);
+    this->gjk.gjk_variant = this->gjk_variant;
+    this->gjk.convergence_criterion = this->gjk_convergence_criterion;
+    this->gjk.convergence_criterion_type = this->gjk_convergence_criterion_type;
     this->epa.status = details::EPA::Status::DidNotRun;
 
     // Get initial guess for GJK: default, cached or bounding volume guess
