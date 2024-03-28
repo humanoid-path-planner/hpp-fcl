@@ -210,21 +210,6 @@ SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Plane);
 
 #undef SHAPE_SHAPE_DISTANCE_SPECIALIZATION
 
-#define SHAPE_SHAPE_COLLIDE_SPECIALIZATION(T1, T2)                         \
-  template <>                                                              \
-  struct ShapeShapeCollider<T1, T2> {                                      \
-    static HPP_FCL_DLLAPI std::size_t run(const CollisionGeometry* o1,     \
-                                          const Transform3f& tf1,          \
-                                          const CollisionGeometry* o2,     \
-                                          const Transform3f& tf2,          \
-                                          const GJKSolver* nsolver,        \
-                                          const CollisionRequest& request, \
-                                          CollisionResult& result);        \
-  }
-
-SHAPE_SHAPE_COLLIDE_SPECIALIZATION(Sphere, Sphere);
-
-#undef SHAPE_SHAPE_COLLIDE_SPECIALIZATION
 }  // namespace fcl
 
 }  // namespace hpp

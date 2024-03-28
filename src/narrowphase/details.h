@@ -223,47 +223,26 @@ inline bool sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
   return (dist > 0);
 }
 
-inline bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1,
-                                  const Sphere& s2, const Transform3f& tf2,
-                                  FCL_REAL& distance, Vec3f* contact_points,
-                                  Vec3f* normal) {
-  const Vec3f diff = tf2.getTranslation() - tf1.getTranslation();
-  FCL_REAL len = diff.norm();
-  distance = len - s1.radius - s2.radius;
-  if (distance > 0) return false;
-
-  // If the centers of two sphere are at the same position, the normal is (0, 0,
-  // 0). Otherwise, normal is pointing from center of object 1 to center of
-  // object 2
-  if (normal) {
-    if (len > 0)
-      *normal = diff / len;
-    else
-      *normal = diff;
-  }
-
-  if (contact_points)
-    *contact_points =
-        tf1.getTranslation() + diff * s1.radius / (s1.radius + s2.radius);
-
-  return true;
-}
-
-inline bool sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
+/// @param p1 closest (or most penetrating) point on the first Sphere,
+/// @param p2 closest (or most penetrating) point on the second Sphere,
+/// @param normal pointing from shape 1 to shape 2 (sphere1 to sphere2).
+inline void sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
                                  const Sphere& s2, const Transform3f& tf2,
                                  FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
                                  Vec3f& normal) {
-  const Vec3f& o1 = tf1.getTranslation();
-  const Vec3f& o2 = tf2.getTranslation();
-  Vec3f diff = o1 - o2;
-  FCL_REAL len = diff.norm();
-  normal = -diff / len;
-  dist = len - s1.radius - s2.radius;
+  const fcl::Vec3f& center1 = tf1.getTranslation();
+  const fcl::Vec3f& center2 = tf2.getTranslation();
+  FCL_REAL r1 = (s1.radius + s1.getSweptSphereRadius());
+  FCL_REAL r2 = (s2.radius + s2.getSweptSphereRadius());
 
-  p1.noalias() = o1 + normal * s1.radius;
-  p2.noalias() = o2 - normal * s2.radius;
-
-  return (dist >= 0);
+  Vec3f c1c2 = center2 - center1;
+  FCL_REAL cdist = c1c2.norm();
+  Vec3f unit(1, 0, 0);
+  if (cdist > Eigen::NumTraits<FCL_REAL>::epsilon()) unit = c1c2 / cdist;
+  dist = cdist - r1 - r2;
+  normal = unit;
+  p1.noalias() = center1 + r1 * unit;
+  p2.noalias() = center2 - r2 * unit;
 }
 
 /** @brief the minimum distance from a point to a line */
