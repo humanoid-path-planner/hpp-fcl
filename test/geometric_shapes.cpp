@@ -826,7 +826,7 @@ BOOST_AUTO_TEST_CASE(collide_conecylinder) {
   testShapeCollide(s1, tf1, s2, tf2, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_spheretriangle) {
+BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
   Sphere s(10);
 
   Transform3f transform;
@@ -984,7 +984,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spheretriangle) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacetriangle) {
+BOOST_AUTO_TEST_CASE(collide_halfspacetriangle) {
   Halfspace hs(Vec3f(0, 0, 1), 0);
 
   Transform3f transform;
@@ -1079,7 +1079,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacetriangle) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_planetriangle) {
+BOOST_AUTO_TEST_CASE(collide_planetriangle) {
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
