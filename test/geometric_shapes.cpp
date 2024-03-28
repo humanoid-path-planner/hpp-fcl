@@ -873,7 +873,8 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     Transform3f tf_tri = Transform3f();
 
     tf_tri.setTranslation(Vec3f(0, 0, 0.001));
-    normal << 0, 0, 1;
+    normal << 9.9, 0, 0.001;
+    normal.normalize();
     SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
@@ -882,7 +883,8 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0, 0, -0.001));
-    normal << 0, 0, -1;
+    normal << 9.9, 0, -0.001;
+    normal.normalize();
     SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;

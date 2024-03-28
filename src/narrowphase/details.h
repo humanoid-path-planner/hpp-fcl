@@ -299,7 +299,7 @@ inline void sphereTriangleDistance(const Sphere& s, const Transform3f& tf1,
 
   if (projectInTriangle(P1, P2, P3, tri_normal, center)) {
     closest_point = center - tri_normal * distance_from_plane;
-    min_distance_sqr = distance_from_plane;
+    min_distance_sqr = distance_from_plane * distance_from_plane;
   } else {
     // Compute distance to each edge and take minimal distance
     Vec3f nearest_on_edge;
@@ -317,20 +317,10 @@ inline void sphereTriangleDistance(const Sphere& s, const Transform3f& tf1,
     }
   }
 
-  if (min_distance_sqr < radius * radius) {
-    // Collision
-    normal = (closest_point - center).normalized();
-    p1 = center + normal * (s.radius + s.getSweptSphereRadius());
-    p2 = closest_point - normal * tri.getSweptSphereRadius();
-    distance = sqrt(min_distance_sqr) - radius;
-    assert(distance < 0);
-  } else {
-    normal = (closest_point - center).normalized();
-    p1 = center + normal * (s.radius + s.getSweptSphereRadius());
-    p2 = closest_point - normal * tri.getSweptSphereRadius();
-    distance = sqrt(min_distance_sqr) - radius;
-    assert(distance >= 0);
-  }
+  normal = (closest_point - center).normalized();
+  p1 = center + normal * (s.radius + s.getSweptSphereRadius());
+  p2 = closest_point - normal * tri.getSweptSphereRadius();
+  distance = std::sqrt(min_distance_sqr) - radius;
 }
 
 /// @brief return whether plane collides with halfspace
