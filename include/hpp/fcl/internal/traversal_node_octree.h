@@ -387,22 +387,22 @@ class HPP_FCL_DLLAPI OcTreeSolver {
         size_t primitive_id =
             static_cast<size_t>(tree2->getBV(root2).primitiveId());
         const Triangle& tri_id = (*(tree2->tri_indices))[primitive_id];
-        const Vec3f& p1 = (*(tree2->vertices))[tri_id[0]];
-        const Vec3f& p2 = (*(tree2->vertices))[tri_id[1]];
-        const Vec3f& p3 = (*(tree2->vertices))[tri_id[2]];
+        const TriangleP tri((*(tree2->vertices))[tri_id[0]],
+                            (*(tree2->vertices))[tri_id[1]],
+                            (*(tree2->vertices))[tri_id[2]]);
 
-        FCL_REAL dist;
-        Vec3f closest_p1, closest_p2, normal;
-        bool compute_penetration = drequest->enable_signed_distance;
-        solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2, dist,
-                                         compute_penetration, closest_p1,
-                                         closest_p2, normal);
+        const DistanceRequest& distanceRequest = *(this->drequest);
+        DistanceResult distanceResult;
+        const FCL_REAL distance = ShapeShapeDistance<Box, TriangleP>(
+            &box, box_tf, &tri, tf2, this->solver, distanceRequest,
+            distanceResult);
 
-        dresult->update(dist, tree1, tree2, (int)(root1 - tree1->getRoot()),
-                        static_cast<int>(primitive_id), closest_p1, closest_p2,
-                        normal);
+        this->dresult->update(
+            distance, tree1, tree2, (int)(root1 - tree1->getRoot()),
+            static_cast<int>(primitive_id), distanceResult.nearest_points[0],
+            distanceResult.nearest_points[1], distanceResult.normal);
 
-        return drequest->isSatisfied(*dresult);
+        return this->drequest->isSatisfied(*dresult);
       } else
         return false;
     }
@@ -506,21 +506,32 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       size_t primitive_id = static_cast<size_t>(bvn2.primitiveId());
       const Triangle& tri_id = (*(tree2->tri_indices))[primitive_id];
-      const Vec3f& p1 = (*(tree2->vertices))[tri_id[0]];
-      const Vec3f& p2 = (*(tree2->vertices))[tri_id[1]];
-      const Vec3f& p3 = (*(tree2->vertices))[tri_id[2]];
+      const TriangleP tri((*(tree2->vertices))[tri_id[0]],
+                          (*(tree2->vertices))[tri_id[1]],
+                          (*(tree2->vertices))[tri_id[2]]);
 
-      Vec3f c1, c2, normal;
-      FCL_REAL distance;
-      // If security_margin is negative, we compute we always need to compute
-      // penetration information to be able to compare it to the security
-      // margin.
-      bool compute_penetration =
-          (crequest->enable_contact || crequest->security_margin < 0);
+      // When reaching this point, `this->solver` has already been set up
+      // by the CollisionRequest `this->crequest`.
+      // The only thing we need to pass to `ShapeShapeDistance` is whether or
+      // not penetration information is should be computed in case of collision.
+      const bool compute_penetration = this->crequest->enable_contact ||
+                                       (this->crequest->security_margin < 0);
+      const DistanceRequest distanceRequest(compute_penetration,
+                                            compute_penetration);
+      DistanceResult distanceResult;
 
-      solver->shapeTriangleInteraction(box, box_tf, p1, p2, p3, tf2, distance,
-                                       compute_penetration, c1, c2, normal);
-      FCL_REAL distToCollision = distance - crequest->security_margin;
+      const FCL_REAL distance = ShapeShapeDistance<Box, TriangleP>(
+          &box, box_tf, &tri, tf2, this->solver, distanceRequest,
+          distanceResult);
+
+      const Vec3f& c1 = distanceResult.nearest_points[0];  // cp of triangle
+      const Vec3f& c2 = distanceResult.nearest_points[1];  // cp of shape
+      const Vec3f& normal = distanceResult.normal;
+      const FCL_REAL distToCollision =
+          distance - this->crequest->security_margin;
+
+      internal::updateDistanceLowerBoundFromLeaf(
+          *crequest, *cresult, distToCollision, c1, c2, normal);
 
       if (cresult->numContacts() < crequest->num_max_contacts) {
         if (distToCollision <= crequest->collision_distance_threshold) {
@@ -529,8 +540,6 @@ class HPP_FCL_DLLAPI OcTreeSolver {
               static_cast<int>(primitive_id), c1, c2, normal, distance));
         }
       }
-      internal::updateDistanceLowerBoundFromLeaf(
-          *crequest, *cresult, distToCollision, c1, c2, normal);
       return crequest->isSatisfied(*cresult);
     }
 
