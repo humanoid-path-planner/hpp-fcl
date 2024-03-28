@@ -1219,9 +1219,9 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
 
   {
     Vec3f t[3];
-    t[0] << 0, 30, 0;
-    t[1] << 0, -10, 0;
-    t[2] << 0, 0, 20;
+    t[0] << 0.05, 30, 0;
+    t[1] << 0.05, -10, 0;
+    t[2] << -0.1, 0, 20;
     Plane pl(Vec3f(1, 0, 0), 0);
 
     TriangleP tri(t[0], t[1], t[2]);
