@@ -847,15 +847,19 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
 
     tf_tri.setTranslation(Vec3f(0, 0, 0.001));
     normal << 0, 0, 1;
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0, 0, -0.001));
     normal << 0, 0, -1;
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
   }
@@ -870,15 +874,19 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
 
     tf_tri.setTranslation(Vec3f(0, 0, 0.001));
     normal << 0, 0, 1;
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0, 0, -0.001));
     normal << 0, 0, -1;
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
   }
@@ -893,15 +901,19 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
 
     tf_tri.setTranslation(Vec3f(0, 0.001, 0));
     normal << 0, 1, 0;
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0, -0.001, 0));
     normal << 0, -1, 0;
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
   }
@@ -916,15 +928,19 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
 
     tf_tri.setTranslation(Vec3f(0.001, 0, 0));
     normal << 1, 0, 0;
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(-0.001, 0, 0));
     normal << -1, 0, 0;
     testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    SET_LINE;
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
   }
@@ -941,11 +957,15 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     Transform3f tf_tri = Transform3f();
 
     tf_tri.setTranslation(Vec3f(0, 0, 10.1));
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(0, 0, -10.1));
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
   }
 
@@ -958,11 +978,15 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
 
     Transform3f tf_tri = Transform3f();
     tf_tri.setTranslation(Vec3f(0, 10.1, 0));
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(0, -10.1, 0));
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
   }
 
@@ -975,11 +999,15 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     Transform3f tf_tri = Transform3f();
 
     tf_tri.setTranslation(Vec3f(10.1, 0, 0));
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(-10.1, 0, 0));
+    SET_LINE;
     testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
   }
 }
@@ -1004,21 +1032,29 @@ BOOST_AUTO_TEST_CASE(collide_halfspacetriangle) {
 
     tf_tri.setTranslation(Vec3f(0, 0, -0.001));
     normal = hs.n;
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0, 0, 0.001));
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(1, 1, 0.001));
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(-1, -1, 0.001));
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
   }
 
@@ -1032,21 +1068,29 @@ BOOST_AUTO_TEST_CASE(collide_halfspacetriangle) {
 
     tf_tri.setTranslation(Vec3f(0, 0, -0.001));
     normal = hs.n;
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0, 0, 0.001));
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(1, 1, 0.001));
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(-1, -1, 0.001));
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
   }
 
@@ -1060,21 +1104,29 @@ BOOST_AUTO_TEST_CASE(collide_halfspacetriangle) {
 
     tf_tri.setTranslation(Vec3f(0, 0, -0.001));
     normal = hs.n;
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0, 0, 0.001));
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(1, 1, 0.001));
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(-1, -1, 0.001));
+    SET_LINE;
     testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
   }
 }
@@ -1095,24 +1147,32 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
     TriangleP tri(t[0], t[1], t[2]);
     Transform3f tf_tri = Transform3f();  // identity
     normal = -pl.n;
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0, 0, 0.05));
     normal = pl.n;
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0, 0, -0.06));
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(0, 0, 0.11));
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
   }
 
@@ -1126,24 +1186,32 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
     TriangleP tri(t[0], t[1], t[2]);
     Transform3f tf_tri = Transform3f();  // identity
     normal = -pl.n;
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0, 0.05, 0));
     normal = pl.n;
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0, -0.06, 0));
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(0, 0.11, 0));
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
   }
 
@@ -1157,24 +1225,32 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
     TriangleP tri(t[0], t[1], t[2]);
     Transform3f tf_tri = Transform3f();  // identity
     normal = -pl.n;
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(0.05, 0, 0));
     normal = pl.n;
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
                      &normal);
 
     tf_tri.setTranslation(Vec3f(-0.06, 0, 0));
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3f(0.11, 0, 0));
+    SET_LINE;
     testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
   }
 }
