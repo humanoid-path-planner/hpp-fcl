@@ -217,6 +217,13 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1,
                        CollisionResult& result) {
   if (request.isSatisfied(result)) return result.numContacts();
 
+  // TODO(louis): each time we call collide on BVH-BVH, we:
+  //   - Allocate 2 new BVHs
+  //   - Copy and transform the vertices in both BVHs so that they are in the
+  //     same frame
+  //   - Recompute BVs of the BVH structure
+  // -> all that just to avoid doing (a few) rotations/translations of AABBs.
+  // Is it really worth it?
   MeshCollisionTraversalNode<T_BVH> node(request);
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
   const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
