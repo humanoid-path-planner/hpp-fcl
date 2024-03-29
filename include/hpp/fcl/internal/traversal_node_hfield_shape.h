@@ -539,7 +539,6 @@ class HeightFieldShapeCollisionTraversalNode
     query_time_seconds = 0.0;
 
     nsolver = NULL;
-    shape_inflation.setZero();
     count = 0;
   }
 
@@ -651,8 +650,6 @@ class HeightFieldShapeCollisionTraversalNode
   const HeightField<BV>* model1;
   const S* model2;
   BV model2_bv;
-
-  Array2d shape_inflation;
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
