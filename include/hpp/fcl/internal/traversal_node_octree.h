@@ -260,14 +260,15 @@ class HPP_FCL_DLLAPI OcTreeSolver {
           box.computeLocalAABB();
         }
 
-        FCL_REAL dist;
-        Vec3f closest_p1, closest_p2, normal;
-        bool compute_penetration = drequest->enable_signed_distance;
-        solver->shapeDistance(box, box_tf, s, tf2, dist, compute_penetration,
-                              closest_p1, closest_p2, normal);
+        DistanceResult distanceResult;
+        const FCL_REAL distance =
+            ShapeShapeDistance<Box, S>(&box, box_tf, &s, tf2, this->solver,
+                                       *(this->drequest), distanceResult);
 
-        dresult->update(dist, tree1, &s, (int)(root1 - tree1->getRoot()),
-                        DistanceResult::NONE, closest_p1, closest_p2, normal);
+        this->dresult->update(
+            distance, tree1, &s, (int)(root1 - tree1->getRoot()),
+            DistanceResult::NONE, distanceResult.nearest_points[0],
+            distanceResult.nearest_points[1], distanceResult.normal);
 
         return drequest->isSatisfied(*dresult);
       } else
@@ -512,8 +513,9 @@ class HPP_FCL_DLLAPI OcTreeSolver {
 
       // When reaching this point, `this->solver` has already been set up
       // by the CollisionRequest `this->crequest`.
-      // The only thing we need to pass to `ShapeShapeDistance` is whether or
-      // not penetration information is should be computed in case of collision.
+      // The only thing we need to (and can) pass to `ShapeShapeDistance` is
+      // whether or not penetration information is should be computed in case of
+      // collision.
       const bool compute_penetration = this->crequest->enable_contact ||
                                        (this->crequest->security_margin < 0);
       const DistanceRequest distanceRequest(compute_penetration,
@@ -524,14 +526,14 @@ class HPP_FCL_DLLAPI OcTreeSolver {
           &box, box_tf, &tri, tf2, this->solver, distanceRequest,
           distanceResult);
 
-      const Vec3f& c1 = distanceResult.nearest_points[0];  // cp of triangle
-      const Vec3f& c2 = distanceResult.nearest_points[1];  // cp of shape
+      const Vec3f& c1 = distanceResult.nearest_points[0];
+      const Vec3f& c2 = distanceResult.nearest_points[1];
       const Vec3f& normal = distanceResult.normal;
       const FCL_REAL distToCollision =
           distance - this->crequest->security_margin;
 
       internal::updateDistanceLowerBoundFromLeaf(
-          *crequest, *cresult, distToCollision, c1, c2, normal);
+          *(this->crequest), *(this->cresult), distToCollision, c1, c2, normal);
 
       if (cresult->numContacts() < crequest->num_max_contacts) {
         if (distToCollision <= crequest->collision_distance_threshold) {
@@ -828,16 +830,15 @@ class HPP_FCL_DLLAPI OcTreeSolver {
           box2.computeLocalAABB();
         }
 
-        FCL_REAL dist;
-        Vec3f closest_p1, closest_p2, normal;
-        bool compute_penetration = drequest->enable_signed_distance;
-        solver->shapeDistance(box1, box1_tf, box2, box2_tf, dist,
-                              compute_penetration, closest_p1, closest_p2,
-                              normal);
+        DistanceResult distanceResult;
+        const FCL_REAL distance = ShapeShapeDistance<Box, Box>(
+            &box1, box1_tf, &box2, box2_tf, this->solver, *(this->drequest),
+            distanceResult);
 
-        dresult->update(dist, tree1, tree2, (int)(root1 - tree1->getRoot()),
-                        (int)(root2 - tree2->getRoot()), closest_p1, closest_p2,
-                        normal);
+        this->dresult->update(
+            distance, tree1, tree2, (int)(root1 - tree1->getRoot()),
+            (int)(root2 - tree2->getRoot()), distanceResult.nearest_points[0],
+            distanceResult.nearest_points[1], distanceResult.normal);
 
         return drequest->isSatisfied(*dresult);
       } else
@@ -945,28 +946,43 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       constructBox(bv1, tf1, box1, box1_tf);
       constructBox(bv2, tf2, box2, box2_tf);
 
-      if (solver->gjk_initial_guess == GJKInitialGuess::BoundingVolumeGuess) {
+      if (this->solver->gjk_initial_guess ==
+          GJKInitialGuess::BoundingVolumeGuess) {
         box1.computeLocalAABB();
         box2.computeLocalAABB();
       }
 
-      FCL_REAL distance;
-      Vec3f c1, c2, normal;
-      bool compute_penetration =
-          (crequest->enable_contact || crequest->security_margin < 0);
-      solver->shapeDistance(box1, box1_tf, box2, box2_tf, distance,
-                            compute_penetration, c1, c2, normal);
-      FCL_REAL distToCollision = distance - crequest->security_margin;
+      // When reaching this point, `this->solver` has already been set up
+      // by the CollisionRequest `this->request`.
+      // The only thing we need to (and can) pass to `ShapeShapeDistance` is
+      // whether or not penetration information is should be computed in case of
+      // collision.
+      const bool compute_penetration = (this->crequest->enable_contact ||
+                                        (this->crequest->security_margin < 0));
+      const DistanceRequest distanceRequest(compute_penetration,
+                                            compute_penetration);
+      DistanceResult distanceResult;
 
-      if (cresult->numContacts() < crequest->num_max_contacts) {
-        if (distToCollision <= crequest->collision_distance_threshold)
-          cresult->addContact(
+      FCL_REAL distance = ShapeShapeDistance<Box, Box>(
+          &box1, box1_tf, &box2, box2_tf, this->solver, distanceRequest,
+          distanceResult);
+
+      const Vec3f& c1 = distanceResult.nearest_points[0];
+      const Vec3f& c2 = distanceResult.nearest_points[1];
+      const Vec3f& normal = distanceResult.normal;
+      const FCL_REAL distToCollision =
+          distance - this->crequest->security_margin;
+
+      internal::updateDistanceLowerBoundFromLeaf(
+          *(this->crequest), *(this->cresult), distToCollision, c1, c2, normal);
+
+      if (this->cresult->numContacts() < this->crequest->num_max_contacts) {
+        if (distToCollision <= this->crequest->collision_distance_threshold)
+          this->cresult->addContact(
               Contact(tree1, tree2, static_cast<int>(root1 - tree1->getRoot()),
                       static_cast<int>(root2 - tree2->getRoot()), c1, c2,
                       normal, distance));
       }
-      internal::updateDistanceLowerBoundFromLeaf(
-          *crequest, *cresult, distToCollision, c1, c2, normal);
 
       return crequest->isSatisfied(*cresult);
     }

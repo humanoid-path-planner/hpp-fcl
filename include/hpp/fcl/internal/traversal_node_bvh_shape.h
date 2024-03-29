@@ -149,8 +149,9 @@ class MeshShapeCollisionTraversalNode
 
     // When reaching this point, `this->solver` has already been set up
     // by the CollisionRequest `this->request`.
-    // The only thing we need to pass to `ShapeShapeDistance` is whether or
-    // not penetration information is should be computed in case of collision.
+    // The only thing we need to (and can) pass to `ShapeShapeDistance` is
+    // whether or not penetration information is should be computed in case of
+    // collision.
     const bool compute_penetration =
         this->request.enable_contact || (this->request.security_margin < 0);
     const DistanceRequest distanceRequest(compute_penetration,
