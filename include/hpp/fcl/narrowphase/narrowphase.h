@@ -634,9 +634,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // TODO: On degenerated case, the closest points may be non-unique.
     // (i.e. an object face normal is colinear to `gjk.ray`)
     gjk.getWitnessPointsAndNormal(this->minkowski_difference, p1, p2, normal);
-    p1 = tf1.transform(p1);
-    p2 = tf1.transform(p2);
+    Vec3f p = tf1.transform(0.5 * (p1 + p2));
     normal = tf1.getRotation() * normal;
+    p1.noalias() = p - 0.5 * distance * normal;
+    p2.noalias() = p + 0.5 * distance * normal;
   }
 
   void GJKCollisionExtractWitnessPointsAndNormal(const Transform3f& tf1,
@@ -702,9 +703,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // We compute the middle points of the current $p_1$ and $p_2$ and we use
     // the normal and the distance given by EPA to compute the new $p_1$ and
     // $p_2$.
-    p1 = tf1.transform(p1);
-    p2 = tf1.transform(p2);
+    Vec3f p = tf1.transform(0.5 * (p1 + p2));
     normal = tf1.getRotation() * normal;
+    p1.noalias() = p - 0.5 * distance * normal;
+    p2.noalias() = p + 0.5 * distance * normal;
   }
 
   void EPAFailedExtractWitnessPointsAndNormal(const Transform3f& tf1,
