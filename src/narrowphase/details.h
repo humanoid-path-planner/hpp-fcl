@@ -594,6 +594,16 @@ inline FCL_REAL boxSphereDistance(const Box& b, const Transform3f& tfb,
     // project point pb onto the box's surface
     pb = ps - dist * normal;
   }
+
+  // Take swept-sphere radius into account
+  const FCL_REAL ssrb = b.getSweptSphereRadius();
+  const FCL_REAL ssrs = s.getSweptSphereRadius();
+  if (ssrb > 0 || ssrs > 0) {
+    pb += ssrb * normal;
+    ps -= ssrs * normal;
+    dist -= (ssrb + ssrs);
+  }
+
   return dist;
 }
 
