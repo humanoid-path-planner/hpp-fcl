@@ -42,6 +42,7 @@
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/internal/tools.h>
+#include <hpp/fcl/internal/shape_shape_func.h>
 
 #include "utility.h"
 
@@ -136,13 +137,21 @@ void test_gjk_distance_triangle_triangle(
     TriangleP tri1(P1_loc, P2_loc, P3_loc);
     TriangleP tri2(Q1_loc, Q2_loc, Q3_loc);
     Vec3f normal;
-    bool compute_penetration = true;
+    const bool compute_penetration = true;
+    hpp::fcl::DistanceRequest request(compute_penetration, compute_penetration);
+    hpp::fcl::DistanceResult result;
 
     start = clock();
-    solver.shapeDistance(tri1, tf1, tri2, tf2, distance, compute_penetration,
-                         p1, p2, normal);
+    // The specialized function TriangleP-TriangleP calls GJK to check for
+    // collision and compute the witness points but it does not use EPA to
+    // compute the penetration depth.
+    distance = hpp::fcl::ShapeShapeDistance<TriangleP, TriangleP>(
+        &tri1, tf1, &tri2, tf2, &solver, request, result);
     end = clock();
-    bool res = (distance <= solver.getDistancePrecision(compute_penetration));
+    p1 = result.nearest_points[0];
+    p2 = result.nearest_points[1];
+    normal = result.normal;
+    bool res = (distance <= 0);
     results[i].timeGjk = end - start;
     results[i].collision = res;
     if (res) {
@@ -153,9 +162,13 @@ void test_gjk_distance_triangle_triangle(
       FCL_REAL penetration_depth(-distance);
       assert(penetration_depth >= 0);
       tf2.setTranslation((penetration_depth + 10 - 4) * normal);
-      solver.shapeDistance(tri1, tf1, tri2, tf2, distance, compute_penetration,
-                           c1, c2, normal2);
-      res = (distance <= solver.getDistancePrecision(compute_penetration));
+      result.clear();
+      distance = hpp::fcl::ShapeShapeDistance<TriangleP, TriangleP>(
+          &tri1, tf1, &tri2, tf2, &solver, request, result);
+      c1 = result.nearest_points[0];
+      c2 = result.nearest_points[1];
+      normal2 = result.normal;
+      res = (distance <= 0);
       if (res) {
         std::cerr << "P1 = " << P1_loc.format(tuple) << std::endl;
         std::cerr << "P2 = " << P2_loc.format(tuple) << std::endl;
@@ -313,8 +326,11 @@ void test_gjk_distance_triangle_triangle(
             << "s" << std::endl;
 }
 
-BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1) {
+BOOST_AUTO_TEST_CASE(distance_triangle_triangle) {
   test_gjk_distance_triangle_triangle(false);
+}
+
+BOOST_AUTO_TEST_CASE(distance_triangle_triangle_nesterov) {
   test_gjk_distance_triangle_triangle(true);
 }
 
