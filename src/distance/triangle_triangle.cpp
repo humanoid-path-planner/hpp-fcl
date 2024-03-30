@@ -57,10 +57,10 @@ FCL_REAL ShapeShapeDistance<TriangleP, TriangleP>(
                      tf2.transform(s2.c));
 
   // Reset GJK algorithm
-  //   We don't need to inflate the supports in GJK iterations; the result
-  //   will be corrected after GJK terminates.
-  bool constexpr use_inflated_supports = false;
-  solver->minkowski_difference.set<use_inflated_supports>(&t1, &t2);
+  //   We don't need to take into account swept-sphere radius in GJK iterations;
+  //   the result will be corrected after GJK terminates.
+  constexpr bool compute_swept_sphere_support = false;
+  solver->minkowski_difference.set<compute_swept_sphere_support>(&t1, &t2);
   solver->gjk.reset(solver->gjk_max_iterations, solver->gjk_tolerance);
 
   // Get GJK initial guess

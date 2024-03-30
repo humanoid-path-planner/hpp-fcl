@@ -58,14 +58,14 @@ int line;
   node2_type = shape2.getNodeType(); \
   line = __LINE__
 
-#define HPP_FCL_CHECK(cond)                                                    \
-  BOOST_CHECK_MESSAGE(                                                         \
-      cond, "from line " << line << ", for collision pair: "                   \
-                         << get_node_type_name(node1_type) << " - "            \
-                         << get_node_type_name(node2_type)                     \
-                         << " with inflation1 = "                              \
-                         << shape1.getSweptSphereRadius() << ", inflation2 = " \
-                         << shape2.getSweptSphereRadius() << ": " #cond)
+#define HPP_FCL_CHECK(cond)                                                  \
+  BOOST_CHECK_MESSAGE(                                                       \
+      cond, "from line " << line << ", for collision pair: "                 \
+                         << get_node_type_name(node1_type) << " - "          \
+                         << get_node_type_name(node2_type)                   \
+                         << " with ssr1 = " << shape1.getSweptSphereRadius() \
+                         << ", ssr2 = " << shape2.getSweptSphereRadius()     \
+                         << ": " #cond)
 
 #define HPP_FCL_CHECK_VECTOR_CLOSE(v1, v2, tol) \
   EIGEN_VECTOR_IS_APPROX(v1, v2, tol);          \
@@ -79,8 +79,8 @@ int line;
   BOOST_CHECK(cond);                  \
   HPP_FCL_CHECK(cond)
 
-// Preambule: swept sphere radius allows to virually inflate geometric shapes
-// by a positive value.
+// Preambule: swept sphere radius allows to virually convolve geometric shapes
+// by a sphere with positive radius (Minkowski sum).
 // Sweeping a shape by a sphere corresponds to doing a Minkowski addition of the
 // shape with a sphere of radius r. Essentially, this rounds the shape's corners
 // and edges, which can be useful to smooth collision detection algorithms.
@@ -91,11 +91,11 @@ int line;
 // Minkowski difference of the two objects.
 // With spheres of radii r1 and r2 swept around the shapes s1 and s2 of a
 // collision pair, the Minkowski difference is simply the Minkowski difference
-// of s1 and s2 inflated by a sphere of radius r1 + r2.
+// of s1 and s2, summed with a sphere of radius r1 + r2.
 // This means that running GJK and EPA on the swept-sphere shapes is equivalent
-// to running GJK and EPA on the original shapes, and then inflating the
+// to running GJK and EPA on the original shapes, and then augmenting the
 // distance by r1 + r2.
-// This inflation does not modify the normal returned by GJK and EPA.
+// This does not modify the normal returned by GJK and EPA.
 // So we can also easily recover the witness points of the swept sphere shapes.
 //
 // This suite of test is designed to verify that property and generally test for
@@ -147,12 +147,12 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
   std::vector<Transform3f> tf2s;
   generateRandomTransforms(extents, tf1s, n);
   generateRandomTransforms(extents, tf2s, n);
-  const std::array<FCL_REAL, 4> inflations = {0, 0.1, 1., 10.};
+  const std::array<FCL_REAL, 4> swept_sphere_radius = {0, 0.1, 1., 10.};
 
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
+  for (const FCL_REAL& ssr1 : swept_sphere_radius) {
+    shape1.setSweptSphereRadius(ssr1);
+    for (const FCL_REAL& ssr2 : swept_sphere_radius) {
+      shape2.setSweptSphereRadius(ssr2);
       for (std::size_t i = 0; i < n; ++i) {
         Transform3f tf1 = tf1s[i];
         Transform3f tf2 = tf2s[i];
@@ -175,7 +175,7 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
                              compute_penetration, p1[1], p2[1], normal[1],
                              true);
 
-        // Precision is dependent on the inflation.
+        // Precision is dependent on the swept-sphere radius.
         // The issue of precision does not come from the default behavior of
         // hppfcl, but from the result in which we manually take the swept
         // sphere radius into account in GJK/EPA iterations.
@@ -285,11 +285,11 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
   generateRandomTransforms(extents, tf1s, n);
   generateRandomTransforms(extents, tf2s, n);
 
-  const std::array<FCL_REAL, 4> inflations = {0, 0.1, 1., 10.};
-  for (const FCL_REAL& inflation1 : inflations) {
-    shape1.setSweptSphereRadius(inflation1);
-    for (const FCL_REAL& inflation2 : inflations) {
-      shape2.setSweptSphereRadius(inflation2);
+  const std::array<FCL_REAL, 4> swept_sphere_radius = {0, 0.1, 1., 10.};
+  for (const FCL_REAL& ssr1 : swept_sphere_radius) {
+    shape1.setSweptSphereRadius(ssr1);
+    for (const FCL_REAL& ssr2 : swept_sphere_radius) {
+      shape2.setSweptSphereRadius(ssr2);
       for (std::size_t i = 0; i < n; ++i) {
         Transform3f tf1 = tf1s[i];
         Transform3f tf2 = tf2s[i];
@@ -308,15 +308,15 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
         std::array<CollisionResult, 2> result;
 
         // Without swept sphere radius
-        const FCL_REAL inflation1 = shape1.getSweptSphereRadius();
-        const FCL_REAL inflation2 = shape2.getSweptSphereRadius();
+        const FCL_REAL ssr1 = shape1.getSweptSphereRadius();
+        const FCL_REAL ssr2 = shape2.getSweptSphereRadius();
         shape1.setSweptSphereRadius(0.);
         shape2.setSweptSphereRadius(0.);
         hpp::fcl::collide(&shape1, tf1, &shape2, tf2, request, result[0]);
 
         // With swept sphere radius
-        shape1.setSweptSphereRadius(inflation1);
-        shape2.setSweptSphereRadius(inflation2);
+        shape1.setSweptSphereRadius(ssr1);
+        shape2.setSweptSphereRadius(ssr2);
         hpp::fcl::collide(&shape1, tf1, &shape2, tf2, request, result[1]);
 
         BOOST_CHECK(result[0].isCollision());
@@ -326,16 +326,16 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
           contact[0] = result[0].getContact(0);
           contact[1] = result[1].getContact(0);
 
-          // Precision is dependent on the inflation.
+          // Precision is dependent on the swept sphere radii.
           // The issue of precision does not come from the default behavior of
           // hppfcl, but from the result in which we manually take the swept
           // sphere radius into account in GJK/EPA iterations.
           const FCL_REAL precision =
-              3 * sqrt(tol) + (1 / 100.0) * std::max(inflation1, inflation2);
-          const FCL_REAL inflation = inflation1 + inflation2;
+              3 * sqrt(tol) + (1 / 100.0) * std::max(ssr1, ssr2);
+          const FCL_REAL ssr = ssr1 + ssr2;
 
           // Check that the distance is the same
-          HPP_FCL_CHECK_REAL_CLOSE(contact[0].penetration_depth - inflation,
+          HPP_FCL_CHECK_REAL_CLOSE(contact[0].penetration_depth - ssr,
                                    contact[1].penetration_depth, precision);
 
           // Check that the normal is the same
@@ -347,10 +347,10 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
 
           // Check that the witness points are the same
           HPP_FCL_CHECK_VECTOR_CLOSE(
-              contact[0].nearest_points[0] + inflation1 * contact[0].normal,
+              contact[0].nearest_points[0] + ssr1 * contact[0].normal,
               contact[1].nearest_points[0], precision);
           HPP_FCL_CHECK_VECTOR_CLOSE(
-              contact[0].nearest_points[1] - inflation2 * contact[0].normal,
+              contact[0].nearest_points[1] - ssr2 * contact[0].normal,
               contact[1].nearest_points[1], precision);
         }
       }

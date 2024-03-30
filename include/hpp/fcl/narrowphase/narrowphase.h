@@ -368,21 +368,33 @@ struct HPP_FCL_DLLAPI GJKSolver {
   }
 
   /// @brief Runs the GJK algorithm.
-  /// If the shapes are in found in collision and the boolean
-  /// `compute_penetration` is true, the EPA algorithm is also ran.
-  ///
-  /// @tparam InflateSupportsDuringIterations whether the supports should be
-  /// inflated during the iterations of GJK and EPA.
-  /// Please leave this default value to `false` unless you know what you are
-  /// doing. This template parameter is only used for debugging/testing
-  /// purposes. In short, there is no need to take into account the swept sphere
-  /// radius when computing supports in the iterations of GJK and EPA. GJK and
-  /// EPA will correct the solution once they have converged.
+  /// @param `s1` the first shape.
+  /// @param `tf1` the transformation of the first shape.
+  /// @param `s2` the second shape.
+  /// @param `tf2` the transformation of the second shape.
+  /// @param `distance` the distance between the two shapes.
+  /// @param `compute_penetration` if true and if the shapes are in found in
+  /// collision, the EPA algorithm is also ran to compute penetration
+  /// information.
+  /// @param `p1` the witness point on the first shape.
+  /// @param `p2` the witness point on the second shape.
+  /// @param `normal` the normal of the collision, pointing from the first to
+  /// the second shape.
+  /// @param `relative_transformation_already_computed` whether the relative
+  /// transformation between the two shapes has already been computed.
+  /// @tparam ComputeSweptSphereSupportsDuringIterations whether the support
+  /// computations should take into account the shapes' swept-sphere radii
+  /// during the iterations of GJK and EPA. Please leave this default value to
+  /// `false` unless you know what you are doing. This template parameter is
+  /// only used for debugging/testing purposes. In short, there is no need to
+  /// take into account the swept sphere radius when computing supports in the
+  /// iterations of GJK and EPA. GJK and EPA will correct the solution once they
+  /// have converged.
   ///
   /// NOTE: The variables `gjk_status` and `epa_status` can be used to
   /// examine the status of GJK and EPA.
   template <typename S1, typename S2,
-            bool InflateSupportsDuringIterations = false>
+            bool ComputeSweptSphereSupportsDuringIterations = false>
   void runGJKAndEPA(
       const S1& s1, const Transform3f& tf1, const S2& s2,
       const Transform3f& tf2, FCL_REAL& distance, bool compute_penetration,
@@ -390,10 +402,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
       bool relative_transformation_already_computed = false) const {
     // Reset internal state of GJK algorithm
     if (relative_transformation_already_computed)
-      this->minkowski_difference.set<InflateSupportsDuringIterations>(&s1, &s2);
+      this->minkowski_difference
+          .set<ComputeSweptSphereSupportsDuringIterations>(&s1, &s2);
     else
-      this->minkowski_difference.set<InflateSupportsDuringIterations>(&s1, &s2,
-                                                                      tf1, tf2);
+      this->minkowski_difference
+          .set<ComputeSweptSphereSupportsDuringIterations>(&s1, &s2, tf1, tf2);
     this->gjk.reset(this->gjk_max_iterations, this->gjk_tolerance);
     this->gjk.setDistanceEarlyBreak(this->distance_upper_bound);
     this->gjk.gjk_variant = this->gjk_variant;

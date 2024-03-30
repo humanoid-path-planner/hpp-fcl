@@ -76,9 +76,8 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
   /// Must be >= 0.
   void setSweptSphereRadius(FCL_REAL radius) {
     if (radius < 0) {
-      HPP_FCL_THROW_PRETTY(
-          "Inflation (i.e. swept sphere radius) must be positive.",
-          std::invalid_argument);
+      HPP_FCL_THROW_PRETTY("Swept-sphere radius must be positive.",
+                           std::invalid_argument);
     }
     this->m_swept_sphere_radius = radius;
   }
@@ -94,6 +93,9 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
   /// derived classes (e.g. Box, Sphere, Ellipsoid, Capsule, Cone, Cylinder)
   /// in the sense that inflated returns a new shape which can be inflated but
   /// also deflated.
+  /// Also, an inflated shape is not rounded. It simply has a different size.
+  /// Sweeping a shape with a sphere is a different operation (a Minkowski sum),
+  /// which rounds the sharp corners of a shape.
   /// The swept sphere radius is a property of the shape itself and can be
   /// manually updated between collision checks.
   FCL_REAL m_swept_sphere_radius{0};
@@ -999,10 +1001,10 @@ class HPP_FCL_DLLAPI Plane : public ShapeBase {
   virtual Plane* clone() const { return new Plane(*this); };
 
   FCL_REAL signedDistance(const Vec3f& p) const {
-    const FCL_REAL non_inflated_signed_dist = n.dot(p) - d;
+    const FCL_REAL dist = n.dot(p) - d;
     FCL_REAL signed_dist =
         std::abs(n.dot(p) - d) - this->getSweptSphereRadius();
-    if (non_inflated_signed_dist >= 0) {
+    if (dist >= 0) {
       return signed_dist;
     }
     if (signed_dist >= 0) {

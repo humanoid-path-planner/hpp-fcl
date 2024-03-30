@@ -49,13 +49,15 @@ namespace fcl {
 
 namespace details {
 
-/// @brief the support function for shape
-/// \param hint used to initialize the search when shape is a ConvexBase object.
-/// \tparam InflateSupportFunctions if true, the support functions are
-/// inflated with the shapes' swept sphere radii.
-/// Important: please see `MinkowskiDiff::set(const ShapeBase*, const
-/// ShapeBase*)` for more details.
-template <bool InflateSupport>
+/// @brief the support function for shape.
+/// @return argmax_{v in shape0} v.dot(dir).
+/// @param shape the shape.
+/// @param dir support direction.
+/// @param hint used to initialize the search when shape is a ConvexBase object.
+/// @tparam ComputeSweptSphereSupports if true, the support functions take into
+/// account the shapes' swept sphere radii. Please see `MinkowskiDiff::set(const
+/// ShapeBase*, const ShapeBase*)` for more details.
+template <bool ComputeSweptSphereSupports>
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint);
 
 /// @brief Minkowski difference class of two shapes
@@ -84,10 +86,10 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// such that @f$ p_in_0 = oR1 * p_in_1 + ot1 @f$.
   Vec3f ot1;
 
-  /// @brief The radius of the sphere swepted volume.
-  /// The 2 values correspond to the inflation of shape 0 and shape 1/
-  /// These inflation values are used for Sphere and Capsule.
-  Array2d inflation;
+  /// @brief The radii of the sphere swepted around each shape of the Minkowski
+  /// difference. The 2 values correspond to the swept-sphere radius of shape 0
+  /// and shape 1.
+  Array2d swept_sphere_radius;
 
   /// @brief Wether or not to use the normalize heuristic in the GJK Nesterov
   /// acceleration. This setting is only applied if the Nesterov acceleration in
@@ -103,51 +105,66 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
   MinkowskiDiff() : normalize_support_direction(false), getSupportFunc(NULL) {}
 
-  /// Set the two shapes, assuming the relative transformation between them is
-  /// identity.
-  /// \tparam InflateSupports if true, the support functions are inflated with
-  /// the shapes' swept sphere radii. Here for debug only, the default value is
-  /// false.
-  /// Even when shapes have a non-zero swept sphere radius, GJK and EPA
-  /// don't need the support functions to be inflated. The result of GJK and EPA
-  /// can simply be corrected by the swept sphere radii.
+  /// @brief Set the two shapes, assuming the relative transformation between
+  /// them is identity.
+  /// @param shape0 the first shape.
+  /// @param shape1 the second shape.
+  /// @tparam `ComputeSweptSphereSupports` if true, the support computation will
+  /// take into account the swept sphere radius of the shapes. Otherwise, this
+  /// information is simply stored in the Minkowski's difference
+  /// `swept_sphere_radius` array. This array is then used to correct the
+  /// solution found when GJK or EPA have converged.
   ///
-  /// Note: the rule is simple. When interacting with GJK/EPA, the
-  /// `InflateSupports` template parameter should **always** be set to `false`
-  /// (except for debugging or testing purposes).
-  /// When working directly with the shapes involved in the collision, and not
-  /// relying on GJK/EPA, the `InflateSupports` template parameter should be set
-  /// to `true`. This is for example the case for specialized collision/distance
-  /// functions.
-  template <bool InflateSupports>
+  /// @note In practice, there is no need to take into account the swept-sphere
+  /// radius in the iterations of GJK/EPA. It is in fact detrimental to the
+  /// convergence of both algos. This is because it makes corners and edges of
+  /// shapes look strictly convex to the algorithms, which leads to poor
+  /// convergence. This swept sphere template parameter is only here for
+  /// debugging purposes and for specific uses cases where the swept sphere
+  /// radius is needed in the support function. The rule is simple. When
+  /// interacting with GJK/EPA, the `ComputeSweptSphereSupports` template
+  /// parameter should **always** be set to `false` (except for debugging or
+  /// testing purposes). When working directly with the shapes involved in the
+  /// collision, and not relying on GJK/EPA, the `ComputeSweptSphereSupports`
+  /// template parameter should be set to `true`. This is for example the case
+  /// for specialized collision/distance functions.
+  template <bool ComputeSweptSphereSupports>
   void set(const ShapeBase* shape0, const ShapeBase* shape1);
 
-  /// Set the two shapes, with a relative transformation.
-  /// \tparam InflateSupports see `set(const ShapeBase*, const ShapeBase*)` for
-  /// more details.
-  template <bool InflateSupports>
+  /// @brief Set the two shapes, with a relative transformation.
+  /// @param shape0 the first shape.
+  /// @param shape1 the second shape.
+  /// @param tf0 the transformation of the first shape.
+  /// @param tf1 the transformation of the second shape.
+  /// @tparam `ComputeSweptSphereSupports` see `set(const ShapeBase*, const
+  /// ShapeBase*)` for more details.
+  template <bool ComputeSweptSphereSupports>
   void set(const ShapeBase* shape0, const ShapeBase* shape1,
            const Transform3f& tf0, const Transform3f& tf1);
 
-  /// @brief support function for shape0
-  /// \param hint used to initialize the search when shape is a ConvexBase
+  /// @brief support function for shape0.
+  /// @return argmax_{v in shape0} v.dot(dir).
+  /// @param dir support direction.
+  /// @param hint used to initialize the search when shape is a ConvexBase
   /// object.
-  /// \tparam InflateSupport see `set(const ShapeBase*, const ShapeBase*)` for
-  /// more details.
-  template <bool InflateSupport>
+  /// @tparam `ComputeSweptSphereSupports` see `set(const ShapeBase*, const
+  /// ShapeBase*)` for more details.
+  template <bool ComputeSweptSphereSupports>
   inline Vec3f support0(const Vec3f& dir, int& hint) const {
-    return getSupport<InflateSupport>(shapes[0], dir, hint);
+    return getSupport<ComputeSweptSphereSupports>(shapes[0], dir, hint);
   }
 
-  /// @brief support function for shape1
-  /// \param hint used to initialize the search when shape is a ConvexBase
+  /// @brief support function for shape1.
+  /// @return argmax_{v in shape0} v.dot(dir).
+  /// @param dir support direction.
+  /// @param hint used to initialize the search when shape is a ConvexBase
   /// object.
-  /// \tparam InflateSupport see `set(const ShapeBase*, const ShapeBase*)` for
-  /// more details.
-  template <bool InflateSupport>
+  /// @tparam `ComputeSweptSphereSupports` see `set(const ShapeBase*, const
+  /// ShapeBase*)` for more details.
+  template <bool ComputeSweptSphereSupports>
   inline Vec3f support1(const Vec3f& dir, int& hint) const {
     // clang-format off
-    return oR1 * getSupport<InflateSupport>(shapes[1], oR1.transpose() * dir, hint) + ot1;
+    return oR1 * getSupport<ComputeSweptSphereSupports>(shapes[1], oR1.transpose() * dir, hint) + ot1;
     // clang-format on
   }
 
@@ -226,19 +243,11 @@ struct HPP_FCL_DLLAPI GJK {
   MinkowskiDiff const* shape;
   Vec3f ray;
   support_func_guess_t support_hint;
-  /// The distance computed by GJK. The possible values are
-  /// - \f$ d = - R - 1 \f$ when a collision is detected and GJK
-  ///   cannot compute penetration informations.
-  /// - \f$ - R \le d \le 0 \f$ when a collision is detected and GJK can
-  ///   compute penetration informations.
-  /// - \f$ 0 < d \le d_{ub} \f$ when there is no collision and GJK can compute
-  ///   the closest points.
-  /// - \f$ d_{ub} < d \f$ when there is no collision and GJK cannot compute the
-  ///   closest points.
-  ///
-  /// where \f$ d \f$ is the GJK::distance, \f$ R \f$ is the sum of the \c shape
-  /// MinkowskiDiff::inflation and \f$ d_{ub} \f$ is the
-  /// GJK::distance_upper_bound.
+  /// @brief The distance between the two shapes, computed by GJK.
+  /// If the distance is below GJK's threshold, the shapes are in collision in
+  /// the eyes of GJK. If `distance_upper_bound` is set to a value lower than
+  /// infinity, GJK will early stop as soon as it finds `distance` to be greater
+  /// than `distance_upper_bound`.
   FCL_REAL distance;
   Simplex* simplex;  // Pointer to the result of the last run of GJK.
 
@@ -539,8 +548,8 @@ struct HPP_FCL_DLLAPI EPA {
   /// @param[out] w0 is the witness point on shape0.
   /// @param[out] w1 is the witness point on shape1.
   /// @param[in] normal is the normal found by EPA. It points from shape0 to
-  /// shape1. The normal is used to inflate the shapes if they have a non-zero
-  /// inflation.
+  /// shape1. The normal is used to correct the witness points on the shapes if
+  /// the shapes have a non-zero swept-sphere radius.
   void getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
                                  Vec3f& w1, Vec3f& normal) const;
 

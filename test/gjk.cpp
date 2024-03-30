@@ -318,26 +318,27 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_1) {
   test_gjk_distance_triangle_triangle(true);
 }
 
-void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray, double inflation,
+void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
+                          double swept_sphere_radius,
                           bool use_gjk_nesterov_acceleration) {
   using namespace hpp::fcl;
   const FCL_REAL r = 1.0;
   Sphere sphere(r);
-  sphere.setSweptSphereRadius(inflation);
+  sphere.setSweptSphereRadius(swept_sphere_radius);
 
   typedef Eigen::Matrix<FCL_REAL, 4, 1> Vec4f;
   Transform3f tf0(Quatf(Vec4f::Random().normalized()), Vec3f::Zero());
   Transform3f tf1(Quatf(Vec4f::Random().normalized()), center_distance * ray);
 
-  bool expect_collision = center_distance <= 2 * (r + inflation);
+  bool expect_collision = center_distance <= 2 * (r + swept_sphere_radius);
 
   details::MinkowskiDiff shape;
-  bool constexpr InflateSupportsDuringGjkEpaIterations = false;
-  shape.set<InflateSupportsDuringGjkEpaIterations>(&sphere, &sphere, tf0, tf1);
+  constexpr bool compute_swept_sphere_support = false;
+  shape.set<compute_swept_sphere_support>(&sphere, &sphere, tf0, tf1);
 
-  BOOST_CHECK_EQUAL(shape.inflation[0],
+  BOOST_CHECK_EQUAL(shape.swept_sphere_radius[0],
                     sphere.radius + sphere.getSweptSphereRadius());
-  BOOST_CHECK_EQUAL(shape.inflation[1],
+  BOOST_CHECK_EQUAL(shape.swept_sphere_radius[1],
                     sphere.radius + sphere.getSweptSphereRadius());
 
   details::GJK gjk(2, 1e-6);
@@ -360,9 +361,9 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray, double inflation,
   gjk.getWitnessPointsAndNormal(shape, w0, w1, normal);
 
   Vec3f w0_expected(tf0.inverse().transform(tf0.getTranslation() + ray) +
-                    inflation * normal);
+                    swept_sphere_radius * normal);
   Vec3f w1_expected(tf0.inverse().transform(tf1.getTranslation() - ray) -
-                    inflation * normal);
+                    swept_sphere_radius * normal);
 
   EIGEN_VECTOR_IS_APPROX(w0, w0_expected, 1e-10);
   EIGEN_VECTOR_IS_APPROX(w1, w1_expected, 1e-10);
@@ -370,31 +371,28 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray, double inflation,
 
 BOOST_AUTO_TEST_CASE(sphere_sphere) {
   std::array<bool, 2> use_nesterov_acceleration = {false, true};
-  std::array<double, 5> inflations = {0., 0.1, 1., 10., 100.};
+  std::array<double, 5> swept_sphere_radius = {0., 0.1, 1., 10., 100.};
   for (bool nesterov_acceleration : use_nesterov_acceleration) {
-    for (double inflation : inflations) {
-      test_gjk_unit_sphere(3, Vec3f(1, 0, 0), inflation, nesterov_acceleration);
+    for (double ssr : swept_sphere_radius) {
+      test_gjk_unit_sphere(3, Vec3f(1, 0, 0), ssr, nesterov_acceleration);
 
-      test_gjk_unit_sphere(2.01, Vec3f(1, 0, 0), inflation,
-                           nesterov_acceleration);
+      test_gjk_unit_sphere(2.01, Vec3f(1, 0, 0), ssr, nesterov_acceleration);
 
-      test_gjk_unit_sphere(2.0, Vec3f(1, 0, 0), inflation,
-                           nesterov_acceleration);
+      test_gjk_unit_sphere(2.0, Vec3f(1, 0, 0), ssr, nesterov_acceleration);
 
-      test_gjk_unit_sphere(1.0, Vec3f(1, 0, 0), inflation,
-                           nesterov_acceleration);
+      test_gjk_unit_sphere(1.0, Vec3f(1, 0, 0), ssr, nesterov_acceleration);
 
       // Random rotation
-      test_gjk_unit_sphere(3, Vec3f::Random().normalized(), inflation,
+      test_gjk_unit_sphere(3, Vec3f::Random().normalized(), ssr,
                            nesterov_acceleration);
 
-      test_gjk_unit_sphere(2.01, Vec3f::Random().normalized(), inflation,
+      test_gjk_unit_sphere(2.01, Vec3f::Random().normalized(), ssr,
                            nesterov_acceleration);
 
-      test_gjk_unit_sphere(2.0, Vec3f::Random().normalized(), inflation,
+      test_gjk_unit_sphere(2.0, Vec3f::Random().normalized(), ssr,
                            nesterov_acceleration);
 
-      test_gjk_unit_sphere(1.0, Vec3f::Random().normalized(), inflation,
+      test_gjk_unit_sphere(1.0, Vec3f::Random().normalized(), ssr,
                            nesterov_acceleration);
     }
   }
@@ -411,14 +409,14 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
   tf1.setTranslation(T);
 
   details::MinkowskiDiff shape;
-  // No need to inflate supports when using GJK/EPA; these algos will
-  // correctly handle the inflation after they have converged.
-  bool constexpr InflateSupportsDuringGjkEpaIterations = false;
-  shape.set<InflateSupportsDuringGjkEpaIterations>(&capsule, &triangle, tf0,
-                                                   tf1);
+  // No need to take into account swept-sphere radius in supports computation
+  // when using GJK/EPA; after they have converged, these algos will correctly
+  // handle the swept-sphere radius of the shapes.
+  constexpr bool compute_swept_sphere_support = false;
+  shape.set<compute_swept_sphere_support>(&capsule, &triangle, tf0, tf1);
 
-  BOOST_CHECK_EQUAL(shape.inflation[0], capsule.radius);
-  BOOST_CHECK_EQUAL(shape.inflation[1], 0.);
+  BOOST_CHECK_EQUAL(shape.swept_sphere_radius[0], capsule.radius);
+  BOOST_CHECK_EQUAL(shape.swept_sphere_radius[1], 0.);
 
   details::GJK gjk(10, 1e-6);
   if (use_gjk_nesterov_acceleration)

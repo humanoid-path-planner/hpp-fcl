@@ -52,8 +52,8 @@ using hpp::fcl::details::MinkowskiDiff;
 
 struct MinkowskiDiffWrapper {
   static void support0(MinkowskiDiff& self, const Vec3f& dir, int& hint,
-                       bool inflate_support) {
-    if (inflate_support) {
+                       bool compute_swept_sphere_support = false) {
+    if (compute_swept_sphere_support) {
       self.support0<true>(dir, hint);
     } else {
       self.support0<false>(dir, hint);
@@ -61,8 +61,8 @@ struct MinkowskiDiffWrapper {
   }
 
   static void support1(MinkowskiDiff& self, const Vec3f& dir, int& hint,
-                       bool inflate_support) {
-    if (inflate_support) {
+                       bool compute_swept_sphere_support = false) {
+    if (compute_swept_sphere_support) {
       self.support1<true>(dir, hint);
     } else {
       self.support1<false>(dir, hint);
@@ -70,8 +70,9 @@ struct MinkowskiDiffWrapper {
   }
 
   static void set(MinkowskiDiff& self, const ShapeBase* shape0,
-                  const ShapeBase* shape1, bool inflate_supports) {
-    if (inflate_supports) {
+                  const ShapeBase* shape1,
+                  bool compute_swept_sphere_support = false) {
+    if (compute_swept_sphere_support) {
       self.set<true>(shape0, shape1);
     } else {
       self.set<false>(shape0, shape1);
@@ -80,8 +81,9 @@ struct MinkowskiDiffWrapper {
 
   static void set(MinkowskiDiff& self, const ShapeBase* shape0,
                   const ShapeBase* shape1, const Transform3f& tf0,
-                  const Transform3f& tf1, bool inflate_supports) {
-    if (inflate_supports) {
+                  const Transform3f& tf1,
+                  bool compute_swept_sphere_supports = false) {
+    if (compute_swept_sphere_supports) {
       self.set<true>(shape0, shape1, tf0, tf1);
     } else {
       self.set<false>(shape0, shape1, tf0, tf1);
@@ -130,7 +132,7 @@ void exposeGJK() {
         .def("support", &MinkowskiDiff::support,
              doxygen::member_func_doc(&MinkowskiDiff::support))
 
-        .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, inflation)
+        .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, swept_sphere_radius)
         .DEF_RW_CLASS_ATTRIB(MinkowskiDiff, normalize_support_direction);
   }
 

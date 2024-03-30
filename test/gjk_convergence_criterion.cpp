@@ -134,11 +134,7 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
 
   // Run for 3 different cv criterions
   for (size_t i = 0; i < n; ++i) {
-    // No need to inflate supports when using GJK/EPA; these algos will
-    // correctly handle the inflation after they have converged.
-    bool constexpr InflateSupportsDuringGjkEpaIterations = false;
-    mink_diff.set<InflateSupportsDuringGjkEpaIterations>(
-        &shape0, &shape1, identity, transforms[i]);
+    mink_diff.set<false>(&shape0, &shape1, identity, transforms[i]);
 
     GJK::Status res1 = gjk1.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(gjk1.getNumIterations() <= max_iterations);
