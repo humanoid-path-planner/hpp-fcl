@@ -56,22 +56,38 @@ struct ShapeShapeDistancer {
                       DistanceResult& result) {
     if (request.isSatisfied(result)) return result.min_distance;
 
-    const ShapeType1* obj1 = static_cast<const ShapeType1*>(o1);
-    const ShapeType2* obj2 = static_cast<const ShapeType2*>(o2);
-
     // Witness points on shape1 and shape2, normal pointing from shape1 to
     // shape2.
     Vec3f p1, p2, normal;
-    FCL_REAL distance = nsolver->shapeDistance(
-        *obj1, tf1, *obj2, tf2, request.enable_signed_distance, p1, p2, normal);
+    FCL_REAL distance = ShapeShapeDistancer<ShapeType1, ShapeType2>::run(
+        o1, tf1, o2, tf2, nsolver, request.enable_signed_distance, p1, p2,
+        normal);
 
-    result.update(distance, obj1, obj2, DistanceResult::NONE,
-                  DistanceResult::NONE, p1, p2, normal);
+    result.update(distance, o1, o2, DistanceResult::NONE, DistanceResult::NONE,
+                  p1, p2, normal);
 
     return distance;
   }
+
+  static FCL_REAL run(const CollisionGeometry* o1, const Transform3f& tf1,
+                      const CollisionGeometry* o2, const Transform3f& tf2,
+                      const GJKSolver* nsolver,
+                      const bool compute_signed_distance, Vec3f& p1, Vec3f& p2,
+                      Vec3f& normal) {
+    const ShapeType1* obj1 = static_cast<const ShapeType1*>(o1);
+    const ShapeType2* obj2 = static_cast<const ShapeType2*>(o2);
+    return nsolver->shapeDistance(*obj1, tf1, *obj2, tf2,
+                                  compute_signed_distance, p1, p2, normal);
+  }
 };
 
+/// @brief Shape-shape distance computation.
+/// Assumes that `nsolver` has already been set up by a `DistanceRequest` or
+/// a `CollisionRequest`.
+///
+/// @note This function is typically used for collision pairs containing two
+/// primitive shapes.
+/// @note This function might be specialized for some pairs of shapes.
 template <typename ShapeType1, typename ShapeType2>
 FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
                             const CollisionGeometry* o2, const Transform3f& tf2,
@@ -82,6 +98,37 @@ FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
       o1, tf1, o2, tf2, nsolver, request, result);
 }
 
+namespace internal {
+/// @brief Shape-shape distance computation.
+/// Assumes that `nsolver` has already been set up by a `DistanceRequest` or
+/// a `CollisionRequest`.
+///
+/// @note This function is typically used for collision pairs complex structures
+/// like BVHs, HeightFields or Octrees. These structures contain sets of
+/// primitive shapes.
+/// This function is meant to be called on the pairs of primitive shapes of
+/// these structures.
+/// @note This function might be specialized for some pairs of shapes.
+template <typename ShapeType1, typename ShapeType2>
+FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
+                            const CollisionGeometry* o2, const Transform3f& tf2,
+                            const GJKSolver* nsolver,
+                            const bool compute_signed_distance, Vec3f& p1,
+                            Vec3f& p2, Vec3f& normal) {
+  return ::hpp::fcl::ShapeShapeDistancer<ShapeType1, ShapeType2>::run(
+      o1, tf1, o2, tf2, nsolver, compute_signed_distance, p1, p2, normal);
+}
+}  // namespace internal
+
+/// @brief Shape-shape collision detection.
+/// Assumes that `nsolver` has already been set up by a `DistanceRequest` or
+/// a `CollisionRequest`.
+///
+/// @note This function is typically used for collision pairs containing two
+/// primitive shapes.
+/// Complex structures like BVHs, HeightFields or Octrees contain sets of
+/// primitive shapes should use the `ShapeShapeDistance` function to do their
+/// internal collision detection checks.
 template <typename ShapeType1, typename ShapeType2>
 struct ShapeShapeCollider {
   static std::size_t run(const CollisionGeometry* o1, const Transform3f& tf1,
@@ -91,22 +138,13 @@ struct ShapeShapeCollider {
                          CollisionResult& result) {
     if (request.isSatisfied(result)) return result.numContacts();
 
-    // When reaching this point, `nsolver` has already been set up
-    // by the CollisionRequest `request`.
-    // The only thing we need to pass to `ShapeShapeDistance` is whether or
-    // not penetration information is should be computed in case of collision.
     const bool compute_penetration =
         request.enable_contact || (request.security_margin < 0);
-    DistanceRequest distanceRequest(compute_penetration, compute_penetration);
-    DistanceResult distanceResult;
-
-    FCL_REAL distance = ShapeShapeDistance<ShapeType1, ShapeType2>(
-        o1, tf1, o2, tf2, nsolver, distanceRequest, distanceResult);
+    Vec3f p1, p2, normal;
+    FCL_REAL distance = internal::ShapeShapeDistance<ShapeType1, ShapeType2>(
+        o1, tf1, o2, tf2, nsolver, compute_penetration, p1, p2, normal);
 
     size_t num_contacts = 0;
-    const Vec3f& p1 = distanceResult.nearest_points[0];
-    const Vec3f& p2 = distanceResult.nearest_points[1];
-    const Vec3f& normal = distanceResult.normal;
     FCL_REAL distToCollision = distance - request.security_margin;
 
     internal::updateDistanceLowerBoundFromLeaf(request, result, distToCollision,
@@ -114,12 +152,8 @@ struct ShapeShapeCollider {
     if (distToCollision <= request.collision_distance_threshold &&
         result.numContacts() < request.num_max_contacts) {
       if (result.numContacts() < request.num_max_contacts) {
-        const Vec3f& p1 = distanceResult.nearest_points[0];
-        const Vec3f& p2 = distanceResult.nearest_points[1];
-
-        Contact contact(o1, o2, distanceResult.b1, distanceResult.b2, p1, p2,
-                        normal, distance);
-
+        Contact contact(o1, o2, Contact::NONE, Contact::NONE, p1, p2, normal,
+                        distance);
         result.addContact(contact);
       }
       num_contacts = result.numContacts();
@@ -140,25 +174,14 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
       o1, tf1, o2, tf2, nsolver, request, result);
 }
 
-#define SHAPE_SHAPE_DISTANCE_SPECIALIZATION(T1, T2)             \
-  template <>                                                   \
-  HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T1, T2>(           \
-      const CollisionGeometry* o1, const Transform3f& tf1,      \
-      const CollisionGeometry* o2, const Transform3f& tf2,      \
-      const GJKSolver* nsolver, const DistanceRequest& request, \
-      DistanceResult& result);                                  \
-  template <>                                                   \
-  HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T2, T1>(           \
-      const CollisionGeometry* o1, const Transform3f& tf1,      \
-      const CollisionGeometry* o2, const Transform3f& tf2,      \
-      const GJKSolver* nsolver, const DistanceRequest& request, \
-      DistanceResult& result)
-
+// clang-format off
+// ==============================================================================================================
+// ==============================================================================================================
+// ==============================================================================================================
 // Shape distance algorithms based on:
 // - built-in function: 0
 // - GJK:               1
 //
-// clang-format off
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+-----------+--------+
 // |            | box | sphere | capsule | cone | cylinder | plane | half-space | triangle | ellipsoid | convex |
 // +------------+-----+--------+---------+------+----------+-------+------------+----------+-----------+--------+
@@ -188,10 +211,77 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
 //   - GJK:         29
 // clang-format on
 
+#define SHAPE_SHAPE_DISTANCE_SPECIALIZATION(T1, T2)                            \
+  template <>                                                                  \
+  HPP_FCL_DLLAPI FCL_REAL internal::ShapeShapeDistance<T1, T2>(                \
+      const CollisionGeometry* o1, const Transform3f& tf1,                     \
+      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const GJKSolver* nsolver, const bool compute_signed_distance, Vec3f& p1, \
+      Vec3f& p2, Vec3f& normal);                                               \
+  template <>                                                                  \
+  HPP_FCL_DLLAPI FCL_REAL internal::ShapeShapeDistance<T2, T1>(                \
+      const CollisionGeometry* o1, const Transform3f& tf1,                     \
+      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const GJKSolver* nsolver, const bool compute_signed_distance, Vec3f& p1, \
+      Vec3f& p2, Vec3f& normal);                                               \
+  template <>                                                                  \
+  inline HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T1, T2>(                   \
+      const CollisionGeometry* o1, const Transform3f& tf1,                     \
+      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const GJKSolver* nsolver, const DistanceRequest& request,                \
+      DistanceResult& result) {                                                \
+    result.o1 = o1;                                                            \
+    result.o2 = o2;                                                            \
+    result.b1 = DistanceResult::NONE;                                          \
+    result.b2 = DistanceResult::NONE;                                          \
+    result.min_distance = internal::ShapeShapeDistance<T1, T2>(                \
+        o1, tf1, o2, tf2, nsolver, request.enable_signed_distance,             \
+        result.nearest_points[0], result.nearest_points[1], result.normal);    \
+    return result.min_distance;                                                \
+  }                                                                            \
+  template <>                                                                  \
+  inline HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T2, T1>(                   \
+      const CollisionGeometry* o1, const Transform3f& tf1,                     \
+      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const GJKSolver* nsolver, const DistanceRequest& request,                \
+      DistanceResult& result) {                                                \
+    result.o1 = o1;                                                            \
+    result.o2 = o2;                                                            \
+    result.b1 = DistanceResult::NONE;                                          \
+    result.b2 = DistanceResult::NONE;                                          \
+    result.min_distance = internal::ShapeShapeDistance<T2, T1>(                \
+        o1, tf1, o2, tf2, nsolver, request.enable_signed_distance,             \
+        result.nearest_points[0], result.nearest_points[1], result.normal);    \
+    return result.min_distance;                                                \
+  }
+
+#define SHAPE_SELF_DISTANCE_SPECIALIZATION(T)                                  \
+  template <>                                                                  \
+  HPP_FCL_DLLAPI FCL_REAL internal::ShapeShapeDistance<T, T>(                  \
+      const CollisionGeometry* o1, const Transform3f& tf1,                     \
+      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const GJKSolver* nsolver, const bool compute_signed_distance, Vec3f& p1, \
+      Vec3f& p2, Vec3f& normal);                                               \
+  template <>                                                                  \
+  inline HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T, T>(                     \
+      const CollisionGeometry* o1, const Transform3f& tf1,                     \
+      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const GJKSolver* nsolver, const DistanceRequest& request,                \
+      DistanceResult& result) {                                                \
+    result.o1 = o1;                                                            \
+    result.o2 = o2;                                                            \
+    result.b1 = DistanceResult::NONE;                                          \
+    result.b2 = DistanceResult::NONE;                                          \
+    result.min_distance = internal::ShapeShapeDistance<T, T>(                  \
+        o1, tf1, o2, tf2, nsolver, request.enable_signed_distance,             \
+        result.nearest_points[0], result.nearest_points[1], result.normal);    \
+    return result.min_distance;                                                \
+  }
+
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box, Plane);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Box, Sphere);
-SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Capsule, Capsule);
+SHAPE_SELF_DISTANCE_SPECIALIZATION(Capsule);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Capsule, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Capsule, Plane);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Cone, Halfspace);
@@ -200,7 +290,7 @@ SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Cylinder, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Cylinder, Plane);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Plane);
-SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Sphere);
+SHAPE_SELF_DISTANCE_SPECIALIZATION(Sphere);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Cylinder);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Sphere, Capsule);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Ellipsoid, Halfspace);
@@ -209,7 +299,7 @@ SHAPE_SHAPE_DISTANCE_SPECIALIZATION(ConvexBase, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(ConvexBase, Plane);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Halfspace);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Plane);
-SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, TriangleP);
+SHAPE_SELF_DISTANCE_SPECIALIZATION(TriangleP);
 SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Sphere);
 // SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Plane, Halfspace);
 // SHAPE_SHAPE_DISTANCE_SPECIALIZATION(Plane, Plane);
@@ -218,7 +308,6 @@ SHAPE_SHAPE_DISTANCE_SPECIALIZATION(TriangleP, Sphere);
 #undef SHAPE_SHAPE_DISTANCE_SPECIALIZATION
 
 }  // namespace fcl
-
 }  // namespace hpp
 
 /// @endcond

@@ -47,6 +47,7 @@ namespace hpp {
 namespace fcl {
 struct GJKSolver;
 
+namespace internal {
 /// Clamp num / denom in [0, 1]
 FCL_REAL clamp(const FCL_REAL& num, const FCL_REAL& denom) {
   assert(denom >= 0.);
@@ -74,11 +75,13 @@ void clamped_linear(Vec3f& a_sd, const Vec3f& a, const FCL_REAL& s_n,
 // between the two segments supporting the capsules.
 // Match algorithm of Real-Time Collision Detection, Christer Ericson - Closest
 // Point of Two Line Segments
+/// @param wp1, wp2: witness points on the capsules
+/// @param normal: normal pointing from capsule1 to capsule2
 template <>
 FCL_REAL ShapeShapeDistance<Capsule, Capsule>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const DistanceRequest& /*request*/, DistanceResult& result) {
+    const bool, Vec3f& wp1, Vec3f& wp2, Vec3f& normal) {
   const Capsule* capsule1 = static_cast<const Capsule*>(o1);
   const Capsule* capsule2 = static_cast<const Capsule*>(o2);
 
@@ -154,16 +157,15 @@ FCL_REAL ShapeShapeDistance<Capsule, Capsule>(
 
   // capsule spcecific distance computation
   distance = distance - (radius1 + radius2);
-  result.min_distance = distance;
 
   // Normal points from o1 to o2
-  result.normal = (w2 - w1).normalized();
-  result.nearest_points[0] = w1 + radius1 * result.normal;
-  result.nearest_points[1] = w2 - radius2 * result.normal;
+  normal = (w2 - w1).normalized();
+  wp1 = w1 + radius1 * normal;
+  wp2 = w2 - radius2 * normal;
 
   return distance;
 }
+}  // namespace internal
 
 }  // namespace fcl
-
 }  // namespace hpp

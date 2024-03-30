@@ -260,15 +260,14 @@ class HPP_FCL_DLLAPI OcTreeSolver {
           box.computeLocalAABB();
         }
 
-        DistanceResult distanceResult;
-        const FCL_REAL distance =
-            ShapeShapeDistance<Box, S>(&box, box_tf, &s, tf2, this->solver,
-                                       *(this->drequest), distanceResult);
+        Vec3f p1, p2, normal;
+        const FCL_REAL distance = internal::ShapeShapeDistance<Box, S>(
+            &box, box_tf, &s, tf2, this->solver,
+            this->drequest->enable_signed_distance, p1, p2, normal);
 
-        this->dresult->update(
-            distance, tree1, &s, (int)(root1 - tree1->getRoot()),
-            DistanceResult::NONE, distanceResult.nearest_points[0],
-            distanceResult.nearest_points[1], distanceResult.normal);
+        this->dresult->update(distance, tree1, &s,
+                              (int)(root1 - tree1->getRoot()),
+                              DistanceResult::NONE, p1, p2, normal);
 
         return drequest->isSatisfied(*dresult);
       } else
@@ -392,16 +391,14 @@ class HPP_FCL_DLLAPI OcTreeSolver {
                             (*(tree2->vertices))[tri_id[1]],
                             (*(tree2->vertices))[tri_id[2]]);
 
-        const DistanceRequest& distanceRequest = *(this->drequest);
-        DistanceResult distanceResult;
-        const FCL_REAL distance = ShapeShapeDistance<Box, TriangleP>(
-            &box, box_tf, &tri, tf2, this->solver, distanceRequest,
-            distanceResult);
+        Vec3f p1, p2, normal;
+        const FCL_REAL distance = internal::ShapeShapeDistance<Box, TriangleP>(
+            &box, box_tf, &tri, tf2, this->solver,
+            this->drequest->enable_signed_distance, p1, p2, normal);
 
-        this->dresult->update(
-            distance, tree1, tree2, (int)(root1 - tree1->getRoot()),
-            static_cast<int>(primitive_id), distanceResult.nearest_points[0],
-            distanceResult.nearest_points[1], distanceResult.normal);
+        this->dresult->update(distance, tree1, tree2,
+                              (int)(root1 - tree1->getRoot()),
+                              static_cast<int>(primitive_id), p1, p2, normal);
 
         return this->drequest->isSatisfied(*dresult);
       } else
@@ -518,17 +515,10 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       // collision.
       const bool compute_penetration = this->crequest->enable_contact ||
                                        (this->crequest->security_margin < 0);
-      const DistanceRequest distanceRequest(compute_penetration,
-                                            compute_penetration);
-      DistanceResult distanceResult;
-
-      const FCL_REAL distance = ShapeShapeDistance<Box, TriangleP>(
-          &box, box_tf, &tri, tf2, this->solver, distanceRequest,
-          distanceResult);
-
-      const Vec3f& c1 = distanceResult.nearest_points[0];
-      const Vec3f& c2 = distanceResult.nearest_points[1];
-      const Vec3f& normal = distanceResult.normal;
+      Vec3f c1, c2, normal;
+      const FCL_REAL distance = internal::ShapeShapeDistance<Box, TriangleP>(
+          &box, box_tf, &tri, tf2, this->solver, compute_penetration, c1, c2,
+          normal);
       const FCL_REAL distToCollision =
           distance - this->crequest->security_margin;
 
@@ -830,15 +820,14 @@ class HPP_FCL_DLLAPI OcTreeSolver {
           box2.computeLocalAABB();
         }
 
-        DistanceResult distanceResult;
-        const FCL_REAL distance = ShapeShapeDistance<Box, Box>(
-            &box1, box1_tf, &box2, box2_tf, this->solver, *(this->drequest),
-            distanceResult);
+        Vec3f p1, p2, normal;
+        const FCL_REAL distance = internal::ShapeShapeDistance<Box, Box>(
+            &box1, box1_tf, &box2, box2_tf, this->solver,
+            this->drequest->enable_signed_distance, p1, p2, normal);
 
-        this->dresult->update(
-            distance, tree1, tree2, (int)(root1 - tree1->getRoot()),
-            (int)(root2 - tree2->getRoot()), distanceResult.nearest_points[0],
-            distanceResult.nearest_points[1], distanceResult.normal);
+        this->dresult->update(distance, tree1, tree2,
+                              (int)(root1 - tree1->getRoot()),
+                              (int)(root2 - tree2->getRoot()), p1, p2, normal);
 
         return drequest->isSatisfied(*dresult);
       } else
@@ -959,17 +948,11 @@ class HPP_FCL_DLLAPI OcTreeSolver {
       // collision.
       const bool compute_penetration = (this->crequest->enable_contact ||
                                         (this->crequest->security_margin < 0));
-      const DistanceRequest distanceRequest(compute_penetration,
-                                            compute_penetration);
-      DistanceResult distanceResult;
+      Vec3f c1, c2, normal;
+      FCL_REAL distance = internal::ShapeShapeDistance<Box, Box>(
+          &box1, box1_tf, &box2, box2_tf, this->solver, compute_penetration, c1,
+          c2, normal);
 
-      FCL_REAL distance = ShapeShapeDistance<Box, Box>(
-          &box1, box1_tf, &box2, box2_tf, this->solver, distanceRequest,
-          distanceResult);
-
-      const Vec3f& c1 = distanceResult.nearest_points[0];
-      const Vec3f& c2 = distanceResult.nearest_points[1];
-      const Vec3f& normal = distanceResult.normal;
       const FCL_REAL distToCollision =
           distance - this->crequest->security_margin;
 

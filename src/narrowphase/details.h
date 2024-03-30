@@ -69,13 +69,13 @@ static inline void lineSegmentPointClosestToPoint(const Vec3f& p,
   }
 }
 
-/// @param p1 closest (or most penetrating) point on the Sphere,
-/// @param p2 closest (or most penetrating) point on the Capsule,
+/// @param p1 witness point on the Sphere.
+/// @param p2 witness point on the Capsule.
 /// @param normal pointing from shape 1 to shape 2 (sphere to capsule).
-inline void sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
-                                  const Capsule& s2, const Transform3f& tf2,
-                                  FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
-                                  Vec3f& normal) {
+/// @return the distance between the two shapes (negative if penetration).
+inline FCL_REAL sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
+                                      const Capsule& s2, const Transform3f& tf2,
+                                      Vec3f& p1, Vec3f& p2, Vec3f& normal) {
   Vec3f pos1(tf2.transform(Vec3f(0., 0., s2.halfLength)));
   Vec3f pos2(tf2.transform(Vec3f(0., 0., -s2.halfLength)));
   Vec3f s_c = tf1.getTranslation();
@@ -87,7 +87,7 @@ inline void sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
   FCL_REAL norm(normal.norm());
   FCL_REAL r1 = s1.radius + s1.getSweptSphereRadius();
   FCL_REAL r2 = s2.radius + s2.getSweptSphereRadius();
-  dist = norm - r1 - r2;
+  FCL_REAL dist = norm - r1 - r2;
 
   static const FCL_REAL eps(std::numeric_limits<FCL_REAL>::epsilon());
   if (norm > eps) {
@@ -97,15 +97,17 @@ inline void sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
   }
   p1 = s_c + normal * r1;
   p2 = segment_point - normal * r2;
+  return dist;
 }
 
-/// @param p1 closest (or most penetrating) point on the Sphere,
-/// @param p2 closest (or most penetrating) point on the Cylinder,
+/// @param p1 witness point on the Sphere.
+/// @param p2 witness point on the Cylinder.
 /// @param normal pointing from shape 1 to shape 2 (sphere to cylinder).
-inline void sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
-                                   const Cylinder& s2, const Transform3f& tf2,
-                                   FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
-                                   Vec3f& normal) {
+/// @return the distance between the two shapes (negative if penetration).
+inline FCL_REAL sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
+                                       const Cylinder& s2,
+                                       const Transform3f& tf2, Vec3f& p1,
+                                       Vec3f& p2, Vec3f& normal) {
   static const FCL_REAL eps(sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
   FCL_REAL r1(s1.radius);
   FCL_REAL r2(s2.radius);
@@ -129,6 +131,7 @@ inline void sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
   // Normal to cylinder axis such that plane (A, u, v) contains sphere
   // center
   Vec3f v(0, 0, 0);
+  FCL_REAL dist;
   if (dPS > eps) {
     // S is not on cylinder axis
     v = (1 / dPS) * PS;
@@ -192,15 +195,16 @@ inline void sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
       }
     }
   }
+  return dist;
 }
 
-/// @param p1 closest (or most penetrating) point on the first Sphere,
-/// @param p2 closest (or most penetrating) point on the second Sphere,
+/// @param p1 witness point on the first Sphere.
+/// @param p2 witness point on the second Sphere.
 /// @param normal pointing from shape 1 to shape 2 (sphere1 to sphere2).
-inline void sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
-                                 const Sphere& s2, const Transform3f& tf2,
-                                 FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
-                                 Vec3f& normal) {
+/// @return the distance between the two spheres (negative if penetration).
+inline FCL_REAL sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
+                                     const Sphere& s2, const Transform3f& tf2,
+                                     Vec3f& p1, Vec3f& p2, Vec3f& normal) {
   const fcl::Vec3f& center1 = tf1.getTranslation();
   const fcl::Vec3f& center2 = tf2.getTranslation();
   FCL_REAL r1 = (s1.radius + s1.getSweptSphereRadius());
@@ -210,10 +214,11 @@ inline void sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
   FCL_REAL cdist = c1c2.norm();
   Vec3f unit(1, 0, 0);
   if (cdist > Eigen::NumTraits<FCL_REAL>::epsilon()) unit = c1c2 / cdist;
-  dist = cdist - r1 - r2;
+  FCL_REAL dist = cdist - r1 - r2;
   normal = unit;
   p1.noalias() = center1 + r1 * unit;
   p2.noalias() = center2 - r2 * unit;
+  return dist;
 }
 
 /** @brief the minimum distance from a point to a line */
@@ -264,13 +269,14 @@ inline bool projectInTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3,
   return false;
 }
 
-/// @param p1 closest (or most penetrating) point on the first Sphere,
-/// @param p2 closest (or most penetrating) point on the second Sphere,
+/// @param p1 witness point on the first Sphere.
+/// @param p2 witness point on the second Sphere.
 /// @param normal pointing from shape 1 to shape 2 (sphere1 to sphere2).
-inline void sphereTriangleDistance(const Sphere& s, const Transform3f& tf1,
-                                   const TriangleP& tri, const Transform3f& tf2,
-                                   FCL_REAL& distance, Vec3f& p1, Vec3f& p2,
-                                   Vec3f& normal) {
+/// @return the distance between the two shapes (negative if penetration).
+inline FCL_REAL sphereTriangleDistance(const Sphere& s, const Transform3f& tf1,
+                                       const TriangleP& tri,
+                                       const Transform3f& tf2, Vec3f& p1,
+                                       Vec3f& p2, Vec3f& normal) {
   const Vec3f& P1 = tf2.transform(tri.a);
   const Vec3f& P2 = tf2.transform(tri.b);
   const Vec3f& P3 = tf2.transform(tri.c);
@@ -320,7 +326,8 @@ inline void sphereTriangleDistance(const Sphere& s, const Transform3f& tf1,
   normal = (closest_point - center).normalized();
   p1 = center + normal * (s.radius + s.getSweptSphereRadius());
   p2 = closest_point - normal * tri.getSweptSphereRadius();
-  distance = std::sqrt(min_distance_sqr) - radius;
+  const FCL_REAL distance = std::sqrt(min_distance_sqr) - radius;
+  return distance;
 }
 
 /// @brief return whether plane collides with halfspace
@@ -440,10 +447,10 @@ inline bool halfspaceIntersect(const Halfspace& s1, const Transform3f& tf1,
 /// @param p1 closest (or most penetrating) point on the Halfspace,
 /// @param p2 closest (or most penetrating) point on the shape,
 /// @param normal the halfspace normal.
-inline void halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
-                              const ShapeBase& s, const Transform3f& tf2,
-                              FCL_REAL& dist, Vec3f& p1, Vec3f& p2,
-                              Vec3f& normal) {
+/// @return the distance between the two shapes (negative if penetration).
+inline FCL_REAL halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
+                                  const ShapeBase& s, const Transform3f& tf2,
+                                  Vec3f& p1, Vec3f& p2, Vec3f& normal) {
   // TODO(louis): handle multiple contact points when the halfspace normal is
   // parallel to the shape's surface (every primitive except sphere and
   // ellipsoid).
@@ -460,7 +467,7 @@ inline void halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
   p2.noalias() = getSupport<compute_swept_sphere_support>(&s, -n_2, hint);
   p2 = tf2.transform(p2);
 
-  dist = new_h.signedDistance(p2);
+  const FCL_REAL dist = new_h.signedDistance(p2);
   p1.noalias() = p2 - dist * new_h.n;
   normal.noalias() = new_h.n;
 
@@ -468,14 +475,16 @@ inline void halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
       std::sqrt(Eigen::NumTraits<FCL_REAL>::dummy_precision());
   HPP_FCL_UNUSED_VARIABLE(dummy_precision);
   assert(new_h.distance(p1) <= dummy_precision);
+  return dist;
 }
 
 /// @param p1 closest (or most penetrating) point on the Plane,
 /// @param p2 closest (or most penetrating) point on the shape,
 /// @param normal the halfspace normal.
-inline void planeDistance(const Plane& plane, const Transform3f& tf1,
-                          const ShapeBase& s, const Transform3f& tf2,
-                          FCL_REAL& dist, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+/// @return the distance between the two shapes (negative if penetration).
+inline FCL_REAL planeDistance(const Plane& plane, const Transform3f& tf1,
+                              const ShapeBase& s, const Transform3f& tf2,
+                              Vec3f& p1, Vec3f& p2, Vec3f& normal) {
   // TODO(louis): handle multiple contact points when the plane normal is
   // parallel to the shape's surface (every primitive except sphere and
   // ellipsoid).
@@ -504,6 +513,7 @@ inline void planeDistance(const Plane& plane, const Transform3f& tf1,
       std::sqrt(Eigen::NumTraits<FCL_REAL>::dummy_precision());
   HPP_FCL_UNUSED_VARIABLE(dummy_precision);
 
+  FCL_REAL dist;
   if (dist1 >= dist2) {
     dist = dist1;
     p2.noalias() = p2h1;
@@ -517,17 +527,17 @@ inline void planeDistance(const Plane& plane, const Transform3f& tf1,
     normal.noalias() = new_h[1].n;
     assert(new_h[1].distance(p1) <= dummy_precision);
   }
+  return dist;
 }
 
 /// Taken from book Real Time Collision Detection, from Christer Ericson
 /// @param pb the witness point on the box surface
 /// @param ps the witness point on the sphere.
 /// @param normal pointing from box to sphere
-/// @return true if the distance is negative (the shape overlaps).
-inline bool boxSphereDistance(const Box& b, const Transform3f& tfb,
-                              const Sphere& s, const Transform3f& tfs,
-                              FCL_REAL& dist, Vec3f& pb, Vec3f& ps,
-                              Vec3f& normal) {
+/// @return the distance between the two shapes (negative if penetration).
+inline FCL_REAL boxSphereDistance(const Box& b, const Transform3f& tfb,
+                                  const Sphere& s, const Transform3f& tfs,
+                                  Vec3f& pb, Vec3f& ps, Vec3f& normal) {
   const Vec3f& os = tfs.getTranslation();
   const Vec3f& ob = tfb.getTranslation();
   const Matrix3f& Rb = tfb.getRotation();
@@ -557,24 +567,24 @@ inline bool boxSphereDistance(const Box& b, const Transform3f& tfb,
   }
   normal = pb - os;
   FCL_REAL pdist = normal.norm();
+  FCL_REAL dist;  // distance between sphere and box
   if (outside) {  // pb is on the box
     dist = pdist - s.radius;
     normal /= -pdist;
   } else {  // pb is inside the box
-    if (os_in_b_frame(axis) >= 0)
+    if (os_in_b_frame(axis) >= 0) {
       normal = Rb.col(axis);
-    else
+    } else {
       normal = -Rb.col(axis);
+    }
     dist = -min_d - s.radius;
   }
   ps = os - s.radius * normal;
   if (!outside || dist <= 0) {
     // project point pb onto the box's surface
     pb = ps - dist * normal;
-    return true;
-  } else {
-    return false;
   }
+  return dist;
 }
 
 inline bool halfspacePlaneIntersect(const Halfspace& s1, const Transform3f& tf1,

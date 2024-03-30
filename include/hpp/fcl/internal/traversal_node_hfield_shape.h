@@ -416,41 +416,36 @@ bool shapeDistance(const GJKSolver* nsolver, const CollisionRequest& request,
   // used.
   // The only thing we need to make sure is that in case of collision, the
   // penetration information is computed (as we do bins comparison).
-  bool compute_penetration = true;
-  DistanceRequest drequest(compute_penetration, compute_penetration);
-  DistanceResult dresult1;
-  DistanceResult dresult2;
+  const bool compute_penetration = true;
+  Vec3f contact1_1, contact1_2, contact2_1, contact2_2;
+  Vec3f normal1, normal1_top, normal2, normal2_top;
   FCL_REAL distance1, distance2;
 
   if (RTIsIdentity) {
-    distance1 = ShapeShapeDistance<Convex<Polygone>, Shape>(
-        &convex1, Id, &shape, tf2, nsolver, drequest, dresult1);
+    distance1 = internal::ShapeShapeDistance<Convex<Polygone>, Shape>(
+        &convex1, Id, &shape, tf2, nsolver, compute_penetration, contact1_1,
+        contact1_2, normal1);
   } else {
-    distance1 = ShapeShapeDistance<Convex<Polygone>, Shape>(
-        &convex1, tf1, &shape, tf2, nsolver, drequest, dresult1);
+    distance1 = internal::ShapeShapeDistance<Convex<Polygone>, Shape>(
+        &convex1, tf1, &shape, tf2, nsolver, compute_penetration, contact1_1,
+        contact1_2, normal1);
   }
   bool collision1 = (distance1 - request.security_margin <=
                      request.collision_distance_threshold);
 
-  Vec3f& contact1_1 = dresult1.nearest_points[0];
-  Vec3f& contact1_2 = dresult1.nearest_points[1];
-  Vec3f& normal1 = dresult1.normal;
-  Vec3f normal1_top;
   bool hfield_witness_is_on_bin_side1 =
       binCorrection(convex1, convex1_active_faces, shape, tf2, distance1,
                     contact1_1, contact1_2, normal1, normal1_top, collision1);
 
   if (RTIsIdentity) {
-    distance2 = ShapeShapeDistance<Convex<Polygone>, Shape>(
-        &convex2, Id, &shape, tf2, nsolver, drequest, dresult2);
+    distance2 = internal::ShapeShapeDistance<Convex<Polygone>, Shape>(
+        &convex2, Id, &shape, tf2, nsolver, compute_penetration, contact2_1,
+        contact2_2, normal2);
   } else {
-    distance2 = ShapeShapeDistance<Convex<Polygone>, Shape>(
-        &convex2, tf1, &shape, tf2, nsolver, drequest, dresult2);
+    distance2 = internal::ShapeShapeDistance<Convex<Polygone>, Shape>(
+        &convex2, tf1, &shape, tf2, nsolver, compute_penetration, contact2_1,
+        contact2_2, normal2);
   }
-  Vec3f& contact2_1 = dresult2.nearest_points[0];
-  Vec3f& contact2_2 = dresult2.nearest_points[1];
-  Vec3f& normal2 = dresult2.normal;
-  Vec3f normal2_top;
   bool collision2 = (distance2 - request.security_margin <=
                      request.collision_distance_threshold);
 
@@ -720,15 +715,14 @@ class HeightFieldShapeDistanceTraversalNode : public DistanceTraversalNodeBase {
     const ConvexQuadrilateral convex =
         details::buildConvexQuadrilateral(node, *this->model1);
 
-    DistanceResult distanceResult;
-    const FCL_REAL distance = ShapeShapeDistance<ConvexQuadrilateral, S>(
-        &convex, this->tf1, this->model2, this->tf2, this->nsolver,
-        this->request, distanceResult);
+    Vec3f p1, p2, normal;
+    const FCL_REAL distance =
+        internal::ShapeShapeDistance<ConvexQuadrilateral, S>(
+            &convex, this->tf1, this->model2, this->tf2, this->nsolver,
+            this->request.enable_signed_distance, p1, p2, normal);
 
     this->result->update(distance, this->model1, this->model2, b1,
-                         DistanceResult::NONE, distanceResult.nearest_points[0],
-                         distanceResult.nearest_points[1],
-                         distanceResult.normal);
+                         DistanceResult::NONE, p1, p2, normal);
   }
 
   /// @brief Whether the traversal process can stop early

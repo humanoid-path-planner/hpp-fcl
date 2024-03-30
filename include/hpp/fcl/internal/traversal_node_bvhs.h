@@ -207,23 +207,14 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
     // TODO(louis): MeshCollisionTraversalNode should have its own GJKSolver.
     GJKSolver solver(this->request);
 
-    // When reaching this point, `this->solver` has already been set up
-    // by the CollisionRequest `this->request`.
-    // The only thing we need to (and can) pass to `ShapeShapeDistance` is
-    // whether or not penetration information is should be computed in case of
-    // collision.
     const bool compute_penetration =
         this->request.enable_contact || (this->request.security_margin < 0);
-    const DistanceRequest distanceRequest(compute_penetration,
-                                          compute_penetration);
+    Vec3f p1, p2, normal;
     DistanceResult distanceResult;
-    FCL_REAL distance = ShapeShapeDistance<TriangleP, TriangleP>(
-        &tri1, this->tf1, &tri2, this->tf2, &solver, distanceRequest,
-        distanceResult);
+    FCL_REAL distance = internal::ShapeShapeDistance<TriangleP, TriangleP>(
+        &tri1, this->tf1, &tri2, this->tf2, &solver, compute_penetration, p1,
+        p2, normal);
 
-    const Vec3f& p1 = distanceResult.nearest_points[0];
-    const Vec3f& p2 = distanceResult.nearest_points[1];
-    const Vec3f& normal = distanceResult.normal;
     const FCL_REAL distToCollision = distance - this->request.security_margin;
 
     internal::updateDistanceLowerBoundFromLeaf(this->request, *(this->result),

@@ -154,24 +154,19 @@ class MeshShapeCollisionTraversalNode
     // collision.
     const bool compute_penetration =
         this->request.enable_contact || (this->request.security_margin < 0);
-    const DistanceRequest distanceRequest(compute_penetration,
-                                          compute_penetration);
-    DistanceResult distanceResult;
-
+    Vec3f c1, c2, normal;
     FCL_REAL distance;
+
     if (RTIsIdentity) {
       static const Transform3f Id;
-      distance = ShapeShapeDistance<TriangleP, S>(
-          &tri, Id, this->model2, this->tf2, this->nsolver, distanceRequest,
-          distanceResult);
+      distance = internal::ShapeShapeDistance<TriangleP, S>(
+          &tri, Id, this->model2, this->tf2, this->nsolver, compute_penetration,
+          c1, c2, normal);
     } else {
-      distance = ShapeShapeDistance<TriangleP, S>(
+      distance = internal::ShapeShapeDistance<TriangleP, S>(
           &tri, this->tf1, this->model2, this->tf2, this->nsolver,
-          distanceRequest, distanceResult);
+          compute_penetration, c1, c2, normal);
     }
-    const Vec3f& c1 = distanceResult.nearest_points[0];  // cp of triangle
-    const Vec3f& c2 = distanceResult.nearest_points[1];  // cp of shape
-    const Vec3f& normal = distanceResult.normal;
     const FCL_REAL distToCollision = distance - this->request.security_margin;
 
     internal::updateDistanceLowerBoundFromLeaf(this->request, *(this->result),
@@ -314,15 +309,13 @@ class MeshShapeDistanceTraversalNode
     const TriangleP tri(this->vertices[tri_id[0]], this->vertices[tri_id[1]],
                         this->vertices[tri_id[2]]);
 
-    DistanceResult distanceResult;
-    const FCL_REAL distance = ShapeShapeDistance<TriangleP, S>(
-        &tri, this->tf1, this->model2, this->tf2, this->nsolver, this->request,
-        distanceResult);
+    Vec3f p1, p2, normal;
+    const FCL_REAL distance = internal::ShapeShapeDistance<TriangleP, S>(
+        &tri, this->tf1, this->model2, this->tf2, this->nsolver,
+        this->request.enable_signed_distance, p1, p2, normal);
 
     this->result->update(distance, this->model1, this->model2, primitive_id,
-                         DistanceResult::NONE, distanceResult.nearest_points[0],
-                         distanceResult.nearest_points[1],
-                         distanceResult.normal);
+                         DistanceResult::NONE, p1, p2, normal);
   }
 
   /// @brief Whether the traversal process can stop early
@@ -361,13 +354,13 @@ void meshShapeDistanceOrientedNodeleafComputeDistance(
   const TriangleP tri(vertices[tri_id[0]], vertices[tri_id[1]],
                       vertices[tri_id[2]]);
 
-  DistanceResult distanceResult;
-  const FCL_REAL distance = ShapeShapeDistance<TriangleP, S>(
-      &tri, tf1, &model2, tf2, nsolver, request, distanceResult);
+  Vec3f p1, p2, normal;
+  const FCL_REAL distance = internal::ShapeShapeDistance<TriangleP, S>(
+      &tri, tf1, &model2, tf2, nsolver, request.enable_signed_distance, p1, p2,
+      normal);
 
   result.update(distance, model1, &model2, primitive_id, DistanceResult::NONE,
-                distanceResult.nearest_points[0],
-                distanceResult.nearest_points[1], distanceResult.normal);
+                p1, p2, normal);
 }
 
 template <typename BV, typename S>
@@ -380,12 +373,12 @@ static inline void distancePreprocessOrientedNode(
   const TriangleP tri(vertices[tri_id[0]], vertices[tri_id[1]],
                       vertices[tri_id[2]]);
 
-  DistanceResult distanceResult;
-  const FCL_REAL distance = ShapeShapeDistance<TriangleP, S>(
-      &tri, tf1, &model2, tf2, nsolver, request, distanceResult);
+  Vec3f p1, p2, normal;
+  const FCL_REAL distance = internal::ShapeShapeDistance<TriangleP, S>(
+      &tri, tf1, &model2, tf2, nsolver, request.enable_signed_distance, p1, p2,
+      normal);
   result.update(distance, model1, &model2, init_tri_id, DistanceResult::NONE,
-                distanceResult.nearest_points[0],
-                distanceResult.nearest_points[1], distanceResult.normal);
+                p1, p2, normal);
 }
 
 }  // namespace details

@@ -42,11 +42,12 @@
 namespace hpp {
 namespace fcl {
 
+namespace internal {
 template <>
 FCL_REAL ShapeShapeDistance<TriangleP, TriangleP>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2,
-    const GJKSolver* solver, const DistanceRequest&, DistanceResult& result) {
+    const GJKSolver* solver, const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
   // Transform the triangles in world frame
   const TriangleP& s1 = static_cast<const TriangleP&>(*o1);
   const TriangleP t1(tf1.transform(s1.a), tf1.transform(s1.b),
@@ -85,30 +86,27 @@ FCL_REAL ShapeShapeDistance<TriangleP, TriangleP>(
   }
 
   // Retrieve witness points and normal
-  solver->gjk.getWitnessPointsAndNormal(
-      solver->minkowski_difference, result.nearest_points[0],
-      result.nearest_points[1], result.normal);
+  solver->gjk.getWitnessPointsAndNormal(solver->minkowski_difference, p1, p2,
+                                        normal);
+  FCL_REAL distance = solver->gjk.distance;
 
-  if (gjk_status != details::GJK::Collision) {
+  if (gjk_status == details::GJK::Collision) {
+    FCL_REAL penetrationDepth =
+        details::computePenetration(t1.a, t1.b, t1.c, t2.a, t2.b, t2.c, normal);
+    distance = -penetrationDepth;
+  } else {
+    // No collision
     // TODO On degenerated case, the closest point may be wrong
     // (i.e. an object face normal is colinear to gjk.ray
     // assert (dist == (w0 - w1).norm());
-    result.min_distance = solver->gjk.distance;
     assert(solver->gjk.ray.norm() > solver->gjk.getTolerance());
-  } else {
-    FCL_REAL penetrationDepth = details::computePenetration(
-        t1.a, t1.b, t1.c, t2.a, t2.b, t2.c, result.normal);
-    result.min_distance = -penetrationDepth;
   }
   // assert(false && "should not reach this point");
   // return false;
 
-  result.o1 = o1;
-  result.o2 = o2;
-  result.b1 = -1;
-  result.b2 = -1;
-  return result.min_distance;
+  return distance;
 }
+}  // namespace internal
 
 }  // namespace fcl
 }  // namespace hpp
