@@ -1683,7 +1683,8 @@ bool EPA::getEdgeDist(SimplexFace* face, const SimplexVertex& a,
   return false;
 }
 
-EPA::SimplexFace* EPA::newFace(size_t id_a, size_t id_b, size_t id_c) {
+EPA::SimplexFace* EPA::newFace(size_t id_a, size_t id_b, size_t id_c,
+                               bool force) {
   if (stock.root != nullptr) {
     SimplexFace* face = stock.root;
     stock.remove(face);
@@ -1718,7 +1719,26 @@ EPA::SimplexFace* EPA::newFace(size_t id_a, size_t id_b, size_t id_c) {
         face->ignore = true;
       }
 
-      if (face->d >= -tolerance)
+      // For the initialization of EPA, we need to force the addition of the
+      // face. This is because the origin can lie outside the initial
+      // tetrahedron. This is expected. GJK can converge in two different ways:
+      // either by enclosing the origin with a simplex, or by converging
+      // sufficiently close to the origin.
+      // The thing is, "sufficiently close to the origin" depends on the
+      // tolerance of GJK. So in this case, GJK **cannot** guarantee that the
+      // shapes are indeed in collision. If it turns out they are not in
+      // collision, the origin will lie outside of the Minkowski difference and
+      // thus outside the initial tetrahedron. But EPA is ultimately a
+      // projection algorithm, so it will work fine!
+      //
+      // Actually, the `NonConvex` status is badly named. There should not be
+      // such a status! Again, if the origin lies outside the Minkowski
+      // difference, EPA will work fine, and will find the right (signed)
+      // distance between the shapes as well as the right normal. This is a
+      // very nice mathematical property, making GJK + EPA a **very** robust set
+      // of algorithms. :)
+      // TODO(louis): remove the `NonConvex` status.
+      if (face->d >= -tolerance || force)
         return face;
       else
         status = NonConvex;
@@ -1786,10 +1806,10 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
       sv_store[num_vertices++] = *simplex.vertex[i];
     }
 
-    SimplexFace* tetrahedron[] = {newFace(0, 1, 2),  //
-                                  newFace(1, 0, 3),  //
-                                  newFace(2, 1, 3),  //
-                                  newFace(0, 2, 3)};
+    SimplexFace* tetrahedron[] = {newFace(0, 1, 2, true),  //
+                                  newFace(1, 0, 3, true),  //
+                                  newFace(2, 1, 3, true),  //
+                                  newFace(0, 2, 3, true)};
 
     if (hull.count == 4) {
       // set the face connectivity
@@ -2050,7 +2070,13 @@ void EPA::getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
                                     Vec3f& w1, Vec3f& normal) const {
   details::getClosestPoints(result, w0, w1);
   if ((w0 - w1).norm() > Eigen::NumTraits<FCL_REAL>::dummy_precision()) {
-    normal = (w0 - w1).normalized();
+    if (this->depth >= 0) {
+      // The shapes are in collision.
+      normal = (w0 - w1).normalized();
+    } else {
+      // The shapes are not in collision.
+      normal = (w1 - w0).normalized();
+    }
   } else {
     normal = this->normal;
   }

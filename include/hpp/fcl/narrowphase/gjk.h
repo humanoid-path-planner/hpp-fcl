@@ -565,7 +565,8 @@ struct HPP_FCL_DLLAPI EPA {
   /// @brief Add a new face to the polytope.
   /// This function sets the `ignore` flag to `true` if the origin does not
   /// project inside the face.
-  SimplexFace* newFace(size_t id_a, size_t id_b, size_t id_vertex);
+  SimplexFace* newFace(size_t id_a, size_t id_b, size_t id_vertex,
+                       bool force = false);
 
   /// @brief Find the best polytope face to split
   SimplexFace* findClosestFace();
