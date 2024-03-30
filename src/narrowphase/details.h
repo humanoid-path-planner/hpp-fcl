@@ -195,6 +195,16 @@ inline FCL_REAL sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
       }
     }
   }
+
+  // Take swept-sphere radius into account
+  const FCL_REAL ssr1 = s1.getSweptSphereRadius();
+  const FCL_REAL ssr2 = s2.getSweptSphereRadius();
+  if (ssr1 > 0 || ssr2 > 0) {
+    p1 += ssr1 * normal;
+    p2 -= ssr2 * normal;
+    dist -= (ssr1 + ssr2);
+  }
+
   return dist;
 }
 
