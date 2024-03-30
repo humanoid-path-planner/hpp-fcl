@@ -360,14 +360,13 @@ void testBoxBoxContactPoints(const Matrix3f& R) {
 
   Vec3f normal;
   Vec3f p1, p2;
-  double distance;
 
   // Make sure the two boxes are colliding
   solver1.gjk_tolerance = 1e-5;
   solver1.epa_tolerance = 1e-5;
   const bool compute_penetration = true;
-  solver1.shapeDistance(s1, tf1, s2, tf2, distance, compute_penetration, p1, p2,
-                        normal);
+  FCL_REAL distance = solver1.shapeDistance(
+      s1, tf1, s2, tf2, compute_penetration, p1, p2, normal);
   FCL_CHECK(distance <= 0);
 
   // Compute global vertices
@@ -3223,64 +3222,64 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_spheresphere) {
 
   FCL_REAL dist = -1;
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), compute_penetration,
+      closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10) < 0.001);
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(30.1, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(30.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);
 
-  solver1.shapeDistance(s1, Transform3f(Vec3f(40, 0, 0)), s2, Transform3f(),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(s1, Transform3f(Vec3f(40, 0, 0)), s2,
+                               Transform3f(), compute_penetration, closest_p1,
+                               closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10) < 0.001);
 
-  solver1.shapeDistance(s1, Transform3f(Vec3f(30.1, 0, 0)), s2, Transform3f(),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(s1, Transform3f(Vec3f(30.1, 0, 0)), s2,
+                               Transform3f(), compute_penetration, closest_p1,
+                               closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver1.shapeDistance(s1, Transform3f(Vec3f(29.9, 0, 0)), s2, Transform3f(),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(s1, Transform3f(Vec3f(29.9, 0, 0)), s2,
+                               Transform3f(), compute_penetration, closest_p1,
+                               closest_p2, normal);
   BOOST_CHECK(dist < 0);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(40, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10) < 0.001);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(30.1, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(30.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(29.9, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(dist < 0);
 
-  solver1.shapeDistance(s1, transform * Transform3f(Vec3f(40, 0, 0)), s2,
-                        transform, dist, compute_penetration, closest_p1,
-                        closest_p2, normal);
+  dist = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(40, 0, 0)), s2,
+                               transform, compute_penetration, closest_p1,
+                               closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10) < 0.001);
 
-  solver1.shapeDistance(s1, transform * Transform3f(Vec3f(30.1, 0, 0)), s2,
-                        transform, dist, compute_penetration, closest_p1,
-                        closest_p2, normal);
+  dist = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(30.1, 0, 0)),
+                               s2, transform, compute_penetration, closest_p1,
+                               closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver1.shapeDistance(s1, transform * Transform3f(Vec3f(29.9, 0, 0)), s2,
-                        transform, dist, compute_penetration, closest_p1,
-                        closest_p2, normal);
+  dist = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(29.9, 0, 0)),
+                               s2, transform, compute_penetration, closest_p1,
+                               closest_p2, normal);
   BOOST_CHECK(dist < 0);
 }
 
@@ -3295,67 +3294,69 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_boxbox) {
 
   FCL_REAL dist;
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+                               compute_penetration, closest_p1, closest_p2,
+                               normal);
   BOOST_CHECK(dist <= 0);
 
-  solver1.shapeDistance(s1, transform, s2, transform, dist, compute_penetration,
-                        closest_p1, closest_p2, normal);
+  dist =
+      solver1.shapeDistance(s1, transform, s2, transform, compute_penetration,
+                            closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);
 
-  solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(20.1, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s2, Transform3f(), s2, Transform3f(Vec3f(20.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10.1) < 0.001);
 
-  solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(0, 20.2, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s2, Transform3f(), s2, Transform3f(Vec3f(0, 20.2, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10.2) < 0.001);
 
-  solver1.shapeDistance(s2, Transform3f(), s2,
-                        Transform3f(Vec3f(10.1, 10.1, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 10.1, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1 * 1.414) < 0.001);
 
-  solver2.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver2.shapeDistance(
+      s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver2.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(20.1, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver2.shapeDistance(
+      s2, Transform3f(), s2, Transform3f(Vec3f(20.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10.1) < 0.001);
 
-  solver2.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(0, 20.1, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver2.shapeDistance(
+      s2, Transform3f(), s2, Transform3f(Vec3f(0, 20.1, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10.1) < 0.001);
 
-  solver2.shapeDistance(s2, Transform3f(), s2,
-                        Transform3f(Vec3f(10.1, 10.1, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver2.shapeDistance(
+      s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 10.1, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1 * 1.414) < 0.001);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(15.1, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(15.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(20, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(20, 0, 0)), compute_penetration,
+      closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 5) < 0.001);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(20, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(20, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 5) < 0.001);
 }
 
@@ -3373,11 +3374,9 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylinderbox) {
       Vec3f(-0.29936284351096382, 0.80023864435868775, 0.71750000000000003));
 
   GJKSolver solver;
-  FCL_REAL distance;
   Vec3f p1, p2, normal;
   bool compute_penetration = true;
-  solver.shapeDistance(s1, tf1, s2, tf2, distance, compute_penetration, p1, p2,
-                       normal);
+  solver.shapeDistance(s1, tf1, s2, tf2, compute_penetration, p1, p2, normal);
   // If objects are not colliding, p2 should be outside the cylinder and
   // p1 should be outside the box
   Vec3f p2Loc(tf1.inverse().transform(p2));
@@ -3390,8 +3389,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylinderbox) {
 
   BOOST_CHECK((!p2_in_cylinder && !p1_in_box) || (p2_in_cylinder && p1_in_box));
 
-  solver.shapeDistance(s2, tf2, s1, tf1, distance, compute_penetration, p2, p1,
-                       normal);
+  solver.shapeDistance(s2, tf2, s1, tf1, compute_penetration, p2, p1, normal);
   // If objects are not colliding, p2 should be outside the cylinder and
   // p1 should be outside the box
 
@@ -3411,8 +3409,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylinderbox) {
       Vec3f(-0.66734052046473924, 0.22219183277457269, 0.76825248755616293));
   tf1.setQuatRotation(Quatf(0.52613359459338371, 0.32189408354839893,
                             0.70415587451837913, -0.35175580165512249));
-  solver.shapeDistance(s1, tf1, s2, tf2, distance, compute_penetration, p1, p2,
-                       normal);
+  solver.shapeDistance(s1, tf1, s2, tf2, compute_penetration, p1, p2, normal);
 }
 
 BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_boxsphere) {
@@ -3429,47 +3426,50 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_boxsphere) {
   int N = 10;
   for (int i = 0; i < N + 1; ++i) {
     FCL_REAL dbox = 0.0001 + (s1.radius + s2.halfSide(0)) * i * 4 / (3 * N);
-    solver1.shapeDistance(s1, Transform3f(Vec3f(dbox, 0., 0.)), s2,
-                          Transform3f(), dist, compute_penetration, closest_p1,
-                          closest_p2, normal);
+    dist = solver1.shapeDistance(s1, Transform3f(Vec3f(dbox, 0., 0.)), s2,
+                                 Transform3f(), compute_penetration, closest_p1,
+                                 closest_p2, normal);
     BOOST_CHECK_CLOSE(dist, (dbox - s1.radius - s2.halfSide(0)), 1e-6);
     EIGEN_VECTOR_IS_APPROX(normal, -Vec3f(1, 0, 0), 1e-6);
 
-    solver1.shapeDistance(s1, transform, s2, transform, dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
-    solver1.shapeDistance(s1, transform * Transform3f(Vec3f(dbox, 0., 0.)), s2,
-                          transform, dist, compute_penetration, closest_p1,
-                          closest_p2, normal);
+    dist =
+        solver1.shapeDistance(s1, transform, s2, transform, compute_penetration,
+                              closest_p1, closest_p2, normal);
+    dist = solver1.shapeDistance(
+        s1, transform * Transform3f(Vec3f(dbox, 0., 0.)), s2, transform,
+        compute_penetration, closest_p1, closest_p2, normal);
     BOOST_CHECK_CLOSE(dist, (dbox - s1.radius - s2.halfSide(0)), 1e-6);
     EIGEN_VECTOR_IS_APPROX(normal, -transform.getRotation().col(0), 1e-6);
   }
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+                               compute_penetration, closest_p1, closest_p2,
+                               normal);
   BOOST_CHECK(dist <= 0);
 
-  solver1.shapeDistance(s1, transform, s2, transform, dist, compute_penetration,
-                        closest_p1, closest_p2, normal);
+  dist =
+      solver1.shapeDistance(s1, transform, s2, transform, compute_penetration,
+                            closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(22.6, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(22.6, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(22.6, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(22.6, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.01);
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), compute_penetration,
+      closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 17.5) < 0.001);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(40, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 17.5) < 0.001);
 }
 
@@ -3488,12 +3488,14 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylindercylinder) {
     // The following situations corresponds to the case where the two cylinders
     // are exactly superposed. This is the worst case for EPA which will take
     // forever to converge with default parameters.
-    solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+                                 compute_penetration, closest_p1, closest_p2,
+                                 normal);
     BOOST_CHECK(dist <= 0);
 
-    solver1.shapeDistance(s1, transform, s2, transform, dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist =
+        solver1.shapeDistance(s1, transform, s2, transform, compute_penetration,
+                              closest_p1, closest_p2, normal);
     BOOST_CHECK(dist <= 0);
 
     // To handle the superposing case, we have to decrease the tolerance of EPA
@@ -3503,12 +3505,14 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylindercylinder) {
     solver1.epa_tolerance = 1e-2;
     solver1.epa_max_iterations = 1000;
 
-    solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+                                 compute_penetration, closest_p1, closest_p2,
+                                 normal);
     BOOST_CHECK(dist <= 0);
 
-    solver1.shapeDistance(s1, transform, s2, transform, dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist =
+        solver1.shapeDistance(s1, transform, s2, transform, compute_penetration,
+                              closest_p1, closest_p2, normal);
     BOOST_CHECK(dist <= 0);
 
     // We restore the original values of the EPA parameters
@@ -3516,24 +3520,24 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylindercylinder) {
     solver1.epa_max_iterations = epa_max_iterations_backup;
   }
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(10.1, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), compute_penetration,
+      closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 0.001);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(40, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 0.001);
 }
 
@@ -3552,12 +3556,14 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecone) {
     // The following situations corresponds to the case where the two cones
     // are exactly superposed. This is the worst case for EPA which will take
     // forever to converge with default parameters.
-    solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+                                 compute_penetration, closest_p1, closest_p2,
+                                 normal);
     BOOST_CHECK(dist <= 0);
 
-    solver1.shapeDistance(s1, transform, s2, transform, dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist =
+        solver1.shapeDistance(s1, transform, s2, transform, compute_penetration,
+                              closest_p1, closest_p2, normal);
     BOOST_CHECK(dist <= 0);
 
     // To handle the superposing case, we have to decrease the tolerance of EPA
@@ -3567,12 +3573,14 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecone) {
     solver1.epa_tolerance = 1e-2;
     solver1.epa_max_iterations = 1000;
 
-    solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+                                 compute_penetration, closest_p1, closest_p2,
+                                 normal);
     BOOST_CHECK(dist <= 0);
 
-    solver1.shapeDistance(s1, transform, s2, transform, dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist =
+        solver1.shapeDistance(s1, transform, s2, transform, compute_penetration,
+                              closest_p1, closest_p2, normal);
     BOOST_CHECK(dist <= 0);
 
     // We restore the original values of the EPA parameters
@@ -3580,24 +3588,24 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecone) {
     solver1.epa_max_iterations = epa_max_iterations_backup;
   }
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(10.1, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(0, 0, 40)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(0, 0, 40)), compute_penetration,
+      closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 1);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(0, 0, 40)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(0, 0, 40)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 1);
 }
 
@@ -3616,12 +3624,14 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecylinder) {
     // The following situations corresponds to the case where the two cones
     // are exactly superposed. This is the worst case for EPA which will take
     // forever to converge with default parameters.
-    solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+                                 compute_penetration, closest_p1, closest_p2,
+                                 normal);
     BOOST_CHECK(dist <= 0);
 
-    solver1.shapeDistance(s1, transform, s2, transform, dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist =
+        solver1.shapeDistance(s1, transform, s2, transform, compute_penetration,
+                              closest_p1, closest_p2, normal);
     BOOST_CHECK(dist <= 0);
 
     // To handle the superposing case, we have to decrease the tolerance of EPA
@@ -3631,12 +3641,14 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecylinder) {
     solver1.epa_tolerance = 1e-2;
     solver1.epa_max_iterations = 1000;
 
-    solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+                                 compute_penetration, closest_p1, closest_p2,
+                                 normal);
     BOOST_CHECK(dist <= 0);
 
-    solver1.shapeDistance(s1, transform, s2, transform, dist,
-                          compute_penetration, closest_p1, closest_p2, normal);
+    dist =
+        solver1.shapeDistance(s1, transform, s2, transform, compute_penetration,
+                              closest_p1, closest_p2, normal);
     BOOST_CHECK(dist <= 0);
 
     // We restore the original values of the EPA parameters
@@ -3644,24 +3656,24 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecylinder) {
     solver1.epa_max_iterations = epa_max_iterations_backup;
   }
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.01);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(10.1, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.02);
 
-  solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)),
-                        dist, compute_penetration, closest_p1, closest_p2,
-                        normal);
+  dist = solver1.shapeDistance(
+      s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), compute_penetration,
+      closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 0.01);
 
-  solver1.shapeDistance(s1, transform, s2,
-                        transform * Transform3f(Vec3f(40, 0, 0)), dist,
-                        compute_penetration, closest_p1, closest_p2, normal);
+  dist = solver1.shapeDistance(
+      s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)),
+      compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 0.1);
 }
 
@@ -3682,10 +3694,10 @@ void testReversibleShapeDistance(const S1& s1, const S2& s2,
 
   const double tol = 1e-6;
 
-  solver1.shapeDistance(s1, tf1, s2, tf2, distA, compute_penetration, p1A, p2A,
-                        normalA);
-  solver1.shapeDistance(s2, tf2, s1, tf1, distB, compute_penetration, p1B, p2B,
-                        normalB);
+  distA = solver1.shapeDistance(s1, tf1, s2, tf2, compute_penetration, p1A, p2A,
+                                normalA);
+  distB = solver1.shapeDistance(s2, tf2, s1, tf1, compute_penetration, p1B, p2B,
+                                normalB);
 
   assert((distA <= 0 && distB <= 0) || (distA > 0 && distB > 0));
   BOOST_CHECK_CLOSE(distA, distB, tol);  // distances should be same
@@ -3693,10 +3705,10 @@ void testReversibleShapeDistance(const S1& s1, const S2& s2,
       isEqual(p1A, p2B, tol));  // closest points should in reverse order
   BOOST_CHECK(isEqual(p2A, p1B, tol));
 
-  solver2.shapeDistance(s1, tf1, s2, tf2, distA, compute_penetration, p1A, p2A,
-                        normalA);
-  solver2.shapeDistance(s2, tf2, s1, tf1, distB, compute_penetration, p1B, p2B,
-                        normalB);
+  distA = solver2.shapeDistance(s1, tf1, s2, tf2, compute_penetration, p1A, p2A,
+                                normalA);
+  distB = solver2.shapeDistance(s2, tf2, s1, tf1, compute_penetration, p1B, p2B,
+                                normalB);
 
   assert((distA <= 0 && distB <= 0) || (distA > 0 && distB > 0));
   BOOST_CHECK(solver1.gjk.status == solver2.gjk.status);

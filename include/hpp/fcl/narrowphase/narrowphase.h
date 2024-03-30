@@ -269,12 +269,29 @@ struct HPP_FCL_DLLAPI GJKSolver {
                : this->gjk_tolerance;
   }
 
-  /// @brief distance computation between two shapes.
-  /// The variables `gjk_status` and `epa_status` can be used to
-  /// examine the status of GJK and EPA.
+  /// @brief Uses GJK and EPA to compute the distance between two shapes.
+  /// @param `s1` the first shape.
+  /// @param `tf1` the transformation of the first shape.
+  /// @param `s2` the second shape.
+  /// @param `tf2` the transformation of the second shape.
+  /// @param `compute_penetration` if true and GJK finds the shape in collision,
+  /// the EPA algorithm is also ran to compute penetration information.
+  /// @param[out] `p1` the witness point on the first shape.
+  /// @param[out] `p2` the witness point on the second shape.
+  /// @param[out] `normal` the normal of the collision, pointing from the first
+  /// to the second shape.
+  /// @return the estimate of the distance between the two shapes.
   ///
-  /// Note: GJK and EPA give an estimate of the distance between the two shapes.
-  /// This estimate is precise up to the tolerance of the algorithms:
+  /// @note: if `this->distance_upper_bound` is set to a positive value, GJK
+  /// will early stop if it finds the distance to be above this value. The
+  /// distance returned by `this->shapeDistance` will be a lower bound on the
+  /// distance between the two shapes.
+  ///
+  /// @note: the variables `this->gjk.status` and `this->epa.status` can be used
+  /// to examine the status of GJK and EPA.
+  ///
+  /// @note: GJK and EPA give an estimate of the distance between the two
+  /// shapes. This estimate is precise up to the tolerance of the algorithms:
   ///   - If `compute_penetration` is false, the distance is precise up to
   ///     `gjk_tolerance`.
   ///   - If `compute_penetration` is true, the distance is precise up to
@@ -282,30 +299,33 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// It's up to the user to decide whether the shapes are in collision or not,
   /// based on that estimate.
   template <typename S1, typename S2>
-  void shapeDistance(const S1& s1, const Transform3f& tf1, const S2& s2,
-                     const Transform3f& tf2, FCL_REAL& distance,
-                     bool compute_penetration, Vec3f& p1, Vec3f& p2,
-                     Vec3f& normal) const {
-    const bool relative_transformation_already_computed = false;
-    this->runGJKAndEPA(s1, tf1, s2, tf2, distance, compute_penetration, p1, p2,
+  FCL_REAL shapeDistance(const S1& s1, const Transform3f& tf1, const S2& s2,
+                         const Transform3f& tf2, const bool compute_penetration,
+                         Vec3f& p1, Vec3f& p2, Vec3f& normal) const {
+    constexpr bool relative_transformation_already_computed = false;
+    FCL_REAL distance;
+    this->runGJKAndEPA(s1, tf1, s2, tf2, compute_penetration, distance, p1, p2,
                        normal, relative_transformation_already_computed);
+    return distance;
   }
 
   /// @brief Partial specialization of `shapeDistance` for the case where the
   /// second shape is a triangle. It is more efficient to pre-compute the
   /// relative transformation between the two shapes before calling GJK/EPA.
   template <typename S1>
-  void shapeDistance(const S1& s1, const Transform3f& tf1, const TriangleP& s2,
-                     const Transform3f& tf2, FCL_REAL& distance,
-                     bool compute_penetration, Vec3f& p1, Vec3f& p2,
-                     Vec3f& normal) const {
+  FCL_REAL shapeDistance(const S1& s1, const Transform3f& tf1,
+                         const TriangleP& s2, const Transform3f& tf2,
+                         const bool compute_penetration, Vec3f& p1, Vec3f& p2,
+                         Vec3f& normal) const {
     const Transform3f tf_1M2(tf1.inverseTimes(tf2));
     TriangleP tri(tf_1M2.transform(s2.a), tf_1M2.transform(s2.b),
                   tf_1M2.transform(s2.c));
 
-    const bool relative_transformation_already_computed = true;
-    this->runGJKAndEPA(s1, tf1, tri, tf_1M2, distance, compute_penetration, p1,
+    constexpr bool relative_transformation_already_computed = true;
+    FCL_REAL distance;
+    this->runGJKAndEPA(s1, tf1, tri, tf_1M2, compute_penetration, distance, p1,
                        p2, normal, relative_transformation_already_computed);
+    return distance;
   }
 
 #define EXCLUDE_TYPE_FROM_TEMPLATE(TplParam, TplType) \
@@ -313,13 +333,14 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   /// @brief See other partial template specialization of shapeDistance above.
   template <typename S2, EXCLUDE_TYPE_FROM_TEMPLATE(S2, TriangleP)>
-  void shapeDistance(const TriangleP& s1, const Transform3f& tf1, const S2& s2,
-                     const Transform3f& tf2, FCL_REAL& distance,
-                     bool compute_penetration, Vec3f& p1, Vec3f& p2,
-                     Vec3f& normal) const {
-    this->shapeDistance<S2, TriangleP>(s2, tf2, s1, tf1, distance,
-                                       compute_penetration, p2, p1, normal);
+  FCL_REAL shapeDistance(const TriangleP& s1, const Transform3f& tf1,
+                         const S2& s2, const Transform3f& tf2,
+                         const bool compute_penetration, Vec3f& p1, Vec3f& p2,
+                         Vec3f& normal) const {
+    FCL_REAL distance = this->shapeDistance<S2, TriangleP>(
+        s2, tf2, s1, tf1, compute_penetration, p2, p1, normal);
     normal = -normal;
+    return distance;
   }
 
 #undef EXCLUDE_TYPE_FROM_TEMPLATE
@@ -372,14 +393,14 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// @param `tf1` the transformation of the first shape.
   /// @param `s2` the second shape.
   /// @param `tf2` the transformation of the second shape.
-  /// @param `distance` the distance between the two shapes.
   /// @param `compute_penetration` if true and if the shapes are in found in
   /// collision, the EPA algorithm is also ran to compute penetration
   /// information.
-  /// @param `p1` the witness point on the first shape.
-  /// @param `p2` the witness point on the second shape.
-  /// @param `normal` the normal of the collision, pointing from the first to
-  /// the second shape.
+  /// @param[out] `distance` the distance between the two shapes.
+  /// @param[out] `p1` the witness point on the first shape.
+  /// @param[out] `p2` the witness point on the second shape.
+  /// @param[out] `normal` the normal of the collision, pointing from the first
+  /// to the second shape.
   /// @param `relative_transformation_already_computed` whether the relative
   /// transformation between the two shapes has already been computed.
   /// @tparam ComputeSweptSphereSupportsDuringIterations whether the support
@@ -390,16 +411,17 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// take into account the swept sphere radius when computing supports in the
   /// iterations of GJK and EPA. GJK and EPA will correct the solution once they
   /// have converged.
+  /// @return the estimate of the distance between the two shapes.
   ///
-  /// NOTE: The variables `gjk_status` and `epa_status` can be used to
-  /// examine the status of GJK and EPA.
+  /// @note: The variables `this->gjk.status` and `this->epa.status` can be used
+  /// to examine the status of GJK and EPA.
   template <typename S1, typename S2,
             bool ComputeSweptSphereSupportsDuringIterations = false>
   void runGJKAndEPA(
       const S1& s1, const Transform3f& tf1, const S2& s2,
-      const Transform3f& tf2, FCL_REAL& distance, bool compute_penetration,
-      Vec3f& p1, Vec3f& p2, Vec3f& normal,
-      bool relative_transformation_already_computed = false) const {
+      const Transform3f& tf2, const bool compute_penetration,
+      FCL_REAL& distance, Vec3f& p1, Vec3f& p2, Vec3f& normal,
+      const bool relative_transformation_already_computed = false) const {
     // Reset internal state of GJK algorithm
     if (relative_transformation_already_computed)
       this->minkowski_difference

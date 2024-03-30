@@ -55,15 +55,19 @@ struct ShapeShapeDistancer {
                       const GJKSolver* nsolver, const DistanceRequest& request,
                       DistanceResult& result) {
     if (request.isSatisfied(result)) return result.min_distance;
-    FCL_REAL distance;
-    Vec3f closest_p1, closest_p2, normal;
+
     const ShapeType1* obj1 = static_cast<const ShapeType1*>(o1);
     const ShapeType2* obj2 = static_cast<const ShapeType2*>(o2);
-    nsolver->shapeDistance(*obj1, tf1, *obj2, tf2, distance,
-                           request.enable_signed_distance, closest_p1,
-                           closest_p2, normal);
+
+    // Witness points on shape1 and shape2, normal pointing from shape1 to
+    // shape2.
+    Vec3f p1, p2, normal;
+    FCL_REAL distance = nsolver->shapeDistance(
+        *obj1, tf1, *obj2, tf2, request.enable_signed_distance, p1, p2, normal);
+
     result.update(distance, obj1, obj2, DistanceResult::NONE,
-                  DistanceResult::NONE, closest_p1, closest_p2, normal);
+                  DistanceResult::NONE, p1, p2, normal);
+
     return distance;
   }
 };

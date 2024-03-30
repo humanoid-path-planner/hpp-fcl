@@ -113,19 +113,22 @@ int line;
 
 struct SweptSphereGJKSolver : public GJKSolver {
   template <typename S1, typename S2>
-  void shapeDistance(const S1& s1, const Transform3f& tf1, const S2& s2,
-                     const Transform3f& tf2, FCL_REAL& distance,
-                     bool compute_penetration, Vec3f& p1, Vec3f& p2,
-                     Vec3f& normal,
-                     bool use_swept_sphere_radius_in_gjk_epa_iterations) const {
+  FCL_REAL shapeDistance(
+      const S1& s1, const Transform3f& tf1, const S2& s2,
+      const Transform3f& tf2, bool compute_penetration, Vec3f& p1, Vec3f& p2,
+      Vec3f& normal, bool use_swept_sphere_radius_in_gjk_epa_iterations) const {
     if (use_swept_sphere_radius_in_gjk_epa_iterations) {
-      return this->runGJKAndEPA<S1, S2, true>(
-          s1, tf1, s2, tf2, distance, compute_penetration, p1, p2, normal);
+      FCL_REAL distance;
+      this->runGJKAndEPA<S1, S2, true>(s1, tf1, s2, tf2, compute_penetration,
+                                       distance, p1, p2, normal);
+      return distance;
     }
 
     // Default behavior of hppfcl's GJKSolver
-    return this->runGJKAndEPA<S1, S2, false>(
-        s1, tf1, s2, tf2, distance, compute_penetration, p1, p2, normal);
+    FCL_REAL distance;
+    this->runGJKAndEPA<S1, S2, false>(s1, tf1, s2, tf2, compute_penetration,
+                                      distance, p1, p2, normal);
+    return distance;
   }
 };
 
@@ -166,14 +169,14 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
 
         // Default hppfcl behavior - Don't take swept sphere radius into account
         // during GJK/EPA iterations. Correct the solution afterwards.
-        solver.shapeDistance(shape1, tf1, shape2, tf2, distance[0],
-                             compute_penetration, p1[0], p2[0], normal[0],
-                             false);
+        distance[0] =
+            solver.shapeDistance(shape1, tf1, shape2, tf2, compute_penetration,
+                                 p1[0], p2[0], normal[0], false);
 
         // Take swept sphere radius into account during GJK/EPA iterations
-        solver.shapeDistance(shape1, tf1, shape2, tf2, distance[1],
-                             compute_penetration, p1[1], p2[1], normal[1],
-                             true);
+        distance[1] =
+            solver.shapeDistance(shape1, tf1, shape2, tf2, compute_penetration,
+                                 p1[1], p2[1], normal[1], true);
 
         // Precision is dependent on the swept-sphere radius.
         // The issue of precision does not come from the default behavior of
