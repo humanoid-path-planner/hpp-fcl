@@ -328,22 +328,17 @@ struct HPP_FCL_DLLAPI GJKSolver {
     return distance;
   }
 
-#define EXCLUDE_TYPE_FROM_TEMPLATE(TplParam, TplType) \
-  typename = typename std::enable_if<!std::is_same<TplParam, TplType>::type>
-
   /// @brief See other partial template specialization of shapeDistance above.
-  template <typename S2, EXCLUDE_TYPE_FROM_TEMPLATE(S2, TriangleP)>
+  template <typename S2>
   FCL_REAL shapeDistance(const TriangleP& s1, const Transform3f& tf1,
                          const S2& s2, const Transform3f& tf2,
                          const bool compute_penetration, Vec3f& p1, Vec3f& p2,
                          Vec3f& normal) const {
-    FCL_REAL distance = this->shapeDistance<S2, TriangleP>(
+    FCL_REAL distance = this->shapeDistance<S2>(
         s2, tf2, s1, tf1, compute_penetration, p2, p1, normal);
     normal = -normal;
     return distance;
   }
-
-#undef EXCLUDE_TYPE_FROM_TEMPLATE
 
  protected:
   /// @brief initialize GJK.
