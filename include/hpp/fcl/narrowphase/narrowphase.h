@@ -398,7 +398,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// to the second shape.
   /// @param `relative_transformation_already_computed` whether the relative
   /// transformation between the two shapes has already been computed.
-  /// @tparam ComputeSweptSphereSupportsDuringIterations whether the support
+  /// @tparam SupportOptions, see `MinkowskiDiff::set`. Whether the support
   /// computations should take into account the shapes' swept-sphere radii
   /// during the iterations of GJK and EPA. Please leave this default value to
   /// `false` unless you know what you are doing. This template parameter is
@@ -411,7 +411,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// @note: The variables `this->gjk.status` and `this->epa.status` can be used
   /// to examine the status of GJK and EPA.
   template <typename S1, typename S2,
-            bool ComputeSweptSphereSupportsDuringIterations = false>
+            int _SupportOptions = details::SupportOptions::NoSweptSphere>
   void runGJKAndEPA(
       const S1& s1, const Transform3f& tf1, const S2& s2,
       const Transform3f& tf2, const bool compute_penetration,
@@ -419,11 +419,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
       const bool relative_transformation_already_computed = false) const {
     // Reset internal state of GJK algorithm
     if (relative_transformation_already_computed)
-      this->minkowski_difference
-          .set<ComputeSweptSphereSupportsDuringIterations>(&s1, &s2);
+      this->minkowski_difference.set<_SupportOptions>(&s1, &s2);
     else
-      this->minkowski_difference
-          .set<ComputeSweptSphereSupportsDuringIterations>(&s1, &s2, tf1, tf2);
+      this->minkowski_difference.set<_SupportOptions>(&s1, &s2, tf1, tf2);
     this->gjk.reset(this->gjk_max_iterations, this->gjk_tolerance);
     this->gjk.setDistanceEarlyBreak(this->distance_upper_bound);
     this->gjk.gjk_variant = this->gjk_variant;

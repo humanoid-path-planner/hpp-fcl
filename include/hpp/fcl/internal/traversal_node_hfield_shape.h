@@ -373,8 +373,8 @@ bool binCorrection(const Convex<Polygone>& convex,
     int hint = 0;
     // Since we compute the support manually, we need to take into account the
     // sphere swept radius of the shape.
-    constexpr bool compute_swept_sphere_support = true;
-    const Vec3f _support = getSupport<compute_swept_sphere_support>(
+    // TODO: take into account the swept-sphere radius of the bin.
+    const Vec3f _support = getSupport<details::SupportOptions::WithSweptSphere>(
         &shape, -shape_pose.rotation().transpose() * face_normal, hint);
     const Vec3f support =
         shape_pose.rotation() * _support + shape_pose.translation();
@@ -597,6 +597,7 @@ class HeightFieldShapeCollisionTraversalNode
     typedef Convex<Triangle> ConvexTriangle;
     ConvexTriangle convex1, convex2;
     int convex1_active_faces, convex2_active_faces;
+    // TODO: inherit from hfield's inflation here
     details::buildConvexTriangles(node, *this->model1, convex1,
                                   convex1_active_faces, convex2,
                                   convex2_active_faces);

@@ -60,8 +60,8 @@ FCL_REAL ShapeShapeDistance<TriangleP, TriangleP>(
   // Reset GJK algorithm
   //   We don't need to take into account swept-sphere radius in GJK iterations;
   //   the result will be corrected after GJK terminates.
-  constexpr bool compute_swept_sphere_support = false;
-  solver->minkowski_difference.set<compute_swept_sphere_support>(&t1, &t2);
+  solver->minkowski_difference
+      .set<::hpp::fcl::details::SupportOptions::NoSweptSphere>(&t1, &t2);
   solver->gjk.reset(solver->gjk_max_iterations, solver->gjk_tolerance);
 
   // Get GJK initial guess

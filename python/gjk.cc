@@ -49,23 +49,24 @@ using namespace hpp::fcl;
 using hpp::fcl::details::EPA;
 using hpp::fcl::details::GJK;
 using hpp::fcl::details::MinkowskiDiff;
+using hpp::fcl::details::SupportOptions;
 
 struct MinkowskiDiffWrapper {
   static void support0(MinkowskiDiff& self, const Vec3f& dir, int& hint,
                        bool compute_swept_sphere_support = false) {
     if (compute_swept_sphere_support) {
-      self.support0<true>(dir, hint);
+      self.support0<SupportOptions::WithSweptSphere>(dir, hint);
     } else {
-      self.support0<false>(dir, hint);
+      self.support0<SupportOptions::NoSweptSphere>(dir, hint);
     }
   }
 
   static void support1(MinkowskiDiff& self, const Vec3f& dir, int& hint,
                        bool compute_swept_sphere_support = false) {
     if (compute_swept_sphere_support) {
-      self.support1<true>(dir, hint);
+      self.support1<SupportOptions::WithSweptSphere>(dir, hint);
     } else {
-      self.support1<false>(dir, hint);
+      self.support1<SupportOptions::NoSweptSphere>(dir, hint);
     }
   }
 
@@ -73,9 +74,9 @@ struct MinkowskiDiffWrapper {
                   const ShapeBase* shape1,
                   bool compute_swept_sphere_support = false) {
     if (compute_swept_sphere_support) {
-      self.set<true>(shape0, shape1);
+      self.set<SupportOptions::WithSweptSphere>(shape0, shape1);
     } else {
-      self.set<false>(shape0, shape1);
+      self.set<SupportOptions::NoSweptSphere>(shape0, shape1);
     }
   }
 
@@ -84,9 +85,9 @@ struct MinkowskiDiffWrapper {
                   const Transform3f& tf1,
                   bool compute_swept_sphere_supports = false) {
     if (compute_swept_sphere_supports) {
-      self.set<true>(shape0, shape1, tf0, tf1);
+      self.set<SupportOptions::WithSweptSphere>(shape0, shape1, tf0, tf1);
     } else {
-      self.set<false>(shape0, shape1, tf0, tf1);
+      self.set<SupportOptions::NoSweptSphere>(shape0, shape1, tf0, tf1);
     }
   }
 };
@@ -124,11 +125,14 @@ void exposeGJK() {
              doxygen::member_func_doc(
                  static_cast<void (MinkowskiDiff::*)(
                      const ShapeBase*, const ShapeBase*, const Transform3f&,
-                     const Transform3f&)>(&MinkowskiDiff::set<false>)))
+                     const Transform3f&)>(
+                     &MinkowskiDiff::set<SupportOptions::NoSweptSphere>)))
         .def("support0", &MinkowskiDiffWrapper::support0,
-             doxygen::member_func_doc(&MinkowskiDiff::support0<false>))
+             doxygen::member_func_doc(
+                 &MinkowskiDiff::support0<SupportOptions::NoSweptSphere>))
         .def("support1", &MinkowskiDiffWrapper::support1,
-             doxygen::member_func_doc(&MinkowskiDiff::support1<false>))
+             doxygen::member_func_doc(
+                 &MinkowskiDiff::support1<SupportOptions::NoSweptSphere>))
         .def("support", &MinkowskiDiff::support,
              doxygen::member_func_doc(&MinkowskiDiff::support))
 

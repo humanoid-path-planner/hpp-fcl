@@ -349,8 +349,7 @@ void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
   bool expect_collision = center_distance <= 2 * (r + swept_sphere_radius);
 
   details::MinkowskiDiff shape;
-  constexpr bool compute_swept_sphere_support = false;
-  shape.set<compute_swept_sphere_support>(&sphere, &sphere, tf0, tf1);
+  shape.set<details::SupportOptions::NoSweptSphere>(&sphere, &sphere, tf0, tf1);
 
   BOOST_CHECK_EQUAL(shape.swept_sphere_radius[0],
                     sphere.radius + sphere.getSweptSphereRadius());
@@ -428,8 +427,8 @@ void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
   // No need to take into account swept-sphere radius in supports computation
   // when using GJK/EPA; after they have converged, these algos will correctly
   // handle the swept-sphere radius of the shapes.
-  constexpr bool compute_swept_sphere_support = false;
-  shape.set<compute_swept_sphere_support>(&capsule, &triangle, tf0, tf1);
+  shape.set<details::SupportOptions::NoSweptSphere>(&capsule, &triangle, tf0,
+                                                    tf1);
 
   BOOST_CHECK_EQUAL(shape.swept_sphere_radius[0], capsule.radius);
   BOOST_CHECK_EQUAL(shape.swept_sphere_radius[1], 0.);

@@ -473,8 +473,8 @@ inline FCL_REAL halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
 
   // Compute support of shape in direction of halfspace normal
   int hint = 0;
-  constexpr bool compute_swept_sphere_support = true;
-  p2.noalias() = getSupport<compute_swept_sphere_support>(&s, -n_2, hint);
+  p2.noalias() =
+      getSupport<details::SupportOptions::WithSweptSphere>(&s, -n_2, hint);
   p2 = tf2.transform(p2);
 
   const FCL_REAL dist = new_h.signedDistance(p2);
@@ -508,12 +508,13 @@ inline FCL_REAL planeDistance(const Plane& plane, const Transform3f& tf1,
 
   // Compute support of shape in direction of halfspace normal and its opposite
   int hint = 0;
-  constexpr bool compute_swept_sphere_support = true;
-  Vec3f p2h1 = getSupport<compute_swept_sphere_support>(&s, -n_h1, hint);
+  Vec3f p2h1 =
+      getSupport<details::SupportOptions::WithSweptSphere>(&s, -n_h1, hint);
   p2h1 = tf2.transform(p2h1);
 
   hint = 0;
-  Vec3f p2h2 = getSupport<compute_swept_sphere_support>(&s, -n_h2, hint);
+  Vec3f p2h2 =
+      getSupport<details::SupportOptions::WithSweptSphere>(&s, -n_h2, hint);
   p2h2 = tf2.transform(p2h2);
 
   FCL_REAL dist1 = new_h[0].signedDistance(p2h1);

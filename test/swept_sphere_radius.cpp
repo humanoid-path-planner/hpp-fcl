@@ -119,15 +119,15 @@ struct SweptSphereGJKSolver : public GJKSolver {
       Vec3f& normal, bool use_swept_sphere_radius_in_gjk_epa_iterations) const {
     if (use_swept_sphere_radius_in_gjk_epa_iterations) {
       FCL_REAL distance;
-      this->runGJKAndEPA<S1, S2, true>(s1, tf1, s2, tf2, compute_penetration,
-                                       distance, p1, p2, normal);
+      this->runGJKAndEPA<S1, S2, details::SupportOptions::WithSweptSphere>(
+          s1, tf1, s2, tf2, compute_penetration, distance, p1, p2, normal);
       return distance;
     }
 
     // Default behavior of hppfcl's GJKSolver
     FCL_REAL distance;
-    this->runGJKAndEPA<S1, S2, false>(s1, tf1, s2, tf2, compute_penetration,
-                                      distance, p1, p2, normal);
+    this->runGJKAndEPA<S1, S2, details::SupportOptions::NoSweptSphere>(
+        s1, tf1, s2, tf2, compute_penetration, distance, p1, p2, normal);
     return distance;
   }
 };

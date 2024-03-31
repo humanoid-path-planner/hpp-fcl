@@ -48,7 +48,7 @@ namespace fcl {
 
 namespace details {
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
                      Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
   FCL_REAL dota = dir.dot(triangle->a);
@@ -66,12 +66,12 @@ void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
       support = triangle->b;
   }
 
-  if (ComputeSweptSphereSupport) {
+  if (_SupportOptions == SupportOptions::WithSweptSphere) {
     support += triangle->getSweptSphereRadius() * dir.normalized();
   }
 }
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
                             int&, MinkowskiDiff::ShapeData*) {
   // The inflate value is simply to make the specialized functions with box
@@ -84,15 +84,15 @@ inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
       (dir.array() < -dummy_precision).select(-inflate * box->halfSide, 0);
   support.noalias() = support1 + support2;
 
-  if (ComputeSweptSphereSupport) {
+  if (_SupportOptions == SupportOptions::WithSweptSphere) {
     support += box->getSweptSphereRadius() * dir.normalized();
   }
 }
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir,
                             Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
-  if (ComputeSweptSphereSupport) {
+  if (_SupportOptions == SupportOptions::WithSweptSphere) {
     support.noalias() =
         (sphere->radius + sphere->getSweptSphereRadius()) * dir.normalized();
   } else {
@@ -103,7 +103,7 @@ inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir,
   HPP_FCL_UNUSED_VARIABLE(dir);
 }
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
                             Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
   FCL_REAL a2 = ellipsoid->radii[0] * ellipsoid->radii[0];
@@ -116,12 +116,12 @@ inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
 
   support = v / d;
 
-  if (ComputeSweptSphereSupport) {
+  if (_SupportOptions == SupportOptions::WithSweptSphere) {
     support += ellipsoid->getSweptSphereRadius() * dir.normalized();
   }
 }
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
                             Vec3f& support, int&, MinkowskiDiff::ShapeData*) {
   static const FCL_REAL dummy_precision =
@@ -133,13 +133,13 @@ inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
     support[2] = -capsule->halfLength;
   }
 
-  if (ComputeSweptSphereSupport) {
+  if (_SupportOptions == SupportOptions::WithSweptSphere) {
     support +=
         (capsule->radius + capsule->getSweptSphereRadius()) * dir.normalized();
   }
 }
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support, int&,
                      MinkowskiDiff::ShapeData*) {
   static const FCL_REAL dummy_precision =
@@ -182,12 +182,12 @@ void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support, int&,
     }
   }
 
-  if (ComputeSweptSphereSupport) {
+  if (_SupportOptions == SupportOptions::WithSweptSphere) {
     support += cone->getSweptSphereRadius() * dir.normalized();
   }
 }
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
                      int&, MinkowskiDiff::ShapeData*) {
   static const FCL_REAL dummy_precision =
@@ -220,7 +220,7 @@ void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
   assert(fabs(support[0] * dir[1] - support[1] * dir[0]) <
          sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
 
-  if (ComputeSweptSphereSupport) {
+  if (_SupportOptions == SupportOptions::WithSweptSphere) {
     support += cylinder->getSweptSphereRadius() * dir.normalized();
   }
 }
@@ -228,7 +228,7 @@ void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
 struct SmallConvex : ShapeBase {};
 struct LargeConvex : ShapeBase {};
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
                         Vec3f& support, int& hint,
                         MinkowskiDiff::ShapeData* data) {
@@ -289,12 +289,12 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
 
   support = pts[static_cast<size_t>(hint)];
 
-  if (ComputeSweptSphereSupport) {
+  if (_SupportOptions == SupportOptions::WithSweptSphere) {
     support += convex->getSweptSphereRadius() * dir.normalized();
   }
 }
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
                            Vec3f& support, int& hint,
                            MinkowskiDiff::ShapeData*) {
@@ -312,12 +312,12 @@ void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
 
   support = pts[static_cast<size_t>(hint)];
 
-  if (ComputeSweptSphereSupport) {
+  if (_SupportOptions == SupportOptions::WithSweptSphere) {
     support += convex->getSweptSphereRadius() * dir.normalized();
   }
 }
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
                      int& hint, MinkowskiDiff::ShapeData*) {
   // TODO add benchmark to set a proper value for switching between linear and
@@ -326,34 +326,32 @@ void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
       convex->neighbors != nullptr) {
     MinkowskiDiff::ShapeData data;
     data.visited.assign(convex->num_points, false);
-    getShapeSupportLog<ComputeSweptSphereSupport>(convex, dir, support, hint,
-                                                  &data);
+    getShapeSupportLog<_SupportOptions>(convex, dir, support, hint, &data);
   } else
-    getShapeSupportLinear<ComputeSweptSphereSupport>(convex, dir, support, hint,
-                                                     nullptr);
+    getShapeSupportLinear<_SupportOptions>(convex, dir, support, hint, nullptr);
 }
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 inline void getShapeSupport(const SmallConvex* convex, const Vec3f& dir,
                             Vec3f& support, int& hint,
                             MinkowskiDiff::ShapeData* data) {
-  getShapeSupportLinear<ComputeSweptSphereSupport>(
+  getShapeSupportLinear<_SupportOptions>(
       reinterpret_cast<const ConvexBase*>(convex), dir, support, hint, data);
 }
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
                             Vec3f& support, int& hint,
                             MinkowskiDiff::ShapeData* data) {
-  getShapeSupportLog<ComputeSweptSphereSupport>(
+  getShapeSupportLog<_SupportOptions>(
       reinterpret_cast<const ConvexBase*>(convex), dir, support, hint, data);
 }
 
-#define CALL_GET_SHAPE_SUPPORT(ShapeType)     \
-  getShapeSupport<ComputeSweptSphereSupport>( \
-      static_cast<const ShapeType*>(shape), dir, support, hint, NULL)
+#define CALL_GET_SHAPE_SUPPORT(ShapeType)                                     \
+  getShapeSupport<_SupportOptions>(static_cast<const ShapeType*>(shape), dir, \
+                                   support, hint, NULL)
 
-template <bool ComputeSweptSphereSupport>
+template <int _SupportOptions>
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint) {
   Vec3f support;
   switch (shape->getNodeType()) {
@@ -392,130 +390,115 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint) {
 }
 
 // Explicit instantiation
-template Vec3f getSupport<true>(const ShapeBase*, const Vec3f&, int&);
-template Vec3f getSupport<false>(const ShapeBase*, const Vec3f&, int&);
+template Vec3f getSupport<SupportOptions::NoSweptSphere>(const ShapeBase*,
+                                                         const Vec3f&, int&);
+template Vec3f getSupport<SupportOptions::WithSweptSphere>(const ShapeBase*,
+                                                           const Vec3f&, int&);
 
 #undef CALL_GET_SHAPE_SUPPORT
 
 template <typename Shape0, typename Shape1, bool TransformIsIdentity,
-          bool ComputeSweptSphereSupports>
+          int _SupportOptions>
 void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3f& oR1,
                    const Vec3f& ot1, const Vec3f& dir, Vec3f& support0,
                    Vec3f& support1, support_func_guess_t& hint,
                    MinkowskiDiff::ShapeData data[2]) {
   assert(dir.norm() > Eigen::NumTraits<FCL_REAL>::epsilon());
-  getShapeSupport<ComputeSweptSphereSupports>(s0, dir, support0, hint[0],
-                                              &(data[0]));
+  getShapeSupport<_SupportOptions>(s0, dir, support0, hint[0], &(data[0]));
 
   if (TransformIsIdentity)
-    getShapeSupport<ComputeSweptSphereSupports>(s1, -dir, support1, hint[1],
-                                                &(data[1]));
+    getShapeSupport<_SupportOptions>(s1, -dir, support1, hint[1], &(data[1]));
   else {
-    getShapeSupport<ComputeSweptSphereSupports>(s1, -oR1.transpose() * dir,
-                                                support1, hint[1], &(data[1]));
+    getShapeSupport<_SupportOptions>(s1, -oR1.transpose() * dir, support1,
+                                     hint[1], &(data[1]));
     support1 = oR1 * support1 + ot1;
   }
 }
 
 template <typename Shape0, typename Shape1, bool TransformIsIdentity,
-          bool ComputeSweptSphereSupports>
+          int _SupportOptions>
 void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
                        Vec3f& support0, Vec3f& support1,
                        support_func_guess_t& hint,
                        MinkowskiDiff::ShapeData data[2]) {
-  getSupportTpl<Shape0, Shape1, TransformIsIdentity,
-                ComputeSweptSphereSupports>(
+  getSupportTpl<Shape0, Shape1, TransformIsIdentity, _SupportOptions>(
       static_cast<const Shape0*>(md.shapes[0]),
       static_cast<const Shape1*>(md.shapes[1]), md.oR1, md.ot1, dir, support0,
       support1, hint, data);
 }
 
-template <typename Shape0, bool ComputeSweptSphereSupports>
+template <typename Shape0, int _SupportOptions>
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
     const ShapeBase* s1, bool identity,
     Eigen::Array<FCL_REAL, 1, 2>& swept_sphere_radius,
     MinkowskiDiff::ShapeData data[2]) {
-  if (ComputeSweptSphereSupports) {
+  if (_SupportOptions == SupportOptions::WithSweptSphere) {
+    // No need to store the information of swept sphere radius
     swept_sphere_radius[1] = 0;
   } else {
+    // We store the information of swept sphere radius.
+    // GJK and EPA will use this information to correct the solution they find.
     swept_sphere_radius[1] = s1->getSweptSphereRadius();
   }
 
   switch (s1->getNodeType()) {
     case GEOM_TRIANGLE:
       if (identity)
-        return getSupportFuncTpl<Shape0, TriangleP, true,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, TriangleP, true, _SupportOptions>;
       else
-        return getSupportFuncTpl<Shape0, TriangleP, false,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, TriangleP, false, _SupportOptions>;
     case GEOM_BOX:
       if (identity)
-        return getSupportFuncTpl<Shape0, Box, true, ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Box, true, _SupportOptions>;
       else
-        return getSupportFuncTpl<Shape0, Box, false,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Box, false, _SupportOptions>;
     case GEOM_SPHERE:
-      if (!ComputeSweptSphereSupports) {
-        // Sphere can be considered as an inflated point.
+      if (_SupportOptions == SupportOptions::NoSweptSphere) {
+        // Sphere can be considered a swept-sphere point.
         swept_sphere_radius[1] += static_cast<const Sphere*>(s1)->radius;
       }
       if (identity)
-        return getSupportFuncTpl<Shape0, Sphere, true,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Sphere, true, _SupportOptions>;
       else
-        return getSupportFuncTpl<Shape0, Sphere, false,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Sphere, false, _SupportOptions>;
     case GEOM_ELLIPSOID:
       if (identity)
-        return getSupportFuncTpl<Shape0, Ellipsoid, true,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Ellipsoid, true, _SupportOptions>;
       else
-        return getSupportFuncTpl<Shape0, Ellipsoid, false,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Ellipsoid, false, _SupportOptions>;
     case GEOM_CAPSULE:
-      if (!ComputeSweptSphereSupports) {
-        // Sphere can be considered as an inflated segment.
+      if (_SupportOptions == SupportOptions::NoSweptSphere) {
+        // Sphere can be considered as a swept-sphere segment.
         swept_sphere_radius[1] += static_cast<const Capsule*>(s1)->radius;
       }
       if (identity)
-        return getSupportFuncTpl<Shape0, Capsule, true,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Capsule, true, _SupportOptions>;
       else
-        return getSupportFuncTpl<Shape0, Capsule, false,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Capsule, false, _SupportOptions>;
     case GEOM_CONE:
       if (identity)
-        return getSupportFuncTpl<Shape0, Cone, true,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Cone, true, _SupportOptions>;
       else
-        return getSupportFuncTpl<Shape0, Cone, false,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Cone, false, _SupportOptions>;
     case GEOM_CYLINDER:
       if (identity)
-        return getSupportFuncTpl<Shape0, Cylinder, true,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Cylinder, true, _SupportOptions>;
       else
-        return getSupportFuncTpl<Shape0, Cylinder, false,
-                                 ComputeSweptSphereSupports>;
+        return getSupportFuncTpl<Shape0, Cylinder, false, _SupportOptions>;
     case GEOM_CONVEX: {
       const ConvexBase* convex1 = static_cast<const ConvexBase*>(s1);
       if (static_cast<size_t>(convex1->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         data[1].visited.assign(convex1->num_points, false);
         if (identity)
-          return getSupportFuncTpl<Shape0, LargeConvex, true,
-                                   ComputeSweptSphereSupports>;
+          return getSupportFuncTpl<Shape0, LargeConvex, true, _SupportOptions>;
         else
-          return getSupportFuncTpl<Shape0, LargeConvex, false,
-                                   ComputeSweptSphereSupports>;
+          return getSupportFuncTpl<Shape0, LargeConvex, false, _SupportOptions>;
       } else {
         if (identity)
-          return getSupportFuncTpl<Shape0, SmallConvex, true,
-                                   ComputeSweptSphereSupports>;
+          return getSupportFuncTpl<Shape0, SmallConvex, true, _SupportOptions>;
         else
-          return getSupportFuncTpl<Shape0, SmallConvex, false,
-                                   ComputeSweptSphereSupports>;
+          return getSupportFuncTpl<Shape0, SmallConvex, false, _SupportOptions>;
       }
     }
     default:
@@ -523,53 +506,55 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
   }
 }
 
-template <bool ComputeSweptSphereSupports>
+template <int _SupportOptions>
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
     const ShapeBase* s0, const ShapeBase* s1, bool identity,
     Eigen::Array<FCL_REAL, 1, 2>& swept_sphere_radius,
     MinkowskiDiff::ShapeData data[2]) {
-  //
-  if (ComputeSweptSphereSupports) {
+  if (_SupportOptions == SupportOptions::WithSweptSphere) {
+    // No need to store the information of swept sphere radius
     swept_sphere_radius[0] = 0;
   } else {
+    // We store the information of swept sphere radius.
+    // GJK and EPA will use this information to correct the solution they find.
     swept_sphere_radius[0] = s0->getSweptSphereRadius();
   }
 
   switch (s0->getNodeType()) {
     case GEOM_TRIANGLE:
-      return makeGetSupportFunction1<TriangleP, ComputeSweptSphereSupports>(
+      return makeGetSupportFunction1<TriangleP, _SupportOptions>(
           s1, identity, swept_sphere_radius, data);
       break;
     case GEOM_BOX:
-      return makeGetSupportFunction1<Box, ComputeSweptSphereSupports>(
+      return makeGetSupportFunction1<Box, _SupportOptions>(
           s1, identity, swept_sphere_radius, data);
       break;
     case GEOM_SPHERE:
-      if (!ComputeSweptSphereSupports) {
+      if (_SupportOptions == SupportOptions::NoSweptSphere) {
         // Sphere can always be considered as a swept-sphere point.
         swept_sphere_radius[0] += static_cast<const Sphere*>(s0)->radius;
       }
-      return makeGetSupportFunction1<Sphere, ComputeSweptSphereSupports>(
+      return makeGetSupportFunction1<Sphere, _SupportOptions>(
           s1, identity, swept_sphere_radius, data);
       break;
     case GEOM_ELLIPSOID:
-      return makeGetSupportFunction1<Ellipsoid, ComputeSweptSphereSupports>(
+      return makeGetSupportFunction1<Ellipsoid, _SupportOptions>(
           s1, identity, swept_sphere_radius, data);
       break;
     case GEOM_CAPSULE:
-      if (!ComputeSweptSphereSupports) {
+      if (_SupportOptions == SupportOptions::NoSweptSphere) {
         // Capsule can always be considered as a swept-sphere segment.
         swept_sphere_radius[0] += static_cast<const Capsule*>(s0)->radius;
       }
-      return makeGetSupportFunction1<Capsule, ComputeSweptSphereSupports>(
+      return makeGetSupportFunction1<Capsule, _SupportOptions>(
           s1, identity, swept_sphere_radius, data);
       break;
     case GEOM_CONE:
-      return makeGetSupportFunction1<Cone, ComputeSweptSphereSupports>(
+      return makeGetSupportFunction1<Cone, _SupportOptions>(
           s1, identity, swept_sphere_radius, data);
       break;
     case GEOM_CYLINDER:
-      return makeGetSupportFunction1<Cylinder, ComputeSweptSphereSupports>(
+      return makeGetSupportFunction1<Cylinder, _SupportOptions>(
           s1, identity, swept_sphere_radius, data);
       break;
     case GEOM_CONVEX: {
@@ -577,10 +562,10 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
       if (static_cast<size_t>(convex0->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         data[0].visited.assign(convex0->num_points, false);
-        return makeGetSupportFunction1<LargeConvex, ComputeSweptSphereSupports>(
+        return makeGetSupportFunction1<LargeConvex, _SupportOptions>(
             s1, identity, swept_sphere_radius, data);
       } else
-        return makeGetSupportFunction1<SmallConvex, ComputeSweptSphereSupports>(
+        return makeGetSupportFunction1<SmallConvex, _SupportOptions>(
             s1, identity, swept_sphere_radius, data);
       break;
     }
@@ -627,7 +612,7 @@ void getNormalizeSupportDirectionFromShapes(const ShapeBase* shape0,
                                 getNormalizeSupportDirection(shape1);
 }
 
-template <bool ComputeSweptSphereSupports>
+template <int _SupportOptions>
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
                         const Transform3f& tf0, const Transform3f& tf1) {
   shapes[0] = shape0;
@@ -641,11 +626,11 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
 
   bool identity = (oR1.isIdentity() && ot1.isZero());
 
-  getSupportFunc = makeGetSupportFunction0<ComputeSweptSphereSupports>(
+  getSupportFunc = makeGetSupportFunction0<_SupportOptions>(
       shape0, shape1, identity, swept_sphere_radius, data);
 }
 
-template <bool ComputeSweptSphereSupports>
+template <int _SupportOptions>
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
   shapes[0] = shape0;
   shapes[1] = shape1;
@@ -655,17 +640,19 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
   oR1.setIdentity();
   ot1.setZero();
 
-  getSupportFunc = makeGetSupportFunction0<ComputeSweptSphereSupports>(
+  getSupportFunc = makeGetSupportFunction0<_SupportOptions>(
       shape0, shape1, true, swept_sphere_radius, data);
 }
 
 // Explicit instantiation
-template void MinkowskiDiff::set<true>(const ShapeBase*, const ShapeBase*);
-template void MinkowskiDiff::set<true>(const ShapeBase*, const ShapeBase*,
-                                       const Transform3f&, const Transform3f&);
-template void MinkowskiDiff::set<false>(const ShapeBase*, const ShapeBase*);
-template void MinkowskiDiff::set<false>(const ShapeBase*, const ShapeBase*,
-                                        const Transform3f&, const Transform3f&);
+template void MinkowskiDiff::set<SupportOptions::NoSweptSphere>(
+    const ShapeBase*, const ShapeBase*);
+template void MinkowskiDiff::set<SupportOptions::WithSweptSphere>(
+    const ShapeBase*, const ShapeBase*);
+template void MinkowskiDiff::set<SupportOptions::NoSweptSphere>(
+    const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
+template void MinkowskiDiff::set<SupportOptions::WithSweptSphere>(
+    const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
 
 void GJK::initialize() {
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();

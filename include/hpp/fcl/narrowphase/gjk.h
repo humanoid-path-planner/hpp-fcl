@@ -49,15 +49,29 @@ namespace fcl {
 
 namespace details {
 
+/// @brief Options for the computation of support points.
+/// `NoSweptSphere` option is used when the support function is called
+/// by GJK or EPA. In this case, the swept sphere radius is not taken into
+/// account in the support function. It is used by GJK and EPA after they have
+/// converged to correct the solution.
+/// `WithSweptSphere` option is used when the support function is called
+/// directly by the user. In this case, the swept sphere radius is taken into
+/// account in the support function.
+enum SupportOptions {
+  NoSweptSphere = 0,
+  WithSweptSphere = 0x1,
+};
+
 /// @brief the support function for shape.
 /// @return argmax_{v in shape0} v.dot(dir).
 /// @param shape the shape.
 /// @param dir support direction.
 /// @param hint used to initialize the search when shape is a ConvexBase object.
-/// @tparam ComputeSweptSphereSupports if true, the support functions take into
-/// account the shapes' swept sphere radii. Please see `MinkowskiDiff::set(const
-/// ShapeBase*, const ShapeBase*)` for more details.
-template <bool ComputeSweptSphereSupports>
+/// @tparam SupportOptions is a value of the SupportOptions enum. If set to
+/// `WithSweptSphere`, the support functions take into account the shapes' swept
+/// sphere radii. Please see `MinkowskiDiff::set(const ShapeBase*, const
+/// ShapeBase*)` for more details.
+template <int SupportOptions>
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint);
 
 /// @brief Minkowski difference class of two shapes
@@ -109,9 +123,10 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// them is identity.
   /// @param shape0 the first shape.
   /// @param shape1 the second shape.
-  /// @tparam `ComputeSweptSphereSupports` if true, the support computation will
-  /// take into account the swept sphere radius of the shapes. Otherwise, this
-  /// information is simply stored in the Minkowski's difference
+  /// @tparam SupportOptions is a value of the SupportOptions enum. If set to
+  /// `WithSweptSphere`, the support computation will take into account the
+  /// swept sphere radius of the shapes. If set to `NoSweptSphere`, where
+  /// this information is simply stored in the Minkowski's difference
   /// `swept_sphere_radius` array. This array is then used to correct the
   /// solution found when GJK or EPA have converged.
   ///
@@ -122,13 +137,13 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// convergence. This swept sphere template parameter is only here for
   /// debugging purposes and for specific uses cases where the swept sphere
   /// radius is needed in the support function. The rule is simple. When
-  /// interacting with GJK/EPA, the `ComputeSweptSphereSupports` template
-  /// parameter should **always** be set to `false` (except for debugging or
-  /// testing purposes). When working directly with the shapes involved in the
-  /// collision, and not relying on GJK/EPA, the `ComputeSweptSphereSupports`
-  /// template parameter should be set to `true`. This is for example the case
-  /// for specialized collision/distance functions.
-  template <bool ComputeSweptSphereSupports>
+  /// interacting with GJK/EPA, the `SupportOptions` template
+  /// parameter should **always** be set to `NoSweptSphere` (except for
+  /// debugging or testing purposes). When working directly with the shapes
+  /// involved in the collision, and not relying on GJK/EPA, the
+  /// `SupportOptions` template parameter should be set to `WithSweptSphere`.
+  /// This is for example the case for specialized collision/distance functions.
+  template <int SupportOptions>
   void set(const ShapeBase* shape0, const ShapeBase* shape1);
 
   /// @brief Set the two shapes, with a relative transformation.
@@ -136,9 +151,9 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// @param shape1 the second shape.
   /// @param tf0 the transformation of the first shape.
   /// @param tf1 the transformation of the second shape.
-  /// @tparam `ComputeSweptSphereSupports` see `set(const ShapeBase*, const
+  /// @tparam `SupportOptions` see `set(const ShapeBase*, const
   /// ShapeBase*)` for more details.
-  template <bool ComputeSweptSphereSupports>
+  template <int SupportOptions>
   void set(const ShapeBase* shape0, const ShapeBase* shape1,
            const Transform3f& tf0, const Transform3f& tf1);
 
@@ -147,11 +162,11 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// @param dir support direction.
   /// @param hint used to initialize the search when shape is a ConvexBase
   /// object.
-  /// @tparam `ComputeSweptSphereSupports` see `set(const ShapeBase*, const
+  /// @tparam `SupportOptions` see `set(const ShapeBase*, const
   /// ShapeBase*)` for more details.
-  template <bool ComputeSweptSphereSupports>
+  template <int SupportOptions>
   inline Vec3f support0(const Vec3f& dir, int& hint) const {
-    return getSupport<ComputeSweptSphereSupports>(shapes[0], dir, hint);
+    return getSupport<SupportOptions>(shapes[0], dir, hint);
   }
 
   /// @brief support function for shape1.
@@ -159,12 +174,12 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// @param dir support direction.
   /// @param hint used to initialize the search when shape is a ConvexBase
   /// object.
-  /// @tparam `ComputeSweptSphereSupports` see `set(const ShapeBase*, const
+  /// @tparam `SupportOptions` see `set(const ShapeBase*, const
   /// ShapeBase*)` for more details.
-  template <bool ComputeSweptSphereSupports>
+  template <int SupportOptions>
   inline Vec3f support1(const Vec3f& dir, int& hint) const {
     // clang-format off
-    return oR1 * getSupport<ComputeSweptSphereSupports>(shapes[1], oR1.transpose() * dir, hint) + ot1;
+    return oR1 * getSupport<SupportOptions>(shapes[1], oR1.transpose() * dir, hint) + ot1;
     // clang-format on
   }
 
