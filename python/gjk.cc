@@ -115,7 +115,7 @@ void exposeGJK() {
                  &MinkowskiDiffWrapper::set),
              doxygen::member_func_doc(static_cast<void (MinkowskiDiff::*)(
                                           const ShapeBase*, const ShapeBase*)>(
-                 &MinkowskiDiff::set<false>)))
+                 &MinkowskiDiff::set<SupportOptions::NoSweptSphere>)))
 
         .def("set",
              static_cast<void (*)(MinkowskiDiff&, const ShapeBase*,
@@ -127,12 +127,15 @@ void exposeGJK() {
                      const ShapeBase*, const ShapeBase*, const Transform3f&,
                      const Transform3f&)>(
                      &MinkowskiDiff::set<SupportOptions::NoSweptSphere>)))
+
         .def("support0", &MinkowskiDiffWrapper::support0,
              doxygen::member_func_doc(
                  &MinkowskiDiff::support0<SupportOptions::NoSweptSphere>))
+
         .def("support1", &MinkowskiDiffWrapper::support1,
              doxygen::member_func_doc(
                  &MinkowskiDiff::support1<SupportOptions::NoSweptSphere>))
+
         .def("support", &MinkowskiDiff::support,
              doxygen::member_func_doc(&MinkowskiDiff::support))
 

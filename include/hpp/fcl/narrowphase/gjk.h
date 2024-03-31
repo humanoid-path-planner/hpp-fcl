@@ -71,7 +71,7 @@ enum SupportOptions {
 /// `WithSweptSphere`, the support functions take into account the shapes' swept
 /// sphere radii. Please see `MinkowskiDiff::set(const ShapeBase*, const
 /// ShapeBase*)` for more details.
-template <int SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint);
 
 /// @brief Minkowski difference class of two shapes
@@ -143,7 +143,7 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// involved in the collision, and not relying on GJK/EPA, the
   /// `SupportOptions` template parameter should be set to `WithSweptSphere`.
   /// This is for example the case for specialized collision/distance functions.
-  template <int SupportOptions>
+  template <int _SupportOptions = SupportOptions::NoSweptSphere>
   void set(const ShapeBase* shape0, const ShapeBase* shape1);
 
   /// @brief Set the two shapes, with a relative transformation.
@@ -153,7 +153,7 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// @param tf1 the transformation of the second shape.
   /// @tparam `SupportOptions` see `set(const ShapeBase*, const
   /// ShapeBase*)` for more details.
-  template <int SupportOptions>
+  template <int _SupportOptions = SupportOptions::NoSweptSphere>
   void set(const ShapeBase* shape0, const ShapeBase* shape1,
            const Transform3f& tf0, const Transform3f& tf1);
 
@@ -164,9 +164,9 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// object.
   /// @tparam `SupportOptions` see `set(const ShapeBase*, const
   /// ShapeBase*)` for more details.
-  template <int SupportOptions>
+  template <int _SupportOptions = SupportOptions::NoSweptSphere>
   inline Vec3f support0(const Vec3f& dir, int& hint) const {
-    return getSupport<SupportOptions>(shapes[0], dir, hint);
+    return getSupport<_SupportOptions>(shapes[0], dir, hint);
   }
 
   /// @brief support function for shape1.
@@ -176,10 +176,10 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// object.
   /// @tparam `SupportOptions` see `set(const ShapeBase*, const
   /// ShapeBase*)` for more details.
-  template <int SupportOptions>
+  template <int _SupportOptions = SupportOptions::NoSweptSphere>
   inline Vec3f support1(const Vec3f& dir, int& hint) const {
     // clang-format off
-    return oR1 * getSupport<SupportOptions>(shapes[1], oR1.transpose() * dir, hint) + ot1;
+    return oR1 * getSupport<_SupportOptions>(shapes[1], oR1.transpose() * dir, hint) + ot1;
     // clang-format on
   }
 
