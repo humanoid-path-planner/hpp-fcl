@@ -649,10 +649,21 @@ template void MinkowskiDiff::set<SupportOptions::NoSweptSphere>(
     const ShapeBase*, const ShapeBase*);
 template void MinkowskiDiff::set<SupportOptions::WithSweptSphere>(
     const ShapeBase*, const ShapeBase*);
+
 template void MinkowskiDiff::set<SupportOptions::NoSweptSphere>(
     const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
 template void MinkowskiDiff::set<SupportOptions::WithSweptSphere>(
     const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
+
+template Vec3f MinkowskiDiff::support0<SupportOptions::NoSweptSphere>(
+    const Vec3f&, int&) const;
+template Vec3f MinkowskiDiff::support0<SupportOptions::WithSweptSphere>(
+    const Vec3f&, int&) const;
+
+template Vec3f MinkowskiDiff::support1<SupportOptions::NoSweptSphere>(
+    const Vec3f&, int&) const;
+template Vec3f MinkowskiDiff::support1<SupportOptions::WithSweptSphere>(
+    const Vec3f&, int&) const;
 
 void GJK::initialize() {
   distance_upper_bound = (std::numeric_limits<FCL_REAL>::max)();
