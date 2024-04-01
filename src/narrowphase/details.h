@@ -340,120 +340,6 @@ inline FCL_REAL sphereTriangleDistance(const Sphere& s, const Transform3f& tf1,
   return distance;
 }
 
-/// @brief return whether plane collides with halfspace
-/// if the separation plane of the halfspace is parallel with the plane
-///     return code 1, if the plane's normal is the same with halfspace's normal
-///     and plane is inside halfspace, also return plane in pl return code 2, if
-///     the plane's normal is oppositie to the halfspace's normal and plane is
-///     inside halfspace, also return plane in pl plane is outside halfspace,
-///     collision-free
-/// if not parallel
-///     return the intersection ray, return code 3. ray origin is p and
-///     direction is d
-inline bool planeHalfspaceIntersect(const Plane& s1, const Transform3f& tf1,
-                                    const Halfspace& s2, const Transform3f& tf2,
-                                    Plane& pl, Vec3f& p, Vec3f& d,
-                                    FCL_REAL& penetration_depth, int& ret) {
-  Plane new_s1 = transform(s1, tf1);
-  Halfspace new_s2 = transform(s2, tf2);
-
-  ret = 0;
-
-  penetration_depth = (std::numeric_limits<FCL_REAL>::max)();
-  Vec3f dir = (new_s1.n).cross(new_s2.n);
-  FCL_REAL dir_norm = dir.squaredNorm();
-  if (dir_norm < std::numeric_limits<FCL_REAL>::epsilon())  // parallel
-  {
-    if ((new_s1.n).dot(new_s2.n) > 0) {
-      penetration_depth = new_s2.d - new_s1.d;
-      if (penetration_depth < 0)
-        return false;
-      else {
-        ret = 1;
-        pl = new_s1;
-        return true;
-      }
-    } else {
-      penetration_depth = -(new_s1.d + new_s2.d);
-      if (penetration_depth < 0)
-        return false;
-      else {
-        ret = 2;
-        pl = new_s1;
-        return true;
-      }
-    }
-  }
-
-  Vec3f n = new_s2.n * new_s1.d - new_s1.n * new_s2.d;
-  Vec3f origin = n.cross(dir);
-  origin *= (1.0 / dir_norm);
-
-  p = origin;
-  d = dir;
-  ret = 3;
-
-  return true;
-}
-
-///@ brief return whether two halfspace intersect
-/// if the separation planes of the two halfspaces are parallel
-///    return code 1, if two halfspaces' normal are same and s1 is in s2, also
-///    return s1 in s; return code 2, if two halfspaces' normal are same and s2
-///    is in s1, also return s2 in s; return code 3, if two halfspaces' normal
-///    are opposite and s1 and s2 are into each other; collision free, if two
-///    halfspaces' are separate;
-/// if the separation planes of the two halfspaces are not parallel, return
-/// intersection ray, return code 4. ray origin is p and direction is d
-/// collision free return code 0
-inline bool halfspaceIntersect(const Halfspace& s1, const Transform3f& tf1,
-                               const Halfspace& s2, const Transform3f& tf2,
-                               Vec3f& p, Vec3f& d, Halfspace& s,
-                               FCL_REAL& penetration_depth, int& ret) {
-  Halfspace new_s1 = transform(s1, tf1);
-  Halfspace new_s2 = transform(s2, tf2);
-
-  ret = 0;
-
-  penetration_depth = (std::numeric_limits<FCL_REAL>::max)();
-  Vec3f dir = (new_s1.n).cross(new_s2.n);
-  FCL_REAL dir_norm = dir.squaredNorm();
-  if (dir_norm < std::numeric_limits<FCL_REAL>::epsilon())  // parallel
-  {
-    if ((new_s1.n).dot(new_s2.n) > 0) {
-      if (new_s1.d < new_s2.d)  // s1 is inside s2
-      {
-        ret = 1;
-        s = new_s1;
-      } else  // s2 is inside s1
-      {
-        ret = 2;
-        s = new_s2;
-      }
-      return true;
-    } else {
-      penetration_depth = -(new_s1.d + new_s2.d);
-      if (penetration_depth < 0)  // not collision
-        return false;
-      else  // in each other
-      {
-        ret = 3;
-        return true;
-      }
-    }
-  }
-
-  Vec3f n = new_s2.n * new_s1.d - new_s1.n * new_s2.d;
-  Vec3f origin = n.cross(dir);
-  origin *= (1.0 / dir_norm);
-
-  p = origin;
-  d = dir;
-  ret = 4;
-
-  return true;
-}
-
 /// @param p1 closest (or most penetrating) point on the Halfspace,
 /// @param p2 closest (or most penetrating) point on the shape,
 /// @param normal the halfspace normal.
@@ -608,26 +494,205 @@ inline FCL_REAL boxSphereDistance(const Box& b, const Transform3f& tfb,
   return dist;
 }
 
-inline bool halfspacePlaneIntersect(const Halfspace& s1, const Transform3f& tf1,
-                                    const Plane& s2, const Transform3f& tf2,
-                                    Plane& pl, Vec3f& p, Vec3f& d,
-                                    FCL_REAL& penetration_depth, int& ret) {
-  return planeHalfspaceIntersect(s2, tf2, s1, tf1, pl, p, d, penetration_depth,
-                                 ret);
+/// @brief return distance between two halfspaces
+/// @param p1 the witness point on the first halfspace.
+/// @param p2 the witness point on the second halfspace.
+/// @param normal pointing from first to second halfspace.
+/// @return the distance between the two shapes (negative if penetration).
+///
+/// @note If the two halfspaces don't have the same normal (or opposed
+/// normals), they collide and their distance is set to -infinity as there is no
+/// translation that can separate them; they have infinite penetration depth.
+/// The points p1 and p2 are the same point and represent the origin of the
+/// intersection line between the objects. The normal is the direction of this
+/// line.
+inline FCL_REAL halfspaceHalfspaceDistance(const Halfspace& s1,
+                                           const Transform3f& tf1,
+                                           const Halfspace& s2,
+                                           const Transform3f& tf2, Vec3f& p1,
+                                           Vec3f& p2, Vec3f& normal) {
+  Halfspace new_s1 = transform(s1, tf1);
+  Halfspace new_s2 = transform(s2, tf2);
+
+  FCL_REAL distance;
+  Vec3f dir = (new_s1.n).cross(new_s2.n);
+  FCL_REAL dir_sq_norm = dir.squaredNorm();
+
+  if (dir_sq_norm < std::numeric_limits<FCL_REAL>::epsilon())  // parallel
+  {
+    if (new_s1.n.dot(new_s2.n) > 0) {
+      // If the two halfspaces have the same normal, one is inside the other
+      // and they can't be separated. They have inifinte penetration depth.
+      distance = -(std::numeric_limits<FCL_REAL>::max)();
+      if (new_s1.d <= new_s2.d) {
+        normal = new_s1.n;
+        p1 = normal * distance;
+        p2 = new_s2.n * new_s2.d;
+        assert(new_s2.distance(p2) <=
+               Eigen::NumTraits<FCL_REAL>::dummy_precision());
+      } else {
+        normal = -new_s1.n;
+        p1 << new_s1.n * new_s1.d;
+        p2 = -(normal * distance);
+        assert(new_s1.distance(p1) <=
+               Eigen::NumTraits<FCL_REAL>::dummy_precision());
+      }
+    } else {
+      distance = -(new_s1.d + new_s2.d);
+      normal = new_s1.n;
+      p1 = new_s1.n * new_s1.d;
+      p2 = new_s2.n * new_s2.d;
+    }
+  } else {
+    // If the halfspaces are not parallel, they are in collision.
+    // Their distance, in the sens of the norm of separation vector, is infinite
+    // (it's impossible to find a translation which separates them)
+    distance = -(std::numeric_limits<FCL_REAL>::max)();
+    // p1 and p2 are the same point, corresponding to a point on the
+    // intersection line between the two objects. Normal is the direction of
+    // that line.
+    normal = dir;
+    p1 = p2 =
+        ((new_s2.n * new_s1.d - new_s1.n * new_s2.d).cross(dir)) / dir_sq_norm;
+    // Sources: https://en.wikipedia.org/wiki/Plane%E2%80%93plane_intersection
+    // and      https://en.wikipedia.org/wiki/Cross_product
+  }
+
+  // Take swept-sphere radius into account
+  const FCL_REAL ssr1 = s1.getSweptSphereRadius();
+  const FCL_REAL ssr2 = s2.getSweptSphereRadius();
+  if (ssr1 > 0 || ssr2 > 0) {
+    p1 += ssr1 * normal;
+    p2 -= ssr2 * normal;
+    distance -= (ssr1 + ssr2);
+  }
+
+  return distance;
 }
 
-inline bool planeIntersect(const Plane& s1, const Transform3f& tf1,
-                           const Plane& s2, const Transform3f& tf2,
-                           Vec3f* /*contact_points*/,
-                           FCL_REAL* /*penetration_depth*/, Vec3f* /*normal*/) {
+/// @brief return distance between plane and halfspace.
+/// @param p1 the witness point on the halfspace.
+/// @param p2 the witness point on the plane.
+/// @param normal pointing from halfspace to plane.
+/// @return the distance between the two shapes (negative if penetration).
+///
+/// @note If plane and halfspace don't have the same normal (or opposed
+/// normals), they collide and their distance is set to -infinity as there is no
+/// translation that can separate them; they have infinite penetration depth.
+/// The points p1 and p2 are the same point and represent the origin of the
+/// intersection line between the objects. The normal is the direction of this
+/// line.
+inline FCL_REAL halfspacePlaneDistance(const Halfspace& s1,
+                                       const Transform3f& tf1, const Plane& s2,
+                                       const Transform3f& tf2, Vec3f& p1,
+                                       Vec3f& p2, Vec3f& normal) {
+  Halfspace new_s1 = transform(s1, tf1);
+  Plane new_s2 = transform(s2, tf2);
+
+  FCL_REAL distance;
+  Vec3f dir = (new_s1.n).cross(new_s2.n);
+  FCL_REAL dir_sq_norm = dir.squaredNorm();
+
+  if (dir_sq_norm < std::numeric_limits<FCL_REAL>::epsilon())  // parallel
+  {
+    normal = new_s1.n;
+    distance = new_s1.n.dot(new_s2.n) > 0 ? (new_s2.d - new_s1.d)
+                                          : -(new_s1.d + new_s2.d);
+    p1 = new_s1.n * new_s1.d;
+    p2 = new_s2.n * new_s2.d;
+    assert(new_s1.distance(p1) <=
+           Eigen::NumTraits<FCL_REAL>::dummy_precision());
+    assert(new_s2.distance(p2) <=
+           Eigen::NumTraits<FCL_REAL>::dummy_precision());
+  } else {
+    // If the halfspace and plane are not parallel, they are in collision.
+    // Their distance, in the sens of the norm of separation vector, is infinite
+    // (it's impossible to find a translation which separates them)
+    distance = -(std::numeric_limits<FCL_REAL>::max)();
+    // p1 and p2 are the same point, corresponding to a point on the
+    // intersection line between the two objects. Normal is the direction of
+    // that line.
+    normal = dir;
+    p1 = p2 =
+        ((new_s2.n * new_s1.d - new_s1.n * new_s2.d).cross(dir)) / dir_sq_norm;
+    // Sources: https://en.wikipedia.org/wiki/Plane%E2%80%93plane_intersection
+    // and      https://en.wikipedia.org/wiki/Cross_product
+  }
+
+  // Take swept-sphere radius into account
+  const FCL_REAL ssr1 = s1.getSweptSphereRadius();
+  const FCL_REAL ssr2 = s2.getSweptSphereRadius();
+  if (ssr1 > 0 || ssr2 > 0) {
+    p1 += ssr1 * normal;
+    p2 -= ssr2 * normal;
+    distance -= (ssr1 + ssr2);
+  }
+
+  return distance;
+}
+
+/// @brief return distance between two planes
+/// @param p1 the witness point on the first plane.
+/// @param p2 the witness point on the second plane.
+/// @param normal pointing from first to second plane.
+/// @return the distance between the two shapes (negative if penetration).
+///
+/// @note If the two planes don't have the same normal (or opposed
+/// normals), they collide and their distance is set to -infinity as there is no
+/// translation that can separate them; they have infinite penetration depth.
+/// The points p1 and p2 are the same point and represent the origin of the
+/// intersection line between the objects. The normal is the direction of this
+/// line.
+inline FCL_REAL planePlaneDistance(const Plane& s1, const Transform3f& tf1,
+                                   const Plane& s2, const Transform3f& tf2,
+                                   Vec3f& p1, Vec3f& p2, Vec3f& normal) {
   Plane new_s1 = transform(s1, tf1);
   Plane new_s2 = transform(s2, tf2);
 
-  FCL_REAL a = (new_s1.n).dot(new_s2.n);
-  if (a == 1 && new_s1.d != new_s2.d) return false;
-  if (a == -1 && new_s1.d != -new_s2.d) return false;
+  FCL_REAL distance;
+  Vec3f dir = (new_s1.n).cross(new_s2.n);
+  FCL_REAL dir_sq_norm = dir.squaredNorm();
 
-  return true;
+  if (dir_sq_norm < std::numeric_limits<FCL_REAL>::epsilon())  // parallel
+  {
+    p1 = new_s1.n * new_s1.d;
+    p2 = new_s2.n * new_s2.d;
+    assert(new_s1.distance(p1) <=
+           Eigen::NumTraits<FCL_REAL>::dummy_precision());
+    assert(new_s2.distance(p2) <=
+           Eigen::NumTraits<FCL_REAL>::dummy_precision());
+    distance = (p1 - p2).norm();
+
+    if (distance > Eigen::NumTraits<FCL_REAL>::dummy_precision()) {
+      normal = (p2 - p1).normalized();
+    } else {
+      normal = new_s1.n;
+    }
+  } else {
+    // If the planes are not parallel, they are in collision.
+    // Their distance, in the sens of the norm of separation vector, is infinite
+    // (it's impossible to find a translation which separates them)
+    distance = -(std::numeric_limits<FCL_REAL>::max)();
+    // p1 and p2 are the same point, corresponding to a point on the
+    // intersection line between the two objects. Normal is the direction of
+    // that line.
+    normal = dir;
+    p1 = p2 =
+        ((new_s2.n * new_s1.d - new_s1.n * new_s2.d).cross(dir)) / dir_sq_norm;
+    // Sources: https://en.wikipedia.org/wiki/Plane%E2%80%93plane_intersection
+    // and      https://en.wikipedia.org/wiki/Cross_product
+  }
+
+  // Take swept-sphere radius into account
+  const FCL_REAL ssr1 = s1.getSweptSphereRadius();
+  const FCL_REAL ssr2 = s2.getSweptSphereRadius();
+  if (ssr1 > 0 || ssr2 > 0) {
+    p1 += ssr1 * normal;
+    p2 -= ssr2 * normal;
+    distance -= (ssr1 + ssr2);
+  }
+
+  return distance;
 }
 
 /// See the prototype below

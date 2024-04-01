@@ -3211,6 +3211,360 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   testShapeCollide(s, tf1, hs, tf2, false);
 }
 
+BOOST_AUTO_TEST_CASE(collide_planeplane) {
+  Transform3f tf1;
+  Transform3f tf2;
+
+  Vec3f normal;
+  Vec3f contact;
+  FCL_REAL distance;
+
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+
+  {
+    Vec3f n = Vec3f::Random().normalized();
+    FCL_REAL offset = 3.14;
+    Plane plane1(n, offset);
+    Plane plane2(n, offset);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal = n;
+    contact = plane1.n * plane1.d;
+    distance = 0.;
+    SET_LINE;
+    testShapeCollide(plane1, tf1, plane2, tf2, true, &contact, &distance,
+                     &normal);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    contact =
+        transform.getRotation() * plane1.n *
+        (plane1.d +
+         (transform.getRotation() * plane1.n).dot(transform.getTranslation()));
+    SET_LINE;
+    testShapeCollide(plane1, tf1, plane2, tf2, true, &contact, &distance,
+                     &normal);
+  }
+
+  {
+    Vec3f n = Vec3f::Random().normalized();
+    FCL_REAL offset1 = 3.14;
+    FCL_REAL offset2 = offset1 + 1.19841;
+    Plane plane1(n, offset1);
+    Plane plane2(n, offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    SET_LINE;
+    testShapeCollide(plane1, tf1, plane2, tf2, false);
+
+    tf1 = transform;
+    tf2 = transform;
+    SET_LINE;
+    testShapeCollide(plane1, tf1, plane2, tf2, false);
+  }
+
+  {
+    Vec3f n = Vec3f::Random().normalized();
+    FCL_REAL offset1 = 3.14;
+    FCL_REAL offset2 = offset1 - 1.19841;
+    Plane plane1(n, offset1);
+    Plane plane2(n, offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    SET_LINE;
+    testShapeCollide(plane1, tf1, plane2, tf2, false);
+
+    tf1 = transform;
+    tf2 = transform;
+    SET_LINE;
+    testShapeCollide(plane1, tf1, plane2, tf2, false);
+  }
+
+  {
+    Vec3f n1(1, 0, 0);
+    FCL_REAL offset1 = 3.14;
+    Plane plane1(n1, offset1);
+    Vec3f n2(0, 0, 1);
+    FCL_REAL offset2 = -2.13;
+    Plane plane2(n2, offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal << 0, -1, 0;
+    contact << offset1, 0, offset2;
+    SET_LINE;
+    testShapeCollide(plane1, tf1, plane2, tf2, true, &contact, NULL, &normal);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(plane1, tf1, plane2, tf2, true, NULL, NULL, &normal);
+  }
+
+  {
+    Vec3f n1(1, 0, 0);
+    FCL_REAL offset1 = 3.14;
+    Plane plane1(n1, offset1);
+    Vec3f n2(1, 1, 1);
+    FCL_REAL offset2 = -2.13;
+    Plane plane2(n2, offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal << 0, -0.5774, 0.5774;
+    SET_LINE;
+    testShapeCollide(plane1, tf1, plane2, tf2, true, NULL, NULL, &normal, false,
+                     1e-3);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(plane1, tf1, plane2, tf2, true, NULL, NULL, &normal, false,
+                     1e-3);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(collide_halfspacehalfspace) {
+  Transform3f tf1;
+  Transform3f tf2;
+
+  Vec3f normal;
+  Vec3f contact;
+  FCL_REAL distance;
+
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+
+  {
+    Vec3f n = Vec3f::Random().normalized();
+    FCL_REAL offset = 3.14;
+    Halfspace hf1(n, offset);
+    Halfspace hf2(n, offset);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal = n;
+    SET_LINE;
+    testShapeCollide(hf1, tf1, hf2, tf2, true, NULL, NULL, &normal);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(hf1, tf1, hf2, tf2, true, NULL, NULL, &normal);
+  }
+
+  {
+    Vec3f n = Vec3f::Random().normalized();
+    FCL_REAL offset1 = 3.14;
+    FCL_REAL offset2 = offset1 + 1.19841;
+    Halfspace hf1(n, offset1);
+    Halfspace hf2(n, offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal = n;
+    SET_LINE;
+    testShapeCollide(hf1, tf1, hf2, tf2, true, NULL, NULL, &normal);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(hf1, tf1, hf2, tf2, true, NULL, NULL, &normal);
+  }
+
+  {
+    Vec3f n = Vec3f::Random().normalized();
+    FCL_REAL offset1 = 3.14;
+    FCL_REAL offset2 = offset1 - 1.19841;
+    Halfspace hf1(n, offset1);
+    Halfspace hf2(-n, -offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal = n;
+    distance = offset2 - offset1;
+    SET_LINE;
+    testShapeCollide(hf1, tf1, hf2, tf2, true, NULL, &distance, &normal);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(hf1, tf1, hf2, tf2, true, NULL, &distance, &normal);
+  }
+
+  {
+    Vec3f n1(1, 0, 0);
+    FCL_REAL offset1 = 3.14;
+    Halfspace hf1(n1, offset1);
+    Vec3f n2(0, 0, 1);
+    FCL_REAL offset2 = -2.13;
+    Halfspace hf2(n2, offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal << 0, -1, 0;
+    SET_LINE;
+    testShapeCollide(hf1, tf1, hf2, tf2, true, NULL, NULL, &normal);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(hf1, tf1, hf2, tf2, true, NULL, NULL, &normal);
+  }
+
+  {
+    Vec3f n1(1, 0, 0);
+    FCL_REAL offset1 = 3.14;
+    Halfspace hf1(n1, offset1);
+    Vec3f n2(1, 1, 1);
+    FCL_REAL offset2 = -2.13;
+    Halfspace hf2(n2, offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal << 0, -0.5774, 0.5774;
+    SET_LINE;
+    testShapeCollide(hf1, tf1, hf2, tf2, true, NULL, NULL, &normal, false,
+                     1e-3);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(hf1, tf1, hf2, tf2, true, NULL, NULL, &normal, false,
+                     1e-3);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(collide_halfspaceplane) {
+  Transform3f tf1;
+  Transform3f tf2;
+
+  Vec3f normal;
+  Vec3f contact;
+  FCL_REAL distance;
+
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+
+  {
+    Vec3f n = Vec3f::Random().normalized();
+    FCL_REAL offset = 3.14;
+    Halfspace hf(n, offset);
+    Plane plane(n, offset);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal = n;
+    distance = 0;
+    SET_LINE;
+    testShapeCollide(hf, tf1, plane, tf2, true, NULL, &distance, &normal);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(hf, tf1, plane, tf2, true, NULL, &distance, &normal);
+  }
+
+  {
+    Vec3f n = Vec3f::Random().normalized();
+    FCL_REAL offset1 = 3.14;
+    FCL_REAL offset2 = offset1 + 1.19841;
+    Halfspace hf(n, offset1);
+    Plane plane(n, offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal = n;
+    distance = offset2 - offset1;
+    SET_LINE;
+    testShapeCollide(hf, tf1, plane, tf2, false);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(hf, tf1, plane, tf2, false);
+  }
+
+  {
+    Vec3f n = Vec3f::Random().normalized();
+    FCL_REAL offset1 = 3.14;
+    FCL_REAL offset2 = offset1 - 1.19841;
+    Halfspace hf(n, offset1);
+    Plane plane(n, offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal = n;
+    distance = offset2 - offset1;
+    SET_LINE;
+    testShapeCollide(hf, tf1, plane, tf2, true, NULL, &distance, &normal);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(hf, tf1, plane, tf2, true, NULL, &distance, &normal);
+  }
+
+  {
+    Vec3f n1(1, 0, 0);
+    FCL_REAL offset1 = 3.14;
+    Halfspace hf(n1, offset1);
+    Vec3f n2(0, 0, 1);
+    FCL_REAL offset2 = -2.13;
+    Plane plane(n2, offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal << 0, -1, 0;
+    SET_LINE;
+    testShapeCollide(hf, tf1, plane, tf2, true, NULL, NULL, &normal);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(hf, tf1, plane, tf2, true, NULL, NULL, &normal);
+  }
+
+  {
+    Vec3f n1(1, 0, 0);
+    FCL_REAL offset1 = 3.14;
+    Halfspace hf(n1, offset1);
+    Vec3f n2(1, 1, 1);
+    FCL_REAL offset2 = -2.13;
+    Plane plane(n2, offset2);
+
+    tf1.setIdentity();
+    tf2.setIdentity();
+    normal << 0, -0.5774, 0.5774;
+    SET_LINE;
+    testShapeCollide(hf, tf1, plane, tf2, true, NULL, NULL, &normal, false,
+                     1e-3);
+
+    tf1 = transform;
+    tf2 = transform;
+    normal = transform.getRotation() * normal;
+    SET_LINE;
+    testShapeCollide(hf, tf1, plane, tf2, true, NULL, NULL, &normal, false,
+                     1e-3);
+  }
+}
+
 BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_spheresphere) {
   Sphere s1(20);
   Sphere s2(10);
