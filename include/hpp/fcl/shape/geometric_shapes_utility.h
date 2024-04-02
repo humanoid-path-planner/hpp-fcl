@@ -72,6 +72,10 @@ HPP_FCL_DLLAPI std::vector<Vec3f> getBoundVertices(const TriangleP& triangle,
 /// @brief calculate a bounding volume for a shape in a specific configuration
 template <typename BV, typename S>
 inline void computeBV(const S& s, const Transform3f& tf, BV& bv) {
+  if (s.getSweptSphereRadius() > 0) {
+    HPP_FCL_THROW_PRETTY("Swept-sphere radius not yet supported.",
+                         std::runtime_error);
+  }
   std::vector<Vec3f> convex_bound_vertices = details::getBoundVertices(s, tf);
   fit(&convex_bound_vertices[0], (unsigned int)convex_bound_vertices.size(),
       bv);
