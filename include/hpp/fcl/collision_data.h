@@ -127,11 +127,10 @@ struct HPP_FCL_DLLAPI Contact {
         b1(b1_),
         b2(b2_),
         normal(normal_),
+        nearest_points{pos_ - (depth_ * normal_ / 2),
+                       pos_ + (depth_ * normal_ / 2)},
         pos(pos_),
-        penetration_depth(depth_) {
-    nearest_points[0] = pos - 0.5 * depth_ * normal_;
-    nearest_points[1] = pos + 0.5 * depth_ * normal_;
-  }
+        penetration_depth(depth_) {}
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
           int b2_, const Vec3f& p1, const Vec3f& p2, const Vec3f& normal_,
@@ -141,11 +140,9 @@ struct HPP_FCL_DLLAPI Contact {
         b1(b1_),
         b2(b2_),
         normal(normal_),
-        penetration_depth(depth_) {
-    nearest_points[0] = p1;
-    nearest_points[1] = p2;
-    pos = (p1 + p2) / 2;
-  }
+        nearest_points{p1, p2},
+        pos((p1 + p2) / 2),
+        penetration_depth(depth_) {}
 
   bool operator<(const Contact& other) const {
     if (b1 == other.b1) return b2 < other.b2;
@@ -186,7 +183,10 @@ struct HPP_FCL_DLLAPI QueryRequest {
   /// @brief maximum iteration for the GJK algorithm
   size_t gjk_max_iterations;
 
-  /// @brief tolerance for the GJK algorithm
+  /// @brief tolerance for the GJK algorithm.
+  /// Note: This tolerance determines the precision on the estimated distance
+  /// between two geometries which are not in collision.
+  /// It is recommended to not set this tolerance to less than 1e-6.
   FCL_REAL gjk_tolerance;
 
   /// @brief whether to enable the Nesterov accleration of GJK
@@ -202,7 +202,10 @@ struct HPP_FCL_DLLAPI QueryRequest {
   size_t epa_max_iterations;
 
   /// @brief tolerance for EPA.
-  /// Note: setting EPA's tolerance to less than GJK's is not recommended.
+  /// Note: This tolerance determines the precision on the estimated distance
+  /// between two geometries which are in collision.
+  /// It is recommended to not set this tolerance to less than 1e-6.
+  /// Also, setting EPA's tolerance to less than GJK's is not recommended.
   FCL_REAL epa_tolerance;
 
   /// @brief enable timings when performing collision/distance request

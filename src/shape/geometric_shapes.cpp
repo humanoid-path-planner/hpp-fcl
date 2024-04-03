@@ -144,60 +144,110 @@ void Plane::unitNormalTest() {
 
 void Box::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
+  const FCL_REAL ssr = this->getSweptSphereRadius();
+  if (ssr > 0) {
+    aabb_local.min_ -= Vec3f::Constant(ssr);
+    aabb_local.max_ += Vec3f::Constant(ssr);
+  }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Sphere::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
+  const FCL_REAL ssr = this->getSweptSphereRadius();
+  if (ssr > 0) {
+    aabb_local.min_ -= Vec3f::Constant(ssr);
+    aabb_local.max_ += Vec3f::Constant(ssr);
+  }
   aabb_center = aabb_local.center();
   aabb_radius = radius;
 }
 
 void Ellipsoid::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
+  const FCL_REAL ssr = this->getSweptSphereRadius();
+  if (ssr > 0) {
+    aabb_local.min_ -= Vec3f::Constant(ssr);
+    aabb_local.max_ += Vec3f::Constant(ssr);
+  }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Capsule::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
+  const FCL_REAL ssr = this->getSweptSphereRadius();
+  if (ssr > 0) {
+    aabb_local.min_ -= Vec3f::Constant(ssr);
+    aabb_local.max_ += Vec3f::Constant(ssr);
+  }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Cone::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
+  const FCL_REAL ssr = this->getSweptSphereRadius();
+  if (ssr > 0) {
+    aabb_local.min_ -= Vec3f::Constant(ssr);
+    aabb_local.max_ += Vec3f::Constant(ssr);
+  }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Cylinder::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
+  const FCL_REAL ssr = this->getSweptSphereRadius();
+  if (ssr > 0) {
+    aabb_local.min_ -= Vec3f::Constant(ssr);
+    aabb_local.max_ += Vec3f::Constant(ssr);
+  }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void ConvexBase::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
+  const FCL_REAL ssr = this->getSweptSphereRadius();
+  if (ssr > 0) {
+    aabb_local.min_ -= Vec3f::Constant(ssr);
+    aabb_local.max_ += Vec3f::Constant(ssr);
+  }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Halfspace::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
+  const FCL_REAL ssr = this->getSweptSphereRadius();
+  if (ssr > 0) {
+    aabb_local.min_ -= Vec3f::Constant(ssr);
+    aabb_local.max_ += Vec3f::Constant(ssr);
+  }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Plane::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
+  const FCL_REAL ssr = this->getSweptSphereRadius();
+  if (ssr > 0) {
+    aabb_local.min_ -= Vec3f::Constant(ssr);
+    aabb_local.max_ += Vec3f::Constant(ssr);
+  }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void TriangleP::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
+  const FCL_REAL ssr = this->getSweptSphereRadius();
+  if (ssr > 0) {
+    aabb_local.min_ -= Vec3f::Constant(ssr);
+    aabb_local.max_ += Vec3f::Constant(ssr);
+  }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }

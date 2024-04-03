@@ -59,6 +59,7 @@ using hpp::fcl::Triangle;
 using hpp::fcl::Vec3f;
 using hpp::fcl::details::GJK;
 using hpp::fcl::details::MinkowskiDiff;
+using hpp::fcl::details::SupportOptions;
 using std::size_t;
 
 BOOST_AUTO_TEST_CASE(set_gjk_variant) {
@@ -91,15 +92,15 @@ BOOST_AUTO_TEST_CASE(need_nesterov_normalize_support_direction) {
   Convex<Triangle> cvx;
 
   MinkowskiDiff mink_diff1;
-  mink_diff1.set(&ellipsoid, &ellipsoid);
+  mink_diff1.set<SupportOptions::NoSweptSphere>(&ellipsoid, &ellipsoid);
   BOOST_CHECK(mink_diff1.normalize_support_direction == false);
 
   MinkowskiDiff mink_diff2;
-  mink_diff2.set(&ellipsoid, &box);
+  mink_diff2.set<SupportOptions::NoSweptSphere>(&ellipsoid, &box);
   BOOST_CHECK(mink_diff2.normalize_support_direction == false);
 
   MinkowskiDiff mink_diff3;
-  mink_diff3.set(&cvx, &cvx);
+  mink_diff3.set<SupportOptions::NoSweptSphere>(&cvx, &cvx);
   BOOST_CHECK(mink_diff3.normalize_support_direction == true);
 }
 
@@ -129,7 +130,11 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
   init_support_guess.setZero();
 
   for (size_t i = 0; i < n; ++i) {
-    mink_diff.set(&shape0, &shape1, identity, transforms[i]);
+    // No need to take into account swept-sphere radius in supports computation
+    // when using GJK/EPA; after they have converged, these algos will correctly
+    // handle the swept-sphere radius of the shapes.
+    mink_diff.set<SupportOptions::NoSweptSphere>(&shape0, &shape1, identity,
+                                                 transforms[i]);
 
     // Evaluate both solvers twice, make sure they give the same solution
     GJK::Status res_gjk_1 =

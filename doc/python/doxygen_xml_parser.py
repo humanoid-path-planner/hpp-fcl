@@ -116,6 +116,9 @@ def _templateParamToDict(param):
         else:
             return {"type": type_.text, "name": ""}
     else:
+        if type_.text is None:
+            # type_ is not a typename but an existing type
+            type_ = type_.find("ref")
         assert defname.text == declname.text
         return {"type": type_.text, "name": defname.text}
 

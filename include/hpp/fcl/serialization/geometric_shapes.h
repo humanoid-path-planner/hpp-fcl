@@ -18,6 +18,12 @@ void serialize(Archive& ar, hpp::fcl::ShapeBase& shape_base,
   ar& make_nvp("base",
                boost::serialization::base_object<hpp::fcl::CollisionGeometry>(
                    shape_base));
+  ::hpp::fcl::FCL_REAL radius = shape_base.getSweptSphereRadius();
+  ar& make_nvp("swept_sphere_radius", radius);
+
+  if (Archive::is_loading::value) {
+    shape_base.setSweptSphereRadius(radius);
+  }
 }
 
 template <class Archive>

@@ -61,7 +61,9 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
   ShapeBase() {}
 
   ///  \brief Copy constructor
-  ShapeBase(const ShapeBase& other) : CollisionGeometry(other) {}
+  ShapeBase(const ShapeBase& other)
+      : CollisionGeometry(other),
+        m_swept_sphere_radius(other.m_swept_sphere_radius) {}
 
   ShapeBase& operator=(const ShapeBase& other) = default;
 
@@ -69,6 +71,34 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
 
   /// @brief Get object type: a geometric shape
   OBJECT_TYPE getObjectType() const { return OT_GEOM; }
+
+  /// @brief Set radius of sphere swept around the shape.
+  /// Must be >= 0.
+  void setSweptSphereRadius(FCL_REAL radius) {
+    if (radius < 0) {
+      HPP_FCL_THROW_PRETTY("Swept-sphere radius must be positive.",
+                           std::invalid_argument);
+    }
+    this->m_swept_sphere_radius = radius;
+  }
+
+  /// @brief Get radius of sphere swept around the shape.
+  /// This radius is always >= 0.
+  FCL_REAL getSweptSphereRadius() const { return this->m_swept_sphere_radius; }
+
+ protected:
+  /// \brief Radius of the sphere swept around the shape.
+  /// Default value is 0.
+  /// Note: this property differs from `inflated` method of certain
+  /// derived classes (e.g. Box, Sphere, Ellipsoid, Capsule, Cone, Cylinder)
+  /// in the sense that inflated returns a new shape which can be inflated but
+  /// also deflated.
+  /// Also, an inflated shape is not rounded. It simply has a different size.
+  /// Sweeping a shape with a sphere is a different operation (a Minkowski sum),
+  /// which rounds the sharp corners of a shape.
+  /// The swept sphere radius is a property of the shape itself and can be
+  /// manually updated between collision checks.
+  FCL_REAL m_swept_sphere_radius{0};
 };
 
 /// @defgroup Geometric_Shapes Geometric shapes
@@ -122,7 +152,8 @@ class HPP_FCL_DLLAPI TriangleP : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const TriangleP& other = *other_ptr;
 
-    return a == other.a && b == other.b && c == other.c;
+    return a == other.a && b == other.b && c == other.c &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -171,7 +202,9 @@ class HPP_FCL_DLLAPI Box : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -halfSide.minCoeff(); }
 
-  /// \brief Inflate the box by an amount given by value
+  /// \brief Inflate the box by an amount given by `value`.
+  /// This value can be positive or negative but must always >=
+  /// `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -193,7 +226,8 @@ class HPP_FCL_DLLAPI Box : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Box& other = *other_ptr;
 
-    return halfSide == other.halfSide;
+    return halfSide == other.halfSide &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -234,7 +268,9 @@ class HPP_FCL_DLLAPI Sphere : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -radius; }
 
-  /// \brief Inflate the sphere by an amount given by value
+  /// \brief Inflate the sphere by an amount given by `value`.
+  /// This value can be positive or negative but must always >=
+  /// `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -255,7 +291,8 @@ class HPP_FCL_DLLAPI Sphere : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Sphere& other = *other_ptr;
 
-    return radius == other.radius;
+    return radius == other.radius &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -305,7 +342,9 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -radii.minCoeff(); }
 
-  /// \brief Inflate the ellipsoid by an amount given by value
+  /// \brief Inflate the ellipsoid by an amount given by `value`.
+  /// This value can be positive or negative but must always >=
+  /// `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -327,7 +366,8 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Ellipsoid& other = *other_ptr;
 
-    return radii == other.radii;
+    return radii == other.radii &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -387,7 +427,9 @@ class HPP_FCL_DLLAPI Capsule : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -radius; }
 
-  /// \brief Inflate the capsule by an amount given by value
+  /// \brief Inflate the capsule by an amount given by `value`.
+  /// This value can be positive or negative but must always >=
+  /// `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -409,7 +451,8 @@ class HPP_FCL_DLLAPI Capsule : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Capsule& other = *other_ptr;
 
-    return radius == other.radius && halfLength == other.halfLength;
+    return radius == other.radius && halfLength == other.halfLength &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -464,7 +507,9 @@ class HPP_FCL_DLLAPI Cone : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -(std::min)(radius, halfLength); }
 
-  /// \brief Inflate the cone by an amount given by value
+  /// \brief Inflate the cone by an amount given by `value`.
+  /// This value can be positive or negative but must always >=
+  /// `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -497,7 +542,8 @@ class HPP_FCL_DLLAPI Cone : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Cone& other = *other_ptr;
 
-    return radius == other.radius && halfLength == other.halfLength;
+    return radius == other.radius && halfLength == other.halfLength &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -555,7 +601,9 @@ class HPP_FCL_DLLAPI Cylinder : public ShapeBase {
 
   FCL_REAL minInflationValue() const { return -(std::min)(radius, halfLength); }
 
-  /// \brief Inflate the cylinder by an amount given by value
+  /// \brief Inflate the cylinder by an amount given by `value`.
+  /// This value can be positive or negative but must always >=
+  /// `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
@@ -577,7 +625,8 @@ class HPP_FCL_DLLAPI Cylinder : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Cylinder& other = *other_ptr;
 
-    return radius == other.radius && halfLength == other.halfLength;
+    return radius == other.radius && halfLength == other.halfLength &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -814,7 +863,8 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
       }
     }
 
-    return center == other.center;
+    return center == other.center &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
@@ -824,11 +874,14 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
 template <typename PolygonT>
 class Convex;
 
-/// @brief Half Space: this is equivalent to the Plane in ODE. The separation
-/// plane is defined as n * x = d; Points in the negative side of the separation
-/// plane (i.e. {x | n * x < d}) are inside the half space and points in the
-/// positive side of the separation plane (i.e. {x | n * x > d}) are outside the
-/// half space
+/// @brief Half Space: this is equivalent to the Plane in ODE.
+/// A Half space has a priviledged direction: the direction of the normal.
+/// The separation plane is defined as n * x = d; Points in the negative side of
+/// the separation plane (i.e. {x | n * x < d}) are inside the half space and
+/// points in the positive side of the separation plane (i.e. {x | n * x > d})
+/// are outside the half space.
+/// Note: prefer using a Halfspace instead of a Plane if possible, it has better
+/// behavior w.r.t. collision detection algorithms.
 class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
  public:
   /// @brief Construct a half space with normal direction and offset
@@ -857,9 +910,13 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
   /// @brief Clone *this into a new Halfspace
   virtual Halfspace* clone() const { return new Halfspace(*this); };
 
-  FCL_REAL signedDistance(const Vec3f& p) const { return n.dot(p) - d; }
+  FCL_REAL signedDistance(const Vec3f& p) const {
+    return n.dot(p) - (d + this->getSweptSphereRadius());
+  }
 
-  FCL_REAL distance(const Vec3f& p) const { return std::abs(n.dot(p) - d); }
+  FCL_REAL distance(const Vec3f& p) const {
+    return std::abs(this->signedDistance(p));
+  }
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -871,11 +928,13 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
     return std::numeric_limits<FCL_REAL>::lowest();
   }
 
-  /// \brief Inflate the cylinder by an amount given by value
+  /// \brief Inflate the halfspace by an amount given by `value`.
+  /// This value can be positive or negative but must always >=
+  /// `minInflationValue()`.
   ///
   /// \param[in] value of the shape inflation.
   ///
-  /// \returns a new inflated cylinder and the related transform to account for
+  /// \returns a new inflated halfspace and the related transform to account for
   /// the change of shape frame
   std::pair<Halfspace, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
@@ -902,14 +961,18 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Halfspace& other = *other_ptr;
 
-    return n == other.n && d == other.d;
+    return n == other.n && d == other.d &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-/// @brief Infinite plane
+/// @brief Infinite plane.
+/// A plane can be viewed as two half spaces; it has no priviledged direction.
+/// Note: prefer using a Halfspace instead of a Plane if possible, it has better
+/// behavior w.r.t. collision detection algorithms.
 class HPP_FCL_DLLAPI Plane : public ShapeBase {
  public:
   /// @brief Construct a plane with normal direction and offset
@@ -937,9 +1000,22 @@ class HPP_FCL_DLLAPI Plane : public ShapeBase {
   /// @brief Clone *this into a new Plane
   virtual Plane* clone() const { return new Plane(*this); };
 
-  FCL_REAL signedDistance(const Vec3f& p) const { return n.dot(p) - d; }
+  FCL_REAL signedDistance(const Vec3f& p) const {
+    const FCL_REAL dist = n.dot(p) - d;
+    FCL_REAL signed_dist =
+        std::abs(n.dot(p) - d) - this->getSweptSphereRadius();
+    if (dist >= 0) {
+      return signed_dist;
+    }
+    if (signed_dist >= 0) {
+      return -signed_dist;
+    }
+    return signed_dist;
+  }
 
-  FCL_REAL distance(const Vec3f& p) const { return std::abs(n.dot(p) - d); }
+  FCL_REAL distance(const Vec3f& p) const {
+    return std::abs(std::abs(n.dot(p) - d) - this->getSweptSphereRadius());
+  }
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -963,7 +1039,8 @@ class HPP_FCL_DLLAPI Plane : public ShapeBase {
     if (other_ptr == nullptr) return false;
     const Plane& other = *other_ptr;
 
-    return n == other.n && d == other.d;
+    return n == other.n && d == other.d &&
+           getSweptSphereRadius() == other.getSweptSphereRadius();
   }
 
  public:

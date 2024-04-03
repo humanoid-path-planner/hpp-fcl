@@ -49,10 +49,30 @@ namespace fcl {
 
 namespace details {
 
-/// @brief the support function for shape
-/// \param hint use to initialize the search when shape is a ConvexBase object.
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, bool dirIsNormalized,
-                 int& hint);
+/// @brief Options for the computation of support points.
+/// `NoSweptSphere` option is used when the support function is called
+/// by GJK or EPA. In this case, the swept sphere radius is not taken into
+/// account in the support function. It is used by GJK and EPA after they have
+/// converged to correct the solution.
+/// `WithSweptSphere` option is used when the support function is called
+/// directly by the user. In this case, the swept sphere radius is taken into
+/// account in the support function.
+enum SupportOptions {
+  NoSweptSphere = 0,
+  WithSweptSphere = 0x1,
+};
+
+/// @brief the support function for shape.
+/// @return argmax_{v in shape0} v.dot(dir).
+/// @param shape the shape.
+/// @param dir support direction.
+/// @param hint used to initialize the search when shape is a ConvexBase object.
+/// @tparam SupportOptions is a value of the SupportOptions enum. If set to
+/// `WithSweptSphere`, the support functions take into account the shapes' swept
+/// sphere radii. Please see `MinkowskiDiff::set(const ShapeBase*, const
+/// ShapeBase*)` for more details.
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
+Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint);
 
 /// @brief Minkowski difference class of two shapes
 ///
@@ -80,10 +100,10 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// such that @f$ p_in_0 = oR1 * p_in_1 + ot1 @f$.
   Vec3f ot1;
 
-  /// @brief The radius of the sphere swepted volume.
-  /// The 2 values correspond to the inflation of shape 0 and shape 1/
-  /// These inflation values are used for Sphere and Capsule.
-  Array2d inflation;
+  /// @brief The radii of the sphere swepted around each shape of the Minkowski
+  /// difference. The 2 values correspond to the swept-sphere radius of shape 0
+  /// and shape 1.
+  Array2d swept_sphere_radius;
 
   /// @brief Wether or not to use the normalize heuristic in the GJK Nesterov
   /// acceleration. This setting is only applied if the Nesterov acceleration in
@@ -91,39 +111,86 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   bool normalize_support_direction;
 
   typedef void (*GetSupportFunction)(const MinkowskiDiff& minkowskiDiff,
-                                     const Vec3f& dir, bool dirIsNormalized,
-                                     Vec3f& support0, Vec3f& support1,
+                                     const Vec3f& dir, Vec3f& support0,
+                                     Vec3f& support1,
                                      support_func_guess_t& hint,
                                      ShapeData data[2]);
   GetSupportFunction getSupportFunc;
 
   MinkowskiDiff() : normalize_support_direction(false), getSupportFunc(NULL) {}
 
-  /// Set the two shapes,
-  /// assuming the relative transformation between them is identity.
+  /// @brief Set the two shapes, assuming the relative transformation between
+  /// them is identity.
+  /// @param shape0 the first shape.
+  /// @param shape1 the second shape.
+  /// @tparam SupportOptions is a value of the SupportOptions enum. If set to
+  /// `WithSweptSphere`, the support computation will take into account the
+  /// swept sphere radius of the shapes. If set to `NoSweptSphere`, where
+  /// this information is simply stored in the Minkowski's difference
+  /// `swept_sphere_radius` array. This array is then used to correct the
+  /// solution found when GJK or EPA have converged.
+  ///
+  /// @note In practice, there is no need to take into account the swept-sphere
+  /// radius in the iterations of GJK/EPA. It is in fact detrimental to the
+  /// convergence of both algos. This is because it makes corners and edges of
+  /// shapes look strictly convex to the algorithms, which leads to poor
+  /// convergence. This swept sphere template parameter is only here for
+  /// debugging purposes and for specific uses cases where the swept sphere
+  /// radius is needed in the support function. The rule is simple. When
+  /// interacting with GJK/EPA, the `SupportOptions` template
+  /// parameter should **always** be set to `NoSweptSphere` (except for
+  /// debugging or testing purposes). When working directly with the shapes
+  /// involved in the collision, and not relying on GJK/EPA, the
+  /// `SupportOptions` template parameter should be set to `WithSweptSphere`.
+  /// This is for example the case for specialized collision/distance functions.
+  template <int _SupportOptions = SupportOptions::NoSweptSphere>
   void set(const ShapeBase* shape0, const ShapeBase* shape1);
 
-  /// Set the two shapes, with a relative transformation.
+  /// @brief Set the two shapes, with a relative transformation.
+  /// @param shape0 the first shape.
+  /// @param shape1 the second shape.
+  /// @param tf0 the transformation of the first shape.
+  /// @param tf1 the transformation of the second shape.
+  /// @tparam `SupportOptions` see `set(const ShapeBase*, const
+  /// ShapeBase*)` for more details.
+  template <int _SupportOptions = SupportOptions::NoSweptSphere>
   void set(const ShapeBase* shape0, const ShapeBase* shape1,
            const Transform3f& tf0, const Transform3f& tf1);
 
-  /// @brief support function for shape0
-  inline Vec3f support0(const Vec3f& d, bool dIsNormalized, int& hint) const {
-    return getSupport(shapes[0], d, dIsNormalized, hint);
+  /// @brief support function for shape0.
+  /// @return argmax_{v in shape0} v.dot(dir).
+  /// @param dir support direction.
+  /// @param hint used to initialize the search when shape is a ConvexBase
+  /// object.
+  /// @tparam `SupportOptions` see `set(const ShapeBase*, const
+  /// ShapeBase*)` for more details.
+  template <int _SupportOptions = SupportOptions::NoSweptSphere>
+  inline Vec3f support0(const Vec3f& dir, int& hint) const {
+    return getSupport<_SupportOptions>(shapes[0], dir, hint);
   }
 
-  /// @brief support function for shape1
-  inline Vec3f support1(const Vec3f& d, bool dIsNormalized, int& hint) const {
-    return oR1 *
-               getSupport(shapes[1], oR1.transpose() * d, dIsNormalized, hint) +
-           ot1;
+  /// @brief support function for shape1.
+  /// @return argmax_{v in shape0} v.dot(dir).
+  /// @param dir support direction.
+  /// @param hint used to initialize the search when shape is a ConvexBase
+  /// object.
+  /// @tparam `SupportOptions` see `set(const ShapeBase*, const
+  /// ShapeBase*)` for more details.
+  template <int _SupportOptions = SupportOptions::NoSweptSphere>
+  inline Vec3f support1(const Vec3f& dir, int& hint) const {
+    // clang-format off
+    return oR1 * getSupport<_SupportOptions>(shapes[1], oR1.transpose() * dir, hint) + ot1;
+    // clang-format on
   }
 
-  /// @brief support function for the pair of shapes
-  inline void support(const Vec3f& d, bool dIsNormalized, Vec3f& supp0,
-                      Vec3f& supp1, support_func_guess_t& hint) const {
+  /// @brief Support function for the pair of shapes. This method assumes `set`
+  /// has already been called.
+  /// \param hint used to initialize the search when shape is a ConvexBase
+  /// object.
+  inline void support(const Vec3f& dir, Vec3f& supp0, Vec3f& supp1,
+                      support_func_guess_t& hint) const {
     assert(getSupportFunc != NULL);
-    getSupportFunc(*this, d, dIsNormalized, supp0, supp1, hint,
+    getSupportFunc(*this, dir, supp0, supp1, hint,
                    const_cast<ShapeData*>(data));
   }
 };
@@ -191,19 +258,11 @@ struct HPP_FCL_DLLAPI GJK {
   MinkowskiDiff const* shape;
   Vec3f ray;
   support_func_guess_t support_hint;
-  /// The distance computed by GJK. The possible values are
-  /// - \f$ d = - R - 1 \f$ when a collision is detected and GJK
-  ///   cannot compute penetration informations.
-  /// - \f$ - R \le d \le 0 \f$ when a collision is detected and GJK can
-  ///   compute penetration informations.
-  /// - \f$ 0 < d \le d_{ub} \f$ when there is no collision and GJK can compute
-  ///   the closest points.
-  /// - \f$ d_{ub} < d \f$ when there is no collision and GJK cannot compute the
-  ///   closest points.
-  ///
-  /// where \f$ d \f$ is the GJK::distance, \f$ R \f$ is the sum of the \c shape
-  /// MinkowskiDiff::inflation and \f$ d_{ub} \f$ is the
-  /// GJK::distance_upper_bound.
+  /// @brief The distance between the two shapes, computed by GJK.
+  /// If the distance is below GJK's threshold, the shapes are in collision in
+  /// the eyes of GJK. If `distance_upper_bound` is set to a value lower than
+  /// infinity, GJK will early stop as soon as it finds `distance` to be greater
+  /// than `distance_upper_bound`.
   FCL_REAL distance;
   Simplex* simplex;  // Pointer to the result of the last run of GJK.
 
@@ -231,6 +290,8 @@ struct HPP_FCL_DLLAPI GJK {
   /// Suggested values are 100 iterations and a tolerance of 1e-6.
   GJK(size_t max_iterations_, FCL_REAL tolerance_)
       : max_iterations(max_iterations_), tolerance(tolerance_) {
+    HPP_FCL_ASSERT(tolerance_ > 0, "Tolerance must be positive.",
+                   std::invalid_argument);
     initialize();
   }
 
@@ -246,9 +307,9 @@ struct HPP_FCL_DLLAPI GJK {
 
   /// @brief apply the support function along a direction, the result is return
   /// in sv
-  inline void getSupport(const Vec3f& d, bool dIsNormalized, SimplexV& sv,
+  inline void getSupport(const Vec3f& d, SimplexV& sv,
                          support_func_guess_t& hint) const {
-    shape->support(d, dIsNormalized, sv.w0, sv.w1, hint);
+    shape->support(d, sv.w0, sv.w1, hint);
     sv.w = sv.w0 - sv.w1;
   }
 
@@ -262,9 +323,14 @@ struct HPP_FCL_DLLAPI GJK {
   /// Tells whether the closest points are available.
   bool hasClosestPoints() const { return distance < distance_upper_bound; }
 
-  /// Get the closest points on each object.
-  /// @return true on success
-  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const;
+  /// Get the witness points on each object, and the corresponding normal.
+  /// @param[in] shape is the Minkowski difference of the two shapes.
+  /// @param[out] w0 is the witness point on shape0.
+  /// @param[out] w1 is the witness point on shape1.
+  /// @param[out] normal is the normal of the separating plane found by
+  /// GJK. It points from shape0 to shape1.
+  void getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
+                                 Vec3f& w1, Vec3f& normal) const;
 
   /// @brief get the guess from current simplex
   Vec3f getGuessFromSimplex() const;
@@ -307,7 +373,7 @@ struct HPP_FCL_DLLAPI GJK {
   inline void removeVertex(Simplex& simplex);
 
   /// @brief append one vertex to the simplex
-  inline void appendVertex(Simplex& simplex, const Vec3f& v, bool isNormalized,
+  inline void appendVertex(Simplex& simplex, const Vec3f& v,
                            support_func_guess_t& hint);
 
   /// @brief Project origin (0) onto line a-b
@@ -492,9 +558,15 @@ struct HPP_FCL_DLLAPI EPA {
   ///         status
   Status evaluate(GJK& gjk, const Vec3f& guess);
 
-  /// Get the closest points on each object.
-  /// @return true on success
-  bool getClosestPoints(const MinkowskiDiff& shape, Vec3f& w0, Vec3f& w1) const;
+  /// Get the witness points on each object, and the corresponding normal.
+  /// @param[in] shape is the Minkowski difference of the two shapes.
+  /// @param[out] w0 is the witness point on shape0.
+  /// @param[out] w1 is the witness point on shape1.
+  /// @param[in] normal is the normal found by EPA. It points from shape0 to
+  /// shape1. The normal is used to correct the witness points on the shapes if
+  /// the shapes have a non-zero swept-sphere radius.
+  void getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
+                                 Vec3f& w1, Vec3f& normal) const;
 
  private:
   /// @brief Allocates memory for the EPA algorithm.
@@ -508,7 +580,8 @@ struct HPP_FCL_DLLAPI EPA {
   /// @brief Add a new face to the polytope.
   /// This function sets the `ignore` flag to `true` if the origin does not
   /// project inside the face.
-  SimplexFace* newFace(size_t id_a, size_t id_b, size_t id_vertex);
+  SimplexFace* newFace(size_t id_a, size_t id_b, size_t id_vertex,
+                       bool force = false);
 
   /// @brief Find the best polytope face to split
   SimplexFace* findClosestFace();

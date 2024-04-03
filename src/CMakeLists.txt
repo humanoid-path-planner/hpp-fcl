@@ -58,7 +58,6 @@ set(${LIBRARY_NAME}_SOURCES
   broadphase/detail/simple_interval.cpp
   broadphase/detail/spatial_hash.cpp
   broadphase/detail/morton.cpp
-  narrowphase/narrowphase.cpp
   narrowphase/gjk.cpp
   narrowphase/details.h
   shape/convex.cpp
@@ -82,7 +81,14 @@ set(${LIBRARY_NAME}_SOURCES
   distance/ellipsoid_halfspace.cpp
   distance/ellipsoid_plane.cpp
   distance/convex_halfspace.cpp
+  distance/convex_plane.cpp
   distance/triangle_halfspace.cpp
+  distance/triangle_plane.cpp
+  distance/triangle_triangle.cpp
+  distance/triangle_sphere.cpp
+  distance/halfspace_plane.cpp
+  distance/plane_plane.cpp
+  distance/halfspace_halfspace.cpp
   intersect.cpp
   math/transform.cpp
   traversal/traversal_recurse.cpp

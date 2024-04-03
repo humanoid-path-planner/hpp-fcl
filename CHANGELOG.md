@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+- [#558](https://github.com/humanoid-path-planner/hpp-fcl/pull/558):
+  - [internal] Removed dead code in `narrowphase/details.h` ([#558](https://github.com/humanoid-path-planner/hpp-fcl/pull/558))
+  - [internal] Removed specializations of methods of `GJKSolver`. Now the specializations are all handled by `ShapeShapeDistance` in `shape_shape_func.h`.
+  - [new feature] Added support for Swept-Sphere primitives (sphere, box, capsule, cone, ellipsoid, triangle, halfspace, plane, convex mesh).
 - [API change] Renamed default convergence criterion from `VDB` to `Default` ([#556](https://github.com/humanoid-path-planner/hpp-fcl/pull/556))
 - Fixed EPA returning nans on cases where it could return an estimate of the normal and penetration depth. ([#556](https://github.com/humanoid-path-planner/hpp-fcl/pull/556))
 - Fixed too low tolerance in GJK/EPA asserts ([#554](https://github.com/humanoid-path-planner/hpp-fcl/pull/554))

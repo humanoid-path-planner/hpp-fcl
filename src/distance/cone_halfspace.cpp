@@ -36,8 +36,6 @@
 
 /** \author Florent Lamiraux */
 
-#include <cmath>
-#include <limits>
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
@@ -48,40 +46,30 @@ namespace hpp {
 namespace fcl {
 struct GJKSolver;
 
+namespace internal {
 template <>
 FCL_REAL ShapeShapeDistance<Cone, Halfspace>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const DistanceRequest&, DistanceResult& result) {
+    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
   const Cone& s1 = static_cast<const Cone&>(*o1);
   const Halfspace& s2 = static_cast<const Halfspace&>(*o2);
-  details::coneHalfspaceIntersect(s1, tf1, s2, tf2, result.min_distance,
-                                  result.nearest_points[0],
-                                  result.nearest_points[1], result.normal);
-  result.o1 = o1;
-  result.o2 = o2;
-  result.b1 = -1;
-  result.b2 = -1;
-  return result.min_distance;
+  const FCL_REAL distance =
+      details::halfspaceDistance(s2, tf2, s1, tf1, p2, p1, normal);
+  normal = -normal;
+  return distance;
 }
 
 template <>
 FCL_REAL ShapeShapeDistance<Halfspace, Cone>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const DistanceRequest&, DistanceResult& result) {
+    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
   const Halfspace& s1 = static_cast<const Halfspace&>(*o1);
   const Cone& s2 = static_cast<const Cone&>(*o2);
-  details::coneHalfspaceIntersect(s2, tf2, s1, tf1, result.min_distance,
-                                  result.nearest_points[1],
-                                  result.nearest_points[0], result.normal);
-  result.o1 = o1;
-  result.o2 = o2;
-  result.b1 = -1;
-  result.b2 = -1;
-  result.normal = -result.normal;
-  return result.min_distance;
+  return details::halfspaceDistance(s1, tf1, s2, tf2, p1, p2, normal);
 }
-}  // namespace fcl
+}  // namespace internal
 
+}  // namespace fcl
 }  // namespace hpp

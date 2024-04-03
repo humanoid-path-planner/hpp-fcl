@@ -44,7 +44,7 @@ namespace fcl {
 
 struct shape_traits_base {
   enum {
-    NeedNormalizedDir = true,
+    NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = false,
     IsInflatable = false,
     HasInflatedSupportFunction = false

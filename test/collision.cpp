@@ -99,10 +99,16 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test) {
 
     GJKSolver solver;
 
-    FCL_REAL distance;
     bool overlap_obb = obb1.overlap(obb2);
-    bool overlap_box = solver.shapeIntersect(box1, box1_tf, box2, box2_tf,
-                                             distance, false, NULL, NULL);
+    CollisionRequest request;
+    CollisionResult result;
+    // Convention: when doing primitive-primitive collision, either use
+    // `collide` or `ShapeShapeCollide`.
+    // **DO NOT** use methods of the GJKSolver directly if you don't know what
+    // you are doing.
+    ShapeShapeCollide<Box, Box>(&box1, box1_tf, &box2, box2_tf, &solver,
+                                request, result);
+    bool overlap_box = result.isCollision();
 
     BOOST_CHECK(overlap_obb == overlap_box);
   }
@@ -133,15 +139,19 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test) {
     FCL_REAL len = (aabb1.max_[0] - aabb1.min_[0]) * 0.5;
     OBB obb2;
     GJKSolver solver;
-    FCL_REAL distance;
 
     {
       Sphere sphere(len);
       computeBV(sphere, transforms[i], obb2);
 
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_sphere = solver.shapeIntersect(
-          box1, box1_tf, sphere, transforms[i], distance, false, NULL, NULL);
+      CollisionRequest request;
+      CollisionResult result;
+      ShapeShapeCollide<Box, Sphere>(&box1, box1_tf, &sphere, transforms[i],
+                                     &solver, request, result);
+      bool overlap_sphere = result.isCollision();
+      // The sphere is contained inside obb2. So if the sphere overlaps with
+      // obb1, then necessarily obb2 overlaps with obb1.
       BOOST_CHECK(overlap_obb >= overlap_sphere);
     }
 
@@ -150,8 +160,12 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test) {
       computeBV(capsule, transforms[i], obb2);
 
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_capsule = solver.shapeIntersect(
-          box1, box1_tf, capsule, transforms[i], distance, false, NULL, NULL);
+
+      CollisionRequest request;
+      CollisionResult result;
+      ShapeShapeCollide<Box, Capsule>(&box1, box1_tf, &capsule, transforms[i],
+                                      &solver, request, result);
+      bool overlap_capsule = result.isCollision();
       BOOST_CHECK(overlap_obb >= overlap_capsule);
     }
 
@@ -160,8 +174,11 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test) {
       computeBV(cone, transforms[i], obb2);
 
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_cone = solver.shapeIntersect(
-          box1, box1_tf, cone, transforms[i], distance, false, NULL, NULL);
+      CollisionRequest request;
+      CollisionResult result;
+      ShapeShapeCollide<Box, Cone>(&box1, box1_tf, &cone, transforms[i],
+                                   &solver, request, result);
+      bool overlap_cone = result.isCollision();
       BOOST_CHECK(overlap_obb >= overlap_cone);
     }
 
@@ -170,8 +187,11 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test) {
       computeBV(cylinder, transforms[i], obb2);
 
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_cylinder = solver.shapeIntersect(
-          box1, box1_tf, cylinder, transforms[i], distance, false, NULL, NULL);
+      CollisionRequest request;
+      CollisionResult result;
+      ShapeShapeCollide<Box, Cylinder>(&box1, box1_tf, &cylinder, transforms[i],
+                                       &solver, request, result);
+      bool overlap_cylinder = result.isCollision();
       BOOST_CHECK(overlap_obb >= overlap_cylinder);
     }
   }

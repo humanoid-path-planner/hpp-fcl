@@ -49,9 +49,8 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/internal/traversal.h>
+#include <hpp/fcl/internal/shape_shape_func.h>
 
-#include <limits>
-#include <vector>
 #include <cassert>
 
 namespace hpp {
@@ -204,38 +203,33 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
 
     TriangleP tri1(P1, P2, P3);
     TriangleP tri2(Q1, Q2, Q3);
-    GJKSolver solver;
-    Vec3f p1,
-        p2;  // closest points if no collision contact points if collision.
-    Vec3f normal;
-    FCL_REAL distance;
-    // If the security margin is negative, we have to compute the penetration
-    // to get the correct distance to compare to the security margin.
-    bool compute_penetration =
-        (this->request.enable_contact || this->request.security_margin < 0);
-    solver.shapeDistance(tri1, this->tf1, tri2, this->tf2, distance,
-                         compute_penetration, p1, p2, normal);
+
+    // TODO(louis): MeshCollisionTraversalNode should have its own GJKSolver.
+    GJKSolver solver(this->request);
+
+    const bool compute_penetration =
+        this->request.enable_contact || (this->request.security_margin < 0);
+    Vec3f p1, p2, normal;
+    DistanceResult distanceResult;
+    FCL_REAL distance = internal::ShapeShapeDistance<TriangleP, TriangleP>(
+        &tri1, this->tf1, &tri2, this->tf2, &solver, compute_penetration, p1,
+        p2, normal);
 
     const FCL_REAL distToCollision = distance - this->request.security_margin;
+
+    internal::updateDistanceLowerBoundFromLeaf(this->request, *(this->result),
+                                               distToCollision, p1, p2, normal);
+
     if (distToCollision <=
         this->request.collision_distance_threshold) {  // collision
       sqrDistLowerBound = 0;
       if (this->result->numContacts() < this->request.num_max_contacts) {
-        // How much (Q1, Q2, Q3) should be moved so that all vertices are
-        // above (P1, P2, P3).
-        // The normal is already computed by GJK, no need to recompute it.
-        // if (distance > 0) {
-        //   normal = (p2 - p1).normalized();
-        // }
         this->result->addContact(Contact(this->model1, this->model2,
                                          primitive_id1, primitive_id2, p1, p2,
                                          normal, distance));
       }
     } else
       sqrDistLowerBound = distToCollision * distToCollision;
-
-    internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
-                                               distToCollision, p1, p2, normal);
   }
 
   Vec3f* vertices1;

@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021-2022, INRIA
+ *  Copyright (c) 2024, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@
 
 /** \author Louis Montaut */
 
-#include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
 
 #include <hpp/fcl/internal/shape_shape_func.h>
@@ -46,26 +45,15 @@ struct GJKSolver;
 
 namespace internal {
 template <>
-FCL_REAL ShapeShapeDistance<Ellipsoid, Halfspace>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
-  const Ellipsoid& s1 = static_cast<const Ellipsoid&>(*o1);
-  const Halfspace& s2 = static_cast<const Halfspace&>(*o2);
-  const FCL_REAL distance =
-      details::halfspaceDistance(s2, tf2, s1, tf1, p2, p1, normal);
-  normal = -normal;
-  return distance;
-}
-
-template <>
-FCL_REAL ShapeShapeDistance<Halfspace, Ellipsoid>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
-  const Halfspace& s1 = static_cast<const Halfspace&>(*o1);
-  const Ellipsoid& s2 = static_cast<const Ellipsoid&>(*o2);
-  return details::halfspaceDistance(s1, tf1, s2, tf2, p1, p2, normal);
+FCL_REAL ShapeShapeDistance<Plane, Plane>(const CollisionGeometry* o1,
+                                          const Transform3f& tf1,
+                                          const CollisionGeometry* o2,
+                                          const Transform3f& tf2,
+                                          const GJKSolver*, const bool,
+                                          Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+  const Plane& s1 = static_cast<const Plane&>(*o1);
+  const Plane& s2 = static_cast<const Plane&>(*o2);
+  return details::planePlaneDistance(s1, tf1, s2, tf2, p1, p2, normal);
 }
 }  // namespace internal
 
