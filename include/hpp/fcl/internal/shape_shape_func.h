@@ -59,7 +59,7 @@ struct ShapeShapeDistancer {
     // Witness points on shape1 and shape2, normal pointing from shape1 to
     // shape2.
     Vec3f p1, p2, normal;
-    FCL_REAL distance = ShapeShapeDistancer<ShapeType1, ShapeType2>::run(
+    const FCL_REAL distance = ShapeShapeDistancer<ShapeType1, ShapeType2>::run(
         o1, tf1, o2, tf2, nsolver, request.enable_signed_distance, p1, p2,
         normal);
 
@@ -145,7 +145,7 @@ struct ShapeShapeCollider {
         o1, tf1, o2, tf2, nsolver, compute_penetration, p1, p2, normal);
 
     size_t num_contacts = 0;
-    FCL_REAL distToCollision = distance - request.security_margin;
+    const FCL_REAL distToCollision = distance - request.security_margin;
 
     internal::updateDistanceLowerBoundFromLeaf(request, result, distToCollision,
                                                p1, p2, normal);
