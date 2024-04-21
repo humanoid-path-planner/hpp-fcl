@@ -261,28 +261,22 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
       if (o1->getNodeType() == GEOM_HALFSPACE) {
         const auto& halfspace =
             static_cast<const Halfspace&>(*(o1->collisionGeometryPtr()));
-        const Halfspace new_halfspace =
-            transform(halfspace, o1->getTransform());
-        overlap = root2->bv.overlap(new_halfspace);
+        overlap = root2->bv.overlap(transform(halfspace, o1->getTransform()));
       } else {
         const auto& plane =
             static_cast<const Plane&>(*(o1->collisionGeometryPtr()));
-        const Plane new_plane = transform(plane, o1->getTransform());
-        overlap = root2->bv.overlap(new_plane);
+        overlap = root2->bv.overlap(transform(plane, o1->getTransform()));
       }
     } else if (o2->getNodeType() == GEOM_HALFSPACE ||
                o2->getNodeType() == GEOM_PLANE) {
       if (o2->getNodeType() == GEOM_HALFSPACE) {
         const auto& halfspace =
             static_cast<const Halfspace&>(*(o2->collisionGeometryPtr()));
-        const Halfspace new_halfspace =
-            transform(halfspace, o2->getTransform());
-        overlap = root1->bv.overlap(new_halfspace);
+        overlap = root1->bv.overlap(transform(halfspace, o2->getTransform()));
       } else {
         const auto& plane =
             static_cast<const Plane&>(*(o2->collisionGeometryPtr()));
-        const Plane new_plane = transform(plane, o2->getTransform());
-        overlap = root1->bv.overlap(new_plane);
+        overlap = root1->bv.overlap(transform(plane, o2->getTransform()));
       }
     } else {
       overlap = root1->bv.overlap(root2->bv);
