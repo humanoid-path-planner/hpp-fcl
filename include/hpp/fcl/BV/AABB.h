@@ -119,6 +119,39 @@ class HPP_FCL_DLLAPI AABB {
     return true;
   }
 
+  /// @brief Check whether AABB overlaps a plane defined by (normal, offset)
+  /// TODO: deal with inflation
+  inline bool overlapPlane(const Vec3f& normal, const FCL_REAL offset) const {
+    // Convert AABB to a (box, transform) representation and compute the support
+    // points in the directions normal and -normal.
+    // If both points lie on different sides of the plane, there is an overlap
+    // between the AABB and the plane. Otherwise, there is no overlap.
+    Vec3f halfside = (this->max_ - this->min_) / 2;
+    Vec3f center = (this->max_ + this->min_) / 2;
+    Vec3f support1 = (normal.array() > 0).select(halfside, -halfside) + center;
+    Vec3f support2 =
+        ((-normal).array() > 0).select(halfside, -halfside) + center;
+    int sign1 = (normal.dot(support1) - offset > 0) ? 1 : -1;
+    int sign2 = (normal.dot(support2) - offset > 0) ? 1 : -1;
+    return (sign1 != sign2);
+  }
+
+  /// @brief Check whether AABB overlaps a halfspace defined by (normal, offset)
+  /// TODO: deal with inflation
+  inline bool overlapHalfspace(const Vec3f& normal,
+                               const FCL_REAL offset) const {
+    // Convert AABB to a (box, transform) representation and compute the support
+    // points in the direction -normal.
+    // If the support is below the plane defined by the halfspace, there is an
+    // overlap between the AABB and the halfspace. Otherwise, there is no
+    // overlap.
+    Vec3f halfside = (this->max_ - this->min_) / 2;
+    Vec3f center = (this->max_ + this->min_) / 2;
+    Vec3f support =
+        ((-normal).array() > 0).select(halfside, -halfside) + center;
+    return ((normal.dot(support) - offset) < 0);
+  }
+
   /// @brief Check whether two AABB are overlap
   bool overlap(const AABB& other, const CollisionRequest& request,
                FCL_REAL& sqrDistLowerBound) const;

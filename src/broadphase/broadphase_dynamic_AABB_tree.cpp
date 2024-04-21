@@ -253,9 +253,46 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
                       DynamicAABBTreeCollisionManager::DynamicAABBNode* root2,
                       CollisionCallBackBase* callback) {
   if (root1->isLeaf() && root2->isLeaf()) {
-    if (!root1->bv.overlap(root2->bv)) return false;
-    return (*callback)(static_cast<CollisionObject*>(root1->data),
-                       static_cast<CollisionObject*>(root2->data));
+    CollisionObject* o1 = static_cast<CollisionObject*>(root1->data);
+    CollisionObject* o2 = static_cast<CollisionObject*>(root2->data);
+    bool overlap = false;
+    if (o1->getNodeType() == GEOM_HALFSPACE ||
+        o1->getNodeType() == GEOM_PLANE) {
+      if (o1->getNodeType() == GEOM_HALFSPACE) {
+        const auto& halfspace =
+            static_cast<const Halfspace&>(*(o1->collisionGeometryPtr()));
+        const Halfspace new_halfspace =
+            transform(halfspace, o1->getTransform());
+        overlap = root2->bv.overlapHalfspace(new_halfspace.n, new_halfspace.d);
+      } else {
+        const auto& plane =
+            static_cast<const Plane&>(*(o1->collisionGeometryPtr()));
+        const Plane new_plane = transform(plane, o1->getTransform());
+        overlap = root2->bv.overlapPlane(new_plane.n, new_plane.d);
+      }
+    } else if (o2->getNodeType() == GEOM_HALFSPACE ||
+               o2->getNodeType() == GEOM_PLANE) {
+      if (o2->getNodeType() == GEOM_HALFSPACE) {
+        const auto& halfspace =
+            static_cast<const Halfspace&>(*(o2->collisionGeometryPtr()));
+        const Halfspace new_halfspace =
+            transform(halfspace, o2->getTransform());
+        overlap = root1->bv.overlapHalfspace(new_halfspace.n, new_halfspace.d);
+      } else {
+        const auto& plane =
+            static_cast<const Plane&>(*(o2->collisionGeometryPtr()));
+        const Plane new_plane = transform(plane, o2->getTransform());
+        overlap = root1->bv.overlapPlane(new_plane.n, new_plane.d);
+      }
+    } else {
+      overlap = root1->bv.overlap(root2->bv);
+    }
+
+    if (overlap) {
+      return (*callback)(static_cast<CollisionObject*>(root1->data),
+                         static_cast<CollisionObject*>(root2->data));
+    }
+    return false;
   }
 
   if (!root1->bv.overlap(root2->bv)) return false;
