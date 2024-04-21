@@ -36,6 +36,7 @@
 /** \author Jia Pan */
 
 #include <hpp/fcl/BV/AABB.h>
+#include <hpp/fcl/shape/geometric_shapes.h>
 
 #include <limits>
 #include <hpp/fcl/collision_data.h>
@@ -142,6 +143,38 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
              FCL_REAL& sqrDistLowerBound) {
   AABB bb1(translate(rotate(b1, R0), T0));
   return bb1.overlap(b2, request, sqrDistLowerBound);
+}
+
+/// @brief Check whether AABB overlaps a plane defined by (normal, offset)
+/// TODO: deal with inflation
+inline bool AABB::overlap(const Plane& p) const {
+  // Convert AABB to a (box, transform) representation and compute the support
+  // points in the directions normal and -normal.
+  // If both points lie on different sides of the plane, there is an overlap
+  // between the AABB and the plane. Otherwise, there is no overlap.
+  Vec3f halfside = (this->max_ - this->min_) / 2;
+  Vec3f center = (this->max_ + this->min_) / 2;
+  Vec3f support1 = (p.n.array() > 0).select(halfside, -halfside) + center;
+  Vec3f support2 = ((-p.n).array() > 0).select(halfside, -halfside) + center;
+  /// TODO: deal with swept-sphere radius
+  int sign1 = (p.n.dot(support1) - p.d > 0) ? 1 : -1;
+  int sign2 = (p.n.dot(support2) - p.d > 0) ? 1 : -1;
+  return (sign1 != sign2);
+}
+
+/// @brief Check whether AABB overlaps a halfspace defined by (normal, offset)
+/// TODO: deal with inflation
+inline bool AABB::overlap(const Halfspace& hs) const {
+  // Convert AABB to a (box, transform) representation and compute the support
+  // points in the direction -normal.
+  // If the support is below the plane defined by the halfspace, there is an
+  // overlap between the AABB and the halfspace. Otherwise, there is no
+  // overlap.
+  Vec3f halfside = (this->max_ - this->min_) / 2;
+  Vec3f center = (this->max_ + this->min_) / 2;
+  /// TODO: deal with swept-sphere radius
+  Vec3f support = ((-hs.n).array() > 0).select(halfside, -halfside) + center;
+  return ((hs.n.dot(support) - hs.d) < 0);
 }
 
 }  // namespace fcl
