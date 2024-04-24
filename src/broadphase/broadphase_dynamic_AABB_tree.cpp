@@ -295,6 +295,44 @@ bool leafCollide(CollisionObject* o1, CollisionObject* o2,
 }
 
 //==============================================================================
+bool nodeCollide(DynamicAABBTreeCollisionManager::DynamicAABBNode* node1,
+                 DynamicAABBTreeCollisionManager::DynamicAABBNode* node2) {
+  // This function assumes that at least node1 or node2 is not a leaf of the
+  // tree.
+  if (node1->isLeaf()) {
+    CollisionObject* o1 = static_cast<CollisionObject*>(node1->data);
+    if (o1->getNodeType() == GEOM_HALFSPACE ||
+        o1->getNodeType() == GEOM_PLANE) {
+      if (o1->getNodeType() == GEOM_HALFSPACE) {
+        const auto& halfspace =
+            static_cast<const Halfspace&>(*(o1->collisionGeometryPtr()));
+        return node2->bv.overlap(transform(halfspace, o1->getTransform()));
+      }
+      const auto& plane =
+          static_cast<const Plane&>(*(o1->collisionGeometryPtr()));
+      return node2->bv.overlap(transform(plane, o1->getTransform()));
+    }
+  }
+
+  if (node2->isLeaf()) {
+    CollisionObject* o2 = static_cast<CollisionObject*>(node2->data);
+    if (o2->getNodeType() == GEOM_HALFSPACE ||
+        o2->getNodeType() == GEOM_PLANE) {
+      if (o2->getNodeType() == GEOM_HALFSPACE) {
+        const auto& halfspace =
+            static_cast<const Halfspace&>(*(o2->collisionGeometryPtr()));
+        return node1->bv.overlap(transform(halfspace, o2->getTransform()));
+      }
+      const auto& plane =
+          static_cast<const Plane&>(*(o2->collisionGeometryPtr()));
+      return node1->bv.overlap(transform(plane, o2->getTransform()));
+    }
+  }
+
+  return node1->bv.overlap(node2->bv);
+}
+
+//==============================================================================
 bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
                       DynamicAABBTreeCollisionManager::DynamicAABBNode* root2,
                       CollisionCallBackBase* callback) {
@@ -304,7 +342,9 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
     return leafCollide(o1, o2, callback);
   }
 
-  if (!root1->bv.overlap(root2->bv)) return false;
+  if (!nodeCollide(root1, root2)) {
+    return false;
+  }
 
   if (root2->isLeaf() ||
       (!root1->isLeaf() && (root1->bv.size() > root2->bv.size()))) {
@@ -325,7 +365,17 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root,
     return leafCollide(leaf, query, callback);
   }
 
-  if (!root->bv.overlap(query->getAABB())) return false;
+  // Create a temporary node, attached to no tree.
+  // This allows to reuse the `nodeCollide` function, which only checks for
+  // overlap between the AABBs of two nodes.
+  DynamicAABBTreeCollisionManager::DynamicAABBNode query_node;
+  query_node.data = query;
+  query_node.bv = query->getAABB();
+  query_node.parent = nullptr;
+  query_node.children[1] = nullptr;
+  if (!nodeCollide(root, &query_node)) {
+    return false;
+  }
 
   size_t select_res =
       select(query->getAABB(), *(root->children[0]), *(root->children[1]));
