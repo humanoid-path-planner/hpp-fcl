@@ -249,44 +249,59 @@ bool distanceRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
 #endif
 
 //==============================================================================
+bool leafCollide(CollisionObject* o1, CollisionObject* o2,
+                 CollisionCallBackBase* callback) {
+  if ((o1->getNodeType() == GEOM_HALFSPACE ||
+       o1->getNodeType() == GEOM_PLANE) &&
+      (o2->getNodeType() == GEOM_HALFSPACE ||
+       o2->getNodeType() == GEOM_PLANE)) {
+    // Halfspace-plane / Halfspace-plane collision, there is no need to check
+    // AABBs. We can directly use the callback.
+    return (*callback)(o1, o2);
+  }
+
+  bool overlap = false;
+  if (o1->getNodeType() == GEOM_HALFSPACE || o1->getNodeType() == GEOM_PLANE) {
+    if (o1->getNodeType() == GEOM_HALFSPACE) {
+      const auto& halfspace =
+          static_cast<const Halfspace&>(*(o1->collisionGeometryPtr()));
+      overlap = o2->getAABB().overlap(transform(halfspace, o1->getTransform()));
+    } else {
+      const auto& plane =
+          static_cast<const Plane&>(*(o1->collisionGeometryPtr()));
+      overlap = o2->getAABB().overlap(transform(plane, o1->getTransform()));
+    }
+  }  //
+  else if (o2->getNodeType() == GEOM_HALFSPACE ||
+           o2->getNodeType() == GEOM_PLANE) {
+    if (o2->getNodeType() == GEOM_HALFSPACE) {
+      const auto& halfspace =
+          static_cast<const Halfspace&>(*(o2->collisionGeometryPtr()));
+      overlap = o1->getAABB().overlap(transform(halfspace, o2->getTransform()));
+    } else {
+      const auto& plane =
+          static_cast<const Plane&>(*(o2->collisionGeometryPtr()));
+      overlap = o1->getAABB().overlap(transform(plane, o2->getTransform()));
+    }
+  }  //
+  else {
+    overlap = o1->getAABB().overlap(o2->getAABB());
+  }
+
+  if (overlap) {
+    return (*callback)(o1, o2);
+  }
+  return false;
+}
+
+//==============================================================================
 bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
                       DynamicAABBTreeCollisionManager::DynamicAABBNode* root2,
                       CollisionCallBackBase* callback) {
   if (root1->isLeaf() && root2->isLeaf()) {
     CollisionObject* o1 = static_cast<CollisionObject*>(root1->data);
     CollisionObject* o2 = static_cast<CollisionObject*>(root2->data);
-    bool overlap = false;
-    if (o1->getNodeType() == GEOM_HALFSPACE ||
-        o1->getNodeType() == GEOM_PLANE) {
-      if (o1->getNodeType() == GEOM_HALFSPACE) {
-        const auto& halfspace =
-            static_cast<const Halfspace&>(*(o1->collisionGeometryPtr()));
-        overlap = root2->bv.overlap(transform(halfspace, o1->getTransform()));
-      } else {
-        const auto& plane =
-            static_cast<const Plane&>(*(o1->collisionGeometryPtr()));
-        overlap = root2->bv.overlap(transform(plane, o1->getTransform()));
-      }
-    } else if (o2->getNodeType() == GEOM_HALFSPACE ||
-               o2->getNodeType() == GEOM_PLANE) {
-      if (o2->getNodeType() == GEOM_HALFSPACE) {
-        const auto& halfspace =
-            static_cast<const Halfspace&>(*(o2->collisionGeometryPtr()));
-        overlap = root1->bv.overlap(transform(halfspace, o2->getTransform()));
-      } else {
-        const auto& plane =
-            static_cast<const Plane&>(*(o2->collisionGeometryPtr()));
-        overlap = root1->bv.overlap(transform(plane, o2->getTransform()));
-      }
-    } else {
-      overlap = root1->bv.overlap(root2->bv);
-    }
-
-    if (overlap) {
-      return (*callback)(static_cast<CollisionObject*>(root1->data),
-                         static_cast<CollisionObject*>(root2->data));
-    }
-    return false;
+    return leafCollide(o1, o2, callback);
   }
 
   if (!root1->bv.overlap(root2->bv)) return false;
@@ -306,8 +321,8 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
 bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root,
                       CollisionObject* query, CollisionCallBackBase* callback) {
   if (root->isLeaf()) {
-    if (!root->bv.overlap(query->getAABB())) return false;
-    return (*callback)(static_cast<CollisionObject*>(root->data), query);
+    CollisionObject* leaf = static_cast<CollisionObject*>(root->data);
+    return leafCollide(leaf, query, callback);
   }
 
   if (!root->bv.overlap(query->getAABB())) return false;
