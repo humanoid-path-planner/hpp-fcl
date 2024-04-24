@@ -67,7 +67,7 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
 
   ShapeBase& operator=(const ShapeBase& other) = default;
 
-  virtual ~ShapeBase(){};
+  virtual ~ShapeBase() {};
 
   /// @brief Get object type: a geometric shape
   OBJECT_TYPE getObjectType() const { return OT_GEOM; }
@@ -108,7 +108,7 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
 /// @brief Triangle stores the points instead of only indices of points
 class HPP_FCL_DLLAPI TriangleP : public ShapeBase {
  public:
-  TriangleP(){};
+  TriangleP() {};
 
   TriangleP(const Vec3f& a_, const Vec3f& b_, const Vec3f& c_)
       : ShapeBase(), a(a_), b(b_), c(c_) {}

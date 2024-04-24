@@ -203,7 +203,7 @@ struct HPP_FCL_DLLAPI CollisionCallBackDefault : CollisionCallBackBase {
 
   CollisionData data;
 
-  virtual ~CollisionCallBackDefault(){};
+  virtual ~CollisionCallBackDefault() {};
 };
 
 /// @brief Default distance callback to check collision between collision
@@ -217,7 +217,7 @@ struct HPP_FCL_DLLAPI DistanceCallBackDefault : DistanceCallBackBase {
 
   DistanceData data;
 
-  virtual ~DistanceCallBackDefault(){};
+  virtual ~DistanceCallBackDefault() {};
 };
 
 /// @brief Collision callback to collect collision pairs potentially in contacts
@@ -244,7 +244,7 @@ struct HPP_FCL_DLLAPI CollisionCallBackCollect : CollisionCallBackBase {
   /// @brief Check whether a collision pair exists
   bool exist(CollisionObject* o1, CollisionObject* o2) const;
 
-  virtual ~CollisionCallBackCollect(){};
+  virtual ~CollisionCallBackCollect() {};
 
  protected:
   std::vector<CollisionPair> collision_pairs;

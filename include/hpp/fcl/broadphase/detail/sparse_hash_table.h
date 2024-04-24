@@ -53,7 +53,7 @@ class unordered_map_hash_table : public std::unordered_map<U, V> {
   typedef std::unordered_map<U, V> Base;
 
  public:
-  unordered_map_hash_table() : Base(){};
+  unordered_map_hash_table() : Base() {};
 };
 
 /// @brief A hash table implemented using unordered_map

@@ -44,6 +44,8 @@ namespace hpp {
 namespace fcl {
 
 struct CollisionRequest;
+class Plane;
+class Halfspace;
 
 /// @defgroup Bounding_Volume Bounding volumes
 /// Classes of different types of bounding volume.
@@ -118,6 +120,12 @@ class HPP_FCL_DLLAPI AABB {
 
     return true;
   }
+
+  /// @brief Check whether AABB overlaps a plane
+  bool overlap(const Plane& p) const;
+
+  /// @brief Check whether AABB overlaps a halfspace
+  bool overlap(const Halfspace& hs) const;
 
   /// @brief Check whether two AABB are overlap
   bool overlap(const AABB& other, const CollisionRequest& request,

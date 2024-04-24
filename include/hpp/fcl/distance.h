@@ -121,7 +121,7 @@ class HPP_FCL_DLLAPI ComputeDistance {
     return !(*this == other);
   }
 
-  virtual ~ComputeDistance(){};
+  virtual ~ComputeDistance() {};
 
  protected:
   // These pointers are made mutable to let the derived classes to update

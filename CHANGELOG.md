@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+- Enhance Broadphase DynamicAABBTree to better handle planes and halfspace ([#570](https://github.com/humanoid-path-planner/hpp-fcl/pull/570))
 - [#558](https://github.com/humanoid-path-planner/hpp-fcl/pull/558):
   - [internal] Removed dead code in `narrowphase/details.h` ([#558](https://github.com/humanoid-path-planner/hpp-fcl/pull/558))
   - [internal] Removed specializations of methods of `GJKSolver`. Now the specializations are all handled by `ShapeShapeDistance` in `shape_shape_func.h`.

@@ -420,7 +420,7 @@ struct HPP_FCL_DLLAPI EPA {
                               // (with 0 <= i <= 2).
     size_t pass;
 
-    SimplexFace() : n(Vec3f::Zero()), ignore(false){};
+    SimplexFace() : n(Vec3f::Zero()), ignore(false) {};
   };
 
   /// @brief The simplex list of EPA is a linked list of faces.
