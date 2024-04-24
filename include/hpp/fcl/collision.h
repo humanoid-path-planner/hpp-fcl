@@ -126,7 +126,7 @@ class HPP_FCL_DLLAPI ComputeCollision {
     return !(*this == other);
   }
 
-  virtual ~ComputeCollision(){};
+  virtual ~ComputeCollision() {};
 
  protected:
   // These pointers are made mutable to let the derived classes to update
