@@ -145,8 +145,6 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
   return bb1.overlap(b2, request, sqrDistLowerBound);
 }
 
-/// @brief Check whether AABB overlaps a plane defined by (normal, offset)
-/// TODO: deal with inflation
 bool AABB::overlap(const Plane& p) const {
   // Convert AABB to a (box, transform) representation and compute the support
   // points in the directions normal and -normal.
@@ -182,8 +180,6 @@ bool AABB::overlap(const Plane& p) const {
   return (sign1 != sign2);
 }
 
-/// @brief Check whether AABB overlaps a halfspace defined by (normal, offset)
-/// TODO: deal with inflation
 bool AABB::overlap(const Halfspace& hs) const {
   // Convert AABB to a (box, transform) representation and compute the support
   // points in the direction -normal.

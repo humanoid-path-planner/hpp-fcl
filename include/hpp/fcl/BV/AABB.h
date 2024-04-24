@@ -121,10 +121,10 @@ class HPP_FCL_DLLAPI AABB {
     return true;
   }
 
-  /// @brief Check whether AABB overlaps a plane defined by (normal, offset)
+  /// @brief Check whether AABB overlaps a plane
   bool overlap(const Plane& p) const;
 
-  /// @brief Check whether AABB overlaps a halfspace defined by (normal, offset)
+  /// @brief Check whether AABB overlaps a halfspace
   bool overlap(const Halfspace& hs) const;
 
   /// @brief Check whether two AABB are overlap
