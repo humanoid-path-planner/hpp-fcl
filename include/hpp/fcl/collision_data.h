@@ -527,8 +527,8 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
 /// penetration depth `d = Contact::penetration_depth`.
 /// The tuple `(p, n, d)` has remarkable mathematical properties because we
 /// always have:
-///   - `p1 = p - d*n` is a witness point, and belongs to the surface of S1,
-///   - `p2 = p + d*n` is a witness point, and belongs to the surface of S2.
+///   - `p1 = p + 0.5*d*n` is a witness point, and belongs to the surface of S1,
+///   - `p2 = p - 0.5*d*n` is a witness point, and belongs to the surface of S2.
 ///   - The pair `(p1, p2)` defines a pair of witness points such that
 ///   translating S1 by `p1 - p2` separates the shapes. The vector `v = p1 - p2`
 ///   is called a separating vector.
@@ -578,10 +578,19 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
       Eigen::Block<MatrixxDf, Eigen::Dynamic, Dimension, true>;
   using ConstMatrixxDfBlock =
       Eigen::Block<const MatrixxDf, Eigen::Dynamic, 3, true>;
+  using VecDf = Eigen::Matrix<FCL_REAL, Dimension, 1>;
   using Index = Eigen::Index;
 
   /// @brief Normal of the contact patch.
   Vec3f normal;
+
+  /// @brief Penetration depth of the contact patch.
+  /// This value corresponds to the signed distance between the shapes.
+  /// @note For each contact point `p` in the patch, `p1 = p + 0.5*d*n` and
+  /// `p2 = p - 0.5*d*n` define a pair of witness points. `p1` belongs to the
+  /// surface of the first shape, `p2` belongs to the surface of the second
+  /// shape.
+  FCL_REAL penetration_depth;
 
   /// @brief Default maximum size of the polytope representing the contact
   /// patch.
@@ -601,26 +610,24 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
   /// @brief Default constructor.
   explicit ContactPatchTpl(size_t max_size = default_max_size)
       : m_contact_points(max_size, 3), m_size(0) {
-    this->normal = Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+    this->clear();
   }
 
   /// @brief Maximum size of the contact patch.
-  size_t getMaximumSize() const {
-    return (size_t)(this->m_contact_points.rows());
-  }
+  size_t capacity() const { return (size_t)(this->m_contact_points.rows()); }
 
   /// @brief Current size of the contact patch.
-  size_t getSize() const { return (size_t)(this->m_size); }
+  size_t size() const { return (size_t)(this->m_size); }
 
-  /// @brief Update the maximum size of the contact patch.
+  /// @brief Update the capacity of the contact patch.
   /// @note This clears the content of the contact patch.
-  void updateMaxSize(const size_t max_size) {
+  void reserve(const size_t max_size) {
     this->m_contact_points.resize((Index)max_size, (Index)3);
     this->m_size = 0;
   }
 
-  /// @brief Insert a contact point in the contact patch.
-  void insert(const Vec3f& contact_point) {
+  /// @brief Add a contact point to the contact patch.
+  void addContactPoint(const Vec3f& contact_point) {
     HPP_FCL_ASSERT(this->m_size < this->m_contact_points.rows(),
                    "Tried to insert point in contact patch but exceeded "
                    "maximum size of contact patch.",
@@ -639,8 +646,66 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
     return this->m_contact_points.topRows(this->m_size);
   }
 
-  /// @brief Insert a contact point in the contact patch.
-  void clear() { this->m_size = 0; }
+  /// @brief Getter for the i-th contact point in the contact patch.
+  Eigen::VectorBlock<VecDf> contactPoint(const Index i) {
+    HPP_FCL_ASSERT(i < this->m_size, "Index out of range.", std::logic_error);
+    return this->contactPoints().row(i);
+  }
+
+  /// @brief Const getter for the i-th contact point in the contact patch.
+  Eigen::VectorBlock<const VecDf> contactPoint(const Index i) const {
+    HPP_FCL_ASSERT(i < this->m_size, "Index out of range.", std::logic_error);
+    return this->contactPoints().row(i);
+  }
+
+  /// @brief Clear the contact patch.
+  void clear() {
+    this->m_size = 0;
+    this->normal = Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+    this->penetration_depth = std::numeric_limits<FCL_REAL>::max();
+  }
+
+  /// @brief Whether two contact patches are the same or not.
+  /// @note This compares, term by term, two contact patches.
+  /// However, two contact patches can be identical, but have a different order
+  /// for their contact points. Use `isEqual` to compare two contact patches.
+  bool operator==(const ContactPatchTpl<Dimension>& other) const {
+    return this->normal == other.normal &&
+           this->penetration_depth == other.penetration_depth &&
+           this->contactPoints() == other.contactPoints() &&
+           this->capacity() == other.capacity();
+  }
+
+  /// @brief Whether two contact patches are the same or not.
+  /// Checks for different order of the contact points.
+  bool isSame(const ContactPatchTpl<Dimension>& other,
+              const FCL_REAL tol =
+                  Eigen::NumTraits<FCL_REAL>::dummy_precision()) const {
+    if (!this->normal.isApprox(other.normal, tol)) {
+      return false;
+    }
+
+    if (std::abs(this->penetration_depth - other.penetration_depth) > tol) {
+      return false;
+    }
+
+    if (this->size() != other.size()) {
+      return false;
+    }
+
+    for (Index i = 0; i < this->size(); ++i) {
+      bool found = false;
+      for (Index j = 0; j < this->size(); ++j) {
+        if (this->contactPoint(i).isApprox(this->contactPoint(j), tol)) {
+          found = true;
+        }
+      }
+      if (!found) {
+        return false;
+      }
+    }
+    return true;
+  }
 };
 
 /// @brief Default contact patch storing 3D information (i.e. 3D points in
@@ -694,7 +759,7 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
       this->m_contact_patches_data.resize(request.num_max_contact_patches);
     }
     for (ContactPatch& patch : this->m_contact_patches_data) {
-      patch.updateMaxSize(request.max_size_contact_patch);
+      patch.reserve(request.max_size_contact_patch);
     }
     this->clear();
   }
