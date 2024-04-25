@@ -316,7 +316,7 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   /// Whether a lower bound on distance is returned when objects are disjoint
   HPP_FCL_DEPRECATED_MESSAGE(
       `enable_distance_lower_bound` is deprecated
-           .A lower bound on distance is always computed.)
+       : A lower bound on distance is always computed.)
   bool enable_distance_lower_bound;
 
   /// @brief Distance below which objects are considered in collision.
@@ -499,7 +499,8 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
   /// Nearest points are always computed and are the points of the shapes that
   /// achieve a distance of `DistanceResult::min_distance`.
   HPP_FCL_DEPRECATED_MESSAGE(
-      `enable_nearest_points` is deprecated.Nearest points are always computed;
+      `enable_nearest_points` is deprecated
+       : Nearest points are always computed;
        they are the points of the shapes that achieve a distance of
       `DistanceResult::min_distance`
            .\n Use `enable_signed_distance` if you want to compute a signed
