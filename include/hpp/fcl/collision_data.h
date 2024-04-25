@@ -572,13 +572,14 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
 template <int Dimension = 3>
 struct HPP_FCL_DLLAPI ContactPatchTpl {
  public:
-  using MatrixxDf =
-      Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Dimension, Eigen::RowMajor>;
-  using MatrixxDfBlock =
-      Eigen::Block<MatrixxDf, Eigen::Dynamic, Dimension, true>;
-  using ConstMatrixxDfBlock =
-      Eigen::Block<const MatrixxDf, Eigen::Dynamic, 3, true>;
-  using VecDf = Eigen::Matrix<FCL_REAL, Dimension, 1>;
+  // clang-format off
+  using ContactPointMatrix = Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Dimension, Eigen::RowMajor>;
+  using ContactPointMatrixXpr = Eigen::Block<ContactPointMatrix, Eigen::Dynamic, Dimension, true>;
+  using ContactPointMatrixConstXpr = Eigen::Block<const ContactPointMatrix, Eigen::Dynamic, 3, true>;
+  using ContactPoint = Eigen::Matrix<FCL_REAL, Dimension, 1>;
+  using ContactPointXpr = Eigen::Block<ContactPointMatrix, 1, 3, true>;
+  using ContactPointConstXpr = Eigen::Block<const ContactPointMatrix, 1, 3, true>;
+  // clang-format on
   using Index = Eigen::Index;
 
   /// @brief Normal of the contact patch.
@@ -601,7 +602,7 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
   /// @note For now (April 2024), a `ContactPatch` is a 2D polytope,
   /// so the vertices, forming the convex-hull of the polytope, are stored in a
   /// counter-clockwise fashion.
-  Matrixx3f m_contact_points;
+  ContactPointMatrix m_contact_points;
 
   /// @brief Current size of the contact patch.
   Index m_size;
@@ -609,7 +610,7 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
  public:
   /// @brief Default constructor.
   explicit ContactPatchTpl(size_t max_size = default_max_size)
-      : m_contact_points(max_size, 3), m_size(0) {
+      : m_contact_points(max_size, Dimension), m_size(0) {
     this->clear();
   }
 
@@ -627,35 +628,55 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
   }
 
   /// @brief Add a contact point to the contact patch.
-  void addContactPoint(const Vec3f& contact_point) {
+  void addContactPoint(const ContactPoint& contact_point) {
     HPP_FCL_ASSERT(this->m_size < this->m_contact_points.rows(),
                    "Tried to insert point in contact patch but exceeded "
                    "maximum size of contact patch.",
                    std::logic_error);
-    this->m_contact_points.row(this->m_size) = contact_point;
-    ++(this->m_size);
+    if (this->m_size < this->m_contact_points.rows()) {
+      this->m_contact_points.row(this->m_size) = contact_point;
+      ++(this->m_size);
+    } else {
+      this->m_contact_points.row(this->m_contact_points.rows()) = contact_point;
+    }
   }
 
   /// @brief Getter for the contact points in the contact patch.
-  MatrixxDfBlock contactPoints() {
+  ContactPointMatrixXpr contactPoints() {
+    HPP_FCL_ASSERT(
+        (this->m_size > 0) && (this->m_size < this->m_contact_points.rows()),
+        "Invalid contact patch size.", std::logic_error);
     return this->m_contact_points.topRows(this->m_size);
   }
 
   /// @brief Const getter for the contact points in the contact patch.
-  ConstMatrixxDfBlock contactPoints() const {
+  ContactPointMatrixConstXpr contactPoints() const {
+    HPP_FCL_ASSERT(
+        (this->m_size > 0) && (this->m_size < this->m_contact_points.rows()),
+        "Invalid contact patch size.", std::logic_error);
     return this->m_contact_points.topRows(this->m_size);
   }
 
   /// @brief Getter for the i-th contact point in the contact patch.
-  Eigen::VectorBlock<VecDf> contactPoint(const Index i) {
-    HPP_FCL_ASSERT(i < this->m_size, "Index out of range.", std::logic_error);
-    return this->contactPoints().row(i);
+  ContactPointXpr contactPoint(const Index i) {
+    HPP_FCL_ASSERT(
+        (this->m_size > 0) && (this->m_size < this->m_contact_points.rows()),
+        "Invalid contact patch size.", std::logic_error);
+    if (i < this->m_size) {
+      return this->m_contact_points.row(i);
+    }
+    return this->m_contact_points.row(this->m_size);
   }
 
   /// @brief Const getter for the i-th contact point in the contact patch.
-  Eigen::VectorBlock<const VecDf> contactPoint(const Index i) const {
-    HPP_FCL_ASSERT(i < this->m_size, "Index out of range.", std::logic_error);
-    return this->contactPoints().row(i);
+  ContactPointConstXpr contactPoint(const Index i) const {
+    HPP_FCL_ASSERT(
+        (this->m_size > 0) && (this->m_size < this->m_contact_points.rows()),
+        "Invalid contact patch size.", std::logic_error);
+    if (i < this->m_size) {
+      return this->m_contact_points.row(i);
+    }
+    return this->m_contact_points.row(this->m_size);
   }
 
   /// @brief Clear the contact patch.
@@ -693,9 +714,9 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
       return false;
     }
 
-    for (Index i = 0; i < this->size(); ++i) {
+    for (Index i = 0; i < (Index)(this->size()); ++i) {
       bool found = false;
-      for (Index j = 0; j < this->size(); ++j) {
+      for (Index j = 0; j < (Index)(this->size()); ++j) {
         if (this->contactPoint(i).isApprox(this->contactPoint(j), tol)) {
           found = true;
         }
