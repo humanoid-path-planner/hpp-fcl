@@ -45,28 +45,6 @@
 
 using namespace hpp::fcl;
 
-Convex<Quadrilateral> buildBox(FCL_REAL l, FCL_REAL w, FCL_REAL d) {
-  std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>(
-      {Vec3f(l, w, d), Vec3f(l, w, -d), Vec3f(l, -w, d), Vec3f(l, -w, -d),
-       Vec3f(-l, w, d), Vec3f(-l, w, -d), Vec3f(-l, -w, d),
-       Vec3f(-l, -w, -d)}));
-
-  std::shared_ptr<std::vector<Quadrilateral>> polygons(
-      new std::vector<Quadrilateral>(6));
-  (*polygons)[0].set(0, 2, 3, 1);  // x+ side
-  (*polygons)[1].set(2, 6, 7, 3);  // y- side
-  (*polygons)[2].set(4, 5, 7, 6);  // x- side
-  (*polygons)[3].set(0, 1, 5, 4);  // y+ side
-  (*polygons)[4].set(1, 3, 7, 5);  // z- side
-  (*polygons)[5].set(0, 2, 6, 4);  // z+ side
-
-  return Convex<Quadrilateral>(pts,  // points
-                               8,    // num points
-                               polygons,
-                               6  // number of polygons
-  );
-}
-
 BOOST_AUTO_TEST_CASE(convex) {
   FCL_REAL l = 1, w = 1, d = 1;
   Convex<Quadrilateral> box(buildBox(l, w, d));
