@@ -489,6 +489,216 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   void swapObjects();
 };
 
+/// @brief Request for a contact patch computation.
+/// @note Please see the doc of `ContactPatch` to understand what is meant by
+/// "ContactPatch".
+struct HPP_FCL_DLLAPI ContactPatchRequest {
+  /// @brief The maximum number of contact patches that can be computed.
+  size_t num_max_contact_patches;
+
+  /// @brief Maximum number of vertices of each contact patch.
+  size_t max_size_contact_patch;
+
+  explicit ContactPatchRequest(size_t num_max_contact_patches = 1,
+                               size_t max_size_contact_patch = 1)
+      : num_max_contact_patches(num_max_contact_patches),
+        max_size_contact_patch(max_size_contact_patch) {}
+};
+
+/// @brief Contact patch information.
+/// A contact patch has a normal `n = Contact::normal` and passes by `p =
+/// Contact::pos`. If we denote by P the plane passing by `p` and supported by
+/// `n`, a contact patch is represented as a polytope which vertices all belong
+/// to `P & S1 & S2`, where `&` denotes the set-intersection.
+/// @tparam Dimension of the contact patch. A contact patch can store 3D points
+/// (typically used in `ContactPatchResult`), but also 2D points (typically used
+/// internally by hpp-fcl when calling `computeContactPatch`).
+///
+/// In details:
+/// PART I - What is a contact point?
+/// ---------------------------------
+/// This section is important to understand what is a contact patch.
+/// When calling `collide` on a collision pair, the `CollisionResult`
+/// given as an input is populated with a vector of `Contact` (see @ref
+/// CollisionResult and @ref Contact).
+/// These structures encode the fact that S1 and S2 make contact at the
+/// location `p = Contact::pos`, with normal `n = Contact::normal` and
+/// penetration depth `d = Contact::penetration_depth`.
+/// The tuple `(p, n, d)` has remarkable mathematical properties because we
+/// always have:
+///   - `p1 = p - d*n` is a witness point, and belongs to the surface of S1,
+///   - `p2 = p + d*n` is a witness point, and belongs to the surface of S2.
+///   - The pair `(p1, p2)` defines a pair of witness points such that
+///   translating S1 by `p1 - p2` separates the shapes. The vector `v = p1 - p2`
+///   is called a separating vector.
+///   - Remarkably, if `w` is another separating vector, then **necessarily**
+///   `||w|| >= ||v||`.
+/// --> We call a "smallest separating vector" a separating vector `v` such that
+/// `||v|| = |d|`. Any smallest separating vector `v` has a norm `||v|| = |d|`.
+/// --> Finally, we call the "separating plane" `P` the plane supported by `n`,
+/// and passing by `p`. This plane `P` can easily be translated by `+- v/2`;
+/// this gives two planes tangent to the shapes S1 and S2, supported by `n` and
+/// passing by `p1` and `p2` respectively.
+///
+/// PART II - What is a contact patch?
+/// ----------------------------------
+/// Up to this point, we have a normal which only maps to one contact point.
+/// However, imagine a scenario where a box is sitting on a plane. Alghouth the
+/// normal `n` is unique, the point `p` stored in `Contact::pos` and computed by
+/// `collide` is arbitrary.
+/// Hence, a contact patch is simply a surface (or volume) of contact between
+/// two shapes S1 and S2. This contact surface is nothing more than the (triple)
+/// intersection between the separating plane (see PART I), the shape S1 and the
+/// shape S2, `P & S1 & S2`. If the contact patch is a volume, it is (an
+/// approximation of) the intersection between S1 and S2.
+/// TODO(louis): modify `computeContactPatch` to approximate the intersection
+/// volume.
+///
+/// PART III - Can there be more than one contact patch?
+/// ----------------------------------------------------
+/// Yes, but again it is very rare in practice, as there needs to be more than
+/// one smallest separation vector.
+/// However, imagine two identical boxes (i.e. Box(1, 1, 1)) located at the
+/// exact same pose in space. There are as many smallest separation vectors as
+/// there are faces in a box, i.e. there are 6 smallest separation vectors. So
+/// there can be at most 6 `hpp::fcl::Contact`. The HPP-FCL library implements
+/// GJK and EPA and allows to recover up to `CollisionRequest::num_max_contacts`
+/// smallest separation vectors. So in this scenario, we could recover the 6
+/// normals (and contact position and penetration depth). Then, we can recover
+/// the 6 contact patches.
+/// TODO(louis): modify EPA to recover the entire optimal set.
+///
+template <int Dimension = 3>
+struct HPP_FCL_DLLAPI ContactPatchTpl {
+ public:
+  using MatrixxDf =
+      Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Dimension, Eigen::RowMajor>;
+  using MatrixxDfBlock =
+      Eigen::Block<MatrixxDf, Eigen::Dynamic, Dimension, true>;
+  using ConstMatrixxDfBlock =
+      Eigen::Block<const MatrixxDf, Eigen::Dynamic, 3, true>;
+  using Index = Eigen::Index;
+
+  /// @brief Normal of the contact patch.
+  Vec3f normal;
+
+  /// @brief Default maximum size of the polytope representing the contact
+  /// patch.
+  static constexpr size_t default_max_size = 6;
+
+ private:
+  /// @brief Vertices of the polytope in the `ContactPatch`.
+  /// @note For now (April 2024), a `ContactPatch` is a 2D polytope,
+  /// so the vertices, forming the convex-hull of the polytope, are stored in a
+  /// counter-clockwise fashion.
+  Matrixx3f m_contact_points;
+
+  /// @brief Current size of the contact patch.
+  Index m_size;
+
+ public:
+  /// @brief Default constructor.
+  explicit ContactPatchTpl(size_t max_size = default_max_size)
+      : m_contact_points(max_size, 3), m_size(0) {
+    this->normal = Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+  }
+
+  /// @brief Maximum size of the contact patch.
+  size_t getMaximumSize() const {
+    return (size_t)(this->m_contact_points.rows());
+  }
+
+  /// @brief Current size of the contact patch.
+  size_t getSize() const { return (size_t)(this->m_size); }
+
+  /// @brief Update the maximum size of the contact patch.
+  /// @note This clears the content of the contact patch.
+  void updateMaxSize(const size_t max_size) {
+    this->m_contact_points.resize((Index)max_size, (Index)3);
+    this->m_size = 0;
+  }
+
+  /// @brief Insert a contact point in the contact patch.
+  void insert(const Vec3f& contact_point) {
+    HPP_FCL_ASSERT(this->m_size < this->m_contact_points.rows(),
+                   "Tried to insert point in contact patch but exceeded "
+                   "maximum size of contact patch.",
+                   std::logic_error);
+    this->m_contact_points.row(this->m_size) = contact_point;
+    ++(this->m_size);
+  }
+
+  /// @brief Getter for the contact points in the contact patch.
+  MatrixxDfBlock contactPoints() {
+    return this->m_contact_points.topRows(this->m_size);
+  }
+
+  /// @brief Const getter for the contact points in the contact patch.
+  ConstMatrixxDfBlock contactPoints() const {
+    return this->m_contact_points.topRows(this->m_size);
+  }
+
+  /// @brief Insert a contact point in the contact patch.
+  void clear() { this->m_size = 0; }
+};
+
+/// @brief Default contact patch storing 3D information (i.e. 3D points in
+/// space). Please see @ref ContactPatchTpl.
+/// @note As of now (April 2024), this 3D information is a 2D contact surface in
+/// 3D but internal algorithms of hpp-fcl can easily be extended to compute a
+/// volume of contact instead.
+using ContactPatch = ContactPatchTpl<3>;
+
+/// @brief Result for a contact patch computation.
+struct HPP_FCL_DLLAPI ContactPatchResult {
+  using ContactPatchVector = std::vector<ContactPatch>;
+  using ContactPatchRef = std::reference_wrapper<ContactPatch>;
+  using ContactPatchRefVector = std::vector<ContactPatchRef>;
+
+ private:
+  /// @brief Data container for the vector of contact patches.
+  /// @note Contrary to `CollisionResult` or `DistanceResult`, which have a very
+  /// small memory footprint, contact patches can contain relatively large
+  /// polytopes. In order to reuse a `ContactPatchResult` while avoiding
+  /// successive mallocs, we have a data container and a vector which points to
+  /// the currently active patches in this data container.
+  ContactPatchVector m_contact_patches_data;
+
+ public:
+  /// @brief Vector of contact patches of the result.
+  ContactPatchRefVector contact_patches;
+
+  /// @brief Default constructor.
+  ContactPatchResult() = default;
+
+  /// @brief Constructor using a `ContactPatchRequest`.
+  explicit ContactPatchResult(const ContactPatchRequest& request) {
+    this->initialize(request);
+  };
+
+  /// @brief Number of contact patches in the result.
+  size_t numContactPatches() const { return this->contact_patches.size(); }
+
+  /// @biref Clears the contact patch result.
+  void clear() {
+    this->contact_patches.clear();
+    for (ContactPatch& patch : this->m_contact_patches_data) {
+      patch.clear();
+    }
+  }
+
+  /// @brief Initializes a `ContactPatchResult` from a `ContactPatchRequest`
+  void initialize(const ContactPatchRequest& request) {
+    if (this->contact_patches.size() < request.num_max_contact_patches) {
+      this->m_contact_patches_data.resize(request.num_max_contact_patches);
+    }
+    for (ContactPatch& patch : this->m_contact_patches_data) {
+      patch.updateMaxSize(request.max_size_contact_patch);
+    }
+    this->clear();
+  }
+};
+
 struct DistanceResult;
 
 /// @brief request to the distance computation
