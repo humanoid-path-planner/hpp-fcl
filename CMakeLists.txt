@@ -245,6 +245,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/distance_func_matrix.h
   include/hpp/fcl/collision.h
   include/hpp/fcl/collision_func_matrix.h
+  include/hpp/fcl/contact_patch.h
   include/hpp/fcl/distance.h
   include/hpp/fcl/math/matrix_3f.h
   include/hpp/fcl/math/vec_3f.h

@@ -35,6 +35,7 @@
 set(LIBRARY_NAME ${PROJECT_NAME})
 set(${LIBRARY_NAME}_SOURCES
   collision.cpp
+  contact_patch.cpp
   distance_func_matrix.cpp
   collision_data.cpp
   collision_node.cpp
