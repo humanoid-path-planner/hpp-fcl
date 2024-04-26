@@ -35,21 +35,68 @@
 /** \author Louis Montaut */
 
 #include "hpp/fcl/contact_patch.h"
+#include "hpp/fcl/collision_utility.h"
+#include "hpp/fcl/contact_patch_func_matrix.h"
+#include "hpp/fcl/narrowphase/narrowphase.h"
 
 namespace hpp {
 namespace fcl {
+
+ContactPatchFunctionMatrix& getContactPatchFunctionLookTable() {
+  static ContactPatchFunctionMatrix table;
+  return table;
+}
 
 void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
                          const CollisionGeometry* o2, const Transform3f& tf2,
                          const CollisionResult& collision_result,
                          const ContactPatchRequest& request,
                          ContactPatchResult& result) {
-  // Before doing any computation, we initialize and clear the input result.
-  result.initialize(request);
-
   if (!collision_result.isCollision()) {
     return;
   }
+  if (request.num_max_contact_patches == 0) {
+    HPP_FCL_THROW_PRETTY(
+        "Invalid number of max contact patches (current value is 0).",
+        std::invalid_argument);
+    return;
+  }
+
+  // Before doing any computation, we initialize and clear the input result.
+  result.initialize(request);
+
+  OBJECT_TYPE object_type1 = o1->getObjectType();
+  OBJECT_TYPE object_type2 = o2->getObjectType();
+  NODE_TYPE node_type1 = o1->getNodeType();
+  NODE_TYPE node_type2 = o2->getNodeType();
+  // TODO(louis): add support for BVH (leaf is a triangle) and Hfield (leaf is a
+  // convex)
+  if (object_type1 != OBJECT_TYPE::OT_GEOM ||
+      object_type2 != OBJECT_TYPE::OT_GEOM) {
+    HPP_FCL_THROW_PRETTY("Computing contact patches between node type "
+                             << std::string(get_node_type_name(node_type1))
+                             << " and node type "
+                             << std::string(get_node_type_name(node_type2))
+                             << " is not yet supported.",
+                         std::invalid_argument);
+    return;
+  }
+
+  const ContactPatchFunctionMatrix& looktable =
+      getContactPatchFunctionLookTable();
+  if (!looktable.contact_patch_matrix[node_type1][node_type2]) {
+    HPP_FCL_THROW_PRETTY("Contact patch computation between node type "
+                             << std::string(get_node_type_name(node_type1))
+                             << " and node type "
+                             << std::string(get_node_type_name(node_type2))
+                             << " is not yet supported.",
+                         std::invalid_argument);
+  }
+
+  GJKSolver nsolver;
+  ContactPatchSolver csolver(request);
+  return looktable.contact_patch_matrix[node_type1][node_type2](
+      o1, tf1, o2, tf2, collision_result, nsolver, csolver, request, result);
 }
 
 }  // namespace fcl
