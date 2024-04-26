@@ -267,6 +267,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/internal/BV_fitter.h
   include/hpp/fcl/internal/BV_splitter.h
   include/hpp/fcl/internal/shape_shape_func.h
+  include/hpp/fcl/internal/shape_shape_contact_patch_func.h
   include/hpp/fcl/internal/intersect.h
   include/hpp/fcl/internal/tools.h
   include/hpp/fcl/internal/traversal_node_base.h
