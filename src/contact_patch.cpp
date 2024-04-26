@@ -37,7 +37,6 @@
 #include "hpp/fcl/contact_patch.h"
 #include "hpp/fcl/collision_utility.h"
 #include "hpp/fcl/contact_patch_func_matrix.h"
-#include "hpp/fcl/narrowphase/narrowphase.h"
 
 namespace hpp {
 namespace fcl {
@@ -96,7 +95,7 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
   GJKSolver nsolver;
   ContactPatchSolver csolver(request);
   return looktable.contact_patch_matrix[node_type1][node_type2](
-      o1, tf1, o2, tf2, collision_result, nsolver, csolver, request, result);
+      o1, tf1, o2, tf2, collision_result, &nsolver, &csolver, request, result);
 }
 
 }  // namespace fcl

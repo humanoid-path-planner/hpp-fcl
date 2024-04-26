@@ -37,15 +37,14 @@
 #ifndef HPP_FCL_INTERNAL_SHAPE_SHAPE_CONTACT_PATCH_FUNC_H
 #define HPP_FCL_INTERNAL_SHAPE_SHAPE_CONTACT_PATCH_FUNC_H
 
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/collision_utility.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/shape/geometric_shapes_traits.h>
+#include "hpp/fcl/collision_data.h"
+#include "hpp/fcl/collision_utility.h"
+#include "hpp/fcl/narrowphase/narrowphase.h"
+#include "hpp/fcl/contact_patch/contact_patch_solver.h"
+#include "hpp/fcl/shape/geometric_shapes_traits.h"
 
 namespace hpp {
 namespace fcl {
-
-struct ContactPatchSolver;
 
 /// @brief Shape-shape contact patch computation.
 /// Assumes that `nsolver` has already been run and populated the
@@ -53,11 +52,12 @@ struct ContactPatchSolver;
 /// the `ContactPatchRequest`.
 template <typename ShapeType1, typename ShapeType2>
 struct ComputeShapeShapeContactPatch {
-  void run(const CollisionGeometry* o1, const Transform3f& tf1,
-           const CollisionGeometry* o2, const Transform3f& tf2,
-           const CollisionResult& collision_result, const GJKSolver* nsolver,
-           const ContactPatchSolver* csolver,
-           const ContactPatchRequest& request, ContactPatchResult& result) {
+  static void run(const CollisionGeometry* o1, const Transform3f& tf1,
+                  const CollisionGeometry* o2, const Transform3f& tf2,
+                  const CollisionResult& collision_result,
+                  const GJKSolver* nsolver, const ContactPatchSolver* csolver,
+                  const ContactPatchRequest& request,
+                  ContactPatchResult& result) {
     // TODO(louis): don't forget about swept-sphere radius
     // TODO(louis): warning, the MinkowskiDiff in GJKSolver may not be set with
     // o1 and o2.
@@ -73,7 +73,7 @@ void ShapeShapeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
                             const ContactPatchRequest& request,
                             ContactPatchResult& result) {
   return ComputeShapeShapeContactPatch<ShapeType1, ShapeType2>::run(
-      o1, tf1, o2, tf2, nsolver, request, result);
+      o1, tf1, o2, tf2, collision_result, nsolver, csolver, request, result);
 }
 
 inline void capsuleBoxMCP(const Capsule& s1, const Transform3f& tf1,

@@ -37,10 +37,9 @@
 #ifndef HPP_FCL_CONTACT_PATCH_FUNC_MATRIX_H
 #define HPP_FCL_CONTACT_PATCH_FUNC_MATRIX_H
 
-#include <hpp/fcl/collision_data.h>
-
-struct GJKSolver;
-struct ContactPatchSolver;
+#include "hpp/fcl/collision_data.h"
+#include "hpp/fcl/contact_patch/contact_patch_solver.h"
+#include "hpp/fcl/narrowphase/narrowphase.h"
 
 namespace hpp {
 namespace fcl {
