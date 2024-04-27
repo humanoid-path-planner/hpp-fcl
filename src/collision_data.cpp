@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2024, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -48,6 +49,22 @@ bool DistanceRequest::isSatisfied(const DistanceResult& result) const {
   return (result.min_distance <= 0);
 }
 
-}  // namespace fcl
+// Explicit instantiation for ContactPatch
+// clang-format off
+template
+void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::WORLD>(const Vec3f&);
+template
+void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::LOCAL>(const Vec3f&);
+template
+void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::LOCAL_WORLD_ALIGNED>(const Vec3f&);
 
+template
+Vec3f HPP_FCL_DLLAPI ContactPatch::getContactPoint<ContactPatch::ReferenceFrame::WORLD>(const ContactPatch::Index) const;
+template
+Vec3f HPP_FCL_DLLAPI ContactPatch::getContactPoint<ContactPatch::ReferenceFrame::LOCAL>(const ContactPatch::Index) const;
+template
+Vec3f HPP_FCL_DLLAPI ContactPatch::getContactPoint<ContactPatch::ReferenceFrame::LOCAL_WORLD_ALIGNED>(const ContactPatch::Index) const;
+// clang-format on
+
+}  // namespace fcl
 }  // namespace hpp

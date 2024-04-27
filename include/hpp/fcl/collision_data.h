@@ -664,6 +664,49 @@ struct HPP_FCL_DLLAPI ContactPatch {
     }
   }
 
+  /// @brief Add a 3D contact point to the contact patch, expressed in the
+  /// reference frame.
+  /// @note This function takes a point and expresses it in the local frame of
+  /// the contact patch. It then takes only the x and y components of the
+  /// vector, effectively doing a projection onto the plane to which the contact
+  /// patch belongs.
+  /// @tparam InputFrame is the reference frame in which the input 3D point is
+  /// expressed. See @ref ContactPatch::ReferenceFrame.
+  template <int InputFrame>
+  void addContactPoint(const Vec3f& contact_point_3d) {
+    if (InputFrame == ReferenceFrame::WORLD) {
+      Vec3f contact_point = this->tfc.inverseTransform(contact_point_3d);
+      this->addContactPoint(contact_point.head<2>());
+    }
+    if (InputFrame == ReferenceFrame::LOCAL) {
+      this->addContactPoint(contact_point_3d.head<2>());
+    }
+    if (InputFrame == ReferenceFrame::LOCAL_WORLD_ALIGNED) {
+      Vec3f contact_point = this->tfc.rotation().transpose() * contact_point_3d;
+      this->addContactPoint(contact_point.head<2>());
+    }
+  }
+
+  /// @brief Get the i-th contact point of the patch, expressed in the 3D
+  /// reference frame.
+  /// @tparam OutputFrame is the reference frame in which the output 3D point is
+  /// expressed. See @ref ContactPatch::ReferenceFrame.
+  template <int OutputFrame>
+  Vec3f getContactPoint(const Index i) const {
+    Vec3f point(0, 0, 0);
+    point.head<2>() = this->contactPoint(i);
+    if (OutputFrame == ReferenceFrame::WORLD) {
+      point = tfc.transform(point);
+    }
+    if (OutputFrame == ReferenceFrame::LOCAL) {
+      // do nothing
+    }
+    if (OutputFrame == ReferenceFrame::LOCAL_WORLD_ALIGNED) {
+      point = tfc.rotation() * point;
+    }
+    return point;
+  }
+
   /// @brief Getter for the 2D contact points in the contact patch.
   ContactPointMatrixXpr contactPoints() {
     HPP_FCL_ASSERT(
@@ -700,24 +743,6 @@ struct HPP_FCL_DLLAPI ContactPatch {
       return this->m_contact_points.row(i);
     }
     return this->m_contact_points.row(this->m_size);
-  }
-
-  /// @brief Get the i-th contact point, expressed in the 3D reference frame.
-  Vec3f getContactPoint(const Index i, const ReferenceFrame frame) const {
-    Vec3f point(0, 0, 0);
-    point.head(2) = this->contactPoint(i);
-    switch (frame) {
-      case LOCAL:
-        // do nothing.
-        break;
-      case WORLD:
-        point = tfc.transform(point);
-        break;
-      case LOCAL_WORLD_ALIGNED:
-        point = tfc.rotation() * point;
-        break;
-    }
-    return point;
   }
 
   /// @brief Clear the contact patch.
@@ -761,9 +786,9 @@ struct HPP_FCL_DLLAPI ContactPatch {
 
     for (Index i = 0; i < (Index)(this->size()); ++i) {
       bool found = false;
-      const Vec3f pi = this->getContactPoint(i, ReferenceFrame::WORLD);
+      const Vec3f pi = this->getContactPoint<ReferenceFrame::WORLD>(i);
       for (Index j = 0; j < (Index)(this->size()); ++j) {
-        const Vec3f other_pj = other.getContactPoint(j, ReferenceFrame::WORLD);
+        const Vec3f other_pj = other.getContactPoint<ReferenceFrame::WORLD>(j);
         if (pi.isApprox(other_pj, tol)) {
           found = true;
         }

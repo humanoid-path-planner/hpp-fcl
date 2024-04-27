@@ -114,10 +114,8 @@ BOOST_AUTO_TEST_CASE(box_box) {
         Vec3f(-halfside, halfside, halfside),
     };
     for (size_t i = 0; i < expected_size; ++i) {
-      // Contact point expressed in the local frame of the expected contact
-      // patch.
-      const Vec3f p = expected.tfc.inverseTransform(corners[i] + (d * n) / 2);
-      expected.addContactPoint(p.head(2));
+      using Frame = ContactPatch::ReferenceFrame;
+      expected.addContactPoint<Frame::WORLD>(corners[i] + (d * n) / 2);
     }
 
     const ContactPatch& contact_patch = patch_res.contact_patches[0];
@@ -170,10 +168,8 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
         tf2.transform(Vec3f(-halfside, halfside, -halfside)),
     };
     for (size_t i = 0; i < expected_size; ++i) {
-      // Contact point expressed in the local frame of the expected contact
-      // patch.
-      const Vec3f p = expected.tfc.inverseTransform(corners[i] + (d * n) / 2);
-      expected.addContactPoint(p.head(2));
+      using Frame = ContactPatch::ReferenceFrame;
+      expected.addContactPoint<Frame::WORLD>(corners[i] - (d * n) / 2);
     }
 
     const ContactPatch& contact_patch = patch_res.contact_patches[0];
