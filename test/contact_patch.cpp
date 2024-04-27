@@ -101,10 +101,12 @@ BOOST_AUTO_TEST_CASE(box_box) {
 
     const size_t expected_size = 4;
     ContactPatch expected(expected_size);
-    const FCL_REAL d = contact.penetration_depth;
+    const FCL_REAL tol = 1e-6;
     const Vec3f& n = contact.normal;
-    expected.normal = n;
-    expected.penetration_depth = d;
+    const FCL_REAL d = contact.penetration_depth;
+    EIGEN_VECTOR_IS_APPROX(n, Vec3f(0, 0, 1), tol);
+    expected.tfc.setIdentity();
+    expected.penetration_depth = contact.penetration_depth;
     const std::array<Vec3f, 4> corners = {
         Vec3f(halfside, halfside, halfside),
         Vec3f(halfside, -halfside, halfside),
@@ -112,16 +114,18 @@ BOOST_AUTO_TEST_CASE(box_box) {
         Vec3f(-halfside, halfside, halfside),
     };
     for (size_t i = 0; i < expected_size; ++i) {
-      expected.addContactPoint(corners[i] + (d * n) / 2);
+      // Contact point expressed in the local frame of the expected contact
+      // patch.
+      const Vec3f p = expected.tfc.inverseTransform(corners[i] + (d * n) / 2);
+      expected.addContactPoint(p.head(2));
     }
 
-    const FCL_REAL tol = 1e-6;
     const ContactPatch& contact_patch = patch_res.contact_patches[0];
     BOOST_CHECK(contact_patch.isSame(expected, tol));
   }
 }
 
-BOOST_AUTO_TEST_CASE(plane_box) {
+BOOST_AUTO_TEST_CASE(halfspace_box) {
   const Halfspace hspace(0, 0, 1, 0);
   const FCL_REAL halfside = 0.5;
   const Box box(2 * halfside, 2 * halfside, 2 * halfside);
@@ -151,13 +155,14 @@ BOOST_AUTO_TEST_CASE(plane_box) {
     const Contact& contact = col_res.getContact(0);
     const FCL_REAL tol = 1e-6;
     EIGEN_VECTOR_IS_APPROX(contact.normal, hspace.n, tol);
+    EIGEN_VECTOR_IS_APPROX(hspace.n, Vec3f(0, 0, 1), tol);
 
     const size_t expected_size = 4;
     ContactPatch expected(expected_size);
     const FCL_REAL d = contact.penetration_depth;
     const Vec3f& n = contact.normal;
-    expected.normal = n;
-    expected.penetration_depth = d;
+    expected.tfc.setIdentity();
+    expected.penetration_depth = contact.penetration_depth;
     const std::array<Vec3f, 4> corners = {
         tf2.transform(Vec3f(halfside, halfside, -halfside)),
         tf2.transform(Vec3f(halfside, -halfside, -halfside)),
@@ -165,7 +170,10 @@ BOOST_AUTO_TEST_CASE(plane_box) {
         tf2.transform(Vec3f(-halfside, halfside, -halfside)),
     };
     for (size_t i = 0; i < expected_size; ++i) {
-      expected.addContactPoint(corners[i] - (d * n) / 2);
+      // Contact point expressed in the local frame of the expected contact
+      // patch.
+      const Vec3f p = expected.tfc.inverseTransform(corners[i] + (d * n) / 2);
+      expected.addContactPoint(p.head(2));
     }
 
     const ContactPatch& contact_patch = patch_res.contact_patches[0];

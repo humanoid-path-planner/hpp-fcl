@@ -511,9 +511,9 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
 /// Contact::pos`. If we denote by P the plane passing by `p` and supported by
 /// `n`, a contact patch is represented as a polytope which vertices all belong
 /// to `P & S1 & S2`, where `&` denotes the set-intersection.
-/// @tparam Dimension of the contact patch. A contact patch can store 3D points
-/// (typically used in `ContactPatchResult`), but also 2D points (typically used
-/// internally by hpp-fcl when calling `computeContactPatch`).
+/// @note As of now (April 2024), the contact patch is a 2D contact surface in
+/// 3D but internal algorithms of hpp-fcl can easily be extended to compute a
+/// volume of contact instead.
 ///
 /// In details:
 /// PART I - What is a contact point?
@@ -569,21 +569,38 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
 /// the 6 contact patches.
 /// TODO(louis): modify EPA to recover the entire optimal set.
 ///
-template <int Dimension = 3>
-struct HPP_FCL_DLLAPI ContactPatchTpl {
+struct HPP_FCL_DLLAPI ContactPatch {
  public:
   // clang-format off
-  using ContactPointMatrix = Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Dimension, Eigen::RowMajor>;
-  using ContactPointMatrixXpr = Eigen::Block<ContactPointMatrix, Eigen::Dynamic, Dimension, true>;
-  using ContactPointMatrixConstXpr = Eigen::Block<const ContactPointMatrix, Eigen::Dynamic, 3, true>;
-  using ContactPoint = Eigen::Matrix<FCL_REAL, Dimension, 1>;
-  using ContactPointXpr = Eigen::Block<ContactPointMatrix, 1, 3, true>;
-  using ContactPointConstXpr = Eigen::Block<const ContactPointMatrix, 1, 3, true>;
+  using ContactPointMatrix = Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 2, Eigen::RowMajor>;
+  using ContactPointMatrixXpr = Eigen::Block<ContactPointMatrix, Eigen::Dynamic, 2, true>;
+  using ContactPointMatrixConstXpr = Eigen::Block<const ContactPointMatrix, Eigen::Dynamic, 2, true>;
+  using ContactPoint = Eigen::Matrix<FCL_REAL, 2, 1>;
+  using ContactPointXpr = Eigen::Block<ContactPointMatrix, 1, 2, true>;
+  using ContactPointConstXpr = Eigen::Block<const ContactPointMatrix, 1, 2, true>;
   // clang-format on
   using Index = Eigen::Index;
 
-  /// @brief Normal of the contact patch.
-  Vec3f normal;
+  /// @brief Reference frame in which to express a contact point.
+  enum ReferenceFrame {
+    // World frame, e.g. tfc is the contact frame, expressed w.r.t
+    // the world frame. Used to get the position of a contact point, expressed
+    // in the world frame.
+    WORLD = 0,
+    // Local frame. Used to get the position of a contact point of
+    // the patch, expressed in the local frame of the contact patch.
+    LOCAL = 1,
+    // Local frame, but with axes aligned with those of the world frame.
+    // Suppose we want to move the origin of the frame `this->tfc` to where the
+    // i-th contact point is located, we can simply do:
+    //   this->tfc.translation() += pi;
+    // where pi is the LOCAL_WORLD_ALIGNED position of the i-th contact point.
+    LOCAL_WORLD_ALIGNED = 2
+  };
+
+  /// @brief Contact frame, expressed in the world coordinates.
+  /// @note The contact normal is the z-axis of the transform's rotation.
+  Transform3f tfc;
 
   /// @brief Penetration depth of the contact patch.
   /// This value corresponds to the signed distance between the shapes.
@@ -609,10 +626,11 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
 
  public:
   /// @brief Default constructor.
-  explicit ContactPatchTpl(size_t max_size = default_max_size)
-      : m_contact_points(max_size, Dimension), m_size(0) {
-    this->clear();
-  }
+  explicit ContactPatch(size_t max_size = default_max_size)
+      : tfc(Transform3f::Identity()),
+        penetration_depth(std::numeric_limits<FCL_REAL>::max()),
+        m_contact_points(max_size, 2),
+        m_size(0) {}
 
   /// @brief Maximum size of the contact patch.
   size_t capacity() const { return (size_t)(this->m_contact_points.rows()); }
@@ -623,11 +641,16 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
   /// @brief Update the capacity of the contact patch.
   /// @note This clears the content of the contact patch.
   void reserve(const size_t max_size) {
-    this->m_contact_points.resize((Index)max_size, (Index)3);
+    this->m_contact_points.resize((Index)max_size, 2);
     this->m_size = 0;
   }
 
-  /// @brief Add a contact point to the contact patch.
+  /// @brief Normal assiocated to the contact patch.
+  /// @note As in `Contact`, the normal always points from the first to the
+  /// second shape.
+  Vec3f getContactNormal() const { return this->tfc.rotation().col(2); }
+
+  /// @brief Add a 2D contact point to the contact patch.
   void addContactPoint(const ContactPoint& contact_point) {
     HPP_FCL_ASSERT(this->m_size < this->m_contact_points.rows(),
                    "Tried to insert point in contact patch but exceeded "
@@ -641,7 +664,7 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
     }
   }
 
-  /// @brief Getter for the contact points in the contact patch.
+  /// @brief Getter for the 2D contact points in the contact patch.
   ContactPointMatrixXpr contactPoints() {
     HPP_FCL_ASSERT(
         (this->m_size > 0) && (this->m_size < this->m_contact_points.rows()),
@@ -649,7 +672,7 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
     return this->m_contact_points.topRows(this->m_size);
   }
 
-  /// @brief Const getter for the contact points in the contact patch.
+  /// @brief Const getter for the 2D contact points in the contact patch.
   ContactPointMatrixConstXpr contactPoints() const {
     HPP_FCL_ASSERT(
         (this->m_size > 0) && (this->m_size < this->m_contact_points.rows()),
@@ -657,7 +680,7 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
     return this->m_contact_points.topRows(this->m_size);
   }
 
-  /// @brief Getter for the i-th contact point in the contact patch.
+  /// @brief Getter for the i-th 2D contact point in the contact patch.
   ContactPointXpr contactPoint(const Index i) {
     HPP_FCL_ASSERT(
         (this->m_size > 0) && (this->m_size < this->m_contact_points.rows()),
@@ -668,7 +691,7 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
     return this->m_contact_points.row(this->m_size);
   }
 
-  /// @brief Const getter for the i-th contact point in the contact patch.
+  /// @brief Const getter for the i-th 2D contact point in the contact patch.
   ContactPointConstXpr contactPoint(const Index i) const {
     HPP_FCL_ASSERT(
         (this->m_size > 0) && (this->m_size < this->m_contact_points.rows()),
@@ -679,10 +702,28 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
     return this->m_contact_points.row(this->m_size);
   }
 
+  /// @brief Get the i-th contact point, expressed in the 3D reference frame.
+  Vec3f getContactPoint(const Index i, const ReferenceFrame frame) const {
+    Vec3f point(0, 0, 0);
+    point.head(2) = this->contactPoint(i);
+    switch (frame) {
+      case LOCAL:
+        // do nothing.
+        break;
+      case WORLD:
+        point = tfc.transform(point);
+        break;
+      case LOCAL_WORLD_ALIGNED:
+        point = tfc.rotation() * point;
+        break;
+    }
+    return point;
+  }
+
   /// @brief Clear the contact patch.
   void clear() {
     this->m_size = 0;
-    this->normal = Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+    this->tfc.setIdentity();
     this->penetration_depth = std::numeric_limits<FCL_REAL>::max();
   }
 
@@ -690,8 +731,8 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
   /// @note This compares, term by term, two contact patches.
   /// However, two contact patches can be identical, but have a different order
   /// for their contact points. Use `isEqual` to compare two contact patches.
-  bool operator==(const ContactPatchTpl<Dimension>& other) const {
-    return this->normal == other.normal &&
+  bool operator==(const ContactPatch& other) const {
+    return this->tfc == other.tfc &&
            this->penetration_depth == other.penetration_depth &&
            this->contactPoints() == other.contactPoints() &&
            this->capacity() == other.capacity();
@@ -699,10 +740,14 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
 
   /// @brief Whether two contact patches are the same or not.
   /// Checks for different order of the contact points.
-  bool isSame(const ContactPatchTpl<Dimension>& other,
+  bool isSame(const ContactPatch& other,
               const FCL_REAL tol =
                   Eigen::NumTraits<FCL_REAL>::dummy_precision()) const {
-    if (!this->normal.isApprox(other.normal, tol)) {
+    // The x and y axis of the contact patch is arbitrary, but the z axis is
+    // always the normal. The position of the origin of the contact frame is
+    // also arbitrary.
+    // So we only check if the normals are the same.
+    if (!this->getContactNormal().isApprox(other.getContactNormal(), tol)) {
       return false;
     }
 
@@ -716,8 +761,10 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
 
     for (Index i = 0; i < (Index)(this->size()); ++i) {
       bool found = false;
+      const Vec3f pi = this->getContactPoint(i, ReferenceFrame::WORLD);
       for (Index j = 0; j < (Index)(this->size()); ++j) {
-        if (this->contactPoint(i).isApprox(this->contactPoint(j), tol)) {
+        const Vec3f other_pj = other.getContactPoint(j, ReferenceFrame::WORLD);
+        if (pi.isApprox(other_pj, tol)) {
           found = true;
         }
       }
@@ -725,16 +772,10 @@ struct HPP_FCL_DLLAPI ContactPatchTpl {
         return false;
       }
     }
+
     return true;
   }
 };
-
-/// @brief Default contact patch storing 3D information (i.e. 3D points in
-/// space). Please see @ref ContactPatchTpl.
-/// @note As of now (April 2024), this 3D information is a 2D contact surface in
-/// 3D but internal algorithms of hpp-fcl can easily be extended to compute a
-/// volume of contact instead.
-using ContactPatch = ContactPatchTpl<3>;
 
 /// @brief Result for a contact patch computation.
 struct HPP_FCL_DLLAPI ContactPatchResult {
