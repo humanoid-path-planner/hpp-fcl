@@ -724,7 +724,6 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   const HeightField<BV>::BVS& nodes = hfield.getNodes();
   BOOST_CHECK(nodes.size() == 1);
-  const HeightField<BV>::Node& node = nodes[0];
 
   // Collision from the TOP
   {
