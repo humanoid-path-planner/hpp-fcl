@@ -966,13 +966,15 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
   /// @brief Return true if this `ContactPatchResult` is aligned with the
   /// `ContactPatchRequest` given as input.
   bool check(const ContactPatchRequest& request) const {
-    if (this->m_contact_patches_data.size() <
-        request.getMaxSizeContactPatch()) {
+    assert(this->m_contact_patches_data.size() >=
+           request.getMaxNumContactPatch());
+    if (this->m_contact_patches_data.size() < request.getMaxNumContactPatch()) {
       return false;
     }
 
     for (const ContactPatch& patch : this->m_contact_patches_data) {
       if (patch.capacity() < request.getMaxSizeContactPatch()) {
+        assert(patch.capacity() >= request.getMaxSizeContactPatch());
         return false;
       }
     }
