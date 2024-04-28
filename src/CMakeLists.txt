@@ -60,6 +60,8 @@ set(${LIBRARY_NAME}_SOURCES
   broadphase/detail/spatial_hash.cpp
   broadphase/detail/morton.cpp
   narrowphase/gjk.cpp
+  narrowphase/minkowski_difference.cpp
+  narrowphase/support_functions.cpp
   narrowphase/details.h
   shape/convex.cpp
   shape/geometric_shapes.cpp
