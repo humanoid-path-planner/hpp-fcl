@@ -86,6 +86,19 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
                                       ContactPatch& contact_patch) const {
   // Step 1
   constructContactPatchFrame(contact, contact_patch);
+  if ((bool)(shape_traits<ShapeType1>::IsStrictlyConvex) ||
+      (bool)(shape_traits<ShapeType2>::IsStrictlyConvex)) {
+    // If a shape is strictly convex, the support set in any direction is
+    // reduced to a single point. Thus, the contact point `contact.pos` is the
+    // only point belonging to the contact patch, and it has already been
+    // computed.
+    // TODO(louis): even for strictly convex shapes, we can sample the support
+    // function around the normal and return a pseudo support set. This would
+    // allow spheres and ellipsoids to have a contact surface, which does make
+    // sense in certain physics simulation cases.
+    contact_patch.addContactPoint<ReferenceFrame::WORLD>(contact.pos);
+    return;
+  }
 
   // Step 2 - Compute support set of each shape, in the direction of
   // the contact's normal.

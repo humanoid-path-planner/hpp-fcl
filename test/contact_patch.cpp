@@ -70,6 +70,47 @@ BOOST_AUTO_TEST_CASE(box_box_no_collision) {
   BOOST_CHECK(patch_res.numContactPatches() == 0);
 }
 
+BOOST_AUTO_TEST_CASE(box_sphere) {
+  const FCL_REAL halfside = 0.5;
+  const Box box(2 * halfside, 2 * halfside, 2 * halfside);
+  const Sphere sphere(halfside);
+
+  const Transform3f tf1;
+  Transform3f tf2;
+  // set translation to have a collision
+  const FCL_REAL offset = 0.001;
+  tf2.setTranslation(Vec3f(0, 0, 2 * halfside - offset));
+
+  const size_t num_max_contact = 1;
+  const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
+                                 num_max_contact);
+  CollisionResult col_res;
+
+  hpp::fcl::collide(&box, tf1, &sphere, tf2, col_req, col_res);
+
+  BOOST_CHECK(col_res.isCollision());
+
+  const ContactPatchRequest patch_req;
+  ContactPatchResult patch_res(patch_req);
+  hpp::fcl::computeContactPatch(&box, tf1, &sphere, tf2, col_res, patch_req,
+                                patch_res);
+  BOOST_CHECK(patch_res.numContactPatches() == 1);
+  if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
+    const Contact& contact = col_res.getContact(0);
+    const ContactPatch& contact_patch = patch_res.getContactPatch(0);
+    BOOST_CHECK(contact_patch.size() == 1);
+    const FCL_REAL tol = 1e-8;
+    using Frame = ContactPatch::ReferenceFrame;
+    EIGEN_VECTOR_IS_APPROX(contact_patch.getContactPoint<Frame::WORLD>(0),
+                           contact.pos, tol);
+    EIGEN_VECTOR_IS_APPROX(contact_patch.tfc.translation(), contact.pos, tol);
+    EIGEN_VECTOR_IS_APPROX(contact_patch.getContactNormal(), contact.normal,
+                           tol);
+    BOOST_CHECK(std::abs(contact_patch.penetration_depth -
+                         contact.penetration_depth) < tol);
+  }
+}
+
 BOOST_AUTO_TEST_CASE(box_box) {
   const FCL_REAL halfside = 0.5;
   const Box box1(2 * halfside, 2 * halfside, 2 * halfside);

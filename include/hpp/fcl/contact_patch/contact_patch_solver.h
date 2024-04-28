@@ -56,6 +56,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
  public:
   using Index = ContactPatch::Index;
   using ContactPoint = ContactPatch::ContactPoint;
+  using ReferenceFrame = ContactPatch::ReferenceFrame;
 
  private:
   /// @brief Minkowski difference used to compute support function of the
