@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(box_box) {
                                 patch_res);
   BOOST_CHECK(patch_res.numContactPatches() == 1);
 
-  if (patch_res.numContactPatches() > 0) {
+  if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
 
     const size_t expected_size = 4;
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
                                 patch_res);
   BOOST_CHECK(patch_res.numContactPatches() == 1);
 
-  if (patch_res.numContactPatches() > 0) {
+  if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
     const FCL_REAL tol = 1e-6;
     EIGEN_VECTOR_IS_APPROX(contact.normal, hspace.n, tol);
