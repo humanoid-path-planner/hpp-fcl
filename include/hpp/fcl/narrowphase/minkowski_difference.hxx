@@ -46,6 +46,7 @@ namespace fcl {
 
 namespace details {
 
+// ============================================================================
 template <typename Shape0, typename Shape1, bool TransformIsIdentity,
           int _SupportOptions>
 void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3f& oR1,
@@ -64,6 +65,7 @@ void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3f& oR1,
   }
 }
 
+// ============================================================================
 template <typename Shape0, typename Shape1, bool TransformIsIdentity,
           int _SupportOptions>
 void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
@@ -75,6 +77,7 @@ void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
       support1, hint, data);
 }
 
+// ============================================================================
 template <typename Shape0, int _SupportOptions>
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
     const ShapeBase* s1, bool identity,
@@ -154,6 +157,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
   }
 }
 
+// ============================================================================
 template <int _SupportOptions>
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
     const ShapeBase* s0, const ShapeBase* s1, bool identity,
@@ -222,6 +226,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
   }
 }
 
+// ============================================================================
 inline bool getNormalizeSupportDirection(const ShapeBase* shape) {
   switch (shape->getNodeType()) {
     case GEOM_TRIANGLE:
@@ -253,6 +258,7 @@ inline bool getNormalizeSupportDirection(const ShapeBase* shape) {
   }
 }
 
+// ============================================================================
 inline void getNormalizeSupportDirectionFromShapes(
     const ShapeBase* shape0, const ShapeBase* shape1,
     bool& normalize_support_direction) {
@@ -260,6 +266,7 @@ inline void getNormalizeSupportDirectionFromShapes(
                                 getNormalizeSupportDirection(shape1);
 }
 
+// ============================================================================
 template <int _SupportOptions>
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
                         const Transform3f& tf0, const Transform3f& tf1) {
@@ -278,6 +285,7 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
       shape0, shape1, identity, swept_sphere_radius, data);
 }
 
+// ============================================================================
 template <int _SupportOptions>
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
   shapes[0] = shape0;

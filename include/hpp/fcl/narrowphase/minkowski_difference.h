@@ -90,6 +90,8 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
   /// @brief Set the two shapes, assuming the relative transformation between
   /// them is identity.
+  /// Consequently, all support points computed with the MinkowskiDiff
+  /// will be expressed in the world frame.
   /// @param shape0 the first shape.
   /// @param shape1 the second shape.
   /// @tparam SupportOptions is a value of the SupportOptions enum. If set to
@@ -115,7 +117,9 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   template <int _SupportOptions = SupportOptions::NoSweptSphere>
   void set(const ShapeBase* shape0, const ShapeBase* shape1);
 
-  /// @brief Set the two shapes, with a relative transformation.
+  /// @brief Set the two shapes, with a relative transformation from shape0 to
+  /// shape1. Consequently, all support points computed with the MinkowskiDiff
+  /// will be expressed in the frame of shape0.
   /// @param shape0 the first shape.
   /// @param shape1 the second shape.
   /// @param tf0 the transformation of the first shape.
