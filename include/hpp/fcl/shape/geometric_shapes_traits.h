@@ -60,7 +60,7 @@ struct shape_traits<TriangleP> : shape_traits_base {
   enum {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = false,
-    IsInflatable = false,
+    IsInflatable = true,
     HasInflatedSupportFunction = false,
     IsStrictlyConvex = false
   };
@@ -137,7 +137,7 @@ struct shape_traits<ConvexBase> : shape_traits_base {
   enum {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = true,
-    IsInflatable = false,
+    IsInflatable = true,
     HasInflatedSupportFunction = true,
     IsStrictlyConvex = false
   };
