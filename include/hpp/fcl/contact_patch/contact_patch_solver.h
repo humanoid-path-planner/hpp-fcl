@@ -44,6 +44,13 @@ namespace fcl {
 
 struct HPP_FCL_DLLAPI ContactPatchSolver {
   explicit ContactPatchSolver(const ContactPatchRequest& request) {}
+
+  template <typename ShapeType1, typename ShapeType2>
+  void computePatch(const ShapeType1& s1, const Transform3f& tf1,
+                    const ShapeType2& s2, const Transform3f& tf2,
+                    const Contact& contact, ContactPatch& contact_patch) const {
+    //
+  }
 };
 
 }  // namespace fcl

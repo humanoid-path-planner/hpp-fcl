@@ -47,9 +47,7 @@ namespace hpp {
 namespace fcl {
 
 /// @brief Shape-shape contact patch computation.
-/// Assumes that `nsolver` has already been run and populated the
-/// `CollisionResult`. Also assumes that `csolver` has already been set up by
-/// the `ContactPatchRequest`.
+/// Assumes that `csolver` has already been set up by the `ContactPatchRequest`.
 template <typename ShapeType1, typename ShapeType2>
 struct ComputeShapeShapeContactPatch {
   static void run(const CollisionGeometry* o1, const Transform3f& tf1,
@@ -59,8 +57,21 @@ struct ComputeShapeShapeContactPatch {
                   const ContactPatchRequest& request,
                   ContactPatchResult& result) {
     // TODO(louis): don't forget about swept-sphere radius
-    // TODO(louis): warning, the MinkowskiDiff in GJKSolver may not be set with
-    // o1 and o2.
+    if (!collision_result.isCollision()) {
+      return;
+    }
+
+    const ShapeType1& s1 = static_cast<const ShapeType1&>(*o1);
+    const ShapeType2& s2 = static_cast<const ShapeType2&>(*o2);
+    for (size_t i = 0; i < collision_result.numContacts(); ++i) {
+      if (i >= request.getMaxNumContactPatch() ||
+          i >= result.maxNumContactPatches()) {
+        break;
+      }
+      const Contact& contact = collision_result.getContact(i);
+      ContactPatch& contact_patch = result.getUnusedContactPatch();
+      csolver->computePatch(s1, tf1, s2, tf2, contact, contact_patch);
+    }
   }
 };
 
@@ -122,7 +133,8 @@ inline void capsuleBoxMCP(const Capsule& s1, const Transform3f& tf1,
 //     const CollisionRequest& request, CollisionResult& result) {
 //   const Capsule& s1 = static_cast<const Capsule&>(*o1);
 //   const Box& s2 = static_cast<const Box&>(*o2);
-//   capsuleBoxMCP(s1, tf1, s2, tf2, p1, p2, normal, distance, request, result);
+//   capsuleBoxMCP(s1, tf1, s2, tf2, p1, p2, normal, distance, request,
+//   result);
 // }
 
 // template <>

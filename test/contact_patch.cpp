@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(box_box) {
       expected.addContactPoint<Frame::WORLD>(corners[i] + (d * n) / 2);
     }
 
-    const ContactPatch& contact_patch = patch_res.contact_patches[0];
+    const ContactPatch& contact_patch = patch_res.getContactPatch(0);
     BOOST_CHECK(contact_patch.isSame(expected, tol));
   }
 }
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
       expected.addContactPoint<Frame::WORLD>(corners[i] - (d * n) / 2);
     }
 
-    const ContactPatch& contact_patch = patch_res.contact_patches[0];
+    const ContactPatch& contact_patch = patch_res.getContactPatch(0);
     BOOST_CHECK(contact_patch.isSame(expected, tol));
   }
 }

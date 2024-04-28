@@ -49,6 +49,7 @@
 #include "hpp/fcl/data_types.h"
 #include "hpp/fcl/timings.h"
 #include "hpp/fcl/narrowphase/narrowphase_defaults.h"
+#include "hpp/fcl/logging.h"
 
 namespace hpp {
 namespace fcl {
@@ -491,27 +492,6 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   void swapObjects();
 };
 
-/// @brief Request for a contact patch computation.
-/// @note Please see the doc of `ContactPatch` to understand what is meant by
-/// "ContactPatch".
-struct HPP_FCL_DLLAPI ContactPatchRequest {
-  /// @brief The maximum number of contact patches that can be computed.
-  size_t num_max_contact_patches;
-
-  /// @brief Maximum number of vertices of each contact patch.
-  size_t max_size_contact_patch;
-
-  /// @brief Guess for the support function, typically inherited from the
-  /// `CollisionResult` on which `computeContactPatch` is called.
-  mutable support_func_guess_t support_guess;
-
-  explicit ContactPatchRequest(size_t num_max_contact_patches = 1,
-                               size_t max_size_contact_patch = 1)
-      : num_max_contact_patches(num_max_contact_patches),
-        max_size_contact_patch(max_size_contact_patch),
-        support_guess(support_func_guess_t::Zero()) {}
-};
-
 /// @brief Contact patch information.
 /// A contact patch has a normal `n = Contact::normal` and passes by `p =
 /// Contact::pos`. If we denote by P the plane passing by `p` and supported by
@@ -808,6 +788,60 @@ struct HPP_FCL_DLLAPI ContactPatch {
   }
 };
 
+/// @brief Request for a contact patch computation.
+struct HPP_FCL_DLLAPI ContactPatchRequest {
+ private:
+  /// @brief The maximum number of contact patches that can be computed.
+  size_t m_num_max_contact_patches{default_num_max_contact_patches};
+
+  /// @brief Maximum number of vertices of each contact patch.
+  size_t m_max_size_contact_patch{ContactPatch::default_max_size};
+
+ public:
+  /// @brief Default maximum number of contact patches requested.
+  static constexpr size_t default_num_max_contact_patches = 1;
+
+  /// @brief Get maximum number of requested contact patches.
+  size_t getMaxNumContactPatch() const {
+    return this->m_num_max_contact_patches;
+  }
+
+  /// @brief Set maximum number of requested contact patches.
+  void setMaxNumContactPatch(const size_t max_num_contact_patches) {
+    this->m_num_max_contact_patches = max_num_contact_patches;
+    if (this->m_num_max_contact_patches == 0) {
+      HPP_FCL_LOG_WARNING(
+          "Created a ContactPatchRequest with "
+          "`num_max_contact_patches = 0`. Setting `num_max_contact_patches` "
+          "to default non-zero value to prevent bugs.");
+      this->m_num_max_contact_patches = 1;
+    }
+  }
+
+  /// @brief Get maximum size of requested contact patches.
+  size_t getMaxSizeContactPatch() const {
+    return this->m_max_size_contact_patch;
+  }
+
+  /// @brief Set maximum size of requested contact patches.
+  void setMaxSizeContactPatch(const size_t max_size_contact_patch) {
+    this->m_max_size_contact_patch = max_size_contact_patch;
+    if (this->m_max_size_contact_patch == 0) {
+      HPP_FCL_LOG_WARNING(
+          "Warning, created a ContactPatchRequest with "
+          "`max_size_contact_patch = 0`. Setting `max_size_contact_patch` "
+          "to default non-zero value to prevent bugs.");
+      this->m_max_size_contact_patch = ContactPatch::default_max_size;
+    }
+  }
+
+  explicit ContactPatchRequest(size_t max_num_contact_patches = 1,
+                               size_t max_size_contact_patch = 6) {
+    this->setMaxNumContactPatch(max_num_contact_patches);
+    this->setMaxSizeContactPatch(max_size_contact_patch);
+  }
+};
+
 /// @brief Result for a contact patch computation.
 struct HPP_FCL_DLLAPI ContactPatchResult {
   using ContactPatchVector = std::vector<ContactPatch>;
@@ -823,24 +857,86 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
   /// the currently active patches in this data container.
   ContactPatchVector m_contact_patches_data;
 
- public:
-  /// @brief Vector of contact patches of the result.
-  ContactPatchRefVector contact_patches;
+  /// @brief Contact patches in `m_contact_patches_data` can have two statuses:
+  /// used or unused. This index tracks the first unused patch in the
+  /// `m_contact_patches_data` vector.
+  size_t m_id_available_patch;
 
+  /// @brief Vector of contact patches of the result.
+  ContactPatchRefVector m_contact_patches;
+
+ public:
   /// @brief Default constructor.
-  ContactPatchResult() = default;
+  ContactPatchResult() : m_id_available_patch(0) {
+    const size_t max_num_contact_patches = 1;
+    const ContactPatchRequest request(max_num_contact_patches);
+    this->initialize(request);
+  }
 
   /// @brief Constructor using a `ContactPatchRequest`.
-  explicit ContactPatchResult(const ContactPatchRequest& request) {
+  explicit ContactPatchResult(const ContactPatchRequest& request)
+      : m_id_available_patch(0) {
     this->initialize(request);
   };
 
   /// @brief Number of contact patches in the result.
-  size_t numContactPatches() const { return this->contact_patches.size(); }
+  size_t numContactPatches() const { return this->m_contact_patches.size(); }
 
-  /// @biref Clears the contact patch result.
+  /// @brief Maximum number of contact patches the result can store.
+  size_t maxNumContactPatches() const {
+    return this->m_contact_patches_data.size();
+  }
+
+  /// @brief Returns a new unused contact patch from the internal data vector.
+  /// @note If there are no more unused contact patches, this method will return
+  /// the last element of the internal data vector.
+  ContactPatchRef getUnusedContactPatch() {
+    if (this->m_id_available_patch >= this->m_contact_patches_data.size()) {
+      HPP_FCL_LOG_WARNING(
+          "Trying to get an unused contact patch but all contact patches are "
+          "used. Getting the last used contact patch as fallback.");
+    }
+    if (this->m_id_available_patch < this->m_contact_patches_data.size()) {
+      ContactPatch& contact_patch =
+          this->m_contact_patches_data[this->m_id_available_patch];
+      this->m_contact_patches.emplace_back(contact_patch);
+      ++(this->m_id_available_patch);
+    }
+    return this->m_contact_patches.back();
+  }
+
+  /// @brief Getter for the i-th contact patch of the result.
+  ContactPatch& getContactPatch(const size_t i) {
+    if (this->m_contact_patches.empty()) {
+      HPP_FCL_THROW_PRETTY(
+          "The number of contact patches is zero. No ContactPatch can be "
+          "returned.",
+          std::invalid_argument);
+    }
+    if (i < this->m_contact_patches.size()) {
+      return this->m_contact_patches[i];
+    }
+    return this->m_contact_patches.back();
+  }
+
+  /// @brief Const getter for the i-th contact patch of the result.
+  const ContactPatch& getContactPatch(const size_t i) const {
+    if (this->m_contact_patches.empty()) {
+      HPP_FCL_THROW_PRETTY(
+          "The number of contact patches is zero. No ContactPatch can be "
+          "returned.",
+          std::invalid_argument);
+    }
+    if (i < this->m_contact_patches.size()) {
+      return this->m_contact_patches[i];
+    }
+    return this->m_contact_patches.back();
+  }
+
+  /// @brief Clears the contact patch result.
   void clear() {
-    this->contact_patches.clear();
+    this->m_contact_patches.clear();
+    this->m_id_available_patch = 0;
     for (ContactPatch& patch : this->m_contact_patches_data) {
       patch.clear();
     }
@@ -848,11 +944,17 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
 
   /// @brief Initializes a `ContactPatchResult` from a `ContactPatchRequest`
   void initialize(const ContactPatchRequest& request) {
-    if (this->contact_patches.size() < request.num_max_contact_patches) {
-      this->m_contact_patches_data.resize(request.num_max_contact_patches);
+    HPP_FCL_ASSERT(request.getMaxNumContactPatch() > 0,
+                   "The ContactPatchRequest has 0 max_num_contact_patches.",
+                   std::logic_error);
+    HPP_FCL_ASSERT(request.getMaxSizeContactPatch() > 0,
+                   "The ContactPatchRequest has 0 max_size_contact_patch.",
+                   std::logic_error);
+    if (this->m_contact_patches_data.size() < request.getMaxNumContactPatch()) {
+      this->m_contact_patches_data.resize(request.getMaxNumContactPatch());
     }
     for (ContactPatch& patch : this->m_contact_patches_data) {
-      patch.reserve(request.max_size_contact_patch);
+      patch.reserve(request.getMaxSizeContactPatch());
     }
     this->clear();
   }
