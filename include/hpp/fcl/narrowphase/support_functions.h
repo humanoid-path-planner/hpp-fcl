@@ -165,56 +165,56 @@ template <int _SupportOptions>
 void getSupportSet(const ShapeBase* shape, const Transform3f& ctfi,
                    const Vec3f& dir, const int hint,
                    ShapeSupportData* support_data,
-                   ContactPatch& projected_support_set);
+                   SupportSet& projected_support_set);
 
 /// @brief Triangle support set function.
 template <int _SupportOptions>
 void getShapeSupportSet(const Triangle* triangle, const Transform3f& ctfi,
                         const Vec3f& dir, const int /*unused*/,
                         ShapeSupportData* /*unused*/,
-                        ContactPatch& projected_support_set);
+                        SupportSet& projected_support_set);
 
 /// @brief Box support set function.
 template <int _SupportOptions>
 void getShapeSupportSet(const Box* box, const Transform3f& ctfi,
                         const Vec3f& dir, const int /*unused*/,
                         ShapeSupportData* /*unused*/,
-                        ContactPatch& projected_support_set);
+                        SupportSet& projected_support_set);
 
 /// @brief Sphere support set function.
 template <int _SupportOptions>
 void getShapeSupportSet(const Sphere* sphere, const Transform3f& ctfi,
                         const Vec3f& dir, const int /*unused*/,
                         ShapeSupportData* /*unused*/,
-                        ContactPatch& projected_support_set);
+                        SupportSet& projected_support_set);
 
 /// @brief Ellipsoid support set function.
 template <int _SupportOptions>
 void getShapeSupportSet(const Ellipsoid* ellipsoid, const Transform3f& ctfi,
                         const Vec3f& dir, const int /*unused*/,
                         ShapeSupportData* /*unused*/,
-                        ContactPatch& projected_support_set);
+                        SupportSet& projected_support_set);
 
 /// @brief Capsule support set function.
 template <int _SupportOptions>
 void getShapeSupportSet(const Capsule* capsule, const Transform3f& ctfi,
                         const Vec3f& dir, const int /*unused*/,
                         ShapeSupportData* /*unused*/,
-                        ContactPatch& projected_support_set);
+                        SupportSet& projected_support_set);
 
 /// @brief Cone support set function.
 template <int _SupportOptions>
 void getShapeSupportSet(const Cone* cone, const Transform3f& ctfi,
                         const Vec3f& dir, const int /*unused*/,
                         ShapeSupportData* /*unused*/,
-                        ContactPatch& projected_support_set);
+                        SupportSet& projected_support_set);
 
 /// @brief Cylinder support set function.
 template <int _SupportOptions>
 void getShapeSupportSet(const Cylinder* cylinder, const Transform3f& ctfi,
                         const Vec3f& dir, const int /*unused*/,
                         ShapeSupportData* /*unused*/,
-                        ContactPatch& projected_support_set);
+                        SupportSet& projected_support_set);
 
 /// @brief ConvexBase support set function.
 /// @note See @ref LargeConvex and SmallConvex to see how to optimize
@@ -223,21 +223,21 @@ template <int _SupportOptions>
 void getShapeSupportSet(const ConvexBase* convex, const Transform3f& ctfi,
                         const Vec3f& dir, const int /*unused*/,
                         ShapeSupportData* /*unused*/,
-                        ContactPatch& projected_support_set);
+                        SupportSet& projected_support_set);
 
 /// @brief Support set function for large ConvexBase (>32 vertices).
 template <int _SupportOptions>
 void getShapeSupportSet(const SmallConvex* convex, const Transform3f& ctfi,
                         const Vec3f& dir, const int hint,
                         ShapeSupportData* data,
-                        ContactPatch& projected_support_set);
+                        SupportSet& projected_support_set);
 
 /// @brief Support set function for small ConvexBase (<32 vertices).
 template <int _SupportOptions>
 void getShapeSupportSet(const LargeConvex* convex, const Transform3f& ctfi,
                         const Vec3f& dir, const int hint,
                         ShapeSupportData* data,
-                        ContactPatch& projected_support_set);
+                        SupportSet& projected_support_set);
 
 }  // namespace details
 

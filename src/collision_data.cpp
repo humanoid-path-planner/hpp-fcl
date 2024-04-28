@@ -49,21 +49,21 @@ bool DistanceRequest::isSatisfied(const DistanceResult& result) const {
   return (result.min_distance <= 0);
 }
 
-// Explicit instantiation for ContactPatch
+// Explicit instantiation for SupportSet
 // clang-format off
 template
-void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::WORLD, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
+void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::WORLD, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
 template
-void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::LOCAL, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
+void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::LOCAL, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
 template
-void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::LOCAL_WORLD_ALIGNED, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
+void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::LOCAL_WORLD_ALIGNED, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
 
 template
-Vec3f HPP_FCL_DLLAPI ContactPatch::getContactPoint<ContactPatch::ReferenceFrame::WORLD>(const ContactPatch::Index) const;
+Vec3f HPP_FCL_DLLAPI SupportSet::getPoint<SupportSet::ReferenceFrame::WORLD>(const SupportSet::Index) const;
 template
-Vec3f HPP_FCL_DLLAPI ContactPatch::getContactPoint<ContactPatch::ReferenceFrame::LOCAL>(const ContactPatch::Index) const;
+Vec3f HPP_FCL_DLLAPI SupportSet::getPoint<SupportSet::ReferenceFrame::LOCAL>(const SupportSet::Index) const;
 template
-Vec3f HPP_FCL_DLLAPI ContactPatch::getContactPoint<ContactPatch::ReferenceFrame::LOCAL_WORLD_ALIGNED>(const ContactPatch::Index) const;
+Vec3f HPP_FCL_DLLAPI SupportSet::getPoint<SupportSet::ReferenceFrame::LOCAL_WORLD_ALIGNED>(const SupportSet::Index) const;
 // clang-format on
 
 }  // namespace fcl

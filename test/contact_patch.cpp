@@ -101,11 +101,10 @@ BOOST_AUTO_TEST_CASE(box_sphere) {
     BOOST_CHECK(contact_patch.size() == 1);
     const FCL_REAL tol = 1e-8;
     using Frame = ContactPatch::ReferenceFrame;
-    EIGEN_VECTOR_IS_APPROX(contact_patch.getContactPoint<Frame::WORLD>(0),
-                           contact.pos, tol);
-    EIGEN_VECTOR_IS_APPROX(contact_patch.tfc.translation(), contact.pos, tol);
-    EIGEN_VECTOR_IS_APPROX(contact_patch.getContactNormal(), contact.normal,
+    EIGEN_VECTOR_IS_APPROX(contact_patch.getPoint<Frame::WORLD>(0), contact.pos,
                            tol);
+    EIGEN_VECTOR_IS_APPROX(contact_patch.tfc.translation(), contact.pos, tol);
+    EIGEN_VECTOR_IS_APPROX(contact_patch.getNormal(), contact.normal, tol);
     BOOST_CHECK(std::abs(contact_patch.penetration_depth -
                          contact.penetration_depth) < tol);
   }
@@ -156,7 +155,7 @@ BOOST_AUTO_TEST_CASE(box_box) {
     };
     for (size_t i = 0; i < expected_size; ++i) {
       using Frame = ContactPatch::ReferenceFrame;
-      expected.addContactPoint<Frame::WORLD>(corners[i] + (d * n) / 2);
+      expected.addPoint<Frame::WORLD>(corners[i] + (d * n) / 2);
     }
 
     const ContactPatch& contact_patch = patch_res.getContactPatch(0);
@@ -210,7 +209,7 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
     };
     for (size_t i = 0; i < expected_size; ++i) {
       using Frame = ContactPatch::ReferenceFrame;
-      expected.addContactPoint<Frame::WORLD>(corners[i] - (d * n) / 2);
+      expected.addPoint<Frame::WORLD>(corners[i] - (d * n) / 2);
     }
 
     const ContactPatch& contact_patch = patch_res.getContactPatch(0);

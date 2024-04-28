@@ -56,9 +56,9 @@ inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
   this->m_projected_shapes_supports[0].reserve(num_preallocated_supports);
   this->m_projected_shapes_supports[1].reserve(num_preallocated_supports);
 
-  this->m_contact_patches[0].reserve(num_preallocated_supports);
-  this->m_contact_patches[1].reserve(num_preallocated_supports);
-  this->m_contact_patches[2].reserve(num_preallocated_supports);
+  this->m_support_sets[0].reserve(num_preallocated_supports);
+  this->m_support_sets[1].reserve(num_preallocated_supports);
+  this->m_support_sets[2].reserve(num_preallocated_supports);
 }
 
 // ============================================================================
@@ -69,6 +69,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
                                       const Transform3f& tf2,
                                       const Contact& contact,
                                       ContactPatch& contact_patch) const {
+  // Note: `ContactPatch` is an alias for `SupportSet`.
   // Step 1
   constructContactPatchFrame(contact, contact_patch);
   if ((bool)(shape_traits<ShapeType1>::IsStrictlyConvex) ||
@@ -83,7 +84,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
     // sense in certain physics simulation cases.
     // Do the same for strictly convex regions of non-strictly convex shapes
     // like the ends of capsules.
-    contact_patch.addContactPoint<ReferenceFrame::WORLD>(contact.pos);
+    contact_patch.addPoint<ReferenceFrame::WORLD>(contact.pos);
     return;
   }
 
@@ -99,9 +100,9 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   // TODO(louis): fill `clipped` and `clipper` with convex-hulls of
   // `m_projected_shapes_supports`.
   const Vec3f support_dir(0, 0, 1);
-  ContactPatch& current = const_cast<ContactPatch&>(this->current());
+  SupportSet& current = const_cast<SupportSet&>(this->current());
   this->computeSupportSetShape1(current);
-  ContactPatch& clipper = const_cast<ContactPatch&>(this->clipper());
+  SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
   this->computeSupportSetShape2(clipper);
 
   //
@@ -115,8 +116,8 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   this->m_id_current = 0;
   const Index clipper_size = (Index)(this->clipper().size());
   for (Index i = 0; i < clipper_size; ++i) {
-    auto a = this->clipper().contactPoint(i);
-    auto b = this->clipper().contactPoint((i + 1) % clipper_size);
+    auto a = this->clipper().point(i);
+    auto b = this->clipper().point((i + 1) % clipper_size);
 
     this->m_id_current = 1 - this->m_id_current;
     ContactPatch& current = const_cast<ContactPatch&>(this->current());
@@ -125,20 +126,19 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
     // clipped twice.
     const Index previous_size = (Index)(this->previous().size());
     for (Index j = 0; j < previous_size; ++j) {
-      auto vcurrent = this->previous().contactPoint(j);
-      auto vnext = this->previous().contactPoint((j + 1) % previous_size);
-
+      auto vcurrent = this->previous().point(j);
+      auto vnext = this->previous().point((j + 1) % previous_size);
       if (pointIsInsideClippingRegion(vcurrent, a, b)) {
-        current.addContactPoint(vcurrent);
+        current.addPoint(vcurrent);
         if (!pointIsInsideClippingRegion(vnext, a, b)) {
           const ContactPoint p =
               computeLineSegmentIntersection(a, b, vcurrent, vnext);
-          current.addContactPoint(p);
+          current.addPoint(p);
         }
       } else if (pointIsInsideClippingRegion(vnext, a, b)) {
         const ContactPoint p =
             computeLineSegmentIntersection(a, b, vcurrent, vnext);
-        current.addContactPoint(p);
+        current.addPoint(p);
       }
     }
   }
@@ -184,9 +184,9 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   this->m_projected_shapes_supports[0].clear();
   this->m_projected_shapes_supports[1].clear();
 
-  this->m_contact_patches[0].clear();
-  this->m_contact_patches[1].clear();
-  this->m_contact_patches[2].clear();
+  this->m_support_sets[0].clear();
+  this->m_support_sets[1].clear();
+  this->m_support_sets[2].clear();
 
   this->m_id_current = 0;
 }

@@ -54,9 +54,12 @@ inline void constructContactPatchFrame(const Contact& contact,
 /// contact surfaces projected onto the shapes' separating plane.
 struct HPP_FCL_DLLAPI ContactPatchSolver {
  public:
-  using Index = ContactPatch::Index;
-  using ContactPoint = ContactPatch::ContactPoint;
-  using ReferenceFrame = ContactPatch::ReferenceFrame;
+  // Note: `ContactPatch` is an alias for `SupportSet`.
+  // The two can be used interchangeably.
+  using Index = SupportSet::Index;
+  using SupportPoint = SupportSet::SupportPoint;
+  using ContactPoint = SupportSet::SupportPoint;
+  using ReferenceFrame = SupportSet::ReferenceFrame;
   using ShapeSupportData = details::ShapeSupportData;
 
   /// @brief Support set function for shape si.
@@ -73,7 +76,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
                                      const Transform3f& ctfi, const Vec3f& dir,
                                      const int hint,
                                      ShapeSupportData* support_data,
-                                     ContactPatch& projected_support_set);
+                                     SupportSet& projected_support_set);
 
  private:
   /// @brief Minkowski difference used to compute support function of the
@@ -88,18 +91,19 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// the intersection of the convex-hull of these two sets of points.
   /// @note Because these are 2D points, we use the convenient `ContactPatch`
   /// struct to represent these two sets of points.
-  mutable std::array<ContactPatch, 2> m_projected_shapes_supports;
+  mutable std::array<SupportSet, 2> m_projected_shapes_supports;
 
-  /// @brief Contact patches used for internal computation.
+  /// @brief Support sets used for internal computation.
   /// @note The `computePatch` algorithm starts by constructing two 2D
   /// convex-hulls (the convex-hulls of the `m_projected_shapes_supports`). It
   /// then uses the first convex-hull to clip the second one, effectively
   /// computing the intersection between the two convex-hulls.
-  /// Why have 3 contact patches then? Because the algorithm works by
-  /// successively clipping the first conve-hull. So the first two contact
-  /// patches represent the current and previous iteration of the algorithm and
-  /// the third contact patch represents the convex-hull of the second shape.
-  mutable std::array<ContactPatch, 3> m_contact_patches;
+  /// Why have 3 support sets then? Because the algorithm works by
+  /// successively clipping the first conve-hull. So the first two support
+  /// sets represent the current and previous iteration of the algorithm and
+  /// the third set represents the convex-hull of the second shape's support
+  /// set.
+  mutable std::array<SupportSet, 3> m_support_sets;
 
   /// @brief Tracks the current iterate of the algorithm.
   mutable size_t m_id_current{0};
@@ -163,12 +167,12 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
                     const Contact& contact, ContactPatch& contact_patch) const;
 
   /// @brief Compute support set of shape s1.
-  void computeSupportSetShape1(ContactPatch& projected_support_set) const {
-    // Note: the support direction must be expressed in the frame of the contact
-    // patch with which `reset` was called. Because of that, the support
-    // direction is always (0, 0, 1), which corresponds to the normal of the
-    // contact_patch, expressed in the frame of the contact_patch, i.e. the
-    // z-axis.
+  void computeSupportSetShape1(SupportSet& projected_support_set) const {
+    // Note: the support direction must be expressed in the frame of the support
+    // set with which `reset` was called. Because of that, the support direction
+    // is always (0, 0, 1), which corresponds to the normal of the
+    // output contact patch, expressed in the frame of the contact patch, i.e.
+    // the z-axis.
     this->m_supportFuncShape1(this->m_shapes[0], this->m_ctf1, Vec3f(0, 0, 1),
                               this->m_support_guess[0],
                               &(this->m_supports_data[0]),
@@ -176,7 +180,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   }
 
   /// @brief Compute support set of shape s2.
-  void computeSupportSetShape2(ContactPatch& projected_support_set) const {
+  void computeSupportSetShape2(SupportSet& projected_support_set) const {
     // See `computeSupportSetShape1` for explanation on why Vec3f(0, 0, -1).
     // The -1 comes from the fact that the support set of shape s2 is in the
     // opposite direction to the support set of shape s1.
@@ -218,30 +222,28 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
              const ContactPatch& contact_patch) const;
 
   /// @brief Getter for current iterate.
-  ContactPatch& current() {
-    return this->m_contact_patches[this->m_id_current];
-  }
+  SupportSet& current() { return this->m_support_sets[this->m_id_current]; }
 
   /// @brief Const getter for current iterate.
-  const ContactPatch& current() const {
-    return this->m_contact_patches[this->m_id_current];
+  const SupportSet& current() const {
+    return this->m_support_sets[this->m_id_current];
   }
 
   /// @brief Getter for previous iterate.
-  ContactPatch& previous() {
-    return this->m_contact_patches[1 - this->m_id_current];
+  SupportSet& previous() {
+    return this->m_support_sets[1 - this->m_id_current];
   }
 
   /// @brief Const getter for previous iterate.
-  const ContactPatch& previous() const {
-    return this->m_contact_patches[1 - this->m_id_current];
+  const SupportSet& previous() const {
+    return this->m_support_sets[1 - this->m_id_current];
   }
 
-  /// @brief Getter for the patch used to clip the other one.
-  ContactPatch& clipper() { return this->m_contact_patches[2]; }
+  /// @brief Getter for the set used to clip the other one.
+  SupportSet& clipper() { return this->m_support_sets[2]; }
 
-  /// @brief Const getter for the patch used to clip the other one.
-  const ContactPatch& clipper() const { return this->m_contact_patches[2]; }
+  /// @brief Const getter for the set used to clip the other one.
+  const SupportSet& clipper() const { return this->m_support_sets[2]; }
 };
 
 namespace details {
@@ -255,7 +257,7 @@ template <typename ShapeType>
 void supportSetFunctionTpl(const ShapeType* shape, const Transform3f& ctfi,
                            const Vec3f& dir, const int hint,
                            ShapeSupportData* support_data,
-                           ContactPatch& projected_support_set);
+                           SupportSet& projected_support_set);
 
 /// @brief Construct support set function for shape, w.r.t reference frame c.
 ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
