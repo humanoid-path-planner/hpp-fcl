@@ -92,6 +92,7 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
                          std::invalid_argument);
   }
 
+  request.support_guess = collision_result.cached_support_func_guess;
   ContactPatchSolver csolver(request);
   return looktable.contact_patch_matrix[node_type1][node_type2](
       o1, tf1, o2, tf2, collision_result, &csolver, request, result);

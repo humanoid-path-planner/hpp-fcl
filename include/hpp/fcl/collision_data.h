@@ -501,10 +501,15 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
   /// @brief Maximum number of vertices of each contact patch.
   size_t max_size_contact_patch;
 
+  /// @brief Guess for the support function, typically inherited from the
+  /// `CollisionResult` on which `computeContactPatch` is called.
+  mutable support_func_guess_t support_guess;
+
   explicit ContactPatchRequest(size_t num_max_contact_patches = 1,
                                size_t max_size_contact_patch = 1)
       : num_max_contact_patches(num_max_contact_patches),
-        max_size_contact_patch(max_size_contact_patch) {}
+        max_size_contact_patch(max_size_contact_patch),
+        support_guess(support_func_guess_t::Zero()) {}
 };
 
 /// @brief Contact patch information.
