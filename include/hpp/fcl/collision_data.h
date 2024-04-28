@@ -738,6 +738,10 @@ struct HPP_FCL_DLLAPI ContactPatch {
     this->penetration_depth = std::numeric_limits<FCL_REAL>::max();
   }
 
+  /// @brief Reset the contact patch. Same effect as `clear` but does not modify
+  /// `tfc` nor `penetration_depth`.
+  void reset() { this->m_size = 0; }
+
   /// @brief Whether two contact patches are the same or not.
   /// @note This compares, term by term, two contact patches.
   /// However, two contact patches can be identical, but have a different order
@@ -870,13 +874,13 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
   ContactPatchResult() : m_id_available_patch(0) {
     const size_t max_num_contact_patches = 1;
     const ContactPatchRequest request(max_num_contact_patches);
-    this->initialize(request);
+    this->set(request);
   }
 
   /// @brief Constructor using a `ContactPatchRequest`.
   explicit ContactPatchResult(const ContactPatchRequest& request)
       : m_id_available_patch(0) {
-    this->initialize(request);
+    this->set(request);
   };
 
   /// @brief Number of contact patches in the result.
@@ -942,8 +946,8 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
     }
   }
 
-  /// @brief Initializes a `ContactPatchResult` from a `ContactPatchRequest`
-  void initialize(const ContactPatchRequest& request) {
+  /// @brief Set up a `ContactPatchResult` from a `ContactPatchRequest`
+  void set(const ContactPatchRequest& request) {
     HPP_FCL_ASSERT(request.getMaxNumContactPatch() > 0,
                    "The ContactPatchRequest has 0 max_num_contact_patches.",
                    std::logic_error);
@@ -957,6 +961,22 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
       patch.reserve(request.getMaxSizeContactPatch());
     }
     this->clear();
+  }
+
+  /// @brief Return true if this `ContactPatchResult` is aligned with the
+  /// `ContactPatchRequest` given as input.
+  bool check(const ContactPatchRequest& request) const {
+    if (this->m_contact_patches_data.size() <
+        request.getMaxSizeContactPatch()) {
+      return false;
+    }
+
+    for (const ContactPatch& patch : this->m_contact_patches_data) {
+      if (patch.capacity() < request.getMaxSizeContactPatch()) {
+        return false;
+      }
+    }
+    return true;
   }
 };
 

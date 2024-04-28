@@ -47,7 +47,8 @@ namespace hpp {
 namespace fcl {
 
 /// @brief Shape-shape contact patch computation.
-/// Assumes that `csolver` has already been set up by the `ContactPatchRequest`.
+/// Assumes that `csolver` and the `ContactPatchResult` have already been set up
+/// by the `ContactPatchRequest`.
 template <typename ShapeType1, typename ShapeType2>
 struct ComputeShapeShapeContactPatch {
   static void run(const CollisionGeometry* o1, const Transform3f& tf1,
@@ -57,9 +58,16 @@ struct ComputeShapeShapeContactPatch {
                   const ContactPatchRequest& request,
                   ContactPatchResult& result) {
     // TODO(louis): don't forget about swept-sphere radius
+    // TODO(louis): deal with pairs with strictly convex shapes
     if (!collision_result.isCollision()) {
       return;
     }
+    HPP_FCL_ASSERT(
+        result.check(request),
+        "The contact patch result and request are incompatible (issue of "
+        "contact patch size or maximum number of contact patches). Make sure "
+        "result is initialized with request.",
+        std::logic_error);
 
     const ShapeType1& s1 = static_cast<const ShapeType1&>(*o1);
     const ShapeType2& s2 = static_cast<const ShapeType2&>(*o2);

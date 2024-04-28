@@ -62,7 +62,7 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
       std::invalid_argument);
 
   // Before doing any computation, we initialize and clear the input result.
-  result.initialize(request);
+  result.set(request);
 
   OBJECT_TYPE object_type1 = o1->getObjectType();
   OBJECT_TYPE object_type2 = o2->getObjectType();

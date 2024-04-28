@@ -38,22 +38,142 @@
 
 #include "hpp/fcl/collision_data.h"
 #include "hpp/fcl/logging.h"
+#include "hpp/fcl/narrowphase/gjk.h"
 
 namespace hpp {
 namespace fcl {
 
-struct HPP_FCL_DLLAPI ContactPatchSolver {
-  explicit ContactPatchSolver(const ContactPatchRequest& request) {}
+/// @brief Construct a frame from the contact's normal.
+/// This frame is expressed w.r.t the world frame.
+/// The origin of the frame is `contact.pos` and the z-axis of the frame
+/// is `contact.normal`.
+inline void constructContactPatchFrame(const Contact& contact,
+                                       ContactPatch& contact_patch);
 
+/// @brief Solver to compute contact patches, i.e. the intersection between two
+/// contact surfaces projected onto the shapes' separating plane.
+struct HPP_FCL_DLLAPI ContactPatchSolver {
+ public:
+  using Index = ContactPatch::Index;
+  using ContactPoint = ContactPatch::ContactPoint;
+
+ private:
+  /// @brief Minkowski difference used to compute support function of the
+  /// considered shapes.
+  mutable details::MinkowskiDiff m_minkowski_difference;
+
+  /// @brief Two sets of points, which are the projections of the shapes
+  /// supports onto the separating plane. These sets of points may not be
+  /// convex. The shapes supports all belong to the support sets of the shapes,
+  /// in the direction of the `Contact`'s normal.
+  /// The resulting contact surface that the `ContactPatchSolver` computes is
+  /// the intersection of the convex-hull of these two sets of points.
+  /// @note Because these are 2D points, we use the convenient `ContactPatch`
+  /// struct to represent these two sets of points.
+  mutable std::array<ContactPatch, 2> m_projected_shapes_supports;
+
+  /// @brief Contact patches used for internal computation.
+  /// @note The `computePatch` algorithm starts by constructing two 2D
+  /// convex-hulls (the convex-hulls of the `m_projected_shapes_supports`). It
+  /// then uses the first convex-hull to clip the second one, effectively
+  /// computing the intersection between the two convex-hulls.
+  /// Why have 3 contact patches then? Because the algorithm works by
+  /// successively clipping the first conve-hull. So the first two contact
+  /// patches represent the current and previous iteration of the algorithm and
+  /// the third contact patch represents the convex-hull of the second shape.
+  mutable std::array<ContactPatch, 3> m_contact_patches;
+
+  /// @brief Tracks the current iterate of the algorithm.
+  mutable size_t m_id_current{0};
+
+ public:
+  /// @brief Number of vectors to pre-allocate in the `shapes_supports` vectors.
+  static constexpr size_t default_num_preallocated_supports = 16;
+
+  /// @brief Default constructor.
+  explicit ContactPatchSolver() {
+    const size_t num_contact_patch = 1;
+    const size_t size_contact_patch = ContactPatch::default_max_size;
+    const ContactPatchRequest request(num_contact_patch, size_contact_patch);
+    this->set(request);
+  }
+
+  /// @brief Construct the solver with a `ContactPatchRequest`.
+  explicit ContactPatchSolver(const ContactPatchRequest& request) {
+    this->set(request);
+  }
+
+  /// @brief Set up the solver using a `ContactPatchRequest`.
+  void set(const ContactPatchRequest& request);
+
+  /// @brief Main API of the solver: compute a contact patch from a contact
+  /// between shapes s1 and s2.
+  /// The contact patch is the (triple) intersection between the separating
+  /// plane passing (by `contact.pos` and supported by `contact.normal`) and the
+  /// shapes s1 and s2.
   template <typename ShapeType1, typename ShapeType2>
   void computePatch(const ShapeType1& s1, const Transform3f& tf1,
                     const ShapeType2& s2, const Transform3f& tf2,
-                    const Contact& contact, ContactPatch& contact_patch) const {
-    //
+                    const Contact& contact, ContactPatch& contact_patch) const;
+
+  /// @return true if p inside a clipping region defined by a and b, false
+  /// otherwise.
+  /// @param p point to check
+  /// @param a, b the vertices forming the edge of the clipping region.
+  /// @note the clipping ray points from a to b. Points on the right of the ray
+  /// are outside the clipping region; points on the left are inside.
+  template <typename Vector2dLike>
+  static bool pointIsInsideClippingRegion(
+      const Eigen::MatrixBase<Vector2dLike>& p,
+      const Eigen::MatrixBase<Vector2dLike>& a,
+      const Eigen::MatrixBase<Vector2dLike>& b);
+
+  /// @return the intersecting point between line defined by ray (a, b) and
+  /// the segment [c, d].
+  /// @note we make the following hypothesis:
+  /// 1) c != d (should be when creating initial polytopes)
+  /// 2) (c, d) is not parallel to ray -> if so, we return d.
+  template <typename Vector2dLike>
+  static ContactPoint computeLineSegmentIntersection(
+      const Eigen::MatrixBase<Vector2dLike>& a,
+      const Eigen::MatrixBase<Vector2dLike>& b,
+      const Eigen::MatrixBase<Vector2dLike>& c,
+      const Eigen::MatrixBase<Vector2dLike>& d);
+
+ private:
+  /// @brief Reset the internal quantities of the solver.
+  void reset() const;
+
+  /// @brief Getter for current iterate.
+  ContactPatch& current() {
+    return this->m_contact_patches[this->m_id_current];
   }
+
+  /// @brief Const getter for current iterate.
+  const ContactPatch& current() const {
+    return this->m_contact_patches[this->m_id_current];
+  }
+
+  /// @brief Getter for previous iterate.
+  ContactPatch& previous() {
+    return this->m_contact_patches[1 - this->m_id_current];
+  }
+
+  /// @brief Const getter for previous iterate.
+  const ContactPatch& previous() const {
+    return this->m_contact_patches[1 - this->m_id_current];
+  }
+
+  /// @brief Getter for the patch used to clip the other one.
+  ContactPatch& clipper() { return this->m_contact_patches[2]; }
+
+  /// @brief Const getter for the patch used to clip the other one.
+  const ContactPatch& clipper() const { return this->m_contact_patches[2]; }
 };
 
 }  // namespace fcl
 }  // namespace hpp
 
-#endif
+#include "hpp/fcl/contact_patch/contact_patch_solver.hxx"
+
+#endif  // HPP_FCL_CONTACT_PATCH_SOLVER_H

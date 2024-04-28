@@ -248,6 +248,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/contact_patch.h
   include/hpp/fcl/contact_patch_func_matrix.h
   include/hpp/fcl/contact_patch/contact_patch_solver.h
+  include/hpp/fcl/contact_patch/contact_patch_solver.hxx
   include/hpp/fcl/distance.h
   include/hpp/fcl/math/matrix_3f.h
   include/hpp/fcl/math/vec_3f.h
