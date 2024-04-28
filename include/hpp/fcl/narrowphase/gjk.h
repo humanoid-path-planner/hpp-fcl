@@ -491,6 +491,7 @@ struct HPP_FCL_DLLAPI EPA {
   Status status;
   GJK::Simplex result;
   Vec3f normal;
+  support_func_guess_t support_hint;
   FCL_REAL depth;
   SimplexFace* closest_face;
 

@@ -79,11 +79,8 @@ FCL_REAL ShapeShapeDistance<TriangleP, TriangleP>(
   details::GJK::Status gjk_status =
       solver->gjk.evaluate(solver->minkowski_difference, guess, support_hint);
 
-  if (solver->gjk_initial_guess == GJKInitialGuess::CachedGuess ||
-      solver->enable_cached_guess) {
-    solver->cached_guess = solver->gjk.getGuessFromSimplex();
-    solver->support_func_cached_guess = solver->gjk.support_hint;
-  }
+  solver->cached_guess = solver->gjk.getGuessFromSimplex();
+  solver->support_func_cached_guess = solver->gjk.support_hint;
 
   // Retrieve witness points and normal
   solver->gjk.getWitnessPointsAndNormal(solver->minkowski_difference, p1, p2,

@@ -100,12 +100,11 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
           o1, tf1, o2, tf2, &solver, request, result);
     }
   }
-  if (solver.gjk_initial_guess == GJKInitialGuess::CachedGuess ||
-      solver.enable_cached_guess) {
-    result.cached_gjk_guess = solver.cached_guess;
-    result.cached_support_func_guess = solver.support_func_cached_guess;
-  }
-
+  // Cache narrow phase solver result. If the option in the request is selected,
+  // also store the solver result in the request for the next call.
+  result.cached_gjk_guess = solver.cached_guess;
+  result.cached_support_func_guess = solver.support_func_cached_guess;
+  request.updateGuess(result);
   return res;
 }
 
@@ -150,7 +149,11 @@ FCL_REAL ComputeDistance::run(const Transform3f& tf1, const Transform3f& tf2,
   } else {
     res = func(o1, tf1, o2, tf2, &solver, request, result);
   }
-
+  // Cache narrow phase solver result. If the option in the request is selected,
+  // also store the solver result in the request for the next call.
+  result.cached_gjk_guess = solver.cached_guess;
+  result.cached_support_func_guess = solver.support_func_cached_guess;
+  request.updateGuess(result);
   return res;
 }
 
@@ -167,12 +170,6 @@ FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
     result.timings = timer.elapsed();
   } else
     res = run(tf1, tf2, request, result);
-
-  if (solver.gjk_initial_guess == GJKInitialGuess::CachedGuess ||
-      solver.enable_cached_guess) {
-    result.cached_gjk_guess = solver.cached_guess;
-    result.cached_support_func_guess = solver.support_func_cached_guess;
-  }
   return res;
 }
 

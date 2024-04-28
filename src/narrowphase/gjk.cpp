@@ -1632,6 +1632,7 @@ void EPA::reset(size_t max_iterations_, FCL_REAL tolerance_) {
   fc_store.resize(2 * max_iterations + 4);
   status = DidNotRun;
   normal.setZero();
+  support_hint.setZero();
   depth = 0;
   closest_face = nullptr;
   result.reset();
@@ -1765,7 +1766,7 @@ EPA::SimplexFace* EPA::findClosestFace() {
 
 EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   GJK::Simplex& simplex = *gjk.getSimplex();
-  support_func_guess_t hint(gjk.support_hint);
+  support_hint = gjk.support_hint;
 
   // TODO(louis): we might want to start with a hexahedron if the
   // simplex given by GJK is of rank <= 3.
@@ -1835,7 +1836,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
         closest_face->pass = ++pass;
         // At the moment, SimplexF.n is always normalized. This could be revised
         // in the future...
-        gjk.getSupport(closest_face->n, w, hint);
+        gjk.getSupport(closest_face->n, w, support_hint);
 
         // Step 2: check for convergence.
         // ------------------------------

@@ -176,10 +176,10 @@ struct HPP_FCL_DLLAPI QueryRequest {
   bool enable_cached_gjk_guess;
 
   /// @brief the gjk initial guess set by user
-  Vec3f cached_gjk_guess;
+  mutable Vec3f cached_gjk_guess;
 
   /// @brief the support function initial guess set by user
-  support_func_guess_t cached_support_func_guess;
+  mutable support_func_guess_t cached_support_func_guess;
 
   /// @brief maximum iteration for the GJK algorithm
   size_t gjk_max_iterations;
@@ -241,7 +241,12 @@ struct HPP_FCL_DLLAPI QueryRequest {
   QueryRequest& operator=(const QueryRequest& other) = default;
   HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
-  void updateGuess(const QueryResult& result);
+  /// @brief Updates the guess for the internal GJK algorithm in order to
+  /// warm-start it when reusing this collision request on the same collision
+  /// pair.
+  /// @note The option `gjk_initial_guess` must be set to
+  /// `GJKInitialGuess::CachedGuess` for this to work.
+  void updateGuess(const QueryResult& result) const;
 
   /// @brief whether two QueryRequest are the same or not
   inline bool operator==(const QueryRequest& other) const {
@@ -281,15 +286,11 @@ struct HPP_FCL_DLLAPI QueryResult {
         cached_support_func_guess(support_func_guess_t::Constant(-1)) {}
 };
 
-inline void QueryRequest::updateGuess(const QueryResult& result) {
-  if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
-    cached_gjk_guess = result.cached_gjk_guess;
-    cached_support_func_guess = result.cached_support_func_guess;
-  }
-  // TODO: use gjk_initial_guess instead
+inline void QueryRequest::updateGuess(const QueryResult& result) const {
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-  if (enable_cached_gjk_guess) {
+  if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
+      enable_cached_gjk_guess) {
     cached_gjk_guess = result.cached_gjk_guess;
     cached_support_func_guess = result.cached_support_func_guess;
   }

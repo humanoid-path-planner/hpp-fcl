@@ -253,7 +253,7 @@ void exposeCollisionAPI() {
       "collide",
       static_cast<std::size_t (*)(const CollisionGeometry*, const Transform3f&,
                                   const CollisionGeometry*, const Transform3f&,
-                                  CollisionRequest&, CollisionResult&)>(
+                                  const CollisionRequest&, CollisionResult&)>(
           &collide));
 
   class_<ComputeCollision>("ComputeCollision",
@@ -262,6 +262,6 @@ void exposeCollisionAPI() {
                     const CollisionGeometry*>())
       .def("__call__",
            static_cast<std::size_t (ComputeCollision::*)(
-               const Transform3f&, const Transform3f&, CollisionRequest&,
+               const Transform3f&, const Transform3f&, const CollisionRequest&,
                CollisionResult&) const>(&ComputeCollision::operator()));
 }
