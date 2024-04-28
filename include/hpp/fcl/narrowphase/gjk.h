@@ -158,7 +158,9 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
            const Transform3f& tf0, const Transform3f& tf1);
 
   /// @brief support function for shape0.
-  /// @return argmax_{v in shape0} v.dot(dir).
+  /// The output vector is expressed in the local frame of shape0.
+  /// @return argmax_{v in shape0} v.dot(dir), i.e the support of shape0 in
+  /// direction dir.
   /// @param dir support direction.
   /// @param hint used to initialize the search when shape is a ConvexBase
   /// object.
@@ -170,10 +172,14 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   }
 
   /// @brief support function for shape1.
-  /// @return argmax_{v in shape0} v.dot(dir).
+  /// The output vector is expressed in the local frame of shape0.
+  /// This is mandatory because in the end we are interested in support points
+  /// of the Minkowski difference; hence the supports of shape0 and shape1 must
+  /// live in the same frame.
+  /// @return tf * argmax_{v in shape0} v.dot(R^T * dir), i.e. the support of
+  /// shape1 in direction dir (tf is the tranform from shape1 to shape0).
   /// @param dir support direction.
-  /// @param hint used to initialize the search when shape is a ConvexBase
-  /// object.
+  /// @param hint used to initialize the search when shape is a ConvexBase.
   /// @tparam `SupportOptions` see `set(const ShapeBase*, const
   /// ShapeBase*)` for more details.
   template <int _SupportOptions = SupportOptions::NoSweptSphere>
@@ -185,8 +191,13 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
   /// @brief Support function for the pair of shapes. This method assumes `set`
   /// has already been called.
-  /// \param hint used to initialize the search when shape is a ConvexBase
-  /// object.
+  /// @param[in] dir the support direction.
+  /// @param[out] supp0 support of shape0 in direction dir, expressed in the
+  /// frame of shape0.
+  /// @param[out] supp1 support of shape1 in direction -dir, expressed in the
+  /// frame of shape0.
+  /// @param[in/out] hint used to initialize the search when shape is a
+  /// ConvexBase object.
   inline void support(const Vec3f& dir, Vec3f& supp0, Vec3f& supp1,
                       support_func_guess_t& hint) const {
     assert(getSupportFunc != NULL);
