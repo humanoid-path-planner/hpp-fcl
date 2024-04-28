@@ -99,11 +99,10 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   // TODO(louis): fill `clipped` and `clipper` with convex-hulls of
   // `m_projected_shapes_supports`.
   const Vec3f support_dir(0, 0, 1);
-  int hint = 0;
   ContactPatch& current = const_cast<ContactPatch&>(this->current());
-  this->computeSupportSetShape1(hint, current);
+  this->computeSupportSetShape1(current);
   ContactPatch& clipper = const_cast<ContactPatch&>(this->clipper());
-  this->computeSupportSetShape2(hint, clipper);
+  this->computeSupportSetShape2(clipper);
 
   //
   // Step 3 - Main loop of the algorithm: use the "clipper"
