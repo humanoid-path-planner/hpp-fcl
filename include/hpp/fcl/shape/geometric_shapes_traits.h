@@ -47,7 +47,8 @@ struct shape_traits_base {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = false,
     IsInflatable = false,
-    HasInflatedSupportFunction = false
+    HasInflatedSupportFunction = false,
+    IsStrictlyConvex = false
   };
 };
 
@@ -60,7 +61,8 @@ struct shape_traits<TriangleP> : shape_traits_base {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = false,
     IsInflatable = false,
-    HasInflatedSupportFunction = false
+    HasInflatedSupportFunction = false,
+    IsStrictlyConvex = false
   };
 };
 
@@ -70,7 +72,8 @@ struct shape_traits<Box> : shape_traits_base {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = false,
     IsInflatable = true,
-    HasInflatedSupportFunction = false
+    HasInflatedSupportFunction = false,
+    IsStrictlyConvex = false
   };
 };
 
@@ -80,7 +83,8 @@ struct shape_traits<Sphere> : shape_traits_base {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = false,
     IsInflatable = true,
-    HasInflatedSupportFunction = false
+    HasInflatedSupportFunction = false,
+    IsStrictlyConvex = true
   };
 };
 
@@ -90,7 +94,8 @@ struct shape_traits<Ellipsoid> : shape_traits_base {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = false,
     IsInflatable = true,
-    HasInflatedSupportFunction = false
+    HasInflatedSupportFunction = false,
+    IsStrictlyConvex = true
   };
 };
 
@@ -100,7 +105,8 @@ struct shape_traits<Capsule> : shape_traits_base {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = false,
     IsInflatable = true,
-    HasInflatedSupportFunction = false
+    HasInflatedSupportFunction = false,
+    IsStrictlyConvex = false
   };
 };
 
@@ -110,7 +116,8 @@ struct shape_traits<Cone> : shape_traits_base {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = false,
     IsInflatable = true,
-    HasInflatedSupportFunction = false
+    HasInflatedSupportFunction = false,
+    IsStrictlyConvex = false
   };
 };
 
@@ -120,7 +127,8 @@ struct shape_traits<Cylinder> : shape_traits_base {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = false,
     IsInflatable = true,
-    HasInflatedSupportFunction = false
+    HasInflatedSupportFunction = false,
+    IsStrictlyConvex = false
   };
 };
 
@@ -130,7 +138,8 @@ struct shape_traits<ConvexBase> : shape_traits_base {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = true,
     IsInflatable = false,
-    HasInflatedSupportFunction = true
+    HasInflatedSupportFunction = true,
+    IsStrictlyConvex = false
   };
 };
 
@@ -140,7 +149,8 @@ struct shape_traits<Halfspace> : shape_traits_base {
     NeedNormalizedDir = false,
     NeedNesterovNormalizeHeuristic = false,
     IsInflatable = true,
-    HasInflatedSupportFunction = false
+    HasInflatedSupportFunction = false,
+    IsStrictlyConvex = false
   };
 };
 
