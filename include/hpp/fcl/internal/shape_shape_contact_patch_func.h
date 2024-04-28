@@ -76,6 +76,7 @@ struct ComputeShapeShapeContactPatch {
           i >= result.maxNumContactPatches()) {
         break;
       }
+      csolver->setSupportGuess(collision_result.cached_support_func_guess);
       const Contact& contact = collision_result.getContact(i);
       ContactPatch& contact_patch = result.getUnusedContactPatch();
       csolver->computePatch(s1, tf1, s2, tf2, contact, contact_patch);

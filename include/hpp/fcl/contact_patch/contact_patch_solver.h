@@ -57,6 +57,23 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   using Index = ContactPatch::Index;
   using ContactPoint = ContactPatch::ContactPoint;
   using ReferenceFrame = ContactPatch::ReferenceFrame;
+  using ShapeSupportData = details::ShapeSupportData;
+
+  /// @brief Support set function for shape si.
+  /// @param[in] shape the shape.
+  /// @param[in] ctfi transform from shape si to frame c.
+  /// @param[in] dir support direction, expressed in the frame c.
+  /// @param[in] hint for the support computation of ConvexBase shapes.
+  /// @param[in] support_data for the support computation of ConvexBase shapes.
+  /// @param[out] projected_support_set a support set in the direction dir,
+  /// projected onto the plane supported by the z-axis of ctfi and passing by
+  /// the origin of ctf1. All the points in this ouput set are expressed in the
+  /// frame c.
+  typedef void (*SupportSetFunction)(const ShapeBase* shape,
+                                     const Transform3f& ctfi, const Vec3f& dir,
+                                     const int hint,
+                                     ShapeSupportData* support_data,
+                                     ContactPatch& projected_support_set);
 
  private:
   /// @brief Minkowski difference used to compute support function of the
@@ -87,8 +104,30 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Tracks the current iterate of the algorithm.
   mutable size_t m_id_current{0};
 
+  /// @brief Transform from shape1 contact frame.
+  mutable Transform3f m_ctf1;
+
+  /// @brief Transform from shape2 contact frame.
+  mutable Transform3f m_ctf2;
+
+  /// @brief Temporary data to compute the support sets on each shape.
+  mutable std::array<ShapeSupportData, 2> m_supports_data;
+
+  /// @brief Support set function for shape s1.
+  mutable SupportSetFunction m_supportFuncShape1;
+
+  /// @brief Support set function for shape s2.
+  mutable SupportSetFunction m_supportFuncShape2;
+
+  /// @brief Pointers to shapes s1 and s2.
+  mutable const ShapeBase* m_shapes[2];
+
+  /// @brief Guess for the support sets computation.
+  mutable support_func_guess_t m_support_guess;
+
  public:
-  /// @brief Number of vectors to pre-allocate in the `shapes_supports` vectors.
+  /// @brief Number of vectors to pre-allocate in the `shapes_supports`
+  /// vectors.
   static constexpr size_t default_num_preallocated_supports = 16;
 
   /// @brief Default constructor.
@@ -107,6 +146,12 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Set up the solver using a `ContactPatchRequest`.
   void set(const ContactPatchRequest& request);
 
+  /// @brief Sets the support guess used during support set computation of
+  /// shapes s1 and s2.
+  void setSupportGuess(const support_func_guess_t guess) const {
+    this->m_support_guess = guess;
+  }
+
   /// @brief Main API of the solver: compute a contact patch from a contact
   /// between shapes s1 and s2.
   /// The contact patch is the (triple) intersection between the separating
@@ -116,6 +161,30 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   void computePatch(const ShapeType1& s1, const Transform3f& tf1,
                     const ShapeType2& s2, const Transform3f& tf2,
                     const Contact& contact, ContactPatch& contact_patch) const;
+
+  /// @brief Compute support set of shape s1.
+  void computeSupportSetShape1(const int hint,
+                               ContactPatch& projected_support_set) const {
+    // Note: the support direction must be expressed in the frame of the contact
+    // patch with which `reset` was called. Because of that, the support
+    // direction is always (0, 0, 1), which corresponds to the normal of the
+    // contact_patch, expressed in the frame of the contact_patch, i.e. the
+    // z-axis.
+    this->m_supportFuncShape1(this->m_shapes[0], this->m_ctf1, Vec3f(0, 0, 1),
+                              hint, &(this->m_supports_data[0]),
+                              projected_support_set);
+  }
+
+  /// @brief Compute support set of shape s2.
+  void computeSupportSetShape2(const int hint,
+                               ContactPatch& projected_support_set) const {
+    // See `computeSupportSetShape1` for explanation on why Vec3f(0, 0, -1).
+    // The -1 comes from the fact that the support set of shape s2 is in the
+    // opposite direction to the support set of shape s1.
+    this->m_supportFuncShape1(this->m_shapes[1], this->m_ctf2, Vec3f(0, 0, -1),
+                              hint, &(this->m_supports_data[1]),
+                              projected_support_set);
+  }
 
   /// @return true if p inside a clipping region defined by a and b, false
   /// otherwise.
@@ -143,7 +212,10 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
 
  private:
   /// @brief Reset the internal quantities of the solver.
-  void reset() const;
+  template <typename ShapeType1, typename ShapeType2>
+  void reset(const ShapeType1& shape1, const Transform3f& tf1,
+             const ShapeType2& shape2, const Transform3f& tf2,
+             const ContactPatch& contact_patch) const;
 
   /// @brief Getter for current iterate.
   ContactPatch& current() {
@@ -171,6 +243,26 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Const getter for the patch used to clip the other one.
   const ContactPatch& clipper() const { return this->m_contact_patches[2]; }
 };
+
+namespace details {
+
+/// @brief Construct othonormal basis from vector.
+/// The z-axis is the normalized input vector.
+Matrix3f constructBasisFromNormal(const Vec3f& vec);
+
+/// @brief Templated support set function.
+template <typename ShapeType>
+void supportSetFunctionTpl(const ShapeType* shape, const Transform3f& ctfi,
+                           const Vec3f& dir, const int hint,
+                           ShapeSupportData* support_data,
+                           ContactPatch& projected_support_set);
+
+/// @brief Construct support set function for shape, w.r.t reference frame c.
+ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
+    const ShapeBase* shape, const Transform3f& ctfi,
+    ShapeSupportData* support_data);
+
+}  // namespace details
 
 }  // namespace fcl
 }  // namespace hpp

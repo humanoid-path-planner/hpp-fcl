@@ -42,21 +42,6 @@
 namespace hpp {
 namespace fcl {
 
-namespace details {
-
-// ============================================================================
-/// @brief Construct othonormal basis from vector.
-/// The z-axis is the normalized input vector.
-inline Matrix3f constructBasisFromNormal(const Vec3f& vec) {
-  Matrix3f basis = Matrix3f::Zero();
-  basis.col(2) = vec.normalized();
-  basis.col(1) = -vec.unitOrthogonal();
-  basis.col(0) = basis.col(1).cross(vec);
-  return basis;
-}
-
-}  // namespace details
-
 inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
   // Note: it's important for the number of pre-allocated Vec3f in
   // `shapes_supports` to be larger than `request.getMaxSizeContactPatch()`
@@ -96,6 +81,8 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
     // function around the normal and return a pseudo support set. This would
     // allow spheres and ellipsoids to have a contact surface, which does make
     // sense in certain physics simulation cases.
+    // Do the same for strictly convex regions of non-strictly convex shapes
+    // like the ends of capsules.
     contact_patch.addContactPoint<ReferenceFrame::WORLD>(contact.pos);
     return;
   }
@@ -108,13 +95,15 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   // After this step, the current and the clipper contact patches are filled
   // with the projection of the support sets of s1 and s2 in the direction of
   // `contact.normal`.
-  this->reset();
+  this->reset(s1, tf1, s2, tf2, contact_patch);
   // TODO(louis): fill `clipped` and `clipper` with convex-hulls of
   // `m_projected_shapes_supports`.
+  const Vec3f support_dir(0, 0, 1);
+  int hint = 0;
   ContactPatch& current = const_cast<ContactPatch&>(this->current());
-  // this->computeSupportSetProjection(s1, tf1, contact_patch, current);
+  this->computeSupportSetShape1(hint, current);
   ContactPatch& clipper = const_cast<ContactPatch&>(this->clipper());
-  // this->computeSupportSetProjection(s1, tf1, contact_patch, clipper);
+  this->computeSupportSetShape2(hint, clipper);
 
   //
   // Step 3 - Main loop of the algorithm: use the "clipper"
@@ -166,7 +155,33 @@ inline void constructContactPatchFrame(const Contact& contact,
 }
 
 // ============================================================================
-inline void ContactPatchSolver::reset() const {
+template <typename ShapeType1, typename ShapeType2>
+inline void ContactPatchSolver::reset(const ShapeType1& shape1,
+                                      const Transform3f& tf1,
+                                      const ShapeType2& shape2,
+                                      const Transform3f& tf2,
+                                      const ContactPatch& contact_patch) const {
+  // Get the support function of each shape
+  const Transform3f& tfc = contact_patch.tfc;
+  this->m_shapes[0] = &shape1;
+  this->m_ctf1.rotation().noalias() =
+      tfc.rotation().transpose() * tf1.getRotation();
+  this->m_ctf1.translation().noalias() =
+      tfc.getRotation().transpose() *
+      (tf1.getTranslation() - tfc.getTranslation());
+  this->m_supportFuncShape1 = details::makeSupportSetFunction(
+      &shape1, this->m_ctf1, &(this->m_supports_data[0]));
+
+  this->m_shapes[1] = &shape2;
+  this->m_ctf2.rotation().noalias() =
+      tfc.rotation().transpose() * tf2.getRotation();
+  this->m_ctf2.translation().noalias() =
+      tfc.getRotation().transpose() *
+      (tf2.getTranslation() - tfc.getTranslation());
+  this->m_supportFuncShape2 = details::makeSupportSetFunction(
+      &shape2, this->m_ctf2, &(this->m_supports_data[1]));
+
+  // Reset internal quantities
   this->m_projected_shapes_supports[0].clear();
   this->m_projected_shapes_supports[1].clear();
 
@@ -210,6 +225,63 @@ inline bool ContactPatchSolver::pointIsInsideClippingRegion(
   // the ray.
   return (b(0) - a(0)) * (p(1) - a(1)) >= (b(1) - a(1)) * (p(0) - a(0));
 }
+
+namespace details {
+
+// ============================================================================
+inline Matrix3f constructBasisFromNormal(const Vec3f& vec) {
+  Matrix3f basis = Matrix3f::Zero();
+  basis.col(2) = vec.normalized();
+  basis.col(1) = -vec.unitOrthogonal();
+  basis.col(0) = basis.col(1).cross(vec);
+  return basis;
+}
+
+template <typename ShapeType>
+void supportSetFunctionTpl(const ShapeBase* shape_, const Transform3f& ctfi,
+                           const Vec3f& dir, const int hint,
+                           ShapeSupportData* support_data,
+                           ContactPatch& projected_support_set) {
+  const ShapeType* shape = static_cast<const ShapeType*>(shape_);
+  // getShapeSupportSet(shape, ctfi, dir, hint, support_data,
+  // projected_support_set);
+}
+
+// ============================================================================
+inline ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
+    const ShapeBase* shape, const Transform3f& ctfi,
+    ShapeSupportData* support_data) {
+  switch (shape->getNodeType()) {
+    case GEOM_TRIANGLE:
+      return supportSetFunctionTpl<TriangleP>;
+    case GEOM_BOX:
+      return supportSetFunctionTpl<Box>;
+    case GEOM_SPHERE:
+      return supportSetFunctionTpl<Sphere>;
+    case GEOM_ELLIPSOID:
+      return supportSetFunctionTpl<Ellipsoid>;
+    case GEOM_CAPSULE:
+      return supportSetFunctionTpl<Capsule>;
+    case GEOM_CONE:
+      return supportSetFunctionTpl<Cone>;
+    case GEOM_CYLINDER:
+      return supportSetFunctionTpl<Cylinder>;
+    case GEOM_CONVEX: {
+      const auto* convex = static_cast<const ConvexBase*>(shape);
+      if ((size_t)(convex->num_points) >
+          ConvexBase::num_vertices_large_convex_threshold) {
+        support_data->visited.assign(convex->num_points, false);
+        return supportSetFunctionTpl<LargeConvex>;
+      } else {
+        return supportSetFunctionTpl<SmallConvex>;
+      }
+    }
+    default:
+      HPP_FCL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
+  }
+}
+
+}  // namespace details
 
 }  // namespace fcl
 }  // namespace hpp
