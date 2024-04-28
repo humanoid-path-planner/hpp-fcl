@@ -55,7 +55,7 @@ struct ComputeShapeShapeContactPatch {
   static void run(const CollisionGeometry* o1, const Transform3f& tf1,
                   const CollisionGeometry* o2, const Transform3f& tf2,
                   const CollisionResult& collision_result,
-                  const GJKSolver* nsolver, const ContactPatchSolver* csolver,
+                  const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
                   ContactPatchResult& result) {
     // TODO(louis): don't forget about swept-sphere radius
@@ -68,12 +68,11 @@ template <typename ShapeType1, typename ShapeType2>
 void ShapeShapeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
                             const CollisionGeometry* o2, const Transform3f& tf2,
                             const CollisionResult& collision_result,
-                            const GJKSolver* nsolver,
                             const ContactPatchSolver* csolver,
                             const ContactPatchRequest& request,
                             ContactPatchResult& result) {
   return ComputeShapeShapeContactPatch<ShapeType1, ShapeType2>::run(
-      o1, tf1, o2, tf2, collision_result, nsolver, csolver, request, result);
+      o1, tf1, o2, tf2, collision_result, csolver, request, result);
 }
 
 inline void capsuleBoxMCP(const Capsule& s1, const Transform3f& tf1,

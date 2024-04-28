@@ -65,12 +65,14 @@ struct HPP_FCL_DLLAPI ContactPatchFunctionMatrix {
   /// different ways to compute contact patches. We could, for example, perturb
   /// tf1 and tf2 and make multiple calls to the GJKSolver (although this is not
   /// the approach done by default).
-  typedef void (*ContactPatchFunc)(
-      const CollisionGeometry* o1, const Transform3f& tf1,
-      const CollisionGeometry* o2, const Transform3f& tf2,
-      const CollisionResult& collision_result, const GJKSolver* nsolver,
-      const ContactPatchSolver* csolver, const ContactPatchRequest& request,
-      ContactPatchResult& result);
+  typedef void (*ContactPatchFunc)(const CollisionGeometry* o1,
+                                   const Transform3f& tf1,
+                                   const CollisionGeometry* o2,
+                                   const Transform3f& tf2,
+                                   const CollisionResult& collision_result,
+                                   const ContactPatchSolver* csolver,
+                                   const ContactPatchRequest& request,
+                                   ContactPatchResult& result);
 
   /// @brief Each item in the contact patch matrix is a function to handle
   /// contact patch computation between objects of type1 and type2.

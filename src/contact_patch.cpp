@@ -92,10 +92,9 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
                          std::invalid_argument);
   }
 
-  GJKSolver nsolver;
   ContactPatchSolver csolver(request);
   return looktable.contact_patch_matrix[node_type1][node_type2](
-      o1, tf1, o2, tf2, collision_result, &nsolver, &csolver, request, result);
+      o1, tf1, o2, tf2, collision_result, &csolver, request, result);
 }
 
 }  // namespace fcl
