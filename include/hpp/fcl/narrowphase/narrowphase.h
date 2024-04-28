@@ -50,8 +50,11 @@
 namespace hpp {
 namespace fcl {
 
-/// @brief collision and distance solver based on GJK algorithm implemented in
-/// fcl (rewritten the code from the GJK in bullet)
+/// @brief collision and distance solver based on the GJK and EPA algorithms.
+/// Originally, GJK and EPA were implemented in fcl which itself took
+/// inspiration from the code of the GJK in bullet. Since then, both GJK and EPA
+/// have been largely modified to be faster and more robust to numerical
+/// accuracy and edge cases.
 struct HPP_FCL_DLLAPI GJKSolver {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
