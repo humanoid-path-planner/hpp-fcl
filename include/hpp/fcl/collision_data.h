@@ -637,7 +637,8 @@ struct HPP_FCL_DLLAPI ContactPatch {
   Vec3f getContactNormal() const { return this->tfc.rotation().col(2); }
 
   /// @brief Add a 2D contact point to the contact patch.
-  void addContactPoint(const ContactPoint& contact_point) {
+  template <typename Vector2Like>
+  void addContactPoint(const Eigen::MatrixBase<Vector2Like>& contact_point) {
     HPP_FCL_ASSERT(this->m_size < this->m_contact_points.rows(),
                    "Tried to insert point in contact patch but exceeded "
                    "maximum size of contact patch.",
@@ -658,18 +659,18 @@ struct HPP_FCL_DLLAPI ContactPatch {
   /// patch belongs.
   /// @tparam InputFrame is the reference frame in which the input 3D point is
   /// expressed. See @ref ContactPatch::ReferenceFrame.
-  template <int InputFrame>
-  void addContactPoint(const Vec3f& contact_point_3d) {
+  template <int InputFrame, typename Vector3Like>
+  void addContactPoint(const Eigen::MatrixBase<Vector3Like>& contact_point_3d) {
     if (InputFrame == ReferenceFrame::WORLD) {
-      Vec3f contact_point = this->tfc.inverseTransform(contact_point_3d);
-      this->addContactPoint(contact_point.head<2>());
+      auto contact_point = this->tfc.inverseTransform(contact_point_3d);
+      this->addContactPoint(contact_point.template head<2>());
     }
     if (InputFrame == ReferenceFrame::LOCAL) {
-      this->addContactPoint(contact_point_3d.head<2>());
+      this->addContactPoint(contact_point_3d.template head<2>());
     }
     if (InputFrame == ReferenceFrame::LOCAL_WORLD_ALIGNED) {
-      Vec3f contact_point = this->tfc.rotation().transpose() * contact_point_3d;
-      this->addContactPoint(contact_point.head<2>());
+      auto contact_point = this->tfc.rotation().transpose() * contact_point_3d;
+      this->addContactPoint(contact_point.template head<2>());
     }
   }
 

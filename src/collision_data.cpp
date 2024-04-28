@@ -52,11 +52,11 @@ bool DistanceRequest::isSatisfied(const DistanceResult& result) const {
 // Explicit instantiation for ContactPatch
 // clang-format off
 template
-void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::WORLD>(const Vec3f&);
+void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::WORLD, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
 template
-void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::LOCAL>(const Vec3f&);
+void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::LOCAL, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
 template
-void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::LOCAL_WORLD_ALIGNED>(const Vec3f&);
+void HPP_FCL_DLLAPI ContactPatch::addContactPoint<ContactPatch::ReferenceFrame::LOCAL_WORLD_ALIGNED, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
 
 template
 Vec3f HPP_FCL_DLLAPI ContactPatch::getContactPoint<ContactPatch::ReferenceFrame::WORLD>(const ContactPatch::Index) const;
