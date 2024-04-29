@@ -419,45 +419,54 @@ inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
 }
 
 // ============================================================================
+#define CALL_GET_SHAPE_SUPPORT_SET(ShapeType)                               \
+  getShapeSupportSet<_SupportOptions>(static_cast<const ShapeType*>(shape), \
+                                      dir, ctfi, support_set, hint, nullptr)
 template <int _SupportOptions>
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint) {
-  Vec3f support;
+void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
+                   const Transform3f& ctfi, SupportSet& support_set,
+                   const int hint) {
   switch (shape->getNodeType()) {
     case GEOM_TRIANGLE:
-      CALL_GET_SHAPE_SUPPORT(TriangleP);
+      CALL_GET_SHAPE_SUPPORT_SET(TriangleP);
       break;
     case GEOM_BOX:
-      CALL_GET_SHAPE_SUPPORT(Box);
+      CALL_GET_SHAPE_SUPPORT_SET(Box);
       break;
     case GEOM_SPHERE:
-      CALL_GET_SHAPE_SUPPORT(Sphere);
+      CALL_GET_SHAPE_SUPPORT_SET(Sphere);
       break;
     case GEOM_ELLIPSOID:
-      CALL_GET_SHAPE_SUPPORT(Ellipsoid);
+      CALL_GET_SHAPE_SUPPORT_SET(Ellipsoid);
       break;
     case GEOM_CAPSULE:
-      CALL_GET_SHAPE_SUPPORT(Capsule);
+      CALL_GET_SHAPE_SUPPORT_SET(Capsule);
       break;
     case GEOM_CONE:
-      CALL_GET_SHAPE_SUPPORT(Cone);
+      CALL_GET_SHAPE_SUPPORT_SET(Cone);
       break;
     case GEOM_CYLINDER:
-      CALL_GET_SHAPE_SUPPORT(Cylinder);
+      CALL_GET_SHAPE_SUPPORT_SET(Cylinder);
       break;
     case GEOM_CONVEX:
-      CALL_GET_SHAPE_SUPPORT(ConvexBase);
+      CALL_GET_SHAPE_SUPPORT_SET(ConvexBase);
       break;
     case GEOM_PLANE:
     case GEOM_HALFSPACE:
-    default:
-      support.setZero();
-      ;  // nothing
+    default:;  // nothing
   }
-
-  return support;
 }
-
 #undef CALL_GET_SHAPE_SUPPORT
+
+// ============================================================================
+template <typename ShapeType, int _SupportOptions>
+void getSupportSetTpl(const ShapeBase* shape_, const Vec3f& dir,
+                      const Transform3f& ctfi,
+                      SupportSet& projected_support_set, const int hint) {
+  const ShapeType* shape = static_cast<const ShapeType*>(shape_);
+  // getShapeSupportSet<_SupportOptions>(shape, ctfi, dir, hint, support_data,
+  // projected_support_set);
+}
 
 }  // namespace details
 
