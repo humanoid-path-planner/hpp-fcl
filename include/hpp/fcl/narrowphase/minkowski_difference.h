@@ -132,8 +132,8 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
   /// @brief support function for shape0.
   /// The output vector is expressed in the local frame of shape0.
-  /// @return argmax_{v in shape0} v.dot(dir), i.e the support of shape0 in
-  /// direction dir.
+  /// @return a point which belongs to the set {argmax_{v in shape0}
+  /// v.dot(dir)}, i.e a support of shape0 in direction dir.
   /// @param dir support direction.
   /// @param hint used to initialize the search when shape is a ConvexBase
   /// object.
@@ -149,8 +149,9 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
   /// This is mandatory because in the end we are interested in support points
   /// of the Minkowski difference; hence the supports of shape0 and shape1 must
   /// live in the same frame.
-  /// @return tf * argmax_{v in shape0} v.dot(R^T * dir), i.e. the support of
-  /// shape1 in direction dir (tf is the tranform from shape1 to shape0).
+  /// @return a point which belongs to the set {tf * argmax_{v in shape1}
+  /// v.dot(R^T * dir)}, i.e. the support of shape1 in direction dir (tf is the
+  /// tranform from shape1 to shape0).
   /// @param dir support direction.
   /// @param hint used to initialize the search when shape is a ConvexBase.
   /// @tparam `SupportOptions` see `set(const ShapeBase*, const
