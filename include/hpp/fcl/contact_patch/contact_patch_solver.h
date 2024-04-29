@@ -240,10 +240,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
 
 namespace details {
 
-/// @brief Construct othonormal basis from vector.
-/// The z-axis is the normalized input vector.
-Matrix3f constructBasisFromNormal(const Vec3f& vec);
-
 /// @brief Construct support set function for shape, w.r.t reference frame c.
 ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
     const ShapeBase* shape, const Transform3f& ctfi,

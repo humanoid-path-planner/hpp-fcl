@@ -38,6 +38,7 @@
 #define HPP_FCL_CONTACT_PATCH_SOLVER_HXX
 
 #include "hpp/fcl/data_types.h"
+#include "hpp/fcl/shape/geometric_shapes_traits.h"
 
 namespace hpp {
 namespace fcl {
@@ -158,8 +159,7 @@ inline void constructContactPatchFrame(const Contact& contact,
                                        ContactPatch& contact_patch) {
   contact_patch.penetration_depth = contact.penetration_depth;
   contact_patch.tfc.translation() = contact.pos;
-  contact_patch.tfc.rotation() =
-      details::constructBasisFromNormal(contact.normal);
+  contact_patch.tfc.rotation() = constructBasisFromNormal(contact.normal);
 }
 
 // ============================================================================
@@ -228,15 +228,6 @@ inline bool ContactPatchSolver::pointIsInsideClippingRegion(const Vec2f& p,
 }
 
 namespace details {
-
-// ============================================================================
-inline Matrix3f constructBasisFromNormal(const Vec3f& vec) {
-  Matrix3f basis = Matrix3f::Zero();
-  basis.col(2) = vec.normalized();
-  basis.col(1) = -vec.unitOrthogonal();
-  basis.col(0) = basis.col(1).cross(vec);
-  return basis;
-}
 
 // ============================================================================
 inline ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
