@@ -123,8 +123,8 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   this->m_id_current = 0;
   const Index clipper_size = (Index)(this->clipper().size());
   for (Index i = 0; i < clipper_size; ++i) {
-    auto a = this->clipper().point(i);
-    auto b = this->clipper().point((i + 1) % clipper_size);
+    const Vec2f a = this->clipper().point(i);
+    const Vec2f b = this->clipper().point((i + 1) % clipper_size);
 
     this->m_id_current = 1 - this->m_id_current;
     ContactPatch& current = const_cast<ContactPatch&>(this->current());
@@ -133,18 +133,16 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
     // clipped twice.
     const Index previous_size = (Index)(this->previous().size());
     for (Index j = 0; j < previous_size; ++j) {
-      auto vcurrent = this->previous().point(j);
-      auto vnext = this->previous().point((j + 1) % previous_size);
+      const Vec2f vcurrent = this->previous().point(j);
+      const Vec2f vnext = this->previous().point((j + 1) % previous_size);
       if (pointIsInsideClippingRegion(vcurrent, a, b)) {
         current.addPoint(vcurrent);
         if (!pointIsInsideClippingRegion(vnext, a, b)) {
-          const ContactPoint p =
-              computeLineSegmentIntersection(a, b, vcurrent, vnext);
+          const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
           current.addPoint(p);
         }
       } else if (pointIsInsideClippingRegion(vnext, a, b)) {
-        const ContactPoint p =
-            computeLineSegmentIntersection(a, b, vcurrent, vnext);
+        const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
         current.addPoint(p);
       }
     }
@@ -203,15 +201,10 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
 }
 
 // ==========================================================================
-template <typename Vector2dLike>
-inline ContactPatchSolver::ContactPoint
-ContactPatchSolver::computeLineSegmentIntersection(
-    const Eigen::MatrixBase<Vector2dLike>& a,
-    const Eigen::MatrixBase<Vector2dLike>& b,
-    const Eigen::MatrixBase<Vector2dLike>& c,
-    const Eigen::MatrixBase<Vector2dLike>& d) {
-  const ContactPoint ab = b - a;
-  const ContactPoint n(-ab(1), ab(0));
+inline Vec2f ContactPatchSolver::computeLineSegmentIntersection(
+    const Vec2f& a, const Vec2f& b, const Vec2f& c, const Vec2f& d) {
+  const Vec2f ab = b - a;
+  const Vec2f n(-ab(1), ab(0));
   const FCL_REAL denominator = n.dot(c - d);
   if (std::abs(denominator) < std::numeric_limits<double>::epsilon()) {
     return d;
@@ -223,11 +216,9 @@ ContactPatchSolver::computeLineSegmentIntersection(
 }
 
 // ==========================================================================
-template <typename Vector2dLike>
-inline bool ContactPatchSolver::pointIsInsideClippingRegion(
-    const Eigen::MatrixBase<Vector2dLike>& p,
-    const Eigen::MatrixBase<Vector2dLike>& a,
-    const Eigen::MatrixBase<Vector2dLike>& b) {
+inline bool ContactPatchSolver::pointIsInsideClippingRegion(const Vec2f& p,
+                                                            const Vec2f& a,
+                                                            const Vec2f& b) {
   // Note: being inside/outside the clipping zone can easily be determined by
   // looking at the sign of det(b - a, p - a). If det > 0, then (b - a, p - a)
   // forms a right sided base, i.e. p is on the right of the ray.

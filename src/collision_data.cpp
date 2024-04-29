@@ -52,11 +52,11 @@ bool DistanceRequest::isSatisfied(const DistanceResult& result) const {
 // Explicit instantiation for SupportSet
 // clang-format off
 template
-void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::WORLD, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
+void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::WORLD>(const Vec3f&);
 template
-void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::LOCAL, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
+void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::LOCAL>(const Vec3f&);
 template
-void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::LOCAL_WORLD_ALIGNED, Vec3f>(const Eigen::MatrixBase<Vec3f>&);
+void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::LOCAL_WORLD_ALIGNED>(const Vec3f&);
 
 template
 Vec3f HPP_FCL_DLLAPI SupportSet::getPoint<SupportSet::ReferenceFrame::WORLD>(const SupportSet::Index) const;

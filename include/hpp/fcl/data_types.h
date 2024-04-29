@@ -65,10 +65,12 @@ namespace hpp {
 namespace fcl {
 typedef double FCL_REAL;
 typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
+typedef Eigen::Matrix<FCL_REAL, 2, 1> Vec2f;
 typedef Eigen::Matrix<FCL_REAL, 6, 1> Vec6f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 1> VecXf;
 typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3, Eigen::RowMajor> Matrixx3f;
+typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 2, Eigen::RowMajor> Matrixx2f;
 typedef Eigen::Matrix<Eigen::DenseIndex, Eigen::Dynamic, 3, Eigen::RowMajor>
     Matrixx3i;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Eigen::Dynamic> MatrixXf;

@@ -57,8 +57,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   // Note: `ContactPatch` is an alias for `SupportSet`.
   // The two can be used interchangeably.
   using Index = SupportSet::Index;
-  using SupportPoint = SupportSet::SupportPoint;
-  using ContactPoint = SupportSet::SupportPoint;
   using ReferenceFrame = SupportSet::ReferenceFrame;
   using ShapeSupportData = details::ShapeSupportData;
 
@@ -197,23 +195,16 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @param a, b the vertices forming the edge of the clipping region.
   /// @note the clipping ray points from a to b. Points on the right of the ray
   /// are outside the clipping region; points on the left are inside.
-  template <typename Vector2dLike>
-  static bool pointIsInsideClippingRegion(
-      const Eigen::MatrixBase<Vector2dLike>& p,
-      const Eigen::MatrixBase<Vector2dLike>& a,
-      const Eigen::MatrixBase<Vector2dLike>& b);
+  static bool pointIsInsideClippingRegion(const Vec2f& p, const Vec2f& a,
+                                          const Vec2f& b);
 
   /// @return the intersecting point between line defined by ray (a, b) and
   /// the segment [c, d].
   /// @note we make the following hypothesis:
   /// 1) c != d (should be when creating initial polytopes)
   /// 2) (c, d) is not parallel to ray -> if so, we return d.
-  template <typename Vector2dLike>
-  static ContactPoint computeLineSegmentIntersection(
-      const Eigen::MatrixBase<Vector2dLike>& a,
-      const Eigen::MatrixBase<Vector2dLike>& b,
-      const Eigen::MatrixBase<Vector2dLike>& c,
-      const Eigen::MatrixBase<Vector2dLike>& d);
+  static Vec2f computeLineSegmentIntersection(const Vec2f& a, const Vec2f& b,
+                                              const Vec2f& c, const Vec2f& d);
 
  private:
   /// @brief Reset the internal quantities of the solver.

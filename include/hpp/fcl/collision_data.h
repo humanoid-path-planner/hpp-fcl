@@ -509,15 +509,12 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
 struct HPP_FCL_DLLAPI SupportSet {
  public:
   // clang-format off
-  using SupportPointMatrix = Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 2, Eigen::RowMajor>;
-  using SupportPointMatrixXpr = Eigen::Block<SupportPointMatrix, Eigen::Dynamic, 2, true>;
-  using SupportPointMatrixConstXpr = Eigen::Block<const SupportPointMatrix, Eigen::Dynamic, 2, true>;
-  using SupportPoint = Eigen::Matrix<FCL_REAL, 2, 1>;
-  using ContactPoint = SupportPoint;
-  using SupportPointXpr = Eigen::Block<SupportPointMatrix, 1, 2, true>;
-  using SupportPointConstXpr = Eigen::Block<const SupportPointMatrix, 1, 2, true>;
-  // clang-format on
+  using Matrixx2fXpr = Eigen::Block<Matrixx2f, Eigen::Dynamic, 2, true>;
+  using ConstMatrixx2fXpr = Eigen::Block<const Matrixx2f, Eigen::Dynamic, 2, true>;
+  using Vec2fXpr = Eigen::Block<Matrixx2f, 1, 2, true>;
+  using ConstVec2fXpr = Eigen::Block<const Matrixx2f, 1, 2, true>;
   using Index = Eigen::Index;
+  // clang-format on
 
   /// @brief Reference frame in which to express a support points (contact point
   /// if SupportSet represents a ContactPatch).
@@ -530,6 +527,7 @@ struct HPP_FCL_DLLAPI SupportSet {
     // Local frame. Used to get the position of a point of
     // the set, expressed in the local frame of the set.
     LOCAL = 1,
+    // TODO(louis): remove LOCAL_WORLD_ALIGNED
     // Local frame, but with axes aligned with those of the world frame.
     // Suppose we want to move the origin of the frame `this->tfc` to where the
     // i-th point is located, we can simply do:
@@ -556,7 +554,7 @@ struct HPP_FCL_DLLAPI SupportSet {
 
  private:
   /// @brief Vertices of the polytope in the `SupportSet`.
-  SupportPointMatrix m_points;
+  Matrixx2f m_points;
 
   /// @brief Current size of the support set.
   Index m_size;
@@ -590,8 +588,7 @@ struct HPP_FCL_DLLAPI SupportSet {
   Vec3f getNormal() const { return this->tfc.rotation().col(2); }
 
   /// @brief Add a 2D point to the set.
-  template <typename Vector2Like>
-  void addPoint(const Eigen::MatrixBase<Vector2Like>& point) {
+  void addPoint(const Vec2f& point) {
     HPP_FCL_ASSERT(this->m_size < this->m_points.rows(),
                    "Tried to insert point in set but exceeded "
                    "maximum size of the set.",
@@ -611,17 +608,17 @@ struct HPP_FCL_DLLAPI SupportSet {
   /// belongs.
   /// @tparam InputFrame is the reference frame in which the input 3D point is
   /// expressed. See @ref SupportSet::ReferenceFrame.
-  template <int InputFrame, typename Vector3Like>
-  void addPoint(const Eigen::MatrixBase<Vector3Like>& point_3d) {
+  template <int InputFrame = ReferenceFrame::WORLD>
+  void addPoint(const Vec3f& point_3d) {
     if (InputFrame == ReferenceFrame::WORLD) {
-      auto point = this->tfc.inverseTransform(point_3d);
+      const auto point = this->tfc.inverseTransform(point_3d);
       this->addPoint(point.template head<2>());
     }
     if (InputFrame == ReferenceFrame::LOCAL) {
       this->addPoint(point_3d.template head<2>());
     }
     if (InputFrame == ReferenceFrame::LOCAL_WORLD_ALIGNED) {
-      auto point = this->tfc.rotation().transpose() * point_3d;
+      const auto point = this->tfc.rotation().transpose() * point_3d;
       this->addPoint(point.template head<2>());
     }
   }
@@ -629,7 +626,7 @@ struct HPP_FCL_DLLAPI SupportSet {
   /// @brief Get the i-th point of the set, expressed in the 3D reference frame.
   /// @tparam OutputFrame is the reference frame in which the output 3D point is
   /// expressed. See @ref SupportSet::ReferenceFrame.
-  template <int OutputFrame>
+  template <int OutputFrame = ReferenceFrame::WORLD>
   Vec3f getPoint(const Index i) const {
     Vec3f point(0, 0, 0);
     point.head<2>() = this->point(i);
@@ -646,21 +643,21 @@ struct HPP_FCL_DLLAPI SupportSet {
   }
 
   /// @brief Getter for the 2D points in the support set.
-  SupportPointMatrixXpr points() {
+  Matrixx2fXpr points() {
     HPP_FCL_ASSERT((this->m_size > 0) && (this->m_size < this->m_points.rows()),
                    "Invalid support set/contact patch size.", std::logic_error);
     return this->m_points.topRows(this->m_size);
   }
 
   /// @brief Const getter for the 2D points in the support set.
-  SupportPointMatrixConstXpr points() const {
+  ConstMatrixx2fXpr points() const {
     HPP_FCL_ASSERT((this->m_size > 0) && (this->m_size < this->m_points.rows()),
                    "Invalid support set/contact patch size.", std::logic_error);
     return this->m_points.topRows(this->m_size);
   }
 
   /// @brief Getter for the i-th 2D point in the support set.
-  SupportPointXpr point(const Index i) {
+  Vec2fXpr point(const Index i) {
     HPP_FCL_ASSERT((this->m_size > 0) && (this->m_size < this->m_points.rows()),
                    "Invalid support set/contact patch size.", std::logic_error);
     if (i < this->m_size) {
@@ -670,7 +667,7 @@ struct HPP_FCL_DLLAPI SupportSet {
   }
 
   /// @brief Const getter for the i-th 2D point in the support set.
-  SupportPointConstXpr point(const Index i) const {
+  ConstVec2fXpr point(const Index i) const {
     HPP_FCL_ASSERT((this->m_size > 0) && (this->m_size < this->m_points.rows()),
                    "Invalid support set/contact patch size.", std::logic_error);
     if (i < this->m_size) {
