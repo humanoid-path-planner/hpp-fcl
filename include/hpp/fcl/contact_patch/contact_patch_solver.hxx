@@ -247,16 +247,6 @@ inline Matrix3f constructBasisFromNormal(const Vec3f& vec) {
   return basis;
 }
 
-template <typename ShapeType, int _SupportOptions>
-void supportSetFunctionTpl(const ShapeBase* shape_, const Transform3f& ctfi,
-                           const Vec3f& dir, const int hint,
-                           ShapeSupportData* support_data,
-                           SupportSet& projected_support_set) {
-  const ShapeType* shape = static_cast<const ShapeType*>(shape_);
-  // getShapeSupportSet<_SupportOptions>(shape, ctfi, dir, hint, support_data,
-  //                                     projected_support_set);
-}
-
 // ============================================================================
 inline ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
     const ShapeBase* shape, const Transform3f& ctfi,
@@ -265,28 +255,28 @@ inline ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
   // contrary to the iterations of GJK.
   switch (shape->getNodeType()) {
     case GEOM_TRIANGLE:
-      return supportSetFunctionTpl<TriangleP, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<TriangleP, SupportOptions::WithSweptSphere>;
     case GEOM_BOX:
-      return supportSetFunctionTpl<Box, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Box, SupportOptions::WithSweptSphere>;
     case GEOM_SPHERE:
-      return supportSetFunctionTpl<Sphere, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Sphere, SupportOptions::WithSweptSphere>;
     case GEOM_ELLIPSOID:
-      return supportSetFunctionTpl<Ellipsoid, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Ellipsoid, SupportOptions::WithSweptSphere>;
     case GEOM_CAPSULE:
-      return supportSetFunctionTpl<Capsule, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Capsule, SupportOptions::WithSweptSphere>;
     case GEOM_CONE:
-      return supportSetFunctionTpl<Cone, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Cone, SupportOptions::WithSweptSphere>;
     case GEOM_CYLINDER:
-      return supportSetFunctionTpl<Cylinder, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Cylinder, SupportOptions::WithSweptSphere>;
     case GEOM_CONVEX: {
       const ConvexBase* convex = static_cast<const ConvexBase*>(shape);
       if ((size_t)(convex->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         support_data->visited.assign(convex->num_points, false);
-        return supportSetFunctionTpl<LargeConvex,
+        return getShapeSupportSetTpl<LargeConvex,
                                      SupportOptions::WithSweptSphere>;
       } else {
-        return supportSetFunctionTpl<SmallConvex,
+        return getShapeSupportSetTpl<SmallConvex,
                                      SupportOptions::WithSweptSphere>;
       }
     }

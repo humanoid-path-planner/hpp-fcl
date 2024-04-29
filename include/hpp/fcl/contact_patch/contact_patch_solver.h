@@ -62,21 +62,22 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   using ReferenceFrame = SupportSet::ReferenceFrame;
   using ShapeSupportData = details::ShapeSupportData;
 
-  /// @brief Support set function for shape si.
+  /// @brief Support set function for shape si, expressed in the reference frame
+  /// c.
   /// @param[in] shape the shape.
-  /// @param[in] ctfi transform from shape si to frame c.
   /// @param[in] dir support direction, expressed in the frame c.
+  /// @param[in] ctfi transform from shape si to frame c.
+  /// @param[out] projected_support_set a support set in the direction dir,
   /// @param[in] hint for the support computation of ConvexBase shapes.
   /// @param[in] support_data for the support computation of ConvexBase shapes.
-  /// @param[out] projected_support_set a support set in the direction dir,
   /// projected onto the plane supported by the z-axis of ctfi and passing by
   /// the origin of ctf1. All the points in this ouput set are expressed in the
   /// frame c.
-  typedef void (*SupportSetFunction)(const ShapeBase* shape,
-                                     const Transform3f& ctfi, const Vec3f& dir,
+  typedef void (*SupportSetFunction)(const ShapeBase* shape, const Vec3f& dir,
+                                     const Transform3f& ctfi,
+                                     SupportSet& projected_support_set,
                                      const int hint,
-                                     ShapeSupportData* support_data,
-                                     SupportSet& projected_support_set);
+                                     ShapeSupportData* support_data);
 
  private:
   /// @brief Minkowski difference used to compute support function of the
@@ -174,10 +175,9 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
     // output contact patch, expressed in the frame of the contact patch, i.e.
     // the z-axis.
     this->m_supportFuncShape1(
-        this->m_shapes[0], this->m_ctf1, Vec3f(0, 0, 1),
+        this->m_shapes[0], Vec3f(0, 0, 1), this->m_ctf1, projected_support_set,
         this->m_support_guess[0],
-        const_cast<ShapeSupportData*>(&(this->m_supports_data[0])),
-        projected_support_set);
+        const_cast<ShapeSupportData*>(&(this->m_supports_data[0])));
   }
 
   /// @brief Compute support set of shape s2.
@@ -186,10 +186,9 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
     // The -1 comes from the fact that the support set of shape s2 is in the
     // opposite direction to the support set of shape s1.
     this->m_supportFuncShape1(
-        this->m_shapes[1], this->m_ctf2, Vec3f(0, 0, -1),
+        this->m_shapes[1], Vec3f(0, 0, -1), this->m_ctf2, projected_support_set,
         this->m_support_guess[1],
-        const_cast<ShapeSupportData*>(&(this->m_supports_data[1])),
-        projected_support_set);
+        const_cast<ShapeSupportData*>(&(this->m_supports_data[1])));
   }
 
   /// @return true if p inside a clipping region defined by a and b, false
@@ -253,13 +252,6 @@ namespace details {
 /// @brief Construct othonormal basis from vector.
 /// The z-axis is the normalized input vector.
 Matrix3f constructBasisFromNormal(const Vec3f& vec);
-
-/// @brief Templated support set function.
-template <typename ShapeType>
-void supportSetFunctionTpl(const ShapeType* shape, const Transform3f& ctfi,
-                           const Vec3f& dir, const int hint,
-                           ShapeSupportData* support_data,
-                           SupportSet& projected_support_set);
 
 /// @brief Construct support set function for shape, w.r.t reference frame c.
 ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
