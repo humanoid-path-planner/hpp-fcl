@@ -173,10 +173,11 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
     // is always (0, 0, 1), which corresponds to the normal of the
     // output contact patch, expressed in the frame of the contact patch, i.e.
     // the z-axis.
-    this->m_supportFuncShape1(this->m_shapes[0], this->m_ctf1, Vec3f(0, 0, 1),
-                              this->m_support_guess[0],
-                              &(this->m_supports_data[0]),
-                              projected_support_set);
+    this->m_supportFuncShape1(
+        this->m_shapes[0], this->m_ctf1, Vec3f(0, 0, 1),
+        this->m_support_guess[0],
+        const_cast<ShapeSupportData*>(&(this->m_supports_data[0])),
+        projected_support_set);
   }
 
   /// @brief Compute support set of shape s2.
@@ -184,10 +185,11 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
     // See `computeSupportSetShape1` for explanation on why Vec3f(0, 0, -1).
     // The -1 comes from the fact that the support set of shape s2 is in the
     // opposite direction to the support set of shape s1.
-    this->m_supportFuncShape1(this->m_shapes[1], this->m_ctf2, Vec3f(0, 0, -1),
-                              this->m_support_guess[1],
-                              &(this->m_supports_data[1]),
-                              projected_support_set);
+    this->m_supportFuncShape1(
+        this->m_shapes[1], this->m_ctf2, Vec3f(0, 0, -1),
+        this->m_support_guess[1],
+        const_cast<ShapeSupportData*>(&(this->m_supports_data[1])),
+        projected_support_set);
   }
 
   /// @return true if p inside a clipping region defined by a and b, false

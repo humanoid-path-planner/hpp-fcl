@@ -90,23 +90,30 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
 
   // Step 2 - Compute support set of each shape, in the direction of
   // the contact's normal.
+  this->reset(s1, tf1, s2, tf2, contact_patch);
+  // TODO(louis): tolerance for support set. Also template the support set
+  // function on the tolerance, so it's not arbitrary. Set default tol to 1e-3.
+  SupportSet& support_set_shape1 =
+      const_cast<SupportSet&>(this->m_projected_shapes_supports[0]);
+  this->computeSupportSetShape1(support_set_shape1);
+  SupportSet& support_set_shape2 =
+      const_cast<SupportSet&>(this->m_projected_shapes_supports[1]);
+  this->computeSupportSetShape2(support_set_shape2);
+
+  // Step 3 - Compute convex polytope out of each shapes' support set.
+  // Add points until no more or until reaching max size of current/clipper.
   // Definitions:
   //   - "current" -> contact patch that needs to be clipped by the algorithm,
   //   - "clipper" -> contact patch used to clip "clipped".
   // After this step, the current and the clipper contact patches are filled
   // with the projection of the support sets of s1 and s2 in the direction of
   // `contact.normal`.
-  this->reset(s1, tf1, s2, tf2, contact_patch);
-  // TODO(louis): fill `clipped` and `clipper` with convex-hulls of
-  // `m_projected_shapes_supports`.
-  const Vec3f support_dir(0, 0, 1);
-  SupportSet& current = const_cast<SupportSet&>(this->current());
-  this->computeSupportSetShape1(current);
-  SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
-  this->computeSupportSetShape2(clipper);
+  // TODO(louis): maybe set default size to 32 instead of 16.
+  // SupportSet& current = const_cast<SupportSet&>(this->current());
+  // SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
 
   //
-  // Step 3 - Main loop of the algorithm: use the "clipper"
+  // Step 4 - Main loop of the algorithm: use the "clipper"
   // to clip the current contact patch. The resulting intersection is the
   // contact patch of the contact between s1 and s2.
   // Currently, to clip one patch with the other, we use the Sutherland-Hodgman
@@ -142,6 +149,10 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
       }
     }
   }
+
+  // TODO(louis): retrieve the result from current into contact_patch.
+  // If current has more points than the request, take request.max_size number
+  // of supports in the directions i/2*pi direction of a 2D unit circle.
 }
 
 // ============================================================================
@@ -240,7 +251,7 @@ template <typename ShapeType, int _SupportOptions>
 void supportSetFunctionTpl(const ShapeBase* shape_, const Transform3f& ctfi,
                            const Vec3f& dir, const int hint,
                            ShapeSupportData* support_data,
-                           ContactPatch& projected_support_set) {
+                           SupportSet& projected_support_set) {
   const ShapeType* shape = static_cast<const ShapeType*>(shape_);
   // getShapeSupportSet<_SupportOptions>(shape, ctfi, dir, hint, support_data,
   //                                     projected_support_set);
