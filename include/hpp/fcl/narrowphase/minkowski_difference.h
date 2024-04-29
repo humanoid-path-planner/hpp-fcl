@@ -185,6 +185,4 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 }  // namespace fcl
 }  // namespace hpp
 
-#include "hpp/fcl/narrowphase/minkowski_difference.hxx"
-
 #endif  // HPP_FCL_MINKOWSKI_DIFFERENCE_H

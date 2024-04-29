@@ -75,7 +75,8 @@ enum SupportOptions {
 /// sphere radii. Please see `MinkowskiDiff::set(const ShapeBase*, const
 /// ShapeBase*)` for more details.
 template <int _SupportOptions = SupportOptions::NoSweptSphere>
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint);
+HPP_FCL_DLLAPI Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir,
+                                int& hint);
 
 /// @brief Templated version of @ref getSupport.
 template <typename ShapeType,
@@ -196,9 +197,9 @@ void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
 /// v.dot(dir) <= tol` is tol distant from the support plane.
 ///
 template <int _SupportOptions = SupportOptions::NoSweptSphere>
-void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
-                   const Transform3f& ctfi, FCL_REAL tol,
-                   SupportSet& support_set, const int hint);
+HPP_FCL_DLLAPI void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
+                                  const Transform3f& ctfi, FCL_REAL tol,
+                                  SupportSet& support_set, const int hint);
 
 /// @brief Templated support set function, i.e. templated version of @ref
 /// getSupportSet.
@@ -285,7 +286,5 @@ void getShapeSupportSet(const LargeConvex* convex, const Vec3f& dir,
 
 }  // namespace fcl
 }  // namespace hpp
-
-#include "hpp/fcl/narrowphase/support_functions.hxx"
 
 #endif  // HPP_FCL_SUPPORT_FUNCTIONS_H

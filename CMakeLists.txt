@@ -237,9 +237,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/narrowphase/gjk.h
   include/hpp/fcl/narrowphase/narrowphase_defaults.h
   include/hpp/fcl/narrowphase/minkowski_difference.h
-  include/hpp/fcl/narrowphase/minkowski_difference.hxx
   include/hpp/fcl/narrowphase/support_functions.h
-  include/hpp/fcl/narrowphase/support_functions.hxx
   include/hpp/fcl/shape/convex.h
   include/hpp/fcl/shape/details/convex.hxx
   include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
