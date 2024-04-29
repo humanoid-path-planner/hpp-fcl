@@ -77,11 +77,20 @@ enum SupportOptions {
 template <int _SupportOptions = SupportOptions::NoSweptSphere>
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint);
 
+/// @brief Templated version of @ref getSupport.
+template <typename ShapeType, int _SupportOptions>
+Vec3f getSupportTpl(const ShapeBase* shape, const Vec3f& dir, int& hint);
+
 /// @brief Stores temporary data for the computation of support points.
 struct ShapeSupportData {
   std::vector<int8_t> visited;
   Vec3f last_dir = Vec3f::Zero();
 };
+
+/// @brief Templated version of the getShapeSupport functions.
+template <typename ShapeType, int _SupportOptions>
+void getShapeSupportTpl(const ShapeBase* shape, const Vec3f& dir,
+                        Vec3f& support, int& hint, ShapeSupportData* data);
 
 /// @brief Triangle support function.
 template <int _SupportOptions>
@@ -91,26 +100,24 @@ void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
 
 /// @brief Box support function.
 template <int _SupportOptions>
-inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
-                            int& /*unused*/, ShapeSupportData* /*unused*/);
+void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
+                     int& /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Sphere support function.
 template <int _SupportOptions>
-inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir,
-                            Vec3f& support, int& /*unused*/,
-                            ShapeSupportData* /*unused*/);
+void getShapeSupport(const Sphere* sphere, const Vec3f& dir, Vec3f& support,
+                     int& /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Ellipsoid support function.
 template <int _SupportOptions>
-inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
-                            Vec3f& support, int& /*unused*/,
-                            ShapeSupportData* /*unused*/);
+void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
+                     Vec3f& support, int& /*unused*/,
+                     ShapeSupportData* /*unused*/);
 
 /// @brief Capsule support function.
 template <int _SupportOptions>
-inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
-                            Vec3f& support, int& /*unused*/,
-                            ShapeSupportData* /*unused*/);
+void getShapeSupport(const Capsule* capsule, const Vec3f& dir, Vec3f& support,
+                     int& /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Cone support function.
 template <int _SupportOptions>
@@ -140,13 +147,13 @@ struct SmallConvex : ShapeBase {};
 
 /// @brief Support function for large ConvexBase (>32 vertices).
 template <int _SupportOptions>
-inline void getShapeSupport(const SmallConvex* convex, const Vec3f& dir,
-                            Vec3f& support, int& hint, ShapeSupportData* data);
+void getShapeSupport(const SmallConvex* convex, const Vec3f& dir,
+                     Vec3f& support, int& hint, ShapeSupportData* data);
 
 /// @brief Support function for small ConvexBase (<32 vertices).
 template <int _SupportOptions>
-inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
-                            Vec3f& support, int& hint, ShapeSupportData* data);
+void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
+                     Vec3f& support, int& hint, ShapeSupportData* data);
 
 // ============================================================================
 // ========================== SUPPORT SET FUNCTIONS ===========================

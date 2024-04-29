@@ -45,6 +45,66 @@ namespace fcl {
 namespace details {
 
 // ============================================================================
+#define CALL_GET_SHAPE_SUPPORT(ShapeType)                                     \
+  getShapeSupport<_SupportOptions>(static_cast<const ShapeType*>(shape), dir, \
+                                   support, hint, nullptr)
+template <int _SupportOptions>
+Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint) {
+  Vec3f support;
+  switch (shape->getNodeType()) {
+    case GEOM_TRIANGLE:
+      CALL_GET_SHAPE_SUPPORT(TriangleP);
+      break;
+    case GEOM_BOX:
+      CALL_GET_SHAPE_SUPPORT(Box);
+      break;
+    case GEOM_SPHERE:
+      CALL_GET_SHAPE_SUPPORT(Sphere);
+      break;
+    case GEOM_ELLIPSOID:
+      CALL_GET_SHAPE_SUPPORT(Ellipsoid);
+      break;
+    case GEOM_CAPSULE:
+      CALL_GET_SHAPE_SUPPORT(Capsule);
+      break;
+    case GEOM_CONE:
+      CALL_GET_SHAPE_SUPPORT(Cone);
+      break;
+    case GEOM_CYLINDER:
+      CALL_GET_SHAPE_SUPPORT(Cylinder);
+      break;
+    case GEOM_CONVEX:
+      CALL_GET_SHAPE_SUPPORT(ConvexBase);
+      break;
+    case GEOM_PLANE:
+    case GEOM_HALFSPACE:
+    default:
+      support.setZero();
+      ;  // nothing
+  }
+
+  return support;
+}
+#undef CALL_GET_SHAPE_SUPPORT
+
+// ============================================================================
+template <typename ShapeType, int _SupportOptions>
+Vec3f getSupportTpl(const ShapeBase* shape_, const Vec3f& dir, int& hint) {
+  const ShapeType* shape = static_cast<const ShapeType*>(shape_);
+  Vec3f support;
+  getShapeSupport(shape, dir, support, hint, nullptr);
+  return support;
+}
+
+// ============================================================================
+template <typename ShapeType, int _SupportOptions>
+void getShapeSupportTpl(const ShapeBase* shape_, const Vec3f& dir,
+                        Vec3f& support, int& hint, ShapeSupportData* data) {
+  const ShapeType* shape = static_cast<const ShapeType*>(shape_);
+  return getShapeSupport(shape, dir, support, hint, data);
+}
+
+// ============================================================================
 template <int _SupportOptions>
 void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
                      Vec3f& support, int& /*unused*/,
@@ -357,10 +417,6 @@ inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
   getShapeSupportLog<_SupportOptions>(
       reinterpret_cast<const ConvexBase*>(convex), dir, support, hint, data);
 }
-
-#define CALL_GET_SHAPE_SUPPORT(ShapeType)                                     \
-  getShapeSupport<_SupportOptions>(static_cast<const ShapeType*>(shape), dir, \
-                                   support, hint, nullptr)
 
 // ============================================================================
 template <int _SupportOptions>
