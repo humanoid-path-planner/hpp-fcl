@@ -65,8 +65,8 @@ enum SupportOptions {
 // ============================ SUPPORT FUNCTIONS =============================
 // ============================================================================
 /// @brief the support function for shape.
-/// The output support point is expressed in the frame local of the shape.
-/// @return argmax_{v in shape0} v.dot(dir).
+/// The output support point is expressed in the local frame of the shape.
+/// @return a point which belongs to the set {argmax_{v in shape} v.dot(dir)}.
 /// @param shape the shape.
 /// @param dir support direction.
 /// @param hint used to initialize the search when shape is a ConvexBase object.
@@ -78,7 +78,8 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint);
 
 /// @brief Templated version of @ref getSupport.
-template <typename ShapeType, int _SupportOptions>
+template <typename ShapeType,
+          int _SupportOptions = SupportOptions::NoSweptSphere>
 Vec3f getSupportTpl(const ShapeBase* shape, const Vec3f& dir, int& hint);
 
 /// @brief Stores temporary data for the computation of support points.
@@ -92,51 +93,52 @@ struct ShapeSupportData {
 /// that they take an additional `ShapeSupportData`, used for ConvexBase support
 /// set computation, which can be manually allocated by the user.
 /// See @ref LargeConvex and @SmallConvex for more info.
-template <typename ShapeType, int _SupportOptions>
+template <typename ShapeType,
+          int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportTpl(const ShapeBase* shape, const Vec3f& dir,
                         Vec3f& support, int& hint, ShapeSupportData* data);
 
 /// @brief Triangle support function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
                      Vec3f& support, int& /*unused*/,
                      ShapeSupportData* /*unused*/);
 
 /// @brief Box support function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
                      int& /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Sphere support function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupport(const Sphere* sphere, const Vec3f& dir, Vec3f& support,
                      int& /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Ellipsoid support function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
                      Vec3f& support, int& /*unused*/,
                      ShapeSupportData* /*unused*/);
 
 /// @brief Capsule support function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupport(const Capsule* capsule, const Vec3f& dir, Vec3f& support,
                      int& /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Cone support function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support,
                      int& /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Cylinder support function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
                      int& /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief ConvexBase support function.
 /// @note See @ref LargeConvex and SmallConvex to see how to optimize
 /// ConvexBase's support computation.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
                      int& hint, ShapeSupportData* /*unused*/);
 
@@ -150,12 +152,12 @@ struct LargeConvex : ShapeBase {};
 struct SmallConvex : ShapeBase {};
 
 /// @brief Support function for large ConvexBase (>32 vertices).
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupport(const SmallConvex* convex, const Vec3f& dir,
                      Vec3f& support, int& hint, ShapeSupportData* data);
 
 /// @brief Support function for small ConvexBase (<32 vertices).
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
                      Vec3f& support, int& hint, ShapeSupportData* data);
 
@@ -163,23 +165,45 @@ void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
 // ========================== SUPPORT SET FUNCTIONS ===========================
 // ============================================================================
 /// @brief the support set function for shape.
-/// The output support point is expressed in the frame local of the shape.
-/// @return argmax_{v in shape0} v.dot(dir).
-/// @param shape the shape.
-/// @param dir support direction.
-/// @param hint used to initialize the search when shape is a ConvexBase object.
+/// All the points belonging to the output support set are expressed in the
+/// frame c. This function returns an approximation of the support set of shape,
+/// in direction dir. The "approximation" depends on the size of the provided
+/// input `SupportSet`. If the provided support set has a size of 4 for
+/// examples, it can fully capture the support set of a cube in the direction of
+/// one of its face. However, if instead we compute the support set of a
+/// cylinder in the direction of one of its base, we actually need an infinite
+/// amount of points to capture the circle of the base. In such a case, if the
+/// provided support set has a size of 4, the support set function smartly
+/// selects a subset of this infinite support set.
+/// @return an approximation of the set {argmax_{v in shape} v.dot(dir)}.
+/// @param[in] shape the shape.
+/// @param[in] dir support direction.
+/// @param[in] ctfi transform from local frame of shape i to frame c.
+/// @param[in] tol given a point v on the shape, if
+/// `max_{v in shape}(v.dot(dit)) - v.dot(dir) <= tol` then v is added to the
+/// support set.
+/// @param[in/out] support_set of shape in direction dir, expressed in the frame
+/// c.
+/// @param[in] hint used to initialize the search when shape is a ConvexBase
+/// object.
 /// @tparam SupportOptions is a value of the SupportOptions enum. If set to
 /// `WithSweptSphere`, the support functions take into account the shapes' swept
 /// sphere radii. Please see `MinkowskiDiff::set(const ShapeBase*, const
 /// ShapeBase*)` for more details.
-template <int _SupportOptions>
+///
+/// @note The parameter `tol` can be seen as the "thickness" of the support
+/// plane. Any point v which satisfies `max_{v in shape}(v.dot(dit)) -
+/// v.dot(dir) <= tol` is tol distant from the support plane.
+///
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
-                   const Transform3f& ctfi, SupportSet& support_set,
-                   const int hint);
+                   const Transform3f& ctfi, FCL_REAL tol,
+                   SupportSet& support_set, const int hint);
 
 /// @brief Templated support set function, i.e. templated version of @ref
 /// getSupportSet.
-template <typename ShapeType, int _SupportOptions>
+template <typename ShapeType,
+          int _SupportOptions = SupportOptions::NoSweptSphere>
 void getSupportSetTpl(const ShapeBase* shape, const Vec3f& dir,
                       const Transform3f& ctfi, SupportSet& support_set,
                       const int hint);
@@ -189,49 +213,50 @@ void getSupportSetTpl(const ShapeBase* shape, const Vec3f& dir,
 /// that they take an additional `ShapeSupportData`, used for ConvexBase support
 /// set computation, which can be manually allocated by the user. See @ref
 /// LargeConvex and @SmallConvex for more info.
-template <typename ShapeType, int _SupportOptions>
+template <typename ShapeType,
+          int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSetTpl(const ShapeBase* shape, const Vec3f& dir,
                            const Transform3f& ctfi, SupportSet& support_set,
                            const int hint, ShapeSupportData* data);
 
 /// @brief Triangle support set function.
-template <int _SupportOptions>
-void getShapeSupportSet(const Triangle* triangle, const Vec3f& dir,
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
+void getShapeSupportSet(const TriangleP* triangle, const Vec3f& dir,
                         const Transform3f& ctfi, SupportSet& support_set,
                         const int /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Box support set function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Box* box, const Vec3f& dir,
                         const Transform3f& ctfi, SupportSet& support_set,
                         const int /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Sphere support set function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Sphere* sphere, const Vec3f& dir,
                         const Transform3f& ctfi, SupportSet& support_set,
                         const int /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Ellipsoid support set function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Ellipsoid* ellipsoid, const Vec3f& dir,
                         const Transform3f& ctfi, SupportSet& support_set,
                         const int /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Capsule support set function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Capsule* capsule, const Vec3f& dir,
                         const Transform3f& ctfi, SupportSet& support_set,
                         const int /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Cone support set function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Cone* cone, const Vec3f& dir,
                         const Transform3f& ctfi, SupportSet& support_set,
                         const int /*unused*/, ShapeSupportData* /*unused*/);
 
 /// @brief Cylinder support set function.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Cylinder* cylinder, const Vec3f& dir,
                         const Transform3f& ctfi, SupportSet& support_set,
                         const int /*unused*/, ShapeSupportData* /*unused*/);
@@ -239,19 +264,19 @@ void getShapeSupportSet(const Cylinder* cylinder, const Vec3f& dir,
 /// @brief ConvexBase support set function.
 /// @note See @ref LargeConvex and SmallConvex to see how to optimize
 /// ConvexBase's support computation.
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const ConvexBase* convex, const Vec3f& dir,
                         const Transform3f& ctfi, SupportSet& support_set,
-                        const int /*unused*/, ShapeSupportData* /*unused*/);
+                        const int hint, ShapeSupportData* /*unused*/);
 
 /// @brief Support set function for large ConvexBase (>32 vertices).
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const SmallConvex* convex, const Vec3f& dir,
                         const Transform3f& ctfi, SupportSet& support_set,
                         const int hint, ShapeSupportData* data);
 
 /// @brief Support set function for small ConvexBase (<32 vertices).
-template <int _SupportOptions>
+template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const LargeConvex* convex, const Vec3f& dir,
                         const Transform3f& ctfi, SupportSet& support_set,
                         const int hint, ShapeSupportData* data);

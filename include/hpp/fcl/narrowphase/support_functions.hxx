@@ -461,11 +461,112 @@ void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
 // ============================================================================
 template <typename ShapeType, int _SupportOptions>
 void getSupportSetTpl(const ShapeBase* shape_, const Vec3f& dir,
-                      const Transform3f& ctfi,
-                      SupportSet& projected_support_set, const int hint) {
+                      const Transform3f& ctfi, SupportSet& support_set,
+                      const int hint) {
   const ShapeType* shape = static_cast<const ShapeType*>(shape_);
-  // getShapeSupportSet<_SupportOptions>(shape, ctfi, dir, hint, support_data,
-  // projected_support_set);
+  getShapeSupportSet<_SupportOptions>(shape, dir, ctfi, support_set, hint,
+                                      nullptr);
+}
+
+// ============================================================================
+template <typename ShapeType, int _SupportOptions>
+void getShapeSupportSetTpl(const ShapeBase* shape_, const Vec3f& dir,
+                           const Transform3f& ctfi, SupportSet& support_set,
+                           const int hint, ShapeSupportData* data) {
+  const ShapeType* shape = static_cast<const ShapeType*>(shape_);
+  getShapeSupportSet<_SupportOptions>(shape, dir, ctfi, support_set, hint,
+                                      data);
+}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSet(const TriangleP* triangle, const Vec3f& dir,
+                        const Transform3f& ctfi, SupportSet& support_set,
+                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSet(const Box* box, const Vec3f& dir,
+                        const Transform3f& ctfi, SupportSet& support_set,
+                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSet(const Sphere* sphere, const Vec3f& dir,
+                        const Transform3f& ctfi, SupportSet& support_set,
+                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSet(const Ellipsoid* ellipsoid, const Vec3f& dir,
+                        const Transform3f& ctfi, SupportSet& support_set,
+                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSet(const Capsule* capsule, const Vec3f& dir,
+                        const Transform3f& ctfi, SupportSet& support_set,
+                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSet(const Cone* cone, const Vec3f& dir,
+                        const Transform3f& ctfi, SupportSet& support_set,
+                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSet(const Cylinder* cylinder, const Vec3f& dir,
+                        const Transform3f& ctfi, SupportSet& support_set,
+                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSetLog(const ConvexBase* convex, const Vec3f& dir,
+                           const Transform3f& ctfi, SupportSet& support_set,
+                           const int hint, ShapeSupportData* data) {}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSetLinear(const ConvexBase* convex, const Vec3f& dir,
+                              const Transform3f& ctfi, SupportSet& support_set,
+                              const int hint, ShapeSupportData* /*unused*/) {}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSet(const ConvexBase* convex, const Vec3f& dir,
+                        const Transform3f& ctfi, SupportSet& support_set,
+                        const int hint, ShapeSupportData* /*unused*/) {
+  if (convex->num_points > ConvexBase::num_vertices_large_convex_threshold &&
+      convex->neighbors != nullptr) {
+    ShapeSupportData data;
+    data.visited.assign(convex->num_points, false);
+    getShapeSupportSetLog<_SupportOptions>(convex, dir, ctfi, support_set, hint,
+                                           &data);
+  } else {
+    getShapeSupportSetLinear<_SupportOptions>(convex, dir, ctfi, support_set,
+                                              hint, nullptr);
+  }
+}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSet(const SmallConvex* convex, const Vec3f& dir,
+                        const Transform3f& ctfi, SupportSet& support_set,
+                        const int hint, ShapeSupportData* data) {
+  getShapeSupportSetLinear<_SupportOptions>(
+      reinterpret_cast<const ConvexBase*>(convex), dir, ctfi, support_set, hint,
+      data);
+}
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSet(const LargeConvex* convex, const Vec3f& dir,
+                        const Transform3f& ctfi, SupportSet& support_set,
+                        const int hint, ShapeSupportData* data) {
+  getShapeSupportSetLog<_SupportOptions>(
+      reinterpret_cast<const ConvexBase*>(convex), dir, ctfi, support_set, hint,
+      data);
 }
 
 }  // namespace details
