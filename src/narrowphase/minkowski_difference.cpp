@@ -282,11 +282,9 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
       shape0, shape1, identity, swept_sphere_radius, data);
 }
 // clang-format off
-template <>
-void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::NoSweptSphere>(const ShapeBase*, const ShapeBase*);
+template void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::NoSweptSphere>(const ShapeBase*, const ShapeBase*);
 
-template <>
-void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::WithSweptSphere>(const ShapeBase*, const ShapeBase*);
+template void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::WithSweptSphere>(const ShapeBase*, const ShapeBase*);
 // clang-format on
 
 // ============================================================================
@@ -304,26 +302,20 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
       shape0, shape1, true, swept_sphere_radius, data);
 }
 // clang-format off
-template <>
-void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::NoSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
+template void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::NoSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
 
-template <>
-void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::WithSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
+template void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::WithSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
 // clang-format on
 
 // ============================================================================
 // clang-format off
-template <>
-Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support0<SupportOptions::NoSweptSphere>(const Vec3f&, int&) const;
+template Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support0<SupportOptions::NoSweptSphere>(const Vec3f&, int&) const;
 
-template <>
-Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support0<SupportOptions::WithSweptSphere>(const Vec3f&, int&) const;
+template Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support0<SupportOptions::WithSweptSphere>(const Vec3f&, int&) const;
 
-template <>
-Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support1<SupportOptions::NoSweptSphere>(const Vec3f&, int&) const;
+template Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support1<SupportOptions::NoSweptSphere>(const Vec3f&, int&) const;
 
-template <>
-Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support1<SupportOptions::WithSweptSphere>(const Vec3f&, int&) const;
+template Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support1<SupportOptions::WithSweptSphere>(const Vec3f&, int&) const;
 // clang-format on
 
 }  // namespace details
