@@ -72,8 +72,7 @@ struct ComputeShapeShapeContactPatch {
     const ShapeType1& s1 = static_cast<const ShapeType1&>(*o1);
     const ShapeType2& s2 = static_cast<const ShapeType2&>(*o2);
     for (size_t i = 0; i < collision_result.numContacts(); ++i) {
-      if (i >= request.getMaxNumContactPatch() ||
-          i >= result.maxNumContactPatches()) {
+      if (i >= request.max_num_patch) {
         break;
       }
       csolver->setSupportGuess(collision_result.cached_support_func_guess);

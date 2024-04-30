@@ -45,36 +45,62 @@ namespace fcl {
 
 /// @brief Solver to compute contact patches, i.e. the intersection between two
 /// contact surfaces projected onto the shapes' separating plane.
+/// Otherwise said, a contact patch is simply the intersection between two
+/// support sets: the support set of shape S1 in direction `n` and the support
+/// set of shape S2 in direction `-n`, where `n` is the contact normal
+/// (satisfying the optimality conditions of GJK/EPA).
+/// @note A contact patch is **not** the support set of the Minkowski Difference
+/// in the direction of the normal.
+/// A contact patch is actually the support set of the Minkowski difference in
+/// the direction of the normal, i.e. the instersection of the shapes support
+/// sets as mentioned above.
 struct HPP_FCL_DLLAPI ContactPatchSolver {
  public:
   // Note: `ContactPatch` is an alias for `SupportSet`.
   // The two can be used interchangeably.
-  using Index = SupportSet::Index;
   using ReferenceFrame = SupportSet::ReferenceFrame;
   using ShapeSupportData = details::ShapeSupportData;
+  using SupportSetDirection = SupportSet::PatchDirection;
 
-  /// @brief Support set function for shape si, expressed in the reference frame
-  /// c.
+  /// @brief Support set function for shape si.
   /// @param[in] shape the shape.
-  /// @param[in] dir support direction, expressed in the frame c.
-  /// @param[in] ctfi transform from shape si to frame c.
-  /// @param[out] projected_support_set a support set in the direction dir,
-  /// @param[in] hint for the support computation of ConvexBase shapes.
-  /// @param[in] support_data for the support computation of ConvexBase shapes.
-  /// projected onto the plane supported by the z-axis of ctfi and passing by
-  /// the origin of ctf1. All the points in this ouput set are expressed in the
-  /// frame c.
-  typedef void (*SupportSetFunction)(const ShapeBase* shape, const Vec3f& dir,
-                                     const Transform3f& ctfi,
-                                     SupportSet& projected_support_set,
-                                     const int hint,
-                                     ShapeSupportData* support_data);
+  /// @param[in/out] support_set a support set of the shape. A support set is
+  /// attached to a frame. All the points of the set computed by this function
+  /// will be expressed in the local frame of the support set. The support set
+  /// is computed in the direction of the positive z-axis if its direction is
+  /// DEFAULT, negative z-axis if its direction is INVERTED.
+  /// @param[in/out] hint for the support computation of ConvexBase shapes. Gets
+  /// updated after calling the function onto ConvexBase shapes.
+  /// @param[in/out] support_data for the support computation of ConvexBase
+  /// shapes. Gets updated with visited vertices after calling the function onto
+  /// ConvexBase shapes.
+  /// @param[in] max_num_supports for shapes like cone or cylinders which have
+  /// smooth non-strictly convex sides (their bases are circles), we need to
+  /// know how many supports we sample from these sides. For any other shape,
+  /// this parameter is not used.
+  /// @param[in] tol the "thickness" of the support plane. Any point v which
+  /// satisfies `max_{x in shape}(x.dot(dir)) - v.dot(dir) <= tol` is tol
+  /// distant from the support plane and is added to the support set.
+  typedef void (*SupportSetFunction)(const ShapeBase* shape,
+                                     SupportSet& support_set, int& hint,
+                                     ShapeSupportData* support_data,
+                                     size_t max_num_supports, FCL_REAL tol);
+
+  /// @brief Number of vectors to pre-allocate in the `m_shapes_support_sets`
+  /// vectors.
+  static constexpr size_t default_num_preallocated_supports = 16;
+
+  /// @brief Maximum number of vertices in the ContactPatch computed by
+  /// `computePatch`. This value also determines the maximum number of points in
+  /// the support sets when the shapes are cones or cylinders (as their base may
+  /// need to be sampled).
+  size_t max_size_patch;
+
+  /// @brief Tolerance below which points are added to the shapes support sets.
+  /// See @ref ContactPatchRequest::patch_tolerance for more details.
+  FCL_REAL patch_tolerance;
 
  private:
-  /// @brief Minkowski difference used to compute support function of the
-  /// considered shapes.
-  mutable details::MinkowskiDiff m_minkowski_difference;
-
   /// @brief Two sets of points, which are the projections of the shapes
   /// supports onto the separating plane. These sets of points may not be
   /// convex. The shapes supports all belong to the support sets of the shapes,
@@ -83,7 +109,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// the intersection of the convex-hull of these two sets of points.
   /// @note Because these are 2D points, we use the convenient `ContactPatch`
   /// struct to represent these two sets of points.
-  mutable std::array<SupportSet, 2> m_projected_shapes_supports;
+  mutable std::array<SupportSet, 2> m_shapes_support_sets;
 
   /// @brief Support sets used for internal computation.
   /// @note The `computePatch` algorithm starts by constructing two 2D
@@ -95,7 +121,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// sets represent the current and previous iteration of the algorithm and
   /// the third set represents the convex-hull of the second shape's support
   /// set.
-  mutable std::array<SupportSet, 3> m_support_sets;
+  mutable std::array<SupportSet, 3> m_clipping_sets;
 
   /// @brief Tracks the current iterate of the algorithm.
   mutable size_t m_id_current{0};
@@ -122,15 +148,13 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   mutable support_func_guess_t m_support_guess;
 
  public:
-  /// @brief Number of vectors to pre-allocate in the `shapes_supports`
-  /// vectors.
-  static constexpr size_t default_num_preallocated_supports = 16;
-
   /// @brief Default constructor.
   explicit ContactPatchSolver() {
     const size_t num_contact_patch = 1;
     const size_t size_contact_patch = ContactPatch::default_max_size;
-    const ContactPatchRequest request(num_contact_patch, size_contact_patch);
+    const FCL_REAL patch_tolerance = 1e-3;
+    const ContactPatchRequest request(num_contact_patch, size_contact_patch,
+                                      patch_tolerance);
     this->set(request);
   }
 
@@ -158,28 +182,53 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
                     const ShapeType2& s2, const Transform3f& tf2,
                     const Contact& contact, ContactPatch& contact_patch) const;
 
+ private:
+  /// @brief Reset the internal quantities of the solver.
+  template <typename ShapeType1, typename ShapeType2>
+  void reset(const ShapeType1& shape1, const Transform3f& tf1,
+             const ShapeType2& shape2, const Transform3f& tf2,
+             const ContactPatch& contact_patch) const;
+
+  /// @brief Getter for current iterate.
+  SupportSet& current() { return this->m_clipping_sets[this->m_id_current]; }
+
+  /// @brief Const getter for current iterate.
+  const SupportSet& current() const {
+    return this->m_clipping_sets[this->m_id_current];
+  }
+
+  /// @brief Getter for previous iterate.
+  SupportSet& previous() {
+    return this->m_clipping_sets[1 - this->m_id_current];
+  }
+
+  /// @brief Const getter for previous iterate.
+  const SupportSet& previous() const {
+    return this->m_clipping_sets[1 - this->m_id_current];
+  }
+
+  /// @brief Getter for the set used to clip the other one.
+  SupportSet& clipper() { return this->m_clipping_sets[2]; }
+
+  /// @brief Const getter for the set used to clip the other one.
+  const SupportSet& clipper() const { return this->m_clipping_sets[2]; }
+
   /// @brief Compute support set of shape s1.
-  void computeSupportSetShape1(SupportSet& projected_support_set) const {
-    // Note: the support direction must be expressed in the frame of the support
-    // set with which `reset` was called. Because of that, the support direction
-    // is always (0, 0, 1), which corresponds to the normal of the
-    // output contact patch, expressed in the frame of the contact patch, i.e.
-    // the z-axis.
+  void computeSupportSetShape1() const {
     this->m_supportFuncShape1(
-        this->m_shapes[0], Vec3f(0, 0, 1), this->m_ctf1, projected_support_set,
+        this->m_shapes[0], this->m_shapes_support_sets[0],
         this->m_support_guess[0],
-        const_cast<ShapeSupportData*>(&(this->m_supports_data[0])));
+        const_cast<ShapeSupportData*>(&(this->m_supports_data[0])),
+        this->max_size_patch, this->patch_tolerance);
   }
 
   /// @brief Compute support set of shape s2.
-  void computeSupportSetShape2(SupportSet& projected_support_set) const {
-    // See `computeSupportSetShape1` for explanation on why Vec3f(0, 0, -1).
-    // The -1 comes from the fact that the support set of shape s2 is in the
-    // opposite direction to the support set of shape s1.
+  void computeSupportSetShape2() const {
     this->m_supportFuncShape1(
-        this->m_shapes[1], Vec3f(0, 0, -1), this->m_ctf2, projected_support_set,
+        this->m_shapes[1], this->m_shapes_support_sets[1],
         this->m_support_guess[1],
-        const_cast<ShapeSupportData*>(&(this->m_supports_data[1])));
+        const_cast<ShapeSupportData*>(&(this->m_supports_data[1])),
+        this->max_size_patch, this->patch_tolerance);
   }
 
   /// @return true if p inside a clipping region defined by a and b, false
@@ -200,39 +249,8 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
                                               const Vec2f& c, const Vec2f& d);
 
   /// @brief Construct support set function for shape.
-  SupportSetFunction makeSupportSetFunction(const ShapeBase* shape,
-                                            ShapeSupportData* support_data);
-
- private:
-  /// @brief Reset the internal quantities of the solver.
-  template <typename ShapeType1, typename ShapeType2>
-  void reset(const ShapeType1& shape1, const Transform3f& tf1,
-             const ShapeType2& shape2, const Transform3f& tf2,
-             const ContactPatch& contact_patch) const;
-
-  /// @brief Getter for current iterate.
-  SupportSet& current() { return this->m_support_sets[this->m_id_current]; }
-
-  /// @brief Const getter for current iterate.
-  const SupportSet& current() const {
-    return this->m_support_sets[this->m_id_current];
-  }
-
-  /// @brief Getter for previous iterate.
-  SupportSet& previous() {
-    return this->m_support_sets[1 - this->m_id_current];
-  }
-
-  /// @brief Const getter for previous iterate.
-  const SupportSet& previous() const {
-    return this->m_support_sets[1 - this->m_id_current];
-  }
-
-  /// @brief Getter for the set used to clip the other one.
-  SupportSet& clipper() { return this->m_support_sets[2]; }
-
-  /// @brief Const getter for the set used to clip the other one.
-  const SupportSet& clipper() const { return this->m_support_sets[2]; }
+  static SupportSetFunction makeSupportSetFunction(
+      const ShapeBase* shape, ShapeSupportData* support_data);
 };
 
 }  // namespace fcl

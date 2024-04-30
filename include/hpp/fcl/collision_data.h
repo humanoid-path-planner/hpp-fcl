@@ -492,134 +492,121 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   void swapObjects();
 };
 
-/// @brief This structure allows to encode support sets (sets of points which
-/// are all support points in a certain direction).
-/// This structure can also be used to represent a contact patch (see @ref
-/// ContactPatch). A contact patch is the intersection of two support sets. We
-/// will use contact patch and support set interchangeably throughout the
-/// documentation. A support set/contact patch has a normal `n =
-/// Contact::normal` and passes by point `p` (typically `p = Contact::pos`). If
-/// we denote by P the plane passing by `p` and supported by `n`, a contact
-/// patch is represented as a polytope which vertices all belong to `P & S1 &
-/// S2`, where `&` denotes the set-intersection.
-/// @note As of now (April 2024), the contact patch is a 2D contact surface in
-/// 3D but internal algorithms of hpp-fcl can easily be extended to compute a
-/// volume of contact instead.
-/// In such a case, a contact volume could not be encoded as a `SupportSet`.
-struct HPP_FCL_DLLAPI SupportSet {
+/// @brief This structure allows to encode contact patches.
+/// A contact patch is defined by a set of points belonging to a subset of a
+/// plane passing by `p` and supported by `n`, where `n = Contact::normal` and
+/// `p = Contact::pos`. If we denote by P this plane and by S1 and S2 the first
+/// and second shape of a collision pair, a contact patch is represented as a
+/// polytope which vertices all belong to `P & S1 & S2`, where `&` denotes the
+/// set-intersection. Since a contact patch is a subset of a plane supported by
+/// `n`, it has a preferred direction. In HPP-FCL, the `Contact::normal` points
+/// from S1 to S2. In the same way, a contact patch points by default from S1
+/// to S2.
+///
+/// @note For now (April 2024), a `ContactPatch` is a polygon (2D polytope),
+/// so the points of the set, forming the convex-hull of the polytope, are
+/// stored in a counter-clockwise fashion.
+/// @note If needed, the internal algorithms of hpp-fcl can easily be extended
+/// to compute a contact volume instead of a contact patch.
+struct HPP_FCL_DLLAPI ContactPatch {
  public:
-  // clang-format off
-  using Matrixx2fXpr = Eigen::Block<Matrixx2f, Eigen::Dynamic, 2, true>;
-  using ConstMatrixx2fXpr = Eigen::Block<const Matrixx2f, Eigen::Dynamic, 2, true>;
-  using Vec2fXpr = Eigen::Block<Matrixx2f, 1, 2, true>;
-  using ConstVec2fXpr = Eigen::Block<const Matrixx2f, 1, 2, true>;
-  using Index = Eigen::Index;
-  // clang-format on
+  using Polygon = std::vector<Vec2f, Eigen::aligned_allocator<Vec2f>>;
 
-  /// @brief Reference frame in which to express a support points (contact point
-  /// if SupportSet represents a ContactPatch).
+  /// @brief Reference frame in which to express the points of the set.
   enum ReferenceFrame {
-    // World frame, e.g. tfc is the support set frame (i.e contact frame),
-    // expressed w.r.t the world frame. Used to get the position of a contact
-    // point, expressed in the world frame.
+    // World frame, e.g. tf is the frame of the set, expressed w.r.t the world
+    // frame.
     WORLD = 0,
-    // Local frame. Used to get the position of a point of
-    // the set, expressed in the local frame of the set.
+    // Local frame. All points of the sets are stored and manipulated in the
+    // local frame of the set.
     LOCAL = 1,
   };
 
-  /// @brief Set frame (i.e. contact frame), expressed in the world coordinates.
-  /// @note The support set direction (i.e. contact normal) is the z-axis of the
-  /// transform's rotation.
-  Transform3f tfc;
+  /// @brief Frame of the set, expressed in the world coordinates.
+  /// The z-axis of the frame's rotation is the contact patch normal.
+  Transform3f tf;
 
-  /// @brief Offset of the support set, i.e. penetration depth of the contact
-  /// patch. This value corresponds to the signed distance between the shapes.
-  /// @note If SupportSet is used as a ContactPatch, for each contact point `p`
-  /// in the patch, `p1 = p + 0.5*d*n` and `p2 = p - 0.5*d*n` define a pair of
-  /// witness points. `p1` belongs to the surface of the first shape, `p2`
-  /// belongs to the surface of the second shape.
+  /// @brief Direction of ContactPatch.
+  /// When doing collision detection, the convention of HPP-FCL is that the
+  /// normal always points from the first to the second shape of the collision
+  /// pair i.e. from shape1 to shape2 when calling `collide(shape1, shape2)`.
+  /// The PatchDirection enum allows to identify if the patch points from
+  /// shape 1 to shape 2 (Default type) or from shape 2 to shape 1 (Inverted
+  /// type). The Inverted type should only be used for internal HPP-FCL
+  /// computations (it allows to properly define two separate contact patches in
+  /// the same frame).
+  enum PatchDirection { DEFAULT = 0, INVERTED = 1 };
+
+  /// @brief Direction of this contact patch.
+  PatchDirection direction;
+
+  /// @brief Penetration depth of the contact patch. This value corresponds to
+  /// the signed distance `d` between the shapes.
+  /// @note For each contact point `p` in the patch of normal `n`, `p1 = p +
+  /// 0.5*d*n` and `p2 = p - 0.5*d*n` define a pair of witness points. `p1`
+  /// belongs to the surface of the first shape and `p2` belongs to the surface
+  /// of the second shape. For any pair of witness points, we always have `p1 -
+  /// p2 = d * n`. The vector `d * n` is called a minimum separation vector:
+  /// if S1 is translated by it, S1 and S2 are not in collision anymore.
+  /// @note Although there may exist multiple minimum separation vectors between
+  /// two shapes, the term "minimum" comes from the fact that it's impossible to
+  /// find a different separation vector which has a smaller norm than `d * n`.
   FCL_REAL penetration_depth;
 
-  /// @brief Default maximum size of the polytope representing the support set.
+  /// @brief Default maximum size of the polygon representing the set.
   static constexpr size_t default_max_size = 6;
 
  private:
-  /// @brief Vertices of the polytope in the `SupportSet`.
-  Matrixx2f m_points;
-
-  /// @brief Current size of the support set.
-  Index m_size;
+  /// @brief Container for the vertices of the set.
+  Polygon m_points;
 
  public:
   /// @brief Default constructor.
-  explicit SupportSet(size_t max_size = default_max_size)
-      : tfc(Transform3f::Identity()),
-        penetration_depth(0),
-        m_points(max_size, 2),
-        m_size(0) {}
-
-  /// @brief Maximum size of the support set.
-  size_t capacity() const { return (size_t)(this->m_points.rows()); }
-
-  /// @brief Current size of the support set.
-  size_t size() const { return (size_t)(this->m_size); }
-
-  /// @brief Update the capacity of the support set.
-  /// @note This clears the content of the support set.
-  void reserve(const size_t max_size) {
-    this->m_points.resize((Index)max_size, 2);
-    this->m_size = 0;
+  explicit ContactPatch(size_t max_size = default_max_size)
+      : tf(Transform3f::Identity()),
+        direction(PatchDirection::DEFAULT),
+        penetration_depth(0) {
+    this->m_points.reserve(max_size);
   }
 
-  /// @brief Direction assiocated to the support set.
-  /// If a `SupportSet` represents a `ContactPatch`, this is simply the normal
-  /// of the patch.
-  /// @note As in `Contact`, the normal always points from the first to the
-  /// second shape.
-  Vec3f getNormal() const { return this->tfc.rotation().col(2); }
-
-  /// @brief Add a 2D point to the set.
-  void addPoint(const Vec2f& point) {
-    HPP_FCL_ASSERT(this->m_size < this->m_points.rows(),
-                   "Tried to insert point in set but exceeded "
-                   "maximum size of the set.",
-                   std::logic_error);
-    if (this->m_size < this->m_points.rows()) {
-      this->m_points.row(this->m_size) = point;
-      ++(this->m_size);
-    } else {
-      this->m_points.row(this->m_points.rows()) = point;
+  /// @brief Normal of the contact patch, expressed in the WORLD frame.
+  Vec3f getNormal() const {
+    if (this->direction == PatchDirection::INVERTED) {
+      return -this->tf.rotation().col(2);
     }
+    return this->tf.rotation().col(2);
   }
+
+  /// @brief Returns number of points in the contact patch.
+  size_t size() const { return this->m_points.size(); }
 
   /// @brief Add a 3D point to the set, expressed in the reference frame.
-  /// @note This function takes a point and expresses it in the local frame of
-  /// the support set. It then takes only the x and y components of the
-  /// vector, effectively doing a projection onto the plane to which the set
-  /// belongs.
+  /// @note This function takes a 3D point and expresses it in the local frame
+  /// of the set. It then takes only the x and y components of the vector,
+  /// effectively doing a projection onto the plane to which the set belongs.
   /// @tparam InputFrame is the reference frame in which the input 3D point is
-  /// expressed. See @ref SupportSet::ReferenceFrame.
+  /// expressed. See @ref ContactPatch::ReferenceFrame.
+  /// TODO(louis): if necessary, we can store the offset to the plane (x, y).
   template <int InputFrame = ReferenceFrame::WORLD>
   void addPoint(const Vec3f& point_3d) {
     if (InputFrame == ReferenceFrame::WORLD) {
-      const auto point = this->tfc.inverseTransform(point_3d);
-      this->addPoint(point.template head<2>());
+      const Vec3f point = this->tf.inverseTransform(point_3d);
+      this->m_points.emplace_back(point.template head<2>());
     }
     if (InputFrame == ReferenceFrame::LOCAL) {
-      this->addPoint(point_3d.template head<2>());
+      this->m_points.emplace_back(point_3d.template head<2>());
     }
   }
 
   /// @brief Get the i-th point of the set, expressed in the 3D reference frame.
   /// @tparam OutputFrame is the reference frame in which the output 3D point is
-  /// expressed. See @ref SupportSet::ReferenceFrame.
+  /// expressed. See @ref ContactPatch::ReferenceFrame.
   template <int OutputFrame = ReferenceFrame::WORLD>
-  Vec3f getPoint(const Index i) const {
+  Vec3f getPoint(const size_t i) const {
     Vec3f point(0, 0, 0);
     point.head<2>() = this->point(i);
     if (OutputFrame == ReferenceFrame::WORLD) {
-      point = tfc.transform(point);
+      point = tf.transform(point);
     }
     if (OutputFrame == ReferenceFrame::LOCAL) {
       // do nothing
@@ -627,71 +614,57 @@ struct HPP_FCL_DLLAPI SupportSet {
     return point;
   }
 
-  /// @brief Getter for the 2D points in the support set.
-  Matrixx2fXpr points() {
-    HPP_FCL_ASSERT((this->m_size > 0) && (this->m_size < this->m_points.rows()),
-                   "Invalid support set/contact patch size.", std::logic_error);
-    return this->m_points.topRows(this->m_size);
-  }
+  /// @brief Getter for the 2D points in the set.
+  Polygon& points() { return this->m_points; }
 
-  /// @brief Const getter for the 2D points in the support set.
-  ConstMatrixx2fXpr points() const {
-    HPP_FCL_ASSERT((this->m_size > 0) && (this->m_size < this->m_points.rows()),
-                   "Invalid support set/contact patch size.", std::logic_error);
-    return this->m_points.topRows(this->m_size);
-  }
+  /// @brief Const getter for the 2D points in the set.
+  const Polygon& points() const { return this->m_points; }
 
-  /// @brief Getter for the i-th 2D point in the support set.
-  Vec2fXpr point(const Index i) {
-    HPP_FCL_ASSERT((this->m_size > 0) && (this->m_size < this->m_points.rows()),
-                   "Invalid support set/contact patch size.", std::logic_error);
-    if (i < this->m_size) {
-      return this->m_points.row(i);
+  /// @brief Getter for the i-th 2D point in the set.
+  Vec2f& point(const size_t i) {
+    HPP_FCL_ASSERT(this->m_points.size() > 0, "Patch is empty.",
+                   std::logic_error);
+    if (i < this->m_points.size()) {
+      return this->m_points[i];
     }
-    return this->m_points.row(this->m_size);
+    return this->m_points.back();
   }
 
-  /// @brief Const getter for the i-th 2D point in the support set.
-  ConstVec2fXpr point(const Index i) const {
-    HPP_FCL_ASSERT((this->m_size > 0) && (this->m_size < this->m_points.rows()),
-                   "Invalid support set/contact patch size.", std::logic_error);
-    if (i < this->m_size) {
-      return this->m_points.row(i);
+  /// @brief Const getter for the i-th 2D point in the set.
+  const Vec2f& point(const size_t i) const {
+    HPP_FCL_ASSERT(this->m_points.size() > 0, "Patch is empty.",
+                   std::logic_error);
+    if (i < this->m_points.size()) {
+      return this->m_points[i];
     }
-    return this->m_points.row(this->m_size);
+    return this->m_points.back();
   }
 
-  /// @brief Clear the support set.
+  /// @brief Clear the set.
   void clear() {
-    this->m_size = 0;
-    this->tfc.setIdentity();
+    this->m_points.clear();
+    this->tf.setIdentity();
     this->penetration_depth = 0;
   }
 
-  /// @brief Reset the support set. Same effect as `clear` but does not modify
-  /// `tfc` nor `penetration_depth`.
-  void reset() { this->m_size = 0; }
-
-  /// @brief Whether two support sets/contact patches are the same or not.
-  /// @note This compares, term by term, two support sets.
-  /// However, two support sets can be identical, but have a different order
-  /// for their points. Use `isEqual` to compare two support sets.
-  bool operator==(const SupportSet& other) const {
-    return this->tfc == other.tfc &&
+  /// @brief Whether two contact patches are the same or not.
+  /// @note This compares the two sets terms by terms.
+  /// However, two contact patches can be identical, but have a different order
+  /// for their points. Use `isEqual` in this case.
+  bool operator==(const ContactPatch& other) const {
+    return this->tf == other.tf && this->direction == other.direction &&
            this->penetration_depth == other.penetration_depth &&
-           this->points() == other.points() &&
-           this->capacity() == other.capacity();
+           this->points() == other.points();
   }
 
-  /// @brief Whether two support sets are the same or not.
+  /// @brief Whether two contact patches are the same or not.
   /// Checks for different order of the points.
-  bool isSame(const SupportSet& other,
+  bool isSame(const ContactPatch& other,
               const FCL_REAL tol =
                   Eigen::NumTraits<FCL_REAL>::dummy_precision()) const {
     // The x and y axis of the set are arbitrary, but the z axis is
-    // always the support direction/normal. The position of the origin of the
-    // frame is also arbitrary. So we only check if the normals are the
-    // same.
+    // always the normal. The position of the origin of the frame is also
+    // arbitrary. So we only check if the normals are the same.
     if (!this->getNormal().isApprox(other.getNormal(), tol)) {
       return false;
     }
@@ -700,14 +673,18 @@ struct HPP_FCL_DLLAPI SupportSet {
       return false;
     }
 
+    if (this->direction != other.direction) {
+      return false;
+    }
+
     if (this->size() != other.size()) {
       return false;
     }
 
-    for (Index i = 0; i < (Index)(this->size()); ++i) {
+    for (size_t i = 0; i < this->points().size(); ++i) {
       bool found = false;
       const Vec3f pi = this->getPoint<ReferenceFrame::WORLD>(i);
-      for (Index j = 0; j < (Index)(this->size()); ++j) {
+      for (size_t j = 0; j < other.points().size(); ++j) {
         const Vec3f other_pj = other.getPoint<ReferenceFrame::WORLD>(j);
         if (pi.isApprox(other_pj, tol)) {
           found = true;
@@ -722,73 +699,6 @@ struct HPP_FCL_DLLAPI SupportSet {
   }
 };
 
-/// @brief A support set and a contact patch are identical things.
-/// A contact patch is simply the intersection between two support sets: the
-/// support set of shape S1 in direction `n` and the support set of shape S2 in
-/// direction `-n`, where `n` is the contact normal (satisfying the optimality
-/// conditions of GJK/EPA).
-/// Therefore, a ContactPatch is still a support set.
-/// @note A contact patch is **not** the support set of the Minkowski Difference
-/// in the direction of the normal.
-/// @note For now (April 2024), a `ContactPatch` is a 2D polytope,
-/// so the points of the set, forming the convex-hull of the polytope, are
-/// stored in a counter-clockwise fashion.
-///
-/// In details:
-/// PART I - What is a contact point?
-/// ---------------------------------
-/// This section is important to understand what is a contact patch.
-/// When calling `collide` on a collision pair, the `CollisionResult`
-/// given as an input is populated with a vector of `Contact` (see @ref
-/// CollisionResult and @ref Contact).
-/// These structures encode the fact that S1 and S2 make contact at the
-/// location `p = Contact::pos`, with normal `n = Contact::normal` and
-/// penetration depth `d = Contact::penetration_depth`.
-/// The tuple `(p, n, d)` has remarkable mathematical properties because we
-/// always have:
-///   - `p1 = p + 0.5*d*n` is a witness point, and belongs to the surface of S1,
-///   - `p2 = p - 0.5*d*n` is a witness point, and belongs to the surface of S2.
-///   - The pair `(p1, p2)` defines a pair of witness points such that
-///   translating S1 by `p1 - p2` separates the shapes. The vector `v = p1 - p2`
-///   is called a separating vector.
-///   - Remarkably, if `w` is another separating vector, then **necessarily**
-///   `||w|| >= ||v||`.
-/// --> We call a "smallest separating vector" a separating vector `v` such that
-/// `||v|| = |d|`. Any smallest separating vector `v` has a norm `||v|| = |d|`.
-/// --> Finally, we call the "separating plane" `P` the plane supported by `n`,
-/// and passing by `p`. This plane `P` can easily be translated by `+- v/2`;
-/// this gives two planes tangent to the shapes S1 and S2, supported by `n` and
-/// passing by `p1` and `p2` respectively.
-///
-/// PART II - What is a contact patch?
-/// ----------------------------------
-/// Up to this point, we have a normal which only maps to one contact point.
-/// However, imagine a scenario where a box is sitting on a plane. Alghouth the
-/// normal `n` is unique, the point `p` stored in `Contact::pos` and computed by
-/// `collide` is arbitrary.
-/// Hence, a contact patch is simply a surface (or volume) of contact between
-/// two shapes S1 and S2. This contact surface is nothing more than the (triple)
-/// intersection between the separating plane (see PART I), the shape S1 and the
-/// shape S2, `P & S1 & S2`. If the contact patch is a volume, it is (an
-/// approximation of) the intersection between S1 and S2.
-/// TODO(louis): modify `computeContactPatch` to approximate the intersection
-/// volume.
-///
-/// PART III - Can there be more than one contact patch?
-/// ----------------------------------------------------
-/// Yes, but again it is very rare in practice, as there needs to be more than
-/// one smallest separation vector.
-/// However, imagine two identical boxes (i.e. Box(1, 1, 1)) located at the
-/// exact same pose in space. There are as many smallest separation vectors as
-/// there are faces in a box, i.e. there are 6 smallest separation vectors. So
-/// there can be at most 6 `hpp::fcl::Contact`. The HPP-FCL library implements
-/// GJK and EPA and allows to recover up to `CollisionRequest::num_max_contacts`
-/// smallest separation vectors. So in this scenario, we could recover the 6
-/// normals (and contact position and penetration depth). Then, we can recover
-/// the 6 contact patches.
-/// TODO(louis): modify EPA to recover the entire optimal set.
-using ContactPatch = SupportSet;
-
 /// @brief Construct a frame from a `Contact`'s position and normal.
 /// Because both `Contact`'s position and normal are expressed in the world
 /// frame, this frame is also expressed w.r.t the world frame.
@@ -797,62 +707,56 @@ using ContactPatch = SupportSet;
 inline void constructContactPatchFrameFromContact(const Contact& contact,
                                                   ContactPatch& contact_patch) {
   contact_patch.penetration_depth = contact.penetration_depth;
-  contact_patch.tfc.translation() = contact.pos;
-  contact_patch.tfc.rotation() = constructBasisFromVector(contact.normal);
+  contact_patch.tf.translation() = contact.pos;
+  contact_patch.tf.rotation() = constructBasisFromVector(contact.normal);
+  contact_patch.direction = ContactPatch::PatchDirection::DEFAULT;
 }
+
+/// @brief Structure used for internal computations. A support set and a contact
+/// patch can be represented by the same structure. In fact, a contact patch is
+/// the intersection of two support sets, one with `PatchDirection::DEFAULT` and
+/// one with `PatchDirection::INVERTED`.
+/// @note A support set with `DEFAULT` direction is the support set of a shape
+/// in the direction given by `+n`, where `n` is the z-axis of the frame's patch
+/// rotation. An `INVERTED` support set is the support set of a shape in the
+/// direction `-n`.
+using SupportSet = ContactPatch;
 
 /// @brief Request for a contact patch computation.
 struct HPP_FCL_DLLAPI ContactPatchRequest {
- private:
-  /// @brief The maximum number of contact patches that can be computed.
-  size_t m_num_max_contact_patches{default_num_max_contact_patches};
+  /// @brief Maximum number of contact patches that will be computed.
+  size_t max_num_patch;
 
-  /// @brief Maximum number of vertices of each contact patch.
-  size_t m_max_size_contact_patch{ContactPatch::default_max_size};
+  /// @brief Maximum size (number of vertices) of the computed contact patches.
+  size_t max_size_patch;
 
- public:
-  /// @brief Default maximum number of contact patches requested.
-  static constexpr size_t default_num_max_contact_patches = 1;
+  /// @brief Tolerance below which points are added to a contact patch.
+  /// In details, given two shapes S1 and S2, a contact patch is the triple
+  /// intersection between the separating plane (P) (passing by `Contact::pos`
+  /// and supported by `Contact::normal`), S1 and S2; i.e. a contact patch is `P
+  /// & S1 & S2` if we denote `&` the set intersection operator.
+  /// If a point p1 of S1 is at a distance below `patch_tolerance` from the
+  /// separating plane, it is taken into account in the computation of the
+  /// contact patch. Otherwise, it is not used for the computation.
+  FCL_REAL patch_tolerance;
 
-  /// @brief Get maximum number of requested contact patches.
-  size_t getMaxNumContactPatch() const {
-    return this->m_num_max_contact_patches;
-  }
+  /// @brief Default constructor.
+  explicit ContactPatchRequest(
+      size_t max_num_patch = 1,
+      size_t max_size_patch = ContactPatch::default_max_size,
+      FCL_REAL patch_tolerance = 1e-3)
+      : max_num_patch(max_num_patch),
+        max_size_patch(max_size_patch),
+        patch_tolerance(patch_tolerance) {}
 
-  /// @brief Set maximum number of requested contact patches.
-  void setMaxNumContactPatch(const size_t max_num_contact_patches) {
-    this->m_num_max_contact_patches = max_num_contact_patches;
-    if (this->m_num_max_contact_patches == 0) {
-      HPP_FCL_LOG_WARNING(
-          "Created a ContactPatchRequest with "
-          "`num_max_contact_patches = 0`. Setting `num_max_contact_patches` "
-          "to default non-zero value to prevent bugs.");
-      this->m_num_max_contact_patches = 1;
-    }
-  }
-
-  /// @brief Get maximum size of requested contact patches.
-  size_t getMaxSizeContactPatch() const {
-    return this->m_max_size_contact_patch;
-  }
-
-  /// @brief Set maximum size of requested contact patches.
-  void setMaxSizeContactPatch(const size_t max_size_contact_patch) {
-    this->m_max_size_contact_patch = max_size_contact_patch;
-    if (this->m_max_size_contact_patch == 0) {
-      HPP_FCL_LOG_WARNING(
-          "Warning, created a ContactPatchRequest with "
-          "`max_size_contact_patch = 0`. Setting `max_size_contact_patch` "
-          "to default non-zero value to prevent bugs.");
-      this->m_max_size_contact_patch = ContactPatch::default_max_size;
-    }
-  }
-
-  explicit ContactPatchRequest(size_t max_num_contact_patches = 1,
-                               size_t max_size_contact_patch = 6) {
-    this->setMaxNumContactPatch(max_num_contact_patches);
-    this->setMaxSizeContactPatch(max_size_contact_patch);
-  }
+  /// @brief Construct a contact patch request from a collision request.
+  explicit ContactPatchRequest(
+      const CollisionRequest& collision_request,
+      size_t max_size_patch = ContactPatch::default_max_size,
+      FCL_REAL patch_tolerance = 1e-3)
+      : max_num_patch(collision_request.num_max_contacts),
+        max_size_patch(max_size_patch),
+        patch_tolerance(patch_tolerance) {}
 };
 
 /// @brief Result for a contact patch computation.
@@ -881,8 +785,8 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
  public:
   /// @brief Default constructor.
   ContactPatchResult() : m_id_available_patch(0) {
-    const size_t max_num_contact_patches = 1;
-    const ContactPatchRequest request(max_num_contact_patches);
+    const size_t max_num_patch = 1;
+    const ContactPatchRequest request(max_num_patch);
     this->set(request);
   }
 
@@ -895,26 +799,22 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
   /// @brief Number of contact patches in the result.
   size_t numContactPatches() const { return this->m_contact_patches.size(); }
 
-  /// @brief Maximum number of contact patches the result can store.
-  size_t maxNumContactPatches() const {
-    return this->m_contact_patches_data.size();
-  }
-
   /// @brief Returns a new unused contact patch from the internal data vector.
-  /// @note If there are no more unused contact patches, this method will return
-  /// the last element of the internal data vector.
   ContactPatchRef getUnusedContactPatch() {
     if (this->m_id_available_patch >= this->m_contact_patches_data.size()) {
       HPP_FCL_LOG_WARNING(
           "Trying to get an unused contact patch but all contact patches are "
-          "used. Getting the last used contact patch as fallback.");
+          "used. Increasing size of contact patches vector, at the cost of a "
+          "copy. You should increase `max_num_patch` in the "
+          "`ContactPatchRequest`.");
+      this->m_contact_patches_data.emplace_back(
+          this->m_contact_patches_data.back());
+      this->m_contact_patches_data.back().clear();
     }
-    if (this->m_id_available_patch < this->m_contact_patches_data.size()) {
-      ContactPatch& contact_patch =
-          this->m_contact_patches_data[this->m_id_available_patch];
-      this->m_contact_patches.emplace_back(contact_patch);
-      ++(this->m_id_available_patch);
-    }
+    ContactPatch& contact_patch =
+        this->m_contact_patches_data[this->m_id_available_patch];
+    this->m_contact_patches.emplace_back(contact_patch);
+    ++(this->m_id_available_patch);
     return this->m_contact_patches.back();
   }
 
@@ -957,17 +857,11 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
 
   /// @brief Set up a `ContactPatchResult` from a `ContactPatchRequest`
   void set(const ContactPatchRequest& request) {
-    HPP_FCL_ASSERT(request.getMaxNumContactPatch() > 0,
-                   "The ContactPatchRequest has 0 max_num_contact_patches.",
-                   std::logic_error);
-    HPP_FCL_ASSERT(request.getMaxSizeContactPatch() > 0,
-                   "The ContactPatchRequest has 0 max_size_contact_patch.",
-                   std::logic_error);
-    if (this->m_contact_patches_data.size() < request.getMaxNumContactPatch()) {
-      this->m_contact_patches_data.resize(request.getMaxNumContactPatch());
+    if (this->m_contact_patches_data.size() < request.max_num_patch) {
+      this->m_contact_patches_data.resize(request.max_num_patch);
     }
     for (ContactPatch& patch : this->m_contact_patches_data) {
-      patch.reserve(request.getMaxSizeContactPatch());
+      patch.points().reserve(request.max_size_patch);
     }
     this->clear();
   }
@@ -975,15 +869,14 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
   /// @brief Return true if this `ContactPatchResult` is aligned with the
   /// `ContactPatchRequest` given as input.
   bool check(const ContactPatchRequest& request) const {
-    assert(this->m_contact_patches_data.size() >=
-           request.getMaxNumContactPatch());
-    if (this->m_contact_patches_data.size() < request.getMaxNumContactPatch()) {
+    assert(this->m_contact_patches_data.size() >= request.max_num_patch);
+    if (this->m_contact_patches_data.size() < request.max_num_patch) {
       return false;
     }
 
     for (const ContactPatch& patch : this->m_contact_patches_data) {
-      if (patch.capacity() < request.getMaxSizeContactPatch()) {
-        assert(patch.capacity() >= request.getMaxSizeContactPatch());
+      if (patch.points().capacity() < request.max_size_patch) {
+        assert(patch.points().capacity() >= request.max_size_patch);
         return false;
       }
     }

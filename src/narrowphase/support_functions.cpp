@@ -429,11 +429,11 @@ getShapeSupportTplInstantiation(LargeConvex);
 // ============================================================================
 #define CALL_GET_SHAPE_SUPPORT_SET(ShapeType)                               \
   getShapeSupportSet<_SupportOptions>(static_cast<const ShapeType*>(shape), \
-                                      dir, ctfi, support_set, hint, nullptr)
+                                      support_set, hint, nullptr,           \
+                                      max_num_supports, tol)
 template <int _SupportOptions>
-void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
-                   const Transform3f& ctfi, FCL_REAL tol,
-                   SupportSet& support_set, const int hint) {
+void getSupportSet(const ShapeBase* shape, SupportSet& support_set, int& hint,
+                   size_t max_num_supports, FCL_REAL tol) {
   switch (shape->getNodeType()) {
     case GEOM_TRIANGLE:
       CALL_GET_SHAPE_SUPPORT_SET(TriangleP);
@@ -468,119 +468,119 @@ void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
 
 // Explicit instantiation
 // clang-format off
-template void getSupportSet<SupportOptions::NoSweptSphere>(const ShapeBase*, const Vec3f&, const Transform3f&, FCL_REAL tol, SupportSet&, const int);
+template void getSupportSet<SupportOptions::NoSweptSphere>(const ShapeBase*, SupportSet&, int&, size_t, FCL_REAL);
 
-template void getSupportSet<SupportOptions::WithSweptSphere>(const ShapeBase*, const Vec3f&, const Transform3f&, FCL_REAL tol, SupportSet&, const int);
+template void getSupportSet<SupportOptions::WithSweptSphere>(const ShapeBase*, SupportSet&, int&, size_t, FCL_REAL);
 // clang-format on
 
 // ============================================================================
-#define getShapeSupportSetTplInstantiation(ShapeType)                     \
-  template void getShapeSupportSet<SupportOptions::NoSweptSphere>(        \
-      const ShapeType* shape_, const Vec3f& dir, const Transform3f& ctfi, \
-      SupportSet& support_set, const int hint, ShapeSupportData* data);   \
-                                                                          \
-  template void getShapeSupportSet<SupportOptions::WithSweptSphere>(      \
-      const ShapeType* shape_, const Vec3f& dir, const Transform3f& ctfi, \
-      SupportSet& support_set, const int hint, ShapeSupportData* data);
+#define getShapeSupportSetTplInstantiation(ShapeType)                 \
+  template void getShapeSupportSet<SupportOptions::NoSweptSphere>(    \
+      const ShapeType* shape_, SupportSet& support_set, int& hint,    \
+      ShapeSupportData* data, size_t max_num_supports, FCL_REAL tol); \
+                                                                      \
+  template void getShapeSupportSet<SupportOptions::WithSweptSphere>(  \
+      const ShapeType* shape_, SupportSet& support_set, int& hint,    \
+      ShapeSupportData* data, size_t max_num_supports, FCL_REAL tol);
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSet(const TriangleP* triangle, const Vec3f& dir,
-                        const Transform3f& ctfi, SupportSet& support_set,
-                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+void getShapeSupportSet(const TriangleP* triangle, SupportSet& support_set,
+                        int& /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t /*unused*/, FCL_REAL tol) {}
 getShapeSupportSetTplInstantiation(TriangleP);
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSet(const Box* box, const Vec3f& dir,
-                        const Transform3f& ctfi, SupportSet& support_set,
-                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+void getShapeSupportSet(const Box* box, SupportSet& support_set,
+                        int& /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t /*unused*/, FCL_REAL tol) {}
 getShapeSupportSetTplInstantiation(Box);
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSet(const Sphere* sphere, const Vec3f& dir,
-                        const Transform3f& ctfi, SupportSet& support_set,
-                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+void getShapeSupportSet(const Sphere* sphere, SupportSet& support_set,
+                        int& /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t /*unused*/, FCL_REAL /*unused*/) {}
 getShapeSupportSetTplInstantiation(Sphere);
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSet(const Ellipsoid* ellipsoid, const Vec3f& dir,
-                        const Transform3f& ctfi, SupportSet& support_set,
-                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+void getShapeSupportSet(const Ellipsoid* ellipsoid, SupportSet& support_set,
+                        int& /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t /*unused*/, FCL_REAL /*unused*/) {}
 getShapeSupportSetTplInstantiation(Ellipsoid);
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSet(const Capsule* capsule, const Vec3f& dir,
-                        const Transform3f& ctfi, SupportSet& support_set,
-                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+void getShapeSupportSet(const Capsule* capsule, SupportSet& support_set,
+                        int& /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t /*unused*/, FCL_REAL tol) {}
 getShapeSupportSetTplInstantiation(Capsule);
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSet(const Cone* cone, const Vec3f& dir,
-                        const Transform3f& ctfi, SupportSet& support_set,
-                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
+                        int& /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t max_num_supports, FCL_REAL tol) {}
 getShapeSupportSetTplInstantiation(Cone);
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSet(const Cylinder* cylinder, const Vec3f& dir,
-                        const Transform3f& ctfi, SupportSet& support_set,
-                        const int /*unused*/, ShapeSupportData* /*unused*/) {}
+void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
+                        int& /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t max_num_supports, FCL_REAL tol) {}
 getShapeSupportSetTplInstantiation(Cylinder);
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSetLog(const ConvexBase* convex, const Vec3f& dir,
-                           const Transform3f& ctfi, SupportSet& support_set,
-                           const int hint, ShapeSupportData* data) {}
+void getShapeSupportSetLog(const ConvexBase* convex, SupportSet& support_set,
+                           int& hint, ShapeSupportData* data, size_t /*unused*/,
+                           FCL_REAL tol) {}
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSetLinear(const ConvexBase* convex, const Vec3f& dir,
-                              const Transform3f& ctfi, SupportSet& support_set,
-                              const int hint, ShapeSupportData* /*unused*/) {}
+void getShapeSupportSetLinear(const ConvexBase* convex, SupportSet& support_set,
+                              int& /*unused*/, ShapeSupportData* /*unused*/,
+                              size_t /*unused*/, FCL_REAL tol) {}
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSet(const ConvexBase* convex, const Vec3f& dir,
-                        const Transform3f& ctfi, SupportSet& support_set,
-                        const int hint, ShapeSupportData* /*unused*/) {
+void getShapeSupportSet(const ConvexBase* convex, SupportSet& support_set,
+                        int& hint, ShapeSupportData* data,
+                        size_t max_num_supports /*unused*/, FCL_REAL tol) {
   if (convex->num_points > ConvexBase::num_vertices_large_convex_threshold &&
       convex->neighbors != nullptr) {
     ShapeSupportData data;
     data.visited.assign(convex->num_points, false);
-    getShapeSupportSetLog<_SupportOptions>(convex, dir, ctfi, support_set, hint,
-                                           &data);
+    getShapeSupportSetLog<_SupportOptions>(convex, support_set, hint, &data,
+                                           max_num_supports, tol);
   } else {
-    getShapeSupportSetLinear<_SupportOptions>(convex, dir, ctfi, support_set,
-                                              hint, nullptr);
+    getShapeSupportSetLinear<_SupportOptions>(convex, support_set, hint,
+                                              nullptr, max_num_supports, tol);
   }
 }
 getShapeSupportSetTplInstantiation(ConvexBase);
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSet(const SmallConvex* convex, const Vec3f& dir,
-                        const Transform3f& ctfi, SupportSet& support_set,
-                        const int hint, ShapeSupportData* data) {
+void getShapeSupportSet(const SmallConvex* convex, SupportSet& support_set,
+                        int& hint /*unused*/, ShapeSupportData* data /*unused*/,
+                        size_t max_num_supports /*unused*/, FCL_REAL tol) {
   getShapeSupportSetLinear<_SupportOptions>(
-      reinterpret_cast<const ConvexBase*>(convex), dir, ctfi, support_set, hint,
-      data);
+      reinterpret_cast<const ConvexBase*>(convex), support_set, hint, data,
+      max_num_supports, tol);
 }
 getShapeSupportSetTplInstantiation(SmallConvex);
 
 // ============================================================================
 template <int _SupportOptions>
-void getShapeSupportSet(const LargeConvex* convex, const Vec3f& dir,
-                        const Transform3f& ctfi, SupportSet& support_set,
-                        const int hint, ShapeSupportData* data) {
+void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
+                        int& hint, ShapeSupportData* data,
+                        size_t max_num_supports /*unused*/, FCL_REAL tol) {
   getShapeSupportSetLog<_SupportOptions>(
-      reinterpret_cast<const ConvexBase*>(convex), dir, ctfi, support_set, hint,
-      data);
+      reinterpret_cast<const ConvexBase*>(convex), support_set, hint, data,
+      max_num_supports, tol);
 }
 getShapeSupportSetTplInstantiation(LargeConvex);
 

@@ -51,15 +51,12 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
                          const CollisionResult& collision_result,
                          const ContactPatchRequest& request,
                          ContactPatchResult& result) {
-  if (!collision_result.isCollision()) {
+  if (!collision_result.isCollision()  //
+      || request.max_num_patch == 0    //
+      || request.max_size_patch == 0) {
+    // do nothing
     return;
   }
-  HPP_FCL_ASSERT(
-      (request.getMaxNumContactPatch() > 0) &&
-          (request.getMaxSizeContactPatch() > 0),
-      "Invalid number of max contact patches or contact patch size (one or "
-      "the other is zero).",
-      std::invalid_argument);
 
   // Before doing any computation, we initialize and clear the input result.
   result.set(request);

@@ -43,23 +43,29 @@
 namespace hpp {
 namespace fcl {
 
+// ============================================================================
 inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
   // Note: it's important for the number of pre-allocated Vec3f in
-  // `shapes_supports` to be larger than `request.getMaxSizeContactPatch()`
+  // `m_shapes_support_sets` to be larger than `request.max_size_patch`
   // because we don't know in advance how many supports will be discarded to
-  // form the convex-hulls of the projected shapes supports which serve as the
+  // form the convex-hulls of the shapes supports which will serve as the
   // input of the Sutherland-Hodgman algorithm.
   size_t num_preallocated_supports = default_num_preallocated_supports;
-  if (num_preallocated_supports < 2 * request.getMaxSizeContactPatch()) {
-    num_preallocated_supports = 2 * request.getMaxSizeContactPatch();
+  if (num_preallocated_supports < 2 * request.max_size_patch) {
+    num_preallocated_supports = 2 * request.max_size_patch;
   }
 
-  this->m_projected_shapes_supports[0].reserve(num_preallocated_supports);
-  this->m_projected_shapes_supports[1].reserve(num_preallocated_supports);
+  this->m_shapes_support_sets[0].points().reserve(num_preallocated_supports);
+  this->m_shapes_support_sets[0].direction = SupportSetDirection::DEFAULT;
+  this->m_shapes_support_sets[1].points().reserve(num_preallocated_supports);
+  this->m_shapes_support_sets[1].direction = SupportSetDirection::INVERTED;
 
-  this->m_support_sets[0].reserve(num_preallocated_supports);
-  this->m_support_sets[1].reserve(num_preallocated_supports);
-  this->m_support_sets[2].reserve(num_preallocated_supports);
+  this->m_clipping_sets[0].points().reserve(request.max_size_patch);
+  this->m_clipping_sets[1].points().reserve(request.max_size_patch);
+  this->m_clipping_sets[2].points().reserve(request.max_size_patch);
+
+  this->max_size_patch = request.max_size_patch;
+  this->patch_tolerance = request.patch_tolerance;
 }
 
 // ============================================================================
@@ -94,12 +100,8 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   this->reset(s1, tf1, s2, tf2, contact_patch);
   // TODO(louis): tolerance for support set. Also template the support set
   // function on the tolerance, so it's not arbitrary. Set default tol to 1e-3.
-  SupportSet& support_set_shape1 =
-      const_cast<SupportSet&>(this->m_projected_shapes_supports[0]);
-  this->computeSupportSetShape1(support_set_shape1);
-  SupportSet& support_set_shape2 =
-      const_cast<SupportSet&>(this->m_projected_shapes_supports[1]);
-  this->computeSupportSetShape2(support_set_shape2);
+  this->computeSupportSetShape1();
+  this->computeSupportSetShape2();
 
   // Step 3 - Compute convex polytope out of each shapes' support set.
   // Add points until no more or until reaching max size of current/clipper.
@@ -122,29 +124,29 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
   //
   this->m_id_current = 0;
-  const Index clipper_size = (Index)(this->clipper().size());
-  for (Index i = 0; i < clipper_size; ++i) {
+  const size_t clipper_size = this->clipper().points().size();
+  for (size_t i = 0; i < clipper_size; ++i) {
     const Vec2f a = this->clipper().point(i);
     const Vec2f b = this->clipper().point((i + 1) % clipper_size);
 
     this->m_id_current = 1 - this->m_id_current;
     ContactPatch& current = const_cast<ContactPatch&>(this->current());
-    current.reset();
+    current.points().clear();
     // TODO(louis): continue to next iteration as soon as previous has been
     // clipped twice.
-    const Index previous_size = (Index)(this->previous().size());
-    for (Index j = 0; j < previous_size; ++j) {
+    const size_t previous_size = this->previous().points().size();
+    for (size_t j = 0; j < previous_size; ++j) {
       const Vec2f vcurrent = this->previous().point(j);
       const Vec2f vnext = this->previous().point((j + 1) % previous_size);
       if (pointIsInsideClippingRegion(vcurrent, a, b)) {
-        current.addPoint(vcurrent);
+        current.points().emplace_back(vcurrent);
         if (!pointIsInsideClippingRegion(vnext, a, b)) {
           const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
-          current.addPoint(p);
+          current.points().emplace_back(p);
         }
       } else if (pointIsInsideClippingRegion(vnext, a, b)) {
         const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
-        current.addPoint(p);
+        current.points().emplace_back(p);
       }
     }
   }
@@ -161,35 +163,40 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
                                       const ShapeType2& shape2,
                                       const Transform3f& tf2,
                                       const ContactPatch& contact_patch) const {
-  // Get the support function of each shape
-  const Transform3f& tfc = contact_patch.tfc;
-  this->m_shapes[0] = &shape1;
-  this->m_ctf1.rotation().noalias() =
-      tfc.rotation().transpose() * tf1.getRotation();
-  this->m_ctf1.translation().noalias() =
-      tfc.getRotation().transpose() *
-      (tf1.getTranslation() - tfc.getTranslation());
-  this->m_supportFuncShape1 = this->makeSupportSetFunction(
-      &shape1, this->m_ctf1, &(this->m_supports_data[0]));
-
-  this->m_shapes[1] = &shape2;
-  this->m_ctf2.rotation().noalias() =
-      tfc.rotation().transpose() * tf2.getRotation();
-  this->m_ctf2.translation().noalias() =
-      tfc.getRotation().transpose() *
-      (tf2.getTranslation() - tfc.getTranslation());
-  this->m_supportFuncShape2 = this->makeSupportSetFunction(
-      &shape2, this->m_ctf2, &(this->m_supports_data[1]));
-
   // Reset internal quantities
-  this->m_projected_shapes_supports[0].clear();
-  this->m_projected_shapes_supports[1].clear();
+  this->m_shapes_support_sets[0].clear();
+  this->m_shapes_support_sets[1].clear();
 
-  this->m_support_sets[0].clear();
-  this->m_support_sets[1].clear();
-  this->m_support_sets[2].clear();
+  this->m_clipping_sets[0].clear();
+  this->m_clipping_sets[1].clear();
+  this->m_clipping_sets[2].clear();
 
   this->m_id_current = 0;
+
+  // Get the support function of each shape
+  const Transform3f& tfc = contact_patch.tf;
+
+  this->m_shapes[0] = &shape1;
+  this->m_shapes_support_sets[0].direction = SupportSetDirection::DEFAULT;
+  // Set the reference frame of the support set of the first shape to be the
+  // local frame of shape 1.
+  Transform3f& tf1c = this->m_shapes_support_sets[0].tf;
+  tf1c.rotation().noalias() = tf1.rotation().transpose() * tfc.rotation();
+  tf1c.translation().noalias() =
+      tf1.rotation().transpose() * (tfc.translation() - tf1.translation());
+  this->m_supportFuncShape1 =
+      this->makeSupportSetFunction(&shape1, &(this->m_supports_data[0]));
+
+  this->m_shapes[1] = &shape2;
+  this->m_shapes_support_sets[1].direction = SupportSetDirection::INVERTED;
+  // Set the reference frame of the support set of the second shape to be the
+  // local frame of shape 2.
+  Transform3f& tf2c = this->m_shapes_support_sets[1].tf;
+  tf2c.rotation().noalias() = tf2.rotation().transpose() * tfc.rotation();
+  tf2c.translation().noalias() =
+      tf2.rotation().transpose() * (tfc.translation() - tf2.translation());
+  this->m_supportFuncShape2 =
+      this->makeSupportSetFunction(&shape2, &(this->m_supports_data[1]));
 }
 
 // ==========================================================================
