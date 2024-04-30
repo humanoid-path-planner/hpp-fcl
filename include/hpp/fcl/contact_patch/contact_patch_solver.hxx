@@ -223,8 +223,7 @@ namespace details {
 
 // ============================================================================
 inline ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
-    const ShapeBase* shape, const Transform3f& ctfi,
-    ShapeSupportData* support_data) {
+    const ShapeBase* shape, ShapeSupportData* support_data) {
   // Note: because the swept-sphere radius was already taken into account when
   // constructing the contact patch frame, there is actually no need to take the
   // swept-sphere radius of shapes into account. The origin of the contact patch

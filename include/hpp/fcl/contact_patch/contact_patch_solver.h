@@ -235,8 +235,7 @@ namespace details {
 
 /// @brief Construct support set function for shape, w.r.t reference frame c.
 ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
-    const ShapeBase* shape, const Transform3f& ctfi,
-    ShapeSupportData* support_data);
+    const ShapeBase* shape, ShapeSupportData* support_data);
 
 }  // namespace details
 
