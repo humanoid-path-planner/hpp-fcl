@@ -225,33 +225,35 @@ namespace details {
 inline ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
     const ShapeBase* shape, const Transform3f& ctfi,
     ShapeSupportData* support_data) {
-  // Note: we systematically want to take into account the swept sphere radius,
-  // contrary to the iterations of GJK.
+  // Note: because the swept-sphere radius was already taken into account when
+  // constructing the contact patch frame, there is actually no need to take the
+  // swept-sphere radius of shapes into account. The origin of the contact patch
+  // frame already encodes this information.
   switch (shape->getNodeType()) {
     case GEOM_TRIANGLE:
-      return getShapeSupportSetTpl<TriangleP, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<TriangleP, SupportOptions::NoSweptSphere>;
     case GEOM_BOX:
-      return getShapeSupportSetTpl<Box, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Box, SupportOptions::NoSweptSphere>;
     case GEOM_SPHERE:
-      return getShapeSupportSetTpl<Sphere, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Sphere, SupportOptions::NoSweptSphere>;
     case GEOM_ELLIPSOID:
-      return getShapeSupportSetTpl<Ellipsoid, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Ellipsoid, SupportOptions::NoSweptSphere>;
     case GEOM_CAPSULE:
-      return getShapeSupportSetTpl<Capsule, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Capsule, SupportOptions::NoSweptSphere>;
     case GEOM_CONE:
-      return getShapeSupportSetTpl<Cone, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Cone, SupportOptions::NoSweptSphere>;
     case GEOM_CYLINDER:
-      return getShapeSupportSetTpl<Cylinder, SupportOptions::WithSweptSphere>;
+      return getShapeSupportSetTpl<Cylinder, SupportOptions::NoSweptSphere>;
     case GEOM_CONVEX: {
       const ConvexBase* convex = static_cast<const ConvexBase*>(shape);
       if ((size_t)(convex->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         support_data->visited.assign(convex->num_points, false);
         return getShapeSupportSetTpl<LargeConvex,
-                                     SupportOptions::WithSweptSphere>;
+                                     SupportOptions::NoSweptSphere>;
       } else {
         return getShapeSupportSetTpl<SmallConvex,
-                                     SupportOptions::WithSweptSphere>;
+                                     SupportOptions::NoSweptSphere>;
       }
     }
     default:
