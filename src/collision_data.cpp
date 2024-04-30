@@ -55,15 +55,11 @@ template
 void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::WORLD>(const Vec3f&);
 template
 void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::LOCAL>(const Vec3f&);
-template
-void HPP_FCL_DLLAPI SupportSet::addPoint<SupportSet::ReferenceFrame::LOCAL_WORLD_ALIGNED>(const Vec3f&);
 
 template
 Vec3f HPP_FCL_DLLAPI SupportSet::getPoint<SupportSet::ReferenceFrame::WORLD>(const SupportSet::Index) const;
 template
 Vec3f HPP_FCL_DLLAPI SupportSet::getPoint<SupportSet::ReferenceFrame::LOCAL>(const SupportSet::Index) const;
-template
-Vec3f HPP_FCL_DLLAPI SupportSet::getPoint<SupportSet::ReferenceFrame::LOCAL_WORLD_ALIGNED>(const SupportSet::Index) const;
 // clang-format on
 
 }  // namespace fcl

@@ -520,20 +520,12 @@ struct HPP_FCL_DLLAPI SupportSet {
   /// if SupportSet represents a ContactPatch).
   enum ReferenceFrame {
     // World frame, e.g. tfc is the support set frame (i.e contact frame),
-    // expressed w.r.t
-    // the world frame. Used to get the position of a contact point, expressed
-    // in the world frame.
+    // expressed w.r.t the world frame. Used to get the position of a contact
+    // point, expressed in the world frame.
     WORLD = 0,
     // Local frame. Used to get the position of a point of
     // the set, expressed in the local frame of the set.
     LOCAL = 1,
-    // TODO(louis): remove LOCAL_WORLD_ALIGNED
-    // Local frame, but with axes aligned with those of the world frame.
-    // Suppose we want to move the origin of the frame `this->tfc` to where the
-    // i-th point is located, we can simply do:
-    //   this->tfc.translation() += pi;
-    // where pi is the LOCAL_WORLD_ALIGNED position of the i-th point.
-    LOCAL_WORLD_ALIGNED = 2
   };
 
   /// @brief Set frame (i.e. contact frame), expressed in the world coordinates.
@@ -617,10 +609,6 @@ struct HPP_FCL_DLLAPI SupportSet {
     if (InputFrame == ReferenceFrame::LOCAL) {
       this->addPoint(point_3d.template head<2>());
     }
-    if (InputFrame == ReferenceFrame::LOCAL_WORLD_ALIGNED) {
-      const auto point = this->tfc.rotation().transpose() * point_3d;
-      this->addPoint(point.template head<2>());
-    }
   }
 
   /// @brief Get the i-th point of the set, expressed in the 3D reference frame.
@@ -635,9 +623,6 @@ struct HPP_FCL_DLLAPI SupportSet {
     }
     if (OutputFrame == ReferenceFrame::LOCAL) {
       // do nothing
-    }
-    if (OutputFrame == ReferenceFrame::LOCAL_WORLD_ALIGNED) {
-      point = tfc.rotation() * point;
     }
     return point;
   }
