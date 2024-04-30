@@ -72,7 +72,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
                                       ContactPatch& contact_patch) const {
   // Note: `ContactPatch` is an alias for `SupportSet`.
   // Step 1
-  constructContactPatchFrame(contact, contact_patch);
+  constructContactPatchFrameFromContact(contact, contact_patch);
   if ((bool)(shape_traits<ShapeType1>::IsStrictlyConvex) ||
       (bool)(shape_traits<ShapeType2>::IsStrictlyConvex)) {
     // If a shape is strictly convex, the support set in any direction is
@@ -152,14 +152,6 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   // TODO(louis): retrieve the result from current into contact_patch.
   // If current has more points than the request, take request.max_size number
   // of supports in the directions i/2*pi direction of a 2D unit circle.
-}
-
-// ============================================================================
-inline void constructContactPatchFrame(const Contact& contact,
-                                       ContactPatch& contact_patch) {
-  contact_patch.penetration_depth = contact.penetration_depth;
-  contact_patch.tfc.translation() = contact.pos;
-  contact_patch.tfc.rotation() = constructBasisFromNormal(contact.normal);
 }
 
 // ============================================================================

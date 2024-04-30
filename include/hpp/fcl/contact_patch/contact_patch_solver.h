@@ -43,13 +43,6 @@
 namespace hpp {
 namespace fcl {
 
-/// @brief Construct a frame from the contact's normal.
-/// This frame is expressed w.r.t the world frame.
-/// The origin of the frame is `contact.pos` and the z-axis of the frame
-/// is `contact.normal`.
-inline void constructContactPatchFrame(const Contact& contact,
-                                       ContactPatch& contact_patch);
-
 /// @brief Solver to compute contact patches, i.e. the intersection between two
 /// contact surfaces projected onto the shapes' separating plane.
 struct HPP_FCL_DLLAPI ContactPatchSolver {

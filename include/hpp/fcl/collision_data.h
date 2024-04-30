@@ -804,6 +804,18 @@ struct HPP_FCL_DLLAPI SupportSet {
 /// TODO(louis): modify EPA to recover the entire optimal set.
 using ContactPatch = SupportSet;
 
+/// @brief Construct a frame from a `Contact`'s position and normal.
+/// Because both `Contact`'s position and normal are expressed in the world
+/// frame, this frame is also expressed w.r.t the world frame.
+/// The origin of the frame is `contact.pos` and the z-axis of the frame is
+/// `contact.normal`.
+inline void constructContactPatchFrameFromContact(const Contact& contact,
+                                                  ContactPatch& contact_patch) {
+  contact_patch.penetration_depth = contact.penetration_depth;
+  contact_patch.tfc.translation() = contact.pos;
+  contact_patch.tfc.rotation() = constructBasisFromNormal(contact.normal);
+}
+
 /// @brief Request for a contact patch computation.
 struct HPP_FCL_DLLAPI ContactPatchRequest {
  private:
