@@ -813,7 +813,7 @@ inline void constructContactPatchFrameFromContact(const Contact& contact,
                                                   ContactPatch& contact_patch) {
   contact_patch.penetration_depth = contact.penetration_depth;
   contact_patch.tfc.translation() = contact.pos;
-  contact_patch.tfc.rotation() = constructBasisFromNormal(contact.normal);
+  contact_patch.tfc.rotation() = constructBasisFromVector(contact.normal);
 }
 
 /// @brief Request for a contact patch computation.

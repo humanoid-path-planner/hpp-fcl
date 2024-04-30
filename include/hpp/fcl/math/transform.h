@@ -219,7 +219,7 @@ inline Quatf fromAxisAngle(const Eigen::MatrixBase<Derived>& axis,
 
 /// @brief Construct othonormal basis from vector.
 /// The z-axis is the normalized input vector.
-inline Matrix3f constructBasisFromNormal(const Vec3f& vec) {
+inline Matrix3f constructBasisFromVector(const Vec3f& vec) {
   Matrix3f basis = Matrix3f::Zero();
   basis.col(2) = vec.normalized();
   basis.col(1) = -vec.unitOrthogonal();
