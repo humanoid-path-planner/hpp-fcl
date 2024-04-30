@@ -199,6 +199,10 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   static Vec2f computeLineSegmentIntersection(const Vec2f& a, const Vec2f& b,
                                               const Vec2f& c, const Vec2f& d);
 
+  /// @brief Construct support set function for shape.
+  SupportSetFunction makeSupportSetFunction(const ShapeBase* shape,
+                                            ShapeSupportData* support_data);
+
  private:
   /// @brief Reset the internal quantities of the solver.
   template <typename ShapeType1, typename ShapeType2>
@@ -230,14 +234,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Const getter for the set used to clip the other one.
   const SupportSet& clipper() const { return this->m_support_sets[2]; }
 };
-
-namespace details {
-
-/// @brief Construct support set function for shape, w.r.t reference frame c.
-ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
-    const ShapeBase* shape, ShapeSupportData* support_data);
-
-}  // namespace details
 
 }  // namespace fcl
 }  // namespace hpp

@@ -169,7 +169,7 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   this->m_ctf1.translation().noalias() =
       tfc.getRotation().transpose() *
       (tf1.getTranslation() - tfc.getTranslation());
-  this->m_supportFuncShape1 = details::makeSupportSetFunction(
+  this->m_supportFuncShape1 = this->makeSupportSetFunction(
       &shape1, this->m_ctf1, &(this->m_supports_data[0]));
 
   this->m_shapes[1] = &shape2;
@@ -178,7 +178,7 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   this->m_ctf2.translation().noalias() =
       tfc.getRotation().transpose() *
       (tf2.getTranslation() - tfc.getTranslation());
-  this->m_supportFuncShape2 = details::makeSupportSetFunction(
+  this->m_supportFuncShape2 = this->makeSupportSetFunction(
       &shape2, this->m_ctf2, &(this->m_supports_data[1]));
 
   // Reset internal quantities
@@ -219,48 +219,46 @@ inline bool ContactPatchSolver::pointIsInsideClippingRegion(const Vec2f& p,
   return (b(0) - a(0)) * (p(1) - a(1)) >= (b(1) - a(1)) * (p(0) - a(0));
 }
 
-namespace details {
-
 // ============================================================================
-inline ContactPatchSolver::SupportSetFunction makeSupportSetFunction(
-    const ShapeBase* shape, ShapeSupportData* support_data) {
+inline ContactPatchSolver::SupportSetFunction
+ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
+                                           ShapeSupportData* support_data) {
   // Note: because the swept-sphere radius was already taken into account when
   // constructing the contact patch frame, there is actually no need to take the
   // swept-sphere radius of shapes into account. The origin of the contact patch
   // frame already encodes this information.
+  using Options = details::SupportOptions;
   switch (shape->getNodeType()) {
     case GEOM_TRIANGLE:
-      return getShapeSupportSetTpl<TriangleP, SupportOptions::NoSweptSphere>;
+      return details::getShapeSupportSetTpl<TriangleP, Options::NoSweptSphere>;
     case GEOM_BOX:
-      return getShapeSupportSetTpl<Box, SupportOptions::NoSweptSphere>;
+      return details::getShapeSupportSetTpl<Box, Options::NoSweptSphere>;
     case GEOM_SPHERE:
-      return getShapeSupportSetTpl<Sphere, SupportOptions::NoSweptSphere>;
+      return details::getShapeSupportSetTpl<Sphere, Options::NoSweptSphere>;
     case GEOM_ELLIPSOID:
-      return getShapeSupportSetTpl<Ellipsoid, SupportOptions::NoSweptSphere>;
+      return details::getShapeSupportSetTpl<Ellipsoid, Options::NoSweptSphere>;
     case GEOM_CAPSULE:
-      return getShapeSupportSetTpl<Capsule, SupportOptions::NoSweptSphere>;
+      return details::getShapeSupportSetTpl<Capsule, Options::NoSweptSphere>;
     case GEOM_CONE:
-      return getShapeSupportSetTpl<Cone, SupportOptions::NoSweptSphere>;
+      return details::getShapeSupportSetTpl<Cone, Options::NoSweptSphere>;
     case GEOM_CYLINDER:
-      return getShapeSupportSetTpl<Cylinder, SupportOptions::NoSweptSphere>;
+      return details::getShapeSupportSetTpl<Cylinder, Options::NoSweptSphere>;
     case GEOM_CONVEX: {
       const ConvexBase* convex = static_cast<const ConvexBase*>(shape);
       if ((size_t)(convex->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         support_data->visited.assign(convex->num_points, false);
-        return getShapeSupportSetTpl<LargeConvex,
-                                     SupportOptions::NoSweptSphere>;
+        return details::getShapeSupportSetTpl<details::LargeConvex,
+                                              Options::NoSweptSphere>;
       } else {
-        return getShapeSupportSetTpl<SmallConvex,
-                                     SupportOptions::NoSweptSphere>;
+        return details::getShapeSupportSetTpl<details::SmallConvex,
+                                              Options::NoSweptSphere>;
       }
     }
     default:
       HPP_FCL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
   }
 }
-
-}  // namespace details
 
 }  // namespace fcl
 }  // namespace hpp
