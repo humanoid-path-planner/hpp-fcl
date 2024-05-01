@@ -333,8 +333,14 @@ void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
   }
   FCL_REAL maxdot = pts[static_cast<size_t>(hint)].dot(dir);
   std::vector<int8_t>& visited = data->visited;
-  assert(data->visited.size() == convex->num_points);
-  std::fill(visited.begin(), visited.end(), false);
+  if (data->visited.size() == convex->num_points) {
+    std::fill(visited.begin(), visited.end(), false);
+  } else {
+    // std::vector::assign not only assigns the values of the vector but also
+    // resizes the vector. So if `visited` has not been set up yet, this makes
+    // sure the size convex's points and visited are identical.
+    data->visited.assign(convex->num_points, false);
+  }
   visited[static_cast<std::size_t>(hint)] = true;
   // When the first face is orthogonal to dir, all the dot products will be
   // equal. Yet, the neighbors must be visited.
@@ -395,14 +401,18 @@ void getShapeSupportLinear(const ConvexBase* convex, const Vec3f& dir,
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
-                     int& hint, ShapeSupportData* /*unused*/) {
+                     int& hint, ShapeSupportData* data) {
   // TODO add benchmark to set a proper value for switching between linear and
   // logarithmic.
   if (convex->num_points > ConvexBase::num_vertices_large_convex_threshold &&
       convex->neighbors != nullptr) {
-    ShapeSupportData data;
-    data.visited.assign(convex->num_points, false);
-    getShapeSupportLog<_SupportOptions>(convex, dir, support, hint, &data);
+    if (data != nullptr) {
+      getShapeSupportLog<_SupportOptions>(convex, dir, support, hint, data);
+    } else {
+      ShapeSupportData tmp_data;
+      getShapeSupportLog<_SupportOptions>(convex, dir, support, hint,
+                                          &tmp_data);
+    }
   } else
     getShapeSupportLinear<_SupportOptions>(convex, dir, support, hint, nullptr);
 }
@@ -551,10 +561,14 @@ void getShapeSupportSet(const ConvexBase* convex, SupportSet& support_set,
                         size_t max_num_supports /*unused*/, FCL_REAL tol) {
   if (convex->num_points > ConvexBase::num_vertices_large_convex_threshold &&
       convex->neighbors != nullptr) {
-    ShapeSupportData data;
-    data.visited.assign(convex->num_points, false);
-    getShapeSupportSetLog<_SupportOptions>(convex, support_set, hint, &data,
-                                           max_num_supports, tol);
+    if (data != nullptr) {
+      getShapeSupportSetLog<_SupportOptions>(convex, support_set, hint, data,
+                                             max_num_supports, tol);
+    } else {
+      ShapeSupportData tmp_data;
+      getShapeSupportSetLog<_SupportOptions>(convex, support_set, hint,
+                                             &tmp_data, max_num_supports, tol);
+    }
   } else {
     getShapeSupportSetLinear<_SupportOptions>(convex, support_set, hint,
                                               nullptr, max_num_supports, tol);
