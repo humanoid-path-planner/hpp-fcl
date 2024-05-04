@@ -55,14 +55,18 @@ inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
     num_preallocated_supports = 2 * request.max_size_patch;
   }
 
-  this->m_shapes_support_sets[0].points().reserve(num_preallocated_supports);
-  this->m_shapes_support_sets[0].direction = SupportSetDirection::DEFAULT;
-  this->m_shapes_support_sets[1].points().reserve(num_preallocated_supports);
-  this->m_shapes_support_sets[1].direction = SupportSetDirection::INVERTED;
+  // Used for support set computation of shape1 and for the first iterate of the
+  // Sutherland-Hodgman algo.
+  this->m_clipping_sets[0].points().reserve(num_preallocated_supports);
+  this->m_clipping_sets[0].direction = SupportSetDirection::DEFAULT;
 
-  this->m_clipping_sets[0].points().reserve(request.max_size_patch);
-  this->m_clipping_sets[1].points().reserve(request.max_size_patch);
-  this->m_clipping_sets[2].points().reserve(request.max_size_patch);
+  // Used for computing the next iterate of the Sutherland-Hodgman algo.
+  this->m_clipping_sets[1].points().reserve(num_preallocated_supports);
+
+  // Used for support set computation of shape2 and acts as the "clipper" set in
+  // the Sutherland-Hodgman algo.
+  this->m_clipping_sets[2].points().reserve(num_preallocated_supports);
+  this->m_clipping_sets[2].direction = SupportSetDirection::INVERTED;
 
   this->max_size_patch = request.max_size_patch;
   this->patch_tolerance = request.patch_tolerance;
@@ -97,23 +101,21 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
 
   // Step 2 - Compute support set of each shape, in the direction of
   // the contact's normal.
+  // The first shape's support set is called "current"; it will be the first
+  // iterate of the Sutherland-Hodgman algorithm. The second shape's support set
+  // is called "clipper"; it will be used to clip "current". The support set
+  // computation step computes a convex polygon; its vertices are ordered
+  // counter-clockwise. This is important as the Sutherland-Hodgman algorithm
+  // expects points to be ranked counter-clockwise.
   this->reset(s1, tf1, s2, tf2, contact_patch);
-  // TODO(louis): tolerance for support set. Also template the support set
-  // function on the tolerance, so it's not arbitrary. Set default tol to 1e-3.
-  this->computeSupportSetShape1();
-  this->computeSupportSetShape2();
-
-  // Step 3 - Compute convex polytope out of each shapes' support set.
-  // Add points until no more or until reaching max size of current/clipper.
-  // Definitions:
-  //   - "current" -> contact patch that needs to be clipped by the algorithm,
-  //   - "clipper" -> contact patch used to clip "clipped".
-  // After this step, the current and the clipper contact patches are filled
-  // with the projection of the support sets of s1 and s2 in the direction of
-  // `contact.normal`.
-  // TODO(louis): maybe set default size to 32 instead of 16.
-  // SupportSet& current = const_cast<SupportSet&>(this->current());
-  // SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
+  SupportSet& current = const_cast<SupportSet&>(this->current());
+  this->m_supportFuncShape1(&s1, current, this->m_support_guess[0],
+                            &(this->m_supports_data[0]), this->max_size_patch,
+                            this->patch_tolerance);
+  SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
+  this->m_supportFuncShape2(&s2, clipper, this->m_support_guess[1],
+                            &(this->m_supports_data[1]), this->max_size_patch,
+                            this->patch_tolerance);
 
   //
   // Step 4 - Main loop of the algorithm: use the "clipper"
@@ -164,9 +166,6 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
                                       const Transform3f& tf2,
                                       const ContactPatch& contact_patch) const {
   // Reset internal quantities
-  this->m_shapes_support_sets[0].clear();
-  this->m_shapes_support_sets[1].clear();
-
   this->m_clipping_sets[0].clear();
   this->m_clipping_sets[1].clear();
   this->m_clipping_sets[2].clear();
@@ -176,27 +175,33 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   // Get the support function of each shape
   const Transform3f& tfc = contact_patch.tf;
 
-  this->m_shapes[0] = &shape1;
-  this->m_shapes_support_sets[0].direction = SupportSetDirection::DEFAULT;
+  SupportSet& current = const_cast<SupportSet&>(this->current());
+  current.direction = SupportSetDirection::DEFAULT;
   // Set the reference frame of the support set of the first shape to be the
   // local frame of shape 1.
-  Transform3f& tf1c = this->m_shapes_support_sets[0].tf;
+  Transform3f& tf1c = current.tf;
   tf1c.rotation().noalias() = tf1.rotation().transpose() * tfc.rotation();
   tf1c.translation().noalias() =
       tf1.rotation().transpose() * (tfc.translation() - tf1.translation());
+  const size_t prealoccated_size_for_cvx_hull_computation1 =
+      current.points().capacity();  // Used only for ConvexBase
   this->m_supportFuncShape1 =
-      this->makeSupportSetFunction(&shape1, &(this->m_supports_data[0]));
+      this->makeSupportSetFunction(&shape1, &(this->m_supports_data[0]),
+                                   prealoccated_size_for_cvx_hull_computation1);
 
-  this->m_shapes[1] = &shape2;
-  this->m_shapes_support_sets[1].direction = SupportSetDirection::INVERTED;
+  SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
+  clipper.direction = SupportSetDirection::INVERTED;
   // Set the reference frame of the support set of the second shape to be the
   // local frame of shape 2.
-  Transform3f& tf2c = this->m_shapes_support_sets[1].tf;
+  Transform3f& tf2c = clipper.tf;
   tf2c.rotation().noalias() = tf2.rotation().transpose() * tfc.rotation();
   tf2c.translation().noalias() =
       tf2.rotation().transpose() * (tfc.translation() - tf2.translation());
+  const size_t prealoccated_size_for_cvx_hull_computation2 =
+      clipper.points().capacity();  // Used only for ConvexBase
   this->m_supportFuncShape2 =
-      this->makeSupportSetFunction(&shape2, &(this->m_supports_data[1]));
+      this->makeSupportSetFunction(&shape2, &(this->m_supports_data[1]),
+                                   prealoccated_size_for_cvx_hull_computation2);
 }
 
 // ==========================================================================
@@ -228,8 +233,9 @@ inline bool ContactPatchSolver::pointIsInsideClippingRegion(const Vec2f& p,
 
 // ============================================================================
 inline ContactPatchSolver::SupportSetFunction
-ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
-                                           ShapeSupportData* support_data) {
+ContactPatchSolver::makeSupportSetFunction(
+    const ShapeBase* shape, ShapeSupportData* support_data,
+    size_t support_set_size_used_to_compute_cvx_hull) {
   // Note: because the swept-sphere radius was already taken into account when
   // constructing the contact patch frame, there is actually no need to take the
   // swept-sphere radius of shapes into account. The origin of the contact patch
@@ -238,8 +244,11 @@ ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
   switch (shape->getNodeType()) {
     case GEOM_TRIANGLE:
       return details::getShapeSupportSetTpl<TriangleP, Options::NoSweptSphere>;
-    case GEOM_BOX:
+    case GEOM_BOX: {
+      const size_t num_corners_box = 8;
+      support_data->support_set.points().reserve(num_corners_box);
       return details::getShapeSupportSetTpl<Box, Options::NoSweptSphere>;
+    }
     case GEOM_SPHERE:
       return details::getShapeSupportSetTpl<Sphere, Options::NoSweptSphere>;
     case GEOM_ELLIPSOID:
@@ -255,6 +264,8 @@ ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
       if ((size_t)(convex->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         support_data->visited.assign(convex->num_points, false);
+        support_data->support_set.points().reserve(
+            support_set_size_used_to_compute_cvx_hull);
         return details::getShapeSupportSetTpl<details::LargeConvex,
                                               Options::NoSweptSphere>;
       } else {

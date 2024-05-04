@@ -54,6 +54,27 @@ namespace fcl {
 /// A contact patch is actually the support set of the Minkowski difference in
 /// the direction of the normal, i.e. the instersection of the shapes support
 /// sets as mentioned above.
+///
+/// TODO(louis): algo improvement. It's actually quite simple:
+/// - For ConvexBase, replace the current approximate convex-hull computation by
+/// a 2D O(nlog(n)) convex-hull algo (graham scan) (needed after computing the
+/// support set). Shapes other than ConvexBase and Box (but a Box has max 4
+/// vertices in the support set) don't need to compute the convex-hull of their
+/// support set; it's already done in the support set computation.
+/// - The clipping algo is currently n1 * n2; it can be done in n1 + n2.
+/// At the moment, the full algorithm `computePatch` is as efficient as using
+/// the nlog(n) convex-hull and n1 + n2 clipping algos when the flat sides of
+/// the considered shapes have less than 20 vertices. Above
+/// this number, the nlog(n) and n1 * n2 algos become profitable. In practice,
+/// when doing collision detection, it's quite rare to have shapes flat sides
+/// that are more than 20 vertices. That's because we use simplified meshes for
+/// collision detection: visual meshes may have 10k-100k vertices but collision
+/// detection meshes are more in the 100-1k vertices range.
+/// So most meshes usually have between 3 to 6 vertices to represent sides.
+/// Nonetheless, having very detailed flat sides can happen, for example if you
+/// model a cylinder using a mesh. In this case, the circle base of the mesh
+/// consists in many vertices (needed if you must keep the curvature
+/// information).
 struct HPP_FCL_DLLAPI ContactPatchSolver {
  public:
   // Note: `ContactPatch` is an alias for `SupportSet`.
@@ -101,16 +122,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   FCL_REAL patch_tolerance;
 
  private:
-  /// @brief Two sets of points, which are the projections of the shapes
-  /// supports onto the separating plane. These sets of points may not be
-  /// convex. The shapes supports all belong to the support sets of the shapes,
-  /// in the direction of the `Contact`'s normal.
-  /// The resulting contact surface that the `ContactPatchSolver` computes is
-  /// the intersection of the convex-hull of these two sets of points.
-  /// @note Because these are 2D points, we use the convenient `ContactPatch`
-  /// struct to represent these two sets of points.
-  mutable std::array<SupportSet, 2> m_shapes_support_sets;
-
   /// @brief Support sets used for internal computation.
   /// @note The `computePatch` algorithm starts by constructing two 2D
   /// convex-hulls (the convex-hulls of the `m_projected_shapes_supports`). It
@@ -140,9 +151,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
 
   /// @brief Support set function for shape s2.
   mutable SupportSetFunction m_supportFuncShape2;
-
-  /// @brief Pointers to shapes s1 and s2.
-  mutable const ShapeBase* m_shapes[2];
 
   /// @brief Guess for the support sets computation.
   mutable support_func_guess_t m_support_guess;
@@ -213,24 +221,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Const getter for the set used to clip the other one.
   const SupportSet& clipper() const { return this->m_clipping_sets[2]; }
 
-  /// @brief Compute support set of shape s1.
-  void computeSupportSetShape1() const {
-    this->m_supportFuncShape1(
-        this->m_shapes[0], this->m_shapes_support_sets[0],
-        this->m_support_guess[0],
-        const_cast<ShapeSupportData*>(&(this->m_supports_data[0])),
-        this->max_size_patch, this->patch_tolerance);
-  }
-
-  /// @brief Compute support set of shape s2.
-  void computeSupportSetShape2() const {
-    this->m_supportFuncShape1(
-        this->m_shapes[1], this->m_shapes_support_sets[1],
-        this->m_support_guess[1],
-        const_cast<ShapeSupportData*>(&(this->m_supports_data[1])),
-        this->max_size_patch, this->patch_tolerance);
-  }
-
   /// @return true if p inside a clipping region defined by a and b, false
   /// otherwise.
   /// @param p point to check
@@ -250,7 +240,8 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
 
   /// @brief Construct support set function for shape.
   static SupportSetFunction makeSupportSetFunction(
-      const ShapeBase* shape, ShapeSupportData* support_data);
+      const ShapeBase* shape,
+      ShapeSupportData* support_data, size_t support_set_size_used_to_compute_cvx_hull /*used only for ConvexBase*/);
 };
 
 }  // namespace fcl
