@@ -104,7 +104,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// distant from the support plane and is added to the support set.
   typedef void (*SupportSetFunction)(const ShapeBase* shape,
                                      SupportSet& support_set, int& hint,
-                                     ShapeSupportData* support_data,
+                                     ShapeSupportData& support_data,
                                      size_t max_num_supports, FCL_REAL tol);
 
   /// @brief Number of vectors to pre-allocate in the `m_shapes_support_sets`
@@ -241,7 +241,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Construct support set function for shape.
   static SupportSetFunction makeSupportSetFunction(
       const ShapeBase* shape,
-      ShapeSupportData* support_data, size_t support_set_size_used_to_compute_cvx_hull /*used only for ConvexBase*/);
+      ShapeSupportData& support_data, size_t support_set_size_used_to_compute_cvx_hull /*used only for ConvexBase*/);
 };
 
 }  // namespace fcl

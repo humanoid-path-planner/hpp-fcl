@@ -1477,25 +1477,25 @@ void ConvexBase::buildSupportWarmStart() {
       ConvexBase::num_support_warm_starts);
 
   Vec3f axiis(0, 0, 0);
+  details::ShapeSupportData support_data;
+  int support_hint = 0;
   for (int i = 0; i < 3; ++i) {
     axiis(i) = 1;
     {
       Vec3f support;
-      int support_index{0};
       hpp::fcl::details::getShapeSupport<false>(this, axiis, support,
-                                                support_index, nullptr);
+                                                support_hint, support_data);
       this->support_warm_starts.points.emplace_back(support);
-      this->support_warm_starts.indices.emplace_back(support_index);
+      this->support_warm_starts.indices.emplace_back(support_hint);
     }
 
     axiis(i) = -1;
     {
       Vec3f support;
-      int support_index{0};
       hpp::fcl::details::getShapeSupport<false>(this, axiis, support,
-                                                support_index, nullptr);
+                                                support_hint, support_data);
       this->support_warm_starts.points.emplace_back(support);
-      this->support_warm_starts.indices.emplace_back(support_index);
+      this->support_warm_starts.indices.emplace_back(support_hint);
     }
 
     axiis(i) = 0;
@@ -1509,20 +1509,18 @@ void ConvexBase::buildSupportWarmStart() {
   for (size_t ei_index = 0; ei_index < 4; ++ei_index) {
     {
       Vec3f support;
-      int support_index{0};
       hpp::fcl::details::getShapeSupport<false>(this, eis[ei_index], support,
-                                                support_index, nullptr);
+                                                support_hint, support_data);
       this->support_warm_starts.points.emplace_back(support);
-      this->support_warm_starts.indices.emplace_back(support_index);
+      this->support_warm_starts.indices.emplace_back(support_hint);
     }
 
     {
       Vec3f support;
-      int support_index{0};
       hpp::fcl::details::getShapeSupport<false>(this, -eis[ei_index], support,
-                                                support_index, nullptr);
+                                                support_hint, support_data);
       this->support_warm_starts.points.emplace_back(support);
-      this->support_warm_starts.indices.emplace_back(support_index);
+      this->support_warm_starts.indices.emplace_back(support_hint);
     }
   }
 

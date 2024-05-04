@@ -110,11 +110,11 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   this->reset(s1, tf1, s2, tf2, contact_patch);
   SupportSet& current = const_cast<SupportSet&>(this->current());
   this->m_supportFuncShape1(&s1, current, this->m_support_guess[0],
-                            &(this->m_supports_data[0]), this->max_size_patch,
+                            this->m_supports_data[0], this->max_size_patch,
                             this->patch_tolerance);
   SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
   this->m_supportFuncShape2(&s2, clipper, this->m_support_guess[1],
-                            &(this->m_supports_data[1]), this->max_size_patch,
+                            this->m_supports_data[1], this->max_size_patch,
                             this->patch_tolerance);
 
   //
@@ -186,7 +186,7 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   const size_t prealoccated_size_for_cvx_hull_computation1 =
       current.points().capacity();  // Used only for ConvexBase
   this->m_supportFuncShape1 =
-      this->makeSupportSetFunction(&shape1, &(this->m_supports_data[0]),
+      this->makeSupportSetFunction(&shape1, this->m_supports_data[0],
                                    prealoccated_size_for_cvx_hull_computation1);
 
   SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
@@ -200,7 +200,7 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   const size_t prealoccated_size_for_cvx_hull_computation2 =
       clipper.points().capacity();  // Used only for ConvexBase
   this->m_supportFuncShape2 =
-      this->makeSupportSetFunction(&shape2, &(this->m_supports_data[1]),
+      this->makeSupportSetFunction(&shape2, this->m_supports_data[1],
                                    prealoccated_size_for_cvx_hull_computation2);
 }
 
@@ -234,7 +234,7 @@ inline bool ContactPatchSolver::pointIsInsideClippingRegion(const Vec2f& p,
 // ============================================================================
 inline ContactPatchSolver::SupportSetFunction
 ContactPatchSolver::makeSupportSetFunction(
-    const ShapeBase* shape, ShapeSupportData* support_data,
+    const ShapeBase* shape, ShapeSupportData& support_data,
     size_t support_set_size_used_to_compute_cvx_hull) {
   // Note: because the swept-sphere radius was already taken into account when
   // constructing the contact patch frame, there is actually no need to take the
@@ -246,7 +246,7 @@ ContactPatchSolver::makeSupportSetFunction(
       return details::getShapeSupportSetTpl<TriangleP, Options::NoSweptSphere>;
     case GEOM_BOX: {
       const size_t num_corners_box = 8;
-      support_data->support_set.points().reserve(num_corners_box);
+      support_data.support_set.points().reserve(num_corners_box);
       return details::getShapeSupportSetTpl<Box, Options::NoSweptSphere>;
     }
     case GEOM_SPHERE:
@@ -263,8 +263,8 @@ ContactPatchSolver::makeSupportSetFunction(
       const ConvexBase* convex = static_cast<const ConvexBase*>(shape);
       if ((size_t)(convex->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
-        support_data->visited.assign(convex->num_points, false);
-        support_data->support_set.points().reserve(
+        support_data.visited.assign(convex->num_points, false);
+        support_data.support_set.points().reserve(
             support_set_size_used_to_compute_cvx_hull);
         return details::getShapeSupportSetTpl<details::LargeConvex,
                                               Options::NoSweptSphere>;

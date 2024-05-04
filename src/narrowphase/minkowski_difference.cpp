@@ -51,13 +51,13 @@ void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3f& oR1,
                    Vec3f& support1, support_func_guess_t& hint,
                    ShapeSupportData data[2]) {
   assert(dir.norm() > Eigen::NumTraits<FCL_REAL>::epsilon());
-  getShapeSupport<_SupportOptions>(s0, dir, support0, hint[0], &(data[0]));
+  getShapeSupport<_SupportOptions>(s0, dir, support0, hint[0], data[0]);
 
   if (TransformIsIdentity) {
-    getShapeSupport<_SupportOptions>(s1, -dir, support1, hint[1], &(data[1]));
+    getShapeSupport<_SupportOptions>(s1, -dir, support1, hint[1], data[1]);
   } else {
     getShapeSupport<_SupportOptions>(s1, -oR1.transpose() * dir, support1,
-                                     hint[1], &(data[1]));
+                                     hint[1], data[1]);
     support1 = oR1 * support1 + ot1;
   }
 }
