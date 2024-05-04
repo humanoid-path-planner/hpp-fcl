@@ -302,9 +302,13 @@ getShapeSupportTplInstantiation(Cylinder);
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
-                        Vec3f& support, int& hint, ShapeSupportData* data) {
-  assert(data != nullptr && "data is null.");
+                        Vec3f& support, int& hint, ShapeSupportData* data_) {
   assert(convex->neighbors != nullptr && "Convex has no neighbors.");
+  ShapeSupportData* data = data_;
+  if (data == nullptr) {
+    ShapeSupportData tmp_data;
+    data = &tmp_data;
+  }
 
   // Use warm start if current support direction is distant from last support
   // direction.
@@ -496,63 +500,357 @@ template void getSupportSet<SupportOptions::WithSweptSphere>(const ShapeBase*, S
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportSet(const TriangleP* triangle, SupportSet& support_set,
-                        int& /*unused*/, ShapeSupportData* /*unused*/,
-                        size_t /*unused*/, FCL_REAL tol) {}
+                        int& hint /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t /*unused*/, FCL_REAL tol) {
+  assert(tol > 0);
+  support_set.clear();
+
+  Vec3f support;
+  const Vec3f& support_dir = support_set.getNormal();
+  // We simply want to compute the support value, no need to take the
+  // swept-sphere radius into account.
+  getShapeSupport<SupportOptions::NoSweptSphere>(triangle, support_dir, support,
+                                                 hint, nullptr);
+  const FCL_REAL support_value = support.dot(support_dir);
+
+  if (support_value - support_dir.dot(triangle->a) < tol) {
+    // Note: at the moment, it's useless to take into account the
+    // swept-sphere radius, but in the future we might want to store the
+    // offsets to the plane in `SupportSet`.
+    if (_SupportOptions == SupportOptions::WithSweptSphere) {
+      support_set.addPoint(triangle->a +
+                           triangle->getSweptSphereRadius() * support_dir);
+    } else {
+      support_set.addPoint(triangle->a);
+    }
+  }
+  if (support_value - support_dir.dot(triangle->b) < tol) {
+    if (_SupportOptions == SupportOptions::WithSweptSphere) {
+      support_set.addPoint(triangle->b +
+                           triangle->getSweptSphereRadius() * support_dir);
+    } else {
+      support_set.addPoint(triangle->b);
+    }
+  }
+  if (support_value - support_dir.dot(triangle->c) < tol) {
+    if (_SupportOptions == SupportOptions::WithSweptSphere) {
+      support_set.addPoint(triangle->c +
+                           triangle->getSweptSphereRadius() * support_dir);
+    } else {
+      support_set.addPoint(triangle->c);
+    }
+  }
+}
 getShapeSupportSetTplInstantiation(TriangleP);
 
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportSet(const Box* box, SupportSet& support_set,
-                        int& /*unused*/, ShapeSupportData* /*unused*/,
-                        size_t /*unused*/, FCL_REAL tol) {}
+                        int& hint /*unused*/, ShapeSupportData* data_,
+                        size_t /*unused*/, FCL_REAL tol) {
+  assert(tol > 0);
+  support_set.points().clear();
+  ShapeSupportData* data = data_;
+  if (data == nullptr) {
+    ShapeSupportData tmp_data;
+    data = &tmp_data;
+  }
+  data->support_set.points().clear();
+  data->support_set.direction = support_set.direction;
+  data->support_set.tf = support_set.tf;
+
+  Vec3f support;
+  const Vec3f& support_dir = support_set.getNormal();
+  getShapeSupport<SupportOptions::NoSweptSphere>(box, support_dir, support,
+                                                 hint, nullptr);
+  const FCL_REAL support_value = support.dot(support_dir);
+
+  const FCL_REAL x = box->halfSide[0];
+  const FCL_REAL y = box->halfSide[1];
+  const FCL_REAL z = box->halfSide[2];
+  const std::array<Vec3f, 8> corners = {
+      Vec3f(x, y, z),  Vec3f(-x, y, z),  Vec3f(-x, -y, z),  Vec3f(x, -y, z),
+      Vec3f(x, y, -z), Vec3f(-x, y, -z), Vec3f(-x, -y, -z), Vec3f(x, -y, -z),
+  };
+
+  for (const Vec3f& corner : corners) {
+    const FCL_REAL val = corner.dot(support_dir);
+    if (support_value - val < tol) {
+      if (_SupportOptions == SupportOptions::WithSweptSphere) {
+        data->support_set.addPoint(corner +
+                                   box->getSweptSphereRadius() * support_dir);
+      } else {
+        data->support_set.addPoint(corner);
+      }
+    }
+  }
+  computeSupportSetConvexHull(*data, support_set);
+}
 getShapeSupportSetTplInstantiation(Box);
 
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportSet(const Sphere* sphere, SupportSet& support_set,
-                        int& /*unused*/, ShapeSupportData* /*unused*/,
-                        size_t /*unused*/, FCL_REAL /*unused*/) {}
+                        int& hint /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t /*unused*/, FCL_REAL /*unused*/) {
+  support_set.points().clear();
+
+  Vec3f support;
+  const Vec3f& support_dir = support_set.getNormal();
+  getShapeSupport<_SupportOptions>(sphere, support_dir, support, hint, nullptr);
+  support_set.addPoint(support);
+}
 getShapeSupportSetTplInstantiation(Sphere);
 
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportSet(const Ellipsoid* ellipsoid, SupportSet& support_set,
-                        int& /*unused*/, ShapeSupportData* /*unused*/,
-                        size_t /*unused*/, FCL_REAL /*unused*/) {}
+                        int& hint, ShapeSupportData* /*unused*/,
+                        size_t /*unused*/, FCL_REAL /*unused*/) {
+  support_set.points().clear();
+
+  Vec3f support;
+  const Vec3f& support_dir = support_set.getNormal();
+  getShapeSupport<_SupportOptions>(ellipsoid, support_dir, support, hint,
+                                   nullptr);
+  support_set.addPoint(support);
+}
 getShapeSupportSetTplInstantiation(Ellipsoid);
 
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportSet(const Capsule* capsule, SupportSet& support_set,
-                        int& /*unused*/, ShapeSupportData* /*unused*/,
-                        size_t /*unused*/, FCL_REAL tol) {}
+                        int& hint /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t /*unused*/, FCL_REAL tol) {
+  assert(tol > 0);
+  support_set.points().clear();
+
+  Vec3f support;
+  const Vec3f& support_dir = support_set.getNormal();
+  getShapeSupport<SupportOptions::NoSweptSphere>(capsule, support_dir, support,
+                                                 hint, nullptr);
+  const FCL_REAL support_value = support.dot(support_dir);
+  // A capsule can be seen as swept-sphere segment. Segment has only two points:
+  // (0, 0, h) and (0, 0, -h) where h = capsule->halfLength.
+  // support_dir.dot((0, 0, +-h)) = +- support_dir[2] * h
+  //
+  // If we denote by `n` the support direction and `OH` the vector (0, 0, h),
+  // the 2 ends of the segment belong to the support set if:
+  //   | <n, (OH / ||OH||)> | <= tol / ||OH||,
+  // where |.| is the absolute value, <.,.> the euclidian dot product and ||.||
+  // the euclidian norm.
+  // We can easily see that the bigger the length of the capsule (the bigger
+  // ||OH||), the bigger the angle between `n` and `OH` has to be for the 2 ends
+  // of the segment to be supports (i.e. the more perpendicular `n` has to be to
+  // the capsule's axis). The fact that this condition depends on the size of
+  // the capsule is perfectly expected and reassuring. This means that `tol`
+  // smartly selects which points belonging to the support sets, adapting to the
+  // size of the geometry.
+  // We will follow the exact same reasoning for cones and cylinders.
+  const FCL_REAL h = capsule->halfLength;
+  if (support_value - support_dir[2] * capsule->halfLength < tol) {
+    Vec3f point = Vec3f(0, 0, h);
+    if (_SupportOptions == SupportOptions::WithSweptSphere) {
+      point += (capsule->radius + capsule->getSweptSphereRadius()) *
+               support_dir.normalized();
+    }
+    support_set.addPoint(point);
+  }
+  if (support_value + support_dir[2] * capsule->halfLength < tol) {
+    Vec3f point = Vec3f(0, 0, -h);
+    if (_SupportOptions == SupportOptions::WithSweptSphere) {
+      point += (capsule->radius + capsule->getSweptSphereRadius()) *
+               support_dir.normalized();
+    }
+    support_set.addPoint(point);
+  }
+}
 getShapeSupportSetTplInstantiation(Capsule);
 
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
-                        int& /*unused*/, ShapeSupportData* /*unused*/,
-                        size_t max_num_supports, FCL_REAL tol) {}
+                        int& hint /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t max_num_supports, FCL_REAL tol) {
+  assert(tol > 0);
+  support_set.points().clear();
+
+  Vec3f support;
+  const Vec3f& support_dir = support_set.getNormal();
+  getShapeSupport<SupportOptions::NoSweptSphere>(cone, support_dir, support,
+                                                 hint, nullptr);
+  const FCL_REAL support_value = support.dot(support_dir);
+
+  // If the support direction is perpendicular to the cone's basis, there is an
+  // infinite amount of support points; otherwise there are up to two support
+  // points (two if direction is perpendicular to the side of the cone and one
+  // otherwise).
+  //
+  // The following check follows the same idea as what is done in the Capsule
+  // support set computation.
+  // For all theta, we want support_value - support_dir.dot(v(theta)) <= eps,
+  // with v(theta) = r * cos(theta) + r * sin(theta).
+  // Knowing that support_value >= 0, this leads us to:
+  // support_value - r * sqrt((nx - ny)**2 + nx * ny) <= eps,
+  // with nx = support_dir[0], ny = support_dir[1].
+  const FCL_REAL nx = support_dir[0];
+  const FCL_REAL ny = support_dir[1];
+  const FCL_REAL r = cone->radius;
+  if (support_dir[2] <= 0 &&
+      (support_value - r * std::sqrt((nx - ny) * (nx - ny) + nx * ny) <= tol)) {
+    // If this check passed, support direction is considered perpendicular to
+    // the basis of the cone. We sample `max_num_supports` points on the base of
+    // the cone. We are guaranteed that these points like at a distance tol of
+    // the support plane.
+    const FCL_REAL angle_increment =
+        2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(max_num_supports));
+    for (size_t i = 0; i < max_num_supports; ++i) {
+      const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
+      Vec3f point_on_cone_base(std::cos(theta) * cone->radius,
+                               std::sin(theta) * cone->radius,
+                               -cone->halfLength);
+      assert(std::abs(support_value - point_on_cone_base.dot(support_dir)) <=
+             tol);
+      if (_SupportOptions == SupportOptions::WithSweptSphere) {
+        point_on_cone_base += cone->getSweptSphereRadius() * support_dir;
+      }
+      support_set.addPoint(point_on_cone_base);
+    }
+  } else {
+    // There are two potential supports to add: the tip of the cone and a point
+    // on the basis of the cone. We compare each of these points to the support
+    // value.
+    Vec3f cone_tip(0, 0, cone->halfLength);
+    if (support_value - cone_tip.dot(support_dir) <= tol) {
+      if (_SupportOptions == SupportOptions::WithSweptSphere) {
+        cone_tip += cone->getSweptSphereRadius() * support_dir;
+      }
+      support_set.addPoint(cone_tip);
+    }
+
+    Vec3f point_on_cone_base = Vec3f(cone->radius * support_dir[0],  //
+                                     cone->radius * support_dir[1],  //
+                                     -cone->halfLength);
+    if (support_value - point_on_cone_base.dot(support_dir) <= tol) {
+      if (_SupportOptions == SupportOptions::WithSweptSphere) {
+        point_on_cone_base += cone->getSweptSphereRadius() * support_dir;
+      }
+      support_set.addPoint(point_on_cone_base);
+    }
+  }
+}
 getShapeSupportSetTplInstantiation(Cone);
 
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
-                        int& /*unused*/, ShapeSupportData* /*unused*/,
-                        size_t max_num_supports, FCL_REAL tol) {}
+                        int& hint /*unused*/, ShapeSupportData* /*unused*/,
+                        size_t max_num_supports, FCL_REAL tol) {
+  assert(tol > 0);
+  support_set.points().clear();
+
+  Vec3f support;
+  const Vec3f& support_dir = support_set.getNormal();
+  getShapeSupport<SupportOptions::NoSweptSphere>(cylinder, support_dir, support,
+                                                 hint, nullptr);
+  const FCL_REAL support_value = support.dot(support_dir);
+
+  // The following is very similar to what is done for Cone's support set
+  // computation.
+  const FCL_REAL nx = support_dir[0];
+  const FCL_REAL ny = support_dir[1];
+  const FCL_REAL r = cylinder->radius;
+  if (support_value - r * std::sqrt((nx - ny) * (nx - ny) + nx * ny) <= tol) {
+    const FCL_REAL angle_increment =
+        2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(max_num_supports));
+    for (size_t i = 0; i < max_num_supports; ++i) {
+      const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
+      Vec3f point_on_cone_base(
+          std::cos(theta) * cylinder->radius,
+          std::sin(theta) * cylinder->radius,
+          support_dir[2] >= 0 ? cylinder->halfLength : -cylinder->halfLength);
+      assert(std::abs(support_value - point_on_cone_base.dot(support_dir)) <=
+             tol);
+      if (_SupportOptions == SupportOptions::WithSweptSphere) {
+        point_on_cone_base += cylinder->getSweptSphereRadius() * support_dir;
+      }
+      support_set.addPoint(point_on_cone_base);
+    }
+  } else {
+    // There are two potential supports to add: one on each circle bases of the
+    // cylinder.
+    Vec3f point_on_lower_circle = Vec3f(cylinder->radius * support_dir[0],  //
+                                        cylinder->radius * support_dir[1],  //
+                                        -cylinder->halfLength);
+    if (support_value - point_on_lower_circle.dot(support_dir) <= tol) {
+      if (_SupportOptions == SupportOptions::WithSweptSphere) {
+        point_on_lower_circle += cylinder->getSweptSphereRadius() * support_dir;
+      }
+      support_set.addPoint(point_on_lower_circle);
+    }
+
+    Vec3f point_on_upper_circle = Vec3f(cylinder->radius * support_dir[0],  //
+                                        cylinder->radius * support_dir[1],  //
+                                        -cylinder->halfLength);
+    if (support_value - point_on_upper_circle.dot(support_dir) <= tol) {
+      if (_SupportOptions == SupportOptions::WithSweptSphere) {
+        point_on_upper_circle += cylinder->getSweptSphereRadius() * support_dir;
+      }
+      support_set.addPoint(point_on_upper_circle);
+    }
+  }
+}
 getShapeSupportSetTplInstantiation(Cylinder);
+
+// ============================================================================
+template <int _SupportOptions>
+void getShapeSupportSetLinear(const ConvexBase* convex, SupportSet& support_set,
+                              int& hint /*unused*/, ShapeSupportData* data_,
+                              size_t /*unused*/, FCL_REAL tol) {
+  assert(tol > 0);
+  support_set.points().clear();
+  ShapeSupportData* data = data_;
+  if (data == nullptr) {
+    ShapeSupportData tmp_data;
+    data = &tmp_data;
+  }
+  data->support_set.points().clear();
+  data->support_set.direction = support_set.direction;
+  data->support_set.tf = support_set.tf;
+
+  Vec3f support;
+  const Vec3f& support_dir = support_set.getNormal();
+  getShapeSupport<SupportOptions::NoSweptSphere>(convex, support_dir, support,
+                                                 hint, nullptr);
+  const FCL_REAL support_value = support.dot(support_dir);
+
+  const std::vector<Vec3f>& pts = *(convex->points);
+  assert(pts.size() == (size_t)(convex->num_points));
+  hint = 0;
+  for (size_t i = 0; i < pts.size(); ++i) {
+    FCL_REAL dot = pts[i].dot(support_dir);
+    if (support_value - dot <= tol) {
+      if (_SupportOptions == SupportOptions::WithSweptSphere) {
+        support_set.addPoint(pts[i] +
+                             convex->getSweptSphereRadius() * support_dir);
+      } else {
+        support_set.addPoint(pts[i]);
+      }
+    }
+  }
+
+  computeSupportSetConvexHull(*data, support_set);
+}
 
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportSetLog(const ConvexBase* convex, SupportSet& support_set,
                            int& hint, ShapeSupportData* data, size_t /*unused*/,
-                           FCL_REAL tol) {}
-
-// ============================================================================
-template <int _SupportOptions>
-void getShapeSupportSetLinear(const ConvexBase* convex, SupportSet& support_set,
-                              int& /*unused*/, ShapeSupportData* /*unused*/,
-                              size_t /*unused*/, FCL_REAL tol) {}
+                           FCL_REAL tol) {
+  // TODO(louis)
+  getShapeSupportSetLinear<_SupportOptions>(convex, support_set, hint, nullptr,
+                                            0, tol);
+}
 
 // ============================================================================
 template <int _SupportOptions>
@@ -597,6 +895,10 @@ void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
       max_num_supports, tol);
 }
 getShapeSupportSetTplInstantiation(LargeConvex);
+
+// ============================================================================
+HPP_FCL_DLLAPI void computeSupportSetConvexHull(
+    ShapeSupportData& support_data, SupportSet& support_set_cvx_hull) {}
 
 }  // namespace details
 }  // namespace fcl

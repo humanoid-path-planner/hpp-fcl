@@ -80,8 +80,19 @@ HPP_FCL_DLLAPI Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir,
 
 /// @brief Stores temporary data for the computation of support points.
 struct HPP_FCL_DLLAPI ShapeSupportData {
+  // @brief Tracks which points have been visited in a ConvexBase.
   std::vector<int8_t> visited;
+
+  // @brief Tracks the last support direction used on this shape; used to
+  // warm-start the ConvexBase support function.
   Vec3f last_dir = Vec3f::Zero();
+
+  // @brief Temporary set used to compute the convex-hull of a support set.
+  SupportSet support_set = SupportSet(0);
+
+  // @brief Tracks which point of the support set is used to represent its
+  // convex-hull.
+  std::vector<int8_t> support_used_for_cvx_hull;
 };
 
 /// @brief Triangle support function.
@@ -253,8 +264,7 @@ HPP_FCL_DLLAPI void getShapeSupportSet(const TriangleP* triangle,
 /// Assumes the support set frame has already been computed.
 template <int _SupportOptions = SupportOptions::NoSweptSphere>
 HPP_FCL_DLLAPI void getShapeSupportSet(const Box* box, SupportSet& support_set,
-                                       int& /*unused*/,
-                                       ShapeSupportData* /*unused*/,
+                                       int& /*unused*/, ShapeSupportData* data,
                                        size_t /*unused*/, FCL_REAL tol = 1e-3);
 
 /// @brief Sphere support set function.
@@ -372,6 +382,14 @@ HPP_FCL_DLLAPI void getSupportSetTpl(const ShapeBase* shape, const Vec3f& dir,
   support_set.tf.translation() = support;
   getSupportSetTpl<ShapeType>(shape, support_set, hint, max_num_supports, tol);
 }
+
+/// @brief Computes the convex-hull of support_set. For now, this function is
+/// only needed for Box and ConvexBase.
+/// @param[in] Data which contains the support set which convex-hull we want to
+/// compute.
+/// @param[out] Convex-hull of the support set.
+HPP_FCL_DLLAPI void computeSupportSetConvexHull(
+    ShapeSupportData& support_set_data, SupportSet& support_set_cvx_hull);
 
 }  // namespace details
 
