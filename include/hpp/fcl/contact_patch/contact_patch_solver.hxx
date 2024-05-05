@@ -46,7 +46,7 @@ namespace fcl {
 // ============================================================================
 inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
   // Note: it's important for the number of pre-allocated Vec3f in
-  // `m_shapes_support_sets` to be larger than `request.max_size_patch`
+  // `m_clipping_sets` to be larger than `request.max_size_patch`
   // because we don't know in advance how many supports will be discarded to
   // form the convex-hulls of the shapes supports which will serve as the
   // input of the Sutherland-Hodgman algorithm.
@@ -95,7 +95,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
     // sense in certain physics simulation cases.
     // Do the same for strictly convex regions of non-strictly convex shapes
     // like the ends of capsules.
-    contact_patch.addPoint<ReferenceFrame::WORLD>(contact.pos);
+    contact_patch.addPoint(contact.pos);
     return;
   }
 
@@ -117,8 +117,15 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
                             this->m_supports_data[1], this->max_size_patch,
                             this->patch_tolerance);
 
+  // We can immediatly return if one of the support set has only
+  // one point.
+  if (current.size() <= 1 || clipper.size() <= 1) {
+    contact_patch.addPoint(contact.pos);
+    return;
+  }
+
   //
-  // Step 4 - Main loop of the algorithm: use the "clipper"
+  // Step 3 - Main loop of the algorithm: use the "clipper"
   // to clip the current contact patch. The resulting intersection is the
   // contact patch of the contact between s1 and s2.
   // Currently, to clip one patch with the other, we use the Sutherland-Hodgman
@@ -134,9 +141,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
     this->m_id_current = 1 - this->m_id_current;
     ContactPatch& current = const_cast<ContactPatch&>(this->current());
     current.points().clear();
-    // TODO(louis): continue to next iteration as soon as previous has been
-    // clipped twice.
-    const size_t previous_size = this->previous().points().size();
+    const size_t previous_size = this->previous().size();
     for (size_t j = 0; j < previous_size; ++j) {
       const Vec2f vcurrent = this->previous().point(j);
       const Vec2f vnext = this->previous().point((j + 1) % previous_size);
@@ -151,11 +156,17 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
         current.points().emplace_back(p);
       }
     }
+    if (this->current().size() == 0) {
+      // No intersection found, the algo can early stop.
+      break;
+    }
   }
 
-  // TODO(louis): retrieve the result from current into contact_patch.
-  // If current has more points than the request, take request.max_size number
-  // of supports in the directions i/2*pi direction of a 2D unit circle.
+  if (this->current().size() > 1) {
+    contact_patch.points() = this->current().points();
+  } else {
+    contact_patch.addPoint(contact.pos);
+  }
 }
 
 // ============================================================================
@@ -183,11 +194,8 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   tf1c.rotation().noalias() = tf1.rotation().transpose() * tfc.rotation();
   tf1c.translation().noalias() =
       tf1.rotation().transpose() * (tfc.translation() - tf1.translation());
-  const size_t prealoccated_size_for_cvx_hull_computation1 =
-      current.points().capacity();  // Used only for ConvexBase
   this->m_supportFuncShape1 =
-      this->makeSupportSetFunction(&shape1, this->m_supports_data[0],
-                                   prealoccated_size_for_cvx_hull_computation1);
+      this->makeSupportSetFunction(&shape1, this->m_supports_data[0]);
 
   SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
   clipper.direction = SupportSetDirection::INVERTED;
@@ -197,11 +205,8 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   tf2c.rotation().noalias() = tf2.rotation().transpose() * tfc.rotation();
   tf2c.translation().noalias() =
       tf2.rotation().transpose() * (tfc.translation() - tf2.translation());
-  const size_t prealoccated_size_for_cvx_hull_computation2 =
-      clipper.points().capacity();  // Used only for ConvexBase
   this->m_supportFuncShape2 =
-      this->makeSupportSetFunction(&shape2, this->m_supports_data[1],
-                                   prealoccated_size_for_cvx_hull_computation2);
+      this->makeSupportSetFunction(&shape2, this->m_supports_data[1]);
 }
 
 // ==========================================================================
@@ -233,9 +238,8 @@ inline bool ContactPatchSolver::pointIsInsideClippingRegion(const Vec2f& p,
 
 // ============================================================================
 inline ContactPatchSolver::SupportSetFunction
-ContactPatchSolver::makeSupportSetFunction(
-    const ShapeBase* shape, ShapeSupportData& support_data,
-    size_t support_set_size_used_to_compute_cvx_hull) {
+ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
+                                           ShapeSupportData& support_data) {
   // Note: because the swept-sphere radius was already taken into account when
   // constructing the contact patch frame, there is actually no need to take the
   // swept-sphere radius of shapes into account. The origin of the contact patch
@@ -261,11 +265,14 @@ ContactPatchSolver::makeSupportSetFunction(
       return details::getShapeSupportSetTpl<Cylinder, Options::NoSweptSphere>;
     case GEOM_CONVEX: {
       const ConvexBase* convex = static_cast<const ConvexBase*>(shape);
+      if (support_data.support_set.points().capacity() <
+          default_num_preallocated_supports) {
+        support_data.support_set.points().reserve(
+            default_num_preallocated_supports);
+      }
       if ((size_t)(convex->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         support_data.visited.assign(convex->num_points, false);
-        support_data.support_set.points().reserve(
-            support_set_size_used_to_compute_cvx_hull);
         return details::getShapeSupportSetTpl<details::LargeConvex,
                                               Options::NoSweptSphere>;
       } else {

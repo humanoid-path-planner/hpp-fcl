@@ -55,31 +55,12 @@ namespace fcl {
 /// the direction of the normal, i.e. the instersection of the shapes support
 /// sets as mentioned above.
 ///
-/// TODO(louis): algo improvement. It's actually quite simple:
-/// - For ConvexBase, replace the current approximate convex-hull computation by
-/// a 2D O(nlog(n)) convex-hull algo (graham scan) (needed after computing the
-/// support set). Shapes other than ConvexBase and Box (but a Box has max 4
-/// vertices in the support set) don't need to compute the convex-hull of their
-/// support set; it's already done in the support set computation.
+/// TODO(louis): algo improvement:
 /// - The clipping algo is currently n1 * n2; it can be done in n1 + n2.
-/// At the moment, the full algorithm `computePatch` is as efficient as using
-/// the nlog(n) convex-hull and n1 + n2 clipping algos when the flat sides of
-/// the considered shapes have less than 20 vertices. Above
-/// this number, the nlog(n) and n1 * n2 algos become profitable. In practice,
-/// when doing collision detection, it's quite rare to have shapes flat sides
-/// that are more than 20 vertices. That's because we use simplified meshes for
-/// collision detection: visual meshes may have 10k-100k vertices but collision
-/// detection meshes are more in the 100-1k vertices range.
-/// So most meshes usually have between 3 to 6 vertices to represent sides.
-/// Nonetheless, having very detailed flat sides can happen, for example if you
-/// model a cylinder using a mesh. In this case, the circle base of the mesh
-/// consists in many vertices (needed if you must keep the curvature
-/// information).
 struct HPP_FCL_DLLAPI ContactPatchSolver {
  public:
   // Note: `ContactPatch` is an alias for `SupportSet`.
   // The two can be used interchangeably.
-  using ReferenceFrame = SupportSet::ReferenceFrame;
   using ShapeSupportData = details::ShapeSupportData;
   using SupportSetDirection = SupportSet::PatchDirection;
 
@@ -107,8 +88,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
                                      ShapeSupportData& support_data,
                                      size_t max_num_supports, FCL_REAL tol);
 
-  /// @brief Number of vectors to pre-allocate in the `m_shapes_support_sets`
-  /// vectors.
+  /// @brief Number of vectors to pre-allocate in the `m_clipping_sets` vectors.
   static constexpr size_t default_num_preallocated_supports = 16;
 
   /// @brief Maximum number of vertices in the ContactPatch computed by
@@ -240,8 +220,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
 
   /// @brief Construct support set function for shape.
   static SupportSetFunction makeSupportSetFunction(
-      const ShapeBase* shape,
-      ShapeSupportData& support_data, size_t support_set_size_used_to_compute_cvx_hull /*used only for ConvexBase*/);
+      const ShapeBase* shape, ShapeSupportData& support_data);
 };
 
 }  // namespace fcl
