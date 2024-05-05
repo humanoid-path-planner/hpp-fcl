@@ -551,11 +551,6 @@ void getShapeSupportSet(const Box* box, SupportSet& support_set,
                         int& hint /*unused*/, ShapeSupportData& support_data,
                         size_t /*unused*/, FCL_REAL tol) {
   assert(tol > 0);
-  support_set.points().clear();
-  support_data.support_set.points().clear();
-  support_data.support_set.direction = support_set.direction;
-  support_data.support_set.tf = support_set.tf;
-
   Vec3f support;
   const Vec3f& support_dir = support_set.getNormal();
   getShapeSupport<SupportOptions::NoSweptSphere>(box, support_dir, support,
@@ -565,6 +560,9 @@ void getShapeSupportSet(const Box* box, SupportSet& support_set,
   const FCL_REAL x = box->halfSide[0];
   const FCL_REAL y = box->halfSide[1];
   const FCL_REAL z = box->halfSide[2];
+  support_data.support_set.points().clear();
+  support_data.support_set.direction = support_set.direction;
+  support_data.support_set.tf = support_set.tf;
   const std::array<Vec3f, 8> corners = {
       Vec3f(x, y, z),  Vec3f(-x, y, z),  Vec3f(-x, -y, z),  Vec3f(x, -y, z),
       Vec3f(x, y, -z), Vec3f(-x, y, -z), Vec3f(-x, -y, -z), Vec3f(x, -y, -z),
@@ -581,7 +579,7 @@ void getShapeSupportSet(const Box* box, SupportSet& support_set,
       }
     }
   }
-  computeSupportSetConvexHull(support_data, support_set);
+  computeSupportSetConvexHull(support_data.support_set, support_set);
 }
 getShapeSupportSetTplInstantiation(Box);
 
@@ -793,7 +791,7 @@ void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
 
     Vec3f point_on_upper_circle = Vec3f(cylinder->radius * support_dir[0],  //
                                         cylinder->radius * support_dir[1],  //
-                                        -cylinder->halfLength);
+                                        cylinder->halfLength);
     if (support_value - point_on_upper_circle.dot(support_dir) <= tol) {
       if (_SupportOptions == SupportOptions::WithSweptSphere) {
         point_on_upper_circle += cylinder->getSweptSphereRadius() * support_dir;
@@ -811,33 +809,31 @@ void getShapeSupportSetLinear(const ConvexBase* convex, SupportSet& support_set,
                               ShapeSupportData& support_data, size_t /*unused*/,
                               FCL_REAL tol) {
   assert(tol > 0);
-  support_set.points().clear();
-  support_data.support_set.points().clear();
-  support_data.support_set.direction = support_set.direction;
-  support_data.support_set.tf = support_set.tf;
-
   Vec3f support;
   const Vec3f& support_dir = support_set.getNormal();
   getShapeSupport<SupportOptions::NoSweptSphere>(convex, support_dir, support,
                                                  hint, support_data);
   const FCL_REAL support_value = support.dot(support_dir);
 
-  const std::vector<Vec3f>& pts = *(convex->points);
-  assert(pts.size() == (size_t)(convex->num_points));
+  const std::vector<Vec3f>& points = *(convex->points);
+  assert(points.size() == (size_t)(convex->num_points));
   hint = 0;
-  for (size_t i = 0; i < pts.size(); ++i) {
-    FCL_REAL dot = pts[i].dot(support_dir);
+  support_data.support_set.points().clear();
+  support_data.support_set.direction = support_set.direction;
+  support_data.support_set.tf = support_set.tf;
+  for (const auto& point : points) {
+    FCL_REAL dot = point.dot(support_dir);
     if (support_value - dot <= tol) {
       if (_SupportOptions == SupportOptions::WithSweptSphere) {
         support_data.support_set.addPoint(
-            pts[i] + convex->getSweptSphereRadius() * support_dir);
+            point + convex->getSweptSphereRadius() * support_dir);
       } else {
-        support_data.support_set.addPoint(pts[i]);
+        support_data.support_set.addPoint(point);
       }
     }
   }
 
-  computeSupportSetConvexHull(support_data, support_set);
+  computeSupportSetConvexHull(support_data.support_set, support_set);
 }
 
 // ============================================================================
@@ -891,7 +887,120 @@ getShapeSupportSetTplInstantiation(LargeConvex);
 
 // ============================================================================
 HPP_FCL_DLLAPI void computeSupportSetConvexHull(
-    ShapeSupportData& support_data, SupportSet& support_set_cvx_hull) {}
+    SupportSet& support_set, SupportSet& support_set_cvx_hull) {
+  SupportSet::Polygon& cloud = support_set.points();
+  SupportSet::Polygon& cvx_hull = support_set_cvx_hull.points();
+  cvx_hull.clear();
+
+  if (cloud.size() <= 2) {
+    // Point or segment, nothing to do.
+    for (const Vec2f& point : cloud) {
+      cvx_hull.emplace_back(point);
+    }
+    return;
+  }
+
+  if (cloud.size() == 3) {
+    // We have a triangle, we only need to arrange it in a counter clockwise
+    // fashion.
+    //
+    // Put the vector which has the lowest y coordinate first.
+    if (cloud[0](1) > cloud[1](1)) {
+      std::swap(cloud[0], cloud[1]);
+    }
+    if (cloud[0](1) > cloud[2](1)) {
+      std::swap(cloud[0], cloud[2]);
+    }
+    const Vec2f& a = cloud[0];
+    const Vec2f& b = cloud[1];
+    const Vec2f& c = cloud[2];
+    const FCL_REAL det =
+        (b(0) - a(0)) * (c(1) - a(1)) - (b(1) - a(1)) * (c(0) - a(0));
+    if (det < 0) {
+      std::swap(cloud[1], cloud[2]);
+    }
+    return;
+  }
+
+  // The following is an implementation of the O(nlog(n)) graham scan
+  // algorithm, used to compute convex-hulls in 2D.
+  // See https://en.wikipedia.org/wiki/Graham_scan
+  //
+  // Step 1 - Compute first element of the convex-hull by computing the support
+  // in the direction (0, -1) (take the element of the set which has the lowest
+  // y coordinate).
+  size_t support_idx = 0;
+  FCL_REAL support_val = cloud[0](1);
+  for (size_t i = 1; i < cloud.size(); ++i) {
+    const FCL_REAL val = cloud[i](1);
+    if (val < support_val) {
+      support_val = val;
+      support_idx = i;
+    }
+  }
+  std::swap(cloud[0], cloud[support_idx]);
+  cvx_hull.clear();
+  cvx_hull.emplace_back(cloud[0]);
+  const Vec2f& v = cvx_hull[0];
+
+  // Step 2 - Sort the rest of the point cloud according to the angle made with
+  // v. Note: we use stable_sort instead of sort because sort can fail if two
+  // values are identical.
+  std::stable_sort(
+      cloud.begin() + 1, cloud.end(), [&v](const Vec2f& p1, const Vec2f& p2) {
+        // p1 is "smaller" than p2 if det(p1 - v, p2 - v) >= 0
+        const FCL_REAL det =
+            (p1(0) - v(0)) * (p2(1) - v(1)) - (p1(1) - v(1)) * (p2(0) - v(0));
+        if (std::abs(det) <= Eigen::NumTraits<FCL_REAL>::dummy_precision()) {
+          // If two points are identical or (v, p1, p2) are colinear, p1 is
+          // "smaller" if it is closer to v.
+          return ((p1 - v).squaredNorm() <= (p2 - v).squaredNorm());
+        }
+        return det > 0;
+      });
+
+  // Step 3 - We iterate over the now ordered point of cloud and add the points
+  // to the cvx-hull if they successively form "left turns" only. A left turn
+  // is: considering the last three points of the cvx-hull, if they form a
+  // right-hand basis (determinant > 0) then they make a left turn.
+  auto isRightSided = [](const Vec2f& p1, const Vec2f& p2, const Vec2f& p3) {
+    // Checks if (p2 - p1, p3 - p1) forms a right-sided base based on
+    // det(p2 - p1, p3 - p1)
+    const FCL_REAL det =
+        (p2(0) - p1(0)) * (p3(1) - p1(1)) - (p2(1) - p1(1)) * (p3(0) - p1(0));
+    // Note: we set a dummy precision threshold so that identical points or
+    // colinear pionts are not added to the cvx-hull.
+    return det > Eigen::NumTraits<FCL_REAL>::dummy_precision();
+  };
+
+  // We initialize the cvx-hull algo by adding the first three
+  // (distinct) points of the set.
+  // These three points are guaranteed, due to the previous sorting,
+  // to form a right sided basis, hence to form a left turn.
+  size_t cloud_beginning_idx = 1;
+  while (cvx_hull.size() < 3) {
+    const Vec2f& vec = cloud[cloud_beginning_idx];
+    if ((cvx_hull.back() - vec).squaredNorm() >
+        Eigen::NumTraits<FCL_REAL>::epsilon()) {
+      cvx_hull.emplace_back(vec);
+    }
+    ++cloud_beginning_idx;
+  }
+  // The convex-hull should wrap counter-clockwise, i.e. three successive
+  // points should always form a right-sided basis. Every time we do a turn
+  // in the wrong direction, we remove the last point of the convex-hull.
+  // When we do a turn in the correct direction, we add a point to the
+  // convex-hull.
+  for (size_t i = cloud_beginning_idx; i < cloud.size(); ++i) {
+    const Vec2f& vec = cloud[i];
+    while (cvx_hull.size() > 1 &&
+           !isRightSided(cvx_hull[cvx_hull.size() - 2],
+                         cvx_hull[cvx_hull.size() - 1], vec)) {
+      cvx_hull.pop_back();
+    }
+    cvx_hull.emplace_back(vec);
+  }
+}
 
 }  // namespace details
 }  // namespace fcl
