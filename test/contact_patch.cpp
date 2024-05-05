@@ -214,8 +214,53 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
 }
 
 BOOST_AUTO_TEST_CASE(convex_convex) {
-  // TODO(louis)
-  const FCL_REAL halfside = 1;
+  const FCL_REAL halfside = 0.5;
   const Convex<Quadrilateral> box1(buildBox(halfside, halfside, halfside));
   const Convex<Quadrilateral> box2(buildBox(halfside, halfside, halfside));
+
+  const Transform3f tf1;
+  Transform3f tf2;
+  // set translation to have a collision
+  const FCL_REAL offset = 0.001;
+  tf2.setTranslation(Vec3f(0, 0, 2 * halfside - offset));
+
+  const size_t num_max_contact = 1;
+  const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
+                                 num_max_contact);
+  CollisionResult col_res;
+
+  hpp::fcl::collide(&box1, tf1, &box2, tf2, col_req, col_res);
+
+  BOOST_CHECK(col_res.isCollision());
+
+  const ContactPatchRequest patch_req;
+  ContactPatchResult patch_res(patch_req);
+  hpp::fcl::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
+                                patch_res);
+  BOOST_CHECK(patch_res.numContactPatches() == 1);
+
+  if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
+    const Contact& contact = col_res.getContact(0);
+    const FCL_REAL tol = 1e-6;
+    EIGEN_VECTOR_IS_APPROX(contact.normal, Vec3f(0, 0, 1), tol);
+
+    const size_t expected_size = 4;
+    ContactPatch expected(expected_size);
+    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.translation() = contact.pos;
+    expected.penetration_depth = contact.penetration_depth;
+    const std::array<Vec3f, 4> corners = {
+        Vec3f(halfside, halfside, halfside),
+        Vec3f(halfside, -halfside, halfside),
+        Vec3f(-halfside, -halfside, halfside),
+        Vec3f(-halfside, halfside, halfside),
+    };
+    for (size_t i = 0; i < expected_size; ++i) {
+      expected.addPoint(corners[i] +
+                        (contact.penetration_depth * contact.normal) / 2);
+    }
+
+    const ContactPatch& contact_patch = patch_res.getContactPatch(0);
+    BOOST_CHECK(contact_patch.isSame(expected, tol));
+  }
 }
