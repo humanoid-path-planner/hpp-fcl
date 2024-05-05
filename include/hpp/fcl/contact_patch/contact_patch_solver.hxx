@@ -110,11 +110,11 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   this->reset(s1, tf1, s2, tf2, contact_patch);
   SupportSet& current = const_cast<SupportSet&>(this->current());
   this->m_supportFuncShape1(
-      &s1, current, this->m_support_guess[0], this->m_supports_data[0],
+      &s1, current, this->support_guess[0], this->supports_data[0],
       this->num_samples_curved_shapes, this->patch_tolerance);
   SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
   this->m_supportFuncShape2(
-      &s2, clipper, this->m_support_guess[1], this->m_supports_data[1],
+      &s2, clipper, this->support_guess[1], this->supports_data[1],
       this->num_samples_curved_shapes, this->patch_tolerance);
 
   // We can immediatly return if one of the support set has only
@@ -195,7 +195,7 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   tf1c.translation().noalias() =
       tf1.rotation().transpose() * (tfc.translation() - tf1.translation());
   this->m_supportFuncShape1 =
-      this->makeSupportSetFunction(&shape1, this->m_supports_data[0]);
+      this->makeSupportSetFunction(&shape1, this->supports_data[0]);
 
   SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
   clipper.direction = SupportSetDirection::INVERTED;
@@ -206,7 +206,7 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   tf2c.translation().noalias() =
       tf2.rotation().transpose() * (tfc.translation() - tf2.translation());
   this->m_supportFuncShape2 =
-      this->makeSupportSetFunction(&shape2, this->m_supports_data[1]);
+      this->makeSupportSetFunction(&shape2, this->supports_data[1]);
 }
 
 // ==========================================================================

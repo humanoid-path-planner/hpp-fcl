@@ -57,8 +57,7 @@ struct ComputeShapeShapeContactPatch {
                   const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
                   ContactPatchResult& result) {
-    // TODO(louis): don't forget about swept-sphere radius
-    // TODO(louis): deal with pairs with strictly convex shapes
+    // Note: see specializations for Plane and Halfspace below.
     if (!collision_result.isCollision()) {
       return;
     }
@@ -83,6 +82,175 @@ struct ComputeShapeShapeContactPatch {
   }
 };
 
+/// @brief Computes the contact patch between a Plane/Halfspace and another
+/// shape.
+/// @tparam InvertShapes set to true if the first shape of the collision pair
+/// is s2 and not s1 (if you had to invert (s1, tf1) and (s2, tf2) when calling
+/// this function).
+template <bool InvertShapes, typename OtherShapeType, typename PlaneOrHalfspace>
+void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
+                                  const Transform3f& tf1,
+                                  const PlaneOrHalfspace& s2,
+                                  const Transform3f& tf2,
+                                  const ContactPatchSolver* csolver,
+                                  const Contact& contact,
+                                  ContactPatch& contact_patch) {
+  // Note: `ContactPatch` is an alias for `SupportSet`.
+  constructContactPatchFrameFromContact(contact, contact_patch);
+  if ((bool)(shape_traits<OtherShapeType>::IsStrictlyConvex)) {
+    // Only one point of contact; it has already been computed.
+    contact_patch.addPoint(contact.pos);
+    return;
+  }
+
+  // We only need to compute the support set in the direction of the normal.
+  // We need to temporarily express the patch in the local frame of shape1.
+  const Transform3f tf_backup = contact_patch.tf;
+  Transform3f& tfc = contact_patch.tf;
+  tfc.rotation() = tf1.rotation().transpose() * tfc.rotation();
+  tfc.translation() =
+      tf1.rotation().transpose() * (tfc.translation() - tf1.translation());
+
+  // Note: for now, taking into account swept-sphere radius does not change
+  // anything to the support set computations. However it will be used in the
+  // future if we want to store the offsets to the support plane for each point
+  // in a support set.
+  using SupportOptions = details::SupportOptions;
+  if (InvertShapes) {
+    // Temporarily invert the patch direction for the support computation.
+    contact_patch.direction = ContactPatch::PatchDirection::INVERTED;
+    details::getShapeSupportSetTpl<OtherShapeType,
+                                   SupportOptions::WithSweptSphere>(
+        &s1, contact_patch, csolver->support_guess[1],
+        csolver->supports_data[1], csolver->num_samples_curved_shapes,
+        csolver->patch_tolerance);
+    contact_patch.direction = ContactPatch::PatchDirection::DEFAULT;
+  } else {
+    details::getShapeSupportSetTpl<OtherShapeType,
+                                   SupportOptions::WithSweptSphere>(
+        &s1, contact_patch, csolver->support_guess[0],
+        csolver->supports_data[0], csolver->num_samples_curved_shapes,
+        csolver->patch_tolerance);
+  }
+
+  // Restore the contact patch transform.
+  contact_patch.tf = tf_backup;
+}
+
+#define PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(PlaneOrHspace)          \
+  template <typename OtherShapeType>                                          \
+  struct ComputeShapeShapeContactPatch<OtherShapeType, PlaneOrHspace> {       \
+    static void run(const CollisionGeometry* o1, const Transform3f& tf1,      \
+                    const CollisionGeometry* o2, const Transform3f& tf2,      \
+                    const CollisionResult& collision_result,                  \
+                    const ContactPatchSolver* csolver,                        \
+                    const ContactPatchRequest& request,                       \
+                    ContactPatchResult& result) {                             \
+      if (!collision_result.isCollision()) {                                  \
+        return;                                                               \
+      }                                                                       \
+      HPP_FCL_ASSERT(                                                         \
+          result.check(request),                                              \
+          "The contact patch result and request are incompatible (issue of "  \
+          "contact patch size or maximum number of contact patches). Make "   \
+          "sure "                                                             \
+          "result is initialized with request.",                              \
+          std::logic_error);                                                  \
+                                                                              \
+      const OtherShapeType& s1 = static_cast<const OtherShapeType&>(*o1);     \
+      const PlaneOrHspace& s2 = static_cast<const PlaneOrHspace&>(*o2);       \
+      for (size_t i = 0; i < collision_result.numContacts(); ++i) {           \
+        if (i >= request.max_num_patch) {                                     \
+          break;                                                              \
+        }                                                                     \
+        csolver->setSupportGuess(collision_result.cached_support_func_guess); \
+        const Contact& contact = collision_result.getContact(i);              \
+        ContactPatch& contact_patch = result.getUnusedContactPatch();         \
+        computePatchPlaneOrHalfspace<false, OtherShapeType, PlaneOrHspace>(   \
+            s1, tf1, s2, tf2, csolver, contact, contact_patch);               \
+      }                                                                       \
+    }                                                                         \
+  };                                                                          \
+                                                                              \
+  template <typename OtherShapeType>                                          \
+  struct ComputeShapeShapeContactPatch<PlaneOrHspace, OtherShapeType> {       \
+    static void run(const CollisionGeometry* o1, const Transform3f& tf1,      \
+                    const CollisionGeometry* o2, const Transform3f& tf2,      \
+                    const CollisionResult& collision_result,                  \
+                    const ContactPatchSolver* csolver,                        \
+                    const ContactPatchRequest& request,                       \
+                    ContactPatchResult& result) {                             \
+      if (!collision_result.isCollision()) {                                  \
+        return;                                                               \
+      }                                                                       \
+      HPP_FCL_ASSERT(                                                         \
+          result.check(request),                                              \
+          "The contact patch result and request are incompatible (issue of "  \
+          "contact patch size or maximum number of contact patches). Make "   \
+          "sure "                                                             \
+          "result is initialized with request.",                              \
+          std::logic_error);                                                  \
+                                                                              \
+      const PlaneOrHspace& s1 = static_cast<const PlaneOrHspace&>(*o1);       \
+      const OtherShapeType& s2 = static_cast<const OtherShapeType&>(*o2);     \
+      for (size_t i = 0; i < collision_result.numContacts(); ++i) {           \
+        if (i >= request.max_num_patch) {                                     \
+          break;                                                              \
+        }                                                                     \
+        csolver->setSupportGuess(collision_result.cached_support_func_guess); \
+        const Contact& contact = collision_result.getContact(i);              \
+        ContactPatch& contact_patch = result.getUnusedContactPatch();         \
+        computePatchPlaneOrHalfspace<true, OtherShapeType, PlaneOrHspace>(    \
+            s2, tf2, s1, tf1, csolver, contact, contact_patch);               \
+      }                                                                       \
+    }                                                                         \
+  };
+
+PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Plane);
+PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Halfspace);
+
+#define PLANE_HSPACE_CONTACT_PATCH(PlaneOrHspace1, PlaneOrHspace2)           \
+  template <>                                                                \
+  struct ComputeShapeShapeContactPatch<PlaneOrHspace1, PlaneOrHspace2> {     \
+    static void run(const CollisionGeometry* o1, const Transform3f& tf1,     \
+                    const CollisionGeometry* o2, const Transform3f& tf2,     \
+                    const CollisionResult& collision_result,                 \
+                    const ContactPatchSolver* csolver,                       \
+                    const ContactPatchRequest& request,                      \
+                    ContactPatchResult& result) {                            \
+      if (!collision_result.isCollision()) {                                 \
+        return;                                                              \
+      }                                                                      \
+      HPP_FCL_ASSERT(                                                        \
+          result.check(request),                                             \
+          "The contact patch result and request are incompatible (issue of " \
+          "contact patch size or maximum number of contact patches). Make "  \
+          "sure "                                                            \
+          "result is initialized with request.",                             \
+          std::logic_error);                                                 \
+                                                                             \
+      const PlaneOrHspace1& s1 = static_cast<const PlaneOrHspace1&>(*o1);    \
+      const PlaneOrHspace2& s2 = static_cast<const PlaneOrHspace2&>(*o2);    \
+      for (size_t i = 0; i < collision_result.numContacts(); ++i) {          \
+        if (i >= request.max_num_patch) {                                    \
+          break;                                                             \
+        }                                                                    \
+        const Contact& contact = collision_result.getContact(i);             \
+        ContactPatch& contact_patch = result.getUnusedContactPatch();        \
+        constructContactPatchFrameFromContact(contact, contact_patch);       \
+        contact_patch.addPoint(contact.pos);                                 \
+      }                                                                      \
+    }                                                                        \
+  };
+
+PLANE_HSPACE_CONTACT_PATCH(Plane, Plane);
+PLANE_HSPACE_CONTACT_PATCH(Plane, Halfspace);
+PLANE_HSPACE_CONTACT_PATCH(Halfspace, Plane);
+PLANE_HSPACE_CONTACT_PATCH(Halfspace, Halfspace);
+
+#undef PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH
+#undef PLANE_HSPACE_CONTACT_PATCH
+
 template <typename ShapeType1, typename ShapeType2>
 void ShapeShapeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
                             const CollisionGeometry* o2, const Transform3f& tf2,
@@ -93,69 +261,6 @@ void ShapeShapeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
   return ComputeShapeShapeContactPatch<ShapeType1, ShapeType2>::run(
       o1, tf1, o2, tf2, collision_result, csolver, request, result);
 }
-
-inline void capsuleBoxMCP(const Capsule& s1, const Transform3f& tf1,
-                          const Box& s2, const Transform3f& tf2,
-                          const Vec3f& p1, const Vec3f& p2, const Vec3f& normal,
-                          const FCL_REAL distance,
-                          const CollisionRequest& request,
-                          CollisionResult& result) {
-  HPP_FCL_UNUSED_VARIABLE(s2);
-  HPP_FCL_UNUSED_VARIABLE(tf2);
-  HPP_FCL_UNUSED_VARIABLE(p2);
-  HPP_FCL_UNUSED_VARIABLE(request);
-
-  // Transform normal and p1 into capsule frame
-  // Note: "loc" stands for "local"
-  const Vec3f n1_loc = tf1.rotation().transpose() * normal;
-  const Vec3f p1_loc = tf1.inverseTransform(p1);
-
-  const Vec3f capsule_tip_a = Vec3f(0, 0, s1.halfLength) + s1.radius * n1_loc;
-  const bool tip_a_is_support =
-      (std::abs((p1_loc - capsule_tip_a).dot(n1_loc)) < 1e-3);
-  const Vec3f capsule_tip_b = Vec3f(0, 0, -s1.halfLength) + s1.radius * n1_loc;
-  const bool tip_b_is_support =
-      (std::abs((p1_loc - capsule_tip_b).dot(n1_loc)) < 1e-3);
-
-  if (tip_a_is_support && tip_b_is_support) {
-    // Add 2 contact points
-    const Vec3f pa = capsule_tip_a + 0.5 * distance * n1_loc;
-    result.addContact(Contact(&s1, &s2, Contact::NONE, Contact::NONE,
-                              tf1.transform(pa), normal, distance));
-
-    const Vec3f pb = capsule_tip_b + 0.5 * distance * n1_loc;
-    result.addContact(Contact(&s1, &s2, Contact::NONE, Contact::NONE,
-                              tf1.transform(pb), normal, distance));
-  } else {
-    Contact contact(&s1, &s2, Contact::NONE, Contact::NONE, p1, p2, normal,
-                    distance);
-    result.addContact(contact);
-  }
-}
-
-// template <>
-// inline void extractContactPoints<Capsule, Box>(
-//     const CollisionGeometry* o1, const Transform3f& tf1,
-//     const CollisionGeometry* o2, const Transform3f& tf2, const Vec3f& p1,
-//     const Vec3f& p2, const Vec3f& normal, const FCL_REAL distance,
-//     const CollisionRequest& request, CollisionResult& result) {
-//   const Capsule& s1 = static_cast<const Capsule&>(*o1);
-//   const Box& s2 = static_cast<const Box&>(*o2);
-//   capsuleBoxMCP(s1, tf1, s2, tf2, p1, p2, normal, distance, request,
-//   result);
-// }
-
-// template <>
-// inline void extractContactPoints<Box, Capsule>(
-//     const CollisionGeometry* o1, const Transform3f& tf1,
-//     const CollisionGeometry* o2, const Transform3f& tf2, const Vec3f& p1,
-//     const Vec3f& p2, const Vec3f& normal, const FCL_REAL distance,
-//     const CollisionRequest& request, CollisionResult& result) {
-//   const Box& s1 = static_cast<const Box&>(*o1);
-//   const Capsule& s2 = static_cast<const Capsule&>(*o2);
-//   capsuleBoxMCP(s2, tf2, s1, tf1, p2, p1, -normal, distance, request,
-//   result);
-// }
 
 }  // namespace fcl
 }  // namespace hpp

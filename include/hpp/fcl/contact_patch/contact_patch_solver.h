@@ -99,6 +99,12 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// See @ref ContactPatchRequest::patch_tolerance for more details.
   FCL_REAL patch_tolerance;
 
+  /// @brief Temporary data to compute the support sets on each shape.
+  mutable std::array<ShapeSupportData, 2> supports_data;
+
+  /// @brief Guess for the support sets computation.
+  mutable support_func_guess_t support_guess;
+
  private:
   /// @brief Support sets used for internal computation.
   /// @note The `computePatch` algorithm starts by constructing two 2D
@@ -121,17 +127,11 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Transform from shape2 contact frame.
   mutable Transform3f m_ctf2;
 
-  /// @brief Temporary data to compute the support sets on each shape.
-  mutable std::array<ShapeSupportData, 2> m_supports_data;
-
   /// @brief Support set function for shape s1.
   mutable SupportSetFunction m_supportFuncShape1;
 
   /// @brief Support set function for shape s2.
   mutable SupportSetFunction m_supportFuncShape2;
-
-  /// @brief Guess for the support sets computation.
-  mutable support_func_guess_t m_support_guess;
 
  public:
   /// @brief Default constructor.
@@ -156,7 +156,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Sets the support guess used during support set computation of
   /// shapes s1 and s2.
   void setSupportGuess(const support_func_guess_t guess) const {
-    this->m_support_guess = guess;
+    this->support_guess = guess;
   }
 
   /// @brief Main API of the solver: compute a contact patch from a contact
