@@ -129,12 +129,17 @@ BOOST_AUTO_TEST_CASE(box_box) {
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
-  ContactPatchResult patch_res(patch_req);
+  ContactPatchResult patch_res1(patch_req);
+  ContactPatchResult patch_res2(patch_req);
   hpp::fcl::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
-                                patch_res);
-  BOOST_CHECK(patch_res.numContactPatches() == 1);
+                                patch_res1);
+  hpp::fcl::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
+                                patch_res2);
+  BOOST_CHECK(patch_res1.numContactPatches() == 1);
+  BOOST_CHECK(patch_res2.numContactPatches() == 1);
 
-  if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
+  if (patch_res1.numContactPatches() > 0 &&
+      patch_res2.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
     const FCL_REAL tol = 1e-6;
     EIGEN_VECTOR_IS_APPROX(contact.normal, Vec3f(0, 0, 1), tol);
@@ -155,8 +160,8 @@ BOOST_AUTO_TEST_CASE(box_box) {
                         (contact.penetration_depth * contact.normal) / 2);
     }
 
-    const ContactPatch& contact_patch = patch_res.getContactPatch(0);
-    BOOST_CHECK(contact_patch.isSame(expected, tol));
+    BOOST_CHECK(patch_res1.getContactPatch(0).isSame(expected, tol));
+    BOOST_CHECK(patch_res2.getContactPatch(0).isSame(expected, tol));
   }
 }
 
@@ -181,12 +186,17 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
-  ContactPatchResult patch_res(patch_req);
+  ContactPatchResult patch_res1(patch_req);
+  ContactPatchResult patch_res2(patch_req);
   hpp::fcl::computeContactPatch(&hspace, tf1, &box, tf2, col_res, patch_req,
-                                patch_res);
-  BOOST_CHECK(patch_res.numContactPatches() == 1);
+                                patch_res1);
+  hpp::fcl::computeContactPatch(&hspace, tf1, &box, tf2, col_res, patch_req,
+                                patch_res2);
+  BOOST_CHECK(patch_res1.numContactPatches() == 1);
+  BOOST_CHECK(patch_res2.numContactPatches() == 1);
 
-  if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
+  if (patch_res1.numContactPatches() > 0 &&
+      patch_res2.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
     const FCL_REAL tol = 1e-6;
     EIGEN_VECTOR_IS_APPROX(contact.normal, hspace.n, tol);
@@ -208,8 +218,8 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
                         (contact.penetration_depth * contact.normal) / 2);
     }
 
-    const ContactPatch& contact_patch = patch_res.getContactPatch(0);
-    BOOST_CHECK(contact_patch.isSame(expected, tol));
+    BOOST_CHECK(patch_res1.getContactPatch(0).isSame(expected, tol));
+    BOOST_CHECK(patch_res2.getContactPatch(0).isSame(expected, tol));
   }
 }
 
@@ -234,12 +244,17 @@ BOOST_AUTO_TEST_CASE(convex_convex) {
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
-  ContactPatchResult patch_res(patch_req);
+  ContactPatchResult patch_res1(patch_req);
+  ContactPatchResult patch_res2(patch_req);
   hpp::fcl::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
-                                patch_res);
-  BOOST_CHECK(patch_res.numContactPatches() == 1);
+                                patch_res1);
+  hpp::fcl::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
+                                patch_res2);
+  BOOST_CHECK(patch_res1.numContactPatches() == 1);
+  BOOST_CHECK(patch_res2.numContactPatches() == 1);
 
-  if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
+  if (patch_res1.numContactPatches() > 0 &&
+      patch_res2.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
     const FCL_REAL tol = 1e-6;
     EIGEN_VECTOR_IS_APPROX(contact.normal, Vec3f(0, 0, 1), tol);
@@ -260,7 +275,7 @@ BOOST_AUTO_TEST_CASE(convex_convex) {
                         (contact.penetration_depth * contact.normal) / 2);
     }
 
-    const ContactPatch& contact_patch = patch_res.getContactPatch(0);
-    BOOST_CHECK(contact_patch.isSame(expected, tol));
+    BOOST_CHECK(patch_res1.getContactPatch(0).isSame(expected, tol));
+    BOOST_CHECK(patch_res2.getContactPatch(0).isSame(expected, tol));
   }
 }
