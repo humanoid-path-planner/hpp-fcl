@@ -49,18 +49,5 @@ bool DistanceRequest::isSatisfied(const DistanceResult& result) const {
   return (result.min_distance <= 0);
 }
 
-// Explicit instantiation for SupportSet
-// clang-format off
-template
-void HPP_FCL_DLLAPI ContactPatch::addPoint<SupportSet::ReferenceFrame::WORLD>(const Vec3f&);
-template
-void HPP_FCL_DLLAPI ContactPatch::addPoint<SupportSet::ReferenceFrame::LOCAL>(const Vec3f&);
-
-template
-Vec3f HPP_FCL_DLLAPI ContactPatch::getPoint<SupportSet::ReferenceFrame::WORLD>(const size_t) const;
-template
-Vec3f HPP_FCL_DLLAPI ContactPatch::getPoint<SupportSet::ReferenceFrame::LOCAL>(const size_t) const;
-// clang-format on
-
 }  // namespace fcl
 }  // namespace hpp

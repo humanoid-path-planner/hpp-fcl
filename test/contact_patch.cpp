@@ -100,9 +100,7 @@ BOOST_AUTO_TEST_CASE(box_sphere) {
     const ContactPatch& contact_patch = patch_res.getContactPatch(0);
     BOOST_CHECK(contact_patch.size() == 1);
     const FCL_REAL tol = 1e-8;
-    using Frame = ContactPatch::ReferenceFrame;
-    EIGEN_VECTOR_IS_APPROX(contact_patch.getPoint<Frame::WORLD>(0), contact.pos,
-                           tol);
+    EIGEN_VECTOR_IS_APPROX(contact_patch.getPoint(0), contact.pos, tol);
     EIGEN_VECTOR_IS_APPROX(contact_patch.tf.translation(), contact.pos, tol);
     EIGEN_VECTOR_IS_APPROX(contact_patch.getNormal(), contact.normal, tol);
     BOOST_CHECK(std::abs(contact_patch.penetration_depth -
@@ -138,14 +136,13 @@ BOOST_AUTO_TEST_CASE(box_box) {
 
   if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
+    const FCL_REAL tol = 1e-6;
+    EIGEN_VECTOR_IS_APPROX(contact.normal, Vec3f(0, 0, 1), tol);
 
     const size_t expected_size = 4;
     ContactPatch expected(expected_size);
-    const FCL_REAL tol = 1e-6;
-    const Vec3f& n = contact.normal;
-    const FCL_REAL d = contact.penetration_depth;
-    EIGEN_VECTOR_IS_APPROX(n, Vec3f(0, 0, 1), tol);
-    expected.tf.setIdentity();
+    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     const std::array<Vec3f, 4> corners = {
         Vec3f(halfside, halfside, halfside),
@@ -154,8 +151,8 @@ BOOST_AUTO_TEST_CASE(box_box) {
         Vec3f(-halfside, halfside, halfside),
     };
     for (size_t i = 0; i < expected_size; ++i) {
-      using Frame = ContactPatch::ReferenceFrame;
-      expected.addPoint<Frame::WORLD>(corners[i] + (d * n) / 2);
+      expected.addPoint(corners[i] +
+                        (contact.penetration_depth * contact.normal) / 2);
     }
 
     const ContactPatch& contact_patch = patch_res.getContactPatch(0);
@@ -197,9 +194,8 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
 
     const size_t expected_size = 4;
     ContactPatch expected(expected_size);
-    const FCL_REAL d = contact.penetration_depth;
-    const Vec3f& n = contact.normal;
-    expected.tf.setIdentity();
+    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     const std::array<Vec3f, 4> corners = {
         tf2.transform(Vec3f(halfside, halfside, -halfside)),
@@ -208,8 +204,8 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
         tf2.transform(Vec3f(-halfside, halfside, -halfside)),
     };
     for (size_t i = 0; i < expected_size; ++i) {
-      using Frame = ContactPatch::ReferenceFrame;
-      expected.addPoint<Frame::WORLD>(corners[i] - (d * n) / 2);
+      expected.addPoint(corners[i] -
+                        (contact.penetration_depth * contact.normal) / 2);
     }
 
     const ContactPatch& contact_patch = patch_res.getContactPatch(0);

@@ -512,16 +512,6 @@ struct HPP_FCL_DLLAPI ContactPatch {
  public:
   using Polygon = std::vector<Vec2f, Eigen::aligned_allocator<Vec2f>>;
 
-  /// @brief Reference frame in which to express the points of the set.
-  enum ReferenceFrame {
-    // World frame, e.g. tf is the frame of the set, expressed w.r.t the world
-    // frame.
-    WORLD = 0,
-    // Local frame. All points of the sets are stored and manipulated in the
-    // local frame of the set.
-    LOCAL = 1,
-  };
-
   /// @brief Frame of the set, expressed in the world coordinates.
   /// The z-axis of the frame's rotation is the contact patch normal.
   Transform3f tf;
@@ -584,33 +574,17 @@ struct HPP_FCL_DLLAPI ContactPatch {
   /// @note This function takes a 3D point and expresses it in the local frame
   /// of the set. It then takes only the x and y components of the vector,
   /// effectively doing a projection onto the plane to which the set belongs.
-  /// @tparam InputFrame is the reference frame in which the input 3D point is
-  /// expressed. See @ref ContactPatch::ReferenceFrame.
   /// TODO(louis): if necessary, we can store the offset to the plane (x, y).
-  template <int InputFrame = ReferenceFrame::WORLD>
   void addPoint(const Vec3f& point_3d) {
-    if (InputFrame == ReferenceFrame::WORLD) {
-      const Vec3f point = this->tf.inverseTransform(point_3d);
-      this->m_points.emplace_back(point.template head<2>());
-    }
-    if (InputFrame == ReferenceFrame::LOCAL) {
-      this->m_points.emplace_back(point_3d.template head<2>());
-    }
+    const Vec3f point = this->tf.inverseTransform(point_3d);
+    this->m_points.emplace_back(point.template head<2>());
   }
 
   /// @brief Get the i-th point of the set, expressed in the 3D reference frame.
-  /// @tparam OutputFrame is the reference frame in which the output 3D point is
-  /// expressed. See @ref ContactPatch::ReferenceFrame.
-  template <int OutputFrame = ReferenceFrame::WORLD>
   Vec3f getPoint(const size_t i) const {
     Vec3f point(0, 0, 0);
     point.head<2>() = this->point(i);
-    if (OutputFrame == ReferenceFrame::WORLD) {
-      point = tf.transform(point);
-    }
-    if (OutputFrame == ReferenceFrame::LOCAL) {
-      // do nothing
-    }
+    point = tf.transform(point);
     return point;
   }
 
@@ -683,9 +657,9 @@ struct HPP_FCL_DLLAPI ContactPatch {
 
     for (size_t i = 0; i < this->points().size(); ++i) {
       bool found = false;
-      const Vec3f pi = this->getPoint<ReferenceFrame::WORLD>(i);
+      const Vec3f pi = this->getPoint(i);
       for (size_t j = 0; j < other.points().size(); ++j) {
-        const Vec3f other_pj = other.getPoint<ReferenceFrame::WORLD>(j);
+        const Vec3f other_pj = other.getPoint(j);
         if (pi.isApprox(other_pj, tol)) {
           found = true;
         }
