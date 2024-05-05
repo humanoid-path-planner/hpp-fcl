@@ -706,11 +706,23 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
   /// @brief Maximum number of contact patches that will be computed.
   size_t max_num_patch;
 
+ private:
+  /// @brief Maximum size of contact patch, i.e. max number of vertices each
+  /// contact patch in `ContactPatchResult` vector can hold.
+  /// If the internal contact patch computation of HPP-FCL generates a patch
+  /// size of bigger size, a post-processing routine will automatically occur
+  /// and a number of `m_max_patch_size` of points will smartly be selected.
+  /// If you don't want this post-processing to happen, set this value to a
+  /// large number.
+  /// @note Needs to be bigger or equal to 3.
+  size_t m_max_patch_size;
+
   /// @brief Maximum samples to compute the support sets of curved shapes, i.e.
   /// when the normal is perpendicular to the base of a cylinder.
-  // For now, only relevant for Cone and Cylinder. In the future this might be
-  // extended to Sphere and Ellipsoid.
-  size_t num_samples_curved_shapes;
+  /// For now, only relevant for Cone and Cylinder. In the future this might be
+  /// extended to Sphere and Ellipsoid.
+  /// @note Needs to be bigger or equal to 3.
+  size_t m_num_samples_curved_shapes;
 
   /// @brief Tolerance below which points are added to a contact patch.
   /// In details, given two shapes S1 and S2, a contact patch is the triple
@@ -720,25 +732,82 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
   /// If a point p1 of S1 is at a distance below `patch_tolerance` from the
   /// separating plane, it is taken into account in the computation of the
   /// contact patch. Otherwise, it is not used for the computation.
-  FCL_REAL patch_tolerance;
+  /// @note Needs to be positive.
+  FCL_REAL m_patch_tolerance;
 
+ public:
   /// @brief Default constructor.
-  explicit ContactPatchRequest(size_t max_num_patch = 1,
-                               size_t num_samples_curved_shapes =
-                                   ContactPatch::default_preallocated_size,
-                               FCL_REAL patch_tolerance = 1e-3)
-      : max_num_patch(max_num_patch),
-        num_samples_curved_shapes(num_samples_curved_shapes),
-        patch_tolerance(patch_tolerance) {}
+  explicit ContactPatchRequest(
+      size_t max_num_patch = 1,
+      size_t max_patch_size = ContactPatch::default_preallocated_size,
+      size_t num_samples_curved_shapes =
+          ContactPatch::default_preallocated_size,
+      FCL_REAL patch_tolerance = 1e-3)
+      : max_num_patch(max_num_patch) {
+    this->setMaxPatchSize(max_patch_size);
+    this->setNumSamplesCurvedShapes(num_samples_curved_shapes);
+    this->setPatchTolerance(patch_tolerance);
+  }
 
   /// @brief Construct a contact patch request from a collision request.
-  explicit ContactPatchRequest(const CollisionRequest& collision_request,
-                               size_t num_samples_curved_shapes =
-                                   ContactPatch::default_preallocated_size,
-                               FCL_REAL patch_tolerance = 1e-3)
-      : max_num_patch(collision_request.num_max_contacts),
-        num_samples_curved_shapes(num_samples_curved_shapes),
-        patch_tolerance(patch_tolerance) {}
+  explicit ContactPatchRequest(
+      const CollisionRequest& collision_request,
+      size_t max_patch_size = ContactPatch::default_preallocated_size,
+      size_t num_samples_curved_shapes =
+          ContactPatch::default_preallocated_size,
+      FCL_REAL patch_tolerance = 1e-3)
+      : max_num_patch(collision_request.num_max_contacts) {
+    this->setMaxPatchSize(max_patch_size);
+    this->setNumSamplesCurvedShapes(num_samples_curved_shapes);
+    this->setPatchTolerance(patch_tolerance);
+  }
+
+  /// @copydoc m_max_patch_size
+  void setMaxPatchSize(const size_t max_patch_size) {
+    if (max_patch_size < 3) {
+      HPP_FCL_LOG_WARNING(
+          "`max_patch_size` cannot be lower than 3. Setting it to 3 to prevent "
+          "bugs.");
+      this->m_max_patch_size = 3;
+    } else {
+      this->m_max_patch_size = max_patch_size;
+    }
+  }
+
+  /// @copydoc m_max_patch_size
+  size_t getMaxPatchSize() const { return this->m_max_patch_size; }
+
+  /// @copydoc m_num_samples_curved_shapes
+  void setNumSamplesCurvedShapes(const size_t num_samples_curved_shapes) {
+    if (num_samples_curved_shapes < 3) {
+      HPP_FCL_LOG_WARNING(
+          "`num_samples_curved_shapes` cannot be lower than 3. Setting it to 3 "
+          "to prevent bugs.");
+      this->m_num_samples_curved_shapes = 3;
+    } else {
+      this->m_num_samples_curved_shapes = num_samples_curved_shapes;
+    }
+  }
+
+  /// @copydoc m_num_samples_curved_shapes
+  size_t getNumSamplesCurvedShapes() const {
+    return this->m_num_samples_curved_shapes;
+  }
+
+  /// @copydoc m_patch_tolerance
+  void setPatchTolerance(const FCL_REAL patch_tolerance) {
+    if (patch_tolerance < 0) {
+      HPP_FCL_LOG_WARNING(
+          "`patch_tolerance` cannot be negative. Setting it to 0 to prevent "
+          "bugs.");
+      this->m_patch_tolerance = Eigen::NumTraits<FCL_REAL>::dummy_precision();
+    } else {
+      this->m_patch_tolerance = patch_tolerance;
+    }
+  }
+
+  /// @copydoc m_patch_tolerance
+  FCL_REAL getPatchTolerance() const { return this->m_patch_tolerance; }
 };
 
 /// @brief Result for a contact patch computation.
@@ -843,7 +912,7 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
       this->m_contact_patches_data.resize(request.max_num_patch);
     }
     for (ContactPatch& patch : this->m_contact_patches_data) {
-      patch.points().reserve(request.num_samples_curved_shapes);
+      patch.points().reserve(request.getNumSamplesCurvedShapes());
     }
     this->clear();
   }
@@ -857,8 +926,9 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
     }
 
     for (const ContactPatch& patch : this->m_contact_patches_data) {
-      if (patch.points().capacity() < request.num_samples_curved_shapes) {
-        assert(patch.points().capacity() >= request.num_samples_curved_shapes);
+      if (patch.points().capacity() < request.getNumSamplesCurvedShapes()) {
+        assert(patch.points().capacity() >=
+               request.getNumSamplesCurvedShapes());
         return false;
       }
     }

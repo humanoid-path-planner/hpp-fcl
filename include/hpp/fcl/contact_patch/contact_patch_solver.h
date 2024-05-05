@@ -91,12 +91,19 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Number of vectors to pre-allocate in the `m_clipping_sets` vectors.
   static constexpr size_t default_num_preallocated_supports = 16;
 
+  /// @brief Number of points of the contact patch to keep once the
+  /// Sutherland-Hodgman algo has run.
+  /// See @ref ContactPatchRequest::m_max_patch_size for more details.
+  size_t max_patch_size;
+
   /// @brief Number of points sampled for Cone and Cylinder when the normal is
   /// orthogonal to the shapes' basis.
+  /// See @ref ContactPatchRequest::m_num_samples_curved_shapes for more
+  /// details.
   size_t num_samples_curved_shapes;
 
   /// @brief Tolerance below which points are added to the shapes support sets.
-  /// See @ref ContactPatchRequest::patch_tolerance for more details.
+  /// See @ref ContactPatchRequest::m_patch_tolerance for more details.
   FCL_REAL patch_tolerance;
 
   /// @brief Temporary data to compute the support sets on each shape.
@@ -133,6 +140,12 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Support set function for shape s2.
   mutable SupportSetFunction m_supportFuncShape2;
 
+  /// @brief Tracks which point of the Sutherland-Hodgman result have been added
+  /// to the contact patch. Only used if the post-processing step occurs, i.e.
+  /// if the result of Sutherland-Hodgman has a size bigger than
+  /// `max_patch_size`.
+  mutable std::vector<bool> m_added_to_patch;
+
  public:
   /// @brief Default constructor.
   explicit ContactPatchSolver() {
@@ -141,6 +154,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
         ContactPatch::default_preallocated_size;
     const FCL_REAL patch_tolerance = 1e-3;
     const ContactPatchRequest request(num_contact_patch,
+                                      preallocated_patch_size,
                                       preallocated_patch_size, patch_tolerance);
     this->set(request);
   }
@@ -169,7 +183,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
                     const ShapeType2& s2, const Transform3f& tf2,
                     const Contact& contact, ContactPatch& contact_patch) const;
 
- private:
   /// @brief Reset the internal quantities of the solver.
   template <typename ShapeType1, typename ShapeType2>
   void reset(const ShapeType1& shape1, const Transform3f& tf1,
@@ -199,6 +212,9 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
 
   /// @brief Const getter for the set used to clip the other one.
   const SupportSet& clipper() const { return this->m_clipping_sets[2]; }
+
+  /// @brief Retrieve result from `this->current()`.
+  void getResult(ContactPatch& contact_patch) const;
 
   /// @return true if p inside a clipping region defined by a and b, false
   /// otherwise.

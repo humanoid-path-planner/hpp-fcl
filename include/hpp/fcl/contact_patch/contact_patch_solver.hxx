@@ -51,8 +51,8 @@ inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
   // form the convex-hulls of the shapes supports which will serve as the
   // input of the Sutherland-Hodgman algorithm.
   size_t num_preallocated_supports = default_num_preallocated_supports;
-  if (num_preallocated_supports < 2 * request.num_samples_curved_shapes) {
-    num_preallocated_supports = 2 * request.num_samples_curved_shapes;
+  if (num_preallocated_supports < 2 * request.getNumSamplesCurvedShapes()) {
+    num_preallocated_supports = 2 * request.getNumSamplesCurvedShapes();
   }
 
   // Used for support set computation of shape1 and for the first iterate of the
@@ -68,8 +68,9 @@ inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
   this->m_clipping_sets[2].points().reserve(num_preallocated_supports);
   this->m_clipping_sets[2].direction = SupportSetDirection::INVERTED;
 
-  this->num_samples_curved_shapes = request.num_samples_curved_shapes;
-  this->patch_tolerance = request.patch_tolerance;
+  this->max_patch_size = request.getMaxPatchSize();
+  this->num_samples_curved_shapes = request.getNumSamplesCurvedShapes();
+  this->patch_tolerance = request.getPatchTolerance();
 }
 
 // ============================================================================
@@ -83,6 +84,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   // Note: `ContactPatch` is an alias for `SupportSet`.
   // Step 1
   constructContactPatchFrameFromContact(contact, contact_patch);
+  contact_patch.points().clear();
   if ((bool)(shape_traits<ShapeType1>::IsStrictlyConvex) ||
       (bool)(shape_traits<ShapeType2>::IsStrictlyConvex)) {
     // If a shape is strictly convex, the support set in any direction is
@@ -108,6 +110,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   // counter-clockwise. This is important as the Sutherland-Hodgman algorithm
   // expects points to be ranked counter-clockwise.
   this->reset(s1, tf1, s2, tf2, contact_patch);
+  assert(this->num_samples_curved_shapes > 3);
   SupportSet& current = const_cast<SupportSet&>(this->current());
   this->m_supportFuncShape1(
       &s1, current, this->support_guess[0], this->supports_data[0],
@@ -162,10 +165,46 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
     }
   }
 
-  if (this->current().size() > 1) {
-    contact_patch.points() = this->current().points();
-  } else {
+  if (this->current().size() <= 1) {
     contact_patch.addPoint(contact.pos);
+    return;
+  }
+
+  this->getResult(contact_patch);
+}
+
+// ============================================================================
+inline void ContactPatchSolver::getResult(ContactPatch& contact_patch) const {
+  assert(this->max_patch_size > 3);
+  if (this->current().size() <= this->max_patch_size) {
+    contact_patch.points() = this->current().points();
+    return;
+  }
+
+  // Post-processing step to select `max_patch_size` points of the computed
+  // contact patch.
+  // We simply select `max_patch_size` points of the patch by sampling the
+  // 2d support function of the patch along the unit circle.
+  this->m_added_to_patch.assign(this->current().size(), false);
+  const FCL_REAL angle_increment =
+      2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(this->max_patch_size));
+  for (size_t i = 0; i < this->max_patch_size; ++i) {
+    const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
+    const Vec2f dir(std::cos(theta), std::sin(theta));
+    FCL_REAL support_val = this->current().points()[0].dot(dir);
+    size_t support_idx = 0;
+    for (size_t j = 1; j < this->current().size(); ++j) {
+      const FCL_REAL val = this->current().points()[j].dot(dir);
+      if (val > support_val) {
+        support_val = val;
+        support_idx = j;
+      }
+    }
+    if (!this->m_added_to_patch[support_idx]) {
+      contact_patch.points().emplace_back(
+          this->current().points()[support_idx]);
+      this->m_added_to_patch[support_idx] = true;
+    }
   }
 }
 

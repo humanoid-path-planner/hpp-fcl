@@ -95,7 +95,8 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
                                   const ContactPatchSolver* csolver,
                                   const Contact& contact,
                                   ContactPatch& contact_patch) {
-  // Note: `ContactPatch` is an alias for `SupportSet`.
+  HPP_FCL_UNUSED_VARIABLE(s2);
+  HPP_FCL_UNUSED_VARIABLE(tf2);
   constructContactPatchFrameFromContact(contact, contact_patch);
   if ((bool)(shape_traits<OtherShapeType>::IsStrictlyConvex)) {
     // Only one point of contact; it has already been computed.
@@ -105,11 +106,12 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
 
   // We only need to compute the support set in the direction of the normal.
   // We need to temporarily express the patch in the local frame of shape1.
-  const Transform3f tf_backup = contact_patch.tf;
-  Transform3f& tfc = contact_patch.tf;
-  tfc.rotation() = tf1.rotation().transpose() * tfc.rotation();
-  tfc.translation() =
-      tf1.rotation().transpose() * (tfc.translation() - tf1.translation());
+  SupportSet& support_set = const_cast<SupportSet&>(csolver->current());
+  support_set.tf.rotation().noalias() =
+      tf1.rotation().transpose() * contact_patch.tf.rotation();
+  support_set.tf.translation().noalias() =
+      tf1.rotation().transpose() *
+      (contact_patch.tf.translation() - tf1.translation());
 
   // Note: for now, taking into account swept-sphere radius does not change
   // anything to the support set computations. However it will be used in the
@@ -117,24 +119,19 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
   // in a support set.
   using SupportOptions = details::SupportOptions;
   if (InvertShapes) {
-    // Temporarily invert the patch direction for the support computation.
-    contact_patch.direction = ContactPatch::PatchDirection::INVERTED;
+    support_set.direction = ContactPatch::PatchDirection::INVERTED;
     details::getShapeSupportSetTpl<OtherShapeType,
                                    SupportOptions::WithSweptSphere>(
-        &s1, contact_patch, csolver->support_guess[1],
-        csolver->supports_data[1], csolver->num_samples_curved_shapes,
-        csolver->patch_tolerance);
-    contact_patch.direction = ContactPatch::PatchDirection::DEFAULT;
+        &s1, support_set, csolver->support_guess[1], csolver->supports_data[1],
+        csolver->num_samples_curved_shapes, csolver->patch_tolerance);
   } else {
+    support_set.direction = ContactPatch::PatchDirection::DEFAULT;
     details::getShapeSupportSetTpl<OtherShapeType,
                                    SupportOptions::WithSweptSphere>(
-        &s1, contact_patch, csolver->support_guess[0],
-        csolver->supports_data[0], csolver->num_samples_curved_shapes,
-        csolver->patch_tolerance);
+        &s1, support_set, csolver->support_guess[0], csolver->supports_data[0],
+        csolver->num_samples_curved_shapes, csolver->patch_tolerance);
   }
-
-  // Restore the contact patch transform.
-  contact_patch.tf = tf_backup;
+  csolver->getResult(contact_patch);
 }
 
 #define PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(PlaneOrHspace)          \
