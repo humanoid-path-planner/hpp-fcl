@@ -76,9 +76,9 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @param[in/out] support_data for the support computation of ConvexBase
   /// shapes. Gets updated with visited vertices after calling the function onto
   /// ConvexBase shapes.
-  /// @param[in] max_num_supports for shapes like cone or cylinders which have
-  /// smooth non-strictly convex sides (their bases are circles), we need to
-  /// know how many supports we sample from these sides. For any other shape,
+  /// @param[in] num_sampled_supports for shapes like cone or cylinders which
+  /// have smooth non-strictly convex sides (their bases are circles), we need
+  /// to know how many supports we sample from these sides. For any other shape,
   /// this parameter is not used.
   /// @param[in] tol the "thickness" of the support plane. Any point v which
   /// satisfies `max_{x in shape}(x.dot(dir)) - v.dot(dir) <= tol` is tol
@@ -86,16 +86,14 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   typedef void (*SupportSetFunction)(const ShapeBase* shape,
                                      SupportSet& support_set, int& hint,
                                      ShapeSupportData& support_data,
-                                     size_t max_num_supports, FCL_REAL tol);
+                                     size_t num_sampled_supports, FCL_REAL tol);
 
   /// @brief Number of vectors to pre-allocate in the `m_clipping_sets` vectors.
   static constexpr size_t default_num_preallocated_supports = 16;
 
-  /// @brief Maximum number of vertices in the ContactPatch computed by
-  /// `computePatch`. This value also determines the maximum number of points in
-  /// the support sets when the shapes are cones or cylinders (as their base may
-  /// need to be sampled).
-  size_t max_size_patch;
+  /// @brief Number of points sampled for Cone and Cylinder when the normal is
+  /// orthogonal to the shapes' basis.
+  size_t num_samples_curved_shapes;
 
   /// @brief Tolerance below which points are added to the shapes support sets.
   /// See @ref ContactPatchRequest::patch_tolerance for more details.
@@ -139,10 +137,11 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Default constructor.
   explicit ContactPatchSolver() {
     const size_t num_contact_patch = 1;
-    const size_t size_contact_patch = ContactPatch::default_max_size;
+    const size_t preallocated_patch_size =
+        ContactPatch::default_preallocated_size;
     const FCL_REAL patch_tolerance = 1e-3;
-    const ContactPatchRequest request(num_contact_patch, size_contact_patch,
-                                      patch_tolerance);
+    const ContactPatchRequest request(num_contact_patch,
+                                      preallocated_patch_size, patch_tolerance);
     this->set(request);
   }
 

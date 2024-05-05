@@ -489,14 +489,14 @@ template void getSupportSet<SupportOptions::WithSweptSphere>(const ShapeBase*, S
 // clang-format on
 
 // ============================================================================
-#define getShapeSupportSetTplInstantiation(ShapeType)                 \
-  template void getShapeSupportSet<SupportOptions::NoSweptSphere>(    \
-      const ShapeType* shape_, SupportSet& support_set, int& hint,    \
-      ShapeSupportData& data, size_t max_num_supports, FCL_REAL tol); \
-                                                                      \
-  template void getShapeSupportSet<SupportOptions::WithSweptSphere>(  \
-      const ShapeType* shape_, SupportSet& support_set, int& hint,    \
-      ShapeSupportData& data, size_t max_num_supports, FCL_REAL tol);
+#define getShapeSupportSetTplInstantiation(ShapeType)                     \
+  template void getShapeSupportSet<SupportOptions::NoSweptSphere>(        \
+      const ShapeType* shape_, SupportSet& support_set, int& hint,        \
+      ShapeSupportData& data, size_t num_sampled_supports, FCL_REAL tol); \
+                                                                          \
+  template void getShapeSupportSet<SupportOptions::WithSweptSphere>(      \
+      const ShapeType* shape_, SupportSet& support_set, int& hint,        \
+      ShapeSupportData& data, size_t num_sampled_supports, FCL_REAL tol);
 
 // ============================================================================
 template <int _SupportOptions>
@@ -670,7 +670,7 @@ template <int _SupportOptions>
 void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
-                        size_t max_num_supports, FCL_REAL tol) {
+                        size_t num_sampled_supports, FCL_REAL tol) {
   assert(tol > 0);
   support_set.points().clear();
 
@@ -698,12 +698,12 @@ void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
   if (support_dir[2] <= 0 &&
       (support_value - r * std::sqrt((nx - ny) * (nx - ny) + nx * ny) <= tol)) {
     // If this check passed, support direction is considered perpendicular to
-    // the basis of the cone. We sample `max_num_supports` points on the base of
-    // the cone. We are guaranteed that these points like at a distance tol of
-    // the support plane.
+    // the basis of the cone. We sample `num_sampled_supports` points on the
+    // base of the cone. We are guaranteed that these points like at a distance
+    // tol of the support plane.
     const FCL_REAL angle_increment =
-        2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(max_num_supports));
-    for (size_t i = 0; i < max_num_supports; ++i) {
+        2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(num_sampled_supports));
+    for (size_t i = 0; i < num_sampled_supports; ++i) {
       const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
       Vec3f point_on_cone_base(std::cos(theta) * cone->radius,
                                std::sin(theta) * cone->radius,
@@ -745,7 +745,7 @@ template <int _SupportOptions>
 void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
-                        size_t max_num_supports, FCL_REAL tol) {
+                        size_t num_sampled_supports, FCL_REAL tol) {
   assert(tol > 0);
   support_set.points().clear();
 
@@ -762,8 +762,8 @@ void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
   const FCL_REAL r = cylinder->radius;
   if (support_value - r * std::sqrt((nx - ny) * (nx - ny) + nx * ny) <= tol) {
     const FCL_REAL angle_increment =
-        2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(max_num_supports));
-    for (size_t i = 0; i < max_num_supports; ++i) {
+        2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(num_sampled_supports));
+    for (size_t i = 0; i < num_sampled_supports; ++i) {
       const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
       Vec3f point_on_cone_base(
           std::cos(theta) * cylinder->radius,
@@ -850,14 +850,14 @@ void getShapeSupportSetLog(const ConvexBase* convex, SupportSet& support_set,
 template <int _SupportOptions>
 void getShapeSupportSet(const ConvexBase* convex, SupportSet& support_set,
                         int& hint, ShapeSupportData& support_data,
-                        size_t max_num_supports /*unused*/, FCL_REAL tol) {
+                        size_t num_sampled_supports /*unused*/, FCL_REAL tol) {
   if (convex->num_points > ConvexBase::num_vertices_large_convex_threshold &&
       convex->neighbors != nullptr) {
-    getShapeSupportSetLog<_SupportOptions>(convex, support_set, hint,
-                                           support_data, max_num_supports, tol);
+    getShapeSupportSetLog<_SupportOptions>(
+        convex, support_set, hint, support_data, num_sampled_supports, tol);
   } else {
     getShapeSupportSetLinear<_SupportOptions>(
-        convex, support_set, hint, support_data, max_num_supports, tol);
+        convex, support_set, hint, support_data, num_sampled_supports, tol);
   }
 }
 getShapeSupportSetTplInstantiation(ConvexBase);
@@ -867,10 +867,10 @@ template <int _SupportOptions>
 void getShapeSupportSet(const SmallConvex* convex, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
-                        size_t max_num_supports /*unused*/, FCL_REAL tol) {
+                        size_t num_sampled_supports /*unused*/, FCL_REAL tol) {
   getShapeSupportSetLinear<_SupportOptions>(
       reinterpret_cast<const ConvexBase*>(convex), support_set, hint,
-      support_data, max_num_supports, tol);
+      support_data, num_sampled_supports, tol);
 }
 getShapeSupportSetTplInstantiation(SmallConvex);
 
@@ -878,10 +878,10 @@ getShapeSupportSetTplInstantiation(SmallConvex);
 template <int _SupportOptions>
 void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
                         int& hint, ShapeSupportData& support_data,
-                        size_t max_num_supports /*unused*/, FCL_REAL tol) {
+                        size_t num_sampled_supports /*unused*/, FCL_REAL tol) {
   getShapeSupportSetLog<_SupportOptions>(
       reinterpret_cast<const ConvexBase*>(convex), support_set, hint,
-      support_data, max_num_supports, tol);
+      support_data, num_sampled_supports, tol);
 }
 getShapeSupportSetTplInstantiation(LargeConvex);
 

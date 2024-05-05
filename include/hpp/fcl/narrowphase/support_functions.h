@@ -210,12 +210,13 @@ void getShapeSupportTpl(const ShapeBase* shape, const Vec3f& dir,
 /// @param[in/out] support_set of shape.
 /// @param[in/out] hint used to initialize the search when shape is a ConvexBase
 /// object.
-/// @param[in] max_num_supports is only used for shapes with smooth non-strictly
-/// convex bases like cones and cylinders (their bases are circles). In such a
-/// case, if the support direction points to their base, we have to choose which
-/// points we want to add to the set. This is not needed for boxes or ConvexBase
-/// for example. Indeed, because their support sets are always polygons, we can
-/// characterize the entire support set with the vertices of the polygon.
+/// @param[in] num_sampled_supports is only used for shapes with smooth
+/// non-strictly convex bases like cones and cylinders (their bases are
+/// circles). In such a case, if the support direction points to their base, we
+/// have to choose which points we want to add to the set. This is not needed
+/// for boxes or ConvexBase for example. Indeed, because their support sets are
+/// always polygons, we can characterize the entire support set with the
+/// vertices of the polygon.
 /// @param[in] tol given a point v on the shape, if
 /// `max_{p in shape}(p.dot(dir)) - v.dot(dir) <= tol`, where dir is the set's
 /// support direction, then v is added to the support set.
@@ -228,7 +229,7 @@ void getShapeSupportTpl(const ShapeBase* shape, const Vec3f& dir,
 template <int _SupportOptions = SupportOptions::NoSweptSphere>
 HPP_FCL_DLLAPI void getSupportSet(const ShapeBase* shape,
                                   SupportSet& support_set, int& hint,
-                                  size_t max_num_supports = 6,
+                                  size_t num_sampled_supports = 6,
                                   FCL_REAL tol = 1e-3);
 
 /// @brief Same as @ref getSupportSet(const ShapeBase*, const FCL_REAL,
@@ -241,12 +242,12 @@ HPP_FCL_DLLAPI void getSupportSet(const ShapeBase* shape,
 template <int _SupportOptions = SupportOptions::NoSweptSphere>
 HPP_FCL_DLLAPI void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
                                   SupportSet& support_set, int& hint,
-                                  size_t max_num_supports = 6,
+                                  size_t num_sampled_supports = 6,
                                   FCL_REAL tol = 1e-3) {
   support_set.tf.rotation() = constructBasisFromVector(dir);
   const Vec3f& support_dir = support_set.getNormal();
   const Vec3f support = getSupport<_SupportOptions>(shape, support_dir, hint);
-  getSupportSet<_SupportOptions>(shape, support_set, hint, max_num_supports,
+  getSupportSet<_SupportOptions>(shape, support_set, hint, num_sampled_supports,
                                  tol);
 }
 
@@ -296,7 +297,7 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 HPP_FCL_DLLAPI void getShapeSupportSet(const Cone* cone,
                                        SupportSet& support_set, int& /*unused*/,
                                        ShapeSupportData& /*unused*/,
-                                       size_t max_num_supports = 6,
+                                       size_t num_sampled_supports = 6,
                                        FCL_REAL tol = 1e-3);
 
 /// @brief Cylinder support set function.
@@ -305,7 +306,7 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 HPP_FCL_DLLAPI void getShapeSupportSet(const Cylinder* cylinder,
                                        SupportSet& support_set, int& /*unused*/,
                                        ShapeSupportData& /*unused*/,
-                                       size_t max_num_supports = 6,
+                                       size_t num_sampled_supports = 6,
                                        FCL_REAL tol = 1e-3);
 
 /// @brief ConvexBase support set function.
@@ -340,12 +341,12 @@ HPP_FCL_DLLAPI void getShapeSupportSet(const LargeConvex* convex,
 template <typename ShapeType,
           int _SupportOptions = SupportOptions::NoSweptSphere>
 void getSupportSetTpl(const ShapeBase* shape, SupportSet& support_set,
-                      int& hint, size_t max_num_supports = 6,
+                      int& hint, size_t num_sampled_supports = 6,
                       FCL_REAL tol = 1e-3) {
   const ShapeType* shape_ = static_cast<const ShapeType*>(shape);
   ShapeSupportData support_data;
   getShapeSupportSet<_SupportOptions>(shape_, support_set, hint, support_data,
-                                      max_num_supports, tol);
+                                      num_sampled_supports, tol);
 }
 
 /// @brief Templated shape support set functions.
@@ -358,10 +359,11 @@ template <typename ShapeType,
           int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSetTpl(const ShapeBase* shape, SupportSet& support_set,
                            int& hint, ShapeSupportData& support_data,
-                           size_t max_num_supports = 6, FCL_REAL tol = 1e-3) {
+                           size_t num_sampled_supports = 6,
+                           FCL_REAL tol = 1e-3) {
   const ShapeType* shape_ = static_cast<const ShapeType*>(shape);
   getShapeSupportSet<_SupportOptions>(shape_, support_set, hint, support_data,
-                                      max_num_supports, tol);
+                                      num_sampled_supports, tol);
 }
 
 /// @brief Templated version of @ref getSupportSet(const ShapeBase*, const
@@ -374,7 +376,7 @@ template <typename ShapeType,
           int _SupportOptions = SupportOptions::NoSweptSphere>
 HPP_FCL_DLLAPI void getSupportSetTpl(const ShapeBase* shape, const Vec3f& dir,
                                      SupportSet& support_set, int& hint,
-                                     size_t max_num_supports = 6,
+                                     size_t num_sampled_supports = 6,
                                      FCL_REAL tol = 1e-3) {
   support_set.tf.rotation() = constructBasisFromVector(dir);
   const Vec3f& support_dir = support_set.getNormal();
@@ -384,7 +386,7 @@ HPP_FCL_DLLAPI void getSupportSetTpl(const ShapeBase* shape, const Vec3f& dir,
                                 support_data);
   support_set.tf.translation() = support;
   getShapeSupportSetTpl<ShapeType>(shape, support_set, hint, support_data,
-                                   max_num_supports, tol);
+                                   num_sampled_supports, tol);
 }
 
 /// @brief Computes the convex-hull of support_set. For now, this function is

@@ -51,8 +51,8 @@ inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
   // form the convex-hulls of the shapes supports which will serve as the
   // input of the Sutherland-Hodgman algorithm.
   size_t num_preallocated_supports = default_num_preallocated_supports;
-  if (num_preallocated_supports < 2 * request.max_size_patch) {
-    num_preallocated_supports = 2 * request.max_size_patch;
+  if (num_preallocated_supports < 2 * request.num_samples_curved_shapes) {
+    num_preallocated_supports = 2 * request.num_samples_curved_shapes;
   }
 
   // Used for support set computation of shape1 and for the first iterate of the
@@ -68,7 +68,7 @@ inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
   this->m_clipping_sets[2].points().reserve(num_preallocated_supports);
   this->m_clipping_sets[2].direction = SupportSetDirection::INVERTED;
 
-  this->max_size_patch = request.max_size_patch;
+  this->num_samples_curved_shapes = request.num_samples_curved_shapes;
   this->patch_tolerance = request.patch_tolerance;
 }
 
@@ -109,13 +109,13 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   // expects points to be ranked counter-clockwise.
   this->reset(s1, tf1, s2, tf2, contact_patch);
   SupportSet& current = const_cast<SupportSet&>(this->current());
-  this->m_supportFuncShape1(&s1, current, this->m_support_guess[0],
-                            this->m_supports_data[0], this->max_size_patch,
-                            this->patch_tolerance);
+  this->m_supportFuncShape1(
+      &s1, current, this->m_support_guess[0], this->m_supports_data[0],
+      this->num_samples_curved_shapes, this->patch_tolerance);
   SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
-  this->m_supportFuncShape2(&s2, clipper, this->m_support_guess[1],
-                            this->m_supports_data[1], this->max_size_patch,
-                            this->patch_tolerance);
+  this->m_supportFuncShape2(
+      &s2, clipper, this->m_support_guess[1], this->m_supports_data[1],
+      this->num_samples_curved_shapes, this->patch_tolerance);
 
   // We can immediatly return if one of the support set has only
   // one point.

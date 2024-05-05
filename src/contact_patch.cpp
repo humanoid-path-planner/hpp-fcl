@@ -51,9 +51,7 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
                          const CollisionResult& collision_result,
                          const ContactPatchRequest& request,
                          ContactPatchResult& result) {
-  if (!collision_result.isCollision()  //
-      || request.max_num_patch == 0    //
-      || request.max_size_patch == 0) {
+  if (!collision_result.isCollision() || request.max_num_patch == 0) {
     // do nothing
     return;
   }

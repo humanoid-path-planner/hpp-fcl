@@ -544,7 +544,8 @@ struct HPP_FCL_DLLAPI ContactPatch {
   FCL_REAL penetration_depth;
 
   /// @brief Default maximum size of the polygon representing the set.
-  static constexpr size_t default_max_size = 6;
+  /// Used to pre-allocate memory for the patch.
+  static constexpr size_t default_preallocated_size = 6;
 
  private:
   /// @brief Container for the vertices of the set.
@@ -552,11 +553,15 @@ struct HPP_FCL_DLLAPI ContactPatch {
 
  public:
   /// @brief Default constructor.
-  explicit ContactPatch(size_t max_size = default_max_size)
+  /// Note: the preallocated size does not determine the maximum number of
+  /// points in the patch, it only serves as preallocation if the maximum size
+  /// of the patch is known in advance. HPP-FCL will automatically expand/shrink
+  /// the contact patch if needed.
+  explicit ContactPatch(size_t preallocated_size = default_preallocated_size)
       : tf(Transform3f::Identity()),
         direction(PatchDirection::DEFAULT),
         penetration_depth(0) {
-    this->m_points.reserve(max_size);
+    this->m_points.reserve(preallocated_size);
   }
 
   /// @brief Normal of the contact patch, expressed in the WORLD frame.
@@ -701,8 +706,11 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
   /// @brief Maximum number of contact patches that will be computed.
   size_t max_num_patch;
 
-  /// @brief Maximum size (number of vertices) of the computed contact patches.
-  size_t max_size_patch;
+  /// @brief Maximum samples to compute the support sets of curved shapes, i.e.
+  /// when the normal is perpendicular to the base of a cylinder.
+  // For now, only relevant for Cone and Cylinder. In the future this might be
+  // extended to Sphere and Ellipsoid.
+  size_t num_samples_curved_shapes;
 
   /// @brief Tolerance below which points are added to a contact patch.
   /// In details, given two shapes S1 and S2, a contact patch is the triple
@@ -715,21 +723,21 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
   FCL_REAL patch_tolerance;
 
   /// @brief Default constructor.
-  explicit ContactPatchRequest(
-      size_t max_num_patch = 1,
-      size_t max_size_patch = ContactPatch::default_max_size,
-      FCL_REAL patch_tolerance = 1e-3)
+  explicit ContactPatchRequest(size_t max_num_patch = 1,
+                               size_t num_samples_curved_shapes =
+                                   ContactPatch::default_preallocated_size,
+                               FCL_REAL patch_tolerance = 1e-3)
       : max_num_patch(max_num_patch),
-        max_size_patch(max_size_patch),
+        num_samples_curved_shapes(num_samples_curved_shapes),
         patch_tolerance(patch_tolerance) {}
 
   /// @brief Construct a contact patch request from a collision request.
-  explicit ContactPatchRequest(
-      const CollisionRequest& collision_request,
-      size_t max_size_patch = ContactPatch::default_max_size,
-      FCL_REAL patch_tolerance = 1e-3)
+  explicit ContactPatchRequest(const CollisionRequest& collision_request,
+                               size_t num_samples_curved_shapes =
+                                   ContactPatch::default_preallocated_size,
+                               FCL_REAL patch_tolerance = 1e-3)
       : max_num_patch(collision_request.num_max_contacts),
-        max_size_patch(max_size_patch),
+        num_samples_curved_shapes(num_samples_curved_shapes),
         patch_tolerance(patch_tolerance) {}
 };
 
@@ -835,7 +843,7 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
       this->m_contact_patches_data.resize(request.max_num_patch);
     }
     for (ContactPatch& patch : this->m_contact_patches_data) {
-      patch.points().reserve(request.max_size_patch);
+      patch.points().reserve(request.num_samples_curved_shapes);
     }
     this->clear();
   }
@@ -849,8 +857,8 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
     }
 
     for (const ContactPatch& patch : this->m_contact_patches_data) {
-      if (patch.points().capacity() < request.max_size_patch) {
-        assert(patch.points().capacity() >= request.max_size_patch);
+      if (patch.points().capacity() < request.num_samples_curved_shapes) {
+        assert(patch.points().capacity() >= request.num_samples_curved_shapes);
         return false;
       }
     }
