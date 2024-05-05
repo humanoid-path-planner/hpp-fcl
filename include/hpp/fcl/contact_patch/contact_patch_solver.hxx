@@ -273,6 +273,7 @@ ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
       if ((size_t)(convex->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         support_data.visited.assign(convex->num_points, false);
+        support_data.last_dir.setZero();
         return details::getShapeSupportSetTpl<details::LargeConvex,
                                               Options::NoSweptSphere>;
       } else {

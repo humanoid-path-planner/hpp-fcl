@@ -838,12 +838,61 @@ void getShapeSupportSetLinear(const ConvexBase* convex, SupportSet& support_set,
 
 // ============================================================================
 template <int _SupportOptions>
+void convexSupportSetRecurse(const ConvexBase* convex, const size_t vertex_idx,
+                             const Vec3f& support_dir,
+                             const FCL_REAL support_value,
+                             ShapeSupportData& support_data, FCL_REAL tol) {
+  std::vector<int8_t>& visited = support_data.visited;
+  if (visited[vertex_idx]) {
+    return;
+  }
+
+  const std::vector<Vec3f>& points = *(convex->points);
+  const std::vector<ConvexBase::Neighbors>& neighbors = *(convex->neighbors);
+  visited[vertex_idx] = true;
+  const Vec3f& point = points[vertex_idx];
+  const FCL_REAL val = point.dot(support_dir);
+  if (support_value - val <= tol) {
+    if (_SupportOptions == SupportOptions::WithSweptSphere) {
+      support_data.support_set.addPoint(point + convex->getSweptSphereRadius() *
+                                                    support_dir);
+    } else {
+      support_data.support_set.addPoint(point);
+    }
+
+    const ConvexBase::Neighbors& point_neighbors = neighbors[vertex_idx];
+    for (int i = 0; i < point_neighbors.count(); ++i) {
+      const size_t neighbor_index = (size_t)(point_neighbors[i]);
+      convexSupportSetRecurse<_SupportOptions>(convex, neighbor_index,
+                                               support_dir, support_value,
+                                               support_data, tol);
+    }
+  }
+}
+
+// ============================================================================
+template <int _SupportOptions>
 void getShapeSupportSetLog(const ConvexBase* convex, SupportSet& support_set,
                            int& hint, ShapeSupportData& support_data,
                            size_t /*unused*/, FCL_REAL tol) {
-  // TODO(louis)
-  getShapeSupportSetLinear<_SupportOptions>(convex, support_set, hint,
-                                            support_data, 0, tol);
+  assert(tol > 0);
+  Vec3f support;
+  const Vec3f& support_dir = support_set.getNormal();
+  getShapeSupportLog<SupportOptions::NoSweptSphere>(
+      convex, support_dir, support, hint, support_data);
+  const FCL_REAL support_value = support.dot(support_dir);
+
+  support_data.support_set.points().clear();
+  support_data.support_set.direction = support_set.direction;
+  support_data.support_set.tf = support_set.tf;
+  // `visited` is guaranteed to be of right size due to previous call to convex
+  // log support function.
+  std::fill(support_data.visited.begin(), support_data.visited.end(), false);
+  const size_t vertex_idx = (size_t)(hint);
+  convexSupportSetRecurse<_SupportOptions>(convex, vertex_idx, support_dir,
+                                           support_value, support_data, tol);
+
+  computeSupportSetConvexHull(support_data.support_set, support_set);
 }
 
 // ============================================================================

@@ -138,6 +138,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
       if (static_cast<size_t>(convex1->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         data[1].visited.assign(convex1->num_points, false);
+        data[1].last_dir.setZero();
         if (identity)
           return getSupportFuncTpl<Shape0, LargeConvex, true, _SupportOptions>;
         else
@@ -211,6 +212,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
       if (static_cast<size_t>(convex0->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {
         data[0].visited.assign(convex0->num_points, false);
+        data[0].last_dir.setZero();
         return makeGetSupportFunction1<LargeConvex, _SupportOptions>(
             s1, identity, swept_sphere_radius, data);
       } else
