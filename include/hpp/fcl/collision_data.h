@@ -593,6 +593,26 @@ struct HPP_FCL_DLLAPI ContactPatch {
     return point;
   }
 
+  /// @brief Get the i-th point of the set, projected back onto the first shape
+  /// of the collision pair. This point is expressed in the 3D reference frame.
+  Vec3f getPointShape1(const size_t i) const {
+    Vec3f point(0, 0, 0);
+    point.head<2>() = this->point(i);
+    point =
+        tf.transform(point) - (this->penetration_depth / 2) * this->getNormal();
+    return point;
+  }
+
+  /// @brief Get the i-th point of the set, projected back onto the first shape
+  /// of the collision pair.
+  Vec3f getPointShape2(const size_t i) const {
+    Vec3f point(0, 0, 0);
+    point.head<2>() = this->point(i);
+    point =
+        tf.transform(point) + (this->penetration_depth / 2) * this->getNormal();
+    return point;
+  }
+
   /// @brief Getter for the 2D points in the set.
   Polygon& points() { return this->m_points; }
 

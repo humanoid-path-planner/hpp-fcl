@@ -77,6 +77,8 @@ void exposeContactPatchAPI() {
         .DEF_CLASS_FUNC(ContactPatch, getNormal)
         .DEF_CLASS_FUNC(ContactPatch, addPoint)
         .DEF_CLASS_FUNC(ContactPatch, getPoint)
+        .DEF_CLASS_FUNC(ContactPatch, getPointShape1)
+        .DEF_CLASS_FUNC(ContactPatch, getPointShape2)
         .DEF_CLASS_FUNC(ContactPatch, clear)
         .DEF_CLASS_FUNC(ContactPatch, isSame);
   }
