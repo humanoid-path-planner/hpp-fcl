@@ -808,6 +808,15 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
 
   /// @copydoc m_patch_tolerance
   FCL_REAL getPatchTolerance() const { return this->m_patch_tolerance; }
+
+  /// @brief Whether two ContactPatchRequest are identical or not.
+  bool operator==(const ContactPatchRequest& other) const {
+    return this->max_num_patch == other.max_num_patch &&
+           this->getMaxPatchSize() == other.getMaxPatchSize() &&
+           this->getNumSamplesCurvedShapes() ==
+               other.getNumSamplesCurvedShapes() &&
+           this->getPatchTolerance() == other.getPatchTolerance();
+  }
 };
 
 /// @brief Result for a contact patch computation.
@@ -869,20 +878,6 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
     return this->m_contact_patches.back();
   }
 
-  /// @brief Getter for the i-th contact patch of the result.
-  ContactPatch& getContactPatch(const size_t i) {
-    if (this->m_contact_patches.empty()) {
-      HPP_FCL_THROW_PRETTY(
-          "The number of contact patches is zero. No ContactPatch can be "
-          "returned.",
-          std::invalid_argument);
-    }
-    if (i < this->m_contact_patches.size()) {
-      return this->m_contact_patches[i];
-    }
-    return this->m_contact_patches.back();
-  }
-
   /// @brief Const getter for the i-th contact patch of the result.
   const ContactPatch& getContactPatch(const size_t i) const {
     if (this->m_contact_patches.empty()) {
@@ -932,6 +927,23 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
         return false;
       }
     }
+    return true;
+  }
+
+  /// @brief Whether two ContactPatchResult are identical or not.
+  bool operator==(const ContactPatchResult& other) const {
+    if (this->numContactPatches() != other.numContactPatches()) {
+      return false;
+    }
+
+    for (size_t i = 0; i < this->numContactPatches(); ++i) {
+      const ContactPatch& patch = this->getContactPatch(i);
+      const ContactPatch& other_patch = other.getContactPatch(i);
+      if (!(patch == other_patch)) {
+        return false;
+      }
+    }
+
     return true;
   }
 };
