@@ -39,6 +39,8 @@
 
 #include "hpp/fcl/data_types.h"
 #include "hpp/fcl/collision_data.h"
+#include "hpp/fcl/contact_patch/contact_patch_solver.h"
+#include "hpp/fcl/contact_patch_func_matrix.h"
 
 namespace hpp {
 namespace fcl {
@@ -53,6 +55,55 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
                          const CollisionResult& collision_result,
                          const ContactPatchRequest& request,
                          ContactPatchResult& result);
+
+/// @brief This class reduces the cost of identifying the geometry pair.
+/// This is usefull for repeated shape-shape queries.
+/// @note This needs to be called after `collide` or after `ComputeCollision`.
+///
+/// \code
+///   ComputeContactPatch calc_patch (o1, o2);
+///   calc_patch(tf1, tf2, collision_result, patch_request, patch_result);
+/// \endcode
+class HPP_FCL_DLLAPI ComputeContactPatch {
+  /// @brief Default constructor from two Collision Geometries.
+  ComputeContactPatch(const CollisionGeometry* o1, const CollisionGeometry* o2);
+
+  void operator()(const Transform3f& tf1, const Transform3f& tf2,
+                  const CollisionResult& collision_result,
+                  const ContactPatchRequest& request,
+                  ContactPatchResult& result) const;
+
+  bool operator==(const ComputeContactPatch& other) const {
+    return this->o1 == other.o1 && this->o2 == other.o2 &&
+           this->csolver == other.csolver;
+  }
+
+  bool operator!=(const ComputeContactPatch& other) const {
+    return !(*this == other);
+  }
+
+  virtual ~ComputeContactPatch() = default;
+
+ protected:
+  // These pointers are made mutable to let the derived classes to update
+  // their values when updating the collision geometry (e.g. creating a new
+  // one). This feature should be used carefully to avoid any mis usage (e.g,
+  // changing the type of the collision geometry should be avoided).
+  mutable const CollisionGeometry* o1;
+  mutable const CollisionGeometry* o2;
+
+  mutable ContactPatchSolver csolver;
+
+  ContactPatchFunctionMatrix::ContactPatchFunc func;
+
+  virtual void run(const Transform3f& tf1, const Transform3f& tf2,
+                   const CollisionResult& collision_result,
+                   const ContactPatchRequest& request,
+                   ContactPatchResult& result) const;
+
+ public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+};
 
 }  // namespace fcl
 }  // namespace hpp

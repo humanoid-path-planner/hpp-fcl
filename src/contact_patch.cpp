@@ -36,7 +36,6 @@
 
 #include "hpp/fcl/contact_patch.h"
 #include "hpp/fcl/collision_utility.h"
-#include "hpp/fcl/contact_patch_func_matrix.h"
 
 namespace hpp {
 namespace fcl {
@@ -56,9 +55,6 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
     return;
   }
 
-  // Before doing any computation, we initialize and clear the input result.
-  result.set(request);
-
   OBJECT_TYPE object_type1 = o1->getObjectType();
   OBJECT_TYPE object_type2 = o2->getObjectType();
   NODE_TYPE node_type1 = o1->getNodeType();
@@ -71,7 +67,8 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
                              << std::string(get_node_type_name(node_type1))
                              << " and node type "
                              << std::string(get_node_type_name(node_type2))
-                             << " is not yet supported.",
+                             << " is not yet supported. Only primitive shapes "
+                                "are supported for now.",
                          std::invalid_argument);
     return;
   }
@@ -87,9 +84,71 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
                          std::invalid_argument);
   }
 
+  // Before doing any computation, we initialize and clear the input result.
+  result.set(request);
   ContactPatchSolver csolver(request);
   return looktable.contact_patch_matrix[node_type1][node_type2](
       o1, tf1, o2, tf2, collision_result, &csolver, request, result);
+}
+
+ComputeContactPatch::ComputeContactPatch(const CollisionGeometry* o1,
+                                         const CollisionGeometry* o2)
+    : o1(o1), o2(o2) {
+  const ContactPatchFunctionMatrix& looktable =
+      getContactPatchFunctionLookTable();
+
+  OBJECT_TYPE object_type1 = this->o1->getObjectType();
+  NODE_TYPE node_type1 = this->o1->getNodeType();
+  OBJECT_TYPE object_type2 = this->o2->getObjectType();
+  NODE_TYPE node_type2 = this->o2->getNodeType();
+
+  if (object_type1 != OBJECT_TYPE::OT_GEOM ||
+      object_type2 != OBJECT_TYPE::OT_GEOM) {
+    HPP_FCL_THROW_PRETTY("Computing contact patches between node type "
+                             << std::string(get_node_type_name(node_type1))
+                             << " and node type "
+                             << std::string(get_node_type_name(node_type2))
+                             << " is not yet supported. Only primitive shapes "
+                                "are supported for now.",
+                         std::invalid_argument);
+  }
+
+  if (!looktable.contact_patch_matrix[node_type1][node_type2]) {
+    HPP_FCL_THROW_PRETTY("Contact patch computation between node type "
+                             << std::string(get_node_type_name(node_type1))
+                             << " and node type "
+                             << std::string(get_node_type_name(node_type2))
+                             << " is not yet supported.",
+                         std::invalid_argument);
+  }
+
+  this->func = looktable.contact_patch_matrix[node_type1][node_type2];
+}
+
+void ComputeContactPatch::run(const Transform3f& tf1, const Transform3f& tf2,
+                              const CollisionResult& collision_result,
+                              const ContactPatchRequest& request,
+                              ContactPatchResult& result) const {
+  if (!collision_result.isCollision() || request.max_num_patch == 0) {
+    // do nothing
+    return;
+  }
+
+  // Before doing any computation, we initialize and clear the input result.
+  result.set(request);
+  this->func(this->o1, tf1, this->o2, tf2, collision_result, &(this->csolver),
+             request, result);
+}
+
+void ComputeContactPatch::operator()(const Transform3f& tf1,
+                                     const Transform3f& tf2,
+                                     const CollisionResult& collision_result,
+                                     const ContactPatchRequest& request,
+                                     ContactPatchResult& result) const
+
+{
+  this->csolver.set(request);
+  this->run(tf1, tf2, collision_result, request, result);
 }
 
 }  // namespace fcl
