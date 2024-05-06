@@ -129,7 +129,7 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
         &s1, support_set, csolver->support_guess[0], csolver->supports_data[0],
         csolver->num_samples_curved_shapes, csolver->patch_tolerance);
   }
-  csolver->getResult(&support_set, contact_patch);
+  csolver->getResult(&(support_set.points()), contact_patch);
 }
 
 #define PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(PlaneOrHspace)          \

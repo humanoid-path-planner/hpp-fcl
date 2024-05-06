@@ -178,7 +178,8 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
 
   /// @brief Retrieve result, adds a post-processing step if result has bigger
   /// size than `this->max_patch_size`.
-  void getResult(const ContactPatch* result, ContactPatch& contact_patch) const;
+  void getResult(const ContactPatch::Polygon* result,
+                 ContactPatch& contact_patch) const;
 
   /// @return true if p inside a clipping region defined by a and b, false
   /// otherwise.
