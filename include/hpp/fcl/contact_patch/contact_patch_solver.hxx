@@ -111,9 +111,9 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   // expects points to be ranked counter-clockwise.
   this->reset(s1, tf1, s2, tf2, contact_patch);
   assert(this->num_samples_curved_shapes > 3);
-  SupportSet& current = const_cast<SupportSet&>(this->current());
+  SupportSet& current_set = const_cast<SupportSet&>(this->current());
   this->supportFuncShape1(
-      &s1, current, this->support_guess[0], this->supports_data[0],
+      &s1, current_set, this->support_guess[0], this->supports_data[0],
       this->num_samples_curved_shapes, this->patch_tolerance);
   SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
   this->supportFuncShape2(
@@ -122,46 +122,85 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
 
   // We can immediatly return if one of the support set has only
   // one point.
-  if (current.size() <= 1 || clipper.size() <= 1) {
+  if (current_set.size() <= 1 || clipper.size() <= 1) {
     contact_patch.addPoint(contact.pos);
     return;
   }
 
-  //
-  // Step 3 - Main loop of the algorithm: use the "clipper"
-  // to clip the current contact patch. The resulting intersection is the
-  // contact patch of the contact between s1 and s2.
-  // Currently, to clip one patch with the other, we use the Sutherland-Hodgman
-  // algorithm:
-  // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
-  //
-  this->m_id_current = 0;
-  const size_t clipper_size = this->clipper().points().size();
-  for (size_t i = 0; i < clipper_size; ++i) {
-    const Vec2f a = this->clipper().point(i);
-    const Vec2f b = this->clipper().point((i + 1) % clipper_size);
+  if (clipper.size() == 2) {
+    if (current_set.size() == 2) {
+      // Segment - Segment case
+      const Vec2f a = this->clipper().point(0);
+      const Vec2f b = this->clipper().point(1);
 
-    this->m_id_current = 1 - this->m_id_current;
-    ContactPatch& current = const_cast<ContactPatch&>(this->current());
-    current.points().clear();
-    const size_t previous_size = this->previous().size();
-    for (size_t j = 0; j < previous_size; ++j) {
-      const Vec2f vcurrent = this->previous().point(j);
-      const Vec2f vnext = this->previous().point((j + 1) % previous_size);
-      if (pointIsInsideClippingRegion(vcurrent, a, b)) {
-        current.points().emplace_back(vcurrent);
-        if (!pointIsInsideClippingRegion(vnext, a, b)) {
+      ContactPatch& current = const_cast<ContactPatch&>(this->current());
+      const Vec2f c = current.point(0);
+      const Vec2f d = current.point(1);
+
+      const Vec2f p = computeLineSegmentIntersection(a, b, c, d);
+      current.points().clear();
+      current.points().emplace_back(p);
+    } else {
+      // Segment - Polygon case
+      const Vec2f a = this->clipper().point(0);
+      const Vec2f b = this->clipper().point(1);
+
+      this->m_id_current = 1 - this->m_id_current;
+      ContactPatch& current = const_cast<ContactPatch&>(this->current());
+      current.points().clear();
+      const size_t previous_size = this->previous().size();
+      for (size_t j = 0; j < previous_size; ++j) {
+        const Vec2f vcurrent = this->previous().point(j);
+        const Vec2f vnext = this->previous().point((j + 1) % previous_size);
+        if (pointIsInsideClippingRegion(vcurrent, a, b)) {
+          if (!pointIsInsideClippingRegion(vnext, a, b)) {
+            const Vec2f p =
+                computeLineSegmentIntersection(a, b, vcurrent, vnext);
+            current.points().emplace_back(p);
+          }
+        } else if (pointIsInsideClippingRegion(vnext, a, b)) {
           const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
           current.points().emplace_back(p);
         }
-      } else if (pointIsInsideClippingRegion(vnext, a, b)) {
-        const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
-        current.points().emplace_back(p);
       }
     }
-    if (this->current().size() == 0) {
-      // No intersection found, the algo can early stop.
-      break;
+  } else {
+    //
+    // Step 3 - Main loop of the algorithm: use the "clipper"
+    // to clip the current contact patch. The resulting intersection is the
+    // contact patch of the contact between s1 and s2.
+    // Currently, to clip one patch with the other, we use the
+    // Sutherland-Hodgman algorithm:
+    // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
+    //
+    const size_t clipper_size = this->clipper().points().size();
+    for (size_t i = 0; i < clipper_size; ++i) {
+      const Vec2f a = this->clipper().point(i);
+      const Vec2f b = this->clipper().point((i + 1) % clipper_size);
+
+      this->m_id_current = 1 - this->m_id_current;
+      ContactPatch& current = const_cast<ContactPatch&>(this->current());
+      current.points().clear();
+      const size_t previous_size = this->previous().size();
+      for (size_t j = 0; j < previous_size; ++j) {
+        const Vec2f vcurrent = this->previous().point(j);
+        const Vec2f vnext = this->previous().point((j + 1) % previous_size);
+        if (pointIsInsideClippingRegion(vcurrent, a, b)) {
+          current.points().emplace_back(vcurrent);
+          if (!pointIsInsideClippingRegion(vnext, a, b)) {
+            const Vec2f p =
+                computeLineSegmentIntersection(a, b, vcurrent, vnext);
+            current.points().emplace_back(p);
+          }
+        } else if (pointIsInsideClippingRegion(vnext, a, b)) {
+          const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
+          current.points().emplace_back(p);
+        }
+      }
+      if (this->current().size() == 0) {
+        // No intersection found, the algo can early stop.
+        break;
+      }
     }
   }
 

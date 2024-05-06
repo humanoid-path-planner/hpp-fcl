@@ -928,11 +928,6 @@ HPP_FCL_DLLAPI void computeSupportSetConvexHull(
   cvx_hull.clear();
 
   if (cloud.size() <= 2) {
-    if (cloud.size() == 2) {
-      if (cloud[0](0) < cloud[1](0)) {
-        std::swap(cloud[0], cloud[1]);
-      }
-    }
     // Point or segment, nothing to do.
     for (const Vec2f& point : cloud) {
       cvx_hull.emplace_back(point);
