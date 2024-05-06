@@ -50,11 +50,22 @@ namespace fcl {
 /// more info on the content of the input/output of this function. Also, please
 /// read @ref ContactPatch if you want to fully understand what is meant by
 /// "contact patch".
-void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
-                         const CollisionGeometry* o2, const Transform3f& tf2,
-                         const CollisionResult& collision_result,
-                         const ContactPatchRequest& request,
-                         ContactPatchResult& result);
+HPP_FCL_DLLAPI void computeContactPatch(const CollisionGeometry* o1,
+                                        const Transform3f& tf1,
+                                        const CollisionGeometry* o2,
+                                        const Transform3f& tf2,
+                                        const CollisionResult& collision_result,
+                                        const ContactPatchRequest& request,
+                                        ContactPatchResult& result);
+
+/// @copydoc computeContactPatch(const CollisionGeometry*, const Transform3f&,
+// const CollisionGeometry*, const Transform3f&, const CollisionResult&, const
+// ContactPatchRequest&, ContactPatchResult&);
+HPP_FCL_DLLAPI void computeContactPatch(const CollisionObject* o1,
+                                        const CollisionObject* o2,
+                                        const CollisionResult& collision_result,
+                                        const ContactPatchRequest& request,
+                                        ContactPatchResult& result);
 
 /// @brief This class reduces the cost of identifying the geometry pair.
 /// This is usefull for repeated shape-shape queries.
@@ -65,6 +76,7 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
 ///   calc_patch(tf1, tf2, collision_result, patch_request, patch_result);
 /// \endcode
 class HPP_FCL_DLLAPI ComputeContactPatch {
+ public:
   /// @brief Default constructor from two Collision Geometries.
   ComputeContactPatch(const CollisionGeometry* o1, const CollisionGeometry* o2);
 

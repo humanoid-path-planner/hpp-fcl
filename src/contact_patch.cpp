@@ -91,6 +91,15 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
       o1, tf1, o2, tf2, collision_result, &csolver, request, result);
 }
 
+void computeContactPatch(const CollisionObject* o1, const CollisionObject* o2,
+                         const CollisionResult& collision_result,
+                         const ContactPatchRequest& request,
+                         ContactPatchResult& result) {
+  return computeContactPatch(o1->collisionGeometryPtr(), o1->getTransform(),
+                             o2->collisionGeometryPtr(), o2->getTransform(),
+                             collision_result, request, result);
+}
+
 ComputeContactPatch::ComputeContactPatch(const CollisionGeometry* o1,
                                          const CollisionGeometry* o2)
     : o1(o1), o2(o2) {
