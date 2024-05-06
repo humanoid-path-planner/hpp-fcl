@@ -36,6 +36,8 @@ set(LIBRARY_NAME ${PROJECT_NAME})
 set(${LIBRARY_NAME}_SOURCES
   collision.cpp
   contact_patch.cpp
+  contact_patch/contact_patch_solver.cpp
+  contact_patch_func_matrix.cpp
   distance_func_matrix.cpp
   collision_data.cpp
   collision_node.cpp
@@ -101,7 +103,6 @@ set(${LIBRARY_NAME}_SOURCES
   BVH/BVH_model.cpp
   BVH/BV_splitter.cpp
   collision_func_matrix.cpp
-  contact_patch_func_matrix.cpp
   collision_utility.cpp
   mesh_loader/assimp.cpp
   mesh_loader/loader.cpp

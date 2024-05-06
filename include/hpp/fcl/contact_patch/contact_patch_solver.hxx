@@ -275,56 +275,6 @@ inline bool ContactPatchSolver::pointIsInsideClippingRegion(const Vec2f& p,
   return (b(0) - a(0)) * (p(1) - a(1)) >= (b(1) - a(1)) * (p(0) - a(0));
 }
 
-// ============================================================================
-inline ContactPatchSolver::SupportSetFunction
-ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
-                                           ShapeSupportData& support_data) {
-  // Note: because the swept-sphere radius was already taken into account when
-  // constructing the contact patch frame, there is actually no need to take the
-  // swept-sphere radius of shapes into account. The origin of the contact patch
-  // frame already encodes this information.
-  using Options = details::SupportOptions;
-  switch (shape->getNodeType()) {
-    case GEOM_TRIANGLE:
-      return details::getShapeSupportSetTpl<TriangleP, Options::NoSweptSphere>;
-    case GEOM_BOX: {
-      const size_t num_corners_box = 8;
-      support_data.support_set.points().reserve(num_corners_box);
-      return details::getShapeSupportSetTpl<Box, Options::NoSweptSphere>;
-    }
-    case GEOM_SPHERE:
-      return details::getShapeSupportSetTpl<Sphere, Options::NoSweptSphere>;
-    case GEOM_ELLIPSOID:
-      return details::getShapeSupportSetTpl<Ellipsoid, Options::NoSweptSphere>;
-    case GEOM_CAPSULE:
-      return details::getShapeSupportSetTpl<Capsule, Options::NoSweptSphere>;
-    case GEOM_CONE:
-      return details::getShapeSupportSetTpl<Cone, Options::NoSweptSphere>;
-    case GEOM_CYLINDER:
-      return details::getShapeSupportSetTpl<Cylinder, Options::NoSweptSphere>;
-    case GEOM_CONVEX: {
-      const ConvexBase* convex = static_cast<const ConvexBase*>(shape);
-      if (support_data.support_set.points().capacity() <
-          default_num_preallocated_supports) {
-        support_data.support_set.points().reserve(
-            default_num_preallocated_supports);
-      }
-      if ((size_t)(convex->num_points) >
-          ConvexBase::num_vertices_large_convex_threshold) {
-        support_data.visited.assign(convex->num_points, false);
-        support_data.last_dir.setZero();
-        return details::getShapeSupportSetTpl<details::LargeConvex,
-                                              Options::NoSweptSphere>;
-      } else {
-        return details::getShapeSupportSetTpl<details::SmallConvex,
-                                              Options::NoSweptSphere>;
-      }
-    }
-    default:
-      HPP_FCL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
-  }
-}
-
 }  // namespace fcl
 }  // namespace hpp
 

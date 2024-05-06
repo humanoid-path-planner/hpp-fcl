@@ -120,14 +120,12 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
   using SupportOptions = details::SupportOptions;
   if (InvertShapes) {
     support_set.direction = ContactPatch::PatchDirection::INVERTED;
-    details::getShapeSupportSetTpl<OtherShapeType,
-                                   SupportOptions::WithSweptSphere>(
+    details::getShapeSupportSet<SupportOptions::WithSweptSphere>(
         &s1, support_set, csolver->support_guess[1], csolver->supports_data[1],
         csolver->num_samples_curved_shapes, csolver->patch_tolerance);
   } else {
     support_set.direction = ContactPatch::PatchDirection::DEFAULT;
-    details::getShapeSupportSetTpl<OtherShapeType,
-                                   SupportOptions::WithSweptSphere>(
+    details::getShapeSupportSet<SupportOptions::WithSweptSphere>(
         &s1, support_set, csolver->support_guess[0], csolver->supports_data[0],
         csolver->num_samples_curved_shapes, csolver->patch_tolerance);
   }
