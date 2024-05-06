@@ -57,16 +57,16 @@ inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
 
   // Used for support set computation of shape1 and for the first iterate of the
   // Sutherland-Hodgman algo.
-  this->m_clipping_sets[0].points().reserve(num_preallocated_supports);
-  this->m_clipping_sets[0].direction = SupportSetDirection::DEFAULT;
+  this->support_set_shape1.points().reserve(num_preallocated_supports);
+  this->support_set_shape1.direction = SupportSetDirection::DEFAULT;
 
   // Used for computing the next iterate of the Sutherland-Hodgman algo.
-  this->m_clipping_sets[1].points().reserve(num_preallocated_supports);
+  this->support_set_buffer.points().reserve(num_preallocated_supports);
 
   // Used for support set computation of shape2 and acts as the "clipper" set in
   // the Sutherland-Hodgman algo.
-  this->m_clipping_sets[2].points().reserve(num_preallocated_supports);
-  this->m_clipping_sets[2].direction = SupportSetDirection::INVERTED;
+  this->support_set_shape2.points().reserve(num_preallocated_supports);
+  this->support_set_shape2.direction = SupportSetDirection::INVERTED;
 
   this->max_patch_size = request.getMaxPatchSize();
   this->num_samples_curved_shapes = request.getNumSamplesCurvedShapes();
@@ -111,112 +111,141 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   // expects points to be ranked counter-clockwise.
   this->reset(s1, tf1, s2, tf2, contact_patch);
   assert(this->num_samples_curved_shapes > 3);
-  SupportSet& current_set = const_cast<SupportSet&>(this->current());
-  this->supportFuncShape1(
-      &s1, current_set, this->support_guess[0], this->supports_data[0],
-      this->num_samples_curved_shapes, this->patch_tolerance);
-  SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
-  this->supportFuncShape2(
-      &s2, clipper, this->support_guess[1], this->supports_data[1],
-      this->num_samples_curved_shapes, this->patch_tolerance);
+
+  this->supportFuncShape1(&s1, this->support_set_shape1, this->support_guess[0],
+                          this->supports_data[0],
+                          this->num_samples_curved_shapes,
+                          this->patch_tolerance);
+
+  this->supportFuncShape2(&s2, this->support_set_shape2, this->support_guess[1],
+                          this->supports_data[1],
+                          this->num_samples_curved_shapes,
+                          this->patch_tolerance);
 
   // We can immediatly return if one of the support set has only
   // one point.
-  if (current_set.size() <= 1 || clipper.size() <= 1) {
+  if (this->support_set_shape1.size() <= 1 ||
+      this->support_set_shape2.size() <= 1) {
     contact_patch.addPoint(contact.pos);
     return;
   }
 
-  if (clipper.size() == 2) {
-    if (current_set.size() == 2) {
-      // Segment - Segment case
-      const Vec2f a = this->clipper().point(0);
-      const Vec2f b = this->clipper().point(1);
+  if ((this->support_set_shape1.size() == 2) &&
+      (this->support_set_shape2.size() == 2)) {
+    // Segment-Segment case
+    // We compute the determinant; if it is non-zero, the intersection
+    // has already been computed: it's `Contact::pos`.
+    const Vec2f& a = this->support_set_shape1.points()[0];
+    const Vec2f& b = this->support_set_shape1.points()[1];
 
-      ContactPatch& current = const_cast<ContactPatch&>(this->current());
-      const Vec2f c = current.point(0);
-      const Vec2f d = current.point(1);
+    const Vec2f& c = this->support_set_shape2.points()[0];
+    const Vec2f& d = this->support_set_shape2.points()[1];
 
-      const Vec2f p = computeLineSegmentIntersection(a, b, c, d);
-      current.points().clear();
-      current.points().emplace_back(p);
-    } else {
-      // Segment - Polygon case
-      const Vec2f a = this->clipper().point(0);
-      const Vec2f b = this->clipper().point(1);
-
-      this->m_id_current = 1 - this->m_id_current;
-      ContactPatch& current = const_cast<ContactPatch&>(this->current());
-      current.points().clear();
-      const size_t previous_size = this->previous().size();
-      for (size_t j = 0; j < previous_size; ++j) {
-        const Vec2f vcurrent = this->previous().point(j);
-        const Vec2f vnext = this->previous().point((j + 1) % previous_size);
-        if (pointIsInsideClippingRegion(vcurrent, a, b)) {
-          if (!pointIsInsideClippingRegion(vnext, a, b)) {
-            const Vec2f p =
-                computeLineSegmentIntersection(a, b, vcurrent, vnext);
-            current.points().emplace_back(p);
-          }
-        } else if (pointIsInsideClippingRegion(vnext, a, b)) {
-          const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
-          current.points().emplace_back(p);
-        }
-      }
+    const FCL_REAL det =
+        (b(0) - a(0)) * (d(1) - c(1)) >= (b(1) - a(1)) * (c(0) - d(0));
+    static constexpr FCL_REAL eps =
+        Eigen::NumTraits<FCL_REAL>::dummy_precision();
+    if ((std::abs(det) > eps) || ((c - d).squaredNorm() < eps) ||
+        ((b - a).squaredNorm() < eps)) {
+      contact_patch.addPoint(contact.pos);
+      return;
     }
+
+    const Vec2f cd = (d - c);
+    const FCL_REAL l = cd.squaredNorm();
+
+    // Project a onto [c, d]
+    FCL_REAL t1 = (a - c).dot(cd);
+    t1 = (t1 >= l) ? 1.0 : ((t1 <= 0) ? 0.0 : (t1 / l));
+    const Vec2f p1 = c + t1 * cd;
+    contact_patch.points().emplace_back(p1);
+
+    // Project b onto [c, d]
+    FCL_REAL t2 = (b - c).dot(cd);
+    t2 = (t2 >= l) ? 1.0 : ((t2 <= 0) ? 0.0 : (t2 / l));
+    const Vec2f p2 = c + t2 * cd;
+    if ((p1 - p2).squaredNorm() >= eps) {
+      contact_patch.points().emplace_back(p2);
+    }
+    return;
+  }
+
+  //
+  // Step 3 - Main loop of the algorithm: use the "clipper"
+  // to clip the current contact patch. The resulting intersection is the
+  // contact patch of the contact between s1 and s2.
+  // Currently, to clip one patch with the other, we use the
+  // Sutherland-Hodgman algorithm:
+  // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
+  //
+  // The Sutherland-Hodgman algorithm needs the clipper to be at least a
+  // triangle.
+  SupportSet* clipper = nullptr;
+  SupportSet* current = nullptr;
+  SupportSet* previous = &(this->support_set_buffer);
+  if (support_set_shape2.size() == 2) {
+    // Use the first shape as clipper, second as clipped.
+    clipper = &(this->support_set_shape1);
+    current = &(this->support_set_shape2);
   } else {
-    //
-    // Step 3 - Main loop of the algorithm: use the "clipper"
-    // to clip the current contact patch. The resulting intersection is the
-    // contact patch of the contact between s1 and s2.
-    // Currently, to clip one patch with the other, we use the
-    // Sutherland-Hodgman algorithm:
-    // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
-    //
-    const size_t clipper_size = this->clipper().points().size();
-    for (size_t i = 0; i < clipper_size; ++i) {
-      const Vec2f a = this->clipper().point(i);
-      const Vec2f b = this->clipper().point((i + 1) % clipper_size);
+    // Use the second shape as clipper, first as clipped.
+    clipper = &(this->support_set_shape2);
+    current = &(this->support_set_shape1);
+  }
 
-      this->m_id_current = 1 - this->m_id_current;
-      ContactPatch& current = const_cast<ContactPatch&>(this->current());
-      current.points().clear();
-      const size_t previous_size = this->previous().size();
-      for (size_t j = 0; j < previous_size; ++j) {
-        const Vec2f vcurrent = this->previous().point(j);
-        const Vec2f vnext = this->previous().point((j + 1) % previous_size);
-        if (pointIsInsideClippingRegion(vcurrent, a, b)) {
-          current.points().emplace_back(vcurrent);
-          if (!pointIsInsideClippingRegion(vnext, a, b)) {
-            const Vec2f p =
-                computeLineSegmentIntersection(a, b, vcurrent, vnext);
-            current.points().emplace_back(p);
-          }
-        } else if (pointIsInsideClippingRegion(vnext, a, b)) {
+  const size_t clipper_size = clipper->points().size();
+
+  for (size_t i = 0; i < clipper_size; ++i) {
+    const Vec2f a = clipper->point(i);
+    const Vec2f b = clipper->point((i + 1) % clipper_size);
+
+    // Swap current/previous
+    SupportSet* tmp = previous;
+    previous = current;
+    current = tmp;
+
+    current->points().clear();
+    const size_t previous_size = previous->size();
+    for (size_t j = 0; j < previous_size; ++j) {
+      const Vec2f vcurrent = previous->point(j);
+      const Vec2f vnext = previous->point((j + 1) % previous_size);
+      if (pointIsInsideClippingRegion(vcurrent, a, b)) {
+        current->points().emplace_back(vcurrent);
+        if (!pointIsInsideClippingRegion(vnext, a, b)) {
           const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
-          current.points().emplace_back(p);
+          current->points().emplace_back(p);
         }
+      } else if (pointIsInsideClippingRegion(vnext, a, b)) {
+        const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
+        current->points().emplace_back(p);
       }
-      if (this->current().size() == 0) {
-        // No intersection found, the algo can early stop.
-        break;
-      }
+    }
+    if (current->size() == 0) {
+      // No intersection found, the algo can early stop.
+      break;
     }
   }
 
-  if (this->current().size() <= 1) {
+  if (current->size() <= 1) {
     contact_patch.addPoint(contact.pos);
     return;
   }
 
-  this->getResult(contact_patch);
+  this->getResult(current, contact_patch);
 }
 
 // ============================================================================
-inline void ContactPatchSolver::getResult(ContactPatch& contact_patch) const {
+inline void ContactPatchSolver::getResult(const ContactPatch* result,
+                                          ContactPatch& contact_patch) const {
   assert(this->max_patch_size > 3);
-  if (this->current().size() <= this->max_patch_size) {
-    contact_patch.points() = this->current().points();
+  if (result->size() <= this->max_patch_size) {
+    contact_patch.points().emplace_back(result->points()[0]);
+    for (size_t i = 1; i < result->size(); ++i) {
+      if ((contact_patch.points().back() - result->points()[i]).squaredNorm() >
+          Eigen::NumTraits<FCL_REAL>::dummy_precision()) {
+        contact_patch.points().emplace_back(result->points()[i]);
+      }
+    }
     return;
   }
 
@@ -224,25 +253,32 @@ inline void ContactPatchSolver::getResult(ContactPatch& contact_patch) const {
   // contact patch.
   // We simply select `max_patch_size` points of the patch by sampling the
   // 2d support function of the patch along the unit circle.
-  this->m_added_to_patch.assign(this->current().size(), false);
+  this->added_to_patch.assign(result->size(), false);
   const FCL_REAL angle_increment =
       2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(this->max_patch_size));
   for (size_t i = 0; i < this->max_patch_size; ++i) {
     const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
     const Vec2f dir(std::cos(theta), std::sin(theta));
-    FCL_REAL support_val = this->current().points()[0].dot(dir);
+    FCL_REAL support_val = result->points()[0].dot(dir);
     size_t support_idx = 0;
-    for (size_t j = 1; j < this->current().size(); ++j) {
-      const FCL_REAL val = this->current().points()[j].dot(dir);
+    for (size_t j = 1; j < result->size(); ++j) {
+      const FCL_REAL val = result->points()[j].dot(dir);
       if (val > support_val) {
         support_val = val;
         support_idx = j;
       }
     }
-    if (!this->m_added_to_patch[support_idx]) {
-      contact_patch.points().emplace_back(
-          this->current().points()[support_idx]);
-      this->m_added_to_patch[support_idx] = true;
+    if (!this->added_to_patch[support_idx]) {
+      if (contact_patch.points().empty()) {
+        contact_patch.points().emplace_back(result->points()[support_idx]);
+      } else {
+        if ((contact_patch.points().back() - result->points()[support_idx])
+                .squaredNorm() >
+            Eigen::NumTraits<FCL_REAL>::dummy_precision()) {
+          contact_patch.points().emplace_back(result->points()[support_idx]);
+        }
+      }
+      this->added_to_patch[support_idx] = true;
     }
   }
 }
@@ -255,31 +291,27 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
                                       const Transform3f& tf2,
                                       const ContactPatch& contact_patch) const {
   // Reset internal quantities
-  this->m_clipping_sets[0].clear();
-  this->m_clipping_sets[1].clear();
-  this->m_clipping_sets[2].clear();
-
-  this->m_id_current = 0;
+  this->support_set_shape1.clear();
+  this->support_set_shape2.clear();
+  this->support_set_buffer.clear();
 
   // Get the support function of each shape
   const Transform3f& tfc = contact_patch.tf;
 
-  SupportSet& current = const_cast<SupportSet&>(this->current());
-  current.direction = SupportSetDirection::DEFAULT;
+  this->support_set_shape1.direction = SupportSetDirection::DEFAULT;
   // Set the reference frame of the support set of the first shape to be the
   // local frame of shape 1.
-  Transform3f& tf1c = current.tf;
+  Transform3f& tf1c = this->support_set_shape1.tf;
   tf1c.rotation().noalias() = tf1.rotation().transpose() * tfc.rotation();
   tf1c.translation().noalias() =
       tf1.rotation().transpose() * (tfc.translation() - tf1.translation());
   this->supportFuncShape1 =
       this->makeSupportSetFunction(&shape1, this->supports_data[0]);
 
-  SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
-  clipper.direction = SupportSetDirection::INVERTED;
+  this->support_set_shape2.direction = SupportSetDirection::INVERTED;
   // Set the reference frame of the support set of the second shape to be the
   // local frame of shape 2.
-  Transform3f& tf2c = clipper.tf;
+  Transform3f& tf2c = this->support_set_shape2.tf;
   tf2c.rotation().noalias() = tf2.rotation().transpose() * tfc.rotation();
   tf2c.translation().noalias() =
       tf2.rotation().transpose() * (tfc.translation() - tf2.translation());

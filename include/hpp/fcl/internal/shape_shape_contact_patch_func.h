@@ -106,7 +106,7 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
 
   // We only need to compute the support set in the direction of the normal.
   // We need to temporarily express the patch in the local frame of shape1.
-  SupportSet& support_set = const_cast<SupportSet&>(csolver->current());
+  SupportSet& support_set = csolver->support_set_shape1;
   support_set.tf.rotation().noalias() =
       tf1.rotation().transpose() * contact_patch.tf.rotation();
   support_set.tf.translation().noalias() =
@@ -129,7 +129,7 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
         &s1, support_set, csolver->support_guess[0], csolver->supports_data[0],
         csolver->num_samples_curved_shapes, csolver->patch_tolerance);
   }
-  csolver->getResult(contact_patch);
+  csolver->getResult(&support_set, contact_patch);
 }
 
 #define PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(PlaneOrHspace)          \

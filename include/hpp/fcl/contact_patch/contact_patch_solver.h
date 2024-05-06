@@ -58,7 +58,6 @@ namespace fcl {
 /// TODO(louis): algo improvement:
 /// - The clipping algo is currently n1 * n2; it can be done in n1 + n2.
 struct HPP_FCL_DLLAPI ContactPatchSolver {
- public:
   // Note: `ContactPatch` is an alias for `SupportSet`.
   // The two can be used interchangeably.
   using ShapeSupportData = details::ShapeSupportData;
@@ -118,29 +117,23 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Guess for the support sets computation.
   mutable support_func_guess_t support_guess;
 
- protected:
-  /// @brief Support sets used for internal computation.
-  /// @note The `computePatch` algorithm starts by constructing two 2D
-  /// convex-hulls (the convex-hulls of the `m_projected_shapes_supports`). It
-  /// then uses the first convex-hull to clip the second one, effectively
-  /// computing the intersection between the two convex-hulls.
-  /// Why have 3 support sets then? Because the algorithm works by
-  /// successively clipping the first conve-hull. So the first two support
-  /// sets represent the current and previous iteration of the algorithm and
-  /// the third set represents the convex-hull of the second shape's support
-  /// set.
-  mutable std::array<SupportSet, 3> m_clipping_sets;
+  /// @brief Holder for support set of shape 1, used for internal computation.
+  /// After `computePatch` has been called, this support set is no longer valid.
+  mutable SupportSet support_set_shape1;
 
-  /// @brief Tracks the current iterate of the algorithm.
-  mutable size_t m_id_current{0};
+  /// @brief Holder for support set of shape 2, used for internal computation.
+  /// After `computePatch` has been called, this support set is no longer valid.
+  mutable SupportSet support_set_shape2;
+
+  /// @brief Temporary support set used for the Sutherland-Hodgman algorithm.
+  mutable SupportSet support_set_buffer;
 
   /// @brief Tracks which point of the Sutherland-Hodgman result have been added
   /// to the contact patch. Only used if the post-processing step occurs, i.e.
   /// if the result of Sutherland-Hodgman has a size bigger than
   /// `max_patch_size`.
-  mutable std::vector<bool> m_added_to_patch;
+  mutable std::vector<bool> added_to_patch;
 
- public:
   /// @brief Default constructor.
   explicit ContactPatchSolver() {
     const size_t num_contact_patch = 1;
@@ -183,32 +176,9 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
              const ShapeType2& shape2, const Transform3f& tf2,
              const ContactPatch& contact_patch) const;
 
-  /// @brief Getter for current iterate.
-  SupportSet& current() { return this->m_clipping_sets[this->m_id_current]; }
-
-  /// @brief Const getter for current iterate.
-  const SupportSet& current() const {
-    return this->m_clipping_sets[this->m_id_current];
-  }
-
-  /// @brief Getter for previous iterate.
-  SupportSet& previous() {
-    return this->m_clipping_sets[1 - this->m_id_current];
-  }
-
-  /// @brief Const getter for previous iterate.
-  const SupportSet& previous() const {
-    return this->m_clipping_sets[1 - this->m_id_current];
-  }
-
-  /// @brief Getter for the set used to clip the other one.
-  SupportSet& clipper() { return this->m_clipping_sets[2]; }
-
-  /// @brief Const getter for the set used to clip the other one.
-  const SupportSet& clipper() const { return this->m_clipping_sets[2]; }
-
-  /// @brief Retrieve result from `this->current()`.
-  void getResult(ContactPatch& contact_patch) const;
+  /// @brief Retrieve result, adds a post-processing step if result has bigger
+  /// size than `this->max_patch_size`.
+  void getResult(const ContactPatch* result, ContactPatch& contact_patch) const;
 
   /// @return true if p inside a clipping region defined by a and b, false
   /// otherwise.
@@ -237,9 +207,10 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
            this->num_samples_curved_shapes == other.num_samples_curved_shapes &&
            this->patch_tolerance == other.patch_tolerance &&
            this->support_guess == other.support_guess &&
-           this->current() == other.current() &&
-           this->previous() == other.previous() &&
-           this->clipper() == other.clipper() &&
+           this->support_set_shape1 == other.support_set_shape1 &&
+           this->support_set_shape2 == other.support_set_shape2 &&
+           this->support_set_buffer == other.support_set_buffer &&
+           this->added_to_patch == other.added_to_patch &&
            this->supportFuncShape1 == other.supportFuncShape1 &&
            this->supportFuncShape2 == other.supportFuncShape2;
   }
