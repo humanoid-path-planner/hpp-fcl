@@ -801,16 +801,14 @@ void getShapeSupportSetLinear(const ConvexBase* convex, SupportSet& support_set,
   const Vec3f& support_dir = support_set.getNormal();
   getShapeSupport<SupportOptions::NoSweptSphere>(convex, support_dir, support,
                                                  hint, support_data);
-  const FCL_REAL support_value = support.dot(support_dir);
+  const FCL_REAL support_value = support_dir.dot(support);
 
   const std::vector<Vec3f>& points = *(convex->points);
-  assert(points.size() == (size_t)(convex->num_points));
-  hint = 0;
   support_data.support_set.points().clear();
   support_data.support_set.direction = support_set.direction;
   support_data.support_set.tf = support_set.tf;
-  for (const auto& point : points) {
-    FCL_REAL dot = point.dot(support_dir);
+  for (const Vec3f& point : points) {
+    const FCL_REAL dot = support_dir.dot(point);
     if (support_value - dot <= tol) {
       if (_SupportOptions == SupportOptions::WithSweptSphere) {
         support_data.support_set.addPoint(
@@ -930,6 +928,11 @@ HPP_FCL_DLLAPI void computeSupportSetConvexHull(
   cvx_hull.clear();
 
   if (cloud.size() <= 2) {
+    if (cloud.size() == 2) {
+      if (cloud[0](0) < cloud[1](0)) {
+        std::swap(cloud[0], cloud[1]);
+      }
+    }
     // Point or segment, nothing to do.
     for (const Vec2f& point : cloud) {
       cvx_hull.emplace_back(point);
