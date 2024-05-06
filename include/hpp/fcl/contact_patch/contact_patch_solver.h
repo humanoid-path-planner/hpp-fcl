@@ -118,7 +118,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Guess for the support sets computation.
   mutable support_func_guess_t support_guess;
 
- private:
+ protected:
   /// @brief Support sets used for internal computation.
   /// @note The `computePatch` algorithm starts by constructing two 2D
   /// convex-hulls (the convex-hulls of the `m_projected_shapes_supports`). It

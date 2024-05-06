@@ -547,7 +547,7 @@ struct HPP_FCL_DLLAPI ContactPatch {
   /// Used to pre-allocate memory for the patch.
   static constexpr size_t default_preallocated_size = 6;
 
- private:
+ protected:
   /// @brief Container for the vertices of the set.
   Polygon m_points;
 
@@ -706,7 +706,7 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
   /// @brief Maximum number of contact patches that will be computed.
   size_t max_num_patch;
 
- private:
+ protected:
   /// @brief Maximum size of contact patch, i.e. max number of vertices each
   /// contact patch in `ContactPatchResult` vector can hold.
   /// If the internal contact patch computation of HPP-FCL generates a patch
@@ -816,7 +816,7 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
   using ContactPatchRef = std::reference_wrapper<ContactPatch>;
   using ContactPatchRefVector = std::vector<ContactPatchRef>;
 
- private:
+ protected:
   /// @brief Data container for the vector of contact patches.
   /// @note Contrary to `CollisionResult` or `DistanceResult`, which have a very
   /// small memory footprint, contact patches can contain relatively large
