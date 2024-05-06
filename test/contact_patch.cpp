@@ -368,15 +368,15 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
     const FCL_REAL tol = 1e-6;
     EIGEN_VECTOR_IS_APPROX(contact.normal, hspace.n, tol);
 
-    const size_t expected_size = 6;
+    const size_t expected_size = ContactPatch::default_preallocated_size;
     ContactPatch expected(expected_size);
     expected.tf.rotation() = constructBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    std::array<Vec3f, 6> points;
+    std::array<Vec3f, ContactPatch::default_preallocated_size> points;
     const FCL_REAL angle_increment =
         2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(6));
-    for (size_t i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < ContactPatch::default_preallocated_size; ++i) {
       const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
       Vec3f point_on_cone_base(std::cos(theta) * cone.radius,
                                std::sin(theta) * cone.radius, -cone.halfLength);
@@ -475,16 +475,16 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
 
   if (col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
-    const size_t expected_size = 6;
+    const size_t expected_size = ContactPatch::default_preallocated_size;
     const FCL_REAL tol = 1e-6;
     ContactPatch expected(expected_size);
     expected.tf.rotation() = constructBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    std::array<Vec3f, 6> points;
+    std::array<Vec3f, ContactPatch::default_preallocated_size> points;
     const FCL_REAL angle_increment =
         2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(6));
-    for (size_t i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < ContactPatch::default_preallocated_size; ++i) {
       const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
       Vec3f point_on_cone_base(std::cos(theta) * cylinder.radius,
                                std::sin(theta) * cylinder.radius,
