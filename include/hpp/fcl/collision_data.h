@@ -545,7 +545,7 @@ struct HPP_FCL_DLLAPI ContactPatch {
 
   /// @brief Default maximum size of the polygon representing the set.
   /// Used to pre-allocate memory for the patch.
-  static constexpr size_t default_preallocated_size = 6;
+  static constexpr size_t default_preallocated_size = 12;
 
  protected:
   /// @brief Container for the vertices of the set.
