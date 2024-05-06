@@ -627,40 +627,32 @@ void getShapeSupportSet(const Capsule* capsule, SupportSet& support_set,
   const Vec3f& support_dir = support_set.getNormal();
   getShapeSupport<SupportOptions::NoSweptSphere>(capsule, support_dir, support,
                                                  hint, support_data);
-  const FCL_REAL support_value = support.dot(support_dir);
-  // A capsule can be seen as swept-sphere segment. Segment has only two points:
-  // (0, 0, h) and (0, 0, -h) where h = capsule->halfLength.
-  // support_dir.dot((0, 0, +-h)) = +- support_dir[2] * h
-  //
-  // If we denote by `n` the support direction and `OH` the vector (0, 0, h),
-  // the 2 ends of the segment belong to the support set if:
-  //   | <n, (OH / ||OH||)> | <= tol / ||OH||,
-  // where |.| is the absolute value, <.,.> the euclidian dot product and ||.||
-  // the euclidian norm.
-  // We can easily see that the bigger the length of the capsule (the bigger
-  // ||OH||), the bigger the angle between `n` and `OH` has to be for the 2 ends
-  // of the segment to be supports (i.e. the more perpendicular `n` has to be to
-  // the capsule's axis). The fact that this condition depends on the size of
-  // the capsule is perfectly expected and reassuring. This means that `tol`
-  // smartly selects which points belonging to the support sets, adapting to the
-  // size of the geometry.
-  // We will follow the exact same reasoning for cones and cylinders.
+  const FCL_REAL support_value =
+      support_dir.dot(support + capsule->radius * support_dir);
+  // The support set of a capsule has either 2 points or 1 point.
+  // The two candidate points lie at the frontier between the cylinder and
+  // sphere parts of the capsule.
   const FCL_REAL h = capsule->halfLength;
-  if (support_value - support_dir[2] * capsule->halfLength < tol) {
-    Vec3f point = Vec3f(0, 0, h);
+  const FCL_REAL r = capsule->radius;
+  const Vec3f p1(r * support_dir[0], r * support_dir[1], h);
+  const Vec3f p2(r * support_dir[0], r * support_dir[1], -h);
+  if ((support_value - support_dir.dot(p1) <= tol) &&
+      (support_value - support_dir.dot(p2) <= tol)) {
     if (_SupportOptions == SupportOptions::WithSweptSphere) {
-      point += (capsule->radius + capsule->getSweptSphereRadius()) *
-               support_dir.normalized();
+      const Vec3f ssr_vec = support_dir * capsule->getSweptSphereRadius();
+      support_set.addPoint(p1 + ssr_vec);
+      support_set.addPoint(p2 + ssr_vec);
+    } else {
+      support_set.addPoint(p1);
+      support_set.addPoint(p2);
     }
-    support_set.addPoint(point);
-  }
-  if (support_value + support_dir[2] * capsule->halfLength < tol) {
-    Vec3f point = Vec3f(0, 0, -h);
+  } else {
     if (_SupportOptions == SupportOptions::WithSweptSphere) {
-      point += (capsule->radius + capsule->getSweptSphereRadius()) *
-               support_dir.normalized();
+      const Vec3f ssr_vec = support_dir * capsule->getSweptSphereRadius();
+      support_set.addPoint(support + ssr_vec);
+    } else {
+      support_set.addPoint(support);
     }
-    support_set.addPoint(point);
   }
 }
 getShapeSupportSetTplInstantiation(Capsule);
@@ -685,18 +677,17 @@ void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
   // points (two if direction is perpendicular to the side of the cone and one
   // otherwise).
   //
-  // The following check follows the same idea as what is done in the Capsule
-  // support set computation.
-  // For all theta, we want support_value - support_dir.dot(v(theta)) <= eps,
-  // with v(theta) = r * cos(theta) + r * sin(theta).
-  // Knowing that support_value >= 0, this leads us to:
-  // support_value - r * sqrt((nx - ny)**2 + nx * ny) <= eps,
-  // with nx = support_dir[0], ny = support_dir[1].
-  const FCL_REAL nx = support_dir[0];
-  const FCL_REAL ny = support_dir[1];
+  // To check this condition, we look at two points on the cone's basis; these
+  // two points are symmetrical w.r.t the center of the circle. If both these
+  // points are tol away from the support plane, then all the points of the
+  // circle are tol away from the support plane.
   const FCL_REAL r = cone->radius;
-  if (support_dir[2] <= 0 &&
-      (support_value - r * std::sqrt((nx - ny) * (nx - ny) + nx * ny) <= tol)) {
+  const FCL_REAL z = -cone->halfLength;
+  const Vec3f p1(r * support_dir[0], r * support_dir[1], z);
+  const Vec3f p2(-r * support_dir[0], -r * support_dir[1], z);
+
+  if ((support_value - support_dir.dot(p1) <= tol) &&
+      (support_value - support_dir.dot(p2) <= tol)) {
     // If this check passed, support direction is considered perpendicular to
     // the basis of the cone. We sample `num_sampled_supports` points on the
     // base of the cone. We are guaranteed that these points like at a distance
@@ -705,11 +696,8 @@ void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
         2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(num_sampled_supports));
     for (size_t i = 0; i < num_sampled_supports; ++i) {
       const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
-      Vec3f point_on_cone_base(std::cos(theta) * cone->radius,
-                               std::sin(theta) * cone->radius,
-                               -cone->halfLength);
-      assert(std::abs(support_value - point_on_cone_base.dot(support_dir)) <=
-             tol);
+      Vec3f point_on_cone_base(r * std::cos(theta), r * std::sin(theta), z);
+      assert(std::abs(support_dir.dot(support - point_on_cone_base)) <= tol);
       if (_SupportOptions == SupportOptions::WithSweptSphere) {
         point_on_cone_base += cone->getSweptSphereRadius() * support_dir;
       }
@@ -720,7 +708,7 @@ void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
     // on the basis of the cone. We compare each of these points to the support
     // value.
     Vec3f cone_tip(0, 0, cone->halfLength);
-    if (support_value - cone_tip.dot(support_dir) <= tol) {
+    if (support_value - support_dir.dot(cone_tip) <= tol) {
       if (_SupportOptions == SupportOptions::WithSweptSphere) {
         cone_tip += cone->getSweptSphereRadius() * support_dir;
       }
@@ -729,8 +717,8 @@ void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
 
     Vec3f point_on_cone_base = Vec3f(cone->radius * support_dir[0],  //
                                      cone->radius * support_dir[1],  //
-                                     -cone->halfLength);
-    if (support_value - point_on_cone_base.dot(support_dir) <= tol) {
+                                     z);
+    if (support_value - support_dir.dot(point_on_cone_base) <= tol) {
       if (_SupportOptions == SupportOptions::WithSweptSphere) {
         point_on_cone_base += cone->getSweptSphereRadius() * support_dir;
       }
@@ -757,20 +745,20 @@ void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
 
   // The following is very similar to what is done for Cone's support set
   // computation.
-  const FCL_REAL nx = support_dir[0];
-  const FCL_REAL ny = support_dir[1];
   const FCL_REAL r = cylinder->radius;
-  if (support_value - r * std::sqrt((nx - ny) * (nx - ny) + nx * ny) <= tol) {
+  const FCL_REAL z =
+      support_dir[2] <= 0 ? -cylinder->halfLength : cylinder->halfLength;
+  const Vec3f p1(r * support_dir[0], r * support_dir[1], z);
+  const Vec3f p2(-r * support_dir[0], -r * support_dir[1], z);
+
+  if ((support_value - support_dir.dot(p1) <= tol) &&
+      (support_value - support_dir.dot(p2) <= tol)) {
     const FCL_REAL angle_increment =
         2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(num_sampled_supports));
     for (size_t i = 0; i < num_sampled_supports; ++i) {
       const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
-      Vec3f point_on_cone_base(
-          std::cos(theta) * cylinder->radius,
-          std::sin(theta) * cylinder->radius,
-          support_dir[2] >= 0 ? cylinder->halfLength : -cylinder->halfLength);
-      assert(std::abs(support_value - point_on_cone_base.dot(support_dir)) <=
-             tol);
+      Vec3f point_on_cone_base(r * std::cos(theta), r * std::sin(theta), z);
+      assert(std::abs(support_dir.dot(support - point_on_cone_base)) <= tol);
       if (_SupportOptions == SupportOptions::WithSweptSphere) {
         point_on_cone_base += cylinder->getSweptSphereRadius() * support_dir;
       }
@@ -782,7 +770,7 @@ void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
     Vec3f point_on_lower_circle = Vec3f(cylinder->radius * support_dir[0],  //
                                         cylinder->radius * support_dir[1],  //
                                         -cylinder->halfLength);
-    if (support_value - point_on_lower_circle.dot(support_dir) <= tol) {
+    if (support_value - support_dir.dot(point_on_lower_circle) <= tol) {
       if (_SupportOptions == SupportOptions::WithSweptSphere) {
         point_on_lower_circle += cylinder->getSweptSphereRadius() * support_dir;
       }
@@ -792,7 +780,7 @@ void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
     Vec3f point_on_upper_circle = Vec3f(cylinder->radius * support_dir[0],  //
                                         cylinder->radius * support_dir[1],  //
                                         cylinder->halfLength);
-    if (support_value - point_on_upper_circle.dot(support_dir) <= tol) {
+    if (support_value - support_dir.dot(point_on_upper_circle) <= tol) {
       if (_SupportOptions == SupportOptions::WithSweptSphere) {
         point_on_upper_circle += cylinder->getSweptSphereRadius() * support_dir;
       }
