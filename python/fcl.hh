@@ -12,6 +12,8 @@ void exposeMeshLoader();
 
 void exposeCollisionAPI();
 
+void exposeContactPatchAPI();
+
 void exposeDistanceAPI();
 
 void exposeGJK();

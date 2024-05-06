@@ -106,6 +106,7 @@ SET(${LIBRARY_NAME}_SOURCES
   math.cc
   collision-geometries.cc
   collision.cc
+  contact_patch.cc
   distance.cc
   fcl.cc
   gjk.cc

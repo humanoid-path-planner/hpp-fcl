@@ -95,6 +95,7 @@ BOOST_PYTHON_MODULE(hppfcl) {
   exposeCollisionObject();
   exposeMeshLoader();
   exposeCollisionAPI();
+  exposeContactPatchAPI();
   exposeDistanceAPI();
   exposeGJK();
 #ifdef HPP_FCL_HAS_OCTOMAP
