@@ -215,6 +215,11 @@ PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Halfspace);
                     const ContactPatchSolver* csolver,                       \
                     const ContactPatchRequest& request,                      \
                     ContactPatchResult& result) {                            \
+      HPP_FCL_UNUSED_VARIABLE(o1);                                           \
+      HPP_FCL_UNUSED_VARIABLE(tf1);                                          \
+      HPP_FCL_UNUSED_VARIABLE(o2);                                           \
+      HPP_FCL_UNUSED_VARIABLE(tf2);                                          \
+      HPP_FCL_UNUSED_VARIABLE(csolver);                                      \
       if (!collision_result.isCollision()) {                                 \
         return;                                                              \
       }                                                                      \
@@ -226,8 +231,6 @@ PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Halfspace);
           "result is initialized with request.",                             \
           std::logic_error);                                                 \
                                                                              \
-      const PlaneOrHspace1& s1 = static_cast<const PlaneOrHspace1&>(*o1);    \
-      const PlaneOrHspace2& s2 = static_cast<const PlaneOrHspace2&>(*o2);    \
       for (size_t i = 0; i < collision_result.numContacts(); ++i) {          \
         if (i >= request.max_num_patch) {                                    \
           break;                                                             \
