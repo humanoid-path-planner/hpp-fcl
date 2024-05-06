@@ -112,11 +112,11 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   this->reset(s1, tf1, s2, tf2, contact_patch);
   assert(this->num_samples_curved_shapes > 3);
   SupportSet& current = const_cast<SupportSet&>(this->current());
-  this->m_supportFuncShape1(
+  this->supportFuncShape1(
       &s1, current, this->support_guess[0], this->supports_data[0],
       this->num_samples_curved_shapes, this->patch_tolerance);
   SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
-  this->m_supportFuncShape2(
+  this->supportFuncShape2(
       &s2, clipper, this->support_guess[1], this->supports_data[1],
       this->num_samples_curved_shapes, this->patch_tolerance);
 
@@ -233,7 +233,7 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   tf1c.rotation().noalias() = tf1.rotation().transpose() * tfc.rotation();
   tf1c.translation().noalias() =
       tf1.rotation().transpose() * (tfc.translation() - tf1.translation());
-  this->m_supportFuncShape1 =
+  this->supportFuncShape1 =
       this->makeSupportSetFunction(&shape1, this->supports_data[0]);
 
   SupportSet& clipper = const_cast<SupportSet&>(this->clipper());
@@ -244,7 +244,7 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   tf2c.rotation().noalias() = tf2.rotation().transpose() * tfc.rotation();
   tf2c.translation().noalias() =
       tf2.rotation().transpose() * (tfc.translation() - tf2.translation());
-  this->m_supportFuncShape2 =
+  this->supportFuncShape2 =
       this->makeSupportSetFunction(&shape2, this->supports_data[1]);
 }
 

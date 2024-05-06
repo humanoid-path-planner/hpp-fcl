@@ -106,6 +106,12 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// See @ref ContactPatchRequest::m_patch_tolerance for more details.
   FCL_REAL patch_tolerance;
 
+  /// @brief Support set function for shape s1.
+  mutable SupportSetFunction supportFuncShape1;
+
+  /// @brief Support set function for shape s2.
+  mutable SupportSetFunction supportFuncShape2;
+
   /// @brief Temporary data to compute the support sets on each shape.
   mutable std::array<ShapeSupportData, 2> supports_data;
 
@@ -127,18 +133,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
 
   /// @brief Tracks the current iterate of the algorithm.
   mutable size_t m_id_current{0};
-
-  /// @brief Transform from shape1 contact frame.
-  mutable Transform3f m_ctf1;
-
-  /// @brief Transform from shape2 contact frame.
-  mutable Transform3f m_ctf2;
-
-  /// @brief Support set function for shape s1.
-  mutable SupportSetFunction m_supportFuncShape1;
-
-  /// @brief Support set function for shape s2.
-  mutable SupportSetFunction m_supportFuncShape2;
 
   /// @brief Tracks which point of the Sutherland-Hodgman result have been added
   /// to the contact patch. Only used if the post-processing step occurs, i.e.
@@ -236,6 +230,21 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Construct support set function for shape.
   static SupportSetFunction makeSupportSetFunction(
       const ShapeBase* shape, ShapeSupportData& support_data);
+
+  bool operator==(const ContactPatchSolver& other) const {
+    return this->max_patch_size ==
+               other.max_patch_size &&  // use gjk_initial_guess instead
+           this->num_samples_curved_shapes == other.num_samples_curved_shapes &&
+           this->patch_tolerance == other.patch_tolerance &&
+           this->support_guess == other.support_guess &&
+           this->current() == other.current() &&
+           this->previous() == other.previous() &&
+           this->clipper() == other.clipper() &&
+           this->supportFuncShape1 == other.supportFuncShape1 &&
+           this->supportFuncShape2 == other.supportFuncShape2;
+  }
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 }  // namespace fcl
