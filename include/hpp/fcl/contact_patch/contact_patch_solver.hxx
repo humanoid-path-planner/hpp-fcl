@@ -140,7 +140,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
     const Vec2f& b = pts1[1];
 
     const SupportSet::Polygon& pts2 = this->support_set_shape2.points();
-    const Vec2f& c = pts1[0];
+    const Vec2f& c = pts2[0];
     const Vec2f& d = pts2[1];
 
     const FCL_REAL det =
