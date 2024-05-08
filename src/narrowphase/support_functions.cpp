@@ -954,6 +954,10 @@ HPP_FCL_DLLAPI void computeSupportSetConvexHull(
     if (det < 0) {
       std::swap(cloud[1], cloud[2]);
     }
+
+    for (const Vec2f& point : cloud) {
+      cvx_hull.emplace_back(point);
+    }
     return;
   }
 
