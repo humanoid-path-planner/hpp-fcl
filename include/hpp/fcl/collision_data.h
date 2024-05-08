@@ -510,7 +510,7 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
 /// to compute a contact volume instead of a contact patch.
 struct HPP_FCL_DLLAPI ContactPatch {
  public:
-  using Polygon = std::vector<Vec2f, Eigen::aligned_allocator<Vec2f>>;
+  using Polygon = std::vector<Vec2f>;
 
   /// @brief Frame of the set, expressed in the world coordinates.
   /// The z-axis of the frame's rotation is the contact patch normal.
