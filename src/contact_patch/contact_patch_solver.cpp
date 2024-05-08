@@ -69,7 +69,7 @@ ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
       return details::getShapeSupportSetTpl<TriangleP, Options::NoSweptSphere>;
     case GEOM_BOX: {
       const size_t num_corners_box = 8;
-      support_data.support_set.points().reserve(num_corners_box);
+      support_data.polygon.reserve(num_corners_box);
       return details::getShapeSupportSetTpl<Box, Options::NoSweptSphere>;
     }
     case GEOM_SPHERE:
@@ -84,10 +84,8 @@ ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
       return details::getShapeSupportSetTpl<Cylinder, Options::NoSweptSphere>;
     case GEOM_CONVEX: {
       const ConvexBase* convex = static_cast<const ConvexBase*>(shape);
-      if (support_data.support_set.points().capacity() <
-          default_num_preallocated_supports) {
-        support_data.support_set.points().reserve(
-            default_num_preallocated_supports);
+      if (support_data.polygon.capacity() < default_num_preallocated_supports) {
+        support_data.polygon.reserve(default_num_preallocated_supports);
       }
       if ((size_t)(convex->num_points) >
           ConvexBase::num_vertices_large_convex_threshold) {

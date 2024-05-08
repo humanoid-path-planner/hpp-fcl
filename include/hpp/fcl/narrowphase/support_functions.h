@@ -88,7 +88,8 @@ struct HPP_FCL_DLLAPI ShapeSupportData {
   Vec3f last_dir = Vec3f::Zero();
 
   // @brief Temporary set used to compute the convex-hull of a support set.
-  SupportSet support_set = SupportSet(0);
+  // Only used for ConvexBase and Box.
+  SupportSet::Polygon polygon;
 };
 
 /// @brief Triangle support function.
@@ -312,11 +313,11 @@ HPP_FCL_DLLAPI void getShapeSupportSet(const LargeConvex* convex,
 
 /// @brief Computes the convex-hull of support_set. For now, this function is
 /// only needed for Box and ConvexBase.
-/// @param[in] Data which contains the support set which convex-hull we want to
-/// compute.
-/// @param[out] Convex-hull of the support set.
-HPP_FCL_DLLAPI void computeSupportSetConvexHull(
-    SupportSet& support_set_data, SupportSet& support_set_cvx_hull);
+/// @param[in] cloud data which contains the 2d points of the support set which
+/// convex-hull we want to compute.
+/// @param[out] 2d points of the the support set's convex-hull.
+HPP_FCL_DLLAPI void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
+                                                SupportSet::Polygon& cvx_hull);
 
 }  // namespace details
 

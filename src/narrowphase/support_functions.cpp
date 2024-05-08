@@ -560,26 +560,30 @@ void getShapeSupportSet(const Box* box, SupportSet& support_set,
   const FCL_REAL x = box->halfSide[0];
   const FCL_REAL y = box->halfSide[1];
   const FCL_REAL z = box->halfSide[2];
-  support_data.support_set.points().clear();
-  support_data.support_set.direction = support_set.direction;
-  support_data.support_set.tf = support_set.tf;
   const std::array<Vec3f, 8> corners = {
       Vec3f(x, y, z),  Vec3f(-x, y, z),  Vec3f(-x, -y, z),  Vec3f(x, -y, z),
       Vec3f(x, y, -z), Vec3f(-x, y, -z), Vec3f(-x, -y, -z), Vec3f(x, -y, -z),
   };
 
+  SupportSet::Polygon& polygon = support_data.polygon;
+  polygon.clear();
+  const Transform3f& tf = support_set.tf;
   for (const Vec3f& corner : corners) {
     const FCL_REAL val = corner.dot(support_dir);
     if (support_value - val < tol) {
       if (_SupportOptions == SupportOptions::WithSweptSphere) {
-        support_data.support_set.addPoint(corner + box->getSweptSphereRadius() *
-                                                       support_dir);
+        const Vec2f p =
+            tf.inverseTransform(corner +
+                                box->getSweptSphereRadius() * support_dir)
+                .template head<2>();
+        polygon.emplace_back(p);
       } else {
-        support_data.support_set.addPoint(corner);
+        const Vec2f p = tf.inverseTransform(corner).template head<2>();
+        polygon.emplace_back(p);
       }
     }
   }
-  computeSupportSetConvexHull(support_data.support_set, support_set);
+  computeSupportSetConvexHull(polygon, support_set.points());
 }
 getShapeSupportSetTplInstantiation(Box);
 
@@ -804,54 +808,64 @@ void getShapeSupportSetLinear(const ConvexBase* convex, SupportSet& support_set,
   const FCL_REAL support_value = support_dir.dot(support);
 
   const std::vector<Vec3f>& points = *(convex->points);
-  support_data.support_set.points().clear();
-  support_data.support_set.direction = support_set.direction;
-  support_data.support_set.tf = support_set.tf;
+  SupportSet::Polygon& polygon = support_data.polygon;
+  polygon.clear();
+  const Transform3f& tf = support_set.tf;
   for (const Vec3f& point : points) {
     const FCL_REAL dot = support_dir.dot(point);
     if (support_value - dot <= tol) {
       if (_SupportOptions == SupportOptions::WithSweptSphere) {
-        support_data.support_set.addPoint(
-            point + convex->getSweptSphereRadius() * support_dir);
+        const Vec2f p =
+            tf.inverseTransform(point +
+                                convex->getSweptSphereRadius() * support_dir)
+                .template head<2>();
+        polygon.emplace_back(p);
       } else {
-        support_data.support_set.addPoint(point);
+        const Vec2f p = tf.inverseTransform(point).template head<2>();
+        polygon.emplace_back(p);
       }
     }
   }
 
-  computeSupportSetConvexHull(support_data.support_set, support_set);
+  computeSupportSetConvexHull(polygon, support_set.points());
 }
 
 // ============================================================================
 template <int _SupportOptions>
-void convexSupportSetRecurse(const ConvexBase* convex, const size_t vertex_idx,
-                             const Vec3f& support_dir,
-                             const FCL_REAL support_value,
-                             ShapeSupportData& support_data, FCL_REAL tol) {
-  std::vector<int8_t>& visited = support_data.visited;
+void convexSupportSetRecurse(
+    const std::vector<Vec3f>& points,
+    const std::vector<ConvexBase::Neighbors>& neighbors,
+    const FCL_REAL swept_sphere_radius, const size_t vertex_idx,
+    const Vec3f& support_dir, const FCL_REAL support_value,
+    const Transform3f& tf, std::vector<int8_t>& visited,
+    SupportSet::Polygon& polygon, FCL_REAL tol) {
+  HPP_FCL_UNUSED_VARIABLE(swept_sphere_radius);
+
   if (visited[vertex_idx]) {
     return;
   }
 
-  const std::vector<Vec3f>& points = *(convex->points);
-  const std::vector<ConvexBase::Neighbors>& neighbors = *(convex->neighbors);
   visited[vertex_idx] = true;
   const Vec3f& point = points[vertex_idx];
   const FCL_REAL val = point.dot(support_dir);
   if (support_value - val <= tol) {
     if (_SupportOptions == SupportOptions::WithSweptSphere) {
-      support_data.support_set.addPoint(point + convex->getSweptSphereRadius() *
-                                                    support_dir);
+      const Vec2f p =
+          tf.inverseTransform(point + swept_sphere_radius * support_dir)
+              .template head<2>();
+      polygon.emplace_back(p);
+
     } else {
-      support_data.support_set.addPoint(point);
+      const Vec2f p = tf.inverseTransform(point).template head<2>();
+      polygon.emplace_back(p);
     }
 
     const ConvexBase::Neighbors& point_neighbors = neighbors[vertex_idx];
     for (int i = 0; i < point_neighbors.count(); ++i) {
       const size_t neighbor_index = (size_t)(point_neighbors[i]);
-      convexSupportSetRecurse<_SupportOptions>(convex, neighbor_index,
-                                               support_dir, support_value,
-                                               support_data, tol);
+      convexSupportSetRecurse<_SupportOptions>(
+          points, neighbors, swept_sphere_radius, neighbor_index, support_dir,
+          support_value, tf, visited, polygon, tol);
     }
   }
 }
@@ -868,17 +882,24 @@ void getShapeSupportSetLog(const ConvexBase* convex, SupportSet& support_set,
       convex, support_dir, support, hint, support_data);
   const FCL_REAL support_value = support.dot(support_dir);
 
-  support_data.support_set.points().clear();
-  support_data.support_set.direction = support_set.direction;
-  support_data.support_set.tf = support_set.tf;
+  const std::vector<Vec3f>& points = *(convex->points);
+  const std::vector<ConvexBase::Neighbors>& neighbors = *(convex->neighbors);
+  const FCL_REAL swept_sphere_radius = convex->getSweptSphereRadius();
+  std::vector<int8_t>& visited = support_data.visited;
   // `visited` is guaranteed to be of right size due to previous call to convex
   // log support function.
   std::fill(support_data.visited.begin(), support_data.visited.end(), false);
-  const size_t vertex_idx = (size_t)(hint);
-  convexSupportSetRecurse<_SupportOptions>(convex, vertex_idx, support_dir,
-                                           support_value, support_data, tol);
 
-  computeSupportSetConvexHull(support_data.support_set, support_set);
+  SupportSet::Polygon& polygon = support_data.polygon;
+  polygon.clear();
+  const Transform3f& tf = support_set.tf;
+
+  const size_t vertex_idx = (size_t)(hint);
+  convexSupportSetRecurse<_SupportOptions>(
+      points, neighbors, swept_sphere_radius, vertex_idx, support_dir,
+      support_value, tf, visited, polygon, tol);
+
+  computeSupportSetConvexHull(polygon, support_set.points());
 }
 
 // ============================================================================
@@ -921,10 +942,8 @@ void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
 getShapeSupportSetTplInstantiation(LargeConvex);
 
 // ============================================================================
-HPP_FCL_DLLAPI void computeSupportSetConvexHull(
-    SupportSet& support_set, SupportSet& support_set_cvx_hull) {
-  SupportSet::Polygon& cloud = support_set.points();
-  SupportSet::Polygon& cvx_hull = support_set_cvx_hull.points();
+HPP_FCL_DLLAPI void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
+                                                SupportSet::Polygon& cvx_hull) {
   cvx_hull.clear();
 
   if (cloud.size() <= 2) {
