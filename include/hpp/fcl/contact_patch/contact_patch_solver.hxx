@@ -130,23 +130,25 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
     return;
   }
 
+  // `eps` is be used to check strict positivity of determinants.
+  static constexpr FCL_REAL eps = Eigen::NumTraits<FCL_REAL>::dummy_precision();
+  using Polygon = SupportSet::Polygon;
+
   if ((this->support_set_shape1.size() == 2) &&
       (this->support_set_shape2.size() == 2)) {
     // Segment-Segment case
     // We compute the determinant; if it is non-zero, the intersection
     // has already been computed: it's `Contact::pos`.
-    const SupportSet::Polygon& pts1 = this->support_set_shape1.points();
+    const Polygon& pts1 = this->support_set_shape1.points();
     const Vec2f& a = pts1[0];
     const Vec2f& b = pts1[1];
 
-    const SupportSet::Polygon& pts2 = this->support_set_shape2.points();
+    const Polygon& pts2 = this->support_set_shape2.points();
     const Vec2f& c = pts2[0];
     const Vec2f& d = pts2[1];
 
     const FCL_REAL det =
         (b(0) - a(0)) * (d(1) - c(1)) >= (b(1) - a(1)) * (d(0) - c(0));
-    static constexpr FCL_REAL eps =
-        Eigen::NumTraits<FCL_REAL>::dummy_precision();
     if ((std::abs(det) > eps) || ((c - d).squaredNorm() < eps) ||
         ((b - a).squaredNorm() < eps)) {
       contact_patch.addPoint(contact.pos);
@@ -155,7 +157,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
 
     const Vec2f cd = (d - c);
     const FCL_REAL l = cd.squaredNorm();
-    ContactPatch::Polygon& patch = contact_patch.points();
+    Polygon& patch = contact_patch.points();
 
     // Project a onto [c, d]
     FCL_REAL t1 = (a - c).dot(cd);
@@ -174,69 +176,188 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   }
 
   //
-  // Step 3 - Main loop of the algorithm: use the "clipper"
-  // to clip the current contact patch. The resulting intersection is the
-  // contact patch of the contact between s1 and s2.
-  // Currently, to clip one patch with the other, we use the
-  // Sutherland-Hodgman algorithm:
+  // Step 3 - Main loop of the algorithm: use the "clipper" polygon to clip the
+  // "current" polygon. The resulting intersection is the contact patch of the
+  // contact between s1 and s2. "clipper" and "current" are the support sets of
+  // shape1 and shape2 (they can be swapped, i.e. clipper can be assigned to
+  // shape1 and current to shape2, depending on which case we are). Currently,
+  // to clip one polygon with the other, we use the Sutherland-Hodgman
+  // algorithm:
   // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
+  // In the general case, Sutherland-Hodgman clips one polygon of size >=3 using
+  // another polygon of size >=3. However, it can be easily extended to handle
+  // the segment-polygon case.
   //
-  // The Sutherland-Hodgman algorithm needs the clipper to be at least a
-  // triangle.
-  SupportSet::Polygon* clipper_ptr = nullptr;
-  SupportSet::Polygon* current_ptr = nullptr;
-  SupportSet::Polygon* previous_ptr = &(this->support_set_buffer.points());
-  if (support_set_shape2.size() == 2) {
-    // Use the first shape as clipper, second as clipped.
-    clipper_ptr = &(this->support_set_shape1.points());
-    current_ptr = &(this->support_set_shape2.points());
-  } else {
-    // Use the second shape as clipper, first as clipped.
-    clipper_ptr = &(this->support_set_shape2.points());
-    current_ptr = &(this->support_set_shape1.points());
+  // The maximum size of the output of the Sutherland-Hodgman algorithm is n1 +
+  // n2 where n1 and n2 are the sizes of the first and second polygon.
+  const size_t max_result_size =
+      this->support_set_shape1.size() + this->support_set_shape2.size();
+  if (this->added_to_patch.size() < max_result_size) {
+    this->added_to_patch.assign(max_result_size, false);
   }
 
-  const SupportSet::Polygon& clipper = *(clipper_ptr);
+  const Polygon* clipper_ptr = nullptr;
+  Polygon* current_ptr = nullptr;
+  Polygon* previous_ptr = &(this->support_set_buffer.points());
+
+  // Let the clipper set be the one with the most vertices, to make sure it is
+  // at least a triangle.
+  if (this->support_set_shape1.size() < this->support_set_shape2.size()) {
+    current_ptr = &(this->support_set_shape1.points());
+    clipper_ptr = &(this->support_set_shape2.points());
+  } else {
+    current_ptr = &(this->support_set_shape2.points());
+    clipper_ptr = &(this->support_set_shape1.points());
+  }
+
+  const Polygon& clipper = *(clipper_ptr);
   const size_t clipper_size = clipper.size();
-
   for (size_t i = 0; i < clipper_size; ++i) {
-    const Vec2f a = clipper[i];
-    const Vec2f b = clipper[(i + 1) % clipper_size];
-
-    // Swap current/previous
-    SupportSet::Polygon* tmp_ptr = previous_ptr;
+    // Swap `current` and `previous`.
+    // `previous` tracks the last iteration of the algorithm; `current` is
+    // filled by clipping `current` using `clipper`.
+    Polygon* tmp_ptr = previous_ptr;
     previous_ptr = current_ptr;
     current_ptr = tmp_ptr;
 
-    const SupportSet::Polygon& previous = *(previous_ptr);
-    SupportSet::Polygon& current = *(current_ptr);
+    const Polygon& previous = *(previous_ptr);
+    Polygon& current = *(current_ptr);
     current.clear();
-    const size_t previous_size = previous.size();
-    for (size_t j = 0; j < previous_size; ++j) {
-      const Vec2f vcurrent = previous[j];
-      const Vec2f vnext = previous[(j + 1) % previous_size];
-      if (pointIsInsideClippingRegion(vcurrent, a, b)) {
-        current.emplace_back(vcurrent);
-        if (!pointIsInsideClippingRegion(vnext, a, b)) {
-          const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
+
+    const Vec2f& a = clipper[i];
+    const Vec2f& b = clipper[(i + 1) % clipper_size];
+    const Vec2f ab = b - a;
+
+    if (previous.size() == 2) {
+      //
+      // Segment-Polygon case
+      //
+      const Vec2f& p1 = previous[0];
+      const Vec2f& p2 = previous[1];
+
+      const Vec2f ap1 = p1 - a;
+      const Vec2f ap2 = p2 - a;
+
+      const FCL_REAL det1 = ab(0) * ap1(1) - ab(1) * ap1(0);
+      const FCL_REAL det2 = ab(0) * ap2(1) - ab(1) * ap2(0);
+
+      if (det1 < 0 && det2 < 0) {
+        // Both p1 and p2 are outside the clipping polygon, i.e. there is no
+        // intersection. The algorithm can stop.
+        break;
+      }
+
+      if (det1 >= 0 && det2 >= 0) {
+        // Both p1 and p2 are inside the clipping polygon, there is nothing to
+        // do; move to the next iteration.
+        current = previous;
+        continue;
+      }
+
+      // Compute the intersection between the line (a, b) and the segment
+      // [p1, p2].
+      if (det1 >= 0) {
+        if (det1 > eps) {
+          const Vec2f p = computeLineSegmentIntersection(a, b, p1, p2);
+          current.emplace_back(p1);
           current.emplace_back(p);
+          continue;
+        } else {
+          // p1 is the only point of current which is also a point of the
+          // clipper. We can exit.
+          current.emplace_back(p1);
+          break;
         }
-      } else if (pointIsInsideClippingRegion(vnext, a, b)) {
-        const Vec2f p = computeLineSegmentIntersection(a, b, vcurrent, vnext);
-        current.emplace_back(p);
+      } else {
+        if (det2 > eps) {
+          const Vec2f p = computeLineSegmentIntersection(a, b, p1, p2);
+          current.emplace_back(p2);
+          current.emplace_back(p);
+          continue;
+        } else {
+          // p2 is the only point of current which is also a point of the
+          // clipper. We can exit.
+          current.emplace_back(p2);
+          break;
+        }
+      }
+    } else {
+      //
+      // Polygon-Polygon case.
+      //
+      std::fill(this->added_to_patch.begin(),  //
+                this->added_to_patch.end(),    //
+                false);
+
+      const size_t previous_size = previous.size();
+      for (size_t j = 0; j < previous_size; ++j) {
+        const Vec2f& p1 = previous[j];
+        const Vec2f& p2 = previous[(j + 1) % previous_size];
+
+        const Vec2f ap1 = p1 - a;
+        const Vec2f ap2 = p2 - a;
+
+        const FCL_REAL det1 = ab(0) * ap1(1) - ab(1) * ap1(0);
+        const FCL_REAL det2 = ab(0) * ap2(1) - ab(1) * ap2(0);
+
+        if (det1 < 0 && det2 < 0) {
+          // No intersection. Continue to next segment of previous.
+          continue;
+        }
+
+        if (det1 >= 0 && det2 >= 0) {
+          // Both p1 and p2 are inside the clipping polygon, add p1 to current
+          // (only if it has not already been added).
+          if (!this->added_to_patch[j]) {
+            current.emplace_back(p1);
+            this->added_to_patch[j] = true;
+          }
+          // Continue to next segment of previous.
+          continue;
+        }
+
+        if (det1 >= 0) {
+          if (det1 > eps) {
+            if (!this->added_to_patch[j]) {
+              current.emplace_back(p1);
+              this->added_to_patch[j] = true;
+            }
+            const Vec2f p = computeLineSegmentIntersection(a, b, p1, p2);
+            current.emplace_back(p);
+          } else {
+            // a, b and p1 are colinear; we add only p1.
+            if (!this->added_to_patch[j]) {
+              current.emplace_back(p1);
+              this->added_to_patch[j] = true;
+            }
+          }
+        } else {
+          if (det2 > eps) {
+            const Vec2f p = computeLineSegmentIntersection(a, b, p1, p2);
+            current.emplace_back(p);
+          } else {
+            if (!this->added_to_patch[(j + 1) % previous.size()]) {
+              current.emplace_back(p2);
+              this->added_to_patch[(j + 1) % previous.size()] = true;
+            }
+          }
+        }
       }
     }
-    if (current.size() == 0) {
-      // No intersection found, the algo can early stop.
+    //
+    // End of iteration i of Sutherland-Hodgman.
+    if (current.size() <= 1) {
+      // No intersection or one point found, the algo can early stop.
       break;
     }
   }
 
+  // Transfer the result of the Sutherland-Hodgman algorithm to the contact
+  // patch.
   if (current_ptr->size() <= 1) {
     contact_patch.addPoint(contact.pos);
     return;
   }
-
   this->getResult(current_ptr, contact_patch);
 }
 
@@ -249,13 +370,7 @@ inline void ContactPatchSolver::getResult(
   ContactPatch::Polygon& patch = contact_patch.points();
 
   if (result.size() <= this->max_patch_size) {
-    patch.emplace_back(result[0]);
-    for (size_t i = 1; i < result.size(); ++i) {
-      if ((patch.back() - result[i]).squaredNorm() >
-          Eigen::NumTraits<FCL_REAL>::dummy_precision()) {
-        patch.emplace_back(result[i]);
-      }
-    }
+    patch = result;
     return;
   }
 
@@ -263,7 +378,12 @@ inline void ContactPatchSolver::getResult(
   // contact patch.
   // We simply select `max_patch_size` points of the patch by sampling the
   // 2d support function of the patch along the unit circle.
-  this->added_to_patch.assign(result.size(), false);
+  if (this->added_to_patch.size() < result.size()) {
+    this->added_to_patch.assign(result.size(), false);
+  } else {
+    std::fill(this->added_to_patch.begin(), this->added_to_patch.end(), false);
+  }
+
   const FCL_REAL angle_increment =
       2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(this->max_patch_size));
   for (size_t i = 0; i < this->max_patch_size; ++i) {
@@ -279,14 +399,7 @@ inline void ContactPatchSolver::getResult(
       }
     }
     if (!this->added_to_patch[support_idx]) {
-      if (patch.empty()) {
-        patch.emplace_back(result[support_idx]);
-      } else {
-        if ((patch.back() - result[support_idx]).squaredNorm() >
-            Eigen::NumTraits<FCL_REAL>::dummy_precision()) {
-          patch.emplace_back(result[support_idx]);
-        }
-      }
+      patch.emplace_back(result[support_idx]);
       this->added_to_patch[support_idx] = true;
     }
   }
@@ -341,18 +454,6 @@ inline Vec2f ContactPatchSolver::computeLineSegmentIntersection(
   FCL_REAL alpha = nominator / denominator;
   alpha = std::min<double>(1.0, std::max<FCL_REAL>(0.0, alpha));
   return alpha * c + (1 - alpha) * d;
-}
-
-// ==========================================================================
-inline bool ContactPatchSolver::pointIsInsideClippingRegion(const Vec2f& p,
-                                                            const Vec2f& a,
-                                                            const Vec2f& b) {
-  // Note: being inside/outside the clipping zone can easily be determined by
-  // looking at the sign of det(b - a, p - a). If det > 0, then (b - a, p - a)
-  // forms a right sided base, i.e. p is on the right of the ray.
-  // Otherwise (b - a, p - a) forms a left sided base, i.e. p is on the left of
-  // the ray.
-  return (b(0) - a(0)) * (p(1) - a(1)) >= (b(1) - a(1)) * (p(0) - a(0));
 }
 
 }  // namespace fcl

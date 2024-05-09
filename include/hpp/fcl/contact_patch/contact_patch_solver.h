@@ -181,15 +181,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   void getResult(const ContactPatch::Polygon* result,
                  ContactPatch& contact_patch) const;
 
-  /// @return true if p inside a clipping region defined by a and b, false
-  /// otherwise.
-  /// @param p point to check
-  /// @param a, b the vertices forming the edge of the clipping region.
-  /// @note the clipping ray points from a to b. Points on the right of the ray
-  /// are outside the clipping region; points on the left are inside.
-  static bool pointIsInsideClippingRegion(const Vec2f& p, const Vec2f& a,
-                                          const Vec2f& b);
-
   /// @return the intersecting point between line defined by ray (a, b) and
   /// the segment [c, d].
   /// @note we make the following hypothesis:
