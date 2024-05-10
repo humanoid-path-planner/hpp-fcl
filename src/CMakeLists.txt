@@ -225,6 +225,9 @@ IF(WIN32)
     Boost::thread
     Boost::date_time
   )
+  # There is an issue with MSVC 2017 and Eigen (due to std::aligned_storage).
+  # See https://github.com/ceres-solver/ceres-solver/issues/481
+  target_compile_definitions(${LIBRARY_NAME} PRIVATE _ENABLE_EXTENDED_ALIGNED_STORAGE)
 ENDIF(WIN32)
 
 if (HPP_FCL_TURN_ASSERT_INTO_EXCEPTION)

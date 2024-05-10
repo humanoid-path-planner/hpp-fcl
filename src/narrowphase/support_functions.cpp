@@ -38,6 +38,8 @@
 
 #include "hpp/fcl/narrowphase/support_functions.h"
 
+#include <algorithm>
+
 namespace hpp {
 namespace fcl {
 namespace details {
