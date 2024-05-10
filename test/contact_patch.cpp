@@ -547,9 +547,9 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
   BOOST_CHECK(patch_res.numContactPatches() == 1);
   if (col_res.isCollision() && patch_res.numContactPatches() > 0) {
     const Contact& contact = col_res.getContact(0);
-    const size_t expected_size = 2;
     const FCL_REAL tol = 1e-6;
 
+    const size_t expected_size = 2;
     ContactPatch expected(expected_size);
     expected.tf.rotation() = constructBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
@@ -618,5 +618,393 @@ BOOST_AUTO_TEST_CASE(convex_convex) {
 
     BOOST_CHECK(patch_res1.getContactPatch(0).isSame(expected, tol));
     BOOST_CHECK(patch_res2.getContactPatch(0).isSame(expected, tol));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
+  // This case covers the segment-segment edge case of contact patches.
+  // Two tetrahedrons make contact on one of their edge.
+
+  const size_t expected_size = 2;
+  const Vec3f expected_cp1(0, 0.5, 0);
+  const Vec3f expected_cp2(0, 1, 0);
+
+  const Transform3f tf1;  // identity
+  const Transform3f tf2;  // identity
+
+  const size_t num_max_contact = 1;
+  const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
+                                 num_max_contact);
+  CollisionResult col_res;
+  const ContactPatchRequest patch_req;
+  ContactPatchResult patch_res(patch_req);
+
+  {
+    // Case 1 - Face-Face contact
+    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
+        Vec3f(-1, 0, 0),
+        Vec3f(0, 0, 0),
+        Vec3f(0, 1, 0),
+        Vec3f(-1, -1, -1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris1(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra1(pts1, 4, tris1, 4);
+
+    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
+        Vec3f(0, 0.5, 0),
+        Vec3f(0, 1.5, 0),
+        Vec3f(1, 0.5, 0),
+        Vec3f(1, 1, 1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris2(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra2(pts2, 4, tris2, 4);
+
+    col_res.clear();
+    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    BOOST_CHECK(col_res.isCollision());
+    patch_res.clear();
+    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
+                                  patch_req, patch_res);
+    BOOST_CHECK(patch_res.numContactPatches() == 1);
+
+    if (patch_res.numContactPatches() > 0) {
+      const Contact& contact = col_res.getContact(0);
+      const FCL_REAL tol = 1e-6;
+
+      ContactPatch expected(expected_size);
+      // GJK/EPA can return any normal which is in the dual cone
+      // of the cone {(-1, 0, 0)}.
+      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.translation() = contact.pos;
+      expected.penetration_depth = contact.penetration_depth;
+      expected.addPoint(expected_cp1);
+      expected.addPoint(expected_cp2);
+
+      const ContactPatch& contact_patch = patch_res.getContactPatch(0);
+      BOOST_CHECK(expected.isSame(contact_patch, tol));
+    }
+  }
+
+  {
+    // Case 2 - Face-Segment contact
+    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
+        Vec3f(-1, 0, -0.2),
+        Vec3f(0, 0, 0),
+        Vec3f(0, 1, 0),
+        Vec3f(-1, -1, -1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris1(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra1(pts1, 4, tris1, 4);
+
+    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
+        Vec3f(0, 0.5, 0),
+        Vec3f(0, 1.5, 0),
+        Vec3f(1, 0.5, 0),
+        Vec3f(1, 1, 1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris2(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra2(pts2, 4, tris2, 4);
+
+    col_res.clear();
+    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    BOOST_CHECK(col_res.isCollision());
+    patch_res.clear();
+    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
+                                  patch_req, patch_res);
+    BOOST_CHECK(patch_res.numContactPatches() == 1);
+
+    if (patch_res.numContactPatches() > 0) {
+      const Contact& contact = col_res.getContact(0);
+      const FCL_REAL tol = 1e-6;
+
+      ContactPatch expected(expected_size);
+      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.translation() = contact.pos;
+      expected.penetration_depth = contact.penetration_depth;
+      expected.addPoint(expected_cp1);
+      expected.addPoint(expected_cp2);
+
+      const ContactPatch& contact_patch = patch_res.getContactPatch(0);
+      BOOST_CHECK(expected.isSame(contact_patch, tol));
+    }
+  }
+
+  {
+    // Case 3 - Segment-Segment contact
+    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
+        Vec3f(-1, 0, -0.2),
+        Vec3f(0, 0, 0),
+        Vec3f(0, 1, 0),
+        Vec3f(-1, -1, -1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris1(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra1(pts1, 4, tris1, 4);
+
+    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
+        Vec3f(0, 0.5, 0),
+        Vec3f(0, 1.5, 0),
+        Vec3f(1, 0.5, 0.5),
+        Vec3f(1, 1, 1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris2(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra2(pts2, 4, tris2, 4);
+
+    col_res.clear();
+    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    BOOST_CHECK(col_res.isCollision());
+    patch_res.clear();
+    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
+                                  patch_req, patch_res);
+    BOOST_CHECK(patch_res.numContactPatches() == 1);
+
+    if (patch_res.numContactPatches() > 0) {
+      const Contact& contact = col_res.getContact(0);
+      const FCL_REAL tol = 1e-6;
+
+      ContactPatch expected(expected_size);
+      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.translation() = contact.pos;
+      expected.penetration_depth = contact.penetration_depth;
+      expected.addPoint(expected_cp1);
+      expected.addPoint(expected_cp2);
+
+      const ContactPatch& contact_patch = patch_res.getContactPatch(0);
+      BOOST_CHECK(expected.isSame(contact_patch, tol));
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
+  // This case covers the vertex-vertex edge case of contact patches.
+  // Two tetrahedrons make contact on one of their vertex.
+  const size_t expected_size = 1;
+  const Vec3f expected_cp(0, 0, 0);
+
+  const Transform3f tf1;  // identity
+  const Transform3f tf2;  // identity
+
+  const size_t num_max_contact = 1;
+  const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
+                                 num_max_contact);
+  CollisionResult col_res;
+  const ContactPatchRequest patch_req;
+  ContactPatchResult patch_res(patch_req);
+
+  {
+    // Case 1 - Face-Face contact
+    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
+        Vec3f(-1, 0, 0),
+        Vec3f(0, 0, 0),
+        Vec3f(0, 1, 0),
+        Vec3f(-1, -1, -1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris1(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra1(pts1, 4, tris1, 4);
+
+    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
+        Vec3f(1, 0, 0),
+        Vec3f(0, 0, 0),
+        Vec3f(0, -1, 0),
+        Vec3f(1, 1, 1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris2(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra2(pts2, 4, tris2, 4);
+
+    col_res.clear();
+    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    BOOST_CHECK(col_res.isCollision());
+    patch_res.clear();
+    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
+                                  patch_req, patch_res);
+    BOOST_CHECK(patch_res.numContactPatches() == 1);
+
+    if (patch_res.numContactPatches() > 0) {
+      const Contact& contact = col_res.getContact(0);
+      const FCL_REAL tol = 1e-6;
+
+      ContactPatch expected(expected_size);
+      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.translation() = contact.pos;
+      expected.penetration_depth = contact.penetration_depth;
+      expected.addPoint(expected_cp);
+
+      const ContactPatch& contact_patch = patch_res.getContactPatch(0);
+      BOOST_CHECK(expected.isSame(contact_patch, tol));
+    }
+  }
+
+  {
+    // Case 2 - Segment-Face contact
+    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
+        Vec3f(-1, 0, -0.5),
+        Vec3f(0, 0, 0),
+        Vec3f(0, 1, 0),
+        Vec3f(-1, -1, -1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris1(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra1(pts1, 4, tris1, 4);
+
+    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
+        Vec3f(1, 0, 0),
+        Vec3f(0, 0, 0),
+        Vec3f(0, -1, 0),
+        Vec3f(1, 1, 1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris2(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra2(pts2, 4, tris2, 4);
+
+    col_res.clear();
+    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    BOOST_CHECK(col_res.isCollision());
+    patch_res.clear();
+    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
+                                  patch_req, patch_res);
+    BOOST_CHECK(patch_res.numContactPatches() == 1);
+
+    if (patch_res.numContactPatches() > 0) {
+      const Contact& contact = col_res.getContact(0);
+      const FCL_REAL tol = 1e-6;
+
+      ContactPatch expected(expected_size);
+      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.translation() = contact.pos;
+      expected.penetration_depth = contact.penetration_depth;
+      expected.addPoint(expected_cp);
+
+      const ContactPatch& contact_patch = patch_res.getContactPatch(0);
+      BOOST_CHECK(expected.isSame(contact_patch, tol));
+    }
+  }
+
+  {
+    // Case 2 - Segment-Segment contact
+    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
+        Vec3f(-1, 0, -0.2),
+        Vec3f(0, 0, 0),
+        Vec3f(0, 1, 0),
+        Vec3f(-1, -1, -1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris1(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra1(pts1, 4, tris1, 4);
+
+    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
+        Vec3f(1, 0, 0),
+        Vec3f(0, 0, 0),
+        Vec3f(0, -1, 0.5),
+        Vec3f(1, 1, 1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris2(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra2(pts2, 4, tris2, 4);
+
+    col_res.clear();
+    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    BOOST_CHECK(col_res.isCollision());
+    patch_res.clear();
+    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
+                                  patch_req, patch_res);
+    BOOST_CHECK(patch_res.numContactPatches() == 1);
+
+    if (patch_res.numContactPatches() > 0) {
+      const Contact& contact = col_res.getContact(0);
+      const FCL_REAL tol = 1e-6;
+
+      ContactPatch expected(expected_size);
+      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.translation() = contact.pos;
+      expected.penetration_depth = contact.penetration_depth;
+      expected.addPoint(expected_cp);
+
+      const ContactPatch& contact_patch = patch_res.getContactPatch(0);
+      BOOST_CHECK(expected.isSame(contact_patch, tol));
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(edge_case_segment_face) {
+  // This case covers the segment-face edge case of contact patches.
+  // Two tetrahedrons make contact on one of their segment/face respectively.
+  const size_t expected_size = 2;
+  const Vec3f expected_cp1(0, 0, 0);
+  const Vec3f expected_cp2(-0.5, 0.5, 0);
+
+  const Transform3f tf1;  // identity
+  const Transform3f tf2;  // identity
+
+  const size_t num_max_contact = 1;
+  const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
+                                 num_max_contact);
+  CollisionResult col_res;
+  const ContactPatchRequest patch_req;
+  ContactPatchResult patch_res(patch_req);
+
+  {
+    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
+        Vec3f(-1, 0, -0),
+        Vec3f(0, 0, 0),
+        Vec3f(0, 1, 0),
+        Vec3f(-1, -1, -1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris1(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra1(pts1, 4, tris1, 4);
+
+    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
+        Vec3f(-0.5, 0.5, 0),
+        Vec3f(0.5, -0.5, 0),
+        Vec3f(1, 0.5, 0.5),
+        Vec3f(1, 1, 1),
+    }));
+    std::shared_ptr<std::vector<Triangle>> tris2(
+        new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
+                                   Triangle(0, 3, 1), Triangle(2, 1, 3)}));
+    Convex<Triangle> tetra2(pts2, 4, tris2, 4);
+
+    col_res.clear();
+    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    BOOST_CHECK(col_res.isCollision());
+    patch_res.clear();
+    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
+                                  patch_req, patch_res);
+    BOOST_CHECK(patch_res.numContactPatches() == 1);
+
+    if (patch_res.numContactPatches() > 0) {
+      const Contact& contact = col_res.getContact(0);
+      const FCL_REAL tol = 1e-6;
+
+      ContactPatch expected(expected_size);
+      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.translation() = contact.pos;
+      expected.penetration_depth = contact.penetration_depth;
+      expected.addPoint(expected_cp1);
+      expected.addPoint(expected_cp2);
+
+      const ContactPatch& contact_patch = patch_res.getContactPatch(0);
+      BOOST_CHECK(expected.isSame(contact_patch, tol));
+    }
   }
 }
