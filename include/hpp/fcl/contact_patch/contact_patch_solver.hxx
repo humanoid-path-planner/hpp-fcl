@@ -68,7 +68,6 @@ inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
   this->support_set_shape2.points().reserve(num_preallocated_supports);
   this->support_set_shape2.direction = SupportSetDirection::INVERTED;
 
-  this->max_patch_size = request.getMaxPatchSize();
   this->num_samples_curved_shapes = request.getNumSamplesCurvedShapes();
   this->patch_tolerance = request.getPatchTolerance();
 }
@@ -354,55 +353,21 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
 
   // Transfer the result of the Sutherland-Hodgman algorithm to the contact
   // patch.
-  if (current_ptr->size() <= 1) {
-    contact_patch.addPoint(contact.pos);
-    return;
-  }
-  this->getResult(current_ptr, contact_patch);
+  this->getResult(contact, current_ptr, contact_patch);
 }
 
 // ============================================================================
 inline void ContactPatchSolver::getResult(
-    const ContactPatch::Polygon* result_ptr,
+    const Contact& contact, const ContactPatch::Polygon* result_ptr,
     ContactPatch& contact_patch) const {
-  assert(this->max_patch_size > 3);
-  const ContactPatch::Polygon& result = *(result_ptr);
-  ContactPatch::Polygon& patch = contact_patch.points();
-
-  if (result.size() <= this->max_patch_size) {
-    patch = result;
+  if (result_ptr->size() <= 1) {
+    contact_patch.addPoint(contact.pos);
     return;
   }
 
-  // Post-processing step to select `max_patch_size` points of the computed
-  // contact patch.
-  // We simply select `max_patch_size` points of the patch by sampling the
-  // 2d support function of the patch along the unit circle.
-  if (this->added_to_patch.size() < result.size()) {
-    this->added_to_patch.assign(result.size(), false);
-  } else {
-    std::fill(this->added_to_patch.begin(), this->added_to_patch.end(), false);
-  }
-
-  const FCL_REAL angle_increment =
-      2.0 * (FCL_REAL)(EIGEN_PI) / ((FCL_REAL)(this->max_patch_size));
-  for (size_t i = 0; i < this->max_patch_size; ++i) {
-    const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
-    const Vec2f dir(std::cos(theta), std::sin(theta));
-    FCL_REAL support_val = result[0].dot(dir);
-    size_t support_idx = 0;
-    for (size_t j = 1; j < result.size(); ++j) {
-      const FCL_REAL val = result[j].dot(dir);
-      if (val > support_val) {
-        support_val = val;
-        support_idx = j;
-      }
-    }
-    if (!this->added_to_patch[support_idx]) {
-      patch.emplace_back(result[support_idx]);
-      this->added_to_patch[support_idx] = true;
-    }
-  }
+  const ContactPatch::Polygon& result = *(result_ptr);
+  ContactPatch::Polygon& patch = contact_patch.points();
+  patch = result;
 }
 
 // ============================================================================

@@ -90,11 +90,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   /// @brief Number of vectors to pre-allocate in the `m_clipping_sets` vectors.
   static constexpr size_t default_num_preallocated_supports = 16;
 
-  /// @brief Number of points of the contact patch to keep once the
-  /// Sutherland-Hodgman algo has run.
-  /// See @ref ContactPatchRequest::m_max_patch_size for more details.
-  size_t max_patch_size;
-
   /// @brief Number of points sampled for Cone and Cylinder when the normal is
   /// orthogonal to the shapes' basis.
   /// See @ref ContactPatchRequest::m_num_samples_curved_shapes for more
@@ -178,7 +173,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
 
   /// @brief Retrieve result, adds a post-processing step if result has bigger
   /// size than `this->max_patch_size`.
-  void getResult(const ContactPatch::Polygon* result,
+  void getResult(const Contact& contact, const ContactPatch::Polygon* result,
                  ContactPatch& contact_patch) const;
 
   /// @return the intersecting point between line defined by ray (a, b) and
@@ -194,9 +189,7 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
       const ShapeBase* shape, ShapeSupportData& support_data);
 
   bool operator==(const ContactPatchSolver& other) const {
-    return this->max_patch_size ==
-               other.max_patch_size &&  // use gjk_initial_guess instead
-           this->num_samples_curved_shapes == other.num_samples_curved_shapes &&
+    return this->num_samples_curved_shapes == other.num_samples_curved_shapes &&
            this->patch_tolerance == other.patch_tolerance &&
            this->support_guess == other.support_guess &&
            this->support_set_shape1 == other.support_set_shape1 &&

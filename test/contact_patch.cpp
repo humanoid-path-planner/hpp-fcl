@@ -243,8 +243,8 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
-  BOOST_CHECK(patch_req.getMaxPatchSize() ==
-              ContactPatch::default_preallocated_size);
+  BOOST_CHECK(patch_req.getMaxSubPatchSize() ==
+              ContactPatch::default_max_sub_patch_size);
   BOOST_CHECK(patch_req.getNumSamplesCurvedShapes() ==
               ContactPatch::default_preallocated_size);
   ContactPatchResult patch_res(patch_req);
@@ -354,8 +354,8 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
-  BOOST_CHECK(patch_req.getMaxPatchSize() ==
-              ContactPatch::default_preallocated_size);
+  BOOST_CHECK(patch_req.getMaxSubPatchSize() ==
+              ContactPatch::default_max_sub_patch_size);
   BOOST_CHECK(patch_req.getNumSamplesCurvedShapes() ==
               ContactPatch::default_preallocated_size);
   ContactPatchResult patch_res(patch_req);
@@ -418,6 +418,8 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
     expected.penetration_depth = contact.penetration_depth;
     const Vec3f cone_tip(0, 0, cone.halfLength);
     expected.addPoint(tf2.transform(cone_tip));
+
+    BOOST_CHECK(contact_patch.isSame(expected, tol));
   }
 
   // Rotate cone 90 degrees around y-axis
@@ -449,8 +451,10 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
     expected.tf.rotation() = constructBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    const Vec3f point_on_circle_basis(-cone.radius, 0, 0);
+    const Vec3f point_on_circle_basis(-cone.radius, 0, -cone.halfLength);
     expected.addPoint(tf2.transform(point_on_circle_basis));
+
+    BOOST_CHECK(contact_patch.isSame(expected, tol));
   }
 }
 
@@ -493,8 +497,8 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
     }
 
     const ContactPatchRequest patch_req;
-    BOOST_CHECK(patch_req.getMaxPatchSize() ==
-                ContactPatch::default_preallocated_size);
+    BOOST_CHECK(patch_req.getMaxSubPatchSize() ==
+                ContactPatch::default_max_sub_patch_size);
     BOOST_CHECK(patch_req.getNumSamplesCurvedShapes() ==
                 ContactPatch::default_preallocated_size);
     ContactPatchResult patch_res(patch_req);

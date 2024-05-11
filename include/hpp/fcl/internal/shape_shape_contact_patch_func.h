@@ -78,6 +78,8 @@ struct ComputeShapeShapeContactPatch {
       const Contact& contact = collision_result.getContact(i);
       ContactPatch& contact_patch = result.getUnusedContactPatch();
       csolver->computePatch(s1, tf1, s2, tf2, contact, contact_patch);
+      contact_patch.computeBarycenter();
+      contact_patch.computeSubPatch(request.getMaxSubPatchSize());
     }
   }
 };
@@ -129,7 +131,7 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
         &s1, support_set, csolver->support_guess[0], csolver->supports_data[0],
         csolver->num_samples_curved_shapes, csolver->patch_tolerance);
   }
-  csolver->getResult(&(support_set.points()), contact_patch);
+  csolver->getResult(contact, &(support_set.points()), contact_patch);
 }
 
 #define PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(PlaneOrHspace)          \
@@ -163,6 +165,8 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
         ContactPatch& contact_patch = result.getUnusedContactPatch();         \
         computePatchPlaneOrHalfspace<false, OtherShapeType, PlaneOrHspace>(   \
             s1, tf1, s2, tf2, csolver, contact, contact_patch);               \
+        contact_patch.computeBarycenter();                                    \
+        contact_patch.computeSubPatch(request.getMaxSubPatchSize());          \
       }                                                                       \
     }                                                                         \
   };                                                                          \
@@ -197,6 +201,8 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
         ContactPatch& contact_patch = result.getUnusedContactPatch();         \
         computePatchPlaneOrHalfspace<true, OtherShapeType, PlaneOrHspace>(    \
             s2, tf2, s1, tf1, csolver, contact, contact_patch);               \
+        contact_patch.computeBarycenter();                                    \
+        contact_patch.computeSubPatch(request.getMaxSubPatchSize());          \
       }                                                                       \
     }                                                                         \
   };
@@ -237,6 +243,8 @@ PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Halfspace);
         ContactPatch& contact_patch = result.getUnusedContactPatch();        \
         constructContactPatchFrameFromContact(contact, contact_patch);       \
         contact_patch.addPoint(contact.pos);                                 \
+        contact_patch.computeBarycenter();                                   \
+        contact_patch.computeSubPatch(request.getMaxSubPatchSize());         \
       }                                                                      \
     }                                                                        \
   };

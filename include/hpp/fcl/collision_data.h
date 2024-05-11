@@ -43,6 +43,7 @@
 #include <array>
 #include <set>
 #include <limits>
+#include <numeric>
 
 #include "hpp/fcl/collision_object.h"
 #include "hpp/fcl/config.hh"
@@ -543,13 +544,34 @@ struct HPP_FCL_DLLAPI ContactPatch {
   /// find a different separation vector which has a smaller norm than `d * n`.
   FCL_REAL penetration_depth;
 
-  /// @brief Default maximum size of the polygon representing the set.
+  /// @brief Default maximum size of the polygon representing the contact patch.
   /// Used to pre-allocate memory for the patch.
   static constexpr size_t default_preallocated_size = 12;
+
+  /// @brief Default maximum size of the sub contact patch.
+  static constexpr size_t default_max_sub_patch_size = 4;
 
  protected:
   /// @brief Container for the vertices of the set.
   Polygon m_points;
+
+  /// @brief Barycenter of the vertices of the set.
+  Vec2f m_barycenter;
+
+  /// @brief Container for a subset of indices of the contact patch vertices.
+  /// These indices describe a sub-contact patch, inscribed inside the contact
+  /// patch.
+  /// If this set of indices is empty, either the contact patch is empty or the
+  /// only point in the sub contact patch is the barycenter of the contact
+  /// patch.
+  /// The reason behind the existence of the sub contact patch is that
+  /// sometimes, i.e. in physics simulation, it's convenient to work only with a
+  /// limited amount of points.
+  std::vector<size_t> m_indices_subpatch;
+
+  /// @brief Tracks which points of the contact patch have been added to the sub
+  /// contact patch.
+  std::vector<bool> m_added_to_subpatch;
 
  public:
   /// @brief Default constructor.
@@ -557,11 +579,17 @@ struct HPP_FCL_DLLAPI ContactPatch {
   /// points in the patch, it only serves as preallocation if the maximum size
   /// of the patch is known in advance. HPP-FCL will automatically expand/shrink
   /// the contact patch if needed.
-  explicit ContactPatch(size_t preallocated_size = default_preallocated_size)
+  explicit ContactPatch(
+      size_t preallocated_patch_size = default_preallocated_size,
+      size_t preallocated_sub_patch_size = default_max_sub_patch_size)
       : tf(Transform3f::Identity()),
         direction(PatchDirection::DEFAULT),
-        penetration_depth(0) {
-    this->m_points.reserve(preallocated_size);
+        penetration_depth(0),
+        m_barycenter(
+            Vec2f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN())) {
+    this->m_points.reserve(preallocated_patch_size);
+    this->m_added_to_subpatch.reserve(preallocated_patch_size);
+    this->m_indices_subpatch.reserve(preallocated_sub_patch_size);
   }
 
   /// @brief Normal of the contact patch, expressed in the WORLD frame.
@@ -572,10 +600,23 @@ struct HPP_FCL_DLLAPI ContactPatch {
     return this->tf.rotation().col(2);
   }
 
-  /// @brief Returns number of points in the contact patch.
+  /// @brief Returns the number of points in the contact patch.
   size_t size() const { return this->m_points.size(); }
 
-  /// @brief Add a 3D point to the set, expressed in the reference frame.
+  /// @brief Returns the number of points in the sub contact patch.
+  size_t sizeSubPatch() const {
+    if (this->m_points.empty()) {
+      return 0;
+    }
+    if (this->m_indices_subpatch.empty()) {
+      return 1;  // The sub contact patch contains at least the barycenter of
+                 // the patch.
+    }
+    assert(this->m_indices_subpatch.size() >= 2);
+    return this->m_indices_subpatch.size();
+  }
+
+  /// @brief Add a 3D point to the set, expressed in the world frame.
   /// @note This function takes a 3D point and expresses it in the local frame
   /// of the set. It then takes only the x and y components of the vector,
   /// effectively doing a projection onto the plane to which the set belongs.
@@ -585,7 +626,28 @@ struct HPP_FCL_DLLAPI ContactPatch {
     this->m_points.emplace_back(point.template head<2>());
   }
 
-  /// @brief Get the i-th point of the set, expressed in the 3D reference frame.
+  /// @brief Compute the barycenter of the contact patch.
+  /// The barycenter is always computed when calling `computeContactPatch` (or
+  /// associated `ComputeContactPatch` functors).
+  void computeBarycenter() {
+    this->m_barycenter.setZero();
+    for (const Vec2f& point : this->m_points) {
+      this->m_barycenter += point;
+    }
+    this->m_barycenter /= (FCL_REAL)(this->m_points.size());
+  }
+
+  /// @brief Get the barycenter of the contact patch, expressed in the 3D world
+  /// frame. The barycenter is computed automatically when calling
+  /// `computeContactPatch`.
+  Vec3f getBarycenter() const {
+    Vec3f point(0, 0, 0);
+    point.head<2>() = this->m_barycenter;
+    point = tf.transform(point);
+    return point;
+  }
+
+  /// @brief Get the i-th point of the set, expressed in the 3D world frame.
   Vec3f getPoint(const size_t i) const {
     Vec3f point(0, 0, 0);
     point.head<2>() = this->point(i);
@@ -593,24 +655,118 @@ struct HPP_FCL_DLLAPI ContactPatch {
     return point;
   }
 
-  /// @brief Get the i-th point of the set, projected back onto the first shape
-  /// of the collision pair. This point is expressed in the 3D reference frame.
-  Vec3f getPointShape1(const size_t i) const {
+  /// @brief Get the i-th point of the sub contact patch, expressed in the 3D
+  /// world frame.
+  Vec3f getSubPatchPoint(const size_t i) const {
     Vec3f point(0, 0, 0);
-    point.head<2>() = this->point(i);
-    point =
-        tf.transform(point) - (this->penetration_depth / 2) * this->getNormal();
+    if (this->m_indices_subpatch.empty()) {
+      if (i > 0) {
+        HPP_FCL_LOG_WARNING(
+            "Calling `getSubPatchPoint(i)` with i > 0 on an empty sub contact "
+            "patch. Please call `computeSubContactPatch`.");
+      }
+      return this->getBarycenter();
+    }
+    point.head<2>() = this->point(this->m_indices_subpatch[i]);
+    point = tf.transform(point);
     return point;
   }
 
-  /// @brief Get the i-th point of the set, projected back onto the first shape
-  /// of the collision pair.
-  Vec3f getPointShape2(const size_t i) const {
-    Vec3f point(0, 0, 0);
-    point.head<2>() = this->point(i);
-    point =
-        tf.transform(point) + (this->penetration_depth / 2) * this->getNormal();
+  /// @brief Get the i-th point of the contact patch, projected back onto the
+  /// first shape of the collision pair. This point is expressed in the 3D
+  /// world frame.
+  Vec3f getPointShape1(const size_t i) const {
+    Vec3f point = this->getPoint(i);
+    point -= (this->penetration_depth / 2) * this->getNormal();
     return point;
+  }
+
+  /// @brief Get the i-th point of the sub contact patch, projected back onto
+  /// the first shape of the collision pair. This point is expressed in the 3D
+  /// world frame.
+  Vec3f getSubPatchPointShape1(const size_t i) const {
+    Vec3f point = this->getSubPatchPoint(i);
+    point -= (this->penetration_depth / 2) * this->getNormal();
+    return point;
+  }
+
+  /// @brief Get the i-th point of the contact patch, projected back onto the
+  /// first shape of the collision pair. This 3D point is expressed in the world
+  /// frame.
+  Vec3f getPointShape2(const size_t i) const {
+    Vec3f point = this->getPoint(i);
+    point += (this->penetration_depth / 2) * this->getNormal();
+    return point;
+  }
+
+  /// @brief Get the i-th point of the sub contact patch, projected back onto
+  /// the first shape of the collision pair. This 3D point is expressed in the
+  /// world frame.
+  Vec3f getSubPatchPointShape2(const size_t i) const {
+    Vec3f point = this->getSubPatchPoint(i);
+    point += (this->penetration_depth / 2) * this->getNormal();
+    return point;
+  }
+
+  /// @brief Computes a sub contact patch of maximum size `max_sub_patch_size`
+  /// from all the points of the contact patch.
+  /// Set `ContactPatchRequest::compute_sub_patch` to true to do this
+  /// automatically when calling `computeContactPatch`.
+  void computeSubPatch(size_t max_sub_patch_size) {
+    if (max_sub_patch_size <= 0) {
+      HPP_FCL_LOG_WARNING(
+          "Method `computeSubPatch` was called with `max_sub_patch_size` equal "
+          "to 0. Minimum value is 1.");
+      max_sub_patch_size = 1;
+    }
+
+    // If `max_sub_patch_size` is equal to 1, there is nothing to do. The
+    // `getSubPatchPoint` methods will automatically return the barycenter of
+    // the contact patch.
+    if (max_sub_patch_size == 1) {
+      this->m_added_to_subpatch.clear();
+      this->m_indices_subpatch.clear();
+      return;
+    }
+
+    const size_t max_size = std::min(this->m_points.size(), max_sub_patch_size);
+    this->m_added_to_subpatch.resize(this->m_points.size(), false);
+    this->m_indices_subpatch.resize(max_size);
+
+    if (max_sub_patch_size >= this->m_points.size()) {
+      std::fill(this->m_added_to_subpatch.begin(),
+                this->m_added_to_subpatch.end(), true);
+      // Fills `m_indices_subpatch` with 0, 1, 2, ... until the end of the
+      // vector.
+      std::iota(this->m_indices_subpatch.begin(),
+                this->m_indices_subpatch.end(), 0);
+    } else {
+      this->m_added_to_subpatch.clear();
+
+      // We simply select `max_sub_patch_size` points of the patch by sampling
+      // the 2d support function of the patch along the unit circle.
+      // TODO(louis): since we have a convex-hull representation of the contact
+      // patch, we can compute this 2d support function faster using dichotomy.
+      const FCL_REAL angle_increment =
+          2.0 * (FCL_REAL)(EIGEN_PI) / (FCL_REAL)(max_sub_patch_size);
+      for (size_t i = 0; i < max_sub_patch_size; ++i) {
+        const FCL_REAL theta = (FCL_REAL)(i)*angle_increment;
+        const Vec2f dir(std::cos(theta), std::sin(theta));
+        FCL_REAL support_val = this->m_points[0].dot(dir);
+        size_t support_idx = 0;
+        for (size_t j = 1; j < this->m_points.size(); ++j) {
+          const FCL_REAL val = this->m_points[j].dot(dir);
+          if (val > support_val) {
+            support_val = val;
+            support_idx = j;
+          }
+        }
+        if (!this->m_added_to_subpatch[support_idx]) {
+          this->m_indices_subpatch.emplace_back(support_idx);
+          this->m_added_to_subpatch[support_idx] = true;
+        }
+      }
+    }
   }
 
   /// @brief Getter for the 2D points in the set.
@@ -642,14 +798,18 @@ struct HPP_FCL_DLLAPI ContactPatch {
   /// @brief Clear the set.
   void clear() {
     this->m_points.clear();
+    this->m_barycenter =
+        Vec2f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+    this->m_indices_subpatch.clear();
+    this->m_added_to_subpatch.clear();
     this->tf.setIdentity();
     this->penetration_depth = 0;
   }
 
   /// @brief Whether two contact patches are the same or not.
   /// @note This compares the two sets terms by terms.
-  /// However, two contact patches can be identical, but have a different order
-  /// for their points. Use `isEqual` in this case.
+  /// However, two contact patches can be identical, but have a different
+  /// order for their points. Use `isEqual` in this case.
   bool operator==(const ContactPatch& other) const {
     return this->tf == other.tf && this->direction == other.direction &&
            this->penetration_depth == other.penetration_depth &&
@@ -680,10 +840,11 @@ struct HPP_FCL_DLLAPI ContactPatch {
       return false;
     }
 
-    for (size_t i = 0; i < this->points().size(); ++i) {
+    // Check all points of the contact patch.
+    for (size_t i = 0; i < this->size(); ++i) {
       bool found = false;
       const Vec3f pi = this->getPoint(i);
-      for (size_t j = 0; j < other.points().size(); ++j) {
+      for (size_t j = 0; j < other.size(); ++j) {
         const Vec3f other_pj = other.getPoint(j);
         if (pi.isApprox(other_pj, tol)) {
           found = true;
@@ -711,14 +872,14 @@ inline void constructContactPatchFrameFromContact(const Contact& contact,
   contact_patch.direction = ContactPatch::PatchDirection::DEFAULT;
 }
 
-/// @brief Structure used for internal computations. A support set and a contact
-/// patch can be represented by the same structure. In fact, a contact patch is
-/// the intersection of two support sets, one with `PatchDirection::DEFAULT` and
-/// one with `PatchDirection::INVERTED`.
+/// @brief Structure used for internal computations. A support set and a
+/// contact patch can be represented by the same structure. In fact, a contact
+/// patch is the intersection of two support sets, one with
+/// `PatchDirection::DEFAULT` and one with `PatchDirection::INVERTED`.
 /// @note A support set with `DEFAULT` direction is the support set of a shape
-/// in the direction given by `+n`, where `n` is the z-axis of the frame's patch
-/// rotation. An `INVERTED` support set is the support set of a shape in the
-/// direction `-n`.
+/// in the direction given by `+n`, where `n` is the z-axis of the frame's
+/// patch rotation. An `INVERTED` support set is the support set of a shape in
+/// the direction `-n`.
 using SupportSet = ContactPatch;
 
 /// @brief Request for a contact patch computation.
@@ -727,44 +888,54 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
   size_t max_num_patch;
 
  protected:
-  /// @brief Maximum size of contact patch, i.e. max number of vertices each
-  /// contact patch in `ContactPatchResult` vector can hold.
-  /// If the internal contact patch computation of HPP-FCL generates a patch
-  /// size of bigger size, a post-processing routine will automatically occur
-  /// and a number of `m_max_patch_size` of points will smartly be selected.
-  /// If you don't want this post-processing to happen, set this value to a
-  /// large number.
-  /// @note Needs to be bigger or equal to 3.
-  size_t m_max_patch_size;
+  /// @brief Determines the maximum size of sub contact patch,
+  /// i.e. max number of vertices each sub contact patch of each contact patch
+  /// inside a `ContactPatchResult` vector.
+  /// @note HPP-FCL always computes a sub contact patch. If
+  /// `m_max_sub_patch_size` is set to a value less than 1, then the sub contact
+  /// patch is simply the barycenter of the contact patch.
+  size_t m_max_sub_patch_size;
 
-  /// @brief Maximum samples to compute the support sets of curved shapes, i.e.
-  /// when the normal is perpendicular to the base of a cylinder.
-  /// For now, only relevant for Cone and Cylinder. In the future this might be
+  /// @brief Maximum samples to compute the support sets of curved shapes,
+  /// i.e. when the normal is perpendicular to the base of a cylinder. For
+  /// now, only relevant for Cone and Cylinder. In the future this might be
   /// extended to Sphere and Ellipsoid.
-  /// @note Needs to be bigger or equal to 3.
   size_t m_num_samples_curved_shapes;
 
   /// @brief Tolerance below which points are added to a contact patch.
   /// In details, given two shapes S1 and S2, a contact patch is the triple
   /// intersection between the separating plane (P) (passing by `Contact::pos`
-  /// and supported by `Contact::normal`), S1 and S2; i.e. a contact patch is `P
-  /// & S1 & S2` if we denote `&` the set intersection operator.
-  /// If a point p1 of S1 is at a distance below `patch_tolerance` from the
-  /// separating plane, it is taken into account in the computation of the
-  /// contact patch. Otherwise, it is not used for the computation.
+  /// and supported by `Contact::normal`), S1 and S2; i.e. a contact patch is
+  /// `P & S1 & S2` if we denote `&` the set intersection operator. If a point
+  /// p1 of S1 is at a distance below `patch_tolerance` from the separating
+  /// plane, it is taken into account in the computation of the contact patch.
+  /// Otherwise, it is not used for the computation.
   /// @note Needs to be positive.
   FCL_REAL m_patch_tolerance;
 
  public:
   /// @brief Default constructor.
+  /// @param max_num_patch maximum number of contact patches per collision pair.
+  /// @param max_sub_patch_size maximum size of each sub contact patch. Each
+  /// contact patch contains an internal representation for an inscribed sub
+  /// contact patch. This allows physics simulation to always work with a
+  /// predetermined maximum size for each contact patch. A sub contact patch is
+  /// simply a subset of the vertices of a contact patch.
+  /// @param num_samples_curved_shapes for shapes like cones and cylinders,
+  /// which have smooth basis (circles in this case), we need to sample a
+  /// certain amount of point of this basis.
+  /// @param patch_tolerance the tolerance below which a point of a shape is
+  /// considered to belong to the support set of this shape in the direction of
+  /// the normal. Said otherwise, `patch_tolerance` determines the "thickness"
+  /// of the separating plane between shapes of a collision pair.
   explicit ContactPatchRequest(
       size_t max_num_patch = 1,
-      size_t max_patch_size = ContactPatch::default_preallocated_size,
+      size_t max_sub_patch_size = ContactPatch::default_max_sub_patch_size,
       size_t num_samples_curved_shapes =
           ContactPatch::default_preallocated_size,
       FCL_REAL patch_tolerance = 1e-3)
       : max_num_patch(max_num_patch) {
-    this->setMaxPatchSize(max_patch_size);
+    this->setMaxSubPatchSize(max_sub_patch_size);
     this->setNumSamplesCurvedShapes(num_samples_curved_shapes);
     this->setPatchTolerance(patch_tolerance);
   }
@@ -772,37 +943,37 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
   /// @brief Construct a contact patch request from a collision request.
   explicit ContactPatchRequest(
       const CollisionRequest& collision_request,
-      size_t max_patch_size = ContactPatch::default_preallocated_size,
+      size_t max_sub_patch_size = ContactPatch::default_max_sub_patch_size,
       size_t num_samples_curved_shapes =
           ContactPatch::default_preallocated_size,
       FCL_REAL patch_tolerance = 1e-3)
       : max_num_patch(collision_request.num_max_contacts) {
-    this->setMaxPatchSize(max_patch_size);
+    this->setMaxSubPatchSize(max_sub_patch_size);
     this->setNumSamplesCurvedShapes(num_samples_curved_shapes);
     this->setPatchTolerance(patch_tolerance);
   }
 
   /// @copydoc m_max_patch_size
-  void setMaxPatchSize(const size_t max_patch_size) {
-    if (max_patch_size < 3) {
+  void setMaxSubPatchSize(const size_t max_patch_size) {
+    if (max_patch_size <= 0) {
       HPP_FCL_LOG_WARNING(
-          "`max_patch_size` cannot be lower than 3. Setting it to 3 to prevent "
-          "bugs.");
-      this->m_max_patch_size = 3;
+          "`max_patch_size` cannot be lower than 0. Setting it to 1 to "
+          "prevent bugs.");
+      this->m_max_sub_patch_size = 1;
     } else {
-      this->m_max_patch_size = max_patch_size;
+      this->m_max_sub_patch_size = max_patch_size;
     }
   }
 
   /// @copydoc m_max_patch_size
-  size_t getMaxPatchSize() const { return this->m_max_patch_size; }
+  size_t getMaxSubPatchSize() const { return this->m_max_sub_patch_size; }
 
   /// @copydoc m_num_samples_curved_shapes
   void setNumSamplesCurvedShapes(const size_t num_samples_curved_shapes) {
     if (num_samples_curved_shapes < 3) {
       HPP_FCL_LOG_WARNING(
-          "`num_samples_curved_shapes` cannot be lower than 3. Setting it to 3 "
-          "to prevent bugs.");
+          "`num_samples_curved_shapes` cannot be lower than 3. Setting it to "
+          "3 to prevent bugs.");
       this->m_num_samples_curved_shapes = 3;
     } else {
       this->m_num_samples_curved_shapes = num_samples_curved_shapes;
@@ -832,7 +1003,7 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
   /// @brief Whether two ContactPatchRequest are identical or not.
   bool operator==(const ContactPatchRequest& other) const {
     return this->max_num_patch == other.max_num_patch &&
-           this->getMaxPatchSize() == other.getMaxPatchSize() &&
+           this->getMaxSubPatchSize() == other.getMaxSubPatchSize() &&
            this->getNumSamplesCurvedShapes() ==
                other.getNumSamplesCurvedShapes() &&
            this->getPatchTolerance() == other.getPatchTolerance();
@@ -847,16 +1018,16 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
 
  protected:
   /// @brief Data container for the vector of contact patches.
-  /// @note Contrary to `CollisionResult` or `DistanceResult`, which have a very
-  /// small memory footprint, contact patches can contain relatively large
-  /// polytopes. In order to reuse a `ContactPatchResult` while avoiding
-  /// successive mallocs, we have a data container and a vector which points to
-  /// the currently active patches in this data container.
+  /// @note Contrary to `CollisionResult` or `DistanceResult`, which have a
+  /// very small memory footprint, contact patches can contain relatively
+  /// large polytopes. In order to reuse a `ContactPatchResult` while avoiding
+  /// successive mallocs, we have a data container and a vector which points
+  /// to the currently active patches in this data container.
   ContactPatchVector m_contact_patches_data;
 
-  /// @brief Contact patches in `m_contact_patches_data` can have two statuses:
-  /// used or unused. This index tracks the first unused patch in the
-  /// `m_contact_patches_data` vector.
+  /// @brief Contact patches in `m_contact_patches_data` can have two
+  /// statuses: used or unused. This index tracks the first unused patch in
+  /// the `m_contact_patches_data` vector.
   size_t m_id_available_patch;
 
   /// @brief Vector of contact patches of the result.
@@ -893,6 +1064,7 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
     }
     ContactPatch& contact_patch =
         this->m_contact_patches_data[this->m_id_available_patch];
+    contact_patch.clear();
     this->m_contact_patches.emplace_back(contact_patch);
     ++(this->m_id_available_patch);
     return this->m_contact_patches.back();
@@ -1148,11 +1320,13 @@ struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
     // TODO: check also that two GeometryObject are indeed equal.
     if ((o1 != NULL) ^ (other.o1 != NULL)) return false;
     is_same &= (o1 == other.o1);
-    //    else if (o1 != NULL and other.o1 != NULL) is_same &= *o1 == *other.o1;
+    //    else if (o1 != NULL and other.o1 != NULL) is_same &= *o1 ==
+    //    *other.o1;
 
     if ((o2 != NULL) ^ (other.o2 != NULL)) return false;
     is_same &= (o2 == other.o2);
-    //    else if (o2 != NULL and other.o2 != NULL) is_same &= *o2 == *other.o2;
+    //    else if (o2 != NULL and other.o2 != NULL) is_same &= *o2 ==
+    //    *other.o2;
 
     return is_same;
   }
