@@ -216,10 +216,9 @@ HPP_FCL_DLLAPI void getSupportSet(const ShapeBase* shape,
 /// @note This function automatically deals with the `direction` of the
 /// SupportSet.
 template <int _SupportOptions = SupportOptions::NoSweptSphere>
-HPP_FCL_DLLAPI void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
-                                  SupportSet& support_set, int& hint,
-                                  size_t num_sampled_supports = 6,
-                                  FCL_REAL tol = 1e-3) {
+void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
+                   SupportSet& support_set, int& hint,
+                   size_t num_sampled_supports = 6, FCL_REAL tol = 1e-3) {
   support_set.tf.rotation() = constructBasisFromVector(dir);
   const Vec3f& support_dir = support_set.getNormal();
   const Vec3f support = getSupport<_SupportOptions>(shape, support_dir, hint);
