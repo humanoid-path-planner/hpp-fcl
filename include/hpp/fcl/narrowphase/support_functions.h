@@ -291,8 +291,8 @@ void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
 /// @param[in] cloud data which contains the 2d points of the support set which
 /// convex-hull we want to compute.
 /// @param[out] 2d points of the the support set's convex-hull.
-void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
-                                 SupportSet::Polygon& cvx_hull);
+HPP_FCL_DLLAPI void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
+                                                SupportSet::Polygon& cvx_hull);
 
 }  // namespace details
 
