@@ -75,16 +75,10 @@ void exposeContactPatchAPI() {
         .DEF_RW_CLASS_ATTRIB(ContactPatch, penetration_depth)
         .DEF_CLASS_FUNC(ContactPatch, size)
         .DEF_CLASS_FUNC(ContactPatch, getNormal)
-        .DEF_CLASS_FUNC(ContactPatch, computeBarycenter)
-        .DEF_CLASS_FUNC(ContactPatch, getBarycenter)
         .DEF_CLASS_FUNC(ContactPatch, addPoint)
         .DEF_CLASS_FUNC(ContactPatch, getPoint)
-        .DEF_CLASS_FUNC(ContactPatch, computeSubPatch)
-        .DEF_CLASS_FUNC(ContactPatch, getSubPatchPoint)
         .DEF_CLASS_FUNC(ContactPatch, getPointShape1)
-        .DEF_CLASS_FUNC(ContactPatch, getSubPatchPointShape1)
         .DEF_CLASS_FUNC(ContactPatch, getPointShape2)
-        .DEF_CLASS_FUNC(ContactPatch, getSubPatchPointShape2)
         .DEF_CLASS_FUNC(ContactPatch, clear)
         .DEF_CLASS_FUNC(ContactPatch, isSame);
   }
@@ -99,15 +93,13 @@ void exposeContactPatchAPI() {
           ContactPatchRequest>()) {
     class_<ContactPatchRequest>(
         "ContactPatchRequest", doxygen::class_doc<ContactPatchRequest>(),
-        init<optional<size_t, size_t, size_t, FCL_REAL>>(
-            (arg("self"), arg("max_num_patch"), arg("max_patch_size"),
+        init<optional<size_t, size_t, FCL_REAL>>(
+            (arg("self"), arg("max_num_patch"),
              arg("num_samples_curved_shapes"), arg("patch_tolerance")),
             "ContactPatchRequest constructor."))
         .def(dv::init<ContactPatchRequest, const CollisionRequest&,
-                      bp::optional<size_t, size_t, FCL_REAL>>())
+                      bp::optional<size_t, FCL_REAL>>())
         .DEF_RW_CLASS_ATTRIB(ContactPatchRequest, max_num_patch)
-        .DEF_CLASS_FUNC(ContactPatchRequest, getMaxSubPatchSize)
-        .DEF_CLASS_FUNC(ContactPatchRequest, setMaxSubPatchSize)
         .DEF_CLASS_FUNC(ContactPatchRequest, getNumSamplesCurvedShapes)
         .DEF_CLASS_FUNC(ContactPatchRequest, setNumSamplesCurvedShapes)
         .DEF_CLASS_FUNC(ContactPatchRequest, getPatchTolerance)

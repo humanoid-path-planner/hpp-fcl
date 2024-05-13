@@ -136,7 +136,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
         ContactPatch::default_preallocated_size;
     const FCL_REAL patch_tolerance = 1e-3;
     const ContactPatchRequest request(num_contact_patch,
-                                      preallocated_patch_size,
                                       preallocated_patch_size, patch_tolerance);
     this->set(request);
   }

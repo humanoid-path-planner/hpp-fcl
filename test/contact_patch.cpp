@@ -243,8 +243,6 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
-  BOOST_CHECK(patch_req.getMaxSubPatchSize() ==
-              ContactPatch::default_max_sub_patch_size);
   BOOST_CHECK(patch_req.getNumSamplesCurvedShapes() ==
               ContactPatch::default_preallocated_size);
   ContactPatchResult patch_res(patch_req);
@@ -354,8 +352,6 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
-  BOOST_CHECK(patch_req.getMaxSubPatchSize() ==
-              ContactPatch::default_max_sub_patch_size);
   BOOST_CHECK(patch_req.getNumSamplesCurvedShapes() ==
               ContactPatch::default_preallocated_size);
   ContactPatchResult patch_res(patch_req);
@@ -497,8 +493,6 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
     }
 
     const ContactPatchRequest patch_req;
-    BOOST_CHECK(patch_req.getMaxSubPatchSize() ==
-                ContactPatch::default_max_sub_patch_size);
     BOOST_CHECK(patch_req.getNumSamplesCurvedShapes() ==
                 ContactPatch::default_preallocated_size);
     ContactPatchResult patch_res(patch_req);
