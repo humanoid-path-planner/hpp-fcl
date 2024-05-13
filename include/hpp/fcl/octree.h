@@ -3,7 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
- *  Copyright (c) 2022-2023, Inria
+ *  Copyright (c) 2022-2024, Inria
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -113,11 +113,16 @@ class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
 
     if (it == end) return;
 
-    max_extent = min_extent = Eigen::Map<Vec3float>(&it.getCoordinate().x());
-    for (++it; it != end; ++it) {
-      Eigen::Map<Vec3float> pos(&it.getCoordinate().x());
-      max_extent = max_extent.array().max(pos.array());
-      min_extent = min_extent.array().min(pos.array());
+    {
+      const octomap::point3d& coord =
+          it.getCoordinate();  // getCoordinate returns a copy
+      max_extent = min_extent = Eigen::Map<const Vec3float>(&coord.x());
+      for (++it; it != end; ++it) {
+        const octomap::point3d& coord = it.getCoordinate();
+        const Vec3float pos = Eigen::Map<const Vec3float>(&coord.x());
+        max_extent = max_extent.array().max(pos.array());
+        min_extent = min_extent.array().min(pos.array());
+      }
     }
 
     // Account for the size of the boxes.
