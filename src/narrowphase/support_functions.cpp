@@ -90,19 +90,20 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint) {
 
 // Explicit instantiation
 // clang-format off
-template Vec3f getSupport<SupportOptions::NoSweptSphere>(const ShapeBase*, const Vec3f&, int&);
+template HPP_FCL_DLLAPI Vec3f getSupport<SupportOptions::NoSweptSphere>(const ShapeBase*, const Vec3f&, int&);
 
-template Vec3f getSupport<SupportOptions::WithSweptSphere>(const ShapeBase*, const Vec3f&, int&);
+template HPP_FCL_DLLAPI Vec3f getSupport<SupportOptions::WithSweptSphere>(const ShapeBase*, const Vec3f&, int&);
 // clang-format on
 
 // ============================================================================
-#define getShapeSupportTplInstantiation(ShapeType)                          \
-  template void getShapeSupport<SupportOptions::NoSweptSphere>(             \
-      const ShapeType* shape_, const Vec3f& dir, Vec3f& support, int& hint, \
-      ShapeSupportData& support_data);                                      \
-                                                                            \
-  template void getShapeSupport<SupportOptions::WithSweptSphere>(           \
-      const ShapeType* shape_, const Vec3f& dir, Vec3f& support, int& hint, \
+#define getShapeSupportTplInstantiation(ShapeType)                             \
+  template HPP_FCL_DLLAPI void getShapeSupport<SupportOptions::NoSweptSphere>( \
+      const ShapeType* shape_, const Vec3f& dir, Vec3f& support, int& hint,    \
+      ShapeSupportData& support_data);                                         \
+                                                                               \
+  template HPP_FCL_DLLAPI void                                                 \
+  getShapeSupport<SupportOptions::WithSweptSphere>(                            \
+      const ShapeType* shape_, const Vec3f& dir, Vec3f& support, int& hint,    \
       ShapeSupportData& support_data);
 
 // ============================================================================
@@ -485,18 +486,20 @@ void getSupportSet(const ShapeBase* shape, SupportSet& support_set, int& hint,
 
 // Explicit instantiation
 // clang-format off
-template void getSupportSet<SupportOptions::NoSweptSphere>(const ShapeBase*, SupportSet&, int&, size_t, FCL_REAL);
+template HPP_FCL_DLLAPI void getSupportSet<SupportOptions::NoSweptSphere>(const ShapeBase*, SupportSet&, int&, size_t, FCL_REAL);
 
-template void getSupportSet<SupportOptions::WithSweptSphere>(const ShapeBase*, SupportSet&, int&, size_t, FCL_REAL);
+template HPP_FCL_DLLAPI void getSupportSet<SupportOptions::WithSweptSphere>(const ShapeBase*, SupportSet&, int&, size_t, FCL_REAL);
 // clang-format on
 
 // ============================================================================
 #define getShapeSupportSetTplInstantiation(ShapeType)                     \
-  template void getShapeSupportSet<SupportOptions::NoSweptSphere>(        \
+  template HPP_FCL_DLLAPI void                                            \
+  getShapeSupportSet<SupportOptions::NoSweptSphere>(                      \
       const ShapeType* shape_, SupportSet& support_set, int& hint,        \
       ShapeSupportData& data, size_t num_sampled_supports, FCL_REAL tol); \
                                                                           \
-  template void getShapeSupportSet<SupportOptions::WithSweptSphere>(      \
+  template HPP_FCL_DLLAPI void                                            \
+  getShapeSupportSet<SupportOptions::WithSweptSphere>(                    \
       const ShapeType* shape_, SupportSet& support_set, int& hint,        \
       ShapeSupportData& data, size_t num_sampled_supports, FCL_REAL tol);
 
