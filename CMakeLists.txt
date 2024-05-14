@@ -236,6 +236,8 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/narrowphase/narrowphase.h
   include/hpp/fcl/narrowphase/gjk.h
   include/hpp/fcl/narrowphase/narrowphase_defaults.h
+  include/hpp/fcl/narrowphase/minkowski_difference.h
+  include/hpp/fcl/narrowphase/support_functions.h
   include/hpp/fcl/shape/convex.h
   include/hpp/fcl/shape/details/convex.hxx
   include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
@@ -245,6 +247,10 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/distance_func_matrix.h
   include/hpp/fcl/collision.h
   include/hpp/fcl/collision_func_matrix.h
+  include/hpp/fcl/contact_patch.h
+  include/hpp/fcl/contact_patch_func_matrix.h
+  include/hpp/fcl/contact_patch/contact_patch_solver.h
+  include/hpp/fcl/contact_patch/contact_patch_solver.hxx
   include/hpp/fcl/distance.h
   include/hpp/fcl/math/matrix_3f.h
   include/hpp/fcl/math/vec_3f.h
@@ -265,6 +271,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/internal/BV_fitter.h
   include/hpp/fcl/internal/BV_splitter.h
   include/hpp/fcl/internal/shape_shape_func.h
+  include/hpp/fcl/internal/shape_shape_contact_patch_func.h
   include/hpp/fcl/internal/intersect.h
   include/hpp/fcl/internal/tools.h
   include/hpp/fcl/internal/traversal_node_base.h
@@ -284,6 +291,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/BV_splitter.h
   include/hpp/fcl/serialization/BVH_model.h
   include/hpp/fcl/serialization/collision_data.h
+  include/hpp/fcl/serialization/contact_patch.h
   include/hpp/fcl/serialization/collision_object.h
   include/hpp/fcl/serialization/convex.h
   include/hpp/fcl/serialization/eigen.h

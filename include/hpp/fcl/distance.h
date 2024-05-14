@@ -64,30 +64,6 @@ HPP_FCL_DLLAPI FCL_REAL distance(const CollisionGeometry* o1,
                                  const DistanceRequest& request,
                                  DistanceResult& result);
 
-/// @copydoc distance(const CollisionObject*, const CollisionObject*, const
-/// DistanceRequest&, DistanceResult&) \note this function update the initial
-/// guess of \c request if requested.
-///       See QueryRequest::updateGuess
-inline FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
-                         DistanceRequest& request, DistanceResult& result) {
-  FCL_REAL res = distance(o1, o2, (const DistanceRequest&)request, result);
-  request.updateGuess(result);
-  return res;
-}
-
-/// @copydoc distance(const CollisionObject*, const CollisionObject*, const
-/// DistanceRequest&, DistanceResult&) \note this function update the initial
-/// guess of \c request if requested.
-///       See QueryRequest::updateGuess
-inline FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
-                         const CollisionGeometry* o2, const Transform3f& tf2,
-                         DistanceRequest& request, DistanceResult& result) {
-  FCL_REAL res =
-      distance(o1, tf1, o2, tf2, (const DistanceRequest&)request, result);
-  request.updateGuess(result);
-  return res;
-}
-
 /// This class reduces the cost of identifying the geometry pair.
 /// This is mostly useful for repeated shape-shape queries.
 ///
@@ -102,15 +78,6 @@ class HPP_FCL_DLLAPI ComputeDistance {
   FCL_REAL operator()(const Transform3f& tf1, const Transform3f& tf2,
                       const DistanceRequest& request,
                       DistanceResult& result) const;
-
-  inline FCL_REAL operator()(const Transform3f& tf1, const Transform3f& tf2,
-                             DistanceRequest& request,
-                             DistanceResult& result) const {
-    FCL_REAL res = operator()(tf1, tf2, (const DistanceRequest&)request,
-                              result);
-    request.updateGuess(result);
-    return res;
-  }
 
   bool operator==(const ComputeDistance& other) const {
     return o1 == other.o1 && o2 == other.o2 && swap_geoms == other.swap_geoms &&

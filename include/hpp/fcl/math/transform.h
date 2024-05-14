@@ -154,6 +154,12 @@ class HPP_FCL_DLLAPI Transform3f {
     return R * v + T;
   }
 
+  /// @brief transform a given vector by the inverse of the transform
+  template <typename Derived>
+  inline Vec3f inverseTransform(const Eigen::MatrixBase<Derived>& v) const {
+    return R.transpose() * (v - T);
+  }
+
   /// @brief inverse transform
   inline Transform3f& inverseInPlace() {
     R.transposeInPlace();
@@ -209,6 +215,16 @@ template <typename Derived>
 inline Quatf fromAxisAngle(const Eigen::MatrixBase<Derived>& axis,
                            FCL_REAL angle) {
   return Quatf(Eigen::AngleAxis<FCL_REAL>(angle, axis));
+}
+
+/// @brief Construct othonormal basis from vector.
+/// The z-axis is the normalized input vector.
+inline Matrix3f constructOrthonormalBasisFromVector(const Vec3f& vec) {
+  Matrix3f basis = Matrix3f::Zero();
+  basis.col(2) = vec.normalized();
+  basis.col(1) = -vec.unitOrthogonal();
+  basis.col(0) = basis.col(1).cross(vec);
+  return basis;
 }
 
 }  // namespace fcl

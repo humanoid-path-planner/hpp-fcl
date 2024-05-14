@@ -199,6 +199,11 @@ void generateEnvironments(std::vector<CollisionObject*>& env,
 void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
                               FCL_REAL env_scale, std::size_t n);
 
+/// @brief Constructs a box with halfsides (l, w, d), centered around 0.
+/// The box is 2*l wide on the x-axis, 2*w wide on the y-axis and 2*d wide on
+/// the z-axis.
+Convex<Quadrilateral> buildBox(FCL_REAL l, FCL_REAL w, FCL_REAL d);
+
 /// @brief We give an ellipsoid as input. The output is a 20 faces polytope
 /// which vertices belong to the original ellipsoid surface. The procedure is
 /// simple: we construct a icosahedron, see

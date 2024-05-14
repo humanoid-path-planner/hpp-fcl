@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2024, INRIA
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -42,12 +43,14 @@
 #include <array>
 #include <set>
 #include <limits>
+#include <numeric>
 
 #include "hpp/fcl/collision_object.h"
 #include "hpp/fcl/config.hh"
 #include "hpp/fcl/data_types.h"
 #include "hpp/fcl/timings.h"
 #include "hpp/fcl/narrowphase/narrowphase_defaults.h"
+#include "hpp/fcl/logging.h"
 
 namespace hpp {
 namespace fcl {
@@ -175,10 +178,10 @@ struct HPP_FCL_DLLAPI QueryRequest {
   bool enable_cached_gjk_guess;
 
   /// @brief the gjk initial guess set by user
-  Vec3f cached_gjk_guess;
+  mutable Vec3f cached_gjk_guess;
 
   /// @brief the support function initial guess set by user
-  support_func_guess_t cached_support_func_guess;
+  mutable support_func_guess_t cached_support_func_guess;
 
   /// @brief maximum iteration for the GJK algorithm
   size_t gjk_max_iterations;
@@ -240,7 +243,12 @@ struct HPP_FCL_DLLAPI QueryRequest {
   QueryRequest& operator=(const QueryRequest& other) = default;
   HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
-  void updateGuess(const QueryResult& result);
+  /// @brief Updates the guess for the internal GJK algorithm in order to
+  /// warm-start it when reusing this collision request on the same collision
+  /// pair.
+  /// @note The option `gjk_initial_guess` must be set to
+  /// `GJKInitialGuess::CachedGuess` for this to work.
+  void updateGuess(const QueryResult& result) const;
 
   /// @brief whether two QueryRequest are the same or not
   inline bool operator==(const QueryRequest& other) const {
@@ -280,15 +288,11 @@ struct HPP_FCL_DLLAPI QueryResult {
         cached_support_func_guess(support_func_guess_t::Constant(-1)) {}
 };
 
-inline void QueryRequest::updateGuess(const QueryResult& result) {
-  if (gjk_initial_guess == GJKInitialGuess::CachedGuess) {
-    cached_gjk_guess = result.cached_gjk_guess;
-    cached_support_func_guess = result.cached_support_func_guess;
-  }
-  // TODO: use gjk_initial_guess instead
+inline void QueryRequest::updateGuess(const QueryResult& result) const {
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-  if (enable_cached_gjk_guess) {
+  if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
+      enable_cached_gjk_guess) {
     cached_gjk_guess = result.cached_gjk_guess;
     cached_support_func_guess = result.cached_support_func_guess;
   }
@@ -489,6 +493,463 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
   void swapObjects();
 };
 
+/// @brief This structure allows to encode contact patches.
+/// A contact patch is defined by a set of points belonging to a subset of a
+/// plane passing by `p` and supported by `n`, where `n = Contact::normal` and
+/// `p = Contact::pos`. If we denote by P this plane and by S1 and S2 the first
+/// and second shape of a collision pair, a contact patch is represented as a
+/// polytope which vertices all belong to `P & S1 & S2`, where `&` denotes the
+/// set-intersection. Since a contact patch is a subset of a plane supported by
+/// `n`, it has a preferred direction. In HPP-FCL, the `Contact::normal` points
+/// from S1 to S2. In the same way, a contact patch points by default from S1
+/// to S2.
+///
+/// @note For now (April 2024), a `ContactPatch` is a polygon (2D polytope),
+/// so the points of the set, forming the convex-hull of the polytope, are
+/// stored in a counter-clockwise fashion.
+/// @note If needed, the internal algorithms of hpp-fcl can easily be extended
+/// to compute a contact volume instead of a contact patch.
+struct HPP_FCL_DLLAPI ContactPatch {
+ public:
+  using Polygon = std::vector<Vec2f>;
+
+  /// @brief Frame of the set, expressed in the world coordinates.
+  /// The z-axis of the frame's rotation is the contact patch normal.
+  Transform3f tf;
+
+  /// @brief Direction of ContactPatch.
+  /// When doing collision detection, the convention of HPP-FCL is that the
+  /// normal always points from the first to the second shape of the collision
+  /// pair i.e. from shape1 to shape2 when calling `collide(shape1, shape2)`.
+  /// The PatchDirection enum allows to identify if the patch points from
+  /// shape 1 to shape 2 (Default type) or from shape 2 to shape 1 (Inverted
+  /// type). The Inverted type should only be used for internal HPP-FCL
+  /// computations (it allows to properly define two separate contact patches in
+  /// the same frame).
+  enum PatchDirection { DEFAULT = 0, INVERTED = 1 };
+
+  /// @brief Direction of this contact patch.
+  PatchDirection direction;
+
+  /// @brief Penetration depth of the contact patch. This value corresponds to
+  /// the signed distance `d` between the shapes.
+  /// @note For each contact point `p` in the patch of normal `n`, `p1 = p +
+  /// 0.5*d*n` and `p2 = p - 0.5*d*n` define a pair of witness points. `p1`
+  /// belongs to the surface of the first shape and `p2` belongs to the surface
+  /// of the second shape. For any pair of witness points, we always have `p1 -
+  /// p2 = d * n`. The vector `d * n` is called a minimum separation vector:
+  /// if S1 is translated by it, S1 and S2 are not in collision anymore.
+  /// @note Although there may exist multiple minimum separation vectors between
+  /// two shapes, the term "minimum" comes from the fact that it's impossible to
+  /// find a different separation vector which has a smaller norm than `d * n`.
+  FCL_REAL penetration_depth;
+
+  /// @brief Default maximum size of the polygon representing the contact patch.
+  /// Used to pre-allocate memory for the patch.
+  static constexpr size_t default_preallocated_size = 12;
+
+ protected:
+  /// @brief Container for the vertices of the set.
+  Polygon m_points;
+
+ public:
+  /// @brief Default constructor.
+  /// Note: the preallocated size does not determine the maximum number of
+  /// points in the patch, it only serves as preallocation if the maximum size
+  /// of the patch is known in advance. HPP-FCL will automatically expand/shrink
+  /// the contact patch if needed.
+  explicit ContactPatch(size_t preallocated_size = default_preallocated_size)
+      : tf(Transform3f::Identity()),
+        direction(PatchDirection::DEFAULT),
+        penetration_depth(0) {
+    this->m_points.reserve(preallocated_size);
+  }
+
+  /// @brief Normal of the contact patch, expressed in the WORLD frame.
+  Vec3f getNormal() const {
+    if (this->direction == PatchDirection::INVERTED) {
+      return -this->tf.rotation().col(2);
+    }
+    return this->tf.rotation().col(2);
+  }
+
+  /// @brief Returns the number of points in the contact patch.
+  size_t size() const { return this->m_points.size(); }
+
+  /// @brief Add a 3D point to the set, expressed in the world frame.
+  /// @note This function takes a 3D point and expresses it in the local frame
+  /// of the set. It then takes only the x and y components of the vector,
+  /// effectively doing a projection onto the plane to which the set belongs.
+  /// TODO(louis): if necessary, we can store the offset to the plane (x, y).
+  void addPoint(const Vec3f& point_3d) {
+    const Vec3f point = this->tf.inverseTransform(point_3d);
+    this->m_points.emplace_back(point.template head<2>());
+  }
+
+  /// @brief Get the i-th point of the set, expressed in the 3D world frame.
+  Vec3f getPoint(const size_t i) const {
+    Vec3f point(0, 0, 0);
+    point.head<2>() = this->point(i);
+    point = tf.transform(point);
+    return point;
+  }
+
+  /// @brief Get the i-th point of the contact patch, projected back onto the
+  /// first shape of the collision pair. This point is expressed in the 3D
+  /// world frame.
+  Vec3f getPointShape1(const size_t i) const {
+    Vec3f point = this->getPoint(i);
+    point -= (this->penetration_depth / 2) * this->getNormal();
+    return point;
+  }
+
+  /// @brief Get the i-th point of the contact patch, projected back onto the
+  /// first shape of the collision pair. This 3D point is expressed in the world
+  /// frame.
+  Vec3f getPointShape2(const size_t i) const {
+    Vec3f point = this->getPoint(i);
+    point += (this->penetration_depth / 2) * this->getNormal();
+    return point;
+  }
+
+  /// @brief Getter for the 2D points in the set.
+  Polygon& points() { return this->m_points; }
+
+  /// @brief Const getter for the 2D points in the set.
+  const Polygon& points() const { return this->m_points; }
+
+  /// @brief Getter for the i-th 2D point in the set.
+  Vec2f& point(const size_t i) {
+    HPP_FCL_ASSERT(this->m_points.size() > 0, "Patch is empty.",
+                   std::logic_error);
+    if (i < this->m_points.size()) {
+      return this->m_points[i];
+    }
+    return this->m_points.back();
+  }
+
+  /// @brief Const getter for the i-th 2D point in the set.
+  const Vec2f& point(const size_t i) const {
+    HPP_FCL_ASSERT(this->m_points.size() > 0, "Patch is empty.",
+                   std::logic_error);
+    if (i < this->m_points.size()) {
+      return this->m_points[i];
+    }
+    return this->m_points.back();
+  }
+
+  /// @brief Clear the set.
+  void clear() {
+    this->m_points.clear();
+    this->tf.setIdentity();
+    this->penetration_depth = 0;
+  }
+
+  /// @brief Whether two contact patches are the same or not.
+  /// @note This compares the two sets terms by terms.
+  /// However, two contact patches can be identical, but have a different
+  /// order for their points. Use `isEqual` in this case.
+  bool operator==(const ContactPatch& other) const {
+    return this->tf == other.tf && this->direction == other.direction &&
+           this->penetration_depth == other.penetration_depth &&
+           this->points() == other.points();
+  }
+
+  /// @brief Whether two contact patches are the same or not.
+  /// Checks for different order of the points.
+  bool isSame(const ContactPatch& other,
+              const FCL_REAL tol =
+                  Eigen::NumTraits<FCL_REAL>::dummy_precision()) const {
+    // The x and y axis of the set are arbitrary, but the z axis is
+    // always the normal. The position of the origin of the frame is also
+    // arbitrary. So we only check if the normals are the same.
+    if (!this->getNormal().isApprox(other.getNormal(), tol)) {
+      return false;
+    }
+
+    if (std::abs(this->penetration_depth - other.penetration_depth) > tol) {
+      return false;
+    }
+
+    if (this->direction != other.direction) {
+      return false;
+    }
+
+    if (this->size() != other.size()) {
+      return false;
+    }
+
+    // Check all points of the contact patch.
+    for (size_t i = 0; i < this->size(); ++i) {
+      bool found = false;
+      const Vec3f pi = this->getPoint(i);
+      for (size_t j = 0; j < other.size(); ++j) {
+        const Vec3f other_pj = other.getPoint(j);
+        if (pi.isApprox(other_pj, tol)) {
+          found = true;
+        }
+      }
+      if (!found) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+};
+
+/// @brief Construct a frame from a `Contact`'s position and normal.
+/// Because both `Contact`'s position and normal are expressed in the world
+/// frame, this frame is also expressed w.r.t the world frame.
+/// The origin of the frame is `contact.pos` and the z-axis of the frame is
+/// `contact.normal`.
+inline void constructContactPatchFrameFromContact(const Contact& contact,
+                                                  ContactPatch& contact_patch) {
+  contact_patch.penetration_depth = contact.penetration_depth;
+  contact_patch.tf.translation() = contact.pos;
+  contact_patch.tf.rotation() =
+      constructOrthonormalBasisFromVector(contact.normal);
+  contact_patch.direction = ContactPatch::PatchDirection::DEFAULT;
+}
+
+/// @brief Structure used for internal computations. A support set and a
+/// contact patch can be represented by the same structure. In fact, a contact
+/// patch is the intersection of two support sets, one with
+/// `PatchDirection::DEFAULT` and one with `PatchDirection::INVERTED`.
+/// @note A support set with `DEFAULT` direction is the support set of a shape
+/// in the direction given by `+n`, where `n` is the z-axis of the frame's
+/// patch rotation. An `INVERTED` support set is the support set of a shape in
+/// the direction `-n`.
+using SupportSet = ContactPatch;
+
+/// @brief Request for a contact patch computation.
+struct HPP_FCL_DLLAPI ContactPatchRequest {
+  /// @brief Maximum number of contact patches that will be computed.
+  size_t max_num_patch;
+
+ protected:
+  /// @brief Maximum samples to compute the support sets of curved shapes,
+  /// i.e. when the normal is perpendicular to the base of a cylinder. For
+  /// now, only relevant for Cone and Cylinder. In the future this might be
+  /// extended to Sphere and Ellipsoid.
+  size_t m_num_samples_curved_shapes;
+
+  /// @brief Tolerance below which points are added to a contact patch.
+  /// In details, given two shapes S1 and S2, a contact patch is the triple
+  /// intersection between the separating plane (P) (passing by `Contact::pos`
+  /// and supported by `Contact::normal`), S1 and S2; i.e. a contact patch is
+  /// `P & S1 & S2` if we denote `&` the set intersection operator. If a point
+  /// p1 of S1 is at a distance below `patch_tolerance` from the separating
+  /// plane, it is taken into account in the computation of the contact patch.
+  /// Otherwise, it is not used for the computation.
+  /// @note Needs to be positive.
+  FCL_REAL m_patch_tolerance;
+
+ public:
+  /// @brief Default constructor.
+  /// @param max_num_patch maximum number of contact patches per collision pair.
+  /// @param max_sub_patch_size maximum size of each sub contact patch. Each
+  /// contact patch contains an internal representation for an inscribed sub
+  /// contact patch. This allows physics simulation to always work with a
+  /// predetermined maximum size for each contact patch. A sub contact patch is
+  /// simply a subset of the vertices of a contact patch.
+  /// @param num_samples_curved_shapes for shapes like cones and cylinders,
+  /// which have smooth basis (circles in this case), we need to sample a
+  /// certain amount of point of this basis.
+  /// @param patch_tolerance the tolerance below which a point of a shape is
+  /// considered to belong to the support set of this shape in the direction of
+  /// the normal. Said otherwise, `patch_tolerance` determines the "thickness"
+  /// of the separating plane between shapes of a collision pair.
+  explicit ContactPatchRequest(size_t max_num_patch = 1,
+                               size_t num_samples_curved_shapes =
+                                   ContactPatch::default_preallocated_size,
+                               FCL_REAL patch_tolerance = 1e-3)
+      : max_num_patch(max_num_patch) {
+    this->setNumSamplesCurvedShapes(num_samples_curved_shapes);
+    this->setPatchTolerance(patch_tolerance);
+  }
+
+  /// @brief Construct a contact patch request from a collision request.
+  explicit ContactPatchRequest(const CollisionRequest& collision_request,
+                               size_t num_samples_curved_shapes =
+                                   ContactPatch::default_preallocated_size,
+                               FCL_REAL patch_tolerance = 1e-3)
+      : max_num_patch(collision_request.num_max_contacts) {
+    this->setNumSamplesCurvedShapes(num_samples_curved_shapes);
+    this->setPatchTolerance(patch_tolerance);
+  }
+
+  /// @copydoc m_num_samples_curved_shapes
+  void setNumSamplesCurvedShapes(const size_t num_samples_curved_shapes) {
+    if (num_samples_curved_shapes < 3) {
+      HPP_FCL_LOG_WARNING(
+          "`num_samples_curved_shapes` cannot be lower than 3. Setting it to "
+          "3 to prevent bugs.");
+      this->m_num_samples_curved_shapes = 3;
+    } else {
+      this->m_num_samples_curved_shapes = num_samples_curved_shapes;
+    }
+  }
+
+  /// @copydoc m_num_samples_curved_shapes
+  size_t getNumSamplesCurvedShapes() const {
+    return this->m_num_samples_curved_shapes;
+  }
+
+  /// @copydoc m_patch_tolerance
+  void setPatchTolerance(const FCL_REAL patch_tolerance) {
+    if (patch_tolerance < 0) {
+      HPP_FCL_LOG_WARNING(
+          "`patch_tolerance` cannot be negative. Setting it to 0 to prevent "
+          "bugs.");
+      this->m_patch_tolerance = Eigen::NumTraits<FCL_REAL>::dummy_precision();
+    } else {
+      this->m_patch_tolerance = patch_tolerance;
+    }
+  }
+
+  /// @copydoc m_patch_tolerance
+  FCL_REAL getPatchTolerance() const { return this->m_patch_tolerance; }
+
+  /// @brief Whether two ContactPatchRequest are identical or not.
+  bool operator==(const ContactPatchRequest& other) const {
+    return this->max_num_patch == other.max_num_patch &&
+           this->getNumSamplesCurvedShapes() ==
+               other.getNumSamplesCurvedShapes() &&
+           this->getPatchTolerance() == other.getPatchTolerance();
+  }
+};
+
+/// @brief Result for a contact patch computation.
+struct HPP_FCL_DLLAPI ContactPatchResult {
+  using ContactPatchVector = std::vector<ContactPatch>;
+  using ContactPatchRef = std::reference_wrapper<ContactPatch>;
+  using ContactPatchRefVector = std::vector<ContactPatchRef>;
+
+ protected:
+  /// @brief Data container for the vector of contact patches.
+  /// @note Contrary to `CollisionResult` or `DistanceResult`, which have a
+  /// very small memory footprint, contact patches can contain relatively
+  /// large polytopes. In order to reuse a `ContactPatchResult` while avoiding
+  /// successive mallocs, we have a data container and a vector which points
+  /// to the currently active patches in this data container.
+  ContactPatchVector m_contact_patches_data;
+
+  /// @brief Contact patches in `m_contact_patches_data` can have two
+  /// statuses: used or unused. This index tracks the first unused patch in
+  /// the `m_contact_patches_data` vector.
+  size_t m_id_available_patch;
+
+  /// @brief Vector of contact patches of the result.
+  ContactPatchRefVector m_contact_patches;
+
+ public:
+  /// @brief Default constructor.
+  ContactPatchResult() : m_id_available_patch(0) {
+    const size_t max_num_patch = 1;
+    const ContactPatchRequest request(max_num_patch);
+    this->set(request);
+  }
+
+  /// @brief Constructor using a `ContactPatchRequest`.
+  explicit ContactPatchResult(const ContactPatchRequest& request)
+      : m_id_available_patch(0) {
+    this->set(request);
+  };
+
+  /// @brief Number of contact patches in the result.
+  size_t numContactPatches() const { return this->m_contact_patches.size(); }
+
+  /// @brief Returns a new unused contact patch from the internal data vector.
+  ContactPatchRef getUnusedContactPatch() {
+    if (this->m_id_available_patch >= this->m_contact_patches_data.size()) {
+      HPP_FCL_LOG_WARNING(
+          "Trying to get an unused contact patch but all contact patches are "
+          "used. Increasing size of contact patches vector, at the cost of a "
+          "copy. You should increase `max_num_patch` in the "
+          "`ContactPatchRequest`.");
+      this->m_contact_patches_data.emplace_back(
+          this->m_contact_patches_data.back());
+      this->m_contact_patches_data.back().clear();
+    }
+    ContactPatch& contact_patch =
+        this->m_contact_patches_data[this->m_id_available_patch];
+    contact_patch.clear();
+    this->m_contact_patches.emplace_back(contact_patch);
+    ++(this->m_id_available_patch);
+    return this->m_contact_patches.back();
+  }
+
+  /// @brief Const getter for the i-th contact patch of the result.
+  const ContactPatch& getContactPatch(const size_t i) const {
+    if (this->m_contact_patches.empty()) {
+      HPP_FCL_THROW_PRETTY(
+          "The number of contact patches is zero. No ContactPatch can be "
+          "returned.",
+          std::invalid_argument);
+    }
+    if (i < this->m_contact_patches.size()) {
+      return this->m_contact_patches[i];
+    }
+    return this->m_contact_patches.back();
+  }
+
+  /// @brief Clears the contact patch result.
+  void clear() {
+    this->m_contact_patches.clear();
+    this->m_id_available_patch = 0;
+    for (ContactPatch& patch : this->m_contact_patches_data) {
+      patch.clear();
+    }
+  }
+
+  /// @brief Set up a `ContactPatchResult` from a `ContactPatchRequest`
+  void set(const ContactPatchRequest& request) {
+    if (this->m_contact_patches_data.size() < request.max_num_patch) {
+      this->m_contact_patches_data.resize(request.max_num_patch);
+    }
+    for (ContactPatch& patch : this->m_contact_patches_data) {
+      patch.points().reserve(request.getNumSamplesCurvedShapes());
+    }
+    this->clear();
+  }
+
+  /// @brief Return true if this `ContactPatchResult` is aligned with the
+  /// `ContactPatchRequest` given as input.
+  bool check(const ContactPatchRequest& request) const {
+    assert(this->m_contact_patches_data.size() >= request.max_num_patch);
+    if (this->m_contact_patches_data.size() < request.max_num_patch) {
+      return false;
+    }
+
+    for (const ContactPatch& patch : this->m_contact_patches_data) {
+      if (patch.points().capacity() < request.getNumSamplesCurvedShapes()) {
+        assert(patch.points().capacity() >=
+               request.getNumSamplesCurvedShapes());
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// @brief Whether two ContactPatchResult are identical or not.
+  bool operator==(const ContactPatchResult& other) const {
+    if (this->numContactPatches() != other.numContactPatches()) {
+      return false;
+    }
+
+    for (size_t i = 0; i < this->numContactPatches(); ++i) {
+      const ContactPatch& patch = this->getContactPatch(i);
+      const ContactPatch& other_patch = other.getContactPatch(i);
+      if (!(patch == other_patch)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+};
+
 struct DistanceResult;
 
 /// @brief request to the distance computation
@@ -669,11 +1130,13 @@ struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
     // TODO: check also that two GeometryObject are indeed equal.
     if ((o1 != NULL) ^ (other.o1 != NULL)) return false;
     is_same &= (o1 == other.o1);
-    //    else if (o1 != NULL and other.o1 != NULL) is_same &= *o1 == *other.o1;
+    //    else if (o1 != NULL and other.o1 != NULL) is_same &= *o1 ==
+    //    *other.o1;
 
     if ((o2 != NULL) ^ (other.o2 != NULL)) return false;
     is_same &= (o2 == other.o2);
-    //    else if (o2 != NULL and other.o2 != NULL) is_same &= *o2 == *other.o2;
+    //    else if (o2 != NULL and other.o2 != NULL) is_same &= *o2 ==
+    //    *other.o2;
 
     return is_same;
   }

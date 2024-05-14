@@ -50,8 +50,11 @@
 namespace hpp {
 namespace fcl {
 
-/// @brief collision and distance solver based on GJK algorithm implemented in
-/// fcl (rewritten the code from the GJK in bullet)
+/// @brief collision and distance solver based on the GJK and EPA algorithms.
+/// Originally, GJK and EPA were implemented in fcl which itself took
+/// inspiration from the code of the GJK in bullet. Since then, both GJK and EPA
+/// have been largely modified to be faster and more robust to numerical
+/// accuracy and edge cases.
 struct HPP_FCL_DLLAPI GJKSolver {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -104,6 +107,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
   /// @brief Minkowski difference used by GJK and EPA algorithms
   mutable details::MinkowskiDiff minkowski_difference;
 
+ private:
+  // Used internally for assertion checks.
+  static constexpr FCL_REAL m_dummy_precision = 1e-6;
+
+ public:
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// @brief Default constructor for GJK algorithm
@@ -207,7 +215,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // ---------------------
     // GJK settings
     this->gjk_initial_guess = request.gjk_initial_guess;
-    // TODO: use gjk_initial_guess instead
     this->enable_cached_guess = request.enable_cached_gjk_guess;
     if (this->gjk_initial_guess == GJKInitialGuess::CachedGuess ||
         this->enable_cached_guess) {
@@ -347,14 +354,16 @@ struct HPP_FCL_DLLAPI GJKSolver {
   void getGJKInitialGuess(const S1& s1, const S2& s2, Vec3f& guess,
                           support_func_guess_t& support_hint,
                           const Vec3f& default_guess = Vec3f(1, 0, 0)) const {
+    // There is no reason not to warm-start the support function, so we always
+    // do it.
+    support_hint = this->support_func_cached_guess;
+    // The following switch takes care of the GJK warm-start.
     switch (gjk_initial_guess) {
       case GJKInitialGuess::DefaultGuess:
         guess = default_guess;
-        support_hint.setZero();
         break;
       case GJKInitialGuess::CachedGuess:
         guess = this->cached_guess;
-        support_hint = this->support_func_cached_guess;
         break;
       case GJKInitialGuess::BoundingVolumeGuess:
         if (s1.aabb_local.volume() < 0 || s2.aabb_local.volume() < 0) {
@@ -368,7 +377,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
             s1.aabb_local.center() -
             (this->minkowski_difference.oR1 * s2.aabb_local.center() +
              this->minkowski_difference.ot1);
-        support_hint.setZero();
         break;
       default:
         HPP_FCL_THROW_PRETTY("Wrong initial guess for GJK.", std::logic_error);
@@ -378,7 +386,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
     HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     if (this->enable_cached_guess) {
       guess = this->cached_guess;
-      support_hint = this->support_func_cached_guess;
     }
     HPP_FCL_COMPILER_DIAGNOSTIC_POP
   }
@@ -437,23 +444,13 @@ struct HPP_FCL_DLLAPI GJKSolver {
                        support_hint);
 
     this->gjk.evaluate(this->minkowski_difference, guess, support_hint);
-    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-    if (this->gjk_initial_guess == GJKInitialGuess::CachedGuess ||
-        this->enable_cached_guess) {
-      this->cached_guess = this->gjk.getGuessFromSimplex();
-      this->support_func_cached_guess = this->gjk.support_hint;
-    }
-    HPP_FCL_COMPILER_DIAGNOSTIC_POP
-
-    const FCL_REAL dummy_precision =
-        3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon());
-    HPP_FCL_UNUSED_VARIABLE(dummy_precision);
 
     switch (this->gjk.status) {
       case details::GJK::DidNotRun:
         HPP_FCL_ASSERT(false, "GJK did not run. It should have!",
                        std::logic_error);
+        this->cached_guess = Vec3f(1, 0, 0);
+        this->support_func_cached_guess.setZero();
         distance = -(std::numeric_limits<FCL_REAL>::max)();
         p1 = p2 = normal =
             Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
@@ -471,11 +468,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
         // The two witness points have no meaning.
         GJKEarlyStopExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                   normal);
-        HPP_FCL_ASSERT(
-            distance >= this->gjk.distance_upper_bound - dummy_precision,
-            "The distance should be bigger than GJK's "
-            "`distance_upper_bound`.",
-            std::logic_error);
+        HPP_FCL_ASSERT(distance >= this->gjk.distance_upper_bound -
+                                       this->m_dummy_precision,
+                       "The distance should be bigger than GJK's "
+                       "`distance_upper_bound`.",
+                       std::logic_error);
         break;
       case details::GJK::NoCollision:
         //
@@ -484,7 +481,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
         // 1e-6).
         GJKExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
         HPP_FCL_ASSERT(std::abs((p1 - p2).norm() - distance) <=
-                           this->gjk.getTolerance() + dummy_precision,
+                           this->gjk.getTolerance() + this->m_dummy_precision,
                        "The distance found by GJK should coincide with the "
                        "distance between the closest points.",
                        std::logic_error);
@@ -494,10 +491,11 @@ struct HPP_FCL_DLLAPI GJKSolver {
       // their distance is below GJK's tolerance (default 1e-6).
       case details::GJK::CollisionWithPenetrationInformation:
         GJKExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
-        HPP_FCL_ASSERT(distance <= this->gjk.getTolerance() + dummy_precision,
-                       "The distance found by GJK should be negative or at "
-                       "least below GJK's tolerance.",
-                       std::logic_error);
+        HPP_FCL_ASSERT(
+            distance <= this->gjk.getTolerance() + this->m_dummy_precision,
+            "The distance found by GJK should be negative or at "
+            "least below GJK's tolerance.",
+            std::logic_error);
         break;
       case details::GJK::Collision:
         if (!compute_penetration) {
@@ -546,7 +544,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
             case details::EPA::Valid:
             case details::EPA::AccuracyReached:
               HPP_FCL_ASSERT(
-                  -epa.depth <= epa.getTolerance() + dummy_precision,
+                  -epa.depth <= epa.getTolerance() + this->m_dummy_precision,
                   "EPA's penetration distance should be negative (or "
                   "at least below EPA's tolerance).",
                   std::logic_error);
@@ -593,6 +591,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                                  Vec3f& p2,
                                                  Vec3f& normal) const {
     HPP_FCL_UNUSED_VARIABLE(tf1);
+    // Cache gjk result for potential future call to this GJKSolver.
+    this->cached_guess = this->gjk.ray;
+    this->support_func_cached_guess = this->gjk.support_hint;
+
     distance = this->gjk.distance;
     p1 = p2 = normal =
         Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
@@ -614,14 +616,14 @@ struct HPP_FCL_DLLAPI GJKSolver {
     // 2. GJK ran out of iterations.
     // In any case, `gjk.ray`'s norm is bigger than GJK's tolerance and thus
     // it can safely be normalized.
-    const FCL_REAL dummy_precision =
-        3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon());
-    HPP_FCL_UNUSED_VARIABLE(dummy_precision);
-
     HPP_FCL_ASSERT(
-        this->gjk.ray.norm() > this->gjk.getTolerance() - dummy_precision,
+        this->gjk.ray.norm() >
+            this->gjk.getTolerance() - this->m_dummy_precision,
         "The norm of GJK's ray should be bigger than GJK's tolerance.",
         std::logic_error);
+    // Cache gjk result for potential future call to this GJKSolver.
+    this->cached_guess = this->gjk.ray;
+    this->support_func_cached_guess = this->gjk.support_hint;
 
     distance = this->gjk.distance;
     // TODO: On degenerated case, the closest points may be non-unique.
@@ -638,13 +640,15 @@ struct HPP_FCL_DLLAPI GJKSolver {
                                                  Vec3f& p2,
                                                  Vec3f& normal) const {
     HPP_FCL_UNUSED_VARIABLE(tf1);
-    const FCL_REAL dummy_precision =
-        3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon());
-    HPP_FCL_UNUSED_VARIABLE(dummy_precision);
-
-    HPP_FCL_ASSERT(
-        this->gjk.distance <= this->gjk.getTolerance() + dummy_precision,
-        "The distance should be lower than GJK's tolerance.", std::logic_error);
+    HPP_FCL_ASSERT(this->gjk.distance <=
+                       this->gjk.getTolerance() + this->m_dummy_precision,
+                   "The distance should be lower than GJK's tolerance.",
+                   std::logic_error);
+    // Because GJK has returned the `Collision` status and EPA has not run,
+    // we purposefully do not cache the result of GJK, because ray is zero.
+    // However, we can cache the support function hint.
+    // this->cached_guess = this->gjk.ray;
+    this->support_func_cached_guess = this->gjk.support_hint;
 
     distance = this->gjk.distance;
     p1 = p2 = normal =
@@ -654,6 +658,10 @@ struct HPP_FCL_DLLAPI GJKSolver {
   void EPAExtractWitnessPointsAndNormal(const Transform3f& tf1,
                                         FCL_REAL& distance, Vec3f& p1,
                                         Vec3f& p2, Vec3f& normal) const {
+    // Cache EPA result for potential future call to this GJKSolver.
+    // This caching allows to warm-start the next GJK call.
+    this->cached_guess = -(this->epa.depth * this->epa.normal);
+    this->support_func_cached_guess = this->epa.support_hint;
     distance = (std::min)(0., -this->epa.depth);
     this->epa.getWitnessPointsAndNormal(this->minkowski_difference, p1, p2,
                                         normal);
@@ -705,6 +713,9 @@ struct HPP_FCL_DLLAPI GJKSolver {
   void EPAFailedExtractWitnessPointsAndNormal(const Transform3f& tf1,
                                               FCL_REAL& distance, Vec3f& p1,
                                               Vec3f& p2, Vec3f& normal) const {
+    this->cached_guess = Vec3f(1, 0, 0);
+    this->support_func_cached_guess.setZero();
+
     HPP_FCL_UNUSED_VARIABLE(tf1);
     distance = -(std::numeric_limits<FCL_REAL>::max)();
     p1 = p2 = normal =

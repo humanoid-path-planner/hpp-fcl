@@ -37,11 +37,13 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <hpp/fcl/collision.h>
+#include <hpp/fcl/contact_patch.h>
 #include <hpp/fcl/distance.h>
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
 #include <hpp/fcl/serialization/collision_data.h>
+#include <hpp/fcl/serialization/contact_patch.h>
 #include <hpp/fcl/serialization/AABB.h>
 #include <hpp/fcl/serialization/BVH_model.h>
 #include <hpp/fcl/serialization/hfield.h>
@@ -270,6 +272,41 @@ BOOST_AUTO_TEST_CASE(test_collision_data) {
   distance_result.nearest_points[0].setRandom();
   distance_result.nearest_points[1].setRandom();
   test_serialization(distance_result);
+
+  {
+    // Serializing contact patches.
+    const Halfspace hspace(0, 0, 1, 0);
+    const FCL_REAL radius = 0.25;
+    const FCL_REAL height = 1.;
+    const Cylinder cylinder(radius, height);
+
+    const Transform3f tf1;
+    Transform3f tf2;
+    // set translation to have a collision
+    const FCL_REAL offset = 0.001;
+    tf2.setTranslation(Vec3f(0, 0, height / 2 - offset));
+
+    const size_t num_max_contact = 1;
+    const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
+                                   num_max_contact);
+    CollisionResult col_res;
+    hpp::fcl::collide(&hspace, tf1, &cylinder, tf2, col_req, col_res);
+    BOOST_CHECK(col_res.isCollision());
+    if (col_res.isCollision()) {
+      ContactPatchRequest patch_req;
+      ContactPatchResult patch_res(patch_req);
+      hpp::fcl::computeContactPatch(&hspace, tf1, &cylinder, tf2, col_res,
+                                    patch_req, patch_res);
+      BOOST_CHECK(patch_res.numContactPatches() == 1);
+
+      // Serialize patch request, result and the patch itself
+      test_serialization(patch_req);
+      test_serialization(patch_res);
+      if (patch_res.numContactPatches() > 0) {
+        test_serialization(patch_res.getContactPatch(0));
+      }
+    }
+  }
 }
 
 template <typename T>

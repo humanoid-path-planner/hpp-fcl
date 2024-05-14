@@ -35,6 +35,9 @@
 set(LIBRARY_NAME ${PROJECT_NAME})
 set(${LIBRARY_NAME}_SOURCES
   collision.cpp
+  contact_patch.cpp
+  contact_patch/contact_patch_solver.cpp
+  contact_patch_func_matrix.cpp
   distance_func_matrix.cpp
   collision_data.cpp
   collision_node.cpp
@@ -59,6 +62,8 @@ set(${LIBRARY_NAME}_SOURCES
   broadphase/detail/spatial_hash.cpp
   broadphase/detail/morton.cpp
   narrowphase/gjk.cpp
+  narrowphase/minkowski_difference.cpp
+  narrowphase/support_functions.cpp
   narrowphase/details.h
   shape/convex.cpp
   shape/geometric_shapes.cpp
@@ -220,6 +225,9 @@ IF(WIN32)
     Boost::thread
     Boost::date_time
   )
+  # There is an issue with MSVC 2017 and Eigen (due to std::aligned_storage).
+  # See https://github.com/ceres-solver/ceres-solver/issues/481
+  target_compile_definitions(${LIBRARY_NAME} PRIVATE _ENABLE_EXTENDED_ALIGNED_STORAGE)
 ENDIF(WIN32)
 
 if (HPP_FCL_TURN_ASSERT_INTO_EXCEPTION)

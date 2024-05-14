@@ -149,7 +149,8 @@ void exposeDistanceAPI() {
       "distance",
       static_cast<FCL_REAL (*)(const CollisionGeometry*, const Transform3f&,
                                const CollisionGeometry*, const Transform3f&,
-                               DistanceRequest&, DistanceResult&)>(&distance));
+                               const DistanceRequest&, DistanceResult&)>(
+          &distance));
 
   class_<ComputeDistance>("ComputeDistance",
                           doxygen::class_doc<ComputeDistance>(), no_init)
@@ -157,6 +158,6 @@ void exposeDistanceAPI() {
                     const CollisionGeometry*>())
       .def("__call__",
            static_cast<FCL_REAL (ComputeDistance::*)(
-               const Transform3f&, const Transform3f&, DistanceRequest&,
+               const Transform3f&, const Transform3f&, const DistanceRequest&,
                DistanceResult&) const>(&ComputeDistance::operator()));
 }

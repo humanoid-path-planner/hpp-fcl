@@ -27,6 +27,7 @@ target_link_libraries(utility PUBLIC ${PROJECT_NAME})
 add_fcl_test(math math.cpp)
 
 add_fcl_test(collision collision.cpp)
+add_fcl_test(contact_patch contact_patch.cpp)
 add_fcl_test(distance distance.cpp)
 add_fcl_test(swept_sphere_radius swept_sphere_radius.cpp)
 add_fcl_test(normal_and_nearest_points normal_and_nearest_points.cpp)
