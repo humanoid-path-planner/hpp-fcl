@@ -707,7 +707,8 @@ inline void constructContactPatchFrameFromContact(const Contact& contact,
                                                   ContactPatch& contact_patch) {
   contact_patch.penetration_depth = contact.penetration_depth;
   contact_patch.tf.translation() = contact.pos;
-  contact_patch.tf.rotation() = constructBasisFromVector(contact.normal);
+  contact_patch.tf.rotation() =
+      constructOrthonormalBasisFromVector(contact.normal);
   contact_patch.direction = ContactPatch::PatchDirection::DEFAULT;
 }
 

@@ -207,7 +207,7 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
                    SupportSet& support_set, int& hint,
                    size_t num_sampled_supports = 6, FCL_REAL tol = 1e-3) {
-  support_set.tf.rotation() = constructBasisFromVector(dir);
+  support_set.tf.rotation() = constructOrthonormalBasisFromVector(dir);
   const Vec3f& support_dir = support_set.getNormal();
   const Vec3f support = getSupport<_SupportOptions>(shape, support_dir, hint);
   getSupportSet<_SupportOptions>(shape, support_set, hint, num_sampled_supports,

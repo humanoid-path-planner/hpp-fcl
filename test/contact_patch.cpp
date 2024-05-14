@@ -146,7 +146,8 @@ BOOST_AUTO_TEST_CASE(box_box) {
 
     const size_t expected_size = 4;
     ContactPatch expected(expected_size);
-    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.rotation() =
+        constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     const std::array<Vec3f, 4> corners = {
@@ -204,7 +205,8 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
 
     const size_t expected_size = 4;
     ContactPatch expected(expected_size);
-    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.rotation() =
+        constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     const std::array<Vec3f, 4> corners = {
@@ -257,7 +259,8 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
 
     const size_t expected_size = 1;
     ContactPatch expected(expected_size);
-    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.rotation() =
+        constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     const Vec3f capsule_end(0, 0, -capsule.halfLength);
@@ -287,7 +290,8 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
 
     const size_t expected_size = 1;
     ContactPatch expected(expected_size);
-    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.rotation() =
+        constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     const Vec3f capsule_end(0, 0, capsule.halfLength);
@@ -318,7 +322,8 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
 
     const size_t expected_size = 2;
     ContactPatch expected(expected_size);
-    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.rotation() =
+        constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     const Vec3f p1(-capsule.radius, 0, capsule.halfLength);
@@ -366,7 +371,8 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
 
     const size_t expected_size = ContactPatch::default_preallocated_size;
     ContactPatch expected(expected_size);
-    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.rotation() =
+        constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     std::array<Vec3f, ContactPatch::default_preallocated_size> points;
@@ -409,7 +415,8 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
 
     const size_t expected_size = 1;
     ContactPatch expected(expected_size);
-    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.rotation() =
+        constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     const Vec3f cone_tip(0, 0, cone.halfLength);
@@ -444,7 +451,8 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
 
     const size_t expected_size = 1;
     ContactPatch expected(expected_size);
-    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.rotation() =
+        constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     const Vec3f point_on_circle_basis(-cone.radius, 0, -cone.halfLength);
@@ -478,7 +486,8 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
     const size_t expected_size = ContactPatch::default_preallocated_size;
     const FCL_REAL tol = 1e-6;
     ContactPatch expected(expected_size);
-    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.rotation() =
+        constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     std::array<Vec3f, ContactPatch::default_preallocated_size> points;
@@ -549,7 +558,8 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
 
     const size_t expected_size = 2;
     ContactPatch expected(expected_size);
-    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.rotation() =
+        constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     expected.addPoint(
@@ -600,7 +610,8 @@ BOOST_AUTO_TEST_CASE(convex_convex) {
 
     const size_t expected_size = 4;
     ContactPatch expected(expected_size);
-    expected.tf.rotation() = constructBasisFromVector(contact.normal);
+    expected.tf.rotation() =
+        constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     const std::array<Vec3f, 4> corners = {
@@ -676,7 +687,8 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
       ContactPatch expected(expected_size);
       // GJK/EPA can return any normal which is in the dual cone
       // of the cone {(-1, 0, 0)}.
-      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.rotation() =
+          constructOrthonormalBasisFromVector(contact.normal);
       expected.tf.translation() = contact.pos;
       expected.penetration_depth = contact.penetration_depth;
       expected.addPoint(expected_cp1);
@@ -724,7 +736,8 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
       const FCL_REAL tol = 1e-6;
 
       ContactPatch expected(expected_size);
-      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.rotation() =
+          constructOrthonormalBasisFromVector(contact.normal);
       expected.tf.translation() = contact.pos;
       expected.penetration_depth = contact.penetration_depth;
       expected.addPoint(expected_cp1);
@@ -772,7 +785,8 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
       const FCL_REAL tol = 1e-6;
 
       ContactPatch expected(expected_size);
-      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.rotation() =
+          constructOrthonormalBasisFromVector(contact.normal);
       expected.tf.translation() = contact.pos;
       expected.penetration_depth = contact.penetration_depth;
       expected.addPoint(expected_cp1);
@@ -837,7 +851,8 @@ BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
       const FCL_REAL tol = 1e-6;
 
       ContactPatch expected(expected_size);
-      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.rotation() =
+          constructOrthonormalBasisFromVector(contact.normal);
       expected.tf.translation() = contact.pos;
       expected.penetration_depth = contact.penetration_depth;
       expected.addPoint(expected_cp);
@@ -884,7 +899,8 @@ BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
       const FCL_REAL tol = 1e-6;
 
       ContactPatch expected(expected_size);
-      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.rotation() =
+          constructOrthonormalBasisFromVector(contact.normal);
       expected.tf.translation() = contact.pos;
       expected.penetration_depth = contact.penetration_depth;
       expected.addPoint(expected_cp);
@@ -931,7 +947,8 @@ BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
       const FCL_REAL tol = 1e-6;
 
       ContactPatch expected(expected_size);
-      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.rotation() =
+          constructOrthonormalBasisFromVector(contact.normal);
       expected.tf.translation() = contact.pos;
       expected.penetration_depth = contact.penetration_depth;
       expected.addPoint(expected_cp);
@@ -995,7 +1012,8 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_face) {
       const FCL_REAL tol = 1e-6;
 
       ContactPatch expected(expected_size);
-      expected.tf.rotation() = constructBasisFromVector(contact.normal);
+      expected.tf.rotation() =
+          constructOrthonormalBasisFromVector(contact.normal);
       expected.tf.translation() = contact.pos;
       expected.penetration_depth = contact.penetration_depth;
       expected.addPoint(expected_cp1);
