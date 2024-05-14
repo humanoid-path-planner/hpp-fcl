@@ -291,6 +291,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/fcl/serialization/BV_splitter.h
   include/hpp/fcl/serialization/BVH_model.h
   include/hpp/fcl/serialization/collision_data.h
+  include/hpp/fcl/serialization/contact_patch.h
   include/hpp/fcl/serialization/collision_object.h
   include/hpp/fcl/serialization/convex.h
   include/hpp/fcl/serialization/eigen.h

@@ -43,6 +43,7 @@
 #include <hpp/fcl/BVH/BVH_model.h>
 
 #include <hpp/fcl/serialization/collision_data.h>
+#include <hpp/fcl/serialization/contact_patch.h>
 #include <hpp/fcl/serialization/AABB.h>
 #include <hpp/fcl/serialization/BVH_model.h>
 #include <hpp/fcl/serialization/hfield.h>
