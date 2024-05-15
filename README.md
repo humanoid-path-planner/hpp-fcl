@@ -11,11 +11,11 @@
   <a href="https://github.com/astral-sh/ruff"><img alt="ruff" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json"></a>
 </p>
 
-[FCL](https://github.com/flexible-collision-library/fcl) was forked in 2015. 
+[FCL](https://github.com/flexible-collision-library/fcl) was forked in 2015.
 Since then, a large part of the code has been rewritten or removed (for the unused and untested part).
 The broad phase was reintroduced by [Justin Carpentier](https://github.com/jcarpent) in 2022 based on the FCL version 0.7.0.
 
-If you use **HPP-FCL** in your projects and research papers, we would appreciate it if you'd [cite it](https://raw.githubusercontent.com/humanoid-path-planner/hpp-fcl/devel/CITATION.bib). 
+If you use **HPP-FCL** in your projects and research papers, we would appreciate it if you'd [cite it](https://raw.githubusercontent.com/humanoid-path-planner/hpp-fcl/devel/CITATION.bib).
 
 ## New features
 
@@ -27,7 +27,7 @@ Compared to the original [FCL](https://github.com/flexible-collision-library/fcl
 - the implementation of Python bindings for easy code prototyping
 - the support of new geometries such as height fields, capsules, ellipsoids, etc.
 - enhance reliability with the fix of a myriad of bugs
-- efficient computation of **contact points** and **contact patches** between objects 
+- efficient computation of **contact points** and **contact patches** between objects
 - full support of object serialization via Boost.Serialization
 
 This project is now used in many robotics frameworks such as [Pinocchio](https://github.com/stack-of-tasks/pinocchio), an open-source software that implements efficient and versatile rigid body dynamics algorithms, the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc), an open-source software for Motion and Manipulation Planning. **HPP-FCL** has also been recently used to develop [Simple](https://github.com/Simple-Robotics/Simple), a new (differentiable) and efficient simulator for robotics and beyond.

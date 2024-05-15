@@ -130,7 +130,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
   }
 
   // `eps` is be used to check strict positivity of determinants.
-  static constexpr FCL_REAL eps = Eigen::NumTraits<FCL_REAL>::dummy_precision();
+  const FCL_REAL eps = Eigen::NumTraits<FCL_REAL>::dummy_precision();
   using Polygon = SupportSet::Polygon;
 
   if ((this->support_set_shape1.size() == 2) &&
