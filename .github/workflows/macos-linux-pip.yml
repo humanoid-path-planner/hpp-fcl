@@ -16,6 +16,9 @@ jobs:
       matrix:
         os: ["ubuntu", "macos"]
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        exclude:
+          - os: "macos"
+            python-version: "3.8"  # Not available on arm64
     steps:
       - uses: actions/checkout@v4
         with:
