@@ -8,6 +8,7 @@ repos:
     args:
     - --fix
     - --exit-non-zero-on-fix
+  - id: ruff-format
 - repo: https://github.com/pre-commit/mirrors-clang-format
   rev: v18.1.4
   hooks:
@@ -18,7 +19,3 @@ repos:
   rev: v4.6.0
   hooks:
   - id: trailing-whitespace
-- repo: https://github.com/psf/black
-  rev: 24.4.2
-  hooks:
-  - id: black
