@@ -18,6 +18,7 @@ abstract: "An extension of the Flexible Collision Library"
   - family-names: Montaut
     given-names: Louis
 version: 2.4.4
-date-released: "2024-03-06"
+date-released: 2024-03-06
 license: BSD-2-Clause
-repository-code: "https://github.com/humanoid-path-planner/hpp-fcl"
+url: "https://github.com/humanoid-path-planner/hpp-fcl"
+
