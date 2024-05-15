@@ -508,8 +508,7 @@ def printOrder(order, indent="", start=True, file=sys.stdout, curTests=[]):
             region[0]
             B = region[1]
             print(
-                indent
-                + "originToSegment "
+                indent + "originToSegment "
                 "(current, a, {b}, A, {B}, {B}-A, -{b}a_aa, next, ray);".format(
                     **{"b": B.lower(), "B": B}
                 ),
@@ -525,8 +524,7 @@ def printOrder(order, indent="", start=True, file=sys.stdout, curTests=[]):
             else:
                 test = "-" + test
             print(
-                indent
-                + "originToTriangle "
+                indent + "originToTriangle "
                 "(current, a, {b}, {c}, ({B}-A).cross({C}-A), {t}, next, ray);".format(
                     **{"b": B.lower(), "c": C.lower(), "B": B, "C": C, "t": test}
                 ),
