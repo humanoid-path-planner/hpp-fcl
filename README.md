@@ -11,8 +11,11 @@
   <a href="https://github.com/astral-sh/ruff"><img alt="ruff" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json"></a>
 </p>
 
-[FCL](https://github.com/flexible-collision-library/fcl) was forked in 2015. Since then, a large part of the code has been rewritten or removed (for the unused and untested part).
-The broad phase was reintroduced by J. Carpentier in 2022 based on the FCL version 0.7.0.
+[FCL](https://github.com/flexible-collision-library/fcl) was forked in 2015. 
+Since then, a large part of the code has been rewritten or removed (for the unused and untested part).
+The broad phase was reintroduced by [Justin Carpentier](https://github.com/jcarpent) in 2022 based on the FCL version 0.7.0.
+
+If you use **HPP-FCL** in your projects and research papers, we would appreciate it if you'd [cite it](https://raw.githubusercontent.com/humanoid-path-planner/hpp-fcl/devel/CITATION.bib). 
 
 ## New features
 
@@ -22,10 +25,12 @@ Compared to the original [FCL](https://github.com/flexible-collision-library/fcl
 - an accelerated version of collision detection *à la Nesterov*, which leads to increased performances (up to a factor of 2). More details are available in this [paper](https://hal.archives-ouvertes.fr/hal-03662157/)
 - the computation of a lower bound of the distance between two objects when collision checking is performed, and no collision is found
 - the implementation of Python bindings for easy code prototyping
-- the support of height fields, capsule shapes, etc.
-- the fix of various bugs
+- the support of new geometries such as height fields, capsules, ellipsoids, etc.
+- enhance reliability with the fix of a myriad of bugs
+- efficient computation of **contact points** and **contact patches** between objects 
+- full support of object serialization via Boost.Serialization
 
-This project is now used in many robotics frameworks such as [Pinocchio](https://github.com/stack-of-tasks/pinocchio), an open-source software that implements efficient and versatile rigid body dynamics algorithms and the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc), an open-source software for Motion and Manipulation Planning.
+This project is now used in many robotics frameworks such as [Pinocchio](https://github.com/stack-of-tasks/pinocchio), an open-source software that implements efficient and versatile rigid body dynamics algorithms, the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc), an open-source software for Motion and Manipulation Planning. **HPP-FCL** has also been recently used to develop [Simple](https://github.com/Simple-Robotics/Simple), a new (differentiable) and efficient simulator for robotics and beyond.
 
 ## A high-performance library
 
@@ -37,6 +42,7 @@ On the one hand, we have benchmarked HPP-FCL against major software alternatives
 3. the [libccd library](https://github.com/danfis/libccd) (used in [MuJoCo](http://mujoco.org/)).
 
 The results are depicted in the following figure, which notably shows that the accelerated variants of GJK largely outperform by a large margin (from 5x up to 15x times faster).
+Please notice that the y-axis is in log scale.
 
 <p align="center">
   <img src="./doc/images/hpp-fcl-vs-the-rest-of-the-world.png" width="600" alt="HPP-FCL vs the rest of the world" align="center"/>
