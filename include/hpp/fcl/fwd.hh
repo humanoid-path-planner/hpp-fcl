@@ -2,7 +2,7 @@
 // Software License Agreement (BSD License)
 //
 //  Copyright (c) 2014, CNRS-LAAS
-//  Copyright (c) 2022, Inria
+//  Copyright (c) 2022-2024, Inria
 //  Author: Florent Lamiraux
 //
 //  All rights reserved.
@@ -38,6 +38,7 @@
 #ifndef HPP_FCL_FWD_HH
 #define HPP_FCL_FWD_HH
 
+#include <cassert>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
