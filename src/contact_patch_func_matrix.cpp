@@ -44,7 +44,7 @@ namespace hpp {
 namespace fcl {
 
 template <typename T_BVH, typename T_SH>
-struct HPP_FCL_LOCAL BVHShapeComputeContactPatch {
+struct BVHShapeComputeContactPatch {
   static void run(const CollisionGeometry* o1, const Transform3f& tf1,
                   const CollisionGeometry* o2, const Transform3f& tf2,
                   const CollisionResult& collision_result,
@@ -69,7 +69,7 @@ struct HPP_FCL_LOCAL BVHShapeComputeContactPatch {
 };
 
 template <typename BV, typename Shape>
-struct HPP_FCL_LOCAL HeightFieldShapeComputeContactPatch {
+struct HeightFieldShapeComputeContactPatch {
   static void run(const CollisionGeometry* o1, const Transform3f& tf1,
                   const CollisionGeometry* o2, const Transform3f& tf2,
                   const CollisionResult& collision_result,
@@ -94,7 +94,7 @@ struct HPP_FCL_LOCAL HeightFieldShapeComputeContactPatch {
 };
 
 template <typename BV>
-struct HPP_FCL_LOCAL BVHComputeContactPatch {
+struct BVHComputeContactPatch {
   static void run(const CollisionGeometry* o1, const Transform3f& tf1,
                   const CollisionGeometry* o2, const Transform3f& tf2,
                   const CollisionResult& collision_result,
