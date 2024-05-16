@@ -38,8 +38,85 @@
 #include "hpp/fcl/shape/geometric_shapes.h"
 #include "hpp/fcl/internal/shape_shape_contact_patch_func.h"
 
+#include "hpp/fcl/BV/BV.h"
+
 namespace hpp {
 namespace fcl {
+
+template <typename T_BVH, typename T_SH>
+struct BVHShapeComputeContactPatch {
+  static void run(const CollisionGeometry* o1, const Transform3f& tf1,
+                  const CollisionGeometry* o2, const Transform3f& tf2,
+                  const CollisionResult& collision_result,
+                  const ContactPatchSolver* csolver,
+                  const ContactPatchRequest& request,
+                  ContactPatchResult& result) {
+    HPP_FCL_UNUSED_VARIABLE(o1);
+    HPP_FCL_UNUSED_VARIABLE(tf1);
+    HPP_FCL_UNUSED_VARIABLE(o2);
+    HPP_FCL_UNUSED_VARIABLE(tf2);
+    HPP_FCL_UNUSED_VARIABLE(csolver);
+    for (size_t i = 0; i < collision_result.numContacts(); ++i) {
+      if (i >= request.max_num_patch) {
+        break;
+      }
+      const Contact& contact = collision_result.getContact(i);
+      ContactPatch& contact_patch = result.getUnusedContactPatch();
+      constructContactPatchFrameFromContact(contact, contact_patch);
+      contact_patch.addPoint(contact.pos);
+    }
+  }
+};
+
+template <typename BV, typename Shape>
+struct HeightFieldShapeComputeContactPatch {
+  static void run(const CollisionGeometry* o1, const Transform3f& tf1,
+                  const CollisionGeometry* o2, const Transform3f& tf2,
+                  const CollisionResult& collision_result,
+                  const ContactPatchSolver* csolver,
+                  const ContactPatchRequest& request,
+                  ContactPatchResult& result) {
+    HPP_FCL_UNUSED_VARIABLE(o1);
+    HPP_FCL_UNUSED_VARIABLE(tf1);
+    HPP_FCL_UNUSED_VARIABLE(o2);
+    HPP_FCL_UNUSED_VARIABLE(tf2);
+    HPP_FCL_UNUSED_VARIABLE(csolver);
+    for (size_t i = 0; i < collision_result.numContacts(); ++i) {
+      if (i >= request.max_num_patch) {
+        break;
+      }
+      const Contact& contact = collision_result.getContact(i);
+      ContactPatch& contact_patch = result.getUnusedContactPatch();
+      constructContactPatchFrameFromContact(contact, contact_patch);
+      contact_patch.addPoint(contact.pos);
+    }
+  }
+};
+
+template <typename BV>
+struct BVHComputeContactPatch {
+  static void run(const CollisionGeometry* o1, const Transform3f& tf1,
+                  const CollisionGeometry* o2, const Transform3f& tf2,
+                  const CollisionResult& collision_result,
+                  const ContactPatchSolver* csolver,
+                  const ContactPatchRequest& request,
+                  ContactPatchResult& result) {
+    HPP_FCL_UNUSED_VARIABLE(o1);
+    HPP_FCL_UNUSED_VARIABLE(tf1);
+    HPP_FCL_UNUSED_VARIABLE(o2);
+    HPP_FCL_UNUSED_VARIABLE(tf2);
+    HPP_FCL_UNUSED_VARIABLE(csolver);
+    for (size_t i = 0; i < collision_result.numContacts(); ++i) {
+      if (i >= request.max_num_patch) {
+        break;
+      }
+      const Contact& contact = collision_result.getContact(i);
+      ContactPatch& contact_patch = result.getUnusedContactPatch();
+      constructContactPatchFrameFromContact(contact, contact_patch);
+      contact_patch.addPoint(contact.pos);
+    }
+  }
+};
 
 ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
   for (int i = 0; i < NODE_COUNT; ++i) {
@@ -156,6 +233,120 @@ ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
   contact_patch_matrix[GEOM_TRIANGLE][GEOM_HALFSPACE]  = &ShapeShapeContactPatch<TriangleP, Halfspace>;
   contact_patch_matrix[GEOM_TRIANGLE][GEOM_ELLIPSOID]  = &ShapeShapeContactPatch<TriangleP, Ellipsoid>;
   contact_patch_matrix[GEOM_TRIANGLE][GEOM_TRIANGLE]   = &ShapeShapeContactPatch<TriangleP, TriangleP>;
+
+  // TODO(louis): properly handle non-convex shapes like BVH, Octrees and Hfields.
+  // The following functions work. However apart from the contact frame, these functions don't
+  // compute more information than a call to `collide`.
+  contact_patch_matrix[BV_AABB][GEOM_BOX]         = &BVHShapeComputeContactPatch<AABB, Box>::run;
+  contact_patch_matrix[BV_AABB][GEOM_SPHERE]      = &BVHShapeComputeContactPatch<AABB, Sphere>::run;
+  contact_patch_matrix[BV_AABB][GEOM_CAPSULE]     = &BVHShapeComputeContactPatch<AABB, Capsule>::run;
+  contact_patch_matrix[BV_AABB][GEOM_CONE]        = &BVHShapeComputeContactPatch<AABB, Cone>::run;
+  contact_patch_matrix[BV_AABB][GEOM_CYLINDER]    = &BVHShapeComputeContactPatch<AABB, Cylinder>::run;
+  contact_patch_matrix[BV_AABB][GEOM_CONVEX]      = &BVHShapeComputeContactPatch<AABB, ConvexBase>::run;
+  contact_patch_matrix[BV_AABB][GEOM_PLANE]       = &BVHShapeComputeContactPatch<AABB, Plane>::run;
+  contact_patch_matrix[BV_AABB][GEOM_HALFSPACE]   = &BVHShapeComputeContactPatch<AABB, Halfspace>::run;
+  contact_patch_matrix[BV_AABB][GEOM_ELLIPSOID]   = &BVHShapeComputeContactPatch<AABB, Ellipsoid>::run;
+
+  contact_patch_matrix[BV_OBB][GEOM_BOX]          = &BVHShapeComputeContactPatch<OBB, Box>::run;
+  contact_patch_matrix[BV_OBB][GEOM_SPHERE]       = &BVHShapeComputeContactPatch<OBB, Sphere>::run;
+  contact_patch_matrix[BV_OBB][GEOM_CAPSULE]      = &BVHShapeComputeContactPatch<OBB, Capsule>::run;
+  contact_patch_matrix[BV_OBB][GEOM_CONE]         = &BVHShapeComputeContactPatch<OBB, Cone>::run;
+  contact_patch_matrix[BV_OBB][GEOM_CYLINDER]     = &BVHShapeComputeContactPatch<OBB, Cylinder>::run;
+  contact_patch_matrix[BV_OBB][GEOM_CONVEX]       = &BVHShapeComputeContactPatch<OBB, ConvexBase>::run;
+  contact_patch_matrix[BV_OBB][GEOM_PLANE]        = &BVHShapeComputeContactPatch<OBB, Plane>::run;
+  contact_patch_matrix[BV_OBB][GEOM_HALFSPACE]    = &BVHShapeComputeContactPatch<OBB, Halfspace>::run;
+  contact_patch_matrix[BV_OBB][GEOM_ELLIPSOID]    = &BVHShapeComputeContactPatch<OBB, Ellipsoid>::run;
+
+  contact_patch_matrix[BV_RSS][GEOM_BOX]          = &BVHShapeComputeContactPatch<RSS, Box>::run;
+  contact_patch_matrix[BV_RSS][GEOM_SPHERE]       = &BVHShapeComputeContactPatch<RSS, Sphere>::run;
+  contact_patch_matrix[BV_RSS][GEOM_CAPSULE]      = &BVHShapeComputeContactPatch<RSS, Capsule>::run;
+  contact_patch_matrix[BV_RSS][GEOM_CONE]         = &BVHShapeComputeContactPatch<RSS, Cone>::run;
+  contact_patch_matrix[BV_RSS][GEOM_CYLINDER]     = &BVHShapeComputeContactPatch<RSS, Cylinder>::run;
+  contact_patch_matrix[BV_RSS][GEOM_CONVEX]       = &BVHShapeComputeContactPatch<RSS, ConvexBase>::run;
+  contact_patch_matrix[BV_RSS][GEOM_PLANE]        = &BVHShapeComputeContactPatch<RSS, Plane>::run;
+  contact_patch_matrix[BV_RSS][GEOM_HALFSPACE]    = &BVHShapeComputeContactPatch<RSS, Halfspace>::run;
+  contact_patch_matrix[BV_RSS][GEOM_ELLIPSOID]    = &BVHShapeComputeContactPatch<RSS, Ellipsoid>::run;
+
+  contact_patch_matrix[BV_KDOP16][GEOM_BOX]       = &BVHShapeComputeContactPatch<KDOP<16>, Box>::run;
+  contact_patch_matrix[BV_KDOP16][GEOM_SPHERE]    = &BVHShapeComputeContactPatch<KDOP<16>, Sphere>::run;
+  contact_patch_matrix[BV_KDOP16][GEOM_CAPSULE]   = &BVHShapeComputeContactPatch<KDOP<16>, Capsule>::run;
+  contact_patch_matrix[BV_KDOP16][GEOM_CONE]      = &BVHShapeComputeContactPatch<KDOP<16>, Cone>::run;
+  contact_patch_matrix[BV_KDOP16][GEOM_CYLINDER]  = &BVHShapeComputeContactPatch<KDOP<16>, Cylinder>::run;
+  contact_patch_matrix[BV_KDOP16][GEOM_CONVEX]    = &BVHShapeComputeContactPatch<KDOP<16>, ConvexBase>::run;
+  contact_patch_matrix[BV_KDOP16][GEOM_PLANE]     = &BVHShapeComputeContactPatch<KDOP<16>, Plane>::run;
+  contact_patch_matrix[BV_KDOP16][GEOM_HALFSPACE] = &BVHShapeComputeContactPatch<KDOP<16>, Halfspace>::run;
+  contact_patch_matrix[BV_KDOP16][GEOM_ELLIPSOID] = &BVHShapeComputeContactPatch<KDOP<16>, Ellipsoid>::run;
+
+  contact_patch_matrix[BV_KDOP18][GEOM_BOX]       = &BVHShapeComputeContactPatch<KDOP<18>, Box>::run;
+  contact_patch_matrix[BV_KDOP18][GEOM_SPHERE]    = &BVHShapeComputeContactPatch<KDOP<18>, Sphere>::run;
+  contact_patch_matrix[BV_KDOP18][GEOM_CAPSULE]   = &BVHShapeComputeContactPatch<KDOP<18>, Capsule>::run;
+  contact_patch_matrix[BV_KDOP18][GEOM_CONE]      = &BVHShapeComputeContactPatch<KDOP<18>, Cone>::run;
+  contact_patch_matrix[BV_KDOP18][GEOM_CYLINDER]  = &BVHShapeComputeContactPatch<KDOP<18>, Cylinder>::run;
+  contact_patch_matrix[BV_KDOP18][GEOM_CONVEX]    = &BVHShapeComputeContactPatch<KDOP<18>, ConvexBase>::run;
+  contact_patch_matrix[BV_KDOP18][GEOM_PLANE]     = &BVHShapeComputeContactPatch<KDOP<18>, Plane>::run;
+  contact_patch_matrix[BV_KDOP18][GEOM_HALFSPACE] = &BVHShapeComputeContactPatch<KDOP<18>, Halfspace>::run;
+  contact_patch_matrix[BV_KDOP18][GEOM_ELLIPSOID] = &BVHShapeComputeContactPatch<KDOP<18>, Ellipsoid>::run;
+
+  contact_patch_matrix[BV_KDOP24][GEOM_BOX]       = &BVHShapeComputeContactPatch<KDOP<24>, Box>::run;
+  contact_patch_matrix[BV_KDOP24][GEOM_SPHERE]    = &BVHShapeComputeContactPatch<KDOP<24>, Sphere>::run;
+  contact_patch_matrix[BV_KDOP24][GEOM_CAPSULE]   = &BVHShapeComputeContactPatch<KDOP<24>, Capsule>::run;
+  contact_patch_matrix[BV_KDOP24][GEOM_CONE]      = &BVHShapeComputeContactPatch<KDOP<24>, Cone>::run;
+  contact_patch_matrix[BV_KDOP24][GEOM_CYLINDER]  = &BVHShapeComputeContactPatch<KDOP<24>, Cylinder>::run;
+  contact_patch_matrix[BV_KDOP24][GEOM_CONVEX]    = &BVHShapeComputeContactPatch<KDOP<24>, ConvexBase>::run;
+  contact_patch_matrix[BV_KDOP24][GEOM_PLANE]     = &BVHShapeComputeContactPatch<KDOP<24>, Plane>::run;
+  contact_patch_matrix[BV_KDOP24][GEOM_HALFSPACE] = &BVHShapeComputeContactPatch<KDOP<24>, Halfspace>::run;
+  contact_patch_matrix[BV_KDOP24][GEOM_ELLIPSOID] = &BVHShapeComputeContactPatch<KDOP<24>, Ellipsoid>::run;
+
+  contact_patch_matrix[BV_kIOS][GEOM_BOX]         = &BVHShapeComputeContactPatch<kIOS, Box>::run;
+  contact_patch_matrix[BV_kIOS][GEOM_SPHERE]      = &BVHShapeComputeContactPatch<kIOS, Sphere>::run;
+  contact_patch_matrix[BV_kIOS][GEOM_CAPSULE]     = &BVHShapeComputeContactPatch<kIOS, Capsule>::run;
+  contact_patch_matrix[BV_kIOS][GEOM_CONE]        = &BVHShapeComputeContactPatch<kIOS, Cone>::run;
+  contact_patch_matrix[BV_kIOS][GEOM_CYLINDER]    = &BVHShapeComputeContactPatch<kIOS, Cylinder>::run;
+  contact_patch_matrix[BV_kIOS][GEOM_CONVEX]      = &BVHShapeComputeContactPatch<kIOS, ConvexBase>::run;
+  contact_patch_matrix[BV_kIOS][GEOM_PLANE]       = &BVHShapeComputeContactPatch<kIOS, Plane>::run;
+  contact_patch_matrix[BV_kIOS][GEOM_HALFSPACE]   = &BVHShapeComputeContactPatch<kIOS, Halfspace>::run;
+  contact_patch_matrix[BV_kIOS][GEOM_ELLIPSOID]   = &BVHShapeComputeContactPatch<kIOS, Ellipsoid>::run;
+
+  contact_patch_matrix[BV_OBBRSS][GEOM_BOX]       = &BVHShapeComputeContactPatch<OBBRSS, Box>::run;
+  contact_patch_matrix[BV_OBBRSS][GEOM_SPHERE]    = &BVHShapeComputeContactPatch<OBBRSS, Sphere>::run;
+  contact_patch_matrix[BV_OBBRSS][GEOM_CAPSULE]   = &BVHShapeComputeContactPatch<OBBRSS, Capsule>::run;
+  contact_patch_matrix[BV_OBBRSS][GEOM_CONE]      = &BVHShapeComputeContactPatch<OBBRSS, Cone>::run;
+  contact_patch_matrix[BV_OBBRSS][GEOM_CYLINDER]  = &BVHShapeComputeContactPatch<OBBRSS, Cylinder>::run;
+  contact_patch_matrix[BV_OBBRSS][GEOM_CONVEX]    = &BVHShapeComputeContactPatch<OBBRSS, ConvexBase>::run;
+  contact_patch_matrix[BV_OBBRSS][GEOM_PLANE]     = &BVHShapeComputeContactPatch<OBBRSS, Plane>::run;
+  contact_patch_matrix[BV_OBBRSS][GEOM_HALFSPACE] = &BVHShapeComputeContactPatch<OBBRSS, Halfspace>::run;
+  contact_patch_matrix[BV_OBBRSS][GEOM_ELLIPSOID] = &BVHShapeComputeContactPatch<OBBRSS, Ellipsoid>::run;
+
+  contact_patch_matrix[HF_AABB][GEOM_BOX]         = &HeightFieldShapeComputeContactPatch<AABB, Box>::run;
+  contact_patch_matrix[HF_AABB][GEOM_SPHERE]      = &HeightFieldShapeComputeContactPatch<AABB, Sphere>::run;
+  contact_patch_matrix[HF_AABB][GEOM_CAPSULE]     = &HeightFieldShapeComputeContactPatch<AABB, Capsule>::run;
+  contact_patch_matrix[HF_AABB][GEOM_CONE]        = &HeightFieldShapeComputeContactPatch<AABB, Cone>::run;
+  contact_patch_matrix[HF_AABB][GEOM_CYLINDER]    = &HeightFieldShapeComputeContactPatch<AABB, Cylinder>::run;
+  contact_patch_matrix[HF_AABB][GEOM_CONVEX]      = &HeightFieldShapeComputeContactPatch<AABB, ConvexBase>::run;
+  contact_patch_matrix[HF_AABB][GEOM_PLANE]       = &HeightFieldShapeComputeContactPatch<AABB, Plane>::run;
+  contact_patch_matrix[HF_AABB][GEOM_HALFSPACE]   = &HeightFieldShapeComputeContactPatch<AABB, Halfspace>::run;
+  contact_patch_matrix[HF_AABB][GEOM_ELLIPSOID]   = &HeightFieldShapeComputeContactPatch<AABB, Ellipsoid>::run;
+
+  contact_patch_matrix[HF_OBBRSS][GEOM_BOX]       = &HeightFieldShapeComputeContactPatch<OBBRSS, Box>::run;
+  contact_patch_matrix[HF_OBBRSS][GEOM_SPHERE]    = &HeightFieldShapeComputeContactPatch<OBBRSS, Sphere>::run;
+  contact_patch_matrix[HF_OBBRSS][GEOM_CAPSULE]   = &HeightFieldShapeComputeContactPatch<OBBRSS, Capsule>::run;
+  contact_patch_matrix[HF_OBBRSS][GEOM_CONE]      = &HeightFieldShapeComputeContactPatch<OBBRSS, Cone>::run;
+  contact_patch_matrix[HF_OBBRSS][GEOM_CYLINDER]  = &HeightFieldShapeComputeContactPatch<OBBRSS, Cylinder>::run;
+  contact_patch_matrix[HF_OBBRSS][GEOM_CONVEX]    = &HeightFieldShapeComputeContactPatch<OBBRSS, ConvexBase>::run;
+  contact_patch_matrix[HF_OBBRSS][GEOM_PLANE]     = &HeightFieldShapeComputeContactPatch<OBBRSS, Plane>::run;
+  contact_patch_matrix[HF_OBBRSS][GEOM_HALFSPACE] = &HeightFieldShapeComputeContactPatch<OBBRSS, Halfspace>::run;
+  contact_patch_matrix[HF_OBBRSS][GEOM_ELLIPSOID] = &HeightFieldShapeComputeContactPatch<OBBRSS, Ellipsoid>::run;
+
+  contact_patch_matrix[BV_AABB][BV_AABB]          = &BVHComputeContactPatch<AABB>::run;
+  contact_patch_matrix[BV_OBB][BV_OBB]            = &BVHComputeContactPatch<OBB>::run;
+  contact_patch_matrix[BV_RSS][BV_RSS]            = &BVHComputeContactPatch<RSS>::run;
+  contact_patch_matrix[BV_KDOP16][BV_KDOP16]      = &BVHComputeContactPatch<KDOP<16>>::run;
+  contact_patch_matrix[BV_KDOP18][BV_KDOP18]      = &BVHComputeContactPatch<KDOP<18>>::run;
+  contact_patch_matrix[BV_KDOP24][BV_KDOP24]      = &BVHComputeContactPatch<KDOP<24>>::run;
+  contact_patch_matrix[BV_kIOS][BV_kIOS]          = &BVHComputeContactPatch<kIOS>::run;
+  contact_patch_matrix[BV_OBBRSS][BV_OBBRSS]      = &BVHComputeContactPatch<OBBRSS>::run;
+
+  // TODO(louis): octrees
   // clang-format on
 }
 

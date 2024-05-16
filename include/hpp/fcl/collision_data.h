@@ -894,6 +894,20 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
     return this->m_contact_patches.back();
   }
 
+  /// @brief Getter for the i-th contact patch of the result.
+  ContactPatch& contactPatch(const size_t i) {
+    if (this->m_contact_patches.empty()) {
+      HPP_FCL_THROW_PRETTY(
+          "The number of contact patches is zero. No ContactPatch can be "
+          "returned.",
+          std::invalid_argument);
+    }
+    if (i < this->m_contact_patches.size()) {
+      return this->m_contact_patches[i];
+    }
+    return this->m_contact_patches.back();
+  }
+
   /// @brief Clears the contact patch result.
   void clear() {
     this->m_contact_patches.clear();
@@ -947,6 +961,23 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
     }
 
     return true;
+  }
+
+  /// @brief Repositions the ContactPatch when they get inverted during their
+  /// construction.
+  void swapObjects() {
+    // Create new transform: it's the reflection of `tf` along the z-axis.
+    // This corresponds to doing a PI rotation along the y-axis, i.e. the x-axis
+    // becomes -x-axis, y-axis stays the same, z-axis becomes -z-axis.
+    for (size_t i = 0; i < this->numContactPatches(); ++i) {
+      ContactPatch& patch = this->contactPatch(i);
+      patch.tf.rotation().col(0) *= -1.0;
+      patch.tf.rotation().col(2) *= -1.0;
+
+      for (size_t j = 0; j < patch.size(); ++j) {
+        patch.point(i)(0) *= -1.0;  // only invert the x-axis
+      }
+    }
   }
 };
 

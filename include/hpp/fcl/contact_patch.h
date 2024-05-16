@@ -107,6 +107,7 @@ class HPP_FCL_DLLAPI ComputeContactPatch {
   mutable ContactPatchSolver csolver;
 
   ContactPatchFunctionMatrix::ContactPatchFunc func;
+  bool swap_geoms;
 
   virtual void run(const Transform3f& tf1, const Transform3f& tf2,
                    const CollisionResult& collision_result,
