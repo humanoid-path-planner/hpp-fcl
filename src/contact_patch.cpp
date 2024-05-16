@@ -148,11 +148,13 @@ void ComputeContactPatch::run(const Transform3f& tf1, const Transform3f& tf2,
 
   // Before doing any computation, we initialize and clear the input result.
   result.set(request);
-  this->func(this->o1, tf1, this->o2, tf2, collision_result, &(this->csolver),
-             request, result);
-
   if (this->swap_geoms) {
+    this->func(this->o2, tf2, this->o1, tf1, collision_result, &(this->csolver),
+               request, result);
     result.swapObjects();
+  } else {
+    this->func(this->o1, tf1, this->o2, tf2, collision_result, &(this->csolver),
+               request, result);
   }
 }
 
