@@ -202,9 +202,10 @@ class HPP_FCL_DLLAPI Transform3f {
     T.setZero();
   }
 
-  /// @brief set the transform to a random transform
+  /// @brief return a random transform
   static Transform3f Random() { return Transform3f().setRandom(); }
 
+  /// @brief set the transform to a random transform
   Transform3f& setRandom();
 
   bool operator==(const Transform3f& other) const {
