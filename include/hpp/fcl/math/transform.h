@@ -202,6 +202,11 @@ class HPP_FCL_DLLAPI Transform3f {
     T.setZero();
   }
 
+  /// @brief set the transform to a random transform
+  static Transform3f Random() { return Transform3f().setRandom(); }
+
+  Transform3f& setRandom();
+
   bool operator==(const Transform3f& other) const {
     return (R == other.getRotation()) && (T == other.getTranslation());
   }
@@ -215,6 +220,39 @@ template <typename Derived>
 inline Quatf fromAxisAngle(const Eigen::MatrixBase<Derived>& axis,
                            FCL_REAL angle) {
   return Quatf(Eigen::AngleAxis<FCL_REAL>(angle, axis));
+}
+
+/// @brief Uniformly random quaternion sphere.
+/// Code taken from Pinocchio (https://github.com/stack-of-tasks/pinocchio).
+inline Quatf uniformRandomQuaternion() {
+  // Rotational part
+  const FCL_REAL u1 = (FCL_REAL)rand() / RAND_MAX;
+  const FCL_REAL u2 = (FCL_REAL)rand() / RAND_MAX;
+  const FCL_REAL u3 = (FCL_REAL)rand() / RAND_MAX;
+
+  const FCL_REAL mult1 = std::sqrt(FCL_REAL(1.0) - u1);
+  const FCL_REAL mult2 = std::sqrt(u1);
+
+  static const FCL_REAL PI_value = EIGEN_PI;
+  FCL_REAL s2 = std::sin(2 * PI_value * u2);
+  FCL_REAL c2 = std::cos(2 * PI_value * u2);
+  FCL_REAL s3 = std::sin(2 * PI_value * u3);
+  FCL_REAL c3 = std::cos(2 * PI_value * u3);
+
+  Quatf q;
+  q.w() = mult1 * s2;
+  q.x() = mult1 * c2;
+  q.y() = mult2 * s3;
+  q.z() = mult2 * c3;
+  return q;
+}
+
+inline Transform3f& Transform3f::setRandom() {
+  const Quatf q = uniformRandomQuaternion();
+  this->rotation() = q.matrix();
+  this->translation().setRandom();
+
+  return *this;
 }
 
 /// @brief Construct othonormal basis from vector.

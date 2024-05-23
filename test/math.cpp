@@ -139,3 +139,10 @@ BOOST_AUTO_TEST_CASE(transform) {
   // std::cout << output.lhs() << std::endl;
   BOOST_CHECK(isEqual(rv + T, tf.transform(v)));
 }
+
+BOOST_AUTO_TEST_CASE(random_transform) {
+  for (size_t i = 0; i < 100; ++i) {
+    const Transform3f tf = Transform3f::Random();
+    BOOST_CHECK((tf.inverseTimes(tf)).isIdentity());
+  }
+}
