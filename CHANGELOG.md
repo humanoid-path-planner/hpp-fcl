@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+- Added `Transform3f::Random` and `Transform3f::setRandom` ([#584](https://github.com/humanoid-path-planner/hpp-fcl/pull/584))
 - New feature: computation of contact surfaces for any pair of primitive shapes (triangle, sphere, ellipsoid, plane, halfspace, cone, capsule, cylinder, convex) ([#574](https://github.com/humanoid-path-planner/hpp-fcl/pull/574)).
 - Enhance Broadphase DynamicAABBTree to better handle planes and halfspace ([#570](https://github.com/humanoid-path-planner/hpp-fcl/pull/570))
 - [#558](https://github.com/humanoid-path-planner/hpp-fcl/pull/558):
