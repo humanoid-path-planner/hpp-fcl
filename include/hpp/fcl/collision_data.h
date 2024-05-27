@@ -533,11 +533,11 @@ struct HPP_FCL_DLLAPI ContactPatch {
 
   /// @brief Penetration depth of the contact patch. This value corresponds to
   /// the signed distance `d` between the shapes.
-  /// @note For each contact point `p` in the patch of normal `n`, `p1 = p +
-  /// 0.5*d*n` and `p2 = p - 0.5*d*n` define a pair of witness points. `p1`
+  /// @note For each contact point `p` in the patch of normal `n`, `p1 = p -
+  /// 0.5*d*n` and `p2 = p + 0.5*d*n` define a pair of witness points. `p1`
   /// belongs to the surface of the first shape and `p2` belongs to the surface
-  /// of the second shape. For any pair of witness points, we always have `p1 -
-  /// p2 = d * n`. The vector `d * n` is called a minimum separation vector:
+  /// of the second shape. For any pair of witness points, we always have `p2 -
+  /// p1 = d * n`. The vector `d * n` is called a minimum separation vector:
   /// if S1 is translated by it, S1 and S2 are not in collision anymore.
   /// @note Although there may exist multiple minimum separation vectors between
   /// two shapes, the term "minimum" comes from the fact that it's impossible to
