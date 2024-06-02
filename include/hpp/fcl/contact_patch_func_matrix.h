@@ -54,11 +54,11 @@ struct HPP_FCL_DLLAPI ContactPatchFunctionMatrix {
   ///    and tf2;
   /// 2. the collision result that generated contact patches candidates
   ///    (`hpp::fcl::Contact`), from which contact patches will be expanded;
-  /// 3. the narrow phase solver that was used to compute the collision result;
-  /// 4. the solver for computation of contact patches;
-  /// 5. the request setting for contact patches (e.g. maximum amoung and size
-  ///    of contact patches);
-  /// 6. the structure to return contact patches.
+  /// 3. the solver for computation of contact patches;
+  /// 4. the request setting for contact patches (e.g. maximum amount of
+  ///    patches, patch tolerance etc.)
+  /// 5. the structure to return contact patches
+  ///    (`hpp::fcl::ContactPatchResult`).
   ///
   /// Note: we pass a GJKSolver, because it allows to reuse internal computation
   /// that was made during the narrow phase. It also allows to experiment with
