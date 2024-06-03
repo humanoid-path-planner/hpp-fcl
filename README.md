@@ -56,6 +56,16 @@ On the other hand, why do we care about dedicated collision detection solvers li
 
 One can observe that GJK-based approaches largely outperform solutions based on classic optimization solvers (e.g., QP solver like [ProxQP](https://github.com/Simple-Robotics/proxsuite)), notably for large geometries composed of tens or hundreds of vertices.
 
+## Open-source projects relying on Pinocchio
+
+- [Pinocchio](https://github.com/stack-of-tasks/pinocchio) A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives. 
+- [IfcOpenShell](https://github.com/IfcOpenShell/IfcOpenShell) Open source IFC library and geometry engine.
+- [Crocoddyl](https://github.com/loco-3d/crocoddyl) A software to realize model predictive control for complex robotics platforms.
+- [TSID](https://github.com/stack-of-tasks/tsid/) A software that implements a Task Space Inverse Dynamics QP.
+- [HPP](https://humanoid-path-planner.github.io/hpp-doc/) A SDK that implements motion planners for humanoids and other robots.
+- [Jiminy](https://github.com/duburcqa/jiminy) A simulator based on Pinocchio.
+- [ocs2](https://github.com/leggedrobotics/ocs2) A toolbox for Optimal Control for Switched Systems (OCS2)
+
 ## C++ example
 Both the C++ library and the python bindings can be installed as simply as `conda -c conda-forge install hpp-fcl`.
 The `.so` library, include files and python bindings will then be installed under `$CONDA_PREFIX/lib`, `$CONDA_PREFIX/include` and `$CONDA_PREFIX/lib/python3.XX/site-packages`.
