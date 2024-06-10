@@ -58,7 +58,7 @@ One can observe that GJK-based approaches largely outperform solutions based on 
 
 ## Open-source projects relying on Pinocchio
 
-- [Pinocchio](https://github.com/stack-of-tasks/pinocchio) A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives. 
+- [Pinocchio](https://github.com/stack-of-tasks/pinocchio) A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives.
 - [IfcOpenShell](https://github.com/IfcOpenShell/IfcOpenShell) Open source IFC library and geometry engine.
 - [Crocoddyl](https://github.com/loco-3d/crocoddyl) A software to realize model predictive control for complex robotics platforms.
 - [TSID](https://github.com/stack-of-tasks/tsid/) A software that implements a Task Space Inverse Dynamics QP.
