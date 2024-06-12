@@ -365,6 +365,14 @@ ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
 
   // TODO(louis): octrees
   contact_patch_matrix[GEOM_OCTREE][GEOM_OCTREE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_AABB] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_OBB] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_RSS] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_OBBRSS] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_kIOS] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_KDOP16] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_KDOP18] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_KDOP24] = &contact_patch_function_not_implemented;
   // clang-format on
 }
 
