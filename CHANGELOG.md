@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+### Added
 - Added `Transform3f::Random` and `Transform3f::setRandom` ([#584](https://github.com/humanoid-path-planner/hpp-fcl/pull/584))
 - New feature: computation of contact surfaces for any pair of primitive shapes (triangle, sphere, ellipsoid, plane, halfspace, cone, capsule, cylinder, convex) ([#574](https://github.com/humanoid-path-planner/hpp-fcl/pull/574)).
 - Enhance Broadphase DynamicAABBTree to better handle planes and halfspace ([#570](https://github.com/humanoid-path-planner/hpp-fcl/pull/570))
@@ -17,12 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fixed too low tolerance in GJK/EPA asserts ([#554](https://github.com/humanoid-path-planner/hpp-fcl/pull/554))
 - Fixed `normal_and_nearest_points` test (no need to have Eigen 3.4) ([#553](https://github.com/humanoid-path-planner/hpp-fcl/pull/553))
 - [#549](https://github.com/humanoid-path-planner/hpp-fcl/pull/549)
-  - Optimize EPA: ignore useless faces in EPA's polytope; warm-start support computation for `Convex`; fix edge-cases witness points computation.
-  - Add `Serializable` trait to transform, collision data, collision geometries, bounding volumes, bvh models, hfields. Collision problems can now be serialized from C++ and sent to python and vice versa.
+- Optimize EPA: ignore useless faces in EPA's polytope; warm-start support computation for `Convex`; fix edge-cases witness points computation.
+- Add `Serializable` trait to transform, collision data, collision geometries, bounding volumes, bvh models, hfields. Collision problems can now be serialized from C++ and sent to python and vice versa.
 - CMake: allow use of installed jrl-cmakemodules ([#564](https://github.com/humanoid-path-planner/hpp-fcl/pull/564))
-- Fix compilation with earlier Eigen version
-- Fix compilation warning message
-- Fix issue in Octomap.computeLocalAABB
 
 ### Fixed
 
@@ -43,6 +42,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Account for lateral borders in Height Fields model.
 - Fix compilation error on recent APPLE compilers ([#539](https://github.com/humanoid-path-planner/hpp-fcl/pull/539)).
 - Fix printing of deprecated message ([#540](https://github.com/humanoid-path-planner/hpp-fcl/pull/540)).
+- Fix compilation with earlier Eigen version
+- Fix compilation warning message
+- Fix issue in Octomap.computeLocalAABB
+- Fix unsupported function for contact_patch_matrix
 
 ## [2.4.4] - 2024-03-06
 
