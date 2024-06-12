@@ -365,6 +365,16 @@ ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
 
   // TODO(louis): octrees
   contact_patch_matrix[GEOM_OCTREE][GEOM_OCTREE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_BOX] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_SPHERE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_CONE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_CONVEX] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_PLANE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_ELLIPSOID] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_TRIANGLE] = &contact_patch_function_not_implemented;
   contact_patch_matrix[GEOM_OCTREE][BV_AABB] = &contact_patch_function_not_implemented;
   contact_patch_matrix[GEOM_OCTREE][BV_OBB] = &contact_patch_function_not_implemented;
   contact_patch_matrix[GEOM_OCTREE][BV_RSS] = &contact_patch_function_not_implemented;
