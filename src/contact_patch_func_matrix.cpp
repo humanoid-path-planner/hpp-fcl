@@ -118,6 +118,23 @@ struct BVHComputeContactPatch {
   }
 };
 
+HPP_FCL_LOCAL void contact_patch_function_not_implemented(
+    const CollisionGeometry* o1, const Transform3f& /*tf1*/,
+    const CollisionGeometry* o2, const Transform3f& /*tf2*/,
+    const CollisionResult& /*collision_result*/,
+    const ContactPatchSolver* /*csolver*/,
+    const ContactPatchRequest& /*request*/, ContactPatchResult& /*result*/) {
+  NODE_TYPE node_type1 = o1->getNodeType();
+  NODE_TYPE node_type2 = o2->getNodeType();
+
+  HPP_FCL_THROW_PRETTY("Contact patch function between node type "
+                           << std::string(get_node_type_name(node_type1))
+                           << " and node type "
+                           << std::string(get_node_type_name(node_type2))
+                           << " is not yet supported.",
+                       std::invalid_argument);
+}
+
 ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
   for (int i = 0; i < NODE_COUNT; ++i) {
     for (int j = 0; j < NODE_COUNT; ++j) contact_patch_matrix[i][j] = nullptr;
@@ -347,6 +364,46 @@ ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
   contact_patch_matrix[BV_OBBRSS][BV_OBBRSS]      = &BVHComputeContactPatch<OBBRSS>::run;
 
   // TODO(louis): octrees
+#ifdef HPP_FCL_HAS_OCTOMAP
+  contact_patch_matrix[GEOM_OCTREE][GEOM_OCTREE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_BOX] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_SPHERE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_CONE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_CONVEX] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_PLANE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_HALFSPACE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_ELLIPSOID] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][GEOM_TRIANGLE] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_AABB] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_OBB] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_RSS] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_OBBRSS] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_kIOS] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_KDOP16] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_KDOP18] = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_OCTREE][BV_KDOP24] = &contact_patch_function_not_implemented;
+
+  contact_patch_matrix[GEOM_BOX][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_SPHERE][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_CAPSULE][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_CONE][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_CYLINDER][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_CONVEX][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_PLANE][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_HALFSPACE][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_ELLIPSOID][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[GEOM_TRIANGLE][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[BV_AABB][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[BV_OBB][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[BV_RSS][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[BV_OBBRSS][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[BV_kIOS][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[BV_KDOP16][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[BV_KDOP18][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+  contact_patch_matrix[BV_KDOP24][GEOM_OCTREE]  = &contact_patch_function_not_implemented;
+#endif
   // clang-format on
 }
 
