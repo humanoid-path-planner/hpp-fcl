@@ -67,7 +67,7 @@ HPP_FCL_COMPILER_DIAGNOSTIC_POP
 #include "utility.h"
 #include "fcl_resources/config.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 namespace utf = boost::unit_test::framework;
 
 int num_max_contacts = (std::numeric_limits<int>::max)();

@@ -2,8 +2,8 @@
 // Copyright (c) 2021 INRIA
 //
 
-#ifndef HPP_FCL_SERIALIZATION_BV_SPLITTER_H
-#define HPP_FCL_SERIALIZATION_BV_SPLITTER_H
+#ifndef COAL_SERIALIZATION_BV_SPLITTER_H
+#define COAL_SERIALIZATION_BV_SPLITTER_H
 
 #include "hpp/fcl/internal/BV_splitter.h"
 
@@ -14,8 +14,8 @@ namespace serialization {
 
 namespace internal {
 template <typename BV>
-struct BVSplitterAccessor : hpp::fcl::BVSplitter<BV> {
-  typedef hpp::fcl::BVSplitter<BV> Base;
+struct BVSplitterAccessor : coal::BVSplitter<BV> {
+  typedef coal::BVSplitter<BV> Base;
   using Base::split_axis;
   using Base::split_method;
   using Base::split_value;
@@ -27,9 +27,9 @@ struct BVSplitterAccessor : hpp::fcl::BVSplitter<BV> {
 }  // namespace internal
 
 template <class Archive, typename BV>
-void save(Archive &ar, const hpp::fcl::BVSplitter<BV> &splitter_,
+void save(Archive &ar, const coal::BVSplitter<BV> &splitter_,
           const unsigned int /*version*/) {
-  using namespace hpp::fcl;
+  using namespace coal;
   typedef internal::BVSplitterAccessor<BV> Accessor;
   const Accessor &splitter = reinterpret_cast<const Accessor &>(splitter_);
 
@@ -41,9 +41,9 @@ void save(Archive &ar, const hpp::fcl::BVSplitter<BV> &splitter_,
 }
 
 template <class Archive, typename BV>
-void load(Archive &ar, hpp::fcl::BVSplitter<BV> &splitter_,
+void load(Archive &ar, coal::BVSplitter<BV> &splitter_,
           const unsigned int /*version*/) {
-  using namespace hpp::fcl;
+  using namespace coal;
   typedef internal::BVSplitterAccessor<BV> Accessor;
   Accessor &splitter = reinterpret_cast<Accessor &>(splitter_);
 
@@ -59,4 +59,4 @@ void load(Archive &ar, hpp::fcl::BVSplitter<BV> &splitter_,
 }  // namespace serialization
 }  // namespace boost
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_BV_SPLITTER_H
+#endif  // ifndef COAL_SERIALIZATION_BV_SPLITTER_H

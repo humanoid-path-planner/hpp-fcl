@@ -36,8 +36,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_OCTREE_H
-#define HPP_FCL_OCTREE_H
+#ifndef COAL_OCTREE_H
+#define COAL_OCTREE_H
 
 #include <algorithm>
 
@@ -46,8 +46,7 @@
 #include <hpp/fcl/BV/AABB.h>
 #include <hpp/fcl/collision_object.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Octree is one type of collision geometry which can encode uncertainty
 /// information in the sensor data.
@@ -335,8 +334,6 @@ HPP_FCL_DLLAPI OcTreePtr_t
 makeOctree(const Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3>& point_cloud,
            const FCL_REAL resolution);
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

@@ -36,7 +36,7 @@
 
 #include "hpp/fcl/serialization/fwd.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 #include "hpp/fcl/serialization/transform.h"
 #include "hpp/fcl/serialization/collision_data.h"

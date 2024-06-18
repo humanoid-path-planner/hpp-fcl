@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "fcl_resources/config.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 CollisionFunctionMatrix lookupTable;
 bool supportedPair(const CollisionGeometry* o1, const CollisionGeometry* o2) {
@@ -190,10 +190,10 @@ Geometry makeGeomFromParam(int& iarg, const int& argc, char** argv) {
     iarg += 3;
     if (iarg < argc && strcmp(argv[iarg], "crop") == 0) {
       CHECK_PARAM_NB(6, Crop);
-      hpp::fcl::AABB aabb(Vec3f(atof(argv[iarg + 1]), atof(argv[iarg + 2]),
-                                atof(argv[iarg + 3])),
-                          Vec3f(atof(argv[iarg + 4]), atof(argv[iarg + 5]),
-                                atof(argv[iarg + 6])));
+      coal::AABB aabb(Vec3f(atof(argv[iarg + 1]), atof(argv[iarg + 2]),
+                            atof(argv[iarg + 3])),
+                      Vec3f(atof(argv[iarg + 4]), atof(argv[iarg + 5]),
+                            atof(argv[iarg + 6])));
       OUT("Cropping " << aabb.min_.transpose() << " ---- "
                       << aabb.max_.transpose() << " ...");
       o->computeLocalAABB();

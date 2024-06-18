@@ -37,8 +37,7 @@
 
 #include "hpp/fcl/broadphase/broadphase_interval_tree.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 //==============================================================================
 void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj) {
@@ -645,5 +644,4 @@ IntervalTreeCollisionManager::SAPInterval::SAPInterval(FCL_REAL low_,
   obj = obj_;
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

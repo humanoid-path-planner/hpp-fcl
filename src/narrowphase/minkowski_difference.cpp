@@ -39,8 +39,7 @@
 #include "hpp/fcl/narrowphase/minkowski_difference.h"
 #include "hpp/fcl/shape/geometric_shapes_traits.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace details {
 
 // ============================================================================
@@ -321,5 +320,4 @@ template Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support1<SupportOptions::WithSweptS
 // clang-format on
 
 }  // namespace details
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

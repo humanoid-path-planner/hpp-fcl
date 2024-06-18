@@ -35,8 +35,8 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROAD_PHASE_DYNAMIC_AABB_TREE_H
-#define HPP_FCL_BROAD_PHASE_DYNAMIC_AABB_TREE_H
+#ifndef COAL_BROAD_PHASE_DYNAMIC_AABB_TREE_H
+#define COAL_BROAD_PHASE_DYNAMIC_AABB_TREE_H
 
 #include <unordered_map>
 #include <functional>
@@ -48,8 +48,7 @@
 #include "hpp/fcl/broadphase/broadphase_collision_manager.h"
 #include "hpp/fcl/broadphase/detail/hierarchy_tree.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 class HPP_FCL_DLLAPI DynamicAABBTreeCollisionManager
     : public BroadPhaseCollisionManager {
@@ -144,9 +143,7 @@ class HPP_FCL_DLLAPI DynamicAABBTreeCollisionManager
   void update_(CollisionObject* updated_obj);
 };
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree-inl.h"
 

@@ -63,7 +63,7 @@ HPP_FCL_COMPILER_DIAGNOSTIC_POP
 #include "broadphase_callbacks.hh"
 #include "broadphase_collision_manager.hh"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
 HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS

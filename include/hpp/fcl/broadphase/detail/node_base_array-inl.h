@@ -35,13 +35,12 @@
 
 /** @author Jia Pan  */
 
-#ifndef HPP_FCL_BROADPHASE_DETAIL_NODEBASEARRAY_INL_H
-#define HPP_FCL_BROADPHASE_DETAIL_NODEBASEARRAY_INL_H
+#ifndef COAL_BROADPHASE_DETAIL_NODEBASEARRAY_INL_H
+#define COAL_BROADPHASE_DETAIL_NODEBASEARRAY_INL_H
 
 #include "hpp/fcl/broadphase/detail/node_base_array.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace detail {
 
@@ -61,7 +60,6 @@ bool NodeBase<BV>::isInternal() const {
 
 }  // namespace implementation_array
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

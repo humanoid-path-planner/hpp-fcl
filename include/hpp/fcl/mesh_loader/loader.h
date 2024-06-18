@@ -35,8 +35,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPP_FCL_MESH_LOADER_LOADER_H
-#define HPP_FCL_MESH_LOADER_LOADER_H
+#ifndef COAL_MESH_LOADER_LOADER_H
+#define COAL_MESH_LOADER_LOADER_H
 
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/config.hh>
@@ -46,8 +46,7 @@
 #include <map>
 #include <ctime>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 /// Base class for building polyhedron from files.
 /// This class builds a new object for each file.
 class HPP_FCL_DLLAPI MeshLoader {
@@ -98,8 +97,6 @@ class HPP_FCL_DLLAPI CachedMeshLoader : public MeshLoader {
  private:
   Cache_t cache_;
 };
-}  // namespace fcl
+}  // namespace coal
 
-}  // namespace hpp
-
-#endif  // FCL_MESH_LOADER_LOADER_H
+#endif  // COAL_MESH_LOADER_LOADER_H

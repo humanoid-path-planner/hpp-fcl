@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_BV_SPLITTER_H
-#define HPP_FCL_BV_SPLITTER_H
+#ifndef COAL_BV_SPLITTER_H
+#define COAL_BV_SPLITTER_H
 
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/kIOS.h>
@@ -44,8 +44,7 @@
 #include <vector>
 #include <iostream>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Three types of split algorithms are provided in FCL as default
 enum SplitMethodType {
@@ -279,8 +278,6 @@ void HPP_FCL_DLLAPI BVSplitter<OBBRSS>::computeRule_median(
     const OBBRSS& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

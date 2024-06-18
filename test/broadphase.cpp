@@ -54,8 +54,8 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace hpp::fcl;
-using namespace hpp::fcl::detail;
+using namespace coal;
+using namespace coal::detail;
 
 /// @brief Generate environment with 3 * n objects for self distance, so we try
 /// to make sure none of them collide with each other.

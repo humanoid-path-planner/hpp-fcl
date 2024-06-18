@@ -42,8 +42,7 @@
 
 #include <iostream>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Clip value between a and b
 void clipToRange(FCL_REAL& val, FCL_REAL a, FCL_REAL b) {
@@ -1010,6 +1009,4 @@ RSS translate(const RSS& bv, const Vec3f& t) {
   return res;
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

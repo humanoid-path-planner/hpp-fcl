@@ -35,15 +35,14 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_INTERVAL_TREE_INL_H
-#define HPP_FCL_INTERVAL_TREE_INL_H
+#ifndef COAL_INTERVAL_TREE_INL_H
+#define COAL_INTERVAL_TREE_INL_H
 
 #include "hpp/fcl/broadphase/detail/interval_tree.h"
 
 #include <algorithm>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 
 //==============================================================================
@@ -463,7 +462,6 @@ std::deque<SimpleInterval*> IntervalTree::query(FCL_REAL low, FCL_REAL high) {
 }
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

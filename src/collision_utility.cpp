@@ -18,8 +18,7 @@
 
 #include <hpp/fcl/BVH/BVH_utility.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace details {
 
 template <typename NT>
@@ -78,6 +77,4 @@ CollisionGeometry* extract(const CollisionGeometry* model,
           std::runtime_error);
   }
 }
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

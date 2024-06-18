@@ -36,15 +36,14 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_GJK_H
-#define HPP_FCL_GJK_H
+#ifndef COAL_GJK_H
+#define COAL_GJK_H
 
 #include <vector>
 
 #include "hpp/fcl/narrowphase/minkowski_difference.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace details {
 
@@ -450,8 +449,6 @@ struct HPP_FCL_DLLAPI EPA {
 
 }  // namespace details
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

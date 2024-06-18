@@ -40,8 +40,7 @@
 #include <hpp/fcl/collision_func_matrix.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 CollisionFunctionMatrix& getCollisionFunctionLookTable() {
   static CollisionFunctionMatrix table;
@@ -203,5 +202,4 @@ std::size_t ComputeCollision::operator()(const Transform3f& tf1,
   return res;
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

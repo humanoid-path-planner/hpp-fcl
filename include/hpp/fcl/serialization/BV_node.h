@@ -2,8 +2,8 @@
 // Copyright (c) 2021 INRIA
 //
 
-#ifndef HPP_FCL_SERIALIZATION_BV_NODE_H
-#define HPP_FCL_SERIALIZATION_BV_NODE_H
+#ifndef COAL_SERIALIZATION_BV_NODE_H
+#define COAL_SERIALIZATION_BV_NODE_H
 
 #include "hpp/fcl/BV/BV_node.h"
 
@@ -14,7 +14,7 @@ namespace boost {
 namespace serialization {
 
 template <class Archive>
-void serialize(Archive& ar, hpp::fcl::BVNodeBase& node,
+void serialize(Archive& ar, coal::BVNodeBase& node,
                const unsigned int /*version*/) {
   ar& make_nvp("first_child", node.first_child);
   ar& make_nvp("first_primitive", node.first_primitive);
@@ -22,14 +22,14 @@ void serialize(Archive& ar, hpp::fcl::BVNodeBase& node,
 }
 
 template <class Archive, typename BV>
-void serialize(Archive& ar, hpp::fcl::BVNode<BV>& node,
+void serialize(Archive& ar, coal::BVNode<BV>& node,
                const unsigned int /*version*/) {
   ar& make_nvp("base",
-               boost::serialization::base_object<hpp::fcl::BVNodeBase>(node));
+               boost::serialization::base_object<coal::BVNodeBase>(node));
   ar& make_nvp("bv", node.bv);
 }
 
 }  // namespace serialization
 }  // namespace boost
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_BV_NODE_H
+#endif  // ifndef COAL_SERIALIZATION_BV_NODE_H

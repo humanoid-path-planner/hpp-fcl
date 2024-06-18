@@ -37,8 +37,7 @@
 
 #include "hpp/fcl/broadphase/broadphase_SaP.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 //==============================================================================
 void SaPCollisionManager::unregisterObject(CollisionObject* obj) {
@@ -849,6 +848,4 @@ bool SaPCollisionManager::isNotValidPair::operator()(const SaPPair& pair) {
   return (pair.obj1 == obj1) && (pair.obj2 == obj2);
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

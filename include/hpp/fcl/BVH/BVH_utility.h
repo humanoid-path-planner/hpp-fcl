@@ -35,13 +35,12 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_BVH_UTILITY_H
-#define HPP_FCL_BVH_UTILITY_H
+#ifndef COAL_BVH_UTILITY_H
+#define COAL_BVH_UTILITY_H
 
 #include <hpp/fcl/BVH/BVH_model.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 /// @brief Extract the part of the BVHModel that is inside an AABB.
 /// A triangle in collision with the AABB is considered inside.
 template <typename BV>
@@ -112,8 +111,6 @@ HPP_FCL_DLLAPI FCL_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts,
                                         unsigned int* indices, unsigned int n,
                                         const Vec3f& query);
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

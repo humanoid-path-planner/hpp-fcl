@@ -37,8 +37,7 @@
 
 #include <hpp/fcl/math/transform.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
                        Transform3f& tf) {
@@ -51,6 +50,4 @@ void relativeTransform2(const Transform3f& tf1, const Transform3f& tf2,
   tf = Transform3f(R, tf2.getTranslation() - R * tf1.getTranslation());
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

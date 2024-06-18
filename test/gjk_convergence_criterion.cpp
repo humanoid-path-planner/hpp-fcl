@@ -46,17 +46,17 @@
 
 #include "utility.h"
 
-using hpp::fcl::Box;
-using hpp::fcl::FCL_REAL;
-using hpp::fcl::GJKConvergenceCriterion;
-using hpp::fcl::GJKConvergenceCriterionType;
-using hpp::fcl::GJKSolver;
-using hpp::fcl::ShapeBase;
-using hpp::fcl::support_func_guess_t;
-using hpp::fcl::Transform3f;
-using hpp::fcl::Vec3f;
-using hpp::fcl::details::GJK;
-using hpp::fcl::details::MinkowskiDiff;
+using coal::Box;
+using coal::FCL_REAL;
+using coal::GJKConvergenceCriterion;
+using coal::GJKConvergenceCriterionType;
+using coal::GJKSolver;
+using coal::ShapeBase;
+using coal::support_func_guess_t;
+using coal::Transform3f;
+using coal::Vec3f;
+using coal::details::GJK;
+using coal::details::MinkowskiDiff;
 using std::size_t;
 
 BOOST_AUTO_TEST_CASE(set_cv_criterion) {

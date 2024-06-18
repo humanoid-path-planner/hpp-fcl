@@ -38,8 +38,7 @@
 #include <../src/collision_node.h>
 #include <hpp/fcl/internal/traversal_recurse.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 void checkResultLowerBound(const CollisionResult& result,
                            FCL_REAL sqrDistLowerBound) {
@@ -90,6 +89,4 @@ void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list,
   node->postprocess();
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

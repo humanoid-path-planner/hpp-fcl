@@ -32,8 +32,7 @@
 //  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// \mainpage
 /// \anchor hpp_fcl_documentation
@@ -76,5 +75,4 @@ namespace fcl {
 /// hpp::fcl::ComputeCollision and the objects are considered as not
 /// colliding.
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

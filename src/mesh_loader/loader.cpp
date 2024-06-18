@@ -45,8 +45,7 @@
 
 #include <hpp/fcl/BV/BV.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 bool CachedMeshLoader::Key::operator<(const CachedMeshLoader::Key& b) const {
   const CachedMeshLoader::Key& a = *this;
   for (int i = 0; i < 3; ++i) {
@@ -93,7 +92,7 @@ BVHModelPtr_t MeshLoader::load(const std::string& filename,
 CollisionGeometryPtr_t MeshLoader::loadOctree(const std::string& filename) {
 #ifdef HPP_FCL_HAS_OCTOMAP
   shared_ptr<octomap::OcTree> octree(new octomap::OcTree(filename));
-  return CollisionGeometryPtr_t(new hpp::fcl::OcTree(octree));
+  return CollisionGeometryPtr_t(new coal::OcTree(octree));
 #else
   HPP_FCL_THROW_PRETTY(
       "hpp-fcl compiled without OctoMap. Cannot create OcTrees.",
@@ -125,6 +124,4 @@ BVHModelPtr_t CachedMeshLoader::load(const std::string& filename,
   cache_[key] = val;
   return geom;
 }
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

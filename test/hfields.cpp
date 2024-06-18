@@ -53,7 +53,7 @@
 #include "utility.h"
 #include <iostream>
 
-using namespace hpp::fcl;
+using namespace coal;
 
 template <typename BV>
 void test_constant_hfields(const Eigen::DenseIndex nx,

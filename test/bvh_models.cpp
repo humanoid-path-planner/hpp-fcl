@@ -52,7 +52,7 @@
 #include "utility.h"
 #include <iostream>
 
-using namespace hpp::fcl;
+using namespace coal;
 
 template <typename BV>
 void testBVHModelPointCloud() {
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE(load_illformated_mesh) {
 }
 
 BOOST_AUTO_TEST_CASE(test_convex) {
-  Box* box_ptr = new hpp::fcl::Box(1, 1, 1);
+  Box* box_ptr = new coal::Box(1, 1, 1);
   CollisionGeometryPtr_t b1(box_ptr);
   BVHModel<OBBRSS> box_bvh_model = BVHModel<OBBRSS>();
   generateBVHModel(box_bvh_model, *box_ptr, Transform3f());

@@ -32,8 +32,8 @@
 //  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH
-#define HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH
+#ifndef COAL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH
+#define COAL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH
 
 #include <eigenpy/eigenpy.hpp>
 
@@ -47,8 +47,7 @@
 #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_callbacks.h"
 #endif
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct CollisionCallBackBaseWrapper : CollisionCallBackBase,
                                       bp::wrapper<CollisionCallBackBase> {
@@ -108,7 +107,6 @@ struct DistanceCallBackBaseWrapper : DistanceCallBackBase,
   }
 };  // DistanceCallBackBaseWrapper
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH
+#endif  // ifndef COAL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH

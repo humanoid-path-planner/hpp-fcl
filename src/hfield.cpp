@@ -45,8 +45,7 @@
 #include <hpp/fcl/internal/BV_splitter.h>
 #include <hpp/fcl/internal/BV_fitter.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 template <>
 NODE_TYPE HeightField<AABB>::getNodeType() const {
@@ -97,6 +96,4 @@ template class HeightField<RSS>;
 // template class HeightField<kIOS>;
 template class HeightField<OBBRSS>;
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

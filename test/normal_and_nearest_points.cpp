@@ -46,7 +46,7 @@
 
 #include "utility.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 typedef Eigen::Vector2d Vec2d;
 
 // This test suite is designed to operate on any pair of primitive shapes:
@@ -679,9 +679,9 @@ void test_normal_and_nearest_points(const Halfspace& o1,
 }
 
 BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_bvh_halfspace) {
-  Box* box_ptr = new hpp::fcl::Box(1, 1, 1);
-  hpp::fcl::CollisionGeometryPtr_t b1(box_ptr);
-  BVHModel<hpp::fcl::OBBRSS> o1 = BVHModel<OBBRSS>();
+  Box* box_ptr = new coal::Box(1, 1, 1);
+  coal::CollisionGeometryPtr_t b1(box_ptr);
+  BVHModel<coal::OBBRSS> o1 = BVHModel<OBBRSS>();
   generateBVHModel(o1, *box_ptr, Transform3f());
   o1.buildConvexRepresentation(false);
 

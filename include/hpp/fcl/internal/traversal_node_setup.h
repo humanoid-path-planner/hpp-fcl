@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_TRAVERSAL_NODE_SETUP_H
-#define HPP_FCL_TRAVERSAL_NODE_SETUP_H
+#ifndef COAL_TRAVERSAL_NODE_SETUP_H
+#define COAL_TRAVERSAL_NODE_SETUP_H
 
 /// @cond INTERNAL
 
@@ -55,8 +55,7 @@
 
 #include <hpp/fcl/BVH/BVH_utility.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 #ifdef HPP_FCL_HAS_OCTOMAP
 /// @brief Initialize traversal node for collision between two octrees, given
@@ -809,8 +808,7 @@ bool initialize(MeshShapeDistanceTraversalNodeOBBRSS<S>& node,
       node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 

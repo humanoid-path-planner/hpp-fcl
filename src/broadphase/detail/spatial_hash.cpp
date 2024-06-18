@@ -35,14 +35,13 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_SPATIALHASH_INL_H
-#define HPP_FCL_BROADPHASE_SPATIALHASH_INL_H
+#ifndef COAL_BROADPHASE_SPATIALHASH_INL_H
+#define COAL_BROADPHASE_SPATIALHASH_INL_H
 
 #include "hpp/fcl/broadphase/detail/spatial_hash.h"
 #include <algorithm>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 
 //==============================================================================
@@ -85,7 +84,6 @@ std::vector<unsigned int> SpatialHash::operator()(const AABB& aabb) const {
 }
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

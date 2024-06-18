@@ -35,13 +35,12 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_OBB_H
-#define HPP_FCL_OBB_H
+#ifndef COAL_OBB_H
+#define COAL_OBB_H
 
 #include "hpp/fcl/data_types.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct CollisionRequest;
 
@@ -146,8 +145,6 @@ HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
 /// The second box is in identity configuration.
 HPP_FCL_DLLAPI bool obbDisjoint(const Matrix3f& B, const Vec3f& T,
                                 const Vec3f& a, const Vec3f& b);
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

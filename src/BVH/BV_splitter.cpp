@@ -37,8 +37,7 @@
 
 #include <hpp/fcl/internal/BV_splitter.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 template <typename BV>
 void computeSplitVector(const BV& bv, Vec3f& split_vector) {
@@ -283,6 +282,4 @@ template class BVSplitter<OBBRSS>;
 template class BVSplitter<OBB>;
 template class BVSplitter<kIOS>;
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

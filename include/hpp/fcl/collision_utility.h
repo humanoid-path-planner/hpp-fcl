@@ -15,13 +15,12 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-fcl. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_FCL_COLLISION_UTILITY_H
-#define HPP_FCL_COLLISION_UTILITY_H
+#ifndef COAL_COLLISION_UTILITY_H
+#define COAL_COLLISION_UTILITY_H
 
 #include <hpp/fcl/collision_object.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 HPP_FCL_DLLAPI CollisionGeometry* extract(const CollisionGeometry* model,
                                           const Transform3f& pose,
@@ -52,8 +51,6 @@ inline const char* get_object_type_name(OBJECT_TYPE object_type) {
   return object_type_name_all[object_type];
 }
 
-}  // namespace fcl
+}  // namespace coal
 
-}  // namespace hpp
-
-#endif  // FCL_COLLISION_UTILITY_H
+#endif  // COAL_COLLISION_UTILITY_H

@@ -43,8 +43,7 @@
 #include <hpp/fcl/internal/shape_shape_func.h>
 #include <../src/traits_traversal.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 #ifdef HPP_FCL_HAS_OCTOMAP
 
@@ -98,7 +97,7 @@ struct HPP_FCL_LOCAL BVHShapeDistancer {
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
     initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request, result);
-    fcl::distance(&node);
+    ::coal::distance(&node);
 
     delete obj1_tmp;
     return result.min_distance;
@@ -122,7 +121,7 @@ FCL_REAL orientedBVHShapeDistance(const CollisionGeometry* o1,
   const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
   initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
-  fcl::distance(&node);
+  ::coal::distance(&node);
 
   return result.min_distance;
 }
@@ -656,6 +655,4 @@ DistanceFunctionMatrix::DistanceFunctionMatrix() {
 #endif
 }
 // template struct DistanceFunctionMatrix;
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

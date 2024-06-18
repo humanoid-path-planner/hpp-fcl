@@ -35,15 +35,14 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_H
-#define HPP_FCL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_H
+#ifndef COAL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_H
+#define COAL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_H
 
 #include "hpp/fcl/broadphase/broadphase_collision_manager.h"
 #include "hpp/fcl/collision_object.h"
 #include "hpp/fcl/narrowphase/continuous_collision_object.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Callback for continuous collision between two objects. Return value
 /// is whether can stop now.
@@ -137,9 +136,7 @@ using BroadPhaseContinuousCollisionManagerf =
 using BroadPhaseContinuousCollisionManagerd =
     BroadPhaseContinuousCollisionManager<FCL_REAL>;
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #include "hpp/fcl/broadphase/broadphase_continuous_collision_manager-inl.h"
 

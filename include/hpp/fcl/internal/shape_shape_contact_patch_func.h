@@ -34,8 +34,8 @@
 
 /** \author Louis Montaut */
 
-#ifndef HPP_FCL_INTERNAL_SHAPE_SHAPE_CONTACT_PATCH_FUNC_H
-#define HPP_FCL_INTERNAL_SHAPE_SHAPE_CONTACT_PATCH_FUNC_H
+#ifndef COAL_INTERNAL_SHAPE_SHAPE_CONTACT_PATCH_FUNC_H
+#define COAL_INTERNAL_SHAPE_SHAPE_CONTACT_PATCH_FUNC_H
 
 #include "hpp/fcl/collision_data.h"
 #include "hpp/fcl/collision_utility.h"
@@ -43,8 +43,7 @@
 #include "hpp/fcl/contact_patch/contact_patch_solver.h"
 #include "hpp/fcl/shape/geometric_shapes_traits.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Shape-shape contact patch computation.
 /// Assumes that `csolver` and the `ContactPatchResult` have already been set up
@@ -260,7 +259,6 @@ void ShapeShapeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
       o1, tf1, o2, tf2, collision_result, csolver, request, result);
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

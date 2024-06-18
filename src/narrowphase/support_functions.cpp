@@ -40,8 +40,7 @@
 
 #include <algorithm>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace details {
 
 // ============================================================================
@@ -1109,5 +1108,4 @@ getShapeSupportSetTplInstantiation(LargeConvex)
 }
 
 }  // namespace details
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

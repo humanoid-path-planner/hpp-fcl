@@ -36,15 +36,13 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_DATA_TYPES_H
-#define HPP_FCL_DATA_TYPES_H
+#ifndef COAL_DATA_TYPES_H
+#define COAL_DATA_TYPES_H
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
 #include <hpp/fcl/config.hh>
-
-namespace hpp {
 
 #ifdef HPP_FCL_HAS_OCTOMAP
 #define OCTOMAP_VERSION_AT_LEAST(x, y, z) \
@@ -59,10 +57,8 @@ namespace hpp {
     (OCTOMAP_MINOR_VERSION < y ||        \
      (OCTOMAP_MINOR_VERSION <= y && OCTOMAP_PATCH_VERSION <= z))))
 #endif  // HPP_FCL_HAS_OCTOMAP
-}  // namespace hpp
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 typedef double FCL_REAL;
 typedef Eigen::Matrix<FCL_REAL, 3, 1> Vec3f;
 typedef Eigen::Matrix<FCL_REAL, 2, 1> Vec2f;
@@ -182,8 +178,6 @@ struct HPP_FCL_DLLAPI Quadrilateral {
   index_type vids[4];
 };
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

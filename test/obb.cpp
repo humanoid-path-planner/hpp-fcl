@@ -46,7 +46,7 @@
 #include <hpp/fcl/internal/shape_shape_func.h>
 #include "utility.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 void randomOBBs(Vec3f& a, Vec3f& b, FCL_REAL extentNorm) {
   // Extent norm is between 0 and extentNorm on each axis

@@ -35,13 +35,12 @@
 
 /** @author Jia Pan  */
 
-#ifndef HPP_FCL_BROADPHASE_DETAIL_NODEBASE_INL_H
-#define HPP_FCL_BROADPHASE_DETAIL_NODEBASE_INL_H
+#ifndef COAL_BROADPHASE_DETAIL_NODEBASE_INL_H
+#define COAL_BROADPHASE_DETAIL_NODEBASE_INL_H
 
 #include "hpp/fcl/broadphase/detail/node_base.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 
 //============================================================================//
@@ -71,7 +70,6 @@ NodeBase<BV>::NodeBase() {
 }
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

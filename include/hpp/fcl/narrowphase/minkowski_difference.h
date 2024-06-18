@@ -36,15 +36,14 @@
 
 /** \authors Jia Pan, Florent Lamiraux, Josef Mirabel, Louis Montaut */
 
-#ifndef HPP_FCL_MINKOWSKI_DIFFERENCE_H
-#define HPP_FCL_MINKOWSKI_DIFFERENCE_H
+#ifndef COAL_MINKOWSKI_DIFFERENCE_H
+#define COAL_MINKOWSKI_DIFFERENCE_H
 
 #include "hpp/fcl/shape/geometric_shapes.h"
 #include "hpp/fcl/math/transform.h"
 #include "hpp/fcl/narrowphase/support_functions.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace details {
 
@@ -182,7 +181,6 @@ struct HPP_FCL_DLLAPI MinkowskiDiff {
 
 }  // namespace details
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // HPP_FCL_MINKOWSKI_DIFFERENCE_H
+#endif  // COAL_MINKOWSKI_DIFFERENCE_H

@@ -23,13 +23,13 @@ bp::object toPyBytes(std::vector<uint8_t>& bytes) {
 #endif
 }
 
-bp::object tobytes(const hpp::fcl::OcTree& self) {
+bp::object tobytes(const coal::OcTree& self) {
   std::vector<uint8_t> bytes = self.tobytes();
   return toPyBytes(bytes);
 }
 
 void exposeOctree() {
-  using namespace hpp::fcl;
+  using namespace coal;
   namespace bp = boost::python;
   namespace dv = doxygen::visitor;
 

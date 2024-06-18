@@ -35,14 +35,13 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_BV_NODE_H
-#define HPP_FCL_BV_NODE_H
+#ifndef COAL_BV_NODE_H
+#define COAL_BV_NODE_H
 
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/BV/BV.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @defgroup Construction_Of_BVH Construction of BVHModel
 /// Classes which are used to build a BVHModel (Bounding Volume Hierarchy)
@@ -162,8 +161,6 @@ inline const Matrix3f& BVNode<OBBRSS>::getOrientation() const {
   return bv.obb.axes;
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

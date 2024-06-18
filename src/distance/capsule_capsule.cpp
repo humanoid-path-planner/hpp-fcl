@@ -43,8 +43,7 @@
 //
 // One solution would be to make narrow phase solvers derive from an abstract
 // class and specialize the template for this abstract class.
-namespace hpp {
-namespace fcl {
+namespace coal {
 struct GJKSolver;
 
 namespace internal {
@@ -88,8 +87,8 @@ FCL_REAL ShapeShapeDistance<Capsule, Capsule>(
   FCL_REAL EPSILON = std::numeric_limits<FCL_REAL>::epsilon() * 100;
 
   // We assume that capsules are centered at the origin.
-  const fcl::Vec3f& c1 = tf1.getTranslation();
-  const fcl::Vec3f& c2 = tf2.getTranslation();
+  const coal::Vec3f& c1 = tf1.getTranslation();
+  const coal::Vec3f& c2 = tf2.getTranslation();
   // We assume that capsules are oriented along z-axis.
   FCL_REAL halfLength1 = capsule1->halfLength;
   FCL_REAL halfLength2 = capsule2->halfLength;
@@ -97,14 +96,14 @@ FCL_REAL ShapeShapeDistance<Capsule, Capsule>(
   FCL_REAL radius2 = (capsule2->radius + capsule2->getSweptSphereRadius());
   // direction of capsules
   // ||d1|| = 2 * halfLength1
-  const fcl::Vec3f d1 = 2 * halfLength1 * tf1.getRotation().col(2);
-  const fcl::Vec3f d2 = 2 * halfLength2 * tf2.getRotation().col(2);
+  const coal::Vec3f d1 = 2 * halfLength1 * tf1.getRotation().col(2);
+  const coal::Vec3f d2 = 2 * halfLength2 * tf2.getRotation().col(2);
 
   // Starting point of the segments
   // p1 + d1 is the end point of the segment
-  const fcl::Vec3f p1 = c1 - d1 / 2;
-  const fcl::Vec3f p2 = c2 - d2 / 2;
-  const fcl::Vec3f r = p1 - p2;
+  const coal::Vec3f p1 = c1 - d1 / 2;
+  const coal::Vec3f p2 = c2 - d2 / 2;
+  const coal::Vec3f r = p1 - p2;
   FCL_REAL a = d1.dot(d1);
   FCL_REAL b = d1.dot(d2);
   FCL_REAL c = d1.dot(r);
@@ -167,5 +166,4 @@ FCL_REAL ShapeShapeDistance<Capsule, Capsule>(
 }
 }  // namespace internal
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

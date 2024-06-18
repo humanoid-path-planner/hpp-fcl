@@ -18,17 +18,17 @@ namespace boost {
 namespace serialization {
 
 namespace internal {
-struct BVHModelBaseAccessor : hpp::fcl::BVHModelBase {
-  typedef hpp::fcl::BVHModelBase Base;
+struct BVHModelBaseAccessor : coal::BVHModelBase {
+  typedef coal::BVHModelBase Base;
   using Base::num_tris_allocated;
   using Base::num_vertices_allocated;
 };
 }  // namespace internal
 
 template <class Archive>
-void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
+void save(Archive &ar, const coal::BVHModelBase &bvh_model,
           const unsigned int /*version*/) {
-  using namespace hpp::fcl;
+  using namespace coal;
   if (!(bvh_model.build_state == BVH_BUILD_STATE_PROCESSED ||
         bvh_model.build_state == BVH_BUILD_STATE_UPDATED) &&
       (bvh_model.getModelType() == BVH_MODEL_TRIANGLES)) {
@@ -39,9 +39,9 @@ void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
         std::invalid_argument);
   }
 
-  ar &make_nvp("base",
-               boost::serialization::base_object<hpp::fcl::CollisionGeometry>(
-                   bvh_model));
+  ar &make_nvp(
+      "base",
+      boost::serialization::base_object<coal::CollisionGeometry>(bvh_model));
 
   ar &make_nvp("num_vertices", bvh_model.num_vertices);
   ar &make_nvp("vertices", bvh_model.vertices);
@@ -65,12 +65,12 @@ void save(Archive &ar, const hpp::fcl::BVHModelBase &bvh_model,
 }
 
 template <class Archive>
-void load(Archive &ar, hpp::fcl::BVHModelBase &bvh_model,
+void load(Archive &ar, coal::BVHModelBase &bvh_model,
           const unsigned int /*version*/) {
-  using namespace hpp::fcl;
+  using namespace coal;
 
   ar >> make_nvp("base",
-                 boost::serialization::base_object<hpp::fcl::CollisionGeometry>(
+                 boost::serialization::base_object<coal::CollisionGeometry>(
                      bvh_model));
 
   ar >> make_nvp("num_vertices", bvh_model.num_vertices);
@@ -86,12 +86,12 @@ void load(Archive &ar, hpp::fcl::BVHModelBase &bvh_model,
   //      ar >> make_nvp("has_convex",has_convex);
 }
 
-HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::BVHModelBase)
+HPP_FCL_SERIALIZATION_SPLIT(coal::BVHModelBase)
 
 namespace internal {
 template <typename BV>
-struct BVHModelAccessor : hpp::fcl::BVHModel<BV> {
-  typedef hpp::fcl::BVHModel<BV> Base;
+struct BVHModelAccessor : coal::BVHModel<BV> {
+  typedef coal::BVHModel<BV> Base;
   using Base::bvs;
   using Base::num_bvs;
   using Base::num_bvs_allocated;
@@ -100,15 +100,15 @@ struct BVHModelAccessor : hpp::fcl::BVHModel<BV> {
 }  // namespace internal
 
 template <class Archive, typename BV>
-void serialize(Archive &ar, hpp::fcl::BVHModel<BV> &bvh_model,
+void serialize(Archive &ar, coal::BVHModel<BV> &bvh_model,
                const unsigned int version) {
   split_free(ar, bvh_model, version);
 }
 
 template <class Archive, typename BV>
-void save(Archive &ar, const hpp::fcl::BVHModel<BV> &bvh_model_,
+void save(Archive &ar, const coal::BVHModel<BV> &bvh_model_,
           const unsigned int /*version*/) {
-  using namespace hpp::fcl;
+  using namespace coal;
   typedef internal::BVHModelAccessor<BV> Accessor;
   typedef BVNode<BV> Node;
 
@@ -171,9 +171,9 @@ void save(Archive &ar, const hpp::fcl::BVHModel<BV> &bvh_model_,
 }
 
 template <class Archive, typename BV>
-void load(Archive &ar, hpp::fcl::BVHModel<BV> &bvh_model_,
+void load(Archive &ar, coal::BVHModel<BV> &bvh_model_,
           const unsigned int /*version*/) {
-  using namespace hpp::fcl;
+  using namespace coal;
   typedef internal::BVHModelAccessor<BV> Accessor;
   typedef BVNode<BV> Node;
 
@@ -225,28 +225,26 @@ void load(Archive &ar, hpp::fcl::BVHModel<BV> &bvh_model_,
 }  // namespace serialization
 }  // namespace boost
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace internal {
 template <typename BV>
-struct memory_footprint_evaluator<::hpp::fcl::BVHModel<BV>> {
-  static size_t run(const ::hpp::fcl::BVHModel<BV> &bvh_model) {
+struct memory_footprint_evaluator<::coal::BVHModel<BV>> {
+  static size_t run(const ::coal::BVHModel<BV> &bvh_model) {
     return static_cast<size_t>(bvh_model.memUsage(false));
   }
 };
 }  // namespace internal
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::AABB>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::OBB>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::RSS>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::OBBRSS>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::kIOS>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::KDOP<16>>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::KDOP<18>>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::BVHModel<::hpp::fcl::KDOP<24>>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::AABB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::OBB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::RSS>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::OBBRSS>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::kIOS>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::KDOP<16>>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::KDOP<18>>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::KDOP<24>>)
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_BVH_MODEL_H
+#endif  // ifndef COAL_SERIALIZATION_BVH_MODEL_H

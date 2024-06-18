@@ -36,8 +36,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_TRAVERSAL_NODE_OCTREE_H
-#define HPP_FCL_TRAVERSAL_NODE_OCTREE_H
+#ifndef COAL_TRAVERSAL_NODE_OCTREE_H
+#define COAL_TRAVERSAL_NODE_OCTREE_H
 
 /// @cond INTERNAL
 
@@ -51,8 +51,7 @@
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/internal/shape_shape_func.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Algorithms for collision related with octree
 class HPP_FCL_DLLAPI OcTreeSolver {
@@ -1079,7 +1078,7 @@ class HPP_FCL_DLLAPI OcTreeShapeCollisionTraversalNode
     otsolver = NULL;
   }
 
-  bool BVDisjoints(unsigned int, unsigned int, fcl::FCL_REAL&) const {
+  bool BVDisjoints(unsigned int, unsigned int, coal::FCL_REAL&) const {
     return false;
   }
 
@@ -1354,9 +1353,7 @@ class HPP_FCL_DLLAPI OcTreeMeshDistanceTraversalNode
 
 /// @}
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 

@@ -35,15 +35,14 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_COLLISION_FUNC_MATRIX_H
-#define HPP_FCL_COLLISION_FUNC_MATRIX_H
+#ifndef COAL_COLLISION_FUNC_MATRIX_H
+#define COAL_COLLISION_FUNC_MATRIX_H
 
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief collision matrix stores the functions for collision between different
 /// types of objects and provides a uniform call interface
@@ -73,8 +72,6 @@ struct HPP_FCL_DLLAPI CollisionFunctionMatrix {
   CollisionFunctionMatrix();
 };
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

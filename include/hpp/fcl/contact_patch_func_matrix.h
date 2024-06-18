@@ -34,15 +34,14 @@
 
 /** \author Louis Montaut */
 
-#ifndef HPP_FCL_CONTACT_PATCH_FUNC_MATRIX_H
-#define HPP_FCL_CONTACT_PATCH_FUNC_MATRIX_H
+#ifndef COAL_CONTACT_PATCH_FUNC_MATRIX_H
+#define COAL_CONTACT_PATCH_FUNC_MATRIX_H
 
 #include "hpp/fcl/collision_data.h"
 #include "hpp/fcl/contact_patch/contact_patch_solver.h"
 #include "hpp/fcl/narrowphase/narrowphase.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief The contact patch matrix stores the functions for contact patches
 /// computation between different types of objects and provides a uniform call
@@ -81,7 +80,6 @@ struct HPP_FCL_DLLAPI ContactPatchFunctionMatrix {
   ContactPatchFunctionMatrix();
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

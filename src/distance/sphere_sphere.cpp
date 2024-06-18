@@ -48,8 +48,7 @@
 //
 // One solution would be to make narrow phase solvers derive from an abstract
 // class and specialize the template for this abstract class.
-namespace hpp {
-namespace fcl {
+namespace coal {
 struct GJKSolver;
 
 namespace internal {
@@ -64,5 +63,4 @@ FCL_REAL ShapeShapeDistance<Sphere, Sphere>(
 }
 }  // namespace internal
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

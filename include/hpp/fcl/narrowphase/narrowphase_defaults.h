@@ -35,13 +35,12 @@
 /// This file defines different macros used to characterize the default behavior
 /// of the narrowphase algorithms GJK and EPA.
 
-#ifndef HPP_FCL_NARROWPHASE_DEFAULTS
-#define HPP_FCL_NARROWPHASE_DEFAULTS
+#ifndef COAL_NARROWPHASE_DEFAULTS_H
+#define COAL_NARROWPHASE_DEFAULTS_H
 
 #include <hpp/fcl/data_types.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// GJK
 constexpr size_t GJK_DEFAULT_MAX_ITERATIONS = 128;
@@ -61,7 +60,6 @@ constexpr size_t EPA_DEFAULT_MAX_ITERATIONS = 64;
 constexpr FCL_REAL EPA_DEFAULT_TOLERANCE = 1e-6;
 constexpr FCL_REAL EPA_MINIMUM_TOLERANCE = 1e-6;
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // HPP_FCL_NARROWPHASE_DEFAULTS
+#endif  // COAL_NARROWPHASE_DEFAULTS_H

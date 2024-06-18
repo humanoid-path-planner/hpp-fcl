@@ -40,8 +40,7 @@
 #include <limits>
 #include <hpp/fcl/internal/tools.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 static const double kIOS_RATIO = 1.5;
 static const double invSinA = 2;
@@ -679,6 +678,4 @@ AABB BVFitter<AABB>::fit(unsigned int* primitive_indices,
   return bv;
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

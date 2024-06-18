@@ -40,8 +40,7 @@
 #ifdef HPP_FCL_HAVE_OCTOMAP
 #include "hpp/fcl/octree.h"
 #endif
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 namespace dynamic_AABB_tree_array {
 
@@ -725,5 +724,4 @@ DynamicAABBTreeArrayCollisionManager::getTree() const {
   return dtree;
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

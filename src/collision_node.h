@@ -47,8 +47,7 @@
 /// @brief collision and distance function on traversal nodes. these functions
 /// provide a higher level abstraction for collision functions provided in
 /// collision_func_matrix
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// collision on collision traversal node
 ///
@@ -69,9 +68,7 @@ HPP_FCL_DLLAPI void collide(CollisionTraversalNodeBase* node,
 HPP_FCL_DLLAPI void distance(DistanceTraversalNodeBase* node,
                              BVHFrontList* front_list = NULL,
                              unsigned int qsize = 2);
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 

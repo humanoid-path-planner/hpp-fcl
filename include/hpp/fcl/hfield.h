@@ -34,8 +34,8 @@
 
 /** \author Justin Carpentier */
 
-#ifndef HPP_FCL_HEIGHT_FIELD_H
-#define HPP_FCL_HEIGHT_FIELD_H
+#ifndef COAL_HEIGHT_FIELD_H
+#define COAL_HEIGHT_FIELD_H
 
 #include "hpp/fcl/fwd.hh"
 #include "hpp/fcl/data_types.h"
@@ -45,8 +45,7 @@
 
 #include <vector>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @addtogroup Construction_Of_HeightField
 /// @{
@@ -161,7 +160,7 @@ struct HPP_FCL_DLLAPI HFNode : public HFNodeBase {
   Vec3f getCenter() const { return bv.center(); }
 
   /// @brief Access to the orientation of the BV
-  hpp::fcl::Matrix3f::IdentityReturnType getOrientation() const {
+  coal::Matrix3f::IdentityReturnType getOrientation() const {
     return Matrix3f::Identity();
   }
 
@@ -538,8 +537,6 @@ NODE_TYPE HeightField<KDOP<24>>::getNodeType() const;
 
 /// @}
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

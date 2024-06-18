@@ -35,8 +35,8 @@
 
 /** @author Jia Pan  */
 
-#ifndef HPP_FCL_HIERARCHY_TREE_H
-#define HPP_FCL_HIERARCHY_TREE_H
+#ifndef COAL_HIERARCHY_TREE_H
+#define COAL_HIERARCHY_TREE_H
 
 #include <vector>
 #include <map>
@@ -47,8 +47,7 @@
 #include "hpp/fcl/broadphase/detail/morton.h"
 #include "hpp/fcl/broadphase/detail/node_base.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace detail {
 
@@ -286,8 +285,7 @@ size_t select(const BV& query, const NodeBase<BV>& node1,
               const NodeBase<BV>& node2);
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #include "hpp/fcl/broadphase/detail/hierarchy_tree-inl.h"
 

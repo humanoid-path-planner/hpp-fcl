@@ -40,8 +40,7 @@
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 #include <hpp/fcl/internal/shape_shape_func.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace details {
 template <typename BV>
@@ -665,6 +664,4 @@ FCL_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts,
     return maximumDistance_pointcloud(ps, ps2, indices, n, query);
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

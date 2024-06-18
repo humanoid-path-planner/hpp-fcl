@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_TRAVERSAL_NODE_SHAPES_H
-#define HPP_FCL_TRAVERSAL_NODE_SHAPES_H
+#ifndef COAL_TRAVERSAL_NODE_SHAPES_H
+#define COAL_TRAVERSAL_NODE_SHAPES_H
 
 /// @cond INTERNAL
 
@@ -46,8 +46,7 @@
 #include "hpp/fcl/internal/traversal_node_base.h"
 #include "hpp/fcl/internal/shape_shape_func.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @addtogroup Traversal_For_Collision
 /// @{
@@ -118,9 +117,7 @@ class HPP_FCL_DLLAPI ShapeDistanceTraversalNode
 
 /// @}
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 

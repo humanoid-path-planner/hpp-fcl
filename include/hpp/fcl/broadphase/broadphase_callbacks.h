@@ -34,14 +34,13 @@
 
 /** @author Justin Carpentier (justin.carpentier@inria.fr) */
 
-#ifndef HPP_FCL_BROADPHASE_BROAD_PHASE_CALLBACKS_H
-#define HPP_FCL_BROADPHASE_BROAD_PHASE_CALLBACKS_H
+#ifndef COAL_BROADPHASE_BROAD_PHASE_CALLBACKS_H
+#define COAL_BROADPHASE_BROAD_PHASE_CALLBACKS_H
 
 #include "hpp/fcl/fwd.hh"
 #include "hpp/fcl/data_types.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Base callback class for collision queries.
 /// This class can be supersed by child classes to provide desired behaviors
@@ -92,7 +91,6 @@ struct HPP_FCL_DLLAPI DistanceCallBackBase {
   }
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // HPP_FCL_BROADPHASE_BROAD_PHASE_CALLBACKS_H
+#endif  // COAL_BROADPHASE_BROAD_PHASE_CALLBACKS_H

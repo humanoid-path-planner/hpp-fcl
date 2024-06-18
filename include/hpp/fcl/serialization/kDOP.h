@@ -2,8 +2,8 @@
 // Copyright (c) 2024 INRIA
 //
 
-#ifndef HPP_FCL_SERIALIZATION_kDOP_H
-#define HPP_FCL_SERIALIZATION_kDOP_H
+#ifndef COAL_SERIALIZATION_kDOP_H
+#define COAL_SERIALIZATION_kDOP_H
 
 #include "hpp/fcl/BV/kDOP.h"
 
@@ -14,14 +14,14 @@ namespace serialization {
 
 namespace internal {
 template <short N>
-struct KDOPAccessor : hpp::fcl::KDOP<N> {
-  typedef hpp::fcl::KDOP<N> Base;
+struct KDOPAccessor : coal::KDOP<N> {
+  typedef coal::KDOP<N> Base;
   using Base::dist_;
 };
 }  // namespace internal
 
 template <class Archive, short N>
-void serialize(Archive& ar, hpp::fcl::KDOP<N>& bv_,
+void serialize(Archive& ar, coal::KDOP<N>& bv_,
                const unsigned int /*version*/) {
   typedef internal::KDOPAccessor<N> Accessor;
   Accessor& access = reinterpret_cast<Accessor&>(bv_);
@@ -31,4 +31,4 @@ void serialize(Archive& ar, hpp::fcl::KDOP<N>& bv_,
 }  // namespace serialization
 }  // namespace boost
 
-#endif  // HPP_FCL_SERIALIZATION_kDOP_H
+#endif  // COAL_SERIALIZATION_kDOP_H

@@ -48,8 +48,7 @@
 #include <hpp/fcl/internal/BV_splitter.h>
 #include <hpp/fcl/internal/BV_fitter.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 BVHModelBase::BVHModelBase()
     : num_tris(0),
@@ -1177,6 +1176,4 @@ template class BVHModel<RSS>;
 template class BVHModel<kIOS>;
 template class BVHModel<OBBRSS>;
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

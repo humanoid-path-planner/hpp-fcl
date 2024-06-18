@@ -5,7 +5,7 @@
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/collision.h>
 
-using namespace hpp::fcl;
+using namespace coal;
 
 constexpr FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
 

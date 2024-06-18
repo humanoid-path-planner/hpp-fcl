@@ -42,8 +42,7 @@
 
 #include <iostream>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 DistanceFunctionMatrix& getDistanceFunctionLookTable() {
   static DistanceFunctionMatrix table;
@@ -173,5 +172,4 @@ FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
   return res;
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

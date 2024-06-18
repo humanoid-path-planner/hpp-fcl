@@ -44,8 +44,7 @@
 #include <hpp/fcl/shape/geometric_shapes_traits.h>
 #include <../src/traits_traversal.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 #ifdef HPP_FCL_HAS_OCTOMAP
 
@@ -136,7 +135,7 @@ struct HPP_FCL_LOCAL BVHShapeCollider {
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
     initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, result);
-    fcl::collide(&node, request, result);
+    coal::collide(&node, request, result);
 
     delete obj1_tmp;
     return result.numContacts();
@@ -155,7 +154,7 @@ struct HPP_FCL_LOCAL BVHShapeCollider {
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
     initialize(node, *obj1, tf1, *obj2, tf2, nsolver, result);
-    fcl::collide(&node, request, result);
+    coal::collide(&node, request, result);
     return result.numContacts();
   }
 };
@@ -183,7 +182,7 @@ struct HPP_FCL_LOCAL HeightFieldShapeCollider {
     HeightFieldShapeCollisionTraversalNode<BV, Shape, 0> node(request);
 
     initialize(node, height_field, tf1, shape, tf2, nsolver, result);
-    fcl::collide(&node, request, result);
+    coal::collide(&node, request, result);
     return result.numContacts();
   }
 };
@@ -233,7 +232,7 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1,
   Transform3f tf2_tmp = tf2;
 
   initialize(node, *obj1_tmp, tf1_tmp, *obj2_tmp, tf2_tmp, result);
-  fcl::collide(&node, request, result);
+  coal::collide(&node, request, result);
 
   delete obj1_tmp;
   delete obj2_tmp;
@@ -733,6 +732,4 @@ CollisionFunctionMatrix::CollisionFunctionMatrix() {
 #endif
 }
 // template struct CollisionFunctionMatrix;
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

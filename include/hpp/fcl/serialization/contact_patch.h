@@ -2,8 +2,8 @@
 // Copyright (c) 2024 INRIA
 //
 
-#ifndef HPP_FCL_SERIALIZATION_CONTACT_PATCH_H
-#define HPP_FCL_SERIALIZATION_CONTACT_PATCH_H
+#ifndef COAL_SERIALIZATION_CONTACT_PATCH_H
+#define COAL_SERIALIZATION_CONTACT_PATCH_H
 
 #include "hpp/fcl/collision_data.h"
 #include "hpp/fcl/serialization/fwd.h"
@@ -13,9 +13,9 @@ namespace boost {
 namespace serialization {
 
 template <class Archive>
-void serialize(Archive& ar, hpp::fcl::ContactPatch& contact_patch,
+void serialize(Archive& ar, coal::ContactPatch& contact_patch,
                const unsigned int /*version*/) {
-  using namespace hpp::fcl;
+  using namespace coal;
   typedef Eigen::Matrix<FCL_REAL, 2, Eigen::Dynamic> PolygonPoints;
 
   size_t patch_size = contact_patch.size();
@@ -36,9 +36,9 @@ void serialize(Archive& ar, hpp::fcl::ContactPatch& contact_patch,
 }
 
 template <class Archive>
-void serialize(Archive& ar, hpp::fcl::ContactPatchRequest& request,
+void serialize(Archive& ar, coal::ContactPatchRequest& request,
                const unsigned int /*version*/) {
-  using namespace hpp::fcl;
+  using namespace coal;
 
   ar& make_nvp("max_num_patch", request.max_num_patch);
 
@@ -54,9 +54,9 @@ void serialize(Archive& ar, hpp::fcl::ContactPatchRequest& request,
 }
 
 template <class Archive>
-void serialize(Archive& ar, hpp::fcl::ContactPatchResult& result,
+void serialize(Archive& ar, coal::ContactPatchResult& result,
                const unsigned int /*version*/) {
-  using namespace hpp::fcl;
+  using namespace coal;
 
   size_t num_patches = result.numContactPatches();
   ar& make_nvp("num_patches", num_patches);
@@ -84,4 +84,4 @@ void serialize(Archive& ar, hpp::fcl::ContactPatchResult& result,
 }  // namespace serialization
 }  // namespace boost
 
-#endif  // HPP_FCL_SERIALIZATION_CONTACT_PATCH_H
+#endif  // COAL_SERIALIZATION_CONTACT_PATCH_H

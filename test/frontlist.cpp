@@ -47,7 +47,7 @@
 #include "fcl_resources/config.h"
 #include <boost/filesystem.hpp>
 
-using namespace hpp::fcl;
+using namespace coal;
 namespace utf = boost::unit_test::framework;
 
 template <typename BV>

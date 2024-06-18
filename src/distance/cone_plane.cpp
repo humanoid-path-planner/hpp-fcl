@@ -42,8 +42,7 @@
 #include <hpp/fcl/internal/shape_shape_func.h>
 #include "../narrowphase/details.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 struct GJKSolver;
 
 namespace internal {
@@ -75,5 +74,4 @@ FCL_REAL ShapeShapeDistance<Plane, Cone>(const CollisionGeometry* o1,
 }
 }  // namespace internal
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

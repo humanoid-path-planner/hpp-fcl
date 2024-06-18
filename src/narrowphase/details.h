@@ -36,14 +36,13 @@
  */
 /** \author Jia Pan, Florent Lamiraux */
 
-#ifndef HPP_FCL_SRC_NARROWPHASE_DETAILS_H
-#define HPP_FCL_SRC_NARROWPHASE_DETAILS_H
+#ifndef COAL_SRC_NARROWPHASE_DETAILS_H
+#define COAL_SRC_NARROWPHASE_DETAILS_H
 
 #include <hpp/fcl/internal/traversal_node_setup.h>
 #include <hpp/fcl/narrowphase/narrowphase.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace details {
 // Compute the point on a line segment that is the closest point on the
 // segment to to another point. The code is inspired by the explanation
@@ -215,8 +214,8 @@ inline FCL_REAL sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
 inline FCL_REAL sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
                                      const Sphere& s2, const Transform3f& tf2,
                                      Vec3f& p1, Vec3f& p2, Vec3f& normal) {
-  const fcl::Vec3f& center1 = tf1.getTranslation();
-  const fcl::Vec3f& center2 = tf2.getTranslation();
+  const coal::Vec3f& center1 = tf1.getTranslation();
+  const coal::Vec3f& center2 = tf2.getTranslation();
   FCL_REAL r1 = (s1.radius + s1.getSweptSphereRadius());
   FCL_REAL r2 = (s2.radius + s2.getSweptSphereRadius());
 
@@ -731,7 +730,6 @@ inline FCL_REAL computePenetration(const Vec3f& P1, const Vec3f& P2,
 }
 
 }  // namespace details
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // HPP_FCL_SRC_NARROWPHASE_DETAILS_H
+#endif  // COAL_SRC_NARROWPHASE_DETAILS_H

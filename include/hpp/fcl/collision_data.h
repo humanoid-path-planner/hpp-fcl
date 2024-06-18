@@ -36,8 +36,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_COLLISION_DATA_H
-#define HPP_FCL_COLLISION_DATA_H
+#ifndef COAL_COLLISION_DATA_H
+#define COAL_COLLISION_DATA_H
 
 #include <vector>
 #include <array>
@@ -52,8 +52,7 @@
 #include "hpp/fcl/narrowphase/narrowphase_defaults.h"
 #include "hpp/fcl/logging.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Contact information returned by collision
 struct HPP_FCL_DLLAPI Contact {
@@ -1234,8 +1233,6 @@ inline CollisionRequestFlag& operator^=(CollisionRequestFlag& a,
   return (CollisionRequestFlag&)((int&)(a) ^= static_cast<int>(b));
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

@@ -34,8 +34,8 @@
 
 /** \author Justin Carpentier */
 
-#ifndef HPP_FCL_TRAVERSAL_NODE_BVH_HFIELD_H
-#define HPP_FCL_TRAVERSAL_NODE_BVH_HFIELD_H
+#ifndef COAL_TRAVERSAL_NODE_BVH_HFIELD_H
+#define COAL_TRAVERSAL_NODE_BVH_HFIELD_H
 
 /// @cond INTERNAL
 
@@ -55,8 +55,7 @@
 #include <vector>
 #include <cassert>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @addtogroup Traversal_For_Collision
 /// @{
@@ -546,9 +545,7 @@ inline const Matrix3f& getBVAxes<OBBRSS>(const OBBRSS& bv) {
 
 }  // namespace details
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 

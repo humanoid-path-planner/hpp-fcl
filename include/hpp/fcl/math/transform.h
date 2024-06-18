@@ -35,14 +35,13 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_TRANSFORM_H
-#define HPP_FCL_TRANSFORM_H
+#ifndef COAL_TRANSFORM_H
+#define COAL_TRANSFORM_H
 
 #include "hpp/fcl/fwd.hh"
 #include "hpp/fcl/data_types.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 HPP_FCL_DEPRECATED typedef Eigen::Quaternion<FCL_REAL> Quaternion3f;
 typedef Eigen::Quaternion<FCL_REAL> Quatf;
@@ -266,7 +265,6 @@ inline Matrix3f constructOrthonormalBasisFromVector(const Vec3f& vec) {
   return basis;
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

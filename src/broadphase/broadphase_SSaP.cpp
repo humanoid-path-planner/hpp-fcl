@@ -37,8 +37,7 @@
 
 #include "hpp/fcl/broadphase/broadphase_SSaP.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /** @brief Functor sorting objects according to the AABB lower x bound */
 struct SortByXLow {
@@ -517,5 +516,4 @@ bool SSaPCollisionManager::empty() const { return objs_x.empty(); }
 //==============================================================================
 size_t SSaPCollisionManager::size() const { return objs_x.size(); }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

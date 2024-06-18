@@ -53,11 +53,11 @@
 
 namespace utf = boost::unit_test::framework;
 
-using namespace hpp::fcl;
+using namespace coal;
 
 void makeMesh(const std::vector<Vec3f>& vertices,
               const std::vector<Triangle>& triangles, BVHModel<OBBRSS>& model) {
-  hpp::fcl::SplitMethodType split_method(hpp::fcl::SPLIT_METHOD_MEAN);
+  coal::SplitMethodType split_method(coal::SPLIT_METHOD_MEAN);
   model.bv_splitter.reset(new BVSplitter<OBBRSS>(split_method));
   model.bv_splitter.reset(new BVSplitter<OBBRSS>(split_method));
 
@@ -66,13 +66,12 @@ void makeMesh(const std::vector<Vec3f>& vertices,
   model.endModel();
 }
 
-hpp::fcl::OcTree makeOctree(const BVHModel<OBBRSS>& mesh,
-                            const FCL_REAL& resolution) {
+coal::OcTree makeOctree(const BVHModel<OBBRSS>& mesh,
+                        const FCL_REAL& resolution) {
   Vec3f m(mesh.aabb_local.min_);
   Vec3f M(mesh.aabb_local.max_);
-  hpp::fcl::Box box(resolution, resolution, resolution);
-  CollisionRequest request(hpp::fcl::CONTACT | hpp::fcl::DISTANCE_LOWER_BOUND,
-                           1);
+  coal::Box box(resolution, resolution, resolution);
+  CollisionRequest request(coal::CONTACT | coal::DISTANCE_LOWER_BOUND, 1);
   CollisionResult result;
   Transform3f tfBox;
   octomap::OcTreePtr_t octree(new octomap::OcTree(resolution));
@@ -86,7 +85,7 @@ hpp::fcl::OcTree makeOctree(const BVHModel<OBBRSS>& mesh,
         Vec3f center(x + .5 * resolution, y + .5 * resolution,
                      z + .5 * resolution);
         tfBox.setTranslation(center);
-        hpp::fcl::collide(&box, tfBox, &mesh, Transform3f(), request, result);
+        coal::collide(&box, tfBox, &mesh, Transform3f(), request, result);
         if (result.isCollision()) {
           octomap::point3d p((float)center[0], (float)center[1],
                              (float)center[2]);
@@ -120,7 +119,7 @@ BOOST_AUTO_TEST_CASE(octree_mesh) {
   envMesh.computeLocalAABB();
   // Load octree built from envMesh by makeOctree(envMesh, resolution)
   OcTree envOctree(
-      hpp::fcl::loadOctreeFile((path / "env.octree").string(), resolution));
+      coal::loadOctreeFile((path / "env.octree").string(), resolution));
 
   std::cout << "Finished loading octree." << std::endl;
 
@@ -147,13 +146,12 @@ BOOST_AUTO_TEST_CASE(octree_mesh) {
 #else
   std::size_t N = 10000;
 #endif
-  N = hpp::fcl::getNbRun(utf::master_test_suite().argc,
-                         utf::master_test_suite().argv, N);
+  N = coal::getNbRun(utf::master_test_suite().argc,
+                     utf::master_test_suite().argv, N);
 
   generateRandomTransforms(extents, transforms, 2 * N);
 
-  CollisionRequest request(hpp::fcl::CONTACT | hpp::fcl::DISTANCE_LOWER_BOUND,
-                           1);
+  CollisionRequest request(coal::CONTACT | coal::DISTANCE_LOWER_BOUND, 1);
   for (std::size_t i = 0; i < N; ++i) {
     CollisionResult resultMesh;
     CollisionResult resultOctree;
@@ -161,16 +159,16 @@ BOOST_AUTO_TEST_CASE(octree_mesh) {
     Transform3f tf2(transforms[2 * i + 1]);
     ;
     // Test collision between meshes with random transform for robot.
-    hpp::fcl::collide(&robMesh, tf1, &envMesh, tf2, request, resultMesh);
+    coal::collide(&robMesh, tf1, &envMesh, tf2, request, resultMesh);
     // Test collision between mesh and octree for the same transform.
-    hpp::fcl::collide(&robMesh, tf1, &envOctree, tf2, request, resultOctree);
+    coal::collide(&robMesh, tf1, &envOctree, tf2, request, resultOctree);
     bool resMesh(resultMesh.isCollision());
     bool resOctree(resultOctree.isCollision());
     BOOST_CHECK(!resMesh || resOctree);
     if (!resMesh && resOctree) {
-      hpp::fcl::DistanceRequest dreq;
-      hpp::fcl::DistanceResult dres;
-      hpp::fcl::distance(&robMesh, tf1, &envMesh, tf2, dreq, dres);
+      coal::DistanceRequest dreq;
+      coal::DistanceResult dres;
+      coal::distance(&robMesh, tf1, &envMesh, tf2, dreq, dres);
       std::cout << "distance mesh mesh: " << dres.min_distance << std::endl;
       BOOST_CHECK(dres.min_distance < sqrt(2.) * resolution);
     }
@@ -193,7 +191,7 @@ BOOST_AUTO_TEST_CASE(octree_height_field) {
   envMesh.computeLocalAABB();
   // Load octree built from envMesh by makeOctree(envMesh, resolution)
   OcTree envOctree(
-      hpp::fcl::loadOctreeFile((path / "env.octree").string(), resolution));
+      coal::loadOctreeFile((path / "env.octree").string(), resolution));
 
   std::cout << "Finished loading octree." << std::endl;
 
@@ -213,13 +211,12 @@ BOOST_AUTO_TEST_CASE(octree_height_field) {
 #else
   std::size_t N = 100000;
 #endif
-  N = hpp::fcl::getNbRun(utf::master_test_suite().argc,
-                         utf::master_test_suite().argv, N);
+  N = coal::getNbRun(utf::master_test_suite().argc,
+                     utf::master_test_suite().argv, N);
 
   generateRandomTransforms(extents, transforms, 2 * N);
 
-  CollisionRequest request(hpp::fcl::CONTACT | hpp::fcl::DISTANCE_LOWER_BOUND,
-                           1);
+  CollisionRequest request(coal::CONTACT | coal::DISTANCE_LOWER_BOUND, 1);
   for (std::size_t i = 0; i < N; ++i) {
     CollisionResult resultBox;
     CollisionResult resultHfield1, resultHfield2;
@@ -231,19 +228,19 @@ BOOST_AUTO_TEST_CASE(octree_height_field) {
     constructBox(hfield.aabb_local, tf2, box, box_tf);
 
     // Test collision between octree and equivalent box.
-    hpp::fcl::collide(&envOctree, tf1, &box, box_tf, request, resultBox);
+    coal::collide(&envOctree, tf1, &box, box_tf, request, resultBox);
     // Test collision between octree and hfield.
-    hpp::fcl::collide(&envOctree, tf1, &hfield, tf2, request, resultHfield1);
-    hpp::fcl::collide(&hfield, tf2, &envOctree, tf1, request, resultHfield2);
+    coal::collide(&envOctree, tf1, &hfield, tf2, request, resultHfield1);
+    coal::collide(&hfield, tf2, &envOctree, tf1, request, resultHfield2);
 
     bool resBox(resultBox.isCollision());
     bool resHfield(resultHfield1.isCollision());
     BOOST_CHECK(resBox == resHfield);
     BOOST_CHECK(resultHfield1.isCollision() == resultHfield2.isCollision());
     if (!resBox && resHfield) {
-      hpp::fcl::DistanceRequest dreq;
-      hpp::fcl::DistanceResult dres;
-      hpp::fcl::distance(&envMesh, tf1, &box, box_tf, dreq, dres);
+      coal::DistanceRequest dreq;
+      coal::DistanceResult dres;
+      coal::distance(&envMesh, tf1, &box, box_tf, dreq, dres);
       std::cout << "distance mesh box: " << dres.min_distance << std::endl;
       BOOST_CHECK(dres.min_distance < sqrt(2.) * resolution);
     }

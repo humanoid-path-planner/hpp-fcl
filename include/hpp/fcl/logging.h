@@ -35,8 +35,8 @@
 /// This file defines basic logging macros for HPP-FCL, based on Boost.Log.
 /// To enable logging, define the preprocessor macro `HPP_FCL_ENABLE_LOGGING`.
 
-#ifndef HPP_FCL_LOGGING_H
-#define HPP_FCL_LOGGING_H
+#ifndef COAL_LOGGING_H
+#define COAL_LOGGING_H
 
 #ifdef HPP_FCL_ENABLE_LOGGING
 #include <boost/log/trivial.hpp>

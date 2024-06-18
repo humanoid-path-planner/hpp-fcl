@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_COLLISION_OBJECT_BASE_H
-#define HPP_FCL_COLLISION_OBJECT_BASE_H
+#ifndef COAL_COLLISION_OBJECT_BASE_H
+#define COAL_COLLISION_OBJECT_BASE_H
 
 #include <limits>
 #include <typeinfo>
@@ -46,8 +46,7 @@
 #include <hpp/fcl/BV/AABB.h>
 #include <hpp/fcl/math/transform.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief object type: BVH (mesh, points), basic geometry, octree
 enum OBJECT_TYPE {
@@ -356,8 +355,6 @@ class HPP_FCL_DLLAPI CollisionObject {
   void* user_data;
 };
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

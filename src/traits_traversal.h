@@ -13,8 +13,7 @@
 #include <hpp/fcl/internal/traversal_node_setup.h>
 #include <hpp/fcl/internal/shape_shape_func.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 // TraversalTraitsCollision for collision_func_matrix.cpp
 
@@ -94,6 +93,4 @@ struct HPP_FCL_LOCAL TraversalTraitsDistance<BVHModel<T_BVH>, OcTree> {
 
 #endif
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

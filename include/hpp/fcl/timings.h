@@ -2,8 +2,8 @@
 // Copyright (c) 2021-2023 INRIA
 //
 
-#ifndef HPP_FCL_TIMINGS_FWD_H
-#define HPP_FCL_TIMINGS_FWD_H
+#ifndef COAL_TIMINGS_FWD_H
+#define COAL_TIMINGS_FWD_H
 
 #include "hpp/fcl/fwd.hh"
 
@@ -11,8 +11,7 @@
 #include <chrono>
 #endif
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct CPUTimes {
   double wall;
@@ -108,7 +107,6 @@ struct HPP_FCL_DLLAPI Timer {
 #endif
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_TIMINGS_FWD_H
+#endif  // ifndef COAL_TIMINGS_FWD_H

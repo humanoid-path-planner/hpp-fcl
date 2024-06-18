@@ -44,7 +44,7 @@
 #include <hpp/fcl/collision.h>
 #include "utility.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 #define BOOST_CHECK_FALSE(p) BOOST_CHECK(!(p))
 

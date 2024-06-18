@@ -46,14 +46,14 @@
 
 #include "utility.h"
 
-using hpp::fcl::FCL_REAL;
-using hpp::fcl::GJKSolver;
-using hpp::fcl::GJKVariant;
-using hpp::fcl::Matrix3f;
-using hpp::fcl::Quatf;
-using hpp::fcl::Transform3f;
-using hpp::fcl::TriangleP;
-using hpp::fcl::Vec3f;
+using coal::FCL_REAL;
+using coal::GJKSolver;
+using coal::GJKVariant;
+using coal::Matrix3f;
+using coal::Quatf;
+using coal::Transform3f;
+using coal::TriangleP;
+using coal::Vec3f;
 
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 1> vector_t;
 typedef Eigen::Matrix<FCL_REAL, 6, 1> vector6_t;
@@ -138,14 +138,14 @@ void test_gjk_distance_triangle_triangle(
     TriangleP tri2(Q1_loc, Q2_loc, Q3_loc);
     Vec3f normal;
     const bool compute_penetration = true;
-    hpp::fcl::DistanceRequest request(compute_penetration, compute_penetration);
-    hpp::fcl::DistanceResult result;
+    coal::DistanceRequest request(compute_penetration, compute_penetration);
+    coal::DistanceResult result;
 
     start = clock();
     // The specialized function TriangleP-TriangleP calls GJK to check for
     // collision and compute the witness points but it does not use EPA to
     // compute the penetration depth.
-    distance = hpp::fcl::ShapeShapeDistance<TriangleP, TriangleP>(
+    distance = coal::ShapeShapeDistance<TriangleP, TriangleP>(
         &tri1, tf1, &tri2, tf2, &solver, request, result);
     end = clock();
     p1 = result.nearest_points[0];
@@ -163,7 +163,7 @@ void test_gjk_distance_triangle_triangle(
       assert(penetration_depth >= 0);
       tf2.setTranslation((penetration_depth + 10 - 4) * normal);
       result.clear();
-      distance = hpp::fcl::ShapeShapeDistance<TriangleP, TriangleP>(
+      distance = coal::ShapeShapeDistance<TriangleP, TriangleP>(
           &tri1, tf1, &tri2, tf2, &solver, request, result);
       c1 = result.nearest_points[0];
       c2 = result.nearest_points[1];
@@ -337,7 +337,7 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_nesterov) {
 void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
                           double swept_sphere_radius,
                           bool use_gjk_nesterov_acceleration) {
-  using namespace hpp::fcl;
+  using namespace coal;
   const FCL_REAL r = 1.0;
   Sphere sphere(r);
   sphere.setSweptSphereRadius(swept_sphere_radius);
@@ -416,7 +416,7 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
 void test_gjk_triangle_capsule(Vec3f T, bool expect_collision,
                                bool use_gjk_nesterov_acceleration,
                                Vec3f w0_expected, Vec3f w1_expected) {
-  using namespace hpp::fcl;
+  using namespace coal;
   Capsule capsule(1., 2.);  // Radius 1 and length 2
   TriangleP triangle(Vec3f(0., 0., 0.), Vec3f(1., 0., 0.), Vec3f(1., 1., 0.));
 

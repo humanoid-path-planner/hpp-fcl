@@ -4,8 +4,8 @@
 // https://github.com/stack-of-tasks/pinocchio
 //
 
-#ifndef HPP_FCL_SERIALIZATION_ARCHIVE_H
-#define HPP_FCL_SERIALIZATION_ARCHIVE_H
+#ifndef COAL_SERIALIZATION_ARCHIVE_H
+#define COAL_SERIALIZATION_ARCHIVE_H
 
 #include "hpp/fcl/fwd.hh"
 
@@ -48,8 +48,7 @@
 // Handle NAN inside TXT or XML archives
 #include <boost/math/special_functions/nonfinite_num_facets.hpp>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace serialization {
 
 ///
@@ -290,7 +289,6 @@ void saveToBuffer(const T& object, boost::asio::streambuf& buffer) {
 }
 
 }  // namespace serialization
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_ARCHIVE_H
+#endif  // ifndef COAL_SERIALIZATION_ARCHIVE_H

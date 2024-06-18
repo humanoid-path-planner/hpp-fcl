@@ -35,16 +35,15 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_DISTANCE_H
-#define HPP_FCL_DISTANCE_H
+#ifndef COAL_DISTANCE_H
+#define COAL_DISTANCE_H
 
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision_data.h>
 #include <hpp/fcl/distance_func_matrix.h>
 #include <hpp/fcl/timings.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Main distance interface: given two collision objects, and the
 /// requirements for contacts, including whether return the nearest points, this
@@ -111,7 +110,6 @@ class HPP_FCL_DLLAPI ComputeDistance {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

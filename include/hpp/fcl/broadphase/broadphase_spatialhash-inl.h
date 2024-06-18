@@ -35,13 +35,12 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_BROADPAHSESPATIALHASH_INL_H
-#define HPP_FCL_BROADPHASE_BROADPAHSESPATIALHASH_INL_H
+#ifndef COAL_BROADPHASE_BROADPAHSESPATIALHASH_INL_H
+#define COAL_BROADPHASE_BROADPAHSESPATIALHASH_INL_H
 
 #include "hpp/fcl/broadphase/broadphase_spatialhash.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 //==============================================================================
 template <typename HashTable>
@@ -535,8 +534,6 @@ bool SpatialHashingCollisionManager<HashTable>::distanceObjectToObjects(
   return false;
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

@@ -32,8 +32,8 @@
 //  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH
-#define HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH
+#ifndef COAL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH
+#define COAL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH
 
 #include <eigenpy/eigenpy.hpp>
 
@@ -51,8 +51,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/type_index.hpp>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct BroadPhaseCollisionManagerWrapper
     : BroadPhaseCollisionManager,
@@ -228,7 +227,6 @@ struct BroadPhaseCollisionManagerWrapper
 
 };  // BroadPhaseCollisionManagerWrapper
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH
+#endif  // ifndef COAL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH

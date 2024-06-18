@@ -45,11 +45,11 @@
 #endif
 
 using namespace boost::python;
-using namespace hpp::fcl;
-using hpp::fcl::details::EPA;
-using hpp::fcl::details::GJK;
-using hpp::fcl::details::MinkowskiDiff;
-using hpp::fcl::details::SupportOptions;
+using namespace coal;
+using coal::details::EPA;
+using coal::details::GJK;
+using coal::details::MinkowskiDiff;
+using coal::details::SupportOptions;
 
 struct MinkowskiDiffWrapper {
   static void support0(MinkowskiDiff& self, const Vec3f& dir, int& hint,

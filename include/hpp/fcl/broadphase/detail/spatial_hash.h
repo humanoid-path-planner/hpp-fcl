@@ -35,14 +35,13 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_SPATIALHASH_H
-#define HPP_FCL_BROADPHASE_SPATIALHASH_H
+#ifndef COAL_BROADPHASE_SPATIALHASH_H
+#define COAL_BROADPHASE_SPATIALHASH_H
 
 #include "hpp/fcl/BV/AABB.h"
 #include <vector>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace detail {
 
@@ -59,7 +58,6 @@ struct HPP_FCL_DLLAPI SpatialHash {
 };
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

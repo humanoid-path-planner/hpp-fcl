@@ -41,7 +41,7 @@
 
 #include "utility.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 BOOST_AUTO_TEST_CASE(box_box_no_collision) {
   const FCL_REAL halfside = 0.5;
@@ -59,14 +59,14 @@ BOOST_AUTO_TEST_CASE(box_box_no_collision) {
                                  num_max_contact);
   CollisionResult col_res;
 
-  hpp::fcl::collide(&box1, tf1, &box2, tf2, col_req, col_res);
+  coal::collide(&box1, tf1, &box2, tf2, col_req, col_res);
 
   BOOST_CHECK(!col_res.isCollision());
 
   const ContactPatchRequest patch_req;
   ContactPatchResult patch_res(patch_req);
-  hpp::fcl::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
-                                patch_res);
+  coal::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
+                            patch_res);
   BOOST_CHECK(patch_res.numContactPatches() == 0);
 }
 
@@ -86,14 +86,14 @@ BOOST_AUTO_TEST_CASE(box_sphere) {
                                  num_max_contact);
   CollisionResult col_res;
 
-  hpp::fcl::collide(&box, tf1, &sphere, tf2, col_req, col_res);
+  coal::collide(&box, tf1, &sphere, tf2, col_req, col_res);
 
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
   ContactPatchResult patch_res(patch_req);
-  hpp::fcl::computeContactPatch(&box, tf1, &sphere, tf2, col_res, patch_req,
-                                patch_res);
+  coal::computeContactPatch(&box, tf1, &sphere, tf2, col_res, patch_req,
+                            patch_res);
   BOOST_CHECK(patch_res.numContactPatches() == 1);
   if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
@@ -124,17 +124,17 @@ BOOST_AUTO_TEST_CASE(box_box) {
                                  num_max_contact);
   CollisionResult col_res;
 
-  hpp::fcl::collide(&box1, tf1, &box2, tf2, col_req, col_res);
+  coal::collide(&box1, tf1, &box2, tf2, col_req, col_res);
 
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
   ContactPatchResult patch_res1(patch_req);
   ContactPatchResult patch_res2(patch_req);
-  hpp::fcl::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
-                                patch_res1);
-  hpp::fcl::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
-                                patch_res2);
+  coal::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
+                            patch_res1);
+  coal::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
+                            patch_res2);
   BOOST_CHECK(patch_res1.numContactPatches() == 1);
   BOOST_CHECK(patch_res2.numContactPatches() == 1);
 
@@ -182,17 +182,17 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
                                  num_max_contact);
   CollisionResult col_res;
 
-  hpp::fcl::collide(&hspace, tf1, &box, tf2, col_req, col_res);
+  coal::collide(&hspace, tf1, &box, tf2, col_req, col_res);
 
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
   ContactPatchResult patch_res1(patch_req);
   ContactPatchResult patch_res2(patch_req);
-  hpp::fcl::computeContactPatch(&hspace, tf1, &box, tf2, col_res, patch_req,
-                                patch_res1);
-  hpp::fcl::computeContactPatch(&hspace, tf1, &box, tf2, col_res, patch_req,
-                                patch_res2);
+  coal::computeContactPatch(&hspace, tf1, &box, tf2, col_res, patch_req,
+                            patch_res1);
+  coal::computeContactPatch(&hspace, tf1, &box, tf2, col_res, patch_req,
+                            patch_res2);
   BOOST_CHECK(patch_res1.numContactPatches() == 1);
   BOOST_CHECK(patch_res2.numContactPatches() == 1);
 
@@ -241,15 +241,15 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
                                  num_max_contact);
   CollisionResult col_res;
-  hpp::fcl::collide(&hspace, tf1, &capsule, tf2, col_req, col_res);
+  coal::collide(&hspace, tf1, &capsule, tf2, col_req, col_res);
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
   BOOST_CHECK(patch_req.getNumSamplesCurvedShapes() ==
               ContactPatch::default_preallocated_size);
   ContactPatchResult patch_res(patch_req);
-  hpp::fcl::computeContactPatch(&hspace, tf1, &capsule, tf2, col_res, patch_req,
-                                patch_res);
+  coal::computeContactPatch(&hspace, tf1, &capsule, tf2, col_res, patch_req,
+                            patch_res);
   BOOST_CHECK(patch_res.numContactPatches() == 1);
 
   if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
@@ -277,11 +277,11 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
   tf2.rotation().col(1) << 0, 1, 0;
   tf2.rotation().col(2) << 0, 0, -1;
   col_res.clear();
-  hpp::fcl::collide(&hspace, tf1, &capsule, tf2, col_req, col_res);
+  coal::collide(&hspace, tf1, &capsule, tf2, col_req, col_res);
   BOOST_CHECK(col_res.isCollision());
   patch_res.clear();
-  hpp::fcl::computeContactPatch(&hspace, tf1, &capsule, tf2, col_res, patch_req,
-                                patch_res);
+  coal::computeContactPatch(&hspace, tf1, &capsule, tf2, col_res, patch_req,
+                            patch_res);
   BOOST_CHECK(patch_res.numContactPatches() == 1);
   if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
@@ -309,11 +309,11 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
   tf2.rotation().col(2) << -1, 0, 0;
   tf2.translation() << 0, 0, capsule.radius - offset;
   col_res.clear();
-  hpp::fcl::collide(&hspace, tf1, &capsule, tf2, col_req, col_res);
+  coal::collide(&hspace, tf1, &capsule, tf2, col_req, col_res);
   BOOST_CHECK(col_res.isCollision());
   patch_res.clear();
-  hpp::fcl::computeContactPatch(&hspace, tf1, &capsule, tf2, col_res, patch_req,
-                                patch_res);
+  coal::computeContactPatch(&hspace, tf1, &capsule, tf2, col_res, patch_req,
+                            patch_res);
   BOOST_CHECK(patch_res.numContactPatches() == 1);
   if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
@@ -353,15 +353,15 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
                                  num_max_contact);
   CollisionResult col_res;
-  hpp::fcl::collide(&hspace, tf1, &cone, tf2, col_req, col_res);
+  coal::collide(&hspace, tf1, &cone, tf2, col_req, col_res);
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
   BOOST_CHECK(patch_req.getNumSamplesCurvedShapes() ==
               ContactPatch::default_preallocated_size);
   ContactPatchResult patch_res(patch_req);
-  hpp::fcl::computeContactPatch(&hspace, tf1, &cone, tf2, col_res, patch_req,
-                                patch_res);
+  coal::computeContactPatch(&hspace, tf1, &cone, tf2, col_res, patch_req,
+                            patch_res);
   BOOST_CHECK(patch_res.numContactPatches() == 1);
 
   if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
@@ -396,11 +396,11 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
   tf2.rotation().col(1) << 0, 1, 0;
   tf2.rotation().col(2) << 0, 0, -1;
   col_res.clear();
-  hpp::fcl::collide(&hspace, tf1, &cone, tf2, col_req, col_res);
+  coal::collide(&hspace, tf1, &cone, tf2, col_req, col_res);
   BOOST_CHECK(col_res.isCollision());
   patch_res.clear();
-  hpp::fcl::computeContactPatch(&hspace, tf1, &cone, tf2, col_res, patch_req,
-                                patch_res);
+  coal::computeContactPatch(&hspace, tf1, &cone, tf2, col_res, patch_req,
+                            patch_res);
   BOOST_CHECK(patch_res.numContactPatches() == 1);
   if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
@@ -432,11 +432,11 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
   tf2.rotation().col(2) << -1, 0, 0;
   tf2.translation() << 0, 0, cone.radius - offset;
   col_res.clear();
-  hpp::fcl::collide(&hspace, tf1, &cone, tf2, col_req, col_res);
+  coal::collide(&hspace, tf1, &cone, tf2, col_req, col_res);
   BOOST_CHECK(col_res.isCollision());
   patch_res.clear();
-  hpp::fcl::computeContactPatch(&hspace, tf1, &cone, tf2, col_res, patch_req,
-                                patch_res);
+  coal::computeContactPatch(&hspace, tf1, &cone, tf2, col_res, patch_req,
+                            patch_res);
   BOOST_CHECK(patch_res.numContactPatches() == 1);
   if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
@@ -478,7 +478,7 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
                                  num_max_contact);
   CollisionResult col_res;
-  hpp::fcl::collide(&hspace, tf1, &cylinder, tf2, col_req, col_res);
+  coal::collide(&hspace, tf1, &cylinder, tf2, col_req, col_res);
   BOOST_CHECK(col_res.isCollision());
 
   if (col_res.isCollision()) {
@@ -505,8 +505,8 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
     BOOST_CHECK(patch_req.getNumSamplesCurvedShapes() ==
                 ContactPatch::default_preallocated_size);
     ContactPatchResult patch_res(patch_req);
-    hpp::fcl::computeContactPatch(&hspace, tf1, &cylinder, tf2, col_res,
-                                  patch_req, patch_res);
+    coal::computeContactPatch(&hspace, tf1, &cylinder, tf2, col_res, patch_req,
+                              patch_res);
     BOOST_CHECK(patch_res.numContactPatches() == 1);
 
     if (patch_res.numContactPatches() > 0) {
@@ -522,11 +522,11 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
     tf2.rotation().col(1) << 0, 1, 0;
     tf2.rotation().col(2) << 0, 0, -1;
     col_res.clear();
-    hpp::fcl::collide(&hspace, tf1, &cylinder, tf2, col_req, col_res);
+    coal::collide(&hspace, tf1, &cylinder, tf2, col_req, col_res);
     BOOST_CHECK(col_res.isCollision());
     patch_res.clear();
-    hpp::fcl::computeContactPatch(&hspace, tf1, &cylinder, tf2, col_res,
-                                  patch_req, patch_res);
+    coal::computeContactPatch(&hspace, tf1, &cylinder, tf2, col_res, patch_req,
+                              patch_res);
     BOOST_CHECK(patch_res.numContactPatches() == 1);
     if (patch_res.numContactPatches() > 0 && col_res.isCollision()) {
       EIGEN_VECTOR_IS_APPROX(contact.normal, hspace.n, tol);
@@ -544,13 +544,13 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
   tf2.translation() << 0, 0, cylinder.radius - offset;
 
   col_res.clear();
-  hpp::fcl::collide(&hspace, tf1, &cylinder, tf2, col_req, col_res);
+  coal::collide(&hspace, tf1, &cylinder, tf2, col_req, col_res);
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
   ContactPatchResult patch_res(patch_req);
-  hpp::fcl::computeContactPatch(&hspace, tf1, &cylinder, tf2, col_res,
-                                patch_req, patch_res);
+  coal::computeContactPatch(&hspace, tf1, &cylinder, tf2, col_res, patch_req,
+                            patch_res);
   BOOST_CHECK(patch_res.numContactPatches() == 1);
   if (col_res.isCollision() && patch_res.numContactPatches() > 0) {
     const Contact& contact = col_res.getContact(0);
@@ -588,17 +588,17 @@ BOOST_AUTO_TEST_CASE(convex_convex) {
                                  num_max_contact);
   CollisionResult col_res;
 
-  hpp::fcl::collide(&box1, tf1, &box2, tf2, col_req, col_res);
+  coal::collide(&box1, tf1, &box2, tf2, col_req, col_res);
 
   BOOST_CHECK(col_res.isCollision());
 
   const ContactPatchRequest patch_req;
   ContactPatchResult patch_res1(patch_req);
   ContactPatchResult patch_res2(patch_req);
-  hpp::fcl::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
-                                patch_res1);
-  hpp::fcl::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
-                                patch_res2);
+  coal::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
+                            patch_res1);
+  coal::computeContactPatch(&box1, tf1, &box2, tf2, col_res, patch_req,
+                            patch_res2);
   BOOST_CHECK(patch_res1.numContactPatches() == 1);
   BOOST_CHECK(patch_res2.numContactPatches() == 1);
 
@@ -673,11 +673,11 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
     Convex<Triangle> tetra2(pts2, 4, tris2, 4);
 
     col_res.clear();
-    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    coal::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
     BOOST_CHECK(col_res.isCollision());
     patch_res.clear();
-    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
-                                  patch_req, patch_res);
+    coal::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res, patch_req,
+                              patch_res);
     BOOST_CHECK(patch_res.numContactPatches() == 1);
 
     if (patch_res.numContactPatches() > 0) {
@@ -724,11 +724,11 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
     Convex<Triangle> tetra2(pts2, 4, tris2, 4);
 
     col_res.clear();
-    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    coal::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
     BOOST_CHECK(col_res.isCollision());
     patch_res.clear();
-    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
-                                  patch_req, patch_res);
+    coal::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res, patch_req,
+                              patch_res);
     BOOST_CHECK(patch_res.numContactPatches() == 1);
 
     if (patch_res.numContactPatches() > 0) {
@@ -773,11 +773,11 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
     Convex<Triangle> tetra2(pts2, 4, tris2, 4);
 
     col_res.clear();
-    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    coal::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
     BOOST_CHECK(col_res.isCollision());
     patch_res.clear();
-    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
-                                  patch_req, patch_res);
+    coal::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res, patch_req,
+                              patch_res);
     BOOST_CHECK(patch_res.numContactPatches() == 1);
 
     if (patch_res.numContactPatches() > 0) {
@@ -839,11 +839,11 @@ BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
     Convex<Triangle> tetra2(pts2, 4, tris2, 4);
 
     col_res.clear();
-    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    coal::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
     BOOST_CHECK(col_res.isCollision());
     patch_res.clear();
-    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
-                                  patch_req, patch_res);
+    coal::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res, patch_req,
+                              patch_res);
     BOOST_CHECK(patch_res.numContactPatches() == 1);
 
     if (patch_res.numContactPatches() > 0) {
@@ -887,11 +887,11 @@ BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
     Convex<Triangle> tetra2(pts2, 4, tris2, 4);
 
     col_res.clear();
-    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    coal::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
     BOOST_CHECK(col_res.isCollision());
     patch_res.clear();
-    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
-                                  patch_req, patch_res);
+    coal::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res, patch_req,
+                              patch_res);
     BOOST_CHECK(patch_res.numContactPatches() == 1);
 
     if (patch_res.numContactPatches() > 0) {
@@ -935,11 +935,11 @@ BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
     Convex<Triangle> tetra2(pts2, 4, tris2, 4);
 
     col_res.clear();
-    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    coal::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
     BOOST_CHECK(col_res.isCollision());
     patch_res.clear();
-    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
-                                  patch_req, patch_res);
+    coal::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res, patch_req,
+                              patch_res);
     BOOST_CHECK(patch_res.numContactPatches() == 1);
 
     if (patch_res.numContactPatches() > 0) {
@@ -1000,11 +1000,11 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_face) {
     Convex<Triangle> tetra2(pts2, 4, tris2, 4);
 
     col_res.clear();
-    hpp::fcl::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
+    coal::collide(&tetra1, tf1, &tetra2, tf2, col_req, col_res);
     BOOST_CHECK(col_res.isCollision());
     patch_res.clear();
-    hpp::fcl::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res,
-                                  patch_req, patch_res);
+    coal::computeContactPatch(&tetra1, tf1, &tetra2, tf2, col_res, patch_req,
+                              patch_res);
     BOOST_CHECK(patch_res.numContactPatches() == 1);
 
     if (patch_res.numContactPatches() > 0) {

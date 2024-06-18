@@ -46,7 +46,7 @@
 #include "hpp/fcl/shape/geometric_shapes.h"
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 // Pack the data for callback function.
 struct CallBackData {

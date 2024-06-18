@@ -35,13 +35,12 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_BVH_INTERNAL_H
-#define HPP_FCL_BVH_INTERNAL_H
+#ifndef COAL_BVH_INTERNAL_H
+#define COAL_BVH_INTERNAL_H
 
 #include <hpp/fcl/data_types.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief States for BVH construction
 /// empty->begun->processed ->replace_begun->processed -> ......
@@ -83,8 +82,6 @@ enum BVHModelType {
   BVH_MODEL_POINTCLOUD  /// @brief point cloud model
 };
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

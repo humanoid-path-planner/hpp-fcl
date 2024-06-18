@@ -35,13 +35,12 @@
 
 /** @author Jia Pan  */
 
-#ifndef HPP_FCL_HIERARCHY_TREE_INL_H
-#define HPP_FCL_HIERARCHY_TREE_INL_H
+#ifndef COAL_HIERARCHY_TREE_INL_H
+#define COAL_HIERARCHY_TREE_INL_H
 
 #include "hpp/fcl/broadphase/detail/hierarchy_tree.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace detail {
 
@@ -994,7 +993,6 @@ struct SelectImpl<S, AABB> {
 };
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

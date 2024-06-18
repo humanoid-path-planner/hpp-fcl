@@ -38,8 +38,7 @@
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/shape/geometric_shapes_utility.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 void ConvexBase::initialize(std::shared_ptr<std::vector<Vec3f>> points_,
                             unsigned int num_points_) {
@@ -252,6 +251,4 @@ void TriangleP::computeLocalAABB() {
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

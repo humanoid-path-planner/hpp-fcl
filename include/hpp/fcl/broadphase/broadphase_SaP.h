@@ -35,16 +35,15 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROAD_PHASE_SAP_H
-#define HPP_FCL_BROAD_PHASE_SAP_H
+#ifndef COAL_BROAD_PHASE_SAP_H
+#define COAL_BROAD_PHASE_SAP_H
 
 #include <map>
 #include <list>
 
 #include "hpp/fcl/broadphase/broadphase_collision_manager.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Rigorous SAP collision manager
 class HPP_FCL_DLLAPI SaPCollisionManager : public BroadPhaseCollisionManager {
@@ -220,7 +219,6 @@ class HPP_FCL_DLLAPI SaPCollisionManager : public BroadPhaseCollisionManager {
   void removeFromOverlapPairs(const SaPPair& p);
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

@@ -45,7 +45,7 @@
 #include <hpp/fcl/internal/intersect.h>
 #include <hpp/fcl/internal/tools.h>
 
-using namespace hpp::fcl;
+using namespace coal;
 
 BOOST_AUTO_TEST_CASE(vec_test_eigen_vec64) {
   Vec3f v1(1.0, 2.0, 3.0);

@@ -34,8 +34,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_TRAVERSAL_NODE_HFIELD_SHAPE_H
-#define HPP_FCL_TRAVERSAL_NODE_HFIELD_SHAPE_H
+#ifndef COAL_TRAVERSAL_NODE_HFIELD_SHAPE_H
+#define COAL_TRAVERSAL_NODE_HFIELD_SHAPE_H
 
 /// @cond INTERNAL
 
@@ -50,8 +50,7 @@
 #include <hpp/fcl/hfield.h>
 #include <hpp/fcl/shape/convex.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @addtogroup Traversal_For_Collision
 /// @{
@@ -750,8 +749,7 @@ class HeightFieldShapeDistanceTraversalNode : public DistanceTraversalNodeBase {
 
 /// @}
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 

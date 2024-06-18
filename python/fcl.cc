@@ -51,7 +51,7 @@
 #include "../doc/python/doxygen.hh"
 #include "../doc/python/doxygen-boost.hh"
 
-using namespace hpp::fcl;
+using namespace coal;
 namespace dv = doxygen::visitor;
 
 #pragma GCC diagnostic push

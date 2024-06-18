@@ -37,8 +37,7 @@
 #include "hpp/fcl/broadphase/default_broadphase_callbacks.h"
 #include <algorithm>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2,
                               void* data) {
@@ -122,5 +121,4 @@ bool CollisionCallBackCollect::exist(const CollisionPair& pair) const {
          collision_pairs.end();
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

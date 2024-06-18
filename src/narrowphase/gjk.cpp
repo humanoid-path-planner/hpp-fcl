@@ -43,8 +43,7 @@
 #include <hpp/fcl/shape/geometric_shapes_traits.h>
 #include <hpp/fcl/narrowphase/narrowphase_defaults.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace details {
 
@@ -1483,8 +1482,8 @@ void ConvexBase::buildSupportWarmStart() {
     axiis(i) = 1;
     {
       Vec3f support;
-      hpp::fcl::details::getShapeSupport<false>(this, axiis, support,
-                                                support_hint, support_data);
+      coal::details::getShapeSupport<false>(this, axiis, support, support_hint,
+                                            support_data);
       this->support_warm_starts.points.emplace_back(support);
       this->support_warm_starts.indices.emplace_back(support_hint);
     }
@@ -1492,8 +1491,8 @@ void ConvexBase::buildSupportWarmStart() {
     axiis(i) = -1;
     {
       Vec3f support;
-      hpp::fcl::details::getShapeSupport<false>(this, axiis, support,
-                                                support_hint, support_data);
+      coal::details::getShapeSupport<false>(this, axiis, support, support_hint,
+                                            support_data);
       this->support_warm_starts.points.emplace_back(support);
       this->support_warm_starts.indices.emplace_back(support_hint);
     }
@@ -1509,16 +1508,16 @@ void ConvexBase::buildSupportWarmStart() {
   for (size_t ei_index = 0; ei_index < 4; ++ei_index) {
     {
       Vec3f support;
-      hpp::fcl::details::getShapeSupport<false>(this, eis[ei_index], support,
-                                                support_hint, support_data);
+      coal::details::getShapeSupport<false>(this, eis[ei_index], support,
+                                            support_hint, support_data);
       this->support_warm_starts.points.emplace_back(support);
       this->support_warm_starts.indices.emplace_back(support_hint);
     }
 
     {
       Vec3f support;
-      hpp::fcl::details::getShapeSupport<false>(this, -eis[ei_index], support,
-                                                support_hint, support_data);
+      coal::details::getShapeSupport<false>(this, -eis[ei_index], support,
+                                            support_hint, support_data);
       this->support_warm_starts.points.emplace_back(support);
       this->support_warm_starts.indices.emplace_back(support_hint);
     }
@@ -1533,6 +1532,4 @@ void ConvexBase::buildSupportWarmStart() {
   }
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

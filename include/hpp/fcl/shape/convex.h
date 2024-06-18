@@ -35,13 +35,12 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_SHAPE_CONVEX_H
-#define HPP_FCL_SHAPE_CONVEX_H
+#ifndef COAL_SHAPE_CONVEX_H
+#define COAL_SHAPE_CONVEX_H
 
 #include "hpp/fcl/shape/geometric_shapes.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Convex polytope
 /// @tparam PolygonT the polygon class. It must have method \c size() and
@@ -106,9 +105,7 @@ class Convex : public ConvexBase {
   void fillNeighbors();
 };
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #include "hpp/fcl/shape/details/convex.hxx"
 

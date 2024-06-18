@@ -2,8 +2,8 @@
 // Copyright (c) 2021-2024 INRIA
 //
 
-#ifndef HPP_FCL_SERIALIZATION_FWD_H
-#define HPP_FCL_SERIALIZATION_FWD_H
+#ifndef COAL_SERIALIZATION_FWD_H
+#define COAL_SERIALIZATION_FWD_H
 
 #include <type_traits>
 
@@ -58,8 +58,7 @@
   }                                                     \
   /**/
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace serialization {
 namespace detail {
 
@@ -92,12 +91,10 @@ struct register_type {
   static void on(Archive& /*ar*/) {}
 };
 }  // namespace serialization
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #define HPP_FCL_SERIALIZATION_CAST_REGISTER(Derived, Base)                   \
-  namespace hpp {                                                            \
-  namespace fcl {                                                            \
+  namespace coal {                                                           \
   namespace serialization {                                                  \
   namespace detail {                                                         \
   template <>                                                                \
@@ -111,7 +108,6 @@ struct register_type {
           .init();                                                           \
   }                                                                          \
   }                                                                          \
-  }                                                                          \
   }
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_FWD_H
+#endif  // ifndef COAL_SERIALIZATION_FWD_H

@@ -49,7 +49,7 @@
 #include "utility.h"
 #include "fcl_resources/config.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 namespace utf = boost::unit_test::framework;
 
 bool verbose = false;

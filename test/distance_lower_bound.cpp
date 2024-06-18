@@ -46,19 +46,19 @@
 #include "utility.h"
 #include "fcl_resources/config.h"
 
-using hpp::fcl::BVHModel;
-using hpp::fcl::CollisionGeometryPtr_t;
-using hpp::fcl::CollisionObject;
-using hpp::fcl::CollisionRequest;
-using hpp::fcl::CollisionResult;
-using hpp::fcl::DistanceRequest;
-using hpp::fcl::DistanceResult;
-using hpp::fcl::FCL_REAL;
-using hpp::fcl::OBBRSS;
-using hpp::fcl::shared_ptr;
-using hpp::fcl::Transform3f;
-using hpp::fcl::Triangle;
-using hpp::fcl::Vec3f;
+using coal::BVHModel;
+using coal::CollisionGeometryPtr_t;
+using coal::CollisionObject;
+using coal::CollisionRequest;
+using coal::CollisionResult;
+using coal::DistanceRequest;
+using coal::DistanceResult;
+using coal::FCL_REAL;
+using coal::OBBRSS;
+using coal::shared_ptr;
+using coal::Transform3f;
+using coal::Triangle;
+using coal::Vec3f;
 
 bool testDistanceLowerBound(const Transform3f& tf,
                             const CollisionGeometryPtr_t& m1,
@@ -72,7 +72,7 @@ bool testDistanceLowerBound(const Transform3f& tf,
   CollisionObject co1(m1, pose1);
   CollisionObject co2(m2, pose2);
 
-  hpp::fcl::collide(&co1, &co2, request, result);
+  coal::collide(&co1, &co2, request, result);
   distance = result.distance_lower_bound;
 
   return result.isCollision();
@@ -82,14 +82,14 @@ bool testCollide(const Transform3f& tf, const CollisionGeometryPtr_t& m1,
                  const CollisionGeometryPtr_t& m2) {
   Transform3f pose1(tf), pose2;
 
-  CollisionRequest request(hpp::fcl::NO_REQUEST, 1);
+  CollisionRequest request(coal::NO_REQUEST, 1);
   request.enable_distance_lower_bound = false;
 
   CollisionResult result;
   CollisionObject co1(m1, pose1);
   CollisionObject co2(m2, pose2);
 
-  hpp::fcl::collide(&co1, &co2, request, result);
+  coal::collide(&co1, &co2, request, result);
   return result.isCollision();
 }
 
@@ -102,7 +102,7 @@ bool testDistance(const Transform3f& tf, const CollisionGeometryPtr_t& m1,
   CollisionObject co1(m1, pose1);
   CollisionObject co2(m2, pose2);
 
-  hpp::fcl::distance(&co1, &co2, request, result);
+  coal::distance(&co1, &co2, request, result);
   distance = result.min_distance;
 
   if (result.min_distance <= 0) {
@@ -158,8 +158,8 @@ BOOST_AUTO_TEST_CASE(mesh_mesh) {
 }
 
 BOOST_AUTO_TEST_CASE(box_sphere) {
-  shared_ptr<hpp::fcl::Sphere> sphere(new hpp::fcl::Sphere(0.5));
-  shared_ptr<hpp::fcl::Box> box(new hpp::fcl::Box(1., 1., 1.));
+  shared_ptr<coal::Sphere> sphere(new coal::Sphere(0.5));
+  shared_ptr<coal::Box> box(new coal::Box(1., 1., 1.));
 
   Transform3f M1;
   M1.setIdentity();
@@ -195,8 +195,8 @@ BOOST_AUTO_TEST_CASE(box_sphere) {
 }
 
 BOOST_AUTO_TEST_CASE(sphere_sphere) {
-  shared_ptr<hpp::fcl::Sphere> sphere1(new hpp::fcl::Sphere(0.5));
-  shared_ptr<hpp::fcl::Sphere> sphere2(new hpp::fcl::Sphere(1.));
+  shared_ptr<coal::Sphere> sphere1(new coal::Sphere(0.5));
+  shared_ptr<coal::Sphere> sphere2(new coal::Sphere(1.));
 
   Transform3f M1;
   M1.setIdentity();
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE(box_mesh) {
   loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
 
   shared_ptr<BVHModel<OBBRSS> > m1(new BVHModel<OBBRSS>);
-  shared_ptr<hpp::fcl::Box> m2(new hpp::fcl::Box(500, 200, 150));
+  shared_ptr<coal::Box> m2(new coal::Box(500, 200, 150));
 
   m1->beginModel();
   m1->addSubModel(p1, t1);

@@ -27,7 +27,7 @@
 #define RUN_CASE(BV, tf, models, split) \
   run<BV>(tf, models, split, #BV " - " #split ":\t")
 
-using namespace hpp::fcl;
+using namespace coal;
 
 bool verbose = false;
 FCL_REAL DELTA = 0.001;

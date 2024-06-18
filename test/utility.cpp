@@ -14,8 +14,7 @@
 #include <fstream>
 #include <iostream>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 BenchTimer::BenchTimer() {
 #ifdef _WIN32
@@ -191,7 +190,7 @@ OcTree loadOctreeFile(const std::string& filename, const FCL_REAL& resolution) {
         << " and not " << resolution;
     throw std::invalid_argument(oss.str());
   }
-  return hpp::fcl::OcTree(octree);
+  return coal::OcTree(octree);
 }
 #endif
 
@@ -649,6 +648,4 @@ std::shared_ptr<ShapeBase> makeRandomGeometry(NODE_TYPE node_type) {
   }
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

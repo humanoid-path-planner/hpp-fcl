@@ -35,14 +35,13 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_KDOP_H
-#define HPP_FCL_KDOP_H
+#ifndef COAL_KDOP_H
+#define COAL_KDOP_H
 
 #include "hpp/fcl/fwd.hh"
 #include "hpp/fcl/data_types.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct CollisionRequest;
 
@@ -186,8 +185,6 @@ bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
 template <short N>
 HPP_FCL_DLLAPI KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

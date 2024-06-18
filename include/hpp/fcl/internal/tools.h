@@ -35,8 +35,8 @@
 
 /** \author Joseph Mirabel */
 
-#ifndef HPP_FCL_INTERNAL_TOOLS_H
-#define HPP_FCL_INTERNAL_TOOLS_H
+#ifndef COAL_INTERNAL_TOOLS_H
+#define COAL_INTERNAL_TOOLS_H
 
 #include <hpp/fcl/fwd.hh>
 
@@ -46,8 +46,7 @@
 
 #include <hpp/fcl/data_types.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 template <typename Derived>
 static inline typename Derived::Scalar triple(
@@ -209,7 +208,6 @@ bool isEqual(const Eigen::MatrixBase<Derived>& lhs,
   return ((lhs - rhs).array().abs() < tol).all();
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

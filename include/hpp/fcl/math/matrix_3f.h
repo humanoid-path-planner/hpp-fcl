@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_MATRIX_3F_H
-#define HPP_FCL_MATRIX_3F_H
+#ifndef COAL_MATRIX_3F_H
+#define COAL_MATRIX_3F_H
 
 #warning "This file is deprecated. Include <hpp/fcl/data_types.h> instead."
 

@@ -42,8 +42,7 @@
 #include <cmath>
 #include <hpp/fcl/internal/tools.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2,
                                    const Vec3f& v3, Vec3f* n, FCL_REAL* t) {
@@ -704,6 +703,4 @@ Project::ProjectResult Project::projectTetrahedraOrigin(const Vec3f& a,
   return res;
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_BV_FITTER_H
-#define HPP_FCL_BV_FITTER_H
+#ifndef COAL_BV_FITTER_H
+#define COAL_BV_FITTER_H
 
 #include <hpp/fcl/BVH/BVH_internal.h>
 #include <hpp/fcl/BV/kIOS.h>
@@ -44,8 +44,7 @@
 #include <hpp/fcl/BV/AABB.h>
 #include <iostream>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Compute a bounding volume that fits a set of n points.
 template <typename BV>
@@ -216,8 +215,6 @@ class HPP_FCL_DLLAPI BVFitter<AABB> : public BVFitterTpl<AABB> {
   AABB fit(unsigned int* primitive_indices, unsigned int num_primitives);
 };
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

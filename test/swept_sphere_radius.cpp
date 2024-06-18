@@ -47,7 +47,7 @@
 
 #include "utility.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 NODE_TYPE node1_type;
 NODE_TYPE node2_type;
@@ -315,12 +315,12 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
         const FCL_REAL ssr2 = shape2.getSweptSphereRadius();
         shape1.setSweptSphereRadius(0.);
         shape2.setSweptSphereRadius(0.);
-        hpp::fcl::collide(&shape1, tf1, &shape2, tf2, request, result[0]);
+        coal::collide(&shape1, tf1, &shape2, tf2, request, result[0]);
 
         // With swept sphere radius
         shape1.setSweptSphereRadius(ssr1);
         shape2.setSweptSphereRadius(ssr2);
-        hpp::fcl::collide(&shape1, tf1, &shape2, tf2, request, result[1]);
+        coal::collide(&shape1, tf1, &shape2, tf2, request, result[1]);
 
         BOOST_CHECK(result[0].isCollision());
         BOOST_CHECK(result[1].isCollision());

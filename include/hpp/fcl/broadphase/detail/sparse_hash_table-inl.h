@@ -35,13 +35,12 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_SPARSEHASHTABLE_INL_H
-#define HPP_FCL_BROADPHASE_SPARSEHASHTABLE_INL_H
+#ifndef COAL_BROADPHASE_SPARSEHASHTABLE_INL_H
+#define COAL_BROADPHASE_SPARSEHASHTABLE_INL_H
 
 #include "hpp/fcl/broadphase/detail/sparse_hash_table.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace detail {
 
@@ -107,7 +106,6 @@ void SparseHashTable<Key, Data, HashFnc, TableT>::clear() {
 }
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

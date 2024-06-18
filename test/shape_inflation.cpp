@@ -46,15 +46,15 @@
 
 #include "utility.h"
 
-using namespace hpp::fcl;
-using hpp::fcl::CollisionGeometryPtr_t;
-using hpp::fcl::CollisionObject;
-using hpp::fcl::CollisionRequest;
-using hpp::fcl::CollisionResult;
-using hpp::fcl::DistanceRequest;
-using hpp::fcl::DistanceResult;
-using hpp::fcl::Transform3f;
-using hpp::fcl::Vec3f;
+using namespace coal;
+using coal::CollisionGeometryPtr_t;
+using coal::CollisionObject;
+using coal::CollisionRequest;
+using coal::CollisionResult;
+using coal::DistanceRequest;
+using coal::DistanceResult;
+using coal::Transform3f;
+using coal::Vec3f;
 
 #define MATH_SQUARED(x) (x * x)
 
@@ -164,35 +164,35 @@ void test_no_throw(const Shape &shape, const FCL_REAL inflation) {
 }
 
 BOOST_AUTO_TEST_CASE(test_inflate) {
-  const hpp::fcl::Sphere sphere(1);
+  const coal::Sphere sphere(1);
   test(sphere, 0.01, 1e-8);
   test_throw(sphere, -1.1);
   test_no_throw(sphere, 1.);
 
-  const hpp::fcl::Box box(1, 1, 1);
+  const coal::Box box(1, 1, 1);
   test(box, 0.01, 1e-8);
   test_throw(box, -0.6);
 
-  const hpp::fcl::Ellipsoid ellipsoid(1, 2, 3);
+  const coal::Ellipsoid ellipsoid(1, 2, 3);
   test(ellipsoid, 0.01, 1e-8);
   test_throw(ellipsoid, -1.1);
 
-  const hpp::fcl::Capsule capsule(1., 2.);
+  const coal::Capsule capsule(1., 2.);
   test(capsule, 0.01, 1e-8);
   test_throw(capsule, -1.1);
 
-  const hpp::fcl::Cylinder cylinder(1., 2.);
+  const coal::Cylinder cylinder(1., 2.);
   test(cylinder, 0.01, 1e-8);
   test_throw(cylinder, -1.1);
 
-  const hpp::fcl::Cone cone(1., 4.);
+  const coal::Cone cone(1., 4.);
   test(cone, 0.01, 1e-8);
   test_throw(cone, -1.1);
 
-  const hpp::fcl::Halfspace halfspace(Vec3f::UnitZ(), 0.);
+  const coal::Halfspace halfspace(Vec3f::UnitZ(), 0.);
   test(halfspace, 0.01, 1e-8);
 
-  //  const hpp::fcl::TriangleP triangle(Vec3f::UnitX(), Vec3f::UnitY(),
+  //  const coal::TriangleP triangle(Vec3f::UnitX(), Vec3f::UnitY(),
   //                                     Vec3f::UnitZ());
   //  test(triangle, 0.01, 1e-8);
 }

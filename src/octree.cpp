@@ -35,8 +35,7 @@
 #include <hpp/fcl/octree.h>
 #include <array>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace internal {
 struct Neighbors {
   char value;
@@ -200,5 +199,4 @@ OcTreePtr_t makeOctree(
 
   return OcTreePtr_t(new OcTree(octree));
 }
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

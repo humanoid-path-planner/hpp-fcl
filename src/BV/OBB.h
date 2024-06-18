@@ -33,11 +33,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPP_FCL_SRC_OBB_H
-#define HPP_FCL_SRC_OBB_H
+#ifndef COAL_SRC_OBB_H
+#define COAL_SRC_OBB_H
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 bool obbDisjointAndLowerBoundDistance(const Matrix3f& B, const Vec3f& T,
                                       const Vec3f& a, const Vec3f& b,
@@ -46,8 +45,6 @@ bool obbDisjointAndLowerBoundDistance(const Matrix3f& B, const Vec3f& T,
 
 bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
                  const Vec3f& b);
-}  // namespace fcl
+}  // namespace coal
 
-}  // namespace hpp
-
-#endif  // HPP_FCL_SRC_OBB_H
+#endif  // COAL_SRC_OBB_H

@@ -42,8 +42,7 @@
 #include <iostream>
 #include <limits>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 bool kIOS::overlap(const kIOS& other) const {
   for (unsigned int i = 0; i < num_spheres; ++i) {
@@ -198,6 +197,4 @@ kIOS translate(const kIOS& bv, const Vec3f& t) {
   return res;
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

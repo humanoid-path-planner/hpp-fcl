@@ -34,13 +34,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPP_FCL_GEOMETRIC_SHAPES_TRAITS_H
-#define HPP_FCL_GEOMETRIC_SHAPES_TRAITS_H
+#ifndef COAL_GEOMETRIC_SHAPES_TRAITS_H
+#define COAL_GEOMETRIC_SHAPES_TRAITS_H
 
 #include <hpp/fcl/shape/geometric_shapes.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct shape_traits_base {
   enum {
@@ -154,7 +153,6 @@ struct shape_traits<Halfspace> : shape_traits_base {
   };
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_GEOMETRIC_SHAPES_TRAITS_H
+#endif  // ifndef COAL_GEOMETRIC_SHAPES_TRAITS_H

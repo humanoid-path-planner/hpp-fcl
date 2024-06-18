@@ -59,7 +59,7 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace hpp::fcl;
+using namespace coal;
 
 /// @brief test for broad phase collision and self collision
 void broad_phase_collision_test(FCL_REAL env_scale, std::size_t env_size,

@@ -34,15 +34,14 @@
 
 /** \author Joseph Mirabel */
 
-#ifndef HPP_FCL_SHAPE_CONVEX_HXX
-#define HPP_FCL_SHAPE_CONVEX_HXX
+#ifndef COAL_SHAPE_CONVEX_HXX
+#define COAL_SHAPE_CONVEX_HXX
 
 #include <set>
 #include <vector>
 #include <iostream>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 template <typename PolygonT>
 Convex<PolygonT>::Convex(std::shared_ptr<std::vector<Vec3f>> points_,
@@ -279,8 +278,6 @@ void Convex<PolygonT>::fillNeighbors() {
   assert(p_nneighbors == nneighbors_->data() + c_nneighbors);
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

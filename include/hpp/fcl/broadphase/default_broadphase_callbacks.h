@@ -36,8 +36,8 @@
 /** @author Sean Curtis (sean@tri.global) */
 /** @author Justin Carpentier (justin.carpentier@inria.fr) */
 
-#ifndef HPP_FCL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H
-#define HPP_FCL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H
+#ifndef COAL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H
+#define COAL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H
 
 #include "hpp/fcl/broadphase/broadphase_callbacks.h"
 #include "hpp/fcl/collision.h"
@@ -48,8 +48,7 @@
 // #include "hpp/fcl/narrowphase/distance_request.h"
 // #include "hpp/fcl/narrowphase/distance_result.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Collision data stores the collision request and the result given by
 /// collision algorithm.
@@ -251,8 +250,6 @@ struct HPP_FCL_DLLAPI CollisionCallBackCollect : CollisionCallBackBase {
   size_t max_size;
 };
 
-}  // namespace fcl
+}  // namespace coal
 
-}  // namespace hpp
-
-#endif  // HPP_FCL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H
+#endif  // COAL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H

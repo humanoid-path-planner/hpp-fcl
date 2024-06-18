@@ -44,8 +44,7 @@
 #include <iostream>
 #include <limits>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Compute the 8 vertices of a OBB
 inline void computeVertices(const OBB& b, Vec3f vertices[8]) {
@@ -489,6 +488,4 @@ OBB translate(const OBB& bv, const Vec3f& t) {
   return res;
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

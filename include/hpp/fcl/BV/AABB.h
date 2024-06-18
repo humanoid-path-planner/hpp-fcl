@@ -35,13 +35,12 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_AABB_H
-#define HPP_FCL_AABB_H
+#ifndef COAL_AABB_H
+#define COAL_AABB_H
 
 #include "hpp/fcl/data_types.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct CollisionRequest;
 class Plane;
@@ -262,8 +261,6 @@ HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
 HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
                             const AABB& b2, const CollisionRequest& request,
                             FCL_REAL& sqrDistLowerBound);
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

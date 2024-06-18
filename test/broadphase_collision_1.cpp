@@ -61,7 +61,7 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace hpp::fcl;
+using namespace coal;
 
 /// @brief make sure if broadphase algorithms doesn't check twice for the same
 /// collision object pair

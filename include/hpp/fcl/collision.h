@@ -36,8 +36,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_COLLISION_H
-#define HPP_FCL_COLLISION_H
+#ifndef COAL_COLLISION_H
+#define COAL_COLLISION_H
 
 #include <hpp/fcl/data_types.h>
 #include <hpp/fcl/collision_object.h>
@@ -45,8 +45,7 @@
 #include <hpp/fcl/collision_func_matrix.h>
 #include <hpp/fcl/timings.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Main collision interface: given two collision objects, and the
 /// requirements for contacts, including num of max contacts, whether perform
@@ -116,7 +115,6 @@ class HPP_FCL_DLLAPI ComputeCollision {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

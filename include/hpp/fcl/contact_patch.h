@@ -34,16 +34,15 @@
 
 /** \author Louis Montaut */
 
-#ifndef HPP_FCL_CONTACT_PATCH_H
-#define HPP_FCL_CONTACT_PATCH_H
+#ifndef COAL_CONTACT_PATCH_H
+#define COAL_CONTACT_PATCH_H
 
 #include "hpp/fcl/data_types.h"
 #include "hpp/fcl/collision_data.h"
 #include "hpp/fcl/contact_patch/contact_patch_solver.h"
 #include "hpp/fcl/contact_patch_func_matrix.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Main contact patch computation interface.
 /// @note Please see @ref ContactPatchRequest and @ref ContactPatchResult for
@@ -118,7 +117,6 @@ class HPP_FCL_DLLAPI ComputeContactPatch {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

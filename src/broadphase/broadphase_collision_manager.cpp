@@ -37,8 +37,7 @@
 
 #include "hpp/fcl/broadphase/broadphase_collision_manager.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 //==============================================================================
 BroadPhaseCollisionManager::BroadPhaseCollisionManager()
@@ -90,5 +89,4 @@ void BroadPhaseCollisionManager::insertTestedSet(CollisionObject* a,
     tested_set.insert(std::make_pair(b, a));
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

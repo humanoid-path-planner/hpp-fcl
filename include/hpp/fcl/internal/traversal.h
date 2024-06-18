@@ -34,13 +34,12 @@
 
 /** \author Joseph Mirabel */
 
-#ifndef HPP_FCL_TRAVERSAL_DETAILS_TRAVERSAL_H
-#define HPP_FCL_TRAVERSAL_DETAILS_TRAVERSAL_H
+#ifndef COAL_TRAVERSAL_DETAILS_TRAVERSAL_H
+#define COAL_TRAVERSAL_DETAILS_TRAVERSAL_H
 
 /// @cond INTERNAL
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 enum { RelativeTransformationIsIdentity = 1 };
 
@@ -67,9 +66,7 @@ struct HPP_FCL_DLLAPI RelativeTransformation<false> {
 };
 }  // namespace details
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 

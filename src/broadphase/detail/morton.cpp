@@ -38,8 +38,7 @@
 
 #include "hpp/fcl/broadphase/detail/morton-inl.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @cond IGNORE
 namespace detail {
@@ -79,5 +78,4 @@ uint64_t morton_code60(uint32_t x, uint32_t y, uint32_t z) {
 
 }  // namespace detail
 /// @endcond
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

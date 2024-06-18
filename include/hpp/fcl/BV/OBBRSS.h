@@ -35,14 +35,13 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_OBBRSS_H
-#define HPP_FCL_OBBRSS_H
+#ifndef COAL_OBBRSS_H
+#define COAL_OBBRSS_H
 
 #include "hpp/fcl/BV/OBB.h"
 #include "hpp/fcl/BV/RSS.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct CollisionRequest;
 
@@ -155,8 +154,6 @@ inline FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1,
   return distance(R0, T0, b1.rss, b2.rss, P, Q);
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

@@ -52,8 +52,8 @@ HPP_FCL_COMPILER_DIAGNOSTIC_POP
 #endif
 
 using namespace boost::python;
-using namespace hpp::fcl;
-using namespace hpp::fcl::python;
+using namespace coal;
+using namespace coal::python;
 
 namespace dv = doxygen::visitor;
 

@@ -40,8 +40,7 @@
 
 #include "hpp/fcl/BV/BV.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 template <typename T_BVH, typename T_SH>
 struct BVHShapeComputeContactPatch {
@@ -407,5 +406,4 @@ ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
   // clang-format on
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

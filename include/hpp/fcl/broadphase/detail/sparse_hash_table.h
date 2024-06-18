@@ -35,16 +35,15 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_SPARSEHASHTABLE_H
-#define HPP_FCL_BROADPHASE_SPARSEHASHTABLE_H
+#ifndef COAL_BROADPHASE_SPARSEHASHTABLE_H
+#define COAL_BROADPHASE_SPARSEHASHTABLE_H
 
 #include <set>
 #include <vector>
 #include <list>
 #include <unordered_map>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace detail {
 
@@ -87,8 +86,7 @@ class SparseHashTable {
 };
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #include "hpp/fcl/broadphase/detail/sparse_hash_table-inl.h"
 

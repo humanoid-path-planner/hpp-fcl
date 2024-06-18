@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_TRAVERSAL_NODE_MESH_SHAPE_H
-#define HPP_FCL_TRAVERSAL_NODE_MESH_SHAPE_H
+#ifndef COAL_TRAVERSAL_NODE_MESH_SHAPE_H
+#define COAL_TRAVERSAL_NODE_MESH_SHAPE_H
 
 /// @cond INTERNAL
 
@@ -49,8 +49,7 @@
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <hpp/fcl/internal/shape_shape_func.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @addtogroup Traversal_For_Collision
 /// @{
@@ -479,8 +478,7 @@ class MeshShapeDistanceTraversalNodeOBBRSS
 
 /// @}
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 

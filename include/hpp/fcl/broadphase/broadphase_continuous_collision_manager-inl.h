@@ -35,14 +35,13 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_INL_H
-#define HPP_FCL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_INL_H
+#ifndef COAL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_INL_H
+#define COAL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_INL_H
 
 #include "hpp/fcl/broadphase/broadphase_continuous_collision_manager.h"
 #include <algorithm>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 //==============================================================================
 BroadPhaseContinuousCollisionManager::BroadPhaseContinuousCollisionManager() {
@@ -80,8 +79,6 @@ void BroadPhaseContinuousCollisionManager::update(
   update();
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

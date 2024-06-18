@@ -36,13 +36,12 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_MORTON_INL_H
-#define HPP_FCL_MORTON_INL_H
+#ifndef COAL_MORTON_INL_H
+#define COAL_MORTON_INL_H
 
 #include "hpp/fcl/broadphase/detail/morton.h"
 
-namespace hpp {
-namespace fcl {  /// @cond IGNORE
+namespace coal {  /// @cond IGNORE
 namespace detail {
 
 //==============================================================================
@@ -147,7 +146,6 @@ constexpr size_t morton_functor<S, std::bitset<N>>::bits() {
 
 }  // namespace detail
 /// @endcond
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

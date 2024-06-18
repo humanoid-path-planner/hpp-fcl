@@ -36,15 +36,14 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_MORTON_H
-#define HPP_FCL_MORTON_H
+#ifndef COAL_MORTON_H
+#define COAL_MORTON_H
 
 #include "hpp/fcl/BV/AABB.h"
 #include <cstdint>
 #include <bitset>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @cond IGNORE
 namespace detail {
@@ -114,8 +113,7 @@ struct morton_functor<S, std::bitset<N>> {
 
 }  // namespace detail
 /// @endcond
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #include "hpp/fcl/broadphase/detail/morton-inl.h"
 

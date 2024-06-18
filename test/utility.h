@@ -79,11 +79,10 @@
 
 namespace octomap {
 #ifdef HPP_FCL_HAS_OCTOMAP
-typedef hpp::fcl::shared_ptr<octomap::OcTree> OcTreePtr_t;
+typedef coal::shared_ptr<octomap::OcTree> OcTreePtr_t;
 #endif
 }  // namespace octomap
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 class BenchTimer {
  public:
@@ -139,8 +138,8 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points,
                  std::vector<Triangle>& triangles);
 
 #ifdef HPP_FCL_HAS_OCTOMAP
-fcl::OcTree loadOctreeFile(const std::string& filename,
-                           const FCL_REAL& resolution);
+coal::OcTree loadOctreeFile(const std::string& filename,
+                            const FCL_REAL& resolution);
 #endif
 
 /// @brief Generate one random transform whose translation is constrained by
@@ -234,8 +233,6 @@ Halfspace makeRandomHalfspace(FCL_REAL min_size, FCL_REAL max_size);
 
 std::shared_ptr<ShapeBase> makeRandomGeometry(NODE_TYPE node_type);
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

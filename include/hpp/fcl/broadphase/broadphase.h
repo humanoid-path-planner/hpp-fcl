@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPP_FCL_BROADPHASE_BROADPHASE_H
-#define HPP_FCL_BROADPHASE_BROADPHASE_H
+#ifndef COAL_BROADPHASE_BROADPHASE_H
+#define COAL_BROADPHASE_BROADPHASE_H
 
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
@@ -45,4 +45,4 @@
 
 #include "hpp/fcl/broadphase/default_broadphase_callbacks.h"
 
-#endif  // ifndef HPP_FCL_BROADPHASE_BROADPHASE_H
+#endif  // ifndef COAL_BROADPHASE_BROADPHASE_H

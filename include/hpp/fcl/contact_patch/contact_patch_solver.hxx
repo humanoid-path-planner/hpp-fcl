@@ -34,14 +34,13 @@
 
 /** \author Louis Montaut */
 
-#ifndef HPP_FCL_CONTACT_PATCH_SOLVER_HXX
-#define HPP_FCL_CONTACT_PATCH_SOLVER_HXX
+#ifndef COAL_CONTACT_PATCH_SOLVER_HXX
+#define COAL_CONTACT_PATCH_SOLVER_HXX
 
 #include "hpp/fcl/data_types.h"
 #include "hpp/fcl/shape/geometric_shapes_traits.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 // ============================================================================
 inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
@@ -421,7 +420,6 @@ inline Vec2f ContactPatchSolver::computeLineSegmentIntersection(
   return alpha * c + (1 - alpha) * d;
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // HPP_FCL_CONTACT_PATCH_SOLVER_HXX
+#endif  // COAL_CONTACT_PATCH_SOLVER_HXX

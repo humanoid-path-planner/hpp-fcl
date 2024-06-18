@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_BV_H
-#define HPP_FCL_BV_H
+#ifndef COAL_BV_H
+#define COAL_BV_H
 
 #include <hpp/fcl/BV/kDOP.h>
 #include <hpp/fcl/BV/AABB.h>
@@ -47,8 +47,7 @@
 #include <hpp/fcl/math/transform.h>
 
 /** @brief Main namespace */
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @cond IGNORE
 namespace details {
@@ -285,8 +284,6 @@ static inline void convertBV(const BV1& bv1, BV2& bv2) {
   details::Converter<BV1, BV2>::convert(bv1, bv2);
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

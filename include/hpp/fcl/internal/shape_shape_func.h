@@ -35,8 +35,8 @@
 
 /** \author Florent Lamiraux */
 
-#ifndef HPP_FCL_INTERNAL_SHAPE_SHAPE_FUNC_H
-#define HPP_FCL_INTERNAL_SHAPE_SHAPE_FUNC_H
+#ifndef COAL_INTERNAL_SHAPE_SHAPE_FUNC_H
+#define COAL_INTERNAL_SHAPE_SHAPE_FUNC_H
 
 /// @cond INTERNAL
 
@@ -45,8 +45,7 @@
 #include <hpp/fcl/narrowphase/narrowphase.h>
 #include <hpp/fcl/shape/geometric_shapes_traits.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 template <typename ShapeType1, typename ShapeType2>
 struct ShapeShapeDistancer {
@@ -115,7 +114,7 @@ FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1,
                             const GJKSolver* nsolver,
                             const bool compute_signed_distance, Vec3f& p1,
                             Vec3f& p2, Vec3f& normal) {
-  return ::hpp::fcl::ShapeShapeDistancer<ShapeType1, ShapeType2>::run(
+  return ::coal::ShapeShapeDistancer<ShapeType1, ShapeType2>::run(
       o1, tf1, o2, tf2, nsolver, compute_signed_distance, p1, p2, normal);
 }
 }  // namespace internal
@@ -308,8 +307,7 @@ SHAPE_SELF_DISTANCE_SPECIALIZATION(Halfspace)
 #undef SHAPE_SHAPE_DISTANCE_SPECIALIZATION
 #undef SHAPE_SELF_DISTANCE_SPECIALIZATION
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 

@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_TRAVERSAL_RECURSE_H
-#define HPP_FCL_TRAVERSAL_RECURSE_H
+#ifndef COAL_TRAVERSAL_RECURSE_H
+#define COAL_TRAVERSAL_RECURSE_H
 
 /// @cond INTERNAL
 
@@ -45,8 +45,7 @@
 #include <hpp/fcl/internal/traversal_node_base.h>
 #include <hpp/fcl/internal/traversal_node_bvhs.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// Recurse function for collision
 /// @param node collision node,
@@ -74,9 +73,7 @@ void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase* node,
                                            CollisionResult& result,
                                            BVHFrontList* front_list);
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 

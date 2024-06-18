@@ -35,8 +35,8 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_BROADPAHSESPATIALHASH_H
-#define HPP_FCL_BROADPHASE_BROADPAHSESPATIALHASH_H
+#ifndef COAL_BROADPHASE_BROADPAHSESPATIALHASH_H
+#define COAL_BROADPHASE_BROADPAHSESPATIALHASH_H
 
 #include <list>
 #include <map>
@@ -46,8 +46,7 @@
 #include "hpp/fcl/broadphase/detail/sparse_hash_table.h"
 #include "hpp/fcl/broadphase/detail/spatial_hash.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief spatial hashing collision mananger
 template <typename HashTable = detail::SimpleHashTable<AABB, CollisionObject*,
@@ -161,9 +160,7 @@ class SpatialHashingCollisionManager : public BroadPhaseCollisionManager {
                                FCL_REAL& min_dist) const;
 };
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #include "hpp/fcl/broadphase/broadphase_spatialhash-inl.h"
 

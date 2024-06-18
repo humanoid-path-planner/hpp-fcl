@@ -48,7 +48,7 @@
 #include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
 #include <hpp/fcl/internal/shape_shape_func.h>
 
-using namespace hpp::fcl;
+using namespace coal;
 
 FCL_REAL extents[6] = {0, 0, 0, 10, 10, 10};
 
@@ -66,8 +66,7 @@ int line;
                                                << "].")
 #define BOOST_CHECK_FALSE(p) BOOST_CHECK(!(p))
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 std::ostream& operator<<(std::ostream& os, const ShapeBase&) {
   return os << "a_shape";
 }
@@ -75,8 +74,7 @@ std::ostream& operator<<(std::ostream& os, const ShapeBase&) {
 std::ostream& operator<<(std::ostream& os, const Box& b) {
   return os << "Box(" << 2 * b.halfSide.transpose() << ')';
 }
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 template <typename S1, typename S2>
 void printComparisonError(const std::string& comparison_type, const S1& s1,
@@ -505,18 +503,18 @@ BOOST_AUTO_TEST_CASE(collide_spherebox) {
 }
 
 BOOST_AUTO_TEST_CASE(distance_spherebox) {
-  hpp::fcl::Matrix3f rotSphere;
+  coal::Matrix3f rotSphere;
   rotSphere << 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0;
-  hpp::fcl::Vec3f trSphere(0.0, 0.0, 0.0);
+  coal::Vec3f trSphere(0.0, 0.0, 0.0);
 
-  hpp::fcl::Matrix3f rotBox;
+  coal::Matrix3f rotBox;
   rotBox << 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0;
-  hpp::fcl::Vec3f trBox(0.0, 5.0, 3.0);
+  coal::Vec3f trBox(0.0, 5.0, 3.0);
 
-  hpp::fcl::Sphere sphere(1);
-  hpp::fcl::Box box(10, 2, 10);
+  coal::Sphere sphere(1);
+  coal::Box box(10, 2, 10);
 
-  hpp::fcl::DistanceResult result;
+  coal::DistanceResult result;
   distance(&sphere, Transform3f(rotSphere, trSphere), &box,
            Transform3f(rotBox, trBox), DistanceRequest(true), result);
 

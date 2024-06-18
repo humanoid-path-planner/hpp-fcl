@@ -2,8 +2,8 @@
 // Copyright (c) 2022-2024 INRIA
 //
 
-#ifndef HPP_FCL_SERIALIZATION_CONVEX_H
-#define HPP_FCL_SERIALIZATION_CONVEX_H
+#ifndef COAL_SERIALIZATION_CONVEX_H
+#define COAL_SERIALIZATION_CONVEX_H
 
 #include "hpp/fcl/shape/convex.h"
 
@@ -17,19 +17,19 @@ namespace boost {
 namespace serialization {
 
 namespace internal {
-struct ConvexBaseAccessor : hpp::fcl::ConvexBase {
-  typedef hpp::fcl::ConvexBase Base;
+struct ConvexBaseAccessor : coal::ConvexBase {
+  typedef coal::ConvexBase Base;
 };
 
 }  // namespace internal
 
 template <class Archive>
-void serialize(Archive& ar, hpp::fcl::ConvexBase& convex_base,
+void serialize(Archive& ar, coal::ConvexBase& convex_base,
                const unsigned int /*version*/) {
-  using namespace hpp::fcl;
+  using namespace coal;
 
-  ar& make_nvp("base", boost::serialization::base_object<hpp::fcl::ShapeBase>(
-                           convex_base));
+  ar& make_nvp("base",
+               boost::serialization::base_object<coal::ShapeBase>(convex_base));
 
   const unsigned int num_points_previous = convex_base.num_points;
   ar& make_nvp("num_points", convex_base.num_points);
@@ -115,17 +115,17 @@ void serialize(Archive& ar, hpp::fcl::ConvexBase& convex_base,
 
 namespace internal {
 template <typename PolygonT>
-struct ConvexAccessor : hpp::fcl::Convex<PolygonT> {
-  typedef hpp::fcl::Convex<PolygonT> Base;
+struct ConvexAccessor : coal::Convex<PolygonT> {
+  typedef coal::Convex<PolygonT> Base;
   using Base::fillNeighbors;
 };
 
 }  // namespace internal
 
 template <class Archive, typename PolygonT>
-void serialize(Archive& ar, hpp::fcl::Convex<PolygonT>& convex_,
+void serialize(Archive& ar, coal::Convex<PolygonT>& convex_,
                const unsigned int /*version*/) {
-  using namespace hpp::fcl;
+  using namespace coal;
   typedef internal::ConvexAccessor<PolygonT> Accessor;
 
   Accessor& convex = reinterpret_cast<Accessor&>(convex_);
@@ -148,22 +148,20 @@ void serialize(Archive& ar, hpp::fcl::Convex<PolygonT>& convex_,
 }  // namespace serialization
 }  // namespace boost
 
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(hpp::fcl::Convex<hpp::fcl::Triangle>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(hpp::fcl::Convex<hpp::fcl::Quadrilateral>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(coal::Convex<coal::Triangle>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(coal::Convex<coal::Quadrilateral>)
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 // namespace internal {
 // template <typename BV>
-// struct memory_footprint_evaluator< ::hpp::fcl::BVHModel<BV> > {
-//   static size_t run(const ::hpp::fcl::BVHModel<BV> &bvh_model) {
+// struct memory_footprint_evaluator< ::coal::BVHModel<BV> > {
+//   static size_t run(const ::coal::BVHModel<BV> &bvh_model) {
 //     return static_cast<size_t>(bvh_model.memUsage(false));
 //   }
 // };
 // }  // namespace internal
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_CONVEX_H
+#endif  // ifndef COAL_SERIALIZATION_CONVEX_H

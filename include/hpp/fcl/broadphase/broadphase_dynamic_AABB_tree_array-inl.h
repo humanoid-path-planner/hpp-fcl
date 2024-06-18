@@ -35,8 +35,8 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROAD_PHASE_DYNAMIC_AABB_TREE_ARRAY_INL_H
-#define HPP_FCL_BROAD_PHASE_DYNAMIC_AABB_TREE_ARRAY_INL_H
+#ifndef COAL_BROAD_PHASE_DYNAMIC_AABB_TREE_ARRAY_INL_H
+#define COAL_BROAD_PHASE_DYNAMIC_AABB_TREE_ARRAY_INL_H
 
 #include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
 #include "hpp/fcl/shape/geometric_shapes_utility.h"
@@ -45,8 +45,7 @@
 #include "hpp/fcl/octree.h"
 #endif
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 namespace dynamic_AABB_tree_array {
 
@@ -229,7 +228,6 @@ bool distanceRecurse_(
 
 }  // namespace dynamic_AABB_tree_array
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

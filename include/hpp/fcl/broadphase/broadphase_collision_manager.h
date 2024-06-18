@@ -35,8 +35,8 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_BROADPHASECOLLISIONMANAGER_H
-#define HPP_FCL_BROADPHASE_BROADPHASECOLLISIONMANAGER_H
+#ifndef COAL_BROADPHASE_BROADPHASECOLLISIONMANAGER_H
+#define COAL_BROADPHASE_BROADPHASECOLLISIONMANAGER_H
 
 #include <set>
 #include <vector>
@@ -45,8 +45,7 @@
 #include "hpp/fcl/collision_object.h"
 #include "hpp/fcl/broadphase/broadphase_callbacks.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Base class for broad phase collision. It helps to accelerate the
 /// collision/distance between N objects. Also support self collision, self
@@ -135,7 +134,6 @@ class HPP_FCL_DLLAPI BroadPhaseCollisionManager {
   void insertTestedSet(CollisionObject* a, CollisionObject* b) const;
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

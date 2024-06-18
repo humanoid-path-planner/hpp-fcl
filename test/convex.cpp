@@ -43,7 +43,7 @@
 
 #include "utility.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 BOOST_AUTO_TEST_CASE(convex) {
   FCL_REAL l = 1, w = 1, d = 1;

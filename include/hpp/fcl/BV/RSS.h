@@ -35,15 +35,14 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_RSS_H
-#define HPP_FCL_RSS_H
+#ifndef COAL_RSS_H
+#define COAL_RSS_H
 
 #include "hpp/fcl/data_types.h"
 
 #include <boost/math/constants/constants.hpp>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct CollisionRequest;
 
@@ -169,8 +168,6 @@ HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1,
                             const RSS& b2, const CollisionRequest& request,
                             FCL_REAL& sqrDistLowerBound);
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

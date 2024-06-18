@@ -36,8 +36,7 @@
 
 #include "hpp/fcl/contact_patch/contact_patch_solver.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace details {
 
@@ -103,5 +102,4 @@ ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
   }
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

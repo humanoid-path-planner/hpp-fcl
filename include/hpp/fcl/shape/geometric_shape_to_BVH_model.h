@@ -35,15 +35,14 @@
 
 /** \author Jia Pan */
 
-#ifndef GEOMETRIC_SHAPE_TO_BVH_MODEL_H
-#define GEOMETRIC_SHAPE_TO_BVH_MODEL_H
+#ifndef COAL_GEOMETRIC_SHAPE_TO_BVH_MODEL_H
+#define COAL_GEOMETRIC_SHAPE_TO_BVH_MODEL_H
 
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 #include <boost/math/constants/constants.hpp>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Generate BVH model from box
 template <typename BV>
@@ -350,8 +349,6 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape,
   generateBVHModel(model, shape, pose, tot, h_num);
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

@@ -35,8 +35,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPP_FCL_MESH_LOADER_ASSIMP_H
-#define HPP_FCL_MESH_LOADER_ASSIMP_H
+#ifndef COAL_MESH_LOADER_ASSIMP_H
+#define COAL_MESH_LOADER_ASSIMP_H
 
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/config.hh>
@@ -48,14 +48,13 @@ namespace Assimp {
 class Importer;
 }
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace internal {
 
 struct HPP_FCL_DLLAPI TriangleAndVertices {
-  std::vector<fcl::Vec3f> vertices_;
-  std::vector<fcl::Triangle> triangles_;
+  std::vector<coal::Vec3f> vertices_;
+  std::vector<coal::Triangle> triangles_;
 };
 
 struct HPP_FCL_DLLAPI Loader {
@@ -76,7 +75,7 @@ struct HPP_FCL_DLLAPI Loader {
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-HPP_FCL_DLLAPI void buildMesh(const fcl::Vec3f& scale, const aiScene* scene,
+HPP_FCL_DLLAPI void buildMesh(const coal::Vec3f& scale, const aiScene* scene,
                               unsigned vertices_offset,
                               TriangleAndVertices& tv);
 
@@ -89,13 +88,13 @@ HPP_FCL_DLLAPI void buildMesh(const fcl::Vec3f& scale, const aiScene* scene,
  */
 template <class BoundingVolume>
 inline void meshFromAssimpScene(
-    const fcl::Vec3f& scale, const aiScene* scene,
+    const coal::Vec3f& scale, const aiScene* scene,
     const shared_ptr<BVHModel<BoundingVolume> >& mesh) {
   TriangleAndVertices tv;
 
   int res = mesh->beginModel();
 
-  if (res != fcl::BVH_OK) {
+  if (res != coal::BVH_OK) {
     HPP_FCL_THROW_PRETTY("fcl BVHReturnCode = " << res, std::runtime_error);
   }
 
@@ -116,7 +115,7 @@ inline void meshFromAssimpScene(
  */
 template <class BoundingVolume>
 inline void loadPolyhedronFromResource(
-    const std::string& resource_path, const fcl::Vec3f& scale,
+    const std::string& resource_path, const coal::Vec3f& scale,
     const shared_ptr<BVHModel<BoundingVolume> >& polyhedron) {
   internal::Loader scene;
   scene.load(resource_path);
@@ -124,7 +123,6 @@ inline void loadPolyhedronFromResource(
   internal::meshFromAssimpScene(scale, scene.scene, polyhedron);
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // HPP_FCL_MESH_LOADER_ASSIMP_H
+#endif  // COAL_MESH_LOADER_ASSIMP_H

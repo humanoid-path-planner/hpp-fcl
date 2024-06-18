@@ -2,8 +2,8 @@
 // Copyright (c) 2021 INRIA
 //
 
-#ifndef HPP_FCL_SERIALIZATION_COLLISION_DATA_H
-#define HPP_FCL_SERIALIZATION_COLLISION_DATA_H
+#ifndef COAL_SERIALIZATION_COLLISION_DATA_H
+#define COAL_SERIALIZATION_COLLISION_DATA_H
 
 #include "hpp/fcl/collision_data.h"
 #include "hpp/fcl/serialization/fwd.h"
@@ -12,7 +12,7 @@ namespace boost {
 namespace serialization {
 
 template <class Archive>
-void save(Archive& ar, const hpp::fcl::Contact& contact,
+void save(Archive& ar, const coal::Contact& contact,
           const unsigned int /*version*/) {
   ar& make_nvp("b1", contact.b1);
   ar& make_nvp("b2", contact.b2);
@@ -23,12 +23,11 @@ void save(Archive& ar, const hpp::fcl::Contact& contact,
 }
 
 template <class Archive>
-void load(Archive& ar, hpp::fcl::Contact& contact,
-          const unsigned int /*version*/) {
+void load(Archive& ar, coal::Contact& contact, const unsigned int /*version*/) {
   ar >> make_nvp("b1", contact.b1);
   ar >> make_nvp("b2", contact.b2);
   ar >> make_nvp("normal", contact.normal);
-  std::array<hpp::fcl::Vec3f, 2> nearest_points;
+  std::array<coal::Vec3f, 2> nearest_points;
   ar >> make_nvp("nearest_points", nearest_points);
   contact.nearest_points[0] = nearest_points[0];
   contact.nearest_points[1] = nearest_points[1];
@@ -38,10 +37,10 @@ void load(Archive& ar, hpp::fcl::Contact& contact,
   contact.o2 = NULL;
 }
 
-HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::Contact)
+HPP_FCL_SERIALIZATION_SPLIT(coal::Contact)
 
 template <class Archive>
-void serialize(Archive& ar, hpp::fcl::QueryRequest& query_request,
+void serialize(Archive& ar, coal::QueryRequest& query_request,
                const unsigned int /*version*/) {
   ar& make_nvp("gjk_initial_guess", query_request.gjk_initial_guess);
   // TODO: use gjk_initial_guess instead
@@ -68,7 +67,7 @@ void serialize(Archive& ar, hpp::fcl::QueryRequest& query_request,
 }
 
 template <class Archive>
-void serialize(Archive& ar, hpp::fcl::QueryResult& query_result,
+void serialize(Archive& ar, coal::QueryResult& query_result,
                const unsigned int /*version*/) {
   ar& make_nvp("cached_gjk_guess", query_result.cached_gjk_guess);
   ar& make_nvp("cached_support_func_guess",
@@ -76,11 +75,10 @@ void serialize(Archive& ar, hpp::fcl::QueryResult& query_result,
 }
 
 template <class Archive>
-void serialize(Archive& ar, hpp::fcl::CollisionRequest& collision_request,
+void serialize(Archive& ar, coal::CollisionRequest& collision_request,
                const unsigned int /*version*/) {
-  ar& make_nvp("base",
-               boost::serialization::base_object<hpp::fcl::QueryRequest>(
-                   collision_request));
+  ar& make_nvp("base", boost::serialization::base_object<coal::QueryRequest>(
+                           collision_request));
   ar& make_nvp("num_max_contacts", collision_request.num_max_contacts);
   ar& make_nvp("enable_contact", collision_request.enable_contact);
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
@@ -94,9 +92,9 @@ void serialize(Archive& ar, hpp::fcl::CollisionRequest& collision_request,
 }
 
 template <class Archive>
-void save(Archive& ar, const hpp::fcl::CollisionResult& collision_result,
+void save(Archive& ar, const coal::CollisionResult& collision_result,
           const unsigned int /*version*/) {
-  ar& make_nvp("base", boost::serialization::base_object<hpp::fcl::QueryResult>(
+  ar& make_nvp("base", boost::serialization::base_object<coal::QueryResult>(
                            collision_result));
   ar& make_nvp("contacts", collision_result.getContacts());
   ar& make_nvp("distance_lower_bound", collision_result.distance_lower_bound);
@@ -105,32 +103,30 @@ void save(Archive& ar, const hpp::fcl::CollisionResult& collision_result,
 }
 
 template <class Archive>
-void load(Archive& ar, hpp::fcl::CollisionResult& collision_result,
+void load(Archive& ar, coal::CollisionResult& collision_result,
           const unsigned int /*version*/) {
-  ar >>
-      make_nvp("base", boost::serialization::base_object<hpp::fcl::QueryResult>(
-                           collision_result));
-  std::vector<hpp::fcl::Contact> contacts;
+  ar >> make_nvp("base", boost::serialization::base_object<coal::QueryResult>(
+                             collision_result));
+  std::vector<coal::Contact> contacts;
   ar >> make_nvp("contacts", contacts);
   collision_result.clear();
   for (size_t k = 0; k < contacts.size(); ++k)
     collision_result.addContact(contacts[k]);
   ar >> make_nvp("distance_lower_bound", collision_result.distance_lower_bound);
-  std::array<hpp::fcl::Vec3f, 2> nearest_points;
+  std::array<coal::Vec3f, 2> nearest_points;
   ar >> make_nvp("nearest_points", nearest_points);
   collision_result.nearest_points[0] = nearest_points[0];
   collision_result.nearest_points[1] = nearest_points[1];
   ar >> make_nvp("normal", collision_result.normal);
 }
 
-HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::CollisionResult)
+HPP_FCL_SERIALIZATION_SPLIT(coal::CollisionResult)
 
 template <class Archive>
-void serialize(Archive& ar, hpp::fcl::DistanceRequest& distance_request,
+void serialize(Archive& ar, coal::DistanceRequest& distance_request,
                const unsigned int /*version*/) {
-  ar& make_nvp("base",
-               boost::serialization::base_object<hpp::fcl::QueryRequest>(
-                   distance_request));
+  ar& make_nvp("base", boost::serialization::base_object<coal::QueryRequest>(
+                           distance_request));
   HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
   HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ar& make_nvp("enable_nearest_points", distance_request.enable_nearest_points);
@@ -142,9 +138,9 @@ void serialize(Archive& ar, hpp::fcl::DistanceRequest& distance_request,
 }
 
 template <class Archive>
-void save(Archive& ar, const hpp::fcl::DistanceResult& distance_result,
+void save(Archive& ar, const coal::DistanceResult& distance_result,
           const unsigned int /*version*/) {
-  ar& make_nvp("base", boost::serialization::base_object<hpp::fcl::QueryResult>(
+  ar& make_nvp("base", boost::serialization::base_object<coal::QueryResult>(
                            distance_result));
   ar& make_nvp("min_distance", distance_result.min_distance);
   ar& make_nvp("nearest_points", distance_result.nearest_points);
@@ -154,13 +150,12 @@ void save(Archive& ar, const hpp::fcl::DistanceResult& distance_result,
 }
 
 template <class Archive>
-void load(Archive& ar, hpp::fcl::DistanceResult& distance_result,
+void load(Archive& ar, coal::DistanceResult& distance_result,
           const unsigned int /*version*/) {
-  ar >>
-      make_nvp("base", boost::serialization::base_object<hpp::fcl::QueryResult>(
-                           distance_result));
+  ar >> make_nvp("base", boost::serialization::base_object<coal::QueryResult>(
+                             distance_result));
   ar >> make_nvp("min_distance", distance_result.min_distance);
-  std::array<hpp::fcl::Vec3f, 2> nearest_points;
+  std::array<coal::Vec3f, 2> nearest_points;
   ar >> make_nvp("nearest_points", nearest_points);
   distance_result.nearest_points[0] = nearest_points[0];
   distance_result.nearest_points[1] = nearest_points[1];
@@ -171,14 +166,14 @@ void load(Archive& ar, hpp::fcl::DistanceResult& distance_result,
   distance_result.o2 = NULL;
 }
 
-HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::DistanceResult)
+HPP_FCL_SERIALIZATION_SPLIT(coal::DistanceResult)
 
 }  // namespace serialization
 }  // namespace boost
 
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::CollisionRequest)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::CollisionResult)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::DistanceRequest)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::DistanceResult)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::CollisionRequest)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::CollisionResult)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::DistanceRequest)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::DistanceResult)
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_COLLISION_DATA_H
+#endif  // ifndef COAL_SERIALIZATION_COLLISION_DATA_H

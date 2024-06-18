@@ -36,8 +36,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_BVH_MODEL_H
-#define HPP_FCL_BVH_MODEL_H
+#ifndef COAL_BVH_MODEL_H
+#define COAL_BVH_MODEL_H
 
 #include "hpp/fcl/fwd.hh"
 #include "hpp/fcl/collision_object.h"
@@ -48,8 +48,7 @@
 #include <memory>
 #include <iostream>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @addtogroup Construction_Of_BVH
 /// @{
@@ -535,8 +534,6 @@ NODE_TYPE BVHModel<KDOP<18>>::getNodeType() const;
 template <>
 NODE_TYPE BVHModel<KDOP<24>>::getNodeType() const;
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

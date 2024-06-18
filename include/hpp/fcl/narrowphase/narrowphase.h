@@ -37,8 +37,8 @@
 
 /** \author Jia Pan, Florent Lamiraux */
 
-#ifndef HPP_FCL_NARROWPHASE_H
-#define HPP_FCL_NARROWPHASE_H
+#ifndef COAL_NARROWPHASE_H
+#define COAL_NARROWPHASE_H
 
 #include <limits>
 
@@ -47,8 +47,7 @@
 #include <hpp/fcl/narrowphase/narrowphase_defaults.h>
 #include <hpp/fcl/logging.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief collision and distance solver based on the GJK and EPA algorithms.
 /// Originally, GJK and EPA were implemented in fcl which itself took
@@ -723,7 +722,6 @@ struct HPP_FCL_DLLAPI GJKSolver {
   }
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

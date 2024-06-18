@@ -35,8 +35,8 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef HPP_FCL_FWD_HH
-#define HPP_FCL_FWD_HH
+#ifndef COAL_FWD_HH
+#define COAL_FWD_HH
 
 #include <cassert>
 #include <memory>
@@ -123,8 +123,7 @@
 #define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
 #endif  // __GNUC__
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 using std::dynamic_pointer_cast;
 using std::make_shared;
 using std::shared_ptr;
@@ -145,7 +144,6 @@ typedef shared_ptr<BVHModelBase> BVHModelPtr_t;
 class OcTree;
 typedef shared_ptr<OcTree> OcTreePtr_t;
 typedef shared_ptr<const OcTree> OcTreeConstPtr_t;
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // HPP_FCL_FWD_HH
+#endif  // COAL_FWD_HH

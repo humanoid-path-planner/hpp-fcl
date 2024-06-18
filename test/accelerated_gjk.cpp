@@ -44,22 +44,22 @@
 
 #include "utility.h"
 
-using hpp::fcl::Box;
-using hpp::fcl::Capsule;
-using hpp::fcl::constructPolytopeFromEllipsoid;
-using hpp::fcl::Convex;
-using hpp::fcl::Ellipsoid;
-using hpp::fcl::FCL_REAL;
-using hpp::fcl::GJKSolver;
-using hpp::fcl::GJKVariant;
-using hpp::fcl::ShapeBase;
-using hpp::fcl::support_func_guess_t;
-using hpp::fcl::Transform3f;
-using hpp::fcl::Triangle;
-using hpp::fcl::Vec3f;
-using hpp::fcl::details::GJK;
-using hpp::fcl::details::MinkowskiDiff;
-using hpp::fcl::details::SupportOptions;
+using coal::Box;
+using coal::Capsule;
+using coal::constructPolytopeFromEllipsoid;
+using coal::Convex;
+using coal::Ellipsoid;
+using coal::FCL_REAL;
+using coal::GJKSolver;
+using coal::GJKVariant;
+using coal::ShapeBase;
+using coal::support_func_guess_t;
+using coal::Transform3f;
+using coal::Triangle;
+using coal::Vec3f;
+using coal::details::GJK;
+using coal::details::MinkowskiDiff;
+using coal::details::SupportOptions;
 using std::size_t;
 
 BOOST_AUTO_TEST_CASE(set_gjk_variant) {

@@ -40,8 +40,7 @@
 #include <iterator>
 #include <algorithm>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 //==============================================================================
 NaiveCollisionManager::NaiveCollisionManager() {
@@ -199,5 +198,4 @@ bool NaiveCollisionManager::empty() const { return objs.empty(); }
 //==============================================================================
 size_t NaiveCollisionManager::size() const { return objs.size(); }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

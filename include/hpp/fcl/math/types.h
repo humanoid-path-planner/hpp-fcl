@@ -35,8 +35,8 @@
 
 /** \author Joseph Mirabel */
 
-#ifndef HPP_FCL_MATH_TYPES_H
-#define HPP_FCL_MATH_TYPES_H
+#ifndef COAL_MATH_TYPES_H
+#define COAL_MATH_TYPES_H
 
 #warning "This file is deprecated. Include <hpp/fcl/data_types.h> instead."
 

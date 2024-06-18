@@ -35,15 +35,14 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_BVH_FRONT_H
-#define HPP_FCL_BVH_FRONT_H
+#ifndef COAL_BVH_FRONT_H
+#define COAL_BVH_FRONT_H
 
 #include <list>
 
 #include <hpp/fcl/config.hh>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Front list acceleration for collision
 /// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
@@ -72,8 +71,6 @@ inline void updateFrontList(BVHFrontList* front_list, unsigned int b1,
   if (front_list) front_list->push_back(BVHFrontNode(b1, b2));
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

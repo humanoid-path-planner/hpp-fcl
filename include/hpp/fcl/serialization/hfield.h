@@ -2,8 +2,8 @@
 // Copyright (c) 2021-2024 INRIA
 //
 
-#ifndef HPP_FCL_SERIALIZATION_HFIELD_H
-#define HPP_FCL_SERIALIZATION_HFIELD_H
+#ifndef COAL_SERIALIZATION_HFIELD_H
+#define COAL_SERIALIZATION_HFIELD_H
 
 #include "hpp/fcl/hfield.h"
 
@@ -14,7 +14,7 @@ namespace boost {
 namespace serialization {
 
 template <class Archive>
-void serialize(Archive &ar, hpp::fcl::HFNodeBase &node,
+void serialize(Archive &ar, coal::HFNodeBase &node,
                const unsigned int /*version*/) {
   ar &make_nvp("first_child", node.first_child);
   ar &make_nvp("x_id", node.x_id);
@@ -26,17 +26,17 @@ void serialize(Archive &ar, hpp::fcl::HFNodeBase &node,
 }
 
 template <class Archive, typename BV>
-void serialize(Archive &ar, hpp::fcl::HFNode<BV> &node,
+void serialize(Archive &ar, coal::HFNode<BV> &node,
                const unsigned int /*version*/) {
   ar &make_nvp("base",
-               boost::serialization::base_object<hpp::fcl::HFNodeBase>(node));
+               boost::serialization::base_object<coal::HFNodeBase>(node));
   ar &make_nvp("bv", node.bv);
 }
 
 namespace internal {
 template <typename BV>
-struct HeightFieldAccessor : hpp::fcl::HeightField<BV> {
-  typedef hpp::fcl::HeightField<BV> Base;
+struct HeightFieldAccessor : coal::HeightField<BV> {
+  typedef coal::HeightField<BV> Base;
   using Base::bvs;
   using Base::heights;
   using Base::max_height;
@@ -50,11 +50,11 @@ struct HeightFieldAccessor : hpp::fcl::HeightField<BV> {
 }  // namespace internal
 
 template <class Archive, typename BV>
-void serialize(Archive &ar, hpp::fcl::HeightField<BV> &hf_model,
+void serialize(Archive &ar, coal::HeightField<BV> &hf_model,
                const unsigned int /*version*/) {
   ar &make_nvp(
       "base",
-      boost::serialization::base_object<hpp::fcl::CollisionGeometry>(hf_model));
+      boost::serialization::base_object<coal::CollisionGeometry>(hf_model));
 
   typedef internal::HeightFieldAccessor<BV> Accessor;
   Accessor &access = reinterpret_cast<Accessor &>(hf_model);
@@ -73,9 +73,8 @@ void serialize(Archive &ar, hpp::fcl::HeightField<BV> &hf_model,
 }  // namespace serialization
 }  // namespace boost
 
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::HeightField<::hpp::fcl::AABB>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::hpp::fcl::HeightField<::hpp::fcl::OBB>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(
-    ::hpp::fcl::HeightField<::hpp::fcl::OBBRSS>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::HeightField<::coal::AABB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::HeightField<::coal::OBB>)
+HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::HeightField<::coal::OBBRSS>)
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_HFIELD_H
+#endif  // ifndef COAL_SERIALIZATION_HFIELD_H

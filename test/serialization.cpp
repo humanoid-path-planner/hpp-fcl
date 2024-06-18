@@ -70,7 +70,7 @@ HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 
 namespace utf = boost::unit_test::framework;
 
-using namespace hpp::fcl;
+using namespace coal;
 
 template <typename T>
 bool check(const T& value, const T& other) {
@@ -158,31 +158,31 @@ void test_serialization(const T& value, T& other_value,
     // -- TXT
     {
       const std::string filename = txt_filename.string();
-      hpp::fcl::serialization::saveToText(value, filename);
+      coal::serialization::saveToText(value, filename);
       BOOST_CHECK(check(value, value));
 
-      hpp::fcl::serialization::loadFromText(other_value, filename);
+      coal::serialization::loadFromText(other_value, filename);
       BOOST_CHECK(check(value, other_value));
     }
 
     // -- String stream (TXT format)
     {
       std::stringstream ss_out;
-      hpp::fcl::serialization::saveToStringStream(value, ss_out);
+      coal::serialization::saveToStringStream(value, ss_out);
       BOOST_CHECK(check(value, value));
 
       std::istringstream ss_in(ss_out.str());
-      hpp::fcl::serialization::loadFromStringStream(other_value, ss_in);
+      coal::serialization::loadFromStringStream(other_value, ss_in);
       BOOST_CHECK(check(value, other_value));
     }
 
     // -- String
     {
-      const std::string str_out = hpp::fcl::serialization::saveToString(value);
+      const std::string str_out = coal::serialization::saveToString(value);
       BOOST_CHECK(check(value, value));
 
       const std::string str_in(str_out);
-      hpp::fcl::serialization::loadFromString(other_value, str_in);
+      coal::serialization::loadFromString(other_value, str_in);
       BOOST_CHECK(check(value, other_value));
     }
   }
@@ -192,10 +192,10 @@ void test_serialization(const T& value, T& other_value,
     {
       const std::string filename = xml_filename.string();
       const std::string xml_tag = "value";
-      hpp::fcl::serialization::saveToXML(value, filename, xml_tag);
+      coal::serialization::saveToXML(value, filename, xml_tag);
       BOOST_CHECK(check(value, value));
 
-      hpp::fcl::serialization::loadFromXML(other_value, filename, xml_tag);
+      coal::serialization::loadFromXML(other_value, filename, xml_tag);
       BOOST_CHECK(check(value, other_value));
     }
   }
@@ -204,10 +204,10 @@ void test_serialization(const T& value, T& other_value,
   if (mode & 0x4) {
     {
       const std::string filename = bin_filename.string();
-      hpp::fcl::serialization::saveToBinary(value, filename);
+      coal::serialization::saveToBinary(value, filename);
       BOOST_CHECK(check(value, value));
 
-      hpp::fcl::serialization::loadFromBinary(other_value, filename);
+      coal::serialization::loadFromBinary(other_value, filename);
       BOOST_CHECK(check(value, other_value));
     }
   }
@@ -216,10 +216,10 @@ void test_serialization(const T& value, T& other_value,
   if (mode & 0x8) {
     {
       boost::asio::streambuf buffer;
-      hpp::fcl::serialization::saveToBuffer(value, buffer);
+      coal::serialization::saveToBuffer(value, buffer);
       BOOST_CHECK(check(value, value));
 
-      hpp::fcl::serialization::loadFromBuffer(other_value, buffer);
+      coal::serialization::loadFromBuffer(other_value, buffer);
       BOOST_CHECK(check(value, other_value));
     }
   }
@@ -230,11 +230,11 @@ void test_serialization(const T& value, T& other_value,
     std::shared_ptr<T> ptr = std::make_shared<T>(value);
 
     const std::string filename = txt_ptr_filename.string();
-    hpp::fcl::serialization::saveToText(ptr, filename);
+    coal::serialization::saveToText(ptr, filename);
     BOOST_CHECK(check_ptr(ptr.get(), ptr.get()));
 
     std::shared_ptr<T> other_ptr = nullptr;
-    hpp::fcl::serialization::loadFromText(other_ptr, filename);
+    coal::serialization::loadFromText(other_ptr, filename);
     BOOST_CHECK(check_ptr(ptr.get(), other_ptr.get()));
   }
 
@@ -295,13 +295,13 @@ BOOST_AUTO_TEST_CASE(test_collision_data) {
     const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
                                    num_max_contact);
     CollisionResult col_res;
-    hpp::fcl::collide(&hspace, tf1, &cylinder, tf2, col_req, col_res);
+    coal::collide(&hspace, tf1, &cylinder, tf2, col_req, col_res);
     BOOST_CHECK(col_res.isCollision());
     if (col_res.isCollision()) {
       ContactPatchRequest patch_req;
       ContactPatchResult patch_res(patch_req);
-      hpp::fcl::computeContactPatch(&hspace, tf1, &cylinder, tf2, col_res,
-                                    patch_req, patch_res);
+      coal::computeContactPatch(&hspace, tf1, &cylinder, tf2, col_res,
+                                patch_req, patch_res);
       BOOST_CHECK(patch_res.numContactPatches() == 1);
 
       // Serialize patch request, result and the patch itself
@@ -403,12 +403,12 @@ BOOST_AUTO_TEST_CASE(test_Convex) {
     BOOST_CHECK(ptr.get());
     const std::string filename = xml_filename.string();
     const std::string tag_name = "CollisionGeometry";
-    hpp::fcl::serialization::saveToXML(ptr, filename, tag_name);
+    coal::serialization::saveToXML(ptr, filename, tag_name);
     BOOST_CHECK(check(*reinterpret_cast<Convex<Triangle>*>(ptr.get()), convex));
 
     std::shared_ptr<CollisionGeometry> other_ptr = nullptr;
     BOOST_CHECK(!other_ptr.get());
-    hpp::fcl::serialization::loadFromXML(other_ptr, filename, tag_name);
+    coal::serialization::loadFromXML(other_ptr, filename, tag_name);
     BOOST_CHECK(
         check(convex, *reinterpret_cast<Convex<Triangle>*>(other_ptr.get())));
   }

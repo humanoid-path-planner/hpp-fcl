@@ -41,8 +41,7 @@
 
 #include <hpp/fcl/collision_data.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Find the smaller and larger one of two values
 inline void minmax(FCL_REAL a, FCL_REAL b, FCL_REAL& minv, FCL_REAL& maxv) {
@@ -245,6 +244,4 @@ template KDOP<16> translate<16>(const KDOP<16>&, const Vec3f&);
 template KDOP<18> translate<18>(const KDOP<18>&, const Vec3f&);
 template KDOP<24> translate<24>(const KDOP<24>&, const Vec3f&);
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

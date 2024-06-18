@@ -35,16 +35,15 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_GEOMETRIC_SHAPES_UTILITY_H
-#define HPP_FCL_GEOMETRIC_SHAPES_UTILITY_H
+#ifndef COAL_GEOMETRIC_SHAPES_UTILITY_H
+#define COAL_GEOMETRIC_SHAPES_UTILITY_H
 
 #include <vector>
 #include <hpp/fcl/shape/geometric_shapes.h>
 #include <hpp/fcl/BV/BV.h>
 #include <hpp/fcl/internal/BV_fitter.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @cond IGNORE
 namespace details {
@@ -258,8 +257,6 @@ HPP_FCL_DLLAPI Plane transform(const Plane& a, const Transform3f& tf);
 HPP_FCL_DLLAPI std::array<Halfspace, 2> transformToHalfspaces(
     const Plane& a, const Transform3f& tf);
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

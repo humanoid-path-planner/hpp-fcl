@@ -47,26 +47,26 @@
 
 #include "utility.h"
 
-using namespace hpp::fcl;
-using hpp::fcl::CollisionGeometryPtr_t;
-using hpp::fcl::CollisionObject;
-using hpp::fcl::CollisionRequest;
-using hpp::fcl::CollisionResult;
-using hpp::fcl::DistanceRequest;
-using hpp::fcl::DistanceResult;
-using hpp::fcl::Transform3f;
-using hpp::fcl::Vec3f;
+using namespace coal;
+using coal::CollisionGeometryPtr_t;
+using coal::CollisionObject;
+using coal::CollisionRequest;
+using coal::CollisionResult;
+using coal::DistanceRequest;
+using coal::DistanceResult;
+using coal::Transform3f;
+using coal::Vec3f;
 
 #define MATH_SQUARED(x) (x * x)
 
 BOOST_AUTO_TEST_CASE(aabb_aabb) {
-  CollisionGeometryPtr_t b1(new hpp::fcl::Box(1, 1, 1));
-  CollisionGeometryPtr_t b2(new hpp::fcl::Box(1, 1, 1));
+  CollisionGeometryPtr_t b1(new coal::Box(1, 1, 1));
+  CollisionGeometryPtr_t b2(new coal::Box(1, 1, 1));
 
   const Transform3f tf1;
   const Transform3f tf2_collision(Vec3f(0, 1, 1));
-  hpp::fcl::Box s1(1, 1, 1);
-  hpp::fcl::Box s2(1, 1, 1);
+  coal::Box s1(1, 1, 1);
+  coal::Box s2(1, 1, 1);
   const double tol = 1e-8;
 
   AABB bv1, bv2;
@@ -150,13 +150,13 @@ BOOST_AUTO_TEST_CASE(aabb_aabb) {
 }
 
 BOOST_AUTO_TEST_CASE(aabb_aabb_degenerated_cases) {
-  CollisionGeometryPtr_t b1(new hpp::fcl::Box(1, 1, 1));
-  CollisionGeometryPtr_t b2(new hpp::fcl::Box(1, 1, 1));
+  CollisionGeometryPtr_t b1(new coal::Box(1, 1, 1));
+  CollisionGeometryPtr_t b2(new coal::Box(1, 1, 1));
 
   const Transform3f tf1;
   const Transform3f tf2_collision(Vec3f(0, 0, 0));
-  hpp::fcl::Box s1(1, 1, 1);
-  hpp::fcl::Box s2(1, 1, 1);
+  coal::Box s1(1, 1, 1);
+  coal::Box s2(1, 1, 1);
 
   AABB bv1, bv2;
   computeBV(s1, Transform3f(), bv1);
@@ -180,8 +180,8 @@ BOOST_AUTO_TEST_CASE(aabb_aabb_degenerated_cases) {
 }
 
 BOOST_AUTO_TEST_CASE(sphere_sphere) {
-  CollisionGeometryPtr_t s1(new hpp::fcl::Sphere(1));
-  CollisionGeometryPtr_t s2(new hpp::fcl::Sphere(2));
+  CollisionGeometryPtr_t s1(new coal::Sphere(1));
+  CollisionGeometryPtr_t s2(new coal::Sphere(2));
 
   const Transform3f tf1;
   const Transform3f tf2_collision(Vec3f(0, 0, 3));
@@ -258,8 +258,8 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
 }
 
 BOOST_AUTO_TEST_CASE(capsule_capsule) {
-  CollisionGeometryPtr_t c1(new hpp::fcl::Capsule(0.5, 1.));
-  CollisionGeometryPtr_t c2(new hpp::fcl::Capsule(0.5, 1.));
+  CollisionGeometryPtr_t c1(new coal::Capsule(0.5, 1.));
+  CollisionGeometryPtr_t c2(new coal::Capsule(0.5, 1.));
 
   const Transform3f tf1;
   const Transform3f tf2_collision(Vec3f(0, 1., 0));
@@ -332,8 +332,8 @@ BOOST_AUTO_TEST_CASE(capsule_capsule) {
 }
 
 BOOST_AUTO_TEST_CASE(box_box) {
-  CollisionGeometryPtr_t b1(new hpp::fcl::Box(1, 1, 1));
-  CollisionGeometryPtr_t b2(new hpp::fcl::Box(1, 1, 1));
+  CollisionGeometryPtr_t b1(new coal::Box(1, 1, 1));
+  CollisionGeometryPtr_t b2(new coal::Box(1, 1, 1));
 
   const Transform3f tf1;
   const Transform3f tf2_collision(Vec3f(0, 1, 1));
@@ -488,13 +488,13 @@ void test_shape_shape(const ShapeType1& shape1, const Transform3f& tf1,
 }
 
 BOOST_AUTO_TEST_CASE(sphere_box) {
-  Box* box_ptr = new hpp::fcl::Box(1, 1, 1);
+  Box* box_ptr = new coal::Box(1, 1, 1);
   CollisionGeometryPtr_t b1(box_ptr);
   BVHModel<OBBRSS> box_bvh_model = BVHModel<OBBRSS>();
   generateBVHModel(box_bvh_model, *box_ptr, Transform3f());
   box_bvh_model.buildConvexRepresentation(false);
   ConvexBase& box_convex = *box_bvh_model.convex.get();
-  CollisionGeometryPtr_t s2(new hpp::fcl::Sphere(0.5));
+  CollisionGeometryPtr_t s2(new coal::Sphere(0.5));
 
   const Transform3f tf1;
   const Transform3f tf2_collision(Vec3f(0, 0, 1));

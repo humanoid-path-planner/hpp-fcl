@@ -8,8 +8,8 @@
  Copyright (c) 2015 Michael Tao
 */
 
-#ifndef HPP_FCL_SERIALIZATION_EIGEN_H
-#define HPP_FCL_SERIALIZATION_EIGEN_H
+#ifndef COAL_SERIALIZATION_EIGEN_H
+#define COAL_SERIALIZATION_EIGEN_H
 
 #ifndef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
 
@@ -113,4 +113,4 @@ void serialize(Archive& ar,
 //
 #endif  // ifned HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_EIGEN_H
+#endif  // ifndef COAL_SERIALIZATION_EIGEN_H

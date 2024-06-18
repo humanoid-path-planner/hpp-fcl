@@ -35,14 +35,13 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
-#define HPP_FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
+#ifndef COAL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
+#define COAL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
 
 #include "hpp/fcl/fwd.hh"
 #include "hpp/fcl/data_types.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 
 /// @brief Interval trees implemented using red-black-trees as described in
@@ -58,7 +57,6 @@ struct HPP_FCL_DLLAPI SimpleInterval {
 };
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

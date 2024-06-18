@@ -41,8 +41,7 @@
 #include <limits>
 #include <hpp/fcl/collision_data.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 AABB::AABB()
     : min_(Vec3f::Constant((std::numeric_limits<FCL_REAL>::max)())),
@@ -192,6 +191,4 @@ bool AABB::overlap(const Halfspace& hs) const {
   return (hs.signedDistance(support) < 0);
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

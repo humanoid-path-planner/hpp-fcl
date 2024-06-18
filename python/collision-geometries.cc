@@ -68,8 +68,8 @@
 #endif
 
 using namespace boost::python;
-using namespace hpp::fcl;
-using namespace hpp::fcl::python;
+using namespace coal;
+using namespace coal::python;
 namespace dv = doxygen::visitor;
 namespace bp = boost::python;
 
@@ -320,8 +320,7 @@ void exposeShapes() {
            bp::return_internal_reference<>())
       .def("points", &ConvexBaseWrapper::point, bp::args("self", "index"),
            "Retrieve the point given by its index.",
-           ::hpp::fcl::python::deprecated_member<
-               bp::return_internal_reference<>>())
+           ::coal::python::deprecated_member<bp::return_internal_reference<>>())
       .def("points", &ConvexBaseWrapper::points, bp::args("self"),
            "Retrieve all the points.",
            bp::with_custodian_and_ward_postcall<0, 1>())
@@ -644,8 +643,7 @@ void exposeCollisionGeometries() {
            bp::return_internal_reference<>())
       .def("vertices", &BVHModelBaseWrapper::vertex, bp::args("self", "index"),
            "Retrieve the vertex given by its index.",
-           ::hpp::fcl::python::deprecated_member<
-               bp::return_internal_reference<>>())
+           ::coal::python::deprecated_member<bp::return_internal_reference<>>())
       .def("vertices", &BVHModelBaseWrapper::vertices, bp::args("self"),
            "Retrieve all the vertices.",
            bp::with_custodian_and_ward_postcall<0, 1>())

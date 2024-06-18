@@ -35,14 +35,13 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROAD_PHASE_SSAP_H
-#define HPP_FCL_BROAD_PHASE_SSAP_H
+#ifndef COAL_BROAD_PHASE_SSAP_H
+#define COAL_BROAD_PHASE_SSAP_H
 
 #include <vector>
 #include "hpp/fcl/broadphase/broadphase_collision_manager.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Simple SAP collision manager
 class HPP_FCL_DLLAPI SSaPCollisionManager : public BroadPhaseCollisionManager {
@@ -142,7 +141,6 @@ class HPP_FCL_DLLAPI SSaPCollisionManager : public BroadPhaseCollisionManager {
   bool setup_;
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

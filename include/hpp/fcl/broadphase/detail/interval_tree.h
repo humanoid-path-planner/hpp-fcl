@@ -35,8 +35,8 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_INTERVAL_TREE_H
-#define HPP_FCL_INTERVAL_TREE_H
+#ifndef COAL_INTERVAL_TREE_H
+#define COAL_INTERVAL_TREE_H
 
 #include <deque>
 #include <limits>
@@ -44,8 +44,7 @@
 
 #include "hpp/fcl/broadphase/detail/interval_tree_node.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 
 /// @brief Class describes the information needed when we take the
@@ -123,7 +122,6 @@ class HPP_FCL_DLLAPI IntervalTree {
 };
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

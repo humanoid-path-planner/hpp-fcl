@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_TRAVERSAL_NODE_BASE_H
-#define HPP_FCL_TRAVERSAL_NODE_BASE_H
+#ifndef COAL_TRAVERSAL_NODE_BASE_H
+#define COAL_TRAVERSAL_NODE_BASE_H
 
 /// @cond INTERNAL
 
@@ -44,8 +44,7 @@
 #include <hpp/fcl/math/transform.h>
 #include <hpp/fcl/collision_data.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Node structure encoding the information required for traversal.
 
@@ -166,9 +165,7 @@ class DistanceTraversalNodeBase : public TraversalNodeBase {
 
 ///@}
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 

@@ -35,8 +35,8 @@
 
 /** @author Jia Pan  */
 
-#ifndef HPP_FCL_HIERARCHY_TREE_ARRAY_H
-#define HPP_FCL_HIERARCHY_TREE_ARRAY_H
+#ifndef COAL_HIERARCHY_TREE_ARRAY_H
+#define COAL_HIERARCHY_TREE_ARRAY_H
 
 #include <vector>
 #include <map>
@@ -47,8 +47,7 @@
 #include "hpp/fcl/broadphase/detail/morton.h"
 #include "hpp/fcl/broadphase/detail/node_base_array.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace detail {
 
@@ -294,8 +293,7 @@ size_t select(const BV& query, size_t node1, size_t node2, NodeBase<BV>* nodes);
 
 }  // namespace implementation_array
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #include "hpp/fcl/broadphase/detail/hierarchy_tree_array-inl.h"
 

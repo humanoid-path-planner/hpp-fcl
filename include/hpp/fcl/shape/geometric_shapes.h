@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_GEOMETRIC_SHAPES_H
-#define HPP_FCL_GEOMETRIC_SHAPES_H
+#ifndef COAL_GEOMETRIC_SHAPES_H
+#define COAL_GEOMETRIC_SHAPES_H
 
 #include <vector>
 #include <memory>
@@ -52,8 +52,7 @@ class Qhull;
 }
 #endif
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Base class for all basic geometric shapes
 class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
@@ -1047,8 +1046,6 @@ class HPP_FCL_DLLAPI Plane : public ShapeBase {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

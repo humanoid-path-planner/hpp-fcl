@@ -37,8 +37,7 @@
 #include "hpp/fcl/contact_patch.h"
 #include "hpp/fcl/collision_utility.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 ContactPatchFunctionMatrix& getContactPatchFunctionLookTable() {
   static ContactPatchFunctionMatrix table;
@@ -169,5 +168,4 @@ void ComputeContactPatch::operator()(const Transform3f& tf1,
   this->run(tf1, tf2, collision_result, request, result);
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

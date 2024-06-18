@@ -2,11 +2,10 @@
 // Copyright (c) 2021 INRIA
 //
 
-#ifndef HPP_FCL_SERIALIZATION_MEMORY_H
-#define HPP_FCL_SERIALIZATION_MEMORY_H
+#ifndef COAL_SERIALIZATION_MEMORY_H
+#define COAL_SERIALIZATION_MEMORY_H
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace internal {
 template <typename T>
@@ -26,7 +25,6 @@ size_t computeMemoryFootprint(const T &object) {
   return internal::memory_footprint_evaluator<T>::run(object);
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_MEMORY_H
+#endif  // ifndef COAL_SERIALIZATION_MEMORY_H

@@ -36,15 +36,14 @@
 
 /** \authors Jia Pan, Florent Lamiraux, Josef Mirabel, Louis Montaut */
 
-#ifndef HPP_FCL_SUPPORT_FUNCTIONS_H
-#define HPP_FCL_SUPPORT_FUNCTIONS_H
+#ifndef COAL_SUPPORT_FUNCTIONS_H
+#define COAL_SUPPORT_FUNCTIONS_H
 
 #include "hpp/fcl/shape/geometric_shapes.h"
 #include "hpp/fcl/math/transform.h"
 #include "hpp/fcl/collision_data.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace details {
 
@@ -304,7 +303,6 @@ HPP_FCL_DLLAPI void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
 
 }  // namespace details
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // HPP_FCL_SUPPORT_FUNCTIONS_H
+#endif  // COAL_SUPPORT_FUNCTIONS_H

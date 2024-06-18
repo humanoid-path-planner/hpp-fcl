@@ -51,7 +51,7 @@
 
 #include "utility.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 BOOST_AUTO_TEST_CASE(collision_capsule_capsule_trivial) {
   const double radius = 1.;

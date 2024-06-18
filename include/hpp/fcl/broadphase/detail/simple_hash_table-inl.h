@@ -35,14 +35,13 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_SIMPLEHASHTABLE_INL_H
-#define HPP_FCL_BROADPHASE_SIMPLEHASHTABLE_INL_H
+#ifndef COAL_BROADPHASE_SIMPLEHASHTABLE_INL_H
+#define COAL_BROADPHASE_SIMPLEHASHTABLE_INL_H
 
 #include "hpp/fcl/broadphase/detail/simple_hash_table.h"
 
 #include <iterator>
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace detail {
 
@@ -107,7 +106,6 @@ void SimpleHashTable<Key, Data, HashFnc>::clear() {
 }
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

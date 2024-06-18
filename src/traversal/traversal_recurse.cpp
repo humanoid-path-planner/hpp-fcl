@@ -39,8 +39,7 @@
 
 #include <vector>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 void collisionRecurse(CollisionTraversalNodeBase* node, unsigned int b1,
                       unsigned int b2, BVHFrontList* front_list,
                       FCL_REAL& sqrDistLowerBound) {
@@ -360,6 +359,4 @@ void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase* node,
   }
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

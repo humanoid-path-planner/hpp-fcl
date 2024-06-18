@@ -33,15 +33,14 @@
 
 /** \author Louis Montaut */
 
-#ifndef HPP_FCL_CONTACT_PATCH_SOLVER_H
-#define HPP_FCL_CONTACT_PATCH_SOLVER_H
+#ifndef COAL_CONTACT_PATCH_SOLVER_H
+#define COAL_CONTACT_PATCH_SOLVER_H
 
 #include "hpp/fcl/collision_data.h"
 #include "hpp/fcl/logging.h"
 #include "hpp/fcl/narrowphase/gjk.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Solver to compute contact patches, i.e. the intersection between two
 /// contact surfaces projected onto the shapes' separating plane.
@@ -202,9 +201,8 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #include "hpp/fcl/contact_patch/contact_patch_solver.hxx"
 
-#endif  // HPP_FCL_CONTACT_PATCH_SOLVER_H
+#endif  // COAL_CONTACT_PATCH_SOLVER_H

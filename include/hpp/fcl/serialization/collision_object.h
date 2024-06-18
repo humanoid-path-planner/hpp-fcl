@@ -2,8 +2,8 @@
 // Copyright (c) 2021 INRIA
 //
 
-#ifndef HPP_FCL_SERIALIZATION_COLLISION_OBJECT_H
-#define HPP_FCL_SERIALIZATION_COLLISION_OBJECT_H
+#ifndef COAL_SERIALIZATION_COLLISION_OBJECT_H
+#define COAL_SERIALIZATION_COLLISION_OBJECT_H
 
 #include "hpp/fcl/collision_object.h"
 
@@ -14,7 +14,7 @@ namespace boost {
 namespace serialization {
 
 template <class Archive>
-void save(Archive& ar, const hpp::fcl::CollisionGeometry& collision_geometry,
+void save(Archive& ar, const coal::CollisionGeometry& collision_geometry,
           const unsigned int /*version*/) {
   ar& make_nvp("aabb_center", collision_geometry.aabb_center);
   ar& make_nvp("aabb_radius", collision_geometry.aabb_radius);
@@ -25,7 +25,7 @@ void save(Archive& ar, const hpp::fcl::CollisionGeometry& collision_geometry,
 }
 
 template <class Archive>
-void load(Archive& ar, hpp::fcl::CollisionGeometry& collision_geometry,
+void load(Archive& ar, coal::CollisionGeometry& collision_geometry,
           const unsigned int /*version*/) {
   ar >> make_nvp("aabb_center", collision_geometry.aabb_center);
   ar >> make_nvp("aabb_radius", collision_geometry.aabb_radius);
@@ -36,13 +36,12 @@ void load(Archive& ar, hpp::fcl::CollisionGeometry& collision_geometry,
   collision_geometry.user_data = NULL;  // no way to recover this
 }
 
-HPP_FCL_SERIALIZATION_SPLIT(hpp::fcl::CollisionGeometry)
+HPP_FCL_SERIALIZATION_SPLIT(coal::CollisionGeometry)
 
 }  // namespace serialization
 }  // namespace boost
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 // fwd declaration
 template <typename BV>
@@ -89,7 +88,6 @@ struct register_type<CollisionGeometry> {
   }
 };
 }  // namespace serialization
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_COLLISION_OBJECT_H
+#endif  // ifndef COAL_SERIALIZATION_COLLISION_OBJECT_H

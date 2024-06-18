@@ -46,8 +46,7 @@
 #include "hpp/fcl/BV/BV.h"
 #include "hpp/fcl/shape/geometric_shapes_utility.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 
 namespace dynamic_AABB_tree {
@@ -771,5 +770,4 @@ detail::HierarchyTree<AABB>& DynamicAABBTreeCollisionManager::getTree() {
   return dtree;
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

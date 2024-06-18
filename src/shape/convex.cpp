@@ -17,8 +17,7 @@ using orgQhull::QhullVertexList;
 using orgQhull::QhullVertexSet;
 #endif
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 // Reorders `tri` such that the dot product between the normal of triangle and
 // the vector `triangle barycentre - convex_tri.center` is positive.
@@ -248,5 +247,4 @@ void ConvexBase::buildDoubleDescriptionFromQHullResult(const Qhull& qh) {
 }
 #endif
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

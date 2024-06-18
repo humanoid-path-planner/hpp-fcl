@@ -35,13 +35,12 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_KIOS_H
-#define HPP_FCL_KIOS_H
+#ifndef COAL_KIOS_H
+#define COAL_KIOS_H
 
 #include "hpp/fcl/BV/OBB.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct CollisionRequest;
 
@@ -188,8 +187,6 @@ HPP_FCL_DLLAPI FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0,
                                  const kIOS& b1, const kIOS& b2,
                                  Vec3f* P = NULL, Vec3f* Q = NULL);
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 #endif

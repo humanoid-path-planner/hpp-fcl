@@ -39,8 +39,7 @@
 #include <hpp/fcl/internal/BV_fitter.h>
 #include <hpp/fcl/internal/tools.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace details {
 
@@ -1097,6 +1096,4 @@ void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box,
   tf = tf_bv * Transform3f(bv.center());
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
