@@ -7,7 +7,7 @@
 #include "fcl_resources/config.h"
 #include <sstream>
 
-using namespace hpp::fcl;
+using namespace coal;
 
 static FCL_REAL epsilon = 1e-6;
 
