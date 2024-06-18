@@ -35,15 +35,14 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_INTERSECT_H
-#define HPP_FCL_INTERSECT_H
+#ifndef COAL_INTERSECT_H
+#define COAL_INTERSECT_H
 
 /// @cond INTERNAL
 
 #include <hpp/fcl/math/transform.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief CCD intersect kernel among primitives
 class HPP_FCL_DLLAPI Intersect {
@@ -181,9 +180,7 @@ class HPP_FCL_DLLAPI TriangleDistance {
                                  const Transform3f& tf, Vec3f& P, Vec3f& Q);
 };
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal
 
 /// @endcond
 
