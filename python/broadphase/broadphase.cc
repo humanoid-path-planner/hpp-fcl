@@ -49,15 +49,15 @@ COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 #ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
 COAL_COMPILER_DIAGNOSTIC_POP
-#include "doxygen_autodoc/hpp/fcl/broadphase/default_broadphase_callbacks.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "doxygen_autodoc/coal/broadphase/default_broadphase_callbacks.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_dynamic_AABB_tree.h"
 // #include
-//"doxygen_autodoc/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_bruteforce.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_SaP.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_SSaP.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_interval_tree.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_spatialhash.h"
+//"doxygen_autodoc/coal/broadphase/broadphase_dynamic_AABB_tree_array.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_bruteforce.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_SaP.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_SSaP.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_interval_tree.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_spatialhash.h"
 #endif
 
 #include "broadphase_callbacks.hh"

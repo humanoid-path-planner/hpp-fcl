@@ -44,7 +44,7 @@
 
 #ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_callbacks.h"
+#include "doxygen_autodoc/coal/broadphase/broadphase_callbacks.h"
 #endif
 
 namespace coal {

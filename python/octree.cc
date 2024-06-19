@@ -8,7 +8,7 @@
 
 #ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-#include "doxygen_autodoc/hpp/fcl/octree.h"
+#include "doxygen_autodoc/coal/octree.h"
 #endif
 
 bp::object toPyBytes(std::vector<uint8_t>& bytes) {

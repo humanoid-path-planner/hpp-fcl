@@ -41,7 +41,7 @@
 
 #ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-#include "doxygen_autodoc/hpp/fcl/narrowphase/gjk.h"
+#include "doxygen_autodoc/coal/narrowphase/gjk.h"
 #endif
 
 using namespace boost::python;

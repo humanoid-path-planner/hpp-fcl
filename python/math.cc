@@ -44,7 +44,7 @@
 #include "serializable.hh"
 
 #ifdef COAL_HAS_DOXYGEN_AUTODOC
-#include "doxygen_autodoc/hpp/fcl/math/transform.h"
+#include "doxygen_autodoc/coal/math/transform.h"
 #endif
 
 using namespace boost::python;

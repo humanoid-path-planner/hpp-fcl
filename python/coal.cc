@@ -45,7 +45,7 @@
 #include "coal/collision.h"
 
 #ifdef COAL_HAS_DOXYGEN_AUTODOC
-#include "doxygen_autodoc/hpp/fcl/mesh_loader/loader.h"
+#include "doxygen_autodoc/coal/mesh_loader/loader.h"
 #endif
 
 #include "../doc/python/doxygen.hh"

@@ -49,7 +49,7 @@ COAL_COMPILER_DIAGNOSTIC_POP
 
 #ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-#include "doxygen_autodoc/hpp/fcl/collision_data.h"
+#include "doxygen_autodoc/coal/collision_data.h"
 #endif
 
 using namespace boost::python;

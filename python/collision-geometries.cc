@@ -56,14 +56,14 @@
 
 #ifdef COAL_HAS_DOXYGEN_AUTODOC
 // FIXME for a reason I do not understand, doxygen fails to understand that
-// BV_splitter is not defined in hpp/fcl/BVH/BVH_model.h
+// BV_splitter is not defined in coal/BVH/BVH_model.h
 #include "coal/internal/BV_splitter.h"
 #include "coal/broadphase/detail/hierarchy_tree.h"
 
-#include "doxygen_autodoc/hpp/fcl/BVH/BVH_model.h"
-#include "doxygen_autodoc/hpp/fcl/BV/AABB.h"
-#include "doxygen_autodoc/hpp/fcl/hfield.h"
-#include "doxygen_autodoc/hpp/fcl/shape/geometric_shapes.h"
+#include "doxygen_autodoc/coal/BVH/BVH_model.h"
+#include "doxygen_autodoc/coal/BV/AABB.h"
+#include "doxygen_autodoc/coal/hfield.h"
+#include "doxygen_autodoc/coal/shape/geometric_shapes.h"
 #include "doxygen_autodoc/functions.h"
 #endif
 
