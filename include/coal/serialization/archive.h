@@ -172,8 +172,7 @@ template <typename T>
 inline void loadFromXML(T& object, const std::string& filename,
                         const std::string& tag_name) {
   if (filename.empty()) {
-    HPP_FCL_THROW_PRETTY("Tag name should not be empty.",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Tag name should not be empty.", std::invalid_argument);
   }
 
   std::ifstream ifs(filename.c_str());
@@ -203,8 +202,7 @@ template <typename T>
 inline void saveToXML(const T& object, const std::string& filename,
                       const std::string& tag_name) {
   if (filename.empty()) {
-    HPP_FCL_THROW_PRETTY("Tag name should not be empty.",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Tag name should not be empty.", std::invalid_argument);
   }
 
   std::ofstream ofs(filename.c_str());

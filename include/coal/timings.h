@@ -7,7 +7,7 @@
 
 #include "coal/fwd.hh"
 
-#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+#ifdef COAL_WITH_CXX11_SUPPORT
 #include <chrono>
 #endif
 
@@ -29,7 +29,7 @@ struct CPUTimes {
 ///        Importantly, this class will only have an effect for C++11 and more.
 ///
 struct COAL_DLLAPI Timer {
-#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+#ifdef COAL_WITH_CXX11_SUPPORT
   typedef std::chrono::steady_clock clock_type;
   typedef clock_type::duration duration_type;
 #endif
@@ -46,7 +46,7 @@ struct COAL_DLLAPI Timer {
     if (m_is_stopped) return m_times;
 
     CPUTimes current(m_times);
-#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+#ifdef COAL_WITH_CXX11_SUPPORT
     std::chrono::time_point<std::chrono::steady_clock> current_clock =
         std::chrono::steady_clock::now();
     current.user += static_cast<double>(
@@ -58,7 +58,7 @@ struct COAL_DLLAPI Timer {
     return current;
   }
 
-#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+#ifdef COAL_WITH_CXX11_SUPPORT
   duration_type duration() const { return (m_end - m_start); }
 #endif
 
@@ -67,7 +67,7 @@ struct COAL_DLLAPI Timer {
       m_is_stopped = false;
       m_times.clear();
 
-#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+#ifdef COAL_WITH_CXX11_SUPPORT
       m_start = std::chrono::steady_clock::now();
 #endif
     }
@@ -77,7 +77,7 @@ struct COAL_DLLAPI Timer {
     if (m_is_stopped) return;
     m_is_stopped = true;
 
-#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+#ifdef COAL_WITH_CXX11_SUPPORT
     m_end = std::chrono::steady_clock::now();
     m_times.user += static_cast<double>(
                         std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -88,7 +88,7 @@ struct COAL_DLLAPI Timer {
   }
 
   void resume() {
-#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+#ifdef COAL_WITH_CXX11_SUPPORT
     if (m_is_stopped) {
       m_start = std::chrono::steady_clock::now();
       m_is_stopped = false;
@@ -102,7 +102,7 @@ struct COAL_DLLAPI Timer {
   CPUTimes m_times;
   bool m_is_stopped;
 
-#ifdef HPP_FCL_WITH_CXX11_SUPPORT
+#ifdef COAL_WITH_CXX11_SUPPORT
   std::chrono::time_point<std::chrono::steady_clock> m_start, m_end;
 #endif
 };

@@ -37,7 +37,7 @@
 
 #include "coal/broadphase/broadphase_dynamic_AABB_tree.h"
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef COAL_HAVE_OCTOMAP
 #include "coal/octree.h"
 #endif
 
@@ -51,7 +51,7 @@ namespace detail {
 
 namespace dynamic_AABB_tree {
 
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
 //==============================================================================
 bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
                        const OcTree* tree2, const OcTree::OcTreeNode* root2,
@@ -610,8 +610,8 @@ void DynamicAABBTreeCollisionManager::update() {
     DynamicAABBNode* node = it->second;
     node->bv = obj->getAABB();
     if (node->bv.volume() <= 0.)
-      HPP_FCL_THROW_PRETTY("The bounding volume has a negative volume.",
-                           std::invalid_argument)
+      COAL_THROW_PRETTY("The bounding volume has a negative volume.",
+                        std::invalid_argument)
   }
 
   dtree.refit();
@@ -666,7 +666,7 @@ void DynamicAABBTreeCollisionManager::collide(
   callback->init();
   if (size() == 0) return;
   switch (obj->collisionGeometry()->getNodeType()) {
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
     case GEOM_OCTREE: {
       if (!octree_as_geometry_collide) {
         const OcTree* octree =
@@ -692,7 +692,7 @@ void DynamicAABBTreeCollisionManager::distance(
   if (size() == 0) return;
   FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   switch (obj->collisionGeometry()->getNodeType()) {
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
     case GEOM_OCTREE: {
       if (!octree_as_geometry_distance) {
         const OcTree* octree =

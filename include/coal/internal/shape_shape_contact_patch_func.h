@@ -60,7 +60,7 @@ struct ComputeShapeShapeContactPatch {
     if (!collision_result.isCollision()) {
       return;
     }
-    HPP_FCL_ASSERT(
+    COAL_ASSERT(
         result.check(request),
         "The contact patch result and request are incompatible (issue of "
         "contact patch size or maximum number of contact patches). Make sure "
@@ -94,8 +94,8 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
                                   const ContactPatchSolver* csolver,
                                   const Contact& contact,
                                   ContactPatch& contact_patch) {
-  HPP_FCL_UNUSED_VARIABLE(s2);
-  HPP_FCL_UNUSED_VARIABLE(tf2);
+  COAL_UNUSED_VARIABLE(s2);
+  COAL_UNUSED_VARIABLE(tf2);
   constructContactPatchFrameFromContact(contact, contact_patch);
   if ((bool)(shape_traits<OtherShapeType>::IsStrictlyConvex)) {
     // Only one point of contact; it has already been computed.
@@ -143,7 +143,7 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
       if (!collision_result.isCollision()) {                                  \
         return;                                                               \
       }                                                                       \
-      HPP_FCL_ASSERT(                                                         \
+      COAL_ASSERT(                                                            \
           result.check(request),                                              \
           "The contact patch result and request are incompatible (issue of "  \
           "contact patch size or maximum number of contact patches). Make "   \
@@ -177,7 +177,7 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
       if (!collision_result.isCollision()) {                                  \
         return;                                                               \
       }                                                                       \
-      HPP_FCL_ASSERT(                                                         \
+      COAL_ASSERT(                                                            \
           result.check(request),                                              \
           "The contact patch result and request are incompatible (issue of "  \
           "contact patch size or maximum number of contact patches). Make "   \
@@ -212,15 +212,15 @@ PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Halfspace)
                     const ContactPatchSolver* csolver,                       \
                     const ContactPatchRequest& request,                      \
                     ContactPatchResult& result) {                            \
-      HPP_FCL_UNUSED_VARIABLE(o1);                                           \
-      HPP_FCL_UNUSED_VARIABLE(tf1);                                          \
-      HPP_FCL_UNUSED_VARIABLE(o2);                                           \
-      HPP_FCL_UNUSED_VARIABLE(tf2);                                          \
-      HPP_FCL_UNUSED_VARIABLE(csolver);                                      \
+      COAL_UNUSED_VARIABLE(o1);                                              \
+      COAL_UNUSED_VARIABLE(tf1);                                             \
+      COAL_UNUSED_VARIABLE(o2);                                              \
+      COAL_UNUSED_VARIABLE(tf2);                                             \
+      COAL_UNUSED_VARIABLE(csolver);                                         \
       if (!collision_result.isCollision()) {                                 \
         return;                                                              \
       }                                                                      \
-      HPP_FCL_ASSERT(                                                        \
+      COAL_ASSERT(                                                           \
           result.check(request),                                             \
           "The contact patch result and request are incompatible (issue of " \
           "contact patch size or maximum number of contact patches). Make "  \

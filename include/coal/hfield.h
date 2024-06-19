@@ -289,7 +289,7 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
   void updateHeights(const MatrixXf& new_heights) {
     if (new_heights.rows() != heights.rows() ||
         new_heights.cols() != heights.cols())
-      HPP_FCL_THROW_PRETTY(
+      COAL_THROW_PRETTY(
           "The matrix containing the new heights values does not have the same "
           "matrix size as the original one.\n"
           "\tinput values - rows: "
@@ -364,7 +364,7 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
         recursiveBuildTree(0, 0, heights.cols() - 1, 0, heights.rows() - 1);
     assert(max_recursive_height == max_height &&
            "the maximal height is not correct");
-    HPP_FCL_UNUSED_VARIABLE(max_recursive_height);
+    COAL_UNUSED_VARIABLE(max_recursive_height);
 
     bvs.resize(num_bvs);
     return BVH_OK;
@@ -481,14 +481,14 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
   /// @brief Access the bv giving the its index
   const HFNode<BV>& getBV(unsigned int i) const {
     if (i >= num_bvs)
-      HPP_FCL_THROW_PRETTY("Index out of bounds", std::invalid_argument);
+      COAL_THROW_PRETTY("Index out of bounds", std::invalid_argument);
     return bvs[i];
   }
 
   /// @brief Access the bv giving the its index
   HFNode<BV>& getBV(unsigned int i) {
     if (i >= num_bvs)
-      HPP_FCL_THROW_PRETTY("Index out of bounds", std::invalid_argument);
+      COAL_THROW_PRETTY("Index out of bounds", std::invalid_argument);
     return bvs[i];
   }
 

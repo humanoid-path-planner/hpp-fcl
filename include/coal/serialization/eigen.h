@@ -11,7 +11,7 @@
 #ifndef COAL_SERIALIZATION_EIGEN_H
 #define COAL_SERIALIZATION_EIGEN_H
 
-#ifndef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
+#ifndef COAL_SKIP_EIGEN_BOOST_SERIALIZATION
 
 #include <Eigen/Dense>
 
@@ -111,6 +111,6 @@ void serialize(Archive& ar,
 }  // namespace serialization
 }  // namespace boost
 //
-#endif  // ifned HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
+#endif  // ifned COAL_SKIP_EIGEN_BOOST_SERIALIZATION
 
 #endif  // ifndef COAL_SERIALIZATION_EIGEN_H

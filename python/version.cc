@@ -25,13 +25,13 @@ void exposeVersion() {
   bp::scope().attr("COAL_MINOR_VERSION") = COAL_MINOR_VERSION;
   bp::scope().attr("COAL_PATCH_VERSION") = COAL_PATCH_VERSION;
 
-#if HPP_FCL_HAS_QHULL
+#if COAL_HAS_QHULL
   bp::scope().attr("WITH_QHULL") = true;
 #else
   bp::scope().attr("WITH_QHULL") = false;
 #endif
 
-#if HPP_FCL_HAS_OCTOMAP
+#if COAL_HAS_OCTOMAP
   bp::scope().attr("WITH_OCTOMAP") = true;
 #else
   bp::scope().attr("WITH_OCTOMAP") = false;

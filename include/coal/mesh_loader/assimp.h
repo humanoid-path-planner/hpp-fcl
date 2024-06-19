@@ -94,7 +94,7 @@ inline void meshFromAssimpScene(
   int res = mesh->beginModel();
 
   if (res != coal::BVH_OK) {
-    HPP_FCL_THROW_PRETTY("fcl BVHReturnCode = " << res, std::runtime_error);
+    COAL_THROW_PRETTY("fcl BVHReturnCode = " << res, std::runtime_error);
   }
 
   buildMesh(scale, scene, (unsigned)mesh->num_vertices, tv);

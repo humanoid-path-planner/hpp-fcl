@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef TEST_HPP_FCL_UTILITY_H
-#define TEST_HPP_FCL_UTILITY_H
+#ifndef TEST_COAL_UTILITY_H
+#define TEST_COAL_UTILITY_H
 
 #include "coal/math/transform.h"
 #include "coal/collision_data.h"
@@ -44,7 +44,7 @@
 #include "coal/broadphase/default_broadphase_callbacks.h"
 #include "coal/shape/convex.h"
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 #include "coal/octree.h"
 #endif
 
@@ -78,7 +78,7 @@
                           << Vb << "\n]")
 
 namespace octomap {
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 typedef coal::shared_ptr<octomap::OcTree> OcTreePtr_t;
 #endif
 }  // namespace octomap
@@ -137,7 +137,7 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points,
 void saveOBJFile(const char* filename, std::vector<Vec3f>& points,
                  std::vector<Triangle>& triangles);
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 coal::OcTree loadOctreeFile(const std::string& filename,
                             const FCL_REAL& resolution);
 #endif

@@ -58,8 +58,8 @@ void GJK::initialize() {
 void GJK::reset(size_t max_iterations_, FCL_REAL tolerance_) {
   max_iterations = max_iterations_;
   tolerance = tolerance_;
-  HPP_FCL_ASSERT(tolerance_ > 0, "Tolerance must be positive.",
-                 std::invalid_argument);
+  COAL_ASSERT(tolerance_ > 0, "Tolerance must be positive.",
+              std::invalid_argument);
   status = DidNotRun;
   nfree = 0;
   simplex = nullptr;
@@ -137,8 +137,8 @@ void getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
                                                     vs[2]->w, vs[3]->w);
       break;
     default:
-      HPP_FCL_THROW_PRETTY("The simplex rank must be in [ 1, 4 ]",
-                           std::logic_error);
+      COAL_THROW_PRETTY("The simplex rank must be in [ 1, 4 ]",
+                        std::logic_error);
   }
   w0.setZero();
   w1.setZero();
@@ -273,7 +273,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         break;
 
       default:
-        HPP_FCL_THROW_PRETTY("Invalid momentum variant.", std::logic_error);
+        COAL_THROW_PRETTY("Invalid momentum variant.", std::logic_error);
     }
 
     // see below, ray points away from origin
@@ -345,7 +345,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
         inside = projectTetrahedraOrigin(curr_simplex, next_simplex);
         break;
       default:
-        HPP_FCL_THROW_PRETTY("Invalid simplex rank", std::logic_error);
+        COAL_THROW_PRETTY("Invalid simplex rank", std::logic_error);
     }
     assert(nfree + next_simplex.rank == 4);
     current = next;
@@ -395,8 +395,8 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
           return (((diff / tolerance * rl) - tolerance * rl) <= 0);
           break;
         default:
-          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
-                               std::logic_error);
+          COAL_THROW_PRETTY("Invalid convergence criterion type.",
+                            std::logic_error);
       }
     } break;
 
@@ -413,13 +413,13 @@ bool GJK::checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
           return (((diff / tolerance * rl) - tolerance * rl) <= 0);
           break;
         default:
-          HPP_FCL_THROW_PRETTY("Invalid convergence criterion type.",
-                               std::logic_error);
+          COAL_THROW_PRETTY("Invalid convergence criterion type.",
+                            std::logic_error);
       }
     } break;
 
     default:
-      HPP_FCL_THROW_PRETTY("Invalid convergence criterion.", std::logic_error);
+      COAL_THROW_PRETTY("Invalid convergence criterion.", std::logic_error);
   }
 }
 
@@ -640,7 +640,7 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
 
   const FCL_REAL dummy_precision(
       3 * std::sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
-  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+  COAL_UNUSED_VARIABLE(dummy_precision);
 
 #define REGION_INSIDE()               \
   ray.setZero();                      \
@@ -1527,8 +1527,8 @@ void ConvexBase::buildSupportWarmStart() {
           ConvexBase::num_support_warm_starts ||
       this->support_warm_starts.indices.size() !=
           ConvexBase::num_support_warm_starts) {
-    HPP_FCL_THROW_PRETTY("Wrong number of support warm starts.",
-                         std::runtime_error);
+    COAL_THROW_PRETTY("Wrong number of support warm starts.",
+                      std::runtime_error);
   }
 }
 

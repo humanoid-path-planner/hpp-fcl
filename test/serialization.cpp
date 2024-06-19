@@ -59,7 +59,7 @@ COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 #include "coal/serialization/archive.h"
 #include "coal/serialization/memory.h"
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 #include "coal/serialization/octree.h"
 #endif
 
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE(test_BVHModel) {
   }
 }
 
-#ifdef HPP_FCL_HAS_QHULL
+#ifdef COAL_HAS_QHULL
 BOOST_AUTO_TEST_CASE(test_Convex) {
   std::vector<Vec3f> p1;
   std::vector<Triangle> t1;
@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE(test_shapes) {
   }
 }
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 BOOST_AUTO_TEST_CASE(test_octree) {
   const FCL_REAL resolution = 1e-2;
   const Matrixx3f points = Matrixx3f::Random(1000, 3);

@@ -169,8 +169,8 @@ getShapeSupportTplInstantiation(Box)
     support.setZero();
   }
 
-  HPP_FCL_UNUSED_VARIABLE(sphere);
-  HPP_FCL_UNUSED_VARIABLE(dir);
+  COAL_UNUSED_VARIABLE(sphere);
+  COAL_UNUSED_VARIABLE(dir);
 }
 // clang-format off
 getShapeSupportTplInstantiation(Sphere)
@@ -877,7 +877,7 @@ void convexSupportSetRecurse(
     const Vec3f& support_dir, const FCL_REAL support_value,
     const Transform3f& tf, std::vector<int8_t>& visited,
     SupportSet::Polygon& polygon, FCL_REAL tol) {
-  HPP_FCL_UNUSED_VARIABLE(swept_sphere_radius);
+  COAL_UNUSED_VARIABLE(swept_sphere_radius);
 
   if (visited[vertex_idx]) {
     return;

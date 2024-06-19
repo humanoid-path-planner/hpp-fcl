@@ -45,7 +45,7 @@
 
 namespace coal {
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 
 template <typename TypeA, typename TypeB>
 FCL_REAL Distance(const CollisionGeometry* o1, const Transform3f& tf1,
@@ -74,12 +74,12 @@ COAL_LOCAL FCL_REAL distance_function_not_implemented(
   NODE_TYPE node_type1 = o1->getNodeType();
   NODE_TYPE node_type2 = o2->getNodeType();
 
-  HPP_FCL_THROW_PRETTY("Distance function between node type "
-                           << std::string(get_node_type_name(node_type1))
-                           << " and node type "
-                           << std::string(get_node_type_name(node_type2))
-                           << " is not yet supported.",
-                       std::invalid_argument);
+  COAL_THROW_PRETTY("Distance function between node type "
+                        << std::string(get_node_type_name(node_type1))
+                        << " and node type "
+                        << std::string(get_node_type_name(node_type2))
+                        << " is not yet supported.",
+                    std::invalid_argument);
 }
 
 template <typename T_BVH, typename T_SH>
@@ -174,14 +174,14 @@ struct COAL_LOCAL HeightFieldShapeDistancer {
                            const GJKSolver* nsolver,
                            const DistanceRequest& request,
                            DistanceResult& result) {
-    HPP_FCL_UNUSED_VARIABLE(o1);
-    HPP_FCL_UNUSED_VARIABLE(tf1);
-    HPP_FCL_UNUSED_VARIABLE(o2);
-    HPP_FCL_UNUSED_VARIABLE(tf2);
-    HPP_FCL_UNUSED_VARIABLE(nsolver);
-    HPP_FCL_UNUSED_VARIABLE(request);
+    COAL_UNUSED_VARIABLE(o1);
+    COAL_UNUSED_VARIABLE(tf1);
+    COAL_UNUSED_VARIABLE(o2);
+    COAL_UNUSED_VARIABLE(tf2);
+    COAL_UNUSED_VARIABLE(nsolver);
+    COAL_UNUSED_VARIABLE(request);
     // TODO(jcarpent)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "Distance between a height field and a shape is not implemented",
         std::invalid_argument);
     //    if(request.isSatisfied(result)) return result.min_distance;
@@ -602,7 +602,7 @@ DistanceFunctionMatrix::DistanceFunctionMatrix() {
   distance_matrix[BV_kIOS][BV_kIOS] = &BVHDistance<kIOS>;
   distance_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHDistance<OBBRSS>;
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
   distance_matrix[GEOM_OCTREE][GEOM_BOX] = &Distance<OcTree, Box>;
   distance_matrix[GEOM_OCTREE][GEOM_SPHERE] = &Distance<OcTree, Sphere>;
   distance_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &Distance<OcTree, Capsule>;

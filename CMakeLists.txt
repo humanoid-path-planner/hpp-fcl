@@ -50,8 +50,8 @@ SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
 # Need to be set before including base.cmake
 # ----------------------------------------------------
 option(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
-option(HPP_FCL_TURN_ASSERT_INTO_EXCEPTION "Turn some critical HPP-FCL asserts to exception." FALSE)
-option(HPP_FCL_ENABLE_LOGGING "Activate logging for warnings or error messages. Turned on by default in Debug." FALSE)
+option(COAL_TURN_ASSERT_INTO_EXCEPTION "Turn some critical COAL asserts to exception." FALSE)
+option(COAL_ENABLE_LOGGING "Activate logging for warnings or error messages. Turned on by default in Debug." FALSE)
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -128,7 +128,7 @@ endif()
 SET_BOOST_DEFAULT_OPTIONS()
 EXPORT_BOOST_DEFAULT_OPTIONS()
 ADD_PROJECT_DEPENDENCY(Boost REQUIRED chrono thread date_time serialization filesystem)
-if (HPP_FCL_ENABLE_LOGGING)
+if (COAL_ENABLE_LOGGING)
   ADD_PROJECT_DEPENDENCY(Boost REQUIRED log)
 endif()
 if(BUILD_PYTHON_INTERFACE)
@@ -146,23 +146,23 @@ endif()
 # Optional dependencies
 ADD_PROJECT_DEPENDENCY(octomap PKG_CONFIG_REQUIRES "octomap >= 1.6")
 if(octomap_FOUND)
-  SET(HPP_FCL_HAS_OCTOMAP TRUE)
+  SET(COAL_HAS_OCTOMAP TRUE)
   string(REPLACE "." ";" VERSION_LIST ${octomap_VERSION})
   list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
   list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
   list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
-  message(STATUS "HPP-FCL uses Octomap")
+  message(STATUS "COAL uses Octomap")
 else()
-  SET(HPP_FCL_HAS_OCTOMAP FALSE)
-  message(STATUS "HPP-FCL does not use Octomap")
+  SET(COAL_HAS_OCTOMAP FALSE)
+  message(STATUS "COAL does not use Octomap")
 endif()
 
-option(HPP_FCL_HAS_QHULL "use qhull library to compute convex hulls." FALSE)
-if(HPP_FCL_HAS_QHULL)
+option(COAL_HAS_QHULL "use qhull library to compute convex hulls." FALSE)
+if(COAL_HAS_QHULL)
   find_package(Qhull COMPONENTS qhull_r qhullcpp)
   if(Qhull_FOUND)
-    set(HPP_FCL_USE_SYSTEM_QHULL TRUE)
-    message(STATUS "HPP-FCL uses system Qhull")
+    set(COAL_USE_SYSTEM_QHULL TRUE)
+    message(STATUS "COAL uses system Qhull")
   else()
     message(STATUS "Qhullcpp not found: it will be build from sources, if Qhull_r is found")
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-parties)
@@ -180,7 +180,7 @@ if(HPP_FCL_HAS_QHULL)
       PATHS ${Qhull_PREFIX}
       )
     if(NOT Qhull_r_LIBRARY)
-      message(FATAL_ERROR "Qhull_r not found, please install it or turn HPP_FCL_HAS_QHULL OFF")
+      message(FATAL_ERROR "Qhull_r not found, please install it or turn COAL_HAS_QHULL OFF")
     endif()
   endif()
 endif()
@@ -308,13 +308,13 @@ SET(${PROJECT_NAME}_HEADERS
   include/coal/timings.h
   )
 
-IF(HPP_FCL_HAS_OCTOMAP)
+IF(COAL_HAS_OCTOMAP)
   LIST(APPEND ${PROJECT_NAME}_HEADERS
     include/coal/octree.h
     include/coal/serialization/octree.h
     include/coal/internal/traversal_node_octree.h
   )
-ENDIF(HPP_FCL_HAS_OCTOMAP)
+ENDIF(COAL_HAS_OCTOMAP)
 
 add_subdirectory(doc)
 add_subdirectory(src)
@@ -326,11 +326,11 @@ if(BUILD_TESTING)
 endif(BUILD_TESTING)
 
 pkg_config_append_libs("coal")
-IF(HPP_FCL_HAS_OCTOMAP)
+IF(COAL_HAS_OCTOMAP)
   # FCL_HAVE_OCTOMAP kept for backward compatibility reasons.
   PKG_CONFIG_APPEND_CFLAGS(
-    "-DHPP_FCL_HAS_OCTOMAP -DHPP_FCL_HAVE_OCTOMAP -DFCL_HAVE_OCTOMAP -DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION} -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION} -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION}")
-ENDIF(HPP_FCL_HAS_OCTOMAP)
+    "-DCOAL_HAS_OCTOMAP -DCOAL_HAVE_OCTOMAP -DFCL_HAVE_OCTOMAP -DOCTOMAP_MAJOR_VERSION=${OCTOMAP_MAJOR_VERSION} -DOCTOMAP_MINOR_VERSION=${OCTOMAP_MINOR_VERSION} -DOCTOMAP_PATCH_VERSION=${OCTOMAP_PATCH_VERSION}")
+ENDIF(COAL_HAS_OCTOMAP)
 
 # Install catkin package.xml
 INSTALL(FILES package.xml DESTINATION share/${PROJECT_NAME})

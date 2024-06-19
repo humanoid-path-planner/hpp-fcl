@@ -41,7 +41,7 @@
 #include "coal/broadphase/broadphase_dynamic_AABB_tree_array.h"
 #include "coal/shape/geometric_shapes_utility.h"
 
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
 #include "coal/octree.h"
 #endif
 
@@ -49,7 +49,7 @@ namespace coal {
 namespace detail {
 namespace dynamic_AABB_tree_array {
 
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
 
 //==============================================================================
 template <typename Derived>

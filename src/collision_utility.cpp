@@ -26,8 +26,8 @@ inline CollisionGeometry* extractBVHtpl(const CollisionGeometry* model,
                                         const AABB& aabb) {
   // Ensure AABB is already computed
   if (model->aabb_radius < 0)
-    HPP_FCL_THROW_PRETTY("Collision geometry AABB should be computed first.",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Collision geometry AABB should be computed first.",
+                      std::invalid_argument);
   AABB objAabb = rotate(translate(model->aabb_local, pose.getTranslation()),
                         pose.getRotation());
   if (!objAabb.overlap(aabb)) {
@@ -58,8 +58,7 @@ CollisionGeometry* extractBVH(const CollisionGeometry* model,
     case BV_KDOP24:
       return extractBVHtpl<KDOP<24> >(model, pose, aabb);
     default:
-      HPP_FCL_THROW_PRETTY("Unknown type of bounding volume",
-                           std::runtime_error);
+      COAL_THROW_PRETTY("Unknown type of bounding volume", std::runtime_error);
   }
 }
 }  // namespace details
@@ -71,9 +70,8 @@ CollisionGeometry* extract(const CollisionGeometry* model,
       return details::extractBVH(model, pose, aabb);
     // case OT_GEOM: return model;
     default:
-      HPP_FCL_THROW_PRETTY(
-          "Extraction is not implemented for this type of object",
-          std::runtime_error);
+      COAL_THROW_PRETTY("Extraction is not implemented for this type of object",
+                        std::runtime_error);
   }
 }
 }  // namespace coal

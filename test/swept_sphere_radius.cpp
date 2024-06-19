@@ -58,7 +58,7 @@ int line;
   node2_type = shape2.getNodeType(); \
   line = __LINE__
 
-#define HPP_FCL_CHECK(cond)                                                  \
+#define COAL_CHECK(cond)                                                     \
   BOOST_CHECK_MESSAGE(                                                       \
       cond, "from line " << line << ", for collision pair: "                 \
                          << get_node_type_name(node1_type) << " - "          \
@@ -67,17 +67,17 @@ int line;
                          << ", ssr2 = " << shape2.getSweptSphereRadius()     \
                          << ": " #cond)
 
-#define HPP_FCL_CHECK_VECTOR_CLOSE(v1, v2, tol) \
-  EIGEN_VECTOR_IS_APPROX(v1, v2, tol);          \
-  HPP_FCL_CHECK(((v1) - (v2)).isZero(tol))
+#define COAL_CHECK_VECTOR_CLOSE(v1, v2, tol) \
+  EIGEN_VECTOR_IS_APPROX(v1, v2, tol);       \
+  COAL_CHECK(((v1) - (v2)).isZero(tol))
 
-#define HPP_FCL_CHECK_REAL_CLOSE(v1, v2, tol) \
-  FCL_REAL_IS_APPROX(v1, v2, tol);            \
-  HPP_FCL_CHECK(std::abs((v1) - (v2)) < tol)
+#define COAL_CHECK_REAL_CLOSE(v1, v2, tol) \
+  FCL_REAL_IS_APPROX(v1, v2, tol);         \
+  COAL_CHECK(std::abs((v1) - (v2)) < tol)
 
-#define HPP_FCL_CHECK_CONDITION(cond) \
-  BOOST_CHECK(cond);                  \
-  HPP_FCL_CHECK(cond)
+#define COAL_CHECK_CONDITION(cond) \
+  BOOST_CHECK(cond);               \
+  COAL_CHECK(cond)
 
 // Preambule: swept sphere radius allows to virually convolve geometric shapes
 // by a sphere with positive radius (Minkowski sum).
@@ -188,16 +188,16 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
                                    shape2.getSweptSphereRadius());
 
         // Check that the distance is the same
-        HPP_FCL_CHECK_REAL_CLOSE(distance[0], distance[1], precision);
+        COAL_CHECK_REAL_CLOSE(distance[0], distance[1], precision);
 
         // Check that the normal is the same
-        HPP_FCL_CHECK_CONDITION(normal[0].dot(normal[1]) > 0);
-        HPP_FCL_CHECK_CONDITION(std::abs(1 - normal[0].dot(normal[1])) <
-                                precision);
+        COAL_CHECK_CONDITION(normal[0].dot(normal[1]) > 0);
+        COAL_CHECK_CONDITION(std::abs(1 - normal[0].dot(normal[1])) <
+                             precision);
 
         // Check that the witness points are the same
-        HPP_FCL_CHECK_VECTOR_CLOSE(p1[0], p1[1], precision);
-        HPP_FCL_CHECK_VECTOR_CLOSE(p2[0], p2[1], precision);
+        COAL_CHECK_VECTOR_CLOSE(p1[0], p1[1], precision);
+        COAL_CHECK_VECTOR_CLOSE(p2[0], p2[1], precision);
       }
     }
   }
@@ -338,21 +338,20 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
           const FCL_REAL ssr = ssr1 + ssr2;
 
           // Check that the distance is the same
-          HPP_FCL_CHECK_REAL_CLOSE(contact[0].penetration_depth - ssr,
-                                   contact[1].penetration_depth, precision);
+          COAL_CHECK_REAL_CLOSE(contact[0].penetration_depth - ssr,
+                                contact[1].penetration_depth, precision);
 
           // Check that the normal is the same
-          HPP_FCL_CHECK_CONDITION((contact[0].normal).dot(contact[1].normal) >
-                                  0);
-          HPP_FCL_CHECK_CONDITION(
+          COAL_CHECK_CONDITION((contact[0].normal).dot(contact[1].normal) > 0);
+          COAL_CHECK_CONDITION(
               std::abs(1 - (contact[0].normal).dot(contact[1].normal)) <
               precision);
 
           // Check that the witness points are the same
-          HPP_FCL_CHECK_VECTOR_CLOSE(
+          COAL_CHECK_VECTOR_CLOSE(
               contact[0].nearest_points[0] + ssr1 * contact[0].normal,
               contact[1].nearest_points[0], precision);
-          HPP_FCL_CHECK_VECTOR_CLOSE(
+          COAL_CHECK_VECTOR_CLOSE(
               contact[0].nearest_points[1] - ssr2 * contact[0].normal,
               contact[1].nearest_points[1], precision);
         }

@@ -45,7 +45,7 @@ COAL_COMPILER_DIAGNOSTIC_POP
 #include "deprecation.hh"
 #include "serializable.hh"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
 #include "doxygen_autodoc/hpp/fcl/collision_data.h"
 #endif

@@ -46,7 +46,7 @@
 
 namespace coal {
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 
 template <typename TypeA, typename TypeB>
 std::size_t OctreeCollide(const CollisionGeometry* o1, const Transform3f& tf1,
@@ -57,9 +57,8 @@ std::size_t OctreeCollide(const CollisionGeometry* o1, const Transform3f& tf1,
   if (request.isSatisfied(result)) return result.numContacts();
 
   if (request.security_margin < 0)
-    HPP_FCL_THROW_PRETTY(
-        "Negative security margin are not handled yet for Octree",
-        std::invalid_argument);
+    COAL_THROW_PRETTY("Negative security margin are not handled yet for Octree",
+                      std::invalid_argument);
 
   typename TraversalTraitsCollision<TypeA, TypeB>::CollisionTraversal_t node(
       request);
@@ -108,7 +107,7 @@ struct COAL_LOCAL BVHShapeCollider {
     if (request.isSatisfied(result)) return result.numContacts();
 
     if (request.security_margin < 0)
-      HPP_FCL_THROW_PRETTY(
+      COAL_THROW_PRETTY(
           "Negative security margin are not handled yet for BVHModel",
           std::invalid_argument);
 
@@ -661,7 +660,7 @@ CollisionFunctionMatrix::CollisionFunctionMatrix() {
   collision_matrix[BV_kIOS][BV_kIOS] = &BVHCollide<kIOS>;
   collision_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHCollide<OBBRSS>;
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
   collision_matrix[GEOM_OCTREE][GEOM_BOX] = &OctreeCollide<OcTree, Box>;
   collision_matrix[GEOM_OCTREE][GEOM_SPHERE] = &OctreeCollide<OcTree, Sphere>;
   collision_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &OctreeCollide<OcTree, Capsule>;

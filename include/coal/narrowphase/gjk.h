@@ -142,8 +142,8 @@ struct COAL_DLLAPI GJK {
   /// Suggested values are 100 iterations and a tolerance of 1e-6.
   GJK(size_t max_iterations_, FCL_REAL tolerance_)
       : max_iterations(max_iterations_), tolerance(tolerance_) {
-    HPP_FCL_ASSERT(tolerance_ > 0, "Tolerance must be positive.",
-                   std::invalid_argument);
+    COAL_ASSERT(tolerance_ > 0, "Tolerance must be positive.",
+                std::invalid_argument);
     initialize();
   }
 

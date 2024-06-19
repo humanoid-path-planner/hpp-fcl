@@ -37,18 +37,18 @@ void load(Archive& ar, coal::Contact& contact, const unsigned int /*version*/) {
   contact.o2 = NULL;
 }
 
-HPP_FCL_SERIALIZATION_SPLIT(coal::Contact)
+COAL_SERIALIZATION_SPLIT(coal::Contact)
 
 template <class Archive>
 void serialize(Archive& ar, coal::QueryRequest& query_request,
                const unsigned int /*version*/) {
   ar& make_nvp("gjk_initial_guess", query_request.gjk_initial_guess);
   // TODO: use gjk_initial_guess instead
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ar& make_nvp("enable_cached_gjk_guess",
                query_request.enable_cached_gjk_guess);
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
   ar& make_nvp("cached_gjk_guess", query_request.cached_gjk_guess);
   ar& make_nvp("cached_support_func_guess",
                query_request.cached_support_func_guess);
@@ -81,11 +81,11 @@ void serialize(Archive& ar, coal::CollisionRequest& collision_request,
                            collision_request));
   ar& make_nvp("num_max_contacts", collision_request.num_max_contacts);
   ar& make_nvp("enable_contact", collision_request.enable_contact);
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ar& make_nvp("enable_distance_lower_bound",
                collision_request.enable_distance_lower_bound);
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
   ar& make_nvp("security_margin", collision_request.security_margin);
   ar& make_nvp("break_distance", collision_request.break_distance);
   ar& make_nvp("distance_upper_bound", collision_request.distance_upper_bound);
@@ -120,17 +120,17 @@ void load(Archive& ar, coal::CollisionResult& collision_result,
   ar >> make_nvp("normal", collision_result.normal);
 }
 
-HPP_FCL_SERIALIZATION_SPLIT(coal::CollisionResult)
+COAL_SERIALIZATION_SPLIT(coal::CollisionResult)
 
 template <class Archive>
 void serialize(Archive& ar, coal::DistanceRequest& distance_request,
                const unsigned int /*version*/) {
   ar& make_nvp("base", boost::serialization::base_object<coal::QueryRequest>(
                            distance_request));
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ar& make_nvp("enable_nearest_points", distance_request.enable_nearest_points);
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
   ar& make_nvp("enable_signed_distance",
                distance_request.enable_signed_distance);
   ar& make_nvp("rel_err", distance_request.rel_err);
@@ -166,14 +166,14 @@ void load(Archive& ar, coal::DistanceResult& distance_result,
   distance_result.o2 = NULL;
 }
 
-HPP_FCL_SERIALIZATION_SPLIT(coal::DistanceResult)
+COAL_SERIALIZATION_SPLIT(coal::DistanceResult)
 
 }  // namespace serialization
 }  // namespace boost
 
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::CollisionRequest)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::CollisionResult)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::DistanceRequest)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::DistanceResult)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::CollisionRequest)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::CollisionResult)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::DistanceRequest)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::DistanceResult)
 
 #endif  // ifndef COAL_SERIALIZATION_COLLISION_DATA_H

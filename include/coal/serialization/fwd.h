@@ -21,29 +21,29 @@
 #include "coal/fwd.h"
 #include "coal/serialization/eigen.h"
 
-#define HPP_FCL_SERIALIZATION_SPLIT(Type)                                \
+#define COAL_SERIALIZATION_SPLIT(Type)                                   \
   template <class Archive>                                               \
   void serialize(Archive& ar, Type& value, const unsigned int version) { \
     split_free(ar, value, version);                                      \
   }
 
-#define HPP_FCL_SERIALIZATION_DECLARE_EXPORT(T) \
-  BOOST_CLASS_EXPORT_KEY(T)                     \
-  namespace boost {                             \
-  namespace archive {                           \
-  namespace detail {                            \
-  namespace extra_detail {                      \
-  template <>                                   \
-  struct init_guid<T> {                         \
-    static guid_initializer<T> const& g;        \
-  };                                            \
-  }                                             \
-  }                                             \
-  }                                             \
-  }                                             \
+#define COAL_SERIALIZATION_DECLARE_EXPORT(T) \
+  BOOST_CLASS_EXPORT_KEY(T)                  \
+  namespace boost {                          \
+  namespace archive {                        \
+  namespace detail {                         \
+  namespace extra_detail {                   \
+  template <>                                \
+  struct init_guid<T> {                      \
+    static guid_initializer<T> const& g;     \
+  };                                         \
+  }                                          \
+  }                                          \
+  }                                          \
+  }                                          \
   /**/
 
-#define HPP_FCL_SERIALIZATION_DEFINE_EXPORT(T)          \
+#define COAL_SERIALIZATION_DEFINE_EXPORT(T)             \
   namespace boost {                                     \
   namespace archive {                                   \
   namespace detail {                                    \
@@ -93,7 +93,7 @@ struct register_type {
 }  // namespace serialization
 }  // namespace coal
 
-#define HPP_FCL_SERIALIZATION_CAST_REGISTER(Derived, Base)                   \
+#define COAL_SERIALIZATION_CAST_REGISTER(Derived, Base)                      \
   namespace coal {                                                           \
   namespace serialization {                                                  \
   namespace detail {                                                         \

@@ -43,7 +43,7 @@
 
 #include "../fcl.hh"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
 #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_collision_manager.h"
 #endif

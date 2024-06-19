@@ -44,11 +44,11 @@
 #include "coal/broadphase/broadphase_interval_tree.h"
 #include "coal/broadphase/broadphase_spatialhash.h"
 
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-HPP_FCL_COMPILER_DIAGNOSTIC_POP
+COAL_COMPILER_DIAGNOSTIC_POP
 #include "doxygen_autodoc/hpp/fcl/broadphase/default_broadphase_callbacks.h"
 // #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 // #include
@@ -65,8 +65,8 @@ HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
 using namespace coal;
 
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 void exposeBroadPhase() {
   CollisionCallBackBaseWrapper::expose();
   DistanceCallBackBaseWrapper::expose();
@@ -139,4 +139,4 @@ void exposeBroadPhase() {
                       bp::optional<unsigned int>>());
   }
 }
-HPP_FCL_COMPILER_DIAGNOSTIC_POP
+COAL_COMPILER_DIAGNOSTIC_POP

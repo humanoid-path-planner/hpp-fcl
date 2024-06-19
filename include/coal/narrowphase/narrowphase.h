@@ -111,8 +111,8 @@ struct COAL_DLLAPI GJKSolver {
   static constexpr FCL_REAL m_dummy_precision = 1e-6;
 
  public:
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// @brief Default constructor for GJK algorithm
   /// By default, we don't want EPA to allocate memory because
   /// certain functions of the `GJKSolver` class have specializations
@@ -245,8 +245,8 @@ struct COAL_DLLAPI GJKSolver {
   /// @brief Copy constructor
   GJKSolver(const GJKSolver& other) = default;
 
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   bool operator==(const GJKSolver& other) const {
     return this->enable_cached_guess ==
                other.enable_cached_guess &&  // use gjk_initial_guess instead
@@ -263,7 +263,7 @@ struct COAL_DLLAPI GJKSolver {
            this->epa_max_iterations == other.epa_max_iterations &&
            this->epa_tolerance == other.epa_tolerance;
   }
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 
   bool operator!=(const GJKSolver& other) const { return !(*this == other); }
 
@@ -366,7 +366,7 @@ struct COAL_DLLAPI GJKSolver {
         break;
       case GJKInitialGuess::BoundingVolumeGuess:
         if (s1.aabb_local.volume() < 0 || s2.aabb_local.volume() < 0) {
-          HPP_FCL_THROW_PRETTY(
+          COAL_THROW_PRETTY(
               "computeLocalAABB must have been called on the shapes before "
               "using "
               "GJKInitialGuess::BoundingVolumeGuess.",
@@ -378,15 +378,15 @@ struct COAL_DLLAPI GJKSolver {
              this->minkowski_difference.ot1);
         break;
       default:
-        HPP_FCL_THROW_PRETTY("Wrong initial guess for GJK.", std::logic_error);
+        COAL_THROW_PRETTY("Wrong initial guess for GJK.", std::logic_error);
     }
     // TODO: use gjk_initial_guess instead
-    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+    COAL_COMPILER_DIAGNOSTIC_PUSH
+    COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     if (this->enable_cached_guess) {
       guess = this->cached_guess;
     }
-    HPP_FCL_COMPILER_DIAGNOSTIC_POP
+    COAL_COMPILER_DIAGNOSTIC_POP
   }
 
   /// @brief Runs the GJK algorithm.
@@ -446,8 +446,8 @@ struct COAL_DLLAPI GJKSolver {
 
     switch (this->gjk.status) {
       case details::GJK::DidNotRun:
-        HPP_FCL_ASSERT(false, "GJK did not run. It should have!",
-                       std::logic_error);
+        COAL_ASSERT(false, "GJK did not run. It should have!",
+                    std::logic_error);
         this->cached_guess = Vec3f(1, 0, 0);
         this->support_func_cached_guess.setZero();
         distance = -(std::numeric_limits<FCL_REAL>::max)();
@@ -457,7 +457,7 @@ struct COAL_DLLAPI GJKSolver {
       case details::GJK::Failed:
         //
         // GJK ran out of iterations.
-        HPP_FCL_LOG_WARNING("GJK ran out of iterations.");
+        COAL_LOG_WARNING("GJK ran out of iterations.");
         GJKExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
         break;
       case details::GJK::NoCollisionEarlyStopped:
@@ -467,11 +467,11 @@ struct COAL_DLLAPI GJKSolver {
         // The two witness points have no meaning.
         GJKEarlyStopExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                   normal);
-        HPP_FCL_ASSERT(distance >= this->gjk.distance_upper_bound -
-                                       this->m_dummy_precision,
-                       "The distance should be bigger than GJK's "
-                       "`distance_upper_bound`.",
-                       std::logic_error);
+        COAL_ASSERT(distance >= this->gjk.distance_upper_bound -
+                                    this->m_dummy_precision,
+                    "The distance should be bigger than GJK's "
+                    "`distance_upper_bound`.",
+                    std::logic_error);
         break;
       case details::GJK::NoCollision:
         //
@@ -479,18 +479,18 @@ struct COAL_DLLAPI GJKSolver {
         // collision, i.e their distance is above GJK's tolerance (default
         // 1e-6).
         GJKExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
-        HPP_FCL_ASSERT(std::abs((p1 - p2).norm() - distance) <=
-                           this->gjk.getTolerance() + this->m_dummy_precision,
-                       "The distance found by GJK should coincide with the "
-                       "distance between the closest points.",
-                       std::logic_error);
+        COAL_ASSERT(std::abs((p1 - p2).norm() - distance) <=
+                        this->gjk.getTolerance() + this->m_dummy_precision,
+                    "The distance found by GJK should coincide with the "
+                    "distance between the closest points.",
+                    std::logic_error);
         break;
       //
       // Next are the cases where GJK found the shapes to be in collision, i.e.
       // their distance is below GJK's tolerance (default 1e-6).
       case details::GJK::CollisionWithPenetrationInformation:
         GJKExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
-        HPP_FCL_ASSERT(
+        COAL_ASSERT(
             distance <= this->gjk.getTolerance() + this->m_dummy_precision,
             "The distance found by GJK should be negative or at "
             "least below GJK's tolerance.",
@@ -522,27 +522,27 @@ struct COAL_DLLAPI GJKSolver {
             // EPA either ran out of iterations, of faces or of vertices.
             // The depth, witness points and the normal are still valid,
             // simply not at the precision of EPA's tolerance.
-            // The flag `HPP_FCL_ENABLE_LOGGING` enables feebdack on these
+            // The flag `COAL_ENABLE_LOGGING` enables feebdack on these
             // cases.
             //
             // TODO: Remove OutOfFaces and OutOfVertices statuses and simply
             // compute the upper bound on max faces and max vertices as a
             // function of the number of iterations.
             case details::EPA::OutOfFaces:
-              HPP_FCL_LOG_WARNING("EPA ran out of faces.");
+              COAL_LOG_WARNING("EPA ran out of faces.");
               EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               break;
             case details::EPA::OutOfVertices:
-              HPP_FCL_LOG_WARNING("EPA ran out of vertices.");
+              COAL_LOG_WARNING("EPA ran out of vertices.");
               EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               break;
             case details::EPA::Failed:
-              HPP_FCL_LOG_WARNING("EPA ran out of iterations.");
+              COAL_LOG_WARNING("EPA ran out of iterations.");
               EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               break;
             case details::EPA::Valid:
             case details::EPA::AccuracyReached:
-              HPP_FCL_ASSERT(
+              COAL_ASSERT(
                   -epa.depth <= epa.getTolerance() + this->m_dummy_precision,
                   "EPA's penetration distance should be negative (or "
                   "at least below EPA's tolerance).",
@@ -550,32 +550,32 @@ struct COAL_DLLAPI GJKSolver {
               EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               break;
             case details::EPA::Degenerated:
-              HPP_FCL_LOG_WARNING(
+              COAL_LOG_WARNING(
                   "EPA warning: created a polytope with a degenerated face.");
               EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               break;
             case details::EPA::NonConvex:
-              HPP_FCL_LOG_WARNING(
+              COAL_LOG_WARNING(
                   "EPA warning: EPA got called onto non-convex shapes.");
               EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               break;
             case details::EPA::InvalidHull:
-              HPP_FCL_LOG_WARNING("EPA warning: created an invalid polytope.");
+              COAL_LOG_WARNING("EPA warning: created an invalid polytope.");
               EPAExtractWitnessPointsAndNormal(tf1, distance, p1, p2, normal);
               break;
             case details::EPA::DidNotRun:
-              HPP_FCL_ASSERT(false, "EPA did not run. It should have!",
-                             std::logic_error);
-              HPP_FCL_LOG_ERROR("EPA error: did not run. It should have.");
+              COAL_ASSERT(false, "EPA did not run. It should have!",
+                          std::logic_error);
+              COAL_LOG_ERROR("EPA error: did not run. It should have.");
               EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                      normal);
               break;
             case details::EPA::FallBack:
-              HPP_FCL_ASSERT(
+              COAL_ASSERT(
                   false,
                   "EPA went into fallback mode. It should never do that.",
                   std::logic_error);
-              HPP_FCL_LOG_ERROR("EPA error: FallBack.");
+              COAL_LOG_ERROR("EPA error: FallBack.");
               EPAFailedExtractWitnessPointsAndNormal(tf1, distance, p1, p2,
                                                      normal);
               break;
@@ -589,7 +589,7 @@ struct COAL_DLLAPI GJKSolver {
                                                  FCL_REAL& distance, Vec3f& p1,
                                                  Vec3f& p2,
                                                  Vec3f& normal) const {
-    HPP_FCL_UNUSED_VARIABLE(tf1);
+    COAL_UNUSED_VARIABLE(tf1);
     // Cache gjk result for potential future call to this GJKSolver.
     this->cached_guess = this->gjk.ray;
     this->support_func_cached_guess = this->gjk.support_hint;
@@ -615,11 +615,10 @@ struct COAL_DLLAPI GJKSolver {
     // 2. GJK ran out of iterations.
     // In any case, `gjk.ray`'s norm is bigger than GJK's tolerance and thus
     // it can safely be normalized.
-    HPP_FCL_ASSERT(
-        this->gjk.ray.norm() >
-            this->gjk.getTolerance() - this->m_dummy_precision,
-        "The norm of GJK's ray should be bigger than GJK's tolerance.",
-        std::logic_error);
+    COAL_ASSERT(this->gjk.ray.norm() >
+                    this->gjk.getTolerance() - this->m_dummy_precision,
+                "The norm of GJK's ray should be bigger than GJK's tolerance.",
+                std::logic_error);
     // Cache gjk result for potential future call to this GJKSolver.
     this->cached_guess = this->gjk.ray;
     this->support_func_cached_guess = this->gjk.support_hint;
@@ -638,11 +637,11 @@ struct COAL_DLLAPI GJKSolver {
                                                  FCL_REAL& distance, Vec3f& p1,
                                                  Vec3f& p2,
                                                  Vec3f& normal) const {
-    HPP_FCL_UNUSED_VARIABLE(tf1);
-    HPP_FCL_ASSERT(this->gjk.distance <=
-                       this->gjk.getTolerance() + this->m_dummy_precision,
-                   "The distance should be lower than GJK's tolerance.",
-                   std::logic_error);
+    COAL_UNUSED_VARIABLE(tf1);
+    COAL_ASSERT(this->gjk.distance <=
+                    this->gjk.getTolerance() + this->m_dummy_precision,
+                "The distance should be lower than GJK's tolerance.",
+                std::logic_error);
     // Because GJK has returned the `Collision` status and EPA has not run,
     // we purposefully do not cache the result of GJK, because ray is zero.
     // However, we can cache the support function hint.
@@ -715,7 +714,7 @@ struct COAL_DLLAPI GJKSolver {
     this->cached_guess = Vec3f(1, 0, 0);
     this->support_func_cached_guess.setZero();
 
-    HPP_FCL_UNUSED_VARIABLE(tf1);
+    COAL_UNUSED_VARIABLE(tf1);
     distance = -(std::numeric_limits<FCL_REAL>::max)();
     p1 = p2 = normal =
         Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());

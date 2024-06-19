@@ -98,7 +98,7 @@ ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
       }
     }
     default:
-      HPP_FCL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
+      COAL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
   }
 }
 

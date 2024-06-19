@@ -79,8 +79,8 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
   const CollisionFunctionMatrix& looktable = getCollisionFunctionLookTable();
   std::size_t res;
   if (request.num_max_contacts == 0) {
-    HPP_FCL_THROW_PRETTY("Invalid number of max contacts (current value is 0).",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Invalid number of max contacts (current value is 0).",
+                      std::invalid_argument);
     res = 0;
   } else {
     OBJECT_TYPE object_type1 = o1->getObjectType();
@@ -91,12 +91,12 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
     if (object_type1 == OT_GEOM &&
         (object_type2 == OT_BVH || object_type2 == OT_HFIELD)) {
       if (!looktable.collision_matrix[node_type2][node_type1]) {
-        HPP_FCL_THROW_PRETTY("Collision function between node type "
-                                 << std::string(get_node_type_name(node_type1))
-                                 << " and node type "
-                                 << std::string(get_node_type_name(node_type2))
-                                 << " is not yet supported.",
-                             std::invalid_argument);
+        COAL_THROW_PRETTY("Collision function between node type "
+                              << std::string(get_node_type_name(node_type1))
+                              << " and node type "
+                              << std::string(get_node_type_name(node_type2))
+                              << " is not yet supported.",
+                          std::invalid_argument);
         res = 0;
       } else {
         res = looktable.collision_matrix[node_type2][node_type1](
@@ -107,12 +107,12 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
       }
     } else {
       if (!looktable.collision_matrix[node_type1][node_type2]) {
-        HPP_FCL_THROW_PRETTY("Collision function between node type "
-                                 << std::string(get_node_type_name(node_type1))
-                                 << " and node type "
-                                 << std::string(get_node_type_name(node_type2))
-                                 << " is not yet supported.",
-                             std::invalid_argument);
+        COAL_THROW_PRETTY("Collision function between node type "
+                              << std::string(get_node_type_name(node_type1))
+                              << " and node type "
+                              << std::string(get_node_type_name(node_type2))
+                              << " is not yet supported.",
+                          std::invalid_argument);
         res = 0;
       } else
         res = looktable.collision_matrix[node_type1][node_type2](
@@ -143,12 +143,12 @@ ComputeCollision::ComputeCollision(const CollisionGeometry* o1,
 
   if ((swap_geoms && !looktable.collision_matrix[node_type2][node_type1]) ||
       (!swap_geoms && !looktable.collision_matrix[node_type1][node_type2])) {
-    HPP_FCL_THROW_PRETTY("Collision function between node type "
-                             << std::string(get_node_type_name(node_type1))
-                             << " and node type "
-                             << std::string(get_node_type_name(node_type2))
-                             << " is not yet supported.",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Collision function between node type "
+                          << std::string(get_node_type_name(node_type1))
+                          << " and node type "
+                          << std::string(get_node_type_name(node_type2))
+                          << " is not yet supported.",
+                      std::invalid_argument);
   }
   if (swap_geoms)
     func = looktable.collision_matrix[node_type2][node_type1];

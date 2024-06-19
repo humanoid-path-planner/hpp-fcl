@@ -42,21 +42,20 @@ namespace coal {
 
 void checkResultLowerBound(const CollisionResult& result,
                            FCL_REAL sqrDistLowerBound) {
-  HPP_FCL_UNUSED_VARIABLE(result);
+  COAL_UNUSED_VARIABLE(result);
   const FCL_REAL dummy_precision =
       std::sqrt(Eigen::NumTraits<FCL_REAL>::epsilon());
-  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+  COAL_UNUSED_VARIABLE(dummy_precision);
   if (sqrDistLowerBound == 0) {
-    HPP_FCL_ASSERT(result.distance_lower_bound <= dummy_precision,
-                   "Distance lower bound should not be positive.",
-                   std::logic_error);
+    COAL_ASSERT(result.distance_lower_bound <= dummy_precision,
+                "Distance lower bound should not be positive.",
+                std::logic_error);
   } else {
-    HPP_FCL_ASSERT(
-        result.distance_lower_bound * result.distance_lower_bound -
-                sqrDistLowerBound <
-            dummy_precision,
-        "Distance lower bound and sqrDistLowerBound should coincide.",
-        std::logic_error);
+    COAL_ASSERT(result.distance_lower_bound * result.distance_lower_bound -
+                        sqrDistLowerBound <
+                    dummy_precision,
+                "Distance lower bound and sqrDistLowerBound should coincide.",
+                std::logic_error);
   }
 }
 

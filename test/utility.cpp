@@ -181,7 +181,7 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points,
   os.close();
 }
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 OcTree loadOctreeFile(const std::string& filename, const FCL_REAL& resolution) {
   octomap::OcTreePtr_t octree(new octomap::OcTree(filename));
   if (octree->getResolution() != resolution) {
@@ -606,10 +606,10 @@ Halfspace makeRandomHalfspace(FCL_REAL min_size, FCL_REAL max_size) {
 std::shared_ptr<ShapeBase> makeRandomGeometry(NODE_TYPE node_type) {
   switch (node_type) {
     case GEOM_TRIANGLE:
-      HPP_FCL_THROW_PRETTY(std::string(HPP_FCL_PRETTY_FUNCTION) + " for " +
-                               std::string(get_node_type_name(node_type)) +
-                               " is not yet implemented.",
-                           std::invalid_argument);
+      COAL_THROW_PRETTY(std::string(COAL_PRETTY_FUNCTION) + " for " +
+                            std::string(get_node_type_name(node_type)) +
+                            " is not yet implemented.",
+                        std::invalid_argument);
       break;
     case GEOM_BOX:
       return std::make_shared<Box>(makeRandomBox(0.1, 1.0));
@@ -641,9 +641,9 @@ std::shared_ptr<ShapeBase> makeRandomGeometry(NODE_TYPE node_type) {
       return std::make_shared<Halfspace>(makeRandomHalfspace(0.1, 1.0));
       break;
     default:
-      HPP_FCL_THROW_PRETTY(std::string(get_node_type_name(node_type)) +
-                               " is not a primitive shape.",
-                           std::invalid_argument);
+      COAL_THROW_PRETTY(std::string(get_node_type_name(node_type)) +
+                            " is not a primitive shape.",
+                        std::invalid_argument);
       break;
   }
 }

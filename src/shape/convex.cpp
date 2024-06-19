@@ -1,6 +1,6 @@
 #include "coal/shape/convex.h"
 
-#ifdef HPP_FCL_HAS_QHULL
+#ifdef COAL_HAS_QHULL
 #include <libqhullcpp/QhullError.h>
 #include <libqhullcpp/QhullFacet.h>
 #include <libqhullcpp/QhullLinkedList.h>
@@ -44,19 +44,19 @@ void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
 ConvexBase* ConvexBase::convexHull(std::shared_ptr<std::vector<Vec3f>>& pts,
                                    unsigned int num_points, bool keepTriangles,
                                    const char* qhullCommand) {
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   return ConvexBase::convexHull(pts->data(), num_points, keepTriangles,
                                 qhullCommand);
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 }
 
 ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
                                    bool keepTriangles,
                                    const char* qhullCommand) {
-#ifdef HPP_FCL_HAS_QHULL
+#ifdef COAL_HAS_QHULL
   if (num_points <= 3) {
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "You shouldn't use this function with less than"
         " 4 points.",
         std::invalid_argument);
@@ -70,7 +70,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
 
   if (qh.qhullStatus() != qh_ERRnone) {
     if (qh.hasQhullMessage()) std::cerr << qh.qhullMessage() << std::endl;
-    HPP_FCL_THROW_PRETTY("Qhull failed", std::logic_error);
+    COAL_THROW_PRETTY("Qhull failed", std::logic_error);
   }
 
   typedef std::size_t index_type;
@@ -143,7 +143,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
       }
     } else {
       if (keepTriangles) {  // TODO I think there is a memory leak here.
-        HPP_FCL_THROW_PRETTY(
+        COAL_THROW_PRETTY(
             "You requested to keep triangles so you "
             "must pass option \"Qt\" to qhull via the qhull command argument.",
             std::invalid_argument);
@@ -183,7 +183,7 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   for (size_t i = 0; i < static_cast<size_t>(nvertex); ++i) {
     Neighbors& n = neighbors_[i];
     if (nneighbors[i].size() >= (std::numeric_limits<unsigned char>::max)())
-      HPP_FCL_THROW_PRETTY("Too many neighbors.", std::logic_error);
+      COAL_THROW_PRETTY("Too many neighbors.", std::logic_error);
     n.count_ = (unsigned char)nneighbors[i].size();
     n.n_ = p_nneighbors;
     p_nneighbors =
@@ -196,20 +196,20 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
   convex->buildSupportWarmStart();
   return convex;
 #else
-  HPP_FCL_THROW_PRETTY(
+  COAL_THROW_PRETTY(
       "Library built without qhull. Cannot build object of this type.",
       std::logic_error);
-  HPP_FCL_UNUSED_VARIABLE(pts);
-  HPP_FCL_UNUSED_VARIABLE(num_points);
-  HPP_FCL_UNUSED_VARIABLE(keepTriangles);
-  HPP_FCL_UNUSED_VARIABLE(qhullCommand);
+  COAL_UNUSED_VARIABLE(pts);
+  COAL_UNUSED_VARIABLE(num_points);
+  COAL_UNUSED_VARIABLE(keepTriangles);
+  COAL_UNUSED_VARIABLE(qhullCommand);
 #endif
 }
 
-#ifdef HPP_FCL_HAS_QHULL
+#ifdef COAL_HAS_QHULL
 void ConvexBase::buildDoubleDescription() {
   if (num_points <= 3) {
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "You shouldn't use this function with a convex less than"
         " 4 points.",
         std::invalid_argument);
@@ -222,7 +222,7 @@ void ConvexBase::buildDoubleDescription() {
 
   if (qh.qhullStatus() != qh_ERRnone) {
     if (qh.hasQhullMessage()) std::cerr << qh.qhullMessage() << std::endl;
-    HPP_FCL_THROW_PRETTY("Qhull failed", std::logic_error);
+    COAL_THROW_PRETTY("Qhull failed", std::logic_error);
   }
 
   buildDoubleDescriptionFromQHullResult(qh);

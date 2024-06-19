@@ -54,7 +54,7 @@
 #include "pickle.hh"
 #include "serializable.hh"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 // FIXME for a reason I do not understand, doxygen fails to understand that
 // BV_splitter is not defined in hpp/fcl/BVH/BVH_model.h
 #include "coal/internal/BV_splitter.h"

@@ -216,8 +216,8 @@ struct COAL_DLLAPI QueryRequest {
   /// @brief threshold below which a collision is considered.
   FCL_REAL collision_distance_threshold;
 
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// @brief Default constructor.
   QueryRequest()
       : gjk_initial_guess(GJKInitialGuess::DefaultGuess),
@@ -240,7 +240,7 @@ struct COAL_DLLAPI QueryRequest {
 
   /// @brief Copy  assignment operator.
   QueryRequest& operator=(const QueryRequest& other) = default;
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 
   /// @brief Updates the guess for the internal GJK algorithm in order to
   /// warm-start it when reusing this collision request on the same collision
@@ -251,8 +251,8 @@ struct COAL_DLLAPI QueryRequest {
 
   /// @brief whether two QueryRequest are the same or not
   inline bool operator==(const QueryRequest& other) const {
-    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+    COAL_COMPILER_DIAGNOSTIC_PUSH
+    COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return gjk_initial_guess == other.gjk_initial_guess &&
            enable_cached_gjk_guess == other.enable_cached_gjk_guess &&
            gjk_variant == other.gjk_variant &&
@@ -267,7 +267,7 @@ struct COAL_DLLAPI QueryRequest {
            epa_tolerance == other.epa_tolerance &&
            enable_timings == other.enable_timings &&
            collision_distance_threshold == other.collision_distance_threshold;
-    HPP_FCL_COMPILER_DIAGNOSTIC_POP
+    COAL_COMPILER_DIAGNOSTIC_POP
   }
 };
 
@@ -288,14 +288,14 @@ struct COAL_DLLAPI QueryResult {
 };
 
 inline void QueryRequest::updateGuess(const QueryResult& result) const {
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   if (gjk_initial_guess == GJKInitialGuess::CachedGuess ||
       enable_cached_gjk_guess) {
     cached_gjk_guess = result.cached_gjk_guess;
     cached_support_func_guess = result.cached_support_func_guess;
   }
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 }
 
 struct CollisionResult;
@@ -344,8 +344,8 @@ struct COAL_DLLAPI CollisionRequest : QueryRequest {
   /// @param[in] flag Collision request flag
   /// @param[in] num_max_contacts  Maximal number of allowed contacts
   ///
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   CollisionRequest(const CollisionRequestFlag flag, size_t num_max_contacts_)
       : num_max_contacts(num_max_contacts_),
         enable_contact(flag & CONTACT),
@@ -362,14 +362,14 @@ struct COAL_DLLAPI CollisionRequest : QueryRequest {
         security_margin(0),
         break_distance(1e-3),
         distance_upper_bound((std::numeric_limits<FCL_REAL>::max)()) {}
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 
   bool isSatisfied(const CollisionResult& result) const;
 
   /// @brief whether two CollisionRequest are the same or not
   inline bool operator==(const CollisionRequest& other) const {
-    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+    COAL_COMPILER_DIAGNOSTIC_PUSH
+    COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return QueryRequest::operator==(other) &&
            num_max_contacts == other.num_max_contacts &&
            enable_contact == other.enable_contact &&
@@ -377,7 +377,7 @@ struct COAL_DLLAPI CollisionRequest : QueryRequest {
            security_margin == other.security_margin &&
            break_distance == other.break_distance &&
            distance_upper_bound == other.distance_upper_bound;
-    HPP_FCL_COMPILER_DIAGNOSTIC_POP
+    COAL_COMPILER_DIAGNOSTIC_POP
   }
 };
 
@@ -447,7 +447,7 @@ struct COAL_DLLAPI CollisionResult : QueryResult {
   /// @brief get the i-th contact calculated
   const Contact& getContact(size_t i) const {
     if (contacts.size() == 0)
-      HPP_FCL_THROW_PRETTY(
+      COAL_THROW_PRETTY(
           "The number of contacts is zero. No Contact can be returned.",
           std::invalid_argument);
 
@@ -460,7 +460,7 @@ struct COAL_DLLAPI CollisionResult : QueryResult {
   /// @brief set the i-th contact calculated
   void setContact(size_t i, const Contact& c) {
     if (contacts.size() == 0)
-      HPP_FCL_THROW_PRETTY(
+      COAL_THROW_PRETTY(
           "The number of contacts is zero. No Contact can be returned.",
           std::invalid_argument);
 
@@ -619,8 +619,7 @@ struct COAL_DLLAPI ContactPatch {
 
   /// @brief Getter for the i-th 2D point in the set.
   Vec2f& point(const size_t i) {
-    HPP_FCL_ASSERT(this->m_points.size() > 0, "Patch is empty.",
-                   std::logic_error);
+    COAL_ASSERT(this->m_points.size() > 0, "Patch is empty.", std::logic_error);
     if (i < this->m_points.size()) {
       return this->m_points[i];
     }
@@ -629,8 +628,7 @@ struct COAL_DLLAPI ContactPatch {
 
   /// @brief Const getter for the i-th 2D point in the set.
   const Vec2f& point(const size_t i) const {
-    HPP_FCL_ASSERT(this->m_points.size() > 0, "Patch is empty.",
-                   std::logic_error);
+    COAL_ASSERT(this->m_points.size() > 0, "Patch is empty.", std::logic_error);
     if (i < this->m_points.size()) {
       return this->m_points[i];
     }
@@ -781,7 +779,7 @@ struct COAL_DLLAPI ContactPatchRequest {
   /// @copydoc m_num_samples_curved_shapes
   void setNumSamplesCurvedShapes(const size_t num_samples_curved_shapes) {
     if (num_samples_curved_shapes < 3) {
-      HPP_FCL_LOG_WARNING(
+      COAL_LOG_WARNING(
           "`num_samples_curved_shapes` cannot be lower than 3. Setting it to "
           "3 to prevent bugs.");
       this->m_num_samples_curved_shapes = 3;
@@ -798,7 +796,7 @@ struct COAL_DLLAPI ContactPatchRequest {
   /// @copydoc m_patch_tolerance
   void setPatchTolerance(const FCL_REAL patch_tolerance) {
     if (patch_tolerance < 0) {
-      HPP_FCL_LOG_WARNING(
+      COAL_LOG_WARNING(
           "`patch_tolerance` cannot be negative. Setting it to 0 to prevent "
           "bugs.");
       this->m_patch_tolerance = Eigen::NumTraits<FCL_REAL>::dummy_precision();
@@ -862,7 +860,7 @@ struct COAL_DLLAPI ContactPatchResult {
   /// @brief Returns a new unused contact patch from the internal data vector.
   ContactPatchRef getUnusedContactPatch() {
     if (this->m_id_available_patch >= this->m_contact_patches_data.size()) {
-      HPP_FCL_LOG_WARNING(
+      COAL_LOG_WARNING(
           "Trying to get an unused contact patch but all contact patches are "
           "used. Increasing size of contact patches vector, at the cost of a "
           "copy. You should increase `max_num_patch` in the "
@@ -882,7 +880,7 @@ struct COAL_DLLAPI ContactPatchResult {
   /// @brief Const getter for the i-th contact patch of the result.
   const ContactPatch& getContactPatch(const size_t i) const {
     if (this->m_contact_patches.empty()) {
-      HPP_FCL_THROW_PRETTY(
+      COAL_THROW_PRETTY(
           "The number of contact patches is zero. No ContactPatch can be "
           "returned.",
           std::invalid_argument);
@@ -896,7 +894,7 @@ struct COAL_DLLAPI ContactPatchResult {
   /// @brief Getter for the i-th contact patch of the result.
   ContactPatch& contactPatch(const size_t i) {
     if (this->m_contact_patches.empty()) {
-      HPP_FCL_THROW_PRETTY(
+      COAL_THROW_PRETTY(
           "The number of contact patches is zero. No ContactPatch can be "
           "returned.",
           std::invalid_argument);
@@ -1018,8 +1016,8 @@ struct COAL_DLLAPI DistanceRequest : QueryRequest {
   /// \param enable_signed_distance_ allows to compute the penetration depth
   /// \param rel_err_
   /// \param abs_err_
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   DistanceRequest(bool enable_nearest_points_ = true,
                   bool enable_signed_distance_ = true, FCL_REAL rel_err_ = 0.0,
                   FCL_REAL abs_err_ = 0.0)
@@ -1027,24 +1025,24 @@ struct COAL_DLLAPI DistanceRequest : QueryRequest {
         enable_signed_distance(enable_signed_distance_),
         rel_err(rel_err_),
         abs_err(abs_err_) {}
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 
   bool isSatisfied(const DistanceResult& result) const;
 
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   DistanceRequest& operator=(const DistanceRequest& other) = default;
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 
   /// @brief whether two DistanceRequest are the same or not
   inline bool operator==(const DistanceRequest& other) const {
-    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-    HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+    COAL_COMPILER_DIAGNOSTIC_PUSH
+    COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     return QueryRequest::operator==(other) &&
            enable_nearest_points == other.enable_nearest_points &&
            enable_signed_distance == other.enable_signed_distance &&
            rel_err == other.rel_err && abs_err == other.abs_err;
-    HPP_FCL_COMPILER_DIAGNOSTIC_POP
+    COAL_COMPILER_DIAGNOSTIC_POP
   }
 };
 

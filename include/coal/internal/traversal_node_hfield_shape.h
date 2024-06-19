@@ -171,7 +171,7 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   assert(max_height > min_height &&
          "max_height is lower than min_height");  // Check whether the geometry
                                                   // is degenerated
-  HPP_FCL_UNUSED_VARIABLE(max_height);
+  COAL_UNUSED_VARIABLE(max_height);
 
   {
     std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
@@ -363,8 +363,7 @@ bool binCorrection(const Convex<Polygone>& convex,
   // We correct only if there is a collision with the bin
   if (is_collision) {
     if (!face_triangle.isValid())
-      HPP_FCL_THROW_PRETTY("face_triangle is not initialized",
-                           std::logic_error);
+      COAL_THROW_PRETTY("face_triangle is not initialized", std::logic_error);
 
     const Vec3f face_pointA = points[face_triangle[0]];
     face_normal = computeTriangleNormal(face_triangle, points);

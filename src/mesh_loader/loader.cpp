@@ -39,7 +39,7 @@
 
 #include <boost/filesystem.hpp>
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 #include "coal/octree.h"
 #endif
 
@@ -84,19 +84,18 @@ BVHModelPtr_t MeshLoader::load(const std::string& filename,
     case BV_KDOP24:
       return _load<KDOP<24> >(filename, scale);
     default:
-      HPP_FCL_THROW_PRETTY("Unhandled bouding volume type.",
-                           std::invalid_argument);
+      COAL_THROW_PRETTY("Unhandled bouding volume type.",
+                        std::invalid_argument);
   }
 }
 
 CollisionGeometryPtr_t MeshLoader::loadOctree(const std::string& filename) {
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
   shared_ptr<octomap::OcTree> octree(new octomap::OcTree(filename));
   return CollisionGeometryPtr_t(new coal::OcTree(octree));
 #else
-  HPP_FCL_THROW_PRETTY(
-      "hpp-fcl compiled without OctoMap. Cannot create OcTrees.",
-      std::logic_error);
+  COAL_THROW_PRETTY("hpp-fcl compiled without OctoMap. Cannot create OcTrees.",
+                    std::logic_error);
 #endif
 }
 

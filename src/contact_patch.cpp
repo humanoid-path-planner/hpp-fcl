@@ -69,12 +69,12 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
   if (object_type1 == OT_GEOM &&
       (object_type2 == OT_BVH || object_type2 == OT_HFIELD)) {
     if (!looktable.contact_patch_matrix[node_type2][node_type1]) {
-      HPP_FCL_THROW_PRETTY("Computing contact patches between node type "
-                               << std::string(get_node_type_name(node_type1))
-                               << " and node type "
-                               << std::string(get_node_type_name(node_type2))
-                               << " is not yet supported.",
-                           std::invalid_argument);
+      COAL_THROW_PRETTY("Computing contact patches between node type "
+                            << std::string(get_node_type_name(node_type1))
+                            << " and node type "
+                            << std::string(get_node_type_name(node_type2))
+                            << " is not yet supported.",
+                        std::invalid_argument);
     }
     looktable.contact_patch_matrix[node_type2][node_type1](
         o2, tf2, o1, tf1, collision_result, &csolver, request, result);
@@ -83,12 +83,12 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
   }
 
   if (!looktable.contact_patch_matrix[node_type1][node_type2]) {
-    HPP_FCL_THROW_PRETTY("Contact patch computation between node type "
-                             << std::string(get_node_type_name(node_type1))
-                             << " and node type "
-                             << std::string(get_node_type_name(node_type2))
-                             << " is not yet supported.",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Contact patch computation between node type "
+                          << std::string(get_node_type_name(node_type1))
+                          << " and node type "
+                          << std::string(get_node_type_name(node_type2))
+                          << " is not yet supported.",
+                      std::invalid_argument);
   }
 
   return looktable.contact_patch_matrix[node_type1][node_type2](
@@ -121,12 +121,12 @@ ComputeContactPatch::ComputeContactPatch(const CollisionGeometry* o1,
        !looktable.contact_patch_matrix[node_type2][node_type1]) ||
       (!this->swap_geoms &&
        !looktable.contact_patch_matrix[node_type1][node_type2])) {
-    HPP_FCL_THROW_PRETTY("Collision function between node type "
-                             << std::string(get_node_type_name(node_type1))
-                             << " and node type "
-                             << std::string(get_node_type_name(node_type2))
-                             << " is not yet supported.",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Collision function between node type "
+                          << std::string(get_node_type_name(node_type1))
+                          << " and node type "
+                          << std::string(get_node_type_name(node_type2))
+                          << " is not yet supported.",
+                      std::invalid_argument);
   }
 
   if (this->swap_geoms) {

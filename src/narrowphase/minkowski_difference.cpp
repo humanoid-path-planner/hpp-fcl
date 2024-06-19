@@ -150,7 +150,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
       }
     }
     default:
-      HPP_FCL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
+      COAL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
   }
 }
 
@@ -220,7 +220,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
       break;
     }
     default:
-      HPP_FCL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
+      COAL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
   }
 }
 
@@ -252,7 +252,7 @@ bool getNormalizeSupportDirection(const ShapeBase* shape) {
       return (bool)shape_traits<ConvexBase>::NeedNesterovNormalizeHeuristic;
       break;
     default:
-      HPP_FCL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
+      COAL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
   }
 }
 

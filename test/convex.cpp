@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(compare_convex_box) {
   }
 }
 
-#ifdef HPP_FCL_HAS_QHULL
+#ifdef COAL_HAS_QHULL
 BOOST_AUTO_TEST_CASE(convex_hull_throw) {
   std::shared_ptr<std::vector<Vec3f>> points(
       new std::vector<Vec3f>({Vec3f(1, 1, 1), Vec3f(0, 0, 0), Vec3f(1, 0, 0)}));

@@ -49,7 +49,7 @@
 // #include <hpp/fcl/internal/traversal_node_hfields.h>
 #include "coal/internal/traversal_node_hfield_shape.h"
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 #include "coal/internal/traversal_node_octree.h"
 #endif
 
@@ -57,7 +57,7 @@
 
 namespace coal {
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 /// @brief Initialize traversal node for collision between two octrees, given
 /// current object transform
 inline bool initialize(OcTreeCollisionTraversalNode& node, const OcTree& model1,
@@ -333,7 +333,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
                 CollisionResult& result, bool use_refit = false,
                 bool refit_bottomup = false) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
@@ -380,7 +380,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, 0>& node,
                 const S& model2, const Transform3f& tf2,
                 const GJKSolver* nsolver, CollisionResult& result) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
@@ -438,7 +438,7 @@ static inline bool setupShapeMeshCollisionOrientedNode(
     const BVHModel<BV>& model2, const Transform3f& tf2,
     const GJKSolver* nsolver, CollisionResult& result) {
   if (model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
@@ -470,11 +470,11 @@ bool initialize(
     Transform3f& tf2, CollisionResult& result, bool use_refit = false,
     bool refit_bottomup = false) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
   if (model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
@@ -534,11 +534,11 @@ bool initialize(MeshCollisionTraversalNode<BV, 0>& node,
                 const BVHModel<BV>& model2, const Transform3f& tf2,
                 CollisionResult& result) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
   if (model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
@@ -591,11 +591,11 @@ bool initialize(
     Transform3f& tf2, const DistanceRequest& request, DistanceResult& result,
     bool use_refit = false, bool refit_bottomup = false) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
   if (model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
@@ -657,11 +657,11 @@ bool initialize(MeshDistanceTraversalNode<BV, 0>& node,
                 const BVHModel<BV>& model2, const Transform3f& tf2,
                 const DistanceRequest& request, DistanceResult& result) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
   if (model2.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model2 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
@@ -701,7 +701,7 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
                 const DistanceRequest& request, DistanceResult& result,
                 bool use_refit = false, bool refit_bottomup = false) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 
@@ -748,7 +748,7 @@ static inline bool setupMeshShapeDistanceOrientedNode(
     const S& model2, const Transform3f& tf2, const GJKSolver* nsolver,
     const DistanceRequest& request, DistanceResult& result) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "model1 should be of type BVHModelType::BVH_MODEL_TRIANGLES.",
         std::invalid_argument)
 

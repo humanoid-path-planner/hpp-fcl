@@ -171,14 +171,14 @@ class COAL_DLLAPI KDOP {
 template <short N>
 bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
              const KDOP<N>& /*b2*/) {
-  HPP_FCL_THROW_PRETTY("not implemented", std::logic_error);
+  COAL_THROW_PRETTY("not implemented", std::logic_error);
 }
 
 template <short N>
 bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
              const KDOP<N>& /*b2*/, const CollisionRequest& /*request*/,
              FCL_REAL& /*sqrDistLowerBound*/) {
-  HPP_FCL_THROW_PRETTY("not implemented", std::logic_error);
+  COAL_THROW_PRETTY("not implemented", std::logic_error);
 }
 
 /// @brief translate the KDOP BV

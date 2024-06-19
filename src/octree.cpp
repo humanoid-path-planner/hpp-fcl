@@ -166,7 +166,7 @@ void OcTree::exportAsObjFile(const std::string& filename) const {
   std::ofstream os;
   os.open(filename);
   if (!os.is_open())
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         (std::string("failed to open file \"") + filename + std::string("\""))
             .c_str(),
         std::runtime_error);

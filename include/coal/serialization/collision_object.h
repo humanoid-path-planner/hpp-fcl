@@ -36,7 +36,7 @@ void load(Archive& ar, coal::CollisionGeometry& collision_geometry,
   collision_geometry.user_data = NULL;  // no way to recover this
 }
 
-HPP_FCL_SERIALIZATION_SPLIT(coal::CollisionGeometry)
+COAL_SERIALIZATION_SPLIT(coal::CollisionGeometry)
 
 }  // namespace serialization
 }  // namespace boost

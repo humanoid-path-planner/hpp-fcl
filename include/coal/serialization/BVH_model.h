@@ -2,8 +2,8 @@
 // Copyright (c) 2021-2022 INRIA
 //
 
-#ifndef HPP_FCL_SERIALIZATION_BVH_MODEL_H
-#define HPP_FCL_SERIALIZATION_BVH_MODEL_H
+#ifndef COAL_SERIALIZATION_BVH_MODEL_H
+#define COAL_SERIALIZATION_BVH_MODEL_H
 
 #include "coal/BVH/BVH_model.h"
 
@@ -32,7 +32,7 @@ void save(Archive &ar, const coal::BVHModelBase &bvh_model,
   if (!(bvh_model.build_state == BVH_BUILD_STATE_PROCESSED ||
         bvh_model.build_state == BVH_BUILD_STATE_UPDATED) &&
       (bvh_model.getModelType() == BVH_MODEL_TRIANGLES)) {
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         "The BVH model is not in a BVH_BUILD_STATE_PROCESSED or "
         "BVH_BUILD_STATE_UPDATED state.\n"
         "The BVHModel could not be serialized.",
@@ -86,7 +86,7 @@ void load(Archive &ar, coal::BVHModelBase &bvh_model,
   //      ar >> make_nvp("has_convex",has_convex);
 }
 
-HPP_FCL_SERIALIZATION_SPLIT(coal::BVHModelBase)
+COAL_SERIALIZATION_SPLIT(coal::BVHModelBase)
 
 namespace internal {
 template <typename BV>
@@ -238,13 +238,13 @@ struct memory_footprint_evaluator<::coal::BVHModel<BV>> {
 
 }  // namespace coal
 
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::AABB>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::OBB>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::RSS>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::OBBRSS>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::kIOS>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::KDOP<16>>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::KDOP<18>>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::KDOP<24>>)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::AABB>)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::OBB>)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::RSS>)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::OBBRSS>)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::kIOS>)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::KDOP<16>>)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::KDOP<18>>)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::BVHModel<::coal::KDOP<24>>)
 
 #endif  // ifndef COAL_SERIALIZATION_BVH_MODEL_H

@@ -65,7 +65,7 @@ void BroadPhaseContinuousCollisionManager::registerObjects(
 
 void BroadPhaseContinuousCollisionManager::update(
     ContinuousCollisionObject* updated_obj) {
-  HPP_FCL_UNUSED_VARIABLE(updated_obj);
+  COAL_UNUSED_VARIABLE(updated_obj);
 
   update();
 }
@@ -74,7 +74,7 @@ void BroadPhaseContinuousCollisionManager::update(
 
 void BroadPhaseContinuousCollisionManager::update(
     const std::vector<ContinuousCollisionObject*>& updated_objs) {
-  HPP_FCL_UNUSED_VARIABLE(updated_objs);
+  COAL_UNUSED_VARIABLE(updated_objs);
 
   update();
 }

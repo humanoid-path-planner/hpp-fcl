@@ -44,7 +44,7 @@
 
 #include "coal/collision.h"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/hpp/fcl/mesh_loader/loader.h"
 #endif
 
@@ -98,7 +98,7 @@ BOOST_PYTHON_MODULE(hppfcl) {
   exposeContactPatchAPI();
   exposeDistanceAPI();
   exposeGJK();
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
   exposeOctree();
 #endif
   exposeBroadPhase();

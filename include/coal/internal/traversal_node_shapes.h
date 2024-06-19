@@ -66,7 +66,7 @@ class COAL_DLLAPI ShapeCollisionTraversalNode
 
   /// @brief BV culling test in one BVTT node
   bool BVDisjoints(int, int, FCL_REAL&) const {
-    HPP_FCL_THROW_PRETTY("Not implemented", std::runtime_error);
+    COAL_THROW_PRETTY("Not implemented", std::runtime_error);
   }
 
   /// @brief Intersection testing between leaves (two shapes)

@@ -20,7 +20,7 @@ namespace coal {
 template <typename TypeA, typename TypeB>
 struct COAL_LOCAL TraversalTraitsCollision {};
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 
 template <typename T_SH>
 struct COAL_LOCAL TraversalTraitsCollision<T_SH, OcTree> {
@@ -64,7 +64,7 @@ struct COAL_LOCAL TraversalTraitsCollision<HeightField<T_HF>, OcTree> {
 template <typename TypeA, typename TypeB>
 struct COAL_LOCAL TraversalTraitsDistance {};
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 
 template <typename T_SH>
 struct COAL_LOCAL TraversalTraitsDistance<T_SH, OcTree> {

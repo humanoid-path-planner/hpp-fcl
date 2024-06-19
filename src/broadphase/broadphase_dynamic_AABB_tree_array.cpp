@@ -37,14 +37,14 @@
 
 #include "coal/broadphase/broadphase_dynamic_AABB_tree_array.h"
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
+#ifdef COAL_HAVE_OCTOMAP
 #include "coal/octree.h"
 #endif
 namespace coal {
 namespace detail {
 namespace dynamic_AABB_tree_array {
 
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
 
 //==============================================================================
 bool collisionRecurse_(
@@ -441,7 +441,7 @@ bool selfDistanceRecurse(
   return false;
 }
 
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
 
 //==============================================================================
 bool collisionRecurse(
@@ -617,7 +617,7 @@ void DynamicAABBTreeArrayCollisionManager::collide(
   callback->init();
   if (size() == 0) return;
   switch (obj->collisionGeometry()->getNodeType()) {
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
     case GEOM_OCTREE: {
       if (!octree_as_geometry_collide) {
         const OcTree* octree =
@@ -643,7 +643,7 @@ void DynamicAABBTreeArrayCollisionManager::distance(
   if (size() == 0) return;
   FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
   switch (obj->collisionGeometry()->getNodeType()) {
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
     case GEOM_OCTREE: {
       if (!octree_as_geometry_distance) {
         const OcTree* octree =

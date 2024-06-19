@@ -55,8 +55,8 @@ SimpleHashTable<Key, Data, HashFnc>::SimpleHashTable(const HashFnc& h) : h_(h) {
 template <typename Key, typename Data, typename HashFnc>
 void SimpleHashTable<Key, Data, HashFnc>::init(size_t size) {
   if (size == 0) {
-    HPP_FCL_THROW_PRETTY("SimpleHashTable must have non-zero size.",
-                         std::logic_error);
+    COAL_THROW_PRETTY("SimpleHashTable must have non-zero size.",
+                      std::logic_error);
   }
 
   table_.resize(size);

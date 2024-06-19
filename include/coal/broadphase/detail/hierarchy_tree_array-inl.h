@@ -297,9 +297,9 @@ bool HierarchyTree<BV>::update(size_t leaf, const BV& bv) {
 template <typename BV>
 bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vec3f& vel,
                                FCL_REAL margin) {
-  HPP_FCL_UNUSED_VARIABLE(bv);
-  HPP_FCL_UNUSED_VARIABLE(vel);
-  HPP_FCL_UNUSED_VARIABLE(margin);
+  COAL_UNUSED_VARIABLE(bv);
+  COAL_UNUSED_VARIABLE(vel);
+  COAL_UNUSED_VARIABLE(margin);
 
   if (nodes[leaf].bv.contain(bv)) return false;
   update_(leaf, bv);
@@ -309,7 +309,7 @@ bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vec3f& vel,
 //==============================================================================
 template <typename BV>
 bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vec3f& vel) {
-  HPP_FCL_UNUSED_VARIABLE(vel);
+  COAL_UNUSED_VARIABLE(vel);
 
   if (nodes[leaf].bv.contain(bv)) return false;
   update_(leaf, bv);
@@ -909,20 +909,20 @@ template <typename S, typename BV>
 struct SelectImpl {
   static bool run(size_t query, size_t node1, size_t node2,
                   NodeBase<BV>* nodes) {
-    HPP_FCL_UNUSED_VARIABLE(query);
-    HPP_FCL_UNUSED_VARIABLE(node1);
-    HPP_FCL_UNUSED_VARIABLE(node2);
-    HPP_FCL_UNUSED_VARIABLE(nodes);
+    COAL_UNUSED_VARIABLE(query);
+    COAL_UNUSED_VARIABLE(node1);
+    COAL_UNUSED_VARIABLE(node2);
+    COAL_UNUSED_VARIABLE(nodes);
 
     return 0;
   }
 
   static bool run(const BV& query, size_t node1, size_t node2,
                   NodeBase<BV>* nodes) {
-    HPP_FCL_UNUSED_VARIABLE(query);
-    HPP_FCL_UNUSED_VARIABLE(node1);
-    HPP_FCL_UNUSED_VARIABLE(node2);
-    HPP_FCL_UNUSED_VARIABLE(nodes);
+    COAL_UNUSED_VARIABLE(query);
+    COAL_UNUSED_VARIABLE(node1);
+    COAL_UNUSED_VARIABLE(node2);
+    COAL_UNUSED_VARIABLE(nodes);
 
     return 0;
   }

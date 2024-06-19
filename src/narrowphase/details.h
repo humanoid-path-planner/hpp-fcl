@@ -368,7 +368,7 @@ inline FCL_REAL halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
 
   const FCL_REAL dummy_precision =
       std::sqrt(Eigen::NumTraits<FCL_REAL>::dummy_precision());
-  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+  COAL_UNUSED_VARIABLE(dummy_precision);
   assert(new_h.distance(p1) <= dummy_precision);
   return dist;
 }
@@ -407,7 +407,7 @@ inline FCL_REAL planeDistance(const Plane& plane, const Transform3f& tf1,
 
   const FCL_REAL dummy_precision =
       std::sqrt(Eigen::NumTraits<FCL_REAL>::dummy_precision());
-  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+  COAL_UNUSED_VARIABLE(dummy_precision);
 
   FCL_REAL dist;
   if (dist1 >= dist2) {

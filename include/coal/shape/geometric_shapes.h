@@ -46,7 +46,7 @@
 #include "coal/collision_object.h"
 #include "coal/data_types.h"
 
-#ifdef HPP_FCL_HAS_QHULL
+#ifdef COAL_HAS_QHULL
 namespace orgQhull {
 class Qhull;
 }
@@ -75,8 +75,8 @@ class COAL_DLLAPI ShapeBase : public CollisionGeometry {
   /// Must be >= 0.
   void setSweptSphereRadius(FCL_REAL radius) {
     if (radius < 0) {
-      HPP_FCL_THROW_PRETTY("Swept-sphere radius must be positive.",
-                           std::invalid_argument);
+      COAL_THROW_PRETTY("Swept-sphere radius must be positive.",
+                        std::invalid_argument);
     }
     this->m_swept_sphere_radius = radius;
   }
@@ -211,10 +211,10 @@ class COAL_DLLAPI Box : public ShapeBase {
   /// change of shape frame
   std::pair<Box, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
-      HPP_FCL_THROW_PRETTY("value (" << value << ") "
-                                     << "is two small. It should be at least: "
-                                     << minInflationValue(),
-                           std::invalid_argument);
+      COAL_THROW_PRETTY("value (" << value << ") "
+                                  << "is two small. It should be at least: "
+                                  << minInflationValue(),
+                        std::invalid_argument);
     return std::make_pair(Box(2 * (halfSide + Vec3f::Constant(value))),
                           Transform3f());
   }
@@ -277,10 +277,10 @@ class COAL_DLLAPI Sphere : public ShapeBase {
   /// the change of shape frame
   std::pair<Sphere, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
-      HPP_FCL_THROW_PRETTY(
-          "value (" << value << ") is two small. It should be at least: "
-                    << minInflationValue(),
-          std::invalid_argument);
+      COAL_THROW_PRETTY("value (" << value
+                                  << ") is two small. It should be at least: "
+                                  << minInflationValue(),
+                        std::invalid_argument);
     return std::make_pair(Sphere(radius + value), Transform3f());
   }
 
@@ -351,10 +351,10 @@ class COAL_DLLAPI Ellipsoid : public ShapeBase {
   /// the change of shape frame
   std::pair<Ellipsoid, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
-      HPP_FCL_THROW_PRETTY(
-          "value (" << value << ") is two small. It should be at least: "
-                    << minInflationValue(),
-          std::invalid_argument);
+      COAL_THROW_PRETTY("value (" << value
+                                  << ") is two small. It should be at least: "
+                                  << minInflationValue(),
+                        std::invalid_argument);
     return std::make_pair(Ellipsoid(radii + Vec3f::Constant(value)),
                           Transform3f());
   }
@@ -436,10 +436,10 @@ class COAL_DLLAPI Capsule : public ShapeBase {
   /// the change of shape frame
   std::pair<Capsule, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
-      HPP_FCL_THROW_PRETTY(
-          "value (" << value << ") is two small. It should be at least: "
-                    << minInflationValue(),
-          std::invalid_argument);
+      COAL_THROW_PRETTY("value (" << value
+                                  << ") is two small. It should be at least: "
+                                  << minInflationValue(),
+                        std::invalid_argument);
     return std::make_pair(Capsule(radius + value, 2 * halfLength),
                           Transform3f());
   }
@@ -516,10 +516,10 @@ class COAL_DLLAPI Cone : public ShapeBase {
   /// change of shape frame
   std::pair<Cone, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
-      HPP_FCL_THROW_PRETTY(
-          "value (" << value << ") is two small. It should be at least: "
-                    << minInflationValue(),
-          std::invalid_argument);
+      COAL_THROW_PRETTY("value (" << value
+                                  << ") is two small. It should be at least: "
+                                  << minInflationValue(),
+                        std::invalid_argument);
 
     // tan(alpha) = 2*halfLength/radius;
     const FCL_REAL tan_alpha = 2 * halfLength / radius;
@@ -610,10 +610,10 @@ class COAL_DLLAPI Cylinder : public ShapeBase {
   /// the change of shape frame
   std::pair<Cylinder, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
-      HPP_FCL_THROW_PRETTY(
-          "value (" << value << ") is two small. It should be at least: "
-                    << minInflationValue(),
-          std::invalid_argument);
+      COAL_THROW_PRETTY("value (" << value
+                                  << ") is two small. It should be at least: "
+                                  << minInflationValue(),
+                        std::invalid_argument);
     return std::make_pair(Cylinder(radius + value, 2 * (halfLength + value)),
                           Transform3f());
   }
@@ -646,7 +646,7 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
   ///          "Qt". If \c NULL, "Qt" is passed to Qhull.
   ///        - if \c keepTriangles is \c false, an empty string is passed to
   ///          Qhull.
-  /// \note hpp-fcl must have been compiled with option \c HPP_FCL_HAS_QHULL set
+  /// \note hpp-fcl must have been compiled with option \c COAL_HAS_QHULL set
   ///       to \c ON.
   static ConvexBase* convexHull(std::shared_ptr<std::vector<Vec3f>>& points,
                                 unsigned int num_points, bool keepTriangles,
@@ -670,7 +670,7 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
   /// @brief Get node type: a convex polytope
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
-#ifdef HPP_FCL_HAS_QHULL
+#ifdef COAL_HAS_QHULL
   /// @brief Builds the double description of the convex polytope, i.e. the set
   /// of hyperplanes which intersection form the polytope.
   void buildDoubleDescription();
@@ -778,7 +778,7 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
   /// Only the list of neighbors is copied.
   ConvexBase(const ConvexBase& other);
 
-#ifdef HPP_FCL_HAS_QHULL
+#ifdef COAL_HAS_QHULL
   void buildDoubleDescriptionFromQHullResult(const orgQhull::Qhull& qh);
 #endif
 
@@ -937,10 +937,10 @@ class COAL_DLLAPI Halfspace : public ShapeBase {
   /// the change of shape frame
   std::pair<Halfspace, Transform3f> inflated(const FCL_REAL value) const {
     if (value <= minInflationValue())
-      HPP_FCL_THROW_PRETTY(
-          "value (" << value << ") is two small. It should be at least: "
-                    << minInflationValue(),
-          std::invalid_argument);
+      COAL_THROW_PRETTY("value (" << value
+                                  << ") is two small. It should be at least: "
+                                  << minInflationValue(),
+                        std::invalid_argument);
     return std::make_pair(Halfspace(n, d + value), Transform3f());
   }
 

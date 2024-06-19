@@ -73,8 +73,8 @@ void serialize(Archive &ar, coal::HeightField<BV> &hf_model,
 }  // namespace serialization
 }  // namespace boost
 
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::HeightField<::coal::AABB>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::HeightField<::coal::OBB>)
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::HeightField<::coal::OBBRSS>)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::HeightField<::coal::AABB>)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::HeightField<::coal::OBB>)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::HeightField<::coal::OBBRSS>)
 
 #endif  // ifndef COAL_SERIALIZATION_HFIELD_H

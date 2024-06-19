@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_COLLISION_NODE_H
-#define HPP_FCL_COLLISION_NODE_H
+#ifndef COAL_COLLISION_NODE_H
+#define COAL_COLLISION_NODE_H
 
 /// @cond INTERNAL
 

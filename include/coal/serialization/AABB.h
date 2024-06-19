@@ -20,4 +20,4 @@ void serialize(Archive& ar, coal::AABB& aabb, const unsigned int /*version*/) {
 }  // namespace serialization
 }  // namespace boost
 
-#endif  // ifndef HPP_FCL_SERIALIZATION_AABB_H
+#endif  // ifndef COAL_SERIALIZATION_AABB_H

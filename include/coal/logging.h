@@ -33,22 +33,22 @@
  */
 
 /// This file defines basic logging macros for HPP-FCL, based on Boost.Log.
-/// To enable logging, define the preprocessor macro `HPP_FCL_ENABLE_LOGGING`.
+/// To enable logging, define the preprocessor macro `COAL_ENABLE_LOGGING`.
 
 #ifndef COAL_LOGGING_H
 #define COAL_LOGGING_H
 
-#ifdef HPP_FCL_ENABLE_LOGGING
+#ifdef COAL_ENABLE_LOGGING
 #include <boost/log/trivial.hpp>
-#define HPP_FCL_LOG_INFO(message) BOOST_LOG_TRIVIAL(info) << message
-#define HPP_FCL_LOG_DEBUG(message) BOOST_LOG_TRIVIAL(debug) << message
-#define HPP_FCL_LOG_WARNING(message) BOOST_LOG_TRIVIAL(warning) << message
-#define HPP_FCL_LOG_ERROR(message) BOOST_LOG_TRIVIAL(error) << message
+#define COAL_LOG_INFO(message) BOOST_LOG_TRIVIAL(info) << message
+#define COAL_LOG_DEBUG(message) BOOST_LOG_TRIVIAL(debug) << message
+#define COAL_LOG_WARNING(message) BOOST_LOG_TRIVIAL(warning) << message
+#define COAL_LOG_ERROR(message) BOOST_LOG_TRIVIAL(error) << message
 #else
-#define HPP_FCL_LOG_INFO(message)
-#define HPP_FCL_LOG_DEBUG(message)
-#define HPP_FCL_LOG_WARNING(message)
-#define HPP_FCL_LOG_ERROR(message)
+#define COAL_LOG_INFO(message)
+#define COAL_LOG_DEBUG(message)
+#define COAL_LOG_WARNING(message)
+#define COAL_LOG_ERROR(message)
 #endif
 
-#endif  // HPP_FCL_LOGGING_H
+#endif  // COAL_LOGGING_H

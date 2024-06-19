@@ -58,10 +58,10 @@ struct COAL_DLLAPI RelativeTransformation {
 template <>
 struct COAL_DLLAPI RelativeTransformation<false> {
   static const Matrix3f& _R() {
-    HPP_FCL_THROW_PRETTY("should never reach this point", std::logic_error);
+    COAL_THROW_PRETTY("should never reach this point", std::logic_error);
   }
   static const Vec3f& _T() {
-    HPP_FCL_THROW_PRETTY("should never reach this point", std::logic_error);
+    COAL_THROW_PRETTY("should never reach this point", std::logic_error);
   }
 };
 }  // namespace details

@@ -48,52 +48,52 @@
 #include "coal/warning.hh"
 
 #if _WIN32
-#define HPP_FCL_PRETTY_FUNCTION __FUNCSIG__
+#define COAL_PRETTY_FUNCTION __FUNCSIG__
 #else
-#define HPP_FCL_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#define COAL_PRETTY_FUNCTION __PRETTY_FUNCTION__
 #endif
 
-#define HPP_FCL_UNUSED_VARIABLE(var) (void)(var)
+#define COAL_UNUSED_VARIABLE(var) (void)(var)
 
 #ifdef NDEBUG
-#define HPP_FCL_ONLY_USED_FOR_DEBUG(var) HPP_FCL_UNUSED_VARIABLE(var)
+#define COAL_ONLY_USED_FOR_DEBUG(var) COAL_UNUSED_VARIABLE(var)
 #else
-#define HPP_FCL_ONLY_USED_FOR_DEBUG(var)
+#define COAL_ONLY_USED_FOR_DEBUG(var)
 #endif
 
-#define HPP_FCL_THROW_PRETTY(message, exception)              \
-  {                                                           \
-    std::stringstream ss;                                     \
-    ss << "From file: " << __FILE__ << "\n";                  \
-    ss << "in function: " << HPP_FCL_PRETTY_FUNCTION << "\n"; \
-    ss << "at line: " << __LINE__ << "\n";                    \
-    ss << "message: " << message << "\n";                     \
-    throw exception(ss.str());                                \
+#define COAL_THROW_PRETTY(message, exception)              \
+  {                                                        \
+    std::stringstream ss;                                  \
+    ss << "From file: " << __FILE__ << "\n";               \
+    ss << "in function: " << COAL_PRETTY_FUNCTION << "\n"; \
+    ss << "at line: " << __LINE__ << "\n";                 \
+    ss << "message: " << message << "\n";                  \
+    throw exception(ss.str());                             \
   }
 
-#ifdef HPP_FCL_TURN_ASSERT_INTO_EXCEPTION
-#define HPP_FCL_ASSERT(check, message, exception) \
-  do {                                            \
-    if (!(check)) {                               \
-      HPP_FCL_THROW_PRETTY(message, exception);   \
-    }                                             \
+#ifdef COAL_TURN_ASSERT_INTO_EXCEPTION
+#define COAL_ASSERT(check, message, exception) \
+  do {                                         \
+    if (!(check)) {                            \
+      COAL_THROW_PRETTY(message, exception);   \
+    }                                          \
   } while (0)
 #else
-#define HPP_FCL_ASSERT(check, message, exception) \
-  {                                               \
-    HPP_FCL_UNUSED_VARIABLE(exception(message));  \
-    assert((check) && message);                   \
+#define COAL_ASSERT(check, message, exception) \
+  {                                            \
+    COAL_UNUSED_VARIABLE(exception(message));  \
+    assert((check) && message);                \
   }
 #endif
 
 #if (__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
-#define HPP_FCL_WITH_CXX11_SUPPORT
+#define COAL_WITH_CXX11_SUPPORT
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
-#define HPP_FCL_COMPILER_DIAGNOSTIC_PUSH _Pragma("GCC diagnostic push")
-#define HPP_FCL_COMPILER_DIAGNOSTIC_POP _Pragma("GCC diagnostic pop")
-#define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS \
+#define COAL_COMPILER_DIAGNOSTIC_PUSH _Pragma("GCC diagnostic push")
+#define COAL_COMPILER_DIAGNOSTIC_POP _Pragma("GCC diagnostic pop")
+#define COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS \
   _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
 
 // GCC version 4.6 and higher supports -Wmaybe-uninitialized
@@ -110,17 +110,17 @@
 #define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
 #endif
 #elif defined(WIN32)
-#define HPP_FCL_COMPILER_DIAGNOSTIC_PUSH _Pragma("warning(push)")
-#define HPP_FCL_COMPILER_DIAGNOSTIC_POP _Pragma("warning(pop)")
-#define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS \
+#define COAL_COMPILER_DIAGNOSTIC_PUSH _Pragma("warning(push)")
+#define COAL_COMPILER_DIAGNOSTIC_POP _Pragma("warning(pop)")
+#define COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS \
   _Pragma("warning(disable : 4996)")
 #define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED \
   _Pragma("warning(disable : 4700)")
 #else
-#define HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-#define HPP_FCL_COMPILER_DIAGNOSTIC_POP
-#define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-#define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
+#define COAL_COMPILER_DIAGNOSTIC_PUSH
+#define COAL_COMPILER_DIAGNOSTIC_POP
+#define COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+#define COAL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
 #endif  // __GNUC__
 
 namespace coal {

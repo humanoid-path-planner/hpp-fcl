@@ -49,11 +49,11 @@ struct BVHShapeComputeContactPatch {
                   const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
                   ContactPatchResult& result) {
-    HPP_FCL_UNUSED_VARIABLE(o1);
-    HPP_FCL_UNUSED_VARIABLE(tf1);
-    HPP_FCL_UNUSED_VARIABLE(o2);
-    HPP_FCL_UNUSED_VARIABLE(tf2);
-    HPP_FCL_UNUSED_VARIABLE(csolver);
+    COAL_UNUSED_VARIABLE(o1);
+    COAL_UNUSED_VARIABLE(tf1);
+    COAL_UNUSED_VARIABLE(o2);
+    COAL_UNUSED_VARIABLE(tf2);
+    COAL_UNUSED_VARIABLE(csolver);
     for (size_t i = 0; i < collision_result.numContacts(); ++i) {
       if (i >= request.max_num_patch) {
         break;
@@ -74,11 +74,11 @@ struct HeightFieldShapeComputeContactPatch {
                   const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
                   ContactPatchResult& result) {
-    HPP_FCL_UNUSED_VARIABLE(o1);
-    HPP_FCL_UNUSED_VARIABLE(tf1);
-    HPP_FCL_UNUSED_VARIABLE(o2);
-    HPP_FCL_UNUSED_VARIABLE(tf2);
-    HPP_FCL_UNUSED_VARIABLE(csolver);
+    COAL_UNUSED_VARIABLE(o1);
+    COAL_UNUSED_VARIABLE(tf1);
+    COAL_UNUSED_VARIABLE(o2);
+    COAL_UNUSED_VARIABLE(tf2);
+    COAL_UNUSED_VARIABLE(csolver);
     for (size_t i = 0; i < collision_result.numContacts(); ++i) {
       if (i >= request.max_num_patch) {
         break;
@@ -99,11 +99,11 @@ struct BVHComputeContactPatch {
                   const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
                   ContactPatchResult& result) {
-    HPP_FCL_UNUSED_VARIABLE(o1);
-    HPP_FCL_UNUSED_VARIABLE(tf1);
-    HPP_FCL_UNUSED_VARIABLE(o2);
-    HPP_FCL_UNUSED_VARIABLE(tf2);
-    HPP_FCL_UNUSED_VARIABLE(csolver);
+    COAL_UNUSED_VARIABLE(o1);
+    COAL_UNUSED_VARIABLE(tf1);
+    COAL_UNUSED_VARIABLE(o2);
+    COAL_UNUSED_VARIABLE(tf2);
+    COAL_UNUSED_VARIABLE(csolver);
     for (size_t i = 0; i < collision_result.numContacts(); ++i) {
       if (i >= request.max_num_patch) {
         break;
@@ -125,12 +125,12 @@ COAL_LOCAL void contact_patch_function_not_implemented(
   NODE_TYPE node_type1 = o1->getNodeType();
   NODE_TYPE node_type2 = o2->getNodeType();
 
-  HPP_FCL_THROW_PRETTY("Contact patch function between node type "
-                           << std::string(get_node_type_name(node_type1))
-                           << " and node type "
-                           << std::string(get_node_type_name(node_type2))
-                           << " is not yet supported.",
-                       std::invalid_argument);
+  COAL_THROW_PRETTY("Contact patch function between node type "
+                        << std::string(get_node_type_name(node_type1))
+                        << " and node type "
+                        << std::string(get_node_type_name(node_type2))
+                        << " is not yet supported.",
+                    std::invalid_argument);
 }
 
 ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
@@ -362,7 +362,7 @@ ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
   contact_patch_matrix[BV_OBBRSS][BV_OBBRSS]      = &BVHComputeContactPatch<OBBRSS>::run;
 
   // TODO(louis): octrees
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
   contact_patch_matrix[GEOM_OCTREE][GEOM_OCTREE] = &contact_patch_function_not_implemented;
   contact_patch_matrix[GEOM_OCTREE][GEOM_BOX] = &contact_patch_function_not_implemented;
   contact_patch_matrix[GEOM_OCTREE][GEOM_SPHERE] = &contact_patch_function_not_implemented;

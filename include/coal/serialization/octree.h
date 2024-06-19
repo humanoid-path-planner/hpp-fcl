@@ -96,6 +96,6 @@ void serialize(Archive &ar, coal::OcTree &octree, const unsigned int version) {
 }  // namespace serialization
 }  // namespace boost
 
-HPP_FCL_SERIALIZATION_DECLARE_EXPORT(::coal::OcTree)
+COAL_SERIALIZATION_DECLARE_EXPORT(::coal::OcTree)
 
 #endif  // ifndef COAL_SERIALIZATION_OCTREE_H
