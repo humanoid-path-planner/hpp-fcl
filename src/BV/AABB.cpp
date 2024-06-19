@@ -35,11 +35,11 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BV/AABB.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "coal/BV/AABB.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/collision_data.h"
 
 #include <limits>
-#include <hpp/fcl/collision_data.h>
 
 namespace coal {
 

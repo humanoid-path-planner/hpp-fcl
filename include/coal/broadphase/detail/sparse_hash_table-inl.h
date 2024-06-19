@@ -38,7 +38,7 @@
 #ifndef COAL_BROADPHASE_SPARSEHASHTABLE_INL_H
 #define COAL_BROADPHASE_SPARSEHASHTABLE_INL_H
 
-#include "hpp/fcl/broadphase/detail/sparse_hash_table.h"
+#include "coal/broadphase/detail/sparse_hash_table.h"
 
 namespace coal {
 

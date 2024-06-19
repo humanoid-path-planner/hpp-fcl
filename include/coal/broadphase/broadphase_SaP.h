@@ -41,12 +41,12 @@
 #include <map>
 #include <list>
 
-#include "hpp/fcl/broadphase/broadphase_collision_manager.h"
+#include "coal/broadphase/broadphase_collision_manager.h"
 
 namespace coal {
 
 /// @brief Rigorous SAP collision manager
-class HPP_FCL_DLLAPI SaPCollisionManager : public BroadPhaseCollisionManager {
+class COAL_DLLAPI SaPCollisionManager : public BroadPhaseCollisionManager {
  public:
   typedef BroadPhaseCollisionManager Base;
   using Base::getObjects;
@@ -168,7 +168,7 @@ class HPP_FCL_DLLAPI SaPCollisionManager : public BroadPhaseCollisionManager {
   };
 
   /// @brief Functor to help unregister one object
-  class HPP_FCL_DLLAPI isUnregistered {
+  class COAL_DLLAPI isUnregistered {
     CollisionObject* obj;
 
    public:
@@ -179,7 +179,7 @@ class HPP_FCL_DLLAPI SaPCollisionManager : public BroadPhaseCollisionManager {
 
   /// @brief Functor to help remove collision pairs no longer valid (i.e.,
   /// should be culled away)
-  class HPP_FCL_DLLAPI isNotValidPair {
+  class COAL_DLLAPI isNotValidPair {
     CollisionObject* obj1;
     CollisionObject* obj2;
 

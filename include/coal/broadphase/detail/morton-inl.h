@@ -39,7 +39,7 @@
 #ifndef COAL_MORTON_INL_H
 #define COAL_MORTON_INL_H
 
-#include "hpp/fcl/broadphase/detail/morton.h"
+#include "coal/broadphase/detail/morton.h"
 
 namespace coal {  /// @cond IGNORE
 namespace detail {

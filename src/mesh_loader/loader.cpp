@@ -34,16 +34,16 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <hpp/fcl/mesh_loader/loader.h>
-#include <hpp/fcl/mesh_loader/assimp.h>
+#include "coal/mesh_loader/loader.h"
+#include "coal/mesh_loader/assimp.h"
 
 #include <boost/filesystem.hpp>
 
 #ifdef HPP_FCL_HAS_OCTOMAP
-#include <hpp/fcl/octree.h>
+#include "coal/octree.h"
 #endif
 
-#include <hpp/fcl/BV/BV.h>
+#include "coal/BV/BV.h"
 
 namespace coal {
 bool CachedMeshLoader::Key::operator<(const CachedMeshLoader::Key& b) const {

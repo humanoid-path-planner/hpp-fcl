@@ -38,7 +38,7 @@
 #ifndef COAL_NARROWPHASE_DEFAULTS_H
 #define COAL_NARROWPHASE_DEFAULTS_H
 
-#include <hpp/fcl/data_types.h>
+#include "coal/data_types.h"
 
 namespace coal {
 

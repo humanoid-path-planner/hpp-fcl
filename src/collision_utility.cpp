@@ -14,9 +14,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-fcl. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/fcl/collision_utility.h>
-
-#include <hpp/fcl/BVH/BVH_utility.h>
+#include "coal/collision_utility.h"
+#include "coal/BVH/BVH_utility.h"
 
 namespace coal {
 namespace details {

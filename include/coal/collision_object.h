@@ -41,10 +41,10 @@
 #include <limits>
 #include <typeinfo>
 
-#include <hpp/fcl/deprecated.hh>
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/BV/AABB.h>
-#include <hpp/fcl/math/transform.h>
+#include "coal/deprecated.hh"
+#include "coal/fwd.hh"
+#include "coal/BV/AABB.h"
+#include "coal/math/transform.h"
 
 namespace coal {
 
@@ -91,7 +91,7 @@ enum NODE_TYPE {
 /// @{
 
 /// @brief The geometry for the object for collision or distance computation
-class HPP_FCL_DLLAPI CollisionGeometry {
+class COAL_DLLAPI CollisionGeometry {
  public:
   CollisionGeometry()
       : aabb_center(Vec3f::Constant((std::numeric_limits<FCL_REAL>::max)())),
@@ -211,7 +211,7 @@ class HPP_FCL_DLLAPI CollisionGeometry {
 
 /// @brief the object for collision or distance computation, contains the
 /// geometry and the transform information
-class HPP_FCL_DLLAPI CollisionObject {
+class COAL_DLLAPI CollisionObject {
  public:
   CollisionObject(const shared_ptr<CollisionGeometry>& cgeom_,
                   bool compute_local_aabb = true)

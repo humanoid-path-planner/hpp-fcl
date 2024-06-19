@@ -35,9 +35,9 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/shape/geometric_shapes_utility.h>
-#include <hpp/fcl/internal/BV_fitter.h>
-#include <hpp/fcl/internal/tools.h>
+#include "coal/shape/geometric_shapes_utility.h"
+#include "coal/internal/BV_fitter.h"
+#include "coal/internal/tools.h"
 
 namespace coal {
 

@@ -35,7 +35,7 @@
 #if !(__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
 #define nullptr NULL
 #endif
-#include <hpp/fcl/mesh_loader/assimp.h>
+#include "coal/mesh_loader/assimp.h"
 
 // Assimp >= 5.0 is forcing the use of C++11 keywords. A fix has been submitted
 // https://github.com/assimp/assimp/pull/2758. The next lines fixes the bug for

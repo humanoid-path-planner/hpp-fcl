@@ -38,7 +38,7 @@
 #ifndef COAL_BROADPHASE_DETAIL_NODEBASE_INL_H
 #define COAL_BROADPHASE_DETAIL_NODEBASE_INL_H
 
-#include "hpp/fcl/broadphase/detail/node_base.h"
+#include "coal/broadphase/detail/node_base.h"
 
 namespace coal {
 namespace detail {

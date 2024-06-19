@@ -38,10 +38,10 @@
 #define BOOST_TEST_MODULE FCL_BROADPHASE
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/config.hh>
-#include <hpp/fcl/broadphase/broadphase.h>
-#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
-#include <hpp/fcl/math/transform.h>
+#include "coal/config.hh"
+#include "coal/broadphase/broadphase.h"
+#include "coal/shape/geometric_shape_to_BVH_model.h"
+#include "coal/math/transform.h"
 #include "utility.h"
 
 #if USE_GOOGLEHASH

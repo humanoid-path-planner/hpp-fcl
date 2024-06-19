@@ -38,10 +38,10 @@
 #ifndef COAL_MESH_LOADER_LOADER_H
 #define COAL_MESH_LOADER_LOADER_H
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/config.hh>
-#include <hpp/fcl/data_types.h>
-#include <hpp/fcl/collision_object.h>
+#include "coal/fwd.hh"
+#include "coal/config.hh"
+#include "coal/data_types.h"
+#include "coal/collision_object.h"
 
 #include <map>
 #include <ctime>
@@ -49,7 +49,7 @@
 namespace coal {
 /// Base class for building polyhedron from files.
 /// This class builds a new object for each file.
-class HPP_FCL_DLLAPI MeshLoader {
+class COAL_DLLAPI MeshLoader {
  public:
   virtual ~MeshLoader() {}
 
@@ -70,7 +70,7 @@ class HPP_FCL_DLLAPI MeshLoader {
 /// This class builds a new object for each different file.
 /// If method CachedMeshLoader::load is called twice with the same arguments,
 /// the second call returns the result of the first call.
-class HPP_FCL_DLLAPI CachedMeshLoader : public MeshLoader {
+class COAL_DLLAPI CachedMeshLoader : public MeshLoader {
  public:
   virtual ~CachedMeshLoader() {}
 
@@ -78,7 +78,7 @@ class HPP_FCL_DLLAPI CachedMeshLoader : public MeshLoader {
 
   virtual BVHModelPtr_t load(const std::string& filename, const Vec3f& scale);
 
-  struct HPP_FCL_DLLAPI Key {
+  struct COAL_DLLAPI Key {
     std::string filename;
     Vec3f scale;
 
@@ -86,7 +86,7 @@ class HPP_FCL_DLLAPI CachedMeshLoader : public MeshLoader {
 
     bool operator<(const CachedMeshLoader::Key& b) const;
   };
-  struct HPP_FCL_DLLAPI Value {
+  struct COAL_DLLAPI Value {
     BVHModelPtr_t model;
     std::time_t mtime;
   };

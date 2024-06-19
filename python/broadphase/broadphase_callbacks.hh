@@ -37,8 +37,8 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/broadphase/broadphase_callbacks.h>
+#include "coal/fwd.hh"
+#include "coal/broadphase/broadphase_callbacks.h"
 
 #include "../fcl.hh"
 

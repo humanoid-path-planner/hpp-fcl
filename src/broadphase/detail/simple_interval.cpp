@@ -38,7 +38,7 @@
 #ifndef COAL_BROADPHASE_DETAIL_SIMPLEINTERVAL_INL_H
 #define COAL_BROADPHASE_DETAIL_SIMPLEINTERVAL_INL_H
 
-#include "hpp/fcl/broadphase/detail/simple_interval.h"
+#include "coal/broadphase/detail/simple_interval.h"
 #include <algorithm>
 
 namespace coal {

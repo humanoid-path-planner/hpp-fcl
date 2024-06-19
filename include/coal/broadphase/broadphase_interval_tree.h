@@ -41,13 +41,13 @@
 #include <deque>
 #include <map>
 
-#include "hpp/fcl/broadphase/broadphase_collision_manager.h"
-#include "hpp/fcl/broadphase/detail/interval_tree.h"
+#include "coal/broadphase/broadphase_collision_manager.h"
+#include "coal/broadphase/detail/interval_tree.h"
 
 namespace coal {
 
 /// @brief Collision manager based on interval tree
-class HPP_FCL_DLLAPI IntervalTreeCollisionManager
+class COAL_DLLAPI IntervalTreeCollisionManager
     : public BroadPhaseCollisionManager {
  public:
   typedef BroadPhaseCollisionManager Base;
@@ -114,7 +114,7 @@ class HPP_FCL_DLLAPI IntervalTreeCollisionManager
  protected:
   /// @brief SAP end point
   /// @brief SAP end point
-  struct HPP_FCL_DLLAPI EndPoint {
+  struct COAL_DLLAPI EndPoint {
     /// @brief object related with the end point
     CollisionObject* obj;
 
@@ -130,7 +130,7 @@ class HPP_FCL_DLLAPI IntervalTreeCollisionManager
 
   /// @brief Extention interval tree's interval to SAP interval, adding more
   /// information
-  struct HPP_FCL_DLLAPI SAPInterval : public detail::SimpleInterval {
+  struct COAL_DLLAPI SAPInterval : public detail::SimpleInterval {
     CollisionObject* obj;
 
     SAPInterval(FCL_REAL low_, FCL_REAL high_, CollisionObject* obj_);

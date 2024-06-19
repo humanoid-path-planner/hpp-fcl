@@ -38,7 +38,7 @@
 #ifndef COAL_BROADPHASE_SPATIALHASH_H
 #define COAL_BROADPHASE_SPATIALHASH_H
 
-#include "hpp/fcl/BV/AABB.h"
+#include "coal/BV/AABB.h"
 #include <vector>
 
 namespace coal {
@@ -46,7 +46,7 @@ namespace coal {
 namespace detail {
 
 /// @brief Spatial hash function: hash an AABB to a set of integer values
-struct HPP_FCL_DLLAPI SpatialHash {
+struct COAL_DLLAPI SpatialHash {
   SpatialHash(const AABB& scene_limit_, FCL_REAL cell_size_);
 
   std::vector<unsigned int> operator()(const AABB& aabb) const;

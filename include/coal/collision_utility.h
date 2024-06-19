@@ -18,13 +18,13 @@
 #ifndef COAL_COLLISION_UTILITY_H
 #define COAL_COLLISION_UTILITY_H
 
-#include <hpp/fcl/collision_object.h>
+#include "coal/collision_object.h"
 
 namespace coal {
 
-HPP_FCL_DLLAPI CollisionGeometry* extract(const CollisionGeometry* model,
-                                          const Transform3f& pose,
-                                          const AABB& aabb);
+COAL_DLLAPI CollisionGeometry* extract(const CollisionGeometry* model,
+                                       const Transform3f& pose,
+                                       const AABB& aabb);
 
 /**
  * \brief Returns the name associated to a NODE_TYPE

@@ -38,7 +38,7 @@
 #ifndef COAL_HIERARCHY_TREE_ARRAY_INL_H
 #define COAL_HIERARCHY_TREE_ARRAY_INL_H
 
-#include "hpp/fcl/broadphase/detail/hierarchy_tree_array.h"
+#include "coal/broadphase/detail/hierarchy_tree_array.h"
 
 #include <algorithm>
 #include <iostream>

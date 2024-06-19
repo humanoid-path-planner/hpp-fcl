@@ -39,8 +39,8 @@
 #ifndef COAL_SRC_NARROWPHASE_DETAILS_H
 #define COAL_SRC_NARROWPHASE_DETAILS_H
 
-#include <hpp/fcl/internal/traversal_node_setup.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
+#include "coal/internal/traversal_node_setup.h"
+#include "coal/narrowphase/narrowphase.h"
 
 namespace coal {
 namespace details {

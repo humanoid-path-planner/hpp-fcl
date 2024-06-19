@@ -34,15 +34,15 @@
 
 /** \author Louis Montaut */
 
-#include "hpp/fcl/data_types.h"
-#include <boost/test/tools/old/interface.hpp>
 #define BOOST_TEST_MODULE FCL_NESTEROV_GJK
 #include <boost/test/included/unit_test.hpp>
+#include <boost/test/tools/old/interface.hpp>
 
 #include <Eigen/Geometry>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/internal/tools.h>
+#include "coal/data_types.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/internal/tools.h"
 
 #include "utility.h"
 

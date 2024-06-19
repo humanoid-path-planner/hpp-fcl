@@ -37,8 +37,8 @@
 #ifndef COAL_CONTACT_PATCH_SOLVER_HXX
 #define COAL_CONTACT_PATCH_SOLVER_HXX
 
-#include "hpp/fcl/data_types.h"
-#include "hpp/fcl/shape/geometric_shapes_traits.h"
+#include "coal/data_types.h"
+#include "coal/shape/geometric_shapes_traits.h"
 
 namespace coal {
 

@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/math/transform.h>
+#include "coal/math/transform.h"
 
 namespace coal {
 

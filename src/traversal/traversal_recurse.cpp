@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/internal/traversal_recurse.h>
+#include "coal/internal/traversal_recurse.h"
 
 #include <vector>
 
@@ -202,7 +202,7 @@ void distanceRecurse(DistanceTraversalNodeBase* node, unsigned int b1,
 }
 
 /** @brief Bounding volume test structure */
-struct HPP_FCL_LOCAL BVT {
+struct COAL_LOCAL BVT {
   /** @brief distance between bvs */
   FCL_REAL d;
 
@@ -211,13 +211,13 @@ struct HPP_FCL_LOCAL BVT {
 };
 
 /** @brief Comparer between two BVT */
-struct HPP_FCL_LOCAL BVT_Comparer {
+struct COAL_LOCAL BVT_Comparer {
   bool operator()(const BVT& lhs, const BVT& rhs) const {
     return lhs.d > rhs.d;
   }
 };
 
-struct HPP_FCL_LOCAL BVTQ {
+struct COAL_LOCAL BVTQ {
   BVTQ() : qsize(2) {}
 
   bool empty() const { return pq.empty(); }

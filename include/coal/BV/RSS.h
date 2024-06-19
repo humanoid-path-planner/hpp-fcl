@@ -38,7 +38,7 @@
 #ifndef COAL_RSS_H
 #define COAL_RSS_H
 
-#include "hpp/fcl/data_types.h"
+#include "coal/data_types.h"
 
 #include <boost/math/constants/constants.hpp>
 
@@ -50,7 +50,7 @@ struct CollisionRequest;
 /// @{
 
 /// @brief A class for rectangle sphere-swept bounding volume
-struct HPP_FCL_DLLAPI RSS {
+struct COAL_DLLAPI RSS {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /// @brief Orientation of RSS. axis[i] is the ith column of the orientation
@@ -153,20 +153,20 @@ struct HPP_FCL_DLLAPI RSS {
 /// not the RSS. But the direction P - Q is the correct direction for cloest
 /// points Notice that P and Q are both in the local frame of the first RSS (not
 /// global frame and not even the local frame of object 1)
-HPP_FCL_DLLAPI FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0,
-                                 const RSS& b1, const RSS& b2, Vec3f* P = NULL,
-                                 Vec3f* Q = NULL);
+COAL_DLLAPI FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0,
+                              const RSS& b1, const RSS& b2, Vec3f* P = NULL,
+                              Vec3f* Q = NULL);
 
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1,
-                            const RSS& b2);
+COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1,
+                         const RSS& b2);
 
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1,
-                            const RSS& b2, const CollisionRequest& request,
-                            FCL_REAL& sqrDistLowerBound);
+COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1,
+                         const RSS& b2, const CollisionRequest& request,
+                         FCL_REAL& sqrDistLowerBound);
 
 }  // namespace coal
 

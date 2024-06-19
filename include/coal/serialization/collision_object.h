@@ -5,10 +5,10 @@
 #ifndef COAL_SERIALIZATION_COLLISION_OBJECT_H
 #define COAL_SERIALIZATION_COLLISION_OBJECT_H
 
-#include "hpp/fcl/collision_object.h"
+#include "coal/collision_object.h"
 
-#include "hpp/fcl/serialization/fwd.h"
-#include "hpp/fcl/serialization/AABB.h"
+#include "coal/serialization/fwd.h"
+#include "coal/serialization/AABB.h"
 
 namespace boost {
 namespace serialization {

@@ -35,10 +35,11 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/internal/BV_fitter.h>
-#include <hpp/fcl/BVH/BVH_utility.h>
+#include "coal/internal/BV_fitter.h"
+#include "coal/BVH/BVH_utility.h"
+#include "coal/internal/tools.h"
+
 #include <limits>
-#include <hpp/fcl/internal/tools.h>
 
 namespace coal {
 

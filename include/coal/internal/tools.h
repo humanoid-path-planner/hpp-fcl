@@ -38,13 +38,13 @@
 #ifndef COAL_INTERNAL_TOOLS_H
 #define COAL_INTERNAL_TOOLS_H
 
-#include <hpp/fcl/fwd.hh>
+#include "coal/fwd.hh"
 
 #include <cmath>
 #include <iostream>
 #include <limits>
 
-#include <hpp/fcl/data_types.h>
+#include "coal/data_types.h"
 
 namespace coal {
 

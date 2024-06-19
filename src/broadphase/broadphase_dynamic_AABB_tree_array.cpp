@@ -35,10 +35,10 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree_array.h"
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-#include "hpp/fcl/octree.h"
+#include "coal/octree.h"
 #endif
 namespace coal {
 namespace detail {
@@ -262,7 +262,7 @@ bool collisionRecurse(
 }
 
 //==============================================================================
-inline HPP_FCL_DLLAPI bool collisionRecurse(
+inline COAL_DLLAPI bool collisionRecurse(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes,
     size_t root_id, CollisionObject* query, CollisionCallBackBase* callback) {
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root = nodes + root_id;

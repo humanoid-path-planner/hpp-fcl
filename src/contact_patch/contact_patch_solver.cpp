@@ -34,7 +34,7 @@
 
 /** \authors Louis Montaut */
 
-#include "hpp/fcl/contact_patch/contact_patch_solver.h"
+#include "coal/contact_patch/contact_patch_solver.h"
 
 namespace coal {
 

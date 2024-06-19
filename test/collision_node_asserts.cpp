@@ -2,8 +2,8 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/collision.h>
+#include "coal/BVH/BVH_model.h"
+#include "coal/collision.h"
 
 using namespace coal;
 

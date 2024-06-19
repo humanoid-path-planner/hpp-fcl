@@ -34,8 +34,8 @@
 
 /** \author Louis Montaut */
 
-#include "hpp/fcl/contact_patch.h"
-#include "hpp/fcl/collision_utility.h"
+#include "coal/contact_patch.h"
+#include "coal/collision_utility.h"
 
 namespace coal {
 

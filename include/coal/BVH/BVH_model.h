@@ -39,10 +39,10 @@
 #ifndef COAL_BVH_MODEL_H
 #define COAL_BVH_MODEL_H
 
-#include "hpp/fcl/fwd.hh"
-#include "hpp/fcl/collision_object.h"
-#include "hpp/fcl/BVH/BVH_internal.h"
-#include "hpp/fcl/BV/BV_node.h"
+#include "coal/fwd.hh"
+#include "coal/collision_object.h"
+#include "coal/BVH/BVH_internal.h"
+#include "coal/BV/BV_node.h"
 
 #include <vector>
 #include <memory>
@@ -62,7 +62,7 @@ class BVSplitter;
 
 /// @brief A base class describing the bounding hierarchy of a mesh model or a
 /// point cloud model (which is viewed as a degraded version of mesh)
-class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
+class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
  public:
   /// @brief Geometry point data
   std::shared_ptr<std::vector<Vec3f>> vertices;
@@ -311,7 +311,7 @@ class HPP_FCL_DLLAPI BVHModelBase : public CollisionGeometry {
 /// cloud model (which is viewed as a degraded version of mesh) \tparam BV one
 /// of the bounding volume class in \ref Bounding_Volume.
 template <typename BV>
-class HPP_FCL_DLLAPI BVHModel : public BVHModelBase {
+class COAL_DLLAPI BVHModel : public BVHModelBase {
   typedef BVHModelBase Base;
 
  public:

@@ -35,12 +35,12 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/distance_func_matrix.h>
+#include "coal/distance_func_matrix.h"
 
 #include <../src/collision_node.h>
-#include <hpp/fcl/internal/shape_shape_func.h>
-#include <hpp/fcl/internal/traversal_node_setup.h>
-#include <hpp/fcl/internal/shape_shape_func.h>
+#include "coal/internal/shape_shape_func.h"
+#include "coal/internal/traversal_node_setup.h"
+#include "coal/internal/shape_shape_func.h"
 #include <../src/traits_traversal.h>
 
 namespace coal {
@@ -66,7 +66,7 @@ FCL_REAL Distance(const CollisionGeometry* o1, const Transform3f& tf1,
 
 #endif
 
-HPP_FCL_LOCAL FCL_REAL distance_function_not_implemented(
+COAL_LOCAL FCL_REAL distance_function_not_implemented(
     const CollisionGeometry* o1, const Transform3f& /*tf1*/,
     const CollisionGeometry* o2, const Transform3f& /*tf2*/,
     const GJKSolver* /*nsolver*/, const DistanceRequest& /*request*/,
@@ -83,7 +83,7 @@ HPP_FCL_LOCAL FCL_REAL distance_function_not_implemented(
 }
 
 template <typename T_BVH, typename T_SH>
-struct HPP_FCL_LOCAL BVHShapeDistancer {
+struct COAL_LOCAL BVHShapeDistancer {
   static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                            const CollisionGeometry* o2, const Transform3f& tf2,
                            const GJKSolver* nsolver,
@@ -129,7 +129,7 @@ FCL_REAL orientedBVHShapeDistance(const CollisionGeometry* o1,
 }  // namespace details
 
 template <typename T_SH>
-struct HPP_FCL_LOCAL BVHShapeDistancer<RSS, T_SH> {
+struct COAL_LOCAL BVHShapeDistancer<RSS, T_SH> {
   static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                            const CollisionGeometry* o2, const Transform3f& tf2,
                            const GJKSolver* nsolver,
@@ -142,7 +142,7 @@ struct HPP_FCL_LOCAL BVHShapeDistancer<RSS, T_SH> {
 };
 
 template <typename T_SH>
-struct HPP_FCL_LOCAL BVHShapeDistancer<kIOS, T_SH> {
+struct COAL_LOCAL BVHShapeDistancer<kIOS, T_SH> {
   static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                            const CollisionGeometry* o2, const Transform3f& tf2,
                            const GJKSolver* nsolver,
@@ -155,7 +155,7 @@ struct HPP_FCL_LOCAL BVHShapeDistancer<kIOS, T_SH> {
 };
 
 template <typename T_SH>
-struct HPP_FCL_LOCAL BVHShapeDistancer<OBBRSS, T_SH> {
+struct COAL_LOCAL BVHShapeDistancer<OBBRSS, T_SH> {
   static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                            const CollisionGeometry* o2, const Transform3f& tf2,
                            const GJKSolver* nsolver,
@@ -168,7 +168,7 @@ struct HPP_FCL_LOCAL BVHShapeDistancer<OBBRSS, T_SH> {
 };
 
 template <typename T_HF, typename T_SH>
-struct HPP_FCL_LOCAL HeightFieldShapeDistancer {
+struct COAL_LOCAL HeightFieldShapeDistancer {
   static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                            const CollisionGeometry* o2, const Transform3f& tf2,
                            const GJKSolver* nsolver,

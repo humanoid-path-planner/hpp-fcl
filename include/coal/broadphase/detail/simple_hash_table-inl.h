@@ -38,7 +38,7 @@
 #ifndef COAL_BROADPHASE_SIMPLEHASHTABLE_INL_H
 #define COAL_BROADPHASE_SIMPLEHASHTABLE_INL_H
 
-#include "hpp/fcl/broadphase/detail/simple_hash_table.h"
+#include "coal/broadphase/detail/simple_hash_table.h"
 
 #include <iterator>
 namespace coal {

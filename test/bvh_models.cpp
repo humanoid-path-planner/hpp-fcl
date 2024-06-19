@@ -41,14 +41,14 @@
 
 #include "fcl_resources/config.h"
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/BVH/BVH_utility.h>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
-#include <hpp/fcl/mesh_loader/assimp.h>
-#include <hpp/fcl/mesh_loader/loader.h>
+#include "coal/collision.h"
+#include "coal/BVH/BVH_model.h"
+#include "coal/BVH/BVH_utility.h"
+#include "coal/math/transform.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/shape/geometric_shape_to_BVH_model.h"
+#include "coal/mesh_loader/assimp.h"
+#include "coal/mesh_loader/loader.h"
 #include "utility.h"
 #include <iostream>
 

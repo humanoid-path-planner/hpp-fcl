@@ -40,11 +40,11 @@
 
 /// @cond INTERNAL
 
-#include "hpp/fcl/collision_data.h"
-#include "hpp/fcl/BV/BV.h"
-#include "hpp/fcl/shape/geometric_shapes_utility.h"
-#include "hpp/fcl/internal/traversal_node_base.h"
-#include "hpp/fcl/internal/shape_shape_func.h"
+#include "coal/collision_data.h"
+#include "coal/BV/BV.h"
+#include "coal/shape/geometric_shapes_utility.h"
+#include "coal/internal/traversal_node_base.h"
+#include "coal/internal/shape_shape_func.h"
 
 namespace coal {
 
@@ -53,7 +53,7 @@ namespace coal {
 
 /// @brief Traversal node for collision between two shapes
 template <typename S1, typename S2>
-class HPP_FCL_DLLAPI ShapeCollisionTraversalNode
+class COAL_DLLAPI ShapeCollisionTraversalNode
     : public CollisionTraversalNodeBase {
  public:
   ShapeCollisionTraversalNode(const CollisionRequest& request)
@@ -88,7 +88,7 @@ class HPP_FCL_DLLAPI ShapeCollisionTraversalNode
 
 /// @brief Traversal node for distance between two shapes
 template <typename S1, typename S2>
-class HPP_FCL_DLLAPI ShapeDistanceTraversalNode
+class COAL_DLLAPI ShapeDistanceTraversalNode
     : public DistanceTraversalNodeBase {
  public:
   ShapeDistanceTraversalNode() : DistanceTraversalNodeBase() {

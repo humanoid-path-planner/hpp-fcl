@@ -36,13 +36,13 @@
 
 #include "fcl.hh"
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/BVH/BVH_model.h>
+#include "coal/fwd.hh"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/BVH/BVH_model.h"
 
-#include <hpp/fcl/mesh_loader/loader.h>
+#include "coal/mesh_loader/loader.h"
 
-#include <hpp/fcl/collision.h>
+#include "coal/collision.h"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/hpp/fcl/mesh_loader/loader.h"

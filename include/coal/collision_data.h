@@ -45,17 +45,17 @@
 #include <limits>
 #include <numeric>
 
-#include "hpp/fcl/collision_object.h"
-#include "hpp/fcl/config.hh"
-#include "hpp/fcl/data_types.h"
-#include "hpp/fcl/timings.h"
-#include "hpp/fcl/narrowphase/narrowphase_defaults.h"
-#include "hpp/fcl/logging.h"
+#include "coal/collision_object.h"
+#include "coal/config.hh"
+#include "coal/data_types.h"
+#include "coal/timings.h"
+#include "coal/narrowphase/narrowphase_defaults.h"
+#include "coal/logging.h"
 
 namespace coal {
 
 /// @brief Contact information returned by collision
-struct HPP_FCL_DLLAPI Contact {
+struct COAL_DLLAPI Contact {
   /// @brief collision object 1
   const CollisionGeometry* o1;
 
@@ -167,13 +167,13 @@ struct HPP_FCL_DLLAPI Contact {
 struct QueryResult;
 
 /// @brief base class for all query requests
-struct HPP_FCL_DLLAPI QueryRequest {
+struct COAL_DLLAPI QueryRequest {
   // @brief Initial guess to use for the GJK algorithm
   GJKInitialGuess gjk_initial_guess;
 
   /// @brief whether enable gjk initial guess
   /// @Deprecated Use gjk_initial_guess instead
-  HPP_FCL_DEPRECATED_MESSAGE(Use gjk_initial_guess instead)
+  COAL_DEPRECATED_MESSAGE(Use gjk_initial_guess instead)
   bool enable_cached_gjk_guess;
 
   /// @brief the gjk initial guess set by user
@@ -272,7 +272,7 @@ struct HPP_FCL_DLLAPI QueryRequest {
 };
 
 /// @brief base class for all query results
-struct HPP_FCL_DLLAPI QueryResult {
+struct COAL_DLLAPI QueryResult {
   /// @brief stores the last GJK ray when relevant.
   Vec3f cached_gjk_guess;
 
@@ -308,7 +308,7 @@ enum CollisionRequestFlag {
 };
 
 /// @brief request to the collision algorithm
-struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
+struct COAL_DLLAPI CollisionRequest : QueryRequest {
   /// @brief The maximum number of contacts that can be returned
   size_t num_max_contacts;
 
@@ -317,7 +317,7 @@ struct HPP_FCL_DLLAPI CollisionRequest : QueryRequest {
   bool enable_contact;
 
   /// Whether a lower bound on distance is returned when objects are disjoint
-  HPP_FCL_DEPRECATED_MESSAGE(A lower bound on distance is always computed.)
+  COAL_DEPRECATED_MESSAGE(A lower bound on distance is always computed.)
   bool enable_distance_lower_bound;
 
   /// @brief Distance below which objects are considered in collision.
@@ -387,7 +387,7 @@ inline FCL_REAL Contact::getDistanceToCollision(
 }
 
 /// @brief collision result
-struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
+struct COAL_DLLAPI CollisionResult : QueryResult {
  private:
   /// @brief contact information
   std::vector<Contact> contacts;
@@ -508,7 +508,7 @@ struct HPP_FCL_DLLAPI CollisionResult : QueryResult {
 /// stored in a counter-clockwise fashion.
 /// @note If needed, the internal algorithms of hpp-fcl can easily be extended
 /// to compute a contact volume instead of a contact patch.
-struct HPP_FCL_DLLAPI ContactPatch {
+struct COAL_DLLAPI ContactPatch {
  public:
   using Polygon = std::vector<Vec2f>;
 
@@ -722,7 +722,7 @@ inline void constructContactPatchFrameFromContact(const Contact& contact,
 using SupportSet = ContactPatch;
 
 /// @brief Request for a contact patch computation.
-struct HPP_FCL_DLLAPI ContactPatchRequest {
+struct COAL_DLLAPI ContactPatchRequest {
   /// @brief Maximum number of contact patches that will be computed.
   size_t max_num_patch;
 
@@ -820,7 +820,7 @@ struct HPP_FCL_DLLAPI ContactPatchRequest {
 };
 
 /// @brief Result for a contact patch computation.
-struct HPP_FCL_DLLAPI ContactPatchResult {
+struct COAL_DLLAPI ContactPatchResult {
   using ContactPatchVector = std::vector<ContactPatch>;
   using ContactPatchRef = std::reference_wrapper<ContactPatch>;
   using ContactPatchRefVector = std::vector<ContactPatchRef>;
@@ -983,11 +983,11 @@ struct HPP_FCL_DLLAPI ContactPatchResult {
 struct DistanceResult;
 
 /// @brief request to the distance computation
-struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
+struct COAL_DLLAPI DistanceRequest : QueryRequest {
   /// @brief whether to return the nearest points.
   /// Nearest points are always computed and are the points of the shapes that
   /// achieve a distance of `DistanceResult::min_distance`.
-  HPP_FCL_DEPRECATED_MESSAGE(
+  COAL_DEPRECATED_MESSAGE(
       Nearest points are always computed
       : they are the points of the shapes that achieve a distance of
       `DistanceResult::min_distance`
@@ -1049,7 +1049,7 @@ struct HPP_FCL_DLLAPI DistanceRequest : QueryRequest {
 };
 
 /// @brief distance result
-struct HPP_FCL_DLLAPI DistanceResult : QueryResult {
+struct COAL_DLLAPI DistanceResult : QueryResult {
  public:
   /// @brief minimum distance between two objects.
   /// If two objects are in collision and

@@ -39,9 +39,9 @@
 #ifndef COAL_SUPPORT_FUNCTIONS_H
 #define COAL_SUPPORT_FUNCTIONS_H
 
-#include "hpp/fcl/shape/geometric_shapes.h"
-#include "hpp/fcl/math/transform.h"
-#include "hpp/fcl/collision_data.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/math/transform.h"
+#include "coal/collision_data.h"
 
 namespace coal {
 
@@ -77,7 +77,7 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint);
 
 /// @brief Stores temporary data for the computation of support points.
-struct HPP_FCL_DLLAPI ShapeSupportData {
+struct COAL_DLLAPI ShapeSupportData {
   // @brief Tracks which points have been visited in a ConvexBase.
   std::vector<int8_t> visited;
 
@@ -298,8 +298,8 @@ void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
 /// @param[in] cloud data which contains the 2d points of the support set which
 /// convex-hull we want to compute.
 /// @param[out] 2d points of the the support set's convex-hull.
-HPP_FCL_DLLAPI void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
-                                                SupportSet::Polygon& cvx_hull);
+COAL_DLLAPI void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
+                                             SupportSet::Polygon& cvx_hull);
 
 }  // namespace details
 

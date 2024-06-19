@@ -39,11 +39,11 @@
 #ifndef COAL_COLLISION_H
 #define COAL_COLLISION_H
 
-#include <hpp/fcl/data_types.h>
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/collision_func_matrix.h>
-#include <hpp/fcl/timings.h>
+#include "coal/data_types.h"
+#include "coal/collision_object.h"
+#include "coal/collision_data.h"
+#include "coal/collision_func_matrix.h"
+#include "coal/timings.h"
 
 namespace coal {
 
@@ -54,19 +54,19 @@ namespace coal {
 /// depth; otherwise only contact primitive id is returned), this function
 /// performs the collision between them.
 /// Return value is the number of contacts generated between the two objects.
-HPP_FCL_DLLAPI std::size_t collide(const CollisionObject* o1,
-                                   const CollisionObject* o2,
-                                   const CollisionRequest& request,
-                                   CollisionResult& result);
+COAL_DLLAPI std::size_t collide(const CollisionObject* o1,
+                                const CollisionObject* o2,
+                                const CollisionRequest& request,
+                                CollisionResult& result);
 
 /// @copydoc collide(const CollisionObject*, const CollisionObject*, const
 /// CollisionRequest&, CollisionResult&)
-HPP_FCL_DLLAPI std::size_t collide(const CollisionGeometry* o1,
-                                   const Transform3f& tf1,
-                                   const CollisionGeometry* o2,
-                                   const Transform3f& tf2,
-                                   const CollisionRequest& request,
-                                   CollisionResult& result);
+COAL_DLLAPI std::size_t collide(const CollisionGeometry* o1,
+                                const Transform3f& tf1,
+                                const CollisionGeometry* o2,
+                                const Transform3f& tf2,
+                                const CollisionRequest& request,
+                                CollisionResult& result);
 
 /// @brief This class reduces the cost of identifying the geometry pair.
 /// This is mostly useful for repeated shape-shape queries.
@@ -75,7 +75,7 @@ HPP_FCL_DLLAPI std::size_t collide(const CollisionGeometry* o1,
 ///   ComputeCollision calc_collision (o1, o2);
 ///   std::size_t ncontacts = calc_collision(tf1, tf2, request, result);
 /// \endcode
-class HPP_FCL_DLLAPI ComputeCollision {
+class COAL_DLLAPI ComputeCollision {
  public:
   /// @brief Default constructor from two Collision Geometries.
   ComputeCollision(const CollisionGeometry* o1, const CollisionGeometry* o2);

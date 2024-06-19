@@ -1,13 +1,13 @@
 #include "utility.h"
 
-#include <hpp/fcl/BV/BV.h>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
-#include <hpp/fcl/collision_utility.h>
-#include <hpp/fcl/fwd.hh>
+#include "coal/BV/BV.h"
+#include "coal/BVH/BVH_model.h"
+#include "coal/shape/geometric_shape_to_BVH_model.h"
+#include "coal/collision_utility.h"
+#include "coal/fwd.hh"
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
+#include "coal/collision.h"
+#include "coal/distance.h"
 
 #include <cstdio>
 #include <cstddef>

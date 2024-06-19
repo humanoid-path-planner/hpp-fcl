@@ -38,7 +38,7 @@
 #ifndef COAL_BROADPHASE_DETAIL_NODEBASEARRAY_H
 #define COAL_BROADPHASE_DETAIL_NODEBASEARRAY_H
 
-#include "hpp/fcl/data_types.h"
+#include "coal/data_types.h"
 
 namespace coal {
 
@@ -70,6 +70,6 @@ struct NodeBase {
 }  // namespace detail
 }  // namespace coal
 
-#include "hpp/fcl/broadphase/detail/node_base_array-inl.h"
+#include "coal/broadphase/detail/node_base_array-inl.h"
 
 #endif

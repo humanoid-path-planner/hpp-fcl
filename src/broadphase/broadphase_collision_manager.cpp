@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_collision_manager.h"
+#include "coal/broadphase/broadphase_collision_manager.h"
 
 namespace coal {
 

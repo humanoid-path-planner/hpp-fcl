@@ -5,8 +5,8 @@
 #ifndef COAL_SERIALIZATION_COLLISION_DATA_H
 #define COAL_SERIALIZATION_COLLISION_DATA_H
 
-#include "hpp/fcl/collision_data.h"
-#include "hpp/fcl/serialization/fwd.h"
+#include "coal/collision_data.h"
+#include "coal/serialization/fwd.h"
 
 namespace boost {
 namespace serialization {

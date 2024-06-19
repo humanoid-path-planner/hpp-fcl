@@ -5,9 +5,9 @@
 #ifndef COAL_SERIALIZATION_OBB_H
 #define COAL_SERIALIZATION_OBB_H
 
-#include "hpp/fcl/BV/OBB.h"
+#include "coal/BV/OBB.h"
 
-#include "hpp/fcl/serialization/fwd.h"
+#include "coal/serialization/fwd.h"
 
 namespace boost {
 namespace serialization {

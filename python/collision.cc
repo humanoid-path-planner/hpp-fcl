@@ -34,12 +34,12 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-#include <hpp/fcl/fwd.hh>
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/serialization/collision_data.h>
-HPP_FCL_COMPILER_DIAGNOSTIC_POP
+#include "coal/fwd.hh"
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+#include "coal/collision.h"
+#include "coal/serialization/collision_data.h"
+COAL_COMPILER_DIAGNOSTIC_POP
 
 #include "fcl.hh"
 #include "deprecation.hh"

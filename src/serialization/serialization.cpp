@@ -34,18 +34,18 @@
 
 /** \author Justin Carpentier */
 
-#include "hpp/fcl/serialization/fwd.h"
+#include "coal/serialization/fwd.h"
 
 using namespace coal;
 
-#include "hpp/fcl/serialization/transform.h"
-#include "hpp/fcl/serialization/collision_data.h"
-#include "hpp/fcl/serialization/geometric_shapes.h"
-#include "hpp/fcl/serialization/convex.h"
-#include "hpp/fcl/serialization/hfield.h"
-#include "hpp/fcl/serialization/BVH_model.h"
+#include "coal/serialization/transform.h"
+#include "coal/serialization/collision_data.h"
+#include "coal/serialization/geometric_shapes.h"
+#include "coal/serialization/convex.h"
+#include "coal/serialization/hfield.h"
+#include "coal/serialization/BVH_model.h"
 #ifdef HPP_FCL_HAS_OCTOMAP
-#include "hpp/fcl/serialization/octree.h"
+#include "coal/serialization/octree.h"
 #endif
 
 HPP_FCL_SERIALIZATION_DEFINE_EXPORT(CollisionRequest)

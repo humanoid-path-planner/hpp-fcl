@@ -38,15 +38,15 @@
 #ifndef COAL_DISTANCE_FUNC_MATRIX_H
 #define COAL_DISTANCE_FUNC_MATRIX_H
 
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
+#include "coal/collision_object.h"
+#include "coal/collision_data.h"
+#include "coal/narrowphase/narrowphase.h"
 
 namespace coal {
 
 /// @brief distance matrix stores the functions for distance between different
 /// types of objects and provides a uniform call interface
-struct HPP_FCL_DLLAPI DistanceFunctionMatrix {
+struct COAL_DLLAPI DistanceFunctionMatrix {
   /// @brief the uniform call interface for distance: for distance, we need know
   /// 1. two objects o1 and o2 and their configuration in world coordinate tf1
   /// and tf2;

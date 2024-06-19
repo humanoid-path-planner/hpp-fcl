@@ -38,7 +38,7 @@
 #ifndef COAL_INTERVAL_TREE_INL_H
 #define COAL_INTERVAL_TREE_INL_H
 
-#include "hpp/fcl/broadphase/detail/interval_tree.h"
+#include "coal/broadphase/detail/interval_tree.h"
 
 #include <algorithm>
 

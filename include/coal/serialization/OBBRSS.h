@@ -5,11 +5,11 @@
 #ifndef COAL_SERIALIZATION_OBBRSS_H
 #define COAL_SERIALIZATION_OBBRSS_H
 
-#include "hpp/fcl/BV/OBBRSS.h"
+#include "coal/BV/OBBRSS.h"
 
-#include "hpp/fcl/serialization/fwd.h"
-#include "hpp/fcl/serialization/OBB.h"
-#include "hpp/fcl/serialization/RSS.h"
+#include "coal/serialization/fwd.h"
+#include "coal/serialization/OBB.h"
+#include "coal/serialization/RSS.h"
 
 namespace boost {
 namespace serialization {

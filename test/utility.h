@@ -38,14 +38,14 @@
 #ifndef TEST_HPP_FCL_UTILITY_H
 #define TEST_HPP_FCL_UTILITY_H
 
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/broadphase/default_broadphase_callbacks.h>
-#include <hpp/fcl/shape/convex.h>
+#include "coal/math/transform.h"
+#include "coal/collision_data.h"
+#include "coal/collision_object.h"
+#include "coal/broadphase/default_broadphase_callbacks.h"
+#include "coal/shape/convex.h"
 
 #ifdef HPP_FCL_HAS_OCTOMAP
-#include <hpp/fcl/octree.h>
+#include "coal/octree.h"
 #endif
 
 #ifdef _WIN32

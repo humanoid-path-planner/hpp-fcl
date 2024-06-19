@@ -5,9 +5,9 @@
 #ifndef COAL_SERIALIZATION_GEOMETRIC_SHAPES_H
 #define COAL_SERIALIZATION_GEOMETRIC_SHAPES_H
 
-#include "hpp/fcl/shape/geometric_shapes.h"
-#include "hpp/fcl/serialization/fwd.h"
-#include "hpp/fcl/serialization/collision_object.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/serialization/fwd.h"
+#include "coal/serialization/collision_object.h"
 
 namespace boost {
 namespace serialization {

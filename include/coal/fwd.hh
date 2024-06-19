@@ -43,9 +43,9 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <hpp/fcl/config.hh>
-#include <hpp/fcl/deprecated.hh>
-#include <hpp/fcl/warning.hh>
+#include "coal/config.hh"
+#include "coal/deprecated.hh"
+#include "coal/warning.hh"
 
 #if _WIN32
 #define HPP_FCL_PRETTY_FUNCTION __FUNCSIG__

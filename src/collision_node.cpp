@@ -36,7 +36,7 @@
 /** \author Jia Pan */
 
 #include <../src/collision_node.h>
-#include <hpp/fcl/internal/traversal_recurse.h>
+#include "coal/internal/traversal_recurse.h"
 
 namespace coal {
 

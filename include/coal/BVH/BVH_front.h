@@ -40,7 +40,7 @@
 
 #include <list>
 
-#include <hpp/fcl/config.hh>
+#include "coal/config.hh"
 
 namespace coal {
 
@@ -49,7 +49,7 @@ namespace coal {
 /// the traversal terminates while performing a query during a given time
 /// instance. The front list reflects the subset of a BVTT that is traversed for
 /// that particular proximity query.
-struct HPP_FCL_DLLAPI BVHFrontNode {
+struct COAL_DLLAPI BVHFrontNode {
   /// @brief The nodes to start in the future, i.e. the wave front of the
   /// traversal tree.
   unsigned int left, right;

@@ -38,7 +38,7 @@
 #ifndef COAL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_INL_H
 #define COAL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_INL_H
 
-#include "hpp/fcl/broadphase/broadphase_continuous_collision_manager.h"
+#include "coal/broadphase/broadphase_continuous_collision_manager.h"
 #include <algorithm>
 
 namespace coal {

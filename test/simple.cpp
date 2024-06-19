@@ -1,9 +1,9 @@
 #define BOOST_TEST_MODULE FCL_SIMPLE
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/internal/intersect.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/BVH/BVH_model.h>
+#include "coal/internal/intersect.h"
+#include "coal/collision.h"
+#include "coal/BVH/BVH_model.h"
 #include "fcl_resources/config.h"
 #include <sstream>
 

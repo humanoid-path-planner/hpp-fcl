@@ -39,14 +39,14 @@
 #define BOOST_TEST_MODULE FCL_GEOMETRIC_SHAPES
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/collision.h"
+#include "coal/distance.h"
 #include "utility.h"
 #include <iostream>
-#include <hpp/fcl/internal/tools.h>
-#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
-#include <hpp/fcl/internal/shape_shape_func.h>
+#include "coal/internal/tools.h"
+#include "coal/shape/geometric_shape_to_BVH_model.h"
+#include "coal/internal/shape_shape_func.h"
 
 using namespace coal;
 

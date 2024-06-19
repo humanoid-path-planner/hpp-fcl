@@ -37,13 +37,13 @@
 #define BOOST_TEST_MODULE SWEPT_SPHERE_RADIUS
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/collision_utility.h>
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/collision_utility.h"
 
-#include <hpp/fcl/serialization/geometric_shapes.h>
-#include <hpp/fcl/serialization/convex.h>
-#include <hpp/fcl/serialization/transform.h>
-#include <hpp/fcl/serialization/archive.h>
+#include "coal/serialization/geometric_shapes.h"
+#include "coal/serialization/convex.h"
+#include "coal/serialization/transform.h"
+#include "coal/serialization/archive.h"
 
 #include "utility.h"
 

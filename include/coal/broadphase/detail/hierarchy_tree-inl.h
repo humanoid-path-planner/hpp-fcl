@@ -38,7 +38,7 @@
 #ifndef COAL_HIERARCHY_TREE_INL_H
 #define COAL_HIERARCHY_TREE_INL_H
 
-#include "hpp/fcl/broadphase/detail/hierarchy_tree.h"
+#include "coal/broadphase/detail/hierarchy_tree.h"
 
 namespace coal {
 

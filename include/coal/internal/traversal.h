@@ -45,7 +45,7 @@ enum { RelativeTransformationIsIdentity = 1 };
 
 namespace details {
 template <bool enabled>
-struct HPP_FCL_DLLAPI RelativeTransformation {
+struct COAL_DLLAPI RelativeTransformation {
   RelativeTransformation() : R(Matrix3f::Identity()) {}
 
   const Matrix3f& _R() const { return R; }
@@ -56,7 +56,7 @@ struct HPP_FCL_DLLAPI RelativeTransformation {
 };
 
 template <>
-struct HPP_FCL_DLLAPI RelativeTransformation<false> {
+struct COAL_DLLAPI RelativeTransformation<false> {
   static const Matrix3f& _R() {
     HPP_FCL_THROW_PRETTY("should never reach this point", std::logic_error);
   }

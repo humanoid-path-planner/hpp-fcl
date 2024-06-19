@@ -39,9 +39,9 @@
 #ifndef COAL_MINKOWSKI_DIFFERENCE_H
 #define COAL_MINKOWSKI_DIFFERENCE_H
 
-#include "hpp/fcl/shape/geometric_shapes.h"
-#include "hpp/fcl/math/transform.h"
-#include "hpp/fcl/narrowphase/support_functions.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/math/transform.h"
+#include "coal/narrowphase/support_functions.h"
 
 namespace coal {
 
@@ -50,7 +50,7 @@ namespace details {
 /// @brief Minkowski difference class of two shapes
 ///
 /// @note The Minkowski difference is expressed in the frame of the first shape.
-struct HPP_FCL_DLLAPI MinkowskiDiff {
+struct COAL_DLLAPI MinkowskiDiff {
   typedef Eigen::Array<FCL_REAL, 1, 2> Array2d;
 
   /// @brief points to two shapes

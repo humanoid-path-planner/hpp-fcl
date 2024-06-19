@@ -40,21 +40,21 @@
 
 /// @cond INTERNAL
 
-#include <hpp/fcl/math/transform.h>
+#include "coal/math/transform.h"
 
 namespace coal {
 
 /// @brief CCD intersect kernel among primitives
-class HPP_FCL_DLLAPI Intersect {
+class COAL_DLLAPI Intersect {
  public:
   static bool buildTrianglePlane(const Vec3f& v1, const Vec3f& v2,
                                  const Vec3f& v3, Vec3f* n, FCL_REAL* t);
 };  // class Intersect
 
 /// @brief Project functions
-class HPP_FCL_DLLAPI Project {
+class COAL_DLLAPI Project {
  public:
-  struct HPP_FCL_DLLAPI ProjectResult {
+  struct COAL_DLLAPI ProjectResult {
     /// @brief Parameterization of the projected point (based on the simplex to
     /// be projected, use 2 or 3 or 4 of the array)
     FCL_REAL parameterization[4];
@@ -94,7 +94,7 @@ class HPP_FCL_DLLAPI Project {
 };
 
 /// @brief Triangle distance functions
-class HPP_FCL_DLLAPI TriangleDistance {
+class COAL_DLLAPI TriangleDistance {
  public:
   /// @brief Returns closest points between an segment pair.
   /// The first segment is P + t * A

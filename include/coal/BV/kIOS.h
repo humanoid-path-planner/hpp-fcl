@@ -38,7 +38,7 @@
 #ifndef COAL_KIOS_H
 #define COAL_KIOS_H
 
-#include "hpp/fcl/BV/OBB.h"
+#include "coal/BV/OBB.h"
 
 namespace coal {
 
@@ -49,9 +49,9 @@ struct CollisionRequest;
 
 /// @brief A class describing the kIOS collision structure, which is a set of
 /// spheres.
-class HPP_FCL_DLLAPI kIOS {
+class COAL_DLLAPI kIOS {
   /// @brief One sphere in kIOS
-  struct HPP_FCL_DLLAPI kIOS_Sphere {
+  struct COAL_DLLAPI kIOS_Sphere {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     Vec3f o;
@@ -166,26 +166,26 @@ class HPP_FCL_DLLAPI kIOS {
 };
 
 /// @brief Translate the kIOS BV
-HPP_FCL_DLLAPI kIOS translate(const kIOS& bv, const Vec3f& t);
+COAL_DLLAPI kIOS translate(const kIOS& bv, const Vec3f& t);
 
 /// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0)
 /// and b2 is in identity.
 /// @todo Not efficient
-HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1,
-                            const kIOS& b2);
+COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1,
+                         const kIOS& b2);
 
 /// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0)
 /// and b2 is in identity.
 /// @todo Not efficient
-HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1,
-                            const kIOS& b2, const CollisionRequest& request,
-                            FCL_REAL& sqrDistLowerBound);
+COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1,
+                         const kIOS& b2, const CollisionRequest& request,
+                         FCL_REAL& sqrDistLowerBound);
 
 /// @brief Approximate distance between two kIOS bounding volumes
 /// @todo P and Q is not returned, need implementation
-HPP_FCL_DLLAPI FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0,
-                                 const kIOS& b1, const kIOS& b2,
-                                 Vec3f* P = NULL, Vec3f* Q = NULL);
+COAL_DLLAPI FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0,
+                              const kIOS& b1, const kIOS& b2, Vec3f* P = NULL,
+                              Vec3f* Q = NULL);
 
 }  // namespace coal
 

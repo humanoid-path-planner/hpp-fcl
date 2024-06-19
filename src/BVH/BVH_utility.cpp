@@ -35,10 +35,10 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BVH/BVH_utility.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/shape/geometric_shapes_utility.h>
-#include <hpp/fcl/internal/shape_shape_func.h>
+#include "coal/BVH/BVH_utility.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/shape/geometric_shapes_utility.h"
+#include "coal/internal/shape_shape_func.h"
 
 namespace coal {
 

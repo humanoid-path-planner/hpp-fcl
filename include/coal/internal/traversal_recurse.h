@@ -40,10 +40,10 @@
 
 /// @cond INTERNAL
 
-#include <hpp/fcl/BVH/BVH_front.h>
+#include "coal/BVH/BVH_front.h"
+#include "coal/internal/traversal_node_base.h"
+#include "coal/internal/traversal_node_bvhs.h"
 #include <queue>
-#include <hpp/fcl/internal/traversal_node_base.h>
-#include <hpp/fcl/internal/traversal_node_bvhs.h>
 
 namespace coal {
 

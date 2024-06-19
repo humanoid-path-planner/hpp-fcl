@@ -5,7 +5,7 @@
 #ifndef COAL_PYTHON_FWD_HH
 #define COAL_PYTHON_FWD_HH
 
-#include <hpp/fcl/fwd.hh>
+#include "coal/fwd.hh"
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 namespace doxygen {
 using hpp::fcl::shared_ptr;

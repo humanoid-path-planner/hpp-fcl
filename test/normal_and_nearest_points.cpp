@@ -37,12 +37,12 @@
 #define BOOST_TEST_MODULE NORMAL_AND_NEAREST_POINTS
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/BV/OBBRSS.h>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
+#include "coal/fwd.hh"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/collision_data.h"
+#include "coal/BV/OBBRSS.h"
+#include "coal/BVH/BVH_model.h"
+#include "coal/shape/geometric_shape_to_BVH_model.h"
 
 #include "utility.h"
 

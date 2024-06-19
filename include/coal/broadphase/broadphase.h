@@ -35,14 +35,14 @@
 #ifndef COAL_BROADPHASE_BROADPHASE_H
 #define COAL_BROADPHASE_BROADPHASE_H
 
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
-#include "hpp/fcl/broadphase/broadphase_bruteforce.h"
-#include "hpp/fcl/broadphase/broadphase_SaP.h"
-#include "hpp/fcl/broadphase/broadphase_SSaP.h"
-#include "hpp/fcl/broadphase/broadphase_interval_tree.h"
-#include "hpp/fcl/broadphase/broadphase_spatialhash.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "coal/broadphase/broadphase_bruteforce.h"
+#include "coal/broadphase/broadphase_SaP.h"
+#include "coal/broadphase/broadphase_SSaP.h"
+#include "coal/broadphase/broadphase_interval_tree.h"
+#include "coal/broadphase/broadphase_spatialhash.h"
 
-#include "hpp/fcl/broadphase/default_broadphase_callbacks.h"
+#include "coal/broadphase/default_broadphase_callbacks.h"
 
 #endif  // ifndef COAL_BROADPHASE_BROADPHASE_H

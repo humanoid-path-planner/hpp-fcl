@@ -39,12 +39,12 @@
 #define COAL_BROAD_PHASE_SSAP_H
 
 #include <vector>
-#include "hpp/fcl/broadphase/broadphase_collision_manager.h"
+#include "coal/broadphase/broadphase_collision_manager.h"
 
 namespace coal {
 
 /// @brief Simple SAP collision manager
-class HPP_FCL_DLLAPI SSaPCollisionManager : public BroadPhaseCollisionManager {
+class COAL_DLLAPI SSaPCollisionManager : public BroadPhaseCollisionManager {
  public:
   typedef BroadPhaseCollisionManager Base;
   using Base::getObjects;

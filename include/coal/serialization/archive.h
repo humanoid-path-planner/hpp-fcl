@@ -7,7 +7,7 @@
 #ifndef COAL_SERIALIZATION_ARCHIVE_H
 #define COAL_SERIALIZATION_ARCHIVE_H
 
-#include "hpp/fcl/fwd.hh"
+#include "coal/fwd.hh"
 
 #include <boost/serialization/nvp.hpp>
 #include <boost/archive/text_iarchive.hpp>

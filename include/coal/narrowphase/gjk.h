@@ -41,7 +41,7 @@
 
 #include <vector>
 
-#include "hpp/fcl/narrowphase/minkowski_difference.h"
+#include "coal/narrowphase/minkowski_difference.h"
 
 namespace coal {
 
@@ -50,8 +50,8 @@ namespace details {
 /// @brief class for GJK algorithm
 ///
 /// @note The computations are performed in the frame of the first shape.
-struct HPP_FCL_DLLAPI GJK {
-  struct HPP_FCL_DLLAPI SimplexV {
+struct COAL_DLLAPI GJK {
+  struct COAL_DLLAPI SimplexV {
     /// @brief support vector for shape 0 and 1.
     Vec3f w0, w1;
     /// @brief support vector (i.e., the furthest point on the shape along the
@@ -68,7 +68,7 @@ struct HPP_FCL_DLLAPI GJK {
   /// Since GJK does not need any more storage, it reuses these vertices
   /// throughout the algorithm by using multiple instance of this `Simplex`
   /// class.
-  struct HPP_FCL_DLLAPI Simplex {
+  struct COAL_DLLAPI Simplex {
     /// @brief simplex vertex
     SimplexV* vertex[4];
     /// @brief size of simplex (number of vertices)
@@ -255,9 +255,9 @@ struct HPP_FCL_DLLAPI GJK {
 };
 
 /// @brief class for EPA algorithm
-struct HPP_FCL_DLLAPI EPA {
+struct COAL_DLLAPI EPA {
   typedef GJK::SimplexV SimplexVertex;
-  struct HPP_FCL_DLLAPI SimplexFace {
+  struct COAL_DLLAPI SimplexFace {
     Vec3f n;
     FCL_REAL d;
     bool ignore;          // If the origin does not project inside the face, we
@@ -278,7 +278,7 @@ struct HPP_FCL_DLLAPI EPA {
   /// @brief The simplex list of EPA is a linked list of faces.
   /// Note: EPA's linked list does **not** own any memory.
   /// The memory it refers to is contiguous and owned by a std::vector.
-  struct HPP_FCL_DLLAPI SimplexFaceList {
+  struct COAL_DLLAPI SimplexFaceList {
     SimplexFace* root;
     size_t count;
     SimplexFaceList() : root(nullptr), count(0) {}
@@ -318,7 +318,7 @@ struct HPP_FCL_DLLAPI EPA {
     fb->adjacent_faces[eb] = fa;
   }
 
-  struct HPP_FCL_DLLAPI SimplexHorizon {
+  struct COAL_DLLAPI SimplexHorizon {
     SimplexFace* current_face;  // current face in the horizon
     SimplexFace* first_face;    // first face in the horizon
     size_t num_faces;           // number of faces in the horizon

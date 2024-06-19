@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_interval_tree.h"
+#include "coal/broadphase/broadphase_interval_tree.h"
 
 namespace coal {
 

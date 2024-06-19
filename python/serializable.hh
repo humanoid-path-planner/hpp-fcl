@@ -9,8 +9,8 @@
 
 #include <boost/python.hpp>
 
-#include "hpp/fcl/serialization/archive.h"
-#include "hpp/fcl/serialization/serializer.h"
+#include "coal/serialization/archive.h"
+#include "coal/serialization/serializer.h"
 
 namespace coal {
 namespace python {

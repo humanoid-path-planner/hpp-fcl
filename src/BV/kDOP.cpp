@@ -35,11 +35,11 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BV/kDOP.h>
+#include "coal/collision_data.h"
+#include "coal/BV/kDOP.h"
+
 #include <limits>
 #include <iostream>
-
-#include <hpp/fcl/collision_data.h>
 
 namespace coal {
 

@@ -37,8 +37,8 @@
 #ifndef COAL_BROADPHASE_BROAD_PHASE_CALLBACKS_H
 #define COAL_BROADPHASE_BROAD_PHASE_CALLBACKS_H
 
-#include "hpp/fcl/fwd.hh"
-#include "hpp/fcl/data_types.h"
+#include "coal/fwd.hh"
+#include "coal/data_types.h"
 
 namespace coal {
 
@@ -46,7 +46,7 @@ namespace coal {
 /// This class can be supersed by child classes to provide desired behaviors
 /// according to the application (e.g, only listing the potential
 /// CollisionObjects in collision).
-struct HPP_FCL_DLLAPI CollisionCallBackBase {
+struct COAL_DLLAPI CollisionCallBackBase {
   /// @brief Initialization of the callback before running the collision
   /// broadphase manager.
   virtual void init() {};
@@ -69,7 +69,7 @@ struct HPP_FCL_DLLAPI CollisionCallBackBase {
 /// This class can be supersed by child classes to provide desired behaviors
 /// according to the application (e.g, only listing the potential
 /// CollisionObjects in collision).
-struct HPP_FCL_DLLAPI DistanceCallBackBase {
+struct COAL_DLLAPI DistanceCallBackBase {
   /// @brief Initialization of the callback before running the collision
   /// broadphase manager.
   virtual void init() {};

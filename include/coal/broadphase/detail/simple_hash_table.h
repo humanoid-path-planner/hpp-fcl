@@ -82,6 +82,6 @@ class SimpleHashTable {
 }  // namespace detail
 }  // namespace coal
 
-#include "hpp/fcl/broadphase/detail/simple_hash_table-inl.h"
+#include "coal/broadphase/detail/simple_hash_table-inl.h"
 
 #endif

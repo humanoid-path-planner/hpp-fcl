@@ -5,9 +5,9 @@
 #ifndef COAL_SERIALIZATION_CONTACT_PATCH_H
 #define COAL_SERIALIZATION_CONTACT_PATCH_H
 
-#include "hpp/fcl/collision_data.h"
-#include "hpp/fcl/serialization/fwd.h"
-#include "hpp/fcl/serialization/transform.h"
+#include "coal/collision_data.h"
+#include "coal/serialization/fwd.h"
+#include "coal/serialization/transform.h"
 
 namespace boost {
 namespace serialization {

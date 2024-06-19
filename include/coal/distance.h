@@ -38,10 +38,10 @@
 #ifndef COAL_DISTANCE_H
 #define COAL_DISTANCE_H
 
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/distance_func_matrix.h>
-#include <hpp/fcl/timings.h>
+#include "coal/collision_object.h"
+#include "coal/collision_data.h"
+#include "coal/distance_func_matrix.h"
+#include "coal/timings.h"
 
 namespace coal {
 
@@ -49,19 +49,19 @@ namespace coal {
 /// requirements for contacts, including whether return the nearest points, this
 /// function performs the distance between them. Return value is the minimum
 /// distance generated between the two objects.
-HPP_FCL_DLLAPI FCL_REAL distance(const CollisionObject* o1,
-                                 const CollisionObject* o2,
-                                 const DistanceRequest& request,
-                                 DistanceResult& result);
+COAL_DLLAPI FCL_REAL distance(const CollisionObject* o1,
+                              const CollisionObject* o2,
+                              const DistanceRequest& request,
+                              DistanceResult& result);
 
 /// @copydoc distance(const CollisionObject*, const CollisionObject*, const
 /// DistanceRequest&, DistanceResult&)
-HPP_FCL_DLLAPI FCL_REAL distance(const CollisionGeometry* o1,
-                                 const Transform3f& tf1,
-                                 const CollisionGeometry* o2,
-                                 const Transform3f& tf2,
-                                 const DistanceRequest& request,
-                                 DistanceResult& result);
+COAL_DLLAPI FCL_REAL distance(const CollisionGeometry* o1,
+                              const Transform3f& tf1,
+                              const CollisionGeometry* o2,
+                              const Transform3f& tf2,
+                              const DistanceRequest& request,
+                              DistanceResult& result);
 
 /// This class reduces the cost of identifying the geometry pair.
 /// This is mostly useful for repeated shape-shape queries.
@@ -70,7 +70,7 @@ HPP_FCL_DLLAPI FCL_REAL distance(const CollisionGeometry* o1,
 ///   ComputeDistance calc_distance (o1, o2);
 ///   FCL_REAL distance = calc_distance(tf1, tf2, request, result);
 /// \endcode
-class HPP_FCL_DLLAPI ComputeDistance {
+class COAL_DLLAPI ComputeDistance {
  public:
   ComputeDistance(const CollisionGeometry* o1, const CollisionGeometry* o2);
 

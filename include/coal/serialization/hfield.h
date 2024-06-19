@@ -5,10 +5,10 @@
 #ifndef COAL_SERIALIZATION_HFIELD_H
 #define COAL_SERIALIZATION_HFIELD_H
 
-#include "hpp/fcl/hfield.h"
+#include "coal/hfield.h"
 
-#include "hpp/fcl/serialization/fwd.h"
-#include "hpp/fcl/serialization/OBBRSS.h"
+#include "coal/serialization/fwd.h"
+#include "coal/serialization/OBBRSS.h"
 
 namespace boost {
 namespace serialization {

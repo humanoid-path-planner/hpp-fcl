@@ -5,7 +5,7 @@
 #ifndef COAL_PYTHON_BROADPHASE_FWD_HH
 #define COAL_PYTHON_BROADPHASE_FWD_HH
 
-#include "hppfcl/fwd.hh"
+#include "coal/fwd.hh"
 
 namespace coal {
 namespace python {

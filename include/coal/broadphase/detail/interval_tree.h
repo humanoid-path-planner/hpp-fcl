@@ -42,7 +42,7 @@
 #include <limits>
 #include <cstdlib>
 
-#include "hpp/fcl/broadphase/detail/interval_tree_node.h"
+#include "coal/broadphase/detail/interval_tree_node.h"
 
 namespace coal {
 namespace detail {
@@ -50,7 +50,7 @@ namespace detail {
 /// @brief Class describes the information needed when we take the
 /// right branch in searching for intervals but possibly come back
 /// and check the left branch as well.
-struct HPP_FCL_DLLAPI it_recursion_node {
+struct COAL_DLLAPI it_recursion_node {
  public:
   IntervalTreeNode* start_node;
 
@@ -60,7 +60,7 @@ struct HPP_FCL_DLLAPI it_recursion_node {
 };
 
 /// @brief Interval tree
-class HPP_FCL_DLLAPI IntervalTree {
+class COAL_DLLAPI IntervalTree {
  public:
   IntervalTree();
 

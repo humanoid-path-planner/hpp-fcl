@@ -40,10 +40,10 @@
 
 #include <chrono>
 
-#include <hpp/fcl/narrowphase/narrowphase.h>
+#include "coal/narrowphase/narrowphase.h"
 
 #include "../src/BV/OBB.h"
-#include <hpp/fcl/internal/shape_shape_func.h>
+#include "coal/internal/shape_shape_func.h"
 #include "utility.h"
 
 using namespace coal;

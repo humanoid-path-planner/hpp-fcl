@@ -36,15 +36,15 @@
 
 /** Tests the dynamic axis-aligned bounding box tree.*/
 
-#include <iostream>
-#include <memory>
-
 #define BOOST_TEST_MODULE BROADPHASE_DYNAMIC_AABB_TREE
 #include <boost/test/included/unit_test.hpp>
 
-// #include "hpp/fcl/data_types.h"
-#include "hpp/fcl/shape/geometric_shapes.h"
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
+// #include "coal/data_types.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree.h"
+
+#include <iostream>
+#include <memory>
 
 using namespace coal;
 

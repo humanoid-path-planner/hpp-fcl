@@ -35,13 +35,13 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/collision_func_matrix.h>
+#include "coal/collision_func_matrix.h"
 
-#include <hpp/fcl/internal/traversal_node_setup.h>
+#include "coal/internal/traversal_node_setup.h"
 #include <../src/collision_node.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/internal/shape_shape_func.h>
-#include <hpp/fcl/shape/geometric_shapes_traits.h>
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/internal/shape_shape_func.h"
+#include "coal/shape/geometric_shapes_traits.h"
 #include <../src/traits_traversal.h>
 
 namespace coal {
@@ -98,7 +98,7 @@ BVH_SHAPE_DEFAULT_TO_ORIENTED(OBBRSS);
 ///         - 0 if the query should be made with non-aligned object frames.
 template <typename T_BVH, typename T_SH,
           int _Options = details::bvh_shape_traits<T_BVH, T_SH>::Options>
-struct HPP_FCL_LOCAL BVHShapeCollider {
+struct COAL_LOCAL BVHShapeCollider {
   static std::size_t collide(const CollisionGeometry* o1,
                              const Transform3f& tf1,
                              const CollisionGeometry* o2,
@@ -165,7 +165,7 @@ struct HPP_FCL_LOCAL BVHShapeCollider {
 ///           into the frame of object 2 before computing collisions.
 ///         - 0 if the query should be made with non-aligned object frames.
 template <typename BV, typename Shape>
-struct HPP_FCL_LOCAL HeightFieldShapeCollider {
+struct COAL_LOCAL HeightFieldShapeCollider {
   typedef HeightField<BV> HF;
 
   static std::size_t collide(const CollisionGeometry* o1,

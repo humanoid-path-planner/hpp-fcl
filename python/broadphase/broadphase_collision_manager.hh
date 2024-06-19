@@ -37,9 +37,9 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/broadphase/broadphase_collision_manager.h>
-#include <hpp/fcl/broadphase/default_broadphase_callbacks.h>
+#include "coal/fwd.hh"
+#include "coal/broadphase/broadphase_collision_manager.h"
+#include "coal/broadphase/default_broadphase_callbacks.h"
 
 #include "../fcl.hh"
 

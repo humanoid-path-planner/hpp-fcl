@@ -35,10 +35,10 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BV/RSS.h>
-#include <hpp/fcl/BVH/BVH_utility.h>
-#include <hpp/fcl/internal/tools.h>
-#include <hpp/fcl/collision_data.h>
+#include "coal/BV/RSS.h"
+#include "coal/BVH/BVH_utility.h"
+#include "coal/internal/tools.h"
+#include "coal/collision_data.h"
 
 #include <iostream>
 

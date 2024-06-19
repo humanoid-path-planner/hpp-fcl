@@ -37,11 +37,11 @@
 #ifndef COAL_INTERNAL_SHAPE_SHAPE_CONTACT_PATCH_FUNC_H
 #define COAL_INTERNAL_SHAPE_SHAPE_CONTACT_PATCH_FUNC_H
 
-#include "hpp/fcl/collision_data.h"
-#include "hpp/fcl/collision_utility.h"
-#include "hpp/fcl/narrowphase/narrowphase.h"
-#include "hpp/fcl/contact_patch/contact_patch_solver.h"
-#include "hpp/fcl/shape/geometric_shapes_traits.h"
+#include "coal/collision_data.h"
+#include "coal/collision_utility.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/contact_patch/contact_patch_solver.h"
+#include "coal/shape/geometric_shapes_traits.h"
 
 namespace coal {
 

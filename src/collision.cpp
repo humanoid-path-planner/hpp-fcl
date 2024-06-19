@@ -35,10 +35,10 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/collision_utility.h>
-#include <hpp/fcl/collision_func_matrix.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
+#include "coal/collision.h"
+#include "coal/collision_utility.h"
+#include "coal/collision_func_matrix.h"
+#include "coal/narrowphase/narrowphase.h"
 
 namespace coal {
 

@@ -38,16 +38,16 @@
 #ifndef COAL_BROAD_PHASE_DYNAMIC_AABB_TREE_INL_H
 #define COAL_BROAD_PHASE_DYNAMIC_AABB_TREE_INL_H
 
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree.h"
 
 #include <limits>
 
 #if HPP_FCL_HAVE_OCTOMAP
-#include "hpp/fcl/octree.h"
+#include "coal/octree.h"
 #endif
 
-#include "hpp/fcl/BV/BV.h"
-#include "hpp/fcl/shape/geometric_shapes_utility.h"
+#include "coal/BV/BV.h"
+#include "coal/shape/geometric_shapes_utility.h"
 
 namespace coal {
 namespace detail {

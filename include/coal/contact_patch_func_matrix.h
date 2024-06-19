@@ -37,16 +37,16 @@
 #ifndef COAL_CONTACT_PATCH_FUNC_MATRIX_H
 #define COAL_CONTACT_PATCH_FUNC_MATRIX_H
 
-#include "hpp/fcl/collision_data.h"
-#include "hpp/fcl/contact_patch/contact_patch_solver.h"
-#include "hpp/fcl/narrowphase/narrowphase.h"
+#include "coal/collision_data.h"
+#include "coal/contact_patch/contact_patch_solver.h"
+#include "coal/narrowphase/narrowphase.h"
 
 namespace coal {
 
 /// @brief The contact patch matrix stores the functions for contact patches
 /// computation between different types of objects and provides a uniform call
 /// interface
-struct HPP_FCL_DLLAPI ContactPatchFunctionMatrix {
+struct COAL_DLLAPI ContactPatchFunctionMatrix {
   /// @brief the uniform call interface for computing contact patches: we need
   /// know
   /// 1. two objects o1 and o2 and their configuration in world coordinate tf1

@@ -42,10 +42,10 @@
 
 #include <limits>
 
-#include <hpp/fcl/narrowphase/gjk.h>
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/narrowphase/narrowphase_defaults.h>
-#include <hpp/fcl/logging.h>
+#include "coal/narrowphase/gjk.h"
+#include "coal/collision_data.h"
+#include "coal/narrowphase/narrowphase_defaults.h"
+#include "coal/logging.h"
 
 namespace coal {
 
@@ -54,7 +54,7 @@ namespace coal {
 /// inspiration from the code of the GJK in bullet. Since then, both GJK and EPA
 /// have been largely modified to be faster and more robust to numerical
 /// accuracy and edge cases.
-struct HPP_FCL_DLLAPI GJKSolver {
+struct COAL_DLLAPI GJKSolver {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -72,7 +72,7 @@ struct HPP_FCL_DLLAPI GJKSolver {
 
   /// @brief Whether smart guess can be provided
   /// @Deprecated Use gjk_initial_guess instead
-  HPP_FCL_DEPRECATED_MESSAGE(Use gjk_initial_guess instead)
+  COAL_DEPRECATED_MESSAGE(Use gjk_initial_guess instead)
   bool enable_cached_guess;
 
   /// @brief smart guess

@@ -35,10 +35,10 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/distance.h>
-#include <hpp/fcl/collision_utility.h>
-#include <hpp/fcl/distance_func_matrix.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
+#include "coal/distance.h"
+#include "coal/collision_utility.h"
+#include "coal/distance_func_matrix.h"
+#include "coal/narrowphase/narrowphase.h"
 
 #include <iostream>
 

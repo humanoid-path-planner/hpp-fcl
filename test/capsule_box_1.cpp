@@ -40,11 +40,11 @@
 #define CHECK_CLOSE_TO_0(x, eps) BOOST_CHECK_CLOSE((x + 1.0), (1.0), (eps))
 
 #include <cmath>
-#include <hpp/fcl/distance.h>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "coal/distance.h"
+#include "coal/math/transform.h"
+#include "coal/collision.h"
+#include "coal/collision_object.h"
+#include "coal/shape/geometric_shapes.h"
 
 #include "utility.h"
 

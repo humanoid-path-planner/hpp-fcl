@@ -1,4 +1,4 @@
-#include <hpp/fcl/shape/convex.h>
+#include "coal/shape/convex.h"
 
 #ifdef HPP_FCL_HAS_QHULL
 #include <libqhullcpp/QhullError.h>

@@ -35,7 +35,7 @@
 
 /** \author Florent Lamiraux */
 
-#include <hpp/fcl/collision_object.h>
+#include "coal/collision_object.h"
 
 namespace coal {
 bool CollisionGeometry::isUncertain() const {

@@ -5,13 +5,13 @@
 #ifndef COAL_SERIALIZATION_CONVEX_H
 #define COAL_SERIALIZATION_CONVEX_H
 
-#include "hpp/fcl/shape/convex.h"
+#include "coal/shape/convex.h"
 
-#include "hpp/fcl/serialization/fwd.h"
-#include "hpp/fcl/serialization/geometric_shapes.h"
-#include "hpp/fcl/serialization/memory.h"
-#include "hpp/fcl/serialization/triangle.h"
-#include "hpp/fcl/serialization/quadrilateral.h"
+#include "coal/serialization/fwd.h"
+#include "coal/serialization/geometric_shapes.h"
+#include "coal/serialization/memory.h"
+#include "coal/serialization/triangle.h"
+#include "coal/serialization/quadrilateral.h"
 
 namespace boost {
 namespace serialization {

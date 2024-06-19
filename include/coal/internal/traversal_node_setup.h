@@ -40,20 +40,20 @@
 
 /// @cond INTERNAL
 
-#include <hpp/fcl/internal/tools.h>
-#include <hpp/fcl/internal/traversal_node_shapes.h>
+#include "coal/internal/tools.h"
+#include "coal/internal/traversal_node_shapes.h"
 
-#include <hpp/fcl/internal/traversal_node_bvhs.h>
-#include <hpp/fcl/internal/traversal_node_bvh_shape.h>
+#include "coal/internal/traversal_node_bvhs.h"
+#include "coal/internal/traversal_node_bvh_shape.h"
 
 // #include <hpp/fcl/internal/traversal_node_hfields.h>
-#include <hpp/fcl/internal/traversal_node_hfield_shape.h>
+#include "coal/internal/traversal_node_hfield_shape.h"
 
 #ifdef HPP_FCL_HAS_OCTOMAP
-#include <hpp/fcl/internal/traversal_node_octree.h>
+#include "coal/internal/traversal_node_octree.h"
 #endif
 
-#include <hpp/fcl/BVH/BVH_utility.h>
+#include "coal/BVH/BVH_utility.h"
 
 namespace coal {
 

@@ -34,9 +34,9 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/contact_patch.h>
-#include <hpp/fcl/serialization/collision_data.h>
+#include "coal/fwd.hh"
+#include "coal/contact_patch.h"
+#include "coal/serialization/collision_data.h"
 
 #include "fcl.hh"
 #include "deprecation.hh"

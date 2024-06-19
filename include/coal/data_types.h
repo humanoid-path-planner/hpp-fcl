@@ -42,7 +42,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <hpp/fcl/config.hh>
+#include "coal/config.hh"
 
 #ifdef HPP_FCL_HAS_OCTOMAP
 #define OCTOMAP_VERSION_AT_LEAST(x, y, z) \
@@ -94,7 +94,7 @@ enum GJKConvergenceCriterion { Default, DualityGap, Hybrid };
 enum GJKConvergenceCriterionType { Relative, Absolute };
 
 /// @brief Triangle with 3 indices for points
-class HPP_FCL_DLLAPI Triangle {
+class COAL_DLLAPI Triangle {
  public:
   typedef std::size_t index_type;
   typedef int size_type;
@@ -140,7 +140,7 @@ class HPP_FCL_DLLAPI Triangle {
 };
 
 /// @brief Quadrilateral with 4 indices for points
-struct HPP_FCL_DLLAPI Quadrilateral {
+struct COAL_DLLAPI Quadrilateral {
   typedef std::size_t index_type;
   typedef int size_type;
 

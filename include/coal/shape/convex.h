@@ -38,7 +38,7 @@
 #ifndef COAL_SHAPE_CONVEX_H
 #define COAL_SHAPE_CONVEX_H
 
-#include "hpp/fcl/shape/geometric_shapes.h"
+#include "coal/shape/geometric_shapes.h"
 
 namespace coal {
 
@@ -107,6 +107,6 @@ class Convex : public ConvexBase {
 
 }  // namespace coal
 
-#include "hpp/fcl/shape/details/convex.hxx"
+#include "coal/shape/details/convex.hxx"
 
 #endif

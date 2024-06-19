@@ -38,7 +38,7 @@
 #ifndef COAL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
 #define COAL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
 
-#include "hpp/fcl/broadphase/detail/interval_tree_node.h"
+#include "coal/broadphase/detail/interval_tree_node.h"
 
 #include <iostream>
 #include <algorithm>

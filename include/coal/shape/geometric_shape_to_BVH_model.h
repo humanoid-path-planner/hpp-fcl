@@ -38,8 +38,8 @@
 #ifndef COAL_GEOMETRIC_SHAPE_TO_BVH_MODEL_H
 #define COAL_GEOMETRIC_SHAPE_TO_BVH_MODEL_H
 
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/BVH/BVH_model.h>
+#include "coal/shape/geometric_shapes.h"
+#include "coal/BVH/BVH_model.h"
 #include <boost/math/constants/constants.hpp>
 
 namespace coal {

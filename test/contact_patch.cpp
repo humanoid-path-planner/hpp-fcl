@@ -37,7 +37,7 @@
 #define BOOST_TEST_MODULE FCL_CONTACT_PATCH
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/contact_patch.h>
+#include "coal/contact_patch.h"
 
 #include "utility.h"
 

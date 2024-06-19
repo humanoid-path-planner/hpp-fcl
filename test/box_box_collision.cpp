@@ -2,9 +2,9 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Geometry>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/internal/tools.h>
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/internal/tools.h"
 
 #include "utility.h"
 

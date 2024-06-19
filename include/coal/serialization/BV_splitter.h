@@ -5,9 +5,9 @@
 #ifndef COAL_SERIALIZATION_BV_SPLITTER_H
 #define COAL_SERIALIZATION_BV_SPLITTER_H
 
-#include "hpp/fcl/internal/BV_splitter.h"
+#include "coal/internal/BV_splitter.h"
 
-#include "hpp/fcl/serialization/fwd.h"
+#include "coal/serialization/fwd.h"
 
 namespace boost {
 namespace serialization {

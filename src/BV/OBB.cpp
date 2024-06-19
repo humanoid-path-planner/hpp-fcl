@@ -35,11 +35,11 @@
 
 /** \author Jia Pan, Florent Lamiraux */
 
-#include <hpp/fcl/BV/OBB.h>
-#include <hpp/fcl/BVH/BVH_utility.h>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/internal/tools.h>
+#include "coal/BV/OBB.h"
+#include "coal/BVH/BVH_utility.h"
+#include "coal/math/transform.h"
+#include "coal/collision_data.h"
+#include "coal/internal/tools.h"
 
 #include <iostream>
 #include <limits>
@@ -310,7 +310,7 @@ inline FCL_REAL obbDisjoint_check_B_axis(const Matrix3f& B, const Vec3f& T,
 }
 
 template <int ib, int jb = (ib + 1) % 3, int kb = (ib + 2) % 3>
-struct HPP_FCL_LOCAL obbDisjoint_check_Ai_cross_Bi {
+struct COAL_LOCAL obbDisjoint_check_Ai_cross_Bi {
   static inline bool run(int ia, int ja, int ka, const Matrix3f& B,
                          const Vec3f& T, const Vec3f& a, const Vec3f& b,
                          const Matrix3f& Bf, const FCL_REAL& breakDistance2,

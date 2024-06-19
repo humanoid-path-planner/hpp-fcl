@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BV/OBBRSS.h>
+#include "coal/BV/OBBRSS.h"
 
 namespace coal {
 

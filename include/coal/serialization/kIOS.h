@@ -5,10 +5,10 @@
 #ifndef COAL_SERIALIZATION_kIOS_H
 #define COAL_SERIALIZATION_kIOS_H
 
-#include "hpp/fcl/BV/kIOS.h"
+#include "coal/BV/kIOS.h"
 
-#include "hpp/fcl/serialization/OBB.h"
-#include "hpp/fcl/serialization/fwd.h"
+#include "coal/serialization/OBB.h"
+#include "coal/serialization/fwd.h"
 
 namespace boost {
 namespace serialization {

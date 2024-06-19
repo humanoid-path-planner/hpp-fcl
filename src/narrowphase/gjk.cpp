@@ -36,12 +36,12 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/narrowphase/gjk.h>
-#include <hpp/fcl/internal/intersect.h>
-#include <hpp/fcl/internal/tools.h>
-#include <hpp/fcl/shape/geometric_shapes_traits.h>
-#include <hpp/fcl/narrowphase/narrowphase_defaults.h>
+#include "coal/shape/geometric_shapes.h"
+#include "coal/narrowphase/gjk.h"
+#include "coal/internal/intersect.h"
+#include "coal/internal/tools.h"
+#include "coal/shape/geometric_shapes_traits.h"
+#include "coal/narrowphase/narrowphase_defaults.h"
 
 namespace coal {
 

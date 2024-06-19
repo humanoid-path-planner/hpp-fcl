@@ -38,8 +38,8 @@
 #ifndef COAL_KDOP_H
 #define COAL_KDOP_H
 
-#include "hpp/fcl/fwd.hh"
-#include "hpp/fcl/data_types.h"
+#include "coal/fwd.hh"
+#include "coal/data_types.h"
 
 namespace coal {
 
@@ -88,7 +88,7 @@ struct CollisionRequest;
 /// (-1, 1, -1) and (1, -1, 1) --> indices 10 and 22
 /// (1, -1, -1) and (-1, 1, 1) --> indices 11 and 23
 template <short N>
-class HPP_FCL_DLLAPI KDOP {
+class COAL_DLLAPI KDOP {
  protected:
   /// @brief Origin's distances to N KDOP planes
   Eigen::Array<FCL_REAL, N, 1> dist_;
@@ -183,7 +183,7 @@ bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
 
 /// @brief translate the KDOP BV
 template <short N>
-HPP_FCL_DLLAPI KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
+COAL_DLLAPI KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
 
 }  // namespace coal
 

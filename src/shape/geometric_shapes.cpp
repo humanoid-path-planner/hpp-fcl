@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/shape/geometric_shapes_utility.h>
+#include "coal/shape/geometric_shapes.h"
+#include "coal/shape/geometric_shapes_utility.h"
 
 namespace coal {
 

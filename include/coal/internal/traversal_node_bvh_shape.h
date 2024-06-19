@@ -40,14 +40,14 @@
 
 /// @cond INTERNAL
 
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/shape/geometric_shapes_utility.h>
-#include <hpp/fcl/internal/traversal_node_base.h>
-#include <hpp/fcl/internal/traversal.h>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/internal/shape_shape_func.h>
+#include "coal/collision_data.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/shape/geometric_shapes_utility.h"
+#include "coal/internal/traversal_node_base.h"
+#include "coal/internal/traversal.h"
+#include "coal/BVH/BVH_model.h"
+#include "coal/internal/shape_shape_func.h"
 
 namespace coal {
 

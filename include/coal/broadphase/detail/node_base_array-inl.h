@@ -38,7 +38,7 @@
 #ifndef COAL_BROADPHASE_DETAIL_NODEBASEARRAY_INL_H
 #define COAL_BROADPHASE_DETAIL_NODEBASEARRAY_INL_H
 
-#include "hpp/fcl/broadphase/detail/node_base_array.h"
+#include "coal/broadphase/detail/node_base_array.h"
 
 namespace coal {
 

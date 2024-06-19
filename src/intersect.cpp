@@ -35,12 +35,13 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/internal/intersect.h>
+#include "coal/internal/intersect.h"
+#include "coal/internal/tools.h"
+
 #include <iostream>
 #include <limits>
 #include <vector>
 #include <cmath>
-#include <hpp/fcl/internal/tools.h>
 
 namespace coal {
 

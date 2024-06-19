@@ -38,18 +38,18 @@
 #include "fcl.hh"
 #include "deprecation.hh"
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/shape/convex.h>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/hfield.h>
+#include "coal/fwd.hh"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/shape/convex.h"
+#include "coal/BVH/BVH_model.h"
+#include "coal/hfield.h"
 
-#include <hpp/fcl/serialization/memory.h>
-#include <hpp/fcl/serialization/AABB.h>
-#include <hpp/fcl/serialization/BVH_model.h>
-#include <hpp/fcl/serialization/hfield.h>
-#include <hpp/fcl/serialization/geometric_shapes.h>
-#include <hpp/fcl/serialization/convex.h>
+#include "coal/serialization/memory.h"
+#include "coal/serialization/AABB.h"
+#include "coal/serialization/BVH_model.h"
+#include "coal/serialization/hfield.h"
+#include "coal/serialization/geometric_shapes.h"
+#include "coal/serialization/convex.h"
 
 #include "pickle.hh"
 #include "serializable.hh"
@@ -57,8 +57,8 @@
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 // FIXME for a reason I do not understand, doxygen fails to understand that
 // BV_splitter is not defined in hpp/fcl/BVH/BVH_model.h
-#include <hpp/fcl/internal/BV_splitter.h>
-#include <hpp/fcl/broadphase/detail/hierarchy_tree.h>
+#include "coal/internal/BV_splitter.h"
+#include "coal/broadphase/detail/hierarchy_tree.h"
 
 #include "doxygen_autodoc/hpp/fcl/BVH/BVH_model.h"
 #include "doxygen_autodoc/hpp/fcl/BV/AABB.h"

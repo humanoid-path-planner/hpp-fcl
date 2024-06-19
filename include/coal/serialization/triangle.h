@@ -5,8 +5,8 @@
 #ifndef COAL_SERIALIZATION_TRIANGLE_H
 #define COAL_SERIALIZATION_TRIANGLE_H
 
-#include "hpp/fcl/data_types.h"
-#include "hpp/fcl/serialization/fwd.h"
+#include "coal/data_types.h"
+#include "coal/serialization/fwd.h"
 
 namespace boost {
 namespace serialization {

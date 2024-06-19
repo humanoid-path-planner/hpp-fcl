@@ -38,9 +38,9 @@
 #ifndef COAL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_H
 #define COAL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_H
 
-#include "hpp/fcl/broadphase/broadphase_collision_manager.h"
-#include "hpp/fcl/collision_object.h"
-#include "hpp/fcl/narrowphase/continuous_collision_object.h"
+#include "coal/broadphase/broadphase_collision_manager.h"
+#include "coal/collision_object.h"
+#include "coal/narrowphase/continuous_collision_object.h"
 
 namespace coal {
 
@@ -62,7 +62,7 @@ using ContinuousDistanceCallBack = bool (*)(ContinuousCollisionObject* o1,
 /// accelerate the continuous collision/distance between N objects. Also support
 /// self collision, self distance and collision/distance with another M objects.
 template <typename S>
-class HPP_FCL_DLLAPI BroadPhaseContinuousCollisionManager {
+class COAL_DLLAPI BroadPhaseContinuousCollisionManager {
  public:
   BroadPhaseContinuousCollisionManager();
 
@@ -138,6 +138,6 @@ using BroadPhaseContinuousCollisionManagerd =
 
 }  // namespace coal
 
-#include "hpp/fcl/broadphase/broadphase_continuous_collision_manager-inl.h"
+#include "coal/broadphase/broadphase_continuous_collision_manager-inl.h"
 
 #endif

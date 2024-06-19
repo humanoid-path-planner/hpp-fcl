@@ -36,13 +36,13 @@
 #include <boost/test/included/unit_test.hpp>
 #include <boost/filesystem.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/data_types.h>
-#include <hpp/fcl/BV/OBBRSS.h>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
+#include "coal/fwd.hh"
+#include "coal/data_types.h"
+#include "coal/BV/OBBRSS.h"
+#include "coal/BVH/BVH_model.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/collision.h"
+#include "coal/distance.h"
 #include "utility.h"
 #include "fcl_resources/config.h"
 

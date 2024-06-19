@@ -43,8 +43,8 @@
 
 #include <boost/math/constants/constants.hpp>
 
-#include "hpp/fcl/collision_object.h"
-#include "hpp/fcl/data_types.h"
+#include "coal/collision_object.h"
+#include "coal/data_types.h"
 
 #ifdef HPP_FCL_HAS_QHULL
 namespace orgQhull {
@@ -55,7 +55,7 @@ class Qhull;
 namespace coal {
 
 /// @brief Base class for all basic geometric shapes
-class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
+class COAL_DLLAPI ShapeBase : public CollisionGeometry {
  public:
   ShapeBase() {}
 
@@ -105,7 +105,7 @@ class HPP_FCL_DLLAPI ShapeBase : public CollisionGeometry {
 /// @{
 
 /// @brief Triangle stores the points instead of only indices of points
-class HPP_FCL_DLLAPI TriangleP : public ShapeBase {
+class COAL_DLLAPI TriangleP : public ShapeBase {
  public:
   TriangleP() {};
 
@@ -160,7 +160,7 @@ class HPP_FCL_DLLAPI TriangleP : public ShapeBase {
 };
 
 /// @brief Center at zero point, axis aligned box
-class HPP_FCL_DLLAPI Box : public ShapeBase {
+class COAL_DLLAPI Box : public ShapeBase {
  public:
   Box(FCL_REAL x, FCL_REAL y, FCL_REAL z)
       : ShapeBase(), halfSide(x / 2, y / 2, z / 2) {}
@@ -234,7 +234,7 @@ class HPP_FCL_DLLAPI Box : public ShapeBase {
 };
 
 /// @brief Center at zero point sphere
-class HPP_FCL_DLLAPI Sphere : public ShapeBase {
+class COAL_DLLAPI Sphere : public ShapeBase {
  public:
   /// @brief Default constructor
   Sphere() {}
@@ -299,7 +299,7 @@ class HPP_FCL_DLLAPI Sphere : public ShapeBase {
 };
 
 /// @brief Ellipsoid centered at point zero
-class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
+class COAL_DLLAPI Ellipsoid : public ShapeBase {
  public:
   /// @brief Default constructor
   Ellipsoid() {}
@@ -377,7 +377,7 @@ class HPP_FCL_DLLAPI Ellipsoid : public ShapeBase {
 /// It is \f$ { x~\in~\mathbb{R}^3, d(x, AB) \leq radius } \f$
 /// where \f$ d(x, AB) \f$ is the distance between the point x and the capsule
 /// segment AB, with \f$ A = (0,0,-halfLength), B = (0,0,halfLength) \f$.
-class HPP_FCL_DLLAPI Capsule : public ShapeBase {
+class COAL_DLLAPI Capsule : public ShapeBase {
  public:
   /// @brief Default constructor
   Capsule() {}
@@ -461,7 +461,7 @@ class HPP_FCL_DLLAPI Capsule : public ShapeBase {
 /// @brief Cone
 /// The base of the cone is at \f$ z = - halfLength \f$ and the top is at
 /// \f$ z = halfLength \f$.
-class HPP_FCL_DLLAPI Cone : public ShapeBase {
+class COAL_DLLAPI Cone : public ShapeBase {
  public:
   /// @brief Default constructor
   Cone() {}
@@ -551,7 +551,7 @@ class HPP_FCL_DLLAPI Cone : public ShapeBase {
 
 /// @brief Cylinder along Z axis.
 /// The cylinder is defined at its centroid.
-class HPP_FCL_DLLAPI Cylinder : public ShapeBase {
+class COAL_DLLAPI Cylinder : public ShapeBase {
  public:
   /// @brief Default constructor
   Cylinder() {}
@@ -634,7 +634,7 @@ class HPP_FCL_DLLAPI Cylinder : public ShapeBase {
 
 /// @brief Base for convex polytope.
 /// @note Inherited classes are responsible for filling ConvexBase::neighbors;
-class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
+class COAL_DLLAPI ConvexBase : public ShapeBase {
  public:
   /// @brief Build a convex hull based on Qhull library
   /// and store the vertices and optionally the triangles
@@ -653,7 +653,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
                                 const char* qhullCommand = NULL);
 
   // TODO(louis): put this method in private sometime in the future.
-  HPP_FCL_DEPRECATED static ConvexBase* convexHull(
+  COAL_DEPRECATED static ConvexBase* convexHull(
       const Vec3f* points, unsigned int num_points, bool keepTriangles,
       const char* qhullCommand = NULL);
 
@@ -676,7 +676,7 @@ class HPP_FCL_DLLAPI ConvexBase : public ShapeBase {
   void buildDoubleDescription();
 #endif
 
-  struct HPP_FCL_DLLAPI Neighbors {
+  struct COAL_DLLAPI Neighbors {
     unsigned char count_;
     unsigned int* n_;
 
@@ -881,7 +881,7 @@ class Convex;
 /// are outside the half space.
 /// Note: prefer using a Halfspace instead of a Plane if possible, it has better
 /// behavior w.r.t. collision detection algorithms.
-class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
+class COAL_DLLAPI Halfspace : public ShapeBase {
  public:
   /// @brief Construct a half space with normal direction and offset
   Halfspace(const Vec3f& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_) {
@@ -972,7 +972,7 @@ class HPP_FCL_DLLAPI Halfspace : public ShapeBase {
 /// A plane can be viewed as two half spaces; it has no priviledged direction.
 /// Note: prefer using a Halfspace instead of a Plane if possible, it has better
 /// behavior w.r.t. collision detection algorithms.
-class HPP_FCL_DLLAPI Plane : public ShapeBase {
+class COAL_DLLAPI Plane : public ShapeBase {
  public:
   /// @brief Construct a plane with normal direction and offset
   Plane(const Vec3f& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_) {

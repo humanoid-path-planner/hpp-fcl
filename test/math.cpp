@@ -39,11 +39,11 @@
 #define BOOST_TEST_MODULE FCL_MATH
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/data_types.h>
-#include <hpp/fcl/math/transform.h>
+#include "coal/data_types.h"
+#include "coal/math/transform.h"
 
-#include <hpp/fcl/internal/intersect.h>
-#include <hpp/fcl/internal/tools.h>
+#include "coal/internal/intersect.h"
+#include "coal/internal/tools.h"
 
 using namespace coal;
 

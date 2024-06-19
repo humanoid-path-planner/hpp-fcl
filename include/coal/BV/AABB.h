@@ -38,7 +38,7 @@
 #ifndef COAL_AABB_H
 #define COAL_AABB_H
 
-#include "hpp/fcl/data_types.h"
+#include "coal/data_types.h"
 
 namespace coal {
 
@@ -52,7 +52,7 @@ class Halfspace;
 
 /// @brief A class describing the AABB collision structure, which is a box in 3D
 /// space determined by two diagonal points
-class HPP_FCL_DLLAPI AABB {
+class COAL_DLLAPI AABB {
  public:
   /// @brief The min point in the AABB
   Vec3f min_;
@@ -253,14 +253,14 @@ static inline AABB rotate(const AABB& aabb, const Matrix3f& R) {
 
 /// @brief Check collision between two aabbs, b1 is in configuration (R0, T0)
 /// and b2 is in identity.
-HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
-                            const AABB& b2);
+COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+                         const AABB& b2);
 
 /// @brief Check collision between two aabbs, b1 is in configuration (R0, T0)
 /// and b2 is in identity.
-HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
-                            const AABB& b2, const CollisionRequest& request,
-                            FCL_REAL& sqrDistLowerBound);
+COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+                         const AABB& b2, const CollisionRequest& request,
+                         FCL_REAL& sqrDistLowerBound);
 }  // namespace coal
 
 #endif

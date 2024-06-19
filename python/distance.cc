@@ -36,13 +36,14 @@
 
 #include "fcl.hh"
 
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/distance.h>
-#include <hpp/fcl/serialization/collision_data.h>
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+#include "coal/fwd.hh"
+#include "coal/distance.h"
+#include "coal/serialization/collision_data.h"
+
 #include "deprecation.hh"
-HPP_FCL_COMPILER_DIAGNOSTIC_POP
+COAL_COMPILER_DIAGNOSTIC_POP
 
 #include "serializable.hh"
 

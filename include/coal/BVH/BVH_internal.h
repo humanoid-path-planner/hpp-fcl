@@ -38,7 +38,7 @@
 #ifndef COAL_BVH_INTERNAL_H
 #define COAL_BVH_INTERNAL_H
 
-#include <hpp/fcl/data_types.h>
+#include "coal/data_types.h"
 
 namespace coal {
 

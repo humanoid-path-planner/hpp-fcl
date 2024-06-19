@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_SSaP.h"
+#include "coal/broadphase/broadphase_SSaP.h"
 
 namespace coal {
 
@@ -64,7 +64,7 @@ struct SortByZLow {
 };
 
 /** @brief Dummy collision object with a point AABB */
-class HPP_FCL_DLLAPI DummyCollisionObject : public CollisionObject {
+class COAL_DLLAPI DummyCollisionObject : public CollisionObject {
  public:
   DummyCollisionObject(const AABB& aabb_)
       : CollisionObject(shared_ptr<CollisionGeometry>()) {

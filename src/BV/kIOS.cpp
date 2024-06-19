@@ -35,9 +35,9 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BV/kIOS.h>
-#include <hpp/fcl/BVH/BVH_utility.h>
-#include <hpp/fcl/math/transform.h>
+#include "coal/BV/kIOS.h"
+#include "coal/BVH/BVH_utility.h"
+#include "coal/math/transform.h"
 
 #include <iostream>
 #include <limits>

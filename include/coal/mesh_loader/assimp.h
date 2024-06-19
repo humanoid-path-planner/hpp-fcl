@@ -38,10 +38,10 @@
 #ifndef COAL_MESH_LOADER_ASSIMP_H
 #define COAL_MESH_LOADER_ASSIMP_H
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/config.hh>
-#include <hpp/fcl/BV/OBBRSS.h>
-#include <hpp/fcl/BVH/BVH_model.h>
+#include "coal/fwd.hh"
+#include "coal/config.hh"
+#include "coal/BV/OBBRSS.h"
+#include "coal/BVH/BVH_model.h"
 
 struct aiScene;
 namespace Assimp {
@@ -52,12 +52,12 @@ namespace coal {
 
 namespace internal {
 
-struct HPP_FCL_DLLAPI TriangleAndVertices {
+struct COAL_DLLAPI TriangleAndVertices {
   std::vector<coal::Vec3f> vertices_;
   std::vector<coal::Triangle> triangles_;
 };
 
-struct HPP_FCL_DLLAPI Loader {
+struct COAL_DLLAPI Loader {
   Loader();
   ~Loader();
 
@@ -75,9 +75,8 @@ struct HPP_FCL_DLLAPI Loader {
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-HPP_FCL_DLLAPI void buildMesh(const coal::Vec3f& scale, const aiScene* scene,
-                              unsigned vertices_offset,
-                              TriangleAndVertices& tv);
+COAL_DLLAPI void buildMesh(const coal::Vec3f& scale, const aiScene* scene,
+                           unsigned vertices_offset, TriangleAndVertices& tv);
 
 /**
  * @brief      Convert an assimp scene to a mesh

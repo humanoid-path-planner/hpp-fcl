@@ -36,30 +36,31 @@
 #include <fstream>
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/fwd.hh>
+#include "coal/fwd.hh"
 
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/contact_patch.h>
-#include <hpp/fcl/distance.h>
-#include <hpp/fcl/BV/OBBRSS.h>
-#include <hpp/fcl/BVH/BVH_model.h>
+#include "coal/collision.h"
 
-#include <hpp/fcl/serialization/collision_data.h>
-#include <hpp/fcl/serialization/contact_patch.h>
-#include <hpp/fcl/serialization/AABB.h>
-#include <hpp/fcl/serialization/BVH_model.h>
-#include <hpp/fcl/serialization/hfield.h>
-#include <hpp/fcl/serialization/transform.h>
-#include <hpp/fcl/serialization/geometric_shapes.h>
-#include <hpp/fcl/serialization/convex.h>
-#include <hpp/fcl/serialization/archive.h>
-#include <hpp/fcl/serialization/memory.h>
+#include "coal/contact_patch.h"
+#include "coal/distance.h"
+#include "coal/BV/OBBRSS.h"
+#include "coal/BVH/BVH_model.h"
+
+#include "coal/serialization/collision_data.h"
+#include "coal/serialization/contact_patch.h"
+#include "coal/serialization/AABB.h"
+#include "coal/serialization/BVH_model.h"
+#include "coal/serialization/hfield.h"
+#include "coal/serialization/transform.h"
+#include "coal/serialization/geometric_shapes.h"
+#include "coal/serialization/convex.h"
+#include "coal/serialization/archive.h"
+#include "coal/serialization/memory.h"
 
 #ifdef HPP_FCL_HAS_OCTOMAP
-#include <hpp/fcl/serialization/octree.h>
+#include "coal/serialization/octree.h"
 #endif
 
 #include "utility.h"
@@ -590,4 +591,4 @@ BOOST_AUTO_TEST_CASE(test_memory_footprint) {
               computeMemoryFootprint(m1));
 }
 
-HPP_FCL_COMPILER_DIAGNOSTIC_POP
+COAL_COMPILER_DIAGNOSTIC_POP

@@ -3,8 +3,8 @@
 
 #include <eigenpy/std-vector.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/octree.h>
+#include "coal/fwd.hh"
+#include "coal/octree.h"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"

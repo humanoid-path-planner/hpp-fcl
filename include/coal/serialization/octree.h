@@ -10,8 +10,8 @@
 
 #include <boost/serialization/string.hpp>
 
-#include "hpp/fcl/octree.h"
-#include "hpp/fcl/serialization/fwd.h"
+#include "coal/octree.h"
+#include "coal/serialization/fwd.h"
 
 namespace boost {
 namespace serialization {

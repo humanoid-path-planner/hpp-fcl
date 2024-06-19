@@ -36,8 +36,8 @@
 
 #include "fcl.hh"
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/narrowphase/gjk.h>
+#include "coal/fwd.hh"
+#include "coal/narrowphase/gjk.h"
 
 #ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"

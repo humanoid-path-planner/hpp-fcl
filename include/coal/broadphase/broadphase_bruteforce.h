@@ -39,12 +39,12 @@
 #define COAL_BROAD_PHASE_BRUTE_FORCE_H
 
 #include <list>
-#include "hpp/fcl/broadphase/broadphase_collision_manager.h"
+#include "coal/broadphase/broadphase_collision_manager.h"
 
 namespace coal {
 
 /// @brief Brute force N-body collision manager
-class HPP_FCL_DLLAPI NaiveCollisionManager : public BroadPhaseCollisionManager {
+class COAL_DLLAPI NaiveCollisionManager : public BroadPhaseCollisionManager {
  public:
   typedef BroadPhaseCollisionManager Base;
   using Base::getObjects;

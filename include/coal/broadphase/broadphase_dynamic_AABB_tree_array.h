@@ -42,16 +42,16 @@
 #include <functional>
 #include <limits>
 
-#include "hpp/fcl/fwd.hh"
-// #include "hpp/fcl/BV/utility.h"
-#include "hpp/fcl/shape/geometric_shapes.h"
-// #include "hpp/fcl/geometry/shape/utility.h"
-#include "hpp/fcl/broadphase/broadphase_collision_manager.h"
-#include "hpp/fcl/broadphase/detail/hierarchy_tree_array.h"
+#include "coal/fwd.hh"
+// #include "coal/BV/utility.h"
+#include "coal/shape/geometric_shapes.h"
+// #include "coal/geometry/shape/utility.h"
+#include "coal/broadphase/broadphase_collision_manager.h"
+#include "coal/broadphase/detail/hierarchy_tree_array.h"
 
 namespace coal {
 
-class HPP_FCL_DLLAPI DynamicAABBTreeArrayCollisionManager
+class COAL_DLLAPI DynamicAABBTreeArrayCollisionManager
     : public BroadPhaseCollisionManager {
  public:
   typedef BroadPhaseCollisionManager Base;
@@ -141,6 +141,6 @@ class HPP_FCL_DLLAPI DynamicAABBTreeArrayCollisionManager
 
 }  // namespace coal
 
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array-inl.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree_array-inl.h"
 
 #endif

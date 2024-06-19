@@ -40,15 +40,15 @@
 
 #include "fcl_resources/config.h"
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/hfield.h>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/mesh_loader/assimp.h>
-#include <hpp/fcl/mesh_loader/loader.h>
+#include "coal/collision.h"
+#include "coal/hfield.h"
+#include "coal/math/transform.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/mesh_loader/assimp.h"
+#include "coal/mesh_loader/loader.h"
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/internal/traversal_node_hfield_shape.h>
+#include "coal/collision.h"
+#include "coal/internal/traversal_node_hfield_shape.h"
 
 #include "utility.h"
 #include <iostream>

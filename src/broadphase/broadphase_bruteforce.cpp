@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_bruteforce.h"
+#include "coal/broadphase/broadphase_bruteforce.h"
 
 #include <iterator>
 #include <algorithm>

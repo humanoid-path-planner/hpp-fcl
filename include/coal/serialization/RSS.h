@@ -5,9 +5,9 @@
 #ifndef COAL_SERIALIZATION_RSS_H
 #define COAL_SERIALIZATION_RSS_H
 
-#include "hpp/fcl/BV/RSS.h"
+#include "coal/BV/RSS.h"
 
-#include "hpp/fcl/serialization/fwd.h"
+#include "coal/serialization/fwd.h"
 
 namespace boost {
 namespace serialization {

@@ -38,9 +38,9 @@
 #ifndef COAL_BV_SPLITTER_H
 #define COAL_BV_SPLITTER_H
 
-#include <hpp/fcl/BVH/BVH_internal.h>
-#include <hpp/fcl/BV/kIOS.h>
-#include <hpp/fcl/BV/OBBRSS.h>
+#include "coal/BVH/BVH_internal.h"
+#include "coal/BV/kIOS.h"
+#include "coal/BV/OBBRSS.h"
 #include <vector>
 #include <iostream>
 
@@ -207,74 +207,74 @@ class BVSplitter {
 };
 
 template <>
-bool HPP_FCL_DLLAPI BVSplitter<OBB>::apply(const Vec3f& q) const;
+bool COAL_DLLAPI BVSplitter<OBB>::apply(const Vec3f& q) const;
 
 template <>
-bool HPP_FCL_DLLAPI BVSplitter<RSS>::apply(const Vec3f& q) const;
+bool COAL_DLLAPI BVSplitter<RSS>::apply(const Vec3f& q) const;
 
 template <>
-bool HPP_FCL_DLLAPI BVSplitter<kIOS>::apply(const Vec3f& q) const;
+bool COAL_DLLAPI BVSplitter<kIOS>::apply(const Vec3f& q) const;
 
 template <>
-bool HPP_FCL_DLLAPI BVSplitter<OBBRSS>::apply(const Vec3f& q) const;
+bool COAL_DLLAPI BVSplitter<OBBRSS>::apply(const Vec3f& q) const;
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<OBB>::computeRule_bvcenter(
+void COAL_DLLAPI BVSplitter<OBB>::computeRule_bvcenter(
     const OBB& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<OBB>::computeRule_mean(
+void COAL_DLLAPI BVSplitter<OBB>::computeRule_mean(
     const OBB& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<OBB>::computeRule_median(
+void COAL_DLLAPI BVSplitter<OBB>::computeRule_median(
     const OBB& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<RSS>::computeRule_bvcenter(
+void COAL_DLLAPI BVSplitter<RSS>::computeRule_bvcenter(
     const RSS& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<RSS>::computeRule_mean(
+void COAL_DLLAPI BVSplitter<RSS>::computeRule_mean(
     const RSS& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<RSS>::computeRule_median(
+void COAL_DLLAPI BVSplitter<RSS>::computeRule_median(
     const RSS& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<kIOS>::computeRule_bvcenter(
+void COAL_DLLAPI BVSplitter<kIOS>::computeRule_bvcenter(
     const kIOS& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<kIOS>::computeRule_mean(
+void COAL_DLLAPI BVSplitter<kIOS>::computeRule_mean(
     const kIOS& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<kIOS>::computeRule_median(
+void COAL_DLLAPI BVSplitter<kIOS>::computeRule_median(
     const kIOS& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<OBBRSS>::computeRule_bvcenter(
+void COAL_DLLAPI BVSplitter<OBBRSS>::computeRule_bvcenter(
     const OBBRSS& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<OBBRSS>::computeRule_mean(
+void COAL_DLLAPI BVSplitter<OBBRSS>::computeRule_mean(
     const OBBRSS& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 
 template <>
-void HPP_FCL_DLLAPI BVSplitter<OBBRSS>::computeRule_median(
+void COAL_DLLAPI BVSplitter<OBBRSS>::computeRule_median(
     const OBBRSS& bv, unsigned int* primitive_indices,
     unsigned int num_primitives);
 

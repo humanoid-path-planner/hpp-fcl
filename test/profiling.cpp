@@ -16,14 +16,14 @@
 
 #include <boost/filesystem.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/collision_utility.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/collision_func_matrix.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/mesh_loader/assimp.h>
+#include "coal/fwd.hh"
+#include "coal/collision.h"
+#include "coal/BVH/BVH_model.h"
+#include "coal/collision_utility.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/collision_func_matrix.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/mesh_loader/assimp.h"
 #include "utility.h"
 #include "fcl_resources/config.h"
 

@@ -36,7 +36,7 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/collision_data.h>
+#include "coal/collision_data.h"
 
 namespace coal {
 

@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/internal/BV_splitter.h>
+#include "coal/internal/BV_splitter.h"
 
 namespace coal {
 

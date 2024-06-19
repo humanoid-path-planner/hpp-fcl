@@ -37,9 +37,9 @@
 #define BOOST_TEST_MODULE FCL_GEOMETRIC_SHAPES
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/shape/convex.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
+#include "coal/shape/convex.h"
+#include "coal/collision.h"
+#include "coal/distance.h"
 
 #include "utility.h"
 

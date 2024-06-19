@@ -38,7 +38,7 @@
 #ifndef COAL_OBB_H
 #define COAL_OBB_H
 
-#include "hpp/fcl/data_types.h"
+#include "coal/data_types.h"
 
 namespace coal {
 
@@ -48,7 +48,7 @@ struct CollisionRequest;
 /// @{
 
 /// @brief Oriented bounding box class
-struct HPP_FCL_DLLAPI OBB {
+struct COAL_DLLAPI OBB {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /// @brief Orientation of OBB. axis[i] is the ith column of the orientation
@@ -125,26 +125,26 @@ struct HPP_FCL_DLLAPI OBB {
 };
 
 /// @brief Translate the OBB bv
-HPP_FCL_DLLAPI OBB translate(const OBB& bv, const Vec3f& t);
+COAL_DLLAPI OBB translate(const OBB& bv, const Vec3f& t);
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
-                            const OBB& b2);
+COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
+                         const OBB& b2);
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-HPP_FCL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
-                            const OBB& b2, const CollisionRequest& request,
-                            FCL_REAL& sqrDistLowerBound);
+COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
+                         const OBB& b2, const CollisionRequest& request,
+                         FCL_REAL& sqrDistLowerBound);
 
 /// Check collision between two boxes
 /// @param B, T orientation and position of first box,
 /// @param a half dimensions of first box,
 /// @param b half dimensions of second box.
 /// The second box is in identity configuration.
-HPP_FCL_DLLAPI bool obbDisjoint(const Matrix3f& B, const Vec3f& T,
-                                const Vec3f& a, const Vec3f& b);
+COAL_DLLAPI bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
+                             const Vec3f& b);
 }  // namespace coal
 
 #endif

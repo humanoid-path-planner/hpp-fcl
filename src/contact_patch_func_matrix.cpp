@@ -34,11 +34,10 @@
 
 /** \author Louis Montaut */
 
-#include "hpp/fcl/contact_patch_func_matrix.h"
-#include "hpp/fcl/shape/geometric_shapes.h"
-#include "hpp/fcl/internal/shape_shape_contact_patch_func.h"
-
-#include "hpp/fcl/BV/BV.h"
+#include "coal/contact_patch_func_matrix.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/internal/shape_shape_contact_patch_func.h"
+#include "coal/BV/BV.h"
 
 namespace coal {
 
@@ -117,7 +116,7 @@ struct BVHComputeContactPatch {
   }
 };
 
-HPP_FCL_LOCAL void contact_patch_function_not_implemented(
+COAL_LOCAL void contact_patch_function_not_implemented(
     const CollisionGeometry* o1, const Transform3f& /*tf1*/,
     const CollisionGeometry* o2, const Transform3f& /*tf2*/,
     const CollisionResult& /*collision_result*/,

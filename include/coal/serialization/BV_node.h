@@ -5,10 +5,10 @@
 #ifndef COAL_SERIALIZATION_BV_NODE_H
 #define COAL_SERIALIZATION_BV_NODE_H
 
-#include "hpp/fcl/BV/BV_node.h"
+#include "coal/BV/BV_node.h"
 
-#include "hpp/fcl/serialization/fwd.h"
-#include "hpp/fcl/serialization/OBBRSS.h"
+#include "coal/serialization/fwd.h"
+#include "coal/serialization/OBBRSS.h"
 
 namespace boost {
 namespace serialization {

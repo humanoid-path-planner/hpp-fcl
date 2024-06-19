@@ -38,8 +38,8 @@
 #ifndef COAL_BV_NODE_H
 #define COAL_BV_NODE_H
 
-#include <hpp/fcl/data_types.h>
-#include <hpp/fcl/BV/BV.h>
+#include "coal/data_types.h"
+#include "coal/BV/BV.h"
 
 namespace coal {
 
@@ -48,7 +48,7 @@ namespace coal {
 /// @{
 
 /// @brief BVNodeBase encodes the tree structure for BVH
-struct HPP_FCL_DLLAPI BVNodeBase {
+struct COAL_DLLAPI BVNodeBase {
   /// @brief An index for first child node or primitive
   /// If the value is positive, it is the index of the first child bv node
   /// If the value is negative, it is -(primitive index + 1)
@@ -103,7 +103,7 @@ struct HPP_FCL_DLLAPI BVNodeBase {
 /// structure providing in BVNodeBase and also the geometry data provided in BV
 /// template parameter.
 template <typename BV>
-struct HPP_FCL_DLLAPI BVNode : public BVNodeBase {
+struct COAL_DLLAPI BVNode : public BVNodeBase {
   typedef BVNodeBase Base;
 
   /// @brief bounding volume storing the geometry

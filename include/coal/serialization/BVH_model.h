@@ -5,14 +5,14 @@
 #ifndef HPP_FCL_SERIALIZATION_BVH_MODEL_H
 #define HPP_FCL_SERIALIZATION_BVH_MODEL_H
 
-#include "hpp/fcl/BVH/BVH_model.h"
+#include "coal/BVH/BVH_model.h"
 
-#include "hpp/fcl/serialization/fwd.h"
-#include "hpp/fcl/serialization/BV_node.h"
-#include "hpp/fcl/serialization/BV_splitter.h"
-#include "hpp/fcl/serialization/collision_object.h"
-#include "hpp/fcl/serialization/memory.h"
-#include "hpp/fcl/serialization/triangle.h"
+#include "coal/serialization/fwd.h"
+#include "coal/serialization/BV_node.h"
+#include "coal/serialization/BV_splitter.h"
+#include "coal/serialization/collision_object.h"
+#include "coal/serialization/memory.h"
+#include "coal/serialization/triangle.h"
 
 namespace boost {
 namespace serialization {

@@ -38,8 +38,8 @@
 #ifndef COAL_OBBRSS_H
 #define COAL_OBBRSS_H
 
-#include "hpp/fcl/BV/OBB.h"
-#include "hpp/fcl/BV/RSS.h"
+#include "coal/BV/OBB.h"
+#include "coal/BV/RSS.h"
 
 namespace coal {
 
@@ -50,7 +50,7 @@ struct CollisionRequest;
 
 /// @brief Class merging the OBB and RSS, can handle collision and distance
 /// simultaneously
-struct HPP_FCL_DLLAPI OBBRSS {
+struct COAL_DLLAPI OBBRSS {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /// @brief OBB member, for rotation

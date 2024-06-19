@@ -42,10 +42,10 @@
 #include <map>
 #include <functional>
 #include <iostream>
-#include "hpp/fcl/warning.hh"
-#include "hpp/fcl/BV/AABB.h"
-#include "hpp/fcl/broadphase/detail/morton.h"
-#include "hpp/fcl/broadphase/detail/node_base.h"
+#include "coal/warning.hh"
+#include "coal/BV/AABB.h"
+#include "coal/broadphase/detail/morton.h"
+#include "coal/broadphase/detail/node_base.h"
 
 namespace coal {
 
@@ -287,6 +287,6 @@ size_t select(const BV& query, const NodeBase<BV>& node1,
 }  // namespace detail
 }  // namespace coal
 
-#include "hpp/fcl/broadphase/detail/hierarchy_tree-inl.h"
+#include "coal/broadphase/detail/hierarchy_tree-inl.h"
 
 #endif

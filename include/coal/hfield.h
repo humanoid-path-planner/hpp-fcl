@@ -37,11 +37,11 @@
 #ifndef COAL_HEIGHT_FIELD_H
 #define COAL_HEIGHT_FIELD_H
 
-#include "hpp/fcl/fwd.hh"
-#include "hpp/fcl/data_types.h"
-#include "hpp/fcl/collision_object.h"
-#include "hpp/fcl/BV/BV_node.h"
-#include "hpp/fcl/BVH/BVH_internal.h"
+#include "coal/fwd.hh"
+#include "coal/data_types.h"
+#include "coal/collision_object.h"
+#include "coal/BV/BV_node.h"
+#include "coal/BVH/BVH_internal.h"
 
 #include <vector>
 
@@ -50,7 +50,7 @@ namespace coal {
 /// @addtogroup Construction_Of_HeightField
 /// @{
 
-struct HPP_FCL_DLLAPI HFNodeBase {
+struct COAL_DLLAPI HFNodeBase {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   enum class FaceOrientation {
@@ -125,7 +125,7 @@ inline int operator&(int a, HFNodeBase::FaceOrientation b) {
 }
 
 template <typename BV>
-struct HPP_FCL_DLLAPI HFNode : public HFNodeBase {
+struct COAL_DLLAPI HFNode : public HFNodeBase {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   typedef HFNodeBase Base;
@@ -199,7 +199,7 @@ struct UpdateBoundingVolume<AABB> {
 /// The height field is centered at the origin and the corners of the geometry
 /// correspond to the following coordinates [± x_dim/2; ± y_dim/2].
 template <typename BV>
-class HPP_FCL_DLLAPI HeightField : public CollisionGeometry {
+class COAL_DLLAPI HeightField : public CollisionGeometry {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

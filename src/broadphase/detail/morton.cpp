@@ -36,7 +36,7 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/detail/morton-inl.h"
+#include "coal/broadphase/detail/morton-inl.h"
 
 namespace coal {
 

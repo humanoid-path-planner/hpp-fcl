@@ -35,9 +35,9 @@
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/geometry.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/serialization/transform.h>
+#include "coal/fwd.hh"
+#include "coal/math/transform.h"
+#include "coal/serialization/transform.h"
 
 #include "fcl.hh"
 #include "pickle.hh"

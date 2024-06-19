@@ -7,7 +7,7 @@ macro(add_fcl_test test_name source)
   ADD_UNIT_TEST(${test_name} ${source})
   target_link_libraries(${test_name}
     PUBLIC
-    hpp-fcl
+    ${LIBRARY_NAME}
     Boost::filesystem
     utility
     )

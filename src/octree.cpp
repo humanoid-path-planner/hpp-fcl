@@ -32,7 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <hpp/fcl/octree.h>
+#include "coal/octree.h"
+
 #include <array>
 
 namespace coal {

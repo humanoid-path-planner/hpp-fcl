@@ -38,10 +38,10 @@
 #ifndef COAL_BV_FITTER_H
 #define COAL_BV_FITTER_H
 
-#include <hpp/fcl/BVH/BVH_internal.h>
-#include <hpp/fcl/BV/kIOS.h>
-#include <hpp/fcl/BV/OBBRSS.h>
-#include <hpp/fcl/BV/AABB.h>
+#include "coal/BVH/BVH_internal.h"
+#include "coal/BV/kIOS.h"
+#include "coal/BV/OBBRSS.h"
+#include "coal/BV/AABB.h"
 #include <iostream>
 
 namespace coal {
@@ -73,7 +73,7 @@ void fit<AABB>(Vec3f* ps, unsigned int n, AABB& bv);
 /// @brief The class for the default algorithm fitting a bounding volume to a
 /// set of points
 template <typename BV>
-class HPP_FCL_DLLAPI BVFitterTpl {
+class COAL_DLLAPI BVFitterTpl {
  public:
   /// @brief default deconstructor
   virtual ~BVFitterTpl() {}
@@ -118,7 +118,7 @@ class HPP_FCL_DLLAPI BVFitterTpl {
 /// @brief The class for the default algorithm fitting a bounding volume to a
 /// set of points
 template <typename BV>
-class HPP_FCL_DLLAPI BVFitter : public BVFitterTpl<BV> {
+class COAL_DLLAPI BVFitter : public BVFitterTpl<BV> {
   typedef BVFitterTpl<BV> Base;
 
  public:
@@ -167,7 +167,7 @@ class HPP_FCL_DLLAPI BVFitter : public BVFitterTpl<BV> {
 
 /// @brief Specification of BVFitter for OBB bounding volume
 template <>
-class HPP_FCL_DLLAPI BVFitter<OBB> : public BVFitterTpl<OBB> {
+class COAL_DLLAPI BVFitter<OBB> : public BVFitterTpl<OBB> {
  public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or
   /// triangles). The primitive data was set by set function and
@@ -177,7 +177,7 @@ class HPP_FCL_DLLAPI BVFitter<OBB> : public BVFitterTpl<OBB> {
 
 /// @brief Specification of BVFitter for RSS bounding volume
 template <>
-class HPP_FCL_DLLAPI BVFitter<RSS> : public BVFitterTpl<RSS> {
+class COAL_DLLAPI BVFitter<RSS> : public BVFitterTpl<RSS> {
  public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or
   /// triangles). The primitive data was set by set function and
@@ -187,7 +187,7 @@ class HPP_FCL_DLLAPI BVFitter<RSS> : public BVFitterTpl<RSS> {
 
 /// @brief Specification of BVFitter for kIOS bounding volume
 template <>
-class HPP_FCL_DLLAPI BVFitter<kIOS> : public BVFitterTpl<kIOS> {
+class COAL_DLLAPI BVFitter<kIOS> : public BVFitterTpl<kIOS> {
  public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or
   /// triangles). The primitive data was set by set function and
@@ -197,7 +197,7 @@ class HPP_FCL_DLLAPI BVFitter<kIOS> : public BVFitterTpl<kIOS> {
 
 /// @brief Specification of BVFitter for OBBRSS bounding volume
 template <>
-class HPP_FCL_DLLAPI BVFitter<OBBRSS> : public BVFitterTpl<OBBRSS> {
+class COAL_DLLAPI BVFitter<OBBRSS> : public BVFitterTpl<OBBRSS> {
  public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or
   /// triangles). The primitive data was set by set function and
@@ -207,7 +207,7 @@ class HPP_FCL_DLLAPI BVFitter<OBBRSS> : public BVFitterTpl<OBBRSS> {
 
 /// @brief Specification of BVFitter for AABB bounding volume
 template <>
-class HPP_FCL_DLLAPI BVFitter<AABB> : public BVFitterTpl<AABB> {
+class COAL_DLLAPI BVFitter<AABB> : public BVFitterTpl<AABB> {
  public:
   /// @brief Compute a bounding volume that fits a set of primitives (points or
   /// triangles). The primitive data was set by set function and

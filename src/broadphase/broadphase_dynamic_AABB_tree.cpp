@@ -35,16 +35,16 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
-
-#include <limits>
+#include "coal/broadphase/broadphase_dynamic_AABB_tree.h"
 
 #ifdef HPP_FCL_HAVE_OCTOMAP
-#include "hpp/fcl/octree.h"
+#include "coal/octree.h"
 #endif
 
-#include "hpp/fcl/BV/BV.h"
-#include "hpp/fcl/shape/geometric_shapes_utility.h"
+#include "coal/BV/BV.h"
+#include "coal/shape/geometric_shapes_utility.h"
+
+#include <limits>
 
 namespace coal {
 namespace detail {

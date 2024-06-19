@@ -38,10 +38,10 @@
 #define BOOST_TEST_MODULE FCL_FRONT_LIST
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/internal/traversal_node_bvhs.h>
-#include <hpp/fcl/internal/traversal_node_setup.h>
+#include "coal/internal/traversal_node_bvhs.h"
+#include "coal/internal/traversal_node_setup.h"
 #include <../src/collision_node.h>
-#include <hpp/fcl/internal/BV_splitter.h>
+#include "coal/internal/BV_splitter.h"
 #include "utility.h"
 
 #include "fcl_resources/config.h"

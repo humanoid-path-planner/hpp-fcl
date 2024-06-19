@@ -42,15 +42,15 @@
 #include <algorithm>
 
 #include <octomap/octomap.h>
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/BV/AABB.h>
-#include <hpp/fcl/collision_object.h>
+#include "coal/fwd.hh"
+#include "coal/BV/AABB.h"
+#include "coal/collision_object.h"
 
 namespace coal {
 
 /// @brief Octree is one type of collision geometry which can encode uncertainty
 /// information in the sensor data.
-class HPP_FCL_DLLAPI OcTree : public CollisionGeometry {
+class COAL_DLLAPI OcTree : public CollisionGeometry {
  protected:
   shared_ptr<const octomap::OcTree> tree;
 
@@ -330,7 +330,7 @@ static inline void computeChildBV(const AABB& root_bv, unsigned int i,
 ///
 /// \returns An OcTree that can be used for collision checking and more.
 ///
-HPP_FCL_DLLAPI OcTreePtr_t
+COAL_DLLAPI OcTreePtr_t
 makeOctree(const Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3>& point_cloud,
            const FCL_REAL resolution);
 

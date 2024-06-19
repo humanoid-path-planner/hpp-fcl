@@ -40,11 +40,11 @@
 
 #include <list>
 #include <map>
-#include "hpp/fcl/BV/AABB.h"
-#include "hpp/fcl/broadphase/broadphase_collision_manager.h"
-#include "hpp/fcl/broadphase/detail/simple_hash_table.h"
-#include "hpp/fcl/broadphase/detail/sparse_hash_table.h"
-#include "hpp/fcl/broadphase/detail/spatial_hash.h"
+#include "coal/BV/AABB.h"
+#include "coal/broadphase/broadphase_collision_manager.h"
+#include "coal/broadphase/detail/simple_hash_table.h"
+#include "coal/broadphase/detail/sparse_hash_table.h"
+#include "coal/broadphase/detail/spatial_hash.h"
 
 namespace coal {
 
@@ -162,6 +162,6 @@ class SpatialHashingCollisionManager : public BroadPhaseCollisionManager {
 
 }  // namespace coal
 
-#include "hpp/fcl/broadphase/broadphase_spatialhash-inl.h"
+#include "coal/broadphase/broadphase_spatialhash-inl.h"
 
 #endif

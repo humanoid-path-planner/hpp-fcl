@@ -40,13 +40,13 @@
 #include <boost/test/included/unit_test.hpp>
 #include <boost/filesystem.hpp>
 
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
-#include <hpp/fcl/hfield.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/shape/geometric_shapes_utility.h>
-#include <hpp/fcl/internal/BV_splitter.h>
+#include "coal/BVH/BVH_model.h"
+#include "coal/collision.h"
+#include "coal/distance.h"
+#include "coal/hfield.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/shape/geometric_shapes_utility.h"
+#include "coal/internal/BV_splitter.h"
 
 #include "utility.h"
 #include "fcl_resources/config.h"

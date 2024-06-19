@@ -38,12 +38,12 @@
 #ifndef COAL_TRANSFORM_H
 #define COAL_TRANSFORM_H
 
-#include "hpp/fcl/fwd.hh"
-#include "hpp/fcl/data_types.h"
+#include "coal/fwd.hh"
+#include "coal/data_types.h"
 
 namespace coal {
 
-HPP_FCL_DEPRECATED typedef Eigen::Quaternion<FCL_REAL> Quaternion3f;
+COAL_DEPRECATED typedef Eigen::Quaternion<FCL_REAL> Quaternion3f;
 typedef Eigen::Quaternion<FCL_REAL> Quatf;
 
 static inline std::ostream& operator<<(std::ostream& o, const Quatf& q) {
@@ -52,7 +52,7 @@ static inline std::ostream& operator<<(std::ostream& o, const Quatf& q) {
 }
 
 /// @brief Simple transform class used locally by InterpMotion
-class HPP_FCL_DLLAPI Transform3f {
+class COAL_DLLAPI Transform3f {
   /// @brief Matrix cache
   Matrix3f R;
 

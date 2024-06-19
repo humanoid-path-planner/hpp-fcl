@@ -38,13 +38,13 @@
 #ifndef COAL_BV_H
 #define COAL_BV_H
 
-#include <hpp/fcl/BV/kDOP.h>
-#include <hpp/fcl/BV/AABB.h>
-#include <hpp/fcl/BV/OBB.h>
-#include <hpp/fcl/BV/RSS.h>
-#include <hpp/fcl/BV/OBBRSS.h>
-#include <hpp/fcl/BV/kIOS.h>
-#include <hpp/fcl/math/transform.h>
+#include "coal/BV/kDOP.h"
+#include "coal/BV/AABB.h"
+#include "coal/BV/OBB.h"
+#include "coal/BV/RSS.h"
+#include "coal/BV/OBBRSS.h"
+#include "coal/BV/kIOS.h"
+#include "coal/math/transform.h"
 
 /** @brief Main namespace */
 namespace coal {

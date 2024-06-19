@@ -5,7 +5,7 @@
 #ifndef COAL_TIMINGS_FWD_H
 #define COAL_TIMINGS_FWD_H
 
-#include "hpp/fcl/fwd.hh"
+#include "coal/fwd.hh"
 
 #ifdef HPP_FCL_WITH_CXX11_SUPPORT
 #include <chrono>
@@ -28,7 +28,7 @@ struct CPUTimes {
 /// using the modern std::chrono library.
 ///        Importantly, this class will only have an effect for C++11 and more.
 ///
-struct HPP_FCL_DLLAPI Timer {
+struct COAL_DLLAPI Timer {
 #ifdef HPP_FCL_WITH_CXX11_SUPPORT
   typedef std::chrono::steady_clock clock_type;
   typedef clock_type::duration duration_type;

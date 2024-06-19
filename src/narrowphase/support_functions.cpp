@@ -36,7 +36,7 @@
 
 /** \authors Jia Pan, Florent Lamiraux, Josef Mirabel, Louis Montaut */
 
-#include "hpp/fcl/narrowphase/support_functions.h"
+#include "coal/narrowphase/support_functions.h"
 
 #include <algorithm>
 
@@ -89,20 +89,19 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir, int& hint) {
 
 // Explicit instantiation
 // clang-format off
-template HPP_FCL_DLLAPI Vec3f getSupport<SupportOptions::NoSweptSphere>(const ShapeBase*, const Vec3f&, int&);
+template COAL_DLLAPI Vec3f getSupport<SupportOptions::NoSweptSphere>(const ShapeBase*, const Vec3f&, int&);
 
-template HPP_FCL_DLLAPI Vec3f getSupport<SupportOptions::WithSweptSphere>(const ShapeBase*, const Vec3f&, int&);
+template COAL_DLLAPI Vec3f getSupport<SupportOptions::WithSweptSphere>(const ShapeBase*, const Vec3f&, int&);
 // clang-format on
 
 // ============================================================================
-#define getShapeSupportTplInstantiation(ShapeType)                             \
-  template HPP_FCL_DLLAPI void getShapeSupport<SupportOptions::NoSweptSphere>( \
-      const ShapeType* shape_, const Vec3f& dir, Vec3f& support, int& hint,    \
-      ShapeSupportData& support_data);                                         \
-                                                                               \
-  template HPP_FCL_DLLAPI void                                                 \
-  getShapeSupport<SupportOptions::WithSweptSphere>(                            \
-      const ShapeType* shape_, const Vec3f& dir, Vec3f& support, int& hint,    \
+#define getShapeSupportTplInstantiation(ShapeType)                            \
+  template COAL_DLLAPI void getShapeSupport<SupportOptions::NoSweptSphere>(   \
+      const ShapeType* shape_, const Vec3f& dir, Vec3f& support, int& hint,   \
+      ShapeSupportData& support_data);                                        \
+                                                                              \
+  template COAL_DLLAPI void getShapeSupport<SupportOptions::WithSweptSphere>( \
+      const ShapeType* shape_, const Vec3f& dir, Vec3f& support, int& hint,   \
       ShapeSupportData& support_data);
 
 // ============================================================================
@@ -507,21 +506,20 @@ getShapeSupportTplInstantiation(LargeConvex)
 
 // Explicit instantiation
 // clang-format off
-template HPP_FCL_DLLAPI void getSupportSet<SupportOptions::NoSweptSphere>(const ShapeBase*, SupportSet&, int&, size_t, FCL_REAL);
+template COAL_DLLAPI void getSupportSet<SupportOptions::NoSweptSphere>(const ShapeBase*, SupportSet&, int&, size_t, FCL_REAL);
 
-template HPP_FCL_DLLAPI void getSupportSet<SupportOptions::WithSweptSphere>(const ShapeBase*, SupportSet&, int&, size_t, FCL_REAL);
+template COAL_DLLAPI void getSupportSet<SupportOptions::WithSweptSphere>(const ShapeBase*, SupportSet&, int&, size_t, FCL_REAL);
 // clang-format on
 
 // ============================================================================
-#define getShapeSupportSetTplInstantiation(ShapeType)                     \
-  template HPP_FCL_DLLAPI void                                            \
-  getShapeSupportSet<SupportOptions::NoSweptSphere>(                      \
-      const ShapeType* shape_, SupportSet& support_set, int& hint,        \
-      ShapeSupportData& data, size_t num_sampled_supports, FCL_REAL tol); \
-                                                                          \
-  template HPP_FCL_DLLAPI void                                            \
-  getShapeSupportSet<SupportOptions::WithSweptSphere>(                    \
-      const ShapeType* shape_, SupportSet& support_set, int& hint,        \
+#define getShapeSupportSetTplInstantiation(ShapeType)                          \
+  template COAL_DLLAPI void getShapeSupportSet<SupportOptions::NoSweptSphere>( \
+      const ShapeType* shape_, SupportSet& support_set, int& hint,             \
+      ShapeSupportData& data, size_t num_sampled_supports, FCL_REAL tol);      \
+                                                                               \
+  template COAL_DLLAPI void                                                    \
+  getShapeSupportSet<SupportOptions::WithSweptSphere>(                         \
+      const ShapeType* shape_, SupportSet& support_set, int& hint,             \
       ShapeSupportData& data, size_t num_sampled_supports, FCL_REAL tol);
 
 // ============================================================================
@@ -984,13 +982,13 @@ void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
       support_data, num_sampled_supports, tol);
 }
 //clang-format off
-getShapeSupportSetTplInstantiation(LargeConvex)
-    // clang-format on
+getShapeSupportSetTplInstantiation(LargeConvex);
+// clang-format on
 
-    // ============================================================================
-    HPP_FCL_DLLAPI
-    void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
-                                     SupportSet::Polygon& cvx_hull) {
+// ============================================================================
+COAL_DLLAPI
+void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
+                                 SupportSet::Polygon& cvx_hull) {
   cvx_hull.clear();
 
   if (cloud.size() <= 2) {

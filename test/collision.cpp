@@ -43,26 +43,26 @@
 #include <fstream>
 #include <boost/assign/list_of.hpp>
 
-#include <hpp/fcl/fwd.hh>
+#include "coal/fwd.hh"
 
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 
-#include <hpp/fcl/collision.h>
+#include "coal/collision.h"
 
-HPP_FCL_COMPILER_DIAGNOSTIC_POP
+COAL_COMPILER_DIAGNOSTIC_POP
 
-#include <hpp/fcl/BV/BV.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/mesh_loader/assimp.h>
+#include "coal/BV/BV.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/mesh_loader/assimp.h"
 
-#include <hpp/fcl/internal/traversal_node_bvhs.h>
-#include <hpp/fcl/internal/traversal_node_setup.h>
+#include "coal/internal/traversal_node_bvhs.h"
+#include "coal/internal/traversal_node_setup.h"
 #include "../src/collision_node.h"
-#include <hpp/fcl/internal/BV_splitter.h>
+#include "coal/internal/BV_splitter.h"
 
-#include <hpp/fcl/timings.h>
+#include "coal/timings.h"
 
 #include "utility.h"
 #include "fcl_resources/config.h"

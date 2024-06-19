@@ -39,7 +39,7 @@
 #ifndef COAL_MORTON_H
 #define COAL_MORTON_H
 
-#include "hpp/fcl/BV/AABB.h"
+#include "coal/BV/AABB.h"
 #include <cstdint>
 #include <bitset>
 
@@ -52,11 +52,11 @@ template <typename S>
 uint32_t quantize(S x, uint32_t n);
 
 /// @brief compute 30 bit morton code
-HPP_FCL_DLLAPI
+COAL_DLLAPI
 uint32_t morton_code(uint32_t x, uint32_t y, uint32_t z);
 
 /// @brief compute 60 bit morton code
-HPP_FCL_DLLAPI
+COAL_DLLAPI
 uint64_t morton_code60(uint32_t x, uint32_t y, uint32_t z);
 
 /// @brief Functor to compute the morton code for a given AABB
@@ -115,6 +115,6 @@ struct morton_functor<S, std::bitset<N>> {
 /// @endcond
 }  // namespace coal
 
-#include "hpp/fcl/broadphase/detail/morton-inl.h"
+#include "coal/broadphase/detail/morton-inl.h"
 
 #endif

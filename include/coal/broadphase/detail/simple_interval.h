@@ -38,15 +38,15 @@
 #ifndef COAL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
 #define COAL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
 
-#include "hpp/fcl/fwd.hh"
-#include "hpp/fcl/data_types.h"
+#include "coal/fwd.hh"
+#include "coal/data_types.h"
 
 namespace coal {
 namespace detail {
 
 /// @brief Interval trees implemented using red-black-trees as described in
 /// the book Introduction_To_Algorithms_ by Cormen, Leisserson, and Rivest.
-struct HPP_FCL_DLLAPI SimpleInterval {
+struct COAL_DLLAPI SimpleInterval {
  public:
   virtual ~SimpleInterval();
 

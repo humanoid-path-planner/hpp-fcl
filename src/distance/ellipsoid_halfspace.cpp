@@ -34,10 +34,10 @@
 
 /** \author Louis Montaut */
 
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "coal/math/transform.h"
+#include "coal/shape/geometric_shapes.h"
 
-#include <hpp/fcl/internal/shape_shape_func.h>
+#include "coal/internal/shape_shape_func.h"
 #include "../narrowphase/details.h"
 
 namespace coal {

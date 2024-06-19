@@ -38,17 +38,17 @@
 #ifndef COAL_BROADPHASE_DETAIL_INTERVALTREENODE_H
 #define COAL_BROADPHASE_DETAIL_INTERVALTREENODE_H
 
-#include "hpp/fcl/broadphase/detail/simple_interval.h"
-#include "hpp/fcl/fwd.hh"
+#include "coal/broadphase/detail/simple_interval.h"
+#include "coal/fwd.hh"
 
 namespace coal {
 
 namespace detail {
 
-class HPP_FCL_DLLAPI IntervalTree;
+class COAL_DLLAPI IntervalTree;
 
 /// @brief The node for interval tree
-class HPP_FCL_DLLAPI IntervalTreeNode {
+class COAL_DLLAPI IntervalTreeNode {
  public:
   friend class IntervalTree;
 

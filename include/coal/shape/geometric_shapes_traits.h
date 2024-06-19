@@ -37,7 +37,7 @@
 #ifndef COAL_GEOMETRIC_SHAPES_TRAITS_H
 #define COAL_GEOMETRIC_SHAPES_TRAITS_H
 
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "coal/shape/geometric_shapes.h"
 
 namespace coal {
 

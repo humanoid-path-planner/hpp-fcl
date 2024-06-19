@@ -40,9 +40,9 @@
 
 /// @cond INTERNAL
 
-#include <hpp/fcl/data_types.h>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/collision_data.h>
+#include "coal/data_types.h"
+#include "coal/math/transform.h"
+#include "coal/collision_data.h"
 
 namespace coal {
 

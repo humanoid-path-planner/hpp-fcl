@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_SaP.h"
+#include "coal/broadphase/broadphase_SaP.h"
 
 namespace coal {
 

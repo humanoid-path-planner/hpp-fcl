@@ -38,9 +38,9 @@
 #ifndef COAL_VEC_3F_H
 #define COAL_VEC_3F_H
 
-#warning "This file is deprecated. Include <hpp/fcl/data_types.h> instead."
+#warning "This file is deprecated. Include <coal/data_types.h> instead."
 
 // List of equivalent includes.
-#include <hpp/fcl/data_types.h>
+#include "coal/data_types.h"
 
 #endif

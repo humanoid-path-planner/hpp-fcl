@@ -36,9 +36,9 @@
 #ifndef COAL_CONTACT_PATCH_SOLVER_H
 #define COAL_CONTACT_PATCH_SOLVER_H
 
-#include "hpp/fcl/collision_data.h"
-#include "hpp/fcl/logging.h"
-#include "hpp/fcl/narrowphase/gjk.h"
+#include "coal/collision_data.h"
+#include "coal/logging.h"
+#include "coal/narrowphase/gjk.h"
 
 namespace coal {
 
@@ -56,7 +56,7 @@ namespace coal {
 ///
 /// TODO(louis): algo improvement:
 /// - The clipping algo is currently n1 * n2; it can be done in n1 + n2.
-struct HPP_FCL_DLLAPI ContactPatchSolver {
+struct COAL_DLLAPI ContactPatchSolver {
   // Note: `ContactPatch` is an alias for `SupportSet`.
   // The two can be used interchangeably.
   using ShapeSupportData = details::ShapeSupportData;
@@ -203,6 +203,6 @@ struct HPP_FCL_DLLAPI ContactPatchSolver {
 
 }  // namespace coal
 
-#include "hpp/fcl/contact_patch/contact_patch_solver.hxx"
+#include "coal/contact_patch/contact_patch_solver.hxx"
 
 #endif  // COAL_CONTACT_PATCH_SOLVER_H

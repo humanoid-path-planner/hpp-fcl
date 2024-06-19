@@ -18,8 +18,8 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/export.hpp>
 
-#include "hpp/fcl/fwd.hh"
-#include "hpp/fcl/serialization/eigen.h"
+#include "coal/fwd.h"
+#include "coal/serialization/eigen.h"
 
 #define HPP_FCL_SERIALIZATION_SPLIT(Type)                                \
   template <class Archive>                                               \

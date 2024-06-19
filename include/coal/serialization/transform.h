@@ -5,8 +5,8 @@
 #ifndef COAL_SERIALIZATION_TRANSFORM_H
 #define COAL_SERIALIZATION_TRANSFORM_H
 
-#include "hpp/fcl/math/transform.h"
-#include "hpp/fcl/serialization/fwd.h"
+#include "coal/math/transform.h"
+#include "coal/serialization/fwd.h"
 
 namespace boost {
 namespace serialization {

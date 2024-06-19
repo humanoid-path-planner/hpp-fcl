@@ -5,9 +5,9 @@
 #ifndef COAL_SERIALIZATION_kDOP_H
 #define COAL_SERIALIZATION_kDOP_H
 
-#include "hpp/fcl/BV/kDOP.h"
+#include "coal/BV/kDOP.h"
 
-#include "hpp/fcl/serialization/fwd.h"
+#include "coal/serialization/fwd.h"
 
 namespace boost {
 namespace serialization {

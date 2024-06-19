@@ -39,14 +39,14 @@
 #ifndef COAL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H
 #define COAL_BROADPHASE_DEFAULT_BROADPHASE_CALLBACKS_H
 
-#include "hpp/fcl/broadphase/broadphase_callbacks.h"
-#include "hpp/fcl/collision.h"
-#include "hpp/fcl/distance.h"
-// #include "hpp/fcl/narrowphase/continuous_collision.h"
-// #include "hpp/fcl/narrowphase/continuous_collision_request.h"
-// #include "hpp/fcl/narrowphase/continuous_collision_result.h"
-// #include "hpp/fcl/narrowphase/distance_request.h"
-// #include "hpp/fcl/narrowphase/distance_result.h"
+#include "coal/broadphase/broadphase_callbacks.h"
+#include "coal/collision.h"
+#include "coal/distance.h"
+// #include "coal/narrowphase/continuous_collision.h"
+// #include "coal/narrowphase/continuous_collision_request.h"
+// #include "coal/narrowphase/continuous_collision_result.h"
+// #include "coal/narrowphase/distance_request.h"
+// #include "coal/narrowphase/distance_result.h"
 
 namespace coal {
 
@@ -193,7 +193,7 @@ bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2,
 
 /// @brief Default collision callback to check collision between collision
 /// objects.
-struct HPP_FCL_DLLAPI CollisionCallBackDefault : CollisionCallBackBase {
+struct COAL_DLLAPI CollisionCallBackDefault : CollisionCallBackBase {
   /// @brief Initialize the callback.
   /// Clears the collision result and sets the done boolean to false.
   void init() { data.clear(); }
@@ -207,7 +207,7 @@ struct HPP_FCL_DLLAPI CollisionCallBackDefault : CollisionCallBackBase {
 
 /// @brief Default distance callback to check collision between collision
 /// objects.
-struct HPP_FCL_DLLAPI DistanceCallBackDefault : DistanceCallBackBase {
+struct COAL_DLLAPI DistanceCallBackDefault : DistanceCallBackBase {
   /// @brief Initialize the callback.
   /// Clears the distance result and sets the done boolean to false.
   void init() { data.clear(); }
@@ -220,7 +220,7 @@ struct HPP_FCL_DLLAPI DistanceCallBackDefault : DistanceCallBackBase {
 };
 
 /// @brief Collision callback to collect collision pairs potentially in contacts
-struct HPP_FCL_DLLAPI CollisionCallBackCollect : CollisionCallBackBase {
+struct COAL_DLLAPI CollisionCallBackCollect : CollisionCallBackBase {
   typedef std::pair<CollisionObject*, CollisionObject*> CollisionPair;
 
   /// @brief Default constructor.

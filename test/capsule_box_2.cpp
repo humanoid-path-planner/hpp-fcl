@@ -42,11 +42,11 @@
 #include "utility.h"
 
 #include <cmath>
-#include <hpp/fcl/distance.h>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "coal/distance.h"
+#include "coal/math/transform.h"
+#include "coal/collision.h"
+#include "coal/collision_object.h"
+#include "coal/shape/geometric_shapes.h"
 
 BOOST_AUTO_TEST_CASE(distance_capsule_box) {
   typedef coal::shared_ptr<coal::CollisionGeometry> CollisionGeometryPtr_t;

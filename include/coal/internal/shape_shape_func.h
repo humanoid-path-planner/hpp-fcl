@@ -40,10 +40,10 @@
 
 /// @cond INTERNAL
 
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/collision_utility.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/shape/geometric_shapes_traits.h>
+#include "coal/collision_data.h"
+#include "coal/collision_utility.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/shape/geometric_shapes_traits.h"
 
 namespace coal {
 
@@ -212,19 +212,19 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
 
 #define SHAPE_SHAPE_DISTANCE_SPECIALIZATION(T1, T2)                            \
   template <>                                                                  \
-  HPP_FCL_DLLAPI FCL_REAL internal::ShapeShapeDistance<T1, T2>(                \
+  COAL_DLLAPI FCL_REAL internal::ShapeShapeDistance<T1, T2>(                   \
       const CollisionGeometry* o1, const Transform3f& tf1,                     \
       const CollisionGeometry* o2, const Transform3f& tf2,                     \
       const GJKSolver* nsolver, const bool compute_signed_distance, Vec3f& p1, \
       Vec3f& p2, Vec3f& normal);                                               \
   template <>                                                                  \
-  HPP_FCL_DLLAPI FCL_REAL internal::ShapeShapeDistance<T2, T1>(                \
+  COAL_DLLAPI FCL_REAL internal::ShapeShapeDistance<T2, T1>(                   \
       const CollisionGeometry* o1, const Transform3f& tf1,                     \
       const CollisionGeometry* o2, const Transform3f& tf2,                     \
       const GJKSolver* nsolver, const bool compute_signed_distance, Vec3f& p1, \
       Vec3f& p2, Vec3f& normal);                                               \
   template <>                                                                  \
-  inline HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T1, T2>(                   \
+  inline COAL_DLLAPI FCL_REAL ShapeShapeDistance<T1, T2>(                      \
       const CollisionGeometry* o1, const Transform3f& tf1,                     \
       const CollisionGeometry* o2, const Transform3f& tf2,                     \
       const GJKSolver* nsolver, const DistanceRequest& request,                \
@@ -239,7 +239,7 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
     return result.min_distance;                                                \
   }                                                                            \
   template <>                                                                  \
-  inline HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T2, T1>(                   \
+  inline COAL_DLLAPI FCL_REAL ShapeShapeDistance<T2, T1>(                      \
       const CollisionGeometry* o1, const Transform3f& tf1,                     \
       const CollisionGeometry* o2, const Transform3f& tf2,                     \
       const GJKSolver* nsolver, const DistanceRequest& request,                \
@@ -256,13 +256,13 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
 
 #define SHAPE_SELF_DISTANCE_SPECIALIZATION(T)                                  \
   template <>                                                                  \
-  HPP_FCL_DLLAPI FCL_REAL internal::ShapeShapeDistance<T, T>(                  \
+  COAL_DLLAPI FCL_REAL internal::ShapeShapeDistance<T, T>(                     \
       const CollisionGeometry* o1, const Transform3f& tf1,                     \
       const CollisionGeometry* o2, const Transform3f& tf2,                     \
       const GJKSolver* nsolver, const bool compute_signed_distance, Vec3f& p1, \
       Vec3f& p2, Vec3f& normal);                                               \
   template <>                                                                  \
-  inline HPP_FCL_DLLAPI FCL_REAL ShapeShapeDistance<T, T>(                     \
+  inline COAL_DLLAPI FCL_REAL ShapeShapeDistance<T, T>(                        \
       const CollisionGeometry* o1, const Transform3f& tf1,                     \
       const CollisionGeometry* o2, const Transform3f& tf2,                     \
       const GJKSolver* nsolver, const DistanceRequest& request,                \

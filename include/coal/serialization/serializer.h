@@ -5,7 +5,7 @@
 #ifndef COAL_SERIALIZATION_SERIALIZER_H
 #define COAL_SERIALIZATION_SERIALIZER_H
 
-#include "hpp/fcl/serialization/archive.h"
+#include "coal/serialization/archive.h"
 
 namespace coal {
 namespace serialization {

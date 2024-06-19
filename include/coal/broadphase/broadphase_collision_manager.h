@@ -42,15 +42,15 @@
 #include <vector>
 #include <boost/function.hpp>
 
-#include "hpp/fcl/collision_object.h"
-#include "hpp/fcl/broadphase/broadphase_callbacks.h"
+#include "coal/collision_object.h"
+#include "coal/broadphase/broadphase_callbacks.h"
 
 namespace coal {
 
 /// @brief Base class for broad phase collision. It helps to accelerate the
 /// collision/distance between N objects. Also support self collision, self
 /// distance and collision/distance with another M objects.
-class HPP_FCL_DLLAPI BroadPhaseCollisionManager {
+class COAL_DLLAPI BroadPhaseCollisionManager {
  public:
   BroadPhaseCollisionManager();
 

@@ -88,6 +88,6 @@ class SparseHashTable {
 }  // namespace detail
 }  // namespace coal
 
-#include "hpp/fcl/broadphase/detail/sparse_hash_table-inl.h"
+#include "coal/broadphase/detail/sparse_hash_table-inl.h"
 
 #endif

@@ -34,7 +34,7 @@
 
 /** @author Sean Curtis (sean@tri.global) */
 
-#include "hpp/fcl/broadphase/default_broadphase_callbacks.h"
+#include "coal/broadphase/default_broadphase_callbacks.h"
 #include <algorithm>
 
 namespace coal {

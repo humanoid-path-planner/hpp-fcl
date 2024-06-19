@@ -38,16 +38,16 @@
 #define BOOST_TEST_MODULE BROADPHASE_COLLISION_1
 #include <boost/test/included/unit_test.hpp>
 
-#include "hpp/fcl/broadphase/broadphase_bruteforce.h"
-#include "hpp/fcl/broadphase/broadphase_spatialhash.h"
-#include "hpp/fcl/broadphase/broadphase_SaP.h"
-#include "hpp/fcl/broadphase/broadphase_SSaP.h"
-#include "hpp/fcl/broadphase/broadphase_interval_tree.h"
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
-#include "hpp/fcl/broadphase/default_broadphase_callbacks.h"
-#include "hpp/fcl/broadphase/detail/sparse_hash_table.h"
-#include "hpp/fcl/broadphase/detail/spatial_hash.h"
+#include "coal/broadphase/broadphase_bruteforce.h"
+#include "coal/broadphase/broadphase_spatialhash.h"
+#include "coal/broadphase/broadphase_SaP.h"
+#include "coal/broadphase/broadphase_SSaP.h"
+#include "coal/broadphase/broadphase_interval_tree.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "coal/broadphase/default_broadphase_callbacks.h"
+#include "coal/broadphase/detail/sparse_hash_table.h"
+#include "coal/broadphase/detail/spatial_hash.h"
 #include "utility.h"
 
 #include <boost/math/constants/constants.hpp>

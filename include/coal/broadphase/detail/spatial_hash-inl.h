@@ -38,7 +38,7 @@
 #ifndef COAL_BROADPHASE_SPATIALHASH_INL_H
 #define COAL_BROADPHASE_SPATIALHASH_INL_H
 
-#include "hpp/fcl/broadphase/detail/spatial_hash.h"
+#include "coal/broadphase/detail/spatial_hash.h"
 #include <algorithm>
 
 namespace coal {
