@@ -40,7 +40,7 @@
 #include "coal/fwd.hh"
 #include "coal/broadphase/broadphase_callbacks.h"
 
-#include "../fcl.hh"
+#include "../coal.hh"
 
 #ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"

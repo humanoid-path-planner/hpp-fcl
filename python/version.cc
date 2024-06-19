@@ -3,7 +3,7 @@
 //
 
 #include "coal/config.hh"
-#include "fcl.hh"
+#include "coal.hh"
 #include <boost/preprocessor/stringize.hpp>
 
 namespace bp = boost::python;

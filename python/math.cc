@@ -39,7 +39,7 @@
 #include "coal/math/transform.h"
 #include "coal/serialization/transform.h"
 
-#include "fcl.hh"
+#include "coal.hh"
 #include "pickle.hh"
 #include "serializable.hh"
 

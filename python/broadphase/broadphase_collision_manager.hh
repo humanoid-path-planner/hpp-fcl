@@ -41,7 +41,7 @@
 #include "coal/broadphase/broadphase_collision_manager.h"
 #include "coal/broadphase/default_broadphase_callbacks.h"
 
-#include "../fcl.hh"
+#include "../coal.hh"
 
 #ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"

@@ -1,5 +1,5 @@
 
-#include "fcl.hh"
+#include "coal.hh"
 
 #include <eigenpy/std-vector.hpp>
 

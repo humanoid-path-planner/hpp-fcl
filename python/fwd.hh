@@ -8,7 +8,7 @@
 #include "coal/fwd.hh"
 #ifdef COAL_HAS_DOXYGEN_AUTODOC
 namespace doxygen {
-using hpp::fcl::shared_ptr;
+using coal::shared_ptr;
 }
 #endif
 

@@ -33,7 +33,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 
 #include "coal/fwd.hh"
-#include "../fcl.hh"
+#include "../coal.hh"
 #include "../utils/std-pair.hh"
 
 #include "coal/broadphase/broadphase_dynamic_AABB_tree.h"

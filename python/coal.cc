@@ -34,7 +34,7 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-#include "fcl.hh"
+#include "coal.hh"
 
 #include "coal/fwd.hh"
 #include "coal/shape/geometric_shapes.h"

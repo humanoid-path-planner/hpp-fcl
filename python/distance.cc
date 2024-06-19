@@ -34,7 +34,7 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-#include "fcl.hh"
+#include "coal.hh"
 
 COAL_COMPILER_DIAGNOSTIC_PUSH
 COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS

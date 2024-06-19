@@ -35,7 +35,7 @@
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/eigen-to-python.hpp>
 
-#include "fcl.hh"
+#include "coal.hh"
 #include "deprecation.hh"
 
 #include "coal/fwd.hh"

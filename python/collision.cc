@@ -41,7 +41,7 @@ COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 #include "coal/serialization/collision_data.h"
 COAL_COMPILER_DIAGNOSTIC_POP
 
-#include "fcl.hh"
+#include "coal.hh"
 #include "deprecation.hh"
 #include "serializable.hh"
 

@@ -43,7 +43,7 @@ SET(LIBRARY_NAME hppfcl)
 
 SET(${LIBRARY_NAME}_HEADERS
   fwd.hh
-  fcl.hh
+  coal.hh
   deprecation.hh
   broadphase/fwd.hh
   broadphase/broadphase_collision_manager.hh
@@ -108,7 +108,7 @@ SET(${LIBRARY_NAME}_SOURCES
   collision.cc
   contact_patch.cc
   distance.cc
-  fcl.cc
+  coal.cc
   gjk.cc
   broadphase/broadphase.cc
   )

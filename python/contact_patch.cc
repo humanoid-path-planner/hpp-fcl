@@ -38,7 +38,7 @@
 #include "coal/contact_patch.h"
 #include "coal/serialization/collision_data.h"
 
-#include "fcl.hh"
+#include "coal.hh"
 #include "deprecation.hh"
 #include "serializable.hh"
 
