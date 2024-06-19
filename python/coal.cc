@@ -83,7 +83,7 @@ void exposeMeshLoader() {
   }
 }
 
-BOOST_PYTHON_MODULE(hppfcl) {
+BOOST_PYTHON_MODULE(coal_pywrap) {
   namespace bp = boost::python;
 
   PyImport_ImportModule("warnings");

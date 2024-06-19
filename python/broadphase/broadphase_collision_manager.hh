@@ -215,7 +215,7 @@ struct BroadPhaseCollisionManagerWrapper
   template <typename Derived>
   static void exposeDerived() {
     std::string class_name = boost::typeindex::type_id<Derived>().pretty_name();
-    boost::algorithm::replace_all(class_name, "hpp::fcl::", "");
+    boost::algorithm::replace_all(class_name, "coal::", "");
 #if defined(WIN32)
     boost::algorithm::replace_all(class_name, "class ", "");
 #endif

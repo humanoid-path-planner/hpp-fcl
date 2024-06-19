@@ -8,7 +8,7 @@ import warnings
 import numpy as np
 from gepetto import Color
 
-import hppfcl
+import coal
 
 
 def applyConfiguration(gui, name, tf):
@@ -18,18 +18,18 @@ def applyConfiguration(gui, name, tf):
 
 
 def displayShape(gui, name, geom, color=(0.9, 0.9, 0.9, 1.0)):
-    if isinstance(geom, hppfcl.Capsule):
+    if isinstance(geom, coal.Capsule):
         return gui.addCapsule(name, geom.radius, 2.0 * geom.halfLength, color)
-    elif isinstance(geom, hppfcl.Cylinder):
+    elif isinstance(geom, coal.Cylinder):
         return gui.addCylinder(name, geom.radius, 2.0 * geom.halfLength, color)
-    elif isinstance(geom, hppfcl.Box):
+    elif isinstance(geom, coal.Box):
         w, h, d = (2.0 * geom.halfSide).tolist()
         return gui.addBox(name, w, h, d, color)
-    elif isinstance(geom, hppfcl.Sphere):
+    elif isinstance(geom, coal.Sphere):
         return gui.addSphere(name, geom.radius, color)
-    elif isinstance(geom, hppfcl.Cone):
+    elif isinstance(geom, coal.Cone):
         return gui.addCone(name, geom.radius, 2.0 * geom.halfLength, color)
-    elif isinstance(geom, hppfcl.Convex):
+    elif isinstance(geom, coal.Convex):
         pts = [
             geom.points(geom.polygons(f)[i]).tolist()
             for f in range(geom.num_polygons)
@@ -40,7 +40,7 @@ def displayShape(gui, name, geom, color=(0.9, 0.9, 0.9, 1.0)):
         gui.setLightingMode(name, "ON")
         gui.setBoolProperty(name, "BackfaceDrawing", True)
         return True
-    elif isinstance(geom, hppfcl.ConvexBase):
+    elif isinstance(geom, coal.ConvexBase):
         pts = [geom.points(i).tolist() for i in range(geom.num_points)]
         gui.addCurve(name, pts, color)
         gui.setCurveMode(name, "POINTS")
@@ -73,7 +73,7 @@ def displayDistanceResult(gui, group_name, res, closest_points=True, normal=True
         gui.applyConfiguration(
             n,
             res.getNearestPoint1().tolist()
-            + hppfcl.Quaternion.FromTwoVectors(np.array([1, 0, 0]), res.normal)
+            + coal.Quaternion.FromTwoVectors(np.array([1, 0, 0]), res.normal)
             .coeffs()
             .tolist(),
         )
@@ -101,7 +101,7 @@ def displayCollisionResult(gui, group_name, res, color=Color.green):
             gui.applyConfiguration(
                 n,
                 (P - depth * N / 2).tolist()
-                + hppfcl.Quaternion.FromTwoVectors(np.array([1, 0, 0]), N)
+                + coal.Quaternion.FromTwoVectors(np.array([1, 0, 0]), N)
                 .coeffs()
                 .tolist(),
             )

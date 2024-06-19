@@ -32,5 +32,5 @@
 #  POSSIBILITY OF SUCH DAMAGE.
 
 # ruff: noqa: F401, F403
-from .hppfcl import *
-from .hppfcl import __raw_version__, __version__
+from .coal_pywrap import *
+from .coal_pywrap import __raw_version__, __version__
