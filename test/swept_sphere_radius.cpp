@@ -34,7 +34,7 @@
 
 /** \author Louis Montaut */
 
-#define BOOST_TEST_MODULE SWEPT_SPHERE_RADIUS
+#define BOOST_TEST_MODULE COAL_SWEPT_SPHERE_RADIUS
 #include <boost/test/included/unit_test.hpp>
 
 #include "coal/narrowphase/narrowphase.h"

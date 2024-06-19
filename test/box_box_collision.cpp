@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE BOX_BOX_COLLISION
+#define BOOST_TEST_MODULE COAL_BOX_BOX_COLLISION
 #include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Geometry>

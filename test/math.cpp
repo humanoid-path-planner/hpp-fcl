@@ -36,7 +36,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#define BOOST_TEST_MODULE FCL_MATH
+#define BOOST_TEST_MODULE COAL_MATH
 #include <boost/test/included/unit_test.hpp>
 
 #include "coal/data_types.h"

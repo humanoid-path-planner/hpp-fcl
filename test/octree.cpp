@@ -35,7 +35,7 @@
 
 /** \author Florent Lamiraux <florent@laas.fr> */
 
-#define BOOST_TEST_MODULE FCL_OCTREE
+#define BOOST_TEST_MODULE COAL_OCTREE
 #include <fstream>
 #include <boost/test/included/unit_test.hpp>
 #include <boost/filesystem.hpp>

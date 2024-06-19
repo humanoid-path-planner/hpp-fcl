@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define BOOST_TEST_MODULE FCL_SERIALIZATION
+#define BOOST_TEST_MODULE COAL_SERIALIZATION
 #include <fstream>
 #include <boost/test/included/unit_test.hpp>
 

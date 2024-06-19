@@ -34,7 +34,7 @@
 
 /** \author Justin Carpentier */
 
-#define BOOST_TEST_MODULE FCL_HEIGHT_FIELDS
+#define BOOST_TEST_MODULE COAL_HEIGHT_FIELDS
 #include <boost/test/included/unit_test.hpp>
 #include <boost/filesystem.hpp>
 

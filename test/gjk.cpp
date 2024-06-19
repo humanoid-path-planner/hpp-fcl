@@ -34,7 +34,7 @@
 
 /** \author Florent Lamiraux <florent@laas.fr> */
 
-#define BOOST_TEST_MODULE FCL_GJK
+#define BOOST_TEST_MODULE COAL_GJK
 #include <time.h>
 #include <boost/test/included/unit_test.hpp>
 

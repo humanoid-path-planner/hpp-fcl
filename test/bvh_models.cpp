@@ -35,7 +35,7 @@
 
 /** \author Jeongseok Lee */
 
-#define BOOST_TEST_MODULE FCL_BVH_MODELS
+#define BOOST_TEST_MODULE COAL_BVH_MODELS
 #include <boost/test/included/unit_test.hpp>
 #include <boost/filesystem.hpp>
 

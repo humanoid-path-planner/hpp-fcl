@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#define BOOST_TEST_MODULE FCL_SHAPE_MESH_CONSISTENCY
+#define BOOST_TEST_MODULE COAL_SHAPE_MESH_CONSISTENCY
 #include <boost/test/included/unit_test.hpp>
 
 #include "coal/narrowphase/narrowphase.h"

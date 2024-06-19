@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#define BOOST_TEST_MODULE FCL_DISTANCE
+#define BOOST_TEST_MODULE COAL_DISTANCE
 #include <chrono>
 
 #include <boost/test/included/unit_test.hpp>

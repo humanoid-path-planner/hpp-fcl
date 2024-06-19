@@ -36,7 +36,7 @@
 
 /** \author Jia Pan */
 
-#define BOOST_TEST_MODULE FCL_GEOMETRIC_SHAPES
+#define BOOST_TEST_MODULE COAL_GEOMETRIC_SHAPES
 #include <boost/test/included/unit_test.hpp>
 
 #include "coal/narrowphase/narrowphase.h"

@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE FCL_GJK_ASSERTS
+#define BOOST_TEST_MODULE COAL_GJK_ASSERTS
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/math/constants/constants.hpp>

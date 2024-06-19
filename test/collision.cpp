@@ -37,7 +37,7 @@
 
 #include <boost/mpl/vector.hpp>
 
-#define BOOST_TEST_MODULE FCL_COLLISION
+#define BOOST_TEST_MODULE COAL_COLLISION
 #include <boost/test/included/unit_test.hpp>
 
 #include <fstream>

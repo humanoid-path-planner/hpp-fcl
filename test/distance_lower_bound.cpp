@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define BOOST_TEST_MODULE FCL_DISTANCE_LOWER_BOUND
+#define BOOST_TEST_MODULE COAL_DISTANCE_LOWER_BOUND
 #include <boost/test/included/unit_test.hpp>
 #include <boost/filesystem.hpp>
 

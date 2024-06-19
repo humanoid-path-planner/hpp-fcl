@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE FCL_SIMPLE
+#define BOOST_TEST_MODULE COAL_SIMPLE
 #include <boost/test/included/unit_test.hpp>
 
 #include "coal/internal/intersect.h"

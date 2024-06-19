@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-#define BOOST_TEST_MODULE FCL_FRONT_LIST
+#define BOOST_TEST_MODULE COAL_FRONT_LIST
 #include <boost/test/included/unit_test.hpp>
 
 #include "coal/internal/traversal_node_bvhs.h"

@@ -37,7 +37,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#define BOOST_TEST_MODULE FCL_BOX_BOX
+#define BOOST_TEST_MODULE COAL_BOX_BOX
 #include <boost/test/included/unit_test.hpp>
 
 #define CHECK_CLOSE_TO_0(x, eps) BOOST_CHECK_CLOSE((x + 1.0), (1.0), (eps))

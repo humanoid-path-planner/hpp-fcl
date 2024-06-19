@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define BOOST_TEST_MODULE FCL_SECURITY_MARGIN
+#define BOOST_TEST_MODULE COAL_SECURITY_MARGIN
 #include <boost/test/included/unit_test.hpp>
 
 #include <cmath>
