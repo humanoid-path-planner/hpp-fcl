@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/// This file defines basic logging macros for HPP-FCL, based on Boost.Log.
+/// This file defines basic logging macros for Coal, based on Boost.Log.
 /// To enable logging, define the preprocessor macro `COAL_ENABLE_LOGGING`.
 
 #ifndef COAL_LOGGING_H

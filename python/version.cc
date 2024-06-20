@@ -17,7 +17,7 @@ inline bool checkVersionAtMost(int major, int minor, int patch) {
 }
 
 void exposeVersion() {
-  // Define release numbers of the current hpp-fcl version.
+  // Define release numbers of the current Coal version.
   bp::scope().attr("__version__") =
       BOOST_PP_STRINGIZE(COAL_MAJOR_VERSION) "." BOOST_PP_STRINGIZE(COAL_MINOR_VERSION) "." BOOST_PP_STRINGIZE(COAL_PATCH_VERSION);
   bp::scope().attr("__raw_version__") = COAL_VERSION;

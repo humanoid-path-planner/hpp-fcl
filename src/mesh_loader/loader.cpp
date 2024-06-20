@@ -94,7 +94,7 @@ CollisionGeometryPtr_t MeshLoader::loadOctree(const std::string& filename) {
   shared_ptr<octomap::OcTree> octree(new octomap::OcTree(filename));
   return CollisionGeometryPtr_t(new coal::OcTree(octree));
 #else
-  COAL_THROW_PRETTY("hpp-fcl compiled without OctoMap. Cannot create OcTrees.",
+  COAL_THROW_PRETTY("Coal compiled without OctoMap. Cannot create OcTrees.",
                     std::logic_error);
 #endif
 }

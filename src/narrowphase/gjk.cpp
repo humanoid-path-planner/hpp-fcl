@@ -152,7 +152,7 @@ void getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
 /// Inflate the points along a normal.
 /// The normal is typically the normal of the separating plane found by GJK
 /// or the normal found by EPA.
-/// The normal should follow hpp-fcl convention: it points from shape0 to
+/// The normal should follow coal convention: it points from shape0 to
 /// shape1.
 template <bool Separated>
 void inflate(const MinkowskiDiff& shape, const Vec3f& normal, Vec3f& w0,

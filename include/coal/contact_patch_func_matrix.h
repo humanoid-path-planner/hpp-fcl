@@ -52,12 +52,12 @@ struct COAL_DLLAPI ContactPatchFunctionMatrix {
   /// 1. two objects o1 and o2 and their configuration in world coordinate tf1
   ///    and tf2;
   /// 2. the collision result that generated contact patches candidates
-  ///    (`hpp::fcl::Contact`), from which contact patches will be expanded;
+  ///    (`coal::Contact`), from which contact patches will be expanded;
   /// 3. the solver for computation of contact patches;
   /// 4. the request setting for contact patches (e.g. maximum amount of
   ///    patches, patch tolerance etc.)
   /// 5. the structure to return contact patches
-  ///    (`hpp::fcl::ContactPatchResult`).
+  ///    (`coal::ContactPatchResult`).
   ///
   /// Note: we pass a GJKSolver, because it allows to reuse internal computation
   /// that was made during the narrow phase. It also allows to experiment with

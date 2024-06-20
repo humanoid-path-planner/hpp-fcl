@@ -646,7 +646,7 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
   ///          "Qt". If \c NULL, "Qt" is passed to Qhull.
   ///        - if \c keepTriangles is \c false, an empty string is passed to
   ///          Qhull.
-  /// \note hpp-fcl must have been compiled with option \c COAL_HAS_QHULL set
+  /// \note Coal must have been compiled with option \c COAL_HAS_QHULL set
   ///       to \c ON.
   static ConvexBase* convexHull(std::shared_ptr<std::vector<Vec3f>>& points,
                                 unsigned int num_points, bool keepTriangles,

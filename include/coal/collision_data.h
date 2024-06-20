@@ -321,14 +321,14 @@ struct COAL_DLLAPI CollisionRequest : QueryRequest {
   bool enable_distance_lower_bound;
 
   /// @brief Distance below which objects are considered in collision.
-  /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
+  /// See \ref coal_collision_and_distance_lower_bound_computation
   /// @note If set to -inf, the objects tested for collision are considered
   ///       as collision free and no test is actually performed by functions
-  ///       hpp::fcl::collide of class hpp::fcl::ComputeCollision.
+  ///       coal::collide of class coal::ComputeCollision.
   FCL_REAL security_margin;
 
   /// @brief Distance below which bounding volumes are broken down.
-  /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
+  /// See \ref coal_collision_and_distance_lower_bound_computation
   FCL_REAL break_distance;
 
   /// @brief Distance above which GJK solver makes an early stopping.
@@ -394,7 +394,7 @@ struct COAL_DLLAPI CollisionResult : QueryResult {
 
  public:
   /// Lower bound on distance between objects if they are disjoint.
-  /// See \ref hpp_fcl_collision_and_distance_lower_bound_computation
+  /// See \ref coal_collision_and_distance_lower_bound_computation
   /// @note Always computed. If \ref CollisionRequest::distance_upper_bound is
   /// set to infinity, distance_lower_bound is the actual distance between the
   /// shapes.
@@ -499,14 +499,14 @@ struct COAL_DLLAPI CollisionResult : QueryResult {
 /// and second shape of a collision pair, a contact patch is represented as a
 /// polytope which vertices all belong to `P & S1 & S2`, where `&` denotes the
 /// set-intersection. Since a contact patch is a subset of a plane supported by
-/// `n`, it has a preferred direction. In HPP-FCL, the `Contact::normal` points
+/// `n`, it has a preferred direction. In Coal, the `Contact::normal` points
 /// from S1 to S2. In the same way, a contact patch points by default from S1
 /// to S2.
 ///
 /// @note For now (April 2024), a `ContactPatch` is a polygon (2D polytope),
 /// so the points of the set, forming the convex-hull of the polytope, are
 /// stored in a counter-clockwise fashion.
-/// @note If needed, the internal algorithms of hpp-fcl can easily be extended
+/// @note If needed, the internal algorithms of Coal can easily be extended
 /// to compute a contact volume instead of a contact patch.
 struct COAL_DLLAPI ContactPatch {
  public:
@@ -517,12 +517,12 @@ struct COAL_DLLAPI ContactPatch {
   Transform3f tf;
 
   /// @brief Direction of ContactPatch.
-  /// When doing collision detection, the convention of HPP-FCL is that the
+  /// When doing collision detection, the convention of Coal is that the
   /// normal always points from the first to the second shape of the collision
   /// pair i.e. from shape1 to shape2 when calling `collide(shape1, shape2)`.
   /// The PatchDirection enum allows to identify if the patch points from
   /// shape 1 to shape 2 (Default type) or from shape 2 to shape 1 (Inverted
-  /// type). The Inverted type should only be used for internal HPP-FCL
+  /// type). The Inverted type should only be used for internal Coal
   /// computations (it allows to properly define two separate contact patches in
   /// the same frame).
   enum PatchDirection { DEFAULT = 0, INVERTED = 1 };
@@ -555,7 +555,7 @@ struct COAL_DLLAPI ContactPatch {
   /// @brief Default constructor.
   /// Note: the preallocated size does not determine the maximum number of
   /// points in the patch, it only serves as preallocation if the maximum size
-  /// of the patch is known in advance. HPP-FCL will automatically expand/shrink
+  /// of the patch is known in advance. Coal will automatically expand/shrink
   /// the contact patch if needed.
   explicit ContactPatch(size_t preallocated_size = default_preallocated_size)
       : tf(Transform3f::Identity()),

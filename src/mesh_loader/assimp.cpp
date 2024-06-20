@@ -39,7 +39,7 @@
 
 // Assimp >= 5.0 is forcing the use of C++11 keywords. A fix has been submitted
 // https://github.com/assimp/assimp/pull/2758. The next lines fixes the bug for
-// current version of hpp-fcl.
+// current version of Coal.
 #include <assimp/defs.h>
 #if !(__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600)) && \
     defined(AI_NO_EXCEPT)

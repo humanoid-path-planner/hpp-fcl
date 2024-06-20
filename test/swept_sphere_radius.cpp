@@ -99,7 +99,7 @@ int line;
 // So we can also easily recover the witness points of the swept sphere shapes.
 //
 // This suite of test is designed to verify that property and generally test for
-// swept-sphere radius support in hpp-fcl.
+// swept-sphere radius support in Coal.
 // Notes:
 //   - not all collision pairs use GJK/EPA, so this test makes sure that
 //     swept-sphere radius is taken into account even for specialized collision
