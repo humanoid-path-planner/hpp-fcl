@@ -102,16 +102,16 @@ void relativeTransform(const Eigen::MatrixBase<Derived>& R1,
 template <typename Derived, typename Vector>
 void eigen(const Eigen::MatrixBase<Derived>& m,
            typename Derived::Scalar dout[3], Vector* vout) {
-  typedef typename Derived::Scalar Scalar;
+  typedef typename Derived::Scalar S;
   Derived R(m.derived());
   int n = 3;
   int j, iq, ip, i;
-  Scalar tresh, theta, tau, t, sm, s, h, g, c;
+  S tresh, theta, tau, t, sm, s, h, g, c;
 
-  Scalar b[3];
-  Scalar z[3];
-  Scalar v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-  Scalar d[3];
+  S b[3];
+  S z[3];
+  S v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+  S d[3];
 
   for (ip = 0; ip < n; ++ip) {
     b[ip] = d[ip] = R(ip, ip);

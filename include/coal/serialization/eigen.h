@@ -42,10 +42,10 @@ struct traits<boost::serialization::U> {
 namespace boost {
 namespace serialization {
 
-template <class Archive, typename Scalar, int Rows, int Cols, int Options,
+template <class Archive, typename S, int Rows, int Cols, int Options,
           int MaxRows, int MaxCols>
 void save(Archive& ar,
-          const Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols>& m,
+          const Eigen::Matrix<S, Rows, Cols, Options, MaxRows, MaxCols>& m,
           const unsigned int /*version*/) {
   Eigen::DenseIndex rows(m.rows()), cols(m.cols());
   if (Rows == Eigen::Dynamic) ar& BOOST_SERIALIZATION_NVP(rows);
@@ -53,10 +53,10 @@ void save(Archive& ar,
   ar& make_nvp("data", make_array(m.data(), (size_t)m.size()));
 }
 
-template <class Archive, typename Scalar, int Rows, int Cols, int Options,
+template <class Archive, typename S, int Rows, int Cols, int Options,
           int MaxRows, int MaxCols>
 void load(Archive& ar,
-          Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols>& m,
+          Eigen::Matrix<S, Rows, Cols, Options, MaxRows, MaxCols>& m,
           const unsigned int /*version*/) {
   Eigen::DenseIndex rows = Rows, cols = Cols;
   if (Rows == Eigen::Dynamic) ar >> BOOST_SERIALIZATION_NVP(rows);
@@ -65,10 +65,10 @@ void load(Archive& ar,
   ar >> make_nvp("data", make_array(m.data(), (size_t)m.size()));
 }
 
-template <class Archive, typename Scalar, int Rows, int Cols, int Options,
+template <class Archive, typename S, int Rows, int Cols, int Options,
           int MaxRows, int MaxCols>
 void serialize(Archive& ar,
-               Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols>& m,
+               Eigen::Matrix<S, Rows, Cols, Options, MaxRows, MaxCols>& m,
                const unsigned int version) {
   split_free(ar, m, version);
 }

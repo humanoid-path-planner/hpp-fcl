@@ -47,7 +47,7 @@ static const double kIOS_RATIO = 1.5;
 static const double invSinA = 2;
 static const double cosA = sqrt(3.0) / 2.0;
 
-static inline void axisFromEigen(Vec3f eigenV[3], Matrix3f::Scalar eigenS[3],
+static inline void axisFromEigen(Vec3f eigenV[3], FCL_REAL eigenS[3],
                                  Matrix3f& axes) {
   int min, mid, max;
   if (eigenS[0] > eigenS[1]) {
@@ -131,7 +131,7 @@ void fit6(Vec3f* ps, OBB& bv) {
 void fitn(Vec3f* ps, unsigned int n, OBB& bv) {
   Matrix3f M;
   Vec3f E[3];
-  Matrix3f::Scalar s[3] = {0, 0, 0};  // three eigen values
+  FCL_REAL s[3] = {0, 0, 0};  // three eigen values
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
@@ -202,7 +202,7 @@ void fit6(Vec3f* ps, RSS& bv) {
 void fitn(Vec3f* ps, unsigned int n, RSS& bv) {
   Matrix3f M;  // row first matrix
   Vec3f E[3];  // row first eigen-vectors
-  Matrix3f::Scalar s[3] = {0, 0, 0};
+  FCL_REAL s[3] = {0, 0, 0};
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
@@ -308,7 +308,7 @@ void fit3(Vec3f* ps, kIOS& bv) {
 void fitn(Vec3f* ps, unsigned int n, kIOS& bv) {
   Matrix3f M;
   Vec3f E[3];
-  Matrix3f::Scalar s[3] = {0, 0, 0};  // three eigen values;
+  FCL_REAL s[3] = {0, 0, 0};  // three eigen values;
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
@@ -481,9 +481,9 @@ OBB BVFitter<OBB>::fit(unsigned int* primitive_indices,
                        unsigned int num_primitives) {
   OBB bv;
 
-  Matrix3f M;             // row first matrix
-  Vec3f E[3];             // row first eigen-vectors
-  Matrix3f::Scalar s[3];  // three eigen values
+  Matrix3f M;     // row first matrix
+  Vec3f E[3];     // row first eigen-vectors
+  FCL_REAL s[3];  // three eigen values
 
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices,
                 num_primitives, M);
@@ -503,7 +503,7 @@ OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices,
   OBBRSS bv;
   Matrix3f M;
   Vec3f E[3];
-  Matrix3f::Scalar s[3];
+  FCL_REAL s[3];
 
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices,
                 num_primitives, M);
@@ -534,9 +534,9 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices,
                        unsigned int num_primitives) {
   RSS bv;
 
-  Matrix3f M;             // row first matrix
-  Vec3f E[3];             // row first eigen-vectors
-  Matrix3f::Scalar s[3];  // three eigen values
+  Matrix3f M;     // row first matrix
+  Vec3f E[3];     // row first eigen-vectors
+  FCL_REAL s[3];  // three eigen values
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices,
                 num_primitives, M);
   eigen(M, s, E);
@@ -565,7 +565,7 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices,
 
   Matrix3f M;  // row first matrix
   Vec3f E[3];  // row first eigen-vectors
-  Matrix3f::Scalar s[3];
+  FCL_REAL s[3];
 
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices,
                 num_primitives, M);

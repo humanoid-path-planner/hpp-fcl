@@ -62,10 +62,10 @@ template <typename Shape>
 bool isApprox(const Shape &s1, const Shape &s2, const FCL_REAL tol);
 
 bool isApprox(const FCL_REAL &v1, const FCL_REAL &v2, const FCL_REAL tol) {
-  typedef Eigen::Matrix<FCL_REAL, 1, 1> ScalarMatrix;
-  ScalarMatrix m1;
+  typedef Eigen::Matrix<FCL_REAL, 1, 1> Matrix;
+  Matrix m1;
   m1 << v1;
-  ScalarMatrix m2;
+  Matrix m2;
   m2 << v2;
   return m1.isApprox(m2, tol);
 }

@@ -67,7 +67,7 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2) {
   computeVertices(b2, vertex + 8);
   Matrix3f M;
   Vec3f E[3];
-  Matrix3f::Scalar s[3] = {0, 0, 0};
+  FCL_REAL s[3] = {0, 0, 0};
 
   // obb axes
   b.axes.col(0).noalias() = (b1.To - b2.To).normalized();
