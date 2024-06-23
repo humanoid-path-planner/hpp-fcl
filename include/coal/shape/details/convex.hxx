@@ -44,7 +44,7 @@
 namespace coal {
 
 template <typename PolygonT>
-Convex<PolygonT>::Convex(std::shared_ptr<std::vector<Vec3f>> points_,
+Convex<PolygonT>::Convex(std::shared_ptr<std::vector<Vec3s>> points_,
                          unsigned int num_points_,
                          std::shared_ptr<std::vector<PolygonT>> polygons_,
                          unsigned int num_polygons_)
@@ -67,7 +67,7 @@ template <typename PolygonT>
 Convex<PolygonT>::~Convex() {}
 
 template <typename PolygonT>
-void Convex<PolygonT>::set(std::shared_ptr<std::vector<Vec3f>> points_,
+void Convex<PolygonT>::set(std::shared_ptr<std::vector<Vec3s>> points_,
                            unsigned int num_points_,
                            std::shared_ptr<std::vector<PolygonT>> polygons_,
                            unsigned int num_polygons_) {
@@ -86,13 +86,13 @@ Convex<PolygonT>* Convex<PolygonT>::clone() const {
 }
 
 template <typename PolygonT>
-Matrix3f Convex<PolygonT>::computeMomentofInertia() const {
+Matrix3s Convex<PolygonT>::computeMomentofInertia() const {
   typedef typename PolygonT::size_type size_type;
   typedef typename PolygonT::index_type index_type;
 
-  Matrix3f C = Matrix3f::Zero();
+  Matrix3s C = Matrix3s::Zero();
 
-  Matrix3f C_canonical;
+  Matrix3s C_canonical;
   C_canonical << 1 / 60.0, 1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0, 1 / 120.0,
       1 / 120.0, 1 / 120.0, 1 / 60.0;
 
@@ -102,7 +102,7 @@ Matrix3f Convex<PolygonT>::computeMomentofInertia() const {
         << std::endl;
     return C;
   }
-  const std::vector<Vec3f>& points_ = *points;
+  const std::vector<Vec3s>& points_ = *points;
   if (!(polygons.get())) {
     std::cerr
         << "Error in `Convex::computeMomentofInertia`! Convex has no polygons."
@@ -114,43 +114,43 @@ Matrix3f Convex<PolygonT>::computeMomentofInertia() const {
     const PolygonT& polygon = polygons_[i];
 
     // compute the center of the polygon
-    Vec3f plane_center(0, 0, 0);
+    Vec3s plane_center(0, 0, 0);
     for (size_type j = 0; j < polygon.size(); ++j)
       plane_center += points_[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
     // compute the volume of tetrahedron making by neighboring two points, the
     // plane center and the reference point (zero) of the convex shape
-    const Vec3f& v3 = plane_center;
+    const Vec3s& v3 = plane_center;
     for (size_type j = 0; j < polygon.size(); ++j) {
       index_type e_first = polygon[static_cast<index_type>(j)];
       index_type e_second =
           polygon[static_cast<index_type>((j + 1) % polygon.size())];
-      const Vec3f& v1 = points_[e_first];
-      const Vec3f& v2 = points_[e_second];
-      Matrix3f A;
+      const Vec3s& v1 = points_[e_first];
+      const Vec3s& v2 = points_[e_second];
+      Matrix3s A;
       A << v1.transpose(), v2.transpose(),
           v3.transpose();  // this is A' in the original document
       C += A.transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
     }
   }
 
-  return C.trace() * Matrix3f::Identity() - C;
+  return C.trace() * Matrix3s::Identity() - C;
 }
 
 template <typename PolygonT>
-Vec3f Convex<PolygonT>::computeCOM() const {
+Vec3s Convex<PolygonT>::computeCOM() const {
   typedef typename PolygonT::size_type size_type;
   typedef typename PolygonT::index_type index_type;
 
-  Vec3f com(0, 0, 0);
+  Vec3s com(0, 0, 0);
   CoalScalar vol = 0;
   if (!(points.get())) {
     std::cerr << "Error in `Convex::computeCOM`! Convex has no vertices."
               << std::endl;
     return com;
   }
-  const std::vector<Vec3f>& points_ = *points;
+  const std::vector<Vec3s>& points_ = *points;
   if (!(polygons.get())) {
     std::cerr << "Error in `Convex::computeCOM`! Convex has no polygons."
               << std::endl;
@@ -160,20 +160,20 @@ Vec3f Convex<PolygonT>::computeCOM() const {
   for (unsigned int i = 0; i < num_polygons; ++i) {
     const PolygonT& polygon = polygons_[i];
     // compute the center of the polygon
-    Vec3f plane_center(0, 0, 0);
+    Vec3s plane_center(0, 0, 0);
     for (size_type j = 0; j < polygon.size(); ++j)
       plane_center += points_[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
     // compute the volume of tetrahedron making by neighboring two points, the
     // plane center and the reference point (zero) of the convex shape
-    const Vec3f& v3 = plane_center;
+    const Vec3s& v3 = plane_center;
     for (size_type j = 0; j < polygon.size(); ++j) {
       index_type e_first = polygon[static_cast<index_type>(j)];
       index_type e_second =
           polygon[static_cast<index_type>((j + 1) % polygon.size())];
-      const Vec3f& v1 = points_[e_first];
-      const Vec3f& v2 = points_[e_second];
+      const Vec3s& v1 = points_[e_first];
+      const Vec3s& v2 = points_[e_second];
       CoalScalar d_six_vol = (v1.cross(v2)).dot(v3);
       vol += d_six_vol;
       com += (points_[e_first] + points_[e_second] + plane_center) * d_six_vol;
@@ -194,7 +194,7 @@ CoalScalar Convex<PolygonT>::computeVolume() const {
               << std::endl;
     return vol;
   }
-  const std::vector<Vec3f>& points_ = *points;
+  const std::vector<Vec3s>& points_ = *points;
   if (!(polygons.get())) {
     std::cerr << "Error in `Convex::computeVolume`! Convex has no polygons."
               << std::endl;
@@ -205,20 +205,20 @@ CoalScalar Convex<PolygonT>::computeVolume() const {
     const PolygonT& polygon = polygons_[i];
 
     // compute the center of the polygon
-    Vec3f plane_center(0, 0, 0);
+    Vec3s plane_center(0, 0, 0);
     for (size_type j = 0; j < polygon.size(); ++j)
       plane_center += points_[polygon[(index_type)j]];
     plane_center /= polygon.size();
 
     // compute the volume of tetrahedron making by neighboring two points, the
     // plane center and the reference point (zero point) of the convex shape
-    const Vec3f& v3 = plane_center;
+    const Vec3s& v3 = plane_center;
     for (size_type j = 0; j < polygon.size(); ++j) {
       index_type e_first = polygon[static_cast<index_type>(j)];
       index_type e_second =
           polygon[static_cast<index_type>((j + 1) % polygon.size())];
-      const Vec3f& v1 = points_[e_first];
-      const Vec3f& v2 = points_[e_second];
+      const Vec3s& v1 = points_[e_first];
+      const Vec3s& v2 = points_[e_second];
       CoalScalar d_six_vol = (v1.cross(v2)).dot(v3);
       vol += d_six_vol;
     }

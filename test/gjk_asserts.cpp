@@ -13,8 +13,8 @@ double DegToRad(const double& deg) {
   static double degToRad = pi / 180.;
   return deg * degToRad;
 }
-std::vector<Vec3f> dirs{Vec3f::UnitZ(),  -Vec3f::UnitZ(), Vec3f::UnitY(),
-                        -Vec3f::UnitY(), Vec3f::UnitX(),  -Vec3f::UnitX()};
+std::vector<Vec3s> dirs{Vec3s::UnitZ(),  -Vec3s::UnitZ(), Vec3s::UnitY(),
+                        -Vec3s::UnitY(), Vec3s::UnitX(),  -Vec3s::UnitX()};
 
 void CreateSphereMesh(BVHModel<OBBRSS>& model, const double& radius) {
   size_t polarSteps{32};
@@ -24,7 +24,7 @@ void CreateSphereMesh(BVHModel<OBBRSS>& model, const double& radius) {
 
   const float polarStep = PI / (float)(polarSteps - 1);
   const float azimuthStep = 2.0f * PI / (float)(azimuthSteps - 1);
-  std::vector<Vec3f> vertices;
+  std::vector<Vec3s> vertices;
   std::vector<Triangle> triangles;
 
   for (size_t p = 0; p < polarSteps; ++p) {
@@ -77,9 +77,9 @@ BOOST_AUTO_TEST_CASE(TestSpheres) {
           (i == 86 && j == 52) || (i == 89 && j == 17) ||
           (i == 89 && j == 58) || (i == 89 && j == 145)) {
         sphere2Tf.setQuatRotation(
-            Eigen::AngleAxis<double>(DegToRad(i), Vec3f::UnitZ()) *
-            Eigen::AngleAxis<double>(DegToRad(j), Vec3f::UnitY()));
-        for (const Vec3f& dir : dirs) {
+            Eigen::AngleAxis<double>(DegToRad(i), Vec3s::UnitZ()) *
+            Eigen::AngleAxis<double>(DegToRad(j), Vec3s::UnitY()));
+        for (const Vec3s& dir : dirs) {
           sphere2Tf.setTranslation(dir);
           CollisionResult result;
 

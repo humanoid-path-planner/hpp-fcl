@@ -100,10 +100,10 @@ class HierarchyTree {
   bool update(Node* leaf, const BV& bv);
 
   /// @brief update one leaf's bounding volume, with prediction
-  bool update(Node* leaf, const BV& bv, const Vec3f& vel, CoalScalar margin);
+  bool update(Node* leaf, const BV& bv, const Vec3s& vel, CoalScalar margin);
 
   /// @brief update one leaf's bounding volume, with prediction
-  bool update(Node* leaf, const BV& bv, const Vec3f& vel);
+  bool update(Node* leaf, const BV& bv, const Vec3s& vel);
 
   /// @brief get the max height of the tree
   size_t getMaxHeight() const;

@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_origin) {
   CollisionGeometryPtr_t s2(new Capsule(5, 10));
 
   Transform3f tf1;
-  Transform3f tf2(Vec3f(20.1, 0, 0));
+  Transform3f tf2(Vec3s(20.1, 0, 0));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformXY) {
   CollisionGeometryPtr_t s2(new Capsule(5, 10));
 
   Transform3f tf1;
-  Transform3f tf2(Vec3f(20, 20, 0));
+  Transform3f tf2(Vec3s(20, 20, 0));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ) {
   CollisionGeometryPtr_t s2(new Capsule(5, 10));
 
   Transform3f tf1;
-  Transform3f tf2(Vec3f(0, 0, 20.1));
+  Transform3f tf2(Vec3s(0, 0, 20.1));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2) {
   CollisionGeometryPtr_t s2(new Capsule(5, 10));
 
   Transform3f tf1;
-  Transform3f tf2(makeQuat(sqrt(2) / 2, 0, sqrt(2) / 2, 0), Vec3f(0, 0, 25.1));
+  Transform3f tf2(makeQuat(sqrt(2) / 2, 0, sqrt(2) / 2, 0), Vec3s(0, 0, 25.1));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -343,8 +343,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2) {
             << std::endl
             << "distance = " << distanceResult.min_distance << std::endl;
 
-  const Vec3f& p1 = distanceResult.nearest_points[0];
-  const Vec3f& p2 = distanceResult.nearest_points[1];
+  const Vec3s& p1 = distanceResult.nearest_points[0];
+  const Vec3s& p2 = distanceResult.nearest_points[1];
 
   BOOST_CHECK_CLOSE(distanceResult.min_distance, 10.1, 1e-6);
   CHECK_CLOSE_TO_0(p1[0], 1e-4);

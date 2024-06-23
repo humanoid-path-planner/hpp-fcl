@@ -250,12 +250,12 @@ void test_serialization(const T& value,
 }
 
 BOOST_AUTO_TEST_CASE(test_aabb) {
-  AABB aabb(-Vec3f::Ones(), Vec3f::Ones());
+  AABB aabb(-Vec3s::Ones(), Vec3s::Ones());
   test_serialization(aabb);
 }
 
 BOOST_AUTO_TEST_CASE(test_collision_data) {
-  Contact contact(NULL, NULL, 1, 2, Vec3f::Ones(), Vec3f::Zero(), -10.);
+  Contact contact(NULL, NULL, 1, 2, Vec3s::Ones(), Vec3s::Zero(), -10.);
   test_serialization(contact);
 
   CollisionRequest collision_request(CONTACT, 10);
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(test_collision_data) {
     Transform3f tf2;
     // set translation to have a collision
     const CoalScalar offset = 0.001;
-    tf2.setTranslation(Vec3f(0, 0, height / 2 - offset));
+    tf2.setTranslation(Vec3s(0, 0, height / 2 - offset));
 
     const size_t num_max_contact = 1;
     const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
@@ -326,7 +326,7 @@ void checkEqualStdVector(const std::vector<T>& v1, const std::vector<T>& v2) {
 }
 
 BOOST_AUTO_TEST_CASE(test_BVHModel) {
-  std::vector<Vec3f> p1, p2;
+  std::vector<Vec3s> p1, p2;
   std::vector<Triangle> t1, t2;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
 
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE(test_BVHModel) {
 
 #ifdef COAL_HAS_QHULL
 BOOST_AUTO_TEST_CASE(test_Convex) {
-  std::vector<Vec3f> p1;
+  std::vector<Vec3s> p1;
   std::vector<Triangle> t1;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
 
@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE(test_HeightField) {
   const CoalScalar min_altitude = -1.;
   const CoalScalar x_dim = 1., y_dim = 2.;
   const Eigen::DenseIndex nx = 100, ny = 200;
-  const MatrixXf heights = MatrixXf::Random(ny, nx);
+  const MatrixXs heights = MatrixXs::Random(ny, nx);
 
   HeightField<OBBRSS> hfield(x_dim, y_dim, heights, min_altitude);
 
@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE(test_HeightField) {
 BOOST_AUTO_TEST_CASE(test_transform) {
   Transform3f T;
   T.setQuatRotation(Quaternion3f::UnitRandom());
-  T.setTranslation(Vec3f::Random());
+  T.setTranslation(Vec3s::Random());
 
   Transform3f T_copy;
   test_serialization(T, T_copy);
@@ -446,15 +446,15 @@ BOOST_AUTO_TEST_CASE(test_transform) {
 
 BOOST_AUTO_TEST_CASE(test_shapes) {
   {
-    TriangleP triangle(Vec3f::UnitX(), Vec3f::UnitY(), Vec3f::UnitZ());
+    TriangleP triangle(Vec3s::UnitX(), Vec3s::UnitY(), Vec3s::UnitZ());
     triangle.setSweptSphereRadius(1.);
     triangle.computeLocalAABB();
-    TriangleP triangle_copy(Vec3f::Random(), Vec3f::Random(), Vec3f::Random());
+    TriangleP triangle_copy(Vec3s::Random(), Vec3s::Random(), Vec3s::Random());
     test_serialization(triangle, triangle_copy);
   }
 
   {
-    Box box(Vec3f::UnitX()), box_copy(Vec3f::Random());
+    Box box(Vec3s::UnitX()), box_copy(Vec3s::Random());
     box.setSweptSphereRadius(1.);
     box.computeLocalAABB();
     test_serialization(box, box_copy);
@@ -496,14 +496,14 @@ BOOST_AUTO_TEST_CASE(test_shapes) {
   }
 
   {
-    Halfspace hs(Vec3f::Random(), 1.), hs_copy(Vec3f::Zero(), 0.);
+    Halfspace hs(Vec3s::Random(), 1.), hs_copy(Vec3s::Zero(), 0.);
     hs.setSweptSphereRadius(1.);
     hs.computeLocalAABB();
     test_serialization(hs, hs_copy);
   }
 
   {
-    Plane plane(Vec3f::Random(), 1.), plane_copy(Vec3f::Zero(), 0.);
+    Plane plane(Vec3s::Random(), 1.), plane_copy(Vec3s::Zero(), 0.);
     plane.setSweptSphereRadius(1.);
     plane.computeLocalAABB();
     test_serialization(plane, plane_copy);
@@ -511,11 +511,11 @@ BOOST_AUTO_TEST_CASE(test_shapes) {
 
   {
     const size_t num_points = 500;
-    std::shared_ptr<std::vector<Vec3f>> points =
-        std::make_shared<std::vector<Vec3f>>();
+    std::shared_ptr<std::vector<Vec3s>> points =
+        std::make_shared<std::vector<Vec3s>>();
     points->reserve(num_points);
     for (size_t i = 0; i < num_points; i++) {
-      points->emplace_back(Vec3f::Random());
+      points->emplace_back(Vec3s::Random());
     }
     using Convex = Convex<Triangle>;
     std::unique_ptr<Convex> convex =
@@ -532,7 +532,7 @@ BOOST_AUTO_TEST_CASE(test_shapes) {
 #ifdef COAL_HAS_OCTOMAP
 BOOST_AUTO_TEST_CASE(test_octree) {
   const CoalScalar resolution = 1e-2;
-  const Matrixx3f points = Matrixx3f::Random(1000, 3);
+  const MatrixX3s points = MatrixX3s::Random(1000, 3);
   OcTreePtr_t octree_ptr = makeOctree(points, resolution);
   const OcTree& octree = *octree_ptr.get();
 
@@ -572,7 +572,7 @@ BOOST_AUTO_TEST_CASE(test_memory_footprint) {
   Sphere sphere(1.);
   BOOST_CHECK(sizeof(Sphere) == computeMemoryFootprint(sphere));
 
-  std::vector<Vec3f> p1;
+  std::vector<Vec3s> p1;
   std::vector<Triangle> t1;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
 

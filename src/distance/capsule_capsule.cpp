@@ -59,8 +59,8 @@ CoalScalar clamp(const CoalScalar& num, const CoalScalar& denom) {
 }
 
 /// Clamp s=s_n/s_d in [0, 1] and stores a + s * d in a_sd
-void clamped_linear(Vec3f& a_sd, const Vec3f& a, const CoalScalar& s_n,
-                    const CoalScalar& s_d, const Vec3f& d) {
+void clamped_linear(Vec3s& a_sd, const Vec3s& a, const CoalScalar& s_n,
+                    const CoalScalar& s_d, const Vec3s& d) {
   assert(s_d >= 0.);
   if (s_n <= 0.)
     a_sd = a;
@@ -80,15 +80,15 @@ template <>
 CoalScalar ShapeShapeDistance<Capsule, Capsule>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& wp1, Vec3f& wp2, Vec3f& normal) {
+    const bool, Vec3s& wp1, Vec3s& wp2, Vec3s& normal) {
   const Capsule* capsule1 = static_cast<const Capsule*>(o1);
   const Capsule* capsule2 = static_cast<const Capsule*>(o2);
 
   CoalScalar EPSILON = std::numeric_limits<CoalScalar>::epsilon() * 100;
 
   // We assume that capsules are centered at the origin.
-  const coal::Vec3f& c1 = tf1.getTranslation();
-  const coal::Vec3f& c2 = tf2.getTranslation();
+  const coal::Vec3s& c1 = tf1.getTranslation();
+  const coal::Vec3s& c2 = tf2.getTranslation();
   // We assume that capsules are oriented along z-axis.
   CoalScalar halfLength1 = capsule1->halfLength;
   CoalScalar halfLength2 = capsule2->halfLength;
@@ -96,14 +96,14 @@ CoalScalar ShapeShapeDistance<Capsule, Capsule>(
   CoalScalar radius2 = (capsule2->radius + capsule2->getSweptSphereRadius());
   // direction of capsules
   // ||d1|| = 2 * halfLength1
-  const coal::Vec3f d1 = 2 * halfLength1 * tf1.getRotation().col(2);
-  const coal::Vec3f d2 = 2 * halfLength2 * tf2.getRotation().col(2);
+  const coal::Vec3s d1 = 2 * halfLength1 * tf1.getRotation().col(2);
+  const coal::Vec3s d2 = 2 * halfLength2 * tf2.getRotation().col(2);
 
   // Starting point of the segments
   // p1 + d1 is the end point of the segment
-  const coal::Vec3f p1 = c1 - d1 / 2;
-  const coal::Vec3f p2 = c2 - d2 / 2;
-  const coal::Vec3f r = p1 - p2;
+  const coal::Vec3s p1 = c1 - d1 / 2;
+  const coal::Vec3s p2 = c2 - d2 / 2;
+  const coal::Vec3s r = p1 - p2;
   CoalScalar a = d1.dot(d1);
   CoalScalar b = d1.dot(d2);
   CoalScalar c = d1.dot(r);
@@ -112,7 +112,7 @@ CoalScalar ShapeShapeDistance<Capsule, Capsule>(
   // S1 is parametrized by the equation p1 + s * d1
   // S2 is parametrized by the equation p2 + t * d2
 
-  Vec3f w1, w2;
+  Vec3s w1, w2;
   if (a <= EPSILON) {
     w1 = p1;
     if (e <= EPSILON)

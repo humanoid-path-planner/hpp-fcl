@@ -53,7 +53,7 @@ void exposeOctree() {
       .def("tobytes", tobytes, doxygen::member_func_doc(&OcTree::tobytes));
 
   doxygen::def("makeOctree", &makeOctree);
-  eigenpy::enableEigenPySpecific<Vec6f>();
-  eigenpy::StdVectorPythonVisitor<std::vector<Vec6f>, true>::expose(
+  eigenpy::enableEigenPySpecific<Vec6s>();
+  eigenpy::StdVectorPythonVisitor<std::vector<Vec6s>, true>::expose(
       "StdVec_Vec6");
 }

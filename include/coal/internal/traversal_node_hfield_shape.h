@@ -59,30 +59,30 @@ namespace details {
 template <typename BV>
 Convex<Quadrilateral> buildConvexQuadrilateral(const HFNode<BV>& node,
                                                const HeightField<BV>& model) {
-  const MatrixXf& heights = model.getHeights();
-  const VecXf& x_grid = model.getXGrid();
-  const VecXf& y_grid = model.getYGrid();
+  const MatrixXs& heights = model.getHeights();
+  const VecXs& x_grid = model.getXGrid();
+  const VecXs& y_grid = model.getYGrid();
 
   const CoalScalar min_height = model.getMinHeight();
 
   const CoalScalar x0 = x_grid[node.x_id], x1 = x_grid[node.x_id + 1],
                    y0 = y_grid[node.y_id], y1 = y_grid[node.y_id + 1];
-  const Eigen::Block<const MatrixXf, 2, 2> cell =
+  const Eigen::Block<const MatrixXs, 2, 2> cell =
       heights.block<2, 2>(node.y_id, node.x_id);
 
   assert(cell.maxCoeff() > min_height &&
          "max_height is lower than min_height");  // Check whether the geometry
                                                   // is degenerated
 
-  std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
-      Vec3f(x0, y0, min_height),
-      Vec3f(x0, y1, min_height),
-      Vec3f(x1, y1, min_height),
-      Vec3f(x1, y0, min_height),
-      Vec3f(x0, y0, cell(0, 0)),
-      Vec3f(x0, y1, cell(1, 0)),
-      Vec3f(x1, y1, cell(1, 1)),
-      Vec3f(x1, y0, cell(0, 1)),
+  std::shared_ptr<std::vector<Vec3s>> pts(new std::vector<Vec3s>({
+      Vec3s(x0, y0, min_height),
+      Vec3s(x0, y1, min_height),
+      Vec3s(x1, y1, min_height),
+      Vec3s(x1, y0, min_height),
+      Vec3s(x0, y0, cell(0, 0)),
+      Vec3s(x0, y1, cell(1, 0)),
+      Vec3s(x1, y1, cell(1, 1)),
+      Vec3s(x1, y0, cell(0, 1)),
   }));
 
   std::shared_ptr<std::vector<Quadrilateral>> polygons(
@@ -122,16 +122,16 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
                           Convex<Triangle>& convex1, int& convex1_active_faces,
                           Convex<Triangle>& convex2,
                           int& convex2_active_faces) {
-  const MatrixXf& heights = model.getHeights();
-  const VecXf& x_grid = model.getXGrid();
-  const VecXf& y_grid = model.getYGrid();
+  const MatrixXs& heights = model.getHeights();
+  const VecXs& x_grid = model.getXGrid();
+  const VecXs& y_grid = model.getYGrid();
 
   const CoalScalar min_height = model.getMinHeight();
 
   const CoalScalar x0 = x_grid[node.x_id], x1 = x_grid[node.x_id + 1],
                    y0 = y_grid[node.y_id], y1 = y_grid[node.y_id + 1];
   const CoalScalar max_height = node.max_height;
-  const Eigen::Block<const MatrixXf, 2, 2> cell =
+  const Eigen::Block<const MatrixXs, 2, 2> cell =
       heights.block<2, 2>(node.y_id, node.x_id);
 
   const int contact_active_faces = node.contact_active_faces;
@@ -174,13 +174,13 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   COAL_UNUSED_VARIABLE(max_height);
 
   {
-    std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
-        Vec3f(x0, y0, min_height),  // A
-        Vec3f(x0, y1, min_height),  // B
-        Vec3f(x1, y0, min_height),  // C
-        Vec3f(x0, y0, cell(0, 0)),  // D
-        Vec3f(x0, y1, cell(1, 0)),  // E
-        Vec3f(x1, y0, cell(0, 1)),  // F
+    std::shared_ptr<std::vector<Vec3s>> pts(new std::vector<Vec3s>({
+        Vec3s(x0, y0, min_height),  // A
+        Vec3s(x0, y1, min_height),  // B
+        Vec3s(x1, y0, min_height),  // C
+        Vec3s(x0, y0, cell(0, 0)),  // D
+        Vec3s(x0, y1, cell(1, 0)),  // E
+        Vec3s(x1, y0, cell(0, 1)),  // F
     }));
 
     std::shared_ptr<std::vector<Triangle>> triangles(
@@ -202,13 +202,13 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   }
 
   {
-    std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
-        Vec3f(x0, y1, min_height),  // A
-        Vec3f(x1, y1, min_height),  // B
-        Vec3f(x1, y0, min_height),  // C
-        Vec3f(x0, y1, cell(1, 0)),  // D
-        Vec3f(x1, y1, cell(1, 1)),  // E
-        Vec3f(x1, y0, cell(0, 1)),  // F
+    std::shared_ptr<std::vector<Vec3s>> pts(new std::vector<Vec3s>({
+        Vec3s(x0, y1, min_height),  // A
+        Vec3s(x1, y1, min_height),  // B
+        Vec3s(x1, y0, min_height),  // C
+        Vec3s(x0, y1, cell(1, 0)),  // D
+        Vec3s(x1, y1, cell(1, 1)),  // E
+        Vec3s(x1, y0, cell(0, 1)),  // F
     }));
 
     std::shared_ptr<std::vector<Triangle>> triangles(
@@ -230,23 +230,23 @@ void buildConvexTriangles(const HFNode<BV>& node, const HeightField<BV>& model,
   }
 }
 
-inline Vec3f projectTriangle(const Vec3f& pointA, const Vec3f& pointB,
-                             const Vec3f& pointC, const Vec3f& point) {
+inline Vec3s projectTriangle(const Vec3s& pointA, const Vec3s& pointB,
+                             const Vec3s& pointC, const Vec3s& point) {
   const Project::ProjectResult result =
       Project::projectTriangle(pointA, pointB, pointC, point);
-  Vec3f res = result.parameterization[0] * pointA +
+  Vec3s res = result.parameterization[0] * pointA +
               result.parameterization[1] * pointB +
               result.parameterization[2] * pointC;
 
   return res;
 }
 
-inline Vec3f projectTetrahedra(const Vec3f& pointA, const Vec3f& pointB,
-                               const Vec3f& pointC, const Vec3f& pointD,
-                               const Vec3f& point) {
+inline Vec3s projectTetrahedra(const Vec3s& pointA, const Vec3s& pointB,
+                               const Vec3s& pointC, const Vec3s& pointD,
+                               const Vec3s& point) {
   const Project::ProjectResult result =
       Project::projectTetrahedra(pointA, pointB, pointC, pointD, point);
-  Vec3f res = result.parameterization[0] * pointA +
+  Vec3s res = result.parameterization[0] * pointA +
               result.parameterization[1] * pointB +
               result.parameterization[2] * pointC +
               result.parameterization[3] * pointD;
@@ -254,46 +254,46 @@ inline Vec3f projectTetrahedra(const Vec3f& pointA, const Vec3f& pointB,
   return res;
 }
 
-inline Vec3f computeTriangleNormal(const Triangle& triangle,
-                                   const std::vector<Vec3f>& points) {
-  const Vec3f pointA = points[triangle[0]];
-  const Vec3f pointB = points[triangle[1]];
-  const Vec3f pointC = points[triangle[2]];
+inline Vec3s computeTriangleNormal(const Triangle& triangle,
+                                   const std::vector<Vec3s>& points) {
+  const Vec3s pointA = points[triangle[0]];
+  const Vec3s pointB = points[triangle[1]];
+  const Vec3s pointC = points[triangle[2]];
 
-  const Vec3f normal = (pointB - pointA).cross(pointC - pointA).normalized();
+  const Vec3s normal = (pointB - pointA).cross(pointC - pointA).normalized();
   assert(!normal.array().isNaN().any() && "normal is ill-defined");
 
   return normal;
 }
 
-inline Vec3f projectPointOnTriangle(const Vec3f& contact_point,
+inline Vec3s projectPointOnTriangle(const Vec3s& contact_point,
                                     const Triangle& triangle,
-                                    const std::vector<Vec3f>& points) {
-  const Vec3f pointA = points[triangle[0]];
-  const Vec3f pointB = points[triangle[1]];
-  const Vec3f pointC = points[triangle[2]];
+                                    const std::vector<Vec3s>& points) {
+  const Vec3s pointA = points[triangle[0]];
+  const Vec3s pointB = points[triangle[1]];
+  const Vec3s pointC = points[triangle[2]];
 
-  const Vec3f contact_point_projected =
+  const Vec3s contact_point_projected =
       projectTriangle(pointA, pointB, pointC, contact_point);
 
   return contact_point_projected;
 }
 
 inline CoalScalar distanceContactPointToTriangle(
-    const Vec3f& contact_point, const Triangle& triangle,
-    const std::vector<Vec3f>& points) {
-  const Vec3f contact_point_projected =
+    const Vec3s& contact_point, const Triangle& triangle,
+    const std::vector<Vec3s>& points) {
+  const Vec3s contact_point_projected =
       projectPointOnTriangle(contact_point, triangle, points);
   return (contact_point_projected - contact_point).norm();
 }
 
 inline CoalScalar distanceContactPointToFace(const size_t face_id,
-                                             const Vec3f& contact_point,
+                                             const Vec3s& contact_point,
                                              const Convex<Triangle>& convex,
                                              size_t& closest_face_id) {
   assert((face_id >= 0 && face_id < 8) && "face_id should be in [0;7]");
 
-  const std::vector<Vec3f>& points = *(convex.points);
+  const std::vector<Vec3s>& points = *(convex.points);
   if (face_id <= 1) {
     const Triangle& triangle = (*(convex.polygons))[face_id];
     closest_face_id = face_id;
@@ -321,10 +321,10 @@ template <typename Polygone, typename Shape>
 bool binCorrection(const Convex<Polygone>& convex,
                    const int convex_active_faces, const Shape& shape,
                    const Transform3f& shape_pose, CoalScalar& distance,
-                   Vec3f& contact_1, Vec3f& contact_2, Vec3f& normal,
-                   Vec3f& face_normal, const bool is_collision) {
+                   Vec3s& contact_1, Vec3s& contact_2, Vec3s& normal,
+                   Vec3s& face_normal, const bool is_collision) {
   const CoalScalar prec = 1e-12;
-  const std::vector<Vec3f>& points = *(convex.points);
+  const std::vector<Vec3s>& points = *(convex.points);
 
   bool hfield_witness_is_on_bin_side = true;
 
@@ -366,16 +366,16 @@ bool binCorrection(const Convex<Polygone>& convex,
     if (!face_triangle.isValid())
       COAL_THROW_PRETTY("face_triangle is not initialized", std::logic_error);
 
-    const Vec3f face_pointA = points[face_triangle[0]];
+    const Vec3s face_pointA = points[face_triangle[0]];
     face_normal = computeTriangleNormal(face_triangle, points);
 
     int hint = 0;
     // Since we compute the support manually, we need to take into account the
     // sphere swept radius of the shape.
     // TODO: take into account the swept-sphere radius of the bin.
-    const Vec3f _support = getSupport<details::SupportOptions::WithSweptSphere>(
+    const Vec3s _support = getSupport<details::SupportOptions::WithSweptSphere>(
         &shape, -shape_pose.rotation().transpose() * face_normal, hint);
-    const Vec3f support =
+    const Vec3s support =
         shape_pose.rotation() * _support + shape_pose.translation();
 
     // Project support into the inclined bin having triangle
@@ -384,7 +384,7 @@ bool binCorrection(const Convex<Polygone>& convex,
     const CoalScalar distance_support_projection_plane =
         projection_plane.signedDistance(support);
 
-    const Vec3f projected_support =
+    const Vec3s projected_support =
         support - distance_support_projection_plane * face_normal;
 
     // We need now to project the projected in the triangle shape
@@ -405,8 +405,8 @@ bool shapeDistance(const GJKSolver* nsolver, const CollisionRequest& request,
                    const Convex<Polygone>& convex2,
                    const int convex2_active_faces, const Transform3f& tf1,
                    const Shape& shape, const Transform3f& tf2,
-                   CoalScalar& distance, Vec3f& c1, Vec3f& c2, Vec3f& normal,
-                   Vec3f& normal_top, bool& hfield_witness_is_on_bin_side) {
+                   CoalScalar& distance, Vec3s& c1, Vec3s& c2, Vec3s& normal,
+                   Vec3s& normal_top, bool& hfield_witness_is_on_bin_side) {
   enum { RTIsIdentity = Options & RelativeTransformationIsIdentity };
 
   const Transform3f Id;
@@ -416,8 +416,8 @@ bool shapeDistance(const GJKSolver* nsolver, const CollisionRequest& request,
   // The only thing we need to make sure is that in case of collision, the
   // penetration information is computed (as we do bins comparison).
   const bool compute_penetration = true;
-  Vec3f contact1_1, contact1_2, contact2_1, contact2_2;
-  Vec3f normal1, normal1_top, normal2, normal2_top;
+  Vec3s contact1_1, contact1_2, contact2_1, contact2_2;
+  Vec3s normal1, normal1_top, normal2, normal2_top;
   CoalScalar distance1, distance2;
 
   if (RTIsIdentity) {
@@ -608,8 +608,8 @@ class HeightFieldShapeCollisionTraversalNode
     }
 
     CoalScalar distance;
-    //    Vec3f contact_point, normal;
-    Vec3f c1, c2, normal, normal_face;
+    //    Vec3s contact_point, normal;
+    Vec3s c1, c2, normal, normal_face;
     bool hfield_witness_is_on_bin_side;
 
     bool collision = details::shapeDistance<Triangle, S, Options>(
@@ -632,8 +632,8 @@ class HeightFieldShapeCollisionTraversalNode
     } else
       sqrDistLowerBound = distToCollision * distToCollision;
 
-    //    const Vec3f c1 = contact_point - distance * 0.5 * normal;
-    //    const Vec3f c2 = contact_point + distance * 0.5 * normal;
+    //    const Vec3s c1 = contact_point - distance * 0.5 * normal;
+    //    const Vec3s c2 = contact_point + distance * 0.5 * normal;
     internal::updateDistanceLowerBoundFromLeaf(this->request, *this->result,
                                                distToCollision, c1, c2, normal);
 
@@ -715,7 +715,7 @@ class HeightFieldShapeDistanceTraversalNode : public DistanceTraversalNodeBase {
     const ConvexQuadrilateral convex =
         details::buildConvexQuadrilateral(node, *this->model1);
 
-    Vec3f p1, p2, normal;
+    Vec3s p1, p2, normal;
     const CoalScalar distance =
         internal::ShapeShapeDistance<ConvexQuadrilateral, S>(
             &convex, this->tf1, this->model2, this->tf2, this->nsolver,

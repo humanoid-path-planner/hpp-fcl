@@ -56,8 +56,8 @@ class SpatialHashingCollisionManager : public BroadPhaseCollisionManager {
   typedef BroadPhaseCollisionManager Base;
   using Base::getObjects;
 
-  SpatialHashingCollisionManager(CoalScalar cell_size, const Vec3f& scene_min,
-                                 const Vec3f& scene_max,
+  SpatialHashingCollisionManager(CoalScalar cell_size, const Vec3s& scene_min,
+                                 const Vec3s& scene_max,
                                  unsigned int default_table_size = 1000);
 
   ~SpatialHashingCollisionManager();
@@ -117,8 +117,8 @@ class SpatialHashingCollisionManager : public BroadPhaseCollisionManager {
   size_t size() const;
 
   /// @brief compute the bound for the environent
-  static void computeBound(std::vector<CollisionObject*>& objs, Vec3f& l,
-                           Vec3f& u);
+  static void computeBound(std::vector<CollisionObject*>& objs, Vec3s& l,
+                           Vec3s& u);
 
  protected:
   /// @brief perform collision test between one object and all the objects

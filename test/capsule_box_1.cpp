@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box) {
   coal::DistanceRequest distanceRequest(true, 0, 0);
   coal::DistanceResult distanceResult;
 
-  coal::Transform3f tf1(coal::Vec3f(3., 0, 0));
+  coal::Transform3f tf1(coal::Vec3s(3., 0, 0));
   coal::Transform3f tf2;
   coal::CollisionObject capsule(capsuleGeometry, tf1);
   coal::CollisionObject box(boxGeometry, tf2);
@@ -67,9 +67,9 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box) {
   // test distance
   coal::distance(&capsule, &box, distanceRequest, distanceResult);
   // Nearest point on capsule
-  coal::Vec3f o1(distanceResult.nearest_points[0]);
+  coal::Vec3s o1(distanceResult.nearest_points[0]);
   // Nearest point on box
-  coal::Vec3f o2(distanceResult.nearest_points[1]);
+  coal::Vec3s o2(distanceResult.nearest_points[1]);
   BOOST_CHECK_CLOSE(distanceResult.min_distance, 0.5, 1e-1);
   BOOST_CHECK_CLOSE(o1[0], 1.0, 1e-1);
   CHECK_CLOSE_TO_0(o1[1], 1e-1);
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box) {
   CHECK_CLOSE_TO_0(o2[1], 1e-1);
 
   // Move capsule above box
-  tf1 = coal::Transform3f(coal::Vec3f(0., 0., 8.));
+  tf1 = coal::Transform3f(coal::Vec3s(0., 0., 8.));
   capsule.setTransform(tf1);
 
   // test distance
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box) {
   BOOST_CHECK_CLOSE(o2[2], 2.0, 1e-1);
 
   // Rotate capsule around y axis by pi/2 and move it behind box
-  tf1.setTranslation(coal::Vec3f(-10., 0., 0.));
+  tf1.setTranslation(coal::Vec3s(-10., 0., 0.));
   tf1.setQuatRotation(coal::makeQuat(sqrt(2) / 2, 0, sqrt(2) / 2, 0));
   capsule.setTransform(tf1);
 

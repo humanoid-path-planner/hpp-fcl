@@ -160,7 +160,7 @@ class TestGeometricShapes(TestCase):
         self.assertEqual(bvh.vertices().shape, (0, 3))
 
     def test_convex(self):
-        verts = coal.StdVec_Vec3f()
+        verts = coal.StdVec_Vec3s()
         faces = coal.StdVec_Triangle()
         verts.extend(
             [

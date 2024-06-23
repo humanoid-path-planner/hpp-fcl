@@ -64,11 +64,11 @@ struct Converter {
 template <>
 struct Converter<AABB, AABB> {
   static void convert(const AABB& bv1, const Transform3f& tf1, AABB& bv2) {
-    const Vec3f& center = bv1.center();
+    const Vec3s& center = bv1.center();
     CoalScalar r = (bv1.max_ - bv1.min_).norm() * 0.5;
-    const Vec3f center2 = tf1.transform(center);
-    bv2.min_ = center2 - Vec3f::Constant(r);
-    bv2.max_ = center2 + Vec3f::Constant(r);
+    const Vec3s center2 = tf1.transform(center);
+    bv2.min_ = center2 - Vec3s::Constant(r);
+    bv2.max_ = center2 + Vec3s::Constant(r);
   }
 
   static void convert(const AABB& bv1, AABB& bv2) { bv2 = bv1; }
@@ -114,14 +114,14 @@ struct Converter<OBBRSS, OBB> {
 template <>
 struct Converter<RSS, OBB> {
   static void convert(const RSS& bv1, const Transform3f& tf1, OBB& bv2) {
-    bv2.extent = Vec3f(bv1.length[0] * 0.5 + bv1.radius,
+    bv2.extent = Vec3s(bv1.length[0] * 0.5 + bv1.radius,
                        bv1.length[1] * 0.5 + bv1.radius, bv1.radius);
     bv2.To = tf1.transform(bv1.Tr);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
   }
 
   static void convert(const RSS& bv1, OBB& bv2) {
-    bv2.extent = Vec3f(bv1.length[0] * 0.5 + bv1.radius,
+    bv2.extent = Vec3s(bv1.length[0] * 0.5 + bv1.radius,
                        bv1.length[1] * 0.5 + bv1.radius, bv1.radius);
     bv2.To = bv1.Tr;
     bv2.axes = bv1.axes;
@@ -131,18 +131,18 @@ struct Converter<RSS, OBB> {
 template <typename BV1>
 struct Converter<BV1, AABB> {
   static void convert(const BV1& bv1, const Transform3f& tf1, AABB& bv2) {
-    const Vec3f& center = bv1.center();
-    CoalScalar r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
-    const Vec3f center2 = tf1.transform(center);
-    bv2.min_ = center2 - Vec3f::Constant(r);
-    bv2.max_ = center2 + Vec3f::Constant(r);
+    const Vec3s& center = bv1.center();
+    CoalScalar r = Vec3s(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
+    const Vec3s center2 = tf1.transform(center);
+    bv2.min_ = center2 - Vec3s::Constant(r);
+    bv2.max_ = center2 + Vec3s::Constant(r);
   }
 
   static void convert(const BV1& bv1, AABB& bv2) {
-    const Vec3f& center = bv1.center();
-    CoalScalar r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
-    bv2.min_ = center - Vec3f::Constant(r);
-    bv2.max_ = center + Vec3f::Constant(r);
+    const Vec3s& center = bv1.center();
+    CoalScalar r = Vec3s(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
+    bv2.min_ = center - Vec3s::Constant(r);
+    bv2.max_ = center + Vec3s::Constant(r);
   }
 };
 
@@ -233,12 +233,12 @@ struct Converter<AABB, RSS> {
       }
     }
 
-    const Vec3f extent = (bv1.max_ - bv1.min_) * 0.5;
+    const Vec3s extent = (bv1.max_ - bv1.min_) * 0.5;
     bv2.radius = extent[id[2]];
     bv2.length[0] = (extent[id[0]] - bv2.radius) * 2;
     bv2.length[1] = (extent[id[1]] - bv2.radius) * 2;
 
-    const Matrix3f& R = tf1.getRotation();
+    const Matrix3s& R = tf1.getRotation();
     const bool left_hand = (id[0] == (id[1] + 1) % 3);
     if (left_hand)
       bv2.axes.col(0) = -R.col(id[0]);

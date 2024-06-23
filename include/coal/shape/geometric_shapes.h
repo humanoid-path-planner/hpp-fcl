@@ -111,7 +111,7 @@ class COAL_DLLAPI TriangleP : public ShapeBase {
  public:
   TriangleP() {};
 
-  TriangleP(const Vec3f& a_, const Vec3f& b_, const Vec3f& c_)
+  TriangleP(const Vec3s& a_, const Vec3s& b_, const Vec3s& c_)
       : ShapeBase(), a(a_), b(b_), c(c_) {}
 
   TriangleP(const TriangleP& other)
@@ -128,13 +128,13 @@ class COAL_DLLAPI TriangleP : public ShapeBase {
   //  std::pair<ShapeBase*, Transform3f> inflated(const CoalScalar value) const
   //  {
   //    if (value == 0) return std::make_pair(new TriangleP(*this),
-  //    Transform3f()); Vec3f AB(b - a), BC(c - b), CA(a - c); AB.normalize();
+  //    Transform3f()); Vec3s AB(b - a), BC(c - b), CA(a - c); AB.normalize();
   //    BC.normalize();
   //    CA.normalize();
   //
-  //    Vec3f new_a(a + value * Vec3f(-AB + CA).normalized());
-  //    Vec3f new_b(b + value * Vec3f(-BC + AB).normalized());
-  //    Vec3f new_c(c + value * Vec3f(-CA + BC).normalized());
+  //    Vec3s new_a(a + value * Vec3s(-AB + CA).normalized());
+  //    Vec3s new_b(b + value * Vec3s(-BC + AB).normalized());
+  //    Vec3s new_c(c + value * Vec3s(-CA + BC).normalized());
   //
   //    return std::make_pair(new TriangleP(new_a, new_b, new_c),
   //    Transform3f());
@@ -146,7 +146,7 @@ class COAL_DLLAPI TriangleP : public ShapeBase {
   //    implement
   //  }
 
-  Vec3f a, b, c;
+  Vec3s a, b, c;
 
  private:
   virtual bool isEqual(const CollisionGeometry& _other) const {
@@ -168,7 +168,7 @@ class COAL_DLLAPI Box : public ShapeBase {
   Box(CoalScalar x, CoalScalar y, CoalScalar z)
       : ShapeBase(), halfSide(x / 2, y / 2, z / 2) {}
 
-  Box(const Vec3f& side_) : ShapeBase(), halfSide(side_ / 2) {}
+  Box(const Vec3s& side_) : ShapeBase(), halfSide(side_ / 2) {}
 
   Box(const Box& other) : ShapeBase(other), halfSide(other.halfSide) {}
 
@@ -186,7 +186,7 @@ class COAL_DLLAPI Box : public ShapeBase {
   Box() {}
 
   /// @brief box side half-length
-  Vec3f halfSide;
+  Vec3s halfSide;
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -196,10 +196,10 @@ class COAL_DLLAPI Box : public ShapeBase {
 
   CoalScalar computeVolume() const { return 8 * halfSide.prod(); }
 
-  Matrix3f computeMomentofInertia() const {
+  Matrix3s computeMomentofInertia() const {
     CoalScalar V = computeVolume();
-    Vec3f s(halfSide.cwiseAbs2() * V);
-    return (Vec3f(s[1] + s[2], s[0] + s[2], s[0] + s[1]) / 3).asDiagonal();
+    Vec3s s(halfSide.cwiseAbs2() * V);
+    return (Vec3s(s[1] + s[2], s[0] + s[2], s[0] + s[1]) / 3).asDiagonal();
   }
 
   CoalScalar minInflationValue() const { return -halfSide.minCoeff(); }
@@ -218,7 +218,7 @@ class COAL_DLLAPI Box : public ShapeBase {
                                   << "is two small. It should be at least: "
                                   << minInflationValue(),
                         std::invalid_argument);
-    return std::make_pair(Box(2 * (halfSide + Vec3f::Constant(value))),
+    return std::make_pair(Box(2 * (halfSide + Vec3s::Constant(value))),
                           Transform3f());
   }
 
@@ -258,9 +258,9 @@ class COAL_DLLAPI Sphere : public ShapeBase {
   /// @brief Get node type: a sphere
   NODE_TYPE getNodeType() const { return GEOM_SPHERE; }
 
-  Matrix3f computeMomentofInertia() const {
+  Matrix3s computeMomentofInertia() const {
     CoalScalar I = 0.4 * radius * radius * computeVolume();
-    return I * Matrix3f::Identity();
+    return I * Matrix3s::Identity();
   }
 
   CoalScalar computeVolume() const {
@@ -310,7 +310,7 @@ class COAL_DLLAPI Ellipsoid : public ShapeBase {
   Ellipsoid(CoalScalar rx, CoalScalar ry, CoalScalar rz)
       : ShapeBase(), radii(rx, ry, rz) {}
 
-  explicit Ellipsoid(const Vec3f& radii) : radii(radii) {}
+  explicit Ellipsoid(const Vec3s& radii) : radii(radii) {}
 
   Ellipsoid(const Ellipsoid& other) : ShapeBase(other), radii(other.radii) {}
 
@@ -319,7 +319,7 @@ class COAL_DLLAPI Ellipsoid : public ShapeBase {
 
   /// @brief Radii of the Ellipsoid (such that on boundary: x^2/rx^2 + y^2/ry^2
   /// + z^2/rz^2 = 1)
-  Vec3f radii;
+  Vec3s radii;
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -327,12 +327,12 @@ class COAL_DLLAPI Ellipsoid : public ShapeBase {
   /// @brief Get node type: an ellipsoid
   NODE_TYPE getNodeType() const { return GEOM_ELLIPSOID; }
 
-  Matrix3f computeMomentofInertia() const {
+  Matrix3s computeMomentofInertia() const {
     CoalScalar V = computeVolume();
     CoalScalar a2 = V * radii[0] * radii[0];
     CoalScalar b2 = V * radii[1] * radii[1];
     CoalScalar c2 = V * radii[2] * radii[2];
-    return (Matrix3f() << 0.2 * (b2 + c2), 0, 0, 0, 0.2 * (a2 + c2), 0, 0, 0,
+    return (Matrix3s() << 0.2 * (b2 + c2), 0, 0, 0, 0.2 * (a2 + c2), 0, 0, 0,
             0.2 * (a2 + b2))
         .finished();
   }
@@ -358,7 +358,7 @@ class COAL_DLLAPI Ellipsoid : public ShapeBase {
                                   << ") is two small. It should be at least: "
                                   << minInflationValue(),
                         std::invalid_argument);
-    return std::make_pair(Ellipsoid(radii + Vec3f::Constant(value)),
+    return std::make_pair(Ellipsoid(radii + Vec3s::Constant(value)),
                           Transform3f());
   }
 
@@ -412,7 +412,7 @@ class COAL_DLLAPI Capsule : public ShapeBase {
            ((halfLength * 2) + radius * 4 / 3.0);
   }
 
-  Matrix3f computeMomentofInertia() const {
+  Matrix3s computeMomentofInertia() const {
     CoalScalar v_cyl = radius * radius * (halfLength * 2) *
                        boost::math::constants::pi<CoalScalar>();
     CoalScalar v_sph = radius * radius * radius *
@@ -424,7 +424,7 @@ class COAL_DLLAPI Capsule : public ShapeBase {
                     v_sph * (0.4 * r2 + h2 + 0.75 * radius * halfLength);
     CoalScalar iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
 
-    return (Matrix3f() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
+    return (Matrix3s() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
   }
 
   CoalScalar minInflationValue() const { return -radius; }
@@ -496,16 +496,16 @@ class COAL_DLLAPI Cone : public ShapeBase {
            (halfLength * 2) / 3;
   }
 
-  Matrix3f computeMomentofInertia() const {
+  Matrix3s computeMomentofInertia() const {
     CoalScalar V = computeVolume();
     CoalScalar ix =
         V * (0.4 * halfLength * halfLength + 3 * radius * radius / 20);
     CoalScalar iz = 0.3 * V * radius * radius;
 
-    return (Matrix3f() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
+    return (Matrix3s() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
   }
 
-  Vec3f computeCOM() const { return Vec3f(0, 0, -0.5 * halfLength); }
+  Vec3s computeCOM() const { return Vec3s(0, 0, -0.5 * halfLength); }
 
   CoalScalar minInflationValue() const {
     return -(std::min)(radius, halfLength);
@@ -538,7 +538,7 @@ class COAL_DLLAPI Cone : public ShapeBase {
     const CoalScalar new_radius = new_lz / tan_alpha;
 
     return std::make_pair(Cone(new_radius, new_lz),
-                          Transform3f(Vec3f(0., 0., new_cz)));
+                          Transform3f(Vec3s(0., 0., new_cz)));
   }
 
  private:
@@ -597,11 +597,11 @@ class COAL_DLLAPI Cylinder : public ShapeBase {
            (halfLength * 2);
   }
 
-  Matrix3f computeMomentofInertia() const {
+  Matrix3s computeMomentofInertia() const {
     CoalScalar V = computeVolume();
     CoalScalar ix = V * (radius * radius / 4 + halfLength * halfLength / 3);
     CoalScalar iz = V * radius * radius / 2;
-    return (Matrix3f() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
+    return (Matrix3s() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
   }
 
   CoalScalar minInflationValue() const {
@@ -656,13 +656,13 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
   ///          Qhull.
   /// \note Coal must have been compiled with option \c COAL_HAS_QHULL set
   ///       to \c ON.
-  static ConvexBase* convexHull(std::shared_ptr<std::vector<Vec3f>>& points,
+  static ConvexBase* convexHull(std::shared_ptr<std::vector<Vec3s>>& points,
                                 unsigned int num_points, bool keepTriangles,
                                 const char* qhullCommand = NULL);
 
   // TODO(louis): put this method in private sometime in the future.
   COAL_DEPRECATED static ConvexBase* convexHull(
-      const Vec3f* points, unsigned int num_points, bool keepTriangles,
+      const Vec3s* points, unsigned int num_points, bool keepTriangles,
       const char* qhullCommand = NULL);
 
   virtual ~ConvexBase();
@@ -716,11 +716,11 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
   static constexpr size_t num_vertices_large_convex_threshold = 32;
 
   /// @brief An array of the points of the polygon.
-  std::shared_ptr<std::vector<Vec3f>> points;
+  std::shared_ptr<std::vector<Vec3s>> points;
   unsigned int num_points;
 
   /// @brief An array of the normals of the polygon.
-  std::shared_ptr<std::vector<Vec3f>> normals;
+  std::shared_ptr<std::vector<Vec3s>> normals;
   /// @brief An array of the offsets to the normals of the polygon.
   /// Note: there are as many offsets as normals.
   std::shared_ptr<std::vector<double>> offsets;
@@ -733,7 +733,7 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
 
   /// @brief center of the convex polytope, this is used for collision: center
   /// is guaranteed in the internal of the polytope (as it is convex)
-  Vec3f center;
+  Vec3s center;
 
   /// @brief The support warm start polytope contains certain points of `this`
   /// which are support points in specific directions of space.
@@ -742,7 +742,7 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
   struct SupportWarmStartPolytope {
     /// @brief Array of support points to warm start the support function
     /// computation.
-    std::vector<Vec3f> points;
+    std::vector<Vec3s> points;
 
     /// @brief Indices of the support points warm starts.
     /// These are the indices of the real convex, not the indices of points in
@@ -763,7 +763,7 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
       : ShapeBase(),
         num_points(0),
         num_normals_and_offsets(0),
-        center(Vec3f::Zero()) {}
+        center(Vec3s::Zero()) {}
 
   /// @brief Initialize the points of the convex shape
   /// This also initializes the ConvexBase::center.
@@ -771,7 +771,7 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
   /// \param ownStorage weither the ConvexBase owns the data.
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
-  void initialize(std::shared_ptr<std::vector<Vec3f>> points_,
+  void initialize(std::shared_ptr<std::vector<Vec3s>> points_,
                   unsigned int num_points_);
 
   /// @brief Set the points of the convex shape.
@@ -779,7 +779,7 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
   /// \param ownStorage weither the ConvexBase owns the data.
   /// \param points_ list of 3D points  ///
   /// \param num_points_ number of 3D points
-  void set(std::shared_ptr<std::vector<Vec3f>> points_,
+  void set(std::shared_ptr<std::vector<Vec3s>> points_,
            unsigned int num_points_);
 
   /// @brief Copy constructor
@@ -814,8 +814,8 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
         (points.get() && !(other.points.get())))
       return false;
     if (points.get() && other.points.get()) {
-      const std::vector<Vec3f>& points_ = *points;
-      const std::vector<Vec3f>& other_points_ = *(other.points);
+      const std::vector<Vec3s>& points_ = *points;
+      const std::vector<Vec3s>& other_points_ = *(other.points);
       for (unsigned int i = 0; i < num_points; ++i) {
         if (points_[i] != (other_points_)[i]) return false;
       }
@@ -836,8 +836,8 @@ class COAL_DLLAPI ConvexBase : public ShapeBase {
         (normals.get() && !(other.normals.get())))
       return false;
     if (normals.get() && other.normals.get()) {
-      const std::vector<Vec3f>& normals_ = *normals;
-      const std::vector<Vec3f>& other_normals_ = *(other.normals);
+      const std::vector<Vec3s>& normals_ = *normals;
+      const std::vector<Vec3s>& other_normals_ = *(other.normals);
       for (unsigned int i = 0; i < num_normals_and_offsets; ++i) {
         if (normals_[i] != other_normals_[i]) return false;
       }
@@ -892,7 +892,7 @@ class Convex;
 class COAL_DLLAPI Halfspace : public ShapeBase {
  public:
   /// @brief Construct a half space with normal direction and offset
-  Halfspace(const Vec3f& n_, CoalScalar d_) : ShapeBase(), n(n_), d(d_) {
+  Halfspace(const Vec3s& n_, CoalScalar d_) : ShapeBase(), n(n_), d(d_) {
     unitNormalTest();
   }
 
@@ -917,11 +917,11 @@ class COAL_DLLAPI Halfspace : public ShapeBase {
   /// @brief Clone *this into a new Halfspace
   virtual Halfspace* clone() const { return new Halfspace(*this); };
 
-  CoalScalar signedDistance(const Vec3f& p) const {
+  CoalScalar signedDistance(const Vec3s& p) const {
     return n.dot(p) - (d + this->getSweptSphereRadius());
   }
 
-  CoalScalar distance(const Vec3f& p) const {
+  CoalScalar distance(const Vec3s& p) const {
     return std::abs(this->signedDistance(p));
   }
 
@@ -953,7 +953,7 @@ class COAL_DLLAPI Halfspace : public ShapeBase {
   }
 
   /// @brief Plane normal
-  Vec3f n;
+  Vec3s n;
 
   /// @brief Plane offset
   CoalScalar d;
@@ -983,7 +983,7 @@ class COAL_DLLAPI Halfspace : public ShapeBase {
 class COAL_DLLAPI Plane : public ShapeBase {
  public:
   /// @brief Construct a plane with normal direction and offset
-  Plane(const Vec3f& n_, CoalScalar d_) : ShapeBase(), n(n_), d(d_) {
+  Plane(const Vec3s& n_, CoalScalar d_) : ShapeBase(), n(n_), d(d_) {
     unitNormalTest();
   }
 
@@ -1007,7 +1007,7 @@ class COAL_DLLAPI Plane : public ShapeBase {
   /// @brief Clone *this into a new Plane
   virtual Plane* clone() const { return new Plane(*this); };
 
-  CoalScalar signedDistance(const Vec3f& p) const {
+  CoalScalar signedDistance(const Vec3s& p) const {
     const CoalScalar dist = n.dot(p) - d;
     CoalScalar signed_dist =
         std::abs(n.dot(p) - d) - this->getSweptSphereRadius();
@@ -1020,7 +1020,7 @@ class COAL_DLLAPI Plane : public ShapeBase {
     return signed_dist;
   }
 
-  CoalScalar distance(const Vec3f& p) const {
+  CoalScalar distance(const Vec3s& p) const {
     return std::abs(std::abs(n.dot(p) - d) - this->getSweptSphereRadius());
   }
 
@@ -1031,7 +1031,7 @@ class COAL_DLLAPI Plane : public ShapeBase {
   NODE_TYPE getNodeType() const { return GEOM_PLANE; }
 
   /// @brief Plane normal
-  Vec3f n;
+  Vec3s n;
 
   /// @brief Plane offset
   CoalScalar d;

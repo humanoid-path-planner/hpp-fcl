@@ -62,7 +62,7 @@ morton_functor<S, uint32_t>::morton_functor(const AABB& bbox)
 
 //==============================================================================
 template <typename S>
-uint32_t morton_functor<S, uint32_t>::operator()(const Vec3f& point) const {
+uint32_t morton_functor<S, uint32_t>::operator()(const Vec3s& point) const {
   uint32_t x = detail::quantize((point[0] - base[0]) * inv[0], 1024u);
   uint32_t y = detail::quantize((point[1] - base[1]) * inv[1], 1024u);
   uint32_t z = detail::quantize((point[2] - base[2]) * inv[2], 1024u);
@@ -82,7 +82,7 @@ morton_functor<S, uint64_t>::morton_functor(const AABB& bbox)
 
 //==============================================================================
 template <typename S>
-uint64_t morton_functor<S, uint64_t>::operator()(const Vec3f& point) const {
+uint64_t morton_functor<S, uint64_t>::operator()(const Vec3s& point) const {
   uint32_t x = detail::quantize((point[0] - base[0]) * inv[0], 1u << 20);
   uint32_t y = detail::quantize((point[1] - base[1]) * inv[1], 1u << 20);
   uint32_t z = detail::quantize((point[2] - base[2]) * inv[2], 1u << 20);
@@ -115,7 +115,7 @@ morton_functor<S, std::bitset<N>>::morton_functor(const AABB& bbox)
 //==============================================================================
 template <typename S, size_t N>
 std::bitset<N> morton_functor<S, std::bitset<N>>::operator()(
-    const Vec3f& point) const {
+    const Vec3s& point) const {
   S x = (point[0] - base[0]) * inv[0];
   S y = (point[1] - base[1]) * inv[1];
   S z = (point[2] - base[2]) * inv[2];

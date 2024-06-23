@@ -27,7 +27,7 @@ void load(Archive& ar, coal::Contact& contact, const unsigned int /*version*/) {
   ar >> make_nvp("b1", contact.b1);
   ar >> make_nvp("b2", contact.b2);
   ar >> make_nvp("normal", contact.normal);
-  std::array<coal::Vec3f, 2> nearest_points;
+  std::array<coal::Vec3s, 2> nearest_points;
   ar >> make_nvp("nearest_points", nearest_points);
   contact.nearest_points[0] = nearest_points[0];
   contact.nearest_points[1] = nearest_points[1];
@@ -113,7 +113,7 @@ void load(Archive& ar, coal::CollisionResult& collision_result,
   for (size_t k = 0; k < contacts.size(); ++k)
     collision_result.addContact(contacts[k]);
   ar >> make_nvp("distance_lower_bound", collision_result.distance_lower_bound);
-  std::array<coal::Vec3f, 2> nearest_points;
+  std::array<coal::Vec3s, 2> nearest_points;
   ar >> make_nvp("nearest_points", nearest_points);
   collision_result.nearest_points[0] = nearest_points[0];
   collision_result.nearest_points[1] = nearest_points[1];
@@ -155,7 +155,7 @@ void load(Archive& ar, coal::DistanceResult& distance_result,
   ar >> make_nvp("base", boost::serialization::base_object<coal::QueryResult>(
                              distance_result));
   ar >> make_nvp("min_distance", distance_result.min_distance);
-  std::array<coal::Vec3f, 2> nearest_points;
+  std::array<coal::Vec3s, 2> nearest_points;
   ar >> make_nvp("nearest_points", nearest_points);
   distance_result.nearest_points[0] = nearest_points[0];
   distance_result.nearest_points[1] = nearest_points[1];

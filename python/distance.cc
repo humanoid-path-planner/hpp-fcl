@@ -59,10 +59,10 @@ using namespace coal::python;
 namespace dv = doxygen::visitor;
 
 struct DistanceResultWrapper {
-  static Vec3f getNearestPoint1(const DistanceResult& res) {
+  static Vec3s getNearestPoint1(const DistanceResult& res) {
     return res.nearest_points[0];
   }
-  static Vec3f getNearestPoint2(const DistanceResult& res) {
+  static Vec3s getNearestPoint2(const DistanceResult& res) {
     return res.nearest_points[1];
   }
 };

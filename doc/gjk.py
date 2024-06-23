@@ -444,7 +444,7 @@ def printOrder(order, indent="", start=True, file=sys.stdout, curTests=[]):
         for v in "abcd":
             print(
                 indent
-                + "const Vec3f& {} (current.vertex[{}]->w);".format(v.upper(), v),
+                + "const Vec3s& {} (current.vertex[{}]->w);".format(v.upper(), v),
                 file=file,
             )
         print(indent + "const CoalScalar aa = A.squaredNorm();".format(), file=file)
@@ -471,7 +471,7 @@ def printOrder(order, indent="", start=True, file=sys.stdout, curTests=[]):
             )
         for v in "bc":
             print(
-                indent + "const Vec3f a_cross_{0} = A.cross({1});".format(v, v.upper()),
+                indent + "const Vec3s a_cross_{0} = A.cross({1});".format(v, v.upper()),
                 file=file,
             )
         print("", file=file)

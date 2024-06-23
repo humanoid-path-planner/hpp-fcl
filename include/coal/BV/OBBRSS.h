@@ -68,7 +68,7 @@ struct COAL_DLLAPI OBBRSS {
   bool operator!=(const OBBRSS& other) const { return !(*this == other); }
 
   /// @brief Check whether the OBBRSS contains a point
-  inline bool contain(const Vec3f& p) const { return obb.contain(p); }
+  inline bool contain(const Vec3s& p) const { return obb.contain(p); }
 
   /// @brief Check collision between two OBBRSS
   bool overlap(const OBBRSS& other) const { return obb.overlap(other.obb); }
@@ -83,13 +83,13 @@ struct COAL_DLLAPI OBBRSS {
 
   /// @brief Distance between two OBBRSS; P and Q , is not NULL, returns the
   /// nearest points
-  CoalScalar distance(const OBBRSS& other, Vec3f* P = NULL,
-                      Vec3f* Q = NULL) const {
+  CoalScalar distance(const OBBRSS& other, Vec3s* P = NULL,
+                      Vec3s* Q = NULL) const {
     return rss.distance(other.rss, P, Q);
   }
 
   /// @brief Merge the OBBRSS and a point
-  OBBRSS& operator+=(const Vec3f& p) {
+  OBBRSS& operator+=(const Vec3s& p) {
     obb += p;
     rss += p;
     return *this;
@@ -113,7 +113,7 @@ struct COAL_DLLAPI OBBRSS {
   inline CoalScalar size() const { return obb.size(); }
 
   /// @brief Center of the OBBRSS
-  inline const Vec3f& center() const { return obb.center(); }
+  inline const Vec3s& center() const { return obb.center(); }
 
   /// @brief Width of the OBRSS
   inline CoalScalar width() const { return obb.width(); }
@@ -130,7 +130,7 @@ struct COAL_DLLAPI OBBRSS {
 
 /// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0)
 /// and b2 is in indentity
-inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1,
+inline bool overlap(const Matrix3s& R0, const Vec3s& T0, const OBBRSS& b1,
                     const OBBRSS& b2) {
   return overlap(R0, T0, b1.obb, b2.obb);
 }
@@ -141,7 +141,7 @@ inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1,
 /// @param  b2 second OBBRSS in identity position
 /// @retval sqrDistLowerBound squared lower bound on the distance if OBBRSS do
 /// not overlap.
-inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1,
+inline bool overlap(const Matrix3s& R0, const Vec3s& T0, const OBBRSS& b1,
                     const OBBRSS& b2, const CollisionRequest& request,
                     CoalScalar& sqrDistLowerBound) {
   return overlap(R0, T0, b1.obb, b2.obb, request, sqrDistLowerBound);
@@ -149,9 +149,9 @@ inline bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1,
 
 /// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0)
 /// and b2 is in indentity; P and Q, is not NULL, returns the nearest points
-inline CoalScalar distance(const Matrix3f& R0, const Vec3f& T0,
-                           const OBBRSS& b1, const OBBRSS& b2, Vec3f* P = NULL,
-                           Vec3f* Q = NULL) {
+inline CoalScalar distance(const Matrix3s& R0, const Vec3s& T0,
+                           const OBBRSS& b1, const OBBRSS& b2, Vec3s* P = NULL,
+                           Vec3s* Q = NULL) {
   return distance(R0, T0, b1.rss, b2.rss, P, Q);
 }
 

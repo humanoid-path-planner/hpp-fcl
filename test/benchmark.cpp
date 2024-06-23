@@ -33,7 +33,7 @@ bool verbose = false;
 CoalScalar DELTA = 0.001;
 
 template <typename BV>
-void makeModel(const std::vector<Vec3f>& vertices,
+void makeModel(const std::vector<Vec3s>& vertices,
                const std::vector<Triangle>& triangles,
                SplitMethodType split_method, BVHModel<BV>& model);
 
@@ -78,7 +78,7 @@ struct traits<OBBRSS> {
 };
 
 template <typename BV>
-void makeModel(const std::vector<Vec3f>& vertices,
+void makeModel(const std::vector<Vec3s>& vertices,
                const std::vector<Triangle>& triangles,
                SplitMethodType split_method, BVHModel<BV>& model) {
   model.bv_splitter.reset(new BVSplitter<BV>(split_method));
@@ -166,7 +166,7 @@ double run<OBB>(const std::vector<Transform3f>& tf,
 }
 
 int main(int, char*[]) {
-  std::vector<Vec3f> p1, p2;
+  std::vector<Vec3s> p1, p2;
   std::vector<Triangle> t1, t2;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
   loadOBJFile((path / "env.obj").string().c_str(), p1, t1);

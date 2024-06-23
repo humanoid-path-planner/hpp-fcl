@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere) {
 
   Transform3f pose;
 
-  pose.setTranslation(Vec3f(50, 0, 0));
+  pose.setTranslation(Vec3s(50, 0, 0));
 
   res.clear();
   res1.clear();
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere) {
                 0.05);
   }
 
-  pose.setTranslation(Vec3f(40.1, 0, 0));
+  pose.setTranslation(Vec3s(40.1, 0, 0));
 
   res.clear(), res1.clear();
   distance(&s1, Transform3f(), &s2, pose, request, res);
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_boxbox) {
 
   Transform3f pose;
 
-  pose.setTranslation(Vec3f(50, 0, 0));
+  pose.setTranslation(Vec3s(50, 0, 0));
 
   res.clear();
   res1.clear();
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_boxbox) {
                 0.01);
   }
 
-  pose.setTranslation(Vec3f(15.1, 0, 0));
+  pose.setTranslation(Vec3s(15.1, 0, 0));
 
   res.clear();
   res1.clear();
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder) {
 
   Transform3f pose;
 
-  pose.setTranslation(Vec3f(20, 0, 0));
+  pose.setTranslation(Vec3s(20, 0, 0));
 
   res.clear();
   res1.clear();
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder) {
   }
 
   pose.setTranslation(
-      Vec3f(15, 0, 0));  // libccd cannot use small value here :(
+      Vec3s(15, 0, 0));  // libccd cannot use small value here :(
 
   res.clear();
   res1.clear();
@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_conecone) {
 
   Transform3f pose;
 
-  pose.setTranslation(Vec3f(20, 0, 0));
+  pose.setTranslation(Vec3s(20, 0, 0));
 
   res.clear();
   res1.clear();
@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_conecone) {
   }
 
   pose.setTranslation(
-      Vec3f(15, 0, 0));  // libccd cannot use small value here :(
+      Vec3s(15, 0, 0));  // libccd cannot use small value here :(
 
   res.clear();
   res1.clear();
@@ -479,7 +479,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_GJK) {
 
   Transform3f pose;
 
-  pose.setTranslation(Vec3f(50, 0, 0));
+  pose.setTranslation(Vec3s(50, 0, 0));
 
   res.clear();
   res1.clear();
@@ -523,7 +523,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_GJK) {
                 0.05);
   }
 
-  pose.setTranslation(Vec3f(40.1, 0, 0));
+  pose.setTranslation(Vec3s(40.1, 0, 0));
 
   res.clear();
   res1.clear();
@@ -583,7 +583,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_boxbox_GJK) {
 
   Transform3f pose;
 
-  pose.setTranslation(Vec3f(50, 0, 0));
+  pose.setTranslation(Vec3s(50, 0, 0));
 
   res.clear();
   res1.clear();
@@ -627,7 +627,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_boxbox_GJK) {
                 0.01);
   }
 
-  pose.setTranslation(Vec3f(15.1, 0, 0));
+  pose.setTranslation(Vec3s(15.1, 0, 0));
 
   res.clear();
   res1.clear();
@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder_GJK) {
 
   Transform3f pose;
 
-  pose.setTranslation(Vec3f(20, 0, 0));
+  pose.setTranslation(Vec3s(20, 0, 0));
 
   res.clear();
   res1.clear();
@@ -743,7 +743,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder_GJK) {
           fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
 
-  pose.setTranslation(Vec3f(10.1, 0, 0));
+  pose.setTranslation(Vec3s(10.1, 0, 0));
 
   res.clear();
   res1.clear();
@@ -803,7 +803,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_conecone_GJK) {
 
   Transform3f pose;
 
-  pose.setTranslation(Vec3f(20, 0, 0));
+  pose.setTranslation(Vec3s(20, 0, 0));
 
   res.clear();
   res1.clear();
@@ -847,7 +847,7 @@ BOOST_AUTO_TEST_CASE(consistency_distance_conecone_GJK) {
                 0.05);
   }
 
-  pose.setTranslation(Vec3f(10.1, 0, 0));
+  pose.setTranslation(Vec3s(10.1, 0, 0));
 
   res.clear();
   res1.clear();
@@ -945,9 +945,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(40, 0, 0));
-  pose_aabb.setTranslation(Vec3f(40, 0, 0));
-  pose_obb.setTranslation(Vec3f(40, 0, 0));
+  pose.setTranslation(Vec3s(40, 0, 0));
+  pose_aabb.setTranslation(Vec3s(40, 0, 0));
+  pose_obb.setTranslation(Vec3s(40, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -977,9 +977,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(30, 0, 0));
-  pose_aabb.setTranslation(Vec3f(30, 0, 0));
-  pose_obb.setTranslation(Vec3f(30, 0, 0));
+  pose.setTranslation(Vec3s(30, 0, 0));
+  pose_aabb.setTranslation(Vec3s(30, 0, 0));
+  pose_obb.setTranslation(Vec3s(30, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1009,11 +1009,11 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(29.9, 0, 0));
+  pose.setTranslation(Vec3s(29.9, 0, 0));
   pose_aabb.setTranslation(
-      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
   pose_obb.setTranslation(
-      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1043,11 +1043,11 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(-29.9, 0, 0));
+  pose.setTranslation(Vec3s(-29.9, 0, 0));
   pose_aabb.setTranslation(
-      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
   pose_obb.setTranslation(
-      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1077,9 +1077,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(-30, 0, 0));
-  pose_aabb.setTranslation(Vec3f(-30, 0, 0));
-  pose_obb.setTranslation(Vec3f(-30, 0, 0));
+  pose.setTranslation(Vec3s(-30, 0, 0));
+  pose_aabb.setTranslation(Vec3s(-30, 0, 0));
+  pose_obb.setTranslation(Vec3s(-30, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1164,9 +1164,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(15.01, 0, 0));
-  pose_aabb.setTranslation(Vec3f(15.01, 0, 0));
-  pose_obb.setTranslation(Vec3f(15.01, 0, 0));
+  pose.setTranslation(Vec3s(15.01, 0, 0));
+  pose_aabb.setTranslation(Vec3s(15.01, 0, 0));
+  pose_obb.setTranslation(Vec3s(15.01, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1196,9 +1196,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(14.99, 0, 0));
-  pose_aabb.setTranslation(Vec3f(14.99, 0, 0));
-  pose_obb.setTranslation(Vec3f(14.99, 0, 0));
+  pose.setTranslation(Vec3s(14.99, 0, 0));
+  pose_aabb.setTranslation(Vec3s(14.99, 0, 0));
+  pose_obb.setTranslation(Vec3s(14.99, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1283,9 +1283,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(22.4, 0, 0));
-  pose_aabb.setTranslation(Vec3f(22.4, 0, 0));
-  pose_obb.setTranslation(Vec3f(22.4, 0, 0));
+  pose.setTranslation(Vec3s(22.4, 0, 0));
+  pose_aabb.setTranslation(Vec3s(22.4, 0, 0));
+  pose_obb.setTranslation(Vec3s(22.4, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1315,9 +1315,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(22.51, 0, 0));
-  pose_aabb.setTranslation(Vec3f(22.51, 0, 0));
-  pose_obb.setTranslation(Vec3f(22.51, 0, 0));
+  pose.setTranslation(Vec3s(22.51, 0, 0));
+  pose_aabb.setTranslation(Vec3s(22.51, 0, 0));
+  pose_obb.setTranslation(Vec3s(22.51, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1369,9 +1369,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder) {
 
   Transform3f pose, pose_aabb, pose_obb;
 
-  pose.setTranslation(Vec3f(9.99, 0, 0));
-  pose_aabb.setTranslation(Vec3f(9.99, 0, 0));
-  pose_obb.setTranslation(Vec3f(9.99, 0, 0));
+  pose.setTranslation(Vec3s(9.99, 0, 0));
+  pose_aabb.setTranslation(Vec3s(9.99, 0, 0));
+  pose_obb.setTranslation(Vec3s(9.99, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1401,9 +1401,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(10.01, 0, 0));
-  pose_aabb.setTranslation(Vec3f(10.01, 0, 0));
-  pose_obb.setTranslation(Vec3f(10.01, 0, 0));
+  pose.setTranslation(Vec3s(10.01, 0, 0));
+  pose_aabb.setTranslation(Vec3s(10.01, 0, 0));
+  pose_obb.setTranslation(Vec3s(10.01, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1455,9 +1455,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone) {
 
   Transform3f pose, pose_aabb, pose_obb;
 
-  pose.setTranslation(Vec3f(9.9, 0, 0));
-  pose_aabb.setTranslation(Vec3f(9.9, 0, 0));
-  pose_obb.setTranslation(Vec3f(9.9, 0, 0));
+  pose.setTranslation(Vec3s(9.9, 0, 0));
+  pose_aabb.setTranslation(Vec3s(9.9, 0, 0));
+  pose_obb.setTranslation(Vec3s(9.9, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1487,9 +1487,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(10.1, 0, 0));
-  pose_aabb.setTranslation(Vec3f(10.1, 0, 0));
-  pose_obb.setTranslation(Vec3f(10.1, 0, 0));
+  pose.setTranslation(Vec3s(10.1, 0, 0));
+  pose_aabb.setTranslation(Vec3s(10.1, 0, 0));
+  pose_obb.setTranslation(Vec3s(10.1, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1519,9 +1519,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(0, 0, 9.9));
-  pose_aabb.setTranslation(Vec3f(0, 0, 9.9));
-  pose_obb.setTranslation(Vec3f(0, 0, 9.9));
+  pose.setTranslation(Vec3s(0, 0, 9.9));
+  pose_aabb.setTranslation(Vec3s(0, 0, 9.9));
+  pose_obb.setTranslation(Vec3s(0, 0, 9.9));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1551,9 +1551,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(0, 0, 10.1));
-  pose_aabb.setTranslation(Vec3f(0, 0, 10.1));
-  pose_obb.setTranslation(Vec3f(0, 0, 10.1));
+  pose.setTranslation(Vec3s(0, 0, 10.1));
+  pose_aabb.setTranslation(Vec3s(0, 0, 10.1));
+  pose_obb.setTranslation(Vec3s(0, 0, 10.1));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1638,9 +1638,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(40, 0, 0));
-  pose_aabb.setTranslation(Vec3f(40, 0, 0));
-  pose_obb.setTranslation(Vec3f(40, 0, 0));
+  pose.setTranslation(Vec3s(40, 0, 0));
+  pose_aabb.setTranslation(Vec3s(40, 0, 0));
+  pose_obb.setTranslation(Vec3s(40, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1670,9 +1670,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(30, 0, 0));
-  pose_aabb.setTranslation(Vec3f(30, 0, 0));
-  pose_obb.setTranslation(Vec3f(30, 0, 0));
+  pose.setTranslation(Vec3s(30, 0, 0));
+  pose_aabb.setTranslation(Vec3s(30, 0, 0));
+  pose_obb.setTranslation(Vec3s(30, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1702,11 +1702,11 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(29.9, 0, 0));
+  pose.setTranslation(Vec3s(29.9, 0, 0));
   pose_aabb.setTranslation(
-      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
   pose_obb.setTranslation(
-      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1736,11 +1736,11 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(-29.9, 0, 0));
+  pose.setTranslation(Vec3s(-29.9, 0, 0));
   pose_aabb.setTranslation(
-      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
   pose_obb.setTranslation(
-      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1770,9 +1770,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(-30, 0, 0));
-  pose_aabb.setTranslation(Vec3f(-30, 0, 0));
-  pose_obb.setTranslation(Vec3f(-30, 0, 0));
+  pose.setTranslation(Vec3s(-30, 0, 0));
+  pose_aabb.setTranslation(Vec3s(-30, 0, 0));
+  pose_obb.setTranslation(Vec3s(-30, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1858,9 +1858,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(15.01, 0, 0));
-  pose_aabb.setTranslation(Vec3f(15.01, 0, 0));
-  pose_obb.setTranslation(Vec3f(15.01, 0, 0));
+  pose.setTranslation(Vec3s(15.01, 0, 0));
+  pose_aabb.setTranslation(Vec3s(15.01, 0, 0));
+  pose_obb.setTranslation(Vec3s(15.01, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1890,9 +1890,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(14.99, 0, 0));
-  pose_aabb.setTranslation(Vec3f(14.99, 0, 0));
-  pose_obb.setTranslation(Vec3f(14.99, 0, 0));
+  pose.setTranslation(Vec3s(14.99, 0, 0));
+  pose_aabb.setTranslation(Vec3s(14.99, 0, 0));
+  pose_obb.setTranslation(Vec3s(14.99, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -1978,9 +1978,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(22.4, 0, 0));
-  pose_aabb.setTranslation(Vec3f(22.4, 0, 0));
-  pose_obb.setTranslation(Vec3f(22.4, 0, 0));
+  pose.setTranslation(Vec3s(22.4, 0, 0));
+  pose_aabb.setTranslation(Vec3s(22.4, 0, 0));
+  pose_obb.setTranslation(Vec3s(22.4, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -2010,9 +2010,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(22.51, 0, 0));
-  pose_aabb.setTranslation(Vec3f(22.51, 0, 0));
-  pose_obb.setTranslation(Vec3f(22.51, 0, 0));
+  pose.setTranslation(Vec3s(22.51, 0, 0));
+  pose_aabb.setTranslation(Vec3s(22.51, 0, 0));
+  pose_obb.setTranslation(Vec3s(22.51, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -2065,9 +2065,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_GJK) {
 
   Transform3f pose, pose_aabb, pose_obb;
 
-  pose.setTranslation(Vec3f(9.99, 0, 0));
-  pose_aabb.setTranslation(Vec3f(9.99, 0, 0));
-  pose_obb.setTranslation(Vec3f(9.99, 0, 0));
+  pose.setTranslation(Vec3s(9.99, 0, 0));
+  pose_aabb.setTranslation(Vec3s(9.99, 0, 0));
+  pose_obb.setTranslation(Vec3s(9.99, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -2097,9 +2097,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(10.01, 0, 0));
-  pose_aabb.setTranslation(Vec3f(10.01, 0, 0));
-  pose_obb.setTranslation(Vec3f(10.01, 0, 0));
+  pose.setTranslation(Vec3s(10.01, 0, 0));
+  pose_aabb.setTranslation(Vec3s(10.01, 0, 0));
+  pose_obb.setTranslation(Vec3s(10.01, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -2152,9 +2152,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone_GJK) {
 
   Transform3f pose, pose_aabb, pose_obb;
 
-  pose.setTranslation(Vec3f(9.9, 0, 0));
-  pose_aabb.setTranslation(Vec3f(9.9, 0, 0));
-  pose_obb.setTranslation(Vec3f(9.9, 0, 0));
+  pose.setTranslation(Vec3s(9.9, 0, 0));
+  pose_aabb.setTranslation(Vec3s(9.9, 0, 0));
+  pose_obb.setTranslation(Vec3s(9.9, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -2184,9 +2184,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(10.1, 0, 0));
-  pose_aabb.setTranslation(Vec3f(10.1, 0, 0));
-  pose_obb.setTranslation(Vec3f(10.1, 0, 0));
+  pose.setTranslation(Vec3s(10.1, 0, 0));
+  pose_aabb.setTranslation(Vec3s(10.1, 0, 0));
+  pose_obb.setTranslation(Vec3s(10.1, 0, 0));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -2216,9 +2216,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(0, 0, 9.9));
-  pose_aabb.setTranslation(Vec3f(0, 0, 9.9));
-  pose_obb.setTranslation(Vec3f(0, 0, 9.9));
+  pose.setTranslation(Vec3s(0, 0, 9.9));
+  pose_aabb.setTranslation(Vec3s(0, 0, 9.9));
+  pose_obb.setTranslation(Vec3s(0, 0, 9.9));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
@@ -2248,9 +2248,9 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone_GJK) {
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(0, 0, 10.1));
-  pose_aabb.setTranslation(Vec3f(0, 0, 10.1));
-  pose_obb.setTranslation(Vec3f(0, 0, 10.1));
+  pose.setTranslation(Vec3s(0, 0, 10.1));
+  pose_aabb.setTranslation(Vec3s(0, 0, 10.1));
+  pose_obb.setTranslation(Vec3s(0, 0, 10.1));
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);

@@ -340,11 +340,11 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
   if (!tf1.isIdentity() &&
       model1.vertices.get())  // TODO(jcarpent): vectorized version
   {
-    std::vector<Vec3f> vertices_transformed(model1.num_vertices);
-    const std::vector<Vec3f>& model1_vertices_ = *(model1.vertices);
+    std::vector<Vec3s> vertices_transformed(model1.num_vertices);
+    const std::vector<Vec3s>& model1_vertices_ = *(model1.vertices);
     for (unsigned int i = 0; i < model1.num_vertices; ++i) {
-      const Vec3f& p = model1_vertices_[i];
-      Vec3f new_v = tf1.transform(p);
+      const Vec3s& p = model1_vertices_[i];
+      Vec3s new_v = tf1.transform(p);
       vertices_transformed[i] = new_v;
     }
 
@@ -479,11 +479,11 @@ bool initialize(
         std::invalid_argument)
 
   if (!tf1.isIdentity() && model1.vertices.get()) {
-    std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
-    const std::vector<Vec3f>& model1_vertices_ = *(model1.vertices);
+    std::vector<Vec3s> vertices_transformed1(model1.num_vertices);
+    const std::vector<Vec3s>& model1_vertices_ = *(model1.vertices);
     for (unsigned int i = 0; i < model1.num_vertices; ++i) {
-      const Vec3f& p = model1_vertices_[i];
-      Vec3f new_v = tf1.transform(p);
+      const Vec3s& p = model1_vertices_[i];
+      Vec3s new_v = tf1.transform(p);
       vertices_transformed1[i] = new_v;
     }
 
@@ -495,11 +495,11 @@ bool initialize(
   }
 
   if (!tf2.isIdentity() && model2.vertices.get()) {
-    std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
-    const std::vector<Vec3f>& model2_vertices_ = *(model2.vertices);
+    std::vector<Vec3s> vertices_transformed2(model2.num_vertices);
+    const std::vector<Vec3s>& model2_vertices_ = *(model2.vertices);
     for (unsigned int i = 0; i < model2.num_vertices; ++i) {
-      const Vec3f& p = model2_vertices_[i];
-      Vec3f new_v = tf2.transform(p);
+      const Vec3s& p = model2_vertices_[i];
+      Vec3s new_v = tf2.transform(p);
       vertices_transformed2[i] = new_v;
     }
 
@@ -600,11 +600,11 @@ bool initialize(
         std::invalid_argument)
 
   if (!tf1.isIdentity() && model1.vertices.get()) {
-    std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
-    const std::vector<Vec3f>& model1_vertices_ = *(model1.vertices);
+    std::vector<Vec3s> vertices_transformed1(model1.num_vertices);
+    const std::vector<Vec3s>& model1_vertices_ = *(model1.vertices);
     for (unsigned int i = 0; i < model1.num_vertices; ++i) {
-      const Vec3f& p = model1_vertices_[i];
-      Vec3f new_v = tf1.transform(p);
+      const Vec3s& p = model1_vertices_[i];
+      Vec3s new_v = tf1.transform(p);
       vertices_transformed1[i] = new_v;
     }
 
@@ -616,11 +616,11 @@ bool initialize(
   }
 
   if (!tf2.isIdentity() && model2.vertices.get()) {
-    std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
-    const std::vector<Vec3f>& model2_vertices_ = *(model2.vertices);
+    std::vector<Vec3s> vertices_transformed2(model2.num_vertices);
+    const std::vector<Vec3s>& model2_vertices_ = *(model2.vertices);
     for (unsigned int i = 0; i < model2.num_vertices; ++i) {
-      const Vec3f& p = model2_vertices_[i];
-      Vec3f new_v = tf2.transform(p);
+      const Vec3s& p = model2_vertices_[i];
+      Vec3s new_v = tf2.transform(p);
       vertices_transformed2[i] = new_v;
     }
 
@@ -706,11 +706,11 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
         std::invalid_argument)
 
   if (!tf1.isIdentity() && model1.vertices.get()) {
-    const std::vector<Vec3f>& model1_vertices_ = *(model1.vertices);
-    std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
+    const std::vector<Vec3s>& model1_vertices_ = *(model1.vertices);
+    std::vector<Vec3s> vertices_transformed1(model1.num_vertices);
     for (unsigned int i = 0; i < model1.num_vertices; ++i) {
-      const Vec3f& p = model1_vertices_[i];
-      Vec3f new_v = tf1.transform(p);
+      const Vec3s& p = model1_vertices_[i];
+      Vec3s new_v = tf1.transform(p);
       vertices_transformed1[i] = new_v;
     }
 

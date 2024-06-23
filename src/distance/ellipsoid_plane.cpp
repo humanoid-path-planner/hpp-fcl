@@ -47,7 +47,7 @@ template <>
 CoalScalar ShapeShapeDistance<Ellipsoid, Plane>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+    const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Ellipsoid& s1 = static_cast<const Ellipsoid&>(*o1);
   const Plane& s2 = static_cast<const Plane&>(*o2);
   const CoalScalar distance =
@@ -60,7 +60,7 @@ template <>
 CoalScalar ShapeShapeDistance<Plane, Ellipsoid>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+    const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Plane& s1 = static_cast<const Plane&>(*o1);
   const Ellipsoid& s2 = static_cast<const Ellipsoid&>(*o2);
   return details::planeDistance(s1, tf1, s2, tf2, p1, p2, normal);

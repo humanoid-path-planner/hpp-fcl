@@ -50,7 +50,7 @@ void serialize(Archive& ar, coal::ConvexBase& convex_base,
       convex_base.points.reset();
       if (convex_base.num_points > 0)
         convex_base.points.reset(
-            new std::vector<Vec3f>(convex_base.num_points));
+            new std::vector<Vec3s>(convex_base.num_points));
     }
 
     if (num_normals_and_offsets_previous !=
@@ -59,7 +59,7 @@ void serialize(Archive& ar, coal::ConvexBase& convex_base,
       convex_base.offsets.reset();
       if (convex_base.num_normals_and_offsets > 0) {
         convex_base.normals.reset(
-            new std::vector<Vec3f>(convex_base.num_normals_and_offsets));
+            new std::vector<Vec3s>(convex_base.num_normals_and_offsets));
         convex_base.offsets.reset(
             new std::vector<CoalScalar>(convex_base.num_normals_and_offsets));
       }

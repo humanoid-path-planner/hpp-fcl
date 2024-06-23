@@ -54,7 +54,7 @@ using coal::GJKSolver;
 using coal::ShapeBase;
 using coal::support_func_guess_t;
 using coal::Transform3f;
-using coal::Vec3f;
+using coal::Vec3s;
 using coal::details::GJK;
 using coal::details::MinkowskiDiff;
 using std::size_t;
@@ -128,7 +128,7 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
   Transform3f identity = Transform3f::Identity();
 
   // Same init for both solvers
-  Vec3f init_guess = Vec3f(1, 0, 0);
+  Vec3s init_guess = Vec3s(1, 0, 0);
   support_func_guess_t init_support_guess;
   init_support_guess.setZero();
 
@@ -138,21 +138,21 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
 
     GJK::Status res1 = gjk1.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(gjk1.getNumIterations() <= max_iterations);
-    Vec3f ray1 = gjk1.ray;
+    Vec3s ray1 = gjk1.ray;
     res1 = gjk1.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res1 != GJK::Status::Failed);
     EIGEN_VECTOR_IS_APPROX(gjk1.ray, ray1, 1e-8);
 
     GJK::Status res2 = gjk2.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(gjk2.getNumIterations() <= max_iterations);
-    Vec3f ray2 = gjk2.ray;
+    Vec3s ray2 = gjk2.ray;
     res2 = gjk2.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res2 != GJK::Status::Failed);
     EIGEN_VECTOR_IS_APPROX(gjk2.ray, ray2, 1e-8);
 
     GJK::Status res3 = gjk3.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(gjk3.getNumIterations() <= max_iterations);
-    Vec3f ray3 = gjk3.ray;
+    Vec3s ray3 = gjk3.ray;
     res3 = gjk3.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res3 != GJK::Status::Failed);
     EIGEN_VECTOR_IS_APPROX(gjk3.ray, ray3, 1e-8);

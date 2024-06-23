@@ -85,16 +85,16 @@ const Eigen::IOFormat vfmt = Eigen::IOFormat(
 const Eigen::IOFormat pyfmt = Eigen::IOFormat(
     Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "[", "]");
 
-const Vec3f UnitX = Vec3f(1, 0, 0);
-const Vec3f UnitY = Vec3f(0, 1, 0);
-const Vec3f UnitZ = Vec3f(0, 0, 1);
+const Vec3s UnitX = Vec3s(1, 0, 0);
+const Vec3s UnitY = Vec3s(0, 1, 0);
+const Vec3s UnitZ = Vec3s(0, 0, 1);
 
 CoalScalar rand_interval(CoalScalar rmin, CoalScalar rmax) {
   CoalScalar t = rand() / ((CoalScalar)RAND_MAX + 1);
   return (t * (rmax - rmin) + rmin);
 }
 
-void loadOBJFile(const char* filename, std::vector<Vec3f>& points,
+void loadOBJFile(const char* filename, std::vector<Vec3s>& points,
                  std::vector<Triangle>& triangles) {
   FILE* file = fopen(filename, "rb");
   if (!file) {
@@ -124,7 +124,7 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points,
           CoalScalar x = (CoalScalar)atof(strtok(NULL, "\t "));
           CoalScalar y = (CoalScalar)atof(strtok(NULL, "\t "));
           CoalScalar z = (CoalScalar)atof(strtok(NULL, "\t "));
-          Vec3f p(x, y, z);
+          Vec3s p(x, y, z);
           points.push_back(p);
         }
       } break;
@@ -160,7 +160,7 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points,
   }
 }
 
-void saveOBJFile(const char* filename, std::vector<Vec3f>& points,
+void saveOBJFile(const char* filename, std::vector<Vec3s>& points,
                  std::vector<Triangle>& triangles) {
   std::ofstream os(filename);
   if (!os) {
@@ -195,7 +195,7 @@ OcTree loadOctreeFile(const std::string& filename,
 }
 #endif
 
-void eulerToMatrix(CoalScalar a, CoalScalar b, CoalScalar c, Matrix3f& R) {
+void eulerToMatrix(CoalScalar a, CoalScalar b, CoalScalar c, Matrix3s& R) {
   CoalScalar c1 = cos(a);
   CoalScalar c2 = cos(b);
   CoalScalar c3 = cos(c);
@@ -217,9 +217,9 @@ void generateRandomTransform(CoalScalar extents[6], Transform3f& transform) {
   CoalScalar b = rand_interval(0, 2 * pi);
   CoalScalar c = rand_interval(0, 2 * pi);
 
-  Matrix3f R;
+  Matrix3s R;
   eulerToMatrix(a, b, c, R);
-  Vec3f T(x, y, z);
+  Vec3s T(x, y, z);
   transform.setTransform(R, T);
 }
 
@@ -238,9 +238,9 @@ void generateRandomTransforms(CoalScalar extents[6],
     CoalScalar c = rand_interval(0, 2 * pi);
 
     {
-      Matrix3f R;
+      Matrix3s R;
       eulerToMatrix(a, b, c, R);
-      Vec3f T(x, y, z);
+      Vec3s T(x, y, z);
       transforms[i].setTransform(R, T);
     }
   }
@@ -264,9 +264,9 @@ void generateRandomTransforms(CoalScalar extents[6], CoalScalar delta_trans[3],
     CoalScalar c = rand_interval(0, 2 * pi);
 
     {
-      Matrix3f R;
+      Matrix3s R;
       eulerToMatrix(a, b, c, R);
-      Vec3f T(x, y, z);
+      Vec3s T(x, y, z);
       transforms[i].setTransform(R, T);
     }
 
@@ -279,9 +279,9 @@ void generateRandomTransforms(CoalScalar extents[6], CoalScalar delta_trans[3],
     CoalScalar deltac = rand_interval(-delta_rot, delta_rot);
 
     {
-      Matrix3f R;
+      Matrix3s R;
       eulerToMatrix(a + deltaa, b + deltab, c + deltac, R);
-      Vec3f T(x + deltax, y + deltay, z + deltaz);
+      Vec3s T(x + deltax, y + deltay, z + deltaz);
       transforms2[i].setTransform(R, T);
     }
   }
@@ -458,10 +458,10 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
 }
 
 Convex<Quadrilateral> buildBox(CoalScalar l, CoalScalar w, CoalScalar d) {
-  std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>(
-      {Vec3f(l, w, d), Vec3f(l, w, -d), Vec3f(l, -w, d), Vec3f(l, -w, -d),
-       Vec3f(-l, w, d), Vec3f(-l, w, -d), Vec3f(-l, -w, d),
-       Vec3f(-l, -w, -d)}));
+  std::shared_ptr<std::vector<Vec3s>> pts(new std::vector<Vec3s>(
+      {Vec3s(l, w, d), Vec3s(l, w, -d), Vec3s(l, -w, d), Vec3s(l, -w, -d),
+       Vec3s(-l, w, d), Vec3s(-l, w, -d), Vec3s(-l, -w, d),
+       Vec3s(-l, -w, -d)}));
 
   std::shared_ptr<std::vector<Quadrilateral>> polygons(
       new std::vector<Quadrilateral>(6));
@@ -480,7 +480,7 @@ Convex<Quadrilateral> buildBox(CoalScalar l, CoalScalar w, CoalScalar d) {
 }
 
 /// Takes a point and projects it onto the surface of the unit sphere
-void toSphere(Vec3f& point) {
+void toSphere(Vec3s& point) {
   assert(point.norm() > 1e-8);
   point /= point.norm();
 }
@@ -491,7 +491,7 @@ void toSphere(Vec3f& point) {
 /// ellipsoid. Thus, the point y = A^(1/2) * x belongs to the unit sphere if y *
 /// y = 1. Therefore, the tranformation which brings y to x is A^(-1/2) =
 /// diag(r).
-void toEllipsoid(Vec3f& point, const Ellipsoid& ellipsoid) {
+void toEllipsoid(Vec3s& point, const Ellipsoid& ellipsoid) {
   toSphere(point);
   point[0] *= ellipsoid.radii[0];
   point[1] *= ellipsoid.radii[1];
@@ -502,24 +502,24 @@ Convex<Triangle> constructPolytopeFromEllipsoid(const Ellipsoid& ellipsoid) {
   CoalScalar PHI = (1 + std::sqrt(5)) / 2;
 
   // vertices
-  std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
-      Vec3f(-1, PHI, 0),
-      Vec3f(1, PHI, 0),
-      Vec3f(-1, -PHI, 0),
-      Vec3f(1, -PHI, 0),
+  std::shared_ptr<std::vector<Vec3s>> pts(new std::vector<Vec3s>({
+      Vec3s(-1, PHI, 0),
+      Vec3s(1, PHI, 0),
+      Vec3s(-1, -PHI, 0),
+      Vec3s(1, -PHI, 0),
 
-      Vec3f(0, -1, PHI),
-      Vec3f(0, 1, PHI),
-      Vec3f(0, -1, -PHI),
-      Vec3f(0, 1, -PHI),
+      Vec3s(0, -1, PHI),
+      Vec3s(0, 1, PHI),
+      Vec3s(0, -1, -PHI),
+      Vec3s(0, 1, -PHI),
 
-      Vec3f(PHI, 0, -1),
-      Vec3f(PHI, 0, 1),
-      Vec3f(-PHI, 0, -1),
-      Vec3f(-PHI, 0, 1),
+      Vec3s(PHI, 0, -1),
+      Vec3s(PHI, 0, 1),
+      Vec3s(-PHI, 0, -1),
+      Vec3s(-PHI, 0, 1),
   }));
 
-  std::vector<Vec3f>& pts_ = *pts;
+  std::vector<Vec3s>& pts_ = *pts;
   for (size_t i = 0; i < 12; ++i) {
     toEllipsoid(pts_[i], ellipsoid);
   }
@@ -557,7 +557,7 @@ Convex<Triangle> constructPolytopeFromEllipsoid(const Ellipsoid& ellipsoid) {
 }
 
 Box makeRandomBox(CoalScalar min_size, CoalScalar max_size) {
-  return Box(Vec3f(rand_interval(min_size, max_size),
+  return Box(Vec3s(rand_interval(min_size, max_size),
                    rand_interval(min_size, max_size),
                    rand_interval(min_size, max_size)));
 }
@@ -567,7 +567,7 @@ Sphere makeRandomSphere(CoalScalar min_size, CoalScalar max_size) {
 }
 
 Ellipsoid makeRandomEllipsoid(CoalScalar min_size, CoalScalar max_size) {
-  return Ellipsoid(Vec3f(rand_interval(min_size, max_size),
+  return Ellipsoid(Vec3s(rand_interval(min_size, max_size),
                          rand_interval(min_size, max_size),
                          rand_interval(min_size, max_size)));
 }
@@ -596,11 +596,11 @@ Convex<Triangle> makeRandomConvex(CoalScalar min_size, CoalScalar max_size) {
 }
 
 Plane makeRandomPlane(CoalScalar min_size, CoalScalar max_size) {
-  return Plane(Vec3f::Random().normalized(), rand_interval(min_size, max_size));
+  return Plane(Vec3s::Random().normalized(), rand_interval(min_size, max_size));
 }
 
 Halfspace makeRandomHalfspace(CoalScalar min_size, CoalScalar max_size) {
-  return Halfspace(Vec3f::Random().normalized(),
+  return Halfspace(Vec3s::Random().normalized(),
                    rand_interval(min_size, max_size));
 }
 

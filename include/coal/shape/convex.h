@@ -60,7 +60,7 @@ class Convex : public ConvexBase {
   /// \param polygons_ \copydoc Convex::polygons
   /// \param num_polygons_ the number of polygons.
   /// \note num_polygons_ is not the allocated size of polygons_.
-  Convex(std::shared_ptr<std::vector<Vec3f>> points_, unsigned int num_points_,
+  Convex(std::shared_ptr<std::vector<Vec3s>> points_, unsigned int num_points_,
          std::shared_ptr<std::vector<PolygonT>> polygons_,
          unsigned int num_polygons_);
 
@@ -71,9 +71,9 @@ class Convex : public ConvexBase {
   ~Convex();
 
   /// based on http://number-none.com/blow/inertia/bb_inertia.doc
-  Matrix3f computeMomentofInertia() const;
+  Matrix3s computeMomentofInertia() const;
 
-  Vec3f computeCOM() const;
+  Vec3s computeCOM() const;
 
   CoalScalar computeVolume() const;
 
@@ -88,7 +88,7 @@ class Convex : public ConvexBase {
   /// \param num_polygons the number of polygons.
   /// \note num_polygons is not the allocated size of polygons.
   ///
-  void set(std::shared_ptr<std::vector<Vec3f>> points, unsigned int num_points,
+  void set(std::shared_ptr<std::vector<Vec3s>> points, unsigned int num_points,
            std::shared_ptr<std::vector<PolygonT>> polygons,
            unsigned int num_polygons);
 

@@ -265,10 +265,10 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj,
                                      DistanceCallBackBase* callback,
                                      CoalScalar& min_dist) const {
   static const unsigned int CUTOFF = 100;
-  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
-  Vec3f dummy_vector = obj->getAABB().max_;
+  Vec3s delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  Vec3s dummy_vector = obj->getAABB().max_;
   if (min_dist < (std::numeric_limits<CoalScalar>::max)())
-    dummy_vector += Vec3f(min_dist, min_dist, min_dist);
+    dummy_vector += Vec3s(min_dist, min_dist, min_dist);
 
   typename std::vector<CollisionObject*>::const_iterator pos_start1 =
       objs_x.begin();
@@ -335,7 +335,7 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj,
         // to check the possible missed ones to the right of the objs array
         if (min_dist < old_min_distance) {
           dummy_vector =
-              obj->getAABB().max_ + Vec3f(min_dist, min_dist, min_dist);
+              obj->getAABB().max_ + Vec3s(min_dist, min_dist, min_dist);
           status = 0;
         } else  // need more loop
         {

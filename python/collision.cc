@@ -65,10 +65,10 @@ const CollisionGeometry* geto(const Contact& c) {
 }
 
 struct ContactWrapper {
-  static Vec3f getNearestPoint1(const Contact& contact) {
+  static Vec3s getNearestPoint1(const Contact& contact) {
     return contact.nearest_points[0];
   }
-  static Vec3f getNearestPoint2(const Contact& contact) {
+  static Vec3s getNearestPoint2(const Contact& contact) {
     return contact.nearest_points[1];
   }
 };
@@ -182,8 +182,8 @@ void exposeCollisionAPI() {
         .def(dv::init<Contact, const CollisionGeometry*,
                       const CollisionGeometry*, int, int>())
         .def(dv::init<Contact, const CollisionGeometry*,
-                      const CollisionGeometry*, int, int, const Vec3f&,
-                      const Vec3f&, CoalScalar>())
+                      const CollisionGeometry*, int, int, const Vec3s&,
+                      const Vec3s&, CoalScalar>())
         .add_property(
             "o1",
             make_function(&geto<1>,

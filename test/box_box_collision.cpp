@@ -15,7 +15,7 @@ using coal::CollisionRequest;
 using coal::CollisionResult;
 using coal::ComputeCollision;
 using coal::Transform3f;
-using coal::Vec3f;
+using coal::Vec3s;
 
 BOOST_AUTO_TEST_CASE(box_box_collision) {
   // Define boxes
@@ -33,13 +33,13 @@ BOOST_AUTO_TEST_CASE(box_box_collision) {
   CollisionResult res;
   ComputeCollision collide_functor(&shape1, &shape2);
 
-  T1.setTranslation(Vec3f(0, 0, 0));
+  T1.setTranslation(Vec3s(0, 0, 0));
   res.clear();
   BOOST_CHECK(collide(&shape1, T1, &shape2, T2, req, res) == true);
   res.clear();
   BOOST_CHECK(collide_functor(T1, T2, req, res) == true);
 
-  T1.setTranslation(Vec3f(2, 0, 0));
+  T1.setTranslation(Vec3s(2, 0, 0));
   res.clear();
   BOOST_CHECK(collide(&shape1, T1, &shape2, T2, req, res) == false);
   res.clear();

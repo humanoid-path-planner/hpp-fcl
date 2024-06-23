@@ -23,7 +23,7 @@ void save(Archive& ar, const coal::kIOS& bv, const unsigned int /*version*/) {
   // Number of spheres in kIOS is never larger than kIOS::kios_max_num_spheres
   ar& make_nvp("num_spheres", bv.num_spheres);
 
-  std::array<coal::Vec3f, coal::kIOS::max_num_spheres> centers{};
+  std::array<coal::Vec3s, coal::kIOS::max_num_spheres> centers{};
   std::array<coal::CoalScalar, coal::kIOS::max_num_spheres> radii;
   for (std::size_t i = 0; i < coal::kIOS::max_num_spheres; ++i) {
     centers[i] = bv.spheres[i].o;
@@ -39,7 +39,7 @@ template <class Archive>
 void load(Archive& ar, coal::kIOS& bv, const unsigned int /*version*/) {
   ar >> make_nvp("num_spheres", bv.num_spheres);
 
-  std::array<coal::Vec3f, coal::kIOS::max_num_spheres> centers;
+  std::array<coal::Vec3s, coal::kIOS::max_num_spheres> centers;
   std::array<coal::CoalScalar, coal::kIOS::max_num_spheres> radii;
   ar >> make_nvp("centers", make_array(centers.data(), centers.size()));
   ar >> make_nvp("radii", make_array(radii.data(), radii.size()));

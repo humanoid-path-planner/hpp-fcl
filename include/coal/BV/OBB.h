@@ -56,15 +56,15 @@ struct COAL_DLLAPI OBB {
   /// assume that axis[0] corresponds to the axis with the longest box edge,
   /// axis[1] corresponds to the shorter one and axis[2] corresponds to the
   /// shortest one.
-  Matrix3f axes;
+  Matrix3s axes;
 
   /// @brief Center of OBB
-  Vec3f To;
+  Vec3s To;
 
   /// @brief Half dimensions of OBB
-  Vec3f extent;
+  Vec3s extent;
 
-  OBB() : axes(Matrix3f::Zero()), To(Vec3f::Zero()), extent(Vec3f::Zero()) {}
+  OBB() : axes(Matrix3s::Zero()), To(Vec3s::Zero()), extent(Vec3s::Zero()) {}
 
   /// @brief Equality operator
   bool operator==(const OBB& other) const {
@@ -75,7 +75,7 @@ struct COAL_DLLAPI OBB {
   bool operator!=(const OBB& other) const { return !(*this == other); }
 
   /// @brief Check whether the OBB contains a point.
-  bool contain(const Vec3f& p) const;
+  bool contain(const Vec3s& p) const;
 
   /// Check collision between two OBB
   /// @return true if collision happens.
@@ -89,11 +89,11 @@ struct COAL_DLLAPI OBB {
                CoalScalar& sqrDistLowerBound) const;
 
   /// @brief Distance between two OBBs, not implemented.
-  CoalScalar distance(const OBB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  CoalScalar distance(const OBB& other, Vec3s* P = NULL, Vec3s* Q = NULL) const;
 
   /// @brief A simple way to merge the OBB and a point (the result is not
   /// compact).
-  OBB& operator+=(const Vec3f& p);
+  OBB& operator+=(const Vec3s& p);
 
   /// @brief Merge the OBB and another OBB (the result is not compact).
   OBB& operator+=(const OBB& other) {
@@ -109,7 +109,7 @@ struct COAL_DLLAPI OBB {
   inline CoalScalar size() const { return extent.squaredNorm(); }
 
   /// @brief Center of the OBB
-  inline const Vec3f& center() const { return To; }
+  inline const Vec3s& center() const { return To; }
 
   /// @brief Width of the OBB.
   inline CoalScalar width() const { return 2 * extent[0]; }
@@ -125,16 +125,16 @@ struct COAL_DLLAPI OBB {
 };
 
 /// @brief Translate the OBB bv
-COAL_DLLAPI OBB translate(const OBB& bv, const Vec3f& t);
+COAL_DLLAPI OBB translate(const OBB& bv, const Vec3s& t);
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
+COAL_DLLAPI bool overlap(const Matrix3s& R0, const Vec3s& T0, const OBB& b1,
                          const OBB& b2);
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
+COAL_DLLAPI bool overlap(const Matrix3s& R0, const Vec3s& T0, const OBB& b1,
                          const OBB& b2, const CollisionRequest& request,
                          CoalScalar& sqrDistLowerBound);
 
@@ -143,8 +143,8 @@ COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
 /// @param a half dimensions of first box,
 /// @param b half dimensions of second box.
 /// The second box is in identity configuration.
-COAL_DLLAPI bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
-                             const Vec3f& b);
+COAL_DLLAPI bool obbDisjoint(const Matrix3s& B, const Vec3s& T, const Vec3s& a,
+                             const Vec3s& b);
 }  // namespace coal
 
 #endif

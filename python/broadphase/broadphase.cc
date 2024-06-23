@@ -135,7 +135,7 @@ void exposeBroadPhase() {
     typedef SpatialHashingCollisionManager<HashTable> Derived;
     bp::class_<Derived, bp::bases<BroadPhaseCollisionManager>>(
         "SpatialHashingCollisionManager", bp::no_init)
-        .def(dv::init<Derived, CoalScalar, const Vec3f &, const Vec3f &,
+        .def(dv::init<Derived, CoalScalar, const Vec3s &, const Vec3s &,
                       bp::optional<unsigned int>>());
   }
 }

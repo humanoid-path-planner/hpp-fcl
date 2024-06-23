@@ -146,10 +146,10 @@ class COAL_DLLAPI SaPCollisionManager : public BroadPhaseCollisionManager {
     EndPoint* next[3];
 
     /// @brief get the value of the end point
-    const Vec3f& getVal() const;
+    const Vec3s& getVal() const;
 
     /// @brief set the value of the end point
-    Vec3f& getVal();
+    Vec3s& getVal();
 
     CoalScalar getVal(int i) const;
 

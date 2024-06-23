@@ -82,33 +82,33 @@ COAL_DLLAPI BVHModel<KDOP<24> >* BVHExtract(const BVHModel<KDOP<24> >& model,
 
 /// @brief Compute the covariance matrix for a set or subset of points. if ts =
 /// null, then indices refer to points directly; otherwise refer to triangles
-COAL_DLLAPI void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts,
+COAL_DLLAPI void getCovariance(Vec3s* ps, Vec3s* ps2, Triangle* ts,
                                unsigned int* indices, unsigned int n,
-                               Matrix3f& M);
+                               Matrix3s& M);
 
 /// @brief Compute the RSS bounding volume parameters: radius, rectangle size
 /// and the origin, given the BV axises.
 COAL_DLLAPI void getRadiusAndOriginAndRectangleSize(
-    Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, unsigned int n,
-    const Matrix3f& axes, Vec3f& origin, CoalScalar l[2], CoalScalar& r);
+    Vec3s* ps, Vec3s* ps2, Triangle* ts, unsigned int* indices, unsigned int n,
+    const Matrix3s& axes, Vec3s& origin, CoalScalar l[2], CoalScalar& r);
 
 /// @brief Compute the bounding volume extent and center for a set or subset of
 /// points, given the BV axises.
-COAL_DLLAPI void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts,
+COAL_DLLAPI void getExtentAndCenter(Vec3s* ps, Vec3s* ps2, Triangle* ts,
                                     unsigned int* indices, unsigned int n,
-                                    Matrix3f& axes, Vec3f& center,
-                                    Vec3f& extent);
+                                    Matrix3s& axes, Vec3s& center,
+                                    Vec3s& extent);
 
 /// @brief Compute the center and radius for a triangle's circumcircle
-COAL_DLLAPI void circumCircleComputation(const Vec3f& a, const Vec3f& b,
-                                         const Vec3f& c, Vec3f& center,
+COAL_DLLAPI void circumCircleComputation(const Vec3s& a, const Vec3s& b,
+                                         const Vec3s& c, Vec3s& center,
                                          CoalScalar& radius);
 
 /// @brief Compute the maximum distance from a given center point to a point
 /// cloud
-COAL_DLLAPI CoalScalar maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts,
+COAL_DLLAPI CoalScalar maximumDistance(Vec3s* ps, Vec3s* ps2, Triangle* ts,
                                        unsigned int* indices, unsigned int n,
-                                       const Vec3f& query);
+                                       const Vec3s& query);
 
 }  // namespace coal
 

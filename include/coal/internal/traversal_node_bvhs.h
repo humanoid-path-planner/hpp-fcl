@@ -193,12 +193,12 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
     const Triangle& tri_id1 = tri_indices1[primitive_id1];
     const Triangle& tri_id2 = tri_indices2[primitive_id2];
 
-    const Vec3f& P1 = vertices1[tri_id1[0]];
-    const Vec3f& P2 = vertices1[tri_id1[1]];
-    const Vec3f& P3 = vertices1[tri_id1[2]];
-    const Vec3f& Q1 = vertices2[tri_id2[0]];
-    const Vec3f& Q2 = vertices2[tri_id2[1]];
-    const Vec3f& Q3 = vertices2[tri_id2[2]];
+    const Vec3s& P1 = vertices1[tri_id1[0]];
+    const Vec3s& P2 = vertices1[tri_id1[1]];
+    const Vec3s& P3 = vertices1[tri_id1[2]];
+    const Vec3s& Q1 = vertices2[tri_id2[0]];
+    const Vec3s& Q2 = vertices2[tri_id2[1]];
+    const Vec3s& Q3 = vertices2[tri_id2[2]];
 
     TriangleP tri1(P1, P2, P3);
     TriangleP tri2(Q1, Q2, Q3);
@@ -208,7 +208,7 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
 
     const bool compute_penetration =
         this->request.enable_contact || (this->request.security_margin < 0);
-    Vec3f p1, p2, normal;
+    Vec3s p1, p2, normal;
     DistanceResult distanceResult;
     CoalScalar distance = internal::ShapeShapeDistance<TriangleP, TriangleP>(
         &tri1, this->tf1, &tri2, this->tf2, &solver, compute_penetration, p1,
@@ -231,8 +231,8 @@ class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV> {
       sqrDistLowerBound = distToCollision * distToCollision;
   }
 
-  Vec3f* vertices1;
-  Vec3f* vertices2;
+  Vec3s* vertices1;
+  Vec3s* vertices2;
 
   Triangle* tri_indices1;
   Triangle* tri_indices2;
@@ -255,7 +255,7 @@ struct DistanceTraversalBVDistanceLowerBound_impl {
   static CoalScalar run(const BVNode<BV>& b1, const BVNode<BV>& b2) {
     return b1.distance(b2);
   }
-  static CoalScalar run(const Matrix3f& R, const Vec3f& T, const BVNode<BV>& b1,
+  static CoalScalar run(const Matrix3s& R, const Vec3s& T, const BVNode<BV>& b1,
                         const BVNode<BV>& b2) {
     return distance(R, T, b1.bv, b2.bv);
   }
@@ -273,7 +273,7 @@ struct DistanceTraversalBVDistanceLowerBound_impl<OBB> {
     }
     return sqrt(sqrDistLowerBound);
   }
-  static CoalScalar run(const Matrix3f& R, const Vec3f& T,
+  static CoalScalar run(const Matrix3s& R, const Vec3s& T,
                         const BVNode<OBB>& b1, const BVNode<OBB>& b2) {
     CoalScalar sqrDistLowerBound;
     CollisionRequest request(DISTANCE_LOWER_BOUND, 0);
@@ -298,7 +298,7 @@ struct DistanceTraversalBVDistanceLowerBound_impl<AABB> {
     }
     return sqrt(sqrDistLowerBound);
   }
-  static CoalScalar run(const Matrix3f& R, const Vec3f& T,
+  static CoalScalar run(const Matrix3s& R, const Vec3s& T,
                         const BVNode<AABB>& b1, const BVNode<AABB>& b2) {
     CoalScalar sqrDistLowerBound;
     CollisionRequest request(DISTANCE_LOWER_BOUND, 0);
@@ -441,16 +441,16 @@ class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV> {
     const Triangle& tri_id1 = tri_indices1[primitive_id1];
     const Triangle& tri_id2 = tri_indices2[primitive_id2];
 
-    const Vec3f& t11 = vertices1[tri_id1[0]];
-    const Vec3f& t12 = vertices1[tri_id1[1]];
-    const Vec3f& t13 = vertices1[tri_id1[2]];
+    const Vec3s& t11 = vertices1[tri_id1[0]];
+    const Vec3s& t12 = vertices1[tri_id1[1]];
+    const Vec3s& t13 = vertices1[tri_id1[2]];
 
-    const Vec3f& t21 = vertices2[tri_id2[0]];
-    const Vec3f& t22 = vertices2[tri_id2[1]];
-    const Vec3f& t23 = vertices2[tri_id2[2]];
+    const Vec3s& t21 = vertices2[tri_id2[0]];
+    const Vec3s& t22 = vertices2[tri_id2[1]];
+    const Vec3s& t23 = vertices2[tri_id2[2]];
 
     // nearest point pair
-    Vec3f P1, P2, normal;
+    Vec3s P1, P2, normal;
 
     CoalScalar d2;
     if (RTIsIdentity)
@@ -473,8 +473,8 @@ class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV> {
     return false;
   }
 
-  Vec3f* vertices1;
-  Vec3f* vertices2;
+  Vec3s* vertices1;
+  Vec3s* vertices2;
 
   Triangle* tri_indices1;
   Triangle* tri_indices2;
@@ -491,8 +491,8 @@ class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV> {
     const Triangle& init_tri1 = tri_indices1[init_tri_id1];
     const Triangle& init_tri2 = tri_indices2[init_tri_id2];
 
-    Vec3f init_tri1_points[3];
-    Vec3f init_tri2_points[3];
+    Vec3s init_tri1_points[3];
+    Vec3s init_tri2_points[3];
 
     init_tri1_points[0] = vertices1[init_tri1[0]];
     init_tri1_points[1] = vertices1[init_tri1[1]];
@@ -502,7 +502,7 @@ class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV> {
     init_tri2_points[1] = vertices2[init_tri2[1]];
     init_tri2_points[2] = vertices2[init_tri2[2]];
 
-    Vec3f p1, p2, normal;
+    Vec3s p1, p2, normal;
     CoalScalar distance = sqrt(TriangleDistance::sqrTriDistance(
         init_tri1_points[0], init_tri1_points[1], init_tri1_points[2],
         init_tri2_points[0], init_tri2_points[1], init_tri2_points[2], RT._R(),
@@ -536,12 +536,12 @@ typedef MeshDistanceTraversalNode<OBBRSS, 0> MeshDistanceTraversalNodeOBBRSS;
 namespace details {
 
 template <typename BV>
-inline const Matrix3f& getBVAxes(const BV& bv) {
+inline const Matrix3s& getBVAxes(const BV& bv) {
   return bv.axes;
 }
 
 template <>
-inline const Matrix3f& getBVAxes<OBBRSS>(const OBBRSS& bv) {
+inline const Matrix3s& getBVAxes<OBBRSS>(const OBBRSS& bv) {
   return bv.obb.axes;
 }
 

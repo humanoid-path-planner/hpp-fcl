@@ -49,21 +49,21 @@ namespace coal {
 namespace details {
 /// @brief get the vertices of some convex shape which can bound the given shape
 /// in a specific configuration
-COAL_DLLAPI std::vector<Vec3f> getBoundVertices(const Box& box,
+COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Box& box,
                                                 const Transform3f& tf);
-COAL_DLLAPI std::vector<Vec3f> getBoundVertices(const Sphere& sphere,
+COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Sphere& sphere,
                                                 const Transform3f& tf);
-COAL_DLLAPI std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid,
+COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Ellipsoid& ellipsoid,
                                                 const Transform3f& tf);
-COAL_DLLAPI std::vector<Vec3f> getBoundVertices(const Capsule& capsule,
+COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Capsule& capsule,
                                                 const Transform3f& tf);
-COAL_DLLAPI std::vector<Vec3f> getBoundVertices(const Cone& cone,
+COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Cone& cone,
                                                 const Transform3f& tf);
-COAL_DLLAPI std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder,
+COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Cylinder& cylinder,
                                                 const Transform3f& tf);
-COAL_DLLAPI std::vector<Vec3f> getBoundVertices(const ConvexBase& convex,
+COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const ConvexBase& convex,
                                                 const Transform3f& tf);
-COAL_DLLAPI std::vector<Vec3f> getBoundVertices(const TriangleP& triangle,
+COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const TriangleP& triangle,
                                                 const Transform3f& tf);
 }  // namespace details
 /// @endcond
@@ -75,7 +75,7 @@ inline void computeBV(const S& s, const Transform3f& tf, BV& bv) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
   }
-  std::vector<Vec3f> convex_bound_vertices = details::getBoundVertices(s, tf);
+  std::vector<Vec3s> convex_bound_vertices = details::getBoundVertices(s, tf);
   fit(&convex_bound_vertices[0], (unsigned int)convex_bound_vertices.size(),
       bv);
 }

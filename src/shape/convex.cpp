@@ -22,16 +22,16 @@ namespace coal {
 // Reorders `tri` such that the dot product between the normal of triangle and
 // the vector `triangle barycentre - convex_tri.center` is positive.
 void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
-  Vec3f p0, p1, p2;
+  Vec3s p0, p1, p2;
   p0 = (*(convex_tri->points))[tri[0]];
   p1 = (*(convex_tri->points))[tri[1]];
   p2 = (*(convex_tri->points))[tri[2]];
 
-  Vec3f barycentre_tri, center_barycenter;
+  Vec3s barycentre_tri, center_barycenter;
   barycentre_tri = (p0 + p1 + p2) / 3;
   center_barycenter = barycentre_tri - convex_tri->center;
 
-  Vec3f edge_tri1, edge_tri2, n_tri;
+  Vec3s edge_tri1, edge_tri2, n_tri;
   edge_tri1 = p1 - p0;
   edge_tri2 = p2 - p1;
   n_tri = edge_tri1.cross(edge_tri2);
@@ -41,7 +41,7 @@ void reorderTriangle(const Convex<Triangle>* convex_tri, Triangle& tri) {
   }
 }
 
-ConvexBase* ConvexBase::convexHull(std::shared_ptr<std::vector<Vec3f>>& pts,
+ConvexBase* ConvexBase::convexHull(std::shared_ptr<std::vector<Vec3s>>& pts,
                                    unsigned int num_points, bool keepTriangles,
                                    const char* qhullCommand) {
   COAL_COMPILER_DIAGNOSTIC_PUSH
@@ -51,7 +51,7 @@ ConvexBase* ConvexBase::convexHull(std::shared_ptr<std::vector<Vec3f>>& pts,
   COAL_COMPILER_DIAGNOSTIC_POP
 }
 
-ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
+ConvexBase* ConvexBase::convexHull(const Vec3s* pts, unsigned int num_points,
                                    bool keepTriangles,
                                    const char* qhullCommand) {
 #ifdef COAL_HAS_QHULL
@@ -81,15 +81,15 @@ ConvexBase* ConvexBase::convexHull(const Vec3f* pts, unsigned int num_points,
 
   // Initialize the vertices
   size_t nvertex = static_cast<size_t>(qh.vertexCount());
-  std::shared_ptr<std::vector<Vec3f>> vertices(
-      new std::vector<Vec3f>(size_t(nvertex)));
+  std::shared_ptr<std::vector<Vec3s>> vertices(
+      new std::vector<Vec3s>(size_t(nvertex)));
   QhullVertexList vertexList(qh.vertexList());
   size_t i_vertex = 0;
   for (QhullVertexList::const_iterator v = vertexList.begin();
        v != vertexList.end(); ++v) {
     QhullPoint pt((*v).point());
     pts_to_vertices[(size_t)pt.id()] = (int)i_vertex;
-    (*vertices)[i_vertex] = Vec3f(pt[0], pt[1], pt[2]);
+    (*vertices)[i_vertex] = Vec3s(pt[0], pt[1], pt[2]);
     ++i_vertex;
   }
   assert(i_vertex == nvertex);
@@ -230,15 +230,15 @@ void ConvexBase::buildDoubleDescription() {
 
 void ConvexBase::buildDoubleDescriptionFromQHullResult(const Qhull& qh) {
   num_normals_and_offsets = static_cast<unsigned int>(qh.facetCount());
-  normals.reset(new std::vector<Vec3f>(num_normals_and_offsets));
-  std::vector<Vec3f>& normals_ = *normals;
+  normals.reset(new std::vector<Vec3s>(num_normals_and_offsets));
+  std::vector<Vec3s>& normals_ = *normals;
   offsets.reset(new std::vector<double>(num_normals_and_offsets));
   std::vector<double>& offsets_ = *offsets;
   unsigned int i_normal = 0;
   for (QhullFacet facet = qh.beginFacet(); facet != qh.endFacet();
        facet = facet.next()) {
     const orgQhull::QhullHyperplane& plane = facet.hyperplane();
-    normals_[i_normal] = Vec3f(plane.coordinates()[0], plane.coordinates()[1],
+    normals_[i_normal] = Vec3s(plane.coordinates()[0], plane.coordinates()[1],
                                plane.coordinates()[2]);
     offsets_[i_normal] = plane.offset();
     i_normal++;

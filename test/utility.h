@@ -126,15 +126,15 @@ struct TStruct {
 extern const Eigen::IOFormat vfmt;
 extern const Eigen::IOFormat pyfmt;
 typedef Eigen::AngleAxis<CoalScalar> AngleAxis;
-extern const Vec3f UnitX;
-extern const Vec3f UnitY;
-extern const Vec3f UnitZ;
+extern const Vec3s UnitX;
+extern const Vec3s UnitY;
+extern const Vec3s UnitZ;
 
 /// @brief Load an obj mesh file
-void loadOBJFile(const char* filename, std::vector<Vec3f>& points,
+void loadOBJFile(const char* filename, std::vector<Vec3s>& points,
                  std::vector<Triangle>& triangles);
 
-void saveOBJFile(const char* filename, std::vector<Vec3f>& points,
+void saveOBJFile(const char* filename, std::vector<Vec3s>& points,
                  std::vector<Triangle>& triangles);
 
 #ifdef COAL_HAS_OCTOMAP
@@ -167,8 +167,8 @@ void generateRandomTransforms(CoalScalar extents[6], CoalScalar delta_trans[3],
 /// corresponding nearest point pair
 struct DistanceRes {
   double distance;
-  Vec3f p1;
-  Vec3f p2;
+  Vec3s p1;
+  Vec3s p2;
 };
 
 /// @brief Default collision callback for two objects o1 and o2 in broad phase.

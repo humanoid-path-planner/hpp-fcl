@@ -61,18 +61,18 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
                            const CoalScalar min_altitude,
                            const CoalScalar max_altitude) {
   const CoalScalar x_dim = 1., y_dim = 2.;
-  const MatrixXf heights = MatrixXf::Constant(ny, nx, max_altitude);
+  const MatrixXs heights = MatrixXs::Constant(ny, nx, max_altitude);
 
   HeightField<BV> hfield(x_dim, y_dim, heights, min_altitude);
 
   BOOST_CHECK(hfield.getXDim() == x_dim);
   BOOST_CHECK(hfield.getYDim() == y_dim);
 
-  const VecXf& x_grid = hfield.getXGrid();
+  const VecXs& x_grid = hfield.getXGrid();
   BOOST_CHECK(x_grid[0] == -x_dim / 2.);
   BOOST_CHECK(x_grid[nx - 1] == x_dim / 2.);
 
-  const VecXf& y_grid = hfield.getYGrid();
+  const VecXs& y_grid = hfield.getYGrid();
   BOOST_CHECK(y_grid[0] == y_dim / 2.);
   BOOST_CHECK(y_grid[ny - 1] == -y_dim / 2.);
 
@@ -81,7 +81,7 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
 
   for (Eigen::DenseIndex i = 0; i < nx; ++i) {
     for (Eigen::DenseIndex j = 0; j < ny; ++j) {
-      Vec3f point(x_grid[i], y_grid[j], heights(j, i));
+      Vec3s point(x_grid[i], y_grid[j], heights(j, i));
       BOOST_CHECK(hfield.aabb_local.contain(point));
     }
   }
@@ -98,13 +98,13 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
   // Build equivalent object
   const Box equivalent_box(x_dim, y_dim, max_altitude - min_altitude);
   const Transform3f box_placement(
-      Matrix3f::Identity(), Vec3f(0., 0., (max_altitude + min_altitude) / 2.));
+      Matrix3s::Identity(), Vec3s(0., 0., (max_altitude + min_altitude) / 2.));
 
   // Test collision
   const Sphere sphere(1.);
   static const Transform3f IdTransform;
 
-  const Box box(Vec3f::Ones());
+  const Box box(Vec3s::Ones());
 
   Transform3f M_sphere, M_box;
 
@@ -112,9 +112,9 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
   {
     const CoalScalar eps_no_collision = +0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
-        Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
+        Vec3s(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
-        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
+        Vec3s(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
     CollisionRequest request;
 
     CollisionResult result;
@@ -139,9 +139,9 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
   {
     const CoalScalar eps_collision = -0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
-        Vec3f(0., 0., max_altitude + sphere.radius + eps_collision));
+        Vec3s(0., 0., max_altitude + sphere.radius + eps_collision));
     M_box.setTranslation(
-        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_collision));
+        Vec3s(0., 0., max_altitude + box.halfSide[2] + eps_collision));
     CollisionRequest
         request;  //(CONTACT | DISTANCE_LOWER_BOUND, (size_t)((nx-1)*(ny-1)));
 
@@ -165,15 +165,15 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
 
   // Update height
   hfield.updateHeights(
-      MatrixXf::Constant(ny, nx, max_altitude / 2.));  // We change nothing
+      MatrixXs::Constant(ny, nx, max_altitude / 2.));  // We change nothing
 
   // No collision case
   {
     const CoalScalar eps_no_collision = +0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
-        Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
+        Vec3s(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
-        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
+        Vec3s(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
     CollisionRequest request;
 
     CollisionResult result;
@@ -198,9 +198,9 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
   {
     const CoalScalar eps_collision = -0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
-        Vec3f(0., 0., max_altitude + sphere.radius + eps_collision));
+        Vec3s(0., 0., max_altitude + sphere.radius + eps_collision));
     M_box.setTranslation(
-        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_collision));
+        Vec3s(0., 0., max_altitude + box.halfSide[2] + eps_collision));
     CollisionRequest
         request;  //(CONTACT | DISTANCE_LOWER_BOUND, (size_t)((nx-1)*(ny-1)));
 
@@ -224,15 +224,15 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
 
   // Restore height
   hfield.updateHeights(
-      MatrixXf::Constant(ny, nx, max_altitude));  // We change nothing
+      MatrixXs::Constant(ny, nx, max_altitude));  // We change nothing
 
   // Collision case
   {
     const CoalScalar eps_collision = -0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
-        Vec3f(0., 0., max_altitude + sphere.radius + eps_collision));
+        Vec3s(0., 0., max_altitude + sphere.radius + eps_collision));
     M_box.setTranslation(
-        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_collision));
+        Vec3s(0., 0., max_altitude + box.halfSide[2] + eps_collision));
     CollisionRequest
         request;  //(CONTACT | DISTANCE_LOWER_BOUND, (size_t)((nx-1)*(ny-1)));
 
@@ -275,20 +275,20 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
                                    const CoalScalar min_altitude,
                                    const CoalScalar max_altitude) {
   const CoalScalar x_dim = 1., y_dim = 2.;
-  const MatrixXf heights = MatrixXf::Constant(ny, nx, max_altitude);
+  const MatrixXs heights = MatrixXs::Constant(ny, nx, max_altitude);
 
   HeightField<BV> hfield(x_dim, y_dim, heights, min_altitude);
 
   // Build equivalent object
   const Box equivalent_box(x_dim, y_dim, max_altitude - min_altitude);
   const Transform3f box_placement(
-      Matrix3f::Identity(), Vec3f(0., 0., (max_altitude + min_altitude) / 2.));
+      Matrix3s::Identity(), Vec3s(0., 0., (max_altitude + min_altitude) / 2.));
 
   // Test collision
   const Sphere sphere(1.);
   static const Transform3f IdTransform;
 
-  const Box box(Vec3f::Ones());
+  const Box box(Vec3s::Ones());
 
   Transform3f M_sphere, M_box;
 
@@ -296,9 +296,9 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
   {
     const CoalScalar eps_no_collision = +0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
-        Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
+        Vec3s(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
-        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
+        Vec3s(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
     CollisionRequest request;
 
     CollisionResult result;
@@ -323,9 +323,9 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
   {
     const CoalScalar eps_no_collision = +0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
-        Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
+        Vec3s(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
-        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
+        Vec3s(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
     CollisionRequest request;
     request.security_margin = eps_no_collision + 1e-6;
 
@@ -351,9 +351,9 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
   {
     const CoalScalar eps_no_collision = -0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
-        Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
+        Vec3s(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
-        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
+        Vec3s(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
     CollisionRequest request;
 
     CollisionResult result;
@@ -378,9 +378,9 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
   {
     const CoalScalar eps_no_collision = -0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
-        Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
+        Vec3s(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
-        Vec3f(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
+        Vec3s(0., 0., max_altitude + box.halfSide[2] + eps_no_collision));
     CollisionRequest request;
     request.security_margin = eps_no_collision - 1e-4;
 
@@ -415,22 +415,22 @@ BOOST_AUTO_TEST_CASE(hfield_with_square_hole) {
   const Eigen::DenseIndex nx = 100, ny = 100;
 
   typedef AABB BV;
-  const MatrixXf X =
+  const MatrixXs X =
       Eigen::RowVectorXd::LinSpaced(nx, -1., 1.).replicate(ny, 1);
-  const MatrixXf Y = Eigen::VectorXd::LinSpaced(ny, 1., -1.).replicate(1, nx);
+  const MatrixXs Y = Eigen::VectorXd::LinSpaced(ny, 1., -1.).replicate(1, nx);
 
   const CoalScalar dim_square = 0.5;
 
   const Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> hole =
       (X.array().abs() < dim_square) && (Y.array().abs() < dim_square);
 
-  const MatrixXf heights =
-      MatrixXf::Ones(ny, nx) - hole.cast<double>().matrix();
+  const MatrixXs heights =
+      MatrixXs::Ones(ny, nx) - hole.cast<double>().matrix();
 
   const HeightField<BV> hfield(2., 2., heights, -10.);
 
   Sphere sphere(0.48);
-  const Transform3f sphere_pos(Vec3f(0., 0., 0.5));
+  const Transform3f sphere_pos(Vec3s(0., 0., 0.5));
   const Transform3f hfield_pos;
 
   const CollisionRequest request;
@@ -459,17 +459,17 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
   //  typedef OBBRSS BV; TODO(jcarpent): OBBRSS does not work (compile in Debug
   //  mode), as the overlap of OBBRSS is not satisfactory yet.
   typedef AABB BV;
-  const MatrixXf X =
+  const MatrixXs X =
       Eigen::RowVectorXd::LinSpaced(nx, -1., 1.).replicate(ny, 1);
-  const MatrixXf Y = Eigen::VectorXd::LinSpaced(ny, 1., -1.).replicate(1, nx);
+  const MatrixXs Y = Eigen::VectorXd::LinSpaced(ny, 1., -1.).replicate(1, nx);
 
   const CoalScalar dim_hole = 1;
 
   const Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> hole =
       (X.array().square() + Y.array().square() <= dim_hole);
 
-  const MatrixXf heights =
-      MatrixXf::Ones(ny, nx) - hole.cast<double>().matrix();
+  const MatrixXs heights =
+      MatrixXs::Ones(ny, nx) - hole.cast<double>().matrix();
 
   const HeightField<BV> hfield(2., 2., heights, -10.);
 
@@ -480,7 +480,7 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
   BOOST_CHECK(hfield.getYGrid()[ny - 1] == -1.);
 
   Sphere sphere(0.975);
-  const Transform3f sphere_pos(Vec3f(0., 0., 1.));
+  const Transform3f sphere_pos(Vec3s(0., 0., 1.));
   const Transform3f hfield_pos;
 
   const CoalScalar thresholds[3] = {0., 0.01, -0.005};
@@ -520,11 +520,11 @@ bool isApprox(const CoalScalar v1, const CoalScalar v2,
   return std::fabs(v1 - v2) <= tol;
 }
 
-Vec3f computeFaceNormal(const Triangle& triangle,
-                        const std::vector<Vec3f>& points) {
-  const Vec3f pointA = points[triangle[0]];
-  const Vec3f pointB = points[triangle[1]];
-  const Vec3f pointC = points[triangle[2]];
+Vec3s computeFaceNormal(const Triangle& triangle,
+                        const std::vector<Vec3s>& points) {
+  const Vec3s pointA = points[triangle[0]];
+  const Vec3s pointB = points[triangle[1]];
+  const Vec3s pointC = points[triangle[2]];
 
   return (pointB - pointA).cross(pointC - pointA).normalized();
 }
@@ -532,7 +532,7 @@ Vec3f computeFaceNormal(const Triangle& triangle,
 BOOST_AUTO_TEST_CASE(test_hfield_bin_face_normal_orientation) {
   const CoalScalar sphere_radius = 1.;
   Sphere sphere(sphere_radius);
-  MatrixXf altitutes(2, 2);
+  MatrixXs altitutes(2, 2);
   CoalScalar altitude_value = 1.;
   altitutes.fill(altitude_value);
 
@@ -564,20 +564,20 @@ BOOST_AUTO_TEST_CASE(test_hfield_bin_face_normal_orientation) {
 
   // Check face normals for convex1
   {
-    const std::vector<Vec3f>& points = *(convex1.points);
+    const std::vector<Vec3s>& points = *(convex1.points);
     // BOTTOM
     {
       const Triangle& triangle = (*(convex1.polygons))[0];
 
       BOOST_CHECK(
-          computeFaceNormal(triangle, points).isApprox(-Vec3f::UnitZ()));
+          computeFaceNormal(triangle, points).isApprox(-Vec3s::UnitZ()));
     }
 
     // TOP
     {
       const Triangle& triangle = (*(convex1.polygons))[1];
 
-      BOOST_CHECK(computeFaceNormal(triangle, points).isApprox(Vec3f::UnitZ()));
+      BOOST_CHECK(computeFaceNormal(triangle, points).isApprox(Vec3s::UnitZ()));
     }
 
     // WEST sides
@@ -586,14 +586,14 @@ BOOST_AUTO_TEST_CASE(test_hfield_bin_face_normal_orientation) {
       const Triangle& triangle2 = (*(convex1.polygons))[3];
 
       BOOST_CHECK(
-          computeFaceNormal(triangle1, points).isApprox(-Vec3f::UnitX()));
+          computeFaceNormal(triangle1, points).isApprox(-Vec3s::UnitX()));
       BOOST_CHECK(
-          computeFaceNormal(triangle2, points).isApprox(-Vec3f::UnitX()));
+          computeFaceNormal(triangle2, points).isApprox(-Vec3s::UnitX()));
     }
 
     // SOUTH-EAST sides
     {
-      const Vec3f south_east_normal = Vec3f(1., -1., 0).normalized();
+      const Vec3s south_east_normal = Vec3s(1., -1., 0).normalized();
 
       const Triangle& triangle1 = (*(convex1.polygons))[4];
       const Triangle& triangle2 = (*(convex1.polygons))[5];
@@ -613,29 +613,29 @@ BOOST_AUTO_TEST_CASE(test_hfield_bin_face_normal_orientation) {
                 << computeFaceNormal(triangle1, points).transpose()
                 << std::endl;
       BOOST_CHECK(
-          computeFaceNormal(triangle1, points).isApprox(Vec3f::UnitY()));
+          computeFaceNormal(triangle1, points).isApprox(Vec3s::UnitY()));
       BOOST_CHECK(
-          computeFaceNormal(triangle2, points).isApprox(Vec3f::UnitY()));
+          computeFaceNormal(triangle2, points).isApprox(Vec3s::UnitY()));
     }
   }
 
   // Check face normals for convex2
   {
-    const std::vector<Vec3f>& points = *(convex2.points);
+    const std::vector<Vec3s>& points = *(convex2.points);
 
     // BOTTOM
     {
       const Triangle& triangle = (*(convex2.polygons))[0];
 
       BOOST_CHECK(
-          computeFaceNormal(triangle, points).isApprox(-Vec3f::UnitZ()));
+          computeFaceNormal(triangle, points).isApprox(-Vec3s::UnitZ()));
     }
 
     // TOP
     {
       const Triangle& triangle = (*(convex2.polygons))[1];
 
-      BOOST_CHECK(computeFaceNormal(triangle, points).isApprox(Vec3f::UnitZ()));
+      BOOST_CHECK(computeFaceNormal(triangle, points).isApprox(Vec3s::UnitZ()));
     }
 
     // SOUTH sides
@@ -644,14 +644,14 @@ BOOST_AUTO_TEST_CASE(test_hfield_bin_face_normal_orientation) {
       const Triangle& triangle2 = (*(convex2.polygons))[3];
 
       BOOST_CHECK(
-          computeFaceNormal(triangle1, points).isApprox(-Vec3f::UnitY()));
+          computeFaceNormal(triangle1, points).isApprox(-Vec3s::UnitY()));
       BOOST_CHECK(
-          computeFaceNormal(triangle2, points).isApprox(-Vec3f::UnitY()));
+          computeFaceNormal(triangle2, points).isApprox(-Vec3s::UnitY()));
     }
 
     // NORTH-WEST sides
     {
-      const Vec3f north_west_normal = Vec3f(-1., 1., 0).normalized();
+      const Vec3s north_west_normal = Vec3s(-1., 1., 0).normalized();
 
       const Triangle& triangle1 = (*(convex2.polygons))[4];
       const Triangle& triangle2 = (*(convex2.polygons))[5];
@@ -668,9 +668,9 @@ BOOST_AUTO_TEST_CASE(test_hfield_bin_face_normal_orientation) {
       const Triangle& triangle2 = (*(convex2.polygons))[7];
 
       BOOST_CHECK(
-          computeFaceNormal(triangle1, points).isApprox(Vec3f::UnitX()));
+          computeFaceNormal(triangle1, points).isApprox(Vec3s::UnitX()));
       BOOST_CHECK(
-          computeFaceNormal(triangle2, points).isApprox(Vec3f::UnitX()));
+          computeFaceNormal(triangle2, points).isApprox(Vec3s::UnitX()));
     }
   }
 }
@@ -679,7 +679,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_bin_active_faces) {
   typedef HFNodeBase::FaceOrientation FaceOrientation;
   const CoalScalar sphere_radius = 1.;
   Sphere sphere(sphere_radius);
-  MatrixXf altitutes(3, 3);
+  MatrixXs altitutes(3, 3);
   CoalScalar altitude_value = 1.;
   altitutes.fill(altitude_value);
 
@@ -716,7 +716,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_bin_active_faces) {
 BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
   const CoalScalar sphere_radius = 1.;
   Sphere sphere(sphere_radius);
-  MatrixXf altitutes(2, 2);
+  MatrixXs altitutes(2, 2);
   CoalScalar altitude_value = 1.;
   altitutes.fill(altitude_value);
 
@@ -728,7 +728,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   // Collision from the TOP
   {
-    const Transform3f sphere_pos(Vec3f(0., 0., 2.));
+    const Transform3f sphere_pos(Vec3s(0., 0., 2.));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -743,7 +743,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   // Same, but with a positive margin.
   {
-    const Transform3f sphere_pos(Vec3f(0., 0., 2.));
+    const Transform3f sphere_pos(Vec3s(0., 0., 2.));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -754,7 +754,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
     BOOST_CHECK(result.isCollision());
     if (result.isCollision()) {
       const Contact& contact = result.getContact(0);
-      BOOST_CHECK(contact.normal.isApprox(Vec3f::UnitZ()));
+      BOOST_CHECK(contact.normal.isApprox(Vec3s::UnitZ()));
       std::cout << "contact.penetration_depth: " << contact.penetration_depth
                 << std::endl;
       BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
@@ -763,7 +763,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   // Collision from the BOTTOM
   {
-    const Transform3f sphere_pos(Vec3f(0., 0., -1.));
+    const Transform3f sphere_pos(Vec3s(0., 0., -1.));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -775,7 +775,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
   }
 
   {
-    const Transform3f sphere_pos(Vec3f(0., 0., -1.));
+    const Transform3f sphere_pos(Vec3s(0., 0., -1.));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -786,7 +786,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
     BOOST_CHECK(result.isCollision());
     {
       const Contact& contact = result.getContact(0);
-      BOOST_CHECK(contact.normal.isApprox(-Vec3f::UnitZ()));
+      BOOST_CHECK(contact.normal.isApprox(-Vec3s::UnitZ()));
       std::cout << "contact.penetration_depth: " << contact.penetration_depth
                 << std::endl;
       BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
@@ -796,7 +796,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
   // Collision from the WEST
   {
     const Transform3f sphere_pos(
-        Vec3f(hfield.getXGrid()[0] - sphere_radius, 0., 0.5));
+        Vec3s(hfield.getXGrid()[0] - sphere_radius, 0., 0.5));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -809,7 +809,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   {
     const Transform3f sphere_pos(
-        Vec3f(hfield.getXGrid()[0] - sphere_radius, 0., 0.5));
+        Vec3s(hfield.getXGrid()[0] - sphere_radius, 0., 0.5));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -820,7 +820,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
     BOOST_CHECK(result.isCollision());
     if (result.isCollision()) {
       const Contact& contact = result.getContact(0);
-      BOOST_CHECK(contact.normal.isApprox(-Vec3f::UnitX()));
+      BOOST_CHECK(contact.normal.isApprox(-Vec3s::UnitX()));
       BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
     }
   }
@@ -828,7 +828,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
   // Collision from the EAST
   {
     const Transform3f sphere_pos(
-        Vec3f(hfield.getXGrid()[1] + sphere_radius, 0., 0.5));
+        Vec3s(hfield.getXGrid()[1] + sphere_radius, 0., 0.5));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -841,7 +841,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   {
     const Transform3f sphere_pos(
-        Vec3f(hfield.getXGrid()[1] + sphere_radius, 0., 0.5));
+        Vec3s(hfield.getXGrid()[1] + sphere_radius, 0., 0.5));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -853,7 +853,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
     if (result.isCollision()) {
       const Contact& contact = result.getContact(0);
-      BOOST_CHECK(contact.normal.isApprox(Vec3f::UnitX()));
+      BOOST_CHECK(contact.normal.isApprox(Vec3s::UnitX()));
       BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
     }
   }
@@ -861,7 +861,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
   // Collision from the NORTH
   {
     const Transform3f sphere_pos(
-        Vec3f(0., hfield.getYGrid()[0] + sphere_radius, 0.5));
+        Vec3s(0., hfield.getYGrid()[0] + sphere_radius, 0.5));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -874,7 +874,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   {
     const Transform3f sphere_pos(
-        Vec3f(0., hfield.getYGrid()[0] + sphere_radius, 0.5));
+        Vec3s(0., hfield.getYGrid()[0] + sphere_radius, 0.5));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -886,7 +886,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
     if (result.isCollision()) {
       const Contact& contact = result.getContact(0);
-      BOOST_CHECK(contact.normal.isApprox(Vec3f::UnitY()));
+      BOOST_CHECK(contact.normal.isApprox(Vec3s::UnitY()));
       BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
     }
   }
@@ -894,7 +894,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
   // Collision from the SOUTH
   {
     const Transform3f sphere_pos(
-        Vec3f(0., hfield.getYGrid()[1] - sphere_radius, 0.5));
+        Vec3s(0., hfield.getYGrid()[1] - sphere_radius, 0.5));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -907,7 +907,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   {
     const Transform3f sphere_pos(
-        Vec3f(0., hfield.getYGrid()[1] - sphere_radius, 0.5));
+        Vec3s(0., hfield.getYGrid()[1] - sphere_radius, 0.5));
     const Transform3f hfield_pos;
 
     CollisionResult result;
@@ -919,7 +919,7 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
     if (result.isCollision()) {
       const Contact& contact = result.getContact(0);
-      BOOST_CHECK(contact.normal.isApprox(-Vec3f::UnitY()));
+      BOOST_CHECK(contact.normal.isApprox(-Vec3s::UnitY()));
       BOOST_CHECK(isApprox(contact.penetration_depth, 0.));
     }
   }

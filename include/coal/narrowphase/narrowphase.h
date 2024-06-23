@@ -76,7 +76,7 @@ struct COAL_DLLAPI GJKSolver {
   bool enable_cached_guess;
 
   /// @brief smart guess
-  mutable Vec3f cached_guess;
+  mutable Vec3s cached_guess;
 
   /// @brief smart guess for the support function
   mutable support_func_guess_t support_func_cached_guess;
@@ -126,7 +126,7 @@ struct COAL_DLLAPI GJKSolver {
         gjk_tolerance(GJK_DEFAULT_TOLERANCE),
         gjk_initial_guess(GJKInitialGuess::DefaultGuess),
         enable_cached_guess(false),  // Use gjk_initial_guess instead
-        cached_guess(Vec3f(1, 0, 0)),
+        cached_guess(Vec3s(1, 0, 0)),
         support_func_cached_guess(support_func_guess_t::Zero()),
         distance_upper_bound((std::numeric_limits<CoalScalar>::max)()),
         gjk_variant(GJKVariant::DefaultGJK),
@@ -148,7 +148,7 @@ struct COAL_DLLAPI GJKSolver {
   explicit GJKSolver(const DistanceRequest& request)
       : gjk(request.gjk_max_iterations, request.gjk_tolerance),
         epa(0, request.epa_tolerance) {
-    this->cached_guess = Vec3f(1, 0, 0);
+    this->cached_guess = Vec3s(1, 0, 0);
     this->support_func_cached_guess = support_func_guess_t::Zero();
 
     set(request);
@@ -200,7 +200,7 @@ struct COAL_DLLAPI GJKSolver {
   explicit GJKSolver(const CollisionRequest& request)
       : gjk(request.gjk_max_iterations, request.gjk_tolerance),
         epa(0, request.epa_tolerance) {
-    this->cached_guess = Vec3f(1, 0, 0);
+    this->cached_guess = Vec3s(1, 0, 0);
     this->support_func_cached_guess = support_func_guess_t::Zero();
 
     set(request);
@@ -307,8 +307,8 @@ struct COAL_DLLAPI GJKSolver {
   template <typename S1, typename S2>
   CoalScalar shapeDistance(const S1& s1, const Transform3f& tf1, const S2& s2,
                            const Transform3f& tf2,
-                           const bool compute_penetration, Vec3f& p1, Vec3f& p2,
-                           Vec3f& normal) const {
+                           const bool compute_penetration, Vec3s& p1, Vec3s& p2,
+                           Vec3s& normal) const {
     constexpr bool relative_transformation_already_computed = false;
     CoalScalar distance;
     this->runGJKAndEPA(s1, tf1, s2, tf2, compute_penetration, distance, p1, p2,
@@ -322,8 +322,8 @@ struct COAL_DLLAPI GJKSolver {
   template <typename S1>
   CoalScalar shapeDistance(const S1& s1, const Transform3f& tf1,
                            const TriangleP& s2, const Transform3f& tf2,
-                           const bool compute_penetration, Vec3f& p1, Vec3f& p2,
-                           Vec3f& normal) const {
+                           const bool compute_penetration, Vec3s& p1, Vec3s& p2,
+                           Vec3s& normal) const {
     const Transform3f tf_1M2(tf1.inverseTimes(tf2));
     TriangleP tri(tf_1M2.transform(s2.a), tf_1M2.transform(s2.b),
                   tf_1M2.transform(s2.c));
@@ -339,8 +339,8 @@ struct COAL_DLLAPI GJKSolver {
   template <typename S2>
   CoalScalar shapeDistance(const TriangleP& s1, const Transform3f& tf1,
                            const S2& s2, const Transform3f& tf2,
-                           const bool compute_penetration, Vec3f& p1, Vec3f& p2,
-                           Vec3f& normal) const {
+                           const bool compute_penetration, Vec3s& p1, Vec3s& p2,
+                           Vec3s& normal) const {
     CoalScalar distance = this->shapeDistance<S2>(
         s2, tf2, s1, tf1, compute_penetration, p2, p1, normal);
     normal = -normal;
@@ -351,9 +351,9 @@ struct COAL_DLLAPI GJKSolver {
   /// @brief initialize GJK.
   /// This method assumes `minkowski_difference` has been set.
   template <typename S1, typename S2>
-  void getGJKInitialGuess(const S1& s1, const S2& s2, Vec3f& guess,
+  void getGJKInitialGuess(const S1& s1, const S2& s2, Vec3s& guess,
                           support_func_guess_t& support_hint,
-                          const Vec3f& default_guess = Vec3f(1, 0, 0)) const {
+                          const Vec3s& default_guess = Vec3s(1, 0, 0)) const {
     // There is no reason not to warm-start the support function, so we always
     // do it.
     support_hint = this->support_func_cached_guess;
@@ -422,7 +422,7 @@ struct COAL_DLLAPI GJKSolver {
   void runGJKAndEPA(
       const S1& s1, const Transform3f& tf1, const S2& s2,
       const Transform3f& tf2, const bool compute_penetration,
-      CoalScalar& distance, Vec3f& p1, Vec3f& p2, Vec3f& normal,
+      CoalScalar& distance, Vec3s& p1, Vec3s& p2, Vec3s& normal,
       const bool relative_transformation_already_computed = false) const {
     // Reset internal state of GJK algorithm
     if (relative_transformation_already_computed)
@@ -437,7 +437,7 @@ struct COAL_DLLAPI GJKSolver {
     this->epa.status = details::EPA::Status::DidNotRun;
 
     // Get initial guess for GJK: default, cached or bounding volume guess
-    Vec3f guess;
+    Vec3s guess;
     support_func_guess_t support_hint;
     getGJKInitialGuess(*(this->minkowski_difference.shapes[0]),
                        *(this->minkowski_difference.shapes[1]), guess,
@@ -449,11 +449,11 @@ struct COAL_DLLAPI GJKSolver {
       case details::GJK::DidNotRun:
         COAL_ASSERT(false, "GJK did not run. It should have!",
                     std::logic_error);
-        this->cached_guess = Vec3f(1, 0, 0);
+        this->cached_guess = Vec3s(1, 0, 0);
         this->support_func_cached_guess.setZero();
         distance = -(std::numeric_limits<CoalScalar>::max)();
         p1 = p2 = normal =
-            Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
+            Vec3s::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
         break;
       case details::GJK::Failed:
         //
@@ -588,8 +588,8 @@ struct COAL_DLLAPI GJKSolver {
 
   void GJKEarlyStopExtractWitnessPointsAndNormal(const Transform3f& tf1,
                                                  CoalScalar& distance,
-                                                 Vec3f& p1, Vec3f& p2,
-                                                 Vec3f& normal) const {
+                                                 Vec3s& p1, Vec3s& p2,
+                                                 Vec3s& normal) const {
     COAL_UNUSED_VARIABLE(tf1);
     // Cache gjk result for potential future call to this GJKSolver.
     this->cached_guess = this->gjk.ray;
@@ -597,7 +597,7 @@ struct COAL_DLLAPI GJKSolver {
 
     distance = this->gjk.distance;
     p1 = p2 = normal =
-        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
+        Vec3s::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
     // If we absolutely want to return some witness points, we could use
     // the following code (or simply merge the early stopped case with the
     // valid case below):
@@ -608,8 +608,8 @@ struct COAL_DLLAPI GJKSolver {
   }
 
   void GJKExtractWitnessPointsAndNormal(const Transform3f& tf1,
-                                        CoalScalar& distance, Vec3f& p1,
-                                        Vec3f& p2, Vec3f& normal) const {
+                                        CoalScalar& distance, Vec3s& p1,
+                                        Vec3s& p2, Vec3s& normal) const {
     // Apart from early stopping, there are two cases where GJK says there is no
     // collision:
     // 1. GJK proved the distance is above its tolerance (default 1e-6).
@@ -628,7 +628,7 @@ struct COAL_DLLAPI GJKSolver {
     // TODO: On degenerated case, the closest points may be non-unique.
     // (i.e. an object face normal is colinear to `gjk.ray`)
     gjk.getWitnessPointsAndNormal(this->minkowski_difference, p1, p2, normal);
-    Vec3f p = tf1.transform(0.5 * (p1 + p2));
+    Vec3s p = tf1.transform(0.5 * (p1 + p2));
     normal = tf1.getRotation() * normal;
     p1.noalias() = p - 0.5 * distance * normal;
     p2.noalias() = p + 0.5 * distance * normal;
@@ -636,8 +636,8 @@ struct COAL_DLLAPI GJKSolver {
 
   void GJKCollisionExtractWitnessPointsAndNormal(const Transform3f& tf1,
                                                  CoalScalar& distance,
-                                                 Vec3f& p1, Vec3f& p2,
-                                                 Vec3f& normal) const {
+                                                 Vec3s& p1, Vec3s& p2,
+                                                 Vec3s& normal) const {
     COAL_UNUSED_VARIABLE(tf1);
     COAL_ASSERT(this->gjk.distance <=
                     this->gjk.getTolerance() + this->m_dummy_precision,
@@ -651,12 +651,12 @@ struct COAL_DLLAPI GJKSolver {
 
     distance = this->gjk.distance;
     p1 = p2 = normal =
-        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
+        Vec3s::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
   }
 
   void EPAExtractWitnessPointsAndNormal(const Transform3f& tf1,
-                                        CoalScalar& distance, Vec3f& p1,
-                                        Vec3f& p2, Vec3f& normal) const {
+                                        CoalScalar& distance, Vec3s& p1,
+                                        Vec3s& p2, Vec3s& normal) const {
     // Cache EPA result for potential future call to this GJKSolver.
     // This caching allows to warm-start the next GJK call.
     this->cached_guess = -(this->epa.depth * this->epa.normal);
@@ -703,22 +703,22 @@ struct COAL_DLLAPI GJKSolver {
     // We compute the middle points of the current $p_1$ and $p_2$ and we use
     // the normal and the distance given by EPA to compute the new $p_1$ and
     // $p_2$.
-    Vec3f p = tf1.transform(0.5 * (p1 + p2));
+    Vec3s p = tf1.transform(0.5 * (p1 + p2));
     normal = tf1.getRotation() * normal;
     p1.noalias() = p - 0.5 * distance * normal;
     p2.noalias() = p + 0.5 * distance * normal;
   }
 
   void EPAFailedExtractWitnessPointsAndNormal(const Transform3f& tf1,
-                                              CoalScalar& distance, Vec3f& p1,
-                                              Vec3f& p2, Vec3f& normal) const {
-    this->cached_guess = Vec3f(1, 0, 0);
+                                              CoalScalar& distance, Vec3s& p1,
+                                              Vec3s& p2, Vec3s& normal) const {
+    this->cached_guess = Vec3s(1, 0, 0);
     this->support_func_cached_guess.setZero();
 
     COAL_UNUSED_VARIABLE(tf1);
     distance = -(std::numeric_limits<CoalScalar>::max)();
     p1 = p2 = normal =
-        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
+        Vec3s::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
   }
 };
 

@@ -55,33 +55,33 @@ class Halfspace;
 class COAL_DLLAPI AABB {
  public:
   /// @brief The min point in the AABB
-  Vec3f min_;
+  Vec3s min_;
   /// @brief The max point in the AABB
-  Vec3f max_;
+  Vec3s max_;
 
   /// @brief Creating an AABB with zero size (low bound +inf, upper bound -inf)
   AABB();
 
   /// @brief Creating an AABB at position v with zero size
-  AABB(const Vec3f& v) : min_(v), max_(v) {}
+  AABB(const Vec3s& v) : min_(v), max_(v) {}
 
   /// @brief Creating an AABB with two endpoints a and b
-  AABB(const Vec3f& a, const Vec3f& b)
+  AABB(const Vec3s& a, const Vec3s& b)
       : min_(a.cwiseMin(b)), max_(a.cwiseMax(b)) {}
 
   /// @brief Creating an AABB centered as core and is of half-dimension delta
-  AABB(const AABB& core, const Vec3f& delta)
+  AABB(const AABB& core, const Vec3s& delta)
       : min_(core.min_ - delta), max_(core.max_ + delta) {}
 
   /// @brief Creating an AABB contains three points
-  AABB(const Vec3f& a, const Vec3f& b, const Vec3f& c)
+  AABB(const Vec3s& a, const Vec3s& b, const Vec3s& c)
       : min_(a.cwiseMin(b).cwiseMin(c)), max_(a.cwiseMax(b).cwiseMax(c)) {}
 
   AABB(const AABB& other) = default;
 
   AABB& operator=(const AABB& other) = default;
 
-  AABB& update(const Vec3f& a, const Vec3f& b) {
+  AABB& update(const Vec3s& a, const Vec3s& b) {
     min_ = a.cwiseMin(b);
     max_ = a.cwiseMax(b);
     return *this;
@@ -99,7 +99,7 @@ class COAL_DLLAPI AABB {
   /// @{
 
   /// @brief Check whether the AABB contains a point
-  inline bool contain(const Vec3f& p) const {
+  inline bool contain(const Vec3s& p) const {
     if (p[0] < min_[0] || p[0] > max_[0]) return false;
     if (p[1] < min_[1] || p[1] > max_[1]) return false;
     if (p[2] < min_[2] || p[2] > max_[2]) return false;
@@ -135,10 +135,10 @@ class COAL_DLLAPI AABB {
 
   /// @brief Distance between two AABBs; P and Q, should not be NULL, return the
   /// nearest points
-  CoalScalar distance(const AABB& other, Vec3f* P, Vec3f* Q) const;
+  CoalScalar distance(const AABB& other, Vec3s* P, Vec3s* Q) const;
 
   /// @brief Merge the AABB and a point
-  inline AABB& operator+=(const Vec3f& p) {
+  inline AABB& operator+=(const Vec3s& p) {
     min_ = min_.cwiseMin(p);
     max_ = max_.cwiseMax(p);
     return *this;
@@ -161,7 +161,7 @@ class COAL_DLLAPI AABB {
   inline CoalScalar size() const { return (max_ - min_).squaredNorm(); }
 
   /// @brief Center of the AABB
-  inline Vec3f center() const { return (min_ + max_) * 0.5; }
+  inline Vec3s center() const { return (min_ + max_) * 0.5; }
 
   /// @brief Width of the AABB
   inline CoalScalar width() const { return max_[0] - min_[0]; }
@@ -205,7 +205,7 @@ class COAL_DLLAPI AABB {
 
   /// @brief expand the half size of the AABB by delta, and keep the center
   /// unchanged.
-  inline AABB& expand(const Vec3f& delta) {
+  inline AABB& expand(const Vec3s& delta) {
     min_ -= delta;
     max_ += delta;
     return *this;
@@ -230,16 +230,16 @@ class COAL_DLLAPI AABB {
 };
 
 /// @brief translate the center of AABB by t
-static inline AABB translate(const AABB& aabb, const Vec3f& t) {
+static inline AABB translate(const AABB& aabb, const Vec3s& t) {
   AABB res(aabb);
   res.min_ += t;
   res.max_ += t;
   return res;
 }
 
-static inline AABB rotate(const AABB& aabb, const Matrix3f& R) {
+static inline AABB rotate(const AABB& aabb, const Matrix3s& R) {
   AABB res(R * aabb.min_);
-  Vec3f corner(aabb.min_);
+  Vec3s corner(aabb.min_);
   const Eigen::DenseIndex bit[3] = {1, 2, 4};
   for (Eigen::DenseIndex ic = 1; ic < 8;
        ++ic) {  // ic = 0 corresponds to aabb.min_. Skip it.
@@ -253,12 +253,12 @@ static inline AABB rotate(const AABB& aabb, const Matrix3f& R) {
 
 /// @brief Check collision between two aabbs, b1 is in configuration (R0, T0)
 /// and b2 is in identity.
-COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+COAL_DLLAPI bool overlap(const Matrix3s& R0, const Vec3s& T0, const AABB& b1,
                          const AABB& b2);
 
 /// @brief Check collision between two aabbs, b1 is in configuration (R0, T0)
 /// and b2 is in identity.
-COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+COAL_DLLAPI bool overlap(const Matrix3s& R0, const Vec3s& T0, const AABB& b1,
                          const AABB& b2, const CollisionRequest& request,
                          CoalScalar& sqrDistLowerBound);
 }  // namespace coal

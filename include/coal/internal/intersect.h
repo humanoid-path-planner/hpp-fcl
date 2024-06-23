@@ -47,8 +47,8 @@ namespace coal {
 /// @brief CCD intersect kernel among primitives
 class COAL_DLLAPI Intersect {
  public:
-  static bool buildTrianglePlane(const Vec3f& v1, const Vec3f& v2,
-                                 const Vec3f& v3, Vec3f* n, CoalScalar* t);
+  static bool buildTrianglePlane(const Vec3s& v1, const Vec3s& v2,
+                                 const Vec3s& v3, Vec3s* n, CoalScalar* t);
 };  // class Intersect
 
 /// @brief Project functions
@@ -69,28 +69,28 @@ class COAL_DLLAPI Project {
   };
 
   /// @brief Project point p onto line a-b
-  static ProjectResult projectLine(const Vec3f& a, const Vec3f& b,
-                                   const Vec3f& p);
+  static ProjectResult projectLine(const Vec3s& a, const Vec3s& b,
+                                   const Vec3s& p);
 
   /// @brief Project point p onto triangle a-b-c
-  static ProjectResult projectTriangle(const Vec3f& a, const Vec3f& b,
-                                       const Vec3f& c, const Vec3f& p);
+  static ProjectResult projectTriangle(const Vec3s& a, const Vec3s& b,
+                                       const Vec3s& c, const Vec3s& p);
 
   /// @brief Project point p onto tetrahedra a-b-c-d
-  static ProjectResult projectTetrahedra(const Vec3f& a, const Vec3f& b,
-                                         const Vec3f& c, const Vec3f& d,
-                                         const Vec3f& p);
+  static ProjectResult projectTetrahedra(const Vec3s& a, const Vec3s& b,
+                                         const Vec3s& c, const Vec3s& d,
+                                         const Vec3s& p);
 
   /// @brief Project origin (0) onto line a-b
-  static ProjectResult projectLineOrigin(const Vec3f& a, const Vec3f& b);
+  static ProjectResult projectLineOrigin(const Vec3s& a, const Vec3s& b);
 
   /// @brief Project origin (0) onto triangle a-b-c
-  static ProjectResult projectTriangleOrigin(const Vec3f& a, const Vec3f& b,
-                                             const Vec3f& c);
+  static ProjectResult projectTriangleOrigin(const Vec3s& a, const Vec3s& b,
+                                             const Vec3s& c);
 
   /// @brief Project origin (0) onto tetrahedran a-b-c-d
-  static ProjectResult projectTetrahedraOrigin(const Vec3f& a, const Vec3f& b,
-                                               const Vec3f& c, const Vec3f& d);
+  static ProjectResult projectTetrahedraOrigin(const Vec3s& a, const Vec3s& b,
+                                               const Vec3s& c, const Vec3s& d);
 };
 
 /// @brief Triangle distance functions
@@ -101,8 +101,8 @@ class COAL_DLLAPI TriangleDistance {
   /// The second segment is Q + t * B
   /// X, Y are the closest points on the two segments
   /// VEC is the vector between X and Y
-  static void segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q,
-                        const Vec3f& B, Vec3f& VEC, Vec3f& X, Vec3f& Y);
+  static void segPoints(const Vec3s& P, const Vec3s& A, const Vec3s& Q,
+                        const Vec3s& B, Vec3s& VEC, Vec3s& X, Vec3s& Y);
 
   /// Compute squared distance between triangles
   /// @param S and T are two triangles
@@ -113,13 +113,13 @@ class COAL_DLLAPI TriangleDistance {
   /// if the triangles overlap, P and Q are basically a random pair of points
   /// from the triangles, not coincident points on the intersection of the
   /// triangles, as might be expected.
-  static CoalScalar sqrTriDistance(const Vec3f S[3], const Vec3f T[3], Vec3f& P,
-                                   Vec3f& Q);
+  static CoalScalar sqrTriDistance(const Vec3s S[3], const Vec3s T[3], Vec3s& P,
+                                   Vec3s& Q);
 
-  static CoalScalar sqrTriDistance(const Vec3f& S1, const Vec3f& S2,
-                                   const Vec3f& S3, const Vec3f& T1,
-                                   const Vec3f& T2, const Vec3f& T3, Vec3f& P,
-                                   Vec3f& Q);
+  static CoalScalar sqrTriDistance(const Vec3s& S1, const Vec3s& S2,
+                                   const Vec3s& S3, const Vec3s& T1,
+                                   const Vec3s& T2, const Vec3s& T3, Vec3s& P,
+                                   Vec3s& Q);
 
   /// Compute squared distance between triangles
   /// @param S and T are two triangles
@@ -131,9 +131,9 @@ class COAL_DLLAPI TriangleDistance {
   /// if the triangles overlap, P and Q are basically a random pair of points
   /// from the triangles, not coincident points on the intersection of the
   /// triangles, as might be expected.
-  static CoalScalar sqrTriDistance(const Vec3f S[3], const Vec3f T[3],
-                                   const Matrix3f& R, const Vec3f& Tl, Vec3f& P,
-                                   Vec3f& Q);
+  static CoalScalar sqrTriDistance(const Vec3s S[3], const Vec3s T[3],
+                                   const Matrix3s& R, const Vec3s& Tl, Vec3s& P,
+                                   Vec3s& Q);
 
   /// Compute squared distance between triangles
   /// @param S and T are two triangles
@@ -145,8 +145,8 @@ class COAL_DLLAPI TriangleDistance {
   /// if the triangles overlap, P and Q are basically a random pair of points
   /// from the triangles, not coincident points on the intersection of the
   /// triangles, as might be expected.
-  static CoalScalar sqrTriDistance(const Vec3f S[3], const Vec3f T[3],
-                                   const Transform3f& tf, Vec3f& P, Vec3f& Q);
+  static CoalScalar sqrTriDistance(const Vec3s S[3], const Vec3s T[3],
+                                   const Transform3f& tf, Vec3s& P, Vec3s& Q);
 
   /// Compute squared distance between triangles
   /// @param S1, S2, S3 and T1, T2, T3 are triangle vertices
@@ -158,11 +158,11 @@ class COAL_DLLAPI TriangleDistance {
   /// if the triangles overlap, P and Q are basically a random pair of points
   /// from the triangles, not coincident points on the intersection of the
   /// triangles, as might be expected.
-  static CoalScalar sqrTriDistance(const Vec3f& S1, const Vec3f& S2,
-                                   const Vec3f& S3, const Vec3f& T1,
-                                   const Vec3f& T2, const Vec3f& T3,
-                                   const Matrix3f& R, const Vec3f& Tl, Vec3f& P,
-                                   Vec3f& Q);
+  static CoalScalar sqrTriDistance(const Vec3s& S1, const Vec3s& S2,
+                                   const Vec3s& S3, const Vec3s& T1,
+                                   const Vec3s& T2, const Vec3s& T3,
+                                   const Matrix3s& R, const Vec3s& Tl, Vec3s& P,
+                                   Vec3s& Q);
 
   /// Compute squared distance between triangles
   /// @param S1, S2, S3 and T1, T2, T3 are triangle vertices
@@ -174,10 +174,10 @@ class COAL_DLLAPI TriangleDistance {
   /// if the triangles overlap, P and Q are basically a random pair of points
   /// from the triangles, not coincident points on the intersection of the
   /// triangles, as might be expected.
-  static CoalScalar sqrTriDistance(const Vec3f& S1, const Vec3f& S2,
-                                   const Vec3f& S3, const Vec3f& T1,
-                                   const Vec3f& T2, const Vec3f& T3,
-                                   const Transform3f& tf, Vec3f& P, Vec3f& Q);
+  static CoalScalar sqrTriDistance(const Vec3s& S1, const Vec3s& S2,
+                                   const Vec3s& S3, const Vec3s& T1,
+                                   const Vec3s& T2, const Vec3s& T3,
+                                   const Transform3f& tf, Vec3s& P, Vec3s& Q);
 };
 
 }  // namespace coal

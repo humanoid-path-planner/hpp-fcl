@@ -127,17 +127,17 @@ struct COAL_DLLAPI BVNode : public BVNodeBase {
 
   /// @brief Compute the distance between two BVNode. P1 and P2, if not NULL and
   /// the underlying BV supports distance, return the nearest points.
-  CoalScalar distance(const BVNode& other, Vec3f* P1 = NULL,
-                      Vec3f* P2 = NULL) const {
+  CoalScalar distance(const BVNode& other, Vec3s* P1 = NULL,
+                      Vec3s* P2 = NULL) const {
     return bv.distance(other.bv, P1, P2);
   }
 
   /// @brief Access to the center of the BV
-  Vec3f getCenter() const { return bv.center(); }
+  Vec3s getCenter() const { return bv.center(); }
 
   /// @brief Access to the orientation of the BV
-  const Matrix3f& getOrientation() const {
-    static const Matrix3f id3 = Matrix3f::Identity();
+  const Matrix3s& getOrientation() const {
+    static const Matrix3s id3 = Matrix3s::Identity();
     return id3;
   }
 
@@ -147,17 +147,17 @@ struct COAL_DLLAPI BVNode : public BVNodeBase {
 };
 
 template <>
-inline const Matrix3f& BVNode<OBB>::getOrientation() const {
+inline const Matrix3s& BVNode<OBB>::getOrientation() const {
   return bv.axes;
 }
 
 template <>
-inline const Matrix3f& BVNode<RSS>::getOrientation() const {
+inline const Matrix3s& BVNode<RSS>::getOrientation() const {
   return bv.axes;
 }
 
 template <>
-inline const Matrix3f& BVNode<OBBRSS>::getOrientation() const {
+inline const Matrix3s& BVNode<OBBRSS>::getOrientation() const {
   return bv.obb.axes;
 }
 

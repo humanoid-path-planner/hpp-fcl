@@ -63,11 +63,11 @@ inline void minmax(CoalScalar p, CoalScalar& minv, CoalScalar& maxv) {
 /// @brief Compute the distances to planes with normals from KDOP vectors except
 /// those of AABB face planes
 template <short N>
-void getDistances(const Vec3f& /*p*/, CoalScalar* /*d*/) {}
+void getDistances(const Vec3s& /*p*/, CoalScalar* /*d*/) {}
 
 /// @brief Specification of getDistances
 template <>
-inline void getDistances<5>(const Vec3f& p, CoalScalar* d) {
+inline void getDistances<5>(const Vec3s& p, CoalScalar* d) {
   d[0] = p[0] + p[1];
   d[1] = p[0] + p[2];
   d[2] = p[1] + p[2];
@@ -76,7 +76,7 @@ inline void getDistances<5>(const Vec3f& p, CoalScalar* d) {
 }
 
 template <>
-inline void getDistances<6>(const Vec3f& p, CoalScalar* d) {
+inline void getDistances<6>(const Vec3s& p, CoalScalar* d) {
   d[0] = p[0] + p[1];
   d[1] = p[0] + p[2];
   d[2] = p[1] + p[2];
@@ -86,7 +86,7 @@ inline void getDistances<6>(const Vec3f& p, CoalScalar* d) {
 }
 
 template <>
-inline void getDistances<9>(const Vec3f& p, CoalScalar* d) {
+inline void getDistances<9>(const Vec3s& p, CoalScalar* d) {
   d[0] = p[0] + p[1];
   d[1] = p[0] + p[2];
   d[2] = p[1] + p[2];
@@ -106,7 +106,7 @@ KDOP<N>::KDOP() {
 }
 
 template <short N>
-KDOP<N>::KDOP(const Vec3f& v) {
+KDOP<N>::KDOP(const Vec3s& v) {
   for (short i = 0; i < 3; ++i) {
     dist_[i] = dist_[N / 2 + i] = v[i];
   }
@@ -119,7 +119,7 @@ KDOP<N>::KDOP(const Vec3f& v) {
 }
 
 template <short N>
-KDOP<N>::KDOP(const Vec3f& a, const Vec3f& b) {
+KDOP<N>::KDOP(const Vec3s& a, const Vec3s& b) {
   for (short i = 0; i < 3; ++i) {
     minmax(a[i], b[i], dist_[i], dist_[i + N / 2]);
   }
@@ -168,7 +168,7 @@ bool KDOP<N>::overlap(const KDOP<N>& other, const CollisionRequest& request,
 }
 
 template <short N>
-bool KDOP<N>::inside(const Vec3f& p) const {
+bool KDOP<N>::inside(const Vec3s& p) const {
   if ((p.array() < dist_.template head<3>()).any()) return false;
   if ((p.array() > dist_.template segment<3>(N / 2)).any()) return false;
 
@@ -183,7 +183,7 @@ bool KDOP<N>::inside(const Vec3f& p) const {
 }
 
 template <short N>
-KDOP<N>& KDOP<N>::operator+=(const Vec3f& p) {
+KDOP<N>& KDOP<N>::operator+=(const Vec3s& p) {
   for (short i = 0; i < 3; ++i) {
     minmax(p[i], dist_[i], dist_[N / 2 + i]);
   }
@@ -213,14 +213,14 @@ KDOP<N> KDOP<N>::operator+(const KDOP<N>& other) const {
 }
 
 template <short N>
-CoalScalar KDOP<N>::distance(const KDOP<N>& /*other*/, Vec3f* /*P*/,
-                             Vec3f* /*Q*/) const {
+CoalScalar KDOP<N>::distance(const KDOP<N>& /*other*/, Vec3s* /*P*/,
+                             Vec3s* /*Q*/) const {
   std::cerr << "KDOP distance not implemented!" << std::endl;
   return 0.0;
 }
 
 template <short N>
-KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t) {
+KDOP<N> translate(const KDOP<N>& bv, const Vec3s& t) {
   KDOP<N> res(bv);
   for (short i = 0; i < 3; ++i) {
     res.dist(i) += t[i];
@@ -241,8 +241,8 @@ template class KDOP<16>;
 template class KDOP<18>;
 template class KDOP<24>;
 
-template KDOP<16> translate<16>(const KDOP<16>&, const Vec3f&);
-template KDOP<18> translate<18>(const KDOP<18>&, const Vec3f&);
-template KDOP<24> translate<24>(const KDOP<24>&, const Vec3f&);
+template KDOP<16> translate<16>(const KDOP<16>&, const Vec3s&);
+template KDOP<18> translate<18>(const KDOP<18>&, const Vec3s&);
+template KDOP<24> translate<24>(const KDOP<24>&, const Vec3s&);
 
 }  // namespace coal

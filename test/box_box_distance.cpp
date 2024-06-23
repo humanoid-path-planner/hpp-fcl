@@ -57,14 +57,14 @@ using coal::CollisionObject;
 using coal::DistanceRequest;
 using coal::DistanceResult;
 using coal::Transform3f;
-using coal::Vec3f;
+using coal::Vec3s;
 
 BOOST_AUTO_TEST_CASE(distance_box_box_1) {
   CollisionGeometryPtr_t s1(new coal::Box(6, 10, 2));
   CollisionGeometryPtr_t s2(new coal::Box(2, 2, 2));
 
   Transform3f tf1;
-  Transform3f tf2(Vec3f(25, 20, 5));
+  Transform3f tf2(Vec3s(25, 20, 5));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE(distance_box_box_1) {
   double dy = 20 - 5 - 1;
   double dz = 5 - 1 - 1;
 
-  const Vec3f& p1 = distanceResult.nearest_points[0];
-  const Vec3f& p2 = distanceResult.nearest_points[1];
+  const Vec3s& p1 = distanceResult.nearest_points[0];
+  const Vec3s& p2 = distanceResult.nearest_points[1];
   BOOST_CHECK_CLOSE(distanceResult.min_distance,
                     sqrt(dx * dx + dy * dy + dz * dz), 1e-4);
 
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_2) {
   Transform3f tf1;
   Transform3f tf2(coal::makeQuat(cos(pi / 8), sin(pi / 8) / sqrt(3),
                                  sin(pi / 8) / sqrt(3), sin(pi / 8) / sqrt(3)),
-                  Vec3f(0, 0, 10));
+                  Vec3s(0, 0, 10));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -127,8 +127,8 @@ BOOST_AUTO_TEST_CASE(distance_box_box_2) {
             << ", p2 = " << distanceResult.nearest_points[1]
             << ", distance = " << distanceResult.min_distance << std::endl;
 
-  const Vec3f& p1 = distanceResult.nearest_points[0];
-  const Vec3f& p2 = distanceResult.nearest_points[1];
+  const Vec3s& p1 = distanceResult.nearest_points[0];
+  const Vec3s& p2 = distanceResult.nearest_points[1];
   double distance = -1.62123444 + 10 - 1;
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
 
@@ -145,9 +145,9 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3) {
   CollisionGeometryPtr_t s2(new coal::Box(1, 1, 1));
   static double pi = M_PI;
   Transform3f tf1(coal::makeQuat(cos(pi / 8), 0, 0, sin(pi / 8)),
-                  Vec3f(-2, 1, .5));
+                  Vec3s(-2, 1, .5));
   Transform3f tf2(coal::makeQuat(cos(pi / 8), 0, sin(pi / 8), 0),
-                  Vec3f(2, .5, .5));
+                  Vec3s(2, .5, .5));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -167,13 +167,13 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3) {
             << ", p2 = " << distanceResult.nearest_points[1]
             << ", distance = " << distanceResult.min_distance << std::endl;
 
-  const Vec3f& p1 = distanceResult.nearest_points[0];
-  const Vec3f& p2 = distanceResult.nearest_points[1];
+  const Vec3s& p1 = distanceResult.nearest_points[0];
+  const Vec3s& p2 = distanceResult.nearest_points[1];
   double distance = 4 - sqrt(2);
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
 
-  const Vec3f p1Ref(sqrt(2) / 2 - 2, 1, .5);
-  const Vec3f p2Ref(2 - sqrt(2) / 2, 1, .5);
+  const Vec3s p1Ref(sqrt(2) / 2 - 2, 1, .5);
+  const Vec3s p2Ref(2 - sqrt(2) / 2, 1, .5);
   BOOST_CHECK_CLOSE(p1[0], p1Ref[0], 1e-4);
   BOOST_CHECK_CLOSE(p1[1], p1Ref[1], 1e-4);
   BOOST_CHECK_CLOSE(p1[2], p1Ref[2], 1e-4);
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3) {
   // Apply the same global transform to both objects and recompute
   Transform3f tf3(coal::makeQuat(0.435952844074, -0.718287018243,
                                  0.310622451066, 0.444435113443),
-                  Vec3f(4, 5, 6));
+                  Vec3s(4, 5, 6));
   tf1 = tf3 * tf1;
   tf2 = tf3 * tf2;
   o1 = CollisionObject(s1, tf1);
@@ -204,8 +204,8 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3) {
 
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
 
-  const Vec3f p1Moved = tf3.transform(p1Ref);
-  const Vec3f p2Moved = tf3.transform(p2Ref);
+  const Vec3s p1Moved = tf3.transform(p1Ref);
+  const Vec3s p2Moved = tf3.transform(p2Ref);
   BOOST_CHECK_CLOSE(p1[0], p1Moved[0], 1e-4);
   BOOST_CHECK_CLOSE(p1[1], p1Moved[1], 1e-4);
   BOOST_CHECK_CLOSE(p1[2], p1Moved[2], 1e-4);
@@ -223,28 +223,28 @@ BOOST_AUTO_TEST_CASE(distance_box_box_4) {
   DistanceResult distanceResult;
   double distance;
 
-  Transform3f tf1(Vec3f(2, 0, 0));
+  Transform3f tf1(Vec3s(2, 0, 0));
   Transform3f tf2;
   coal::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
 
   distance = 1.;
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
 
-  tf1.setTranslation(Vec3f(1.01, 0, 0));
+  tf1.setTranslation(Vec3s(1.01, 0, 0));
   distanceResult.clear();
   coal::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
 
   distance = 0.01;
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 2e-3);
 
-  tf1.setTranslation(Vec3f(0.99, 0, 0));
+  tf1.setTranslation(Vec3s(0.99, 0, 0));
   distanceResult.clear();
   coal::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
 
   distance = -0.01;
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 2e-3);
 
-  tf1.setTranslation(Vec3f(0, 0, 0));
+  tf1.setTranslation(Vec3s(0, 0, 0));
   distanceResult.clear();
   coal::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
 

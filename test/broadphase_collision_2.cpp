@@ -208,7 +208,7 @@ void broad_phase_collision_test(CoalScalar env_scale, std::size_t env_size,
   managers.push_back(new SaPCollisionManager());
   managers.push_back(new IntervalTreeCollisionManager());
 
-  Vec3f lower_limit, upper_limit;
+  Vec3s lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
   // CoalScalar ncell_per_axis = std::pow((S)env_size / 10, 1 / 3.0);
   CoalScalar ncell_per_axis = 20;

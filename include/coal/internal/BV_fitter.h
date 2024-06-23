@@ -48,7 +48,7 @@ namespace coal {
 
 /// @brief Compute a bounding volume that fits a set of n points.
 template <typename BV>
-void fit(Vec3f* ps, unsigned int n, BV& bv) {
+void fit(Vec3s* ps, unsigned int n, BV& bv) {
   for (unsigned int i = 0; i < n; ++i)  // TODO(jcarpent): vectorize
   {
     bv += ps[i];
@@ -56,19 +56,19 @@ void fit(Vec3f* ps, unsigned int n, BV& bv) {
 }
 
 template <>
-void fit<OBB>(Vec3f* ps, unsigned int n, OBB& bv);
+void fit<OBB>(Vec3s* ps, unsigned int n, OBB& bv);
 
 template <>
-void fit<RSS>(Vec3f* ps, unsigned int n, RSS& bv);
+void fit<RSS>(Vec3s* ps, unsigned int n, RSS& bv);
 
 template <>
-void fit<kIOS>(Vec3f* ps, unsigned int n, kIOS& bv);
+void fit<kIOS>(Vec3s* ps, unsigned int n, kIOS& bv);
 
 template <>
-void fit<OBBRSS>(Vec3f* ps, unsigned int n, OBBRSS& bv);
+void fit<OBBRSS>(Vec3s* ps, unsigned int n, OBBRSS& bv);
 
 template <>
-void fit<AABB>(Vec3f* ps, unsigned int n, AABB& bv);
+void fit<AABB>(Vec3s* ps, unsigned int n, AABB& bv);
 
 /// @brief The class for the default algorithm fitting a bounding volume to a
 /// set of points
@@ -79,7 +79,7 @@ class COAL_DLLAPI BVFitterTpl {
   virtual ~BVFitterTpl() {}
 
   /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_) {
+  void set(Vec3s* vertices_, Triangle* tri_indices_, BVHModelType type_) {
     vertices = vertices_;
     prev_vertices = NULL;
     tri_indices = tri_indices_;
@@ -88,7 +88,7 @@ class COAL_DLLAPI BVFitterTpl {
 
   /// @brief Prepare the geometry primitive data for fitting, for deformable
   /// mesh
-  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_,
+  void set(Vec3s* vertices_, Vec3s* prev_vertices_, Triangle* tri_indices_,
            BVHModelType type_) {
     vertices = vertices_;
     prev_vertices = prev_vertices_;
@@ -109,8 +109,8 @@ class COAL_DLLAPI BVFitterTpl {
   }
 
  protected:
-  Vec3f* vertices;
-  Vec3f* prev_vertices;
+  Vec3s* vertices;
+  Vec3s* prev_vertices;
   Triangle* tri_indices;
   BVHModelType type;
 };

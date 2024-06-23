@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(box_box_no_collision) {
   Transform3f tf2;
   // set translation to separate the shapes
   const CoalScalar offset = 0.001;
-  tf2.setTranslation(Vec3f(0, 0, 2 * halfside + offset));
+  tf2.setTranslation(Vec3s(0, 0, 2 * halfside + offset));
 
   const size_t num_max_contact = 1;
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(box_sphere) {
   Transform3f tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
-  tf2.setTranslation(Vec3f(0, 0, 2 * halfside - offset));
+  tf2.setTranslation(Vec3s(0, 0, 2 * halfside - offset));
 
   const size_t num_max_contact = 1;
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(box_box) {
   Transform3f tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
-  tf2.setTranslation(Vec3f(0, 0, 2 * halfside - offset));
+  tf2.setTranslation(Vec3s(0, 0, 2 * halfside - offset));
 
   const size_t num_max_contact = 1;
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(box_box) {
       patch_res2.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
     const CoalScalar tol = 1e-6;
-    EIGEN_VECTOR_IS_APPROX(contact.normal, Vec3f(0, 0, 1), tol);
+    EIGEN_VECTOR_IS_APPROX(contact.normal, Vec3s(0, 0, 1), tol);
 
     const size_t expected_size = 4;
     ContactPatch expected(expected_size);
@@ -150,11 +150,11 @@ BOOST_AUTO_TEST_CASE(box_box) {
         constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    const std::array<Vec3f, 4> corners = {
-        Vec3f(halfside, halfside, halfside),
-        Vec3f(halfside, -halfside, halfside),
-        Vec3f(-halfside, -halfside, halfside),
-        Vec3f(-halfside, halfside, halfside),
+    const std::array<Vec3s, 4> corners = {
+        Vec3s(halfside, halfside, halfside),
+        Vec3s(halfside, -halfside, halfside),
+        Vec3s(-halfside, -halfside, halfside),
+        Vec3s(-halfside, halfside, halfside),
     };
     for (size_t i = 0; i < expected_size; ++i) {
       expected.addPoint(corners[i] +
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
   Transform3f tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
-  tf2.setTranslation(Vec3f(0, 0, halfside - offset));
+  tf2.setTranslation(Vec3s(0, 0, halfside - offset));
 
   const size_t num_max_contact = 1;
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
     const Contact& contact = col_res.getContact(0);
     const CoalScalar tol = 1e-6;
     EIGEN_VECTOR_IS_APPROX(contact.normal, hspace.n, tol);
-    EIGEN_VECTOR_IS_APPROX(hspace.n, Vec3f(0, 0, 1), tol);
+    EIGEN_VECTOR_IS_APPROX(hspace.n, Vec3s(0, 0, 1), tol);
 
     const size_t expected_size = 4;
     ContactPatch expected(expected_size);
@@ -209,11 +209,11 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
         constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    const std::array<Vec3f, 4> corners = {
-        tf2.transform(Vec3f(halfside, halfside, -halfside)),
-        tf2.transform(Vec3f(halfside, -halfside, -halfside)),
-        tf2.transform(Vec3f(-halfside, -halfside, -halfside)),
-        tf2.transform(Vec3f(-halfside, halfside, -halfside)),
+    const std::array<Vec3s, 4> corners = {
+        tf2.transform(Vec3s(halfside, halfside, -halfside)),
+        tf2.transform(Vec3s(halfside, -halfside, -halfside)),
+        tf2.transform(Vec3s(-halfside, -halfside, -halfside)),
+        tf2.transform(Vec3s(-halfside, halfside, -halfside)),
     };
     for (size_t i = 0; i < expected_size; ++i) {
       expected.addPoint(corners[i] -
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
   Transform3f tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
-  tf2.setTranslation(Vec3f(0, 0, height / 2 - offset));
+  tf2.setTranslation(Vec3s(0, 0, height / 2 - offset));
 
   const size_t num_max_contact = 1;
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
         constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    const Vec3f capsule_end(0, 0, -capsule.halfLength);
+    const Vec3s capsule_end(0, 0, -capsule.halfLength);
     expected.addPoint(tf2.transform(capsule_end));
 
     const ContactPatch& contact_patch = patch_res.getContactPatch(0);
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
         constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    const Vec3f capsule_end(0, 0, capsule.halfLength);
+    const Vec3s capsule_end(0, 0, capsule.halfLength);
     expected.addPoint(tf2.transform(capsule_end));
 
     const ContactPatch& contact_patch = patch_res.getContactPatch(0);
@@ -326,8 +326,8 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
         constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    const Vec3f p1(-capsule.radius, 0, capsule.halfLength);
-    const Vec3f p2(-capsule.radius, 0, -capsule.halfLength);
+    const Vec3s p1(-capsule.radius, 0, capsule.halfLength);
+    const Vec3s p2(-capsule.radius, 0, -capsule.halfLength);
     expected.addPoint(tf2.transform(p1));
     expected.addPoint(tf2.transform(p2));
 
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
   Transform3f tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
-  tf2.setTranslation(Vec3f(0, 0, height / 2 - offset));
+  tf2.setTranslation(Vec3s(0, 0, height / 2 - offset));
 
   const size_t num_max_contact = 1;
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
@@ -375,12 +375,12 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
         constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    std::array<Vec3f, ContactPatch::default_preallocated_size> points;
+    std::array<Vec3s, ContactPatch::default_preallocated_size> points;
     const CoalScalar angle_increment =
         2.0 * (CoalScalar)(EIGEN_PI) / ((CoalScalar)(6));
     for (size_t i = 0; i < ContactPatch::default_preallocated_size; ++i) {
       const CoalScalar theta = (CoalScalar)(i)*angle_increment;
-      Vec3f point_on_cone_base(std::cos(theta) * cone.radius,
+      Vec3s point_on_cone_base(std::cos(theta) * cone.radius,
                                std::sin(theta) * cone.radius, -cone.halfLength);
       expected.addPoint(tf2.transform(point_on_cone_base));
     }
@@ -419,7 +419,7 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
         constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    const Vec3f cone_tip(0, 0, cone.halfLength);
+    const Vec3s cone_tip(0, 0, cone.halfLength);
     expected.addPoint(tf2.transform(cone_tip));
 
     BOOST_CHECK(contact_patch.isSame(expected, tol));
@@ -455,7 +455,7 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
         constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    const Vec3f point_on_circle_basis(-cone.radius, 0, -cone.halfLength);
+    const Vec3s point_on_circle_basis(-cone.radius, 0, -cone.halfLength);
     expected.addPoint(tf2.transform(point_on_circle_basis));
 
     BOOST_CHECK(contact_patch.isSame(expected, tol));
@@ -472,7 +472,7 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
   Transform3f tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
-  tf2.setTranslation(Vec3f(0, 0, height / 2 - offset));
+  tf2.setTranslation(Vec3s(0, 0, height / 2 - offset));
 
   const size_t num_max_contact = 1;
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
@@ -490,12 +490,12 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
         constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    std::array<Vec3f, ContactPatch::default_preallocated_size> points;
+    std::array<Vec3s, ContactPatch::default_preallocated_size> points;
     const CoalScalar angle_increment =
         2.0 * (CoalScalar)(EIGEN_PI) / ((CoalScalar)(6));
     for (size_t i = 0; i < ContactPatch::default_preallocated_size; ++i) {
       const CoalScalar theta = (CoalScalar)(i)*angle_increment;
-      Vec3f point_on_cone_base(std::cos(theta) * cylinder.radius,
+      Vec3s point_on_cone_base(std::cos(theta) * cylinder.radius,
                                std::sin(theta) * cylinder.radius,
                                -cylinder.halfLength);
       expected.addPoint(tf2.transform(point_on_cone_base));
@@ -563,9 +563,9 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
     expected.addPoint(
-        tf2.transform(Vec3f(cylinder.radius, 0, cylinder.halfLength)));
+        tf2.transform(Vec3s(cylinder.radius, 0, cylinder.halfLength)));
     expected.addPoint(
-        tf2.transform(Vec3f(cylinder.radius, 0, -cylinder.halfLength)));
+        tf2.transform(Vec3s(cylinder.radius, 0, -cylinder.halfLength)));
 
     const ContactPatch& contact_patch = patch_res.getContactPatch(0);
     BOOST_CHECK(expected.isSame(contact_patch, tol));
@@ -581,7 +581,7 @@ BOOST_AUTO_TEST_CASE(convex_convex) {
   Transform3f tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
-  tf2.setTranslation(Vec3f(0, 0, 2 * halfside - offset));
+  tf2.setTranslation(Vec3s(0, 0, 2 * halfside - offset));
 
   const size_t num_max_contact = 1;
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
@@ -606,7 +606,7 @@ BOOST_AUTO_TEST_CASE(convex_convex) {
       patch_res2.numContactPatches() > 0 && col_res.isCollision()) {
     const Contact& contact = col_res.getContact(0);
     const CoalScalar tol = 1e-6;
-    EIGEN_VECTOR_IS_APPROX(contact.normal, Vec3f(0, 0, 1), tol);
+    EIGEN_VECTOR_IS_APPROX(contact.normal, Vec3s(0, 0, 1), tol);
 
     const size_t expected_size = 4;
     ContactPatch expected(expected_size);
@@ -614,11 +614,11 @@ BOOST_AUTO_TEST_CASE(convex_convex) {
         constructOrthonormalBasisFromVector(contact.normal);
     expected.tf.translation() = contact.pos;
     expected.penetration_depth = contact.penetration_depth;
-    const std::array<Vec3f, 4> corners = {
-        Vec3f(halfside, halfside, halfside),
-        Vec3f(halfside, -halfside, halfside),
-        Vec3f(-halfside, -halfside, halfside),
-        Vec3f(-halfside, halfside, halfside),
+    const std::array<Vec3s, 4> corners = {
+        Vec3s(halfside, halfside, halfside),
+        Vec3s(halfside, -halfside, halfside),
+        Vec3s(-halfside, -halfside, halfside),
+        Vec3s(-halfside, halfside, halfside),
     };
     for (size_t i = 0; i < expected_size; ++i) {
       expected.addPoint(corners[i] +
@@ -635,8 +635,8 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
   // Two tetrahedrons make contact on one of their edge.
 
   const size_t expected_size = 2;
-  const Vec3f expected_cp1(0, 0.5, 0);
-  const Vec3f expected_cp2(0, 1, 0);
+  const Vec3s expected_cp1(0, 0.5, 0);
+  const Vec3s expected_cp2(0, 1, 0);
 
   const Transform3f tf1;  // identity
   const Transform3f tf2;  // identity
@@ -650,22 +650,22 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
 
   {
     // Case 1 - Face-Face contact
-    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
-        Vec3f(-1, 0, 0),
-        Vec3f(0, 0, 0),
-        Vec3f(0, 1, 0),
-        Vec3f(-1, -1, -1),
+    std::shared_ptr<std::vector<Vec3s>> pts1(new std::vector<Vec3s>({
+        Vec3s(-1, 0, 0),
+        Vec3s(0, 0, 0),
+        Vec3s(0, 1, 0),
+        Vec3s(-1, -1, -1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris1(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
                                    Triangle(0, 3, 1), Triangle(2, 1, 3)}));
     Convex<Triangle> tetra1(pts1, 4, tris1, 4);
 
-    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
-        Vec3f(0, 0.5, 0),
-        Vec3f(0, 1.5, 0),
-        Vec3f(1, 0.5, 0),
-        Vec3f(1, 1, 1),
+    std::shared_ptr<std::vector<Vec3s>> pts2(new std::vector<Vec3s>({
+        Vec3s(0, 0.5, 0),
+        Vec3s(0, 1.5, 0),
+        Vec3s(1, 0.5, 0),
+        Vec3s(1, 1, 1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris2(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
@@ -701,22 +701,22 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
 
   {
     // Case 2 - Face-Segment contact
-    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
-        Vec3f(-1, 0, -0.2),
-        Vec3f(0, 0, 0),
-        Vec3f(0, 1, 0),
-        Vec3f(-1, -1, -1),
+    std::shared_ptr<std::vector<Vec3s>> pts1(new std::vector<Vec3s>({
+        Vec3s(-1, 0, -0.2),
+        Vec3s(0, 0, 0),
+        Vec3s(0, 1, 0),
+        Vec3s(-1, -1, -1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris1(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
                                    Triangle(0, 3, 1), Triangle(2, 1, 3)}));
     Convex<Triangle> tetra1(pts1, 4, tris1, 4);
 
-    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
-        Vec3f(0, 0.5, 0),
-        Vec3f(0, 1.5, 0),
-        Vec3f(1, 0.5, 0),
-        Vec3f(1, 1, 1),
+    std::shared_ptr<std::vector<Vec3s>> pts2(new std::vector<Vec3s>({
+        Vec3s(0, 0.5, 0),
+        Vec3s(0, 1.5, 0),
+        Vec3s(1, 0.5, 0),
+        Vec3s(1, 1, 1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris2(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
@@ -750,22 +750,22 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
 
   {
     // Case 3 - Segment-Segment contact
-    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
-        Vec3f(-1, 0, -0.2),
-        Vec3f(0, 0, 0),
-        Vec3f(0, 1, 0),
-        Vec3f(-1, -1, -1),
+    std::shared_ptr<std::vector<Vec3s>> pts1(new std::vector<Vec3s>({
+        Vec3s(-1, 0, -0.2),
+        Vec3s(0, 0, 0),
+        Vec3s(0, 1, 0),
+        Vec3s(-1, -1, -1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris1(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
                                    Triangle(0, 3, 1), Triangle(2, 1, 3)}));
     Convex<Triangle> tetra1(pts1, 4, tris1, 4);
 
-    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
-        Vec3f(0, 0.5, 0),
-        Vec3f(0, 1.5, 0),
-        Vec3f(1, 0.5, 0.5),
-        Vec3f(1, 1, 1),
+    std::shared_ptr<std::vector<Vec3s>> pts2(new std::vector<Vec3s>({
+        Vec3s(0, 0.5, 0),
+        Vec3s(0, 1.5, 0),
+        Vec3s(1, 0.5, 0.5),
+        Vec3s(1, 1, 1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris2(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
@@ -802,7 +802,7 @@ BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
   // This case covers the vertex-vertex edge case of contact patches.
   // Two tetrahedrons make contact on one of their vertex.
   const size_t expected_size = 1;
-  const Vec3f expected_cp(0, 0, 0);
+  const Vec3s expected_cp(0, 0, 0);
 
   const Transform3f tf1;  // identity
   const Transform3f tf2;  // identity
@@ -816,22 +816,22 @@ BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
 
   {
     // Case 1 - Face-Face contact
-    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
-        Vec3f(-1, 0, 0),
-        Vec3f(0, 0, 0),
-        Vec3f(0, 1, 0),
-        Vec3f(-1, -1, -1),
+    std::shared_ptr<std::vector<Vec3s>> pts1(new std::vector<Vec3s>({
+        Vec3s(-1, 0, 0),
+        Vec3s(0, 0, 0),
+        Vec3s(0, 1, 0),
+        Vec3s(-1, -1, -1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris1(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
                                    Triangle(0, 3, 1), Triangle(2, 1, 3)}));
     Convex<Triangle> tetra1(pts1, 4, tris1, 4);
 
-    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
-        Vec3f(1, 0, 0),
-        Vec3f(0, 0, 0),
-        Vec3f(0, -1, 0),
-        Vec3f(1, 1, 1),
+    std::shared_ptr<std::vector<Vec3s>> pts2(new std::vector<Vec3s>({
+        Vec3s(1, 0, 0),
+        Vec3s(0, 0, 0),
+        Vec3s(0, -1, 0),
+        Vec3s(1, 1, 1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris2(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
@@ -864,22 +864,22 @@ BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
 
   {
     // Case 2 - Segment-Face contact
-    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
-        Vec3f(-1, 0, -0.5),
-        Vec3f(0, 0, 0),
-        Vec3f(0, 1, 0),
-        Vec3f(-1, -1, -1),
+    std::shared_ptr<std::vector<Vec3s>> pts1(new std::vector<Vec3s>({
+        Vec3s(-1, 0, -0.5),
+        Vec3s(0, 0, 0),
+        Vec3s(0, 1, 0),
+        Vec3s(-1, -1, -1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris1(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
                                    Triangle(0, 3, 1), Triangle(2, 1, 3)}));
     Convex<Triangle> tetra1(pts1, 4, tris1, 4);
 
-    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
-        Vec3f(1, 0, 0),
-        Vec3f(0, 0, 0),
-        Vec3f(0, -1, 0),
-        Vec3f(1, 1, 1),
+    std::shared_ptr<std::vector<Vec3s>> pts2(new std::vector<Vec3s>({
+        Vec3s(1, 0, 0),
+        Vec3s(0, 0, 0),
+        Vec3s(0, -1, 0),
+        Vec3s(1, 1, 1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris2(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
@@ -912,22 +912,22 @@ BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
 
   {
     // Case 2 - Segment-Segment contact
-    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
-        Vec3f(-1, 0, -0.2),
-        Vec3f(0, 0, 0),
-        Vec3f(0, 1, 0),
-        Vec3f(-1, -1, -1),
+    std::shared_ptr<std::vector<Vec3s>> pts1(new std::vector<Vec3s>({
+        Vec3s(-1, 0, -0.2),
+        Vec3s(0, 0, 0),
+        Vec3s(0, 1, 0),
+        Vec3s(-1, -1, -1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris1(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
                                    Triangle(0, 3, 1), Triangle(2, 1, 3)}));
     Convex<Triangle> tetra1(pts1, 4, tris1, 4);
 
-    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
-        Vec3f(1, 0, 0),
-        Vec3f(0, 0, 0),
-        Vec3f(0, -1, 0.5),
-        Vec3f(1, 1, 1),
+    std::shared_ptr<std::vector<Vec3s>> pts2(new std::vector<Vec3s>({
+        Vec3s(1, 0, 0),
+        Vec3s(0, 0, 0),
+        Vec3s(0, -1, 0.5),
+        Vec3s(1, 1, 1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris2(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
@@ -963,8 +963,8 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_face) {
   // This case covers the segment-face edge case of contact patches.
   // Two tetrahedrons make contact on one of their segment/face respectively.
   const size_t expected_size = 2;
-  const Vec3f expected_cp1(0, 0, 0);
-  const Vec3f expected_cp2(-0.5, 0.5, 0);
+  const Vec3s expected_cp1(0, 0, 0);
+  const Vec3s expected_cp2(-0.5, 0.5, 0);
 
   const Transform3f tf1;  // identity
   const Transform3f tf2;  // identity
@@ -977,22 +977,22 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_face) {
   ContactPatchResult patch_res(patch_req);
 
   {
-    std::shared_ptr<std::vector<Vec3f>> pts1(new std::vector<Vec3f>({
-        Vec3f(-1, 0, -0),
-        Vec3f(0, 0, 0),
-        Vec3f(0, 1, 0),
-        Vec3f(-1, -1, -1),
+    std::shared_ptr<std::vector<Vec3s>> pts1(new std::vector<Vec3s>({
+        Vec3s(-1, 0, -0),
+        Vec3s(0, 0, 0),
+        Vec3s(0, 1, 0),
+        Vec3s(-1, -1, -1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris1(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),
                                    Triangle(0, 3, 1), Triangle(2, 1, 3)}));
     Convex<Triangle> tetra1(pts1, 4, tris1, 4);
 
-    std::shared_ptr<std::vector<Vec3f>> pts2(new std::vector<Vec3f>({
-        Vec3f(-0.5, 0.5, 0),
-        Vec3f(0.5, -0.5, 0),
-        Vec3f(1, 0.5, 0.5),
-        Vec3f(1, 1, 1),
+    std::shared_ptr<std::vector<Vec3s>> pts2(new std::vector<Vec3s>({
+        Vec3s(-0.5, 0.5, 0),
+        Vec3s(0.5, -0.5, 0),
+        Vec3s(1, 0.5, 0.5),
+        Vec3s(1, 1, 1),
     }));
     std::shared_ptr<std::vector<Triangle>> tris2(
         new std::vector<Triangle>({Triangle(0, 1, 2), Triangle(0, 2, 3),

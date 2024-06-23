@@ -54,10 +54,10 @@ static inline std::ostream& operator<<(std::ostream& o, const Quatf& q) {
 /// @brief Simple transform class used locally by InterpMotion
 class COAL_DLLAPI Transform3f {
   /// @brief Matrix cache
-  Matrix3f R;
+  Matrix3s R;
 
   /// @brief Translation vector
-  Vec3f T;
+  Vec3s T;
 
  public:
   /// @brief Default transform is no movement
@@ -79,13 +79,13 @@ class COAL_DLLAPI Transform3f {
       : R(q_.toRotationMatrix()), T(T_) {}
 
   /// @brief Construct transform from rotation
-  Transform3f(const Matrix3f& R_) : R(R_), T(Vec3f::Zero()) {}
+  Transform3f(const Matrix3s& R_) : R(R_), T(Vec3s::Zero()) {}
 
   /// @brief Construct transform from rotation
-  Transform3f(const Quatf& q_) : R(q_), T(Vec3f::Zero()) {}
+  Transform3f(const Quatf& q_) : R(q_), T(Vec3s::Zero()) {}
 
   /// @brief Construct transform from translation
-  Transform3f(const Vec3f& T_) : R(Matrix3f::Identity()), T(T_) {}
+  Transform3f(const Vec3s& T_) : R(Matrix3s::Identity()), T(T_) {}
 
   /// @brief Construct transform from other transform
   Transform3f(const Transform3f& tf) : R(tf.R), T(tf.T) {}
@@ -98,22 +98,22 @@ class COAL_DLLAPI Transform3f {
   }
 
   /// @brief get translation
-  inline const Vec3f& getTranslation() const { return T; }
+  inline const Vec3s& getTranslation() const { return T; }
 
   /// @brief get translation
-  inline const Vec3f& translation() const { return T; }
+  inline const Vec3s& translation() const { return T; }
 
   /// @brief get translation
-  inline Vec3f& translation() { return T; }
+  inline Vec3s& translation() { return T; }
 
   /// @brief get rotation
-  inline const Matrix3f& getRotation() const { return R; }
+  inline const Matrix3s& getRotation() const { return R; }
 
   /// @brief get rotation
-  inline const Matrix3f& rotation() const { return R; }
+  inline const Matrix3s& rotation() const { return R; }
 
   /// @brief get rotation
-  inline Matrix3f& rotation() { return R; }
+  inline Matrix3s& rotation() { return R; }
 
   /// @brief get quaternion
   inline Quatf getQuatRotation() const { return Quatf(R); }
@@ -127,7 +127,7 @@ class COAL_DLLAPI Transform3f {
   }
 
   /// @brief set transform from rotation and translation
-  inline void setTransform(const Quatf& q_, const Vec3f& T_) {
+  inline void setTransform(const Quatf& q_, const Vec3s& T_) {
     R = q_.toRotationMatrix();
     T = T_;
   }
@@ -149,13 +149,13 @@ class COAL_DLLAPI Transform3f {
 
   /// @brief transform a given vector by the transform
   template <typename Derived>
-  inline Vec3f transform(const Eigen::MatrixBase<Derived>& v) const {
+  inline Vec3s transform(const Eigen::MatrixBase<Derived>& v) const {
     return R * v + T;
   }
 
   /// @brief transform a given vector by the inverse of the transform
   template <typename Derived>
-  inline Vec3f inverseTransform(const Eigen::MatrixBase<Derived>& v) const {
+  inline Vec3s inverseTransform(const Eigen::MatrixBase<Derived>& v) const {
     return R.transpose() * (v - T);
   }
 
@@ -257,8 +257,8 @@ inline Transform3f& Transform3f::setRandom() {
 
 /// @brief Construct othonormal basis from vector.
 /// The z-axis is the normalized input vector.
-inline Matrix3f constructOrthonormalBasisFromVector(const Vec3f& vec) {
-  Matrix3f basis = Matrix3f::Zero();
+inline Matrix3s constructOrthonormalBasisFromVector(const Vec3s& vec) {
+  Matrix3s basis = Matrix3s::Zero();
   basis.col(2) = vec.normalized();
   basis.col(1) = -vec.unitOrthogonal();
   basis.col(0) = basis.col(1).cross(vec);

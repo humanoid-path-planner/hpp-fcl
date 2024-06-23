@@ -64,7 +64,7 @@ class BVSplitter {
   virtual ~BVSplitter() {}
 
   /// @brief Set the geometry data needed by the split rule
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_) {
+  void set(Vec3s* vertices_, Triangle* tri_indices_, BVHModelType type_) {
     vertices = vertices_;
     tri_indices = tri_indices_;
     type = type_;
@@ -90,7 +90,7 @@ class BVSplitter {
   }
 
   /// @brief Apply the split rule on a given point
-  bool apply(const Vec3f& q) const { return q[split_axis] > split_value; }
+  bool apply(const Vec3s& q) const { return q[split_axis] > split_value; }
 
   /// @brief Clear the geometry data set before
   void clear() {
@@ -105,7 +105,7 @@ class BVSplitter {
   /// is needed. For oriented node, we can use a vector to make a better split
   /// decision.
   int split_axis;
-  Vec3f split_vector;
+  Vec3s split_vector;
 
   /// @brief The split threshold, different primitives are splitted according
   /// whether their projection on the split_axis is larger or smaller than the
@@ -113,7 +113,7 @@ class BVSplitter {
   CoalScalar split_value;
 
   /// @brief The mesh vertices or points handled by the splitter
-  Vec3f* vertices;
+  Vec3s* vertices;
 
   /// @brief The triangles handled by the splitter
   Triangle* tri_indices;
@@ -126,7 +126,7 @@ class BVSplitter {
 
   /// @brief Split algorithm 1: Split the node from center
   void computeRule_bvcenter(const BV& bv, unsigned int*, unsigned int) {
-    Vec3f center = bv.center();
+    Vec3s center = bv.center();
     int axis = 2;
 
     if (bv.width() >= bv.height() && bv.width() >= bv.depth())
@@ -207,16 +207,16 @@ class BVSplitter {
 };
 
 template <>
-bool COAL_DLLAPI BVSplitter<OBB>::apply(const Vec3f& q) const;
+bool COAL_DLLAPI BVSplitter<OBB>::apply(const Vec3s& q) const;
 
 template <>
-bool COAL_DLLAPI BVSplitter<RSS>::apply(const Vec3f& q) const;
+bool COAL_DLLAPI BVSplitter<RSS>::apply(const Vec3s& q) const;
 
 template <>
-bool COAL_DLLAPI BVSplitter<kIOS>::apply(const Vec3f& q) const;
+bool COAL_DLLAPI BVSplitter<kIOS>::apply(const Vec3s& q) const;
 
 template <>
-bool COAL_DLLAPI BVSplitter<OBBRSS>::apply(const Vec3f& q) const;
+bool COAL_DLLAPI BVSplitter<OBBRSS>::apply(const Vec3s& q) const;
 
 template <>
 void COAL_DLLAPI BVSplitter<OBB>::computeRule_bvcenter(

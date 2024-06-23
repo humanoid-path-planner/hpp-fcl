@@ -67,7 +67,7 @@ void GJK::reset(size_t max_iterations_, CoalScalar tolerance_) {
   iterations_momentum_stop = 0;
 }
 
-Vec3f GJK::getGuessFromSimplex() const { return ray; }
+Vec3s GJK::getGuessFromSimplex() const { return ray; }
 
 namespace details {
 
@@ -90,7 +90,7 @@ namespace details {
 //   w0 = alpha * w[0].w0 + (1 - alpha) * w[1].w0
 //   w1 = alpha * w[0].w1 + (1 - alpha) * w[1].w1
 // clang-format on
-void getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
+void getClosestPoints(const GJK::Simplex& simplex, Vec3s& w0, Vec3s& w1) {
   GJK::SimplexV* const* vs = simplex.vertex;
 
   for (GJK::vertex_id_t i = 0; i < simplex.rank; ++i) {
@@ -104,10 +104,10 @@ void getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
       w1 = vs[0]->w1;
       return;
     case 2: {
-      const Vec3f &a = vs[0]->w, a0 = vs[0]->w0, a1 = vs[0]->w1, b = vs[1]->w,
+      const Vec3s &a = vs[0]->w, a0 = vs[0]->w0, a1 = vs[0]->w1, b = vs[1]->w,
                   b0 = vs[1]->w0, b1 = vs[1]->w1;
       CoalScalar la, lb;
-      Vec3f N(b - a);
+      Vec3s N(b - a);
       la = N.dot(-a);
       if (la <= 0) {
         assert(false);
@@ -155,8 +155,8 @@ void getClosestPoints(const GJK::Simplex& simplex, Vec3f& w0, Vec3f& w1) {
 /// The normal should follow coal convention: it points from shape0 to
 /// shape1.
 template <bool Separated>
-void inflate(const MinkowskiDiff& shape, const Vec3f& normal, Vec3f& w0,
-             Vec3f& w1) {
+void inflate(const MinkowskiDiff& shape, const Vec3s& normal, Vec3s& w0,
+             Vec3s& w1) {
 #ifndef NDEBUG
   const CoalScalar dummy_precision =
       Eigen::NumTraits<CoalScalar>::dummy_precision();
@@ -173,8 +173,8 @@ void inflate(const MinkowskiDiff& shape, const Vec3f& normal, Vec3f& w0,
 
 }  // namespace details
 
-void GJK::getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
-                                    Vec3f& w1, Vec3f& normal) const {
+void GJK::getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3s& w0,
+                                    Vec3s& w1, Vec3s& normal) const {
   details::getClosestPoints(*simplex, w0, w1);
   if ((w1 - w0).norm() > Eigen::NumTraits<CoalScalar>::dummy_precision()) {
     normal = (w1 - w0).normalized();
@@ -184,7 +184,7 @@ void GJK::getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
   details::inflate<true>(shape, normal, w0, w1);
 }
 
-GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
+GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3s& guess,
                           const support_func_guess_t& supportHint) {
   CoalScalar alpha = 0;
   iterations = 0;
@@ -206,16 +206,16 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
 
   CoalScalar rl = guess.norm();
   if (rl < tolerance) {
-    ray = Vec3f(-1, 0, 0);
+    ray = Vec3s(-1, 0, 0);
     rl = 1;
   } else
     ray = guess;
 
   // Momentum
   GJKVariant current_gjk_variant = gjk_variant;
-  Vec3f w = ray;
-  Vec3f dir = ray;
-  Vec3f y;
+  Vec3s w = ray;
+  Vec3s dir = ray;
+  Vec3s y;
   CoalScalar momentum;
   bool normalize_support_direction = shape->normalize_support_direction;
   do {
@@ -370,7 +370,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess,
   return status;
 }
 
-bool GJK::checkConvergence(const Vec3f& w, const CoalScalar& rl,
+bool GJK::checkConvergence(const Vec3s& w, const CoalScalar& rl,
                            CoalScalar& alpha, const CoalScalar& omega) const {
   // x^* is the optimal solution (projection of origin onto the Minkowski
   // difference).
@@ -429,14 +429,14 @@ inline void GJK::removeVertex(Simplex& simplex) {
   free_v[nfree++] = simplex.vertex[--simplex.rank];
 }
 
-inline void GJK::appendVertex(Simplex& simplex, const Vec3f& v,
+inline void GJK::appendVertex(Simplex& simplex, const Vec3s& v,
                               support_func_guess_t& hint) {
   simplex.vertex[simplex.rank] = free_v[--nfree];  // set the memory
   getSupport(v, *simplex.vertex[simplex.rank++], hint);
 }
 
 bool GJK::encloseOrigin() {
-  Vec3f axis(Vec3f::Zero());
+  Vec3s axis(Vec3s::Zero());
   support_func_guess_t hint = support_func_guess_t::Zero();
   switch (simplex->rank) {
     case 1:
@@ -453,10 +453,10 @@ bool GJK::encloseOrigin() {
       }
       break;
     case 2: {
-      Vec3f d = simplex->vertex[1]->w - simplex->vertex[0]->w;
+      Vec3s d = simplex->vertex[1]->w - simplex->vertex[0]->w;
       for (int i = 0; i < 3; ++i) {
         axis[i] = 1;
-        Vec3f p = d.cross(axis);
+        Vec3s p = d.cross(axis);
         if (!p.isZero()) {
           appendVertex(*simplex, p, hint);
           if (encloseOrigin()) return true;
@@ -493,7 +493,7 @@ bool GJK::encloseOrigin() {
 }
 
 inline void originToPoint(const GJK::Simplex& current, GJK::vertex_id_t a,
-                          const Vec3f& A, GJK::Simplex& next, Vec3f& ray) {
+                          const Vec3s& A, GJK::Simplex& next, Vec3s& ray) {
   // A is the closest to the origin
   ray = A;
   next.vertex[0] = current.vertex[a];
@@ -501,9 +501,9 @@ inline void originToPoint(const GJK::Simplex& current, GJK::vertex_id_t a,
 }
 
 inline void originToSegment(const GJK::Simplex& current, GJK::vertex_id_t a,
-                            GJK::vertex_id_t b, const Vec3f& A, const Vec3f& B,
-                            const Vec3f& AB, const CoalScalar& ABdotAO,
-                            GJK::Simplex& next, Vec3f& ray) {
+                            GJK::vertex_id_t b, const Vec3s& A, const Vec3s& B,
+                            const Vec3s& AB, const CoalScalar& ABdotAO,
+                            GJK::Simplex& next, Vec3s& ray) {
   // ray = - ( AB ^ AO ) ^ AB = (AB.B) A + (-AB.A) B
   ray = AB.dot(B) * A + ABdotAO * B;
 
@@ -517,8 +517,8 @@ inline void originToSegment(const GJK::Simplex& current, GJK::vertex_id_t a,
 
 inline bool originToTriangle(const GJK::Simplex& current, GJK::vertex_id_t a,
                              GJK::vertex_id_t b, GJK::vertex_id_t c,
-                             const Vec3f& ABC, const CoalScalar& ABCdotAO,
-                             GJK::Simplex& next, Vec3f& ray) {
+                             const Vec3s& ABC, const CoalScalar& ABCdotAO,
+                             GJK::Simplex& next, Vec3s& ray) {
   next.rank = 3;
   next.vertex[2] = current.vertex[a];
 
@@ -544,10 +544,10 @@ inline bool originToTriangle(const GJK::Simplex& current, GJK::vertex_id_t a,
 bool GJK::projectLineOrigin(const Simplex& current, Simplex& next) {
   const vertex_id_t a = 1, b = 0;
   // A is the last point we added.
-  const Vec3f& A = current.vertex[a]->w;
-  const Vec3f& B = current.vertex[b]->w;
+  const Vec3s& A = current.vertex[a]->w;
+  const Vec3s& B = current.vertex[b]->w;
 
-  const Vec3f AB = B - A;
+  const Vec3s AB = B - A;
   const CoalScalar d = AB.dot(-A);
   assert(d <= AB.squaredNorm());
 
@@ -572,10 +572,10 @@ bool GJK::projectLineOrigin(const Simplex& current, Simplex& next) {
 bool GJK::projectTriangleOrigin(const Simplex& current, Simplex& next) {
   const vertex_id_t a = 2, b = 1, c = 0;
   // A is the last point we added.
-  const Vec3f &A = current.vertex[a]->w, B = current.vertex[b]->w,
+  const Vec3s &A = current.vertex[a]->w, B = current.vertex[b]->w,
               C = current.vertex[c]->w;
 
-  const Vec3f AB = B - A, AC = C - A, ABC = AB.cross(AC);
+  const Vec3s AB = B - A, AC = C - A, ABC = AB.cross(AC);
 
   CoalScalar edgeAC2o = ABC.cross(AC).dot(-A);
   if (edgeAC2o >= 0) {
@@ -614,10 +614,10 @@ bool GJK::projectTriangleOrigin(const Simplex& current, Simplex& next) {
 bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   // The code of this function was generated using doc/gjk.py
   const vertex_id_t a = 3, b = 2, c = 1, d = 0;
-  const Vec3f& A(current.vertex[a]->w);
-  const Vec3f& B(current.vertex[b]->w);
-  const Vec3f& C(current.vertex[c]->w);
-  const Vec3f& D(current.vertex[d]->w);
+  const Vec3s& A(current.vertex[a]->w);
+  const Vec3s& B(current.vertex[b]->w);
+  const Vec3s& C(current.vertex[c]->w);
+  const Vec3s& D(current.vertex[d]->w);
   const CoalScalar aa = A.squaredNorm();
   const CoalScalar da = D.dot(A);
   const CoalScalar db = D.dot(B);
@@ -637,8 +637,8 @@ bool GJK::projectTetrahedraOrigin(const Simplex& current, Simplex& next) {
   const CoalScalar ba_ca = ba - ca;
   const CoalScalar ca_da = ca - da;
   const CoalScalar da_ba = da - ba;
-  const Vec3f a_cross_b = A.cross(B);
-  const Vec3f a_cross_c = A.cross(C);
+  const Vec3s a_cross_b = A.cross(B);
+  const Vec3s a_cross_c = A.cross(C);
 
   const CoalScalar dummy_precision(
       3 * std::sqrt(std::numeric_limits<CoalScalar>::epsilon()));
@@ -1039,8 +1039,8 @@ void EPA::reset(size_t max_iterations_, CoalScalar tolerance_) {
 
 bool EPA::getEdgeDist(SimplexFace* face, const SimplexVertex& a,
                       const SimplexVertex& b, CoalScalar& dist) {
-  Vec3f ab = b.w - a.w;
-  Vec3f n_ab = ab.cross(face->n);
+  Vec3s ab = b.w - a.w;
+  Vec3s n_ab = ab.cross(face->n);
   CoalScalar a_dot_nab = a.w.dot(n_ab);
 
   if (a_dot_nab < 0)  // the origin is on the outside part of ab
@@ -1154,7 +1154,7 @@ EPA::SimplexFace* EPA::findClosestFace() {
   return minf;
 }
 
-EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
+EPA::Status EPA::evaluate(GJK& gjk, const Vec3s& guess) {
   GJK::Simplex& simplex = *gjk.getSimplex();
   support_hint = gjk.support_hint;
 
@@ -1309,7 +1309,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess) {
   if (nl > 0)
     normal /= nl;
   else
-    normal = Vec3f(1, 0, 0);
+    normal = Vec3s(1, 0, 0);
   depth = 0;
   result.rank = 1;
   result.vertex[0] = simplex.vertex[0];
@@ -1449,8 +1449,8 @@ bool EPA::expand(size_t pass, const SimplexVertex& w, SimplexFace* f, size_t e,
   return false;
 }
 
-void EPA::getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
-                                    Vec3f& w1, Vec3f& normal) const {
+void EPA::getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3s& w0,
+                                    Vec3s& w1, Vec3s& normal) const {
   details::getClosestPoints(result, w0, w1);
   if ((w0 - w1).norm() > Eigen::NumTraits<CoalScalar>::dummy_precision()) {
     if (this->depth >= 0) {
@@ -1477,13 +1477,13 @@ void ConvexBase::buildSupportWarmStart() {
   this->support_warm_starts.indices.reserve(
       ConvexBase::num_support_warm_starts);
 
-  Vec3f axiis(0, 0, 0);
+  Vec3s axiis(0, 0, 0);
   details::ShapeSupportData support_data;
   int support_hint = 0;
   for (int i = 0; i < 3; ++i) {
     axiis(i) = 1;
     {
-      Vec3f support;
+      Vec3s support;
       coal::details::getShapeSupport<false>(this, axiis, support, support_hint,
                                             support_data);
       this->support_warm_starts.points.emplace_back(support);
@@ -1492,7 +1492,7 @@ void ConvexBase::buildSupportWarmStart() {
 
     axiis(i) = -1;
     {
-      Vec3f support;
+      Vec3s support;
       coal::details::getShapeSupport<false>(this, axiis, support, support_hint,
                                             support_data);
       this->support_warm_starts.points.emplace_back(support);
@@ -1502,14 +1502,14 @@ void ConvexBase::buildSupportWarmStart() {
     axiis(i) = 0;
   }
 
-  std::array<Vec3f, 4> eis = {Vec3f(1, 1, 1),    //
-                              Vec3f(-1, 1, 1),   //
-                              Vec3f(-1, -1, 1),  //
-                              Vec3f(1, -1, 1)};
+  std::array<Vec3s, 4> eis = {Vec3s(1, 1, 1),    //
+                              Vec3s(-1, 1, 1),   //
+                              Vec3s(-1, -1, 1),  //
+                              Vec3s(1, -1, 1)};
 
   for (size_t ei_index = 0; ei_index < 4; ++ei_index) {
     {
-      Vec3f support;
+      Vec3s support;
       coal::details::getShapeSupport<false>(this, eis[ei_index], support,
                                             support_hint, support_data);
       this->support_warm_starts.points.emplace_back(support);
@@ -1517,7 +1517,7 @@ void ConvexBase::buildSupportWarmStart() {
     }
 
     {
-      Vec3f support;
+      Vec3s support;
       coal::details::getShapeSupport<false>(this, -eis[ei_index], support,
                                             support_hint, support_data);
       this->support_warm_starts.points.emplace_back(support);

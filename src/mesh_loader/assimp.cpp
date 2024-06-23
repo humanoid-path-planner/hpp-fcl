@@ -106,7 +106,7 @@ void Loader::load(const std::string& resource_path) {
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-unsigned recurseBuildMesh(const coal::Vec3f& scale, const aiScene* scene,
+unsigned recurseBuildMesh(const coal::Vec3s& scale, const aiScene* scene,
                           const aiNode* node, unsigned vertices_offset,
                           TriangleAndVertices& tv) {
   if (!node) return 0;
@@ -131,7 +131,7 @@ unsigned recurseBuildMesh(const coal::Vec3f& scale, const aiScene* scene,
       aiVector3D p = input_mesh->mVertices[j];
       p *= transform;
       tv.vertices_.push_back(
-          coal::Vec3f(p.x * scale[0], p.y * scale[1], p.z * scale[2]));
+          coal::Vec3s(p.x * scale[0], p.y * scale[1], p.z * scale[2]));
     }
 
     // add the indices
@@ -155,7 +155,7 @@ unsigned recurseBuildMesh(const coal::Vec3f& scale, const aiScene* scene,
   return nbVertices;
 }
 
-void buildMesh(const coal::Vec3f& scale, const aiScene* scene,
+void buildMesh(const coal::Vec3s& scale, const aiScene* scene,
                unsigned vertices_offset, TriangleAndVertices& tv) {
   recurseBuildMesh(scale, scene, scene->mRootNode, vertices_offset, tv);
 }

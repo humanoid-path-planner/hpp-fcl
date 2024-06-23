@@ -292,8 +292,8 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb) {
 
   const AABB current_aabb = current->obj->getAABB();
 
-  const Vec3f& new_min = current_aabb.min_;
-  const Vec3f& new_max = current_aabb.max_;
+  const Vec3s& new_min = current_aabb.min_;
+  const Vec3s& new_max = current_aabb.max_;
 
   for (int coord = 0; coord < 3; ++coord) {
     int direction;  // -1 reverse, 0 nochange, 1 forward
@@ -585,11 +585,11 @@ void SaPCollisionManager::collide(CollisionObject* obj,
 bool SaPCollisionManager::distance_(CollisionObject* obj,
                                     DistanceCallBackBase* callback,
                                     CoalScalar& min_dist) const {
-  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  Vec3s delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   AABB aabb = obj->getAABB();
 
   if (min_dist < (std::numeric_limits<CoalScalar>::max)()) {
-    Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+    Vec3s min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
   }
 
@@ -656,7 +656,7 @@ bool SaPCollisionManager::distance_(CollisionObject* obj,
         break;
       else {
         if (min_dist < old_min_distance) {
-          Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+          Vec3s min_dist_delta(min_dist, min_dist, min_dist);
           aabb = AABB(obj->getAABB(), min_dist_delta);
           status = 0;
         } else {
@@ -779,7 +779,7 @@ bool SaPCollisionManager::empty() const { return AABB_arr.empty(); }
 size_t SaPCollisionManager::size() const { return AABB_arr.size(); }
 
 //==============================================================================
-const Vec3f& SaPCollisionManager::EndPoint::getVal() const {
+const Vec3s& SaPCollisionManager::EndPoint::getVal() const {
   if (minmax)
     return aabb->cached.max_;
   else
@@ -787,7 +787,7 @@ const Vec3f& SaPCollisionManager::EndPoint::getVal() const {
 }
 
 //==============================================================================
-Vec3f& SaPCollisionManager::EndPoint::getVal() {
+Vec3s& SaPCollisionManager::EndPoint::getVal() {
   if (minmax)
     return aabb->cached.max_;
   else

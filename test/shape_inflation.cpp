@@ -54,7 +54,7 @@ using coal::CollisionResult;
 using coal::DistanceRequest;
 using coal::DistanceResult;
 using coal::Transform3f;
-using coal::Vec3f;
+using coal::Vec3s;
 
 #define MATH_SQUARED(x) (x * x)
 
@@ -190,10 +190,10 @@ BOOST_AUTO_TEST_CASE(test_inflate) {
   test(cone, 0.01, 1e-8);
   test_throw(cone, -1.1);
 
-  const coal::Halfspace halfspace(Vec3f::UnitZ(), 0.);
+  const coal::Halfspace halfspace(Vec3s::UnitZ(), 0.);
   test(halfspace, 0.01, 1e-8);
 
-  //  const coal::TriangleP triangle(Vec3f::UnitX(), Vec3f::UnitY(),
-  //                                     Vec3f::UnitZ());
+  //  const coal::TriangleP triangle(Vec3s::UnitX(), Vec3s::UnitY(),
+  //                                     Vec3s::UnitZ());
   //  test(triangle, 0.01, 1e-8);
 }

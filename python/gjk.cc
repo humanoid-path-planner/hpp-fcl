@@ -52,7 +52,7 @@ using coal::details::MinkowskiDiff;
 using coal::details::SupportOptions;
 
 struct MinkowskiDiffWrapper {
-  static void support0(MinkowskiDiff& self, const Vec3f& dir, int& hint,
+  static void support0(MinkowskiDiff& self, const Vec3s& dir, int& hint,
                        bool compute_swept_sphere_support = false) {
     if (compute_swept_sphere_support) {
       self.support0<SupportOptions::WithSweptSphere>(dir, hint);
@@ -61,7 +61,7 @@ struct MinkowskiDiffWrapper {
     }
   }
 
-  static void support1(MinkowskiDiff& self, const Vec3f& dir, int& hint,
+  static void support1(MinkowskiDiff& self, const Vec3s& dir, int& hint,
                        bool compute_swept_sphere_support = false) {
     if (compute_swept_sphere_support) {
       self.support1<SupportOptions::WithSweptSphere>(dir, hint);

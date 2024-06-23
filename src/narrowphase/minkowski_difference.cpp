@@ -45,9 +45,9 @@ namespace details {
 // ============================================================================
 template <typename Shape0, typename Shape1, bool TransformIsIdentity,
           int _SupportOptions>
-void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3f& oR1,
-                   const Vec3f& ot1, const Vec3f& dir, Vec3f& support0,
-                   Vec3f& support1, support_func_guess_t& hint,
+void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3s& oR1,
+                   const Vec3s& ot1, const Vec3s& dir, Vec3s& support0,
+                   Vec3s& support1, support_func_guess_t& hint,
                    ShapeSupportData data[2]) {
   assert(dir.norm() > Eigen::NumTraits<CoalScalar>::epsilon());
   getShapeSupport<_SupportOptions>(s0, dir, support0, hint[0], data[0]);
@@ -64,8 +64,8 @@ void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3f& oR1,
 // ============================================================================
 template <typename Shape0, typename Shape1, bool TransformIsIdentity,
           int _SupportOptions>
-void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
-                       Vec3f& support0, Vec3f& support1,
+void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3s& dir,
+                       Vec3s& support0, Vec3s& support1,
                        support_func_guess_t& hint, ShapeSupportData data[2]) {
   getSupportTpl<Shape0, Shape1, TransformIsIdentity, _SupportOptions>(
       static_cast<const Shape0*>(md.shapes[0]),
@@ -310,13 +310,13 @@ template void COAL_DLLAPI MinkowskiDiff::set<SupportOptions::WithSweptSphere>(co
 
 // ============================================================================
 // clang-format off
-template Vec3f COAL_DLLAPI MinkowskiDiff::support0<SupportOptions::NoSweptSphere>(const Vec3f&, int&) const;
+template Vec3s COAL_DLLAPI MinkowskiDiff::support0<SupportOptions::NoSweptSphere>(const Vec3s&, int&) const;
 
-template Vec3f COAL_DLLAPI MinkowskiDiff::support0<SupportOptions::WithSweptSphere>(const Vec3f&, int&) const;
+template Vec3s COAL_DLLAPI MinkowskiDiff::support0<SupportOptions::WithSweptSphere>(const Vec3s&, int&) const;
 
-template Vec3f COAL_DLLAPI MinkowskiDiff::support1<SupportOptions::NoSweptSphere>(const Vec3f&, int&) const;
+template Vec3s COAL_DLLAPI MinkowskiDiff::support1<SupportOptions::NoSweptSphere>(const Vec3s&, int&) const;
 
-template Vec3f COAL_DLLAPI MinkowskiDiff::support1<SupportOptions::WithSweptSphere>(const Vec3f&, int&) const;
+template Vec3s COAL_DLLAPI MinkowskiDiff::support1<SupportOptions::WithSweptSphere>(const Vec3s&, int&) const;
 // clang-format on
 
 }  // namespace details

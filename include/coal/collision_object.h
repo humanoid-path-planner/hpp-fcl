@@ -94,7 +94,7 @@ enum NODE_TYPE {
 class COAL_DLLAPI CollisionGeometry {
  public:
   CollisionGeometry()
-      : aabb_center(Vec3f::Constant((std::numeric_limits<CoalScalar>::max)())),
+      : aabb_center(Vec3s::Constant((std::numeric_limits<CoalScalar>::max)())),
         aabb_radius(-1),
         cost_density(1),
         threshold_occupied(1),
@@ -148,7 +148,7 @@ class COAL_DLLAPI CollisionGeometry {
   bool isUncertain() const;
 
   /// @brief AABB center in local coordinate
-  Vec3f aabb_center;
+  Vec3s aabb_center;
 
   /// @brief AABB radius
   CoalScalar aabb_radius;
@@ -170,23 +170,23 @@ class COAL_DLLAPI CollisionGeometry {
   CoalScalar threshold_free;
 
   /// @brief compute center of mass
-  virtual Vec3f computeCOM() const { return Vec3f::Zero(); }
+  virtual Vec3s computeCOM() const { return Vec3s::Zero(); }
 
   /// @brief compute the inertia matrix, related to the origin
-  virtual Matrix3f computeMomentofInertia() const {
-    return Matrix3f::Constant(NAN);
+  virtual Matrix3s computeMomentofInertia() const {
+    return Matrix3s::Constant(NAN);
   }
 
   /// @brief compute the volume
   virtual CoalScalar computeVolume() const { return 0; }
 
   /// @brief compute the inertia matrix, related to the com
-  virtual Matrix3f computeMomentofInertiaRelatedToCOM() const {
-    Matrix3f C = computeMomentofInertia();
-    Vec3f com = computeCOM();
+  virtual Matrix3s computeMomentofInertiaRelatedToCOM() const {
+    Matrix3s C = computeMomentofInertia();
+    Vec3s com = computeCOM();
     CoalScalar V = computeVolume();
 
-    return (Matrix3f() << C(0, 0) - V * (com[1] * com[1] + com[2] * com[2]),
+    return (Matrix3s() << C(0, 0) - V * (com[1] * com[1] + com[2] * com[2]),
             C(0, 1) + V * com[0] * com[1], C(0, 2) + V * com[0] * com[2],
             C(1, 0) + V * com[1] * com[0],
             C(1, 1) - V * (com[0] * com[0] + com[2] * com[2]),
@@ -226,7 +226,7 @@ class COAL_DLLAPI CollisionObject {
   }
 
   CollisionObject(const shared_ptr<CollisionGeometry>& cgeom_,
-                  const Matrix3f& R, const Vec3f& T,
+                  const Matrix3s& R, const Vec3s& T,
                   bool compute_local_aabb = true)
       : cgeom(cgeom_), t(R, T), user_data(nullptr) {
     init(compute_local_aabb);
@@ -261,7 +261,7 @@ class COAL_DLLAPI CollisionObject {
     } else {
       aabb.min_ = aabb.max_ = t.getTranslation();
 
-      Vec3f min_world, max_world;
+      Vec3s min_world, max_world;
       for (int k = 0; k < 3; ++k) {
         min_world.array() = t.getRotation().row(k).array() *
                             cgeom->aabb_local.min_.transpose().array();
@@ -281,22 +281,22 @@ class COAL_DLLAPI CollisionObject {
   void setUserData(void* data) { user_data = data; }
 
   /// @brief get translation of the object
-  inline const Vec3f& getTranslation() const { return t.getTranslation(); }
+  inline const Vec3s& getTranslation() const { return t.getTranslation(); }
 
   /// @brief get matrix rotation of the object
-  inline const Matrix3f& getRotation() const { return t.getRotation(); }
+  inline const Matrix3s& getRotation() const { return t.getRotation(); }
 
   /// @brief get object's transform
   inline const Transform3f& getTransform() const { return t; }
 
   /// @brief set object's rotation matrix
-  void setRotation(const Matrix3f& R) { t.setRotation(R); }
+  void setRotation(const Matrix3s& R) { t.setRotation(R); }
 
   /// @brief set object's translation
-  void setTranslation(const Vec3f& T) { t.setTranslation(T); }
+  void setTranslation(const Vec3s& T) { t.setTranslation(T); }
 
   /// @brief set object's transform
-  void setTransform(const Matrix3f& R, const Vec3f& T) { t.setTransform(R, T); }
+  void setTransform(const Matrix3s& R, const Vec3s& T) { t.setTransform(R, T); }
 
   /// @brief set object's transform
   void setTransform(const Transform3f& tf) { t = tf; }

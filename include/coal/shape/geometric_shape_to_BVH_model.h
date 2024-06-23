@@ -51,16 +51,16 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape,
   CoalScalar a = shape.halfSide[0];
   CoalScalar b = shape.halfSide[1];
   CoalScalar c = shape.halfSide[2];
-  std::vector<Vec3f> points(8);
+  std::vector<Vec3s> points(8);
   std::vector<Triangle> tri_indices(12);
-  points[0] = Vec3f(a, -b, c);
-  points[1] = Vec3f(a, b, c);
-  points[2] = Vec3f(-a, b, c);
-  points[3] = Vec3f(-a, -b, c);
-  points[4] = Vec3f(a, -b, -c);
-  points[5] = Vec3f(a, b, -c);
-  points[6] = Vec3f(-a, b, -c);
-  points[7] = Vec3f(-a, -b, -c);
+  points[0] = Vec3s(a, -b, c);
+  points[1] = Vec3s(a, b, c);
+  points[2] = Vec3s(-a, b, c);
+  points[3] = Vec3s(-a, -b, c);
+  points[4] = Vec3s(a, -b, -c);
+  points[5] = Vec3s(a, b, -c);
+  points[6] = Vec3s(-a, b, -c);
+  points[7] = Vec3s(-a, -b, -c);
 
   tri_indices[0].set(0, 4, 1);
   tri_indices[1].set(1, 4, 5);
@@ -91,7 +91,7 @@ template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Sphere& shape,
                       const Transform3f& pose, unsigned int seg,
                       unsigned int ring) {
-  std::vector<Vec3f> points;
+  std::vector<Vec3s> points;
   std::vector<Triangle> tri_indices;
 
   CoalScalar r = shape.radius;
@@ -107,13 +107,13 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape,
   for (unsigned int i = 0; i < ring; ++i) {
     CoalScalar theta_ = theta + thetad * (i + 1);
     for (unsigned int j = 0; j < seg; ++j) {
-      points.push_back(Vec3f(r * sin(theta_) * cos(phi + j * phid),
+      points.push_back(Vec3s(r * sin(theta_) * cos(phi + j * phid),
                              r * sin(theta_) * sin(phi + j * phid),
                              r * cos(theta_)));
     }
   }
-  points.push_back(Vec3f(0, 0, r));
-  points.push_back(Vec3f(0, 0, -r));
+  points.push_back(Vec3s(0, 0, r));
+  points.push_back(Vec3s(0, 0, -r));
 
   for (unsigned int i = 0; i < ring - 1; ++i) {
     for (unsigned int j = 0; j < seg; ++j) {
@@ -172,7 +172,7 @@ template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape,
                       const Transform3f& pose, unsigned int tot,
                       unsigned int h_num) {
-  std::vector<Vec3f> points;
+  std::vector<Vec3s> points;
   std::vector<Triangle> tri_indices;
 
   CoalScalar r = shape.radius;
@@ -186,21 +186,21 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape,
 
   for (unsigned int i = 0; i < tot; ++i)
     points.push_back(
-        Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), h));
+        Vec3s(r * cos(phi + phid * i), r * sin(phi + phid * i), h));
 
   for (unsigned int i = 0; i < h_num - 1; ++i) {
     for (unsigned int j = 0; j < tot; ++j) {
-      points.push_back(Vec3f(r * cos(phi + phid * j), r * sin(phi + phid * j),
+      points.push_back(Vec3s(r * cos(phi + phid * j), r * sin(phi + phid * j),
                              h - (i + 1) * hd));
     }
   }
 
   for (unsigned int i = 0; i < tot; ++i)
     points.push_back(
-        Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), -h));
+        Vec3s(r * cos(phi + phid * i), r * sin(phi + phid * i), -h));
 
-  points.push_back(Vec3f(0, 0, h));
-  points.push_back(Vec3f(0, 0, -h));
+  points.push_back(Vec3s(0, 0, h));
+  points.push_back(Vec3s(0, 0, -h));
 
   for (unsigned int i = 0; i < tot; ++i) {
     Triangle tmp((h_num + 1) * tot, i, ((i == tot - 1) ? 0 : (i + 1)));
@@ -264,7 +264,7 @@ template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cone& shape,
                       const Transform3f& pose, unsigned int tot,
                       unsigned int h_num) {
-  std::vector<Vec3f> points;
+  std::vector<Vec3s> points;
   std::vector<Triangle> tri_indices;
 
   CoalScalar r = shape.radius;
@@ -282,16 +282,16 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape,
     CoalScalar rh = r * (0.5 - h_i / h / 2);
     for (unsigned int j = 0; j < tot; ++j) {
       points.push_back(
-          Vec3f(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i));
+          Vec3s(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i));
     }
   }
 
   for (unsigned int i = 0; i < tot; ++i)
     points.push_back(
-        Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), -h));
+        Vec3s(r * cos(phi + phid * i), r * sin(phi + phid * i), -h));
 
-  points.push_back(Vec3f(0, 0, h));
-  points.push_back(Vec3f(0, 0, -h));
+  points.push_back(Vec3s(0, 0, h));
+  points.push_back(Vec3s(0, 0, -h));
 
   for (unsigned int i = 0; i < tot; ++i) {
     Triangle tmp(h_num * tot, i, (i == tot - 1) ? 0 : (i + 1));

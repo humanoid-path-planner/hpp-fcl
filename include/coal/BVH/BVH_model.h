@@ -65,13 +65,13 @@ class BVSplitter;
 class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
  public:
   /// @brief Geometry point data
-  std::shared_ptr<std::vector<Vec3f>> vertices;
+  std::shared_ptr<std::vector<Vec3s>> vertices;
 
   /// @brief Geometry triangle index data, will be NULL for point clouds
   std::shared_ptr<std::vector<Triangle>> tri_indices;
 
   /// @brief Geometry point data in previous frame
-  std::shared_ptr<std::vector<Vec3f>> prev_vertices;
+  std::shared_ptr<std::vector<Vec3s>> prev_vertices;
 
   /// @brief Number of triangles
   unsigned int num_tris;
@@ -114,23 +114,23 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
   int beginModel(unsigned int num_tris = 0, unsigned int num_vertices = 0);
 
   /// @brief Add one point in the new BVH model
-  int addVertex(const Vec3f& p);
+  int addVertex(const Vec3s& p);
 
   /// @brief Add points in the new BVH model
-  int addVertices(const Matrixx3f& points);
+  int addVertices(const MatrixX3s& points);
 
   /// @brief Add triangles in the new BVH model
   int addTriangles(const Matrixx3i& triangles);
 
   /// @brief Add one triangle in the new BVH model
-  int addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);
+  int addTriangle(const Vec3s& p1, const Vec3s& p2, const Vec3s& p3);
 
   /// @brief Add a set of triangles in the new BVH model
-  int addSubModel(const std::vector<Vec3f>& ps,
+  int addSubModel(const std::vector<Vec3s>& ps,
                   const std::vector<Triangle>& ts);
 
   /// @brief Add a set of points in the new BVH model
-  int addSubModel(const std::vector<Vec3f>& ps);
+  int addSubModel(const std::vector<Vec3s>& ps);
 
   /// @brief End BVH model construction, will build the bounding volume
   /// hierarchy
@@ -141,13 +141,13 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
   int beginReplaceModel();
 
   /// @brief Replace one point in the old BVH model
-  int replaceVertex(const Vec3f& p);
+  int replaceVertex(const Vec3s& p);
 
   /// @brief Replace one triangle in the old BVH model
-  int replaceTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);
+  int replaceTriangle(const Vec3s& p1, const Vec3s& p2, const Vec3s& p3);
 
   /// @brief Replace a set of points in the old BVH model
-  int replaceSubModel(const std::vector<Vec3f>& ps);
+  int replaceSubModel(const std::vector<Vec3s>& ps);
 
   /// @brief End BVH model replacement, will also refit or rebuild the bounding
   /// volume hierarchy
@@ -159,13 +159,13 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
   int beginUpdateModel();
 
   /// @brief Update one point in the old BVH model
-  int updateVertex(const Vec3f& p);
+  int updateVertex(const Vec3s& p);
 
   /// @brief Update one triangle in the old BVH model
-  int updateTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);
+  int updateTriangle(const Vec3s& p1, const Vec3s& p2, const Vec3s& p3);
 
   /// @brief Update a set of points in the old BVH model
-  int updateSubModel(const std::vector<Vec3f>& ps);
+  int updateSubModel(const std::vector<Vec3s>& ps);
 
   /// @brief End BVH model update, will also refit or rebuild the bounding
   /// volume hierarchy
@@ -198,16 +198,16 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
   /// save one matrix transformation.
   virtual void makeParentRelative() = 0;
 
-  Vec3f computeCOM() const {
+  Vec3s computeCOM() const {
     CoalScalar vol = 0;
-    Vec3f com(0, 0, 0);
+    Vec3s com(0, 0, 0);
     if (!(vertices.get())) {
       std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
                    "vertices."
                 << std::endl;
       return com;
     }
-    const std::vector<Vec3f>& vertices_ = *vertices;
+    const std::vector<Vec3s>& vertices_ = *vertices;
     if (!(tri_indices.get())) {
       std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
                    "triangles."
@@ -236,7 +236,7 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
                 << std::endl;
       return vol;
     }
-    const std::vector<Vec3f>& vertices_ = *vertices;
+    const std::vector<Vec3s>& vertices_ = *vertices;
     if (!(tri_indices.get())) {
       std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
                    "triangles."
@@ -254,10 +254,10 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
     return vol / 6;
   }
 
-  Matrix3f computeMomentofInertia() const {
-    Matrix3f C = Matrix3f::Zero();
+  Matrix3s computeMomentofInertia() const {
+    Matrix3s C = Matrix3s::Zero();
 
-    Matrix3f C_canonical;
+    Matrix3s C_canonical;
     C_canonical << 1 / 60.0, 1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0,
         1 / 120.0, 1 / 120.0, 1 / 120.0, 1 / 60.0;
 
@@ -267,7 +267,7 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
                 << std::endl;
       return C;
     }
-    const std::vector<Vec3f>& vertices_ = *vertices;
+    const std::vector<Vec3s>& vertices_ = *vertices;
     if (!(vertices.get())) {
       std::cerr << "BVH Error in `computeMomentofInertia`! The BVHModel does "
                    "not contain vertices."
@@ -277,15 +277,15 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
     const std::vector<Triangle>& tri_indices_ = *tri_indices;
     for (unsigned int i = 0; i < num_tris; ++i) {
       const Triangle& tri = tri_indices_[i];
-      const Vec3f& v1 = vertices_[tri[0]];
-      const Vec3f& v2 = vertices_[tri[1]];
-      const Vec3f& v3 = vertices_[tri[2]];
-      Matrix3f A;
+      const Vec3s& v1 = vertices_[tri[0]];
+      const Vec3s& v2 = vertices_[tri[1]];
+      const Vec3s& v3 = vertices_[tri[2]];
+      Matrix3s A;
       A << v1.transpose(), v2.transpose(), v3.transpose();
       C += A.derived().transpose() * C_canonical * A * (v1.cross(v2)).dot(v3);
     }
 
-    return C.trace() * Matrix3f::Identity() - C;
+    return C.trace() * Matrix3s::Identity() - C;
   }
 
  protected:
@@ -368,8 +368,8 @@ class COAL_DLLAPI BVHModel : public BVHModelBase {
   /// transform related to its parent BV node. When traversing the BVH, this can
   /// save one matrix transformation.
   void makeParentRelative() {
-    Matrix3f I(Matrix3f::Identity());
-    makeParentRelativeRecurse(0, I, Vec3f::Zero());
+    Matrix3s I(Matrix3s::Identity());
+    makeParentRelativeRecurse(0, I, Vec3s::Zero());
   }
 
  protected:
@@ -409,8 +409,8 @@ class COAL_DLLAPI BVHModel : public BVHModelBase {
   /// @ recursively compute each bv's transform related to its parent. For
   /// default BV, only the translation works. For oriented BV (OBB, RSS,
   /// OBBRSS), special implementation is provided.
-  void makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
-                                 const Vec3f& parent_c) {
+  void makeParentRelativeRecurse(int bv_id, Matrix3s& parent_axes,
+                                 const Vec3s& parent_c) {
     bv_node_vector_t& bvs_ = *bvs;
     if (!bvs_[static_cast<size_t>(bv_id)].isLeaf()) {
       makeParentRelativeRecurse(bvs_[static_cast<size_t>(bv_id)].first_child,
@@ -497,17 +497,17 @@ class COAL_DLLAPI BVHModel : public BVHModelBase {
 /// @}
 
 template <>
-void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
-                                              const Vec3f& parent_c);
+void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Matrix3s& parent_axes,
+                                              const Vec3s& parent_c);
 
 template <>
-void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Matrix3f& parent_axes,
-                                              const Vec3f& parent_c);
+void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Matrix3s& parent_axes,
+                                              const Vec3s& parent_c);
 
 template <>
 void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id,
-                                                 Matrix3f& parent_axes,
-                                                 const Vec3f& parent_c);
+                                                 Matrix3s& parent_axes,
+                                                 const Vec3s& parent_c);
 
 /// @brief Specialization of getNodeType() for BVHModel with different BV types
 template <>

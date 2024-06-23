@@ -78,8 +78,8 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test) {
   generateRandomTransforms(r_extents, rotate_transform, 1);
 
   AABB aabb1;
-  aabb1.min_ = Vec3f(-600, -600, -600);
-  aabb1.max_ = Vec3f(600, 600, 600);
+  aabb1.min_ = Vec3s(-600, -600, -600);
+  aabb1.max_ = Vec3s(600, 600, 600);
 
   OBB obb1;
   convertBV(aabb1, rotate_transform[0], obb1);
@@ -128,8 +128,8 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test) {
   generateRandomTransforms(r_extents, rotate_transform, 1);
 
   AABB aabb1;
-  aabb1.min_ = Vec3f(-600, -600, -600);
-  aabb1.max_ = Vec3f(600, 600, 600);
+  aabb1.min_ = Vec3s(-600, -600, -600);
+  aabb1.max_ = Vec3s(600, 600, 600);
 
   OBB obb1;
   convertBV(aabb1, rotate_transform[0], obb1);
@@ -213,8 +213,8 @@ BOOST_AUTO_TEST_CASE(OBB_AABB_test) {
   generateRandomTransforms(extents, transforms, n);
 
   AABB aabb1;
-  aabb1.min_ = Vec3f(-600, -600, -600);
-  aabb1.max_ = Vec3f(600, 600, 600);
+  aabb1.min_ = Vec3s(-600, -600, -600);
+  aabb1.max_ = Vec3s(600, 600, 600);
 
   OBB obb1;
   convertBV(aabb1, Transform3f(), obb1);
@@ -369,9 +369,9 @@ struct mesh_mesh_run_test {
     model1->bv_splitter.reset(new BVSplitter<BV>(splitMethod));
     model2->bv_splitter.reset(new BVSplitter<BV>(splitMethod));
 
-    loadPolyhedronFromResource(TEST_RESOURCES_DIR "/env.obj", Vec3f::Ones(),
+    loadPolyhedronFromResource(TEST_RESOURCES_DIR "/env.obj", Vec3s::Ones(),
                                model1);
-    loadPolyhedronFromResource(TEST_RESOURCES_DIR "/rob.obj", Vec3f::Ones(),
+    loadPolyhedronFromResource(TEST_RESOURCES_DIR "/rob.obj", Vec3s::Ones(),
                                model2);
 
     Timer timer(false);

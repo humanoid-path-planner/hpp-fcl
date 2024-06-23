@@ -13,12 +13,12 @@ double DegToRad(const double& deg) {
   static double degToRad = pi / 180.;
   return deg * degToRad;
 }
-std::vector<Vec3f> dirs{Vec3f::UnitZ(),  -Vec3f::UnitZ(), Vec3f::UnitY(),
-                        -Vec3f::UnitY(), Vec3f::UnitX(),  -Vec3f::UnitX()};
+std::vector<Vec3s> dirs{Vec3s::UnitZ(),  -Vec3s::UnitZ(), Vec3s::UnitY(),
+                        -Vec3s::UnitY(), Vec3s::UnitX(),  -Vec3s::UnitX()};
 
 BOOST_AUTO_TEST_CASE(TestTriangles) {
-  std::vector<Vec3f> triVertices{Vec3f(1, 0, 0), Vec3f(1, 1, 0),
-                                 Vec3f(0, 1, 0)};
+  std::vector<Vec3s> triVertices{Vec3s(1, 0, 0), Vec3s(1, 1, 0),
+                                 Vec3s(0, 1, 0)};
   std::vector<Triangle> triangle{{0, 1, 2}};
 
   BVHModel<OBBRSS> tri1{};
@@ -44,11 +44,11 @@ BOOST_AUTO_TEST_CASE(TestTriangles) {
     for (int j = 0; j < 180; j += 30) {
       for (int k = 0; k < 180; k += 30) {
         tri1Tf.setQuatRotation(
-            Eigen::AngleAxis<double>(0., Vec3f::UnitZ()) *
-            Eigen::AngleAxis<double>(DegToRad(k), Vec3f::UnitY()));
+            Eigen::AngleAxis<double>(0., Vec3s::UnitZ()) *
+            Eigen::AngleAxis<double>(DegToRad(k), Vec3s::UnitY()));
         tri2Tf.setQuatRotation(
-            Eigen::AngleAxis<double>(DegToRad(i), Vec3f::UnitZ()) *
-            Eigen::AngleAxis<double>(DegToRad(j), Vec3f::UnitY()));
+            Eigen::AngleAxis<double>(DegToRad(i), Vec3s::UnitZ()) *
+            Eigen::AngleAxis<double>(DegToRad(j), Vec3s::UnitY()));
         CollisionResult result;
 
         /// assertion: src/collision_node.cpp:58

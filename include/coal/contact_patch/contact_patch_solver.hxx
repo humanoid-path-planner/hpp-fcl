@@ -44,7 +44,7 @@ namespace coal {
 
 // ============================================================================
 inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
-  // Note: it's important for the number of pre-allocated Vec3f in
+  // Note: it's important for the number of pre-allocated Vec3s in
   // `m_clipping_sets` to be larger than `request.max_size_patch`
   // because we don't know in advance how many supports will be discarded to
   // form the convex-hulls of the shapes supports which will serve as the
@@ -138,12 +138,12 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
     // We compute the determinant; if it is non-zero, the intersection
     // has already been computed: it's `Contact::pos`.
     const Polygon& pts1 = this->support_set_shape1.points();
-    const Vec2f& a = pts1[0];
-    const Vec2f& b = pts1[1];
+    const Vec2s& a = pts1[0];
+    const Vec2s& b = pts1[1];
 
     const Polygon& pts2 = this->support_set_shape2.points();
-    const Vec2f& c = pts2[0];
-    const Vec2f& d = pts2[1];
+    const Vec2s& c = pts2[0];
+    const Vec2s& d = pts2[1];
 
     const CoalScalar det =
         (b(0) - a(0)) * (d(1) - c(1)) >= (b(1) - a(1)) * (d(0) - c(0));
@@ -153,20 +153,20 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
       return;
     }
 
-    const Vec2f cd = (d - c);
+    const Vec2s cd = (d - c);
     const CoalScalar l = cd.squaredNorm();
     Polygon& patch = contact_patch.points();
 
     // Project a onto [c, d]
     CoalScalar t1 = (a - c).dot(cd);
     t1 = (t1 >= l) ? 1.0 : ((t1 <= 0) ? 0.0 : (t1 / l));
-    const Vec2f p1 = c + t1 * cd;
+    const Vec2s p1 = c + t1 * cd;
     patch.emplace_back(p1);
 
     // Project b onto [c, d]
     CoalScalar t2 = (b - c).dot(cd);
     t2 = (t2 >= l) ? 1.0 : ((t2 <= 0) ? 0.0 : (t2 / l));
-    const Vec2f p2 = c + t2 * cd;
+    const Vec2s p2 = c + t2 * cd;
     if ((p1 - p2).squaredNorm() >= eps) {
       patch.emplace_back(p2);
     }
@@ -222,19 +222,19 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
     Polygon& current = *(current_ptr);
     current.clear();
 
-    const Vec2f& a = clipper[i];
-    const Vec2f& b = clipper[(i + 1) % clipper_size];
-    const Vec2f ab = b - a;
+    const Vec2s& a = clipper[i];
+    const Vec2s& b = clipper[(i + 1) % clipper_size];
+    const Vec2s ab = b - a;
 
     if (previous.size() == 2) {
       //
       // Segment-Polygon case
       //
-      const Vec2f& p1 = previous[0];
-      const Vec2f& p2 = previous[1];
+      const Vec2s& p1 = previous[0];
+      const Vec2s& p2 = previous[1];
 
-      const Vec2f ap1 = p1 - a;
-      const Vec2f ap2 = p2 - a;
+      const Vec2s ap1 = p1 - a;
+      const Vec2s ap2 = p2 - a;
 
       const CoalScalar det1 = ab(0) * ap1(1) - ab(1) * ap1(0);
       const CoalScalar det2 = ab(0) * ap2(1) - ab(1) * ap2(0);
@@ -256,7 +256,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
       // [p1, p2].
       if (det1 >= 0) {
         if (det1 > eps) {
-          const Vec2f p = computeLineSegmentIntersection(a, b, p1, p2);
+          const Vec2s p = computeLineSegmentIntersection(a, b, p1, p2);
           current.emplace_back(p1);
           current.emplace_back(p);
           continue;
@@ -268,7 +268,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
         }
       } else {
         if (det2 > eps) {
-          const Vec2f p = computeLineSegmentIntersection(a, b, p1, p2);
+          const Vec2s p = computeLineSegmentIntersection(a, b, p1, p2);
           current.emplace_back(p2);
           current.emplace_back(p);
           continue;
@@ -289,11 +289,11 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
 
       const size_t previous_size = previous.size();
       for (size_t j = 0; j < previous_size; ++j) {
-        const Vec2f& p1 = previous[j];
-        const Vec2f& p2 = previous[(j + 1) % previous_size];
+        const Vec2s& p1 = previous[j];
+        const Vec2s& p2 = previous[(j + 1) % previous_size];
 
-        const Vec2f ap1 = p1 - a;
-        const Vec2f ap2 = p2 - a;
+        const Vec2s ap1 = p1 - a;
+        const Vec2s ap2 = p2 - a;
 
         const CoalScalar det1 = ab(0) * ap1(1) - ab(1) * ap1(0);
         const CoalScalar det2 = ab(0) * ap2(1) - ab(1) * ap2(0);
@@ -320,7 +320,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
               current.emplace_back(p1);
               this->added_to_patch[j] = true;
             }
-            const Vec2f p = computeLineSegmentIntersection(a, b, p1, p2);
+            const Vec2s p = computeLineSegmentIntersection(a, b, p1, p2);
             current.emplace_back(p);
           } else {
             // a, b and p1 are colinear; we add only p1.
@@ -331,7 +331,7 @@ void ContactPatchSolver::computePatch(const ShapeType1& s1,
           }
         } else {
           if (det2 > eps) {
-            const Vec2f p = computeLineSegmentIntersection(a, b, p1, p2);
+            const Vec2s p = computeLineSegmentIntersection(a, b, p1, p2);
             current.emplace_back(p);
           } else {
             if (!this->added_to_patch[(j + 1) % previous.size()]) {
@@ -406,10 +406,10 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
 }
 
 // ==========================================================================
-inline Vec2f ContactPatchSolver::computeLineSegmentIntersection(
-    const Vec2f& a, const Vec2f& b, const Vec2f& c, const Vec2f& d) {
-  const Vec2f ab = b - a;
-  const Vec2f n(-ab(1), ab(0));
+inline Vec2s ContactPatchSolver::computeLineSegmentIntersection(
+    const Vec2s& a, const Vec2s& b, const Vec2s& c, const Vec2s& d) {
+  const Vec2s ab = b - a;
+  const Vec2s n(-ab(1), ab(0));
   const CoalScalar denominator = n.dot(c - d);
   if (std::abs(denominator) < std::numeric_limits<double>::epsilon()) {
     return d;

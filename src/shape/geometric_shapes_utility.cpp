@@ -43,52 +43,52 @@ namespace coal {
 
 namespace details {
 
-std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf) {
-  std::vector<Vec3f> result(8);
+std::vector<Vec3s> getBoundVertices(const Box& box, const Transform3f& tf) {
+  std::vector<Vec3s> result(8);
   CoalScalar a = box.halfSide[0];
   CoalScalar b = box.halfSide[1];
   CoalScalar c = box.halfSide[2];
-  result[0] = tf.transform(Vec3f(a, b, c));
-  result[1] = tf.transform(Vec3f(a, b, -c));
-  result[2] = tf.transform(Vec3f(a, -b, c));
-  result[3] = tf.transform(Vec3f(a, -b, -c));
-  result[4] = tf.transform(Vec3f(-a, b, c));
-  result[5] = tf.transform(Vec3f(-a, b, -c));
-  result[6] = tf.transform(Vec3f(-a, -b, c));
-  result[7] = tf.transform(Vec3f(-a, -b, -c));
+  result[0] = tf.transform(Vec3s(a, b, c));
+  result[1] = tf.transform(Vec3s(a, b, -c));
+  result[2] = tf.transform(Vec3s(a, -b, c));
+  result[3] = tf.transform(Vec3s(a, -b, -c));
+  result[4] = tf.transform(Vec3s(-a, b, c));
+  result[5] = tf.transform(Vec3s(-a, b, -c));
+  result[6] = tf.transform(Vec3s(-a, -b, c));
+  result[7] = tf.transform(Vec3s(-a, -b, -c));
 
   return result;
 }
 
 // we use icosahedron to bound the sphere
-std::vector<Vec3f> getBoundVertices(const Sphere& sphere,
+std::vector<Vec3s> getBoundVertices(const Sphere& sphere,
                                     const Transform3f& tf) {
-  std::vector<Vec3f> result(12);
+  std::vector<Vec3s> result(12);
   const CoalScalar m = (1 + sqrt(5.0)) / 2.0;
   CoalScalar edge_size = sphere.radius * 6 / (sqrt(27.0) + sqrt(15.0));
 
   CoalScalar a = edge_size;
   CoalScalar b = m * edge_size;
-  result[0] = tf.transform(Vec3f(0, a, b));
-  result[1] = tf.transform(Vec3f(0, -a, b));
-  result[2] = tf.transform(Vec3f(0, a, -b));
-  result[3] = tf.transform(Vec3f(0, -a, -b));
-  result[4] = tf.transform(Vec3f(a, b, 0));
-  result[5] = tf.transform(Vec3f(-a, b, 0));
-  result[6] = tf.transform(Vec3f(a, -b, 0));
-  result[7] = tf.transform(Vec3f(-a, -b, 0));
-  result[8] = tf.transform(Vec3f(b, 0, a));
-  result[9] = tf.transform(Vec3f(b, 0, -a));
-  result[10] = tf.transform(Vec3f(-b, 0, a));
-  result[11] = tf.transform(Vec3f(-b, 0, -a));
+  result[0] = tf.transform(Vec3s(0, a, b));
+  result[1] = tf.transform(Vec3s(0, -a, b));
+  result[2] = tf.transform(Vec3s(0, a, -b));
+  result[3] = tf.transform(Vec3s(0, -a, -b));
+  result[4] = tf.transform(Vec3s(a, b, 0));
+  result[5] = tf.transform(Vec3s(-a, b, 0));
+  result[6] = tf.transform(Vec3s(a, -b, 0));
+  result[7] = tf.transform(Vec3s(-a, -b, 0));
+  result[8] = tf.transform(Vec3s(b, 0, a));
+  result[9] = tf.transform(Vec3s(b, 0, -a));
+  result[10] = tf.transform(Vec3s(-b, 0, a));
+  result[11] = tf.transform(Vec3s(-b, 0, -a));
 
   return result;
 }
 
 // we use scaled icosahedron to bound the ellipsoid
-std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid,
+std::vector<Vec3s> getBoundVertices(const Ellipsoid& ellipsoid,
                                     const Transform3f& tf) {
-  std::vector<Vec3f> result(12);
+  std::vector<Vec3s> result(12);
   const CoalScalar phi = (1 + sqrt(5.0)) / 2.0;
 
   const CoalScalar a = sqrt(3.0) / (phi * phi);
@@ -104,25 +104,25 @@ std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid,
   CoalScalar Bb = B * b;
   CoalScalar Ca = C * a;
   CoalScalar Cb = C * b;
-  result[0] = tf.transform(Vec3f(0, Ba, Cb));
-  result[1] = tf.transform(Vec3f(0, -Ba, Cb));
-  result[2] = tf.transform(Vec3f(0, Ba, -Cb));
-  result[3] = tf.transform(Vec3f(0, -Ba, -Cb));
-  result[4] = tf.transform(Vec3f(Aa, Bb, 0));
-  result[5] = tf.transform(Vec3f(-Aa, Bb, 0));
-  result[6] = tf.transform(Vec3f(Aa, -Bb, 0));
-  result[7] = tf.transform(Vec3f(-Aa, -Bb, 0));
-  result[8] = tf.transform(Vec3f(Ab, 0, Ca));
-  result[9] = tf.transform(Vec3f(Ab, 0, -Ca));
-  result[10] = tf.transform(Vec3f(-Ab, 0, Ca));
-  result[11] = tf.transform(Vec3f(-Ab, 0, -Ca));
+  result[0] = tf.transform(Vec3s(0, Ba, Cb));
+  result[1] = tf.transform(Vec3s(0, -Ba, Cb));
+  result[2] = tf.transform(Vec3s(0, Ba, -Cb));
+  result[3] = tf.transform(Vec3s(0, -Ba, -Cb));
+  result[4] = tf.transform(Vec3s(Aa, Bb, 0));
+  result[5] = tf.transform(Vec3s(-Aa, Bb, 0));
+  result[6] = tf.transform(Vec3s(Aa, -Bb, 0));
+  result[7] = tf.transform(Vec3s(-Aa, -Bb, 0));
+  result[8] = tf.transform(Vec3s(Ab, 0, Ca));
+  result[9] = tf.transform(Vec3s(Ab, 0, -Ca));
+  result[10] = tf.transform(Vec3s(-Ab, 0, Ca));
+  result[11] = tf.transform(Vec3s(-Ab, 0, -Ca));
 
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Capsule& capsule,
+std::vector<Vec3s> getBoundVertices(const Capsule& capsule,
                                     const Transform3f& tf) {
-  std::vector<Vec3f> result(36);
+  std::vector<Vec3s> result(36);
   const CoalScalar m = (1 + sqrt(5.0)) / 2.0;
 
   CoalScalar hl = capsule.halfLength;
@@ -131,101 +131,101 @@ std::vector<Vec3f> getBoundVertices(const Capsule& capsule,
   CoalScalar b = m * edge_size;
   CoalScalar r2 = capsule.radius * 2 / sqrt(3.0);
 
-  result[0] = tf.transform(Vec3f(0, a, b + hl));
-  result[1] = tf.transform(Vec3f(0, -a, b + hl));
-  result[2] = tf.transform(Vec3f(0, a, -b + hl));
-  result[3] = tf.transform(Vec3f(0, -a, -b + hl));
-  result[4] = tf.transform(Vec3f(a, b, hl));
-  result[5] = tf.transform(Vec3f(-a, b, hl));
-  result[6] = tf.transform(Vec3f(a, -b, hl));
-  result[7] = tf.transform(Vec3f(-a, -b, hl));
-  result[8] = tf.transform(Vec3f(b, 0, a + hl));
-  result[9] = tf.transform(Vec3f(b, 0, -a + hl));
-  result[10] = tf.transform(Vec3f(-b, 0, a + hl));
-  result[11] = tf.transform(Vec3f(-b, 0, -a + hl));
+  result[0] = tf.transform(Vec3s(0, a, b + hl));
+  result[1] = tf.transform(Vec3s(0, -a, b + hl));
+  result[2] = tf.transform(Vec3s(0, a, -b + hl));
+  result[3] = tf.transform(Vec3s(0, -a, -b + hl));
+  result[4] = tf.transform(Vec3s(a, b, hl));
+  result[5] = tf.transform(Vec3s(-a, b, hl));
+  result[6] = tf.transform(Vec3s(a, -b, hl));
+  result[7] = tf.transform(Vec3s(-a, -b, hl));
+  result[8] = tf.transform(Vec3s(b, 0, a + hl));
+  result[9] = tf.transform(Vec3s(b, 0, -a + hl));
+  result[10] = tf.transform(Vec3s(-b, 0, a + hl));
+  result[11] = tf.transform(Vec3s(-b, 0, -a + hl));
 
-  result[12] = tf.transform(Vec3f(0, a, b - hl));
-  result[13] = tf.transform(Vec3f(0, -a, b - hl));
-  result[14] = tf.transform(Vec3f(0, a, -b - hl));
-  result[15] = tf.transform(Vec3f(0, -a, -b - hl));
-  result[16] = tf.transform(Vec3f(a, b, -hl));
-  result[17] = tf.transform(Vec3f(-a, b, -hl));
-  result[18] = tf.transform(Vec3f(a, -b, -hl));
-  result[19] = tf.transform(Vec3f(-a, -b, -hl));
-  result[20] = tf.transform(Vec3f(b, 0, a - hl));
-  result[21] = tf.transform(Vec3f(b, 0, -a - hl));
-  result[22] = tf.transform(Vec3f(-b, 0, a - hl));
-  result[23] = tf.transform(Vec3f(-b, 0, -a - hl));
+  result[12] = tf.transform(Vec3s(0, a, b - hl));
+  result[13] = tf.transform(Vec3s(0, -a, b - hl));
+  result[14] = tf.transform(Vec3s(0, a, -b - hl));
+  result[15] = tf.transform(Vec3s(0, -a, -b - hl));
+  result[16] = tf.transform(Vec3s(a, b, -hl));
+  result[17] = tf.transform(Vec3s(-a, b, -hl));
+  result[18] = tf.transform(Vec3s(a, -b, -hl));
+  result[19] = tf.transform(Vec3s(-a, -b, -hl));
+  result[20] = tf.transform(Vec3s(b, 0, a - hl));
+  result[21] = tf.transform(Vec3s(b, 0, -a - hl));
+  result[22] = tf.transform(Vec3s(-b, 0, a - hl));
+  result[23] = tf.transform(Vec3s(-b, 0, -a - hl));
 
   CoalScalar c = 0.5 * r2;
   CoalScalar d = capsule.radius;
-  result[24] = tf.transform(Vec3f(r2, 0, hl));
-  result[25] = tf.transform(Vec3f(c, d, hl));
-  result[26] = tf.transform(Vec3f(-c, d, hl));
-  result[27] = tf.transform(Vec3f(-r2, 0, hl));
-  result[28] = tf.transform(Vec3f(-c, -d, hl));
-  result[29] = tf.transform(Vec3f(c, -d, hl));
+  result[24] = tf.transform(Vec3s(r2, 0, hl));
+  result[25] = tf.transform(Vec3s(c, d, hl));
+  result[26] = tf.transform(Vec3s(-c, d, hl));
+  result[27] = tf.transform(Vec3s(-r2, 0, hl));
+  result[28] = tf.transform(Vec3s(-c, -d, hl));
+  result[29] = tf.transform(Vec3s(c, -d, hl));
 
-  result[30] = tf.transform(Vec3f(r2, 0, -hl));
-  result[31] = tf.transform(Vec3f(c, d, -hl));
-  result[32] = tf.transform(Vec3f(-c, d, -hl));
-  result[33] = tf.transform(Vec3f(-r2, 0, -hl));
-  result[34] = tf.transform(Vec3f(-c, -d, -hl));
-  result[35] = tf.transform(Vec3f(c, -d, -hl));
+  result[30] = tf.transform(Vec3s(r2, 0, -hl));
+  result[31] = tf.transform(Vec3s(c, d, -hl));
+  result[32] = tf.transform(Vec3s(-c, d, -hl));
+  result[33] = tf.transform(Vec3s(-r2, 0, -hl));
+  result[34] = tf.transform(Vec3s(-c, -d, -hl));
+  result[35] = tf.transform(Vec3s(c, -d, -hl));
 
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf) {
-  std::vector<Vec3f> result(7);
+std::vector<Vec3s> getBoundVertices(const Cone& cone, const Transform3f& tf) {
+  std::vector<Vec3s> result(7);
 
   CoalScalar hl = cone.halfLength;
   CoalScalar r2 = cone.radius * 2 / sqrt(3.0);
   CoalScalar a = 0.5 * r2;
   CoalScalar b = cone.radius;
 
-  result[0] = tf.transform(Vec3f(r2, 0, -hl));
-  result[1] = tf.transform(Vec3f(a, b, -hl));
-  result[2] = tf.transform(Vec3f(-a, b, -hl));
-  result[3] = tf.transform(Vec3f(-r2, 0, -hl));
-  result[4] = tf.transform(Vec3f(-a, -b, -hl));
-  result[5] = tf.transform(Vec3f(a, -b, -hl));
+  result[0] = tf.transform(Vec3s(r2, 0, -hl));
+  result[1] = tf.transform(Vec3s(a, b, -hl));
+  result[2] = tf.transform(Vec3s(-a, b, -hl));
+  result[3] = tf.transform(Vec3s(-r2, 0, -hl));
+  result[4] = tf.transform(Vec3s(-a, -b, -hl));
+  result[5] = tf.transform(Vec3s(a, -b, -hl));
 
-  result[6] = tf.transform(Vec3f(0, 0, hl));
+  result[6] = tf.transform(Vec3s(0, 0, hl));
 
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder,
+std::vector<Vec3s> getBoundVertices(const Cylinder& cylinder,
                                     const Transform3f& tf) {
-  std::vector<Vec3f> result(12);
+  std::vector<Vec3s> result(12);
 
   CoalScalar hl = cylinder.halfLength;
   CoalScalar r2 = cylinder.radius * 2 / sqrt(3.0);
   CoalScalar a = 0.5 * r2;
   CoalScalar b = cylinder.radius;
 
-  result[0] = tf.transform(Vec3f(r2, 0, -hl));
-  result[1] = tf.transform(Vec3f(a, b, -hl));
-  result[2] = tf.transform(Vec3f(-a, b, -hl));
-  result[3] = tf.transform(Vec3f(-r2, 0, -hl));
-  result[4] = tf.transform(Vec3f(-a, -b, -hl));
-  result[5] = tf.transform(Vec3f(a, -b, -hl));
+  result[0] = tf.transform(Vec3s(r2, 0, -hl));
+  result[1] = tf.transform(Vec3s(a, b, -hl));
+  result[2] = tf.transform(Vec3s(-a, b, -hl));
+  result[3] = tf.transform(Vec3s(-r2, 0, -hl));
+  result[4] = tf.transform(Vec3s(-a, -b, -hl));
+  result[5] = tf.transform(Vec3s(a, -b, -hl));
 
-  result[6] = tf.transform(Vec3f(r2, 0, hl));
-  result[7] = tf.transform(Vec3f(a, b, hl));
-  result[8] = tf.transform(Vec3f(-a, b, hl));
-  result[9] = tf.transform(Vec3f(-r2, 0, hl));
-  result[10] = tf.transform(Vec3f(-a, -b, hl));
-  result[11] = tf.transform(Vec3f(a, -b, hl));
+  result[6] = tf.transform(Vec3s(r2, 0, hl));
+  result[7] = tf.transform(Vec3s(a, b, hl));
+  result[8] = tf.transform(Vec3s(-a, b, hl));
+  result[9] = tf.transform(Vec3s(-r2, 0, hl));
+  result[10] = tf.transform(Vec3s(-a, -b, hl));
+  result[11] = tf.transform(Vec3s(a, -b, hl));
 
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const ConvexBase& convex,
+std::vector<Vec3s> getBoundVertices(const ConvexBase& convex,
                                     const Transform3f& tf) {
-  std::vector<Vec3f> result(convex.num_points);
-  const std::vector<Vec3f>& points_ = *(convex.points);
+  std::vector<Vec3s> result(convex.num_points);
+  const std::vector<Vec3s>& points_ = *(convex.points);
   for (std::size_t i = 0; i < convex.num_points; ++i) {
     result[i] = tf.transform(points_[i]);
   }
@@ -233,9 +233,9 @@ std::vector<Vec3f> getBoundVertices(const ConvexBase& convex,
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const TriangleP& triangle,
+std::vector<Vec3s> getBoundVertices(const TriangleP& triangle,
                                     const Transform3f& tf) {
-  std::vector<Vec3f> result(3);
+  std::vector<Vec3s> result(3);
   result[0] = tf.transform(triangle.a);
   result[1] = tf.transform(triangle.b);
   result[2] = tf.transform(triangle.c);
@@ -252,7 +252,7 @@ Halfspace transform(const Halfspace& a, const Transform3f& tf) {
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vec3f n = tf.getRotation() * a.n;
+  Vec3s n = tf.getRotation() * a.n;
   CoalScalar d = a.d + n.dot(tf.getTranslation());
   Halfspace result(n, d);
   result.setSweptSphereRadius(a.getSweptSphereRadius());
@@ -267,7 +267,7 @@ Plane transform(const Plane& a, const Transform3f& tf) {
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vec3f n = tf.getRotation() * a.n;
+  Vec3s n = tf.getRotation() * a.n;
   CoalScalar d = a.d + n.dot(tf.getTranslation());
   Plane result(n, d);
   result.setSweptSphereRadius(a.getSweptSphereRadius());
@@ -279,7 +279,7 @@ std::array<Halfspace, 2> transformToHalfspaces(const Plane& a,
                                                const Transform3f& tf) {
   // A plane can be represented by two halfspaces
 
-  Vec3f n = tf.getRotation() * a.n;
+  Vec3s n = tf.getRotation() * a.n;
   CoalScalar d = a.d + n.dot(tf.getTranslation());
   std::array<Halfspace, 2> result = {Halfspace(n, d), Halfspace(-n, -d)};
   result[0].setSweptSphereRadius(a.getSweptSphereRadius());
@@ -290,19 +290,19 @@ std::array<Halfspace, 2> transformToHalfspaces(const Plane& a,
 
 template <>
 void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv) {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3s& R = tf.getRotation();
+  const Vec3s& T = tf.getTranslation();
 
-  Vec3f v_delta(R.cwiseAbs() * s.halfSide);
+  Vec3s v_delta(R.cwiseAbs() * s.halfSide);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
 
 template <>
 void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv) {
-  const Vec3f& T = tf.getTranslation();
+  const Vec3s& T = tf.getTranslation();
 
-  Vec3f v_delta(Vec3f::Constant(s.radius));
+  Vec3s v_delta(Vec3s::Constant(s.radius));
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
@@ -310,10 +310,10 @@ void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv) {
 template <>
 void computeBV<AABB, Ellipsoid>(const Ellipsoid& e, const Transform3f& tf,
                                 AABB& bv) {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3s& R = tf.getRotation();
+  const Vec3s& T = tf.getTranslation();
 
-  Vec3f v_delta = R * e.radii;
+  Vec3s v_delta = R * e.radii;
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
@@ -321,18 +321,18 @@ void computeBV<AABB, Ellipsoid>(const Ellipsoid& e, const Transform3f& tf,
 template <>
 void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf,
                               AABB& bv) {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3s& R = tf.getRotation();
+  const Vec3s& T = tf.getTranslation();
 
-  Vec3f v_delta(R.col(2).cwiseAbs() * s.halfLength + Vec3f::Constant(s.radius));
+  Vec3s v_delta(R.col(2).cwiseAbs() * s.halfLength + Vec3s::Constant(s.radius));
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
 
 template <>
 void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv) {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3s& R = tf.getRotation();
+  const Vec3s& T = tf.getTranslation();
 
   CoalScalar x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) +
                        fabs(R(0, 2) * s.halfLength);
@@ -341,7 +341,7 @@ void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv) {
   CoalScalar z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) +
                        fabs(R(2, 2) * s.halfLength);
 
-  Vec3f v_delta(x_range, y_range, z_range);
+  Vec3s v_delta(x_range, y_range, z_range);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
@@ -349,8 +349,8 @@ void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv) {
 template <>
 void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf,
                                AABB& bv) {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3s& R = tf.getRotation();
+  const Vec3s& T = tf.getTranslation();
 
   CoalScalar x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) +
                        fabs(R(0, 2) * s.halfLength);
@@ -359,7 +359,7 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf,
   CoalScalar z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) +
                        fabs(R(2, 2) * s.halfLength);
 
-  Vec3f v_delta(x_range, y_range, z_range);
+  Vec3s v_delta(x_range, y_range, z_range);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
@@ -367,13 +367,13 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf,
 template <>
 void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf,
                                  AABB& bv) {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3s& R = tf.getRotation();
+  const Vec3s& T = tf.getTranslation();
 
   AABB bv_;
-  const std::vector<Vec3f>& points_ = *(s.points);
+  const std::vector<Vec3s>& points_ = *(s.points);
   for (std::size_t i = 0; i < s.num_points; ++i) {
-    Vec3f new_p = R * points_[i] + T;
+    Vec3s new_p = R * points_[i] + T;
     bv_ += new_p;
   }
 
@@ -390,12 +390,12 @@ template <>
 void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf,
                                 AABB& bv) {
   Halfspace new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vec3s& n = new_s.n;
   const CoalScalar& d = new_s.d;
 
   AABB bv_;
-  bv_.min_ = Vec3f::Constant(-(std::numeric_limits<CoalScalar>::max)());
-  bv_.max_ = Vec3f::Constant((std::numeric_limits<CoalScalar>::max)());
+  bv_.min_ = Vec3s::Constant(-(std::numeric_limits<CoalScalar>::max)());
+  bv_.max_ = Vec3s::Constant((std::numeric_limits<CoalScalar>::max)());
   if (n[1] == (CoalScalar)0.0 && n[2] == (CoalScalar)0.0) {
     // normal aligned with x axis
     if (n[0] < 0)
@@ -422,12 +422,12 @@ void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf,
 template <>
 void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv) {
   Plane new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vec3s& n = new_s.n;
   const CoalScalar& d = new_s.d;
 
   AABB bv_;
-  bv_.min_ = Vec3f::Constant(-(std::numeric_limits<CoalScalar>::max)());
-  bv_.max_ = Vec3f::Constant((std::numeric_limits<CoalScalar>::max)());
+  bv_.min_ = Vec3s::Constant(-(std::numeric_limits<CoalScalar>::max)());
+  bv_.max_ = Vec3s::Constant((std::numeric_limits<CoalScalar>::max)());
   if (n[1] == (CoalScalar)0.0 && n[2] == (CoalScalar)0.0) {
     // normal aligned with x axis
     if (n[0] < 0) {
@@ -460,8 +460,8 @@ void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
   }
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3s& R = tf.getRotation();
+  const Vec3s& T = tf.getTranslation();
 
   bv.To = T;
   bv.axes = R;
@@ -474,7 +474,7 @@ void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
   }
-  const Vec3f& T = tf.getTranslation();
+  const Vec3s& T = tf.getTranslation();
 
   bv.To.noalias() = T;
   bv.axes.setIdentity();
@@ -487,8 +487,8 @@ void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
   }
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3s& R = tf.getRotation();
+  const Vec3s& T = tf.getTranslation();
 
   bv.To.noalias() = T;
   bv.axes.noalias() = R;
@@ -501,8 +501,8 @@ void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
   }
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3s& R = tf.getRotation();
+  const Vec3s& T = tf.getTranslation();
 
   bv.To.noalias() = T;
   bv.axes.noalias() = R;
@@ -516,8 +516,8 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf,
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
   }
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3s& R = tf.getRotation();
+  const Vec3s& T = tf.getTranslation();
 
   bv.To.noalias() = T;
   bv.axes.noalias() = R;
@@ -531,8 +531,8 @@ void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf,
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
   }
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3s& R = tf.getRotation();
+  const Vec3s& T = tf.getTranslation();
 
   fit(s.points->data(), s.num_points, bv);
 
@@ -588,7 +588,7 @@ void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf,
   }
   bv.num_spheres = 1;
   computeBV<OBB, Halfspace>(s, tf, bv.obb);
-  bv.spheres[0].o = Vec3f();
+  bv.spheres[0].o = Vec3s();
   bv.spheres[0].r = (std::numeric_limits<CoalScalar>::max)();
 }
 
@@ -600,7 +600,7 @@ void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf,
                       std::runtime_error);
   }
   Halfspace new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vec3s& n = new_s.n;
   const CoalScalar& d = new_s.d;
 
   const short D = 8;
@@ -660,7 +660,7 @@ void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf,
                       std::runtime_error);
   }
   Halfspace new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vec3s& n = new_s.n;
   const CoalScalar& d = new_s.d;
 
   const short D = 9;
@@ -726,7 +726,7 @@ void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf,
                       std::runtime_error);
   }
   Halfspace new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vec3s& n = new_s.n;
   const CoalScalar& d = new_s.d;
 
   const short D = 12;
@@ -805,14 +805,14 @@ void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
   }
-  Vec3f n = tf.getRotation() * s.n;
+  Vec3s n = tf.getRotation() * s.n;
   generateCoordinateSystem(n, bv.axes.col(1), bv.axes.col(2));
   bv.axes.col(0).noalias() = n;
 
   bv.extent << 0, (std::numeric_limits<CoalScalar>::max)(),
       (std::numeric_limits<CoalScalar>::max)();
 
-  Vec3f p = s.n * s.d;
+  Vec3s p = s.n * s.d;
   bv.To =
       tf.transform(p);  /// n'd' = R * n * (d + (R * n) * T) = R * (n * d) + T
 }
@@ -823,7 +823,7 @@ void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
   }
-  Vec3f n = tf.getRotation() * s.n;
+  Vec3s n = tf.getRotation() * s.n;
 
   generateCoordinateSystem(n, bv.axes.col(1), bv.axes.col(2));
   bv.axes.col(0).noalias() = n;
@@ -833,7 +833,7 @@ void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv) {
 
   bv.radius = 0;
 
-  Vec3f p = s.n * s.d;
+  Vec3s p = s.n * s.d;
   bv.Tr = tf.transform(p);
 }
 
@@ -856,7 +856,7 @@ void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv) {
   }
   bv.num_spheres = 1;
   computeBV<OBB, Plane>(s, tf, bv.obb);
-  bv.spheres[0].o = Vec3f();
+  bv.spheres[0].o = Vec3s();
   bv.spheres[0].r = (std::numeric_limits<CoalScalar>::max)();
 }
 
@@ -868,7 +868,7 @@ void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf,
                       std::runtime_error);
   }
   Plane new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vec3s& n = new_s.n;
   const CoalScalar& d = new_s.d;
 
   const short D = 8;
@@ -914,7 +914,7 @@ void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf,
                       std::runtime_error);
   }
   Plane new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vec3s& n = new_s.n;
   const CoalScalar& d = new_s.d;
 
   const short D = 9;
@@ -962,7 +962,7 @@ void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf,
                       std::runtime_error);
   }
   Plane new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vec3s& n = new_s.n;
   const CoalScalar& d = new_s.d;
 
   const short D = 12;

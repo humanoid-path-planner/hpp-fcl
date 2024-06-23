@@ -153,7 +153,7 @@ class MeshShapeCollisionTraversalNode
     // collision.
     const bool compute_penetration =
         this->request.enable_contact || (this->request.security_margin < 0);
-    Vec3f c1, c2, normal;
+    Vec3s c1, c2, normal;
     CoalScalar distance;
 
     if (RTIsIdentity) {
@@ -186,7 +186,7 @@ class MeshShapeCollisionTraversalNode
     assert(this->result->isCollision() || sqrDistLowerBound > 0);
   }  // leafCollides
 
-  Vec3f* vertices;
+  Vec3s* vertices;
   Triangle* tri_indices;
 
   const GJKSolver* nsolver;
@@ -308,7 +308,7 @@ class MeshShapeDistanceTraversalNode
     const TriangleP tri(this->vertices[tri_id[0]], this->vertices[tri_id[1]],
                         this->vertices[tri_id[2]]);
 
-    Vec3f p1, p2, normal;
+    Vec3s p1, p2, normal;
     const CoalScalar distance = internal::ShapeShapeDistance<TriangleP, S>(
         &tri, this->tf1, this->model2, this->tf2, this->nsolver,
         this->request.enable_signed_distance, p1, p2, normal);
@@ -325,7 +325,7 @@ class MeshShapeDistanceTraversalNode
     return false;
   }
 
-  Vec3f* vertices;
+  Vec3s* vertices;
   Triangle* tri_indices;
 
   CoalScalar rel_err;
@@ -340,7 +340,7 @@ namespace details {
 template <typename BV, typename S>
 void meshShapeDistanceOrientedNodeleafComputeDistance(
     unsigned int b1, unsigned int /* b2 */, const BVHModel<BV>* model1,
-    const S& model2, Vec3f* vertices, Triangle* tri_indices,
+    const S& model2, Vec3s* vertices, Triangle* tri_indices,
     const Transform3f& tf1, const Transform3f& tf2, const GJKSolver* nsolver,
     bool enable_statistics, int& num_leaf_tests, const DistanceRequest& request,
     DistanceResult& result) {
@@ -353,7 +353,7 @@ void meshShapeDistanceOrientedNodeleafComputeDistance(
   const TriangleP tri(vertices[tri_id[0]], vertices[tri_id[1]],
                       vertices[tri_id[2]]);
 
-  Vec3f p1, p2, normal;
+  Vec3s p1, p2, normal;
   const CoalScalar distance = internal::ShapeShapeDistance<TriangleP, S>(
       &tri, tf1, &model2, tf2, nsolver, request.enable_signed_distance, p1, p2,
       normal);
@@ -364,7 +364,7 @@ void meshShapeDistanceOrientedNodeleafComputeDistance(
 
 template <typename BV, typename S>
 static inline void distancePreprocessOrientedNode(
-    const BVHModel<BV>* model1, Vec3f* vertices, Triangle* tri_indices,
+    const BVHModel<BV>* model1, Vec3s* vertices, Triangle* tri_indices,
     int init_tri_id, const S& model2, const Transform3f& tf1,
     const Transform3f& tf2, const GJKSolver* nsolver,
     const DistanceRequest& request, DistanceResult& result) {
@@ -372,7 +372,7 @@ static inline void distancePreprocessOrientedNode(
   const TriangleP tri(vertices[tri_id[0]], vertices[tri_id[1]],
                       vertices[tri_id[2]]);
 
-  Vec3f p1, p2, normal;
+  Vec3s p1, p2, normal;
   const CoalScalar distance = internal::ShapeShapeDistance<TriangleP, S>(
       &tri, tf1, &model2, tf2, nsolver, request.enable_signed_distance, p1, p2,
       normal);

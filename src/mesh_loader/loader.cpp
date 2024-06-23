@@ -58,14 +58,14 @@ bool CachedMeshLoader::Key::operator<(const CachedMeshLoader::Key& b) const {
 }
 
 template <typename BV>
-BVHModelPtr_t _load(const std::string& filename, const Vec3f& scale) {
+BVHModelPtr_t _load(const std::string& filename, const Vec3s& scale) {
   shared_ptr<BVHModel<BV> > polyhedron(new BVHModel<BV>);
   loadPolyhedronFromResource(filename, scale, polyhedron);
   return polyhedron;
 }
 
 BVHModelPtr_t MeshLoader::load(const std::string& filename,
-                               const Vec3f& scale) {
+                               const Vec3s& scale) {
   switch (bvType_) {
     case BV_AABB:
       return _load<AABB>(filename, scale);
@@ -100,7 +100,7 @@ CollisionGeometryPtr_t MeshLoader::loadOctree(const std::string& filename) {
 }
 
 BVHModelPtr_t CachedMeshLoader::load(const std::string& filename,
-                                     const Vec3f& scale) {
+                                     const Vec3s& scale) {
   Key key(filename, scale);
 
   std::time_t mtime = 0;

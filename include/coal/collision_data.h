@@ -85,7 +85,7 @@ struct COAL_DLLAPI Contact {
   /// one contact point but have a zero intersection volume). If the shapes
   /// overlap, dist(o1, o2) = -((p2-p1).norm()). Otherwise, dist(o1, o2) =
   /// (p2-p1).norm().
-  Vec3f normal;
+  Vec3s normal;
 
   /// @brief nearest points associated to this contact.
   /// @note Also referred as "witness points" in other collision libraries.
@@ -96,10 +96,10 @@ struct COAL_DLLAPI Contact {
   /// vector. If o1 and o2 have multiple contacts, the nearest_points are
   /// associated with the contact which has the greatest penetration depth.
   /// TODO (louis): rename `nearest_points` to `witness_points`.
-  std::array<Vec3f, 2> nearest_points;
+  std::array<Vec3s, 2> nearest_points;
 
   /// @brief contact position, in world space
-  Vec3f pos;
+  Vec3s pos;
 
   /// @brief penetration depth
   CoalScalar penetration_depth;
@@ -111,7 +111,7 @@ struct COAL_DLLAPI Contact {
   Contact() : o1(NULL), o2(NULL), b1(NONE), b2(NONE) {
     penetration_depth = (std::numeric_limits<CoalScalar>::max)();
     nearest_points[0] = nearest_points[1] = normal = pos =
-        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
+        Vec3s::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
   }
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
@@ -119,11 +119,11 @@ struct COAL_DLLAPI Contact {
       : o1(o1_), o2(o2_), b1(b1_), b2(b2_) {
     penetration_depth = (std::numeric_limits<CoalScalar>::max)();
     nearest_points[0] = nearest_points[1] = normal = pos =
-        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
+        Vec3s::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
   }
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
-          int b2_, const Vec3f& pos_, const Vec3f& normal_, CoalScalar depth_)
+          int b2_, const Vec3s& pos_, const Vec3s& normal_, CoalScalar depth_)
       : o1(o1_),
         o2(o2_),
         b1(b1_),
@@ -135,7 +135,7 @@ struct COAL_DLLAPI Contact {
         penetration_depth(depth_) {}
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
-          int b2_, const Vec3f& p1, const Vec3f& p2, const Vec3f& normal_,
+          int b2_, const Vec3s& p1, const Vec3s& p2, const Vec3s& normal_,
           CoalScalar depth_)
       : o1(o1_),
         o2(o2_),
@@ -177,7 +177,7 @@ struct COAL_DLLAPI QueryRequest {
   bool enable_cached_gjk_guess;
 
   /// @brief the gjk initial guess set by user
-  mutable Vec3f cached_gjk_guess;
+  mutable Vec3s cached_gjk_guess;
 
   /// @brief the support function initial guess set by user
   mutable support_func_guess_t cached_support_func_guess;
@@ -274,7 +274,7 @@ struct COAL_DLLAPI QueryRequest {
 /// @brief base class for all query results
 struct COAL_DLLAPI QueryResult {
   /// @brief stores the last GJK ray when relevant.
-  Vec3f cached_gjk_guess;
+  Vec3s cached_gjk_guess;
 
   /// @brief stores the last support function vertex index, when relevant.
   support_func_guess_t cached_support_func_guess;
@@ -283,7 +283,7 @@ struct COAL_DLLAPI QueryResult {
   CPUTimes timings;
 
   QueryResult()
-      : cached_gjk_guess(Vec3f::Zero()),
+      : cached_gjk_guess(Vec3s::Zero()),
         cached_support_func_guess(support_func_guess_t::Constant(-1)) {}
 };
 
@@ -402,7 +402,7 @@ struct COAL_DLLAPI CollisionResult : QueryResult {
 
   /// @brief normal associated to nearest_points.
   /// Same as `CollisionResult::nearest_points` but for the normal.
-  Vec3f normal;
+  Vec3s normal;
 
   /// @brief nearest points.
   /// A `CollisionResult` can have multiple contacts.
@@ -411,13 +411,13 @@ struct COAL_DLLAPI CollisionResult : QueryResult {
   /// For bounding volumes and BVHs, these nearest points are available
   /// only when distance_lower_bound is inferior to
   /// CollisionRequest::break_distance.
-  std::array<Vec3f, 2> nearest_points;
+  std::array<Vec3s, 2> nearest_points;
 
  public:
   CollisionResult()
       : distance_lower_bound((std::numeric_limits<CoalScalar>::max)()) {
     nearest_points[0] = nearest_points[1] = normal =
-        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
+        Vec3s::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
   }
 
   /// @brief Update the lower bound only if the distance is inferior.
@@ -485,7 +485,7 @@ struct COAL_DLLAPI CollisionResult : QueryResult {
     contacts.clear();
     timings.clear();
     nearest_points[0] = nearest_points[1] = normal =
-        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
+        Vec3s::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
   }
 
   /// @brief reposition Contact objects when fcl inverts them
@@ -511,7 +511,7 @@ struct COAL_DLLAPI CollisionResult : QueryResult {
 /// to compute a contact volume instead of a contact patch.
 struct COAL_DLLAPI ContactPatch {
  public:
-  using Polygon = std::vector<Vec2f>;
+  using Polygon = std::vector<Vec2s>;
 
   /// @brief Frame of the set, expressed in the world coordinates.
   /// The z-axis of the frame's rotation is the contact patch normal.
@@ -566,7 +566,7 @@ struct COAL_DLLAPI ContactPatch {
   }
 
   /// @brief Normal of the contact patch, expressed in the WORLD frame.
-  Vec3f getNormal() const {
+  Vec3s getNormal() const {
     if (this->direction == PatchDirection::INVERTED) {
       return -this->tf.rotation().col(2);
     }
@@ -581,14 +581,14 @@ struct COAL_DLLAPI ContactPatch {
   /// of the set. It then takes only the x and y components of the vector,
   /// effectively doing a projection onto the plane to which the set belongs.
   /// TODO(louis): if necessary, we can store the offset to the plane (x, y).
-  void addPoint(const Vec3f& point_3d) {
-    const Vec3f point = this->tf.inverseTransform(point_3d);
+  void addPoint(const Vec3s& point_3d) {
+    const Vec3s point = this->tf.inverseTransform(point_3d);
     this->m_points.emplace_back(point.template head<2>());
   }
 
   /// @brief Get the i-th point of the set, expressed in the 3D world frame.
-  Vec3f getPoint(const size_t i) const {
-    Vec3f point(0, 0, 0);
+  Vec3s getPoint(const size_t i) const {
+    Vec3s point(0, 0, 0);
     point.head<2>() = this->point(i);
     point = tf.transform(point);
     return point;
@@ -597,8 +597,8 @@ struct COAL_DLLAPI ContactPatch {
   /// @brief Get the i-th point of the contact patch, projected back onto the
   /// first shape of the collision pair. This point is expressed in the 3D
   /// world frame.
-  Vec3f getPointShape1(const size_t i) const {
-    Vec3f point = this->getPoint(i);
+  Vec3s getPointShape1(const size_t i) const {
+    Vec3s point = this->getPoint(i);
     point -= (this->penetration_depth / 2) * this->getNormal();
     return point;
   }
@@ -606,8 +606,8 @@ struct COAL_DLLAPI ContactPatch {
   /// @brief Get the i-th point of the contact patch, projected back onto the
   /// first shape of the collision pair. This 3D point is expressed in the world
   /// frame.
-  Vec3f getPointShape2(const size_t i) const {
-    Vec3f point = this->getPoint(i);
+  Vec3s getPointShape2(const size_t i) const {
+    Vec3s point = this->getPoint(i);
     point += (this->penetration_depth / 2) * this->getNormal();
     return point;
   }
@@ -619,7 +619,7 @@ struct COAL_DLLAPI ContactPatch {
   const Polygon& points() const { return this->m_points; }
 
   /// @brief Getter for the i-th 2D point in the set.
-  Vec2f& point(const size_t i) {
+  Vec2s& point(const size_t i) {
     COAL_ASSERT(this->m_points.size() > 0, "Patch is empty.", std::logic_error);
     if (i < this->m_points.size()) {
       return this->m_points[i];
@@ -628,7 +628,7 @@ struct COAL_DLLAPI ContactPatch {
   }
 
   /// @brief Const getter for the i-th 2D point in the set.
-  const Vec2f& point(const size_t i) const {
+  const Vec2s& point(const size_t i) const {
     COAL_ASSERT(this->m_points.size() > 0, "Patch is empty.", std::logic_error);
     if (i < this->m_points.size()) {
       return this->m_points[i];
@@ -680,9 +680,9 @@ struct COAL_DLLAPI ContactPatch {
     // Check all points of the contact patch.
     for (size_t i = 0; i < this->size(); ++i) {
       bool found = false;
-      const Vec3f pi = this->getPoint(i);
+      const Vec3s pi = this->getPoint(i);
       for (size_t j = 0; j < other.size(); ++j) {
-        const Vec3f other_pj = other.getPoint(j);
+        const Vec3s other_pj = other.getPoint(j);
         if (pi.isApprox(other_pj, tol)) {
           found = true;
         }
@@ -1058,11 +1058,11 @@ struct COAL_DLLAPI DistanceResult : QueryResult {
   CoalScalar min_distance;
 
   /// @brief normal.
-  Vec3f normal;
+  Vec3s normal;
 
   /// @brief nearest points.
   /// See CollisionResult::nearest_points.
-  std::array<Vec3f, 2> nearest_points;
+  std::array<Vec3s, 2> nearest_points;
 
   /// @brief collision object 1
   const CollisionGeometry* o1;
@@ -1088,8 +1088,8 @@ struct COAL_DLLAPI DistanceResult : QueryResult {
   DistanceResult(
       CoalScalar min_distance_ = (std::numeric_limits<CoalScalar>::max)())
       : min_distance(min_distance_), o1(NULL), o2(NULL), b1(NONE), b2(NONE) {
-    const Vec3f nan(
-        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN()));
+    const Vec3s nan(
+        Vec3s::Constant(std::numeric_limits<CoalScalar>::quiet_NaN()));
     nearest_points[0] = nearest_points[1] = normal = nan;
   }
 
@@ -1107,8 +1107,8 @@ struct COAL_DLLAPI DistanceResult : QueryResult {
 
   /// @brief add distance information into the result
   void update(CoalScalar distance, const CollisionGeometry* o1_,
-              const CollisionGeometry* o2_, int b1_, int b2_, const Vec3f& p1,
-              const Vec3f& p2, const Vec3f& normal_) {
+              const CollisionGeometry* o2_, int b1_, int b2_, const Vec3s& p1,
+              const Vec3s& p2, const Vec3s& normal_) {
     if (min_distance > distance) {
       min_distance = distance;
       o1 = o1_;
@@ -1137,8 +1137,8 @@ struct COAL_DLLAPI DistanceResult : QueryResult {
 
   /// @brief clear the result
   void clear() {
-    const Vec3f nan(
-        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN()));
+    const Vec3s nan(
+        Vec3s::Constant(std::numeric_limits<CoalScalar>::quiet_NaN()));
     min_distance = (std::numeric_limits<CoalScalar>::max)();
     o1 = NULL;
     o2 = NULL;
@@ -1184,8 +1184,8 @@ inline void updateDistanceLowerBoundFromBV(const CollisionRequest& /*req*/,
 inline void updateDistanceLowerBoundFromLeaf(const CollisionRequest&,
                                              CollisionResult& res,
                                              const CoalScalar& distance,
-                                             const Vec3f& p0, const Vec3f& p1,
-                                             const Vec3f& normal) {
+                                             const Vec3s& p0, const Vec3s& p1,
+                                             const Vec3s& normal) {
   if (distance < res.distance_lower_bound) {
     res.distance_lower_bound = distance;
     res.nearest_points[0] = p0;

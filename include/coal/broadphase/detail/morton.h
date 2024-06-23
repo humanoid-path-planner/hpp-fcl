@@ -71,10 +71,10 @@ template <typename S>
 struct morton_functor<S, uint32_t> {
   morton_functor(const AABB& bbox);
 
-  uint32_t operator()(const Vec3f& point) const;
+  uint32_t operator()(const Vec3s& point) const;
 
-  const Vec3f base;
-  const Vec3f inv;
+  const Vec3s base;
+  const Vec3s inv;
 
   static constexpr size_t bits();
 };
@@ -87,10 +87,10 @@ template <typename S>
 struct morton_functor<S, uint64_t> {
   morton_functor(const AABB& bbox);
 
-  uint64_t operator()(const Vec3f& point) const;
+  uint64_t operator()(const Vec3s& point) const;
 
-  const Vec3f base;
-  const Vec3f inv;
+  const Vec3s base;
+  const Vec3s inv;
 
   static constexpr size_t bits();
 };
@@ -103,10 +103,10 @@ struct morton_functor<S, std::bitset<N>> {
 
   morton_functor(const AABB& bbox);
 
-  std::bitset<N> operator()(const Vec3f& point) const;
+  std::bitset<N> operator()(const Vec3s& point) const;
 
-  const Vec3f base;
-  const Vec3f inv;
+  const Vec3s base;
+  const Vec3s inv;
 
   static constexpr size_t bits();
 };

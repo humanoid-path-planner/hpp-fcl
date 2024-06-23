@@ -55,7 +55,7 @@ namespace utf = boost::unit_test::framework;
 
 using namespace coal;
 
-void makeMesh(const std::vector<Vec3f>& vertices,
+void makeMesh(const std::vector<Vec3s>& vertices,
               const std::vector<Triangle>& triangles, BVHModel<OBBRSS>& model) {
   coal::SplitMethodType split_method(coal::SPLIT_METHOD_MEAN);
   model.bv_splitter.reset(new BVSplitter<OBBRSS>(split_method));
@@ -68,8 +68,8 @@ void makeMesh(const std::vector<Vec3f>& vertices,
 
 coal::OcTree makeOctree(const BVHModel<OBBRSS>& mesh,
                         const CoalScalar& resolution) {
-  Vec3f m(mesh.aabb_local.min_);
-  Vec3f M(mesh.aabb_local.max_);
+  Vec3s m(mesh.aabb_local.min_);
+  Vec3s M(mesh.aabb_local.max_);
   coal::Box box(resolution, resolution, resolution);
   CollisionRequest request(coal::CONTACT | coal::DISTANCE_LOWER_BOUND, 1);
   CollisionResult result;
@@ -82,7 +82,7 @@ coal::OcTree makeOctree(const BVHModel<OBBRSS>& mesh,
          y += resolution) {
       for (CoalScalar z = resolution * floor(m[2] / resolution); z <= M[2];
            z += resolution) {
-        Vec3f center(x + .5 * resolution, y + .5 * resolution,
+        Vec3s center(x + .5 * resolution, y + .5 * resolution,
                      z + .5 * resolution);
         tfBox.setTranslation(center);
         coal::collide(&box, tfBox, &mesh, Transform3f(), request, result);
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(octree_mesh) {
   Eigen::IOFormat tuple(Eigen::FullPrecision, Eigen::DontAlignCols, "", ", ",
                         "", "", "(", ")");
   CoalScalar resolution(10.);
-  std::vector<Vec3f> pRob, pEnv;
+  std::vector<Vec3s> pRob, pEnv;
   std::vector<Triangle> tRob, tEnv;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
   loadOBJFile((path / "rob.obj").string().c_str(), pRob, tRob);
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(octree_height_field) {
   Eigen::IOFormat tuple(Eigen::FullPrecision, Eigen::DontAlignCols, "", ", ",
                         "", "", "(", ")");
   CoalScalar resolution(10.);
-  std::vector<Vec3f> pEnv;
+  std::vector<Vec3s> pEnv;
   std::vector<Triangle> tEnv;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
   loadOBJFile((path / "env.obj").string().c_str(), pEnv, tEnv);
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(octree_height_field) {
   const CoalScalar x_dim = 10, y_dim = 20;
   const int nx = 100, ny = 100;
   const CoalScalar max_altitude = 1., min_altitude = 0.;
-  const MatrixXf heights = MatrixXf::Constant(ny, nx, max_altitude);
+  const MatrixXs heights = MatrixXs::Constant(ny, nx, max_altitude);
 
   HeightField<AABB> hfield(x_dim, y_dim, heights, min_altitude);
   hfield.computeLocalAABB();

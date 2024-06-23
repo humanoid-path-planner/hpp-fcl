@@ -128,16 +128,16 @@ void test_normal_and_nearest_points(
       Contact contact = colres.getContact(0);
       BOOST_CHECK_CLOSE(dist, contact.penetration_depth, dummy_precision);
 
-      Vec3f cp1 = contact.nearest_points[0];
+      Vec3s cp1 = contact.nearest_points[0];
       EIGEN_VECTOR_IS_APPROX(cp1, distres.nearest_points[0], dummy_precision);
 
-      Vec3f cp2 = contact.nearest_points[1];
+      Vec3s cp2 = contact.nearest_points[1];
       EIGEN_VECTOR_IS_APPROX(cp2, distres.nearest_points[1], dummy_precision);
       BOOST_CHECK_CLOSE(contact.penetration_depth, -(cp2 - cp1).norm(),
                         epa_tolerance);
       EIGEN_VECTOR_IS_APPROX(cp1, cp2 - dist * distres.normal, epa_tolerance);
 
-      Vec3f separation_vector = contact.penetration_depth * contact.normal;
+      Vec3s separation_vector = contact.penetration_depth * contact.normal;
       EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, epa_tolerance);
 
       if (dist < 0) {
@@ -160,13 +160,13 @@ void test_normal_and_nearest_points(
       BOOST_CHECK(!new_colres.isCollision());
       BOOST_CHECK_CLOSE(new_colres.distance_lower_bound, new_dist,
                         epa_tolerance);
-      Vec3f new_cp1 = new_distres.nearest_points[0];
-      Vec3f new_cp2 = new_distres.nearest_points[1];
+      Vec3s new_cp1 = new_distres.nearest_points[0];
+      Vec3s new_cp2 = new_distres.nearest_points[1];
       BOOST_CHECK_CLOSE(new_dist, (new_cp1 - new_cp2).norm(), epa_tolerance);
       EIGEN_VECTOR_IS_APPROX(new_cp1, new_cp2 - new_dist * new_distres.normal,
                              epa_tolerance);
 
-      Vec3f new_separation_vector = new_dist * new_distres.normal;
+      Vec3s new_separation_vector = new_dist * new_distres.normal;
       EIGEN_VECTOR_IS_APPROX(new_separation_vector, new_cp2 - new_cp1,
                              epa_tolerance);
 
@@ -179,12 +179,12 @@ void test_normal_and_nearest_points(
       BOOST_CHECK_CLOSE(distres.min_distance, dist, dummy_precision);
       BOOST_CHECK_CLOSE(dist, colres.distance_lower_bound, dummy_precision);
 
-      Vec3f cp1 = distres.nearest_points[0];
-      Vec3f cp2 = distres.nearest_points[1];
+      Vec3s cp1 = distres.nearest_points[0];
+      Vec3s cp2 = distres.nearest_points[1];
       BOOST_CHECK_CLOSE(dist, (cp1 - cp2).norm(), gjk_tolerance);
       EIGEN_VECTOR_IS_APPROX(cp1, cp2 - dist * distres.normal, gjk_tolerance);
 
-      Vec3f separation_vector = dist * distres.normal;
+      Vec3s separation_vector = dist * distres.normal;
       EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, gjk_tolerance);
 
       if (dist > 0) {
@@ -214,11 +214,11 @@ void test_normal_and_nearest_points(
       // tolerance
       if (new_colres.isCollision()) {
         Contact contact = new_colres.getContact(0);
-        Vec3f new_cp1 = contact.nearest_points[0];
+        Vec3s new_cp1 = contact.nearest_points[0];
         EIGEN_VECTOR_IS_APPROX(new_cp1, new_distres.nearest_points[0],
                                dummy_precision);
 
-        Vec3f new_cp2 = contact.nearest_points[1];
+        Vec3s new_cp2 = contact.nearest_points[1];
         EIGEN_VECTOR_IS_APPROX(new_cp2, new_distres.nearest_points[1],
                                dummy_precision);
         BOOST_CHECK_CLOSE(contact.penetration_depth,
@@ -226,7 +226,7 @@ void test_normal_and_nearest_points(
         EIGEN_VECTOR_IS_APPROX(new_cp1, new_cp2 - new_dist * new_distres.normal,
                                epa_tolerance);
 
-        Vec3f new_separation_vector =
+        Vec3s new_separation_vector =
             contact.penetration_depth * contact.normal;
         EIGEN_VECTOR_IS_APPROX(new_separation_vector, new_cp2 - new_cp1,
                                epa_tolerance);
@@ -372,7 +372,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_box_plane) {
   for (size_t i = 0; i < 10; ++i) {
     shared_ptr<Box> o1(new Box(generateRandomVector<3>(0.05, 1.0)));
     CoalScalar offset = generateRandomNumber(-0.5, 0.5);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Plane> o2(new Plane(n, offset));
 
@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_box_halfspace) {
   for (size_t i = 0; i < 10; ++i) {
     shared_ptr<Box> o1(new Box(generateRandomVector<3>(0.05, 1.0)));
     CoalScalar offset = 0.1;
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Halfspace> o2(new Halfspace(n, offset));
 
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_capsule_halfspace) {
     CoalScalar h = generateRandomNumber(0.15, 1.0);
     shared_ptr<Capsule> o1(new Capsule(r, h));
     CoalScalar offset = generateRandomNumber(-0.5, 0.5);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Halfspace> o2(new Halfspace(n, offset));
 
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_halfspace) {
   for (size_t i = 0; i < 10; ++i) {
     shared_ptr<Sphere> o1(new Sphere(generateRandomNumber(0.05, 1.0)));
     CoalScalar offset = generateRandomNumber(-0.5, 0.5);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Halfspace> o2(new Halfspace(n, offset));
 
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_plane) {
   for (size_t i = 0; i < 10; ++i) {
     shared_ptr<Sphere> o1(new Sphere(generateRandomNumber(0.05, 1.0)));
     CoalScalar offset = generateRandomNumber(-0.5, 0.5);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Plane> o2(new Plane(n, offset));
 
@@ -442,7 +442,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_mesh_halfspace) {
     shared_ptr<Convex<Triangle>> o1(new Convex<Triangle>(
         o1_.points, o1_.num_points, o1_.polygons, o1_.num_polygons));
     CoalScalar offset = generateRandomNumber(-0.5, 0.5);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Halfspace> o2(new Halfspace(n, offset));
 
@@ -497,7 +497,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_cone_halfspace) {
     CoalScalar h = generateRandomNumber(0.15, 1.0);
     shared_ptr<Cone> o1(new Cone(r, h));
     CoalScalar offset = generateRandomNumber(-0.5, 0.5);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Halfspace> o2(new Halfspace(n, offset));
 
@@ -512,7 +512,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_cylinder_halfspace) {
     CoalScalar h = generateRandomNumber(0.15, 1.0);
     shared_ptr<Cylinder> o1(new Cylinder(r, h));
     CoalScalar offset = generateRandomNumber(-0.5, 0.5);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Halfspace> o2(new Halfspace(n, offset));
 
@@ -527,7 +527,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_cone_plane) {
     CoalScalar h = generateRandomNumber(0.15, 1.0);
     shared_ptr<Cone> o1(new Cone(r, h));
     CoalScalar offset = generateRandomNumber(-0.5, 0.5);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Plane> o2(new Plane(n, offset));
 
@@ -542,7 +542,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_cylinder_plane) {
     CoalScalar h = generateRandomNumber(0.15, 1.0);
     shared_ptr<Cylinder> o1(new Cylinder(r, h));
     CoalScalar offset = generateRandomNumber(-0.5, 0.5);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Plane> o2(new Plane(n, offset));
 
@@ -557,7 +557,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_capsule_plane) {
     CoalScalar h = generateRandomNumber(0.15, 1.0);
     shared_ptr<Capsule> o1(new Capsule(r, h));
     CoalScalar offset = generateRandomNumber(-0.5, 0.5);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Plane> o2(new Plane(n, offset));
 
@@ -593,7 +593,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_sphere_cylinder) {
 BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_ellipsoid_halfspace) {
   for (size_t i = 0; i < 10; ++i) {
     CoalScalar offset = generateRandomNumber(0.15, 1.0);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Ellipsoid> o1(new Ellipsoid(generateRandomVector<3>(0.05, 1.0)));
     shared_ptr<Halfspace> o2(new Halfspace(n, offset));
@@ -606,7 +606,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_ellipsoid_halfspace) {
 BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_ellipsoid_plane) {
   for (size_t i = 0; i < 10; ++i) {
     CoalScalar offset = generateRandomNumber(0.15, 1.0);
-    Vec3f n = Vec3f::Random();
+    Vec3s n = Vec3s::Random();
     n.normalize();
     shared_ptr<Ellipsoid> o1(new Ellipsoid(generateRandomVector<3>(0.05, 1.0)));
     shared_ptr<Plane> o2(new Plane(n, offset));
@@ -652,13 +652,13 @@ void test_normal_and_nearest_points(const BVHModel<OBBRSS>& o1,
         BOOST_CHECK(contact.penetration_depth <= 0);
         BOOST_CHECK(contact.penetration_depth >= colres.distance_lower_bound);
 
-        Vec3f cp1 = contact.nearest_points[0];
-        Vec3f cp2 = contact.nearest_points[1];
+        Vec3s cp1 = contact.nearest_points[0];
+        Vec3s cp2 = contact.nearest_points[1];
         BOOST_CHECK_CLOSE(contact.penetration_depth, -(cp2 - cp1).norm(), 1e-6);
         EIGEN_VECTOR_IS_APPROX(
             cp1, cp2 - contact.penetration_depth * contact.normal, 1e-6);
 
-        Vec3f separation_vector = contact.penetration_depth * contact.normal;
+        Vec3s separation_vector = contact.penetration_depth * contact.normal;
         EIGEN_VECTOR_IS_APPROX(separation_vector, cp2 - cp1, 1e-6);
 
         if (dist < 0) {
@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_bvh_halfspace) {
   o1.buildConvexRepresentation(false);
 
   CoalScalar offset = 0.1;
-  Vec3f n = Vec3f::Random();
+  Vec3s n = Vec3s::Random();
   n.normalize();
   shared_ptr<Halfspace> o2(new Halfspace(n, offset));
 

@@ -44,8 +44,8 @@
 namespace coal {
 
 AABB::AABB()
-    : min_(Vec3f::Constant((std::numeric_limits<CoalScalar>::max)())),
-      max_(Vec3f::Constant(-(std::numeric_limits<CoalScalar>::max)())) {}
+    : min_(Vec3s::Constant((std::numeric_limits<CoalScalar>::max)())),
+      max_(Vec3s::Constant(-(std::numeric_limits<CoalScalar>::max)())) {}
 
 bool AABB::overlap(const AABB& other, const CollisionRequest& request,
                    CoalScalar& sqrDistLowerBound) const {
@@ -53,7 +53,7 @@ bool AABB::overlap(const AABB& other, const CollisionRequest& request,
       request.break_distance * request.break_distance;
 
   sqrDistLowerBound =
-      (min_ - other.max_ - Vec3f::Constant(request.security_margin))
+      (min_ - other.max_ - Vec3s::Constant(request.security_margin))
           .array()
           .max(CoalScalar(0))
           .matrix()
@@ -61,7 +61,7 @@ bool AABB::overlap(const AABB& other, const CollisionRequest& request,
   if (sqrDistLowerBound > break_distance_squared) return false;
 
   sqrDistLowerBound =
-      (other.min_ - max_ - Vec3f::Constant(request.security_margin))
+      (other.min_ - max_ - Vec3s::Constant(request.security_margin))
           .array()
           .max(CoalScalar(0))
           .matrix()
@@ -71,7 +71,7 @@ bool AABB::overlap(const AABB& other, const CollisionRequest& request,
   return true;
 }
 
-CoalScalar AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const {
+CoalScalar AABB::distance(const AABB& other, Vec3s* P, Vec3s* Q) const {
   CoalScalar result = 0;
   for (Eigen::DenseIndex i = 0; i < 3; ++i) {
     const CoalScalar& amin = min_[i];
@@ -131,13 +131,13 @@ CoalScalar AABB::distance(const AABB& other) const {
   return std::sqrt(result);
 }
 
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+bool overlap(const Matrix3s& R0, const Vec3s& T0, const AABB& b1,
              const AABB& b2) {
   AABB bb1(translate(rotate(b1, R0), T0));
   return bb1.overlap(b2);
 }
 
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+bool overlap(const Matrix3s& R0, const Vec3s& T0, const AABB& b1,
              const AABB& b2, const CollisionRequest& request,
              CoalScalar& sqrDistLowerBound) {
   AABB bb1(translate(rotate(b1, R0), T0));
@@ -149,11 +149,11 @@ bool AABB::overlap(const Plane& p) const {
   // points in the directions normal and -normal.
   // If both points lie on different sides of the plane, there is an overlap
   // between the AABB and the plane. Otherwise, there is no overlap.
-  const Vec3f halfside = (this->max_ - this->min_) / 2;
-  const Vec3f center = (this->max_ + this->min_) / 2;
+  const Vec3s halfside = (this->max_ - this->min_) / 2;
+  const Vec3s center = (this->max_ + this->min_) / 2;
 
-  const Vec3f support1 = (p.n.array() > 0).select(halfside, -halfside) + center;
-  const Vec3f support2 =
+  const Vec3s support1 = (p.n.array() > 0).select(halfside, -halfside) + center;
+  const Vec3s support2 =
       ((-p.n).array() > 0).select(halfside, -halfside) + center;
 
   const CoalScalar dist1 = p.n.dot(support1) - p.d;
@@ -185,9 +185,9 @@ bool AABB::overlap(const Halfspace& hs) const {
   // If the support is below the plane defined by the halfspace, there is an
   // overlap between the AABB and the halfspace. Otherwise, there is no
   // overlap.
-  Vec3f halfside = (this->max_ - this->min_) / 2;
-  Vec3f center = (this->max_ + this->min_) / 2;
-  Vec3f support = ((-hs.n).array() > 0).select(halfside, -halfside) + center;
+  Vec3s halfside = (this->max_ - this->min_) / 2;
+  Vec3s center = (this->max_ + this->min_) / 2;
+  Vec3s support = ((-hs.n).array() > 0).select(halfside, -halfside) + center;
   return (hs.signedDistance(support) < 0);
 }
 

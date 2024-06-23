@@ -259,7 +259,7 @@ class COAL_DLLAPI OcTreeSolver {
           box.computeLocalAABB();
         }
 
-        Vec3f p1, p2, normal;
+        Vec3s p1, p2, normal;
         const CoalScalar distance = internal::ShapeShapeDistance<Box, S>(
             &box, box_tf, &s, tf2, this->solver,
             this->drequest->enable_signed_distance, p1, p2, normal);
@@ -390,7 +390,7 @@ class COAL_DLLAPI OcTreeSolver {
                             (*(tree2->vertices))[tri_id[1]],
                             (*(tree2->vertices))[tri_id[2]]);
 
-        Vec3f p1, p2, normal;
+        Vec3s p1, p2, normal;
         const CoalScalar distance =
             internal::ShapeShapeDistance<Box, TriangleP>(
                 &box, box_tf, &tri, tf2, this->solver,
@@ -515,7 +515,7 @@ class COAL_DLLAPI OcTreeSolver {
       // collision.
       const bool compute_penetration = this->crequest->enable_contact ||
                                        (this->crequest->security_margin < 0);
-      Vec3f c1, c2, normal;
+      Vec3s c1, c2, normal;
       const CoalScalar distance = internal::ShapeShapeDistance<Box, TriangleP>(
           &box, box_tf, &tri, tf2, this->solver, compute_penetration, c1, c2,
           normal);
@@ -618,7 +618,7 @@ class COAL_DLLAPI OcTreeSolver {
         convex2.computeLocalAABB();
       }
 
-      Vec3f c1, c2, normal, normal_top;
+      Vec3s c1, c2, normal, normal_top;
       CoalScalar distance;
       bool hfield_witness_is_on_bin_side;
 
@@ -643,8 +643,8 @@ class COAL_DLLAPI OcTreeSolver {
       } else
         sqrDistLowerBound = distToCollision * distToCollision;
 
-      //    const Vec3f c1 = contact_point - distance * 0.5 * normal;
-      //    const Vec3f c2 = contact_point + distance * 0.5 * normal;
+      //    const Vec3s c1 = contact_point - distance * 0.5 * normal;
+      //    const Vec3s c2 = contact_point + distance * 0.5 * normal;
       internal::updateDistanceLowerBoundFromLeaf(
           *crequest, *cresult, distToCollision, c1, c2, -normal);
 
@@ -738,7 +738,7 @@ class COAL_DLLAPI OcTreeSolver {
         convex2.computeLocalAABB();
       }
 
-      Vec3f c1, c2, normal, normal_top;
+      Vec3s c1, c2, normal, normal_top;
       CoalScalar distance;
       bool hfield_witness_is_on_bin_side;
 
@@ -763,8 +763,8 @@ class COAL_DLLAPI OcTreeSolver {
       } else
         sqrDistLowerBound = distToCollision * distToCollision;
 
-      //    const Vec3f c1 = contact_point - distance * 0.5 * normal;
-      //    const Vec3f c2 = contact_point + distance * 0.5 * normal;
+      //    const Vec3s c1 = contact_point - distance * 0.5 * normal;
+      //    const Vec3s c2 = contact_point + distance * 0.5 * normal;
       internal::updateDistanceLowerBoundFromLeaf(
           *crequest, *cresult, distToCollision, c1, c2, normal);
 
@@ -820,7 +820,7 @@ class COAL_DLLAPI OcTreeSolver {
           box2.computeLocalAABB();
         }
 
-        Vec3f p1, p2, normal;
+        Vec3s p1, p2, normal;
         const CoalScalar distance = internal::ShapeShapeDistance<Box, Box>(
             &box1, box1_tf, &box2, box2_tf, this->solver,
             this->drequest->enable_signed_distance, p1, p2, normal);
@@ -948,7 +948,7 @@ class COAL_DLLAPI OcTreeSolver {
       // collision.
       const bool compute_penetration = (this->crequest->enable_contact ||
                                         (this->crequest->security_margin < 0));
-      Vec3f c1, c2, normal;
+      Vec3s c1, c2, normal;
       CoalScalar distance = internal::ShapeShapeDistance<Box, Box>(
           &box1, box1_tf, &box2, box2_tf, this->solver, compute_penetration, c1,
           c2, normal);

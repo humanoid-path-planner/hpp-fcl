@@ -115,8 +115,8 @@ struct SweptSphereGJKSolver : public GJKSolver {
   template <typename S1, typename S2>
   CoalScalar shapeDistance(
       const S1& s1, const Transform3f& tf1, const S2& s2,
-      const Transform3f& tf2, bool compute_penetration, Vec3f& p1, Vec3f& p2,
-      Vec3f& normal, bool use_swept_sphere_radius_in_gjk_epa_iterations) const {
+      const Transform3f& tf2, bool compute_penetration, Vec3s& p1, Vec3s& p2,
+      Vec3s& normal, bool use_swept_sphere_radius_in_gjk_epa_iterations) const {
     if (use_swept_sphere_radius_in_gjk_epa_iterations) {
       CoalScalar distance;
       this->runGJKAndEPA<S1, S2, details::SupportOptions::WithSweptSphere>(
@@ -163,9 +163,9 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
         SET_LINE;
 
         std::array<CoalScalar, 2> distance;
-        std::array<Vec3f, 2> p1;
-        std::array<Vec3f, 2> p2;
-        std::array<Vec3f, 2> normal;
+        std::array<Vec3s, 2> p1;
+        std::array<Vec3s, 2> p2;
+        std::array<Vec3s, 2> normal;
 
         // Default hppfcl behavior - Don't take swept sphere radius into account
         // during GJK/EPA iterations. Correct the solution afterwards.

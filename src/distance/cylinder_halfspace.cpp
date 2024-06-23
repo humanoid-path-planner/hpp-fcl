@@ -50,7 +50,7 @@ template <>
 CoalScalar ShapeShapeDistance<Cylinder, Halfspace>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+    const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Cylinder& s1 = static_cast<const Cylinder&>(*o1);
   const Halfspace& s2 = static_cast<const Halfspace&>(*o2);
   const CoalScalar distance =
@@ -63,7 +63,7 @@ template <>
 CoalScalar ShapeShapeDistance<Halfspace, Cylinder>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+    const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Halfspace& s1 = static_cast<const Halfspace&>(*o1);
   const Cylinder& s2 = static_cast<const Cylinder&>(*o2);
   return details::halfspaceDistance(s1, tf1, s2, tf2, p1, p2, normal);

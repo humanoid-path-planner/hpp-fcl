@@ -100,10 +100,10 @@ class COAL_DLLAPI KDOP {
   KDOP();
 
   /// @brief Creating kDOP containing only one point
-  KDOP(const Vec3f& v);
+  KDOP(const Vec3s& v);
 
   /// @brief Creating kDOP containing two points
-  KDOP(const Vec3f& a, const Vec3f& b);
+  KDOP(const Vec3s& a, const Vec3s& b);
 
   /// @brief Equality operator
   bool operator==(const KDOP& other) const {
@@ -126,11 +126,11 @@ class COAL_DLLAPI KDOP {
                CoalScalar& sqrDistLowerBound) const;
 
   /// @brief The distance between two KDOP<N>. Not implemented.
-  CoalScalar distance(const KDOP<N>& other, Vec3f* P = NULL,
-                      Vec3f* Q = NULL) const;
+  CoalScalar distance(const KDOP<N>& other, Vec3s* P = NULL,
+                      Vec3s* Q = NULL) const;
 
   /// @brief Merge the point and the KDOP
-  KDOP<N>& operator+=(const Vec3f& p);
+  KDOP<N>& operator+=(const Vec3s& p);
 
   /// @brief Merge two KDOPs
   KDOP<N>& operator+=(const KDOP<N>& other);
@@ -144,7 +144,7 @@ class COAL_DLLAPI KDOP {
   }
 
   /// @brief The (AABB) center
-  inline Vec3f center() const {
+  inline Vec3s center() const {
     return (dist_.template head<3>() + dist_.template segment<3>(N / 2)) / 2;
   }
 
@@ -165,17 +165,17 @@ class COAL_DLLAPI KDOP {
   inline CoalScalar& dist(short i) { return dist_[i]; }
 
   //// @brief Check whether one point is inside the KDOP
-  bool inside(const Vec3f& p) const;
+  bool inside(const Vec3s& p) const;
 };
 
 template <short N>
-bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
+bool overlap(const Matrix3s& /*R0*/, const Vec3s& /*T0*/, const KDOP<N>& /*b1*/,
              const KDOP<N>& /*b2*/) {
   COAL_THROW_PRETTY("not implemented", std::logic_error);
 }
 
 template <short N>
-bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
+bool overlap(const Matrix3s& /*R0*/, const Vec3s& /*T0*/, const KDOP<N>& /*b1*/,
              const KDOP<N>& /*b2*/, const CollisionRequest& /*request*/,
              CoalScalar& /*sqrDistLowerBound*/) {
   COAL_THROW_PRETTY("not implemented", std::logic_error);
@@ -183,7 +183,7 @@ bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
 
 /// @brief translate the KDOP BV
 template <short N>
-COAL_DLLAPI KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
+COAL_DLLAPI KDOP<N> translate(const KDOP<N>& bv, const Vec3s& t);
 
 }  // namespace coal
 

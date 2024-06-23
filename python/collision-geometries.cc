@@ -75,7 +75,7 @@ namespace bp = boost::python;
 
 using boost::noncopyable;
 
-typedef std::vector<Vec3f> Vec3fs;
+typedef std::vector<Vec3s> Vec3ss;
 typedef std::vector<Triangle> Triangles;
 
 struct BVHModelBaseWrapper {
@@ -83,7 +83,7 @@ struct BVHModelBaseWrapper {
   typedef Eigen::Map<RowMatrixX3> MapRowMatrixX3;
   typedef Eigen::Ref<RowMatrixX3> RefRowMatrixX3;
 
-  static Vec3f& vertex(BVHModelBase& bvh, unsigned int i) {
+  static Vec3s& vertex(BVHModelBase& bvh, unsigned int i) {
     if (i >= bvh.num_vertices) throw std::out_of_range("index is out of range");
     return (*(bvh.vertices))[i];
   }
@@ -130,7 +130,7 @@ void exposeHeightField(const std::string& bvname) {
       type_name.c_str(), doxygen::class_doc<Geometry>(), no_init)
       .def(dv::init<HeightField<BV>>())
       .def(dv::init<HeightField<BV>, const HeightField<BV>&>())
-      .def(dv::init<HeightField<BV>, CoalScalar, CoalScalar, const MatrixXf&,
+      .def(dv::init<HeightField<BV>, CoalScalar, CoalScalar, const MatrixXs&,
                     bp::optional<CoalScalar>>())
 
       .DEF_CLASS_FUNC(Geometry, getXDim)
@@ -168,7 +168,7 @@ struct ConvexBaseWrapper {
   typedef Eigen::Map<VecOfDoubles> MapVecOfDoubles;
   typedef Eigen::Ref<VecOfDoubles> RefVecOfDoubles;
 
-  static Vec3f& point(const ConvexBase& convex, unsigned int i) {
+  static Vec3s& point(const ConvexBase& convex, unsigned int i) {
     if (i >= convex.num_points)
       throw std::out_of_range("index is out of range");
     return (*(convex.points))[i];
@@ -178,7 +178,7 @@ struct ConvexBaseWrapper {
     return MapRowMatrixX3((*(convex.points))[0].data(), convex.num_points, 3);
   }
 
-  static Vec3f& normal(const ConvexBase& convex, unsigned int i) {
+  static Vec3s& normal(const ConvexBase& convex, unsigned int i) {
     if (i >= convex.num_normals_and_offsets)
       throw std::out_of_range("index is out of range");
     return (*(convex.normals))[i];
@@ -210,7 +210,7 @@ struct ConvexBaseWrapper {
     return n;
   }
 
-  static ConvexBase* convexHull(const Vec3fs& points, bool keepTri,
+  static ConvexBase* convexHull(const Vec3ss& points, bool keepTri,
                                 const char* qhullCommand) {
     return ConvexBase::convexHull(points.data(), (unsigned int)points.size(),
                                   keepTri, qhullCommand);
@@ -227,11 +227,11 @@ struct ConvexWrapper {
     return (*convex.polygons)[i];
   }
 
-  static shared_ptr<Convex_t> constructor(const Vec3fs& _points,
+  static shared_ptr<Convex_t> constructor(const Vec3ss& _points,
                                           const Triangles& _tris) {
-    std::shared_ptr<std::vector<Vec3f>> points(
-        new std::vector<Vec3f>(_points.size()));
-    std::vector<Vec3f>& points_ = *points;
+    std::shared_ptr<std::vector<Vec3s>> points(
+        new std::vector<Vec3s>(_points.size()));
+    std::vector<Vec3s>& points_ = *points;
     for (std::size_t i = 0; i < _points.size(); ++i) points_[i] = _points[i];
 
     std::shared_ptr<std::vector<Triangle>> tris(
@@ -279,7 +279,7 @@ void exposeShapes() {
       .def(dv::init<Box>())
       .def(dv::init<Box, const Box&>())
       .def(dv::init<Box, CoalScalar, CoalScalar, CoalScalar>())
-      .def(dv::init<Box, const Vec3f&>())
+      .def(dv::init<Box, const Vec3s&>())
       .DEF_RW_CLASS_ATTRIB(Box, halfSide)
       .def("clone", &Box::clone, doxygen::member_func_doc(&Box::clone),
            return_value_policy<manage_new_object>())
@@ -372,7 +372,7 @@ void exposeShapes() {
 
   class_<Halfspace, bases<ShapeBase>, shared_ptr<Halfspace>>(
       "Halfspace", doxygen::class_doc<Halfspace>(), no_init)
-      .def(dv::init<Halfspace, const Vec3f&, CoalScalar>())
+      .def(dv::init<Halfspace, const Vec3s&, CoalScalar>())
       .def(dv::init<Halfspace, const Halfspace&>())
       .def(
           dv::init<Halfspace, CoalScalar, CoalScalar, CoalScalar, CoalScalar>())
@@ -387,7 +387,7 @@ void exposeShapes() {
 
   class_<Plane, bases<ShapeBase>, shared_ptr<Plane>>(
       "Plane", doxygen::class_doc<Plane>(), no_init)
-      .def(dv::init<Plane, const Vec3f&, CoalScalar>())
+      .def(dv::init<Plane, const Vec3s&, CoalScalar>())
       .def(dv::init<Plane, const Plane&>())
       .def(dv::init<Plane, CoalScalar, CoalScalar, CoalScalar, CoalScalar>())
       .def(dv::init<Plane>())
@@ -413,7 +413,7 @@ void exposeShapes() {
       "Ellipsoid", doxygen::class_doc<Ellipsoid>(), no_init)
       .def(dv::init<Ellipsoid>())
       .def(dv::init<Ellipsoid, CoalScalar, CoalScalar, CoalScalar>())
-      .def(dv::init<Ellipsoid, Vec3f>())
+      .def(dv::init<Ellipsoid, Vec3s>())
       .def(dv::init<Ellipsoid, const Ellipsoid&>())
       .DEF_RW_CLASS_ATTRIB(Ellipsoid, radii)
       .def("clone", &Ellipsoid::clone,
@@ -425,7 +425,7 @@ void exposeShapes() {
   class_<TriangleP, bases<ShapeBase>, shared_ptr<TriangleP>>(
       "TriangleP", doxygen::class_doc<TriangleP>(), no_init)
       .def(dv::init<TriangleP>())
-      .def(dv::init<TriangleP, const Vec3f&, const Vec3f&, const Vec3f&>())
+      .def(dv::init<TriangleP, const Vec3s&, const Vec3s&, const Vec3s&>())
       .def(dv::init<TriangleP, const TriangleP&>())
       .DEF_RW_CLASS_ATTRIB(TriangleP, a)
       .DEF_RW_CLASS_ATTRIB(TriangleP, b)
@@ -438,7 +438,7 @@ void exposeShapes() {
 }
 
 boost::python::tuple AABB_distance_proxy(const AABB& self, const AABB& other) {
-  Vec3f P, Q;
+  Vec3s P, Q;
   CoalScalar distance = self.distance(other, &P, &Q);
   return boost::python::make_tuple(distance, P, Q);
 }
@@ -502,17 +502,17 @@ void exposeCollisionGeometries() {
                no_init)
       .def(init<>(bp::arg("self"), "Default constructor"))
       .def(init<AABB>(bp::args("self", "other"), "Copy constructor"))
-      .def(init<Vec3f>(bp::args("self", "v"),
+      .def(init<Vec3s>(bp::args("self", "v"),
                        "Creating an AABB at position v with zero size."))
-      .def(init<Vec3f, Vec3f>(bp::args("self", "a", "b"),
+      .def(init<Vec3s, Vec3s>(bp::args("self", "a", "b"),
                               "Creating an AABB with two endpoints a and b."))
-      .def(init<AABB, Vec3f>(
+      .def(init<AABB, Vec3s>(
           bp::args("self", "core", "delta"),
           "Creating an AABB centered as core and is of half-dimension delta."))
-      .def(init<Vec3f, Vec3f, Vec3f>(bp::args("self", "a", "b", "c"),
+      .def(init<Vec3s, Vec3s, Vec3s>(bp::args("self", "a", "b", "c"),
                                      "Creating an AABB contains three points."))
 
-      .def("contain", (bool(AABB::*)(const Vec3f&) const) & AABB::contain,
+      .def("contain", (bool(AABB::*)(const Vec3s&) const) & AABB::contain,
            bp::args("self", "p"), "Check whether the AABB contains a point p.")
       .def("contain", (bool(AABB::*)(const AABB&) const) & AABB::contain,
            bp::args("self", "other"),
@@ -536,18 +536,18 @@ void exposeCollisionGeometries() {
       .add_property(
           "min_",
           bp::make_function(
-              +[](AABB& self) -> Vec3f& { return self.min_; },
+              +[](AABB& self) -> Vec3s& { return self.min_; },
               bp::return_internal_reference<>()),
           bp::make_function(
-              +[](AABB& self, const Vec3f& min_) -> void { self.min_ = min_; }),
+              +[](AABB& self, const Vec3s& min_) -> void { self.min_ = min_; }),
           "The min point in the AABB.")
       .add_property(
           "max_",
           bp::make_function(
-              +[](AABB& self) -> Vec3f& { return self.max_; },
+              +[](AABB& self) -> Vec3s& { return self.max_; },
               bp::return_internal_reference<>()),
           bp::make_function(
-              +[](AABB& self, const Vec3f& max_) -> void { self.max_ = max_; }),
+              +[](AABB& self, const Vec3s& max_) -> void { self.max_ = max_; }),
           "The max point in the AABB.")
 
       .def(bp::self == bp::self)
@@ -555,7 +555,7 @@ void exposeCollisionGeometries() {
 
       .def(bp::self + bp::self)
       .def(bp::self += bp::self)
-      .def(bp::self += Vec3f())
+      .def(bp::self += Vec3s())
 
       .def("size", &AABB::volume, bp::arg("self"), "Size of the AABB.")
       .def("center", &AABB::center, bp::arg("self"), "Center of the AABB.")
@@ -578,19 +578,19 @@ void exposeCollisionGeometries() {
            //         doxygen::member_func_args(static_cast<AABB&
            //         (AABB::*)(const CoalScalar)>(&AABB::expand)),
            bp::return_internal_reference<>())
-      .def("expand", static_cast<AABB& (AABB::*)(const Vec3f&)>(&AABB::expand),
+      .def("expand", static_cast<AABB& (AABB::*)(const Vec3s&)>(&AABB::expand),
            //         doxygen::member_func_doc(static_cast<AABB& (AABB::*)(const
-           //         Vec3f &)>(&AABB::expand)),
+           //         Vec3s &)>(&AABB::expand)),
            //         doxygen::member_func_args(static_cast<AABB&
-           //         (AABB::*)(const Vec3f &)>(&AABB::expand)),
+           //         (AABB::*)(const Vec3s &)>(&AABB::expand)),
            bp::return_internal_reference<>())
       .def_pickle(PickleObject<AABB>())
       .def(SerializableVisitor<AABB>());
 
-  def("translate", (AABB(*)(const AABB&, const Vec3f&)) & translate,
+  def("translate", (AABB(*)(const AABB&, const Vec3s&)) & translate,
       bp::args("aabb", "t"), "Translate the center of AABB by t");
 
-  def("rotate", (AABB(*)(const AABB&, const Matrix3f&)) & rotate,
+  def("rotate", (AABB(*)(const AABB&, const Matrix3s&)) & rotate,
       bp::args("aabb", "R"), "Rotate the AABB object by R");
 
   if (!eigenpy::register_symbolic_link_to_registered_type<
@@ -671,9 +671,9 @@ void exposeCollisionGeometries() {
       .def(dv::member_func("addTriangle", &BVHModelBase::addTriangle))
       .def(dv::member_func("addTriangles", &BVHModelBase::addTriangles))
       .def(dv::member_func<int (BVHModelBase::*)(
-               const Vec3fs&, const Triangles&)>("addSubModel",
+               const Vec3ss&, const Triangles&)>("addSubModel",
                                                  &BVHModelBase::addSubModel))
-      .def(dv::member_func<int (BVHModelBase::*)(const Vec3fs&)>(
+      .def(dv::member_func<int (BVHModelBase::*)(const Vec3ss&)>(
           "addSubModel", &BVHModelBase::addSubModel))
       .def(dv::member_func("endModel", &BVHModelBase::endModel))
       // Expose function to replace a BVH
@@ -701,7 +701,7 @@ void exposeCollisionObject() {
         .def(dv::init<CollisionObject, const CollisionGeometryPtr_t&,
                       const Transform3f&, bp::optional<bool>>())
         .def(dv::init<CollisionObject, const CollisionGeometryPtr_t&,
-                      const Matrix3f&, const Vec3f&, bp::optional<bool>>())
+                      const Matrix3s&, const Vec3s&, bp::optional<bool>>())
 
         .DEF_CLASS_FUNC(CollisionObject, getObjectType)
         .DEF_CLASS_FUNC(CollisionObject, getNodeType)

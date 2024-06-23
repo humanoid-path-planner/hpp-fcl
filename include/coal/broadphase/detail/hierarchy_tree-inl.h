@@ -159,7 +159,7 @@ template <typename S, typename BV>
 struct UpdateImpl {
   static bool run(const HierarchyTree<BV>& tree,
                   typename HierarchyTree<BV>::Node* leaf, const BV& bv,
-                  const Vec3f& /*vel*/, CoalScalar /*margin*/) {
+                  const Vec3s& /*vel*/, CoalScalar /*margin*/) {
     if (leaf->bv.contain(bv)) return false;
     tree.update_(leaf, bv);
     return true;
@@ -167,7 +167,7 @@ struct UpdateImpl {
 
   static bool run(const HierarchyTree<BV>& tree,
                   typename HierarchyTree<BV>::Node* leaf, const BV& bv,
-                  const Vec3f& /*vel*/) {
+                  const Vec3s& /*vel*/) {
     if (leaf->bv.contain(bv)) return false;
     tree.update_(leaf, bv);
     return true;
@@ -176,14 +176,14 @@ struct UpdateImpl {
 
 //==============================================================================
 template <typename BV>
-bool HierarchyTree<BV>::update(Node* leaf, const BV& bv, const Vec3f& vel,
+bool HierarchyTree<BV>::update(Node* leaf, const BV& bv, const Vec3s& vel,
                                CoalScalar margin) {
   return UpdateImpl<CoalScalar, BV>::run(*this, leaf, bv, vel, margin);
 }
 
 //==============================================================================
 template <typename BV>
-bool HierarchyTree<BV>::update(Node* leaf, const BV& bv, const Vec3f& vel) {
+bool HierarchyTree<BV>::update(Node* leaf, const BV& bv, const Vec3s& vel) {
   return UpdateImpl<CoalScalar, BV>::run(*this, leaf, bv, vel);
 }
 
@@ -408,7 +408,7 @@ typename HierarchyTree<BV>::Node* HierarchyTree<BV>::topdown_1(
   long num_leaves = lend - lbeg;
   if (num_leaves > 1) {
     if (num_leaves > bu_threshold) {
-      Vec3f split_p = (*lbeg)->bv.center();
+      Vec3s split_p = (*lbeg)->bv.center();
       BV vol = (*lbeg)->bv;
       NodeVecIterator it;
       for (it = lbeg + 1; it < lend; ++it) {
@@ -420,7 +420,7 @@ typename HierarchyTree<BV>::Node* HierarchyTree<BV>::topdown_1(
       long bestmidp = num_leaves;
       int splitcount[3][2] = {{0, 0}, {0, 0}, {0, 0}};
       for (it = lbeg; it < lend; ++it) {
-        Vec3f x = (*it)->bv.center() - split_p;
+        Vec3s x = (*it)->bv.center() - split_p;
         for (int j = 0; j < 3; ++j) ++splitcount[j][x[j] > 0 ? 1 : 0];
       }
 
@@ -970,9 +970,9 @@ struct SelectImpl<S, AABB> {
     const AABB& bv = node.bv;
     const AABB& bv1 = node1.bv;
     const AABB& bv2 = node2.bv;
-    Vec3f v = bv.min_ + bv.max_;
-    Vec3f v1 = v - (bv1.min_ + bv1.max_);
-    Vec3f v2 = v - (bv2.min_ + bv2.max_);
+    Vec3s v = bv.min_ + bv.max_;
+    Vec3s v1 = v - (bv1.min_ + bv1.max_);
+    Vec3s v2 = v - (bv2.min_ + bv2.max_);
     CoalScalar d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
     CoalScalar d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
     return (d1 < d2) ? 0 : 1;
@@ -983,9 +983,9 @@ struct SelectImpl<S, AABB> {
     const AABB& bv = query;
     const AABB& bv1 = node1.bv;
     const AABB& bv2 = node2.bv;
-    Vec3f v = bv.min_ + bv.max_;
-    Vec3f v1 = v - (bv1.min_ + bv1.max_);
-    Vec3f v2 = v - (bv2.min_ + bv2.max_);
+    Vec3s v = bv.min_ + bv.max_;
+    Vec3s v1 = v - (bv1.min_ + bv1.max_);
+    Vec3s v2 = v - (bv2.min_ + bv2.max_);
     CoalScalar d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
     CoalScalar d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
     return (d1 < d2) ? 0 : 1;

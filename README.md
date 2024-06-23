@@ -113,10 +113,10 @@ int main() {
   // Define the shapes' placement in 3D space
   hpp::fcl::Transform3f T1;
   T1.setQuatRotation(hpp::fcl::Quaternion3f::UnitRandom());
-  T1.setTranslation(hpp::fcl::Vec3f::Random());
+  T1.setTranslation(hpp::fcl::Vec3s::Random());
   hpp::fcl::Transform3f T2 = hpp::fcl::Transform3f::Identity();
   T2.setQuatRotation(hpp::fcl::Quaternion3f::UnitRandom());
-  T2.setTranslation(hpp::fcl::Vec3f::Random());
+  T2.setTranslation(hpp::fcl::Vec3s::Random());
 
   // Define collision requests and results.
   //

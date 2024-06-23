@@ -46,7 +46,7 @@ template <>
 CoalScalar ShapeShapeDistance<TriangleP, TriangleP>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2,
-    const GJKSolver* solver, const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+    const GJKSolver* solver, const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   // Transform the triangles in world frame
   const TriangleP& s1 = static_cast<const TriangleP&>(*o1);
   const TriangleP t1(tf1.transform(s1.a), tf1.transform(s1.b),
@@ -64,7 +64,7 @@ CoalScalar ShapeShapeDistance<TriangleP, TriangleP>(
   solver->gjk.reset(solver->gjk_max_iterations, solver->gjk_tolerance);
 
   // Get GJK initial guess
-  Vec3f guess;
+  Vec3s guess;
   if (solver->gjk_initial_guess == GJKInitialGuess::CachedGuess ||
       solver->enable_cached_guess) {
     guess = solver->cached_guess;

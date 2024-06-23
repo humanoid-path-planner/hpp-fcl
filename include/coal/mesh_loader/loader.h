@@ -54,7 +54,7 @@ class COAL_DLLAPI MeshLoader {
   virtual ~MeshLoader() {}
 
   virtual BVHModelPtr_t load(const std::string& filename,
-                             const Vec3f& scale = Vec3f::Ones());
+                             const Vec3s& scale = Vec3s::Ones());
 
   /// Create an OcTree from a file in binary octomap format.
   /// \todo add OctreePtr_t
@@ -76,13 +76,13 @@ class COAL_DLLAPI CachedMeshLoader : public MeshLoader {
 
   CachedMeshLoader(const NODE_TYPE& bvType = BV_OBBRSS) : MeshLoader(bvType) {}
 
-  virtual BVHModelPtr_t load(const std::string& filename, const Vec3f& scale);
+  virtual BVHModelPtr_t load(const std::string& filename, const Vec3s& scale);
 
   struct COAL_DLLAPI Key {
     std::string filename;
-    Vec3f scale;
+    Vec3s scale;
 
-    Key(const std::string& f, const Vec3f& s) : filename(f), scale(s) {}
+    Key(const std::string& f, const Vec3s& s) : filename(f), scale(s) {}
 
     bool operator<(const CachedMeshLoader::Key& b) const;
   };

@@ -103,8 +103,8 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
 
   /// @brief compute the AABB for the octree in its local coordinate system
   void computeLocalAABB() {
-    typedef Eigen::Matrix<float, 3, 1> Vec3float;
-    Vec3float max_extent, min_extent;
+    typedef Eigen::Matrix<float, 3, 1> Vec3sloat;
+    Vec3sloat max_extent, min_extent;
 
     octomap::OcTree::iterator it =
         tree->begin((unsigned char)tree->getTreeDepth());
@@ -115,10 +115,10 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
     {
       const octomap::point3d& coord =
           it.getCoordinate();  // getCoordinate returns a copy
-      max_extent = min_extent = Eigen::Map<const Vec3float>(&coord.x());
+      max_extent = min_extent = Eigen::Map<const Vec3sloat>(&coord.x());
       for (++it; it != end; ++it) {
         const octomap::point3d& coord = it.getCoordinate();
-        const Vec3float pos = Eigen::Map<const Vec3float>(&coord.x());
+        const Vec3sloat pos = Eigen::Map<const Vec3sloat>(&coord.x());
         max_extent = max_extent.array().max(pos.array());
         min_extent = min_extent.array().min(pos.array());
       }
@@ -140,7 +140,7 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
     CoalScalar delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
 
     // std::cout << "octree size " << delta << std::endl;
-    return AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta));
+    return AABB(Vec3s(-delta, -delta, -delta), Vec3s(delta, delta, delta));
   }
 
   /// @brief Returns the depth of the octree
@@ -175,8 +175,8 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
   /// @brief transform the octree into a bunch of boxes; uncertainty information
   /// is kept in the boxes. However, we only keep the occupied boxes (i.e., the
   /// boxes whose occupied probability is higher enough).
-  std::vector<Vec6f> toBoxes() const {
-    std::vector<Vec6f> boxes;
+  std::vector<Vec6s> toBoxes() const {
+    std::vector<Vec6s> boxes;
     boxes.reserve(tree->size() / 2);
     for (octomap::OcTree::iterator
              it = tree->begin((unsigned char)tree->getTreeDepth()),
@@ -191,7 +191,7 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
         CoalScalar c = (*it).getOccupancy();
         CoalScalar t = tree->getOccupancyThres();
 
-        Vec6f box;
+        Vec6s box;
         box << x, y, z, size, c, t;
         boxes.push_back(box);
       }
@@ -201,7 +201,7 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
 
   /// \brief Returns a byte description of *this
   std::vector<uint8_t> tobytes() const {
-    typedef Eigen::Matrix<float, 3, 1> Vec3float;
+    typedef Eigen::Matrix<float, 3, 1> Vec3sloat;
     const size_t total_size = (tree->size() * sizeof(CoalScalar) * 3) / 2;
     std::vector<uint8_t> bytes;
     bytes.reserve(total_size);
@@ -210,8 +210,8 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
              it = tree->begin((unsigned char)tree->getTreeDepth()),
              end = tree->end();
          it != end; ++it) {
-      const Vec3f box_pos =
-          Eigen::Map<Vec3float>(&it.getCoordinate().x()).cast<CoalScalar>();
+      const Vec3s box_pos =
+          Eigen::Map<Vec3sloat>(&it.getCoordinate().x()).cast<CoalScalar>();
       if (isNodeOccupied(&*it))
         std::copy(box_pos.data(), box_pos.data() + sizeof(CoalScalar) * 3,
                   std::back_inserter(bytes));

@@ -56,7 +56,7 @@ using coal::ShapeBase;
 using coal::support_func_guess_t;
 using coal::Transform3f;
 using coal::Triangle;
-using coal::Vec3f;
+using coal::Vec3s;
 using coal::details::GJK;
 using coal::details::MinkowskiDiff;
 using coal::details::SupportOptions;
@@ -125,7 +125,7 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
   Transform3f identity = Transform3f::Identity();
 
   // Same init for both solvers
-  Vec3f init_guess = Vec3f(1, 0, 0);
+  Vec3s init_guess = Vec3s(1, 0, 0);
   support_func_guess_t init_support_guess;
   init_support_guess.setZero();
 
@@ -139,7 +139,7 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
     // Evaluate both solvers twice, make sure they give the same solution
     GJK::Status res_gjk_1 =
         gjk.evaluate(mink_diff, init_guess, init_support_guess);
-    Vec3f ray_gjk = gjk.ray;
+    Vec3s ray_gjk = gjk.ray;
     GJK::Status res_gjk_2 =
         gjk.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res_gjk_1 == res_gjk_2);
@@ -150,7 +150,7 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
     // --------------
     GJK::Status res_nesterov_gjk_1 =
         gjk_nesterov.evaluate(mink_diff, init_guess, init_support_guess);
-    Vec3f ray_nesterov = gjk_nesterov.ray;
+    Vec3s ray_nesterov = gjk_nesterov.ray;
     GJK::Status res_nesterov_gjk_2 =
         gjk_nesterov.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res_nesterov_gjk_1 == res_nesterov_gjk_2);
@@ -171,7 +171,7 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
     // ------------
     GJK::Status res_polyak_gjk_1 =
         gjk_polyak.evaluate(mink_diff, init_guess, init_support_guess);
-    Vec3f ray_polyak = gjk_polyak.ray;
+    Vec3s ray_polyak = gjk_polyak.ray;
     GJK::Status res_polyak_gjk_2 =
         gjk_polyak.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res_polyak_gjk_1 == res_polyak_gjk_2);

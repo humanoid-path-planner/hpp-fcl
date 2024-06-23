@@ -55,13 +55,13 @@ struct Neighbors {
   void hasNeighboordPlusZ() { value |= 0x20; }
 };  // struct neighbors
 
-void computeNeighbors(const std::vector<Vec6f>& boxes,
+void computeNeighbors(const std::vector<Vec6s>& boxes,
                       std::vector<Neighbors>& neighbors) {
-  typedef std::vector<Vec6f> VectorVec6f;
+  typedef std::vector<Vec6s> VectorVec6s;
   CoalScalar fixedSize = -1;
   CoalScalar e(1e-8);
   for (std::size_t i = 0; i < boxes.size(); ++i) {
-    const Vec6f& box(boxes[i]);
+    const Vec6s& box(boxes[i]);
     Neighbors& n(neighbors[i]);
     CoalScalar x(box[0]);
     CoalScalar y(box[1]);
@@ -72,9 +72,9 @@ void computeNeighbors(const std::vector<Vec6f>& boxes,
     else
       assert(s == fixedSize);
 
-    for (VectorVec6f::const_iterator it = boxes.begin(); it != boxes.end();
+    for (VectorVec6s::const_iterator it = boxes.begin(); it != boxes.end();
          ++it) {
-      const Vec6f& otherBox = *it;
+      const Vec6s& otherBox = *it;
       CoalScalar xo(otherBox[0]);
       CoalScalar yo(otherBox[1]);
       CoalScalar zo(otherBox[2]);
@@ -106,20 +106,20 @@ void computeNeighbors(const std::vector<Vec6f>& boxes,
 }  // namespace internal
 
 void OcTree::exportAsObjFile(const std::string& filename) const {
-  std::vector<Vec6f> boxes(this->toBoxes());
+  std::vector<Vec6s> boxes(this->toBoxes());
   std::vector<internal::Neighbors> neighbors(boxes.size());
   internal::computeNeighbors(boxes, neighbors);
   // compute list of vertices and faces
 
-  typedef std::vector<Vec3f> VectorVec3f;
-  std::vector<Vec3f> vertices;
+  typedef std::vector<Vec3s> VectorVec3s;
+  std::vector<Vec3s> vertices;
 
   typedef std::array<std::size_t, 4> Array4;
   typedef std::vector<Array4> VectorArray4;
   std::vector<Array4> faces;
 
   for (std::size_t i = 0; i < boxes.size(); ++i) {
-    const Vec6f& box(boxes[i]);
+    const Vec6s& box(boxes[i]);
     internal::Neighbors& n(neighbors[i]);
 
     CoalScalar x(box[0]);
@@ -127,14 +127,14 @@ void OcTree::exportAsObjFile(const std::string& filename) const {
     CoalScalar z(box[2]);
     CoalScalar size(box[3]);
 
-    vertices.push_back(Vec3f(x - .5 * size, y - .5 * size, z - .5 * size));
-    vertices.push_back(Vec3f(x + .5 * size, y - .5 * size, z - .5 * size));
-    vertices.push_back(Vec3f(x - .5 * size, y + .5 * size, z - .5 * size));
-    vertices.push_back(Vec3f(x + .5 * size, y + .5 * size, z - .5 * size));
-    vertices.push_back(Vec3f(x - .5 * size, y - .5 * size, z + .5 * size));
-    vertices.push_back(Vec3f(x + .5 * size, y - .5 * size, z + .5 * size));
-    vertices.push_back(Vec3f(x - .5 * size, y + .5 * size, z + .5 * size));
-    vertices.push_back(Vec3f(x + .5 * size, y + .5 * size, z + .5 * size));
+    vertices.push_back(Vec3s(x - .5 * size, y - .5 * size, z - .5 * size));
+    vertices.push_back(Vec3s(x + .5 * size, y - .5 * size, z - .5 * size));
+    vertices.push_back(Vec3s(x - .5 * size, y + .5 * size, z - .5 * size));
+    vertices.push_back(Vec3s(x + .5 * size, y + .5 * size, z - .5 * size));
+    vertices.push_back(Vec3s(x - .5 * size, y - .5 * size, z + .5 * size));
+    vertices.push_back(Vec3s(x + .5 * size, y - .5 * size, z + .5 * size));
+    vertices.push_back(Vec3s(x - .5 * size, y + .5 * size, z + .5 * size));
+    vertices.push_back(Vec3s(x + .5 * size, y + .5 * size, z + .5 * size));
 
     // Add face only if box has no neighbor with the same face
     if (!n.minusX()) {
@@ -172,9 +172,9 @@ void OcTree::exportAsObjFile(const std::string& filename) const {
         std::runtime_error);
   // write vertices
   os << "# list of vertices\n";
-  for (VectorVec3f::const_iterator it = vertices.begin(); it != vertices.end();
+  for (VectorVec3s::const_iterator it = vertices.begin(); it != vertices.end();
        ++it) {
-    const Vec3f& v = *it;
+    const Vec3s& v = *it;
     os << "v " << v[0] << " " << v[1] << " " << v[2] << '\n';
   }
   os << "\n# list of faces\n";

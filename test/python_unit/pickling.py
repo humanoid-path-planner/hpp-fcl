@@ -7,7 +7,7 @@ import numpy as np
 
 
 def tetahedron():
-    pts = coal.StdVec_Vec3f()
+    pts = coal.StdVec_Vec3s()
     pts.append(np.array((0, 0, 0)))
     pts.append(np.array((0, 1, 0)))
     pts.append(np.array((1, 0, 0)))

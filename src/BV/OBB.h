@@ -38,13 +38,13 @@
 
 namespace coal {
 
-bool obbDisjointAndLowerBoundDistance(const Matrix3f& B, const Vec3f& T,
-                                      const Vec3f& a, const Vec3f& b,
+bool obbDisjointAndLowerBoundDistance(const Matrix3s& B, const Vec3s& T,
+                                      const Vec3s& a, const Vec3s& b,
                                       const CollisionRequest& request,
                                       CoalScalar& squaredLowerBoundDistance);
 
-bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
-                 const Vec3f& b);
+bool obbDisjoint(const Matrix3s& B, const Vec3s& T, const Vec3s& a,
+                 const Vec3s& b);
 }  // namespace coal
 
 #endif  // COAL_SRC_OBB_H

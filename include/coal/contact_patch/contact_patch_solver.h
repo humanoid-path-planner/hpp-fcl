@@ -180,8 +180,8 @@ struct COAL_DLLAPI ContactPatchSolver {
   /// @note we make the following hypothesis:
   /// 1) c != d (should be when creating initial polytopes)
   /// 2) (c, d) is not parallel to ray -> if so, we return d.
-  static Vec2f computeLineSegmentIntersection(const Vec2f& a, const Vec2f& b,
-                                              const Vec2f& c, const Vec2f& d);
+  static Vec2s computeLineSegmentIntersection(const Vec2s& a, const Vec2s& b,
+                                              const Vec2s& c, const Vec2s& d);
 
   /// @brief Construct support set function for shape.
   static SupportSetFunction makeSupportSetFunction(

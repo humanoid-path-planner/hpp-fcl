@@ -53,7 +53,7 @@ namespace coal {
 namespace internal {
 
 struct COAL_DLLAPI TriangleAndVertices {
-  std::vector<coal::Vec3f> vertices_;
+  std::vector<coal::Vec3s> vertices_;
   std::vector<coal::Triangle> triangles_;
 };
 
@@ -75,7 +75,7 @@ struct COAL_DLLAPI Loader {
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-COAL_DLLAPI void buildMesh(const coal::Vec3f& scale, const aiScene* scene,
+COAL_DLLAPI void buildMesh(const coal::Vec3s& scale, const aiScene* scene,
                            unsigned vertices_offset, TriangleAndVertices& tv);
 
 /**
@@ -87,7 +87,7 @@ COAL_DLLAPI void buildMesh(const coal::Vec3f& scale, const aiScene* scene,
  */
 template <class BoundingVolume>
 inline void meshFromAssimpScene(
-    const coal::Vec3f& scale, const aiScene* scene,
+    const coal::Vec3s& scale, const aiScene* scene,
     const shared_ptr<BVHModel<BoundingVolume> >& mesh) {
   TriangleAndVertices tv;
 
@@ -114,7 +114,7 @@ inline void meshFromAssimpScene(
  */
 template <class BoundingVolume>
 inline void loadPolyhedronFromResource(
-    const std::string& resource_path, const coal::Vec3f& scale,
+    const std::string& resource_path, const coal::Vec3s& scale,
     const shared_ptr<BVHModel<BoundingVolume> >& polyhedron) {
   internal::Loader scene;
   scene.load(resource_path);

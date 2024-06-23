@@ -58,10 +58,10 @@ struct COAL_DLLAPI RSS {
   /// assume that axis[0] corresponds to the axis with the longest length,
   /// axis[1] corresponds to the shorter one and axis[2] corresponds to the
   /// shortest one.
-  Matrix3f axes;
+  Matrix3s axes;
 
   /// @brief Origin of the rectangle in RSS
-  Vec3f Tr;
+  Vec3s Tr;
 
   /// @brief Side lengths of rectangle
   CoalScalar length[2];
@@ -70,7 +70,7 @@ struct COAL_DLLAPI RSS {
   CoalScalar radius;
 
   ///  @brief Default constructor with default values
-  RSS() : axes(Matrix3f::Zero()), Tr(Vec3f::Zero()), radius(-1) {
+  RSS() : axes(Matrix3s::Zero()), Tr(Vec3s::Zero()), radius(-1) {
     length[0] = 0;
     length[1] = 0;
   }
@@ -86,7 +86,7 @@ struct COAL_DLLAPI RSS {
   bool operator!=(const RSS& other) const { return !(*this == other); }
 
   /// @brief Check whether the RSS contains a point
-  bool contain(const Vec3f& p) const;
+  bool contain(const Vec3s& p) const;
 
   /// @brief Check collision between two RSS
   bool overlap(const RSS& other) const;
@@ -100,11 +100,11 @@ struct COAL_DLLAPI RSS {
 
   /// @brief the distance between two RSS; P and Q, if not NULL, return the
   /// nearest points
-  CoalScalar distance(const RSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  CoalScalar distance(const RSS& other, Vec3s* P = NULL, Vec3s* Q = NULL) const;
 
   /// @brief A simple way to merge the RSS and a point, not compact.
   /// @todo This function may have some bug.
-  RSS& operator+=(const Vec3f& p);
+  RSS& operator+=(const Vec3s& p);
 
   /// @brief Merge the RSS and another RSS
   inline RSS& operator+=(const RSS& other) {
@@ -122,7 +122,7 @@ struct COAL_DLLAPI RSS {
   }
 
   /// @brief The RSS center
-  inline const Vec3f& center() const { return Tr; }
+  inline const Vec3s& center() const { return Tr; }
 
   /// @brief Width of the RSS
   inline CoalScalar width() const { return length[0] + 2 * radius; }
@@ -153,18 +153,18 @@ struct COAL_DLLAPI RSS {
 /// not the RSS. But the direction P - Q is the correct direction for cloest
 /// points Notice that P and Q are both in the local frame of the first RSS (not
 /// global frame and not even the local frame of object 1)
-COAL_DLLAPI CoalScalar distance(const Matrix3f& R0, const Vec3f& T0,
-                                const RSS& b1, const RSS& b2, Vec3f* P = NULL,
-                                Vec3f* Q = NULL);
+COAL_DLLAPI CoalScalar distance(const Matrix3s& R0, const Vec3s& T0,
+                                const RSS& b1, const RSS& b2, Vec3s* P = NULL,
+                                Vec3s* Q = NULL);
 
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1,
+COAL_DLLAPI bool overlap(const Matrix3s& R0, const Vec3s& T0, const RSS& b1,
                          const RSS& b2);
 
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1,
+COAL_DLLAPI bool overlap(const Matrix3s& R0, const Vec3s& T0, const RSS& b1,
                          const RSS& b2, const CollisionRequest& request,
                          CoalScalar& sqrDistLowerBound);
 

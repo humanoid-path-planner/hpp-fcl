@@ -56,11 +56,11 @@ using namespace coal;
 
 template <typename BV>
 void testBVHModelPointCloud() {
-  Box box(Vec3f::Ones());
+  Box box(Vec3s::Ones());
   double a = box.halfSide[0];
   double b = box.halfSide[1];
   double c = box.halfSide[2];
-  std::vector<Vec3f> points(8);
+  std::vector<Vec3s> points(8);
   points[0] << a, -b, c;
   points[1] << a, b, c;
   points[2] << -a, b, c;
@@ -114,7 +114,7 @@ void testBVHModelPointCloud() {
       return;
     }
 
-    Matrixx3f all_points((Eigen::DenseIndex)points.size(), 3);
+    MatrixX3s all_points((Eigen::DenseIndex)points.size(), 3);
     for (size_t k = 0; k < points.size(); ++k)
       all_points.row((Eigen::DenseIndex)k) = points[k].transpose();
 
@@ -139,13 +139,13 @@ void testBVHModelPointCloud() {
 template <typename BV>
 void testBVHModelTriangles() {
   shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box box(Vec3f::Ones());
-  AABB aabb(Vec3f(-1, 0, -1), Vec3f(1, 1, 1));
+  Box box(Vec3s::Ones());
+  AABB aabb(Vec3s(-1, 0, -1), Vec3s(1, 1, 1));
 
   double a = box.halfSide[0];
   double b = box.halfSide[1];
   double c = box.halfSide[2];
-  std::vector<Vec3f> points(8);
+  std::vector<Vec3s> points(8);
   std::vector<Triangle> tri_indices(12);
   points[0] << a, -b, c;
   points[1] << a, b, c;
@@ -197,14 +197,14 @@ void testBVHModelTriangles() {
   BOOST_CHECK_EQUAL(cropped->num_vertices, model->num_vertices - 6);
   BOOST_CHECK_EQUAL(cropped->num_tris, model->num_tris - 2);
 
-  pose.setTranslation(Vec3f(0, 1, 0));
+  pose.setTranslation(Vec3s(0, 1, 0));
   cropped.reset(BVHExtract(*model, pose, aabb));
   BOOST_REQUIRE(cropped);
   BOOST_CHECK(cropped->build_state == BVH_BUILD_STATE_PROCESSED);
   BOOST_CHECK_EQUAL(cropped->num_vertices, model->num_vertices - 6);
   BOOST_CHECK_EQUAL(cropped->num_tris, model->num_tris - 2);
 
-  pose.setTranslation(Vec3f(0, 0, 0));
+  pose.setTranslation(Vec3s(0, 0, 0));
   CoalScalar sqrt2_2 = std::sqrt(2) / 2;
   pose.setQuatRotation(Quatf(sqrt2_2, sqrt2_2, 0, 0));
   cropped.reset(BVHExtract(*model, pose, aabb));
@@ -213,13 +213,13 @@ void testBVHModelTriangles() {
   BOOST_CHECK_EQUAL(cropped->num_vertices, model->num_vertices - 6);
   BOOST_CHECK_EQUAL(cropped->num_tris, model->num_tris - 2);
 
-  pose.setTranslation(-Vec3f(1, 1, 1));
+  pose.setTranslation(-Vec3s(1, 1, 1));
   pose.setQuatRotation(Quatf::Identity());
   cropped.reset(BVHExtract(*model, pose, aabb));
   BOOST_CHECK(!cropped);
 
-  aabb = AABB(Vec3f(-0.1, -0.1, -0.1), Vec3f(0.1, 0.1, 0.1));
-  pose.setTranslation(Vec3f(-0.5, -0.5, 0));
+  aabb = AABB(Vec3s(-0.1, -0.1, -0.1), Vec3s(0.1, 0.1, 0.1));
+  pose.setTranslation(Vec3s(-0.5, -0.5, 0));
   cropped.reset(BVHExtract(*model, pose, aabb));
   BOOST_REQUIRE(cropped);
   BOOST_CHECK_EQUAL(cropped->num_tris, 2);
@@ -229,12 +229,12 @@ void testBVHModelTriangles() {
 template <typename BV>
 void testBVHModelSubModel() {
   shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box box(Vec3f::Ones());
+  Box box(Vec3s::Ones());
 
   double a = box.halfSide[0];
   double b = box.halfSide[1];
   double c = box.halfSide[2];
-  std::vector<Vec3f> points(8);
+  std::vector<Vec3s> points(8);
   std::vector<Triangle> tri_indices(12);
   points[0] << a, -b, c;
   points[1] << a, b, c;
@@ -304,7 +304,7 @@ void testLoadPolyhedron() {
   typedef shared_ptr<Polyhedron_t> PolyhedronPtr_t;
   PolyhedronPtr_t P1(new Polyhedron_t), P2;
 
-  Vec3f scale;
+  Vec3s scale;
   scale.setConstant(1);
   loadPolyhedronFromResource(env, scale, P1);
 
@@ -331,11 +331,11 @@ void testLoadGerardBauzil() {
   typedef shared_ptr<Polyhedron_t> PolyhedronPtr_t;
   PolyhedronPtr_t P1(new Polyhedron_t), P2;
 
-  Vec3f scale;
+  Vec3s scale;
   scale.setConstant(1);
   loadPolyhedronFromResource(env, scale, P1);
   CollisionGeometryPtr_t cylinder(new Cylinder(.27, .27));
-  Transform3f pos(Vec3f(-1.33, 1.36, .14));
+  Transform3f pos(Vec3s(-1.33, 1.36, .14));
   CollisionObject obj(cylinder, pos);
   CollisionObject stairs(P1);
 

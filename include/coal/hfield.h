@@ -151,17 +151,17 @@ struct COAL_DLLAPI HFNode : public HFNodeBase {
 
   /// @brief Compute the distance between two BVNode. P1 and P2, if not NULL and
   /// the underlying BV supports distance, return the nearest points.
-  CoalScalar distance(const HFNode& other, Vec3f* P1 = NULL,
-                      Vec3f* P2 = NULL) const {
+  CoalScalar distance(const HFNode& other, Vec3s* P1 = NULL,
+                      Vec3s* P2 = NULL) const {
     return bv.distance(other.bv, P1, P2);
   }
 
   /// @brief Access to the center of the BV
-  Vec3f getCenter() const { return bv.center(); }
+  Vec3s getCenter() const { return bv.center(); }
 
   /// @brief Access to the orientation of the BV
-  coal::Matrix3f::IdentityReturnType getOrientation() const {
-    return Matrix3f::Identity();
+  coal::Matrix3s::IdentityReturnType getOrientation() const {
+    return Matrix3s::Identity();
   }
 
   virtual ~HFNode() {}
@@ -171,7 +171,7 @@ namespace details {
 
 template <typename BV>
 struct UpdateBoundingVolume {
-  static void run(const Vec3f& pointA, const Vec3f& pointB, BV& bv) {
+  static void run(const Vec3s& pointA, const Vec3s& pointB, BV& bv) {
     AABB bv_aabb(pointA, pointB);
     //      AABB bv_aabb;
     //      bv_aabb.update(pointA,pointB);
@@ -181,7 +181,7 @@ struct UpdateBoundingVolume {
 
 template <>
 struct UpdateBoundingVolume<AABB> {
-  static void run(const Vec3f& pointA, const Vec3f& pointB, AABB& bv) {
+  static void run(const Vec3s& pointA, const Vec3s& pointB, AABB& bv) {
     AABB bv_aabb(pointA, pointB);
     convertBV(bv_aabb, bv);
     //      bv.update(pointA,pointB);
@@ -226,7 +226,7 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
   /// \param[in] min_height Minimal height of the height field
   ///
   HeightField(const CoalScalar x_dim, const CoalScalar y_dim,
-              const MatrixXf& heights,
+              const MatrixXs& heights,
               const CoalScalar min_height = (CoalScalar)0)
       : CollisionGeometry() {
     init(x_dim, y_dim, heights, min_height);
@@ -249,12 +249,12 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
         num_bvs(other.num_bvs) {}
 
   /// @brief Returns a const reference of the grid along the X direction.
-  const VecXf& getXGrid() const { return x_grid; }
+  const VecXs& getXGrid() const { return x_grid; }
   /// @brief Returns a const reference of the grid along the Y direction.
-  const VecXf& getYGrid() const { return y_grid; }
+  const VecXs& getYGrid() const { return y_grid; }
 
   /// @brief Returns a const reference of the heights
-  const MatrixXf& getHeights() const { return heights; }
+  const MatrixXs& getHeights() const { return heights; }
 
   /// @brief Returns the dimension of the Height Field along the X direction.
   CoalScalar getXDim() const { return x_dim; }
@@ -276,8 +276,8 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
   /// @brief Compute the AABB for the HeightField, used for broad-phase
   /// collision
   void computeLocalAABB() {
-    const Vec3f A(x_grid[0], y_grid[0], min_height);
-    const Vec3f B(x_grid[x_grid.size() - 1], y_grid[y_grid.size() - 1],
+    const Vec3s A(x_grid[0], y_grid[0], min_height);
+    const Vec3s B(x_grid[x_grid.size() - 1], y_grid[y_grid.size() - 1],
                   max_height);
     const AABB aabb_(A, B);
 
@@ -287,7 +287,7 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
   }
 
   /// @brief Update Height Field height
-  void updateHeights(const MatrixXf& new_heights) {
+  void updateHeights(const MatrixXs& new_heights) {
     if (new_heights.rows() != heights.rows() ||
         new_heights.cols() != heights.cols())
       COAL_THROW_PRETTY(
@@ -306,7 +306,7 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
 
  protected:
   void init(const CoalScalar x_dim, const CoalScalar y_dim,
-            const MatrixXf& heights, const CoalScalar min_height) {
+            const MatrixXs& heights, const CoalScalar min_height) {
     this->x_dim = x_dim;
     this->y_dim = y_dim;
     this->heights = heights.cwiseMax(min_height);
@@ -317,8 +317,8 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
     assert(NX >= 2 && "The number of columns is too small.");
     assert(NY >= 2 && "The number of rows is too small.");
 
-    x_grid = VecXf::LinSpaced(NX, -0.5 * x_dim, 0.5 * x_dim);
-    y_grid = VecXf::LinSpaced(NY, 0.5 * y_dim, -0.5 * y_dim);
+    x_grid = VecXs::LinSpaced(NX, -0.5 * x_dim, 0.5 * x_dim);
+    y_grid = VecXs::LinSpaced(NY, 0.5 * y_dim, -0.5 * y_dim);
 
     // Allocate BVS
     const size_t num_tot_bvs =
@@ -333,18 +333,18 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
   /// @brief Get the object type: it is a HFIELD
   OBJECT_TYPE getObjectType() const { return OT_HFIELD; }
 
-  Vec3f computeCOM() const { return Vec3f::Zero(); }
+  Vec3s computeCOM() const { return Vec3s::Zero(); }
 
   CoalScalar computeVolume() const { return 0; }
 
-  Matrix3f computeMomentofInertia() const { return Matrix3f::Zero(); }
+  Matrix3s computeMomentofInertia() const { return Matrix3s::Zero(); }
 
  protected:
   /// @brief Dimensions in meters along X and Y directions
   CoalScalar x_dim, y_dim;
 
   /// @brief Elevation values in meters of the Height Field
-  MatrixXf heights;
+  MatrixXs heights;
 
   /// @brief Minimal height of the Height Field: all values bellow min_height
   /// will be discarded.
@@ -352,7 +352,7 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
 
   /// @brief Grids along the X and Y directions. Useful for plotting or other
   /// related things.
-  VecXf x_grid, y_grid;
+  VecXs x_grid, y_grid;
 
   /// @brief Bounding volume hierarchy
   BVS bvs;
@@ -386,8 +386,8 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
 
     bv_node.max_height = max_height;
 
-    const Vec3f pointA(x_grid[bv_node.x_id], y_grid[bv_node.y_id], min_height);
-    const Vec3f pointB(x_grid[bv_node.x_id + bv_node.x_size],
+    const Vec3s pointA(x_grid[bv_node.x_id], y_grid[bv_node.y_id], min_height);
+    const Vec3s pointB(x_grid[bv_node.x_id + bv_node.x_size],
                        y_grid[bv_node.y_id + bv_node.y_size], max_height);
 
     details::UpdateBoundingVolume<BV>::run(pointA, pointB, bv_node.bv);
@@ -445,10 +445,10 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
     bv_node.max_height = max_height;
     //    max_height = std::max(max_height,min_height);
 
-    const Vec3f pointA(x_grid[x_id], y_grid[y_id], min_height);
+    const Vec3s pointA(x_grid[x_id], y_grid[y_id], min_height);
     assert(x_id + x_size < x_grid.size());
     assert(y_id + y_size < y_grid.size());
-    const Vec3f pointB(x_grid[x_id + x_size], y_grid[y_id + y_size],
+    const Vec3s pointB(x_grid[x_id + x_size], y_grid[y_id + y_size],
                        max_height);
 
     details::UpdateBoundingVolume<BV>::run(pointA, pointB, bv_node.bv);

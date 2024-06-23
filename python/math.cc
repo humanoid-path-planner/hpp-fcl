@@ -74,17 +74,17 @@ void exposeMaths() {
   if (!eigenpy::register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
     eigenpy::exposeAngleAxis();
 
-  eigenpy::enableEigenPySpecific<Matrix3f>();
-  eigenpy::enableEigenPySpecific<Vec3f>();
+  eigenpy::enableEigenPySpecific<Matrix3s>();
+  eigenpy::enableEigenPySpecific<Vec3s>();
 
   class_<Transform3f>("Transform3f", doxygen::class_doc<Transform3f>(), no_init)
       .def(dv::init<Transform3f>())
-      .def(dv::init<Transform3f, const Matrix3f::MatrixBase&,
-                    const Vec3f::MatrixBase&>())
-      .def(dv::init<Transform3f, const Quatf&, const Vec3f::MatrixBase&>())
-      .def(dv::init<Transform3f, const Matrix3f&>())
+      .def(dv::init<Transform3f, const Matrix3s::MatrixBase&,
+                    const Vec3s::MatrixBase&>())
+      .def(dv::init<Transform3f, const Quatf&, const Vec3s::MatrixBase&>())
+      .def(dv::init<Transform3f, const Matrix3s&>())
       .def(dv::init<Transform3f, const Quatf&>())
-      .def(dv::init<Transform3f, const Vec3f&>())
+      .def(dv::init<Transform3f, const Vec3s&>())
       .def(dv::init<Transform3f, const Transform3f&>())
 
       .def(dv::member_func("getQuatRotation", &Transform3f::getQuatRotation))
@@ -99,19 +99,19 @@ void exposeMaths() {
            doxygen::member_func_doc(&Transform3f::getTranslation))
 
       .def(dv::member_func("setQuatRotation", &Transform3f::setQuatRotation))
-      .def("setTranslation", &Transform3f::setTranslation<Vec3f>)
-      .def("setRotation", &Transform3f::setRotation<Matrix3f>)
+      .def("setTranslation", &Transform3f::setTranslation<Vec3s>)
+      .def("setRotation", &Transform3f::setRotation<Matrix3s>)
       .def(dv::member_func("setTransform",
-                           &Transform3f::setTransform<Matrix3f, Vec3f>))
+                           &Transform3f::setTransform<Matrix3s, Vec3s>))
       .def(dv::member_func(
           "setTransform",
-          static_cast<void (Transform3f::*)(const Quatf&, const Vec3f&)>(
+          static_cast<void (Transform3f::*)(const Quatf&, const Vec3s&)>(
               &Transform3f::setTransform)))
       .def(dv::member_func("setIdentity", &Transform3f::setIdentity))
       .def(dv::member_func("Identity", &Transform3f::Identity))
       .staticmethod("Identity")
 
-      .def(dv::member_func("transform", &Transform3f::transform<Vec3f>))
+      .def(dv::member_func("transform", &Transform3f::transform<Vec3s>))
       .def("inverseInPlace", &Transform3f::inverseInPlace,
            return_internal_reference<>(),
            doxygen::member_func_doc(&Transform3f::inverseInPlace))
@@ -137,9 +137,9 @@ void exposeMaths() {
       .def(self == self);
 
   if (!eigenpy::register_symbolic_link_to_registered_type<
-          std::vector<Vec3f> >()) {
-    class_<std::vector<Vec3f> >("StdVec_Vec3f")
-        .def(vector_indexing_suite<std::vector<Vec3f> >());
+          std::vector<Vec3s> >()) {
+    class_<std::vector<Vec3s> >("StdVec_Vec3s")
+        .def(vector_indexing_suite<std::vector<Vec3s> >());
   }
   if (!eigenpy::register_symbolic_link_to_registered_type<
           std::vector<Triangle> >()) {

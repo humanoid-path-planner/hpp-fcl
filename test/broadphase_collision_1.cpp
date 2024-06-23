@@ -212,7 +212,7 @@ void broad_phase_duplicate_check_test(CoalScalar env_scale,
   managers.push_back(new SSaPCollisionManager());
   managers.push_back(new SaPCollisionManager());
   managers.push_back(new IntervalTreeCollisionManager());
-  Vec3f lower_limit, upper_limit;
+  Vec3s lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
   CoalScalar cell_size =
       std::min(std::min((upper_limit[0] - lower_limit[0]) / 20,
@@ -283,13 +283,13 @@ void broad_phase_duplicate_check_test(CoalScalar env_scale,
     CoalScalar rand_trans_z =
         2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_trans_max;
 
-    Matrix3f dR(Eigen::AngleAxisd(rand_angle_x, Vec3f::UnitX()) *
-                Eigen::AngleAxisd(rand_angle_y, Vec3f::UnitY()) *
-                Eigen::AngleAxisd(rand_angle_z, Vec3f::UnitZ()));
-    Vec3f dT(rand_trans_x, rand_trans_y, rand_trans_z);
+    Matrix3s dR(Eigen::AngleAxisd(rand_angle_x, Vec3s::UnitX()) *
+                Eigen::AngleAxisd(rand_angle_y, Vec3s::UnitY()) *
+                Eigen::AngleAxisd(rand_angle_z, Vec3s::UnitZ()));
+    Vec3s dT(rand_trans_x, rand_trans_y, rand_trans_z);
 
-    Matrix3f R = env[i]->getRotation();
-    Vec3f T = env[i]->getTranslation();
+    Matrix3s R = env[i]->getRotation();
+    Vec3s T = env[i]->getTranslation();
     env[i]->setTransform(dR * R, dR * T + dT);
     env[i]->computeAABB();
   }
@@ -383,7 +383,7 @@ void broad_phase_update_collision_test(CoalScalar env_scale,
   managers.push_back(new SaPCollisionManager());
   managers.push_back(new IntervalTreeCollisionManager());
 
-  Vec3f lower_limit, upper_limit;
+  Vec3s lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
   CoalScalar cell_size =
       std::min(std::min((upper_limit[0] - lower_limit[0]) / 20,
@@ -456,13 +456,13 @@ void broad_phase_update_collision_test(CoalScalar env_scale,
     CoalScalar rand_trans_z =
         2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_trans_max;
 
-    Matrix3f dR(Eigen::AngleAxisd(rand_angle_x, Vec3f::UnitX()) *
-                Eigen::AngleAxisd(rand_angle_y, Vec3f::UnitY()) *
-                Eigen::AngleAxisd(rand_angle_z, Vec3f::UnitZ()));
-    Vec3f dT(rand_trans_x, rand_trans_y, rand_trans_z);
+    Matrix3s dR(Eigen::AngleAxisd(rand_angle_x, Vec3s::UnitX()) *
+                Eigen::AngleAxisd(rand_angle_y, Vec3s::UnitY()) *
+                Eigen::AngleAxisd(rand_angle_z, Vec3s::UnitZ()));
+    Vec3s dT(rand_trans_x, rand_trans_y, rand_trans_z);
 
-    Matrix3f R = env[i]->getRotation();
-    Vec3f T = env[i]->getTranslation();
+    Matrix3s R = env[i]->getRotation();
+    Vec3s T = env[i]->getTranslation();
     env[i]->setTransform(dR * R, dR * T + dT);
     env[i]->computeAABB();
   }

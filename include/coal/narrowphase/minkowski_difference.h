@@ -62,11 +62,11 @@ struct COAL_DLLAPI MinkowskiDiff {
 
   /// @brief rotation from shape1 to shape0
   /// such that @f$ p_in_0 = oR1 * p_in_1 + ot1 @f$.
-  Matrix3f oR1;
+  Matrix3s oR1;
 
   /// @brief translation from shape1 to shape0
   /// such that @f$ p_in_0 = oR1 * p_in_1 + ot1 @f$.
-  Vec3f ot1;
+  Vec3s ot1;
 
   /// @brief The radii of the sphere swepted around each shape of the Minkowski
   /// difference. The 2 values correspond to the swept-sphere radius of shape 0
@@ -79,8 +79,8 @@ struct COAL_DLLAPI MinkowskiDiff {
   bool normalize_support_direction;
 
   typedef void (*GetSupportFunction)(const MinkowskiDiff& minkowskiDiff,
-                                     const Vec3f& dir, Vec3f& support0,
-                                     Vec3f& support1,
+                                     const Vec3s& dir, Vec3s& support0,
+                                     Vec3s& support1,
                                      support_func_guess_t& hint,
                                      ShapeSupportData data[2]);
   GetSupportFunction getSupportFunc;
@@ -139,7 +139,7 @@ struct COAL_DLLAPI MinkowskiDiff {
   /// @tparam `SupportOptions` see `set(const ShapeBase*, const
   /// ShapeBase*)` for more details.
   template <int _SupportOptions = SupportOptions::NoSweptSphere>
-  inline Vec3f support0(const Vec3f& dir, int& hint) const {
+  inline Vec3s support0(const Vec3s& dir, int& hint) const {
     return getSupport<_SupportOptions>(shapes[0], dir, hint);
   }
 
@@ -156,7 +156,7 @@ struct COAL_DLLAPI MinkowskiDiff {
   /// @tparam `SupportOptions` see `set(const ShapeBase*, const
   /// ShapeBase*)` for more details.
   template <int _SupportOptions = SupportOptions::NoSweptSphere>
-  inline Vec3f support1(const Vec3f& dir, int& hint) const {
+  inline Vec3s support1(const Vec3s& dir, int& hint) const {
     // clang-format off
     return oR1 * getSupport<_SupportOptions>(shapes[1], oR1.transpose() * dir, hint) + ot1;
     // clang-format on
@@ -171,7 +171,7 @@ struct COAL_DLLAPI MinkowskiDiff {
   /// frame of shape0.
   /// @param[in/out] hint used to initialize the search when shape is a
   /// ConvexBase object.
-  inline void support(const Vec3f& dir, Vec3f& supp0, Vec3f& supp1,
+  inline void support(const Vec3s& dir, Vec3s& supp0, Vec3s& supp1,
                       support_func_guess_t& hint) const {
     assert(getSupportFunc != NULL);
     getSupportFunc(*this, dir, supp0, supp1, hint,

@@ -45,7 +45,7 @@ namespace coal {
 //==============================================================================
 template <typename HashTable>
 SpatialHashingCollisionManager<HashTable>::SpatialHashingCollisionManager(
-    CoalScalar cell_size, const Vec3f& scene_min, const Vec3f& scene_max,
+    CoalScalar cell_size, const Vec3s& scene_min, const Vec3s& scene_max,
     unsigned int default_table_size)
     : scene_limit(AABB(scene_min, scene_max)),
       hash_table(new HashTable(detail::SpatialHash(scene_limit, cell_size))) {
@@ -313,7 +313,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(
   auto delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   auto aabb = obj->getAABB();
   if (min_dist < (std::numeric_limits<CoalScalar>::max)()) {
-    Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+    Vec3s min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
   }
 
@@ -354,7 +354,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(
         break;
       } else {
         if (min_dist < old_min_distance) {
-          Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+          Vec3s min_dist_delta(min_dist, min_dist, min_dist);
           aabb = AABB(obj->getAABB(), min_dist_delta);
           status = 0;
         } else {
@@ -499,7 +499,7 @@ size_t SpatialHashingCollisionManager<HashTable>::size() const {
 //==============================================================================
 template <typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::computeBound(
-    std::vector<CollisionObject*>& objs, Vec3f& l, Vec3f& u) {
+    std::vector<CollisionObject*>& objs, Vec3s& l, Vec3s& u) {
   AABB bound;
   for (unsigned int i = 0; i < objs.size(); ++i) bound += objs[i]->getAABB();
 

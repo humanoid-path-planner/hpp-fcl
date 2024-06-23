@@ -53,10 +53,10 @@ namespace details {
 struct COAL_DLLAPI GJK {
   struct COAL_DLLAPI SimplexV {
     /// @brief support vector for shape 0 and 1.
-    Vec3f w0, w1;
+    Vec3s w0, w1;
     /// @brief support vector (i.e., the furthest point on the shape along the
     /// support direction)
-    Vec3f w;
+    Vec3s w;
   };
 
   typedef unsigned char vertex_id_t;
@@ -108,7 +108,7 @@ struct COAL_DLLAPI GJK {
   GJKConvergenceCriterionType convergence_criterion_type;
 
   MinkowskiDiff const* shape;
-  Vec3f ray;
+  Vec3s ray;
   support_func_guess_t support_hint;
   /// @brief The distance between the two shapes, computed by GJK.
   /// If the distance is below GJK's threshold, the shapes are in collision in
@@ -154,12 +154,12 @@ struct COAL_DLLAPI GJK {
 
   /// @brief GJK algorithm, given the initial value guess
   Status evaluate(
-      const MinkowskiDiff& shape, const Vec3f& guess,
+      const MinkowskiDiff& shape, const Vec3s& guess,
       const support_func_guess_t& supportHint = support_func_guess_t::Zero());
 
   /// @brief apply the support function along a direction, the result is return
   /// in sv
-  inline void getSupport(const Vec3f& d, SimplexV& sv,
+  inline void getSupport(const Vec3s& d, SimplexV& sv,
                          support_func_guess_t& hint) const {
     shape->support(d, sv.w0, sv.w1, hint);
     sv.w = sv.w0 - sv.w1;
@@ -181,11 +181,11 @@ struct COAL_DLLAPI GJK {
   /// @param[out] w1 is the witness point on shape1.
   /// @param[out] normal is the normal of the separating plane found by
   /// GJK. It points from shape0 to shape1.
-  void getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
-                                 Vec3f& w1, Vec3f& normal) const;
+  void getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3s& w0,
+                                 Vec3s& w1, Vec3s& normal) const;
 
   /// @brief get the guess from current simplex
-  Vec3f getGuessFromSimplex() const;
+  Vec3s getGuessFromSimplex() const;
 
   /// @brief Distance threshold for early break.
   /// GJK stops when it proved the distance is more than this threshold.
@@ -197,7 +197,7 @@ struct COAL_DLLAPI GJK {
 
   /// @brief Convergence check used to stop GJK when shapes are not in
   /// collision.
-  bool checkConvergence(const Vec3f& w, const CoalScalar& rl, CoalScalar& alpha,
+  bool checkConvergence(const Vec3s& w, const CoalScalar& rl, CoalScalar& alpha,
                         const CoalScalar& omega) const;
 
   /// @brief Get the max number of iterations of GJK.
@@ -225,7 +225,7 @@ struct COAL_DLLAPI GJK {
   inline void removeVertex(Simplex& simplex);
 
   /// @brief append one vertex to the simplex
-  inline void appendVertex(Simplex& simplex, const Vec3f& v,
+  inline void appendVertex(Simplex& simplex, const Vec3s& v,
                            support_func_guess_t& hint);
 
   /// @brief Project origin (0) onto line a-b
@@ -258,7 +258,7 @@ struct COAL_DLLAPI GJK {
 struct COAL_DLLAPI EPA {
   typedef GJK::SimplexV SimplexVertex;
   struct COAL_DLLAPI SimplexFace {
-    Vec3f n;
+    Vec3s n;
     CoalScalar d;
     bool ignore;          // If the origin does not project inside the face, we
                           // ignore this face.
@@ -272,7 +272,7 @@ struct COAL_DLLAPI EPA {
                               // (with 0 <= i <= 2).
     size_t pass;
 
-    SimplexFace() : n(Vec3f::Zero()), ignore(false) {};
+    SimplexFace() : n(Vec3s::Zero()), ignore(false) {};
   };
 
   /// @brief The simplex list of EPA is a linked list of faces.
@@ -342,7 +342,7 @@ struct COAL_DLLAPI EPA {
  public:
   Status status;
   GJK::Simplex result;
-  Vec3f normal;
+  Vec3s normal;
   support_func_guess_t support_hint;
   CoalScalar depth;
   SimplexFace* closest_face;
@@ -409,7 +409,7 @@ struct COAL_DLLAPI EPA {
   /// \return a Status which can be demangled using (status & Valid) or
   ///         (status & Failed). The other values provide a more detailled
   ///         status
-  Status evaluate(GJK& gjk, const Vec3f& guess);
+  Status evaluate(GJK& gjk, const Vec3s& guess);
 
   /// Get the witness points on each object, and the corresponding normal.
   /// @param[in] shape is the Minkowski difference of the two shapes.
@@ -418,8 +418,8 @@ struct COAL_DLLAPI EPA {
   /// @param[in] normal is the normal found by EPA. It points from shape0 to
   /// shape1. The normal is used to correct the witness points on the shapes if
   /// the shapes have a non-zero swept-sphere radius.
-  void getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3f& w0,
-                                 Vec3f& w1, Vec3f& normal) const;
+  void getWitnessPointsAndNormal(const MinkowskiDiff& shape, Vec3s& w0,
+                                 Vec3s& w1, Vec3s& normal) const;
 
  private:
   /// @brief Allocates memory for the EPA algorithm.

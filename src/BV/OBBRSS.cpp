@@ -39,7 +39,7 @@
 
 namespace coal {
 
-OBBRSS translate(const OBBRSS& bv, const Vec3f& t) {
+OBBRSS translate(const OBBRSS& bv, const Vec3s& t) {
   OBBRSS res(bv);
   res.obb.To += t;
   res.rss.Tr += t;
