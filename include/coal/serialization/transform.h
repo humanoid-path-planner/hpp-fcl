@@ -12,7 +12,7 @@ namespace boost {
 namespace serialization {
 
 template <class Archive>
-void serialize(Archive& ar, coal::Transform3f& tf,
+void serialize(Archive& ar, coal::Transform3s& tf,
                const unsigned int /*version*/) {
   ar& make_nvp("R", tf.rotation());
   ar& make_nvp("T", tf.translation());

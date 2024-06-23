@@ -48,8 +48,8 @@ BOOST_AUTO_TEST_CASE(box_box_no_collision) {
   const Box box1(2 * halfside, 2 * halfside, 2 * halfside);
   const Box box2(2 * halfside, 2 * halfside, 2 * halfside);
 
-  const Transform3f tf1;
-  Transform3f tf2;
+  const Transform3s tf1;
+  Transform3s tf2;
   // set translation to separate the shapes
   const CoalScalar offset = 0.001;
   tf2.setTranslation(Vec3s(0, 0, 2 * halfside + offset));
@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE(box_sphere) {
   const Box box(2 * halfside, 2 * halfside, 2 * halfside);
   const Sphere sphere(halfside);
 
-  const Transform3f tf1;
-  Transform3f tf2;
+  const Transform3s tf1;
+  Transform3s tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
   tf2.setTranslation(Vec3s(0, 0, 2 * halfside - offset));
@@ -113,8 +113,8 @@ BOOST_AUTO_TEST_CASE(box_box) {
   const Box box1(2 * halfside, 2 * halfside, 2 * halfside);
   const Box box2(2 * halfside, 2 * halfside, 2 * halfside);
 
-  const Transform3f tf1;
-  Transform3f tf2;
+  const Transform3s tf1;
+  Transform3s tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
   tf2.setTranslation(Vec3s(0, 0, 2 * halfside - offset));
@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_CASE(halfspace_box) {
   const CoalScalar halfside = 0.5;
   const Box box(2 * halfside, 2 * halfside, 2 * halfside);
 
-  const Transform3f tf1;
-  Transform3f tf2;
+  const Transform3s tf1;
+  Transform3s tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
   tf2.setTranslation(Vec3s(0, 0, halfside - offset));
@@ -231,8 +231,8 @@ BOOST_AUTO_TEST_CASE(halfspace_capsule) {
   const CoalScalar height = 1.;
   const Capsule capsule(radius, height);
 
-  const Transform3f tf1;
-  Transform3f tf2;
+  const Transform3s tf1;
+  Transform3s tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
   tf2.setTranslation(Vec3s(0, 0, height / 2 - offset));
@@ -343,8 +343,8 @@ BOOST_AUTO_TEST_CASE(halfspace_cone) {
   const CoalScalar height = 1.;
   const Cone cone(radius, height);
 
-  const Transform3f tf1;
-  Transform3f tf2;
+  const Transform3s tf1;
+  Transform3s tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
   tf2.setTranslation(Vec3s(0, 0, height / 2 - offset));
@@ -468,8 +468,8 @@ BOOST_AUTO_TEST_CASE(halfspace_cylinder) {
   const CoalScalar height = 1.;
   const Cylinder cylinder(radius, height);
 
-  const Transform3f tf1;
-  Transform3f tf2;
+  const Transform3s tf1;
+  Transform3s tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
   tf2.setTranslation(Vec3s(0, 0, height / 2 - offset));
@@ -577,8 +577,8 @@ BOOST_AUTO_TEST_CASE(convex_convex) {
   const Convex<Quadrilateral> box1(buildBox(halfside, halfside, halfside));
   const Convex<Quadrilateral> box2(buildBox(halfside, halfside, halfside));
 
-  const Transform3f tf1;
-  Transform3f tf2;
+  const Transform3s tf1;
+  Transform3s tf2;
   // set translation to have a collision
   const CoalScalar offset = 0.001;
   tf2.setTranslation(Vec3s(0, 0, 2 * halfside - offset));
@@ -638,8 +638,8 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_segment) {
   const Vec3s expected_cp1(0, 0.5, 0);
   const Vec3s expected_cp2(0, 1, 0);
 
-  const Transform3f tf1;  // identity
-  const Transform3f tf2;  // identity
+  const Transform3s tf1;  // identity
+  const Transform3s tf2;  // identity
 
   const size_t num_max_contact = 1;
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
@@ -804,8 +804,8 @@ BOOST_AUTO_TEST_CASE(edge_case_vertex_vertex) {
   const size_t expected_size = 1;
   const Vec3s expected_cp(0, 0, 0);
 
-  const Transform3f tf1;  // identity
-  const Transform3f tf2;  // identity
+  const Transform3s tf1;  // identity
+  const Transform3s tf2;  // identity
 
   const size_t num_max_contact = 1;
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,
@@ -966,8 +966,8 @@ BOOST_AUTO_TEST_CASE(edge_case_segment_face) {
   const Vec3s expected_cp1(0, 0, 0);
   const Vec3s expected_cp2(-0.5, 0.5, 0);
 
-  const Transform3f tf1;  // identity
-  const Transform3f tf2;  // identity
+  const Transform3s tf1;  // identity
+  const Transform3s tf2;  // identity
 
   const size_t num_max_contact = 1;
   const CollisionRequest col_req(CollisionRequestFlag::CONTACT,

@@ -61,8 +61,8 @@ namespace coal {
 /// @brief Initialize traversal node for collision between two octrees, given
 /// current object transform
 inline bool initialize(OcTreeCollisionTraversalNode& node, const OcTree& model1,
-                       const Transform3f& tf1, const OcTree& model2,
-                       const Transform3f& tf2, const OcTreeSolver* otsolver,
+                       const Transform3s& tf1, const OcTree& model2,
+                       const Transform3s& tf2, const OcTreeSolver* otsolver,
                        CollisionResult& result) {
   node.result = &result;
 
@@ -80,8 +80,8 @@ inline bool initialize(OcTreeCollisionTraversalNode& node, const OcTree& model1,
 /// @brief Initialize traversal node for distance between two octrees, given
 /// current object transform
 inline bool initialize(OcTreeDistanceTraversalNode& node, const OcTree& model1,
-                       const Transform3f& tf1, const OcTree& model2,
-                       const Transform3f& tf2, const OcTreeSolver* otsolver,
+                       const Transform3s& tf1, const OcTree& model2,
+                       const Transform3s& tf2, const OcTreeSolver* otsolver,
                        const DistanceRequest& request, DistanceResult& result)
 
 {
@@ -103,8 +103,8 @@ inline bool initialize(OcTreeDistanceTraversalNode& node, const OcTree& model1,
 /// octree, given current object transform
 template <typename S>
 bool initialize(ShapeOcTreeCollisionTraversalNode<S>& node, const S& model1,
-                const Transform3f& tf1, const OcTree& model2,
-                const Transform3f& tf2, const OcTreeSolver* otsolver,
+                const Transform3s& tf1, const OcTree& model2,
+                const Transform3s& tf2, const OcTreeSolver* otsolver,
                 CollisionResult& result) {
   node.result = &result;
 
@@ -123,8 +123,8 @@ bool initialize(ShapeOcTreeCollisionTraversalNode<S>& node, const S& model1,
 /// shape, given current object transform
 template <typename S>
 bool initialize(OcTreeShapeCollisionTraversalNode<S>& node,
-                const OcTree& model1, const Transform3f& tf1, const S& model2,
-                const Transform3f& tf2, const OcTreeSolver* otsolver,
+                const OcTree& model1, const Transform3s& tf1, const S& model2,
+                const Transform3s& tf2, const OcTreeSolver* otsolver,
                 CollisionResult& result) {
   node.result = &result;
 
@@ -143,8 +143,8 @@ bool initialize(OcTreeShapeCollisionTraversalNode<S>& node,
 /// octree, given current object transform
 template <typename S>
 bool initialize(ShapeOcTreeDistanceTraversalNode<S>& node, const S& model1,
-                const Transform3f& tf1, const OcTree& model2,
-                const Transform3f& tf2, const OcTreeSolver* otsolver,
+                const Transform3s& tf1, const OcTree& model2,
+                const Transform3s& tf2, const OcTreeSolver* otsolver,
                 const DistanceRequest& request, DistanceResult& result) {
   node.request = request;
   node.result = &result;
@@ -164,7 +164,7 @@ bool initialize(ShapeOcTreeDistanceTraversalNode<S>& node, const S& model1,
 /// shape, given current object transform
 template <typename S>
 bool initialize(OcTreeShapeDistanceTraversalNode<S>& node, const OcTree& model1,
-                const Transform3f& tf1, const S& model2, const Transform3f& tf2,
+                const Transform3s& tf1, const S& model2, const Transform3s& tf2,
                 const OcTreeSolver* otsolver, const DistanceRequest& request,
                 DistanceResult& result) {
   node.request = request;
@@ -185,8 +185,8 @@ bool initialize(OcTreeShapeDistanceTraversalNode<S>& node, const OcTree& model1,
 /// octree, given current object transform
 template <typename BV>
 bool initialize(MeshOcTreeCollisionTraversalNode<BV>& node,
-                const BVHModel<BV>& model1, const Transform3f& tf1,
-                const OcTree& model2, const Transform3f& tf2,
+                const BVHModel<BV>& model1, const Transform3s& tf1,
+                const OcTree& model2, const Transform3s& tf2,
                 const OcTreeSolver* otsolver, CollisionResult& result) {
   node.result = &result;
 
@@ -205,8 +205,8 @@ bool initialize(MeshOcTreeCollisionTraversalNode<BV>& node,
 /// mesh, given current object transform
 template <typename BV>
 bool initialize(OcTreeMeshCollisionTraversalNode<BV>& node,
-                const OcTree& model1, const Transform3f& tf1,
-                const BVHModel<BV>& model2, const Transform3f& tf2,
+                const OcTree& model1, const Transform3s& tf1,
+                const BVHModel<BV>& model2, const Transform3s& tf2,
                 const OcTreeSolver* otsolver, CollisionResult& result) {
   node.result = &result;
 
@@ -225,8 +225,8 @@ bool initialize(OcTreeMeshCollisionTraversalNode<BV>& node,
 /// height field, given current object transform
 template <typename BV>
 bool initialize(OcTreeHeightFieldCollisionTraversalNode<BV>& node,
-                const OcTree& model1, const Transform3f& tf1,
-                const HeightField<BV>& model2, const Transform3f& tf2,
+                const OcTree& model1, const Transform3s& tf1,
+                const HeightField<BV>& model2, const Transform3s& tf2,
                 const OcTreeSolver* otsolver, CollisionResult& result) {
   node.result = &result;
 
@@ -245,8 +245,8 @@ bool initialize(OcTreeHeightFieldCollisionTraversalNode<BV>& node,
 /// one octree, given current object transform
 template <typename BV>
 bool initialize(HeightFieldOcTreeCollisionTraversalNode<BV>& node,
-                const HeightField<BV>& model1, const Transform3f& tf1,
-                const OcTree& model2, const Transform3f& tf2,
+                const HeightField<BV>& model1, const Transform3s& tf1,
+                const OcTree& model2, const Transform3s& tf2,
                 const OcTreeSolver* otsolver, CollisionResult& result) {
   node.result = &result;
 
@@ -265,8 +265,8 @@ bool initialize(HeightFieldOcTreeCollisionTraversalNode<BV>& node,
 /// octree, given current object transform
 template <typename BV>
 bool initialize(MeshOcTreeDistanceTraversalNode<BV>& node,
-                const BVHModel<BV>& model1, const Transform3f& tf1,
-                const OcTree& model2, const Transform3f& tf2,
+                const BVHModel<BV>& model1, const Transform3s& tf1,
+                const OcTree& model2, const Transform3s& tf2,
                 const OcTreeSolver* otsolver, const DistanceRequest& request,
                 DistanceResult& result) {
   node.request = request;
@@ -287,8 +287,8 @@ bool initialize(MeshOcTreeDistanceTraversalNode<BV>& node,
 /// mesh, given current object transform
 template <typename BV>
 bool initialize(OcTreeMeshDistanceTraversalNode<BV>& node, const OcTree& model1,
-                const Transform3f& tf1, const BVHModel<BV>& model2,
-                const Transform3f& tf2, const OcTreeSolver* otsolver,
+                const Transform3s& tf1, const BVHModel<BV>& model2,
+                const Transform3s& tf2, const OcTreeSolver* otsolver,
                 const DistanceRequest& request, DistanceResult& result) {
   node.request = request;
   node.result = &result;
@@ -310,8 +310,8 @@ bool initialize(OcTreeMeshDistanceTraversalNode<BV>& node, const OcTree& model1,
 /// given current object transform
 template <typename S1, typename S2>
 bool initialize(ShapeCollisionTraversalNode<S1, S2>& node, const S1& shape1,
-                const Transform3f& tf1, const S2& shape2,
-                const Transform3f& tf2, const GJKSolver* nsolver,
+                const Transform3s& tf1, const S2& shape2,
+                const Transform3s& tf2, const GJKSolver* nsolver,
                 CollisionResult& result) {
   node.model1 = &shape1;
   node.tf1 = tf1;
@@ -328,8 +328,8 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2>& node, const S1& shape1,
 /// shape, given current object transform
 template <typename BV, typename S>
 bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
-                BVHModel<BV>& model1, Transform3f& tf1, const S& model2,
-                const Transform3f& tf2, const GJKSolver* nsolver,
+                BVHModel<BV>& model1, Transform3s& tf1, const S& model2,
+                const Transform3s& tf2, const GJKSolver* nsolver,
                 CollisionResult& result, bool use_refit = false,
                 bool refit_bottomup = false) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
@@ -376,8 +376,8 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
 /// shape
 template <typename BV, typename S>
 bool initialize(MeshShapeCollisionTraversalNode<BV, S, 0>& node,
-                const BVHModel<BV>& model1, const Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
+                const BVHModel<BV>& model1, const Transform3s& tf1,
+                const S& model2, const Transform3s& tf2,
                 const GJKSolver* nsolver, CollisionResult& result) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
     COAL_THROW_PRETTY(
@@ -405,8 +405,8 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, 0>& node,
 /// shape, given current object transform
 template <typename BV, typename S>
 bool initialize(HeightFieldShapeCollisionTraversalNode<BV, S>& node,
-                HeightField<BV>& model1, Transform3f& tf1, const S& model2,
-                const Transform3f& tf2, const GJKSolver* nsolver,
+                HeightField<BV>& model1, Transform3s& tf1, const S& model2,
+                const Transform3s& tf2, const GJKSolver* nsolver,
                 CollisionResult& result, bool use_refit = false,
                 bool refit_bottomup = false);
 
@@ -414,8 +414,8 @@ bool initialize(HeightFieldShapeCollisionTraversalNode<BV, S>& node,
 /// shape
 template <typename BV, typename S>
 bool initialize(HeightFieldShapeCollisionTraversalNode<BV, S, 0>& node,
-                const HeightField<BV>& model1, const Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
+                const HeightField<BV>& model1, const Transform3s& tf1,
+                const S& model2, const Transform3s& tf2,
                 const GJKSolver* nsolver, CollisionResult& result) {
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -434,8 +434,8 @@ bool initialize(HeightFieldShapeCollisionTraversalNode<BV, S, 0>& node,
 namespace details {
 template <typename S, typename BV, template <typename> class OrientedNode>
 static inline bool setupShapeMeshCollisionOrientedNode(
-    OrientedNode<S>& node, const S& model1, const Transform3f& tf1,
-    const BVHModel<BV>& model2, const Transform3f& tf2,
+    OrientedNode<S>& node, const S& model1, const Transform3s& tf1,
+    const BVHModel<BV>& model2, const Transform3s& tf2,
     const GJKSolver* nsolver, CollisionResult& result) {
   if (model2.getModelType() != BVH_MODEL_TRIANGLES)
     COAL_THROW_PRETTY(
@@ -466,8 +466,8 @@ static inline bool setupShapeMeshCollisionOrientedNode(
 template <typename BV>
 bool initialize(
     MeshCollisionTraversalNode<BV, RelativeTransformationIsIdentity>& node,
-    BVHModel<BV>& model1, Transform3f& tf1, BVHModel<BV>& model2,
-    Transform3f& tf2, CollisionResult& result, bool use_refit = false,
+    BVHModel<BV>& model1, Transform3s& tf1, BVHModel<BV>& model2,
+    Transform3s& tf2, CollisionResult& result, bool use_refit = false,
     bool refit_bottomup = false) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
     COAL_THROW_PRETTY(
@@ -530,8 +530,8 @@ bool initialize(
 
 template <typename BV>
 bool initialize(MeshCollisionTraversalNode<BV, 0>& node,
-                const BVHModel<BV>& model1, const Transform3f& tf1,
-                const BVHModel<BV>& model2, const Transform3f& tf2,
+                const BVHModel<BV>& model1, const Transform3s& tf1,
+                const BVHModel<BV>& model2, const Transform3s& tf2,
                 CollisionResult& result) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
     COAL_THROW_PRETTY(
@@ -567,8 +567,8 @@ bool initialize(MeshCollisionTraversalNode<BV, 0>& node,
 /// @brief Initialize traversal node for distance between two geometric shapes
 template <typename S1, typename S2>
 bool initialize(ShapeDistanceTraversalNode<S1, S2>& node, const S1& shape1,
-                const Transform3f& tf1, const S2& shape2,
-                const Transform3f& tf2, const GJKSolver* nsolver,
+                const Transform3s& tf1, const S2& shape2,
+                const Transform3s& tf2, const GJKSolver* nsolver,
                 const DistanceRequest& request, DistanceResult& result) {
   node.request = request;
   node.result = &result;
@@ -587,8 +587,8 @@ bool initialize(ShapeDistanceTraversalNode<S1, S2>& node, const S1& shape1,
 template <typename BV>
 bool initialize(
     MeshDistanceTraversalNode<BV, RelativeTransformationIsIdentity>& node,
-    BVHModel<BV>& model1, Transform3f& tf1, BVHModel<BV>& model2,
-    Transform3f& tf2, const DistanceRequest& request, DistanceResult& result,
+    BVHModel<BV>& model1, Transform3s& tf1, BVHModel<BV>& model2,
+    Transform3s& tf2, const DistanceRequest& request, DistanceResult& result,
     bool use_refit = false, bool refit_bottomup = false) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
     COAL_THROW_PRETTY(
@@ -653,8 +653,8 @@ bool initialize(
 /// @brief Initialize traversal node for distance computation between two meshes
 template <typename BV>
 bool initialize(MeshDistanceTraversalNode<BV, 0>& node,
-                const BVHModel<BV>& model1, const Transform3f& tf1,
-                const BVHModel<BV>& model2, const Transform3f& tf2,
+                const BVHModel<BV>& model1, const Transform3s& tf1,
+                const BVHModel<BV>& model2, const Transform3s& tf2,
                 const DistanceRequest& request, DistanceResult& result) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
     COAL_THROW_PRETTY(
@@ -696,8 +696,8 @@ bool initialize(MeshDistanceTraversalNode<BV, 0>& node,
 /// and one shape, given the current transforms
 template <typename BV, typename S>
 bool initialize(MeshShapeDistanceTraversalNode<BV, S>& node,
-                BVHModel<BV>& model1, Transform3f& tf1, const S& model2,
-                const Transform3f& tf2, const GJKSolver* nsolver,
+                BVHModel<BV>& model1, Transform3s& tf1, const S& model2,
+                const Transform3s& tf2, const GJKSolver* nsolver,
                 const DistanceRequest& request, DistanceResult& result,
                 bool use_refit = false, bool refit_bottomup = false) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
@@ -744,8 +744,8 @@ namespace details {
 
 template <typename BV, typename S, template <typename> class OrientedNode>
 static inline bool setupMeshShapeDistanceOrientedNode(
-    OrientedNode<S>& node, const BVHModel<BV>& model1, const Transform3f& tf1,
-    const S& model2, const Transform3f& tf2, const GJKSolver* nsolver,
+    OrientedNode<S>& node, const BVHModel<BV>& model1, const Transform3s& tf1,
+    const S& model2, const Transform3s& tf2, const GJKSolver* nsolver,
     const DistanceRequest& request, DistanceResult& result) {
   if (model1.getModelType() != BVH_MODEL_TRIANGLES)
     COAL_THROW_PRETTY(
@@ -776,8 +776,8 @@ static inline bool setupMeshShapeDistanceOrientedNode(
 /// and one shape, specialized for RSS type
 template <typename S>
 bool initialize(MeshShapeDistanceTraversalNodeRSS<S>& node,
-                const BVHModel<RSS>& model1, const Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
+                const BVHModel<RSS>& model1, const Transform3s& tf1,
+                const S& model2, const Transform3s& tf2,
                 const GJKSolver* nsolver, const DistanceRequest& request,
                 DistanceResult& result) {
   return details::setupMeshShapeDistanceOrientedNode(
@@ -788,8 +788,8 @@ bool initialize(MeshShapeDistanceTraversalNodeRSS<S>& node,
 /// and one shape, specialized for kIOS type
 template <typename S>
 bool initialize(MeshShapeDistanceTraversalNodekIOS<S>& node,
-                const BVHModel<kIOS>& model1, const Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
+                const BVHModel<kIOS>& model1, const Transform3s& tf1,
+                const S& model2, const Transform3s& tf2,
                 const GJKSolver* nsolver, const DistanceRequest& request,
                 DistanceResult& result) {
   return details::setupMeshShapeDistanceOrientedNode(
@@ -800,8 +800,8 @@ bool initialize(MeshShapeDistanceTraversalNodekIOS<S>& node,
 /// and one shape, specialized for OBBRSS type
 template <typename S>
 bool initialize(MeshShapeDistanceTraversalNodeOBBRSS<S>& node,
-                const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
-                const S& model2, const Transform3f& tf2,
+                const BVHModel<OBBRSS>& model1, const Transform3s& tf1,
+                const S& model2, const Transform3s& tf2,
                 const GJKSolver* nsolver, const DistanceRequest& request,
                 DistanceResult& result) {
   return details::setupMeshShapeDistanceOrientedNode(

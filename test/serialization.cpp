@@ -286,8 +286,8 @@ BOOST_AUTO_TEST_CASE(test_collision_data) {
     const CoalScalar height = 1.;
     const Cylinder cylinder(radius, height);
 
-    const Transform3f tf1;
-    Transform3f tf2;
+    const Transform3s tf1;
+    Transform3s tf2;
     // set translation to have a collision
     const CoalScalar offset = 0.001;
     tf2.setTranslation(Vec3s(0, 0, height / 2 - offset));
@@ -436,11 +436,11 @@ BOOST_AUTO_TEST_CASE(test_HeightField) {
 }
 
 BOOST_AUTO_TEST_CASE(test_transform) {
-  Transform3f T;
+  Transform3s T;
   T.setQuatRotation(Quaternion3f::UnitRandom());
   T.setTranslation(Vec3s::Random());
 
-  Transform3f T_copy;
+  Transform3s T_copy;
   test_serialization(T, T_copy);
 }
 

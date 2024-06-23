@@ -74,7 +74,7 @@ class COAL_DLLAPI OcTreeSolver {
 
   /// @brief collision between two octrees
   void OcTreeIntersect(const OcTree* tree1, const OcTree* tree2,
-                       const Transform3f& tf1, const Transform3f& tf2,
+                       const Transform3s& tf1, const Transform3s& tf2,
                        const CollisionRequest& request_,
                        CollisionResult& result_) const {
     crequest = &request_;
@@ -86,7 +86,7 @@ class COAL_DLLAPI OcTreeSolver {
 
   /// @brief distance between two octrees
   void OcTreeDistance(const OcTree* tree1, const OcTree* tree2,
-                      const Transform3f& tf1, const Transform3f& tf2,
+                      const Transform3s& tf1, const Transform3s& tf2,
                       const DistanceRequest& request_,
                       DistanceResult& result_) const {
     drequest = &request_;
@@ -99,7 +99,7 @@ class COAL_DLLAPI OcTreeSolver {
   /// @brief collision between octree and mesh
   template <typename BV>
   void OcTreeMeshIntersect(const OcTree* tree1, const BVHModel<BV>* tree2,
-                           const Transform3f& tf1, const Transform3f& tf2,
+                           const Transform3s& tf1, const Transform3s& tf2,
                            const CollisionRequest& request_,
                            CollisionResult& result_) const {
     crequest = &request_;
@@ -112,7 +112,7 @@ class COAL_DLLAPI OcTreeSolver {
   /// @brief distance between octree and mesh
   template <typename BV>
   void OcTreeMeshDistance(const OcTree* tree1, const BVHModel<BV>* tree2,
-                          const Transform3f& tf1, const Transform3f& tf2,
+                          const Transform3s& tf1, const Transform3s& tf2,
                           const DistanceRequest& request_,
                           DistanceResult& result_) const {
     drequest = &request_;
@@ -125,7 +125,7 @@ class COAL_DLLAPI OcTreeSolver {
   /// @brief collision between mesh and octree
   template <typename BV>
   void MeshOcTreeIntersect(const BVHModel<BV>* tree1, const OcTree* tree2,
-                           const Transform3f& tf1, const Transform3f& tf2,
+                           const Transform3s& tf1, const Transform3s& tf2,
                            const CollisionRequest& request_,
                            CollisionResult& result_) const
 
@@ -140,7 +140,7 @@ class COAL_DLLAPI OcTreeSolver {
   /// @brief distance between mesh and octree
   template <typename BV>
   void MeshOcTreeDistance(const BVHModel<BV>* tree1, const OcTree* tree2,
-                          const Transform3f& tf1, const Transform3f& tf2,
+                          const Transform3s& tf1, const Transform3s& tf2,
                           const DistanceRequest& request_,
                           DistanceResult& result_) const {
     drequest = &request_;
@@ -152,8 +152,8 @@ class COAL_DLLAPI OcTreeSolver {
 
   template <typename BV>
   void OcTreeHeightFieldIntersect(
-      const OcTree* tree1, const HeightField<BV>* tree2, const Transform3f& tf1,
-      const Transform3f& tf2, const CollisionRequest& request_,
+      const OcTree* tree1, const HeightField<BV>* tree2, const Transform3s& tf1,
+      const Transform3s& tf2, const CollisionRequest& request_,
       CollisionResult& result_, CoalScalar& sqrDistLowerBound) const {
     crequest = &request_;
     cresult = &result_;
@@ -165,8 +165,8 @@ class COAL_DLLAPI OcTreeSolver {
 
   template <typename BV>
   void HeightFieldOcTreeIntersect(const HeightField<BV>* tree1,
-                                  const OcTree* tree2, const Transform3f& tf1,
-                                  const Transform3f& tf2,
+                                  const OcTree* tree2, const Transform3s& tf1,
+                                  const Transform3s& tf2,
                                   const CollisionRequest& request_,
                                   CollisionResult& result_,
                                   CoalScalar& sqrDistLowerBound) const {
@@ -181,14 +181,14 @@ class COAL_DLLAPI OcTreeSolver {
   /// @brief collision between octree and shape
   template <typename S>
   void OcTreeShapeIntersect(const OcTree* tree, const S& s,
-                            const Transform3f& tf1, const Transform3f& tf2,
+                            const Transform3s& tf1, const Transform3s& tf2,
                             const CollisionRequest& request_,
                             CollisionResult& result_) const {
     crequest = &request_;
     cresult = &result_;
 
     AABB bv2;
-    computeBV<AABB>(s, Transform3f(), bv2);
+    computeBV<AABB>(s, Transform3s(), bv2);
     OBB obb2;
     convertBV(bv2, tf2, obb2);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(), s,
@@ -198,14 +198,14 @@ class COAL_DLLAPI OcTreeSolver {
   /// @brief collision between shape and octree
   template <typename S>
   void ShapeOcTreeIntersect(const S& s, const OcTree* tree,
-                            const Transform3f& tf1, const Transform3f& tf2,
+                            const Transform3s& tf1, const Transform3s& tf2,
                             const CollisionRequest& request_,
                             CollisionResult& result_) const {
     crequest = &request_;
     cresult = &result_;
 
     AABB bv1;
-    computeBV<AABB>(s, Transform3f(), bv1);
+    computeBV<AABB>(s, Transform3s(), bv1);
     OBB obb1;
     convertBV(bv1, tf1, obb1);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(), s,
@@ -215,7 +215,7 @@ class COAL_DLLAPI OcTreeSolver {
   /// @brief distance between octree and shape
   template <typename S>
   void OcTreeShapeDistance(const OcTree* tree, const S& s,
-                           const Transform3f& tf1, const Transform3f& tf2,
+                           const Transform3s& tf1, const Transform3s& tf2,
                            const DistanceRequest& request_,
                            DistanceResult& result_) const {
     drequest = &request_;
@@ -230,7 +230,7 @@ class COAL_DLLAPI OcTreeSolver {
   /// @brief distance between shape and octree
   template <typename S>
   void ShapeOcTreeDistance(const S& s, const OcTree* tree,
-                           const Transform3f& tf1, const Transform3f& tf2,
+                           const Transform3s& tf1, const Transform3s& tf2,
                            const DistanceRequest& request_,
                            DistanceResult& result_) const {
     drequest = &request_;
@@ -247,12 +247,12 @@ class COAL_DLLAPI OcTreeSolver {
   bool OcTreeShapeDistanceRecurse(const OcTree* tree1,
                                   const OcTree::OcTreeNode* root1,
                                   const AABB& bv1, const S& s,
-                                  const AABB& aabb2, const Transform3f& tf1,
-                                  const Transform3f& tf2) const {
+                                  const AABB& aabb2, const Transform3s& tf1,
+                                  const Transform3s& tf2) const {
     if (!tree1->nodeHasChildren(root1)) {
       if (tree1->isNodeOccupied(root1)) {
         Box box;
-        Transform3f box_tf;
+        Transform3s box_tf;
         constructBox(bv1, tf1, box, box_tf);
 
         if (solver->gjk_initial_guess == GJKInitialGuess::BoundingVolumeGuess) {
@@ -299,8 +299,8 @@ class COAL_DLLAPI OcTreeSolver {
   bool OcTreeShapeIntersectRecurse(const OcTree* tree1,
                                    const OcTree::OcTreeNode* root1,
                                    const AABB& bv1, const S& s, const OBB& obb2,
-                                   const Transform3f& tf1,
-                                   const Transform3f& tf2) const {
+                                   const Transform3s& tf1,
+                                   const Transform3s& tf2) const {
     // Empty OcTree is considered free.
     if (!root1) return false;
 
@@ -327,7 +327,7 @@ class COAL_DLLAPI OcTreeSolver {
       assert(tree1->isNodeOccupied(root1));  // it isn't free nor uncertain.
 
       Box box;
-      Transform3f box_tf;
+      Transform3s box_tf;
       constructBox(bv1, tf1, box, box_tf);
       if (solver->gjk_initial_guess == GJKInitialGuess::BoundingVolumeGuess) {
         box.computeLocalAABB();
@@ -371,12 +371,12 @@ class COAL_DLLAPI OcTreeSolver {
   bool OcTreeMeshDistanceRecurse(const OcTree* tree1,
                                  const OcTree::OcTreeNode* root1,
                                  const AABB& bv1, const BVHModel<BV>* tree2,
-                                 unsigned int root2, const Transform3f& tf1,
-                                 const Transform3f& tf2) const {
+                                 unsigned int root2, const Transform3s& tf1,
+                                 const Transform3s& tf2) const {
     if (!tree1->nodeHasChildren(root1) && tree2->getBV(root2).isLeaf()) {
       if (tree1->isNodeOccupied(root1)) {
         Box box;
-        Transform3f box_tf;
+        Transform3s box_tf;
         constructBox(bv1, tf1, box, box_tf);
 
         if (solver->gjk_initial_guess == GJKInitialGuess::BoundingVolumeGuess) {
@@ -462,8 +462,8 @@ class COAL_DLLAPI OcTreeSolver {
   bool OcTreeMeshIntersectRecurse(const OcTree* tree1,
                                   const OcTree::OcTreeNode* root1,
                                   const AABB& bv1, const BVHModel<BV>* tree2,
-                                  unsigned int root2, const Transform3f& tf1,
-                                  const Transform3f& tf2) const {
+                                  unsigned int root2, const Transform3s& tf1,
+                                  const Transform3s& tf2) const {
     // FIXME(jmirabel) I do not understand why the BVHModel was traversed. The
     // code in this if(!root1) did not output anything so the empty OcTree is
     // considered free. Should an empty OcTree be considered free ?
@@ -496,7 +496,7 @@ class COAL_DLLAPI OcTreeSolver {
     if (!tree1->nodeHasChildren(root1) && bvn2.isLeaf()) {
       assert(tree1->isNodeOccupied(root1));  // it isn't free nor uncertain.
       Box box;
-      Transform3f box_tf;
+      Transform3s box_tf;
       constructBox(bv1, tf1, box, box_tf);
       if (solver->gjk_initial_guess == GJKInitialGuess::BoundingVolumeGuess) {
         box.computeLocalAABB();
@@ -566,8 +566,8 @@ class COAL_DLLAPI OcTreeSolver {
   template <typename BV>
   bool OcTreeHeightFieldIntersectRecurse(
       const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
-      const HeightField<BV>* tree2, unsigned int root2, const Transform3f& tf1,
-      const Transform3f& tf2, CoalScalar& sqrDistLowerBound) const {
+      const HeightField<BV>* tree2, unsigned int root2, const Transform3s& tf1,
+      const Transform3s& tf2, CoalScalar& sqrDistLowerBound) const {
     // FIXME(jmirabel) I do not understand why the BVHModel was traversed. The
     // code in this if(!root1) did not output anything so the empty OcTree is
     // considered free. Should an empty OcTree be considered free ?
@@ -602,7 +602,7 @@ class COAL_DLLAPI OcTreeSolver {
     if (!tree1->nodeHasChildren(root1) && bvn2.isLeaf()) {
       assert(tree1->isNodeOccupied(root1));  // it isn't free nor uncertain.
       Box box;
-      Transform3f box_tf;
+      Transform3s box_tf;
       constructBox(bv1, tf1, box, box_tf);
       if (solver->gjk_initial_guess == GJKInitialGuess::BoundingVolumeGuess) {
         box.computeLocalAABB();
@@ -686,8 +686,8 @@ class COAL_DLLAPI OcTreeSolver {
   template <typename BV>
   bool HeightFieldOcTreeIntersectRecurse(
       const HeightField<BV>* tree1, unsigned int root1, const OcTree* tree2,
-      const OcTree::OcTreeNode* root2, const AABB& bv2, const Transform3f& tf1,
-      const Transform3f& tf2, CoalScalar& sqrDistLowerBound) const {
+      const OcTree::OcTreeNode* root2, const AABB& bv2, const Transform3s& tf1,
+      const Transform3s& tf2, CoalScalar& sqrDistLowerBound) const {
     // FIXME(jmirabel) I do not understand why the BVHModel was traversed. The
     // code in this if(!root1) did not output anything so the empty OcTree is
     // considered free. Should an empty OcTree be considered free ?
@@ -722,7 +722,7 @@ class COAL_DLLAPI OcTreeSolver {
     if (!tree2->nodeHasChildren(root2) && bvn1.isLeaf()) {
       assert(tree2->isNodeOccupied(root2));  // it isn't free nor uncertain.
       Box box;
-      Transform3f box_tf;
+      Transform3s box_tf;
       constructBox(bv2, tf2, box, box_tf);
       if (solver->gjk_initial_guess == GJKInitialGuess::BoundingVolumeGuess) {
         box.computeLocalAABB();
@@ -806,12 +806,12 @@ class COAL_DLLAPI OcTreeSolver {
                              const OcTree::OcTreeNode* root1, const AABB& bv1,
                              const OcTree* tree2,
                              const OcTree::OcTreeNode* root2, const AABB& bv2,
-                             const Transform3f& tf1,
-                             const Transform3f& tf2) const {
+                             const Transform3s& tf1,
+                             const Transform3s& tf2) const {
     if (!tree1->nodeHasChildren(root1) && !tree2->nodeHasChildren(root2)) {
       if (tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2)) {
         Box box1, box2;
-        Transform3f box1_tf, box2_tf;
+        Transform3s box1_tf, box2_tf;
         constructBox(bv1, tf1, box1, box1_tf);
         constructBox(bv2, tf2, box2, box2_tf);
 
@@ -887,8 +887,8 @@ class COAL_DLLAPI OcTreeSolver {
                               const OcTree::OcTreeNode* root1, const AABB& bv1,
                               const OcTree* tree2,
                               const OcTree::OcTreeNode* root2, const AABB& bv2,
-                              const Transform3f& tf1,
-                              const Transform3f& tf2) const {
+                              const Transform3s& tf1,
+                              const Transform3s& tf2) const {
     // Empty OcTree is considered free.
     if (!root1) return false;
     if (!root2) return false;
@@ -931,7 +931,7 @@ class COAL_DLLAPI OcTreeSolver {
       assert(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2));
 
       Box box1, box2;
-      Transform3f box1_tf, box2_tf;
+      Transform3s box1_tf, box2_tf;
       constructBox(bv1, tf1, box1, box1_tf);
       constructBox(bv2, tf2, box2, box2_tf);
 
@@ -1028,7 +1028,7 @@ class COAL_DLLAPI OcTreeCollisionTraversalNode
   const OcTree* model1;
   const OcTree* model2;
 
-  Transform3f tf1, tf2;
+  Transform3s tf1, tf2;
 
   const OcTreeSolver* otsolver;
 };
@@ -1060,7 +1060,7 @@ class COAL_DLLAPI ShapeOcTreeCollisionTraversalNode
   const S* model1;
   const OcTree* model2;
 
-  Transform3f tf1, tf2;
+  Transform3s tf1, tf2;
 
   const OcTreeSolver* otsolver;
 };
@@ -1093,7 +1093,7 @@ class COAL_DLLAPI OcTreeShapeCollisionTraversalNode
   const OcTree* model1;
   const S* model2;
 
-  Transform3f tf1, tf2;
+  Transform3s tf1, tf2;
 
   const OcTreeSolver* otsolver;
 };
@@ -1125,7 +1125,7 @@ class COAL_DLLAPI MeshOcTreeCollisionTraversalNode
   const BVHModel<BV>* model1;
   const OcTree* model2;
 
-  Transform3f tf1, tf2;
+  Transform3s tf1, tf2;
 
   const OcTreeSolver* otsolver;
 };
@@ -1157,7 +1157,7 @@ class COAL_DLLAPI OcTreeMeshCollisionTraversalNode
   const OcTree* model1;
   const BVHModel<BV>* model2;
 
-  Transform3f tf1, tf2;
+  Transform3s tf1, tf2;
 
   const OcTreeSolver* otsolver;
 };
@@ -1188,7 +1188,7 @@ class COAL_DLLAPI OcTreeHeightFieldCollisionTraversalNode
   const OcTree* model1;
   const HeightField<BV>* model2;
 
-  Transform3f tf1, tf2;
+  Transform3s tf1, tf2;
 
   const OcTreeSolver* otsolver;
 };
@@ -1219,7 +1219,7 @@ class COAL_DLLAPI HeightFieldOcTreeCollisionTraversalNode
   const HeightField<BV>* model1;
   const OcTree* model2;
 
-  Transform3f tf1, tf2;
+  Transform3s tf1, tf2;
 
   const OcTreeSolver* otsolver;
 };

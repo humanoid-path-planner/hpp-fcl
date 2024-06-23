@@ -23,7 +23,7 @@
 namespace coal {
 
 COAL_DLLAPI CollisionGeometry* extract(const CollisionGeometry* model,
-                                       const Transform3f& pose,
+                                       const Transform3s& pose,
                                        const AABB& aabb);
 
 /**

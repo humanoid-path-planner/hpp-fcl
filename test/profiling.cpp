@@ -82,10 +82,10 @@ struct Results {
   Results(size_t i) : rs(i), times((Eigen::DenseIndex)i) {}
 };
 
-void collide(const std::vector<Transform3f>& tf, const CollisionGeometry* o1,
+void collide(const std::vector<Transform3s>& tf, const CollisionGeometry* o1,
              const CollisionGeometry* o2, const CollisionRequest& request,
              Results& results) {
-  Transform3f Id;
+  Transform3s Id;
   BenchTimer timer;
   for (std::size_t i = 0; i < tf.size(); ++i) {
     timer.start();
@@ -199,7 +199,7 @@ Geometry makeGeomFromParam(int& iarg, const int& argc, char** argv) {
       o->computeLocalAABB();
       OUT("Mesh AABB is " << o->aabb_local.min_.transpose() << " ---- "
                           << o->aabb_local.max_.transpose() << " ...");
-      o.reset(extract(o.get(), Transform3f(), aabb));
+      o.reset(extract(o.get(), Transform3s(), aabb));
       if (!o) throw std::invalid_argument("Failed to crop.");
       OUT("Crop has " << dynamic_pointer_cast<BVHModel<OBB> >(o)->num_tris
                       << " triangles");
@@ -221,7 +221,7 @@ Geometry makeGeomFromParam(int& iarg, const int& argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
 
   CollisionRequest request;
 

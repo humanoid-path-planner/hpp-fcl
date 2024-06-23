@@ -125,10 +125,10 @@ class COAL_DLLAPI TriangleP : public ShapeBase {
 
   NODE_TYPE getNodeType() const { return GEOM_TRIANGLE; }
 
-  //  std::pair<ShapeBase*, Transform3f> inflated(const CoalScalar value) const
+  //  std::pair<ShapeBase*, Transform3s> inflated(const CoalScalar value) const
   //  {
   //    if (value == 0) return std::make_pair(new TriangleP(*this),
-  //    Transform3f()); Vec3s AB(b - a), BC(c - b), CA(a - c); AB.normalize();
+  //    Transform3s()); Vec3s AB(b - a), BC(c - b), CA(a - c); AB.normalize();
   //    BC.normalize();
   //    CA.normalize();
   //
@@ -137,7 +137,7 @@ class COAL_DLLAPI TriangleP : public ShapeBase {
   //    Vec3s new_c(c + value * Vec3s(-CA + BC).normalized());
   //
   //    return std::make_pair(new TriangleP(new_a, new_b, new_c),
-  //    Transform3f());
+  //    Transform3s());
   //  }
   //
   //  CoalScalar minInflationValue() const
@@ -212,14 +212,14 @@ class COAL_DLLAPI Box : public ShapeBase {
   ///
   /// \returns a new inflated box and the related transform to account for the
   /// change of shape frame
-  std::pair<Box, Transform3f> inflated(const CoalScalar value) const {
+  std::pair<Box, Transform3s> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value << ") "
                                   << "is two small. It should be at least: "
                                   << minInflationValue(),
                         std::invalid_argument);
     return std::make_pair(Box(2 * (halfSide + Vec3s::Constant(value))),
-                          Transform3f());
+                          Transform3s());
   }
 
  private:
@@ -278,13 +278,13 @@ class COAL_DLLAPI Sphere : public ShapeBase {
   ///
   /// \returns a new inflated sphere and the related transform to account for
   /// the change of shape frame
-  std::pair<Sphere, Transform3f> inflated(const CoalScalar value) const {
+  std::pair<Sphere, Transform3s> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
                                   << minInflationValue(),
                         std::invalid_argument);
-    return std::make_pair(Sphere(radius + value), Transform3f());
+    return std::make_pair(Sphere(radius + value), Transform3s());
   }
 
  private:
@@ -352,14 +352,14 @@ class COAL_DLLAPI Ellipsoid : public ShapeBase {
   ///
   /// \returns a new inflated ellipsoid and the related transform to account for
   /// the change of shape frame
-  std::pair<Ellipsoid, Transform3f> inflated(const CoalScalar value) const {
+  std::pair<Ellipsoid, Transform3s> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
                                   << minInflationValue(),
                         std::invalid_argument);
     return std::make_pair(Ellipsoid(radii + Vec3s::Constant(value)),
-                          Transform3f());
+                          Transform3s());
   }
 
  private:
@@ -437,14 +437,14 @@ class COAL_DLLAPI Capsule : public ShapeBase {
   ///
   /// \returns a new inflated capsule and the related transform to account for
   /// the change of shape frame
-  std::pair<Capsule, Transform3f> inflated(const CoalScalar value) const {
+  std::pair<Capsule, Transform3s> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
                                   << minInflationValue(),
                         std::invalid_argument);
     return std::make_pair(Capsule(radius + value, 2 * halfLength),
-                          Transform3f());
+                          Transform3s());
   }
 
  private:
@@ -519,7 +519,7 @@ class COAL_DLLAPI Cone : public ShapeBase {
   ///
   /// \returns a new inflated cone and the related transform to account for the
   /// change of shape frame
-  std::pair<Cone, Transform3f> inflated(const CoalScalar value) const {
+  std::pair<Cone, Transform3s> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
@@ -538,7 +538,7 @@ class COAL_DLLAPI Cone : public ShapeBase {
     const CoalScalar new_radius = new_lz / tan_alpha;
 
     return std::make_pair(Cone(new_radius, new_lz),
-                          Transform3f(Vec3s(0., 0., new_cz)));
+                          Transform3s(Vec3s(0., 0., new_cz)));
   }
 
  private:
@@ -616,14 +616,14 @@ class COAL_DLLAPI Cylinder : public ShapeBase {
   ///
   /// \returns a new inflated cylinder and the related transform to account for
   /// the change of shape frame
-  std::pair<Cylinder, Transform3f> inflated(const CoalScalar value) const {
+  std::pair<Cylinder, Transform3s> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
                                   << minInflationValue(),
                         std::invalid_argument);
     return std::make_pair(Cylinder(radius + value, 2 * (halfLength + value)),
-                          Transform3f());
+                          Transform3s());
   }
 
  private:
@@ -943,13 +943,13 @@ class COAL_DLLAPI Halfspace : public ShapeBase {
   ///
   /// \returns a new inflated halfspace and the related transform to account for
   /// the change of shape frame
-  std::pair<Halfspace, Transform3f> inflated(const CoalScalar value) const {
+  std::pair<Halfspace, Transform3s> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
                                   << minInflationValue(),
                         std::invalid_argument);
-    return std::make_pair(Halfspace(n, d + value), Transform3f());
+    return std::make_pair(Halfspace(n, d + value), Transform3s());
   }
 
   /// @brief Plane normal

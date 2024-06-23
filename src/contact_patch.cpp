@@ -44,8 +44,8 @@ ContactPatchFunctionMatrix& getContactPatchFunctionLookTable() {
   return table;
 }
 
-void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
-                         const CollisionGeometry* o2, const Transform3f& tf2,
+void computeContactPatch(const CollisionGeometry* o1, const Transform3s& tf1,
+                         const CollisionGeometry* o2, const Transform3s& tf2,
                          const CollisionResult& collision_result,
                          const ContactPatchRequest& request,
                          ContactPatchResult& result) {
@@ -136,7 +136,7 @@ ComputeContactPatch::ComputeContactPatch(const CollisionGeometry* o1,
   }
 }
 
-void ComputeContactPatch::run(const Transform3f& tf1, const Transform3f& tf2,
+void ComputeContactPatch::run(const Transform3s& tf1, const Transform3s& tf2,
                               const CollisionResult& collision_result,
                               const ContactPatchRequest& request,
                               ContactPatchResult& result) const {
@@ -157,8 +157,8 @@ void ComputeContactPatch::run(const Transform3f& tf1, const Transform3f& tf2,
   }
 }
 
-void ComputeContactPatch::operator()(const Transform3f& tf1,
-                                     const Transform3f& tf2,
+void ComputeContactPatch::operator()(const Transform3s& tf1,
+                                     const Transform3s& tf2,
                                      const CollisionResult& collision_result,
                                      const ContactPatchRequest& request,
                                      ContactPatchResult& result) const

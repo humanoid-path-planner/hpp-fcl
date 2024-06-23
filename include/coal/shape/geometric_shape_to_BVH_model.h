@@ -47,7 +47,7 @@ namespace coal {
 /// @brief Generate BVH model from box
 template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Box& shape,
-                      const Transform3f& pose) {
+                      const Transform3s& pose) {
   CoalScalar a = shape.halfSide[0];
   CoalScalar b = shape.halfSide[1];
   CoalScalar c = shape.halfSide[2];
@@ -89,7 +89,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape,
 /// longitude and number of rings along latitude.
 template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Sphere& shape,
-                      const Transform3f& pose, unsigned int seg,
+                      const Transform3s& pose, unsigned int seg,
                       unsigned int ring) {
   std::vector<Vec3s> points;
   std::vector<Triangle> tri_indices;
@@ -155,7 +155,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape,
 /// single triangle is approximately the same.s
 template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Sphere& shape,
-                      const Transform3f& pose,
+                      const Transform3s& pose,
                       unsigned int n_faces_for_unit_sphere) {
   CoalScalar r = shape.radius;
   CoalScalar n_low_bound =
@@ -170,7 +170,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape,
 /// circle and the number of segments along axis.
 template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape,
-                      const Transform3f& pose, unsigned int tot,
+                      const Transform3s& pose, unsigned int tot,
                       unsigned int h_num) {
   std::vector<Vec3s> points;
   std::vector<Triangle> tri_indices;
@@ -243,7 +243,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape,
 /// number of circle split number is r * tot.
 template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape,
-                      const Transform3f& pose,
+                      const Transform3s& pose,
                       unsigned int tot_for_unit_cylinder) {
   CoalScalar r = shape.radius;
   CoalScalar h = 2 * shape.halfLength;
@@ -262,7 +262,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape,
 /// circle and the number of segments along axis.
 template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cone& shape,
-                      const Transform3f& pose, unsigned int tot,
+                      const Transform3s& pose, unsigned int tot,
                       unsigned int h_num) {
   std::vector<Vec3s> points;
   std::vector<Triangle> tri_indices;
@@ -335,7 +335,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape,
 /// of circle split number is r * tot.
 template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cone& shape,
-                      const Transform3f& pose, unsigned int tot_for_unit_cone) {
+                      const Transform3s& pose, unsigned int tot_for_unit_cone) {
   CoalScalar r = shape.radius;
   CoalScalar h = 2 * shape.halfLength;
 

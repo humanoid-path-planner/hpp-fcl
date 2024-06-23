@@ -58,9 +58,9 @@ struct COAL_DLLAPI CollisionFunctionMatrix {
   /// information, whether need to compute cost);
   /// 4. the structure to return collision result
   typedef std::size_t (*CollisionFunc)(const CollisionGeometry* o1,
-                                       const Transform3f& tf1,
+                                       const Transform3s& tf1,
                                        const CollisionGeometry* o2,
-                                       const Transform3f& tf2,
+                                       const Transform3s& tf2,
                                        const GJKSolver* nsolver,
                                        const CollisionRequest& request,
                                        CollisionResult& result);

@@ -126,14 +126,14 @@ BOOST_AUTO_TEST_CASE(quaternion) {
 BOOST_AUTO_TEST_CASE(transform) {
   Quatf q = fromAxisAngle(Vec3s(0, 0, 1), M_PI / 2);
   Vec3s T(0, 1, 2);
-  Transform3f tf(q, T);
+  Transform3s tf(q, T);
 
   Vec3s v(1, -1, 0);
 
   BOOST_CHECK(isEqual(q * v + T, q * v + T));
 
   Vec3s rv(q * v);
-  // typename Transform3f::transform_return_type<Vec3s>::type output =
+  // typename Transform3s::transform_return_type<Vec3s>::type output =
   // tf * v;
   // std::cout << rv << std::endl;
   // std::cout << output.lhs() << std::endl;
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(transform) {
 
 BOOST_AUTO_TEST_CASE(random_transform) {
   for (size_t i = 0; i < 100; ++i) {
-    const Transform3f tf = Transform3f::Random();
+    const Transform3s tf = Transform3s::Random();
     BOOST_CHECK((tf.inverseTimes(tf)).isIdentity());
   }
 }

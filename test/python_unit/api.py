@@ -8,8 +8,8 @@ import numpy as np
 class TestMainAPI(TestCase):
     def test_collision(self):
         capsule = coal.Capsule(1.0, 2.0)
-        M1 = coal.Transform3f()
-        M2 = coal.Transform3f(np.eye(3), np.array([3, 0, 0]))
+        M1 = coal.Transform3s()
+        M2 = coal.Transform3s(np.eye(3), np.array([3, 0, 0]))
 
         req = coal.CollisionRequest()
         res = coal.CollisionResult()
@@ -18,8 +18,8 @@ class TestMainAPI(TestCase):
 
     def test_distance(self):
         capsule = coal.Capsule(1.0, 2.0)
-        M1 = coal.Transform3f()
-        M2 = coal.Transform3f(np.eye(3), np.array([3, 0, 0]))
+        M1 = coal.Transform3s()
+        M2 = coal.Transform3s(np.eye(3), np.array([3, 0, 0]))
 
         req = coal.DistanceRequest()
         res = coal.DistanceResult()

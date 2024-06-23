@@ -38,15 +38,15 @@ void makeModel(const std::vector<Vec3s>& vertices,
                SplitMethodType split_method, BVHModel<BV>& model);
 
 template <typename BV, typename TraversalNode>
-double distance(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+double distance(const std::vector<Transform3s>& tf, const BVHModel<BV>& m1,
                 const BVHModel<BV>& m2, bool verbose);
 
 template <typename BV, typename TraversalNode>
-double collide(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+double collide(const std::vector<Transform3s>& tf, const BVHModel<BV>& m1,
                const BVHModel<BV>& m2, bool verbose);
 
 template <typename BV>
-double run(const std::vector<Transform3f>& tf,
+double run(const std::vector<Transform3s>& tf,
            const BVHModel<BV> (&models)[2][3], int split_method,
            const char* sm_name);
 
@@ -90,9 +90,9 @@ void makeModel(const std::vector<Vec3s>& vertices,
 }
 
 template <typename BV, typename TraversalNode>
-double distance(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+double distance(const std::vector<Transform3s>& tf, const BVHModel<BV>& m1,
                 const BVHModel<BV>& m2, bool verbose) {
-  Transform3f pose2;
+  Transform3s pose2;
 
   DistanceResult local_result;
   DistanceRequest request(true);
@@ -114,9 +114,9 @@ double distance(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
 }
 
 template <typename BV, typename TraversalNode>
-double collide(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+double collide(const std::vector<Transform3s>& tf, const BVHModel<BV>& m1,
                const BVHModel<BV>& m2, bool verbose) {
-  Transform3f pose2;
+  Transform3s pose2;
 
   CollisionResult local_result;
   CollisionRequest request;
@@ -141,7 +141,7 @@ double collide(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
 }
 
 template <typename BV>
-double run(const std::vector<Transform3f>& tf,
+double run(const std::vector<Transform3s>& tf,
            const BVHModel<BV> (&models)[2][3], int split_method,
            const char* prefix) {
   double col = collide<BV, typename traits<BV>::CollisionTraversalNode>(
@@ -154,7 +154,7 @@ double run(const std::vector<Transform3f>& tf,
 }
 
 template <>
-double run<OBB>(const std::vector<Transform3f>& tf,
+double run<OBB>(const std::vector<Transform3s>& tf,
                 const BVHModel<OBB> (&models)[2][3], int split_method,
                 const char* prefix) {
   double col = collide<OBB, traits<OBB>::CollisionTraversalNode>(
@@ -207,7 +207,7 @@ int main(int, char*[]) {
             ms_obbrss[1][SPLIT_METHOD_BV_CENTER]);
   makeModel(p2, t2, SPLIT_METHOD_MEDIAN, ms_obbrss[1][SPLIT_METHOD_MEDIAN]);
 
-  std::vector<Transform3f> transforms;  // t0
+  std::vector<Transform3s> transforms;  // t0
   CoalScalar extents[] = {-3000, -3000, -3000, 3000, 3000, 3000};
   std::size_t n = 10000;
 

@@ -97,16 +97,16 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
 
   // Build equivalent object
   const Box equivalent_box(x_dim, y_dim, max_altitude - min_altitude);
-  const Transform3f box_placement(
+  const Transform3s box_placement(
       Matrix3s::Identity(), Vec3s(0., 0., (max_altitude + min_altitude) / 2.));
 
   // Test collision
   const Sphere sphere(1.);
-  static const Transform3f IdTransform;
+  static const Transform3s IdTransform;
 
   const Box box(Vec3s::Ones());
 
-  Transform3f M_sphere, M_box;
+  Transform3s M_sphere, M_box;
 
   // No collision case
   {
@@ -281,16 +281,16 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
 
   // Build equivalent object
   const Box equivalent_box(x_dim, y_dim, max_altitude - min_altitude);
-  const Transform3f box_placement(
+  const Transform3s box_placement(
       Matrix3s::Identity(), Vec3s(0., 0., (max_altitude + min_altitude) / 2.));
 
   // Test collision
   const Sphere sphere(1.);
-  static const Transform3f IdTransform;
+  static const Transform3s IdTransform;
 
   const Box box(Vec3s::Ones());
 
-  Transform3f M_sphere, M_box;
+  Transform3s M_sphere, M_box;
 
   // No collision case
   {
@@ -430,8 +430,8 @@ BOOST_AUTO_TEST_CASE(hfield_with_square_hole) {
   const HeightField<BV> hfield(2., 2., heights, -10.);
 
   Sphere sphere(0.48);
-  const Transform3f sphere_pos(Vec3s(0., 0., 0.5));
-  const Transform3f hfield_pos;
+  const Transform3s sphere_pos(Vec3s(0., 0., 0.5));
+  const Transform3s hfield_pos;
 
   const CollisionRequest request;
 
@@ -480,8 +480,8 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
   BOOST_CHECK(hfield.getYGrid()[ny - 1] == -1.);
 
   Sphere sphere(0.975);
-  const Transform3f sphere_pos(Vec3s(0., 0., 1.));
-  const Transform3f hfield_pos;
+  const Transform3s sphere_pos(Vec3s(0., 0., 1.));
+  const Transform3s hfield_pos;
 
   const CoalScalar thresholds[3] = {0., 0.01, -0.005};
 
@@ -728,8 +728,8 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   // Collision from the TOP
   {
-    const Transform3f sphere_pos(Vec3s(0., 0., 2.));
-    const Transform3f hfield_pos;
+    const Transform3s sphere_pos(Vec3s(0., 0., 2.));
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;
@@ -743,8 +743,8 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   // Same, but with a positive margin.
   {
-    const Transform3f sphere_pos(Vec3s(0., 0., 2.));
-    const Transform3f hfield_pos;
+    const Transform3s sphere_pos(Vec3s(0., 0., 2.));
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;
@@ -763,8 +763,8 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   // Collision from the BOTTOM
   {
-    const Transform3f sphere_pos(Vec3s(0., 0., -1.));
-    const Transform3f hfield_pos;
+    const Transform3s sphere_pos(Vec3s(0., 0., -1.));
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;
@@ -775,8 +775,8 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
   }
 
   {
-    const Transform3f sphere_pos(Vec3s(0., 0., -1.));
-    const Transform3f hfield_pos;
+    const Transform3s sphere_pos(Vec3s(0., 0., -1.));
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;
@@ -795,9 +795,9 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   // Collision from the WEST
   {
-    const Transform3f sphere_pos(
+    const Transform3s sphere_pos(
         Vec3s(hfield.getXGrid()[0] - sphere_radius, 0., 0.5));
-    const Transform3f hfield_pos;
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;
@@ -808,9 +808,9 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
   }
 
   {
-    const Transform3f sphere_pos(
+    const Transform3s sphere_pos(
         Vec3s(hfield.getXGrid()[0] - sphere_radius, 0., 0.5));
-    const Transform3f hfield_pos;
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;
@@ -827,9 +827,9 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   // Collision from the EAST
   {
-    const Transform3f sphere_pos(
+    const Transform3s sphere_pos(
         Vec3s(hfield.getXGrid()[1] + sphere_radius, 0., 0.5));
-    const Transform3f hfield_pos;
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;
@@ -840,9 +840,9 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
   }
 
   {
-    const Transform3f sphere_pos(
+    const Transform3s sphere_pos(
         Vec3s(hfield.getXGrid()[1] + sphere_radius, 0., 0.5));
-    const Transform3f hfield_pos;
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;
@@ -860,9 +860,9 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   // Collision from the NORTH
   {
-    const Transform3f sphere_pos(
+    const Transform3s sphere_pos(
         Vec3s(0., hfield.getYGrid()[0] + sphere_radius, 0.5));
-    const Transform3f hfield_pos;
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;
@@ -873,9 +873,9 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
   }
 
   {
-    const Transform3f sphere_pos(
+    const Transform3s sphere_pos(
         Vec3s(0., hfield.getYGrid()[0] + sphere_radius, 0.5));
-    const Transform3f hfield_pos;
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;
@@ -893,9 +893,9 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
 
   // Collision from the SOUTH
   {
-    const Transform3f sphere_pos(
+    const Transform3s sphere_pos(
         Vec3s(0., hfield.getYGrid()[1] - sphere_radius, 0.5));
-    const Transform3f hfield_pos;
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;
@@ -906,9 +906,9 @@ BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
   }
 
   {
-    const Transform3f sphere_pos(
+    const Transform3s sphere_pos(
         Vec3s(0., hfield.getYGrid()[1] - sphere_radius, 0.5));
-    const Transform3f hfield_pos;
+    const Transform3s hfield_pos;
 
     CollisionResult result;
     CollisionRequest request;

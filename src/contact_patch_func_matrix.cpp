@@ -43,8 +43,8 @@ namespace coal {
 
 template <typename T_BVH, typename T_SH>
 struct BVHShapeComputeContactPatch {
-  static void run(const CollisionGeometry* o1, const Transform3f& tf1,
-                  const CollisionGeometry* o2, const Transform3f& tf2,
+  static void run(const CollisionGeometry* o1, const Transform3s& tf1,
+                  const CollisionGeometry* o2, const Transform3s& tf2,
                   const CollisionResult& collision_result,
                   const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
@@ -68,8 +68,8 @@ struct BVHShapeComputeContactPatch {
 
 template <typename BV, typename Shape>
 struct HeightFieldShapeComputeContactPatch {
-  static void run(const CollisionGeometry* o1, const Transform3f& tf1,
-                  const CollisionGeometry* o2, const Transform3f& tf2,
+  static void run(const CollisionGeometry* o1, const Transform3s& tf1,
+                  const CollisionGeometry* o2, const Transform3s& tf2,
                   const CollisionResult& collision_result,
                   const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
@@ -93,8 +93,8 @@ struct HeightFieldShapeComputeContactPatch {
 
 template <typename BV>
 struct BVHComputeContactPatch {
-  static void run(const CollisionGeometry* o1, const Transform3f& tf1,
-                  const CollisionGeometry* o2, const Transform3f& tf2,
+  static void run(const CollisionGeometry* o1, const Transform3s& tf1,
+                  const CollisionGeometry* o2, const Transform3s& tf2,
                   const CollisionResult& collision_result,
                   const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
@@ -117,8 +117,8 @@ struct BVHComputeContactPatch {
 };
 
 COAL_LOCAL void contact_patch_function_not_implemented(
-    const CollisionGeometry* o1, const Transform3f& /*tf1*/,
-    const CollisionGeometry* o2, const Transform3f& /*tf2*/,
+    const CollisionGeometry* o1, const Transform3s& /*tf1*/,
+    const CollisionGeometry* o2, const Transform3s& /*tf2*/,
     const CollisionResult& /*collision_result*/,
     const ContactPatchSolver* /*csolver*/,
     const ContactPatchRequest& /*request*/, ContactPatchResult& /*result*/) {

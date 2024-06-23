@@ -50,27 +50,27 @@ namespace details {
 /// @brief get the vertices of some convex shape which can bound the given shape
 /// in a specific configuration
 COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Box& box,
-                                                const Transform3f& tf);
+                                                const Transform3s& tf);
 COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Sphere& sphere,
-                                                const Transform3f& tf);
+                                                const Transform3s& tf);
 COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Ellipsoid& ellipsoid,
-                                                const Transform3f& tf);
+                                                const Transform3s& tf);
 COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Capsule& capsule,
-                                                const Transform3f& tf);
+                                                const Transform3s& tf);
 COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Cone& cone,
-                                                const Transform3f& tf);
+                                                const Transform3s& tf);
 COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const Cylinder& cylinder,
-                                                const Transform3f& tf);
+                                                const Transform3s& tf);
 COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const ConvexBase& convex,
-                                                const Transform3f& tf);
+                                                const Transform3s& tf);
 COAL_DLLAPI std::vector<Vec3s> getBoundVertices(const TriangleP& triangle,
-                                                const Transform3f& tf);
+                                                const Transform3s& tf);
 }  // namespace details
 /// @endcond
 
 /// @brief calculate a bounding volume for a shape in a specific configuration
 template <typename BV, typename S>
-inline void computeBV(const S& s, const Transform3f& tf, BV& bv) {
+inline void computeBV(const S& s, const Transform3s& tf, BV& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
@@ -81,180 +81,180 @@ inline void computeBV(const S& s, const Transform3f& tf, BV& bv) {
 }
 
 template <>
-COAL_DLLAPI void computeBV<AABB, Box>(const Box& s, const Transform3f& tf,
+COAL_DLLAPI void computeBV<AABB, Box>(const Box& s, const Transform3s& tf,
                                       AABB& bv);
 
 template <>
-COAL_DLLAPI void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf,
+COAL_DLLAPI void computeBV<AABB, Sphere>(const Sphere& s, const Transform3s& tf,
                                          AABB& bv);
 
 template <>
 COAL_DLLAPI void computeBV<AABB, Ellipsoid>(const Ellipsoid& e,
-                                            const Transform3f& tf, AABB& bv);
+                                            const Transform3s& tf, AABB& bv);
 
 template <>
 COAL_DLLAPI void computeBV<AABB, Capsule>(const Capsule& s,
-                                          const Transform3f& tf, AABB& bv);
+                                          const Transform3s& tf, AABB& bv);
 
 template <>
-COAL_DLLAPI void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf,
+COAL_DLLAPI void computeBV<AABB, Cone>(const Cone& s, const Transform3s& tf,
                                        AABB& bv);
 
 template <>
 COAL_DLLAPI void computeBV<AABB, Cylinder>(const Cylinder& s,
-                                           const Transform3f& tf, AABB& bv);
+                                           const Transform3s& tf, AABB& bv);
 
 template <>
 COAL_DLLAPI void computeBV<AABB, ConvexBase>(const ConvexBase& s,
-                                             const Transform3f& tf, AABB& bv);
+                                             const Transform3s& tf, AABB& bv);
 
 template <>
 COAL_DLLAPI void computeBV<AABB, TriangleP>(const TriangleP& s,
-                                            const Transform3f& tf, AABB& bv);
+                                            const Transform3s& tf, AABB& bv);
 
 template <>
 COAL_DLLAPI void computeBV<AABB, Halfspace>(const Halfspace& s,
-                                            const Transform3f& tf, AABB& bv);
+                                            const Transform3s& tf, AABB& bv);
 
 template <>
-COAL_DLLAPI void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf,
+COAL_DLLAPI void computeBV<AABB, Plane>(const Plane& s, const Transform3s& tf,
                                         AABB& bv);
 
 template <>
-COAL_DLLAPI void computeBV<OBB, Box>(const Box& s, const Transform3f& tf,
+COAL_DLLAPI void computeBV<OBB, Box>(const Box& s, const Transform3s& tf,
                                      OBB& bv);
 
 template <>
-COAL_DLLAPI void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf,
+COAL_DLLAPI void computeBV<OBB, Sphere>(const Sphere& s, const Transform3s& tf,
                                         OBB& bv);
 
 template <>
 COAL_DLLAPI void computeBV<OBB, Capsule>(const Capsule& s,
-                                         const Transform3f& tf, OBB& bv);
+                                         const Transform3s& tf, OBB& bv);
 
 template <>
-COAL_DLLAPI void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf,
+COAL_DLLAPI void computeBV<OBB, Cone>(const Cone& s, const Transform3s& tf,
                                       OBB& bv);
 
 template <>
 COAL_DLLAPI void computeBV<OBB, Cylinder>(const Cylinder& s,
-                                          const Transform3f& tf, OBB& bv);
+                                          const Transform3s& tf, OBB& bv);
 
 template <>
 COAL_DLLAPI void computeBV<OBB, ConvexBase>(const ConvexBase& s,
-                                            const Transform3f& tf, OBB& bv);
+                                            const Transform3s& tf, OBB& bv);
 
 template <>
 COAL_DLLAPI void computeBV<OBB, Halfspace>(const Halfspace& s,
-                                           const Transform3f& tf, OBB& bv);
+                                           const Transform3s& tf, OBB& bv);
 
 template <>
 COAL_DLLAPI void computeBV<RSS, Halfspace>(const Halfspace& s,
-                                           const Transform3f& tf, RSS& bv);
+                                           const Transform3s& tf, RSS& bv);
 
 template <>
 COAL_DLLAPI void computeBV<OBBRSS, Halfspace>(const Halfspace& s,
-                                              const Transform3f& tf,
+                                              const Transform3s& tf,
                                               OBBRSS& bv);
 
 template <>
 COAL_DLLAPI void computeBV<kIOS, Halfspace>(const Halfspace& s,
-                                            const Transform3f& tf, kIOS& bv);
+                                            const Transform3s& tf, kIOS& bv);
 
 template <>
 COAL_DLLAPI void computeBV<KDOP<16>, Halfspace>(const Halfspace& s,
-                                                const Transform3f& tf,
+                                                const Transform3s& tf,
                                                 KDOP<16>& bv);
 
 template <>
 COAL_DLLAPI void computeBV<KDOP<18>, Halfspace>(const Halfspace& s,
-                                                const Transform3f& tf,
+                                                const Transform3s& tf,
                                                 KDOP<18>& bv);
 
 template <>
 COAL_DLLAPI void computeBV<KDOP<24>, Halfspace>(const Halfspace& s,
-                                                const Transform3f& tf,
+                                                const Transform3s& tf,
                                                 KDOP<24>& bv);
 
 template <>
-COAL_DLLAPI void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf,
+COAL_DLLAPI void computeBV<OBB, Plane>(const Plane& s, const Transform3s& tf,
                                        OBB& bv);
 
 template <>
-COAL_DLLAPI void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf,
+COAL_DLLAPI void computeBV<RSS, Plane>(const Plane& s, const Transform3s& tf,
                                        RSS& bv);
 
 template <>
-COAL_DLLAPI void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3f& tf,
+COAL_DLLAPI void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3s& tf,
                                           OBBRSS& bv);
 
 template <>
-COAL_DLLAPI void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf,
+COAL_DLLAPI void computeBV<kIOS, Plane>(const Plane& s, const Transform3s& tf,
                                         kIOS& bv);
 
 template <>
 COAL_DLLAPI void computeBV<KDOP<16>, Plane>(const Plane& s,
-                                            const Transform3f& tf,
+                                            const Transform3s& tf,
                                             KDOP<16>& bv);
 
 template <>
 COAL_DLLAPI void computeBV<KDOP<18>, Plane>(const Plane& s,
-                                            const Transform3f& tf,
+                                            const Transform3s& tf,
                                             KDOP<18>& bv);
 
 template <>
 COAL_DLLAPI void computeBV<KDOP<24>, Plane>(const Plane& s,
-                                            const Transform3f& tf,
+                                            const Transform3s& tf,
                                             KDOP<24>& bv);
 
 /// @brief construct a box shape (with a configuration) from a given bounding
 /// volume
-COAL_DLLAPI void constructBox(const AABB& bv, Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const AABB& bv, Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const OBB& bv, Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const OBB& bv, Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const OBBRSS& bv, Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const OBBRSS& bv, Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const kIOS& bv, Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const kIOS& bv, Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const RSS& bv, Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const RSS& bv, Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const KDOP<16>& bv, Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const KDOP<16>& bv, Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const KDOP<18>& bv, Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const KDOP<18>& bv, Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const KDOP<24>& bv, Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const AABB& bv, const Transform3f& tf_bv,
-                              Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const AABB& bv, const Transform3s& tf_bv,
+                              Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const OBB& bv, const Transform3f& tf_bv, Box& box,
-                              Transform3f& tf);
+COAL_DLLAPI void constructBox(const OBB& bv, const Transform3s& tf_bv, Box& box,
+                              Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const OBBRSS& bv, const Transform3f& tf_bv,
-                              Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const OBBRSS& bv, const Transform3s& tf_bv,
+                              Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const kIOS& bv, const Transform3f& tf_bv,
-                              Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const kIOS& bv, const Transform3s& tf_bv,
+                              Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box,
-                              Transform3f& tf);
+COAL_DLLAPI void constructBox(const RSS& bv, const Transform3s& tf_bv, Box& box,
+                              Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const KDOP<16>& bv, const Transform3f& tf_bv,
-                              Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const KDOP<16>& bv, const Transform3s& tf_bv,
+                              Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const KDOP<18>& bv, const Transform3f& tf_bv,
-                              Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const KDOP<18>& bv, const Transform3s& tf_bv,
+                              Box& box, Transform3s& tf);
 
-COAL_DLLAPI void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv,
-                              Box& box, Transform3f& tf);
+COAL_DLLAPI void constructBox(const KDOP<24>& bv, const Transform3s& tf_bv,
+                              Box& box, Transform3s& tf);
 
-COAL_DLLAPI Halfspace transform(const Halfspace& a, const Transform3f& tf);
+COAL_DLLAPI Halfspace transform(const Halfspace& a, const Transform3s& tf);
 
-COAL_DLLAPI Plane transform(const Plane& a, const Transform3f& tf);
+COAL_DLLAPI Plane transform(const Plane& a, const Transform3s& tf);
 
 COAL_DLLAPI std::array<Halfspace, 2> transformToHalfspaces(
-    const Plane& a, const Transform3f& tf);
+    const Plane& a, const Transform3s& tf);
 
 }  // namespace coal
 

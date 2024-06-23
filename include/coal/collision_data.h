@@ -515,7 +515,7 @@ struct COAL_DLLAPI ContactPatch {
 
   /// @brief Frame of the set, expressed in the world coordinates.
   /// The z-axis of the frame's rotation is the contact patch normal.
-  Transform3f tf;
+  Transform3s tf;
 
   /// @brief Direction of ContactPatch.
   /// When doing collision detection, the convention of Coal is that the
@@ -559,7 +559,7 @@ struct COAL_DLLAPI ContactPatch {
   /// of the patch is known in advance. Coal will automatically expand/shrink
   /// the contact patch if needed.
   explicit ContactPatch(size_t preallocated_size = default_preallocated_size)
-      : tf(Transform3f::Identity()),
+      : tf(Transform3s::Identity()),
         direction(PatchDirection::DEFAULT),
         penetration_depth(0) {
     this->m_points.reserve(preallocated_size);

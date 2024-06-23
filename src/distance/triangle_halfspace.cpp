@@ -44,8 +44,8 @@ namespace coal {
 namespace internal {
 template <>
 CoalScalar ShapeShapeDistance<TriangleP, Halfspace>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
     const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const TriangleP& s1 = static_cast<const TriangleP&>(*o1);
   const Halfspace& s2 = static_cast<const Halfspace&>(*o2);
@@ -57,8 +57,8 @@ CoalScalar ShapeShapeDistance<TriangleP, Halfspace>(
 
 template <>
 CoalScalar ShapeShapeDistance<Halfspace, TriangleP>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
     const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Halfspace& s1 = static_cast<const Halfspace&>(*o1);
   const TriangleP& s2 = static_cast<const TriangleP&>(*o2);

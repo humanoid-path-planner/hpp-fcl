@@ -55,9 +55,9 @@ struct COAL_DLLAPI DistanceFunctionMatrix {
   /// 3. the request setting for distance (e.g., whether need to return nearest
   /// points);
   typedef CoalScalar (*DistanceFunc)(const CollisionGeometry* o1,
-                                     const Transform3f& tf1,
+                                     const Transform3s& tf1,
                                      const CollisionGeometry* o2,
-                                     const Transform3f& tf2,
+                                     const Transform3s& tf2,
                                      const GJKSolver* nsolver,
                                      const DistanceRequest& request,
                                      DistanceResult& result);

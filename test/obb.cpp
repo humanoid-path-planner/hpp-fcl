@@ -107,7 +107,7 @@ bool distance(const Matrix3s& B, const Vec3s& T, const Vec3s& a, const Vec3s& b,
               CoalScalar& distance) {
   GJKSolver gjk;
   Box ba(2 * a), bb(2 * b);
-  Transform3f tfa, tfb(B, T);
+  Transform3s tfa, tfb(B, T);
 
   Vec3s p1, p2, normal;
   bool compute_penetration = true;

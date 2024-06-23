@@ -56,14 +56,14 @@ namespace details {
 /// bounding volume of type BV2 in I configuration.
 template <typename BV1, typename BV2>
 struct Converter {
-  static void convert(const BV1& bv1, const Transform3f& tf1, BV2& bv2);
+  static void convert(const BV1& bv1, const Transform3s& tf1, BV2& bv2);
   static void convert(const BV1& bv1, BV2& bv2);
 };
 
 /// @brief Convert from AABB to AABB, not very tight but is fast.
 template <>
 struct Converter<AABB, AABB> {
-  static void convert(const AABB& bv1, const Transform3f& tf1, AABB& bv2) {
+  static void convert(const AABB& bv1, const Transform3s& tf1, AABB& bv2) {
     const Vec3s& center = bv1.center();
     CoalScalar r = (bv1.max_ - bv1.min_).norm() * 0.5;
     const Vec3s center2 = tf1.transform(center);
@@ -76,7 +76,7 @@ struct Converter<AABB, AABB> {
 
 template <>
 struct Converter<AABB, OBB> {
-  static void convert(const AABB& bv1, const Transform3f& tf1, OBB& bv2) {
+  static void convert(const AABB& bv1, const Transform3s& tf1, OBB& bv2) {
     bv2.To = tf1.transform(bv1.center());
     bv2.extent.noalias() = (bv1.max_ - bv1.min_) * 0.5;
     bv2.axes = tf1.getRotation();
@@ -91,7 +91,7 @@ struct Converter<AABB, OBB> {
 
 template <>
 struct Converter<OBB, OBB> {
-  static void convert(const OBB& bv1, const Transform3f& tf1, OBB& bv2) {
+  static void convert(const OBB& bv1, const Transform3s& tf1, OBB& bv2) {
     bv2.extent = bv1.extent;
     bv2.To = tf1.transform(bv1.To);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
@@ -102,7 +102,7 @@ struct Converter<OBB, OBB> {
 
 template <>
 struct Converter<OBBRSS, OBB> {
-  static void convert(const OBBRSS& bv1, const Transform3f& tf1, OBB& bv2) {
+  static void convert(const OBBRSS& bv1, const Transform3s& tf1, OBB& bv2) {
     Converter<OBB, OBB>::convert(bv1.obb, tf1, bv2);
   }
 
@@ -113,7 +113,7 @@ struct Converter<OBBRSS, OBB> {
 
 template <>
 struct Converter<RSS, OBB> {
-  static void convert(const RSS& bv1, const Transform3f& tf1, OBB& bv2) {
+  static void convert(const RSS& bv1, const Transform3s& tf1, OBB& bv2) {
     bv2.extent = Vec3s(bv1.length[0] * 0.5 + bv1.radius,
                        bv1.length[1] * 0.5 + bv1.radius, bv1.radius);
     bv2.To = tf1.transform(bv1.Tr);
@@ -130,7 +130,7 @@ struct Converter<RSS, OBB> {
 
 template <typename BV1>
 struct Converter<BV1, AABB> {
-  static void convert(const BV1& bv1, const Transform3f& tf1, AABB& bv2) {
+  static void convert(const BV1& bv1, const Transform3s& tf1, AABB& bv2) {
     const Vec3s& center = bv1.center();
     CoalScalar r = Vec3s(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
     const Vec3s center2 = tf1.transform(center);
@@ -148,7 +148,7 @@ struct Converter<BV1, AABB> {
 
 template <typename BV1>
 struct Converter<BV1, OBB> {
-  static void convert(const BV1& bv1, const Transform3f& tf1, OBB& bv2) {
+  static void convert(const BV1& bv1, const Transform3s& tf1, OBB& bv2) {
     AABB bv;
     Converter<BV1, AABB>::convert(bv1, bv);
     Converter<AABB, OBB>::convert(bv, tf1, bv2);
@@ -163,7 +163,7 @@ struct Converter<BV1, OBB> {
 
 template <>
 struct Converter<OBB, RSS> {
-  static void convert(const OBB& bv1, const Transform3f& tf1, RSS& bv2) {
+  static void convert(const OBB& bv1, const Transform3s& tf1, RSS& bv2) {
     bv2.Tr = tf1.transform(bv1.To);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
 
@@ -184,7 +184,7 @@ struct Converter<OBB, RSS> {
 
 template <>
 struct Converter<RSS, RSS> {
-  static void convert(const RSS& bv1, const Transform3f& tf1, RSS& bv2) {
+  static void convert(const RSS& bv1, const Transform3s& tf1, RSS& bv2) {
     bv2.Tr = tf1.transform(bv1.Tr);
     bv2.axes.noalias() = tf1.getRotation() * bv1.axes;
 
@@ -198,7 +198,7 @@ struct Converter<RSS, RSS> {
 
 template <>
 struct Converter<OBBRSS, RSS> {
-  static void convert(const OBBRSS& bv1, const Transform3f& tf1, RSS& bv2) {
+  static void convert(const OBBRSS& bv1, const Transform3s& tf1, RSS& bv2) {
     Converter<RSS, RSS>::convert(bv1.rss, tf1, bv2);
   }
 
@@ -209,7 +209,7 @@ struct Converter<OBBRSS, RSS> {
 
 template <>
 struct Converter<AABB, RSS> {
-  static void convert(const AABB& bv1, const Transform3f& tf1, RSS& bv2) {
+  static void convert(const AABB& bv1, const Transform3s& tf1, RSS& bv2) {
     bv2.Tr = tf1.transform(bv1.center());
 
     /// Sort the AABB edges so that AABB extents are ordered.
@@ -249,13 +249,13 @@ struct Converter<AABB, RSS> {
   }
 
   static void convert(const AABB& bv1, RSS& bv2) {
-    convert(bv1, Transform3f(), bv2);
+    convert(bv1, Transform3s(), bv2);
   }
 };
 
 template <>
 struct Converter<AABB, OBBRSS> {
-  static void convert(const AABB& bv1, const Transform3f& tf1, OBBRSS& bv2) {
+  static void convert(const AABB& bv1, const Transform3s& tf1, OBBRSS& bv2) {
     Converter<AABB, OBB>::convert(bv1, tf1, bv2.obb);
     Converter<AABB, RSS>::convert(bv1, tf1, bv2.rss);
   }
@@ -273,7 +273,7 @@ struct Converter<AABB, OBBRSS> {
 /// @brief Convert a bounding volume of type BV1 in configuration tf1 to
 /// bounding volume of type BV2 in identity configuration.
 template <typename BV1, typename BV2>
-static inline void convertBV(const BV1& bv1, const Transform3f& tf1, BV2& bv2) {
+static inline void convertBV(const BV1& bv1, const Transform3s& tf1, BV2& bv2) {
   details::Converter<BV1, BV2>::convert(bv1, tf1, bv2);
 }
 

@@ -190,7 +190,7 @@ void testBVHModelTriangles() {
   BOOST_CHECK_EQUAL(model->num_tris, 12);
   BOOST_CHECK_EQUAL(model->build_state, BVH_BUILD_STATE_PROCESSED);
 
-  Transform3f pose;
+  Transform3s pose;
   shared_ptr<BVHModel<BV> > cropped(BVHExtract(*model, pose, aabb));
   BOOST_REQUIRE(cropped);
   BOOST_CHECK(cropped->build_state == BVH_BUILD_STATE_PROCESSED);
@@ -335,7 +335,7 @@ void testLoadGerardBauzil() {
   scale.setConstant(1);
   loadPolyhedronFromResource(env, scale, P1);
   CollisionGeometryPtr_t cylinder(new Cylinder(.27, .27));
-  Transform3f pos(Vec3s(-1.33, 1.36, .14));
+  Transform3s pos(Vec3s(-1.33, 1.36, .14));
   CollisionObject obj(cylinder, pos);
   CollisionObject stairs(P1);
 
@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_CASE(test_convex) {
   Box* box_ptr = new coal::Box(1, 1, 1);
   CollisionGeometryPtr_t b1(box_ptr);
   BVHModel<OBBRSS> box_bvh_model = BVHModel<OBBRSS>();
-  generateBVHModel(box_bvh_model, *box_ptr, Transform3f());
+  generateBVHModel(box_bvh_model, *box_ptr, Transform3s());
   box_bvh_model.buildConvexRepresentation(false);
 
   box_bvh_model.convex->computeLocalAABB();

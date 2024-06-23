@@ -146,12 +146,12 @@ coal::OcTree loadOctreeFile(const std::string& filename,
 /// extents and rotation without constraints. The translation is (x, y, z), and
 /// extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <=
 /// z <= extents[5]
-void generateRandomTransform(CoalScalar extents[6], Transform3f& transform);
+void generateRandomTransform(CoalScalar extents[6], Transform3s& transform);
 
 /// @brief Generate n random transforms whose translations are constrained by
 /// extents.
 void generateRandomTransforms(CoalScalar extents[6],
-                              std::vector<Transform3f>& transforms,
+                              std::vector<Transform3s>& transforms,
                               std::size_t n);
 
 /// @brief Generate n random transforms whose translations are constrained by
@@ -159,8 +159,8 @@ void generateRandomTransforms(CoalScalar extents[6],
 /// translation & rotation to the transforms generated.
 void generateRandomTransforms(CoalScalar extents[6], CoalScalar delta_trans[3],
                               CoalScalar delta_rot,
-                              std::vector<Transform3f>& transforms,
-                              std::vector<Transform3f>& transforms2,
+                              std::vector<Transform3s>& transforms,
+                              std::vector<Transform3s>& transforms2,
                               std::size_t n);
 
 /// @ brief Structure for minimum distance between two meshes and the
@@ -186,7 +186,7 @@ std::string getNodeTypeName(NODE_TYPE node_type);
 
 Quatf makeQuat(CoalScalar w, CoalScalar x, CoalScalar y, CoalScalar z);
 
-std::ostream& operator<<(std::ostream& os, const Transform3f& tf);
+std::ostream& operator<<(std::ostream& os, const Transform3s& tf);
 
 /// Get the argument --nb-run from argv
 std::size_t getNbRun(const int& argc, char const* const* argv,

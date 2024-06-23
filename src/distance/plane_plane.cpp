@@ -45,8 +45,8 @@ struct GJKSolver;
 namespace internal {
 template <>
 CoalScalar ShapeShapeDistance<Plane, Plane>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
     const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Plane& s1 = static_cast<const Plane&>(*o1);
   const Plane& s2 = static_cast<const Plane&>(*o2);

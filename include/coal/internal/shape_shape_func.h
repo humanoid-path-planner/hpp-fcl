@@ -49,8 +49,8 @@ namespace coal {
 
 template <typename ShapeType1, typename ShapeType2>
 struct ShapeShapeDistancer {
-  static CoalScalar run(const CollisionGeometry* o1, const Transform3f& tf1,
-                        const CollisionGeometry* o2, const Transform3f& tf2,
+  static CoalScalar run(const CollisionGeometry* o1, const Transform3s& tf1,
+                        const CollisionGeometry* o2, const Transform3s& tf2,
                         const GJKSolver* nsolver,
                         const DistanceRequest& request,
                         DistanceResult& result) {
@@ -70,8 +70,8 @@ struct ShapeShapeDistancer {
     return distance;
   }
 
-  static CoalScalar run(const CollisionGeometry* o1, const Transform3f& tf1,
-                        const CollisionGeometry* o2, const Transform3f& tf2,
+  static CoalScalar run(const CollisionGeometry* o1, const Transform3s& tf1,
+                        const CollisionGeometry* o2, const Transform3s& tf2,
                         const GJKSolver* nsolver,
                         const bool compute_signed_distance, Vec3s& p1,
                         Vec3s& p2, Vec3s& normal) {
@@ -91,9 +91,9 @@ struct ShapeShapeDistancer {
 /// @note This function might be specialized for some pairs of shapes.
 template <typename ShapeType1, typename ShapeType2>
 CoalScalar ShapeShapeDistance(const CollisionGeometry* o1,
-                              const Transform3f& tf1,
+                              const Transform3s& tf1,
                               const CollisionGeometry* o2,
-                              const Transform3f& tf2, const GJKSolver* nsolver,
+                              const Transform3s& tf2, const GJKSolver* nsolver,
                               const DistanceRequest& request,
                               DistanceResult& result) {
   return ShapeShapeDistancer<ShapeType1, ShapeType2>::run(
@@ -113,9 +113,9 @@ namespace internal {
 /// @note This function might be specialized for some pairs of shapes.
 template <typename ShapeType1, typename ShapeType2>
 CoalScalar ShapeShapeDistance(const CollisionGeometry* o1,
-                              const Transform3f& tf1,
+                              const Transform3s& tf1,
                               const CollisionGeometry* o2,
-                              const Transform3f& tf2, const GJKSolver* nsolver,
+                              const Transform3s& tf2, const GJKSolver* nsolver,
                               const bool compute_signed_distance, Vec3s& p1,
                               Vec3s& p2, Vec3s& normal) {
   return ::coal::ShapeShapeDistancer<ShapeType1, ShapeType2>::run(
@@ -134,8 +134,8 @@ CoalScalar ShapeShapeDistance(const CollisionGeometry* o1,
 /// internal collision detection checks.
 template <typename ShapeType1, typename ShapeType2>
 struct ShapeShapeCollider {
-  static std::size_t run(const CollisionGeometry* o1, const Transform3f& tf1,
-                         const CollisionGeometry* o2, const Transform3f& tf2,
+  static std::size_t run(const CollisionGeometry* o1, const Transform3s& tf1,
+                         const CollisionGeometry* o2, const Transform3s& tf2,
                          const GJKSolver* nsolver,
                          const CollisionRequest& request,
                          CollisionResult& result) {
@@ -168,9 +168,9 @@ struct ShapeShapeCollider {
 
 template <typename ShapeType1, typename ShapeType2>
 std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
-                              const Transform3f& tf1,
+                              const Transform3s& tf1,
                               const CollisionGeometry* o2,
-                              const Transform3f& tf2, const GJKSolver* nsolver,
+                              const Transform3s& tf2, const GJKSolver* nsolver,
                               const CollisionRequest& request,
                               CollisionResult& result) {
   return ShapeShapeCollider<ShapeType1, ShapeType2>::run(
@@ -217,20 +217,20 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
 #define SHAPE_SHAPE_DISTANCE_SPECIALIZATION(T1, T2)                            \
   template <>                                                                  \
   COAL_DLLAPI CoalScalar internal::ShapeShapeDistance<T1, T2>(                 \
-      const CollisionGeometry* o1, const Transform3f& tf1,                     \
-      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const CollisionGeometry* o1, const Transform3s& tf1,                     \
+      const CollisionGeometry* o2, const Transform3s& tf2,                     \
       const GJKSolver* nsolver, const bool compute_signed_distance, Vec3s& p1, \
       Vec3s& p2, Vec3s& normal);                                               \
   template <>                                                                  \
   COAL_DLLAPI CoalScalar internal::ShapeShapeDistance<T2, T1>(                 \
-      const CollisionGeometry* o1, const Transform3f& tf1,                     \
-      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const CollisionGeometry* o1, const Transform3s& tf1,                     \
+      const CollisionGeometry* o2, const Transform3s& tf2,                     \
       const GJKSolver* nsolver, const bool compute_signed_distance, Vec3s& p1, \
       Vec3s& p2, Vec3s& normal);                                               \
   template <>                                                                  \
   inline COAL_DLLAPI CoalScalar ShapeShapeDistance<T1, T2>(                    \
-      const CollisionGeometry* o1, const Transform3f& tf1,                     \
-      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const CollisionGeometry* o1, const Transform3s& tf1,                     \
+      const CollisionGeometry* o2, const Transform3s& tf2,                     \
       const GJKSolver* nsolver, const DistanceRequest& request,                \
       DistanceResult& result) {                                                \
     result.o1 = o1;                                                            \
@@ -244,8 +244,8 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
   }                                                                            \
   template <>                                                                  \
   inline COAL_DLLAPI CoalScalar ShapeShapeDistance<T2, T1>(                    \
-      const CollisionGeometry* o1, const Transform3f& tf1,                     \
-      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const CollisionGeometry* o1, const Transform3s& tf1,                     \
+      const CollisionGeometry* o2, const Transform3s& tf2,                     \
       const GJKSolver* nsolver, const DistanceRequest& request,                \
       DistanceResult& result) {                                                \
     result.o1 = o1;                                                            \
@@ -261,14 +261,14 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1,
 #define SHAPE_SELF_DISTANCE_SPECIALIZATION(T)                                  \
   template <>                                                                  \
   COAL_DLLAPI CoalScalar internal::ShapeShapeDistance<T, T>(                   \
-      const CollisionGeometry* o1, const Transform3f& tf1,                     \
-      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const CollisionGeometry* o1, const Transform3s& tf1,                     \
+      const CollisionGeometry* o2, const Transform3s& tf2,                     \
       const GJKSolver* nsolver, const bool compute_signed_distance, Vec3s& p1, \
       Vec3s& p2, Vec3s& normal);                                               \
   template <>                                                                  \
   inline COAL_DLLAPI CoalScalar ShapeShapeDistance<T, T>(                      \
-      const CollisionGeometry* o1, const Transform3f& tf1,                     \
-      const CollisionGeometry* o2, const Transform3f& tf2,                     \
+      const CollisionGeometry* o1, const Transform3s& tf1,                     \
+      const CollisionGeometry* o2, const Transform3s& tf2,                     \
       const GJKSolver* nsolver, const DistanceRequest& request,                \
       DistanceResult& result) {                                                \
     result.o1 = o1;                                                            \

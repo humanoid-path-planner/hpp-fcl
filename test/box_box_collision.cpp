@@ -14,7 +14,7 @@ using coal::collide;
 using coal::CollisionRequest;
 using coal::CollisionResult;
 using coal::ComputeCollision;
-using coal::Transform3f;
+using coal::Transform3s;
 using coal::Vec3s;
 
 BOOST_AUTO_TEST_CASE(box_box_collision) {
@@ -23,8 +23,8 @@ BOOST_AUTO_TEST_CASE(box_box_collision) {
   Box shape2(1, 1, 1);
 
   // Define transforms
-  Transform3f T1 = Transform3f::Identity();
-  Transform3f T2 = Transform3f::Identity();
+  Transform3s T1 = Transform3s::Identity();
+  Transform3s T2 = Transform3s::Identity();
 
   // Compute collision
   CollisionRequest req;

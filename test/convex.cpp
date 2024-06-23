@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(convex) {
 
 template <typename Sa, typename Sb>
 void compareShapeIntersection(const Sa& sa, const Sb& sb,
-                              const Transform3f& tf1, const Transform3f& tf2,
+                              const Transform3s& tf1, const Transform3s& tf2,
                               CoalScalar tol = 1e-9) {
   CollisionRequest request(CONTACT | DISTANCE_LOWER_BOUND, 1);
   CollisionResult resA, resB;
@@ -117,8 +117,8 @@ void compareShapeIntersection(const Sa& sa, const Sb& sb,
 }
 
 template <typename Sa, typename Sb>
-void compareShapeDistance(const Sa& sa, const Sb& sb, const Transform3f& tf1,
-                          const Transform3f& tf2, CoalScalar tol = 1e-9) {
+void compareShapeDistance(const Sa& sa, const Sb& sb, const Transform3s& tf1,
+                          const Transform3s& tf2, CoalScalar tol = 1e-9) {
   DistanceRequest request(true);
   DistanceResult resA, resB;
 
@@ -154,8 +154,8 @@ BOOST_AUTO_TEST_CASE(compare_convex_box) {
   Box box(l * 2, w * 2, d * 2);
   Convex<Quadrilateral> convex_box(buildBox(l, w, d));
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
   tf2.setTranslation(Vec3s(3, 0, 0));
   compareShapeIntersection(box, convex_box, tf1, tf2, eps);

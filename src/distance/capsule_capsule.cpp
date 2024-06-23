@@ -78,8 +78,8 @@ void clamped_linear(Vec3s& a_sd, const Vec3s& a, const CoalScalar& s_n,
 /// @param normal: normal pointing from capsule1 to capsule2
 template <>
 CoalScalar ShapeShapeDistance<Capsule, Capsule>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
     const bool, Vec3s& wp1, Vec3s& wp2, Vec3s& normal) {
   const Capsule* capsule1 = static_cast<const Capsule*>(o1);
   const Capsule* capsule2 = static_cast<const Capsule*>(o2);

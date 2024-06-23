@@ -59,8 +59,8 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box) {
   coal::DistanceRequest distanceRequest(true, 0, 0);
   coal::DistanceResult distanceResult;
 
-  coal::Transform3f tf1(coal::Vec3s(3., 0, 0));
-  coal::Transform3f tf2;
+  coal::Transform3s tf1(coal::Vec3s(3., 0, 0));
+  coal::Transform3s tf2;
   coal::CollisionObject capsule(capsuleGeometry, tf1);
   coal::CollisionObject box(boxGeometry, tf2);
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box) {
   CHECK_CLOSE_TO_0(o2[1], 1e-1);
 
   // Move capsule above box
-  tf1 = coal::Transform3f(coal::Vec3s(0., 0., 8.));
+  tf1 = coal::Transform3s(coal::Vec3s(0., 0., 8.));
   capsule.setTransform(tf1);
 
   // test distance

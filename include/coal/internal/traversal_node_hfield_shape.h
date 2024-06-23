@@ -320,7 +320,7 @@ inline CoalScalar distanceContactPointToFace(const size_t face_id,
 template <typename Polygone, typename Shape>
 bool binCorrection(const Convex<Polygone>& convex,
                    const int convex_active_faces, const Shape& shape,
-                   const Transform3f& shape_pose, CoalScalar& distance,
+                   const Transform3s& shape_pose, CoalScalar& distance,
                    Vec3s& contact_1, Vec3s& contact_2, Vec3s& normal,
                    Vec3s& face_normal, const bool is_collision) {
   const CoalScalar prec = 1e-12;
@@ -403,13 +403,13 @@ bool shapeDistance(const GJKSolver* nsolver, const CollisionRequest& request,
                    const Convex<Polygone>& convex1,
                    const int convex1_active_faces,
                    const Convex<Polygone>& convex2,
-                   const int convex2_active_faces, const Transform3f& tf1,
-                   const Shape& shape, const Transform3f& tf2,
+                   const int convex2_active_faces, const Transform3s& tf1,
+                   const Shape& shape, const Transform3s& tf2,
                    CoalScalar& distance, Vec3s& c1, Vec3s& c2, Vec3s& normal,
                    Vec3s& normal_top, bool& hfield_witness_is_on_bin_side) {
   enum { RTIsIdentity = Options & RelativeTransformationIsIdentity };
 
-  const Transform3f Id;
+  const Transform3s Id;
   // The solver `nsolver` has already been set up by the collision request
   // `request`. If GJK early stopping is enabled through `request`, it will be
   // used.

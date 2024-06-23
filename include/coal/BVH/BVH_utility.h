@@ -45,39 +45,39 @@ namespace coal {
 /// A triangle in collision with the AABB is considered inside.
 template <typename BV>
 COAL_DLLAPI BVHModel<BV>* BVHExtract(const BVHModel<BV>& model,
-                                     const Transform3f& pose, const AABB& aabb);
+                                     const Transform3s& pose, const AABB& aabb);
 
 template <>
 COAL_DLLAPI BVHModel<OBB>* BVHExtract(const BVHModel<OBB>& model,
-                                      const Transform3f& pose,
+                                      const Transform3s& pose,
                                       const AABB& aabb);
 template <>
 COAL_DLLAPI BVHModel<AABB>* BVHExtract(const BVHModel<AABB>& model,
-                                       const Transform3f& pose,
+                                       const Transform3s& pose,
                                        const AABB& aabb);
 template <>
 COAL_DLLAPI BVHModel<RSS>* BVHExtract(const BVHModel<RSS>& model,
-                                      const Transform3f& pose,
+                                      const Transform3s& pose,
                                       const AABB& aabb);
 template <>
 COAL_DLLAPI BVHModel<kIOS>* BVHExtract(const BVHModel<kIOS>& model,
-                                       const Transform3f& pose,
+                                       const Transform3s& pose,
                                        const AABB& aabb);
 template <>
 COAL_DLLAPI BVHModel<OBBRSS>* BVHExtract(const BVHModel<OBBRSS>& model,
-                                         const Transform3f& pose,
+                                         const Transform3s& pose,
                                          const AABB& aabb);
 template <>
 COAL_DLLAPI BVHModel<KDOP<16> >* BVHExtract(const BVHModel<KDOP<16> >& model,
-                                            const Transform3f& pose,
+                                            const Transform3s& pose,
                                             const AABB& aabb);
 template <>
 COAL_DLLAPI BVHModel<KDOP<18> >* BVHExtract(const BVHModel<KDOP<18> >& model,
-                                            const Transform3f& pose,
+                                            const Transform3s& pose,
                                             const AABB& aabb);
 template <>
 COAL_DLLAPI BVHModel<KDOP<24> >* BVHExtract(const BVHModel<KDOP<24> >& model,
-                                            const Transform3f& pose,
+                                            const Transform3s& pose,
                                             const AABB& aabb);
 
 /// @brief Compute the covariance matrix for a set or subset of points. if ts =

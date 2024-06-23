@@ -134,7 +134,7 @@ typedef shared_ptr<const CollisionObject> CollisionObjectConstPtr_t;
 class CollisionGeometry;
 typedef shared_ptr<CollisionGeometry> CollisionGeometryPtr_t;
 typedef shared_ptr<const CollisionGeometry> CollisionGeometryConstPtr_t;
-class Transform3f;
+class Transform3s;
 
 class AABB;
 

@@ -140,8 +140,8 @@ void exposeContactPatchAPI() {
                            ContactPatchResult&)>(&computeContactPatch));
   doxygen::def(
       "computeContactPatch",
-      static_cast<void (*)(const CollisionGeometry*, const Transform3f&,
-                           const CollisionGeometry*, const Transform3f&,
+      static_cast<void (*)(const CollisionGeometry*, const Transform3s&,
+                           const CollisionGeometry*, const Transform3s&,
                            const CollisionResult&, const ContactPatchRequest&,
                            ContactPatchResult&)>(&computeContactPatch));
 
@@ -154,7 +154,7 @@ void exposeContactPatchAPI() {
                       const CollisionGeometry*>())
         .def("__call__",
              static_cast<void (ComputeContactPatch::*)(
-                 const Transform3f&, const Transform3f&, const CollisionResult&,
+                 const Transform3s&, const Transform3s&, const CollisionResult&,
                  const ContactPatchRequest&, ContactPatchResult&) const>(
                  &ComputeContactPatch::operator()));
   }

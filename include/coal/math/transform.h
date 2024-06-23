@@ -52,7 +52,7 @@ static inline std::ostream& operator<<(std::ostream& o, const Quatf& q) {
 }
 
 /// @brief Simple transform class used locally by InterpMotion
-class COAL_DLLAPI Transform3f {
+class COAL_DLLAPI Transform3s {
   /// @brief Matrix cache
   Matrix3s R;
 
@@ -61,37 +61,37 @@ class COAL_DLLAPI Transform3f {
 
  public:
   /// @brief Default transform is no movement
-  Transform3f() {
+  Transform3s() {
     setIdentity();  // set matrix_set true
   }
 
-  static Transform3f Identity() { return Transform3f(); }
+  static Transform3s Identity() { return Transform3s(); }
 
   /// @brief Construct transform from rotation and translation
   template <typename Matrixx3Like, typename Vector3Like>
-  Transform3f(const Eigen::MatrixBase<Matrixx3Like>& R_,
+  Transform3s(const Eigen::MatrixBase<Matrixx3Like>& R_,
               const Eigen::MatrixBase<Vector3Like>& T_)
       : R(R_), T(T_) {}
 
   /// @brief Construct transform from rotation and translation
   template <typename Vector3Like>
-  Transform3f(const Quatf& q_, const Eigen::MatrixBase<Vector3Like>& T_)
+  Transform3s(const Quatf& q_, const Eigen::MatrixBase<Vector3Like>& T_)
       : R(q_.toRotationMatrix()), T(T_) {}
 
   /// @brief Construct transform from rotation
-  Transform3f(const Matrix3s& R_) : R(R_), T(Vec3s::Zero()) {}
+  Transform3s(const Matrix3s& R_) : R(R_), T(Vec3s::Zero()) {}
 
   /// @brief Construct transform from rotation
-  Transform3f(const Quatf& q_) : R(q_), T(Vec3s::Zero()) {}
+  Transform3s(const Quatf& q_) : R(q_), T(Vec3s::Zero()) {}
 
   /// @brief Construct transform from translation
-  Transform3f(const Vec3s& T_) : R(Matrix3s::Identity()), T(T_) {}
+  Transform3s(const Vec3s& T_) : R(Matrix3s::Identity()), T(T_) {}
 
   /// @brief Construct transform from other transform
-  Transform3f(const Transform3f& tf) : R(tf.R), T(tf.T) {}
+  Transform3s(const Transform3s& tf) : R(tf.R), T(tf.T) {}
 
   /// @brief operator =
-  Transform3f& operator=(const Transform3f& tf) {
+  Transform3s& operator=(const Transform3s& tf) {
     R = tf.R;
     T = tf.T;
     return *this;
@@ -160,32 +160,32 @@ class COAL_DLLAPI Transform3f {
   }
 
   /// @brief inverse transform
-  inline Transform3f& inverseInPlace() {
+  inline Transform3s& inverseInPlace() {
     R.transposeInPlace();
     T = -R * T;
     return *this;
   }
 
   /// @brief inverse transform
-  inline Transform3f inverse() {
-    return Transform3f(R.transpose(), -R.transpose() * T);
+  inline Transform3s inverse() {
+    return Transform3s(R.transpose(), -R.transpose() * T);
   }
 
   /// @brief inverse the transform and multiply with another
-  inline Transform3f inverseTimes(const Transform3f& other) const {
-    return Transform3f(R.transpose() * other.R, R.transpose() * (other.T - T));
+  inline Transform3s inverseTimes(const Transform3s& other) const {
+    return Transform3s(R.transpose() * other.R, R.transpose() * (other.T - T));
   }
 
   /// @brief multiply with another transform
-  inline const Transform3f& operator*=(const Transform3f& other) {
+  inline const Transform3s& operator*=(const Transform3s& other) {
     T += R * other.T;
     R *= other.R;
     return *this;
   }
 
   /// @brief multiply with another transform
-  inline Transform3f operator*(const Transform3f& other) const {
-    return Transform3f(R * other.R, R * other.T + T);
+  inline Transform3s operator*(const Transform3s& other) const {
+    return Transform3s(R * other.R, R * other.T + T);
   }
 
   /// @brief check whether the transform is identity
@@ -202,16 +202,16 @@ class COAL_DLLAPI Transform3f {
   }
 
   /// @brief return a random transform
-  static Transform3f Random() { return Transform3f().setRandom(); }
+  static Transform3s Random() { return Transform3s().setRandom(); }
 
   /// @brief set the transform to a random transform
-  Transform3f& setRandom();
+  Transform3s& setRandom();
 
-  bool operator==(const Transform3f& other) const {
+  bool operator==(const Transform3s& other) const {
     return (R == other.getRotation()) && (T == other.getTranslation());
   }
 
-  bool operator!=(const Transform3f& other) const { return !(*this == other); }
+  bool operator!=(const Transform3s& other) const { return !(*this == other); }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -247,7 +247,7 @@ inline Quatf uniformRandomQuaternion() {
   return q;
 }
 
-inline Transform3f& Transform3f::setRandom() {
+inline Transform3s& Transform3s::setRandom() {
   const Quatf q = uniformRandomQuaternion();
   this->rotation() = q.matrix();
   this->translation().setRandom();

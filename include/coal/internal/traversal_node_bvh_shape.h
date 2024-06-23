@@ -157,7 +157,7 @@ class MeshShapeCollisionTraversalNode
     CoalScalar distance;
 
     if (RTIsIdentity) {
-      static const Transform3f Id;
+      static const Transform3s Id;
       distance = internal::ShapeShapeDistance<TriangleP, S>(
           &tri, Id, this->model2, this->tf2, this->nsolver, compute_penetration,
           c1, c2, normal);
@@ -341,7 +341,7 @@ template <typename BV, typename S>
 void meshShapeDistanceOrientedNodeleafComputeDistance(
     unsigned int b1, unsigned int /* b2 */, const BVHModel<BV>* model1,
     const S& model2, Vec3s* vertices, Triangle* tri_indices,
-    const Transform3f& tf1, const Transform3f& tf2, const GJKSolver* nsolver,
+    const Transform3s& tf1, const Transform3s& tf2, const GJKSolver* nsolver,
     bool enable_statistics, int& num_leaf_tests, const DistanceRequest& request,
     DistanceResult& result) {
   if (enable_statistics) num_leaf_tests++;
@@ -365,8 +365,8 @@ void meshShapeDistanceOrientedNodeleafComputeDistance(
 template <typename BV, typename S>
 static inline void distancePreprocessOrientedNode(
     const BVHModel<BV>* model1, Vec3s* vertices, Triangle* tri_indices,
-    int init_tri_id, const S& model2, const Transform3f& tf1,
-    const Transform3f& tf2, const GJKSolver* nsolver,
+    int init_tri_id, const S& model2, const Transform3s& tf1,
+    const Transform3s& tf2, const GJKSolver* nsolver,
     const DistanceRequest& request, DistanceResult& result) {
   const Triangle& tri_id = tri_indices[init_tri_id];
   const TriangleP tri(vertices[tri_id[0]], vertices[tri_id[1]],

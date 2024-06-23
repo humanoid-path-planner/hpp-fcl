@@ -85,10 +85,10 @@ class TraversalNodeBase {
   void enableStatistics(bool enable) { enable_statistics = enable; }
 
   /// @brief configuation of first object
-  Transform3f tf1;
+  Transform3s tf1;
 
   /// @brief configuration of second object
-  Transform3f tf2;
+  Transform3s tf2;
 
   /// @brief Whether stores statistics
   bool enable_statistics;

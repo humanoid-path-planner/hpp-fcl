@@ -56,8 +56,8 @@ CoalScalar distance(const CollisionObject* o1, const CollisionObject* o2,
                   result);
 }
 
-CoalScalar distance(const CollisionGeometry* o1, const Transform3f& tf1,
-                    const CollisionGeometry* o2, const Transform3f& tf2,
+CoalScalar distance(const CollisionGeometry* o1, const Transform3s& tf1,
+                    const CollisionGeometry* o2, const Transform3s& tf2,
                     const DistanceRequest& request, DistanceResult& result) {
   GJKSolver solver(request);
 
@@ -135,7 +135,7 @@ ComputeDistance::ComputeDistance(const CollisionGeometry* o1,
     func = looktable.distance_matrix[node_type1][node_type2];
 }
 
-CoalScalar ComputeDistance::run(const Transform3f& tf1, const Transform3f& tf2,
+CoalScalar ComputeDistance::run(const Transform3s& tf1, const Transform3s& tf2,
                                 const DistanceRequest& request,
                                 DistanceResult& result) const {
   CoalScalar res;
@@ -156,8 +156,8 @@ CoalScalar ComputeDistance::run(const Transform3f& tf1, const Transform3f& tf2,
   return res;
 }
 
-CoalScalar ComputeDistance::operator()(const Transform3f& tf1,
-                                       const Transform3f& tf2,
+CoalScalar ComputeDistance::operator()(const Transform3s& tf1,
+                                       const Transform3s& tf2,
                                        const DistanceRequest& request,
                                        DistanceResult& result) const {
   solver.set(request);

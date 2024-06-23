@@ -53,7 +53,7 @@ using coal::GJKConvergenceCriterionType;
 using coal::GJKSolver;
 using coal::ShapeBase;
 using coal::support_func_guess_t;
-using coal::Transform3f;
+using coal::Transform3s;
 using coal::Vec3s;
 using coal::details::GJK;
 using coal::details::MinkowskiDiff;
@@ -123,9 +123,9 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
   // Generate random transforms
   size_t n = 1000;
   CoalScalar extents[] = {-3., -3., 0, 3., 3., 3.};
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   generateRandomTransforms(extents, transforms, n);
-  Transform3f identity = Transform3f::Identity();
+  Transform3s identity = Transform3s::Identity();
 
   // Same init for both solvers
   Vec3s init_guess = Vec3s(1, 0, 0);

@@ -111,10 +111,10 @@ int main() {
   std::shared_ptr<hpp::fcl::ConvexBase> shape2 = loadConvexMesh("../path/to/mesh/file.obj");
 
   // Define the shapes' placement in 3D space
-  hpp::fcl::Transform3f T1;
+  hpp::fcl::Transform3s T1;
   T1.setQuatRotation(hpp::fcl::Quaternion3f::UnitRandom());
   T1.setTranslation(hpp::fcl::Vec3s::Random());
-  hpp::fcl::Transform3f T2 = hpp::fcl::Transform3f::Identity();
+  hpp::fcl::Transform3s T2 = hpp::fcl::Transform3s::Identity();
   T2.setQuatRotation(hpp::fcl::Quaternion3f::UnitRandom());
   T2.setTranslation(hpp::fcl::Vec3s::Random());
 
@@ -180,10 +180,10 @@ if __name__ == "__main__":
     shape2 = loadConvexMesh("../path/to/mesh/file.obj")
 
     # Define the shapes' placement in 3D space
-    T1 = hppfcl.Transform3f()
+    T1 = hppfcl.Transform3s()
     T1.setTranslation(pin.SE3.Random().translation)
     T1.setRotation(pin.SE3.Random().rotation)
-    T2 = hppfcl.Transform3f();
+    T2 = hppfcl.Transform3s();
     # Using np arrays also works
     T1.setTranslation(np.random.rand(3))
     T2.setRotation(pin.SE3.Random().rotation)

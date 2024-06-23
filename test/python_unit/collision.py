@@ -27,19 +27,19 @@ class TestMainAPI(TestCase):
         req = coal.CollisionRequest()
         res = coal.CollisionResult()
 
-        M1 = coal.Transform3f()
-        M2 = coal.Transform3f(np.eye(3), np.array([0, 0, -0.1]))
+        M1 = coal.Transform3s()
+        M2 = coal.Transform3s(np.eye(3), np.array([0, 0, -0.1]))
         res.clear()
         coal.collide(convex, M1, halfspace, M2, req, res)
         self.assertFalse(coal.collide(convex, M1, halfspace, M2, req, res))
 
-        M1 = coal.Transform3f()
-        M2 = coal.Transform3f(np.eye(3), np.array([0, 0, 0.1]))
+        M1 = coal.Transform3s()
+        M2 = coal.Transform3s(np.eye(3), np.array([0, 0, 0.1]))
         res.clear()
         self.assertTrue(coal.collide(convex, M1, halfspace, M2, req, res))
 
-        M1 = coal.Transform3f()
-        M2 = coal.Transform3f(np.eye(3), np.array([0, 0, 2]))
+        M1 = coal.Transform3s()
+        M2 = coal.Transform3s(np.eye(3), np.array([0, 0, 2]))
         res.clear()
         self.assertTrue(coal.collide(convex, M1, halfspace, M2, req, res))
 

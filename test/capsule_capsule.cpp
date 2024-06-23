@@ -68,8 +68,8 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_trivial) {
   int num_tests = 1e6;
 #endif
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
   for (int i = 0; i < num_tests; ++i) {
     Eigen::Vector3d p1 = Eigen::Vector3d::Random() * (2. * radius);
@@ -121,8 +121,8 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_aligned) {
   int num_tests = 1e6;
 #endif
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
   Eigen::Vector3d p1 = Eigen::Vector3d::Zero();
   Eigen::Vector3d p2_no_collision =
@@ -180,9 +180,9 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_aligned) {
 
   p2_no_collision = Eigen::Vector3d(0., 0., 2 * (length / 2. + radius) + 1e-3);
 
-  Transform3f geom1_placement(Eigen::Matrix3d::Identity(),
+  Transform3s geom1_placement(Eigen::Matrix3d::Identity(),
                               Eigen::Vector3d::Zero());
-  Transform3f geom2_placement(Eigen::Matrix3d::Identity(), p2_no_collision);
+  Transform3s geom2_placement(Eigen::Matrix3d::Identity(), p2_no_collision);
 
   for (int i = 0; i < num_tests; ++i) {
     Eigen::Matrix3d rot =
@@ -190,9 +190,9 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_aligned) {
             .toRotationMatrix();
     Eigen::Vector3d trans = Eigen::Vector3d::Random();
 
-    Transform3f displacement(rot, trans);
-    Transform3f tf1 = displacement * geom1_placement;
-    Transform3f tf2 = displacement * geom2_placement;
+    Transform3s displacement(rot, trans);
+    Transform3s tf1 = displacement * geom1_placement;
+    Transform3s tf2 = displacement * geom2_placement;
 
     CollisionObject capsule_o1(c1, tf1);
     CollisionObject capsule_o2(c2, tf2);
@@ -218,9 +218,9 @@ BOOST_AUTO_TEST_CASE(collision_capsule_capsule_aligned) {
             .toRotationMatrix();
     Eigen::Vector3d trans = Eigen::Vector3d::Random();
 
-    Transform3f displacement(rot, trans);
-    Transform3f tf1 = displacement * geom1_placement;
-    Transform3f tf2 = displacement * geom2_placement;
+    Transform3s displacement(rot, trans);
+    Transform3s tf1 = displacement * geom1_placement;
+    Transform3s tf2 = displacement * geom2_placement;
 
     CollisionObject capsule_o1(c1, tf1);
     CollisionObject capsule_o2(c2, tf2);
@@ -240,8 +240,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_origin) {
   CollisionGeometryPtr_t s1(new Capsule(5, 10));
   CollisionGeometryPtr_t s2(new Capsule(5, 10));
 
-  Transform3f tf1;
-  Transform3f tf2(Vec3s(20.1, 0, 0));
+  Transform3s tf1;
+  Transform3s tf2(Vec3s(20.1, 0, 0));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -266,8 +266,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformXY) {
   CollisionGeometryPtr_t s1(new Capsule(5, 10));
   CollisionGeometryPtr_t s2(new Capsule(5, 10));
 
-  Transform3f tf1;
-  Transform3f tf2(Vec3s(20, 20, 0));
+  Transform3s tf1;
+  Transform3s tf2(Vec3s(20, 20, 0));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -293,8 +293,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ) {
   CollisionGeometryPtr_t s1(new Capsule(5, 10));
   CollisionGeometryPtr_t s2(new Capsule(5, 10));
 
-  Transform3f tf1;
-  Transform3f tf2(Vec3s(0, 0, 20.1));
+  Transform3s tf1;
+  Transform3s tf2(Vec3s(0, 0, 20.1));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -319,8 +319,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2) {
   CollisionGeometryPtr_t s1(new Capsule(5, 10));
   CollisionGeometryPtr_t s2(new Capsule(5, 10));
 
-  Transform3f tf1;
-  Transform3f tf2(makeQuat(sqrt(2) / 2, 0, sqrt(2) / 2, 0), Vec3s(0, 0, 25.1));
+  Transform3s tf1;
+  Transform3s tf2(makeQuat(sqrt(2) / 2, 0, sqrt(2) / 2, 0), Vec3s(0, 0, 25.1));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);

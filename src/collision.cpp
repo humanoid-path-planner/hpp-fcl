@@ -65,8 +65,8 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
                  result);
 }
 
-std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
-                    const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t collide(const CollisionGeometry* o1, const Transform3s& tf1,
+                    const CollisionGeometry* o2, const Transform3s& tf2,
                     const CollisionRequest& request, CollisionResult& result) {
   // If security margin is set to -infinity, return that there is no collision
   if (request.security_margin == -std::numeric_limits<CoalScalar>::infinity()) {
@@ -156,8 +156,8 @@ ComputeCollision::ComputeCollision(const CollisionGeometry* o1,
     func = looktable.collision_matrix[node_type1][node_type2];
 }
 
-std::size_t ComputeCollision::run(const Transform3f& tf1,
-                                  const Transform3f& tf2,
+std::size_t ComputeCollision::run(const Transform3s& tf1,
+                                  const Transform3s& tf2,
                                   const CollisionRequest& request,
                                   CollisionResult& result) const {
   // If security margin is set to -infinity, return that there is no collision
@@ -183,8 +183,8 @@ std::size_t ComputeCollision::run(const Transform3f& tf1,
   return res;
 }
 
-std::size_t ComputeCollision::operator()(const Transform3f& tf1,
-                                         const Transform3f& tf2,
+std::size_t ComputeCollision::operator()(const Transform3s& tf1,
+                                         const Transform3s& tf2,
                                          const CollisionRequest& request,
                                          CollisionResult& result) const
 

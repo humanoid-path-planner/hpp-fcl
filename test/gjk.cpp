@@ -51,7 +51,7 @@ using coal::GJKSolver;
 using coal::GJKVariant;
 using coal::Matrix3s;
 using coal::Quatf;
-using coal::Transform3f;
+using coal::Transform3s;
 using coal::TriangleP;
 using coal::Vec3s;
 
@@ -78,7 +78,7 @@ void test_gjk_distance_triangle_triangle(
   GJKSolver solver;
   if (enable_gjk_nesterov_acceleration)
     solver.gjk.gjk_variant = GJKVariant::NesterovAcceleration;
-  Transform3f tf1, tf2;
+  Transform3s tf1, tf2;
   Vec3s p1, p2, a1, a2;
   Matrix3s M;
   CoalScalar distance(sqrt(-1));
@@ -103,7 +103,7 @@ void test_gjk_distance_triangle_triangle(
           Vec3s(-25.655000000000001, -1.2858199462890625, 3.7249809570312502);
       Q2_loc = Vec3s(-10.926, -1.284259033203125, 3.7281499023437501);
       Q3_loc = Vec3s(-10.926, -1.2866180419921875, 3.72335400390625);
-      Transform3f tf(
+      Transform3s tf(
           Quatf(-0.42437287410898855, -0.26862477561450587,
                 -0.46249645019513175, 0.73064726592483387),
           Vec3s(-12.824601270753471, -1.6840516940066426, 3.8914453043793844));
@@ -131,7 +131,7 @@ void test_gjk_distance_triangle_triangle(
       tf1.setRotation(R);
       tf1.setTranslation(T);
     } else {
-      tf1 = Transform3f();
+      tf1 = Transform3s();
     }
 
     TriangleP tri1(P1_loc, P2_loc, P3_loc);
@@ -343,8 +343,8 @@ void test_gjk_unit_sphere(CoalScalar center_distance, Vec3s ray,
   sphere.setSweptSphereRadius(swept_sphere_radius);
 
   typedef Eigen::Matrix<CoalScalar, 4, 1> Vec4f;
-  Transform3f tf0(Quatf(Vec4f::Random().normalized()), Vec3s::Zero());
-  Transform3f tf1(Quatf(Vec4f::Random().normalized()), center_distance * ray);
+  Transform3s tf0(Quatf(Vec4f::Random().normalized()), Vec3s::Zero());
+  Transform3s tf1(Quatf(Vec4f::Random().normalized()), center_distance * ray);
 
   bool expect_collision = center_distance <= 2 * (r + swept_sphere_radius);
 
@@ -420,7 +420,7 @@ void test_gjk_triangle_capsule(Vec3s T, bool expect_collision,
   Capsule capsule(1., 2.);  // Radius 1 and length 2
   TriangleP triangle(Vec3s(0., 0., 0.), Vec3s(1., 0., 0.), Vec3s(1., 1., 0.));
 
-  Transform3f tf0, tf1;
+  Transform3s tf0, tf1;
   tf1.setTranslation(T);
 
   details::MinkowskiDiff shape;

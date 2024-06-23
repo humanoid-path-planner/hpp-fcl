@@ -127,7 +127,7 @@ struct COAL_DLLAPI MinkowskiDiff {
   /// ShapeBase*)` for more details.
   template <int _SupportOptions = SupportOptions::NoSweptSphere>
   void set(const ShapeBase* shape0, const ShapeBase* shape1,
-           const Transform3f& tf0, const Transform3f& tf1);
+           const Transform3s& tf0, const Transform3s& tf1);
 
   /// @brief support function for shape0.
   /// The output vector is expressed in the local frame of shape0.

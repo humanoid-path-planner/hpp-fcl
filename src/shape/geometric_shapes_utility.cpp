@@ -43,7 +43,7 @@ namespace coal {
 
 namespace details {
 
-std::vector<Vec3s> getBoundVertices(const Box& box, const Transform3f& tf) {
+std::vector<Vec3s> getBoundVertices(const Box& box, const Transform3s& tf) {
   std::vector<Vec3s> result(8);
   CoalScalar a = box.halfSide[0];
   CoalScalar b = box.halfSide[1];
@@ -62,7 +62,7 @@ std::vector<Vec3s> getBoundVertices(const Box& box, const Transform3f& tf) {
 
 // we use icosahedron to bound the sphere
 std::vector<Vec3s> getBoundVertices(const Sphere& sphere,
-                                    const Transform3f& tf) {
+                                    const Transform3s& tf) {
   std::vector<Vec3s> result(12);
   const CoalScalar m = (1 + sqrt(5.0)) / 2.0;
   CoalScalar edge_size = sphere.radius * 6 / (sqrt(27.0) + sqrt(15.0));
@@ -87,7 +87,7 @@ std::vector<Vec3s> getBoundVertices(const Sphere& sphere,
 
 // we use scaled icosahedron to bound the ellipsoid
 std::vector<Vec3s> getBoundVertices(const Ellipsoid& ellipsoid,
-                                    const Transform3f& tf) {
+                                    const Transform3s& tf) {
   std::vector<Vec3s> result(12);
   const CoalScalar phi = (1 + sqrt(5.0)) / 2.0;
 
@@ -121,7 +121,7 @@ std::vector<Vec3s> getBoundVertices(const Ellipsoid& ellipsoid,
 }
 
 std::vector<Vec3s> getBoundVertices(const Capsule& capsule,
-                                    const Transform3f& tf) {
+                                    const Transform3s& tf) {
   std::vector<Vec3s> result(36);
   const CoalScalar m = (1 + sqrt(5.0)) / 2.0;
 
@@ -176,7 +176,7 @@ std::vector<Vec3s> getBoundVertices(const Capsule& capsule,
   return result;
 }
 
-std::vector<Vec3s> getBoundVertices(const Cone& cone, const Transform3f& tf) {
+std::vector<Vec3s> getBoundVertices(const Cone& cone, const Transform3s& tf) {
   std::vector<Vec3s> result(7);
 
   CoalScalar hl = cone.halfLength;
@@ -197,7 +197,7 @@ std::vector<Vec3s> getBoundVertices(const Cone& cone, const Transform3f& tf) {
 }
 
 std::vector<Vec3s> getBoundVertices(const Cylinder& cylinder,
-                                    const Transform3f& tf) {
+                                    const Transform3s& tf) {
   std::vector<Vec3s> result(12);
 
   CoalScalar hl = cylinder.halfLength;
@@ -223,7 +223,7 @@ std::vector<Vec3s> getBoundVertices(const Cylinder& cylinder,
 }
 
 std::vector<Vec3s> getBoundVertices(const ConvexBase& convex,
-                                    const Transform3f& tf) {
+                                    const Transform3s& tf) {
   std::vector<Vec3s> result(convex.num_points);
   const std::vector<Vec3s>& points_ = *(convex.points);
   for (std::size_t i = 0; i < convex.num_points; ++i) {
@@ -234,7 +234,7 @@ std::vector<Vec3s> getBoundVertices(const ConvexBase& convex,
 }
 
 std::vector<Vec3s> getBoundVertices(const TriangleP& triangle,
-                                    const Transform3f& tf) {
+                                    const Transform3s& tf) {
   std::vector<Vec3s> result(3);
   result[0] = tf.transform(triangle.a);
   result[1] = tf.transform(triangle.b);
@@ -245,7 +245,7 @@ std::vector<Vec3s> getBoundVertices(const TriangleP& triangle,
 
 }  // namespace details
 
-Halfspace transform(const Halfspace& a, const Transform3f& tf) {
+Halfspace transform(const Halfspace& a, const Transform3s& tf) {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
   /// and the new half space becomes n' * x' <= d'
@@ -260,7 +260,7 @@ Halfspace transform(const Halfspace& a, const Transform3f& tf) {
   return result;
 }
 
-Plane transform(const Plane& a, const Transform3f& tf) {
+Plane transform(const Plane& a, const Transform3s& tf) {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
   /// and the new half space becomes n' * x' <= d'
@@ -276,7 +276,7 @@ Plane transform(const Plane& a, const Transform3f& tf) {
 }
 
 std::array<Halfspace, 2> transformToHalfspaces(const Plane& a,
-                                               const Transform3f& tf) {
+                                               const Transform3s& tf) {
   // A plane can be represented by two halfspaces
 
   Vec3s n = tf.getRotation() * a.n;
@@ -289,7 +289,7 @@ std::array<Halfspace, 2> transformToHalfspaces(const Plane& a,
 }
 
 template <>
-void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv) {
+void computeBV<AABB, Box>(const Box& s, const Transform3s& tf, AABB& bv) {
   const Matrix3s& R = tf.getRotation();
   const Vec3s& T = tf.getTranslation();
 
@@ -299,7 +299,7 @@ void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv) {
 }
 
 template <>
-void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv) {
+void computeBV<AABB, Sphere>(const Sphere& s, const Transform3s& tf, AABB& bv) {
   const Vec3s& T = tf.getTranslation();
 
   Vec3s v_delta(Vec3s::Constant(s.radius));
@@ -308,7 +308,7 @@ void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv) {
 }
 
 template <>
-void computeBV<AABB, Ellipsoid>(const Ellipsoid& e, const Transform3f& tf,
+void computeBV<AABB, Ellipsoid>(const Ellipsoid& e, const Transform3s& tf,
                                 AABB& bv) {
   const Matrix3s& R = tf.getRotation();
   const Vec3s& T = tf.getTranslation();
@@ -319,7 +319,7 @@ void computeBV<AABB, Ellipsoid>(const Ellipsoid& e, const Transform3f& tf,
 }
 
 template <>
-void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf,
+void computeBV<AABB, Capsule>(const Capsule& s, const Transform3s& tf,
                               AABB& bv) {
   const Matrix3s& R = tf.getRotation();
   const Vec3s& T = tf.getTranslation();
@@ -330,7 +330,7 @@ void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv) {
+void computeBV<AABB, Cone>(const Cone& s, const Transform3s& tf, AABB& bv) {
   const Matrix3s& R = tf.getRotation();
   const Vec3s& T = tf.getTranslation();
 
@@ -347,7 +347,7 @@ void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv) {
 }
 
 template <>
-void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf,
+void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3s& tf,
                                AABB& bv) {
   const Matrix3s& R = tf.getRotation();
   const Vec3s& T = tf.getTranslation();
@@ -365,7 +365,7 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf,
+void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3s& tf,
                                  AABB& bv) {
   const Matrix3s& R = tf.getRotation();
   const Vec3s& T = tf.getTranslation();
@@ -381,13 +381,13 @@ void computeBV<AABB, ConvexBase>(const ConvexBase& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3f& tf,
+void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3s& tf,
                                 AABB& bv) {
   bv = AABB(tf.transform(s.a), tf.transform(s.b), tf.transform(s.c));
 }
 
 template <>
-void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf,
+void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3s& tf,
                                 AABB& bv) {
   Halfspace new_s = transform(s, tf);
   const Vec3s& n = new_s.n;
@@ -420,7 +420,7 @@ void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv) {
+void computeBV<AABB, Plane>(const Plane& s, const Transform3s& tf, AABB& bv) {
   Plane new_s = transform(s, tf);
   const Vec3s& n = new_s.n;
   const CoalScalar& d = new_s.d;
@@ -455,7 +455,7 @@ void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv) {
 }
 
 template <>
-void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv) {
+void computeBV<OBB, Box>(const Box& s, const Transform3s& tf, OBB& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
@@ -469,7 +469,7 @@ void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv) {
 }
 
 template <>
-void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv) {
+void computeBV<OBB, Sphere>(const Sphere& s, const Transform3s& tf, OBB& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
@@ -482,7 +482,7 @@ void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv) {
 }
 
 template <>
-void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv) {
+void computeBV<OBB, Capsule>(const Capsule& s, const Transform3s& tf, OBB& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
@@ -496,7 +496,7 @@ void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv) {
 }
 
 template <>
-void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv) {
+void computeBV<OBB, Cone>(const Cone& s, const Transform3s& tf, OBB& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
@@ -510,7 +510,7 @@ void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv) {
 }
 
 template <>
-void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf,
+void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3s& tf,
                               OBB& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -525,7 +525,7 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf,
+void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3s& tf,
                                 OBB& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -542,7 +542,7 @@ void computeBV<OBB, ConvexBase>(const ConvexBase& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f&,
+void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3s&,
                                OBB& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -555,7 +555,7 @@ void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f&,
 }
 
 template <>
-void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3f&,
+void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3s&,
                                RSS& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -569,7 +569,7 @@ void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3f&,
 }
 
 template <>
-void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3f& tf,
+void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3s& tf,
                                   OBBRSS& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -580,7 +580,7 @@ void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf,
+void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3s& tf,
                                 kIOS& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -593,7 +593,7 @@ void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf,
+void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3s& tf,
                                     KDOP<16>& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -653,7 +653,7 @@ void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf,
+void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3s& tf,
                                     KDOP<18>& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -719,7 +719,7 @@ void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf,
+void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3s& tf,
                                     KDOP<24>& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -800,7 +800,7 @@ void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv) {
+void computeBV<OBB, Plane>(const Plane& s, const Transform3s& tf, OBB& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
@@ -818,7 +818,7 @@ void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv) {
 }
 
 template <>
-void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv) {
+void computeBV<RSS, Plane>(const Plane& s, const Transform3s& tf, RSS& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
@@ -838,7 +838,7 @@ void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv) {
 }
 
 template <>
-void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3f& tf,
+void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3s& tf,
                               OBBRSS& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -849,7 +849,7 @@ void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv) {
+void computeBV<kIOS, Plane>(const Plane& s, const Transform3s& tf, kIOS& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
                       std::runtime_error);
@@ -861,7 +861,7 @@ void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv) {
 }
 
 template <>
-void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf,
+void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3s& tf,
                                 KDOP<16>& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -907,7 +907,7 @@ void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf,
+void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3s& tf,
                                 KDOP<18>& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -955,7 +955,7 @@ void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf,
 }
 
 template <>
-void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf,
+void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3s& tf,
                                 KDOP<24>& bv) {
   if (s.getSweptSphereRadius() > 0) {
     COAL_THROW_PRETTY("Swept-sphere radius not yet supported.",
@@ -1008,92 +1008,92 @@ void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf,
   }
 }
 
-void constructBox(const AABB& bv, Box& box, Transform3f& tf) {
+void constructBox(const AABB& bv, Box& box, Transform3s& tf) {
   box = Box(bv.max_ - bv.min_);
-  tf = Transform3f(bv.center());
+  tf = Transform3s(bv.center());
 }
 
-void constructBox(const OBB& bv, Box& box, Transform3f& tf) {
+void constructBox(const OBB& bv, Box& box, Transform3s& tf) {
   box = Box(bv.extent * 2);
-  tf = Transform3f(bv.axes, bv.To);
+  tf = Transform3s(bv.axes, bv.To);
 }
 
-void constructBox(const OBBRSS& bv, Box& box, Transform3f& tf) {
+void constructBox(const OBBRSS& bv, Box& box, Transform3s& tf) {
   box = Box(bv.obb.extent * 2);
-  tf = Transform3f(bv.obb.axes, bv.obb.To);
+  tf = Transform3s(bv.obb.axes, bv.obb.To);
 }
 
-void constructBox(const kIOS& bv, Box& box, Transform3f& tf) {
+void constructBox(const kIOS& bv, Box& box, Transform3s& tf) {
   box = Box(bv.obb.extent * 2);
-  tf = Transform3f(bv.obb.axes, bv.obb.To);
+  tf = Transform3s(bv.obb.axes, bv.obb.To);
 }
 
-void constructBox(const RSS& bv, Box& box, Transform3f& tf) {
+void constructBox(const RSS& bv, Box& box, Transform3s& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = Transform3f(bv.axes, bv.Tr);
+  tf = Transform3s(bv.axes, bv.Tr);
 }
 
-void constructBox(const KDOP<16>& bv, Box& box, Transform3f& tf) {
+void constructBox(const KDOP<16>& bv, Box& box, Transform3s& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = Transform3f(bv.center());
+  tf = Transform3s(bv.center());
 }
 
-void constructBox(const KDOP<18>& bv, Box& box, Transform3f& tf) {
+void constructBox(const KDOP<18>& bv, Box& box, Transform3s& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = Transform3f(bv.center());
+  tf = Transform3s(bv.center());
 }
 
-void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf) {
+void constructBox(const KDOP<24>& bv, Box& box, Transform3s& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = Transform3f(bv.center());
+  tf = Transform3s(bv.center());
 }
 
-void constructBox(const AABB& bv, const Transform3f& tf_bv, Box& box,
-                  Transform3f& tf) {
+void constructBox(const AABB& bv, const Transform3s& tf_bv, Box& box,
+                  Transform3s& tf) {
   box = Box(bv.max_ - bv.min_);
-  tf = tf_bv * Transform3f(bv.center());
+  tf = tf_bv * Transform3s(bv.center());
 }
 
-void constructBox(const OBB& bv, const Transform3f& tf_bv, Box& box,
-                  Transform3f& tf) {
+void constructBox(const OBB& bv, const Transform3s& tf_bv, Box& box,
+                  Transform3s& tf) {
   box = Box(bv.extent * 2);
-  tf = tf_bv * Transform3f(bv.axes, bv.To);
+  tf = tf_bv * Transform3s(bv.axes, bv.To);
 }
 
-void constructBox(const OBBRSS& bv, const Transform3f& tf_bv, Box& box,
-                  Transform3f& tf) {
+void constructBox(const OBBRSS& bv, const Transform3s& tf_bv, Box& box,
+                  Transform3s& tf) {
   box = Box(bv.obb.extent * 2);
-  tf = tf_bv * Transform3f(bv.obb.axes, bv.obb.To);
+  tf = tf_bv * Transform3s(bv.obb.axes, bv.obb.To);
 }
 
-void constructBox(const kIOS& bv, const Transform3f& tf_bv, Box& box,
-                  Transform3f& tf) {
+void constructBox(const kIOS& bv, const Transform3s& tf_bv, Box& box,
+                  Transform3s& tf) {
   box = Box(bv.obb.extent * 2);
-  tf = tf_bv * Transform3f(bv.obb.axes, bv.obb.To);
+  tf = tf_bv * Transform3s(bv.obb.axes, bv.obb.To);
 }
 
-void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box,
-                  Transform3f& tf) {
+void constructBox(const RSS& bv, const Transform3s& tf_bv, Box& box,
+                  Transform3s& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * Transform3f(bv.axes, bv.Tr);
+  tf = tf_bv * Transform3s(bv.axes, bv.Tr);
 }
 
-void constructBox(const KDOP<16>& bv, const Transform3f& tf_bv, Box& box,
-                  Transform3f& tf) {
+void constructBox(const KDOP<16>& bv, const Transform3s& tf_bv, Box& box,
+                  Transform3s& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * Transform3f(bv.center());
+  tf = tf_bv * Transform3s(bv.center());
 }
 
-void constructBox(const KDOP<18>& bv, const Transform3f& tf_bv, Box& box,
-                  Transform3f& tf) {
+void constructBox(const KDOP<18>& bv, const Transform3s& tf_bv, Box& box,
+                  Transform3s& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * Transform3f(bv.center());
+  tf = tf_bv * Transform3s(bv.center());
 }
 
-void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box,
-                  Transform3f& tf) {
+void constructBox(const KDOP<24>& bv, const Transform3s& tf_bv, Box& box,
+                  Transform3s& tf) {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * Transform3f(bv.center());
+  tf = tf_bv * Transform3s(bv.center());
 }
 
 }  // namespace coal

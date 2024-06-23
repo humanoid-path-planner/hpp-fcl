@@ -699,7 +699,7 @@ void exposeCollisionObject() {
         .def(dv::init<CollisionObject, const CollisionGeometryPtr_t&,
                       bp::optional<bool>>())
         .def(dv::init<CollisionObject, const CollisionGeometryPtr_t&,
-                      const Transform3f&, bp::optional<bool>>())
+                      const Transform3s&, bp::optional<bool>>())
         .def(dv::init<CollisionObject, const CollisionGeometryPtr_t&,
                       const Matrix3s&, const Vec3s&, bp::optional<bool>>())
 
@@ -721,7 +721,7 @@ void exposeCollisionObject() {
                          bp::return_value_policy<bp::copy_const_reference>())
         .def(dv::member_func(
             "setTransform",
-            static_cast<void (CollisionObject::*)(const Transform3f&)>(
+            static_cast<void (CollisionObject::*)(const Transform3s&)>(
                 &CollisionObject::setTransform)))
 
         .DEF_CLASS_FUNC(CollisionObject, isIdentityTransform)

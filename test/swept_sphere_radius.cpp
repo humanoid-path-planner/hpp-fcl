@@ -114,8 +114,8 @@ int line;
 struct SweptSphereGJKSolver : public GJKSolver {
   template <typename S1, typename S2>
   CoalScalar shapeDistance(
-      const S1& s1, const Transform3f& tf1, const S2& s2,
-      const Transform3f& tf2, bool compute_penetration, Vec3s& p1, Vec3s& p2,
+      const S1& s1, const Transform3s& tf1, const S2& s2,
+      const Transform3s& tf2, bool compute_penetration, Vec3s& p1, Vec3s& p2,
       Vec3s& normal, bool use_swept_sphere_radius_in_gjk_epa_iterations) const {
     if (use_swept_sphere_radius_in_gjk_epa_iterations) {
       CoalScalar distance;
@@ -146,8 +146,8 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
 
   CoalScalar extents[] = {-2, -2, -2, 2, 2, 2};
   std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
+  std::vector<Transform3s> tf1s;
+  std::vector<Transform3s> tf2s;
   generateRandomTransforms(extents, tf1s, n);
   generateRandomTransforms(extents, tf2s, n);
   const std::array<CoalScalar, 4> swept_sphere_radius = {0, 0.1, 1., 10.};
@@ -157,8 +157,8 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
     for (const CoalScalar& ssr2 : swept_sphere_radius) {
       shape2.setSweptSphereRadius(ssr2);
       for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
+        Transform3s tf1 = tf1s[i];
+        Transform3s tf2 = tf2s[i];
 
         SET_LINE;
 
@@ -283,8 +283,8 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
 
   CoalScalar extents[] = {-2, -2, -2, 2, 2, 2};
   std::size_t n = 1;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
+  std::vector<Transform3s> tf1s;
+  std::vector<Transform3s> tf2s;
   generateRandomTransforms(extents, tf1s, n);
   generateRandomTransforms(extents, tf2s, n);
 
@@ -294,8 +294,8 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
     for (const CoalScalar& ssr2 : swept_sphere_radius) {
       shape2.setSweptSphereRadius(ssr2);
       for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
+        Transform3s tf1 = tf1s[i];
+        Transform3s tf2 = tf2s[i];
 
         SET_LINE;
         CollisionRequest request;

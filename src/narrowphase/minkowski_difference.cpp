@@ -267,7 +267,7 @@ void getNormalizeSupportDirectionFromShapes(const ShapeBase* shape0,
 // ============================================================================
 template <int _SupportOptions>
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
-                        const Transform3f& tf0, const Transform3f& tf1) {
+                        const Transform3s& tf0, const Transform3s& tf1) {
   shapes[0] = shape0;
   shapes[1] = shape1;
   getNormalizeSupportDirectionFromShapes(shape0, shape1,
@@ -303,9 +303,9 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
       shape0, shape1, true, swept_sphere_radius, data);
 }
 // clang-format off
-template void COAL_DLLAPI MinkowskiDiff::set<SupportOptions::NoSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
+template void COAL_DLLAPI MinkowskiDiff::set<SupportOptions::NoSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3s&, const Transform3s&);
 
-template void COAL_DLLAPI MinkowskiDiff::set<SupportOptions::WithSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
+template void COAL_DLLAPI MinkowskiDiff::set<SupportOptions::WithSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3s&, const Transform3s&);
 // clang-format on
 
 // ============================================================================

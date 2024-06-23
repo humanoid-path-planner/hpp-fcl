@@ -51,7 +51,7 @@ using namespace coal;
 namespace utf = boost::unit_test::framework;
 
 template <typename BV>
-bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
+bool collide_front_list_Test(const Transform3s& tf1, const Transform3s& tf2,
                              const std::vector<Vec3s>& vertices1,
                              const std::vector<Triangle>& triangles1,
                              const std::vector<Vec3s>& vertices2,
@@ -60,8 +60,8 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
                              bool verbose);
 
 template <typename BV, typename TraversalNode>
-bool collide_front_list_Test_Oriented(const Transform3f& tf1,
-                                      const Transform3f& tf2,
+bool collide_front_list_Test_Oriented(const Transform3s& tf1,
+                                      const Transform3s& tf2,
                                       const std::vector<Vec3s>& vertices1,
                                       const std::vector<Triangle>& triangles1,
                                       const std::vector<Vec3s>& vertices2,
@@ -70,7 +70,7 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1,
                                       bool verbose);
 
 template <typename BV>
-bool collide_Test(const Transform3f& tf, const std::vector<Vec3s>& vertices1,
+bool collide_Test(const Transform3s& tf, const std::vector<Vec3s>& vertices1,
                   const std::vector<Triangle>& triangles1,
                   const std::vector<Vec3s>& vertices2,
                   const std::vector<Triangle>& triangles2,
@@ -84,8 +84,8 @@ BOOST_AUTO_TEST_CASE(front_list) {
   loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
   loadOBJFile((path / "rob.obj").string().c_str(), p2, t2);
 
-  std::vector<Transform3f> transforms;   // t0
-  std::vector<Transform3f> transforms2;  // t1
+  std::vector<Transform3s> transforms;   // t0
+  std::vector<Transform3s> transforms2;  // t1
   CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   CoalScalar delta_trans[] = {1, 1, 1};
 #ifndef NDEBUG  // if debug mode
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE(front_list) {
 }
 
 template <typename BV>
-bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
+bool collide_front_list_Test(const Transform3s& tf1, const Transform3s& tf2,
                              const std::vector<Vec3s>& vertices1,
                              const std::vector<Triangle>& triangles1,
                              const std::vector<Vec3s>& vertices2,
@@ -297,7 +297,7 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1, pose2;
+  Transform3s pose1, pose2;
 
   CollisionResult local_result;
   CollisionRequest request(NO_REQUEST, (std::numeric_limits<int>::max)());
@@ -336,8 +336,8 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
 }
 
 template <typename BV, typename TraversalNode>
-bool collide_front_list_Test_Oriented(const Transform3f& tf1,
-                                      const Transform3f& tf2,
+bool collide_front_list_Test_Oriented(const Transform3s& tf1,
+                                      const Transform3s& tf2,
                                       const std::vector<Vec3s>& vertices1,
                                       const std::vector<Triangle>& triangles1,
                                       const std::vector<Vec3s>& vertices2,
@@ -359,7 +359,7 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf1), pose2;
+  Transform3s pose1(tf1), pose2;
 
   CollisionResult local_result;
   CollisionRequest request(NO_REQUEST, (std::numeric_limits<int>::max)());
@@ -392,7 +392,7 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1,
 }
 
 template <typename BV>
-bool collide_Test(const Transform3f& tf, const std::vector<Vec3s>& vertices1,
+bool collide_Test(const Transform3s& tf, const std::vector<Vec3s>& vertices1,
                   const std::vector<Triangle>& triangles1,
                   const std::vector<Vec3s>& vertices2,
                   const std::vector<Triangle>& triangles2,
@@ -410,7 +410,7 @@ bool collide_Test(const Transform3f& tf, const std::vector<Vec3s>& vertices1,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf), pose2;
+  Transform3s pose1(tf), pose2;
 
   CollisionResult local_result;
   CollisionRequest request(NO_REQUEST, (std::numeric_limits<int>::max)());

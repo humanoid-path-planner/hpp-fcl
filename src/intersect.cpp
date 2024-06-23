@@ -395,7 +395,7 @@ CoalScalar TriangleDistance::sqrTriDistance(const Vec3s S[3], const Vec3s T[3],
 }
 
 CoalScalar TriangleDistance::sqrTriDistance(const Vec3s S[3], const Vec3s T[3],
-                                            const Transform3f& tf, Vec3s& P,
+                                            const Transform3s& tf, Vec3s& P,
                                             Vec3s& Q) {
   Vec3s T_transformed[3];
   T_transformed[0] = tf.transform(T[0]);
@@ -420,7 +420,7 @@ CoalScalar TriangleDistance::sqrTriDistance(const Vec3s& S1, const Vec3s& S2,
 CoalScalar TriangleDistance::sqrTriDistance(const Vec3s& S1, const Vec3s& S2,
                                             const Vec3s& S3, const Vec3s& T1,
                                             const Vec3s& T2, const Vec3s& T3,
-                                            const Transform3f& tf, Vec3s& P,
+                                            const Transform3s& tf, Vec3s& P,
                                             Vec3s& Q) {
   Vec3s T1_transformed = tf.transform(T1);
   Vec3s T2_transformed = tf.transform(T2);

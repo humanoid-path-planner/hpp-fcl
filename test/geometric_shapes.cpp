@@ -78,8 +78,8 @@ std::ostream& operator<<(std::ostream& os, const Box& b) {
 
 template <typename S1, typename S2>
 void printComparisonError(const std::string& comparison_type, const S1& s1,
-                          const Transform3f& tf1, const S2& s2,
-                          const Transform3f& tf2,
+                          const Transform3s& tf1, const S2& s2,
+                          const Transform3s& tf2,
                           const Vec3s& contact_or_normal,
                           const Vec3s& expected_contact_or_normal,
                           bool check_opposite_normal, CoalScalar tol) {
@@ -109,8 +109,8 @@ void printComparisonError(const std::string& comparison_type, const S1& s1,
 
 template <typename S1, typename S2>
 void printComparisonError(const std::string& comparison_type, const S1& s1,
-                          const Transform3f& tf1, const S2& s2,
-                          const Transform3f& tf2, CoalScalar depth,
+                          const Transform3s& tf1, const S2& s2,
+                          const Transform3s& tf2, CoalScalar depth,
                           CoalScalar expected_depth, CoalScalar tol) {
   std::cout << "Disagreement between " << comparison_type << " and expected_"
             << comparison_type << " for " << getNodeTypeName(s1.getNodeType())
@@ -126,8 +126,8 @@ void printComparisonError(const std::string& comparison_type, const S1& s1,
 }
 
 template <typename S1, typename S2>
-void compareContact(const S1& s1, const Transform3f& tf1, const S2& s2,
-                    const Transform3f& tf2, const Vec3s& contact,
+void compareContact(const S1& s1, const Transform3s& tf1, const S2& s2,
+                    const Transform3s& tf2, const Vec3s& contact,
                     Vec3s* expected_point, CoalScalar depth,
                     CoalScalar* expected_depth, const Vec3s& normal,
                     Vec3s* expected_normal, bool check_opposite_normal,
@@ -162,8 +162,8 @@ void compareContact(const S1& s1, const Transform3f& tf1, const S2& s2,
 }
 
 template <typename S1, typename S2>
-void testShapeCollide(const S1& s1, const Transform3f& tf1, const S2& s2,
-                      const Transform3f& tf2, bool expect_collision,
+void testShapeCollide(const S1& s1, const Transform3s& tf1, const S2& s2,
+                      const Transform3s& tf2, bool expect_collision,
                       Vec3s* expected_point = NULL,
                       CoalScalar* expected_depth = NULL,
                       Vec3s* expected_normal = NULL,
@@ -210,85 +210,85 @@ void testShapeCollide(const S1& s1, const Transform3f& tf1, const S2& s2,
 BOOST_AUTO_TEST_CASE(box_to_bvh) {
   Box shape(1, 1, 1);
   BVHModel<OBB> bvh;
-  generateBVHModel(bvh, shape, Transform3f());
+  generateBVHModel(bvh, shape, Transform3s());
 }
 
 BOOST_AUTO_TEST_CASE(sphere_to_bvh) {
   Sphere shape(1);
   BVHModel<OBB> bvh;
-  generateBVHModel(bvh, shape, Transform3f(), 10, 10);
-  generateBVHModel(bvh, shape, Transform3f(), 50);
+  generateBVHModel(bvh, shape, Transform3s(), 10, 10);
+  generateBVHModel(bvh, shape, Transform3s(), 50);
 }
 
 BOOST_AUTO_TEST_CASE(cylinder_to_bvh) {
   Cylinder shape(1, 1);
   BVHModel<OBB> bvh;
-  generateBVHModel(bvh, shape, Transform3f(), 10, 10);
-  generateBVHModel(bvh, shape, Transform3f(), 50);
+  generateBVHModel(bvh, shape, Transform3s(), 10, 10);
+  generateBVHModel(bvh, shape, Transform3s(), 50);
 }
 
 BOOST_AUTO_TEST_CASE(cone_to_bvh) {
   Cone shape(1, 1);
   BVHModel<OBB> bvh;
-  generateBVHModel(bvh, shape, Transform3f(), 10, 10);
-  generateBVHModel(bvh, shape, Transform3f(), 50);
+  generateBVHModel(bvh, shape, Transform3s(), 10, 10);
+  generateBVHModel(bvh, shape, Transform3s(), 50);
 }
 
 BOOST_AUTO_TEST_CASE(collide_spheresphere) {
   Sphere s1(20);
   Sphere s2(10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   // Vec3s point;
   // CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(40, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(40, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(40, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(40, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(30, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(30, 0, 0));
   normal << 1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(30.01, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(30.01, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(30.01, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(30.01, 0, 0));
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(29.9, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(29.9, 0, 0));
   normal << 1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(29.9, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(29.9, 0, 0));
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   normal << 1, 0, 0;  // If the centers of two sphere are at the same position,
                       // the normal is (1, 0, 0)
   SET_LINE;
@@ -301,32 +301,32 @@ BOOST_AUTO_TEST_CASE(collide_spheresphere) {
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-29.9, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-29.9, 0, 0));
   normal << -1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-29.9, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-29.9, 0, 0));
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-30.0, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-30.0, 0, 0));
   normal << -1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-30.01, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-30.01, 0, 0));
   normal << -1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-30.01, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-30.01, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 }
@@ -354,8 +354,8 @@ void testBoxBoxContactPoints(const Matrix3s& R) {
     vertices[i].array() *= s2.halfSide.array();
   }
 
-  Transform3f tf1 = Transform3f(Vec3s(0, 0, -50));
-  Transform3f tf2 = Transform3f(R);
+  Transform3s tf1 = Transform3s(Vec3s(0, 0, -50));
+  Transform3s tf2 = Transform3s(R);
 
   Vec3s normal;
   Vec3s p1, p2;
@@ -385,10 +385,10 @@ BOOST_AUTO_TEST_CASE(collide_boxbox) {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   // Vec3s point;
@@ -398,8 +398,8 @@ BOOST_AUTO_TEST_CASE(collide_boxbox) {
   Quatf q;
   q = AngleAxis((CoalScalar)3.140 / 6, UnitZ);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   // TODO: Need convention for normal when the centers of two objects are at
   // same position. The current result is (1, 0, 0).
   normal << 1, 0, 0;
@@ -414,37 +414,37 @@ BOOST_AUTO_TEST_CASE(collide_boxbox) {
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, 0x0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(15, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(15, 0, 0));
   normal << 1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, 1e-8);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(15.01, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(15.01, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(15.01, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(15.01, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(q);
+  tf1 = Transform3s();
+  tf2 = Transform3s(q);
   normal << 1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, 0x0);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(q);
+  tf2 = transform * Transform3s(q);
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, 0x0);
 
   int numTests = 100;
   for (int i = 0; i < numTests; ++i) {
-    Transform3f tf;
+    Transform3s tf;
     generateRandomTransform(extents, tf);
     SET_LINE;
     testBoxBoxContactPoints(tf.getRotation());
@@ -455,18 +455,18 @@ BOOST_AUTO_TEST_CASE(collide_spherebox) {
   Sphere s1(20);
   Box s2(5, 5, 5);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   // Vec3s point;
   // CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   // TODO: Need convention for normal when the centers of two objects are at
   // same position. The current result is (-1, 0, 0).
   normal << -1, 0, 0;
@@ -480,24 +480,24 @@ BOOST_AUTO_TEST_CASE(collide_spherebox) {
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, NULL);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(22.50001, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(22.50001, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(22.501, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(22.501, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(22.4, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(22.4, 0, 0));
   normal << 1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(22.4, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(22.4, 0, 0));
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
@@ -516,8 +516,8 @@ BOOST_AUTO_TEST_CASE(distance_spherebox) {
   coal::Box box(10, 2, 10);
 
   coal::DistanceResult result;
-  distance(&sphere, Transform3f(rotSphere, trSphere), &box,
-           Transform3f(rotBox, trBox), DistanceRequest(true), result);
+  distance(&sphere, Transform3s(rotSphere, trSphere), &box,
+           Transform3s(rotBox, trBox), DistanceRequest(true), result);
 
   CoalScalar eps = Eigen::NumTraits<CoalScalar>::epsilon();
   BOOST_CHECK_CLOSE(result.min_distance, 3., eps);
@@ -530,18 +530,18 @@ BOOST_AUTO_TEST_CASE(collide_spherecapsule) {
   Sphere s1(20);
   Capsule s2(5, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   // Vec3s point;
   // CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   // TODO: Need convention for normal when the centers of two objects are at
   // same position.
   SET_LINE;
@@ -554,38 +554,38 @@ BOOST_AUTO_TEST_CASE(collide_spherecapsule) {
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, NULL);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(24.9, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(24.9, 0, 0));
   normal << 1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(24.9, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(24.9, 0, 0));
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(25, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(25, 0, 0));
   normal << 1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(24.999999, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(24.999999, 0, 0));
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(25.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(25.1, 0, 0));
   normal << 1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(25.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(25.1, 0, 0));
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
@@ -595,18 +595,18 @@ BOOST_AUTO_TEST_CASE(collide_cylindercylinder) {
   Cylinder s1(5, 15);
   Cylinder s2(5, 15);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   // Vec3s point;
   // CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   // TODO: Need convention for normal when the centers of two objects are at
   // same position.
   SET_LINE;
@@ -619,37 +619,37 @@ BOOST_AUTO_TEST_CASE(collide_cylindercylinder) {
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, NULL);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(9.9, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(9.9, 0, 0));
   normal << 1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 9.9, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 9.9, 0));
   normal << 0, 1, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(9.9, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(9.9, 0, 0));
   normal << 1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(9.9, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(9.9, 0, 0));
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(10.01, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(10.01, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(10.01, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(10.01, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 }
@@ -658,18 +658,18 @@ BOOST_AUTO_TEST_CASE(collide_conecone) {
   Cone s1(5, 10);
   Cone s2(5, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   // Vec3s point;
   // CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   // TODO: Need convention for normal when the centers of two objects are at
   // same position.
   SET_LINE;
@@ -682,9 +682,9 @@ BOOST_AUTO_TEST_CASE(collide_conecone) {
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, NULL);
 
-  tf1 = Transform3f();
+  tf1 = Transform3s();
   // z=0 is a singular points. Two normals could be returned.
-  tf2 = Transform3f(Vec3s(9.9, 0, 0.00001));
+  tf2 = Transform3s(Vec3s(9.9, 0, 0.00001));
   normal = Vec3s(2 * (s1.halfLength + s2.halfLength), 0, s1.radius + s2.radius)
                .normalized();
   SET_LINE;
@@ -697,36 +697,36 @@ BOOST_AUTO_TEST_CASE(collide_conecone) {
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(9.9, 0, 0.00001));
+  tf2 = transform * Transform3s(Vec3s(9.9, 0, 0.00001));
   normal = Vec3s(2 * (s1.halfLength + s2.halfLength), 0, s1.radius + s2.radius)
                .normalized();
   normal = transform.getRotation() * normal;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, true, tol_gjk);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(10.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(10.1, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(10.001, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(10.001, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(10.001, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(10.001, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 9.9));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 9.9));
   normal << 0, 0, 1;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 9.9));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 9.9));
   normal = transform.getRotation() * Vec3s(0, 0, 1);
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
@@ -736,18 +736,18 @@ BOOST_AUTO_TEST_CASE(collide_conecylinder) {
   Cylinder s1(5, 10);
   Cone s2(5, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   // Vec3s point;
   // CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   // TODO: Need convention for normal when the centers of two objects are at
   // same position.
   SET_LINE;
@@ -760,8 +760,8 @@ BOOST_AUTO_TEST_CASE(collide_conecylinder) {
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, NULL);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(9.9, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(9.9, 0, 0));
   normal =
       Vec3s(2 * (s1.halfLength + s2.halfLength), 0, -(s1.radius + s2.radius))
           .normalized();
@@ -769,73 +769,73 @@ BOOST_AUTO_TEST_CASE(collide_conecylinder) {
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(9.9, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(9.9, 0, 0));
   normal = transform.getRotation() * normal;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(9.9, 0, 0.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(9.9, 0, 0.1));
   normal << 1, 0, 0;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(9.9, 0, 0.1));
+  tf2 = transform * Transform3s(Vec3s(9.9, 0, 0.1));
   normal = transform.getRotation() * normal;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(10.01, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(10.01, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(10.01, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(10.01, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(10, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(10, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, NULL);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(10, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(10, 0, 0));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, NULL);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 9.9));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 9.9));
   normal << 0, 0, 1;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 9.9));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 9.9));
   normal = transform.getRotation() * Vec3s(0, 0, 1);
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 10.01));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 10.01));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 10.01));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 10.01));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 10));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 10));
   normal << 0, 0, 1;
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, true, NULL, NULL, &normal, false, tol_gjk);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 10.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 10.1));
   SET_LINE;
   testShapeCollide(s1, tf1, s2, tf2, false);
 }
@@ -843,7 +843,7 @@ BOOST_AUTO_TEST_CASE(collide_conecylinder) {
 BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
   Sphere s(10);
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s normal;
@@ -857,12 +857,12 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     t[1] << -20, 0, 0;
     t[2] << 0, 20, 0;
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();  // identity
+    Transform3s tf_tri = Transform3s();  // identity
 
     tf_tri.setTranslation(Vec3s(0, 0, 0.001));
     normal << 0, 0, 1;
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -871,7 +871,7 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     tf_tri.setTranslation(Vec3s(0, 0, -0.001));
     normal << 0, 0, -1;
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -884,13 +884,13 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     t[1] << 9.9, -20, 0;
     t[2] << 9.9, 20, 0;
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();
+    Transform3s tf_tri = Transform3s();
 
     tf_tri.setTranslation(Vec3s(0, 0, 0.001));
     normal << 9.9, 0, 0.001;
     normal.normalize();
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -900,7 +900,7 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     normal << 9.9, 0, -0.001;
     normal.normalize();
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -913,12 +913,12 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     t[1] << -20, 0, 0;
     t[2] << 0, 0, 20;
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();
+    Transform3s tf_tri = Transform3s();
 
     tf_tri.setTranslation(Vec3s(0, 0.001, 0));
     normal << 0, 1, 0;
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -927,7 +927,7 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     tf_tri.setTranslation(Vec3s(0, -0.001, 0));
     normal << 0, -1, 0;
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -940,12 +940,12 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     t[1] << 0, -10, 0;
     t[2] << 0, 0, 20;
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();
+    Transform3s tf_tri = Transform3s();
 
     tf_tri.setTranslation(Vec3s(0.001, 0, 0));
     normal << 1, 0, 0;
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -953,7 +953,7 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
 
     tf_tri.setTranslation(Vec3s(-0.001, 0, 0));
     normal << -1, 0, 0;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     SET_LINE;
     normal = transform.getRotation() * normal;
     SET_LINE;
@@ -970,17 +970,17 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     t[1] << -20, 0, 0;
     t[2] << 0, 20, 0;
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();
+    Transform3s tf_tri = Transform3s();
 
     tf_tri.setTranslation(Vec3s(0, 0, 10.1));
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(0, 0, -10.1));
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
   }
@@ -992,16 +992,16 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     t[2] << 0, 0, 20;
     TriangleP tri(t[0], t[1], t[2]);
 
-    Transform3f tf_tri = Transform3f();
+    Transform3s tf_tri = Transform3s();
     tf_tri.setTranslation(Vec3s(0, 10.1, 0));
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(0, -10.1, 0));
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
   }
@@ -1012,17 +1012,17 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
     t[1] << 0, -20, 0;
     t[2] << 0, 0, 20;
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();
+    Transform3s tf_tri = Transform3s();
 
     tf_tri.setTranslation(Vec3s(10.1, 0, 0));
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(-10.1, 0, 0));
     SET_LINE;
-    testShapeCollide(s, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(s, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(s, transform, tri, transform * tf_tri, false);
   }
@@ -1031,7 +1031,7 @@ BOOST_AUTO_TEST_CASE(collide_spheretriangle) {
 BOOST_AUTO_TEST_CASE(collide_halfspacetriangle) {
   Halfspace hs(Vec3s(0, 0, 1), 0);
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s normal;
@@ -1044,12 +1044,12 @@ BOOST_AUTO_TEST_CASE(collide_halfspacetriangle) {
     t[1] << -20, 0, 0;
     t[2] << 0, 20, 0;
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();  // identity
+    Transform3s tf_tri = Transform3s();  // identity
 
     tf_tri.setTranslation(Vec3s(0, 0, -0.001));
     normal = hs.n;
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -1057,19 +1057,19 @@ BOOST_AUTO_TEST_CASE(collide_halfspacetriangle) {
 
     tf_tri.setTranslation(Vec3s(0, 0, 0.001));
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(1, 1, 0.001));
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(-1, -1, 0.001));
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
   }
@@ -1080,12 +1080,12 @@ BOOST_AUTO_TEST_CASE(collide_halfspacetriangle) {
     t[1] << -20, 0, 0;
     t[2] << 0, 0, 20;
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();
+    Transform3s tf_tri = Transform3s();
 
     tf_tri.setTranslation(Vec3s(0, 0, -0.001));
     normal = hs.n;
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -1093,19 +1093,19 @@ BOOST_AUTO_TEST_CASE(collide_halfspacetriangle) {
 
     tf_tri.setTranslation(Vec3s(0, 0, 0.001));
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(1, 1, 0.001));
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(-1, -1, 0.001));
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
   }
@@ -1116,12 +1116,12 @@ BOOST_AUTO_TEST_CASE(collide_halfspacetriangle) {
     t[1] << 0, -10, 0;
     t[2] << 0, 0, 20;
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();
+    Transform3s tf_tri = Transform3s();
 
     tf_tri.setTranslation(Vec3s(0, 0, -0.001));
     normal = hs.n;
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -1129,26 +1129,26 @@ BOOST_AUTO_TEST_CASE(collide_halfspacetriangle) {
 
     tf_tri.setTranslation(Vec3s(0, 0, 0.001));
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(1, 1, 0.001));
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(-1, -1, 0.001));
     SET_LINE;
-    testShapeCollide(hs, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(hs, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(hs, transform, tri, transform * tf_tri, false);
   }
 }
 
 BOOST_AUTO_TEST_CASE(collide_planetriangle) {
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s normal;
@@ -1161,10 +1161,10 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
     Plane pl(Vec3s(0, 0, 1), 0);
 
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();  // identity
+    Transform3s tf_tri = Transform3s();  // identity
     normal = -pl.n;
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -1173,7 +1173,7 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
     tf_tri.setTranslation(Vec3s(0, 0, 0.05));
     normal = pl.n;
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -1181,13 +1181,13 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
 
     tf_tri.setTranslation(Vec3s(0, 0, -0.06));
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(0, 0, 0.11));
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
   }
@@ -1200,10 +1200,10 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
     Plane pl(Vec3s(0, 1, 0), 0);
 
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();  // identity
+    Transform3s tf_tri = Transform3s();  // identity
     normal = -pl.n;
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -1212,7 +1212,7 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
     tf_tri.setTranslation(Vec3s(0, 0.05, 0));
     normal = pl.n;
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -1220,13 +1220,13 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
 
     tf_tri.setTranslation(Vec3s(0, -0.06, 0));
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(0, 0.11, 0));
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
   }
@@ -1239,10 +1239,10 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
     Plane pl(Vec3s(1, 0, 0), 0);
 
     TriangleP tri(t[0], t[1], t[2]);
-    Transform3f tf_tri = Transform3f();  // identity
+    Transform3s tf_tri = Transform3s();  // identity
     normal = -pl.n;
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -1251,7 +1251,7 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
     tf_tri.setTranslation(Vec3s(0.05, 0, 0));
     normal = pl.n;
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, true, NULL, NULL, &normal);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, true, NULL, NULL, &normal);
     normal = transform.getRotation() * normal;
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, true, NULL, NULL,
@@ -1259,13 +1259,13 @@ BOOST_AUTO_TEST_CASE(collide_planetriangle) {
 
     tf_tri.setTranslation(Vec3s(-0.06, 0, 0));
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
 
     tf_tri.setTranslation(Vec3s(0.11, 0, 0));
     SET_LINE;
-    testShapeCollide(pl, Transform3f(), tri, tf_tri, false);
+    testShapeCollide(pl, Transform3s(), tri, tf_tri, false);
     SET_LINE;
     testShapeCollide(pl, transform, tri, transform * tf_tri, false);
   }
@@ -1275,18 +1275,18 @@ BOOST_AUTO_TEST_CASE(collide_halfspacesphere) {
   Sphere s(10);
   Halfspace hs(Vec3s(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s contact;
   CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << -5, 0, 0;
   depth = -10;
   normal << -1, 0, 0;
@@ -1301,8 +1301,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacesphere) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(5, 0, 0));
   contact << -2.5, 0, 0;
   depth = -15;
   normal << -1, 0, 0;
@@ -1310,15 +1310,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacesphere) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(5, 0, 0));
   contact = transform.transform(Vec3s(-2.5, 0, 0));
   depth = -15;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-5, 0, 0));
   contact << -7.5, 0, 0;
   depth = -5;
   normal << -1, 0, 0;
@@ -1326,25 +1326,25 @@ BOOST_AUTO_TEST_CASE(collide_halfspacesphere) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-5, 0, 0));
   contact = transform.transform(Vec3s(-7.5, 0, 0));
   depth = -5;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-10.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-10.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-10.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-10.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(10.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(10.1, 0, 0));
   contact << 0.05, 0, 0;
   depth = -20.1;
   normal << -1, 0, 0;
@@ -1352,7 +1352,7 @@ BOOST_AUTO_TEST_CASE(collide_halfspacesphere) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(10.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(10.1, 0, 0));
   contact = transform.transform(Vec3s(0.05, 0, 0));
   depth = -20.1;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
@@ -1364,10 +1364,10 @@ BOOST_AUTO_TEST_CASE(collide_planesphere) {
   Sphere s(10);
   Plane hs(Vec3s(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s contact;
@@ -1376,8 +1376,8 @@ BOOST_AUTO_TEST_CASE(collide_planesphere) {
   Vec3s p1, p2;
 
   CoalScalar eps = 1e-6;
-  tf1 = Transform3f(Vec3s(eps, 0, 0));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(eps, 0, 0));
+  tf2 = Transform3s();
   depth = -10 + eps;
   p1 << -10 + eps, 0, 0;
   p2 << 0, 0, 0;
@@ -1395,8 +1395,8 @@ BOOST_AUTO_TEST_CASE(collide_planesphere) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
   eps = -1e-6;
-  tf1 = Transform3f(Vec3s(eps, 0, 0));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(eps, 0, 0));
+  tf2 = Transform3s();
   depth = -10 - eps;
   p1 << 10 + eps, 0, 0;
   p2 << 0, 0, 0;
@@ -1412,8 +1412,8 @@ BOOST_AUTO_TEST_CASE(collide_planesphere) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(5, 0, 0));
   p1 << 10, 0, 0;
   p2 << 5, 0, 0;
   contact << (p1 + p2) / 2;
@@ -1423,15 +1423,15 @@ BOOST_AUTO_TEST_CASE(collide_planesphere) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(5, 0, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -5;
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-5, 0, 0));
   p1 << -10, 0, 0;
   p2 << -5, 0, 0;
   contact << (p1 + p2) / 2;
@@ -1441,30 +1441,30 @@ BOOST_AUTO_TEST_CASE(collide_planesphere) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-5, 0, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -5;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-10.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-10.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-10.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-10.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(10.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(10.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(10.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(10.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 }
@@ -1473,18 +1473,18 @@ BOOST_AUTO_TEST_CASE(collide_halfspacebox) {
   Box s(5, 10, 20);
   Halfspace hs(Vec3s(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s contact;
   CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << -1.25, 0, 0;
   depth = -2.5;
   normal << -1, 0, 0;
@@ -1499,8 +1499,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacebox) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(1.25, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(1.25, 0, 0));
   contact << -0.625, 0, 0;
   depth = -3.75;
   normal << -1, 0, 0;
@@ -1508,15 +1508,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacebox) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(1.25, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(1.25, 0, 0));
   contact = transform.transform(Vec3s(-0.625, 0, 0));
   depth = -3.75;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-1.25, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-1.25, 0, 0));
   contact << -1.875, 0, 0;
   depth = -1.25;
   normal << -1, 0, 0;
@@ -1524,15 +1524,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacebox) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-1.25, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-1.25, 0, 0));
   contact = transform.transform(Vec3s(-1.875, 0, 0));
   depth = -1.25;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(2.51, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(2.51, 0, 0));
   contact << 0.005, 0, 0;
   depth = -5.01;
   normal << -1, 0, 0;
@@ -1540,25 +1540,25 @@ BOOST_AUTO_TEST_CASE(collide_halfspacebox) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(2.51, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(2.51, 0, 0));
   contact = transform.transform(Vec3s(0.005, 0, 0));
   depth = -5.01;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-2.51, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-2.51, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-2.51, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-2.51, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f(transform.getRotation());
-  tf2 = Transform3f();
+  tf1 = Transform3s(transform.getRotation());
+  tf2 = Transform3s();
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true);
 }
@@ -1567,18 +1567,18 @@ BOOST_AUTO_TEST_CASE(collide_planebox) {
   Box s(5, 10, 20);
   Plane hs(Vec3s(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s contact;
   CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   Vec3s p1(2.5, 0, 0);
   Vec3s p2(0, 0, 0);
   contact << (p1 + p2) / 2;
@@ -1595,8 +1595,8 @@ BOOST_AUTO_TEST_CASE(collide_planebox) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(1.25, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(1.25, 0, 0));
   p2 << 1.25, 0, 0;
   contact << (p1 + p2) / 2;
   depth = -1.25;
@@ -1605,15 +1605,15 @@ BOOST_AUTO_TEST_CASE(collide_planebox) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(1.25, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(1.25, 0, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -1.25;
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-1.25, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-1.25, 0, 0));
   p1 << -2.5, 0, 0;
   p2 << -1.25, 0, 0;
   contact << (p1 + p2) / 2;
@@ -1623,35 +1623,35 @@ BOOST_AUTO_TEST_CASE(collide_planebox) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-1.25, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-1.25, 0, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -1.25;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(2.51, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(2.51, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(2.51, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(2.51, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-2.51, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-2.51, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-2.51, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-2.51, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f(transform.getRotation());
-  tf2 = Transform3f();
+  tf1 = Transform3s(transform.getRotation());
+  tf2 = Transform3s();
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true);
 }
@@ -1660,18 +1660,18 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   Capsule s(5, 10);
   Halfspace hs(Vec3s(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s contact;
   CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << -2.5, 0, 0;
   depth = -5;
   normal << -1, 0, 0;
@@ -1686,8 +1686,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(2.5, 0, 0));
   contact << -1.25, 0, 0;
   depth = -7.5;
   normal << -1, 0, 0;
@@ -1695,15 +1695,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(2.5, 0, 0));
   contact = transform.transform(Vec3s(-1.25, 0, 0));
   depth = -7.5;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-2.5, 0, 0));
   contact << -3.75, 0, 0;
   depth = -2.5;
   normal << -1, 0, 0;
@@ -1711,15 +1711,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-2.5, 0, 0));
   contact = transform.transform(Vec3s(-3.75, 0, 0));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(5.1, 0, 0));
   contact << 0.05, 0, 0;
   depth = -10.1;
   normal << -1, 0, 0;
@@ -1727,27 +1727,27 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(5.1, 0, 0));
   contact = transform.transform(Vec3s(0.05, 0, 0));
   depth = -10.1;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Halfspace(Vec3s(0, 1, 0), 0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << 0, -2.5, 0;
   depth = -5;
   normal << 0, -1, 0;
@@ -1762,8 +1762,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 2.5, 0));
   contact << 0, -1.25, 0;
   depth = -7.5;
   normal << 0, -1, 0;
@@ -1771,15 +1771,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 2.5, 0));
   contact = transform.transform(Vec3s(0, -1.25, 0));
   depth = -7.5;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -2.5, 0));
   contact << 0, -3.75, 0;
   depth = -2.5;
   normal << 0, -1, 0;
@@ -1787,15 +1787,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -2.5, 0));
   contact = transform.transform(Vec3s(0, -3.75, 0));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 5.1, 0));
   contact << 0, 0.05, 0;
   depth = -10.1;
   normal << 0, -1, 0;
@@ -1803,27 +1803,27 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 5.1, 0));
   contact = transform.transform(Vec3s(0, 0.05, 0));
   depth = -10.1;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Halfspace(Vec3s(0, 0, 1), 0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << 0, 0, -5;
   depth = -10;
   normal << 0, 0, -1;
@@ -1838,8 +1838,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 2.5));
   contact << 0, 0, -3.75;
   depth = -12.5;
   normal << 0, 0, -1;
@@ -1847,15 +1847,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 2.5));
   contact = transform.transform(Vec3s(0, 0, -3.75));
   depth = -12.5;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -2.5));
   contact << 0, 0, -6.25;
   depth = -7.5;
   normal << 0, 0, -1;
@@ -1863,15 +1863,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -2.5));
   contact = transform.transform(Vec3s(0, 0, -6.25));
   depth = -7.5;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 10.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 10.1));
   contact << 0, 0, 0.05;
   depth = -20.1;
   normal << 0, 0, -1;
@@ -1879,20 +1879,20 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 10.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 10.1));
   contact = transform.transform(Vec3s(0, 0, 0.05));
   depth = -20.1;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -10.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -10.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 }
@@ -1901,18 +1901,18 @@ BOOST_AUTO_TEST_CASE(collide_planecapsule) {
   Capsule s(5, 10);
   Plane hs(Vec3s(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s contact;
   CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << 0, 0, 0;
   depth = -5;
   normal << 1, 0, 0;  // (1, 0, 0) or (-1, 0, 0)
@@ -1927,8 +1927,8 @@ BOOST_AUTO_TEST_CASE(collide_planecapsule) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, 0x0, 0x0, true);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(2.5, 0, 0));
   contact << 2.5, 0, 0;
   depth = -2.5;
   normal << 1, 0, 0;
@@ -1936,15 +1936,15 @@ BOOST_AUTO_TEST_CASE(collide_planecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(2.5, 0, 0));
   contact = transform.transform(Vec3s(2.5, 0, 0));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-2.5, 0, 0));
   contact << -2.5, 0, 0;
   depth = -2.5;
   normal << -1, 0, 0;
@@ -1952,37 +1952,37 @@ BOOST_AUTO_TEST_CASE(collide_planecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-2.5, 0, 0));
   contact = transform.transform(Vec3s(-2.5, 0, 0));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Plane(Vec3s(0, 1, 0), 0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << 0, 0, 0;
   depth = -5;
   normal << 0, 1, 0;  // (0, 1, 0) or (0, -1, 0)
@@ -1997,8 +1997,8 @@ BOOST_AUTO_TEST_CASE(collide_planecapsule) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, &normal, true);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 2.5, 0));
   contact << 0, 2.5, 0;
   depth = -2.5;
   normal << 0, 1, 0;
@@ -2006,15 +2006,15 @@ BOOST_AUTO_TEST_CASE(collide_planecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, 0x0);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 2.5, 0));
   contact = transform.transform(Vec3s(0, 2.5, 0));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, 1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, 0x0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -2.5, 0));
   contact << 0, -2.5, 0;
   depth = -2.5;
   normal << 0, -1, 0;
@@ -2022,37 +2022,37 @@ BOOST_AUTO_TEST_CASE(collide_planecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -2.5, 0));
   contact = transform.transform(Vec3s(0, -2.5, 0));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Plane(Vec3s(0, 0, 1), 0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << 0, 0, 0;
   depth = -10;
   normal << 0, 0, 1;  // (0, 0, 1) or (0, 0, -1)
@@ -2067,8 +2067,8 @@ BOOST_AUTO_TEST_CASE(collide_planecapsule) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, 0x0, true);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 2.5));
   contact << 0, 0, 2.5;
   depth = -7.5;
   normal << 0, 0, 1;
@@ -2076,15 +2076,15 @@ BOOST_AUTO_TEST_CASE(collide_planecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, 0x0);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 2.5));
   contact = transform.transform(Vec3s(0, 0, 2.5));
   depth = -7.5;
   normal = transform.getRotation() * Vec3s(0, 0, 1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, 0x0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -2.5));
   contact << 0, 0, -2.5;
   depth = -7.5;
   normal << 0, 0, -1;
@@ -2092,30 +2092,30 @@ BOOST_AUTO_TEST_CASE(collide_planecapsule) {
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, 0x0);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -2.5));
   contact = transform.transform(Vec3s(0, 0, -2.5));
   depth = -7.5;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, 0x0, &depth, 0x0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 10.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 10.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -10.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -10.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 }
@@ -2124,18 +2124,18 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   Cylinder s(5, 10);
   Halfspace hs(Vec3s(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s contact;
   CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << -2.5, 0, 0;
   depth = -5;
   normal << -1, 0, 0;
@@ -2150,8 +2150,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(2.5, 0, 0));
   contact << -1.25, 0, 0;
   depth = -7.5;
   normal << -1, 0, 0;
@@ -2159,15 +2159,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(2.5, 0, 0));
   contact = transform.transform(Vec3s(-1.25, 0, 0));
   depth = -7.5;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-2.5, 0, 0));
   contact << -3.75, 0, 0;
   depth = -2.5;
   normal << -1, 0, 0;
@@ -2175,15 +2175,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-2.5, 0, 0));
   contact = transform.transform(Vec3s(-3.75, 0, 0));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(5.1, 0, 0));
   contact << 0.05, 0, 0;
   depth = -10.1;
   normal << -1, 0, 0;
@@ -2191,27 +2191,27 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(5.1, 0, 0));
   contact = transform.transform(Vec3s(0.05, 0, 0));
   depth = -10.1;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Halfspace(Vec3s(0, 1, 0), 0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << 0, -2.5, 0;
   depth = -5;
   normal << 0, -1, 0;
@@ -2226,8 +2226,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 2.5, 0));
   contact << 0, -1.25, 0;
   depth = -7.5;
   normal << 0, -1, 0;
@@ -2235,15 +2235,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 2.5, 0));
   contact = transform.transform(Vec3s(0, -1.25, 0));
   depth = -7.5;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -2.5, 0));
   contact << 0, -3.75, 0;
   depth = -2.5;
   normal << 0, -1, 0;
@@ -2251,15 +2251,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -2.5, 0));
   contact = transform.transform(Vec3s(0, -3.75, 0));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 5.1, 0));
   contact << 0, 0.05, 0;
   depth = -10.1;
   normal << 0, -1, 0;
@@ -2267,27 +2267,27 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 5.1, 0));
   contact = transform.transform(Vec3s(0, 0.05, 0));
   depth = -10.1;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Halfspace(Vec3s(0, 0, 1), 0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << 0, 0, -2.5;
   depth = -5;
   normal << 0, 0, -1;
@@ -2302,8 +2302,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 2.5));
   contact << 0, 0, -1.25;
   depth = -7.5;
   normal << 0, 0, -1;
@@ -2311,15 +2311,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 2.5));
   contact = transform.transform(Vec3s(0, 0, -1.25));
   depth = -7.5;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -2.5));
   contact << 0, 0, -3.75;
   depth = -2.5;
   normal << 0, 0, -1;
@@ -2327,15 +2327,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -2.5));
   contact = transform.transform(Vec3s(0, 0, -3.75));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 5.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 5.1));
   contact << 0, 0, 0.05;
   depth = -10.1;
   normal << 0, 0, -1;
@@ -2343,20 +2343,20 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 5.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 5.1));
   contact = transform.transform(Vec3s(0, 0, 0.05));
   depth = -10.1;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -5.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -5.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -5.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -5.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 }
@@ -2365,10 +2365,10 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   Cylinder s(5, 10);
   Plane hs(Vec3s(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s contact;
@@ -2377,8 +2377,8 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   Vec3s p1, p2;
 
   CoalScalar eps = 1e-6;
-  tf1 = Transform3f(Vec3s(eps, 0, 0));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(eps, 0, 0));
+  tf2 = Transform3s();
   p1 << -5 + eps, 0, 0;
   p2 << 0, 0, 0;
   contact << (p1 + p2) / 2;
@@ -2397,8 +2397,8 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
   eps = -1e-6;
-  tf1 = Transform3f(Vec3s(eps, 0, 0));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(eps, 0, 0));
+  tf2 = Transform3s();
   p1 << 5 + eps, 0, 0;
   p2 << 0, 0, 0;
   contact << (p1 + p2) / 2;
@@ -2416,8 +2416,8 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(2.5, 0, 0));
   p1 << 5, 0, 0;
   p2 << 2.5, 0, 0;
   contact << (p1 + p2) / 2;
@@ -2427,15 +2427,15 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(2.5, 0, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-2.5, 0, 0));
   p1 << -5, 0, 0;
   p2 << -2.5, 0, 0;
   contact << (p1 + p2) / 2;
@@ -2445,38 +2445,38 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-2.5, 0, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Plane(Vec3s(0, 1, 0), 0);
 
   eps = 1e-6;
-  tf1 = Transform3f(Vec3s(0, eps, 0));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(0, eps, 0));
+  tf2 = Transform3s();
   p1 << 0, -5 + eps, 0;
   p2 << 0, 0, 0;
   contact << (p1 + p2) / 2;
@@ -2494,8 +2494,8 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
   eps = -1e-6;
-  tf1 = Transform3f(Vec3s(0, eps, 0));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(0, eps, 0));
+  tf2 = Transform3s();
   p1 << 0, 5 + eps, 0;
   p2 << 0, 0, 0;
   contact << (p1 + p2) / 2;
@@ -2512,8 +2512,8 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 2.5, 0));
   p1 << 0, 5, 0;
   p2 << 0, 2.5, 0;
   contact << (p1 + p2) / 2;
@@ -2523,15 +2523,15 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 2.5, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, 1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -2.5, 0));
   p1 << 0, -5, 0;
   p2 << 0, -2.5, 0;
   contact << (p1 + p2) / 2;
@@ -2541,38 +2541,38 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -2.5, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Plane(Vec3s(0, 0, 1), 0);
 
   eps = 1e-6;
-  tf1 = Transform3f(Vec3s(0, 0, eps));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(0, 0, eps));
+  tf2 = Transform3s();
   p1 << 0, 0, -5 + eps;
   p2 << 0, 0, 0;
   contact << (p1 + p2) / 2;
@@ -2590,8 +2590,8 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
   eps = -1e-6;
-  tf1 = Transform3f(Vec3s(0, 0, eps));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(0, 0, eps));
+  tf2 = Transform3s();
   p1 << 0, 0, 5 + eps;
   p2 << 0, 0, 0;
   contact << (p1 + p2) / 2;
@@ -2608,8 +2608,8 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 2.5));
   p1 << 0, 0, 5;
   p2 << 0, 0, 2.5;
   contact << (p1 + p2) / 2;
@@ -2619,15 +2619,15 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 2.5));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, 0, 1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -2.5));
   p1 << 0, 0, -5.;
   p2 << 0, 0, -2.5;
   contact << (p1 + p2) / 2;
@@ -2637,30 +2637,30 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -2.5));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 10.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 10.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -10.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -10.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 }
@@ -2669,18 +2669,18 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   Cone s(5, 10);
   Halfspace hs(Vec3s(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s contact;
   CoalScalar depth;
   Vec3s normal;
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << -2.5, 0, -5;
   depth = -5;
   normal << -1, 0, 0;
@@ -2695,8 +2695,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(2.5, 0, 0));
   contact << -1.25, 0, -5;
   depth = -7.5;
   normal << -1, 0, 0;
@@ -2704,15 +2704,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(2.5, 0, 0));
   contact = transform.transform(Vec3s(-1.25, 0, -5));
   depth = -7.5;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-2.5, 0, 0));
   contact << -3.75, 0, -5;
   depth = -2.5;
   normal << -1, 0, 0;
@@ -2720,15 +2720,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-2.5, 0, 0));
   contact = transform.transform(Vec3s(-3.75, 0, -5));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(5.1, 0, 0));
   contact << 0.05, 0, -5;
   depth = -10.1;
   normal << -1, 0, 0;
@@ -2736,27 +2736,27 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(5.1, 0, 0));
   contact = transform.transform(Vec3s(0.05, 0, -5));
   depth = -10.1;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Halfspace(Vec3s(0, 1, 0), 0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << 0, -2.5, -5;
   depth = -5;
   normal << 0, -1, 0;
@@ -2771,8 +2771,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 2.5, 0));
   contact << 0, -1.25, -5;
   depth = -7.5;
   normal << 0, -1, 0;
@@ -2780,15 +2780,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 2.5, 0));
   contact = transform.transform(Vec3s(0, -1.25, -5));
   depth = -7.5;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -2.5, 0));
   contact << 0, -3.75, -5;
   depth = -2.5;
   normal << 0, -1, 0;
@@ -2796,15 +2796,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -2.5, 0));
   contact = transform.transform(Vec3s(0, -3.75, -5));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 5.1, 0));
   contact << 0, 0.05, -5;
   depth = -10.1;
   normal << 0, -1, 0;
@@ -2812,27 +2812,27 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 5.1, 0));
   contact = transform.transform(Vec3s(0, 0.05, -5));
   depth = -10.1;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Halfspace(Vec3s(0, 0, 1), 0);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f();
+  tf1 = Transform3s();
+  tf2 = Transform3s();
   contact << 0, 0, -2.5;
   depth = -5;
   normal << 0, 0, -1;
@@ -2847,8 +2847,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 2.5));
   contact << 0, 0, -1.25;
   depth = -7.5;
   normal << 0, 0, -1;
@@ -2856,15 +2856,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 2.5));
   contact = transform.transform(Vec3s(0, 0, -1.25));
   depth = -7.5;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -2.5));
   contact << 0, 0, -3.75;
   depth = -2.5;
   normal << 0, 0, -1;
@@ -2872,15 +2872,15 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -2.5));
   contact = transform.transform(Vec3s(0, 0, -3.75));
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 5.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 5.1));
   contact << 0, 0, 0.05;
   depth = -10.1;
   normal << 0, 0, -1;
@@ -2888,20 +2888,20 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 5.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 5.1));
   contact = transform.transform(Vec3s(0, 0, 0.05));
   depth = -10.1;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -5.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -5.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -5.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -5.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 }
@@ -2910,10 +2910,10 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   Cone s(5, 10);
   Plane hs(Vec3s(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   Vec3s contact;
@@ -2922,8 +2922,8 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   Vec3s p1, p2;
 
   CoalScalar eps = 1e-6;
-  tf1 = Transform3f(Vec3s(eps, 0, 0));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(eps, 0, 0));
+  tf2 = Transform3s();
   p1 << -5 + eps, 0, -5;
   p2 << 0, 0, -5;
   contact << (p1 + p2) / 2;
@@ -2942,8 +2942,8 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
   eps = -1e-6;
-  tf1 = Transform3f(Vec3s(eps, 0, 0));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(eps, 0, 0));
+  tf2 = Transform3s();
   p1 << 5 + eps, 0, -5;
   p2 << 0, 0, -5;
   contact << (p1 + p2) / 2;
@@ -2961,8 +2961,8 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(2.5, 0, 0));
   p1 << 5, 0, -5;
   p2 << 2.5, 0, -5;
   contact << (p1 + p2) / 2;
@@ -2972,15 +2972,15 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(2.5, 0, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-2.5, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-2.5, 0, 0));
   p1 << -5, 0, -5;
   p2 << -2.5, 0, -5;
   contact << (p1 + p2) / 2;
@@ -2990,38 +2990,38 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-2.5, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-2.5, 0, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(-1, 0, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(-5.1, 0, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(-5.1, 0, 0));
+  tf2 = transform * Transform3s(Vec3s(-5.1, 0, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Plane(Vec3s(0, 1, 0), 0);
 
   eps = 1e-6;
-  tf1 = Transform3f(Vec3s(0, eps, 0));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(0, eps, 0));
+  tf2 = Transform3s();
   p1 << 0, -5 + eps, -5;
   p2 << 0, 0, -5;
   contact << (p1 + p2) / 2;
@@ -3039,8 +3039,8 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
   eps = -1e-6;
-  tf1 = Transform3f(Vec3s(0, eps, 0));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(0, eps, 0));
+  tf2 = Transform3s();
   p1 << 0, 5 + eps, -5;
   p2 << 0, 0, -5;
   contact << (p1 + p2) / 2;
@@ -3057,8 +3057,8 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 2.5, 0));
   p1 << 0, 5, -5;
   p2 << 0, 2.5, -5;
   contact << (p1 + p2) / 2;
@@ -3068,15 +3068,15 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 2.5, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, 1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -2.5, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -2.5, 0));
   p1 << 0, -5, -5;
   p2 << 0, -2.5, -5;
   contact << (p1 + p2) / 2;
@@ -3086,38 +3086,38 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -2.5, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -2.5, 0));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, -1, 0);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, 5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, -5.1, 0));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, -5.1, 0));
+  tf2 = transform * Transform3s(Vec3s(0, -5.1, 0));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   hs = Plane(Vec3s(0, 0, 1), 0);
 
   eps = 1e-6;
-  tf1 = Transform3f(Vec3s(0, 0, eps));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(0, 0, eps));
+  tf2 = Transform3s();
   p1 << 0, 0, -5 + eps;
   p2 << 0, 0, 0;
   contact << (p1 + p2) / 2;
@@ -3135,8 +3135,8 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
   eps = -1e-6;
-  tf1 = Transform3f(Vec3s(0, 0, eps));
-  tf2 = Transform3f();
+  tf1 = Transform3s(Vec3s(0, 0, eps));
+  tf2 = Transform3s();
   p1 << 0, 0, 5 + eps;
   p2 << 0, 0, 0;
   contact << (p1 + p2) / 2;
@@ -3153,8 +3153,8 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal, true);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 2.5));
   p1 << 0, 0, 5;
   p2 << 0, 0, 2.5;
   contact << (p1 + p2) / 2;
@@ -3164,15 +3164,15 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 2.5));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, 0, 1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -2.5));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -2.5));
   p1 << 0, 0, -5;
   p2 << 0, 0, -2.5;
   contact << (p1 + p2) / 2;
@@ -3182,43 +3182,43 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -2.5));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -2.5));
   contact = transform.transform((p1 + p2) / 2);
   depth = -2.5;
   normal = transform.getRotation() * Vec3s(0, 0, -1);
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, true, &contact, &depth, &normal);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, 10.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, 10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, 10.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, 10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
-  tf1 = Transform3f();
-  tf2 = Transform3f(Vec3s(0, 0, -10.1));
+  tf1 = Transform3s();
+  tf2 = Transform3s(Vec3s(0, 0, -10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Vec3s(0, 0, -10.1));
+  tf2 = transform * Transform3s(Vec3s(0, 0, -10.1));
   SET_LINE;
   testShapeCollide(s, tf1, hs, tf2, false);
 }
 
 BOOST_AUTO_TEST_CASE(collide_planeplane) {
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
   Vec3s normal;
   Vec3s contact;
   CoalScalar distance;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   {
@@ -3331,14 +3331,14 @@ BOOST_AUTO_TEST_CASE(collide_planeplane) {
 }
 
 BOOST_AUTO_TEST_CASE(collide_halfspacehalfspace) {
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
   Vec3s normal;
   Vec3s contact;
   CoalScalar distance;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   {
@@ -3447,14 +3447,14 @@ BOOST_AUTO_TEST_CASE(collide_halfspacehalfspace) {
 }
 
 BOOST_AUTO_TEST_CASE(collide_halfspaceplane) {
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
   Vec3s normal;
   Vec3s contact;
   CoalScalar distance;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   {
@@ -3570,67 +3570,67 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_spheresphere) {
   Vec3s closest_p1, closest_p2, normal;
   bool compute_penetration = true;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   CoalScalar dist = -1;
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(40, 0, 0)), compute_penetration,
+      s1, Transform3s(), s2, Transform3s(Vec3s(40, 0, 0)), compute_penetration,
       closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(30.1, 0, 0)),
+      s1, Transform3s(), s2, Transform3s(Vec3s(30.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(29.9, 0, 0)),
+      s1, Transform3s(), s2, Transform3s(Vec3s(29.9, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(dist <= 0);
 
-  dist = solver1.shapeDistance(s1, Transform3f(Vec3s(40, 0, 0)), s2,
-                               Transform3f(), compute_penetration, closest_p1,
+  dist = solver1.shapeDistance(s1, Transform3s(Vec3s(40, 0, 0)), s2,
+                               Transform3s(), compute_penetration, closest_p1,
                                closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10) < 0.001);
 
-  dist = solver1.shapeDistance(s1, Transform3f(Vec3s(30.1, 0, 0)), s2,
-                               Transform3f(), compute_penetration, closest_p1,
+  dist = solver1.shapeDistance(s1, Transform3s(Vec3s(30.1, 0, 0)), s2,
+                               Transform3s(), compute_penetration, closest_p1,
                                closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  dist = solver1.shapeDistance(s1, Transform3f(Vec3s(29.9, 0, 0)), s2,
-                               Transform3f(), compute_penetration, closest_p1,
+  dist = solver1.shapeDistance(s1, Transform3s(Vec3s(29.9, 0, 0)), s2,
+                               Transform3s(), compute_penetration, closest_p1,
                                closest_p2, normal);
   BOOST_CHECK(dist < 0);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(40, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(40, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(30.1, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(30.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(29.9, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(29.9, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(dist < 0);
 
-  dist = solver1.shapeDistance(s1, transform * Transform3f(Vec3s(40, 0, 0)), s2,
+  dist = solver1.shapeDistance(s1, transform * Transform3s(Vec3s(40, 0, 0)), s2,
                                transform, compute_penetration, closest_p1,
                                closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10) < 0.001);
 
-  dist = solver1.shapeDistance(s1, transform * Transform3f(Vec3s(30.1, 0, 0)),
+  dist = solver1.shapeDistance(s1, transform * Transform3s(Vec3s(30.1, 0, 0)),
                                s2, transform, compute_penetration, closest_p1,
                                closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
-  dist = solver1.shapeDistance(s1, transform * Transform3f(Vec3s(29.9, 0, 0)),
+  dist = solver1.shapeDistance(s1, transform * Transform3s(Vec3s(29.9, 0, 0)),
                                s2, transform, compute_penetration, closest_p1,
                                closest_p2, normal);
   BOOST_CHECK(dist < 0);
@@ -3642,12 +3642,12 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_boxbox) {
   Vec3s closest_p1, closest_p2, normal;
   bool compute_penetration = true;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   CoalScalar dist;
 
-  dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+  dist = solver1.shapeDistance(s1, Transform3s(), s2, Transform3s(),
                                compute_penetration, closest_p1, closest_p2,
                                normal);
   BOOST_CHECK(dist <= 0);
@@ -3658,57 +3658,57 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_boxbox) {
   BOOST_CHECK(dist <= 0);
 
   dist = solver1.shapeDistance(
-      s2, Transform3f(), s2, Transform3f(Vec3s(10.1, 0, 0)),
+      s2, Transform3s(), s2, Transform3s(Vec3s(10.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
   dist = solver1.shapeDistance(
-      s2, Transform3f(), s2, Transform3f(Vec3s(20.1, 0, 0)),
+      s2, Transform3s(), s2, Transform3s(Vec3s(20.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10.1) < 0.001);
 
   dist = solver1.shapeDistance(
-      s2, Transform3f(), s2, Transform3f(Vec3s(0, 20.2, 0)),
+      s2, Transform3s(), s2, Transform3s(Vec3s(0, 20.2, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10.2) < 0.001);
 
   dist = solver1.shapeDistance(
-      s2, Transform3f(), s2, Transform3f(Vec3s(10.1, 10.1, 0)),
+      s2, Transform3s(), s2, Transform3s(Vec3s(10.1, 10.1, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1 * 1.414) < 0.001);
 
   dist = solver2.shapeDistance(
-      s2, Transform3f(), s2, Transform3f(Vec3s(10.1, 0, 0)),
+      s2, Transform3s(), s2, Transform3s(Vec3s(10.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
   dist = solver2.shapeDistance(
-      s2, Transform3f(), s2, Transform3f(Vec3s(20.1, 0, 0)),
+      s2, Transform3s(), s2, Transform3s(Vec3s(20.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10.1) < 0.001);
 
   dist = solver2.shapeDistance(
-      s2, Transform3f(), s2, Transform3f(Vec3s(0, 20.1, 0)),
+      s2, Transform3s(), s2, Transform3s(Vec3s(0, 20.1, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 10.1) < 0.001);
 
   dist = solver2.shapeDistance(
-      s2, Transform3f(), s2, Transform3f(Vec3s(10.1, 10.1, 0)),
+      s2, Transform3s(), s2, Transform3s(Vec3s(10.1, 10.1, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1 * 1.414) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(15.1, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(15.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(20, 0, 0)), compute_penetration,
+      s1, Transform3s(), s2, Transform3s(Vec3s(20, 0, 0)), compute_penetration,
       closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 5) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(20, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(20, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 5) < 0.001);
 }
@@ -3717,12 +3717,12 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylinderbox) {
   Cylinder s1(0.029, 0.1);
   Box s2(1.6, 0.6, 0.025);
 
-  Transform3f tf1(
+  Transform3s tf1(
       Quatf(0.5279170511703305, -0.50981118132505521, -0.67596178682051911,
             0.0668715876735793),
       Vec3s(0.041218354748013122, 1.2022554710435607, 0.77338855025700015));
 
-  Transform3f tf2(
+  Transform3s tf2(
       Quatf(0.70738826916719977, 0, 0, 0.70682518110536596),
       Vec3s(-0.29936284351096382, 0.80023864435868775, 0.71750000000000003));
 
@@ -3771,7 +3771,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_boxsphere) {
   Vec3s closest_p1, closest_p2, normal;
   bool compute_penetration = true;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   CoalScalar dist;
@@ -3779,8 +3779,8 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_boxsphere) {
   int N = 10;
   for (int i = 0; i < N + 1; ++i) {
     CoalScalar dbox = 0.0001 + (s1.radius + s2.halfSide(0)) * i * 4 / (3 * N);
-    dist = solver1.shapeDistance(s1, Transform3f(Vec3s(dbox, 0., 0.)), s2,
-                                 Transform3f(), compute_penetration, closest_p1,
+    dist = solver1.shapeDistance(s1, Transform3s(Vec3s(dbox, 0., 0.)), s2,
+                                 Transform3s(), compute_penetration, closest_p1,
                                  closest_p2, normal);
     BOOST_CHECK_CLOSE(dist, (dbox - s1.radius - s2.halfSide(0)), 1e-6);
     EIGEN_VECTOR_IS_APPROX(normal, -Vec3s(1, 0, 0), 1e-6);
@@ -3789,13 +3789,13 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_boxsphere) {
         solver1.shapeDistance(s1, transform, s2, transform, compute_penetration,
                               closest_p1, closest_p2, normal);
     dist = solver1.shapeDistance(
-        s1, transform * Transform3f(Vec3s(dbox, 0., 0.)), s2, transform,
+        s1, transform * Transform3s(Vec3s(dbox, 0., 0.)), s2, transform,
         compute_penetration, closest_p1, closest_p2, normal);
     BOOST_CHECK_CLOSE(dist, (dbox - s1.radius - s2.halfSide(0)), 1e-6);
     EIGEN_VECTOR_IS_APPROX(normal, -transform.getRotation().col(0), 1e-6);
   }
 
-  dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+  dist = solver1.shapeDistance(s1, Transform3s(), s2, Transform3s(),
                                compute_penetration, closest_p1, closest_p2,
                                normal);
   BOOST_CHECK(dist <= 0);
@@ -3806,22 +3806,22 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_boxsphere) {
   BOOST_CHECK(dist <= 0);
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(22.6, 0, 0)),
+      s1, Transform3s(), s2, Transform3s(Vec3s(22.6, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(22.6, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(22.6, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.01);
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(40, 0, 0)), compute_penetration,
+      s1, Transform3s(), s2, Transform3s(Vec3s(40, 0, 0)), compute_penetration,
       closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 17.5) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(40, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(40, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 17.5) < 0.001);
 }
@@ -3832,7 +3832,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylindercylinder) {
   Vec3s closest_p1, closest_p2, normal;
   bool compute_penetration = true;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   CoalScalar dist;
@@ -3841,7 +3841,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylindercylinder) {
     // The following situations corresponds to the case where the two cylinders
     // are exactly superposed. This is the worst case for EPA which will take
     // forever to converge with default parameters.
-    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+    dist = solver1.shapeDistance(s1, Transform3s(), s2, Transform3s(),
                                  compute_penetration, closest_p1, closest_p2,
                                  normal);
     BOOST_CHECK(dist <= 0);
@@ -3858,7 +3858,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylindercylinder) {
     solver1.epa_tolerance = 1e-2;
     solver1.epa_max_iterations = 1000;
 
-    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+    dist = solver1.shapeDistance(s1, Transform3s(), s2, Transform3s(),
                                  compute_penetration, closest_p1, closest_p2,
                                  normal);
     BOOST_CHECK(dist <= 0);
@@ -3874,22 +3874,22 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylindercylinder) {
   }
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(10.1, 0, 0)),
+      s1, Transform3s(), s2, Transform3s(Vec3s(10.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(10.1, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(10.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(40, 0, 0)), compute_penetration,
+      s1, Transform3s(), s2, Transform3s(Vec3s(40, 0, 0)), compute_penetration,
       closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(40, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(40, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 0.001);
 }
@@ -3900,7 +3900,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecone) {
   Vec3s closest_p1, closest_p2, normal;
   bool compute_penetration = true;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   CoalScalar dist;
@@ -3909,7 +3909,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecone) {
     // The following situations corresponds to the case where the two cones
     // are exactly superposed. This is the worst case for EPA which will take
     // forever to converge with default parameters.
-    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+    dist = solver1.shapeDistance(s1, Transform3s(), s2, Transform3s(),
                                  compute_penetration, closest_p1, closest_p2,
                                  normal);
     BOOST_CHECK(dist <= 0);
@@ -3926,7 +3926,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecone) {
     solver1.epa_tolerance = 1e-2;
     solver1.epa_max_iterations = 1000;
 
-    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+    dist = solver1.shapeDistance(s1, Transform3s(), s2, Transform3s(),
                                  compute_penetration, closest_p1, closest_p2,
                                  normal);
     BOOST_CHECK(dist <= 0);
@@ -3942,22 +3942,22 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecone) {
   }
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(10.1, 0, 0)),
+      s1, Transform3s(), s2, Transform3s(Vec3s(10.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(10.1, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(10.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(0, 0, 40)), compute_penetration,
+      s1, Transform3s(), s2, Transform3s(Vec3s(0, 0, 40)), compute_penetration,
       closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 1);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(0, 0, 40)),
+      s1, transform, s2, transform * Transform3s(Vec3s(0, 0, 40)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 1);
 }
@@ -3968,7 +3968,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecylinder) {
   Vec3s closest_p1, closest_p2, normal;
   bool compute_penetration = true;
 
-  Transform3f transform;
+  Transform3s transform;
   generateRandomTransform(extents, transform);
 
   CoalScalar dist;
@@ -3977,7 +3977,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecylinder) {
     // The following situations corresponds to the case where the two cones
     // are exactly superposed. This is the worst case for EPA which will take
     // forever to converge with default parameters.
-    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+    dist = solver1.shapeDistance(s1, Transform3s(), s2, Transform3s(),
                                  compute_penetration, closest_p1, closest_p2,
                                  normal);
     BOOST_CHECK(dist <= 0);
@@ -3994,7 +3994,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecylinder) {
     solver1.epa_tolerance = 1e-2;
     solver1.epa_max_iterations = 1000;
 
-    dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
+    dist = solver1.shapeDistance(s1, Transform3s(), s2, Transform3s(),
                                  compute_penetration, closest_p1, closest_p2,
                                  normal);
     BOOST_CHECK(dist <= 0);
@@ -4010,22 +4010,22 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecylinder) {
   }
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(10.1, 0, 0)),
+      s1, Transform3s(), s2, Transform3s(Vec3s(10.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.01);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(10.1, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(10.1, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 0.1) < 0.02);
 
   dist = solver1.shapeDistance(
-      s1, Transform3f(), s2, Transform3f(Vec3s(40, 0, 0)), compute_penetration,
+      s1, Transform3s(), s2, Transform3s(Vec3s(40, 0, 0)), compute_penetration,
       closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 0.01);
 
   dist = solver1.shapeDistance(
-      s1, transform, s2, transform * Transform3f(Vec3s(40, 0, 0)),
+      s1, transform, s2, transform * Transform3s(Vec3s(40, 0, 0)),
       compute_penetration, closest_p1, closest_p2, normal);
   BOOST_CHECK(fabs(dist - 30) < 0.1);
 }
@@ -4033,8 +4033,8 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecylinder) {
 template <typename S1, typename S2>
 void testReversibleShapeDistance(const S1& s1, const S2& s2,
                                  CoalScalar distance) {
-  Transform3f tf1(Vec3s(-0.5 * distance, 0.0, 0.0));
-  Transform3f tf2(Vec3s(+0.5 * distance, 0.0, 0.0));
+  Transform3s tf1(Vec3s(-0.5 * distance, 0.0, 0.0));
+  Transform3s tf2(Vec3s(+0.5 * distance, 0.0, 0.0));
 
   CoalScalar distA;
   CoalScalar distB;

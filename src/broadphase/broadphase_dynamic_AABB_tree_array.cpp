@@ -50,7 +50,7 @@ namespace dynamic_AABB_tree_array {
 bool collisionRecurse_(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2,
-    const AABB& root2_bv, const Transform3f& tf2,
+    const AABB& root2_bv, const Transform3s& tf2,
     CollisionCallBackBase* callback) {
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root1 =
       nodes1 + root1_id;
@@ -60,12 +60,12 @@ bool collisionRecurse_(
 
       if (!obj1->collisionGeometry()->isFree()) {
         OBB obb1, obb2;
-        convertBV(root1->bv, Transform3f::Identity(), obb1);
+        convertBV(root1->bv, Transform3s::Identity(), obb1);
         convertBV(root2_bv, tf2, obb2);
 
         if (obb1.overlap(obb2)) {
           Box* box = new Box();
-          Transform3f box_tf;
+          Transform3s box_tf;
           constructBox(root2_bv, tf2, *box, box_tf);
 
           box->cost_density = tree2->getDefaultOccupancy();
@@ -88,12 +88,12 @@ bool collisionRecurse_(
     CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
     if (!tree2->isNodeFree(root2) && !obj1->collisionGeometry()->isFree()) {
       OBB obb1, obb2;
-      convertBV(root1->bv, Transform3f::Identity(), obb1);
+      convertBV(root1->bv, Transform3s::Identity(), obb1);
       convertBV(root2_bv, tf2, obb2);
 
       if (obb1.overlap(obb2)) {
         Box* box = new Box();
-        Transform3f box_tf;
+        Transform3s box_tf;
         constructBox(root2_bv, tf2, *box, box_tf);
 
         box->cost_density = root2->getOccupancy();
@@ -108,7 +108,7 @@ bool collisionRecurse_(
   }
 
   OBB obb1, obb2;
-  convertBV(root1->bv, Transform3f::Identity(), obb1);
+  convertBV(root1->bv, Transform3s::Identity(), obb1);
   convertBV(root2_bv, tf2, obb2);
 
   if (tree2->isNodeFree(root2) || !obb1.overlap(obb2)) return false;
@@ -148,14 +148,14 @@ bool collisionRecurse_(
 bool distanceRecurse_(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2,
-    const AABB& root2_bv, const Transform3f& tf2,
+    const AABB& root2_bv, const Transform3s& tf2,
     DistanceCallBackBase* callback, CoalScalar& min_dist) {
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root1 =
       nodes1 + root1_id;
   if (root1->isLeaf() && !tree2->nodeHasChildren(root2)) {
     if (tree2->isNodeOccupied(root2)) {
       Box* box = new Box();
-      Transform3f box_tf;
+      Transform3s box_tf;
       constructBox(root2_bv, tf2, *box, box_tf);
       CollisionObject obj(shared_ptr<CollisionGeometry>(box), box_tf);
       return (*callback)(static_cast<CollisionObject*>(root1->data), &obj,
@@ -447,7 +447,7 @@ bool selfDistanceRecurse(
 bool collisionRecurse(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2,
-    const AABB& root2_bv, const Transform3f& tf2,
+    const AABB& root2_bv, const Transform3s& tf2,
     CollisionCallBackBase* callback) {
   if (tf2.rotation().isIdentity())
     return collisionRecurse_(nodes1, root1_id, tree2, root2, root2_bv,
@@ -461,7 +461,7 @@ bool collisionRecurse(
 bool distanceRecurse(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2,
-    const AABB& root2_bv, const Transform3f& tf2,
+    const AABB& root2_bv, const Transform3s& tf2,
     DistanceCallBackBase* callback, CoalScalar& min_dist) {
   if (tf2.rotation().isIdentity())
     return distanceRecurse_(nodes1, root1_id, tree2, root2, root2_bv,

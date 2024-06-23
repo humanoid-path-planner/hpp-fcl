@@ -4,7 +4,7 @@ digraph CD  {
 	compound=true
         size = 11.7
 
-        "std::size_t BVHCollide(const CollisionGeometry* o1,\nconst Transform3f& tf1, const CollisionGeometry* o2,\nconst Transform3f& tf2, const CollisionRequest& request,\nCollisionResult& result)" [shape = box]
+        "std::size_t BVHCollide(const CollisionGeometry* o1,\nconst Transform3s& tf1, const CollisionGeometry* o2,\nconst Transform3s& tf2, const CollisionRequest& request,\nCollisionResult& result)" [shape = box]
         "bool OBB::overlap(const OBB& other,\nconst CollisionRequest& request,\nCoalScalar& sqrDistLowerBound) const" [shape = box]
         "bool OBBRSS::overlap(const OBBRSS& other,\nconst CollisionRequest& request,\nCoalScalar& sqrDistLowerBound) const" [shape = box]
         "bool overlap(const Matrix3s& R0, const Vec3s& T0,\n const OBB& b1, const OBB& b2,\n const CollisionRequest& request, CoalScalar& sqrDistLowerBound)" [shape = box]
@@ -19,7 +19,7 @@ digraph CD  {
         "MeshCollisionTraversalNode<T_BVH>::leafTesting\n(int b1, int b2, CoalScalar& sqrDistLowerBound) const\n  -request\n  - result" [shape = box]
         "bool obbDisjointAndLowerBoundDistance\n(const Matrix3s& B, const Vec3s& T, const Vec3s& a, const Vec3s& b,\n CoalScalar& squaredLowerBoundDistance)" [shape = box]
 
-         "std::size_t BVHCollide(const CollisionGeometry* o1,\nconst Transform3f& tf1, const CollisionGeometry* o2,\nconst Transform3f& tf2, const CollisionRequest& request,\nCollisionResult& result)" -> "void collide(MeshCollisionTraversalNode<T_BVH>* node,\n const CollisionRequest& request, CollisionResult& result,\nBVHFrontList* front_list)"
+         "std::size_t BVHCollide(const CollisionGeometry* o1,\nconst Transform3s& tf1, const CollisionGeometry* o2,\nconst Transform3s& tf2, const CollisionRequest& request,\nCollisionResult& result)" -> "void collide(MeshCollisionTraversalNode<T_BVH>* node,\n const CollisionRequest& request, CollisionResult& result,\nBVHFrontList* front_list)"
         "bool OBB::overlap(const OBB& other,\nconst CollisionRequest& request,\nCoalScalar& sqrDistLowerBound) const" -> "bool obbDisjointAndLowerBoundDistance\n(const Matrix3s& B, const Vec3s& T, const Vec3s& a, const Vec3s& b,\n CoalScalar& squaredLowerBoundDistance)"
         "bool overlap(const Matrix3s& R0, const Vec3s& T0,\n const OBB& b1, const OBB& b2,\n const CollisionRequest& request, CoalScalar& sqrDistLowerBound)" -> "bool obbDisjointAndLowerBoundDistance\n(const Matrix3s& B, const Vec3s& T, const Vec3s& a, const Vec3s& b,\n CoalScalar& squaredLowerBoundDistance)"
         "bool overlap(const Matrix3s& R0, const Vec3s& T0,\n const OBBRSS& b1, const OBBRSS& b2,\nconst CollisionRequest& request, CoalScalar& sqrDistLowerBound)" -> "bool overlap(const Matrix3s& R0, const Vec3s& T0,\n const OBB& b1, const OBB& b2,\n const CollisionRequest& request, CoalScalar& sqrDistLowerBound)"

@@ -74,9 +74,9 @@ inline void ContactPatchSolver::set(const ContactPatchRequest& request) {
 // ============================================================================
 template <typename ShapeType1, typename ShapeType2>
 void ContactPatchSolver::computePatch(const ShapeType1& s1,
-                                      const Transform3f& tf1,
+                                      const Transform3s& tf1,
                                       const ShapeType2& s2,
-                                      const Transform3f& tf2,
+                                      const Transform3s& tf2,
                                       const Contact& contact,
                                       ContactPatch& contact_patch) const {
   // Note: `ContactPatch` is an alias for `SupportSet`.
@@ -372,9 +372,9 @@ inline void ContactPatchSolver::getResult(
 // ============================================================================
 template <typename ShapeType1, typename ShapeType2>
 inline void ContactPatchSolver::reset(const ShapeType1& shape1,
-                                      const Transform3f& tf1,
+                                      const Transform3s& tf1,
                                       const ShapeType2& shape2,
-                                      const Transform3f& tf2,
+                                      const Transform3s& tf2,
                                       const ContactPatch& contact_patch) const {
   // Reset internal quantities
   this->support_set_shape1.clear();
@@ -382,12 +382,12 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   this->support_set_buffer.clear();
 
   // Get the support function of each shape
-  const Transform3f& tfc = contact_patch.tf;
+  const Transform3s& tfc = contact_patch.tf;
 
   this->support_set_shape1.direction = SupportSetDirection::DEFAULT;
   // Set the reference frame of the support set of the first shape to be the
   // local frame of shape 1.
-  Transform3f& tf1c = this->support_set_shape1.tf;
+  Transform3s& tf1c = this->support_set_shape1.tf;
   tf1c.rotation().noalias() = tf1.rotation().transpose() * tfc.rotation();
   tf1c.translation().noalias() =
       tf1.rotation().transpose() * (tfc.translation() - tf1.translation());
@@ -397,7 +397,7 @@ inline void ContactPatchSolver::reset(const ShapeType1& shape1,
   this->support_set_shape2.direction = SupportSetDirection::INVERTED;
   // Set the reference frame of the support set of the second shape to be the
   // local frame of shape 2.
-  Transform3f& tf2c = this->support_set_shape2.tf;
+  Transform3s& tf2c = this->support_set_shape2.tf;
   tf2c.rotation().noalias() = tf2.rotation().transpose() * tfc.rotation();
   tf2c.translation().noalias() =
       tf2.rotation().transpose() * (tfc.translation() - tf2.translation());

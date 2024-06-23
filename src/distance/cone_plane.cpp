@@ -48,8 +48,8 @@ struct GJKSolver;
 namespace internal {
 template <>
 CoalScalar ShapeShapeDistance<Cone, Plane>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
     const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Cone& s1 = static_cast<const Cone&>(*o1);
   const Plane& s2 = static_cast<const Plane&>(*o2);
@@ -61,8 +61,8 @@ CoalScalar ShapeShapeDistance<Cone, Plane>(
 
 template <>
 CoalScalar ShapeShapeDistance<Plane, Cone>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
     const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Plane& s1 = static_cast<const Plane&>(*o1);
   const Cone& s2 = static_cast<const Cone&>(*o2);

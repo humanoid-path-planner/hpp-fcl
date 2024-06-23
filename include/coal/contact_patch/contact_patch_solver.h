@@ -160,14 +160,14 @@ struct COAL_DLLAPI ContactPatchSolver {
   /// plane passing (by `contact.pos` and supported by `contact.normal`) and the
   /// shapes s1 and s2.
   template <typename ShapeType1, typename ShapeType2>
-  void computePatch(const ShapeType1& s1, const Transform3f& tf1,
-                    const ShapeType2& s2, const Transform3f& tf2,
+  void computePatch(const ShapeType1& s1, const Transform3s& tf1,
+                    const ShapeType2& s2, const Transform3s& tf2,
                     const Contact& contact, ContactPatch& contact_patch) const;
 
   /// @brief Reset the internal quantities of the solver.
   template <typename ShapeType1, typename ShapeType2>
-  void reset(const ShapeType1& shape1, const Transform3f& tf1,
-             const ShapeType2& shape2, const Transform3f& tf2,
+  void reset(const ShapeType1& shape1, const Transform3s& tf1,
+             const ShapeType2& shape2, const Transform3s& tf2,
              const ContactPatch& contact_patch) const;
 
   /// @brief Retrieve result, adds a post-processing step if result has bigger

@@ -569,7 +569,7 @@ void getShapeSupportSet(const Box* box, SupportSet& support_set,
 
   SupportSet::Polygon& polygon = support_data.polygon;
   polygon.clear();
-  const Transform3f& tf = support_set.tf;
+  const Transform3s& tf = support_set.tf;
   for (const Vec3s& corner : corners) {
     const CoalScalar val = corner.dot(support_dir);
     if (support_value - val < tol) {
@@ -813,7 +813,7 @@ void getShapeSupportSetLinear(const ConvexBase* convex, SupportSet& support_set,
   const std::vector<Vec3s>& points = *(convex->points);
   SupportSet::Polygon& polygon = support_data.polygon;
   polygon.clear();
-  const Transform3f& tf = support_set.tf;
+  const Transform3s& tf = support_set.tf;
   for (const Vec3s& point : points) {
     const CoalScalar dot = support_dir.dot(point);
     if (support_value - dot <= tol) {
@@ -840,7 +840,7 @@ void convexSupportSetRecurse(
     const std::vector<ConvexBase::Neighbors>& neighbors,
     const CoalScalar swept_sphere_radius, const size_t vertex_idx,
     const Vec3s& support_dir, const CoalScalar support_value,
-    const Transform3f& tf, std::vector<int8_t>& visited,
+    const Transform3s& tf, std::vector<int8_t>& visited,
     SupportSet::Polygon& polygon, CoalScalar tol) {
   COAL_UNUSED_VARIABLE(swept_sphere_radius);
 
@@ -895,7 +895,7 @@ void getShapeSupportSetLog(const ConvexBase* convex, SupportSet& support_set,
 
   SupportSet::Polygon& polygon = support_data.polygon;
   polygon.clear();
-  const Transform3f& tf = support_set.tf;
+  const Transform3s& tf = support_set.tf;
 
   const size_t vertex_idx = (size_t)(hint);
   convexSupportSetRecurse<_SupportOptions>(

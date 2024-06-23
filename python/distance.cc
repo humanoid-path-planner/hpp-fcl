@@ -154,8 +154,8 @@ void exposeDistanceAPI() {
           &distance));
   doxygen::def(
       "distance",
-      static_cast<CoalScalar (*)(const CollisionGeometry*, const Transform3f&,
-                                 const CollisionGeometry*, const Transform3f&,
+      static_cast<CoalScalar (*)(const CollisionGeometry*, const Transform3s&,
+                                 const CollisionGeometry*, const Transform3s&,
                                  const DistanceRequest&, DistanceResult&)>(
           &distance));
 
@@ -165,6 +165,6 @@ void exposeDistanceAPI() {
                     const CollisionGeometry*>())
       .def("__call__",
            static_cast<CoalScalar (ComputeDistance::*)(
-               const Transform3f&, const Transform3f&, const DistanceRequest&,
+               const Transform3s&, const Transform3s&, const DistanceRequest&,
                DistanceResult&) const>(&ComputeDistance::operator()));
 }

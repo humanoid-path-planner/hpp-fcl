@@ -50,15 +50,15 @@ namespace coal {
 /// read @ref ContactPatch if you want to fully understand what is meant by
 /// "contact patch".
 COAL_DLLAPI void computeContactPatch(const CollisionGeometry* o1,
-                                     const Transform3f& tf1,
+                                     const Transform3s& tf1,
                                      const CollisionGeometry* o2,
-                                     const Transform3f& tf2,
+                                     const Transform3s& tf2,
                                      const CollisionResult& collision_result,
                                      const ContactPatchRequest& request,
                                      ContactPatchResult& result);
 
-/// @copydoc computeContactPatch(const CollisionGeometry*, const Transform3f&,
-// const CollisionGeometry*, const Transform3f&, const CollisionResult&, const
+/// @copydoc computeContactPatch(const CollisionGeometry*, const Transform3s&,
+// const CollisionGeometry*, const Transform3s&, const CollisionResult&, const
 // ContactPatchRequest&, ContactPatchResult&);
 COAL_DLLAPI void computeContactPatch(const CollisionObject* o1,
                                      const CollisionObject* o2,
@@ -79,7 +79,7 @@ class COAL_DLLAPI ComputeContactPatch {
   /// @brief Default constructor from two Collision Geometries.
   ComputeContactPatch(const CollisionGeometry* o1, const CollisionGeometry* o2);
 
-  void operator()(const Transform3f& tf1, const Transform3f& tf2,
+  void operator()(const Transform3s& tf1, const Transform3s& tf2,
                   const CollisionResult& collision_result,
                   const ContactPatchRequest& request,
                   ContactPatchResult& result) const;
@@ -108,7 +108,7 @@ class COAL_DLLAPI ComputeContactPatch {
   ContactPatchFunctionMatrix::ContactPatchFunc func;
   bool swap_geoms;
 
-  virtual void run(const Transform3f& tf1, const Transform3f& tf2,
+  virtual void run(const Transform3s& tf1, const Transform3s& tf2,
                    const CollisionResult& collision_result,
                    const ContactPatchRequest& request,
                    ContactPatchResult& result) const;

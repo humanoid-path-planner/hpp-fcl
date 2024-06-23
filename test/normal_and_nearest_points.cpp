@@ -87,9 +87,9 @@ void test_normal_and_nearest_points(
   // We want to make sure we generate poses that are in collision
   // so we take a relatively small extent for the random poses
   CoalScalar extents[] = {-1.5, -1.5, -1.5, 1.5, 1.5, 1.5};
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   generateRandomTransforms(extents, transforms, n);
-  Transform3f tf1 = Transform3f::Identity();
+  Transform3s tf1 = Transform3s::Identity();
 
   CollisionRequest colreq;
   colreq.distance_upper_bound = std::numeric_limits<CoalScalar>::max();
@@ -114,7 +114,7 @@ void test_normal_and_nearest_points(
     // Since CollisionRequest::distance_lower_bound is set to infinity,
     // these functions should agree on the results regardless of collision or
     // not.
-    Transform3f tf2 = transforms[i];
+    Transform3s tf2 = transforms[i];
     CollisionResult colres;
     DistanceResult distres;
     size_t col = collide(&o1, tf1, &o2, tf2, colreq, colres);
@@ -146,7 +146,7 @@ void test_normal_and_nearest_points(
       }
 
       // Separate the shapes
-      Transform3f new_tf1 = tf1;
+      Transform3s new_tf1 = tf1;
       CoalScalar eps = 1e-2;
       new_tf1.setTranslation(tf1.getTranslation() + separation_vector -
                              eps * contact.normal);
@@ -200,7 +200,7 @@ void test_normal_and_nearest_points(
       // happens to be parallel to the axis of the cone, the two shapes will
       // still be disjoint.
       CoalScalar eps = 1e-2;
-      Transform3f new_tf1 = tf1;
+      Transform3s new_tf1 = tf1;
       new_tf1.setTranslation(tf1.getTranslation() + separation_vector +
                              eps * distres.normal);
       CollisionResult new_colres;
@@ -625,10 +625,10 @@ void test_normal_and_nearest_points(const BVHModel<OBBRSS>& o1,
   size_t n = 10000;
 #endif
   CoalScalar extents[] = {-2., -2., -2., 2., 2., 2.};
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   generateRandomTransforms(extents, transforms, n);
-  Transform3f tf1 = Transform3f::Identity();
-  transforms[0] = Transform3f::Identity();
+  Transform3s tf1 = Transform3s::Identity();
+  transforms[0] = Transform3s::Identity();
 
   CollisionRequest colreq;
   colreq.distance_upper_bound = std::numeric_limits<CoalScalar>::max();
@@ -638,7 +638,7 @@ void test_normal_and_nearest_points(const BVHModel<OBBRSS>& o1,
   DistanceResult distres;
 
   for (size_t i = 0; i < n; i++) {
-    Transform3f tf2 = transforms[i];
+    Transform3s tf2 = transforms[i];
     colres.clear();
     distres.clear();
     size_t col = collide(&o1, tf1, &o2, tf2, colreq, colres);
@@ -683,7 +683,7 @@ BOOST_AUTO_TEST_CASE(test_normal_and_nearest_points_bvh_halfspace) {
   Box* box_ptr = new coal::Box(1, 1, 1);
   coal::CollisionGeometryPtr_t b1(box_ptr);
   BVHModel<coal::OBBRSS> o1 = BVHModel<OBBRSS>();
-  generateBVHModel(o1, *box_ptr, Transform3f());
+  generateBVHModel(o1, *box_ptr, Transform3s());
   o1.buildConvexRepresentation(false);
 
   CoalScalar offset = 0.1;

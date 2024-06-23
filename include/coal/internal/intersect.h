@@ -146,7 +146,7 @@ class COAL_DLLAPI TriangleDistance {
   /// from the triangles, not coincident points on the intersection of the
   /// triangles, as might be expected.
   static CoalScalar sqrTriDistance(const Vec3s S[3], const Vec3s T[3],
-                                   const Transform3f& tf, Vec3s& P, Vec3s& Q);
+                                   const Transform3s& tf, Vec3s& P, Vec3s& Q);
 
   /// Compute squared distance between triangles
   /// @param S1, S2, S3 and T1, T2, T3 are triangle vertices
@@ -177,7 +177,7 @@ class COAL_DLLAPI TriangleDistance {
   static CoalScalar sqrTriDistance(const Vec3s& S1, const Vec3s& S2,
                                    const Vec3s& S3, const Vec3s& T1,
                                    const Vec3s& T2, const Vec3s& T3,
-                                   const Transform3f& tf, Vec3s& P, Vec3s& Q);
+                                   const Transform3s& tf, Vec3s& P, Vec3s& Q);
 };
 
 }  // namespace coal

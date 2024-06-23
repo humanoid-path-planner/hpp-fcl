@@ -81,8 +81,8 @@ struct MinkowskiDiffWrapper {
   }
 
   static void set(MinkowskiDiff& self, const ShapeBase* shape0,
-                  const ShapeBase* shape1, const Transform3f& tf0,
-                  const Transform3f& tf1,
+                  const ShapeBase* shape1, const Transform3s& tf0,
+                  const Transform3s& tf1,
                   bool compute_swept_sphere_supports = false) {
     if (compute_swept_sphere_supports) {
       self.set<SupportOptions::WithSweptSphere>(shape0, shape1, tf0, tf1);
@@ -119,13 +119,13 @@ void exposeGJK() {
 
         .def("set",
              static_cast<void (*)(MinkowskiDiff&, const ShapeBase*,
-                                  const ShapeBase*, const Transform3f&,
-                                  const Transform3f&, bool)>(
+                                  const ShapeBase*, const Transform3s&,
+                                  const Transform3s&, bool)>(
                  &MinkowskiDiffWrapper::set),
              doxygen::member_func_doc(
                  static_cast<void (MinkowskiDiff::*)(
-                     const ShapeBase*, const ShapeBase*, const Transform3f&,
-                     const Transform3f&)>(
+                     const ShapeBase*, const ShapeBase*, const Transform3s&,
+                     const Transform3s&)>(
                      &MinkowskiDiff::set<SupportOptions::NoSweptSphere>)))
 
         .def("support0", &MinkowskiDiffWrapper::support0,

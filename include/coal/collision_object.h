@@ -220,7 +220,7 @@ class COAL_DLLAPI CollisionObject {
   }
 
   CollisionObject(const shared_ptr<CollisionGeometry>& cgeom_,
-                  const Transform3f& tf, bool compute_local_aabb = true)
+                  const Transform3s& tf, bool compute_local_aabb = true)
       : cgeom(cgeom_), t(tf), user_data(nullptr) {
     init(compute_local_aabb);
   }
@@ -287,7 +287,7 @@ class COAL_DLLAPI CollisionObject {
   inline const Matrix3s& getRotation() const { return t.getRotation(); }
 
   /// @brief get object's transform
-  inline const Transform3f& getTransform() const { return t; }
+  inline const Transform3s& getTransform() const { return t; }
 
   /// @brief set object's rotation matrix
   void setRotation(const Matrix3s& R) { t.setRotation(R); }
@@ -299,7 +299,7 @@ class COAL_DLLAPI CollisionObject {
   void setTransform(const Matrix3s& R, const Vec3s& T) { t.setTransform(R, T); }
 
   /// @brief set object's transform
-  void setTransform(const Transform3f& tf) { t = tf; }
+  void setTransform(const Transform3s& tf) { t = tf; }
 
   /// @brief whether the object is in local coordinate
   bool isIdentityTransform() const { return t.isIdentity(); }
@@ -346,7 +346,7 @@ class COAL_DLLAPI CollisionObject {
 
   shared_ptr<CollisionGeometry> cgeom;
 
-  Transform3f t;
+  Transform3s t;
 
   /// @brief AABB in global coordinate
   mutable AABB aabb;

@@ -57,9 +57,9 @@ COAL_DLLAPI CoalScalar distance(const CollisionObject* o1,
 /// @copydoc distance(const CollisionObject*, const CollisionObject*, const
 /// DistanceRequest&, DistanceResult&)
 COAL_DLLAPI CoalScalar distance(const CollisionGeometry* o1,
-                                const Transform3f& tf1,
+                                const Transform3s& tf1,
                                 const CollisionGeometry* o2,
-                                const Transform3f& tf2,
+                                const Transform3s& tf2,
                                 const DistanceRequest& request,
                                 DistanceResult& result);
 
@@ -74,7 +74,7 @@ class COAL_DLLAPI ComputeDistance {
  public:
   ComputeDistance(const CollisionGeometry* o1, const CollisionGeometry* o2);
 
-  CoalScalar operator()(const Transform3f& tf1, const Transform3f& tf2,
+  CoalScalar operator()(const Transform3s& tf1, const Transform3s& tf2,
                         const DistanceRequest& request,
                         DistanceResult& result) const;
 
@@ -102,7 +102,7 @@ class COAL_DLLAPI ComputeDistance {
   DistanceFunctionMatrix::DistanceFunc func;
   bool swap_geoms;
 
-  virtual CoalScalar run(const Transform3f& tf1, const Transform3f& tf2,
+  virtual CoalScalar run(const Transform3s& tf1, const Transform3s& tf2,
                          const DistanceRequest& request,
                          DistanceResult& result) const;
 

@@ -65,9 +65,9 @@ struct COAL_DLLAPI ContactPatchFunctionMatrix {
   /// tf1 and tf2 and make multiple calls to the GJKSolver (although this is not
   /// the approach done by default).
   typedef void (*ContactPatchFunc)(const CollisionGeometry* o1,
-                                   const Transform3f& tf1,
+                                   const Transform3s& tf1,
                                    const CollisionGeometry* o2,
-                                   const Transform3f& tf2,
+                                   const Transform3s& tf2,
                                    const CollisionResult& collision_result,
                                    const ContactPatchSolver* csolver,
                                    const ContactPatchRequest& request,

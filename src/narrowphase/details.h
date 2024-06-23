@@ -73,9 +73,9 @@ static inline void lineSegmentPointClosestToPoint(const Vec3s& p,
 /// @param normal pointing from shape 1 to shape 2 (sphere to capsule).
 /// @return the distance between the two shapes (negative if penetration).
 inline CoalScalar sphereCapsuleDistance(const Sphere& s1,
-                                        const Transform3f& tf1,
+                                        const Transform3s& tf1,
                                         const Capsule& s2,
-                                        const Transform3f& tf2, Vec3s& p1,
+                                        const Transform3s& tf2, Vec3s& p1,
                                         Vec3s& p2, Vec3s& normal) {
   Vec3s pos1(tf2.transform(Vec3s(0., 0., s2.halfLength)));
   Vec3s pos2(tf2.transform(Vec3s(0., 0., -s2.halfLength)));
@@ -106,9 +106,9 @@ inline CoalScalar sphereCapsuleDistance(const Sphere& s1,
 /// @param normal pointing from shape 1 to shape 2 (sphere to cylinder).
 /// @return the distance between the two shapes (negative if penetration).
 inline CoalScalar sphereCylinderDistance(const Sphere& s1,
-                                         const Transform3f& tf1,
+                                         const Transform3s& tf1,
                                          const Cylinder& s2,
-                                         const Transform3f& tf2, Vec3s& p1,
+                                         const Transform3s& tf2, Vec3s& p1,
                                          Vec3s& p2, Vec3s& normal) {
   static const CoalScalar eps(sqrt(std::numeric_limits<CoalScalar>::epsilon()));
   CoalScalar r1(s1.radius);
@@ -214,8 +214,8 @@ inline CoalScalar sphereCylinderDistance(const Sphere& s1,
 /// @param p2 witness point on the second Sphere.
 /// @param normal pointing from shape 1 to shape 2 (sphere1 to sphere2).
 /// @return the distance between the two spheres (negative if penetration).
-inline CoalScalar sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
-                                       const Sphere& s2, const Transform3f& tf2,
+inline CoalScalar sphereSphereDistance(const Sphere& s1, const Transform3s& tf1,
+                                       const Sphere& s2, const Transform3s& tf2,
                                        Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const coal::Vec3s& center1 = tf1.getTranslation();
   const coal::Vec3s& center2 = tf2.getTranslation();
@@ -286,9 +286,9 @@ inline bool projectInTriangle(const Vec3s& p1, const Vec3s& p2, const Vec3s& p3,
 /// @param normal pointing from shape 1 to shape 2 (sphere1 to sphere2).
 /// @return the distance between the two shapes (negative if penetration).
 inline CoalScalar sphereTriangleDistance(const Sphere& s,
-                                         const Transform3f& tf1,
+                                         const Transform3s& tf1,
                                          const TriangleP& tri,
-                                         const Transform3f& tf2, Vec3s& p1,
+                                         const Transform3s& tf2, Vec3s& p1,
                                          Vec3s& p2, Vec3s& normal) {
   const Vec3s& P1 = tf2.transform(tri.a);
   const Vec3s& P2 = tf2.transform(tri.b);
@@ -347,8 +347,8 @@ inline CoalScalar sphereTriangleDistance(const Sphere& s,
 /// @param p2 closest (or most penetrating) point on the shape,
 /// @param normal the halfspace normal.
 /// @return the distance between the two shapes (negative if penetration).
-inline CoalScalar halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
-                                    const ShapeBase& s, const Transform3f& tf2,
+inline CoalScalar halfspaceDistance(const Halfspace& h, const Transform3s& tf1,
+                                    const ShapeBase& s, const Transform3s& tf2,
                                     Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   // TODO(louis): handle multiple contact points when the halfspace normal is
   // parallel to the shape's surface (every primitive except sphere and
@@ -381,8 +381,8 @@ inline CoalScalar halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
 /// @param p2 closest (or most penetrating) point on the shape,
 /// @param normal the halfspace normal.
 /// @return the distance between the two shapes (negative if penetration).
-inline CoalScalar planeDistance(const Plane& plane, const Transform3f& tf1,
-                                const ShapeBase& s, const Transform3f& tf2,
+inline CoalScalar planeDistance(const Plane& plane, const Transform3s& tf1,
+                                const ShapeBase& s, const Transform3s& tf2,
                                 Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   // TODO(louis): handle multiple contact points when the plane normal is
   // parallel to the shape's surface (every primitive except sphere and
@@ -435,8 +435,8 @@ inline CoalScalar planeDistance(const Plane& plane, const Transform3f& tf1,
 /// @param ps the witness point on the sphere.
 /// @param normal pointing from box to sphere
 /// @return the distance between the two shapes (negative if penetration).
-inline CoalScalar boxSphereDistance(const Box& b, const Transform3f& tfb,
-                                    const Sphere& s, const Transform3f& tfs,
+inline CoalScalar boxSphereDistance(const Box& b, const Transform3s& tfb,
+                                    const Sphere& s, const Transform3s& tfs,
                                     Vec3s& pb, Vec3s& ps, Vec3s& normal) {
   const Vec3s& os = tfs.getTranslation();
   const Vec3s& ob = tfb.getTranslation();
@@ -510,9 +510,9 @@ inline CoalScalar boxSphereDistance(const Box& b, const Transform3f& tfb,
 /// intersection line between the objects. The normal is the direction of this
 /// line.
 inline CoalScalar halfspaceHalfspaceDistance(const Halfspace& s1,
-                                             const Transform3f& tf1,
+                                             const Transform3s& tf1,
                                              const Halfspace& s2,
-                                             const Transform3f& tf2, Vec3s& p1,
+                                             const Transform3s& tf2, Vec3s& p1,
                                              Vec3s& p2, Vec3s& normal) {
   Halfspace new_s1 = transform(s1, tf1);
   Halfspace new_s2 = transform(s2, tf2);
@@ -586,9 +586,9 @@ inline CoalScalar halfspaceHalfspaceDistance(const Halfspace& s1,
 /// intersection line between the objects. The normal is the direction of this
 /// line.
 inline CoalScalar halfspacePlaneDistance(const Halfspace& s1,
-                                         const Transform3f& tf1,
+                                         const Transform3s& tf1,
                                          const Plane& s2,
-                                         const Transform3f& tf2, Vec3s& p1,
+                                         const Transform3s& tf2, Vec3s& p1,
                                          Vec3s& p2, Vec3s& normal) {
   Halfspace new_s1 = transform(s1, tf1);
   Plane new_s2 = transform(s2, tf2);
@@ -647,8 +647,8 @@ inline CoalScalar halfspacePlaneDistance(const Halfspace& s1,
 /// The points p1 and p2 are the same point and represent the origin of the
 /// intersection line between the objects. The normal is the direction of this
 /// line.
-inline CoalScalar planePlaneDistance(const Plane& s1, const Transform3f& tf1,
-                                     const Plane& s2, const Transform3f& tf2,
+inline CoalScalar planePlaneDistance(const Plane& s1, const Transform3s& tf1,
+                                     const Plane& s2, const Transform3s& tf2,
                                      Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   Plane new_s1 = transform(s1, tf1);
   Plane new_s2 = transform(s2, tf2);
@@ -722,8 +722,8 @@ inline CoalScalar computePenetration(const Vec3s& P1, const Vec3s& P2,
 inline CoalScalar computePenetration(const Vec3s& P1, const Vec3s& P2,
                                      const Vec3s& P3, const Vec3s& Q1,
                                      const Vec3s& Q2, const Vec3s& Q3,
-                                     const Transform3f& tf1,
-                                     const Transform3f& tf2, Vec3s& normal) {
+                                     const Transform3s& tf1,
+                                     const Transform3s& tf2, Vec3s& normal) {
   Vec3s globalP1(tf1.transform(P1));
   Vec3s globalP2(tf1.transform(P2));
   Vec3s globalP3(tf1.transform(P3));

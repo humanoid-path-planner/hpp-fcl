@@ -22,7 +22,7 @@ namespace details {
 
 template <typename NT>
 inline CollisionGeometry* extractBVHtpl(const CollisionGeometry* model,
-                                        const Transform3f& pose,
+                                        const Transform3s& pose,
                                         const AABB& aabb) {
   // Ensure AABB is already computed
   if (model->aabb_radius < 0)
@@ -39,7 +39,7 @@ inline CollisionGeometry* extractBVHtpl(const CollisionGeometry* model,
 }
 
 CollisionGeometry* extractBVH(const CollisionGeometry* model,
-                              const Transform3f& pose, const AABB& aabb) {
+                              const Transform3s& pose, const AABB& aabb) {
   switch (model->getNodeType()) {
     case BV_AABB:
       return extractBVHtpl<AABB>(model, pose, aabb);
@@ -64,7 +64,7 @@ CollisionGeometry* extractBVH(const CollisionGeometry* model,
 }  // namespace details
 
 CollisionGeometry* extract(const CollisionGeometry* model,
-                           const Transform3f& pose, const AABB& aabb) {
+                           const Transform3s& pose, const AABB& aabb) {
   switch (model->getObjectType()) {
     case OT_BVH:
       return details::extractBVH(model, pose, aabb);

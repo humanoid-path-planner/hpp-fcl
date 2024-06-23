@@ -36,8 +36,8 @@ BOOST_AUTO_TEST_CASE(TestTriangles) {
 
   ComputeCollision compute(&tri1, &tri2);
 
-  Transform3f tri1Tf{};
-  Transform3f tri2Tf{};
+  Transform3s tri1Tf{};
+  Transform3s tri2Tf{};
 
   /// check some angles for two triangles
   for (int i = 0; i < 360; i += 30) {

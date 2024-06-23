@@ -74,7 +74,7 @@ int num_max_contacts = (std::numeric_limits<int>::max)();
 
 BOOST_AUTO_TEST_CASE(OBB_Box_test) {
   CoalScalar r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
-  std::vector<Transform3f> rotate_transform;
+  std::vector<Transform3s> rotate_transform;
   generateRandomTransforms(r_extents, rotate_transform, 1);
 
   AABB aabb1;
@@ -84,13 +84,13 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test) {
   OBB obb1;
   convertBV(aabb1, rotate_transform[0], obb1);
   Box box1;
-  Transform3f box1_tf;
+  Transform3s box1_tf;
   constructBox(aabb1, rotate_transform[0], box1, box1_tf);
 
   CoalScalar extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   generateRandomTransforms(extents, transforms, n);
 
   for (std::size_t i = 0; i < transforms.size(); ++i) {
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test) {
     convertBV(aabb, transforms[i], obb2);
 
     Box box2;
-    Transform3f box2_tf;
+    Transform3s box2_tf;
     constructBox(aabb, transforms[i], box2, box2_tf);
 
     GJKSolver solver;
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test) {
 
 BOOST_AUTO_TEST_CASE(OBB_shape_test) {
   CoalScalar r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
-  std::vector<Transform3f> rotate_transform;
+  std::vector<Transform3s> rotate_transform;
   generateRandomTransforms(r_extents, rotate_transform, 1);
 
   AABB aabb1;
@@ -134,13 +134,13 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test) {
   OBB obb1;
   convertBV(aabb1, rotate_transform[0], obb1);
   Box box1;
-  Transform3f box1_tf;
+  Transform3s box1_tf;
   constructBox(aabb1, rotate_transform[0], box1, box1_tf);
 
   CoalScalar extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   generateRandomTransforms(extents, transforms, n);
 
   for (std::size_t i = 0; i < transforms.size(); ++i) {
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE(OBB_AABB_test) {
   CoalScalar extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   generateRandomTransforms(extents, transforms, n);
 
   AABB aabb1;
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(OBB_AABB_test) {
   aabb1.max_ = Vec3s(600, 600, 600);
 
   OBB obb1;
-  convertBV(aabb1, Transform3f(), obb1);
+  convertBV(aabb1, Transform3s(), obb1);
 
   for (std::size_t i = 0; i < transforms.size(); ++i) {
     AABB aabb;
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(OBB_AABB_test) {
     AABB aabb2 = translate(aabb, transforms[i].getTranslation());
 
     OBB obb2;
-    convertBV(aabb, Transform3f(transforms[i].getTranslation()), obb2);
+    convertBV(aabb, Transform3s(transforms[i].getTranslation()), obb2);
 
     bool overlap_aabb = aabb1.overlap(aabb2);
     bool overlap_obb = obb1.overlap(obb2);
@@ -312,7 +312,7 @@ HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
 HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 
 struct mesh_mesh_run_test {
-  mesh_mesh_run_test(const std::vector<Transform3f>& _transforms,
+  mesh_mesh_run_test(const std::vector<Transform3s>& _transforms,
                      const CollisionRequest _request)
       : transforms(_transforms),
         request(_request),
@@ -321,7 +321,7 @@ struct mesh_mesh_run_test {
         isInit(false),
         indent(0) {}
 
-  const std::vector<Transform3f>& transforms;
+  const std::vector<Transform3s>& transforms;
   const CollisionRequest request;
   bool enable_statistics, benchmark;
   std::vector<Contacts_t> contacts;
@@ -347,7 +347,7 @@ struct mesh_mesh_run_test {
   }
 
   template <typename BV>
-  void query(const std::vector<Transform3f>& transforms,
+  void query(const std::vector<Transform3s>& transforms,
              SplitMethodType splitMethod, const CollisionRequest request,
              std::vector<Contacts_t>& contacts) {
     BENCHMARK_HEADER("BV");
@@ -375,7 +375,7 @@ struct mesh_mesh_run_test {
                                model2);
 
     Timer timer(false);
-    const Transform3f tf2;
+    const Transform3s tf2;
     const std::size_t N = transforms.size();
 
     contacts.resize(3 * N);
@@ -385,7 +385,7 @@ struct mesh_mesh_run_test {
       ++indent;
 
       for (std::size_t i = 0; i < transforms.size(); ++i) {
-        const Transform3f& tf1 = transforms[i];
+        const Transform3s& tf1 = transforms[i];
         timer.start();
 
         CollisionResult local_result;
@@ -429,7 +429,7 @@ struct mesh_mesh_run_test {
       ++indent;
 
       for (std::size_t i = 0; i < transforms.size(); ++i) {
-        const Transform3f tf1 = transforms[i];
+        const Transform3s tf1 = transforms[i];
 
         timer.start();
         CollisionResult local_result;
@@ -438,9 +438,9 @@ struct mesh_mesh_run_test {
         node.enable_statistics = enable_statistics;
 
         BVH_t* model1_tmp = new BVH_t(*model1);
-        Transform3f tf1_tmp = tf1;
+        Transform3s tf1_tmp = tf1;
         BVH_t* model2_tmp = new BVH_t(*model2);
-        Transform3f tf2_tmp = tf2;
+        Transform3s tf2_tmp = tf2;
 
         bool success = initialize(node, *model1_tmp, tf1_tmp, *model2_tmp,
                                   tf2_tmp, local_result, true, true);
@@ -482,7 +482,7 @@ struct mesh_mesh_run_test {
 
       for (std::size_t i = 0; i < transforms.size(); ++i) {
         timer.start();
-        const Transform3f tf1 = transforms[i];
+        const Transform3s tf1 = transforms[i];
 
         CollisionResult local_result;
         MeshCollisionTraversalNode<BV, 0> node(request);
@@ -623,7 +623,7 @@ struct mesh_mesh_run_test {
 //      calls function collide with identity for both object poses,
 //
 BOOST_AUTO_TEST_CASE(mesh_mesh) {
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
 #ifndef NDEBUG  // if debug mode
   std::size_t n = 1;
@@ -654,7 +654,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh) {
 }
 
 BOOST_AUTO_TEST_CASE(mesh_mesh_benchmark) {
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
 #ifndef NDEBUG
   std::size_t n = 0;

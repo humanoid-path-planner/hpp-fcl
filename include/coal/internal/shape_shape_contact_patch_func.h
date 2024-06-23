@@ -50,8 +50,8 @@ namespace coal {
 /// by the `ContactPatchRequest`.
 template <typename ShapeType1, typename ShapeType2>
 struct ComputeShapeShapeContactPatch {
-  static void run(const CollisionGeometry* o1, const Transform3f& tf1,
-                  const CollisionGeometry* o2, const Transform3f& tf2,
+  static void run(const CollisionGeometry* o1, const Transform3s& tf1,
+                  const CollisionGeometry* o2, const Transform3s& tf2,
                   const CollisionResult& collision_result,
                   const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
@@ -88,9 +88,9 @@ struct ComputeShapeShapeContactPatch {
 /// this function).
 template <bool InvertShapes, typename OtherShapeType, typename PlaneOrHalfspace>
 void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
-                                  const Transform3f& tf1,
+                                  const Transform3s& tf1,
                                   const PlaneOrHalfspace& s2,
-                                  const Transform3f& tf2,
+                                  const Transform3s& tf2,
                                   const ContactPatchSolver* csolver,
                                   const Contact& contact,
                                   ContactPatch& contact_patch) {
@@ -134,8 +134,8 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
 #define PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(PlaneOrHspace)          \
   template <typename OtherShapeType>                                          \
   struct ComputeShapeShapeContactPatch<OtherShapeType, PlaneOrHspace> {       \
-    static void run(const CollisionGeometry* o1, const Transform3f& tf1,      \
-                    const CollisionGeometry* o2, const Transform3f& tf2,      \
+    static void run(const CollisionGeometry* o1, const Transform3s& tf1,      \
+                    const CollisionGeometry* o2, const Transform3s& tf2,      \
                     const CollisionResult& collision_result,                  \
                     const ContactPatchSolver* csolver,                        \
                     const ContactPatchRequest& request,                       \
@@ -168,8 +168,8 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
                                                                               \
   template <typename OtherShapeType>                                          \
   struct ComputeShapeShapeContactPatch<PlaneOrHspace, OtherShapeType> {       \
-    static void run(const CollisionGeometry* o1, const Transform3f& tf1,      \
-                    const CollisionGeometry* o2, const Transform3f& tf2,      \
+    static void run(const CollisionGeometry* o1, const Transform3s& tf1,      \
+                    const CollisionGeometry* o2, const Transform3s& tf2,      \
                     const CollisionResult& collision_result,                  \
                     const ContactPatchSolver* csolver,                        \
                     const ContactPatchRequest& request,                       \
@@ -206,8 +206,8 @@ PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Halfspace)
 #define PLANE_HSPACE_CONTACT_PATCH(PlaneOrHspace1, PlaneOrHspace2)           \
   template <>                                                                \
   struct ComputeShapeShapeContactPatch<PlaneOrHspace1, PlaneOrHspace2> {     \
-    static void run(const CollisionGeometry* o1, const Transform3f& tf1,     \
-                    const CollisionGeometry* o2, const Transform3f& tf2,     \
+    static void run(const CollisionGeometry* o1, const Transform3s& tf1,     \
+                    const CollisionGeometry* o2, const Transform3s& tf2,     \
                     const CollisionResult& collision_result,                 \
                     const ContactPatchSolver* csolver,                       \
                     const ContactPatchRequest& request,                      \
@@ -249,8 +249,8 @@ PLANE_HSPACE_CONTACT_PATCH(Halfspace, Halfspace)
 #undef PLANE_HSPACE_CONTACT_PATCH
 
 template <typename ShapeType1, typename ShapeType2>
-void ShapeShapeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
-                            const CollisionGeometry* o2, const Transform3f& tf2,
+void ShapeShapeContactPatch(const CollisionGeometry* o1, const Transform3s& tf1,
+                            const CollisionGeometry* o2, const Transform3s& tf2,
                             const CollisionResult& collision_result,
                             const ContactPatchSolver* csolver,
                             const ContactPatchRequest& request,

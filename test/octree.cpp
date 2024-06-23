@@ -73,7 +73,7 @@ coal::OcTree makeOctree(const BVHModel<OBBRSS>& mesh,
   coal::Box box(resolution, resolution, resolution);
   CollisionRequest request(coal::CONTACT | coal::DISTANCE_LOWER_BOUND, 1);
   CollisionResult result;
-  Transform3f tfBox;
+  Transform3s tfBox;
   octomap::OcTreePtr_t octree(new octomap::OcTree(resolution));
 
   for (CoalScalar x = resolution * floor(m[0] / resolution); x <= M[0];
@@ -85,7 +85,7 @@ coal::OcTree makeOctree(const BVHModel<OBBRSS>& mesh,
         Vec3s center(x + .5 * resolution, y + .5 * resolution,
                      z + .5 * resolution);
         tfBox.setTranslation(center);
-        coal::collide(&box, tfBox, &mesh, Transform3f(), request, result);
+        coal::collide(&box, tfBox, &mesh, Transform3s(), request, result);
         if (result.isCollision()) {
           octomap::point3d p((float)center[0], (float)center[1],
                              (float)center[2]);
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(octree_mesh) {
                                                         3 * sizeof(CoalScalar));
   }
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   CoalScalar extents[] = {-2000, -2000, 0, 2000, 2000, 2000};
 #ifndef NDEBUG  // if debug mode
   std::size_t N = 100;
@@ -155,8 +155,8 @@ BOOST_AUTO_TEST_CASE(octree_mesh) {
   for (std::size_t i = 0; i < N; ++i) {
     CollisionResult resultMesh;
     CollisionResult resultOctree;
-    Transform3f tf1(transforms[2 * i]);
-    Transform3f tf2(transforms[2 * i + 1]);
+    Transform3s tf1(transforms[2 * i]);
+    Transform3s tf2(transforms[2 * i + 1]);
     ;
     // Test collision between meshes with random transform for robot.
     coal::collide(&robMesh, tf1, &envMesh, tf2, request, resultMesh);
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(octree_height_field) {
   HeightField<AABB> hfield(x_dim, y_dim, heights, min_altitude);
   hfield.computeLocalAABB();
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   CoalScalar extents[] = {-2000, -2000, 0, 2000, 2000, 2000};
 #ifndef NDEBUG  // if debug mode
   std::size_t N = 1000;
@@ -220,11 +220,11 @@ BOOST_AUTO_TEST_CASE(octree_height_field) {
   for (std::size_t i = 0; i < N; ++i) {
     CollisionResult resultBox;
     CollisionResult resultHfield1, resultHfield2;
-    Transform3f tf1(transforms[2 * i]);
-    Transform3f tf2(transforms[2 * i + 1]);
+    Transform3s tf1(transforms[2 * i]);
+    Transform3s tf2(transforms[2 * i + 1]);
 
     Box box;
-    Transform3f box_tf;
+    Transform3s box_tf;
     constructBox(hfield.aabb_local, tf2, box, box_tf);
 
     // Test collision between octree and equivalent box.

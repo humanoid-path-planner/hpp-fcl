@@ -53,7 +53,7 @@ using coal::CollisionRequest;
 using coal::CollisionResult;
 using coal::DistanceRequest;
 using coal::DistanceResult;
-using coal::Transform3f;
+using coal::Transform3s;
 using coal::Vec3s;
 
 #define MATH_SQUARED(x) (x * x)
@@ -114,7 +114,7 @@ void test(const Shape &original_shape, const CoalScalar inflation,
   {
     const CoalScalar inflation = 0.;
     const auto &inflation_result = original_shape.inflated(inflation);
-    const Transform3f &shift = inflation_result.second;
+    const Transform3s &shift = inflation_result.second;
     const Shape &inflated_shape = inflation_result.first;
 
     BOOST_CHECK(isApprox(original_shape, inflated_shape, tol));
@@ -125,13 +125,13 @@ void test(const Shape &original_shape, const CoalScalar inflation,
   {
     const auto &inflation_result = original_shape.inflated(inflation);
     const Shape &inflated_shape = inflation_result.first;
-    const Transform3f &inflation_shift = inflation_result.second;
+    const Transform3s &inflation_shift = inflation_result.second;
 
     BOOST_CHECK(!isApprox(original_shape, inflated_shape, tol));
 
     const auto &deflation_result = inflated_shape.inflated(-inflation);
     const Shape &deflated_shape = deflation_result.first;
-    const Transform3f &deflation_shift = deflation_result.second;
+    const Transform3s &deflation_shift = deflation_result.second;
 
     BOOST_CHECK(isApprox(original_shape, deflated_shape, tol));
     BOOST_CHECK((inflation_shift * deflation_shift).isIdentity(tol));
@@ -141,13 +141,13 @@ void test(const Shape &original_shape, const CoalScalar inflation,
   {
     const auto &inflation_result = original_shape.inflated(-inflation);
     const Shape &inflated_shape = inflation_result.first;
-    const Transform3f &inflation_shift = inflation_result.second;
+    const Transform3s &inflation_shift = inflation_result.second;
 
     BOOST_CHECK(!isApprox(original_shape, inflated_shape, tol));
 
     const auto &deflation_result = inflated_shape.inflated(+inflation);
     const Shape &deflated_shape = deflation_result.first;
-    const Transform3f &deflation_shift = deflation_result.second;
+    const Transform3s &deflation_shift = deflation_result.second;
 
     BOOST_CHECK(isApprox(original_shape, deflated_shape, tol));
     BOOST_CHECK((inflation_shift * deflation_shift).isIdentity(tol));

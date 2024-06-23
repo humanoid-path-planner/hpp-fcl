@@ -56,14 +56,14 @@ bool verbose = false;
 CoalScalar DELTA = 0.001;
 
 template <typename BV>
-void distance_Test(const Transform3f& tf, const std::vector<Vec3s>& vertices1,
+void distance_Test(const Transform3s& tf, const std::vector<Vec3s>& vertices1,
                    const std::vector<Triangle>& triangles1,
                    const std::vector<Vec3s>& vertices2,
                    const std::vector<Triangle>& triangles2,
                    SplitMethodType split_method, unsigned int qsize,
                    DistanceRes& distance_result, bool verbose = true);
 
-bool collide_Test_OBB(const Transform3f& tf,
+bool collide_Test_OBB(const Transform3s& tf,
                       const std::vector<Vec3s>& vertices1,
                       const std::vector<Triangle>& triangles1,
                       const std::vector<Vec3s>& vertices2,
@@ -71,7 +71,7 @@ bool collide_Test_OBB(const Transform3f& tf,
                       SplitMethodType split_method, bool verbose);
 
 template <typename BV, typename TraversalNode>
-void distance_Test_Oriented(const Transform3f& tf,
+void distance_Test_Oriented(const Transform3s& tf,
                             const std::vector<Vec3s>& vertices1,
                             const std::vector<Triangle>& triangles1,
                             const std::vector<Vec3s>& vertices2,
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(mesh_distance) {
   loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
   loadOBJFile((path / "rob.obj").string().c_str(), p2, t2);
 
-  std::vector<Transform3f> transforms;  // t0
+  std::vector<Transform3s> transforms;  // t0
   CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
 #ifndef NDEBUG  // if debug mode
   std::size_t n = 1;
@@ -468,7 +468,7 @@ BOOST_AUTO_TEST_CASE(mesh_distance) {
 }
 
 template <typename BV, typename TraversalNode>
-void distance_Test_Oriented(const Transform3f& tf,
+void distance_Test_Oriented(const Transform3s& tf,
                             const std::vector<Vec3s>& vertices1,
                             const std::vector<Triangle>& triangles1,
                             const std::vector<Vec3s>& vertices2,
@@ -491,7 +491,7 @@ void distance_Test_Oriented(const Transform3f& tf,
   DistanceResult local_result;
   TraversalNode node;
   if (!initialize(node, (const BVHModel<BV>&)m1, tf, (const BVHModel<BV>&)m2,
-                  Transform3f(), DistanceRequest(true), local_result))
+                  Transform3s(), DistanceRequest(true), local_result))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -516,7 +516,7 @@ void distance_Test_Oriented(const Transform3f& tf,
 }
 
 template <typename BV>
-void distance_Test(const Transform3f& tf, const std::vector<Vec3s>& vertices1,
+void distance_Test(const Transform3s& tf, const std::vector<Vec3s>& vertices1,
                    const std::vector<Triangle>& triangles1,
                    const std::vector<Vec3s>& vertices2,
                    const std::vector<Triangle>& triangles2,
@@ -535,7 +535,7 @@ void distance_Test(const Transform3f& tf, const std::vector<Vec3s>& vertices1,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf), pose2;
+  Transform3s pose1(tf), pose2;
 
   DistanceResult local_result;
   MeshDistanceTraversalNode<BV> node;
@@ -565,7 +565,7 @@ void distance_Test(const Transform3f& tf, const std::vector<Vec3s>& vertices1,
   }
 }
 
-bool collide_Test_OBB(const Transform3f& tf,
+bool collide_Test_OBB(const Transform3s& tf,
                       const std::vector<Vec3s>& vertices1,
                       const std::vector<Triangle>& triangles1,
                       const std::vector<Vec3s>& vertices2,
@@ -588,7 +588,7 @@ bool collide_Test_OBB(const Transform3f& tf,
   CollisionRequest request(CONTACT | DISTANCE_LOWER_BOUND, 1);
   MeshCollisionTraversalNodeOBB node(request);
   bool success(initialize(node, (const BVHModel<OBB>&)m1, tf,
-                          (const BVHModel<OBB>&)m2, Transform3f(),
+                          (const BVHModel<OBB>&)m2, Transform3s(),
                           local_result));
   BOOST_REQUIRE(success);
 

@@ -62,9 +62,9 @@ COAL_DLLAPI std::size_t collide(const CollisionObject* o1,
 /// @copydoc collide(const CollisionObject*, const CollisionObject*, const
 /// CollisionRequest&, CollisionResult&)
 COAL_DLLAPI std::size_t collide(const CollisionGeometry* o1,
-                                const Transform3f& tf1,
+                                const Transform3s& tf1,
                                 const CollisionGeometry* o2,
-                                const Transform3f& tf2,
+                                const Transform3s& tf2,
                                 const CollisionRequest& request,
                                 CollisionResult& result);
 
@@ -80,7 +80,7 @@ class COAL_DLLAPI ComputeCollision {
   /// @brief Default constructor from two Collision Geometries.
   ComputeCollision(const CollisionGeometry* o1, const CollisionGeometry* o2);
 
-  std::size_t operator()(const Transform3f& tf1, const Transform3f& tf2,
+  std::size_t operator()(const Transform3s& tf1, const Transform3s& tf2,
                          const CollisionRequest& request,
                          CollisionResult& result) const;
 
@@ -107,7 +107,7 @@ class COAL_DLLAPI ComputeCollision {
   CollisionFunctionMatrix::CollisionFunc func;
   bool swap_geoms;
 
-  virtual std::size_t run(const Transform3f& tf1, const Transform3f& tf2,
+  virtual std::size_t run(const Transform3s& tf1, const Transform3s& tf2,
                           const CollisionRequest& request,
                           CollisionResult& result) const;
 

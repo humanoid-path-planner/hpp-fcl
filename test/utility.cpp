@@ -207,7 +207,7 @@ void eulerToMatrix(CoalScalar a, CoalScalar b, CoalScalar c, Matrix3s& R) {
       -c2 * s3, s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3;
 }
 
-void generateRandomTransform(CoalScalar extents[6], Transform3f& transform) {
+void generateRandomTransform(CoalScalar extents[6], Transform3s& transform) {
   CoalScalar x = rand_interval(extents[0], extents[3]);
   CoalScalar y = rand_interval(extents[1], extents[4]);
   CoalScalar z = rand_interval(extents[2], extents[5]);
@@ -224,7 +224,7 @@ void generateRandomTransform(CoalScalar extents[6], Transform3f& transform) {
 }
 
 void generateRandomTransforms(CoalScalar extents[6],
-                              std::vector<Transform3f>& transforms,
+                              std::vector<Transform3s>& transforms,
                               std::size_t n) {
   transforms.resize(n);
   for (std::size_t i = 0; i < n; ++i) {
@@ -248,8 +248,8 @@ void generateRandomTransforms(CoalScalar extents[6],
 
 void generateRandomTransforms(CoalScalar extents[6], CoalScalar delta_trans[3],
                               CoalScalar delta_rot,
-                              std::vector<Transform3f>& transforms,
-                              std::vector<Transform3f>& transforms2,
+                              std::vector<Transform3s>& transforms,
+                              std::vector<Transform3s>& transforms2,
                               std::size_t n) {
   transforms.resize(n);
   transforms2.resize(n);
@@ -376,7 +376,7 @@ Quatf makeQuat(CoalScalar w, CoalScalar x, CoalScalar y, CoalScalar z) {
   return q;
 }
 
-std::ostream& operator<<(std::ostream& os, const Transform3f& tf) {
+std::ostream& operator<<(std::ostream& os, const Transform3s& tf) {
   return os << "[ " << tf.getTranslation().format(vfmt) << ", "
             << tf.getQuatRotation().coeffs().format(vfmt) << " ]";
 }
@@ -393,7 +393,7 @@ void generateEnvironments(std::vector<CollisionObject*>& env,
                           CoalScalar env_scale, std::size_t n) {
   CoalScalar extents[] = {-env_scale, env_scale,  -env_scale,
                           env_scale,  -env_scale, env_scale};
-  std::vector<Transform3f> transforms(n);
+  std::vector<Transform3s> transforms(n);
 
   generateRandomTransforms(extents, transforms, n);
   for (std::size_t i = 0; i < n; ++i) {
@@ -424,13 +424,13 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
                               CoalScalar env_scale, std::size_t n) {
   CoalScalar extents[] = {-env_scale, env_scale,  -env_scale,
                           env_scale,  -env_scale, env_scale};
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
 
   generateRandomTransforms(extents, transforms, n);
   Box box(5, 10, 20);
   for (std::size_t i = 0; i < n; ++i) {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, box, Transform3f::Identity());
+    generateBVHModel(*model, box, Transform3s::Identity());
     env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model),
                                       transforms[i]));
     env.back()->collisionGeometry()->computeLocalAABB();
@@ -440,7 +440,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
   Sphere sphere(30);
   for (std::size_t i = 0; i < n; ++i) {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, sphere, Transform3f::Identity(), 16, 16);
+    generateBVHModel(*model, sphere, Transform3s::Identity(), 16, 16);
     env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model),
                                       transforms[i]));
     env.back()->collisionGeometry()->computeLocalAABB();
@@ -450,7 +450,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
   Cylinder cylinder(10, 40);
   for (std::size_t i = 0; i < n; ++i) {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, cylinder, Transform3f::Identity(), 16, 16);
+    generateBVHModel(*model, cylinder, Transform3s::Identity(), 16, 16);
     env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model),
                                       transforms[i]));
     env.back()->collisionGeometry()->computeLocalAABB();

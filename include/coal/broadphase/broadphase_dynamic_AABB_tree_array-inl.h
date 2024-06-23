@@ -68,8 +68,8 @@ bool collisionRecurse_(
         const AABB& root_bv_t = translate(root2_bv, translation2);
         if (root1->bv.overlap(root_bv_t)) {
           Box* box = new Box();
-          Transform3f box_tf;
-          Transform3f tf2 = Transform3f::Identity();
+          Transform3s box_tf;
+          Transform3s tf2 = Transform3s::Identity();
           tf2.translation() = translation2;
           constructBox(root2_bv, tf2, *box, box_tf);
 
@@ -95,8 +95,8 @@ bool collisionRecurse_(
       const AABB& root_bv_t = translate(root2_bv, translation2);
       if (root1->bv.overlap(root_bv_t)) {
         Box* box = new Box();
-        Transform3f box_tf;
-        Transform3f tf2 = Transform3f::Identity();
+        Transform3s box_tf;
+        Transform3s tf2 = Transform3s::Identity();
         tf2.translation() = translation2;
         constructBox(root2_bv, tf2, *box, box_tf);
 
@@ -157,8 +157,8 @@ bool distanceRecurse_(
   if (root1->isLeaf() && !tree2->nodeHasChildren(root2)) {
     if (tree2->isNodeOccupied(root2)) {
       Box* box = new Box();
-      Transform3f box_tf;
-      Transform3f tf2 = Transform3f::Identity();
+      Transform3s box_tf;
+      Transform3s tf2 = Transform3s::Identity();
       tf2.translation() = translation2;
       constructBox(root2_bv, tf2, *box, box_tf);
       CollisionObject obj(shared_ptr<CollisionGeometry>(box), box_tf);

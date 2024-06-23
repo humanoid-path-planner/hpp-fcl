@@ -44,13 +44,13 @@ namespace coal {
 
 namespace details {
 template <typename BV>
-BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
+BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3s& pose,
                          const AABB& _aabb) {
   assert(model.getModelType() == BVH_MODEL_TRIANGLES);
   const Matrix3s& q = pose.getRotation();
   AABB aabb = translate(_aabb, -pose.getTranslation());
 
-  Transform3f box_pose;
+  Transform3s box_pose;
   Box box;
   constructBox(_aabb, box, box_pose);
   box_pose = pose.inverseTimes(box_pose);
@@ -89,7 +89,7 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
                                             compute_penetration);
       DistanceResult distanceResult;
       const CoalScalar distance = ShapeShapeDistance<Box, TriangleP>(
-          &box, box_pose, &tri, Transform3f(), &gjk, distanceRequest,
+          &box, box_pose, &tri, Transform3s(), &gjk, distanceRequest,
           distanceResult);
       bool is_collision =
           (distance <= gjk.getDistancePrecision(compute_penetration));
@@ -139,43 +139,43 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
 }  // namespace details
 
 template <>
-BVHModel<OBB>* BVHExtract(const BVHModel<OBB>& model, const Transform3f& pose,
+BVHModel<OBB>* BVHExtract(const BVHModel<OBB>& model, const Transform3s& pose,
                           const AABB& aabb) {
   return details::BVHExtract(model, pose, aabb);
 }
 template <>
-BVHModel<AABB>* BVHExtract(const BVHModel<AABB>& model, const Transform3f& pose,
+BVHModel<AABB>* BVHExtract(const BVHModel<AABB>& model, const Transform3s& pose,
                            const AABB& aabb) {
   return details::BVHExtract(model, pose, aabb);
 }
 template <>
-BVHModel<RSS>* BVHExtract(const BVHModel<RSS>& model, const Transform3f& pose,
+BVHModel<RSS>* BVHExtract(const BVHModel<RSS>& model, const Transform3s& pose,
                           const AABB& aabb) {
   return details::BVHExtract(model, pose, aabb);
 }
 template <>
-BVHModel<kIOS>* BVHExtract(const BVHModel<kIOS>& model, const Transform3f& pose,
+BVHModel<kIOS>* BVHExtract(const BVHModel<kIOS>& model, const Transform3s& pose,
                            const AABB& aabb) {
   return details::BVHExtract(model, pose, aabb);
 }
 template <>
 BVHModel<OBBRSS>* BVHExtract(const BVHModel<OBBRSS>& model,
-                             const Transform3f& pose, const AABB& aabb) {
+                             const Transform3s& pose, const AABB& aabb) {
   return details::BVHExtract(model, pose, aabb);
 }
 template <>
 BVHModel<KDOP<16> >* BVHExtract(const BVHModel<KDOP<16> >& model,
-                                const Transform3f& pose, const AABB& aabb) {
+                                const Transform3s& pose, const AABB& aabb) {
   return details::BVHExtract(model, pose, aabb);
 }
 template <>
 BVHModel<KDOP<18> >* BVHExtract(const BVHModel<KDOP<18> >& model,
-                                const Transform3f& pose, const AABB& aabb) {
+                                const Transform3s& pose, const AABB& aabb) {
   return details::BVHExtract(model, pose, aabb);
 }
 template <>
 BVHModel<KDOP<24> >* BVHExtract(const BVHModel<KDOP<24> >& model,
-                                const Transform3f& pose, const AABB& aabb) {
+                                const Transform3s& pose, const AABB& aabb) {
   return details::BVHExtract(model, pose, aabb);
 }
 

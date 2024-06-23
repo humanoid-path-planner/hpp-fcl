@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE(TestSpheres) {
 
   ComputeCollision compute(&sphere2, &sphere1);
 
-  Transform3f sphere1Tf = Transform3f::Identity();
-  Transform3f sphere2Tf = Transform3f::Identity();
+  Transform3s sphere1Tf = Transform3s::Identity();
+  Transform3s sphere2Tf = Transform3s::Identity();
 
   for (int i = 0; i < 360; ++i) {
     for (int j = 0; j < 180; ++j) {
