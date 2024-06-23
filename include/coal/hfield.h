@@ -71,7 +71,7 @@ struct COAL_DLLAPI HFNodeBase {
   Eigen::DenseIndex x_id, x_size;
   Eigen::DenseIndex y_id, y_size;
 
-  FCL_REAL max_height;
+  CoalScalar max_height;
   int contact_active_faces;
 
   /// @brief Default constructor
@@ -81,7 +81,7 @@ struct COAL_DLLAPI HFNodeBase {
         x_size(0),
         y_id(-1),
         y_size(0),
-        max_height(std::numeric_limits<FCL_REAL>::lowest()),
+        max_height(std::numeric_limits<CoalScalar>::lowest()),
         contact_active_faces(0) {}
 
   /// @brief Comparison operator
@@ -145,14 +145,14 @@ struct COAL_DLLAPI HFNode : public HFNodeBase {
   bool overlap(const HFNode& other) const { return bv.overlap(other.bv); }
   /// @brief Check whether two BVNode collide
   bool overlap(const HFNode& other, const CollisionRequest& request,
-               FCL_REAL& sqrDistLowerBound) const {
+               CoalScalar& sqrDistLowerBound) const {
     return bv.overlap(other.bv, request, sqrDistLowerBound);
   }
 
   /// @brief Compute the distance between two BVNode. P1 and P2, if not NULL and
   /// the underlying BV supports distance, return the nearest points.
-  FCL_REAL distance(const HFNode& other, Vec3f* P1 = NULL,
-                    Vec3f* P2 = NULL) const {
+  CoalScalar distance(const HFNode& other, Vec3f* P1 = NULL,
+                      Vec3f* P2 = NULL) const {
     return bv.distance(other.bv, P1, P2);
   }
 
@@ -211,8 +211,8 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
   /// @brief Constructing an empty HeightField
   HeightField()
       : CollisionGeometry(),
-        min_height((std::numeric_limits<FCL_REAL>::min)()),
-        max_height((std::numeric_limits<FCL_REAL>::max)()) {}
+        min_height((std::numeric_limits<CoalScalar>::min)()),
+        max_height((std::numeric_limits<CoalScalar>::max)()) {}
 
   /// @brief Constructing an HeightField from its base dimensions and the set of
   /// heights points.
@@ -225,8 +225,9 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
   /// the height field
   /// \param[in] min_height Minimal height of the height field
   ///
-  HeightField(const FCL_REAL x_dim, const FCL_REAL y_dim,
-              const MatrixXf& heights, const FCL_REAL min_height = (FCL_REAL)0)
+  HeightField(const CoalScalar x_dim, const CoalScalar y_dim,
+              const MatrixXf& heights,
+              const CoalScalar min_height = (CoalScalar)0)
       : CollisionGeometry() {
     init(x_dim, y_dim, heights, min_height);
   }
@@ -256,14 +257,14 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
   const MatrixXf& getHeights() const { return heights; }
 
   /// @brief Returns the dimension of the Height Field along the X direction.
-  FCL_REAL getXDim() const { return x_dim; }
+  CoalScalar getXDim() const { return x_dim; }
   /// @brief Returns the dimension of the Height Field along the Y direction.
-  FCL_REAL getYDim() const { return y_dim; }
+  CoalScalar getYDim() const { return y_dim; }
 
   /// @brief Returns the minimal height value of the Height Field.
-  FCL_REAL getMinHeight() const { return min_height; }
+  CoalScalar getMinHeight() const { return min_height; }
   /// @brief Returns the maximal height value of the Height Field.
-  FCL_REAL getMaxHeight() const { return max_height; }
+  CoalScalar getMaxHeight() const { return max_height; }
 
   virtual HeightField<BV>* clone() const { return new HeightField(*this); }
 
@@ -304,8 +305,8 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
   }
 
  protected:
-  void init(const FCL_REAL x_dim, const FCL_REAL y_dim, const MatrixXf& heights,
-            const FCL_REAL min_height) {
+  void init(const CoalScalar x_dim, const CoalScalar y_dim,
+            const MatrixXf& heights, const CoalScalar min_height) {
     this->x_dim = x_dim;
     this->y_dim = y_dim;
     this->heights = heights.cwiseMax(min_height);
@@ -334,20 +335,20 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
 
   Vec3f computeCOM() const { return Vec3f::Zero(); }
 
-  FCL_REAL computeVolume() const { return 0; }
+  CoalScalar computeVolume() const { return 0; }
 
   Matrix3f computeMomentofInertia() const { return Matrix3f::Zero(); }
 
  protected:
   /// @brief Dimensions in meters along X and Y directions
-  FCL_REAL x_dim, y_dim;
+  CoalScalar x_dim, y_dim;
 
   /// @brief Elevation values in meters of the Height Field
   MatrixXf heights;
 
   /// @brief Minimal height of the Height Field: all values bellow min_height
   /// will be discarded.
-  FCL_REAL min_height, max_height;
+  CoalScalar min_height, max_height;
 
   /// @brief Grids along the X and Y directions. Useful for plotting or other
   /// related things.
@@ -360,7 +361,7 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
   /// @brief Build the bounding volume hierarchy
   int buildTree() {
     num_bvs = 1;
-    const FCL_REAL max_recursive_height =
+    const CoalScalar max_recursive_height =
         recursiveBuildTree(0, 0, heights.cols() - 1, 0, heights.rows() - 1);
     assert(max_recursive_height == max_height &&
            "the maximal height is not correct");
@@ -370,16 +371,15 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
     return BVH_OK;
   }
 
-  FCL_REAL recursiveUpdateHeight(const size_t bv_id) {
+  CoalScalar recursiveUpdateHeight(const size_t bv_id) {
     HFNode<BV>& bv_node = bvs[bv_id];
 
-    FCL_REAL max_height;
+    CoalScalar max_height;
     if (bv_node.isLeaf()) {
       max_height = heights.block<2, 2>(bv_node.y_id, bv_node.x_id).maxCoeff();
     } else {
-      FCL_REAL
-      max_left_height = recursiveUpdateHeight(bv_node.leftChild()),
-      max_right_height = recursiveUpdateHeight(bv_node.rightChild());
+      CoalScalar max_left_height = recursiveUpdateHeight(bv_node.leftChild()),
+                 max_right_height = recursiveUpdateHeight(bv_node.rightChild());
 
       max_height = (std::max)(max_left_height, max_right_height);
     }
@@ -395,10 +395,11 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
     return max_height;
   }
 
-  FCL_REAL recursiveBuildTree(const size_t bv_id, const Eigen::DenseIndex x_id,
-                              const Eigen::DenseIndex x_size,
-                              const Eigen::DenseIndex y_id,
-                              const Eigen::DenseIndex y_size) {
+  CoalScalar recursiveBuildTree(const size_t bv_id,
+                                const Eigen::DenseIndex x_id,
+                                const Eigen::DenseIndex x_size,
+                                const Eigen::DenseIndex y_id,
+                                const Eigen::DenseIndex y_size) {
     assert(x_id < heights.cols() && "x_id is out of bounds");
     assert(y_id < heights.rows() && "y_id is out of bounds");
     assert(x_size >= 0 && y_size >= 0 &&
@@ -406,7 +407,7 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
     assert(bv_id < bvs.size() && "bv_id exceeds the vector dimension");
 
     HFNode<BV>& bv_node = bvs[bv_id];
-    FCL_REAL max_height;
+    CoalScalar max_height;
     if (x_size == 1 &&
         y_size == 1)  // don't build any BV for the current child node
     {
@@ -415,7 +416,7 @@ class COAL_DLLAPI HeightField : public CollisionGeometry {
       bv_node.first_child = num_bvs;
       num_bvs += 2;
 
-      FCL_REAL max_left_height = min_height, max_right_height = min_height;
+      CoalScalar max_left_height = min_height, max_right_height = min_height;
       if (x_size >= y_size)  // splitting along the X axis
       {
         Eigen::DenseIndex x_size_half = x_size / 2;

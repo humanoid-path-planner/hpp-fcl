@@ -30,7 +30,7 @@
 using namespace coal;
 
 bool verbose = false;
-FCL_REAL DELTA = 0.001;
+CoalScalar DELTA = 0.001;
 
 template <typename BV>
 void makeModel(const std::vector<Vec3f>& vertices,
@@ -208,7 +208,7 @@ int main(int, char*[]) {
   makeModel(p2, t2, SPLIT_METHOD_MEDIAN, ms_obbrss[1][SPLIT_METHOD_MEDIAN]);
 
   std::vector<Transform3f> transforms;  // t0
-  FCL_REAL extents[] = {-3000, -3000, -3000, 3000, 3000, 3000};
+  CoalScalar extents[] = {-3000, -3000, -3000, 3000, 3000, 3000};
   std::size_t n = 10000;
 
   generateRandomTransforms(extents, transforms, n);

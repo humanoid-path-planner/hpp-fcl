@@ -117,7 +117,7 @@ size_t Ntransform = 1;
 #else
 size_t Ntransform = 100;
 #endif
-FCL_REAL limit = 20;
+CoalScalar limit = 20;
 bool verbose = false;
 
 #define OUT(x) \
@@ -231,14 +231,14 @@ int main(int argc, char** argv) {
     Geometry first = makeGeomFromParam(iarg, argc, argv);
     Geometry second = makeGeomFromParam(iarg, argc, argv);
 
-    FCL_REAL extents[] = {-limit, -limit, -limit, limit, limit, limit};
+    CoalScalar extents[] = {-limit, -limit, -limit, limit, limit, limit};
     generateRandomTransforms(extents, transforms, Ntransform);
     printResultHeaders();
     Results results(Ntransform);
     collide(transforms, first.o.get(), second.o.get(), request, results);
     printResults(first, second, results);
   } else {
-    FCL_REAL extents[] = {-limit, -limit, -limit, limit, limit, limit};
+    CoalScalar extents[] = {-limit, -limit, -limit, limit, limit, limit};
     generateRandomTransforms(extents, transforms, Ntransform);
     boost::filesystem::path path(TEST_RESOURCES_DIR);
 

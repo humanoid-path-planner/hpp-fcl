@@ -73,7 +73,7 @@ namespace utf = boost::unit_test::framework;
 int num_max_contacts = (std::numeric_limits<int>::max)();
 
 BOOST_AUTO_TEST_CASE(OBB_Box_test) {
-  FCL_REAL r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
+  CoalScalar r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::vector<Transform3f> rotate_transform;
   generateRandomTransforms(r_extents, rotate_transform, 1);
 
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test) {
   Transform3f box1_tf;
   constructBox(aabb1, rotate_transform[0], box1, box1_tf);
 
-  FCL_REAL extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
+  CoalScalar extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
   std::vector<Transform3f> transforms;
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test) {
 }
 
 BOOST_AUTO_TEST_CASE(OBB_shape_test) {
-  FCL_REAL r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
+  CoalScalar r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::vector<Transform3f> rotate_transform;
   generateRandomTransforms(r_extents, rotate_transform, 1);
 
@@ -137,14 +137,14 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test) {
   Transform3f box1_tf;
   constructBox(aabb1, rotate_transform[0], box1, box1_tf);
 
-  FCL_REAL extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
+  CoalScalar extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
   std::vector<Transform3f> transforms;
   generateRandomTransforms(extents, transforms, n);
 
   for (std::size_t i = 0; i < transforms.size(); ++i) {
-    FCL_REAL len = (aabb1.max_[0] - aabb1.min_[0]) * 0.5;
+    CoalScalar len = (aabb1.max_[0] - aabb1.min_[0]) * 0.5;
     OBB obb2;
     GJKSolver solver;
 
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test) {
 }
 
 BOOST_AUTO_TEST_CASE(OBB_AABB_test) {
-  FCL_REAL extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
+  CoalScalar extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
   std::vector<Transform3f> transforms;
@@ -624,7 +624,7 @@ struct mesh_mesh_run_test {
 //
 BOOST_AUTO_TEST_CASE(mesh_mesh) {
   std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+  CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
 #ifndef NDEBUG  // if debug mode
   std::size_t n = 1;
 #else
@@ -655,7 +655,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh) {
 
 BOOST_AUTO_TEST_CASE(mesh_mesh_benchmark) {
   std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+  CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
 #ifndef NDEBUG
   std::size_t n = 0;
 #else

@@ -54,13 +54,13 @@ struct COAL_DLLAPI DistanceFunctionMatrix {
   /// between geometric shapes;
   /// 3. the request setting for distance (e.g., whether need to return nearest
   /// points);
-  typedef FCL_REAL (*DistanceFunc)(const CollisionGeometry* o1,
-                                   const Transform3f& tf1,
-                                   const CollisionGeometry* o2,
-                                   const Transform3f& tf2,
-                                   const GJKSolver* nsolver,
-                                   const DistanceRequest& request,
-                                   DistanceResult& result);
+  typedef CoalScalar (*DistanceFunc)(const CollisionGeometry* o1,
+                                     const Transform3f& tf1,
+                                     const CollisionGeometry* o2,
+                                     const Transform3f& tf2,
+                                     const GJKSolver* nsolver,
+                                     const DistanceRequest& request,
+                                     DistanceResult& result);
 
   /// @brief each item in the distance matrix is a function to handle distance
   /// between objects of type1 and type2

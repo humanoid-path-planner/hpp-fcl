@@ -282,14 +282,14 @@ BOOST_AUTO_TEST_CASE(test_collision_data) {
   {
     // Serializing contact patches.
     const Halfspace hspace(0, 0, 1, 0);
-    const FCL_REAL radius = 0.25;
-    const FCL_REAL height = 1.;
+    const CoalScalar radius = 0.25;
+    const CoalScalar height = 1.;
     const Cylinder cylinder(radius, height);
 
     const Transform3f tf1;
     Transform3f tf2;
     // set translation to have a collision
-    const FCL_REAL offset = 0.001;
+    const CoalScalar offset = 0.001;
     tf2.setTranslation(Vec3f(0, 0, height / 2 - offset));
 
     const size_t num_max_contact = 1;
@@ -417,8 +417,8 @@ BOOST_AUTO_TEST_CASE(test_Convex) {
 #endif
 
 BOOST_AUTO_TEST_CASE(test_HeightField) {
-  const FCL_REAL min_altitude = -1.;
-  const FCL_REAL x_dim = 1., y_dim = 2.;
+  const CoalScalar min_altitude = -1.;
+  const CoalScalar x_dim = 1., y_dim = 2.;
   const Eigen::DenseIndex nx = 100, ny = 200;
   const MatrixXf heights = MatrixXf::Random(ny, nx);
 
@@ -531,7 +531,7 @@ BOOST_AUTO_TEST_CASE(test_shapes) {
 
 #ifdef COAL_HAS_OCTOMAP
 BOOST_AUTO_TEST_CASE(test_octree) {
-  const FCL_REAL resolution = 1e-2;
+  const CoalScalar resolution = 1e-2;
   const Matrixx3f points = Matrixx3f::Random(1000, 3);
   OcTreePtr_t octree_ptr = makeOctree(points, resolution);
   const OcTree& octree = *octree_ptr.get();

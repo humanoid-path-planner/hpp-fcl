@@ -41,7 +41,7 @@ namespace coal {
 bool obbDisjointAndLowerBoundDistance(const Matrix3f& B, const Vec3f& T,
                                       const Vec3f& a, const Vec3f& b,
                                       const CollisionRequest& request,
-                                      FCL_REAL& squaredLowerBoundDistance);
+                                      CoalScalar& squaredLowerBoundDistance);
 
 bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
                  const Vec3f& b);

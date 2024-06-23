@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(aabb_aabb) {
     CollisionRequest collisionRequest(CONTACT, 1);
     AABB bv2_transformed;
     computeBV(s2, tf2_collision, bv2_transformed);
-    FCL_REAL sqrDistLowerBound;
+    CoalScalar sqrDistLowerBound;
     bool res =
         bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(res);
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(aabb_aabb) {
         Vec3f(tf2_collision.getTranslation() + Vec3f(0, 0, distance)));
     AABB bv2_transformed;
     computeBV(s2, tf2_no_collision, bv2_transformed);
-    FCL_REAL sqrDistLowerBound;
+    CoalScalar sqrDistLowerBound;
     bool res =
         bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(!res);
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(aabb_aabb) {
         Vec3f(tf2_collision.getTranslation() + Vec3f(0, 0, distance)));
     AABB bv2_transformed;
     computeBV(s2, tf2_no_collision, bv2_transformed);
-    FCL_REAL sqrDistLowerBound;
+    CoalScalar sqrDistLowerBound;
     bool res =
         bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(res);
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(aabb_aabb) {
         Vec3f(tf2_collision.getTranslation() + Vec3f(0, distance, distance)));
     AABB bv2_transformed;
     computeBV(s2, tf2, bv2_transformed);
-    FCL_REAL sqrDistLowerBound;
+    CoalScalar sqrDistLowerBound;
     bool res =
         bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(res);
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(aabb_aabb) {
     collisionRequest.security_margin = distance;
     AABB bv2_transformed;
     computeBV(s2, tf2_collision, bv2_transformed);
-    FCL_REAL sqrDistLowerBound;
+    CoalScalar sqrDistLowerBound;
     bool res =
         bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(!res);
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(aabb_aabb_degenerated_cases) {
     collisionRequest.security_margin = distance;
     AABB bv2_transformed;
     computeBV(s2, tf2_collision, bv2_transformed);
-    FCL_REAL sqrDistLowerBound;
+    CoalScalar sqrDistLowerBound;
     bool res =
         bv1.overlap(bv2_transformed, collisionRequest, sqrDistLowerBound);
     BOOST_CHECK(!res);
@@ -394,7 +394,7 @@ BOOST_AUTO_TEST_CASE(box_box) {
   // Negative security margin - collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
-    const FCL_REAL distance = -0.01;
+    const CoalScalar distance = -0.01;
     collisionRequest.security_margin = distance;
     CollisionResult collisionResult;
 
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE(box_box) {
 template <typename ShapeType1, typename ShapeType2>
 void test_shape_shape(const ShapeType1& shape1, const Transform3f& tf1,
                       const ShapeType2& shape2,
-                      const Transform3f& tf2_collision, const FCL_REAL tol) {
+                      const Transform3f& tf2_collision, const CoalScalar tol) {
   // No security margin - collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
@@ -471,7 +471,7 @@ void test_shape_shape(const ShapeType1& shape1, const Transform3f& tf1,
   // Negative security margin - collision
   {
     CollisionRequest collisionRequest(CONTACT, 1);
-    const FCL_REAL distance = -0.01;
+    const CoalScalar distance = -0.01;
     collisionRequest.security_margin = distance;
     CollisionResult collisionResult;
 

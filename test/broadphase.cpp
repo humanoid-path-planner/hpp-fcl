@@ -75,7 +75,7 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size,
 void broad_phase_self_distance_test(double env_scale, std::size_t env_size,
                                     bool use_mesh = false);
 
-FCL_REAL DELTA = 0.01;
+CoalScalar DELTA = 0.01;
 
 #if USE_GOOGLEHASH
 template <typename U, typename V>
@@ -146,9 +146,9 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
                                       double env_scale, std::size_t n) {
   int n_edge = static_cast<int>(std::floor(std::pow(n, 1 / 3.0)));
 
-  FCL_REAL step_size = env_scale * 2 / n_edge;
-  FCL_REAL delta_size = step_size * 0.05;
-  FCL_REAL single_size = step_size - 2 * delta_size;
+  CoalScalar step_size = env_scale * 2 / n_edge;
+  CoalScalar delta_size = step_size * 0.05;
+  CoalScalar single_size = step_size - 2 * delta_size;
 
   int i = 0;
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
@@ -216,9 +216,9 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env,
                                           double env_scale, std::size_t n) {
   int n_edge = static_cast<int>(std::floor(std::pow(n, 1 / 3.0)));
 
-  FCL_REAL step_size = env_scale * 2 / n_edge;
-  FCL_REAL delta_size = step_size * 0.05;
-  FCL_REAL single_size = step_size - 2 * delta_size;
+  CoalScalar step_size = env_scale * 2 / n_edge;
+  CoalScalar delta_size = step_size * 0.05;
+  CoalScalar single_size = step_size - 2 * delta_size;
 
   int i = 0;
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
@@ -310,9 +310,10 @@ void broad_phase_self_distance_test(double env_scale, std::size_t env_size,
 
   Vec3f lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
-  FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 5,
-                                         (upper_limit[1] - lower_limit[1]) / 5),
-                                (upper_limit[2] - lower_limit[2]) / 5);
+  CoalScalar cell_size =
+      std::min(std::min((upper_limit[0] - lower_limit[0]) / 5,
+                        (upper_limit[1] - lower_limit[1]) / 5),
+               (upper_limit[2] - lower_limit[2]) / 5);
   // managers.push_back(new SpatialHashingCollisionManager<>(cell_size,
   // lower_limit, upper_limit));
   managers.push_back(new SpatialHashingCollisionManager<
@@ -459,7 +460,7 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size,
 
   Vec3f lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
-  FCL_REAL cell_size =
+  CoalScalar cell_size =
       std::min(std::min((upper_limit[0] - lower_limit[0]) / 20,
                         (upper_limit[1] - lower_limit[1]) / 20),
                (upper_limit[2] - lower_limit[2]) / 20);
@@ -564,7 +565,7 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size,
 
   std::cout << "distance time" << std::endl;
   for (size_t i = 0; i < ts.size(); ++i) {
-    FCL_REAL tmp = 0;
+    CoalScalar tmp = 0;
     for (size_t j = 2; j < ts[i].records.size(); ++j) tmp += ts[i].records[j];
     std::cout << std::setw(w) << tmp << " ";
   }

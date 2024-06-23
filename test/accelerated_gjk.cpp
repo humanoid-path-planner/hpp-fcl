@@ -46,10 +46,10 @@
 
 using coal::Box;
 using coal::Capsule;
+using coal::CoalScalar;
 using coal::constructPolytopeFromEllipsoid;
 using coal::Convex;
 using coal::Ellipsoid;
-using coal::FCL_REAL;
 using coal::GJKSolver;
 using coal::GJKVariant;
 using coal::ShapeBase;
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(need_nesterov_normalize_support_direction) {
 void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
   // Solvers
   unsigned int max_iterations = 128;
-  FCL_REAL tolerance = 1e-6;
+  CoalScalar tolerance = 1e-6;
   GJK gjk(max_iterations, tolerance);
   GJK gjk_nesterov(max_iterations, tolerance);
   gjk_nesterov.gjk_variant = GJKVariant::NesterovAcceleration;
@@ -119,7 +119,7 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
 
   // Generate random transforms
   size_t n = 1000;
-  FCL_REAL extents[] = {-3., -3., 0, 3., 3., 3.};
+  CoalScalar extents[] = {-3., -3., 0, 3., 3., 3.};
   std::vector<Transform3f> transforms;
   generateRandomTransforms(extents, transforms, n);
   Transform3f identity = Transform3f::Identity();

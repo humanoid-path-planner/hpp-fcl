@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformXY) {
             << ", p2 = " << distanceResult.nearest_points[1]
             << ", distance = " << distanceResult.min_distance << std::endl;
 
-  FCL_REAL expected = sqrt(800) - 10;
+  CoalScalar expected = sqrt(800) - 10;
   BOOST_CHECK_CLOSE(distanceResult.min_distance, expected, 1e-6);
 }
 

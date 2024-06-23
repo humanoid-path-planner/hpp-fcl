@@ -51,7 +51,7 @@ namespace details {
 ///
 /// @note The Minkowski difference is expressed in the frame of the first shape.
 struct COAL_DLLAPI MinkowskiDiff {
-  typedef Eigen::Array<FCL_REAL, 1, 2> Array2d;
+  typedef Eigen::Array<CoalScalar, 1, 2> Array2d;
 
   /// @brief points to two shapes
   const ShapeBase* shapes[2];

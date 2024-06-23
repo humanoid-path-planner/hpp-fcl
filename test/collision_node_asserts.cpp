@@ -7,7 +7,7 @@
 
 using namespace coal;
 
-constexpr FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+constexpr CoalScalar pi = boost::math::constants::pi<CoalScalar>();
 
 double DegToRad(const double& deg) {
   static double degToRad = pi / 180.;

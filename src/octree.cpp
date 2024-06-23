@@ -58,15 +58,15 @@ struct Neighbors {
 void computeNeighbors(const std::vector<Vec6f>& boxes,
                       std::vector<Neighbors>& neighbors) {
   typedef std::vector<Vec6f> VectorVec6f;
-  FCL_REAL fixedSize = -1;
-  FCL_REAL e(1e-8);
+  CoalScalar fixedSize = -1;
+  CoalScalar e(1e-8);
   for (std::size_t i = 0; i < boxes.size(); ++i) {
     const Vec6f& box(boxes[i]);
     Neighbors& n(neighbors[i]);
-    FCL_REAL x(box[0]);
-    FCL_REAL y(box[1]);
-    FCL_REAL z(box[2]);
-    FCL_REAL s(box[3]);
+    CoalScalar x(box[0]);
+    CoalScalar y(box[1]);
+    CoalScalar z(box[2]);
+    CoalScalar s(box[3]);
     if (fixedSize == -1)
       fixedSize = s;
     else
@@ -75,9 +75,9 @@ void computeNeighbors(const std::vector<Vec6f>& boxes,
     for (VectorVec6f::const_iterator it = boxes.begin(); it != boxes.end();
          ++it) {
       const Vec6f& otherBox = *it;
-      FCL_REAL xo(otherBox[0]);
-      FCL_REAL yo(otherBox[1]);
-      FCL_REAL zo(otherBox[2]);
+      CoalScalar xo(otherBox[0]);
+      CoalScalar yo(otherBox[1]);
+      CoalScalar zo(otherBox[2]);
       // if (fabs(x-xo) < e && fabs(y-yo) < e && fabs(z-zo) < e){
       //   continue;
       // }
@@ -122,10 +122,10 @@ void OcTree::exportAsObjFile(const std::string& filename) const {
     const Vec6f& box(boxes[i]);
     internal::Neighbors& n(neighbors[i]);
 
-    FCL_REAL x(box[0]);
-    FCL_REAL y(box[1]);
-    FCL_REAL z(box[2]);
-    FCL_REAL size(box[3]);
+    CoalScalar x(box[0]);
+    CoalScalar y(box[1]);
+    CoalScalar z(box[2]);
+    CoalScalar size(box[3]);
 
     vertices.push_back(Vec3f(x - .5 * size, y - .5 * size, z - .5 * size));
     vertices.push_back(Vec3f(x + .5 * size, y - .5 * size, z - .5 * size));
@@ -186,9 +186,9 @@ void OcTree::exportAsObjFile(const std::string& filename) const {
 }
 
 OcTreePtr_t makeOctree(
-    const Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3>& point_cloud,
-    const FCL_REAL resolution) {
-  typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3> InputType;
+    const Eigen::Matrix<CoalScalar, Eigen::Dynamic, 3>& point_cloud,
+    const CoalScalar resolution) {
+  typedef Eigen::Matrix<CoalScalar, Eigen::Dynamic, 3> InputType;
   typedef InputType::ConstRowXpr RowType;
 
   shared_ptr<octomap::OcTree> octree(new octomap::OcTree(resolution));

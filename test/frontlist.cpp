@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE(front_list) {
 
   std::vector<Transform3f> transforms;   // t0
   std::vector<Transform3f> transforms2;  // t1
-  FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
-  FCL_REAL delta_trans[] = {1, 1, 1};
+  CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+  CoalScalar delta_trans[] = {1, 1, 1};
 #ifndef NDEBUG  // if debug mode
   std::size_t n = 2;
 #else

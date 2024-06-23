@@ -84,7 +84,7 @@ struct DistanceCallBackBaseWrapper : DistanceCallBackBase,
     return distance(o1, o2, dist.coeffRef(0, 0));
   }
 
-  bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL& dist) {
+  bool distance(CollisionObject* o1, CollisionObject* o2, CoalScalar& dist) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
     return this->get_override("distance")(o1, o2, dist);

@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(vec_test_eigen_vec64) {
   BOOST_CHECK(v1.dot(v2) == 26);
 }
 
-Vec3f rotate(Vec3f input, FCL_REAL w, Vec3f vec) {
+Vec3f rotate(Vec3f input, CoalScalar w, Vec3f vec) {
   return 2 * vec.dot(input) * vec + (w * w - vec.dot(vec)) * input +
          2 * w * vec.cross(input);
 }

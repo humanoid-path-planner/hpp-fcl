@@ -102,28 +102,28 @@ struct COAL_DLLAPI Contact {
   Vec3f pos;
 
   /// @brief penetration depth
-  FCL_REAL penetration_depth;
+  CoalScalar penetration_depth;
 
   /// @brief invalid contact primitive information
   static const int NONE = -1;
 
   /// @brief Default constructor
   Contact() : o1(NULL), o2(NULL), b1(NONE), b2(NONE) {
-    penetration_depth = (std::numeric_limits<FCL_REAL>::max)();
+    penetration_depth = (std::numeric_limits<CoalScalar>::max)();
     nearest_points[0] = nearest_points[1] = normal = pos =
-        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
   }
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
           int b2_)
       : o1(o1_), o2(o2_), b1(b1_), b2(b2_) {
-    penetration_depth = (std::numeric_limits<FCL_REAL>::max)();
+    penetration_depth = (std::numeric_limits<CoalScalar>::max)();
     nearest_points[0] = nearest_points[1] = normal = pos =
-        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
   }
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
-          int b2_, const Vec3f& pos_, const Vec3f& normal_, FCL_REAL depth_)
+          int b2_, const Vec3f& pos_, const Vec3f& normal_, CoalScalar depth_)
       : o1(o1_),
         o2(o2_),
         b1(b1_),
@@ -136,7 +136,7 @@ struct COAL_DLLAPI Contact {
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_,
           int b2_, const Vec3f& p1, const Vec3f& p2, const Vec3f& normal_,
-          FCL_REAL depth_)
+          CoalScalar depth_)
       : o1(o1_),
         o2(o2_),
         b1(b1_),
@@ -161,7 +161,7 @@ struct COAL_DLLAPI Contact {
 
   bool operator!=(const Contact& other) const { return !(*this == other); }
 
-  FCL_REAL getDistanceToCollision(const CollisionRequest& request) const;
+  CoalScalar getDistanceToCollision(const CollisionRequest& request) const;
 };
 
 struct QueryResult;
@@ -189,7 +189,7 @@ struct COAL_DLLAPI QueryRequest {
   /// Note: This tolerance determines the precision on the estimated distance
   /// between two geometries which are not in collision.
   /// It is recommended to not set this tolerance to less than 1e-6.
-  FCL_REAL gjk_tolerance;
+  CoalScalar gjk_tolerance;
 
   /// @brief whether to enable the Nesterov accleration of GJK
   GJKVariant gjk_variant;
@@ -208,13 +208,13 @@ struct COAL_DLLAPI QueryRequest {
   /// between two geometries which are in collision.
   /// It is recommended to not set this tolerance to less than 1e-6.
   /// Also, setting EPA's tolerance to less than GJK's is not recommended.
-  FCL_REAL epa_tolerance;
+  CoalScalar epa_tolerance;
 
   /// @brief enable timings when performing collision/distance request
   bool enable_timings;
 
   /// @brief threshold below which a collision is considered.
-  FCL_REAL collision_distance_threshold;
+  CoalScalar collision_distance_threshold;
 
   COAL_COMPILER_DIAGNOSTIC_PUSH
   COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
@@ -233,7 +233,7 @@ struct COAL_DLLAPI QueryRequest {
         epa_tolerance(EPA_DEFAULT_TOLERANCE),
         enable_timings(false),
         collision_distance_threshold(
-            Eigen::NumTraits<FCL_REAL>::dummy_precision()) {}
+            Eigen::NumTraits<CoalScalar>::dummy_precision()) {}
 
   /// @brief Copy  constructor.
   QueryRequest(const QueryRequest& other) = default;
@@ -325,11 +325,11 @@ struct COAL_DLLAPI CollisionRequest : QueryRequest {
   /// @note If set to -inf, the objects tested for collision are considered
   ///       as collision free and no test is actually performed by functions
   ///       coal::collide of class coal::ComputeCollision.
-  FCL_REAL security_margin;
+  CoalScalar security_margin;
 
   /// @brief Distance below which bounding volumes are broken down.
   /// See \ref coal_collision_and_distance_lower_bound_computation
-  FCL_REAL break_distance;
+  CoalScalar break_distance;
 
   /// @brief Distance above which GJK solver makes an early stopping.
   /// GJK stops searching for the closest points when it proves that the
@@ -337,7 +337,7 @@ struct COAL_DLLAPI CollisionRequest : QueryRequest {
   ///
   /// @remarks Consequently, the closest points might be incorrect, but allows
   /// to save computational resources.
-  FCL_REAL distance_upper_bound;
+  CoalScalar distance_upper_bound;
 
   /// @brief Constructor from a flag and a maximal number of contacts.
   ///
@@ -352,7 +352,7 @@ struct COAL_DLLAPI CollisionRequest : QueryRequest {
         enable_distance_lower_bound(flag & DISTANCE_LOWER_BOUND),
         security_margin(0),
         break_distance(1e-3),
-        distance_upper_bound((std::numeric_limits<FCL_REAL>::max)()) {}
+        distance_upper_bound((std::numeric_limits<CoalScalar>::max)()) {}
 
   /// @brief Default constructor.
   CollisionRequest()
@@ -361,7 +361,7 @@ struct COAL_DLLAPI CollisionRequest : QueryRequest {
         enable_distance_lower_bound(false),
         security_margin(0),
         break_distance(1e-3),
-        distance_upper_bound((std::numeric_limits<FCL_REAL>::max)()) {}
+        distance_upper_bound((std::numeric_limits<CoalScalar>::max)()) {}
   COAL_COMPILER_DIAGNOSTIC_POP
 
   bool isSatisfied(const CollisionResult& result) const;
@@ -381,7 +381,7 @@ struct COAL_DLLAPI CollisionRequest : QueryRequest {
   }
 };
 
-inline FCL_REAL Contact::getDistanceToCollision(
+inline CoalScalar Contact::getDistanceToCollision(
     const CollisionRequest& request) const {
   return penetration_depth - request.security_margin;
 }
@@ -398,7 +398,7 @@ struct COAL_DLLAPI CollisionResult : QueryResult {
   /// @note Always computed. If \ref CollisionRequest::distance_upper_bound is
   /// set to infinity, distance_lower_bound is the actual distance between the
   /// shapes.
-  FCL_REAL distance_lower_bound;
+  CoalScalar distance_lower_bound;
 
   /// @brief normal associated to nearest_points.
   /// Same as `CollisionResult::nearest_points` but for the normal.
@@ -415,13 +415,14 @@ struct COAL_DLLAPI CollisionResult : QueryResult {
 
  public:
   CollisionResult()
-      : distance_lower_bound((std::numeric_limits<FCL_REAL>::max)()) {
+      : distance_lower_bound((std::numeric_limits<CoalScalar>::max)()) {
     nearest_points[0] = nearest_points[1] = normal =
-        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
   }
 
   /// @brief Update the lower bound only if the distance is inferior.
-  inline void updateDistanceLowerBound(const FCL_REAL& distance_lower_bound_) {
+  inline void updateDistanceLowerBound(
+      const CoalScalar& distance_lower_bound_) {
     if (distance_lower_bound_ < distance_lower_bound)
       distance_lower_bound = distance_lower_bound_;
   }
@@ -480,11 +481,11 @@ struct COAL_DLLAPI CollisionResult : QueryResult {
 
   /// @brief clear the results obtained
   void clear() {
-    distance_lower_bound = (std::numeric_limits<FCL_REAL>::max)();
+    distance_lower_bound = (std::numeric_limits<CoalScalar>::max)();
     contacts.clear();
     timings.clear();
     nearest_points[0] = nearest_points[1] = normal =
-        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN());
+        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN());
   }
 
   /// @brief reposition Contact objects when fcl inverts them
@@ -541,7 +542,7 @@ struct COAL_DLLAPI ContactPatch {
   /// @note Although there may exist multiple minimum separation vectors between
   /// two shapes, the term "minimum" comes from the fact that it's impossible to
   /// find a different separation vector which has a smaller norm than `d * n`.
-  FCL_REAL penetration_depth;
+  CoalScalar penetration_depth;
 
   /// @brief Default maximum size of the polygon representing the contact patch.
   /// Used to pre-allocate memory for the patch.
@@ -655,8 +656,8 @@ struct COAL_DLLAPI ContactPatch {
   /// @brief Whether two contact patches are the same or not.
   /// Checks for different order of the points.
   bool isSame(const ContactPatch& other,
-              const FCL_REAL tol =
-                  Eigen::NumTraits<FCL_REAL>::dummy_precision()) const {
+              const CoalScalar tol =
+                  Eigen::NumTraits<CoalScalar>::dummy_precision()) const {
     // The x and y axis of the set are arbitrary, but the z axis is
     // always the normal. The position of the origin of the frame is also
     // arbitrary. So we only check if the normals are the same.
@@ -740,7 +741,7 @@ struct COAL_DLLAPI ContactPatchRequest {
   /// plane, it is taken into account in the computation of the contact patch.
   /// Otherwise, it is not used for the computation.
   /// @note Needs to be positive.
-  FCL_REAL m_patch_tolerance;
+  CoalScalar m_patch_tolerance;
 
  public:
   /// @brief Default constructor.
@@ -760,7 +761,7 @@ struct COAL_DLLAPI ContactPatchRequest {
   explicit ContactPatchRequest(size_t max_num_patch = 1,
                                size_t num_samples_curved_shapes =
                                    ContactPatch::default_preallocated_size,
-                               FCL_REAL patch_tolerance = 1e-3)
+                               CoalScalar patch_tolerance = 1e-3)
       : max_num_patch(max_num_patch) {
     this->setNumSamplesCurvedShapes(num_samples_curved_shapes);
     this->setPatchTolerance(patch_tolerance);
@@ -770,7 +771,7 @@ struct COAL_DLLAPI ContactPatchRequest {
   explicit ContactPatchRequest(const CollisionRequest& collision_request,
                                size_t num_samples_curved_shapes =
                                    ContactPatch::default_preallocated_size,
-                               FCL_REAL patch_tolerance = 1e-3)
+                               CoalScalar patch_tolerance = 1e-3)
       : max_num_patch(collision_request.num_max_contacts) {
     this->setNumSamplesCurvedShapes(num_samples_curved_shapes);
     this->setPatchTolerance(patch_tolerance);
@@ -794,19 +795,19 @@ struct COAL_DLLAPI ContactPatchRequest {
   }
 
   /// @copydoc m_patch_tolerance
-  void setPatchTolerance(const FCL_REAL patch_tolerance) {
+  void setPatchTolerance(const CoalScalar patch_tolerance) {
     if (patch_tolerance < 0) {
       COAL_LOG_WARNING(
           "`patch_tolerance` cannot be negative. Setting it to 0 to prevent "
           "bugs.");
-      this->m_patch_tolerance = Eigen::NumTraits<FCL_REAL>::dummy_precision();
+      this->m_patch_tolerance = Eigen::NumTraits<CoalScalar>::dummy_precision();
     } else {
       this->m_patch_tolerance = patch_tolerance;
     }
   }
 
   /// @copydoc m_patch_tolerance
-  FCL_REAL getPatchTolerance() const { return this->m_patch_tolerance; }
+  CoalScalar getPatchTolerance() const { return this->m_patch_tolerance; }
 
   /// @brief Whether two ContactPatchRequest are identical or not.
   bool operator==(const ContactPatchRequest& other) const {
@@ -1009,8 +1010,8 @@ struct COAL_DLLAPI DistanceRequest : QueryRequest {
   bool enable_signed_distance;
 
   /// @brief error threshold for approximate distance
-  FCL_REAL rel_err;  // relative error, between 0 and 1
-  FCL_REAL abs_err;  // absolute error
+  CoalScalar rel_err;  // relative error, between 0 and 1
+  CoalScalar abs_err;  // absolute error
 
   /// \param enable_nearest_points_ enables the nearest points computation.
   /// \param enable_signed_distance_ allows to compute the penetration depth
@@ -1019,8 +1020,8 @@ struct COAL_DLLAPI DistanceRequest : QueryRequest {
   COAL_COMPILER_DIAGNOSTIC_PUSH
   COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   DistanceRequest(bool enable_nearest_points_ = true,
-                  bool enable_signed_distance_ = true, FCL_REAL rel_err_ = 0.0,
-                  FCL_REAL abs_err_ = 0.0)
+                  bool enable_signed_distance_ = true,
+                  CoalScalar rel_err_ = 0.0, CoalScalar abs_err_ = 0.0)
       : enable_nearest_points(enable_nearest_points_),
         enable_signed_distance(enable_signed_distance_),
         rel_err(rel_err_),
@@ -1054,7 +1055,7 @@ struct COAL_DLLAPI DistanceResult : QueryResult {
   /// DistanceRequest::enable_signed_distance is activated, min_distance <= 0.
   /// @note The nearest points are the points of the shapes that achieve a
   /// distance of `DistanceResult::min_distance`.
-  FCL_REAL min_distance;
+  CoalScalar min_distance;
 
   /// @brief normal.
   Vec3f normal;
@@ -1085,15 +1086,15 @@ struct COAL_DLLAPI DistanceResult : QueryResult {
   static const int NONE = -1;
 
   DistanceResult(
-      FCL_REAL min_distance_ = (std::numeric_limits<FCL_REAL>::max)())
+      CoalScalar min_distance_ = (std::numeric_limits<CoalScalar>::max)())
       : min_distance(min_distance_), o1(NULL), o2(NULL), b1(NONE), b2(NONE) {
     const Vec3f nan(
-        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
+        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN()));
     nearest_points[0] = nearest_points[1] = normal = nan;
   }
 
   /// @brief add distance information into the result
-  void update(FCL_REAL distance, const CollisionGeometry* o1_,
+  void update(CoalScalar distance, const CollisionGeometry* o1_,
               const CollisionGeometry* o2_, int b1_, int b2_) {
     if (min_distance > distance) {
       min_distance = distance;
@@ -1105,7 +1106,7 @@ struct COAL_DLLAPI DistanceResult : QueryResult {
   }
 
   /// @brief add distance information into the result
-  void update(FCL_REAL distance, const CollisionGeometry* o1_,
+  void update(CoalScalar distance, const CollisionGeometry* o1_,
               const CollisionGeometry* o2_, int b1_, int b2_, const Vec3f& p1,
               const Vec3f& p2, const Vec3f& normal_) {
     if (min_distance > distance) {
@@ -1137,8 +1138,8 @@ struct COAL_DLLAPI DistanceResult : QueryResult {
   /// @brief clear the result
   void clear() {
     const Vec3f nan(
-        Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
-    min_distance = (std::numeric_limits<FCL_REAL>::max)();
+        Vec3f::Constant(std::numeric_limits<CoalScalar>::quiet_NaN()));
+    min_distance = (std::numeric_limits<CoalScalar>::max)();
     o1 = NULL;
     o2 = NULL;
     b1 = NONE;
@@ -1173,16 +1174,16 @@ struct COAL_DLLAPI DistanceResult : QueryResult {
 namespace internal {
 inline void updateDistanceLowerBoundFromBV(const CollisionRequest& /*req*/,
                                            CollisionResult& res,
-                                           const FCL_REAL sqrDistLowerBound) {
+                                           const CoalScalar sqrDistLowerBound) {
   // BV cannot find negative distance.
   if (res.distance_lower_bound <= 0) return;
-  FCL_REAL new_dlb = std::sqrt(sqrDistLowerBound);  // - req.security_margin;
+  CoalScalar new_dlb = std::sqrt(sqrDistLowerBound);  // - req.security_margin;
   if (new_dlb < res.distance_lower_bound) res.distance_lower_bound = new_dlb;
 }
 
 inline void updateDistanceLowerBoundFromLeaf(const CollisionRequest&,
                                              CollisionResult& res,
-                                             const FCL_REAL& distance,
+                                             const CoalScalar& distance,
                                              const Vec3f& p0, const Vec3f& p1,
                                              const Vec3f& normal) {
   if (distance < res.distance_lower_bound) {

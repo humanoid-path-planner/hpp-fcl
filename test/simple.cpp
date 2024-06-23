@@ -9,9 +9,11 @@
 
 using namespace coal;
 
-static FCL_REAL epsilon = 1e-6;
+static CoalScalar epsilon = 1e-6;
 
-static bool approx(FCL_REAL x, FCL_REAL y) { return std::abs(x - y) < epsilon; }
+static bool approx(CoalScalar x, CoalScalar y) {
+  return std::abs(x - y) < epsilon;
+}
 
 BOOST_AUTO_TEST_CASE(projection_test_line) {
   Vec3f v1(0, 0, 0);

@@ -50,9 +50,9 @@
 
 using namespace coal;
 
-FCL_REAL extents[6] = {0, 0, 0, 10, 10, 10};
+CoalScalar extents[6] = {0, 0, 0, 10, 10, 10};
 
-FCL_REAL tol_gjk = 0.01;
+CoalScalar tol_gjk = 0.01;
 GJKSolver solver1;
 GJKSolver solver2;
 
@@ -82,7 +82,7 @@ void printComparisonError(const std::string& comparison_type, const S1& s1,
                           const Transform3f& tf2,
                           const Vec3f& contact_or_normal,
                           const Vec3f& expected_contact_or_normal,
-                          bool check_opposite_normal, FCL_REAL tol) {
+                          bool check_opposite_normal, CoalScalar tol) {
   std::cout << "Disagreement between " << comparison_type << " and expected_"
             << comparison_type << " for " << getNodeTypeName(s1.getNodeType())
             << " and " << getNodeTypeName(s2.getNodeType()) << ".\n"
@@ -110,8 +110,8 @@ void printComparisonError(const std::string& comparison_type, const S1& s1,
 template <typename S1, typename S2>
 void printComparisonError(const std::string& comparison_type, const S1& s1,
                           const Transform3f& tf1, const S2& s2,
-                          const Transform3f& tf2, FCL_REAL depth,
-                          FCL_REAL expected_depth, FCL_REAL tol) {
+                          const Transform3f& tf2, CoalScalar depth,
+                          CoalScalar expected_depth, CoalScalar tol) {
   std::cout << "Disagreement between " << comparison_type << " and expected_"
             << comparison_type << " for " << getNodeTypeName(s1.getNodeType())
             << " and " << getNodeTypeName(s2.getNodeType()) << ".\n"
@@ -128,10 +128,10 @@ void printComparisonError(const std::string& comparison_type, const S1& s1,
 template <typename S1, typename S2>
 void compareContact(const S1& s1, const Transform3f& tf1, const S2& s2,
                     const Transform3f& tf2, const Vec3f& contact,
-                    Vec3f* expected_point, FCL_REAL depth,
-                    FCL_REAL* expected_depth, const Vec3f& normal,
+                    Vec3f* expected_point, CoalScalar depth,
+                    CoalScalar* expected_depth, const Vec3f& normal,
                     Vec3f* expected_normal, bool check_opposite_normal,
-                    FCL_REAL tol) {
+                    CoalScalar tol) {
   if (expected_point) {
     bool contact_equal = isEqual(contact, *expected_point, tol);
     FCL_CHECK(contact_equal);
@@ -165,9 +165,10 @@ template <typename S1, typename S2>
 void testShapeCollide(const S1& s1, const Transform3f& tf1, const S2& s2,
                       const Transform3f& tf2, bool expect_collision,
                       Vec3f* expected_point = NULL,
-                      FCL_REAL* expected_depth = NULL,
+                      CoalScalar* expected_depth = NULL,
                       Vec3f* expected_normal = NULL,
-                      bool check_opposite_normal = false, FCL_REAL tol = 1e-9) {
+                      bool check_opposite_normal = false,
+                      CoalScalar tol = 1e-9) {
   CollisionRequest request;
   CollisionResult result;
 
@@ -244,7 +245,7 @@ BOOST_AUTO_TEST_CASE(collide_spheresphere) {
   generateRandomTransform(extents, transform);
 
   // Vec3f point;
-  // FCL_REAL depth;
+  // CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -363,7 +364,7 @@ void testBoxBoxContactPoints(const Matrix3f& R) {
   solver1.gjk_tolerance = 1e-5;
   solver1.epa_tolerance = 1e-5;
   const bool compute_penetration = true;
-  FCL_REAL distance = solver1.shapeDistance(
+  CoalScalar distance = solver1.shapeDistance(
       s1, tf1, s2, tf2, compute_penetration, p1, p2, normal);
   FCL_CHECK(distance <= 0);
 
@@ -391,11 +392,11 @@ BOOST_AUTO_TEST_CASE(collide_boxbox) {
   generateRandomTransform(extents, transform);
 
   // Vec3f point;
-  // FCL_REAL depth;
+  // CoalScalar depth;
   Vec3f normal;
 
   Quatf q;
-  q = AngleAxis((FCL_REAL)3.140 / 6, UnitZ);
+  q = AngleAxis((CoalScalar)3.140 / 6, UnitZ);
 
   tf1 = Transform3f();
   tf2 = Transform3f();
@@ -461,7 +462,7 @@ BOOST_AUTO_TEST_CASE(collide_spherebox) {
   generateRandomTransform(extents, transform);
 
   // Vec3f point;
-  // FCL_REAL depth;
+  // CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -518,7 +519,7 @@ BOOST_AUTO_TEST_CASE(distance_spherebox) {
   distance(&sphere, Transform3f(rotSphere, trSphere), &box,
            Transform3f(rotBox, trBox), DistanceRequest(true), result);
 
-  FCL_REAL eps = Eigen::NumTraits<FCL_REAL>::epsilon();
+  CoalScalar eps = Eigen::NumTraits<CoalScalar>::epsilon();
   BOOST_CHECK_CLOSE(result.min_distance, 3., eps);
   EIGEN_VECTOR_IS_APPROX(result.nearest_points[0], Vec3f(0, 1, 0), eps);
   EIGEN_VECTOR_IS_APPROX(result.nearest_points[1], Vec3f(0, 4, 0), eps);
@@ -536,7 +537,7 @@ BOOST_AUTO_TEST_CASE(collide_spherecapsule) {
   generateRandomTransform(extents, transform);
 
   // Vec3f point;
-  // FCL_REAL depth;
+  // CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -601,7 +602,7 @@ BOOST_AUTO_TEST_CASE(collide_cylindercylinder) {
   generateRandomTransform(extents, transform);
 
   // Vec3f point;
-  // FCL_REAL depth;
+  // CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -664,7 +665,7 @@ BOOST_AUTO_TEST_CASE(collide_conecone) {
   generateRandomTransform(extents, transform);
 
   // Vec3f point;
-  // FCL_REAL depth;
+  // CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -742,7 +743,7 @@ BOOST_AUTO_TEST_CASE(collide_conecylinder) {
   generateRandomTransform(extents, transform);
 
   // Vec3f point;
-  // FCL_REAL depth;
+  // CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -1281,7 +1282,7 @@ BOOST_AUTO_TEST_CASE(collide_halfspacesphere) {
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
-  FCL_REAL depth;
+  CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -1370,11 +1371,11 @@ BOOST_AUTO_TEST_CASE(collide_planesphere) {
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
-  FCL_REAL depth;
+  CoalScalar depth;
   Vec3f normal;
   Vec3f p1, p2;
 
-  FCL_REAL eps = 1e-6;
+  CoalScalar eps = 1e-6;
   tf1 = Transform3f(Vec3f(eps, 0, 0));
   tf2 = Transform3f();
   depth = -10 + eps;
@@ -1479,7 +1480,7 @@ BOOST_AUTO_TEST_CASE(collide_halfspacebox) {
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
-  FCL_REAL depth;
+  CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -1573,7 +1574,7 @@ BOOST_AUTO_TEST_CASE(collide_planebox) {
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
-  FCL_REAL depth;
+  CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -1666,7 +1667,7 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecapsule) {
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
-  FCL_REAL depth;
+  CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -1907,7 +1908,7 @@ BOOST_AUTO_TEST_CASE(collide_planecapsule) {
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
-  FCL_REAL depth;
+  CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -2130,7 +2131,7 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecylinder) {
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
-  FCL_REAL depth;
+  CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -2371,11 +2372,11 @@ BOOST_AUTO_TEST_CASE(collide_planecylinder) {
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
-  FCL_REAL depth;
+  CoalScalar depth;
   Vec3f normal;
   Vec3f p1, p2;
 
-  FCL_REAL eps = 1e-6;
+  CoalScalar eps = 1e-6;
   tf1 = Transform3f(Vec3f(eps, 0, 0));
   tf2 = Transform3f();
   p1 << -5 + eps, 0, 0;
@@ -2675,7 +2676,7 @@ BOOST_AUTO_TEST_CASE(collide_halfspacecone) {
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
-  FCL_REAL depth;
+  CoalScalar depth;
   Vec3f normal;
 
   tf1 = Transform3f();
@@ -2916,11 +2917,11 @@ BOOST_AUTO_TEST_CASE(collide_planecone) {
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
-  FCL_REAL depth;
+  CoalScalar depth;
   Vec3f normal;
   Vec3f p1, p2;
 
-  FCL_REAL eps = 1e-6;
+  CoalScalar eps = 1e-6;
   tf1 = Transform3f(Vec3f(eps, 0, 0));
   tf2 = Transform3f();
   p1 << -5 + eps, 0, -5;
@@ -3215,14 +3216,14 @@ BOOST_AUTO_TEST_CASE(collide_planeplane) {
 
   Vec3f normal;
   Vec3f contact;
-  FCL_REAL distance;
+  CoalScalar distance;
 
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
   {
     Vec3f n = Vec3f::Random().normalized();
-    FCL_REAL offset = 3.14;
+    CoalScalar offset = 3.14;
     Plane plane1(n, offset);
     Plane plane2(n, offset);
 
@@ -3249,8 +3250,8 @@ BOOST_AUTO_TEST_CASE(collide_planeplane) {
 
   {
     Vec3f n = Vec3f::Random().normalized();
-    FCL_REAL offset1 = 3.14;
-    FCL_REAL offset2 = offset1 + 1.19841;
+    CoalScalar offset1 = 3.14;
+    CoalScalar offset2 = offset1 + 1.19841;
     Plane plane1(n, offset1);
     Plane plane2(n, offset2);
 
@@ -3267,8 +3268,8 @@ BOOST_AUTO_TEST_CASE(collide_planeplane) {
 
   {
     Vec3f n = Vec3f::Random().normalized();
-    FCL_REAL offset1 = 3.14;
-    FCL_REAL offset2 = offset1 - 1.19841;
+    CoalScalar offset1 = 3.14;
+    CoalScalar offset2 = offset1 - 1.19841;
     Plane plane1(n, offset1);
     Plane plane2(n, offset2);
 
@@ -3285,10 +3286,10 @@ BOOST_AUTO_TEST_CASE(collide_planeplane) {
 
   {
     Vec3f n1(1, 0, 0);
-    FCL_REAL offset1 = 3.14;
+    CoalScalar offset1 = 3.14;
     Plane plane1(n1, offset1);
     Vec3f n2(0, 0, 1);
-    FCL_REAL offset2 = -2.13;
+    CoalScalar offset2 = -2.13;
     Plane plane2(n2, offset2);
 
     tf1.setIdentity();
@@ -3307,10 +3308,10 @@ BOOST_AUTO_TEST_CASE(collide_planeplane) {
 
   {
     Vec3f n1(1, 0, 0);
-    FCL_REAL offset1 = 3.14;
+    CoalScalar offset1 = 3.14;
     Plane plane1(n1, offset1);
     Vec3f n2(1, 1, 1);
-    FCL_REAL offset2 = -2.13;
+    CoalScalar offset2 = -2.13;
     Plane plane2(n2, offset2);
 
     tf1.setIdentity();
@@ -3335,14 +3336,14 @@ BOOST_AUTO_TEST_CASE(collide_halfspacehalfspace) {
 
   Vec3f normal;
   Vec3f contact;
-  FCL_REAL distance;
+  CoalScalar distance;
 
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
   {
     Vec3f n = Vec3f::Random().normalized();
-    FCL_REAL offset = 3.14;
+    CoalScalar offset = 3.14;
     Halfspace hf1(n, offset);
     Halfspace hf2(n, offset);
 
@@ -3361,8 +3362,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacehalfspace) {
 
   {
     Vec3f n = Vec3f::Random().normalized();
-    FCL_REAL offset1 = 3.14;
-    FCL_REAL offset2 = offset1 + 1.19841;
+    CoalScalar offset1 = 3.14;
+    CoalScalar offset2 = offset1 + 1.19841;
     Halfspace hf1(n, offset1);
     Halfspace hf2(n, offset2);
 
@@ -3381,8 +3382,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspacehalfspace) {
 
   {
     Vec3f n = Vec3f::Random().normalized();
-    FCL_REAL offset1 = 3.14;
-    FCL_REAL offset2 = offset1 - 1.19841;
+    CoalScalar offset1 = 3.14;
+    CoalScalar offset2 = offset1 - 1.19841;
     Halfspace hf1(n, offset1);
     Halfspace hf2(-n, -offset2);
 
@@ -3402,10 +3403,10 @@ BOOST_AUTO_TEST_CASE(collide_halfspacehalfspace) {
 
   {
     Vec3f n1(1, 0, 0);
-    FCL_REAL offset1 = 3.14;
+    CoalScalar offset1 = 3.14;
     Halfspace hf1(n1, offset1);
     Vec3f n2(0, 0, 1);
-    FCL_REAL offset2 = -2.13;
+    CoalScalar offset2 = -2.13;
     Halfspace hf2(n2, offset2);
 
     tf1.setIdentity();
@@ -3423,10 +3424,10 @@ BOOST_AUTO_TEST_CASE(collide_halfspacehalfspace) {
 
   {
     Vec3f n1(1, 0, 0);
-    FCL_REAL offset1 = 3.14;
+    CoalScalar offset1 = 3.14;
     Halfspace hf1(n1, offset1);
     Vec3f n2(1, 1, 1);
-    FCL_REAL offset2 = -2.13;
+    CoalScalar offset2 = -2.13;
     Halfspace hf2(n2, offset2);
 
     tf1.setIdentity();
@@ -3451,14 +3452,14 @@ BOOST_AUTO_TEST_CASE(collide_halfspaceplane) {
 
   Vec3f normal;
   Vec3f contact;
-  FCL_REAL distance;
+  CoalScalar distance;
 
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
   {
     Vec3f n = Vec3f::Random().normalized();
-    FCL_REAL offset = 3.14;
+    CoalScalar offset = 3.14;
     Halfspace hf(n, offset);
     Plane plane(n, offset);
 
@@ -3478,8 +3479,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspaceplane) {
 
   {
     Vec3f n = Vec3f::Random().normalized();
-    FCL_REAL offset1 = 3.14;
-    FCL_REAL offset2 = offset1 + 1.19841;
+    CoalScalar offset1 = 3.14;
+    CoalScalar offset2 = offset1 + 1.19841;
     Halfspace hf(n, offset1);
     Plane plane(n, offset2);
 
@@ -3499,8 +3500,8 @@ BOOST_AUTO_TEST_CASE(collide_halfspaceplane) {
 
   {
     Vec3f n = Vec3f::Random().normalized();
-    FCL_REAL offset1 = 3.14;
-    FCL_REAL offset2 = offset1 - 1.19841;
+    CoalScalar offset1 = 3.14;
+    CoalScalar offset2 = offset1 - 1.19841;
     Halfspace hf(n, offset1);
     Plane plane(n, offset2);
 
@@ -3520,10 +3521,10 @@ BOOST_AUTO_TEST_CASE(collide_halfspaceplane) {
 
   {
     Vec3f n1(1, 0, 0);
-    FCL_REAL offset1 = 3.14;
+    CoalScalar offset1 = 3.14;
     Halfspace hf(n1, offset1);
     Vec3f n2(0, 0, 1);
-    FCL_REAL offset2 = -2.13;
+    CoalScalar offset2 = -2.13;
     Plane plane(n2, offset2);
 
     tf1.setIdentity();
@@ -3541,10 +3542,10 @@ BOOST_AUTO_TEST_CASE(collide_halfspaceplane) {
 
   {
     Vec3f n1(1, 0, 0);
-    FCL_REAL offset1 = 3.14;
+    CoalScalar offset1 = 3.14;
     Halfspace hf(n1, offset1);
     Vec3f n2(1, 1, 1);
-    FCL_REAL offset2 = -2.13;
+    CoalScalar offset2 = -2.13;
     Plane plane(n2, offset2);
 
     tf1.setIdentity();
@@ -3572,7 +3573,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_spheresphere) {
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  FCL_REAL dist = -1;
+  CoalScalar dist = -1;
 
   dist = solver1.shapeDistance(
       s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), compute_penetration,
@@ -3644,7 +3645,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_boxbox) {
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  FCL_REAL dist;
+  CoalScalar dist;
 
   dist = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(),
                                compute_penetration, closest_p1, closest_p2,
@@ -3773,11 +3774,11 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_boxsphere) {
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  FCL_REAL dist;
+  CoalScalar dist;
 
   int N = 10;
   for (int i = 0; i < N + 1; ++i) {
-    FCL_REAL dbox = 0.0001 + (s1.radius + s2.halfSide(0)) * i * 4 / (3 * N);
+    CoalScalar dbox = 0.0001 + (s1.radius + s2.halfSide(0)) * i * 4 / (3 * N);
     dist = solver1.shapeDistance(s1, Transform3f(Vec3f(dbox, 0., 0.)), s2,
                                  Transform3f(), compute_penetration, closest_p1,
                                  closest_p2, normal);
@@ -3834,7 +3835,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylindercylinder) {
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  FCL_REAL dist;
+  CoalScalar dist;
 
   {
     // The following situations corresponds to the case where the two cylinders
@@ -3852,7 +3853,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_cylindercylinder) {
 
     // To handle the superposing case, we have to decrease the tolerance of EPA
     // and allow it to work with more vertices and faces.
-    FCL_REAL epa_tolerance_backup = solver1.epa_tolerance;
+    CoalScalar epa_tolerance_backup = solver1.epa_tolerance;
     size_t epa_max_iterations_backup = solver1.epa_max_iterations;
     solver1.epa_tolerance = 1e-2;
     solver1.epa_max_iterations = 1000;
@@ -3902,7 +3903,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecone) {
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  FCL_REAL dist;
+  CoalScalar dist;
 
   {
     // The following situations corresponds to the case where the two cones
@@ -3920,7 +3921,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecone) {
 
     // To handle the superposing case, we have to decrease the tolerance of EPA
     // and allow it to work with more vertices and faces.
-    FCL_REAL epa_tolerance_backup = solver1.epa_tolerance;
+    CoalScalar epa_tolerance_backup = solver1.epa_tolerance;
     size_t epa_max_iterations_backup = solver1.epa_max_iterations;
     solver1.epa_tolerance = 1e-2;
     solver1.epa_max_iterations = 1000;
@@ -3970,7 +3971,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecylinder) {
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  FCL_REAL dist;
+  CoalScalar dist;
 
   {
     // The following situations corresponds to the case where the two cones
@@ -3988,7 +3989,7 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecylinder) {
 
     // To handle the superposing case, we have to decrease the tolerance of EPA
     // and allow it to work with more vertices and faces.
-    FCL_REAL epa_tolerance_backup = solver1.epa_tolerance;
+    CoalScalar epa_tolerance_backup = solver1.epa_tolerance;
     size_t epa_max_iterations_backup = solver1.epa_max_iterations;
     solver1.epa_tolerance = 1e-2;
     solver1.epa_max_iterations = 1000;
@@ -4031,12 +4032,12 @@ BOOST_AUTO_TEST_CASE(GJKSolver_shapeDistance_conecylinder) {
 
 template <typename S1, typename S2>
 void testReversibleShapeDistance(const S1& s1, const S2& s2,
-                                 FCL_REAL distance) {
+                                 CoalScalar distance) {
   Transform3f tf1(Vec3f(-0.5 * distance, 0.0, 0.0));
   Transform3f tf2(Vec3f(+0.5 * distance, 0.0, 0.0));
 
-  FCL_REAL distA;
-  FCL_REAL distB;
+  CoalScalar distA;
+  CoalScalar distB;
   Vec3f p1A;
   Vec3f p1B;
   Vec3f p2A;
@@ -4087,7 +4088,7 @@ BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes) {
 
   // Use sufficiently long distance so that all the primitive shapes CANNOT
   // intersect
-  FCL_REAL distance = 15.0;
+  CoalScalar distance = 15.0;
 
   // If new shape distance algorithm is added for two distinct primitive
   // shapes, uncomment associated lines. For example, box-sphere intersection

@@ -83,7 +83,7 @@ void computeSplitVector<OBBRSS>(const OBBRSS& bv, Vec3f& split_vector) {
 }
 
 template <typename BV>
-void computeSplitValue_bvcenter(const BV& bv, FCL_REAL& split_value) {
+void computeSplitValue_bvcenter(const BV& bv, CoalScalar& split_value) {
   Vec3f center = bv.center();
   split_value = center[0];
 }
@@ -92,7 +92,8 @@ template <typename BV>
 void computeSplitValue_mean(const BV&, Vec3f* vertices, Triangle* triangles,
                             unsigned int* primitive_indices,
                             unsigned int num_primitives, BVHModelType type,
-                            const Vec3f& split_vector, FCL_REAL& split_value) {
+                            const Vec3f& split_vector,
+                            CoalScalar& split_value) {
   if (type == BVH_MODEL_TRIANGLES) {
     Vec3f c(Vec3f::Zero());
 
@@ -106,7 +107,7 @@ void computeSplitValue_mean(const BV&, Vec3f* vertices, Triangle* triangles,
     }
     split_value = c.dot(split_vector) / (3 * num_primitives);
   } else if (type == BVH_MODEL_POINTCLOUD) {
-    FCL_REAL sum = 0;
+    CoalScalar sum = 0;
     for (unsigned int i = 0; i < num_primitives; ++i) {
       const Vec3f& p = vertices[primitive_indices[i]];
       sum += p.dot(split_vector);
@@ -121,8 +122,8 @@ void computeSplitValue_median(const BV&, Vec3f* vertices, Triangle* triangles,
                               unsigned int* primitive_indices,
                               unsigned int num_primitives, BVHModelType type,
                               const Vec3f& split_vector,
-                              FCL_REAL& split_value) {
-  std::vector<FCL_REAL> proj(num_primitives);
+                              CoalScalar& split_value) {
+  std::vector<CoalScalar> proj(num_primitives);
 
   if (type == BVH_MODEL_TRIANGLES) {
     for (unsigned int i = 0; i < num_primitives; ++i) {

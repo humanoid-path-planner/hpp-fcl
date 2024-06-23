@@ -9,11 +9,11 @@
 #include "utility.h"
 
 using coal::Box;
+using coal::CoalScalar;
 using coal::collide;
 using coal::CollisionRequest;
 using coal::CollisionResult;
 using coal::ComputeCollision;
-using coal::FCL_REAL;
 using coal::Transform3f;
 using coal::Vec3f;
 

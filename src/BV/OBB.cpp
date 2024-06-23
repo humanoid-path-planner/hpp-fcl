@@ -67,7 +67,7 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2) {
   computeVertices(b2, vertex + 8);
   Matrix3f M;
   Vec3f E[3];
-  FCL_REAL s[3] = {0, 0, 0};
+  CoalScalar s[3] = {0, 0, 0};
 
   // obb axes
   b.axes.col(0).noalias() = (b1.To - b2.To).normalized();
@@ -122,7 +122,7 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2) {
   b.axes = q.toRotationMatrix();
 
   Vec3f vertex[8], diff;
-  FCL_REAL real_max = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar real_max = (std::numeric_limits<CoalScalar>::max)();
   Vec3f pmin(real_max, real_max, real_max);
   Vec3f pmax(-real_max, -real_max, -real_max);
 
@@ -130,7 +130,7 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2) {
   for (int i = 0; i < 8; ++i) {
     diff = vertex[i] - b.To;
     for (int j = 0; j < 3; ++j) {
-      FCL_REAL dot = diff.dot(b.axes.col(j));
+      CoalScalar dot = diff.dot(b.axes.col(j));
       if (dot > pmax[j])
         pmax[j] = dot;
       else if (dot < pmin[j])
@@ -142,7 +142,7 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2) {
   for (int i = 0; i < 8; ++i) {
     diff = vertex[i] - b.To;
     for (int j = 0; j < 3; ++j) {
-      FCL_REAL dot = diff.dot(b.axes.col(j));
+      CoalScalar dot = diff.dot(b.axes.col(j));
       if (dot > pmax[j])
         pmax[j] = dot;
       else if (dot < pmin[j])
@@ -160,8 +160,8 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2) {
 
 bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
                  const Vec3f& b) {
-  FCL_REAL t, s;
-  const FCL_REAL reps = 1e-6;
+  CoalScalar t, s;
+  const CoalScalar reps = 1e-6;
 
   Matrix3f Bf(B.array().abs() + reps);
   // Bf += reps;
@@ -286,20 +286,20 @@ bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
 }
 
 namespace internal {
-inline FCL_REAL obbDisjoint_check_A_axis(const Vec3f& T, const Vec3f& a,
-                                         const Vec3f& b, const Matrix3f& Bf) {
+inline CoalScalar obbDisjoint_check_A_axis(const Vec3f& T, const Vec3f& a,
+                                           const Vec3f& b, const Matrix3f& Bf) {
   // |T| - |B| * b - a
   Vec3f AABB_corner(T.cwiseAbs() - a);
   AABB_corner.noalias() -= Bf * b;
-  return AABB_corner.array().max(FCL_REAL(0)).matrix().squaredNorm();
+  return AABB_corner.array().max(CoalScalar(0)).matrix().squaredNorm();
 }
 
-inline FCL_REAL obbDisjoint_check_B_axis(const Matrix3f& B, const Vec3f& T,
-                                         const Vec3f& a, const Vec3f& b,
-                                         const Matrix3f& Bf) {
+inline CoalScalar obbDisjoint_check_B_axis(const Matrix3f& B, const Vec3f& T,
+                                           const Vec3f& a, const Vec3f& b,
+                                           const Matrix3f& Bf) {
   // Bf = |B|
   // | B^T T| - Bf^T * a - b
-  FCL_REAL s, t = 0;
+  CoalScalar s, t = 0;
   s = std::abs(B.col(0).dot(T)) - Bf.col(0).dot(a) - b[0];
   if (s > 0) t += s * s;
   s = std::abs(B.col(1).dot(T)) - Bf.col(1).dot(a) - b[1];
@@ -313,15 +313,15 @@ template <int ib, int jb = (ib + 1) % 3, int kb = (ib + 2) % 3>
 struct COAL_LOCAL obbDisjoint_check_Ai_cross_Bi {
   static inline bool run(int ia, int ja, int ka, const Matrix3f& B,
                          const Vec3f& T, const Vec3f& a, const Vec3f& b,
-                         const Matrix3f& Bf, const FCL_REAL& breakDistance2,
-                         FCL_REAL& squaredLowerBoundDistance) {
-    FCL_REAL sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
+                         const Matrix3f& Bf, const CoalScalar& breakDistance2,
+                         CoalScalar& squaredLowerBoundDistance) {
+    CoalScalar sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
     if (sinus2 < 1e-6) return false;
 
-    const FCL_REAL s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
+    const CoalScalar s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
 
-    const FCL_REAL diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
-                                     b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
+    const CoalScalar diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
+                                       b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
     // We need to divide by the norm || Aia x Bib ||
     // As ||Aia|| = ||Bib|| = 1, (Aia | Bib)^2  = cosine^2
     if (diff > 0) {
@@ -344,23 +344,23 @@ struct COAL_LOCAL obbDisjoint_check_Ai_cross_Bi {
 bool obbDisjointAndLowerBoundDistance(const Matrix3f& B, const Vec3f& T,
                                       const Vec3f& a_, const Vec3f& b_,
                                       const CollisionRequest& request,
-                                      FCL_REAL& squaredLowerBoundDistance) {
+                                      CoalScalar& squaredLowerBoundDistance) {
   assert(request.security_margin >
              -2 * (std::min)(a_.minCoeff(), b_.minCoeff()) -
-                 10 * Eigen::NumTraits<FCL_REAL>::epsilon() &&
+                 10 * Eigen::NumTraits<CoalScalar>::epsilon() &&
          "A negative security margin could not be lower than the OBB extent.");
-  //  const FCL_REAL breakDistance(request.break_distance +
+  //  const CoalScalar breakDistance(request.break_distance +
   //                               request.security_margin);
-  const FCL_REAL breakDistance2 =
+  const CoalScalar breakDistance2 =
       request.break_distance * request.break_distance;
 
   Matrix3f Bf(B.cwiseAbs());
   const Vec3f a((a_ + Vec3f::Constant(request.security_margin / 2))
                     .array()
-                    .max(FCL_REAL(0)));
+                    .max(CoalScalar(0)));
   const Vec3f b((b_ + Vec3f::Constant(request.security_margin / 2))
                     .array()
-                    .max(FCL_REAL(0)));
+                    .max(CoalScalar(0)));
 
   // Corner of b axis aligned bounding box the closest to the origin
   squaredLowerBoundDistance = internal::obbDisjoint_check_A_axis(T, a, b, Bf);
@@ -403,7 +403,7 @@ bool OBB::overlap(const OBB& other) const {
 }
 
 bool OBB::overlap(const OBB& other, const CollisionRequest& request,
-                  FCL_REAL& sqrDistLowerBound) const {
+                  CoalScalar& sqrDistLowerBound) const {
   /// compute what transform [R,T] that takes us from cs1 to cs2.
   /// [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
   /// First compute the rotation part, then translation part
@@ -424,7 +424,7 @@ bool OBB::overlap(const OBB& other, const CollisionRequest& request,
 
 bool OBB::contain(const Vec3f& p) const {
   Vec3f local_p(p - To);
-  FCL_REAL proj = local_p.dot(axes.col(0));
+  CoalScalar proj = local_p.dot(axes.col(0));
   if ((proj > extent[0]) || (proj < -extent[0])) return false;
 
   proj = local_p.dot(axes.col(1));
@@ -448,8 +448,8 @@ OBB& OBB::operator+=(const Vec3f& p) {
 
 OBB OBB::operator+(const OBB& other) const {
   Vec3f center_diff = To - other.To;
-  FCL_REAL max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
-  FCL_REAL max_extent2 =
+  CoalScalar max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
+  CoalScalar max_extent2 =
       std::max(std::max(other.extent[0], other.extent[1]), other.extent[2]);
   if (center_diff.norm() > 2 * (max_extent + max_extent2)) {
     return merge_largedist(*this, other);
@@ -458,7 +458,8 @@ OBB OBB::operator+(const OBB& other) const {
   }
 }
 
-FCL_REAL OBB::distance(const OBB& /*other*/, Vec3f* /*P*/, Vec3f* /*Q*/) const {
+CoalScalar OBB::distance(const OBB& /*other*/, Vec3f* /*P*/,
+                         Vec3f* /*Q*/) const {
   std::cerr << "OBB distance not implemented!" << std::endl;
   return 0.0;
 }
@@ -473,7 +474,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
 }
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2,
-             const CollisionRequest& request, FCL_REAL& sqrDistLowerBound) {
+             const CollisionRequest& request, CoalScalar& sqrDistLowerBound) {
   Vec3f Ttemp(R0.transpose() * (b2.To - T0) - b1.To);
   Vec3f T(b1.axes.transpose() * Ttemp);
   Matrix3f R(b1.axes.transpose() * R0.transpose() * b2.axes);

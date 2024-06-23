@@ -67,9 +67,19 @@ typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 1> VecXf;
 typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3, Eigen::RowMajor> Matrixx3f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 2, Eigen::RowMajor> Matrixx2f;
+typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Eigen::Dynamic> MatrixXf;
+
+typedef double CoalScalar;
+typedef Eigen::Matrix<CoalScalar, 3, 1> Vec3s;
+typedef Eigen::Matrix<CoalScalar, 2, 1> Vec2s;
+typedef Eigen::Matrix<CoalScalar, 6, 1> Vec6s;
+typedef Eigen::Matrix<CoalScalar, Eigen::Dynamic, 1> VecXs;
+typedef Eigen::Matrix<CoalScalar, 3, 3> Matrix3s;
+typedef Eigen::Matrix<CoalScalar, Eigen::Dynamic, 3, Eigen::RowMajor> Matrixx3s;
+typedef Eigen::Matrix<CoalScalar, Eigen::Dynamic, 2, Eigen::RowMajor> Matrixx2s;
 typedef Eigen::Matrix<Eigen::DenseIndex, Eigen::Dynamic, 3, Eigen::RowMajor>
     Matrixx3i;
-typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Eigen::Dynamic> MatrixXf;
+typedef Eigen::Matrix<CoalScalar, Eigen::Dynamic, Eigen::Dynamic> MatrixXs;
 typedef Eigen::Vector2i support_func_guess_t;
 
 /// @brief Initial guess to use for the GJK algorithm

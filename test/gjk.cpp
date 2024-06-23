@@ -46,7 +46,7 @@
 
 #include "utility.h"
 
-using coal::FCL_REAL;
+using coal::CoalScalar;
 using coal::GJKSolver;
 using coal::GJKVariant;
 using coal::Matrix3f;
@@ -55,10 +55,10 @@ using coal::Transform3f;
 using coal::TriangleP;
 using coal::Vec3f;
 
-typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 1> vector_t;
-typedef Eigen::Matrix<FCL_REAL, 6, 1> vector6_t;
-typedef Eigen::Matrix<FCL_REAL, 4, 1> vector4_t;
-typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Eigen::Dynamic> matrix_t;
+typedef Eigen::Matrix<CoalScalar, Eigen::Dynamic, 1> vector_t;
+typedef Eigen::Matrix<CoalScalar, 6, 1> vector6_t;
+typedef Eigen::Matrix<CoalScalar, 4, 1> vector4_t;
+typedef Eigen::Matrix<CoalScalar, Eigen::Dynamic, Eigen::Dynamic> matrix_t;
 
 struct Result {
   bool collision;
@@ -81,11 +81,11 @@ void test_gjk_distance_triangle_triangle(
   Transform3f tf1, tf2;
   Vec3f p1, p2, a1, a2;
   Matrix3f M;
-  FCL_REAL distance(sqrt(-1));
+  CoalScalar distance(sqrt(-1));
   clock_t start, end;
 
   std::size_t nCol = 0, nDiff = 0;
-  FCL_REAL eps = 1e-7;
+  CoalScalar eps = 1e-7;
   Results_t results(N);
   for (std::size_t i = 0; i < N; ++i) {
     Vec3f P1_loc(Vec3f::Random()), P2_loc(Vec3f::Random()),
@@ -159,7 +159,7 @@ void test_gjk_distance_triangle_triangle(
       ++nCol;
       // check that moving triangle 2 by the penetration depth in the
       // direction of the normal makes the triangles collision free.
-      FCL_REAL penetration_depth(-distance);
+      CoalScalar penetration_depth(-distance);
       assert(penetration_depth >= 0);
       tf2.setTranslation((penetration_depth + 10 - 4) * normal);
       result.clear();
@@ -312,17 +312,17 @@ void test_gjk_distance_triangle_triangle(
   }
   std::cerr << "Total / average time gjk: "
             << totalTimeGjkNoColl + totalTimeGjkColl << ", "
-            << FCL_REAL(totalTimeGjkNoColl + totalTimeGjkColl) /
-                   FCL_REAL(CLOCKS_PER_SEC * N)
+            << CoalScalar(totalTimeGjkNoColl + totalTimeGjkColl) /
+                   CoalScalar(CLOCKS_PER_SEC * N)
             << "s" << std::endl;
   std::cerr << "-- Collisions -------------------------" << std::endl;
   std::cerr << "Total / average time gjk: " << totalTimeGjkColl << ", "
-            << FCL_REAL(totalTimeGjkColl) / FCL_REAL(CLOCKS_PER_SEC * nCol)
+            << CoalScalar(totalTimeGjkColl) / CoalScalar(CLOCKS_PER_SEC * nCol)
             << "s" << std::endl;
   std::cerr << "-- No collisions -------------------------" << std::endl;
   std::cerr << "Total / average time gjk: " << totalTimeGjkNoColl << ", "
-            << FCL_REAL(totalTimeGjkNoColl) /
-                   FCL_REAL(CLOCKS_PER_SEC * (N - nCol))
+            << CoalScalar(totalTimeGjkNoColl) /
+                   CoalScalar(CLOCKS_PER_SEC * (N - nCol))
             << "s" << std::endl;
 }
 
@@ -334,15 +334,15 @@ BOOST_AUTO_TEST_CASE(distance_triangle_triangle_nesterov) {
   test_gjk_distance_triangle_triangle(true);
 }
 
-void test_gjk_unit_sphere(FCL_REAL center_distance, Vec3f ray,
+void test_gjk_unit_sphere(CoalScalar center_distance, Vec3f ray,
                           double swept_sphere_radius,
                           bool use_gjk_nesterov_acceleration) {
   using namespace coal;
-  const FCL_REAL r = 1.0;
+  const CoalScalar r = 1.0;
   Sphere sphere(r);
   sphere.setSweptSphereRadius(swept_sphere_radius);
 
-  typedef Eigen::Matrix<FCL_REAL, 4, 1> Vec4f;
+  typedef Eigen::Matrix<CoalScalar, 4, 1> Vec4f;
   Transform3f tf0(Quatf(Vec4f::Random().normalized()), Vec3f::Zero());
   Transform3f tf1(Quatf(Vec4f::Random().normalized()), center_distance * ray);
 

@@ -48,9 +48,9 @@ namespace coal {
 template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Box& shape,
                       const Transform3f& pose) {
-  FCL_REAL a = shape.halfSide[0];
-  FCL_REAL b = shape.halfSide[1];
-  FCL_REAL c = shape.halfSide[2];
+  CoalScalar a = shape.halfSide[0];
+  CoalScalar b = shape.halfSide[1];
+  CoalScalar c = shape.halfSide[2];
   std::vector<Vec3f> points(8);
   std::vector<Triangle> tri_indices(12);
   points[0] = Vec3f(a, -b, c);
@@ -94,18 +94,18 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape,
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
 
-  FCL_REAL r = shape.radius;
-  FCL_REAL phi, phid;
-  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+  CoalScalar r = shape.radius;
+  CoalScalar phi, phid;
+  const CoalScalar pi = boost::math::constants::pi<CoalScalar>();
   phid = pi * 2 / seg;
   phi = 0;
 
-  FCL_REAL theta, thetad;
+  CoalScalar theta, thetad;
   thetad = pi / (ring + 1);
   theta = 0;
 
   for (unsigned int i = 0; i < ring; ++i) {
-    FCL_REAL theta_ = theta + thetad * (i + 1);
+    CoalScalar theta_ = theta + thetad * (i + 1);
     for (unsigned int j = 0; j < seg; ++j) {
       points.push_back(Vec3f(r * sin(theta_) * cos(phi + j * phid),
                              r * sin(theta_) * sin(phi + j * phid),
@@ -157,9 +157,9 @@ template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Sphere& shape,
                       const Transform3f& pose,
                       unsigned int n_faces_for_unit_sphere) {
-  FCL_REAL r = shape.radius;
-  FCL_REAL n_low_bound =
-      std::sqrt((FCL_REAL)n_faces_for_unit_sphere / FCL_REAL(2.)) * r * r;
+  CoalScalar r = shape.radius;
+  CoalScalar n_low_bound =
+      std::sqrt((CoalScalar)n_faces_for_unit_sphere / CoalScalar(2.)) * r * r;
   unsigned int ring = (unsigned int)ceil(n_low_bound);
   unsigned int seg = (unsigned int)ceil(n_low_bound);
 
@@ -175,14 +175,14 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape,
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
 
-  FCL_REAL r = shape.radius;
-  FCL_REAL h = shape.halfLength;
-  FCL_REAL phi, phid;
-  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+  CoalScalar r = shape.radius;
+  CoalScalar h = shape.halfLength;
+  CoalScalar phi, phid;
+  const CoalScalar pi = boost::math::constants::pi<CoalScalar>();
   phid = pi * 2 / tot;
   phi = 0;
 
-  FCL_REAL hd = 2 * h / h_num;
+  CoalScalar hd = 2 * h / h_num;
 
   for (unsigned int i = 0; i < tot; ++i)
     points.push_back(
@@ -245,14 +245,14 @@ template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape,
                       const Transform3f& pose,
                       unsigned int tot_for_unit_cylinder) {
-  FCL_REAL r = shape.radius;
-  FCL_REAL h = 2 * shape.halfLength;
+  CoalScalar r = shape.radius;
+  CoalScalar h = 2 * shape.halfLength;
 
-  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+  const CoalScalar pi = boost::math::constants::pi<CoalScalar>();
   unsigned int tot = (unsigned int)(tot_for_unit_cylinder * r);
-  FCL_REAL phid = pi * 2 / tot;
+  CoalScalar phid = pi * 2 / tot;
 
-  FCL_REAL circle_edge = phid * r;
+  CoalScalar circle_edge = phid * r;
   unsigned int h_num = (unsigned int)ceil(h / circle_edge);
 
   generateBVHModel(model, shape, pose, tot, h_num);
@@ -267,19 +267,19 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape,
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
 
-  FCL_REAL r = shape.radius;
-  FCL_REAL h = shape.halfLength;
+  CoalScalar r = shape.radius;
+  CoalScalar h = shape.halfLength;
 
-  FCL_REAL phi, phid;
-  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+  CoalScalar phi, phid;
+  const CoalScalar pi = boost::math::constants::pi<CoalScalar>();
   phid = pi * 2 / tot;
   phi = 0;
 
-  FCL_REAL hd = 2 * h / h_num;
+  CoalScalar hd = 2 * h / h_num;
 
   for (unsigned int i = 0; i < h_num - 1; ++i) {
-    FCL_REAL h_i = h - (i + 1) * hd;
-    FCL_REAL rh = r * (0.5 - h_i / h / 2);
+    CoalScalar h_i = h - (i + 1) * hd;
+    CoalScalar rh = r * (0.5 - h_i / h / 2);
     for (unsigned int j = 0; j < tot; ++j) {
       points.push_back(
           Vec3f(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i));
@@ -336,14 +336,14 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape,
 template <typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cone& shape,
                       const Transform3f& pose, unsigned int tot_for_unit_cone) {
-  FCL_REAL r = shape.radius;
-  FCL_REAL h = 2 * shape.halfLength;
+  CoalScalar r = shape.radius;
+  CoalScalar h = 2 * shape.halfLength;
 
-  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+  const CoalScalar pi = boost::math::constants::pi<CoalScalar>();
   unsigned int tot = (unsigned int)(tot_for_unit_cone * r);
-  FCL_REAL phid = pi * 2 / tot;
+  CoalScalar phid = pi * 2 / tot;
 
-  FCL_REAL circle_edge = phid * r;
+  CoalScalar circle_edge = phid * r;
   unsigned int h_num = (unsigned int)ceil(h / circle_edge);
 
   generateBVHModel(model, shape, pose, tot, h_num);

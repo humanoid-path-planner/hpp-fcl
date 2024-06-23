@@ -48,20 +48,20 @@ struct GJKSolver;
 namespace internal {
 
 template <>
-FCL_REAL ShapeShapeDistance<Box, Halfspace>(
+CoalScalar ShapeShapeDistance<Box, Halfspace>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
     const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
   const Box& s1 = static_cast<const Box&>(*o1);
   const Halfspace& s2 = static_cast<const Halfspace&>(*o2);
-  const FCL_REAL distance =
+  const CoalScalar distance =
       details::halfspaceDistance(s2, tf2, s1, tf1, p2, p1, normal);
   normal = -normal;
   return distance;
 }
 
 template <>
-FCL_REAL ShapeShapeDistance<Halfspace, Box>(
+CoalScalar ShapeShapeDistance<Halfspace, Box>(
     const CollisionGeometry* o1, const Transform3f& tf1,
     const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
     const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {

@@ -94,7 +94,7 @@ enum NODE_TYPE {
 class COAL_DLLAPI CollisionGeometry {
  public:
   CollisionGeometry()
-      : aabb_center(Vec3f::Constant((std::numeric_limits<FCL_REAL>::max)())),
+      : aabb_center(Vec3f::Constant((std::numeric_limits<CoalScalar>::max)())),
         aabb_radius(-1),
         cost_density(1),
         threshold_occupied(1),
@@ -151,7 +151,7 @@ class COAL_DLLAPI CollisionGeometry {
   Vec3f aabb_center;
 
   /// @brief AABB radius
-  FCL_REAL aabb_radius;
+  CoalScalar aabb_radius;
 
   /// @brief AABB in local coordinate, used for tight AABB when only translation
   /// transform
@@ -161,13 +161,13 @@ class COAL_DLLAPI CollisionGeometry {
   void* user_data;
 
   /// @brief collision cost for unit volume
-  FCL_REAL cost_density;
+  CoalScalar cost_density;
 
   /// @brief threshold for occupied ( >= is occupied)
-  FCL_REAL threshold_occupied;
+  CoalScalar threshold_occupied;
 
   /// @brief threshold for free (<= is free)
-  FCL_REAL threshold_free;
+  CoalScalar threshold_free;
 
   /// @brief compute center of mass
   virtual Vec3f computeCOM() const { return Vec3f::Zero(); }
@@ -178,13 +178,13 @@ class COAL_DLLAPI CollisionGeometry {
   }
 
   /// @brief compute the volume
-  virtual FCL_REAL computeVolume() const { return 0; }
+  virtual CoalScalar computeVolume() const { return 0; }
 
   /// @brief compute the inertia matrix, related to the com
   virtual Matrix3f computeMomentofInertiaRelatedToCOM() const {
     Matrix3f C = computeMomentofInertia();
     Vec3f com = computeCOM();
-    FCL_REAL V = computeVolume();
+    CoalScalar V = computeVolume();
 
     return (Matrix3f() << C(0, 0) - V * (com[1] * com[1] + com[2] * com[2]),
             C(0, 1) + V * com[0] * com[1], C(0, 2) + V * com[0] * com[2],

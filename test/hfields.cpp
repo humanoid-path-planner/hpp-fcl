@@ -58,9 +58,9 @@ using namespace coal;
 template <typename BV>
 void test_constant_hfields(const Eigen::DenseIndex nx,
                            const Eigen::DenseIndex ny,
-                           const FCL_REAL min_altitude,
-                           const FCL_REAL max_altitude) {
-  const FCL_REAL x_dim = 1., y_dim = 2.;
+                           const CoalScalar min_altitude,
+                           const CoalScalar max_altitude) {
+  const CoalScalar x_dim = 1., y_dim = 2.;
   const MatrixXf heights = MatrixXf::Constant(ny, nx, max_altitude);
 
   HeightField<BV> hfield(x_dim, y_dim, heights, min_altitude);
@@ -110,7 +110,7 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
 
   // No collision case
   {
-    const FCL_REAL eps_no_collision = +0.1 * (max_altitude - min_altitude);
+    const CoalScalar eps_no_collision = +0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
         Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
@@ -137,7 +137,7 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
 
   // Collision case
   {
-    const FCL_REAL eps_collision = -0.1 * (max_altitude - min_altitude);
+    const CoalScalar eps_collision = -0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
         Vec3f(0., 0., max_altitude + sphere.radius + eps_collision));
     M_box.setTranslation(
@@ -169,7 +169,7 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
 
   // No collision case
   {
-    const FCL_REAL eps_no_collision = +0.1 * (max_altitude - min_altitude);
+    const CoalScalar eps_no_collision = +0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
         Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
@@ -196,7 +196,7 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
 
   // Collision case
   {
-    const FCL_REAL eps_collision = -0.1 * (max_altitude - min_altitude);
+    const CoalScalar eps_collision = -0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
         Vec3f(0., 0., max_altitude + sphere.radius + eps_collision));
     M_box.setTranslation(
@@ -228,7 +228,7 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
 
   // Collision case
   {
-    const FCL_REAL eps_collision = -0.1 * (max_altitude - min_altitude);
+    const CoalScalar eps_collision = -0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
         Vec3f(0., 0., max_altitude + sphere.radius + eps_collision));
     M_box.setTranslation(
@@ -256,7 +256,7 @@ void test_constant_hfields(const Eigen::DenseIndex nx,
 }
 
 BOOST_AUTO_TEST_CASE(building_constant_hfields) {
-  const FCL_REAL max_altitude = 1., min_altitude = 0.;
+  const CoalScalar max_altitude = 1., min_altitude = 0.;
 
   test_constant_hfields<OBBRSS>(2, 2, min_altitude,
                                 max_altitude);  // Simple case
@@ -272,9 +272,9 @@ BOOST_AUTO_TEST_CASE(building_constant_hfields) {
 template <typename BV>
 void test_negative_security_margin(const Eigen::DenseIndex nx,
                                    const Eigen::DenseIndex ny,
-                                   const FCL_REAL min_altitude,
-                                   const FCL_REAL max_altitude) {
-  const FCL_REAL x_dim = 1., y_dim = 2.;
+                                   const CoalScalar min_altitude,
+                                   const CoalScalar max_altitude) {
+  const CoalScalar x_dim = 1., y_dim = 2.;
   const MatrixXf heights = MatrixXf::Constant(ny, nx, max_altitude);
 
   HeightField<BV> hfield(x_dim, y_dim, heights, min_altitude);
@@ -294,7 +294,7 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
 
   // No collision case
   {
-    const FCL_REAL eps_no_collision = +0.1 * (max_altitude - min_altitude);
+    const CoalScalar eps_no_collision = +0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
         Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
@@ -321,7 +321,7 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
 
   // Collision case - positive security_margin
   {
-    const FCL_REAL eps_no_collision = +0.1 * (max_altitude - min_altitude);
+    const CoalScalar eps_no_collision = +0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
         Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
@@ -349,7 +349,7 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
 
   // Collision case
   {
-    const FCL_REAL eps_no_collision = -0.1 * (max_altitude - min_altitude);
+    const CoalScalar eps_no_collision = -0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
         Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
@@ -376,7 +376,7 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
 
   // No collision case - negative security_margin
   {
-    const FCL_REAL eps_no_collision = -0.1 * (max_altitude - min_altitude);
+    const CoalScalar eps_no_collision = -0.1 * (max_altitude - min_altitude);
     M_sphere.setTranslation(
         Vec3f(0., 0., max_altitude + sphere.radius + eps_no_collision));
     M_box.setTranslation(
@@ -404,7 +404,7 @@ void test_negative_security_margin(const Eigen::DenseIndex nx,
 }
 
 BOOST_AUTO_TEST_CASE(negative_security_margin) {
-  const FCL_REAL max_altitude = 1., min_altitude = 0.;
+  const CoalScalar max_altitude = 1., min_altitude = 0.;
 
   //  test_negative_security_margin<OBBRSS>(100, 100, min_altitude,
   //  max_altitude);
@@ -419,7 +419,7 @@ BOOST_AUTO_TEST_CASE(hfield_with_square_hole) {
       Eigen::RowVectorXd::LinSpaced(nx, -1., 1.).replicate(ny, 1);
   const MatrixXf Y = Eigen::VectorXd::LinSpaced(ny, 1., -1.).replicate(1, nx);
 
-  const FCL_REAL dim_square = 0.5;
+  const CoalScalar dim_square = 0.5;
 
   const Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> hole =
       (X.array().abs() < dim_square) && (Y.array().abs() < dim_square);
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
       Eigen::RowVectorXd::LinSpaced(nx, -1., 1.).replicate(ny, 1);
   const MatrixXf Y = Eigen::VectorXd::LinSpaced(ny, 1., -1.).replicate(1, nx);
 
-  const FCL_REAL dim_hole = 1;
+  const CoalScalar dim_hole = 1;
 
   const Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> hole =
       (X.array().square() + Y.array().square() <= dim_hole);
@@ -483,7 +483,7 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
   const Transform3f sphere_pos(Vec3f(0., 0., 1.));
   const Transform3f hfield_pos;
 
-  const FCL_REAL thresholds[3] = {0., 0.01, -0.005};
+  const CoalScalar thresholds[3] = {0., 0.01, -0.005};
 
   for (int i = 0; i < 3; ++i) {
     CollisionResult result;
@@ -515,7 +515,8 @@ BOOST_AUTO_TEST_CASE(hfield_with_circular_hole) {
   }
 }
 
-bool isApprox(const FCL_REAL v1, const FCL_REAL v2, const FCL_REAL tol = 1e-6) {
+bool isApprox(const CoalScalar v1, const CoalScalar v2,
+              const CoalScalar tol = 1e-6) {
   return std::fabs(v1 - v2) <= tol;
 }
 
@@ -529,10 +530,10 @@ Vec3f computeFaceNormal(const Triangle& triangle,
 }
 
 BOOST_AUTO_TEST_CASE(test_hfield_bin_face_normal_orientation) {
-  const FCL_REAL sphere_radius = 1.;
+  const CoalScalar sphere_radius = 1.;
   Sphere sphere(sphere_radius);
   MatrixXf altitutes(2, 2);
-  FCL_REAL altitude_value = 1.;
+  CoalScalar altitude_value = 1.;
   altitutes.fill(altitude_value);
 
   typedef AABB BV;
@@ -676,10 +677,10 @@ BOOST_AUTO_TEST_CASE(test_hfield_bin_face_normal_orientation) {
 
 BOOST_AUTO_TEST_CASE(test_hfield_bin_active_faces) {
   typedef HFNodeBase::FaceOrientation FaceOrientation;
-  const FCL_REAL sphere_radius = 1.;
+  const CoalScalar sphere_radius = 1.;
   Sphere sphere(sphere_radius);
   MatrixXf altitutes(3, 3);
-  FCL_REAL altitude_value = 1.;
+  CoalScalar altitude_value = 1.;
   altitutes.fill(altitude_value);
 
   typedef AABB BV;
@@ -713,10 +714,10 @@ BOOST_AUTO_TEST_CASE(test_hfield_bin_active_faces) {
 }
 
 BOOST_AUTO_TEST_CASE(test_hfield_single_bin) {
-  const FCL_REAL sphere_radius = 1.;
+  const CoalScalar sphere_radius = 1.;
   Sphere sphere(sphere_radius);
   MatrixXf altitutes(2, 2);
-  FCL_REAL altitude_value = 1.;
+  CoalScalar altitude_value = 1.;
   altitutes.fill(altitude_value);
 
   typedef AABB BV;

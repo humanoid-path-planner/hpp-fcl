@@ -193,9 +193,9 @@ void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
 /// sphere radii.
 template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getSupportSet(const ShapeBase* shape, SupportSet& support_set, int& hint,
-                   size_t num_sampled_supports = 6, FCL_REAL tol = 1e-3);
+                   size_t num_sampled_supports = 6, CoalScalar tol = 1e-3);
 
-/// @brief Same as @ref getSupportSet(const ShapeBase*, const FCL_REAL,
+/// @brief Same as @ref getSupportSet(const ShapeBase*, const CoalScalar,
 /// SupportSet&, const int) but also constructs the support set frame from
 /// `dir`.
 /// @note The support direction `dir` is expressed in the local frame of the
@@ -205,7 +205,7 @@ void getSupportSet(const ShapeBase* shape, SupportSet& support_set, int& hint,
 template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getSupportSet(const ShapeBase* shape, const Vec3f& dir,
                    SupportSet& support_set, int& hint,
-                   size_t num_sampled_supports = 6, FCL_REAL tol = 1e-3) {
+                   size_t num_sampled_supports = 6, CoalScalar tol = 1e-3) {
   support_set.tf.rotation() = constructOrthonormalBasisFromVector(dir);
   const Vec3f& support_dir = support_set.getNormal();
   const Vec3f support = getSupport<_SupportOptions>(shape, support_dir, hint);
@@ -219,7 +219,7 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const TriangleP* triangle, SupportSet& support_set,
                         int& /*unused*/, ShapeSupportData& /*unused*/,
                         size_t /*unused*/ num_sampled_supports = 6,
-                        FCL_REAL tol = 1e-3);
+                        CoalScalar tol = 1e-3);
 
 /// @brief Box support set function.
 /// Assumes the support set frame has already been computed.
@@ -227,7 +227,7 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Box* box, SupportSet& support_set,
                         int& /*unused*/, ShapeSupportData& support_data,
                         size_t /*unused*/ num_sampled_supports = 6,
-                        FCL_REAL tol = 1e-3);
+                        CoalScalar tol = 1e-3);
 
 /// @brief Sphere support set function.
 /// Assumes the support set frame has already been computed.
@@ -235,7 +235,7 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Sphere* sphere, SupportSet& support_set,
                         int& /*unused*/, ShapeSupportData& /*unused*/,
                         size_t /*unused*/ num_sampled_supports = 6,
-                        FCL_REAL /*unused*/ tol = 1e-3);
+                        CoalScalar /*unused*/ tol = 1e-3);
 
 /// @brief Ellipsoid support set function.
 /// Assumes the support set frame has already been computed.
@@ -243,7 +243,7 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Ellipsoid* ellipsoid, SupportSet& support_set,
                         int& /*unused*/, ShapeSupportData& /*unused*/,
                         size_t /*unused*/ num_sampled_supports = 6,
-                        FCL_REAL /*unused*/ tol = 1e-3);
+                        CoalScalar /*unused*/ tol = 1e-3);
 
 /// @brief Capsule support set function.
 /// Assumes the support set frame has already been computed.
@@ -251,21 +251,21 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Capsule* capsule, SupportSet& support_set,
                         int& /*unused*/, ShapeSupportData& /*unused*/,
                         size_t /*unused*/ num_sampled_supports = 6,
-                        FCL_REAL tol = 1e-3);
+                        CoalScalar tol = 1e-3);
 
 /// @brief Cone support set function.
 /// Assumes the support set frame has already been computed.
 template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
                         int& /*unused*/, ShapeSupportData& /*unused*/,
-                        size_t num_sampled_supports = 6, FCL_REAL tol = 1e-3);
+                        size_t num_sampled_supports = 6, CoalScalar tol = 1e-3);
 
 /// @brief Cylinder support set function.
 /// Assumes the support set frame has already been computed.
 template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
                         int& /*unused*/, ShapeSupportData& /*unused*/,
-                        size_t num_sampled_supports = 6, FCL_REAL tol = 1e-3);
+                        size_t num_sampled_supports = 6, CoalScalar tol = 1e-3);
 
 /// @brief ConvexBase support set function.
 /// Assumes the support set frame has already been computed.
@@ -275,7 +275,7 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const ConvexBase* convex, SupportSet& support_set,
                         int& hint, ShapeSupportData& support_data,
                         size_t /*unused*/ num_sampled_supports = 6,
-                        FCL_REAL tol = 1e-3);
+                        CoalScalar tol = 1e-3);
 
 /// @brief Support set function for large ConvexBase (>32 vertices).
 /// Assumes the support set frame has already been computed.
@@ -283,7 +283,7 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const SmallConvex* convex, SupportSet& support_set,
                         int& /*unused*/, ShapeSupportData& /*unused*/,
                         size_t /*unused*/ num_sampled_supports = 6,
-                        FCL_REAL tol = 1e-3);
+                        CoalScalar tol = 1e-3);
 
 /// @brief Support set function for small ConvexBase (<32 vertices).
 /// Assumes the support set frame has already been computed.
@@ -291,7 +291,7 @@ template <int _SupportOptions = SupportOptions::NoSweptSphere>
 void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
                         int& hint, ShapeSupportData& support_data,
                         size_t /*unused*/ num_sampled_supports = 6,
-                        FCL_REAL tol = 1e-3);
+                        CoalScalar tol = 1e-3);
 
 /// @brief Computes the convex-hull of support_set. For now, this function is
 /// only needed for Box and ConvexBase.

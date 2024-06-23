@@ -47,7 +47,7 @@
 #include "utility.h"
 
 using coal::Box;
-using coal::FCL_REAL;
+using coal::CoalScalar;
 using coal::GJKConvergenceCriterion;
 using coal::GJKConvergenceCriterionType;
 using coal::GJKSolver;
@@ -96,7 +96,7 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
   // by default GJK uses the VDB convergence criterion, which is relative.
   GJK gjk1(max_iterations, 1e-6);
 
-  FCL_REAL tol;
+  CoalScalar tol;
   switch (cv_type) {
     // need to lower the tolerance when absolute
     case GJKConvergenceCriterionType::Absolute:
@@ -122,7 +122,7 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
 
   // Generate random transforms
   size_t n = 1000;
-  FCL_REAL extents[] = {-3., -3., 0, 3., 3., 3.};
+  CoalScalar extents[] = {-3., -3., 0, 3., 3., 3.};
   std::vector<Transform3f> transforms;
   generateRandomTransforms(extents, transforms, n);
   Transform3f identity = Transform3f::Identity();

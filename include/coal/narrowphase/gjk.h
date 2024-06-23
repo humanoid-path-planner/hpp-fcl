@@ -101,7 +101,7 @@ struct COAL_DLLAPI GJK {
   };
 
  public:
-  FCL_REAL distance_upper_bound;
+  CoalScalar distance_upper_bound;
   Status status;
   GJKVariant gjk_variant;
   GJKConvergenceCriterion convergence_criterion;
@@ -115,14 +115,14 @@ struct COAL_DLLAPI GJK {
   /// the eyes of GJK. If `distance_upper_bound` is set to a value lower than
   /// infinity, GJK will early stop as soon as it finds `distance` to be greater
   /// than `distance_upper_bound`.
-  FCL_REAL distance;
+  CoalScalar distance;
   Simplex* simplex;  // Pointer to the result of the last run of GJK.
 
  private:
   // max_iteration and tolerance are made private
   // because they are meant to be set by the `reset` function.
   size_t max_iterations;
-  FCL_REAL tolerance;
+  CoalScalar tolerance;
 
   SimplexV store_v[4];
   SimplexV* free_v[4];
@@ -140,7 +140,7 @@ struct COAL_DLLAPI GJK {
   /// with some vertices closer than this threshold.
   ///
   /// Suggested values are 100 iterations and a tolerance of 1e-6.
-  GJK(size_t max_iterations_, FCL_REAL tolerance_)
+  GJK(size_t max_iterations_, CoalScalar tolerance_)
       : max_iterations(max_iterations_), tolerance(tolerance_) {
     COAL_ASSERT(tolerance_ > 0, "Tolerance must be positive.",
                 std::invalid_argument);
@@ -150,7 +150,7 @@ struct COAL_DLLAPI GJK {
   /// @brief resets the GJK algorithm, preparing it for a new run.
   /// Other than the maximum number of iterations and the tolerance,
   /// this function does **not** modify the parameters of the GJK algorithm.
-  void reset(size_t max_iterations_, FCL_REAL tolerance_);
+  void reset(size_t max_iterations_, CoalScalar tolerance_);
 
   /// @brief GJK algorithm, given the initial value guess
   Status evaluate(
@@ -191,20 +191,20 @@ struct COAL_DLLAPI GJK {
   /// GJK stops when it proved the distance is more than this threshold.
   /// @note The closest points will be erroneous in this case.
   ///       If you want the closest points, set this to infinity (the default).
-  void setDistanceEarlyBreak(const FCL_REAL& dup) {
+  void setDistanceEarlyBreak(const CoalScalar& dup) {
     distance_upper_bound = dup;
   }
 
   /// @brief Convergence check used to stop GJK when shapes are not in
   /// collision.
-  bool checkConvergence(const Vec3f& w, const FCL_REAL& rl, FCL_REAL& alpha,
-                        const FCL_REAL& omega) const;
+  bool checkConvergence(const Vec3f& w, const CoalScalar& rl, CoalScalar& alpha,
+                        const CoalScalar& omega) const;
 
   /// @brief Get the max number of iterations of GJK.
   size_t getNumMaxIterations() const { return max_iterations; }
 
   /// @brief Get the tolerance of GJK.
-  FCL_REAL getTolerance() const { return tolerance; }
+  CoalScalar getTolerance() const { return tolerance; }
 
   /// @brief Get the number of iterations of the last run of GJK.
   size_t getNumIterations() const { return iterations; }
@@ -259,7 +259,7 @@ struct COAL_DLLAPI EPA {
   typedef GJK::SimplexV SimplexVertex;
   struct COAL_DLLAPI SimplexFace {
     Vec3f n;
-    FCL_REAL d;
+    CoalScalar d;
     bool ignore;          // If the origin does not project inside the face, we
                           // ignore this face.
     size_t vertex_id[3];  // Index of vertex in sv_store.
@@ -344,14 +344,14 @@ struct COAL_DLLAPI EPA {
   GJK::Simplex result;
   Vec3f normal;
   support_func_guess_t support_hint;
-  FCL_REAL depth;
+  CoalScalar depth;
   SimplexFace* closest_face;
 
  private:
   // max_iteration and tolerance are made private
   // because they are meant to be set by the `reset` function.
   size_t max_iterations;
-  FCL_REAL tolerance;
+  CoalScalar tolerance;
 
   std::vector<SimplexVertex> sv_store;
   std::vector<SimplexFace> fc_store;
@@ -360,7 +360,7 @@ struct COAL_DLLAPI EPA {
   size_t iterations;
 
  public:
-  EPA(size_t max_iterations_, FCL_REAL tolerance_)
+  EPA(size_t max_iterations_, CoalScalar tolerance_)
       : max_iterations(max_iterations_), tolerance(tolerance_) {
     initialize();
   }
@@ -385,7 +385,7 @@ struct COAL_DLLAPI EPA {
   size_t getNumMaxFaces() const { return fc_store.size(); }
 
   /// @brief Get the tolerance of EPA.
-  FCL_REAL getTolerance() const { return tolerance; }
+  CoalScalar getTolerance() const { return tolerance; }
 
   /// @brief Get the number of iterations of the last run of EPA.
   size_t getNumIterations() const { return iterations; }
@@ -404,7 +404,7 @@ struct COAL_DLLAPI EPA {
   /// @note calling this function destroys the previous state of EPA.
   /// In the future, we may want to copy it instead, i.e. when EPA will
   /// be (properly) warm-startable.
-  void reset(size_t max_iterations, FCL_REAL tolerance);
+  void reset(size_t max_iterations, CoalScalar tolerance);
 
   /// \return a Status which can be demangled using (status & Valid) or
   ///         (status & Failed). The other values provide a more detailled
@@ -428,7 +428,7 @@ struct COAL_DLLAPI EPA {
   void initialize();
 
   bool getEdgeDist(SimplexFace* face, const SimplexVertex& a,
-                   const SimplexVertex& b, FCL_REAL& dist);
+                   const SimplexVertex& b, CoalScalar& dist);
 
   /// @brief Add a new face to the polytope.
   /// This function sets the `ignore` flag to `true` if the origin does not

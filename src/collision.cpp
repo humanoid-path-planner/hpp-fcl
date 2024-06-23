@@ -69,7 +69,7 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                     const CollisionGeometry* o2, const Transform3f& tf2,
                     const CollisionRequest& request, CollisionResult& result) {
   // If security margin is set to -infinity, return that there is no collision
-  if (request.security_margin == -std::numeric_limits<FCL_REAL>::infinity()) {
+  if (request.security_margin == -std::numeric_limits<CoalScalar>::infinity()) {
     result.clear();
     return false;
   }
@@ -161,7 +161,7 @@ std::size_t ComputeCollision::run(const Transform3f& tf1,
                                   const CollisionRequest& request,
                                   CollisionResult& result) const {
   // If security margin is set to -infinity, return that there is no collision
-  if (request.security_margin == -std::numeric_limits<FCL_REAL>::infinity()) {
+  if (request.security_margin == -std::numeric_limits<CoalScalar>::infinity()) {
     result.clear();
     return false;
   }

@@ -88,7 +88,7 @@ BVHModel<BV>* BVHExtract(const BVHModel<BV>& model, const Transform3f& pose,
       const DistanceRequest distanceRequest(enable_nearest_points,
                                             compute_penetration);
       DistanceResult distanceResult;
-      const FCL_REAL distance = ShapeShapeDistance<Box, TriangleP>(
+      const CoalScalar distance = ShapeShapeDistance<Box, TriangleP>(
           &box, box_pose, &tri, Transform3f(), &gjk, distanceRequest,
           distanceResult);
       bool is_collision =
@@ -263,13 +263,13 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices,
 void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts,
                                         unsigned int* indices, unsigned int n,
                                         const Matrix3f& axes, Vec3f& origin,
-                                        FCL_REAL l[2], FCL_REAL& r) {
+                                        CoalScalar l[2], CoalScalar& r) {
   bool indirect_index = true;
   if (!indices) indirect_index = false;
 
   unsigned int size_P = ((ps2) ? 2 : 1) * ((ts) ? 3 : 1) * n;
 
-  FCL_REAL(*P)[3] = new FCL_REAL[size_P][3];
+  CoalScalar(*P)[3] = new CoalScalar[size_P][3];
 
   int P_id = 0;
 
@@ -322,34 +322,34 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts,
     }
   }
 
-  FCL_REAL minx, maxx, miny, maxy, minz, maxz;
+  CoalScalar minx, maxx, miny, maxy, minz, maxz;
 
-  FCL_REAL cz, radsqr;
+  CoalScalar cz, radsqr;
 
   minz = maxz = P[0][2];
 
   for (unsigned int i = 1; i < size_P; ++i) {
-    FCL_REAL z_value = P[i][2];
+    CoalScalar z_value = P[i][2];
     if (z_value < minz)
       minz = z_value;
     else if (z_value > maxz)
       maxz = z_value;
   }
 
-  r = (FCL_REAL)0.5 * (maxz - minz);
+  r = (CoalScalar)0.5 * (maxz - minz);
   radsqr = r * r;
-  cz = (FCL_REAL)0.5 * (maxz + minz);
+  cz = (CoalScalar)0.5 * (maxz + minz);
 
   // compute an initial norm of rectangle along x direction
 
   // find minx and maxx as starting points
 
   unsigned int minindex = 0, maxindex = 0;
-  FCL_REAL mintmp, maxtmp;
+  CoalScalar mintmp, maxtmp;
   mintmp = maxtmp = P[0][0];
 
   for (unsigned int i = 1; i < size_P; ++i) {
-    FCL_REAL x_value = P[i][0];
+    CoalScalar x_value = P[i][0];
     if (x_value < mintmp) {
       minindex = i;
       mintmp = x_value;
@@ -359,22 +359,22 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts,
     }
   }
 
-  FCL_REAL x, dz;
+  CoalScalar x, dz;
   dz = P[minindex][2] - cz;
-  minx = P[minindex][0] + std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
+  minx = P[minindex][0] + std::sqrt(std::max<CoalScalar>(radsqr - dz * dz, 0));
   dz = P[maxindex][2] - cz;
-  maxx = P[maxindex][0] - std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
+  maxx = P[maxindex][0] - std::sqrt(std::max<CoalScalar>(radsqr - dz * dz, 0));
 
   // grow minx/maxx
 
   for (unsigned int i = 0; i < size_P; ++i) {
     if (P[i][0] < minx) {
       dz = P[i][2] - cz;
-      x = P[i][0] + std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
+      x = P[i][0] + std::sqrt(std::max<CoalScalar>(radsqr - dz * dz, 0));
       if (x < minx) minx = x;
     } else if (P[i][0] > maxx) {
       dz = P[i][2] - cz;
-      x = P[i][0] - std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
+      x = P[i][0] - std::sqrt(std::max<CoalScalar>(radsqr - dz * dz, 0));
       if (x > maxx) maxx = x;
     }
   }
@@ -386,7 +386,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts,
   minindex = maxindex = 0;
   mintmp = maxtmp = P[0][1];
   for (unsigned int i = 1; i < size_P; ++i) {
-    FCL_REAL y_value = P[i][1];
+    CoalScalar y_value = P[i][1];
     if (y_value < mintmp) {
       minindex = i;
       mintmp = y_value;
@@ -396,30 +396,30 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts,
     }
   }
 
-  FCL_REAL y;
+  CoalScalar y;
   dz = P[minindex][2] - cz;
-  miny = P[minindex][1] + std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
+  miny = P[minindex][1] + std::sqrt(std::max<CoalScalar>(radsqr - dz * dz, 0));
   dz = P[maxindex][2] - cz;
-  maxy = P[maxindex][1] - std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
+  maxy = P[maxindex][1] - std::sqrt(std::max<CoalScalar>(radsqr - dz * dz, 0));
 
   // grow miny/maxy
 
   for (unsigned int i = 0; i < size_P; ++i) {
     if (P[i][1] < miny) {
       dz = P[i][2] - cz;
-      y = P[i][1] + std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
+      y = P[i][1] + std::sqrt(std::max<CoalScalar>(radsqr - dz * dz, 0));
       if (y < miny) miny = y;
     } else if (P[i][1] > maxy) {
       dz = P[i][2] - cz;
-      y = P[i][1] - std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
+      y = P[i][1] - std::sqrt(std::max<CoalScalar>(radsqr - dz * dz, 0));
       if (y > maxy) maxy = y;
     }
   }
 
   // corners may have some points which are not covered - grow lengths if
   // necessary quite conservative (can be improved)
-  FCL_REAL dx, dy, u, t;
-  FCL_REAL a = std::sqrt((FCL_REAL)0.5);
+  CoalScalar dx, dy, u, t;
+  CoalScalar a = std::sqrt((CoalScalar)0.5);
   for (unsigned int i = 0; i < size_P; ++i) {
     if (P[i][0] > maxx) {
       if (P[i][1] > maxy) {
@@ -428,7 +428,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts,
         u = dx * a + dy * a;
         t = (a * u - dx) * (a * u - dx) + (a * u - dy) * (a * u - dy) +
             (cz - P[i][2]) * (cz - P[i][2]);
-        u = u - std::sqrt(std::max<FCL_REAL>(radsqr - t, 0));
+        u = u - std::sqrt(std::max<CoalScalar>(radsqr - t, 0));
         if (u > 0) {
           maxx += u * a;
           maxy += u * a;
@@ -439,7 +439,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts,
         u = dx * a - dy * a;
         t = (a * u - dx) * (a * u - dx) + (-a * u - dy) * (-a * u - dy) +
             (cz - P[i][2]) * (cz - P[i][2]);
-        u = u - std::sqrt(std::max<FCL_REAL>(radsqr - t, 0));
+        u = u - std::sqrt(std::max<CoalScalar>(radsqr - t, 0));
         if (u > 0) {
           maxx += u * a;
           miny -= u * a;
@@ -452,7 +452,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts,
         u = dy * a - dx * a;
         t = (-a * u - dx) * (-a * u - dx) + (a * u - dy) * (a * u - dy) +
             (cz - P[i][2]) * (cz - P[i][2]);
-        u = u - std::sqrt(std::max<FCL_REAL>(radsqr - t, 0));
+        u = u - std::sqrt(std::max<CoalScalar>(radsqr - t, 0));
         if (u > 0) {
           minx -= u * a;
           maxy += u * a;
@@ -463,7 +463,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts,
         u = -dx * a - dy * a;
         t = (-a * u - dx) * (-a * u - dx) + (-a * u - dy) * (-a * u - dy) +
             (cz - P[i][2]) * (cz - P[i][2]);
-        u = u - std::sqrt(std::max<FCL_REAL>(radsqr - t, 0));
+        u = u - std::sqrt(std::max<CoalScalar>(radsqr - t, 0));
         if (u > 0) {
           minx -= u * a;
           miny -= u * a;
@@ -474,8 +474,8 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts,
 
   origin.noalias() = axes * Vec3f(minx, miny, cz);
 
-  l[0] = std::max<FCL_REAL>(maxx - minx, 0);
-  l[1] = std::max<FCL_REAL>(maxy - miny, 0);
+  l[0] = std::max<CoalScalar>(maxx - minx, 0);
+  l[1] = std::max<CoalScalar>(maxy - miny, 0);
 
   delete[] P;
 }
@@ -490,7 +490,7 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2,
   bool indirect_index = true;
   if (!indices) indirect_index = false;
 
-  FCL_REAL real_max = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar real_max = (std::numeric_limits<CoalScalar>::max)();
 
   Vec3f min_coord(real_max, real_max, real_max);
   Vec3f max_coord(-real_max, -real_max, -real_max);
@@ -532,7 +532,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
   bool indirect_index = true;
   if (!indices) indirect_index = false;
 
-  FCL_REAL real_max = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar real_max = (std::numeric_limits<CoalScalar>::max)();
 
   Vec3f min_coord(real_max, real_max, real_max);
   Vec3f max_coord(-real_max, -real_max, -real_max);
@@ -583,27 +583,28 @@ void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts,
 }
 
 void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c,
-                             Vec3f& center, FCL_REAL& radius) {
+                             Vec3f& center, CoalScalar& radius) {
   Vec3f e1 = a - c;
   Vec3f e2 = b - c;
-  FCL_REAL e1_len2 = e1.squaredNorm();
-  FCL_REAL e2_len2 = e2.squaredNorm();
+  CoalScalar e1_len2 = e1.squaredNorm();
+  CoalScalar e2_len2 = e2.squaredNorm();
   Vec3f e3 = e1.cross(e2);
-  FCL_REAL e3_len2 = e3.squaredNorm();
+  CoalScalar e3_len2 = e3.squaredNorm();
   radius = e1_len2 * e2_len2 * (e1 - e2).squaredNorm() / e3_len2;
   radius = std::sqrt(radius) * 0.5;
 
   center = (e2 * e1_len2 - e1 * e2_len2).cross(e3) * (0.5 * 1 / e3_len2) + c;
 }
 
-static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
-                                            unsigned int* indices,
-                                            unsigned int n,
-                                            const Vec3f& query) {
+static inline CoalScalar maximumDistance_mesh(Vec3f* ps, Vec3f* ps2,
+                                              Triangle* ts,
+                                              unsigned int* indices,
+                                              unsigned int n,
+                                              const Vec3f& query) {
   bool indirect_index = true;
   if (!indices) indirect_index = false;
 
-  FCL_REAL maxD = 0;
+  CoalScalar maxD = 0;
   for (unsigned int i = 0; i < n; ++i) {
     unsigned int index = indirect_index ? indices[i] : i;
     const Triangle& t = ts[index];
@@ -612,7 +613,7 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
       Triangle::index_type point_id = t[j];
       const Vec3f& p = ps[point_id];
 
-      FCL_REAL d = (p - query).squaredNorm();
+      CoalScalar d = (p - query).squaredNorm();
       if (d > maxD) maxD = d;
     }
 
@@ -621,7 +622,7 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
         Triangle::index_type point_id = t[j];
         const Vec3f& p = ps2[point_id];
 
-        FCL_REAL d = (p - query).squaredNorm();
+        CoalScalar d = (p - query).squaredNorm();
         if (d > maxD) maxD = d;
       }
     }
@@ -630,24 +631,24 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
   return std::sqrt(maxD);
 }
 
-static inline FCL_REAL maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2,
-                                                  unsigned int* indices,
-                                                  unsigned int n,
-                                                  const Vec3f& query) {
+static inline CoalScalar maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2,
+                                                    unsigned int* indices,
+                                                    unsigned int n,
+                                                    const Vec3f& query) {
   bool indirect_index = true;
   if (!indices) indirect_index = false;
 
-  FCL_REAL maxD = 0;
+  CoalScalar maxD = 0;
   for (unsigned int i = 0; i < n; ++i) {
     unsigned int index = indirect_index ? indices[i] : i;
 
     const Vec3f& p = ps[index];
-    FCL_REAL d = (p - query).squaredNorm();
+    CoalScalar d = (p - query).squaredNorm();
     if (d > maxD) maxD = d;
 
     if (ps2) {
       const Vec3f& v = ps2[index];
-      FCL_REAL d = (v - query).squaredNorm();
+      CoalScalar d = (v - query).squaredNorm();
       if (d > maxD) maxD = d;
     }
   }
@@ -655,9 +656,9 @@ static inline FCL_REAL maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2,
   return std::sqrt(maxD);
 }
 
-FCL_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts,
-                         unsigned int* indices, unsigned int n,
-                         const Vec3f& query) {
+CoalScalar maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts,
+                           unsigned int* indices, unsigned int n,
+                           const Vec3f& query) {
   if (ts)
     return maximumDistance_mesh(ps, ps2, ts, indices, n, query);
   else

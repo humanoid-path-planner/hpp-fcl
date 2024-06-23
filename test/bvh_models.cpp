@@ -205,7 +205,7 @@ void testBVHModelTriangles() {
   BOOST_CHECK_EQUAL(cropped->num_tris, model->num_tris - 2);
 
   pose.setTranslation(Vec3f(0, 0, 0));
-  FCL_REAL sqrt2_2 = std::sqrt(2) / 2;
+  CoalScalar sqrt2_2 = std::sqrt(2) / 2;
   pose.setQuatRotation(Quatf(sqrt2_2, sqrt2_2, 0, 0));
   cropped.reset(BVHExtract(*model, pose, aabb));
   BOOST_REQUIRE(cropped);

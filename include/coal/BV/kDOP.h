@@ -91,7 +91,7 @@ template <short N>
 class COAL_DLLAPI KDOP {
  protected:
   /// @brief Origin's distances to N KDOP planes
-  Eigen::Array<FCL_REAL, N, 1> dist_;
+  Eigen::Array<CoalScalar, N, 1> dist_;
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -123,11 +123,11 @@ class COAL_DLLAPI KDOP {
   /// @retval sqrDistLowerBound squared lower bound on distance between boxes if
   ///         they do not overlap.
   bool overlap(const KDOP<N>& other, const CollisionRequest& request,
-               FCL_REAL& sqrDistLowerBound) const;
+               CoalScalar& sqrDistLowerBound) const;
 
   /// @brief The distance between two KDOP<N>. Not implemented.
-  FCL_REAL distance(const KDOP<N>& other, Vec3f* P = NULL,
-                    Vec3f* Q = NULL) const;
+  CoalScalar distance(const KDOP<N>& other, Vec3f* P = NULL,
+                      Vec3f* Q = NULL) const;
 
   /// @brief Merge the point and the KDOP
   KDOP<N>& operator+=(const Vec3f& p);
@@ -139,7 +139,7 @@ class COAL_DLLAPI KDOP {
   KDOP<N> operator+(const KDOP<N>& other) const;
 
   /// @brief Size of the kDOP (used in BV_Splitter to order two kDOPs)
-  inline FCL_REAL size() const {
+  inline CoalScalar size() const {
     return width() * width() + height() * height() + depth() * depth();
   }
 
@@ -149,20 +149,20 @@ class COAL_DLLAPI KDOP {
   }
 
   /// @brief The (AABB) width
-  inline FCL_REAL width() const { return dist_[N / 2] - dist_[0]; }
+  inline CoalScalar width() const { return dist_[N / 2] - dist_[0]; }
 
   /// @brief The (AABB) height
-  inline FCL_REAL height() const { return dist_[N / 2 + 1] - dist_[1]; }
+  inline CoalScalar height() const { return dist_[N / 2 + 1] - dist_[1]; }
 
   /// @brief The (AABB) depth
-  inline FCL_REAL depth() const { return dist_[N / 2 + 2] - dist_[2]; }
+  inline CoalScalar depth() const { return dist_[N / 2 + 2] - dist_[2]; }
 
   /// @brief The (AABB) volume
-  inline FCL_REAL volume() const { return width() * height() * depth(); }
+  inline CoalScalar volume() const { return width() * height() * depth(); }
 
-  inline FCL_REAL dist(short i) const { return dist_[i]; }
+  inline CoalScalar dist(short i) const { return dist_[i]; }
 
-  inline FCL_REAL& dist(short i) { return dist_[i]; }
+  inline CoalScalar& dist(short i) { return dist_[i]; }
 
   //// @brief Check whether one point is inside the KDOP
   bool inside(const Vec3f& p) const;
@@ -177,7 +177,7 @@ bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
 template <short N>
 bool overlap(const Matrix3f& /*R0*/, const Vec3f& /*T0*/, const KDOP<N>& /*b1*/,
              const KDOP<N>& /*b2*/, const CollisionRequest& /*request*/,
-             FCL_REAL& /*sqrDistLowerBound*/) {
+             CoalScalar& /*sqrDistLowerBound*/) {
   COAL_THROW_PRETTY("not implemented", std::logic_error);
 }
 

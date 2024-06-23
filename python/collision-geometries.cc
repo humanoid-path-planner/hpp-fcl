@@ -130,8 +130,8 @@ void exposeHeightField(const std::string& bvname) {
       type_name.c_str(), doxygen::class_doc<Geometry>(), no_init)
       .def(dv::init<HeightField<BV>>())
       .def(dv::init<HeightField<BV>, const HeightField<BV>&>())
-      .def(dv::init<HeightField<BV>, FCL_REAL, FCL_REAL, const MatrixXf&,
-                    bp::optional<FCL_REAL>>())
+      .def(dv::init<HeightField<BV>, CoalScalar, CoalScalar, const MatrixXf&,
+                    bp::optional<CoalScalar>>())
 
       .DEF_CLASS_FUNC(Geometry, getXDim)
       .DEF_CLASS_FUNC(Geometry, getYDim)
@@ -278,7 +278,7 @@ void exposeShapes() {
       "Box", doxygen::class_doc<ShapeBase>(), no_init)
       .def(dv::init<Box>())
       .def(dv::init<Box, const Box&>())
-      .def(dv::init<Box, FCL_REAL, FCL_REAL, FCL_REAL>())
+      .def(dv::init<Box, CoalScalar, CoalScalar, CoalScalar>())
       .def(dv::init<Box, const Vec3f&>())
       .DEF_RW_CLASS_ATTRIB(Box, halfSide)
       .def("clone", &Box::clone, doxygen::member_func_doc(&Box::clone),
@@ -289,7 +289,7 @@ void exposeShapes() {
   class_<Capsule, bases<ShapeBase>, shared_ptr<Capsule>>(
       "Capsule", doxygen::class_doc<Capsule>(), no_init)
       .def(dv::init<Capsule>())
-      .def(dv::init<Capsule, FCL_REAL, FCL_REAL>())
+      .def(dv::init<Capsule, CoalScalar, CoalScalar>())
       .def(dv::init<Capsule, const Capsule&>())
       .DEF_RW_CLASS_ATTRIB(Capsule, radius)
       .DEF_RW_CLASS_ATTRIB(Capsule, halfLength)
@@ -301,7 +301,7 @@ void exposeShapes() {
   class_<Cone, bases<ShapeBase>, shared_ptr<Cone>>(
       "Cone", doxygen::class_doc<Cone>(), no_init)
       .def(dv::init<Cone>())
-      .def(dv::init<Cone, FCL_REAL, FCL_REAL>())
+      .def(dv::init<Cone, CoalScalar, CoalScalar>())
       .def(dv::init<Cone, const Cone&>())
       .DEF_RW_CLASS_ATTRIB(Cone, radius)
       .DEF_RW_CLASS_ATTRIB(Cone, halfLength)
@@ -360,7 +360,7 @@ void exposeShapes() {
   class_<Cylinder, bases<ShapeBase>, shared_ptr<Cylinder>>(
       "Cylinder", doxygen::class_doc<Cylinder>(), no_init)
       .def(dv::init<Cylinder>())
-      .def(dv::init<Cylinder, FCL_REAL, FCL_REAL>())
+      .def(dv::init<Cylinder, CoalScalar, CoalScalar>())
       .def(dv::init<Cylinder, const Cylinder&>())
       .DEF_RW_CLASS_ATTRIB(Cylinder, radius)
       .DEF_RW_CLASS_ATTRIB(Cylinder, halfLength)
@@ -372,9 +372,10 @@ void exposeShapes() {
 
   class_<Halfspace, bases<ShapeBase>, shared_ptr<Halfspace>>(
       "Halfspace", doxygen::class_doc<Halfspace>(), no_init)
-      .def(dv::init<Halfspace, const Vec3f&, FCL_REAL>())
+      .def(dv::init<Halfspace, const Vec3f&, CoalScalar>())
       .def(dv::init<Halfspace, const Halfspace&>())
-      .def(dv::init<Halfspace, FCL_REAL, FCL_REAL, FCL_REAL, FCL_REAL>())
+      .def(
+          dv::init<Halfspace, CoalScalar, CoalScalar, CoalScalar, CoalScalar>())
       .def(dv::init<Halfspace>())
       .DEF_RW_CLASS_ATTRIB(Halfspace, n)
       .DEF_RW_CLASS_ATTRIB(Halfspace, d)
@@ -386,9 +387,9 @@ void exposeShapes() {
 
   class_<Plane, bases<ShapeBase>, shared_ptr<Plane>>(
       "Plane", doxygen::class_doc<Plane>(), no_init)
-      .def(dv::init<Plane, const Vec3f&, FCL_REAL>())
+      .def(dv::init<Plane, const Vec3f&, CoalScalar>())
       .def(dv::init<Plane, const Plane&>())
-      .def(dv::init<Plane, FCL_REAL, FCL_REAL, FCL_REAL, FCL_REAL>())
+      .def(dv::init<Plane, CoalScalar, CoalScalar, CoalScalar, CoalScalar>())
       .def(dv::init<Plane>())
       .DEF_RW_CLASS_ATTRIB(Plane, n)
       .DEF_RW_CLASS_ATTRIB(Plane, d)
@@ -401,7 +402,7 @@ void exposeShapes() {
       "Sphere", doxygen::class_doc<Sphere>(), no_init)
       .def(dv::init<Sphere>())
       .def(dv::init<Sphere, const Sphere&>())
-      .def(dv::init<Sphere, FCL_REAL>())
+      .def(dv::init<Sphere, CoalScalar>())
       .DEF_RW_CLASS_ATTRIB(Sphere, radius)
       .def("clone", &Sphere::clone, doxygen::member_func_doc(&Sphere::clone),
            return_value_policy<manage_new_object>())
@@ -411,7 +412,7 @@ void exposeShapes() {
   class_<Ellipsoid, bases<ShapeBase>, shared_ptr<Ellipsoid>>(
       "Ellipsoid", doxygen::class_doc<Ellipsoid>(), no_init)
       .def(dv::init<Ellipsoid>())
-      .def(dv::init<Ellipsoid, FCL_REAL, FCL_REAL, FCL_REAL>())
+      .def(dv::init<Ellipsoid, CoalScalar, CoalScalar, CoalScalar>())
       .def(dv::init<Ellipsoid, Vec3f>())
       .def(dv::init<Ellipsoid, const Ellipsoid&>())
       .DEF_RW_CLASS_ATTRIB(Ellipsoid, radii)
@@ -438,7 +439,7 @@ void exposeShapes() {
 
 boost::python::tuple AABB_distance_proxy(const AABB& self, const AABB& other) {
   Vec3f P, Q;
-  FCL_REAL distance = self.distance(other, &P, &Q);
+  CoalScalar distance = self.distance(other, &P, &Q);
   return boost::python::make_tuple(distance, P, Q);
 }
 
@@ -524,7 +525,8 @@ void exposeCollisionGeometries() {
            "Check whether two AABB are overlaping and return the overloaping "
            "part if true.")
 
-      .def("distance", (FCL_REAL(AABB::*)(const AABB&) const) & AABB::distance,
+      .def("distance",
+           (CoalScalar(AABB::*)(const AABB&) const) & AABB::distance,
            bp::args("self", "other"), "Distance between two AABBs.")
       //    .def("distance",
       //         AABB_distance_proxy,
@@ -563,18 +565,18 @@ void exposeCollisionGeometries() {
       .def("volume", &AABB::volume, bp::arg("self"), "Volume of the AABB.")
 
       .def("expand",
-           static_cast<AABB& (AABB::*)(const AABB&, FCL_REAL)>(&AABB::expand),
+           static_cast<AABB& (AABB::*)(const AABB&, CoalScalar)>(&AABB::expand),
            //         doxygen::member_func_doc(static_cast<AABB& (AABB::*)(const
-           //         AABB &, FCL_REAL)>(&AABB::expand)),
+           //         AABB &, CoalScalar)>(&AABB::expand)),
            //         doxygen::member_func_args(static_cast<AABB&
-           //         (AABB::*)(const AABB &, FCL_REAL)>(&AABB::expand)),
+           //         (AABB::*)(const AABB &, CoalScalar)>(&AABB::expand)),
            bp::return_internal_reference<>())
       .def("expand",
-           static_cast<AABB& (AABB::*)(const FCL_REAL)>(&AABB::expand),
+           static_cast<AABB& (AABB::*)(const CoalScalar)>(&AABB::expand),
            //         doxygen::member_func_doc(static_cast<AABB& (AABB::*)(const
-           //         FCL_REAL)>(&AABB::expand)),
+           //         CoalScalar)>(&AABB::expand)),
            //         doxygen::member_func_args(static_cast<AABB&
-           //         (AABB::*)(const FCL_REAL)>(&AABB::expand)),
+           //         (AABB::*)(const CoalScalar)>(&AABB::expand)),
            bp::return_internal_reference<>())
       .def("expand", static_cast<AABB& (AABB::*)(const Vec3f&)>(&AABB::expand),
            //         doxygen::member_func_doc(static_cast<AABB& (AABB::*)(const

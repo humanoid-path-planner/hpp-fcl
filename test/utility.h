@@ -70,7 +70,7 @@
                           << (Va) << "\n!=\n"                                \
                           << (Vb) << "\n]")
 
-#define FCL_REAL_IS_APPROX(Va, Vb, precision)                                \
+#define CoalScalar_IS_APPROX(Va, Vb, precision)                              \
   BOOST_CHECK_MESSAGE(std::abs((Va) - (Vb)) < precision,                     \
                       "check " #Va ".isApprox(" #Vb ") failed at precision " \
                           << precision << " [\n"                             \
@@ -125,7 +125,7 @@ struct TStruct {
 
 extern const Eigen::IOFormat vfmt;
 extern const Eigen::IOFormat pyfmt;
-typedef Eigen::AngleAxis<FCL_REAL> AngleAxis;
+typedef Eigen::AngleAxis<CoalScalar> AngleAxis;
 extern const Vec3f UnitX;
 extern const Vec3f UnitY;
 extern const Vec3f UnitZ;
@@ -139,26 +139,26 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points,
 
 #ifdef COAL_HAS_OCTOMAP
 coal::OcTree loadOctreeFile(const std::string& filename,
-                            const FCL_REAL& resolution);
+                            const CoalScalar& resolution);
 #endif
 
 /// @brief Generate one random transform whose translation is constrained by
 /// extents and rotation without constraints. The translation is (x, y, z), and
 /// extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <=
 /// z <= extents[5]
-void generateRandomTransform(FCL_REAL extents[6], Transform3f& transform);
+void generateRandomTransform(CoalScalar extents[6], Transform3f& transform);
 
 /// @brief Generate n random transforms whose translations are constrained by
 /// extents.
-void generateRandomTransforms(FCL_REAL extents[6],
+void generateRandomTransforms(CoalScalar extents[6],
                               std::vector<Transform3f>& transforms,
                               std::size_t n);
 
 /// @brief Generate n random transforms whose translations are constrained by
 /// extents. Also generate another transforms2 which have additional random
 /// translation & rotation to the transforms generated.
-void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3],
-                              FCL_REAL delta_rot,
+void generateRandomTransforms(CoalScalar extents[6], CoalScalar delta_trans[3],
+                              CoalScalar delta_rot,
                               std::vector<Transform3f>& transforms,
                               std::vector<Transform3f>& transforms2,
                               std::size_t n);
@@ -180,11 +180,11 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2,
 /// return value means whether the broad phase can stop now. also return dist,
 /// i.e. the bmin distance till now
 bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2,
-                             void* cdata, FCL_REAL& dist);
+                             void* cdata, CoalScalar& dist);
 
 std::string getNodeTypeName(NODE_TYPE node_type);
 
-Quatf makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z);
+Quatf makeQuat(CoalScalar w, CoalScalar x, CoalScalar y, CoalScalar z);
 
 std::ostream& operator<<(std::ostream& os, const Transform3f& tf);
 
@@ -193,15 +193,15 @@ std::size_t getNbRun(const int& argc, char const* const* argv,
                      std::size_t defaultValue);
 
 void generateEnvironments(std::vector<CollisionObject*>& env,
-                          FCL_REAL env_scale, std::size_t n);
+                          CoalScalar env_scale, std::size_t n);
 
 void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
-                              FCL_REAL env_scale, std::size_t n);
+                              CoalScalar env_scale, std::size_t n);
 
 /// @brief Constructs a box with halfsides (l, w, d), centered around 0.
 /// The box is 2*l wide on the x-axis, 2*w wide on the y-axis and 2*d wide on
 /// the z-axis.
-Convex<Quadrilateral> buildBox(FCL_REAL l, FCL_REAL w, FCL_REAL d);
+Convex<Quadrilateral> buildBox(CoalScalar l, CoalScalar w, CoalScalar d);
 
 /// @brief We give an ellipsoid as input. The output is a 20 faces polytope
 /// which vertices belong to the original ellipsoid surface. The procedure is
@@ -210,26 +210,26 @@ Convex<Quadrilateral> buildBox(FCL_REAL l, FCL_REAL w, FCL_REAL d);
 /// ellipsoid tranformation to each vertex of the icosahedron.
 Convex<Triangle> constructPolytopeFromEllipsoid(const Ellipsoid& ellipsoid);
 
-Box makeRandomBox(FCL_REAL min_size, FCL_REAL max_size);
+Box makeRandomBox(CoalScalar min_size, CoalScalar max_size);
 
-Sphere makeRandomSphere(FCL_REAL min_size, FCL_REAL max_size);
+Sphere makeRandomSphere(CoalScalar min_size, CoalScalar max_size);
 
-Ellipsoid makeRandomEllipsoid(FCL_REAL min_size, FCL_REAL max_size);
+Ellipsoid makeRandomEllipsoid(CoalScalar min_size, CoalScalar max_size);
 
-Capsule makeRandomCapsule(std::array<FCL_REAL, 2> min_size,
-                          std::array<FCL_REAL, 2> max_size);
+Capsule makeRandomCapsule(std::array<CoalScalar, 2> min_size,
+                          std::array<CoalScalar, 2> max_size);
 
-Cone makeRandomCone(std::array<FCL_REAL, 2> min_size,
-                    std::array<FCL_REAL, 2> max_size);
+Cone makeRandomCone(std::array<CoalScalar, 2> min_size,
+                    std::array<CoalScalar, 2> max_size);
 
-Cylinder makeRandomCylinder(std::array<FCL_REAL, 2> min_size,
-                            std::array<FCL_REAL, 2> max_size);
+Cylinder makeRandomCylinder(std::array<CoalScalar, 2> min_size,
+                            std::array<CoalScalar, 2> max_size);
 
-Convex<Triangle> makeRandomConvex(FCL_REAL min_size, FCL_REAL max_size);
+Convex<Triangle> makeRandomConvex(CoalScalar min_size, CoalScalar max_size);
 
-Plane makeRandomPlane(FCL_REAL min_size, FCL_REAL max_size);
+Plane makeRandomPlane(CoalScalar min_size, CoalScalar max_size);
 
-Halfspace makeRandomHalfspace(FCL_REAL min_size, FCL_REAL max_size);
+Halfspace makeRandomHalfspace(CoalScalar min_size, CoalScalar max_size);
 
 std::shared_ptr<ShapeBase> makeRandomGeometry(NODE_TYPE node_type);
 

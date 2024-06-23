@@ -54,16 +54,16 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
  protected:
   shared_ptr<const octomap::OcTree> tree;
 
-  FCL_REAL default_occupancy;
+  CoalScalar default_occupancy;
 
-  FCL_REAL occupancy_threshold;
-  FCL_REAL free_threshold;
+  CoalScalar occupancy_threshold;
+  CoalScalar free_threshold;
 
  public:
   typedef octomap::OcTreeNode OcTreeNode;
 
   /// @brief construct octree with a given resolution
-  explicit OcTree(FCL_REAL resolution)
+  explicit OcTree(CoalScalar resolution)
       : tree(shared_ptr<const octomap::OcTree>(
             new octomap::OcTree(resolution))) {
     default_occupancy = tree->getOccupancyThres();
@@ -125,18 +125,19 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
     }
 
     // Account for the size of the boxes.
-    const FCL_REAL resolution = tree->getResolution();
+    const CoalScalar resolution = tree->getResolution();
     max_extent.array() += float(resolution / 2.);
     min_extent.array() -= float(resolution / 2.);
 
-    aabb_local = AABB(min_extent.cast<FCL_REAL>(), max_extent.cast<FCL_REAL>());
+    aabb_local =
+        AABB(min_extent.cast<CoalScalar>(), max_extent.cast<CoalScalar>());
     aabb_center = aabb_local.center();
     aabb_radius = (aabb_local.min_ - aabb_center).norm();
   }
 
   /// @brief get the bounding volume for the root
   AABB getRootBV() const {
-    FCL_REAL delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
+    CoalScalar delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
 
     // std::cout << "octree size " << delta << std::endl;
     return AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta));
@@ -149,7 +150,7 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
   unsigned long size() const { return tree->size(); }
 
   /// @brief Returns the resolution of the octree
-  FCL_REAL getResolution() const { return tree->getResolution(); }
+  CoalScalar getResolution() const { return tree->getResolution(); }
 
   /// @brief get the root node of the octree
   OcTreeNode* getRoot() const { return tree->getRoot(); }
@@ -183,12 +184,12 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
          it != end; ++it) {
       // if(tree->isNodeOccupied(*it))
       if (isNodeOccupied(&*it)) {
-        FCL_REAL x = it.getX();
-        FCL_REAL y = it.getY();
-        FCL_REAL z = it.getZ();
-        FCL_REAL size = it.getSize();
-        FCL_REAL c = (*it).getOccupancy();
-        FCL_REAL t = tree->getOccupancyThres();
+        CoalScalar x = it.getX();
+        CoalScalar y = it.getY();
+        CoalScalar z = it.getZ();
+        CoalScalar size = it.getSize();
+        CoalScalar c = (*it).getOccupancy();
+        CoalScalar t = tree->getOccupancyThres();
 
         Vec6f box;
         box << x, y, z, size, c, t;
@@ -201,7 +202,7 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
   /// \brief Returns a byte description of *this
   std::vector<uint8_t> tobytes() const {
     typedef Eigen::Matrix<float, 3, 1> Vec3float;
-    const size_t total_size = (tree->size() * sizeof(FCL_REAL) * 3) / 2;
+    const size_t total_size = (tree->size() * sizeof(CoalScalar) * 3) / 2;
     std::vector<uint8_t> bytes;
     bytes.reserve(total_size);
 
@@ -210,9 +211,9 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
              end = tree->end();
          it != end; ++it) {
       const Vec3f box_pos =
-          Eigen::Map<Vec3float>(&it.getCoordinate().x()).cast<FCL_REAL>();
+          Eigen::Map<Vec3float>(&it.getCoordinate().x()).cast<CoalScalar>();
       if (isNodeOccupied(&*it))
-        std::copy(box_pos.data(), box_pos.data() + sizeof(FCL_REAL) * 3,
+        std::copy(box_pos.data(), box_pos.data() + sizeof(CoalScalar) * 3,
                   std::back_inserter(bytes));
     }
 
@@ -221,19 +222,19 @@ class COAL_DLLAPI OcTree : public CollisionGeometry {
 
   /// @brief the threshold used to decide whether one node is occupied, this is
   /// NOT the octree occupied_thresold
-  FCL_REAL getOccupancyThres() const { return occupancy_threshold; }
+  CoalScalar getOccupancyThres() const { return occupancy_threshold; }
 
   /// @brief the threshold used to decide whether one node is free, this is NOT
   /// the octree free_threshold
-  FCL_REAL getFreeThres() const { return free_threshold; }
+  CoalScalar getFreeThres() const { return free_threshold; }
 
-  FCL_REAL getDefaultOccupancy() const { return default_occupancy; }
+  CoalScalar getDefaultOccupancy() const { return default_occupancy; }
 
-  void setCellDefaultOccupancy(FCL_REAL d) { default_occupancy = d; }
+  void setCellDefaultOccupancy(CoalScalar d) { default_occupancy = d; }
 
-  void setOccupancyThres(FCL_REAL d) { occupancy_threshold = d; }
+  void setOccupancyThres(CoalScalar d) { occupancy_threshold = d; }
 
-  void setFreeThres(FCL_REAL d) { free_threshold = d; }
+  void setFreeThres(CoalScalar d) { free_threshold = d; }
 
   /// @return ptr to child number childIdx of node
   OcTreeNode* getNodeChild(OcTreeNode* node, unsigned int childIdx) {
@@ -331,8 +332,8 @@ static inline void computeChildBV(const AABB& root_bv, unsigned int i,
 /// \returns An OcTree that can be used for collision checking and more.
 ///
 COAL_DLLAPI OcTreePtr_t
-makeOctree(const Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3>& point_cloud,
-           const FCL_REAL resolution);
+makeOctree(const Eigen::Matrix<CoalScalar, Eigen::Dynamic, 3>& point_cloud,
+           const CoalScalar resolution);
 
 }  // namespace coal
 

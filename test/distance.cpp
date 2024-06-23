@@ -53,7 +53,7 @@ using namespace coal;
 namespace utf = boost::unit_test::framework;
 
 bool verbose = false;
-FCL_REAL DELTA = 0.001;
+CoalScalar DELTA = 0.001;
 
 template <typename BV>
 void distance_Test(const Transform3f& tf, const std::vector<Vec3f>& vertices1,
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(mesh_distance) {
   loadOBJFile((path / "rob.obj").string().c_str(), p2, t2);
 
   std::vector<Transform3f> transforms;  // t0
-  FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+  CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
 #ifndef NDEBUG  // if debug mode
   std::size_t n = 1;
 #else

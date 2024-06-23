@@ -46,7 +46,7 @@
 using namespace coal;
 
 BOOST_AUTO_TEST_CASE(convex) {
-  FCL_REAL l = 1, w = 1, d = 1;
+  CoalScalar l = 1, w = 1, d = 1;
   Convex<Quadrilateral> box(buildBox(l, w, d));
 
   // Check neighbors
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(convex) {
 template <typename Sa, typename Sb>
 void compareShapeIntersection(const Sa& sa, const Sb& sb,
                               const Transform3f& tf1, const Transform3f& tf2,
-                              FCL_REAL tol = 1e-9) {
+                              CoalScalar tol = 1e-9) {
   CollisionRequest request(CONTACT | DISTANCE_LOWER_BOUND, 1);
   CollisionResult resA, resB;
 
@@ -118,7 +118,7 @@ void compareShapeIntersection(const Sa& sa, const Sb& sb,
 
 template <typename Sa, typename Sb>
 void compareShapeDistance(const Sa& sa, const Sb& sb, const Transform3f& tf1,
-                          const Transform3f& tf2, FCL_REAL tol = 1e-9) {
+                          const Transform3f& tf2, CoalScalar tol = 1e-9) {
   DistanceRequest request(true);
   DistanceResult resA, resB;
 
@@ -149,8 +149,8 @@ void compareShapeDistance(const Sa& sa, const Sb& sb, const Transform3f& tf1,
 }
 
 BOOST_AUTO_TEST_CASE(compare_convex_box) {
-  FCL_REAL extents[6] = {0, 0, 0, 10, 10, 10};
-  FCL_REAL l = 1, w = 1, d = 1, eps = 1e-4;
+  CoalScalar extents[6] = {0, 0, 0, 10, 10, 10};
+  CoalScalar l = 1, w = 1, d = 1, eps = 1e-4;
   Box box(l * 2, w * 2, d * 2);
   Convex<Quadrilateral> convex_box(buildBox(l, w, d));
 

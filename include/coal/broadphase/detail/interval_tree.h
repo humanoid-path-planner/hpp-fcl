@@ -85,7 +85,7 @@ class COAL_DLLAPI IntervalTree {
   IntervalTreeNode* getSuccessor(IntervalTreeNode* node) const;
 
   /// @brief Return result for a given query
-  std::deque<SimpleInterval*> query(FCL_REAL low, FCL_REAL high);
+  std::deque<SimpleInterval*> query(CoalScalar low, CoalScalar high);
 
  protected:
   IntervalTreeNode* root;

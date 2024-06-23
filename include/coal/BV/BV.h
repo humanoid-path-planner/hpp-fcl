@@ -65,7 +65,7 @@ template <>
 struct Converter<AABB, AABB> {
   static void convert(const AABB& bv1, const Transform3f& tf1, AABB& bv2) {
     const Vec3f& center = bv1.center();
-    FCL_REAL r = (bv1.max_ - bv1.min_).norm() * 0.5;
+    CoalScalar r = (bv1.max_ - bv1.min_).norm() * 0.5;
     const Vec3f center2 = tf1.transform(center);
     bv2.min_ = center2 - Vec3f::Constant(r);
     bv2.max_ = center2 + Vec3f::Constant(r);
@@ -132,7 +132,7 @@ template <typename BV1>
 struct Converter<BV1, AABB> {
   static void convert(const BV1& bv1, const Transform3f& tf1, AABB& bv2) {
     const Vec3f& center = bv1.center();
-    FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
+    CoalScalar r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
     const Vec3f center2 = tf1.transform(center);
     bv2.min_ = center2 - Vec3f::Constant(r);
     bv2.max_ = center2 + Vec3f::Constant(r);
@@ -140,7 +140,7 @@ struct Converter<BV1, AABB> {
 
   static void convert(const BV1& bv1, AABB& bv2) {
     const Vec3f& center = bv1.center();
-    FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
+    CoalScalar r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
     bv2.min_ = center - Vec3f::Constant(r);
     bv2.max_ = center + Vec3f::Constant(r);
   }
@@ -213,14 +213,14 @@ struct Converter<AABB, RSS> {
     bv2.Tr = tf1.transform(bv1.center());
 
     /// Sort the AABB edges so that AABB extents are ordered.
-    FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth()};
+    CoalScalar d[3] = {bv1.width(), bv1.height(), bv1.depth()};
     Eigen::DenseIndex id[3] = {0, 1, 2};
 
     for (Eigen::DenseIndex i = 1; i < 3; ++i) {
       for (Eigen::DenseIndex j = i; j > 0; --j) {
         if (d[j] > d[j - 1]) {
           {
-            FCL_REAL tmp = d[j];
+            CoalScalar tmp = d[j];
             d[j] = d[j - 1];
             d[j - 1] = tmp;
           }

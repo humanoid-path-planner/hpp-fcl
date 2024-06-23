@@ -203,8 +203,8 @@ void eigen(const Eigen::MatrixBase<Derived>& m,
 template <typename Derived, typename OtherDerived>
 bool isEqual(const Eigen::MatrixBase<Derived>& lhs,
              const Eigen::MatrixBase<OtherDerived>& rhs,
-             const FCL_REAL tol = std::numeric_limits<FCL_REAL>::epsilon() *
-                                  100) {
+             const CoalScalar tol = std::numeric_limits<CoalScalar>::epsilon() *
+                                    100) {
   return ((lhs - rhs).array().abs() < tol).all();
 }
 

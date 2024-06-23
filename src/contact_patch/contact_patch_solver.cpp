@@ -46,7 +46,7 @@ template <typename ShapeType,
 void getShapeSupportSetTpl(const ShapeBase* shape, SupportSet& support_set,
                            int& hint, ShapeSupportData& support_data,
                            size_t num_sampled_supports = 6,
-                           FCL_REAL tol = 1e-3) {
+                           CoalScalar tol = 1e-3) {
   const ShapeType* shape_ = static_cast<const ShapeType*>(shape);
   getShapeSupportSet<_SupportOptions>(shape_, support_set, hint, support_data,
                                       num_sampled_supports, tol);

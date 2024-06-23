@@ -47,13 +47,13 @@
 #include "fcl_resources/config.h"
 
 using coal::BVHModel;
+using coal::CoalScalar;
 using coal::CollisionGeometryPtr_t;
 using coal::CollisionObject;
 using coal::CollisionRequest;
 using coal::CollisionResult;
 using coal::DistanceRequest;
 using coal::DistanceResult;
-using coal::FCL_REAL;
 using coal::OBBRSS;
 using coal::shared_ptr;
 using coal::Transform3f;
@@ -63,7 +63,7 @@ using coal::Vec3f;
 bool testDistanceLowerBound(const Transform3f& tf,
                             const CollisionGeometryPtr_t& m1,
                             const CollisionGeometryPtr_t& m2,
-                            FCL_REAL& distance) {
+                            CoalScalar& distance) {
   Transform3f pose1(tf), pose2;
 
   CollisionRequest request;
@@ -94,7 +94,7 @@ bool testCollide(const Transform3f& tf, const CollisionGeometryPtr_t& m1,
 }
 
 bool testDistance(const Transform3f& tf, const CollisionGeometryPtr_t& m1,
-                  const CollisionGeometryPtr_t& m2, FCL_REAL& distance) {
+                  const CollisionGeometryPtr_t& m2, CoalScalar& distance) {
   Transform3f pose1(tf), pose2;
 
   DistanceRequest request;
@@ -132,14 +132,14 @@ BOOST_AUTO_TEST_CASE(mesh_mesh) {
   m2->endModel();
 
   std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+  CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   std::size_t n = 100;
 
   generateRandomTransforms(extents, transforms, n);
 
   // collision
   for (std::size_t i = 0; i < transforms.size(); ++i) {
-    FCL_REAL distanceLowerBound, distance;
+    CoalScalar distanceLowerBound, distance;
     bool col1, col2, col3;
     col1 = testDistanceLowerBound(transforms[i], m1, m2, distanceLowerBound);
     col2 = testDistance(transforms[i], m1, m2, distance);
@@ -167,12 +167,12 @@ BOOST_AUTO_TEST_CASE(box_sphere) {
   M2.setIdentity();
 
   std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-2., -2., -2., 2., 2., 2.};
+  CoalScalar extents[] = {-2., -2., -2., 2., 2., 2.};
   const std::size_t n = 1000;
 
   generateRandomTransforms(extents, transforms, n);
 
-  FCL_REAL distanceLowerBound, distance;
+  CoalScalar distanceLowerBound, distance;
   bool col1, col2;
   col1 = testDistanceLowerBound(M1, sphere, box, distanceLowerBound);
   col2 = testDistance(M1, sphere, box, distance);
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(box_sphere) {
   BOOST_CHECK(distanceLowerBound <= distance);
 
   for (std::size_t i = 0; i < transforms.size(); ++i) {
-    FCL_REAL distanceLowerBound, distance;
+    CoalScalar distanceLowerBound, distance;
     bool col1, col2;
     col1 =
         testDistanceLowerBound(transforms[i], sphere, box, distanceLowerBound);
@@ -204,12 +204,12 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
   M2.setIdentity();
 
   std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-2., -2., -2., 2., 2., 2.};
+  CoalScalar extents[] = {-2., -2., -2., 2., 2., 2.};
   const std::size_t n = 1000;
 
   generateRandomTransforms(extents, transforms, n);
 
-  FCL_REAL distanceLowerBound, distance;
+  CoalScalar distanceLowerBound, distance;
   bool col1, col2;
   col1 = testDistanceLowerBound(M1, sphere1, sphere2, distanceLowerBound);
   col2 = testDistance(M1, sphere1, sphere2, distance);
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
   BOOST_CHECK(distanceLowerBound <= distance);
 
   for (std::size_t i = 0; i < transforms.size(); ++i) {
-    FCL_REAL distanceLowerBound, distance;
+    CoalScalar distanceLowerBound, distance;
     bool col1, col2;
     col1 = testDistanceLowerBound(transforms[i], sphere1, sphere2,
                                   distanceLowerBound);
@@ -246,14 +246,14 @@ BOOST_AUTO_TEST_CASE(box_mesh) {
   m1->endModel();
 
   std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+  CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   std::size_t n = 100;
 
   generateRandomTransforms(extents, transforms, n);
 
   // collision
   for (std::size_t i = 0; i < transforms.size(); ++i) {
-    FCL_REAL distanceLowerBound, distance;
+    CoalScalar distanceLowerBound, distance;
     bool col1, col2;
     col1 = testDistanceLowerBound(transforms[i], m1, m2, distanceLowerBound);
     col2 = testDistance(transforms[i], m1, m2, distance);

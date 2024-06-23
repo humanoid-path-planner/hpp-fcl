@@ -183,7 +183,7 @@ void exposeCollisionAPI() {
                       const CollisionGeometry*, int, int>())
         .def(dv::init<Contact, const CollisionGeometry*,
                       const CollisionGeometry*, int, int, const Vec3f&,
-                      const Vec3f&, FCL_REAL>())
+                      const Vec3f&, CoalScalar>())
         .add_property(
             "o1",
             make_function(&geto<1>,

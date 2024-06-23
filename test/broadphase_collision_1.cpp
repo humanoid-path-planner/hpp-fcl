@@ -65,11 +65,13 @@ using namespace coal;
 
 /// @brief make sure if broadphase algorithms doesn't check twice for the same
 /// collision object pair
-void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size,
+void broad_phase_duplicate_check_test(CoalScalar env_scale,
+                                      std::size_t env_size,
                                       bool verbose = false);
 
 /// @brief test for broad phase update
-void broad_phase_update_collision_test(FCL_REAL env_scale, std::size_t env_size,
+void broad_phase_update_collision_test(CoalScalar env_scale,
+                                       std::size_t env_size,
                                        std::size_t query_size,
                                        std::size_t num_max_contacts = 1,
                                        bool exhaustive = false,
@@ -197,8 +199,8 @@ struct CollisionFunctionForUniquenessChecking : CollisionCallBackBase {
 };
 
 //==============================================================================
-void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size,
-                                      bool verbose) {
+void broad_phase_duplicate_check_test(CoalScalar env_scale,
+                                      std::size_t env_size, bool verbose) {
   std::vector<TStruct> ts;
   std::vector<BenchTimer> timers;
 
@@ -212,7 +214,7 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size,
   managers.push_back(new IntervalTreeCollisionManager());
   Vec3f lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
-  FCL_REAL cell_size =
+  CoalScalar cell_size =
       std::min(std::min((upper_limit[0] - lower_limit[0]) / 20,
                         (upper_limit[1] - lower_limit[1]) / 20),
                (upper_limit[2] - lower_limit[2]) / 20);
@@ -264,22 +266,22 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size,
   }
 
   // update the environment
-  FCL_REAL delta_angle_max =
-      10 / 360.0 * 2 * boost::math::constants::pi<FCL_REAL>();
-  FCL_REAL delta_trans_max = 0.01 * env_scale;
+  CoalScalar delta_angle_max =
+      10 / 360.0 * 2 * boost::math::constants::pi<CoalScalar>();
+  CoalScalar delta_trans_max = 0.01 * env_scale;
   for (size_t i = 0; i < env.size(); ++i) {
-    FCL_REAL rand_angle_x =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_x =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
-    FCL_REAL rand_angle_y =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_y =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
-    FCL_REAL rand_angle_z =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_z =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
+    CoalScalar rand_angle_x =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_angle_max;
+    CoalScalar rand_trans_x =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_trans_max;
+    CoalScalar rand_angle_y =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_angle_max;
+    CoalScalar rand_trans_y =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_trans_max;
+    CoalScalar rand_angle_z =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_angle_max;
+    CoalScalar rand_trans_z =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_trans_max;
 
     Matrix3f dR(Eigen::AngleAxisd(rand_angle_x, Vec3f::UnitX()) *
                 Eigen::AngleAxisd(rand_angle_y, Vec3f::UnitY()) *
@@ -340,7 +342,7 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size,
 
   std::cout << "collision time" << std::endl;
   for (size_t i = 0; i < ts.size(); ++i) {
-    FCL_REAL tmp = 0;
+    CoalScalar tmp = 0;
     for (size_t j = 4; j < ts[i].records.size(); ++j) tmp += ts[i].records[j];
     std::cout << std::setw(w) << tmp << " ";
   }
@@ -353,7 +355,8 @@ void broad_phase_duplicate_check_test(FCL_REAL env_scale, std::size_t env_size,
   std::cout << std::endl;
 }
 
-void broad_phase_update_collision_test(FCL_REAL env_scale, std::size_t env_size,
+void broad_phase_update_collision_test(CoalScalar env_scale,
+                                       std::size_t env_size,
                                        std::size_t query_size,
                                        std::size_t num_max_contacts,
                                        bool exhaustive, bool use_mesh) {
@@ -382,7 +385,7 @@ void broad_phase_update_collision_test(FCL_REAL env_scale, std::size_t env_size,
 
   Vec3f lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
-  FCL_REAL cell_size =
+  CoalScalar cell_size =
       std::min(std::min((upper_limit[0] - lower_limit[0]) / 20,
                         (upper_limit[1] - lower_limit[1]) / 20),
                (upper_limit[2] - lower_limit[2]) / 20);
@@ -436,22 +439,22 @@ void broad_phase_update_collision_test(FCL_REAL env_scale, std::size_t env_size,
   }
 
   // update the environment
-  FCL_REAL delta_angle_max =
-      10 / 360.0 * 2 * boost::math::constants::pi<FCL_REAL>();
-  FCL_REAL delta_trans_max = 0.01 * env_scale;
+  CoalScalar delta_angle_max =
+      10 / 360.0 * 2 * boost::math::constants::pi<CoalScalar>();
+  CoalScalar delta_trans_max = 0.01 * env_scale;
   for (size_t i = 0; i < env.size(); ++i) {
-    FCL_REAL rand_angle_x =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_x =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
-    FCL_REAL rand_angle_y =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_y =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
-    FCL_REAL rand_angle_z =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_angle_max;
-    FCL_REAL rand_trans_z =
-        2 * (rand() / (FCL_REAL)RAND_MAX - 0.5) * delta_trans_max;
+    CoalScalar rand_angle_x =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_angle_max;
+    CoalScalar rand_trans_x =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_trans_max;
+    CoalScalar rand_angle_y =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_angle_max;
+    CoalScalar rand_trans_y =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_trans_max;
+    CoalScalar rand_angle_z =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_angle_max;
+    CoalScalar rand_trans_z =
+        2 * (rand() / (CoalScalar)RAND_MAX - 0.5) * delta_trans_max;
 
     Matrix3f dR(Eigen::AngleAxisd(rand_angle_x, Vec3f::UnitX()) *
                 Eigen::AngleAxisd(rand_angle_y, Vec3f::UnitY()) *
@@ -578,7 +581,7 @@ void broad_phase_update_collision_test(FCL_REAL env_scale, std::size_t env_size,
 
   std::cout << "collision time" << std::endl;
   for (size_t i = 0; i < ts.size(); ++i) {
-    FCL_REAL tmp = 0;
+    CoalScalar tmp = 0;
     for (size_t j = 4; j < ts[i].records.size(); ++j) tmp += ts[i].records[j];
     std::cout << std::setw(w) << tmp << " ";
   }

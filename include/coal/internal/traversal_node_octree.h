@@ -154,7 +154,7 @@ class COAL_DLLAPI OcTreeSolver {
   void OcTreeHeightFieldIntersect(
       const OcTree* tree1, const HeightField<BV>* tree2, const Transform3f& tf1,
       const Transform3f& tf2, const CollisionRequest& request_,
-      CollisionResult& result_, FCL_REAL& sqrDistLowerBound) const {
+      CollisionResult& result_, CoalScalar& sqrDistLowerBound) const {
     crequest = &request_;
     cresult = &result_;
 
@@ -169,7 +169,7 @@ class COAL_DLLAPI OcTreeSolver {
                                   const Transform3f& tf2,
                                   const CollisionRequest& request_,
                                   CollisionResult& result_,
-                                  FCL_REAL& sqrDistLowerBound) const {
+                                  CoalScalar& sqrDistLowerBound) const {
     crequest = &request_;
     cresult = &result_;
 
@@ -260,7 +260,7 @@ class COAL_DLLAPI OcTreeSolver {
         }
 
         Vec3f p1, p2, normal;
-        const FCL_REAL distance = internal::ShapeShapeDistance<Box, S>(
+        const CoalScalar distance = internal::ShapeShapeDistance<Box, S>(
             &box, box_tf, &s, tf2, this->solver,
             this->drequest->enable_signed_distance, p1, p2, normal);
 
@@ -283,7 +283,7 @@ class COAL_DLLAPI OcTreeSolver {
 
         AABB aabb1;
         convertBV(child_bv, tf1, aabb1);
-        FCL_REAL d = aabb1.distance(aabb2);
+        CoalScalar d = aabb1.distance(aabb2);
         if (d < dresult->min_distance) {
           if (OcTreeShapeDistanceRecurse(tree1, child, child_bv, s, aabb2, tf1,
                                          tf2))
@@ -315,7 +315,7 @@ class COAL_DLLAPI OcTreeSolver {
     else {
       OBB obb1;
       convertBV(bv1, tf1, obb1);
-      FCL_REAL sqrDistLowerBound;
+      CoalScalar sqrDistLowerBound;
       if (!obb1.overlap(obb2, *crequest, sqrDistLowerBound)) {
         internal::updateDistanceLowerBoundFromBV(*crequest, *cresult,
                                                  sqrDistLowerBound);
@@ -391,9 +391,10 @@ class COAL_DLLAPI OcTreeSolver {
                             (*(tree2->vertices))[tri_id[2]]);
 
         Vec3f p1, p2, normal;
-        const FCL_REAL distance = internal::ShapeShapeDistance<Box, TriangleP>(
-            &box, box_tf, &tri, tf2, this->solver,
-            this->drequest->enable_signed_distance, p1, p2, normal);
+        const CoalScalar distance =
+            internal::ShapeShapeDistance<Box, TriangleP>(
+                &box, box_tf, &tri, tf2, this->solver,
+                this->drequest->enable_signed_distance, p1, p2, normal);
 
         this->dresult->update(distance, tree1, tree2,
                               (int)(root1 - tree1->getRoot()),
@@ -415,7 +416,7 @@ class COAL_DLLAPI OcTreeSolver {
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
 
-          FCL_REAL d;
+          CoalScalar d;
           AABB aabb1, aabb2;
           convertBV(child_bv, tf1, aabb1);
           convertBV(tree2->getBV(root2).bv, tf2, aabb2);
@@ -429,7 +430,7 @@ class COAL_DLLAPI OcTreeSolver {
         }
       }
     } else {
-      FCL_REAL d;
+      CoalScalar d;
       AABB aabb1, aabb2;
       convertBV(bv1, tf1, aabb1);
       unsigned int child = (unsigned int)tree2->getBV(root2).leftChild();
@@ -483,7 +484,7 @@ class COAL_DLLAPI OcTreeSolver {
       OBB obb1, obb2;
       convertBV(bv1, tf1, obb1);
       convertBV(bvn2.bv, tf2, obb2);
-      FCL_REAL sqrDistLowerBound;
+      CoalScalar sqrDistLowerBound;
       if (!obb1.overlap(obb2, *crequest, sqrDistLowerBound)) {
         internal::updateDistanceLowerBoundFromBV(*crequest, *cresult,
                                                  sqrDistLowerBound);
@@ -515,10 +516,10 @@ class COAL_DLLAPI OcTreeSolver {
       const bool compute_penetration = this->crequest->enable_contact ||
                                        (this->crequest->security_margin < 0);
       Vec3f c1, c2, normal;
-      const FCL_REAL distance = internal::ShapeShapeDistance<Box, TriangleP>(
+      const CoalScalar distance = internal::ShapeShapeDistance<Box, TriangleP>(
           &box, box_tf, &tri, tf2, this->solver, compute_penetration, c1, c2,
           normal);
-      const FCL_REAL distToCollision =
+      const CoalScalar distToCollision =
           distance - this->crequest->security_margin;
 
       internal::updateDistanceLowerBoundFromLeaf(
@@ -566,7 +567,7 @@ class COAL_DLLAPI OcTreeSolver {
   bool OcTreeHeightFieldIntersectRecurse(
       const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
       const HeightField<BV>* tree2, unsigned int root2, const Transform3f& tf1,
-      const Transform3f& tf2, FCL_REAL& sqrDistLowerBound) const {
+      const Transform3f& tf2, CoalScalar& sqrDistLowerBound) const {
     // FIXME(jmirabel) I do not understand why the BVHModel was traversed. The
     // code in this if(!root1) did not output anything so the empty OcTree is
     // considered free. Should an empty OcTree be considered free ?
@@ -587,7 +588,7 @@ class COAL_DLLAPI OcTreeSolver {
       OBB obb1, obb2;
       convertBV(bv1, tf1, obb1);
       convertBV(bvn2.bv, tf2, obb2);
-      FCL_REAL sqrDistLowerBound_;
+      CoalScalar sqrDistLowerBound_;
       if (!obb1.overlap(obb2, *crequest, sqrDistLowerBound_)) {
         if (sqrDistLowerBound_ < sqrDistLowerBound)
           sqrDistLowerBound = sqrDistLowerBound_;
@@ -618,7 +619,7 @@ class COAL_DLLAPI OcTreeSolver {
       }
 
       Vec3f c1, c2, normal, normal_top;
-      FCL_REAL distance;
+      CoalScalar distance;
       bool hfield_witness_is_on_bin_side;
 
       bool collision = details::shapeDistance<Triangle, Box, 0>(
@@ -626,7 +627,7 @@ class COAL_DLLAPI OcTreeSolver {
           convex2_active_faces, tf2, box, box_tf, distance, c2, c1, normal,
           normal_top, hfield_witness_is_on_bin_side);
 
-      FCL_REAL distToCollision =
+      CoalScalar distToCollision =
           distance - crequest->security_margin * (normal_top.dot(normal));
 
       if (distToCollision <= crequest->collision_distance_threshold) {
@@ -686,7 +687,7 @@ class COAL_DLLAPI OcTreeSolver {
   bool HeightFieldOcTreeIntersectRecurse(
       const HeightField<BV>* tree1, unsigned int root1, const OcTree* tree2,
       const OcTree::OcTreeNode* root2, const AABB& bv2, const Transform3f& tf1,
-      const Transform3f& tf2, FCL_REAL& sqrDistLowerBound) const {
+      const Transform3f& tf2, CoalScalar& sqrDistLowerBound) const {
     // FIXME(jmirabel) I do not understand why the BVHModel was traversed. The
     // code in this if(!root1) did not output anything so the empty OcTree is
     // considered free. Should an empty OcTree be considered free ?
@@ -707,7 +708,7 @@ class COAL_DLLAPI OcTreeSolver {
       OBB obb1, obb2;
       convertBV(bvn1.bv, tf1, obb1);
       convertBV(bv2, tf2, obb2);
-      FCL_REAL sqrDistLowerBound_;
+      CoalScalar sqrDistLowerBound_;
       if (!obb2.overlap(obb1, *crequest, sqrDistLowerBound_)) {
         if (sqrDistLowerBound_ < sqrDistLowerBound)
           sqrDistLowerBound = sqrDistLowerBound_;
@@ -738,7 +739,7 @@ class COAL_DLLAPI OcTreeSolver {
       }
 
       Vec3f c1, c2, normal, normal_top;
-      FCL_REAL distance;
+      CoalScalar distance;
       bool hfield_witness_is_on_bin_side;
 
       bool collision = details::shapeDistance<Triangle, Box, 0>(
@@ -746,7 +747,7 @@ class COAL_DLLAPI OcTreeSolver {
           convex2_active_faces, tf1, box, box_tf, distance, c1, c2, normal,
           normal_top, hfield_witness_is_on_bin_side);
 
-      FCL_REAL distToCollision =
+      CoalScalar distToCollision =
           distance - crequest->security_margin * (normal_top.dot(normal));
 
       if (distToCollision <= crequest->collision_distance_threshold) {
@@ -820,7 +821,7 @@ class COAL_DLLAPI OcTreeSolver {
         }
 
         Vec3f p1, p2, normal;
-        const FCL_REAL distance = internal::ShapeShapeDistance<Box, Box>(
+        const CoalScalar distance = internal::ShapeShapeDistance<Box, Box>(
             &box1, box1_tf, &box2, box2_tf, this->solver,
             this->drequest->enable_signed_distance, p1, p2, normal);
 
@@ -844,7 +845,7 @@ class COAL_DLLAPI OcTreeSolver {
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
 
-          FCL_REAL d;
+          CoalScalar d;
           AABB aabb1, aabb2;
           convertBV(bv1, tf1, aabb1);
           convertBV(bv2, tf2, aabb2);
@@ -864,7 +865,7 @@ class COAL_DLLAPI OcTreeSolver {
           AABB child_bv;
           computeChildBV(bv2, i, child_bv);
 
-          FCL_REAL d;
+          CoalScalar d;
           AABB aabb1, aabb2;
           convertBV(bv1, tf1, aabb1);
           convertBV(bv2, tf2, aabb2);
@@ -907,7 +908,7 @@ class COAL_DLLAPI OcTreeSolver {
       OBB obb1, obb2;
       convertBV(bv1, tf1, obb1);
       convertBV(bv2, tf2, obb2);
-      FCL_REAL sqrDistLowerBound;
+      CoalScalar sqrDistLowerBound;
       if (!obb1.overlap(obb2, *crequest, sqrDistLowerBound)) {
         if (cresult->distance_lower_bound > 0 &&
             sqrDistLowerBound <
@@ -948,11 +949,11 @@ class COAL_DLLAPI OcTreeSolver {
       const bool compute_penetration = (this->crequest->enable_contact ||
                                         (this->crequest->security_margin < 0));
       Vec3f c1, c2, normal;
-      FCL_REAL distance = internal::ShapeShapeDistance<Box, Box>(
+      CoalScalar distance = internal::ShapeShapeDistance<Box, Box>(
           &box1, box1_tf, &box2, box2_tf, this->solver, compute_penetration, c1,
           c2, normal);
 
-      const FCL_REAL distToCollision =
+      const CoalScalar distToCollision =
           distance - this->crequest->security_margin;
 
       internal::updateDistanceLowerBoundFromLeaf(
@@ -1016,11 +1017,11 @@ class COAL_DLLAPI OcTreeCollisionTraversalNode
     otsolver = NULL;
   }
 
-  bool BVDisjoints(unsigned, unsigned, FCL_REAL&) const { return false; }
+  bool BVDisjoints(unsigned, unsigned, CoalScalar&) const { return false; }
 
-  void leafCollides(unsigned, unsigned, FCL_REAL& sqrDistLowerBound) const {
+  void leafCollides(unsigned, unsigned, CoalScalar& sqrDistLowerBound) const {
     otsolver->OcTreeIntersect(model1, model2, tf1, tf2, request, *result);
-    sqrDistLowerBound = std::max((FCL_REAL)0, result->distance_lower_bound);
+    sqrDistLowerBound = std::max((CoalScalar)0, result->distance_lower_bound);
     sqrDistLowerBound *= sqrDistLowerBound;
   }
 
@@ -1045,14 +1046,14 @@ class COAL_DLLAPI ShapeOcTreeCollisionTraversalNode
     otsolver = NULL;
   }
 
-  bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const {
+  bool BVDisjoints(unsigned int, unsigned int, CoalScalar&) const {
     return false;
   }
 
   void leafCollides(unsigned int, unsigned int,
-                    FCL_REAL& sqrDistLowerBound) const {
+                    CoalScalar& sqrDistLowerBound) const {
     otsolver->OcTreeShapeIntersect(model2, *model1, tf2, tf1, request, *result);
-    sqrDistLowerBound = std::max((FCL_REAL)0, result->distance_lower_bound);
+    sqrDistLowerBound = std::max((CoalScalar)0, result->distance_lower_bound);
     sqrDistLowerBound *= sqrDistLowerBound;
   }
 
@@ -1078,14 +1079,14 @@ class COAL_DLLAPI OcTreeShapeCollisionTraversalNode
     otsolver = NULL;
   }
 
-  bool BVDisjoints(unsigned int, unsigned int, coal::FCL_REAL&) const {
+  bool BVDisjoints(unsigned int, unsigned int, coal::CoalScalar&) const {
     return false;
   }
 
   void leafCollides(unsigned int, unsigned int,
-                    FCL_REAL& sqrDistLowerBound) const {
+                    CoalScalar& sqrDistLowerBound) const {
     otsolver->OcTreeShapeIntersect(model1, *model2, tf1, tf2, request, *result);
-    sqrDistLowerBound = std::max((FCL_REAL)0, result->distance_lower_bound);
+    sqrDistLowerBound = std::max((CoalScalar)0, result->distance_lower_bound);
     sqrDistLowerBound *= sqrDistLowerBound;
   }
 
@@ -1110,14 +1111,14 @@ class COAL_DLLAPI MeshOcTreeCollisionTraversalNode
     otsolver = NULL;
   }
 
-  bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const {
+  bool BVDisjoints(unsigned int, unsigned int, CoalScalar&) const {
     return false;
   }
 
   void leafCollides(unsigned int, unsigned int,
-                    FCL_REAL& sqrDistLowerBound) const {
+                    CoalScalar& sqrDistLowerBound) const {
     otsolver->OcTreeMeshIntersect(model2, model1, tf2, tf1, request, *result);
-    sqrDistLowerBound = std::max((FCL_REAL)0, result->distance_lower_bound);
+    sqrDistLowerBound = std::max((CoalScalar)0, result->distance_lower_bound);
     sqrDistLowerBound *= sqrDistLowerBound;
   }
 
@@ -1142,14 +1143,14 @@ class COAL_DLLAPI OcTreeMeshCollisionTraversalNode
     otsolver = NULL;
   }
 
-  bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const {
+  bool BVDisjoints(unsigned int, unsigned int, CoalScalar&) const {
     return false;
   }
 
   void leafCollides(unsigned int, unsigned int,
-                    FCL_REAL& sqrDistLowerBound) const {
+                    CoalScalar& sqrDistLowerBound) const {
     otsolver->OcTreeMeshIntersect(model1, model2, tf1, tf2, request, *result);
-    sqrDistLowerBound = std::max((FCL_REAL)0, result->distance_lower_bound);
+    sqrDistLowerBound = std::max((CoalScalar)0, result->distance_lower_bound);
     sqrDistLowerBound *= sqrDistLowerBound;
   }
 
@@ -1174,12 +1175,12 @@ class COAL_DLLAPI OcTreeHeightFieldCollisionTraversalNode
     otsolver = NULL;
   }
 
-  bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const {
+  bool BVDisjoints(unsigned int, unsigned int, CoalScalar&) const {
     return false;
   }
 
   void leafCollides(unsigned int, unsigned int,
-                    FCL_REAL& sqrDistLowerBound) const {
+                    CoalScalar& sqrDistLowerBound) const {
     otsolver->OcTreeHeightFieldIntersect(model1, model2, tf1, tf2, request,
                                          *result, sqrDistLowerBound);
   }
@@ -1205,12 +1206,12 @@ class COAL_DLLAPI HeightFieldOcTreeCollisionTraversalNode
     otsolver = NULL;
   }
 
-  bool BVDisjoints(unsigned int, unsigned int, FCL_REAL&) const {
+  bool BVDisjoints(unsigned int, unsigned int, CoalScalar&) const {
     return false;
   }
 
   void leafCollides(unsigned int, unsigned int,
-                    FCL_REAL& sqrDistLowerBound) const {
+                    CoalScalar& sqrDistLowerBound) const {
     otsolver->HeightFieldOcTreeIntersect(model1, model2, tf1, tf2, request,
                                          *result, sqrDistLowerBound);
   }
@@ -1239,9 +1240,9 @@ class COAL_DLLAPI OcTreeDistanceTraversalNode
     otsolver = NULL;
   }
 
-  FCL_REAL BVDistanceLowerBound(unsigned, unsigned) const { return -1; }
+  CoalScalar BVDistanceLowerBound(unsigned, unsigned) const { return -1; }
 
-  bool BVDistanceLowerBound(unsigned, unsigned, FCL_REAL&) const {
+  bool BVDistanceLowerBound(unsigned, unsigned, CoalScalar&) const {
     return false;
   }
 
@@ -1267,7 +1268,9 @@ class COAL_DLLAPI ShapeOcTreeDistanceTraversalNode
     otsolver = NULL;
   }
 
-  FCL_REAL BVDistanceLowerBound(unsigned int, unsigned int) const { return -1; }
+  CoalScalar BVDistanceLowerBound(unsigned int, unsigned int) const {
+    return -1;
+  }
 
   void leafComputeDistance(unsigned int, unsigned int) const {
     otsolver->OcTreeShapeDistance(model2, *model1, tf2, tf1, request, *result);
@@ -1291,7 +1294,9 @@ class COAL_DLLAPI OcTreeShapeDistanceTraversalNode
     otsolver = NULL;
   }
 
-  FCL_REAL BVDistanceLowerBound(unsigned int, unsigned int) const { return -1; }
+  CoalScalar BVDistanceLowerBound(unsigned int, unsigned int) const {
+    return -1;
+  }
 
   void leafComputeDistance(unsigned int, unsigned int) const {
     otsolver->OcTreeShapeDistance(model1, *model2, tf1, tf2, request, *result);
@@ -1315,7 +1320,9 @@ class COAL_DLLAPI MeshOcTreeDistanceTraversalNode
     otsolver = NULL;
   }
 
-  FCL_REAL BVDistanceLowerBound(unsigned int, unsigned int) const { return -1; }
+  CoalScalar BVDistanceLowerBound(unsigned int, unsigned int) const {
+    return -1;
+  }
 
   void leafComputeDistance(unsigned int, unsigned int) const {
     otsolver->OcTreeMeshDistance(model2, model1, tf2, tf1, request, *result);
@@ -1339,7 +1346,9 @@ class COAL_DLLAPI OcTreeMeshDistanceTraversalNode
     otsolver = NULL;
   }
 
-  FCL_REAL BVDistanceLowerBound(unsigned int, unsigned int) const { return -1; }
+  CoalScalar BVDistanceLowerBound(unsigned int, unsigned int) const {
+    return -1;
+  }
 
   void leafComputeDistance(unsigned int, unsigned int) const {
     otsolver->OcTreeMeshDistance(model1, model2, tf1, tf2, request, *result);

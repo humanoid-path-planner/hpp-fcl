@@ -58,16 +58,16 @@ struct CallBackData {
 // the dynamic tree against the `data`. We assume that the first two
 // parameters are always objects[0] and objects[1] in two possible orders,
 // so we can safely ignore the second parameter. We do not use the last
-// FCL_REAL& parameter, which specifies the distance beyond which the
+// CoalScalar& parameter, which specifies the distance beyond which the
 // pair of objects will be skipped.
 
 struct DistanceCallBackDerived : DistanceCallBackBase {
-  bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL& dist) {
+  bool distance(CollisionObject* o1, CollisionObject* o2, CoalScalar& dist) {
     return distance_callback(o1, o2, &data, dist);
   }
 
   bool distance_callback(CollisionObject* a, CollisionObject*,
-                         void* callback_data, FCL_REAL&) {
+                         void* callback_data, CoalScalar&) {
     // Unpack the data.
     CallBackData* data = static_cast<CallBackData*>(callback_data);
     const std::vector<CollisionObject*>& objects = *(data->objects);

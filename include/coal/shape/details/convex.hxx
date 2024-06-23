@@ -144,7 +144,7 @@ Vec3f Convex<PolygonT>::computeCOM() const {
   typedef typename PolygonT::index_type index_type;
 
   Vec3f com(0, 0, 0);
-  FCL_REAL vol = 0;
+  CoalScalar vol = 0;
   if (!(points.get())) {
     std::cerr << "Error in `Convex::computeCOM`! Convex has no vertices."
               << std::endl;
@@ -174,7 +174,7 @@ Vec3f Convex<PolygonT>::computeCOM() const {
           polygon[static_cast<index_type>((j + 1) % polygon.size())];
       const Vec3f& v1 = points_[e_first];
       const Vec3f& v2 = points_[e_second];
-      FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
+      CoalScalar d_six_vol = (v1.cross(v2)).dot(v3);
       vol += d_six_vol;
       com += (points_[e_first] + points_[e_second] + plane_center) * d_six_vol;
     }
@@ -184,11 +184,11 @@ Vec3f Convex<PolygonT>::computeCOM() const {
 }
 
 template <typename PolygonT>
-FCL_REAL Convex<PolygonT>::computeVolume() const {
+CoalScalar Convex<PolygonT>::computeVolume() const {
   typedef typename PolygonT::size_type size_type;
   typedef typename PolygonT::index_type index_type;
 
-  FCL_REAL vol = 0;
+  CoalScalar vol = 0;
   if (!(points.get())) {
     std::cerr << "Error in `Convex::computeVolume`! Convex has no vertices."
               << std::endl;
@@ -219,7 +219,7 @@ FCL_REAL Convex<PolygonT>::computeVolume() const {
           polygon[static_cast<index_type>((j + 1) % polygon.size())];
       const Vec3f& v1 = points_[e_first];
       const Vec3f& v2 = points_[e_second];
-      FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
+      CoalScalar d_six_vol = (v1.cross(v2)).dot(v3);
       vol += d_six_vol;
     }
   }

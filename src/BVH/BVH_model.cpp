@@ -789,7 +789,7 @@ void BVHModelBase::computeLocalAABB() {
 
   aabb_radius = 0;
   for (unsigned int i = 0; i < num_vertices; ++i) {
-    FCL_REAL r = (aabb_center - vertices_[i]).squaredNorm();
+    CoalScalar r = (aabb_center - vertices_[i]).squaredNorm();
     if (r > aabb_radius) aabb_radius = r;
   }
 

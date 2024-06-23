@@ -134,7 +134,7 @@ class COAL_DLLAPI BroadPhaseContinuousCollisionManager {
 using BroadPhaseContinuousCollisionManagerf =
     BroadPhaseContinuousCollisionManager<float>;
 using BroadPhaseContinuousCollisionManagerd =
-    BroadPhaseContinuousCollisionManager<FCL_REAL>;
+    BroadPhaseContinuousCollisionManager<CoalScalar>;
 
 }  // namespace coal
 

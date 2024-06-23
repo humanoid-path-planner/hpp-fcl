@@ -199,7 +199,7 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
   virtual void makeParentRelative() = 0;
 
   Vec3f computeCOM() const {
-    FCL_REAL vol = 0;
+    CoalScalar vol = 0;
     Vec3f com(0, 0, 0);
     if (!(vertices.get())) {
       std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
@@ -218,7 +218,7 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
 
     for (unsigned int i = 0; i < num_tris; ++i) {
       const Triangle& tri = tri_indices_[i];
-      FCL_REAL d_six_vol =
+      CoalScalar d_six_vol =
           (vertices_[tri[0]].cross(vertices_[tri[1]])).dot(vertices_[tri[2]]);
       vol += d_six_vol;
       com += (vertices_[tri[0]] + vertices_[tri[1]] + vertices_[tri[2]]) *
@@ -228,8 +228,8 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
     return com / (vol * 4);
   }
 
-  FCL_REAL computeVolume() const {
-    FCL_REAL vol = 0;
+  CoalScalar computeVolume() const {
+    CoalScalar vol = 0;
     if (!(vertices.get())) {
       std::cerr << "BVH Error in `computeCOM`! The BVHModel does not contain "
                    "vertices."
@@ -246,7 +246,7 @@ class COAL_DLLAPI BVHModelBase : public CollisionGeometry {
     const std::vector<Triangle>& tri_indices_ = *tri_indices;
     for (unsigned int i = 0; i < num_tris; ++i) {
       const Triangle& tri = tri_indices_[i];
-      FCL_REAL d_six_vol =
+      CoalScalar d_six_vol =
           (vertices_[tri[0]].cross(vertices_[tri[1]])).dot(vertices_[tri[2]]);
       vol += d_six_vol;
     }

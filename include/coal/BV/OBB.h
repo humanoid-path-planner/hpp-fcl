@@ -86,10 +86,10 @@ struct COAL_DLLAPI OBB {
   /// @retval sqrDistLowerBound squared lower bound on distance between boxes if
   ///         they do not overlap.
   bool overlap(const OBB& other, const CollisionRequest& request,
-               FCL_REAL& sqrDistLowerBound) const;
+               CoalScalar& sqrDistLowerBound) const;
 
   /// @brief Distance between two OBBs, not implemented.
-  FCL_REAL distance(const OBB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  CoalScalar distance(const OBB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
   /// @brief A simple way to merge the OBB and a point (the result is not
   /// compact).
@@ -106,22 +106,22 @@ struct COAL_DLLAPI OBB {
   OBB operator+(const OBB& other) const;
 
   /// @brief Size of the OBB (used in BV_Splitter to order two OBBs)
-  inline FCL_REAL size() const { return extent.squaredNorm(); }
+  inline CoalScalar size() const { return extent.squaredNorm(); }
 
   /// @brief Center of the OBB
   inline const Vec3f& center() const { return To; }
 
   /// @brief Width of the OBB.
-  inline FCL_REAL width() const { return 2 * extent[0]; }
+  inline CoalScalar width() const { return 2 * extent[0]; }
 
   /// @brief Height of the OBB.
-  inline FCL_REAL height() const { return 2 * extent[1]; }
+  inline CoalScalar height() const { return 2 * extent[1]; }
 
   /// @brief Depth of the OBB
-  inline FCL_REAL depth() const { return 2 * extent[2]; }
+  inline CoalScalar depth() const { return 2 * extent[2]; }
 
   /// @brief Volume of the OBB
-  inline FCL_REAL volume() const { return width() * height() * depth(); }
+  inline CoalScalar volume() const { return width() * height() * depth(); }
 };
 
 /// @brief Translate the OBB bv
@@ -136,7 +136,7 @@ COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
 /// b2 is in identity.
 COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
                          const OBB& b2, const CollisionRequest& request,
-                         FCL_REAL& sqrDistLowerBound);
+                         CoalScalar& sqrDistLowerBound);
 
 /// Check collision between two boxes
 /// @param B, T orientation and position of first box,

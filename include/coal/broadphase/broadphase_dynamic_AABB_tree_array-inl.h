@@ -151,7 +151,7 @@ bool distanceRecurse_(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2,
     const AABB& root2_bv, const Eigen::MatrixBase<Derived>& translation2,
-    DistanceCallBackBase* callback, FCL_REAL& min_dist) {
+    DistanceCallBackBase* callback, CoalScalar& min_dist) {
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root1 =
       nodes1 + root1_id;
   if (root1->isLeaf() && !tree2->nodeHasChildren(root2)) {
@@ -174,8 +174,8 @@ bool distanceRecurse_(
       (!root1->isLeaf() && (root1->bv.size() > root2_bv.size()))) {
     const AABB& aabb2 = translate(root2_bv, translation2);
 
-    FCL_REAL d1 = aabb2.distance((nodes1 + root1->children[0])->bv);
-    FCL_REAL d2 = aabb2.distance((nodes1 + root1->children[1])->bv);
+    CoalScalar d1 = aabb2.distance((nodes1 + root1->children[0])->bv);
+    CoalScalar d2 = aabb2.distance((nodes1 + root1->children[1])->bv);
 
     if (d2 < d1) {
       if (d2 < min_dist) {
@@ -210,7 +210,7 @@ bool distanceRecurse_(
         computeChildBV(root2_bv, i, child_bv);
 
         const AABB& aabb2 = translate(child_bv, translation2);
-        FCL_REAL d = root1->bv.distance(aabb2);
+        CoalScalar d = root1->bv.distance(aabb2);
 
         if (d < min_dist) {
           if (distanceRecurse_(nodes1, root1_id, tree2, child, child_bv,

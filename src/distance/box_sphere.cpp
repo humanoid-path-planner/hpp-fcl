@@ -47,27 +47,23 @@ struct GJKSolver;
 
 namespace internal {
 template <>
-FCL_REAL ShapeShapeDistance<Box, Sphere>(const CollisionGeometry* o1,
-                                         const Transform3f& tf1,
-                                         const CollisionGeometry* o2,
-                                         const Transform3f& tf2,
-                                         const GJKSolver*, const bool,
-                                         Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+CoalScalar ShapeShapeDistance<Box, Sphere>(
+    const CollisionGeometry* o1, const Transform3f& tf1,
+    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
+    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
   const Box& s1 = static_cast<const Box&>(*o1);
   const Sphere& s2 = static_cast<const Sphere&>(*o2);
   return details::boxSphereDistance(s1, tf1, s2, tf2, p1, p2, normal);
 }
 
 template <>
-FCL_REAL ShapeShapeDistance<Sphere, Box>(const CollisionGeometry* o1,
-                                         const Transform3f& tf1,
-                                         const CollisionGeometry* o2,
-                                         const Transform3f& tf2,
-                                         const GJKSolver*, const bool,
-                                         Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+CoalScalar ShapeShapeDistance<Sphere, Box>(
+    const CollisionGeometry* o1, const Transform3f& tf1,
+    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
+    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
   const Sphere& s1 = static_cast<const Sphere&>(*o1);
   const Box& s2 = static_cast<const Box&>(*o2);
-  const FCL_REAL distance =
+  const CoalScalar distance =
       details::boxSphereDistance(s2, tf2, s1, tf1, p2, p1, normal);
   normal = -normal;
   return distance;

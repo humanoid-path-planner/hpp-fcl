@@ -73,7 +73,7 @@ class COAL_DLLAPI ShapeBase : public CollisionGeometry {
 
   /// @brief Set radius of sphere swept around the shape.
   /// Must be >= 0.
-  void setSweptSphereRadius(FCL_REAL radius) {
+  void setSweptSphereRadius(CoalScalar radius) {
     if (radius < 0) {
       COAL_THROW_PRETTY("Swept-sphere radius must be positive.",
                         std::invalid_argument);
@@ -83,7 +83,9 @@ class COAL_DLLAPI ShapeBase : public CollisionGeometry {
 
   /// @brief Get radius of sphere swept around the shape.
   /// This radius is always >= 0.
-  FCL_REAL getSweptSphereRadius() const { return this->m_swept_sphere_radius; }
+  CoalScalar getSweptSphereRadius() const {
+    return this->m_swept_sphere_radius;
+  }
 
  protected:
   /// \brief Radius of the sphere swept around the shape.
@@ -97,7 +99,7 @@ class COAL_DLLAPI ShapeBase : public CollisionGeometry {
   /// which rounds the sharp corners of a shape.
   /// The swept sphere radius is a property of the shape itself and can be
   /// manually updated between collision checks.
-  FCL_REAL m_swept_sphere_radius{0};
+  CoalScalar m_swept_sphere_radius{0};
 };
 
 /// @defgroup Geometric_Shapes Geometric shapes
@@ -123,7 +125,8 @@ class COAL_DLLAPI TriangleP : public ShapeBase {
 
   NODE_TYPE getNodeType() const { return GEOM_TRIANGLE; }
 
-  //  std::pair<ShapeBase*, Transform3f> inflated(const FCL_REAL value) const {
+  //  std::pair<ShapeBase*, Transform3f> inflated(const CoalScalar value) const
+  //  {
   //    if (value == 0) return std::make_pair(new TriangleP(*this),
   //    Transform3f()); Vec3f AB(b - a), BC(c - b), CA(a - c); AB.normalize();
   //    BC.normalize();
@@ -137,9 +140,9 @@ class COAL_DLLAPI TriangleP : public ShapeBase {
   //    Transform3f());
   //  }
   //
-  //  FCL_REAL minInflationValue() const
+  //  CoalScalar minInflationValue() const
   //  {
-  //    return (std::numeric_limits<FCL_REAL>::max)(); // TODO(jcarpent):
+  //    return (std::numeric_limits<CoalScalar>::max)(); // TODO(jcarpent):
   //    implement
   //  }
 
@@ -162,7 +165,7 @@ class COAL_DLLAPI TriangleP : public ShapeBase {
 /// @brief Center at zero point, axis aligned box
 class COAL_DLLAPI Box : public ShapeBase {
  public:
-  Box(FCL_REAL x, FCL_REAL y, FCL_REAL z)
+  Box(CoalScalar x, CoalScalar y, CoalScalar z)
       : ShapeBase(), halfSide(x / 2, y / 2, z / 2) {}
 
   Box(const Vec3f& side_) : ShapeBase(), halfSide(side_ / 2) {}
@@ -191,15 +194,15 @@ class COAL_DLLAPI Box : public ShapeBase {
   /// @brief Get node type: a box
   NODE_TYPE getNodeType() const { return GEOM_BOX; }
 
-  FCL_REAL computeVolume() const { return 8 * halfSide.prod(); }
+  CoalScalar computeVolume() const { return 8 * halfSide.prod(); }
 
   Matrix3f computeMomentofInertia() const {
-    FCL_REAL V = computeVolume();
+    CoalScalar V = computeVolume();
     Vec3f s(halfSide.cwiseAbs2() * V);
     return (Vec3f(s[1] + s[2], s[0] + s[2], s[0] + s[1]) / 3).asDiagonal();
   }
 
-  FCL_REAL minInflationValue() const { return -halfSide.minCoeff(); }
+  CoalScalar minInflationValue() const { return -halfSide.minCoeff(); }
 
   /// \brief Inflate the box by an amount given by `value`.
   /// This value can be positive or negative but must always >=
@@ -209,7 +212,7 @@ class COAL_DLLAPI Box : public ShapeBase {
   ///
   /// \returns a new inflated box and the related transform to account for the
   /// change of shape frame
-  std::pair<Box, Transform3f> inflated(const FCL_REAL value) const {
+  std::pair<Box, Transform3f> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value << ") "
                                   << "is two small. It should be at least: "
@@ -239,7 +242,7 @@ class COAL_DLLAPI Sphere : public ShapeBase {
   /// @brief Default constructor
   Sphere() {}
 
-  explicit Sphere(FCL_REAL radius_) : ShapeBase(), radius(radius_) {}
+  explicit Sphere(CoalScalar radius_) : ShapeBase(), radius(radius_) {}
 
   Sphere(const Sphere& other) : ShapeBase(other), radius(other.radius) {}
 
@@ -247,7 +250,7 @@ class COAL_DLLAPI Sphere : public ShapeBase {
   virtual Sphere* clone() const { return new Sphere(*this); };
 
   /// @brief Radius of the sphere
-  FCL_REAL radius;
+  CoalScalar radius;
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -256,16 +259,16 @@ class COAL_DLLAPI Sphere : public ShapeBase {
   NODE_TYPE getNodeType() const { return GEOM_SPHERE; }
 
   Matrix3f computeMomentofInertia() const {
-    FCL_REAL I = 0.4 * radius * radius * computeVolume();
+    CoalScalar I = 0.4 * radius * radius * computeVolume();
     return I * Matrix3f::Identity();
   }
 
-  FCL_REAL computeVolume() const {
-    return 4 * boost::math::constants::pi<FCL_REAL>() * radius * radius *
+  CoalScalar computeVolume() const {
+    return 4 * boost::math::constants::pi<CoalScalar>() * radius * radius *
            radius / 3;
   }
 
-  FCL_REAL minInflationValue() const { return -radius; }
+  CoalScalar minInflationValue() const { return -radius; }
 
   /// \brief Inflate the sphere by an amount given by `value`.
   /// This value can be positive or negative but must always >=
@@ -275,7 +278,7 @@ class COAL_DLLAPI Sphere : public ShapeBase {
   ///
   /// \returns a new inflated sphere and the related transform to account for
   /// the change of shape frame
-  std::pair<Sphere, Transform3f> inflated(const FCL_REAL value) const {
+  std::pair<Sphere, Transform3f> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
@@ -304,7 +307,7 @@ class COAL_DLLAPI Ellipsoid : public ShapeBase {
   /// @brief Default constructor
   Ellipsoid() {}
 
-  Ellipsoid(FCL_REAL rx, FCL_REAL ry, FCL_REAL rz)
+  Ellipsoid(CoalScalar rx, CoalScalar ry, CoalScalar rz)
       : ShapeBase(), radii(rx, ry, rz) {}
 
   explicit Ellipsoid(const Vec3f& radii) : radii(radii) {}
@@ -325,21 +328,21 @@ class COAL_DLLAPI Ellipsoid : public ShapeBase {
   NODE_TYPE getNodeType() const { return GEOM_ELLIPSOID; }
 
   Matrix3f computeMomentofInertia() const {
-    FCL_REAL V = computeVolume();
-    FCL_REAL a2 = V * radii[0] * radii[0];
-    FCL_REAL b2 = V * radii[1] * radii[1];
-    FCL_REAL c2 = V * radii[2] * radii[2];
+    CoalScalar V = computeVolume();
+    CoalScalar a2 = V * radii[0] * radii[0];
+    CoalScalar b2 = V * radii[1] * radii[1];
+    CoalScalar c2 = V * radii[2] * radii[2];
     return (Matrix3f() << 0.2 * (b2 + c2), 0, 0, 0, 0.2 * (a2 + c2), 0, 0, 0,
             0.2 * (a2 + b2))
         .finished();
   }
 
-  FCL_REAL computeVolume() const {
-    return 4 * boost::math::constants::pi<FCL_REAL>() * radii[0] * radii[1] *
+  CoalScalar computeVolume() const {
+    return 4 * boost::math::constants::pi<CoalScalar>() * radii[0] * radii[1] *
            radii[2] / 3;
   }
 
-  FCL_REAL minInflationValue() const { return -radii.minCoeff(); }
+  CoalScalar minInflationValue() const { return -radii.minCoeff(); }
 
   /// \brief Inflate the ellipsoid by an amount given by `value`.
   /// This value can be positive or negative but must always >=
@@ -349,7 +352,7 @@ class COAL_DLLAPI Ellipsoid : public ShapeBase {
   ///
   /// \returns a new inflated ellipsoid and the related transform to account for
   /// the change of shape frame
-  std::pair<Ellipsoid, Transform3f> inflated(const FCL_REAL value) const {
+  std::pair<Ellipsoid, Transform3f> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
@@ -382,7 +385,7 @@ class COAL_DLLAPI Capsule : public ShapeBase {
   /// @brief Default constructor
   Capsule() {}
 
-  Capsule(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_) {
+  Capsule(CoalScalar radius_, CoalScalar lz_) : ShapeBase(), radius(radius_) {
     halfLength = lz_ / 2;
   }
 
@@ -393,10 +396,10 @@ class COAL_DLLAPI Capsule : public ShapeBase {
   virtual Capsule* clone() const { return new Capsule(*this); };
 
   /// @brief Radius of capsule
-  FCL_REAL radius;
+  CoalScalar radius;
 
   /// @brief Half Length along z axis
-  FCL_REAL halfLength;
+  CoalScalar halfLength;
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -404,27 +407,27 @@ class COAL_DLLAPI Capsule : public ShapeBase {
   /// @brief Get node type: a capsule
   NODE_TYPE getNodeType() const { return GEOM_CAPSULE; }
 
-  FCL_REAL computeVolume() const {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius *
+  CoalScalar computeVolume() const {
+    return boost::math::constants::pi<CoalScalar>() * radius * radius *
            ((halfLength * 2) + radius * 4 / 3.0);
   }
 
   Matrix3f computeMomentofInertia() const {
-    FCL_REAL v_cyl = radius * radius * (halfLength * 2) *
-                     boost::math::constants::pi<FCL_REAL>();
-    FCL_REAL v_sph = radius * radius * radius *
-                     boost::math::constants::pi<FCL_REAL>() * 4 / 3.0;
+    CoalScalar v_cyl = radius * radius * (halfLength * 2) *
+                       boost::math::constants::pi<CoalScalar>();
+    CoalScalar v_sph = radius * radius * radius *
+                       boost::math::constants::pi<CoalScalar>() * 4 / 3.0;
 
-    FCL_REAL h2 = halfLength * halfLength;
-    FCL_REAL r2 = radius * radius;
-    FCL_REAL ix = v_cyl * (h2 / 3. + r2 / 4.) +
-                  v_sph * (0.4 * r2 + h2 + 0.75 * radius * halfLength);
-    FCL_REAL iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
+    CoalScalar h2 = halfLength * halfLength;
+    CoalScalar r2 = radius * radius;
+    CoalScalar ix = v_cyl * (h2 / 3. + r2 / 4.) +
+                    v_sph * (0.4 * r2 + h2 + 0.75 * radius * halfLength);
+    CoalScalar iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
 
     return (Matrix3f() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
   }
 
-  FCL_REAL minInflationValue() const { return -radius; }
+  CoalScalar minInflationValue() const { return -radius; }
 
   /// \brief Inflate the capsule by an amount given by `value`.
   /// This value can be positive or negative but must always >=
@@ -434,7 +437,7 @@ class COAL_DLLAPI Capsule : public ShapeBase {
   ///
   /// \returns a new inflated capsule and the related transform to account for
   /// the change of shape frame
-  std::pair<Capsule, Transform3f> inflated(const FCL_REAL value) const {
+  std::pair<Capsule, Transform3f> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
@@ -466,7 +469,7 @@ class COAL_DLLAPI Cone : public ShapeBase {
   /// @brief Default constructor
   Cone() {}
 
-  Cone(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_) {
+  Cone(CoalScalar radius_, CoalScalar lz_) : ShapeBase(), radius(radius_) {
     halfLength = lz_ / 2;
   }
 
@@ -477,10 +480,10 @@ class COAL_DLLAPI Cone : public ShapeBase {
   virtual Cone* clone() const { return new Cone(*this); };
 
   /// @brief Radius of the cone
-  FCL_REAL radius;
+  CoalScalar radius;
 
   /// @brief Half Length along z axis
-  FCL_REAL halfLength;
+  CoalScalar halfLength;
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -488,23 +491,25 @@ class COAL_DLLAPI Cone : public ShapeBase {
   /// @brief Get node type: a cone
   NODE_TYPE getNodeType() const { return GEOM_CONE; }
 
-  FCL_REAL computeVolume() const {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius *
+  CoalScalar computeVolume() const {
+    return boost::math::constants::pi<CoalScalar>() * radius * radius *
            (halfLength * 2) / 3;
   }
 
   Matrix3f computeMomentofInertia() const {
-    FCL_REAL V = computeVolume();
-    FCL_REAL ix =
+    CoalScalar V = computeVolume();
+    CoalScalar ix =
         V * (0.4 * halfLength * halfLength + 3 * radius * radius / 20);
-    FCL_REAL iz = 0.3 * V * radius * radius;
+    CoalScalar iz = 0.3 * V * radius * radius;
 
     return (Matrix3f() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
   }
 
   Vec3f computeCOM() const { return Vec3f(0, 0, -0.5 * halfLength); }
 
-  FCL_REAL minInflationValue() const { return -(std::min)(radius, halfLength); }
+  CoalScalar minInflationValue() const {
+    return -(std::min)(radius, halfLength);
+  }
 
   /// \brief Inflate the cone by an amount given by `value`.
   /// This value can be positive or negative but must always >=
@@ -514,7 +519,7 @@ class COAL_DLLAPI Cone : public ShapeBase {
   ///
   /// \returns a new inflated cone and the related transform to account for the
   /// change of shape frame
-  std::pair<Cone, Transform3f> inflated(const FCL_REAL value) const {
+  std::pair<Cone, Transform3f> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
@@ -522,14 +527,15 @@ class COAL_DLLAPI Cone : public ShapeBase {
                         std::invalid_argument);
 
     // tan(alpha) = 2*halfLength/radius;
-    const FCL_REAL tan_alpha = 2 * halfLength / radius;
-    const FCL_REAL sin_alpha = tan_alpha / std::sqrt(1 + tan_alpha * tan_alpha);
-    const FCL_REAL top_inflation = value / sin_alpha;
-    const FCL_REAL bottom_inflation = value;
+    const CoalScalar tan_alpha = 2 * halfLength / radius;
+    const CoalScalar sin_alpha =
+        tan_alpha / std::sqrt(1 + tan_alpha * tan_alpha);
+    const CoalScalar top_inflation = value / sin_alpha;
+    const CoalScalar bottom_inflation = value;
 
-    const FCL_REAL new_lz = 2 * halfLength + top_inflation + bottom_inflation;
-    const FCL_REAL new_cz = (top_inflation + bottom_inflation) / 2.;
-    const FCL_REAL new_radius = new_lz / tan_alpha;
+    const CoalScalar new_lz = 2 * halfLength + top_inflation + bottom_inflation;
+    const CoalScalar new_cz = (top_inflation + bottom_inflation) / 2.;
+    const CoalScalar new_radius = new_lz / tan_alpha;
 
     return std::make_pair(Cone(new_radius, new_lz),
                           Transform3f(Vec3f(0., 0., new_cz)));
@@ -556,7 +562,7 @@ class COAL_DLLAPI Cylinder : public ShapeBase {
   /// @brief Default constructor
   Cylinder() {}
 
-  Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_) {
+  Cylinder(CoalScalar radius_, CoalScalar lz_) : ShapeBase(), radius(radius_) {
     halfLength = lz_ / 2;
   }
 
@@ -575,10 +581,10 @@ class COAL_DLLAPI Cylinder : public ShapeBase {
   virtual Cylinder* clone() const { return new Cylinder(*this); };
 
   /// @brief Radius of the cylinder
-  FCL_REAL radius;
+  CoalScalar radius;
 
   /// @brief Half Length along z axis
-  FCL_REAL halfLength;
+  CoalScalar halfLength;
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -586,19 +592,21 @@ class COAL_DLLAPI Cylinder : public ShapeBase {
   /// @brief Get node type: a cylinder
   NODE_TYPE getNodeType() const { return GEOM_CYLINDER; }
 
-  FCL_REAL computeVolume() const {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius *
+  CoalScalar computeVolume() const {
+    return boost::math::constants::pi<CoalScalar>() * radius * radius *
            (halfLength * 2);
   }
 
   Matrix3f computeMomentofInertia() const {
-    FCL_REAL V = computeVolume();
-    FCL_REAL ix = V * (radius * radius / 4 + halfLength * halfLength / 3);
-    FCL_REAL iz = V * radius * radius / 2;
+    CoalScalar V = computeVolume();
+    CoalScalar ix = V * (radius * radius / 4 + halfLength * halfLength / 3);
+    CoalScalar iz = V * radius * radius / 2;
     return (Matrix3f() << ix, 0, 0, 0, ix, 0, 0, 0, iz).finished();
   }
 
-  FCL_REAL minInflationValue() const { return -(std::min)(radius, halfLength); }
+  CoalScalar minInflationValue() const {
+    return -(std::min)(radius, halfLength);
+  }
 
   /// \brief Inflate the cylinder by an amount given by `value`.
   /// This value can be positive or negative but must always >=
@@ -608,7 +616,7 @@ class COAL_DLLAPI Cylinder : public ShapeBase {
   ///
   /// \returns a new inflated cylinder and the related transform to account for
   /// the change of shape frame
-  std::pair<Cylinder, Transform3f> inflated(const FCL_REAL value) const {
+  std::pair<Cylinder, Transform3f> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
@@ -884,12 +892,12 @@ class Convex;
 class COAL_DLLAPI Halfspace : public ShapeBase {
  public:
   /// @brief Construct a half space with normal direction and offset
-  Halfspace(const Vec3f& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_) {
+  Halfspace(const Vec3f& n_, CoalScalar d_) : ShapeBase(), n(n_), d(d_) {
     unitNormalTest();
   }
 
   /// @brief Construct a plane with normal direction and offset
-  Halfspace(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_)
+  Halfspace(CoalScalar a, CoalScalar b, CoalScalar c, CoalScalar d_)
       : ShapeBase(), n(a, b, c), d(d_) {
     unitNormalTest();
   }
@@ -909,11 +917,11 @@ class COAL_DLLAPI Halfspace : public ShapeBase {
   /// @brief Clone *this into a new Halfspace
   virtual Halfspace* clone() const { return new Halfspace(*this); };
 
-  FCL_REAL signedDistance(const Vec3f& p) const {
+  CoalScalar signedDistance(const Vec3f& p) const {
     return n.dot(p) - (d + this->getSweptSphereRadius());
   }
 
-  FCL_REAL distance(const Vec3f& p) const {
+  CoalScalar distance(const Vec3f& p) const {
     return std::abs(this->signedDistance(p));
   }
 
@@ -923,8 +931,8 @@ class COAL_DLLAPI Halfspace : public ShapeBase {
   /// @brief Get node type: a half space
   NODE_TYPE getNodeType() const { return GEOM_HALFSPACE; }
 
-  FCL_REAL minInflationValue() const {
-    return std::numeric_limits<FCL_REAL>::lowest();
+  CoalScalar minInflationValue() const {
+    return std::numeric_limits<CoalScalar>::lowest();
   }
 
   /// \brief Inflate the halfspace by an amount given by `value`.
@@ -935,7 +943,7 @@ class COAL_DLLAPI Halfspace : public ShapeBase {
   ///
   /// \returns a new inflated halfspace and the related transform to account for
   /// the change of shape frame
-  std::pair<Halfspace, Transform3f> inflated(const FCL_REAL value) const {
+  std::pair<Halfspace, Transform3f> inflated(const CoalScalar value) const {
     if (value <= minInflationValue())
       COAL_THROW_PRETTY("value (" << value
                                   << ") is two small. It should be at least: "
@@ -948,7 +956,7 @@ class COAL_DLLAPI Halfspace : public ShapeBase {
   Vec3f n;
 
   /// @brief Plane offset
-  FCL_REAL d;
+  CoalScalar d;
 
  protected:
   /// @brief Turn non-unit normal into unit
@@ -975,12 +983,12 @@ class COAL_DLLAPI Halfspace : public ShapeBase {
 class COAL_DLLAPI Plane : public ShapeBase {
  public:
   /// @brief Construct a plane with normal direction and offset
-  Plane(const Vec3f& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_) {
+  Plane(const Vec3f& n_, CoalScalar d_) : ShapeBase(), n(n_), d(d_) {
     unitNormalTest();
   }
 
   /// @brief Construct a plane with normal direction and offset
-  Plane(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_)
+  Plane(CoalScalar a, CoalScalar b, CoalScalar c, CoalScalar d_)
       : ShapeBase(), n(a, b, c), d(d_) {
     unitNormalTest();
   }
@@ -999,9 +1007,9 @@ class COAL_DLLAPI Plane : public ShapeBase {
   /// @brief Clone *this into a new Plane
   virtual Plane* clone() const { return new Plane(*this); };
 
-  FCL_REAL signedDistance(const Vec3f& p) const {
-    const FCL_REAL dist = n.dot(p) - d;
-    FCL_REAL signed_dist =
+  CoalScalar signedDistance(const Vec3f& p) const {
+    const CoalScalar dist = n.dot(p) - d;
+    CoalScalar signed_dist =
         std::abs(n.dot(p) - d) - this->getSweptSphereRadius();
     if (dist >= 0) {
       return signed_dist;
@@ -1012,7 +1020,7 @@ class COAL_DLLAPI Plane : public ShapeBase {
     return signed_dist;
   }
 
-  FCL_REAL distance(const Vec3f& p) const {
+  CoalScalar distance(const Vec3f& p) const {
     return std::abs(std::abs(n.dot(p) - d) - this->getSweptSphereRadius());
   }
 
@@ -1026,7 +1034,7 @@ class COAL_DLLAPI Plane : public ShapeBase {
   Vec3f n;
 
   /// @brief Plane offset
-  FCL_REAL d;
+  CoalScalar d;
 
  protected:
   /// @brief Turn non-unit normal into unit

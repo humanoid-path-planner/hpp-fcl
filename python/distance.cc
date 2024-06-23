@@ -73,7 +73,7 @@ void exposeDistanceAPI() {
   if (!eigenpy::register_symbolic_link_to_registered_type<DistanceRequest>()) {
     class_<DistanceRequest, bases<QueryRequest> >(
         "DistanceRequest", doxygen::class_doc<DistanceRequest>(),
-        init<optional<bool, FCL_REAL, FCL_REAL> >(
+        init<optional<bool, CoalScalar, CoalScalar> >(
             (arg("self"), arg("enable_nearest_points"), arg("rel_err"),
              arg("abs_err")),
             "Constructor"))
@@ -149,14 +149,14 @@ void exposeDistanceAPI() {
 
   doxygen::def(
       "distance",
-      static_cast<FCL_REAL (*)(const CollisionObject*, const CollisionObject*,
-                               const DistanceRequest&, DistanceResult&)>(
+      static_cast<CoalScalar (*)(const CollisionObject*, const CollisionObject*,
+                                 const DistanceRequest&, DistanceResult&)>(
           &distance));
   doxygen::def(
       "distance",
-      static_cast<FCL_REAL (*)(const CollisionGeometry*, const Transform3f&,
-                               const CollisionGeometry*, const Transform3f&,
-                               const DistanceRequest&, DistanceResult&)>(
+      static_cast<CoalScalar (*)(const CollisionGeometry*, const Transform3f&,
+                                 const CollisionGeometry*, const Transform3f&,
+                                 const DistanceRequest&, DistanceResult&)>(
           &distance));
 
   class_<ComputeDistance>("ComputeDistance",
@@ -164,7 +164,7 @@ void exposeDistanceAPI() {
       .def(dv::init<ComputeDistance, const CollisionGeometry*,
                     const CollisionGeometry*>())
       .def("__call__",
-           static_cast<FCL_REAL (ComputeDistance::*)(
+           static_cast<CoalScalar (ComputeDistance::*)(
                const Transform3f&, const Transform3f&, const DistanceRequest&,
                DistanceResult&) const>(&ComputeDistance::operator()));
 }

@@ -110,7 +110,7 @@ class BVSplitter {
   /// @brief The split threshold, different primitives are splitted according
   /// whether their projection on the split_axis is larger or smaller than the
   /// threshold
-  FCL_REAL split_value;
+  CoalScalar split_value;
 
   /// @brief The mesh vertices or points handled by the splitter
   Vec3f* vertices;
@@ -150,7 +150,7 @@ class BVSplitter {
       axis = 1;
 
     split_axis = axis;
-    FCL_REAL sum = 0;
+    CoalScalar sum = 0;
 
     if (type == BVH_MODEL_TRIANGLES) {
       for (unsigned int i = 0; i < num_primitives; ++i) {
@@ -181,7 +181,7 @@ class BVSplitter {
       axis = 1;
 
     split_axis = axis;
-    std::vector<FCL_REAL> proj((size_t)num_primitives);
+    std::vector<CoalScalar> proj((size_t)num_primitives);
 
     if (type == BVH_MODEL_TRIANGLES) {
       for (unsigned int i = 0; i < num_primitives; ++i) {

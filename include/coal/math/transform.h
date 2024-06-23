@@ -43,8 +43,8 @@
 
 namespace coal {
 
-COAL_DEPRECATED typedef Eigen::Quaternion<FCL_REAL> Quaternion3f;
-typedef Eigen::Quaternion<FCL_REAL> Quatf;
+COAL_DEPRECATED typedef Eigen::Quaternion<CoalScalar> Quaternion3f;
+typedef Eigen::Quaternion<CoalScalar> Quatf;
 
 static inline std::ostream& operator<<(std::ostream& o, const Quatf& q) {
   o << "(" << q.w() << " " << q.x() << " " << q.y() << " " << q.z() << ")";
@@ -190,8 +190,8 @@ class COAL_DLLAPI Transform3f {
 
   /// @brief check whether the transform is identity
   inline bool isIdentity(
-      const FCL_REAL& prec =
-          Eigen::NumTraits<FCL_REAL>::dummy_precision()) const {
+      const CoalScalar& prec =
+          Eigen::NumTraits<CoalScalar>::dummy_precision()) const {
     return R.isIdentity(prec) && T.isZero(prec);
   }
 
@@ -218,26 +218,26 @@ class COAL_DLLAPI Transform3f {
 
 template <typename Derived>
 inline Quatf fromAxisAngle(const Eigen::MatrixBase<Derived>& axis,
-                           FCL_REAL angle) {
-  return Quatf(Eigen::AngleAxis<FCL_REAL>(angle, axis));
+                           CoalScalar angle) {
+  return Quatf(Eigen::AngleAxis<CoalScalar>(angle, axis));
 }
 
 /// @brief Uniformly random quaternion sphere.
 /// Code taken from Pinocchio (https://github.com/stack-of-tasks/pinocchio).
 inline Quatf uniformRandomQuaternion() {
   // Rotational part
-  const FCL_REAL u1 = (FCL_REAL)rand() / RAND_MAX;
-  const FCL_REAL u2 = (FCL_REAL)rand() / RAND_MAX;
-  const FCL_REAL u3 = (FCL_REAL)rand() / RAND_MAX;
+  const CoalScalar u1 = (CoalScalar)rand() / RAND_MAX;
+  const CoalScalar u2 = (CoalScalar)rand() / RAND_MAX;
+  const CoalScalar u3 = (CoalScalar)rand() / RAND_MAX;
 
-  const FCL_REAL mult1 = std::sqrt(FCL_REAL(1.0) - u1);
-  const FCL_REAL mult2 = std::sqrt(u1);
+  const CoalScalar mult1 = std::sqrt(CoalScalar(1.0) - u1);
+  const CoalScalar mult2 = std::sqrt(u1);
 
-  static const FCL_REAL PI_value = static_cast<FCL_REAL>(EIGEN_PI);
-  FCL_REAL s2 = std::sin(2 * PI_value * u2);
-  FCL_REAL c2 = std::cos(2 * PI_value * u2);
-  FCL_REAL s3 = std::sin(2 * PI_value * u3);
-  FCL_REAL c3 = std::cos(2 * PI_value * u3);
+  static const CoalScalar PI_value = static_cast<CoalScalar>(EIGEN_PI);
+  CoalScalar s2 = std::sin(2 * PI_value * u2);
+  CoalScalar c2 = std::cos(2 * PI_value * u2);
+  CoalScalar s3 = std::sin(2 * PI_value * u3);
+  CoalScalar c3 = std::cos(2 * PI_value * u3);
 
   Quatf q;
   q.w() = mult1 * s2;

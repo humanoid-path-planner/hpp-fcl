@@ -128,14 +128,14 @@ class COAL_DLLAPI AABB {
 
   /// @brief Check whether two AABB are overlap
   bool overlap(const AABB& other, const CollisionRequest& request,
-               FCL_REAL& sqrDistLowerBound) const;
+               CoalScalar& sqrDistLowerBound) const;
 
   /// @brief Distance between two AABBs
-  FCL_REAL distance(const AABB& other) const;
+  CoalScalar distance(const AABB& other) const;
 
   /// @brief Distance between two AABBs; P and Q, should not be NULL, return the
   /// nearest points
-  FCL_REAL distance(const AABB& other, Vec3f* P, Vec3f* Q) const;
+  CoalScalar distance(const AABB& other, Vec3f* P, Vec3f* Q) const;
 
   /// @brief Merge the AABB and a point
   inline AABB& operator+=(const Vec3f& p) {
@@ -158,22 +158,22 @@ class COAL_DLLAPI AABB {
   }
 
   /// @brief Size of the AABB (used in BV_Splitter to order two AABBs)
-  inline FCL_REAL size() const { return (max_ - min_).squaredNorm(); }
+  inline CoalScalar size() const { return (max_ - min_).squaredNorm(); }
 
   /// @brief Center of the AABB
   inline Vec3f center() const { return (min_ + max_) * 0.5; }
 
   /// @brief Width of the AABB
-  inline FCL_REAL width() const { return max_[0] - min_[0]; }
+  inline CoalScalar width() const { return max_[0] - min_[0]; }
 
   /// @brief Height of the AABB
-  inline FCL_REAL height() const { return max_[1] - min_[1]; }
+  inline CoalScalar height() const { return max_[1] - min_[1]; }
 
   /// @brief Depth of the AABB
-  inline FCL_REAL depth() const { return max_[2] - min_[2]; }
+  inline CoalScalar depth() const { return max_[2] - min_[2]; }
 
   /// @brief Volume of the AABB
-  inline FCL_REAL volume() const { return width() * height() * depth(); }
+  inline CoalScalar volume() const { return width() * height() * depth(); }
 
   /// @}
 
@@ -213,14 +213,14 @@ class COAL_DLLAPI AABB {
 
   /// @brief expand the half size of the AABB by a scalar delta, and keep the
   /// center unchanged.
-  inline AABB& expand(const FCL_REAL delta) {
+  inline AABB& expand(const CoalScalar delta) {
     min_.array() -= delta;
     max_.array() += delta;
     return *this;
   }
 
   /// @brief expand the aabb by increase the thickness of the plate by a ratio
-  inline AABB& expand(const AABB& core, FCL_REAL ratio) {
+  inline AABB& expand(const AABB& core, CoalScalar ratio) {
     min_ = min_ * ratio - core.min_;
     max_ = max_ * ratio - core.max_;
     return *this;
@@ -260,7 +260,7 @@ COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
 /// and b2 is in identity.
 COAL_DLLAPI bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
                          const AABB& b2, const CollisionRequest& request,
-                         FCL_REAL& sqrDistLowerBound);
+                         CoalScalar& sqrDistLowerBound);
 }  // namespace coal
 
 #endif

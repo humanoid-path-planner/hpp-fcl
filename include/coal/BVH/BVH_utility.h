@@ -90,7 +90,7 @@ COAL_DLLAPI void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts,
 /// and the origin, given the BV axises.
 COAL_DLLAPI void getRadiusAndOriginAndRectangleSize(
     Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, unsigned int n,
-    const Matrix3f& axes, Vec3f& origin, FCL_REAL l[2], FCL_REAL& r);
+    const Matrix3f& axes, Vec3f& origin, CoalScalar l[2], CoalScalar& r);
 
 /// @brief Compute the bounding volume extent and center for a set or subset of
 /// points, given the BV axises.
@@ -102,13 +102,13 @@ COAL_DLLAPI void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts,
 /// @brief Compute the center and radius for a triangle's circumcircle
 COAL_DLLAPI void circumCircleComputation(const Vec3f& a, const Vec3f& b,
                                          const Vec3f& c, Vec3f& center,
-                                         FCL_REAL& radius);
+                                         CoalScalar& radius);
 
 /// @brief Compute the maximum distance from a given center point to a point
 /// cloud
-COAL_DLLAPI FCL_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts,
-                                     unsigned int* indices, unsigned int n,
-                                     const Vec3f& query);
+COAL_DLLAPI CoalScalar maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts,
+                                       unsigned int* indices, unsigned int n,
+                                       const Vec3f& query);
 
 }  // namespace coal
 

@@ -118,9 +118,9 @@ void ConvexBase::computeCenter() {
 }
 
 void Halfspace::unitNormalTest() {
-  FCL_REAL l = n.norm();
+  CoalScalar l = n.norm();
   if (l > 0) {
-    FCL_REAL inv_l = 1.0 / l;
+    CoalScalar inv_l = 1.0 / l;
     n *= inv_l;
     d *= inv_l;
   } else {
@@ -130,9 +130,9 @@ void Halfspace::unitNormalTest() {
 }
 
 void Plane::unitNormalTest() {
-  FCL_REAL l = n.norm();
+  CoalScalar l = n.norm();
   if (l > 0) {
-    FCL_REAL inv_l = 1.0 / l;
+    CoalScalar inv_l = 1.0 / l;
     n *= inv_l;
     d *= inv_l;
   } else {
@@ -143,7 +143,7 @@ void Plane::unitNormalTest() {
 
 void Box::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
     aabb_local.min_ -= Vec3f::Constant(ssr);
     aabb_local.max_ += Vec3f::Constant(ssr);
@@ -154,7 +154,7 @@ void Box::computeLocalAABB() {
 
 void Sphere::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
     aabb_local.min_ -= Vec3f::Constant(ssr);
     aabb_local.max_ += Vec3f::Constant(ssr);
@@ -165,7 +165,7 @@ void Sphere::computeLocalAABB() {
 
 void Ellipsoid::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
     aabb_local.min_ -= Vec3f::Constant(ssr);
     aabb_local.max_ += Vec3f::Constant(ssr);
@@ -176,7 +176,7 @@ void Ellipsoid::computeLocalAABB() {
 
 void Capsule::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
     aabb_local.min_ -= Vec3f::Constant(ssr);
     aabb_local.max_ += Vec3f::Constant(ssr);
@@ -187,7 +187,7 @@ void Capsule::computeLocalAABB() {
 
 void Cone::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
     aabb_local.min_ -= Vec3f::Constant(ssr);
     aabb_local.max_ += Vec3f::Constant(ssr);
@@ -198,7 +198,7 @@ void Cone::computeLocalAABB() {
 
 void Cylinder::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
     aabb_local.min_ -= Vec3f::Constant(ssr);
     aabb_local.max_ += Vec3f::Constant(ssr);
@@ -209,7 +209,7 @@ void Cylinder::computeLocalAABB() {
 
 void ConvexBase::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
     aabb_local.min_ -= Vec3f::Constant(ssr);
     aabb_local.max_ += Vec3f::Constant(ssr);
@@ -220,7 +220,7 @@ void ConvexBase::computeLocalAABB() {
 
 void Halfspace::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
     aabb_local.min_ -= Vec3f::Constant(ssr);
     aabb_local.max_ += Vec3f::Constant(ssr);
@@ -231,7 +231,7 @@ void Halfspace::computeLocalAABB() {
 
 void Plane::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
     aabb_local.min_ -= Vec3f::Constant(ssr);
     aabb_local.max_ += Vec3f::Constant(ssr);
@@ -242,7 +242,7 @@ void Plane::computeLocalAABB() {
 
 void TriangleP::computeLocalAABB() {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
     aabb_local.min_ -= Vec3f::Constant(ssr);
     aabb_local.max_ += Vec3f::Constant(ssr);
