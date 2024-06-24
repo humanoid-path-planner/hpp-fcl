@@ -59,6 +59,7 @@
 #endif  // COAL_HAS_OCTOMAP
 
 namespace coal {
+#ifdef COAL_BACKWARD_COMPATIBILITY_WITH_HPP_FCL
 // We keep the FCL_REAL typedef and the Vec[..]f typedefs for backward
 // compatibility.
 typedef double FCL_REAL;
@@ -70,6 +71,7 @@ typedef Eigen::Matrix<FCL_REAL, 3, 3> Matrix3f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 3, Eigen::RowMajor> Matrixx3f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, 2, Eigen::RowMajor> Matrixx2f;
 typedef Eigen::Matrix<FCL_REAL, Eigen::Dynamic, Eigen::Dynamic> MatrixXf;
+#endif
 
 typedef double CoalScalar;
 typedef Eigen::Matrix<CoalScalar, 3, 1> Vec3s;

@@ -146,11 +146,13 @@ typedef shared_ptr<OcTree> OcTreePtr_t;
 typedef shared_ptr<const OcTree> OcTreeConstPtr_t;
 }  // namespace coal
 
+#ifdef COAL_BACKWARD_COMPATIBILITY_WITH_HPP_FCL
 namespace hpp {
 namespace fcl {
 using namespace coal;
 using Transform3f = Transform3s;  // For backward compatibility
 }  // namespace fcl
 }  // namespace hpp
+#endif
 
 #endif  // COAL_FWD_HH

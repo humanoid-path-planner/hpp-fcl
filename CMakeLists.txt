@@ -50,8 +50,9 @@ SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
 # Need to be set before including base.cmake
 # ----------------------------------------------------
 option(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
-option(COAL_TURN_ASSERT_INTO_EXCEPTION "Turn some critical COAL asserts to exception." FALSE)
+option(COAL_TURN_ASSERT_INTO_EXCEPTION "Turn some critical Coal asserts to exception." FALSE)
 option(COAL_ENABLE_LOGGING "Activate logging for warnings or error messages. Turned on by default in Debug." FALSE)
+option(COAL_BACKWARD_COMPATIBILITY_WITH_HPP_FCL "Make Coal retro-compatible with HPP-FCL." FALSE)
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
