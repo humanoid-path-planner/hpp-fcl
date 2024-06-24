@@ -28,7 +28,7 @@
   <depend>eigen</depend>
   <depend>boost</depend>
   <depend>assimp</depend>
-  <depend>octomap</depend>
+  <depend>liboctomap-dev</depend>
   <depend>eigenpy</depend>
 
   <!-- The following tag is recommended by REP-136 -->
