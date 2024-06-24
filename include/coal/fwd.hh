@@ -135,7 +135,6 @@ class CollisionGeometry;
 typedef shared_ptr<CollisionGeometry> CollisionGeometryPtr_t;
 typedef shared_ptr<const CollisionGeometry> CollisionGeometryConstPtr_t;
 class Transform3s;
-using Transform3f = Transform3s;  // For backward compatibility
 
 class AABB;
 
@@ -147,7 +146,11 @@ typedef shared_ptr<OcTree> OcTreePtr_t;
 typedef shared_ptr<const OcTree> OcTreeConstPtr_t;
 }  // namespace coal
 
-// For backward compatibility
-namespace hpp::fcl = coal;
+namespace hpp {
+namespace fcl {
+using namespace coal;
+using Transform3f = Transform3s;  // For backward compatibility
+}  // namespace fcl
+}  // namespace hpp
 
 #endif  // COAL_FWD_HH
