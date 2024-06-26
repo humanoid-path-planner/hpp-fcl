@@ -234,7 +234,7 @@ inline Quatf uniformRandomQuaternion() {
   const FCL_REAL mult1 = std::sqrt(FCL_REAL(1.0) - u1);
   const FCL_REAL mult2 = std::sqrt(u1);
 
-  static const FCL_REAL PI_value = EIGEN_PI;
+  static const FCL_REAL PI_value = static_cast<FCL_REAL>(EIGEN_PI);
   FCL_REAL s2 = std::sin(2 * PI_value * u2);
   FCL_REAL c2 = std::cos(2 * PI_value * u2);
   FCL_REAL s3 = std::sin(2 * PI_value * u3);
