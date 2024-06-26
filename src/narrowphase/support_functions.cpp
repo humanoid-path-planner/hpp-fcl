@@ -134,12 +134,13 @@ void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
 }
 // clang-format off
 getShapeSupportTplInstantiation(TriangleP)
-// clang-format on
+    // clang-format on
 
-// ============================================================================
-template <int _SupportOptions>
-inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
-                            int& /*unused*/, ShapeSupportData& /*unused*/) {
+    // ============================================================================
+    template <int _SupportOptions>
+    inline void getShapeSupport(const Box* box, const Vec3f& dir,
+                                Vec3f& support, int& /*unused*/,
+                                ShapeSupportData& /*unused*/) {
   // The inflate value is simply to make the specialized functions with box
   // have a preferred side for edge cases.
   static const FCL_REAL inflate = (dir.array() == 0).any() ? 1 + 1e-10 : 1.;
@@ -156,13 +157,13 @@ inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
 }
 // clang-format off
 getShapeSupportTplInstantiation(Box)
-// clang-format on
+    // clang-format on
 
-// ============================================================================
-template <int _SupportOptions>
-inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir,
-                            Vec3f& support, int& /*unused*/,
-                            ShapeSupportData& /*unused*/) {
+    // ============================================================================
+    template <int _SupportOptions>
+    inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir,
+                                Vec3f& support, int& /*unused*/,
+                                ShapeSupportData& /*unused*/) {
   if (_SupportOptions == SupportOptions::WithSweptSphere) {
     support.noalias() =
         (sphere->radius + sphere->getSweptSphereRadius()) * dir.normalized();
@@ -175,13 +176,13 @@ inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir,
 }
 // clang-format off
 getShapeSupportTplInstantiation(Sphere)
-// clang-format on
+    // clang-format on
 
-// ============================================================================
-template <int _SupportOptions>
-inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
-                            Vec3f& support, int& /*unused*/,
-                            ShapeSupportData& /*unused*/) {
+    // ============================================================================
+    template <int _SupportOptions>
+    inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
+                                Vec3f& support, int& /*unused*/,
+                                ShapeSupportData& /*unused*/) {
   FCL_REAL a2 = ellipsoid->radii[0] * ellipsoid->radii[0];
   FCL_REAL b2 = ellipsoid->radii[1] * ellipsoid->radii[1];
   FCL_REAL c2 = ellipsoid->radii[2] * ellipsoid->radii[2];
@@ -198,13 +199,13 @@ inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
 }
 // clang-format off
 getShapeSupportTplInstantiation(Ellipsoid)
-// clang-format on
+    // clang-format on
 
-// ============================================================================
-template <int _SupportOptions>
-inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
-                            Vec3f& support, int& /*unused*/,
-                            ShapeSupportData& /*unused*/) {
+    // ============================================================================
+    template <int _SupportOptions>
+    inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
+                                Vec3f& support, int& /*unused*/,
+                                ShapeSupportData& /*unused*/) {
   static const FCL_REAL dummy_precision =
       Eigen::NumTraits<FCL_REAL>::dummy_precision();
   support.setZero();
@@ -221,12 +222,12 @@ inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
 }
 // clang-format off
 getShapeSupportTplInstantiation(Capsule)
-// clang-format on
+    // clang-format on
 
-// ============================================================================
-template <int _SupportOptions>
-void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support,
-                     int& /*unused*/, ShapeSupportData& /*unused*/) {
+    // ============================================================================
+    template <int _SupportOptions>
+    void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support,
+                         int& /*unused*/, ShapeSupportData& /*unused*/) {
   static const FCL_REAL dummy_precision =
       Eigen::NumTraits<FCL_REAL>::dummy_precision();
 
@@ -273,12 +274,13 @@ void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support,
 }
 // clang-format off
 getShapeSupportTplInstantiation(Cone)
-// clang-format on
+    // clang-format on
 
-// ============================================================================
-template <int _SupportOptions>
-void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
-                     int& /*unused*/, ShapeSupportData& /*unused*/) {
+    // ============================================================================
+    template <int _SupportOptions>
+    void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir,
+                         Vec3f& support, int& /*unused*/,
+                         ShapeSupportData& /*unused*/) {
   static const FCL_REAL dummy_precision =
       Eigen::NumTraits<FCL_REAL>::dummy_precision();
 
@@ -315,13 +317,13 @@ void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
 }
 // clang-format off
 getShapeSupportTplInstantiation(Cylinder)
-// clang-format on
+    // clang-format on
 
-// ============================================================================
-template <int _SupportOptions>
-void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
-                        Vec3f& support, int& hint,
-                        ShapeSupportData& support_data) {
+    // ============================================================================
+    template <int _SupportOptions>
+    void getShapeSupportLog(const ConvexBase* convex, const Vec3f& dir,
+                            Vec3f& support, int& hint,
+                            ShapeSupportData& support_data) {
   assert(convex->neighbors != nullptr && "Convex has no neighbors.");
 
   // Use warm start if current support direction is distant from last support
@@ -435,26 +437,26 @@ void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
 }
 // clang-format off
 getShapeSupportTplInstantiation(ConvexBase)
-// clang-format on
+    // clang-format on
 
-// ============================================================================
-template <int _SupportOptions>
-inline void getShapeSupport(const SmallConvex* convex, const Vec3f& dir,
-                            Vec3f& support, int& hint,
-                            ShapeSupportData& support_data) {
+    // ============================================================================
+    template <int _SupportOptions>
+    inline void getShapeSupport(const SmallConvex* convex, const Vec3f& dir,
+                                Vec3f& support, int& hint,
+                                ShapeSupportData& support_data) {
   getShapeSupportLinear<_SupportOptions>(
       reinterpret_cast<const ConvexBase*>(convex), dir, support, hint,
       support_data);
 }
 // clang-format off
 getShapeSupportTplInstantiation(SmallConvex)
-// clang-format on
+    // clang-format on
 
-// ============================================================================
-template <int _SupportOptions>
-inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
-                            Vec3f& support, int& hint,
-                            ShapeSupportData& support_data) {
+    // ============================================================================
+    template <int _SupportOptions>
+    inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
+                                Vec3f& support, int& hint,
+                                ShapeSupportData& support_data) {
   getShapeSupportLog<_SupportOptions>(
       reinterpret_cast<const ConvexBase*>(convex), dir, support, hint,
       support_data);
@@ -468,9 +470,9 @@ getShapeSupportTplInstantiation(LargeConvex)
   getShapeSupportSet<_SupportOptions>(static_cast<const ShapeType*>(shape), \
                                       support_set, hint, support_data,      \
                                       max_num_supports, tol)
-template <int _SupportOptions>
-void getSupportSet(const ShapeBase* shape, SupportSet& support_set, int& hint,
-                   size_t max_num_supports, FCL_REAL tol) {
+    template <int _SupportOptions>
+    void getSupportSet(const ShapeBase* shape, SupportSet& support_set,
+                       int& hint, size_t max_num_supports, FCL_REAL tol) {
   ShapeSupportData support_data;
   switch (shape->getNodeType()) {
     case GEOM_TRIANGLE:
