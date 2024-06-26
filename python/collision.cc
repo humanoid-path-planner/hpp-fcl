@@ -35,8 +35,11 @@
 #include <eigenpy/eigenpy.hpp>
 
 #include <hpp/fcl/fwd.hh>
+HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/serialization/collision_data.h>
+HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
 #include "fcl.hh"
 #include "deprecation.hh"
@@ -91,6 +94,8 @@ void exposeCollisionAPI() {
         .def("clear", &CPUTimes::clear, arg("self"), "Reset the time values.");
   }
 
+HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   if (!eigenpy::register_symbolic_link_to_registered_type<QueryRequest>()) {
     class_<QueryRequest>("QueryRequest", doxygen::class_doc<QueryRequest>(),
                          no_init)
@@ -127,7 +132,10 @@ void exposeCollisionAPI() {
         .DEF_RW_CLASS_ATTRIB(QueryRequest, enable_timings)
         .DEF_CLASS_FUNC(QueryRequest, updateGuess);
   }
+HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
+HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   if (!eigenpy::register_symbolic_link_to_registered_type<CollisionRequest>()) {
     class_<CollisionRequest, bases<QueryRequest> >(
         "CollisionRequest", doxygen::class_doc<CollisionRequest>(), no_init)
@@ -166,6 +174,7 @@ void exposeCollisionAPI() {
     class_<std::vector<CollisionRequest> >("StdVec_CollisionRequest")
         .def(vector_indexing_suite<std::vector<CollisionRequest> >());
   }
+HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
   if (!eigenpy::register_symbolic_link_to_registered_type<Contact>()) {
     class_<Contact>("Contact", doxygen::class_doc<Contact>(),
