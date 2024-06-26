@@ -201,8 +201,8 @@ void computePatchPlaneOrHalfspace(const OtherShapeType& s1,
     }                                                                         \
   };
 
-PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Plane);
-PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Halfspace);
+PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Plane)
+PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Halfspace)
 
 #define PLANE_HSPACE_CONTACT_PATCH(PlaneOrHspace1, PlaneOrHspace2)           \
   template <>                                                                \
@@ -241,10 +241,10 @@ PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH(Halfspace);
     }                                                                        \
   };
 
-PLANE_HSPACE_CONTACT_PATCH(Plane, Plane);
-PLANE_HSPACE_CONTACT_PATCH(Plane, Halfspace);
-PLANE_HSPACE_CONTACT_PATCH(Halfspace, Plane);
-PLANE_HSPACE_CONTACT_PATCH(Halfspace, Halfspace);
+PLANE_HSPACE_CONTACT_PATCH(Plane, Plane)
+PLANE_HSPACE_CONTACT_PATCH(Plane, Halfspace)
+PLANE_HSPACE_CONTACT_PATCH(Halfspace, Plane)
+PLANE_HSPACE_CONTACT_PATCH(Halfspace, Halfspace)
 
 #undef PLANE_OR_HSPACE_AND_OTHER_SHAPE_CONTACT_PATCH
 #undef PLANE_HSPACE_CONTACT_PATCH

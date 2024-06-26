@@ -132,7 +132,7 @@ void getShapeSupport(const TriangleP* triangle, const Vec3f& dir,
     support += triangle->getSweptSphereRadius() * dir.normalized();
   }
 }
-getShapeSupportTplInstantiation(TriangleP);
+getShapeSupportTplInstantiation(TriangleP)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -152,7 +152,7 @@ inline void getShapeSupport(const Box* box, const Vec3f& dir, Vec3f& support,
     support += box->getSweptSphereRadius() * dir.normalized();
   }
 }
-getShapeSupportTplInstantiation(Box);
+getShapeSupportTplInstantiation(Box)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -169,7 +169,7 @@ inline void getShapeSupport(const Sphere* sphere, const Vec3f& dir,
   HPP_FCL_UNUSED_VARIABLE(sphere);
   HPP_FCL_UNUSED_VARIABLE(dir);
 }
-getShapeSupportTplInstantiation(Sphere);
+getShapeSupportTplInstantiation(Sphere)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -190,7 +190,7 @@ inline void getShapeSupport(const Ellipsoid* ellipsoid, const Vec3f& dir,
     support += ellipsoid->getSweptSphereRadius() * dir.normalized();
   }
 }
-getShapeSupportTplInstantiation(Ellipsoid);
+getShapeSupportTplInstantiation(Ellipsoid)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -211,7 +211,7 @@ inline void getShapeSupport(const Capsule* capsule, const Vec3f& dir,
         (capsule->radius + capsule->getSweptSphereRadius()) * dir.normalized();
   }
 }
-getShapeSupportTplInstantiation(Capsule);
+getShapeSupportTplInstantiation(Capsule)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -261,7 +261,7 @@ void getShapeSupport(const Cone* cone, const Vec3f& dir, Vec3f& support,
     support += cone->getSweptSphereRadius() * dir.normalized();
   }
 }
-getShapeSupportTplInstantiation(Cone);
+getShapeSupportTplInstantiation(Cone)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -301,7 +301,7 @@ void getShapeSupport(const Cylinder* cylinder, const Vec3f& dir, Vec3f& support,
     support += cylinder->getSweptSphereRadius() * dir.normalized();
   }
 }
-getShapeSupportTplInstantiation(Cylinder);
+getShapeSupportTplInstantiation(Cylinder)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -419,7 +419,7 @@ void getShapeSupport(const ConvexBase* convex, const Vec3f& dir, Vec3f& support,
                                            support_data);
   }
 }
-getShapeSupportTplInstantiation(ConvexBase);
+getShapeSupportTplInstantiation(ConvexBase)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -430,7 +430,7 @@ inline void getShapeSupport(const SmallConvex* convex, const Vec3f& dir,
       reinterpret_cast<const ConvexBase*>(convex), dir, support, hint,
       support_data);
 }
-getShapeSupportTplInstantiation(SmallConvex);
+getShapeSupportTplInstantiation(SmallConvex)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -441,7 +441,7 @@ inline void getShapeSupport(const LargeConvex* convex, const Vec3f& dir,
       reinterpret_cast<const ConvexBase*>(convex), dir, support, hint,
       support_data);
 }
-getShapeSupportTplInstantiation(LargeConvex);
+getShapeSupportTplInstantiation(LargeConvex)
 
 // ============================================================================
 #define CALL_GET_SHAPE_SUPPORT_SET(ShapeType)                               \
