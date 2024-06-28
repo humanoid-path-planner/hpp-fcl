@@ -26,7 +26,7 @@ void serialize(Archive& ar, hpp::fcl::ContactPatch& contact_patch,
     }
     Eigen::Map<PolygonPoints> points_map(
         reinterpret_cast<FCL_REAL*>(contact_patch.points().data()), 2,
-        patch_size);
+        static_cast<Eigen::Index>(patch_size));
     ar& make_nvp("points", points_map);
   }
 

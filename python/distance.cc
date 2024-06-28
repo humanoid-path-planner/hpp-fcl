@@ -36,10 +36,13 @@
 
 #include "fcl.hh"
 
+HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 #include <hpp/fcl/fwd.hh>
 #include <hpp/fcl/distance.h>
 #include <hpp/fcl/serialization/collision_data.h>
 #include "deprecation.hh"
+HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
 #include "serializable.hh"
 
@@ -64,6 +67,8 @@ struct DistanceResultWrapper {
 };
 
 void exposeDistanceAPI() {
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   if (!eigenpy::register_symbolic_link_to_registered_type<DistanceRequest>()) {
     class_<DistanceRequest, bases<QueryRequest> >(
         "DistanceRequest", doxygen::class_doc<DistanceRequest>(),
@@ -105,6 +110,7 @@ void exposeDistanceAPI() {
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, abs_err)
         .def(SerializableVisitor<DistanceRequest>());
   }
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
   if (!eigenpy::register_symbolic_link_to_registered_type<
           std::vector<DistanceRequest> >()) {
