@@ -578,7 +578,7 @@ template <int _SupportOptions>
 void getShapeSupportSet(const Box* box, SupportSet& support_set,
                         int& hint /*unused*/, ShapeSupportData& support_data,
                         size_t /*unused*/, FCL_REAL tol) {
-// clang-format on
+  // clang-format on
   assert(tol > 0);
   Vec3f support;
   const Vec3f& support_dir = support_set.getNormal();
@@ -623,7 +623,7 @@ void getShapeSupportSet(const Sphere* sphere, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
                         size_t /*unused*/, FCL_REAL /*unused*/) {
-// clang-format on
+  // clang-format on
   support_set.points().clear();
 
   Vec3f support;
@@ -640,7 +640,7 @@ template <int _SupportOptions>
 void getShapeSupportSet(const Ellipsoid* ellipsoid, SupportSet& support_set,
                         int& hint, ShapeSupportData& support_data /*unused*/,
                         size_t /*unused*/, FCL_REAL /*unused*/) {
-// clang-format on
+  // clang-format on
   support_set.points().clear();
 
   Vec3f support;
@@ -658,7 +658,7 @@ void getShapeSupportSet(const Capsule* capsule, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
                         size_t /*unused*/, FCL_REAL tol) {
-// clang-format on
+  // clang-format on
   assert(tol > 0);
   support_set.points().clear();
 
@@ -703,7 +703,7 @@ void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
                         size_t num_sampled_supports, FCL_REAL tol) {
-// clang-format on
+  // clang-format on
   assert(tol > 0);
   support_set.points().clear();
 
@@ -776,7 +776,7 @@ void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
                         size_t num_sampled_supports, FCL_REAL tol) {
-// clang-format on
+  // clang-format on
   assert(tol > 0);
   support_set.points().clear();
 
@@ -840,7 +840,7 @@ void getShapeSupportSetLinear(const ConvexBase* convex, SupportSet& support_set,
                               int& hint /*unused*/,
                               ShapeSupportData& support_data, size_t /*unused*/,
                               FCL_REAL tol) {
-// clang-format on
+  // clang-format on
   assert(tol > 0);
   Vec3f support;
   const Vec3f& support_dir = support_set.getNormal();
@@ -966,7 +966,7 @@ void getShapeSupportSet(const SmallConvex* convex, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
                         size_t num_sampled_supports /*unused*/, FCL_REAL tol) {
-// clang-format on
+  // clang-format on
   getShapeSupportSetLinear<_SupportOptions>(
       reinterpret_cast<const ConvexBase*>(convex), support_set, hint,
       support_data, num_sampled_supports, tol);
@@ -979,7 +979,7 @@ template <int _SupportOptions>
 void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
                         int& hint, ShapeSupportData& support_data,
                         size_t num_sampled_supports /*unused*/, FCL_REAL tol) {
-// clang-format on
+  // clang-format on
   getShapeSupportSetLog<_SupportOptions>(
       reinterpret_cast<const ConvexBase*>(convex), support_set, hint,
       support_data, num_sampled_supports, tol);
