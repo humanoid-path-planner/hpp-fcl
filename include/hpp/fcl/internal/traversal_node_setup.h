@@ -682,8 +682,13 @@ bool initialize(MeshDistanceTraversalNode<BV, 0>& node,
   node.tri_indices2 =
       model2.tri_indices.get() ? model2.tri_indices->data() : NULL;
 
+  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
+
   relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(),
                     tf2.getTranslation(), node.RT.R, node.RT.T);
+
+  HPP_FCL_COMPILER_DIAGNOSTIC_POP
 
   return true;
 }
