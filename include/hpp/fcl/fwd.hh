@@ -96,10 +96,10 @@
 #define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS \
   _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
 #if !defined(__has_warning) || __has_warning("-Wmaybe-uninitialized")
-  #define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED \
-    _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+#define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED \
+  _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
 #else
-  #define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
+#define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
 #endif
 #elif defined(WIN32)
 #define HPP_FCL_COMPILER_DIAGNOSTIC_PUSH _Pragma("warning(push)")
