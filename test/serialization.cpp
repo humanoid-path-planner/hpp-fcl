@@ -36,6 +36,11 @@
 #include <fstream>
 #include <boost/test/included/unit_test.hpp>
 
+#include <hpp/fcl/fwd.hh>
+
+HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/contact_patch.h>
 #include <hpp/fcl/distance.h>
@@ -584,3 +589,5 @@ BOOST_AUTO_TEST_CASE(test_memory_footprint) {
   BOOST_CHECK(static_cast<size_t>(m1.memUsage(false)) ==
               computeMemoryFootprint(m1));
 }
+
+HPP_FCL_COMPILER_DIAGNOSTIC_POP
