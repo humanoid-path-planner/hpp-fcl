@@ -97,13 +97,13 @@
   _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
 
 // GCC version 4.6 and higher supports -Wmaybe-uninitialized
-#if (defined(__GNUC__) &&                                           \
+#if (defined(__GNUC__) && \
      ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)))
 #define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED \
   _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
 // Use __has_warning with clang. Clang introduced it in 2024 (3.5+)
-#elif (defined(__clang__) && defined(__has_warning) &&              \
-     __has_warning("-Wmaybe-uninitialized"))
+#elif (defined(__clang__) && defined(__has_warning) && \
+       __has_warning("-Wmaybe-uninitialized"))
 #define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED \
   _Pragma("clang diagnostic ignored \"-Wmaybe-uninitialized\"")
 #else
