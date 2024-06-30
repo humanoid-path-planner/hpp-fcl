@@ -240,7 +240,7 @@ void test_normal_and_nearest_points(
   }
 }
 
-template <size_t VecSize>
+template <int VecSize>
 Eigen::Matrix<FCL_REAL, VecSize, 1> generateRandomVector(FCL_REAL min,
                                                          FCL_REAL max) {
   typedef Eigen::Matrix<FCL_REAL, VecSize, 1> VecType;
