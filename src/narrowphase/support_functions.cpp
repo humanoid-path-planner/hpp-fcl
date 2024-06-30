@@ -984,7 +984,9 @@ void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
       reinterpret_cast<const ConvexBase*>(convex), support_set, hint,
       support_data, num_sampled_supports, tol);
 }
-getShapeSupportSetTplInstantiation(LargeConvex);
+//clang-format off
+getShapeSupportSetTplInstantiation(LargeConvex)
+// clang-format on
 
 // ============================================================================
 HPP_FCL_DLLAPI void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
