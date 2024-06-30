@@ -95,7 +95,10 @@
 #define HPP_FCL_COMPILER_DIAGNOSTIC_POP _Pragma("GCC diagnostic pop")
 #define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS \
   _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
-#if defined(__has_warning) && __has_warning("-Wmaybe-uninitialized")
+
+// GCC version 4.6 and higher supports -Wmaybe-uninitialized
+// Use __has_warning with clang
+#if (defined(__GNUC__) && ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))) || (defined(__clang__) && __has_warning("-Wmaybe-uninitialized"))
 #define HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED \
   _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
 #else
