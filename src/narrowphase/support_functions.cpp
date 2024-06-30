@@ -986,11 +986,12 @@ void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
 }
 //clang-format off
 getShapeSupportSetTplInstantiation(LargeConvex)
-// clang-format on
+    // clang-format on
 
-// ============================================================================
-HPP_FCL_DLLAPI void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
-                                                SupportSet::Polygon& cvx_hull) {
+    // ============================================================================
+    HPP_FCL_DLLAPI
+    void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
+                                     SupportSet::Polygon& cvx_hull) {
   cvx_hull.clear();
 
   if (cloud.size() <= 2) {

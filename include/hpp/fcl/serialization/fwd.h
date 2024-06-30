@@ -77,7 +77,7 @@ struct cast_register_initializer {
   cast_register_initializer const& init() const {
     HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
     _Pragma("GCC diagnostic ignored \"-Wconversion\"")
-    BOOST_STATIC_WARNING((std::is_base_of<Base, Derived>::value));
+        BOOST_STATIC_WARNING((std::is_base_of<Base, Derived>::value));
     HPP_FCL_COMPILER_DIAGNOSTIC_POP
     init(std::is_base_of<Base, Derived>());
     return *this;
