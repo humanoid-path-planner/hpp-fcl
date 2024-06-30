@@ -5,7 +5,7 @@ Dependencies:
  - Eigen
  - Boost (thread, date_time, filesystem)
  - assimp
- - octomap (optional dependency, available at http://octomap.github.com)
+ - octomap (optional dependency, available at http://octomap.github.io)
  - Qhull (optional dependency, available at http://www.qhull.org)
 
 Boost and Eigen are mandatory dependencies. If Octomap is not found,
