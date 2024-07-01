@@ -18,7 +18,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/export.hpp>
 
-#include "coal/fwd.h"
+#include "coal/fwd.hh"
 #include "coal/serialization/eigen.h"
 
 #define COAL_SERIALIZATION_SPLIT(Type)                                   \
