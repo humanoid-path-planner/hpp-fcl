@@ -308,8 +308,8 @@ struct traits<KDOP<N>, Oriented, recursive> : base_traits {
   enum { IS_IMPLEMENTED = false };
 };
 
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 
 struct mesh_mesh_run_test {
   mesh_mesh_run_test(const std::vector<Transform3s>& _transforms,
@@ -330,7 +330,7 @@ struct mesh_mesh_run_test {
 
   int indent;
 
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 
   const char* getindent() {
     assert(indent < 9);
@@ -641,8 +641,8 @@ BOOST_AUTO_TEST_CASE(mesh_mesh) {
             << transforms[i].getQuatRotation().coeffs().format(f));
   }
 
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 
   // Request all contacts and check that all methods give the same result.
   mesh_mesh_run_test runner(
@@ -650,7 +650,7 @@ BOOST_AUTO_TEST_CASE(mesh_mesh) {
   runner.enable_statistics = true;
   boost::mpl::for_each<BVs_t, wrap<boost::mpl::placeholders::_1> >(runner);
 
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 }
 
 BOOST_AUTO_TEST_CASE(mesh_mesh_benchmark) {

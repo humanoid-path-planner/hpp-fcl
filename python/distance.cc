@@ -68,8 +68,8 @@ struct DistanceResultWrapper {
 };
 
 void exposeDistanceAPI() {
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   if (!eigenpy::register_symbolic_link_to_registered_type<DistanceRequest>()) {
     class_<DistanceRequest, bases<QueryRequest> >(
         "DistanceRequest", doxygen::class_doc<DistanceRequest>(),
@@ -111,7 +111,7 @@ void exposeDistanceAPI() {
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, abs_err)
         .def(SerializableVisitor<DistanceRequest>());
   }
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 
   if (!eigenpy::register_symbolic_link_to_registered_type<
           std::vector<DistanceRequest> >()) {
