@@ -570,13 +570,15 @@ void getShapeSupportSet(const TriangleP* triangle, SupportSet& support_set,
     }
   }
 }
-getShapeSupportSetTplInstantiation(TriangleP);
+// clang-format off
+getShapeSupportSetTplInstantiation(TriangleP)
 
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportSet(const Box* box, SupportSet& support_set,
                         int& hint /*unused*/, ShapeSupportData& support_data,
                         size_t /*unused*/, FCL_REAL tol) {
+  // clang-format on
   assert(tol > 0);
   Vec3f support;
   const Vec3f& support_dir = support_set.getNormal();
@@ -612,7 +614,8 @@ void getShapeSupportSet(const Box* box, SupportSet& support_set,
   }
   computeSupportSetConvexHull(polygon, support_set.points());
 }
-getShapeSupportSetTplInstantiation(Box);
+// clang-format off
+getShapeSupportSetTplInstantiation(Box)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -620,6 +623,7 @@ void getShapeSupportSet(const Sphere* sphere, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
                         size_t /*unused*/, FCL_REAL /*unused*/) {
+  // clang-format on
   support_set.points().clear();
 
   Vec3f support;
@@ -628,13 +632,15 @@ void getShapeSupportSet(const Sphere* sphere, SupportSet& support_set,
                                    support_data);
   support_set.addPoint(support);
 }
-getShapeSupportSetTplInstantiation(Sphere);
+// clang-format off
+getShapeSupportSetTplInstantiation(Sphere)
 
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportSet(const Ellipsoid* ellipsoid, SupportSet& support_set,
                         int& hint, ShapeSupportData& support_data /*unused*/,
                         size_t /*unused*/, FCL_REAL /*unused*/) {
+  // clang-format on
   support_set.points().clear();
 
   Vec3f support;
@@ -643,7 +649,8 @@ void getShapeSupportSet(const Ellipsoid* ellipsoid, SupportSet& support_set,
                                    support_data);
   support_set.addPoint(support);
 }
-getShapeSupportSetTplInstantiation(Ellipsoid);
+// clang-format off
+getShapeSupportSetTplInstantiation(Ellipsoid)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -651,6 +658,7 @@ void getShapeSupportSet(const Capsule* capsule, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
                         size_t /*unused*/, FCL_REAL tol) {
+  // clang-format on
   assert(tol > 0);
   support_set.points().clear();
 
@@ -686,7 +694,8 @@ void getShapeSupportSet(const Capsule* capsule, SupportSet& support_set,
     }
   }
 }
-getShapeSupportSetTplInstantiation(Capsule);
+// clang-format off
+getShapeSupportSetTplInstantiation(Capsule)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -694,6 +703,7 @@ void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
                         size_t num_sampled_supports, FCL_REAL tol) {
+  // clang-format on
   assert(tol > 0);
   support_set.points().clear();
 
@@ -757,7 +767,8 @@ void getShapeSupportSet(const Cone* cone, SupportSet& support_set,
     }
   }
 }
-getShapeSupportSetTplInstantiation(Cone);
+// clang-format off
+getShapeSupportSetTplInstantiation(Cone)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -765,6 +776,7 @@ void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
                         size_t num_sampled_supports, FCL_REAL tol) {
+  // clang-format on
   assert(tol > 0);
   support_set.points().clear();
 
@@ -819,7 +831,8 @@ void getShapeSupportSet(const Cylinder* cylinder, SupportSet& support_set,
     }
   }
 }
-getShapeSupportSetTplInstantiation(Cylinder);
+// clang-format off
+getShapeSupportSetTplInstantiation(Cylinder)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -827,6 +840,7 @@ void getShapeSupportSetLinear(const ConvexBase* convex, SupportSet& support_set,
                               int& hint /*unused*/,
                               ShapeSupportData& support_data, size_t /*unused*/,
                               FCL_REAL tol) {
+  // clang-format on
   assert(tol > 0);
   Vec3f support;
   const Vec3f& support_dir = support_set.getNormal();
@@ -943,7 +957,8 @@ void getShapeSupportSet(const ConvexBase* convex, SupportSet& support_set,
         convex, support_set, hint, support_data, num_sampled_supports, tol);
   }
 }
-getShapeSupportSetTplInstantiation(ConvexBase);
+// clang-format off
+getShapeSupportSetTplInstantiation(ConvexBase)
 
 // ============================================================================
 template <int _SupportOptions>
@@ -951,26 +966,32 @@ void getShapeSupportSet(const SmallConvex* convex, SupportSet& support_set,
                         int& hint /*unused*/,
                         ShapeSupportData& support_data /*unused*/,
                         size_t num_sampled_supports /*unused*/, FCL_REAL tol) {
+  // clang-format on
   getShapeSupportSetLinear<_SupportOptions>(
       reinterpret_cast<const ConvexBase*>(convex), support_set, hint,
       support_data, num_sampled_supports, tol);
 }
-getShapeSupportSetTplInstantiation(SmallConvex);
+// clang-format off
+getShapeSupportSetTplInstantiation(SmallConvex)
 
 // ============================================================================
 template <int _SupportOptions>
 void getShapeSupportSet(const LargeConvex* convex, SupportSet& support_set,
                         int& hint, ShapeSupportData& support_data,
                         size_t num_sampled_supports /*unused*/, FCL_REAL tol) {
+  // clang-format on
   getShapeSupportSetLog<_SupportOptions>(
       reinterpret_cast<const ConvexBase*>(convex), support_set, hint,
       support_data, num_sampled_supports, tol);
 }
-getShapeSupportSetTplInstantiation(LargeConvex);
+//clang-format off
+getShapeSupportSetTplInstantiation(LargeConvex)
+    // clang-format on
 
-// ============================================================================
-HPP_FCL_DLLAPI void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
-                                                SupportSet::Polygon& cvx_hull) {
+    // ============================================================================
+    HPP_FCL_DLLAPI
+    void computeSupportSetConvexHull(SupportSet::Polygon& cloud,
+                                     SupportSet::Polygon& cvx_hull) {
   cvx_hull.clear();
 
   if (cloud.size() <= 2) {

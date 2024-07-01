@@ -14,14 +14,14 @@ jobs:
           - {ROS_DISTRO: noetic}
           - {ROS_DISTRO: iron}
           - {ROS_DISTRO: humble}
-          #- {ROS_DISTRO: rolling, PRERELEASE: false}  # 2024-04-02: turn off prerelease until Noble is stable; turned off entirely until eigenpy is available
+          #- {ROS_DISTRO: rolling}
     env:
       #CCACHE_DIR: /github/home/.ccache # Enable ccache
       BUILDER: colcon
       PRERELEASE: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       # This step will fetch/store the directory used by ccache before/after the ci run

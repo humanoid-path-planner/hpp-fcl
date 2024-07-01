@@ -18,6 +18,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/export.hpp>
 
+#include "hpp/fcl/fwd.hh"
 #include "hpp/fcl/serialization/eigen.h"
 
 #define HPP_FCL_SERIALIZATION_SPLIT(Type)                                \
@@ -74,7 +75,10 @@ struct cast_register_initializer {
   void init(std::false_type) const {}
 
   cast_register_initializer const& init() const {
-    BOOST_STATIC_WARNING((std::is_base_of<Base, Derived>::value));
+    HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
+    _Pragma("GCC diagnostic ignored \"-Wconversion\"")
+        BOOST_STATIC_WARNING((std::is_base_of<Base, Derived>::value));
+    HPP_FCL_COMPILER_DIAGNOSTIC_POP
     init(std::is_base_of<Base, Derived>());
     return *this;
   }
