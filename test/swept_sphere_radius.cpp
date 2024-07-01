@@ -124,7 +124,7 @@ struct SweptSphereGJKSolver : public GJKSolver {
       return distance;
     }
 
-    // Default behavior of hppfcl's GJKSolver
+    // Default behavior of coal's GJKSolver
     CoalScalar distance;
     this->runGJKAndEPA<S1, S2, details::SupportOptions::NoSweptSphere>(
         s1, tf1, s2, tf2, compute_penetration, distance, p1, p2, normal);
@@ -167,7 +167,7 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
         std::array<Vec3s, 2> p2;
         std::array<Vec3s, 2> normal;
 
-        // Default hppfcl behavior - Don't take swept sphere radius into account
+        // Default coal behavior - Don't take swept sphere radius into account
         // during GJK/EPA iterations. Correct the solution afterwards.
         distance[0] =
             solver.shapeDistance(shape1, tf1, shape2, tf2, compute_penetration,
@@ -180,7 +180,7 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
 
         // Precision is dependent on the swept-sphere radius.
         // The issue of precision does not come from the default behavior of
-        // hppfcl, but from the result in which we manually take the swept
+        // coal, but from the result in which we manually take the swept
         // sphere radius into account in GJK/EPA iterations.
         const CoalScalar precision =
             3 * sqrt(tol) +
@@ -331,7 +331,7 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
 
           // Precision is dependent on the swept sphere radii.
           // The issue of precision does not come from the default behavior of
-          // hppfcl, but from the result in which we manually take the swept
+          // coal, but from the result in which we manually take the swept
           // sphere radius into account in GJK/EPA iterations.
           const CoalScalar precision =
               3 * sqrt(tol) + (1 / 100.0) * std::max(ssr1, ssr2);
