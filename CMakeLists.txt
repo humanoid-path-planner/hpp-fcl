@@ -169,10 +169,10 @@ if(COAL_HAS_QHULL)
     message(STATUS "Qhullcpp not found: it will be build from sources, if Qhull_r is found")
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-parties)
     execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-      ${CMAKE_SOURCE_DIR}/third-parties/qhull/src/libqhullcpp
-      ${CMAKE_CURRENT_BINARY_DIR}/third-parties/libqhullcpp
+      ${PROJECT_SOURCE_DIR}/third-parties/qhull/src/libqhullcpp
+      ${PROJECT_BINARY_DIR}/third-parties/libqhullcpp
       )
-    set(Qhullcpp_PREFIX ${CMAKE_BINARY_DIR}/third-parties)
+    set(Qhullcpp_PREFIX ${PROJECT_BINARY_DIR}/third-parties)
     find_path(Qhull_r_INCLUDE_DIR
       NAMES libqhull_r/libqhull_r.h
       PATHS ${Qhull_PREFIX}
