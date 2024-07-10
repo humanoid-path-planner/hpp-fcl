@@ -187,7 +187,7 @@ add_library(${LIBRARY_NAME}
   ${PROJECT_HEADERS_FULL_PATH}
   ${${LIBRARY_NAME}_SOURCES}
   )
-add_library(hpp-fcl::hpp-fcl ALIAS ${LIBRARY_NAME})
+add_library(${LIBRARY_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 
 if(UNIX)
   get_relative_rpath(${CMAKE_INSTALL_LIBDIR} ${PROJECT_NAME}_INSTALL_RPATH)
