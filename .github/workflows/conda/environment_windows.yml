@@ -14,7 +14,6 @@ dependencies:
   - lxml
   - pylatexenc
   - qhull
-  - qhull-static
   - cmake
   - ccache
   - pkg-config
