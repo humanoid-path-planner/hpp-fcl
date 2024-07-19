@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- Fix Fix serialization unit test when running without Qhull support ([#611](https://github.com/humanoid-path-planner/hpp-fcl/pull/611))
 - Compiler warnings ([#601](https://github.com/humanoid-path-planner/hpp-fcl/pull/601), [#605](https://github.com/humanoid-path-planner/hpp-fcl/pull/605))
 - CMake: fix assimp finder
 - Don't define GCC7 Boost serialization hack when `HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION` is defined ([#530](https://github.com/humanoid-path-planner/hpp-fcl/pull/530))
