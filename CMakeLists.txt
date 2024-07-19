@@ -309,6 +309,136 @@ SET(${PROJECT_NAME}_HEADERS
   include/coal/timings.h
   )
 
+if(COAL_BACKWARD_COMPATIBILITY_WITH_HPP_FCL)
+  LIST(APPEND ${PROJECT_NAME}_HEADERS
+    include/hpp/fcl/broadphase/broadphase_bruteforce.h
+    include/hpp/fcl/broadphase/broadphase_callbacks.h
+    include/hpp/fcl/broadphase/broadphase_collision_manager.h
+    include/hpp/fcl/broadphase/broadphase_continuous_collision_manager.h
+    include/hpp/fcl/broadphase/broadphase_continuous_collision_manager-inl.h
+    include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h
+    include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array-inl.h
+    include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h
+    include/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree-inl.h
+    include/hpp/fcl/broadphase/broadphase.h
+    include/hpp/fcl/broadphase/broadphase_interval_tree.h
+    include/hpp/fcl/broadphase/broadphase_SaP.h
+    include/hpp/fcl/broadphase/broadphase_spatialhash.h
+    include/hpp/fcl/broadphase/broadphase_spatialhash-inl.h
+    include/hpp/fcl/broadphase/broadphase_SSaP.h
+    include/hpp/fcl/broadphase/default_broadphase_callbacks.h
+    include/hpp/fcl/broadphase/detail/hierarchy_tree_array.h
+    include/hpp/fcl/broadphase/detail/hierarchy_tree_array-inl.h
+    include/hpp/fcl/broadphase/detail/hierarchy_tree.h
+    include/hpp/fcl/broadphase/detail/hierarchy_tree-inl.h
+    include/hpp/fcl/broadphase/detail/interval_tree.h
+    include/hpp/fcl/broadphase/detail/interval_tree_node.h
+    include/hpp/fcl/broadphase/detail/morton.h
+    include/hpp/fcl/broadphase/detail/morton-inl.h
+    include/hpp/fcl/broadphase/detail/node_base_array.h
+    include/hpp/fcl/broadphase/detail/node_base_array-inl.h
+    include/hpp/fcl/broadphase/detail/node_base.h
+    include/hpp/fcl/broadphase/detail/node_base-inl.h
+    include/hpp/fcl/broadphase/detail/simple_hash_table.h
+    include/hpp/fcl/broadphase/detail/simple_hash_table-inl.h
+    include/hpp/fcl/broadphase/detail/simple_interval.h
+    include/hpp/fcl/broadphase/detail/simple_interval-inl.h
+    include/hpp/fcl/broadphase/detail/sparse_hash_table.h
+    include/hpp/fcl/broadphase/detail/sparse_hash_table-inl.h
+    include/hpp/fcl/broadphase/detail/spatial_hash.h
+    include/hpp/fcl/broadphase/detail/spatial_hash-inl.h
+    include/hpp/fcl/BV/AABB.h
+    include/hpp/fcl/BV/BV.h
+    include/hpp/fcl/BV/BV_node.h
+    include/hpp/fcl/BVH/BVH_front.h
+    include/hpp/fcl/BVH/BVH_internal.h
+    include/hpp/fcl/BVH/BVH_model.h
+    include/hpp/fcl/BVH/BVH_utility.h
+    include/hpp/fcl/BV/kDOP.h
+    include/hpp/fcl/BV/kIOS.h
+    include/hpp/fcl/BV/OBB.h
+    include/hpp/fcl/BV/OBBRSS.h
+    include/hpp/fcl/BV/RSS.h
+    include/hpp/fcl/coal.hpp
+    include/hpp/fcl/collision_data.h
+    include/hpp/fcl/collision_func_matrix.h
+    include/hpp/fcl/collision.h
+    include/hpp/fcl/collision_object.h
+    include/hpp/fcl/collision_utility.h
+    include/hpp/fcl/config.hh
+    include/hpp/fcl/contact_patch/contact_patch_solver.h
+    include/hpp/fcl/contact_patch/contact_patch_solver.hxx
+    include/hpp/fcl/contact_patch_func_matrix.h
+    include/hpp/fcl/contact_patch.h
+    include/hpp/fcl/data_types.h
+    include/hpp/fcl/deprecated.hh
+    include/hpp/fcl/distance_func_matrix.h
+    include/hpp/fcl/distance.h
+    include/hpp/fcl/fwd.hh
+    include/hpp/fcl/hfield.h
+    include/hpp/fcl/internal/BV_fitter.h
+    include/hpp/fcl/internal/BV_splitter.h
+    include/hpp/fcl/internal/intersect.h
+    include/hpp/fcl/internal/shape_shape_contact_patch_func.h
+    include/hpp/fcl/internal/shape_shape_func.h
+    include/hpp/fcl/internal/tools.h
+    include/hpp/fcl/internal/traversal.h
+    include/hpp/fcl/internal/traversal_node_base.h
+    include/hpp/fcl/internal/traversal_node_bvhs.h
+    include/hpp/fcl/internal/traversal_node_bvh_shape.h
+    include/hpp/fcl/internal/traversal_node_hfield_shape.h
+    include/hpp/fcl/internal/traversal_node_setup.h
+    include/hpp/fcl/internal/traversal_node_shapes.h
+    include/hpp/fcl/internal/traversal_recurse.h
+    include/hpp/fcl/internal/traversal_node_octree.h
+    include/hpp/fcl/logging.h
+    include/hpp/fcl/math/matrix_3f.h
+    include/hpp/fcl/math/transform.h
+    include/hpp/fcl/math/types.h
+    include/hpp/fcl/math/vec_3f.h
+    include/hpp/fcl/mesh_loader/assimp.h
+    include/hpp/fcl/mesh_loader/loader.h
+    include/hpp/fcl/narrowphase/gjk.h
+    include/hpp/fcl/narrowphase/minkowski_difference.h
+    include/hpp/fcl/narrowphase/narrowphase_defaults.h
+    include/hpp/fcl/narrowphase/narrowphase.h
+    include/hpp/fcl/narrowphase/support_functions.h
+    include/hpp/fcl/octree.h
+    include/hpp/fcl/serialization/AABB.h
+    include/hpp/fcl/serialization/archive.h
+    include/hpp/fcl/serialization/BVH_model.h
+    include/hpp/fcl/serialization/BV_node.h
+    include/hpp/fcl/serialization/BV_splitter.h
+    include/hpp/fcl/serialization/collision_data.h
+    include/hpp/fcl/serialization/collision_object.h
+    include/hpp/fcl/serialization/contact_patch.h
+    include/hpp/fcl/serialization/convex.h
+    include/hpp/fcl/serialization/eigen.h
+    include/hpp/fcl/serialization/fwd.h
+    include/hpp/fcl/serialization/geometric_shapes.h
+    include/hpp/fcl/serialization/hfield.h
+    include/hpp/fcl/serialization/kDOP.h
+    include/hpp/fcl/serialization/kIOS.h
+    include/hpp/fcl/serialization/memory.h
+    include/hpp/fcl/serialization/OBB.h
+    include/hpp/fcl/serialization/OBBRSS.h
+    include/hpp/fcl/serialization/octree.h
+    include/hpp/fcl/serialization/quadrilateral.h
+    include/hpp/fcl/serialization/RSS.h
+    include/hpp/fcl/serialization/serializer.h
+    include/hpp/fcl/serialization/transform.h
+    include/hpp/fcl/serialization/triangle.h
+    include/hpp/fcl/shape/convex.h
+    include/hpp/fcl/shape/details/convex.hxx
+    include/hpp/fcl/shape/geometric_shapes.h
+    include/hpp/fcl/shape/geometric_shapes_traits.h
+    include/hpp/fcl/shape/geometric_shapes_utility.h
+    include/hpp/fcl/shape/geometric_shape_to_BVH_model.h
+    include/hpp/fcl/timings.h
+    include/hpp/fcl/warning.hh
+    )
+endif()
+
 IF(COAL_HAS_OCTOMAP)
   LIST(APPEND ${PROJECT_NAME}_HEADERS
     include/coal/octree.h
@@ -342,3 +472,11 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_p
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv "prepend-non-duplicate;PYTHONPATH;${PYTHON_SITELIB}")
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
+
+if(COAL_BACKWARD_COMPATIBILITY_WITH_HPP_FCL)
+  include(CMakePackageConfigHelpers)
+  write_basic_package_version_file(hpp-fclConfigVersion.cmake
+      VERSION 3.0.0
+      COMPATIBILITY AnyNewerVersion)
+  install(FILES hpp-fclConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/hpp-fclConfigVersion.cmake DESTINATION lib/cmake/hpp-fcl)
+endif()
