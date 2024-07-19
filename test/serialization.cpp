@@ -509,6 +509,7 @@ BOOST_AUTO_TEST_CASE(test_shapes) {
     test_serialization(plane, plane_copy);
   }
 
+#ifdef HPP_FCL_HAS_QHULL
   {
     const size_t num_points = 500;
     std::shared_ptr<std::vector<Vec3s>> points =
@@ -527,6 +528,7 @@ BOOST_AUTO_TEST_CASE(test_shapes) {
     Convex convex_copy;
     test_serialization(*convex, convex_copy);
   }
+#endif
 }
 
 #ifdef COAL_HAS_OCTOMAP
