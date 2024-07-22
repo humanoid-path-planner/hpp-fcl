@@ -111,6 +111,10 @@ void exposeMaths() {
       .def(dv::member_func("Identity", &Transform3s::Identity))
       .staticmethod("Identity")
 
+      .def(dv::member_func("setRandom", &Transform3s::setRandom))
+      .def(dv::member_func("Random", &Transform3s::Random))
+      .staticmethod("Random")
+
       .def(dv::member_func("transform", &Transform3s::transform<Vec3s>))
       .def("inverseInPlace", &Transform3s::inverseInPlace,
            return_internal_reference<>(),

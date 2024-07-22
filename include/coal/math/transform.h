@@ -202,10 +202,14 @@ class COAL_DLLAPI Transform3s {
   }
 
   /// @brief return a random transform
-  static Transform3s Random() { return Transform3s().setRandom(); }
+  static Transform3s Random() {
+    Transform3s tf = Transform3s();
+    tf.setRandom();
+    return tf;
+  }
 
   /// @brief set the transform to a random transform
-  Transform3s& setRandom();
+  inline void setRandom();
 
   bool operator==(const Transform3s& other) const {
     return (R == other.getRotation()) && (T == other.getTranslation());
@@ -247,12 +251,10 @@ inline Quatf uniformRandomQuaternion() {
   return q;
 }
 
-inline Transform3s& Transform3s::setRandom() {
+inline void Transform3s::setRandom() {
   const Quatf q = uniformRandomQuaternion();
   this->rotation() = q.matrix();
   this->translation().setRandom();
-
-  return *this;
 }
 
 /// @brief Construct othonormal basis from vector.
