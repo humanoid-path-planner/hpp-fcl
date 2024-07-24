@@ -189,6 +189,11 @@ add_library(${LIBRARY_NAME}
   )
 add_library(${LIBRARY_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 
+if(COAL_BACKWARD_COMPATIBILITY_WITH_HPP_FCL)
+  add_library(hpp-fcl ALIAS ${LIBRARY_NAME})
+  add_library(hpp-fcl::hpp-fcl ALIAS ${LIBRARY_NAME})
+endif()
+
 if(UNIX)
   get_relative_rpath(${CMAKE_INSTALL_LIBDIR} ${PROJECT_NAME}_INSTALL_RPATH)
   set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "${${PROJECT_NAME}_INSTALL_RPATH}")
