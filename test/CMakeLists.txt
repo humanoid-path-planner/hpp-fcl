@@ -3,26 +3,28 @@ FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework filesystem)
 
 config_files(fcl_resources/config.h)
 
-macro(add_coal_test test_name source)
-  ADD_UNIT_TEST(${test_name} ${source})
-  target_link_libraries(${test_name}
+function(add_coal_test test_name source)
+  set(target_name ${PROJECT_NAME}-${test_name})
+  ADD_UNIT_TEST(${target_name} ${source})
+  target_link_libraries(${target_name}
     PUBLIC
     ${LIBRARY_NAME}
     Boost::filesystem
-    utility
+    ${utility_target}
     )
   IF(NOT WIN32)
-    target_compile_options(${test_name} PRIVATE "-Wno-c99-extensions")
-  ENDIF(NOT WIN32)
+    target_compile_options(${target_name} PRIVATE "-Wno-c99-extensions")
+  ENDIF()
   if(COAL_HAS_QHULL)
-    target_compile_options(${test_name} PRIVATE -DCOAL_HAS_QHULL)
+    target_compile_options(${target_name} PRIVATE -DCOAL_HAS_QHULL)
   endif()
-endmacro(add_coal_test)
+endfunction()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(utility STATIC utility.cpp)
-target_link_libraries(utility PUBLIC ${PROJECT_NAME})
+set(utility_target ${PROJECT_NAME}-utility)
+add_library(${utility_target} STATIC utility.cpp)
+target_link_libraries(${utility_target} PUBLIC ${PROJECT_NAME})
 
 add_coal_test(math math.cpp)
 
@@ -38,7 +40,7 @@ add_coal_test(shape_inflation shape_inflation.cpp)
 #add_coal_test(shape_mesh_consistency shape_mesh_consistency.cpp)
 add_coal_test(gjk_asserts gjk_asserts.cpp)
 add_coal_test(frontlist frontlist.cpp)
-SET_TESTS_PROPERTIES(frontlist PROPERTIES TIMEOUT 7200)
+SET_TESTS_PROPERTIES(${PROJECT_NAME}-frontlist PROPERTIES TIMEOUT 7200)
 
 # add_coal_test(sphere_capsule sphere_capsule.cpp)
 add_coal_test(capsule_capsule capsule_capsule.cpp)
@@ -67,16 +69,17 @@ add_coal_test(serialization serialization.cpp)
 
 # Broadphase
 add_coal_test(broadphase broadphase.cpp)
-set_tests_properties(broadphase PROPERTIES WILL_FAIL TRUE)
+set_tests_properties(${PROJECT_NAME}-broadphase PROPERTIES WILL_FAIL TRUE)
 add_coal_test(broadphase_dynamic_AABB_tree broadphase_dynamic_AABB_tree.cpp)
 add_coal_test(broadphase_collision_1 broadphase_collision_1.cpp)
 add_coal_test(broadphase_collision_2 broadphase_collision_2.cpp)
 
 ## Benchmark
-add_executable(test-benchmark benchmark.cpp)
-target_link_libraries(test-benchmark
+set(test_benchmark_target ${PROJECT_NAME}-test-benchmark)
+add_executable(${test_benchmark_target} benchmark.cpp)
+target_link_libraries(${test_benchmark_target}
   PUBLIC
-  utility
+  ${utility_target}
   Boost::filesystem
   ${PROJECT_NAME}
   )

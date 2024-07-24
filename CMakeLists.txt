@@ -41,6 +41,10 @@ set(PROJECT_DESCRIPTION
   )
 SET(PROJECT_USE_CMAKE_EXPORT TRUE)
 SET(PROJECT_COMPATIBILITY_VERSION AnyNewerVersion)
+# To enable jrl-cmakemodules compatibility with workspace we must define the two
+# following lines
+set(PROJECT_AUTO_RUN_FINALIZE FALSE)
+set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 SET(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
 SET(DOXYGEN_USE_TEMPLATE_CSS TRUE)
@@ -86,6 +90,7 @@ else()
 endif()
 
 include("${JRL_CMAKE_MODULES}/boost.cmake")
+include("${JRL_CMAKE_MODULES}/python.cmake")
 include("${JRL_CMAKE_MODULES}/hpp.cmake")
 include("${JRL_CMAKE_MODULES}/apple.cmake")
 include("${JRL_CMAKE_MODULES}/ide.cmake")
@@ -122,7 +127,9 @@ CMAKE_DEPENDENT_OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associat
 ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.0")
 
 if(BUILD_PYTHON_INTERFACE)
-  FIND_PACKAGE(eigenpy 2.9.2 REQUIRED)
+  SET(PYTHON_COMPONENTS Interpreter Development NumPy)
+  FINDPYTHON(REQUIRED)
+  ADD_PROJECT_PRIVATE_DEPENDENCY(eigenpy 2.9.2 REQUIRED)
 endif()
 
 # Required dependencies
@@ -168,10 +175,10 @@ if(COAL_HAS_QHULL)
     message(STATUS "Qhullcpp not found: it will be build from sources, if Qhull_r is found")
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third-parties)
     execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-      ${CMAKE_SOURCE_DIR}/third-parties/qhull/src/libqhullcpp
-      ${CMAKE_CURRENT_BINARY_DIR}/third-parties/libqhullcpp
+      ${PROJECT_SOURCE_DIR}/third-parties/qhull/src/libqhullcpp
+      ${PROJECT_BINARY_DIR}/third-parties/libqhullcpp
       )
-    set(Qhullcpp_PREFIX ${CMAKE_BINARY_DIR}/third-parties)
+    set(Qhullcpp_PREFIX ${PROJECT_BINARY_DIR}/third-parties)
     find_path(Qhull_r_INCLUDE_DIR
       NAMES libqhull_r/libqhull_r.h
       PATHS ${Qhull_PREFIX}
@@ -480,3 +487,5 @@ if(COAL_BACKWARD_COMPATIBILITY_WITH_HPP_FCL)
       COMPATIBILITY AnyNewerVersion)
   install(FILES hpp-fclConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/hpp-fclConfigVersion.cmake DESTINATION lib/cmake/hpp-fcl)
 endif()
+
+setup_project_finalize()
