@@ -5,7 +5,7 @@ config_files(fcl_resources/config.h)
 
 function(add_coal_test test_name source)
   set(target_name ${PROJECT_NAME}-${test_name})
-  ADD_UNIT_TEST(${test_name} ${source})
+  ADD_UNIT_TEST(${target_name} ${source})
   target_link_libraries(${target_name}
     PUBLIC
     ${LIBRARY_NAME}
