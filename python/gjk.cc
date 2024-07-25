@@ -34,25 +34,25 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-#include "fcl.hh"
+#include "coal.hh"
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/narrowphase/gjk.h>
+#include "coal/fwd.hh"
+#include "coal/narrowphase/gjk.h"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-#include "doxygen_autodoc/hpp/fcl/narrowphase/gjk.h"
+#include "doxygen_autodoc/coal/narrowphase/gjk.h"
 #endif
 
 using namespace boost::python;
-using namespace hpp::fcl;
-using hpp::fcl::details::EPA;
-using hpp::fcl::details::GJK;
-using hpp::fcl::details::MinkowskiDiff;
-using hpp::fcl::details::SupportOptions;
+using namespace coal;
+using coal::details::EPA;
+using coal::details::GJK;
+using coal::details::MinkowskiDiff;
+using coal::details::SupportOptions;
 
 struct MinkowskiDiffWrapper {
-  static void support0(MinkowskiDiff& self, const Vec3f& dir, int& hint,
+  static void support0(MinkowskiDiff& self, const Vec3s& dir, int& hint,
                        bool compute_swept_sphere_support = false) {
     if (compute_swept_sphere_support) {
       self.support0<SupportOptions::WithSweptSphere>(dir, hint);
@@ -61,7 +61,7 @@ struct MinkowskiDiffWrapper {
     }
   }
 
-  static void support1(MinkowskiDiff& self, const Vec3f& dir, int& hint,
+  static void support1(MinkowskiDiff& self, const Vec3s& dir, int& hint,
                        bool compute_swept_sphere_support = false) {
     if (compute_swept_sphere_support) {
       self.support1<SupportOptions::WithSweptSphere>(dir, hint);
@@ -81,8 +81,8 @@ struct MinkowskiDiffWrapper {
   }
 
   static void set(MinkowskiDiff& self, const ShapeBase* shape0,
-                  const ShapeBase* shape1, const Transform3f& tf0,
-                  const Transform3f& tf1,
+                  const ShapeBase* shape1, const Transform3s& tf0,
+                  const Transform3s& tf1,
                   bool compute_swept_sphere_supports = false) {
     if (compute_swept_sphere_supports) {
       self.set<SupportOptions::WithSweptSphere>(shape0, shape1, tf0, tf1);
@@ -119,13 +119,13 @@ void exposeGJK() {
 
         .def("set",
              static_cast<void (*)(MinkowskiDiff&, const ShapeBase*,
-                                  const ShapeBase*, const Transform3f&,
-                                  const Transform3f&, bool)>(
+                                  const ShapeBase*, const Transform3s&,
+                                  const Transform3s&, bool)>(
                  &MinkowskiDiffWrapper::set),
              doxygen::member_func_doc(
                  static_cast<void (MinkowskiDiff::*)(
-                     const ShapeBase*, const ShapeBase*, const Transform3f&,
-                     const Transform3f&)>(
+                     const ShapeBase*, const ShapeBase*, const Transform3s&,
+                     const Transform3s&)>(
                      &MinkowskiDiff::set<SupportOptions::NoSweptSphere>)))
 
         .def("support0", &MinkowskiDiffWrapper::support0,
@@ -178,7 +178,7 @@ void exposeGJK() {
 
   if (!eigenpy::register_symbolic_link_to_registered_type<GJK>()) {
     class_<GJK>("GJK", doxygen::class_doc<GJK>(), no_init)
-        .def(doxygen::visitor::init<GJK, unsigned int, FCL_REAL>())
+        .def(doxygen::visitor::init<GJK, unsigned int, CoalScalar>())
         .DEF_RW_CLASS_ATTRIB(GJK, distance)
         .DEF_RW_CLASS_ATTRIB(GJK, ray)
         .DEF_RW_CLASS_ATTRIB(GJK, support_hint)

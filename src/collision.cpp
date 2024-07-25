@@ -35,13 +35,12 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/collision_utility.h>
-#include <hpp/fcl/collision_func_matrix.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
+#include "coal/collision.h"
+#include "coal/collision_utility.h"
+#include "coal/collision_func_matrix.h"
+#include "coal/narrowphase/narrowphase.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 CollisionFunctionMatrix& getCollisionFunctionLookTable() {
   static CollisionFunctionMatrix table;
@@ -66,11 +65,11 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
                  result);
 }
 
-std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
-                    const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t collide(const CollisionGeometry* o1, const Transform3s& tf1,
+                    const CollisionGeometry* o2, const Transform3s& tf2,
                     const CollisionRequest& request, CollisionResult& result) {
   // If security margin is set to -infinity, return that there is no collision
-  if (request.security_margin == -std::numeric_limits<FCL_REAL>::infinity()) {
+  if (request.security_margin == -std::numeric_limits<CoalScalar>::infinity()) {
     result.clear();
     return false;
   }
@@ -80,8 +79,8 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
   const CollisionFunctionMatrix& looktable = getCollisionFunctionLookTable();
   std::size_t res;
   if (request.num_max_contacts == 0) {
-    HPP_FCL_THROW_PRETTY("Invalid number of max contacts (current value is 0).",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Invalid number of max contacts (current value is 0).",
+                      std::invalid_argument);
     res = 0;
   } else {
     OBJECT_TYPE object_type1 = o1->getObjectType();
@@ -92,12 +91,12 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
     if (object_type1 == OT_GEOM &&
         (object_type2 == OT_BVH || object_type2 == OT_HFIELD)) {
       if (!looktable.collision_matrix[node_type2][node_type1]) {
-        HPP_FCL_THROW_PRETTY("Collision function between node type "
-                                 << std::string(get_node_type_name(node_type1))
-                                 << " and node type "
-                                 << std::string(get_node_type_name(node_type2))
-                                 << " is not yet supported.",
-                             std::invalid_argument);
+        COAL_THROW_PRETTY("Collision function between node type "
+                              << std::string(get_node_type_name(node_type1))
+                              << " and node type "
+                              << std::string(get_node_type_name(node_type2))
+                              << " is not yet supported.",
+                          std::invalid_argument);
         res = 0;
       } else {
         res = looktable.collision_matrix[node_type2][node_type1](
@@ -108,12 +107,12 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
       }
     } else {
       if (!looktable.collision_matrix[node_type1][node_type2]) {
-        HPP_FCL_THROW_PRETTY("Collision function between node type "
-                                 << std::string(get_node_type_name(node_type1))
-                                 << " and node type "
-                                 << std::string(get_node_type_name(node_type2))
-                                 << " is not yet supported.",
-                             std::invalid_argument);
+        COAL_THROW_PRETTY("Collision function between node type "
+                              << std::string(get_node_type_name(node_type1))
+                              << " and node type "
+                              << std::string(get_node_type_name(node_type2))
+                              << " is not yet supported.",
+                          std::invalid_argument);
         res = 0;
       } else
         res = looktable.collision_matrix[node_type1][node_type2](
@@ -144,12 +143,12 @@ ComputeCollision::ComputeCollision(const CollisionGeometry* o1,
 
   if ((swap_geoms && !looktable.collision_matrix[node_type2][node_type1]) ||
       (!swap_geoms && !looktable.collision_matrix[node_type1][node_type2])) {
-    HPP_FCL_THROW_PRETTY("Collision function between node type "
-                             << std::string(get_node_type_name(node_type1))
-                             << " and node type "
-                             << std::string(get_node_type_name(node_type2))
-                             << " is not yet supported.",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Collision function between node type "
+                          << std::string(get_node_type_name(node_type1))
+                          << " and node type "
+                          << std::string(get_node_type_name(node_type2))
+                          << " is not yet supported.",
+                      std::invalid_argument);
   }
   if (swap_geoms)
     func = looktable.collision_matrix[node_type2][node_type1];
@@ -157,12 +156,12 @@ ComputeCollision::ComputeCollision(const CollisionGeometry* o1,
     func = looktable.collision_matrix[node_type1][node_type2];
 }
 
-std::size_t ComputeCollision::run(const Transform3f& tf1,
-                                  const Transform3f& tf2,
+std::size_t ComputeCollision::run(const Transform3s& tf1,
+                                  const Transform3s& tf2,
                                   const CollisionRequest& request,
                                   CollisionResult& result) const {
   // If security margin is set to -infinity, return that there is no collision
-  if (request.security_margin == -std::numeric_limits<FCL_REAL>::infinity()) {
+  if (request.security_margin == -std::numeric_limits<CoalScalar>::infinity()) {
     result.clear();
     return false;
   }
@@ -184,8 +183,8 @@ std::size_t ComputeCollision::run(const Transform3f& tf1,
   return res;
 }
 
-std::size_t ComputeCollision::operator()(const Transform3f& tf1,
-                                         const Transform3f& tf2,
+std::size_t ComputeCollision::operator()(const Transform3s& tf1,
+                                         const Transform3s& tf2,
                                          const CollisionRequest& request,
                                          CollisionResult& result) const
 
@@ -203,5 +202,4 @@ std::size_t ComputeCollision::operator()(const Transform3f& tf1,
   return res;
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

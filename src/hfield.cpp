@@ -34,19 +34,18 @@
 
 /** \author Justin Carpentier */
 
-#include <hpp/fcl/hfield.h>
+#include "coal/hfield.h"
+
+#include "coal/BV/BV.h"
+#include "coal/shape/convex.h"
+
+#include "coal/internal/BV_splitter.h"
+#include "coal/internal/BV_fitter.h"
 
 #include <iostream>
 #include <string.h>
 
-#include <hpp/fcl/BV/BV.h>
-#include <hpp/fcl/shape/convex.h>
-
-#include <hpp/fcl/internal/BV_splitter.h>
-#include <hpp/fcl/internal/BV_fitter.h>
-
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 template <>
 NODE_TYPE HeightField<AABB>::getNodeType() const {
@@ -97,6 +96,4 @@ template class HeightField<RSS>;
 // template class HeightField<kIOS>;
 template class HeightField<OBBRSS>;
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

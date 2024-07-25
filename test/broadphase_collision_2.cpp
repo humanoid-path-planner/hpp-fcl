@@ -35,19 +35,19 @@
 
 /** @author Jia Pan */
 
-#define BOOST_TEST_MODULE BROADPHASE_COLLISION_2
+#define BOOST_TEST_MODULE COAL_BROADPHASE_COLLISION_2
 #include <boost/test/included/unit_test.hpp>
 
-#include "hpp/fcl/broadphase/broadphase_bruteforce.h"
-#include "hpp/fcl/broadphase/broadphase_spatialhash.h"
-#include "hpp/fcl/broadphase/broadphase_SaP.h"
-#include "hpp/fcl/broadphase/broadphase_SSaP.h"
-#include "hpp/fcl/broadphase/broadphase_interval_tree.h"
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
-#include "hpp/fcl/broadphase/default_broadphase_callbacks.h"
-#include "hpp/fcl/broadphase/detail/sparse_hash_table.h"
-#include "hpp/fcl/broadphase/detail/spatial_hash.h"
+#include "coal/broadphase/broadphase_bruteforce.h"
+#include "coal/broadphase/broadphase_spatialhash.h"
+#include "coal/broadphase/broadphase_SaP.h"
+#include "coal/broadphase/broadphase_SSaP.h"
+#include "coal/broadphase/broadphase_interval_tree.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "coal/broadphase/default_broadphase_callbacks.h"
+#include "coal/broadphase/detail/sparse_hash_table.h"
+#include "coal/broadphase/detail/spatial_hash.h"
 #include "utility.h"
 
 #if USE_GOOGLEHASH
@@ -59,10 +59,10 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace hpp::fcl;
+using namespace coal;
 
 /// @brief test for broad phase collision and self collision
-void broad_phase_collision_test(FCL_REAL env_scale, std::size_t env_size,
+void broad_phase_collision_test(CoalScalar env_scale, std::size_t env_size,
                                 std::size_t query_size,
                                 std::size_t num_max_contacts = 1,
                                 bool exhaustive = false, bool use_mesh = false);
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_collision_mesh_exhaustive) {
 #endif
 }
 
-void broad_phase_collision_test(FCL_REAL env_scale, std::size_t env_size,
+void broad_phase_collision_test(CoalScalar env_scale, std::size_t env_size,
                                 std::size_t query_size,
                                 std::size_t num_max_contacts, bool exhaustive,
                                 bool use_mesh) {
@@ -208,11 +208,11 @@ void broad_phase_collision_test(FCL_REAL env_scale, std::size_t env_size,
   managers.push_back(new SaPCollisionManager());
   managers.push_back(new IntervalTreeCollisionManager());
 
-  Vec3f lower_limit, upper_limit;
+  Vec3s lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
-  // FCL_REAL ncell_per_axis = std::pow((S)env_size / 10, 1 / 3.0);
-  FCL_REAL ncell_per_axis = 20;
-  FCL_REAL cell_size =
+  // CoalScalar ncell_per_axis = std::pow((S)env_size / 10, 1 / 3.0);
+  CoalScalar ncell_per_axis = 20;
+  CoalScalar cell_size =
       std::min(std::min((upper_limit[0] - lower_limit[0]) / ncell_per_axis,
                         (upper_limit[1] - lower_limit[1]) / ncell_per_axis),
                (upper_limit[2] - lower_limit[2]) / ncell_per_axis);
@@ -365,7 +365,7 @@ void broad_phase_collision_test(FCL_REAL env_scale, std::size_t env_size,
 
   std::cout << "collision time" << std::endl;
   for (size_t i = 0; i < ts.size(); ++i) {
-    FCL_REAL tmp = 0;
+    CoalScalar tmp = 0;
     for (size_t j = 3; j < ts[i].records.size(); ++j) tmp += ts[i].records[j];
     std::cout << std::setw(w) << tmp << " ";
   }

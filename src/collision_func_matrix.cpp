@@ -35,32 +35,30 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/collision_func_matrix.h>
+#include "coal/collision_func_matrix.h"
 
-#include <hpp/fcl/internal/traversal_node_setup.h>
+#include "coal/internal/traversal_node_setup.h"
 #include <../src/collision_node.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/internal/shape_shape_func.h>
-#include <hpp/fcl/shape/geometric_shapes_traits.h>
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/internal/shape_shape_func.h"
+#include "coal/shape/geometric_shapes_traits.h"
 #include <../src/traits_traversal.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 
 template <typename TypeA, typename TypeB>
-std::size_t OctreeCollide(const CollisionGeometry* o1, const Transform3f& tf1,
-                          const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t OctreeCollide(const CollisionGeometry* o1, const Transform3s& tf1,
+                          const CollisionGeometry* o2, const Transform3s& tf2,
                           const GJKSolver* nsolver,
                           const CollisionRequest& request,
                           CollisionResult& result) {
   if (request.isSatisfied(result)) return result.numContacts();
 
   if (request.security_margin < 0)
-    HPP_FCL_THROW_PRETTY(
-        "Negative security margin are not handled yet for Octree",
-        std::invalid_argument);
+    COAL_THROW_PRETTY("Negative security margin are not handled yet for Octree",
+                      std::invalid_argument);
 
   typename TraversalTraitsCollision<TypeA, TypeB>::CollisionTraversal_t node(
       request);
@@ -99,17 +97,17 @@ BVH_SHAPE_DEFAULT_TO_ORIENTED(OBBRSS);
 ///         - 0 if the query should be made with non-aligned object frames.
 template <typename T_BVH, typename T_SH,
           int _Options = details::bvh_shape_traits<T_BVH, T_SH>::Options>
-struct HPP_FCL_LOCAL BVHShapeCollider {
+struct COAL_LOCAL BVHShapeCollider {
   static std::size_t collide(const CollisionGeometry* o1,
-                             const Transform3f& tf1,
+                             const Transform3s& tf1,
                              const CollisionGeometry* o2,
-                             const Transform3f& tf2, const GJKSolver* nsolver,
+                             const Transform3s& tf2, const GJKSolver* nsolver,
                              const CollisionRequest& request,
                              CollisionResult& result) {
     if (request.isSatisfied(result)) return result.numContacts();
 
     if (request.security_margin < 0)
-      HPP_FCL_THROW_PRETTY(
+      COAL_THROW_PRETTY(
           "Negative security margin are not handled yet for BVHModel",
           std::invalid_argument);
 
@@ -120,9 +118,9 @@ struct HPP_FCL_LOCAL BVHShapeCollider {
   }
 
   static std::size_t aligned(const CollisionGeometry* o1,
-                             const Transform3f& tf1,
+                             const Transform3s& tf1,
                              const CollisionGeometry* o2,
-                             const Transform3f& tf2, const GJKSolver* nsolver,
+                             const Transform3s& tf2, const GJKSolver* nsolver,
                              const CollisionRequest& request,
                              CollisionResult& result) {
     if (request.isSatisfied(result)) return result.numContacts();
@@ -132,20 +130,20 @@ struct HPP_FCL_LOCAL BVHShapeCollider {
         node(request);
     const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
     BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
-    Transform3f tf1_tmp = tf1;
+    Transform3s tf1_tmp = tf1;
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
     initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, result);
-    fcl::collide(&node, request, result);
+    coal::collide(&node, request, result);
 
     delete obj1_tmp;
     return result.numContacts();
   }
 
   static std::size_t oriented(const CollisionGeometry* o1,
-                              const Transform3f& tf1,
+                              const Transform3s& tf1,
                               const CollisionGeometry* o2,
-                              const Transform3f& tf2, const GJKSolver* nsolver,
+                              const Transform3s& tf2, const GJKSolver* nsolver,
                               const CollisionRequest& request,
                               CollisionResult& result) {
     if (request.isSatisfied(result)) return result.numContacts();
@@ -155,7 +153,7 @@ struct HPP_FCL_LOCAL BVHShapeCollider {
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
     initialize(node, *obj1, tf1, *obj2, tf2, nsolver, result);
-    fcl::collide(&node, request, result);
+    coal::collide(&node, request, result);
     return result.numContacts();
   }
 };
@@ -166,13 +164,13 @@ struct HPP_FCL_LOCAL BVHShapeCollider {
 ///           into the frame of object 2 before computing collisions.
 ///         - 0 if the query should be made with non-aligned object frames.
 template <typename BV, typename Shape>
-struct HPP_FCL_LOCAL HeightFieldShapeCollider {
+struct COAL_LOCAL HeightFieldShapeCollider {
   typedef HeightField<BV> HF;
 
   static std::size_t collide(const CollisionGeometry* o1,
-                             const Transform3f& tf1,
+                             const Transform3s& tf1,
                              const CollisionGeometry* o2,
-                             const Transform3f& tf2, const GJKSolver* nsolver,
+                             const Transform3s& tf2, const GJKSolver* nsolver,
                              const CollisionRequest& request,
                              CollisionResult& result) {
     if (request.isSatisfied(result)) return result.numContacts();
@@ -183,7 +181,7 @@ struct HPP_FCL_LOCAL HeightFieldShapeCollider {
     HeightFieldShapeCollisionTraversalNode<BV, Shape, 0> node(request);
 
     initialize(node, height_field, tf1, shape, tf2, nsolver, result);
-    fcl::collide(&node, request, result);
+    coal::collide(&node, request, result);
     return result.numContacts();
   }
 };
@@ -191,9 +189,9 @@ struct HPP_FCL_LOCAL HeightFieldShapeCollider {
 namespace details {
 template <typename OrientedMeshCollisionTraversalNode, typename T_BVH>
 std::size_t orientedMeshCollide(const CollisionGeometry* o1,
-                                const Transform3f& tf1,
+                                const Transform3s& tf1,
                                 const CollisionGeometry* o2,
-                                const Transform3f& tf2,
+                                const Transform3s& tf2,
                                 const CollisionRequest& request,
                                 CollisionResult& result) {
   if (request.isSatisfied(result)) return result.numContacts();
@@ -211,8 +209,8 @@ std::size_t orientedMeshCollide(const CollisionGeometry* o1,
 }  // namespace details
 
 template <typename T_BVH>
-std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1,
-                       const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3s& tf1,
+                       const CollisionGeometry* o2, const Transform3s& tf2,
                        const CollisionRequest& request,
                        CollisionResult& result) {
   if (request.isSatisfied(result)) return result.numContacts();
@@ -228,12 +226,12 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1,
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
   const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
   BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
-  Transform3f tf1_tmp = tf1;
+  Transform3s tf1_tmp = tf1;
   BVHModel<T_BVH>* obj2_tmp = new BVHModel<T_BVH>(*obj2);
-  Transform3f tf2_tmp = tf2;
+  Transform3s tf2_tmp = tf2;
 
   initialize(node, *obj1_tmp, tf1_tmp, *obj2_tmp, tf2_tmp, result);
-  fcl::collide(&node, request, result);
+  coal::collide(&node, request, result);
 
   delete obj1_tmp;
   delete obj2_tmp;
@@ -242,8 +240,8 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1,
 }
 
 template <>
-std::size_t BVHCollide<OBB>(const CollisionGeometry* o1, const Transform3f& tf1,
-                            const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t BVHCollide<OBB>(const CollisionGeometry* o1, const Transform3s& tf1,
+                            const CollisionGeometry* o2, const Transform3s& tf2,
                             const CollisionRequest& request,
                             CollisionResult& result) {
   return details::orientedMeshCollide<MeshCollisionTraversalNodeOBB, OBB>(
@@ -252,9 +250,9 @@ std::size_t BVHCollide<OBB>(const CollisionGeometry* o1, const Transform3f& tf1,
 
 template <>
 std::size_t BVHCollide<OBBRSS>(const CollisionGeometry* o1,
-                               const Transform3f& tf1,
+                               const Transform3s& tf1,
                                const CollisionGeometry* o2,
-                               const Transform3f& tf2,
+                               const Transform3s& tf2,
                                const CollisionRequest& request,
                                CollisionResult& result) {
   return details::orientedMeshCollide<MeshCollisionTraversalNodeOBBRSS, OBBRSS>(
@@ -263,9 +261,9 @@ std::size_t BVHCollide<OBBRSS>(const CollisionGeometry* o1,
 
 template <>
 std::size_t BVHCollide<kIOS>(const CollisionGeometry* o1,
-                             const Transform3f& tf1,
+                             const Transform3s& tf1,
                              const CollisionGeometry* o2,
-                             const Transform3f& tf2,
+                             const Transform3s& tf2,
                              const CollisionRequest& request,
                              CollisionResult& result) {
   return details::orientedMeshCollide<MeshCollisionTraversalNodekIOS, kIOS>(
@@ -273,8 +271,8 @@ std::size_t BVHCollide<kIOS>(const CollisionGeometry* o1,
 }
 
 template <typename T_BVH>
-std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1,
-                       const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3s& tf1,
+                       const CollisionGeometry* o2, const Transform3s& tf2,
                        const GJKSolver* /*nsolver*/,
                        const CollisionRequest& request,
                        CollisionResult& result) {
@@ -662,7 +660,7 @@ CollisionFunctionMatrix::CollisionFunctionMatrix() {
   collision_matrix[BV_kIOS][BV_kIOS] = &BVHCollide<kIOS>;
   collision_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHCollide<OBBRSS>;
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
   collision_matrix[GEOM_OCTREE][GEOM_BOX] = &OctreeCollide<OcTree, Box>;
   collision_matrix[GEOM_OCTREE][GEOM_SPHERE] = &OctreeCollide<OcTree, Sphere>;
   collision_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &OctreeCollide<OcTree, Capsule>;
@@ -733,6 +731,4 @@ CollisionFunctionMatrix::CollisionFunctionMatrix() {
 #endif
 }
 // template struct CollisionFunctionMatrix;
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

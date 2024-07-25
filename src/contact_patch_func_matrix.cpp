@@ -34,28 +34,26 @@
 
 /** \author Louis Montaut */
 
-#include "hpp/fcl/contact_patch_func_matrix.h"
-#include "hpp/fcl/shape/geometric_shapes.h"
-#include "hpp/fcl/internal/shape_shape_contact_patch_func.h"
+#include "coal/contact_patch_func_matrix.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/internal/shape_shape_contact_patch_func.h"
+#include "coal/BV/BV.h"
 
-#include "hpp/fcl/BV/BV.h"
-
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 template <typename T_BVH, typename T_SH>
 struct BVHShapeComputeContactPatch {
-  static void run(const CollisionGeometry* o1, const Transform3f& tf1,
-                  const CollisionGeometry* o2, const Transform3f& tf2,
+  static void run(const CollisionGeometry* o1, const Transform3s& tf1,
+                  const CollisionGeometry* o2, const Transform3s& tf2,
                   const CollisionResult& collision_result,
                   const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
                   ContactPatchResult& result) {
-    HPP_FCL_UNUSED_VARIABLE(o1);
-    HPP_FCL_UNUSED_VARIABLE(tf1);
-    HPP_FCL_UNUSED_VARIABLE(o2);
-    HPP_FCL_UNUSED_VARIABLE(tf2);
-    HPP_FCL_UNUSED_VARIABLE(csolver);
+    COAL_UNUSED_VARIABLE(o1);
+    COAL_UNUSED_VARIABLE(tf1);
+    COAL_UNUSED_VARIABLE(o2);
+    COAL_UNUSED_VARIABLE(tf2);
+    COAL_UNUSED_VARIABLE(csolver);
     for (size_t i = 0; i < collision_result.numContacts(); ++i) {
       if (i >= request.max_num_patch) {
         break;
@@ -70,17 +68,17 @@ struct BVHShapeComputeContactPatch {
 
 template <typename BV, typename Shape>
 struct HeightFieldShapeComputeContactPatch {
-  static void run(const CollisionGeometry* o1, const Transform3f& tf1,
-                  const CollisionGeometry* o2, const Transform3f& tf2,
+  static void run(const CollisionGeometry* o1, const Transform3s& tf1,
+                  const CollisionGeometry* o2, const Transform3s& tf2,
                   const CollisionResult& collision_result,
                   const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
                   ContactPatchResult& result) {
-    HPP_FCL_UNUSED_VARIABLE(o1);
-    HPP_FCL_UNUSED_VARIABLE(tf1);
-    HPP_FCL_UNUSED_VARIABLE(o2);
-    HPP_FCL_UNUSED_VARIABLE(tf2);
-    HPP_FCL_UNUSED_VARIABLE(csolver);
+    COAL_UNUSED_VARIABLE(o1);
+    COAL_UNUSED_VARIABLE(tf1);
+    COAL_UNUSED_VARIABLE(o2);
+    COAL_UNUSED_VARIABLE(tf2);
+    COAL_UNUSED_VARIABLE(csolver);
     for (size_t i = 0; i < collision_result.numContacts(); ++i) {
       if (i >= request.max_num_patch) {
         break;
@@ -95,17 +93,17 @@ struct HeightFieldShapeComputeContactPatch {
 
 template <typename BV>
 struct BVHComputeContactPatch {
-  static void run(const CollisionGeometry* o1, const Transform3f& tf1,
-                  const CollisionGeometry* o2, const Transform3f& tf2,
+  static void run(const CollisionGeometry* o1, const Transform3s& tf1,
+                  const CollisionGeometry* o2, const Transform3s& tf2,
                   const CollisionResult& collision_result,
                   const ContactPatchSolver* csolver,
                   const ContactPatchRequest& request,
                   ContactPatchResult& result) {
-    HPP_FCL_UNUSED_VARIABLE(o1);
-    HPP_FCL_UNUSED_VARIABLE(tf1);
-    HPP_FCL_UNUSED_VARIABLE(o2);
-    HPP_FCL_UNUSED_VARIABLE(tf2);
-    HPP_FCL_UNUSED_VARIABLE(csolver);
+    COAL_UNUSED_VARIABLE(o1);
+    COAL_UNUSED_VARIABLE(tf1);
+    COAL_UNUSED_VARIABLE(o2);
+    COAL_UNUSED_VARIABLE(tf2);
+    COAL_UNUSED_VARIABLE(csolver);
     for (size_t i = 0; i < collision_result.numContacts(); ++i) {
       if (i >= request.max_num_patch) {
         break;
@@ -118,21 +116,21 @@ struct BVHComputeContactPatch {
   }
 };
 
-HPP_FCL_LOCAL void contact_patch_function_not_implemented(
-    const CollisionGeometry* o1, const Transform3f& /*tf1*/,
-    const CollisionGeometry* o2, const Transform3f& /*tf2*/,
+COAL_LOCAL void contact_patch_function_not_implemented(
+    const CollisionGeometry* o1, const Transform3s& /*tf1*/,
+    const CollisionGeometry* o2, const Transform3s& /*tf2*/,
     const CollisionResult& /*collision_result*/,
     const ContactPatchSolver* /*csolver*/,
     const ContactPatchRequest& /*request*/, ContactPatchResult& /*result*/) {
   NODE_TYPE node_type1 = o1->getNodeType();
   NODE_TYPE node_type2 = o2->getNodeType();
 
-  HPP_FCL_THROW_PRETTY("Contact patch function between node type "
-                           << std::string(get_node_type_name(node_type1))
-                           << " and node type "
-                           << std::string(get_node_type_name(node_type2))
-                           << " is not yet supported.",
-                       std::invalid_argument);
+  COAL_THROW_PRETTY("Contact patch function between node type "
+                        << std::string(get_node_type_name(node_type1))
+                        << " and node type "
+                        << std::string(get_node_type_name(node_type2))
+                        << " is not yet supported.",
+                    std::invalid_argument);
 }
 
 ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
@@ -364,7 +362,7 @@ ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
   contact_patch_matrix[BV_OBBRSS][BV_OBBRSS]      = &BVHComputeContactPatch<OBBRSS>::run;
 
   // TODO(louis): octrees
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
   contact_patch_matrix[GEOM_OCTREE][GEOM_OCTREE] = &contact_patch_function_not_implemented;
   contact_patch_matrix[GEOM_OCTREE][GEOM_BOX] = &contact_patch_function_not_implemented;
   contact_patch_matrix[GEOM_OCTREE][GEOM_SPHERE] = &contact_patch_function_not_implemented;
@@ -411,5 +409,4 @@ ContactPatchFunctionMatrix::ContactPatchFunctionMatrix() {
   // clang-format on
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

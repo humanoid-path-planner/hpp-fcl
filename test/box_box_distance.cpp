@@ -37,34 +37,34 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#define BOOST_TEST_MODULE FCL_BOX_BOX
+#define BOOST_TEST_MODULE COAL_BOX_BOX
 #include <boost/test/included/unit_test.hpp>
 
 #define CHECK_CLOSE_TO_0(x, eps) BOOST_CHECK_CLOSE((x + 1.0), (1.0), (eps))
 
 #include <cmath>
 #include <iostream>
-#include <hpp/fcl/distance.h>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "coal/distance.h"
+#include "coal/math/transform.h"
+#include "coal/collision.h"
+#include "coal/collision_object.h"
+#include "coal/shape/geometric_shapes.h"
 
 #include "utility.h"
 
-using hpp::fcl::CollisionGeometryPtr_t;
-using hpp::fcl::CollisionObject;
-using hpp::fcl::DistanceRequest;
-using hpp::fcl::DistanceResult;
-using hpp::fcl::Transform3f;
-using hpp::fcl::Vec3f;
+using coal::CollisionGeometryPtr_t;
+using coal::CollisionObject;
+using coal::DistanceRequest;
+using coal::DistanceResult;
+using coal::Transform3s;
+using coal::Vec3s;
 
 BOOST_AUTO_TEST_CASE(distance_box_box_1) {
-  CollisionGeometryPtr_t s1(new hpp::fcl::Box(6, 10, 2));
-  CollisionGeometryPtr_t s2(new hpp::fcl::Box(2, 2, 2));
+  CollisionGeometryPtr_t s1(new coal::Box(6, 10, 2));
+  CollisionGeometryPtr_t s2(new coal::Box(2, 2, 2));
 
-  Transform3f tf1;
-  Transform3f tf2(Vec3f(25, 20, 5));
+  Transform3s tf1;
+  Transform3s tf2(Vec3s(25, 20, 5));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_1) {
   DistanceRequest distanceRequest(true, true, 0, 0);
   DistanceResult distanceResult;
 
-  hpp::fcl::distance(&o1, &o2, distanceRequest, distanceResult);
+  coal::distance(&o1, &o2, distanceRequest, distanceResult);
 
   std::cerr << "Applied transformations on two boxes" << std::endl;
   std::cerr << " T1 = " << tf1.getTranslation() << std::endl
@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE(distance_box_box_1) {
   double dy = 20 - 5 - 1;
   double dz = 5 - 1 - 1;
 
-  const Vec3f& p1 = distanceResult.nearest_points[0];
-  const Vec3f& p2 = distanceResult.nearest_points[1];
+  const Vec3s& p1 = distanceResult.nearest_points[0];
+  const Vec3s& p2 = distanceResult.nearest_points[1];
   BOOST_CHECK_CLOSE(distanceResult.min_distance,
                     sqrt(dx * dx + dy * dy + dz * dz), 1e-4);
 
@@ -101,14 +101,13 @@ BOOST_AUTO_TEST_CASE(distance_box_box_1) {
 }
 
 BOOST_AUTO_TEST_CASE(distance_box_box_2) {
-  CollisionGeometryPtr_t s1(new hpp::fcl::Box(6, 10, 2));
-  CollisionGeometryPtr_t s2(new hpp::fcl::Box(2, 2, 2));
+  CollisionGeometryPtr_t s1(new coal::Box(6, 10, 2));
+  CollisionGeometryPtr_t s2(new coal::Box(2, 2, 2));
   static double pi = M_PI;
-  Transform3f tf1;
-  Transform3f tf2(
-      hpp::fcl::makeQuat(cos(pi / 8), sin(pi / 8) / sqrt(3),
-                         sin(pi / 8) / sqrt(3), sin(pi / 8) / sqrt(3)),
-      Vec3f(0, 0, 10));
+  Transform3s tf1;
+  Transform3s tf2(coal::makeQuat(cos(pi / 8), sin(pi / 8) / sqrt(3),
+                                 sin(pi / 8) / sqrt(3), sin(pi / 8) / sqrt(3)),
+                  Vec3s(0, 0, 10));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -117,7 +116,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_2) {
   DistanceRequest distanceRequest(true, true, 0, 0);
   DistanceResult distanceResult;
 
-  hpp::fcl::distance(&o1, &o2, distanceRequest, distanceResult);
+  coal::distance(&o1, &o2, distanceRequest, distanceResult);
 
   std::cerr << "Applied transformations on two boxes" << std::endl;
   std::cerr << " T1 = " << tf1.getTranslation() << std::endl
@@ -128,8 +127,8 @@ BOOST_AUTO_TEST_CASE(distance_box_box_2) {
             << ", p2 = " << distanceResult.nearest_points[1]
             << ", distance = " << distanceResult.min_distance << std::endl;
 
-  const Vec3f& p1 = distanceResult.nearest_points[0];
-  const Vec3f& p2 = distanceResult.nearest_points[1];
+  const Vec3s& p1 = distanceResult.nearest_points[0];
+  const Vec3s& p2 = distanceResult.nearest_points[1];
   double distance = -1.62123444 + 10 - 1;
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
 
@@ -142,13 +141,13 @@ BOOST_AUTO_TEST_CASE(distance_box_box_2) {
 }
 
 BOOST_AUTO_TEST_CASE(distance_box_box_3) {
-  CollisionGeometryPtr_t s1(new hpp::fcl::Box(1, 1, 1));
-  CollisionGeometryPtr_t s2(new hpp::fcl::Box(1, 1, 1));
+  CollisionGeometryPtr_t s1(new coal::Box(1, 1, 1));
+  CollisionGeometryPtr_t s2(new coal::Box(1, 1, 1));
   static double pi = M_PI;
-  Transform3f tf1(hpp::fcl::makeQuat(cos(pi / 8), 0, 0, sin(pi / 8)),
-                  Vec3f(-2, 1, .5));
-  Transform3f tf2(hpp::fcl::makeQuat(cos(pi / 8), 0, sin(pi / 8), 0),
-                  Vec3f(2, .5, .5));
+  Transform3s tf1(coal::makeQuat(cos(pi / 8), 0, 0, sin(pi / 8)),
+                  Vec3s(-2, 1, .5));
+  Transform3s tf2(coal::makeQuat(cos(pi / 8), 0, sin(pi / 8), 0),
+                  Vec3s(2, .5, .5));
 
   CollisionObject o1(s1, tf1);
   CollisionObject o2(s2, tf2);
@@ -157,7 +156,7 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3) {
   DistanceRequest distanceRequest(true, 0, 0);
   DistanceResult distanceResult;
 
-  hpp::fcl::distance(&o1, &o2, distanceRequest, distanceResult);
+  coal::distance(&o1, &o2, distanceRequest, distanceResult);
 
   std::cerr << "Applied transformations on two boxes" << std::endl;
   std::cerr << " T1 = " << tf1.getTranslation() << std::endl
@@ -168,13 +167,13 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3) {
             << ", p2 = " << distanceResult.nearest_points[1]
             << ", distance = " << distanceResult.min_distance << std::endl;
 
-  const Vec3f& p1 = distanceResult.nearest_points[0];
-  const Vec3f& p2 = distanceResult.nearest_points[1];
+  const Vec3s& p1 = distanceResult.nearest_points[0];
+  const Vec3s& p2 = distanceResult.nearest_points[1];
   double distance = 4 - sqrt(2);
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
 
-  const Vec3f p1Ref(sqrt(2) / 2 - 2, 1, .5);
-  const Vec3f p2Ref(2 - sqrt(2) / 2, 1, .5);
+  const Vec3s p1Ref(sqrt(2) / 2 - 2, 1, .5);
+  const Vec3s p2Ref(2 - sqrt(2) / 2, 1, .5);
   BOOST_CHECK_CLOSE(p1[0], p1Ref[0], 1e-4);
   BOOST_CHECK_CLOSE(p1[1], p1Ref[1], 1e-4);
   BOOST_CHECK_CLOSE(p1[2], p1Ref[2], 1e-4);
@@ -183,16 +182,16 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3) {
   BOOST_CHECK_CLOSE(p2[2], p2Ref[2], 1e-4);
 
   // Apply the same global transform to both objects and recompute
-  Transform3f tf3(hpp::fcl::makeQuat(0.435952844074, -0.718287018243,
-                                     0.310622451066, 0.444435113443),
-                  Vec3f(4, 5, 6));
+  Transform3s tf3(coal::makeQuat(0.435952844074, -0.718287018243,
+                                 0.310622451066, 0.444435113443),
+                  Vec3s(4, 5, 6));
   tf1 = tf3 * tf1;
   tf2 = tf3 * tf2;
   o1 = CollisionObject(s1, tf1);
   o2 = CollisionObject(s2, tf2);
 
   distanceResult.clear();
-  hpp::fcl::distance(&o1, &o2, distanceRequest, distanceResult);
+  coal::distance(&o1, &o2, distanceRequest, distanceResult);
 
   std::cerr << "Applied transformations on two boxes" << std::endl;
   std::cerr << " T1 = " << tf1.getTranslation() << std::endl
@@ -205,8 +204,8 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3) {
 
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
 
-  const Vec3f p1Moved = tf3.transform(p1Ref);
-  const Vec3f p2Moved = tf3.transform(p2Ref);
+  const Vec3s p1Moved = tf3.transform(p1Ref);
+  const Vec3s p2Moved = tf3.transform(p2Ref);
   BOOST_CHECK_CLOSE(p1[0], p1Moved[0], 1e-4);
   BOOST_CHECK_CLOSE(p1[1], p1Moved[1], 1e-4);
   BOOST_CHECK_CLOSE(p1[2], p1Moved[2], 1e-4);
@@ -216,38 +215,38 @@ BOOST_AUTO_TEST_CASE(distance_box_box_3) {
 }
 
 BOOST_AUTO_TEST_CASE(distance_box_box_4) {
-  hpp::fcl::Box s1(1, 1, 1);
-  hpp::fcl::Box s2(1, 1, 1);
+  coal::Box s1(1, 1, 1);
+  coal::Box s2(1, 1, 1);
 
   // Enable computation of nearest points
   DistanceRequest distanceRequest(true, true, 0, 0);
   DistanceResult distanceResult;
   double distance;
 
-  Transform3f tf1(Vec3f(2, 0, 0));
-  Transform3f tf2;
-  hpp::fcl::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
+  Transform3s tf1(Vec3s(2, 0, 0));
+  Transform3s tf2;
+  coal::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
 
   distance = 1.;
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 1e-4);
 
-  tf1.setTranslation(Vec3f(1.01, 0, 0));
+  tf1.setTranslation(Vec3s(1.01, 0, 0));
   distanceResult.clear();
-  hpp::fcl::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
+  coal::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
 
   distance = 0.01;
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 2e-3);
 
-  tf1.setTranslation(Vec3f(0.99, 0, 0));
+  tf1.setTranslation(Vec3s(0.99, 0, 0));
   distanceResult.clear();
-  hpp::fcl::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
+  coal::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
 
   distance = -0.01;
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 2e-3);
 
-  tf1.setTranslation(Vec3f(0, 0, 0));
+  tf1.setTranslation(Vec3s(0, 0, 0));
   distanceResult.clear();
-  hpp::fcl::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
+  coal::distance(&s1, tf1, &s2, tf2, distanceRequest, distanceResult);
 
   distance = -1;
   BOOST_CHECK_CLOSE(distanceResult.min_distance, distance, 2e-3);

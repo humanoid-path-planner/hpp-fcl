@@ -1,9 +1,9 @@
-name: Build hpp-fcl for Mac OS X/Linux via Conda
+name: Build Coal for Mac OS X/Linux via Conda
 
 on: [push,pull_request]
 
 jobs:
-  hpp-fcl-conda:
+  coal-conda:
     name: CI on ${{ matrix.os }} with Conda Python ${{ matrix.python-version }} - ${{ matrix.build_type }} ${{ matrix.cxx_options }}
     runs-on: ${{ matrix.os }}
     env:
@@ -40,13 +40,13 @@ jobs:
 
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        activate-environment: fcl
+        activate-environment: coal
         auto-update-conda: true
         environment-file: .github/workflows/conda/environment_macos_linux.yml
         python-version: ${{ matrix.python-version }}
         auto-activate-base: false
 
-    - name: Build hpp-fcl
+    - name: Build Coal
       shell: bash -el {0}
       run: |
         conda list
@@ -65,14 +65,14 @@ jobs:
           -DCMAKE_CXX_FLAGS=${{ matrix.cxx_options }} \
           -DPYTHON_EXECUTABLE=$(which python3) \
           -DGENERATE_PYTHON_STUBS=ON \
-          -DHPP_FCL_HAS_QHULL=ON \
+          -DCOAL_HAS_QHULL=ON \
           -DBUILD_DOCUMENTATION=ON \
           -DINSTALL_DOCUMENTATION=ON
         cmake --build . -j2
         ctest --output-on-failure
         cmake --install .
 
-    - name: Uninstall hpp-fcl
+    - name: Uninstall Coal
       shell: bash -el {0}
       run: |
         cd build
@@ -83,7 +83,7 @@ jobs:
     name: check-macos-linux-conda
 
     needs:
-    - hpp-fcl-conda
+    - coal-conda
 
     runs-on: Ubuntu-latest
 

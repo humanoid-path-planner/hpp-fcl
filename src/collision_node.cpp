@@ -36,28 +36,26 @@
 /** \author Jia Pan */
 
 #include <../src/collision_node.h>
-#include <hpp/fcl/internal/traversal_recurse.h>
+#include "coal/internal/traversal_recurse.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 void checkResultLowerBound(const CollisionResult& result,
-                           FCL_REAL sqrDistLowerBound) {
-  HPP_FCL_UNUSED_VARIABLE(result);
-  const FCL_REAL dummy_precision =
-      std::sqrt(Eigen::NumTraits<FCL_REAL>::epsilon());
-  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+                           CoalScalar sqrDistLowerBound) {
+  COAL_UNUSED_VARIABLE(result);
+  const CoalScalar dummy_precision =
+      std::sqrt(Eigen::NumTraits<CoalScalar>::epsilon());
+  COAL_UNUSED_VARIABLE(dummy_precision);
   if (sqrDistLowerBound == 0) {
-    HPP_FCL_ASSERT(result.distance_lower_bound <= dummy_precision,
-                   "Distance lower bound should not be positive.",
-                   std::logic_error);
+    COAL_ASSERT(result.distance_lower_bound <= dummy_precision,
+                "Distance lower bound should not be positive.",
+                std::logic_error);
   } else {
-    HPP_FCL_ASSERT(
-        result.distance_lower_bound * result.distance_lower_bound -
-                sqrDistLowerBound <
-            dummy_precision,
-        "Distance lower bound and sqrDistLowerBound should coincide.",
-        std::logic_error);
+    COAL_ASSERT(result.distance_lower_bound * result.distance_lower_bound -
+                        sqrDistLowerBound <
+                    dummy_precision,
+                "Distance lower bound and sqrDistLowerBound should coincide.",
+                std::logic_error);
   }
 }
 
@@ -67,7 +65,7 @@ void collide(CollisionTraversalNodeBase* node, const CollisionRequest& request,
   if (front_list && front_list->size() > 0) {
     propagateBVHFrontListCollisionRecurse(node, request, result, front_list);
   } else {
-    FCL_REAL sqrDistLowerBound = 0;
+    CoalScalar sqrDistLowerBound = 0;
     if (recursive)
       collisionRecurse(node, 0, 0, front_list, sqrDistLowerBound);
     else
@@ -90,6 +88,4 @@ void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list,
   node->postprocess();
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

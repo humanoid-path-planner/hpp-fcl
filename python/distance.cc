@@ -34,45 +34,46 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-#include "fcl.hh"
+#include "coal.hh"
 
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/distance.h>
-#include <hpp/fcl/serialization/collision_data.h>
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+#include "coal/fwd.hh"
+#include "coal/distance.h"
+#include "coal/serialization/collision_data.h"
+
 #include "deprecation.hh"
-HPP_FCL_COMPILER_DIAGNOSTIC_POP
+COAL_COMPILER_DIAGNOSTIC_POP
 
 #include "serializable.hh"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-#include "doxygen_autodoc/hpp/fcl/collision_data.h"
+#include "doxygen_autodoc/coal/collision_data.h"
 #endif
 
 using namespace boost::python;
-using namespace hpp::fcl;
-using namespace hpp::fcl::python;
+using namespace coal;
+using namespace coal::python;
 
 namespace dv = doxygen::visitor;
 
 struct DistanceResultWrapper {
-  static Vec3f getNearestPoint1(const DistanceResult& res) {
+  static Vec3s getNearestPoint1(const DistanceResult& res) {
     return res.nearest_points[0];
   }
-  static Vec3f getNearestPoint2(const DistanceResult& res) {
+  static Vec3s getNearestPoint2(const DistanceResult& res) {
     return res.nearest_points[1];
   }
 };
 
 void exposeDistanceAPI() {
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   if (!eigenpy::register_symbolic_link_to_registered_type<DistanceRequest>()) {
     class_<DistanceRequest, bases<QueryRequest> >(
         "DistanceRequest", doxygen::class_doc<DistanceRequest>(),
-        init<optional<bool, FCL_REAL, FCL_REAL> >(
+        init<optional<bool, CoalScalar, CoalScalar> >(
             (arg("self"), arg("enable_nearest_points"), arg("rel_err"),
              arg("abs_err")),
             "Constructor"))
@@ -110,7 +111,7 @@ void exposeDistanceAPI() {
         .DEF_RW_CLASS_ATTRIB(DistanceRequest, abs_err)
         .def(SerializableVisitor<DistanceRequest>());
   }
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 
   if (!eigenpy::register_symbolic_link_to_registered_type<
           std::vector<DistanceRequest> >()) {
@@ -148,14 +149,14 @@ void exposeDistanceAPI() {
 
   doxygen::def(
       "distance",
-      static_cast<FCL_REAL (*)(const CollisionObject*, const CollisionObject*,
-                               const DistanceRequest&, DistanceResult&)>(
+      static_cast<CoalScalar (*)(const CollisionObject*, const CollisionObject*,
+                                 const DistanceRequest&, DistanceResult&)>(
           &distance));
   doxygen::def(
       "distance",
-      static_cast<FCL_REAL (*)(const CollisionGeometry*, const Transform3f&,
-                               const CollisionGeometry*, const Transform3f&,
-                               const DistanceRequest&, DistanceResult&)>(
+      static_cast<CoalScalar (*)(const CollisionGeometry*, const Transform3s&,
+                                 const CollisionGeometry*, const Transform3s&,
+                                 const DistanceRequest&, DistanceResult&)>(
           &distance));
 
   class_<ComputeDistance>("ComputeDistance",
@@ -163,7 +164,7 @@ void exposeDistanceAPI() {
       .def(dv::init<ComputeDistance, const CollisionGeometry*,
                     const CollisionGeometry*>())
       .def("__call__",
-           static_cast<FCL_REAL (ComputeDistance::*)(
-               const Transform3f&, const Transform3f&, const DistanceRequest&,
+           static_cast<CoalScalar (ComputeDistance::*)(
+               const Transform3s&, const Transform3s&, const DistanceRequest&,
                DistanceResult&) const>(&ComputeDistance::operator()));
 }

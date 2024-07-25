@@ -35,10 +35,9 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_collision_manager.h"
+#include "coal/broadphase/broadphase_collision_manager.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 //==============================================================================
 BroadPhaseCollisionManager::BroadPhaseCollisionManager()
@@ -59,7 +58,7 @@ void BroadPhaseCollisionManager::registerObjects(
 
 //==============================================================================
 void BroadPhaseCollisionManager::update(CollisionObject* updated_obj) {
-  HPP_FCL_UNUSED_VARIABLE(updated_obj);
+  COAL_UNUSED_VARIABLE(updated_obj);
 
   update();
 }
@@ -67,7 +66,7 @@ void BroadPhaseCollisionManager::update(CollisionObject* updated_obj) {
 //==============================================================================
 void BroadPhaseCollisionManager::update(
     const std::vector<CollisionObject*>& updated_objs) {
-  HPP_FCL_UNUSED_VARIABLE(updated_objs);
+  COAL_UNUSED_VARIABLE(updated_objs);
 
   update();
 }
@@ -90,5 +89,4 @@ void BroadPhaseCollisionManager::insertTestedSet(CollisionObject* a,
     tested_set.insert(std::make_pair(b, a));
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

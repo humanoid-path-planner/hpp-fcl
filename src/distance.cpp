@@ -35,31 +35,30 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/distance.h>
-#include <hpp/fcl/collision_utility.h>
-#include <hpp/fcl/distance_func_matrix.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
+#include "coal/distance.h"
+#include "coal/collision_utility.h"
+#include "coal/distance_func_matrix.h"
+#include "coal/narrowphase/narrowphase.h"
 
 #include <iostream>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 DistanceFunctionMatrix& getDistanceFunctionLookTable() {
   static DistanceFunctionMatrix table;
   return table;
 }
 
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
-                  const DistanceRequest& request, DistanceResult& result) {
+CoalScalar distance(const CollisionObject* o1, const CollisionObject* o2,
+                    const DistanceRequest& request, DistanceResult& result) {
   return distance(o1->collisionGeometryPtr(), o1->getTransform(),
                   o2->collisionGeometryPtr(), o2->getTransform(), request,
                   result);
 }
 
-FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
-                  const CollisionGeometry* o2, const Transform3f& tf2,
-                  const DistanceRequest& request, DistanceResult& result) {
+CoalScalar distance(const CollisionGeometry* o1, const Transform3s& tf1,
+                    const CollisionGeometry* o2, const Transform3s& tf2,
+                    const DistanceRequest& request, DistanceResult& result) {
   GJKSolver solver(request);
 
   const DistanceFunctionMatrix& looktable = getDistanceFunctionLookTable();
@@ -69,17 +68,17 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
   OBJECT_TYPE object_type2 = o2->getObjectType();
   NODE_TYPE node_type2 = o2->getNodeType();
 
-  FCL_REAL res = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar res = (std::numeric_limits<CoalScalar>::max)();
 
   if (object_type1 == OT_GEOM &&
       (object_type2 == OT_BVH || object_type2 == OT_HFIELD)) {
     if (!looktable.distance_matrix[node_type2][node_type1]) {
-      HPP_FCL_THROW_PRETTY("Distance function between node type "
-                               << std::string(get_node_type_name(node_type1))
-                               << " and node type "
-                               << std::string(get_node_type_name(node_type2))
-                               << " is not yet supported.",
-                           std::invalid_argument);
+      COAL_THROW_PRETTY("Distance function between node type "
+                            << std::string(get_node_type_name(node_type1))
+                            << " and node type "
+                            << std::string(get_node_type_name(node_type2))
+                            << " is not yet supported.",
+                        std::invalid_argument);
     } else {
       res = looktable.distance_matrix[node_type2][node_type1](
           o2, tf2, o1, tf1, &solver, request, result);
@@ -89,12 +88,12 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
     }
   } else {
     if (!looktable.distance_matrix[node_type1][node_type2]) {
-      HPP_FCL_THROW_PRETTY("Distance function between node type "
-                               << std::string(get_node_type_name(node_type1))
-                               << " and node type "
-                               << std::string(get_node_type_name(node_type2))
-                               << " is not yet supported.",
-                           std::invalid_argument);
+      COAL_THROW_PRETTY("Distance function between node type "
+                            << std::string(get_node_type_name(node_type1))
+                            << " and node type "
+                            << std::string(get_node_type_name(node_type2))
+                            << " is not yet supported.",
+                        std::invalid_argument);
     } else {
       res = looktable.distance_matrix[node_type1][node_type2](
           o1, tf1, o2, tf2, &solver, request, result);
@@ -123,12 +122,12 @@ ComputeDistance::ComputeDistance(const CollisionGeometry* o1,
 
   if ((swap_geoms && !looktable.distance_matrix[node_type2][node_type1]) ||
       (!swap_geoms && !looktable.distance_matrix[node_type1][node_type2])) {
-    HPP_FCL_THROW_PRETTY("Distance function between node type "
-                             << std::string(get_node_type_name(node_type1))
-                             << " and node type "
-                             << std::string(get_node_type_name(node_type2))
-                             << " is not yet supported.",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Distance function between node type "
+                          << std::string(get_node_type_name(node_type1))
+                          << " and node type "
+                          << std::string(get_node_type_name(node_type2))
+                          << " is not yet supported.",
+                      std::invalid_argument);
   }
   if (swap_geoms)
     func = looktable.distance_matrix[node_type2][node_type1];
@@ -136,10 +135,10 @@ ComputeDistance::ComputeDistance(const CollisionGeometry* o1,
     func = looktable.distance_matrix[node_type1][node_type2];
 }
 
-FCL_REAL ComputeDistance::run(const Transform3f& tf1, const Transform3f& tf2,
-                              const DistanceRequest& request,
-                              DistanceResult& result) const {
-  FCL_REAL res;
+CoalScalar ComputeDistance::run(const Transform3s& tf1, const Transform3s& tf2,
+                                const DistanceRequest& request,
+                                DistanceResult& result) const {
+  CoalScalar res;
 
   if (swap_geoms) {
     res = func(o2, tf2, o1, tf1, &solver, request, result);
@@ -157,13 +156,13 @@ FCL_REAL ComputeDistance::run(const Transform3f& tf1, const Transform3f& tf2,
   return res;
 }
 
-FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
-                                     const Transform3f& tf2,
-                                     const DistanceRequest& request,
-                                     DistanceResult& result) const {
+CoalScalar ComputeDistance::operator()(const Transform3s& tf1,
+                                       const Transform3s& tf2,
+                                       const DistanceRequest& request,
+                                       DistanceResult& result) const {
   solver.set(request);
 
-  FCL_REAL res;
+  CoalScalar res;
   if (request.enable_timings) {
     Timer timer;
     res = run(tf1, tf2, request, result);
@@ -173,5 +172,4 @@ FCL_REAL ComputeDistance::operator()(const Transform3f& tf1,
   return res;
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

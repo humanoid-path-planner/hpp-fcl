@@ -34,28 +34,28 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-#include <hpp/fcl/fwd.hh>
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/serialization/collision_data.h>
-HPP_FCL_COMPILER_DIAGNOSTIC_POP
+#include "coal/fwd.hh"
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+#include "coal/collision.h"
+#include "coal/serialization/collision_data.h"
+COAL_COMPILER_DIAGNOSTIC_POP
 
-#include "fcl.hh"
+#include "coal.hh"
 #include "deprecation.hh"
 #include "serializable.hh"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-#include "doxygen_autodoc/hpp/fcl/collision_data.h"
+#include "doxygen_autodoc/coal/collision_data.h"
 #endif
 
 #include "../doc/python/doxygen.hh"
 #include "../doc/python/doxygen-boost.hh"
 
 using namespace boost::python;
-using namespace hpp::fcl;
-using namespace hpp::fcl::python;
+using namespace coal;
+using namespace coal::python;
 
 namespace dv = doxygen::visitor;
 
@@ -65,10 +65,10 @@ const CollisionGeometry* geto(const Contact& c) {
 }
 
 struct ContactWrapper {
-  static Vec3f getNearestPoint1(const Contact& contact) {
+  static Vec3s getNearestPoint1(const Contact& contact) {
     return contact.nearest_points[0];
   }
-  static Vec3f getNearestPoint2(const Contact& contact) {
+  static Vec3s getNearestPoint2(const Contact& contact) {
     return contact.nearest_points[1];
   }
 };
@@ -94,8 +94,8 @@ void exposeCollisionAPI() {
         .def("clear", &CPUTimes::clear, arg("self"), "Reset the time values.");
   }
 
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   if (!eigenpy::register_symbolic_link_to_registered_type<QueryRequest>()) {
     class_<QueryRequest>("QueryRequest", doxygen::class_doc<QueryRequest>(),
                          no_init)
@@ -132,10 +132,10 @@ void exposeCollisionAPI() {
         .DEF_RW_CLASS_ATTRIB(QueryRequest, enable_timings)
         .DEF_CLASS_FUNC(QueryRequest, updateGuess);
   }
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   if (!eigenpy::register_symbolic_link_to_registered_type<CollisionRequest>()) {
     class_<CollisionRequest, bases<QueryRequest> >(
         "CollisionRequest", doxygen::class_doc<CollisionRequest>(), no_init)
@@ -174,7 +174,7 @@ void exposeCollisionAPI() {
     class_<std::vector<CollisionRequest> >("StdVec_CollisionRequest")
         .def(vector_indexing_suite<std::vector<CollisionRequest> >());
   }
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 
   if (!eigenpy::register_symbolic_link_to_registered_type<Contact>()) {
     class_<Contact>("Contact", doxygen::class_doc<Contact>(),
@@ -182,8 +182,8 @@ void exposeCollisionAPI() {
         .def(dv::init<Contact, const CollisionGeometry*,
                       const CollisionGeometry*, int, int>())
         .def(dv::init<Contact, const CollisionGeometry*,
-                      const CollisionGeometry*, int, int, const Vec3f&,
-                      const Vec3f&, FCL_REAL>())
+                      const CollisionGeometry*, int, int, const Vec3s&,
+                      const Vec3s&, CoalScalar>())
         .add_property(
             "o1",
             make_function(&geto<1>,
@@ -260,8 +260,8 @@ void exposeCollisionAPI() {
                    const CollisionRequest&, CollisionResult&)>(&collide));
   doxygen::def(
       "collide",
-      static_cast<std::size_t (*)(const CollisionGeometry*, const Transform3f&,
-                                  const CollisionGeometry*, const Transform3f&,
+      static_cast<std::size_t (*)(const CollisionGeometry*, const Transform3s&,
+                                  const CollisionGeometry*, const Transform3s&,
                                   const CollisionRequest&, CollisionResult&)>(
           &collide));
 
@@ -271,6 +271,6 @@ void exposeCollisionAPI() {
                     const CollisionGeometry*>())
       .def("__call__",
            static_cast<std::size_t (ComputeCollision::*)(
-               const Transform3f&, const Transform3f&, const CollisionRequest&,
+               const Transform3s&, const Transform3s&, const CollisionRequest&,
                CollisionResult&) const>(&ComputeCollision::operator()));
 }

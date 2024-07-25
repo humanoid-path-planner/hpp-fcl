@@ -36,40 +36,38 @@
 
 /** \author Florent Lamiraux */
 
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "coal/math/transform.h"
+#include "coal/shape/geometric_shapes.h"
 
-#include <hpp/fcl/internal/shape_shape_func.h>
+#include "coal/internal/shape_shape_func.h"
 #include "../narrowphase/details.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 struct GJKSolver;
 
 namespace internal {
 template <>
-FCL_REAL ShapeShapeDistance<Sphere, Plane>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+CoalScalar ShapeShapeDistance<Sphere, Plane>(
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
+    const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Sphere& s1 = static_cast<const Sphere&>(*o1);
   const Plane& s2 = static_cast<const Plane&>(*o2);
-  const FCL_REAL distance =
+  const CoalScalar distance =
       details::planeDistance(s2, tf2, s1, tf1, p2, p1, normal);
   normal = -normal;
   return distance;
 }
 
 template <>
-FCL_REAL ShapeShapeDistance<Plane, Sphere>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+CoalScalar ShapeShapeDistance<Plane, Sphere>(
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
+    const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Plane& s1 = static_cast<const Plane&>(*o1);
   const Sphere& s2 = static_cast<const Sphere&>(*o2);
   return details::planeDistance(s1, tf1, s2, tf2, p1, p2, normal);
 }
 }  // namespace internal
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

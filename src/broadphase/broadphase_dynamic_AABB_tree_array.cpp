@@ -35,23 +35,22 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree_array.h"
 
-#ifdef HPP_FCL_HAVE_OCTOMAP
-#include "hpp/fcl/octree.h"
+#ifdef COAL_HAVE_OCTOMAP
+#include "coal/octree.h"
 #endif
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 namespace dynamic_AABB_tree_array {
 
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
 
 //==============================================================================
 bool collisionRecurse_(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2,
-    const AABB& root2_bv, const Transform3f& tf2,
+    const AABB& root2_bv, const Transform3s& tf2,
     CollisionCallBackBase* callback) {
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root1 =
       nodes1 + root1_id;
@@ -61,12 +60,12 @@ bool collisionRecurse_(
 
       if (!obj1->collisionGeometry()->isFree()) {
         OBB obb1, obb2;
-        convertBV(root1->bv, Transform3f::Identity(), obb1);
+        convertBV(root1->bv, Transform3s::Identity(), obb1);
         convertBV(root2_bv, tf2, obb2);
 
         if (obb1.overlap(obb2)) {
           Box* box = new Box();
-          Transform3f box_tf;
+          Transform3s box_tf;
           constructBox(root2_bv, tf2, *box, box_tf);
 
           box->cost_density = tree2->getDefaultOccupancy();
@@ -89,12 +88,12 @@ bool collisionRecurse_(
     CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
     if (!tree2->isNodeFree(root2) && !obj1->collisionGeometry()->isFree()) {
       OBB obb1, obb2;
-      convertBV(root1->bv, Transform3f::Identity(), obb1);
+      convertBV(root1->bv, Transform3s::Identity(), obb1);
       convertBV(root2_bv, tf2, obb2);
 
       if (obb1.overlap(obb2)) {
         Box* box = new Box();
-        Transform3f box_tf;
+        Transform3s box_tf;
         constructBox(root2_bv, tf2, *box, box_tf);
 
         box->cost_density = root2->getOccupancy();
@@ -109,7 +108,7 @@ bool collisionRecurse_(
   }
 
   OBB obb1, obb2;
-  convertBV(root1->bv, Transform3f::Identity(), obb1);
+  convertBV(root1->bv, Transform3s::Identity(), obb1);
   convertBV(root2_bv, tf2, obb2);
 
   if (tree2->isNodeFree(root2) || !obb1.overlap(obb2)) return false;
@@ -149,14 +148,14 @@ bool collisionRecurse_(
 bool distanceRecurse_(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2,
-    const AABB& root2_bv, const Transform3f& tf2,
-    DistanceCallBackBase* callback, FCL_REAL& min_dist) {
+    const AABB& root2_bv, const Transform3s& tf2,
+    DistanceCallBackBase* callback, CoalScalar& min_dist) {
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root1 =
       nodes1 + root1_id;
   if (root1->isLeaf() && !tree2->nodeHasChildren(root2)) {
     if (tree2->isNodeOccupied(root2)) {
       Box* box = new Box();
-      Transform3f box_tf;
+      Transform3s box_tf;
       constructBox(root2_bv, tf2, *box, box_tf);
       CollisionObject obj(shared_ptr<CollisionGeometry>(box), box_tf);
       return (*callback)(static_cast<CollisionObject*>(root1->data), &obj,
@@ -172,8 +171,8 @@ bool distanceRecurse_(
     AABB aabb2;
     convertBV(root2_bv, tf2, aabb2);
 
-    FCL_REAL d1 = aabb2.distance((nodes1 + root1->children[0])->bv);
-    FCL_REAL d2 = aabb2.distance((nodes1 + root1->children[1])->bv);
+    CoalScalar d1 = aabb2.distance((nodes1 + root1->children[0])->bv);
+    CoalScalar d2 = aabb2.distance((nodes1 + root1->children[1])->bv);
 
     if (d2 < d1) {
       if (d2 < min_dist) {
@@ -209,7 +208,7 @@ bool distanceRecurse_(
 
         AABB aabb2;
         convertBV(child_bv, tf2, aabb2);
-        FCL_REAL d = root1->bv.distance(aabb2);
+        CoalScalar d = root1->bv.distance(aabb2);
 
         if (d < min_dist) {
           if (distanceRecurse_(nodes1, root1_id, tree2, child, child_bv, tf2,
@@ -263,7 +262,7 @@ bool collisionRecurse(
 }
 
 //==============================================================================
-inline HPP_FCL_DLLAPI bool collisionRecurse(
+inline COAL_DLLAPI bool collisionRecurse(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes,
     size_t root_id, CollisionObject* query, CollisionCallBackBase* callback) {
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root = nodes + root_id;
@@ -308,7 +307,7 @@ bool distanceRecurse(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id,
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes2,
-    size_t root2_id, DistanceCallBackBase* callback, FCL_REAL& min_dist) {
+    size_t root2_id, DistanceCallBackBase* callback, CoalScalar& min_dist) {
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root1 =
       nodes1 + root1_id;
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root2 =
@@ -321,8 +320,8 @@ bool distanceRecurse(
 
   if (root2->isLeaf() ||
       (!root1->isLeaf() && (root1->bv.size() > root2->bv.size()))) {
-    FCL_REAL d1 = root2->bv.distance((nodes1 + root1->children[0])->bv);
-    FCL_REAL d2 = root2->bv.distance((nodes1 + root1->children[1])->bv);
+    CoalScalar d1 = root2->bv.distance((nodes1 + root1->children[0])->bv);
+    CoalScalar d2 = root2->bv.distance((nodes1 + root1->children[1])->bv);
 
     if (d2 < d1) {
       if (d2 < min_dist) {
@@ -350,8 +349,8 @@ bool distanceRecurse(
       }
     }
   } else {
-    FCL_REAL d1 = root1->bv.distance((nodes2 + root2->children[0])->bv);
-    FCL_REAL d2 = root1->bv.distance((nodes2 + root2->children[1])->bv);
+    CoalScalar d1 = root1->bv.distance((nodes2 + root2->children[0])->bv);
+    CoalScalar d2 = root1->bv.distance((nodes2 + root2->children[1])->bv);
 
     if (d2 < d1) {
       if (d2 < min_dist) {
@@ -387,15 +386,15 @@ bool distanceRecurse(
 bool distanceRecurse(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes,
     size_t root_id, CollisionObject* query, DistanceCallBackBase* callback,
-    FCL_REAL& min_dist) {
+    CoalScalar& min_dist) {
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root = nodes + root_id;
   if (root->isLeaf()) {
     CollisionObject* root_obj = static_cast<CollisionObject*>(root->data);
     return (*callback)(root_obj, query, min_dist);
   }
 
-  FCL_REAL d1 = query->getAABB().distance((nodes + root->children[0])->bv);
-  FCL_REAL d2 = query->getAABB().distance((nodes + root->children[1])->bv);
+  CoalScalar d1 = query->getAABB().distance((nodes + root->children[0])->bv);
+  CoalScalar d2 = query->getAABB().distance((nodes + root->children[1])->bv);
 
   if (d2 < d1) {
     if (d2 < min_dist) {
@@ -425,7 +424,7 @@ bool distanceRecurse(
 //==============================================================================
 bool selfDistanceRecurse(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes,
-    size_t root_id, DistanceCallBackBase* callback, FCL_REAL& min_dist) {
+    size_t root_id, DistanceCallBackBase* callback, CoalScalar& min_dist) {
   DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* root = nodes + root_id;
   if (root->isLeaf()) return false;
 
@@ -442,13 +441,13 @@ bool selfDistanceRecurse(
   return false;
 }
 
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
 
 //==============================================================================
 bool collisionRecurse(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2,
-    const AABB& root2_bv, const Transform3f& tf2,
+    const AABB& root2_bv, const Transform3s& tf2,
     CollisionCallBackBase* callback) {
   if (tf2.rotation().isIdentity())
     return collisionRecurse_(nodes1, root1_id, tree2, root2, root2_bv,
@@ -462,8 +461,8 @@ bool collisionRecurse(
 bool distanceRecurse(
     DynamicAABBTreeArrayCollisionManager::DynamicAABBNode* nodes1,
     size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2,
-    const AABB& root2_bv, const Transform3f& tf2,
-    DistanceCallBackBase* callback, FCL_REAL& min_dist) {
+    const AABB& root2_bv, const Transform3s& tf2,
+    DistanceCallBackBase* callback, CoalScalar& min_dist) {
   if (tf2.rotation().isIdentity())
     return distanceRecurse_(nodes1, root1_id, tree2, root2, root2_bv,
                             tf2.translation(), callback, min_dist);
@@ -546,7 +545,7 @@ void DynamicAABBTreeArrayCollisionManager::setup() {
 
     int height = (int)dtree.getMaxHeight();
 
-    if ((FCL_REAL)height - std::log((FCL_REAL)num) / std::log(2.0) <
+    if ((CoalScalar)height - std::log((CoalScalar)num) / std::log(2.0) <
         max_tree_nonbalanced_level)
       dtree.balanceIncremental(tree_incremental_balance_pass);
     else
@@ -618,7 +617,7 @@ void DynamicAABBTreeArrayCollisionManager::collide(
   callback->init();
   if (size() == 0) return;
   switch (obj->collisionGeometry()->getNodeType()) {
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
     case GEOM_OCTREE: {
       if (!octree_as_geometry_collide) {
         const OcTree* octree =
@@ -642,9 +641,9 @@ void DynamicAABBTreeArrayCollisionManager::distance(
     CollisionObject* obj, DistanceCallBackBase* callback) const {
   callback->init();
   if (size() == 0) return;
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
   switch (obj->collisionGeometry()->getNodeType()) {
-#if HPP_FCL_HAVE_OCTOMAP
+#if COAL_HAVE_OCTOMAP
     case GEOM_OCTREE: {
       if (!octree_as_geometry_distance) {
         const OcTree* octree =
@@ -677,7 +676,7 @@ void DynamicAABBTreeArrayCollisionManager::distance(
     DistanceCallBackBase* callback) const {
   callback->init();
   if (size() == 0) return;
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
   detail::dynamic_AABB_tree_array::selfDistanceRecurse(
       dtree.getNodes(), dtree.getRoot(), callback, min_dist);
 }
@@ -703,7 +702,7 @@ void DynamicAABBTreeArrayCollisionManager::distance(
   DynamicAABBTreeArrayCollisionManager* other_manager =
       static_cast<DynamicAABBTreeArrayCollisionManager*>(other_manager_);
   if ((size() == 0) || (other_manager->size() == 0)) return;
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
   detail::dynamic_AABB_tree_array::distanceRecurse(
       dtree.getNodes(), dtree.getRoot(), other_manager->dtree.getNodes(),
       other_manager->dtree.getRoot(), callback, min_dist);
@@ -725,5 +724,4 @@ DynamicAABBTreeArrayCollisionManager::getTree() const {
   return dtree;
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

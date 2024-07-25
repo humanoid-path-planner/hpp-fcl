@@ -2,8 +2,8 @@
 // Copyright (c) 2022 INRIA
 //
 
-#ifndef HPP_FCL_PYTHON_PICKLE_H
-#define HPP_FCL_PYTHON_PICKLE_H
+#ifndef COAL_PYTHON_PICKLE_H
+#define COAL_PYTHON_PICKLE_H
 
 #include <boost/python.hpp>
 #include <eigenpy/eigenpy.hpp>
@@ -13,7 +13,7 @@
 #include <sstream>
 
 using namespace boost::python;
-using namespace hpp::fcl;
+using namespace coal;
 //
 template <typename T>
 struct PickleObject : boost::python::pickle_suite {
@@ -54,4 +54,4 @@ struct PickleObject : boost::python::pickle_suite {
   static bool getstate_manages_dict() { return false; }
 };
 
-#endif  // ifndef HPP_FCL_PYTHON_PICKLE_H
+#endif  // ifndef COAL_PYTHON_PICKLE_H

@@ -35,27 +35,26 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/shape/geometric_shapes_utility.h>
+#include "coal/shape/geometric_shapes.h"
+#include "coal/shape/geometric_shapes_utility.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
-void ConvexBase::initialize(std::shared_ptr<std::vector<Vec3f>> points_,
+void ConvexBase::initialize(std::shared_ptr<std::vector<Vec3s>> points_,
                             unsigned int num_points_) {
   this->points = points_;
   this->num_points = num_points_;
-  HPP_FCL_ASSERT(this->points->size() == this->num_points,
-                 "The number of points is not consistent with the size of the "
-                 "points vector",
-                 std::logic_error);
+  COAL_ASSERT(this->points->size() == this->num_points,
+              "The number of points is not consistent with the size of the "
+              "points vector",
+              std::logic_error);
   this->num_normals_and_offsets = 0;
   this->normals.reset();
   this->offsets.reset();
   this->computeCenter();
 }
 
-void ConvexBase::set(std::shared_ptr<std::vector<Vec3f>> points_,
+void ConvexBase::set(std::shared_ptr<std::vector<Vec3s>> points_,
                      unsigned int num_points_) {
   initialize(points_, num_points_);
 }
@@ -67,7 +66,7 @@ ConvexBase::ConvexBase(const ConvexBase& other)
       center(other.center) {
   if (other.points.get() && other.points->size() > 0) {
     // Deep copy of other points
-    points.reset(new std::vector<Vec3f>(*other.points));
+    points.reset(new std::vector<Vec3s>(*other.points));
   } else
     points.reset();
 
@@ -94,7 +93,7 @@ ConvexBase::ConvexBase(const ConvexBase& other)
     nneighbors_.reset();
 
   if (other.normals.get() && other.normals->size() > 0) {
-    normals.reset(new std::vector<Vec3f>(*(other.normals)));
+    normals.reset(new std::vector<Vec3s>(*(other.normals)));
   } else
     normals.reset();
 
@@ -112,16 +111,16 @@ ConvexBase::~ConvexBase() {}
 
 void ConvexBase::computeCenter() {
   center.setZero();
-  const std::vector<Vec3f>& points_ = *points;
+  const std::vector<Vec3s>& points_ = *points;
   for (std::size_t i = 0; i < num_points; ++i)
     center += points_[i];  // TODO(jcarpent): vectorization
   center /= num_points;
 }
 
 void Halfspace::unitNormalTest() {
-  FCL_REAL l = n.norm();
+  CoalScalar l = n.norm();
   if (l > 0) {
-    FCL_REAL inv_l = 1.0 / l;
+    CoalScalar inv_l = 1.0 / l;
     n *= inv_l;
     d *= inv_l;
   } else {
@@ -131,9 +130,9 @@ void Halfspace::unitNormalTest() {
 }
 
 void Plane::unitNormalTest() {
-  FCL_REAL l = n.norm();
+  CoalScalar l = n.norm();
   if (l > 0) {
-    FCL_REAL inv_l = 1.0 / l;
+    CoalScalar inv_l = 1.0 / l;
     n *= inv_l;
     d *= inv_l;
   } else {
@@ -143,115 +142,113 @@ void Plane::unitNormalTest() {
 }
 
 void Box::computeLocalAABB() {
-  computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  computeBV<AABB>(*this, Transform3s(), aabb_local);
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
-    aabb_local.min_ -= Vec3f::Constant(ssr);
-    aabb_local.max_ += Vec3f::Constant(ssr);
+    aabb_local.min_ -= Vec3s::Constant(ssr);
+    aabb_local.max_ += Vec3s::Constant(ssr);
   }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Sphere::computeLocalAABB() {
-  computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  computeBV<AABB>(*this, Transform3s(), aabb_local);
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
-    aabb_local.min_ -= Vec3f::Constant(ssr);
-    aabb_local.max_ += Vec3f::Constant(ssr);
+    aabb_local.min_ -= Vec3s::Constant(ssr);
+    aabb_local.max_ += Vec3s::Constant(ssr);
   }
   aabb_center = aabb_local.center();
   aabb_radius = radius;
 }
 
 void Ellipsoid::computeLocalAABB() {
-  computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  computeBV<AABB>(*this, Transform3s(), aabb_local);
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
-    aabb_local.min_ -= Vec3f::Constant(ssr);
-    aabb_local.max_ += Vec3f::Constant(ssr);
+    aabb_local.min_ -= Vec3s::Constant(ssr);
+    aabb_local.max_ += Vec3s::Constant(ssr);
   }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Capsule::computeLocalAABB() {
-  computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  computeBV<AABB>(*this, Transform3s(), aabb_local);
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
-    aabb_local.min_ -= Vec3f::Constant(ssr);
-    aabb_local.max_ += Vec3f::Constant(ssr);
+    aabb_local.min_ -= Vec3s::Constant(ssr);
+    aabb_local.max_ += Vec3s::Constant(ssr);
   }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Cone::computeLocalAABB() {
-  computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  computeBV<AABB>(*this, Transform3s(), aabb_local);
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
-    aabb_local.min_ -= Vec3f::Constant(ssr);
-    aabb_local.max_ += Vec3f::Constant(ssr);
+    aabb_local.min_ -= Vec3s::Constant(ssr);
+    aabb_local.max_ += Vec3s::Constant(ssr);
   }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Cylinder::computeLocalAABB() {
-  computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  computeBV<AABB>(*this, Transform3s(), aabb_local);
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
-    aabb_local.min_ -= Vec3f::Constant(ssr);
-    aabb_local.max_ += Vec3f::Constant(ssr);
+    aabb_local.min_ -= Vec3s::Constant(ssr);
+    aabb_local.max_ += Vec3s::Constant(ssr);
   }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void ConvexBase::computeLocalAABB() {
-  computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  computeBV<AABB>(*this, Transform3s(), aabb_local);
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
-    aabb_local.min_ -= Vec3f::Constant(ssr);
-    aabb_local.max_ += Vec3f::Constant(ssr);
+    aabb_local.min_ -= Vec3s::Constant(ssr);
+    aabb_local.max_ += Vec3s::Constant(ssr);
   }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Halfspace::computeLocalAABB() {
-  computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  computeBV<AABB>(*this, Transform3s(), aabb_local);
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
-    aabb_local.min_ -= Vec3f::Constant(ssr);
-    aabb_local.max_ += Vec3f::Constant(ssr);
+    aabb_local.min_ -= Vec3s::Constant(ssr);
+    aabb_local.max_ += Vec3s::Constant(ssr);
   }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Plane::computeLocalAABB() {
-  computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  computeBV<AABB>(*this, Transform3s(), aabb_local);
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
-    aabb_local.min_ -= Vec3f::Constant(ssr);
-    aabb_local.max_ += Vec3f::Constant(ssr);
+    aabb_local.min_ -= Vec3s::Constant(ssr);
+    aabb_local.max_ += Vec3s::Constant(ssr);
   }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void TriangleP::computeLocalAABB() {
-  computeBV<AABB>(*this, Transform3f(), aabb_local);
-  const FCL_REAL ssr = this->getSweptSphereRadius();
+  computeBV<AABB>(*this, Transform3s(), aabb_local);
+  const CoalScalar ssr = this->getSweptSphereRadius();
   if (ssr > 0) {
-    aabb_local.min_ -= Vec3f::Constant(ssr);
-    aabb_local.max_ += Vec3f::Constant(ssr);
+    aabb_local.min_ -= Vec3s::Constant(ssr);
+    aabb_local.max_ += Vec3s::Constant(ssr);
   }
   aabb_center = aabb_local.center();
   aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

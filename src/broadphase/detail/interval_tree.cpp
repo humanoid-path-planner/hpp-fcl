@@ -35,15 +35,14 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_INTERVAL_TREE_INL_H
-#define HPP_FCL_INTERVAL_TREE_INL_H
+#ifndef COAL_INTERVAL_TREE_INL_H
+#define COAL_INTERVAL_TREE_INL_H
 
-#include "hpp/fcl/broadphase/detail/interval_tree.h"
+#include "coal/broadphase/detail/interval_tree.h"
 
 #include <algorithm>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 
 //==============================================================================
@@ -53,13 +52,13 @@ IntervalTree::IntervalTree() {
       invalid_node;
   invalid_node->red = false;
   invalid_node->key = invalid_node->high = invalid_node->max_high =
-      -(std::numeric_limits<FCL_REAL>::max)();
+      -(std::numeric_limits<CoalScalar>::max)();
   invalid_node->stored_interval = nullptr;
 
   root = new IntervalTreeNode;
   root->parent = root->left = root->right = invalid_node;
   root->key = root->high = root->max_high =
-      (std::numeric_limits<FCL_REAL>::max)();
+      (std::numeric_limits<CoalScalar>::max)();
   root->red = false;
   root->stored_interval = nullptr;
 
@@ -382,7 +381,7 @@ SimpleInterval* IntervalTree::deleteNode(IntervalTreeNode* z) {
   /// @brief y should not be invalid_node in this case
   /// y is the node to splice out and x is its child
   if (y != z) {
-    y->max_high = -(std::numeric_limits<FCL_REAL>::max)();
+    y->max_high = -(std::numeric_limits<CoalScalar>::max)();
     y->left = z->left;
     y->right = z->right;
     y->parent = z->parent;
@@ -410,7 +409,7 @@ SimpleInterval* IntervalTree::deleteNode(IntervalTreeNode* z) {
 
 //==============================================================================
 /// @brief returns 1 if the intervals overlap, and 0 otherwise
-bool overlap(FCL_REAL a1, FCL_REAL a2, FCL_REAL b1, FCL_REAL b2) {
+bool overlap(CoalScalar a1, CoalScalar a2, CoalScalar b1, CoalScalar b2) {
   if (a1 <= b1) {
     return (b1 <= a2);
   } else {
@@ -419,7 +418,8 @@ bool overlap(FCL_REAL a1, FCL_REAL a2, FCL_REAL b1, FCL_REAL b2) {
 }
 
 //==============================================================================
-std::deque<SimpleInterval*> IntervalTree::query(FCL_REAL low, FCL_REAL high) {
+std::deque<SimpleInterval*> IntervalTree::query(CoalScalar low,
+                                                CoalScalar high) {
   std::deque<SimpleInterval*> result_stack;
   IntervalTreeNode* x = root->left;
   bool run = (x != invalid_node);
@@ -463,7 +463,6 @@ std::deque<SimpleInterval*> IntervalTree::query(FCL_REAL low, FCL_REAL high) {
 }
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

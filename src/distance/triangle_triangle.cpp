@@ -34,20 +34,19 @@
 
 /** \author Louis Montaut */
 
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "coal/shape/geometric_shapes.h"
 
-#include <hpp/fcl/internal/shape_shape_func.h>
+#include "coal/internal/shape_shape_func.h"
 #include "../narrowphase/details.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace internal {
 template <>
-FCL_REAL ShapeShapeDistance<TriangleP, TriangleP>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2,
-    const GJKSolver* solver, const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+CoalScalar ShapeShapeDistance<TriangleP, TriangleP>(
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2,
+    const GJKSolver* solver, const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   // Transform the triangles in world frame
   const TriangleP& s1 = static_cast<const TriangleP&>(*o1);
   const TriangleP t1(tf1.transform(s1.a), tf1.transform(s1.b),
@@ -61,11 +60,11 @@ FCL_REAL ShapeShapeDistance<TriangleP, TriangleP>(
   //   We don't need to take into account swept-sphere radius in GJK iterations;
   //   the result will be corrected after GJK terminates.
   solver->minkowski_difference
-      .set<::hpp::fcl::details::SupportOptions::NoSweptSphere>(&t1, &t2);
+      .set<::coal::details::SupportOptions::NoSweptSphere>(&t1, &t2);
   solver->gjk.reset(solver->gjk_max_iterations, solver->gjk_tolerance);
 
   // Get GJK initial guess
-  Vec3f guess;
+  Vec3s guess;
   if (solver->gjk_initial_guess == GJKInitialGuess::CachedGuess ||
       solver->enable_cached_guess) {
     guess = solver->cached_guess;
@@ -85,10 +84,10 @@ FCL_REAL ShapeShapeDistance<TriangleP, TriangleP>(
   // Retrieve witness points and normal
   solver->gjk.getWitnessPointsAndNormal(solver->minkowski_difference, p1, p2,
                                         normal);
-  FCL_REAL distance = solver->gjk.distance;
+  CoalScalar distance = solver->gjk.distance;
 
   if (gjk_status == details::GJK::Collision) {
-    FCL_REAL penetrationDepth =
+    CoalScalar penetrationDepth =
         details::computePenetration(t1.a, t1.b, t1.c, t2.a, t2.b, t2.c, normal);
     distance = -penetrationDepth;
   } else {
@@ -105,5 +104,4 @@ FCL_REAL ShapeShapeDistance<TriangleP, TriangleP>(
 }
 }  // namespace internal
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

@@ -32,27 +32,26 @@
 //  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH
-#define HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH
+#ifndef COAL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH
+#define COAL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH
 
 #include <eigenpy/eigenpy.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/broadphase/broadphase_collision_manager.h>
-#include <hpp/fcl/broadphase/default_broadphase_callbacks.h>
+#include "coal/fwd.hh"
+#include "coal/broadphase/broadphase_collision_manager.h"
+#include "coal/broadphase/default_broadphase_callbacks.h"
 
-#include "../fcl.hh"
+#include "../coal.hh"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_collision_manager.h"
+#include "doxygen_autodoc/coal/broadphase/broadphase_collision_manager.h"
 #endif
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/type_index.hpp>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct BroadPhaseCollisionManagerWrapper
     : BroadPhaseCollisionManager,
@@ -216,7 +215,7 @@ struct BroadPhaseCollisionManagerWrapper
   template <typename Derived>
   static void exposeDerived() {
     std::string class_name = boost::typeindex::type_id<Derived>().pretty_name();
-    boost::algorithm::replace_all(class_name, "hpp::fcl::", "");
+    boost::algorithm::replace_all(class_name, "coal::", "");
 #if defined(WIN32)
     boost::algorithm::replace_all(class_name, "class ", "");
 #endif
@@ -228,7 +227,6 @@ struct BroadPhaseCollisionManagerWrapper
 
 };  // BroadPhaseCollisionManagerWrapper
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH
+#endif  // ifndef COAL_PYTHON_BROADPHASE_BROADPHASE_COLLISION_MANAGER_HH

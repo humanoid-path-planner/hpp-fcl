@@ -2,15 +2,14 @@
 // Copyright (c) 2020-2021 INRIA
 //
 
-#ifndef HPP_FCL_PYTHON_UTILS_DEPRECATION_H
-#define HPP_FCL_PYTHON_UTILS_DEPRECATION_H
+#ifndef COAL_PYTHON_UTILS_DEPRECATION_H
+#define COAL_PYTHON_UTILS_DEPRECATION_H
 
 #include <Python.h>
 #include <boost/python.hpp>
 #include <string>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace python {
 
 template <class Policy = boost::python::default_call_policies>
@@ -48,7 +47,6 @@ struct deprecated_function : deprecated_warning_policy<Policy> {
 };
 
 }  // namespace python
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_PYTHON_UTILS_DEPRECATION_H
+#endif  // ifndef COAL_PYTHON_UTILS_DEPRECATION_H

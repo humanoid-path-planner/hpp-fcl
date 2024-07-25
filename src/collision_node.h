@@ -35,20 +35,19 @@
 
 /** \author Jia Pan */
 
-#ifndef HPP_FCL_COLLISION_NODE_H
-#define HPP_FCL_COLLISION_NODE_H
+#ifndef COAL_COLLISION_NODE_H
+#define COAL_COLLISION_NODE_H
 
 /// @cond INTERNAL
 
-#include <hpp/fcl/BVH/BVH_front.h>
-#include <hpp/fcl/internal/traversal_node_base.h>
-#include <hpp/fcl/internal/traversal_node_bvhs.h>
+#include "coal/BVH/BVH_front.h"
+#include "coal/internal/traversal_node_base.h"
+#include "coal/internal/traversal_node_bvhs.h"
 
 /// @brief collision and distance function on traversal nodes. these functions
 /// provide a higher level abstraction for collision functions provided in
 /// collision_func_matrix
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// collision on collision traversal node
 ///
@@ -57,21 +56,19 @@ namespace fcl {
 ///         do not collide.
 /// @param front_list list of nodes visited by the query, can be used to
 ///        accelerate computation
-/// \todo should be HPP_FCL_LOCAL but used in unit test.
-HPP_FCL_DLLAPI void collide(CollisionTraversalNodeBase* node,
-                            const CollisionRequest& request,
-                            CollisionResult& result,
-                            BVHFrontList* front_list = NULL,
-                            bool recursive = true);
+/// \todo should be COAL_LOCAL but used in unit test.
+COAL_DLLAPI void collide(CollisionTraversalNodeBase* node,
+                         const CollisionRequest& request,
+                         CollisionResult& result,
+                         BVHFrontList* front_list = NULL,
+                         bool recursive = true);
 
 /// @brief distance computation on distance traversal node; can use front list
-/// to accelerate \todo should be HPP_FCL_LOCAL but used in unit test.
-HPP_FCL_DLLAPI void distance(DistanceTraversalNodeBase* node,
-                             BVHFrontList* front_list = NULL,
-                             unsigned int qsize = 2);
-}  // namespace fcl
-
-}  // namespace hpp
+/// to accelerate \todo should be COAL_LOCAL but used in unit test.
+COAL_DLLAPI void distance(DistanceTraversalNodeBase* node,
+                          BVHFrontList* front_list = NULL,
+                          unsigned int qsize = 2);
+}  // namespace coal
 
 /// @endcond
 

@@ -35,36 +35,35 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BV/AABB.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "coal/BV/AABB.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/collision_data.h"
 
 #include <limits>
-#include <hpp/fcl/collision_data.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 AABB::AABB()
-    : min_(Vec3f::Constant((std::numeric_limits<FCL_REAL>::max)())),
-      max_(Vec3f::Constant(-(std::numeric_limits<FCL_REAL>::max)())) {}
+    : min_(Vec3s::Constant((std::numeric_limits<CoalScalar>::max)())),
+      max_(Vec3s::Constant(-(std::numeric_limits<CoalScalar>::max)())) {}
 
 bool AABB::overlap(const AABB& other, const CollisionRequest& request,
-                   FCL_REAL& sqrDistLowerBound) const {
-  const FCL_REAL break_distance_squared =
+                   CoalScalar& sqrDistLowerBound) const {
+  const CoalScalar break_distance_squared =
       request.break_distance * request.break_distance;
 
   sqrDistLowerBound =
-      (min_ - other.max_ - Vec3f::Constant(request.security_margin))
+      (min_ - other.max_ - Vec3s::Constant(request.security_margin))
           .array()
-          .max(FCL_REAL(0))
+          .max(CoalScalar(0))
           .matrix()
           .squaredNorm();
   if (sqrDistLowerBound > break_distance_squared) return false;
 
   sqrDistLowerBound =
-      (other.min_ - max_ - Vec3f::Constant(request.security_margin))
+      (other.min_ - max_ - Vec3s::Constant(request.security_margin))
           .array()
-          .max(FCL_REAL(0))
+          .max(CoalScalar(0))
           .matrix()
           .squaredNorm();
   if (sqrDistLowerBound > break_distance_squared) return false;
@@ -72,23 +71,23 @@ bool AABB::overlap(const AABB& other, const CollisionRequest& request,
   return true;
 }
 
-FCL_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const {
-  FCL_REAL result = 0;
+CoalScalar AABB::distance(const AABB& other, Vec3s* P, Vec3s* Q) const {
+  CoalScalar result = 0;
   for (Eigen::DenseIndex i = 0; i < 3; ++i) {
-    const FCL_REAL& amin = min_[i];
-    const FCL_REAL& amax = max_[i];
-    const FCL_REAL& bmin = other.min_[i];
-    const FCL_REAL& bmax = other.max_[i];
+    const CoalScalar& amin = min_[i];
+    const CoalScalar& amax = max_[i];
+    const CoalScalar& bmin = other.min_[i];
+    const CoalScalar& bmax = other.max_[i];
 
     if (amin > bmax) {
-      FCL_REAL delta = bmax - amin;
+      CoalScalar delta = bmax - amin;
       result += delta * delta;
       if (P && Q) {
         (*P)[i] = amin;
         (*Q)[i] = bmax;
       }
     } else if (bmin > amax) {
-      FCL_REAL delta = amax - bmin;
+      CoalScalar delta = amax - bmin;
       result += delta * delta;
       if (P && Q) {
         (*P)[i] = amax;
@@ -97,11 +96,11 @@ FCL_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const {
     } else {
       if (P && Q) {
         if (bmin >= amin) {
-          FCL_REAL t = 0.5 * (amax + bmin);
+          CoalScalar t = 0.5 * (amax + bmin);
           (*P)[i] = t;
           (*Q)[i] = t;
         } else {
-          FCL_REAL t = 0.5 * (amin + bmax);
+          CoalScalar t = 0.5 * (amin + bmax);
           (*P)[i] = t;
           (*Q)[i] = t;
         }
@@ -112,19 +111,19 @@ FCL_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const {
   return std::sqrt(result);
 }
 
-FCL_REAL AABB::distance(const AABB& other) const {
-  FCL_REAL result = 0;
+CoalScalar AABB::distance(const AABB& other) const {
+  CoalScalar result = 0;
   for (Eigen::DenseIndex i = 0; i < 3; ++i) {
-    const FCL_REAL& amin = min_[i];
-    const FCL_REAL& amax = max_[i];
-    const FCL_REAL& bmin = other.min_[i];
-    const FCL_REAL& bmax = other.max_[i];
+    const CoalScalar& amin = min_[i];
+    const CoalScalar& amax = max_[i];
+    const CoalScalar& bmin = other.min_[i];
+    const CoalScalar& bmax = other.max_[i];
 
     if (amin > bmax) {
-      FCL_REAL delta = bmax - amin;
+      CoalScalar delta = bmax - amin;
       result += delta * delta;
     } else if (bmin > amax) {
-      FCL_REAL delta = amax - bmin;
+      CoalScalar delta = amax - bmin;
       result += delta * delta;
     }
   }
@@ -132,15 +131,15 @@ FCL_REAL AABB::distance(const AABB& other) const {
   return std::sqrt(result);
 }
 
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+bool overlap(const Matrix3s& R0, const Vec3s& T0, const AABB& b1,
              const AABB& b2) {
   AABB bb1(translate(rotate(b1, R0), T0));
   return bb1.overlap(b2);
 }
 
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const AABB& b1,
+bool overlap(const Matrix3s& R0, const Vec3s& T0, const AABB& b1,
              const AABB& b2, const CollisionRequest& request,
-             FCL_REAL& sqrDistLowerBound) {
+             CoalScalar& sqrDistLowerBound) {
   AABB bb1(translate(rotate(b1, R0), T0));
   return bb1.overlap(b2, request, sqrDistLowerBound);
 }
@@ -150,15 +149,15 @@ bool AABB::overlap(const Plane& p) const {
   // points in the directions normal and -normal.
   // If both points lie on different sides of the plane, there is an overlap
   // between the AABB and the plane. Otherwise, there is no overlap.
-  const Vec3f halfside = (this->max_ - this->min_) / 2;
-  const Vec3f center = (this->max_ + this->min_) / 2;
+  const Vec3s halfside = (this->max_ - this->min_) / 2;
+  const Vec3s center = (this->max_ + this->min_) / 2;
 
-  const Vec3f support1 = (p.n.array() > 0).select(halfside, -halfside) + center;
-  const Vec3f support2 =
+  const Vec3s support1 = (p.n.array() > 0).select(halfside, -halfside) + center;
+  const Vec3s support2 =
       ((-p.n).array() > 0).select(halfside, -halfside) + center;
 
-  const FCL_REAL dist1 = p.n.dot(support1) - p.d;
-  const FCL_REAL dist2 = p.n.dot(support2) - p.d;
+  const CoalScalar dist1 = p.n.dot(support1) - p.d;
+  const CoalScalar dist2 = p.n.dot(support2) - p.d;
   const int sign1 = (dist1 > 0) ? 1 : -1;
   const int sign2 = (dist2 > 0) ? 1 : -1;
 
@@ -170,8 +169,8 @@ bool AABB::overlap(const Plane& p) const {
     // Both supports are on the same side of the plane.
     // We now need to check if they are on the same side of the plane inflated
     // by the swept-sphere radius.
-    const FCL_REAL ssr_dist1 = std::abs(dist1) - p.getSweptSphereRadius();
-    const FCL_REAL ssr_dist2 = std::abs(dist2) - p.getSweptSphereRadius();
+    const CoalScalar ssr_dist1 = std::abs(dist1) - p.getSweptSphereRadius();
+    const CoalScalar ssr_dist2 = std::abs(dist2) - p.getSweptSphereRadius();
     const int ssr_sign1 = (ssr_dist1 > 0) ? 1 : -1;
     const int ssr_sign2 = (ssr_dist2 > 0) ? 1 : -1;
     return ssr_sign1 != ssr_sign2;
@@ -186,12 +185,10 @@ bool AABB::overlap(const Halfspace& hs) const {
   // If the support is below the plane defined by the halfspace, there is an
   // overlap between the AABB and the halfspace. Otherwise, there is no
   // overlap.
-  Vec3f halfside = (this->max_ - this->min_) / 2;
-  Vec3f center = (this->max_ + this->min_) / 2;
-  Vec3f support = ((-hs.n).array() > 0).select(halfside, -halfside) + center;
+  Vec3s halfside = (this->max_ - this->min_) / 2;
+  Vec3s center = (this->max_ + this->min_) / 2;
+  Vec3s support = ((-hs.n).array() > 0).select(halfside, -halfside) + center;
   return (hs.signedDistance(support) < 0);
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

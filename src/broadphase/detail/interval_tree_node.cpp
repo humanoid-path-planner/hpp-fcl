@@ -35,16 +35,15 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
-#define HPP_FCL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
+#ifndef COAL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
+#define COAL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
 
-#include "hpp/fcl/broadphase/detail/interval_tree_node.h"
+#include "coal/broadphase/detail/interval_tree_node.h"
 
 #include <iostream>
 #include <algorithm>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 
 //==============================================================================
@@ -90,7 +89,6 @@ void IntervalTreeNode::print(IntervalTreeNode* invalid_node,
 }
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

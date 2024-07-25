@@ -34,10 +34,9 @@
 
 /** \authors Louis Montaut */
 
-#include "hpp/fcl/contact_patch/contact_patch_solver.h"
+#include "coal/contact_patch/contact_patch_solver.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace details {
 
@@ -47,7 +46,7 @@ template <typename ShapeType,
 void getShapeSupportSetTpl(const ShapeBase* shape, SupportSet& support_set,
                            int& hint, ShapeSupportData& support_data,
                            size_t num_sampled_supports = 6,
-                           FCL_REAL tol = 1e-3) {
+                           CoalScalar tol = 1e-3) {
   const ShapeType* shape_ = static_cast<const ShapeType*>(shape);
   getShapeSupportSet<_SupportOptions>(shape_, support_set, hint, support_data,
                                       num_sampled_supports, tol);
@@ -99,9 +98,8 @@ ContactPatchSolver::makeSupportSetFunction(const ShapeBase* shape,
       }
     }
     default:
-      HPP_FCL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
+      COAL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
   }
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

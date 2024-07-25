@@ -32,30 +32,29 @@
 //  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// \mainpage
-/// \anchor hpp_fcl_documentation
+/// \anchor coal_documentation
 ///
-/// \section hpp_fcl_introduction Introduction
+/// \section coal_introduction Introduction
 ///
-/// hpp-fcl is a modified version the FCL libraries.
+/// Coal is a modified version the FCL libraries.
 ///
 /// It is a library for collision detection and distance computation between
 /// various types of geometric shapes reprensented either by
-/// \li basic shapes (hpp::fcl::ShapeBase) like box, sphere, cylinders, ...
-/// \li or by bounding volume hierarchies of various types (hpp::fcl::BVHModel)
+/// \li basic shapes (coal::ShapeBase) like box, sphere, cylinders, ...
+/// \li or by bounding volume hierarchies of various types (coal::BVHModel)
 ///
-/// \par Using hpp-fcl
+/// \par Using Coal
 ///
 /// The main entry points to the library are functions
-/// \li hpp::fcl::collide(const CollisionObject*, const CollisionObject*, const
-/// CollisionRequest&, CollisionResult&) \li hpp::fcl::distance(const
+/// \li coal::collide(const CollisionObject*, const CollisionObject*, const
+/// CollisionRequest&, CollisionResult&) \li coal::distance(const
 /// CollisionObject*, const CollisionObject*, const DistanceRequest&,
 /// DistanceResult&)
 ///
-/// \section hpp_fcl_collision_and_distance_lower_bound_computation Collision
+/// \section coal_collision_and_distance_lower_bound_computation Collision
 /// detection and distance lower bound
 ///
 /// Collision queries can return a distance lower bound between the two objects,
@@ -72,9 +71,8 @@ namespace fcl {
 /// is only guaranted that it will be inferior to
 /// <em>distance - security_margin</em> and superior to \em break_distance.
 /// \note If CollisionRequest::security_margin is set to -inf, no collision test
-/// is performed by function hpp::fcl::collide or class
-/// hpp::fcl::ComputeCollision and the objects are considered as not
+/// is performed by function coal::collide or class
+/// coal::ComputeCollision and the objects are considered as not
 /// colliding.
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

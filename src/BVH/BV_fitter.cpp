@@ -35,20 +35,20 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/internal/BV_fitter.h>
-#include <hpp/fcl/BVH/BVH_utility.h>
-#include <limits>
-#include <hpp/fcl/internal/tools.h>
+#include "coal/internal/BV_fitter.h"
+#include "coal/BVH/BVH_utility.h"
+#include "coal/internal/tools.h"
 
-namespace hpp {
-namespace fcl {
+#include <limits>
+
+namespace coal {
 
 static const double kIOS_RATIO = 1.5;
 static const double invSinA = 2;
 static const double cosA = sqrt(3.0) / 2.0;
 
-static inline void axisFromEigen(Vec3f eigenV[3], Matrix3f::Scalar eigenS[3],
-                                 Matrix3f& axes) {
+static inline void axisFromEigen(Vec3s eigenV[3], CoalScalar eigenS[3],
+                                 Matrix3s& axes) {
   int min, mid, max;
   if (eigenS[0] > eigenS[1]) {
     max = 0;
@@ -77,17 +77,17 @@ static inline void axisFromEigen(Vec3f eigenV[3], Matrix3f::Scalar eigenS[3],
 
 namespace OBB_fit_functions {
 
-void fit1(Vec3f* ps, OBB& bv) {
+void fit1(Vec3s* ps, OBB& bv) {
   bv.To.noalias() = ps[0];
   bv.axes.setIdentity();
   bv.extent.setZero();
 }
 
-void fit2(Vec3f* ps, OBB& bv) {
-  const Vec3f& p1 = ps[0];
-  const Vec3f& p2 = ps[1];
-  Vec3f p1p2 = p1 - p2;
-  FCL_REAL len_p1p2 = p1p2.norm();
+void fit2(Vec3s* ps, OBB& bv) {
+  const Vec3s& p1 = ps[0];
+  const Vec3s& p2 = ps[1];
+  Vec3s p1p2 = p1 - p2;
+  CoalScalar len_p1p2 = p1p2.norm();
   p1p2.normalize();
 
   bv.axes.col(0).noalias() = p1p2;
@@ -97,15 +97,15 @@ void fit2(Vec3f* ps, OBB& bv) {
   bv.To.noalias() = (p1 + p2) / 2;
 }
 
-void fit3(Vec3f* ps, OBB& bv) {
-  const Vec3f& p1 = ps[0];
-  const Vec3f& p2 = ps[1];
-  const Vec3f& p3 = ps[2];
-  Vec3f e[3];
+void fit3(Vec3s* ps, OBB& bv) {
+  const Vec3s& p1 = ps[0];
+  const Vec3s& p2 = ps[1];
+  const Vec3s& p3 = ps[2];
+  Vec3s e[3];
   e[0] = p1 - p2;
   e[1] = p2 - p3;
   e[2] = p3 - p1;
-  FCL_REAL len[3];
+  CoalScalar len[3];
   len[0] = e[0].squaredNorm();
   len[1] = e[1].squaredNorm();
   len[2] = e[2].squaredNorm();
@@ -121,17 +121,17 @@ void fit3(Vec3f* ps, OBB& bv) {
   getExtentAndCenter(ps, NULL, NULL, NULL, 3, bv.axes, bv.To, bv.extent);
 }
 
-void fit6(Vec3f* ps, OBB& bv) {
+void fit6(Vec3s* ps, OBB& bv) {
   OBB bv1, bv2;
   fit3(ps, bv1);
   fit3(ps + 3, bv2);
   bv = bv1 + bv2;
 }
 
-void fitn(Vec3f* ps, unsigned int n, OBB& bv) {
-  Matrix3f M;
-  Vec3f E[3];
-  Matrix3f::Scalar s[3] = {0, 0, 0};  // three eigen values
+void fitn(Vec3s* ps, unsigned int n, OBB& bv) {
+  Matrix3s M;
+  Vec3s E[3];
+  CoalScalar s[3] = {0, 0, 0};  // three eigen values
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
@@ -144,7 +144,7 @@ void fitn(Vec3f* ps, unsigned int n, OBB& bv) {
 }  // namespace OBB_fit_functions
 
 namespace RSS_fit_functions {
-void fit1(Vec3f* ps, RSS& bv) {
+void fit1(Vec3s* ps, RSS& bv) {
   bv.Tr.noalias() = ps[0];
   bv.axes.setIdentity();
   bv.length[0] = 0;
@@ -152,11 +152,11 @@ void fit1(Vec3f* ps, RSS& bv) {
   bv.radius = 0;
 }
 
-void fit2(Vec3f* ps, RSS& bv) {
-  const Vec3f& p1 = ps[0];
-  const Vec3f& p2 = ps[1];
+void fit2(Vec3s* ps, RSS& bv) {
+  const Vec3s& p1 = ps[0];
+  const Vec3s& p2 = ps[1];
   bv.axes.col(0).noalias() = p1 - p2;
-  FCL_REAL len_p1p2 = bv.axes.col(0).norm();
+  CoalScalar len_p1p2 = bv.axes.col(0).norm();
   bv.axes.col(0) /= len_p1p2;
 
   generateCoordinateSystem(bv.axes.col(0), bv.axes.col(1), bv.axes.col(2));
@@ -167,15 +167,15 @@ void fit2(Vec3f* ps, RSS& bv) {
   bv.radius = 0;
 }
 
-void fit3(Vec3f* ps, RSS& bv) {
-  const Vec3f& p1 = ps[0];
-  const Vec3f& p2 = ps[1];
-  const Vec3f& p3 = ps[2];
-  Vec3f e[3];
+void fit3(Vec3s* ps, RSS& bv) {
+  const Vec3s& p1 = ps[0];
+  const Vec3s& p2 = ps[1];
+  const Vec3s& p3 = ps[2];
+  Vec3s e[3];
   e[0] = p1 - p2;
   e[1] = p2 - p3;
   e[2] = p3 - p1;
-  FCL_REAL len[3];
+  CoalScalar len[3];
   len[0] = e[0].squaredNorm();
   len[1] = e[1].squaredNorm();
   len[2] = e[2].squaredNorm();
@@ -192,17 +192,17 @@ void fit3(Vec3f* ps, RSS& bv) {
                                      bv.length, bv.radius);
 }
 
-void fit6(Vec3f* ps, RSS& bv) {
+void fit6(Vec3s* ps, RSS& bv) {
   RSS bv1, bv2;
   fit3(ps, bv1);
   fit3(ps + 3, bv2);
   bv = bv1 + bv2;
 }
 
-void fitn(Vec3f* ps, unsigned int n, RSS& bv) {
-  Matrix3f M;  // row first matrix
-  Vec3f E[3];  // row first eigen-vectors
-  Matrix3f::Scalar s[3] = {0, 0, 0};
+void fitn(Vec3s* ps, unsigned int n, RSS& bv) {
+  Matrix3s M;  // row first matrix
+  Vec3s E[3];  // row first eigen-vectors
+  CoalScalar s[3] = {0, 0, 0};
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
@@ -217,7 +217,7 @@ void fitn(Vec3f* ps, unsigned int n, RSS& bv) {
 
 namespace kIOS_fit_functions {
 
-void fit1(Vec3f* ps, kIOS& bv) {
+void fit1(Vec3s* ps, kIOS& bv) {
   bv.num_spheres = 1;
   bv.spheres[0].o.noalias() = ps[0];
   bv.spheres[0].r = 0;
@@ -227,31 +227,31 @@ void fit1(Vec3f* ps, kIOS& bv) {
   bv.obb.To.noalias() = ps[0];
 }
 
-void fit2(Vec3f* ps, kIOS& bv) {
+void fit2(Vec3s* ps, kIOS& bv) {
   bv.num_spheres = 5;
 
-  const Vec3f& p1 = ps[0];
-  const Vec3f& p2 = ps[1];
-  Vec3f p1p2 = p1 - p2;
-  FCL_REAL len_p1p2 = p1p2.norm();
+  const Vec3s& p1 = ps[0];
+  const Vec3s& p2 = ps[1];
+  Vec3s p1p2 = p1 - p2;
+  CoalScalar len_p1p2 = p1p2.norm();
   p1p2.normalize();
 
-  Matrix3f& axes = bv.obb.axes;
+  Matrix3s& axes = bv.obb.axes;
   axes.col(0).noalias() = p1p2;
   generateCoordinateSystem(axes.col(0), axes.col(1), axes.col(2));
 
-  FCL_REAL r0 = len_p1p2 * 0.5;
+  CoalScalar r0 = len_p1p2 * 0.5;
   bv.obb.extent << r0, 0, 0;
   bv.obb.To = (p1 + p2) * 0.5;
 
   bv.spheres[0].o = bv.obb.To;
   bv.spheres[0].r = r0;
 
-  FCL_REAL r1 = r0 * invSinA;
-  FCL_REAL r1cosA = r1 * cosA;
+  CoalScalar r1 = r0 * invSinA;
+  CoalScalar r1cosA = r1 * cosA;
   bv.spheres[1].r = r1;
   bv.spheres[2].r = r1;
-  Vec3f delta = axes.col(1) * r1cosA;
+  Vec3s delta = axes.col(1) * r1cosA;
   bv.spheres[1].o = bv.spheres[0].o - delta;
   bv.spheres[2].o = bv.spheres[0].o + delta;
 
@@ -262,17 +262,17 @@ void fit2(Vec3f* ps, kIOS& bv) {
   bv.spheres[4].o = bv.spheres[0].o + delta;
 }
 
-void fit3(Vec3f* ps, kIOS& bv) {
+void fit3(Vec3s* ps, kIOS& bv) {
   bv.num_spheres = 3;
 
-  const Vec3f& p1 = ps[0];
-  const Vec3f& p2 = ps[1];
-  const Vec3f& p3 = ps[2];
-  Vec3f e[3];
+  const Vec3s& p1 = ps[0];
+  const Vec3s& p2 = ps[1];
+  const Vec3s& p3 = ps[2];
+  Vec3s e[3];
   e[0] = p1 - p2;
   e[1] = p2 - p3;
   e[2] = p3 - p1;
-  FCL_REAL len[3];
+  CoalScalar len[3];
   len[0] = e[0].squaredNorm();
   len[1] = e[1].squaredNorm();
   len[2] = e[2].squaredNorm();
@@ -289,15 +289,15 @@ void fit3(Vec3f* ps, kIOS& bv) {
                      bv.obb.extent);
 
   // compute radius and center
-  FCL_REAL r0;
-  Vec3f center;
+  CoalScalar r0;
+  Vec3s center;
   circumCircleComputation(p1, p2, p3, center, r0);
 
   bv.spheres[0].o = center;
   bv.spheres[0].r = r0;
 
-  FCL_REAL r1 = r0 * invSinA;
-  Vec3f delta = bv.obb.axes.col(2) * (r1 * cosA);
+  CoalScalar r1 = r0 * invSinA;
+  Vec3s delta = bv.obb.axes.col(2) * (r1 * cosA);
 
   bv.spheres[1].r = r1;
   bv.spheres[1].o = center - delta;
@@ -305,23 +305,23 @@ void fit3(Vec3f* ps, kIOS& bv) {
   bv.spheres[2].o = center + delta;
 }
 
-void fitn(Vec3f* ps, unsigned int n, kIOS& bv) {
-  Matrix3f M;
-  Vec3f E[3];
-  Matrix3f::Scalar s[3] = {0, 0, 0};  // three eigen values;
+void fitn(Vec3s* ps, unsigned int n, kIOS& bv) {
+  Matrix3s M;
+  Vec3s E[3];
+  CoalScalar s[3] = {0, 0, 0};  // three eigen values;
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
 
-  Matrix3f& axes = bv.obb.axes;
+  Matrix3s& axes = bv.obb.axes;
   axisFromEigen(E, s, axes);
 
   getExtentAndCenter(ps, NULL, NULL, NULL, n, axes, bv.obb.To, bv.obb.extent);
 
   // get center and extension
-  const Vec3f& center = bv.obb.To;
-  const Vec3f& extent = bv.obb.extent;
-  FCL_REAL r0 = maximumDistance(ps, NULL, NULL, NULL, n, center);
+  const Vec3s& center = bv.obb.To;
+  const Vec3s& extent = bv.obb.extent;
+  CoalScalar r0 = maximumDistance(ps, NULL, NULL, NULL, n, center);
 
   // decide the k in kIOS
   if (extent[0] > kIOS_RATIO * extent[2]) {
@@ -336,12 +336,12 @@ void fitn(Vec3f* ps, unsigned int n, kIOS& bv) {
   bv.spheres[0].r = r0;
 
   if (bv.num_spheres >= 3) {
-    FCL_REAL r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * invSinA;
-    Vec3f delta = axes.col(2) * (r10 * cosA - extent[2]);
+    CoalScalar r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * invSinA;
+    Vec3s delta = axes.col(2) * (r10 * cosA - extent[2]);
     bv.spheres[1].o = center - delta;
     bv.spheres[2].o = center + delta;
 
-    FCL_REAL r11 = 0, r12 = 0;
+    CoalScalar r11 = 0, r12 = 0;
     r11 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[1].o);
     r12 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[2].o);
     bv.spheres[1].o += axes.col(2) * (-r10 + r11);
@@ -352,15 +352,15 @@ void fitn(Vec3f* ps, unsigned int n, kIOS& bv) {
   }
 
   if (bv.num_spheres >= 5) {
-    FCL_REAL r10 = bv.spheres[1].r;
-    Vec3f delta =
+    CoalScalar r10 = bv.spheres[1].r;
+    Vec3s delta =
         axes.col(1) *
         (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) -
          extent[1]);
     bv.spheres[3].o = bv.spheres[0].o - delta;
     bv.spheres[4].o = bv.spheres[0].o + delta;
 
-    FCL_REAL r21 = 0, r22 = 0;
+    CoalScalar r21 = 0, r22 = 0;
     r21 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[3].o);
     r22 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[4].o);
 
@@ -375,22 +375,22 @@ void fitn(Vec3f* ps, unsigned int n, kIOS& bv) {
 }  // namespace kIOS_fit_functions
 
 namespace OBBRSS_fit_functions {
-void fit1(Vec3f* ps, OBBRSS& bv) {
+void fit1(Vec3s* ps, OBBRSS& bv) {
   OBB_fit_functions::fit1(ps, bv.obb);
   RSS_fit_functions::fit1(ps, bv.rss);
 }
 
-void fit2(Vec3f* ps, OBBRSS& bv) {
+void fit2(Vec3s* ps, OBBRSS& bv) {
   OBB_fit_functions::fit2(ps, bv.obb);
   RSS_fit_functions::fit2(ps, bv.rss);
 }
 
-void fit3(Vec3f* ps, OBBRSS& bv) {
+void fit3(Vec3s* ps, OBBRSS& bv) {
   OBB_fit_functions::fit3(ps, bv.obb);
   RSS_fit_functions::fit3(ps, bv.rss);
 }
 
-void fitn(Vec3f* ps, unsigned int n, OBBRSS& bv) {
+void fitn(Vec3s* ps, unsigned int n, OBBRSS& bv) {
   OBB_fit_functions::fitn(ps, n, bv.obb);
   RSS_fit_functions::fitn(ps, n, bv.rss);
 }
@@ -398,7 +398,7 @@ void fitn(Vec3f* ps, unsigned int n, OBBRSS& bv) {
 }  // namespace OBBRSS_fit_functions
 
 template <>
-void fit(Vec3f* ps, unsigned int n, OBB& bv) {
+void fit(Vec3s* ps, unsigned int n, OBB& bv) {
   switch (n) {
     case 1:
       OBB_fit_functions::fit1(ps, bv);
@@ -418,7 +418,7 @@ void fit(Vec3f* ps, unsigned int n, OBB& bv) {
 }
 
 template <>
-void fit(Vec3f* ps, unsigned int n, RSS& bv) {
+void fit(Vec3s* ps, unsigned int n, RSS& bv) {
   switch (n) {
     case 1:
       RSS_fit_functions::fit1(ps, bv);
@@ -435,7 +435,7 @@ void fit(Vec3f* ps, unsigned int n, RSS& bv) {
 }
 
 template <>
-void fit(Vec3f* ps, unsigned int n, kIOS& bv) {
+void fit(Vec3s* ps, unsigned int n, kIOS& bv) {
   switch (n) {
     case 1:
       kIOS_fit_functions::fit1(ps, bv);
@@ -452,7 +452,7 @@ void fit(Vec3f* ps, unsigned int n, kIOS& bv) {
 }
 
 template <>
-void fit(Vec3f* ps, unsigned int n, OBBRSS& bv) {
+void fit(Vec3s* ps, unsigned int n, OBBRSS& bv) {
   switch (n) {
     case 1:
       OBBRSS_fit_functions::fit1(ps, bv);
@@ -469,7 +469,7 @@ void fit(Vec3f* ps, unsigned int n, OBBRSS& bv) {
 }
 
 template <>
-void fit(Vec3f* ps, unsigned int n, AABB& bv) {
+void fit(Vec3s* ps, unsigned int n, AABB& bv) {
   if (n <= 0) return;
   bv = AABB(ps[0]);
   for (unsigned int i = 1; i < n; ++i) {
@@ -481,9 +481,9 @@ OBB BVFitter<OBB>::fit(unsigned int* primitive_indices,
                        unsigned int num_primitives) {
   OBB bv;
 
-  Matrix3f M;             // row first matrix
-  Vec3f E[3];             // row first eigen-vectors
-  Matrix3f::Scalar s[3];  // three eigen values
+  Matrix3s M;       // row first matrix
+  Vec3s E[3];       // row first eigen-vectors
+  CoalScalar s[3];  // three eigen values
 
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices,
                 num_primitives, M);
@@ -501,9 +501,9 @@ OBB BVFitter<OBB>::fit(unsigned int* primitive_indices,
 OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices,
                              unsigned int num_primitives) {
   OBBRSS bv;
-  Matrix3f M;
-  Vec3f E[3];
-  Matrix3f::Scalar s[3];
+  Matrix3s M;
+  Vec3s E[3];
+  CoalScalar s[3];
 
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices,
                 num_primitives, M);
@@ -515,9 +515,9 @@ OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices,
   getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices,
                      num_primitives, bv.obb.axes, bv.obb.To, bv.obb.extent);
 
-  Vec3f origin;
-  FCL_REAL l[2];
-  FCL_REAL r;
+  Vec3s origin;
+  CoalScalar l[2];
+  CoalScalar r;
   getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices,
                                      primitive_indices, num_primitives,
                                      bv.rss.axes, origin, l, r);
@@ -534,9 +534,9 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices,
                        unsigned int num_primitives) {
   RSS bv;
 
-  Matrix3f M;             // row first matrix
-  Vec3f E[3];             // row first eigen-vectors
-  Matrix3f::Scalar s[3];  // three eigen values
+  Matrix3s M;       // row first matrix
+  Vec3s E[3];       // row first eigen-vectors
+  CoalScalar s[3];  // three eigen values
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices,
                 num_primitives, M);
   eigen(M, s, E);
@@ -544,9 +544,9 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices,
 
   // set rss origin, rectangle size and radius
 
-  Vec3f origin;
-  FCL_REAL l[2];
-  FCL_REAL r;
+  Vec3s origin;
+  CoalScalar l[2];
+  CoalScalar r;
   getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices,
                                      primitive_indices, num_primitives, bv.axes,
                                      origin, l, r);
@@ -563,25 +563,25 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices,
                          unsigned int num_primitives) {
   kIOS bv;
 
-  Matrix3f M;  // row first matrix
-  Vec3f E[3];  // row first eigen-vectors
-  Matrix3f::Scalar s[3];
+  Matrix3s M;  // row first matrix
+  Vec3s E[3];  // row first eigen-vectors
+  CoalScalar s[3];
 
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices,
                 num_primitives, M);
   eigen(M, s, E);
 
-  Matrix3f& axes = bv.obb.axes;
+  Matrix3s& axes = bv.obb.axes;
   axisFromEigen(E, s, axes);
 
   // get centers and extensions
   getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices,
                      num_primitives, axes, bv.obb.To, bv.obb.extent);
 
-  const Vec3f& center = bv.obb.To;
-  const Vec3f& extent = bv.obb.extent;
-  FCL_REAL r0 = maximumDistance(vertices, prev_vertices, tri_indices,
-                                primitive_indices, num_primitives, center);
+  const Vec3s& center = bv.obb.To;
+  const Vec3s& extent = bv.obb.extent;
+  CoalScalar r0 = maximumDistance(vertices, prev_vertices, tri_indices,
+                                  primitive_indices, num_primitives, center);
 
   // decide k in kIOS
   if (extent[0] > kIOS_RATIO * extent[2]) {
@@ -596,15 +596,15 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices,
   bv.spheres[0].r = r0;
 
   if (bv.num_spheres >= 3) {
-    FCL_REAL r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * invSinA;
-    Vec3f delta = axes.col(2) * (r10 * cosA - extent[2]);
+    CoalScalar r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * invSinA;
+    Vec3s delta = axes.col(2) * (r10 * cosA - extent[2]);
     bv.spheres[1].o = center - delta;
     bv.spheres[2].o = center + delta;
 
-    FCL_REAL r11 =
+    CoalScalar r11 =
         maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices,
                         num_primitives, bv.spheres[1].o);
-    FCL_REAL r12 =
+    CoalScalar r12 =
         maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices,
                         num_primitives, bv.spheres[2].o);
 
@@ -616,15 +616,15 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices,
   }
 
   if (bv.num_spheres >= 5) {
-    FCL_REAL r10 = bv.spheres[1].r;
-    Vec3f delta =
+    CoalScalar r10 = bv.spheres[1].r;
+    Vec3s delta =
         axes.col(1) *
         (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) -
          extent[1]);
     bv.spheres[3].o = bv.spheres[0].o - delta;
     bv.spheres[4].o = bv.spheres[0].o + delta;
 
-    FCL_REAL r21 = 0, r22 = 0;
+    CoalScalar r21 = 0, r22 = 0;
     r21 = maximumDistance(vertices, prev_vertices, tri_indices,
                           primitive_indices, num_primitives, bv.spheres[3].o);
     r22 = maximumDistance(vertices, prev_vertices, tri_indices,
@@ -679,6 +679,4 @@ AABB BVFitter<AABB>::fit(unsigned int* primitive_indices,
   return bv;
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

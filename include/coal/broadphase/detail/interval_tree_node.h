@@ -35,62 +35,56 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
-#define HPP_FCL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
+#ifndef COAL_BROADPHASE_DETAIL_INTERVALTREENODE_H
+#define COAL_BROADPHASE_DETAIL_INTERVALTREENODE_H
 
-#include "hpp/fcl/broadphase/detail/interval_tree_node.h"
+#include "coal/broadphase/detail/simple_interval.h"
+#include "coal/fwd.hh"
 
-#include <iostream>
-#include <algorithm>
+namespace coal {
 
-namespace hpp {
-namespace fcl {
 namespace detail {
 
-//==============================================================================
-IntervalTreeNode::IntervalTreeNode() {
-  // Do nothing
-}
+class COAL_DLLAPI IntervalTree;
 
-//==============================================================================
-IntervalTreeNode::IntervalTreeNode(SimpleInterval* new_interval)
-    : stored_interval(new_interval),
-      key(new_interval->low),
-      high(new_interval->high),
-      max_high(high) {
-  // Do nothing
-}
+/// @brief The node for interval tree
+class COAL_DLLAPI IntervalTreeNode {
+ public:
+  friend class IntervalTree;
 
-//==============================================================================
-IntervalTreeNode::~IntervalTreeNode() {
-  // Do nothing
-}
+  /// @brief Create an empty node
+  IntervalTreeNode();
 
-//==============================================================================
-void IntervalTreeNode::print(IntervalTreeNode* nil,
-                             IntervalTreeNode* root) const {
-  stored_interval->print();
-  std::cout << ", k = " << key << ", h = " << high << ", mH = " << max_high;
-  std::cout << "  l->key = ";
-  if (left == nil)
-    std::cout << "nullptr";
-  else
-    std::cout << left->key;
-  std::cout << "  r->key = ";
-  if (right == nil)
-    std::cout << "nullptr";
-  else
-    std::cout << right->key;
-  std::cout << "  p->key = ";
-  if (parent == root)
-    std::cout << "nullptr";
-  else
-    std::cout << parent->key;
-  std::cout << "  red = " << (int)red << std::endl;
-}
+  /// @brief Create an node storing the interval
+  IntervalTreeNode(SimpleInterval* new_interval);
+
+  ~IntervalTreeNode();
+
+  /// @brief Print the interval node information: set left = invalid_node and
+  /// right = root
+  void print(IntervalTreeNode* left, IntervalTreeNode* right) const;
+
+ protected:
+  /// @brief interval stored in the node
+  SimpleInterval* stored_interval;
+
+  CoalScalar key;
+
+  CoalScalar high;
+
+  CoalScalar max_high;
+
+  /// @brief red or black node: if red = false then the node is black
+  bool red;
+
+  IntervalTreeNode* left;
+
+  IntervalTreeNode* right;
+
+  IntervalTreeNode* parent;
+};
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

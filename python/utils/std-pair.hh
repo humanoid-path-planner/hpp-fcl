@@ -2,8 +2,8 @@
 // Copyright (c) 2023 INRIA
 //
 
-#ifndef HPP_FCL_PYTHON_UTILS_STD_PAIR_H
-#define HPP_FCL_PYTHON_UTILS_STD_PAIR_H
+#ifndef COAL_PYTHON_UTILS_STD_PAIR_H
+#define COAL_PYTHON_UTILS_STD_PAIR_H
 
 #include <boost/python.hpp>
 #include <utility>
@@ -62,4 +62,4 @@ struct StdPairConverter {
   }
 };
 
-#endif  // ifndef HPP_FCL_PYTHON_UTILS_STD_PAIR_H
+#endif  // ifndef COAL_PYTHON_UTILS_STD_PAIR_H

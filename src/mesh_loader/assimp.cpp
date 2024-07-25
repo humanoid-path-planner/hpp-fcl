@@ -35,11 +35,11 @@
 #if !(__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
 #define nullptr NULL
 #endif
-#include <hpp/fcl/mesh_loader/assimp.h>
+#include "coal/mesh_loader/assimp.h"
 
 // Assimp >= 5.0 is forcing the use of C++11 keywords. A fix has been submitted
 // https://github.com/assimp/assimp/pull/2758. The next lines fixes the bug for
-// current version of hpp-fcl.
+// current version of Coal.
 #include <assimp/defs.h>
 #if !(__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600)) && \
     defined(AI_NO_EXCEPT)
@@ -54,8 +54,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 namespace internal {
 
@@ -89,11 +88,11 @@ void Loader::load(const std::string& resource_path) {
         std::string("Could not load resource ") + resource_path +
         std::string("\n") + importer->GetErrorString() + std::string("\n") +
         "Hint: the mesh directory may be wrong.");
-    HPP_FCL_THROW_PRETTY(exception_message.c_str(), std::invalid_argument);
+    COAL_THROW_PRETTY(exception_message.c_str(), std::invalid_argument);
   }
 
   if (!scene->HasMeshes())
-    HPP_FCL_THROW_PRETTY(
+    COAL_THROW_PRETTY(
         (std::string("No meshes found in file ") + resource_path).c_str(),
         std::invalid_argument);
 }
@@ -107,7 +106,7 @@ void Loader::load(const std::string& resource_path) {
  * @param[in]  vertices_offset Current number of vertices in the model
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-unsigned recurseBuildMesh(const fcl::Vec3f& scale, const aiScene* scene,
+unsigned recurseBuildMesh(const coal::Vec3s& scale, const aiScene* scene,
                           const aiNode* node, unsigned vertices_offset,
                           TriangleAndVertices& tv) {
   if (!node) return 0;
@@ -132,7 +131,7 @@ unsigned recurseBuildMesh(const fcl::Vec3f& scale, const aiScene* scene,
       aiVector3D p = input_mesh->mVertices[j];
       p *= transform;
       tv.vertices_.push_back(
-          fcl::Vec3f(p.x * scale[0], p.y * scale[1], p.z * scale[2]));
+          coal::Vec3s(p.x * scale[0], p.y * scale[1], p.z * scale[2]));
     }
 
     // add the indices
@@ -140,9 +139,9 @@ unsigned recurseBuildMesh(const fcl::Vec3f& scale, const aiScene* scene,
       aiFace& face = input_mesh->mFaces[j];
       assert(face.mNumIndices == 3 && "The size of the face is not valid.");
       tv.triangles_.push_back(
-          fcl::Triangle(vertices_offset + face.mIndices[0],
-                        vertices_offset + face.mIndices[1],
-                        vertices_offset + face.mIndices[2]));
+          coal::Triangle(vertices_offset + face.mIndices[0],
+                         vertices_offset + face.mIndices[1],
+                         vertices_offset + face.mIndices[2]));
     }
 
     nbVertices += input_mesh->mNumVertices;
@@ -156,11 +155,10 @@ unsigned recurseBuildMesh(const fcl::Vec3f& scale, const aiScene* scene,
   return nbVertices;
 }
 
-void buildMesh(const fcl::Vec3f& scale, const aiScene* scene,
+void buildMesh(const coal::Vec3s& scale, const aiScene* scene,
                unsigned vertices_offset, TriangleAndVertices& tv) {
   recurseBuildMesh(scale, scene, scene->mRootNode, vertices_offset, tv);
 }
 
 }  // namespace internal
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

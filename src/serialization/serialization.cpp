@@ -34,51 +34,51 @@
 
 /** \author Justin Carpentier */
 
-#include "hpp/fcl/serialization/fwd.h"
+#include "coal/serialization/fwd.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
-#include "hpp/fcl/serialization/transform.h"
-#include "hpp/fcl/serialization/collision_data.h"
-#include "hpp/fcl/serialization/geometric_shapes.h"
-#include "hpp/fcl/serialization/convex.h"
-#include "hpp/fcl/serialization/hfield.h"
-#include "hpp/fcl/serialization/BVH_model.h"
-#ifdef HPP_FCL_HAS_OCTOMAP
-#include "hpp/fcl/serialization/octree.h"
+#include "coal/serialization/transform.h"
+#include "coal/serialization/collision_data.h"
+#include "coal/serialization/geometric_shapes.h"
+#include "coal/serialization/convex.h"
+#include "coal/serialization/hfield.h"
+#include "coal/serialization/BVH_model.h"
+#ifdef COAL_HAS_OCTOMAP
+#include "coal/serialization/octree.h"
 #endif
 
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(CollisionRequest)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(CollisionResult)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(DistanceRequest)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(DistanceResult)
+COAL_SERIALIZATION_DEFINE_EXPORT(CollisionRequest)
+COAL_SERIALIZATION_DEFINE_EXPORT(CollisionResult)
+COAL_SERIALIZATION_DEFINE_EXPORT(DistanceRequest)
+COAL_SERIALIZATION_DEFINE_EXPORT(DistanceResult)
 
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(ShapeBase)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(CollisionGeometry)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(TriangleP)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(Box)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(Sphere)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(Ellipsoid)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(Capsule)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(Cone)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(Cylinder)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(Halfspace)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(Plane)
+COAL_SERIALIZATION_DEFINE_EXPORT(ShapeBase)
+COAL_SERIALIZATION_DEFINE_EXPORT(CollisionGeometry)
+COAL_SERIALIZATION_DEFINE_EXPORT(TriangleP)
+COAL_SERIALIZATION_DEFINE_EXPORT(Box)
+COAL_SERIALIZATION_DEFINE_EXPORT(Sphere)
+COAL_SERIALIZATION_DEFINE_EXPORT(Ellipsoid)
+COAL_SERIALIZATION_DEFINE_EXPORT(Capsule)
+COAL_SERIALIZATION_DEFINE_EXPORT(Cone)
+COAL_SERIALIZATION_DEFINE_EXPORT(Cylinder)
+COAL_SERIALIZATION_DEFINE_EXPORT(Halfspace)
+COAL_SERIALIZATION_DEFINE_EXPORT(Plane)
 
-#define EXPORT_AND_CAST(Derived, Base)               \
-  HPP_FCL_SERIALIZATION_CAST_REGISTER(Derived, Base) \
-  HPP_FCL_SERIALIZATION_DEFINE_EXPORT(Derived)       \
+#define EXPORT_AND_CAST(Derived, Base)            \
+  COAL_SERIALIZATION_CAST_REGISTER(Derived, Base) \
+  COAL_SERIALIZATION_DEFINE_EXPORT(Derived)       \
   /**/
 
-HPP_FCL_SERIALIZATION_CAST_REGISTER(ConvexBase, CollisionGeometry)
+COAL_SERIALIZATION_CAST_REGISTER(ConvexBase, CollisionGeometry)
 EXPORT_AND_CAST(Convex<Triangle>, ConvexBase)
 EXPORT_AND_CAST(Convex<Quadrilateral>, ConvexBase)
 
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(HeightField<AABB>)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(HeightField<OBB>)
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(HeightField<OBBRSS>)
+COAL_SERIALIZATION_DEFINE_EXPORT(HeightField<AABB>)
+COAL_SERIALIZATION_DEFINE_EXPORT(HeightField<OBB>)
+COAL_SERIALIZATION_DEFINE_EXPORT(HeightField<OBBRSS>)
 
-HPP_FCL_SERIALIZATION_CAST_REGISTER(BVHModelBase, CollisionGeometry)
+COAL_SERIALIZATION_CAST_REGISTER(BVHModelBase, CollisionGeometry)
 
 EXPORT_AND_CAST(BVHModel<AABB>, BVHModelBase)
 EXPORT_AND_CAST(BVHModel<OBB>, BVHModelBase)
@@ -89,6 +89,6 @@ EXPORT_AND_CAST(BVHModel<KDOP<16>>, BVHModelBase)
 EXPORT_AND_CAST(BVHModel<KDOP<18>>, BVHModelBase)
 EXPORT_AND_CAST(BVHModel<KDOP<24>>, BVHModelBase)
 
-#ifdef HPP_FCL_HAS_OCTOMAP
-HPP_FCL_SERIALIZATION_DEFINE_EXPORT(OcTree)
+#ifdef COAL_HAS_OCTOMAP
+COAL_SERIALIZATION_DEFINE_EXPORT(OcTree)
 #endif

@@ -36,10 +36,9 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/collision_data.h>
+#include "coal/collision_data.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 bool CollisionRequest::isSatisfied(const CollisionResult& result) const {
   return result.isCollision() && (num_max_contacts <= result.numContacts());
@@ -49,5 +48,4 @@ bool DistanceRequest::isSatisfied(const DistanceResult& result) const {
   return (result.min_distance <= 0);
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

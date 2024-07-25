@@ -32,39 +32,39 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define BOOST_TEST_MODULE FCL_DISTANCE_LOWER_BOUND
+#define BOOST_TEST_MODULE COAL_DISTANCE_LOWER_BOUND
 #include <boost/test/included/unit_test.hpp>
 #include <boost/filesystem.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/data_types.h>
-#include <hpp/fcl/BV/OBBRSS.h>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
+#include "coal/fwd.hh"
+#include "coal/data_types.h"
+#include "coal/BV/OBBRSS.h"
+#include "coal/BVH/BVH_model.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/collision.h"
+#include "coal/distance.h"
 #include "utility.h"
 #include "fcl_resources/config.h"
 
-using hpp::fcl::BVHModel;
-using hpp::fcl::CollisionGeometryPtr_t;
-using hpp::fcl::CollisionObject;
-using hpp::fcl::CollisionRequest;
-using hpp::fcl::CollisionResult;
-using hpp::fcl::DistanceRequest;
-using hpp::fcl::DistanceResult;
-using hpp::fcl::FCL_REAL;
-using hpp::fcl::OBBRSS;
-using hpp::fcl::shared_ptr;
-using hpp::fcl::Transform3f;
-using hpp::fcl::Triangle;
-using hpp::fcl::Vec3f;
+using coal::BVHModel;
+using coal::CoalScalar;
+using coal::CollisionGeometryPtr_t;
+using coal::CollisionObject;
+using coal::CollisionRequest;
+using coal::CollisionResult;
+using coal::DistanceRequest;
+using coal::DistanceResult;
+using coal::OBBRSS;
+using coal::shared_ptr;
+using coal::Transform3s;
+using coal::Triangle;
+using coal::Vec3s;
 
-bool testDistanceLowerBound(const Transform3f& tf,
+bool testDistanceLowerBound(const Transform3s& tf,
                             const CollisionGeometryPtr_t& m1,
                             const CollisionGeometryPtr_t& m2,
-                            FCL_REAL& distance) {
-  Transform3f pose1(tf), pose2;
+                            CoalScalar& distance) {
+  Transform3s pose1(tf), pose2;
 
   CollisionRequest request;
 
@@ -72,37 +72,37 @@ bool testDistanceLowerBound(const Transform3f& tf,
   CollisionObject co1(m1, pose1);
   CollisionObject co2(m2, pose2);
 
-  hpp::fcl::collide(&co1, &co2, request, result);
+  coal::collide(&co1, &co2, request, result);
   distance = result.distance_lower_bound;
 
   return result.isCollision();
 }
 
-bool testCollide(const Transform3f& tf, const CollisionGeometryPtr_t& m1,
+bool testCollide(const Transform3s& tf, const CollisionGeometryPtr_t& m1,
                  const CollisionGeometryPtr_t& m2) {
-  Transform3f pose1(tf), pose2;
+  Transform3s pose1(tf), pose2;
 
-  CollisionRequest request(hpp::fcl::NO_REQUEST, 1);
+  CollisionRequest request(coal::NO_REQUEST, 1);
   request.enable_distance_lower_bound = false;
 
   CollisionResult result;
   CollisionObject co1(m1, pose1);
   CollisionObject co2(m2, pose2);
 
-  hpp::fcl::collide(&co1, &co2, request, result);
+  coal::collide(&co1, &co2, request, result);
   return result.isCollision();
 }
 
-bool testDistance(const Transform3f& tf, const CollisionGeometryPtr_t& m1,
-                  const CollisionGeometryPtr_t& m2, FCL_REAL& distance) {
-  Transform3f pose1(tf), pose2;
+bool testDistance(const Transform3s& tf, const CollisionGeometryPtr_t& m1,
+                  const CollisionGeometryPtr_t& m2, CoalScalar& distance) {
+  Transform3s pose1(tf), pose2;
 
   DistanceRequest request;
   DistanceResult result;
   CollisionObject co1(m1, pose1);
   CollisionObject co2(m2, pose2);
 
-  hpp::fcl::distance(&co1, &co2, request, result);
+  coal::distance(&co1, &co2, request, result);
   distance = result.min_distance;
 
   if (result.min_distance <= 0) {
@@ -113,7 +113,7 @@ bool testDistance(const Transform3f& tf, const CollisionGeometryPtr_t& m1,
 }
 
 BOOST_AUTO_TEST_CASE(mesh_mesh) {
-  std::vector<Vec3f> p1, p2;
+  std::vector<Vec3s> p1, p2;
   std::vector<Triangle> t1, t2;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
 
@@ -131,15 +131,15 @@ BOOST_AUTO_TEST_CASE(mesh_mesh) {
   m2->addSubModel(p2, t2);
   m2->endModel();
 
-  std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+  std::vector<Transform3s> transforms;
+  CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   std::size_t n = 100;
 
   generateRandomTransforms(extents, transforms, n);
 
   // collision
   for (std::size_t i = 0; i < transforms.size(); ++i) {
-    FCL_REAL distanceLowerBound, distance;
+    CoalScalar distanceLowerBound, distance;
     bool col1, col2, col3;
     col1 = testDistanceLowerBound(transforms[i], m1, m2, distanceLowerBound);
     col2 = testDistance(transforms[i], m1, m2, distance);
@@ -158,21 +158,21 @@ BOOST_AUTO_TEST_CASE(mesh_mesh) {
 }
 
 BOOST_AUTO_TEST_CASE(box_sphere) {
-  shared_ptr<hpp::fcl::Sphere> sphere(new hpp::fcl::Sphere(0.5));
-  shared_ptr<hpp::fcl::Box> box(new hpp::fcl::Box(1., 1., 1.));
+  shared_ptr<coal::Sphere> sphere(new coal::Sphere(0.5));
+  shared_ptr<coal::Box> box(new coal::Box(1., 1., 1.));
 
-  Transform3f M1;
+  Transform3s M1;
   M1.setIdentity();
-  Transform3f M2;
+  Transform3s M2;
   M2.setIdentity();
 
-  std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-2., -2., -2., 2., 2., 2.};
+  std::vector<Transform3s> transforms;
+  CoalScalar extents[] = {-2., -2., -2., 2., 2., 2.};
   const std::size_t n = 1000;
 
   generateRandomTransforms(extents, transforms, n);
 
-  FCL_REAL distanceLowerBound, distance;
+  CoalScalar distanceLowerBound, distance;
   bool col1, col2;
   col1 = testDistanceLowerBound(M1, sphere, box, distanceLowerBound);
   col2 = testDistance(M1, sphere, box, distance);
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(box_sphere) {
   BOOST_CHECK(distanceLowerBound <= distance);
 
   for (std::size_t i = 0; i < transforms.size(); ++i) {
-    FCL_REAL distanceLowerBound, distance;
+    CoalScalar distanceLowerBound, distance;
     bool col1, col2;
     col1 =
         testDistanceLowerBound(transforms[i], sphere, box, distanceLowerBound);
@@ -195,21 +195,21 @@ BOOST_AUTO_TEST_CASE(box_sphere) {
 }
 
 BOOST_AUTO_TEST_CASE(sphere_sphere) {
-  shared_ptr<hpp::fcl::Sphere> sphere1(new hpp::fcl::Sphere(0.5));
-  shared_ptr<hpp::fcl::Sphere> sphere2(new hpp::fcl::Sphere(1.));
+  shared_ptr<coal::Sphere> sphere1(new coal::Sphere(0.5));
+  shared_ptr<coal::Sphere> sphere2(new coal::Sphere(1.));
 
-  Transform3f M1;
+  Transform3s M1;
   M1.setIdentity();
-  Transform3f M2;
+  Transform3s M2;
   M2.setIdentity();
 
-  std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-2., -2., -2., 2., 2., 2.};
+  std::vector<Transform3s> transforms;
+  CoalScalar extents[] = {-2., -2., -2., 2., 2., 2.};
   const std::size_t n = 1000;
 
   generateRandomTransforms(extents, transforms, n);
 
-  FCL_REAL distanceLowerBound, distance;
+  CoalScalar distanceLowerBound, distance;
   bool col1, col2;
   col1 = testDistanceLowerBound(M1, sphere1, sphere2, distanceLowerBound);
   col2 = testDistance(M1, sphere1, sphere2, distance);
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
   BOOST_CHECK(distanceLowerBound <= distance);
 
   for (std::size_t i = 0; i < transforms.size(); ++i) {
-    FCL_REAL distanceLowerBound, distance;
+    CoalScalar distanceLowerBound, distance;
     bool col1, col2;
     col1 = testDistanceLowerBound(transforms[i], sphere1, sphere2,
                                   distanceLowerBound);
@@ -232,28 +232,28 @@ BOOST_AUTO_TEST_CASE(sphere_sphere) {
 }
 
 BOOST_AUTO_TEST_CASE(box_mesh) {
-  std::vector<Vec3f> p1;
+  std::vector<Vec3s> p1;
   std::vector<Triangle> t1;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
 
   loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
 
   shared_ptr<BVHModel<OBBRSS> > m1(new BVHModel<OBBRSS>);
-  shared_ptr<hpp::fcl::Box> m2(new hpp::fcl::Box(500, 200, 150));
+  shared_ptr<coal::Box> m2(new coal::Box(500, 200, 150));
 
   m1->beginModel();
   m1->addSubModel(p1, t1);
   m1->endModel();
 
-  std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+  std::vector<Transform3s> transforms;
+  CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   std::size_t n = 100;
 
   generateRandomTransforms(extents, transforms, n);
 
   // collision
   for (std::size_t i = 0; i < transforms.size(); ++i) {
-    FCL_REAL distanceLowerBound, distance;
+    CoalScalar distanceLowerBound, distance;
     bool col1, col2;
     col1 = testDistanceLowerBound(transforms[i], m1, m2, distanceLowerBound);
     col2 = testDistance(transforms[i], m1, m2, distance);

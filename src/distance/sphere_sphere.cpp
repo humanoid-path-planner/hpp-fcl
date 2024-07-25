@@ -33,10 +33,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/internal/shape_shape_func.h>
-#include <hpp/fcl/internal/traversal_node_base.h>
+#include "coal/math/transform.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/internal/shape_shape_func.h"
+#include "coal/internal/traversal_node_base.h"
 
 #include "../narrowphase/details.h"
 
@@ -48,21 +48,19 @@
 //
 // One solution would be to make narrow phase solvers derive from an abstract
 // class and specialize the template for this abstract class.
-namespace hpp {
-namespace fcl {
+namespace coal {
 struct GJKSolver;
 
 namespace internal {
 template <>
-FCL_REAL ShapeShapeDistance<Sphere, Sphere>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+CoalScalar ShapeShapeDistance<Sphere, Sphere>(
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
+    const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Sphere& s1 = static_cast<const Sphere&>(*o1);
   const Sphere& s2 = static_cast<const Sphere&>(*o2);
   return details::sphereSphereDistance(s1, tf1, s2, tf2, p1, p2, normal);
 }
 }  // namespace internal
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

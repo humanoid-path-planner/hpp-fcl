@@ -35,22 +35,19 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/math/transform.h>
+#include "coal/math/transform.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
-void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
-                       Transform3f& tf) {
+void relativeTransform(const Transform3s& tf1, const Transform3s& tf2,
+                       Transform3s& tf) {
   tf = tf1.inverseTimes(tf2);
 }
 
-void relativeTransform2(const Transform3f& tf1, const Transform3f& tf2,
-                        Transform3f& tf) {
-  Matrix3f R(tf2.getRotation() * tf1.getRotation().transpose());
-  tf = Transform3f(R, tf2.getTranslation() - R * tf1.getTranslation());
+void relativeTransform2(const Transform3s& tf1, const Transform3s& tf2,
+                        Transform3s& tf) {
+  Matrix3s R(tf2.getRotation() * tf1.getRotation().transpose());
+  tf = Transform3s(R, tf2.getTranslation() - R * tf1.getTranslation());
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

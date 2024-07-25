@@ -34,20 +34,20 @@
 
 /** \author Louis Montaut */
 
-#define BOOST_TEST_MODULE SWEPT_SPHERE_RADIUS
+#define BOOST_TEST_MODULE COAL_SWEPT_SPHERE_RADIUS
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/collision_utility.h>
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/collision_utility.h"
 
-#include <hpp/fcl/serialization/geometric_shapes.h>
-#include <hpp/fcl/serialization/convex.h>
-#include <hpp/fcl/serialization/transform.h>
-#include <hpp/fcl/serialization/archive.h>
+#include "coal/serialization/geometric_shapes.h"
+#include "coal/serialization/convex.h"
+#include "coal/serialization/transform.h"
+#include "coal/serialization/archive.h"
 
 #include "utility.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 NODE_TYPE node1_type;
 NODE_TYPE node2_type;
@@ -58,7 +58,7 @@ int line;
   node2_type = shape2.getNodeType(); \
   line = __LINE__
 
-#define HPP_FCL_CHECK(cond)                                                  \
+#define COAL_CHECK(cond)                                                     \
   BOOST_CHECK_MESSAGE(                                                       \
       cond, "from line " << line << ", for collision pair: "                 \
                          << get_node_type_name(node1_type) << " - "          \
@@ -67,17 +67,17 @@ int line;
                          << ", ssr2 = " << shape2.getSweptSphereRadius()     \
                          << ": " #cond)
 
-#define HPP_FCL_CHECK_VECTOR_CLOSE(v1, v2, tol) \
-  EIGEN_VECTOR_IS_APPROX(v1, v2, tol);          \
-  HPP_FCL_CHECK(((v1) - (v2)).isZero(tol))
+#define COAL_CHECK_VECTOR_CLOSE(v1, v2, tol) \
+  EIGEN_VECTOR_IS_APPROX(v1, v2, tol);       \
+  COAL_CHECK(((v1) - (v2)).isZero(tol))
 
-#define HPP_FCL_CHECK_REAL_CLOSE(v1, v2, tol) \
-  FCL_REAL_IS_APPROX(v1, v2, tol);            \
-  HPP_FCL_CHECK(std::abs((v1) - (v2)) < tol)
+#define COAL_CHECK_REAL_CLOSE(v1, v2, tol) \
+  CoalScalar_IS_APPROX(v1, v2, tol);       \
+  COAL_CHECK(std::abs((v1) - (v2)) < tol)
 
-#define HPP_FCL_CHECK_CONDITION(cond) \
-  BOOST_CHECK(cond);                  \
-  HPP_FCL_CHECK(cond)
+#define COAL_CHECK_CONDITION(cond) \
+  BOOST_CHECK(cond);               \
+  COAL_CHECK(cond)
 
 // Preambule: swept sphere radius allows to virually convolve geometric shapes
 // by a sphere with positive radius (Minkowski sum).
@@ -99,7 +99,7 @@ int line;
 // So we can also easily recover the witness points of the swept sphere shapes.
 //
 // This suite of test is designed to verify that property and generally test for
-// swept-sphere radius support in hpp-fcl.
+// swept-sphere radius support in Coal.
 // Notes:
 //   - not all collision pairs use GJK/EPA, so this test makes sure that
 //     swept-sphere radius is taken into account even for specialized collision
@@ -113,19 +113,19 @@ int line;
 
 struct SweptSphereGJKSolver : public GJKSolver {
   template <typename S1, typename S2>
-  FCL_REAL shapeDistance(
-      const S1& s1, const Transform3f& tf1, const S2& s2,
-      const Transform3f& tf2, bool compute_penetration, Vec3f& p1, Vec3f& p2,
-      Vec3f& normal, bool use_swept_sphere_radius_in_gjk_epa_iterations) const {
+  CoalScalar shapeDistance(
+      const S1& s1, const Transform3s& tf1, const S2& s2,
+      const Transform3s& tf2, bool compute_penetration, Vec3s& p1, Vec3s& p2,
+      Vec3s& normal, bool use_swept_sphere_radius_in_gjk_epa_iterations) const {
     if (use_swept_sphere_radius_in_gjk_epa_iterations) {
-      FCL_REAL distance;
+      CoalScalar distance;
       this->runGJKAndEPA<S1, S2, details::SupportOptions::WithSweptSphere>(
           s1, tf1, s2, tf2, compute_penetration, distance, p1, p2, normal);
       return distance;
     }
 
-    // Default behavior of hppfcl's GJKSolver
-    FCL_REAL distance;
+    // Default behavior of coal's GJKSolver
+    CoalScalar distance;
     this->runGJKAndEPA<S1, S2, details::SupportOptions::NoSweptSphere>(
         s1, tf1, s2, tf2, compute_penetration, distance, p1, p2, normal);
     return distance;
@@ -138,36 +138,36 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
   // The swept sphere radius is detrimental to the convergence of GJK
   // and EPA. This gets worse as the radius of the swept sphere increases.
   // So we need to increase the number of iterations to get a good result.
-  const FCL_REAL tol = 1e-6;
+  const CoalScalar tol = 1e-6;
   solver.gjk_tolerance = tol;
   solver.epa_tolerance = tol;
   solver.epa_max_iterations = 1000;
   const bool compute_penetration = true;
 
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
+  CoalScalar extents[] = {-2, -2, -2, 2, 2, 2};
   std::size_t n = 10;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
+  std::vector<Transform3s> tf1s;
+  std::vector<Transform3s> tf2s;
   generateRandomTransforms(extents, tf1s, n);
   generateRandomTransforms(extents, tf2s, n);
-  const std::array<FCL_REAL, 4> swept_sphere_radius = {0, 0.1, 1., 10.};
+  const std::array<CoalScalar, 4> swept_sphere_radius = {0, 0.1, 1., 10.};
 
-  for (const FCL_REAL& ssr1 : swept_sphere_radius) {
+  for (const CoalScalar& ssr1 : swept_sphere_radius) {
     shape1.setSweptSphereRadius(ssr1);
-    for (const FCL_REAL& ssr2 : swept_sphere_radius) {
+    for (const CoalScalar& ssr2 : swept_sphere_radius) {
       shape2.setSweptSphereRadius(ssr2);
       for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
+        Transform3s tf1 = tf1s[i];
+        Transform3s tf2 = tf2s[i];
 
         SET_LINE;
 
-        std::array<FCL_REAL, 2> distance;
-        std::array<Vec3f, 2> p1;
-        std::array<Vec3f, 2> p2;
-        std::array<Vec3f, 2> normal;
+        std::array<CoalScalar, 2> distance;
+        std::array<Vec3s, 2> p1;
+        std::array<Vec3s, 2> p2;
+        std::array<Vec3s, 2> normal;
 
-        // Default hppfcl behavior - Don't take swept sphere radius into account
+        // Default coal behavior - Don't take swept sphere radius into account
         // during GJK/EPA iterations. Correct the solution afterwards.
         distance[0] =
             solver.shapeDistance(shape1, tf1, shape2, tf2, compute_penetration,
@@ -180,31 +180,31 @@ void test_gjksolver_swept_sphere_radius(S1& shape1, S2& shape2) {
 
         // Precision is dependent on the swept-sphere radius.
         // The issue of precision does not come from the default behavior of
-        // hppfcl, but from the result in which we manually take the swept
+        // coal, but from the result in which we manually take the swept
         // sphere radius into account in GJK/EPA iterations.
-        const FCL_REAL precision =
+        const CoalScalar precision =
             3 * sqrt(tol) +
             (1 / 100.0) * std::max(shape1.getSweptSphereRadius(),
                                    shape2.getSweptSphereRadius());
 
         // Check that the distance is the same
-        HPP_FCL_CHECK_REAL_CLOSE(distance[0], distance[1], precision);
+        COAL_CHECK_REAL_CLOSE(distance[0], distance[1], precision);
 
         // Check that the normal is the same
-        HPP_FCL_CHECK_CONDITION(normal[0].dot(normal[1]) > 0);
-        HPP_FCL_CHECK_CONDITION(std::abs(1 - normal[0].dot(normal[1])) <
-                                precision);
+        COAL_CHECK_CONDITION(normal[0].dot(normal[1]) > 0);
+        COAL_CHECK_CONDITION(std::abs(1 - normal[0].dot(normal[1])) <
+                             precision);
 
         // Check that the witness points are the same
-        HPP_FCL_CHECK_VECTOR_CLOSE(p1[0], p1[1], precision);
-        HPP_FCL_CHECK_VECTOR_CLOSE(p2[0], p2[1], precision);
+        COAL_CHECK_VECTOR_CLOSE(p1[0], p1[1], precision);
+        COAL_CHECK_VECTOR_CLOSE(p2[0], p2[1], precision);
       }
     }
   }
 }
 
-static const FCL_REAL min_shape_size = 0.1;
-static const FCL_REAL max_shape_size = 0.5;
+static const CoalScalar min_shape_size = 0.1;
+static const CoalScalar max_shape_size = 0.5;
 
 BOOST_AUTO_TEST_CASE(ssr_mesh_mesh) {
   Convex<Triangle> shape1 = makeRandomConvex(min_shape_size, max_shape_size);
@@ -281,21 +281,21 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
             << std::string(get_node_type_name(shape1.getNodeType())) << " and "
             << std::string(get_node_type_name(shape2.getNodeType())) << '\n';
 
-  FCL_REAL extents[] = {-2, -2, -2, 2, 2, 2};
+  CoalScalar extents[] = {-2, -2, -2, 2, 2, 2};
   std::size_t n = 1;
-  std::vector<Transform3f> tf1s;
-  std::vector<Transform3f> tf2s;
+  std::vector<Transform3s> tf1s;
+  std::vector<Transform3s> tf2s;
   generateRandomTransforms(extents, tf1s, n);
   generateRandomTransforms(extents, tf2s, n);
 
-  const std::array<FCL_REAL, 4> swept_sphere_radius = {0, 0.1, 1., 10.};
-  for (const FCL_REAL& ssr1 : swept_sphere_radius) {
+  const std::array<CoalScalar, 4> swept_sphere_radius = {0, 0.1, 1., 10.};
+  for (const CoalScalar& ssr1 : swept_sphere_radius) {
     shape1.setSweptSphereRadius(ssr1);
-    for (const FCL_REAL& ssr2 : swept_sphere_radius) {
+    for (const CoalScalar& ssr2 : swept_sphere_radius) {
       shape2.setSweptSphereRadius(ssr2);
       for (std::size_t i = 0; i < n; ++i) {
-        Transform3f tf1 = tf1s[i];
-        Transform3f tf2 = tf2s[i];
+        Transform3s tf1 = tf1s[i];
+        Transform3s tf2 = tf2s[i];
 
         SET_LINE;
         CollisionRequest request;
@@ -303,24 +303,24 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
         // We make sure we get witness points by setting the security margin to
         // infinity. That way shape1 and shape2 will always be considered in
         // collision.
-        request.security_margin = std::numeric_limits<FCL_REAL>::max();
-        const FCL_REAL tol = 1e-6;
+        request.security_margin = std::numeric_limits<CoalScalar>::max();
+        const CoalScalar tol = 1e-6;
         request.gjk_tolerance = tol;
         request.epa_tolerance = tol;
 
         std::array<CollisionResult, 2> result;
 
         // Without swept sphere radius
-        const FCL_REAL ssr1 = shape1.getSweptSphereRadius();
-        const FCL_REAL ssr2 = shape2.getSweptSphereRadius();
+        const CoalScalar ssr1 = shape1.getSweptSphereRadius();
+        const CoalScalar ssr2 = shape2.getSweptSphereRadius();
         shape1.setSweptSphereRadius(0.);
         shape2.setSweptSphereRadius(0.);
-        hpp::fcl::collide(&shape1, tf1, &shape2, tf2, request, result[0]);
+        coal::collide(&shape1, tf1, &shape2, tf2, request, result[0]);
 
         // With swept sphere radius
         shape1.setSweptSphereRadius(ssr1);
         shape2.setSweptSphereRadius(ssr2);
-        hpp::fcl::collide(&shape1, tf1, &shape2, tf2, request, result[1]);
+        coal::collide(&shape1, tf1, &shape2, tf2, request, result[1]);
 
         BOOST_CHECK(result[0].isCollision());
         BOOST_CHECK(result[1].isCollision());
@@ -331,28 +331,27 @@ void test_collide_swept_sphere_radius(S1& shape1, S2& shape2) {
 
           // Precision is dependent on the swept sphere radii.
           // The issue of precision does not come from the default behavior of
-          // hppfcl, but from the result in which we manually take the swept
+          // coal, but from the result in which we manually take the swept
           // sphere radius into account in GJK/EPA iterations.
-          const FCL_REAL precision =
+          const CoalScalar precision =
               3 * sqrt(tol) + (1 / 100.0) * std::max(ssr1, ssr2);
-          const FCL_REAL ssr = ssr1 + ssr2;
+          const CoalScalar ssr = ssr1 + ssr2;
 
           // Check that the distance is the same
-          HPP_FCL_CHECK_REAL_CLOSE(contact[0].penetration_depth - ssr,
-                                   contact[1].penetration_depth, precision);
+          COAL_CHECK_REAL_CLOSE(contact[0].penetration_depth - ssr,
+                                contact[1].penetration_depth, precision);
 
           // Check that the normal is the same
-          HPP_FCL_CHECK_CONDITION((contact[0].normal).dot(contact[1].normal) >
-                                  0);
-          HPP_FCL_CHECK_CONDITION(
+          COAL_CHECK_CONDITION((contact[0].normal).dot(contact[1].normal) > 0);
+          COAL_CHECK_CONDITION(
               std::abs(1 - (contact[0].normal).dot(contact[1].normal)) <
               precision);
 
           // Check that the witness points are the same
-          HPP_FCL_CHECK_VECTOR_CLOSE(
+          COAL_CHECK_VECTOR_CLOSE(
               contact[0].nearest_points[0] + ssr1 * contact[0].normal,
               contact[1].nearest_points[0], precision);
-          HPP_FCL_CHECK_VECTOR_CLOSE(
+          COAL_CHECK_VECTOR_CLOSE(
               contact[0].nearest_points[1] - ssr2 * contact[0].normal,
               contact[1].nearest_points[1], precision);
         }

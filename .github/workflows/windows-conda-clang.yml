@@ -1,4 +1,4 @@
-name: Build FCL for Windows (CLANG) via Conda
+name: Build Coal for Windows (CLANG) via Conda
 on: [push,pull_request]
 
 jobs:
@@ -33,13 +33,13 @@ jobs:
 
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        activate-environment: fcl
+        activate-environment: coal
         auto-update-conda: true
         environment-file: .github/workflows/conda/environment_windows.yml
         python-version: "3.10"
         auto-activate-base: false
 
-    - name: Build FCL
+    - name: Build Coal
       shell: cmd /C CALL {0}
       run: |
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
@@ -59,7 +59,7 @@ jobs:
           -DGENERATE_PYTHON_STUBS=ON ^
           -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
           -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
-          -DHPP_FCL_HAS_QHULL=ON ^
+          -DCOAL_HAS_QHULL=ON ^
           -DBUILD_PYTHON_INTERFACE=ON ^
           ..
         if errorlevel 1 exit 1
@@ -74,7 +74,7 @@ jobs:
 
         :: Test Python import
         cd ..
-        python -c "import hppfcl"
+        python -c "import coal"
         if errorlevel 1 exit 1
 
   check:
