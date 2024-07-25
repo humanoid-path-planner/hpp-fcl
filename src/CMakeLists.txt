@@ -238,6 +238,12 @@ if(HPP_FCL_HAS_QHULL)
   target_compile_definitions(${LIBRARY_NAME} PRIVATE -DHPP_FCL_HAS_QHULL)
   if (HPP_FCL_USE_SYSTEM_QHULL)
     target_link_libraries(${LIBRARY_NAME} PRIVATE Qhull::qhull_r Qhull::qhullcpp)
+    # On Linux, don't export libqhullcpp symbols to avoid conflict with other libraries
+    # that depend on QHull
+    if(UNIX AND NOT APPLE)
+      set_target_properties(
+        ${LIBRARY_NAME} PROPERTIES LINK_FLAGS "-Wl,--exclude-libs,libqhullcpp")
+    endif()
   else()
     target_include_directories(${LIBRARY_NAME} SYSTEM PRIVATE
       ${Qhull_r_INCLUDE_DIR} ${Qhullcpp_PREFIX})
