@@ -15,10 +15,10 @@ jobs:
             compiler: clang-cl
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v3
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       with:
