@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2.4.5] - 2024-07-28
+
 ### Fixed
 - Fix Octomap dependency on ROS
 
@@ -457,7 +459,8 @@ Now Eigen is at the heart of linear algebra computations.
 First release
 
 
-[Unreleased]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.4...HEAD
+[Unreleased]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.5...HEAD
+[2.4.5]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.4...v2.4.5
 [2.4.4]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.3...v2.4.4
 [2.4.3]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/humanoid-path-planner/hpp-fcl/compare/v2.4.1...v2.4.2
