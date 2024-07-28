@@ -30,14 +30,14 @@ jobs:
       shell: bash -l {0}
       run: |
         conda activate hpp-fcl
-        conda install compilers=1.4.2 -c conda-forge
+        conda install compilers -c conda-forge
 
     - name: Install cmake and update conda
       shell: bash -l {0}
       run: |
         conda activate hpp-fcl
         conda install cmake -c main
-        conda install llvm-openmp -c conda-forge
+        conda install llvm-openmp qhull-static -c conda-forge
 
     - name: Build hpp-fcl
       shell: bash -l {0}
