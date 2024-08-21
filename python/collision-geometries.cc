@@ -34,8 +34,9 @@
 
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/eigen-to-python.hpp>
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
 #include <eigenpy/id.hpp>
-
+#endif
 #include "fcl.hh"
 #include "deprecation.hh"
 
@@ -118,7 +119,10 @@ void exposeBVHModel(const std::string& bvname) {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<BVH>())
       .def(SerializableVisitor<BVH>())
-      .def(eigenpy::IdVisitor<BVH>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<BVH>())
+#endif
+      ;
 }
 
 template <typename BV>
@@ -160,7 +164,10 @@ void exposeHeightField(const std::string& bvname) {
            bp::return_internal_reference<>())
       .def_pickle(PickleObject<Geometry>())
       .def(SerializableVisitor<Geometry>())
-      .def(eigenpy::IdVisitor<Geometry>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<Geometry>())
+#endif
+      ;
 }
 
 struct ConvexBaseWrapper {
@@ -288,7 +295,10 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Box>())
       .def(SerializableVisitor<Box>())
-      .def(eigenpy::IdVisitor<Box>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<Box>())
+#endif
+      ;
 
   class_<Capsule, bases<ShapeBase>, shared_ptr<Capsule>>(
       "Capsule", doxygen::class_doc<Capsule>(), no_init)
@@ -301,7 +311,10 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Capsule>())
       .def(SerializableVisitor<Capsule>())
-      .def(eigenpy::IdVisitor<Capsule>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<Capsule>())
+#endif
+      ;
 
   class_<Cone, bases<ShapeBase>, shared_ptr<Cone>>(
       "Cone", doxygen::class_doc<Cone>(), no_init)
@@ -314,7 +327,10 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Cone>())
       .def(SerializableVisitor<Cone>())
-      .def(eigenpy::IdVisitor<Cone>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<Cone>())
+#endif
+      ;
 
   class_<ConvexBase, bases<ShapeBase>, shared_ptr<ConvexBase>, noncopyable>(
       "ConvexBase", doxygen::class_doc<ConvexBase>(), no_init)
@@ -363,7 +379,10 @@ void exposeShapes() {
       .def("polygons", &ConvexWrapper<Triangle>::polygons)
       .def_pickle(PickleObject<Convex<Triangle>>())
       .def(SerializableVisitor<Convex<Triangle>>())
-      .def(eigenpy::IdVisitor<Convex<Triangle>>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<Convex<Triangle>>())
+#endif
+      ;
 
   class_<Cylinder, bases<ShapeBase>, shared_ptr<Cylinder>>(
       "Cylinder", doxygen::class_doc<Cylinder>(), no_init)
@@ -377,7 +396,10 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Cylinder>())
       .def(SerializableVisitor<Cylinder>())
-      .def(eigenpy::IdVisitor<Cylinder>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<Cylinder>())
+#endif
+      ;
 
   class_<Halfspace, bases<ShapeBase>, shared_ptr<Halfspace>>(
       "Halfspace", doxygen::class_doc<Halfspace>(), no_init)
@@ -392,7 +414,10 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Halfspace>())
       .def(SerializableVisitor<Halfspace>())
-      .def(eigenpy::IdVisitor<Halfspace>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<Halfspace>())
+#endif
+      ;
 
   class_<Plane, bases<ShapeBase>, shared_ptr<Plane>>(
       "Plane", doxygen::class_doc<Plane>(), no_init)
@@ -406,7 +431,10 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Plane>())
       .def(SerializableVisitor<Plane>())
-      .def(eigenpy::IdVisitor<Plane>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<Plane>())
+#endif
+      ;
 
   class_<Sphere, bases<ShapeBase>, shared_ptr<Sphere>>(
       "Sphere", doxygen::class_doc<Sphere>(), no_init)
@@ -418,7 +446,10 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Sphere>())
       .def(SerializableVisitor<Sphere>())
-      .def(eigenpy::IdVisitor<Sphere>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<Sphere>())
+#endif
+      ;
 
   class_<Ellipsoid, bases<ShapeBase>, shared_ptr<Ellipsoid>>(
       "Ellipsoid", doxygen::class_doc<Ellipsoid>(), no_init)
@@ -432,7 +463,10 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<Ellipsoid>())
       .def(SerializableVisitor<Ellipsoid>())
-      .def(eigenpy::IdVisitor<Ellipsoid>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<Ellipsoid>())
+#endif
+      ;
 
   class_<TriangleP, bases<ShapeBase>, shared_ptr<TriangleP>>(
       "TriangleP", doxygen::class_doc<TriangleP>(), no_init)
@@ -447,7 +481,10 @@ void exposeShapes() {
            return_value_policy<manage_new_object>())
       .def_pickle(PickleObject<TriangleP>())
       .def(SerializableVisitor<TriangleP>())
-      .def(eigenpy::IdVisitor<TriangleP>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<TriangleP>())
+#endif
+      ;
 }
 
 boost::python::tuple AABB_distance_proxy(const AABB& self, const AABB& other) {
@@ -598,7 +635,10 @@ void exposeCollisionGeometries() {
            bp::return_internal_reference<>())
       .def_pickle(PickleObject<AABB>())
       .def(SerializableVisitor<AABB>())
-      .def(eigenpy::IdVisitor<AABB>());
+#if EIGENPY_VERSION_AT_LEAST(3, 8, 0)
+      .def(eigenpy::IdVisitor<AABB>())
+#endif
+      ;
 
   def("translate", (AABB(*)(const AABB&, const Vec3f&)) & translate,
       bp::args("aabb", "t"), "Translate the center of AABB by t");
