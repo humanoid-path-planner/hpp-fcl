@@ -24,6 +24,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add `Serializable` trait to transform, collision data, collision geometries, bounding volumes, bvh models, hfields. Collision problems can now be serialized from C++ and sent to python and vice versa.
 - CMake: allow use of installed jrl-cmakemodules ([#564](https://github.com/humanoid-path-planner/hpp-fcl/pull/564))
 - CMake: Add compatibility with jrl-cmakemodules workspace ([#610](https://github.com/humanoid-path-planner/hpp-fcl/pull/610))
+- Python: add id() support for geometries ([#618](https://github.com/humanoid-path-planner/hpp-fcl/pull/618)).
+
 
 ### Fixed
 
