@@ -35,45 +35,44 @@
 
 /** \author Jia Pan, Florent Lamiraux */
 
-#include <hpp/fcl/BV/OBB.h>
-#include <hpp/fcl/BVH/BVH_utility.h>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/collision_data.h>
-#include <hpp/fcl/internal/tools.h>
+#include "coal/BV/OBB.h"
+#include "coal/BVH/BVH_utility.h"
+#include "coal/math/transform.h"
+#include "coal/collision_data.h"
+#include "coal/internal/tools.h"
 
 #include <iostream>
 #include <limits>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Compute the 8 vertices of a OBB
-inline void computeVertices(const OBB& b, Vec3f vertices[8]) {
-  Matrix3f extAxes(b.axes * b.extent.asDiagonal());
-  vertices[0].noalias() = b.To + extAxes * Vec3f(-1, -1, -1);
-  vertices[1].noalias() = b.To + extAxes * Vec3f(1, -1, -1);
-  vertices[2].noalias() = b.To + extAxes * Vec3f(1, 1, -1);
-  vertices[3].noalias() = b.To + extAxes * Vec3f(-1, 1, -1);
-  vertices[4].noalias() = b.To + extAxes * Vec3f(-1, -1, 1);
-  vertices[5].noalias() = b.To + extAxes * Vec3f(1, -1, 1);
-  vertices[6].noalias() = b.To + extAxes * Vec3f(1, 1, 1);
-  vertices[7].noalias() = b.To + extAxes * Vec3f(-1, 1, 1);
+inline void computeVertices(const OBB& b, Vec3s vertices[8]) {
+  Matrix3s extAxes(b.axes * b.extent.asDiagonal());
+  vertices[0].noalias() = b.To + extAxes * Vec3s(-1, -1, -1);
+  vertices[1].noalias() = b.To + extAxes * Vec3s(1, -1, -1);
+  vertices[2].noalias() = b.To + extAxes * Vec3s(1, 1, -1);
+  vertices[3].noalias() = b.To + extAxes * Vec3s(-1, 1, -1);
+  vertices[4].noalias() = b.To + extAxes * Vec3s(-1, -1, 1);
+  vertices[5].noalias() = b.To + extAxes * Vec3s(1, -1, 1);
+  vertices[6].noalias() = b.To + extAxes * Vec3s(1, 1, 1);
+  vertices[7].noalias() = b.To + extAxes * Vec3s(-1, 1, 1);
 }
 
 /// @brief OBB merge method when the centers of two smaller OBB are far away
 inline OBB merge_largedist(const OBB& b1, const OBB& b2) {
   OBB b;
-  Vec3f vertex[16];
+  Vec3s vertex[16];
   computeVertices(b1, vertex);
   computeVertices(b2, vertex + 8);
-  Matrix3f M;
-  Vec3f E[3];
-  Matrix3f::Scalar s[3] = {0, 0, 0};
+  Matrix3s M;
+  Vec3s E[3];
+  CoalScalar s[3] = {0, 0, 0};
 
   // obb axes
   b.axes.col(0).noalias() = (b1.To - b2.To).normalized();
 
-  Vec3f vertex_proj[16];
+  Vec3s vertex_proj[16];
   for (int i = 0; i < 16; ++i)
     vertex_proj[i].noalias() =
         vertex[i] - b.axes.col(0) * vertex[i].dot(b.axes.col(0));
@@ -103,7 +102,7 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2) {
   b.axes.col(2) << E[0][mid], E[1][mid], E[2][mid];
 
   // set obb centers and extensions
-  Vec3f center, extent;
+  Vec3s center, extent;
   getExtentAndCenter(vertex, NULL, NULL, NULL, 16, b.axes, center, extent);
 
   b.To.noalias() = center;
@@ -122,16 +121,16 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2) {
   Quatf q((q0.coeffs() + q1.coeffs()).normalized());
   b.axes = q.toRotationMatrix();
 
-  Vec3f vertex[8], diff;
-  FCL_REAL real_max = (std::numeric_limits<FCL_REAL>::max)();
-  Vec3f pmin(real_max, real_max, real_max);
-  Vec3f pmax(-real_max, -real_max, -real_max);
+  Vec3s vertex[8], diff;
+  CoalScalar real_max = (std::numeric_limits<CoalScalar>::max)();
+  Vec3s pmin(real_max, real_max, real_max);
+  Vec3s pmax(-real_max, -real_max, -real_max);
 
   computeVertices(b1, vertex);
   for (int i = 0; i < 8; ++i) {
     diff = vertex[i] - b.To;
     for (int j = 0; j < 3; ++j) {
-      FCL_REAL dot = diff.dot(b.axes.col(j));
+      CoalScalar dot = diff.dot(b.axes.col(j));
       if (dot > pmax[j])
         pmax[j] = dot;
       else if (dot < pmin[j])
@@ -143,7 +142,7 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2) {
   for (int i = 0; i < 8; ++i) {
     diff = vertex[i] - b.To;
     for (int j = 0; j < 3; ++j) {
-      FCL_REAL dot = diff.dot(b.axes.col(j));
+      CoalScalar dot = diff.dot(b.axes.col(j));
       if (dot > pmax[j])
         pmax[j] = dot;
       else if (dot < pmin[j])
@@ -159,12 +158,12 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2) {
   return b;
 }
 
-bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
-                 const Vec3f& b) {
-  FCL_REAL t, s;
-  const FCL_REAL reps = 1e-6;
+bool obbDisjoint(const Matrix3s& B, const Vec3s& T, const Vec3s& a,
+                 const Vec3s& b) {
+  CoalScalar t, s;
+  const CoalScalar reps = 1e-6;
 
-  Matrix3f Bf(B.array().abs() + reps);
+  Matrix3s Bf(B.array().abs() + reps);
   // Bf += reps;
 
   // if any of these tests are one-sided, then the polyhedra are disjoint
@@ -287,20 +286,20 @@ bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
 }
 
 namespace internal {
-inline FCL_REAL obbDisjoint_check_A_axis(const Vec3f& T, const Vec3f& a,
-                                         const Vec3f& b, const Matrix3f& Bf) {
+inline CoalScalar obbDisjoint_check_A_axis(const Vec3s& T, const Vec3s& a,
+                                           const Vec3s& b, const Matrix3s& Bf) {
   // |T| - |B| * b - a
-  Vec3f AABB_corner(T.cwiseAbs() - a);
+  Vec3s AABB_corner(T.cwiseAbs() - a);
   AABB_corner.noalias() -= Bf * b;
-  return AABB_corner.array().max(FCL_REAL(0)).matrix().squaredNorm();
+  return AABB_corner.array().max(CoalScalar(0)).matrix().squaredNorm();
 }
 
-inline FCL_REAL obbDisjoint_check_B_axis(const Matrix3f& B, const Vec3f& T,
-                                         const Vec3f& a, const Vec3f& b,
-                                         const Matrix3f& Bf) {
+inline CoalScalar obbDisjoint_check_B_axis(const Matrix3s& B, const Vec3s& T,
+                                           const Vec3s& a, const Vec3s& b,
+                                           const Matrix3s& Bf) {
   // Bf = |B|
   // | B^T T| - Bf^T * a - b
-  FCL_REAL s, t = 0;
+  CoalScalar s, t = 0;
   s = std::abs(B.col(0).dot(T)) - Bf.col(0).dot(a) - b[0];
   if (s > 0) t += s * s;
   s = std::abs(B.col(1).dot(T)) - Bf.col(1).dot(a) - b[1];
@@ -311,18 +310,18 @@ inline FCL_REAL obbDisjoint_check_B_axis(const Matrix3f& B, const Vec3f& T,
 }
 
 template <int ib, int jb = (ib + 1) % 3, int kb = (ib + 2) % 3>
-struct HPP_FCL_LOCAL obbDisjoint_check_Ai_cross_Bi {
-  static inline bool run(int ia, int ja, int ka, const Matrix3f& B,
-                         const Vec3f& T, const Vec3f& a, const Vec3f& b,
-                         const Matrix3f& Bf, const FCL_REAL& breakDistance2,
-                         FCL_REAL& squaredLowerBoundDistance) {
-    FCL_REAL sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
+struct COAL_LOCAL obbDisjoint_check_Ai_cross_Bi {
+  static inline bool run(int ia, int ja, int ka, const Matrix3s& B,
+                         const Vec3s& T, const Vec3s& a, const Vec3s& b,
+                         const Matrix3s& Bf, const CoalScalar& breakDistance2,
+                         CoalScalar& squaredLowerBoundDistance) {
+    CoalScalar sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
     if (sinus2 < 1e-6) return false;
 
-    const FCL_REAL s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
+    const CoalScalar s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
 
-    const FCL_REAL diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
-                                     b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
+    const CoalScalar diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
+                                       b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
     // We need to divide by the norm || Aia x Bib ||
     // As ||Aia|| = ||Bib|| = 1, (Aia | Bib)^2  = cosine^2
     if (diff > 0) {
@@ -342,26 +341,26 @@ struct HPP_FCL_LOCAL obbDisjoint_check_Ai_cross_Bi {
 //
 // This function tests whether bounding boxes should be broken down.
 //
-bool obbDisjointAndLowerBoundDistance(const Matrix3f& B, const Vec3f& T,
-                                      const Vec3f& a_, const Vec3f& b_,
+bool obbDisjointAndLowerBoundDistance(const Matrix3s& B, const Vec3s& T,
+                                      const Vec3s& a_, const Vec3s& b_,
                                       const CollisionRequest& request,
-                                      FCL_REAL& squaredLowerBoundDistance) {
+                                      CoalScalar& squaredLowerBoundDistance) {
   assert(request.security_margin >
              -2 * (std::min)(a_.minCoeff(), b_.minCoeff()) -
-                 10 * Eigen::NumTraits<FCL_REAL>::epsilon() &&
+                 10 * Eigen::NumTraits<CoalScalar>::epsilon() &&
          "A negative security margin could not be lower than the OBB extent.");
-  //  const FCL_REAL breakDistance(request.break_distance +
+  //  const CoalScalar breakDistance(request.break_distance +
   //                               request.security_margin);
-  const FCL_REAL breakDistance2 =
+  const CoalScalar breakDistance2 =
       request.break_distance * request.break_distance;
 
-  Matrix3f Bf(B.cwiseAbs());
-  const Vec3f a((a_ + Vec3f::Constant(request.security_margin / 2))
+  Matrix3s Bf(B.cwiseAbs());
+  const Vec3s a((a_ + Vec3s::Constant(request.security_margin / 2))
                     .array()
-                    .max(FCL_REAL(0)));
-  const Vec3f b((b_ + Vec3f::Constant(request.security_margin / 2))
+                    .max(CoalScalar(0)));
+  const Vec3s b((b_ + Vec3s::Constant(request.security_margin / 2))
                     .array()
-                    .max(FCL_REAL(0)));
+                    .max(CoalScalar(0)));
 
   // Corner of b axis aligned bounding box the closest to the origin
   squaredLowerBoundDistance = internal::obbDisjoint_check_A_axis(T, a, b, Bf);
@@ -397,35 +396,35 @@ bool OBB::overlap(const OBB& other) const {
   /// compute what transform [R,T] that takes us from cs1 to cs2.
   /// [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
   /// First compute the rotation part, then translation part
-  Vec3f T(axes.transpose() * (other.To - To));
-  Matrix3f R(axes.transpose() * other.axes);
+  Vec3s T(axes.transpose() * (other.To - To));
+  Matrix3s R(axes.transpose() * other.axes);
 
   return !obbDisjoint(R, T, extent, other.extent);
 }
 
 bool OBB::overlap(const OBB& other, const CollisionRequest& request,
-                  FCL_REAL& sqrDistLowerBound) const {
+                  CoalScalar& sqrDistLowerBound) const {
   /// compute what transform [R,T] that takes us from cs1 to cs2.
   /// [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
   /// First compute the rotation part, then translation part
-  // Vec3f t = other.To - To; // T2 - T1
-  // Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
-  // Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]),
+  // Vec3s t = other.To - To; // T2 - T1
+  // Vec3s T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
+  // Matrix3s R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]),
   // axis[0].dot(other.axis[2]),
   // axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]),
   // axis[1].dot(other.axis[2]),
   // axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]),
   // axis[2].dot(other.axis[2]));
-  Vec3f T(axes.transpose() * (other.To - To));
-  Matrix3f R(axes.transpose() * other.axes);
+  Vec3s T(axes.transpose() * (other.To - To));
+  Matrix3s R(axes.transpose() * other.axes);
 
   return !obbDisjointAndLowerBoundDistance(R, T, extent, other.extent, request,
                                            sqrDistLowerBound);
 }
 
-bool OBB::contain(const Vec3f& p) const {
-  Vec3f local_p(p - To);
-  FCL_REAL proj = local_p.dot(axes.col(0));
+bool OBB::contain(const Vec3s& p) const {
+  Vec3s local_p(p - To);
+  CoalScalar proj = local_p.dot(axes.col(0));
   if ((proj > extent[0]) || (proj < -extent[0])) return false;
 
   proj = local_p.dot(axes.col(1));
@@ -437,7 +436,7 @@ bool OBB::contain(const Vec3f& p) const {
   return true;
 }
 
-OBB& OBB::operator+=(const Vec3f& p) {
+OBB& OBB::operator+=(const Vec3s& p) {
   OBB bvp;
   bvp.To = p;
   bvp.axes.noalias() = axes;
@@ -448,9 +447,9 @@ OBB& OBB::operator+=(const Vec3f& p) {
 }
 
 OBB OBB::operator+(const OBB& other) const {
-  Vec3f center_diff = To - other.To;
-  FCL_REAL max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
-  FCL_REAL max_extent2 =
+  Vec3s center_diff = To - other.To;
+  CoalScalar max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
+  CoalScalar max_extent2 =
       std::max(std::max(other.extent[0], other.extent[1]), other.extent[2]);
   if (center_diff.norm() > 2 * (max_extent + max_extent2)) {
     return merge_largedist(*this, other);
@@ -459,36 +458,35 @@ OBB OBB::operator+(const OBB& other) const {
   }
 }
 
-FCL_REAL OBB::distance(const OBB& /*other*/, Vec3f* /*P*/, Vec3f* /*Q*/) const {
+CoalScalar OBB::distance(const OBB& /*other*/, Vec3s* /*P*/,
+                         Vec3s* /*Q*/) const {
   std::cerr << "OBB distance not implemented!" << std::endl;
   return 0.0;
 }
 
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1,
+bool overlap(const Matrix3s& R0, const Vec3s& T0, const OBB& b1,
              const OBB& b2) {
-  Vec3f Ttemp(R0.transpose() * (b2.To - T0) - b1.To);
-  Vec3f T(b1.axes.transpose() * Ttemp);
-  Matrix3f R(b1.axes.transpose() * R0.transpose() * b2.axes);
+  Vec3s Ttemp(R0.transpose() * (b2.To - T0) - b1.To);
+  Vec3s T(b1.axes.transpose() * Ttemp);
+  Matrix3s R(b1.axes.transpose() * R0.transpose() * b2.axes);
 
   return !obbDisjoint(R, T, b1.extent, b2.extent);
 }
 
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2,
-             const CollisionRequest& request, FCL_REAL& sqrDistLowerBound) {
-  Vec3f Ttemp(R0.transpose() * (b2.To - T0) - b1.To);
-  Vec3f T(b1.axes.transpose() * Ttemp);
-  Matrix3f R(b1.axes.transpose() * R0.transpose() * b2.axes);
+bool overlap(const Matrix3s& R0, const Vec3s& T0, const OBB& b1, const OBB& b2,
+             const CollisionRequest& request, CoalScalar& sqrDistLowerBound) {
+  Vec3s Ttemp(R0.transpose() * (b2.To - T0) - b1.To);
+  Vec3s T(b1.axes.transpose() * Ttemp);
+  Matrix3s R(b1.axes.transpose() * R0.transpose() * b2.axes);
 
   return !obbDisjointAndLowerBoundDistance(R, T, b1.extent, b2.extent, request,
                                            sqrDistLowerBound);
 }
 
-OBB translate(const OBB& bv, const Vec3f& t) {
+OBB translate(const OBB& bv, const Vec3s& t) {
   OBB res(bv);
   res.To += t;
   return res;
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

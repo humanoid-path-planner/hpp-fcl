@@ -37,60 +37,60 @@
 
 #include <boost/mpl/vector.hpp>
 
-#define BOOST_TEST_MODULE FCL_COLLISION
+#define BOOST_TEST_MODULE COAL_COLLISION
 #include <boost/test/included/unit_test.hpp>
 
 #include <fstream>
 #include <boost/assign/list_of.hpp>
 
-#include <hpp/fcl/fwd.hh>
+#include "coal/fwd.hh"
 
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 
-#include <hpp/fcl/collision.h>
+#include "coal/collision.h"
 
-HPP_FCL_COMPILER_DIAGNOSTIC_POP
+COAL_COMPILER_DIAGNOSTIC_POP
 
-#include <hpp/fcl/BV/BV.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/mesh_loader/assimp.h>
+#include "coal/BV/BV.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/mesh_loader/assimp.h"
 
-#include <hpp/fcl/internal/traversal_node_bvhs.h>
-#include <hpp/fcl/internal/traversal_node_setup.h>
+#include "coal/internal/traversal_node_bvhs.h"
+#include "coal/internal/traversal_node_setup.h"
 #include "../src/collision_node.h"
-#include <hpp/fcl/internal/BV_splitter.h>
+#include "coal/internal/BV_splitter.h"
 
-#include <hpp/fcl/timings.h>
+#include "coal/timings.h"
 
 #include "utility.h"
 #include "fcl_resources/config.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 namespace utf = boost::unit_test::framework;
 
 int num_max_contacts = (std::numeric_limits<int>::max)();
 
 BOOST_AUTO_TEST_CASE(OBB_Box_test) {
-  FCL_REAL r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
-  std::vector<Transform3f> rotate_transform;
+  CoalScalar r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
+  std::vector<Transform3s> rotate_transform;
   generateRandomTransforms(r_extents, rotate_transform, 1);
 
   AABB aabb1;
-  aabb1.min_ = Vec3f(-600, -600, -600);
-  aabb1.max_ = Vec3f(600, 600, 600);
+  aabb1.min_ = Vec3s(-600, -600, -600);
+  aabb1.max_ = Vec3s(600, 600, 600);
 
   OBB obb1;
   convertBV(aabb1, rotate_transform[0], obb1);
   Box box1;
-  Transform3f box1_tf;
+  Transform3s box1_tf;
   constructBox(aabb1, rotate_transform[0], box1, box1_tf);
 
-  FCL_REAL extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
+  CoalScalar extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   generateRandomTransforms(extents, transforms, n);
 
   for (std::size_t i = 0; i < transforms.size(); ++i) {
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test) {
     convertBV(aabb, transforms[i], obb2);
 
     Box box2;
-    Transform3f box2_tf;
+    Transform3s box2_tf;
     constructBox(aabb, transforms[i], box2, box2_tf);
 
     GJKSolver solver;
@@ -123,28 +123,28 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test) {
 }
 
 BOOST_AUTO_TEST_CASE(OBB_shape_test) {
-  FCL_REAL r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
-  std::vector<Transform3f> rotate_transform;
+  CoalScalar r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
+  std::vector<Transform3s> rotate_transform;
   generateRandomTransforms(r_extents, rotate_transform, 1);
 
   AABB aabb1;
-  aabb1.min_ = Vec3f(-600, -600, -600);
-  aabb1.max_ = Vec3f(600, 600, 600);
+  aabb1.min_ = Vec3s(-600, -600, -600);
+  aabb1.max_ = Vec3s(600, 600, 600);
 
   OBB obb1;
   convertBV(aabb1, rotate_transform[0], obb1);
   Box box1;
-  Transform3f box1_tf;
+  Transform3s box1_tf;
   constructBox(aabb1, rotate_transform[0], box1, box1_tf);
 
-  FCL_REAL extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
+  CoalScalar extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   generateRandomTransforms(extents, transforms, n);
 
   for (std::size_t i = 0; i < transforms.size(); ++i) {
-    FCL_REAL len = (aabb1.max_[0] - aabb1.min_[0]) * 0.5;
+    CoalScalar len = (aabb1.max_[0] - aabb1.min_[0]) * 0.5;
     OBB obb2;
     GJKSolver solver;
 
@@ -206,18 +206,18 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test) {
 }
 
 BOOST_AUTO_TEST_CASE(OBB_AABB_test) {
-  FCL_REAL extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
+  CoalScalar extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
   generateRandomTransforms(extents, transforms, n);
 
   AABB aabb1;
-  aabb1.min_ = Vec3f(-600, -600, -600);
-  aabb1.max_ = Vec3f(600, 600, 600);
+  aabb1.min_ = Vec3s(-600, -600, -600);
+  aabb1.max_ = Vec3s(600, 600, 600);
 
   OBB obb1;
-  convertBV(aabb1, Transform3f(), obb1);
+  convertBV(aabb1, Transform3s(), obb1);
 
   for (std::size_t i = 0; i < transforms.size(); ++i) {
     AABB aabb;
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(OBB_AABB_test) {
     AABB aabb2 = translate(aabb, transforms[i].getTranslation());
 
     OBB obb2;
-    convertBV(aabb, Transform3f(transforms[i].getTranslation()), obb2);
+    convertBV(aabb, Transform3s(transforms[i].getTranslation()), obb2);
 
     bool overlap_aabb = aabb1.overlap(aabb2);
     bool overlap_obb = obb1.overlap(obb2);
@@ -308,11 +308,11 @@ struct traits<KDOP<N>, Oriented, recursive> : base_traits {
   enum { IS_IMPLEMENTED = false };
 };
 
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 
 struct mesh_mesh_run_test {
-  mesh_mesh_run_test(const std::vector<Transform3f>& _transforms,
+  mesh_mesh_run_test(const std::vector<Transform3s>& _transforms,
                      const CollisionRequest _request)
       : transforms(_transforms),
         request(_request),
@@ -321,7 +321,7 @@ struct mesh_mesh_run_test {
         isInit(false),
         indent(0) {}
 
-  const std::vector<Transform3f>& transforms;
+  const std::vector<Transform3s>& transforms;
   const CollisionRequest request;
   bool enable_statistics, benchmark;
   std::vector<Contacts_t> contacts;
@@ -330,7 +330,7 @@ struct mesh_mesh_run_test {
 
   int indent;
 
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 
   const char* getindent() {
     assert(indent < 9);
@@ -347,7 +347,7 @@ struct mesh_mesh_run_test {
   }
 
   template <typename BV>
-  void query(const std::vector<Transform3f>& transforms,
+  void query(const std::vector<Transform3s>& transforms,
              SplitMethodType splitMethod, const CollisionRequest request,
              std::vector<Contacts_t>& contacts) {
     BENCHMARK_HEADER("BV");
@@ -369,13 +369,13 @@ struct mesh_mesh_run_test {
     model1->bv_splitter.reset(new BVSplitter<BV>(splitMethod));
     model2->bv_splitter.reset(new BVSplitter<BV>(splitMethod));
 
-    loadPolyhedronFromResource(TEST_RESOURCES_DIR "/env.obj", Vec3f::Ones(),
+    loadPolyhedronFromResource(TEST_RESOURCES_DIR "/env.obj", Vec3s::Ones(),
                                model1);
-    loadPolyhedronFromResource(TEST_RESOURCES_DIR "/rob.obj", Vec3f::Ones(),
+    loadPolyhedronFromResource(TEST_RESOURCES_DIR "/rob.obj", Vec3s::Ones(),
                                model2);
 
     Timer timer(false);
-    const Transform3f tf2;
+    const Transform3s tf2;
     const std::size_t N = transforms.size();
 
     contacts.resize(3 * N);
@@ -385,7 +385,7 @@ struct mesh_mesh_run_test {
       ++indent;
 
       for (std::size_t i = 0; i < transforms.size(); ++i) {
-        const Transform3f& tf1 = transforms[i];
+        const Transform3s& tf1 = transforms[i];
         timer.start();
 
         CollisionResult local_result;
@@ -429,7 +429,7 @@ struct mesh_mesh_run_test {
       ++indent;
 
       for (std::size_t i = 0; i < transforms.size(); ++i) {
-        const Transform3f tf1 = transforms[i];
+        const Transform3s tf1 = transforms[i];
 
         timer.start();
         CollisionResult local_result;
@@ -438,9 +438,9 @@ struct mesh_mesh_run_test {
         node.enable_statistics = enable_statistics;
 
         BVH_t* model1_tmp = new BVH_t(*model1);
-        Transform3f tf1_tmp = tf1;
+        Transform3s tf1_tmp = tf1;
         BVH_t* model2_tmp = new BVH_t(*model2);
-        Transform3f tf2_tmp = tf2;
+        Transform3s tf2_tmp = tf2;
 
         bool success = initialize(node, *model1_tmp, tf1_tmp, *model2_tmp,
                                   tf2_tmp, local_result, true, true);
@@ -482,7 +482,7 @@ struct mesh_mesh_run_test {
 
       for (std::size_t i = 0; i < transforms.size(); ++i) {
         timer.start();
-        const Transform3f tf1 = transforms[i];
+        const Transform3s tf1 = transforms[i];
 
         CollisionResult local_result;
         MeshCollisionTraversalNode<BV, 0> node(request);
@@ -623,8 +623,8 @@ struct mesh_mesh_run_test {
 //      calls function collide with identity for both object poses,
 //
 BOOST_AUTO_TEST_CASE(mesh_mesh) {
-  std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+  std::vector<Transform3s> transforms;
+  CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
 #ifndef NDEBUG  // if debug mode
   std::size_t n = 1;
 #else
@@ -641,8 +641,8 @@ BOOST_AUTO_TEST_CASE(mesh_mesh) {
             << transforms[i].getQuatRotation().coeffs().format(f));
   }
 
-  HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-  HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+  COAL_COMPILER_DIAGNOSTIC_PUSH
+  COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 
   // Request all contacts and check that all methods give the same result.
   mesh_mesh_run_test runner(
@@ -650,12 +650,12 @@ BOOST_AUTO_TEST_CASE(mesh_mesh) {
   runner.enable_statistics = true;
   boost::mpl::for_each<BVs_t, wrap<boost::mpl::placeholders::_1> >(runner);
 
-  HPP_FCL_COMPILER_DIAGNOSTIC_POP
+  COAL_COMPILER_DIAGNOSTIC_POP
 }
 
 BOOST_AUTO_TEST_CASE(mesh_mesh_benchmark) {
-  std::vector<Transform3f> transforms;
-  FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+  std::vector<Transform3s> transforms;
+  CoalScalar extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
 #ifndef NDEBUG
   std::size_t n = 0;
 #else

@@ -32,23 +32,22 @@
 //  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH
-#define HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH
+#ifndef COAL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH
+#define COAL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH
 
 #include <eigenpy/eigenpy.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/broadphase/broadphase_callbacks.h>
+#include "coal/fwd.hh"
+#include "coal/broadphase/broadphase_callbacks.h"
 
-#include "../fcl.hh"
+#include "../coal.hh"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-#include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_callbacks.h"
+#include "doxygen_autodoc/coal/broadphase/broadphase_callbacks.h"
 #endif
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 struct CollisionCallBackBaseWrapper : CollisionCallBackBase,
                                       bp::wrapper<CollisionCallBackBase> {
@@ -85,7 +84,7 @@ struct DistanceCallBackBaseWrapper : DistanceCallBackBase,
     return distance(o1, o2, dist.coeffRef(0, 0));
   }
 
-  bool distance(CollisionObject* o1, CollisionObject* o2, FCL_REAL& dist) {
+  bool distance(CollisionObject* o1, CollisionObject* o2, CoalScalar& dist) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
     return this->get_override("distance")(o1, o2, dist);
@@ -108,7 +107,6 @@ struct DistanceCallBackBaseWrapper : DistanceCallBackBase,
   }
 };  // DistanceCallBackBaseWrapper
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH
+#endif  // ifndef COAL_PYTHON_BROADPHASE_BROADPHASE_CALLBACKS_HH

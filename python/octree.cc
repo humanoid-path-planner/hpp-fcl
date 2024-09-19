@@ -1,14 +1,14 @@
 
-#include "fcl.hh"
+#include "coal.hh"
 
 #include <eigenpy/std-vector.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/octree.h>
+#include "coal/fwd.hh"
+#include "coal/octree.h"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-#include "doxygen_autodoc/hpp/fcl/octree.h"
+#include "doxygen_autodoc/coal/octree.h"
 #endif
 
 bp::object toPyBytes(std::vector<uint8_t>& bytes) {
@@ -23,19 +23,19 @@ bp::object toPyBytes(std::vector<uint8_t>& bytes) {
 #endif
 }
 
-bp::object tobytes(const hpp::fcl::OcTree& self) {
+bp::object tobytes(const coal::OcTree& self) {
   std::vector<uint8_t> bytes = self.tobytes();
   return toPyBytes(bytes);
 }
 
 void exposeOctree() {
-  using namespace hpp::fcl;
+  using namespace coal;
   namespace bp = boost::python;
   namespace dv = doxygen::visitor;
 
   bp::class_<OcTree, bp::bases<CollisionGeometry>, shared_ptr<OcTree> >(
       "OcTree", doxygen::class_doc<OcTree>(), bp::no_init)
-      .def(dv::init<OcTree, FCL_REAL>())
+      .def(dv::init<OcTree, CoalScalar>())
       .def("clone", &OcTree::clone, doxygen::member_func_doc(&OcTree::clone),
            bp::return_value_policy<bp::manage_new_object>())
       .def(dv::member_func("getTreeDepth", &OcTree::getTreeDepth))
@@ -53,7 +53,7 @@ void exposeOctree() {
       .def("tobytes", tobytes, doxygen::member_func_doc(&OcTree::tobytes));
 
   doxygen::def("makeOctree", &makeOctree);
-  eigenpy::enableEigenPySpecific<Vec6f>();
-  eigenpy::StdVectorPythonVisitor<std::vector<Vec6f>, true>::expose(
+  eigenpy::enableEigenPySpecific<Vec6s>();
+  eigenpy::StdVectorPythonVisitor<std::vector<Vec6s>, true>::expose(
       "StdVec_Vec6");
 }

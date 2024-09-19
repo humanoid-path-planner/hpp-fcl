@@ -34,11 +34,10 @@
 
 /** @author Sean Curtis (sean@tri.global) */
 
-#include "hpp/fcl/broadphase/default_broadphase_callbacks.h"
+#include "coal/broadphase/default_broadphase_callbacks.h"
 #include <algorithm>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2,
                               void* data) {
@@ -65,7 +64,7 @@ bool CollisionCallBackDefault::collide(CollisionObject* o1,
 }
 
 bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2,
-                             void* data, FCL_REAL& dist) {
+                             void* data, CoalScalar& dist) {
   assert(data != nullptr);
   auto* cdata = static_cast<DistanceData*>(data);
   const DistanceRequest& request = cdata->request;
@@ -86,7 +85,7 @@ bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2,
 }
 
 bool DistanceCallBackDefault::distance(CollisionObject* o1, CollisionObject* o2,
-                                       FCL_REAL& dist) {
+                                       CoalScalar& dist) {
   return defaultDistanceFunction(o1, o2, &data, dist);
 }
 
@@ -122,5 +121,4 @@ bool CollisionCallBackCollect::exist(const CollisionPair& pair) const {
          collision_pairs.end();
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

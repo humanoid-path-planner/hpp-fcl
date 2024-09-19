@@ -36,21 +36,20 @@
 
 /** \authors Jia Pan, Florent Lamiraux, Josef Mirabel, Louis Montaut */
 
-#include "hpp/fcl/narrowphase/minkowski_difference.h"
-#include "hpp/fcl/shape/geometric_shapes_traits.h"
+#include "coal/narrowphase/minkowski_difference.h"
+#include "coal/shape/geometric_shapes_traits.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace details {
 
 // ============================================================================
 template <typename Shape0, typename Shape1, bool TransformIsIdentity,
           int _SupportOptions>
-void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3f& oR1,
-                   const Vec3f& ot1, const Vec3f& dir, Vec3f& support0,
-                   Vec3f& support1, support_func_guess_t& hint,
+void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3s& oR1,
+                   const Vec3s& ot1, const Vec3s& dir, Vec3s& support0,
+                   Vec3s& support1, support_func_guess_t& hint,
                    ShapeSupportData data[2]) {
-  assert(dir.norm() > Eigen::NumTraits<FCL_REAL>::epsilon());
+  assert(dir.norm() > Eigen::NumTraits<CoalScalar>::epsilon());
   getShapeSupport<_SupportOptions>(s0, dir, support0, hint[0], data[0]);
 
   if (TransformIsIdentity) {
@@ -65,8 +64,8 @@ void getSupportTpl(const Shape0* s0, const Shape1* s1, const Matrix3f& oR1,
 // ============================================================================
 template <typename Shape0, typename Shape1, bool TransformIsIdentity,
           int _SupportOptions>
-void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
-                       Vec3f& support0, Vec3f& support1,
+void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3s& dir,
+                       Vec3s& support0, Vec3s& support1,
                        support_func_guess_t& hint, ShapeSupportData data[2]) {
   getSupportTpl<Shape0, Shape1, TransformIsIdentity, _SupportOptions>(
       static_cast<const Shape0*>(md.shapes[0]),
@@ -78,7 +77,7 @@ void getSupportFuncTpl(const MinkowskiDiff& md, const Vec3f& dir,
 template <typename Shape0, int _SupportOptions>
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
     const ShapeBase* s1, bool identity,
-    Eigen::Array<FCL_REAL, 1, 2>& swept_sphere_radius,
+    Eigen::Array<CoalScalar, 1, 2>& swept_sphere_radius,
     ShapeSupportData data[2]) {
   if (_SupportOptions == SupportOptions::WithSweptSphere) {
     // No need to store the information of swept sphere radius
@@ -151,7 +150,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
       }
     }
     default:
-      HPP_FCL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
+      COAL_THROW_PRETTY("Unsupported geometric shape.", std::logic_error);
   }
 }
 
@@ -159,7 +158,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction1(
 template <int _SupportOptions>
 MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
     const ShapeBase* s0, const ShapeBase* s1, bool identity,
-    Eigen::Array<FCL_REAL, 1, 2>& swept_sphere_radius,
+    Eigen::Array<CoalScalar, 1, 2>& swept_sphere_radius,
     ShapeSupportData data[2]) {
   if (_SupportOptions == SupportOptions::WithSweptSphere) {
     // No need to store the information of swept sphere radius
@@ -221,7 +220,7 @@ MinkowskiDiff::GetSupportFunction makeGetSupportFunction0(
       break;
     }
     default:
-      HPP_FCL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
+      COAL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
   }
 }
 
@@ -253,7 +252,7 @@ bool getNormalizeSupportDirection(const ShapeBase* shape) {
       return (bool)shape_traits<ConvexBase>::NeedNesterovNormalizeHeuristic;
       break;
     default:
-      HPP_FCL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
+      COAL_THROW_PRETTY("Unsupported geometric shape", std::logic_error);
   }
 }
 
@@ -268,7 +267,7 @@ void getNormalizeSupportDirectionFromShapes(const ShapeBase* shape0,
 // ============================================================================
 template <int _SupportOptions>
 void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
-                        const Transform3f& tf0, const Transform3f& tf1) {
+                        const Transform3s& tf0, const Transform3s& tf1) {
   shapes[0] = shape0;
   shapes[1] = shape1;
   getNormalizeSupportDirectionFromShapes(shape0, shape1,
@@ -284,9 +283,9 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1,
       shape0, shape1, identity, swept_sphere_radius, data);
 }
 // clang-format off
-template void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::NoSweptSphere>(const ShapeBase*, const ShapeBase*);
+template void COAL_DLLAPI MinkowskiDiff::set<SupportOptions::NoSweptSphere>(const ShapeBase*, const ShapeBase*);
 
-template void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::WithSweptSphere>(const ShapeBase*, const ShapeBase*);
+template void COAL_DLLAPI MinkowskiDiff::set<SupportOptions::WithSweptSphere>(const ShapeBase*, const ShapeBase*);
 // clang-format on
 
 // ============================================================================
@@ -304,22 +303,21 @@ void MinkowskiDiff::set(const ShapeBase* shape0, const ShapeBase* shape1) {
       shape0, shape1, true, swept_sphere_radius, data);
 }
 // clang-format off
-template void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::NoSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
+template void COAL_DLLAPI MinkowskiDiff::set<SupportOptions::NoSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3s&, const Transform3s&);
 
-template void HPP_FCL_DLLAPI MinkowskiDiff::set<SupportOptions::WithSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3f&, const Transform3f&);
+template void COAL_DLLAPI MinkowskiDiff::set<SupportOptions::WithSweptSphere>(const ShapeBase*, const ShapeBase*, const Transform3s&, const Transform3s&);
 // clang-format on
 
 // ============================================================================
 // clang-format off
-template Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support0<SupportOptions::NoSweptSphere>(const Vec3f&, int&) const;
+template Vec3s COAL_DLLAPI MinkowskiDiff::support0<SupportOptions::NoSweptSphere>(const Vec3s&, int&) const;
 
-template Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support0<SupportOptions::WithSweptSphere>(const Vec3f&, int&) const;
+template Vec3s COAL_DLLAPI MinkowskiDiff::support0<SupportOptions::WithSweptSphere>(const Vec3s&, int&) const;
 
-template Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support1<SupportOptions::NoSweptSphere>(const Vec3f&, int&) const;
+template Vec3s COAL_DLLAPI MinkowskiDiff::support1<SupportOptions::NoSweptSphere>(const Vec3s&, int&) const;
 
-template Vec3f HPP_FCL_DLLAPI MinkowskiDiff::support1<SupportOptions::WithSweptSphere>(const Vec3f&, int&) const;
+template Vec3s COAL_DLLAPI MinkowskiDiff::support1<SupportOptions::WithSweptSphere>(const Vec3s&, int&) const;
 // clang-format on
 
 }  // namespace details
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

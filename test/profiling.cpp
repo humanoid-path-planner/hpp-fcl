@@ -1,33 +1,33 @@
 // Copyright (c) 2017, Joseph Mirabel
 // Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
 //
-// This file is part of hpp-fcl.
-// hpp-fcl is free software: you can redistribute it
+// This file is part of Coal.
+// Coal is free software: you can redistribute it
 // and/or modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation, either version
 // 3 of the License, or (at your option) any later version.
 //
-// hpp-fcl is distributed in the hope that it will be
+// Coal is distributed in the hope that it will be
 // useful, but WITHOUT ANY WARRANTY; without even the implied warranty
 // of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 // General Lesser Public License for more details.  You should have
 // received a copy of the GNU Lesser General Public License along with
-// hpp-fcl. If not, see <http://www.gnu.org/licenses/>.
+// Coal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/filesystem.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/collision_utility.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/collision_func_matrix.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/mesh_loader/assimp.h>
+#include "coal/fwd.hh"
+#include "coal/collision.h"
+#include "coal/BVH/BVH_model.h"
+#include "coal/collision_utility.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/collision_func_matrix.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/mesh_loader/assimp.h"
 #include "utility.h"
 #include "fcl_resources/config.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 CollisionFunctionMatrix lookupTable;
 bool supportedPair(const CollisionGeometry* o1, const CollisionGeometry* o2) {
@@ -44,7 +44,7 @@ bool supportedPair(const CollisionGeometry* o1, const CollisionGeometry* o2) {
 
 template <typename BV /*, SplitMethodType split_method*/>
 CollisionGeometryPtr_t objToGeom(const std::string& filename) {
-  std::vector<Vec3f> pt;
+  std::vector<Vec3s> pt;
   std::vector<Triangle> tri;
   loadOBJFile(filename.c_str(), pt, tri);
 
@@ -60,7 +60,7 @@ CollisionGeometryPtr_t objToGeom(const std::string& filename) {
 
 template <typename BV /*, SplitMethodType split_method*/>
 CollisionGeometryPtr_t meshToGeom(const std::string& filename,
-                                  const Vec3f& scale = Vec3f(1, 1, 1)) {
+                                  const Vec3s& scale = Vec3s(1, 1, 1)) {
   shared_ptr<BVHModel<BV> > model(new BVHModel<BV>());
   loadPolyhedronFromResource(filename, scale, model);
   return model;
@@ -82,10 +82,10 @@ struct Results {
   Results(size_t i) : rs(i), times((Eigen::DenseIndex)i) {}
 };
 
-void collide(const std::vector<Transform3f>& tf, const CollisionGeometry* o1,
+void collide(const std::vector<Transform3s>& tf, const CollisionGeometry* o1,
              const CollisionGeometry* o2, const CollisionRequest& request,
              Results& results) {
-  Transform3f Id;
+  Transform3s Id;
   BenchTimer timer;
   for (std::size_t i = 0; i < tf.size(); ++i) {
     timer.start();
@@ -117,7 +117,7 @@ size_t Ntransform = 1;
 #else
 size_t Ntransform = 100;
 #endif
-FCL_REAL limit = 20;
+CoalScalar limit = 20;
 bool verbose = false;
 
 #define OUT(x) \
@@ -190,16 +190,16 @@ Geometry makeGeomFromParam(int& iarg, const int& argc, char** argv) {
     iarg += 3;
     if (iarg < argc && strcmp(argv[iarg], "crop") == 0) {
       CHECK_PARAM_NB(6, Crop);
-      hpp::fcl::AABB aabb(Vec3f(atof(argv[iarg + 1]), atof(argv[iarg + 2]),
-                                atof(argv[iarg + 3])),
-                          Vec3f(atof(argv[iarg + 4]), atof(argv[iarg + 5]),
-                                atof(argv[iarg + 6])));
+      coal::AABB aabb(Vec3s(atof(argv[iarg + 1]), atof(argv[iarg + 2]),
+                            atof(argv[iarg + 3])),
+                      Vec3s(atof(argv[iarg + 4]), atof(argv[iarg + 5]),
+                            atof(argv[iarg + 6])));
       OUT("Cropping " << aabb.min_.transpose() << " ---- "
                       << aabb.max_.transpose() << " ...");
       o->computeLocalAABB();
       OUT("Mesh AABB is " << o->aabb_local.min_.transpose() << " ---- "
                           << o->aabb_local.max_.transpose() << " ...");
-      o.reset(extract(o.get(), Transform3f(), aabb));
+      o.reset(extract(o.get(), Transform3s(), aabb));
       if (!o) throw std::invalid_argument("Failed to crop.");
       OUT("Crop has " << dynamic_pointer_cast<BVHModel<OBB> >(o)->num_tris
                       << " triangles");
@@ -221,7 +221,7 @@ Geometry makeGeomFromParam(int& iarg, const int& argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3s> transforms;
 
   CollisionRequest request;
 
@@ -231,14 +231,14 @@ int main(int argc, char** argv) {
     Geometry first = makeGeomFromParam(iarg, argc, argv);
     Geometry second = makeGeomFromParam(iarg, argc, argv);
 
-    FCL_REAL extents[] = {-limit, -limit, -limit, limit, limit, limit};
+    CoalScalar extents[] = {-limit, -limit, -limit, limit, limit, limit};
     generateRandomTransforms(extents, transforms, Ntransform);
     printResultHeaders();
     Results results(Ntransform);
     collide(transforms, first.o.get(), second.o.get(), request, results);
     printResults(first, second, results);
   } else {
-    FCL_REAL extents[] = {-limit, -limit, -limit, limit, limit, limit};
+    CoalScalar extents[] = {-limit, -limit, -limit, limit, limit, limit};
     generateRandomTransforms(extents, transforms, Ntransform);
     boost::filesystem::path path(TEST_RESOURCES_DIR);
 
@@ -249,11 +249,11 @@ int main(int argc, char** argv) {
     geoms.push_back(Geometry("Cone", new Cone(2, 1)));
     geoms.push_back(Geometry("Cylinder", new Cylinder(2, 1)));
     // geoms.push_back(Geometry ("Plane"     , new Plane
-    // (Vec3f(1,1,1).normalized(), 0)                  ));
+    // (Vec3s(1,1,1).normalized(), 0)                  ));
     // geoms.push_back(Geometry ("Halfspace" , new Halfspace
-    // (Vec3f(1,1,1).normalized(), 0)                  ));
+    // (Vec3s(1,1,1).normalized(), 0)                  ));
     //  not implemented // geoms.push_back(Geometry ("TriangleP" , new TriangleP
-    //  (Vec3f(0,1,0), Vec3f(0,0,1), Vec3f(-1,0,0))     ));
+    //  (Vec3s(0,1,0), Vec3s(0,0,1), Vec3s(-1,0,0))     ));
 
     geoms.push_back(Geometry("rob BVHModel<OBB>",
                              objToGeom<OBB>((path / "rob.obj").string())));

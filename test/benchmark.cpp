@@ -1,25 +1,25 @@
 // Copyright (c) 2016, Joseph Mirabel
 // Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
 //
-// This file is part of hpp-fcl.
-// hpp-fcl is free software: you can redistribute it
+// This file is part of Coal.
+// Coal is free software: you can redistribute it
 // and/or modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation, either version
 // 3 of the License, or (at your option) any later version.
 //
-// hpp-fcl is distributed in the hope that it will be
+// Coal is distributed in the hope that it will be
 // useful, but WITHOUT ANY WARRANTY; without even the implied warranty
 // of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 // General Lesser Public License for more details.  You should have
 // received a copy of the GNU Lesser General Public License along with
-// hpp-fcl. If not, see <http://www.gnu.org/licenses/>.
+// Coal. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/filesystem.hpp>
 
-#include <hpp/fcl/internal/traversal_node_setup.h>
-#include <hpp/fcl/internal/traversal_node_bvhs.h>
+#include "coal/internal/traversal_node_setup.h"
+#include "coal/internal/traversal_node_bvhs.h"
 #include "../src/collision_node.h"
-#include <hpp/fcl/internal/BV_splitter.h>
+#include "coal/internal/BV_splitter.h"
 
 #include "utility.h"
 #include "fcl_resources/config.h"
@@ -27,26 +27,26 @@
 #define RUN_CASE(BV, tf, models, split) \
   run<BV>(tf, models, split, #BV " - " #split ":\t")
 
-using namespace hpp::fcl;
+using namespace coal;
 
 bool verbose = false;
-FCL_REAL DELTA = 0.001;
+CoalScalar DELTA = 0.001;
 
 template <typename BV>
-void makeModel(const std::vector<Vec3f>& vertices,
+void makeModel(const std::vector<Vec3s>& vertices,
                const std::vector<Triangle>& triangles,
                SplitMethodType split_method, BVHModel<BV>& model);
 
 template <typename BV, typename TraversalNode>
-double distance(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+double distance(const std::vector<Transform3s>& tf, const BVHModel<BV>& m1,
                 const BVHModel<BV>& m2, bool verbose);
 
 template <typename BV, typename TraversalNode>
-double collide(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+double collide(const std::vector<Transform3s>& tf, const BVHModel<BV>& m1,
                const BVHModel<BV>& m2, bool verbose);
 
 template <typename BV>
-double run(const std::vector<Transform3f>& tf,
+double run(const std::vector<Transform3s>& tf,
            const BVHModel<BV> (&models)[2][3], int split_method,
            const char* sm_name);
 
@@ -78,7 +78,7 @@ struct traits<OBBRSS> {
 };
 
 template <typename BV>
-void makeModel(const std::vector<Vec3f>& vertices,
+void makeModel(const std::vector<Vec3s>& vertices,
                const std::vector<Triangle>& triangles,
                SplitMethodType split_method, BVHModel<BV>& model) {
   model.bv_splitter.reset(new BVSplitter<BV>(split_method));
@@ -90,9 +90,9 @@ void makeModel(const std::vector<Vec3f>& vertices,
 }
 
 template <typename BV, typename TraversalNode>
-double distance(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+double distance(const std::vector<Transform3s>& tf, const BVHModel<BV>& m1,
                 const BVHModel<BV>& m2, bool verbose) {
-  Transform3f pose2;
+  Transform3s pose2;
 
   DistanceResult local_result;
   DistanceRequest request(true);
@@ -114,9 +114,9 @@ double distance(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
 }
 
 template <typename BV, typename TraversalNode>
-double collide(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
+double collide(const std::vector<Transform3s>& tf, const BVHModel<BV>& m1,
                const BVHModel<BV>& m2, bool verbose) {
-  Transform3f pose2;
+  Transform3s pose2;
 
   CollisionResult local_result;
   CollisionRequest request;
@@ -141,7 +141,7 @@ double collide(const std::vector<Transform3f>& tf, const BVHModel<BV>& m1,
 }
 
 template <typename BV>
-double run(const std::vector<Transform3f>& tf,
+double run(const std::vector<Transform3s>& tf,
            const BVHModel<BV> (&models)[2][3], int split_method,
            const char* prefix) {
   double col = collide<BV, typename traits<BV>::CollisionTraversalNode>(
@@ -154,7 +154,7 @@ double run(const std::vector<Transform3f>& tf,
 }
 
 template <>
-double run<OBB>(const std::vector<Transform3f>& tf,
+double run<OBB>(const std::vector<Transform3s>& tf,
                 const BVHModel<OBB> (&models)[2][3], int split_method,
                 const char* prefix) {
   double col = collide<OBB, traits<OBB>::CollisionTraversalNode>(
@@ -166,7 +166,7 @@ double run<OBB>(const std::vector<Transform3f>& tf,
 }
 
 int main(int, char*[]) {
-  std::vector<Vec3f> p1, p2;
+  std::vector<Vec3s> p1, p2;
   std::vector<Triangle> t1, t2;
   boost::filesystem::path path(TEST_RESOURCES_DIR);
   loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
@@ -207,8 +207,8 @@ int main(int, char*[]) {
             ms_obbrss[1][SPLIT_METHOD_BV_CENTER]);
   makeModel(p2, t2, SPLIT_METHOD_MEDIAN, ms_obbrss[1][SPLIT_METHOD_MEDIAN]);
 
-  std::vector<Transform3f> transforms;  // t0
-  FCL_REAL extents[] = {-3000, -3000, -3000, 3000, 3000, 3000};
+  std::vector<Transform3s> transforms;  // t0
+  CoalScalar extents[] = {-3000, -3000, -3000, 3000, 3000, 3000};
   std::size_t n = 10000;
 
   generateRandomTransforms(extents, transforms, n);

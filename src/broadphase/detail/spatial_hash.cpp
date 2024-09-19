@@ -35,18 +35,17 @@
 
 /** @author Jia Pan */
 
-#ifndef HPP_FCL_BROADPHASE_SPATIALHASH_INL_H
-#define HPP_FCL_BROADPHASE_SPATIALHASH_INL_H
+#ifndef COAL_BROADPHASE_SPATIALHASH_INL_H
+#define COAL_BROADPHASE_SPATIALHASH_INL_H
 
-#include "hpp/fcl/broadphase/detail/spatial_hash.h"
+#include "coal/broadphase/detail/spatial_hash.h"
 #include <algorithm>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace detail {
 
 //==============================================================================
-SpatialHash::SpatialHash(const AABB& scene_limit_, FCL_REAL cell_size_)
+SpatialHash::SpatialHash(const AABB& scene_limit_, CoalScalar cell_size_)
     : cell_size(cell_size_), scene_limit(scene_limit_) {
   width[0] =
       static_cast<unsigned int>(std::ceil(scene_limit.width() / cell_size));
@@ -85,7 +84,6 @@ std::vector<unsigned int> SpatialHash::operator()(const AABB& aabb) const {
 }
 
 }  // namespace detail
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
 #endif

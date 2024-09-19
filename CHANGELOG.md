@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Renaming the library from `hpp-fcl` to `coal`. Created a `COAL_BACKWARD_COMPATIBILITY_WITH_HPP_FCL` CMake option for retro compatibility. This allows to still do `find_package(hpp-fcl)` and `#include <hpp/fcl/...>` in C++ and it allows to still do `import hppfcl` in python ([#596](https://github.com/humanoid-path-planner/hpp-fcl/pull/596)).
 - Added `Transform3f::Random` and `Transform3f::setRandom` ([#584](https://github.com/humanoid-path-planner/hpp-fcl/pull/584))
 - New feature: computation of contact surfaces for any pair of primitive shapes (triangle, sphere, ellipsoid, plane, halfspace, cone, capsule, cylinder, convex) ([#574](https://github.com/humanoid-path-planner/hpp-fcl/pull/574)).
 - Enhance Broadphase DynamicAABBTree to better handle planes and halfspace ([#570](https://github.com/humanoid-path-planner/hpp-fcl/pull/570))
@@ -22,7 +23,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Optimize EPA: ignore useless faces in EPA's polytope; warm-start support computation for `Convex`; fix edge-cases witness points computation.
 - Add `Serializable` trait to transform, collision data, collision geometries, bounding volumes, bvh models, hfields. Collision problems can now be serialized from C++ and sent to python and vice versa.
 - CMake: allow use of installed jrl-cmakemodules ([#564](https://github.com/humanoid-path-planner/hpp-fcl/pull/564))
+- CMake: Add compatibility with jrl-cmakemodules workspace ([#610](https://github.com/humanoid-path-planner/hpp-fcl/pull/610))
 - Python: add id() support for geometries ([#618](https://github.com/humanoid-path-planner/hpp-fcl/pull/618)).
+
 
 ### Fixed
 

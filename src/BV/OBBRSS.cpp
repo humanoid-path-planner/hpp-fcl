@@ -35,18 +35,15 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BV/OBBRSS.h>
+#include "coal/BV/OBBRSS.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
-OBBRSS translate(const OBBRSS& bv, const Vec3f& t) {
+OBBRSS translate(const OBBRSS& bv, const Vec3s& t) {
   OBBRSS res(bv);
   res.obb.To += t;
   res.rss.Tr += t;
   return res;
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

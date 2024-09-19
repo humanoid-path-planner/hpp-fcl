@@ -34,19 +34,18 @@
 
 /** \author Louis Montaut */
 
-#include "hpp/fcl/contact_patch.h"
-#include "hpp/fcl/collision_utility.h"
+#include "coal/contact_patch.h"
+#include "coal/collision_utility.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 ContactPatchFunctionMatrix& getContactPatchFunctionLookTable() {
   static ContactPatchFunctionMatrix table;
   return table;
 }
 
-void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
-                         const CollisionGeometry* o2, const Transform3f& tf2,
+void computeContactPatch(const CollisionGeometry* o1, const Transform3s& tf1,
+                         const CollisionGeometry* o2, const Transform3s& tf2,
                          const CollisionResult& collision_result,
                          const ContactPatchRequest& request,
                          ContactPatchResult& result) {
@@ -70,12 +69,12 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
   if (object_type1 == OT_GEOM &&
       (object_type2 == OT_BVH || object_type2 == OT_HFIELD)) {
     if (!looktable.contact_patch_matrix[node_type2][node_type1]) {
-      HPP_FCL_THROW_PRETTY("Computing contact patches between node type "
-                               << std::string(get_node_type_name(node_type1))
-                               << " and node type "
-                               << std::string(get_node_type_name(node_type2))
-                               << " is not yet supported.",
-                           std::invalid_argument);
+      COAL_THROW_PRETTY("Computing contact patches between node type "
+                            << std::string(get_node_type_name(node_type1))
+                            << " and node type "
+                            << std::string(get_node_type_name(node_type2))
+                            << " is not yet supported.",
+                        std::invalid_argument);
     }
     looktable.contact_patch_matrix[node_type2][node_type1](
         o2, tf2, o1, tf1, collision_result, &csolver, request, result);
@@ -84,12 +83,12 @@ void computeContactPatch(const CollisionGeometry* o1, const Transform3f& tf1,
   }
 
   if (!looktable.contact_patch_matrix[node_type1][node_type2]) {
-    HPP_FCL_THROW_PRETTY("Contact patch computation between node type "
-                             << std::string(get_node_type_name(node_type1))
-                             << " and node type "
-                             << std::string(get_node_type_name(node_type2))
-                             << " is not yet supported.",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Contact patch computation between node type "
+                          << std::string(get_node_type_name(node_type1))
+                          << " and node type "
+                          << std::string(get_node_type_name(node_type2))
+                          << " is not yet supported.",
+                      std::invalid_argument);
   }
 
   return looktable.contact_patch_matrix[node_type1][node_type2](
@@ -122,12 +121,12 @@ ComputeContactPatch::ComputeContactPatch(const CollisionGeometry* o1,
        !looktable.contact_patch_matrix[node_type2][node_type1]) ||
       (!this->swap_geoms &&
        !looktable.contact_patch_matrix[node_type1][node_type2])) {
-    HPP_FCL_THROW_PRETTY("Collision function between node type "
-                             << std::string(get_node_type_name(node_type1))
-                             << " and node type "
-                             << std::string(get_node_type_name(node_type2))
-                             << " is not yet supported.",
-                         std::invalid_argument);
+    COAL_THROW_PRETTY("Collision function between node type "
+                          << std::string(get_node_type_name(node_type1))
+                          << " and node type "
+                          << std::string(get_node_type_name(node_type2))
+                          << " is not yet supported.",
+                      std::invalid_argument);
   }
 
   if (this->swap_geoms) {
@@ -137,7 +136,7 @@ ComputeContactPatch::ComputeContactPatch(const CollisionGeometry* o1,
   }
 }
 
-void ComputeContactPatch::run(const Transform3f& tf1, const Transform3f& tf2,
+void ComputeContactPatch::run(const Transform3s& tf1, const Transform3s& tf2,
                               const CollisionResult& collision_result,
                               const ContactPatchRequest& request,
                               ContactPatchResult& result) const {
@@ -158,8 +157,8 @@ void ComputeContactPatch::run(const Transform3f& tf1, const Transform3f& tf2,
   }
 }
 
-void ComputeContactPatch::operator()(const Transform3f& tf1,
-                                     const Transform3f& tf2,
+void ComputeContactPatch::operator()(const Transform3s& tf1,
+                                     const Transform3s& tf2,
                                      const CollisionResult& collision_result,
                                      const ContactPatchRequest& request,
                                      ContactPatchResult& result) const
@@ -169,5 +168,4 @@ void ComputeContactPatch::operator()(const Transform3f& tf1,
   this->run(tf1, tf2, collision_result, request, result);
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

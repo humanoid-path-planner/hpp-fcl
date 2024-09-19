@@ -4,19 +4,18 @@
 // https://github.com/stack-of-tasks/pinocchio
 //
 
-#ifndef HPP_FCL_PYTHON_SERIALIZABLE_H
-#define HPP_FCL_PYTHON_SERIALIZABLE_H
+#ifndef COAL_PYTHON_SERIALIZABLE_H
+#define COAL_PYTHON_SERIALIZABLE_H
 
 #include <boost/python.hpp>
 
-#include "hpp/fcl/serialization/archive.h"
-#include "hpp/fcl/serialization/serializer.h"
+#include "coal/serialization/archive.h"
+#include "coal/serialization/serializer.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace python {
 
-using Serializer = ::hpp::fcl::serialization::Serializer;
+using Serializer = ::coal::serialization::Serializer;
 
 namespace bp = boost::python;
 
@@ -54,7 +53,6 @@ struct SerializableVisitor
   }
 };
 }  // namespace python
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_PYTHON_SERIALIZABLE_H
+#endif  // ifndef COAL_PYTHON_SERIALIZABLE_H

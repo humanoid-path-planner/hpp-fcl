@@ -34,32 +34,32 @@
 
 /** \author Louis Montaut */
 
-#define BOOST_TEST_MODULE FCL_NESTEROV_GJK
+#define BOOST_TEST_MODULE COAL_NESTEROV_GJK
 #include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Geometry>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/internal/tools.h>
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/internal/tools.h"
 
 #include "utility.h"
 
-using hpp::fcl::Box;
-using hpp::fcl::Capsule;
-using hpp::fcl::constructPolytopeFromEllipsoid;
-using hpp::fcl::Convex;
-using hpp::fcl::Ellipsoid;
-using hpp::fcl::FCL_REAL;
-using hpp::fcl::GJKSolver;
-using hpp::fcl::GJKVariant;
-using hpp::fcl::ShapeBase;
-using hpp::fcl::support_func_guess_t;
-using hpp::fcl::Transform3f;
-using hpp::fcl::Triangle;
-using hpp::fcl::Vec3f;
-using hpp::fcl::details::GJK;
-using hpp::fcl::details::MinkowskiDiff;
-using hpp::fcl::details::SupportOptions;
+using coal::Box;
+using coal::Capsule;
+using coal::CoalScalar;
+using coal::constructPolytopeFromEllipsoid;
+using coal::Convex;
+using coal::Ellipsoid;
+using coal::GJKSolver;
+using coal::GJKVariant;
+using coal::ShapeBase;
+using coal::support_func_guess_t;
+using coal::Transform3s;
+using coal::Triangle;
+using coal::Vec3s;
+using coal::details::GJK;
+using coal::details::MinkowskiDiff;
+using coal::details::SupportOptions;
 using std::size_t;
 
 BOOST_AUTO_TEST_CASE(set_gjk_variant) {
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(need_nesterov_normalize_support_direction) {
 void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
   // Solvers
   unsigned int max_iterations = 128;
-  FCL_REAL tolerance = 1e-6;
+  CoalScalar tolerance = 1e-6;
   GJK gjk(max_iterations, tolerance);
   GJK gjk_nesterov(max_iterations, tolerance);
   gjk_nesterov.gjk_variant = GJKVariant::NesterovAcceleration;
@@ -119,13 +119,13 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
 
   // Generate random transforms
   size_t n = 1000;
-  FCL_REAL extents[] = {-3., -3., 0, 3., 3., 3.};
-  std::vector<Transform3f> transforms;
+  CoalScalar extents[] = {-3., -3., 0, 3., 3., 3.};
+  std::vector<Transform3s> transforms;
   generateRandomTransforms(extents, transforms, n);
-  Transform3f identity = Transform3f::Identity();
+  Transform3s identity = Transform3s::Identity();
 
   // Same init for both solvers
-  Vec3f init_guess = Vec3f(1, 0, 0);
+  Vec3s init_guess = Vec3s(1, 0, 0);
   support_func_guess_t init_support_guess;
   init_support_guess.setZero();
 
@@ -139,7 +139,7 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
     // Evaluate both solvers twice, make sure they give the same solution
     GJK::Status res_gjk_1 =
         gjk.evaluate(mink_diff, init_guess, init_support_guess);
-    Vec3f ray_gjk = gjk.ray;
+    Vec3s ray_gjk = gjk.ray;
     GJK::Status res_gjk_2 =
         gjk.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res_gjk_1 == res_gjk_2);
@@ -150,7 +150,7 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
     // --------------
     GJK::Status res_nesterov_gjk_1 =
         gjk_nesterov.evaluate(mink_diff, init_guess, init_support_guess);
-    Vec3f ray_nesterov = gjk_nesterov.ray;
+    Vec3s ray_nesterov = gjk_nesterov.ray;
     GJK::Status res_nesterov_gjk_2 =
         gjk_nesterov.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res_nesterov_gjk_1 == res_nesterov_gjk_2);
@@ -171,7 +171,7 @@ void test_accelerated_gjk(const ShapeBase& shape0, const ShapeBase& shape1) {
     // ------------
     GJK::Status res_polyak_gjk_1 =
         gjk_polyak.evaluate(mink_diff, init_guess, init_support_guess);
-    Vec3f ray_polyak = gjk_polyak.ray;
+    Vec3s ray_polyak = gjk_polyak.ray;
     GJK::Status res_polyak_gjk_2 =
         gjk_polyak.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res_polyak_gjk_1 == res_polyak_gjk_2);

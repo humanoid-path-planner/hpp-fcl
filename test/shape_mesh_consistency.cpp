@@ -35,20 +35,20 @@
 
 /** \author Jia Pan */
 
-#define BOOST_TEST_MODULE FCL_SHAPE_MESH_CONSISTENCY
+#define BOOST_TEST_MODULE COAL_SHAPE_MESH_CONSISTENCY
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
-#include <hpp/fcl/distance.h>
-#include <hpp/fcl/collision.h>
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/shape/geometric_shape_to_BVH_model.h"
+#include "coal/distance.h"
+#include "coal/collision.h"
 #include "utility.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 #define BOOST_CHECK_FALSE(p) BOOST_CHECK(!(p))
 
-FCL_REAL extents[6] = {0, 0, 0, 10, 10, 10};
+CoalScalar extents[6] = {0, 0, 0, 10, 10, 10};
 
 BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere) {
   Sphere s1(20);
@@ -56,39 +56,39 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere) {
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3s(), 16, 16);
 
   DistanceRequest request;
   DistanceResult res, res1;
 
-  Transform3f pose;
+  Transform3s pose;
 
-  pose.setTranslation(Vec3f(50, 0, 0));
+  pose.setTranslation(Vec3s(50, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -108,30 +108,30 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere) {
                 0.05);
   }
 
-  pose.setTranslation(Vec3f(40.1, 0, 0));
+  pose.setTranslation(Vec3s(40.1, 0, 0));
 
   res.clear(), res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -159,39 +159,39 @@ BOOST_AUTO_TEST_CASE(consistency_distance_boxbox) {
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3f());
-  generateBVHModel(s2_rss, s2, Transform3f());
+  generateBVHModel(s1_rss, s1, Transform3s());
+  generateBVHModel(s2_rss, s2, Transform3s());
 
   DistanceRequest request;
   DistanceResult res, res1;
 
-  Transform3f pose;
+  Transform3s pose;
 
-  pose.setTranslation(Vec3f(50, 0, 0));
+  pose.setTranslation(Vec3s(50, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.01);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.01);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.01);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -211,31 +211,31 @@ BOOST_AUTO_TEST_CASE(consistency_distance_boxbox) {
                 0.01);
   }
 
-  pose.setTranslation(Vec3f(15.1, 0, 0));
+  pose.setTranslation(Vec3s(15.1, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -263,39 +263,39 @@ BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder) {
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3s(), 16, 16);
 
   DistanceRequest request;
   DistanceResult res, res1;
 
-  Transform3f pose;
+  Transform3s pose;
 
-  pose.setTranslation(Vec3f(20, 0, 0));
+  pose.setTranslation(Vec3s(20, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.01);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.01);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.01);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -316,31 +316,31 @@ BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder) {
   }
 
   pose.setTranslation(
-      Vec3f(15, 0, 0));  // libccd cannot use small value here :(
+      Vec3s(15, 0, 0));  // libccd cannot use small value here :(
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -368,38 +368,38 @@ BOOST_AUTO_TEST_CASE(consistency_distance_conecone) {
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3s(), 16, 16);
 
   DistanceRequest request;
   DistanceResult res, res1;
 
-  Transform3f pose;
+  Transform3s pose;
 
-  pose.setTranslation(Vec3f(20, 0, 0));
+  pose.setTranslation(Vec3s(20, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -420,31 +420,31 @@ BOOST_AUTO_TEST_CASE(consistency_distance_conecone) {
   }
 
   pose.setTranslation(
-      Vec3f(15, 0, 0));  // libccd cannot use small value here :(
+      Vec3s(15, 0, 0));  // libccd cannot use small value here :(
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -471,39 +471,39 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_GJK) {
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3s(), 16, 16);
 
   DistanceRequest request;
   DistanceResult res, res1;
 
-  Transform3f pose;
+  Transform3s pose;
 
-  pose.setTranslation(Vec3f(50, 0, 0));
+  pose.setTranslation(Vec3s(50, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -523,31 +523,31 @@ BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_GJK) {
                 0.05);
   }
 
-  pose.setTranslation(Vec3f(40.1, 0, 0));
+  pose.setTranslation(Vec3s(40.1, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               4);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -575,39 +575,39 @@ BOOST_AUTO_TEST_CASE(consistency_distance_boxbox_GJK) {
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3f());
-  generateBVHModel(s2_rss, s2, Transform3f());
+  generateBVHModel(s1_rss, s1, Transform3s());
+  generateBVHModel(s2_rss, s2, Transform3s());
 
   DistanceRequest request;
   DistanceResult res, res1;
 
-  Transform3f pose;
+  Transform3s pose;
 
-  pose.setTranslation(Vec3f(50, 0, 0));
+  pose.setTranslation(Vec3s(50, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.01);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.01);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.01);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -627,31 +627,31 @@ BOOST_AUTO_TEST_CASE(consistency_distance_boxbox_GJK) {
                 0.01);
   }
 
-  pose.setTranslation(Vec3f(15.1, 0, 0));
+  pose.setTranslation(Vec3s(15.1, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -679,39 +679,39 @@ BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder_GJK) {
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3s(), 16, 16);
 
   DistanceRequest request;
   DistanceResult res, res1;
 
-  Transform3f pose;
+  Transform3s pose;
 
-  pose.setTranslation(Vec3f(20, 0, 0));
+  pose.setTranslation(Vec3s(20, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -743,31 +743,31 @@ BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder_GJK) {
           fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
 
-  pose.setTranslation(Vec3f(10.1, 0, 0));
+  pose.setTranslation(Vec3s(10.1, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -795,39 +795,39 @@ BOOST_AUTO_TEST_CASE(consistency_distance_conecone_GJK) {
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3s(), 16, 16);
 
   DistanceRequest request;
   DistanceResult res, res1;
 
-  Transform3f pose;
+  Transform3s pose;
 
-  pose.setTranslation(Vec3f(20, 0, 0));
+  pose.setTranslation(Vec3s(20, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               0.05);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -847,31 +847,31 @@ BOOST_AUTO_TEST_CASE(consistency_distance_conecone_GJK) {
                 0.05);
   }
 
-  pose.setTranslation(Vec3f(10.1, 0, 0));
+  pose.setTranslation(Vec3s(10.1, 0, 0));
 
   res.clear();
   res1.clear();
-  distance(&s1, Transform3f(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1, Transform3f(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3s(), &s2_rss, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   res1.clear();
-  distance(&s1_rss, Transform3f(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3s(), &s2, pose, request, res1);
   BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance <
               2);
 
   for (std::size_t i = 0; i < 10; ++i) {
-    Transform3f t;
+    Transform3s t;
     generateRandomTransform(extents, t);
 
-    Transform3f pose1(t);
-    Transform3f pose2 = t * pose;
+    Transform3s pose1(t);
+    Transform3s pose2 = t * pose;
 
     res.clear();
     res1.clear();
@@ -900,17 +900,17 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere) {
   BVHModel<OBB> s1_obb;
   BVHModel<OBB> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3f(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3s(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3s(), 16, 16);
 
   CollisionRequest request(false, 1, false);
   CollisionResult result;
 
   bool res;
 
-  Transform3f pose, pose_aabb, pose_obb;
+  Transform3s pose, pose_aabb, pose_obb;
 
   // s2 is within s1
   // both are shapes --> collision
@@ -918,195 +918,195 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere) {
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(40, 0, 0));
-  pose_aabb.setTranslation(Vec3f(40, 0, 0));
-  pose_obb.setTranslation(Vec3f(40, 0, 0));
+  pose.setTranslation(Vec3s(40, 0, 0));
+  pose_aabb.setTranslation(Vec3s(40, 0, 0));
+  pose_obb.setTranslation(Vec3s(40, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(30, 0, 0));
-  pose_aabb.setTranslation(Vec3f(30, 0, 0));
-  pose_obb.setTranslation(Vec3f(30, 0, 0));
+  pose.setTranslation(Vec3s(30, 0, 0));
+  pose_aabb.setTranslation(Vec3s(30, 0, 0));
+  pose_obb.setTranslation(Vec3s(30, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(29.9, 0, 0));
+  pose.setTranslation(Vec3s(29.9, 0, 0));
   pose_aabb.setTranslation(
-      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
   pose_obb.setTranslation(
-      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(-29.9, 0, 0));
+  pose.setTranslation(Vec3s(-29.9, 0, 0));
   pose_aabb.setTranslation(
-      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
   pose_obb.setTranslation(
-      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(-30, 0, 0));
-  pose_aabb.setTranslation(Vec3f(-30, 0, 0));
-  pose_obb.setTranslation(Vec3f(-30, 0, 0));
+  pose.setTranslation(Vec3s(-30, 0, 0));
+  pose_aabb.setTranslation(Vec3s(-30, 0, 0));
+  pose_obb.setTranslation(Vec3s(-30, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 }
 
@@ -1119,17 +1119,17 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox) {
   BVHModel<OBB> s1_obb;
   BVHModel<OBB> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3f());
-  generateBVHModel(s2_aabb, s2, Transform3f());
-  generateBVHModel(s1_obb, s1, Transform3f());
-  generateBVHModel(s2_obb, s2, Transform3f());
+  generateBVHModel(s1_aabb, s1, Transform3s());
+  generateBVHModel(s2_aabb, s2, Transform3s());
+  generateBVHModel(s1_obb, s1, Transform3s());
+  generateBVHModel(s2_obb, s2, Transform3s());
 
   CollisionRequest request(false, 1, false);
   CollisionResult result;
 
   bool res;
 
-  Transform3f pose, pose_aabb, pose_obb;
+  Transform3s pose, pose_aabb, pose_obb;
 
   // s2 is within s1
   // both are shapes --> collision
@@ -1137,95 +1137,95 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox) {
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-
-  pose.setTranslation(Vec3f(15.01, 0, 0));
-  pose_aabb.setTranslation(Vec3f(15.01, 0, 0));
-  pose_obb.setTranslation(Vec3f(15.01, 0, 0));
-
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(14.99, 0, 0));
-  pose_aabb.setTranslation(Vec3f(14.99, 0, 0));
-  pose_obb.setTranslation(Vec3f(14.99, 0, 0));
+  pose.setTranslation(Vec3s(15.01, 0, 0));
+  pose_aabb.setTranslation(Vec3s(15.01, 0, 0));
+  pose_obb.setTranslation(Vec3s(15.01, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  pose.setTranslation(Vec3s(14.99, 0, 0));
+  pose_aabb.setTranslation(Vec3s(14.99, 0, 0));
+  pose_obb.setTranslation(Vec3s(14.99, 0, 0));
+
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 }
 
@@ -1238,17 +1238,17 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox) {
   BVHModel<OBB> s1_obb;
   BVHModel<OBB> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3f());
-  generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3f());
+  generateBVHModel(s1_aabb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3s());
+  generateBVHModel(s1_obb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3s());
 
   CollisionRequest request(false, 1, false);
   CollisionResult result;
 
   bool res;
 
-  Transform3f pose, pose_aabb, pose_obb;
+  Transform3s pose, pose_aabb, pose_obb;
 
   // s2 is within s1
   // both are shapes --> collision
@@ -1256,95 +1256,95 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox) {
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(22.4, 0, 0));
-  pose_aabb.setTranslation(Vec3f(22.4, 0, 0));
-  pose_obb.setTranslation(Vec3f(22.4, 0, 0));
+  pose.setTranslation(Vec3s(22.4, 0, 0));
+  pose_aabb.setTranslation(Vec3s(22.4, 0, 0));
+  pose_obb.setTranslation(Vec3s(22.4, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(22.51, 0, 0));
-  pose_aabb.setTranslation(Vec3f(22.51, 0, 0));
-  pose_obb.setTranslation(Vec3f(22.51, 0, 0));
+  pose.setTranslation(Vec3s(22.51, 0, 0));
+  pose_aabb.setTranslation(Vec3s(22.51, 0, 0));
+  pose_obb.setTranslation(Vec3s(22.51, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 }
 
@@ -1357,80 +1357,80 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder) {
   BVHModel<OBB> s1_obb;
   BVHModel<OBB> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3f(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3s(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3s(), 16, 16);
 
   CollisionRequest request(false, 1, false);
   CollisionResult result;
 
   bool res;
 
-  Transform3f pose, pose_aabb, pose_obb;
+  Transform3s pose, pose_aabb, pose_obb;
 
-  pose.setTranslation(Vec3f(9.99, 0, 0));
-  pose_aabb.setTranslation(Vec3f(9.99, 0, 0));
-  pose_obb.setTranslation(Vec3f(9.99, 0, 0));
-
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-
-  pose.setTranslation(Vec3f(10.01, 0, 0));
-  pose_aabb.setTranslation(Vec3f(10.01, 0, 0));
-  pose_obb.setTranslation(Vec3f(10.01, 0, 0));
+  pose.setTranslation(Vec3s(9.99, 0, 0));
+  pose_aabb.setTranslation(Vec3s(9.99, 0, 0));
+  pose_obb.setTranslation(Vec3s(9.99, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+
+  pose.setTranslation(Vec3s(10.01, 0, 0));
+  pose_aabb.setTranslation(Vec3s(10.01, 0, 0));
+  pose_obb.setTranslation(Vec3s(10.01, 0, 0));
+
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 }
 
@@ -1443,144 +1443,144 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone) {
   BVHModel<OBB> s1_obb;
   BVHModel<OBB> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3f(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3s(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3s(), 16, 16);
 
   CollisionRequest request(false, 1, false);
   CollisionResult result;
 
   bool res;
 
-  Transform3f pose, pose_aabb, pose_obb;
+  Transform3s pose, pose_aabb, pose_obb;
 
-  pose.setTranslation(Vec3f(9.9, 0, 0));
-  pose_aabb.setTranslation(Vec3f(9.9, 0, 0));
-  pose_obb.setTranslation(Vec3f(9.9, 0, 0));
-
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-
-  pose.setTranslation(Vec3f(10.1, 0, 0));
-  pose_aabb.setTranslation(Vec3f(10.1, 0, 0));
-  pose_obb.setTranslation(Vec3f(10.1, 0, 0));
+  pose.setTranslation(Vec3s(9.9, 0, 0));
+  pose_aabb.setTranslation(Vec3s(9.9, 0, 0));
+  pose_obb.setTranslation(Vec3s(9.9, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-
-  pose.setTranslation(Vec3f(0, 0, 9.9));
-  pose_aabb.setTranslation(Vec3f(0, 0, 9.9));
-  pose_obb.setTranslation(Vec3f(0, 0, 9.9));
-
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(0, 0, 10.1));
-  pose_aabb.setTranslation(Vec3f(0, 0, 10.1));
-  pose_obb.setTranslation(Vec3f(0, 0, 10.1));
+  pose.setTranslation(Vec3s(10.1, 0, 0));
+  pose_aabb.setTranslation(Vec3s(10.1, 0, 0));
+  pose_obb.setTranslation(Vec3s(10.1, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  pose.setTranslation(Vec3s(0, 0, 9.9));
+  pose_aabb.setTranslation(Vec3s(0, 0, 9.9));
+  pose_obb.setTranslation(Vec3s(0, 0, 9.9));
+
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+
+  pose.setTranslation(Vec3s(0, 0, 10.1));
+  pose_aabb.setTranslation(Vec3s(0, 0, 10.1));
+  pose_obb.setTranslation(Vec3s(0, 0, 10.1));
+
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 }
 
@@ -1592,10 +1592,10 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK) {
   BVHModel<OBB> s1_obb;
   BVHModel<OBB> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3f(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3s(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3s(), 16, 16);
 
   CollisionRequest request(false, 1, false);
 
@@ -1603,7 +1603,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK) {
 
   bool res;
 
-  Transform3f pose, pose_aabb, pose_obb;
+  Transform3s pose, pose_aabb, pose_obb;
 
   // s2 is within s1
   // both are shapes --> collision
@@ -1611,195 +1611,195 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK) {
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(40, 0, 0));
-  pose_aabb.setTranslation(Vec3f(40, 0, 0));
-  pose_obb.setTranslation(Vec3f(40, 0, 0));
+  pose.setTranslation(Vec3s(40, 0, 0));
+  pose_aabb.setTranslation(Vec3s(40, 0, 0));
+  pose_obb.setTranslation(Vec3s(40, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(30, 0, 0));
-  pose_aabb.setTranslation(Vec3f(30, 0, 0));
-  pose_obb.setTranslation(Vec3f(30, 0, 0));
+  pose.setTranslation(Vec3s(30, 0, 0));
+  pose_aabb.setTranslation(Vec3s(30, 0, 0));
+  pose_obb.setTranslation(Vec3s(30, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(29.9, 0, 0));
+  pose.setTranslation(Vec3s(29.9, 0, 0));
   pose_aabb.setTranslation(
-      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
   pose_obb.setTranslation(
-      Vec3f(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(-29.9, 0, 0));
+  pose.setTranslation(Vec3s(-29.9, 0, 0));
   pose_aabb.setTranslation(
-      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
   pose_obb.setTranslation(
-      Vec3f(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
+      Vec3s(-29.8, 0, 0));  // 29.9 fails, result depends on mesh precision
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(-30, 0, 0));
-  pose_aabb.setTranslation(Vec3f(-30, 0, 0));
-  pose_obb.setTranslation(Vec3f(-30, 0, 0));
+  pose.setTranslation(Vec3s(-30, 0, 0));
+  pose_aabb.setTranslation(Vec3s(-30, 0, 0));
+  pose_obb.setTranslation(Vec3s(-30, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 }
 
@@ -1812,10 +1812,10 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_GJK) {
   BVHModel<OBB> s1_obb;
   BVHModel<OBB> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3f());
-  generateBVHModel(s2_aabb, s2, Transform3f());
-  generateBVHModel(s1_obb, s1, Transform3f());
-  generateBVHModel(s2_obb, s2, Transform3f());
+  generateBVHModel(s1_aabb, s1, Transform3s());
+  generateBVHModel(s2_aabb, s2, Transform3s());
+  generateBVHModel(s1_obb, s1, Transform3s());
+  generateBVHModel(s2_obb, s2, Transform3s());
 
   CollisionRequest request(false, 1, false);
 
@@ -1823,7 +1823,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_GJK) {
 
   bool res;
 
-  Transform3f pose, pose_aabb, pose_obb;
+  Transform3s pose, pose_aabb, pose_obb;
 
   // s2 is within s1
   // both are shapes --> collision
@@ -1831,95 +1831,95 @@ BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_GJK) {
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-
-  pose.setTranslation(Vec3f(15.01, 0, 0));
-  pose_aabb.setTranslation(Vec3f(15.01, 0, 0));
-  pose_obb.setTranslation(Vec3f(15.01, 0, 0));
-
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(14.99, 0, 0));
-  pose_aabb.setTranslation(Vec3f(14.99, 0, 0));
-  pose_obb.setTranslation(Vec3f(14.99, 0, 0));
+  pose.setTranslation(Vec3s(15.01, 0, 0));
+  pose_aabb.setTranslation(Vec3s(15.01, 0, 0));
+  pose_obb.setTranslation(Vec3s(15.01, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  pose.setTranslation(Vec3s(14.99, 0, 0));
+  pose_aabb.setTranslation(Vec3s(14.99, 0, 0));
+  pose_obb.setTranslation(Vec3s(14.99, 0, 0));
+
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 }
 
@@ -1932,10 +1932,10 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_GJK) {
   BVHModel<OBB> s1_obb;
   BVHModel<OBB> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3f());
-  generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3f());
+  generateBVHModel(s1_aabb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3s());
+  generateBVHModel(s1_obb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3s());
 
   CollisionRequest request(false, 1, false);
 
@@ -1943,7 +1943,7 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_GJK) {
 
   bool res;
 
-  Transform3f pose, pose_aabb, pose_obb;
+  Transform3s pose, pose_aabb, pose_obb;
 
   // s2 is within s1
   // both are shapes --> collision
@@ -1951,95 +1951,95 @@ BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_GJK) {
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 
-  pose.setTranslation(Vec3f(22.4, 0, 0));
-  pose_aabb.setTranslation(Vec3f(22.4, 0, 0));
-  pose_obb.setTranslation(Vec3f(22.4, 0, 0));
+  pose.setTranslation(Vec3s(22.4, 0, 0));
+  pose_aabb.setTranslation(Vec3s(22.4, 0, 0));
+  pose_obb.setTranslation(Vec3s(22.4, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(22.51, 0, 0));
-  pose_aabb.setTranslation(Vec3f(22.51, 0, 0));
-  pose_obb.setTranslation(Vec3f(22.51, 0, 0));
+  pose.setTranslation(Vec3s(22.51, 0, 0));
+  pose_aabb.setTranslation(Vec3s(22.51, 0, 0));
+  pose_obb.setTranslation(Vec3s(22.51, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 }
 
@@ -2052,10 +2052,10 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_GJK) {
   BVHModel<OBB> s1_obb;
   BVHModel<OBB> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3f(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3s(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3s(), 16, 16);
 
   CollisionRequest request(false, 1, false);
 
@@ -2063,70 +2063,70 @@ BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_GJK) {
 
   bool res;
 
-  Transform3f pose, pose_aabb, pose_obb;
+  Transform3s pose, pose_aabb, pose_obb;
 
-  pose.setTranslation(Vec3f(9.99, 0, 0));
-  pose_aabb.setTranslation(Vec3f(9.99, 0, 0));
-  pose_obb.setTranslation(Vec3f(9.99, 0, 0));
-
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-
-  pose.setTranslation(Vec3f(10.01, 0, 0));
-  pose_aabb.setTranslation(Vec3f(10.01, 0, 0));
-  pose_obb.setTranslation(Vec3f(10.01, 0, 0));
+  pose.setTranslation(Vec3s(9.99, 0, 0));
+  pose_aabb.setTranslation(Vec3s(9.99, 0, 0));
+  pose_obb.setTranslation(Vec3s(9.99, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+
+  pose.setTranslation(Vec3s(10.01, 0, 0));
+  pose_aabb.setTranslation(Vec3s(10.01, 0, 0));
+  pose_obb.setTranslation(Vec3s(10.01, 0, 0));
+
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 }
 
@@ -2139,10 +2139,10 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone_GJK) {
   BVHModel<OBB> s1_obb;
   BVHModel<OBB> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3f(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3f(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3f(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3s(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3s(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3s(), 16, 16);
 
   CollisionRequest request(false, 1, false);
 
@@ -2150,133 +2150,133 @@ BOOST_AUTO_TEST_CASE(consistency_collision_conecone_GJK) {
 
   bool res;
 
-  Transform3f pose, pose_aabb, pose_obb;
+  Transform3s pose, pose_aabb, pose_obb;
 
-  pose.setTranslation(Vec3f(9.9, 0, 0));
-  pose_aabb.setTranslation(Vec3f(9.9, 0, 0));
-  pose_obb.setTranslation(Vec3f(9.9, 0, 0));
-
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK(res);
-
-  pose.setTranslation(Vec3f(10.1, 0, 0));
-  pose_aabb.setTranslation(Vec3f(10.1, 0, 0));
-  pose_obb.setTranslation(Vec3f(10.1, 0, 0));
+  pose.setTranslation(Vec3s(9.9, 0, 0));
+  pose_aabb.setTranslation(Vec3s(9.9, 0, 0));
+  pose_obb.setTranslation(Vec3s(9.9, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
-  BOOST_CHECK_FALSE(res);
-
-  pose.setTranslation(Vec3f(0, 0, 9.9));
-  pose_aabb.setTranslation(Vec3f(0, 0, 9.9));
-  pose_obb.setTranslation(Vec3f(0, 0, 9.9));
-
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK(res);
 
-  pose.setTranslation(Vec3f(0, 0, 10.1));
-  pose_aabb.setTranslation(Vec3f(0, 0, 10.1));
-  pose_obb.setTranslation(Vec3f(0, 0, 10.1));
+  pose.setTranslation(Vec3s(10.1, 0, 0));
+  pose_aabb.setTranslation(Vec3s(10.1, 0, 0));
+  pose_obb.setTranslation(Vec3s(10.1, 0, 0));
 
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3f(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3f(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  pose.setTranslation(Vec3s(0, 0, 9.9));
+  pose_aabb.setTranslation(Vec3s(0, 0, 9.9));
+  pose_obb.setTranslation(Vec3s(0, 0, 9.9));
+
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK(res);
+
+  pose.setTranslation(Vec3s(0, 0, 10.1));
+  pose_aabb.setTranslation(Vec3s(0, 0, 10.1));
+  pose_obb.setTranslation(Vec3s(0, 0, 10.1));
+
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_aabb, pose_aabb, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3s(), &s2_obb, pose_obb, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3s(), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3s(), &s2, pose, request, result) > 0);
   BOOST_CHECK_FALSE(res);
 }

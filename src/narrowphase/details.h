@@ -36,35 +36,34 @@
  */
 /** \author Jia Pan, Florent Lamiraux */
 
-#ifndef HPP_FCL_SRC_NARROWPHASE_DETAILS_H
-#define HPP_FCL_SRC_NARROWPHASE_DETAILS_H
+#ifndef COAL_SRC_NARROWPHASE_DETAILS_H
+#define COAL_SRC_NARROWPHASE_DETAILS_H
 
-#include <hpp/fcl/internal/traversal_node_setup.h>
-#include <hpp/fcl/narrowphase/narrowphase.h>
+#include "coal/internal/traversal_node_setup.h"
+#include "coal/narrowphase/narrowphase.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace details {
 // Compute the point on a line segment that is the closest point on the
 // segment to to another point. The code is inspired by the explanation
 // given by Dan Sunday's page:
 //   http://geomalgorithms.com/a02-_lines.html
-static inline void lineSegmentPointClosestToPoint(const Vec3f& p,
-                                                  const Vec3f& s1,
-                                                  const Vec3f& s2, Vec3f& sp) {
-  Vec3f v = s2 - s1;
-  Vec3f w = p - s1;
+static inline void lineSegmentPointClosestToPoint(const Vec3s& p,
+                                                  const Vec3s& s1,
+                                                  const Vec3s& s2, Vec3s& sp) {
+  Vec3s v = s2 - s1;
+  Vec3s w = p - s1;
 
-  FCL_REAL c1 = w.dot(v);
-  FCL_REAL c2 = v.dot(v);
+  CoalScalar c1 = w.dot(v);
+  CoalScalar c2 = v.dot(v);
 
   if (c1 <= 0) {
     sp = s1;
   } else if (c2 <= c1) {
     sp = s2;
   } else {
-    FCL_REAL b = c1 / c2;
-    Vec3f Pb = s1 + v * b;
+    CoalScalar b = c1 / c2;
+    Vec3s Pb = s1 + v * b;
     sp = Pb;
   }
 }
@@ -73,23 +72,25 @@ static inline void lineSegmentPointClosestToPoint(const Vec3f& p,
 /// @param p2 witness point on the Capsule.
 /// @param normal pointing from shape 1 to shape 2 (sphere to capsule).
 /// @return the distance between the two shapes (negative if penetration).
-inline FCL_REAL sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
-                                      const Capsule& s2, const Transform3f& tf2,
-                                      Vec3f& p1, Vec3f& p2, Vec3f& normal) {
-  Vec3f pos1(tf2.transform(Vec3f(0., 0., s2.halfLength)));
-  Vec3f pos2(tf2.transform(Vec3f(0., 0., -s2.halfLength)));
-  Vec3f s_c = tf1.getTranslation();
+inline CoalScalar sphereCapsuleDistance(const Sphere& s1,
+                                        const Transform3s& tf1,
+                                        const Capsule& s2,
+                                        const Transform3s& tf2, Vec3s& p1,
+                                        Vec3s& p2, Vec3s& normal) {
+  Vec3s pos1(tf2.transform(Vec3s(0., 0., s2.halfLength)));
+  Vec3s pos2(tf2.transform(Vec3s(0., 0., -s2.halfLength)));
+  Vec3s s_c = tf1.getTranslation();
 
-  Vec3f segment_point;
+  Vec3s segment_point;
 
   lineSegmentPointClosestToPoint(s_c, pos1, pos2, segment_point);
   normal = segment_point - s_c;
-  FCL_REAL norm(normal.norm());
-  FCL_REAL r1 = s1.radius + s1.getSweptSphereRadius();
-  FCL_REAL r2 = s2.radius + s2.getSweptSphereRadius();
-  FCL_REAL dist = norm - r1 - r2;
+  CoalScalar norm(normal.norm());
+  CoalScalar r1 = s1.radius + s1.getSweptSphereRadius();
+  CoalScalar r2 = s2.radius + s2.getSweptSphereRadius();
+  CoalScalar dist = norm - r1 - r2;
 
-  static const FCL_REAL eps(std::numeric_limits<FCL_REAL>::epsilon());
+  static const CoalScalar eps(std::numeric_limits<CoalScalar>::epsilon());
   if (norm > eps) {
     normal.normalize();
   } else {
@@ -104,34 +105,35 @@ inline FCL_REAL sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
 /// @param p2 witness point on the Cylinder.
 /// @param normal pointing from shape 1 to shape 2 (sphere to cylinder).
 /// @return the distance between the two shapes (negative if penetration).
-inline FCL_REAL sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
-                                       const Cylinder& s2,
-                                       const Transform3f& tf2, Vec3f& p1,
-                                       Vec3f& p2, Vec3f& normal) {
-  static const FCL_REAL eps(sqrt(std::numeric_limits<FCL_REAL>::epsilon()));
-  FCL_REAL r1(s1.radius);
-  FCL_REAL r2(s2.radius);
-  FCL_REAL lz2(s2.halfLength);
+inline CoalScalar sphereCylinderDistance(const Sphere& s1,
+                                         const Transform3s& tf1,
+                                         const Cylinder& s2,
+                                         const Transform3s& tf2, Vec3s& p1,
+                                         Vec3s& p2, Vec3s& normal) {
+  static const CoalScalar eps(sqrt(std::numeric_limits<CoalScalar>::epsilon()));
+  CoalScalar r1(s1.radius);
+  CoalScalar r2(s2.radius);
+  CoalScalar lz2(s2.halfLength);
   // boundaries of the cylinder axis
-  Vec3f A(tf2.transform(Vec3f(0, 0, -lz2)));
-  Vec3f B(tf2.transform(Vec3f(0, 0, lz2)));
+  Vec3s A(tf2.transform(Vec3s(0, 0, -lz2)));
+  Vec3s B(tf2.transform(Vec3s(0, 0, lz2)));
   // Position of the center of the sphere
-  Vec3f S(tf1.getTranslation());
+  Vec3s S(tf1.getTranslation());
   // axis of the cylinder
-  Vec3f u(tf2.getRotation().col(2));
+  Vec3s u(tf2.getRotation().col(2));
   /// @todo a tiny performance improvement could be achieved using the abscissa
   /// with S as the origin
   assert((B - A - (s2.halfLength * 2) * u).norm() < eps);
-  Vec3f AS(S - A);
+  Vec3s AS(S - A);
   // abscissa of S on cylinder axis with A as the origin
-  FCL_REAL s(u.dot(AS));
-  Vec3f P(A + s * u);
-  Vec3f PS(S - P);
-  FCL_REAL dPS = PS.norm();
+  CoalScalar s(u.dot(AS));
+  Vec3s P(A + s * u);
+  Vec3s PS(S - P);
+  CoalScalar dPS = PS.norm();
   // Normal to cylinder axis such that plane (A, u, v) contains sphere
   // center
-  Vec3f v(0, 0, 0);
-  FCL_REAL dist;
+  Vec3s v(0, 0, 0);
+  CoalScalar dist;
   if (dPS > eps) {
     // S is not on cylinder axis
     v = (1 / dPS) * PS;
@@ -146,8 +148,8 @@ inline FCL_REAL sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
     } else {
       // closest point on cylinder is on cylinder circle basis
       p2 = A + r2 * v;
-      Vec3f Sp2(p2 - S);
-      FCL_REAL dSp2 = Sp2.norm();
+      Vec3s Sp2(p2 - S);
+      CoalScalar dSp2 = Sp2.norm();
       if (dSp2 > eps) {
         normal = (1 / dSp2) * Sp2;
         p1 = S + r1 * normal;
@@ -179,8 +181,8 @@ inline FCL_REAL sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
     } else {
       // closest point on cylinder is on cylinder circle basis
       p2 = B + r2 * v;
-      Vec3f Sp2(p2 - S);
-      FCL_REAL dSp2 = Sp2.norm();
+      Vec3s Sp2(p2 - S);
+      CoalScalar dSp2 = Sp2.norm();
       if (dSp2 > eps) {
         normal = (1 / dSp2) * Sp2;
         p1 = S + r1 * normal;
@@ -197,8 +199,8 @@ inline FCL_REAL sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
   }
 
   // Take swept-sphere radius into account
-  const FCL_REAL ssr1 = s1.getSweptSphereRadius();
-  const FCL_REAL ssr2 = s2.getSweptSphereRadius();
+  const CoalScalar ssr1 = s1.getSweptSphereRadius();
+  const CoalScalar ssr2 = s2.getSweptSphereRadius();
   if (ssr1 > 0 || ssr2 > 0) {
     p1 += ssr1 * normal;
     p2 -= ssr2 * normal;
@@ -212,19 +214,19 @@ inline FCL_REAL sphereCylinderDistance(const Sphere& s1, const Transform3f& tf1,
 /// @param p2 witness point on the second Sphere.
 /// @param normal pointing from shape 1 to shape 2 (sphere1 to sphere2).
 /// @return the distance between the two spheres (negative if penetration).
-inline FCL_REAL sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
-                                     const Sphere& s2, const Transform3f& tf2,
-                                     Vec3f& p1, Vec3f& p2, Vec3f& normal) {
-  const fcl::Vec3f& center1 = tf1.getTranslation();
-  const fcl::Vec3f& center2 = tf2.getTranslation();
-  FCL_REAL r1 = (s1.radius + s1.getSweptSphereRadius());
-  FCL_REAL r2 = (s2.radius + s2.getSweptSphereRadius());
+inline CoalScalar sphereSphereDistance(const Sphere& s1, const Transform3s& tf1,
+                                       const Sphere& s2, const Transform3s& tf2,
+                                       Vec3s& p1, Vec3s& p2, Vec3s& normal) {
+  const coal::Vec3s& center1 = tf1.getTranslation();
+  const coal::Vec3s& center2 = tf2.getTranslation();
+  CoalScalar r1 = (s1.radius + s1.getSweptSphereRadius());
+  CoalScalar r2 = (s2.radius + s2.getSweptSphereRadius());
 
-  Vec3f c1c2 = center2 - center1;
-  FCL_REAL cdist = c1c2.norm();
-  Vec3f unit(1, 0, 0);
-  if (cdist > Eigen::NumTraits<FCL_REAL>::epsilon()) unit = c1c2 / cdist;
-  FCL_REAL dist = cdist - r1 - r2;
+  Vec3s c1c2 = center2 - center1;
+  CoalScalar cdist = c1c2.norm();
+  Vec3s unit(1, 0, 0);
+  if (cdist > Eigen::NumTraits<CoalScalar>::epsilon()) unit = c1c2 / cdist;
+  CoalScalar dist = cdist - r1 - r2;
   normal = unit;
   p1.noalias() = center1 + r1 * unit;
   p2.noalias() = center2 - r2 * unit;
@@ -232,14 +234,14 @@ inline FCL_REAL sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
 }
 
 /** @brief the minimum distance from a point to a line */
-inline FCL_REAL segmentSqrDistance(const Vec3f& from, const Vec3f& to,
-                                   const Vec3f& p, Vec3f& nearest) {
-  Vec3f diff = p - from;
-  Vec3f v = to - from;
-  FCL_REAL t = v.dot(diff);
+inline CoalScalar segmentSqrDistance(const Vec3s& from, const Vec3s& to,
+                                     const Vec3s& p, Vec3s& nearest) {
+  Vec3s diff = p - from;
+  Vec3s v = to - from;
+  CoalScalar t = v.dot(diff);
 
   if (t > 0) {
-    FCL_REAL dotVV = v.squaredNorm();
+    CoalScalar dotVV = v.squaredNorm();
     if (t < dotVV) {
       t /= dotVV;
       diff -= v * t;
@@ -255,21 +257,21 @@ inline FCL_REAL segmentSqrDistance(const Vec3f& from, const Vec3f& to,
 }
 
 /// @brief Whether a point's projection is in a triangle
-inline bool projectInTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3,
-                              const Vec3f& normal, const Vec3f& p) {
-  Vec3f edge1(p2 - p1);
-  Vec3f edge2(p3 - p2);
-  Vec3f edge3(p1 - p3);
+inline bool projectInTriangle(const Vec3s& p1, const Vec3s& p2, const Vec3s& p3,
+                              const Vec3s& normal, const Vec3s& p) {
+  Vec3s edge1(p2 - p1);
+  Vec3s edge2(p3 - p2);
+  Vec3s edge3(p1 - p3);
 
-  Vec3f p1_to_p(p - p1);
-  Vec3f p2_to_p(p - p2);
-  Vec3f p3_to_p(p - p3);
+  Vec3s p1_to_p(p - p1);
+  Vec3s p2_to_p(p - p2);
+  Vec3s p3_to_p(p - p3);
 
-  Vec3f edge1_normal(edge1.cross(normal));
-  Vec3f edge2_normal(edge2.cross(normal));
-  Vec3f edge3_normal(edge3.cross(normal));
+  Vec3s edge1_normal(edge1.cross(normal));
+  Vec3s edge2_normal(edge2.cross(normal));
+  Vec3s edge3_normal(edge3.cross(normal));
 
-  FCL_REAL r1, r2, r3;
+  CoalScalar r1, r2, r3;
   r1 = edge1_normal.dot(p1_to_p);
   r2 = edge2_normal.dot(p2_to_p);
   r3 = edge3_normal.dot(p3_to_p);
@@ -283,30 +285,31 @@ inline bool projectInTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3,
 /// @param p2 witness point on the second Sphere.
 /// @param normal pointing from shape 1 to shape 2 (sphere1 to sphere2).
 /// @return the distance between the two shapes (negative if penetration).
-inline FCL_REAL sphereTriangleDistance(const Sphere& s, const Transform3f& tf1,
-                                       const TriangleP& tri,
-                                       const Transform3f& tf2, Vec3f& p1,
-                                       Vec3f& p2, Vec3f& normal) {
-  const Vec3f& P1 = tf2.transform(tri.a);
-  const Vec3f& P2 = tf2.transform(tri.b);
-  const Vec3f& P3 = tf2.transform(tri.c);
+inline CoalScalar sphereTriangleDistance(const Sphere& s,
+                                         const Transform3s& tf1,
+                                         const TriangleP& tri,
+                                         const Transform3s& tf2, Vec3s& p1,
+                                         Vec3s& p2, Vec3s& normal) {
+  const Vec3s& P1 = tf2.transform(tri.a);
+  const Vec3s& P2 = tf2.transform(tri.b);
+  const Vec3s& P3 = tf2.transform(tri.c);
 
-  Vec3f tri_normal = (P2 - P1).cross(P3 - P1);
+  Vec3s tri_normal = (P2 - P1).cross(P3 - P1);
   tri_normal.normalize();
-  const Vec3f& center = tf1.getTranslation();
+  const Vec3s& center = tf1.getTranslation();
   // Note: comparing an object with a swept-sphere radius of r1 against another
   // object with a swept-sphere radius of r2 is equivalent to comparing the
   // first object with a swept-sphere radius of r1 + r2 against the second
   // object with a swept-sphere radius of 0.
-  const FCL_REAL& radius =
+  const CoalScalar& radius =
       s.radius + s.getSweptSphereRadius() + tri.getSweptSphereRadius();
   assert(radius >= 0);
   assert(s.radius >= 0);
-  Vec3f p1_to_center = center - P1;
-  FCL_REAL distance_from_plane = p1_to_center.dot(tri_normal);
-  Vec3f closest_point(
-      Vec3f::Constant(std::numeric_limits<FCL_REAL>::quiet_NaN()));
-  FCL_REAL min_distance_sqr, distance_sqr;
+  Vec3s p1_to_center = center - P1;
+  CoalScalar distance_from_plane = p1_to_center.dot(tri_normal);
+  Vec3s closest_point(
+      Vec3s::Constant(std::numeric_limits<CoalScalar>::quiet_NaN()));
+  CoalScalar min_distance_sqr, distance_sqr;
 
   if (distance_from_plane < 0) {
     distance_from_plane *= -1;
@@ -318,7 +321,7 @@ inline FCL_REAL sphereTriangleDistance(const Sphere& s, const Transform3f& tf1,
     min_distance_sqr = distance_from_plane * distance_from_plane;
   } else {
     // Compute distance to each edge and take minimal distance
-    Vec3f nearest_on_edge;
+    Vec3s nearest_on_edge;
     min_distance_sqr = segmentSqrDistance(P1, P2, center, closest_point);
 
     distance_sqr = segmentSqrDistance(P2, P3, center, nearest_on_edge);
@@ -336,7 +339,7 @@ inline FCL_REAL sphereTriangleDistance(const Sphere& s, const Transform3f& tf1,
   normal = (closest_point - center).normalized();
   p1 = center + normal * (s.radius + s.getSweptSphereRadius());
   p2 = closest_point - normal * tri.getSweptSphereRadius();
-  const FCL_REAL distance = std::sqrt(min_distance_sqr) - radius;
+  const CoalScalar distance = std::sqrt(min_distance_sqr) - radius;
   return distance;
 }
 
@@ -344,9 +347,9 @@ inline FCL_REAL sphereTriangleDistance(const Sphere& s, const Transform3f& tf1,
 /// @param p2 closest (or most penetrating) point on the shape,
 /// @param normal the halfspace normal.
 /// @return the distance between the two shapes (negative if penetration).
-inline FCL_REAL halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
-                                  const ShapeBase& s, const Transform3f& tf2,
-                                  Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+inline CoalScalar halfspaceDistance(const Halfspace& h, const Transform3s& tf1,
+                                    const ShapeBase& s, const Transform3s& tf2,
+                                    Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   // TODO(louis): handle multiple contact points when the halfspace normal is
   // parallel to the shape's surface (every primitive except sphere and
   // ellipsoid).
@@ -355,7 +358,7 @@ inline FCL_REAL halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
   Halfspace new_h = transform(h, tf1);
 
   // Express halfspace normal in shape frame
-  Vec3f n_2(tf2.getRotation().transpose() * new_h.n);
+  Vec3s n_2(tf2.getRotation().transpose() * new_h.n);
 
   // Compute support of shape in direction of halfspace normal
   int hint = 0;
@@ -363,13 +366,13 @@ inline FCL_REAL halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
       getSupport<details::SupportOptions::WithSweptSphere>(&s, -n_2, hint);
   p2 = tf2.transform(p2);
 
-  const FCL_REAL dist = new_h.signedDistance(p2);
+  const CoalScalar dist = new_h.signedDistance(p2);
   p1.noalias() = p2 - dist * new_h.n;
   normal.noalias() = new_h.n;
 
-  const FCL_REAL dummy_precision =
-      std::sqrt(Eigen::NumTraits<FCL_REAL>::dummy_precision());
-  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+  const CoalScalar dummy_precision =
+      std::sqrt(Eigen::NumTraits<CoalScalar>::dummy_precision());
+  COAL_UNUSED_VARIABLE(dummy_precision);
   assert(new_h.distance(p1) <= dummy_precision);
   return dist;
 }
@@ -378,9 +381,9 @@ inline FCL_REAL halfspaceDistance(const Halfspace& h, const Transform3f& tf1,
 /// @param p2 closest (or most penetrating) point on the shape,
 /// @param normal the halfspace normal.
 /// @return the distance between the two shapes (negative if penetration).
-inline FCL_REAL planeDistance(const Plane& plane, const Transform3f& tf1,
-                              const ShapeBase& s, const Transform3f& tf2,
-                              Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+inline CoalScalar planeDistance(const Plane& plane, const Transform3s& tf1,
+                                const ShapeBase& s, const Transform3s& tf2,
+                                Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   // TODO(louis): handle multiple contact points when the plane normal is
   // parallel to the shape's surface (every primitive except sphere and
   // ellipsoid).
@@ -389,28 +392,28 @@ inline FCL_REAL planeDistance(const Plane& plane, const Transform3f& tf1,
   std::array<Halfspace, 2> new_h = transformToHalfspaces(plane, tf1);
 
   // Express halfspace normals in shape frame
-  Vec3f n_h1(tf2.getRotation().transpose() * new_h[0].n);
-  Vec3f n_h2(tf2.getRotation().transpose() * new_h[1].n);
+  Vec3s n_h1(tf2.getRotation().transpose() * new_h[0].n);
+  Vec3s n_h2(tf2.getRotation().transpose() * new_h[1].n);
 
   // Compute support of shape in direction of halfspace normal and its opposite
   int hint = 0;
-  Vec3f p2h1 =
+  Vec3s p2h1 =
       getSupport<details::SupportOptions::WithSweptSphere>(&s, -n_h1, hint);
   p2h1 = tf2.transform(p2h1);
 
   hint = 0;
-  Vec3f p2h2 =
+  Vec3s p2h2 =
       getSupport<details::SupportOptions::WithSweptSphere>(&s, -n_h2, hint);
   p2h2 = tf2.transform(p2h2);
 
-  FCL_REAL dist1 = new_h[0].signedDistance(p2h1);
-  FCL_REAL dist2 = new_h[1].signedDistance(p2h2);
+  CoalScalar dist1 = new_h[0].signedDistance(p2h1);
+  CoalScalar dist2 = new_h[1].signedDistance(p2h2);
 
-  const FCL_REAL dummy_precision =
-      std::sqrt(Eigen::NumTraits<FCL_REAL>::dummy_precision());
-  HPP_FCL_UNUSED_VARIABLE(dummy_precision);
+  const CoalScalar dummy_precision =
+      std::sqrt(Eigen::NumTraits<CoalScalar>::dummy_precision());
+  COAL_UNUSED_VARIABLE(dummy_precision);
 
-  FCL_REAL dist;
+  CoalScalar dist;
   if (dist1 >= dist2) {
     dist = dist1;
     p2.noalias() = p2h1;
@@ -432,21 +435,21 @@ inline FCL_REAL planeDistance(const Plane& plane, const Transform3f& tf1,
 /// @param ps the witness point on the sphere.
 /// @param normal pointing from box to sphere
 /// @return the distance between the two shapes (negative if penetration).
-inline FCL_REAL boxSphereDistance(const Box& b, const Transform3f& tfb,
-                                  const Sphere& s, const Transform3f& tfs,
-                                  Vec3f& pb, Vec3f& ps, Vec3f& normal) {
-  const Vec3f& os = tfs.getTranslation();
-  const Vec3f& ob = tfb.getTranslation();
-  const Matrix3f& Rb = tfb.getRotation();
+inline CoalScalar boxSphereDistance(const Box& b, const Transform3s& tfb,
+                                    const Sphere& s, const Transform3s& tfs,
+                                    Vec3s& pb, Vec3s& ps, Vec3s& normal) {
+  const Vec3s& os = tfs.getTranslation();
+  const Vec3s& ob = tfb.getTranslation();
+  const Matrix3s& Rb = tfb.getRotation();
 
   pb = ob;
 
   bool outside = false;
-  const Vec3f os_in_b_frame(Rb.transpose() * (os - ob));
+  const Vec3s os_in_b_frame(Rb.transpose() * (os - ob));
   int axis = -1;
-  FCL_REAL min_d = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_d = (std::numeric_limits<CoalScalar>::max)();
   for (int i = 0; i < 3; ++i) {
-    FCL_REAL facedist;
+    CoalScalar facedist;
     if (os_in_b_frame(i) < -b.halfSide(i)) {  // outside
       pb.noalias() -= b.halfSide(i) * Rb.col(i);
       outside = true;
@@ -463,9 +466,9 @@ inline FCL_REAL boxSphereDistance(const Box& b, const Transform3f& tfb,
     }
   }
   normal = pb - os;
-  FCL_REAL pdist = normal.norm();
-  FCL_REAL dist;  // distance between sphere and box
-  if (outside) {  // pb is on the box
+  CoalScalar pdist = normal.norm();
+  CoalScalar dist;  // distance between sphere and box
+  if (outside) {    // pb is on the box
     dist = pdist - s.radius;
     normal /= -pdist;
   } else {  // pb is inside the box
@@ -483,8 +486,8 @@ inline FCL_REAL boxSphereDistance(const Box& b, const Transform3f& tfb,
   }
 
   // Take swept-sphere radius into account
-  const FCL_REAL ssrb = b.getSweptSphereRadius();
-  const FCL_REAL ssrs = s.getSweptSphereRadius();
+  const CoalScalar ssrb = b.getSweptSphereRadius();
+  const CoalScalar ssrs = s.getSweptSphereRadius();
   if (ssrb > 0 || ssrs > 0) {
     pb += ssrb * normal;
     ps -= ssrs * normal;
@@ -506,36 +509,36 @@ inline FCL_REAL boxSphereDistance(const Box& b, const Transform3f& tfb,
 /// The points p1 and p2 are the same point and represent the origin of the
 /// intersection line between the objects. The normal is the direction of this
 /// line.
-inline FCL_REAL halfspaceHalfspaceDistance(const Halfspace& s1,
-                                           const Transform3f& tf1,
-                                           const Halfspace& s2,
-                                           const Transform3f& tf2, Vec3f& p1,
-                                           Vec3f& p2, Vec3f& normal) {
+inline CoalScalar halfspaceHalfspaceDistance(const Halfspace& s1,
+                                             const Transform3s& tf1,
+                                             const Halfspace& s2,
+                                             const Transform3s& tf2, Vec3s& p1,
+                                             Vec3s& p2, Vec3s& normal) {
   Halfspace new_s1 = transform(s1, tf1);
   Halfspace new_s2 = transform(s2, tf2);
 
-  FCL_REAL distance;
-  Vec3f dir = (new_s1.n).cross(new_s2.n);
-  FCL_REAL dir_sq_norm = dir.squaredNorm();
+  CoalScalar distance;
+  Vec3s dir = (new_s1.n).cross(new_s2.n);
+  CoalScalar dir_sq_norm = dir.squaredNorm();
 
-  if (dir_sq_norm < std::numeric_limits<FCL_REAL>::epsilon())  // parallel
+  if (dir_sq_norm < std::numeric_limits<CoalScalar>::epsilon())  // parallel
   {
     if (new_s1.n.dot(new_s2.n) > 0) {
       // If the two halfspaces have the same normal, one is inside the other
       // and they can't be separated. They have inifinte penetration depth.
-      distance = -(std::numeric_limits<FCL_REAL>::max)();
+      distance = -(std::numeric_limits<CoalScalar>::max)();
       if (new_s1.d <= new_s2.d) {
         normal = new_s1.n;
         p1 = normal * distance;
         p2 = new_s2.n * new_s2.d;
         assert(new_s2.distance(p2) <=
-               Eigen::NumTraits<FCL_REAL>::dummy_precision());
+               Eigen::NumTraits<CoalScalar>::dummy_precision());
       } else {
         normal = -new_s1.n;
         p1 << new_s1.n * new_s1.d;
         p2 = -(normal * distance);
         assert(new_s1.distance(p1) <=
-               Eigen::NumTraits<FCL_REAL>::dummy_precision());
+               Eigen::NumTraits<CoalScalar>::dummy_precision());
       }
     } else {
       distance = -(new_s1.d + new_s2.d);
@@ -547,7 +550,7 @@ inline FCL_REAL halfspaceHalfspaceDistance(const Halfspace& s1,
     // If the halfspaces are not parallel, they are in collision.
     // Their distance, in the sens of the norm of separation vector, is infinite
     // (it's impossible to find a translation which separates them)
-    distance = -(std::numeric_limits<FCL_REAL>::max)();
+    distance = -(std::numeric_limits<CoalScalar>::max)();
     // p1 and p2 are the same point, corresponding to a point on the
     // intersection line between the two objects. Normal is the direction of
     // that line.
@@ -559,8 +562,8 @@ inline FCL_REAL halfspaceHalfspaceDistance(const Halfspace& s1,
   }
 
   // Take swept-sphere radius into account
-  const FCL_REAL ssr1 = s1.getSweptSphereRadius();
-  const FCL_REAL ssr2 = s2.getSweptSphereRadius();
+  const CoalScalar ssr1 = s1.getSweptSphereRadius();
+  const CoalScalar ssr2 = s2.getSweptSphereRadius();
   if (ssr1 > 0 || ssr2 > 0) {
     p1 += ssr1 * normal;
     p2 -= ssr2 * normal;
@@ -582,18 +585,19 @@ inline FCL_REAL halfspaceHalfspaceDistance(const Halfspace& s1,
 /// The points p1 and p2 are the same point and represent the origin of the
 /// intersection line between the objects. The normal is the direction of this
 /// line.
-inline FCL_REAL halfspacePlaneDistance(const Halfspace& s1,
-                                       const Transform3f& tf1, const Plane& s2,
-                                       const Transform3f& tf2, Vec3f& p1,
-                                       Vec3f& p2, Vec3f& normal) {
+inline CoalScalar halfspacePlaneDistance(const Halfspace& s1,
+                                         const Transform3s& tf1,
+                                         const Plane& s2,
+                                         const Transform3s& tf2, Vec3s& p1,
+                                         Vec3s& p2, Vec3s& normal) {
   Halfspace new_s1 = transform(s1, tf1);
   Plane new_s2 = transform(s2, tf2);
 
-  FCL_REAL distance;
-  Vec3f dir = (new_s1.n).cross(new_s2.n);
-  FCL_REAL dir_sq_norm = dir.squaredNorm();
+  CoalScalar distance;
+  Vec3s dir = (new_s1.n).cross(new_s2.n);
+  CoalScalar dir_sq_norm = dir.squaredNorm();
 
-  if (dir_sq_norm < std::numeric_limits<FCL_REAL>::epsilon())  // parallel
+  if (dir_sq_norm < std::numeric_limits<CoalScalar>::epsilon())  // parallel
   {
     normal = new_s1.n;
     distance = new_s1.n.dot(new_s2.n) > 0 ? (new_s2.d - new_s1.d)
@@ -601,14 +605,14 @@ inline FCL_REAL halfspacePlaneDistance(const Halfspace& s1,
     p1 = new_s1.n * new_s1.d;
     p2 = new_s2.n * new_s2.d;
     assert(new_s1.distance(p1) <=
-           Eigen::NumTraits<FCL_REAL>::dummy_precision());
+           Eigen::NumTraits<CoalScalar>::dummy_precision());
     assert(new_s2.distance(p2) <=
-           Eigen::NumTraits<FCL_REAL>::dummy_precision());
+           Eigen::NumTraits<CoalScalar>::dummy_precision());
   } else {
     // If the halfspace and plane are not parallel, they are in collision.
     // Their distance, in the sens of the norm of separation vector, is infinite
     // (it's impossible to find a translation which separates them)
-    distance = -(std::numeric_limits<FCL_REAL>::max)();
+    distance = -(std::numeric_limits<CoalScalar>::max)();
     // p1 and p2 are the same point, corresponding to a point on the
     // intersection line between the two objects. Normal is the direction of
     // that line.
@@ -620,8 +624,8 @@ inline FCL_REAL halfspacePlaneDistance(const Halfspace& s1,
   }
 
   // Take swept-sphere radius into account
-  const FCL_REAL ssr1 = s1.getSweptSphereRadius();
-  const FCL_REAL ssr2 = s2.getSweptSphereRadius();
+  const CoalScalar ssr1 = s1.getSweptSphereRadius();
+  const CoalScalar ssr2 = s2.getSweptSphereRadius();
   if (ssr1 > 0 || ssr2 > 0) {
     p1 += ssr1 * normal;
     p2 -= ssr2 * normal;
@@ -643,27 +647,27 @@ inline FCL_REAL halfspacePlaneDistance(const Halfspace& s1,
 /// The points p1 and p2 are the same point and represent the origin of the
 /// intersection line between the objects. The normal is the direction of this
 /// line.
-inline FCL_REAL planePlaneDistance(const Plane& s1, const Transform3f& tf1,
-                                   const Plane& s2, const Transform3f& tf2,
-                                   Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+inline CoalScalar planePlaneDistance(const Plane& s1, const Transform3s& tf1,
+                                     const Plane& s2, const Transform3s& tf2,
+                                     Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   Plane new_s1 = transform(s1, tf1);
   Plane new_s2 = transform(s2, tf2);
 
-  FCL_REAL distance;
-  Vec3f dir = (new_s1.n).cross(new_s2.n);
-  FCL_REAL dir_sq_norm = dir.squaredNorm();
+  CoalScalar distance;
+  Vec3s dir = (new_s1.n).cross(new_s2.n);
+  CoalScalar dir_sq_norm = dir.squaredNorm();
 
-  if (dir_sq_norm < std::numeric_limits<FCL_REAL>::epsilon())  // parallel
+  if (dir_sq_norm < std::numeric_limits<CoalScalar>::epsilon())  // parallel
   {
     p1 = new_s1.n * new_s1.d;
     p2 = new_s2.n * new_s2.d;
     assert(new_s1.distance(p1) <=
-           Eigen::NumTraits<FCL_REAL>::dummy_precision());
+           Eigen::NumTraits<CoalScalar>::dummy_precision());
     assert(new_s2.distance(p2) <=
-           Eigen::NumTraits<FCL_REAL>::dummy_precision());
+           Eigen::NumTraits<CoalScalar>::dummy_precision());
     distance = (p1 - p2).norm();
 
-    if (distance > Eigen::NumTraits<FCL_REAL>::dummy_precision()) {
+    if (distance > Eigen::NumTraits<CoalScalar>::dummy_precision()) {
       normal = (p2 - p1).normalized();
     } else {
       normal = new_s1.n;
@@ -672,7 +676,7 @@ inline FCL_REAL planePlaneDistance(const Plane& s1, const Transform3f& tf1,
     // If the planes are not parallel, they are in collision.
     // Their distance, in the sens of the norm of separation vector, is infinite
     // (it's impossible to find a translation which separates them)
-    distance = -(std::numeric_limits<FCL_REAL>::max)();
+    distance = -(std::numeric_limits<CoalScalar>::max)();
     // p1 and p2 are the same point, corresponding to a point on the
     // intersection line between the two objects. Normal is the direction of
     // that line.
@@ -684,8 +688,8 @@ inline FCL_REAL planePlaneDistance(const Plane& s1, const Transform3f& tf1,
   }
 
   // Take swept-sphere radius into account
-  const FCL_REAL ssr1 = s1.getSweptSphereRadius();
-  const FCL_REAL ssr2 = s2.getSweptSphereRadius();
+  const CoalScalar ssr1 = s1.getSweptSphereRadius();
+  const CoalScalar ssr2 = s2.getSweptSphereRadius();
   if (ssr1 > 0 || ssr2 > 0) {
     p1 += ssr1 * normal;
     p2 -= ssr2 * normal;
@@ -696,15 +700,15 @@ inline FCL_REAL planePlaneDistance(const Plane& s1, const Transform3f& tf1,
 }
 
 /// See the prototype below
-inline FCL_REAL computePenetration(const Vec3f& P1, const Vec3f& P2,
-                                   const Vec3f& P3, const Vec3f& Q1,
-                                   const Vec3f& Q2, const Vec3f& Q3,
-                                   Vec3f& normal) {
-  Vec3f u((P2 - P1).cross(P3 - P1));
+inline CoalScalar computePenetration(const Vec3s& P1, const Vec3s& P2,
+                                     const Vec3s& P3, const Vec3s& Q1,
+                                     const Vec3s& Q2, const Vec3s& Q3,
+                                     Vec3s& normal) {
+  Vec3s u((P2 - P1).cross(P3 - P1));
   normal = u.normalized();
-  FCL_REAL depth1((P1 - Q1).dot(normal));
-  FCL_REAL depth2((P1 - Q2).dot(normal));
-  FCL_REAL depth3((P1 - Q3).dot(normal));
+  CoalScalar depth1((P1 - Q1).dot(normal));
+  CoalScalar depth2((P1 - Q2).dot(normal));
+  CoalScalar depth3((P1 - Q3).dot(normal));
   return std::max(depth1, std::max(depth2, depth3));
 }
 
@@ -715,23 +719,22 @@ inline FCL_REAL computePenetration(const Vec3f& P1, const Vec3f& P2,
 //
 // Note that we compute here an upper bound of the penetration distance,
 // not the exact value.
-inline FCL_REAL computePenetration(const Vec3f& P1, const Vec3f& P2,
-                                   const Vec3f& P3, const Vec3f& Q1,
-                                   const Vec3f& Q2, const Vec3f& Q3,
-                                   const Transform3f& tf1,
-                                   const Transform3f& tf2, Vec3f& normal) {
-  Vec3f globalP1(tf1.transform(P1));
-  Vec3f globalP2(tf1.transform(P2));
-  Vec3f globalP3(tf1.transform(P3));
-  Vec3f globalQ1(tf2.transform(Q1));
-  Vec3f globalQ2(tf2.transform(Q2));
-  Vec3f globalQ3(tf2.transform(Q3));
+inline CoalScalar computePenetration(const Vec3s& P1, const Vec3s& P2,
+                                     const Vec3s& P3, const Vec3s& Q1,
+                                     const Vec3s& Q2, const Vec3s& Q3,
+                                     const Transform3s& tf1,
+                                     const Transform3s& tf2, Vec3s& normal) {
+  Vec3s globalP1(tf1.transform(P1));
+  Vec3s globalP2(tf1.transform(P2));
+  Vec3s globalP3(tf1.transform(P3));
+  Vec3s globalQ1(tf2.transform(Q1));
+  Vec3s globalQ2(tf2.transform(Q2));
+  Vec3s globalQ3(tf2.transform(Q3));
   return computePenetration(globalP1, globalP2, globalP3, globalQ1, globalQ2,
                             globalQ3, normal);
 }
 
 }  // namespace details
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // HPP_FCL_SRC_NARROWPHASE_DETAILS_H
+#endif  // COAL_SRC_NARROWPHASE_DETAILS_H

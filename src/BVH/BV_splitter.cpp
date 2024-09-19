@@ -35,27 +35,26 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/internal/BV_splitter.h>
+#include "coal/internal/BV_splitter.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 template <typename BV>
-void computeSplitVector(const BV& bv, Vec3f& split_vector) {
+void computeSplitVector(const BV& bv, Vec3s& split_vector) {
   split_vector = bv.axes.col(0);
 }
 
 template <>
-void computeSplitVector<kIOS>(const kIOS& bv, Vec3f& split_vector) {
+void computeSplitVector<kIOS>(const kIOS& bv, Vec3s& split_vector) {
   /*
     switch(bv.num_spheres)
     {
     case 1:
-    split_vector = Vec3f(1, 0, 0);
+    split_vector = Vec3s(1, 0, 0);
     break;
     case 3:
     {
-    Vec3f v[3];
+    Vec3s v[3];
     v[0] = bv.spheres[1].o - bv.spheres[0].o;
     v[0].normalize();
     generateCoordinateSystem(v[0], v[1], v[2]);
@@ -64,7 +63,7 @@ void computeSplitVector<kIOS>(const kIOS& bv, Vec3f& split_vector) {
     break;
     case 5:
     {
-    Vec3f v[2];
+    Vec3s v[2];
     v[0] = bv.spheres[1].o - bv.spheres[0].o;
     v[1] = bv.spheres[3].o - bv.spheres[0].o;
     split_vector = v[0].cross(v[1]);
@@ -79,37 +78,38 @@ void computeSplitVector<kIOS>(const kIOS& bv, Vec3f& split_vector) {
 }
 
 template <>
-void computeSplitVector<OBBRSS>(const OBBRSS& bv, Vec3f& split_vector) {
+void computeSplitVector<OBBRSS>(const OBBRSS& bv, Vec3s& split_vector) {
   split_vector = bv.obb.axes.col(0);
 }
 
 template <typename BV>
-void computeSplitValue_bvcenter(const BV& bv, FCL_REAL& split_value) {
-  Vec3f center = bv.center();
+void computeSplitValue_bvcenter(const BV& bv, CoalScalar& split_value) {
+  Vec3s center = bv.center();
   split_value = center[0];
 }
 
 template <typename BV>
-void computeSplitValue_mean(const BV&, Vec3f* vertices, Triangle* triangles,
+void computeSplitValue_mean(const BV&, Vec3s* vertices, Triangle* triangles,
                             unsigned int* primitive_indices,
                             unsigned int num_primitives, BVHModelType type,
-                            const Vec3f& split_vector, FCL_REAL& split_value) {
+                            const Vec3s& split_vector,
+                            CoalScalar& split_value) {
   if (type == BVH_MODEL_TRIANGLES) {
-    Vec3f c(Vec3f::Zero());
+    Vec3s c(Vec3s::Zero());
 
     for (unsigned int i = 0; i < num_primitives; ++i) {
       const Triangle& t = triangles[primitive_indices[i]];
-      const Vec3f& p1 = vertices[t[0]];
-      const Vec3f& p2 = vertices[t[1]];
-      const Vec3f& p3 = vertices[t[2]];
+      const Vec3s& p1 = vertices[t[0]];
+      const Vec3s& p2 = vertices[t[1]];
+      const Vec3s& p3 = vertices[t[2]];
 
       c += p1 + p2 + p3;
     }
     split_value = c.dot(split_vector) / (3 * num_primitives);
   } else if (type == BVH_MODEL_POINTCLOUD) {
-    FCL_REAL sum = 0;
+    CoalScalar sum = 0;
     for (unsigned int i = 0; i < num_primitives; ++i) {
-      const Vec3f& p = vertices[primitive_indices[i]];
+      const Vec3s& p = vertices[primitive_indices[i]];
       sum += p.dot(split_vector);
     }
 
@@ -118,28 +118,28 @@ void computeSplitValue_mean(const BV&, Vec3f* vertices, Triangle* triangles,
 }
 
 template <typename BV>
-void computeSplitValue_median(const BV&, Vec3f* vertices, Triangle* triangles,
+void computeSplitValue_median(const BV&, Vec3s* vertices, Triangle* triangles,
                               unsigned int* primitive_indices,
                               unsigned int num_primitives, BVHModelType type,
-                              const Vec3f& split_vector,
-                              FCL_REAL& split_value) {
-  std::vector<FCL_REAL> proj(num_primitives);
+                              const Vec3s& split_vector,
+                              CoalScalar& split_value) {
+  std::vector<CoalScalar> proj(num_primitives);
 
   if (type == BVH_MODEL_TRIANGLES) {
     for (unsigned int i = 0; i < num_primitives; ++i) {
       const Triangle& t = triangles[primitive_indices[i]];
-      const Vec3f& p1 = vertices[t[0]];
-      const Vec3f& p2 = vertices[t[1]];
-      const Vec3f& p3 = vertices[t[2]];
-      Vec3f centroid3(p1[0] + p2[0] + p3[0], p1[1] + p2[1] + p3[1],
+      const Vec3s& p1 = vertices[t[0]];
+      const Vec3s& p2 = vertices[t[1]];
+      const Vec3s& p3 = vertices[t[2]];
+      Vec3s centroid3(p1[0] + p2[0] + p3[0], p1[1] + p2[1] + p3[1],
                       p1[2] + p2[2] + p3[2]);
 
       proj[i] = centroid3.dot(split_vector) / 3;
     }
   } else if (type == BVH_MODEL_POINTCLOUD) {
     for (unsigned int i = 0; i < num_primitives; ++i) {
-      const Vec3f& p = vertices[primitive_indices[i]];
-      Vec3f v(p[0], p[1], p[2]);
+      const Vec3s& p = vertices[primitive_indices[i]];
+      Vec3s v(p[0], p[1], p[2]);
       proj[i] = v.dot(split_vector);
     }
   }
@@ -259,23 +259,23 @@ void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv,
 }
 
 template <>
-bool BVSplitter<OBB>::apply(const Vec3f& q) const {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+bool BVSplitter<OBB>::apply(const Vec3s& q) const {
+  return split_vector.dot(Vec3s(q[0], q[1], q[2])) > split_value;
 }
 
 template <>
-bool BVSplitter<RSS>::apply(const Vec3f& q) const {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+bool BVSplitter<RSS>::apply(const Vec3s& q) const {
+  return split_vector.dot(Vec3s(q[0], q[1], q[2])) > split_value;
 }
 
 template <>
-bool BVSplitter<kIOS>::apply(const Vec3f& q) const {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+bool BVSplitter<kIOS>::apply(const Vec3s& q) const {
+  return split_vector.dot(Vec3s(q[0], q[1], q[2])) > split_value;
 }
 
 template <>
-bool BVSplitter<OBBRSS>::apply(const Vec3f& q) const {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+bool BVSplitter<OBBRSS>::apply(const Vec3s& q) const {
+  return split_vector.dot(Vec3s(q[0], q[1], q[2])) > split_value;
 }
 
 template class BVSplitter<RSS>;
@@ -283,6 +283,4 @@ template class BVSplitter<OBBRSS>;
 template class BVSplitter<OBB>;
 template class BVSplitter<kIOS>;
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

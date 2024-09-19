@@ -35,10 +35,9 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_SSaP.h"
+#include "coal/broadphase/broadphase_SSaP.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /** @brief Functor sorting objects according to the AABB lower x bound */
 struct SortByXLow {
@@ -65,7 +64,7 @@ struct SortByZLow {
 };
 
 /** @brief Dummy collision object with a point AABB */
-class HPP_FCL_DLLAPI DummyCollisionObject : public CollisionObject {
+class COAL_DLLAPI DummyCollisionObject : public CollisionObject {
  public:
   DummyCollisionObject(const AABB& aabb_)
       : CollisionObject(shared_ptr<CollisionGeometry>()) {
@@ -184,7 +183,7 @@ bool SSaPCollisionManager::checkDis(
     typename std::vector<CollisionObject*>::const_iterator pos_start,
     typename std::vector<CollisionObject*>::const_iterator pos_end,
     CollisionObject* obj, DistanceCallBackBase* callback,
-    FCL_REAL& min_dist) const {
+    CoalScalar& min_dist) const {
   while (pos_start < pos_end) {
     if (*pos_start != obj)  // no distance between the same object
     {
@@ -257,19 +256,19 @@ void SSaPCollisionManager::distance(CollisionObject* obj,
   callback->init();
   if (size() == 0) return;
 
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
   distance_(obj, callback, min_dist);
 }
 
 //==============================================================================
 bool SSaPCollisionManager::distance_(CollisionObject* obj,
                                      DistanceCallBackBase* callback,
-                                     FCL_REAL& min_dist) const {
+                                     CoalScalar& min_dist) const {
   static const unsigned int CUTOFF = 100;
-  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
-  Vec3f dummy_vector = obj->getAABB().max_;
-  if (min_dist < (std::numeric_limits<FCL_REAL>::max)())
-    dummy_vector += Vec3f(min_dist, min_dist, min_dist);
+  Vec3s delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  Vec3s dummy_vector = obj->getAABB().max_;
+  if (min_dist < (std::numeric_limits<CoalScalar>::max)())
+    dummy_vector += Vec3s(min_dist, min_dist, min_dist);
 
   typename std::vector<CollisionObject*>::const_iterator pos_start1 =
       objs_x.begin();
@@ -285,7 +284,7 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj,
       objs_z.end();
 
   int status = 1;
-  FCL_REAL old_min_distance;
+  CoalScalar old_min_distance;
 
   while (1) {
     old_min_distance = min_dist;
@@ -329,20 +328,20 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj,
     if (dist_res) return true;
 
     if (status == 1) {
-      if (old_min_distance < (std::numeric_limits<FCL_REAL>::max)())
+      if (old_min_distance < (std::numeric_limits<CoalScalar>::max)())
         break;
       else {
         // from infinity to a finite one, only need one additional loop
         // to check the possible missed ones to the right of the objs array
         if (min_dist < old_min_distance) {
           dummy_vector =
-              obj->getAABB().max_ + Vec3f(min_dist, min_dist, min_dist);
+              obj->getAABB().max_ + Vec3s(min_dist, min_dist, min_dist);
           status = 0;
         } else  // need more loop
         {
           if (dummy_vector.isApprox(
                   obj->getAABB().max_,
-                  std::numeric_limits<FCL_REAL>::epsilon() * 100))
+                  std::numeric_limits<CoalScalar>::epsilon() * 100))
             dummy_vector = dummy_vector + delta;
           else
             dummy_vector = dummy_vector * 2 - obj->getAABB().max_;
@@ -368,12 +367,12 @@ int SSaPCollisionManager::selectOptimalAxis(
     typename std::vector<CollisionObject*>::const_iterator& it_beg,
     typename std::vector<CollisionObject*>::const_iterator& it_end) {
   /// simple sweep and prune method
-  FCL_REAL delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] -
-                     (objs_x[0])->getAABB().min_[0];
-  FCL_REAL delta_y = (objs_x[objs_y.size() - 1])->getAABB().min_[1] -
-                     (objs_y[0])->getAABB().min_[1];
-  FCL_REAL delta_z = (objs_z[objs_z.size() - 1])->getAABB().min_[2] -
-                     (objs_z[0])->getAABB().min_[2];
+  CoalScalar delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] -
+                       (objs_x[0])->getAABB().min_[0];
+  CoalScalar delta_y = (objs_x[objs_y.size() - 1])->getAABB().min_[1] -
+                       (objs_y[0])->getAABB().min_[1];
+  CoalScalar delta_z = (objs_z[objs_z.size() - 1])->getAABB().min_[2] -
+                       (objs_z[0])->getAABB().min_[2];
 
   int axis = 0;
   if (delta_y > delta_x && delta_y > delta_z)
@@ -454,7 +453,7 @@ void SSaPCollisionManager::distance(DistanceCallBackBase* callback) const {
   typename std::vector<CollisionObject*>::const_iterator it, it_end;
   selectOptimalAxis(objs_x, objs_y, objs_z, it, it_end);
 
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
   for (; it != it_end; ++it) {
     if (distance_(*it, callback, min_dist)) return;
   }
@@ -499,7 +498,7 @@ void SSaPCollisionManager::distance(BroadPhaseCollisionManager* other_manager_,
     return;
   }
 
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
   typename std::vector<CollisionObject*>::const_iterator it, end;
   if (this->size() < other_manager->size()) {
     for (it = objs_x.begin(), end = objs_x.end(); it != end; ++it)
@@ -517,5 +516,4 @@ bool SSaPCollisionManager::empty() const { return objs_x.empty(); }
 //==============================================================================
 size_t SSaPCollisionManager::size() const { return objs_x.size(); }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

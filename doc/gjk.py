@@ -444,34 +444,34 @@ def printOrder(order, indent="", start=True, file=sys.stdout, curTests=[]):
         for v in "abcd":
             print(
                 indent
-                + "const Vec3f& {} (current.vertex[{}]->w);".format(v.upper(), v),
+                + "const Vec3s& {} (current.vertex[{}]->w);".format(v.upper(), v),
                 file=file,
             )
-        print(indent + "const FCL_REAL aa = A.squaredNorm();".format(), file=file)
+        print(indent + "const CoalScalar aa = A.squaredNorm();".format(), file=file)
         for v in "dcb":
             for m in "abcd":
                 if m <= v:
                     print(
                         indent
-                        + "const FCL_REAL {0}{1}    = {2}.dot({3});".format(
+                        + "const CoalScalar {0}{1}    = {2}.dot({3});".format(
                             v, m, v.upper(), m.upper()
                         ),
                         file=file,
                     )
                 else:
                     print(
-                        indent + "const FCL_REAL& {0}{1}    = {1}{0};".format(v, m),
+                        indent + "const CoalScalar& {0}{1}    = {1}{0};".format(v, m),
                         file=file,
                     )
-            print(indent + "const FCL_REAL {0}a_aa = {0}a - aa;".format(v), file=file)
+            print(indent + "const CoalScalar {0}a_aa = {0}a - aa;".format(v), file=file)
         for l0, l1 in zip("bcd", "cdb"):
             print(
-                indent + "const FCL_REAL {0}a_{1}a = {0}a - {1}a;".format(l0, l1),
+                indent + "const CoalScalar {0}a_{1}a = {0}a - {1}a;".format(l0, l1),
                 file=file,
             )
         for v in "bc":
             print(
-                indent + "const Vec3f a_cross_{0} = A.cross({1});".format(v, v.upper()),
+                indent + "const Vec3s a_cross_{0} = A.cross({1});".format(v, v.upper()),
                 file=file,
             )
         print("", file=file)

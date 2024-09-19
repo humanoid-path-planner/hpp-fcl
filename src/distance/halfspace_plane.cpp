@@ -34,39 +34,37 @@
 
 /** \author Louis Montaut */
 
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "coal/shape/geometric_shapes.h"
 
-#include <hpp/fcl/internal/shape_shape_func.h>
+#include "coal/internal/shape_shape_func.h"
 #include "../narrowphase/details.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 struct GJKSolver;
 
 namespace internal {
 template <>
-FCL_REAL ShapeShapeDistance<Halfspace, Plane>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+CoalScalar ShapeShapeDistance<Halfspace, Plane>(
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
+    const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Halfspace& s1 = static_cast<const Halfspace&>(*o1);
   const Plane& s2 = static_cast<const Plane&>(*o2);
   return details::halfspacePlaneDistance(s1, tf1, s2, tf2, p1, p2, normal);
 }
 
 template <>
-FCL_REAL ShapeShapeDistance<Plane, Halfspace>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+CoalScalar ShapeShapeDistance<Plane, Halfspace>(
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
+    const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Plane& s1 = static_cast<const Plane&>(*o1);
   const Halfspace& s2 = static_cast<const Halfspace&>(*o2);
-  FCL_REAL distance =
+  CoalScalar distance =
       details::halfspacePlaneDistance(s2, tf2, s1, tf1, p2, p1, normal);
   normal = -normal;
   return distance;
 }
 }  // namespace internal
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

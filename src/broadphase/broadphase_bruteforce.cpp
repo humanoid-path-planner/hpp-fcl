@@ -35,13 +35,12 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_bruteforce.h"
+#include "coal/broadphase/broadphase_bruteforce.h"
 
 #include <iterator>
 #include <algorithm>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 //==============================================================================
 NaiveCollisionManager::NaiveCollisionManager() {
@@ -101,7 +100,7 @@ void NaiveCollisionManager::distance(CollisionObject* obj,
   callback->init();
   if (size() == 0) return;
 
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
   for (auto* obj2 : objs) {
     if (obj->getAABB().distance(obj2->getAABB()) < min_dist) {
       if ((*callback)(obj, obj2, min_dist)) return;
@@ -132,7 +131,7 @@ void NaiveCollisionManager::distance(DistanceCallBackBase* callback) const {
   callback->init();
   if (size() == 0) return;
 
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
   for (typename std::list<CollisionObject*>::const_iterator it1 = objs.begin(),
                                                             end = objs.end();
        it1 != end; ++it1) {
@@ -183,7 +182,7 @@ void NaiveCollisionManager::distance(BroadPhaseCollisionManager* other_manager_,
     return;
   }
 
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
   for (auto* obj1 : objs) {
     for (auto* obj2 : other_manager->objs) {
       if (obj1->getAABB().distance(obj2->getAABB()) < min_dist) {
@@ -199,5 +198,4 @@ bool NaiveCollisionManager::empty() const { return objs.empty(); }
 //==============================================================================
 size_t NaiveCollisionManager::size() const { return objs.size(); }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

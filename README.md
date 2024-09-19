@@ -94,29 +94,29 @@ Here is an example of using HPP-FCL in C++:
 // GJK or EPA can be called with this object.
 // Consequently, after creating the BVH structure from the point cloud, this function
 // also computes its convex hull.
-std::shared_ptr<hpp::fcl::ConvexBase> loadConvexMesh(const std::string& file_name) {
-  hpp::fcl::NODE_TYPE bv_type = hpp::fcl::BV_AABB;
-  hpp::fcl::MeshLoader loader(bv_type);
-  hpp::fcl::BVHModelPtr_t bvh = loader.load(file_name);
+std::shared_ptr<coal::ConvexBase> loadConvexMesh(const std::string& file_name) {
+  coal::NODE_TYPE bv_type = coal::BV_AABB;
+  coal::MeshLoader loader(bv_type);
+  coal::BVHModelPtr_t bvh = loader.load(file_name);
   bvh->buildConvexHull(true, "Qt");
   return bvh->convex;
 }
 
 int main() {
-  // Create the hppfcl shapes.
-  // Hppfcl supports many primitive shapes: boxes, spheres, capsules, cylinders, ellipsoids, cones, planes,
+  // Create the coal shapes.
+  // Coal supports many primitive shapes: boxes, spheres, capsules, cylinders, ellipsoids, cones, planes,
   // halfspace and convex meshes (i.e. convex hulls of clouds of points).
   // It also supports BVHs (bounding volumes hierarchies), height-fields and octrees.
-  std::shared_ptr<hpp::fcl::Ellipsoid> shape1 = std::make_shared<hpp::fcl::Ellipsoid>(0.7, 1.0, 0.8);
-  std::shared_ptr<hpp::fcl::ConvexBase> shape2 = loadConvexMesh("../path/to/mesh/file.obj");
+  std::shared_ptr<coal::Ellipsoid> shape1 = std::make_shared<coal::Ellipsoid>(0.7, 1.0, 0.8);
+  std::shared_ptr<coal::ConvexBase> shape2 = loadConvexMesh("../path/to/mesh/file.obj");
 
   // Define the shapes' placement in 3D space
-  hpp::fcl::Transform3f T1;
-  T1.setQuatRotation(hpp::fcl::Quaternion3f::UnitRandom());
-  T1.setTranslation(hpp::fcl::Vec3f::Random());
-  hpp::fcl::Transform3f T2 = hpp::fcl::Transform3f::Identity();
-  T2.setQuatRotation(hpp::fcl::Quaternion3f::UnitRandom());
-  T2.setTranslation(hpp::fcl::Vec3f::Random());
+  coal::Transform3s T1;
+  T1.setQuatRotation(coal::Quaternion3f::UnitRandom());
+  T1.setTranslation(coal::Vec3s::Random());
+  coal::Transform3s T2 = coal::Transform3s::Identity();
+  T2.setQuatRotation(coal::Quaternion3f::UnitRandom());
+  T2.setTranslation(coal::Vec3s::Random());
 
   // Define collision requests and results.
   //
@@ -127,19 +127,19 @@ int main() {
   // Setting a positive security margin can be usefull in motion planning,
   // i.e to prevent shapes from getting too close to one another.
   // In physics simulation, allowing a negative security margin may be usefull to stabilize the simulation.
-  hpp::fcl::CollisionRequest col_req;
+  coal::CollisionRequest col_req;
   col_req.security_margin = 1e-1;
   // A collision result stores the result of the collision test (signed distance between the shapes,
   // witness points location, normal etc.)
-  hpp::fcl::CollisionResult col_res;
+  coal::CollisionResult col_res;
 
   // Collision call
-  hpp::fcl::collide(shape1.get(), T1, shape2.get(), T2, col_req, col_res);
+  coal::collide(shape1.get(), T1, shape2.get(), T2, col_req, col_res);
 
   // We can access the collision result once it has been populated
   std::cout << "Collision? " << col_res.isCollision() << "\n";
   if (col_res.isCollision()) {
-    hpp::fcl::Contact contact = col_res.getContact(0);
+    coal::Contact contact = col_res.getContact(0);
     // The penetration depth does **not** take into account the security margin.
     // Consequently, the penetration depth is the true signed distance which separates the shapes.
     // To have the distance which takes into account the security margin, we can simply add the two together.
@@ -161,7 +161,7 @@ int main() {
 Here is the C++ example from above translated in python using HPP-FCL's python bindings:
 ```python
 import numpy as np
-import hppfcl
+import coal
 # Optional:
 # The Pinocchio library is a rigid body algorithms library and has a handy SE3 module.
 # It can be installed as simply as `conda -c conda-forge install pinocchio`.
@@ -169,36 +169,36 @@ import hppfcl
 import pinocchio as pin
 
 def loadConvexMesh(file_name: str):
-    loader = hppfcl.MeshLoader()
-    bvh: hppfcl.BVHModelBase = loader.load(file_name)
+    loader = coal.MeshLoader()
+    bvh: coal.BVHModelBase = loader.load(file_name)
     bvh.buildConvexHull(True, "Qt")
     return bvh.convex
 
 if __name__ == "__main__":
-    # Create hppfcl shapes
-    shape1 = hppfcl.Ellipsoid(0.7, 1.0, 0.8)
+    # Create coal shapes
+    shape1 = coal.Ellipsoid(0.7, 1.0, 0.8)
     shape2 = loadConvexMesh("../path/to/mesh/file.obj")
 
     # Define the shapes' placement in 3D space
-    T1 = hppfcl.Transform3f()
+    T1 = coal.Transform3s()
     T1.setTranslation(pin.SE3.Random().translation)
     T1.setRotation(pin.SE3.Random().rotation)
-    T2 = hppfcl.Transform3f();
+    T2 = coal.Transform3s();
     # Using np arrays also works
     T1.setTranslation(np.random.rand(3))
     T2.setRotation(pin.SE3.Random().rotation)
 
     # Define collision requests and results
-    col_req = hppfcl.CollisionRequest()
-    col_res = hppfcl.CollisionResult()
+    col_req = coal.CollisionRequest()
+    col_res = coal.CollisionResult()
 
     # Collision call
-    hppfcl.collide(shape1, T1, shape2, T2, col_req, col_res)
+    coal.collide(shape1, T1, shape2, T2, col_req, col_res)
 
     # Accessing the collision result once it has been populated
     print("Is collision? ", {col_res.isCollision()})
     if col_res.isCollision():
-        contact: hppfcl.Contact = col_res.getContact(0)
+        contact: coal.Contact = col_res.getContact(0)
         print("Penetration depth: ", contact.penetration_depth)
         print("Distance between the shapes including the security margin: ", contact.penetration_depth + col_req.security_margin)
         print("Witness point shape1: ", contact.getNearestPoint1())

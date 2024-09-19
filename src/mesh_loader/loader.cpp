@@ -34,19 +34,18 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <hpp/fcl/mesh_loader/loader.h>
-#include <hpp/fcl/mesh_loader/assimp.h>
+#include "coal/mesh_loader/loader.h"
+#include "coal/mesh_loader/assimp.h"
 
 #include <boost/filesystem.hpp>
 
-#ifdef HPP_FCL_HAS_OCTOMAP
-#include <hpp/fcl/octree.h>
+#ifdef COAL_HAS_OCTOMAP
+#include "coal/octree.h"
 #endif
 
-#include <hpp/fcl/BV/BV.h>
+#include "coal/BV/BV.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 bool CachedMeshLoader::Key::operator<(const CachedMeshLoader::Key& b) const {
   const CachedMeshLoader::Key& a = *this;
   for (int i = 0; i < 3; ++i) {
@@ -59,14 +58,14 @@ bool CachedMeshLoader::Key::operator<(const CachedMeshLoader::Key& b) const {
 }
 
 template <typename BV>
-BVHModelPtr_t _load(const std::string& filename, const Vec3f& scale) {
+BVHModelPtr_t _load(const std::string& filename, const Vec3s& scale) {
   shared_ptr<BVHModel<BV> > polyhedron(new BVHModel<BV>);
   loadPolyhedronFromResource(filename, scale, polyhedron);
   return polyhedron;
 }
 
 BVHModelPtr_t MeshLoader::load(const std::string& filename,
-                               const Vec3f& scale) {
+                               const Vec3s& scale) {
   switch (bvType_) {
     case BV_AABB:
       return _load<AABB>(filename, scale);
@@ -85,24 +84,23 @@ BVHModelPtr_t MeshLoader::load(const std::string& filename,
     case BV_KDOP24:
       return _load<KDOP<24> >(filename, scale);
     default:
-      HPP_FCL_THROW_PRETTY("Unhandled bouding volume type.",
-                           std::invalid_argument);
+      COAL_THROW_PRETTY("Unhandled bouding volume type.",
+                        std::invalid_argument);
   }
 }
 
 CollisionGeometryPtr_t MeshLoader::loadOctree(const std::string& filename) {
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
   shared_ptr<octomap::OcTree> octree(new octomap::OcTree(filename));
-  return CollisionGeometryPtr_t(new hpp::fcl::OcTree(octree));
+  return CollisionGeometryPtr_t(new coal::OcTree(octree));
 #else
-  HPP_FCL_THROW_PRETTY(
-      "hpp-fcl compiled without OctoMap. Cannot create OcTrees.",
-      std::logic_error);
+  COAL_THROW_PRETTY("Coal compiled without OctoMap. Cannot create OcTrees.",
+                    std::logic_error);
 #endif
 }
 
 BVHModelPtr_t CachedMeshLoader::load(const std::string& filename,
-                                     const Vec3f& scale) {
+                                     const Vec3s& scale) {
   Key key(filename, scale);
 
   std::time_t mtime = 0;
@@ -125,6 +123,4 @@ BVHModelPtr_t CachedMeshLoader::load(const std::string& filename,
   cache_[key] = val;
   return geom;
 }
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

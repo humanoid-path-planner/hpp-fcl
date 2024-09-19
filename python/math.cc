@@ -35,21 +35,21 @@
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/geometry.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/serialization/transform.h>
+#include "coal/fwd.hh"
+#include "coal/math/transform.h"
+#include "coal/serialization/transform.h"
 
-#include "fcl.hh"
+#include "coal.hh"
 #include "pickle.hh"
 #include "serializable.hh"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
-#include "doxygen_autodoc/hpp/fcl/math/transform.h"
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
+#include "doxygen_autodoc/coal/math/transform.h"
 #endif
 
 using namespace boost::python;
-using namespace hpp::fcl;
-using namespace hpp::fcl::python;
+using namespace coal;
+using namespace coal::python;
 
 namespace dv = doxygen::visitor;
 
@@ -57,12 +57,12 @@ struct TriangleWrapper {
   static Triangle::index_type getitem(const Triangle& t, int i) {
     if (i >= 3 || i <= -3)
       PyErr_SetString(PyExc_IndexError, "Index out of range");
-    return t[static_cast<hpp::fcl::Triangle::index_type>(i % 3)];
+    return t[static_cast<coal::Triangle::index_type>(i % 3)];
   }
   static void setitem(Triangle& t, int i, Triangle::index_type v) {
     if (i >= 3 || i <= -3)
       PyErr_SetString(PyExc_IndexError, "Index out of range");
-    t[static_cast<hpp::fcl::Triangle::index_type>(i % 3)] = v;
+    t[static_cast<coal::Triangle::index_type>(i % 3)] = v;
   }
 };
 
@@ -74,56 +74,60 @@ void exposeMaths() {
   if (!eigenpy::register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
     eigenpy::exposeAngleAxis();
 
-  eigenpy::enableEigenPySpecific<Matrix3f>();
-  eigenpy::enableEigenPySpecific<Vec3f>();
+  eigenpy::enableEigenPySpecific<Matrix3s>();
+  eigenpy::enableEigenPySpecific<Vec3s>();
 
-  class_<Transform3f>("Transform3f", doxygen::class_doc<Transform3f>(), no_init)
-      .def(dv::init<Transform3f>())
-      .def(dv::init<Transform3f, const Matrix3f::MatrixBase&,
-                    const Vec3f::MatrixBase&>())
-      .def(dv::init<Transform3f, const Quatf&, const Vec3f::MatrixBase&>())
-      .def(dv::init<Transform3f, const Matrix3f&>())
-      .def(dv::init<Transform3f, const Quatf&>())
-      .def(dv::init<Transform3f, const Vec3f&>())
-      .def(dv::init<Transform3f, const Transform3f&>())
+  class_<Transform3s>("Transform3s", doxygen::class_doc<Transform3s>(), no_init)
+      .def(dv::init<Transform3s>())
+      .def(dv::init<Transform3s, const Matrix3s::MatrixBase&,
+                    const Vec3s::MatrixBase&>())
+      .def(dv::init<Transform3s, const Quatf&, const Vec3s::MatrixBase&>())
+      .def(dv::init<Transform3s, const Matrix3s&>())
+      .def(dv::init<Transform3s, const Quatf&>())
+      .def(dv::init<Transform3s, const Vec3s&>())
+      .def(dv::init<Transform3s, const Transform3s&>())
 
-      .def(dv::member_func("getQuatRotation", &Transform3f::getQuatRotation))
-      .def("getTranslation", &Transform3f::getTranslation,
-           doxygen::member_func_doc(&Transform3f::getTranslation),
+      .def(dv::member_func("getQuatRotation", &Transform3s::getQuatRotation))
+      .def("getTranslation", &Transform3s::getTranslation,
+           doxygen::member_func_doc(&Transform3s::getTranslation),
            return_value_policy<copy_const_reference>())
-      .def("getRotation", &Transform3f::getRotation,
+      .def("getRotation", &Transform3s::getRotation,
            return_value_policy<copy_const_reference>())
-      .def("isIdentity", &Transform3f::isIdentity,
+      .def("isIdentity", &Transform3s::isIdentity,
            (bp::arg("self"),
-            bp::arg("prec") = Eigen::NumTraits<FCL_REAL>::dummy_precision()),
-           doxygen::member_func_doc(&Transform3f::getTranslation))
+            bp::arg("prec") = Eigen::NumTraits<CoalScalar>::dummy_precision()),
+           doxygen::member_func_doc(&Transform3s::getTranslation))
 
-      .def(dv::member_func("setQuatRotation", &Transform3f::setQuatRotation))
-      .def("setTranslation", &Transform3f::setTranslation<Vec3f>)
-      .def("setRotation", &Transform3f::setRotation<Matrix3f>)
+      .def(dv::member_func("setQuatRotation", &Transform3s::setQuatRotation))
+      .def("setTranslation", &Transform3s::setTranslation<Vec3s>)
+      .def("setRotation", &Transform3s::setRotation<Matrix3s>)
       .def(dv::member_func("setTransform",
-                           &Transform3f::setTransform<Matrix3f, Vec3f>))
+                           &Transform3s::setTransform<Matrix3s, Vec3s>))
       .def(dv::member_func(
           "setTransform",
-          static_cast<void (Transform3f::*)(const Quatf&, const Vec3f&)>(
-              &Transform3f::setTransform)))
-      .def(dv::member_func("setIdentity", &Transform3f::setIdentity))
-      .def(dv::member_func("Identity", &Transform3f::Identity))
+          static_cast<void (Transform3s::*)(const Quatf&, const Vec3s&)>(
+              &Transform3s::setTransform)))
+      .def(dv::member_func("setIdentity", &Transform3s::setIdentity))
+      .def(dv::member_func("Identity", &Transform3s::Identity))
       .staticmethod("Identity")
 
-      .def(dv::member_func("transform", &Transform3f::transform<Vec3f>))
-      .def("inverseInPlace", &Transform3f::inverseInPlace,
+      .def(dv::member_func("setRandom", &Transform3s::setRandom))
+      .def(dv::member_func("Random", &Transform3s::Random))
+      .staticmethod("Random")
+
+      .def(dv::member_func("transform", &Transform3s::transform<Vec3s>))
+      .def("inverseInPlace", &Transform3s::inverseInPlace,
            return_internal_reference<>(),
-           doxygen::member_func_doc(&Transform3f::inverseInPlace))
-      .def(dv::member_func("inverse", &Transform3f::inverse))
-      .def(dv::member_func("inverseTimes", &Transform3f::inverseTimes))
+           doxygen::member_func_doc(&Transform3s::inverseInPlace))
+      .def(dv::member_func("inverse", &Transform3s::inverse))
+      .def(dv::member_func("inverseTimes", &Transform3s::inverseTimes))
 
       .def(self * self)
       .def(self *= self)
       .def(self == self)
       .def(self != self)
-      .def_pickle(PickleObject<Transform3f>())
-      .def(SerializableVisitor<Transform3f>());
+      .def_pickle(PickleObject<Transform3s>())
+      .def(SerializableVisitor<Transform3s>());
 
   class_<Triangle>("Triangle", no_init)
       .def(dv::init<Triangle>())
@@ -137,9 +141,9 @@ void exposeMaths() {
       .def(self == self);
 
   if (!eigenpy::register_symbolic_link_to_registered_type<
-          std::vector<Vec3f> >()) {
-    class_<std::vector<Vec3f> >("StdVec_Vec3f")
-        .def(vector_indexing_suite<std::vector<Vec3f> >());
+          std::vector<Vec3s> >()) {
+    class_<std::vector<Vec3s> >("StdVec_Vec3s")
+        .def(vector_indexing_suite<std::vector<Vec3s> >());
   }
   if (!eigenpy::register_symbolic_link_to_registered_type<
           std::vector<Triangle> >()) {

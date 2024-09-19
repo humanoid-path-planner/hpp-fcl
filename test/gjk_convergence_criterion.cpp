@@ -34,29 +34,29 @@
 
 /** \author Louis Montaut */
 
-#include "hpp/fcl/data_types.h"
-#include <boost/test/tools/old/interface.hpp>
-#define BOOST_TEST_MODULE FCL_NESTEROV_GJK
+#define BOOST_TEST_MODULE COAL_NESTEROV_GJK
 #include <boost/test/included/unit_test.hpp>
+#include <boost/test/tools/old/interface.hpp>
 
 #include <Eigen/Geometry>
-#include <hpp/fcl/narrowphase/narrowphase.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/internal/tools.h>
+#include "coal/data_types.h"
+#include "coal/narrowphase/narrowphase.h"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/internal/tools.h"
 
 #include "utility.h"
 
-using hpp::fcl::Box;
-using hpp::fcl::FCL_REAL;
-using hpp::fcl::GJKConvergenceCriterion;
-using hpp::fcl::GJKConvergenceCriterionType;
-using hpp::fcl::GJKSolver;
-using hpp::fcl::ShapeBase;
-using hpp::fcl::support_func_guess_t;
-using hpp::fcl::Transform3f;
-using hpp::fcl::Vec3f;
-using hpp::fcl::details::GJK;
-using hpp::fcl::details::MinkowskiDiff;
+using coal::Box;
+using coal::CoalScalar;
+using coal::GJKConvergenceCriterion;
+using coal::GJKConvergenceCriterionType;
+using coal::GJKSolver;
+using coal::ShapeBase;
+using coal::support_func_guess_t;
+using coal::Transform3s;
+using coal::Vec3s;
+using coal::details::GJK;
+using coal::details::MinkowskiDiff;
 using std::size_t;
 
 BOOST_AUTO_TEST_CASE(set_cv_criterion) {
@@ -96,7 +96,7 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
   // by default GJK uses the VDB convergence criterion, which is relative.
   GJK gjk1(max_iterations, 1e-6);
 
-  FCL_REAL tol;
+  CoalScalar tol;
   switch (cv_type) {
     // need to lower the tolerance when absolute
     case GJKConvergenceCriterionType::Absolute:
@@ -122,13 +122,13 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
 
   // Generate random transforms
   size_t n = 1000;
-  FCL_REAL extents[] = {-3., -3., 0, 3., 3., 3.};
-  std::vector<Transform3f> transforms;
+  CoalScalar extents[] = {-3., -3., 0, 3., 3., 3.};
+  std::vector<Transform3s> transforms;
   generateRandomTransforms(extents, transforms, n);
-  Transform3f identity = Transform3f::Identity();
+  Transform3s identity = Transform3s::Identity();
 
   // Same init for both solvers
-  Vec3f init_guess = Vec3f(1, 0, 0);
+  Vec3s init_guess = Vec3s(1, 0, 0);
   support_func_guess_t init_support_guess;
   init_support_guess.setZero();
 
@@ -138,21 +138,21 @@ void test_gjk_cv_criterion(const ShapeBase& shape0, const ShapeBase& shape1,
 
     GJK::Status res1 = gjk1.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(gjk1.getNumIterations() <= max_iterations);
-    Vec3f ray1 = gjk1.ray;
+    Vec3s ray1 = gjk1.ray;
     res1 = gjk1.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res1 != GJK::Status::Failed);
     EIGEN_VECTOR_IS_APPROX(gjk1.ray, ray1, 1e-8);
 
     GJK::Status res2 = gjk2.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(gjk2.getNumIterations() <= max_iterations);
-    Vec3f ray2 = gjk2.ray;
+    Vec3s ray2 = gjk2.ray;
     res2 = gjk2.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res2 != GJK::Status::Failed);
     EIGEN_VECTOR_IS_APPROX(gjk2.ray, ray2, 1e-8);
 
     GJK::Status res3 = gjk3.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(gjk3.getNumIterations() <= max_iterations);
-    Vec3f ray3 = gjk3.ray;
+    Vec3s ray3 = gjk3.ray;
     res3 = gjk3.evaluate(mink_diff, init_guess, init_support_guess);
     BOOST_CHECK(res3 != GJK::Status::Failed);
     EIGEN_VECTOR_IS_APPROX(gjk3.ray, ray3, 1e-8);

@@ -34,24 +34,24 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-#include "fcl.hh"
+#include "coal.hh"
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include <hpp/fcl/BVH/BVH_model.h>
+#include "coal/fwd.hh"
+#include "coal/shape/geometric_shapes.h"
+#include "coal/BVH/BVH_model.h"
 
-#include <hpp/fcl/mesh_loader/loader.h>
+#include "coal/mesh_loader/loader.h"
 
-#include <hpp/fcl/collision.h>
+#include "coal/collision.h"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
-#include "doxygen_autodoc/hpp/fcl/mesh_loader/loader.h"
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
+#include "doxygen_autodoc/coal/mesh_loader/loader.h"
 #endif
 
 #include "../doc/python/doxygen.hh"
 #include "../doc/python/doxygen-boost.hh"
 
-using namespace hpp::fcl;
+using namespace coal;
 namespace dv = doxygen::visitor;
 
 #pragma GCC diagnostic push
@@ -83,7 +83,7 @@ void exposeMeshLoader() {
   }
 }
 
-BOOST_PYTHON_MODULE(hppfcl) {
+BOOST_PYTHON_MODULE(coal_pywrap) {
   namespace bp = boost::python;
 
   PyImport_ImportModule("warnings");
@@ -98,7 +98,7 @@ BOOST_PYTHON_MODULE(hppfcl) {
   exposeContactPatchAPI();
   exposeDistanceAPI();
   exposeGJK();
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
   exposeOctree();
 #endif
   exposeBroadPhase();

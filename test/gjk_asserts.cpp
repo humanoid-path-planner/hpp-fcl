@@ -1,20 +1,20 @@
-#define BOOST_TEST_MODULE FCL_GJK_ASSERTS
+#define BOOST_TEST_MODULE COAL_GJK_ASSERTS
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/collision.h>
+#include "coal/BVH/BVH_model.h"
+#include "coal/collision.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
-constexpr FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+constexpr CoalScalar pi = boost::math::constants::pi<CoalScalar>();
 
 double DegToRad(const double& deg) {
   static double degToRad = pi / 180.;
   return deg * degToRad;
 }
-std::vector<Vec3f> dirs{Vec3f::UnitZ(),  -Vec3f::UnitZ(), Vec3f::UnitY(),
-                        -Vec3f::UnitY(), Vec3f::UnitX(),  -Vec3f::UnitX()};
+std::vector<Vec3s> dirs{Vec3s::UnitZ(),  -Vec3s::UnitZ(), Vec3s::UnitY(),
+                        -Vec3s::UnitY(), Vec3s::UnitX(),  -Vec3s::UnitX()};
 
 void CreateSphereMesh(BVHModel<OBBRSS>& model, const double& radius) {
   size_t polarSteps{32};
@@ -24,7 +24,7 @@ void CreateSphereMesh(BVHModel<OBBRSS>& model, const double& radius) {
 
   const float polarStep = PI / (float)(polarSteps - 1);
   const float azimuthStep = 2.0f * PI / (float)(azimuthSteps - 1);
-  std::vector<Vec3f> vertices;
+  std::vector<Vec3s> vertices;
   std::vector<Triangle> triangles;
 
   for (size_t p = 0; p < polarSteps; ++p) {
@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE(TestSpheres) {
 
   ComputeCollision compute(&sphere2, &sphere1);
 
-  Transform3f sphere1Tf = Transform3f::Identity();
-  Transform3f sphere2Tf = Transform3f::Identity();
+  Transform3s sphere1Tf = Transform3s::Identity();
+  Transform3s sphere2Tf = Transform3s::Identity();
 
   for (int i = 0; i < 360; ++i) {
     for (int j = 0; j < 180; ++j) {
@@ -77,9 +77,9 @@ BOOST_AUTO_TEST_CASE(TestSpheres) {
           (i == 86 && j == 52) || (i == 89 && j == 17) ||
           (i == 89 && j == 58) || (i == 89 && j == 145)) {
         sphere2Tf.setQuatRotation(
-            Eigen::AngleAxis<double>(DegToRad(i), Vec3f::UnitZ()) *
-            Eigen::AngleAxis<double>(DegToRad(j), Vec3f::UnitY()));
-        for (const Vec3f& dir : dirs) {
+            Eigen::AngleAxis<double>(DegToRad(i), Vec3s::UnitZ()) *
+            Eigen::AngleAxis<double>(DegToRad(j), Vec3s::UnitY()));
+        for (const Vec3s& dir : dirs) {
           sphere2Tf.setTranslation(dir);
           CollisionResult result;
 

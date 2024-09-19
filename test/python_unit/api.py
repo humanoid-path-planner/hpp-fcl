@@ -1,30 +1,30 @@
 import unittest
 from test_case import TestCase
-import hppfcl
+import coal
 
 import numpy as np
 
 
 class TestMainAPI(TestCase):
     def test_collision(self):
-        capsule = hppfcl.Capsule(1.0, 2.0)
-        M1 = hppfcl.Transform3f()
-        M2 = hppfcl.Transform3f(np.eye(3), np.array([3, 0, 0]))
+        capsule = coal.Capsule(1.0, 2.0)
+        M1 = coal.Transform3s()
+        M2 = coal.Transform3s(np.eye(3), np.array([3, 0, 0]))
 
-        req = hppfcl.CollisionRequest()
-        res = hppfcl.CollisionResult()
+        req = coal.CollisionRequest()
+        res = coal.CollisionResult()
 
-        self.assertTrue(not hppfcl.collide(capsule, M1, capsule, M2, req, res))
+        self.assertTrue(not coal.collide(capsule, M1, capsule, M2, req, res))
 
     def test_distance(self):
-        capsule = hppfcl.Capsule(1.0, 2.0)
-        M1 = hppfcl.Transform3f()
-        M2 = hppfcl.Transform3f(np.eye(3), np.array([3, 0, 0]))
+        capsule = coal.Capsule(1.0, 2.0)
+        M1 = coal.Transform3s()
+        M2 = coal.Transform3s(np.eye(3), np.array([3, 0, 0]))
 
-        req = hppfcl.DistanceRequest()
-        res = hppfcl.DistanceResult()
+        req = coal.DistanceRequest()
+        res = coal.DistanceResult()
 
-        self.assertTrue(hppfcl.distance(capsule, M1, capsule, M2, req, res) > 0)
+        self.assertTrue(coal.distance(capsule, M1, capsule, M2, req, res) > 0)
 
 
 if __name__ == "__main__":

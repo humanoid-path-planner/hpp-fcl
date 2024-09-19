@@ -34,19 +34,19 @@
 
 /** \author Joseph Mirabel */
 
-#define BOOST_TEST_MODULE FCL_GEOMETRIC_SHAPES
+#define BOOST_TEST_MODULE COAL_GEOMETRIC_SHAPES
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/shape/convex.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
+#include "coal/shape/convex.h"
+#include "coal/collision.h"
+#include "coal/distance.h"
 
 #include "utility.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
 BOOST_AUTO_TEST_CASE(convex) {
-  FCL_REAL l = 1, w = 1, d = 1;
+  CoalScalar l = 1, w = 1, d = 1;
   Convex<Quadrilateral> box(buildBox(l, w, d));
 
   // Check neighbors
@@ -88,8 +88,8 @@ BOOST_AUTO_TEST_CASE(convex) {
 
 template <typename Sa, typename Sb>
 void compareShapeIntersection(const Sa& sa, const Sb& sb,
-                              const Transform3f& tf1, const Transform3f& tf2,
-                              FCL_REAL tol = 1e-9) {
+                              const Transform3s& tf1, const Transform3s& tf2,
+                              CoalScalar tol = 1e-9) {
   CollisionRequest request(CONTACT | DISTANCE_LOWER_BOUND, 1);
   CollisionResult resA, resB;
 
@@ -117,8 +117,8 @@ void compareShapeIntersection(const Sa& sa, const Sb& sb,
 }
 
 template <typename Sa, typename Sb>
-void compareShapeDistance(const Sa& sa, const Sb& sb, const Transform3f& tf1,
-                          const Transform3f& tf2, FCL_REAL tol = 1e-9) {
+void compareShapeDistance(const Sa& sa, const Sb& sb, const Transform3s& tf1,
+                          const Transform3s& tf2, CoalScalar tol = 1e-9) {
   DistanceRequest request(true);
   DistanceResult resA, resB;
 
@@ -149,19 +149,19 @@ void compareShapeDistance(const Sa& sa, const Sb& sb, const Transform3f& tf1,
 }
 
 BOOST_AUTO_TEST_CASE(compare_convex_box) {
-  FCL_REAL extents[6] = {0, 0, 0, 10, 10, 10};
-  FCL_REAL l = 1, w = 1, d = 1, eps = 1e-4;
+  CoalScalar extents[6] = {0, 0, 0, 10, 10, 10};
+  CoalScalar l = 1, w = 1, d = 1, eps = 1e-4;
   Box box(l * 2, w * 2, d * 2);
   Convex<Quadrilateral> convex_box(buildBox(l, w, d));
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3s tf1;
+  Transform3s tf2;
 
-  tf2.setTranslation(Vec3f(3, 0, 0));
+  tf2.setTranslation(Vec3s(3, 0, 0));
   compareShapeIntersection(box, convex_box, tf1, tf2, eps);
   compareShapeDistance(box, convex_box, tf1, tf2, eps);
 
-  tf2.setTranslation(Vec3f(0, 0, 0));
+  tf2.setTranslation(Vec3s(0, 0, 0));
   compareShapeIntersection(box, convex_box, tf1, tf2, eps);
   compareShapeDistance(box, convex_box, tf1, tf2, eps);
 
@@ -172,10 +172,10 @@ BOOST_AUTO_TEST_CASE(compare_convex_box) {
   }
 }
 
-#ifdef HPP_FCL_HAS_QHULL
+#ifdef COAL_HAS_QHULL
 BOOST_AUTO_TEST_CASE(convex_hull_throw) {
-  std::shared_ptr<std::vector<Vec3f>> points(
-      new std::vector<Vec3f>({Vec3f(1, 1, 1), Vec3f(0, 0, 0), Vec3f(1, 0, 0)}));
+  std::shared_ptr<std::vector<Vec3s>> points(
+      new std::vector<Vec3s>({Vec3s(1, 1, 1), Vec3s(0, 0, 0), Vec3s(1, 0, 0)}));
 
   BOOST_CHECK_THROW(ConvexBase::convexHull(points, 0, false, NULL),
                     std::invalid_argument);
@@ -188,11 +188,11 @@ BOOST_AUTO_TEST_CASE(convex_hull_throw) {
 }
 
 BOOST_AUTO_TEST_CASE(convex_hull_quad) {
-  std::shared_ptr<std::vector<Vec3f>> points(new std::vector<Vec3f>({
-      Vec3f(1, 1, 1),
-      Vec3f(0, 0, 0),
-      Vec3f(1, 0, 0),
-      Vec3f(0, 0, 1),
+  std::shared_ptr<std::vector<Vec3s>> points(new std::vector<Vec3s>({
+      Vec3s(1, 1, 1),
+      Vec3s(0, 0, 0),
+      Vec3s(1, 0, 0),
+      Vec3s(0, 0, 1),
   }));
 
   ConvexBase* convexHull = ConvexBase::convexHull(points, 4, false, NULL);
@@ -205,26 +205,26 @@ BOOST_AUTO_TEST_CASE(convex_hull_quad) {
 }
 
 BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
-  std::shared_ptr<std::vector<Vec3f>> points(new std::vector<Vec3f>({
-      Vec3f(1, 1, 1),
-      Vec3f(1, 1, -1),
-      Vec3f(1, -1, 1),
-      Vec3f(1, -1, -1),
-      Vec3f(-1, 1, 1),
-      Vec3f(-1, 1, -1),
-      Vec3f(-1, -1, 1),
-      Vec3f(-1, -1, -1),
-      Vec3f(0, 0, 0),
-      Vec3f(0, 0, 0.99),
+  std::shared_ptr<std::vector<Vec3s>> points(new std::vector<Vec3s>({
+      Vec3s(1, 1, 1),
+      Vec3s(1, 1, -1),
+      Vec3s(1, -1, 1),
+      Vec3s(1, -1, -1),
+      Vec3s(-1, 1, 1),
+      Vec3s(-1, 1, -1),
+      Vec3s(-1, -1, 1),
+      Vec3s(-1, -1, -1),
+      Vec3s(0, 0, 0),
+      Vec3s(0, 0, 0.99),
   }));
 
   ConvexBase* convexHull = ConvexBase::convexHull(points, 9, false, NULL);
 
   BOOST_REQUIRE_EQUAL(8, convexHull->num_points);
   {
-    const std::vector<Vec3f>& cvxhull_points = *(convexHull->points);
+    const std::vector<Vec3s>& cvxhull_points = *(convexHull->points);
     for (size_t i = 0; i < 8; ++i) {
-      BOOST_CHECK(cvxhull_points[i].cwiseAbs() == Vec3f(1, 1, 1));
+      BOOST_CHECK(cvxhull_points[i].cwiseAbs() == Vec3s(1, 1, 1));
       BOOST_CHECK_EQUAL((*(convexHull->neighbors))[i].count(), 3);
     }
   }
@@ -236,9 +236,9 @@ BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
 
   BOOST_REQUIRE_EQUAL(8, convexHull->num_points);
   {
-    const std::vector<Vec3f>& cvxhull_points = *(convexHull->points);
+    const std::vector<Vec3s>& cvxhull_points = *(convexHull->points);
     for (size_t i = 0; i < 8; ++i) {
-      BOOST_CHECK(cvxhull_points[i].cwiseAbs() == Vec3f(1, 1, 1));
+      BOOST_CHECK(cvxhull_points[i].cwiseAbs() == Vec3s(1, 1, 1));
       BOOST_CHECK((*(convexHull->neighbors))[i].count() >= 3);
       BOOST_CHECK((*(convexHull->neighbors))[i].count() <= 6);
     }
@@ -249,16 +249,16 @@ BOOST_AUTO_TEST_CASE(convex_hull_box_like) {
 BOOST_AUTO_TEST_CASE(convex_copy_constructor) {
   Convex<Triangle>* convexHullTriCopy;
   {
-    std::shared_ptr<std::vector<Vec3f>> points(new std::vector<Vec3f>({
-        Vec3f(1, 1, 1),
-        Vec3f(1, 1, -1),
-        Vec3f(1, -1, 1),
-        Vec3f(1, -1, -1),
-        Vec3f(-1, 1, 1),
-        Vec3f(-1, 1, -1),
-        Vec3f(-1, -1, 1),
-        Vec3f(-1, -1, -1),
-        Vec3f(0, 0, 0),
+    std::shared_ptr<std::vector<Vec3s>> points(new std::vector<Vec3s>({
+        Vec3s(1, 1, 1),
+        Vec3s(1, 1, -1),
+        Vec3s(1, -1, 1),
+        Vec3s(1, -1, -1),
+        Vec3s(-1, 1, 1),
+        Vec3s(-1, 1, -1),
+        Vec3s(-1, -1, 1),
+        Vec3s(-1, -1, -1),
+        Vec3s(0, 0, 0),
     }));
 
     Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(
@@ -272,16 +272,16 @@ BOOST_AUTO_TEST_CASE(convex_copy_constructor) {
 }
 
 BOOST_AUTO_TEST_CASE(convex_clone) {
-  std::shared_ptr<std::vector<Vec3f>> points(new std::vector<Vec3f>({
-      Vec3f(1, 1, 1),
-      Vec3f(1, 1, -1),
-      Vec3f(1, -1, 1),
-      Vec3f(1, -1, -1),
-      Vec3f(-1, 1, 1),
-      Vec3f(-1, 1, -1),
-      Vec3f(-1, -1, 1),
-      Vec3f(-1, -1, -1),
-      Vec3f(0, 0, 0),
+  std::shared_ptr<std::vector<Vec3s>> points(new std::vector<Vec3s>({
+      Vec3s(1, 1, 1),
+      Vec3s(1, 1, -1),
+      Vec3s(1, -1, 1),
+      Vec3s(1, -1, -1),
+      Vec3s(-1, 1, 1),
+      Vec3s(-1, 1, -1),
+      Vec3s(-1, -1, 1),
+      Vec3s(-1, -1, -1),
+      Vec3s(0, 0, 0),
   }));
 
   Convex<Triangle>* convexHullTri = dynamic_cast<Convex<Triangle>*>(

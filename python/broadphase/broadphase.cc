@@ -32,41 +32,41 @@
 //  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-#include <hpp/fcl/fwd.hh>
-#include "../fcl.hh"
+#include "coal/fwd.hh"
+#include "../coal.hh"
 #include "../utils/std-pair.hh"
 
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
-#include "hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
-#include "hpp/fcl/broadphase/broadphase_bruteforce.h"
-#include "hpp/fcl/broadphase/broadphase_SaP.h"
-#include "hpp/fcl/broadphase/broadphase_SSaP.h"
-#include "hpp/fcl/broadphase/broadphase_interval_tree.h"
-#include "hpp/fcl/broadphase/broadphase_spatialhash.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "coal/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "coal/broadphase/broadphase_bruteforce.h"
+#include "coal/broadphase/broadphase_SaP.h"
+#include "coal/broadphase/broadphase_SSaP.h"
+#include "coal/broadphase/broadphase_interval_tree.h"
+#include "coal/broadphase/broadphase_spatialhash.h"
 
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-HPP_FCL_COMPILER_DIAGNOSTIC_POP
-#include "doxygen_autodoc/hpp/fcl/broadphase/default_broadphase_callbacks.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h"
+COAL_COMPILER_DIAGNOSTIC_POP
+#include "doxygen_autodoc/coal/broadphase/default_broadphase_callbacks.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_dynamic_AABB_tree.h"
 // #include
-//"doxygen_autodoc/hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_bruteforce.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_SaP.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_SSaP.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_interval_tree.h"
-// #include "doxygen_autodoc/hpp/fcl/broadphase/broadphase_spatialhash.h"
+//"doxygen_autodoc/coal/broadphase/broadphase_dynamic_AABB_tree_array.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_bruteforce.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_SaP.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_SSaP.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_interval_tree.h"
+// #include "doxygen_autodoc/coal/broadphase/broadphase_spatialhash.h"
 #endif
 
 #include "broadphase_callbacks.hh"
 #include "broadphase_collision_manager.hh"
 
-using namespace hpp::fcl;
+using namespace coal;
 
-HPP_FCL_COMPILER_DIAGNOSTIC_PUSH
-HPP_FCL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+COAL_COMPILER_DIAGNOSTIC_PUSH
+COAL_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
 void exposeBroadPhase() {
   CollisionCallBackBaseWrapper::expose();
   DistanceCallBackBaseWrapper::expose();
@@ -135,8 +135,8 @@ void exposeBroadPhase() {
     typedef SpatialHashingCollisionManager<HashTable> Derived;
     bp::class_<Derived, bp::bases<BroadPhaseCollisionManager>>(
         "SpatialHashingCollisionManager", bp::no_init)
-        .def(dv::init<Derived, FCL_REAL, const Vec3f &, const Vec3f &,
+        .def(dv::init<Derived, CoalScalar, const Vec3s &, const Vec3s &,
                       bp::optional<unsigned int>>());
   }
 }
-HPP_FCL_COMPILER_DIAGNOSTIC_POP
+COAL_COMPILER_DIAGNOSTIC_POP

@@ -35,17 +35,17 @@
 
 /** \author Jia Pan */
 
-#include <hpp/fcl/BV/kDOP.h>
+#include "coal/collision_data.h"
+#include "coal/BV/kDOP.h"
+
 #include <limits>
 #include <iostream>
 
-#include <hpp/fcl/collision_data.h>
-
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 /// @brief Find the smaller and larger one of two values
-inline void minmax(FCL_REAL a, FCL_REAL b, FCL_REAL& minv, FCL_REAL& maxv) {
+inline void minmax(CoalScalar a, CoalScalar b, CoalScalar& minv,
+                   CoalScalar& maxv) {
   if (a > b) {
     minv = b;
     maxv = a;
@@ -55,7 +55,7 @@ inline void minmax(FCL_REAL a, FCL_REAL b, FCL_REAL& minv, FCL_REAL& maxv) {
   }
 }
 /// @brief Merge the interval [minv, maxv] and value p/
-inline void minmax(FCL_REAL p, FCL_REAL& minv, FCL_REAL& maxv) {
+inline void minmax(CoalScalar p, CoalScalar& minv, CoalScalar& maxv) {
   if (p > maxv) maxv = p;
   if (p < minv) minv = p;
 }
@@ -63,11 +63,11 @@ inline void minmax(FCL_REAL p, FCL_REAL& minv, FCL_REAL& maxv) {
 /// @brief Compute the distances to planes with normals from KDOP vectors except
 /// those of AABB face planes
 template <short N>
-void getDistances(const Vec3f& /*p*/, FCL_REAL* /*d*/) {}
+void getDistances(const Vec3s& /*p*/, CoalScalar* /*d*/) {}
 
 /// @brief Specification of getDistances
 template <>
-inline void getDistances<5>(const Vec3f& p, FCL_REAL* d) {
+inline void getDistances<5>(const Vec3s& p, CoalScalar* d) {
   d[0] = p[0] + p[1];
   d[1] = p[0] + p[2];
   d[2] = p[1] + p[2];
@@ -76,7 +76,7 @@ inline void getDistances<5>(const Vec3f& p, FCL_REAL* d) {
 }
 
 template <>
-inline void getDistances<6>(const Vec3f& p, FCL_REAL* d) {
+inline void getDistances<6>(const Vec3s& p, CoalScalar* d) {
   d[0] = p[0] + p[1];
   d[1] = p[0] + p[2];
   d[2] = p[1] + p[2];
@@ -86,7 +86,7 @@ inline void getDistances<6>(const Vec3f& p, FCL_REAL* d) {
 }
 
 template <>
-inline void getDistances<9>(const Vec3f& p, FCL_REAL* d) {
+inline void getDistances<9>(const Vec3s& p, CoalScalar* d) {
   d[0] = p[0] + p[1];
   d[1] = p[0] + p[2];
   d[2] = p[1] + p[2];
@@ -100,18 +100,18 @@ inline void getDistances<9>(const Vec3f& p, FCL_REAL* d) {
 
 template <short N>
 KDOP<N>::KDOP() {
-  FCL_REAL real_max = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar real_max = (std::numeric_limits<CoalScalar>::max)();
   dist_.template head<N / 2>().setConstant(real_max);
   dist_.template tail<N / 2>().setConstant(-real_max);
 }
 
 template <short N>
-KDOP<N>::KDOP(const Vec3f& v) {
+KDOP<N>::KDOP(const Vec3s& v) {
   for (short i = 0; i < 3; ++i) {
     dist_[i] = dist_[N / 2 + i] = v[i];
   }
 
-  FCL_REAL d[(N - 6) / 2];
+  CoalScalar d[(N - 6) / 2];
   getDistances<(N - 6) / 2>(v, d);
   for (short i = 0; i < (N - 6) / 2; ++i) {
     dist_[3 + i] = dist_[3 + i + N / 2] = d[i];
@@ -119,12 +119,12 @@ KDOP<N>::KDOP(const Vec3f& v) {
 }
 
 template <short N>
-KDOP<N>::KDOP(const Vec3f& a, const Vec3f& b) {
+KDOP<N>::KDOP(const Vec3s& a, const Vec3s& b) {
   for (short i = 0; i < 3; ++i) {
     minmax(a[i], b[i], dist_[i], dist_[i + N / 2]);
   }
 
-  FCL_REAL ad[(N - 6) / 2], bd[(N - 6) / 2];
+  CoalScalar ad[(N - 6) / 2], bd[(N - 6) / 2];
   getDistances<(N - 6) / 2>(a, ad);
   getDistances<(N - 6) / 2>(b, bd);
   for (short i = 0; i < (N - 6) / 2; ++i) {
@@ -143,11 +143,11 @@ bool KDOP<N>::overlap(const KDOP<N>& other) const {
 
 template <short N>
 bool KDOP<N>::overlap(const KDOP<N>& other, const CollisionRequest& request,
-                      FCL_REAL& sqrDistLowerBound) const {
-  const FCL_REAL breakDistance(request.break_distance +
-                               request.security_margin);
+                      CoalScalar& sqrDistLowerBound) const {
+  const CoalScalar breakDistance(request.break_distance +
+                                 request.security_margin);
 
-  FCL_REAL a =
+  CoalScalar a =
       (dist_.template head<N / 2>() - other.dist_.template tail<N / 2>())
           .minCoeff();
   if (a > breakDistance) {
@@ -155,7 +155,7 @@ bool KDOP<N>::overlap(const KDOP<N>& other, const CollisionRequest& request,
     return false;
   }
 
-  FCL_REAL b =
+  CoalScalar b =
       (other.dist_.template head<N / 2>() - dist_.template tail<N / 2>())
           .minCoeff();
   if (b > breakDistance) {
@@ -168,12 +168,12 @@ bool KDOP<N>::overlap(const KDOP<N>& other, const CollisionRequest& request,
 }
 
 template <short N>
-bool KDOP<N>::inside(const Vec3f& p) const {
+bool KDOP<N>::inside(const Vec3s& p) const {
   if ((p.array() < dist_.template head<3>()).any()) return false;
   if ((p.array() > dist_.template segment<3>(N / 2)).any()) return false;
 
   enum { P = ((N - 6) / 2) };
-  Eigen::Array<FCL_REAL, P, 1> d;
+  Eigen::Array<CoalScalar, P, 1> d;
   getDistances<P>(p, d.data());
 
   if ((d < dist_.template segment<P>(3)).any()) return false;
@@ -183,12 +183,12 @@ bool KDOP<N>::inside(const Vec3f& p) const {
 }
 
 template <short N>
-KDOP<N>& KDOP<N>::operator+=(const Vec3f& p) {
+KDOP<N>& KDOP<N>::operator+=(const Vec3s& p) {
   for (short i = 0; i < 3; ++i) {
     minmax(p[i], dist_[i], dist_[N / 2 + i]);
   }
 
-  FCL_REAL pd[(N - 6) / 2];
+  CoalScalar pd[(N - 6) / 2];
   getDistances<(N - 6) / 2>(p, pd);
   for (short i = 0; i < (N - 6) / 2; ++i) {
     minmax(pd[i], dist_[3 + i], dist_[3 + N / 2 + i]);
@@ -213,21 +213,21 @@ KDOP<N> KDOP<N>::operator+(const KDOP<N>& other) const {
 }
 
 template <short N>
-FCL_REAL KDOP<N>::distance(const KDOP<N>& /*other*/, Vec3f* /*P*/,
-                           Vec3f* /*Q*/) const {
+CoalScalar KDOP<N>::distance(const KDOP<N>& /*other*/, Vec3s* /*P*/,
+                             Vec3s* /*Q*/) const {
   std::cerr << "KDOP distance not implemented!" << std::endl;
   return 0.0;
 }
 
 template <short N>
-KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t) {
+KDOP<N> translate(const KDOP<N>& bv, const Vec3s& t) {
   KDOP<N> res(bv);
   for (short i = 0; i < 3; ++i) {
     res.dist(i) += t[i];
     res.dist(short(N / 2 + i)) += t[i];
   }
 
-  FCL_REAL d[(N - 6) / 2];
+  CoalScalar d[(N - 6) / 2];
   getDistances<(N - 6) / 2>(t, d);
   for (short i = 0; i < (N - 6) / 2; ++i) {
     res.dist(short(3 + i)) += d[i];
@@ -241,10 +241,8 @@ template class KDOP<16>;
 template class KDOP<18>;
 template class KDOP<24>;
 
-template KDOP<16> translate<16>(const KDOP<16>&, const Vec3f&);
-template KDOP<18> translate<18>(const KDOP<18>&, const Vec3f&);
-template KDOP<24> translate<24>(const KDOP<24>&, const Vec3f&);
+template KDOP<16> translate<16>(const KDOP<16>&, const Vec3s&);
+template KDOP<18> translate<18>(const KDOP<18>&, const Vec3s&);
+template KDOP<24> translate<24>(const KDOP<24>&, const Vec3s&);
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

@@ -35,13 +35,13 @@
 
 /** \author Jia Pan */
 
-#define BOOST_TEST_MODULE FCL_BROADPHASE
+#define BOOST_TEST_MODULE COAL_BROADPHASE
 #include <boost/test/included/unit_test.hpp>
 
-#include <hpp/fcl/config.hh>
-#include <hpp/fcl/broadphase/broadphase.h>
-#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
-#include <hpp/fcl/math/transform.h>
+#include "coal/config.hh"
+#include "coal/broadphase/broadphase.h"
+#include "coal/shape/geometric_shape_to_BVH_model.h"
+#include "coal/math/transform.h"
 #include "utility.h"
 
 #if USE_GOOGLEHASH
@@ -54,8 +54,8 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace hpp::fcl;
-using namespace hpp::fcl::detail;
+using namespace coal;
+using namespace coal::detail;
 
 /// @brief Generate environment with 3 * n objects for self distance, so we try
 /// to make sure none of them collide with each other.
@@ -75,7 +75,7 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size,
 void broad_phase_self_distance_test(double env_scale, std::size_t env_size,
                                     bool use_mesh = false);
 
-FCL_REAL DELTA = 0.01;
+CoalScalar DELTA = 0.01;
 
 #if USE_GOOGLEHASH
 template <typename U, typename V>
@@ -146,9 +146,9 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
                                       double env_scale, std::size_t n) {
   int n_edge = static_cast<int>(std::floor(std::pow(n, 1 / 3.0)));
 
-  FCL_REAL step_size = env_scale * 2 / n_edge;
-  FCL_REAL delta_size = step_size * 0.05;
-  FCL_REAL single_size = step_size - 2 * delta_size;
+  CoalScalar step_size = env_scale * 2 / n_edge;
+  CoalScalar delta_size = step_size * 0.05;
+  CoalScalar single_size = step_size - 2 * delta_size;
 
   int i = 0;
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
@@ -159,7 +159,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
     Box* box = new Box(single_size, single_size, single_size);
     env.push_back(new CollisionObject(
         shared_ptr<CollisionGeometry>(box),
-        Transform3f(Vec3f(
+        Transform3s(Vec3s(
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
@@ -174,7 +174,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
     Sphere* sphere = new Sphere(single_size / 2);
     env.push_back(new CollisionObject(
         shared_ptr<CollisionGeometry>(sphere),
-        Transform3f(Vec3f(
+        Transform3s(Vec3s(
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
@@ -189,7 +189,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
     Cylinder* cylinder = new Cylinder(single_size / 2, single_size);
     env.push_back(new CollisionObject(
         shared_ptr<CollisionGeometry>(cylinder),
-        Transform3f(Vec3f(
+        Transform3s(Vec3s(
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
@@ -204,7 +204,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env,
     Cone* cone = new Cone(single_size / 2, single_size);
     env.push_back(new CollisionObject(
         shared_ptr<CollisionGeometry>(cone),
-        Transform3f(Vec3f(
+        Transform3s(Vec3s(
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
@@ -216,9 +216,9 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env,
                                           double env_scale, std::size_t n) {
   int n_edge = static_cast<int>(std::floor(std::pow(n, 1 / 3.0)));
 
-  FCL_REAL step_size = env_scale * 2 / n_edge;
-  FCL_REAL delta_size = step_size * 0.05;
-  FCL_REAL single_size = step_size - 2 * delta_size;
+  CoalScalar step_size = env_scale * 2 / n_edge;
+  CoalScalar delta_size = step_size * 0.05;
+  CoalScalar single_size = step_size - 2 * delta_size;
 
   int i = 0;
   for (; i < n_edge * n_edge * n_edge / 4; ++i) {
@@ -228,10 +228,10 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env,
 
     Box box(single_size, single_size, single_size);
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, box, Transform3f());
+    generateBVHModel(*model, box, Transform3s());
     env.push_back(new CollisionObject(
         shared_ptr<CollisionGeometry>(model),
-        Transform3f(Vec3f(
+        Transform3s(Vec3s(
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
@@ -245,10 +245,10 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env,
 
     Sphere sphere(single_size / 2);
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, sphere, Transform3f(), 16, 16);
+    generateBVHModel(*model, sphere, Transform3s(), 16, 16);
     env.push_back(new CollisionObject(
         shared_ptr<CollisionGeometry>(model),
-        Transform3f(Vec3f(
+        Transform3s(Vec3s(
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
@@ -262,10 +262,10 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env,
 
     Cylinder cylinder(single_size / 2, single_size);
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, cylinder, Transform3f(), 16, 16);
+    generateBVHModel(*model, cylinder, Transform3s(), 16, 16);
     env.push_back(new CollisionObject(
         shared_ptr<CollisionGeometry>(model),
-        Transform3f(Vec3f(
+        Transform3s(Vec3s(
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
@@ -279,10 +279,10 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env,
 
     Cone cone(single_size / 2, single_size);
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, cone, Transform3f(), 16, 16);
+    generateBVHModel(*model, cone, Transform3s(), 16, 16);
     env.push_back(new CollisionObject(
         shared_ptr<CollisionGeometry>(model),
-        Transform3f(Vec3f(
+        Transform3s(Vec3s(
             x * step_size + delta_size + 0.5 * single_size - env_scale,
             y * step_size + delta_size + 0.5 * single_size - env_scale,
             z * step_size + delta_size + 0.5 * single_size - env_scale))));
@@ -308,11 +308,12 @@ void broad_phase_self_distance_test(double env_scale, std::size_t env_size,
   managers.push_back(new SaPCollisionManager());
   managers.push_back(new IntervalTreeCollisionManager());
 
-  Vec3f lower_limit, upper_limit;
+  Vec3s lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
-  FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 5,
-                                         (upper_limit[1] - lower_limit[1]) / 5),
-                                (upper_limit[2] - lower_limit[2]) / 5);
+  CoalScalar cell_size =
+      std::min(std::min((upper_limit[0] - lower_limit[0]) / 5,
+                        (upper_limit[1] - lower_limit[1]) / 5),
+               (upper_limit[2] - lower_limit[2]) / 5);
   // managers.push_back(new SpatialHashingCollisionManager<>(cell_size,
   // lower_limit, upper_limit));
   managers.push_back(new SpatialHashingCollisionManager<
@@ -457,9 +458,9 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size,
   managers.push_back(new SaPCollisionManager());
   managers.push_back(new IntervalTreeCollisionManager());
 
-  Vec3f lower_limit, upper_limit;
+  Vec3s lower_limit, upper_limit;
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
-  FCL_REAL cell_size =
+  CoalScalar cell_size =
       std::min(std::min((upper_limit[0] - lower_limit[0]) / 20,
                         (upper_limit[1] - lower_limit[1]) / 20),
                (upper_limit[2] - lower_limit[2]) / 20);
@@ -564,7 +565,7 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size,
 
   std::cout << "distance time" << std::endl;
   for (size_t i = 0; i < ts.size(); ++i) {
-    FCL_REAL tmp = 0;
+    CoalScalar tmp = 0;
     for (size_t j = 2; j < ts[i].records.size(); ++j) tmp += ts[i].records[j];
     std::cout << std::setw(w) << tmp << " ";
   }

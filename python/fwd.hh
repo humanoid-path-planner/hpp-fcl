@@ -2,13 +2,13 @@
 // Copyright (c) 2022 CNRS INRIA
 //
 
-#ifndef HPP_FCL_PYTHON_FWD_HH
-#define HPP_FCL_PYTHON_FWD_HH
+#ifndef COAL_PYTHON_FWD_HH
+#define COAL_PYTHON_FWD_HH
 
-#include <hpp/fcl/fwd.hh>
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#include "coal/fwd.hh"
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 namespace doxygen {
-using hpp::fcl::shared_ptr;
+using coal::shared_ptr;
 }
 #endif
 
@@ -37,4 +37,4 @@ namespace dv = doxygen::visitor;
 #define DEF_CLASS_FUNC2(CLASS, ATTRIB, policy) \
   def(#ATTRIB, &CLASS::ATTRIB, doxygen::member_func_doc(&CLASS::ATTRIB), policy)
 
-#endif  // ifndef HPP_FCL_PYTHON_FWD_HH
+#endif  // ifndef COAL_PYTHON_FWD_HH

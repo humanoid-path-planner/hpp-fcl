@@ -2,19 +2,17 @@
 // Copyright (c) 2022 INRIA
 //
 
-#ifndef HPP_FCL_PYTHON_BROADPHASE_FWD_HH
-#define HPP_FCL_PYTHON_BROADPHASE_FWD_HH
+#ifndef COAL_PYTHON_BROADPHASE_FWD_HH
+#define COAL_PYTHON_BROADPHASE_FWD_HH
 
-#include "hppfcl/fwd.hh"
+#include "coal/fwd.hh"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 namespace python {
 
 void exposeBroadPhase();
 
 }
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal
 
-#endif  // ifndef HPP_FCL_PYTHON_BROADPHASE_FWD_HH
+#endif  // ifndef COAL_PYTHON_BROADPHASE_FWD_HH

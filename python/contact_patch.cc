@@ -34,25 +34,25 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-#include <hpp/fcl/fwd.hh>
-#include <hpp/fcl/contact_patch.h>
-#include <hpp/fcl/serialization/collision_data.h>
+#include "coal/fwd.hh"
+#include "coal/contact_patch.h"
+#include "coal/serialization/collision_data.h"
 
-#include "fcl.hh"
+#include "coal.hh"
 #include "deprecation.hh"
 #include "serializable.hh"
 
-#ifdef HPP_FCL_HAS_DOXYGEN_AUTODOC
+#ifdef COAL_HAS_DOXYGEN_AUTODOC
 #include "doxygen_autodoc/functions.h"
-#include "doxygen_autodoc/hpp/fcl/collision_data.h"
+#include "doxygen_autodoc/coal/collision_data.h"
 #endif
 
 #include "../doc/python/doxygen.hh"
 #include "../doc/python/doxygen-boost.hh"
 
 using namespace boost::python;
-using namespace hpp::fcl;
-using namespace hpp::fcl::python;
+using namespace coal;
+using namespace coal::python;
 
 namespace dv = doxygen::visitor;
 
@@ -93,12 +93,12 @@ void exposeContactPatchAPI() {
           ContactPatchRequest>()) {
     class_<ContactPatchRequest>(
         "ContactPatchRequest", doxygen::class_doc<ContactPatchRequest>(),
-        init<optional<size_t, size_t, FCL_REAL>>(
+        init<optional<size_t, size_t, CoalScalar>>(
             (arg("self"), arg("max_num_patch"),
              arg("num_samples_curved_shapes"), arg("patch_tolerance")),
             "ContactPatchRequest constructor."))
         .def(dv::init<ContactPatchRequest, const CollisionRequest&,
-                      bp::optional<size_t, FCL_REAL>>())
+                      bp::optional<size_t, CoalScalar>>())
         .DEF_RW_CLASS_ATTRIB(ContactPatchRequest, max_num_patch)
         .DEF_CLASS_FUNC(ContactPatchRequest, getNumSamplesCurvedShapes)
         .DEF_CLASS_FUNC(ContactPatchRequest, setNumSamplesCurvedShapes)
@@ -140,8 +140,8 @@ void exposeContactPatchAPI() {
                            ContactPatchResult&)>(&computeContactPatch));
   doxygen::def(
       "computeContactPatch",
-      static_cast<void (*)(const CollisionGeometry*, const Transform3f&,
-                           const CollisionGeometry*, const Transform3f&,
+      static_cast<void (*)(const CollisionGeometry*, const Transform3s&,
+                           const CollisionGeometry*, const Transform3s&,
                            const CollisionResult&, const ContactPatchRequest&,
                            ContactPatchResult&)>(&computeContactPatch));
 
@@ -154,7 +154,7 @@ void exposeContactPatchAPI() {
                       const CollisionGeometry*>())
         .def("__call__",
              static_cast<void (ComputeContactPatch::*)(
-                 const Transform3f&, const Transform3f&, const CollisionResult&,
+                 const Transform3s&, const Transform3s&, const CollisionResult&,
                  const ContactPatchRequest&, ContactPatchResult&) const>(
                  &ComputeContactPatch::operator()));
   }

@@ -35,10 +35,9 @@
 
 /** @author Jia Pan */
 
-#include "hpp/fcl/broadphase/broadphase_interval_tree.h"
+#include "coal/broadphase/broadphase_interval_tree.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 //==============================================================================
 void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj) {
@@ -363,25 +362,25 @@ void IntervalTreeCollisionManager::distance(
     CollisionObject* obj, DistanceCallBackBase* callback) const {
   callback->init();
   if (size() == 0) return;
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
   distance_(obj, callback, min_dist);
 }
 
 //==============================================================================
 bool IntervalTreeCollisionManager::distance_(CollisionObject* obj,
                                              DistanceCallBackBase* callback,
-                                             FCL_REAL& min_dist) const {
+                                             CoalScalar& min_dist) const {
   static const unsigned int CUTOFF = 100;
 
-  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  Vec3s delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   AABB aabb = obj->getAABB();
-  if (min_dist < (std::numeric_limits<FCL_REAL>::max)()) {
-    Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+  if (min_dist < (std::numeric_limits<CoalScalar>::max)()) {
+    Vec3s min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
   }
 
   int status = 1;
-  FCL_REAL old_min_distance;
+  CoalScalar old_min_distance;
 
   while (1) {
     bool dist_res = false;
@@ -426,11 +425,11 @@ bool IntervalTreeCollisionManager::distance_(CollisionObject* obj,
     results2.clear();
 
     if (status == 1) {
-      if (old_min_distance < (std::numeric_limits<FCL_REAL>::max)())
+      if (old_min_distance < (std::numeric_limits<CoalScalar>::max)())
         break;
       else {
         if (min_dist < old_min_distance) {
-          Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+          Vec3s min_dist_delta(min_dist, min_dist, min_dist);
           aabb = AABB(obj->getAABB(), min_dist_delta);
           status = 0;
         } else {
@@ -456,9 +455,9 @@ void IntervalTreeCollisionManager::collide(
   std::set<CollisionObject*> active;
   std::set<std::pair<CollisionObject*, CollisionObject*> > overlap;
   size_t n = endpoints[0].size();
-  FCL_REAL diff_x = endpoints[0][0].value - endpoints[0][n - 1].value;
-  FCL_REAL diff_y = endpoints[1][0].value - endpoints[1][n - 1].value;
-  FCL_REAL diff_z = endpoints[2][0].value - endpoints[2][n - 1].value;
+  CoalScalar diff_x = endpoints[0][0].value - endpoints[0][n - 1].value;
+  CoalScalar diff_y = endpoints[1][0].value - endpoints[1][n - 1].value;
+  CoalScalar diff_z = endpoints[2][0].value - endpoints[2][n - 1].value;
 
   int axis = 0;
   if (diff_y > diff_x && diff_y > diff_z)
@@ -509,7 +508,7 @@ void IntervalTreeCollisionManager::distance(
 
   this->enable_tested_set_ = true;
   this->tested_set.clear();
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
 
   for (size_t i = 0; i < endpoints[0].size(); ++i)
     if (distance_(endpoints[0][i].obj, callback, min_dist)) break;
@@ -557,7 +556,7 @@ void IntervalTreeCollisionManager::distance(
     return;
   }
 
-  FCL_REAL min_dist = (std::numeric_limits<FCL_REAL>::max)();
+  CoalScalar min_dist = (std::numeric_limits<CoalScalar>::max)();
 
   if (this->size() < other_manager->size()) {
     for (size_t i = 0, size = endpoints[0].size(); i < size; ++i)
@@ -604,7 +603,7 @@ bool IntervalTreeCollisionManager::checkDist(
     typename std::deque<detail::SimpleInterval*>::const_iterator pos_start,
     typename std::deque<detail::SimpleInterval*>::const_iterator pos_end,
     CollisionObject* obj, DistanceCallBackBase* callback,
-    FCL_REAL& min_dist) const {
+    CoalScalar& min_dist) const {
   while (pos_start < pos_end) {
     SAPInterval* ivl = static_cast<SAPInterval*>(*pos_start);
     if (ivl->obj != obj) {
@@ -636,8 +635,8 @@ bool IntervalTreeCollisionManager::EndPoint::operator<(
 }
 
 //==============================================================================
-IntervalTreeCollisionManager::SAPInterval::SAPInterval(FCL_REAL low_,
-                                                       FCL_REAL high_,
+IntervalTreeCollisionManager::SAPInterval::SAPInterval(CoalScalar low_,
+                                                       CoalScalar high_,
                                                        CollisionObject* obj_)
     : detail::SimpleInterval() {
   this->low = low_;
@@ -645,5 +644,4 @@ IntervalTreeCollisionManager::SAPInterval::SAPInterval(FCL_REAL low_,
   obj = obj_;
 }
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

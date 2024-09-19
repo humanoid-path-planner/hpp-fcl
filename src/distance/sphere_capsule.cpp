@@ -33,35 +33,34 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <hpp/fcl/math/transform.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
+#include "coal/math/transform.h"
+#include "coal/shape/geometric_shapes.h"
 
-#include <hpp/fcl/internal/shape_shape_func.h>
+#include "coal/internal/shape_shape_func.h"
 #include "../narrowphase/details.h"
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 struct GJKSolver;
 
 namespace internal {
 template <>
-FCL_REAL ShapeShapeDistance<Sphere, Capsule>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+CoalScalar ShapeShapeDistance<Sphere, Capsule>(
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
+    const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Sphere& s1 = static_cast<const Sphere&>(*o1);
   const Capsule& s2 = static_cast<const Capsule&>(*o2);
   return details::sphereCapsuleDistance(s1, tf1, s2, tf2, p1, p2, normal);
 }
 
 template <>
-FCL_REAL ShapeShapeDistance<Capsule, Sphere>(
-    const CollisionGeometry* o1, const Transform3f& tf1,
-    const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver*,
-    const bool, Vec3f& p1, Vec3f& p2, Vec3f& normal) {
+CoalScalar ShapeShapeDistance<Capsule, Sphere>(
+    const CollisionGeometry* o1, const Transform3s& tf1,
+    const CollisionGeometry* o2, const Transform3s& tf2, const GJKSolver*,
+    const bool, Vec3s& p1, Vec3s& p2, Vec3s& normal) {
   const Capsule& s1 = static_cast<const Capsule&>(*o1);
   const Sphere& s2 = static_cast<const Sphere&>(*o2);
-  const FCL_REAL distance =
+  const CoalScalar distance =
       details::sphereCapsuleDistance(s2, tf2, s1, tf1, p2, p1, normal);
   normal = -normal;
   return distance;
@@ -69,5 +68,4 @@ FCL_REAL ShapeShapeDistance<Capsule, Sphere>(
 
 }  // namespace internal
 
-}  // namespace fcl
-}  // namespace hpp
+}  // namespace coal

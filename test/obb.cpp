@@ -40,34 +40,34 @@
 
 #include <chrono>
 
-#include <hpp/fcl/narrowphase/narrowphase.h>
+#include "coal/narrowphase/narrowphase.h"
 
 #include "../src/BV/OBB.h"
-#include <hpp/fcl/internal/shape_shape_func.h>
+#include "coal/internal/shape_shape_func.h"
 #include "utility.h"
 
-using namespace hpp::fcl;
+using namespace coal;
 
-void randomOBBs(Vec3f& a, Vec3f& b, FCL_REAL extentNorm) {
+void randomOBBs(Vec3s& a, Vec3s& b, CoalScalar extentNorm) {
   // Extent norm is between 0 and extentNorm on each axis
-  // a = (Vec3f::Ones()+Vec3f::Random()) * extentNorm / (2*sqrt(3));
-  // b = (Vec3f::Ones()+Vec3f::Random()) * extentNorm / (2*sqrt(3));
+  // a = (Vec3s::Ones()+Vec3s::Random()) * extentNorm / (2*sqrt(3));
+  // b = (Vec3s::Ones()+Vec3s::Random()) * extentNorm / (2*sqrt(3));
 
-  a = extentNorm * Vec3f::Random().cwiseAbs().normalized();
-  b = extentNorm * Vec3f::Random().cwiseAbs().normalized();
+  a = extentNorm * Vec3s::Random().cwiseAbs().normalized();
+  b = extentNorm * Vec3s::Random().cwiseAbs().normalized();
 }
 
-void randomTransform(Matrix3f& B, Vec3f& T, const Vec3f& a, const Vec3f& b,
-                     const FCL_REAL extentNorm) {
+void randomTransform(Matrix3s& B, Vec3s& T, const Vec3s& a, const Vec3s& b,
+                     const CoalScalar extentNorm) {
   // TODO Should we scale T to a and b norm ?
   (void)a;
   (void)b;
   (void)extentNorm;
 
-  FCL_REAL N = a.norm() + b.norm();
+  CoalScalar N = a.norm() + b.norm();
   // A translation of norm N ensures there is no collision.
   // Set translation to be between 0 and 2 * N;
-  T = (Vec3f::Random() / sqrt(3)) * 1.5 * N;
+  T = (Vec3s::Random() / sqrt(3)) * 1.5 * N;
   // T.setZero();
 
   Quatf q;
@@ -90,7 +90,7 @@ typedef std::chrono::high_resolution_clock clock_type;
 typedef clock_type::duration duration_type;
 
 const char* sep = ",\t";
-const FCL_REAL eps = 1.5e-7;
+const CoalScalar eps = 1.5e-7;
 
 const Eigen::IOFormat py_fmt(Eigen::FullPrecision, 0,
                              ", ",   // Coeff separator
@@ -103,22 +103,22 @@ const Eigen::IOFormat py_fmt(Eigen::FullPrecision, 0,
 
 namespace obbDisjoint_impls {
 /// @return true if OBB are disjoint.
-bool distance(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b,
-              FCL_REAL& distance) {
+bool distance(const Matrix3s& B, const Vec3s& T, const Vec3s& a, const Vec3s& b,
+              CoalScalar& distance) {
   GJKSolver gjk;
   Box ba(2 * a), bb(2 * b);
-  Transform3f tfa, tfb(B, T);
+  Transform3s tfa, tfb(B, T);
 
-  Vec3f p1, p2, normal;
+  Vec3s p1, p2, normal;
   bool compute_penetration = true;
   distance =
       gjk.shapeDistance(ba, tfa, bb, tfb, compute_penetration, p1, p2, normal);
   return (distance > gjk.getDistancePrecision(compute_penetration));
 }
 
-inline FCL_REAL _computeDistanceForCase1(const Vec3f& T, const Vec3f& a,
-                                         const Vec3f& b, const Matrix3f& Bf) {
-  Vec3f AABB_corner;
+inline CoalScalar _computeDistanceForCase1(const Vec3s& T, const Vec3s& a,
+                                           const Vec3s& b, const Matrix3s& Bf) {
+  Vec3s AABB_corner;
   /* This seems to be slower
  AABB_corner.noalias() = T.cwiseAbs () - a;
  AABB_corner.noalias() -= PRODUCT(Bf,b);
@@ -132,19 +132,19 @@ inline FCL_REAL _computeDistanceForCase1(const Vec3f& T, const Vec3f& a,
   AABB_corner.noalias() = T.cwiseAbs() - Bf * b - a;
 #endif
   // */
-  return AABB_corner.array().max(FCL_REAL(0)).matrix().squaredNorm();
+  return AABB_corner.array().max(CoalScalar(0)).matrix().squaredNorm();
 }
 
-inline FCL_REAL _computeDistanceForCase2(const Matrix3f& B, const Vec3f& T,
-                                         const Vec3f& a, const Vec3f& b,
-                                         const Matrix3f& Bf) {
+inline CoalScalar _computeDistanceForCase2(const Matrix3s& B, const Vec3s& T,
+                                           const Vec3s& a, const Vec3s& b,
+                                           const Matrix3s& Bf) {
   /*
-  Vec3f AABB_corner(PRODUCT(B.transpose(), T).cwiseAbs() - b);
+  Vec3s AABB_corner(PRODUCT(B.transpose(), T).cwiseAbs() - b);
   AABB_corner.noalias() -= PRODUCT(Bf.transpose(), a);
-  return AABB_corner.array().max(FCL_REAL(0)).matrix().squaredNorm ();
+  return AABB_corner.array().max(CoalScalar(0)).matrix().squaredNorm ();
   /*/
 #if MANUAL_PRODUCT
-  FCL_REAL s, t = 0;
+  CoalScalar s, t = 0;
   s = std::abs(B.col(0).dot(T)) - Bf.col(0).dot(a) - b[0];
   if (s > 0) t += s * s;
   s = std::abs(B.col(1).dot(T)) - Bf.col(1).dot(a) - b[1];
@@ -153,18 +153,18 @@ inline FCL_REAL _computeDistanceForCase2(const Matrix3f& B, const Vec3f& T,
   if (s > 0) t += s * s;
   return t;
 #else
-  Vec3f AABB_corner((B.transpose() * T).cwiseAbs() - Bf.transpose() * a - b);
-  return AABB_corner.array().max(FCL_REAL(0)).matrix().squaredNorm();
+  Vec3s AABB_corner((B.transpose() * T).cwiseAbs() - Bf.transpose() * a - b);
+  return AABB_corner.array().max(CoalScalar(0)).matrix().squaredNorm();
 #endif
   // */
 }
 
-int separatingAxisId(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
-                     const Vec3f& b, const FCL_REAL& breakDistance2,
-                     FCL_REAL& squaredLowerBoundDistance) {
+int separatingAxisId(const Matrix3s& B, const Vec3s& T, const Vec3s& a,
+                     const Vec3s& b, const CoalScalar& breakDistance2,
+                     CoalScalar& squaredLowerBoundDistance) {
   int id = 0;
 
-  Matrix3f Bf(B.cwiseAbs());
+  Matrix3s Bf(B.cwiseAbs());
 
   // Corner of b axis aligned bounding box the closest to the origin
   squaredLowerBoundDistance = _computeDistanceForCase1(T, a, b, Bf);
@@ -179,14 +179,15 @@ int separatingAxisId(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
   int ja = 1, ka = 2, jb = 1, kb = 2;
   for (int ia = 0; ia < 3; ++ia) {
     for (int ib = 0; ib < 3; ++ib) {
-      const FCL_REAL s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
+      const CoalScalar s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
 
-      const FCL_REAL diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
-                                       b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
+      const CoalScalar diff =
+          fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
+                     b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
       // We need to divide by the norm || Aia x Bib ||
       // As ||Aia|| = ||Bib|| = 1, (Aia | Bib)^2  = cosine^2
       if (diff > 0) {
-        FCL_REAL sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
+        CoalScalar sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
         if (sinus2 > 1e-6) {
           squaredLowerBoundDistance = diff * diff / sinus2;
           if (squaredLowerBoundDistance > breakDistance2) {
@@ -194,7 +195,7 @@ int separatingAxisId(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
           }
         }
         /* // or
-           FCL_REAL sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
+           CoalScalar sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
            squaredLowerBoundDistance = diff * diff;
            if (squaredLowerBoundDistance > breakDistance2 * sinus2) {
            squaredLowerBoundDistance /= sinus2;
@@ -215,10 +216,10 @@ int separatingAxisId(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
 }
 
 // ------------------------ 0 --------------------------------------
-bool withRuntimeLoop(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
-                     const Vec3f& b, const FCL_REAL& breakDistance2,
-                     FCL_REAL& squaredLowerBoundDistance) {
-  Matrix3f Bf(B.cwiseAbs());
+bool withRuntimeLoop(const Matrix3s& B, const Vec3s& T, const Vec3s& a,
+                     const Vec3s& b, const CoalScalar& breakDistance2,
+                     CoalScalar& squaredLowerBoundDistance) {
+  Matrix3s Bf(B.cwiseAbs());
 
   // Corner of b axis aligned bounding box the closest to the origin
   squaredLowerBoundDistance = _computeDistanceForCase1(T, a, b, Bf);
@@ -231,14 +232,15 @@ bool withRuntimeLoop(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
   int ja = 1, ka = 2, jb = 1, kb = 2;
   for (int ia = 0; ia < 3; ++ia) {
     for (int ib = 0; ib < 3; ++ib) {
-      const FCL_REAL s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
+      const CoalScalar s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
 
-      const FCL_REAL diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
-                                       b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
+      const CoalScalar diff =
+          fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
+                     b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
       // We need to divide by the norm || Aia x Bib ||
       // As ||Aia|| = ||Bib|| = 1, (Aia | Bib)^2  = cosine^2
       if (diff > 0) {
-        FCL_REAL sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
+        CoalScalar sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
         if (sinus2 > 1e-6) {
           squaredLowerBoundDistance = diff * diff / sinus2;
           if (squaredLowerBoundDistance > breakDistance2) {
@@ -246,7 +248,7 @@ bool withRuntimeLoop(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
           }
         }
         /* // or
-           FCL_REAL sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
+           CoalScalar sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
            squaredLowerBoundDistance = diff * diff;
            if (squaredLowerBoundDistance > breakDistance2 * sinus2) {
            squaredLowerBoundDistance /= sinus2;
@@ -266,30 +268,30 @@ bool withRuntimeLoop(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
 }
 
 // ------------------------ 1 --------------------------------------
-bool withManualLoopUnrolling_1(const Matrix3f& B, const Vec3f& T,
-                               const Vec3f& a, const Vec3f& b,
-                               const FCL_REAL& breakDistance2,
-                               FCL_REAL& squaredLowerBoundDistance) {
-  FCL_REAL t, s;
-  FCL_REAL diff;
+bool withManualLoopUnrolling_1(const Matrix3s& B, const Vec3s& T,
+                               const Vec3s& a, const Vec3s& b,
+                               const CoalScalar& breakDistance2,
+                               CoalScalar& squaredLowerBoundDistance) {
+  CoalScalar t, s;
+  CoalScalar diff;
 
-  // Matrix3f Bf = abs(B);
+  // Matrix3s Bf = abs(B);
   // Bf += reps;
-  Matrix3f Bf(B.cwiseAbs());
+  Matrix3s Bf(B.cwiseAbs());
 
   // Corner of b axis aligned bounding box the closest to the origin
-  Vec3f AABB_corner(T.cwiseAbs() - Bf * b);
-  Vec3f diff3(AABB_corner - a);
-  diff3 = diff3.cwiseMax(Vec3f::Zero());
+  Vec3s AABB_corner(T.cwiseAbs() - Bf * b);
+  Vec3s diff3(AABB_corner - a);
+  diff3 = diff3.cwiseMax(Vec3s::Zero());
 
-  // for (Vec3f::Index i=0; i<3; ++i) diff3 [i] = std::max (0, diff3 [i]);
+  // for (Vec3s::Index i=0; i<3; ++i) diff3 [i] = std::max (0, diff3 [i]);
   squaredLowerBoundDistance = diff3.squaredNorm();
   if (squaredLowerBoundDistance > breakDistance2) return true;
 
   AABB_corner = (B.transpose() * T).cwiseAbs() - Bf.transpose() * a;
   // diff3 = | B^T T| - b - Bf^T a
   diff3 = AABB_corner - b;
-  diff3 = diff3.cwiseMax(Vec3f::Zero());
+  diff3 = diff3.cwiseMax(Vec3s::Zero());
   squaredLowerBoundDistance = diff3.squaredNorm();
 
   if (squaredLowerBoundDistance > breakDistance2) return true;
@@ -299,7 +301,7 @@ bool withManualLoopUnrolling_1(const Matrix3f& B, const Vec3f& T,
   t = ((s < 0.0) ? -s : s);
   assert(t == fabs(s));
 
-  FCL_REAL sinus2;
+  CoalScalar sinus2;
   diff = t - (a[1] * Bf(2, 0) + a[2] * Bf(1, 0) + b[1] * Bf(0, 2) +
               b[2] * Bf(0, 1));
   // We need to divide by the norm || A0 x B0 ||
@@ -456,11 +458,11 @@ bool withManualLoopUnrolling_1(const Matrix3f& B, const Vec3f& T,
 }
 
 // ------------------------ 2 --------------------------------------
-bool withManualLoopUnrolling_2(const Matrix3f& B, const Vec3f& T,
-                               const Vec3f& a, const Vec3f& b,
-                               const FCL_REAL& breakDistance2,
-                               FCL_REAL& squaredLowerBoundDistance) {
-  Matrix3f Bf(B.cwiseAbs());
+bool withManualLoopUnrolling_2(const Matrix3s& B, const Vec3s& T,
+                               const Vec3s& a, const Vec3s& b,
+                               const CoalScalar& breakDistance2,
+                               CoalScalar& squaredLowerBoundDistance) {
+  Matrix3s Bf(B.cwiseAbs());
 
   // Corner of b axis aligned bounding box the closest to the origin
   squaredLowerBoundDistance = _computeDistanceForCase1(T, a, b, Bf);
@@ -470,13 +472,13 @@ bool withManualLoopUnrolling_2(const Matrix3f& B, const Vec3f& T,
   if (squaredLowerBoundDistance > breakDistance2) return true;
 
   // A0 x B0
-  FCL_REAL t, s;
+  CoalScalar t, s;
   s = T[2] * B(1, 0) - T[1] * B(2, 0);
   t = ((s < 0.0) ? -s : s);
   assert(t == fabs(s));
 
-  FCL_REAL sinus2;
-  FCL_REAL diff;
+  CoalScalar sinus2;
+  CoalScalar diff;
   diff = t - (a[1] * Bf(2, 0) + a[2] * Bf(1, 0) + b[1] * Bf(0, 2) +
               b[2] * Bf(0, 1));
   // We need to divide by the norm || A0 x B0 ||
@@ -636,18 +638,18 @@ bool withManualLoopUnrolling_2(const Matrix3f& B, const Vec3f& T,
 template <int ia, int ib, int ja = (ia + 1) % 3, int ka = (ia + 2) % 3,
           int jb = (ib + 1) % 3, int kb = (ib + 2) % 3>
 struct loop_case_1 {
-  static inline bool run(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
-                         const Vec3f& b, const Matrix3f& Bf,
-                         const FCL_REAL& breakDistance2,
-                         FCL_REAL& squaredLowerBoundDistance) {
-    const FCL_REAL s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
+  static inline bool run(const Matrix3s& B, const Vec3s& T, const Vec3s& a,
+                         const Vec3s& b, const Matrix3s& Bf,
+                         const CoalScalar& breakDistance2,
+                         CoalScalar& squaredLowerBoundDistance) {
+    const CoalScalar s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
 
-    const FCL_REAL diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
-                                     b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
+    const CoalScalar diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
+                                       b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
     // We need to divide by the norm || Aia x Bib ||
     // As ||Aia|| = ||Bib|| = 1, (Aia | Bib)^2  = cosine^2
     if (diff > 0) {
-      FCL_REAL sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
+      CoalScalar sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
       if (sinus2 > 1e-6) {
         squaredLowerBoundDistance = diff * diff / sinus2;
         if (squaredLowerBoundDistance > breakDistance2) {
@@ -655,7 +657,7 @@ struct loop_case_1 {
         }
       }
       /* // or
-         FCL_REAL sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
+         CoalScalar sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
          squaredLowerBoundDistance = diff * diff;
          if (squaredLowerBoundDistance > breakDistance2 * sinus2) {
          squaredLowerBoundDistance /= sinus2;
@@ -667,11 +669,11 @@ struct loop_case_1 {
   }
 };
 
-bool withTemplateLoopUnrolling_1(const Matrix3f& B, const Vec3f& T,
-                                 const Vec3f& a, const Vec3f& b,
-                                 const FCL_REAL& breakDistance2,
-                                 FCL_REAL& squaredLowerBoundDistance) {
-  Matrix3f Bf(B.cwiseAbs());
+bool withTemplateLoopUnrolling_1(const Matrix3s& B, const Vec3s& T,
+                                 const Vec3s& a, const Vec3s& b,
+                                 const CoalScalar& breakDistance2,
+                                 CoalScalar& squaredLowerBoundDistance) {
+  Matrix3s Bf(B.cwiseAbs());
 
   // Corner of b axis aligned bounding box the closest to the origin
   squaredLowerBoundDistance = _computeDistanceForCase1(T, a, b, Bf);
@@ -716,18 +718,18 @@ bool withTemplateLoopUnrolling_1(const Matrix3f& B, const Vec3f& T,
 
 template <int ib, int jb = (ib + 1) % 3, int kb = (ib + 2) % 3>
 struct loop_case_2 {
-  static inline bool run(int ia, int ja, int ka, const Matrix3f& B,
-                         const Vec3f& T, const Vec3f& a, const Vec3f& b,
-                         const Matrix3f& Bf, const FCL_REAL& breakDistance2,
-                         FCL_REAL& squaredLowerBoundDistance) {
-    const FCL_REAL s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
+  static inline bool run(int ia, int ja, int ka, const Matrix3s& B,
+                         const Vec3s& T, const Vec3s& a, const Vec3s& b,
+                         const Matrix3s& Bf, const CoalScalar& breakDistance2,
+                         CoalScalar& squaredLowerBoundDistance) {
+    const CoalScalar s = T[ka] * B(ja, ib) - T[ja] * B(ka, ib);
 
-    const FCL_REAL diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
-                                     b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
+    const CoalScalar diff = fabs(s) - (a[ja] * Bf(ka, ib) + a[ka] * Bf(ja, ib) +
+                                       b[jb] * Bf(ia, kb) + b[kb] * Bf(ia, jb));
     // We need to divide by the norm || Aia x Bib ||
     // As ||Aia|| = ||Bib|| = 1, (Aia | Bib)^2  = cosine^2
     if (diff > 0) {
-      FCL_REAL sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
+      CoalScalar sinus2 = 1 - Bf(ia, ib) * Bf(ia, ib);
       if (sinus2 > 1e-6) {
         squaredLowerBoundDistance = diff * diff / sinus2;
         if (squaredLowerBoundDistance > breakDistance2) {
@@ -735,7 +737,7 @@ struct loop_case_2 {
         }
       }
       /* // or
-         FCL_REAL sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
+         CoalScalar sinus2 = 1 - Bf (ia,ib) * Bf (ia,ib);
          squaredLowerBoundDistance = diff * diff;
          if (squaredLowerBoundDistance > breakDistance2 * sinus2) {
          squaredLowerBoundDistance /= sinus2;
@@ -747,11 +749,11 @@ struct loop_case_2 {
   }
 };
 
-bool withPartialTemplateLoopUnrolling_1(const Matrix3f& B, const Vec3f& T,
-                                        const Vec3f& a, const Vec3f& b,
-                                        const FCL_REAL& breakDistance2,
-                                        FCL_REAL& squaredLowerBoundDistance) {
-  Matrix3f Bf(B.cwiseAbs());
+bool withPartialTemplateLoopUnrolling_1(const Matrix3s& B, const Vec3s& T,
+                                        const Vec3s& a, const Vec3s& b,
+                                        const CoalScalar& breakDistance2,
+                                        CoalScalar& squaredLowerBoundDistance) {
+  Matrix3s Bf(B.cwiseAbs());
 
   // Corner of b axis aligned bounding box the closest to the origin
   squaredLowerBoundDistance = _computeDistanceForCase1(T, a, b, Bf);
@@ -780,13 +782,13 @@ bool withPartialTemplateLoopUnrolling_1(const Matrix3f& B, const Vec3f& T,
 }
 
 // ------------------------ 5 --------------------------------------
-bool originalWithLowerBound(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
-                            const Vec3f& b, const FCL_REAL& breakDistance2,
-                            FCL_REAL& squaredLowerBoundDistance) {
-  FCL_REAL t, s;
-  FCL_REAL diff;
+bool originalWithLowerBound(const Matrix3s& B, const Vec3s& T, const Vec3s& a,
+                            const Vec3s& b, const CoalScalar& breakDistance2,
+                            CoalScalar& squaredLowerBoundDistance) {
+  CoalScalar t, s;
+  CoalScalar diff;
 
-  Matrix3f Bf(B.cwiseAbs());
+  Matrix3s Bf(B.cwiseAbs());
   squaredLowerBoundDistance = 0;
 
   // if any of these tests are one-sided, then the polyhedra are disjoint
@@ -852,7 +854,7 @@ bool originalWithLowerBound(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
   s = T[2] * B(1, 0) - T[1] * B(2, 0);
   t = ((s < 0.0) ? -s : s);
 
-  FCL_REAL sinus2;
+  CoalScalar sinus2;
   diff = t - (a[1] * Bf(2, 0) + a[2] * Bf(1, 0) + b[1] * Bf(0, 2) +
               b[2] * Bf(0, 1));
   // We need to divide by the norm || A0 x B0 ||
@@ -1001,15 +1003,15 @@ bool originalWithLowerBound(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
 }
 
 // ------------------------ 6 --------------------------------------
-bool originalWithNoLowerBound(const Matrix3f& B, const Vec3f& T, const Vec3f& a,
-                              const Vec3f& b, const FCL_REAL&,
-                              FCL_REAL& squaredLowerBoundDistance) {
-  FCL_REAL t, s;
-  const FCL_REAL reps = 1e-6;
+bool originalWithNoLowerBound(const Matrix3s& B, const Vec3s& T, const Vec3s& a,
+                              const Vec3s& b, const CoalScalar&,
+                              CoalScalar& squaredLowerBoundDistance) {
+  CoalScalar t, s;
+  const CoalScalar reps = 1e-6;
 
   squaredLowerBoundDistance = 0;
 
-  Matrix3f Bf(B.array().abs() + reps);
+  Matrix3s Bf(B.array().abs() + reps);
   // Bf += reps;
 
   // if any of these tests are one-sided, then the polyhedra are disjoint
@@ -1137,8 +1139,8 @@ struct BenchmarkResult {
   /// - 0-10 identifies a separating axes.
   /// - 11 means no separatins axes could be found. (distance should be <= 0)
   int ifId;
-  FCL_REAL distance;
-  FCL_REAL squaredLowerBoundDistance;
+  CoalScalar distance;
+  CoalScalar squaredLowerBoundDistance;
   duration_type duration[NB_METHODS];
   bool failure;
 
@@ -1171,13 +1173,13 @@ std::ostream& operator<<(std::ostream& os, const BenchmarkResult& br) {
   return br.print(os);
 }
 
-BenchmarkResult benchmark_obb_case(const Matrix3f& B, const Vec3f& T,
-                                   const Vec3f& a, const Vec3f& b,
+BenchmarkResult benchmark_obb_case(const Matrix3s& B, const Vec3s& T,
+                                   const Vec3s& a, const Vec3s& b,
                                    const CollisionRequest& request,
                                    std::size_t N) {
-  const FCL_REAL breakDistance(request.break_distance +
-                               request.security_margin);
-  const FCL_REAL breakDistance2 = breakDistance * breakDistance;
+  const CoalScalar breakDistance(request.break_distance +
+                                 request.security_margin);
+  const CoalScalar breakDistance2 = breakDistance * breakDistance;
 
   BenchmarkResult result;
   // First determine which axis provide the answer
@@ -1189,7 +1191,7 @@ BenchmarkResult benchmark_obb_case(const Matrix3f& B, const Vec3f& T,
   // Sanity check
   result.failure = true;
   bool overlap = (result.ifId == 11);
-  FCL_REAL dist_thr = request.break_distance + request.security_margin;
+  CoalScalar dist_thr = request.break_distance + request.security_margin;
   if (!overlap && result.distance <= 0) {
     std::cerr << "Failure: negative distance for disjoint OBBs.";
   } else if (!overlap && result.squaredLowerBoundDistance < 0) {
@@ -1216,7 +1218,7 @@ BenchmarkResult benchmark_obb_case(const Matrix3f& B, const Vec3f& T,
   }
 
   // Compute time
-  FCL_REAL tmp;
+  CoalScalar tmp;
   clock_type::time_point start, end;
 
   // ------------------------ 0 --------------------------------------
@@ -1281,9 +1283,9 @@ std::size_t obb_overlap_and_lower_bound_distance(std::ostream* output) {
   std::size_t nbFailure = 0;
 
   // Create two OBBs axis
-  Vec3f a, b;
-  Matrix3f B;
-  Vec3f T;
+  Vec3s a, b;
+  Matrix3s B;
+  Vec3s T;
   CollisionRequest request;
 
 #ifndef NDEBUG  // if debug mode
@@ -1295,7 +1297,7 @@ std::size_t obb_overlap_and_lower_bound_distance(std::ostream* output) {
   static const size_t nbTransformPerOBB = 100;
   static const size_t nbRunForTimeMeas = 1000;
 #endif
-  static const FCL_REAL extentNorm = 1.;
+  static const CoalScalar extentNorm = 1.;
 
   if (output != NULL) *output << BenchmarkResult::headers << '\n';
 

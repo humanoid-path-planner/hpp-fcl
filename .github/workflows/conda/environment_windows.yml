@@ -1,4 +1,4 @@
-name: fcl
+name: coal
 channels:
   - conda-forge
   - nodefaults
@@ -10,7 +10,7 @@ dependencies:
   - boost
   - eigenpy
   - python
-  - doxygen
+  - doxygen<1.9.8|>=1.11
   - lxml
   - pylatexenc
   - qhull

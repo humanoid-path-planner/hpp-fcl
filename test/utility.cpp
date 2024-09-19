@@ -1,21 +1,20 @@
 #include "utility.h"
 
-#include <hpp/fcl/BV/BV.h>
-#include <hpp/fcl/BVH/BVH_model.h>
-#include <hpp/fcl/shape/geometric_shape_to_BVH_model.h>
-#include <hpp/fcl/collision_utility.h>
-#include <hpp/fcl/fwd.hh>
+#include "coal/BV/BV.h"
+#include "coal/BVH/BVH_model.h"
+#include "coal/shape/geometric_shape_to_BVH_model.h"
+#include "coal/collision_utility.h"
+#include "coal/fwd.hh"
 
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
+#include "coal/collision.h"
+#include "coal/distance.h"
 
 #include <cstdio>
 #include <cstddef>
 #include <fstream>
 #include <iostream>
 
-namespace hpp {
-namespace fcl {
+namespace coal {
 
 BenchTimer::BenchTimer() {
 #ifdef _WIN32
@@ -86,16 +85,16 @@ const Eigen::IOFormat vfmt = Eigen::IOFormat(
 const Eigen::IOFormat pyfmt = Eigen::IOFormat(
     Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "[", "]");
 
-const Vec3f UnitX = Vec3f(1, 0, 0);
-const Vec3f UnitY = Vec3f(0, 1, 0);
-const Vec3f UnitZ = Vec3f(0, 0, 1);
+const Vec3s UnitX = Vec3s(1, 0, 0);
+const Vec3s UnitY = Vec3s(0, 1, 0);
+const Vec3s UnitZ = Vec3s(0, 0, 1);
 
-FCL_REAL rand_interval(FCL_REAL rmin, FCL_REAL rmax) {
-  FCL_REAL t = rand() / ((FCL_REAL)RAND_MAX + 1);
+CoalScalar rand_interval(CoalScalar rmin, CoalScalar rmax) {
+  CoalScalar t = rand() / ((CoalScalar)RAND_MAX + 1);
   return (t * (rmax - rmin) + rmin);
 }
 
-void loadOBJFile(const char* filename, std::vector<Vec3f>& points,
+void loadOBJFile(const char* filename, std::vector<Vec3s>& points,
                  std::vector<Triangle>& triangles) {
   FILE* file = fopen(filename, "rb");
   if (!file) {
@@ -122,10 +121,10 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points,
           strtok(NULL, "\t ");
           has_texture = true;
         } else {
-          FCL_REAL x = (FCL_REAL)atof(strtok(NULL, "\t "));
-          FCL_REAL y = (FCL_REAL)atof(strtok(NULL, "\t "));
-          FCL_REAL z = (FCL_REAL)atof(strtok(NULL, "\t "));
-          Vec3f p(x, y, z);
+          CoalScalar x = (CoalScalar)atof(strtok(NULL, "\t "));
+          CoalScalar y = (CoalScalar)atof(strtok(NULL, "\t "));
+          CoalScalar z = (CoalScalar)atof(strtok(NULL, "\t "));
+          Vec3s p(x, y, z);
           points.push_back(p);
         }
       } break;
@@ -161,7 +160,7 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points,
   }
 }
 
-void saveOBJFile(const char* filename, std::vector<Vec3f>& points,
+void saveOBJFile(const char* filename, std::vector<Vec3s>& points,
                  std::vector<Triangle>& triangles) {
   std::ofstream os(filename);
   if (!os) {
@@ -182,8 +181,9 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points,
   os.close();
 }
 
-#ifdef HPP_FCL_HAS_OCTOMAP
-OcTree loadOctreeFile(const std::string& filename, const FCL_REAL& resolution) {
+#ifdef COAL_HAS_OCTOMAP
+OcTree loadOctreeFile(const std::string& filename,
+                      const CoalScalar& resolution) {
   octomap::OcTreePtr_t octree(new octomap::OcTree(filename));
   if (octree->getResolution() != resolution) {
     std::ostringstream oss;
@@ -191,97 +191,97 @@ OcTree loadOctreeFile(const std::string& filename, const FCL_REAL& resolution) {
         << " and not " << resolution;
     throw std::invalid_argument(oss.str());
   }
-  return hpp::fcl::OcTree(octree);
+  return coal::OcTree(octree);
 }
 #endif
 
-void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3f& R) {
-  FCL_REAL c1 = cos(a);
-  FCL_REAL c2 = cos(b);
-  FCL_REAL c3 = cos(c);
-  FCL_REAL s1 = sin(a);
-  FCL_REAL s2 = sin(b);
-  FCL_REAL s3 = sin(c);
+void eulerToMatrix(CoalScalar a, CoalScalar b, CoalScalar c, Matrix3s& R) {
+  CoalScalar c1 = cos(a);
+  CoalScalar c2 = cos(b);
+  CoalScalar c3 = cos(c);
+  CoalScalar s1 = sin(a);
+  CoalScalar s2 = sin(b);
+  CoalScalar s3 = sin(c);
 
   R << c1 * c2, -c2 * s1, s2, c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3,
       -c2 * s3, s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3;
 }
 
-void generateRandomTransform(FCL_REAL extents[6], Transform3f& transform) {
-  FCL_REAL x = rand_interval(extents[0], extents[3]);
-  FCL_REAL y = rand_interval(extents[1], extents[4]);
-  FCL_REAL z = rand_interval(extents[2], extents[5]);
+void generateRandomTransform(CoalScalar extents[6], Transform3s& transform) {
+  CoalScalar x = rand_interval(extents[0], extents[3]);
+  CoalScalar y = rand_interval(extents[1], extents[4]);
+  CoalScalar z = rand_interval(extents[2], extents[5]);
 
-  const FCL_REAL pi = 3.1415926;
-  FCL_REAL a = rand_interval(0, 2 * pi);
-  FCL_REAL b = rand_interval(0, 2 * pi);
-  FCL_REAL c = rand_interval(0, 2 * pi);
+  const CoalScalar pi = 3.1415926;
+  CoalScalar a = rand_interval(0, 2 * pi);
+  CoalScalar b = rand_interval(0, 2 * pi);
+  CoalScalar c = rand_interval(0, 2 * pi);
 
-  Matrix3f R;
+  Matrix3s R;
   eulerToMatrix(a, b, c, R);
-  Vec3f T(x, y, z);
+  Vec3s T(x, y, z);
   transform.setTransform(R, T);
 }
 
-void generateRandomTransforms(FCL_REAL extents[6],
-                              std::vector<Transform3f>& transforms,
+void generateRandomTransforms(CoalScalar extents[6],
+                              std::vector<Transform3s>& transforms,
                               std::size_t n) {
   transforms.resize(n);
   for (std::size_t i = 0; i < n; ++i) {
-    FCL_REAL x = rand_interval(extents[0], extents[3]);
-    FCL_REAL y = rand_interval(extents[1], extents[4]);
-    FCL_REAL z = rand_interval(extents[2], extents[5]);
+    CoalScalar x = rand_interval(extents[0], extents[3]);
+    CoalScalar y = rand_interval(extents[1], extents[4]);
+    CoalScalar z = rand_interval(extents[2], extents[5]);
 
-    const FCL_REAL pi = 3.1415926;
-    FCL_REAL a = rand_interval(0, 2 * pi);
-    FCL_REAL b = rand_interval(0, 2 * pi);
-    FCL_REAL c = rand_interval(0, 2 * pi);
+    const CoalScalar pi = 3.1415926;
+    CoalScalar a = rand_interval(0, 2 * pi);
+    CoalScalar b = rand_interval(0, 2 * pi);
+    CoalScalar c = rand_interval(0, 2 * pi);
 
     {
-      Matrix3f R;
+      Matrix3s R;
       eulerToMatrix(a, b, c, R);
-      Vec3f T(x, y, z);
+      Vec3s T(x, y, z);
       transforms[i].setTransform(R, T);
     }
   }
 }
 
-void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3],
-                              FCL_REAL delta_rot,
-                              std::vector<Transform3f>& transforms,
-                              std::vector<Transform3f>& transforms2,
+void generateRandomTransforms(CoalScalar extents[6], CoalScalar delta_trans[3],
+                              CoalScalar delta_rot,
+                              std::vector<Transform3s>& transforms,
+                              std::vector<Transform3s>& transforms2,
                               std::size_t n) {
   transforms.resize(n);
   transforms2.resize(n);
   for (std::size_t i = 0; i < n; ++i) {
-    FCL_REAL x = rand_interval(extents[0], extents[3]);
-    FCL_REAL y = rand_interval(extents[1], extents[4]);
-    FCL_REAL z = rand_interval(extents[2], extents[5]);
+    CoalScalar x = rand_interval(extents[0], extents[3]);
+    CoalScalar y = rand_interval(extents[1], extents[4]);
+    CoalScalar z = rand_interval(extents[2], extents[5]);
 
-    const FCL_REAL pi = 3.1415926;
-    FCL_REAL a = rand_interval(0, 2 * pi);
-    FCL_REAL b = rand_interval(0, 2 * pi);
-    FCL_REAL c = rand_interval(0, 2 * pi);
+    const CoalScalar pi = 3.1415926;
+    CoalScalar a = rand_interval(0, 2 * pi);
+    CoalScalar b = rand_interval(0, 2 * pi);
+    CoalScalar c = rand_interval(0, 2 * pi);
 
     {
-      Matrix3f R;
+      Matrix3s R;
       eulerToMatrix(a, b, c, R);
-      Vec3f T(x, y, z);
+      Vec3s T(x, y, z);
       transforms[i].setTransform(R, T);
     }
 
-    FCL_REAL deltax = rand_interval(-delta_trans[0], delta_trans[0]);
-    FCL_REAL deltay = rand_interval(-delta_trans[1], delta_trans[1]);
-    FCL_REAL deltaz = rand_interval(-delta_trans[2], delta_trans[2]);
+    CoalScalar deltax = rand_interval(-delta_trans[0], delta_trans[0]);
+    CoalScalar deltay = rand_interval(-delta_trans[1], delta_trans[1]);
+    CoalScalar deltaz = rand_interval(-delta_trans[2], delta_trans[2]);
 
-    FCL_REAL deltaa = rand_interval(-delta_rot, delta_rot);
-    FCL_REAL deltab = rand_interval(-delta_rot, delta_rot);
-    FCL_REAL deltac = rand_interval(-delta_rot, delta_rot);
+    CoalScalar deltaa = rand_interval(-delta_rot, delta_rot);
+    CoalScalar deltab = rand_interval(-delta_rot, delta_rot);
+    CoalScalar deltac = rand_interval(-delta_rot, delta_rot);
 
     {
-      Matrix3f R;
+      Matrix3s R;
       eulerToMatrix(a + deltaa, b + deltab, c + deltac, R);
-      Vec3f T(x + deltax, y + deltay, z + deltaz);
+      Vec3s T(x + deltax, y + deltay, z + deltaz);
       transforms2[i].setTransform(R, T);
     }
   }
@@ -305,7 +305,7 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2,
 }
 
 bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2,
-                             void* cdata_, FCL_REAL& dist) {
+                             void* cdata_, CoalScalar& dist) {
   DistanceData* cdata = static_cast<DistanceData*>(cdata_);
   const DistanceRequest& request = cdata->request;
   DistanceResult& result = cdata->result;
@@ -367,7 +367,7 @@ std::string getNodeTypeName(NODE_TYPE node_type) {
     return std::string("invalid");
 }
 
-Quatf makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z) {
+Quatf makeQuat(CoalScalar w, CoalScalar x, CoalScalar y, CoalScalar z) {
   Quatf q;
   q.w() = w;
   q.x() = x;
@@ -376,7 +376,7 @@ Quatf makeQuat(FCL_REAL w, FCL_REAL x, FCL_REAL y, FCL_REAL z) {
   return q;
 }
 
-std::ostream& operator<<(std::ostream& os, const Transform3f& tf) {
+std::ostream& operator<<(std::ostream& os, const Transform3s& tf) {
   return os << "[ " << tf.getTranslation().format(vfmt) << ", "
             << tf.getQuatRotation().coeffs().format(vfmt) << " ]";
 }
@@ -390,10 +390,10 @@ std::size_t getNbRun(const int& argc, char const* const* argv,
 }
 
 void generateEnvironments(std::vector<CollisionObject*>& env,
-                          FCL_REAL env_scale, std::size_t n) {
-  FCL_REAL extents[] = {-env_scale, env_scale,  -env_scale,
-                        env_scale,  -env_scale, env_scale};
-  std::vector<Transform3f> transforms(n);
+                          CoalScalar env_scale, std::size_t n) {
+  CoalScalar extents[] = {-env_scale, env_scale,  -env_scale,
+                          env_scale,  -env_scale, env_scale};
+  std::vector<Transform3s> transforms(n);
 
   generateRandomTransforms(extents, transforms, n);
   for (std::size_t i = 0; i < n; ++i) {
@@ -421,16 +421,16 @@ void generateEnvironments(std::vector<CollisionObject*>& env,
 }
 
 void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
-                              FCL_REAL env_scale, std::size_t n) {
-  FCL_REAL extents[] = {-env_scale, env_scale,  -env_scale,
-                        env_scale,  -env_scale, env_scale};
-  std::vector<Transform3f> transforms;
+                              CoalScalar env_scale, std::size_t n) {
+  CoalScalar extents[] = {-env_scale, env_scale,  -env_scale,
+                          env_scale,  -env_scale, env_scale};
+  std::vector<Transform3s> transforms;
 
   generateRandomTransforms(extents, transforms, n);
   Box box(5, 10, 20);
   for (std::size_t i = 0; i < n; ++i) {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, box, Transform3f::Identity());
+    generateBVHModel(*model, box, Transform3s::Identity());
     env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model),
                                       transforms[i]));
     env.back()->collisionGeometry()->computeLocalAABB();
@@ -440,7 +440,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
   Sphere sphere(30);
   for (std::size_t i = 0; i < n; ++i) {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, sphere, Transform3f::Identity(), 16, 16);
+    generateBVHModel(*model, sphere, Transform3s::Identity(), 16, 16);
     env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model),
                                       transforms[i]));
     env.back()->collisionGeometry()->computeLocalAABB();
@@ -450,18 +450,18 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env,
   Cylinder cylinder(10, 40);
   for (std::size_t i = 0; i < n; ++i) {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, cylinder, Transform3f::Identity(), 16, 16);
+    generateBVHModel(*model, cylinder, Transform3s::Identity(), 16, 16);
     env.push_back(new CollisionObject(shared_ptr<CollisionGeometry>(model),
                                       transforms[i]));
     env.back()->collisionGeometry()->computeLocalAABB();
   }
 }
 
-Convex<Quadrilateral> buildBox(FCL_REAL l, FCL_REAL w, FCL_REAL d) {
-  std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>(
-      {Vec3f(l, w, d), Vec3f(l, w, -d), Vec3f(l, -w, d), Vec3f(l, -w, -d),
-       Vec3f(-l, w, d), Vec3f(-l, w, -d), Vec3f(-l, -w, d),
-       Vec3f(-l, -w, -d)}));
+Convex<Quadrilateral> buildBox(CoalScalar l, CoalScalar w, CoalScalar d) {
+  std::shared_ptr<std::vector<Vec3s>> pts(new std::vector<Vec3s>(
+      {Vec3s(l, w, d), Vec3s(l, w, -d), Vec3s(l, -w, d), Vec3s(l, -w, -d),
+       Vec3s(-l, w, d), Vec3s(-l, w, -d), Vec3s(-l, -w, d),
+       Vec3s(-l, -w, -d)}));
 
   std::shared_ptr<std::vector<Quadrilateral>> polygons(
       new std::vector<Quadrilateral>(6));
@@ -480,7 +480,7 @@ Convex<Quadrilateral> buildBox(FCL_REAL l, FCL_REAL w, FCL_REAL d) {
 }
 
 /// Takes a point and projects it onto the surface of the unit sphere
-void toSphere(Vec3f& point) {
+void toSphere(Vec3s& point) {
   assert(point.norm() > 1e-8);
   point /= point.norm();
 }
@@ -491,7 +491,7 @@ void toSphere(Vec3f& point) {
 /// ellipsoid. Thus, the point y = A^(1/2) * x belongs to the unit sphere if y *
 /// y = 1. Therefore, the tranformation which brings y to x is A^(-1/2) =
 /// diag(r).
-void toEllipsoid(Vec3f& point, const Ellipsoid& ellipsoid) {
+void toEllipsoid(Vec3s& point, const Ellipsoid& ellipsoid) {
   toSphere(point);
   point[0] *= ellipsoid.radii[0];
   point[1] *= ellipsoid.radii[1];
@@ -499,27 +499,27 @@ void toEllipsoid(Vec3f& point, const Ellipsoid& ellipsoid) {
 }
 
 Convex<Triangle> constructPolytopeFromEllipsoid(const Ellipsoid& ellipsoid) {
-  FCL_REAL PHI = (1 + std::sqrt(5)) / 2;
+  CoalScalar PHI = (1 + std::sqrt(5)) / 2;
 
   // vertices
-  std::shared_ptr<std::vector<Vec3f>> pts(new std::vector<Vec3f>({
-      Vec3f(-1, PHI, 0),
-      Vec3f(1, PHI, 0),
-      Vec3f(-1, -PHI, 0),
-      Vec3f(1, -PHI, 0),
+  std::shared_ptr<std::vector<Vec3s>> pts(new std::vector<Vec3s>({
+      Vec3s(-1, PHI, 0),
+      Vec3s(1, PHI, 0),
+      Vec3s(-1, -PHI, 0),
+      Vec3s(1, -PHI, 0),
 
-      Vec3f(0, -1, PHI),
-      Vec3f(0, 1, PHI),
-      Vec3f(0, -1, -PHI),
-      Vec3f(0, 1, -PHI),
+      Vec3s(0, -1, PHI),
+      Vec3s(0, 1, PHI),
+      Vec3s(0, -1, -PHI),
+      Vec3s(0, 1, -PHI),
 
-      Vec3f(PHI, 0, -1),
-      Vec3f(PHI, 0, 1),
-      Vec3f(-PHI, 0, -1),
-      Vec3f(-PHI, 0, 1),
+      Vec3s(PHI, 0, -1),
+      Vec3s(PHI, 0, 1),
+      Vec3s(-PHI, 0, -1),
+      Vec3s(-PHI, 0, 1),
   }));
 
-  std::vector<Vec3f>& pts_ = *pts;
+  std::vector<Vec3s>& pts_ = *pts;
   for (size_t i = 0; i < 12; ++i) {
     toEllipsoid(pts_[i], ellipsoid);
   }
@@ -556,61 +556,61 @@ Convex<Triangle> constructPolytopeFromEllipsoid(const Ellipsoid& ellipsoid) {
   );
 }
 
-Box makeRandomBox(FCL_REAL min_size, FCL_REAL max_size) {
-  return Box(Vec3f(rand_interval(min_size, max_size),
+Box makeRandomBox(CoalScalar min_size, CoalScalar max_size) {
+  return Box(Vec3s(rand_interval(min_size, max_size),
                    rand_interval(min_size, max_size),
                    rand_interval(min_size, max_size)));
 }
 
-Sphere makeRandomSphere(FCL_REAL min_size, FCL_REAL max_size) {
+Sphere makeRandomSphere(CoalScalar min_size, CoalScalar max_size) {
   return Sphere(rand_interval(min_size, max_size));
 }
 
-Ellipsoid makeRandomEllipsoid(FCL_REAL min_size, FCL_REAL max_size) {
-  return Ellipsoid(Vec3f(rand_interval(min_size, max_size),
+Ellipsoid makeRandomEllipsoid(CoalScalar min_size, CoalScalar max_size) {
+  return Ellipsoid(Vec3s(rand_interval(min_size, max_size),
                          rand_interval(min_size, max_size),
                          rand_interval(min_size, max_size)));
 }
 
-Capsule makeRandomCapsule(std::array<FCL_REAL, 2> min_size,
-                          std::array<FCL_REAL, 2> max_size) {
+Capsule makeRandomCapsule(std::array<CoalScalar, 2> min_size,
+                          std::array<CoalScalar, 2> max_size) {
   return Capsule(rand_interval(min_size[0], max_size[0]),
                  rand_interval(min_size[1], max_size[1]));
 }
 
-Cone makeRandomCone(std::array<FCL_REAL, 2> min_size,
-                    std::array<FCL_REAL, 2> max_size) {
+Cone makeRandomCone(std::array<CoalScalar, 2> min_size,
+                    std::array<CoalScalar, 2> max_size) {
   return Cone(rand_interval(min_size[0], max_size[0]),
               rand_interval(min_size[1], max_size[1]));
 }
 
-Cylinder makeRandomCylinder(std::array<FCL_REAL, 2> min_size,
-                            std::array<FCL_REAL, 2> max_size) {
+Cylinder makeRandomCylinder(std::array<CoalScalar, 2> min_size,
+                            std::array<CoalScalar, 2> max_size) {
   return Cylinder(rand_interval(min_size[0], max_size[0]),
                   rand_interval(min_size[1], max_size[1]));
 }
 
-Convex<Triangle> makeRandomConvex(FCL_REAL min_size, FCL_REAL max_size) {
+Convex<Triangle> makeRandomConvex(CoalScalar min_size, CoalScalar max_size) {
   Ellipsoid ellipsoid = makeRandomEllipsoid(min_size, max_size);
   return constructPolytopeFromEllipsoid(ellipsoid);
 }
 
-Plane makeRandomPlane(FCL_REAL min_size, FCL_REAL max_size) {
-  return Plane(Vec3f::Random().normalized(), rand_interval(min_size, max_size));
+Plane makeRandomPlane(CoalScalar min_size, CoalScalar max_size) {
+  return Plane(Vec3s::Random().normalized(), rand_interval(min_size, max_size));
 }
 
-Halfspace makeRandomHalfspace(FCL_REAL min_size, FCL_REAL max_size) {
-  return Halfspace(Vec3f::Random().normalized(),
+Halfspace makeRandomHalfspace(CoalScalar min_size, CoalScalar max_size) {
+  return Halfspace(Vec3s::Random().normalized(),
                    rand_interval(min_size, max_size));
 }
 
 std::shared_ptr<ShapeBase> makeRandomGeometry(NODE_TYPE node_type) {
   switch (node_type) {
     case GEOM_TRIANGLE:
-      HPP_FCL_THROW_PRETTY(std::string(HPP_FCL_PRETTY_FUNCTION) + " for " +
-                               std::string(get_node_type_name(node_type)) +
-                               " is not yet implemented.",
-                           std::invalid_argument);
+      COAL_THROW_PRETTY(std::string(COAL_PRETTY_FUNCTION) + " for " +
+                            std::string(get_node_type_name(node_type)) +
+                            " is not yet implemented.",
+                        std::invalid_argument);
       break;
     case GEOM_BOX:
       return std::make_shared<Box>(makeRandomBox(0.1, 1.0));
@@ -642,13 +642,11 @@ std::shared_ptr<ShapeBase> makeRandomGeometry(NODE_TYPE node_type) {
       return std::make_shared<Halfspace>(makeRandomHalfspace(0.1, 1.0));
       break;
     default:
-      HPP_FCL_THROW_PRETTY(std::string(get_node_type_name(node_type)) +
-                               " is not a primitive shape.",
-                           std::invalid_argument);
+      COAL_THROW_PRETTY(std::string(get_node_type_name(node_type)) +
+                            " is not a primitive shape.",
+                        std::invalid_argument);
       break;
   }
 }
 
-}  // namespace fcl
-
-}  // namespace hpp
+}  // namespace coal

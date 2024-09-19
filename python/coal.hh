@@ -18,7 +18,7 @@ void exposeDistanceAPI();
 
 void exposeGJK();
 
-#ifdef HPP_FCL_HAS_OCTOMAP
+#ifdef COAL_HAS_OCTOMAP
 void exposeOctree();
 #endif
 
