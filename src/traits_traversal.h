@@ -19,7 +19,7 @@ namespace fcl {
 // TraversalTraitsCollision for collision_func_matrix.cpp
 
 template <typename TypeA, typename TypeB>
-struct HPP_FCL_LOCAL TraversalTraitsCollision {};
+struct HPP_FCL_LOCAL TraversalTraitsCollision{};
 
 #ifdef HPP_FCL_HAS_OCTOMAP
 
@@ -63,7 +63,7 @@ struct HPP_FCL_LOCAL TraversalTraitsCollision<HeightField<T_HF>, OcTree> {
 // TraversalTraitsDistance for distance_func_matrix.cpp
 
 template <typename TypeA, typename TypeB>
-struct HPP_FCL_LOCAL TraversalTraitsDistance {};
+struct HPP_FCL_LOCAL TraversalTraitsDistance{};
 
 #ifdef HPP_FCL_HAS_OCTOMAP
 

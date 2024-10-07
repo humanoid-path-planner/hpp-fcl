@@ -212,11 +212,10 @@ struct HPP_FCL_LOCAL BVT {
 };
 
 /** @brief Comparer between two BVT */
-struct HPP_FCL_LOCAL BVT_Comparer {
-  bool operator()(const BVT& lhs, const BVT& rhs) const {
-    return lhs.d > rhs.d;
-  }
-};
+struct HPP_FCL_LOCAL BVT_Comparer{
+    bool operator()(const BVT& lhs, const BVT& rhs) const {return lhs.d > rhs.d;
+}  // namespace fcl
+};  // namespace hpp
 
 struct HPP_FCL_LOCAL BVTQ {
   BVTQ() : qsize(2) {}
