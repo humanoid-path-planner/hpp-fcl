@@ -84,26 +84,25 @@ HPP_FCL_LOCAL FCL_REAL distance_function_not_implemented(
 }
 
 template <typename T_BVH, typename T_SH>
-struct HPP_FCL_LOCAL BVHShapeDistancer {
-  static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
-                           const CollisionGeometry* o2, const Transform3f& tf2,
-                           const GJKSolver* nsolver,
-                           const DistanceRequest& request,
-                           DistanceResult& result) {
+struct HPP_FCL_LOCAL BVHShapeDistancer{static FCL_REAL distance(
+    const CollisionGeometry* o1, const Transform3f& tf1,
+    const CollisionGeometry* o2, const Transform3f& tf2,
+    const GJKSolver* nsolver, const DistanceRequest& request,
+    DistanceResult& result){
     if (request.isSatisfied(result)) return result.min_distance;
-    MeshShapeDistanceTraversalNode<T_BVH, T_SH> node;
-    const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
-    BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
-    Transform3f tf1_tmp = tf1;
-    const T_SH* obj2 = static_cast<const T_SH*>(o2);
+MeshShapeDistanceTraversalNode<T_BVH, T_SH> node;
+const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
+BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
+Transform3f tf1_tmp = tf1;
+const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request, result);
-    fcl::distance(&node);
+initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request, result);
+fcl::distance(&node);
 
-    delete obj1_tmp;
-    return result.min_distance;
-  }
-};
+delete obj1_tmp;
+return result.min_distance;
+}  // namespace fcl
+};  // namespace hpp
 
 namespace details {
 
@@ -169,34 +168,33 @@ struct HPP_FCL_LOCAL BVHShapeDistancer<OBBRSS, T_SH> {
 };
 
 template <typename T_HF, typename T_SH>
-struct HPP_FCL_LOCAL HeightFieldShapeDistancer {
-  static FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
-                           const CollisionGeometry* o2, const Transform3f& tf2,
-                           const GJKSolver* nsolver,
-                           const DistanceRequest& request,
-                           DistanceResult& result) {
-    HPP_FCL_UNUSED_VARIABLE(o1);
-    HPP_FCL_UNUSED_VARIABLE(tf1);
-    HPP_FCL_UNUSED_VARIABLE(o2);
-    HPP_FCL_UNUSED_VARIABLE(tf2);
-    HPP_FCL_UNUSED_VARIABLE(nsolver);
-    HPP_FCL_UNUSED_VARIABLE(request);
-    // TODO(jcarpent)
-    HPP_FCL_THROW_PRETTY(
-        "Distance between a height field and a shape is not implemented",
-        std::invalid_argument);
-    //    if(request.isSatisfied(result)) return result.min_distance;
-    //    HeightFieldShapeDistanceTraversalNode<T_HF, T_SH> node;
-    //
-    //    const HeightField<T_HF>* obj1 = static_cast<const HeightField<T_HF>*
-    //    >(o1); const T_SH* obj2 = static_cast<const T_SH*>(o2);
-    //
-    //    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
-    //    fcl::distance(&node);
+struct HPP_FCL_LOCAL HeightFieldShapeDistancer{static FCL_REAL distance(
+    const CollisionGeometry* o1, const Transform3f& tf1,
+    const CollisionGeometry* o2, const Transform3f& tf2,
+    const GJKSolver* nsolver, const DistanceRequest& request,
+    DistanceResult& result){HPP_FCL_UNUSED_VARIABLE(o1);
+HPP_FCL_UNUSED_VARIABLE(tf1);
+HPP_FCL_UNUSED_VARIABLE(o2);
+HPP_FCL_UNUSED_VARIABLE(tf2);
+HPP_FCL_UNUSED_VARIABLE(nsolver);
+HPP_FCL_UNUSED_VARIABLE(request);
+// TODO(jcarpent)
+HPP_FCL_THROW_PRETTY(
+    "Distance between a height field and a shape is not implemented",
+    std::invalid_argument);
+//    if(request.isSatisfied(result)) return result.min_distance;
+//    HeightFieldShapeDistanceTraversalNode<T_HF, T_SH> node;
+//
+//    const HeightField<T_HF>* obj1 = static_cast<const HeightField<T_HF>*
+//    >(o1); const T_SH* obj2 = static_cast<const T_SH*>(o2);
+//
+//    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
+//    fcl::distance(&node);
 
-    return result.min_distance;
-  }
-};
+return result.min_distance;
+}
+}
+;
 
 template <typename T_BVH>
 FCL_REAL BVHDistance(const CollisionGeometry* o1, const Transform3f& tf1,

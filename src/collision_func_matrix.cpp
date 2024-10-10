@@ -99,66 +99,61 @@ BVH_SHAPE_DEFAULT_TO_ORIENTED(OBBRSS);
 ///         - 0 if the query should be made with non-aligned object frames.
 template <typename T_BVH, typename T_SH,
           int _Options = details::bvh_shape_traits<T_BVH, T_SH>::Options>
-struct HPP_FCL_LOCAL BVHShapeCollider {
-  static std::size_t collide(const CollisionGeometry* o1,
-                             const Transform3f& tf1,
-                             const CollisionGeometry* o2,
-                             const Transform3f& tf2, const GJKSolver* nsolver,
-                             const CollisionRequest& request,
-                             CollisionResult& result) {
+struct HPP_FCL_LOCAL BVHShapeCollider{static std::size_t collide(
+    const CollisionGeometry* o1, const Transform3f& tf1,
+    const CollisionGeometry* o2, const Transform3f& tf2,
+    const GJKSolver* nsolver, const CollisionRequest& request,
+    CollisionResult& result){
     if (request.isSatisfied(result)) return result.numContacts();
 
-    if (request.security_margin < 0)
-      HPP_FCL_THROW_PRETTY(
-          "Negative security margin are not handled yet for BVHModel",
-          std::invalid_argument);
+if (request.security_margin < 0)
+  HPP_FCL_THROW_PRETTY(
+      "Negative security margin are not handled yet for BVHModel",
+      std::invalid_argument);
 
-    if (_Options & RelativeTransformationIsIdentity)
-      return aligned(o1, tf1, o2, tf2, nsolver, request, result);
-    else
-      return oriented(o1, tf1, o2, tf2, nsolver, request, result);
-  }
+if (_Options & RelativeTransformationIsIdentity)
+  return aligned(o1, tf1, o2, tf2, nsolver, request, result);
+else
+  return oriented(o1, tf1, o2, tf2, nsolver, request, result);
+}  // namespace fcl
 
-  static std::size_t aligned(const CollisionGeometry* o1,
-                             const Transform3f& tf1,
-                             const CollisionGeometry* o2,
-                             const Transform3f& tf2, const GJKSolver* nsolver,
-                             const CollisionRequest& request,
-                             CollisionResult& result) {
-    if (request.isSatisfied(result)) return result.numContacts();
+static std::size_t aligned(const CollisionGeometry* o1, const Transform3f& tf1,
+                           const CollisionGeometry* o2, const Transform3f& tf2,
+                           const GJKSolver* nsolver,
+                           const CollisionRequest& request,
+                           CollisionResult& result) {
+  if (request.isSatisfied(result)) return result.numContacts();
 
-    MeshShapeCollisionTraversalNode<T_BVH, T_SH,
-                                    RelativeTransformationIsIdentity>
-        node(request);
-    const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
-    BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
-    Transform3f tf1_tmp = tf1;
-    const T_SH* obj2 = static_cast<const T_SH*>(o2);
+  MeshShapeCollisionTraversalNode<T_BVH, T_SH, RelativeTransformationIsIdentity>
+      node(request);
+  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
+  BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
+  Transform3f tf1_tmp = tf1;
+  const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, result);
-    fcl::collide(&node, request, result);
+  initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, result);
+  fcl::collide(&node, request, result);
 
-    delete obj1_tmp;
-    return result.numContacts();
-  }
+  delete obj1_tmp;
+  return result.numContacts();
+}
 
-  static std::size_t oriented(const CollisionGeometry* o1,
-                              const Transform3f& tf1,
-                              const CollisionGeometry* o2,
-                              const Transform3f& tf2, const GJKSolver* nsolver,
-                              const CollisionRequest& request,
-                              CollisionResult& result) {
-    if (request.isSatisfied(result)) return result.numContacts();
+static std::size_t oriented(const CollisionGeometry* o1, const Transform3f& tf1,
+                            const CollisionGeometry* o2, const Transform3f& tf2,
+                            const GJKSolver* nsolver,
+                            const CollisionRequest& request,
+                            CollisionResult& result) {
+  if (request.isSatisfied(result)) return result.numContacts();
 
-    MeshShapeCollisionTraversalNode<T_BVH, T_SH, 0> node(request);
-    const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
-    const T_SH* obj2 = static_cast<const T_SH*>(o2);
+  MeshShapeCollisionTraversalNode<T_BVH, T_SH, 0> node(request);
+  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
+  const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, result);
-    fcl::collide(&node, request, result);
-    return result.numContacts();
-  }
-};
+  initialize(node, *obj1, tf1, *obj2, tf2, nsolver, result);
+  fcl::collide(&node, request, result);
+  return result.numContacts();
+}
+};  // namespace hpp
 
 /// @brief Collider functor for HeightField data structure
 /// \tparam _Options takes two values.
